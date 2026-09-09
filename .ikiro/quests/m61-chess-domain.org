@@ -1,0 +1,718 @@
+#+title: m61 chess — four ontologies, one position corpus, two engines behind a service door: the domain owns rules, records and evaluations; boards are modes, engines are services
+#+filetags: :m61:chess:games:domain:topology:topography:literal:position:pgn:engine:syzygy:glicko:service:buffer:
+#+status: DESIGNED from beef's dossier, nothing landed. The dossier's SHAPE survives whole — four ontologies, position as the dedup unit, UCI on the wire, engines outside the domain. SEVEN of its mechanisms did not survive the codebase and are corrected in `* the dossier, measured`: ontologies ship as TOPOLOGIES not topographies · the match buffer belongs to the mode's `App`, not the domain · `v.node()` does not exist and the move tree is PGN · there is no `MULTIPLAYER` trait · `v.literal("user")` names the Literal ENTITY, not a const · a service is a module with a `provider`, not a trait a domain declares · `(slug, mode)` makes "one position, deduplicated across every game" a LAW to enforce, not a property that falls out. Six forks owed before M1. Code on go.
+#+phase: designed
+#+progress: 0/8
+#+next: beef — rule F1…F6; then "go" per milestone
+
+* intent
+
+beef, verbatim, handing over the dossier: /"write this as quest 61"/.
+
+The dossier's own intent, verbatim:
+
+/"A chess domain that lasts: play against humans, models or engines; keep every game; step through any game ply by ply; ask for analysis at any node; branch into variations; load and export in the formats the rest of the chess world speaks. Agents and modes read and write the same primitives through one aperture."/
+
+/"The domain owns rules, records and evaluations. It does not own boards, clocks-as-UI, or engines. Boards are modes. Engines are services."/
+
+What this quest adds to the dossier: the measured pass. Every noun in the dossier is checked against the tree that has to hold it — `@education` is the working precedent for a domain package, and it disagrees with the dossier in seven places. Those seven are corrected below with the file and line that settles each. Nothing else in the dossier is touched.
+
+* the law
+
+#+BEGIN_EXAMPLE
+four ontologies, one aperture. game · position · opening · puzzle are TOPOLOGICAL symbols —
+one per literal, carried as the TOPOGRAPHICAL trait, and the subscriber throws if a literal
+carries two. the ontology's vocabulary ships as a topology (symbols only); a body of chess
+ships as a topography (literals + freight).
+
+the position corpus has ONE owner. Literal is unique on (slug, mode), so a position reached
+by two mounts is two rows unless a single mount owns every position. the position mount is
+that owner, and every write goes through one repository verb. a position literal with a NULL
+mode is a duplicate factory — sqlite counts NULLs distinct.
+
+the move tree is PGN. it already carries variations, comments, NAGs, %clk and %eval; chessops
+parses and prints it. there is no recursive `v` schema and none is needed — the tree is text
+in the buffer, a parsed value in memory, and the SAME text in `game.RECORDED`.
+
+UCI on the wire, SAN for eyes, FEN for a position, PGN for a game. no rules are written here:
+chessops is the rules engine, chessground is the board.
+
+engines are consumed, not declared. `consume: { engine: { module: "@games/service/stockfish" } }`
+on the daemon; `ctx.daemon.services.engine` at the call site; a missing service is a sentence
+the tool says, not a throw.
+
+the live match is a buffer on the board mode's App. the sealed game is a literal in the corpus.
+mutable vs corpus-able is the whole distinction.
+
+what a mount COMPUTES it owns; what the ontology DECLARES is shared.
+#+END_EXAMPLE
+
+* the dossier, measured
+
+Seven corrections. Each names the file that settles it. Nothing here is a preference.
+
+** 1. the four ontologies are TOPOLOGIES, not topographies
+
+The dossier: /"Everything below is a topography"/ (openings · puzzles · evals · elite · classics · syzygy) and, separately, four literal "ontologies".
+
+Measured — the module types are pinned and crossed: topography = the surveyed terrain (the empirical body), topology = the invariant relational structure (the ontology's vocabulary). `@education` ships both, and they are different modules:
+
+#+BEGIN_EXAMPLE
+~/.viva/registry/education/topologies/word/word.viva.js
+  manifest { type: "topology", slug: "word", traits: ["DATASET"] }
+  dataset  = new Dataset({ symbol: "dataset/symbols" })          ← SYMBOLS ONLY
+  dataset/symbols/ontological.js:
+    { slug: "word", traits: ["ONTOLOGICAL","LABELED","TOPOGRAPHICAL"], … }
+
+~/.viva/registry/education/topographies/english-to-italian/italian.viva.js
+  manifest { type: "topography", slug: "english-to-italian", traits: ["DATASET","FRAUGHT","DATASINK"] }
+  freight  = new Freight("freight/audio")
+  dataset  = new Dataset({ symbol: "dataset/symbols", literal: "dataset/literals" })  ← LITERALS
+#+END_EXAMPLE
+
+So: `game` · `position` · `opening` · `puzzle` are four TOPOLOGIES, each a symbols-only dataset whose root symbol carries `TOPOGRAPHICAL`. The seven databases are TOPOGRAPHIES. `@games/tablebase/syzygy-345` in the dossier invents an eighth module type; it is a freight-only topography (`traits: ["FRAUGHT"]`, no dataset), exactly the shape `english-to-italian` already uses for audio.
+
+** 2. `literal.ontology` is DERIVED from the one TOPOGRAPHICAL symbol
+
+`systems/runtime/daemon/entities/kernel/Literal.ts:139-151` — the subscriber computes `ontology` at create and update, and throws when a literal carries more than one topographical symbol:
+
+#+BEGIN_SRC ts
+if (topographical.length > 1)
+  throw new Error(`Literal "${entity.slug}" must have exactly one TOPOGRAPHICAL symbol, found ${topographical.length}`);
+#+END_SRC
+
+Consequence for chess: a literal is a game *or* a position *or* an opening *or* a puzzle. Never two. A puzzle generated out of a position is a SECOND literal that `uses` the position — not the position re-tagged.
+
+** 3. the match buffer belongs to the mode's `App`, not to the domain
+
+The dossier declares `v.buffer({...})` under "Userspace" in the domain. Measured — a buffer schema is the first-class argument of an `App`, and `App` is a MODE export:
+
+#+BEGIN_SRC js
+// ~/.viva/registry/education/modes/games/dojo/dojo.viva.js
+export const app = new App("buffer/Dojo.svelte", v.buffer({ data: {…}, literals: …, symbols: … }).desc(`…`));
+// ~/.viva/registry/education/modes/games/dojo/emitter/buffer.js
+return ctx.mode.app.buffer({ data: {…}, symbols: …, literals: … });
+#+END_SRC
+
+The domain's `entities/userspace/Buffer.ts` is an empty subclass of `@vivalence/runtime`'s buffer — it exists so the daemon's datamap has a concrete table, and declares no fields. So the match buffer's schema lives in `modes/board`, and `/match/*` is an aperture over `ctx.mode.app.buffer` — which also means the arena and the trainer get their own buffer schemas rather than sharing one god-buffer.
+
+** 4. `v.node()` does not exist — and the tree does not need it
+
+`subsystems/typology/schematics/index.js` attaches exactly: `scalars slug url primitives environment entities prototypes rel literal symbol buffer bundle mode intent thread user`. `v.js:125-165` constructs exactly: `string number boolean integer object array union intersect const enum record any unknown null $ref`. There is no `node`, and no recursive constructor at all.
+
+Ruling: the move tree is **PGN text**. PGN already carries variations, comments, NAGs, `%clk` and `%eval`; chessops' `parsePgn`/`makePgn` is the codec both directions. `game.RECORDED.pgn` is the record, the buffer holds the same text while a game is live, and the parsed tree is a derived in-memory value nobody persists. This is the dossier's own decision 1 (chessops for its PGN tree) taken one step further — and it deletes the redundancy the dossier flagged as an open question (`fen` on every node vs reconstruction cost): the node carries no `fen` because there are no persisted nodes.
+
+** 5. there is no `MULTIPLAYER` trait, and the lighthouse cannot relay a move today
+
+Daemon traits, whole list — `systems/runtime/daemon/traits/`: `agentic · application · booted · dataset · datasink · emitter · generative · harnessed · intented · tooled`. No multiplayer.
+
+The lighthouse is a module (`commons/lighthouses/multiplayer/multiplayer.viva.js`, `type: "lighthouse"`), and its server is four files: `auth.js · entities.js · identity.js · index.js`. It serves identity and `/entities/{daemon,identity}`. There is no room, no ordering, no relay. On top of that, m60 is live and rewriting exactly those gates, and the client's remote-entity dataspace is DESIGNED-NOT-BUILT.
+
+Ruling: remote seats are DEFERRED behind m60 (see `* deferred`). Everything else — user, hallucinator and engine seats — is local and lands in M3. The `Occupant` union keeps its `remote` arm so the seam is honest, and `/match/move` rejects it with a sentence until the relay exists.
+
+** 6. `v.literal("user")` names the Literal ENTITY
+
+The dossier's `Occupant`:
+
+#+BEGIN_SRC js
+v.union([ v.object({ kind: v.literal("user"), user: v.string() }), … ])
+#+END_SRC
+
+In vivalence `v.literal` is `entityFactory(entities.LiteralDescriptor, …)` — calling it with a string returns an entity schema narrowed by garbage, silently. The const constructor is `v.const`. This is a zod-ism of exactly the family Finn caught before (`.passthrough()` across 20+ sites).
+
+Corrected below in `* the design ** occupant`.
+
+** 7. a service is a module with a `provider`, consumed by name
+
+The dossier: /"`ENGINE` — a service trait the domain declares and adapters implement"/. Measured, a service is a module:
+
+#+BEGIN_SRC js
+// commons/services/reader/service.viva.js
+const manifest = { type: "service", slug: "reader", … };
+function provider() { return { open: async (url, options) => ({ … }) }; }
+export { manifest, provider };
+// commons/instances/hello-world/instance.viva.js — the daemon consumes it
+consume: { reader: { module: "@commons/service/reader" } }
+// commons/instances/hello-world/tools/web.js:72 — the call site
+const reader = ctx.daemon.services?.reader;
+if (!reader) return { condition: "ERROR", output: { message: "web_read is not available on this daemon — …" } };
+const page = await reader.open(ctx.input.url);
+#+END_SRC
+
+`provider(service)` reads `service.statics` and `service.secrets` (`commons/services/nlp/provider/index.js:4-5`) and returns a plain object of methods. So `ENGINE` and `TABLEBASE` are two **contracts** the domain documents and calls; `@games/service/stockfish`, `@games/service/fathom` and `@games/service/lichess-tablebase` are three modules that satisfy them. The domain declares nothing; the instance recipe wires them. A daemon with no engine still plays, imports, exports and classifies openings — only `/position/eval` and `/analysis/*` answer with the missing-service sentence.
+
+** and one that is not a correction but a law
+
+`(slug, mode)` is the unique key on Literal (`Literal.ts:81`), `Literal.mode` is m:1 nullable, and sqlite counts NULLs distinct — so an unowned literal has no uniqueness at all. "One position, deduplicated across every game" is therefore not a property of using the Zobrist key as a slug; it is a law about ownership. See `** the position corpus` below.
+
+* the decision trail
+
+| fork | ruling | by |
+|------+--------+----|
+| D1 | chessops over chess.js — variants, full PGN trees with variations, Polyglot Zobrist. chess.js has none of the three | beef's dossier |
+| D2 | position slug = Polyglot Zobrist key in hex (`463b96181691fc9c`) — 64-bit, URL-safe, identical across implementations, so a position seeded from lichess's eval dump and a position reached in a live game are the same row | beef's dossier |
+| D3 | live match = buffer, sealed game = literal | beef's dossier |
+| D4 | UCI on the wire, SAN for eyes | beef's dossier |
+| D5 | annotations overlay by node path — the shared corpus stays clean, each user annotates their own layer | beef's dossier |
+| D6 | rating is a driver, like retention | beef's dossier — REFINED below (D13): the driver CONTRACT is reused, the Retention entity is not |
+| D7 | engines are services behind one contract, Stockfish first | beef's dossier — RESHAPED by correction 7: a contract the domain calls, not a trait it declares |
+| D8 | tablebases are a second contract, Syzygy 3–5 shipped as freight | beef's dossier |
+| D9 | the four ontologies ship as TOPOLOGIES; the seven databases as TOPOGRAPHIES; syzygy is a freight-only topography, not a new module type | mine — correction 1; the taxonomy is pinned and `Manifest.type` is a free string, so an invented type resolves but lies |
+| D10 | the move tree is PGN text; nothing persists a node | mine — correction 4; also answers the dossier's open question on `fen` duplication by deleting the node |
+| D11 | one mount owns every position row; every position write goes through `PositionRepository.reach()` | mine — the `(slug, mode)` law |
+| D12 | remote seats deferred behind m60; the `remote` arm of `Occupant` stays declared and refuses with a sentence | mine — correction 5 |
+| D13 | `Rating` is its own userspace entity with its own status enum, reusing the retention DRIVER contract verbatim (`{ type, encode, evolve, assess, sql:{ strength } }`) | mine — `RetentionEntity`'s enum is `UNTOUCHED…GRADUATED` and its `evolve` writes `nextIn`/`nextAt`; a rating has no due date and no acquisition ladder. The contract is the reusable part, the entity is not |
+| D14 | chess ships its OWN `Retention` for puzzle training rather than importing education's | mine — a daemon is one database and both domains define `Literal`/`Retention` on the same table names; kernelling both is unsupported, and that is cheaper to state than to make work. Answers the dossier's open question 3 |
+| D15 | owner `@games`, package dir `~/.viva/registry/games/`, everything chess under `games/chess/` | mine — the dossier's own specifier is `@games/domain/chess`; a package named after one game has nowhere to put the second. Directory layout is cosmetic (the resolver reads `manifest.type`), so this costs nothing and buys `games/go/` later |
+| D16 | the domain's aperture never branches an entity capability — a capability is a repository verb | standing rule; the position cache, the book fold and the game listing are all `PositionRepository` / `GameRepository` verbs that the aperture calls |
+
+* terrain — measured this session
+
+** what exists
+
+#+BEGIN_EXAMPLE
+~/.viva/registry/                    taps; registry.json lists education · stucatch · <repo>/commons · vcompany
+  education/                         the working precedent — own .git + .jj
+    education.viva.js                { type: "package", slug: "education", owner: "@education" }
+    domain/                          { type: "domain", slug: "language-learning", traits: ["EXPOSED","TOOLED"] }
+      entities/kernel/{Literal,Symbol}.ts      subclass @vivalence/runtime's bases
+      entities/userspace/{Retention,Trace,Buffer}.ts
+      retention/{bayesian,boolean,counter}.js  the driver family
+      aperture/index.js                        Aperture + a resolve(daemonDie) hook
+      tools/                                   the TOOLED surface
+      tests/{domain,kernel,retention,tools,userspace,aperture}
+    topologies/{word,sentence,conjugation}/    symbols only
+    topographies/english-to-{brazilian,italian,spanish}/   literals + freight
+    modes/games/{dojo,cloze,exhibit,judge,match,nyan,riddler}/
+  ~/.viva/instances/italian/daemon.js          kernel: ["@education/domain/language-learning", "@education/topology/word", …]
+                                               consume: { nlp: { module: "@commons/service/nlp-stanza", … } }
+#+END_EXAMPLE
+
+Nothing chess exists anywhere on this machine. `@games` is a new tap.
+
+** the four load-bearing shapes, verbatim
+
+*** a domain kernel
+
+#+BEGIN_SRC js
+// ~/.viva/registry/education/domain/domain.viva.js
+export * from "./entities/index.js";
+export * from "./aperture/index.js";
+export * from "./types.js";
+export { tools } from "./tools/index.js";
+
+export const manifest = {
+  type: "domain",
+  slug: "language-learning",
+  name: "Language Learning",
+  description: "Domain for learning with literals symbols ebisu and annotations",
+  version: "0.0.5",
+  traits: ["EXPOSED", "TOOLED"],
+};
+#+END_SRC
+
+*** the userspace resolve hook — how a domain's own entities get endpoints
+
+#+BEGIN_SRC js
+// ~/.viva/registry/education/domain/aperture/index.js
+export function resolve(daemonDie) {
+  const { entities, twitch, aperture } = daemonDie.good;
+  const userspace = aperture.branch("/userspace");
+  userspace.branch("/entities/trace")
+    .slurp(shard.datamap.repository(entities.trace))
+    .slurp(shard.datamap.reactive(entities.trace, twitch));
+  userspace.branch("/entities/retention")
+    .slurp(shard.datamap.repository(entities.retention))
+    .slurp(shard.datamap.reactive(entities.retention, twitch));
+}
+#+END_SRC
+
+*** the driver contract
+
+#+BEGIN_SRC js
+// ~/.viva/registry/education/retention/boolean.js — trimmed to the contract
+export default {
+  type: "BOOLEAN",
+  encode,                      // (signal) -> { state, status, nextIn, nextAt }
+  evolve,                      // (signal, retention) -> same
+  assess,                      // ({ state }) -> { status, nextIn, nextAt }
+  sql: { strength: (table) => `CASE WHEN … THEN 1.0 ELSE 0.0 END` },
+};
+// and the caller — entities/userspace/Retention.ts
+evolve(signal, driver) {
+  if (typeof signal === "string") signal = { enum: signal };
+  const result = this.state ? driver.evolve(signal, this) : driver.encode(signal);
+  …
+}
+#+END_SRC
+
+`sql.strength` is what makes `orderBy: { rating: "ASC" }` possible without persisting a derived number — it is spliced into a formula column (`Retention.ts:129-141`). The rating column uses the same trick.
+
+*** the armed-tool signature
+
+#+BEGIN_SRC js
+// commons/instances/hello-world/tools/web.js
+.open({
+  nature: "/web/search",
+  valence: "Search Wikipedia … Example: { query: \"flamingo\" }.",
+  input: v.object({ query: v.string().desc("… Example: \"flamingo\", not \"tell me about flamingos\"."), … }),
+}, async (ctx) => { … return { output: … }; })
+#+END_SRC
+
+Every `.desc` ends with an `Example:`. That holds for every schema this quest writes.
+
+* the design
+
+** the package
+
+#+BEGIN_EXAMPLE
+~/.viva/registry/games/
+  games.viva.js                     { type: "package", slug: "games", owner: "@games" }
+  chess/
+    domain/
+      chess.viva.js                 { type: "domain", slug: "chess", traits: ["EXPOSED","TOOLED"] }
+      types.js                      VARIANTS · RESULTS · TERMINATIONS · JUDGEMENTS · SIGNAL · OCCUPANT
+      rules/                        the chessops wrapper — the ONLY file that imports chessops
+      entities/
+        kernel/{Literal,Symbol}.ts  trait enums + GameRepository/PositionRepository verbs
+        userspace/{Rating,Retention,Trace,Study,Buffer}.ts
+      rating/{glicko2,elo}.js       the driver family, contract copied verbatim
+      analysis/{winrate,judge}.js   the centipawn → win% → judgement fold
+      aperture/index.js             Aperture + resolve(daemonDie)
+      tools/                        the TOOLED surface the coach arms
+      tests/…
+    topologies/{game,position,opening,puzzle}/     symbols only, one TOPOGRAPHICAL root each
+    topographies/
+      openings/     3.5k opening literals + opening.eco.* / opening.family.*
+      classics/     a few hundred game literals, public domain
+      elite/        ~100k game literals + the BOOKED fold
+      evals/        position literals carrying EVALUATED only
+      puzzles/      ~50k puzzle literals + theme.* symbols
+      syzygy-345/   FRAUGHT only — no dataset, ~1 GB
+      syzygy-6/     FRAUGHT only, optional, ~150 GB
+    services/{stockfish,fathom,lichess-tablebase}/  { manifest, provider }
+    modes/{board,arena,library,coach,trainer}/
+  instances/chess/                  the recipe that wires a daemon out of the above
+#+END_EXAMPLE
+
+An instance recipe, in the m59 shape:
+
+#+BEGIN_SRC js
+// ~/.viva/instances/chess/daemon.js
+export const chess = {
+  manifest: { type: "daemon", slug: "chess", version: "0.0.1", name: "Chess", icon: { emoji: "♞" } },
+  kernel: [
+    "@games/domain/chess",
+    "@games/topology/game", "@games/topology/position", "@games/topology/opening", "@games/topology/puzzle",
+    "@games/topography/openings", "@games/topography/classics",
+    "@games/mode/board", "@games/mode/library", "@games/mode/coach",
+  ],
+  consume: {
+    engine:    { module: "@games/service/stockfish",
+                 statics: { binary: () => paladin.env.get("VIVA_SERVICE_STOCKFISH_BINARY"),
+                            syzygy: () => paladin.env.get("VIVA_SERVICE_SYZYGY_PATH") } },
+    tablebase: { module: "@games/service/stockfish" },
+  },
+};
+#+END_SRC
+
+Both keys may name the same module: Stockfish satisfies `ENGINE` and, with `SyzygyPath` set, `TABLEBASE`. An air-gapped box with no binary declares neither and still plays.
+
+** the ontologies — four topologies
+
+Each is a symbols-only `Dataset`, and each root symbol carries `TOPOGRAPHICAL`:
+
+#+BEGIN_SRC js
+// ~/.viva/registry/games/chess/topologies/position/dataset/symbols/ontological.js
+export default [
+  { slug: "position", traits: ["ONTOLOGICAL", "LABELED", "TOPOGRAPHICAL"],
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "Position", description: "One chess position, identified by its Polyglot Zobrist key." } } },
+  { slug: "endgame.pieces.5", traits: ["ONTOLOGICAL", "LABELED"],
+    trait: { ONTOLOGICAL: {}, LABELED: { name: "5-piece endgame", description: "At or under the shipped Syzygy limit — the tablebase answers exactly." } } },
+  …
+];
+#+END_SRC
+
+The dossier's symbol list stands as written, sorted into the four topologies by what the symbol is ABOUT — `variant.*` `timecontrol.*` `result.*` `termination.*` `phase.*` `player.*` under `game`; `endgame.pieces.*` `endgame.material.*` under `position`; `opening.eco.*` `opening.family.*` under `opening`; `theme.*` under `puzzle`. `opening.eco.*` is stamped on games too — a symbol's home topology says who declares it, never who may wear it.
+
+** the literals
+
+`game` — the unit of exchange, immutable once sealed.
+
+| trait | shape |
+|-------+-------|
+| `RECORDED` | `{ tags: { Event, Site, Date, Round, White, Black, Result, … }, pgn, plies }` — `pgn` IS the tree |
+| `OPENED` | `{ eco, name, variation?, lastBookPly }` |
+| `CLOCKED` | `{ initial, increment, unit: "s" }` |
+| `TERMINATED` | `{ result, reason }` |
+| `SOURCED` | `{ provider, id?, url?, importedAt }` |
+| `SEATED` | `{ white: Occupant, black: Occupant }` — games played here |
+| `ANALYSED` | `{ engine, depth, accuracy: { white, black }, acpl: { white, black }, judgements }` |
+
+`position` — the dedup unit.
+
+| trait | shape |
+|-------+-------|
+| `PLACED` | `{ fen, epd, zobrist }` |
+| `EVALUATED` | `[{ engine, depth, nodes?, multipv: [{ cp?, mate?, pv: [uci…] }], source, at }]` |
+| `BOOKED` | `[{ uci, san, weight, games, white, draw, black }]` |
+| `TABLEBASED` | `{ category, wdl, dtz, dtm?, checkmate, stalemate, moves: […], source }` |
+
+`opening` carries `CATALOGUED { eco, name, pgn, uci: [uci…], epd }`. `puzzle` carries `POSED { fen, solution: [uci…], rating, popularity, plays }` and `SOURCED`, and `uses` the position literal it was cut from.
+
+The trait *names* are the dossier's, unchanged. The only shape change is `RECORDED.tree` → `RECORDED.pgn` (D10).
+
+** the position corpus — the one law with teeth
+
+`Literal` is unique on `(slug, mode)`; `mode` is nullable; sqlite counts NULLs distinct. So:
+
+- every position literal is owned by ONE mount — the `position` topology's mode row — regardless of which mode reached it;
+- the only writer is `PositionRepository.reach(fen)`, which computes the Zobrist key, upserts on `{ slug: key, mode: <position mount> }`, and returns the row;
+- no aperture verb ever creates a position literal directly, and no position is written with a null owner.
+
+#+BEGIN_SRC js
+// ~/.viva/registry/games/chess/domain/entities/kernel/Literal.ts — the verbs, sketched
+export class PositionRepository extends base.repository {
+  async reach(fen) { … }                       // upsert by zobrist under the position mount
+  async evaluated(position, { engine, depth }) { … }   // cache read — the ONLY /position/eval fast path
+  async record(position, entry) { … }          // append an EVALUATED entry, newest first, capped
+  async booked(position) { … }                 // the BOOKED fold, or null
+}
+#+END_SRC
+
+Everything that looks like a cache in the dossier is one of these four verbs. `/position/eval` is: `reach` → `evaluated` → (miss) `ctx.daemon.services.engine.analyse` → `record`.
+
+** occupant — corrected
+
+#+BEGIN_SRC js
+// ~/.viva/registry/games/chess/domain/types.js
+export const OCCUPANT = v.union([
+  v.object({ kind: v.const("user"), user: v.string().desc('The identity in the seat. Example: "01JQ…".') }),
+  v.object({ kind: v.const("hallucinator"), model: v.string().desc('Model slug the seat plays as. Example: "claude-opus-5".'),
+             tune: v.string().optional().desc('Named persona the harness loads for this seat. Example: "romantic-attacker".') }),
+  v.object({ kind: v.const("engine"), service: v.string().desc('The consumed service key. Example: "engine".'),
+             elo: v.integer().optional().desc("UCI_Elo the engine is limited to. Example: 1600."),
+             movetime: v.integer().optional().desc("Milliseconds per move. Example: 500."),
+             depth: v.integer().optional().desc("Fixed search depth instead of a movetime. Example: 12.") }),
+  v.object({ kind: v.const("remote"), runtime: v.string().desc('Lighthouse-known runtime holding the seat. Example: "italian".'),
+             user: v.string().desc('The identity on that runtime. Example: "01JQ…".') }),
+]).desc('Who sits in a seat. The match loop asks the occupant of the side to move for one move. Example: { kind: "engine", service: "engine", elo: 1600 }.');
+#+END_SRC
+
+`v.const`, not `v.literal` (correction 6). The `remote` arm is declared and refused until the relay exists (D12).
+
+** the match buffer — on the board mode
+
+#+BEGIN_SRC js
+// ~/.viva/registry/games/chess/modes/board/board.viva.js
+export const app = new App("buffer/Board.svelte", v.buffer({
+  data: {
+    variant: v.enum(VARIANTS).default("standard").desc('Rules in force. Example: "chess960".'),
+    initial: v.string().default(START_FEN).desc('Starting position as FEN. Example: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1".'),
+    fen: v.string().desc('Current position as FEN — derived from initial + moves, kept so the board renders without replaying. Example: "…/… b KQkq - 1 2".'),
+    moves: v.array(v.string()).desc('The main line as UCI, in order. The source of truth while playing. Example: ["e2e4","e7e5","g1f3"].'),
+    pgn: v.string().optional().desc("The tree as PGN — written only once someone annotates or branches. Example: \"1. e4 e5 2. Nf3 (2. f4 exf4) 2... Nc6\"."),
+    seats: v.object({ white: OCCUPANT, black: OCCUPANT }),
+    clock: v.object({ initial: v.number(), increment: v.number(), white: v.number(), black: v.number(),
+                      running: v.enum(["white","black"]).optional() }).optional()
+             .desc('Seconds, both sides. Absent for correspondence. Example: { initial: 180, increment: 2, white: 176.4, black: 180, running: "white" }.'),
+    status: v.enum(["pending","playing","ended"]).default("pending").desc('Where the match is. Example: "playing".'),
+    result: v.string().optional().desc('Example: "1-0".'),
+    reason: v.string().optional().desc('Example: "resignation".'),
+    offers: v.object({ draw: v.enum(["white","black"]).optional() }).default({}).desc('A standing offer and who made it. Example: { draw: "black" }.'),
+    rated: v.boolean().default(false).desc("Whether sealing this match evolves both ratings. Example: true."),
+  },
+  literals: v.array(v.rel(v.literal()))
+    .desc("The sealed game literal once /match/seal has run, and the opening literal once classified. Empty while playing. Example: [\"01JQ…\"]."),
+}).desc(`…`));
+#+END_SRC
+
+`moves` is the truth while playing; `pgn` grows only when someone annotates or branches. `literals` uses `v.rel` so `cast()` cannot maul a MikroORM `Collection` (`schematics/index.js:19-21`).
+
+** the aperture
+
+The dossier's verb list stands. Two shape rules apply to it: every input is a `v.` schema whose `.desc` ends with an `Example:`, and no verb reaches the entity manager directly — each calls a repository verb (D16).
+
+#+BEGIN_EXAMPLE
+/rules/legal          { fen }                        -> { moves: [{ uci, san }], check, checkmate, stalemate, insufficient }
+/rules/apply          { fen, uci }                   -> { fen, san, capture, promotion, check, ply }
+/rules/parse          { fen, san }                   -> { uci }
+/rules/pgn            { pgn }                        -> { tags, plies, warnings }
+
+/match/create         { seats, variant?, initial?, clock?, rated? }  -> buffer
+/match/move           { buffer, uci }                -> buffer      seat · turn · legality · clock
+/match/offer          { buffer, offer }              draw | takeback
+/match/resign         { buffer }
+/match/seal           { buffer }                     -> game        literal + classify + ratings
+
+/game/import          { pgn | lichess | chesscom }   -> [game]      dedupes on SOURCED.id
+/game/export          { game, format }               pgn | json
+/game/list            { symbols?, user?, limit, before? }
+/game/annotate        { game, path, nags?, comment?, uci? }
+
+/position/eval        { fen | position, depth?, multipv?, engine? }  -> EVALUATED entry, cached
+/position/book        { fen | position }
+/position/tablebase   { fen | position }             -> TABLEBASED entry; stamps endgame.*
+
+/analysis/game        { game, depth?, engine? }      -> ANALYSED + per-node eval + judgements
+/analysis/explain     { game, path }                 -> prose
+
+/opening/classify     { moves | pgn }                -> { eco, name, lastBookPly }
+
+/puzzle/next          { symbols?, rating? }
+/puzzle/attempt       { puzzle, moves }              -> { solved, signal }
+#+END_EXAMPLE
+
+`/game/list`'s `symbols` reaches `LiteralRepository.resolveSymbols` unchanged — `{ $all, $in, $none }` and a bare array are already understood by the base repository (`Literal.ts:39-56`), so symbol-scoped listing costs zero new code.
+
+`/match/move` is the only write on a clock. Everything else is idempotent or append-only.
+
+** services — two contracts
+
+#+BEGIN_SRC js
+// ENGINE — what a module must return from provider(service)
+{
+  analyse: ({ fen, depth, movetime, multipv, variant }) => AsyncIterable<{ depth, multipv: [{ cp, mate, pv }] }>,
+  play:    ({ fen, elo, depth, movetime, variant })     => Promise<{ uci, ponder? }>,
+  stop:    () => void,
+}
+// TABLEBASE
+{
+  probe: ({ fen }) => Promise<{ category, wdl, dtz, dtm?, checkmate, stalemate, moves: [{ uci, san, category, wdl, dtz, zeroing }] }>,
+  limit: () => number,
+}
+#+END_SRC
+
+`wdl` is Syzygy's five-valued result from the side to move: `2` win · `1` cursed win · `0` draw · `−1` blessed loss · `−2` loss; `category` says the same as a word. `dtz` is distance to the next zeroing move — what a fifty-move-correct conversion needs. `limit()` reports the highest piece count the adapter answers, so callers know when to ask.
+
+Three adapters, preferred in order: **stockfish** (the process already running, `SyzygyPath` set, `Syzygy50MoveRule` honoured) · **fathom** (the standalone MIT prober over stdio, for probing without a search) · **lichess-tablebase** (`tablebase.lichess.ovh`, 7-piece, HTTP, the only 7-piece source — never called from an air-gapped instance).
+
+`analyse` returning an AsyncIterable is not decoration: an async generator IS SSE on this transport, and SSE is the only escape from the 8000ms daemon-call ceiling. A depth-30 search does not fit under it.
+
+Integration, all automatic once a `TABLEBASE` key is consumed:
+
+- `/position/tablebase` probes, caches as `TABLEBASED`, stamps `endgame.pieces.*` and `endgame.material.*`;
+- `/position/eval` short-circuits at or under `limit()` — the answer is the tablebase, `source: "syzygy"`, no search;
+- `/analysis/game` judges endgame moves by CATEGORY change, not centipawn loss: win→draw or draw→loss is a blunder whatever a shallow search says; slow conversion is noted, not punished;
+- hallucinator seats get the verdict in their prompt at or under the limit — a model should not calculate what is already known;
+- `/analysis/explain` names the ending (`KRPvKR`) and states the theoretical result before it narrates;
+- a position with exactly one winning move by DTZ is a tactics puzzle for free.
+
+** analysis
+
+`/analysis/game` walks the main line, calls `/position/eval` per node (cache hits are free), and classifies by centipawn loss on WIN PERCENTAGE rather than raw centipawns, so a late-game loss weighs correctly:
+
+#+BEGIN_EXAMPLE
+win%     = 50 + 50 · (2 / (1 + e^(−0.00368208 · cp)) − 1)
+accuracy = 103.1668 · e^(−0.04354 · (win%before − win%after)) − 3.1669
+inaccuracy ≥ 10 win% lost · mistake ≥ 20 · blunder ≥ 30
+#+END_EXAMPLE
+
+Both formulas live in `analysis/winrate.js` as pure functions with a unit suite — they are the only numbers in the domain a reader cannot check by eye. Judgements land as PGN comments and NAGs on the tree, summarised in `game.ANALYSED`. `/analysis/explain` hands one node, its eval lines and its judgement to a hallucinator. The engine judges; the model narrates.
+
+** rating
+
+`Rating` is per `(user, variant, timecontrol)`, unique on that triple, driver `GLICKO2` holding `{ r, rd, sigma }` or `ELO` holding `{ r, k }`. The driver contract is copied verbatim from the retention family; the entity is chess's own (D13). The signal is a finished game against an opponent state:
+
+#+BEGIN_SRC js
+// ~/.viva/registry/games/chess/domain/rating/glicko2.js
+export default {
+  type: "GLICKO2",
+  encode,                    // (signal) -> { state, status }
+  evolve,                    // (signal, rating) -> { state, status }  signal: { opponent: { r, rd }, score: 1 | 0.5 | 0 }
+  assess,                    // ({ state }) -> { status }              PROVISIONAL until rd < 110, then ESTABLISHED
+  sql: { rating: (table) => `json_extract(${table}.state, '$.r')` },
+};
+#+END_SRC
+
+`sql.rating` is spliced into a formula column exactly the way `sql.strength` is on `Retention` — so a leaderboard is `orderBy: { rating: "DESC" }` with nothing persisted twice. Each sealed rated match writes a `Trace`.
+
+** study, puzzles
+
+`Study` is a user-scoped literal, ontology `study`, trait `OVERLAID { game, nodes: { "<path>": { nags, comments, children } } }` keyed by node path (`"12"`, `"12.1.3"`). Own games annotate in place; games you do not own get a layer. `/game/annotate` picks which by ownership, and the caller never says.
+
+Puzzle training is spaced repetition over positions: chess's own `Retention` + `Trace` on the puzzle literal, driver `BAYESIAN` copied from education (D14), signal `MASTERY…FAILURE`.
+
+* milestones
+
+Each boots green at its boundary. Nothing lands out of order: M1 needs M0's symbols to have a `TOPOGRAPHICAL` root, M3 needs M1's rules, M4's judgements need M1's tree codec.
+
+** M0 — the tap: package, four topologies, an instance that boots empty
+`games.viva.js`, `chess/domain/chess.viva.js` (manifest + empty aperture), the four topology modules with their symbol datasets, `~/.viva/instances/chess/`. **Gate:** `viva instance run chess` boots; the daemon lists four ontologies; symbol snapshot suite green.
+
+** M1 — rules + the codec: chessops behind one file
+`domain/rules/` wrapping chessops (FEN · SAN · UCI · PGN · Zobrist · variants), `types.js`, `/rules/*`, `Literal.ts` with the trait enums and both repositories. **Gate:** `rules.test.js` — legal-move counts on known positions, SAN↔UCI round-trips, a PGN with variations and `%eval`/`%clk` parsed and reprinted byte-stable, Zobrist keys matched against the Polyglot reference vectors.
+
+** M2 — the corpus: openings, classics, and classification
+`topographies/openings` (3.5k `opening` literals + `opening.*` symbols, from lichess `chess-openings`, CC0), `topographies/classics`, `/opening/classify`, `/game/import`, `/game/export`, `/game/list`. **Gate:** literal snapshot suite; `classify.test.js` walks 50 known lines to their ECO code; a classic imported, exported and re-imported to the same PGN.
+
+** M3 — the match: board mode, three seat kinds, seal
+`modes/board` (chessground in Svelte + the App buffer), `/match/*`, user · hallucinator · engine occupants, seal → `game` literal + `OPENED`. **Gate:** `match.test.js` plays a full scripted game headless through the aperture and seals it; an illegal move, an out-of-turn move and a wrong-seat move each bounce with a sentence; a hallucinator seat answering illegally retries once, then falls back to a random legal move and marks the ply.
+
+** M4 — the engine: `@games/service/stockfish`, eval, analysis
+The service module, `/position/eval` + the four `PositionRepository` verbs, `analysis/winrate.js`, `/analysis/game`, `/analysis/explain`. **Gate:** `eval.test.js` against a stub provider — a cache miss calls the engine once, a hit calls it zero times, a second game transposing into the same position hits; `winrate.test.js` pins both formulas at the lichess reference points; `judge.test.js` classifies a known blunder game.
+
+** M5 — the tablebase: freight, three adapters, the short-circuit
+`topographies/syzygy-345` (FRAUGHT only), the three adapters, `/position/tablebase`, `endgame.*` stamping, the `/position/eval` short-circuit, the `/analysis/game` category rule. **Gate:** `tablebase.test.js` probes a KQvK and a KRPvKR through the stub; `limit()` respected — a 6-piece position with a 5-piece adapter falls through to the engine, not to an error.
+
+** M6 — training: puzzles, retention, rating
+`topographies/puzzles`, chess's `Retention`/`Trace`, `/puzzle/*`, `modes/trainer`, `Rating` + `glicko2.js`/`elo.js`, ratings evolved at seal. **Gate:** `glicko2.test.js` against the Glicko-2 paper's worked example; `rating.test.js` seals a rated match and asserts both sides moved; puzzle attempt writes a trace.
+
+** M7 — the rest of the modes, then sunset
+`modes/{arena,library,coach}`, `evals` and `elite` topographies with the `BOOKED` fold, world restamp, quest sunset (mine, same session as the landing).
+
+* testing assessment
+
+** in place
+
+Nothing guards chess — the package does not exist. What guards the SHAPE it copies:
+
+- `~/.viva/registry/education/domain/tests/` — 7 files: `domain.test.js` · `kernel/literal.test.js` · `retention/{bayesian,drivers}.test.js` · `tools/tools.test.js` · `userspace/scoping.test.js` · `aperture/aperture.test.js`. The driver-contract and user-scoping cases are the ones this quest leans on; read them before writing the chess equivalents.
+- `systems/runtime/tests/topography/{literal,symbol}.snapshot.test.js` + `harness.js` — the corpus snapshot regime every topography lands under.
+- `subsystems/typology/tests/v.test.js` — includes the guardrail that `cast()` passes an entity through a `v.rel` without mauling its Collections.
+
+**COVERAGE GAP: total.** Every path in this quest is new. There is no "existing test to update" anywhere, which removes the usual regression risk and replaces it with the opposite one — a suite written to match whatever the code happens to do. The counter is that four of the seven gates below are pinned to EXTERNAL references (Polyglot vectors, lichess's accuracy formula, the Glicko-2 paper, Syzygy WDL semantics), not to our own output.
+
+** changes
+
+None. No existing suite touches a file this quest writes. Two suites are *read* as templates and left alone: `education/domain/tests/retention/drivers.test.js` (the driver contract) and `education/domain/tests/userspace/scoping.test.js` (the per-user filter).
+
+** adds
+
+| suite | what it pins |
+|-------+--------------|
+| `rules.test.js` | legal moves, SAN↔UCI, PGN round-trip with variations + `%eval`/`%clk`, Zobrist against Polyglot reference keys |
+| `symbol.snapshot.test.js` ×4 | one per topology — the ontology's vocabulary, including exactly one `TOPOGRAPHICAL` root each |
+| `literal.snapshot.test.js` ×n | one per topography |
+| `classify.test.js` | 50 known lines → ECO + `lastBookPly` |
+| `match.test.js` | a scripted game end to end; every bounce path |
+| `position.test.js` | `reach` upserts under ONE mount; two mounts reaching the same FEN produce ONE row; a null-owner write is refused |
+| `eval.test.js` | cache miss/hit counts against a stub engine; transposition hit |
+| `winrate.test.js` | both formulas at lichess's reference points |
+| `judge.test.js` | a known blunder game classified; endgame moves judged by category, not cp |
+| `tablebase.test.js` | WDL/DTZ semantics; `limit()` fall-through |
+| `glicko2.test.js` | the paper's worked example |
+| `rating.test.js` | a sealed rated match moves both sides |
+
+** per-milestone green ladder
+
+| milestone | the green gate |
+|-----------+----------------|
+| M0 | instance boots; 4 × `symbol.snapshot.test.js` |
+| M1 | `rules.test.js` |
+| M2 | `classify.test.js` + `literal.snapshot.test.js` (openings, classics) + the import/export round-trip |
+| M3 | `match.test.js` |
+| M4 | `position.test.js` + `eval.test.js` + `winrate.test.js` + `judge.test.js` |
+| M5 | `tablebase.test.js` |
+| M6 | `glicko2.test.js` + `rating.test.js` + the puzzle trace case |
+| M7 | full package suite + world restamp |
+
+** pre-DONE gate
+
+A milestone flips to DONE only with (a) its named test file and (b) the suite's PASTED output. "Suite green" without counts is an assertion. A milestone with no test file names its coverage gap out loud instead of claiming parity. Each changelog entry records what its suites covered before → after.
+
+* QA
+
+** testimony — the walk, first person
+
+1. I run `viva instance run chess` on a box with no engine binary and no tablebase files. The daemon boots. The board opens at the starting position. I play `e4`, the board answers. Nothing anywhere says "engine missing" until I ask for analysis — and then it is one sentence telling me what to install, not a stack trace.
+2. I create a match against `{ kind: "hallucinator", model: "claude-opus-5" }` and play ten moves. Every model move is legal. When the model answers with something illegal I do not see it — I see the retry's move, and the ply is marked in the record so I can find it later.
+3. I import a PGN of my last night's blitz from lichess. The library lists it with its opening name, its result and its time control as symbols I can filter on. I import the same file again: nothing duplicates, and it says so.
+4. I open one of those games and step to move 23. I ask for analysis. The first ask takes a few seconds; the same position in a different game answers instantly, and I can tell it did.
+5. I reach a rook-and-pawn ending in a game I imported, with the 3–5 piece tablebase installed. It does not say "+0.3". It says the position is a draw and names the ending. When I play the losing move it says so — even though a shallow search called it fine.
+6. I ask the coach why move 23 was a mistake. It tells me what the engine found, in words, and it does not invent a line the engine never produced.
+7. I finish a rated game against the engine. My rating moves. I can see by how much and why.
+
+Each divergence at beef's walk is a callout candidate, not a silent fix.
+
+** programmatic + markers
+
+Probes on top of the green ladder, not duplicating it.
+
+#+BEGIN_EXAMPLE
+#+marker_qa: m61/T-no-engine · pending · a daemon with no `consume.engine` boots, plays and imports; only /position/eval and /analysis/* answer with the missing-service sentence
+#+marker_qa: m61/T-illegal-retry · pending · a hallucinator seat answering illegally retries once, then falls back to a random legal move and the ply carries a mark
+#+marker_qa: m61/T-reimport · pending · importing the same PGN twice yields one game literal and says the second was already held
+#+marker_qa: m61/T-transposition · pending · the same position analysed in two different games costs one engine call, and the second answer is visibly instant
+#+marker_qa: m61/T-endgame-voice · pending · at or under the tablebase limit the coach states the theoretical result and names the ending instead of quoting a centipawn score
+#+marker_qa: m61/T-rating-moves · pending · a sealed rated game moves both ratings and the learner can see by how much
+#+marker_qa: m61/P-one-position-row · pending · grep gate — `reach(` is the ONLY writer of a position literal; `em.create(LiteralEntity` with ontology position returns zero outside PositionRepository
+#+marker_qa: m61/P-chessops-single-import · pending · grep gate — `from "npm:chessops` appears ONLY under domain/rules/; zero elsewhere in the package
+#+marker_qa: m61/P-no-v-literal-const · pending · grep gate — `v.literal("` returns zero in the package (the const constructor is v.const)
+#+marker_qa: m61/P-example-in-desc · pending · grep gate — every `.desc(` in the package's schemas contains `Example:`
+#+marker_qa: m61/P-null-owner · pending · a position literal written with a null mode is refused, not silently duplicated
+#+marker_qa: m61/P-sse-analyse · pending · `analyse` reaches the client as an async generator; a depth-30 search does not hit the 8000ms daemon-call ceiling
+#+END_EXAMPLE
+
+* blast table
+
+Everything is NEW. Sizes are the shape of the file, not a promise.
+
+| file | change | milestone | kind |
+|------+--------+-----------+------|
+| `~/.viva/registry/games/games.viva.js` | package manifest | M0 | new, tiny |
+| `~/.viva/registry/games/chess/domain/chess.viva.js` | domain kernel | M0 | new, small |
+| `~/.viva/registry/games/chess/topologies/{game,position,opening,puzzle}/` | 4 modules + symbol datasets | M0 | new, medium ×4 |
+| `~/.viva/instances/chess/{chess.viva.js,daemon.js}` | the recipe | M0 | new, medium |
+| `…/chess/domain/rules/` | the chessops wrapper — the only importer | M1 | new, large |
+| `…/chess/domain/types.js` | VARIANTS · RESULTS · TERMINATIONS · JUDGEMENTS · SIGNAL · OCCUPANT | M1 | new, medium |
+| `…/chess/domain/entities/kernel/{Literal,Symbol}.ts` | trait enums + Game/Position repositories | M1 | new, large |
+| `…/chess/domain/aperture/index.js` | the aperture + resolve hook | M1→M6 | new, large, grows |
+| `…/chess/topographies/{openings,classics}/` | 2 topographies + harvest scripts | M2 | new, large (data) |
+| `…/chess/modes/board/` | chessground + the App buffer + Board.svelte | M3 | new, large |
+| `…/chess/domain/entities/userspace/{Buffer,Study}.ts` | 2 entities | M3 | new, small |
+| `…/chess/services/stockfish/` | `{ manifest, provider }` over UCI stdio | M4 | new, large |
+| `…/chess/domain/analysis/{winrate,judge}.js` | the fold | M4 | new, medium |
+| `…/chess/topographies/syzygy-345/` | FRAUGHT only | M5 | new, tiny module / ~1 GB freight |
+| `…/chess/services/{fathom,lichess-tablebase}/` | 2 adapters | M5 | new, medium ×2 |
+| `…/chess/domain/entities/userspace/{Rating,Retention,Trace}.ts` | 3 entities | M6 | new, medium ×3 |
+| `…/chess/domain/rating/{glicko2,elo}.js` | 2 drivers | M6 | new, medium |
+| `…/chess/topographies/puzzles/` | ~50k literals + theme symbols | M6 | new, large (data) |
+| `…/chess/modes/{trainer,arena,library,coach}/` | 4 modes | M6→M7 | new, large ×4 |
+| `…/chess/topographies/{evals,elite}/` | 2 topographies + the BOOKED fold | M7 | new, large (data) |
+| `~/.viva/registry.json` | add the `games` tap | M0 | edit, one line |
+| `.ikiro/world/map.md` + `codemap/` | restamp | M7 | edit, small |
+
+Radius note: `~/.viva/registry.json` and `~/.viva/instances.json` are ledger meta and are NOT version-controlled — capture before editing. The `games` package gets its own repository at M0, the way `@education` and `@young-ladys-primer` have theirs (beef runs the VCS command).
+
+* deferred
+
+- **remote seats / multiplayer.** The lighthouse serves identity and `/entities/{daemon,identity}` and nothing else; m60 is rewriting those gates; the client's remote-entity dataspace is designed, not built. Trigger to reopen: m60 landed AND a decision on where a shared match's authority lives (see F5).
+- **`syzygy-6`** (~150 GB) and the 7-piece remote adapter beyond a dev toggle.
+- **`evals` and `elite` at full size** — M7 ships the subsets (positions reached by ≥1k games; ~100k games by opening coverage). Full dumps are 250M positions and ~10M games.
+- **Variants beyond standard and Chess960.** chessops carries atomic, crazyhouse, horde and the rest; the symbol namespace is open; no mode renders them yet.
+- **A Polyglot book file for engine seats.** `BOOKED` is the same data; emitting a real `.bin` is a separate job.
+- **`/auth`-shaped ownership of studies across users** — sharing a study is a lighthouse question, so it rides with multiplayer.
+
+* forks
+
+Six, all beef's, all before M1.
+
+- **F1 — the package.** `@games` holding `chess/` (mine, D15), or `@chess` as its own tap? The dossier's specifier says `@games/domain/chess`; I read that as settled and am flagging it only because the directory names are permanent in the ledger.
+- **F2 — the tree's storage.** PGN text (mine, D10) vs a JSON node tree in `RECORDED.tree`. PGN buys import/export, `%eval`/`%clk`/NAG/variation support and no recursive schema; JSON buys direct field access without a parse. I recommend PGN and note the cost: every read of a deep node parses the whole game.
+- **F3 — where a runtime-discovered position is written.** Every reached position into the corpus under the position mount (simple, and the eval cache pays for itself), or only positions someone actually analysed (smaller corpus, a second code path)? I lean write-on-analyse; the dossier implies write-on-reach.
+- **F4 — the engine service's shape.** One Stockfish process per daemon (the dossier), or one per match? Per-daemon is cheaper and matches the nlp service's shape; per-match is what a real arena of model-vs-model games needs. I lean per-daemon with a queue, and note the queue is not free.
+- **F5 — where a shared match's authority lives** when multiplayer reopens: the match aperture on one runtime (server-authoritative, the clock ticks there), or the lighthouse (relay-authoritative)? Not needed for M0–M7; naming it now stops M3 from baking an assumption in.
+- **F6 — the rating default.** `GLICKO2` (the dossier) or `ELO` for a first landing? Glicko-2 is right and has a reference implementation to test against; Elo is 20 lines. I lean Glicko-2 — the test is the paper's worked example, so the harder one is the cheaper one to trust.
+
+* release
+
+- added `@games/domain/chess` — a chess daemon plays, records, imports, exports and analyses games through one aperture · migrate: none ⟨m61⟩
+- added `@games/topology/{game,position,opening,puzzle}` — four chess ontologies a mode or agent can scope by · migrate: none ⟨m61⟩
+- added `@games/topography/{openings,classics,puzzles,evals,elite,syzygy-345}` — shipped chess corpora, all CC0 or public domain · migrate: none ⟨m61⟩
+- added `@games/service/{stockfish,fathom,lichess-tablebase}` — engine and tablebase adapters a daemon consumes by name; a daemon that consumes neither still plays · migrate: none ⟨m61⟩
+- added `@games/mode/{board,arena,library,coach,trainer}` — the five surfaces over the domain · migrate: none ⟨m61⟩
+
+* resources
+
+- **chessops** — lichess's TypeScript rules library: FEN, SAN, UCI, full PGN tree with variations, Chess960 and other variants, Polyglot Zobrist. The one dependency the domain has.
+- **chessground** — lichess's framework-agnostic board. The board mode's only dependency.
+- **Stockfish** — native process over UCI; `stockfish.wasm` in-browser for offline analysis; Fairy-Stockfish for variants.
+- **Syzygy** — de Man's tablebases: `.rtbw` (WDL, small, probed during search) + `.rtbz` (DTZ, larger, probed at the root). 3–5 pieces ≈ 1 GB · 6 ≈ 150 GB · 7 ≈ 18 TB. Mirrors at tablebase.sesse.net and lichess.
+- **fathom** — the standalone MIT Syzygy prober (C), the path to `.rtbw`-only shipments.
+- **Data, all CC0 or public domain** — lichess `chess-openings` (3.5k) · lichess puzzle DB (5M) · `lichess_db_eval` (250M positions) · lichess Elite Database (both players 2400+, ~10M games) · public-domain PGN collections (Morphy, Anderssen, Steinitz, Lasker, Capablanca, Alekhine).
+- **Import sources** — Lichess game JSON, chess.com PGN, both behind `/game/import`.
+
+* changelog
+
+- this session — beef handed over the chess design dossier and said /"write this as quest 61"/. The dossier's shape was checked against the tree that has to hold it: `@education` read whole (domain kernel · aperture + resolve hook · Literal/Symbol/Retention/Trace/Buffer entities · the driver family · topology vs topography · the dojo App buffer), `commons/services/{reader,nlp}` read for the service contract, `commons/instances/hello-world` and `~/.viva/instances/italian` read for the m59 recipe shape, `subsystems/typology/schematics/{v.js,index.js,entities/*}` read for the actual `v` surface, `systems/runtime/daemon/{traits/,entities/kernel/Literal.ts}` read for the trait list and the `(slug, mode)` law. Seven of the dossier's mechanisms did not survive that reading and are corrected with citations in `* the dossier, measured`; its shape survived whole. Eight milestones scoped with a green gate each, twelve markers pre-registered, six forks owed. Nothing blasted. Coverage: before — none, the package does not exist; after — none until M0.

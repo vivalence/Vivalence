@@ -16,7 +16,6 @@ export class Daemon {
   entity = null; // ? maybe network level, thus runtime thus daemonDie. daemonDie.entity? hmm
   statics = null;
   cargo = new Cargo();
-  docs = {};
 
   // schema = {
   //   primitives: {}, // {dimension signal} = f(domain*ontology)

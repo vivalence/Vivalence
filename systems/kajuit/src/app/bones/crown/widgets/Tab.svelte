@@ -1,7 +1,7 @@
 <script>
   import { chain } from "@vivalence/kajuit";
 
-  let { terminal, isActive, onactivate, onclose } = $props();
+  let { terminal, axis, isActive, onactivate, onclose } = $props();
 
   const label = chain(terminal, "$thread", "$label");
 </script>
@@ -9,7 +9,7 @@
   <!-- also render indicator of conversation and its current activity -->
   <!-- also render indicator of stall and its current activity -->
   <!-- render number of buffers -->
-<div class="tab" class:active={isActive} onclick={onactivate}>
+<div class="tab" class:active={isActive} class:column={axis === "column"} onclick={onactivate}>
   <span class="tab-title">{$label?.name ?? " [empty] "}</span>
   <button
     class="tab-close"
@@ -44,6 +44,17 @@
       border-color 0.16s,
       color 0.16s;
   }
+  .tab.column {
+    flex-direction: column;
+    max-width: none;
+    max-height: 140px;
+    padding: 11px 4px;
+  }
+  .tab.column .tab-title {
+    writing-mode: vertical-rl;
+    max-width: none;
+    max-height: 100%;
+  }
   .tab:hover {
     opacity: 0.92;
     background: color-mix(in srgb, var(--colors-skeleton-0-surface) 70%, transparent);
@@ -55,25 +66,6 @@
     color: var(--colors-skeleton-0-primary-base);
     background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 8%, transparent);
     box-shadow: 0 0 0 1px color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent);
-  }
-  .tab-pip {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 55%, transparent);
-    flex-shrink: 0;
-    transition:
-      background 0.16s,
-      box-shadow 0.16s;
-  }
-  @keyframes tab-pip-pulse {
-    0%,
-    100% {
-      opacity: 0.4;
-    }
-    50% {
-      opacity: 1;
-    }
   }
   .tab-close {
     flex: 0 0 auto;

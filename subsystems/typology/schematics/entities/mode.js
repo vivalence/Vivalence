@@ -14,6 +14,8 @@ export const ModeDescriptor = {
   relations: {
     intents: () => v.array(v.intent()).optional(),
     buffers: () => v.array(v.buffer()).optional(),
+    literals: () => v.array(v.literal()).optional(),
+    symbols: () => v.array(v.symbol()).optional(),
   },
   narrowable: ["traits"],
 };

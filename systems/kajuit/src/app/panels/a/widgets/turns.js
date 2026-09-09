@@ -125,11 +125,7 @@ const gloss = (row) => {
 };
 
 export const bufferLabel = (buffer) => {
-  const named =
-    buffer?.data?.label ??
-    buffer?.data?.title ??
-    buffer?.label ??
-    (typeof buffer?.mode === "string" ? buffer.mode : buffer?.mode?.slug);
+  const named = buffer?.label?.name ?? buffer?.trait?.LABELED?.name;
   if (named) return named;
   return typeof buffer?.index === "number" ? `buffer ${buffer.index}` : "buffer";
 };

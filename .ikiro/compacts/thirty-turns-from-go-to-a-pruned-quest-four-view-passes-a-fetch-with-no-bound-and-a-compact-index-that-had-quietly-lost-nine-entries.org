@@ -1,0 +1,163 @@
+#+title: thirty turns from go to a pruned quest — four view passes, a fetch with no bound, and a compact index that had quietly lost nine entries
+#+filetags: :m57:hello-world:marginalia:search:svelte:css:scoping:timeout:transport:aperture:quest:compact:index:prune:
+#+index: 137
+#+session: e2a804e1 · turns 64-93 of 93 (1-25, 26-44 and 45-63 folded earlier this session)
+
+* TOPIC
+
+=go M1= to a pruned quest, in thirty turns. M1 landed whole and walked green; the interaction band
+was rebuilt four times to beef's dictation; three defects surfaced and every one of them was **a
+property nobody declared**. Then the quest was cut from 2211 lines to 1006 and its narrative folded
+into compact 14, and regenerating the index found it had been missing nine entries.
+
+The design record for M0/M1 lives in compact 14
+(=m1-lands-whole-and-every-defect-it-surfaced-was-a-property-nobody-declared…=). This is the walk.
+
+* Arc
+
+** 64-66 — the go
+
+=/compact=, the continuation, then /"m57 - m1. go / heavy logs. itterate testing continuously"/.
+M1 landed in six steps, each =deno check=ed: =doctor.js= gained its own =tools= export, =web/=
+was born, the rename landed, =aperture.js= and =harness.js= were extracted, =mode.viva.js= became
+the assembly. Two planned VCS lines evaporated — =tools.js= and its test were UNTRACKED, so a
+plain =rm= was the whole of step 7.
+
+** 67 — two corrections in one turn
+
+/"you can just move the file..... no need for git mv."/ — the last VCS line became a =mv=, and the
+milestone landed with none at all.
+
+And, on my own report: /"how to fix?? we not just mark the count as optional??apply optional.
+fixed?!?!"/ I had FLAGGED that =.default(8)= puts =count= in the wire schema's =required= and then
+declined to fix it, on the grounds that =.optional()= lives in typology and typology is holy. Wrong
+twice: the lever is at the MODE's call site, and **a flag without the one-word patch beside it is
+worth nothing**. Measured all four spellings — =.optional()= removes the field from =required= and
+the default STILL fills, because =guarded= calls =step.input.cast(input)= before it validates.
+
+** 68 — the walk
+
+beef ran the dock with twelve =[m1]= probes in. Four claims held, including root-before-branch a
+THIRD time (=turns 0= at the root, =turns 9= on =/dialogue=). The answer came back as a markdown
+table with an unprompted coverage caveat — the =web_search= valence steering with no prompt help.
+=.optional()= was NOT exercised: the model passed =count: 8= anyway, copying the schema default,
+which is why its =.desc()= now says to leave it out.
+
+** 69 — rip, iterate, prepare
+
+Probes out (12 sites → 0). Two valences iterated on evidence. The important one: =web_search='s
+valence sends the model to =web_read= before quoting, and =web_read= is dark for all of M1 — so its
+message stopped being a diagnosis written for an operator and became a RECOVERY written for a model
+(/"Do not retry it. Answer from the web_search snippets you already have"/).
+
+M2 prepared: connoisseur pass, landing order, test campaign.
+
+** 70-83 — the band, four passes
+
+Each pass was beef looking at a screenshot and dictating. In order: stack them and rename bot to
+search (70) · give the two buttons one rail (73) · four self-contained cells with per-cell response
+areas and harnessed ones locked (74) · simplify chat to a button (81) and hide the draw cell (83),
+with the four headers dictated at 78.
+
+Two of those were not layout notes at all. **74 was a state bug**: one =.slate= and behind it one
+=fault=, one =via=, one =greeting=, so a search wrote into the box a hallucination had written into
+and a doctor failure and an agent failure were the same variable. **83 was a truthfulness bug**:
+=/hello/agent= returns a greeting, not a view, so the header beef had written at 78 —
+/"Hallucinate a new View"/ — was the view lying about the system. He caught it himself one turn
+after writing it.
+
+/"let it directly call the search tool"/ (70) could not be taken literally: the app cannot reach
+=mode.tools= at all, TOOLED's stripwire being in-process only. It reaches the APERTURE, so
+=/hello/search= joined it calling the same =query()= client the tool arms — one client, two doors.
+
+** 71 — the stream you only get once
+
+/"why are we dropping the plain response??!! might want that."/ Reading M2's tangle. =drink(response)=
+READS THE STREAM, so what it returns is the only copy of that page that will ever exist in the
+process — and the tangle passed it into =parseHTML= as an argument and let it fall out of scope,
+with =status= and headers going the same way. Repaired in the tangle.
+
+** 76-80 — the render, and being told to use the browser
+
+/"how did you fuck up the render this bad?? ugly as fuck."/ Then, when I was reasoning from a
+screenshot: /"you have chrome"/. Measuring the live DOM found =section .act { height: 22px }= — an
+UNSCOPED global — beating my scoped rule on every property I had not declared. Svelte scoping is a
+specificity boost, not a namespace.
+
+Same turn carried the M2 capability question and the order /"log that entire flow too. search to
+intermediary states on the reader to the resulting harness context"/ → the ten-site flow log, whose
+site 10 (the tool_result SIZE) is the number that decides whether =web_read= is affordable at all.
+
+** 84-86 — the aborted request, then the sweep
+
+/"Request aborted … something is wrong."/ Reproduced with curl OUTSIDE the app: Marginalia answers
+="dog puppies"= in 0.39s and NEVER answers ="deno permission flags"=. Bounded with
+=AbortSignal.timeout(6000)=, inside the transport's own ~8s window.
+
+Then /"fix anything obvious hello world"/ — four, the worst being =doctor.js='s
+=shape.cortex.strip(ctx.daemon.cortex ?? [])=, where the fallback fired only in the case it was
+written to protect and threw there. M0's test had carried a comment explaining the limitation and a
+stub to route around it: **a workaround documented in a test is a defect with a bookmark in it.**
+
+** 87-90 — three questions, answered from the tree
+
+What can it do (web content NO, local content YES via the free root-confined =fs_*=); is M1 landed
+(yes — gate re-run, 10/26 green, the one runtime red proven pre-existing by direct probe); what
+about M2 (prepared, nothing on disk).
+
+** 91-93 — the prune
+
+/"prune the shit out the quest. if code. tests. snapshots. schematics. pretty much all teh rest can
+go. dump it into a compact."/ 2211 → 1006 lines. All 11 UNBUILT tangle targets survived; the 5 that
+went were M0's and M1's, whose code is on disk and under test. All 28 markers kept. M0 and M1 became
+six-line stubs pointing at compact 14.
+
+* Failures, mine
+
+- **Flagged a defect and declined to fix it** (67). "Typology is holy" was true and irrelevant —
+  the fix was one word at my own call site.
+- **Reasoned from a screenshot for three turns** (76-79) before measuring the DOM, and needed
+  /"you have chrome"/ to stop.
+- **A collision probe that could not detect the collision** (79): appended a test div to
+  =document.body=, got zero collisions, nearly shipped on it. =section .act= needs a =<section>=
+  ancestor. The probe has to run where the elements live.
+- **Wrote a header I could not deliver** (78→83) — beef's words, but I put them on a cell that
+  returns a greeting, and he had to tell me to hide it.
+
+* State at fold
+
+- **M0 + M1 LANDED**, uncommitted. hello-world **10 suites / 26 steps** green; runtime 53/334 with
+  ONE pre-existing red (=registry.count.test.js:62=, multiplayer, wafers under
+  =commons/instances/bak/= which =belt/find.js= skips). Checkout ≡ shelf across every mode file.
+- **Quest pruned** to 1006 lines: schematics, tangle, tests, snapshots, gates, and the M2 landing
+  order + flow log. It now states its own contract at the top — a milestone that lands is cut to a
+  stub the same session and its narrative folded, because a tangle describing existing code is a
+  second source that can only drift.
+- **M2 PREPARED, nothing built.** =go M2= is six additive steps then one switch; the mode needs no
+  edit, verified at =population.js:127=.
+- **The compact index had lost nine entries** — it numbered to 132 while holding 123 reachable
+  lines. Regenerated from the directory: **133/133, 0 untagged, 233 shared tags.** No generator
+  existed for it despite the method demanding regeneration; one is now written. Tags on a single
+  compact are excluded, matching the convention the old file already held.
+- **Flagged, unresolved**: the quest report attributes =m57= to session =d7dc2292= 28m ago, which
+  is not this session (=e2a804e1=). Either a sibling touched the quest or the attribution reads
+  something other than the writer. Worth a look before the next m57 session starts.
+- **Owed, unchanged**: rotate the live =sk-ant-api03= key and scrub both cleartext copies in the
+  working tree; the =MARKERS.md= cortex-snapshot marker stays OPEN.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|----------------------------+------------+-----------------------------------------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1 (1 live) |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 2          |
+| m53-vcompany               |   0% 0/5   | open                                                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 5          |
+| m53-vcompany.pre           | —          | open                                                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3          |
+| m53-vcompany.v3-vdex       | —          | landed                                                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (1 live) |
+| m53.v4-mail+calendar       | —          | landed                                                                | the six office test files — =office/email/tests/{aperture,tools,email.snapshot}.test.js= and =office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js=; =/key=, the held send and the thread walk are landed and untested. then his restart + the click-through gates. open, not mine: the sibling's mode-ownership landing duplicates every symbol (16 rows, 8 distinct, the dummy's copies bare), which contradicts this quest's law that the office declares the scheme and the provider carries the rows.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3          |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 2          |
+| m57-hello-world-researches |  47% 16/34 | open                                                                  | =go m2= → the model-free =commons/services/reader/=, six additive steps (each leaves the daemon booting exactly as it does today) then one switch: the instance's =consume= block. the mode needs no edit — =daemon.services.reader= is the provider's return, verified at =population.js:127=. no vcs lines anywhere. land it with the ten-site flow log in, walk it, read site 10 (the tool_result size) before calling =limits.chars= final, then rip the probes and iterate the valences.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | 1 (1 live) |

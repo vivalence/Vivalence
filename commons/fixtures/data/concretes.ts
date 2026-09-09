@@ -1,15 +1,15 @@
-import { types, EntitySchema } from "@mikro-orm/core";
+import { EntitySchema, types } from "@mikro-orm/core";
 
 import {
-  LiteralEntity,
-  LiteralSchema,
-  LiteralRepository,
-  SymbolEntity,
   BufferEntity,
+  LiteralEntity,
+  LiteralRepository,
+  LiteralSchema,
+  SymbolEntity,
   TurnEntity,
 } from "@vivalence/runtime";
 
-import { SymbolConcrete, BufferConcrete } from "@vivalence/runtime/scenarios";
+import { BufferConcrete, SymbolConcrete } from "@vivalence/runtime/scenarios";
 
 export enum LiteralTraits {
   TRANSLATED = "TRANSLATED",
@@ -22,7 +22,9 @@ class TestLiteralRepository extends LiteralRepository {
     const { limit, blacklist, populate } = opts || {};
     const filters: any = { ...where };
     if (blacklist?.literals?.length) {
-      filters.id = { $nin: blacklist.literals.map((literal: any) => literal?.id ?? literal) };
+      filters.id = {
+        $nin: blacklist.literals.map((literal: any) => literal?.id ?? literal),
+      };
     }
     return this.find(filters, { limit, populate });
   }
@@ -45,5 +47,5 @@ export const LiteralDomain = new EntitySchema({
   },
 });
 
-export { SymbolConcrete as SymbolDomain, BufferConcrete as BufferDomain };
-export { LiteralEntity, SymbolEntity, BufferEntity, TurnEntity };
+export { BufferConcrete as BufferDomain, SymbolConcrete as SymbolDomain };
+export { BufferEntity, LiteralEntity, SymbolEntity, TurnEntity };

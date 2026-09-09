@@ -42,10 +42,21 @@ export function toolUseStream(id, name, input) {
       yield { event: "/part/delta", index: 0, delta: { text: character } };
     }
     yield { event: "/part/close", index: 0 };
-    yield { event: "/part/open", index: 1, part: { type: "tool_use", id: "", name: "", input: "" } };
-    yield { event: "/part/delta", index: 1, delta: { id, name, input: inputString } };
+    yield {
+      event: "/part/open",
+      index: 1,
+      part: { type: "tool_use", id: "", name: "", input: "" },
+    };
+    yield {
+      event: "/part/delta",
+      index: 1,
+      delta: { id, name, input: inputString },
+    };
     yield { event: "/part/close", index: 1 };
-    yield { event: "/turn/close", meta: { usage: { input: 10, output: 20 }, state: "tools" } };
+    yield {
+      event: "/turn/close",
+      meta: { usage: { input: 10, output: 20 }, state: "tools" },
+    };
   };
 }
 
@@ -78,7 +89,12 @@ export function faculties() {
           const text = lastUserText(turns);
           if (output?.schema) {
             const data = { query: text };
-            return { role: "assistant", parts: [{ type: "object", data }], meta: { state: "complete" }, object: data };
+            return {
+              role: "assistant",
+              parts: [{ type: "object", data }],
+              meta: { state: "complete" },
+              object: data,
+            };
           }
           const lookup = tools?.find((tool) => tool.name === "lookup");
           if (lookup && !hasToolResult(turns)) {
@@ -100,10 +116,15 @@ export function faculties() {
       type: "dialogue",
       tune: [0.4, 0.6, 0.6],
       context: 200000,
-      channels: { in: ["text", "image", "tool_result"], out: ["text", "tool_use"] },
+      channels: {
+        in: ["text", "image", "tool_result"],
+        out: ["text", "tool_use"],
+      },
       via: {
-        render: async ({ turns }) => textTurn(`[sonnet] ${lastUserText(turns)}`),
-        stream: async ({ turns }) => textStream(`[sonnet] ${lastUserText(turns)}`)(),
+        render: async ({ turns }) =>
+          textTurn(`[sonnet] ${lastUserText(turns)}`),
+        stream: async ({ turns }) =>
+          textStream(`[sonnet] ${lastUserText(turns)}`)(),
       },
     },
     {
@@ -123,14 +144,20 @@ export function verbatimFaculty(overrides = {}) {
     type: "verbatim",
     tune: [0.4, 0.6, 0.5, 0.1],
     context: 0,
-    channels: { in: [{ type: "audio", codec: "pcm_16000" }], out: [{ type: "event" }] },
+    channels: {
+      in: [{ type: "audio", codec: "pcm_16000" }],
+      out: [{ type: "event" }],
+    },
     via: {
       stream: async function* (audioSource) {
         const heard = [];
         yield { event: "/turn/open", turn: { role: "user" } };
         for await (const packet of audioSource) {
           heard.push(packet.audio);
-          yield { event: "/verbatim/partial", transcript: heard.join(" ").trim() };
+          yield {
+            event: "/verbatim/partial",
+            transcript: heard.join(" ").trim(),
+          };
         }
         yield { event: "/verbatim/final", transcript: heard.join(" ").trim() };
         yield { event: "/turn/close" };
@@ -145,11 +172,18 @@ export function speechFaculty(overrides = {}) {
     type: "speech",
     tune: [0.3, 0.5, 0.5, 0.1],
     context: 0,
-    channels: { in: [{ type: "text" }], out: [{ type: "audio", codec: "pcm_16000" }] },
+    channels: {
+      in: [{ type: "text" }],
+      out: [{ type: "audio", codec: "pcm_16000" }],
+    },
     via: {
       stream: async function* (textChunks) {
         for await (const chunk of textChunks) {
-          yield { event: "/audio/packet", audio: "audio:" + chunk, rate: 16000 };
+          yield {
+            event: "/audio/packet",
+            audio: "audio:" + chunk,
+            rate: 16000,
+          };
         }
         yield { event: "/audio/close" };
       },

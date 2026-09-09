@@ -1,0 +1,2895 @@
+#+title: m53 — vcompany · the V3 vdex pass
+#+filetags: :m53:vcompany:vdex:screens:v3:drapes:kajuit:
+#+phase: landed
+#+progress: **SECOND PASS LANDED in `~/.viva/instances`, suites green** — his expectation/reality shots named the gaps and they are closed: the =raw= view (a painted layer under a plain textarea, line numbers, current line), =edit= as the design's BLOCK surface (⋮⋮ handles, contentEditable heading/paragraph/list/verbatim, the floating toolbar, ▲▼ and drag reorder, the + trailer), the crumbs as the design's chips with the =/= between (=Key= was uppercasing them), the mount on the status line, reference titles in the footer. ONE bug found and fixed under it: the ⋯ menu was INVISIBLE because the design's zone 5 has no token here — dapper stops at =skeleton-4=; every overlay now takes zone 4. ONE grammar bug found and fixed: =sections()= read a document's own frontmatter as content and its =#= title as a section, so a document with frontmatter had no sections at all; fenced code was read as headings too.
+#+next: ONE restart carries both — the new pdf viewer (=Paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. The six LATER items stay marked in the root quest.
+
+* ikiro
+
+** intent (his words, verbatim)
+
+/"i watn you to do a pass on the vdex modes application. surface pass. functionality pass. there will be
+some rough edges where the design wants features we dont have yet. like drag and drop for file upload and
+download. mark those. topic later."/ — with the two DesignSync imports (=V3 System.dc.html= · =V3 office-vdex.dc.html=,
+=support.js= as the runtime, =v3-data.js= as the fixture the design reads).
+
+** what the pass does
+
+Surface — the App is redrawn to the V3 screen over the dapper tokens (the token map in the main quest's
+=* screens=): a 44 px Frame header (▥ · crumbs as =Key= · slug · find with a dropdown · read/edit segment ·
+☰ · the save chip), a browser at zone 2 (head with ‹ · level · count · + · four views · ⋯ · ×; tree · columns
+· list · grid; the ⋯ menu with move-to and the y/n delete; a drag handle 160–560 px; an inline new-title row;
+inline rename), the document at zone 0 (h1 title · sections with fold heads and block counts · prose in the
+renderer's own grammar · footer format · size · age · → references · the edit textarea with its tray · the pdf
+viewer with its chips), an outline at zone 2 (sections · links · info; fold/expand all; ▲▼ and drag reorder;
+an overlay when crowded; a pill when hidden), a 28 px status bar (=[VDEX]= counts · the last three calls ·
+the last refusal). Radii from =--border-radius-{sm,default,lg}=, chrome marks 2 px; one breakpoint at 820
+(the browser drills, the document is level 3); coarse pointers get 44 px rows and keys.
+
+Functionality — every verb the aperture has, spoken by slug: read · edit · save (⌘S, drafts kept per slug
+across switches) · discard · new (=/file= at the next free id under the category, md) · rename (=/move=, same
+id) · move (=/move= to the next free id under the target — the menu or a drag onto a category row) · delete
+(=/delete=, y/n) · duplicate (=/file= with the text) · find =id:22 · format:pdf · text= · sort id/title/mtime
+· four views · the keys (=j k h l ↵ n r m d ⌫ e v s g / ⌥1 ⌥3 ⌘S ⌘D esc y n=) · section fold · section reorder
+(the text rearranged, one =/write=) · =→ NN.NN= and =[[NN.NN …]]= in the text as jumps (reader · footer ·
+links tab) · the twitch as two precise subscriptions (T1.1's a1 folded in — this file supersedes its hunks)
+· =buffer.data.open= and =buffer.data.id= honored.
+
+Later — MARKED, his call on order:
+- file upload (the ↑ import entry · drop files onto the browser) → the freight / m54 FILE
+- download · export (↓) and the OS drag-out of a document
+- backlinks (← in): the server fills the literal's =uses= at sync; the tab shows the slot
+- link · unlink editing (writes into the text)
+- the block editor (contentEditable blocks · B I ` · H2 LIST ¶ · "/ for a block") — edit is the source today
+- the raw view (line numbers · frontmatter) — edit IS the source; a third segment would lie
+- ocr · later chip stays disabled; ↗ ask waits for the officer stage
+- reindex — dropped: T1.1's watcher makes it moot
+- rename · duplicate of a loose (id-less) document; duplicate of a binary
+- the mount path in the status bar — =mode.statics= on the client is unmeasured (the main quest's gate item)
+- the find note names the client fold, not =voffice_lookup= — find runs over the rows on the client
+
+** dependencies
+
+- T1.1 second cut (the main quest, waiting on his go): =p1= (=/file= =/move= =/delete=, =/write= per-path
+  sync) · =b1= (=sync= · =watch=) · =e1= (the emitter). The App calls =mode.call.{tree,documents,document,
+  write,file,move,delete}=; without p1 the three new verbs fail as refusals in the status bar, everything
+  else works against the live aperture.
+- ONE delta to p1's =placement=: a rename in place (=/move {slug, id, title}= with the literal's own id) is
+  refused today — =own= is the file itself → /"NN.NN is one document already"/. The literal's own path must
+  pass. Hunk under =* hunks=.
+- drapes =Pip=: tone =success= (the save chip's "synced", the status bar's calls). One line, under =* hunks=.
+  Until it lands the tone falls back to muted.
+
+** the map — design → file
+
+| design element              | status | file                     |
+|-----------------------------+--------+--------------------------|
+| header · Frame              | LANDS  | Vdex                     |
+| find · dropdown             | LANDS  | Vdex · jdex.find         |
+| read · edit segment         | LANDS  | Vdex · Reader            |
+| raw segment                 | LATER  | —                        |
+| save chip                   | LANDS  | Vdex                     |
+| browser head                | LANDS  | Browser                  |
+| tree                        | LANDS  | Tree · Row               |
+| columns                     | LANDS  | Columns · Row            |
+| list · grid                 | LANDS  | Rows · Row               |
+| ⋯ menu · move to · delete   | LANDS  | Browser                  |
+| new · inline title          | LANDS  | Browser · /file          |
+| rename inline               | LANDS  | Row · /move              |
+| drag doc → category         | LANDS  | Tree · Columns · Rows    |
+| drop files · import         | LATER  | —                        |
+| export · download           | LATER  | —                        |
+| resize handle               | LANDS  | Browser                  |
+| document · sections · fold  | LANDS  | Reader · jdex.sections   |
+| → references                | LANDS  | Reader · jdex.linked     |
+| block editor                | LATER  | —                        |
+| pdf viewer · chips          | LANDS  | Reader                   |
+| ocr                         | LATER  | —                        |
+| outline · sections · reorder| LANDS  | Outline · jdex.rearranged|
+| outline · links · uses →    | LANDS  | Outline · jdex.references|
+| outline · links · ← in      | LATER  | —                        |
+| outline · info              | LANDS  | Outline                  |
+| pill                        | LANDS  | Reader                   |
+| status bar                  | LANDS  | Vdex                     |
+| keys                        | LANDS  | Vdex                     |
+| 820 · drill                 | LANDS  | Vdex · Browser           |
+| twitch (a1)                 | LANDS  | Vdex                     |
+
+** decisions (mine — every one overturnable)
+
+- the App splits into a shell and parts under =buffer/parts/= (the dojo precedent); the JD grammar the
+  client needs lives in =buffer/jdex.js= as pure functions with their own suite over the rows snapshot —
+  the App never imports server code (=jd.js=) and nothing leaves the mode.
+- sections are cut from the TEXT at the shallowest heading below the title (=##= · =*=), not from the
+  renderer's AST: a section is a line range, so fold · reorder · the outline need no serializer and the
+  drapes parsers stay internal. The renderer draws each section's body through =Markdown= · =Org= · =Json=.
+- a reference is =→ NN.NN= or =[[NN.NN …]]=; the reader rewrites it into the format's own link grammar
+  (=[→ 22.04](#vdex:22.04)= · =[[#vdex:22.04][→ 22.04]]=) and one delegated click on the prose jumps. The
+  file on disk keeps =→ 22.04=. The real JDex carries no arrows today — this is the reader side of the
+  design's convention.
+- read · edit only. The design's three segments (read · edit · raw) collapse: edit IS the source until a
+  block editor exists; a raw tab beside an identical edit tab would lie.
+- keys live on the App's root (=tabindex="-1"= · =role="presentation"=), never on the window: a buffer App
+  is one of several panels; focus inside the App is the gate. Inputs and textareas swallow keys; ⌥ reads
+  =event.code= (the mac's ⌥1 is =¡=).
+- every wire call lands in the status bar; a refusal is shown there in danger ink, never thrown at the
+  screen — the aperture's messages name the next move and are meant to be read.
+- drafts survive a switch: a dirty text is kept per slug and restored when the document comes back; the
+  chip says =unsaved · ⌘S=.
+- the twitch replaces the document's row in place (never a refetch); an open document re-reads only when
+  its hash moved and the draft is clean; a deleted open document closes.
+- rows are =$state.raw= (2000 pojos from the wire — never deep-proxied); the cursor and chrome are =$state=.
+- disabled entries in the ⋯ menu and the pdf chips carry the design's LATER verbs with =later= as their key
+  label — the design's intent shows, nothing pretends to work.
+
+** rules kept (System §07 · the main quest's =* screens= rules)
+
+zones do the emphasis (page 0 · browser 2 · hover 3 · selection 4 at 55 % · popovers 5 + shadow-soft) ·
+primary ink marks the one active thing (coordinate · tool · live pip · the on row) · slugs and coordinates
+in code face, titles and bodies in sans · no slide but the pincer's · the shell does the layout, the App
+measures its own width (=bind:clientWidth=) · 44 px under =(pointer: coarse)=.
+
+** gates (his click-through, after the go and a restart)
+
+1. open the vdex → the tree lists every area expanded with counts → a category → its documents
+2. a md reads: h1 · sections with fold heads · a fold closes · =→ 12.04= in the text jumps
+3. edit → type → the chip says unsaved → ⌘S → synced; the file on disk changed; the tree row's hash moved
+4. outline ▲ on a section → the text on disk is reordered, the reader follows
+5. =n= at a category → a title ↵ → the file appears in the tree and opens in edit (=/file=)
+6. =r= on it → a new title ↵ → the slug follows (=/move= in place — the placement delta)
+7. drag it onto another category → it moves (=/move= next id)
+8. =d= → =y= → gone (=/delete=)
+9. find =id:22= → the dropdown → ↵ opens the first
+10. a pdf → the viewer · ↗ cargo opens the file
+11. narrow the pincer under 820 → the browser drills ‹ › and ▥ returns; ⌥3 overlays the outline
+12. paper theme → every surface reads (the zones are tokens)
+
+** land (on go)
+
+#+begin_src shell
+V=~/.viva/registry/vcompany/modes/office/vdex
+mkdir -p $V/buffer/parts
+# the eleven files below → $V/<path> (buffer/jdex.js · buffer/Vdex.svelte · buffer/parts/*.svelte · tests/app.test.js · tests/jdex.test.js)
+deno test --config deno.jsonc -A --no-check $V/tests/            # app 8 steps · jdex 12 steps · boot · tools · snapshots
+viva instances/use vivalence run runtime                          # the App bundles at boot
+#+end_src
+
+** log
+
+- /"still"/ (his third shot at the same dead pdf) then /"go"/ → the CARGO FIX LANDED. Both halves turned out
+  to belong in ONE file — =subsystems/typology/prototypes/freight.js= — because the freight is what mints the
+  url AND what answers the query; =resolve.js= needed no change: the catalog escapes each segment
+  (=encodeURIComponent= per segment, not the whole path, so the =/= stay separators), and =resolve()= tries
+  the raw query first and the decoded one after. Raw first is the point: a file genuinely named
+  =100% done.txt= still resolves as itself. Two cases added to =freight.test.js= (a spaced name minted and
+  fetched back over its own url; the =100%= name) — Freight 7 steps green, =daemon cargo via runtime path=
+  green, typology 123 passed. The one red there (=hallucination snapshot · tool loop=) touches no freight and
+  is not from this change.
+- his re-import of the design at the same moment: pulled again and diffed byte-for-byte against the previous
+  pull — IDENTICAL (95 447 chars, no hunks). =Paper.svelte= already is the adjusted pdf editor.
+- his screenshot still showed the OLD chips panel with my =cargo unreachable= inside it: that bundle predates
+  =Paper.svelte=. Both the viewer and the cargo fix need one more restart.
+
+- /"pdf editor adjusted. fix it"/ → the design re-imported whole and diffed against the copy I built from.
+  ONE section changed: the pdf viewer (=isPdf=, 21 lines → 91). Every other hunk is the design's own runtime —
+  new state fields (=zoom= =pdfPage= =thumbs=), a =scroller()/gotoPage()= pair, a =pdfPages= fixture and the
+  upload helpers (=importFiles= =fileOf=), which are the LATER bucket he held back.
+- the new viewer is =buffer/parts/Paper.svelte= (NEW, 368 lines): a 34 px bar — ▤ pages · =‹ N / M ›= ·
+  =− fit% += · FIT · the meta · ↓ (disabled, download is his held bucket) · ↗ cargo — over a thumbnail rail
+  and a scroller of page sheets on white, the coordinate and slug stamped on every page.
+- HOW the pages are real without a dependency: nothing in the tree carries a pdf renderer (no =pdfjs-dist=,
+  no =pdf-lib=, not in =import_map.json=, not in =node_modules=), and adding one is a repo-root call plus
+  weight the bundle already carries too much of. So the page sheets host the BROWSER's own engine, one
+  =<iframe src="…#page=N&view=Fit&toolbar=0">= per sheet, windowed to the current page ±1 so a forty-page
+  document mounts three renderers, not forty. The page COUNT is read off the bytes — the page tree's =/Count=,
+  else every =/Type /Page= in the file, else =?= — which is what drives =N / M=, the rail and the windowing.
+  The thumbnails stay the design's own stylized sheets (=t.head= + bars); the design does not draw real ones.
+- =Pdf= (drapes) is out of the App: the old panel called it and it drew a blank =<object>=. Nothing under
+  =subsystems/= changed.
+- when the cargo cannot serve — which today is every filename with a space, see =known-issues= — the viewer
+  draws the design's own fallback page: the brand block, the reason, and the line the design writes for a
+  binary that lives in the cargo. Honest, not blank.
+- compile gate now 9 parts, suites 6 passed · 33 steps.
+
+- his two shots after the restart (/"where pdf display?"/ · /"bad markdown editor"/) → both pinned in the live
+  app, both answered:
+  - the pdf never displayed because the CARGO ROUTE drops any path with a space — measured from the page:
+    =Gesellschafterliste.pdf= serves 200 =application/pdf= 481 262 bytes with no auth header, while
+    =Beherrschungs- und Gewinnabführungsvertrag.pdf= in the SAME directory answers 404 =null=. The url is
+    minted raw, the browser encodes it, =resolve.js= never decodes the capture, =freight.resolve= misses on
+    every mode. NOT the App's bug and NOT vdex's — ledgered whole in =known-issues.org=
+    (=cargo-drops-any-path-with-a-space=), fix gated (=systems/=). The App is honest now instead of blank: the
+    viewer fetches the url first and draws =cargo unreachable · <status> · <url>= when it cannot.
+  - the raw editor was mine. The painted lines alternated 17 px and 34 px — I had left a newline INSIDE each
+    line span, so with =pre-wrap= every non-empty line rendered an extra line box, while the gutter's numbers
+    were a separate uniform column and the textarea a third grid. Three flows, three rhythms, drifting further
+    the lower you looked. Fixed by folding the number INTO its own painted line (=::before= off
+    =data-number=), one padding shared with the textarea, =min-height: 1lh= for empty lines. Numbers now ride
+    their line, so even a wrapped line cannot desync them.
+
+- his expectation/reality shots (four) plus /"wtf ?!"/ on the ⋯ menu → the second pass, all in `~/.viva/instances`:
+  - the ⋯ menu was INVISIBLE — the design paints its overlays on zone 5 (=--s5/--c5/--b5=) and dapper defines
+    =skeleton-0..4= only, so =--colors-skeleton-5-surface= resolved to nothing and the rows showed through.
+    Every overlay (menu, find dropdown, the block toolbar, the pill) now takes =skeleton-4= — dapper's own
+    documented "quaternary surfaces (overlays)". 10 declarations moved. NOTHING under =subsystems/=.
+  - =raw= — the third segment, new: a gutter of line numbers, a painted layer that marks frontmatter, headings
+    and body apart, and a transparent textarea over it holding the caret. Real editing, real colour, one scroll.
+  - =edit= — was a textarea, now the design's block surface: ⋮⋮ handles, contentEditable heading · paragraph ·
+    list · verbatim, the floating toolbar on a picked block (=B I `= wrap, =H2 LIST ¶= convert, =×= drops,
+    =→ link= disabled · later), ▲▼ per section, drag reorder with the seam, the =+ a block= trailer, the h1
+    title committing through =/move=. The caret is the author's: a contentEditable takes its text once and
+    again only while unfocused (=written= action), so typing never jumps.
+  - the crumbs — =Key= uppercases and pads 14 px; the design draws 24 px chips in their own case with a dim
+    =/= between. Own crumb buttons now; =Key= left the App's header.
+  - the status line — boot's own report: the mount, then the counts. =pruned n/n= is boot's fact, not the
+    client's; it stays off the line until something carries it.
+  - the footer references read =→ 12.01 Mission=, not =→ 12.01=.
+- found under the pass, both fixed, both older than the pass: =sections()= took a document's own frontmatter
+  for content and its =#= title for a section — a document with frontmatter (his =12.04=) had NO sections and
+  the reader showed the =---= block; and a =#= inside a fence counted as a heading. Frontmatter and fences are
+  skipped now. Six cases added (=jdex.test.js=, 17 steps green).
+- the block grammar is =buffer/jdex.js=: =parse= · =compose= · =replaced= · =reheaded= · =raw=; anything the
+  grammar does not own (frontmatter, fences) is kept verbatim as a =raw= block, so a round trip loses nothing.
+- MEASURED, not mine: the sibling landed T1.1 at 17:01 (=/file /move /delete= are live in the aperture, and
+  =placement= already carries =ownPath=). Three of their suites are red against Sep-6 tests. My four are green.
+
+- landed on his /"go"/: =land.sh= copied the 11 files into `~/.viva/instances`, the full vdex suite ran green — 8 passed · 42 steps · 0 failed (app 8 · jdex 12 · boot 4 · jd 6 · tools 4 · snapshots 5 + global); every instance files =cmp=-equal to the scratch and to the copies in this file; the rows snapshot fixture already in `~/.viva/instances`, unchanged. Not restarted — his. Not landed — T1.1 verbs (sibling), =Pip= =success= (gated).
+- wake m53 · kajuit · drapes → the kernel, frontier, the quest's head + log + T1.1 (first cut), the live
+  =Vdex.svelte=, the drapes tree and barrels, the kajuit shard, the m53 memory.
+- his handoff (two DesignSync imports + /"do a pass … mark those. topic later."/) → both design files read
+  whole (=V3 System.dc.html= 53 kB · =V3 office-vdex.dc.html= 85 kB · =v3-data.js= · =github.md=); the
+  design's runtime (=support.js=) skimmed as the dc-runtime, not content.
+- measured before writing: =RemoteRepository.subscribe(where, callback)= → =(merged | null, event)= with
+  =event.op= · =event.entity=; =Frame= hands five props; =--border-radius-{sm,default,lg,full}= exist as CSS
+  vars; the real JDex carries bare =NN.NN= numbers and no arrows; svelte 5.39.6 a11y: a root div takes
+  keys only as =role="presentation"= · =tabindex="-1"=, =autofocus= warns (an action focuses), a runtime
+  class from drapes =drag= must be =:global=.
+- the main quest changed under me twice (T1.1 grew by ~540 lines: e1 · p1 · k1 landed; then the file
+  reshaped to 7616 lines with T1.B on one line at 4802) → this pass in a sibling file, a pointer appended at
+  the main quest's tail.
+- the 11 files written into scratch, compiled, tested: 20 steps green. Two of my own test expectations were
+  wrong (=age= 37 days is =1mo=; =localeCompare= puts =~= before digits → the unfiled sort is explicit).
+- waiting on go.
+
+* files — the patch (lands on go; VCS untouched; every file whole)
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/buffer/jdex.js — the whole file
+
+#+begin_src js
+// the client's view of the JD grammar. A row carries symbol.vdex = { area, category, id: { [category]: id }, slot, format };
+// a coordinate symbol is vdex.(area|category|id).<coordinate> with LABELED { name, description: the path on the mount }.
+
+export const COORDINATE = /^vdex\.(area|category|id)\./;
+const DEPTH = { area: 0, category: 1, id: 2 };
+const HEADING = { md: /^(#{1,6})\s+(.+?)\s*#*\s*$/, mdx: /^(#{1,6})\s+(.+?)\s*#*\s*$/, org: /^(\*+)\s+(.+)$/ };
+const REFERENCE = /(?:→|->)\s?(\d\d(?:\.\d\d)?)\b|\[\[(\d\d(?:\.\d\d)?)[^\]]*\](?:\[[^\]]*\])?\]/g;
+
+export const place = (literal) => literal.symbol?.vdex ?? {};
+export const document = (literal) => literal.trait.DOCUMENT;
+
+export const coordinateOf = (literal) => {
+  const { area, category, id } = place(literal);
+  return id ? Object.entries(id)[0].join(".") : (category ?? area ?? null);
+};
+
+export const numeric = (coordinate) => coordinate.split(/[.-]/).map(Number);
+
+export const within = (area, category) => {
+  const [low, high] = numeric(area);
+  const held = Number(category);
+  return held >= low && held <= high;
+};
+
+export const node = (symbol) => {
+  const [, kind, ...rest] = symbol.slug.split(".");
+  return {
+    slug: symbol.slug,
+    depth: DEPTH[kind],
+    coordinate: rest.join("."),
+    name: symbol.trait?.LABELED?.name ?? "",
+    path: symbol.trait?.LABELED?.description ?? "",
+  };
+};
+
+export const rank = (held) => {
+  const [head, tail = 0] = numeric(held.coordinate);
+  if (held.depth === 0) return [head, 0, 0, 0];
+  return [Math.floor(head / 10) * 10, head, tail, held.depth];
+};
+
+export const before = (a, b) => {
+  const [x, y] = [rank(a), rank(b)];
+  return x[0] - y[0] || x[1] - y[1] || x[2] - y[2] || x[3] - y[3];
+};
+
+export const nodes = (symbols) => symbols.filter((symbol) => COORDINATE.test(symbol.slug)).map(node).sort(before);
+export const areas = (held) => held.filter((one) => one.depth === 0);
+export const categoriesOf = (held, area) => held.filter((one) => one.depth === 1 && within(area, one.coordinate));
+export const idsOf = (held, category) => held.filter((one) => one.depth === 2 && one.coordinate.split(".")[0] === category);
+export const areaOf = (held, category) => areas(held).find((area) => within(area.coordinate, category)) ?? null;
+export const named = (held, coordinate) => held.find((one) => one.coordinate === coordinate) ?? null;
+
+// documents under a category (any id, or loose); null = the unfiled — no category at all
+export const filed = (documents, category) =>
+  documents.filter((literal) => (category === null ? !place(literal).category : place(literal).category === category));
+
+export const inArea = (documents, area) => documents.filter((literal) => place(literal).area === area);
+
+export const under = (literal, held) => {
+  const { area, category, id } = place(literal);
+  if (held.depth === 0) return area === held.coordinate;
+  if (held.depth === 1) return category === held.coordinate;
+  const [head, tail] = held.coordinate.split(".");
+  return id?.[head] === tail;
+};
+
+export const sorted = (documents, by) =>
+  [...documents].sort(
+    by === "title"
+      ? (a, b) => document(a).title.localeCompare(document(b).title)
+      : by === "mtime"
+        ? (a, b) => (document(b).mtime ?? "").localeCompare(document(a).mtime ?? "")
+        : (a, b) => byCoordinate(coordinateOf(a), coordinateOf(b)) || a.slug.localeCompare(b.slug),
+  );
+
+// the unfiled sort last; a loose file (its category alone) sorts before the ids under that category
+const byCoordinate = (a, b) => (a === b ? 0 : a === null ? 1 : b === null ? -1 : a.localeCompare(b));
+
+// the next free id under a category: one past the highest minted, NN.00 being the index
+export const nextId = (held, category) => {
+  const taken = idsOf(held, category).map((one) => Number(one.coordinate.split(".")[1]));
+  return `${category}.${String((taken.length ? Math.max(...taken) : 0) + 1).padStart(2, "0")}`;
+};
+
+// id:22 · format:pdf · free text over slug + title
+export const find = (documents, query) => {
+  const trimmed = query.trim().toLowerCase();
+  if (!trimmed) return [];
+  const id = /id:(\S+)/.exec(trimmed)?.[1];
+  const format = /format:(\S+)/.exec(trimmed)?.[1];
+  const text = trimmed.replace(/(id|format):\S+/g, "").trim();
+  return documents.filter(
+    (literal) =>
+      (!id || (coordinateOf(literal) ?? "").startsWith(id)) &&
+      (!format || document(literal).format === format) &&
+      (!text || literal.slug.includes(text) || document(literal).title.toLowerCase().includes(text)),
+  );
+};
+
+// a document as sections: the lede, then one per heading at the shallowest level present. A leading markdown h1 is
+// the title, not a section. A section's body excludes its own heading line; from/to are line ranges over the text.
+export const sections = (text, format) => {
+  const lines = (text ?? "").split("\n");
+  const grammar = HEADING[format];
+  const whole = [{ key: 0, head: null, level: 0, from: 0, to: lines.length, body: lines.join("\n") }];
+  if (!grammar) return whole;
+  const heads = lines.map((line, at) => {
+    const match = line.match(grammar);
+    return match && { at, level: match[1].length, head: match[2] };
+  }).filter(Boolean);
+  const title = format !== "org" && heads[0]?.level === 1 && lines.slice(0, heads[0].at).every((line) => !line.trim()) ? heads[0] : null;
+  const rest = title ? heads.slice(1) : heads;
+  if (!rest.length) return [{ ...whole[0], from: title ? title.at + 1 : 0, body: lines.slice(title ? title.at + 1 : 0).join("\n") }];
+  const level = Math.min(...rest.map((one) => one.level));
+  const cuts = rest.filter((one) => one.level === level);
+  const start = title ? title.at + 1 : 0;
+  const held = [];
+  if (lines.slice(start, cuts[0].at).some((line) => line.trim())) held.push({ key: 0, head: null, level: 0, from: start, to: cuts[0].at, body: lines.slice(start, cuts[0].at).join("\n") });
+  cuts.forEach((cut, index) => {
+    const to = cuts[index + 1]?.at ?? lines.length;
+    held.push({ key: held.length, head: cut.head, level, from: cut.at, to, body: lines.slice(cut.at + 1, to).join("\n") });
+  });
+  return held;
+};
+
+export const blocks = (body) => body.split(/\n\s*\n/).filter((chunk) => chunk.trim()).length;
+
+// sections moved: the text before the first section stays, the sections follow the order given
+export const rearranged = (text, format, order) => {
+  const lines = (text ?? "").split("\n");
+  const held = sections(text, format).filter((section) => section.head !== null);
+  if (!held.length) return text;
+  const prefix = lines.slice(0, held[0].from);
+  const moved = order.map((key) => held.find((section) => section.key === key)).flatMap((section) => lines.slice(section.from, section.to));
+  return [...prefix, ...moved].join("\n");
+};
+
+export const references = (text) => [...new Set([...(text ?? "").matchAll(REFERENCE)].map((match) => match[1] ?? match[2]))];
+
+// the reader makes a reference a jump: → 22.04 and [[22.04 …]] become links to #vdex:22.04 in the renderer's own grammar
+export const linked = (text, format) =>
+  (text ?? "").replace(REFERENCE, (_, arrow, bracket) => {
+    const coordinate = arrow ?? bracket;
+    return format === "org" ? `[[#vdex:${coordinate}][→ ${coordinate}]]` : `[→ ${coordinate}](#vdex:${coordinate})`;
+  });
+
+export const size = (bytes) => (bytes < 1024 ? `${bytes} B` : bytes < 1048576 ? `${Math.round(bytes / 1024)} kB` : `${(bytes / 1048576).toFixed(1)} MB`);
+
+export const age = (iso, now = Date.now()) => {
+  if (!iso) return "";
+  const days = Math.max(0, Math.round((now - new Date(iso)) / 86400000));
+  return days < 1 ? "today" : days < 7 ? `${days}d` : days < 30 ? `${Math.round(days / 7)}w` : days < 365 ? `${Math.round(days / 30)}mo` : `${Math.round(days / 365)}y`;
+};
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/buffer/Vdex.svelte — the whole file
+
+#+begin_src svelte
+<script>
+  import { Key, Pip, Empty } from "@vivalence/drapes";
+  import Browser from "./parts/Browser.svelte";
+  import Reader from "./parts/Reader.svelte";
+  import Outline from "./parts/Outline.svelte";
+  import { nodes as coordinates, areas, categoriesOf, areaOf, named, filed, sorted, coordinateOf, document, place, nextId, find, sections, rearranged } from "./jdex.js";
+
+  let { terminal, daemon, mode, thread, buffer } = $props();
+
+  const VIEWS = ["tree", "columns", "list", "grid"];
+  const NEXT = { id: "title", title: "mtime", mtime: "id" };
+
+  let root = $state(null);
+  let width = $state(0);
+  const narrow = $derived(width > 0 && width < 820);
+  const tight = $derived(width > 0 && width < 900);
+
+  let symbols = $state.raw([]);
+  let documents = $state.raw([]);
+  const nodes = $derived(coordinates(symbols));
+
+  let cursor = $state({ area: null, category: null, slug: null, unfiled: false });
+  let level = $state(0);
+  let view = $state("tree");
+  let sort = $state("id");
+  let expanded = $state({});
+  let browser = $state(true);
+  let browserWidth = $state(null);
+  let outline = $state(null);
+  let tab = $state("sections");
+
+  let open = $state.raw(null);
+  let reading = $state("read");
+  let draft = $state("");
+  let drafts = $state({});
+  let folded = $state({});
+  const dirty = $derived(!!open && draft !== (open.text ?? ""));
+  const readable = $derived(!!open && document(open.literal).readable && document(open.literal).format !== "pdf");
+
+  let query = $state("");
+  let menu = $state({ open: false, moving: false, confirming: false });
+  let renaming = $state(null);
+  let creating = $state(false);
+  let log = $state.raw([]);
+  let fault = $state(null);
+
+  const listed = $derived(cursor.unfiled ? sorted(filed(documents, null), sort) : cursor.category ? sorted(filed(documents, cursor.category), sort) : []);
+  const results = $derived(find(documents, query).slice(0, 8));
+  const current = $derived(documents.find((literal) => literal.slug === cursor.slug) ?? null);
+  const area = $derived(cursor.area ? named(nodes, cursor.area) : null);
+  const category = $derived(cursor.category ? named(nodes, cursor.category) : null);
+
+  const widthFor = (held) => (held === "columns" ? Math.min(520, Math.max(360, Math.round(width * 0.42))) : held === "grid" ? 300 : 248);
+  const browserOn = $derived(narrow ? level < 3 : browser);
+  const columnWidth = $derived(browserWidth ?? widthFor(view));
+  const crowded = $derived(tight || narrow || (browserOn && width - columnWidth - 240 < 520));
+  const outlineOn = $derived(!!open && (narrow ? !!outline && level >= 3 : (outline ?? !crowded)));
+  const showDocument = $derived(!narrow || level >= 3);
+  const columns = $derived(narrow ? "minmax(0, 1fr)" : `${browserOn ? `${columnWidth}px ` : ""}minmax(0, 1fr)${outlineOn && !crowded ? " 240px" : ""}`);
+  const drill = () => narrow || (view !== "tree" && view !== "columns");
+  const closed = () => ({ open: false, moving: false, confirming: false });
+
+  // the wire: every route lands in the status bar; a refusal is shown, never thrown at the screen
+  async function call(route, input, shown = JSON.stringify(input)) {
+    log = [{ route: `/${route}`, arg: shown }, ...log].slice(0, 3);
+    try {
+      fault = null;
+      return await mode.call[route](input);
+    } catch (error) {
+      fault = `/${route} · ${error.message}`;
+      return null;
+    }
+  }
+
+  async function load() {
+    symbols = (await call("tree", {})) ?? [];
+    documents = (await call("documents", { limit: 2000 })) ?? [];
+    for (const held of areas(nodes)) expanded[held.coordinate] = true;
+    if (buffer?.data?.open) await read(buffer.data.open);
+    else if (buffer?.data?.id) list(buffer.data.id);
+  }
+
+  // a JD coordinate to list: 22 · 22.04 · 20-29
+  function list(coordinate) {
+    if (coordinate.includes("-")) {
+      cursor = { area: coordinate, category: categoriesOf(nodes, coordinate)[0]?.coordinate ?? null, slug: cursor.slug, unfiled: false };
+      level = 1;
+    } else {
+      const held = coordinate.split(".")[0];
+      cursor = { area: areaOf(nodes, held)?.coordinate ?? null, category: held, slug: documents.find((literal) => coordinateOf(literal) === coordinate)?.slug ?? null, unfiled: false };
+      level = 2;
+    }
+    expanded = { ...expanded, [cursor.area]: true, [cursor.category]: true };
+  }
+
+  function locate(literal) {
+    const { area: held, category: own } = place(literal);
+    cursor = { area: held ?? cursor.area, category: own ?? null, slug: literal.slug, unfiled: !own };
+  }
+
+  async function read(slug) {
+    const served = await call("document", { slug });
+    if (!served) return;
+    open = served;
+    locate(served.literal);
+    draft = drafts[slug] ?? served.text ?? "";
+    if (document(served.literal).format === "pdf") reading = "read";
+    if (narrow) level = 3;
+    cancel();
+  }
+
+  // the twitch, row by row: an event names its row — swapped, added or dropped in place, never a refetch
+  const swap = (held, event) => {
+    const id = event.entity?.id ?? event.entity;
+    const rest = held.filter((known) => known.id !== id);
+    return event.op === "delete" ? rest : [...rest, event.entity];
+  };
+  $effect(() =>
+    daemon.entities?.literal?.subscribe?.({ ontology: "vdex" }, (_, event) => {
+      documents = swap(documents, event);
+      if (!open || open.literal.id !== (event.entity?.id ?? event.entity)) return;
+      if (event.op === "delete") open = null;
+      else if (!dirty && event.entity.trait.DOCUMENT.hash !== open.literal.trait.DOCUMENT.hash) read(event.entity.slug);
+      else open = { ...open, literal: event.entity };
+    }),
+  );
+  $effect(() => daemon.entities?.symbol?.subscribe?.({ slug: { $like: "vdex.%" } }, (_, event) => (symbols = swap(symbols, event))));
+  $effect(() => {
+    if (open && dirty) drafts[open.literal.slug] = draft;
+  });
+
+  function pickArea(coordinate) {
+    cursor = { ...cursor, area: coordinate, unfiled: false };
+    if (view === "tree" && !narrow) {
+      expanded = { ...expanded, [coordinate]: !expanded[coordinate] };
+      level = 0;
+    } else {
+      cursor.category = categoriesOf(nodes, coordinate)[0]?.coordinate ?? null;
+      level = drill() ? 1 : 0;
+    }
+    cancel();
+  }
+  function pickCategory(coordinate) {
+    if (coordinate === null) {
+      cursor = { ...cursor, category: null, unfiled: true };
+      level = 2;
+      return cancel();
+    }
+    cursor = { ...cursor, area: areaOf(nodes, coordinate)?.coordinate ?? cursor.area, category: coordinate, unfiled: false };
+    if (view === "tree" && !narrow) {
+      expanded = { ...expanded, [coordinate]: !expanded[coordinate] };
+      level = 1;
+    } else level = drill() ? 2 : 1;
+    if (!listed.some((literal) => literal.slug === cursor.slug)) cursor.slug = listed[0]?.slug ?? cursor.slug;
+    cancel();
+  }
+  function pickDocument(slug) {
+    cursor.slug = slug;
+    read(slug);
+  }
+  function back() {
+    level = Math.max(0, Math.min(level, 3) - 1);
+    cancel();
+  }
+  function jump(coordinate) {
+    const literal = coordinate.includes(".") ? documents.find((held) => coordinateOf(held) === coordinate) : null;
+    if (literal) return read(literal.slug);
+    list(coordinate);
+    if (narrow) level = Math.min(level, 2);
+  }
+  function toggleBrowser() {
+    if (narrow) level = level >= 3 ? 2 : 3;
+    else browser = !browser;
+  }
+  function toggleOutline() {
+    if (narrow && level < 3) return;
+    outline = !outlineOn;
+  }
+  function cancel() {
+    menu = closed();
+    creating = false;
+    renaming = null;
+  }
+
+  async function save(text = draft) {
+    if (!open) return;
+    const served = await call("write", { slug: open.literal.slug, text }, `{slug: "${open.literal.slug}"}`);
+    if (!served) return;
+    delete drafts[open.literal.slug];
+    open = served;
+    draft = served.text ?? "";
+    documents = swap(documents, { op: "update", entity: served.literal });
+  }
+  function discard() {
+    if (!open) return;
+    delete drafts[open.literal.slug];
+    draft = open.text ?? "";
+  }
+  async function file(title) {
+    creating = false;
+    if (!title) return;
+    if (!cursor.category) return (fault = "pick a category first — a document files at NN.NN");
+    const served = await call("file", { id: nextId(nodes, cursor.category), title, format: "md" });
+    if (!served) return;
+    documents = swap(documents, { op: "create", entity: served.literal });
+    open = served;
+    locate(served.literal);
+    draft = served.text ?? "";
+    reading = "edit";
+    if (narrow) level = 3;
+  }
+  async function rename(slug, title) {
+    renaming = null;
+    const literal = documents.find((held) => held.slug === slug);
+    if (!literal || !title || title === document(literal).title) return;
+    const id = coordinateOf(literal);
+    if (!id?.includes(".")) return (fault = `${slug} has no id — a loose document is renamed on disk (in the App: later)`);
+    const served = await call("move", { slug, id, title });
+    if (!served) return;
+    documents = swap(documents, { op: "update", entity: served.literal });
+    cursor.slug = served.literal.slug;
+    if (open?.literal.slug === slug) {
+      open = served;
+      draft = drafts[slug] ?? served.text ?? "";
+    }
+  }
+  async function move(slug, target) {
+    const literal = documents.find((held) => held.slug === slug);
+    cancel();
+    if (!literal || !target || place(literal).category === target) return;
+    const served = await call("move", { slug, id: nextId(nodes, target) });
+    if (!served) return;
+    documents = swap(documents, { op: "update", entity: served.literal });
+    if (open?.literal.slug === slug) open = served;
+    locate(served.literal);
+    expanded = { ...expanded, [target]: true };
+  }
+  async function remove() {
+    const slug = cursor.slug;
+    cancel();
+    if (!slug) return;
+    if (!(await call("delete", { slug }))) return;
+    documents = documents.filter((held) => held.slug !== slug);
+    if (open?.literal.slug === slug) open = null;
+    cursor.slug = listed[0]?.slug ?? null;
+  }
+  async function duplicate() {
+    cancel();
+    if (!current) return;
+    const held = document(current);
+    const own = place(current).category;
+    if (!own) return (fault = `${current.slug} has no category to duplicate into`);
+    const text = open?.literal.slug === current.slug ? open.text : (await call("document", { slug: current.slug }))?.text;
+    if (text == null) return (fault = `${current.slug} is ${held.format} — a binary duplicates on disk (in the App: later)`);
+    const served = await call("file", { id: nextId(nodes, own), title: `${held.title} copy`, text, format: held.format });
+    if (!served) return;
+    documents = swap(documents, { op: "create", entity: served.literal });
+    read(served.literal.slug);
+  }
+
+  const headed = () => sections(open.text, document(open.literal).format).filter((section) => section.head !== null);
+  function fold(key) {
+    folded = { ...folded, [key]: !folded[key] };
+  }
+  function foldAll(value) {
+    folded = Object.fromEntries(headed().map((section) => [section.key, value]));
+  }
+  function reorder(key, before) {
+    const order = headed().map((section) => section.key);
+    const from = order.indexOf(key);
+    if (from < 0 || from === before || from === before - 1) return;
+    order.splice(from, 1);
+    order.splice(from < before ? before - 1 : before, 0, key);
+    save(rearranged(open.text, document(open.literal).format, order));
+  }
+  function step(key, direction) {
+    const order = headed().map((section) => section.key);
+    const from = order.indexOf(key);
+    const to = from + direction;
+    if (to < 0 || to >= order.length) return;
+    reorder(key, direction > 0 ? to + 1 : to);
+  }
+
+  const actions = {
+    area: pickArea,
+    category: pickCategory,
+    document: pickDocument,
+    open: (slug) => {
+      pickDocument(slug);
+      if (narrow) level = 3;
+    },
+    toggle: (coordinate) => (expanded = { ...expanded, [coordinate]: !expanded[coordinate] }),
+    back,
+    view: (held) => (view = held),
+    sort: () => (sort = NEXT[sort]),
+    browser: toggleBrowser,
+    menu: () => (menu = { ...closed(), open: !menu.open }),
+    create: () => {
+      menu = closed();
+      if (!cursor.category || cursor.unfiled) fault = "pick a category first — a document files at NN.NN";
+      else creating = true;
+    },
+    file,
+    cancel,
+    startRename: () => {
+      menu = closed();
+      renaming = cursor.slug;
+    },
+    rename,
+    startMove: () => (menu = { open: true, moving: true, confirming: false }),
+    move,
+    confirm: () => (menu = { open: true, moving: false, confirming: true }),
+    remove,
+    duplicate,
+    resize: (px) => (browserWidth = Math.max(160, Math.min(560, px))),
+    resetWidth: () => (browserWidth = null),
+  };
+  const reader = { jump, save: () => save(), discard, fold, outline: toggleOutline };
+  const outliner = { tab: (held) => (tab = held), close: () => (outline = false), fold, foldAll, reorder, step, jump };
+
+  function findKeys(event) {
+    event.stopPropagation();
+    if (event.key === "Enter" && results[0]) {
+      read(results[0].slug);
+      query = "";
+    }
+    if (event.key === "Escape") {
+      query = "";
+      event.target.blur();
+    }
+  }
+  function outside(event) {
+    if (menu.open && !event.target.closest(".menu, [data-menu]")) menu = closed();
+  }
+  function keys(event) {
+    const target = event.target;
+    if (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable) {
+      if (event.key === "Escape") target.blur();
+      return;
+    }
+    if (event.altKey && event.code === "Digit1") return toggleBrowser();
+    if (event.altKey && event.code === "Digit3") return toggleOutline();
+    if ((event.metaKey || event.ctrlKey) && event.key === "s") {
+      event.preventDefault();
+      return save();
+    }
+    if ((event.metaKey || event.ctrlKey) && event.key === "d") {
+      event.preventDefault();
+      return duplicate();
+    }
+    if (menu.confirming) {
+      if (event.key === "y") remove();
+      else if (event.key === "n" || event.key === "Escape") cancel();
+      return;
+    }
+    if (event.key === "Escape") return cancel();
+    const shown = Math.min(level, 2);
+    const at = listed.findIndex((literal) => literal.slug === cursor.slug);
+    const stepArea = (direction) => {
+      const held = areas(nodes);
+      const next = held[held.findIndex((one) => one.coordinate === cursor.area) + direction];
+      if (next) cursor = { ...cursor, area: next.coordinate, category: categoriesOf(nodes, next.coordinate)[0]?.coordinate ?? null, unfiled: false };
+    };
+    const stepCategory = (direction) => {
+      const held = categoriesOf(nodes, cursor.area ?? "");
+      const next = held[held.findIndex((one) => one.coordinate === cursor.category) + direction];
+      if (!next) return;
+      cursor = { ...cursor, category: next.coordinate, unfiled: false };
+      cursor.slug = listed[0]?.slug ?? cursor.slug;
+    };
+    switch (event.key) {
+      case "j":
+      case "ArrowDown":
+        event.preventDefault();
+        if (shown === 2) listed[at + 1] && pickDocument(listed[at + 1].slug);
+        else if (shown === 1) stepCategory(1);
+        else stepArea(1);
+        break;
+      case "k":
+      case "ArrowUp":
+        event.preventDefault();
+        if (shown === 2) listed[at - 1] && pickDocument(listed[at - 1].slug);
+        else if (shown === 1) stepCategory(-1);
+        else stepArea(-1);
+        break;
+      case "h":
+      case "ArrowLeft":
+        back();
+        break;
+      case "l":
+      case "ArrowRight":
+      case "Enter":
+        if (shown < 2) level = shown + 1;
+        else if (cursor.slug) actions.open(cursor.slug);
+        break;
+      case "n":
+        actions.create();
+        break;
+      case "r":
+        if (cursor.slug) actions.startRename();
+        break;
+      case "m":
+        if (cursor.slug) actions.startMove();
+        break;
+      case "d":
+      case "Backspace":
+      case "Delete":
+        if (cursor.slug) actions.confirm();
+        break;
+      case "e":
+        if (readable) reading = "edit";
+        break;
+      case "v":
+        reading = "read";
+        break;
+      case "s":
+        sort = NEXT[sort];
+        break;
+      case "g":
+        view = VIEWS[(VIEWS.indexOf(view) + 1) % VIEWS.length];
+        break;
+      case "/":
+        event.preventDefault();
+        root?.querySelector("input.query")?.focus();
+        break;
+    }
+  }
+
+  load();
+</script>
+
+<div class="vdex" class:narrow role="presentation" tabindex="-1" bind:this={root} bind:clientWidth={width} onkeydown={keys} onpointerdowncapture={outside}>
+  <header class="frame">
+    <button class="glyph" class:on={browserOn} title="browser · ⌥1" onclick={toggleBrowser}>▥</button>
+    <div class="crumbs">
+      {#if area}<Key label="{area.coordinate} {area.name}" onclick={() => jump(area.coordinate)} />{/if}
+      {#if category}<Key label="{category.coordinate} {category.name}" onclick={() => jump(category.coordinate)} />{/if}
+      <span class="slug">{open?.literal.slug ?? cursor.slug ?? ""}</span>
+    </div>
+    <span class="grow"></span>
+    <label class="find" class:wide={!narrow && width >= 1100}>
+      <span class="lens">⌕</span>
+      <input class="query" placeholder="find · id:22 · format:pdf · text" bind:value={query} onkeydown={findKeys} />
+      {#if query.trim()}
+        <div class="results">
+          {#each results as literal (literal.slug)}
+            <button class="result" onclick={() => ((query = ""), read(literal.slug))}>
+              <span class="code">{coordinateOf(literal) ?? "—"}</span>
+              <span class="text">{document(literal).title}</span>
+              <span class="dim">{document(literal).format}</span>
+            </button>
+          {/each}
+          <div class="note">{results.length ? `${results.length} of ${documents.length} · slug + title` : `nothing matches — not in the vdex`}</div>
+        </div>
+      {/if}
+    </label>
+    {#if readable}
+      <div class="segment">
+        <button class:on={reading === "read"} title="read · v" onclick={() => (reading = "read")}>read</button>
+        <button class:on={reading === "edit"} title="edit · e" onclick={() => (reading = "edit")}>edit</button>
+      </div>
+    {/if}
+    <button class="glyph" class:on={outlineOn} title="outline · ⌥3" onclick={toggleOutline}>☰</button>
+    <button class="save" class:dirty title="save · ⌘S" disabled={!open || !readable} onclick={() => save()}>
+      <Pip size={5} tone={dirty ? "warning" : "success"} />{dirty ? "unsaved · ⌘S" : "synced"}
+    </button>
+  </header>
+
+  <div class="body" style:grid-template-columns={columns}>
+    {#if browserOn}
+      <Browser {nodes} {documents} {listed} {cursor} {level} {view} {sort} {expanded} {narrow} {renaming} {creating} {menu} {actions} />
+    {/if}
+    {#if showDocument}
+      <div class="stage">
+        {#if open}
+          <Reader {open} {reading} bind:draft {folded} {dirty} {narrow} outline={outlineOn} actions={reader} />
+        {:else}
+          <Empty verb="nothing open" trace="pick a document — a coordinate, a title, a slug" />
+        {/if}
+      </div>
+    {/if}
+    {#if outlineOn}
+      <Outline {open} {folded} {tab} {documents} overlay={crowded} actions={outliner} />
+    {/if}
+  </div>
+
+  <footer class="status">
+    <span class="tag">[VDEX]</span>
+    <span class="line">{documents.length} documents · {nodes.length} coordinates</span>
+    <span class="grow"></span>
+    {#if fault}<span class="call fault"><Pip size={4} tone="danger" /><span class="arg">{fault}</span></span>{/if}
+    {#each log as entry, index (index)}
+      <span class="call" style:opacity={index === 0 ? 1 : 0.5}><Pip size={4} tone="success" /><span class="route">{entry.route}</span><span class="arg">{entry.arg}</span></span>
+    {/each}
+  </footer>
+</div>
+
+<style>
+  .vdex {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    outline: none;
+    background: var(--colors-skeleton-0-surface);
+    color: var(--colors-skeleton-0-contrast);
+    font-family: var(--font-family-code);
+  }
+  .frame {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 10px;
+    border-bottom: 1px solid var(--colors-skeleton-1-boundary);
+    font-size: var(--font-size-xs);
+    flex: none;
+  }
+  .glyph {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: var(--border-radius-default);
+    background: transparent;
+    color: var(--text-support);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    flex: none;
+  }
+  .glyph:hover {
+    background: var(--colors-skeleton-3-surface);
+  }
+  .glyph.on {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .crumbs {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .slug {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--colors-skeleton-0-contrast);
+  }
+  .grow {
+    flex: 1;
+  }
+  .find {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 10px;
+    width: 180px;
+    min-width: 0;
+    border: 1px solid var(--colors-skeleton-2-boundary);
+    border-radius: var(--border-radius-default);
+    color: var(--text-support);
+    flex: none;
+  }
+  .find.wide {
+    width: 240px;
+  }
+  .narrow .find {
+    width: 120px;
+  }
+  .find:focus-within {
+    border-color: var(--colors-skeleton-0-primary-base);
+  }
+  .find input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    color: var(--colors-skeleton-0-contrast);
+    font: inherit;
+    font-size: var(--font-size-sm);
+  }
+  .results {
+    position: absolute;
+    left: -1px;
+    right: -1px;
+    top: 34px;
+    z-index: 7;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 280px;
+    overflow: auto;
+    padding: 4px;
+    background: var(--colors-skeleton-5-surface);
+    color: var(--colors-skeleton-5-contrast);
+    border: 1px solid var(--colors-skeleton-5-boundary);
+    border-radius: var(--border-radius-default);
+    box-shadow: 0 6px 18px var(--shadow-soft);
+  }
+  .result {
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .result:hover {
+    background: var(--colors-skeleton-3-surface);
+  }
+  .code {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .result .text {
+    font-family: var(--font-family-sans-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dim,
+  .note {
+    font-size: var(--font-size-2xs);
+    color: var(--text-support);
+  }
+  .note {
+    padding: 6px 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .segment {
+    display: flex;
+    border: 1px solid var(--colors-skeleton-3-boundary);
+    border-radius: var(--border-radius-default);
+    overflow: hidden;
+    flex: none;
+  }
+  .segment button {
+    height: 28px;
+    padding: 0 10px;
+    border: 0;
+    background: transparent;
+    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 55%, transparent);
+    font: inherit;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .segment button + button {
+    border-left: 1px solid var(--colors-skeleton-3-boundary);
+  }
+  .segment button.on {
+    color: var(--colors-skeleton-0-primary-base);
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent);
+  }
+  .save {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 10px;
+    border: 1px solid var(--colors-skeleton-3-boundary);
+    border-radius: var(--border-radius-default);
+    background: transparent;
+    color: var(--text-support);
+    font: inherit;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    cursor: pointer;
+    flex: none;
+  }
+  .save.dirty {
+    color: var(--colors-skeleton-0-warning-base);
+    border-color: color-mix(in srgb, var(--colors-skeleton-0-warning-base) 45%, transparent);
+  }
+  .save:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .body {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    overflow: hidden;
+  }
+  .stage {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  .status {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 28px;
+    padding: 0 10px;
+    border-top: 1px solid var(--colors-skeleton-1-boundary);
+    background: var(--colors-skeleton-1-surface);
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.06em;
+    color: var(--text-support);
+    overflow: hidden;
+    white-space: nowrap;
+    flex: none;
+  }
+  .tag {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .line {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .call {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+  }
+  .route {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .arg {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fault {
+    color: var(--colors-skeleton-0-danger-base);
+  }
+  .fault .arg {
+    max-width: 360px;
+  }
+  @media (pointer: coarse) {
+    .glyph,
+    .save,
+    .find,
+    .segment button {
+      min-height: 44px;
+    }
+  }
+</style>
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Browser.svelte — the whole file
+
+#+begin_src svelte
+<script>
+  import Tree from "./Tree.svelte";
+  import Columns from "./Columns.svelte";
+  import Rows from "./Rows.svelte";
+  import { areas, categoriesOf, named, nextId } from "../jdex.js";
+
+  let { nodes, documents, listed, cursor, level, view, sort, expanded, narrow, renaming, creating, menu, actions } = $props();
+
+  const VIEWS = [
+    ["tree", "⌥", "tree · finder list"],
+    ["columns", "▥", "columns"],
+    ["list", "≡", "list · title + meta"],
+    ["grid", "▦", "grid · cards"],
+  ];
+  const shown = $derived(Math.min(level, 2));
+  const drill = $derived(narrow || (view !== "tree" && view !== "columns"));
+  const area = $derived(cursor.area ? named(nodes, cursor.area) : null);
+  const category = $derived(cursor.category ? named(nodes, cursor.category) : null);
+  const label = $derived(
+    !drill || shown === 0 ? "jdex" : shown === 1 ? `${area?.coordinate ?? ""} ${area?.name ?? ""}` : cursor.unfiled ? "unfiled" : `${category?.coordinate ?? ""} ${category?.name ?? ""}`,
+  );
+  const count = $derived(!drill ? documents.length : shown === 0 ? areas(nodes).length : shown === 1 ? categoriesOf(nodes, cursor.area ?? "").length : listed.length);
+  const current = $derived(documents.find((literal) => literal.slug === cursor.slug) ?? null);
+  const targets = $derived(
+    areas(nodes).flatMap((held) => categoriesOf(nodes, held.coordinate).filter((one) => one.coordinate !== cursor.category).map((one) => ({ ...one, area: held.name }))),
+  );
+  const entries = $derived([
+    { label: "new", key: "n", tone: "primary", run: actions.create },
+    { label: "rename", key: "r", run: actions.startRename, disabled: !current },
+    { label: `sort · ${sort}`, key: "s", run: actions.sort },
+    { label: "move to…", key: "m", run: actions.startMove, disabled: !current },
+    { label: "duplicate", key: "⌘d", run: actions.duplicate, disabled: !current },
+    { label: "export · download", key: "later", disabled: true },
+    { label: "import · upload files", key: "later", disabled: true },
+    { label: "delete", key: "⌫", tone: "danger", run: actions.confirm, disabled: !current },
+  ]);
+
+  let title = $state("");
+  const focused = (node) => node.focus();
+  function createKeys(event) {
+    event.stopPropagation();
+    if (event.key === "Enter") {
+      actions.file(title.trim());
+      title = "";
+    }
+    if (event.key === "Escape") actions.cancel();
+  }
+  function resize(event) {
+    event.preventDefault();
+    const left = event.currentTarget.parentElement.getBoundingClientRect().left;
+    const move = (held) => actions.resize(Math.round(held.clientX - left));
+    const stop = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", stop);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", stop);
+  }
+</script>
+
+<aside class="browser" class:narrow>
+  <div class="head">
+    {#if drill && shown > 0}<button class="glyph primary" title="back · h" onclick={actions.back}>‹</button>{/if}
+    <span class="level">{label}</span>
+    <span class="count">{count}</span>
+    <span class="grow"></span>
+    {#if cursor.category && !cursor.unfiled}<button class="glyph primary" title="new · n" onclick={actions.create}>+</button>{/if}
+    {#if !narrow}
+      <div class="views">
+        {#each VIEWS as [key, glyph, hint] (key)}
+          <button class:on={view === key} title={hint} onclick={() => actions.view(key)}>{glyph}</button>
+        {/each}
+      </div>
+    {/if}
+    <button class="glyph" class:on={menu.open} title="actions" data-menu onclick={actions.menu}>⋯</button>
+    {#if !narrow}<button class="glyph" title="hide · ⌥1" onclick={actions.browser}>×</button>{/if}
+  </div>
+
+  {#if creating}
+    <div class="create">
+      <span class="code">{cursor.category ? nextId(nodes, cursor.category) : "—"}</span>
+      <input class="title" placeholder="title ↵ · a new md" bind:value={title} onkeydown={createKeys} use:focused />
+    </div>
+  {/if}
+
+  {#if !drill && view === "tree"}
+    <Tree {nodes} {documents} {cursor} {level} {expanded} {sort} {renaming} {actions} />
+  {:else if !drill && view === "columns"}
+    <Columns {nodes} {documents} {listed} {cursor} {level} {renaming} {actions} />
+  {:else}
+    <Rows {nodes} {documents} {listed} {cursor} {level} grid={view === "grid" && !narrow} {renaming} {actions} />
+  {/if}
+
+  {#if menu.open}
+    <div class="menu">
+      {#if menu.moving}
+        <div class="menu-head">move to · esc</div>
+        <div class="targets">
+          {#each targets as target (target.slug)}
+            <button class="entry" onclick={() => actions.move(cursor.slug, target.coordinate)}>
+              <span class="code">{target.coordinate}</span><span class="name">{target.name}</span><span class="dim">{target.area}</span>
+            </button>
+          {/each}
+        </div>
+      {:else if menu.confirming}
+        <div class="confirm">
+          <span class="ask">Delete <span class="danger">{cursor.slug}</span>? The row goes with the file.</span>
+          <div class="pair">
+            <button class="yes" onclick={actions.remove}>y · delete</button>
+            <button class="no" onclick={actions.cancel}>n</button>
+          </div>
+        </div>
+      {:else}
+        <div class="menu-head">{cursor.slug ?? label}</div>
+        {#each entries as entry (entry.label)}
+          <button class="entry {entry.tone ?? ''}" disabled={entry.disabled} onclick={entry.run}>
+            <span class="name">{entry.label}</span><kbd>{entry.key}</kbd>
+          </button>
+        {/each}
+      {/if}
+    </div>
+  {/if}
+
+  {#if !narrow}<button class="handle" title="drag · double-click resets" onpointerdown={resize} ondblclick={actions.resetWidth} aria-label="resize"></button>{/if}
+</aside>
+
+<style>
+  .browser {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--colors-skeleton-2-surface);
+    color: var(--colors-skeleton-2-contrast);
+    border-right: 1px solid var(--colors-skeleton-2-boundary);
+    font-family: var(--font-family-code);
+  }
+  .browser.narrow {
+    border-right: 0;
+  }
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 36px;
+    padding: 0 6px 0 8px;
+    border-bottom: 1px solid var(--colors-skeleton-2-boundary);
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-support);
+    flex: none;
+  }
+  .level {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--colors-skeleton-2-contrast);
+  }
+  .count {
+    opacity: 0.6;
+  }
+  .grow {
+    flex: 1;
+  }
+  .glyph,
+  .views button {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    border: 0;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    color: var(--text-support);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    flex: none;
+  }
+  .glyph:hover,
+  .views button:hover {
+    background: var(--colors-skeleton-3-surface);
+    color: var(--colors-skeleton-3-contrast);
+  }
+  .glyph.primary,
+  .glyph.on {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .views {
+    display: flex;
+    border: 1px solid var(--colors-skeleton-2-boundary);
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+    flex: none;
+  }
+  .views button {
+    width: 22px;
+    height: 22px;
+    border-radius: 0;
+    font-size: var(--font-size-xs);
+  }
+  .views button + button {
+    border-left: 1px solid var(--colors-skeleton-2-boundary);
+  }
+  .views button.on {
+    color: var(--colors-skeleton-0-primary-base);
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent);
+  }
+  .create {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--colors-skeleton-2-boundary);
+    font-size: var(--font-size-xs);
+  }
+  .code {
+    color: var(--colors-skeleton-0-primary-base);
+    white-space: nowrap;
+  }
+  .title {
+    flex: 1;
+    min-width: 0;
+    height: 24px;
+    padding: 0 6px;
+    background: var(--colors-skeleton-0-surface);
+    border: 1px solid var(--colors-skeleton-0-primary-base);
+    border-radius: var(--border-radius-sm);
+    color: var(--colors-skeleton-0-contrast);
+    font-family: var(--font-family-sans-text);
+    font-size: var(--font-size-sm);
+    outline: none;
+  }
+  .menu {
+    position: absolute;
+    right: 4px;
+    top: 38px;
+    z-index: 7;
+    width: 212px;
+    box-sizing: border-box;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--colors-skeleton-5-surface);
+    color: var(--colors-skeleton-5-contrast);
+    border: 1px solid var(--colors-skeleton-5-boundary);
+    border-radius: var(--border-radius-default);
+    box-shadow: 0 6px 18px var(--shadow-soft);
+    font-size: var(--font-size-xs);
+  }
+  .menu-head {
+    padding: 6px 8px 4px;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-support);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .entry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .entry:hover {
+    background: var(--colors-skeleton-3-surface);
+  }
+  .entry:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .entry.primary {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .entry.danger {
+    color: var(--colors-skeleton-0-danger-base);
+  }
+  .entry .name {
+    font-family: var(--font-family-sans-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .entry kbd,
+  .entry .dim {
+    font: inherit;
+    font-size: var(--font-size-2xs);
+    color: var(--text-support);
+  }
+  .targets {
+    max-height: 240px;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .targets .entry {
+    grid-template-columns: 24px minmax(0, 1fr) auto;
+    min-height: 28px;
+  }
+  .confirm {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .ask {
+    font-family: var(--font-family-sans-text);
+  }
+  .ask .danger {
+    font-family: var(--font-family-code);
+    color: var(--colors-skeleton-0-danger-base);
+  }
+  .pair {
+    display: flex;
+    gap: 6px;
+  }
+  .pair button {
+    flex: 1;
+    height: 30px;
+    border: 1px solid var(--colors-skeleton-3-boundary);
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    color: var(--text-support);
+    font: inherit;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .pair .yes {
+    border-color: var(--colors-skeleton-0-danger-base);
+    color: var(--colors-skeleton-0-danger-base);
+  }
+  .handle {
+    position: absolute;
+    right: -3px;
+    top: 0;
+    bottom: 0;
+    width: 6px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: col-resize;
+    z-index: 6;
+  }
+  .handle:hover {
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 35%, transparent);
+  }
+  @media (pointer: coarse) {
+    .glyph,
+    .entry {
+      min-height: 44px;
+    }
+    .glyph {
+      width: 36px;
+    }
+  }
+</style>
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Tree.svelte — the whole file
+
+#+begin_src svelte
+<script>
+  import { drag } from "@vivalence/drapes";
+  import Row from "./Row.svelte";
+  import { areas, categoriesOf, filed, inArea, sorted, document, place } from "../jdex.js";
+
+  let { nodes, documents, cursor, level, expanded, sort, renaming, actions } = $props();
+
+  let over = $state(null);
+  const unfiled = $derived(filed(documents, null));
+  const lift = (slug) => ({
+    payload: slug,
+    onmove: (target) => (over = target?.dataset.category ?? null),
+    ondrop: (target, held) => target && actions.move(held, target.dataset.category),
+    onend: () => (over = null),
+  });
+  const id = (literal) => {
+    const held = place(literal).id;
+    return held ? Object.values(held)[0] : "·";
+  };
+</script>
+
+{#snippet leaf(literal, indent)}
+  <div class="lift" use:drag={lift(literal.slug)}>
+    <Row
+      code={id(literal)}
+      label={document(literal).title}
+      tail={document(literal).format}
+      tailTone={document(literal).format === "pdf" ? "warning" : "support"}
+      on={cursor.slug === literal.slug}
+      focus={cursor.slug === literal.slug && level >= 2}
+      caret=""
+      {indent}
+      renaming={renaming === literal.slug}
+      onpick={() => actions.document(literal.slug)}
+      onopen={() => actions.open(literal.slug)}
+      onrename={(title) => actions.rename(literal.slug, title)}
+      oncancel={actions.cancel} />
+  </div>
+{/snippet}
+
+<div class="tree">
+  {#each areas(nodes) as area (area.slug)}
+    <Row
+      code={area.coordinate}
+      label={area.name}
+      tail={inArea(documents, area.coordinate).length}
+      on={cursor.area === area.coordinate && level === 0}
+      caret={expanded[area.coordinate] ? "▾" : "▸"}
+      onpick={() => actions.area(area.coordinate)} />
+    {#if expanded[area.coordinate]}
+      {#each categoriesOf(nodes, area.coordinate) as category (category.slug)}
+        {@const held = filed(documents, category.coordinate)}
+        <Row
+          code={category.coordinate}
+          label={category.name}
+          tail={held.length}
+          on={cursor.category === category.coordinate}
+          focus={cursor.category === category.coordinate && level === 1}
+          caret={held.length ? (expanded[category.coordinate] ? "▾" : "▸") : "·"}
+          indent={16}
+          drop={over === category.coordinate}
+          data-drop
+          data-category={category.coordinate}
+          onpick={() => actions.category(category.coordinate)} />
+        {#if expanded[category.coordinate]}
+          {#each sorted(held, sort) as literal (literal.slug)}
+            {@render leaf(literal, 32)}
+          {/each}
+        {/if}
+      {/each}
+    {/if}
+  {/each}
+  {#if unfiled.length}
+    <Row code="—" label="unfiled" tail={unfiled.length} caret={expanded.unfiled ? "▾" : "▸"} onpick={() => actions.toggle("unfiled")} />
+    {#if expanded.unfiled}
+      {#each sorted(unfiled, sort) as literal (literal.slug)}
+        {@render leaf(literal, 16)}
+      {/each}
+    {/if}
+  {/if}
+</div>
+
+<style>
+  .tree {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .lift {
+    display: block;
+    min-width: 0;
+  }
+  .lift:global(.lifted) {
+    opacity: 0.35;
+  }
+</style>
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Columns.svelte — the whole file
+
+#+begin_src svelte
+<script>
+  import { drag, Empty } from "@vivalence/drapes";
+  import Row from "./Row.svelte";
+  import { areas, categoriesOf, filed, nextId, document, place } from "../jdex.js";
+
+  let { nodes, documents, listed, cursor, level, renaming, actions } = $props();
+
+  let over = $state(null);
+  const categories = $derived(cursor.area ? categoriesOf(nodes, cursor.area) : []);
+  const lift = (slug) => ({
+    payload: slug,
+    onmove: (target) => (over = target?.dataset.category ?? null),
+    ondrop: (target, slug) => target && actions.move(slug, target.dataset.category),
+    onend: () => (over = null),
+  });
+  const id = (literal) => {
+    const coordinate = place(literal).id;
+    return coordinate ? Object.values(coordinate)[0] : "·";
+  };
+</script>
+
+<div class="columns">
+  <div class="column">
+    {#each areas(nodes) as area (area.slug)}
+      <Row
+        code={area.coordinate}
+        label={area.name}
+        tail="›"
+        on={cursor.area === area.coordinate}
+        focus={cursor.area === area.coordinate && level === 0}
+        onpick={() => actions.area(area.coordinate)} />
+    {/each}
+    {#if filed(documents, null).length}
+      <Row code="—" label="unfiled" tail="›" on={cursor.unfiled} onpick={() => actions.category(null)} />
+    {/if}
+  </div>
+  <div class="column">
+    {#each categories as category (category.slug)}
+      <Row
+        code={category.coordinate}
+        label={category.name}
+        tail="{filed(documents, category.coordinate).length} ›"
+        on={cursor.category === category.coordinate}
+        focus={cursor.category === category.coordinate && level === 1}
+        drop={over === category.coordinate}
+        data-drop
+        data-category={category.coordinate}
+        onpick={() => actions.category(category.coordinate)} />
+    {/each}
+    {#if cursor.area && !categories.length}
+      <Empty verb="no categories" dashed />
+    {/if}
+  </div>
+  <div class="column">
+    {#each listed as literal (literal.slug)}
+      <div class="lift" use:drag={lift(literal.slug)}>
+        <Row
+          code={id(literal)}
+          label={document(literal).title}
+          tail={document(literal).format}
+          tailTone={document(literal).format === "pdf" ? "warning" : "support"}
+          on={cursor.slug === literal.slug}
+          focus={cursor.slug === literal.slug && level >= 2}
+          renaming={renaming === literal.slug}
+          onpick={() => actions.document(literal.slug)}
+          onopen={() => actions.open(literal.slug)}
+          onrename={(title) => actions.rename(literal.slug, title)}
+          oncancel={actions.cancel} />
+      </div>
+    {/each}
+    {#if cursor.category && !listed.length}
+      <button class="mint" onclick={actions.create}>nothing filed · <span class="plus">+</span> mints {nextId(nodes, cursor.category)}</button>
+    {/if}
+  </div>
+</div>
+
+<style>
+  .columns {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1fr) minmax(0, 1.3fr);
+    overflow: hidden;
+  }
+  .column {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 4px;
+    overflow: auto;
+    min-width: 0;
+    border-right: 1px solid var(--colors-skeleton-2-boundary);
+  }
+  .column:last-child {
+    border-right: 0;
+  }
+  .lift {
+    display: block;
+    min-width: 0;
+  }
+  .lift:global(.lifted) {
+    opacity: 0.35;
+  }
+  .mint {
+    margin: 6px;
+    min-height: 44px;
+    border: 1px dashed color-mix(in srgb, var(--colors-skeleton-3-boundary) 80%, transparent);
+    border-radius: var(--border-radius-default);
+    background: transparent;
+    color: var(--text-support);
+    font: inherit;
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.04em;
+    cursor: pointer;
+  }
+  .plus {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+</style>
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Rows.svelte — the whole file
+
+#+begin_src svelte
+<script>
+  import { drag } from "@vivalence/drapes";
+  import Row from "./Row.svelte";
+  import { areas, categoriesOf, filed, inArea, nextId, document, place, size, age } from "../jdex.js";
+
+  let { nodes, documents, listed, cursor, level, grid, renaming, actions } = $props();
+
+  let over = $state(null);
+  const shown = $derived(Math.min(level, 2));
+  const lift = (slug) => ({
+    payload: slug,
+    onmove: (target) => (over = target?.dataset.category ?? null),
+    ondrop: (target, held) => target && actions.move(held, target.dataset.category),
+    onend: () => (over = null),
+  });
+  const id = (literal) => {
+    const held = place(literal).id;
+    return held ? Object.values(held)[0] : "·";
+  };
+</script>
+
+<div class="rows" class:grid={grid && shown === 2}>
+  {#if shown === 0}
+    {#each areas(nodes) as area (area.slug)}
+      <Row code={area.coordinate} label={area.name} tail="{inArea(documents, area.coordinate).length} ›" on={cursor.area === area.coordinate} focus={cursor.area === area.coordinate} onpick={() => actions.area(area.coordinate)} />
+    {/each}
+    {#if filed(documents, null).length}
+      <Row code="—" label="unfiled" tail="{filed(documents, null).length} ›" on={cursor.unfiled} onpick={() => actions.category(null)} />
+    {/if}
+  {:else if shown === 1}
+    {#each categoriesOf(nodes, cursor.area ?? "") as category (category.slug)}
+      <Row
+        code={category.coordinate}
+        label={category.name}
+        tail="{filed(documents, category.coordinate).length} ›"
+        on={cursor.category === category.coordinate}
+        focus={cursor.category === category.coordinate}
+        drop={over === category.coordinate}
+        data-drop
+        data-category={category.coordinate}
+        onpick={() => actions.category(category.coordinate)} />
+    {/each}
+  {:else}
+    {#each listed as literal (literal.slug)}
+      <div class="lift" use:drag={lift(literal.slug)}>
+        <Row
+          code={id(literal)}
+          label={document(literal).title}
+          meta="{size(document(literal).bytes)} · {age(document(literal).mtime)}"
+          tail={document(literal).format}
+          tailTone={document(literal).format === "pdf" ? "warning" : "support"}
+          on={cursor.slug === literal.slug}
+          focus={cursor.slug === literal.slug}
+          card={grid}
+          renaming={renaming === literal.slug}
+          onpick={() => actions.document(literal.slug)}
+          onopen={() => actions.open(literal.slug)}
+          onrename={(title) => actions.rename(literal.slug, title)}
+          oncancel={actions.cancel} />
+      </div>
+    {/each}
+    {#if !listed.length && cursor.category}
+      <button class="mint" onclick={actions.create}>nothing filed · <span class="plus">+</span> mints {nextId(nodes, cursor.category)}.….md</button>
+    {/if}
+  {/if}
+</div>
+
+<style>
+  .rows {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .rows.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 4px;
+    align-content: start;
+  }
+  .lift {
+    display: block;
+    min-width: 0;
+  }
+  .lift:global(.lifted) {
+    opacity: 0.35;
+  }
+  .mint {
+    margin: 6px;
+    min-height: 56px;
+    padding: 0 10px;
+    border: 1px dashed color-mix(in srgb, var(--colors-skeleton-3-boundary) 80%, transparent);
+    border-radius: var(--border-radius-default);
+    background: transparent;
+    color: var(--text-support);
+    font: inherit;
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.04em;
+    text-align: center;
+    cursor: pointer;
+  }
+  .grid .mint {
+    grid-column: 1 / -1;
+  }
+  .plus {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+</style>
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Row.svelte — the whole file
+
+#+begin_src svelte
+<script>
+  import { Pip } from "@vivalence/drapes";
+
+  let {
+    code,
+    label,
+    meta = null,
+    tail = null,
+    tailTone = "support",
+    on = false,
+    focus = false,
+    caret = null,
+    indent = 0,
+    card = false,
+    drop = false,
+    renaming = false,
+    pip = null,
+    oncaret = null,
+    onpick,
+    onopen = null,
+    onrename = null,
+    oncancel = null,
+    ...rest
+  } = $props();
+
+  let title = $state(label);
+  const focused = (node) => {
+    node.focus();
+    node.select();
+  };
+  function keys(event) {
+    event.stopPropagation();
+    if (event.key === "Enter") onrename?.(title.trim());
+    if (event.key === "Escape") oncancel?.();
+  }
+</script>
+
+{#if renaming}
+  <div class="row renaming" class:card style:padding-left="{6 + indent}px">
+    <span class="code">{code}</span>
+    <input class="rename" bind:value={title} onkeydown={keys} onblur={() => oncancel?.()} use:focused />
+  </div>
+{:else}
+  <button class="row" class:on class:focus class:card class:drop style:padding-left="{6 + indent}px" onclick={onpick} ondblclick={onopen} {...rest}>
+    {#if caret !== null}<span class="caret" class:blank={caret === ""}>{caret}</span>{/if}
+    {#if pip}<Pip size={5} tone={pip} />{/if}
+    <span class="code" class:loose={code === "·"}>{code}</span>
+    <span class="text">
+      <span class="label">{label}</span>
+      {#if meta}<span class="meta">{meta}</span>{/if}
+    </span>
+    {#if tail !== null}<span class="tail {tailTone}">{tail}</span>{/if}
+  </button>
+{/if}
+
+<style>
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 26px;
+    padding: 0 6px;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    color: var(--colors-skeleton-2-contrast);
+    font: inherit;
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-xs);
+    text-align: left;
+    min-width: 0;
+    width: 100%;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .row:hover {
+    background: var(--colors-skeleton-3-surface);
+  }
+  .row.on {
+    background: var(--colors-skeleton-3-surface);
+    color: var(--colors-skeleton-3-contrast);
+  }
+  .row.focus {
+    background: color-mix(in srgb, var(--colors-skeleton-4-surface) 55%, transparent);
+  }
+  .row.drop {
+    outline: 1px dashed var(--colors-skeleton-0-primary-base);
+  }
+  .row.card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    min-height: 72px;
+    padding: 8px;
+    border-color: var(--colors-skeleton-2-boundary);
+  }
+  .caret {
+    width: 14px;
+    flex: none;
+    text-align: center;
+    font-size: var(--font-size-2xs);
+    color: var(--text-support);
+  }
+  .caret.blank {
+    opacity: 0;
+  }
+  .code {
+    flex: none;
+    color: var(--colors-skeleton-0-primary-base);
+    white-space: nowrap;
+  }
+  .code.loose {
+    color: var(--text-support);
+  }
+  .text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .label {
+    font-family: var(--font-family-sans-text);
+    font-size: var(--font-size-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .meta {
+    font-size: var(--font-size-2xs);
+    color: var(--text-support);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tail {
+    flex: none;
+    font-size: var(--font-size-2xs);
+    white-space: nowrap;
+    color: var(--text-support);
+  }
+  .tail.warning {
+    color: var(--colors-skeleton-0-warning-base);
+  }
+  .tail.primary {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .renaming {
+    cursor: default;
+  }
+  .rename {
+    flex: 1;
+    min-width: 0;
+    height: 22px;
+    padding: 0 6px;
+    background: var(--colors-skeleton-0-surface);
+    border: 1px solid var(--colors-skeleton-0-primary-base);
+    border-radius: var(--border-radius-sm);
+    color: var(--colors-skeleton-0-contrast);
+    font-family: var(--font-family-sans-text);
+    font-size: var(--font-size-sm);
+    outline: none;
+  }
+  @media (pointer: coarse) {
+    .row {
+      min-height: 44px;
+    }
+  }
+</style>
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Reader.svelte — the whole file
+
+#+begin_src svelte
+<script>
+  import { Key, Empty, Markdown, Org, Json, Paragraph, Pdf } from "@vivalence/drapes";
+  import { document, sections, blocks, references, linked, size, age } from "../jdex.js";
+
+  let { open, reading, draft = $bindable(""), folded, dirty, narrow, outline, actions } = $props();
+
+  const held = $derived(document(open.literal));
+  const parts = $derived(sections(open.text, held.format));
+  const refs = $derived(references(open.text));
+  const pdf = $derived(held.format === "pdf");
+  const parsed = (text) => {
+    try {
+      return JSON.parse(text || "null");
+    } catch {
+      return null;
+    }
+  };
+  function jump(event) {
+    const href = event.target.closest("a")?.getAttribute("href") ?? "";
+    if (!href.startsWith("#vdex:")) return;
+    event.preventDefault();
+    actions.jump(href.slice(6));
+  }
+</script>
+
+<section class="reader" class:narrow>
+  {#if !held.readable}
+    <Empty verb="not readable" trace="{held.format} — indexed only; open it where it lives: {held.asset.path}" />
+  {:else if pdf}
+    <div class="pdf">
+      <div class="paper"><Pdf url={open.url} title={held.title} /></div>
+      <div class="chips">
+        <Key label="pdf · {size(held.bytes)}" />
+        <Key label="↗ cargo" tone="primary" disabled={!open.url} onclick={() => window.open(open.url, "_blank")} />
+        <Key label="↓ download" disabled title="later" />
+        <Key label="ocr · later" disabled title="an ocr service, later" />
+      </div>
+      <p class="note">The tools answer “binary — open it in the app” with the cargo url. Read is the viewer; edit is not offered for a pdf.</p>
+    </div>
+  {:else if reading === "edit"}
+    <div class="edit">
+      <textarea class="editor" bind:value={draft} spellcheck="false"></textarea>
+      <div class="tray">
+        <Key label="save · ⌘S" tone="primary" disabled={!dirty} onclick={actions.save} />
+        <Key label="discard" tone="danger" disabled={!dirty} onclick={actions.discard} />
+      </div>
+    </div>
+  {:else}
+    <div class="read">
+      <article class="page">
+        <h1 class="title">{held.title}</h1>
+        {#each parts as section (section.key)}
+          {#if section.head !== null}
+            <button class="head" class:folded={folded[section.key]} onclick={() => actions.fold(section.key)}>
+              <span class="caret">{folded[section.key] ? "▸" : "▾"}</span>
+              <span class="heading">{section.head}</span>
+              <span class="meta">{blocks(section.body)} block{blocks(section.body) === 1 ? "" : "s"}{folded[section.key] ? " · folded" : ""}</span>
+            </button>
+          {/if}
+          {#if !folded[section.key]}
+            <div class="prose" role="presentation" onclick={jump}>
+              {#if held.format === "md" || held.format === "mdx"}
+                <Markdown text={linked(section.body, "md")} />
+              {:else if held.format === "org"}
+                <Org text={linked(section.body, "org")} />
+              {:else if held.format === "json" || held.format === "jsonc"}
+                <Json value={parsed(section.body)} />
+              {:else}
+                <Paragraph>{section.body}</Paragraph>
+              {/if}
+            </div>
+          {/if}
+        {/each}
+        <footer class="foot">
+          <span>{held.format} · {size(held.bytes)} · {age(held.mtime)}</span>
+          <span class="grow"></span>
+          {#each refs as coordinate (coordinate)}
+            <button class="ref" onclick={() => actions.jump(coordinate)}>→ {coordinate}</button>
+          {/each}
+        </footer>
+      </article>
+    </div>
+  {/if}
+  {#if !outline && !pdf && held.readable && reading === "read"}
+    <button class="pill" title="outline · ⌥3" onclick={actions.outline}>
+      <span class="bars"><span></span><span></span><span></span></span>
+      {parts.filter((section) => section.head !== null).length} section{parts.filter((section) => section.head !== null).length === 1 ? "" : "s"}
+    </button>
+  {/if}
+</section>
+
+<style>
+  .reader {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    font-family: var(--font-family-code);
+  }
+  .read,
+  .edit,
+  .pdf {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  .read {
+    padding: 40px 24px 120px;
+  }
+  .narrow .read {
+    padding: 20px 16px 80px;
+  }
+  .page {
+    max-width: 660px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    font-family: var(--font-family-sans-text);
+    font-size: var(--font-size-base);
+    line-height: 1.7;
+    color: var(--text-body);
+    text-wrap: pretty;
+  }
+  .title {
+    margin: 0 0 8px;
+    font-family: var(--font-family-sans-heading);
+    font-weight: 600;
+    font-size: var(--font-size-3xl);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--colors-skeleton-0-contrast);
+  }
+  .head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 8px 0;
+    border: 0;
+    border-top: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 45%, transparent);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .head.folded {
+    opacity: 0.7;
+  }
+  .caret,
+  .meta {
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-2xs);
+    color: var(--text-support);
+  }
+  .meta {
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .heading {
+    font-family: var(--font-family-sans-heading);
+    font-weight: 500;
+    font-size: var(--font-size-lg);
+    line-height: 1.2;
+    color: var(--colors-skeleton-0-contrast);
+  }
+  .prose {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 24px;
+    padding-top: 12px;
+    border-top: 1px solid var(--colors-skeleton-2-boundary);
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-xs);
+    color: var(--text-support);
+  }
+  .grow {
+    flex: 1;
+  }
+  .ref {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: var(--colors-skeleton-0-primary-base);
+    font: inherit;
+    cursor: pointer;
+  }
+  .edit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 24px;
+  }
+  .narrow .edit {
+    padding: 16px;
+  }
+  .editor {
+    width: 100%;
+    max-width: 700px;
+    flex: 1;
+    min-height: 240px;
+    resize: none;
+    padding: 12px 14px;
+    border: 1px solid var(--colors-skeleton-2-boundary);
+    border-radius: var(--border-radius-default);
+    background: var(--colors-skeleton-1-surface);
+    color: var(--colors-skeleton-1-contrast);
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-sm);
+    line-height: 1.6;
+    outline: 0;
+  }
+  .editor:focus {
+    border-color: var(--colors-skeleton-0-primary-base);
+  }
+  .tray {
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    gap: 8px;
+  }
+  .pdf {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 24px;
+    background: var(--colors-skeleton-2-surface);
+  }
+  .paper {
+    width: min(100%, 720px);
+    flex: 1;
+    min-height: 320px;
+    display: flex;
+    border: 1px solid var(--colors-skeleton-3-boundary);
+    border-radius: var(--border-radius-sm);
+    background: var(--colors-skeleton-3-surface);
+    box-shadow: 0 6px 18px var(--shadow-soft);
+    overflow: hidden;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: center;
+  }
+  .note {
+    margin: 0;
+    max-width: 420px;
+    text-align: center;
+    font-family: var(--font-family-sans-text);
+    font-size: var(--font-size-sm);
+    color: var(--text-body);
+    text-wrap: pretty;
+  }
+  .pill {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 12px;
+    border: 1px solid var(--colors-skeleton-5-boundary);
+    border-radius: var(--border-radius-lg);
+    background: var(--colors-skeleton-5-surface);
+    color: var(--colors-skeleton-5-contrast);
+    box-shadow: 0 6px 18px var(--shadow-soft);
+    font: inherit;
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.06em;
+    cursor: pointer;
+  }
+  .bars {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .bars span {
+    height: 2px;
+    width: 10px;
+    border-radius: 1px;
+    background: color-mix(in srgb, var(--colors-skeleton-5-contrast) 35%, transparent);
+  }
+  .bars span:first-child {
+    width: 14px;
+    background: var(--colors-skeleton-0-primary-base);
+  }
+  @media (pointer: coarse) {
+    .pill {
+      height: 44px;
+    }
+  }
+</style>
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Outline.svelte — the whole file
+
+#+begin_src svelte
+<script>
+  import { drag, Key, Empty } from "@vivalence/drapes";
+  import { document, coordinateOf, sections, blocks, references, size } from "../jdex.js";
+
+  let { open, folded, tab, documents, overlay, actions } = $props();
+
+  const held = $derived(document(open.literal));
+  const headed = $derived(sections(open.text, held.format).filter((section) => section.head !== null));
+  const uses = $derived(
+    references(open.text).map((coordinate) => ({ coordinate, literal: documents.find((literal) => coordinateOf(literal) === coordinate) ?? null })),
+  );
+  const coordinate = $derived(coordinateOf(open.literal));
+  const info = $derived([
+    ["slug", open.literal.slug, "primary"],
+    ["coord", coordinate ?? "—", "primary"],
+    ["symbol", coordinate ? `vdex.${coordinate.includes(".") ? "id" : coordinate.includes("-") ? "area" : "category"}.${coordinate}` : "—", ""],
+    ["path", held.asset.path, ""],
+    ["format", `${held.format} · ${held.readable ? "readable" : "indexed"}`, ""],
+    ["bytes", size(held.bytes), ""],
+    ["mtime", held.mtime ?? "—", ""],
+    ["hash", held.hash, "support"],
+    ["traits", open.literal.traits.join(" · "), ""],
+  ]);
+
+  let over = $state(null);
+  const lift = (key) => ({
+    payload: key,
+    onmove: (target) => (over = target ? Number(target.dataset.before) : null),
+    ondrop: (target, moved) => target && actions.reorder(moved, Number(target.dataset.before)),
+    onend: () => (over = null),
+  });
+</script>
+
+<aside class="outline" class:overlay>
+  <div class="tabs">
+    <button class:on={tab === "sections"} onclick={() => actions.tab("sections")}>sections {headed.length}</button>
+    <button class:on={tab === "links"} onclick={() => actions.tab("links")}>links {uses.length}</button>
+    <button class:on={tab === "info"} onclick={() => actions.tab("info")}>info</button>
+    <span class="grow"></span>
+    <button class="glyph" title="hide · ⌥3" onclick={actions.close}>×</button>
+  </div>
+
+  {#if tab === "sections"}
+    <div class="bar">
+      <Key label="▸ fold" onclick={() => actions.foldAll(true)} />
+      <Key label="▾ expand" onclick={() => actions.foldAll(false)} />
+    </div>
+    <div class="list">
+      {#each headed as section, index (section.key)}
+        <div class="item" class:over={over === index} use:drag={lift(section.key)} data-drop data-before={index}>
+          <button class="name" onclick={() => actions.fold(section.key)}>
+            <span class="grip">⋮⋮</span>
+            <span class="text">{section.head}</span>
+            <span class="n">{folded[section.key] ? "▸" : "▾"} {blocks(section.body)}</span>
+          </button>
+          <span class="moves">
+            <button title="up" disabled={index === 0} onclick={() => actions.step(section.key, -1)}>▲</button>
+            <button title="down" disabled={index === headed.length - 1} onclick={() => actions.step(section.key, 1)}>▼</button>
+          </span>
+        </div>
+      {/each}
+      <div class="end" class:over={over === headed.length} data-drop data-before={headed.length}></div>
+      {#if !headed.length}<Empty verb="no sections" trace="headings make sections — ## in md, * in org" />{/if}
+    </div>
+  {:else if tab === "links"}
+    <div class="links">
+      <div class="rule"><span>uses →</span><span class="line"></span></div>
+      {#each uses as use (use.coordinate)}
+        <button class="link" disabled={!use.literal} onclick={() => actions.jump(use.coordinate)}>
+          <span class="code">{use.coordinate}</span>
+          <span class="text">{use.literal ? document(use.literal).title : "not in the vdex"}</span>
+        </button>
+      {/each}
+      {#if !uses.length}<Empty verb="no references" trace="→ 12.04 in the text links a coordinate" dashed />{/if}
+      <div class="rule"><span>← in</span><span class="line"></span></div>
+      <Empty verb="backlinks · later" trace="the sync will fill the literal's uses; the reader shows them here" dashed />
+    </div>
+  {:else}
+    <div class="info">
+      {#each info as [key, value, tone] (key)}
+        <span class="k">{key}</span><span class="v {tone}">{value}</span>
+      {/each}
+      <div class="keys">
+        <Key label="↗ cargo" tone="primary" disabled={!open.url} onclick={() => window.open(open.url, "_blank")} />
+      </div>
+    </div>
+  {/if}
+</aside>
+
+<style>
+  .outline {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--colors-skeleton-2-surface);
+    color: var(--colors-skeleton-2-contrast);
+    border-left: 1px solid var(--colors-skeleton-2-boundary);
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-sm);
+  }
+  .outline.overlay {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: min(86vw, 300px);
+    z-index: 5;
+    box-shadow: 0 6px 18px var(--shadow-soft);
+  }
+  .tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 36px;
+    padding: 0 6px 0 10px;
+    border-bottom: 1px solid var(--colors-skeleton-2-boundary);
+    flex: none;
+  }
+  .tabs button {
+    height: 24px;
+    padding: 0 8px;
+    border: 0;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    color: var(--text-support);
+    font: inherit;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .tabs button.on {
+    color: var(--colors-skeleton-3-contrast);
+    background: var(--colors-skeleton-3-surface);
+  }
+  .glyph {
+    width: 28px;
+    text-transform: none;
+    font-size: var(--font-size-sm);
+  }
+  .grow {
+    flex: 1;
+  }
+  .bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 6px 8px;
+  }
+  .list {
+    flex: 1;
+    overflow: auto;
+    padding: 0 8px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    border-radius: var(--border-radius-default);
+    border-top: 2px solid transparent;
+  }
+  .item.over,
+  .end.over {
+    border-top-color: var(--colors-skeleton-0-primary-base);
+  }
+  .item:global(.lifted) {
+    opacity: 0.35;
+  }
+  .end {
+    height: 12px;
+    border-top: 2px solid transparent;
+  }
+  .name {
+    flex: 1;
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 18px minmax(0, 1fr) auto;
+    gap: 6px;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: var(--border-radius-default);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .name:hover {
+    background: var(--colors-skeleton-3-surface);
+  }
+  .grip {
+    font-size: var(--font-size-xs);
+    letter-spacing: -0.1em;
+    color: var(--text-support);
+    opacity: 0.5;
+    cursor: grab;
+  }
+  .text {
+    font-family: var(--font-family-sans-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .n {
+    font-size: var(--font-size-2xs);
+    color: var(--text-support);
+    white-space: nowrap;
+  }
+  .moves {
+    display: flex;
+    flex: none;
+  }
+  .moves button {
+    width: 24px;
+    height: 24px;
+    border: 0;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    color: var(--text-support);
+    font: inherit;
+    font-size: var(--font-size-2xs);
+    cursor: pointer;
+  }
+  .moves button:hover {
+    background: var(--colors-skeleton-3-surface);
+    color: var(--colors-skeleton-3-contrast);
+  }
+  .moves button:disabled {
+    opacity: 0.25;
+    cursor: default;
+  }
+  .links {
+    flex: 1;
+    overflow: auto;
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .rule {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-top: 6px;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--text-support);
+  }
+  .line {
+    flex: 1;
+    height: 1px;
+    background: color-mix(in srgb, var(--colors-skeleton-3-boundary) 35%, transparent);
+  }
+  .link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 30px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: var(--border-radius-sm);
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .link:hover {
+    background: var(--colors-skeleton-3-surface);
+  }
+  .link:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .code {
+    color: var(--colors-skeleton-0-primary-base);
+    white-space: nowrap;
+  }
+  .info {
+    flex: 1;
+    overflow: auto;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 8px 10px;
+    align-content: start;
+    font-size: var(--font-size-xs);
+    line-height: 1.5;
+  }
+  .k {
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-support);
+  }
+  .v {
+    overflow-wrap: anywhere;
+  }
+  .v.primary {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .v.support {
+    color: var(--text-support);
+  }
+  .keys {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  @media (pointer: coarse) {
+    .tabs button,
+    .name,
+    .link {
+      min-height: 44px;
+    }
+  }
+</style>
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/tests/app.test.js — the whole file
+
+#+begin_src js
+import { specimen } from "@vivalence/typology";
+import { compile } from "svelte/compiler";
+
+const PARTS = ["Vdex", "parts/Browser", "parts/Tree", "parts/Columns", "parts/Rows", "parts/Row", "parts/Reader", "parts/Outline"];
+
+specimen.describe("app — the vdex buffer and its parts compile as runes components", () => {
+  for (const part of PARTS) {
+    specimen.it(`buffer/${part}.svelte compiles without warnings`, async () => {
+      const source = await Deno.readTextFile(new URL(`../buffer/${part}.svelte`, import.meta.url));
+      const out = compile(source, { generate: "client", runes: true, filename: `${part}.svelte` });
+      specimen.expect(out.js.code.length > 0).toBe(true);
+      specimen.expect(out.warnings.map((warning) => `${warning.code}: ${warning.message}`)).toEqual([]);
+    });
+  }
+});
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/tests/jdex.test.js — the whole file
+
+#+begin_src js
+import { specimen } from "@vivalence/typology";
+import * as jdex from "../buffer/jdex.js";
+
+const rows = JSON.parse(await Deno.readTextFile(new URL("./snapshots/vdex-rows.snapshot.json", import.meta.url)));
+
+specimen.describe("jdex — the client's JD grammar over the rows snapshot", () => {
+  const held = jdex.nodes(rows.symbol);
+
+  specimen.it("nodes sort area › category › id, each area before its categories", () => {
+    specimen.expect(held.map((one) => one.coordinate)).toEqual(["10-19", "12", "12.04", "20-29", "22", "22.00", "22.04"]);
+    specimen.expect(held.map((one) => one.depth)).toEqual([0, 1, 2, 0, 1, 2, 2]);
+  });
+
+  specimen.it("a category belongs to the area whose range holds it", () => {
+    specimen.expect(jdex.areaOf(held, "22").coordinate).toBe("20-29");
+    specimen.expect(jdex.categoriesOf(held, "10-19").map((one) => one.coordinate)).toEqual(["12"]);
+    specimen.expect(jdex.idsOf(held, "22").map((one) => one.coordinate)).toEqual(["22.00", "22.04"]);
+  });
+
+  specimen.it("a row's coordinate is its deepest symbol; the unfiled have none", () => {
+    const by = Object.fromEntries(rows.literal.map((literal) => [literal.slug, literal]));
+    specimen.expect(jdex.coordinateOf(by["22.04.re24-05277.pdf"])).toBe("22.04");
+    specimen.expect(jdex.coordinateOf(by["12.notes.md"])).toBe("12");
+    specimen.expect(jdex.coordinateOf(by["readme.org"])).toBe(null);
+    specimen.expect(jdex.filed(rows.literal, "12").map((literal) => literal.slug).sort()).toEqual(["12.04.ubiquity-and-a-thin-slice.md", "12.notes.md"]);
+    specimen.expect(jdex.filed(rows.literal, null).map((literal) => literal.slug)).toEqual(["readme.org"]);
+  });
+
+  specimen.it("the next id is one past the highest minted; an empty category starts at 01", () => {
+    specimen.expect(jdex.nextId(held, "22")).toBe("22.05");
+    specimen.expect(jdex.nextId(held, "12")).toBe("12.05");
+    specimen.expect(jdex.nextId(held, "18")).toBe("18.01");
+  });
+
+  specimen.it("find speaks id: · format: · text", () => {
+    specimen.expect(jdex.find(rows.literal, "id:22").length).toBe(2);
+    specimen.expect(jdex.find(rows.literal, "format:pdf").map((literal) => literal.slug)).toEqual(["22.04.re24-05277.pdf"]);
+    specimen.expect(jdex.find(rows.literal, "id:12 notes").map((literal) => literal.slug)).toEqual(["12.notes.md"]);
+    specimen.expect(jdex.find(rows.literal, "   ")).toEqual([]);
+  });
+
+  specimen.it("sorted by id keeps loose files after their category's ids and the unfiled last", () => {
+    specimen.expect(jdex.sorted(rows.literal, "id").map((literal) => literal.slug)).toEqual([
+      "12.notes.md",
+      "12.04.ubiquity-and-a-thin-slice.md",
+      "22.00.finance-index.md",
+      "22.04.re24-05277.pdf",
+      "readme.org",
+    ]);
+  });
+});
+
+specimen.describe("jdex — sections, references, rearrangement", () => {
+  const md = "# Ethos\n\nWhat we tell funders first, see → 12.04.\n\n## Why now\n\nThe tooling exists.\n\n### detail\n\nnested stays inside.\n\n## Budget\n\n- two engineers\n";
+
+  specimen.it("a markdown document splits at its shallowest heading below the title; the lede has no head", () => {
+    const held = jdex.sections(md, "md");
+    specimen.expect(held.map((section) => section.head)).toEqual([null, "Why now", "Budget"]);
+    specimen.expect(held[0].body.trim()).toBe("What we tell funders first, see → 12.04.");
+    specimen.expect(held[1].body).toContain("### detail");
+    specimen.expect(held[1].body.startsWith("## ")).toBe(false);
+    specimen.expect(held.map((section) => jdex.blocks(section.body))).toEqual([1, 3, 1]);
+  });
+
+  specimen.it("an org document splits at its top stars; #+TITLE is not a heading", () => {
+    const held = jdex.sections("#+TITLE: Roles\n\n* Chief officers\ntext\n** deeper\nmore\n* Slugs\nacronyms\n", "org");
+    specimen.expect(held.map((section) => section.head)).toEqual([null, "Chief officers", "Slugs"]);
+    specimen.expect(held[0].body).toBe("#+TITLE: Roles\n");
+  });
+
+  specimen.it("a document without headings is one section; json and txt always are", () => {
+    specimen.expect(jdex.sections("just text\n\nmore", "md").map((section) => section.head)).toEqual([null]);
+    specimen.expect(jdex.sections("# Only a title\n\nbody", "md")[0].body.trim()).toBe("body");
+    specimen.expect(jdex.sections("{\"a\": 1}", "json").length).toBe(1);
+  });
+
+  specimen.it("rearranging moves whole sections and keeps the text before the first", () => {
+    const moved = jdex.rearranged(md, "md", [2, 1]);
+    specimen.expect(moved.indexOf("## Budget")).toBeLessThan(moved.indexOf("## Why now"));
+    specimen.expect(moved.startsWith("# Ethos\n\nWhat we tell funders first")).toBe(true);
+    specimen.expect(moved.split("\n").length).toBe(md.split("\n").length);
+    specimen.expect(jdex.rearranged(md, "md", [1, 2])).toBe(md);
+  });
+
+  specimen.it("references are → NN.NN and [[NN.NN …]], once each; the reader links them in the format's own grammar", () => {
+    specimen.expect(jdex.references("see → 12.04 and -> 22 and [[30.01 Ethos]] and → 12.04 again")).toEqual(["12.04", "22", "30.01"]);
+    specimen.expect(jdex.linked("see → 12.04.", "md")).toBe("see [→ 12.04](#vdex:12.04).");
+    specimen.expect(jdex.linked("see [[12.04 Ubiquity]].", "org")).toBe("see [[#vdex:12.04][→ 12.04]].");
+    specimen.expect(jdex.linked("no refs", "md")).toBe("no refs");
+  });
+
+  specimen.it("size and age read as the design writes them", () => {
+    specimen.expect([jdex.size(900), jdex.size(48128), jdex.size(2100000)]).toEqual(["900 B", "47 kB", "2.0 MB"]);
+    const now = Date.parse("2026-09-07T12:00:00Z");
+    specimen.expect(jdex.age("2026-09-07T09:00:00Z", now)).toBe("today");
+    specimen.expect(jdex.age("2026-09-02T09:00:00Z", now)).toBe("5d");
+    specimen.expect(jdex.age("2026-08-15T09:00:00Z", now)).toBe("3w");
+    specimen.expect(jdex.age("2026-07-01T09:00:00Z", now)).toBe("2mo");
+    specimen.expect(jdex.age(null, now)).toBe("");
+  });
+});
+#+end_src
+
+* hunks
+
+*** subsystems/drapes/display/Pip.svelte — tone =success=
+edit — GATED (subsystems). The design system's Pip row: live · done · held · fault · idle. =done= is the
+success root; =Plate= and the office Apps read it.
+
+#+begin_src diff
+   const tones = {
+     primary: "var(--colors-skeleton-0-primary-base)",
++    success: "var(--colors-skeleton-0-success-base)",
+     warning: "var(--colors-skeleton-0-warning-base)",
+#+end_src
+
+*** ~/.viva/registry/vcompany/modes/office/vdex/aperture/index.js — =placement= lets a document keep its id
+edit — a delta on T1.1 p1 (the sibling's file, on its go). A rename in place is =/move {slug, id, title}=
+with the literal's own id: today =own= is that very file and the verb refuses it as /"one document already"/.
+The literal's own path passes; any OTHER file at the id still refuses.
+
+#+begin_src diff
+-const placement = async (ctx, id, title, format) => {
++const placement = async (ctx, id, title, format, own_path = null) => {
+   if (!ID.test(id))
+     throw new Error(`${id} is ${id.includes("-") ? "an area" : "a category"}, not an id — documents file at NN.NN; pick an id under it from the index.`);
+   const category = await home(ctx, `vdex.category.${id.split(".")[0]}`);
+   if (!category) throw new Error(`there is no category ${id.split(".")[0]} on the mount — see the index; a new category is the operator's to make.`);
+   const own = await home(ctx, `vdex.id.${id}`);
+-  if (own && !own.directory) throw new Error(`${id} is one document already: ${own.path} — write it, or file at a free id from the index.`);
+-  const path = own ? `${own.path}/${filename(title)}.${format}` : `${category.path}/${id} ${filename(title)}.${format}`;
+-  if (await Deno.stat(at(ctx, path)).catch(() => null)) throw new Error(`${path} exists — read it, then write.`);
++  if (own && !own.directory && own.path !== own_path) throw new Error(`${id} is one document already: ${own.path} — write it, or file at a free id from the index.`);
++  const path = own?.directory ? `${own.path}/${filename(title)}.${format}` : `${category.path}/${id} ${filename(title)}.${format}`;
++  if (path !== own_path && (await Deno.stat(at(ctx, path)).catch(() => null))) throw new Error(`${path} exists — read it, then write.`);
+   return path;
+ };
+@@
+   .open("/move", async (input, ctx) => {
+     const literal = await document(ctx, input.slug);
+     if (!literal) throw new Error(`${input.slug} is not in the vdex`);
+     const { asset, format, title } = literal.trait.DOCUMENT;
+-    const to = await placement(ctx, input.id, input.title ?? title, format);
++    const to = await placement(ctx, input.id, input.title ?? title, format, asset.path);
++    if (to === asset.path) return serve(ctx, literal);
+     await Deno.rename(at(ctx, asset.path), at(ctx, to));
+#+end_src
+
+(=own_path= is the one name in this file with an underscore — the sibling names it; =ownPath= if it lands as mine.)

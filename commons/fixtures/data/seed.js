@@ -15,15 +15,22 @@ export async function seed(extra = {}) {
   await em.flush();
   em.setFilterParams("user", { user: user.id });
 
-  const symbol = (slug, trait = {}) => em.create(tiers.symbol.entity, { slug, traits: ["ONTOLOGICAL"], trait });
+  const symbol = (slug, trait = {}) =>
+    em.create(tiers.symbol.entity, { slug, traits: ["ONTOLOGICAL"], trait });
   const greeting = symbol("greeting");
   const casual = symbol("casual");
   const polite = symbol("polite");
-  const tense = symbol("word.tense.presente", { LABELED: { name: "presente" } });
-  const mood = symbol("word.mood.indicativo", { LABELED: { name: "indicativo" } });
+  const tense = symbol("word.tense.presente", {
+    LABELED: { name: "presente" },
+  });
+  const mood = symbol("word.mood.indicativo", {
+    LABELED: { name: "indicativo" },
+  });
   const first = symbol("word.person.first", { LABELED: { name: "eu" } });
   const second = symbol("word.person.second", { LABELED: { name: "tu" } });
-  const singular = symbol("word.number.singular", { LABELED: { name: "singular" } });
+  const singular = symbol("word.number.singular", {
+    LABELED: { name: "singular" },
+  });
   await em.flush();
 
   const literal = (slug, known, learning, extra = {}) => {
@@ -40,8 +47,12 @@ export async function seed(extra = {}) {
     return entity;
   };
 
-  const hello = literal("hello", "hello", "olá", { symbols: [greeting, casual] });
-  const goodbye = literal("goodbye", "goodbye", "tchau", { symbols: [greeting, casual] });
+  const hello = literal("hello", "hello", "olá", {
+    symbols: [greeting, casual],
+  });
+  const goodbye = literal("goodbye", "goodbye", "tchau", {
+    symbols: [greeting, casual],
+  });
   const thanks = literal("thanks", "thanks", "obrigado", {
     symbols: [greeting, polite],
     traits: ["TRANSLATED", "VOCALIZED"],
@@ -50,7 +61,9 @@ export async function seed(extra = {}) {
       VOCALIZED: { asset: { path: "audio/thanks.mp3", type: "audio/mpeg" } },
     },
   });
-  const please = literal("please", "please", "por favor", { symbols: [greeting, polite] });
+  const please = literal("please", "please", "por favor", {
+    symbols: [greeting, polite],
+  });
 
   const sentence = literal("ola-tchau", "hello and goodbye", "olá e tchau", {
     ontology: "sentence",
@@ -67,8 +80,12 @@ export async function seed(extra = {}) {
     },
   });
 
-  const chamo = literal("chamo.verb", "I call", "chamo", { symbols: [first, singular] });
-  const chamas = literal("chamas.verb", "you call", "chamas", { symbols: [second, singular] });
+  const chamo = literal("chamo.verb", "I call", "chamo", {
+    symbols: [first, singular],
+  });
+  const chamas = literal("chamas.verb", "you call", "chamas", {
+    symbols: [second, singular],
+  });
   const chamar = literal("chamar.verb", "to call", "chamar");
 
   const paradigm = em.create(tiers.literal.entity, {
@@ -78,7 +95,10 @@ export async function seed(extra = {}) {
     trait: {
       CONJUGATED: {
         infinitive: "chamar.verb",
-        paradigm: { "first.singular": "chamo.verb", "second.singular": "chamas.verb" },
+        paradigm: {
+          "first.singular": "chamo.verb",
+          "second.singular": "chamas.verb",
+        },
       },
     },
     symbol: {},

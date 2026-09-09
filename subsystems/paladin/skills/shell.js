@@ -1,4 +1,5 @@
 import { v, Vector } from "@vivalence/typology";
+import { absolute } from "./fs.js";
 
 const TAIL = 8_000;
 
@@ -20,18 +21,19 @@ const interpreter = ["zsh", Deno.env.get("SHELL"), "bash", "sh"].filter(Boolean)
 export const shell = new Vector().open(
   {
     nature: "/shell/run",
-    valence: "One-shot shell command, cwd = this mode's root. The output tail and the exit code " +
-      'come back; a nonzero code is information, not failure. Example: { command: "ls ' +
-      'dataset | head" }.',
+    valence: "One-shot shell command in an absolute working directory. The output tail and the exit " +
+      "code come back; a nonzero code is information, not failure. " +
+      'Example: { command: "ls | head", cwd: "/home/operator/jdex" }.',
     input: v.object({
-      command: v.string(),
+      command: v.string().desc('The command, run through the shell. Example: "ls | head"'),
+      cwd: v.string().desc('Absolute working directory. Example: "/home/operator/jdex"'),
       timeout: v.integer({ minimum: 1000, maximum: 120000 }).default(30000),
     }),
   },
   async (ctx) => {
     const spawned = new Deno.Command(interpreter, {
       args: ["-c", ctx.input.command],
-      cwd: ctx.root,
+      cwd: absolute(ctx.input.cwd),
       stdout: "piped",
       stderr: "piped",
       signal: AbortSignal.timeout(ctx.input.timeout),

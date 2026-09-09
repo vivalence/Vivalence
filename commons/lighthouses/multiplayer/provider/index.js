@@ -25,7 +25,9 @@ export default async function authority(
         identity,
         getUser: () => users.findOne({ id: identity.id }),
         enroll: async () => {
-          await users.upsert({ id: identity.id, roles: ["USER"], config: {} }, { onConflictAction: "ignore" });
+          await users.upsert({ id: identity.id, roles: ["USER"], config: {} }, {
+            onConflictAction: "ignore",
+          });
           return users.findOne({ id: identity.id });
         },
       };
@@ -43,12 +45,10 @@ function createVerifier(connection) {
       );
 
       if (!response.ok) {
-        return response.body?.status === "ERROR"
-          ? response.body
-          : {
-              status: "ERROR",
-              error: { code: "VERIFY_FAILED", message: "Verification failed" },
-            };
+        return response.body?.status === "ERROR" ? response.body : {
+          status: "ERROR",
+          error: { code: "VERIFY_FAILED", message: "Verification failed" },
+        };
       }
 
       return response.body;

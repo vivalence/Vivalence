@@ -1,5 +1,6 @@
 #+title: the rulings land T0, the go lands T1, and the snapshots catch the capture dropping its own id
 #+filetags: :m53:vcompany:vdex:paladin:runtime:typology:drapes:kajuit:dataset:snapshot:rulings:landing:email:calendar:quest:
+#+index: 116
 
 * what happened, in one breath
 

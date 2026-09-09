@@ -12,13 +12,19 @@ export function inject() {
 
         const identity = await ctx.entities.identity
           .createQueryBuilder("i")
-          .where(`json_extract(i.authentication, '$.credentials.username') = ?`, [username])
+          .where(
+            `json_extract(i.authentication, '$.credentials.username') = ?`,
+            [username],
+          )
           .getSingleResult();
 
         if (!identity?.authentication?.credentials?.password) return null;
 
         // const valid = identity.authentication.credentials.password === hash.string(password);
-        const valid = await argon2.verify(identity.authentication.credentials.password, password);
+        const valid = await argon2.verify(
+          identity.authentication.credentials.password,
+          password,
+        );
 
         return valid ? identity : null;
       },

@@ -1,5 +1,6 @@
 #+title: the T1 patch is worked out twice, the mode stops leaving its directory, the ignore list becomes one declaration, and the tables lose their prose
 #+filetags: :m53:vcompany:vdex:jdex:openexecutive:paladin:runtime:typology:drapes:dataset:datasink:snapshot:callout:quest:research:
+#+index: 129
 
 * what happened, in one breath
 

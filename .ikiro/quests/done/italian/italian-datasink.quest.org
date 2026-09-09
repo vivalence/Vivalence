@@ -323,19 +323,19 @@ export const tools = new Vector()
       const report = { vocalized: [], missed: [], failed: [] };
       for (const literal of targets) {
         if (literal.traits?.includes("VOCALIZED")) continue;
-        const shelf = kind(literal);
-        const chosen = pick === "auto" ? (shelf === "sentence" ? "tatoeba" : "commons") : pick;
+        const instance = kind(literal);
+        const chosen = pick === "auto" ? (instance === "sentence" ? "tatoeba" : "commons") : pick;
         const source = SOURCES[chosen]({ agent: AGENT, daemon: ctx.daemon });
         const text = literal.trait?.TRANSLATED?.learning;
         try {
-          const found = text ? await source.resolve({ text, kind: shelf, language }) : null;
+          const found = text ? await source.resolve({ text, kind: instance, language }) : null;
           if (!found) report.missed.push(literal.slug);
           else if (ctx.input.dry) report.vocalized.push({ slug: literal.slug, ...found, dry: true });
           else {
             const bytes = await normalize(await source.fetch(found));
             if (!bytes) report.failed.push(literal.slug);
             else {
-              const path = `${shelf}s/${literal.slug}.mp3`;
+              const path = `${instance}s/${literal.slug}.mp3`;
               await topography.freight.receive(path, bytes);
               literal.assign({
                 traits: [...new Set([...(literal.traits ?? []), "VOCALIZED"])],

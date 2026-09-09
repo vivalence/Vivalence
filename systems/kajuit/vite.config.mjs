@@ -8,10 +8,10 @@ const __repo = join(__dirname, "../../");
 const __ss = join(__repo, "./subsystems");
 
 async function serverConfig() {
-  const paladin = (await import("@vivalence/paladin")).default;
-  await paladin.instance.mount();
+  const { default: paladin, lifecycle } = await import("@vivalence/paladin");
+  await lifecycle.mount(paladin.instance);
   paladin.check.instance(paladin.instance).throw();
-  const client = paladin.instance.clients.kajuit;
+  const client = paladin.instance.clients.find((held) => held.manifest.slug === "kajuit");
   // console.log("paladin.env", paladin.env);
   // const client = {slug: "kajuit", module: "@vivalence/kajuit", statics: {serve: new Url("http://0.0.0.0:1794"), lighthouse: {remote: new Url("http://100.71.241.160:2501/attached/process/lighthouse/multiplayer"),},},};
   // console.log({ client });

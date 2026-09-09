@@ -27,7 +27,7 @@ export async function create() {
   const modeTraits = ["APPLICATION", "INTENTED", "EMITTER"];
   const mode = new Mode({ manifest: { type: "game", slug: "flashcard", traits: modeTraits } });
   mode.aperture = new Aperture();
-  mode.mount = new Path(`/mode/${mode.type}/${mode.slug}`);
+  mode.mount = new Path(`/mode/${mode.manifest.type}/${mode.manifest.slug}`);
   mode.entity = fixtures.mode;
   mode.id = fixtures.mode.id;
 

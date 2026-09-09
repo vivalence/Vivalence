@@ -1,0 +1,1238 @@
+--- a/instances/hello-world/app/App.svelte
++++ b/instances/hello-world/app/App.svelte
+@@ -384,10 +384,10 @@
+ 
+         <div class="sheet">
+           <div class="face">
+-            <span class="glyph">{report.daemon.docs?.icon?.emoji ?? "◆"}</span>
++            <span class="glyph">{report.daemon.manifest?.icon?.emoji ?? "◆"}</span>
+             <div class="who">
+-              <span class="name">{report.daemon.docs?.name ?? report.daemon.slug}</span>
+-              <span class="trace">{report.daemon.docs?.valence ?? "no valence declared"}</span>
++              <span class="name">{report.daemon.manifest?.name ?? report.daemon.slug}</span>
++              <span class="trace">{report.daemon.manifest?.description ?? "no description declared"}</span>
+             </div>
+             <span class="spring"></span>
+             {#if report.daemon.faults.length}
+--- a/instances/hello-world/instance.viva.js
++++ b/instances/hello-world/instance.viva.js
+@@ -3,67 +3,58 @@
+ 
+ export const manifest = { type: "instance", slug: "hello-world", version: "0.0.1" };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
++export const lighthouse = {
++  module: "@commons/lighthouse/multiplayer",
++  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
++};
++
++export const hallucinators = [
++  {
++    module: "@commons/hallucinator/anthropic",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/openrouter",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
++  },
++];
++
+ export const daemons = [
+   {
+     manifest: { type: "daemon", slug: "hello", version: "0.0.1" },
+     kernel: [
+-		"./mode.viva.js" 
+-		// or: "@commons/demo/hello-world"
+-	],
++        "./mode.viva.js"
++        // or: "@commons/demo/hello-world"
++    ],
+     consume: {
+       reader: { module: "@commons/service/reader" },
+     },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `hello.viva.db` } },
+-    },
+-    hallucinators: [
+-      {
+-        module: "@commons/hallucinator/anthropic",
+-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-      },
+-      {
+-        module: "@commons/hallucinator/openrouter",
+-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
+-      },
+-    ],
+   },
+ ];
+ 
+ export const runtime = {
+-  slug: "runtime",
++  manifest: { slug: "runtime" },
+   statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `runtime.viva.db` } },
+-  },
+ };
+ 
+-export const clients = {
+-  kajuit: {
+-    slug: "kajuit",
++export const clients = [
++  {
++    manifest: { type: "client", slug: "kajuit" },
+     statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
+   },
+-};
++];
+ 
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+ ];
+ 
+-export const lighthouse = {
+-  module: "@commons/lighthouse/multiplayer",
+-  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
+-};
+-
+ export const environment = v.environment({
+   VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+   VIVA_CLIENT_KAJUIT_ORIGIN: v.url().desc("Scheme and authority the kajuit browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+--- a/instances/hello-world/tests/snapshots/hello-world-catalog.snapshot.json
++++ b/instances/hello-world/tests/snapshots/hello-world-catalog.snapshot.json
+@@ -1,7 +1,7 @@
+ [
+   {
+     "name": "viva_doctor",
+-    "valence": "The live vivalence setup on this machine, as JSON — the same record `viva instance/doctor` prints, read straight off paladin. You already have the standing facts in front of you: the instance, the daemon, the modes and their routes. This is everything under them, in three parts. `daemon` is the one you are running inside: its manifest and docs, the modes its kernel resolved to with their traits and routes, the datamap and the entities it opened, the hallucinators it declared and which secret slots each wants, the cortex faculties actually attached, and anything left dormant for want of a key. `ledger` is the machine's own record: where it lives, every instance shelved on it with the one you are inside marked, the services and clients this instance declares, every environment variable by name and whether it resolves, and which declared slots came back unset. `registry` is every module the system resolves, as @owner/type/slug with versions and traits — the standard library plus whatever was tapped. Secrets live in a separate store and never appear here; you get slot names, never a value, and for the environment names only, never what they hold. It is a big record and it stays in this conversation once you pull it, so pull it when a question is about this machine — and then it is the record, not a guess.",
++    "valence": "The live vivalence setup on this machine, as JSON — the same record `viva instance/doctor` prints, read straight off paladin. You already have the standing facts in front of you: the instance, the daemon, the modes and their routes. This is everything under them, in three parts. `daemon` is the one you are running inside: its manifest, the modes its kernel resolved to with their traits and routes, the datamap and the entities it opened, the hallucinators it declared and which secret slots each wants, the cortex faculties actually attached, and anything left dormant for want of a key. `ledger` is the machine's own record: where it lives, every instance shelved on it with the one you are inside marked, the services and clients this instance declares, every environment variable by name and whether it resolves, and which declared slots came back unset. `registry` is every module the system resolves, as @owner/type/slug with versions and traits — the standard library plus whatever was tapped. Secrets live in a separate store and never appear here; you get slot names, never a value, and for the environment names only, never what they hold. It is a big record and it stays in this conversation once you pull it, so pull it when a question is about this machine — and then it is the record, not a guess.",
+     "input": {
+       "type": "object",
+       "properties": {}
+--- a/instances/hello-world/tools/doctor.js
++++ b/instances/hello-world/tools/doctor.js
+@@ -26,11 +26,11 @@
+ export const standing = (ctx) => {
+   const here = ctx.daemon.mountpoint?.absolute ?? null;
+   const mask =
+-    paladin.instance.daemons.find((held) => held.mount?.absolute === here) ??
++    paladin.instance.daemons.find((held) => held.mountpoint?.absolute === here) ??
+       {};
+   return {
+     instance: paladin.instance.manifest,
+-    daemon: { slug: mask.slug ?? null, mountpoint: here },
++    daemon: { slug: mask.manifest?.slug ?? null, mountpoint: here },
+     entities: Object.keys(ctx.daemon.entities ?? {}).filter((name) =>
+       name !== "em"
+     ).sort(),
+@@ -63,15 +63,14 @@
+ export const report = async (ctx) => {
+   const here = ctx.daemon.mountpoint?.absolute ?? null;
+   const mask =
+-    paladin.instance.daemons.find((held) => held.mount?.absolute === here) ??
++    paladin.instance.daemons.find((held) => held.mountpoint?.absolute === here) ??
+       {};
+   const modes = ctx.daemon.flatmodes();
+ 
+   return {
+     daemon: {
+-      slug: mask.slug ?? null,
++      slug: mask.manifest?.slug ?? null,
+       manifest: mask.manifest ?? null,
+-      docs: ctx.daemon.docs ?? mask.docs ?? null,
+       mountpoint: here,
+       statics: ctx.daemon.statics ?? {},
+       lighthouse: {
+@@ -125,15 +124,13 @@
+       instance: paladin.instance.manifest,
+       instances: await paladin.ledger.instances.list(),
+       services: paladin.instance.services.map((held) => ({
+-        slug: held.slug,
++        slug: held.manifest?.slug,
+         module: held.module,
+         secrets: slots(held.secrets),
+       })),
+-      clients: Object.entries(paladin.instance.clients ?? {}).map((
+-        [slug, held],
+-      ) => ({
+-        slug,
+-        traits: held.traits ?? [],
++      clients: paladin.instance.clients.map((held) => ({
++        slug: held.manifest?.slug,
++        traits: held.manifest?.traits ?? [],
+       })),
+       requirements: paladin.instance.requirements.flatMap((
+         { at, read, unset },
+@@ -173,7 +170,7 @@
+       "`viva instance/doctor` prints, read straight off paladin. You already have the " +
+       "standing facts in front of you: the instance, the daemon, the modes and their " +
+       "routes. This is everything under them, in three parts. `daemon` is the one you are " +
+-      "running inside: its manifest and docs, the modes its kernel resolved to with their " +
++      "running inside: its manifest, the modes its kernel resolved to with their " +
+       "traits and routes, the datamap and the entities it opened, the hallucinators it " +
+       "declared and which secret slots each wants, the cortex faculties actually attached, " +
+       "and anything left dormant for want of a key. `ledger` is the machine's own record: " +
+--- a/instances/italian/daemon.js
++++ b/instances/italian/daemon.js
+@@ -2,8 +2,14 @@
+ import { Url } from "@vivalence/typology";
+ 
+ export const italian = {
+-  manifest: { type: "daemon", slug: "italian", version: "0.0.1" },
+-  docs: { name: "Italiano", valence: "English → Italian. Francesca teaches; harvest feeds the corpus.", icon: { emoji: "🇮🇹" } },
++  manifest: {
++    type: "daemon",
++    slug: "italian",
++    version: "0.0.1",
++    name: "Italiano",
++    description: "English → Italian. Francesca teaches; harvest feeds the corpus.",
++    icon: { emoji: "🇮🇹" },
++  },
+   statics: {
+     language: {
+       known: { slug: "english", name: "English" },
+@@ -22,36 +28,6 @@
+     "@education/teacher/francesca",
+     "@education/game/dojo",
+   ],
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `italian.viva.db` } },
+-  },
+-  hallucinators: [
+-    {
+-      module: "@commons/hallucinator/anthropic",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/openrouter",
+-      statics: {
+-        models: {
+-          fast: { id: "deepseek/deepseek-v4-flash", tune: [0.4, 0.4, 1.0, 1.0], context: 1048576 },
+-        },
+-      },
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/elevenlabs",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/deepgram",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
+-    },
+-  ],
+   consume: {
+     nlp: {
+       module: "@commons/service/nlp-stanza",
+--- a/instances/italian/italian.viva.js
++++ b/instances/italian/italian.viva.js
+@@ -105,16 +105,14 @@
+ export const daemons = [italian];
+ 
+ export const runtime = {
+-  slug: "runtime",
++  manifest: { slug: "runtime" },
+   statics: {
+     serve: () => paladin.env.get("VIVA_RUNTIME_SERVE"),
+   },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `runtime.viva.db` } },
+-  },
+ };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
+ export const lighthouse = {
+   module: "@commons/lighthouse/multiplayer",
+   statics: {
+@@ -122,33 +120,49 @@
+   },
+ };
+ 
+-export const clients = {
+-  ghost: {
+-    slug: "ghost",
+-    statics: {},
+-  },
+-  kajuit: {
+-    slug: "kajuit",
+-    traits: ["ATTACHED"],
++export const hallucinators = [
++  {
++    module: "@commons/hallucinator/anthropic",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/openrouter",
++    statics: {
++      models: {
++        fast: { id: "deepseek/deepseek-v4-flash", tune: [0.4, 0.4, 1.0, 1.0], context: 1048576 },
++      },
++    },
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/elevenlabs",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/deepgram",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
++  },
++];
++
++export const clients = [
++  { manifest: { type: "client", slug: "ghost" } },
++  {
++    manifest: { type: "client", slug: "kajuit", traits: ["ATTACHED"] },
+     statics: {
+       serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE"),
+     },
+   },
+-};
++];
+ 
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+   {
+-    slug: "nlp-stanza",
++    manifest: { type: "service", slug: "nlp-stanza" },
+     module: "@commons/service/nlp-stanza",
+     secrets: { key: () => paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") },
+     statics: {
+--- a/instances/language-learning/development.js
++++ b/instances/language-learning/development.js
+@@ -2,9 +2,14 @@
+ import { Url } from "@vivalence/typology";
+ 
+ export const development = {
+-  manifest: { type: "daemon", slug: "development", version: "0.0.1" },
+-  docs: { name: "Development", valence: "buffer reactivity testbed", icon: { emoji: "🧪" } },
+-  statics: {},
++  manifest: {
++    type: "daemon",
++    slug: "development",
++    version: "0.0.1",
++    name: "Development",
++    description: "buffer reactivity testbed",
++    icon: { emoji: "🧪" },
++  },
+   kernel: [
+     // G1 organic / self-managed (inert · manual)
+     "@commons/playground/spawner",
+@@ -20,10 +25,6 @@
+     "@commons/chaosmonkey/vision",
+     "@commons/chaosmonkey/oracle",
+   ],
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `development.viva.db` } },
+-  },
+   // dealer's HARNESSED + CONVERSATIONAL + /oracle resolve a cortex from this hallucinator.
+   hallucinators: [
+     {
+@@ -32,5 +33,4 @@
+       secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+     },
+   ],
+-  consume: {},
+ };
+--- a/instances/language-learning/education.js
++++ b/instances/language-learning/education.js
+@@ -3,7 +3,6 @@
+ 
+ export const brazilian = {
+   manifest: { type: "daemon", slug: "brazilian", version: "0.0.1" },
+-  docs: { name: "", valence: "", icon: { emoji: "" } },
+   statics: {
+     language: {
+       known: { slug: "english", name: "English" },
+@@ -33,27 +32,6 @@
+ 
+     // "@education/teacher/dewey",
+   ],
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `test-language.viva.db` } },
+-  },
+-  hallucinators: [
+-    {
+-      module: "@commons/hallucinator/anthropic",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/elevenlabs",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/deepgram",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
+-    },
+-  ],
+   consume: {
+     nlp: {
+       module: "@commons/service/nlp-stanza",
+@@ -69,7 +47,6 @@
+ 
+ export const italian = {
+   manifest: { type: "daemon", slug: "italian", version: "0.0.1" },
+-  docs: { name: "", valence: "", icon: { emoji: "" } },
+   statics: {
+     language: {
+       known: { slug: "english", name: "English" },
+@@ -97,41 +74,6 @@
+     // "@education/game/nyan",
+     // "@education/game/riddler",
+   ],
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `test-language-italian.viva.db` } },
+-  },
+-  hallucinators: [
+-    {
+-      module: "@commons/hallucinator/anthropic",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/openrouter",
+-      statics: {
+-        models: {
+-          fast: {
+-            id: "deepseek/deepseek-v4-flash",
+-            tune: [0.4, 0.4, 1.0, 1.0],
+-            context: 1048576,
+-            // thinking: false,
+-          },
+-        },
+-      },
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/elevenlabs",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/deepgram",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
+-    },
+-  ],
+   consume: {
+     nlp: {
+       module: "@commons/service/nlp-stanza",
+@@ -147,7 +89,6 @@
+ 
+ export const spanish = {
+   manifest: { type: "daemon", slug: "spanish", version: "0.0.1" },
+-  docs: { name: "", valence: "", icon: { emoji: "" } },
+   statics: {
+     language: {
+       known: { slug: "english", name: "English" },
+@@ -177,27 +118,6 @@
+ 
+     // "@education/teacher/dewey",
+   ],
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `test-language-spanish.viva.db` } },
+-  },
+-  hallucinators: [
+-    {
+-      module: "@commons/hallucinator/anthropic",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/elevenlabs",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/deepgram",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
+-    },
+-  ],
+   consume: {
+     nlp: {
+       module: "@commons/service/nlp-stanza",
+--- a/instances/language-learning/test.viva.js
++++ b/instances/language-learning/test.viva.js
+@@ -34,18 +34,14 @@
+ });
+ 
+ export const runtime = {
+-  slug: "test-runtime",
++  manifest: { slug: "test-runtime" },
+   statics: {
+     serve: () => paladin.env.get("VIVA_RUNTIME_SERVE"),
+   },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: {
+-      db: { file: `runtime.viva.db` },
+-    },
+-  },
+ };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
+ export const lighthouse = {
+   module: "@commons/lighthouse/multiplayer",
+   statics: {
+@@ -53,34 +49,49 @@
+   },
+ };
+ 
+-export const clients = {
+-  ghost: {
+-    slug: "ghost",
++export const hallucinators = [
++  {
++    module: "@commons/hallucinator/anthropic",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/openrouter",
+     statics: {
++      models: {
++        fast: { id: "deepseek/deepseek-v4-flash", tune: [0.4, 0.4, 1.0, 1.0], context: 1048576 },
++      },
+     },
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
+   },
+-  kajuit: {
+-    slug: "kajuit",
+-    traits: ["ATTACHED"],
++  {
++    module: "@commons/hallucinator/elevenlabs",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/deepgram",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
++  },
++];
++
++export const clients = [
++  { manifest: { type: "client", slug: "ghost" } },
++  {
++    manifest: { type: "client", slug: "kajuit", traits: ["ATTACHED"] },
+     statics: {
+       serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE"),
+     },
+   },
+-};
++];
+ 
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+   {
+-    slug: "nlp-stanza",
++    manifest: { type: "service", slug: "nlp-stanza" },
+     module: "@commons/service/nlp-stanza",
+     secrets: { key: () => paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") },
+     statics: {
+--- a/instances/stucatch/stucatch.js
++++ b/instances/stucatch/stucatch.js
+@@ -3,13 +3,8 @@
+ 
+ export const stucatch = {
+   manifest: { type: "daemon", slug: "stucatch", version: "0.0.1" },
+-  statics: {},
+   kernel: [
+     "@stucatch/domain/stucatch",
+     "@stucatch/dashboard/watch",
+   ],
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `stucatch.viva.db` } },
+-  },
+ };
+--- a/instances/stucatch/stucatch.viva.js
++++ b/instances/stucatch/stucatch.viva.js
+@@ -10,18 +10,14 @@
+ };
+ 
+ export const runtime = {
+-  slug: "runtime",
++  manifest: { slug: "runtime" },
+   statics: {
+     serve: () => paladin.env.get("VIVA_RUNTIME_SERVE"),
+   },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: {
+-      db: { file: `runtime.viva.db` },
+-    },
+-  },
+ };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
+ export const lighthouse = {
+   module: "@commons/lighthouse/multiplayer",
+   statics: {
+@@ -29,30 +25,21 @@
+   },
+ };
+ 
+-export const clients = {
+-  ghost: {
+-    slug: "ghost",
+-    statics: {
+-    },
+-  },
+-  kajuit: {
+-    slug: "kajuit",
+-    traits: ["ATTACHED"],
++export const clients = [
++  { manifest: { type: "client", slug: "ghost" } },
++  {
++    manifest: { type: "client", slug: "kajuit", traits: ["ATTACHED"] },
+     statics: {
+       serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE"),
+     },
+   },
+-};
++];
+ 
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+ ];
+--- a/instances/vivalence/daemon.js
++++ b/instances/vivalence/daemon.js
+@@ -1,11 +1,12 @@
+ import paladin from "@vivalence/paladin";
+ 
+ export const vcompany = {
+-  manifest: { type: "daemon", slug: "vcompany", version: "0.0.1" },
+-  docs: {
++  manifest: {
++    type: "daemon",
++    slug: "vcompany",
++    version: "0.0.1",
+     name: "Vivalence",
+-    valence:
+-      "The office: documents, mail, chat. The chief officers sit on top.",
++    description: "The office: documents, mail, chat. The chief officers sit on top.",
+     icon: { emoji: "🏢" },
+   },
+   statics: {
+@@ -72,18 +73,4 @@
+     },
+     // {module: "@vcompany/office/chat", statics: { platforms: ["telegram"] },}, "@vcompany/officer/ceo", "@vcompany/officer/cfo", "@vcompany/officer/cto",
+   ],
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `vcompany.viva.db` } },
+-  },
+-  hallucinators: [
+-    {
+-      module: "@commons/hallucinator/anthropic",
+-      statics: {},
+-      secrets: {
+-        key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY"),
+-      },
+-    },
+-  ],
+-  consume: {},
+ };
+--- a/instances/vivalence/instance.viva.js
++++ b/instances/vivalence/instance.viva.js
+@@ -5,34 +5,27 @@
+ export const manifest = { type: "instance", slug: "vcompany", version: "0.0.1" };
+ 
+ export const runtime = {
+-  slug: "runtime",
++  manifest: { slug: "runtime" },
+   statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `runtime.viva.db` } },
+-  },
+ };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
+ export const daemons = [vcompany];
+ 
+-export const clients = {
+-  kajuit: {
+-    slug: "kajuit",
+-    traits: ["ATTACHED"],
++export const clients = [
++  {
++    manifest: { type: "client", slug: "kajuit", traits: ["ATTACHED"] },
+     statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
+   },
+-};
++];
+ 
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+ ];
+ 
+@@ -41,6 +34,13 @@
+   statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
+ };
+ 
++export const hallucinators = [
++  {
++    module: "@commons/hallucinator/anthropic",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++  },
++];
++
+ export const environment = v.environment({
+   VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+   VIVA_CLIENT_KAJUIT_ORIGIN: v.url().desc("Scheme and authority the kajuit browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+--- a/registry/education/instances/brazilian/brazilian.viva.js
++++ b/registry/education/instances/brazilian/brazilian.viva.js
+@@ -30,16 +30,14 @@
+ export const daemons = [brazilian];
+ 
+ export const runtime = {
+-  slug: "runtime",
++  manifest: { slug: "runtime" },
+   statics: {
+     serve: () => paladin.env.get("VIVA_RUNTIME_SERVE"),
+   },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `runtime.viva.db` } },
+-  },
+ };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
+ export const lighthouse = {
+   module: "@commons/lighthouse/multiplayer",
+   statics: {
+@@ -47,34 +45,40 @@
+   },
+ };
+ 
+-export const clients = {
+-  ghost: {
+-    slug: "ghost",
+-    statics: {
+-    },
++export const hallucinators = [
++  {
++    module: "@commons/hallucinator/anthropic",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/elevenlabs",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+   },
+-  kajuit: {
+-    slug: "kajuit",
+-    traits: ["ATTACHED"],
++  {
++    module: "@commons/hallucinator/deepgram",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
++  },
++];
++
++export const clients = [
++  { manifest: { type: "client", slug: "ghost" } },
++  {
++    manifest: { type: "client", slug: "kajuit", traits: ["ATTACHED"] },
+     statics: {
+       serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE"),
+     },
+   },
+-};
++];
+ 
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+   {
+-    slug: "nlp-stanza",
++    manifest: { type: "service", slug: "nlp-stanza" },
+     module: "@commons/service/nlp-stanza",
+     secrets: { key: () => paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") },
+     statics: {
+--- a/registry/education/instances/brazilian/daemon.js
++++ b/registry/education/instances/brazilian/daemon.js
+@@ -2,8 +2,14 @@
+ import { Url } from "@vivalence/typology";
+ 
+ export const brazilian = {
+-  manifest: { type: "daemon", slug: "brazilian", version: "0.0.1" },
+-  docs: { name: "Português", valence: "English → Brazilian Portuguese. The widest mode set — every game is mounted.", icon: { emoji: "🇧🇷" } },
++  manifest: {
++    type: "daemon",
++    slug: "brazilian",
++    version: "0.0.1",
++    name: "Português",
++    description: "English → Brazilian Portuguese. The widest mode set — every game is mounted.",
++    icon: { emoji: "🇧🇷" },
++  },
+   statics: {
+     language: {
+       known: { slug: "english", name: "English" },
+@@ -29,27 +35,6 @@
+     "@education/game/cloze",
+     "@education/game/exhibit",
+   ],
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `brazilian.viva.db` } },
+-  },
+-  hallucinators: [
+-    {
+-      module: "@commons/hallucinator/anthropic",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/elevenlabs",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/deepgram",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
+-    },
+-  ],
+   consume: {
+     nlp: {
+       module: "@commons/service/nlp-stanza",
+--- a/registry/education/instances/italian/daemon.js
++++ b/registry/education/instances/italian/daemon.js
+@@ -2,8 +2,14 @@
+ import { Url } from "@vivalence/typology";
+ 
+ export const italian = {
+-  manifest: { type: "daemon", slug: "italian", version: "0.0.1" },
+-  docs: { name: "Italiano", valence: "English → Italian. Francesca teaches; harvest feeds the corpus.", icon: { emoji: "🇮🇹" } },
++  manifest: {
++    type: "daemon",
++    slug: "italian",
++    version: "0.0.1",
++    name: "Italiano",
++    description: "English → Italian. Francesca teaches; harvest feeds the corpus.",
++    icon: { emoji: "🇮🇹" },
++  },
+   statics: {
+     language: {
+       known: { slug: "english", name: "English" },
+@@ -22,36 +28,6 @@
+     "@education/teacher/francesca",
+     "@education/game/dojo",
+   ],
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `italian.viva.db` } },
+-  },
+-  hallucinators: [
+-    {
+-      module: "@commons/hallucinator/anthropic",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/openrouter",
+-      statics: {
+-        models: {
+-          fast: { id: "deepseek/deepseek-v4-flash", tune: [0.4, 0.4, 1.0, 1.0], context: 1048576 },
+-        },
+-      },
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/elevenlabs",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/deepgram",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
+-    },
+-  ],
+   consume: {
+     nlp: {
+       module: "@commons/service/nlp-stanza",
+--- a/registry/education/instances/italian/italian.viva.js
++++ b/registry/education/instances/italian/italian.viva.js
+@@ -31,16 +31,14 @@
+ export const daemons = [italian];
+ 
+ export const runtime = {
+-  slug: "runtime",
++  manifest: { slug: "runtime" },
+   statics: {
+     serve: () => paladin.env.get("VIVA_RUNTIME_SERVE"),
+   },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `runtime.viva.db` } },
+-  },
+ };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
+ export const lighthouse = {
+   module: "@commons/lighthouse/multiplayer",
+   statics: {
+@@ -48,34 +46,49 @@
+   },
+ };
+ 
+-export const clients = {
+-  ghost: {
+-    slug: "ghost",
++export const hallucinators = [
++  {
++    module: "@commons/hallucinator/anthropic",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/openrouter",
+     statics: {
++      models: {
++        fast: { id: "deepseek/deepseek-v4-flash", tune: [0.4, 0.4, 1.0, 1.0], context: 1048576 },
++      },
+     },
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/elevenlabs",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+   },
+-  kajuit: {
+-    slug: "kajuit",
+-    traits: ["ATTACHED"],
++  {
++    module: "@commons/hallucinator/deepgram",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
++  },
++];
++
++export const clients = [
++  { manifest: { type: "client", slug: "ghost" } },
++  {
++    manifest: { type: "client", slug: "kajuit", traits: ["ATTACHED"] },
+     statics: {
+       serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE"),
+     },
+   },
+-};
++];
+ 
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+   {
+-    slug: "nlp-stanza",
++    manifest: { type: "service", slug: "nlp-stanza" },
+     module: "@commons/service/nlp-stanza",
+     secrets: { key: () => paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") },
+     statics: {
+--- a/registry/education/instances/spanish/daemon.js
++++ b/registry/education/instances/spanish/daemon.js
+@@ -2,8 +2,14 @@
+ import { Url } from "@vivalence/typology";
+ 
+ export const spanish = {
+-  manifest: { type: "daemon", slug: "spanish", version: "0.0.1" },
+-  docs: { name: "Español", valence: "English → Spanish. Aprende is the homepage; dojo, nyan and riddler are live.", icon: { emoji: "🇪🇸" } },
++  manifest: {
++    type: "daemon",
++    slug: "spanish",
++    version: "0.0.1",
++    name: "Español",
++    description: "English → Spanish. Aprende is the homepage; dojo, nyan and riddler are live.",
++    icon: { emoji: "🇪🇸" },
++  },
+   statics: {
+     language: {
+       known: { slug: "english", name: "English" },
+@@ -23,27 +29,6 @@
+     "@education/game/nyan",
+     "@education/game/riddler",
+   ],
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `spanish.viva.db` } },
+-  },
+-  hallucinators: [
+-    {
+-      module: "@commons/hallucinator/anthropic",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/elevenlabs",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+-    },
+-    {
+-      module: "@commons/hallucinator/deepgram",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
+-    },
+-  ],
+   consume: {
+     nlp: {
+       module: "@commons/service/nlp-stanza",
+--- a/registry/education/instances/spanish/spanish.viva.js
++++ b/registry/education/instances/spanish/spanish.viva.js
+@@ -30,16 +30,14 @@
+ export const daemons = [spanish];
+ 
+ export const runtime = {
+-  slug: "runtime",
++  manifest: { slug: "runtime" },
+   statics: {
+     serve: () => paladin.env.get("VIVA_RUNTIME_SERVE"),
+   },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `runtime.viva.db` } },
+-  },
+ };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
+ export const lighthouse = {
+   module: "@commons/lighthouse/multiplayer",
+   statics: {
+@@ -47,34 +45,40 @@
+   },
+ };
+ 
+-export const clients = {
+-  ghost: {
+-    slug: "ghost",
+-    statics: {
+-    },
++export const hallucinators = [
++  {
++    module: "@commons/hallucinator/anthropic",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/elevenlabs",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ELEVENLABS_API_KEY") },
+   },
+-  kajuit: {
+-    slug: "kajuit",
+-    traits: ["ATTACHED"],
++  {
++    module: "@commons/hallucinator/deepgram",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_DEEPGRAM_API_KEY") },
++  },
++];
++
++export const clients = [
++  { manifest: { type: "client", slug: "ghost" } },
++  {
++    manifest: { type: "client", slug: "kajuit", traits: ["ATTACHED"] },
+     statics: {
+       serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE"),
+     },
+   },
+-};
++];
+ 
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+   {
+-    slug: "nlp-stanza",
++    manifest: { type: "service", slug: "nlp-stanza" },
+     module: "@commons/service/nlp-stanza",
+     secrets: { key: () => paladin.secret.get("SECRET_VIVA_SERVICE_NLP_KEY") },
+     statics: {
+--- a/registry/vcompany/instances/vcompany/daemon.js
++++ b/registry/vcompany/instances/vcompany/daemon.js
+@@ -1,8 +1,14 @@
+ import paladin from "@vivalence/paladin";
+ 
+ export const vcompany = {
+-  manifest: { type: "daemon", slug: "vcompany", version: "0.0.1" },
+-  docs: { name: "Vivalence", valence: "The office: documents, mail, chat. The chief officers sit on top.", icon: { emoji: "🏢" } },
++  manifest: {
++    type: "daemon",
++    slug: "vcompany",
++    version: "0.0.1",
++    name: "Vivalence",
++    description: "The office: documents, mail, chat. The chief officers sit on top.",
++    icon: { emoji: "🏢" },
++  },
+   statics: {
+     company: { name: "Vivalence GmbH", seat: "Hamburg", stage: "pre-seed", principal: "beef" },
+   },
+@@ -28,16 +34,4 @@
+     "@vcompany/officer/cfo",
+     "@vcompany/officer/cto",
+   ],
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `vcompany.viva.db` } },
+-  },
+-  hallucinators: [
+-    {
+-      module: "@commons/hallucinator/anthropic",
+-      statics: {},
+-      secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-    },
+-  ],
+-  consume: {},
+ };
+--- a/registry/vcompany/instances/vcompany/instance.viva.js
++++ b/registry/vcompany/instances/vcompany/instance.viva.js
+@@ -5,34 +5,27 @@
+ export const manifest = { type: "instance", slug: "vcompany", version: "0.0.1" };
+ 
+ export const runtime = {
+-  slug: "runtime",
++  manifest: { slug: "runtime" },
+   statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `runtime.viva.db` } },
+-  },
+ };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
+ export const daemons = [vcompany];
+ 
+-export const clients = {
+-  kajuit: {
+-    slug: "kajuit",
+-    traits: ["ATTACHED"],
++export const clients = [
++  {
++    manifest: { type: "client", slug: "kajuit", traits: ["ATTACHED"] },
+     statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
+   },
+-};
++];
+ 
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+ ];
+ 
+@@ -41,6 +34,13 @@
+   statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
+ };
+ 
++export const hallucinators = [
++  {
++    module: "@commons/hallucinator/anthropic",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++  },
++];
++
+ export const environment = v.environment({
+   VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+   VIVA_CLIENT_KAJUIT_ORIGIN: v.url().desc("Scheme and authority the kajuit browser client is reachable at.").default("http://localhost:1794").group("addresses"),

@@ -1,0 +1,330 @@
+#+title: fine apply lands mail and calendar, then a missing directory cracks freight into two traits
+#+filetags: :m53:vcompany:voffice:email:calendar:dummy:provider:freight:mountpoint:paladin:runtime:traits:drapes:design:mikro:ontology:
+#+index: 9
+
+* what happened, in one breath
+
+He asked one scoping question — /"are there any system or subsystem level changes in m53.v4? only
+package?"/ — got the answer (package, plus one drapes line), and said **/"fine. apply"/**. The whole
+v4 waterfall went in: two dummy provider modes, two office application modes, the domain's fourth
+ontology, four kernel entries, nine App parts. Before writing a line of it I found his emacs autosave
+carrying three annotations he had never sent — =// @beef add a datasink.= and =// @beef this is
+config/mask level!= and =// @beef same 2 notes= — and those became the two corrections the pass
+actually landed with. The landing then found four bugs the design could not have shown: the provider
+seam reached for =daemon.modes= as an array when it is a nested map, =ensure()= cascaded an INSERT
+through relation refs and collided on a slug that already existed, =/flag= read =getItems()= off an
+unpopulated Collection, and =occurrences= treated a bare =to= date as midnight and dropped its own
+day. All four are fixed and tested. Then a watcher restart crashed on =ENOENT … readdir … attachments=
+and he asked **/"yours?"/** — it was, and pulling that thread opened the real find of the session:
+=FRAUGHT= rooted freight at the mountpoint when one existed and at the mode's own directory otherwise,
+which is not a fallback but **an unnamed either/or**. His pin — /"mountpoint fs. mount internal
+reference."/ and /"module.mount.dirname + freight.nature always"/ — broke vdex's cargo when I blasted
+it, and that breakage was the answer: **vdex's cargo was never freight.** Freight is what a mode
+carries; vdex serves the tree it reads. Two mechanisms, so now two traits.
+
+* spine (N=46; rows 1–21 are folded in [[the providers are scouted, three schema surfaces disagree, and one dummy per mode becomes the seam]])
+
+|  n | beef                                                                                  | what came of it                                                                    |
+|----+---------------------------------------------------------------------------------------+------------------------------------------------------------------------------------|
+| 22 | =/compact=                                                                            | NOTHING — harness                                                                  |
+| 23 | continuation summary injected                                                         | NOTHING — harness                                                                  |
+| 24 | /"are there any system or subsystem level changes in m53.v4? only domain?"/            | blast table read from the quest                                                    |
+| 25 | corrected mid-turn: /"…only package?"/                                                 | package + ONE drapes line; =Pip= has no =success= tone, silently falls to muted     |
+| 26 | **/"fine. apply"/**                                                                    | the whole waterfall — 34 files, his 2 buffer notes, 4 bugs, 63 green test steps     |
+| 27 | =Migration20260907164901.ts= /"what changed?"/                                          | 6 migrations — 3 mine (enum flips), 3 a sibling's mode-ownership landing            |
+| 28 | same, re-delivered as a prompt                                                        | measured: my tests run =:memory:=, so none of them wrote to the live db            |
+| 29 | the two =DesignSync= handoffs, again                                                   | port re-read against source; 6 divergences fixed, 2 kept deliberately               |
+| 30 | watcher crash pasted — =ENOENT … readdir … /modes/office/email/attachments=             | =office/email= is FRAUGHT over a directory that was never created                   |
+| 31 | **/"yours?"/**                                                                         | yes, mine                                                                          |
+| 32 | /"paladin ought to create probably. or at least we dot watn to throw!"/                 | I proposed a branch: create what the mode owns, refuse the operator's typo          |
+| 33 | **/"no. the mountpoint is set even when not manually by the instance."/**               | branch killed; one unconditional line — =await paladin.state.dir(root)=             |
+| 34 | /"write some dummy pdf fixture in place. a4 text simple"/                               | two A4 Helvetica/WinAnsi PDFs, rendered and verified through Quick Look             |
+| 35 | /"all this ??? is not needed. mode has automatically a mountpoint attached by paladin"/ | measured FALSE today — paladin points daemons and services, never kernel entries    |
+| 36 | /"ikiro comapct"/                                                                       | fold opened; spine walked; extractor tightened                                      |
+| 37 | /"paladin should actually do that. for sure hte daemon isnt who writes the mount"/      | attempted — two settle tests refused it, correctly                                  |
+| 38 | **/"not yet a go really. more of a trace this. show me what it looks like rn"/**        | reverted the lot; printed the live trace instead                                    |
+| 39 | row 37 re-delivered as a prompt                                                        | the ruling restated, so the design was answered rather than the code written        |
+| 40 | /"are you sure about this?"/ + /"what paths are on the module?"/ + /"mount vs mountpoint"/ | measured all three; =mount= means a different thing on each of four objects       |
+| 41 | **/"freight lives in the mode. so if the mountpoint points outside the mode, thats an issue"/** | the =??= in FRAUGHT named as an either/or, not a default                    |
+| 42 | **/"mountpoint fs. mount internal reference."/** + /"module.mount.dirname + freight.nature always"/ | ledger invariant 8 pinned; blast proved the rule breaks vdex cargo    |
+| 43 | **/"go"/**                                                                             | =FRAUGHT= / =MOUNTED= split landed, green on both sides; r1 found landed by a sibling |
+| 44 | /"session level, where are we at?"/                                                     | survey                                                                             |
+| 45 | /"iiro compact"/                                                                        | this fold                                                                          |
+| 46 | =/compact=                                                                             | NOTHING — harness                                                                  |
+
+Coverage 25/25 for rows 22–46. Rows 27/28 and 37/39 are the same message delivered twice, minutes
+apart — outside the 180 s dedupe window, so they stand as distinct turns, which is right: **him
+repeating himself is data**, and in row 39 the repetition was the go-signal that row 37 had not been.
+
+* the extractor, tightened (row 36)
+
+The walk began by suspecting the dedupe had eaten a turn — two =DesignSync= handoffs eight seconds
+apart share a 200-character prefix. It had not: rows 4 and 29 are the calendar and email handoffs from
+different hours, each with a byte-identical queue echo. The claim was wrong and was corrected in the
+same turn. The method changed anyway, because prefix matching cannot tell a duplicate from a sibling
+and a queue echo is always byte-identical:
+
+#+begin_src diff
+// .ikiro/methods/compact.md — the extractor
+-    if any(r[4][:200]==k[4][:200] and abs(r[2]-k[2])<180 for k in turns): continue
++    if any(r[4]==k[4] and abs(r[2]-k[2])<180 for k in turns): continue   # FULL text: a queue echo is byte-identical
+#+end_src
+
+=[Request interrupted by user]= joined =NOISE= in the same pass — it is a harness artifact that was
+entering the spine as a beef turn.
+
+* the whole waterfall, landed on two words (row 26)
+
+=n1= domain · =d1= =dummy/mail= · =d2= =dummy/calendar= · =m1= =office/email= server · =m2= its App ·
+=c1= =office/calendar= server · =c2= its App · =k1= four kernel lines · =p1= the drapes tone. 34 files.
+The quest's =#+begin_src= blocks were extracted programmatically rather than retyped — a small walker
+over =#+begin_src (javascript|svelte)= keyed on each block's leading =// ~/.viva/…= path comment, with
+the dummies and the kernel fragment held back and hand-written.
+
+**The quest file itself was not touched.** His emacs lock was live (=.#m53.v4-…= → a running session,
+autosave 38 minutes newer than the saved file), so any write of mine would lose on his next save. The
+two corrections below are therefore owed to the quest text, not applied to it.
+
+* his buffer carried the corrections (row 26)
+
+Three annotations, two distinct rulings, both applied to both dummies:
+
+#+begin_example
+394:  // @beef add a datasink.
+396:  export const statics = { address: …, vendor: "dummy", poll: 60 };  // @beef this is config/mask level!
+586:  // @beef same 2 notes. datasink and config statics.
+#+end_example
+
+**A datasink.** Each dummy now writes back the file its dataset reads — education's exact roundtrip
+idiom, so the dummy's disk file IS its state and the recording endpoints survive a restart:
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/dummy/mail/mail.viva.js
+export const dataset = new Dataset({ literal: "dataset/literals/messages.js" });
+export const datasink = new Datasink({
+  literal: [["message", writer.js("dataset/literals/messages.js", ["slug", "ontology", "traits", "trait"])]],
+});
+#+end_src
+
+**Statics at mask level.** The dummies declare none at all and refuse by name when the kernel entry
+gives them none — the same shape as =office/vdex= taking its mountpoint. =office/email= lost its
+duplicate =address= in the same pass: two declarations of one account can disagree, so the office asks
+=provider().account()= instead, in boot and in the harness.
+
+* four bugs the landing found (row 26)
+
+None of these are visible in a design; all four needed the code to run.
+
+#+begin_src diff
+// office/{email,calendar}/provider.js — daemon.modes is {type:{slug:Mode}}, not an array. The seam would have thrown.
+- const held = daemon.modes.find((known) => known.type === type && known.slug === slug);
++ const held = daemon.flatmodes().find((known) => known.type === type && known.slug === slug);
+#+end_src
+
+=ensure({…, uses: [{slug}], symbols: [{slug}]})= cascades an INSERT for each ref and collides on the
+slug that already exists. Relations must be omitted, then resolved and added — the same shape the vdex
+boot upsert and DATASET's link phase both keep. Extracted as a shared sibling:
+
+#+begin_src javascript
+// ~/.viva/registry/vcompany/modes/dummy/link.js
+export const mint = async (entities, row) => {
+  const data = object.omit(row, RELATIONS);
+  const known = await entities.literal.findOne({ slug: row.slug }, { populate: RELATIONS });
+  const literal = known ?? entities.literal.create(data);
+  if (known) known.assign(data);
+  for (const relation of RELATIONS) { … repo.find({ slug: { $in: … } }) … literal[relation].add(entity); }
+  await entities.em.flush();
+  return literal;
+};
+#+end_src
+
+=/flag= read =literal.symbols.getItems()= off a =findOne= with no =populate=; an uninitialised
+Collection throws. And =occurrences(held, from, to)= took the office's day-grained =to= (a bare
+=YYYY-MM-DD=) as midnight, excluding that whole day and every series occurrence in it — bounds now widen a
+date-only value to the end of its day.
+
+* what the tests cost, and what they bought (row 26)
+
+=tests/scenarios.js= grew =office(viva, {provider})=, plus exported =beside()= and =install()= — a
+second mode staggered =EXPOSED= in the same daemon with the real =DATASET= installer run over both, so
+=provider()= resolves at call time the way it does in production. Green: =dummy/mail= 13 steps,
+=dummy/calendar= 17, the calendar's client grammar 20, the two App compile suites 13. Every one of the
+four bugs above was caught by these, not by reading.
+
+**Still owed:** =office/email/tests/{aperture,tools,email.snapshot}.test.js= and
+=office/calendar/tests/{aperture,tools,calendar.snapshot}.test.js= — which means =/key=, the held
+send and the thread walk are landed but untested.
+
+* the migrations, and who wrote them (rows 27–28)
+
+Six appeared in =daemon_vcompany/migrations/= during the session. Three are mine and harmless: adding
+=EVENT= to =LiteralTraitsEnum= changes metadata sqlite cannot express, so mikro rebuilds the table and
+emits byte-identical DDL. They line up exactly with applying, reverting and restoring =n1= — the
+revert was a baseline measurement, and it proved the four vdex reds were not mine.
+
+The other three are a sibling's, landing **mode ownership of the dataspace**: =mode_literals= /
+=mode_symbols= join tables, dropped and replaced by a =mode_id= foreign key, then slug uniqueness
+rescoped to =(slug, mode_id)=. Measured consequence, and it is not small — see settlement.
+
+* the designs, re-read against the port (row 29)
+
+Both =.dc.html= sources fetched whole and diffed against the landed Svelte. The port is faithful:
+the same 820/1000 breakpoints, the =340px= / =minmax(220px,.8fr) minmax(320px,1.4fr)= columns,
+=H0 8 · H1 19 · PX 48=, the =top/height/showMeta= arithmetic, five views on =d w m y l=, month cap
+=narrow ? 2 : 3=, the 280px inspector overlaying under =mid=.
+
+Six divergences fixed: two =Pip= tones were =success= where the design paints =primary=; the composer
+said =from office= instead of the account; the textarea ignored =narrow ? 2 : 3=; the inbox row keyed
+its height off =@media (pointer: coarse)= rather than pane width (so a narrow pane on a trackpad kept
+the tight row); the boot line dropped =· synced 60s=. Two divergences KEPT: the design hardcodes
+=gmail= in the header, the boot line and the source chip because it reads a fixture — the port asks
+=account.vendor=, which is the whole point of the provider seam.
+
+Consequence worth naming: **=p1= is no longer load-bearing.** Nothing now asks =Pip= for =success=.
+The line stays as a library completion — the tone map was missing a dapper role that =Json.svelte=
+already paints by hand, so a caller asking for it got silent grey.
+
+* a missing directory, and what it was hiding (rows 30–34)
+
+The crash was mine: =office/email= declares =FRAUGHT= over =attachments=, and nothing created it.
+I proposed a branch — create the mode's own path, refuse a mountpoint that is not a directory — and he
+killed it in one line: /"the mountpoint is set even when not manually by the instance. we want to
+state the dir no matter what."/ The fix is one line, using a verb paladin already had:
+
+#+begin_src diff
+// systems/runtime/daemon/traits/index.js
+  const root = mode.mountpoint?.absolute ?? mode.module.mount.dirname + mode.module.freight.path.nature;
++ await paladin.state.dir(root);
+  const files = await paladin.find.walk(/./, mode.statics?.ignore)(root);
+#+end_src
+
+The two demo PDFs the fixture names were then written as real A4 documents — a minimal generator with
+correct xref offsets, Helvetica under =WinAnsiEncoding= so the umlauts survive, verified by rendering
+rather than by asserting. Both carry /Musterdaten der Vivalence-Demo — kein echter Vorgang/ at the foot.
+
+* mount, mountpoint, and the word that means three things (rows 35–43)
+
+He asked whether a mode always has a mountpoint. It does not, and the trace said so:
+
+#+begin_example
+daemon mask.mount   ~/.viva/instances/vivalence/mountpoint/daemon_vcompany
+ 0 @vcompany/domain/voffice      string entry — dress never sees it
+ 1 @vcompany/office/vdex  vdocs  …/documentation/content     declared
+ 2 @vcompany/office/vdex  corpo  …/coorporation              declared
+ 3-6 dummy/mail · dummy/calendar · office/email · office/calendar    undefined
+faults: []
+#+end_example
+
+Paladin points **daemons and services**, never kernel entries; =dress()= only converts a declared
+string. Landing a mint broke two settle tests, and they were right to break: =null= means a slot was
+declared and is unfilled — a REQUIRED fault the doctor names — while =undefined= means no slot exists.
+**Two absences, two meanings**, and =if (!declared)= erases the distinction. That attempt was reverted
+on /"not yet a go really. more of a trace this."/
+
+The pin, now ledger invariant 8: =mountpoint= is FS, =mount= is an internal reference. Measured:
+=Mask.mount // mountpath= is fs, =Daemon.mount // internal root= is a route, =mode.mount= is
+=/mode/<type>/<slug>= and =mode.url= hangs off its nature — and the outlier is =module.mount=, which
+paladin sets to the mode's own =.viva.js= FILE, so =module.mount.dirname= is the mode's root on disk.
+One word, four objects, three meanings.
+
+Then /"freight lives in the mode"/, and the blast:
+
+#+begin_example
+vdex.viva.js            new Freight("/")                              nature "/"
+vdex/load.js:39         paladin.find.index(mode.mountpoint.absolute)   file.path is MOUNTPOINT-relative
+vdex/boot.js:110        mode.freight.admit(file.path)                  catalog keyed by that path
+vdex/aperture:18        mode.freight.catalog[asset.path]?.url          the cargo url Paper.svelte fetches
+#+end_example
+
+=module.mount.dirname + freight.nature= always would root vdex's catalog at the mode directory while
+every key is a jdex-tree path — every document 404s, the pdf viewer a sibling landed this session
+included. The rule is right and vdex is what it exposes: **vdex's cargo was never freight.** Freight is
+what a mode carries and owns; vdex indexes a tree it does not own, and =Freight("/")= was only ever a
+way to say "serve the mountpoint". The =??= let one trait mean both.
+
+#+begin_src javascript
+// systems/runtime/daemon/traits/index.js
+const carry = async (mode, daemon, root) => { … };
+
+// freight is what a mode CARRIES: its own files, under its own directory, at the path it declares.
+export const FRAUGHT = (mode, daemon) =>
+  carry(mode, daemon, join(mode.module.mount.dirname, mode.module.freight.path.nature));
+
+// a mode that SERVES the tree it reads: the operator's mountpoint is the root, and the mode owns none of it.
+export const MOUNTED = (mode, daemon) => {
+  if (!mode.mountpoint)
+    throw new Error(`[MOUNTED] ${mode.type}/${mode.slug} serves its mountpoint, but its kernel entry names none`);
+  return carry(mode, daemon, mode.mountpoint.absolute);
+};
+#+end_src
+
+=Mode.ts= gained the enum member; the three sites that asked /does this serve cargo?/ now ask both
+(=resolution.js:23= Cargo · =resolve.js:47= client serve · =metadata.js:42=); education's harvest tool
+stays FRAUGHT-only because it wants a datasink topography, not cargo; vdex dropped =FRAUGHT= and its
+=Freight("/")= export. =Thread.ts:49= already carried =// also trait MOUNTED= in a comment, so the name
+was waiting for it. **No behaviour moves today** — what changes is that giving =office/email= a
+mountpoint no longer teleports its attachments out of the mode.
+
+* what landed
+
+| container                                   | change                                                                     |
+|---------------------------------------------+----------------------------------------------------------------------------|
+| =systems/runtime/daemon/traits/index.js=    | =carry()= factored · =FRAUGHT= mode-rooted · =MOUNTED= new · =state.dir=    |
+| =systems/runtime/daemon/entities/…/Mode.ts= | =MOUNTED= enum member                                                       |
+| =systems/runtime/daemon/lifecycle/resolution.js= · =lifecycle/resolve.js= · =daemon/aperture/metadata.js= | cargo asks FRAUGHT or MOUNTED |
+| =subsystems/drapes/display/Pip.svelte=      | =success= tone (=p1=, owed since V3; no longer load-bearing)                |
+| =~/.viva/registry/vcompany/domain/voffice=  | =event= ontology · =EVENT= trait · card + search                            |
+| =~/.viva/registry/vcompany/modes/dummy/=    | =mail/= · =calendar/= · =link.js= — new, with datasinks and mask statics    |
+| =~/.viva/registry/vcompany/modes/office/email/= · =calendar/= | server + App, whole; email's =attachments/= with two PDFs |
+| =~/.viva/registry/vcompany/modes/office/vdex/vdex.viva.js= | =FRAUGHT= → =MOUNTED=, freight export dropped               |
+| =~/.viva/registry/vcompany/tests/scenarios.js= | =office(viva,{provider})= · =beside()= · =install()=                     |
+| =~/.viva/instances/vivalence/daemon.js=     | four kernel entries                                                         |
+| =.ikiro/methods/compact.md=                 | extractor dedupe on full text · interrupt marker into NOISE                 |
+| =.ikiro/world/ledger.md=                    | invariant 8 — mountpoint fs, mount internal reference                       |
+
+Suites at fold: paladin 41 passed / 180 steps, 0 failed · runtime 53 / 334, 1 failed (=registry ingest
+… wafers under @commons=, pre-existing, measured against a revert) · vcompany 25 / 113, 2 failed / 4
+steps.
+
+* settlement
+
+- **r1 is landed** — a sibling rewrote =subsystems/paladin/skills/fs.js= mid-session:
+  =decodeURIComponent(new URL(encodeURI(…)))=. One vdex step went green with it. **Three stay red**, so
+  the standing claim that r1 was the single cause of all four is now false and is corrected here.
+- **=p1= demoted** from a required hunk to a library completion, in the same turn the design re-read
+  showed nothing asks =Pip= for =success=.
+- **The =??= in FRAUGHT** is resolved rather than carried: it was an either/or, and it is now two traits.
+- **Not resolvable by a landed rule, so it survives:** the sibling's mode-ownership landing duplicates
+  every symbol. Measured in the mail fixture — 16 symbol rows, 8 distinct slugs, one set owned by
+  =office/email= and one by =dummy/mail=, and the dummy's copies are BARE (=traits: []=), minted by
+  =linkPhase='s= own-scoped miss at =dataset.js:152=. This directly contradicts the v4 law that the
+  office declares the scheme and the provider carries the rows, because slug idempotence across modes
+  is what that law rested on. It is the same bare-symbol defect class already recorded for the italian
+  corpus, arriving by a new route.
+- **The quest text still owes his two buffer notes.** Not written, deliberately: his editor holds the
+  file with unsaved changes.
+
+* resumption (owed beef)
+
+1. six office test files — =/key=, the held send, the thread walk are landed and untested
+2. the symbol duplication above — his call, since it is a sibling's landing meeting mine
+3. the three remaining vdex reds — cause unknown now that r1 is out of the frame
+4. whether paladin should point kernel entries at all (=undefined= mints, =null= stays a fault) — traced, never landed
+5. the quest's =dummy/*= blocks, once his buffer is saved
+6. commit · education push · the live restart, all still standing from the prior fold
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|--------------------------+-----------+---------------------------------------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor            | —         | landed — his click-through gates owed | his restart, then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1 (1 live) |
+| m46-linux-readmen        |  17% 3/18 | wip                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 2 (1 live) |
+| m53-vcompany             |   0% 0/5  | open                                  | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 4 (1 live) |
+| m53-vcompany.pre         | —         | open                                  | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3 (1 live) |
+| m53-vcompany.v3-vdex     | —         | landed                                | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 2 (2 live) |
+| m53.v4-mail+calendar     | —         | designed                              | his go, per mode. =dummy/mail= + =dummy/calendar= first (they are the source both apps read), then =office/email=, then =office/calendar=. nothing under =systems/= or =subsystems/= but one drapes line (=pip= tone =success=, already owed by v3).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 0          |
+| m54-buffer-file          |   0% 0/4  | open                                  | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 2 (1 live) |
+| m56-the-pincer-turns     |  50% 1/2  | build                                 | m1 landed (green, uncommitted) — m2 waits on rulings 2 · 3 · 5 · 6                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1 (1 live) |

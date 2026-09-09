@@ -3,6 +3,7 @@
   "exports": {
     ".": "./mod.js",
     "./typology": "./typology.js",
+    "./skills": "./skills/index.js",
   },
   "version": "0.0.1",
   "tasks": {

@@ -1,17 +1,22 @@
 export { seed } from "./seed.js";
 export { assemble } from "./assemble.js";
-export { stack, tiers, instance } from "./tiers.js";
-export { LiteralDomain, SymbolDomain, BufferDomain, LiteralTraits } from "./concretes.ts";
+export { instance, stack, tiers } from "./tiers.js";
+export {
+  BufferDomain,
+  LiteralDomain,
+  LiteralTraits,
+  SymbolDomain,
+} from "./concretes.ts";
 export {
   faculties,
+  hasToolResult,
+  lastUserText,
+  speechFaculty,
   textStream,
   textTurn,
-  toolUseTurn,
   toolUseStream,
-  lastUserText,
-  hasToolResult,
+  toolUseTurn,
   verbatimFaculty,
-  speechFaculty,
 } from "./faculties.js";
 export * as lighthouse from "./lighthouse.js";
-export { live, BASE, CREDENTIALS } from "./live.js";
+export { BASE, CREDENTIALS, live } from "./live.js";

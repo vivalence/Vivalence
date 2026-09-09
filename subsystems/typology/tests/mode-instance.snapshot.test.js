@@ -26,10 +26,10 @@ describe("snapshot demo: mode-instance", () => {
       depth: 5,
     });
     console.log(`\n===BEGIN mode-instance → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);
-    expect(pojo.type).toBe("game");
-    expect(pojo.slug).toBe("nyan");
+    expect(pojo.manifest.type).toBe("game");
+    expect(pojo.manifest.slug).toBe("nyan");
     expect(pojo.manifest.traits).toEqual(["APPLICATION"]);
-    expect(pojo.traits).toBeUndefined();
+    expect(pojo.slug).toBeUndefined();
     expect(pojo.aperture.branches.board.effect).toBeTruthy();
     expect(pojo.module).toBeUndefined();
   });

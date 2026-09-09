@@ -4,6 +4,8 @@ import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { IntentEntity } from "../index.ts";
 import { BufferEntity } from "../index.ts";
 import { TurnEntity } from "../index.ts";
+import { LiteralEntity } from "../index.ts";
+import { SymbolEntity } from "../index.ts";
 
 export enum ModeTraitsEnum {
   BOOTED = "BOOTED",
@@ -29,6 +31,7 @@ export enum ModeTraitsEnum {
 
   INTENTED = "INTENTED",
   FRAUGHT = "FRAUGHT",
+  MOUNTED = "MOUNTED",
 
   // ENTRYPOINT REFERENCABLE
 
@@ -55,6 +58,9 @@ export class ModeEntity extends DataEntity {
   intents = new Collection<IntentEntity>(this);
   buffers = new Collection<BufferEntity>(this);
   turns = new Collection<TurnEntity>(this);
+
+  literals = new Collection<LiteralEntity>(this);
+  symbols = new Collection<SymbolEntity>(this);
 }
 
 export const ModeSchema = new EntitySchema({
@@ -99,6 +105,18 @@ export const ModeSchema = new EntitySchema({
       kind: "1:m",
       entity: () => TurnEntity,
       mappedBy: (turn) => turn.mode,
+    },
+
+    literals: {
+      kind: "1:m",
+      entity: () => LiteralEntity,
+      mappedBy: (literal) => literal.mode,
+    },
+
+    symbols: {
+      kind: "1:m",
+      entity: () => SymbolEntity,
+      mappedBy: (symbol) => symbol.mode,
     },
   },
 });

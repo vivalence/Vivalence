@@ -1,7 +1,47 @@
 import { NotFound, Span, ToolCall, fromm, soma, steer, verbatim } from "@vivalence/typology";
+import * as entities from "../../schematics/entities/index.js";
 
 export const signalOf = (name) => new ToolCall(name).signal;
 export const nameOf = (steps) => new ToolCall(steps).name;
+
+// what the model HEARS of a tool's yield: the message, then every entity row the client also
+// receives, spoken as data. a descriptor's `spoken` names the paths a row speaks — the bulk a
+// tool can fetch on demand (a view's bundle, a buffer's payload) stays off the wire. a related
+// row speaks as its id.
+const descriptors = Object.values(entities).filter((entry) => entry?.own && typeof entry.$id === "string");
+const spoken = (key) =>
+  descriptors.find((entry) => entry.$id.toLowerCase() === key)?.spoken ?? null;
+const at = (row, path) =>
+  path.split(".").reduce((value, step) => (value == null ? value : value[step]), row);
+const card = (row, paths) => {
+  if (!paths || row == null || typeof row !== "object") return row;
+  const out = {};
+  for (const path of paths) {
+    const value = at(row, path);
+    if (value === undefined) continue;
+    const key = path.split(".")[0];
+    const plain = value !== null && typeof value === "object" && !Array.isArray(value) && "id" in value
+      ? value.id
+      : value;
+    if (path.includes(".")) (out[key] ??= {})[path.slice(key.length + 1)] = plain;
+    else out[key] = plain;
+  }
+  return out;
+};
+export const speak = (output) => {
+  if (output == null) return "";
+  if (typeof output !== "object") return String(output);
+  const { message, ...rest } = output;
+  const rows = Object.fromEntries(
+    Object.entries(rest).map(([key, value]) => [
+      key,
+      Array.isArray(value) ? value.map((row) => card(row, spoken(key))) : value,
+    ]),
+  );
+  return [message, Object.keys(rows).length ? JSON.stringify(rows) : null]
+    .filter((line) => line != null && line !== "")
+    .join("\n");
+};
 
 const armory = (tools) =>
   steer.trie

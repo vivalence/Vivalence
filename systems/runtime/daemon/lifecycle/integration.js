@@ -21,7 +21,7 @@ export async function prune(daemonDie) {
     const modes = daemonDie.good.flatmodes();
 
     // mode in db but not config → uninstall
-    const installed = new Set(modes.map((m) => typeSlug(m.manifest)));
+    const installed = new Set(modes.map((mode) => typeSlug(mode.manifest)));
     await removeOrphans(em, await mode.find(), installed, typeSlug, "mode");
     await em.flush();
 

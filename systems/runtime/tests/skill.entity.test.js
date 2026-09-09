@@ -4,7 +4,7 @@ import { seed } from "./scenarios/datamap.js";
 import * as skills from "../daemon/skills/index.js";
 
 const harness = (entities) =>
-  new Vector().use(shard.context.bind("daemon", { entities })).slurp(skills.entity);
+  new Vector().use(shard.context.bind("daemon", { entities })).slurp(skills.entity.entity);
 
 const invoke = (armed, name, input) =>
   steer.dispatch.invoke(armed, new ToolCall(name).signal, steer.strategy.guarded)(input);

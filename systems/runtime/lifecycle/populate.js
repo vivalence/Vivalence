@@ -19,7 +19,6 @@ export async function aperture(runtimeDie) {
 
 export async function daemons(runtimeDie) {
   for (const mask of paladin.instance.daemons) {
-    // console.log({ mask });
     const daemonDie = new DaemonDie({
       mask,
       good: new Daemon({ manifest: mask.manifest }),

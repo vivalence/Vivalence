@@ -1,5 +1,6 @@
 #+title: the classifier goes live, the thin rebuild gets caught against history, and m23 sets with its tangles filed
 #+filetags: :domain-tools:daemon-call:nlp:m23-sunset:m29:
+#+index: 36
 
 * arc
 

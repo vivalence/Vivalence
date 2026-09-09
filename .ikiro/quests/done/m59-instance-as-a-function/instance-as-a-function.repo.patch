@@ -1,0 +1,2339 @@
+--- a/README.md
++++ b/README.md
+@@ -69,76 +69,65 @@
+ 
+ ## Hello, Instance!
+ 
+-The instance the mode ships in: the mode in the kernel, two hallucinators declared, local sqlite per process, ports and secrets as one schema.
++The instance the mode ships in: the mode in the kernel, two hallucinators and one sqlite datamap declared once at the root and inherited by every daemon, ports and secrets as one schema.
+ 
+-`commons/instances/hello-world/instance.viva.js` — what it is:
+-```js
+-import paladin from "@vivalence/paladin";
++\1import paladin from "@vivalence/paladin";
+ import { v } from "@vivalence/typology";
+ 
+ export const manifest = { type: "instance", slug: "hello-world", version: "0.0.1" };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
++export const lighthouse = {
++  module: "@commons/lighthouse/multiplayer",
++  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
++};
++
++export const hallucinators = [
++  {
++    module: "@commons/hallucinator/anthropic",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/openrouter",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
++  },
++];
++
+ export const daemons = [
+   {
+     manifest: { type: "daemon", slug: "hello", version: "0.0.1" },
+     kernel: [
+-		"./mode.viva.js" 
+-		// or: "@commons/demo/hello-world"
+-	],
++        "./mode.viva.js"
++        // or: "@commons/demo/hello-world"
++    ],
+     consume: {
+       reader: { module: "@commons/service/reader" },
+     },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `hello.viva.db` } },
+-    },
+-    hallucinators: [
+-      {
+-        module: "@commons/hallucinator/anthropic",
+-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-      },
+-      {
+-        module: "@commons/hallucinator/openrouter",
+-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
+-      },
+-    ],
+   },
+ ];
+ 
+ export const runtime = {
+-  slug: "runtime",
++  manifest: { slug: "runtime" },
+   statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `runtime.viva.db` } },
+-  },
+ };
+ 
+-export const clients = {
+-  kajuit: {
+-    slug: "kajuit",
++export const clients = [
++  {
++    manifest: { type: "client", slug: "kajuit" },
+     statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
+   },
+-};
++];
+ 
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+ ];
+ 
+-export const lighthouse = {
+-  module: "@commons/lighthouse/multiplayer",
+-  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
+-};
+-
+ export const environment = v.environment({
+   VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+   VIVA_CLIENT_KAJUIT_ORIGIN: v.url().desc("Scheme and authority the kajuit browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+@@ -150,10 +139,7 @@
+   SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24").default(() => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24))))).group("keys"),
+   SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Anthropic key. Declare either provider, both, or neither — a key left blank leaves its hallucinator dormant.").group("keys").optional(),
+   SECRET_VIVA_OPENROUTER_API_KEY: v.string().desc("OpenRouter key. The alternative provider. With neither key the daemon attaches no hallucinator and /hello/agent answers as the bot.").group("keys").optional(),
+-});
+-```
+-
+-## Quickstart
++});\2
+ A "Hello World" in 5 minutes.
+ 
+ For more depth, read the <a target="_blank" href="https://docs.vivalence.org">Slowstart</a>.
+@@ -254,12 +240,12 @@
+ It asks you to create the first user.
+ 
+ ```sh
+-viva instance/use hello-world      # pid level bind
++viva instances/use hello-world     # pid level bind
+ viva instance/init                 # populates instance .env
+ 
+-# or as one: viva instance/use hello-world init
++# or as one: viva instances/use hello-world init
+ ```
+-`instance/use` selects one instance out of the set for this shell. 
++`instances/use` selects one instance out of the set for this shell. 
+ 
+ To sign up additional users, use `viva instance/lighthouse signup <username> <password>` — it talks to the running lighthouse, so the instance has to be up (step 5).
+ 
+--- a/commons/datamaps/libsql/libsql.viva.js
++++ b/commons/datamaps/libsql/libsql.viva.js
+@@ -37,11 +37,11 @@
+ async function provider(datamap, instance, subscribers) {
+   const orm = await MikroORM.init(
+     config({
+-      dbName: datamap.mount.branch(datamap.statics.db.file).absolute,
++      dbName: datamap.mountpoint.branch(datamap.statics.db.file).absolute,
+       contextName: datamap.statics.db.file,
+       entities: instance.map((v) => v.schema),
+       subscribers: subscribers ?? instance.map((v) => v.subscriber),
+-      migrations: datamap.mount.branch("migrations").absolute,
++      migrations: datamap.mountpoint.branch("migrations").absolute,
+     }),
+   );
+ 
+--- a/commons/instances/hello-world/app/App.svelte
++++ b/commons/instances/hello-world/app/App.svelte
+@@ -384,10 +384,10 @@
+ 
+         <div class="sheet">
+           <div class="face">
+-            <span class="glyph">{report.daemon.docs?.icon?.emoji ?? "◆"}</span>
++            <span class="glyph">{report.daemon.manifest?.icon?.emoji ?? "◆"}</span>
+             <div class="who">
+-              <span class="name">{report.daemon.docs?.name ?? report.daemon.slug}</span>
+-              <span class="trace">{report.daemon.docs?.valence ?? "no valence declared"}</span>
++              <span class="name">{report.daemon.manifest?.name ?? report.daemon.slug}</span>
++              <span class="trace">{report.daemon.manifest?.description ?? "no description declared"}</span>
+             </div>
+             <span class="spring"></span>
+             {#if report.daemon.faults.length}
+--- a/commons/instances/hello-world/instance.viva.js
++++ b/commons/instances/hello-world/instance.viva.js
+@@ -3,67 +3,58 @@
+ 
+ export const manifest = { type: "instance", slug: "hello-world", version: "0.0.1" };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
++export const lighthouse = {
++  module: "@commons/lighthouse/multiplayer",
++  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
++};
++
++export const hallucinators = [
++  {
++    module: "@commons/hallucinator/anthropic",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++  },
++  {
++    module: "@commons/hallucinator/openrouter",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
++  },
++];
++
+ export const daemons = [
+   {
+     manifest: { type: "daemon", slug: "hello", version: "0.0.1" },
+     kernel: [
+-		"./mode.viva.js" 
+-		// or: "@commons/demo/hello-world"
+-	],
++        "./mode.viva.js"
++        // or: "@commons/demo/hello-world"
++    ],
+     consume: {
+       reader: { module: "@commons/service/reader" },
+     },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `hello.viva.db` } },
+-    },
+-    hallucinators: [
+-      {
+-        module: "@commons/hallucinator/anthropic",
+-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-      },
+-      {
+-        module: "@commons/hallucinator/openrouter",
+-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
+-      },
+-    ],
+   },
+ ];
+ 
+ export const runtime = {
+-  slug: "runtime",
++  manifest: { slug: "runtime" },
+   statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `runtime.viva.db` } },
+-  },
+ };
+ 
+-export const clients = {
+-  kajuit: {
+-    slug: "kajuit",
++export const clients = [
++  {
++    manifest: { type: "client", slug: "kajuit" },
+     statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
+   },
+-};
++];
+ 
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+ ];
+ 
+-export const lighthouse = {
+-  module: "@commons/lighthouse/multiplayer",
+-  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
+-};
+-
+ export const environment = v.environment({
+   VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+   VIVA_CLIENT_KAJUIT_ORIGIN: v.url().desc("Scheme and authority the kajuit browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+--- a/commons/instances/hello-world/tests/snapshots/hello-world-catalog.snapshot.json
++++ b/commons/instances/hello-world/tests/snapshots/hello-world-catalog.snapshot.json
+@@ -1,7 +1,7 @@
+ [
+   {
+     "name": "viva_doctor",
+-    "valence": "The live vivalence setup on this machine, as JSON — the same record `viva instance/doctor` prints, read straight off paladin. You already have the standing facts in front of you: the instance, the daemon, the modes and their routes. This is everything under them, in three parts. `daemon` is the one you are running inside: its manifest and docs, the modes its kernel resolved to with their traits and routes, the datamap and the entities it opened, the hallucinators it declared and which secret slots each wants, the cortex faculties actually attached, and anything left dormant for want of a key. `ledger` is the machine's own record: where it lives, every instance shelved on it with the one you are inside marked, the services and clients this instance declares, every environment variable by name and whether it resolves, and which declared slots came back unset. `registry` is every module the system resolves, as @owner/type/slug with versions and traits — the standard library plus whatever was tapped. Secrets live in a separate store and never appear here; you get slot names, never a value, and for the environment names only, never what they hold. It is a big record and it stays in this conversation once you pull it, so pull it when a question is about this machine — and then it is the record, not a guess.",
++    "valence": "The live vivalence setup on this machine, as JSON — the same record `viva instance/doctor` prints, read straight off paladin. You already have the standing facts in front of you: the instance, the daemon, the modes and their routes. This is everything under them, in three parts. `daemon` is the one you are running inside: its manifest, the modes its kernel resolved to with their traits and routes, the datamap and the entities it opened, the hallucinators it declared and which secret slots each wants, the cortex faculties actually attached, and anything left dormant for want of a key. `ledger` is the machine's own record: where it lives, every instance shelved on it with the one you are inside marked, the services and clients this instance declares, every environment variable by name and whether it resolves, and which declared slots came back unset. `registry` is every module the system resolves, as @owner/type/slug with versions and traits — the standard library plus whatever was tapped. Secrets live in a separate store and never appear here; you get slot names, never a value, and for the environment names only, never what they hold. It is a big record and it stays in this conversation once you pull it, so pull it when a question is about this machine — and then it is the record, not a guess.",
+     "input": {
+       "type": "object",
+       "properties": {}
+--- a/commons/instances/hello-world/tools/doctor.js
++++ b/commons/instances/hello-world/tools/doctor.js
+@@ -26,11 +26,11 @@
+ export const standing = (ctx) => {
+   const here = ctx.daemon.mountpoint?.absolute ?? null;
+   const mask =
+-    paladin.instance.daemons.find((held) => held.mount?.absolute === here) ??
++    paladin.instance.daemons.find((held) => held.mountpoint?.absolute === here) ??
+       {};
+   return {
+     instance: paladin.instance.manifest,
+-    daemon: { slug: mask.slug ?? null, mountpoint: here },
++    daemon: { slug: mask.manifest?.slug ?? null, mountpoint: here },
+     entities: Object.keys(ctx.daemon.entities ?? {}).filter((name) =>
+       name !== "em"
+     ).sort(),
+@@ -63,15 +63,14 @@
+ export const report = async (ctx) => {
+   const here = ctx.daemon.mountpoint?.absolute ?? null;
+   const mask =
+-    paladin.instance.daemons.find((held) => held.mount?.absolute === here) ??
++    paladin.instance.daemons.find((held) => held.mountpoint?.absolute === here) ??
+       {};
+   const modes = ctx.daemon.flatmodes();
+ 
+   return {
+     daemon: {
+-      slug: mask.slug ?? null,
++      slug: mask.manifest?.slug ?? null,
+       manifest: mask.manifest ?? null,
+-      docs: ctx.daemon.docs ?? mask.docs ?? null,
+       mountpoint: here,
+       statics: ctx.daemon.statics ?? {},
+       lighthouse: {
+@@ -125,15 +124,13 @@
+       instance: paladin.instance.manifest,
+       instances: await paladin.ledger.instances.list(),
+       services: paladin.instance.services.map((held) => ({
+-        slug: held.slug,
++        slug: held.manifest?.slug,
+         module: held.module,
+         secrets: slots(held.secrets),
+       })),
+-      clients: Object.entries(paladin.instance.clients ?? {}).map((
+-        [slug, held],
+-      ) => ({
+-        slug,
+-        traits: held.traits ?? [],
++      clients: paladin.instance.clients.map((held) => ({
++        slug: held.manifest?.slug,
++        traits: held.manifest?.traits ?? [],
+       })),
+       requirements: paladin.instance.requirements.flatMap((
+         { at, read, unset },
+@@ -173,7 +170,7 @@
+       "`viva instance/doctor` prints, read straight off paladin. You already have the " +
+       "standing facts in front of you: the instance, the daemon, the modes and their " +
+       "routes. This is everything under them, in three parts. `daemon` is the one you are " +
+-      "running inside: its manifest and docs, the modes its kernel resolved to with their " +
++      "running inside: its manifest, the modes its kernel resolved to with their " +
+       "traits and routes, the datamap and the entities it opened, the hallucinators it " +
+       "declared and which secret slots each wants, the cortex faculties actually attached, " +
+       "and anything left dormant for want of a key. `ledger` is the machine's own record: " +
+--- a/documentation/content/30-39_architecture/32_daemon/32.01_anatomy-of-an-instance.mdx
++++ b/documentation/content/30-39_architecture/32_daemon/32.01_anatomy-of-an-instance.mdx
+@@ -45,8 +45,8 @@
+ 1. **environment** — the instance's own `.env`, at its root and nothing else, folds in through `paladin.claim` at the `instance` stratum. One file at one stratum, so nothing can silently overwrite anything. The key decides secrecy, so a `SECRET_*` reaches the secret store wherever it is written. This is where the runtime, lighthouse and kajuit addresses arrive.
+ 2. **resolve** — find the one module under the instance mount whose manifest says `instance`, then *hydrate* it: every deferred `() =>` fires now, at any depth. The thunk above becomes the string it read. Until this moment the declaration was data; after it, values — still untyped.
+ 3. **kernel references** — a daemon's `kernel` entries stay unhydrated and get resolved as references instead: a bare specifier points into the registry, `./` is relative to the instance file, and an inline object — the standalone's case — mounts as-is, with the instance file as its home.
+-4. **masks** — each daemon and service declaration becomes a `Mask` with a mountpoint carved out for it: `mountpoint/daemon_standalone/` is where its database and migrations will live.
+-5. **settle & publish** — the whole `v.primitives.instance.Instance` schematic settles what the pinhole fired: a hallucinator with a blank secret goes *dormant* (off the roster, named on the instance), defaults fill the slots the recipe left out, every miss becomes a sentence in `instance.faults` — never a throw, so the doctor can mount a bare recipe — and a clean slot decodes to its prototype: the string above becomes a `Url`. Then every `PUBLIC_*` var is published to the process environment, where clients can reach it. The boot edge refuses on faults (`instance/run`, and the runtime's own `run.js` below); `mount()` itself never does.
++4. **defaults and seats** — the root `lighthouse`, `datamap` and `hallucinators` are copied into every daemon that declares none of its own (a service takes the datamap), and every daemon and service is seated: `mountpoint/daemon_standalone/` is where its database and migrations will live, and its datamap copy is stamped with that seat and a file named for it, `standalone.viva.db`.
++5. **settle & publish** — the one `v.primitives.instance.Instance` schematic settles what the pinhole fired: a hallucinator with a blank secret goes *dormant* (off the roster, named on the instance), defaults fill the slots the recipe left out, a daemon still owing a lighthouse or a datamap is a fault by its own name, every miss becomes a sentence in `instance.faults` — never a throw, so the doctor can mount a bare recipe — and a clean slot decodes to its prototype: the string above becomes a `Url`. Then every `PUBLIC_*` var is published to the process environment, where clients can reach it. The boot edge refuses on faults (`instance/run`, and the runtime's own `run.js` below); `mount()` itself never does.
+ 
+ ## a die per declaration
+ 
+--- a/documentation/content/50-59_practice/51_guides/51.02_instance-from-scratch.mdx
++++ b/documentation/content/50-59_practice/51_guides/51.02_instance-from-scratch.mdx
+@@ -313,48 +313,38 @@
+ 
+ ```js title="standalone.viva.js — runtime + daemon"
+ export const runtime = {
+-  slug: "standalone-runtime",
++  manifest: { slug: "standalone-runtime" },
+   statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
+-  datamap: {
+-    module: "@commons/datamap/libsql",
+-    statics: { db: { file: `runtime.viva.db` } },
+-  },
+ };
+ 
++export const datamap = { module: "@commons/datamap/libsql" };
++
++export const hallucinators = [
++  {
++    module: "@commons/hallucinator/anthropic",
++    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
++  },
++];
++
+ export const daemons = [
+   {
+-    manifest: { type: "daemon", slug: "standalone", version: "0.0.1" },
+-    docs: { name: "Standalone", valence: "the m39 one-file machine", icon: { emoji: "🃏" } },
++    manifest: { type: "daemon", slug: "standalone", version: "0.0.1", name: "Standalone", description: "the m39 one-file machine", icon: { emoji: "🃏" } },
+     kernel: [domain, flashcard],
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `standalone.viva.db` } },
+-    },
+-    hallucinators: [
+-      {
+-        module: "@commons/hallucinator/anthropic",
+-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+-      },
+-    ],
+   },
+ ];
+ ```
+ 
+-`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry references (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel, the daemon picks its services: a datamap for persistence, hallucinators for intelligence — identity comes from the instance's `lighthouse` unless the daemon binds its own. Each is a `{module, statics, secrets}` reference — configuration for a module that lives in the registry, resolved at boot. A hallucinator whose secret is blank is *dormant*: dropped from the roster at mount and named by the doctor, so a missing key means a bot answer, never a dead faculty.
++`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry references (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel the daemon declares nothing else: the datamap, the hallucinators and the lighthouse are declared once, at the instance root, and every daemon inherits its own copy — a daemon declares one of them only to override it, whole-slot. Each is a `{module, statics, secrets}` mask — configuration for a module that lives in the registry, resolved at boot. The copy is seated for its daemon: `mountpoint/daemon_standalone/` is its directory, and its database file is named for it, `standalone.viva.db`. A hallucinator whose secret is blank is *dormant*: dropped from the roster at mount and named by the doctor, so a missing key means a bot answer, never a dead faculty.
+ 
+ Note what is *not* here: no ports hardcoded, no keys inline. Every environment read is a thunk into `paladin.env` or `paladin.secret`, and every one hands back a string — the instance schematic mints the `Url`s and fills the `statics` / `consume` slots a recipe leaves out, so the declaration never types or pads anything.
+ 
+ ```js title="standalone.viva.js — services + clients"
+ export const services = [
+   {
+-    slug: "multiplayer",
++    manifest: { type: "service", slug: "multiplayer" },
+     module: "@commons/lighthouse/multiplayer",
+     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+-    datamap: {
+-      module: "@commons/datamap/libsql",
+-      statics: { db: { file: `lighthouse.viva.db` } },
+-    },
+   },
+ ];
+ 
+@@ -363,17 +353,15 @@
+   statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
+ };
+ 
+-export const clients = {
+-  kajuit: {
+-    slug: "kajuit",
+-    statics: {
+-      serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE"),
+-    },
++export const clients = [
++  {
++    manifest: { type: "client", slug: "kajuit" },
++    statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
+   },
+-};
++];
+ ```
+ 
+-The lighthouse appears twice on purpose. Under `services` it is *hosted*: the instance runs its own identity service, attached inside the runtime's path tree. Under `lighthouse` it is *consumed*: a module and a remote URL, inherited by every daemon. In this instance both point at the same instance — the standalone is self-sufficient — but the split is what lets a fleet of instances share one lighthouse later.
++The lighthouse appears twice on purpose. Under `services` it is *hosted*: the instance runs its own identity service, attached inside the runtime's path tree. Under `lighthouse` it is *consumed*: a module and a remote URL, inherited by every daemon. In this instance both point at the same instance — the standalone is self-sufficient — but the split is what lets a fleet of instances share one lighthouse later. The hosted service takes the root datamap like a daemon does, seated at `mountpoint/service_multiplayer/` with `multiplayer.viva.db` in it. And every citizen names itself the same way — runtime, client, service, daemon, kernel entry: a `manifest` carrying its `type` and `slug`.
+ 
+ ## environment
+ 
+@@ -414,7 +402,7 @@
+ 
+ ```sh
+ viva instance/create @commons/instance/standalone     # → <ledger>/instances/standalone
+-viva instance/use standalone                         # select it for this shell
++viva instances/use standalone                        # select it for this shell
+ viva instance/init                                  # prompts for what the schema says is owed
+ viva instance/run                                   # raises the runtime and the kajuit client
+ ```
+--- a/subsystems/paladin/belt/hydrate.js
++++ b/subsystems/paladin/belt/hydrate.js
+@@ -0,0 +1,46 @@
++import { is } from "@vivalence/typology";
++
++const watch = (bag, read) =>
++  new Proxy(bag, {
++    get: (target, prop, receiver) =>
++      prop === "get"
++        ? (key, ...rest) => {
++            const value = target.get(key, ...rest);
++            read.push({ key, unset: is.empty(value) });
++            return value;
++          }
++        : Reflect.get(target, prop, receiver),
++  });
++
++export default function hydrate(paladin) {
++  const fire = (node, record, at) => {
++    if (typeof node === "function") {
++      if (!record) return fire(node(), null, at);
++      const read = [];
++      const { env, secret } = paladin;
++      paladin.env = watch(env, read);
++      paladin.secret = watch(secret, read);
++      let value;
++      try {
++        value = node();
++      } finally {
++        paladin.env = env;
++        paladin.secret = secret;
++      }
++      record.push({
++        at,
++        read: read.map((held) => held.key),
++        unset: read.filter((held) => held.unset).map((held) => held.key),
++      });
++      return fire(value, record, at);
++    }
++    if (Array.isArray(node)) return node.map((value, index) => fire(value, record, `${at}[${index}]`));
++    if (node?.constructor === Object)
++      return Object.fromEntries(
++        Object.entries(node).map(([key, value]) => [key, fire(value, record, at ? `${at}.${key}` : key)]),
++      );
++    return node;
++  };
++
++  paladin.hydrate = (node, record = null, at = "") => fire(node, record, at);
++}
+--- a/subsystems/paladin/belt/index.js
++++ b/subsystems/paladin/belt/index.js
+@@ -8,6 +8,7 @@
+ import source from "./source.js";
+ import clone from "./clone.js";
+ import bundler from "./bundler.js";
++import hydrate from "./hydrate.js";
+ 
+ export default {
+   find,
+@@ -20,4 +21,5 @@
+   source,
+   clone,
+   bundler,
++  hydrate,
+ };
+--- a/subsystems/paladin/lifecycle/index.js
++++ b/subsystems/paladin/lifecycle/index.js
+@@ -1,2 +1,19 @@
+-export * as populate from "./populate.js";
+-export * as integrate from "./integrate.js";
++import { fn } from "@vivalence/typology";
++import * as populate from "./populate.js";
++import * as resolve from "./resolve.js";
++import * as integrate from "./integrate.js";
++
++export { integrate, populate, resolve };
++
++export const mount = fn.memo(
++  async (instance) => {
++    await populate.environment(instance);
++    await populate.recipe(instance);
++    resolve.defaults(instance);
++    resolve.mountpoints(instance);
++    integrate.settle(instance);
++    instance.paladin.publish();
++    return instance;
++  },
++  ([instance]) => instance,
++);
+--- a/subsystems/paladin/lifecycle/integrate.js
++++ b/subsystems/paladin/lifecycle/integrate.js
+@@ -1,6 +1,7 @@
+-import { is, fromm } from "@vivalence/typology";
++import { is, object, v } from "@vivalence/typology";
+ 
+ export async function statements(paladin) {
++  const { Instance, Mountpoint } = v.primitives.instance;
+   const mounts = [];
+ 
+   if (paladin.is.citizen) {
+@@ -9,20 +10,7 @@
+       paladin.scope.repository,
+       paladin.scope.registry,
+       paladin.scope.instance,
+-      ...paladin.instance.services.map((s) => s.mount),
+-      ...paladin.instance.daemons.map((d) => d.mount),
+-      ...paladin.instance.daemons.flatMap((d) =>
+-        (d.kernel ?? [])
+-          .filter((entry) => is.object(entry) && is.string(entry.module))
+-          .map((entry) => entry.mountpoint)
+-          .filter(Boolean),
+-      ),
+-      ...paladin.instance.daemons
+-        .filter((d) => is.object(d.consume))
+-        .map((d) => fromm.slugmap(d.consume).array)
+-        .flat()
+-        .filter(Boolean)
+-        .map((c) => c.mount),
++      ...v.collect(Instance, paladin.instance, Mountpoint).map(({ value }) => value),
+     ]);
+   }
+ 
+@@ -73,3 +61,48 @@
+ //     await paladin.state.dir(dir);
+ //   }
+ // }
++
++const label = (instance, pointer) =>
++  pointer
++    .split("/")
++    .slice(1)
++    .reduce((at, part) => {
++      const slot = { daemons: "daemon", services: "service", clients: "client" }[at];
++      if (slot) return `${slot}[${instance[at][part]?.manifest?.slug}]`;
++      return /^\d+$/.test(part) ? `${at}[${part}]` : at ? `${at}.${part}` : part;
++    }, "") || "instance";
++
++const alive = (mask) => Boolean(mask) && !Object.values(mask.secrets ?? {}).some(is.empty);
++
++const dormant = (instance, at, mask) => {
++  const blank = Object.entries(mask?.secrets ?? {})
++    .filter(([, value]) => is.empty(value))
++    .map(([name]) => name);
++  const why = mask ? `${mask.module} — empty ${blank.join(", ")}` : "nothing declared";
++  console.warn(`[instance] ${at} filtered, ${why}`);
++  instance.dormant.push(at);
++  return false;
++};
++
++export function settle(instance) {
++  const { Instance } = v.primitives.instance;
++  instance.dormant = [];
++  for (const daemon of instance.daemons) {
++    const at = `daemon[${daemon.manifest?.slug}]`;
++    daemon.hallucinators = (daemon.hallucinators ?? []).filter(
++      (mask, index) => alive(mask) || dormant(instance, `${at}.hallucinators[${index}]`, mask),
++    );
++    daemon.consume = object.filter(
++      daemon.consume ?? {},
++      (slug) => alive(daemon.consume[slug]) || dormant(instance, `${at}.consume.${slug}`, daemon.consume[slug]),
++    );
++  }
++  Instance.cast(instance);
++  const faults = Instance.faults(instance).map(({ at, reason }) => `${label(instance, at)} ${reason}`);
++  const echoed = (sentence) => {
++    const source = sentence.replace(/^(?:daemon|service)\[[^\]]*\]\./, "");
++    return source !== sentence && faults.includes(source);
++  };
++  instance.faults = faults.filter((sentence) => !echoed(sentence));
++  if (!instance.faults.length) Instance.decode(instance);
++}
+--- a/subsystems/paladin/lifecycle/populate.js
++++ b/subsystems/paladin/lifecycle/populate.js
+@@ -1,6 +1,7 @@
+ import * as dotenv from "@std/dotenv";
+-import { isAbsolute, join } from "@std/path";
+-import { Path } from "@vivalence/typology";
++import { isAbsolute, join, resolve as resolvePath } from "@std/path";
++import { is, Path, v } from "@vivalence/typology";
++import { Instance } from "../prototypes/instance.js";
+ 
+ export async function env(paladin) {
+   paladin.assign(Deno.env.toObject(), "os");
+@@ -41,7 +42,7 @@
+         if (!reference.includes("/") && !reference.startsWith("."))
+           throw new Error(
+             `[PALADIN] VIVA_INSTANCE_MOUNT="${reference}" is a slug — a *_MOUNT is always a path. ` +
+-              `try: viva instance/use ${reference}`,
++              `try: viva instances/use ${reference}`,
+           );
+         if (isAbsolute(reference)) return new Path(reference);
+         return paladin.source(reference);
+@@ -109,3 +110,71 @@
+ //     ])
+ //     .throw();
+ // }
++
++export function instance(paladin) {
++  paladin.instance = new Instance(paladin);
++  return paladin.instance;
++}
++
++export async function environment(instance) {
++  const { paladin } = instance;
++  if (!paladin.scope.instance) return;
++  const file = paladin.scope.instance.branch(".env").absolute;
++  if (!(await Deno.stat(file).catch(() => null))) return;
++  paladin.claim(await dotenv.load({ envPath: file }), "instance", file);
++}
++
++const reference = (home) => (entry) =>
++  typeof entry !== "string"
++    ? { ...entry, mount: entry.mount ?? home }
++    : isAbsolute(entry)
++      ? entry
++      : /^\.\.?\//.test(entry)
++        ? resolvePath(home.dirname, entry)
++        : entry;
++
++export async function recipe(instance) {
++  const { paladin } = instance;
++  const home = instance.home.absolute;
++  const modules = await paladin.find.type(instance.home, "instance").catch((error) => {
++    if (error?.code === "ENOENT") throw new Error(`instance.mount: no instance at ${home}`);
++    throw error;
++  });
++  if (modules.length !== 1)
++    throw new Error(`instance.mount: expected 1 instance module in ${home}, found ${modules.length}`);
++  const [module] = modules;
++  const environment = module.environment ?? v.environment({});
++  if (!environment.properties)
++    throw new Error(`instance.mount: environment must be v.environment({…}) — ${module.source.absolute}`);
++
++  const record = [];
++  const at = (label) => (declaration) => paladin.hydrate(declaration, record, label);
++  const slug = (declaration) => declaration.manifest?.slug;
++  const dress = (label) => (entry) => {
++    const declared = entry.mountpoint;
++    if (is.string(declared) && declared && !isAbsolute(declared))
++      throw new Error(`instance.mount: ${label}.mountpoint must be absolute — ${declared}`);
++    return entry;
++  };
++  const daemon = (label) => ({ kernel = [], ...declaration }) => ({
++    ...at(label)(declaration),
++    kernel: kernel
++      .map(reference(module.source))
++      .map((entry, index) =>
++        is.object(entry) && is.string(entry.module)
++          ? dress(`${label}.kernel[${index}]`)(at(`${label}.kernel[${index}]`)(entry))
++          : entry
++      ),
++  });
++
++  instance.manifest = module.manifest;
++  instance.environment = environment;
++  instance.runtime = at("runtime")(module.runtime);
++  instance.lighthouse = at("lighthouse")(module.lighthouse);
++  instance.datamap = at("datamap")(module.datamap);
++  instance.hallucinators = at("hallucinators")(module.hallucinators);
++  instance.clients = (module.clients ?? []).map((declaration) => at(`client[${slug(declaration)}]`)(declaration));
++  instance.services = (module.services ?? []).map((declaration) => at(`service[${slug(declaration)}]`)(declaration));
++  instance.daemons = (module.daemons ?? []).map((declaration) => daemon(`daemon[${slug(declaration)}]`)(declaration));
++  instance.requirements = record;
++}
+--- a/subsystems/paladin/lifecycle/resolve.js
++++ b/subsystems/paladin/lifecycle/resolve.js
+@@ -0,0 +1,29 @@
++import { v } from "@vivalence/typology";
++
++export function defaults(instance) {
++  const inherit = (mounting, slot) => {
++    if (mounting[slot] === undefined && instance[slot] !== undefined) mounting[slot] = v.clone(instance[slot]);
++  };
++  for (const daemon of instance.daemons) {
++    inherit(daemon, "lighthouse");
++    inherit(daemon, "datamap");
++    inherit(daemon, "hallucinators");
++  }
++  for (const service of instance.services) inherit(service, "datamap");
++}
++
++export function mountpoints(instance) {
++  const point = (kind, slug) => instance.paladin.scope.mountpoint.branch(`/${kind}_${slug}`).absolute;
++  const seat = (kind) => (mounting) => {
++    const slug = mounting.manifest?.slug;
++    mounting.mountpoint = point(kind, slug);
++    if (!mounting.datamap) return;
++    mounting.datamap.mountpoint = mounting.mountpoint;
++    mounting.datamap.statics = {
++      ...mounting.datamap.statics,
++      db: { file: `${slug}.viva.db`, ...mounting.datamap.statics?.db },
++    };
++  };
++  instance.daemons.forEach(seat("daemon"));
++  instance.services.forEach(seat("service"));
++}
+--- a/subsystems/paladin/mod.js
++++ b/subsystems/paladin/mod.js
+@@ -1,15 +1,16 @@
+ import { Paladin } from "./prototypes/paladin.js";
+-import * as populate from "./lifecycle/populate.js";
+-import * as integrate from "./lifecycle/integrate.js";
++import * as lifecycle from "./lifecycle/index.js";
+ import * as skills from "./skills/index.js";
+ 
+ const paladin = new Paladin();
+ paladin.skills = skills;
+-await populate.env(paladin);
+-await populate.scopes(paladin);
++await lifecycle.populate.env(paladin);
++await lifecycle.populate.scopes(paladin);
++lifecycle.populate.instance(paladin);
+ 
+ if (paladin.is.citizen) {
+-  await integrate.statements(paladin);
++  await lifecycle.integrate.statements(paladin);
+ }
+ 
+ export default paladin;
++export { lifecycle };
+--- a/subsystems/paladin/prototypes/instance.js
++++ b/subsystems/paladin/prototypes/instance.js
+@@ -1,206 +1,25 @@
+-import { isAbsolute, resolve as resolvePath } from "@std/path";
+-import { load } from "@std/dotenv";
+-import { Mask, Path, fn, is, object, v } from "@vivalence/typology";
+ import { NOTHING } from "./ledger/instances.js";
+ 
+-const reference = (home) => (entry) =>
+-  typeof entry !== "string"
+-    ? { ...entry, mount: entry.mount ?? home }
+-    : isAbsolute(entry)
+-      ? entry
+-      : /^\.\.?\//.test(entry)
+-        ? resolvePath(home.dirname, entry)
+-        : entry;
+-
+-// records every key asked for; the thunk sees paladin unchanged.
+-const watch = (bag, read) =>
+-  new Proxy(bag, {
+-    get: (target, prop, receiver) =>
+-      prop === "get"
+-        ? (key, ...rest) => {
+-            const value = target.get(key, ...rest);
+-            read.push({ key, unset: is.empty(value) });
+-            return value;
+-          }
+-        : Reflect.get(target, prop, receiver),
+-  });
+-
+-// the pinhole: every thunk in a declaration fires here and nowhere else.
+-export function hydrate(node, record = null, paladin = null, at = "") {
+-  if (typeof node === "function") {
+-    if (!record || !paladin) return hydrate(node());
+-    const read = [];
+-    const { env, secret } = paladin;
+-    paladin.env = watch(env, read);
+-    paladin.secret = watch(secret, read);
+-    let value;
+-    // thunks are synchronous by contract.
+-    try {
+-      value = node();
+-    } finally {
+-      paladin.env = env;
+-      paladin.secret = secret;
+-    }
+-    record.push({
+-      at,
+-      read: read.map((held) => held.key),
+-      unset: read.filter((held) => held.unset).map((held) => held.key),
+-    });
+-    return hydrate(value, record, paladin, at);
+-  }
+-  if (Array.isArray(node))
+-    return node.map((value, index) => hydrate(value, record, paladin, `${at}[${index}]`));
+-  if (node?.constructor === Object)
+-    return Object.fromEntries(
+-      Object.entries(node).map(([key, value]) => [
+-        key,
+-        hydrate(value, record, paladin, at ? `${at}.${key}` : key),
+-      ]),
+-    );
+-  return node;
+-}
+-
+-async function resolve(instance) {
+-  // mounting must not SCAFFOLD, so an absent home reaches here as a readdir ENOENT — name it.
+-  const home = instance.home.absolute;
+-  const modules = await instance.paladin.find
+-    .type(instance.home, "instance")
+-    .catch((error) => {
+-      if (error?.code === "ENOENT") throw new Error(`instance.mount: no instance at ${home}`);
+-      throw error;
+-    });
+-  if (modules.length !== 1)
+-    throw new Error(`instance.mount: expected 1 instance module in ${home}, found ${modules.length}`);
+-
+-  const slug = (declaration) => declaration.slug ?? declaration.manifest?.slug;
+-  const point = (kind, declaration) => instance.paladin.scope.mountpoint.branch(`/${kind}_${slug(declaration)}`);
+-  const mask = (mountpoint) => (declaration) => new Mask({ ...declaration, mount: mountpoint });
+-
+-  // a mask-shaped kernel entry's data dir is declared, absolute — nothing is resolved, nothing is minted.
+-  const dress = (label) => (entry) => {
+-    const declared = entry.mountpoint;
+-    if (declared instanceof Path || !is.string(declared) || !declared) return entry;
+-    if (!isAbsolute(declared)) throw new Error(`instance.mount: ${label}.mountpoint must be absolute — ${declared}`);
+-    return { ...entry, mountpoint: new Path(declared) };
+-  };
+-
+-  const [module] = modules;
+-
+-  const record = [];
+-  const at = (label) => (declaration) => hydrate(declaration, record, instance.paladin, label);
+-
+-  const materialize = (label) => (declaration) => {
+-    const { kernel = [], ...rest } = declaration;
+-    return {
+-      ...at(label)(rest),
+-      kernel: kernel
+-        .map(reference(module.source))
+-        .map((entry, index) =>
+-          is.object(entry) && is.string(entry.module)
+-            ? dress(`${label}.kernel[${index}]`)(at(`${label}.kernel[${index}]`)(entry))
+-            : entry,
+-        ),
+-    };
+-  };
+-
+-  instance.manifest = module.manifest;
+-  instance.runtime = at("runtime")(module.runtime);
+-  instance.clients = at("clients")(module.clients ?? {});
+-  instance.lighthouse = at("lighthouse")(module.lighthouse);
+-  instance.daemons = (module.daemons ?? []).map((declaration) =>
+-    mask(point("daemon", declaration))(materialize(`daemon[${slug(declaration)}]`)(declaration)),
+-  );
+-  instance.services = (module.services ?? []).map((declaration) =>
+-    mask(point("service", declaration))(at(`service[${slug(declaration)}]`)(declaration)),
+-  );
+-  instance.requirements = record;
+-  instance.environment = module.environment ?? v.environment({});
+-  if (!instance.environment.properties)
+-    throw new Error(`instance.mount: environment must be v.environment({…}) — ${module.source.absolute}`);
+-}
+-
+-// a schematic fault arrives as a JSON pointer; the record speaks in slots — one grammar on the instance.
+-const label = (instance, pointer) =>
+-  pointer
+-    .split("/")
+-    .slice(1)
+-    .reduce((at, part) => {
+-      const slot = { daemons: "daemon", services: "service" }[at];
+-      if (slot) return `${slot}[${instance[at][part].slug}]`;
+-      return /^\d+$/.test(part) ? `${at}[${part}]` : at ? `${at}.${part}` : part;
+-    }, "") || "instance";
+-
+-const alive = (mask) => Boolean(mask) && !Object.values(mask.secrets ?? {}).some(is.empty);
+-
+-const dormant = (instance, at, mask) => {
+-  const blank = Object.entries(mask?.secrets ?? {})
+-    .filter(([, value]) => is.empty(value))
+-    .map(([name]) => name);
+-  const why = mask ? `${mask.module} — empty ${blank.join(", ")}` : "nothing declared";
+-  console.warn(`[instance] ${at} filtered, ${why}`);
+-  instance.dormant.push(at);
+-  return false;
+-};
+-
+-function settle(instance) {
+-  const { Instance } = v.primitives.instance;
+-  instance.dormant = [];
+-  for (const daemon of instance.daemons) {
+-    daemon.hallucinators = (daemon.hallucinators ?? []).filter(
+-      (mask, index) =>
+-        alive(mask) || dormant(instance, `daemon[${daemon.slug}].hallucinators[${index}]`, mask),
+-    );
+-    daemon.consume = object.filter(
+-      daemon.consume ?? {},
+-      (slug) =>
+-        alive(daemon.consume[slug]) ||
+-        dormant(instance, `daemon[${daemon.slug}].consume.${slug}`, daemon.consume[slug]),
+-    );
+-  }
+-  Instance.cast(instance);
+-  instance.faults = Instance.faults(instance).map(({ at, reason }) => `${label(instance, at)} ${reason}`);
+-  if (!instance.faults.length) Instance.decode(instance);
+-  for (const daemon of instance.daemons) {
+-    daemon.lighthouse ??= instance.lighthouse;
+-    if (!daemon.lighthouse) instance.faults.push(`daemon[${daemon.slug}].lighthouse none declared, none to inherit`);
+-  }
+-}
+-
+-async function environment(instance) {
+-  if (!instance.paladin.scope.instance) return;
+-  const file = instance.paladin.scope.instance.branch(".env").absolute;
+-  if (!(await Deno.stat(file).catch(() => null))) return;
+-  instance.paladin.claim(await load({ envPath: file }), "instance", file);
+-}
+-
+ export class Instance {
+   manifest = {};
++  environment;
+   runtime;
+-  clients = {};
+   lighthouse;
+-  daemons = [];
++  datamap;
++  hallucinators;
++  clients = [];
+   services = [];
++  daemons = [];
+   requirements = [];
+   faults = [];
+   dormant = [];
+ 
+   constructor(paladin) {
+-    this.mount = fn.once(this.mount.bind(this));
+     this.paladin = paladin;
+   }
+ 
+   get home() {
+-    if (!("instance" in this.paladin.scope)) {
+-      throw new Error(NOTHING);
+-    }
++    if (!("instance" in this.paladin.scope)) throw new Error(NOTHING);
+     return this.paladin.scope.instance;
+   }
+-
+-  async mount() {
+-    await environment(this); // env/secret first — marker modules read them at import time
+-    await resolve(this);
+-    settle(this);
+-    this.paladin.publish();
+-    return this;
+-  }
+ }
+--- a/subsystems/paladin/prototypes/paladin.js
++++ b/subsystems/paladin/prototypes/paladin.js
+@@ -1,7 +1,6 @@
+-import { Env, v } from "@vivalence/typology";
++import { Env } from "@vivalence/typology";
+ import belt from "../belt/index.js";
+ import { Ledger } from "./ledger/index.js";
+-import { Instance } from "./instance.js";
+ import { Vip } from "./vip.js";
+ 
+ const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
+@@ -13,14 +12,6 @@
+   traits = [];
+   env = new Env(STRATA);
+   secret = new Env(STRATA);
+-  // the paths a shell may pin at the flag stratum — a MOUNT is always a path; the examples are values.
+-  mounts = v.environment({
+-    VIVA_LEDGER_MOUNT: v.string().desc("the ledger home").examples("~/.viva").optional(),
+-    VIVA_REPOSITORY_MOUNT: v.string().desc("the checkout").examples("~/vivalence/code/vivalence").optional(),
+-    VIVA_REGISTRY_MOUNT: v.string().desc("the package store").examples("~/.viva/registry").optional(),
+-    VIVA_INSTANCE_MOUNT: v.string().desc("the selected instance's dir").examples("~/.viva/instances/vivalence").optional(),
+-    VIVA_MOUNTPOINT_MOUNT: v.string().desc("the operator's tree the instance serves").examples("./mountpoint").optional(),
+-  });
+ 
+   // SUPERSEDED — one ingress that both split and filed; claim-strength could not vary.
+   // assign(bag, stratum) {
+@@ -50,12 +41,6 @@
+     return { held, secrets, ignored, blank };
+   }
+ 
+-  // mount is fn.once, so a changed .env needs a fresh instance. the wizard is why.
+-  remount() {
+-    this.instance = new Instance(this);
+-    return this.instance.mount();
+-  }
+-
+   // assign: no source · observe: ambient · claim: role. all three split by key.
+   assign(bag, stratum) {
+     const { held, secrets, ignored, blank } = this.split(bag);
+@@ -93,9 +78,9 @@
+     belt.source(this);
+     belt.clone(this);
+     belt.bundler(this);
+-    // mountables — siblings of vip, own their state, fn.once mount()
++    belt.hydrate(this);
++    // mountables — siblings of vip, own their state
+     this.ledger = new Ledger(this);
+-    this.instance = new Instance(this);
+     this.vip = new Vip(this);
+   }
+ 
+--- a/subsystems/paladin/tests/boot.test.js
++++ b/subsystems/paladin/tests/boot.test.js
+@@ -1,15 +1,17 @@
+ import { specimen } from "@vivalence/typology";
+-import { Paladin, Ledger, Instance, Vip } from "@vivalence/paladin/typology";
++import { Paladin, Ledger, Instance, Vip, populate, mount } from "@vivalence/paladin/typology";
+ import paladin from "@vivalence/paladin";
+ 
+ const { describe, it, expect } = specimen;
+ 
+ describe("paladin boot: constructed mountables, no ikiro", () => {
+-  it("constructor wires ledger/instance/vip as siblings", () => {
++  it("constructor wires ledger/vip as siblings — the lifecycle populates the instance", () => {
+     const fresh = new Paladin();
+     expect(fresh.ledger).toBeInstanceOf(Ledger);
+-    expect(fresh.instance).toBeInstanceOf(Instance);
+     expect(fresh.vip).toBeInstanceOf(Vip);
++    expect(fresh.instance).toBe(undefined);
++    expect(populate.instance(fresh)).toBeInstanceOf(Instance);
++    expect(fresh.instance).toBeInstanceOf(Instance);
+   });
+ 
+   it("a fresh paladin carries no ikiro promise", () => {
+@@ -20,11 +22,18 @@
+     expect(paladin.ikiro).toBe(undefined);
+   });
+ 
+-  it("the booted default export already has vip from construction", () => {
++  it("the booted default export already has vip from construction and an instance from the lifecycle", () => {
+     expect(paladin.vip).toBeInstanceOf(Vip);
++    expect(paladin.instance).toBeInstanceOf(Instance);
+   });
+ 
+-  it("instance.mount is the once-wrapped lazy mount", () => {
+-    expect(typeof new Paladin().instance.mount).toBe("function");
++  it("lifecycle.mount is memoized per instance — the same promise twice, a fresh instance mounts anew", async () => {
++    const fresh = new Paladin();
++    const first = mount(populate.instance(fresh));
++    await first.catch(() => null);
++    expect(mount(fresh.instance)).toBe(first);
++    const second = mount(populate.instance(fresh));
++    await second.catch(() => null);
++    expect(second).not.toBe(first);
+   });
+ });
+--- a/subsystems/paladin/tests/hydrate.test.js
++++ b/subsystems/paladin/tests/hydrate.test.js
+@@ -1,6 +1,5 @@
+-// hydrate is the only place a thunk fires, so it is the only place they can be observed.
+ import { specimen, Url } from "@vivalence/typology";
+-import { Paladin, hydrate } from "@vivalence/paladin/typology";
++import { Paladin } from "@vivalence/paladin/typology";
+ 
+ const { describe, it, expect } = specimen;
+ 
+@@ -11,9 +10,9 @@
+   return paladin;
+ };
+ 
+-describe("hydrate — the pinhole", () => {
+-  it("without a record it is the old function: fires thunks, walks arrays and plain objects", () => {
+-    const held = hydrate({
++describe("paladin.hydrate — the pinhole", () => {
++  it("without a record it fires thunks and walks arrays and plain objects", () => {
++    const held = mk().hydrate({
+       literal: 7,
+       thunk: () => "fired",
+       list: [() => 1, { deep: () => 2 }],
+@@ -28,72 +27,56 @@
+ 
+   it("labels every thunk with its path — arrays by index, objects by key", () => {
+     const record = [];
+-    const paladin = mk();
+-    hydrate(
+-      { statics: { serve: () => "a" }, list: [{ remote: () => "b" }] },
+-      record,
+-      paladin,
+-      "runtime",
+-    );
+-    expect(record.map((row) => row.at).sort()).toEqual([
+-      "runtime.list[0].remote",
+-      "runtime.statics.serve",
+-    ]);
++    mk().hydrate({ statics: { serve: () => "a" }, list: [{ remote: () => "b" }] }, record, "runtime");
++    expect(record.map((row) => row.at).sort()).toEqual(["runtime.list[0].remote", "runtime.statics.serve"]);
+   });
+ 
+   it("learns which keys a thunk read, from both bags, without the thunk knowing", () => {
+     const record = [];
+     const paladin = mk({ VIVA_PROBE_SERVE: "http://x/" }, { SECRET_VIVA_PROBE: "shh" });
+-    hydrate(
++    paladin.hydrate(
+       {
+         serve: () => paladin.env.get("VIVA_PROBE_SERVE"),
+         both: () => `${paladin.env.get("VIVA_PROBE_SERVE")}${paladin.secret.get("SECRET_VIVA_PROBE")}`,
+       },
+       record,
+-      paladin,
+       "runtime",
+     );
+     const by = Object.fromEntries(record.map((row) => [row.at, row]));
+     expect(by["runtime.serve"].read).toEqual(["VIVA_PROBE_SERVE"]);
+     expect(by["runtime.both"].read).toEqual(["VIVA_PROBE_SERVE", "SECRET_VIVA_PROBE"]);
+-    // and the values still arrive — the view is read-through, not a stub
+   });
+ 
+   it("names the UNSET keys separately from the read ones", () => {
+     const record = [];
+     const paladin = mk({ VIVA_PROBE_SET: "yes", VIVA_PROBE_HOLLOW: "" });
+-    hydrate(
++    paladin.hydrate(
+       {
+         one: () => paladin.env.get("VIVA_PROBE_SET"),
+         two: () => paladin.env.get("VIVA_PROBE_MISSING"),
+         three: () => paladin.env.get("VIVA_PROBE_HOLLOW"),
+       },
+       record,
+-      paladin,
+       "runtime",
+     );
+     const by = Object.fromEntries(record.map((row) => [row.at, row]));
+     expect(by["runtime.one"].unset).toEqual([]);
+     expect(by["runtime.two"].unset).toEqual(["VIVA_PROBE_MISSING"]);
+-    // "" is unset too — a hollow value is the same silent failure as a missing one
+     expect(by["runtime.three"].unset).toEqual(["VIVA_PROBE_HOLLOW"]);
+   });
+ 
+   it("does not throw on new Url(unset) — the value is PRODUCED, only the record says the key was unset", () => {
+     const record = [];
+     const paladin = mk({ VIVA_PROBE_SERVE: "http://localhost:2501/" });
+-    hydrate(
++    paladin.hydrate(
+       {
+         good: () => new Url(paladin.env.get("VIVA_PROBE_SERVE")),
+         bad: () => new Url(paladin.env.get("VIVA_PROBE_MISSING")),
+       },
+       record,
+-      paladin,
+       "runtime",
+     );
+     const by = Object.fromEntries(record.map((row) => [row.at, row]));
+-    // this is the whole point: it did not throw. all three empty shapes produce a Url with no
+-    // origin — a blind pinhole hands that to the runtime as an address and the app serves nowhere.
+     expect(new Url(undefined).href).toBe("NaN");
+     expect(new Url(null).href).toBe("NaN");
+     expect(new Url("").href).toBe("undefined/");
+@@ -104,7 +87,7 @@
+   it("secrets fire at the pinhole like every other branch — a provider receives a static map", () => {
+     const record = [];
+     const paladin = mk({}, { SECRET_VIVA_PROBE: "CANARY" });
+-    const held = hydrate(
++    const held = paladin.hydrate(
+       {
+         statics: { serve: () => "fired" },
+         secrets: {
+@@ -114,7 +97,6 @@
+         },
+       },
+       record,
+-      paladin,
+       "service[probe]",
+     );
+     expect(held.statics.serve).toBe("fired");
+@@ -137,7 +119,7 @@
+   it("walks a fired thunk's value — a declaration thunk that yields more thunks resolves to the bottom", () => {
+     const record = [];
+     const paladin = mk({}, { SECRET_VIVA_PROBE: "CANARY" });
+-    const held = hydrate(
++    const held = paladin.hydrate(
+       {
+         hallucinators: () =>
+           paladin.secret.get("SECRET_VIVA_PROBE")
+@@ -145,7 +127,6 @@
+             : [],
+       },
+       record,
+-      paladin,
+       "daemon[probe]",
+     );
+     expect(held.hallucinators[0].secrets.key).toBe("CANARY");
+@@ -153,19 +134,19 @@
+       "daemon[probe].hallucinators",
+       "daemon[probe].hallucinators[0].secrets.key",
+     ]);
+-    expect(hydrate({ nested: () => () => "twice" }).nested).toBe("twice");
++    expect(mk().hydrate({ nested: () => () => "twice" }).nested).toBe("twice");
+   });
+ 
+   it("restores the real bags after every thunk, including one that throws", () => {
+     const paladin = mk({ VIVA_PROBE_SERVE: "x" });
+     const { env, secret } = paladin;
+-    hydrate({ ok: () => paladin.env.get("VIVA_PROBE_SERVE") }, [], paladin, "runtime");
++    paladin.hydrate({ ok: () => paladin.env.get("VIVA_PROBE_SERVE") }, [], "runtime");
+     expect(paladin.env).toBe(env);
+     expect(paladin.secret).toBe(secret);
+ 
+     let thrown = null;
+     try {
+-      hydrate({ boom: () => { throw new Error("declaration blew up"); } }, [], paladin, "runtime");
++      paladin.hydrate({ boom: () => { throw new Error("declaration blew up"); } }, [], "runtime");
+     } catch (error) {
+       thrown = error;
+     }
+--- a/subsystems/paladin/tests/instance.snapshot.test.js
++++ b/subsystems/paladin/tests/instance.snapshot.test.js
+@@ -1,10 +1,4 @@
+-// snapshot demo · paladin — 2 subjects (the resolved deployment + the scope paths).
+-// Step 1: DRY — console.log each pojo + resolved path. Step 2: write + read back.
+-//
+-// Mounts the IN-REPO @commons/instance/hello-world. It used to mount whatever the ambient
+-// VIVA_INSTANCE_MOUNT happened to name — a deployment fact — so it broke every time the dev
+-// instance moved, was renamed, or had its env line commented out. A test owns its fixture.
+-import paladin from "@vivalence/paladin";
++import paladin, { lifecycle } from "@vivalence/paladin";
+ import { specimen } from "@vivalence/typology";
+ 
+ const { describe, it, expect, snapshot } = specimen;
+@@ -12,13 +6,27 @@
+ const DRY = false;
+ const FIXTURE = "commons/instances/hello-world";
+ 
++const redact = (node) =>
++  Array.isArray(node)
++    ? node.map(redact)
++    : node && typeof node === "object"
++      ? Object.fromEntries(
++          Object.entries(node).map(([key, value]) => [
++            key,
++            key === "secrets" ? Object.fromEntries(Object.keys(value ?? {}).map((slot) => [slot, "***"])) : redact(value),
++          ]),
++        )
++      : node;
++
+ describe("snapshot demo: paladin", () => {
+-  it("instance — the resolved deployment", async () => {
++  it("instance — the resolved deployment, secrets redacted, the paladin spine cut", async () => {
+     paladin.env.set("VIVA_INSTANCE_MOUNT", paladin.scope.repository.branch(FIXTURE).absolute, "flag");
+-    await paladin.instance.mount();
+-    const { pojo, path } = snapshot(paladin.instance, { base, dry: DRY, depth: 6, locate: "paladin-instance.snapshot.json" });
++    await lifecycle.mount(paladin.instance);
++    const folded = snapshot(paladin.instance, { base, depth: 6, omit: ["paladin"], write: false }).pojo;
++    const { pojo, path } = snapshot(redact(folded), { base, dry: DRY, parse: (held) => held, locate: "paladin-instance.snapshot.json" });
+     console.log(`\n===BEGIN paladin.instance → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);
+     expect(pojo).toBeTruthy();
++    expect(JSON.stringify(pojo)).not.toContain("sk-ant");
+   });
+ 
+   it("scope — the resolved directory paths", () => {
+--- a/subsystems/paladin/tests/kernel.test.js
++++ b/subsystems/paladin/tests/kernel.test.js
+@@ -1,7 +1,8 @@
+ import { describe, it } from "@std/testing/bdd";
+ import { expect } from "@std/expect";
+ import { App, Path, svelte, v } from "@vivalence/typology";
+-import { Instance } from "../prototypes/instance.js";
++import { Paladin } from "../prototypes/paladin.js";
++import * as lifecycle from "../lifecycle/index.js";
+ import { Vip } from "../prototypes/vip.js";
+ 
+ const HOME = new Path("/fixtures/probe/test.viva.js");
+@@ -36,32 +37,36 @@
+   ],
+ };
+ 
+-const fakePaladin = (mod) => ({
+-  scope: { instance: mod.source, mountpoint: new Path("/mountpoint") },
+-  state: { dir: async () => {} },
+-  find: { type: async () => [mod] },
+-  publish: () => {},
+-});
++const mount = (mod) => {
++  const paladin = new Paladin();
++  paladin.scopes([
++    ["instance", () => true, () => new Path(mod.source.absolute)],
++    ["mountpoint", () => true, () => new Path("/mountpoint")],
++  ]);
++  paladin.find.type = async () => [mod];
++  return lifecycle.mount(lifecycle.populate.instance(paladin));
++};
+ 
+ describe("instance kernel references", () => {
+   it("the four kernel forms resolve: bare kept, absolute kept, relative vs the instance file, inline stamped with the instance mount", async () => {
+-    const instance = await new Instance(fakePaladin(module)).mount();
++    const instance = await mount(module);
+     const [daemon] = instance.daemons;
+     expect(daemon.kernel[0]).toBe("@commons/playground/spawner");
+     expect(daemon.kernel[1]).toBe("/elsewhere/greeter.viva.js");
+     expect(daemon.kernel[2]).toBe("/fixtures/probe/greeter/greeter.viva.js");
+     expect(daemon.kernel[3].manifest.slug).toBe("hello");
+     expect(daemon.kernel[3].mount).toBe(HOME);
++    expect(instance.faults).toEqual([]);
+   });
+ 
+   it("an inline entry carrying its own mount keeps it", async () => {
+-    const instance = await new Instance(fakePaladin(module)).mount();
++    const instance = await mount(module);
+     const [daemon] = instance.daemons;
+     expect(String(daemon.kernel[4].mount)).toBe(String(pinned.mount));
+   });
+ 
+-  it("an inline module is module-shaped: hydrate never fires inside it — thunks and App survive resolve", async () => {
+-    const instance = await new Instance(fakePaladin(module)).mount();
++  it("an inline module is module-shaped: hydrate never fires inside it — thunks and App survive settle", async () => {
++    const instance = await mount(module);
+     const [daemon] = instance.daemons;
+     expect(typeof daemon.kernel[3].statics.probe).toBe("function");
+     expect(daemon.kernel[3].app.source).toContain("hello");
+--- a/subsystems/paladin/tests/lighthouse.test.js
++++ b/subsystems/paladin/tests/lighthouse.test.js
+@@ -1,7 +1,8 @@
+ import { describe, it } from "@std/testing/bdd";
+ import { expect } from "@std/expect";
+-import { Path } from "@vivalence/typology";
+-import { Instance } from "../prototypes/instance.js";
++import { Path, Url } from "@vivalence/typology";
++import { Paladin } from "../prototypes/paladin.js";
++import * as lifecycle from "../lifecycle/index.js";
+ 
+ const HOME = new Path("/fixtures/probe/test.viva.js");
+ const MULTIPLAYER = { module: "@commons/lighthouse/multiplayer", statics: { remote: "http://lighthouse/multiplayer" } };
+@@ -14,50 +15,50 @@
+   ...extra,
+ });
+ 
+-const module = (exports) => ({
+-  manifest: { type: "instance", slug: "probe", version: "0.0.1" },
+-  source: HOME,
+-  ...exports,
+-});
+-
+-const fakePaladin = (mod) => ({
+-  scope: { instance: mod.source, mountpoint: new Path("/mountpoint") },
+-  state: { dir: async () => {} },
+-  find: { type: async () => [mod] },
+-  publish: () => {},
+-});
+-
+-const mount = (exports) => new Instance(fakePaladin(module(exports))).mount();
++const mount = (exports) => {
++  const paladin = new Paladin();
++  paladin.scopes([
++    ["instance", () => true, () => new Path("/fixtures/probe/test.viva.js")],
++    ["mountpoint", () => true, () => new Path("/mountpoint")],
++  ]);
++  paladin.find.type = async () => [
++    { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, source: HOME, ...exports },
++  ];
++  return lifecycle.mount(lifecycle.populate.instance(paladin));
++};
+ 
+-describe("instance lighthouse — declared once, inherited by every daemon", () => {
+-  it("a daemon without a lighthouse inherits the instance's, module and all", async () => {
++describe("instance lighthouse — declared once, every daemon inherits a copy", () => {
++  it("a daemon without a lighthouse inherits the instance's: a decoded COPY, module and all", async () => {
+     const instance = await mount({ lighthouse: MULTIPLAYER, daemons: [daemon()] });
+     const [held] = instance.daemons;
+-    expect(held.lighthouse).toBe(instance.lighthouse);
++    expect(held.lighthouse).not.toBe(instance.lighthouse);
+     expect(held.lighthouse.module).toBe("@commons/lighthouse/multiplayer");
++    expect(held.lighthouse.statics.remote).toBeInstanceOf(Url);
+     expect(held.lighthouse.statics.remote.absolute).toBe("http://lighthouse/multiplayer");
++    expect(instance.lighthouse.statics.remote).toBeInstanceOf(Url);
+     expect(instance.faults).toEqual([]);
+   });
+ 
+   it("a daemon binding its own lighthouse keeps it", async () => {
+     const instance = await mount({ lighthouse: MULTIPLAYER, daemons: [daemon({ lighthouse: OWN })] });
+     const [held] = instance.daemons;
+-    expect(held.lighthouse).not.toBe(instance.lighthouse);
+     expect(held.lighthouse.module).toBe("@elsewhere/lighthouse/own");
++    expect(held.lighthouse.statics.remote.absolute).toBe("http://own/");
+   });
+ 
+-  it("no lighthouse anywhere: a fault by name, the mount still resolves", async () => {
++  it("no lighthouse anywhere: the schematic names the daemon, the mount still resolves", async () => {
+     const instance = await mount({ daemons: [daemon()] });
+-    expect(instance.faults).toEqual(["daemon[probe].lighthouse none declared, none to inherit"]);
++    expect(instance.faults).toEqual(["daemon[probe] must have required properties lighthouse"]);
+   });
+ 
+-  it("an instance lighthouse without a module is a fault by name", async () => {
+-    const instance = await mount({ lighthouse: { statics: { remote: "http://lighthouse" } }, daemons: [] });
++  it("an instance lighthouse without a module faults ONCE, at the root — the copies echo it and are not reported", async () => {
++    const instance = await mount({ lighthouse: { statics: { remote: "http://lighthouse" } }, daemons: [daemon(), daemon({ manifest: { type: "daemon", slug: "other" } })] });
+     expect(instance.faults).toEqual(["lighthouse must have required properties module"]);
+   });
+ 
+   it("no daemons, no lighthouse: mounts", async () => {
+     const instance = await mount({ daemons: [] });
+     expect(instance.lighthouse).toBeUndefined();
++    expect(instance.faults).toEqual([]);
+   });
+ });
+--- a/subsystems/paladin/tests/settle.test.js
++++ b/subsystems/paladin/tests/settle.test.js
+@@ -1,39 +1,34 @@
+ import { describe, it } from "@std/testing/bdd";
+ import { expect } from "@std/expect";
+-import { Env, Path, Url, v } from "@vivalence/typology";
+-import { Instance } from "../prototypes/instance.js";
+-import check from "../belt/check.js";
++import { Path, Url, v } from "@vivalence/typology";
++import { Paladin } from "../prototypes/paladin.js";
++import * as lifecycle from "../lifecycle/index.js";
+ 
+ const HOME = new Path("/fixtures/probe/test.viva.js");
+-const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
+ 
+-// declare(paladin) → the recipe's exports; the thunks inside close over THIS paladin's bags.
+ const mount = (declare, pairs = {}, secrets = {}) => {
+-  const paladin = {
+-    env: new Env(STRATA),
+-    secret: new Env(STRATA),
+-    scope: { instance: HOME, mountpoint: new Path("/mountpoint") },
+-    state: { dir: async () => {} },
+-    publish: () => {},
+-  };
+-  check(paladin);
++  const paladin = new Paladin();
++  paladin.scopes([
++    ["instance", () => true, () => new Path("/fixtures/probe/test.viva.js")],
++    ["mountpoint", () => true, () => new Path("/mountpoint")],
++  ]);
+   for (const [key, value] of Object.entries(pairs)) paladin.env.set(key, value, "flag");
+   for (const [key, value] of Object.entries(secrets)) paladin.secret.set(key, value, "flag");
+   const module = { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, source: HOME, ...declare(paladin) };
+-  paladin.find = { type: async () => [module] };
+-  return new Instance(paladin).mount();
++  paladin.find.type = async () => [module];
++  return lifecycle.mount(lifecycle.populate.instance(paladin));
+ };
+ 
+-const runtime = (paladin) => ({ slug: "runtime", statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE") } });
++const runtime = (paladin) => ({
++  manifest: { slug: "runtime" },
++  statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE") },
++});
+ const lighthouse = (paladin) => ({
+   module: "@commons/lighthouse/multiplayer",
+   statics: { remote: () => paladin.env.get("VIVA_PROBE_REMOTE") },
+ });
+-const daemon = (extra = {}) => ({
+-  manifest: { type: "daemon", slug: "probe", version: "0.0.1" },
+-  datamap: { module: "@commons/datamap/libsql" },
+-  ...extra,
+-});
++const libsql = { module: "@commons/datamap/libsql" };
++const daemon = (extra = {}) => ({ manifest: { type: "daemon", slug: "probe", version: "0.0.1" }, ...extra });
+ const anthropic = (paladin) => ({
+   module: "@commons/hallucinator/anthropic",
+   secrets: { key: () => paladin.secret.get("SECRET_VIVA_PROBE_A") },
+@@ -47,6 +42,11 @@
+   secrets: { key: () => paladin.secret.get("SECRET_VIVA_PROBE_D") },
+   statics: { remote: () => paladin.env.get("VIVA_PROBE_REMOTE") },
+ });
++const multiplayer = (paladin) => ({
++  manifest: { type: "service", slug: "multiplayer" },
++  module: "@commons/lighthouse/multiplayer",
++  secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_PROBE_A") },
++});
+ 
+ const environment = v.environment({
+   VIVA_PROBE_SERVE: v.url().desc("serve"),
+@@ -75,8 +75,8 @@
+     expect(sentences(instance)).toEqual(["SECRET_VIVA_PROBE_A REQUIRED", "VIVA_PROBE_REMOTE REQUIRED", "VIVA_PROBE_SERVE REQUIRED at runtime.statics.serve"]);
+   });
+ 
+-  it("statics, consume and hallucinators need not be authored — the schematic fills them", async () => {
+-    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon()], environment }), SET);
++  it("statics, consume, hallucinators and kernel need not be authored — the schematic fills them", async () => {
++    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], environment }), SET);
+     const [held] = instance.daemons;
+     expect(held.statics).toEqual({});
+     expect(held.consume).toEqual({});
+@@ -85,10 +85,72 @@
+     expect(instance.faults).toEqual([]);
+   });
+ 
++  it("the root datamap is every mounting's default: a COPY, seated in the mounting's directory, its file named for the mounting", async () => {
++    const instance = await mount(
++      (paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], services: [multiplayer(paladin)], environment }),
++      SET,
++      { SECRET_VIVA_PROBE_A: "a" },
++    );
++    const [held] = instance.daemons;
++    const [service] = instance.services;
++    expect(held.datamap).not.toBe(instance.datamap);
++    expect(held.datamap.module).toBe("@commons/datamap/libsql");
++    expect(held.datamap.mountpoint).toBeInstanceOf(Path);
++    expect(held.datamap.mountpoint.absolute).toBe("/mountpoint/daemon_probe");
++    expect(held.datamap.statics.db.file).toBe("probe.viva.db");
++    expect(service.mountpoint.absolute).toBe("/mountpoint/service_multiplayer");
++    expect(service.datamap.mountpoint.absolute).toBe("/mountpoint/service_multiplayer");
++    expect(service.datamap.statics.db.file).toBe("multiplayer.viva.db");
++    expect(instance.datamap.mountpoint).toBeUndefined();
++    expect(instance.faults).toEqual([]);
++  });
++
++  it("a mounting's own datamap keeps its file; the seat is still stamped", async () => {
++    const instance = await mount(
++      (paladin) => ({
++        lighthouse: lighthouse(paladin),
++        datamap: libsql,
++        daemons: [daemon({ datamap: { module: "@elsewhere/datamap/pg", statics: { db: { file: "legacy.viva.db" } } } })],
++        environment,
++      }),
++      SET,
++    );
++    const [held] = instance.daemons;
++    expect(held.datamap.module).toBe("@elsewhere/datamap/pg");
++    expect(held.datamap.statics.db.file).toBe("legacy.viva.db");
++    expect(held.datamap.mountpoint.absolute).toBe("/mountpoint/daemon_probe");
++  });
++
++  it("root hallucinators are every daemon's default, whole-slot: a daemon declaring its own replaces the list", async () => {
++    const instance = await mount(
++      (paladin) => ({
++        lighthouse: lighthouse(paladin),
++        datamap: libsql,
++        hallucinators: [anthropic(paladin), deepgram(paladin)],
++        daemons: [daemon(), daemon({ manifest: { type: "daemon", slug: "other" }, hallucinators: [deepgram(paladin)] })],
++        environment,
++      }),
++      SET,
++      { SECRET_VIVA_PROBE_A: "a", SECRET_VIVA_PROBE_D: "d" },
++    );
++    const [probe, other] = instance.daemons;
++    expect(probe.hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/anthropic", "@commons/hallucinator/deepgram"]);
++    expect(probe.hallucinators).not.toBe(instance.hallucinators);
++    expect(other.hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/deepgram"]);
++    expect(instance.requirements.map((row) => row.at)).toEqual([
++      "lighthouse.statics.remote",
++      "hallucinators[0].secrets.key",
++      "hallucinators[1].secrets.key",
++      "daemon[other].hallucinators[0].secrets.key",
++    ]);
++    expect(instance.faults).toEqual([]);
++  });
++
+   it("a hallucinator whose secret is blank is dormant: off the roster, named on the instance, still in the record", async () => {
+     const instance = await mount(
+       (paladin) => ({
+         lighthouse: lighthouse(paladin),
++        datamap: libsql,
+         daemons: [daemon({ hallucinators: [anthropic(paladin), deepgram(paladin)] })],
+         environment,
+       }),
+@@ -103,10 +165,32 @@
+     expect(instance.faults).toEqual([]);
+   });
+ 
++  it("a root hallucinator whose secret is blank is dormant in every daemon that inherited it — the record row is the root's", async () => {
++    const instance = await mount(
++      (paladin) => ({
++        lighthouse: lighthouse(paladin),
++        datamap: libsql,
++        hallucinators: [anthropic(paladin), deepgram(paladin)],
++        daemons: [daemon(), daemon({ manifest: { type: "daemon", slug: "other" } })],
++        environment,
++      }),
++      SET,
++      { SECRET_VIVA_PROBE_A: "canary" },
++    );
++    expect(instance.daemons.map((held) => held.hallucinators.map((mask) => mask.module))).toEqual([
++      ["@commons/hallucinator/anthropic"],
++      ["@commons/hallucinator/anthropic"],
++    ]);
++    expect(instance.dormant).toEqual(["daemon[probe].hallucinators[1]", "daemon[other].hallucinators[1]"]);
++    expect(instance.requirements.map((row) => row.at)).toContain("hallucinators[1].secrets.key");
++    expect(instance.faults).toEqual([]);
++  });
++
+   it("a consumed service whose secret is blank is dormant: off the daemon, named on the instance", async () => {
+     const instance = await mount(
+       (paladin) => ({
+         lighthouse: lighthouse(paladin),
++        datamap: libsql,
+         daemons: [daemon({ hallucinators: [anthropic(paladin)], consume: { nlp: stanza(paladin) } })],
+         environment,
+       }),
+@@ -123,6 +207,7 @@
+     const declare = (paladin) => ({
+       runtime: runtime(paladin),
+       lighthouse: lighthouse(paladin),
++      datamap: libsql,
+       daemons: [daemon({ hallucinators: [anthropic(paladin), deepgram(paladin)] })],
+       environment,
+     });
+@@ -140,12 +225,13 @@
+     expect(sentences(refused)).toEqual(["SECRET_VIVA_PROBE_A REQUIRED at daemon[probe].hallucinators[0].secrets.key"]);
+   });
+ 
+-  it("inheritance happens after settle: a daemon's inherited lighthouse IS the instance's decoded object", async () => {
+-    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon()], environment }), SET);
++  it("inheritance happens before settle: a daemon's inherited lighthouse is its OWN decoded copy", async () => {
++    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], environment }), SET);
+     const [held] = instance.daemons;
+-    expect(held.lighthouse).toBe(instance.lighthouse);
++    expect(held.lighthouse).not.toBe(instance.lighthouse);
+     expect(held.lighthouse.statics.remote).toBeInstanceOf(Url);
+     expect(held.lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse");
++    expect(instance.lighthouse.statics.remote).toBeInstanceOf(Url);
+   });
+ 
+   it("a faulted slot stays as hydrated — decode never runs on a value the schematic refused; one sentence per location", async () => {
+@@ -157,16 +243,37 @@
+       "VIVA_PROBE_SERVE INVALID at runtime.statics.serve — must be RFC 3986 URI with an authority (scheme://…)",
+     ]);
+   });
++
+   it("a thunk element that yields null is dormant, not a fault; a thunk on the key that yields null is an empty roster", async () => {
+-    const element = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon({ hallucinators: [() => null, anthropic(paladin)] })], environment }), SET, { SECRET_VIVA_PROBE_A: "a" });
++    const element = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon({ hallucinators: [() => null, anthropic(paladin)] })], environment }), SET, { SECRET_VIVA_PROBE_A: "a" });
+     expect(element.daemons[0].hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/anthropic"]);
+     expect(element.dormant).toEqual(["daemon[probe].hallucinators[0]"]);
+     expect(element.faults).toEqual([]);
+-    const key = await mount((paladin) => ({ lighthouse: lighthouse(paladin), daemons: [daemon({ hallucinators: () => null })], environment }), SET);
++    const key = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon({ hallucinators: () => null })], environment }), SET);
+     expect(key.daemons[0].hallucinators).toEqual([]);
+     expect(key.dormant).toEqual([]);
+     expect(key.faults).toEqual([]);
+   });
++
++  it("identity is a manifest everywhere — runtime, client and service rows are labeled by it", async () => {
++    const instance = await mount(
++      (paladin) => ({
++        runtime: runtime(paladin),
++        lighthouse: lighthouse(paladin),
++        datamap: libsql,
++        clients: [{ manifest: { type: "client", slug: "kajuit", traits: ["ATTACHED"] }, statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE") } }],
++        services: [multiplayer(paladin)],
++        environment,
++      }),
++      SET,
++      { SECRET_VIVA_PROBE_A: "a" },
++    );
++    expect(instance.clients[0].manifest.traits).toEqual(["ATTACHED"]);
++    expect(instance.clients[0].statics.serve).toBeInstanceOf(Url);
++    expect(instance.requirements.map((row) => row.at)).toContain("client[kajuit].statics.serve");
++    expect(instance.requirements.map((row) => row.at)).toContain("service[multiplayer].secrets.jwt");
++    expect(instance.faults).toEqual([]);
++  });
+ });
+ 
+ const office = (paladin) =>
+@@ -187,6 +294,7 @@
+ const officeInstance = (paladin) => ({
+   runtime: runtime(paladin),
+   lighthouse: lighthouse(paladin),
++  datamap: libsql,
+   daemons: [office(paladin)],
+   environment: officeEnvironment,
+ });
+@@ -226,8 +334,8 @@
+     );
+   });
+ 
+-  it("the daemon's own mount is unchanged by the entries under it", async () => {
++  it("the daemon's own seat is unchanged by the entries under it", async () => {
+     const instance = await mount(officeInstance, { ...SET, VIVA_PROBE_VDEX: "/jdex" });
+-    expect(instance.daemons[0].mount.absolute).toBe("/mountpoint/daemon_probe");
++    expect(instance.daemons[0].mountpoint.absolute).toBe("/mountpoint/daemon_probe");
+   });
+ });
+--- a/subsystems/paladin/tests/spawn.test.js
++++ b/subsystems/paladin/tests/spawn.test.js
+@@ -9,6 +9,7 @@
+   paladin.env.set("VIVA_LEDGER_MOUNT", root);
+   paladin.env.set("VIVA_REPOSITORY_MOUNT", root);
+   await populate.scopes(paladin);
++  populate.instance(paladin);
+   return paladin;
+ }
+ 
+--- a/subsystems/typology/prototypes/index.client.js
++++ b/subsystems/typology/prototypes/index.client.js
+@@ -26,7 +26,6 @@
+ export * from "./app.js";
+ export * from "./bundle.js";
+ export * from "./view.js";
+-export * from "./mask.js";
+ 
+ export * from "./span.js";
+ export * from "./pipe.js";
+--- a/subsystems/typology/prototypes/index.ts
++++ b/subsystems/typology/prototypes/index.ts
+@@ -35,7 +35,6 @@
+ export * from "./action.js";
+ // export * from "./agent.js";
+ 
+-export * from "./mask.js";
+ export * from "./wafer.js";
+ 
+ export * from "./request.js";
+--- a/subsystems/typology/schematics/primitives/instance.js
++++ b/subsystems/typology/schematics/primitives/instance.js
+@@ -1,68 +1,83 @@
+ import { v } from "../v.js";
+ import { Slug } from "../scalars/index.js";
+ import { Manifest } from "./manifest.js";
+-import { Url } from "../prototypes/signatures.js";
++import { Path, Url } from "../prototypes/signatures.js";
+ 
+-const statics = (known) => v.object(known, { additionalProperties: true });
++const Statics = (known = {}) => v.object(known, { additionalProperties: true });
++const Secrets = v.record(v.string(), v.unknown());
++
++export const Mountpoint = Path({ pattern: "^/.*$", title: "an absolute path" }).$id("Mountpoint");
+ 
+-// mask — declaration of "turn this into an instance": module ref + config.
+ export const Mask = v.object(
+-  {
+-    module: v.string(),
+-    statics: v.record(v.string(), v.unknown()).optional(),
+-    secrets: v.record(v.string(), v.unknown()).optional(),
+-  },
++  { module: v.string(), statics: Statics().optional(), secrets: Secrets.optional() },
+   { additionalProperties: true },
+ );
+ 
+ export const Lighthouse = v.object(
++  { module: v.string(), statics: Statics({ remote: Url() }), secrets: Secrets.optional() },
++  { additionalProperties: true },
++);
++
++export const Datamap = v.object(
+   {
+     module: v.string(),
+-    statics: statics({ remote: Url() }),
+-    secrets: v.record(v.string(), v.unknown()).optional(),
++    statics: Statics({ db: v.object({ file: v.string() }).optional() }).default({}),
++    mountpoint: Mountpoint.optional(),
+   },
+   { additionalProperties: true },
+ );
+ 
+-export const Daemon = v.object(
++export const Mode = v.object(
+   {
+-    manifest: Manifest,
+-    statics: v.record(v.string(), v.unknown()).default({}),
+-    kernel: v.array(v.union([v.string(), v.object({}, { additionalProperties: true })])).default([]),
+-    consume: v.record(v.string(), Mask).default({}),
+-    lighthouse: Lighthouse.optional(),
+-    datamap: Mask,
+-    hallucinators: v.array(Mask).default([]),
++    module: v.string(),
++    manifest: v.object({}, { additionalProperties: true }).optional(),
++    mountpoint: v.union([Mountpoint, v.null()]).optional(),
++    statics: Statics().optional(),
++    secrets: Secrets.optional(),
+   },
+   { additionalProperties: true },
+ );
+ 
+-export const Service = v.object(
++export const Module = v.object({ manifest: Manifest }, { additionalProperties: true });
++
++export const Kernel = v.array(v.union([v.string(), Mode, Module]));
++
++export const Runtime = v.object(
++  { manifest: v.object({ slug: Slug }, { additionalProperties: true }), statics: Statics({ serve: Url() }) },
++  { additionalProperties: true },
++);
++
++export const Client = v.object(
+   {
+-    slug: Slug,
+-    module: v.string(),
+-    statics: statics({ serve: Url().optional() }).optional(),
+-    secrets: v.record(v.string(), v.unknown()).optional(),
+-    datamap: Mask.optional(),
++    manifest: Manifest,
++    module: v.string().optional(),
++    statics: Statics({ serve: Url().optional() }).default({}),
+   },
+   { additionalProperties: true },
+ );
+ 
+-export const Runtime = v.object(
++export const Service = v.object(
+   {
+-    slug: Slug,
+-    traits: v.array(v.string()).optional(),
+-    statics: statics({ serve: Url() }),
+-    datamap: Mask.optional(),
++    manifest: Manifest,
++    module: v.string(),
++    mountpoint: Mountpoint,
++    statics: Statics({ serve: Url().optional() }).default({}),
++    secrets: Secrets.optional(),
++    datamap: Datamap,
+   },
+   { additionalProperties: true },
+ );
+ 
+-export const Client = v.object(
++export const Daemon = v.object(
+   {
+-    slug: Slug.optional(),
+-    module: v.string().optional(),
+-    statics: statics({ serve: Url().optional() }).optional(),
++    manifest: Manifest,
++    mountpoint: Mountpoint,
++    statics: Statics().default({}),
++    kernel: Kernel.default([]),
++    consume: v.record(v.string(), Mask).default({}),
++    lighthouse: Lighthouse,
++    datamap: Datamap,
++    hallucinators: v.array(Mask).default([]),
+   },
+   { additionalProperties: true },
+ );
+@@ -70,11 +85,20 @@
+ export const Instance = v.object(
+   {
+     manifest: Manifest,
++    environment: v.object({}, { additionalProperties: true }),
+     runtime: Runtime.optional(),
++    clients: v.array(Client).default([]),
+     lighthouse: Lighthouse.optional(),
+-    clients: v.record(v.string(), Client).default({}),
++    datamap: Datamap.optional(),
++    hallucinators: v.array(Mask).optional(),
+     services: v.array(Service).default([]),
+     daemons: v.array(Daemon).default([]),
+   },
+   { additionalProperties: true },
+ );
++
++export const Requirement = v.object({
++  at: v.string(),
++  read: v.array(v.string()),
++  unset: v.array(v.string()),
++});
+--- a/subsystems/typology/schematics/primitives/manifest.js
++++ b/subsystems/typology/schematics/primitives/manifest.js
+@@ -9,6 +9,7 @@
+     version: v.string().optional(),
+     name: v.string().optional(),
+     description: v.string().optional(),
++    icon: v.object({ emoji: v.string().optional() }, { additionalProperties: true }).optional(),
+     traits: v.array(v.string()).optional().default([]),
+   },
+   { additionalProperties: true },
+--- a/subsystems/typology/tests/schematics/instance.test.js
++++ b/subsystems/typology/tests/schematics/instance.test.js
+@@ -0,0 +1,97 @@
++import { describe, it } from "@std/testing/bdd";
++import { expect } from "@std/expect";
++import { Path, Url, v } from "@vivalence/typology";
++
++const { Instance, Mountpoint, Kernel, Daemon, Runtime } = v.primitives.instance;
++
++const recipe = (held = {}) => ({ manifest: { type: "instance", slug: "probe" }, environment: {}, ...held });
++const daemon = (held = {}) => ({
++  manifest: { type: "daemon", slug: "hello" },
++  mountpoint: "/m/daemon_hello",
++  lighthouse: { module: "@commons/lighthouse/multiplayer", statics: { remote: "http://lighthouse/" } },
++  datamap: { module: "@commons/datamap/libsql", mountpoint: "/m/daemon_hello", statics: { db: { file: "hello.viva.db" } } },
++  ...held,
++});
++
++const sentences = (value) => Instance.faults(value).map(({ at, reason }) => `${at} ${reason}`);
++
++describe("v.primitives.instance — one schematic for the settled unit", () => {
++  it("cast fills what a recipe leaves out — lists, statics, consume, traits", () => {
++    const held = Instance.cast(recipe({ daemons: [daemon()] }));
++    expect(held.clients).toEqual([]);
++    expect(held.services).toEqual([]);
++    expect(held.manifest.traits).toEqual([]);
++    expect(held.daemons[0].statics).toEqual({});
++    expect(held.daemons[0].kernel).toEqual([]);
++    expect(held.daemons[0].consume).toEqual({});
++    expect(held.daemons[0].hallucinators).toEqual([]);
++    expect(sentences(held)).toEqual([]);
++  });
++
++  it("a daemon owes its lighthouse and datamap — the fault points at the daemon", () => {
++    const bare = Instance.cast(recipe({ daemons: [{ manifest: { type: "daemon", slug: "hello" }, mountpoint: "/m/daemon_hello" }] }));
++    expect(sentences(bare).join(" · ")).toContain("/daemons/0 must have required properties");
++    expect(sentences(bare).join(" · ")).toContain("lighthouse");
++    expect(sentences(bare).join(" · ")).toContain("datamap");
++  });
++
++  it("decode mints the prototypes once: Url at every serve/remote, Path at every mountpoint", () => {
++    const held = Instance.decode(
++      Instance.cast(
++        recipe({
++          runtime: { manifest: { slug: "runtime" }, statics: { serve: "http://localhost:2501/" } },
++          daemons: [daemon()],
++        }),
++      ),
++    );
++    expect(held.runtime.statics.serve).toBeInstanceOf(Url);
++    expect(held.daemons[0].mountpoint).toBeInstanceOf(Path);
++    expect(held.daemons[0].datamap.mountpoint).toBeInstanceOf(Path);
++    expect(held.daemons[0].lighthouse.statics.remote).toBeInstanceOf(Url);
++  });
++
++  it("the kernel admits a reference, a mode, and an inline module — a mode's mountpoint decodes, null stays null", () => {
++    const kernel = [
++      "@commons/playground/spawner",
++      { module: "@vcompany/office/vdex", mountpoint: "/jdex", statics: { formats: ["md"] } },
++      { module: "@vcompany/office/chat", mountpoint: null },
++      { manifest: { type: "game", slug: "inline" }, statics: { probe: () => 1 } },
++    ];
++    expect(v.faults(Kernel, kernel)).toEqual([]);
++    const held = v.decode(Kernel, kernel);
++    expect(held[1].mountpoint).toBeInstanceOf(Path);
++    expect(held[1].mountpoint.absolute).toBe("/jdex");
++    expect(held[2].mountpoint).toBe(null);
++    expect(typeof held[3].statics.probe).toBe("function");
++  });
++
++  it("the runtime's manifest is a slug — no type, it is not a package", () => {
++    expect(Runtime.faults(Runtime.cast({ manifest: { slug: "runtime" }, statics: { serve: "http://localhost:2501/" } }))).toEqual([]);
++    expect(Runtime.faults(Runtime.cast({ manifest: {}, statics: { serve: "http://localhost:2501/" } })).map(({ at }) => at)).toEqual(["/manifest"]);
++  });
++
++  it("the schematic knows every mountpoint — collect walks daemons, datamaps, services and kernel modes, skipping null", () => {
++    const held = Instance.cast(
++      recipe({
++        services: [{ manifest: { type: "service", slug: "multiplayer" }, module: "@commons/lighthouse/multiplayer", mountpoint: "/m/service_multiplayer", datamap: { module: "@commons/datamap/libsql", mountpoint: "/m/service_multiplayer" } }],
++        daemons: [daemon({ kernel: [{ module: "@vcompany/office/vdex", mountpoint: "/jdex" }, { module: "@vcompany/office/chat", mountpoint: null }] })],
++      }),
++    );
++    const seats = v.collect(Instance, held, Mountpoint);
++    expect(seats.map(({ at }) => at)).toEqual([
++      "/services/0/mountpoint",
++      "/services/0/datamap/mountpoint",
++      "/daemons/0/mountpoint",
++      "/daemons/0/kernel/0/mountpoint",
++      "/daemons/0/datamap/mountpoint",
++    ]);
++    expect(seats.map(({ value }) => value)).toEqual(["/m/service_multiplayer", "/m/service_multiplayer", "/m/daemon_hello", "/jdex", "/m/daemon_hello"]);
++    expect(Instance.collect(Instance.decode(held), Mountpoint).every(({ value }) => value instanceof Path)).toBe(true);
++  });
++
++  it("a mountpoint is declared absolute", () => {
++    expect(v.faults(Mountpoint, "/absolute/x")).toEqual([]);
++    expect(v.faults(Mountpoint, "./relative")).toEqual([{ at: "/", reason: "must be an absolute path" }]);
++    expect(Daemon.faults(Daemon.cast(daemon({ mountpoint: "relative" }))).map(({ at }) => at)).toEqual(["/mountpoint"]);
++  });
++});
+--- a/subsystems/typology/tests/v.test.js
++++ b/subsystems/typology/tests/v.test.js
+@@ -337,12 +337,18 @@
+ 
+   specimen.it("instance statics are typed where typology knows the key — serve and remote, everything else rides along", () => {
+     const { Runtime, Lighthouse, Client, Service, Daemon } = v.primitives.instance;
+-    specimen.expect([...Runtime.errors({ slug: "runtime", statics: { serve: "NaN" } })][0].instancePath).toBe("/statics/serve");
+-    specimen.expect([...Runtime.errors({ slug: "runtime", statics: { serve: "http://localhost:2501/", extra: 1 } })].length).toBe(0);
++    const runtime = { slug: "runtime" };
++    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "NaN" } })][0].instancePath).toBe("/statics/serve");
++    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "http://localhost:2501/", extra: 1 } })].length).toBe(0);
+     specimen.expect([...Lighthouse.errors({ module: "m", statics: {} })][0].message).toContain("remote");
+-    specimen.expect([...Client.errors({ slug: "ghost", statics: {} })].length).toBe(0);
+-    specimen.expect([...Service.errors({ slug: "svc", module: "m" })].length).toBe(0);
+-    const daemon = { manifest: { type: "daemon", slug: "d", version: "0.0.1" }, datamap: { module: "m" } };
++    specimen.expect([...Client.errors({ manifest: { type: "client", slug: "ghost" }, statics: {} })].length).toBe(0);
++    specimen.expect([...Service.errors(Service.cast({ manifest: { type: "service", slug: "svc" }, module: "m", mountpoint: "/m/service_svc", datamap: { module: "m" } }))].length).toBe(0);
++    const daemon = {
++      manifest: { type: "daemon", slug: "d", version: "0.0.1" },
++      mountpoint: "/m/daemon_d",
++      lighthouse: { module: "m", statics: { remote: "http://lighthouse/" } },
++      datamap: { module: "m" },
++    };
+     Daemon.cast(daemon);
+     specimen.expect(daemon.hallucinators).toEqual([]);
+     specimen.expect(daemon.statics).toEqual({});
+@@ -351,7 +357,7 @@
+ 
+   specimen.it("faults — errors with the scalar's title in place of its regex, addressed by pointer", () => {
+     const { Instance } = v.primitives.instance;
+-    const faults = Instance.faults({ manifest: { type: "instance", slug: "i" }, runtime: { slug: "runtime", statics: { serve: "nope" } }, daemons: [], services: [], clients: {} });
++    const faults = Instance.faults({ manifest: { type: "instance", slug: "i" }, environment: {}, runtime: { manifest: { slug: "runtime" }, statics: { serve: "nope" } }, daemons: [], services: [], clients: [] });
+     specimen.expect(faults).toEqual([{ at: "/runtime/statics/serve", reason: "must be RFC 3986 URI with an authority (scheme://…)" }]);
+     specimen.expect(v.faults(v.object({ a: v.string() }), {})).toEqual([{ at: "/", reason: "must have required properties a" }]);
+   });
+--- a/systems/ghost/trajectories/instance/doctor.js
++++ b/systems/ghost/trajectories/instance/doctor.js
+@@ -1,4 +1,4 @@
+-import paladin from "@vivalence/paladin";
++import paladin, { lifecycle } from "@vivalence/paladin";
+ import { basename } from "@std/path";
+ import { search } from "@vivalence/sheets";
+ import { locate } from "./target.js";
+@@ -38,7 +38,7 @@
+   const { target, filter } = found;
+   if (target) paladin.env.set("VIVA_INSTANCE_MOUNT", target, "flag");
+ 
+-  await paladin.instance.mount();
++  await lifecycle.mount(paladin.instance);
+   const mount = paladin.scope.instance.absolute;
+   const instance = (await paladin.ledger.instances.lookup(mount))?.slug ?? basename(mount);
+ 
+@@ -47,10 +47,10 @@
+   ctx.effect = {
+     mount,
+     manifest: paladin.instance.manifest,
+-    daemons: (paladin.instance.daemons ?? []).map((daemon) => daemon.slug ?? daemon.manifest?.slug),
+-    services: (paladin.instance.services ?? []).map((service) => service.slug ?? service.manifest?.slug),
+-    clients: Object.keys(paladin.instance.clients ?? {}),
+-    runtime: Object.keys(paladin.instance.runtime ?? {}),
++    runtime: paladin.instance.runtime?.manifest?.slug ?? null,
++    daemons: paladin.instance.daemons.map((daemon) => daemon.manifest?.slug),
++    services: paladin.instance.services.map((service) => service.manifest?.slug),
++    clients: paladin.instance.clients.map((client) => client.manifest?.slug),
+     mountpoint: paladin.scope.mountpoint?.absolute ?? null,
+     vars: paladin.env.strata.get("instance") ?? {},
+     env: rows.map(({ verdict, describe, group, required, at, ...row }) => ({
+--- a/systems/kajuit/vite.config.mjs
++++ b/systems/kajuit/vite.config.mjs
+@@ -8,10 +8,10 @@
+ const __ss = join(__repo, "./subsystems");
+ 
+ async function serverConfig() {
+-  const paladin = (await import("@vivalence/paladin")).default;
+-  await paladin.instance.mount();
++  const { default: paladin, lifecycle } = await import("@vivalence/paladin");
++  await lifecycle.mount(paladin.instance);
+   paladin.check.instance(paladin.instance).throw();
+-  const client = paladin.instance.clients.kajuit;
++  const client = paladin.instance.clients.find((held) => held.manifest.slug === "kajuit");
+   // console.log("paladin.env", paladin.env);
+   // const client = {slug: "kajuit", module: "@vivalence/kajuit", statics: {serve: new Url("http://0.0.0.0:1794"), lighthouse: {remote: new Url("http://100.71.241.160:2501/attached/process/lighthouse/multiplayer"),},},};
+   // console.log({ client });
+--- a/systems/runtime/daemon/daemon.js
++++ b/systems/runtime/daemon/daemon.js
+@@ -16,7 +16,6 @@
+   entity = null; // ? maybe network level, thus runtime thus daemonDie. daemonDie.entity? hmm
+   statics = null;
+   cargo = new Cargo();
+-  docs = {};
+ 
+   // schema = {
+   //   primitives: {}, // {dimension signal} = f(domain*ontology)
+--- a/systems/runtime/daemon/lifecycle/population.js
++++ b/systems/runtime/daemon/lifecycle/population.js
+@@ -67,8 +67,7 @@
+ 
+ export function wiring(daemonDie) {
+   daemonDie.good.statics = daemonDie.mask.statics;
+-  daemonDie.good.docs = daemonDie.mask.docs;
+-  daemonDie.good.mountpoint = daemonDie.mask.mount;
++  daemonDie.good.mountpoint = daemonDie.mask.mountpoint;
+ }
+ 
+ export async function datamap(daemonDie) {
+--- a/systems/runtime/die.js
++++ b/systems/runtime/die.js
+@@ -4,12 +4,7 @@
+ 
+ export class Die extends Wafer {
+   get manifest() {
+-    const runtime = paladin.instance.runtime ?? {};
+-    return {
+-      type: "runtime",
+-      slug: runtime.slug ?? "runtime",
+-      traits: runtime.traits ?? [],
+-    };
++    return paladin.instance.runtime?.manifest ?? { slug: "runtime" };
+   }
+ 
+   async populate() {
+--- a/systems/runtime/lifecycle/integrate.js
++++ b/systems/runtime/lifecycle/integrate.js
+@@ -19,7 +19,7 @@
+           console.warn(`child unhealthy`, child.slug);
+         }
+       }
+-      console.log(`$[runtime:${paladin.instance.runtime?.slug}]`, die.status);
++      console.log(`$[runtime:${paladin.instance.runtime?.manifest.slug}]`, die.status);
+     },
+   };
+ }
+--- a/systems/runtime/lifecycle/resolve.js
++++ b/systems/runtime/lifecycle/resolve.js
+@@ -106,8 +106,8 @@
+   root.open("/aperture", () => shape.strip(runtimeDie.good.aperture));
+ 
+   root.open("/instance", () => ({
+-    daemons: paladin.instance.daemons.map((mask) => mask.manifest ?? mask),
+-    services: paladin.instance.services.map((mask) => mask.manifest ?? { module: mask.module }),
++    daemons: paladin.instance.daemons.map((daemon) => daemon.manifest),
++    services: paladin.instance.services.map((service) => ({ ...service.manifest, module: service.module })),
+   }));
+ 
+   root.open("/daemons", () =>
+--- a/subsystems/typology/prototypes/mask.js
++++ /dev/null
+@@ -1,31 +0,0 @@
+-// paladin creates mask. masks are put on dies and processed into a runtime or service.
+-// mask bundles information. its typological gestalt. doesnt do anything on its own. part of a recipie.
+-// {manifest, kernel, services, mount, slug, docs}
+-
+-export class Mask {
+-  manifest = {};
+-  mount = null; // mountpath
+-  source = null; // filepath
+-  // serve = null;
+-  constructor(mask = {}) {
+-    if (mask.manifest?.type === "runtime") {
+-      this.lighthouse = null;
+-      this.datamap = null;
+-      this.kernel = [];
+-      this.services = [];
+-    } else if (mask.manifest?.type === "service") {
+-      this.client = null; // string:slug - runtime pointer.
+-      this.service = null; // string:slug - remote pointer. convenience.
+-      this.remote = null; // mask - identifies client -> bake provider.
+-    }
+-    Object.assign(this, mask);
+-    if (!this.slug) this.slug = this.manifest.slug;
+-
+-    // url: new Url(`/runtime/${slug}`, new URL("http://localhost")), path: new Path(`/runtime/${slug}`),
+-    if (this.datamap && !this.datamap.mount) this.datamap.mount = this.mount;
+-  }
+-}
+-
+-// Common properties manifest = {}; mount = null; source = null; path = null; url = null;
+-// Runtime-specific properties lighthouse = null; datamap = null; kernel = []; services = []; statics = {}; docs = {};
+-// Service-specific properties runtime = null; remote = null; secret = {}; module = null;
+--- a/systems/ghost/trajectories/instance/run.js
++++ b/systems/ghost/trajectories/instance/run.js
+@@ -1,11 +1,11 @@
+-import paladin from "@vivalence/paladin";
++import paladin, { lifecycle } from "@vivalence/paladin";
+ import { register, specs } from "./target.js";
+ 
+ const SIGNALS = { 129: "SIGHUP", 130: "SIGINT", 131: "SIGQUIT", 137: "SIGKILL", 143: "SIGTERM" };
+ 
+ export async function run(ctx) {
+   const instance = await register();
+-  await paladin.instance.mount();
++  await lifecycle.mount(paladin.instance);
+   const attachment = ctx.signal.flags?.logged === true ? "logged" : "inherit";
+   const die = await paladin.ledger.boot(specs(ctx.signal.params[0]), { instance, attachment });
+ 
+--- a/systems/ghost/trajectories/instance/lighthouse.js
++++ b/systems/ghost/trajectories/instance/lighthouse.js
+@@ -1,4 +1,4 @@
+-import paladin from "@vivalence/paladin";
++import paladin, { lifecycle } from "@vivalence/paladin";
+ import { Connection } from "@vivalence/typology";
+ 
+ export async function lighthouse(ctx) {
+@@ -6,7 +6,7 @@
+   if (!["signup", "login"].includes(action) || !username || !password) {
+     return (ctx.effect = { error: "usage: /instance/lighthouse <signup|login> <username> <password>" });
+   }
+-  await paladin.instance.mount();
++  await lifecycle.mount(paladin.instance);
+   ctx.effect = await new Connection(paladin.instance.lighthouse.statics.remote).call(
+     `/auth/${action}`,
+     { username, password },
+--- a/systems/runtime/run.js
++++ b/systems/runtime/run.js
+@@ -1,9 +1,9 @@
+-import paladin from "@vivalence/paladin";
++import paladin, { lifecycle } from "@vivalence/paladin";
+ import { Die, Runtime } from "@vivalence/runtime";
+ 
+ const run = await (async function () {
+   // console.log("paladin.env", paladin.env);
+-  await paladin.instance.mount();
++  await lifecycle.mount(paladin.instance);
+   paladin.check.instance(paladin.instance).throw();
+   // console.log("paladin.instance", paladin.instance);
+   // console.log("paladin.instance", JSON.stringify(paladin.instance, null, 2));
+--- a/systems/ghost/mod.js
++++ b/systems/ghost/mod.js
+@@ -1,4 +1,4 @@
+-import paladin from "@vivalence/paladin";
++import paladin, { lifecycle } from "@vivalence/paladin";
+ import { is, object, Vector, Span, Path, steer, shard } from "@vivalence/typology";
+ import { view, JsonTree, Effect } from "@vivalence/sheets";
+ import * as dotenv from "@std/dotenv";
+@@ -76,7 +76,7 @@
+     const modules = await paladin.find.type(new Path(cwd), "instance", 0);
+     if (modules.length) {
+       paladin.env.set("VIVA_INSTANCE_MOUNT", cwd, "cwd");
+-      ctx.instance = await paladin.instance.mount();
++      ctx.instance = await lifecycle.mount(paladin.instance);
+     }
+     await next();
+   })
+--- a/systems/ghost/trajectories/ledger/index.js
++++ b/systems/ghost/trajectories/ledger/index.js
+@@ -1,4 +1,4 @@
+-import paladin from "@vivalence/paladin";
++import paladin, { lifecycle } from "@vivalence/paladin";
+ import { isAbsolute, resolve } from "@std/path";
+ import { Path, v, Vector } from "@vivalence/typology";
+ import { config, envfile, path } from "../../belt/index.js";
+@@ -83,7 +83,7 @@
+     schema: v.object({}),
+   },
+   async (ctx) => {
+-    if (paladin.scope.instance) await Promise.resolve(paladin.instance.mount()).catch(() => null);
++    if (paladin.scope.instance) await Promise.resolve(lifecycle.mount(paladin.instance)).catch(() => null);
+     const home = paladin.scope.ledger;
+     const env = home.branch(".env");
+     const record = await collectRecord(paladin.ledger.registry);
+--- a/systems/ghost/trajectories/instance/init.js
++++ b/systems/ghost/trajectories/instance/init.js
+@@ -1,4 +1,4 @@
+-import paladin from "@vivalence/paladin";
++import paladin, { lifecycle } from "@vivalence/paladin";
+ import { Connection } from "@vivalence/typology";
+ import { envfile } from "../../belt/index.js";
+ import { register, specs } from "./target.js";
+@@ -68,15 +68,15 @@
+ export async function init(ctx) {
+   const mount = paladin.instance.home.absolute;
+   const file = paladin.instance.home.branch(".env");
+-  // remount, not mount: mount is fn.once, and init is the verb that must see current truth.
+-  await paladin.remount();
++  // a fresh instance, not the memoized mount: init is the verb that must see current truth.
++  await lifecycle.mount(lifecycle.populate.instance(paladin));
+ 
+   // first run: author the .env from the schema — prose, groups and defaults — then only what is
+   // still blank is worth asking a human. same move as ledger/init.
+   const scaffolded = !(await paladin.read.text(file).catch(() => null));
+   if (scaffolded && Object.keys(paladin.instance.environment?.properties ?? {}).length) {
+     await paladin.state.text(file, envfile.scaffold(paladin.instance.environment));
+-    await paladin.remount();
++    await lifecycle.mount(lifecycle.populate.instance(paladin));
+   }
+ 
+   const rows = paladin.check.environment(paladin.instance);
+@@ -96,7 +96,7 @@
+   // written .env → fresh hydration, so the boot below sees the addresses just answered.
+   const commit = async (values) => {
+     await paladin.state.env(file, values);
+-    await paladin.remount();
++    await lifecycle.mount(lifecycle.populate.instance(paladin));
+     return { env: "written", filled: Object.keys(values) };
+   };
+ 
+--- a/subsystems/typology/schematics/v.js
++++ b/subsystems/typology/schematics/v.js
+@@ -9,6 +9,24 @@
+     return { at: error.instancePath || "/", reason };
+   });
+ 
++const positions = (schema, value, target, at) => {
++  if (value === undefined || value === null || !schema) return [];
++  if (typeof schema.$id === "string" && schema.$id === target.$id) return [{ at: at || "/", value }];
++  const into = (held, part, item) => positions(held, item, target, `${at}/${part}`);
++  if (schema.anyOf) return schema.anyOf.flatMap((variant) => positions(variant, value, target, at));
++  if (schema.allOf) return schema.allOf.flatMap((part) => positions(part, value, target, at));
++  if (schema.items) return Array.isArray(value) ? value.flatMap((item, index) => into(schema.items, index, item)) : [];
++  if (typeof value !== "object") return [];
++  const declared = Object.entries(schema.properties ?? {}).flatMap(([key, property]) => into(property, key, value[key]));
++  const patterned = Object.values(schema.patternProperties ?? {}).flatMap((property) =>
++    Object.entries(value).flatMap(([key, held]) => into(property, key, held)),
++  );
++  return [...declared, ...patterned];
++};
++
++const collect = (schema, value, target) =>
++  [...new Map(positions(schema, value, target, "").map((hit) => [hit.at, hit])).values()];
++
+ const derive = (target, patch) =>
+   Object.assign(Object.defineProperties({}, Object.getOwnPropertyDescriptors(target)), patch);
+ 
+@@ -41,6 +59,7 @@
+       if (prop === "clean") return (value) => Value.Clean(target, value);
+       if (prop === "errors") return (value) => Value.Errors(target, value);
+       if (prop === "faults") return (value) => faults(target, value);
++      if (prop === "collect") return (value, held) => collect(target, value, held);
+       if (prop === "compile") return () => Compile(target);
+       if (prop === "fill") return (value) => (Value.Default(target, value), value);
+       if (prop === "cast")
+@@ -139,6 +158,7 @@
+   convert: (schema, value) => Value.Convert(schema, value),
+   errors: (schema, value) => Value.Errors(schema, value),
+   faults,
++  collect,
+   create: (schema) => Value.Create(schema),
+   clean: (schema, value) => Value.Clean(schema, value),
+   isOptional: (schema) => IsOptional(schema),
+--- a/commons/lighthouses/multiplayer/server/lib/jwt.js
++++ b/commons/lighthouses/multiplayer/server/lib/jwt.js
+@@ -80,7 +80,7 @@
+ 
+   secret = new TextEncoder().encode(service.secrets.jwt);
+ 
+-  const tokenfile = service.mount.branch("/tokens.json").absolute;
++  const tokenfile = service.mountpoint.branch("/tokens.json").absolute;
+   db = await JSONFilePreset(tokenfile, { refresh: {} });
+   await db.read();
+ 
+@@ -144,7 +144,7 @@
+ // export default async function (service) {
+ //   secret = new TextEncoder().encode(service.secrets.jwt);
+ 
+-//   const tokenfile = service.mount.branch("/tokens.json").absolute;
++//   const tokenfile = service.mountpoint.branch("/tokens.json").absolute;
+ //   db = await JSONFilePreset(tokenfile, { refresh: {} });
+ //   await db.read();
+ 

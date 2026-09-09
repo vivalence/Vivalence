@@ -1,4 +1,4 @@
-import { extname, join } from "@std/path";
+import { extname, join, normalize } from "@std/path";
 import { v, Vector } from "@vivalence/typology";
 import { skip } from "../belt/ignore.js";
 
@@ -7,12 +7,23 @@ const LIST_CAP = 200;
 
 export const resolve = (root, path = ".") => {
   const base = root.endsWith("/") ? root : `${root}/`;
-  const full = new URL(path.replace(/^\/+/, ""), `file://${base}`).pathname;
+  // a URL is only the normaliser here; the answer is a filesystem path, so the escapes it adds come back off
+  const full = decodeURIComponent(new URL(encodeURI(path.replace(/^\/+/, "")), `file://${base}`).pathname);
   if (full !== root && `${full}/` !== base && !full.startsWith(base)) {
     throw new Error(`path '${path}' escapes the root — paths are relative to ${root}`);
   }
   return full;
 };
+
+// nothing is bound: every path the tools take is absolute. The mode section of the context names this
+// mode's places (source · mountpoint · freight); mode_find lists every mode's. A refusal says so.
+const PLACES = "your mode's places are in the mode section of your context; mode_find lists every mode's";
+export const absolute = (path) => {
+  if (!path.startsWith("/")) throw new Error(`path '${path}' is not absolute — ${PLACES}`);
+  return normalize(path);
+};
+const PATH = (what) =>
+  v.string().desc(`Absolute path to ${what}. Example: "/home/operator/jdex/20-29 company"`);
 
 const entries = async (dir) => {
   const collected = [];
@@ -27,10 +38,11 @@ export const fs = new Vector()
     {
       nature: "/fs/tree",
       valence:
-        "The directory tree under a path, relative to this mode's root. Ground here before " +
-        'reading. Example: { path: "dataset", depth: 2 }.',
+        "The directory tree under an absolute path. Ground here before reading: your mode's places " +
+        "(source · mountpoint · freight) are in the mode section of your context, every mode's come " +
+        'from mode_find. Example: { path: "/home/operator/jdex", depth: 2 }.',
       input: v.object({
-        path: v.string().default("."),
+        path: PATH("a directory"),
         depth: v.integer({ minimum: 1, maximum: 5 }).default(2),
       }),
     },
@@ -49,7 +61,7 @@ export const fs = new Vector()
           }
         }
       };
-      await recurse(resolve(ctx.root, ctx.input.path), "", ctx.input.depth);
+      await recurse(absolute(ctx.input.path), "", ctx.input.depth);
       const capped = lines.length >= LIST_CAP
         ? `\n… capped at ${LIST_CAP} entries — descend with path`
         : "";
@@ -59,17 +71,17 @@ export const fs = new Vector()
   .open(
     {
       nature: "/fs/find",
-      valence: "Files matching a regex over the file name, searched under a path. " +
-        'Example: { pattern: "\\\\.md$", path: "." }.',
+      valence: "Files matching a regex over the file name, searched under an absolute path; answers " +
+        'absolute paths. Example: { pattern: "\\\\.md$", path: "/home/operator/jdex" }.',
       input: v.object({
-        pattern: v.string().desc("JavaScript regex matched against file names."),
-        path: v.string().default("."),
+        pattern: v.string().desc('JavaScript regex matched against file names. Example: "\\\\.md$"'),
+        path: PATH("the directory to search"),
         limit: v.integer({ minimum: 1, maximum: 100 }).default(50),
       }),
     },
     async (ctx) => {
       const expression = new RegExp(ctx.input.pattern);
-      const start = resolve(ctx.root, ctx.input.path);
+      const start = absolute(ctx.input.path);
       const files = [];
       const skipped = skip(ctx.ignore);
       const recurse = async (dir) => {
@@ -80,7 +92,7 @@ export const fs = new Vector()
           if (entry.isDirectory) {
             await recurse(path);
           } else if (expression.test(entry.name)) {
-            files.push(path.slice(ctx.root.length + 1));
+            files.push(path);
           }
         }
       };
@@ -91,11 +103,11 @@ export const fs = new Vector()
   .open(
     {
       nature: "/fs/read",
-      valence: "Read a file under the root. Long files come back cut at 16 kB with a note — pass " +
-        'range (line numbers, 1-based) for the rest. Example: { path: "README.md", range: ' +
-        "{ from: 40, to: 120 } }.",
+      valence: "Read a file at an absolute path. Long files come back cut at 16 kB with a note — pass " +
+        'range (line numbers, 1-based) for the rest. Example: { path: "/home/operator/jdex/README.md", ' +
+        "range: { from: 40, to: 120 } }.",
       input: v.object({
-        path: v.string(),
+        path: PATH("the file"),
         range: v
           .object({
             from: v.integer({ minimum: 1 }),
@@ -105,7 +117,7 @@ export const fs = new Vector()
       }),
     },
     async (ctx) => {
-      const text = await Deno.readTextFile(resolve(ctx.root, ctx.input.path));
+      const text = await Deno.readTextFile(absolute(ctx.input.path));
       const lines = text.split("\n");
       const { from = 1, to = lines.length } = ctx.input.range ?? {};
       let slice = lines.slice(from - 1, to).join("\n");
@@ -120,15 +132,16 @@ export const fs = new Vector()
   .open(
     {
       nature: "/fs/write",
-      valence: "Write or append a file under the root. Parent directories are created.",
+      valence: "Write or append a file at an absolute path. Parent directories are created. " +
+        'Example: { path: "/home/operator/jdex/22 finance/22.04 notes.md", content: "# notes" }.',
       input: v.object({
-        path: v.string(),
-        content: v.string(),
+        path: PATH("the file"),
+        content: v.string().desc('The whole text to write, or the text to append. Example: "# notes"'),
         append: v.boolean({ default: false }),
       }),
     },
     async (ctx) => {
-      const full = resolve(ctx.root, ctx.input.path);
+      const full = absolute(ctx.input.path);
       await Deno.mkdir(full.split("/").slice(0, -1).join("/"), { recursive: true });
       await Deno.writeTextFile(full, ctx.input.content, { append: ctx.input.append });
       return {
@@ -143,11 +156,12 @@ export const fs = new Vector()
   .open(
     {
       nature: "/fs/stat",
-      valence: "Size, modification time and format of one file under the root.",
-      input: v.object({ path: v.string() }),
+      valence: "Size, modification time and format of one file at an absolute path. " +
+        'Example: { path: "/home/operator/jdex/README.md" }.',
+      input: v.object({ path: PATH("the file") }),
     },
     async (ctx) => {
-      const stat = await Deno.stat(resolve(ctx.root, ctx.input.path));
+      const stat = await Deno.stat(absolute(ctx.input.path));
       return {
         output: {
           bytes: stat.size,
@@ -161,12 +175,13 @@ export const fs = new Vector()
   .open(
     {
       nature: "/fs/move",
-      valence: "Move or rename a file under the root. Both ends stay under the root; parent directories are created.",
-      input: v.object({ from: v.string(), to: v.string() }),
+      valence: "Move or rename a file, both ends absolute; parent directories are created. " +
+        'Example: { from: "/home/operator/jdex/draft.md", to: "/home/operator/jdex/22 finance/22.04 draft.md" }.',
+      input: v.object({ from: PATH("the file as it is"), to: PATH("where it goes") }),
     },
     async (ctx) => {
-      const from = resolve(ctx.root, ctx.input.from);
-      const to = resolve(ctx.root, ctx.input.to);
+      const from = absolute(ctx.input.from);
+      const to = absolute(ctx.input.to);
       await Deno.mkdir(to.split("/").slice(0, -1).join("/"), { recursive: true });
       await Deno.rename(from, to);
       return { output: { message: `moved ${ctx.input.from} → ${ctx.input.to}` } };
@@ -175,11 +190,12 @@ export const fs = new Vector()
   .open(
     {
       nature: "/fs/delete",
-      valence: "Delete one file under the root. Directories are refused.",
-      input: v.object({ path: v.string() }),
+      valence: "Delete one file at an absolute path. Directories are refused. " +
+        'Example: { path: "/home/operator/jdex/draft.md" }.',
+      input: v.object({ path: PATH("the file") }),
     },
     async (ctx) => {
-      const full = resolve(ctx.root, ctx.input.path);
+      const full = absolute(ctx.input.path);
       const stat = await Deno.stat(full);
       if (stat.isDirectory) return { condition: "ERROR", output: { message: `${ctx.input.path} is a directory` } };
       await Deno.remove(full);

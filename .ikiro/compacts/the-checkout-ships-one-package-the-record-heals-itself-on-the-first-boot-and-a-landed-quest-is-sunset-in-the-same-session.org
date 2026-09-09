@@ -1,5 +1,6 @@
 #+title: the checkout ships one package, the record heals itself on the first boot, and a landed quest is sunset in the same session
 #+filetags: :registry:commons:paladin:vip:pensieve:ledger:docker:docs:m47:blast:release:quest:sunset:
+#+index: 34
 
 * what happened, in one breath
 

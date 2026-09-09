@@ -1,5 +1,6 @@
 #+title: the terminal is a function of the thread — three sketches die before one diff lands, and the daemon learns lineage
 #+filetags: :m55:m53:kajuit:drapes:typology:runtime:terminal:thread:sub-thread:frame:buffer:view:mikro:control:quest:correction:blast:
+#+index: 131
 
 * what happened, in one breath
 

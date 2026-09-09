@@ -37,7 +37,12 @@ Deno.test("help --json lists every nature with edge metadata", async () => {
   assert(natures.includes("registry/bootstrap"));
   assert(natures.includes("help"));
   const create = held.commands.find((command) => command.nature === "instance/create");
-  assertEquals(create.params.map((param) => param.name), ["source", "target", "use", "init"]);
+  assertEquals(create.params.map((param) => param.name), ["source", "target", "use", "init", "slug"]);
+  // a flag is declared, never inferred — the value-carrying --slug is one, the positionals are not.
+  assertEquals(create.params.filter((param) => param.group === "flags").map((param) => param.name), ["use", "init", "slug"]);
+  assert(natures.includes("instance/use"));
+  assert(!natures.includes("instances/use"));
+  assert(held.flags.includes("--instance=<slug|path>"));
   assert(create.valence.startsWith("create an instance"));
   assert(held.flags.includes("--json"));
 });

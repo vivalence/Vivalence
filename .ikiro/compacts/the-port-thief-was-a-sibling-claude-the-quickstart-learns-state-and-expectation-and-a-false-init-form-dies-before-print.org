@@ -1,5 +1,6 @@
 #+title: the port thief was a sibling claude, the quickstart learns state and expectation, and a false init form dies before print
 #+filetags: :ghost:documentation:cli:ledger:registry:emacs:
+#+index: 97
 
 * what happened, in one breath
 

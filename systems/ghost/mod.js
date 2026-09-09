@@ -1,4 +1,4 @@
-import paladin from "@vivalence/paladin";
+import paladin, { lifecycle } from "@vivalence/paladin";
 import { is, object, Vector, Span, Path, steer, shard } from "@vivalence/typology";
 import { view, JsonTree, Effect } from "@vivalence/sheets";
 import * as dotenv from "@std/dotenv";
@@ -6,7 +6,8 @@ import { resolve } from "@std/path";
 import { ShellSignal, ShellContext } from "./typology.js";
 import { config, path } from "./belt/index.js";
 
-import trajectories from "./trajectories/index.js";
+import trajectories, { flags } from "./trajectories/index.js";
+import { accepts, census } from "./trajectories/help.js";
 
 const strategy = (carry, effect) => async (context) => {
   await carry(context, async (ctx) => {
@@ -75,7 +76,7 @@ trajectory
     const modules = await paladin.find.type(new Path(cwd), "instance", 0);
     if (modules.length) {
       paladin.env.set("VIVA_INSTANCE_MOUNT", cwd, "cwd");
-      ctx.instance = await paladin.instance.mount();
+      ctx.instance = await lifecycle.mount(paladin.instance);
     }
     await next();
   })
@@ -137,28 +138,6 @@ if (signal.flags?.help) {
 }
 const context = new ShellContext({ signal });
 
-for (const mount of config.MOUNTS) {
-  const reference = signal.flags?.[mount];
-  if (!is.string(reference)) continue;
-  const pinned = mount === "instance" ? (await paladin.ledger.instances.resolve(reference)).mount : path.pin(reference);
-  paladin.env.set(`VIVA_${mount.toUpperCase()}_MOUNT`, pinned, "flag");
-}
-
-if (signal.flags?.env === true) throw new Error("--env needs a value: --env=<path>");
-if (is.string(signal.flags?.env)) {
-  const vars = await dotenv.load({ envPath: resolve(path.cwd(), signal.flags.env) });
-  const keys = {
-    public: (key) => key.startsWith("VIVA_") || key.startsWith("PUBLIC_VIVA_"),
-    secret: (key) => key.startsWith("SECRET_VIVA_"),
-  };
-  const held = object.filter(vars, keys.public);
-  const secrets = object.filter(vars, keys.secret);
-  if (!Object.keys(held).length && !Object.keys(secrets).length)
-    throw new Error(`--env ${signal.flags.env}: no VIVA_* knowledge in it`);
-  paladin.env.assign(held, ".env");
-  paladin.secret.assign(secrets, ".env");
-}
-
 // the one exit: every failure — thrown, caught into ctx.error, or returned as an { error } effect —
 // leaves through here with a status. one line for a human, the stack under --verbose, json under --json.
 const fail = (error, { printed = false } = {}) => {
@@ -175,6 +154,46 @@ const fail = (error, { printed = false } = {}) => {
 };
 
 try {
+  const nature = signal.array.map((segment) => segment.nature).join("/");
+  const node = census(trajectory).find((row) => row.nature === nature)?.params ?? [];
+  // a bare flag is legal only where a boolean is declared — by the shell, or by the nature itself.
+  const bare = new Set([
+    ...Object.entries(flags.properties).filter(([, held]) => accepts(held, "boolean")).map(([name]) => name),
+    ...node.filter((param) => param.type === "boolean").map((param) => param.name),
+  ]);
+  const demand = (name, shape, example) => {
+    if (signal.flags?.[name] === true && !bare.has(name))
+      throw new Error(`--${name} needs a value: --${name}=${shape}\ntry: viva ${nature} --${name}=${example}`);
+  };
+
+  for (const [name, held] of Object.entries(flags.properties)) demand(name, held.description, held.examples?.[0]);
+
+  for (const [name, held] of Object.entries(config.mounts)) {
+    demand(name, held.shape, held.example);
+    const reference = signal.flags?.[name];
+    if (!is.string(reference)) continue;
+    const pinned = name === "instance" ? (await paladin.ledger.instances.resolve(reference)).mount : path.pin(reference);
+    paladin.env.set(held.key, pinned, "flag");
+  }
+
+  for (const param of node) {
+    if (param.group === "flags" && param.type !== "boolean") demand(param.name, param.description, param.examples[0]);
+  }
+
+  if (is.string(signal.flags?.env)) {
+    const vars = await dotenv.load({ envPath: resolve(path.cwd(), signal.flags.env) });
+    const keys = {
+      public: (key) => key.startsWith("VIVA_") || key.startsWith("PUBLIC_VIVA_"),
+      secret: (key) => key.startsWith("SECRET_VIVA_"),
+    };
+    const held = object.filter(vars, keys.public);
+    const secrets = object.filter(vars, keys.secret);
+    if (!Object.keys(held).length && !Object.keys(secrets).length)
+      throw new Error(`--env ${signal.flags.env}: no VIVA_* knowledge in it`);
+    paladin.env.assign(held, ".env");
+    paladin.secret.assign(secrets, ".env");
+  }
+
   await steer.dispatch.invoke(trajectory, signal, strategy)(context);
   if (context.error) fail(context.error);
   if (context.effect?.error) fail(new Error(context.effect.error), { printed: signal.flags?.json === true });

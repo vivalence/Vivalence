@@ -3,6 +3,7 @@ import { type Opt, type Rel } from "@mikro-orm/core";
 import { DataRepository, DataSchema, DataEntity } from "../index.ts";
 
 import { LiteralEntity } from "../index.ts";
+import { ModeEntity } from "../index.ts";
 
 export enum SymbolTraitsEnum {
   ONTOLOGICAL = "ONTOLOGICAL", // subject matter attribute
@@ -24,6 +25,7 @@ export class SymbolEntity extends DataEntity {
   trait: any & Opt = {};
 
   literals = new Collection<LiteralEntity>(this);
+  mode?: Rel<ModeEntity>;
 
   [EntityRepositoryType]?: SymbolRepository;
   // ancestor?: Rel<SymbolEntity>;
@@ -36,7 +38,7 @@ export const SymbolSchema = new EntitySchema({
   abstract: true,
   name: "Symbol",
   tableName: "Symbol",
-  uniques: [{ properties: ["slug"] }],
+  uniques: [{ properties: ["slug", "mode"] }],
   repository: () => SymbolRepository,
   properties: {
     slug: { type: types.string },
@@ -58,6 +60,13 @@ export const SymbolSchema = new EntitySchema({
       entity: () => LiteralEntity,
       inversedBy: (literal) => literal.symbols,
       cascade: [Cascade.REMOVE],
+    },
+
+    mode: {
+      kind: "m:1",
+      entity: () => ModeEntity,
+      inversedBy: (mode) => mode.symbols,
+      nullable: true,
     },
 
     // ancestor: {kind: "m:1", entity: () => SymbolEntity, inversedBy: (symbol) => symbol.decendants, nullable: true,}, decendants: {kind: "1:m", entity: () => SymbolEntity, mappedBy: (symbol) => symbol.ancestor,},

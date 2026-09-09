@@ -1,5 +1,6 @@
 #+title: the docs watch goes blind when a sibling session wipes .astro, astro keeps two content stores, and the recipe that wiped it was in my own memory
 #+filetags: :documentation:docs:astro:memory:known-issue:report:probe:compact:
+#+index: 62
 
 * what happened, in one breath
 

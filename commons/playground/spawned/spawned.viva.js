@@ -4,7 +4,8 @@ export const manifest = {
   type: "playground",
   slug: "spawned",
   name: "Spawned",
-  description: "Render target — a numbered card that reports done via buffer.release().",
+  description:
+    "Render target — a numbered card that reports done via buffer.release().",
   version: "0.1.0",
   traits: ["APPLICATION"],
 };

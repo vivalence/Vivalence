@@ -1,5 +1,6 @@
 #+title: the comments move the mask into paladin, the package lands in the store, and the instance boots from the shelf into an expected 404
 #+filetags: :m53:vcompany:paladin:instance:quest:ledger:registry:doctor:landing:env:callout:mask:shelf:
+#+index: 39
 
 * what happened, in one breath
 

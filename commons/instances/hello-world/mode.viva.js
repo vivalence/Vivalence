@@ -1,30 +1,30 @@
-import { App, Vector, v } from "@vivalence/typology";
+import { App, Vector } from "@vivalence/typology";
+import { doctor, research, web } from "./tools/index.js";
 
 export const manifest = {
   type: "demo",
   slug: "hello-world",
-  traits: ["APPLICATION", "HARNESSED", "EXPOSED", "STANDALONE"],
+  traits: [
+    "HARNESSED",      // mode has access to the daemon's harness
+    "CONVERSATIONAL", // mode can be chatted with
+    "TOOLED",         // mode provides agentic tools
+
+    "EMITTER",        // mode renders ad-hoc buffers
+    "APPLICATION",    // buffers from static svelte
+    "GENERATIVE",     // buffers hallucinated at runtime
+
+    "EXPOSED",        // mode serves http endpoints
+    "STANDALONE",     // mode is an entrypoint on the client
+  ],
 };
 
-export const app = new App("./App.svelte", v.buffer({ data: {} }));
+export const tools = new Vector()
+  .slurp(doctor)
+  .slurp(web)
+  .slurp(research);
 
-export const aperture = new Vector()
-  .open("/hello/bot", async (ctx) => {
-    return { greeting: "Bot says high." };
-  })
-  .open("/hello/agent", async (ctx) => {
-    if (!ctx.daemon.cortex.findOne({ type: "object", via: "render" }))
-      return { greeting: "No hallucinator attached. Bot says high." };
+export const app = new App("./app/App.svelte");
 
-    const { output } = await ctx.mode.harness.object.render({
-      turns: [{ role: "user", parts: [{ type: "text", text: ctx.input.user }] }],
-      output: v.object({ greeting: v.string().desc("Your catchphrase response as HAL9000.") }),
-    });
-    return { greeting: output.object.greeting };
-  });
-
-export const harness = new Vector().use(async (ctx, next) => {
-  ctx.hallucination.system.hello =
-    "You are a demo, demonstrate yourself. If you get greeted, you greet them with HAL9000s famous catchphrase.";
-  await next();
-});
+export { aperture } from "./aperture.js";
+export { harness } from "./harness.js";
+export { emitter, generator } from "./page/index.js";

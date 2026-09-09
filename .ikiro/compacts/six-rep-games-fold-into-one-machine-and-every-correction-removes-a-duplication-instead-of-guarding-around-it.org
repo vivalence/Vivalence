@@ -1,5 +1,6 @@
 #+title: six rep games fold into one machine, and every correction removes a duplication instead of guarding around it
 #+filetags: :rep-o-mat:m24:games:emitter:vector:svelte:conjugation:eval-surface:connoisseur:
+#+index: 26
 
 * the commission
 

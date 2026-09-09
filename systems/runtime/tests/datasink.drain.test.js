@@ -21,8 +21,7 @@ specimen.beforeAll(async () => {
 
   const corpus = await topography.corpus();
   mode = {
-    type: "topography",
-    slug: "fixture",
+    manifest: { type: "topography", slug: "fixture", traits: [] },
     entity: { installed: false },
     module: { mount: corpus, dataset: topography.dataset(), datasink: topography.datasink() },
   };
@@ -114,8 +113,7 @@ specimen.describe("the twitch gate", () => {
     const collected = [];
     const staggered = {
       ...mode,
-      slug: "terminable",
-      traits: ["DATASINK"],
+      manifest: { type: "topography", slug: "terminable", traits: ["DATASINK"] },
       terminators: collected,
       entity: { installed: false },
     };

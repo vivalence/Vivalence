@@ -1,10 +1,13 @@
 #!/bin/bash
 # ikiro red-line enforcement: VCS IS READ-ONLY (git entirely; jj allowlist only).
 # PreToolUse[Bash] hook — "prose is not enforcement"; this is the code under the banner.
-command=$(jq -r '.tool_input.command // empty')
+input=$(cat)
+command=$(jq -r '.tool_input.command // empty' <<<"$input")
+session=$(jq -r '.session_id // "nosession"' <<<"$input")
 
 deny() {
-  jq -n --arg reason "$1" '{
+  printf '%s vcs-guard deny %s\n' "$(date +%s)" "$session" >> "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null
+  jq -n --arg reason "$1 — If this token is PROSE inside a heredoc or script body, write that file with the Write tool and run it by path." '{
     hookSpecificOutput: {
       hookEventName: "PreToolUse",
       permissionDecision: "deny",

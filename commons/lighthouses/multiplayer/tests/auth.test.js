@@ -1,4 +1,4 @@
-import { specimen, Url, Connection } from "@vivalence/typology";
+import { Connection, specimen, Url } from "@vivalence/typology";
 import { shard } from "@vivalence/typology";
 
 const lighthouse = new Connection(

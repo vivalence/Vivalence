@@ -185,6 +185,21 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     });
   });
 
+  it("mounts: every declared *_MOUNT is a scope of its name, and that scope reads exactly that key", async () => {
+    const home = await Deno.makeTempDir();
+    const paladin = mkScoped(home);
+    const keys = Object.keys(paladin.mounts.properties);
+    const flag = (key) => key.slice("VIVA_".length, -"_MOUNT".length).toLowerCase();
+    for (const key of keys) paladin.env.set(key, `${home}/${flag(key)}`, "flag");
+    await populate.scopes(paladin);
+    expect(Object.keys(paladin.scope).sort()).toEqual(keys.map(flag).sort());
+    for (const key of keys) {
+      const record = [];
+      paladin.hydrate(() => paladin.scope[flag(key)], record, flag(key));
+      expect(record[0].read).toEqual([key]);
+    }
+  });
+
   it("a KEY decides secrecy — never the file it arrived in", async () => {
     const paladin = mkScoped(await Deno.makeTempDir());
     const { held, secrets, ignored } = paladin.assign(

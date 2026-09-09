@@ -1,0 +1,199 @@
+#+title: the go lands six rows, the proof finds three defects, a percent sign blocks the verbs, and the tree becomes rows
+#+filetags: :m53:vcompany:vdex:office:harness:emitter:aperture:tools:watcher:twitch:orm:mikro:cascade:paladin:resolve:proof:index:tests:snapshot:quest:
+#+index: 74
+
+* what happened, in one breath
+
+Beef pasted the whole second cut back — h1 · e1 · p1 · t1 · b1 · k1, his own =console.log= added to
+the harness, one =@beef= question left inside the emitter's schema — with three words on top:
+/"you do these now:"/. That is the go. The six rows were written to the shelf as pasted, and then
+PROVEN in the scratchpad before the report, which is where the pass earned its keep: the proof found
+three real defects in my own boot code and one outside the package. The literal's =symbol= fold is an
+UPDATE fact — a row created and linked in one flush folds to ={}=, so every coordinate a new document
+minted was an orphan the moment it appeared. The literal↔symbol m:n carries =Cascade.REMOVE= on BOTH
+sides and cascades over whatever is LOADED, so one file → move → delete in a single scope wiped an
+area, a category and a format symbol; every pass now rides an em fork. And a row's symbol refs carry
+no traits, so the watcher minted bare coordinates that never followed a folder rename. Then
+/"including their testing."/ landed the four test rows — and x1 immediately caught a fifth: =/write=
+was serving the request em's stale row. One blocker survives, outside the package: paladin's =resolve=
+runs paths through =new URL().pathname=, which percent-encodes, and every Johnny.Decimal name has a
+space in it — so =/file= writes =12.05%20Roadmap.md= and four suite steps go red on that one cause.
+He struck the App from the pass (/"ignore the app. new vdex built in parallel. v3."/), then pasted the
+LIVE harness section out of his running daemon and said what he wanted instead of the tree:
+/"i want the full index. not an abbreviation. rows. no indentation format. agent/human optimized"/.
+
+* spine (N=96; rows 1–86 are the seven m53 compacts before this one)
+
+|  n | beef                                                                        | what came of it                                                             |
+|----+-----------------------------------------------------------------------------+-----------------------------------------------------------------------------|
+| 87 | =/compact=                                                                  | NOTHING — the window's own boundary                                          |
+| 88 | the quest =ls=, then /"you do these now:"/ + h1 · e1 · p1 · t1 · b1 · k1 whole | the go: six rows written to the shelf as pasted, then proven in scratch      |
+| 89 | /"including their testing."/                                                | s1 · x1 · x2 · x3 — the four test rows                                       |
+| 90 | the continuation summary (context restored after =/compact=)                | NOTHING — the same instructions arrive again below                          |
+| 91 | /"ignore the app. new vdex built in parallel. v3."/                         | a1 STRUCK; =buffer/= belongs to the sibling's V3 pass                        |
+| 92 | /"including their testing."/ (re-delivered across the fold)                 | same as 89 — executed once                                                   |
+| 93 | /"ignore the app. new vdex built in parallel. v3."/ (re-delivered)          | same as 91                                                                   |
+| 94 | the live daemon paste: restart on file change, =[VDEX] 33 documents=, his =console.log= printing =ctx.hallucination.system= | the harness CONFIRMED live on his JDex; no screen line (no =open= yet — right) |
+| 95 | /"i want the full index. not an abbreviation. rows. no indentation format. agent/human optimized"/ | i1 — =index.js= rewritten as rows; tool valence, doctrine and three test cases follow |
+| 96 | /"ikiro compact"/                                                           | this fold                                                                    |
+
+Coverage: 87–96, ten of ten, none skipped. Rows 92–93 are 89 and 91 arriving a second time across the
+=/compact= boundary — the harness re-delivers a queued message after the context swap; the work was
+done once.
+
+* the go, and what it was (row 88)
+
+He pasted the sections themselves rather than naming ids — the diff IS the go, as always. Two things
+rode inside the paste and were treated as canon rather than as noise:
+
+- his =console.log("ctx.hallucination.system:", ctx.hallucination.system)= in =harness.js=, kept
+  verbatim. It is what produced row 94's evidence an hour later.
+- an =@beef= question inside the emitter's input schema: /"we probably want those schematics on buffer
+  data level no? aka in app."/ — answered in prose, not shipped: yes, dojo's precedent is a =types.js=
+  whose schematics are composed by BOTH the App's =v.buffer({data})= and the emitter inputs; the
+  sketch (one name =open= from tool through buffer) sits in the quest waiting on his word.
+
+Six files landed on the shelf: =harness.js= (role · doctrine · index · screen line) · =emitter/index.js=
+NEW with =EMITTER= in the manifest · =aperture/index.js= (=/file= =/move= =/delete= added, =/open=
+deleted in favour of =/emit/open=, the sibling's =ownPath= delta folded in so a rename in place passes)
+· =tools/index.js= (eight slug verbs over =ctx.mode.call=, an aperture refusal returned as
+=condition: "ERROR"=) · =boot.js= (boot · prune · per-path =sync= · =Deno.watchFs=) · the domain's two
+=prune= methods deleted.
+
+* the proof, and the three defects it found (row 88)
+
+The rule that made this window worth its cost: a scratch suite ran against the package scenario BEFORE
+the report went out. Every one of these was invisible to reading.
+
+- *the fold is an UPDATE fact.* =LiteralSubscriber.beforeCreate= writes =symbol = {}= even when the new
+  row's collection already holds three linked symbols — and it overwrites a =symbol= supplied at create.
+  Only =beforeUpdate= folds from the collection. So =reconcile= touches every fresh row once
+  (=assign({updatedAt})= + flush), which is exactly what the dataset installer's =linkPhase= does.
+  Without it, every document the watcher saw arrive minted a coordinate that the next orphan sweep
+  deleted.
+- *the m:n cascades REMOVE both ways.* =kernel/Literal.ts:100= (=symbols=) and =Symbol.ts:60=
+  (=literals=) both declare =cascade: [Cascade.REMOVE]=, and MikroORM cascades over whatever is
+  INITIALIZED — so the blast radius is the identity map, not the schema. Measured: file → move →
+  delete in one scope removed =vdex.area.10-19= · =vdex.category.12= · =vdex.format.md=. The same
+  remove from a plain =find= is harmless. Every pass now rides =daemon.entities.em.fork()= with
+  repositories by =getEntityName()= — the installer's own habit; the watcher then needs no request
+  context at all, because the ORM subscriber belongs to the orm and twitches for a fork's flush
+  (measured: one =/after/literal/update= for a changed file, none for unchanged bytes).
+- *a row's refs carry no traits.* =load.js row()= names symbols by slug only; the STRUCTURAL + LABELED
+  bodies live on =coordinates(path).symbols=. =upsert= was minting bare symbols (=traits: []=,
+  =trait: {}=) and never followed a folder rename. It now mints from the coordinates, and a coordinate
+  whose PATH moved takes the folder's new name while one that did not move keeps the name its NN.00
+  index gave it.
+
+Ledgered for beef: =runtime-literal-symbol-m-n-cascades-remove-both-ways= in =known-issues.org=,
+symptom · cause · evidence · *no approach* — the cascade is runtime, and the direction is his. The same
+three facts sit in memory as =project_mikro_m_n_cascade_remove_both_ways=.
+
+* r1 — the percent sign that blocks the verbs (rows 88, 89)
+
+=subsystems/paladin/skills/fs.js:10= resolves through =new URL(path, "file://" + base).pathname=. A
+=pathname= is percent-ENCODED: =12.05 Roadmap.md= becomes =12.05%20Roadmap.md=, =ü= becomes
+=%C3%BC=, and =a#b.md= is CUT at the =#=. Every Johnny.Decimal name carries a space, so =/file= wrote a
+percent-named file, the per-path =sync= found nothing at the path it was given, =serve(null)= came back
+and the tool refused; over the wire the same call 404s. Pre-existing — T1's =/write= had it too, and the
+suite never wrote a spaced name.
+
+The fix is one line (=normalize(join(base, path))=) plus one paladin test, measured over fourteen cases:
+escapes still throw, ="." "" "/a.md" "sub/../a.md"= unchanged, ="sub//a.md"= collapses, spaces · unicode
+· =#?= survive. It sits in the quest as its own row and waits on his go — repo code, and the diff was
+shown rather than a row id.
+
+* the tests, and the fifth defect (rows 89, 92)
+
+s1 (the scenario's =company= statics) · x1 (=tools.test.js= whole — seven cases, six refusals) · x2
+(=boot.test.js=: teardown held, =reindex= → =sync=, three watcher cases, and the twitch counted BOTH
+ways: one event for a changed file, zero for the same bytes again) · x3 (the snapshot suite: the screen
+line asserted absent then present across an =/emit/open=, the eight tool names, =/file /move /delete
+/emit/open= over the wire and =/open= gone from the contract).
+
+x1 found the fifth defect on its first run: the aperture's =/write= re-read the row through the REQUEST
+em, whose identity map still held the pre-write hash. It now serves the row the =sync= wrote.
+
+One assertion of mine was wrong and is corrected in the quest rather than in the code: x3 claimed the
+vdex harness would NOT arm =fs_read=. It does — paladin's =fs_*= ride layer ② of the armed stack for
+every mounted mode (=harnessed.js:43-47=), rooted at the PACKAGE directory, not the JDex. Whether the
+vdex should shed that layer is a question for beef, not a defect.
+
+* the App, struck (rows 91, 93)
+
+a1 was in my table as "the App, two row-precise subscriptions". His answer: /"ignore the app. new vdex
+built in parallel. v3."/ — struck from the pass, =buffer/= belongs to the sibling session's
+=m53-vcompany.v3-vdex.org=. Two sessions on one quest, one seam each: this one owns the verbs, that one
+owns the screen.
+
+* the index becomes rows (rows 94, 95)
+
+Row 94 is the first evidence from his own daemon: the runtime restarted on a file change, printed
+=[VDEX] /Users/finn/vivalence/coorporation 33 documents · 17 coordinates · pruned 0/0=, and his
+=console.log= dumped the assembled =system.vdex= — role, doctrine, and the tree with counts per id. No
+screen line, which is correct: no vdex buffer with =data.open= on that thread yet.
+
+Row 95 rejected the tree: /"i want the full index. not an abbreviation. rows. no indentation format.
+agent/human optimized"/. So =index.js= was rewritten whole. Every coordinate and every document, one
+row per line, no indentation, no depth fold, no budget. A coordinate row names a folder; a document row
+is =slug · title= — the slug already carries the id and the format, so an agent greps the exact string
+it will hand to =read= / =open= / =move=, and a human reads a list. An id that is ONE file speaks only
+through its document row. A loose document sits directly under its category. =unfiled= closes it.
+=· not readable= marks a format the mode does not serve. =under= still narrows to one branch.
+
+#+begin_example
+[VDex — <mount>] · rows: a coordinate names a folder · a document is slug · title (the slug carries id and format)
+10-19 viva
+12 goals
+12.notes.md · notes
+12.04.ubiquity-and-a-thin-slice.md · Ubiquity and a Thin Slice
+20-29 koerperschaft
+22 Finance
+22.00.finance-index.md · Finance
+22.04 accounting
+22.04.re24-05277.pdf · RE24-05277
+unfiled
+readme.org · The company
+#+end_example
+
+The depth fold and its =budget= are gone with it: a two-thousand-document JDex now puts two thousand
+rows in the prompt, and that is the index he asked for. A cap, if one is ever wanted, is his to name.
+
+* settlement
+
+- Suite on the shelf: *7 passed (49 steps) · 2 failed (5 steps)* — boot 10/10 (delete · own write ·
+  appears · watcher drop/leave · folder rename · ignored path) · jd 6 · jdex 18 · app 8 · tools 5/7 ·
+  snapshots 3/5. All four red steps are r1 and nothing else.
+- Snapshots recaptured on the run: =vdex-hallucination= (role · doctrine · rows · screen line, the eight
+  verbs plus layer ②) · =vdex-tools= · =vdex-index= (now carrying =narrowed= instead of =folded=) ·
+  =vdex-rows=. =vdex-aperture= recaptures when r1 lands.
+- The quest carries the landed files verbatim (h1 · e1 · p1 · t1 · b1 · i1 blocks replaced from disk),
+  a =landed= section naming every adjustment, the r1 row with its diff, and the i1 row with its render.
+- Nothing under =systems/= or =subsystems/= was touched: r1 is the only repo row and it is gated.
+- Budgets: frontier 7973/8000; MEMORY.md 18061. No dates written.
+- A live SIBLING session still holds the V3 App pass on this same quest, and a third holds m54.
+
+* resumption (owed beef)
+
+- =go r1= — the paladin =resolve= one-liner + its test. Four red steps clear with it, and =/file= starts
+  writing real names.
+- =go d1= — the README line, the last row of T1.1.
+- The =OPEN= schematic on buffer-data level: his question, my sketch, his word.
+- Whether the vdex harness should shed layer ② (=fs_*= armed beside the eight slug verbs).
+- Restart → Gs1/Gs2 click-through; the slow first attach (the boot race under =instance/run=); the
+  bundle weight, ledgered, direction his; s3 Voffice → s4 Desk; =* T1.#2=.
+- The m:n =Cascade.REMOVE= landmine: ledgered without an approach, waiting on him.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                    | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | sessions   |
+|--------------------------+-----------+----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m46-linux-readmen        |  17% 3/18 | wip      | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 6          |
+| m50-the-three-way-weave  |  60% 3/5  | wip      | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m51-standalone-slowstart |   0% 0/18 | design   | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1          |
+| m53-vcompany             |   0% 0/5  | open     | **t1.1** h1 · e1 · p1 · t1 · b1 · k1 + s1 · x1 · x2 · x3 + i1 (the index as rows) landed on the shelf; blocked on **r1** (paladin =resolve= percent-encodes — one-line diff + one test in the quest, his go, repo): the four reds (tools file · move; snapshots tools · aperture) are r1 and nothing else; a1 struck (the app is the sibling's v3); d1 (readme) on go; the =open= schematic on buffer-data level — sketch in "landed", his word; officers out by his order; then **the slow first attach** (the boot race under `instance/run`) → gs1/gs2 click-through after restart; the bundle weight ledgered, direction his; s3 voffice → s4 desk on go; `* t1.#2` his call; the runtime's m:n =cascade.remove= both ways ledgered as a landmine (his)                                                                                                                                                                                                                                                                                                               | 4 (2 live) |
+| m53-vcompany.pre         | —         | open     | t1 package setup — the m27 gate moves to the executive stage; t1–t3 do not wait on it                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1          |
+| m53-vcompany.v3-vdex     | —         | landed   | one restart carries both — the new pdf viewer (=paper.svelte=) and the cargo fix (=freight.js=, uncommitted); then open a spaced-name pdf: it should render, page nav and zoom live, the rail on ▤. the six later items stay marked in the root quest.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 3 (3 live) |
+| m53.v4-mail+calendar     | —         | designed | his go, per mode. =dummy/mail= + =dummy/calendar= first (they are the source both apps read), then =office/email=, then =office/calendar=. nothing under =systems/= or =subsystems/= but one drapes line (=pip= tone =success=, already owed by v3).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 1 (1 live) |
+| m54-buffer-file          |   0% 0/4  | open     | reconcile with m53 =* t1.1= and =m53-vcompany.v3-vdex= first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals  |  20% 3/15 | wip      | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1          |

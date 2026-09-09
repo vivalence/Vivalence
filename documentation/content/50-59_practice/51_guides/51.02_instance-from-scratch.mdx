@@ -313,48 +313,38 @@ The dataset is the mode's starter content: two symbols, two literals, the links 
 
 ```js title="standalone.viva.js — runtime + daemon"
 export const runtime = {
-  slug: "standalone-runtime",
+  manifest: { slug: "standalone-runtime" },
   statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
-  datamap: {
-    module: "@commons/datamap/libsql",
-    statics: { db: { file: `runtime.viva.db` } },
-  },
 };
+
+export const datamap = { module: "@commons/datamap/libsql" };
+
+export const hallucinators = [
+  {
+    module: "@commons/hallucinator/anthropic",
+    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+  },
+];
 
 export const daemons = [
   {
-    manifest: { type: "daemon", slug: "standalone", version: "0.0.1" },
-    docs: { name: "Standalone", valence: "the m39 one-file machine", icon: { emoji: "🃏" } },
+    manifest: { type: "daemon", slug: "standalone", version: "0.0.1", name: "Standalone", description: "the m39 one-file machine", icon: { emoji: "🃏" } },
     kernel: [domain, flashcard],
-    datamap: {
-      module: "@commons/datamap/libsql",
-      statics: { db: { file: `standalone.viva.db` } },
-    },
-    hallucinators: [
-      {
-        module: "@commons/hallucinator/anthropic",
-        secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
-      },
-    ],
   },
 ];
 ```
 
-`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry references (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel, the daemon picks its services: a datamap for persistence, hallucinators for intelligence — identity comes from the instance's `lighthouse` unless the daemon binds its own. Each is a `{module, statics, secrets}` reference — configuration for a module that lives in the registry, resolved at boot. A hallucinator whose secret is blank is *dormant*: dropped from the roster at mount and named by the doctor, so a missing key means a bot answer, never a dead faculty.
+`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry references (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel the daemon declares nothing else: the datamap, the hallucinators and the lighthouse are declared once, at the instance root, and every daemon inherits its own copy — a daemon declares one of them only to override it, whole-slot. Each is a `{module, statics, secrets}` mask — configuration for a module that lives in the registry, resolved at boot. The copy is seated for its daemon: `mountpoint/daemon_standalone/` is its directory, and its database file is named for it, `standalone.viva.db`. A hallucinator whose secret is blank is *dormant*: dropped from the roster at mount and named by the doctor, so a missing key means a bot answer, never a dead faculty.
 
 Note what is *not* here: no ports hardcoded, no keys inline. Every environment read is a thunk into `paladin.env` or `paladin.secret`, and every one hands back a string — the instance schematic mints the `Url`s and fills the `statics` / `consume` slots a recipe leaves out, so the declaration never types or pads anything.
 
 ```js title="standalone.viva.js — services + clients"
 export const services = [
   {
-    slug: "multiplayer",
+    manifest: { type: "service", slug: "multiplayer" },
     module: "@commons/lighthouse/multiplayer",
     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
     statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
-    datamap: {
-      module: "@commons/datamap/libsql",
-      statics: { db: { file: `lighthouse.viva.db` } },
-    },
   },
 ];
 
@@ -363,18 +353,15 @@ export const lighthouse = {
   statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
 };
 
-export const clients = {
-  kajuit: {
-    slug: "kajuit",
-    traits: ["ATTACHED"],
-    statics: {
-      serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE"),
-    },
+export const clients = [
+  {
+    manifest: { type: "client", slug: "kajuit" },
+    statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
   },
-};
+];
 ```
 
-The lighthouse appears twice on purpose. Under `services` it is *hosted*: the instance runs its own identity service, attached inside the runtime's path tree. Under `lighthouse` it is *consumed*: a module and a remote URL, inherited by every daemon. In this instance both point at the same instance — the standalone is self-sufficient — but the split is what lets a fleet of instances share one lighthouse later. The kajuit client is `ATTACHED` the same way: part of this recipe, served alongside.
+The lighthouse appears twice on purpose. Under `services` it is *hosted*: the instance runs its own identity service, attached inside the runtime's path tree. Under `lighthouse` it is *consumed*: a module and a remote URL, inherited by every daemon. In this instance both point at the same instance — the standalone is self-sufficient — but the split is what lets a fleet of instances share one lighthouse later. The hosted service takes the root datamap like a daemon does, seated at `mountpoint/service_multiplayer/` with `multiplayer.viva.db` in it. And every citizen names itself the same way — runtime, client, service, daemon, kernel entry: a `manifest` carrying its `type` and `slug`.
 
 ## environment
 

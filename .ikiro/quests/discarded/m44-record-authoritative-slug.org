@@ -54,7 +54,7 @@ locks/record layer, not just on disk.
   as a list of objects instead iwht slug inlined}"/), then ruled /"keep."/ the map: rows are a
   projection every reader folds in one line; the authority file's job is uniqueness, and a map
   makes slug collision impossible BY CONSTRUCTION.
-- *Bare slug in VIVA_INSTANCE_MOUNT* (the old M4: record lookup + shelf fallback in populate)
+- *Bare slug in VIVA_INSTANCE_MOUNT* (the old M4: record lookup + instance fallback in populate)
   — KILLED: /"can only every be a path. mount is a path type. non negotiatable. always."/
   populate's m41 throw is permanent; slugs enter ONLY through =instance/use=, which resolves
   them via the record and stores the path. M4 recast accordingly.
@@ -72,14 +72,14 @@ locks/record layer, not just on disk.
 - =register()= has THREE callers: =use.js:45=, =init.js:55=, =init.js= =boot()= helper —
   all three gain the catch.
 - =systems/ghost/trajectories/instance/create.js= — post lens-fix arbitration (syntax splits
-  slug/path, pick errors honestly); slug from recipe or basename names the shelf; never writes
+  slug/path, pick errors honestly); slug from recipe or basename names the instance; never writes
   the record. Gains =--slug= + record write + collision. =create.test.js= EXISTS (3 cases).
 - =systems/ghost/trajectories/instance/use.js= — picked slug resolves through
-  =path.instance()= = SHELF GUESS (=instances/<slug>=), the last basename-flavored resolution
+  =path.instance()= = INSTANCE GUESS (=instances/<slug>=), the last basename-flavored resolution
   left; and a no-match bare slug falls back to the same guess. Both DIE into record mount.
 - =subsystems/paladin/lifecycle/populate.js= — bare =VIVA_INSTANCE_MOUNT= THROWS (m41).
   UNTOUCHED by this quest. Forever.
-- =subsystems/paladin/prototypes/ledger/instances.js= — record proto (read/shelf/list/write);
+- =subsystems/paladin/prototypes/ledger/instances.js= — record proto (read/instance/list/write);
   gains =lookup(mount)=, =rename(prior,next)=, =remove(slug)=.
 - =systems/ghost/trajectories/ledger/index.js:181= — doctor =collectInstances=; gains
   dangling/orphan/shadowed checks.
@@ -174,16 +174,16 @@ locks/record layer, not just on disk.
      env: `VIVA_INSTANCE_MOUNT=${destination}`,
    };
 #+END_SRC
-The env hint stays a PATH — mount is a path type, non negotiable. Shelf dir named by slug
+The env hint stays a PATH — mount is a path type, non negotiable. Instance dir named by slug
 remains a *convenience*, never an authority.
 
-** M4 — use resolves a slug through the record, never the shelf
+** M4 — use resolves a slug through the record, never the instance
 (Replaces the dead populate milestone — populate's throw is law, untouched.)
 =use.js=: a picked row carries its mount — take it. =chosen.row.mount= replaces
 =path.instance(chosen.reference)=. A bare slug that matches NO record row is an honest error
-(=no instance '<x>' — viva instance/tap <path> --slug=<x>=), never a shelf guess. Typed paths
-(=local=) keep riding =path.instance()= untouched. =path.instance()='s slug→shelf branch loses
-its last caller in =use=; =shelf()= itself survives (create names shelves with it).
+(=no instance '<x>' — viva instance/tap <path> --slug=<x>=), never an instance guess. Typed paths
+(=local=) keep riding =path.instance()= untouched. =path.instance()='s slug→instance branch loses
+its last caller in =use=; =instance()= itself survives (create names shelves with it).
 
 ** M5 — instance/tap + instance/rename (new trajectories)
 =systems/ghost/trajectories/instance/tap.js= — NEW:
@@ -221,7 +221,7 @@ mount; nothing stales. Wire both into =instance/index.js=.
 ** M6 — doctor grows three checks
 In =collectInstances= (=ledger/index.js:181=): per record entry, =stat(mount)= → *dangling*
 if missing; scan =<ledger>/instances/*= dirs absent from any record mount → *orphan (tap
-it)*; record slug whose shelf dir =instances/<slug>= exists but points elsewhere → *shadowed*.
+it)*; record slug whose instance directory =instances/<slug>= exists but points elsewhere → *shadowed*.
 Report rows, no auto-repair. (No "fallback fired" check — the fallback is dead.)
 
 ** M7 — docs + README

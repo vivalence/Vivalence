@@ -1,5 +1,6 @@
 #+title: the purge quest is remeasured against three remotes and forty stale bookmarks, the kernel takes its own name, and a milestone label leaves its file bare
 #+filetags: :vcs:jj:git:quest:m42:history:kernel:ikiro:readme:memory:callout:compact:
+#+index: 100
 
 * what happened, in one breath
 

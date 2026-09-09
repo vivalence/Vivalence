@@ -1,5 +1,5 @@
 import { dirname, isAbsolute } from "@std/path";
-import { is, cast, Path } from "@vivalence/typology";
+import { is, cast, Path, v } from "@vivalence/typology";
 import { Pensieve } from "./pensieve.js";
 
 export class Vip {
@@ -99,7 +99,16 @@ export class Vip {
     if (is.object(query) && query.manifest && !query.module) return query;
     if (is.object(query) && is.string(query.module)) {
       const service = await this.accio(query.module);
-      return { service, mask: { ...query, statics: { ...(service.statics ?? {}), ...(query.statics ?? {}) } } };
+      const manifest = v.primitives.Manifest.cast({ ...service.manifest, ...(query.manifest ?? {}) });
+      const faults = v.primitives.Manifest.faults(manifest);
+      if (faults.length)
+        throw new Error(
+          `[VIP] ${query.module}: the kernel entry's manifest ${faults.map((fault) => `${fault.at} ${fault.reason}`).join(" · ")}`,
+        );
+      return {
+        service,
+        mask: { ...query, manifest, statics: { ...(service.statics ?? {}), ...(query.statics ?? {}) } },
+      };
     }
     return await this.accio(query);
   }

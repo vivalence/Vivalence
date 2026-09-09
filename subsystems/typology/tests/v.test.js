@@ -88,6 +88,14 @@ specimen.describe("v", () => {
     specimen.expect(v.string().default("X").desc("label").default).toBe("X");
     specimen.expect(v.string().desc("label").default("X").description).toBe("label");
 
+    specimen.expect(v.string().examples("viva instance/run --instance=vivalence").examples)
+      .toEqual(["viva instance/run --instance=vivalence"]);
+    specimen.expect(v.string().examples("a", "b").examples).toEqual(["a", "b"]);
+    specimen.expect(Array.isArray(v.string().examples("only").examples)).toBe(true);
+    specimen.expect(v.string().examples("x").desc("label").examples).toEqual(["x"]);
+    specimen.expect(v.string().examples("x").desc("label").description).toBe("label");
+    specimen.expect(v.string().examples("x").check("anything")).toBe(true);
+
     const optional = v.object({ name: v.string().optional() });
     specimen.expect(optional.check({})).toBe(true);
     specimen.expect(optional.check({ name: "hello" })).toBe(true);
@@ -329,12 +337,18 @@ specimen.describe("v", () => {
 
   specimen.it("instance statics are typed where typology knows the key — serve and remote, everything else rides along", () => {
     const { Runtime, Lighthouse, Client, Service, Daemon } = v.primitives.instance;
-    specimen.expect([...Runtime.errors({ slug: "runtime", statics: { serve: "NaN" } })][0].instancePath).toBe("/statics/serve");
-    specimen.expect([...Runtime.errors({ slug: "runtime", statics: { serve: "http://localhost:2501/", extra: 1 } })].length).toBe(0);
+    const runtime = { slug: "runtime" };
+    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "NaN" } })][0].instancePath).toBe("/statics/serve");
+    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "http://localhost:2501/", extra: 1 } })].length).toBe(0);
     specimen.expect([...Lighthouse.errors({ module: "m", statics: {} })][0].message).toContain("remote");
-    specimen.expect([...Client.errors({ slug: "ghost", statics: {} })].length).toBe(0);
-    specimen.expect([...Service.errors({ slug: "svc", module: "m" })].length).toBe(0);
-    const daemon = { manifest: { type: "daemon", slug: "d", version: "0.0.1" }, datamap: { module: "m" } };
+    specimen.expect([...Client.errors({ manifest: { type: "client", slug: "ghost" }, statics: {} })].length).toBe(0);
+    specimen.expect([...Service.errors(Service.cast({ manifest: { type: "service", slug: "svc" }, module: "m", mountpoint: "/m/service_svc", datamap: { module: "m" } }))].length).toBe(0);
+    const daemon = {
+      manifest: { type: "daemon", slug: "d", version: "0.0.1" },
+      mountpoint: "/m/daemon_d",
+      lighthouse: { module: "m", statics: { remote: "http://lighthouse/" } },
+      datamap: { module: "m" },
+    };
     Daemon.cast(daemon);
     specimen.expect(daemon.hallucinators).toEqual([]);
     specimen.expect(daemon.statics).toEqual({});
@@ -343,7 +357,7 @@ specimen.describe("v", () => {
 
   specimen.it("faults — errors with the scalar's title in place of its regex, addressed by pointer", () => {
     const { Instance } = v.primitives.instance;
-    const faults = Instance.faults({ manifest: { type: "instance", slug: "i" }, runtime: { slug: "runtime", statics: { serve: "nope" } }, daemons: [], services: [], clients: {} });
+    const faults = Instance.faults({ manifest: { type: "instance", slug: "i" }, environment: {}, runtime: { manifest: { slug: "runtime" }, statics: { serve: "nope" } }, daemons: [], services: [], clients: [] });
     specimen.expect(faults).toEqual([{ at: "/runtime/statics/serve", reason: "must be RFC 3986 URI with an authority (scheme://…)" }]);
     specimen.expect(v.faults(v.object({ a: v.string() }), {})).toEqual([{ at: "/", reason: "must have required properties a" }]);
   });

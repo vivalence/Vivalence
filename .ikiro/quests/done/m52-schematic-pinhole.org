@@ -1,6 +1,6 @@
 #+title: m52 schematic pinhole — the recipe declares, the schematic settles: typed statics, faults as data, one hallucinator law
 #+filetags: :typology:paladin:ghost:runtime:instance:schematics:pinhole:doctor:v:
-#+status: LANDED — go 52 (beef: /"go 52. heavy step by step testing."/). M1 · M2 · M3 blasted from =scratchpad/m52.patch= (10 files) + the =settle.test.js= tangle + 7 shelf/education recipes + 3 one-line edges + README re-paste + ledger dossier; suites and the T1–T5 walk in the changelog. ONE amendment found by the walk (T2): ghost =run.js= never MOUNTED the instance, so the =Ledger.boot= gate saw no faults and both children refused at their own gates — =run.js= now mounts before =boot= (one line, back in the blast table). Sunset to =done/= same session. beef owes: commit · education push (=instances/= is untracked in that checkout) · restart the live hello-world.
+#+status: LANDED — go 52 (beef: /"go 52. heavy step by step testing."/). M1 · M2 · M3 blasted from =scratchpad/m52.patch= (10 files) + the =settle.test.js= tangle + 7 instance/education recipes + 3 one-line edges + README re-paste + ledger dossier; suites and the T1–T5 walk in the changelog. ONE amendment found by the walk (T2): ghost =run.js= never MOUNTED the instance, so the =Ledger.boot= gate saw no faults and both children refused at their own gates — =run.js= now mounts before =boot= (one line, back in the blast table). Sunset to =done/= same session. beef owes: commit · education push (=instances/= is untracked in that checkout) · restart the live hello-world.
 #+status: (was) AUTHORED + CRITICAL PASS + SANDBOX GREEN — M1/M2 hunks REGENERATED from the sandbox diff (=scratchpad/m52.patch=, 634 lines, 10 files + =settle.test.js=); F1′ called (labels), F5/F6 as leaned. Nothing blasted in the worktree. M1 (typology, additive) gated per-file on beef (holy layer); M2 (paladin + runtime + ghost + recipes, ONE flag-day by coupling); M3 (README paste). Every mechanism claim below was MEASURED this session by script against typebox 1.3 and the live tree — the numbers are in ~terrain~.
 #+phase: landed (derived)
 #+progress: 100% 13/13 (derived)
@@ -101,7 +101,7 @@ hallucinators: () => null                        YES  — empty roster
 8. *=hallucinators= defaults to =[]=.* So =daemon.hallucinators.filter(alive)= is total and the recipe
    may omit the key entirely.
 9. *=Client.statics.serve= is optional.* Six recipes declare a =ghost= client with empty statics
-   (measured: every shelf + education recipe). =Runtime= and =Service= =serve= are required — a runtime or
+   (measured: every instance + education recipe). =Runtime= and =Service= =serve= are required — a runtime or
    service without an address is a fault, not a warning.
 10. *=launch= untouched.* Its =if (!url) warn-and-return= now covers only "no runtime declared at all"
     (still legal: =Instance.runtime= is optional). A declared runtime without =serve= is a fault and never
@@ -152,7 +152,7 @@ hallucinators: () => null                        YES  — empty roster
   catches a fault there (the wizard shows =boot failed=).
 - recipes carrying the shape (=new Url(paladin.env.get= · the ternary · =statics: {}= · =consume: {}=):
   =commons/instances/hello-world/instance.viva.js= (:8 :19 :25-34 :35 :44 :54 :65) · =README.md= :116-173
-  (byte-verbatim paste) · shelf =~/.viva/instances/{hello-world/instance.viva.js, italian/italian.viva.js
+  (byte-verbatim paste) · instance =~/.viva/instances/{hello-world/instance.viva.js, italian/italian.viva.js
   (:36 :47 :61 :71 :82), language-learning/test.viva.js (:39 :52 :66 :76 :87), stucatch/stucatch.viva.js
   (:16 :29 :43 :53)}= · tapped =~/.viva/registry/education/instances/{italian,spanish,brazilian}/*.viva.js=
   + =daemon.js= (flat =hallucinators= already; =consume.nlp.statics.remote: () => new Url(…)= STAYS — Mask is
@@ -849,7 +849,7 @@ the ternary said, once.
 
 *** every other recipe on this machine ([[feedback_flag_day_radius]])
 
-=~/.viva/instances/hello-world/instance.viva.js= — the shelf copy; the commons diff above applies verbatim.
+=~/.viva/instances/hello-world/instance.viva.js= — the instance copy; the commons diff above applies verbatim.
 
 The six other =*.viva.js= recipes share ONE shape (re-read this session, line-cited below): the same five
 =new Url= sites, one per slot. One hunk set, six files:
@@ -1221,7 +1221,7 @@ the changelog per milestone.
 #+marker_qa: m52/T-run-refuses · revised · first walk: the ghost SPAWNED both children and they refused at their own gates (`Ledger.boot` gate saw an unmounted instance) → `run.js` mounts before `boot`; second walk from a `.env`-less cwd with `VIVA_INSTANCE_MOUNT=…/bare`: `ghost: <8 env sentences>`, faults subsumed, no child, no lock, exit 1
 #+marker_qa: m52/T-dormant-boots · held (partial) · `SECRET_VIVA_ANTHROPIC_API_KEY=""` at the os stratum shadows the ledger: doctor `problems —` `faults —` `dormant daemon[hello].hallucinators[0]`; run BOOTS (runtime 2643 + kajuit 2644 `Status:ALIVE`, `launching on http://localhost:2501/`, lock written, SIGTERM → both exit 0, lock gone); settled roster 0. `/hello/agent = bot` NOT walked — needs an enrolled user
 #+marker_qa: m52/T-live-faculty · held (partial) · ledger key live: settled roster 1, `dormant []`, `faults []`, boots ALIVE, clean teardown. The anthropic answer NOT walked — same reason
-#+marker_qa: m52/T-education-roster · revised · the tapped `@education` instances are not ledger instances (doctor takes a ledger reference); the shelf `italian` (same recipe shape) mounts: 4 dormant, `faults —`, 4 REQUIRED rows (its `.env` holds a blank anthropic line that shadows the ledger — pre-existing footgun, ledger dossier). `has("speech")` NOT walked
+#+marker_qa: m52/T-education-roster · revised · the tapped `@education` instances are not ledger instances (doctor takes a ledger reference); the instance `italian` (same recipe shape) mounts: 4 dormant, `faults —`, 4 REQUIRED rows (its `.env` holds a blank anthropic line that shadows the ledger — pre-existing footgun, ledger dossier). `has("speech")` NOT walked
 #+marker_qa: m52/P-no-ternary · held · 0
 #+marker_qa: m52/P-no-url-mint · held · 7 sites, every one `consume.nlp.statics.remote` (daemon files; deferred — Mask untyped)
 #+marker_qa: m52/P-schema-not-recipe · held · 0
@@ -1476,11 +1476,11 @@ Ghost =run.js= drops out of the blast table. The ledger dossier =.ikiro/world/le
   =url.test.js= =2 passed (21 steps)=, full typology =122 passed (490 steps) | 1 failed= (baseline before: 487
   steps, same red). M2: paladin hunks + =settle.test.js= =1 passed (8 steps)= → paladin =38 passed (161 steps)
   | 0 failed= (snapshots are gitignored, regenerated by the run: =faults= 4 lines in the fixture's empty env,
-  =serve: "null"= where the fixture leaves a key unset); the three one-line edges by =sed=; the 7 shelf/education
+  =serve: "null"= where the fixture leaves a key unset); the three one-line edges by =sed=; the 7 instance/education
   recipes by =sed -E= (BSD sed has no =\|= — first pass replaced the imports only; caught by the residue grep);
   ghost =87 passed (26 steps) | 1 failed= (=two shells=, pre-existing); runtime =53 passed (331 steps) | 1
   failed= (=registry ingest fork 2=, pre-existing). M3: README 109-177 re-pasted, byte-equal. Doctor on every
-  shelf instance mounts (hello-world clean · italian 4 dormant · language-learning 2 REQUIRED · stucatch clean).
+  instance mounts (hello-world clean · italian 4 dormant · language-learning 2 REQUIRED · stucatch clean).
   WALK T1–T5 on a scratch =bare= instance (created, walked, deleted): T2 found the ONE amendment — ghost
   =run.js= mounts before =boot= (hunk above, blast table). Walk incidents, none m52's: the repo-root =.env=
   (cwd stratum) outranks an os-level =VIVA_INSTANCE_MOUNT=, so the first T2 booted the LIVE hello-world for 60 s

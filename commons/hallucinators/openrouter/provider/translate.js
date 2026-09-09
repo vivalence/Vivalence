@@ -1,3 +1,5 @@
+import { shard } from "@vivalence/typology";
+
 const STATES = {
   stop: "complete",
   tool_calls: "tools",
@@ -30,11 +32,10 @@ export function translateTurns(turns) {
 }
 
 function resultToMessage(part) {
-  const spoken = part.output?.message ?? part.output?.object ?? part.output;
   return {
     role: "tool",
     tool_call_id: part.id,
-    content: typeof spoken === "string" ? spoken : JSON.stringify(spoken),
+    content: shard.hallucinate.speak(part.output),
   };
 }
 

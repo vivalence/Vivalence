@@ -1,4 +1,4 @@
-import { Vector, v } from "@vivalence/typology";
+import { v, Vector } from "@vivalence/typology";
 
 const AUTHOR = [
   "Author a COMPLETE Svelte 5 component (runes; props {buffer, terminal}; self-contained;",
@@ -11,10 +11,19 @@ export const emitter = new Vector().open(
   async (ctx) => {
     const response = await ctx.daemon.cortex.hallucinate.dialogue.render({
       system: { author: AUTHOR },
-      turns: [{ role: "user", parts: [{ type: "text", text: ctx.input.brief }] }],
+      turns: [{
+        role: "user",
+        parts: [{ type: "text", text: ctx.input.brief }],
+      }],
     });
-    const view = await ctx.mode.gen.bundle({ kind: "svelte", source: response.output.message });
-    const buffer = await ctx.mode.gen.buffer({ view });
+    const view = await ctx.mode.generator.bundle({
+      kind: "svelte",
+      source: response.output.message,
+    });
+    const buffer = await ctx.daemon.entities.buffer.create({
+      mode: ctx.mode.entity.id,
+      view: view.json,
+    });
     return { condition: "NOMINAL", output: { buffer: [buffer] } };
   },
 );

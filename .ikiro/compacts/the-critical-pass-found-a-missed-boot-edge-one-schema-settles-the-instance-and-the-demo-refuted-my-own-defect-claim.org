@@ -1,5 +1,6 @@
 #+title: the critical pass found a missed boot edge, one schema settles the instance, and the demo refuted my own defect claim
 #+filetags: :paladin:typology:kajuit:instance:schematics:quest:doctor:critical-pass:sandbox:demo:callout:
+#+index: 48
 
 * what happened, in one breath
 

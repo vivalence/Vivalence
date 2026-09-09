@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Permissions | Deno Docs</title>
+    <script>
+    window.__DOCS__ = { version: "2.1" };
+    </script>
+    <style>
+    body {
+      font: 16px system-ui;
+    }
+    </style>
+  </head>
+  <body>
+    <header id="masthead" class="site-header">
+      <a href="/" class="brand">Deno Docs</a>
+      <nav id="primary" class="nav nav-main">
+        <ul>
+          <li><a href="/runtime/fundamentals/">Fundamentals</a></li>
+          <li><a href="/runtime/security/">Security</a></li>
+          <li><a href="/runtime/permissions/">Permissions</a></li>
+          <li><a href="/runtime/testing/">Testing</a></li>
+          <li><a href="/runtime/workspaces/">Workspaces</a></li>
+          <li><a href="/runtime/node/">Node</a></li>
+          <li><a href="/runtime/jsr/">Jsr</a></li>
+          <li><a href="/runtime/deploy/">Deploy</a></li>
+          <li><a href="/runtime/kv/">Kv</a></li>
+          <li><a href="/runtime/cron/">Cron</a></li>
+        </ul>
+      </nav>
+    </header>
+    <div id="shell" class="layout">
+      <aside id="toc" class="sidebar">
+        <h2>On this page</h2>
+        <ul>
+          <li><a href="#read-permissions">Read Permissions</a></li>
+          <li><a href="#write-permissions">Write Permissions</a></li>
+          <li><a href="#net-permissions">Net Permissions</a></li>
+          <li><a href="#env-permissions">Env Permissions</a></li>
+          <li><a href="#run-permissions">Run Permissions</a></li>
+          <li><a href="#ffi-permissions">Ffi Permissions</a></li>
+          <li><a href="#sys-permissions">Sys Permissions</a></li>
+          <li><a href="#all-permissions">All Permissions</a></li>
+        </ul>
+      </aside>
+      <main id="content" class="prose">
+        <article class="doc-body">
+          <h1>Permissions</h1>
+          <p>Deno is secure by default. Unless you specifically enable it, a program run with Deno has no access to sensitive APIs such as file system access, network connectivity, or environment access.</p>
+          <p>Permissions must be granted to a program explicitly by the user through command line flags, or by an interactive permission prompt raised by the runtime when the program first reaches for a resource it has not been granted.</p>
+          <p>This is a departure from the model used by Node.js, where any dependency anywhere in the tree may read your SSH keys the moment it is imported. In Deno the boundary is the process, not the package.</p>
+          <p>Permissions can be granted narrowly. Rather than handing a program the whole filesystem with --allow-read, an allow-list restricts it to the paths it actually needs, and every path outside that list is refused at the syscall boundary.</p>
+          <p>The --allow-net flag accepts an allow-list of hosts and optional ports. A program granted --allow-net=deno.land cannot reach any other origin, so an exfiltration path that a compromised dependency might use simply does not exist.</p>
+          <p>Deno also supports the inverse: --deny-read, --deny-net and their siblings subtract from whatever was granted. A deny flag always wins over an allow flag, which makes it safe to broaden a grant and then carve an exception out of it.</p>
+          <h2>Granting narrowly</h2>
+          <pre><code class="language-sh">deno run --allow-read=/etc --allow-net=deno.land server.ts</code></pre>
+          <p>See the <a href="/runtime/fundamentals/security/">security fundamentals</a> page, the
+      <a href="https://jsr.io/@std/fs">standard library filesystem module</a>, and the
+      <a href="../testing/">testing guide</a> for how permissions interact with the test runner.</p>
+        </article>
+      </main>
+    </div>
+    <footer id="site-footer" class="footer">
+      <p>Copyright the Deno authors. Licensed under MIT.</p>
+      <nav
+        class="nav nav-footer"><a href="/legal/">Legal</a> <a href="https://deno.com/blog">Blog</a></nav>
+    </footer>
+  </body>
+</html>

@@ -1,5 +1,6 @@
 #+title: the transcript teaches the ladder, the domain keeps its slug, and the reviewer is told what it already reviewed
 #+filetags: :francesca:harness:dojo:tools:armed:agentic:domain:generate:anchors:symbols:lookup:lemma:nlp:appraise:review:dedupe:decomposition:show-dont-tell:m38:
+#+index: 133
 #+spine: 344 beef turns in the session (raw 515, 171 queue duplicates collapsed) — this fold walks rows 326–344; rows 1–325 live in compacts 45–47, 50 and 51.
 
 * the walk (rows — every section cites these)

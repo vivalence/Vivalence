@@ -3,7 +3,10 @@ import { OpenAI } from "openai";
 export default (KEY) => {
   if (!KEY) throw new Error("GROQ API key is required");
 
-  const client = new OpenAI({ apiKey: KEY, baseURL: "https://api.groq.com/openai/v1" });
+  const client = new OpenAI({
+    apiKey: KEY,
+    baseURL: "https://api.groq.com/openai/v1",
+  });
 
   return async function groq({ prompt, schema, provider }) {
     const messages = [{ role: "user", content: prompt }];
@@ -19,11 +22,14 @@ export default (KEY) => {
       completion["response_format"] = { type: "json_object" };
       messages.unshift({
         role: "user",
-        content: `Return 1 (one) JSON object. return the applied properties:{} object from this schema: ${JSON.stringify(
-          schema,
-          null,
-          2,
-        )}. apply the properties.`,
+        content:
+          `Return 1 (one) JSON object. return the applied properties:{} object from this schema: ${
+            JSON.stringify(
+              schema,
+              null,
+              2,
+            )
+          }. apply the properties.`,
       });
     }
     // console.log("groq completion", completion);

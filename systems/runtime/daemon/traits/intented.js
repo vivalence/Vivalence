@@ -4,7 +4,11 @@ import { IntentEntity } from "@vivalence/runtime";
 const ensure = async (em, mode, user) => {
   em.setFilterParams("user", { user: user.id });
   for (const intentPojo of mode.module.dataset.intent) {
-    await em.getRepository(IntentEntity).ensure({ ...intentPojo, mode: mode.id, user: user.id });
+    await em.getRepository(IntentEntity).ensure({
+      ...intentPojo,
+      mode: mode.id,
+      user: user.id,
+    });
   }
   await em.flush();
 };

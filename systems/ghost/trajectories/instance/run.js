@@ -1,11 +1,11 @@
-import paladin from "@vivalence/paladin";
+import paladin, { lifecycle } from "@vivalence/paladin";
 import { register, specs } from "./target.js";
 
 const SIGNALS = { 129: "SIGHUP", 130: "SIGINT", 131: "SIGQUIT", 137: "SIGKILL", 143: "SIGTERM" };
 
 export async function run(ctx) {
   const instance = await register();
-  await paladin.instance.mount();
+  await lifecycle.mount(paladin.instance);
   const attachment = ctx.signal.flags?.logged === true ? "logged" : "inherit";
   const die = await paladin.ledger.boot(specs(ctx.signal.params[0]), { instance, attachment });
 

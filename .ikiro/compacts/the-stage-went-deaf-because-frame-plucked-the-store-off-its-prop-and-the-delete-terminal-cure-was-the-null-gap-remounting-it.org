@@ -1,5 +1,6 @@
 #+title: the stage went deaf because Frame plucked the store off its prop — and the delete-terminal cure was the null gap remounting it
 #+filetags: :compact:kajuit:drapes:frame:svelte:terminal:buffer:debugging:
+#+index: 124
 
 * the arc
 

@@ -1,5 +1,6 @@
 #+title: literals all the way down, the domain grows its own fold, and the stairs appear under the map
 #+filetags: :stucatch:runtime:mode:literal:twitch:booted:application:playback:dataset:
+#+index: 14
 
 * what happened, in one breath
 

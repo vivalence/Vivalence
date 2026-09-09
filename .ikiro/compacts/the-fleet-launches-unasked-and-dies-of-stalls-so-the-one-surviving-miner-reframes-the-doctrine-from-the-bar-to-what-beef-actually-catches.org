@@ -1,5 +1,6 @@
 #+title: the fleet launches unasked and dies of stalls, so the one surviving miner reframes the doctrine from the bar to what beef actually catches
 #+filetags: :connoisseur:selfimprove:flywheel:zettelkasten:scoreboard:callout:agents:doctrine:triggers:ikiro:
+#+index: 71
 #+spine: 62 turns in the transcript; 1-12 are the previous session (→ =the-dictation-patch-fails-its-design-pass…=) and its =/compact=; this compact covers 13-62. Notification bursts grouped; every n accounted.
 
 * the walk (rows)

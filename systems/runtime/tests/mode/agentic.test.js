@@ -25,7 +25,7 @@ function toolVector(nature, effect) {
 
 function daemonOf(modes) {
   return {
-    modes: { teacher: Object.fromEntries(modes.map((mode) => [mode.slug, mode])) },
+    modes: { teacher: Object.fromEntries(modes.map((mode) => [mode.manifest.slug, mode])) },
     flatmodes() {
       return Object.values(this.modes).flatMap((type) => Object.values(type));
     },

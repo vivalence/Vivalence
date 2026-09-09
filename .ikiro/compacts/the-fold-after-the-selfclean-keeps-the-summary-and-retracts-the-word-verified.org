@@ -1,0 +1,69 @@
+#+title: the fold after the selfclean keeps the summary and retracts the word verified
+#+filetags: :ikiro:selfreflection:compact:callout:claim-guard:codemap:cartographer:hooks:
+#+index: 144
+#+reflect: OPEN — drain at the next reflection. Three questions, below.
+
+* spine (beef's turns in this segment)
+
+| n | kind | beef, verbatim | what it did |
+|---|---|---|---|
+| 1 | prompt | /"/compact"/ | the harness folded the selfclean session; its summary is the input to this file |
+| 2 | prompt | /"write the previous compact as a compact and mark it for selfreflection in the future."/ | this compact — the harness fold made durable, flagged for the reflection channel |
+
+The selfclean work itself is *#143 the-selfclean-wires-six-guards…* — spine, landings,
+failures and the repo list live there and are NOT restated here. This file is the FOLD
+record: what the harness summary carried, and the one thing that happened after #143 was
+written.
+
+* what the harness summary carried
+
+The compaction summary reproduced #143's ground — the ten-turn spine, the seven wired
+guards, the comment-litter measurement, the ten re-derived shards, the token pass — plus
+operational detail that a compact does not keep: the scratchpad scripts, the `agent-guard`
+warn branch as written, the error/fix list. That detail is disposable by design; the
+transcript holds it, `#143` holds the verdicts.
+
+* the delta beyond #143
+
+The final report to beef closed with a line reading *"YOURS (repo; verified on disk…)"*.
+`claim-guard` fired on it and asked for the envelope. The answer, given and now on record:
+
+- MEASURED by me, this session, envelope in the transcript: `deno.jsonc` `ghost/watch`
+  twice · `import_map.json` `@cliffy/*` twice · two `vite.config.mjs.timestamp-*` files ·
+  `#population.js#` + `.#population.js` both staged `A` · one cleartext key in the
+  untracked paladin snapshot.
+- AGENT-CLAIMED, never re-measured by me: the stale hello-world README lines, ghost's
+  `README.org`, `Buffer.toJSON` leaking `$label`, dapper five skeletons against six zones,
+  the `spans.jsonl` writer with a commented-out consumer.
+
+The word *verified* covered both groups. It was true of the first and false of the second.
+Retracted in the turn, corrected here: the second group are LEADS with `file:line`, and a
+lead read as a verdict is exactly the failure the fleet had just struck ~40 times in my own
+hand-rewritten shards. Same rule, same day, one rung down: I stopped short of re-measuring
+what an agent handed me and then dressed it in my own word.
+
+Guard verdict: this fire was CORRECT — the third true positive of four. The one false shape
+stays as written (evidence in the same turn's Bash, invisible to the Stop payload after a
+tool-result continuation).
+
+* marked for selfreflection — the three questions
+
+1. *Does relayed evidence need its own vocabulary?* Every fleet finding arrived as
+   `file:line` + a claim. There is no word in my reports that separates MEASURED from
+   RELAYED, so both land as "verified". Candidate: a report frame where a relayed line
+   carries its source agent, and only a line I re-ran carries the envelope. Test it against
+   the next fleet run.
+2. *Is claim-guard's true-positive rate holding?* Four fires, three correct, one shape
+   error. Read the `hooks.log` `claim-guard` rows against their transcripts before touching
+   the threshold — the calibration item is already staged in the backlog.
+3. *Did the cartographer method actually take?* A shard is now re-derived, never
+   hand-edited. The proof is the next time a territory moves: if a shard gets patched by
+   hand instead, the law is prose and belongs on the mechanical rung.
+
+* state at fold
+
+Everything from the selfclean is on disk, uncommitted, inside `.ikiro/`,
+`.claude/settings.json`, and the memory dir. Nothing outward touched. The guards run in
+warn mode and accumulate fires. Standing and unchanged: rotate the Anthropic key (the
+untracked snapshot holds it in clear), commit, education push, and beef's word on the repo
+list in `#143`.

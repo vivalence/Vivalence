@@ -1,5 +1,6 @@
 #+title: the standard library becomes commons, the record learns to heal its own dead paths, and an owner rename is walked back line by line
 #+filetags: :registry:commons:paladin:vip:ledger:blast:docker:docs:quest:m47:revert:
+#+index: 125
 
 * what happened, in one breath
 

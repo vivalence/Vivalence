@@ -1,5 +1,6 @@
 #+title: the fourth pass proves one curl kills the daemon, then go time lands all 44 files in the tree
 #+filetags: :m37:converse:dictation:deepgram:review:probe:unhandled-rejection:applied:
+#+index: 72
 
 * spine (window rows 73-83 of an 83-turn session file; 1-11, 12-62, 63-72 hold the prior compacts)
 

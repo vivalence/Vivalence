@@ -10,6 +10,8 @@ export {
   snapToOrientation,
   orientationToSnap,
   snapLabel,
+  A_SIDE,
+  axisFor,
   rectsForOrientation,
   bonesForOrientation,
   readSafeArea,
@@ -20,5 +22,6 @@ export {
 
 export { Bridge, bootLayout, resize, attachViewport, DEFAULT_COMPOSER, FONT_SIZES } from "./bridge.js";
 export * from "./dock.js";
+export * from "./panes.js";
 
 export { Gesture, RADIAL_RADIUS, FLASH_DURATION_MS } from "./gesture.js";

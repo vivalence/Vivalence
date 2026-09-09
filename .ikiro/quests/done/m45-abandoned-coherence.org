@@ -430,7 +430,7 @@ SECRET_VIVA_JWT                  keys       service[multiplayer].secrets.jwt REQ
 VIVA_SERVICE_NLP_PORT            services   —                                documented
 #+END_EXAMPLE
 
-Docs: =32.01= (the mount's five moves), =33.01= (strata table, the shelf, `create` copies),
+Docs: =32.01= (the mount's five moves), =33.01= (strata table, the instance, `create` copies),
 =51.02= (the whole environment section + run flow) all re-render from =environment=, and stop
 mentioning =.env.example= entirely.
 

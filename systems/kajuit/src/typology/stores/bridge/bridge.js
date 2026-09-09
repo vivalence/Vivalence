@@ -87,14 +87,13 @@ export class Bridge {
       ["d", "d.threads", "d.intents", "d.modes", "f", "theme", "fontSize"],
     );
 
-    this.paneSize = store(
+    this.panes = store(
       {
-        d: saved?.paneSize?.d ?? null,
-        e: saved?.paneSize?.e ?? null,
-        f: saved?.paneSize?.f ?? null,
-        panes: saved?.paneSize?.panes ?? { d: true, f: true },
+        open: saved?.panes?.open ?? [true, true, true],
+        fold: saved?.panes?.fold ?? [false, false, false],
+        weight: saved?.panes?.weight ?? [1, 1, 1],
       },
-      ["d", "e", "f", "panes"],
+      ["open", "fold", "weight"],
     );
 
     this.$safeAreaTop = atom(0);
@@ -130,7 +129,7 @@ export class Bridge {
 
   save = () => {
     try {
-      const data = { ...this.layout.toJSON(), view: this.view.toJSON(), paneSize: this.paneSize.toJSON(), composer: this.composer };
+      const data = { ...this.layout.toJSON(), view: this.view.toJSON(), panes: this.panes.toJSON(), composer: this.composer };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (_) {}
   };

@@ -1,5 +1,6 @@
 #+title: the slug quest is sunset on one word, ten markers are probed on a scratch ledger, and ghost.sh overrides the ledger mount you hand it
 #+filetags: :ghost:paladin:ledger:instance:quest:sunset:qa:cli:release:callout:
+#+index: 123
 
 * what happened, in one breath
 

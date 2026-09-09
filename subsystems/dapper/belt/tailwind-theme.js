@@ -15,17 +15,17 @@ const INTERACTIVE_ROLES = [
 const createSkeletonVariant = (level) => {
   const tokens = {
     // structural
-    surface:  `var(--colors-skeleton-${level}-surface)`,
+    surface: `var(--colors-skeleton-${level}-surface)`,
     contrast: `var(--colors-skeleton-${level}-contrast)`,
     boundary: `var(--colors-skeleton-${level}-boundary)`,
     // error box (no states)
-    "error-surface":  `var(--colors-skeleton-${level}-error-surface)`,
+    "error-surface": `var(--colors-skeleton-${level}-error-surface)`,
     "error-contrast": `var(--colors-skeleton-${level}-error-contrast)`,
     "error-boundary": `var(--colors-skeleton-${level}-error-boundary)`,
   };
   for (const role of INTERACTIVE_ROLES) {
-    tokens[`${role}-base`]   = `var(--colors-skeleton-${level}-${role}-base)`;
-    tokens[`${role}-hover`]  = `var(--colors-skeleton-${level}-${role}-hover)`;
+    tokens[`${role}-base`] = `var(--colors-skeleton-${level}-${role}-base)`;
+    tokens[`${role}-hover`] = `var(--colors-skeleton-${level}-${role}-hover)`;
     tokens[`${role}-active`] = `var(--colors-skeleton-${level}-${role}-active)`;
   }
   return tokens;
@@ -176,7 +176,8 @@ export const tailwindClasses = {
           "--tw-prose-invert-bullets": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-invert-hr": "var(--colors-skeleton-3-boundary)",
           "--tw-prose-invert-quotes": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-invert-quote-borders": "var(--colors-skeleton-3-boundary)",
+          "--tw-prose-invert-quote-borders":
+            "var(--colors-skeleton-3-boundary)",
           "--tw-prose-invert-captions": "var(--colors-skeleton-1-contrast)",
           "--tw-prose-invert-code": "var(--colors-skeleton-1-primary-base)",
           "--tw-prose-invert-pre-code": "var(--colors-skeleton-1-contrast)",

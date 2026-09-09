@@ -1,5 +1,6 @@
 #+title: the ledger group collapses to one vector, fork b dies on a client registry, and a dispatch chase ends at a known gap
 #+filetags: :compact:m31:packages:registry:ghost:paladin:vector:
+#+index: 86
 
 * the arc
 

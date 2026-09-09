@@ -1,3 +1,4 @@
-export * from "./entity.js";
-export * from "./buffer.js";
-export * from "./thread.js";
+export * as entity from "./entity.js"; // canonical! new meta! @beef
+export * as buffer from "./buffer.js";
+export * as thread from "./thread.js";
+export * as mode from "./mode.js";

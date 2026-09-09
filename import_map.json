@@ -65,6 +65,12 @@
     "@codemirror/state": "npm:@codemirror/state@6",
     "@codemirror/view": "npm:@codemirror/view@6",
     "@codemirror/lang-javascript": "npm:@codemirror/lang-javascript@6",
+    "@codemirror/language": "npm:@codemirror/language@6",
+    "@codemirror/commands": "npm:@codemirror/commands@6",
+    "@codemirror/search": "npm:@codemirror/search@6",
+    "@codemirror/lang-json": "npm:@codemirror/lang-json@6",
+    "@lezer/markdown": "npm:@lezer/markdown@1",
+    "@lezer/highlight": "npm:@lezer/highlight@1",
     "@replit/codemirror-vim": "npm:@replit/codemirror-vim",
 
     "svelte": "npm:svelte@5.39.6",

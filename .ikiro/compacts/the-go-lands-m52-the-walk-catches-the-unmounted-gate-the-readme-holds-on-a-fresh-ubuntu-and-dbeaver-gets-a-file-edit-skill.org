@@ -1,5 +1,6 @@
 #+title: the go lands m52, the walk catches the unmounted gate, the readme holds on a fresh ubuntu, and dbeaver gets a file-edit skill
 #+filetags: :m52:paladin:typology:ghost:readmen:docker:api:doctor:registry:dbeaver:skill:quest:sunset:walk:
+#+index: 73
 
 * what happened, in one breath
 

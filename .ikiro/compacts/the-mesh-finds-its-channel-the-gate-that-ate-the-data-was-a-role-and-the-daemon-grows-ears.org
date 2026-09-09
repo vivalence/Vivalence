@@ -1,5 +1,6 @@
 #+title: the mesh finds its channel, the gate that ate the data was a role, and the daemon grows ears
 #+filetags: :stucatch:firmware:esp32:runtime:booted:literal:mesh-sim:m43:triage:callout:
+#+index: 88
 
 * what happened, in one breath
 

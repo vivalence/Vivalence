@@ -1,5 +1,6 @@
 #+title: the wake finds a sibling in the quest, the V3 design is read whole, and the vdex pass lands compile-green in scratch, waiting on go
 #+filetags: :m53:vcompany:vdex:screens:design:v3:drapes:kajuit:svelte:quest:sibling:compact:
+#+index: 136
 
 * what happened, in one breath
 

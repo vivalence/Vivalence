@@ -1,8 +1,11 @@
 <script>
   import { getContext } from "svelte";
+  import { stores } from "@vivalence/kajuit";
   import { LIGHTHOUSE } from "$client";
 
   let { rect } = $props();
+
+  const axis = $derived(stores.bridge.axisFor(rect));
 
   const lighthouse = getContext(LIGHTHOUSE);
 
@@ -50,6 +53,7 @@
 
 <div
   class="bone"
+  class:row={axis === "row"}
   style:left="{rect.left}px"
   style:top="{rect.top}px"
   style:width="{rect.width}px"
@@ -57,14 +61,17 @@
 >
   <div class="scanline"></div>
   <div class="endcap"></div>
-  <div class="population">
-    <div class="slot" title={lighthouseTooltip}>
+  <div
+    class="population"
+    style:flex-direction={axis}
+    style:padding={axis === "row" ? "0 14px 0 56px" : "56px 0 14px"}>
+    <div class="slot" style:flex-direction={axis} title={lighthouseTooltip}>
       <span class="status-dot lg" data-status={lighthouseStatus}></span>
       <span class="glyph">L</span>
     </div>
     <div class="rule"></div>
     {#each daemonDots as dot (dot.slug)}
-      <div class="slot" title={dot.hint}>
+      <div class="slot" style:flex-direction={axis} title={dot.hint}>
         <span class="status-dot" data-status={dot.health}></span>
         <span class="glyph">{dot.glyph}</span>
       </div>
@@ -102,6 +109,26 @@
     20%  { opacity: 0.18; }
     100% { transform: translateY(calc(100vh - 100px)); opacity: 0; }
   }
+  .bone.row .scanline {
+    left: 45px;
+    right: auto;
+    top: 0;
+    bottom: 0;
+    width: 8px;
+    height: auto;
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      var(--colors-skeleton-0-primary-base) 50%,
+      transparent 100%
+    );
+    animation: heartbeat-row 4s linear infinite;
+  }
+  @keyframes heartbeat-row {
+    0%   { transform: translateX(0); opacity: 0; }
+    20%  { opacity: 0.18; }
+    100% { transform: translateX(calc(100vw - 100px)); opacity: 0; }
+  }
   @media (prefers-reduced-motion: reduce) {
     .scanline { display: none; }
   }
@@ -116,22 +143,26 @@
     opacity: 0.55;
     pointer-events: none;
   }
+  .bone.row .endcap {
+    left: 47px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1px;
+    height: 12px;
+  }
   .population {
     position: absolute;
     inset: 0;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     gap: 14px;
-    padding: 56px 0 14px;
     pointer-events: none;
     color: var(--colors-skeleton-0-contrast);
     font-family: var(--font-family-code);
   }
   .slot {
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 4px;
     /* .bone/.population are pointer-events:none so the rail doesn't block content behind it;
@@ -151,6 +182,11 @@
     height: 1px;
     background: var(--colors-skeleton-0-boundary);
     opacity: 0.35;
+    flex: 0 0 auto;
+  }
+  .bone.row .rule {
+    width: 1px;
+    height: 16px;
   }
   .status-dot {
     display: inline-block;

@@ -46,13 +46,13 @@ Any instance of Vivalence is made from the same components: a runtime that hosts
 
 ## Integration
 
-As an example: an individual who has Vivalence installed wants to learn Spanish. They pull packages containing the various building blocks of a language-learning daemon (or, more likely, tell their agent to do it).
+As an example: an individual who has Vivalence installed wants to learn Spanish. The user, or more likely an agent on their behalf, pulls packages containing the various building blocks of a language-learning daemon.
 
-The vocabulary-practice domain mode brings the anatomy — what a word or sentence looks like, the memory entities that store retention data, the routines for reviewing an item, a place to pull due or new ones. A corpus mode brings the data — Spanish words, sentences, conjugations, audio. Add in some standard service modes for LLM and datastorage — and you have a system to teach Spanish. 
+The **service** modes come first — datastorage, auth, and an LLM adapter, the same ones every other daemon on the machine already uses. The vocabulary-practice **domain** mode brings the ontology and business logic: what a word or sentence looks like, the memory entities that store retention data, the routines for reviewing an item, a place to pull due or new ones. **Data** arrives as a corpus mode — language bundles are shared in corpora: Spanish words, sentences, conjugations, audio. That is a system to teach Spanish, and none of it was written for this user.
 
-One person prefers flashcard drills. Another wants a conversational agent that practices with them in dialogue. Nobody has to compromise: the surface is yours to shape, and shaping it is as simple as a prompt — your describe your intent to a coding agent, and the agent builds it as a custom mode. The corpus, the domain logic, the services underneath stay untouched and shared. And if you want to learn Latin with your new setup, all you need to do is clone that daemon and exchange the mode carrying the dataset.
+One person prefers flashcard drills. Another wants a conversational agent that practices with them in dialogue. Nobody has to compromise: the **surface** is yours to shape, and shaping it is as simple as a prompt — you describe your intent to a coding agent, and the agent builds it as a custom mode. The corpus, the domain logic, the services underneath stay untouched and shared. And if you want to learn Latin with your new setup, all you need to do is clone that daemon and swap the mode carrying the data.
 
-Same daemons, same domain, different 5%. This is the benefit of everything being a mode.
+Same services, same domain, different 5%. This is the benefit of everything being a mode.
 
 AI makes it trivially cheap to produce a mode: a surface costs a prompt, a domain is within reach of any community that knows its problemspace, and a service is just an adapter to a standard interface. What AI cannot do is provide the shared substrate that keeps it all coherent at scale. Vivalence is that substrate. It's the missing half of the AI story.
 
@@ -64,6 +64,6 @@ Three more good-to-knows:
 
 ## Unit
 
-Vivalence achieves this composability and integration the same way the printing press worked its magic: by articulating the common denominator of text and building everything around it. Before movable type, every scribe wrote their own hand and every region spelled its own dialect; the press forced text through a single unit — the letter — and out of that constraint grew shared spellings, shared grammars, whole standardized languages that millions would learn to read.
+Vivalence achieves this composability and integration the same way the printing press worked its wonder: by articulating the common denominator of text and building everything around it. Before movable type, every scribe wrote their own hand and every region spelled its own dialect; the press forced text through a single unit — the letter — and out of that constraint grew shared spellings, shared grammars, whole standardized languages that millions would learn to read.
 
 In a printing press, everything is a letter. In Vivalence, everything is a mode.

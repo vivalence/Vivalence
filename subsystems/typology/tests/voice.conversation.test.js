@@ -73,7 +73,7 @@ function makeMode() {
   };
 
   return {
-    traits:   ["CONVERSATIONAL", "VOCALIZED"],
+    manifest: { type: "teacher", slug: "voice", traits: ["CONVERSATIONAL", "VOCALIZED"] },
     harness,
     aperture: new Aperture(),
     cortex,
@@ -82,7 +82,7 @@ function makeMode() {
 
 function CONVERSATIONAL(mode) {
   const conversation = new Vector();
-  const vocalized = mode.traits.includes("VOCALIZED");
+  const vocalized = mode.manifest.traits.includes("VOCALIZED");
 
   conversation.branch("dialogue").open("open", async (ctx) => {
     const live = ctx.socket.state.conversation;

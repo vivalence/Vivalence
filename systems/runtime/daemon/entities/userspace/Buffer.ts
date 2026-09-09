@@ -1,4 +1,5 @@
-import { types, Collection, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import { types, Collection, EntitySchema, EntityRepositoryType, type Opt, type Rel } from "@mikro-orm/core";
+import { EventSubscriber, type EventArgs } from "@mikro-orm/core";
 
 import { DataRepository, DataEntity, DataSchema } from "../index.ts";
 import { ModeEntity } from "../index.ts";
@@ -14,24 +15,46 @@ export enum BufferStatusEnum {
   STALE = "STALE",
 }
 
+export enum BufferTraitsEnum {
+  LABELED = "LABELED", // for name and description
+}
+
+export class BufferRepository extends DataRepository {
+  // every query first, the mint last: a query auto-flushes a pending row, and a row flushed
+  // before its seat is taken is named for the wrong index.
+  async create({ thread, literals, symbols, ...fields }: any) {
+    const bound = thread ? await this.em.findOneOrFail(ThreadEntity, thread) : null;
+    const buffer = super.create({
+      ...fields,
+      ...(literals && { literals: await this.em.getRepository(LiteralEntity).findByIdentifiers(literals) }),
+      ...(symbols && { symbols: await this.em.getRepository(SymbolEntity).findByIdentifiers(symbols) }),
+    });
+    bound?.bindBuffer(buffer);
+    return buffer;
+  }
+}
+
 export class BufferEntity extends DataEntity {
   status: BufferStatusEnum & Opt = BufferStatusEnum.PENDING;
   data: any & Opt = {};
   view: any & Opt = null;
   index: number & Opt = 0;
+  traits: BufferTraitsEnum[] & Opt = [];
+  trait: any & Opt = {};
 
   mode!: Rel<ModeEntity>;
   thread?: Rel<ThreadEntity>;
 
   literals = new Collection<LiteralEntity>(this);
   symbols = new Collection<SymbolEntity>(this);
+  [EntityRepositoryType]?: BufferRepository;
 }
 
 export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
   extends: DataSchema,
   name: "Buffer",
   tableName: "Buffer",
-  repository: () => DataRepository,
+  repository: () => BufferRepository,
   abstract: true,
   filters: {
     user: {
@@ -48,6 +71,14 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
     data: { type: types.json, defaultRaw: `'{}'` },
     view: { type: types.json, nullable: true },
     index: { type: types.integer, default: 0 },
+    traits: {
+      items: () => BufferTraitsEnum,
+      enum: true,
+      array: true,
+      defaultRaw: `'[]'`,
+      type: types.json,
+    },
+    trait: { type: types.json, defaultRaw: `'{}'` },
 
     mode: {
       kind: "m:1",
@@ -80,8 +111,24 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
   },
 });
 
+export class BufferSubscriber implements EventSubscriber<BufferEntity> {
+  getSubscribedEntities() {
+    return [BufferEntity];
+  }
+
+  async beforeCreate({ entity, em }: EventArgs<BufferEntity>) {
+    if (entity.traits.includes(BufferTraitsEnum.LABELED)) return;
+    const mode = await em.findOne(ModeEntity, entity.mode);
+    entity.traits = [...entity.traits, BufferTraitsEnum.LABELED];
+    entity.trait = { ...entity.trait, LABELED: { name: `${mode?.slug} #${entity.index}` } };
+  }
+}
+
 export default {
   type: "buffer",
+  traits: BufferTraitsEnum,
   schema: BufferSchema,
   entity: BufferEntity,
+  repository: BufferRepository,
+  subscriber: BufferSubscriber,
 };

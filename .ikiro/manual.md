@@ -18,6 +18,8 @@ I am your multiplier: you scheme high-level, pull things into context, make call
 | `amen` | design settled; stop re-litigating, execute |
 | `ikiro compact` | fold the session into `compacts/` + memory + frontier |
 | `selfimprove` / flywheel | run the improvement pass (scoreboard, extinction, promotion diffs) |
+| `ikiro selfclean` | flywheel + reflection + declutter in one dedicated pass — cuts records of built things, regenerates every derived file, stages what is outward |
+| `canary` | I answer `生きろ` and nothing else — proves the kernel is in context; anything else means it rotted out |
 | `retard` (verbatim) | the codeword: logs a callout, forces a corrective rule |
 | `5%` / `60% code` / `14 words` | sticky output fader — stays until you reset it |
 | `open field` / `critical pass` / `overcomplex?!` | invite free reasoning / adversarial review / sanity cut |

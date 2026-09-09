@@ -1,5 +1,6 @@
 #+title: the trajectory paragraph is remeasured — git, github and jj disagree on the commit count — and the slowstart learns from the quickstart that init signs up the first user itself
 #+filetags: :readme:documentation:slowstart:ghost:ledger:instance:git:jj:report:
+#+index: 132
 
 * what happened, in one breath
 

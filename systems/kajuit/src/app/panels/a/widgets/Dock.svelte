@@ -140,12 +140,7 @@
 
   function launchLabel(row) {
     const managed = ($buffersStore ?? []).find((candidate) => candidate.id === row.id) ?? row;
-    const named = managed?.data?.label ?? managed?.data?.title ?? managed?.label;
-    if (named) return named;
-    const modeId = typeof managed?.mode === "string" ? managed.mode : managed?.mode?.id;
-    const modes = $modeStore?.daemon?.entities?.mode?.$entities?.get() ?? [];
-    const slug = managed?.mode?.slug ?? modes.find((mode) => mode.id === modeId)?.slug;
-    return slug ?? bufferLabel(managed);
+    return bufferLabel(managed);
   }
 
   const coarsePointer = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
@@ -1306,7 +1301,7 @@
     border-color: var(--colors-skeleton-0-danger-base);
   }
   .call.running .call-head {
-    border-color: var(--colors-skeleton-0-warning-base);
+    border-color: var(--colors-skeleton-0-primary-base);
   }
   .call-name {
     flex-shrink: 0;

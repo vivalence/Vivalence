@@ -48,7 +48,7 @@ export async function create(ctx) {
     env: `VIVA_INSTANCE_MOUNT=${destination}`,
   };
 
-  if (ctx.signal.flags?.use) ctx.effect.selected = await ctx.call(["instances/use", destination]);
+  if (ctx.signal.flags?.use) ctx.effect.selected = await ctx.call(["instance/use", destination]);
   if (ctx.signal.flags?.init) {
     paladin.env.set("VIVA_INSTANCE_MOUNT", destination, "flag");
     ctx.effect.initialized = await ctx.call(["instance/init"]);
