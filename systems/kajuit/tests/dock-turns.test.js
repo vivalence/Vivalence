@@ -309,6 +309,16 @@ specimen.describe("toolBuffers", () => {
     specimen.expect(buffers[1].id).toBe("b2");
     specimen.expect(toolBuffers(null).length).toBe(0);
   });
+
+  specimen.it("names a buffer once when render, revise and list all return it — the chips are keyed by id, the newest row wins", () => {
+    const buffers = toolBuffers([
+      { entities: { buffer: [{ id: "b1", label: { name: "draft" } }] } },
+      { entities: { buffer: [{ id: "b1", label: { name: "final" } }] } },
+      { entities: { buffer: [{ id: "b2" }, { id: "b1", label: { name: "final" } }] } },
+    ]);
+    specimen.expect(buffers.map((buffer) => buffer.id)).toEqual(["b1", "b2"]);
+    specimen.expect(buffers[0].label.name).toBe("final");
+  });
 });
 
 specimen.describe("usage", () => {

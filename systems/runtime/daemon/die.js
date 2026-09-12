@@ -56,6 +56,7 @@ export class Die extends Wafer {
   async disintegrate() {
     for (const mode of this.good?.flatmodes?.() ?? [])
       for (const terminate of mode.terminators ?? []) await terminate();
+    await this.good?.entities?.activity?.remove({});
     await this.datamap?.disintegrate();
     this.status.set("stopped");
   }

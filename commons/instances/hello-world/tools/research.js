@@ -11,10 +11,11 @@ export const ROUNDS = 30;
 // which is also what exempts the call from the connection's request timeout.
 export const investigate = async (ctx) =>
   ctx.mode.harness.dialogue.stream({
-    thread: ctx.thread ?? ctx.input?.thread,
+    thread: ctx.thread ?? ctx.input?.thread, //@beef the fallback is a smell: the harness should resolve thread in its own ctx processing and THROW when input carries none. Only a bare cortex.hallucinate needs the caller to supply it. known-issues: harness-does-not-require-thread-in-its-input
     parts: [{ type: "text", text: ctx.input.brief }],
     system: { brief: BRIEF },
     config: { rounds: ROUNDS },
+    controller: ctx.controller?.branch("dialogue"),
   });
 
 export const research = new Vector().open(

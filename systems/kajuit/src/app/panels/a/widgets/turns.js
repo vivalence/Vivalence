@@ -186,10 +186,13 @@ export function toolChannels(tool) {
   return channels.map((channel) => ({ ...channel, summary: channelSummary(channel.value) }));
 }
 
-export const toolBuffers = (tools) =>
-  (tools ?? []).flatMap((tool) =>
-    (tool.entities?.buffer ?? []).filter((buffer) => buffer && typeof buffer === "object"),
-  );
+export const toolBuffers = (tools) => [
+  ...new Map(
+    (tools ?? [])
+      .flatMap((tool) => (tool.entities?.buffer ?? []).filter((buffer) => buffer && typeof buffer === "object"))
+      .map((buffer) => [buffer.id, buffer]),
+  ).values(),
+];
 
 export const turnUsage = (turn) => {
   const usage = turn?.meta?.usage;

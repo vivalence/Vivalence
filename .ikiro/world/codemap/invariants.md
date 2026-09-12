@@ -29,16 +29,17 @@ const config = ({ dbName, contextName, entities, subscribers = [], migrations })
 
 ## trait grammar — declarative metadata, functional dispatch
 
-- **Read a trait as a CLAIM, never a value**: `traits.includes("X")` gates, `trait?.X` may legitimately be `null`. `subsystems/typology/gestalten/shard/trait.js` is the one correct read; panels reaching straight for `row.trait?.NAME` (`systems/kajuit/src/app/panels/f/f.svelte:14`) skip the gate. Prove a trait from the surface it CAUSES.
+- **Read a trait as a CLAIM, never a value**: `traits.includes("X")` gates, `trait?.X` may legitimately be `null`. `v.<entity>.trait(row, NAME)` (`schematics/v.js` entityFactory) is the one correct read for a schema'd trait; panels reaching straight for `row.trait?.NAME` (`systems/kajuit/src/app/panels/f/f.svelte:14`) skip the gate. Prove a trait from the surface it CAUSES.
 
 ```js
-// subsystems/typology/gestalten/shard/trait.js:3-8
-export function claimed(row, name, schema) {
-  const value = row?.traits?.includes(name) ? row.trait?.[name] : undefined;
-  if (!value) return {};
-  if ([...v.errors(schema, value)][0]) return {};
-  return v.cast(schema, value);
-}
+// subsystems/typology/schematics/v.js — entityFactory
+factory.trait = (row, name) => {
+  const schema = factory.traits[name];
+  if (!schema) throw new Error(`[v] ${descriptor.$id} declares no trait ${name}`);
+  const held = row?.traits?.includes(name) ? row.trait?.[name] : undefined;
+  if (!held || [...schema.errors(held)][0]) return {};
+  return schema.cast(held);
+};
 ```
 
 - **`stagger` is TWO-PHASE**: every trait factory runs first, the returned closures only after — a trait may depend on a sibling's aperture without ordering itself.
@@ -105,7 +106,7 @@ await daemon.entities.em.flush();
 
 - **The corpus invariant** — `systems/runtime/tests/stripwire.contract.test.js` reads `tests/snapshots/` as DATA: `it("every wire aperture is a well-formed route contract")`. Green, yet it prints `0/30 modes have an instance vantage` — its drift check is VACUOUS until a booted-daemon `SNAPSHOT_HOT=1` run.
 - **Law → pin.** populate — `repository.populate.test.js` `it("a to-many populate under a to-many where and a limit fetches at most limit rows per query")` · `stagger` — `datasink.drain.test.js:112` `it("hands the daemon a terminator, so a pending settle cannot outlive the datamap")` · emission — `mode/traits.test.js:193` `it("buffer without thread has null thread")` · path≠URL — `typology/tests/freight.test.js:126` `it("a name with a space is a url on the wire and the same file coming back")`.
-- **Pinned nowhere** — beyond subqueries (`symbols-query.test.js:89`) and subscriber lanes (`subscriber.test.js:98`), grep over `subsystems systems commons` + `~/.viva/registry --include=*.test.*` gives `loadStrategy` **→ 0** · `shard.trait.claimed` **→ 0** · barrel-spread **→ 0**.
+- **Pinned nowhere** — beyond subqueries (`symbols-query.test.js:89`) and subscriber lanes (`subscriber.test.js:98`), grep over `subsystems systems commons` + `~/.viva/registry --include=*.test.*` gives `loadStrategy` **→ 0** · barrel-spread **→ 0**. The trait read is pinned: `typology/tests/v.test.js` (claimed · unclaimed · invalid · undeclared throws).
 
 ## where to read the live system
 

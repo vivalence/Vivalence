@@ -9,7 +9,9 @@ const AUTHOR = [
 export const emitter = new Vector().open(
   { nature: "/conjure", input: v.object({ brief: v.string() }) },
   async (ctx) => {
+    const activity = await ctx.daemon.entities.activity.control({ user: ctx.user?.id ?? null, mode: ctx.mode.id, thread: ctx.thread?.id ?? null });
     const response = await ctx.daemon.cortex.hallucinate.dialogue.render({
+      controller: activity.controller,
       system: { author: AUTHOR },
       turns: [{
         role: "user",

@@ -1,4 +1,4 @@
-import { specimen, Vector, Span, NotFound, belt, steer } from "@vivalence/typology";
+import { specimen, Controller, Vector, Span, NotFound, belt, steer } from "@vivalence/typology";
 
 const { state, deliver, dispatch, respond, render, signalOf, nameOf } = belt.hallucinate;
 
@@ -143,8 +143,8 @@ specimen.describe("belt.hallucinate", () => {
   specimen.describe("dispatch", () => {
     specimen.it("routes a signal to its tool, packs the yield channels", async () => {
       const tools = toolVector("lookup", async (ctx) => ({ message: `${ctx.input.query} means house` }));
-      const span = new Span("/test");
-      const settled = await dispatch(tools, [{ type: "tool_use", id: "u1", name: "lookup", input: { query: "casa" } }], span);
+      const controller = new Controller({ stdout: new Span("/test") });
+      const settled = await dispatch({ tools, controller }, [{ type: "tool_use", id: "u1", name: "lookup", input: { query: "casa" } }] );
       specimen.expect(settled).toHaveLength(1);
       specimen.expect(settled[0].result.output.message).toBe("casa means house");
       specimen.expect(settled[0].result.condition).toBe("NOMINAL");
@@ -152,8 +152,8 @@ specimen.describe("belt.hallucinate", () => {
 
     specimen.it("an unknown tool becomes an error result, not a throw", async () => {
       const tools = new Vector();
-      const span = new Span("/test");
-      const settled = await dispatch(tools, [{ type: "tool_use", id: "u1", name: "ghost", input: {} }], span);
+      const controller = new Controller({ stdout: new Span("/test") });
+      const settled = await dispatch({ tools, controller }, [{ type: "tool_use", id: "u1", name: "ghost", input: {} }] );
       specimen.expect(settled[0].result.condition).toBe("ERROR");
       specimen.expect(settled[0].result.output.message.error).toContain("ghost");
     });
@@ -162,23 +162,22 @@ specimen.describe("belt.hallucinate", () => {
       const tools = new Vector();
       tools.open({ nature: "a" }, async () => "A");
       tools.open({ nature: "b" }, async () => "B");
-      const span = new Span("/test");
+      const controller = new Controller({ stdout: new Span("/test") });
       const settled = await dispatch(
-        tools,
+        { tools, controller },
         [
           { type: "tool_use", id: "u1", name: "a", input: {} },
           { type: "tool_use", id: "u2", name: "b", input: {} },
         ],
-        span,
       );
       specimen.expect(settled.map((entry) => entry.result.output.message)).toEqual(["A", "B"]);
     });
 
     specimen.it("marks a span branch per tool", async () => {
       const tools = toolVector("lookup", async () => "ok");
-      const span = new Span("/test");
-      await dispatch(tools, [{ type: "tool_use", id: "u1", name: "lookup", input: { q: 1 } }], span);
-      const opened = span.records.find((record) => record.verb === "open" && record.path.endsWith("/lookup"));
+      const controller = new Controller({ stdout: new Span("/test") });
+      await dispatch({ tools, controller }, [{ type: "tool_use", id: "u1", name: "lookup", input: { q: 1 } }]);
+      const opened = controller.stdout.records.find((record) => record.verb === "open" && record.path.endsWith("/lookup"));
       specimen.expect(opened).toBeDefined();
       specimen.expect(opened.data.input).toEqual({ q: 1 });
     });
@@ -188,7 +187,7 @@ specimen.describe("belt.hallucinate", () => {
     specimen.it("emits open→close for a complete render, exactly one /response/close", async () => {
       const { faculty } = scriptedFaculty([sealed("hello")]);
       const events = [];
-      for await (const event of respond(faculty, "render", { turns: [userTurn("hi")] }, { rounds: 5, backoff: [], tools: new Vector() }))
+      for await (const event of respond(faculty, "render", { turns: [userTurn("hi")] }, { rounds: 5, backoff: [], tools: new Vector(), controller: new Controller() }))
         events.push(event);
       const closes = events.filter((event) => event.event === "/response/close");
       specimen.expect(closes).toHaveLength(1);
@@ -203,7 +202,7 @@ specimen.describe("belt.hallucinate", () => {
       ]);
       const tools = toolVector("lookup", async () => ({ message: "house" }));
       const events = [];
-      for await (const event of respond(faculty, "render", { turns: [userTurn("what is casa")] }, { rounds: 5, backoff: [], tools }))
+      for await (const event of respond(faculty, "render", { turns: [userTurn("what is casa")] }, { rounds: 5, backoff: [], tools, controller: new Controller() }))
         events.push(event.event);
       specimen.expect(events).toContain("/tool/call");
       specimen.expect(events).toContain("/tool/yield");
@@ -219,7 +218,7 @@ specimen.describe("belt.hallucinate", () => {
       ]);
       const tools = toolVector("loop", async () => "again");
       let close = null;
-      for await (const event of respond(faculty, "render", { turns: [userTurn("go")] }, { rounds: 2, backoff: [], tools }))
+      for await (const event of respond(faculty, "render", { turns: [userTurn("go")] }, { rounds: 2, backoff: [], tools, controller: new Controller() }))
         if (event.event === "/response/close") close = event;
       specimen.expect(close.meta.state).toBe("length");
       specimen.expect(close.meta.rounds).toBe(2);
@@ -235,7 +234,7 @@ specimen.describe("belt.hallucinate", () => {
         },
       };
       let close = null;
-      for await (const event of respond(faculty, "render", { turns: [userTurn("hi")] }, { rounds: 3, backoff: [], tools: new Vector() }))
+      for await (const event of respond(faculty, "render", { turns: [userTurn("hi")] }, { rounds: 3, backoff: [], tools: new Vector(), controller: new Controller() }))
         if (event.event === "/response/close") close = event;
       specimen.expect(close.meta.state).toBe("error");
     });
@@ -248,7 +247,7 @@ specimen.describe("belt.hallucinate", () => {
         sealed("casa means house"),
       ]);
       const tools = toolVector("lookup", async () => ({ message: "house", buffer: [{ id: "b1" }] }));
-      const folded = await render(faculty, { turns: [userTurn("what is casa")] }, { rounds: 5, backoff: [], tools });
+      const folded = await render(faculty, { turns: [userTurn("what is casa")] }, { rounds: 5, backoff: [], tools, controller: new Controller() });
       specimen.expect(folded.meta.state).toBe("complete");
       specimen.expect(folded.output.message).toBe("casa means house");
       specimen.expect(folded.output.buffer).toHaveLength(1);
@@ -259,7 +258,7 @@ specimen.describe("belt.hallucinate", () => {
       const faculty = { type: "dialogue", via: { render: async () => { throw new Error("down"); } } };
       let thrown = null;
       try {
-        await render(faculty, { turns: [userTurn("hi")] }, { rounds: 2, backoff: [], tools: new Vector() });
+        await render(faculty, { turns: [userTurn("hi")] }, { rounds: 2, backoff: [], tools: new Vector(), controller: new Controller() });
       } catch (error) {
         thrown = error;
       }
@@ -277,7 +276,7 @@ specimen.describe("belt.hallucinate", () => {
       };
       let thrown = null;
       try {
-        await render(refused, { turns: [userTurn("hi")] }, { rounds: 2, backoff: [], tools: new Vector() });
+        await render(refused, { turns: [userTurn("hi")] }, { rounds: 2, backoff: [], tools: new Vector(), controller: new Controller() });
       } catch (error) {
         thrown = error;
       }
@@ -287,7 +286,7 @@ specimen.describe("belt.hallucinate", () => {
       const plain = { type: "dialogue", via: { render: async () => { throw new Error("down"); } } };
       thrown = null;
       try {
-        await render(plain, { turns: [userTurn("hi")] }, { rounds: 2, backoff: [], tools: new Vector() });
+        await render(plain, { turns: [userTurn("hi")] }, { rounds: 2, backoff: [], tools: new Vector(), controller: new Controller() });
       } catch (error) {
         thrown = error;
       }

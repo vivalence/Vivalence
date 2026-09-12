@@ -80,6 +80,23 @@ specimen.describe("Pipe", () => {
     specimen.expect(seen).toEqual(["a", "b", "c"]);
   });
 
+  specimen.it("a replay yields the backlog, then everything sent after — no gap, no repeat", async () => {
+    const pipe = new Pipe();
+    const cut = new AbortController();
+    const seen = [];
+    const reading = (async () => {
+      for await (const value of pipe.replay(["a", "b"], cut.signal)) seen.push(value);
+    })();
+    pipe.send("c");
+    await Promise.resolve();
+    pipe.send("d");
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    cut.abort();
+    await reading;
+    specimen.expect(seen).toEqual(["a", "b", "c", "d"]);
+    specimen.expect(pipe.listeners.size).toBe(0);
+  });
+
   specimen.it("a reactive holds the latest and folds the history", () => {
     const pipe = new Pipe();
     const latest = pipe.reactive();

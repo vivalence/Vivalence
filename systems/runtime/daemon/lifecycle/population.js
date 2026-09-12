@@ -1,9 +1,9 @@
 import paladin from "@vivalence/paladin";
 import { EntitySchema, wrap } from "@mikro-orm/core";
 
-import { Aperture, Cortex, Mode, Path, shard, Url, v, Vector } from "@vivalence/typology";
+import { Aperture, Mode, Path, shard, Url, v, Vector } from "@vivalence/typology";
 import { array, is, shape, steer } from "@vivalence/typology";
-import { DataRepository, sets } from "@vivalence/runtime";
+import { ActivityEntity, ActivityRepository, DataRepository, sets } from "@vivalence/runtime";
 
 import * as traits from "../traits/index.js";
 
@@ -58,7 +58,7 @@ export async function core(die) {
           }),
         };
 
-  const instance = collate([sets.daemon, sets.kernel, sets.userspace, die.good.domain.entities]) //
+  const instance = collate([sets.daemon, sets.kernel, sets.userspace, sets.transient, die.good.domain.entities]) //
     .map(seal);
 
   die.instance.subscribers = [...new Set(instance.flatMap((slot) => [...slot.subscribers]))];
@@ -78,6 +78,7 @@ export async function datamap(daemonDie) {
   );
 
   daemonDie.good.entities = daemonDie.datamap.entities;
+  daemonDie.good.entities.activity = new ActivityRepository(daemonDie.datamap.entities.em, ActivityEntity);
   daemonDie.good.datamap = daemonDie.datamap;
 
   daemonDie.good.twitch.branch("/after").use(shard.datamap.detached(daemonDie.datamap));
@@ -103,10 +104,7 @@ export async function authority(daemonDie) {
 }
 
 export async function acid(daemonDie) {
-  daemonDie.good.cortex = new Cortex();
-
   for (const [index, { service, mask }] of (daemonDie.register.hallucinators ?? []).entries()) {
-    const at = `daemon[${daemonDie.slug}].hallucinators[${index}]`;
     try {
       const faculties = await service.provider(mask);
       daemonDie.good.cortex.register(
@@ -114,6 +112,7 @@ export async function acid(daemonDie) {
       );
       // console.log({ mask, service, faculties });
     } catch (error) {
+      const at = `daemon[${daemonDie.slug}].hallucinators[${index}]`;
       console.warn(`[provider] ${at} ${service.manifest.slug} refused — ${error.message}`);
     }
   }

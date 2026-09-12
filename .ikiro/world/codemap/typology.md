@@ -1,7 +1,7 @@
 ---
 paths: ["subsystems/typology/**", "systems/runtime/**", "systems/kajuit/**", "systems/ghost/**"]
 ---
-<!-- writer: agent · derived-from: 274 files; prototypes; gestalten; schematics; 91 tests; snapshots · verified: 8 probes (arity·use-order·segment-order·cast·enhance·is.vector·strip·span); greps: mikro·Deno.·barrel; tests: 91 files/467 it/16 fixtures, 2 run green · limit: 22000 chars -->
+<!-- writer: agent · derived-from: 274 files; prototypes; gestalten; schematics; 91 tests; snapshots · verified: 8 probes (arity·use-order·segment-order·cast·enhance·is.vector·strip·span); greps: mikro·Deno.·barrel; tests: 91 files/467 it/16 fixtures, 2 run green · limit: 22000 chars · revised: armed stack · trait read · hal split · stop path -->
 # codemap: typology — the library (HOLY — ask before touching core types)
 
 `readme.org`: *"Less is More, Code is Data, Schema is God."* Canon → [[connoisseur]]. Tree: `prototypes/` 44 files, 57 nouns · `gestalten/` 9 namespaces (`is cast not fromm belt shard steer shape bundle`) · `schematics/` · `specimen/`.
@@ -12,7 +12,7 @@ paths: ["subsystems/typology/**", "systems/runtime/**", "systems/kajuit/**", "sy
 - **IDENTITY IS COMPUTED ONCE.** `get hash` memoizes into `#hash`; only `from()` clears it. [[project_signature_identity_memo]]
 - **`branch()` MUTATES the parent** — it pushes the child into `gauges`. Never reuse a Path you branched: probe printed `new Path("/a")` after `.branch("b").branch("c")` carrying `gauges: ["/b","/c"]`.
 - **ADOPTION IS EXCLUSIVE.** Coercing a foreign Signature copies `nature` only — probe: `new Path(new Signature("x"))` → `nature "x"`, the foreign node's `gauges` stayed `0`. Identity, never linkage.
-- `Signal` ALSO tokenizes CLI flags (`--k=v`, `-abc`, `--`) onto the LAST segment — ghost dispatches argv as one Signal. `ToolCall` is the same spine joined by `_`: the agentic tool-name grammar.
+- `Signal` ALSO tokenizes CLI flags onto the LAST segment; `ToolCall` is the same spine joined by `_` — the tool-name grammar.
 
 ```js
 // subsystems/typology/prototypes/signature.js:38-44,72-74
@@ -34,7 +34,7 @@ get hash() { return (this.#hash ??= this.hasher()); }
 
 - **`prototypes/vector.js`** — `.open(sig,fn)`/`.use(mw)`/`.branch`/`.slurp` declare effects + middleware against Signature paths. The Vector is INERT until an interpreter folds it (`shape.*` or a `steer` strategy): one structure, many interpreters. ONE `effect` per node; a node may be both leaf and branch. `affect` is `open`'s guarded twin — it refuses a second write.
 - The trie is REALIZED: `trie: Map<nature, {pattern, trajectory}>`, O(1) by nature, **declaration order immovable — a collision holds its slot** (`tests/vector.test.js`). LAW: leaf metadata (`input`/`output`/`valence`/`yields`/`feeds`) rides the EDGE — the Pattern — never the Vector node.
-- `slurp` SHARES (a collision mints a fresh node merging both sides, keyed by the LATER pattern; neither source mutated) · `swallow` OWNS (recurses into the existing branch). `set()` is deprecated and logs.
+- `slurp` SHARES (a collision mints a fresh merged node; neither source mutated) · `swallow` OWNS (recurses into the existing branch).
 - **`is.vector` is dead**: `is/prototypes.js:14` demands `thing.nature`, which no Vector has — probe returned `false` for a root AND a branched Vector; zero consumers. Use `is.Vector`.
 - **Aperture** = Vector + a method-keyed leaf fold: `get/post/…` wrap the tip's effect in a `methods()` dispatcher (`fn.methods = map`), 405 on a miss, throw on an ambiguous `"*"`.
 
@@ -134,12 +134,13 @@ mark(verb, data) {
 
 ## Cortex + Hallucination — the provider seam
 
+- **Tune resolves TWICE over the wire**: the client's wired Cortex picks from the `/metadata/cortex` strip, `/cortex/{render,stream}` re-runs `findOne({type,tune,via})` daemon-side (`daemon/aperture/cortex.js`) — the daemon's pick wins.
 - **Cortex** (`prototypes/cortex.js`) is a faculty REGISTRY, `Map<type, Faculty[]>`. `register/find/findOne` share one validated `where()` (`{type?, via?, tune}`); a 3-long `tune` pads to 4. `findOne` picks by `recipe.nearest`, else `DERIVATIONS` — whose only entry is `object → dialogue/render`. A tune is `[intelligence, reasoning, speed, thrift]`.
-- **`Hallucination(cortex)`** — a closure factory, ONE argument. It builds an internal Vector `/{dialogue,object}/{stream,render}` + `/verbatim/stream` + `/speech/{stream,render}` and returns `shape.object(…, steer.strategy.echo)`; `cortex.hallucinate` memoizes it.
+- **`Hallucination(cortex)`** — a closure factory, ONE argument, ASSEMBLY ONLY (27 lines): `/{dialogue,object}/{stream,render}` + `/verbatim/stream` + `/speech/{stream,render}` → `shape.object(…, steer.strategy.echo)`; `cortex.hallucinate` memoizes it. Leaves `(ctx,next)` in `shard/hallucinate.js` (`lowering · sourcing · policyOf · rendering · streaming`), engine in `belt/hallucinate.js` (`respond · deliver · dispatch · render · speak`), mode leaves in `shard/hal.js`. Every call mints its own root `Span("/hallucination")` — nested calls never join.
 - **`policy` is the app-side half, STRIPPED by the lowering** (`rounds` = the per-turn tool limit, default 10; `backoff` `[1000,4000]`; `tune`). A `tools` VECTOR is cut to a wire catalog by `trie.rollup` + `ToolCall` naming and never crosses. What crosses is the Request.
 
 ```js
-// subsystems/typology/prototypes/hallucination.js:48-69,126-134 (trimmed)
+// subsystems/typology/gestalten/shard/hallucinate.js:46-69 · prototypes/hallucination.js:7-13 (trimmed)
 const lowering = async (ctx, next) => {          // request = ctx.input ?? {}
   const catalog = is.Vector(request.tools) ? declarations(request.tools) : (request.tools ?? []);
   ctx.policy = policing(request); ctx.span = new Span("/hallucination");
@@ -190,7 +191,7 @@ if (prop === "cast") return (value) => (Value.Default(target, value), Value.Conv
 
 91 `*.test.*` · 467 `it(` · 12 snapshot tests · 16 fixtures. Harness = `specimen/` (`@std/testing` + `matches(schema)` + `snapshot`, `locate` REQUIRED); per-concept `--watch` tasks: `subsystems/typology/deno.jsonc`. One file: `deno test -A --config deno.jsonc <path>`.
 
-- **Signature** `tests/toolcall.test.js` *"construction from a foreign Signature adopts identity, never linkage"* · `tests/path.test.js` *"branching a child never grows the parent (the daemon-mount crash)"*. `#hash`'s memo is UNPINNED — `grep -rn hash tests` → `is.string(route.hash)`.
+- **Signature** `tests/toolcall.test.js` *"construction from a foreign Signature adopts identity, never linkage"*. `#hash`'s memo is UNPINNED — `grep -rn hash tests` → `is.string(route.hash)`.
 - **Vector · steer** `tests/vector.test.js` *"the trie keys by nature: one edge per sibling nature, declaration order immovable — a collision holds its slot"* · 21 `it` in `tests/gestalten/steer/`. GAP: the dispatch-vs-tree `use` asymmetry this shard probes is pinned NOWHERE — `invoke.test.js` covers a ROOT `use` only.
 
 ```js
@@ -213,11 +214,11 @@ for (const [name, side] of Object.entries(sides())) specimen.describe(`stripwire
 
 - **Hallucination · `v`** `hallucination.test.js` 17 `it` — *"a tools Vector on the request is LOWERED to the wire catalog and dispatched"* · `v.test.js` 19 `it` — *"environment hands back PLAIN properties — an unset default is undefined, never the setter"*.
 - **A fixture is a WITNESS, not a golden.** 11 of the 12 `*.snapshot.test.js` hold `const DRY = false` and REWRITE `tests/snapshots/*.json` every run; drift lands silently. Only `hallucination.snapshot.test.js` freezes (`expect(pojo).toEqual(frozen)`, rewritten only under `SNAPSHOT_HOT=1`), so its 5 fixtures are the only diffable ones. Regenerate: `deno task typology/test/snapshots`.
-- **gaps**, each grep → 0 in `tests/`, repo-wide, and in `~/.viva/registry`: `Blacklist` `Scope` `Seek` `Wafer` `TurnDescriptor`. `Action` `Cargo` `Status` live only downstream (kajuit · paladin · multiplayer). `shape.messenger`, `shard.receiver` → 0 everywhere; `shard.caching` → 0 repo-wide, **2 in `~/.viva/registry`**.
+- **gaps**, each grep → 0 in `tests/`, repo-wide, and in `~/.viva/registry`: `Blacklist` `Scope` `Seek` `Wafer` `TurnDescriptor`. `shape.messenger`, `shard.receiver` → 0 everywhere.
 
 ## the barrel law, the client half
 
-- **DAEMON-DEPENDENT EFFECTS DO NOT LIVE IN TYPOLOGY.** 59 non-test source files import their OWN barrel `@vivalence/typology`, so a module evaluated before the barrel finishes sees `undefined` — which ones is the runner's choice (deno green, vite 500). No eval-time Vector/`v` construction inside it; skills and entities live downstream in `systems/runtime/daemon/`. Thunk idiom: `schematics/prototypes/yield.js`. [[project_bundle_tree_shaking]]
+- **DAEMON-DEPENDENT EFFECTS DO NOT LIVE IN TYPOLOGY.** 59 non-test source files import their OWN barrel `@vivalence/typology`, so a module evaluated before the barrel finishes sees `undefined`. No eval-time Vector/`v` construction inside it; skills and entities live downstream in `systems/runtime/daemon/`. Thunk idiom: `schematics/prototypes/yield.js`. [[project_bundle_tree_shaking]]
 - **The prototypes/ seam holds**: `grep -n "Deno\." prototypes/*.js` finds one commented line (`url.js:233`), nothing live. **Zero MikroORM imports anywhere in typology** — only comments, tests, and `specimen/snapshot.js` duck-typing a Collection via `getItems`.
 - `mod.client.js` = the browser half: no `mode`/`dataset`/`datasink`/`freight`, and 10 of 16 shard namespaces (no `datamap ambient receiver hal trait hallucinate`). Buffer-views import ONLY it.
 
@@ -225,5 +226,5 @@ for (const [name, side] of Object.entries(sides())) specimen.describe(`stripwire
 
 - **Spans are the ONE runtime tap typology owns.** `gestalten/shard/track.js` is the whole emitter surface: `track.span(name, pipe)` opens/closes a `Span` per request and re-parents `ctx.span`; `track.request()` marks `{method, path, status}`; `track.subject` marks the row touched. `belt/hallucinate.js` `dispatch` marks `open {input}` per tool call; `socket.js:152,189` mark `error {status}` per frame.
 - To SEE them: `span.to(sink)` (or `belt.trace.hold(sink)` / `decant`), then fold with `belt.trace`: `chronicle` → a story, `dictate` → records again, `live(span)` → a reactive story, `timing`/`faulty`/`slower(ms)` → verdicts. Anything named `drain(` is the CHANNEL family, not telemetry: `Queue`, `Pool`, `soma`.
-- **No log files, `/status` or doctor verb here** — those taps are runtime's and paladin's; the one exposed surface is `shape.strip` behind `/metadata/*`.
-- **31 live `console.*` in source** (grep `prototypes gestalten schematics specimen`, comments excluded). Worth knowing: `prototypes/vector.js:45,51` — "vector already affected" / "vector.set() is depracated", the two silent-misuse warnings; `socket.js:87,122,127,151,216` — every rejected or unroutable multiplex packet; `shape/connection.js:8` — the `*`/`(.*)` drop; `stall.js:14,63` — every release, every swallowed pull error.
+- No log files, `/status` or doctor here — the one exposed surface is `shape.strip` behind `/metadata/*`.
+- **31 live `console.*` in source** (grep `prototypes gestalten schematics specimen`, comments excluded). Worth knowing: `vector.js:45,51` (silent misuse) · `socket.js:87,122,127,151,216` (rejected packets) · `shape/connection.js:8` (`*` drop) · `stall.js:14,63`.

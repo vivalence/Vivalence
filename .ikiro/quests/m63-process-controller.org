@@ -1,0 +1,474 @@
+#+title: m63 the controller — { status · stdout · stdin · abort }: one span, one fold, one tree; the machine declared in v
+#+filetags: :m63:typology:controller:span:status:vector:signal:abort:schematics:v:hallucination:socket:m62:
+#+status: DESIGNED, tangleable. `:tangle` blocks are new files; `* hunks` are edits owed. Nothing landed — prototypes/ and schematics/ gated.
+#+progress: — (derived)
+#+phase: designed
+#+next: beef — rule the overlap with m65, which now tangles primitives/controller.js · errors/controller.js · prototypes/controller.js; m63 keeps the graph and the socket line
+
+* schematic
+
+#+BEGIN_SRC js :tangle ../../subsystems/typology/schematics/prototypes/controller.js @beef should be t/schematics/primitives/controller.js
+import { v } from "../v.js"; //@beef there is an open question for me regarding the naming. we dont export to prototyeps. its the control primitives namespace. 
+// Process Control Semantics:
+const machine = {
+  states: {
+    IDLE: {}, RUNNING: {}, PAUSED: {}, STOPPING: {},
+    DONE: { settled: "fulfil" },
+    STOPPED: { settled: "reject" }, FAILED: { settled: "reject" }, ABORTED: { settled: "reject" },
+  },
+  verbs: {
+    open: {}, pause: {}, resume: {}, close: {},
+    stop: { error: "STOPPED" }, fault: { error: "FAILED" }, abort: { error: "ABORTED" },
+  },
+  transitions: {
+    open:   { IDLE: "RUNNING" },
+    pause:  { RUNNING: "PAUSED" },
+    resume: { PAUSED: "RUNNING" },
+    stop:   { RUNNING: "STOPPING", PAUSED: "STOPPING" },
+    close:  { RUNNING: "DONE", PAUSED: "DONE", STOPPING: "STOPPED" },
+    fault:  { IDLE: "FAILED", RUNNING: "FAILED", PAUSED: "FAILED", STOPPING: "FAILED" },
+    abort:  { IDLE: "ABORTED", RUNNING: "ABORTED", PAUSED: "ABORTED", STOPPING: "ABORTED" },
+  },
+  signals: { SIGTERM: "stop", SIGSTOP: "pause", SIGCONT: "resume", SIGKILL: null },
+};
+
+export const State = v.enum(Object.keys(machine.states))
+  .desc("Where a controlled run stands — four live, four settled. Example: \"STOPPING\"");
+
+export const Verb = v.enum(Object.keys(machine.verbs))
+  .desc("A control mark on the controller's own span; any other verb is recorded and moves nothing. Example: \"stop\"");
+
+export const Signal = v.enum(["SIGTERM", "SIGKILL", "SIGSTOP", "SIGCONT", "SIGHUP", "SIGINT", "SIGQUIT", "SIGUSR1", "SIGUSR2", "SIGURG"])
+  .desc("POSIX names — the stdin natures; the machine wires four, a client opens more. Example: \"SIGTERM\"");
+
+export const Machine = v.object({
+  states: v.record(State, v.object({
+    settled: v.enum(["fulfil", "reject"]).optional()
+      .desc("Absent = live. Present = no transition leaves; the controller's promise settles this way. Example: \"reject\""),
+  })),
+  verbs: v.record(Verb, v.object({
+    error: State.optional().desc("The reject state this verb's record becomes the error of. Example: \"STOPPED\""),
+  })),
+  transitions: v.record(Verb, v.record(v.string(), State)),
+  signals: v.record(v.string(), v.union([Verb, v.null()])),
+}).desc("The controller machine, total over its alphabets. Example: {\"states\":{\"IDLE\":{}},\"verbs\":{\"open\":{}},\"transitions\":{\"open\":{\"IDLE\":\"RUNNING\"}},\"signals\":{}}");
+
+export const MACHINE = Machine.cast(machine);
+
+const fault = [...Machine.errors(MACHINE)][0]; //@beef i dont understand this whole section?!?!
+if (fault) throw new Error(`[controller] machine ${fault.path}: ${fault.message}`);
+for (const [verb, rows] of Object.entries(MACHINE.transitions))
+  for (const from of Object.keys(rows)) {
+    if (!MACHINE.states[from]) throw new Error(`[controller] ${verb} folds from ${from}, which is no state`);
+    if (MACHINE.states[from].settled) throw new Error(`[controller] ${from} is settled and still folds on ${verb}`);
+  }
+for (const [verb, { error }] of Object.entries(MACHINE.verbs))
+  if (error && MACHINE.states[error].settled !== "reject") throw new Error(`[controller] ${verb} errors into ${error}, which does not reject`);
+for (const name of Object.keys(MACHINE.signals))
+  if ([...Signal.errors(name)][0]) throw new Error(`[controller] ${name} is no POSIX signal`);
+
+export const Record = v.object({
+  span: v.integer(),
+  trace: v.union([v.integer(), v.null()]),
+  path: v.string(),
+  verb: v.string(),
+  at: v.number(),
+  data: v.unknown().optional(),
+}).desc("One stdout mark as it crosses a wire; verb is open — Verb is the folding subset. Example: {\"span\":7,\"trace\":3,\"path\":\"/hallucination/lookup\",\"verb\":\"open\",\"at\":12.5}");
+
+export const Reflection = v.object({
+  path: v.string(),
+  span: v.integer(),
+  code: State,
+  timestamp: v.string(),
+  error: v.object({ code: State, message: v.string() }, { additionalProperties: true }).optional(),
+  children: v.array(v.unknown()),
+}).desc("A controller at rest, folded over its children. Example: {\"path\":\"/hallucination\",\"span\":7,\"code\":\"RUNNING\",\"timestamp\":\"2026-09-14T10:00:00.000Z\",\"children\":[]}");
+#+END_SRC
+
+* failure
+
+#+BEGIN_SRC js :tangle ../../subsystems/typology/prototypes/errors/controller.js
+export class Failure extends Error {
+  constructor(code, record) {
+    super([record.data?.message, record.data?.reason, record.data?.signal].find(Boolean) ?? record.verb);
+    this.code = code;
+    this.record = record;
+  }
+}
+#+END_SRC
+
+* shard
+
+#+BEGIN_SRC js :tangle ../../subsystems/typology/gestalten/shard/controller.js
+import { v } from "@vivalence/typology";
+
+// the stdin root use: mark the nature's verb on the controller's own span, abort on KILL,
+// run the client's leaf, then fan the nature down to every child that answers it.
+export const signalling = (controller) => async (ctx, next) => { //@beef i dont like this scope. controllers are context specific and typology/gestlaten/belt is high level generic. this function dont go here.
+  const name = ctx.steps.at(-1).nature;
+  const verb = v.prototypes.controller.MACHINE.signals[name];
+  if (verb) controller.stdout.mark(verb, { signal: name });
+  if (verb === null) controller.abort.abort(ctx.input);
+  await next();
+  if (verb === null) return;
+  for (const child of controller.children)
+    if (child.stdin.trie.has(name)) await child.kill(name, ctx.input);
+};
+#+END_SRC
+
+* prototype
+
+#+BEGIN_SRC js :tangle ../../subsystems/typology/prototypes/controller.js
+import { Span, Status, Vector, Signal, Failure, shard, steer, promise, v } from "@vivalence/typology";
+
+export function Controller({
+  stdout = new Span(),
+  status = new Status("IDLE"),
+  stdin = new Vector(),
+  abort = new AbortController(),
+  parent = null,
+  children = new Set(),
+} = {}) {
+  const { MACHINE } = v.prototypes.controller;
+  const gate = promise.waiter();
+  const controller = { stdout, status, stdin, abort, parent, children };
+
+  controller.settled = new Promise((fulfil, reject) => {
+    const untap = stdout.pipe.tap((record) => {
+      if (record.span !== stdout.id) return;
+      const from = status.reflection.code;
+      const code = MACHINE.transitions[record.verb]?.[from] ?? from;
+      if (code === from) return;
+      const { error } = MACHINE.verbs[record.verb];
+      status.set({ code, ...(error && { error: new Failure(error, record) }) });
+      gate.wake();
+      const { settled } = MACHINE.states[code];
+      if (!settled) return;
+      untap();
+      parent?.children.delete(controller);
+      for (const child of children) child.abort.abort(`parent ${code}`);
+      settled === "reject" ? reject(status.reflection.error) : fulfil(controller.toJSON());
+    });
+  });
+  controller.settled.catch(() => {});
+
+  const aborted = () => {
+    stdout.mark("abort", { reason: abort.signal.reason });
+    for (const child of children) child.abort.abort(abort.signal.reason);
+  };
+  abort.signal.aborted ? aborted() : abort.signal.addEventListener("abort", aborted, { once: true });
+
+  stdin.use(shard.controller.signalling(controller));
+  for (const name of Object.keys(MACHINE.signals)) if (!stdin.trie.has(name)) stdin.open(name, () => {});
+
+  parent?.children.add(controller);
+  return Object.assign(controller, {
+    kill: (name, input) => steer.dispatch.invoke(stdin, new Signal(name), steer.strategy.echo)(input),
+    proceed: async () => {
+      while (status.is("PAUSED")) await gate.wait(abort.signal);
+      return status.is("RUNNING");
+    },
+    toJSON: () => ({
+      path: stdout.absolute,
+      span: stdout.id,
+      ...status.reflection,
+      children: [...children].map((child) => child.toJSON()),
+    }),
+    [Symbol.for("nodejs.util.inspect.custom")]: () => `Controller(${stdout.absolute}):${status.reflection.code}`,
+  });
+}
+#+END_SRC
+
+* barrels — hunks
+
+#+BEGIN_SRC diff :tangle no
+--- subsystems/typology/schematics/prototypes/index.js
++export * as controller from "./controller.js";
+--- subsystems/typology/prototypes/errors/index.js
++export * from "./controller.js";
+--- subsystems/typology/prototypes/index.ts
++export * from "./controller.js";
+--- subsystems/typology/prototypes/index.client.js
++export * from "./controller.js";
+--- subsystems/typology/gestalten/shard/index.js
++export * as controller from "./controller.js";
+--- subsystems/typology/gestalten/shard/index.client.js
++export * as controller from "./controller.js";
+--- subsystems/typology/gestalten/is/prototypes.js
++export const Controller = (thing) => !!thing?.stdin && !!thing?.stdout && !!thing?.abort && !!thing?.settled;
+#+END_SRC
+
+* graph
+
+#+BEGIN_EXAMPLE
+                      pause
+             ┌───────────────────────┐
+             │                       ▼
+ IDLE ─open─▶ RUNNING ◀───resume─── PAUSED
+   │            │   │                  │
+   │            │   └───────stop───────┤
+   │          close                  stop
+   │            │                      │
+   │            ▼                      ▼
+   │           DONE ✓             STOPPING ──close──▶ STOPPED ⊘ Failure("STOPPED", stop record)
+   │
+   ├── fault from any live ────────────────────────▶ FAILED  ⊘ Failure("FAILED", fault record)
+   └── abort from any live ────────────────────────▶ ABORTED ⊘ Failure("ABORTED", abort record)
+
+ ✓ settled.fulfil(toJSON())   ⊘ settled.reject(status.error)   live = IDLE RUNNING PAUSED STOPPING
+
+            │ open    pause   resume  stop      close    fault   abort
+ ───────────┼──────────────────────────────────────────────────────────
+ IDLE       │ RUNNING ·       ·       ·         ·        FAILED  ABORTED
+ RUNNING    │ ·       PAUSED  ·       STOPPING  DONE     FAILED  ABORTED
+ PAUSED     │ ·       ·       RUNNING STOPPING  DONE     FAILED  ABORTED
+ STOPPING   │ ·       ·       ·       ·         STOPPED  FAILED  ABORTED
+ settled    │ ·       ·       ·       ·         ·        ·       ·
+
+ verb     ingress                              on a transition                          on settling
+ open     runner  stdout.open()                status · gate.wake
+ pause    SIGSTOP → signalling · stdout.mark   status · gate.wake · leaf · ↓SIGSTOP
+ resume   SIGCONT → signalling · stdout.mark   status · gate.wake · leaf · ↓SIGCONT      proceed() → true
+ stop     SIGTERM → signalling · stdout.mark   status.error · gate.wake · leaf · ↓SIGTERM proceed() → false
+ close    runner  stdout.close()               status                                    DONE ✓ · STOPPED ⊘ (error stamped at stop)
+ fault    runner  stdout.fault(e)              status.error                              FAILED ⊘
+ abort    abort.abort(r) · SIGKILL → abort     status.error · ↓abort children            ABORTED ⊘
+ settling                                                                                untap · leave parent · abort live children `parent <CODE>`
+#+END_EXAMPLE
+
+* clients — hunks
+
+#+BEGIN_SRC diff :tangle no
+--- subsystems/typology/gestalten/shard/hallucinate.js
+ export const policyOf = (ctx, type, avenue) => ({
+   rounds: ctx.policy.rounds,
+   backoff: ctx.policy.backoff,
+   tools: ctx.tools,
+-  span: ctx.span.branch(type).branch(avenue),
++  controller: Controller({ parent: ctx.controller, stdout: ctx.span.branch(`${type}/${avenue}`) }),
+ });
+@@ lowering · sourcing
+-  ctx.span = new Span("/hallucination");
++  ctx.controller = Controller({
++    parent: request.controller ?? null,
++    stdout: request.controller ? request.controller.stdout.branch("hallucination") : new Span("hallucination"),
++  });
++  ctx.span = ctx.controller.stdout; //@beef Not needed?! rewire ctx.span to ctx.controller.span.
+
+--- subsystems/typology/gestalten/belt/hallucinate.js
++const carrying = (values) => (carry, ...rest) =>
++  steer.strategy.guarded(async (ctx, next) => (Object.assign(ctx, values), carry(ctx, next)), ...rest);
++
+-export async function dispatch(tools, parts, span) {
++export async function dispatch(tools, parts, controller) {
+   const calls = parts.filter((part) => part.type === "tool_use");
+   return Promise.all(
+     calls.map(async (call) => {
+-      const branch = span.branch(call.name);
+-      branch.mark("open", { input: call.input });
++      const run = Controller({ parent: controller, stdout: controller.stdout.branch(call.name) }); // @beef do we want a dedicated controler on eaxh level? overkill? whats the compute here? maybe the controler itself can branch?! why not. thats 3 lines and very on brand and doesnt force anything and still deduplicates.
++      run.stdout.mark("open", { input: call.input });  //@beef name things what they are.
+       try {
+         const spoken = fromm.yield(
+           await steer.dispatch.invoke(
+             tools,
+             new ToolCall(call.name).signal, //@beef long term: i am not sure i like this. leave this comment. and copy to toolcall().signal. looks like toolcall should be the signal. why duplicate?
+-            steer.strategy.guarded,
++            carrying({ controller: run }), //@beef we could also just wire this via middleware into the vector!? root vector.slurp? maybe via strategy. hmm no its ctx. middleware better.
+           )(call.input),
+         );
+-        branch.mark("close", { condition: spoken.condition });
++        run.stdout.mark("close", { condition: spoken.condition });
+         return { call, result: { condition: spoken.condition, output: spoken.output } };
+       } catch (fault) {
+-        branch.fault(fault);
++        run.stdout.fault(fault);
+@@ respond
+ export async function* respond(faculty, streamOrRender, request, policy) {
+-  const span = policy.span ?? new Span("/hallucination");
++  const controller = policy.controller ?? Controller({ stdout: new Span("hallucination") }); //@beef dont we KNOW there is a controller here? why optionality assumed?
++  const span = controller.stdout; // @beef why deconstruct?!?!
+   span.open();
+   span.note({ streamOrRender, faculty: faculty.type });
+   let turns = request.turns;
+   let rounds = 0;
+   try {
+     while (rounds < policy.rounds) {
++      if (!(await controller.proceed())) break;
+       rounds += 1;
+       let turn = null;
+       for await (const packet of deliver(
+-        () => pump[streamOrRender](faculty, { ...request, turns }),
++        () => pump[streamOrRender](faculty, { ...request, turns }, { signal: controller.abort.signal }),
+         policy.backoff,
+-        span,
++        span.branch(`round/${rounds}`),
+       )) {
+ …
+-      const settled = await dispatch(policy.tools, turn.parts, span);
++      const settled = await dispatch(policy.tools, turn.parts, controller);
+ …
+-    yield { event: "/response/close", meta: { state: "length", rounds } };
++    yield { event: "/response/close", meta: { state: controller.status.is("STOPPING") ? "abort" : "length", rounds } };
+@@ pump
+-  stream: (faculty, request) => faculty.via.stream(request),
+-  render: async (faculty, request) => soma.drain(await faculty.via.render(request)),
++  stream: (faculty, request, options) => faculty.via.stream(request, options),
++  render: async (faculty, request, options) => soma.drain(await faculty.via.render(request, options)),
+
+--- subsystems/typology/prototypes/socket.js
+     const trace = this.span.branch(packet.signal);
+-    trace.open();
+-    const controller = new AbortController();
++    const controller = Controller({ stdout: trace }); //@beef sure the socket shouldnt RECEIVE a controller in its signature?
++    trace.open();
+     const line = { controller, upstream: null };
+ …
++      ctx.controller = controller;
+       ctx.request.raw = packet.stream
+         ? {
+-            signal: controller.signal,
++            signal: controller.abort.signal,
+ …
+-        : { signal: controller.signal };
++        : { signal: controller.abort.signal };
+@@ the line packets
+       else if (packet.close) {
+-        line.controller.abort();
++        line.controller.kill("SIGKILL", "frame closed");
+         this.lines.delete(packet.frame);
++      } else if (packet.kill) {
++        line.controller.kill(packet.kill, packet.input);
+       }
+@@ every other `controller.signal` on the line → `controller.abort.signal`; `line.controller.abort()` at close-all → `.abort.abort("socket closed")`
+
+--- systems/runtime/daemon/traits/harnessed.js
+     ctx.hallucination = {
++      controller: input.controller ?? ctx.controller ?? null,
+       policy: {
+
+--- commons/instances/hello-world/tools/research.js
+   ctx.mode.harness.dialogue.stream({
++    controller: ctx.controller,
+     thread: ctx.thread ?? ctx.input?.thread,
+
+--- commons/hallucinators/anthropic/provider/index.js  (openrouter · deepgram · elevenlabs alike)
+-    const render = async (request) => {
++    const render = async (request, { signal } = {}) => {
+       try {
+         const turn = translateResponse(
+-          await client.messages.create(buildParams(model, request)),
++          await client.messages.create(buildParams(model, request), { signal }),
+#+END_SRC
+
+* test
+
+#+BEGIN_SRC js :tangle ../../subsystems/typology/tests/controller.test.js
+import { specimen, Controller, Span, Vector, Failure } from "@vivalence/typology";
+
+specimen.describe("Controller: one span, one fold, one tree", () => {
+  specimen.it("status is the fold of the controller's OWN span: open → RUNNING, close → DONE, the promise fulfils", async () => {
+    const run = Controller({ stdout: new Span("run") });
+    specimen.expect(run.status.is("IDLE")).toBe(true);
+    run.stdout.open();
+    specimen.expect(run.status.is("RUNNING")).toBe(true);
+    run.stdout.branch("db").fault(new Error("a child's fault stays the child's"));
+    specimen.expect(run.status.is("RUNNING")).toBe(true);
+    run.stdout.close();
+    specimen.expect((await run.settled).code).toBe("DONE");
+  });
+
+  specimen.it("a fault settles FAILED and absorbs the finally close; the promise rejects with the fault's record", async () => {
+    const run = Controller({ stdout: new Span("run") });
+    run.stdout.open().fault(new Error("boom")).close();
+    specimen.expect(run.status.is("FAILED")).toBe(true);
+    const failure = await run.settled.catch((error) => error);
+    specimen.expect(failure).toBeInstanceOf(Failure);
+    specimen.expect(failure.code).toBe("FAILED");
+    specimen.expect(failure.message).toBe("boom");
+  });
+
+  specimen.it("SIGTERM is cooperative: STOPPING, proceed() says wind down, close settles STOPPED with the signal", async () => {
+    const run = Controller({ stdout: new Span("run") });
+    run.stdout.open();
+    await run.kill("SIGTERM");
+    specimen.expect(run.status.is("STOPPING")).toBe(true);
+    specimen.expect(await run.proceed()).toBe(false);
+    run.stdout.close();
+    const failure = await run.settled.catch((error) => error);
+    specimen.expect(failure.code).toBe("STOPPED");
+    specimen.expect(failure.record.data).toEqual({ signal: "SIGTERM" });
+  });
+
+  specimen.it("SIGSTOP parks proceed() until SIGCONT", async () => {
+    const run = Controller({ stdout: new Span("run") });
+    run.stdout.open();
+    await run.kill("SIGSTOP");
+    let resumed = null;
+    const waiting = run.proceed().then((go) => (resumed = go));
+    await Promise.resolve();
+    specimen.expect(resumed).toBe(null);
+    await run.kill("SIGCONT");
+    specimen.expect(await waiting).toBe(true);
+  });
+
+  specimen.it("SIGKILL is preemptive: abort marks, ABORTED absorbs the runner's fault, children die with the parent", async () => {
+    const parent = Controller({ stdout: new Span("parent") });
+    const child = Controller({ parent, stdout: parent.stdout.branch("child") });
+    parent.stdout.open();
+    child.stdout.open();
+    await parent.kill("SIGKILL", "operator");
+    specimen.expect(parent.abort.signal.aborted).toBe(true);
+    specimen.expect(child.abort.signal.reason).toBe("operator");
+    specimen.expect(child.status.is("ABORTED")).toBe(true);
+    parent.stdout.fault(new Error("AbortError"));
+    specimen.expect(parent.status.is("ABORTED")).toBe(true);
+    specimen.expect((await parent.settled.catch((error) => error)).code).toBe("ABORTED");
+  });
+
+  specimen.it("a signal fans down to every child that answers it; a parent settling aborts its live children", async () => {
+    const parent = Controller({ stdout: new Span("parent") });
+    const child = Controller({ parent, stdout: parent.stdout.branch("child") });
+    const other = Controller({ parent, stdout: parent.stdout.branch("other") });
+    parent.stdout.open();
+    child.stdout.open();
+    other.stdout.open();
+    await parent.kill("SIGSTOP");
+    specimen.expect(child.status.is("PAUSED")).toBe(true);
+    child.stdout.close();
+    specimen.expect(parent.children.has(child)).toBe(false);
+    parent.stdout.close();
+    specimen.expect(other.status.is("ABORTED")).toBe(true);
+    specimen.expect(other.abort.signal.reason).toBe("parent DONE");
+  });
+
+  specimen.it("adoption: an aborted AbortController settles ABORTED at construction; a client leaf stands under the root use", async () => {
+    const abort = new AbortController();
+    abort.abort("early");
+    specimen.expect(Controller({ stdout: new Span("run"), abort }).status.is("ABORTED")).toBe(true);
+
+    let forwarded = null;
+    const stdin = new Vector().open("SIGTERM", (ctx) => (forwarded = ctx.input));
+    const worker = Controller({ stdout: new Span("worker"), stdin });
+    worker.stdout.open();
+    await worker.kill("SIGTERM", "drain");
+    specimen.expect(forwarded).toBe("drain");
+    specimen.expect(worker.status.is("STOPPING")).toBe(true);
+  });
+
+  specimen.it("the tree reflects: toJSON folds children, the wire Record is what a tap hears", () => {
+    const parent = Controller({ stdout: new Span("parent") });
+    Controller({ parent, stdout: parent.stdout.branch("child") }).stdout.open();
+    const heard = [];
+    parent.stdout.pipe.tap((record) => heard.push(record));
+    parent.stdout.open();
+    specimen.expect(JSON.parse(JSON.stringify(parent)).children[0].code).toBe("RUNNING");
+    specimen.expect(Object.keys(heard[0])).toEqual(["span", "trace", "path", "verb", "at"]);
+  });
+});
+#+END_SRC
+
+* m63.2 — moved
+
+The hallucination schematic, the `Controller` class, `v.primitives.controller`, the shard/belt hunks and the 14-caller blast now live in `m65-the-activity.org` (`* typology`). This quest keeps the machine table, the graph, the socket line and the guardrail suite.

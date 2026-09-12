@@ -1,5 +1,5 @@
 import { join } from "@std/path";
-import { specimen, v, Cortex, Hallucination, Vector } from "@vivalence/typology";
+import { specimen, v, Controller, Cortex, Vector } from "@vivalence/typology";
 
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
 const HOT = Deno.env.get("SNAPSHOT_HOT") === "1";
@@ -52,7 +52,8 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
             { nature: "dressed", valence: "looks up a word", input: LookupInput },
             async () => "dressed ran",
           );
-        await Hallucination(scriptedCortex([sealedTurn("sealed")], seen)).dialogue.render({
+        await scriptedCortex([sealedTurn("sealed")], seen).hallucinate.dialogue.render({
+          controller: new Controller(),
           system: { persona: "You are the request pin.", language: "pt-BR" },
           turns: [userTurn("primeira"), { role: "assistant", parts: [{ type: "text", text: "resposta" }] }],
           tools,
@@ -74,7 +75,8 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
             { nature: "dressed", valence: "looks up a word", input: LookupInput },
             async () => "dressed ran",
           );
-        await Hallucination(scriptedCortex([sealedTurn("sealed")], seen)).dialogue.render({
+        await scriptedCortex([sealedTurn("sealed")], seen).hallucinate.dialogue.render({
+          controller: new Controller(),
           turns: [userTurn("casa")],
           tools,
         });
@@ -89,9 +91,9 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
     specimen.it("an invalid policy throws at the call, named", async () => {
       let error = null;
       try {
-        await Hallucination(new Cortex()).dialogue.render({ policy: { rounds: 0 }, turns: [] });
+        await new Cortex().hallucinate.dialogue.render({ controller: new Controller(), policy: { rounds: 0 }, turns: [] });
       } catch (thrown) { error = thrown; }
-      specimen.expect(error.message).toContain("invalid policy");
+      specimen.expect(error.message).toContain("invalid dialogue hallucination");
     });
   });
 
@@ -131,7 +133,8 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
           .open({ nature: "messageChannel" }, async () => ({ message: "a message reply" }))
           .open({ nature: "entitiesChannel" }, async () => ({ output: { literal: [{ id: "literal-1" }] } }))
           .open({ nature: "objectChannel" }, async () => ({ object: { grade: 1 } }));
-        const folded = await Hallucination(cortex).dialogue.render({
+        const folded = await cortex.hallucinate.dialogue.render({
+          controller: new Controller(),
           turns: [userTurn("run every channel")],
           tools,
         });
@@ -188,7 +191,8 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
           literal: [{ id: "literal-1" }],
         }));
         const collected = [];
-        for await (const packet of await Hallucination(cortex).dialogue.stream({
+        for await (const packet of await cortex.hallucinate.dialogue.stream({
+          controller: new Controller(),
           turns: [userTurn("what is casa")],
           tools,
         }))
@@ -224,7 +228,8 @@ specimen.describe("hallucination snapshot — the compiled response contract, pi
           },
         ]);
 
-        const folded = await Hallucination(cortex).object.render({
+        const folded = await cortex.hallucinate.object.render({
+          controller: new Controller(),
           turns: [userTurn("casa")],
           output: { schema: Verdict },
         });

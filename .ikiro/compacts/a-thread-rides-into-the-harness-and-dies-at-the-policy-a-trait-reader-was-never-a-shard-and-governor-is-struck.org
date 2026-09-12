@@ -1,0 +1,156 @@
+#+title: a thread rides into the harness and dies at the policy, a trait reader was never a shard, and governor is struck
+#+filetags: :m62:hallucination:harness:thread:trait:typology:schematics:v:shard:blast:naming:callout:quest:
+#+index: 152
+#+session: 12 beef turns, walked oldest first (10 a skill load, 12 the /clear)
+
+* one breath
+
+beef opened with /"explain"/ on the m62 roadmap quest and I gave him the fold: budgets nest and multiply,
+the stop button stops the listening, one daemon-level organ owed. The claim-guard fired on that first turn —
+I had restated the quest's design leans (signal down, span up; organ in memory, no row column) as if measured.
+He struck =governor= flat and asked for fifteen; then pulled one line of my summary — /"nested hallucination
+already passes thread; join key unused"/ — and said /"show me"/, twice. The trace ran five files: =research.js=
+passes =thread= in, =harnessed.js= reads it for INTELLIGENT and binds it to the tool ctx, then builds a
+=policy= with no slot for it; =POLICY= is =rounds · backoff · tune=; every hallucination mints its own root
+=Span("/hallucination")=; =grep thread= over the loop, hal and cortex → 0. That trace surfaced
+=shard.trait.claimed(row, "INTELLIGENT", v.entities.INTELLIGENT)= and he stopped on it: /"wtf is this? is this
+in line rn??!!"/ — committed, in HEAD. Then the ruling: not a shard, the trait name beside the schema is
+redundant, =INTELLIGENT= is not a =v.entities=. Fifteen verbs for the read; he wrote the call himself:
+=v.thread.trait(row, "INTELLIGENT")=. Throw on an undeclared name. Go. The blast-bracket closed green on
+both sides: trait schemas moved onto =ThreadDescriptor.traits=, =entityFactory= grew =.traits= + =.trait()=,
+=shard/trait.js= deleted, one guardrail test added, kajuit untouched (it reads the row by string, never the
+schema). The m62 noun is still open; fifteen words sit in the quest.
+
+* the spine — 12 turns
+
+** 1 · /"explain /Users/finn/vivalence/code/vivalence/.ikiro/quests/roadmap/m62-the-governed-hallucination.org"/
+
+Read the quest whole and folded it: the mishap measured (10 × 30 × 3 ≈ 1 500 calls, every one in budget),
+the stop path (=Dock.svelte:241= → =socket.js:111= abort → =socket.js:201= returns without =body.return()=;
+=respond()= takes no signal), the tree, the three-owner design, the noun proposals, F1–F8, M1–M6. The
+claim-guard fired: line 19 of my reply (/"AbortSignal down, Span up … organ in-memory, no row column"/)
+restated the quest's leans with no evidence call. Next turn I named the carry and measured the seams:
+=socket.js:111= abort ✓ · =grep signal hallucinate.js= → 0 ✓ · =wafer.js:7= unused AbortController ✓ ·
+=grep "new Span" prototypes/hallucination.js= → 0 ✗ — the quest's =policyOf= cite was stale; the mint is
+=gestalten/shard/hallucinate.js:59= and =:74=.
+
+** 2 · /"lets start with finding the name. big no on governor. gimme 15 synonyms for this primitive"/
+
+Collision list from disk first (=ls prototypes/ shard/=): taken → process · job · ledger · line · effort ·
+session · governor · pool · queue · stall · span · signal · scope · track · status. Fifteen in four registers:
+machine (throttle · regulator · fuse · breaker · gauge), body (metabolism · pulse · vagus · homeostasis),
+allowance (allowance · ration · quota · meter), authority (steward · marshal). Lean stated: =throttle= for
+stop+rate+cap, =metabolism= if bio wins, =quota= if summation is the story. NOT RULED — the noun stays his.
+
+** 3 · /"- nested hallucination already passes thread; join key unused. show me"/
+
+=research.js:14= =thread: ctx.thread ?? ctx.input?.thread= → =harnessed.js:74-75= =findOne= for the INTELLIGENT
+claim → =:113= =armed.use(shard.context.bind("thread", input.thread))= (so research can re-pass it) →
+=:114-127= =ctx.hallucination.policy= = =config + tune + rounds=, no thread. =grep thread= over
+=shard/hallucinate.js hal.js cortex.js= → 0. Insight filed: the join key dies one layer above the loop, at the
+harness — exactly where the organ's =reach(thread)= would sit, since the harness already builds =policy=.
+
+** 4 · /"show em the code!"/
+
+Five hunks pasted whole: =research.js:12-18= · =harnessed.js:74-127= · =shard/hallucinate.js= =POLICY= (:11-15),
+=lowering= (:57-59, =ctx.span = new Span("/hallucination")= per call), =policyOf= (:33-38) ·
+=belt/hallucinate.js= =respond()= (:110-135, =span.note({ round, state, usage })= — Σ tokens sits there
+unsummed) · =deliver()= (:55-73, 429 retryable, three attempts, no signal). The =belt= file was found by
+=grep "while (rounds"= after a wrong-dir grep.
+
+** 5 · /"const iq = shard.trait.claimed(row, \"INTELLIGENT\", v.entities.INTELLIGENT); wtf is this? is this in line rn??!!"/
+
+Measured: =git diff HEAD -- harnessed.js= → empty; =git show HEAD:… | grep claimed= → =:77=; last three commits
+on the pair =30308ade2 hello world · bc6143b1d registry · 011508554 converse=. Showed =shard/trait.js= (8 lines:
+claim-gate → errors → cast, =${}= on any miss) and the =INTELLIGENT= schema. Named it as the dumb-model path: no
+claim → =iq = {}= → no tune → cortex default WHERE.
+
+** 6 · /"this construction makes no sense. its not a shard. at all. and the prence of trait name makes v.entities.[trait] weird. not needed. and INTELLIGENT is not v.entities. its maybe v.traits.[entity].[trait] or v.entities.[entity].traits[trait]... but first. so. either we place shard.trait on belt.trait.claimxxxx or we place it on v. v.traits.[entity][trait].claim(entity) - claim?cast?xy`??? and can v. instantiate prototypes for nested fields?"/
+
+Ground measured before answering: =shard.trait.claimed= consumers → 1 (=harnessed.js=); =v.entities= = 8
+descriptors + INTELLIGENT + VOCAL (two orphans); =LABELED MASKED STANDALONE= in =schematics/= → 0 (every other
+trait is schema-less); =ThreadDescriptor.narrowable = ["trait"]= and =v.thread({ trait: { X } })= already
+works (=v.test.js:249=); factory statics → =.$id .descriptor= only. Answer to the nesting question: =v= does
+NOT instantiate prototypes for nested fields — =entityFactory= INTERSECTS; a trait schema is a plain
+=v.object=; the claim gate is a runtime check, not schema (typebox =contains= → 0 uses). Sketch: schemas on
+=descriptor.traits=, =factory.traits= + a read verb; =v.entities.INTELLIGENT= and =shard/trait.js= die. Verb
+proposed: =claim=. Waited.
+
+** 7 · /"i don tlike the claim verb. propose 15."/
+
+Three registers: read-shaped (wear · carry · bear · hold · don), project-shaped (project · pluck · extract ·
+slice · narrow), gate-shaped (admit · grant · vest · endow · honour). Lean: =narrow= (the descriptor's noun,
+verbed) or =wear= (absent = bare).
+
+** 8 · /"const iq = v.thread.trait(row, \"INTELLIGENT\");"/
+
+RULED by writing the call. Noun as accessor, like =span.branch(name)=. Final shape confirmed back: =traits= map
+(plural = the schemas) + =trait(row, name)= (singular = the read), no overload. Two leans stated for him:
+undeclared name throws; no overload.
+
+** 9 · /"- unknown trait name → throw (typo = loud), not {}. thorw. go"/
+
+GO. blast-bracket skill loaded (turn 10 is that load). Beat 1 radius: code consumers =harnessed.js:77-78= ·
+=entities/index.js:7= · =entities/thread.js:7,14= · =shard/index.js:15= + =trait.js= · =v.js=; string-only
+readers (kajuit =Dock/e/Intelligent.svelte=, =research.js:4= comment) untouched; registry → 0. Beat 2 green:
+typology =v · dictation.conversation · gestalten/hallucinate= 4 passed (50 steps); runtime
+=dictation.integration · buffer.labeled= 2 passed (8 steps). Beat 3, one python pass + =rm shard/trait.js=:
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/v.js — entityFactory
+  factory.traits = descriptor.traits ?? {};
+  factory.trait = (row, name) => {
+    const schema = factory.traits[name];
+    if (!schema) throw new Error(`[v] ${descriptor.$id} declares no trait ${name}`);
+    const held = row?.traits?.includes(name) ? row.trait?.[name] : undefined;
+    if (!held || [...schema.errors(held)][0]) return {};
+    return schema.cast(held);
+  };
+// subsystems/typology/schematics/entities/thread.js
+  traits: { INTELLIGENT, VOCAL },
+// systems/runtime/daemon/traits/harnessed.js:77-78
+    const iq = v.thread.trait(row, "INTELLIGENT");
+    ctx.vocal = v.thread.trait(row, "VOCAL");
+#+END_SRC
+
+Smoke through the barrel: valid claimed → ={tune:"capable",rounds:12}= · unclaimed → ={}= · =rounds:99= → ={}=
+· null row → ={}= · ="LABELED"= → =[v] Thread declares no trait LABELED=. Parity kept, not changed: validate
+raw THEN cast, so =rounds:"12"= (string) → ={}= — the old =claimed= did the same. Guardrail =it= added to
+=tests/v.test.js= (five assertions + the throw). Beat 4 green: 4 passed (51 steps) · 2 passed (8 steps).
+Beat 5 re-blast: =shard.trait= → 0 · =entities.INTELLIGENT= → 0 · radius = beat 1. Diff: 7 files, +26/−17.
+
+** 10 · (the blast-bracket skill text — a load, not a message) — NOTHING
+
+** 11 · /"ikiro compact"/ — this fold.
+
+** 12 · MID-TURN /"/clear"/ — queued behind the fold. NOTHING.
+
+* laws
+
+- **A trait schema lives on its entity's descriptor** — =ThreadDescriptor.traits = { INTELLIGENT, VOCAL }=; read
+  through =v.<entity>.trait(row, NAME)=; the map is =v.<entity>.traits=. Never a flat export beside the
+  descriptors, never a shard (a shard is =(ctx, next)=; a pure schema op is =v=). Undeclared name THROWS.
+- **The thread id dies at the harness.** =harnessed.js:113= is the last line that holds it; =POLICY= has no slot.
+  m62's =reach(thread)= attaches there, not in the belt.
+- **=v= intersects, it does not instantiate.** =entityFactory= narrows nested fields by =Type.Intersect=; a
+  nested trait is a plain =v.object=, no prototype.
+- **=governor= is struck** for the m62 organ (beef: /"big no"/). Fifteen replacements are in the quest.
+- Quest cite corrected: the per-call span mint is =gestalten/shard/hallucinate.js:59= (+ =:74=), not
+  =prototypes/hallucination.js:36=.
+
+* state at fold
+
+- LANDED, green both sides, uncommitted (rides the standing commit debt, =frontier ## owed=): =v.thread.trait=
+  · =descriptor.traits= · =shard/trait.js= deleted · guardrail test. Other traits (LABELED, MASKED, …) remain
+  schema-less; the same descriptor slot takes them when wanted — not opened.
+- m62: still =roadmap/=, 0/6; =governor= struck, fifteen organ nouns proposed, unit nouns (stint · bout ·
+  errand) untouched; forks F1–F8 his. The quest file carries the new list and the corrected cite.
+- MARKERS: the one OPEN entry (cortex snapshot coverage) is another session's; untouched.
+- Not rendered under my hand: kajuit unchanged by design (string reads), no boot in this session.
+
+* callouts
+
+One ledger entry: the claim-guard fire on turn 1 (=assume-dont-verify=, hook-caught, no codeword) — a quest's
+design leans restated as fact. Obeyed next turn with a measured envelope, and the envelope caught a stale
+cite the quest itself carried. Turns 5–7 are RULINGS on placement and naming, not callouts: the construction
+was mine from a prior session, he struck it, the fix landed in-session.

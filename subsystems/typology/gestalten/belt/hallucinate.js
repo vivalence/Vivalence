@@ -1,4 +1,4 @@
-import { NotFound, Span, ToolCall, fromm, soma, steer, verbatim } from "@vivalence/typology";
+import { NotFound, ToolCall, Vector, fromm, soma, steer, verbatim } from "@vivalence/typology";
 import * as entities from "../../schematics/entities/index.js";
 
 export const signalOf = (name) => new ToolCall(name).signal;
@@ -52,46 +52,48 @@ const armory = (tools) =>
 export const state = (turn) =>
   turn.parts.some((part) => part.type === "tool_use") ? "tools" : (turn.meta?.state ?? "complete");
 
-export async function* deliver(pump, backoff, span) {
+export async function* deliver(pump, backoff, span, signal) {
   let retried = 0;
   while (true) {
     let flowing = false;
     try {
-      const packets = await pump();
+      const packets = await pump(signal);
       for await (const packet of packets) {
         flowing = true;
         yield packet;
       }
       return;
     } catch (fault) {
-      span.fault(fault);
       const delay = backoff[retried];
-      if (flowing || !fault.retryable || delay === undefined) throw fault;
+      if (flowing || !fault.retryable || delay === undefined || signal?.aborted) throw fault;
       retried += 1;
-      span.note({ retry: retried, delay });
+      span.note({ retry: retried, delay, message: fault.message });
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 }
 
-export async function dispatch(tools, parts, span) {
+export async function dispatch({ tools, controller }, parts) {
   const calls = parts.filter((part) => part.type === "tool_use");
   return Promise.all(
     calls.map(async (call) => {
-      const branch = span.branch(call.name);
-      branch.mark("open", { input: call.input });
+      const child = controller.branch(call.name);
+      const armed = new Vector().use(async (ctx, next) => { ctx.controller = child; await next(); }).slurp(tools);
+      const cut = new Promise((_, reject) =>
+        child.abort.signal.addEventListener("abort", () => reject(child.status.reflection.error ?? new Error(String(child.abort.signal.reason))), { once: true }),
+      );
+      child.stdout.mark("open", { input: call.input });
       try {
         const spoken = fromm.yield(
-          await steer.dispatch.invoke(
-            tools,
-            new ToolCall(call.name).signal,
-            steer.strategy.guarded,
-          )(call.input),
+          await Promise.race([
+            steer.dispatch.invoke(armed, new ToolCall(call.name).signal, steer.strategy.guarded)(call.input),
+            cut,
+          ]),
         );
-        branch.mark("close", { condition: spoken.condition });
+        child.stdout.mark("close", { condition: spoken.condition });
         return { call, result: { condition: spoken.condition, output: spoken.output } };
       } catch (fault) {
-        branch.fault(fault);
+        child.stdout.fault(fault);
         const message =
           fault instanceof NotFound
             ? { error: `unknown tool: ${call.name} — armed: ${armory(tools) || "(none)"}` }
@@ -103,27 +105,41 @@ export async function dispatch(tools, parts, span) {
 }
 
 const pump = {
-  stream: (faculty, request) => faculty.via.stream(request),
-  render: async (faculty, request) => soma.drain(await faculty.via.render(request)),
+  stream: (faculty, request, signal) => faculty.via.stream(request, { signal }),
+  render: async (faculty, request, signal) => soma.drain(await faculty.via.render(request, { signal })),
 };
 
 export async function* respond(faculty, streamOrRender, request, policy) {
-  const span = policy.span ?? new Span("/hallucination");
+  const { controller } = policy;
+  const span = controller.stdout;
   span.open();
   span.note({ streamOrRender, faculty: faculty.type });
   let turns = request.turns;
   let rounds = 0;
   try {
     while (rounds < policy.rounds) {
+      if (!(await controller.proceed())) {
+        yield { event: "/response/close", meta: { state: "abort", rounds } };
+        return;
+      }
       rounds += 1;
       let turn = null;
       for await (const packet of deliver(
-        () => pump[streamOrRender](faculty, { ...request, turns }),
+        (signal) => pump[streamOrRender](faculty, { ...request, turns }, signal),
         policy.backoff,
         span,
+        controller.abort.signal,
       )) {
+        if (!(await controller.proceed())) {
+          yield { event: "/response/close", meta: { state: "abort", rounds } };
+          return;
+        }
         turn = soma.pour(turn, packet);
         yield packet;
+      }
+      if (!(await controller.proceed())) {
+        yield { event: "/response/close", meta: { state: "abort", rounds } };
+        return;
       }
       const closed = turn ? state(turn) : "error";
       span.note({ round: rounds, state: closed, usage: turn?.meta?.usage });
@@ -131,7 +147,7 @@ export async function* respond(faculty, streamOrRender, request, policy) {
         yield { event: "/response/close", meta: { ...turn?.meta, state: closed, rounds } };
         return;
       }
-      const settled = await dispatch(policy.tools, turn.parts, span);
+      const settled = await dispatch(policy, turn.parts);
       const parts = [];
       for (const { call, result } of settled) {
         yield { event: "/tool/call", id: call.id, name: call.name, input: call.input };
@@ -144,6 +160,10 @@ export async function* respond(faculty, streamOrRender, request, policy) {
     }
     yield { event: "/response/close", meta: { state: "length", rounds } };
   } catch (fault) {
+    if (controller.abort.signal.aborted) {
+      yield { event: "/response/close", meta: { state: "abort", rounds } };
+      return;
+    }
     span.fault(fault);
     yield {
       event: "/response/close",
@@ -173,12 +193,12 @@ export async function render(faculty, request, policy) {
   return folded;
 }
 
-export async function* transcribe(faculty, { source, config, harmonize }, policy = {}) {
-  const span = policy.span ?? new Span("/hallucination");
+export async function* transcribe(faculty, { source, settings }, policy) {
+  const span = policy.controller.stdout;
   span.open();
-  span.note({ faculty: faculty.type, harmonize });
+  span.note({ faculty: faculty.type, harmonize: policy.harmonize });
   try {
-    yield* verbatim.harmonize(faculty.via.stream(source, config), harmonize);
+    yield* verbatim.harmonize(faculty.via.stream(source, settings), policy.harmonize);
   } catch (fault) {
     span.fault(fault);
     throw fault;
@@ -187,12 +207,18 @@ export async function* transcribe(faculty, { source, config, harmonize }, policy
   }
 }
 
-export async function* synthesize(faculty, { source, config }, policy = {}) {
-  const span = policy.span ?? new Span("/hallucination");
+export async function transcript(faculty, input, policy) {
+  let state = verbatim.empty;
+  for await (const event of transcribe(faculty, input, policy)) state = verbatim.fold(state, event);
+  return verbatim.transcript(state);
+}
+
+export async function* synthesize(faculty, { source, settings }, policy) {
+  const span = policy.controller.stdout;
   span.open();
   span.note({ faculty: faculty.type });
   try {
-    yield* faculty.via.stream(source, config);
+    yield* faculty.via.stream(source, settings);
   } catch (fault) {
     span.fault(fault);
     throw fault;
@@ -201,12 +227,12 @@ export async function* synthesize(faculty, { source, config }, policy = {}) {
   }
 }
 
-export async function vocalize(faculty, { source, config }, policy = {}) {
-  const span = policy.span ?? new Span("/hallucination");
+export async function vocalize(faculty, { source, settings }, policy) {
+  const span = policy.controller.stdout;
   span.open();
   span.note({ faculty: faculty.type });
   try {
-    return await faculty.via.render(source, config);
+    return await faculty.via.render(source, settings);
   } catch (fault) {
     span.fault(fault);
     throw fault;

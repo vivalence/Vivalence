@@ -59,6 +59,7 @@
   import { getContext } from "svelte";
   import { chain, stores } from "@vivalence/kajuit";
   import { Section } from "@vivalence/drapes";
+  import ActivitySection from "./widgets/ActivitySection.svelte";
   import { logger } from "$telemetry";
   import { TERMINALS } from "$client";
 
@@ -109,6 +110,10 @@
 </script>
 
 <div class="panel">
+  {#if harnessed && $thread}
+    <ActivitySection thread={$thread} />
+  {/if}
+
   {#if harnessed}
     <section>
       <Section label="chat" />

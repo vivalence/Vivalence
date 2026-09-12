@@ -5,6 +5,7 @@ import {
   Url,
   Path,
   RemoteRepository,
+  Span,
   shape,
   shard,
 } from "@vivalence/typology";
@@ -17,6 +18,7 @@ import { IntentDossier } from "../intent.js";
 import { ThreadDossier } from "../thread/index.js";
 import { BufferDossier } from "../buffer.js";
 import { TurnDossier } from "../turn.js";
+import { ActivityDossier } from "../activity.js";
 import { LiteralDossier } from "../literal.js";
 import { SymbolDossier } from "../symbol.js";
 
@@ -26,6 +28,7 @@ const entities = [
   ThreadDossier,
   BufferDossier,
   TurnDossier,
+  ActivityDossier,
   LiteralDossier,
   SymbolDossier,
 ];
@@ -120,6 +123,14 @@ async function mount(daemon, { multiplex, url, attempt }) {
     daemon.entities.thread.subscribe();
     daemon.entities.buffer.subscribe();
     daemon.entities.turn.subscribe();
+    const activity = new Span(`daemon/${manifest.slug}/activity`).to(logger.channel);
+    daemon.entities.activity.subscribe({}, (row, event) => {
+      const id = row?.id ?? event.entity?.id ?? event.entity;
+      activity.mark(event.op, { id, status: row?.status, step: row?.steps.at(-1) });
+      if (event.op === "create") (async () => {
+        for await (const record of await row.stdout()) activity.mark("stdout", { id, ...record });
+      })().catch(() => {});
+    });
 
     daemon.cortex = new Cortex().register(
       shape.cortex.wire(daemon.connection.branch("/cortex"), cortex),

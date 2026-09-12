@@ -1,0 +1,64 @@
+#+title: m63.2 folds into m65, the repository mints the controller, and the activity row goes flat
+#+filetags: :m65:m63:m64:quest:tangle:activity:transient:controller:hallucination:schematic:cortex:kajuit:runtime:typology:
+#+index: 158
+#+session: 9 beef turns after compact #157 (model fable → opus; no agents; no code touched — `.ikiro/` only)
+
+* one breath
+
+Context reload on /"load context: ikiro · conoeuseeur · m65 · m63 · the previous compact · + the files in full that are applicative to this quest."/ (+ /"code heavy, no yap"/): kernel, connoisseur, #157, both quests, 17 code files read; territory map returned — `primitives/controller.js` and `prototypes/controller.js` ABSENT, cortex WIP still missing `Vector`/`shard`/`Packet`, `cortex` undefined at `cortex.js:66`. Then /"rework the activity quest into the tangle format. file tree as header pattern. remove the chat history into meta. no testing yet. but examples per integration point. 3 ipoints."/ — m65 recut: law · tree + per-file list (`feedback_file_tree_format`) · `:tangle` NEW files · diff hunks · three integration points (harness tool branches `ctx.controller` · raw cortex caller · kajuit roster + `wire(strip)`) · open · `* meta` verbatim. Beef commented in place. /"we also settled the hallucination schematic work. why isnt that part of the quest. already on disk??"/ — not on disk; I had cut m63.2 into m63 on the container line; wrong cut, the schematic REQUIRES the controller the activity supplies. Folded m63.2 into m65 (`* typology`), m63 632 → 471 with a pointer. Beef's comments collected, clustered, answered. /"activate what are links here? what does this look like on runtime and client?"/ — `links` = the row's to-ones, renamed `data`; row shape shown both ends. /"status can just be the enum and timestamp is updatedAt... steps same. work this into the quest"/ — row flattened.
+
+* the spine
+
+** 1 · load context
+Read-only. Map returned as a symbol table: what m63.2/m65 touch, what is absent, the build order.
+
+** 2 · /"rework the activity quest into the tangle format…"/
+Terrain grepped first: `aperture/userspace.js` (nested scopes, `owned` branch), `population.js` (collate + seal, `datamap` step), `die.js:56` `disintegrate`, `shape.connection.wire` already proxies `:id` (`gestalten/shape/connection.js:16-24`), kajuit `Dataspace` dossier boot. First cut: `entities/virtual/Activity.ts` + `activate.js` + kajuit `activity.js` tangled; hunks on index · population · userspace · harnessed · die · VirtualEntity R1/R6.
+
+** 3 · beef's in-file comments on cut 1
+`activate.js` /"ugh"/ · /"uck"/ · /"no."/ · import /"no."/ · call /"no"/ · `sets.virtual` /"call it transient."/ · path /"transient. no not transient. hmmm. /userspace/entities/activity. ok yeah. overruled."/ · `// ActivityTypeEnum "HALLUCINATION"` + `//enum` ×3 · `exclusive()` commented out · `controller: ctx.controller` /"no. there is a wire crossed here somewhere."/ · `ctx.controller.branch("research")` /"Noice."/
+
+** 4 · /"we also settled the hallucination schematic work. why isnt that part of the quest. already on disk??"/
+Verified absent on disk. Crossed wire named: `activating` minted, `activate` received, `requesting` copied — three hands on one handle. Proposed A (seed on the hallucination record) vs B (cortex ctx binds; makes `controller` optional again — rejected).
+
+** 5 · beef re-pasted the m63.2 dictation + my m63.2 reply + the activity dictation + the harnessed landing report — read as: fold it all.
+Rewrite: `* typology` (primitives/controller.js · errors/controller.js · prototypes/controller.js tangled; hallucination.js · cortex · shard · belt · barrels · is hunks; 14-caller blast → integration points) · `* runtime` (`entities/transient/Activity.ts` with `ActivityTypeEnum` + `ActivityRepository.activate(data, controller = new Controller(…))` — the repository mints; `sets.transient`; harness `controller: ctx.activity.controller`) · `* kajuit`. m63.2 section replaced by a pointer. Quest index line rewritten.
+
+** 6 · /"i also commented in the previous version of m65. collect my comments"/
+Ledger table in `* meta`, by site → ruling. Cut-0 (chat-history version) comments unrecoverable: untracked, overwritten by cut 1, none seen in the session-start read.
+
+** 7 · /"ok. cluster my comments and respond to them concisely"/
+Four clusters: activate.js not a file → repository verb · crossed wire → one writer (repository mints, harness reads back) · naming → transient set, path overruled, enum · struck exclusive. Noice kept.
+
+** 8 · /"1. activate what are links here? what does this look like on runtime and client?"/
+`links` = `{ user, mode, thread?, buffer?, turn? }` = the row's data → `activate(data, controller?)`. Row shown held + wire; client never activates; proposed stripping `create` from served verbs (serve find · findOne · count + reactive + `/:id/control`).
+
+** 9 · /"this is duplication or unnesecary nesting. status can just be the enum and timestamp is updatedAt... steps same. work this into the quest"/
+Applied: `status = "IDLE"` (enum over `MACHINE.states`), `error` flat beside it (null until reject), `updatedAt` on `VirtualEntity` base + stamped in `updateOne` (no mikro `onUpdate` — virtual rows skip the UoW), tap writes `{ status: code, error, steps }`, kajuit `$status = atom("IDLE")`, examples updated. Beef had already cut the ring 50 → 12 in place.
+
+* landed (all `.ikiro/`)
+
+- `.ikiro/quests/m65-the-activity.org` — tangle format; m63.2 folded; transient; `ActivityRepository.activate`; flat row; 3 integration points; `* meta` verbatim + comment ledger.
+- `.ikiro/quests/m63-process-controller.org` — `* m63.2 — moved` pointer.
+- `.ikiro/quests/index.md` — m65 line rewritten.
+
+* owed / open — beef's newer in-file notes, answered in chat, NOT yet worked into the quest
+
+- `activate` verb — /"i am unhappy with this verb. maybe .control()??"/ · `// @beef control` → lean `repository.control(data, controller?)`.
+- `get control` — /"should this maybe be something related to stdin. like sigin, stdin, signal. truenoun or verb? freeing control up as a verb…"/ → lean `activity.stdin`, route `/activity/:id/stdin/<SIGNAL>`.
+- `signalling` `ctx.steps.at(-1).nature` — /"weird selfreferential inversion. smell."/ → open each signal leaf with its name bound, no root use, no steps read.
+- `Hallucination[steps.at(-2).nature]` — /"break down steps as one. some nice little parser fn."/ → lean: each avenue branch's own `use` sets `ctx.schema`.
+- the ctx line — /"what properties are actually needed. define the hallucinatino context too. incl input. in v."/ → `Context` schematic.
+- /"@beef this needs a pass."/ + /"policy is universal across faculty and provider. settings are per faculty. why do we have config AND settings AND policy??"/ + `cache` / `harmonize` /"aint this settings/config?"/ → policy = respond loop; settings = per-faculty; fold config + harmonize into settings; cache stays a wire mark.
+- verbatim /"should also have a render mode … good candidate for a derivative faculty"/ → `verbatim.render = drain(stream)`.
+- strip `create` from `/userspace/entities/activity` — unanswered.
+- `Hallucination.*` casing · grace before `removeOne` — beef's call.
+- real runtime suites still red at the cortex WIP (from #157).
+
+* laws worth keeping
+
+- A cut on the container line can sever a contract: if file A REQUIRES what file B supplies, they are one quest regardless of container.
+- A helper file beside an entity is an ownerless verb; the repository is the owner (`TurnRepository.chain` precedent).
+- One handle, one writer: whoever mints the controller is the only place it is set; everyone else reads it back.
+- A row reflecting a state machine is FLAT: the enum, `updatedAt`, `error` beside — never `{ code, timestamp }` nested.
+- Beef annotates quests in place with `@beef` — grep the quest for new marks before every reply on it.

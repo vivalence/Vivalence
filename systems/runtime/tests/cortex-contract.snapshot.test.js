@@ -1,5 +1,5 @@
 import { join } from "@std/path";
-import { specimen, v, Url, Connection, Cortex, Aperture, Vector, shard, shape } from "@vivalence/typology";
+import { specimen, Controller, v, Url, Connection, Cortex, Aperture, Vector, shard, shape } from "@vivalence/typology";
 import { cortex as mountCortex } from "@vivalence/runtime/daemon/aperture";
 
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
@@ -83,6 +83,7 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
         async () => ({ message: "graded" }),
       );
     sealed = await remote.hallucinate.dialogue.render({
+      controller: new Controller(),
       policy: { tune: "unleashed" },
       system: { pin: "You are the wire contract pin." },
       turns: [{ role: "user", parts: [{ type: "text", text: "casa" }] }],

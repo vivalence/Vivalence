@@ -50,26 +50,36 @@ export const verbatim = ({ polish, tune } = {}) => async (ctx) => {
   const source = ctx.input.source ?? (ctx.request.raw?.body && ctx.request.subscribe());
   if (!source) throw new Error("[hal.verbatim] no audio source — pass input.source or feed the request body");
   const desire = vocal.tune ?? tune;
+  const controller = ctx.controller;
   const events = await ctx.daemon.cortex.hallucinate.verbatim.stream({
+    controller: controller.branch("verbatim"),
     source,
-    config: { ...(vocal.language && { language: vocal.language }) },
-    ...(vocal.harmonize && { harmonize: vocal.harmonize }),
-    policy: { ...(desire && { tune: desire }) },
+    settings: { ...(vocal.language && { language: vocal.language }) },
+    policy: { ...(desire && { tune: desire }), ...(vocal.harmonize && { harmonize: vocal.harmonize }) },
   });
-  if (!polish || vocal.polish === false) {
-    ctx.output = events;
-    return;
-  }
   const repair = async (text) => {
     const rendered = await ctx.daemon.cortex.hallucinate.dialogue.render({
+      controller: controller.branch("dialogue"),
       system: { polish },
       turns: [{ role: "user", parts: [{ type: "text", text }] }],
       policy: { tune: "fast", rounds: 1 },
     });
     return rendered.output.message?.trim() ?? null;
   };
-  ctx.output = polishing(events, repair);
+  ctx.output = controlled(controller, !polish || vocal.polish === false ? events : polishing(events, repair));
 };
+
+async function* controlled(controller, output) {
+  controller.stdout.open();
+  try {
+    yield* output;
+  } catch (fault) {
+    controller.stdout.fault(fault);
+    throw fault;
+  } finally {
+    controller.stdout.close();
+  }
+}
 
 export const voice = () => async (ctx, next) => {
   await next();

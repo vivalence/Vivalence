@@ -27,7 +27,7 @@ import {
   Url, Connection, Mode, Path, Aperture, Vector,
   shard, shape, is, array,
 } from "@vivalence/typology";
-import { sets, UserEntity, BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/runtime";
+import { sets, ActivityEntity, ActivityRepository, UserEntity, BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/runtime";
 import { provider as memoryDatamap } from "./datamap.js";
 import { assemble } from "./fixtures.js";
 import { Daemon } from "@vivalence/runtime/daemon";
@@ -100,6 +100,7 @@ export async function bench(spec = {}) {
     sets.daemon,
     sets.kernel,
     sets.userspace,
+    sets.transient,
     domain?.entities || {},
   ]);
 
@@ -113,6 +114,7 @@ export async function bench(spec = {}) {
   daemon.url = new Url("http://bench/daemon/bench");
   daemon.attach = new Url("http://bench/attached");
   daemon.entities = datamapInstance.entities;
+  daemon.entities.activity = new ActivityRepository(datamapInstance.orm.em, ActivityEntity);
   daemon.datamap = datamapInstance;
 
   const subscriber = shape.subscriber(daemon.twitch);

@@ -249,6 +249,15 @@ specimen.describe("v", () => {
     specimen.expect(v.thread({ trait: { progress: v.object({ level: v.integer() }) } })
       .check({ user: "u", mode: "m", trait: { progress: { level: 3 } } })).toBe(true);
   });
+  specimen.it("an entity reads a trait it declares — claimed and valid casts, unclaimed or invalid is bare, undeclared throws", () => {
+    specimen.expect(Object.keys(v.thread.traits)).toEqual(["INTELLIGENT", "VOCAL"]);
+    const worn = { traits: ["INTELLIGENT"], trait: { INTELLIGENT: { tune: "capable", rounds: 12 } } };
+    specimen.expect(v.thread.trait(worn, "INTELLIGENT")).toEqual({ tune: "capable", rounds: 12 });
+    specimen.expect(v.thread.trait({ traits: [], trait: { INTELLIGENT: { tune: "capable" } } }, "INTELLIGENT")).toEqual({});
+    specimen.expect(v.thread.trait({ traits: ["INTELLIGENT"], trait: { INTELLIGENT: { rounds: 99 } } }, "INTELLIGENT")).toEqual({});
+    specimen.expect(v.thread.trait(null, "VOCAL")).toEqual({});
+    specimen.expect(() => v.thread.trait(worn, "LABELED")).toThrow("declares no trait LABELED");
+  });
   specimen.it("url is RFC 3986 with an authority — any scheme, localhost included, ${} defaults excluded", () => {
     for (const held of [
       "http://localhost:2501/",

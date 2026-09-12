@@ -113,7 +113,7 @@ export const State = v.union([
 export const Turn = v.object({
   role: Role,
   parts: v.array(Part.Any),
-  meta: v.record(v.string(), v.unknown()).optional(),
+  meta: v.union([v.record(v.string(), v.unknown()), v.null()]).optional(),
 });
 
 // ── tune · a faculty's position in capability space ───────────────────────
@@ -367,3 +367,61 @@ Packet.Response = v.union([
   Packet.TurnFull,
   Packet.ResponseClose,
 ]);
+
+const shared = {
+  tune: v.union([Tier, Tune]).optional().desc('Desire in tune-space; the cortex resolves the faculty on it. Example: "fast"'),
+};
+
+export const Policy = {};
+Policy.dialogue = v.object({
+  ...shared,
+  rounds: v.integer({ minimum: 1, default: 10 }).desc("Tool rounds per turn. Example: 3"),
+  backoff: v.array(v.integer(), { default: [1000, 4000] }).desc("Retry waits in ms. Example: [1000, 4000]"),
+  cache: v.object({ marks: v.array(v.string()) }).optional().desc('System keys, and "tools", that take a cache breakpoint; lowering projects it to Request.cache and derives it when absent. Example: { marks: ["context", "tools"] }'),
+}, { default: {} }).desc("The respond loop, app-side; nothing here crosses the wire.");
+Policy.object = Policy.dialogue;
+Policy.verbatim = v.object({
+  ...shared,
+  harmonize: v.object({ window: v.integer().optional(), tolerance: v.number().optional(), tail: v.integer().optional() }).optional().desc("belt.verbatim.harmonize options, applied over the faculty's stream. Example: { window: 2 }"),
+}, { default: {} });
+Policy.speech = v.object({ ...shared }, { default: {} });
+
+const controlled = (policy) => ({
+  controller: v.unknown().desc('A live Controller — required; is.Controller gates it, no schema can. Example: new Controller({ stdout: new Span("hallucination") })'),
+  policy,
+});
+
+export const Hallucination = {};
+
+Hallucination.dialogue = v.object({
+  ...controlled(Policy.dialogue),
+  system: v.record(v.string(), v.unknown()).optional(),
+  turns: v.array(Turn, { default: [] }),
+  tools: v.unknown().optional().desc("A tools Vector, or an already-lowered catalog. Example: new Vector()"),
+  settings: Settings.optional(),
+  output: Output.optional(),
+});
+Hallucination.object = Hallucination.dialogue;
+
+Hallucination.verbatim = v.object({
+  ...controlled(Policy.verbatim),
+  source: v.unknown().desc("An async iterable of Audio.Packet. Example: request.subscribe()"),
+  settings: Settings.optional().desc('Provider knobs, opaque. Example: { language: "it" }'),
+});
+
+Hallucination.speech = v.object({
+  ...controlled(Policy.speech),
+  source: v.unknown().desc('Text, or an async iterable of text. Example: "buongiorno"'),
+  settings: Settings.optional().desc('Provider knobs, opaque. Example: { voice: "aria" }'),
+});
+
+export const Context = v.object({
+  input: v.unknown().desc("Hallucination[avenue], filled; lowering rewrites it to the wire Request"),
+  output: v.unknown().optional(),
+  controller: v.unknown().desc("The record's controller, lifted; is.Controller"),
+  policy: v.union([Policy.dialogue, Policy.verbatim, Policy.speech]).desc("The record's policy, lifted; lowering strips it off input"),
+  tools: v.unknown().optional().desc("The armed Vector, lifted off the record by lowering"),
+  steps: v.array(v.unknown()),
+  signal: v.unknown(),
+}).desc('What a hallucinate middleware sees. Example: { input: { turns: [] }, output: undefined, controller, policy: { rounds: 10, backoff: [1000, 4000] }, steps, signal }');
+Hallucination.Context = Context;

@@ -47,6 +47,17 @@ specimen.describe("bones.axis — a bone reads its own rect", () => {
     }
   });
 
+  specimen.it("an arm shorter than its thickness keeps its axis", () => {
+    const edge = { 0: { x: 54, y: 300 }, 90: { x: 400, y: 30 }, 180: { x: 1170, y: 300 }, 270: { x: 400, y: 770 } };
+    const expected = { 0: "row", 90: "column", 180: "row", 270: "column" };
+    for (const orientation of ORIENTATIONS) {
+      const bones = bonesAt(orientation, edge[orientation]);
+      specimen
+        .expect(`o=${orientation} shoulder ${axisFor(bones.shoulder)}`)
+        .toBe(`o=${orientation} shoulder ${expected[orientation]}`);
+    }
+  });
+
   specimen.it("the pincer bone is square, so it reads as a row", () => {
     for (const orientation of ORIENTATIONS) {
       const bones = bonesAt(orientation, PLACEMENTS[0]);

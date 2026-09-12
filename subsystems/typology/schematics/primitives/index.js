@@ -1,5 +1,6 @@
 export * as auth from "./auth.js";
 export * as connection from "./connection.js";
+export * as controller from "./controller.js";
 export * as hallucination from "./hallucination.js";
 export * from "./manifest.js";
 export * from "./label.js";

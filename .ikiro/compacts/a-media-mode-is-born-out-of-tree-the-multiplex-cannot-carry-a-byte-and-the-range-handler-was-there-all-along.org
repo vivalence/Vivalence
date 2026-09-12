@@ -1,0 +1,155 @@
+#+title: a media mode is born out of tree, the multiplex cannot carry a byte, and the Range handler was there all along
+#+filetags: :media:registry:package:mode:ffmpeg:otio:design:kajuit:svelte:runtime:cargo:callout:
+#+index: 164
+#+session: 6 turns, a fresh session (models opus → fable → opus; no agents; =~/.viva/registry/media= created, =.ikiro/= + memory touched; no repo product code, VCS untouched)
+
+* one breath
+
+beef asked how to build a viva mode for editing audio and video, self-rolled or borrowed. The
+answer split the work: borrow the engines (ffmpeg on the daemon, the browser's own media
+elements), build the ontology. Asked for the full design, it became three literal ontologies
+on the mount — =media= · =composition= · =annotation= — with the composition shaped after
+OpenTimelineIO (tracks of clips and gaps, positions implied by order), render as a streamed
+process that lands a media row, and a Resolve-shaped App: bin · monitor · timeline · inspector.
+On /"yes go build"/ it landed as the =@media= registry package, =@media/editor/media=, with
+five suites green against a real ffmpeg. Two things the build learned that the design did not
+know: the kajuit multiplex decodes every upstream chunk as text, so a file upload needs its own
+http door; and the Range handler the design called a missing prerequisite already existed in
+the cargo route — the real defect is that it reads the whole file before slicing it.
+
+* the spine — 6 turns
+
+** 1 · /"i need a new viva mode. one for editing audio and video. how to construct this? self roll or via take some github stuff?"/
+Answered from general knowledge, no reads: borrow the engines (ffmpeg · WebCodecs ·
+wavesurfer), build the EDL-as-entity and the render process; audio-first recommended; three
+forks asked (audio vs full video · daemon vs browser render · standalone vs tool).
+
+** 2 · /"design multitrack video and audio. render on daemon side. file input either from path or drag n drop. both cases files are copied/stored/moved into mountpoint. i want to be able to download via browser and/or dragndrop out of the browser. literal annotation amen. preview in browser rich. for now just standalone. what ui paradigm to steal? what data schema do we need? what are our ontologies. media, composition, more?"/
+Read the memory bodies for freight/mountpoint, mode-owns-rows, manifest-is-identity; read
+hello-world and oracle modes, the vdex precedent (=MOUNTED= + =BOOTED= + watcher + slug verbs),
+=Literal.ts=, =shard/serve.js=, =hal.js= body ingest, =freight.js=, drapes =Asset=. Designed:
+schema from OTIO, UI from Resolve's Edit page + Descript's transcript rail; ontologies
+=media= · =composition= (one row, the whole doc) · =annotation=; render a process, not an
+ontology; mountpoint =media/<hash>= · =derived/<hash>/= · =renders/=; aperture verbs; five
+forks with a recommendation each (sequential vs offsets · one row vs clip rows · hash names ·
+Range in =serve.js= · home). The Range fork was WRONG — see callouts.
+
+** 3 · /"yes go build. add it to .viva/registry/ package: @media instance media."/
+Took every recommendation as ruled. =pre-flight= loaded. Built in layers, each green before the
+next: pure composition verbs (8) → ffmpeg runner · probe · ingest · derive · render (6, real
+ffmpeg over lavfi fixtures) → rows · boot · watcher (4) → aperture verbs (8) → the App (7,
+compile + a no-literal-colour check). Package manifest, instance template, README.
+
+** 4 · MID-TURN /"i create instance"/
+Instance creation is beef's; the template landed at =instances/media/=, nothing tapped.
+
+** 5 · the =pre-flight= skill body — NOTHING (harness, loaded by turn 3).
+
+** 6 · /"ikiro compact"/ — this fold. The =claim-guard= stop hook had fired on the landing
+report just before; re-measured, every figure held.
+
+* landed
+
+#+BEGIN_EXAMPLE
+~/.viva/registry/media/                         (no VCS)
+  package.viva.js · README.md
+  instances/media/{instance.viva.js, daemon.js}  mountpoint /Users/finn/vivalence/media
+  modes/editor/media/
+    media.viva.js     MOUNTED · BOOTED · APPLICATION · STANDALONE · EXPOSED
+    schema.js         Range · Clip · Gap · Track · Marker · Composition · Media · Annotation · Progress · Settings
+    composition.js    blank · clip · gap · offsets · locate · insert · append · placeAt · remove · lift · split · trim · move · between · addTrack · clipsOf · validate
+    rows.js           MIME · ONTOLOGY · scheme symbols · mediaRow · compositionRow · annotationRow
+    ffmpeg.js         capture · run (-progress pipe:1 → {stage, fraction}) · settle
+    probe.js          ffprobe json → {duration, container, video, audio}
+    ingest.js         path | stream → media/.incoming-<uuid> → sha256:16 → media/<hash>.<ext>, dedupe
+    derive.js         peaks (s8 @ 4 kHz → 50 bins/s) · thumbs (1 fps, 160w) · proxy (720p, g=15)
+    render.js         graph(): per-track concat, overlay stack, amix; gaps = color@0.0 / anullsrc
+    boot.js           ensureScheme · sync(paths) chain · canonical rename · watchFs · pending marks
+    otio.js           Timeline.1 · Stack.1 · Track.1 · Clip.2 · Gap.1 · Marker.2
+    aperture/index.js /media/{list,read,import,ingest,remove,derive} · /composition/{list,create,read,write,remove} · /annotation/{list,create,write,remove} · /render · /export/otio
+    buffer/Media.svelte · engine.js · upload.js · parts/{Bin,Monitor,Timeline,Clip,Inspector}.svelte
+    tests/{composition,engine,boot,aperture,app}.test.js · fixture.js · scenarios.js
+#+END_EXAMPLE
+
+At the fold, inside the package: =Media.svelte= =edits.remove= / =edits.lift= never cleared the
+selection (=commit()= returns undefined, so the =&&= chain stopped) — rewritten as statements;
+README's "FFmpeg 7+" replaced by the measured "9.0.1 rejects =-filter_complex_script=".
+
+* test envelopes
+
+#+BEGIN_EXAMPLE
+deno test --config deno.jsonc -A --no-check ~/.viva/registry/media/
+ok | 5 passed (33 steps) | 0 failed
+  composition 8 · engine 6 · boot 4 · aperture 8 · app 7
+#+END_EXAMPLE
+
+* what the suites could not see
+
+- The App is COMPILE-only. [[feedback_render_the_view_to_verify_it]]: a compile never runs an
+  effect. =Timeline.svelte= reads and writes =peaks[slug]= in one =$effect=; read as bounded (a
+  second run finds =null ≠ undefined= and skips) but NOT run — exactly the class a mount settles. kajuit's
+  linkedom rig (=systems/kajuit/tests/activity.mount.test.js=) is the template. Owed.
+- The =yields= routes (ingest · derive · render) are tested by calling the handler with a
+  hand-built ctx — not through =shape.http= framing, not through =shape.connection.wire=.
+- The browser upload door (=buffer/upload.js=: a second =Connection= over =fetcher= + =authorize=,
+  a File body, =x-viva-name=) has never run.
+- Never tapped, never booted under the runtime, never rendered in a browser.
+
+* settlement
+
+- The design's /"Range/206 prerequisite, typology HOLY"/ fork: dissolved — the cargo route has
+  it. The real defect went to =known-issues.org= as =cargo-range-reads-the-whole-file-per-request=
+  (=resolve.js:69=), gated runtime touch.
+- Memory =project_media_mode= carried four unmeasured claims; each re-measured and rewritten:
+  =serve.file= "dead code" → two typology-test consumers, zero production · the symbol fold
+  "clobbers" → a 2-segment slug is REPLACED by a deeper sibling (=deno eval=) · "ffmpeg 8+/9
+  dropped" → 9.0.1 is the only version measured · "=assign(object.patch)= deep-merges arrays" →
+  0 items where 3 were sent, the layer unisolated.
+- =frontier.md= went to 5226 chars with the new owed line (limit 5000). Evicted the whole =m59=
+  item — every clause is carried by =project_m59_instance_as_a_function.md:23= and the frontier's
+  own commit + education items; the =@media= line cut to a pointer. 5000 chars.
+- Owed to beef → =frontier.md ## owed= (=@media=). Not restated here.
+
+* callouts
+
+Two, both =assume-dont-verify=, appended to the ledger:
+- SELF-SCOPED — the Range prerequisite claimed off =shard/serve.js=, a helper named like the
+  capability, instead of the route the browser requests.
+- closing summary — the landing report restated the suite envelope, a comment zero and a
+  never-measured "not tapped"; =claim-guard.sh= denied it, the next turn re-measured, all held.
+
+* markers
+
+Both OPEN markers (empty-cortex boot warning · cortex-snapshot coverage) belong to other
+sessions' orders and nothing here touched them. Left OPEN.
+
+* laws
+
+- =Socket.feed= (=subsystems/typology/prototypes/socket.js:271=) decodes upstream with
+  =TextDecoder= and sends JSON text frames: binary never crosses the kajuit multiplex. A file
+  upload needs a plain http =Connection=.
+- A literal's =symbol= is a fold of slugs by depth: a slug that shares a root with a deeper
+  sibling must match its depth, or the deeper one replaces it.
+- A rename-on-settle bin must consume its per-path marks only after a successful upsert: the
+  watcher probes a half-written file first and throws.
+- =path.extname(".mp4")= is =""= — a helper that takes a filename must be handed one.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | sessions   |
+|----------------------------+------------+-----------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 2          |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 0          |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1          |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 2          |
+| m53-vcompany               |   0% 0/1   | open                                                                  | his restart + the click-through gates (vdex 12 · mail/calendar 12 · gs1–gs6); the six office test files; the three stale vdex reds; then his call on the next stage — chat over telegram · vendor providers · the officer stage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 0          |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and the v3 vdex pass (both folded into =m53-vcompany.org=; originals =discarded/m53-vcompany.org= · =done/m53-vcompany.v3-vdex.org=) first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1          |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 0          |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 0          |
+| m57-hello-world-researches |  74% 20/27 | open                                                                  | restart (harnessed.js · generative.js · buffer.ts · thread.ts are repo files; buffer migrates). /"research flamingos, with a picture"/ → one <figure>, line reads the label. a follow-up change → `revised buffer <id> index 0 view <new>`, same line re-mounts, no cursor. /"call that page flamingos"/ → one buffer_label.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1          |
+| m58-application-noun       | 100% 2/2   | designed                                                              | beef rules m1's three decisions and m2's one, then "go" per milestone — each under its own blast bracket, steps 1–6, one pass per step; the out-of-repo kernels overlap, so a same-day landing is one vcompany capture                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1          |
+| m60-lighthouse-security    |   0% 0/24  | designed                                                              | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1          |
+| m61-chess-domain           |   0% 0/20  | designed                                                              | beef — rule f1…f6; then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1          |
+| m63-process-controller     | —          | designed                                                              | beef — rule the overlap with m65, which now tangles primitives/controller.js · errors/controller.js · prototypes/controller.js; m63 keeps the graph and the socket line                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | 1 (1 live) |
+| m65-the-activity           | —          | landed                                                                | beef — followup: tools nesting a harness call hand `ctx.controller?.branch(<faculty>)` (research.js runs under a dispatch; dealer · oracle · registry named by beef) · followup: the polish sites renamed by faculty (verbatim.polish · hal.verbatim({ polish }) · vocal.polish · polish) · then the kajuit capability (a panel over `daemon.entities.activity` + `row.stdin`) · rule the m63 overlap. diff back into the quest: the =drift:= marks under each section (measured on disk; compact #160 `* landed vs designed` is partly stale).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 2 (1 live) |
+| readme-can-i               |   0% 0/5   | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 1          |

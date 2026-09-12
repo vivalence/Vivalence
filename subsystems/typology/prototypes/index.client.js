@@ -30,7 +30,7 @@ export * from "./view.js";
 export * from "./span.js";
 export * from "./pipe.js";
 export * from "./queue.js";
-export * from "./hallucination.js";
+export * from "./controller.js";
 export * from "./cortex.js";
 export * from "./conversation.js";
 

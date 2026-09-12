@@ -22,6 +22,7 @@
     // "build": "docker build -f ./systems/kajuit/Dockerfile -t vivalence/kajuit:alpine .",
 
     "test": "deno test -A --no-check --watch tests/**/*.test.js",
+    "interactive/activity": "deno run -A --no-check tests/interactive/activity/panel.jsx http://localhost:7710",
     "test/scenario": "deno test -A --no-check --watch tests/scenario/*.test.js",
     "test/dataspace": "deno test -A --no-check --watch tests/lifecycle-vector.test.js",
     "test/stall": "deno test -A --no-check --watch tests/terminal.stall.test.js",

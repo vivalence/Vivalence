@@ -40,6 +40,7 @@ specimen.describe("harness — the thread section", () => {
     specimen.expect(rows[2]).toContain(`where: { thread: "${thread.id}" }`);
     specimen.expect(rows[3]).toBe(`0 · ${first.id} · dewey #0 · teacher/dewey · PENDING · {}`);
     specimen.expect(rows[4]).toBe(`1 · ${second.id} · dewey #1 · teacher/dewey · PENDING · {"open":"22.04.re24-05277.pdf"}`);
-    specimen.expect(captured.cache).toEqual({ marks: ["dewey", "tools"] });
+    specimen.expect(captured.policy.cache).toEqual({ marks: ["dewey", "tools"] });
+    specimen.expect(captured.controller.stdout.absolute).toBe("/hallucination");
   });
 });

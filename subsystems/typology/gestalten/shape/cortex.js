@@ -1,3 +1,4 @@
+//@beef NOT SHAPE! doesnt belong into shape. shapes is for vectors. this is belt!
 export const strip = (cortex) =>
   [...cortex.faculties.values()].flat().map((faculty) => ({
     type: faculty.type,
@@ -9,8 +10,8 @@ export const strip = (cortex) =>
     via: Object.keys(faculty.via),
   }));
 
-export const wire = (connection, strip = []) =>
-  strip.map((meta) => ({ ...meta, via: providers(connection, meta) }));
+export const wire = (connection, stripedCortex = []) =>
+  stripedCortex.map((meta) => ({ ...meta, via: providers(connection, meta) }));
 
 const providers = (connection, meta) => {
   const via = {};
@@ -18,6 +19,7 @@ const providers = (connection, meta) => {
   if (meta.via.includes("render"))
     via.render = (request) => connection.call("/render", round(request));
   if (meta.via.includes("stream"))
-    via.stream = (request) => connection.observe("/stream", { method: "POST", body: round(request) });
+    via.stream = (request) =>
+      connection.observe("/stream", { method: "POST", body: round(request) });
   return via;
 };

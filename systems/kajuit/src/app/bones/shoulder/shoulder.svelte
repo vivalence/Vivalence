@@ -2,7 +2,9 @@
   import { getContext } from "svelte";
   import { chain, stores } from "@vivalence/kajuit";
   import { TERMINALS } from "$client";
+  import { loudest, roster } from "@vivalence/kajuit";
   import Phase from "./widgets/Phase.svelte";
+  import ActivityTracker from "../../widgets/ActivityTracker.svelte";
   import Dock from "./widgets/Dock.svelte";
 
   let { rect } = $props();
@@ -13,6 +15,14 @@
   const terminal = chain(terminals, "$active");
   const thread = chain(terminals, "$active", "$thread");
   const mode = chain(terminals, "$active", "$thread", "$mode");
+
+  // one roster per thread; the shoulder says STATE only — never a count (design rule 6).
+  let rows = $state([]);
+  $effect(() => {
+    if (!$thread) return void (rows = []);
+    return roster($thread).subscribe((held) => (rows = held));
+  });
+  const code = $derived(loudest(rows));
 </script>
 
 <div
@@ -28,6 +38,9 @@
       style:flex-direction={axis}
       style:padding={axis === "column" ? "16px 0" : "0 16px"}>
       <Phase terminal={$terminal} />
+      {#if code !== "NONE"}
+        <ActivityTracker {code} framed title={`activity · ${code.toLowerCase()} · ${rows.length} live`} />
+      {/if}
       {#if $mode?.implements?.("HARNESSED")}<Dock />{/if}
     </div>
   {/if}
@@ -40,7 +53,7 @@
     border-top: 1px solid var(--colors-skeleton-1-boundary);
     border-bottom: 1px solid var(--colors-skeleton-1-boundary);
     z-index: 50;
-    overflow: visible;
+    overflow: hidden;
   }
   .bone.column {
     border-top: none;

@@ -1,0 +1,650 @@
+#+title: m64 the virtual entity — a throwing `expression`, a repository the context holds that IS the storage
+#+filetags: :m64:runtime:typology:mikro:virtual:datamap:reactive:subscriber:remote-repository:entity-manager:multiplex:tests:retrospective:
+#+status: LANDED 2026-09-14 · M1–M7 green (20 · 15 · 2 · discovery 20) · suites at baseline · `allowGlobalContext` strike OWED (own quest) · retrospective + review below
+
+* the one sentence
+
+A `VirtualSchema` makes a kind virtual (throwing `expression`, no PK, no table); the context constructs and holds its repository, which IS the storage — `$entities`, the nanostores atom `RemoteRepository` also holds; every mutation dispatches through mikro's EventManager, so the datamap spine to the client is untouched.
+
+* the paradigm (VCS)
+
+`bf0322c7d` 2025-03 ontology · `f6b6891b4` 2026-02 kernel · `ab5987173` 2026-03 commented · `65aabc1b7` 2026-07 gone — never named by a test.
+
+#+BEGIN_SRC js
+// f6b6891b4 — the context constructs and holds; the repository IS the storage; the class bound by hand
+kernel = { orm: {}, em: {}, constraint: new maps.virtual.constraint.repository(), issue: new maps.virtual.issue.repository() };
+export class VirtualRepository extends Array {
+  "#entity": any;
+  public async create(data: any) { const entity = new this["#entity"](data); super.push(entity); return entity; }
+}
+// m64 — same holding, a reactive store, mikro binds the class, a test names every kind
+entities.probe = new VirtualRepository(orm.em, ProbeEntity);
+#+END_SRC
+
+* laws (measured, probe 20/20)
+
+- door: `virtual = !!expression` (ours throws) · PK forbidden · no table · factory registers nothing.
+- key: CLASS name; strip → `probe`.
+- relations: real `1:m` may target a virtual (`hidden: true` on it) · virtual `m:1` hydrates · strip emits both sides.
+- toJSON: cold m:1 → id, loaded → object · the matcher collapses to id.
+- events: hand-dispatched reach `shape.subscriber` · `beforeDelete`/`beforeCreate`/`beforeUpdate` run schema hooks · forks share the EventManager.
+- inheritance: `extends:` does not carry `expression`/`repository` → `VirtualSchema` pins both.
+- repositories: a fork-minted twin holds an EMPTY atom; the context's instance is the only storage; no caller asks mikro for a virtual repository.
+- remote: client reads `properties` + `id` only → no redesign.
+- writes ride a request context: a loaded to-one expands and the Broadcaster matches `===` (`broadcaster.js:58`); hold `orm.em`, never a fork.
+- `population.seal` re-wraps ABSTRACT only → a `VirtualSchema` citizen passes.
+- a repository nobody names dies silently → every kind named by a test.
+
+* M0 — the probe (GREEN 20/20, `virtual.discovery.test.js`: a–i · j–m the schema class · n–o re-pinned AS WRITTEN: a fork-minted copy holds an empty atom · a handed atom is the storage — the `Configuration` bag pins deleted)
+
+* M1 — typology
+
+#+BEGIN_SRC js :tangle ../../subsystems/typology/schematics/entities/base.js
+// appended beside DataEntitySchema — an id and a birth, no updatedAt (nothing is ever re-read from a store)
+export const VirtualEntitySchema = v.object({
+  id: v.string().desc("Minted in the constructor, never a primary key — mikro forbids one on a virtual entity. Example: \"019d23f1-8c4e-7a2b-9f10-3e5a1c2d4b6f\""),
+  createdAt: v.string().desc("ISO birth of the instance; dies with the process. Example: \"2026-09-14T10:00:00.000Z\""),
+}, { additionalProperties: true });
+#+END_SRC
+
+* M2 — runtime (`VirtualEntity.ts` recast in place)
+
+#+BEGIN_SRC js :tangle ../../systems/runtime/daemon/entities/base/VirtualEntity.ts
+import { BaseEntity, EntitySchema, EntityRepository, EventType, Utils, types, type EntityManager, type EntityMetadata, type EntityName, type EntitySchemaMetadata } from "@mikro-orm/core";
+import { object, NotFound } from "@vivalence/typology";
+import { atom, type WritableAtom } from "nanostores";
+import { v7 } from "uuid";
+
+// process-resident: mikro metadata · factory · events · serializer — no table, no identity map, no unit of work.
+// handles (controllers, gates, streams) are PRIVATE fields: not metadata → never in the strip, never in toJSON.
+export class VirtualEntity extends BaseEntity {
+  id: string = v7();
+  createdAt: Date = new Date();
+}
+
+// The repository IS the storage, and the storage is reactive: `$entities` is the same nanostores atom the remote side holds
+// (`this.$entities = entityManager.stores[name]`), so `get`/`subscribe` read alike on both ends. The context constructs and
+// holds the ONE instance — `entities.probe = new VirtualRepository(orm.em, ProbeEntity)` — the class is mikro's own second
+// argument, the atom an optional third (a context may hand one in). A twin mikro mints on a fork (two arguments) holds an
+// EMPTY atom: nobody asks mikro for a virtual repository (measured). The wire is still the EventManager path — the atom is in-process.
+export class VirtualRepository<T extends VirtualEntity = VirtualEntity> extends EntityRepository<T> {
+  readonly $entities: WritableAtom<T[]>;
+  constructor(em: EntityManager, entityName: EntityName<T>, $entities: WritableAtom<T[]> = atom([])) {
+    super(em, entityName);
+    this.$entities = $entities;
+  }
+  #meta(): EntityMetadata { return this.em.getMetadata().get(Utils.className(this.entityName)); }
+  #dispatch(event: EventType, entity: T) {
+    const meta = this.#meta();
+    return this.em.getEventManager().dispatchEvent(event, { entity, em: this.em, meta }, meta);
+  }
+  // belt: own enumerable metadata props (a private handle never appears), every to-one collapsed to its id (measured e)
+  #plain(entity: T): Record<string, unknown> {
+    const meta = this.#meta();
+    const plain = object.pick(entity, meta.props.map((prop) => prop.name));
+    for (const prop of meta.relations) plain[prop.name] = plain[prop.name]?.id ?? plain[prop.name];
+    return plain;
+  }
+  #match(where: object): T[] { return this.$entities.get().filter((entity) => object.match(this.#plain(entity), where)); }
+  #set(entities: T[]) { this.$entities.set(entities); }              // a NEW reference → listeners fire (atom/index.js:66-71)
+
+  // ── queries (the datamap.repository verb set; `options` — populate/orderBy/limit — are not served) ──
+  async find(where: object = {}): Promise<T[]> { return this.#match(where); }
+  async findOne(where: object = {}): Promise<T | null> { return this.#match(where)[0] ?? null; }
+  async findOneOrFail(where: object): Promise<T> {
+    const entity = await this.findOne(where);
+    if (!entity) throw new NotFound(`${Utils.className(this.entityName)} ${JSON.stringify(where)}`);
+    return entity;
+  }
+  async findAndCount(where: object = {}): Promise<[T[], number]> { const hits = this.#match(where); return [hits, hits.length]; }
+  async count(where: object = {}): Promise<number> { return this.#match(where).length; }
+
+  // ── mutations — before/after through the ORM's EventManager, then a re-set of the store ──
+  async create(data: object): Promise<T> {
+    const entity = this.em.create(this.entityName, data as any, { persist: false }) as T;   // factory only: persistOnCreate would park it in the fork's unit of work (measured)
+    await this.#dispatch(EventType.beforeCreate, entity);
+    this.#set([...this.$entities.get().filter((held) => held.id !== entity.id), entity]);   // id unique, never duplicated
+    await this.#dispatch(EventType.afterCreate, entity);
+    return entity;
+  }
+  async updateOne(where: object, data: object): Promise<T> {
+    const entity = await this.findOneOrFail(where);
+    await this.#dispatch(EventType.beforeUpdate, entity);
+    entity.assign(data as any);
+    this.#set([...this.$entities.get()]);                                     // in place, then re-set
+    await this.#dispatch(EventType.afterUpdate, entity);
+    return entity;
+  }
+  async update(where: object, data: object): Promise<T[]> {
+    return Promise.all(this.#match(where).map((entity) => this.updateOne({ id: entity.id }, data)));
+  }
+  async removeOne(where: object): Promise<T> {
+    const entity = await this.findOneOrFail(where);
+    await this.#dispatch(EventType.beforeDelete, entity);                    // the schema's hooks.beforeDelete fires here
+    this.#set(this.$entities.get().filter((held) => held !== entity));
+    await this.#dispatch(EventType.afterDelete, entity);
+    return entity;
+  }
+  async remove(where: object = {}): Promise<T[]> {
+    return Promise.all(this.#match(where).map((entity) => this.removeOne({ id: entity.id })));
+  }
+  async upsert(data: { id?: string }): Promise<T> {
+    return data.id && (await this.findOne({ id: data.id })) ? this.updateOne({ id: data.id }, data) : this.create(data);
+  }
+}
+
+// the abstract base — DataSchema's twin; module-private, discovery reaches it through the class chain (measured l)
+const base = new EntitySchema({
+  class: VirtualEntity,
+  abstract: true,
+  properties: { id: { type: types.string }, createdAt: { type: types.datetime } },
+});
+
+// the schema of a virtual kind — pins expression + repository, which `extends:` never copies (measured j, k).
+// a citizen names class · properties · hooks; `...options` after `repository` lets a kind bring a VirtualRepository subclass.
+export class VirtualSchema<T extends VirtualEntity = VirtualEntity> extends EntitySchema<T, VirtualEntity> {
+  constructor(options: EntitySchemaMetadata<T, VirtualEntity>) {
+    super({
+      extends: base,
+      repository: () => VirtualRepository,
+      ...options,
+      expression: () => { throw new Error("a virtual entity is served from its repository, never the driver"); },
+    });
+  }
+}
+#+END_SRC
+
+* M3 — datamap shards
+
+Untouched: `repository` · `reactive` · `strip` · `subscriber` · `detached`/`inject` · provider loop · the remote prototypes. HUNK: `errors()`. Gap: `find` options (`populate`/`orderBy`/`limit`) are not served by a virtual.
+
+* M4 — test scenario
+
+#+BEGIN_SRC js :tangle ../../systems/runtime/tests/scenarios/virtual.js
+import { types } from "@mikro-orm/core";
+import { Aperture, Vector, shape, shard, Url, sleep } from "@vivalence/typology";
+import { VirtualEntity, VirtualRepository, VirtualSchema, ThreadEntity, UserEntity, ModeEntity } from "@vivalence/runtime";
+import { provider, schemas } from "./datamap.js";
+
+// a status, a payload, an owner, a thread, one private handle — every wire, specific to nothing
+export class ProbeEntity extends VirtualEntity {
+  user; thread;
+  status = "OPEN";
+  payload = {};
+  #torn = false;
+  get torn() { return this.#torn; }
+  teardown() { this.#torn = true; }          // the mikro beforeDelete hook
+}
+
+export const ProbeSchema = new VirtualSchema({
+  class: ProbeEntity,
+  hooks: { beforeDelete: ["teardown"] },
+  properties: {
+    user:   { kind: "m:1", entity: () => UserEntity },
+    thread: { kind: "m:1", entity: () => ThreadEntity, nullable: true },
+    status: { type: types.string },
+    payload: { type: types.json },
+  },
+});
+
+export const probe = { type: "probe", schema: ProbeSchema };   // no `entity`: the ORM discovers the schema, the provider mints nothing
+
+const describe = (schema) => ({
+  type: schema.meta.class.name.toLowerCase().replace("entity", ""),
+  schema,
+  entity: schema.meta.class,
+});
+
+export async function create({ port = 0 } = {}) {
+  const datamap = await provider([...schemas.map(describe), probe]);
+  const { entities, orm } = datamap;
+  const em = orm.em;                                            // the GLOBAL em: every verb routes to the request's fork via getContext()
+  entities.probe = new VirtualRepository(em, ProbeEntity);      // the context constructs and holds it — `kernel.constraint = new …`
+
+  // no global context, ever: the fixtures are written inside one, like every write after them
+  const { user, stranger, mode, thread } = await datamap.shard.context(async () => {
+    const em = orm.em.getContext();
+    const user = em.create(UserEntity, { roles: ["USER"], config: {} });
+    const stranger = em.create(UserEntity, { roles: ["USER"], config: {} });
+    const mode = em.create(ModeEntity, { slug: "test", type: "test", traits: [], installed: "installed" });
+    await em.flush();
+    em.setFilterParams("user", { user: user.id });
+    const thread = em.create(ThreadEntity, { user: user.id, mode: mode.id, traits: [] });
+    await em.flush();
+    return { user, stranger, mode, thread };
+  });
+
+  const twitch = new Vector();
+  datamap.subscribe(shape.subscriber(twitch));
+
+  // a daemon-side write rides a request context, as in production: fresh identity map → cold references →
+  // to-ones serialize as ids → the Broadcaster's `object.match` (===) meets a `{ user }` filter
+  const as = (who, fn) => datamap.shard.context(() => { orm.em.getContext().setFilterParams("user", { user: who.id }); return fn(); });
+
+  const aperture = new Aperture();
+  aperture.use(shard.datamap.inject(datamap));
+  aperture
+    .branch("/probe")
+    .use(shard.context.attach("user", user))
+    .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
+    .slurp(shard.datamap.repository(entities.probe))
+    .slurp(shard.datamap.reactive(entities.probe, twitch));
+  aperture.open("/datamap", () => shard.datamap.strip(datamap.introspect()));
+
+  const gate = shard.serve.multiplex(aperture);
+  aperture.open("/multiplex", gate);
+  const abort = new AbortController();
+  const server = Deno.serve({ port, signal: abort.signal, onListen() {} }, shape.http(aperture));
+  await sleep.ms(50);
+
+  return {
+    orm, em, datamap, entities, twitch, aperture, gate, as,
+    fixtures: { user, stranger, mode, thread },
+    url: new Url(`http://localhost:${server.addr.port}`),
+    async close() {
+      await as(user, () => entities.probe.remove({}));
+      abort.abort();
+      await sleep.ms(20);
+      await datamap.disintegrate();
+    },
+  };
+}
+#+END_SRC
+
+* M5 — tests, daemon side
+
+#+BEGIN_SRC js :tangle ../../systems/runtime/tests/virtual.test.js
+import { specimen, Vector, shape } from "@vivalence/typology";
+import { RequestContext } from "@mikro-orm/core";
+import { atom } from "nanostores";
+import { VirtualRepository } from "@vivalence/runtime";
+import { ThreadEntity } from "@vivalence/runtime";
+import { create, ProbeEntity } from "./scenarios/virtual.js";
+
+let world, probe, user, thread;
+specimen.beforeAll(async () => {
+  world = await create();
+  ({ probe } = world.entities);
+  ({ user, thread } = world.fixtures);
+});
+specimen.afterAll(() => world.close());
+specimen.afterEach(() => world.as(user, () => probe.remove({})));
+
+specimen.describe("VirtualRepository — the storage is the repository the context holds, and it is reactive", () => {
+  specimen.it("named: the ORM knows the kind as virtual, the context holds its repository, $entities is a store", () => {
+    specimen.expect(world.orm.getMetadata().get(ProbeEntity).virtual).toBe(true);
+    specimen.expect(probe).toBeInstanceOf(VirtualRepository);
+    specimen.expect(typeof probe.$entities.subscribe).toBe("function");
+    specimen.expect(probe.$entities.get()).toEqual([]);
+  });
+  specimen.it("instances survive request contexts — two forks, one identity, through the held instance", async () => {
+    const born = await world.as(user, () => probe.create({ user: user.id }));
+    const seen = await Promise.all([1, 2].map(() =>
+      RequestContext.create(world.orm.em, () => world.entities.probe.findOne({ id: born.id }))));
+    specimen.expect(seen[0]).toBe(born);
+    specimen.expect(seen[1]).toBe(born);
+  });
+  specimen.it("a copy mikro mints on a fork is NOT the storage — its atom is empty, by design", async () => {
+    const born = await world.as(user, () => probe.create({ user: user.id }));
+    const twin = world.orm.em.fork().getRepository(ProbeEntity);
+    specimen.expect(twin).toBeInstanceOf(VirtualRepository);
+    specimen.expect(twin.$entities).not.toBe(probe.$entities);
+    specimen.expect(await twin.findOne({ id: born.id })).toBe(null);
+  });
+  specimen.it("a handed atom is the storage", async () => {
+    const mine = atom([]);
+    const held = new VirtualRepository(world.orm.em, ProbeEntity, mine);
+    const born = await world.as(user, () => held.create({ user: user.id }));
+    specimen.expect(mine.get()).toEqual([born]);
+    await world.as(user, () => held.remove({}));
+  });
+  specimen.it("reactive: a subscriber sees create → update → delete as three new arrays", async () => {
+    const seen = [];
+    const off = probe.$entities.subscribe((entities) => seen.push(entities.length));
+    const born = await world.as(user, () => probe.create({ user: user.id }));
+    await world.as(user, () => probe.updateOne({ id: born.id }, { status: "HOT" }));
+    await world.as(user, () => probe.removeOne({ id: born.id }));
+    off();
+    specimen.expect(seen).toEqual([0, 1, 1, 0]);                             // subscribe fires once with the current value
+  });
+  specimen.it("no table, no migration: the schema SQL never names Probe", async () => {
+    const sql = await world.orm.schema.getCreateSchemaSQL();
+    specimen.expect(sql.toLowerCase()).not.toContain("probe");
+  });
+  specimen.it("find matches to-ones by id whether the reference is cold or loaded", async () => {
+    await world.as(user, async () => {                                        // a fresh context: load the thread first, so the to-one is LOADED
+      await world.orm.em.findOne(ThreadEntity, thread.id);
+      return probe.create({ user: user.id, thread: thread.id });
+    });
+    await world.as(user, () => probe.create({ user: user.id }));
+    specimen.expect((await probe.find({ thread: thread.id })).length).toBe(1);
+    specimen.expect(await probe.count({ user: user.id })).toBe(2);
+  });
+  specimen.it("toJSON carries metadata props only — a private handle never leaks", async () => {
+    const born = await world.as(user, () => probe.create({ user: user.id, payload: { n: 1 } }));
+    const wire = JSON.parse(JSON.stringify(born));
+    specimen.expect(Object.keys(wire).sort()).toEqual(["createdAt", "id", "payload", "status", "user"]);
+  });
+  specimen.it("findOne({ id }) is the instance, twice", async () => {
+    const born = await world.as(user, () => probe.create({ user: user.id }));
+    specimen.expect(await probe.findOne({ id: born.id })).toBe(await probe.findOne({ id: born.id }));
+  });
+  specimen.it("invariant: create with an existing id replaces, never duplicates", async () => {
+    const born = await world.as(user, () => probe.create({ user: user.id }));
+    const again = await world.as(user, () => probe.create({ id: born.id, user: user.id, status: "HOT" }));
+    specimen.expect(await probe.count()).toBe(1);
+    specimen.expect(await probe.findOne({ id: born.id })).toBe(again);
+  });
+});
+
+specimen.describe("VirtualRepository — events through mikro's EventManager", () => {
+  let twitch, seen;
+  specimen.beforeAll(() => {
+    twitch = new Vector(); seen = [];
+    for (const op of ["create", "update", "delete"]) twitch.open(`/after/probe/${op}`, (ctx) => { seen.push([op, ctx.input.entity.id]); });
+    world.datamap.subscribe(shape.subscriber(twitch));
+  });
+  specimen.beforeEach(() => { seen.length = 0; });
+
+  specimen.it("create → afterCreate, updateOne → afterUpdate, removeOne → afterDelete", async () => {
+    const born = await world.as(user, () => probe.create({ user: user.id }));
+    await world.as(user, () => probe.updateOne({ id: born.id }, { status: "HOT" }));
+    await world.as(user, () => probe.removeOne({ id: born.id }));
+    specimen.expect(seen).toEqual([["create", born.id], ["update", born.id], ["delete", born.id]]);
+  });
+  specimen.it("a fork-minted copy's dispatch still reaches the same subscriber (fork shares the EventManager) — the wire, not the store", async () => {
+    const twin = world.orm.em.fork().getRepository(ProbeEntity);
+    const born = await world.as(user, () => twin.create({ user: user.id }));
+    specimen.expect(seen).toEqual([["create", born.id]]);
+    specimen.expect(await probe.count()).toBe(0);                            // landed in the copy's empty atom, never the held one
+  });
+  specimen.it("beforeDelete runs the entity's own teardown hook before the delete", async () => {
+    const born = await world.as(user, () => probe.create({ user: user.id }));
+    await world.as(user, () => probe.removeOne({ id: born.id }));
+    specimen.expect(born.torn).toBe(true);
+    specimen.expect(await probe.count()).toBe(0);
+  });
+  specimen.it("remove({}) tears every instance down, one delete event each", async () => {
+    await world.as(user, () => probe.create({ user: user.id })); await world.as(user, () => probe.create({ user: user.id }));
+    await world.as(user, () => probe.remove({}));
+    specimen.expect(seen.filter(([op]) => op === "delete").length).toBe(2);
+  });
+});
+
+specimen.describe("VirtualRepository — breakdown modes", () => {
+  specimen.it("updateOne on a gone id throws NotFound with code NOT_FOUND", async () => {
+    const born = await world.as(user, () => probe.create({ user: user.id }));
+    await world.as(user, () => probe.removeOne({ id: born.id }));
+    await specimen.expect(world.as(user, () => probe.updateOne({ id: born.id }, { status: "X" }))).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+  specimen.it("a teardown hook that throws leaves the instance IN the store and surfaces the error", async () => {
+    const born = await world.as(user, () => probe.create({ user: user.id }));
+    born.teardown = () => { throw new Error("stuck"); };
+    await specimen.expect(world.as(user, () => probe.removeOne({ id: born.id }))).rejects.toThrow("stuck");
+    specimen.expect(await probe.findOne({ id: born.id })).toBe(born);
+    delete born.teardown;                                                     // the prototype hook returns; the afterEach sweep may run
+  });
+  specimen.it("invariant: create never mutates the caller's data; assign never mutates the patch", async () => {
+    const data = { user: user.id, payload: { n: 1 } };
+    const patch = { payload: { n: 2 } };
+    const born = await world.as(user, () => probe.create(data));
+    await world.as(user, () => probe.updateOne({ id: born.id }, patch));
+    specimen.expect(data).toEqual({ user: user.id, payload: { n: 1 } });
+    specimen.expect(patch).toEqual({ payload: { n: 2 } });
+  });
+});
+#+END_SRC
+
+* M6 — tests, the wire
+
+#+BEGIN_SRC js :tangle ../../systems/runtime/tests/virtual.integration.test.js
+import { specimen, sleep, shard, Connection, RemoteRepository, RemoteEntityManager } from "@vivalence/typology";
+import { create } from "./scenarios/virtual.js";
+
+class Probe { id; user; thread; status; payload; }
+
+async function consumer(url) {
+  const transport = shard.transmitter.multiplex({ authority: { get: () => ({ access: "probe" }) } });
+  const connection = new Connection(url, transport);
+  const em = new RemoteEntityManager(connection, await connection.call("/datamap"));
+  const repository = em.register("probe", new RemoteRepository(Probe).connect(connection.branch("/probe")));
+  return { transport, connection, em, repository };
+}
+
+const until = async (predicate, ms = 1000) => { const t = Date.now(); while (!predicate()) { if (Date.now() - t > ms) throw new Error("timeout"); await sleep.ms(10); } };
+
+let world, client, user, thread;
+specimen.beforeAll(async () => {
+  world = await create();
+  ({ user, thread } = world.fixtures);
+  client = await consumer(world.url);
+});
+specimen.afterAll(async () => { client.transport.close(); await sleep.ms(50); await world.close(); });
+specimen.afterEach(() => world.as(user, () => world.entities.probe.remove({})));
+
+specimen.describe("virtual over the wire — the datamap spine, untouched", () => {
+  specimen.it("/datamap carries the virtual schema", () => {
+    specimen.expect(client.em.schema.probe.properties.user).toEqual({ kind: "m:1", target: "user", owner: true });
+  });
+  specimen.it("find over the socket is scoped to the caller's user and casts to the client kind", async () => {
+    await world.as(user, () => world.entities.probe.create({ user: user.id, thread: thread.id }));
+    const found = await client.repository.find();
+    specimen.expect(found.length).toBe(1);
+    specimen.expect(found[0]).toBeInstanceOf(Probe);
+  });
+  specimen.it("create/updateOne/removeOne through the routes hit the held store", async () => {
+    const made = await client.repository.create({ user: user.id });
+    specimen.expect(await world.entities.probe.findOne({ id: made.id })).not.toBe(null);
+    await client.repository.updateOne({ id: made.id }, { status: "HOT" });
+    specimen.expect((await world.entities.probe.findOne({ id: made.id })).status).toBe("HOT");
+    await client.repository.removeOne({ id: made.id });
+    specimen.expect(await world.entities.probe.count()).toBe(0);
+  });
+  specimen.it("findOneOrFail on a gone id is a 404 at the route, not a 500", async () => {
+    await specimen.expect(client.connection.call("/probe/findOneOrFail", { where: { id: "nope" } })).rejects.toMatchObject({ status: 404 });
+  });
+});
+
+specimen.describe("virtual over the wire — the subscriber pops it in, diffs it, drops it", () => {
+  let unsubscribe, events;
+  specimen.beforeAll(async () => {
+    events = [];
+    unsubscribe = client.repository.subscribe({}, (entity, event) => events.push([event.op, entity?.status ?? null]));
+    await sleep.ms(100);                                                     // the stream attaches before the daemon writes
+  });
+  specimen.afterAll(() => unsubscribe());
+  specimen.beforeEach(() => { events.length = 0; });
+
+  specimen.it("a daemon-side create pops the entity into $entities", async () => {
+    const born = await world.as(user, () => world.entities.probe.create({ user: user.id }));
+    await until(() => client.repository.$entities.get().some((e) => e.id === born.id));
+    specimen.expect(events).toEqual([["create", "OPEN"]]);
+  });
+  specimen.it("a daemon-side updateOne diffs ONE field on the SAME client instance", async () => {
+    const born = await world.as(user, () => world.entities.probe.create({ user: user.id }));
+    await until(() => client.repository.findOneLocal({ id: born.id }));
+    const before = client.repository.findOneLocal({ id: born.id });
+    await world.as(user, () => world.entities.probe.updateOne({ id: born.id }, { status: "HOT" }));
+    await until(() => before.status === "HOT");
+    specimen.expect(client.repository.findOneLocal({ id: born.id })).toBe(before);
+  });
+  specimen.it("a daemon-side removeOne drops it — virtual gone is gone", async () => {
+    const born = await world.as(user, () => world.entities.probe.create({ user: user.id }));
+    await until(() => client.repository.findOneLocal({ id: born.id }));
+    await world.as(user, () => world.entities.probe.removeOne({ id: born.id }));
+    await until(() => !client.repository.findOneLocal({ id: born.id }));
+    specimen.expect(events.at(-1)[0]).toBe("delete");
+  });
+  specimen.it("another user's virtual never reaches this subscriber", async () => {
+    await world.as(world.fixtures.stranger, () => world.entities.probe.create({ user: world.fixtures.stranger.id }));
+    await sleep.ms(100);
+    specimen.expect(events).toEqual([]);
+  });
+});
+
+specimen.describe("virtual over the wire — breakdown modes", () => {
+  specimen.it("daemon remove({}) with a subscriber open: N deletes arrive, the stream stays open", async () => {
+    const seen = [];
+    const off = client.repository.subscribe({}, (_, event) => seen.push(event.op));
+    await sleep.ms(100);
+    const born = await Promise.all([1, 2].map(() => world.as(user, () => world.entities.probe.create({ user: user.id }))));
+    await until(() => seen.length === 2);
+    await world.as(user, () => world.entities.probe.remove({}));
+    await until(() => seen.filter((op) => op === "delete").length === 2);
+    for (const { id } of born) specimen.expect(client.repository.findOneLocal({ id })).toBe(null);
+    off();
+  });
+  specimen.it("a delete for an id the client never saw is a no-op", async () => {
+    const before = client.repository.$entities.get().length;
+    client.repository.drop("never-seen");
+    specimen.expect(client.repository.$entities.get().length).toBe(before);
+  });
+  specimen.it("socket drop → reattach → resumed resync drops what the daemon lost", async () => {
+    const born = await world.as(user, () => world.entities.probe.create({ user: user.id }));
+    client.repository.persisted = true;                                       // the drop-on-revalidate arm (remote-repository.js:71) — a cold find() only casts
+    const off = client.repository.subscribe({}, () => {});
+    await until(() => client.repository.findOneLocal({ id: born.id }));
+    for (const socket of world.gate.sockets) socket.close();                  // every socket dropped; the store untouched
+    await world.as(user, () => world.entities.probe.removeOne({ id: born.id }));                    // dies while nobody is listening
+    await until(() => !client.repository.findOneLocal({ id: born.id }), 5000); // reattach → resumed → find() → drop
+    off();
+  });
+  specimen.it("a persisted client cache never resurrects a virtual after a daemon restart", async () => {
+    globalThis.localStorage ??= new Map();                                    // shim — see hunks
+    const born = await world.as(user, () => world.entities.probe.create({ user: user.id }));
+    await client.repository.find();
+    const key = client.connection.branch("/probe").url.absolute;
+    localStorage.setItem(key, JSON.stringify([JSON.parse(JSON.stringify(born))]));
+    await world.as(user, () => world.entities.probe.remove({}));                                    // "restart": the process forgot
+    const fresh = await consumer(world.url);
+    fresh.repository.persist();                                               // hydrates the stale row first
+    specimen.expect(fresh.repository.$entities.get().length).toBe(1);
+    await fresh.repository.find();                                            // revalidate → daemon says none → drop
+    await until(() => fresh.repository.$entities.get().length === 0);
+    fresh.transport.close();
+  });
+});
+#+END_SRC
+
+* M7 — tests, consumer alone
+
+#+BEGIN_SRC js :tangle ../../subsystems/typology/tests/remote-repository.virtual.test.js
+import { specimen, RemoteRepository, RemoteEntityManager } from "@vivalence/typology";
+
+class Probe { id; status; }
+const stub = (answers) => ({
+  url: { absolute: "stub://probe" },
+  branch() { return this; },
+  call: async (endpoint, body) => answers[endpoint]?.(body) ?? null,
+  subscribe: (_, handle, options) => { stub.handle = handle; stub.resumed = options.resumed; return () => {}; },
+});
+
+specimen.describe("RemoteRepository — what a virtual leans on", () => {
+  specimen.it("an update event mutates the identity-mapped instance in place", async () => {
+    const connection = stub({});
+    const em = new RemoteEntityManager(connection, { probe: { properties: {}, columns: {} } });
+    const repository = em.register("probe", new RemoteRepository(Probe).connect(connection));
+    repository.subscribe({}, () => {});
+    await stub.handle({ op: "create", entity: { id: "p1", status: "OPEN" } });
+    const held = repository.findOneLocal({ id: "p1" });
+    await stub.handle({ op: "update", entity: { id: "p1", status: "HOT" } });
+    specimen.expect(repository.findOneLocal({ id: "p1" })).toBe(held);
+    specimen.expect(held.status).toBe("HOT");
+  });
+  specimen.it("resumed → find() resync drops ids the daemon no longer answers", async () => {
+    const connection = stub({ "/find": () => [{ id: "p2", status: "OPEN" }] });
+    const em = new RemoteEntityManager(connection, { probe: { properties: {}, columns: {} } });
+    const repository = em.register("probe", new RemoteRepository(Probe).connect(connection));
+    repository.subscribe({}, () => {});
+    await stub.handle({ op: "create", entity: { id: "p1" } });
+    await stub.handle({ op: "create", entity: { id: "p2" } });
+    repository.persisted = true;                                              // the drop-on-revalidate arm
+    stub.resumed();
+    await new Promise((r) => setTimeout(r, 20));
+    await repository.revalidating;
+    specimen.expect(repository.$entities.get().map((e) => e.id)).toEqual(["p2"]);
+  });
+});
+#+END_SRC
+
+* retrospective — projected vs implemented
+
+** code — the three diffs from the tangles as designed
+
+#+BEGIN_SRC diff
+--- projected  M2 systems/runtime/daemon/entities/base/VirtualEntity.ts
++++ landed
+-import { atom, type WritableAtom } from "nanostores";               // the remote side's store kind (entity-manager.js:52) — import path: typology re-export if any, unmeasured
++import { atom, type WritableAtom } from "nanostores";
+
+--- projected  M5 systems/runtime/tests/virtual.test.js  (breakdown · "a teardown hook that throws")
++++ landed
+     specimen.expect(await probe.findOne({ id: born.id })).toBe(born);
++    delete born.teardown;                                                     // the prototype hook returns; the afterEach sweep may run
+
+--- projected  M6 systems/runtime/tests/virtual.integration.test.js  (breakdown · "N deletes arrive")
++++ landed
+-    await world.as(user, () => world.entities.probe.create({ user: user.id }));
+-    await world.as(user, () => world.entities.probe.create({ user: user.id }));
++    const born = await Promise.all([1, 2].map(() => world.as(user, () => world.entities.probe.create({ user: user.id }))));
+ …
+-    specimen.expect(client.repository.$entities.get().length).toBe(0);
++    for (const { id } of born) specimen.expect(client.repository.findOneLocal({ id })).toBe(null);
+
+--- projected  M6  (breakdown · "socket drop → reattach → resumed resync")
++++ landed
+     const born = await world.as(user, () => world.entities.probe.create({ user: user.id }));
++    client.repository.persisted = true;                                       // the drop-on-revalidate arm (remote-repository.js:71) — a cold find() only casts
+#+END_SRC
+
+M1 · M4 · M7 landed byte-identical. Source moved by ONE comment; tests moved by three edits, all test-order or fixture leaks, none a design miss.
+
+** plan — what moved
+
+| projected                                          | implemented                                                           |
+|----------------------------------------------------+-----------------------------------------------------------------------|
+| `allowGlobalContext` struck everywhere, tests too  | REVERTED — provider strike alone reds 29 seeds; owed as its own quest |
+| describe 3: `Configuration` bag pins n–p           | deleted; (n) twin empty · (o) handed atom                             |
+| nanostores import path unmeasured                  | direct, import map `npm:nanostores@1.0`                               |
+| resync drops what the daemon lost                  | only when `persisted`; a cold client never drops — typology gap       |
+| Issue/Constraint unhooked                          | as projected                                                          |
+| `datamap.errors` NOT_FOUND                         | as projected                                                          |
+
+** review — the landed VirtualRepository, probed after land (`review.probe`, scratch, deleted)
+
+#+BEGIN_EXAMPLE
+R1 replace: old torn? false events ["create","create"]
+R2 nested where: 0 flat: 1
+R3 update({}) over 2 rows → store sets: 2 events: ["create","update","update"]
+R4 create outside context: null
+R5 find options ignored: 3
+R6 updateOne can rewrite id: hijack
+#+END_EXAMPLE
+
+- R1 — `create` with a held id REPLACES without `beforeDelete`/`afterDelete` on the old instance: its teardown never runs, a subscriber never hears it leave. For m65 (a private `#controller`) that is a leaked handle. Fix: route a held id through `removeOne` first, or refuse it.
+- R2 — the matcher collapses to-ones to ids, so a NESTED scope (`{ thread: { user } }`, as `/userspace/entities/buffer` and `turn` use) matches nothing. m65 must scope FLAT (`{ user }`) — which the activity design already does.
+- R3 — `update`/`remove` fan into N `updateOne`/`removeOne` → N store sets, N listener calls. Fine at demo scale; batch once if a kind grows.
+- R4 — the law "`em.create` on the global em throws outside a context" does NOT hold for `persist: false`: a virtual `create` runs anywhere. The request context is still what makes a loaded to-one serialize right; the throw was never the guard.
+- R5 — `options` (`limit`/`orderBy`/`populate`) silently ignored, as the M3 gap said; no error.
+- R6 — `updateOne` assigns `id`: a patch can re-key an instance under the store. Strip `id` from `data` in `updateOne`.
+
+None blocks m64; R1 and R6 are m65's entry hunks.
+
+* hunks — as written (2026-09-14)
+
+- APPLIED `shard/datamap.js` `errors()` — `if (name === "NotFoundError" || error?.code === "NOT_FOUND")`.
+- APPLIED `entities/index.ts` — `kernel/Issue.ts` + `kernel/Constraint.ts` out of both `export *` lines, both default imports, and `export { literal, symbol }`; the files stay.
+- APPLIED `schematics/entities/base.js` — M1 appended.
+- APPLIED nanostores in runtime — DIRECT (`import_map.json` `"nanostores": "npm:nanostores@1.0"`); the M2 import comment dropped.
+- APPLIED `virtual.discovery.test.js` describe 3 — imports `VirtualRepository`, `VirtualSchema`, `RequestContext`, `atom`; (n) copy empty · (o) handed atom.
+- DRIFT folded into M5 — the breakdown "teardown throws" case restores `delete born.teardown` after its assert: the afterEach `remove({})` hit the throwing hook and poisoned the next two cases.
+- DRIFT folded into M6 — "N deletes arrive": creates via `Promise.all`, asserts each born id gone (`findOneLocal` null) instead of `$entities.length === 0` (a leftover from the describe before leaked in). "socket drop → resync": sets `client.repository.persisted = true` — a cold `find()` only casts, never drops (`remote-repository.js:71`); a typology gap, not m64's.
+- REVERTED, OWED as its own quest — `allowGlobalContext` strike. The provider line alone (`scenarios/datamap.js:53`) turned 29 runtime tests red at ~40 ms, one cause: every seed writes on the global em. Radius: `scenarios/datamap.js:53,82` · `topography/harness.js:66` · `daemon/symbols-query.test.js:22` · `commons/fixtures/data/lighthouse.js:16` · `virtual.discovery.test.js:44,141`.
+- KEPT (beef) — `localStorage` shim in M6.
+- Runs at land: `virtual.test` 20/20 · `virtual.integration` 15/15 · `remote-repository.virtual` 2/2 · `virtual.discovery` 20/20 · runtime 60/407 + `registry.count` (known) · typology 125/505 + hallucination snapshot (known).
+
+* m65 — the activity
+
+Design pinned after land (beef: "activity is a reflection. it doesnt hold or control."): the m63 Controller is the process, the activity its row — one `stdout.pipe.tap` → `updateOne({ status, steps })`, private `#controller`, one control route, the client mirrors. Demo built on this entity, tests only: `runtime/tests/scenarios/activity.js` (test-only `MACHINE` copy + `fold`) · `runtime/tests/demo/activity/daemon.js` · `kajuit/tests/demo/activity/*` · tasks `manual/test` + `test/demo`. Compact: `m64-lands-the-activity-is-a-reflection-and-one-sheet-renders-on-both-ends-of-the-wire`.
+
+Owed wiring: `ActivityEntity extends VirtualEntity` · `sets.virtual = { activity }` minted in `population.datamap` · `/userspace/entities/activity` scoped FLAT (R2) · `die.disintegrate → remove({})` · a lifecycle test names `die.good.entities.activity` · entry hunks R1 + R6.

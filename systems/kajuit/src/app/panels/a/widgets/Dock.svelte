@@ -1,10 +1,13 @@
 <script>
-  import { getContext } from "svelte";
+  import { getContext, untrack } from "svelte";
   import { chain, stores, dictation } from "@vivalence/kajuit";
   import { soma } from "@vivalence/typology";
   import { TERMINALS, BRIDGE, BOX } from "$client";
   import { Json, Markdown } from "@vivalence/drapes";
+  import { loudest, roster as activityRoster } from "@vivalence/kajuit";
   import Dictaphone from "./Dictaphone.svelte";
+  import { stopper } from "./stop.svelte.js";
+  import ActivityTracker from "../../../widgets/ActivityTracker.svelte";
   import { spliceAt } from "./dictate.js";
   import {
     turnText,
@@ -46,6 +49,18 @@
   let harnessed = $derived($modeStore?.implements?.("HARNESSED") ?? false);
   let verbatim = $derived(harnessed && ($modeStore?.daemon?.cortex?.find({ type: "verbatim", via: "stream" }).length ?? 0) > 0);
 
+  // the header state is the ROW's, not this component's streaming flags: a hallucination the
+  // dock did not start (a tool, another surface) still says so here.
+  let activities = $state([]);
+  $effect(() => {
+    if (!thread) return void (activities = []);
+    untrack(() => control.disarm());
+    return activityRoster(thread).subscribe((held) => (activities = held));
+  });
+  const activityCode = $derived(loudest(activities));
+  const control = stopper(() => ({ activities, sending }));
+  const stopping = $derived(control.armed === "SIGTERM");
+
   const recorder = dictation({ terminals, box });
   const dictating = recorder.$active;
   const committed = recorder.$committed;
@@ -63,7 +78,6 @@
   let echo = $state(null);
   let sending = $state(false);
   let error = $state(null);
-  let inflight = null; // stop() only; NOT aborted on unmount — the fold finishes + persists
 
   let draft = $state("");
   let textareaEl = $state(null);
@@ -210,6 +224,7 @@
 
   async function send() {
     if (!draft.trim() || !harnessed || sending) return;
+    control.disarm();
     const parts = [{ type: "text", text: draft.trim() }];
     draft = "";
     error = null;
@@ -220,25 +235,22 @@
     pinBottom();
     textareaEl?.focus();
 
-    inflight = new AbortController();
     try {
       for await (const turn of soma.scan(
-        thread.mode.harness.dialogue.stream({ thread: thread.id, id, parts }, { signal: inflight.signal }),
+        thread.mode.harness.dialogue.stream({ thread: thread.id, id, parts }),
       )) {
         live = { ...turn }; // new ref per packet → Svelte reacts (shallow copy at the view)
         pinBottom();
       }
     } catch (err) {
-      if (err.name !== "AbortError") error = err.message;
+      error = err.message;
     } finally {
       live = null;
       echo = null;
       sending = false;
-      inflight = null;
     }
   }
 
-  const stop = () => inflight?.abort();
 
   function lastUserText() {
     for (let i = turns.length - 1; i >= 0; i -= 1) {
@@ -273,9 +285,9 @@
     } else if (event.key === "Escape" && listening) {
       event.preventDefault();
       recorder.cancel();
-    } else if (event.key === "Escape" && (isStreaming || sending)) {
+    } else if (event.key === "Escape" && (isStreaming || sending || activities.length)) {
       event.preventDefault();
-      stop();
+      control.stop();
     }
   }
 
@@ -406,7 +418,7 @@
         prior.think = [prior.think, projected.think].filter(Boolean).join("\n\n");
         prior.failures += projected.failures;
         prior.artifacts = [...prior.artifacts, ...projected.artifacts];
-        prior.buffers = [...prior.buffers, ...projected.buffers];
+        prior.buffers = toolBuffers(prior.tools);
         prior.census = turnCensus(prior.tools);
         continue;
       }
@@ -568,6 +580,9 @@
     <span class="pip" class:live={harnessed}></span>
     <span class="title">{thread?.label?.name ?? "session"}</span>
     <span class="dock-spacer"></span>
+    {#if activityCode !== "NONE"}
+      <ActivityTracker code={activityCode} label="word" />
+    {/if}
     {#if liveCall}
       <span class="state calling">calling <b>{liveCall}</b><span class="elapsed">{elapsedLabel}</span></span>
     {:else if isStreaming}
@@ -734,8 +749,9 @@
         onstart={dictate}
         onstop={settle} />
     {/if}
-    {#if isStreaming || sending}
-      <button class="send stop" onclick={stop} onpointerdown={(event) => event.preventDefault()} title={coarsePointer ? "stop" : "stop (esc)"} aria-label="stop">
+    {#if sending || activities.length}
+      <button class="send stop" class:stopping onclick={(event) => event.detail === 0 && control.stop()} onpointerdown={(event) => (event.preventDefault(), control.press())} onpointerup={control.release} onpointerleave={control.release} title={stopping ? "stopping · hold 2s to kill" : coarsePointer ? "stop · hold 2s to kill" : "stop (esc) · hold 2s to kill"} aria-label="stop">
+        <span class="stop-hold" style:width="{control.holding * 100}%"></span>
         <svg viewBox="0 0 24 24">
           <rect x="7" y="7" width="10" height="10" rx="1" fill="currentColor" />
         </svg>
@@ -1766,9 +1782,26 @@
     cursor: not-allowed;
   }
   .send.stop {
+    position: relative;
+    overflow: hidden;
+    touch-action: none;
     background: transparent;
     border-color: var(--colors-skeleton-0-danger-base);
     color: var(--colors-skeleton-0-danger-base);
+  }
+  .send.stop svg {
+    position: relative;
+  }
+  .send.stop.stopping {
+    opacity: 0.7;
+  }
+  .stop-hold {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+    background: color-mix(in srgb, var(--colors-skeleton-0-danger-base) 45%, transparent);
   }
   .send.stop:hover {
     background: color-mix(in srgb, var(--colors-skeleton-0-danger-base) 18%, transparent);

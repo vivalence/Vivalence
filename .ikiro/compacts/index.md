@@ -5,87 +5,102 @@
 ## by tag
 
 - **paladin** — 1, 5, 6, 9, 10, 11, 22, 25, 30, 34, 38, 39, 40, 41, 44, 45, 47, 48, 49, 51, 57, 59, 60, 61, 64, 67, 70, 73, 74, 75, 85, 86, 87, 90, 95, 96, 101, 106, 108, 109, 110, 111, 115, 116, 119, 120, 123, 125, 128, 129, 134, 135, 138, 142, 148
-- **kajuit** — 2, 7, 8, 20, 22, 27, 32, 37, 38, 40, 42, 48, 51, 52, 54, 55, 63, 75, 76, 79, 82, 89, 91, 93, 98, 106, 107, 109, 112, 115, 116, 117, 119, 124, 131, 134, 135, 136, 138, 141, 142, 149
-- **quest** — 2, 4, 23, 25, 34, 39, 40, 44, 47, 48, 51, 55, 57, 61, 73, 74, 75, 87, 90, 92, 96, 99, 100, 101, 102, 111, 116, 117, 120, 123, 125, 127, 129, 131, 136, 137, 138, 139, 141, 142, 149
-- **typology** — 8, 25, 31, 33, 37, 38, 40, 41, 42, 48, 51, 55, 56, 65, 67, 70, 73, 75, 85, 87, 90, 94, 95, 96, 99, 101, 105, 107, 109, 110, 112, 116, 117, 119, 120, 128, 129, 131, 135, 142, 150
+- **kajuit** — 2, 7, 8, 20, 22, 27, 32, 37, 38, 40, 42, 48, 51, 52, 54, 55, 63, 75, 76, 79, 82, 89, 91, 93, 98, 106, 107, 109, 112, 115, 116, 117, 119, 124, 131, 134, 135, 136, 138, 141, 142, 149, 156, 158, 159, 160, 161, 162, 163, 164, 165
+- **quest** — 2, 4, 23, 25, 34, 39, 40, 44, 47, 48, 51, 55, 57, 61, 73, 74, 75, 87, 90, 92, 96, 99, 100, 101, 102, 111, 116, 117, 120, 123, 125, 127, 129, 131, 136, 137, 138, 139, 141, 142, 149, 152, 153, 154, 155, 156, 157, 158, 159, 161
+- **typology** — 8, 25, 31, 33, 37, 38, 40, 41, 42, 48, 51, 55, 56, 65, 67, 70, 73, 75, 85, 87, 90, 94, 95, 96, 99, 101, 105, 107, 109, 110, 112, 116, 117, 119, 120, 128, 129, 131, 135, 142, 150, 152, 153, 154, 155, 156, 158, 165
+- **callout** — 4, 6, 23, 29, 32, 33, 37, 39, 47, 48, 67, 69, 71, 77, 78, 85, 87, 88, 96, 100, 106, 110, 111, 120, 123, 127, 128, 129, 134, 138, 141, 144, 149, 150, 151, 152, 153, 154, 155, 156, 164, 165
 - **ghost** — 6, 10, 24, 30, 41, 45, 51, 57, 58, 61, 67, 69, 70, 73, 85, 86, 87, 96, 97, 101, 102, 106, 107, 108, 109, 110, 111, 115, 120, 123, 128, 132, 134, 138, 141, 142
-- **callout** — 4, 6, 23, 29, 32, 33, 37, 39, 47, 48, 67, 69, 71, 77, 78, 85, 87, 88, 96, 100, 106, 110, 111, 120, 123, 127, 128, 129, 134, 138, 141, 144, 149, 150, 151
-- **instance** — 24, 39, 44, 45, 48, 49, 61, 67, 69, 87, 89, 90, 95, 96, 104, 106, 107, 109, 110, 111, 120, 123, 132, 134, 138, 141, 142, 146, 149, 151
-- **runtime** — 9, 14, 21, 38, 40, 51, 59, 60, 88, 90, 95, 96, 99, 104, 109, 110, 116, 117, 119, 120, 121, 122, 129, 131, 135, 142, 148
+- **runtime** — 9, 14, 21, 38, 40, 51, 59, 60, 88, 90, 95, 96, 99, 104, 109, 110, 116, 117, 119, 120, 121, 122, 129, 131, 135, 142, 148, 153, 154, 155, 156, 158, 160, 162, 164, 165
+- **instance** — 24, 39, 44, 45, 48, 49, 61, 67, 69, 87, 89, 90, 95, 96, 104, 106, 107, 109, 110, 111, 120, 123, 132, 134, 138, 141, 142, 146, 149, 151, 163
+- **registry** — 6, 10, 18, 34, 39, 47, 49, 57, 67, 73, 82, 86, 90, 97, 102, 107, 110, 111, 115, 125, 134, 145, 151, 164
+- **svelte** — 4, 7, 11, 15, 21, 26, 35, 49, 54, 63, 75, 76, 83, 91, 92, 112, 124, 136, 137, 147, 151, 163, 164, 165
 - **drapes** — 9, 21, 23, 25, 40, 42, 65, 75, 83, 92, 99, 106, 112, 116, 117, 124, 126, 129, 131, 134, 135, 136, 151
-- **registry** — 6, 10, 18, 34, 39, 47, 49, 57, 67, 73, 82, 86, 90, 97, 102, 107, 110, 111, 115, 125, 134, 145, 151
+- **hello-world** — 4, 5, 7, 8, 11, 15, 16, 17, 22, 23, 49, 57, 76, 84, 89, 95, 104, 106, 137, 149, 150, 162, 165
 - **ledger** — 24, 30, 34, 39, 41, 45, 49, 58, 70, 85, 97, 101, 102, 108, 111, 120, 123, 125, 128, 132, 134, 142
-- **hello-world** — 4, 5, 7, 8, 11, 15, 16, 17, 22, 23, 49, 57, 76, 84, 89, 95, 104, 106, 137, 149, 150
-- **svelte** — 4, 7, 11, 15, 21, 26, 35, 49, 54, 63, 75, 76, 83, 91, 92, 112, 124, 136, 137, 147, 151
 - **commons** — 4, 8, 11, 15, 16, 17, 22, 23, 34, 47, 76, 89, 90, 95, 104, 106, 109, 125, 142, 149
 - **documentation** — 13, 50, 53, 57, 58, 59, 60, 61, 62, 69, 97, 102, 104, 105, 110, 115, 132, 134, 145
 - **m53** — 9, 21, 25, 38, 39, 40, 44, 74, 75, 90, 92, 99, 116, 117, 127, 129, 131, 135, 136
 - **readme** — 13, 45, 57, 61, 87, 95, 100, 102, 104, 106, 107, 108, 109, 120, 132, 134, 138, 141, 145
+- **mikro** — 1, 8, 9, 28, 66, 74, 89, 93, 98, 99, 117, 131, 145, 146, 153, 154, 155, 156
 - **compact** — 10, 12, 45, 47, 51, 52, 62, 77, 78, 82, 86, 100, 120, 124, 136, 137, 144
 - **vcompany** — 9, 38, 39, 40, 44, 74, 75, 90, 99, 116, 117, 127, 129, 135, 136, 147, 148
 - **env** — 1, 6, 39, 41, 44, 45, 57, 61, 67, 70, 87, 96, 101, 109, 115, 128
 - **landing** — 5, 6, 15, 24, 39, 44, 45, 61, 67, 95, 108, 109, 111, 115, 116, 128
 - **vdex** — 21, 25, 38, 40, 74, 75, 90, 92, 116, 117, 127, 129, 135, 136, 147, 148
-- **harness** — 5, 8, 17, 74, 84, 89, 113, 117, 122, 127, 133, 147, 148, 149
-- **mikro** — 1, 8, 9, 28, 66, 74, 89, 93, 98, 99, 117, 131, 145, 146
+- **harness** — 5, 8, 17, 74, 84, 89, 113, 117, 122, 127, 133, 147, 148, 149, 152
+- **cortex** — 7, 22, 49, 57, 79, 84, 149, 150, 157, 158, 159, 160, 161, 162
 - **cli** — 6, 24, 41, 45, 67, 69, 70, 85, 97, 111, 115, 123, 128
 - **docs** — 34, 58, 59, 61, 62, 67, 84, 87, 102, 120, 125, 138, 141
 - **m57** — 4, 5, 8, 15, 16, 17, 23, 49, 76, 84, 89, 104, 137
+- **design** — 9, 19, 40, 75, 90, 99, 135, 136, 151, 162, 163, 164
 - **dojo** — 19, 29, 33, 54, 63, 91, 93, 94, 98, 112, 121, 133
 - **buffer** — 3, 8, 20, 76, 84, 117, 124, 131, 145, 146, 147
 - **doctor** — 1, 5, 39, 44, 48, 49, 67, 73, 96, 101, 108
 - **connoisseur** — 26, 40, 41, 42, 70, 71, 92, 96, 105, 134
+- **critical-pass** — 41, 42, 47, 48, 55, 60, 134, 139, 140, 159
 - **docker** — 34, 73, 82, 106, 108, 109, 118, 125, 134, 141
 - **snapshot** — 5, 16, 17, 22, 74, 75, 99, 116, 129, 142
-- **critical-pass** — 41, 42, 47, 48, 55, 60, 134, 139, 140
-- **design** — 9, 19, 40, 75, 90, 99, 135, 136, 151
+- **activity** — 156, 157, 158, 159, 160, 161, 162, 163, 165
+- **blast** — 34, 44, 87, 95, 125, 131, 152, 160, 161
+- **controller** — 156, 157, 158, 159, 160, 161, 162, 163, 165
+- **datamap** — 93, 95, 98, 121, 146, 153, 154, 155, 156
 - **emitter** — 3, 16, 17, 23, 26, 63, 74, 89, 127
+- **hallucination** — 147, 149, 150, 152, 157, 158, 159, 160, 161
+- **m65** — 153, 156, 157, 158, 159, 160, 161, 162, 163
+- **memory** — 19, 54, 62, 100, 121, 143, 154, 155, 156
 - **walk** — 8, 16, 17, 73, 76, 89, 104, 108, 109
 - **aperture** — 15, 54, 63, 74, 84, 112, 127, 137
-- **cortex** — 7, 22, 49, 57, 79, 84, 149, 150
 - **dapper** — 2, 7, 11, 17, 23, 49, 52, 53
 - **dataset** — 1, 14, 19, 40, 50, 64, 116, 129
+- **dock** — 7, 20, 27, 29, 55, 56, 79, 163
 - **francesca** — 18, 20, 27, 29, 35, 56, 66, 133
+- **harnessed** — 18, 20, 28, 55, 114, 126, 148, 157
 - **m24** — 26, 35, 54, 63, 65, 83, 91, 112
+- **mode** — 14, 38, 42, 119, 135, 148, 151, 164
+- **tests** — 24, 74, 121, 150, 153, 154, 155, 156
 - **traits** — 9, 16, 18, 19, 54, 66, 104, 105
-- **dock** — 7, 20, 27, 29, 55, 56, 79
 - **freight** — 9, 117, 119, 135, 139, 148, 151
-- **harnessed** — 18, 20, 28, 55, 114, 126, 148
 - **italian** — 1, 80, 81, 103, 119, 139, 146
 - **known-issue** — 24, 44, 54, 62, 106, 107, 121
-- **mode** — 14, 38, 42, 119, 135, 148, 151
+- **naming** — 8, 89, 90, 152, 153, 154, 159
 - **release** — 1, 24, 30, 34, 45, 87, 123
 - **rename** — 12, 24, 66, 110, 112, 114, 119
+- **skills** — 8, 30, 77, 117, 122, 148, 157
+- **thread** — 28, 81, 84, 131, 146, 152, 157
 - **tooled** — 16, 17, 18, 29, 35, 113, 114
 - **vector** — 26, 37, 43, 46, 86, 105, 130
 - **astro** — 53, 58, 60, 61, 62, 105
-- **blast** — 34, 44, 87, 95, 125, 131
 - **callouts** — 7, 11, 22, 49, 94, 98
-- **memory** — 19, 54, 62, 100, 121, 143
 - **probe** — 3, 5, 62, 72, 93, 118
 - **report** — 62, 101, 107, 132, 134, 141
-- **skills** — 8, 30, 77, 117, 122, 148
+- **schematics** — 38, 48, 57, 96, 101, 152
+- **testing** — 4, 6, 159, 160, 161, 163
 - **tools** — 11, 74, 104, 127, 133, 148
+- **belt** — 3, 150, 159, 160, 161
+- **blast-bracket** — 25, 101, 121, 148, 157
 - **css** — 7, 15, 49, 92, 137
-- **datamap** — 93, 95, 98, 121, 146
 - **datasink** — 50, 64, 119, 129, 139
 - **generative** — 8, 16, 17, 23, 89
+- **hallucinator** — 11, 22, 27, 57, 163
 - **init** — 61, 101, 109, 138, 141
 - **jdex** — 58, 59, 84, 90, 129
 - **lighthouse** — 87, 95, 106, 109, 115
+- **m64** — 153, 154, 155, 156, 158
 - **marginalia** — 11, 15, 16, 23, 137
 - **retention** — 29, 98, 114, 140, 145
 - **review** — 4, 20, 29, 72, 133
-- **schematics** — 38, 48, 57, 96, 101
+- **schematic** — 142, 157, 158, 159, 160
 - **span** — 32, 37, 68, 130, 149
+- **telemetry** — 32, 46, 107, 130, 162
 - **terminal** — 7, 76, 124, 126, 131
-- **thread** — 28, 81, 84, 131, 146
+- **virtual** — 153, 154, 155, 156, 157
 - **agentic** — 35, 66, 113, 133
 - **appraise** — 20, 27, 56, 133
-- **blast-bracket** — 25, 101, 121, 148
+- **barrel** — 43, 104, 122, 162
 - **boot** — 31, 32, 60, 68
 - **bundle** — 25, 75, 92, 151
 - **calendar** — 9, 38, 99, 116
+- **claim-guard** — 144, 146, 161, 162
 - **correction** — 75, 117, 127, 131
 - **debugging** — 32, 106, 124, 146
 - **design-import** — 2, 53, 54, 65
@@ -94,7 +109,6 @@
 - **dormant** — 1, 11, 22, 49
 - **email** — 9, 38, 99, 116
 - **frame** — 3, 42, 124, 131
-- **hallucinator** — 11, 22, 27, 57
 - **ikiro** — 71, 100, 143, 144
 - **known-issues** — 21, 22, 49, 75
 - **literal** — 1, 3, 14, 88
@@ -104,26 +118,27 @@
 - **ontology** — 1, 3, 9, 46
 - **reader** — 4, 16, 19, 89
 - **search** — 15, 16, 23, 137
+- **sheets** — 6, 67, 120, 156
 - **shelf** — 11, 39, 84, 92
 - **sunset** — 34, 73, 101, 123
 - **systematic-debugging** — 3, 106, 121, 148
-- **telemetry** — 32, 46, 107, 130
-- **tests** — 24, 74, 121, 150
+- **tangle** — 60, 102, 158, 159
+- **trait** — 8, 79, 117, 152
 - **twitch** — 14, 64, 74, 127
 - **vip** — 10, 34, 47, 125
 - **audit** — 28, 77, 78
-- **barrel** — 43, 104, 122
 - **bruno** — 94, 98, 110
 - **bundler** — 21, 23, 120
+- **cargo** — 119, 135, 164
 - **cleanup** — 22, 104, 143
 - **converse** — 42, 55, 72
 - **domain-tools** — 36, 113, 114
 - **drawer** — 29, 54, 93
 - **education** — 90, 101, 145
 - **esbuild** — 21, 65, 75
+- **fixtures** — 6, 111, 163
 - **flywheel** — 30, 71, 143
 - **hallucinate** — 43, 95, 114
-- **hallucination** — 147, 149, 150
 - **intelligent** — 20, 29, 79
 - **license** — 13, 59, 139
 - **m23** — 18, 66, 114
@@ -132,15 +147,16 @@
 - **m41** — 41, 70, 128
 - **m46** — 61, 108, 109
 - **m47** — 34, 47, 125
+- **m63** — 156, 157, 158
 - **mikro-orm** — 54, 63, 121
 - **mountpoint** — 9, 142, 148
-- **naming** — 8, 89, 90
 - **nlp** — 1, 36, 133
 - **packages** — 10, 86, 140
 - **performance** — 37, 68, 93
 - **presets** — 19, 91, 112
 - **provider** — 9, 79, 99
 - **qa** — 102, 103, 123
+- **remote-repository** — 153, 155, 156
 - **rep-o-gram** — 35, 83, 112
 - **repository-grammar** — 54, 63, 91
 - **research** — 84, 117, 129
@@ -149,27 +165,24 @@
 - **secrets** — 22, 49, 95
 - **security** — 4, 28, 95
 - **service** — 4, 16, 23
-- **sheets** — 6, 67, 120
+- **shard** — 150, 152, 160
 - **sibling** — 44, 90, 136
 - **symbols** — 29, 54, 133
 - **timeout** — 15, 84, 137
 - **topography** — 80, 94, 103
-- **trait** — 8, 79, 117
 - **ubuntu** — 134, 138, 141
+- **v** — 57, 101, 152
 - **verbatim** — 42, 55, 140
 - **voffice** — 9, 90, 99
 - **INTELLIGENT** — 7, 122
 - **agents** — 71, 143
 - **alpine** — 138, 141
 - **bak** — 78, 83
-- **belt** — 3, 150
 - **booted** — 14, 88
 - **bridge** — 52, 93
 - **builder** — 93, 94
-- **cargo** — 119, 135
 - **cartographer** — 143, 144
 - **ci** — 82, 118
-- **claim-guard** — 144, 146
 - **codemap** — 143, 144
 - **codemirror** — 25, 92
 - **collision** — 49, 84
@@ -188,7 +201,6 @@
 - **engram** — 18, 66
 - **entities** — 105, 122
 - **faculty** — 7, 22
-- **fixtures** — 6, 111
 - **focus** — 83, 93
 - **git** — 100, 132
 - **guard** — 3, 16
@@ -202,6 +214,7 @@
 - **install** — 108, 138
 - **jj** — 100, 132
 - **keyboard** — 83, 94
+- **linkedom** — 16, 165
 - **live-validation** — 31, 81
 - **m22** — 50, 64
 - **m25** — 18, 28
@@ -217,11 +230,14 @@
 - **method** — 67, 140
 - **migration** — 98, 146
 - **multiplayer** — 81, 98
+- **multiplex** — 55, 153
 - **musl** — 138, 141
+- **nanostores** — 155, 156
 - **openexecutive** — 90, 129
 - **org** — 25, 92
 - **orm** — 74, 127
 - **ownership** — 38, 135
+- **package** — 151, 164
 - **paradigm** — 29, 91
 - **patch** — 42, 142
 - **paths** — 6, 128
@@ -249,11 +265,12 @@
 - **stall** — 3, 81
 - **stream** — 17, 84
 - **string-matches** — 33, 94
+- **stripwire** — 22, 157
 - **stucatch** — 14, 88
+- **subagents** — 141, 161
 - **subscriber** — 1, 8
-- **tangle** — 60, 102
+- **tangle-diff** — 160, 161
 - **tatoeba** — 80, 119
-- **testing** — 4, 6
 - **theme** — 7, 11
 - **thinking** — 29, 79
 - **thread-trait** — 7, 122
@@ -262,15 +279,15 @@
 - **translate** — 8, 27
 - **transport** — 15, 137
 - **userspace** — 95, 109
-- **v** — 57, 101
 - **v3** — 135, 136
 - **variant** — 58, 59
+- **vcs** — 100, 155
 - **verification** — 7, 49
 - **vite** — 107, 138
 - **watcher** — 74, 127
 - **yield** — 17, 23
 
-- *singletons* — absence-claims 140 · aimed 81 · anchors 133 · anhieb 94 · api 73 · app 76 · application 14 · applied 72 · aprende 91 · armed 133 · asset 117 · audio-harvest 80 · auth 115 · authorize 95 · autocomplete 29 · belt-query 64 · binomial 29 · bones 2 · box 42 · breakage 28 · broadcast 93 · buffer-data 94 · bundling 65 · caching 5 · capabilities 42 · carrier 50 · cascade 74 · changelog 30 · clauses 63 · client 32 · codec 64 · commission 112 · compound-knowable 91 · connection 55 · console 35 · content-addressing 21 · contract 43 · contraction 29 · contractions 94 · convention 85 · coolify 82 · copy 84 · cost 16 · curation 103 · curl 98 · cutover 50 · daemon 122 · daemon-call 36 · dbeaver 73 · dealer 95 · decomposition 133 · dedupe 133 · defaults 142 · delegation 141 · demo 48 · density 76 · design-brief 63 · design-canvas 11 · design-sync 83 · designsync 2 · dev 21 · diataxis 60 · didactic-rank 103 · dispatch 85 · doctrine 71 · document 117 · domain-tests 98 · double-bind 17 · drag 94 · droneaid 151 · e-panel 122 · ebisu 29 · economics 57 · effort 29 · elevenlabs 119 · elision 94 · emacs 97 · emigration 122 · emission-contract 81 · environment 5 · esp32 88 · eval-surface 26 · event 99 · factor-analysis 4 · file 117 · firefox 37 · firmware 88 · fixpoint 64 · fleet 33 · focus-law 94 · fontsize 52 · fork 89 · fraught 151 · frontier 12 · games 26 · generate 133 · gestalten 150 · group 1 · haiku 147 · hal 150 · handshake 109 · help 69 · hints 29 · history 100 · holder 94 · hydrate 95 · idor 28 · images 89 · import-map 151 · inline-entities 50 · intent 81 · invariant-test 121 · italian-corpus 33 · jwt 95 · katabolic 64 · kernel 100 · labeled 8 · language-statics 94 · layout 2 · legibility 47 · lemma 133 · lens 6 · libsql 93 · lingua-libre 80 · linkedom 16 · literate 105 · live-boot 50 · lookup 133 · m18 126 · m19 31 · m23-sunset 36 · m26 43 · m32 140 · m38 133 · m40 85 · m42 100 · m43 88 · m50 51 · m52 73 · m54 117 · m55 131 · m56 2 · m59 142 · map 61 · mask 39 · measurement 51 · memoriter 140 · mesh-sim 88 · message 99 · meta 102 · metadata 22 · meter 29 · middleware 5 · migrations 66 · module-scope 43 · multiplex 55 · nativeupdate 93 · nested 17 · note 19 · npm 23 · officer 90 · openrouter 56 · orb 30 · output 43 · output-contract 114 · overnight-loop 80 · package 151 · panel-b 93 · panel-c 2 · panel-f 93 · pdf 135 · pick 24 · picker 6 · pinhole 49 · pinning 94 · plan 47 · playback 14 · pools 112 · populate 121 · precedent 19 · preposition 29 · primed 19 · primitives 8 · principles 58 · probes 104 · prod 98 · proof 74 · provision 35 · prune 137 · qa-panel 80 · quest-prune 15 · quests 30 · quickstart 58 · rail 29 · randomness 94 · rank 98 · ranked 103 · rapier 151 · reactive 95 · reactivity 89 · readmen 73 · recipe 142 · regex 7 · render 17 · render-harness 49 · repository 8 · resolve 74 · resolver 63 · response 43 · retard 66 · revert 125 · revival 30 · rfc3986 101 · rig 17 · round-trip 64 · rulings 116 · safeguard 149 · schematic 142 · scope-inflation 33 · scoreboard 71 · screen 147 · sdd 80 · secure 109 · selfclean 143 · selfimprove 71 · selfreflection 144 · sentences 103 · separate 33 · sessions 24 · sets 63 · settle 22 · shard 150 · shell 35 · show-dont-tell 133 · signal 51 · signatures 89 · slowstart 132 · soma 17 · spend-limit 80 · spoken 8 · sse 84 · ssrf 16 · stage 151 · stop 149 · strata 1 · streak 91 · streams 54 · string-belt 112 · stripwire 22 · structure 4 · studies 10 · sub-thread 131 · subagents 141 · subscription 127 · survey 114 · survival 103 · table 91 · tactic 81 · tactics 91 · tar 108 · taskbag 138 · terminators 64 · testament 110 · three 151 · threlte 151 · thunk 95 · trait-payload 50 · treeshaking 65 · triage 88 · triggers 71 · tts 119 · tty 108 · tune 79 · turn 89 · turndown 16 · turns 84 · typebox 65 · typed-fetch 43 · typography 52 · ui-rejected 63 · unhandled-rejection 72 · unit-of-work 89 · url 101 · vcs 100 · versions 58 · view 131 · viewport 93 · vocal 55 · wafer 51 · waterfall 44 · websearch 11 · widget 79 · wizard 67 · wordfreq 103 · workbench 98 · zettelkasten 71 · zoom 49
+- *singletons* — absence-claims 140 · aimed 81 · anchors 133 · anhieb 94 · api 73 · app 76 · application 14 · applied 72 · aprende 91 · archaeology 155 · armed 133 · asset 117 · audio-harvest 80 · auth 115 · authorize 95 · autocomplete 29 · belt-query 64 · binomial 29 · bones 2 · box 42 · breakage 28 · broadcast 93 · buffer-data 94 · bundling 65 · caching 5 · capabilities 42 · carrier 50 · cascade 74 · changelog 30 · chaosmonkey 163 · clauses 63 · client 32 · codec 64 · comment-gate 157 · commission 112 · compound-knowable 91 · connection 55 · console 35 · content-addressing 21 · contract 43 · contraction 29 · contractions 94 · convention 85 · coolify 82 · copy 84 · cost 16 · curation 103 · curl 98 · cutover 50 · daemon 122 · daemon-call 36 · dbeaver 73 · dealer 95 · decomposition 133 · dedupe 133 · defaults 142 · delegation 141 · demo 48 · density 76 · design-brief 63 · design-canvas 11 · design-sync 83 · designsync 2 · dev 21 · diataxis 60 · didactic-rank 103 · dispatch 85 · doctrine 71 · document 117 · domain-tests 98 · double-bind 17 · drag 94 · drift 161 · droneaid 151 · e-panel 122 · ebisu 29 · economics 57 · effort 29 · elevenlabs 119 · elision 94 · emacs 97 · emigration 122 · emission-contract 81 · entity-manager 153 · environment 5 · esp32 88 · eval-surface 26 · event 99 · factor-analysis 4 · ffmpeg 164 · file 117 · firefox 37 · firmware 88 · fixpoint 64 · fleet 33 · focus-law 94 · fontsize 52 · fork 89 · fraught 151 · frontier 12 · games 26 · generate 133 · gestalten 150 · group 1 · haiku 147 · hal 150 · handshake 109 · help 69 · hints 29 · history 100 · holder 94 · hydrate 95 · idor 28 · images 89 · import-map 151 · inline-entities 50 · intent 81 · invariant-test 121 · italian-corpus 33 · jwt 95 · katabolic 64 · kernel 100 · labeled 8 · landed 160 · language-statics 94 · layout 2 · legibility 47 · lemma 133 · lens 6 · libsql 93 · lingua-libre 80 · literate 105 · live-boot 50 · logging 162 · lookup 133 · m18 126 · m19 31 · m23-sunset 36 · m26 43 · m32 140 · m38 133 · m40 85 · m42 100 · m43 88 · m50 51 · m52 73 · m54 117 · m55 131 · m56 2 · m59 142 · m62 152 · map 61 · mask 39 · measurement 51 · media 164 · memoriter 140 · mesh-sim 88 · message 99 · meta 102 · metadata 22 · meter 29 · metronome 160 · middleware 5 · migrations 66 · module-scope 43 · nativeupdate 93 · nested 17 · note 19 · npm 23 · officer 90 · openrouter 56 · orb 30 · otio 164 · output 43 · output-contract 114 · overnight-loop 80 · panel-b 93 · panel-c 2 · panel-f 93 · pdf 135 · pick 24 · picker 6 · pinhole 49 · pinning 94 · pipe 162 · plan 47 · playback 14 · playground 163 · pools 112 · populate 121 · precedent 19 · preposition 29 · primed 19 · primitives 8 · principles 58 · probes 104 · prod 98 · proof 74 · provision 35 · prune 137 · qa-panel 80 · quest-prune 15 · quests 30 · quickstart 58 · rail 29 · randomness 94 · rank 98 · ranked 103 · rapier 151 · reactive 95 · reactivity 89 · readmen 73 · recipe 142 · regex 7 · render 17 · render-harness 49 · repository 8 · resolve 74 · resolver 63 · response 43 · retard 66 · revert 125 · revival 30 · rfc3986 101 · rig 17 · round-trip 64 · rulings 116 · safeguard 149 · scope-inflation 33 · scoreboard 71 · screen 147 · sdd 80 · secure 109 · selfclean 143 · selfimprove 71 · selfreflection 144 · sentences 103 · separate 33 · sessions 24 · sets 63 · settle 22 · shell 35 · show-dont-tell 133 · signal 51 · signatures 89 · slowstart 132 · soma 17 · spend-limit 80 · spoken 8 · sse 84 · ssrf 16 · stage 151 · stdin 162 · stdout 162 · stop 149 · strata 1 · streak 91 · streams 54 · string-belt 112 · structure 4 · stub 163 · studies 10 · sub-thread 131 · subscription 127 · summary 157 · survey 114 · survival 103 · table 91 · tactic 81 · tactics 91 · tar 108 · taskbag 138 · terminators 64 · test 165 · testament 110 · three 151 · threlte 151 · thunk 95 · trait-payload 50 · transient 158 · treeshaking 65 · triage 88 · triggers 71 · tts 119 · tty 108 · tune 79 · turn 89 · turndown 16 · turns 84 · typebox 65 · typed-fetch 43 · typography 52 · ui-rejected 63 · unhandled-rejection 72 · unit-of-work 89 · url 101 · versions 58 · view 131 · viewport 93 · vocal 55 · wafer 51 · waterfall 44 · websearch 11 · widget 79 · wizard 67 · wordfreq 103 · workbench 98 · zettelkasten 71 · zoom 49
 
 ## compacts
 
@@ -425,3 +442,17 @@
 149. `a-thousand-calls-fit-inside-every-budget-the-stop-button-stops-the-listening-and-the-mode-sets-its-own-defaults-through-its-harness`
 150. `the-engine-was-never-a-shard-hal-grows-a-defaults-leaf-and-a-sed-that-cannot-alternate-says-nothing`
 151. `a-package-is-born-out-of-tree-three-rides-the-import-map-but-not-the-drapes-and-a-mode-keeps-its-own-palette`
+152. `a-thread-rides-into-the-harness-and-dies-at-the-policy-a-trait-reader-was-never-a-shard-and-governor-is-struck`
+153. `a-virtual-entity-is-a-throwing-expression-the-storage-lives-on-the-class-and-the-activity-waits-on-top`
+154. `a-virtualschema-pins-what-extends-will-not-carry-belt-plains-the-matcher-and-the-storage-waits-for-the-context`
+155. `the-context-holds-the-repository-the-repository-is-a-store-and-the-remote-side-needs-nothing`
+156. `m64-lands-the-activity-is-a-reflection-and-one-sheet-renders-on-both-ends-of-the-wire`
+157. `the-harness-splits-into-named-middlewares-the-hallucination-becomes-a-schematic-and-the-activity-carries-its-controller-as-a-stripwired-stdin`
+158. `m63-2-folds-into-m65-the-repository-mints-the-controller-and-the-activity-row-goes-flat`
+159. `the-quality-pass-finds-the-belt-failing-on-a-retry-beefs-notes-land-as-control-and-stdin-and-the-tests-run-on-a-hand-cranked-clock`
+160. `m65-lands-the-belt-drives-a-handed-controller-children-branch-by-faculty-and-hal-verbatim-keeps-the-root-because-a-settling-parent-aborts-its-children`
+161. `m65-drift-marked-in-place-106-disagreements-67-the-landing-compact-never-saw-and-a-swallowed-heading-restored`
+162. `the-cortex-seals-its-vector-the-client-barrel-never-carried-hallucinate-and-the-activity-grows-a-stdout`
+163. `the-stub-plays-a-script-the-dock-stop-becomes-a-sigterm-on-its-own-row-and-derived-cannot-see-a-mutated-entity`
+164. `a-media-mode-is-born-out-of-tree-the-multiplex-cannot-carry-a-byte-and-the-range-handler-was-there-all-along`
+165. `an-effect-that-reads-what-it-writes-loops-the-dock-stop-becomes-the-threads-and-a-reason-is-words-or-nothing`

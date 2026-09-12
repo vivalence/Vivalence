@@ -1,6 +1,8 @@
 import {
+  Controller,
   fromm,
   shard,
+  Span,
   specimen,
   steer,
   ToolCall,
@@ -86,6 +88,15 @@ specimen.describe(
           "buffer_update",
           "buffer_label",
           "thread_update",
+          "mode_find",
+          "fs_tree",
+          "fs_find",
+          "fs_read",
+          "fs_write",
+          "fs_stat",
+          "fs_move",
+          "fs_delete",
+          "shell_run",
           "web_search",
           "web_read",
           "generator_view_render",
@@ -93,7 +104,7 @@ specimen.describe(
           "generator_view_inspect",
           "generator_view_list",
         ]);
-        specimen.expect(Object.keys(request.system)).toEqual(["brief"]);
+        specimen.expect(Object.keys(request.system)).toEqual(["brief", "thread"]);
         specimen.expect(request.turns.at(-1).parts[0].text).toBe(ASK.brief);
       },
     );
@@ -140,5 +151,41 @@ specimen.describe(
       specimen.expect(spoken.output.buffer).toEqual([]);
       specimen.expect(spoken.output.message).toContain("drew nothing");
     });
+
+    specimen.it(
+      "P-nested: inside a turn the researcher rides the turn's controller — no row of its own, and the turn's SIGTERM stops it mid-run",
+      async () => {
+        const rigged = await rig([DRAW, PEEK]);
+        let minted = 0;
+        const control = rigged.daemon.entities.activity.control;
+        rigged.daemon.entities.activity.control = (...args) => (minted += 1, control(...args));
+
+        const turn = new Controller({ stdout: new Span("hallucination") });
+        turn.stdout.open();
+        const tool = turn.branch("research");
+        tool.stdout.mark("open");
+        rigged.seen.push = function (request) {
+          Array.prototype.push.call(this, request);
+          if (this.length === 2) turn.kill("SIGTERM", "user pressed stop");
+          return this.length;
+        };
+
+        const outer = new Vector().slurp(research);
+        outer.use(shard.context.bind("daemon", rigged.daemon));
+        outer.use(shard.context.bind("mode", rigged.mode));
+        outer.use(shard.context.bind("thread", "thread-1"));
+        outer.use(shard.context.bind("controller", tool));
+        const spoken = fromm.yield(
+          await steer.dispatch.invoke(outer, new ToolCall("research").signal, steer.strategy.guarded)(ASK),
+        );
+
+        specimen.expect(minted).toBe(0);
+        specimen.expect(rigged.seen.length < ROUNDS).toBe(true);
+        specimen.expect(spoken.condition).toBe("ERROR");
+        specimen.expect(spoken.output.message).toContain("stopped early — abort");
+        specimen.expect(spoken.output.buffer.length).toBe(1);
+        specimen.expect(turn.stdout.records.some((record) => record.path === "/hallucination/research/dialogue" && record.verb === "open")).toBe(true);
+      },
+    );
   },
 );

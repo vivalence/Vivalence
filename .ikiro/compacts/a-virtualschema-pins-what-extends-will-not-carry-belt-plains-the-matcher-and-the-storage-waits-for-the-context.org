@@ -1,0 +1,159 @@
+#+title: a VirtualSchema pins what extends will not carry, belt plains the matcher, and the storage waits for the context
+#+filetags: :m64:runtime:typology:mikro:virtual:datamap:tests:naming:quest:memory:callout:
+#+index: 154
+#+session: 4 beef turns after a /clear, walked oldest first (1 stop-hook fire, obeyed; 2 marks landed on disk mid-turn and are folded into the turn they interrupted; 1 background agent, stopped by beef before it reported)
+
+* one breath
+
+A bootstrap line after the clear: the m64 quest and its M0 probe. I re-ran the probe (12/12), pre-flighted
+every import the tangle leans on, and laid out the six forks with a call on each. Then beef said /"treat my
+@beef comments"/ — seven marks on the quest: the =...virtual= spread is /"too much special wiring"/, does
+=static entities= mean /"one set of virutal entities per em?"/, /"use belt here!"/, /"extends virtual
+entity?!"/. Measured against mikro: =extends:= carries props and hooks down but never the =expression= nor the
+=repository=, so a =class VirtualSchema extends EntitySchema= pins both in one place and the citizen names
+only class · properties · hooks; the class chain alone carries the base. =#plain= became =object.pick= plus one
+to-one collapse, because =belt.query.where= compares =row[key] === expected= and a loaded reference is an
+instance. Storage went to a =WeakMap= keyed by metadata — and beef wrote /"no!"/ on it mid-turn: /"i wnat the
+context to set it with a coherent fallback"/, the way the old constraint repository was =new='d by hand. Three
+more pins measured that shape on mikro's own =Configuration= (one per ORM, carried by every fork, memoized
+extensions). The archaeology agent he asked for was stopped by him before it reported. 19/19 green. The M2
+storage block waits under his two marks.
+
+* the spine — 4 turns
+
+** 1 · /"m64 the virtual entity — .ikiro/quests/m64-the-virtual-entity.org,.\n\nM0 probe scaffolded and RUN — systems/runtime/tests/virtual.discovery.test.js ·"/
+
+Orientation after a =/clear=. Read the quest, the probe, the memory body; re-ran M0: =ok | 1 passed (12
+steps)=. Pre-flighted the tangle's imports so nothing in it is fabricated: =object.match= is
+=belt/object.js:60= (wraps =query.where=), =NotFound= is =errors/vector.js:15=, =sleep.ms= is in use across
+runtime tests, =v7= comes from =uuid= as in =DataEntity.ts=. Located the =errors()= hunk at =datamap.js:65=
+and =socket.js:213='s =NOT_FOUND= mapping. Reported: forks with a recommendation each (static storage with a
+redeclare guard; =object.match= as-is; constructor-minted base; =hooks.beforeDelete=; a factory over the
+spread), hunks (Constraint/Issue strike, the =localStorage= shim), the order on go.
+
+Stop-hook fire (=assume-dont-verify=): "zero live consumers" of Constraint/Issue rode a grep scoped to
+=systems/runtime/daemon=. Measured unrestricted (repo + =~/.viva/registry=, class names + enums + the lowercase
+default exports): repo → two commented lines (=Daemon.ts:48,51=), two commented lines in
+=paladin/belt/check.js:177,219=; registry → every hit under =*.bak= / =bak.*=; =index.ts:47= =sets.kernel= is
+={ literal, symbol }= — the two names on =:39= are exported and read by nobody. Envelope pasted.
+
+** 2 · /"treat my @beef comments"/
+
+Seven marks in the quest, each with its line:
+- =export const virtual = {= — /"not sure i like this. too much special wiring.  why not on the entity schema? virtual entity schema."/
+- =static entities: VirtualEntity[] = [];= — /"does this mean one set of virutal entities per em?"/
+- the =#plain= loop — /"use belt here!"/
+- =class: ProbeEntity, name: "Probe", ...virtual,= — /"extends virtual entity?!"/
+- forks: storage /"interesting"/ · find grammar /"belt."/ · teardown /"beforeDelete"/
+
+Reads first: =DataEntity.ts= (=DataSchema= abstract + =DataRepository=, every citizen retypes =repository=),
+=population.js= =collate=/=seal=, =Thread.ts= as the concrete template, =belt/object.js= whole, =belt/query.js=
+whole, mikro's =MetadataDiscovery.defineBaseEntityProperties= (=:756-794=: props · filters · indexes ·
+uniques · checks · PKs · hooks · ctor/toJSON params — no =expression=, no =repository=), the parent walk
+(=:258-274=: =extends:= as a schema or class, and =Object.getPrototypeOf(meta.class)=), =EntitySchema.setClass=
+(=:171= derives =extends= from the class chain). One =find /= for the mikro package escaped into a filesystem
+walk; killed (see callouts) — the package sits at =node_modules/@mikro-orm/core= (6.6.7).
+
+Pins written into M0 (own in-memory inits, named classes, no citizen touched), then run:
+- (j) =extends:= alone → =Torn entity is missing @PrimaryKey()= — not virtual.
+- (k) expression retyped + =extends:= → virtual, =id=/=createdAt= + =hooks.beforeDelete= inherited,
+  =meta.repository= NOT (=getRepository= is not the base's class).
+- (l) a =class … extends EntitySchema= whose constructor injects the throwing expression, no =extends:= at
+  the citizen → virtual, =meta.extends === "BaseVirtualEntity"= from the class chain, props + hooks present,
+  repository as pinned, no table.
+- (m) =getMetadata().get(X)= is one object across forks.
+Two probe slips on the way: an anonymous class from a factory (=className ""= → "Only abstract entities were
+discovered") fixed with a computed-key name; a =/primary key/i= regex that did not match the real message.
+16/16.
+
+Naming: typology's wire noun stays =VirtualEntitySchema= (mirrors =DataEntitySchema=, zero bare consumers
+outside typology); the runtime constructor is =VirtualSchema= (mirrors =DataSchema=), the abstract base
+module-private. First draft named the constructor =VirtualEntitySchema= too — a cross-package homonym,
+renamed before landing. mikro 6.6.7 has no =defineEntity=.
+
+=#plain=: measured that =object.pick= on an entity instance picks own enumerable fields only (private =#x=
+and prototype getters excluded), and that =query.where= compares =row[key] === expected= (=:38,88=) — a
+loaded m:1 never equals its id, the nested form fails cold. So =object.pick(entity, prop names)= plus one
+collapse over =meta.relations=; a =belt.object.map= would fold the last line and was NOT added (typology is
+holy — ask).
+
+Quest rewritten in fourteen edits: status, one sentence, laws +4, M0 text, M2 header + block (=VirtualEntity=
+· =VirtualRepository= · =VirtualSchema=, storage as a module =WeakMap<EntityMetadata, T[]>=), M4 (no
+=ProbeRepository=, =new VirtualSchema({ class, hooks, properties })=), M5 (imports, two storage tests), hunk
+line, forks section resolved. Memory body + index updated. The memory-index hook fired at 20 KB; MEMORY.md
+compacted to 17083 B, every link kept.
+
+MID-TURN, on disk, at the =WeakMap= line: /"@beef no!"/ and /"@beef if storage must be explicit, i wnat the
+context to set it with a coherent fallback. for example for our activity virtual entity or the constraint
+entity (bak, check!) we set the repo manually/directly; same approach here. so check in vcs and bak how teh
+constraint entity was constructed/instantiated. send a dedicated research agent out to identity where in the
+vcs (probably ~a year or more ago~) code pertaining to constraints in daemon can be found.."/ — the block had
+also been re-indented by two spaces.
+
+Read: =kernel/Constraint.ts= (=ConstraintRepository extends VirtualRepository=, =this["#entity"]=, the
+commented =runtime.ontology.constraints.create(...)= example), =Daemon.ts:34-59=, the registry's
+=education/domain/entities/bak/ontology/Constraint.ts= (=extends BaseDataRepository=, same hack; consumers
+=ctx.runtime.schema.constraints[pos]=), =libsql.viva.js:60-63= (the provider mints every repository through
+=orm.em.getRepository=), mikro =EntityManager.getRepository= (=:93= =new RepositoryClass(this, entityName)= —
+no storage argument), =Configuration.get/set/registerExtension/getExtension= (=:180-238=, =getExtension=
+memoizes per config). Three more pins:
+- (n) =em.fork().config= is =em.config=; a fork-minted repository carries it.
+- (o) =new HeldRepository(em, "Torn", mine)= registers =mine= on the ORM configuration; the repository mikro
+  mints on a fork reads =mine=.
+- (p) no context: root and fork share one array; a second ORM of the same schema does not.
+19/19, exit 0. Laws, status and M0 text carry n–p; the M2 storage block was left as it stands under beef's
+marks, pending the archaeology. An Explore agent (opus, read-only git) was sent for the historical
+construction sites.
+
+** 3 · (the agent was stopped by beef — a notification, not a message) then /"just y/n was this a opus or fable agent?"/
+
+Opus. Launched with =model: "opus"=. Nothing came back from it.
+
+** 4 · /"ikiro compact."/ — this fold.
+
+* laws
+
+- **=extends:= is props and hooks, never the door.** mikro copies props · filters · indexes · uniques ·
+  checks · PKs · hooks through =extends:= and NOT =expression= nor =repository=; a virtual base cannot make its
+  children virtual. The door is a schema CLASS: =class VirtualSchema extends EntitySchema= pinning both in its
+  constructor. The class chain (=X extends VirtualEntity=) alone carries the base.
+- **The matcher is plain, the wire is mikro's.** =query.where= compares by ====; a loaded reference is an
+  instance. =object.pick= over metadata prop names + a to-one collapse; private fields never appear.
+- **Storage is set by the context, with a coherent fallback** (beef). =static= on the class was one set per
+  CLASS per process plus a subclass per kind; a module =WeakMap= keyed by metadata is struck (/"no!"/). The
+  measured anchor: mikro's =Configuration= — one per ORM, carried by every fork, =registerExtension= /
+  =getExtension= memoized — so a context-made repository hands its array in and every fork-minted instance
+  reads it; absent a context, one array per kind per ORM.
+- **A name is a key.** mikro keys metadata by class name; an anonymous class is =""= and reads as abstract.
+- **Never =find /=.** The mikro package is =node_modules/@mikro-orm/core= (aliased under
+  =node_modules/.deno/@mikro-orm+core@6.6.7=).
+- **Two packages, one spelling, is a homonym.** typology's =VirtualEntitySchema= (wire) ≠ runtime's
+  =VirtualSchema= (mikro); mirror the existing pairs (=DataEntitySchema= / =DataSchema=).
+
+* state at fold
+
+- ON DISK, uncommitted: =systems/runtime/tests/virtual.discovery.test.js= 19/19 (pins a–i, j–m, n–p) ·
+  =.ikiro/quests/m64-the-virtual-entity.org= rewritten (status, laws a–p, M2 =VirtualSchema= class + belt
+  =#plain=, M4/M5 without =ProbeRepository=, hunks, forks) EXCEPT the M2 storage lines, which still show the
+  struck =WeakMap= under beef's two marks · quests index live line · memory body + MEMORY.md (compacted) ·
+  scratch =pick.js=.
+- OWED, beef's call first: the constraint-construction archaeology (inline read-only git, skip and design
+  from pins n–p, or relaunch); then the M2 storage block (constructor takes =entities=, registers on
+  =em.config=; fallback per ORM), M5's two storage tests, M4's =create()= (does the scenario set
+  =entities.probe= explicitly, mirroring the constraint pattern?), the forks storage line.
+- Settled in this fold: the four places that still claimed the =WeakMap= as the design (quest forks line,
+  quests index line, memory body, MEMORY.md line) now say "context-set, per-ORM fallback, WeakMap struck".
+- Constraint/Issue strike: measured unrestricted, still recommended; the =localStorage= shim: still beef's
+  call. m65 the activity: unwritten, pointer only.
+
+* callouts
+
+- Claim-guard fire, turn 1: a zero from a SELF-SCOPED grep (the hook's own axis). Corrected with an
+  unrestricted envelope. Family unchanged; hook obeyed.
+- A =find /= inside a compound command walked the whole filesystem: 120 s timeout, backgrounded, a pattern
+  =pkill= missed it, killed by PID. Fault: environment carelessness — the package path was one =ls= away.
+  Rule landed in laws above.
+- Two probe slips (anonymous class, wrong regex) — caught by the run, fixed in-turn; no rule.
+- A cross-package homonym drafted (=VirtualEntitySchema= twice) and caught before landing — the "pin ontology
+  first" family.
+- The agent beef asked for was stopped by beef before reporting; reason not stated, not guessed.

@@ -1,138 +1,39 @@
 #+title: m62 the governed hallucination — one control structure over every running hallucination: budgets that SUM up a tree, a stop that reaches the fetch, and a live view of what is burning
 #+filetags: :m62:roadmap:hallucination:cortex:provider:harness:span:thread:buffer:kajuit:safeguard:budget:ratelimit:stop:
-#+status: ROADMAP — investigate, do not build. Born of one mishap: a fresh thread with no INTELLIGENT trait resolved to the dumb model, a research pass nested inside a dialogue turn ran ~1000 calls / ~40M tokens INSIDE every budget, the stop button stopped the listening and not the work, and the first notification was the provider's API block. The stop path is traced to the line; the design shape is drafted; the noun is open (words proposed in `* the noun`); nothing lands here. The harness-text half (hello-world phases + budgets) landed in the same session outside this quest; the INTELLIGENT default hunk waits on go there too.
-#+phase: roadmap
-#+progress: 0/6
-#+next: beef — pick the noun; rule the forks; then the quest leaves roadmap/ for the root
+#+status: ROADMAP — investigate, do not build. Born of one mishap: a fresh thread with no INTELLIGENT trait resolved to the dumb model, a research pass nested inside a dialogue turn ran ~1000 calls / ~40M tokens INSIDE every budget, the stop button stopped the listening and not the work, and the first notification was the provider's API block. The stop path is traced to the line; the design shape is drafted; the noun is open (words proposed in `* the noun
 
-* intent
-
-beef, verbatim, the mishap:
-
-/"the mishap that we had is that a very dumb model just got stuck in the loop I think and generated a thousand API calls and we ran through like 40 million tokens by accident which is very stupid we need safeguards here for sure and very solid safeguards"/
-
-/"I didn't get any notification about this recursion … Nothing told me that the intervention button, the stop button in the interface didn't take effect. We had to, we actually got blocked on API level for repeated calls. So the stop button press, I don't think propagates properly yet. or not recursively into all of the processes that run it."/
-
-/"that is a separate second step third step"/ — the safeguard is its own quest; the harness text and the INTELLIGENT default were the same-session fixes.
-
-beef, verbatim, the shape he wants:
-
-/"investigate how such a safeguard should look like … from the side of the provider from the side of the cortex of the single hallucination probably makes sense on the hallucination and provider guard and the cortex or the infrastructure in between just mediates and facilitates"/
-
-/"the provider owns a hard limit, check, that makes sense. The hallucination owns the loop, that is true, we already have all of the turn meta usage per round, so token budget is like rounds. And then maybe this control structure somewhere for the repeated identical tool calls makes sense."/
-
-/"We need to be careful though with the wiring … I would guess we want per turn limit? Maybe we don't want global … We would definitely want the capability to rate limit. So calls per minute per thread. Maybe per daemon even. Possible or per user … a pretty flexible abstraction needed."/
-
-/"Don't call it the ledger. Very, very bad."/
-
-/"we have a tree here. We have the leaf hallucination … we have the buffer optional. We have the thread. We have the probably the mode, the user, the daemon, and the daemon has many users, has many modes, have many threads, have many hallucinations … buffers, many hallucinations, have tools"/
-
-/"in the F panel we want to have a live overview of all of these processes as they are happening … I'm not sure we want to do that via trait. Maybe we want a dedicated … for sure prototypes, maybe even an entity … No, not an entity, that doesn't make sense actually. But we want a prototype for something like process or job. I'm not happy with either of those words"/
-
-/"an instance on the daemon level … I don't think the modes ever touch this. It's a shared entity across hallucinations. Here we track various kinds of activities and we provide the control surface. We have the same prototype in, I assume, the tools. So tool execution will also be gated by this … Not only gated, but like viewed, controlled … We have I.O., some coherent I.O. We have that in the hallucination, in the tool. Well, we might as well add it to the aperture … In that case, it makes sense to tie that into the span. Or at least to have on span level dedicated trackers, tracers for this. Maybe the control doesn't flow through the span."/
-
-/"For now we just need the handle summation. And there I think it makes sense if we have the hallucination track on buffer or thread … the harness execution and the hallucination that we provide if it's a harness mode, that already has built in this control job execution … we need a word for this I think that's the first thing propose me a couple of words … the thread needs to somehow be, and the buffer, need to somehow be made aware that this thing is existing. That's why maybe a repository would be nice, but I think we could actually bypass the repository … We could do that actually via traits. I'm not sure."/
-
-/"not only an intervention stop, like a singular signal, but something that's a bit more rich, where we see state progress as it happens, per hallucination process cortex invocation that's running at the moment … these are the hallucinations that are currently in progress in this thread. This is how long they've been going, how many tokens they have used, how many calls that were made, calls to which and what, and maybe the ability to view the thinking process as it happens."/
-
-The earlier same-session ruling on stop-by-thread, verbatim: /"Maybe by thread? that they … have the thread internally and then the thread propagates the control signal maybe that way we would need to also do that on buffer level so they're basically nested via nested threads and then buffers in threads"/
-
-* the mishap, measured
-
-No log survived — `~/.viva/logs` was empty; the burst ran on beef's terminal. The count is reconstructed from the loop's shape, which is enough to show it needs no infinite loop.
+beef: /"we need a word for this … propose me a couple of words … not process or job … don't call it the ledger"/ · /"big no on governor"/. Taken on disk (`ls prototypes/ gestalten/shard/`): `process` (m49 Die/Wafer) · `line` (multiplex) · `effort` (INTELLIGENT) · `session` (lighthouse) · `pool` · `queue` · `stall` · `span` · `signal` · `scope` · `track` · `status`. Two things want naming: the UNIT (one bounded run of a hallucination/tool) and the ORGAN (the daemon-level shared instance).
 
 #+BEGIN_EXAMPLE
-subsystems/typology/gestalten/shard/hallucinate.js:117   while (rounds < policy.rounds)     ONE hallucination, capped
-subsystems/typology/prototypes/hallucination.js:12       rounds default 10
-commons/instances/hello-world/tools/research.js:8        ROUNDS = 30 — the researcher's OWN budget, nested
-commons/instances/hello-world/tools/web.js               every web_read → +1 object.render (the CHOOSE pick)
-subsystems/typology/gestalten/shard/hallucinate.js:52    deliver(): backoff [1000, 4000] → ×3 attempts per round on a retryable fault (429 IS retryable)
+the organ (daemon-level, shared, controls + counts + views) — fifteen, four registers
+  machine   throttle     rate + cap in one word; verb and noun; daemon.throttle.reach(thread)
+            regulator    holds a quantity within bounds
+            fuse         trips when load exceeds; carries the stop
+            breaker      circuit breaker; trips, resets, views the load
+            gauge        reads what is burning; view-heavy, control-light
+  body      metabolism   what the body burns and at what rate; extends cortex/soma/hallucination
+            pulse        live rate + heartbeat view; thin on stop
+            vagus        the nerve that slows the heart; stop + rate; obscure
+            homeostasis  self-regulating balance; long, exact
+  allowance allowance    the budget is IN the word; sums up a tree naturally
+            ration       fixed share per node; stop when spent
+            quota        standard infra word; per user / per thread reads native
+            meter        counts + caps; electricity meter, taxi meter
+  authority steward      holds resources, accounts for them, can halt; beside `steer`
+            marshal      orders, halts, oversees the running
+  STRUCK    governor · warden
 
-dialogue turn      ≤ 10 rounds
-  └ research       ≤ 30 rounds  (per call; the outer may call it every round)
-      └ web_read   +1 render each
-  × 3 attempts     on 429
-
-10 × (30 + reads) × 3  ≈ 1 500 calls, every one inside its own budget. Budgets NEST and MULTIPLY; nothing SUMS.
-#+END_EXAMPLE
-
-The dumb model: `systems/runtime/daemon/traits/harnessed.js:97` reads /"mode default (modes default with ??=)"/ — no mode does. A fresh thread has no `INTELLIGENT`, so `tune` is undefined → `subsystems/typology/prototypes/cortex.js:24` `WHERE` default `[0.5,0.5,0.5,0.5]` → `nearest` over anthropic + openrouter faculties → whatever sits at the centre. Fix proposed same session (harness-level `{ tune: "capable", effort: "low", rounds: 10, ...mode.module.intelligent, ...claimed }`), awaits go.
-
-* the stop path, traced
-
-#+BEGIN_EXAMPLE
-systems/kajuit/src/app/panels/a/widgets/Dock.svelte:241   stop = () => inflight?.abort()
-subsystems/typology/prototypes/socket.js:111              packet.close → line.controller.abort()
-subsystems/typology/prototypes/socket.js:201              for await (item of body) { if (controller.signal.aborted) return }
-                                                          ← returns WITHOUT body.return(): the generator is ABANDONED, not cancelled
-subsystems/typology/gestalten/shard/hallucinate.js:104    respond(): no signal parameter; mid-await in dispatch() nothing observes anything
-commons/hallucinators/anthropic/provider/index.js         via.stream/render: no signal reaches the SDK fetch
-#+END_EXAMPLE
-
-`ctx.request.raw.signal` IS honoured today — `gestalten/shard/datamap.js:201` · `shard/nano.js:11` · `shard/transmitter.js:82` — by nothing on the hallucination path. So: stop = stop LISTENING. The pending `dispatch()` (research, 30 rounds) runs to completion; `deliver()` retries the 429 three times per round; the provider blocks the key. Faults go to `span.fault()` — a 1000-record journal (`prototypes/span.js:4`) with a `Pipe` no one subscribes to. That is the missing notification.
-
-* the tree
-
-beef's tree, with what exists per node:
-
-#+BEGIN_EXAMPLE
-daemon                      Die on Wafer · Wafer.abort = new AbortController() (prototypes/wafer.js:7, UNUSED — the m49 control vector's seam)
-  user                      Identity row; nothing per-user runs today
-    mode                    Object.assign(mode, module); mode.harness = the HARNESSED vector
-      thread                Thread row · parent/children (m55) · trait.INTELLIGENT { tune effort rounds thinking } (entities/thread.js:7)
-        buffer (optional)   Buffer row · thread cascade · a draw = a hallucination on the thread
-        hallucination       respond(): rounds · turn.meta.usage per round · span.branch per tool call · yields /tool/call /tool/yield /response/close
-          tool              dispatch(): steer.dispatch.invoke, guarded strategy; a tool may open a NESTED hallucination (research) or a render (web_read)
-#+END_EXAMPLE
-
-Three facts that make the design: (1) `policy.span` is ALREADY a seam — `prototypes/hallucination.js:36` `policyOf` mints `new Span("/hallucination")` per call and would take a parent instead. (2) `turn.meta.usage` is ALREADY folded per round — `hallucinate.js:129` notes it; a token budget is one comparison beside `rounds`. (3) A nested hallucination ALREADY passes `thread` (`research.js:16`) — the thread is the join key nobody uses.
-
-* the design — shape only
-
-Three owners, one shared organ, drafted from beef's rulings:
-
-#+BEGIN_EXAMPLE
-provider    HARD LIMITS per call        max_tokens · timeout · the SDK fetch takes { signal }        anthropic/openrouter provider/index.js
-hallucination  THE LOOP                 rounds · tokens (Σ turn.meta.usage) · repeated identical tool call → stop (name+input hash seen twice)
-                                        checks policy.signal between rounds; deliver() forwards it     shard/hallucinate.js
-tool        gated + viewed              dispatch() opens a span branch already; it joins the same organ (count · elapsed · condition)
-aperture    the same I/O                a request is an activity too — optional, same organ; stop/activity verbs live here
-cortex      MEDIATES                    resolves faculties; hands the organ's signal + span into policy; never owns a budget
-THE ORGAN   daemon-level, shared, modes never touch it
-            reach(thread)               join the live one or mint; a child thread joins its parent's signal (AbortSignal.any)
-            budgets that SUM            per thread · per user · per mode · per daemon — a tree of counters, the leaf adds up
-            rate                        calls per minute at any node of the tree (beef: "per thread. Maybe per daemon even. or per user")
-            control                     stop(node) → abort every signal below; the provider fetch dies NOW, not at the next yield
-            view                        the span pipe as a nano-atom: per hallucination — path · opened · rounds · usage Σ · calls (name · input · condition) · faults · thinking deltas
-#+END_EXAMPLE
-
-Where it attaches (beef: /"Maybe the control doesn't flow through the span"/ — held as a fork): control = AbortSignal down the tree; telemetry = Span up the tree. Two directions, two mechanisms, one organ holding both handles per node. The span is the VIEW, never the control.
-
-Thread + buffer awareness (beef: repository vs trait, unsure): neither row needs a column — the organ is keyed by thread id in memory on the daemon; the F-panel reads the organ, not the row. A trait would persist a live thing; a repository verb would make the daemon's memory a table. Lean: the organ is a prototype on the daemon (`daemon.<noun>`), reached by id, not persisted; the fork stays his.
-
-kajuit: F panel, live list per thread (and daemon-wide, for the operator): elapsed · tokens · calls · the last tool · faults; thinking unfolds inline from the same stream; the existing stop button calls `stop` and is finally honest.
-
-* the noun
-
-beef: /"we need a word for this … propose me a couple of words … not process or job … don't call it the ledger"/. `process` is taken by m49 (Process/Die on Wafer), `line` by multiplex, `effort` by INTELLIGENT, `session` by the lighthouse. Two things want naming: the UNIT (one bounded run of a hallucination/tool) and the ORGAN (the daemon-level shared instance).
-
-#+BEGIN_EXAMPLE
-the organ (daemon-level, shared, controls + counts + views)
-  governor     the engine part that caps speed — rate limit, budget, stop, in one plain word; universal, no coinage. daemon.governor.reach(thread)
-  metabolism   what the body burns and at what rate — extends the cortex/soma/hallucination family; the F panel shows the metabolism
-  warden       holds the keys, counts the inmates, can halt; slightly carceral
-
-the unit (one bounded run under the organ)
+the unit (one bounded run under the organ) — untouched by beef so far
   stint        a bounded period of work — the budget is IN the word; a hallucination opens a stint, tools run inside it
   bout         one round of exertion with an end; reads well nested (a bout inside a bout)
   errand       one sent-out task with a return — fits tools better than hallucinations
 #+END_EXAMPLE
 
-Lean: `governor` + `stint` — both standard English, both say the constraint, neither collides. `metabolism` if the bio register should win.
+Lean: `throttle` for stop+rate+cap in one plain word · `metabolism` if the bio register should win · `quota` if budget summation is the primary story. Unit: `stint`.
 
 * forks
 
-- F1 the noun — organ + unit, above.
+- F1 the noun — organ (fifteen, `governor` struck) + unit, above.
 - F2 control through the span or beside it — lean beside: signal down, span up.
 - F3 stop cascade — parent stop kills children by default, or only `stop({ deep: true })`.
 - F4 budget scope — per turn (beef's guess) · per thread · per user · per daemon; which SUM and which are independent ceilings; a rate limit at every node or only thread + daemon.

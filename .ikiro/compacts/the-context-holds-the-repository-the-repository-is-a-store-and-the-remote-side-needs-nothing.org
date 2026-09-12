@@ -1,0 +1,129 @@
+#+title: the context holds the repository, the repository is a store, and the remote side needs nothing
+#+filetags: :m64:runtime:typology:mikro:virtual:datamap:nanostores:remote-repository:vcs:archaeology:tests:quest:memory:callout:
+#+index: 155
+#+session: 8 beef turns after a /compact, walked oldest first (3 mid-turn messages folded into the turn they interrupted; 1 background agent, stopped by beef before it reported; 1 stop-hook fire, obeyed; model switched fable → opus before this fold)
+
+* one breath
+
+After the fold I re-sent the archaeology agent beef had asked for. Beef stopped it and pasted the answer himself: the
+constraint repository was =new='d by whoever owned it (=ontology.constraints= in 2025, =daemon.kernel.constraint= in
+2026), =extends Array=, class bound by =this["#entity"]=, ORM never saw it; commented at =ab5987173=, gone at
+=65aabc1b7=. He marked it: /"map makes sense"/, context holds it /"=== yes"/, the class binding /"maybe this can be
+done better"/. I proposed the delta, then (on /"including evolution of testing"/) measured the test side at each rev:
+no test ever named the kind — it died silently. On /"rewrite the quest"/ the quest went to that paradigm with prose cut
+75%. On /"validate that this change doesnt require redesing on the remote consumer side"/ I traced every client read
+and found none that moves; the claim-guard caught an unscoped zero and I re-measured unrestricted. Beef struck
+=#held=, asked about =#entities= and =$entities= — /"make the thing reactive? might be cool"/. The remote store is a
+nanostores =atom([])=; the daemon now holds the same kind. /"ok. we go iwth that."/ — quest updated with the store and
+the remote results.
+
+* the spine — 8 turns
+
+** 1 · (post-fold) — the archaeology resent, then /"Old way: whoever created the repo owned the storage…"/ and /"doesnt have to be array. map makes sense. … The context constructs the repo and holds it (kern). === yes … The entity class gets bound in the repo's constructor (this["#entity"] = …). --- maybe. maybe this can be done better. not sure."/
+
+Relaunched the opus Explore agent with a read-only brief (revisions, construction sites, consumers, denied commands).
+Mid-turn beef pasted the findings himself, verbatim in substance:
+
+- 2024-10 → 2025, ontology owns it: =bf0322c7d= =BaseOntologyRepository extends Array=, =ConstraintRepository=
+  binds =this["#entity"] = ConstraintEntity=; =ontology.viva.js:16= =constraints: new ConstraintRepository()=;
+  callers =runtime.ontology.constraints.create({...})=.
+- 2025-08 → 2026-03, daemon kernel owns it: =f6b6891b4= =VirtualRepository extends Array=; =kernel = { orm: {}, em:
+  {}, constraint: new maps.virtual.constraint.repository(), issue: … }=; writes =kernel/constraints.js:24=, reads
+  =kernel/validation.js:49= =matching()=.
+- died: =ab5987173= (2026-03-11) commented, =65aabc1b7= (2026-07-03) removed; activity never had a repository in
+  history.
+
+Then his second message, the marks quoted above. Agent stopped by beef (killed, nothing reported). Read mikro
+=getRepository= (=EntityManager.js:89-95=, =Utils.className=), =EntityRepository= ctor, both providers' mint loops
+(=libsql.viva.js:61-63=, scenario =datamap.js:59-62=, skip on no =entity=), =population.js:47-58= =seal= (re-wraps
+ABSTRACT schemas only), =fork()= sharing the =eventManager=.
+
+** 2 · /"propose how this information about teh virtual entity use in the past affects the m64 quest."/
+
+Proposal: repository IS the storage (Map), context constructs + holds (=entities.probe = new VirtualRepository(orm.em,
+ProbeEntity)=), mikro's second constructor argument binds the class, fork twins adopt the context's store via the
+per-ORM =Configuration= extension; =seal= safe for a citizen; kind-specific verbs (old =matching()=) through a
+repository subclass. Sketch + M4 delta. One question left open: keep the optional third argument or drop it.
+
+** 3 · /"including evolution of testing"/
+
+Measured at the three revs (=git ls-tree= / =git grep= / =git show=, read-only): =bf0322c7d= zero =.test.= files,
+constraint hits only in =.bru= payloads; =f6b6891b4= 34 test files, zero naming kernel or constraint — the repo ran
+only inside =daemon/lifecycle.test.js= through =die.resolve → kernel.constraints= (boot liveness), =matching= reached
+from =bak/= alone; HEAD 246. Lesson: a repository nobody names dies silently. Proposed M5 storage recast + a liveness
+pin.
+
+** 4 · /"rewrite the quest. a: update the paradigm to ours. b: cut yap by 75% - making sure the quest is majority code."/
+
+Full rewrite, then trims until measured: prose 1802 → 448 words (75%), code lines 458 → 493 (93% of lines). New:
+paradigm section with both past code shapes, =population.seal= law, "every kind is NAMED by a test" law, M5 storage
+describe (named · twin · two forks · second ORM + handed store · Map invariant). Quests index, memory body, MEMORY.md
+(17082 B) updated.
+
+** 5 · /"validate that this change doesnt require redesing on the remote consumer side"/
+
+Read =remote-repository.js=, =entity-manager.js=, =shape/subscriber.js=, =shard/datamap.js= (=strip=, =reactive=,
+=scoped=, =scope=, route verbs), =broadcaster.js=. Every client read holds: =properties= + =id= only; =resolve()=
+takes id or object; =/remove='s ={ count, ids }= is built by the shard; =/ensure= mounted only if the verb exists;
+=getEntityName()= normalizes class vs string. Flagged two: M6 as written drops events (a to-one LOADED on the writing em
+expands in toJSON, =broadcaster.js:58= matches ===); =find= options not served.
+
+Stop-hook fire (=assume-dont-verify=): "no redesign" and a kajuit zero rode an unverified path. Re-measured
+unrestricted over repo + =~/.viva/registry=: =primaryKeys= 0 hits; =.columns= readers = =datasink.js:51,57= (DAEMON
+side, a correction) + UI widths/CSS; kajuit touches the remote prototypes in tests only. Envelope pasted.
+
+Mid-turn: /"i dotn like #held as a variable. what did we have in the past? what do we have on remoterepo?"/ — past: the
+repository WAS the array, no field; remote: =$entities= (= =entityManager.stores[name]=), =stores=, =identities=.
+Proposed =#stores=.
+
+** 6 · /"#entities ? or might we want to maybe use $entities too? make the thing reactive? might be cool"/
+
+Measured the remote store: =stores[name] = atom([])= (=entity-manager.js:52=, nanostores 1.0.1); API used =get= ×23 ·
+=set= ×8 · =subscribe= ×10; =atom.set= notifies only on a new reference (=atom/index.js:66-71=). Recommended =atom([])=
+as an exact mirror over =map({})= (object =get()= breaks read symmetry); instance =$entities=, bag =#stores= (=#entities=
+beside =$entities= would mislead). Sketch.
+
+** 7 · /"ok. we go iwth that. quest update. including the results from earlier regarding remote changes."/
+
+Quest: M2 =$entities= atom + =#stores= + =#set= re-set; M4 =as(user, fn)= (writes ride =datamap.shard.context= with the
+user filter param); M5 storage describe on the store + a reactive case; M6 14 daemon-side writes through =world.as=;
+laws +3 (store kind, remote validated, write context); M3 names the options gap; hunks: describe 3 array → atom,
+nanostores import path unmeasured. 510 code lines, 599 prose words. Index + memory body updated.
+
+** 8 · /"ikiro compact"/ — this fold (model now opus).
+
+* laws
+
+- **The context holds the repository; the repository is the storage.** Measured twice in VCS
+  (=ontology.constraints=, =kernel.constraint=). Ours adds what the past never needed: mikro mints twins on forks, so
+  the store is registered on the per-ORM =Configuration= and every twin reads it; none constructed → one per kind per
+  ORM.
+- **The class binding is mikro's own argument.** =new VirtualRepository(em, ProbeEntity)=; =Utils.className= makes the
+  class and mikro's string one key. =this["#entity"]= dies.
+- **Store kind = the remote kind.** =$entities = atom([])=; both ends =get=/=subscribe= and filter with =object.match=;
+  mutate → re-set a new array. The wire stays the EventManager path.
+- **A repository nobody names dies silently.** No test named the constraint repository at any rev; every virtual kind
+  is named by a test.
+- **The remote consumer reads =properties= and =id=.** A server-side storage change cannot move it; the one =columns=
+  reader is daemon-side (=datasink.js=).
+- **A daemon-side write rides a request context.** A LOADED to-one serializes as an object and the Broadcaster matches
+  by ===.
+
+* state at fold
+
+- ON DISK, uncommitted: =.ikiro/quests/m64-the-virtual-entity.org= rewritten (paradigm, laws, M2 store, M4 =as=, M5/M6
+  recast) · =virtual.discovery.test.js= 19/19 unchanged (describe 3 still holds an array) · quests index line · memory
+  body =project_activity_virtual_entity.md= · MEMORY.md line.
+- OWED, beef's call: Constraint/Issue strike · =localStorage= shim · "go" on M1–M7. Owed on go: describe 3 array →
+  atom re-pin, nanostores import path in runtime (direct vs typology re-export).
+- No source code written this stretch.
+
+* callouts
+
+- Claim-guard fire, turn 5: "no redesign" + a kajuit zero from a path never verified. Re-measured unrestricted; one
+  correction surfaced (=datasink.js:51= reads =columns=, daemon-side). Family unchanged; hook obeyed.
+- Archaeology agent relaunched, then stopped by beef, who had the answer already; reason not stated, not guessed.
+- The 75% cut took several trim passes after the first full write landed at 57% — measure before reporting, which was
+  done.
+- M6 as first designed would have silently dropped subscriber events; caught by reading =broadcaster.js= during the
+  remote validation, not by a run.

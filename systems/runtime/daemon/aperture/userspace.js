@@ -1,4 +1,4 @@
-import { shard } from "@vivalence/typology";
+import { shard, v } from "@vivalence/typology";
 
 export async function userspace(daemonDie) {
   const { entities, twitch } = daemonDie.good;
@@ -26,13 +26,44 @@ export async function userspace(daemonDie) {
     .branch("/buffer")
     .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
     .slurp(shard.datamap.repository(entities.buffer))
-    .slurp(shard.datamap.reactive(entities.buffer, twitch, { scope: (ctx) => ({ user: ctx.user.id }) }));
+    .slurp(
+      shard.datamap.reactive(entities.buffer, twitch, { scope: (ctx) => ({ user: ctx.user.id }) }),
+    );
 
   owned
     .branch("/turn")
     .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
     .slurp(shard.datamap.repository(entities.turn))
-    .slurp(shard.datamap.reactive(entities.turn, twitch, { scope: (ctx) => ({ user: ctx.user.id }) }));
+    .slurp(
+      shard.datamap.reactive(entities.turn, twitch, { scope: (ctx) => ({ user: ctx.user.id }) }),
+    );
+
+  const activity = owned
+    .branch("/activity")
+    .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
+    .slurp(
+      shard.datamap.repository(entities.activity, {
+        only: ["find", "findOne", "findOneOrFail", "findAndCount", "count"],
+      }),
+    )
+    .slurp(shard.datamap.reactive(entities.activity, twitch));
+
+  // @beef this code breaks the style pattern.
+  // @beef shouldnt one of these be a subscription??
+  const one = activity.branch("/:id").use(async (ctx, next) => {
+    ctx.activity = await entities.activity.findOneOrFail({ id: ctx.params.id, user: ctx.user.id });
+    await next();
+  });
+  one.open({ nature: "stdout", yields: v.primitives.controller.Record }, (ctx) => {
+    ctx.output = ctx.activity.stdout(ctx.request.raw?.signal);
+  });
+  const stdin = one.branch("/stdin");
+  for (const name of Object.keys(v.primitives.controller.MACHINE.signals))
+    stdin.open(name, async (ctx) => {
+      await ctx.activity.stdin[name](ctx.input);
+      return ctx.activity.controller.toJSON();
+    });
+  // @beef this code breaks the style pattern.
 }
 
 // import { shards } from "@vivalence/typology";

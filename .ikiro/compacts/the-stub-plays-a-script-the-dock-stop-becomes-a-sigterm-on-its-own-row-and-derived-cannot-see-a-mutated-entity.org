@@ -1,0 +1,308 @@
+#+title: the stub plays a script, the dock stop becomes a SIGTERM on its own row, and $derived cannot see a mutated entity
+#+filetags: :m65:activity:controller:stub:hallucinator:fixtures:playground:chaosmonkey:kajuit:dock:svelte:design:instance:testing:
+#+index: 163
+#+session: 20 turns after compact #162 (turns 75–94 of the session; models opus then fable then opus; no agents; commons/fixtures · commons/instances · commons/playground · kajuit · runtime touched, plus =~/.viva/instances/{language-learning,hello-world}=; VCS untouched)
+
+* one breath
+
+m65's activity was landed and invisible: nothing in kajuit showed it, and nothing but a real
+Anthropic key could make one run. This fold built the two halves that make it demonstrable.
+A =@commons/hallucinator/stub= under =commons/fixtures/hal/stub= plays a script that is a PURE
+function of the request — flags written in the prompt, named scripts on =statics.scripts=,
+parsed by =Signal=, the repo's own CLI grammar — so a run can be made to take twenty seconds,
+call a tool three times, fault retryably, or hang forever, offline and for free. And the design
+beef had drawn in a claude_design project landed as three kajuit widgets over dapper tokens:
+a tracker dot on the shoulder and the dock header, a roster with signals and the stdout ring
+at the top of F. Then the old dock stop — an =AbortController= on the SSE read that stopped
+the BROWSER listening while the daemon billed on — was ripped out for =SIGTERM= on the activity
+row that send minted, matched by the turn id the harness now stamps. Three defects only a
+browser could show closed the fold: a settled row decayed under a reader's eyes, a row overflowed
+the panel, and every row sat IDLE forever because =$derived(project(row))= cannot see a mutation
+the entity manager writes INTO the same instance.
+
+* the spine — 20 turns
+
+** 75 · =/compact= — NOTHING (harness).
+
+** 76 · the quest re-pasted (67k) with a DESIGN handoff under it — a claude_design project,
+=Kajuit Activity.dc.html= — and the task: /"load up context. no analysis or planning yet. our
+subject will be to use hello world and playground to demo and test our new llm activity
+management. pull context. code heavy."/ Pulled: hello-world (instance · mode · harness · tools ·
+rig), =Activity.ts=, =aperture/userspace.js=, =traits/harnessed.js=, the interactive
+sheet/panel/client, every playground mode, kajuit's =ActivityDossier= + =dossier.js= logging.
+Then =DesignSync.list_files= → 4 =.dc.html= + =support.js=; =get_file= on the canvas (106 KB),
+=ActivityRow=, =ActivityTracker=, =ActivitySection=. Reported the map, no analysis.
+
+** 77 · the continuation summary — NOTHING.
+
+** 78 · 79 · =[Image #27]= — the design's own render: ActivitySection density=line above
+ActivityRow density=stack. Context for the widgets, no ask.
+
+** 80 · /"just reading. no yap"/ → /"Standing by."/
+
+** 81 · /"unmount playground from language learning. is there an instance in playground? a
+template instance? if not create"/ — measured: playground had NO instance (only
+=commons/instances/hello-world= + =bak/=), and the only mount was the =development= daemon inside
+=~/.viva/instances/language-learning/test.viva.js=. Landed =daemons = [italian]= there, and a new
+=commons/instances/playground/instance.viva.js= — a 9-mode kernel (the six playground modes +
+chaosmonkey vision · oracle · reader), ports offset 2502/1795 so it runs beside hello-world.
+=development.js= left on disk, now unimported: the ledger has no VCS. =instance/doctor= still
+reported hello-world — =VIVA_INSTANCE_MOUNT= is =assign@os= and loses to =claim@ledger=, so the
+new home can only be doctored once it is on the shelf.
+
+** 82 · the build order, dictated: /"do an iteration on the Chaos Monkey inside of Playground …
+implement the design … the activity indicators in the dock and in the shoulder and in the panels,
+in the F panel specifically … enable me to trigger … the hallucinations in the harness calls …
+thus validate that I can see live that activities are happening"/, with the recursion explicitly
+deferred: /"this sub call recursion I think yeah maybe not yet"/.
+
+** 83 · mid-build, the bigger ask — a deterministic backend: /"some sort of ability to stub my
+runtime or the hallucinators in the runtime. Something that gives back deterministic results …
+in the appropriate faculties with timings and timeouts … Maybe that's a fixture … Stub."/ and
+then, plainly: /"I'm a little bit tired right now. I need you to do a good job. Think slowly.
+Think coherently about what I want, or what I should want, and what it should look like."/ The
+widgets were paused, the design written out, and two forks asked: the name (four options) and the
+script source (four options). Beef answered neither list — he typed the location himself:
+**=fixtures/hal/stub=** — and took **directives + statics both**.
+
+** 84 · /"what I want to test already are the control features. So stop, kill, resume … We might
+not yet have the fidelity … we can just go with kill for now and do hold later. Unless you see
+it's very easy and obvious to implement, in that case you can go for the full range."/ Measured
+rather than guessed: =belt/hallucinate.js= already calls =controller.proceed()= at round start,
+per packet and after the pump drains, and feeds =controller.abort.signal= into the pump;
+=activity.integration.test.js:59-65= already pins SIGSTOP freezing the deltas at 2 and SIGCONT
+resuming. Full range taken. Render · verbatim · speech remain kill-only — no =proceed()= on those
+paths, an older gap, not widened.
+
+** 85 · /"Wire up the directives with a dash dash instead of an at, like flags."/ — and the
+rewrite found the primitive: =Signal= already tokenizes CLI flags (=--key value=, ====, quotes,
+=--= terminator). =script.js= became a reader over =new Signal(text).json.flags=, and
+=prose(text)= — the segments rejoined — is what the stub echoes, so the flags never land in the
+answer.
+
+** 86 · the last design question: /"We do have in the doc already a start and stop … We can
+basically rip out, I think, that entire system and replace it with … our new system … So that
+when something is in progress, I can stop it … I only want a stop for now. No kill and no pause,
+at least from within the dock."/ Answered with the mechanism and the one missing wire (which row
+is mine), plus what is LOST: a stop while the daemon is unreachable no longer cuts the dead
+fetch. The claim-guard fired on one sentence of that answer; re-measured in the next turn —
+=grep "controller: ctx.controller"= over =commons systems subsystems ~/.viva/registry=, tests
+excluded → ONE product site, =hello-world/tools/web.js:89=.
+
+** 87 · /"go."/ — both hunks landed, plus the one the tests forced: mikro refuses
+=entity.assign()= with a relation patch on an unmanaged row (/"To use assign() on not managed
+entities, explicitly provide EM instance"/), so =VirtualEntity.updateOne= hands it =this.em=.
+
+** 88 · /"give me the instance/create again"/ → =viva instance/create @commons/instance/playground --use --init=.
+
+** 89 · 90 · =[Image #28]= + two defects: /"1: the open activities shouldnt decay. 2: the open
+acitivies overflwo the f panel and ruins layout"/ — an EXPANDED row is being READ, so it is
+pinned against the linger (and evicted on collapse if its timer already ran); the row got
+=min-width:0 · max-width:100% · overflow:hidden= and the log's path column an ellipsis.
+
+** 91 · /"the activities stay idle even tho there is progress and activity"/ — the diagnosis that
+matters. =RemoteEntityManager.merge= assigns INTO the held instance and re-sets the store array
+(=entity-manager.js:70-101,334=), so =row= is the same object every tick; =$derived(project(row))=
+re-runs only when a tracked read changes, and there is none. The section now counts a =version=
+per store tick and each row reads it: =$derived.by(() => { void version; return project(row); })=.
+
+** 92 · =[Image #29]= + /"and kill dont work"/ — the same frozen projection, not the wire: the
+signal went out, the row moved, the panel did not repaint.
+
+** 93 · /"ikiro compact"/ · ** 94 · /"thorough"/.
+
+* landed
+
+** =commons/fixtures/hal/stub/= — the stub provider (=@commons/hallucinator/stub=, 155 + 95 + 15 lines) — rows 83 · 84 · 85
+
+The script is a pure function of the request; there is no cursor and no "set the next response"
+door, so the same turns give the same packets in a test and in a browser.
+
+#+BEGIN_SRC js
+  --run <name>        expand statics.scripts[name] — itself a flag string
+  --deltas 40         text deltas                            default 12
+  --pace 120ms        gap between packets                    default 40ms
+  --stall 4s          one long gap, after the first delta
+  --tool lookup       call a tool …
+  --rounds 2          … this many times before answering
+  --fault retryable   throw with .retryable → the belt's backoff path
+  --timeout           yield nothing, ever; only the signal ends it
+  --object '{…}'      what the object avenue answers
+  --say "text"        the text of the answer
+#+END_SRC
+
+- =flags()= = =new Signal(source).json.flags= · =prose()= = the segments rejoined.
+- =round(turns)= counts =tool_result= turns — the round is READ off the request, never counted in
+  the provider. That is the whole determinism story.
+- precedence: =DEFAULTS= ← =statics.default= ← =settings.script ?? the prompt=, and a written flag
+  beats the script =--run= expanded.
+- faculties: dialogue at three tunes (mirroring the real opus/sonnet/haiku corners) + object
+  through the same via =output.schema=, verbatim, speech. Every gap is an interruptible =pause(ms,
+  signal)=; =--object= absent fills each leaf off the schema (=string= → the said text, =integer= →
+  42, =array= → one element).
+
+** =commons/instances/playground/instance.viva.js= — the deterministic testbed — rows 81 · 83
+
+The stub ALONE: two providers at neighbouring tunes shadow each other on the nearest-tune pick,
+so anthropic is declared in the environment schema and not mounted. Named scripts on the mask:
+=slow · stalled · toolstorm · flaky · hung=.
+
+** kajuit — the design, in dapper tokens — rows 76 · 78 · 82, repaired at 89 · 91 · 92
+
+Three widgets. The design ships hexes and two hand-rolled skins; a hex in a kajuit view is a
+defect, so every tone is a role token: RUNNING =--colors-skeleton-0-primary-base= · PAUSED ·
+STOPPING =-warning-= · DONE =-success-= · FAILED · ABORTED =-danger-= · IDLE · STOPPED · NONE
+=--colors-skeleton-2-contrast=.
+
+- =app/widgets/ActivityTracker.svelte= — the dot. =code · label(none|word|count) · size · framed ·
+  motion · title=. Mounted framed and wordless on the shoulder (state, never a count), and as a
+  word in the dock header, where it reads the ROW and not the component's streaming flags.
+- =app/panels/f/widgets/ActivityRow.svelte= — collapsed: path · state · elapsed. Expanded: the
+  signals, the outcome, the stdout ring newest-first. Kill is a 700 ms hold with the bar filling
+  inside the button. A branch shows in the log BY PATH, indented by depth — never its own row,
+  never its own buttons.
+- =app/panels/f/widgets/ActivitySection.svelte= — the roster of this thread, other threads folded
+  behind one line, and the linger: the daemon deletes a row the moment it settles, so the outcome
+  exists nowhere else and the client keeps the parting snapshot ~6 s.
+- =app/panels/f/widgets/activity.js= — the fold. =path= = the ring's root, =spans= = one bar per
+  path with an end only where a =close=/=fault=/=abort= landed, =elapsed= = last =at= − first =at=.
+  The wire sends none of these: the row carries =status · error · steps · relations=, and the
+  clock being the RING's is why a paused controller freezes it for free — it marks nothing.
+- =typology/entities/activity.js= — =roster(thread)= (a computed over =$entities=) and
+  =loudest(rows)= (=RUNNING > STOPPING > PAUSED > IDLE=, else =NONE=), so three surfaces ask one
+  question in one place.
+
+** the dock's stop — the old system out, the machine in — rows 86 · 87
+
+#+BEGIN_SRC diff
+-  let inflight = null;                                   // AbortController on the SSE read
+-  inflight = new AbortController();
+-  …harness.dialogue.stream({ thread, id, parts }, { signal: inflight.signal })
+-  const stop = () => inflight?.abort();
++  let wantStop = false;                                  // pressed before the row arrived
++  const mine = $derived(activities.find((row) => (row.turn?.id ?? row.turn) === echo?.id) ?? null);
++  const stopping = $derived(mine?.status === "STOPPING");
++  $effect(() => { if (wantStop && mine) { wantStop = false; mine.stdin.SIGTERM("user pressed stop"); } });
++  const stop = () => (mine ? mine.stdin.SIGTERM("user pressed stop") : (wantStop = true));
+#+END_SRC
+
+The wire that was missing: =harnessed.js= now holds the row it minted (=ctx.activity=, =:33-36=)
+and =chaining= stamps the turn on it (=:98=) — so the dock's own client id, which
+=chaining= already used for the user turn, is the key that says WHICH row is mine. A handed-in
+controller (a tool's branch) mints no row and stamps nothing. =VirtualEntity.updateOne=
+(=base/VirtualEntity.ts:65=) passes =em: this.em= to =assign=, without which a relation patch on
+an unmanaged row throws.
+
+** chaosmonkey — the trigger surface — rows 82 · 84
+
+=oracle/tools.js= (TOOLED): one =lookup= tool that does nothing but take time — =--tool lookup=
+sends the model there and the dispatch child draws the second bar in the F row. =Oracle.svelte=
+gained a workload strip: =trickle · stall · toolstorm · flaky · hung · ×3 parallel=, every button
+firing =mode.harness.dialogue.stream= so the DAEMON mints a row; the two client-side cortex
+buttons were relabelled =client · no row=, because a browser cannot mint an activity — served
+=create= is refused by design.
+
+* test envelopes
+
+| suite | result |
+|-------+--------|
+| =commons/fixtures/hal/stub/tests/stub.test.js= (new) | 2 passed (13 steps) / 0 |
+| =systems/runtime/tests/stub.activity.test.js= (new) | 1 passed (6 steps) / 0 |
+| =systems/kajuit/tests/activity.widgets.test.js= (new) | 1 passed (11 steps) / 0 |
+| runtime, whole | 62 passed (416) / 1 — =registry ingest= fork 2 wants :2501, red before this fold |
+| kajuit, whole | 40 passed (146) / 0 |
+| hello-world | 19 passed (63) / 0 |
+| =activity.integration= · =virtual.{test,integration,discovery}= | 1 (3) · 3 (55) / 0 |
+
+The runtime test is the one that proves the demo without a browser: a =--run stalled= run held by
+SIGSTOP, resumed by SIGCONT, cut by SIGKILL in under 5 s of a 20 s stall; a =--tool= round landing
+as =/hallucination/<tool>= in the ring; =--fault retryable= noted twice (=retry 1, 2=) before
+FAILED; and the dock-shaped case — a send under a client id stopped by ITS row
+(=STOPPING · STOPPED · delete=) while the sibling on the same thread runs to =DONE= with all four
+deltas.
+
+* what the suites could not see
+
+Three defects, all found by beef in the browser, none reachable from any suite — the same shape
+#162 recorded for the two boot crashes:
+
+1. a settled row decayed while EXPANDED and being read (89);
+2. a row's log widened the F panel (89) — the ring's =data= column had no ellipsis;
+3. every row sat IDLE at 0.0s forever (91, 92) while the dock header, handed a fresh array each
+   tick, said RUNNING.
+
+The third is the law: the client's entity manager assigns INTO the held instance, so identity is
+stable ACROSS updates by design — which is exactly what defeats =$derived= over that instance.
+The store's array is the only thing that changes, so a counter on it is the dependency.
+
+* settlement
+
+- =development.js= in the language-learning ledger home is now unimported. NOT deleted: the ledger
+  has no VCS ([[project_ledger_has_no_vcs]]), and beef unmounted it, he did not condemn it.
+- the hello-world rig stub gained =updateOne= (the harness now patches the row it minted) and was
+  synced to =~/.viva/instances/hello-world/tests/rig.js= — =cmp= identical. The ledger copy's
+  =research.test.js= still fails =P-catalog=: measured with =cmp=, it differs from the repo at
+  line 89 and lacks =mode_find · fs_tree · shell_run=. Stale EXPECTATION, not the rig. There is no
+  =instance/sync= verb (=viva= verb listing, =grep -c= → 0), so this stays owed.
+- the playground instance is authored but NOT on the shelf: landing it is a ledger write, beef's
+  to run — =viva instance/create @commons/instance/playground --use --init=.
+- the recursion question beef raised at 82 (/"maybe not yet"/) was not built and is not owed:
+  nothing was designed for it this fold.
+
+* callouts
+
+- **the script is a pure function of the request** — the one decision that made the stub good
+  rather than convenient. A control aperture ("arm the next response") was on the table and would
+  have been easier to drive from a UI; it grows hidden state and two calls race. The pure form
+  gives the same packets in a test and in the browser, and =round()= reading the turns is what
+  keeps a retried request identical to its first attempt.
+- **beef named the location, not the thing** — four name options were offered (understudy ·
+  metronome · mime · stunt) and he answered =fixtures/hal/stub=. The lesson is filed: he was
+  answering WHERE it belongs, and the name fell out of that.
+- **the primitive won again** — =--= flags were not hand-parsed. =Signal= has tokenized CLI flags
+  since the signature spine was written; pre-flight's first check found it.
+- **RULE FAILURE ×2 (assume-dont-verify)** — the claim-guard fired twice in this window, both on
+  MECHANISM: a narrated *why* standing beside a measured *what* ("a handed-in controller … the
+  parent's row already carries the turn"; "the ledger copy still fails … same drift as before").
+  Both re-measured in the following turn, and the first was WRONG in its second half — the parent
+  carries the turn only when it ran through =/dialogue=. Ledger entry appended.
+
+* markers
+
+Both entries in =compacts/MARKERS.md= stay OPEN and were not touched by this fold: the empty-cortex
+boot warning (runtime + kajuit) and the cortex-snapshot coverage ruling. Neither has a landed rule
+that settles it; both await beef.
+
+* laws
+
+- **a =$derived= over an entity the store mutates in place never re-runs.** The client's identity
+  map assigns INTO the held instance; only the store array is replaced. Read a per-tick counter
+  inside the derivation, or derive from the ARRAY, never from the row alone. Sibling of
+  [[project_svelte_class_state_gap]] (=$state= does not deep-track class instances) — same root,
+  a different rune.
+- **a client cannot mint an activity.** =shard.datamap.repository(…, { only: [reads] })= is the
+  reason; a browser-side =new Controller= owns no row and never will. Client-side cortex calls are
+  therefore permanently row-less — labelled as such in the oracle buffer rather than fixed.
+- **two hallucinators at neighbouring tunes shadow each other.** The cortex resolves by nearest
+  tune, so a deterministic instance mounts the stub ALONE; mixing it with a real provider makes
+  the pick arbitrary.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | sessions |
+|----------------------------+------------+-----------------------------------------------------------------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------|
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 2        |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 0        |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1        |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 2        |
+| m53-vcompany               |   0% 0/1   | open                                                                  | his restart + the click-through gates (vdex 12 · mail/calendar 12 · gs1–gs6); the six office test files; the three stale vdex reds; then his call on the next stage — chat over telegram · vendor providers · the officer stage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 0        |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and the v3 vdex pass (both folded into =m53-vcompany.org=; originals =discarded/m53-vcompany.org= · =done/m53-vcompany.v3-vdex.org=) first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → kajuit. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1        |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1        |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 0        |
+| m57-hello-world-researches |  74% 20/27 | open                                                                  | restart (harnessed.js · generative.js · buffer.ts · thread.ts are repo files; buffer migrates). /"research flamingos, with a picture"/ → one <figure>, line reads the label. a follow-up change → `revised buffer <id> index 0 view <new>`, same line re-mounts, no cursor. /"call that page flamingos"/ → one buffer_label.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 3        |
+| m58-application-noun       | 100% 2/2   | designed                                                              | beef rules m1's three decisions and m2's one, then "go" per milestone — each under its own blast bracket, steps 1–6, one pass per step; the out-of-repo kernels overlap, so a same-day landing is one vcompany capture                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 2        |
+| m60-lighthouse-security    |   0% 0/24  | designed                                                              | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 1        |
+| m61-chess-domain           |   0% 0/20  | designed                                                              | beef — rule f1…f6; then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | 1        |
+| m63-process-controller     | —          | designed                                                              | beef — rule the overlap with m65, which now tangles primitives/controller.js · errors/controller.js · prototypes/controller.js; m63 keeps the graph and the socket line                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | 0        |
+| m65-the-activity           | —          | landed                                                                | beef — followup: tools nesting a harness call hand `ctx.controller?.branch(<faculty>)` (research.js runs under a dispatch; dealer · oracle · registry named by beef) · followup: the polish sites renamed by faculty (verbatim.polish · hal.verbatim({ polish }) · vocal.polish · polish) · then the kajuit capability (a panel over `daemon.entities.activity` + `row.stdin`) · rule the m63 overlap. diff back into the quest: the =drift:= marks under each section (measured on disk; compact #160 `* landed vs designed` is partly stale).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 1        |
+| readme-can-i               |   0% 0/5   | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 1        |

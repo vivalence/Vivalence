@@ -1,0 +1,125 @@
+#+title: the harness splits into named middlewares, the hallucination becomes a schematic, and the activity carries its controller as a stripwired stdin
+#+filetags: :harnessed:skills:thread:summary:m63:m65:controller:hallucination:schematic:cortex:activity:virtual:stripwire:quest:blast-bracket:comment-gate:
+#+index: 157
+#+session: 11 beef turns (5 mid-turn, folded into the turn they interrupted; model fable → opus → fable; no agents)
+
+* one breath
+
+Beef pointed at =harnessed.js=: /"clean this file up a bit. break up the middlewares into smaller functions. do away with
+intermediary local variables. apply good coding style."/ — a trait, so blast-bracket. Baseline was RED before HARNESSED
+ran: his cortex WIP (=cortex.js:40= =Vector is not defined=); a scratchpad rig with HEAD copies of =Cortex= +
+=Hallucination= stood in and ran the three real suites green on both sides. Mid-read he added /"move the standing complex
+into skills. thread.summary"/ then /"propose"/ · /"before rewrite"/ · /"gimme here"/ — proposal shown, nothing written.
+He then dictated the m63 turn: the hallucination recast as a schematic validated first thing in the cortex strategy, a
+controller schematic + prototype, the hallucination input REQUIRING a controller, the harness untouched; proposed as
+m63.2 and scribed. Then his activity idea — the controller wired to the activity's state, transient, subscribed per
+user, controls in the client, logging manual, raw cortex callers wiring their own — verdict: status is OUTPUT never
+input, coupling lives in a runtime =activate()= building block, typology stays pure. /"you can apply your update to the
+harnessed trades as is. And I want you to run some testing against the changes."/ — landed, his own comment-gate hook
+stripped every pre-existing non-=@beef= comment, rig green after, lint clean. Then his entity-design objection: no
+=control(controller)= + =kill=; either the controller as a thing on the activity or a typed interface — answer: the
+controller already HAS an interface, =stdin= is a Vector; =activity.controller= private, =activity.control =
+shape.object(stdin)= daemon and =wire(strip)= client, same spelling both ends. /"Oh my god, I love you. This is
+perfect."/ Cut into a new quest on his yes, verbatim.
+
+* the spine — 11 turns
+
+** 1 · /"clean this file up a bit. break up the middlewares into smaller functions. do away with intermediary local variables. apply good coding style."/ (=systems/runtime/daemon/traits/harnessed.js=)
+
+blast: HARNESSED consumers = =traits/index.js= · =scenarios/cortex.js= · =metadata.js= · =Mode.ts= · kajuit
+=harnessed.js= · 6 suites. test: =harness.thread= · =turn.unit-of-work= · =tooled= · =hallucination-triad= all fail at
+=new Cortex= — beef's uncommitted =cortex.js= (Vector, shape, Controller, resolve undefined). =skill.mode= 4/4 and
+=generative= 7/7 green. Rig: =scratchpad/bracket/= = HEAD =cortex.js= + =hallucination.js= imports rewritten to the
+barrel, =scenario.js= copy pointing at it, the three suites sed-copied → 1/1 · 3/3 · 8/8 green on the unchanged file.
+
+** 2 · /"move the standing complex into skills. thread.summary"/ (mid-turn)
+
+Folded into the proposal: =named= · =shown= · =standing= leave the trait for =skills/thread.js= as =summary({ daemon,
+mode, thread })= with =address= · =threadline= · =modeline= (reuses =places= from =skills/mode.js=) · =bufferline=.
+
+** 3 · /"propose"/ · /"before rewrite"/ · /"gimme here"/ (three mid-turn)
+
+Stopped building; full proposal in chat. Root middleware → =normalizing= · =claiming= (thread row ONCE →
+=ctx.thread=, =ctx.intelligent= twin of =ctx.vocal=, =findOneOrFail= moves early) · =requesting= · =arming= (the seven
+layers, =ctx.daemon=/=ctx.mode= not closures) · =/dialogue= → =chaining= · =persisting= → =recording= (async generator,
+forked em) · =appending= · =summarizing= (cache marks from =Object.keys(system).slice(-1)=, then
+=skills.thread.summary(ctx)=). Adjustments flagged: =ctx.thread= mirrors EMITTER; bad thread id throws before the mode
+harness; stale comments dropped.
+
+** 4 · the m63 dictation (verbatim, trimmed only of stutter): /"Now that I have moved the hallucination, the hallucinator vector … from the … hallucination prototype into the cortex, I think it makes sense to recast the hallucination as a property of schematics or as a subject of schematics and we define in schematic terms. actually what an hallucination looks like and the first thing that we do in the cortex shape object hallucination strategy is validate the shape of the hallucination we've received and one of the things that I think we should add is the controller go for that go into the quest I think it's M63 And I want you to propose. … propose to me the hallucination schematic. Finally, we integrate that whole thing. And then propose to me a controller schematic. And the … controller prototype. And the hallucination input should from now on require a controller. And on the side of the harness, we might also already implement some of the schematics. And we do implement the controller for now. Maybe don't touch the harness yet. That's an interesting problem because we have to somehow facilitate the communication about the abort signal from the client side. So that is a whole topic. Okay, for now, just the parts that I mentioned."/
+
+Read m63, =primitives/hallucination.js= (=Request= · =Faculty=), the cortex WIP (=get hallucinate= over an open
+=this.hallucinator= with his long =@beef= note on activity lifecycling), =shard/hallucinate.js= (=POLICY= · =lowering=
+mints =new Span=), =Status= · =Span= · =promise.waiter= · =is/prototypes.js=. Proposal → =* m63.2= in the quest:
+=Hallucination= = app-side record (live things ride it: Controller, tools Vector) vs =Request= = wire; =lowering= the
+projection. =Policy= moves from the shard to the primitive; =Hallucination.{dialogue,object,verbatim,speech}= keyed by
+branch nature so the strategy indexes =Hallucination[steps.at(-2).nature]=; cortex strategy = =errors= → throw,
+=is.Controller= gate, =schema.fill= (never =cast=: Convert mauls the Vector). Controller schematic at
+=primitives/controller.js= (=v.primitives.controller= per his note), the import-time self-check loops he did not
+understand REPLACED by =v.record(State, State)= / =v.record(Signal, Verb)= totality + one =it(=; =SIGKILL: "abort"=;
+=Kill= packet added. Prototype = a CLASS with =branch(name)= (his "3 lines, on brand"), =signalling= ON the controller
+(his "doesn't go in gestalten"), =is.Controller = instanceof=. Blast: 14 live =cortex.hallucinate= callers must hand a
+controller — =hal.js= ×2, =harnessed.js= ×2 (ONE line, m63 already lists it), chaosmonkey ×3, hello-world =web.js=,
+education registry ×6.
+
+** 5 · the activity dictation (verbatim in =m65-the-activity.org=): the controller requires an activity, state matching on its status to send kills, transient, client subscribes per user, controls + metadata in a component, /"all of the logging part, I would like to keep that manual"/, raw cortex callers /"have to do their own wiring … which is fine, I think, especially if you provide building blocks for that. Hmm. Yeah, I think I like that design."/
+
+Verdict + sketch, no code: status is the controller's OUTPUT, never input (two writers + a loop otherwise). Typology
+cannot import runtime → =activate(repository, controller, links)= is the building block; own-span tap writes status +
+steps ring; =settled.finally= untaps + =removeOne=. Harness =activating= root middleware with =ctx.controller ?? new
+Controller(…)= as the seam the socket line fills later. Tools: =ctx.controller.branch(name)= → same activity, child in
+=toJSON().children= — the links problem dissolves.
+
+** 6 · /"you can apply your update to the harnessed trades as is. And I want you to run some testing against the changes."/
+
+Rig baseline green (1/1 · 3/3 · 8/8). =thread.js= +38 (summary block above the tool Vector). =harnessed.js= Write
+refused twice: first "modified since read" — beef had renamed =row → thread= in =standing= and left =//skills.thread=
+(folded in); then his comment-litter hook — every pre-existing non-=@beef= line ("ONE unit of work", "ASSEMBLES a
+Request", "optional — client-minted", =// ugh=) stripped, his two-line =@beef= note kept with the continuation
+re-prefixed. 230 → 185 lines. Rig green after, =skill.mode= · =generative= green, =deno lint= clean. Re-blast:
+=standing=/=named=/=shown= hits elsewhere are file-local (=hello-world/tools/index.js= owns its own =standing=);
+=ctx.intelligent= harnessed-only. Real suites still red upstream at his WIP — stated, not hidden.
+
+** 7 · /"Okay, regarding the changes to controller, I'm very happy. With the activity entity, I do have some problems, not in approach, but in um, entity design. I don't like that we have the control and kill. … call it with controller, it's um, simpler. … Maybe we just attach, we don't interface, but we have the controller as an actual entity on the activity. And then we control it directly, that would be much more our style. … Or does it make sense for the activity to have an its own interface? … we do have a type, and there can be different types. … we just add the controller for the type under the key. … Or we call it the control. And then under control, we have different interfacing functions. So control.kill, control.blah blah. … So far your designs were pretty good. Maybe you can find something here that works."/
+
+No interface to invent: =stdin= is a Vector opened on the signal natures → =shape.object(stdin)= daemon,
+=shape.connection.wire(connection.branch(`/activity/${id}/control`), strip)= client, SAME spelling. Two nouns:
+=activity.controller= (private =#controller=, setter throws on a second set) · =activity.control= (getter). Per-type
+keying rejected: =type= is data, the surface is the machine; a type wanting more verbs opens more natures on its
+controller's stdin. Aperture: one static =/activity/:id/control= branch, natures from =MACHINE.signals=, a =use=
+resolving =:id=.
+
+** 8 · /"Oh my god, I love you. This is perfect."/
+
+Praise ≠ go. Scribed as =* m63.3=.
+
+** 9 · /"I think it might sense to open a new quest here. This is quite specific, but on the other hand, this is the entire subject of M63. What do you say, a new quest?"/
+
+Yes, cut on the container line: m63 = typology (Controller · machine · Hallucination schematic · socket), m65 = runtime
++ kajuit (entity · =activate= · aperture · harness =activating= · client). m64's retrospective already names m65.
+
+** 10 · /"Okay, I want you to write that quest and I want the quest to contain all of the code that you have written and both of our messages in full up until But excluding the uh, w my question regarding is this a new quest? We don't need that meta stuff in the end. Yeah, uh, all of the parts that are not yet persisted files. So I think the hallucin and the, the harness part, we can skip that. just copy. no yap"/
+
+=.ikiro/quests/m65-the-activity.org= = turns 5 · 7 · 8 verbatim + both replies as sent + law + final =activate= + open;
+indexed above m64; =m63.3= cut from m63 (m63.2 stays).
+
+** 11 · /"ikiro compact"/ — this fold.
+
+* landed
+
+- =systems/runtime/daemon/traits/harnessed.js= — 230 → 185; middlewares =normalizing · claiming · requesting · arming · chaining · persisting · recording · appending · summarizing=; =ctx.thread= (row, once) · =ctx.intelligent=; comments stripped by the gate.
+- =systems/runtime/daemon/skills/thread.js= — =export const summary({ daemon, mode, thread })= + =named · shown · address · threadline · modeline · bufferline=.
+- =.ikiro/quests/m63-process-controller.org= =* m63.2= · =.ikiro/quests/m65-the-activity.org= (new) · =quests/index.md=.
+
+* owed / open
+
+- Real =systems/runtime/tests/{harness.thread,turn.unit-of-work,mode/tooled,hallucination-triad.doc}= stay RED upstream at beef's cortex WIP until it imports =Vector= · =shape= · =Controller= · =resolve=; rerun them then.
+- m63.2 and m65 wait on a per-part go. Hallucination key casing (lowercase by nature vs =Packet.TurnOpen=) is his call.
+- Scratchpad rig is disposable.
+
+* laws worth keeping
+
+- A trait edit with a red baseline upstream: build the rig from HEAD copies, never touch the WIP, prove both sides on the rig, SAY the real suites are still red.
+- Beef's comment-gate hook is stricter than the memory: it refuses PRE-EXISTING non-=@beef= comments on any write. Strip on sight; only =@beef=/=TODO= survive.
+- "propose" · "before rewrite" · "gimme here" mid-turn = stop tools, show the code in chat, wait.
+- The controller's =stdin= IS the activity's interface — never author a =kill= method beside a Vector.

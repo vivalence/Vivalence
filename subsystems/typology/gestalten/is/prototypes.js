@@ -60,6 +60,10 @@ export function Vector(thing) {
   return thing instanceof VP;
 }
 
+export function Controller(thing) {
+  return thing instanceof prototypes.Controller;
+}
+
 export function Aperture(thing) {
   return thing.constructor.name === "Aperture";
 }

@@ -1,11 +1,12 @@
-#+title: m58 the application noun — `app` → `application` on the kernel export, the module, and the mode (M1) · `TOOLED` → `TOOLING` on the trait (M2)
-#+filetags: :m58:runtime:kajuit:typology:paladin:commons:registry:rename:application:tooling:trait:blast:
+#+title: m58 the application noun — `app` → `application` on the kernel export, the module, and the mode (M1) · `TOOLED` → `TOOLING` on the trait (M2) · `kajuit` → `anima` on the client system (M3)
+#+filetags: :m58:runtime:kajuit:typology:paladin:commons:registry:rename:application:tooling:trait:blast:anima:
 #+status: M1 SCOPED, nothing landed. One rename with three faces — =export const application= in the kernel → =mode.module.application= → =mode.application= — because =subsystems/typology/prototypes/mode.js:12= =Object.assign(this, module)= makes the export name the mode property. The trait is already =APPLICATION=; only the noun lags. Blast measured: 6 seam files (runtime 2 · kajuit 4) · 10 kernels + 1 consumer in repo · 4 test scenarios + 1 paladin test · 3 out-of-repo packages (education 4 kernels + 14 consumer sites · vcompany 3 + 3 · young-ladys-primer 1) · the installed hello-world instance · README + codemap + known-issues.
 #+status: M1 — three decisions owed by beef before go — see =*** decisions=. Recommendation given for each.
 #+status: M2 SCOPED 09-09, nothing landed. =TOOLED= → =TOOLING= — the trait name is a STRING resolved twice: =stagger= indexes the traits map by the manifest string (=traits/index.js:8-16= — a kernel ahead of the export boots TOOLLESS, logged as DECLARED BUT UNIMPLEMENTED), and the row's =enumItems= carries it (=Mode.ts:25=, where beef's own =// re: TOOLING= already sits). Blast measured: 6 seam files (runtime only — kajuit 0 · paladin 0 · typology 0) · 3 repo kernels/consumers + 4 comment/prose sites · 3 test files + 8 gitignored snapshots · education 6 kernels + 1 test · vcompany 4 (no VCS) · primer 0 · the installed hello-world · codemap 4 + documentation 2. ONE decision owed — the persisted =Mode.traits= row ACCUMULATES (=population.js:157=): a ghost =TOOLED= survives the rename in every live db, and the client reads that row, unless the row mirrors the manifest.
+#+status: M3 PLANNED 09-17, nothing landed, rulings 5·6·7 given (env vars ANIMA · image+deploy anima · display "Anima"). =kajuit= → =anima= across six namespaces: path · package+tasks · client slug (CLI arg, doctor row, lock/log key) · env vars · ledger (7 instances: kernels + 6 .env + stucatch environment.json; ledger meta untouched) · image + Coolify deploy. Step 0 (WIP committed · readmen container · ports) + nine steps. Holes closed 09-17: 25 live =@vivalence/kajuit= self-imports · untracked playground kernel + activity tests · runtime→kajuit relative import · live-validation skill glob · release line · ship lexicon · rollback pair.
 #+phase: designed
-#+progress: 0/2
-#+next: beef rules M1's three decisions and M2's one, then "go" per milestone — each under its own blast bracket, steps 1–6, one pass per step; the out-of-repo kernels overlap, so a same-day landing is ONE vcompany capture
+#+progress: 0/3
+#+next: M3 go-ready (rulings in). beef rules M1's three decisions and M2's one, then "go" per milestone — each under its own blast bracket, steps 1–6, one pass per step; the out-of-repo kernels overlap, so a same-day landing is ONE vcompany capture
 
 * intent
 
@@ -334,6 +335,283 @@ Step 1's grep returns ZERO sites on the old noun outside =bak/=, quest history, 
 (decision 4 landed) — =select slug, traits from Mode= on the dev instance is the proof.
 
 
+** M3 — =kajuit= → =anima= (the client system)
+
+*** mechanism — one name, six namespaces
+
+beef, verbatim (M3): /"and add another one. we are renaming "Kajuit" to "Anima". anima."/ ·
+/"plan the entire thing. incl ledger"/
+
+One sentence (M3): *the browser client is named =anima= everywhere it is spoken — directory, package,
+tasks, client slug, env vars, ledger, image, deploy, docs — so no reader and no process carries the old name.*
+
+=kajuit= is not one identifier. It lives in six namespaces that resolve independently, each with its own
+failure when missed:
+- *path* — =systems/kajuit/= (≈4230 tracked files; 4090 are =static/= and never spell the name) ·
+  =import_map.json:3,155= · =deno.jsonc:13= workspace member. Miss = module-not-found at boot.
+- *package + tasks* — =@vivalence/kajuit= (=systems/kajuit/deno.jsonc:2=) · =kajuit/{test,run,watch,bundle,stamp,build,tag,push}=
+  (=deno.jsonc:36-74=) · =.claude/launch.json:11,13= · ghost =trajectories/instance/target.js:7=. Miss = task not found.
+- *client slug* — =manifest: { type: "client", slug: "kajuit" }= in every =instance.viva.js=. The slug is the
+  CLI argument (=viva instance/run kajuit=), the doctor's =clients= row, and the lock/log key
+  (=~/.viva/locks/<instance>_kajuit.lock=). Miss = =instance/run anima= finds nothing; a flip under a live
+  process orphans its lock.
+- *env vars* — =VIVA_CLIENT_KAJUIT_{SERVE,ORIGIN,ALLOWEDHOSTS}= · =PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE= ·
+  =VIVA_KAJUIT_ORIGIN=. Declared in each instance's =environment= schema; VALUES live in authored =.env=
+  files and prod. Miss = schema ahead of =.env= → the default wins silently (the port you set is ignored),
+  or =check.environment= fails on a required key.
+- *ledger* — =~/.viva/= instance =.env= keys, =environment.json=, locks, logs (below).
+- *image + deploy* — =vivalence/kajuit:alpine= · registry =…/vivalence/kajuit:{alpine,<sha>}= ·
+  =.gitlab-ci.yml:25,29,35= =deploy-kajuit= → Coolify app =xkgcgwck8k08cgs8okoo4sko=, which pulls BY IMAGE NAME.
+  Miss = CI pushes =anima=, Coolify keeps redeploying the frozen =kajuit:alpine= — green pipeline, stale prod
+  ([[project_kajuit_image_identity]]).
+
+Collision check: =anima= appears in code only inside =requestAnimationFrame= — no noun taken.
+
+*** rulings — beef, 09-17
+
+5. *Env vars* → =VIVA_CLIENT_ANIMA_*= · =PUBLIC_VIVA_CLIENT_ANIMA_REMOTE= · =VIVA_ANIMA_ORIGIN=. YES —
+   every =.env= and prod in the same pass.
+6. *Image + CI* → =vivalence/anima:alpine= · =deploy-anima=. YES — prod switches in the same deploy.
+7. *Display name* → "Anima". YES. Measured: kajuit's UI renders NO "Kajuit" string today (=<title>= is
+   =mode.name ?? "@vivalence"=, =+page.svelte:24=; grep of =src/= for =Kajuit= = 0). The visible sites are
+   docs: =home.mdx:26= ("client @kajuit") · =README.md:75= alt text · =41.01:51= heading ·
+   =documentation/public/images/hello-world.png= caption context.
+
+*** blast — measured 09-17
+
+**** the seam (repo)
+#+begin_example
+systems/kajuit/                         → systems/anima/   (directory move — beef runs it; VCS follows)
+systems/kajuit/deno.jsonc               :2 "@vivalence/kajuit" · :15 :22 commented build lines
+systems/kajuit/client.viva.js           :8 slug: "kajuit"
+systems/kajuit/Dockerfile               5 (COPY paths · bundle task · build dir)
+systems/kajuit/vite.config.mjs          4 (includes :13 ledger boot throw site)
+systems/kajuit/{svelte,tailwind,postcss}.config.js   1 each
+systems/kajuit/vite.config.mjs.timestamp-1789225890850-*.mjs   TRACKED BY ACCIDENT — drop
+systems/kajuit/.claude/settings.local.json          3
+import_map.json                         :3 $telemetry → ./systems/anima/src/telemetry/index.js · :155 scope
+deno.jsonc                              :13 workspace · :36 :48-50 :59-60 :62 :66 :68 :72 :74 tasks · :94-137 commented block
+.gitlab-ci.yml                          :25 build · :29 image loop · :35 deploy-kajuit · :89-98 commented
+.claude/launch.json                     :11 name · :13 task
+#+end_example
+
+**** inside the client (repo)
+#+begin_example
+systems/kajuit/src/**    ≈25 files, 1–16 hits (terminal.js 16 · daemon/dossier.js 14 · thread/dossier.js 7 ·
+                         thread.js 6 · panels a–f · bones crown/shoulder/spine/pincer · Login · Dock · Phase)
+systems/kajuit/tests/**  9 path refs (dictation.store.test.js …)
+#+end_example
+Step 1 classifies each hit: path-in-comment → rewrite path · prose noun → "anima" · identifier → rename.
+
+**** consumers (repo)
+#+begin_example
+commons/instances/hello-world/instance.viva.js   :44 slug · :45 SERVE · :60 ORIGIN · :63 SERVE (schema + descs)
+subsystems/paladin/lifecycle/populate.js         :106 :109 commented env names
+subsystems/paladin/tests/settle.test.js          2
+subsystems/paladin/tests/check.environment.test.js  2
+systems/ghost/trajectories/index.js              :69 :81 "runtime | kajuit | all"
+systems/ghost/trajectories/instance/target.js    :7 kajuit: { task: "kajuit/watch" }
+systems/ghost/tests/target.test.js               4
+systems/runtime/daemon/aperture/cortex.js        :3 comment
+README.md                                        :75 alt · :126-127 slug+SERVE · :151-152 schema · :281 :293 :297 :306 run table
+commons/instances/bak/starter/**                 bak — left as written
+#+end_example
+
+**** the ledger — =~/.viva= ([[project_ledger_ownership]], dossier =.ikiro/world/ledger.md=)
+Measured 09-17. =instances.json= · =registry.json= · =~/.viva/.env= · =~/.config/viva/env= · repo =.env=:
+ZERO kajuit. =locks/= empty (nothing running). =logs/= empty. =sessions/{1478,1526}.json= zero.
+#+begin_example
+~/.viva/instances/hello-world/        instance.viva.js (slug + schema) · .env :4-5 :10-11 (ORIGIN, SERVE + comments)
+~/.viva/instances/italian/            italian.viva.js · .env :4-5 :10-11 :17 (+ PUBLIC_…_REMOTE)
+~/.viva/instances/droneaid/           instance.viva.js · .env :4-5 :10-11
+~/.viva/instances/vivalence/          instance.viva.js · .env :4-5 :10-11
+~/.viva/instances/playground/         instance.viva.js · .env :4-5 :10-11 (port 1795)
+~/.viva/instances/language-learning/  test.viva.js · .env :16 :19
+~/.viva/instances/stucatch/           stucatch.viva.js · environment.json :4 :7 (port 1795)
+~/.viva/instances/hello-world/mountpoint/daemon_hello/hello.viva.db   1 Turn row (tool_result history) — LEFT, history
+~/.viva/instances/*/mountpoint/**     no client rows keyed by slug — nothing to migrate
+#+end_example
+The write path. A =.env= is AUTHORED (=belt/state.js:20-37= line upsert keeps comments + order), and no
+verb renames a key: =instance/use --ledger= upserts, it would leave the old key beside the new one. So
+the rename is a hand edit of authored files — same status as editing a kernel — done key-by-key with
+the comment line above each, values untouched. =environment.json= (stucatch) likewise. Ledger meta
+(=instances.json=, locks, sessions) is NOT hand-written — it needs nothing.
+Probe before and after: =viva instance/doctor --json= per instance → =clients: ["kajuit"]= becomes
+=["anima"]=, env rows show =VIVA_CLIENT_ANIMA_*= with stratum =instance=, no KAJUIT row.
+Never =ledger/doctor= as a probe — it reaps sessions.
+
+**** registry packages — out of repo ([[feedback_flag_day_radius]])
+#+begin_example
+~/.viva/registry/education (git+jj)   instances/{italian,spanish,brazilian}/*.viva.js · README.md
+~/.viva/registry/vcompany (NO vcs)    instances/vcompany/instance.viva.js
+~/.viva/registry/chess (NO vcs)       instances/chess/instance.viva.js · README.md · modes/board/play/buffer/Play.svelte:6 · play/tests/app.test.js
+~/.viva/registry/droneaid (NO vcs)    instances/droneaid/instance.viva.js · README.md
+~/.viva/registry/media (NO vcs)       instances/media/instance.viva.js · README.md
+#+end_example
+Four packages have no VCS — capture every touched file BEFORE editing ([[project_ledger_has_no_vcs]]).
+
+**** prod
+#+begin_example
+Coolify app xkgcgwck8k08cgs8okoo4sko   image vivalence/kajuit:alpine → vivalence/anima:alpine
+                                       env VIVA_CLIENT_KAJUIT_* / PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE → *_ANIMA_*
+Coolify runtime app egcwkgw0…          env: any VIVA_CLIENT_KAJUIT_* it carries (runtime reads SERVE for CORS/origin) → rename
+registry.vivalence.org                 kajuit:{alpine,<sha>} stays (read-only, [[reference_vivalence_container_registry]]); anima:* appears on first CI run
+#+end_example
+Coolify config is beef's hands (UI + token); ikiro cannot read it — step 1 has beef list the env keys.
+
+**** docs + ikiro
+#+begin_example
+documentation/content/home.mdx                          :26 "client @kajuit"
+documentation/content/10-19_about/12_software/12.01_slowstart.mdx   :302 :305 :349-350 :366 :373 :381
+documentation/content/30-39_architecture/32_daemon/32.01_anatomy-of-an-instance.mdx   :45
+documentation/content/40-49_repository/41_tour/41.01_guide-to-the-repo.mdx   :15 :51
+documentation/content/50-59_practice/51_guides/51.02_instance-from-scratch.mdx   :358-359 :373 :376 :407
+documentation/bak/                                      left as written
+.ikiro/world/codemap/kajuit.md → anima.md · map.md · ledger.md (lock example, doctor sample :200) · frontier.md
+.ikiro/world/codemap/{ghost,commons,typology,paladin}.md
+.ikiro/ikiro.md · methods/{critical-pass,cartographer}.md · open quests m50–m65 + drapes (live references only)
+.claude/ ikiro load channels — the codemap shard auto-loads by PATH match ([[project_ikiro_load_channels]]): re-key kajuit.md's glob to systems/anima/**
+memory: 3 files named project_kajuit_* → project_anima_* · 89 bodies mention kajuit · MEMORY.md index lines
+#+end_example
+
+**** same name, different thing — NOT this rename
+- =requestAnimationFrame= / =cancelAnimationFrame= — every =anima= substring in code.
+- history: =quests/done/= · =discarded/= · =compacts/= · =known-issues.org= past entries · =hello.viva.db= Turn row · =bak/=.
+
+*** holes — closed 09-17, measured
+
+The first blast used =git grep= — TRACKED files only. It measured the assumption, not the tree. Re-run
+with plain =grep -r= over the working copy; these were missing:
+
+- *=@vivalence/kajuit= is a live self-import, not prose.* 25 import sites (measured =grep -rn "@vivalence/kajuit" systems/kajuit/src= → 25) inside the client resolve the
+  package name (=+page.svelte:14= · =+layout.svelte:13= · =a.svelte:4= · =Dock.svelte:3,7= · =f.svelte:2,60= ·
+  =c/d/e= panels · =navigation.js:2= · =ThreadLabel= · =BridgeSection= · =pincer/crown/Tab/shoulder:3,5/spine= ·
+  =Phase.svelte:7= · =shoulder/widgets/Dock= · =stop.svelte.js:2=). Package name and imports flip in ONE
+  pass or the client doesn't compile. =tests/activity.stop.test.js:35= rewrites that import string by
+  REGEX (=/from "@vivalence\/kajuit"/g=) — rename the pattern too or the test silently stops substituting.
+- *untracked files carry the name* (invisible to =git grep=):
+  =commons/instances/playground/instance.viva.js:60,61,76,79= (whole dir =??=, a second repo kernel beside
+  hello-world) · =systems/kajuit/src/app/panels/a/widgets/stop.svelte.js:2= ·
+  =systems/kajuit/tests/activity.{stop,mount}.test.js= (tempdir prefixes =kajuit-stop-= · =kajuit-activity-mount-=) ·
+  =systems/kajuit/tests/interactive/activity/panel.jsx:8= title.
+- *cross-system relative path*: =systems/runtime/tests/interactive/activity/daemon.js:43=
+  =import("../../../../kajuit/tests/interactive/activity/sheet.jsx")= — breaks on the directory move, not on any grep of "@".
+- *visible strings (ruling 7)*: =Login.svelte:18= signin message ="kajuit signin at …"= · =panel.jsx:8=
+  title =kajuit · remote= · =dictation.store.test.js:65= describe.
+- *vite ALLOWEDHOSTS*: =vite.config.mjs:21= (commented) — follows ruling 5.
+- *ikiro self + skills*: =.ikiro/self/lexicon.md:54= (the SHIP register: "kajuit" = cabin, beside
+  LIGHTHOUSE/QUARTERS/BRIDGE/dock/moat — anima leaves the ship metaphor; lexicon row rewritten, not just
+  substituted) · =self/rituals.md:61= · =self/personas.md:39= · =self/identity.md= · =zettelkasten.md= ·
+  =skills/live-validation/SKILL.md:3,5,8= — =paths: systems/kajuit/**= is the skill's LOAD GLOB; unrenamed,
+  the skill never fires again.
+- *release ledger*: =.ikiro/release.md= needs the rename as a =changed= line with a migrate note (env
+  keys, slug, image, task names) — via the =release= skill format. Past lines (:80 "kajuit dev") = history.
+- *generated dirs move with the folder*: =systems/kajuit/{.svelte-kit,.vite,build}= — gitignored caches.
+  Measured: =.svelte-kit= holds no =systems/kajuit= absolute path. Delete all three after the move anyway;
+  first =anima/watch= regenerates.
+- *dirty tree*: 123 status entries, 10 modified + 2 untracked under =systems/kajuit=. A move over uncommitted
+  work mixes the rename into unrelated diffs. Precondition: beef lands/commits the WIP first, so the rename
+  is ONE pure change.
+- *readmen container* ([[project_readmen_live_container]]): =readmen-m52= was built from kajuit paths
+  and serves =:1794=. Docker is DOWN today (measured) — step 0 checks =docker ps -a= and retires or rebuilds it,
+  else it shadows the port in step 8 ([[project_readmen_container_port_shadow]]).
+- *rollback*: Coolify rollback to a pre-rename deploy pulls =kajuit:alpine= which reads =*_KAJUIT_*= keys —
+  after step 6 those keys are gone. Rollback = revert image AND env keys together; note it in Coolify before switching.
+
+Measured clean (not holes): =deno.lock= 0 · =.gitignore= / =.dockerignore= 0 · browser storage keys
+(=vivalence:bridge= only — no user state keyed by kajuit, prod users lose nothing) · =.ikiro/hooks= 0 ·
+=~/.claude/settings.json= · =~/.zshrc= · =~/.config/viva= 0 · all 19 instance dbs: 1 history row only.
+
+*** steps — the blast bracket, numbered
+
+Step 0 + nine steps: the M1/M2 bracket plus ledger and prod as their own steps, so a red names its side.
+
+**** 0. preconditions
+- beef: WIP committed — =git status= clean under =systems/kajuit= and repo-wide, so the rename is one pure change.
+- =docker ps -a= — =readmen-m52= stopped or retired; =lsof -i :1794 -i :1795= empty.
+- no =viva= client running; =ls ~/.viva/locks= empty.
+
+**** 1. blast — re-run the map, pin the baseline
+#+begin_src sh
+grep -rnIi kajuit systems subsystems commons README.md deno.jsonc import_map.json .gitlab-ci.yml .claude \
+  documentation/content .ikiro/world .ikiro/ikiro.md .ikiro/methods \
+  --exclude-dir=bak --exclude-dir=node_modules --exclude-dir=static --exclude-dir=build --exclude-dir=.svelte-kit
+grep -rnIi kajuit ~/.viva/registry ~/.viva/instances ~/.viva/.env ~/.viva/*.json ~/.config/viva/env \
+  --exclude-dir=node_modules --exclude-dir=mountpoint
+ls ~/.viva/locks ~/.viva/logs
+for i in hello-world italian droneaid vivalence playground language-learning stucatch; do viva instance/doctor --json  # per instance, via instance/use
+done
+grep -rnI "@vivalence/kajuit\|/kajuit/" systems subsystems commons --exclude-dir=node_modules --exclude-dir=.svelte-kit --exclude-dir=build
+#+end_src
+ALWAYS =grep -r= over the working copy, NEVER =git grep= — untracked files carry the name (holes).
+Expect the lists above + the holes list. Captures to scratchpad: vcompany · chess · droneaid · media touched files, and
+all seven instance =.env= / =environment.json=. beef: list Coolify env keys for both apps. Stop every
+running client (=viva instance/stop kajuit=) — locks empty before step 4.
+
+**** 2. test — GREEN first, reds recorded
+#+begin_src sh
+deno task kajuit/test
+deno task kajuit/bundle
+cd subsystems/paladin && deno test -A --no-check tests/
+cd systems/ghost && deno test -A --no-check tests/
+cd ~/.viva/registry/chess && deno test -A --no-check modes/board/play/tests/app.test.js
+#+end_src
+Counts written here. Known pre-existing reds per [[project_test_suite_baseline]].
+
+**** 3. change — the repo
+- beef: move =systems/kajuit= → =systems/anima= (VCS-tracked move); drop the timestamp =.mjs=.
+- =deno.jsonc= — workspace :13; tasks =kajuit/*= → =anima/*= incl. =build= / =tag= / =push= aggregates; commented block follows.
+- =import_map.json:3,155=; =.claude/launch.json=; =.gitlab-ci.yml= (:25 path+tag · :29 loop · :35 =deploy-anima=, same uuid until step 6 · :89-98).
+- =systems/anima/deno.jsonc:2= =@vivalence/anima=; =client.viva.js:8= slug; Dockerfile; vite/svelte/tailwind/postcss configs; =.claude/settings.local.json=.
+- env names per ruling 5 — every site in systems/subsystems/commons: hello-world schema + descs ("the anima browser client"), paladin populate comments + 2 tests, vite.config reads.
+- ghost: =trajectories/index.js:69,81= · =instance/target.js:7= · =tests/target.test.js=.
+- client-internal ≈25 files per step-1 classification; runtime =cortex.js:3=; README (all sites incl. :75 alt, run table).
+- ALL 25 =@vivalence/kajuit= imports → =@vivalence/anima= in the same pass as =deno.jsonc:2=; =activity.stop.test.js:35= regex; tempdir prefixes.
+- =commons/instances/playground/instance.viva.js= (untracked) — slug + schema, same hunks as hello-world.
+- =systems/runtime/tests/interactive/activity/daemon.js:43= relative path → =../../../../anima/…=.
+- visible strings: =Login.svelte:18= · =panel.jsx:8= · test describes.
+- delete =systems/anima/{.svelte-kit,.vite,build}=.
+
+**** 4. change — the ledger
+Order: locks empty (step 1) → edit → doctor.
+- 7 instance kernels: =slug: "anima"=, env schema keys + descs (same hunks as the commons copy for hello-world).
+- 6 =.env=: rename keys in place — comment line, key, and =${VIVA_CLIENT_…}= references inside values; values unchanged.
+- stucatch =environment.json= :4 :7.
+- NOT touched: =instances.json= · =registry.json= · sessions · =hello.viva.db=.
+- =viva instance/doctor --json= per instance → =clients: ["anima"]=, env rows =ANIMA=, zero KAJUIT.
+
+**** 5. change — registry packages + docs + ikiro
+- education (3 instance kernels + README) · vcompany · chess (kernel, README, Play.svelte comment, test) · droneaid · media.
+- documentation/content ×5 per blast list; ruling 7 prose ("client @anima").
+- ikiro: codemap =kajuit.md= → =anima.md= + path glob · ledger.md examples · map/frontier/methods/ikiro.md · open-quest live refs.
+- ikiro self: =lexicon.md:54= ship-register row rewritten (anima leaves the metaphor) · rituals · personas · identity · zettelkasten.
+- skill =live-validation=: =paths: systems/anima/**= + description.
+- =release.md=: one =changed= line — client renamed kajuit → anima; migrate: rename =*_KAJUIT_*= env keys, slug in instance kernels, tasks =anima/*=, image =vivalence/anima=.
+
+**** 6. change — prod (beef's hands, one deploy)
+- CI run on the change → registry holds =vivalence/anima:{alpine,<sha>}=.
+- Coolify: record the pre-rename deploy + env set as the rollback pair (image and keys revert TOGETHER).
+- Coolify =xkgcgwck…=: image → =vivalence/anima:alpine=; env keys renamed per ruling 5; app display name → anima.
+- Coolify runtime =egcwkgw0…=: rename any =*_KAJUIT_*= keys.
+- =deploy-anima= fires; redeploy runtime.
+
+**** 7. test — GREEN again, same suites, same counts
+Step 2's commands under =anima/*=. A red not in step 2 is this milestone's.
+
+**** 8. verify — the served artifact ([[feedback_render_the_view_to_verify_it]])
+- tests that only move-breaks catch: =systems/runtime/tests/interactive/activity/daemon.js= mounts its sheet · =activity.stop.test.js= substitutes the import.
+- =/live-validation= fires on a =systems/anima/**= edit (the renamed glob loads).
+- local: =viva instance/run anima= on hello-world → =:1794= up · =~/.viva/locks/hello-world_anima.lock= ·
+  =~/.viva/logs/hello-world/anima.out.log=; browser loads, login, one turn round-trips.
+- playground (=:1795=) and stucatch boot their client on the renamed keys — proves the port came from =.env=, not the default.
+- image: =deno task anima/build= → =vivalence/anima:alpine= locally.
+- prod: Coolify pull shows LAYER lines (not bare Pulling/Pulled); =curl -sI https://vivalence.com/= =last-modified=
+  matches the CI vite "Wrote site" time; =_app/immutable/entry/app.*.js= hash matches the CI listing.
+
+**** 9. blast — the radius closed
+Step 1's greps return ZERO outside history. =ls ~/.viva/locks= shows no =*_kajuit.lock=. Doctor: no KAJUIT
+env row in any instance. Coolify: no KAJUIT key, no =kajuit= image reference.
+
 * owed after landing
 ** M1
 - beef: commit; education push; primer push; restart the dev daemon (a kernel rename is a boot-time read,
@@ -345,3 +623,9 @@ Step 1's grep returns ZERO sites on the old noun outside =bak/=, quest history, 
   own migration at boot; prod at its next deploy (M5 is already owed there).
 - ikiro: the four codemap lines + two documentation files land IN the pass (step 4); the five memory
   bodies after; sunset with M1.
+** M3
+- beef: one change for the rename (repo); education push; prod steps 6 + 8 done; retire the
+  =deploy-kajuit= name in CI history notes; restart every instance you use (slug is a boot-time read).
+- ikiro: sunset to =done/= when all three milestones land; codemap =anima.md=; ledger.md restamped;
+  memory =project_kajuit_{image_identity,boot_display,safe_area_overlays}= → =project_anima_*= + MEMORY.md
+  index lines; the 89 body mentions swept; drop the vcompany/chess/droneaid/media captures after step 9.

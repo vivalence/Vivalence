@@ -4,7 +4,7 @@
 // Run: deno task --cwd systems/runtime test  (this file lives under the runtime workspace
 // because Act II imports @vivalence/runtime transitively; docs/ is excluded from the workspace).
 
-import { specimen, soma, Cortex, Vector } from "@vivalence/typology";
+import { specimen, Controller, soma, Cortex, Vector } from "@vivalence/typology";
 import { create } from "./scenarios/cortex.js";
 
 // A Faculty is a dumb, stateless, single-shot provider: {type, tune, channels, via:{render,stream}}.
@@ -51,6 +51,7 @@ specimen.describe("47.02 hallucination triad — the request in isolation (typol
 
   specimen.it("cortex.hallucinate is the typed-fetch surface — ONE record describes the call", async () => {
     const folded = await cortex().hallucinate.dialogue.render({
+      controller: new Controller(),
       policy: { tune: "unleashed" },
       system: { tutor: "You are a patient tutor." },
       turns: [{ role: "user", parts: [{ type: "text", text: "olá" }] }],
@@ -62,6 +63,7 @@ specimen.describe("47.02 hallucination triad — the request in isolation (typol
     const tools = new Vector().open({ nature: "lookup" }, async (ctx) => ({ found: ctx.input.query.toUpperCase() }));
 
     const folded = await cortex().hallucinate.dialogue.render({
+      controller: new Controller(),
       turns: [{ role: "user", parts: [{ type: "text", text: "brasil" }] }],
       tools,
     }); // round 1 calls lookup, round 2 answers
@@ -72,6 +74,7 @@ specimen.describe("47.02 hallucination triad — the request in isolation (typol
   specimen.it("object is DERIVED from dialogue — the derivation resolves the same provider, output-aware", async () => {
     // No `object` faculty registered; findOne derives one by pointing at the dialogue donor.
     const folded = await cortex().hallucinate.object.render({
+      controller: new Controller(),
       turns: [{ role: "user", parts: [{ type: "text", text: "hi" }] }],
       output: { schema: { type: "object" } },
     }); // provider honors request.output → object turn

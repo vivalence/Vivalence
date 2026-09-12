@@ -1,26 +1,8 @@
-import { Vector, Span, belt, is, object, steer } from "@vivalence/typology";
-import { v } from "../../schematics/v.js";
-import { Tier, Tune } from "../../schematics/primitives/hallucination.js";
+import { Vector, belt, is, steer } from "@vivalence/typology";
 
-// hal is a typed fetch over the cortex — ONE record describes the whole call:
-// { policy?, system?, turns, tools?, settings?, output?, cache? }. `policy` is
-// the app-side half (tune → faculty resolution, rounds/backoff → the respond
-// loop); it is validated here and STRIPPED by the lowering — the wire Request
-// carries only provider keys. The other lowering: a `tools` Vector is cut to
-// the wire catalog; the Vector itself never crosses.
-export const POLICY = v.object({
-  rounds: v.integer({ minimum: 1, default: 10 }),
-  backoff: v.array(v.integer(), { default: [1000, 4000] }),
-  tune: v.union([Tier, Tune]).optional(),
-});
-
-export const policing = (request) => {
-  const policy = v.create(POLICY);
-  v.cast(POLICY, object.assign(policy, request.policy ?? {}));
-  const failure = [...v.errors(POLICY, policy)][0];
-  if (failure)
-    throw new Error(`[hallucination] invalid policy ${failure.path}: ${failure.message}`);
-  return policy;
+export const routing = (steps) => {
+  const [avenue, via] = steps.slice(-2).map((step) => step.nature);
+  return { avenue, via };
 };
 
 export const declarations = (tools) =>
@@ -30,12 +12,7 @@ export const declarations = (tools) =>
     ...(pattern.input && { input: pattern.input }),
   }));
 
-export const policyOf = (ctx, type, avenue) => ({
-  rounds: ctx.policy.rounds,
-  backoff: ctx.policy.backoff,
-  tools: ctx.tools,
-  span: ctx.span.branch(type).branch(avenue),
-});
+export const policyOf = (ctx) => ({ ...ctx.policy, tools: ctx.tools, controller: ctx.controller });
 
 const faculty = (cortex, type, via, tune) => {
   const found = cortex.findOne({ type, tune, via });
@@ -45,18 +22,14 @@ const faculty = (cortex, type, via, tune) => {
 
 export const lowering = () => async (ctx, next) => {
   const request = ctx.input ?? {};
-  const policy = policing(request);
-
   const tools = is.Vector(request.tools) ? request.tools : new Vector();
   const catalog = is.Vector(request.tools) ? declarations(tools) : (request.tools ?? []);
-  const marks = request.cache?.marks ?? [
+  const marks = ctx.policy.cache?.marks ?? [
     ...(request.system && Object.keys(request.system).length ? ["context"] : []),
     ...(catalog.length ? ["tools"] : []),
   ];
 
-  ctx.policy = policy;
   ctx.tools = tools;
-  ctx.span = new Span("/hallucination");
   ctx.input = {
     ...(request.system && { system: request.system }),
     turns: request.turns ?? [],
@@ -70,53 +43,27 @@ export const lowering = () => async (ctx, next) => {
 
 export const sourcing = () => async (ctx, next) => {
   const request = ctx.input ?? {};
-  ctx.policy = policing(request);
-  ctx.span = new Span("/hallucination");
-  ctx.input = {
-    source: request.source,
-    config: request.config ?? {},
-    ...(request.harmonize && { harmonize: request.harmonize }),
-  };
+  ctx.input = { source: request.source, settings: request.settings ?? {} };
   await next();
 };
 
 export const rendering = (cortex, type) => async (ctx) => {
-  ctx.output = await belt.hallucinate.render(
-    faculty(cortex, type, "render", ctx.policy.tune),
-    ctx.input,
-    policyOf(ctx, type, "render"),
-  );
+  ctx.output = await belt.hallucinate.render(faculty(cortex, type, "render", ctx.policy.tune), ctx.input, policyOf(ctx));
 };
 
 export const streaming = (cortex, type) => (ctx) => {
-  ctx.output = belt.hallucinate.respond(
-    faculty(cortex, type, "stream", ctx.policy.tune),
-    "stream",
-    ctx.input,
-    policyOf(ctx, type, "stream"),
-  );
+  ctx.output = belt.hallucinate.respond(faculty(cortex, type, "stream", ctx.policy.tune), "stream", ctx.input, policyOf(ctx));
 };
 
-export const transcribing = (cortex) => (ctx) => {
-  ctx.output = belt.hallucinate.transcribe(
-    faculty(cortex, "verbatim", "stream", ctx.policy.tune),
-    ctx.input,
-    policyOf(ctx, "verbatim", "stream"),
-  );
+export const transcribing = (cortex, via = "stream") => (ctx) => {
+  const verb = via === "render" ? "transcript" : "transcribe";
+  ctx.output = belt.hallucinate[verb](faculty(cortex, "verbatim", via, ctx.policy.tune), ctx.input, policyOf(ctx));
 };
 
 export const synthesizing = (cortex) => (ctx) => {
-  ctx.output = belt.hallucinate.synthesize(
-    faculty(cortex, "speech", "stream", ctx.policy.tune),
-    ctx.input,
-    policyOf(ctx, "speech", "stream"),
-  );
+  ctx.output = belt.hallucinate.synthesize(faculty(cortex, "speech", "stream", ctx.policy.tune), ctx.input, policyOf(ctx));
 };
 
 export const vocalizing = (cortex) => async (ctx) => {
-  ctx.output = await belt.hallucinate.vocalize(
-    faculty(cortex, "speech", "render", ctx.policy.tune),
-    ctx.input,
-    policyOf(ctx, "speech", "render"),
-  );
+  ctx.output = await belt.hallucinate.vocalize(faculty(cortex, "speech", "render", ctx.policy.tune), ctx.input, policyOf(ctx));
 };

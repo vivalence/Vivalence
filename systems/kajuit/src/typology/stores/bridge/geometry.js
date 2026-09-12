@@ -41,7 +41,7 @@ export function snapLabel(angle) {
 export const A_SIDE = { 0: "top", 90: "left", 180: "bottom", 270: "right" };
 
 export function axisFor(rect) {
-  return rect.height > rect.width ? "column" : "row";
+  return rect.width === BONE_THICKNESS && rect.height !== BONE_THICKNESS ? "column" : "row";
 }
 
 export function rectsForOrientation(orientation, pincer, viewportWidth, viewportHeight) {

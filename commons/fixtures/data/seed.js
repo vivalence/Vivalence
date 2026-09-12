@@ -1,4 +1,5 @@
 import { provider } from "@vivalence/runtime/scenarios";
+import { ActivityEntity, ActivityRepository } from "@vivalence/runtime";
 import { assemble } from "./assemble.js";
 import { stack, tiers } from "./tiers.js";
 
@@ -10,6 +11,7 @@ export async function seed(extra = {}) {
   const datamap = await provider(entities, subscribers);
   const { orm } = datamap;
   const em = datamap.entities.em;
+  datamap.entities.activity = new ActivityRepository(orm.em, ActivityEntity);
 
   const user = em.create(tiers.user.entity, { roles: ["USER"], config: {} });
   await em.flush();

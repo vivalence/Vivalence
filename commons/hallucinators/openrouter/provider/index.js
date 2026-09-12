@@ -51,10 +51,10 @@ export default async function provider(service) {
   const table = service.statics?.models ?? models;
 
   function makeDialogue(model) {
-    const render = async (request) => {
+    const render = async (request, { signal } = {}) => {
       try {
         const turn = translateResponse(
-          await client.chat.completions.create(buildParams(model, request)),
+          await client.chat.completions.create(buildParams(model, request), { signal }),
         );
         return request.output?.schema
           ? extractObject(turn, request.output.schema)
@@ -64,11 +64,12 @@ export default async function provider(service) {
       }
     };
 
-    const stream = async (request) => {
+    const stream = async (request, { signal } = {}) => {
       let raw;
       try {
         raw = await client.chat.completions.create(
           buildParams(model, request, true),
+          { signal },
         );
       } catch (error) {
         throw fault(error);

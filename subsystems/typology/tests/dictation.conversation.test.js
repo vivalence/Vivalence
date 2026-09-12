@@ -1,4 +1,4 @@
-import { specimen, v, Cortex, shard, sse, Context, sleep } from "@vivalence/typology";
+import { specimen, v, Controller, Cortex, Span, shard, sse, Context, sleep } from "@vivalence/typology";
 import { Verbatim, Audio } from "../schematics/primitives/hallucination.js";
 
 const invalid = (schema, value) => [...v.errors(schema, value)].length > 0;
@@ -88,6 +88,7 @@ async function pipeline({ vocal = {}, hypotheses, final, correct, chunks = ["oi"
   ]);
   const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(chunks) } } });
   ctx.daemon = { cortex };
+  ctx.controller = new Controller({ stdout: new Span("hallucination") });
   ctx.vocal = vocal;
   await shard.hal.verbatim({ polish })(ctx);
   const events = [];
@@ -129,6 +130,8 @@ specimen.describe("dictation flow — hal.verbatim over the cortex", () => {
     ]);
     const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(["hi"]) } } });
     ctx.daemon = { cortex };
+    ctx.controller = new Controller({ stdout: new Span("hallucination") });
+  ctx.controller = new Controller({ stdout: new Span("hallucination") });
     ctx.vocal = {};
     await shard.hal.verbatim({ polish: POLISH })(ctx);
     const events = [];
@@ -152,6 +155,8 @@ specimen.describe("dictation flow — hal.verbatim over the cortex", () => {
     const cortex = new Cortex().register([faculty, fastDialogue((text) => text.toUpperCase(), 60)]);
     const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(["x"]) } } });
     ctx.daemon = { cortex };
+    ctx.controller = new Controller({ stdout: new Span("hallucination") });
+  ctx.controller = new Controller({ stdout: new Span("hallucination") });
     ctx.vocal = {};
     await shard.hal.verbatim({ polish: POLISH })(ctx);
     const order = [];

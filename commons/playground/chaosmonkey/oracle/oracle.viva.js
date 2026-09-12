@@ -3,6 +3,7 @@ import { App, v, Vector } from "@vivalence/typology";
 export { aperture } from "./aperture.js";
 export { emitter } from "./emitter.js";
 export { harness } from "./harness.js";
+export { tools } from "./tools.js";
 
 export const manifest = {
   type: "chaosmonkey",
@@ -15,6 +16,7 @@ export const manifest = {
     "APPLICATION",
     "STANDALONE",
     "HARNESSED",
+    "TOOLED",
     "EXPOSED",
     "EMITTER",
     "CONVERSATIONAL",

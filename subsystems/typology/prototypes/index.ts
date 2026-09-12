@@ -55,5 +55,5 @@ export * from "./local-repository.js";
 export * from "./entity-manager.js";
 export * from "./broadcaster.js";
 export * from "./cortex.js";
-export * from "./hallucination.js";
+export * from "./controller.js";
 export * from "./stall.js";

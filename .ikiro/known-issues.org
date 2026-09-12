@@ -1385,6 +1385,20 @@ and =feedback_tests_comply_with_system= cuts both ways here.
 
 Read the suite as 1 known red. The =hello-world= assertion the fork actually cares about
 passes when probed directly.
+* hallucinate-context-input-changes-shape-mid-chain — OPEN (beef: /"mark as known issue."/)
+
+** Symptom
+One key, two shapes: on the cortex hallucinate chain =ctx.input= is the filled =Hallucination[avenue]= before =shard.hallucinate.lowering= / =sourcing=, the wire =Request= after. A middleware's view of =input= depends on where it sits.
+
+** Root cause
+Lowering REWRITES =ctx.input= in place instead of writing a second slot. =Hallucination.Context.input= is =v.unknown()= because no single schema holds.
+
+** Why not fixed now
+Separate slot (=ctx.request=) moves the read in =rendering · streaming · transcribing · synthesizing · vocalizing= (=gestalten/shard/hallucinate.js=). No outside middleware seat remains once the cortex vector is sealed, so no consumer is bitten today.
+
+** Workaround
+None needed in-tree; a new internal middleware reads =input= knowing its position relative to lowering. Quest: m65 =* known issues=.
+
 * resolved issues — records of built things, CUT (cleanup law: delete records of built things, never un-built design)
 The fixes live in the code and their stories in =compacts/= (grep the name) and =release.md=. Names cut here so a reader can still grep them: =aperture-snapshot-pins-a-daemon-the-instance-no-longer-mounts= · =paladin-scope-overwrite-warning= · =registry-count-test-pins-a-number= · =stripwire-contract-test-reads-a-dead-key= · =prod-nlp-image-lacks-transformers= · =runtime memory runs to 16 GB while the dojo drawer is driven= · =RESOLVED= · =readme-ubuntu-walk-ghost-defects= · =app-relative-mount-keeps-its-dot-segment-and-the-bundler-misses-its-own-output= · =first-attach-user-insert-race= · =secrets-thunk-leak= · =ledger-doctor-counts-every-lock-dead= · =registry-untap-silently-ignores-an-unknown-reference= · =literal-ontology-blank-after-dataset-install= · =italian-instance-env-blank-secrets-shadow-every-lower-stratum= · =consumed-service-with-a-blank-optional-secret-crashes-after-the-gate= · =nlp-provider-blames-the-url-for-a-missing-key= · =cargo-drops-any-path-with-a-space=
 
@@ -1444,3 +1458,70 @@ failed =Migration*.ts= and KEEP the advanced snapshot; =checkMigrationNeeded()= 
 false. Where the snapshot has NOT advanced, rebuild the FK only and let mikro mint the
 columns. Never author a migration: see =feedback_mikro_owns_the_db=, mechanic (3).
 Full account: compact #146 =a-foreign-key-drifted-while-nobody-looked…=.
+
+* cargo-range-reads-the-whole-file-per-request — OPEN
+
+** Symptom
+
+None observed yet — read off the code while building =@media=. Every =Range= request to
+=/attached/cargo/<daemon>/…= loads the entire file before slicing it:
+=systems/runtime/lifecycle/resolve.js:69= =const bytes = await Deno.readFile(filePath);=
+then =bytes.subarray(start, end + 1)=. A =<video>= element seeks with a new Range request
+each time, so scrubbing a 2 GB source reads 2 GB per seek and holds it in daemon memory.
+
+** Why not fixed now
+
+Runtime touch, gated; nothing in the tree serves files this size yet. The first consumer is
+=@media/editor/media= (=~/.viva/registry/media=), untapped. Its proxies are 720p, which keeps
+derived scrubbing small — originals and renders are served through the same route.
+
+** Fix shape
+
+=Deno.open= + =file.seek(start, Deno.SeekMode.Start)= + a bounded readable of
+=end - start + 1= bytes as the 206 body; =stat.size= for the length. =shard/serve.js file()=
+is not a template — no Range, and no production consumer.
+
+* harness-does-not-require-thread-in-its-input — OPEN
+
+beef, verbatim: /"ctx thread should absolutely be part of harnesses ctx processing. thread is
+only required on bare cortex.hallucinate. harness does that for us. harness always has thread in
+input. else throws"/
+
+** Symptom
+
+Every nested harness caller writes its own fallback for a value the harness is supposed to own:
+
+#+begin_src js
+// commons/instances/hello-world/tools/research.js
+thread: ctx.thread ?? ctx.input?.thread,
+#+end_src
+
+The tool cannot tell which of the two holds the thread, because that depends on how it was
+reached. The belt binds a tool's context from the harness (=harnessed.js:83= binds
+=ctx.input.thread=), so inside a tool =ctx.thread= is the id; from other call sites it is the
+entity, or absent.
+
+** Root cause
+
+=normalizing= (=systems/runtime/daemon/traits/harnessed.js:24=) reads
+=ctx.thread = ctx.input.thread ? await findOneOrFail(...) : …= — thread is OPTIONAL there, and a
+call with none proceeds. =activating= then mints an activity row with =thread: null=
+(=:35=), which is how =/hello/agent= produces rows no thread roster can show.
+
+** The ruling
+
+The harness ALWAYS has a thread in its input, or it throws. Callers stop defending. Only a bare
+=cortex.hallucinate= — no harness, no row, no persistence — requires the caller to supply one.
+
+** Fix shape
+
+- =normalizing= requires =ctx.input.thread= and throws a named fault when it is missing.
+- Every nested caller drops its =??= fallback (=research.js= is the one in tree today).
+- =/hello/agent= (=commons/instances/hello-world/aperture.js:36=) must then pass a thread or move
+  off the harness — it is the live caller that would start throwing.
+- =activating='s =thread: ctx.thread?.id ?? null= loses its null branch.
+
+** Why not fixed now
+
+Ruled mid-fold, after the m65 followup landed in =research.js=. It is a contract change on the
+harness with at least one live caller that currently passes no thread, so it wants its own go.

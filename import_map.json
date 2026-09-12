@@ -144,10 +144,16 @@
     "echarts/components": "npm:echarts@6.0/components",
     "echarts/renderers": "npm:echarts@6.0/renderers",
 
+    "chessground": "npm:chessground@9.1.1",
     "three": "npm:three@0.186.0",
     "three/addons/loaders/GLTFLoader.js": "npm:three@0.186.0/addons/loaders/GLTFLoader.js",
     "three/addons/controls/OrbitControls.js": "npm:three@0.186.0/addons/controls/OrbitControls.js",
     "@threlte/core": "npm:@threlte/core@8.6.0",
     "@threlte/extras": "npm:@threlte/extras@9.21.1"
+  },
+  "scopes": {
+    "./systems/kajuit/": {
+      "linkedom": "npm:linkedom@0.18.5"
+    }
   }
 }

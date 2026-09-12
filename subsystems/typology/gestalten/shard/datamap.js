@@ -62,7 +62,7 @@ export function errors() {
       await next();
     } catch (error) {
       const name = error.constructor?.name;
-      if (name === "NotFoundError") {
+      if (name === "NotFoundError" || error?.code === "NOT_FOUND") {
         ctx.response.status = 404;
         ctx.output = { code: "NOT_FOUND", message: error.message };
       } else if (name === "ValidationError") {
@@ -80,7 +80,7 @@ export function errors() {
   };
 }
 
-export function repository(repo) {
+export function repository(repo, { only } = {}) {
   const aperture = new Aperture();
   const em = () => repo.getEntityManager();
 
@@ -165,6 +165,7 @@ export function repository(repo) {
     }),
   );
 
+  if (only) for (const nature of [...aperture.trie.keys()]) if (!only.includes(nature.replace(/^\//, ""))) aperture.trie.delete(nature);
   return aperture;
 }
 

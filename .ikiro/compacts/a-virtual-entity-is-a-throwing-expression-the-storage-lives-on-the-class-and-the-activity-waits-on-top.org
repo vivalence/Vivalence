@@ -1,0 +1,164 @@
+#+title: a virtual entity is a throwing expression, the storage lives on the class, and the activity waits on top
+#+filetags: :m64:m65:runtime:typology:mikro:virtual:datamap:remote-repository:entity-manager:multiplex:naming:quest:tests:callout:
+#+index: 153
+#+session: 9 beef turns, walked oldest first (4 stop-hook fires between them, each obeyed); 3 more arrived mid-turn and are folded into the turn they interrupted
+
+* one breath
+
+A wake plus a read of repositories, remote entities and sockets. Then beef asked for virtual entities from the
+past: the dead SQL-view =Conjugation.ts= and the corpse =VirtualRepository extends Array=. He described what he
+wants: a daemon-level entity that a hallucination creates, synced to remote repositories, listable in the
+dock, taking SIGTERM/SIGSTOP/SIGCONT, cleaned up on end, error and kill. I said mikro's virtual entity cannot
+do it and proposed a swept table plus a daemon handle map. He struck the fabricated =this.daemon= on the
+repository as a scope inversion. He struck the map (/"why can't we instantiate the repository?"/) and named
+the kind =TransientRepository=. Then he struck my hand-rolled strip and =sets.transient= and asked for
+/"as much micro as we can"/. Reading mikro's source again: =virtual= skips the schema generator and needs no
+table. Then a quest, split in two. The kind (m64) is here; the activity (m65) is later. On his /"scaffold
+temporary test suites"/ I ran the discovery probe, and it broke the design twice. =virtual: true= is
+overwritten by =!!expression=, so the door is an expression that throws. Metadata is keyed by class name. It
+then went 12/12 green. He renamed transient → virtual (/"the micro key for this is actually virtual"/), and the
+recast lands in place on =VirtualEntity.ts=.
+
+* the spine — 9 turns
+
+** 1 · /"ikiro wake. read up on repositories, remote repositories, remote entities, sockets, connection, and the vecinity around this. no yap. just load files."/
+
+Loaded: nine memory bodies (the repository verb seam, transport, connection budget, handshake, provenance,
+multiplex, the remote-entity dataspace, runtime owns entities, the retry/timeout fix); =socket.js=,
+=remote-repository.js=, =connection.js=, =local-repository.js=, =entity-manager.js=, =shard/datamap.js=,
+=shard/connection.js=, =shard/transmitter.js=, =serve.js multiplex=, kajuit =dataspace.js= + =daemon/dossier.js= +
+=thread/dossier.js=, =DataRepository=, =aperture/userspace.js=, the codemap lines. Reported one map. Claim-guard
+fire: I asserted "no row records which module installed it", carried from the provenance memory. Measured:
+=Symbol.ts:65= and =Literal.ts:105= carry =mode= + =uniques [slug, mode]=, so that memory is stale.
+
+** 2 · MID-TURN /"now load up the subject of this session: virtual entities. i had them in the past. check bak, vcs, and ikiro"/
+
+Two families found. (1) =registry/education/domain/entities/kernel/bak/Conjugation.ts=: an =EntitySchema=
+with =expression(em, where, options)=, a SQL pivot of Literal × symbol_literals ×5 grouped by lemma/tense/mood,
+wrapped in a user-scoped =WITH _strength= over Memory, all =persist: false= aggregates.
+=done/conjugation-ontology.quest.org= M5 "Kill Virtual Entity" killed it: conjugation became a Literal with
+=CONJUGATED=. (2) =systems/runtime/daemon/entities/base/VirtualEntity.ts=: =VirtualRepository extends Array=
+with the ="#entity"= key; consumers =kernel/Constraint.ts= + =Issue.ts=; the =Daemon.ts:34-51= copy is
+commented out. ikiro: =discarded/modes_tactic-analysis-routine= asked about a Memory-scoped virtual entity and
+never built one. beef's logs: "virtualize the strategy" (March 2024) means data-driven strategy, another
+sense.
+
+** 3 · /"Okay, so I want to know if I can create a virtual entity on daemon level, let's call it a process. …"/ (long dictated message, trimmed) + MID-TURN /"or call it an Action"/
+
+His shape, context kept: a hallucination creates the entity when it starts; it is tracked; data can be
+written to it or piped through it; it syncs to clients subscribed under a query; kajuit's dock or F panel
+lists every runtime process; opening one gives /"a little subsession, subsocket"/ on an effect mounted at the
+entity's id that can /"send signal like start, stop, sig term, sig cont, sig kill"/ and read turns, tools and
+calls. Verbatim: /"All of this hinges on the way that the virtual entity and the remote repository and remote
+entities work together."/ · /"If if we want traces, then that is a different system, and we wouldn't want
+those to be mixed. Virtual entities are non-persistent for a reason."/ · /"But it would need to be persistent
+across requests and across contexts. So it, my, having this in micro would be really nice."/ ·
+/"have fun"/.
+
+Measured in mikro 6.6.7: the validator forbids a PK on virtual (=MetadataValidator.js:23-31=); the factory
+never registers one (=EntityFactory.js:38-42=); every request forks with =clear: true=
+(=EntityManager.js:1425=, =libsql.viva.js:69=). My verdict, "hinge is false", proposed a table swept by policy
+plus a daemon handle map. Both nouns measured as taken: =process= (paladin =ledger/process.js=, m50) and
+=Action= (=prototypes/action.js=). Claim-guard fire: "zero consumers" of =Action=. Measured: four export sites
+(barrel, =v.prototypes.Action= codec, =is.action=), zero callers. Corrected.
+
+** 4 · /"Um, not for now, but for later, let's call it an activity. You don't have to rewrite anything, just say yes."/
+
+Yes. A grep for =activity= found no entity collision. kajuit =Dock.svelte:85= already has an =activity=
+console tab, which is where this would live anyway. Memory =project_activity_virtual_entity= written.
+
+** 5 · /"where does the activity repository, which extends data repository, receive its this dot daemon from? Why does the I don't like that the repository has daemon access. That feels like a pretty severe scope inversion. Show me how you think we might create this activity. repository on the daemon show me the entire life cycle or the, the parts where the life cycles intersect so where we create the entities where we wire them up and where we wire them down"/
+
+Nowhere. I made it up: mikro constructs a repository as =(em, entityName)=. The precedent is =reactive(repo,
+twitch)=: the aperture layer closes over a daemon organ, and the repository never sees it. Laid out the
+intersections: =Die.populate= / =resolve= / =integrate= / =disintegrate= against =population.core= collate,
+=datamap= provider, =aperture/userspace.js=, =harnessed.js /dialogue=, =die.js=. Sketched =signal= and =tail=
+as aperture routes over =good.activities=, plus harness create/finally and a sweep at resolve and
+disintegrate.
+
+** 6 · /"ugly naming!!!: const book = ctx.daemon.entities.em.fork(); … for times we will want an enumerable array … why can't we instantiate the repository? Why do we need a map? So two questions, why do we need to wire up as a map and what would the subscriber side looks like if for example we have just a status transition, something pretty generic. …"/ + MID-TURN /"I think I have a good name for this type of entity. Maybe we can have a data repository and then a second type of repository, something like transient, transient repository. And if any dedicated stuff is needed, or if there's a type somewhere that we need to set, then transient would be the one since we do not store any of this."/
+
+=book= and =row= struck. Answer to "why a map": only because a mikro instance lives per request. A
+daemon-scope repository whose instances ARE the live objects removes it. The entity carries its handle in
+private fields, and =repo.entities= is the enumerable array. Traced a status transition end to end:
+=updateOne= → subscriber =afterUpdate= → twitch =/after/<type>/update= → =reactive= broadcaster → multiplex
+frame → =RemoteRepository.subscribe= handle → =em.merge= mutates the same client instance → =$entities= →
+Svelte. Nothing new on the client. Measured along the way: typology =LocalRepository= has exactly one consumer,
+its own test.
+
+** 7 · /"Why can't we use micros base entity for this? And generally, I don't like that you... Yeah, I think we should align closer with micro on this. As much micro as we can. For example, what the fuck is... For example, hashtag init is weird. Um, the activity hmm. yeah, okay, it's fine for now. I don't like that we have to have this activity strip properties and columns. That is not closely aligned with micro at all. Dedicated object entries, object keys, set transient map is also kind of shit. Maybe it's needed, maybe not. If we could go through the die data map, that would be Gucci. Get in there as soon as possible."/
+
+Read mikro's source again, in the Deno npm cache: =AbstractSchemaGenerator.getOrderedMetadata= filters
+=!meta.virtual= (=:91-94=), and =EntitySchema= passes metadata through. That gave: a real mikro entity with
+=virtual=, a repository kind =extends EntityRepository=, events dispatched through
+=em.getEventManager().dispatchEvent=, =static entities= on the class (=getRepository= mints one per em). Struck:
+=sets.transient=, the hand strip, the =/datamap= merge, the =population.datamap= loop. Flagged two things as
+unmeasured: a real 1:m pointing at a virtual, and a virtual m:1 pointing at real rows. One background
+=find /= was killed for low memory; it was superseded, and nothing depended on it.
+
+** 8 · /"I want you to write a quest for this. Break that quest into two. First we have the transient entity … go pretty f far away from the activity entity that is specific. We will do that in the second part. If you need a something as a demo transient, then hypothesize a generic transient entity. … I want the testing to consider the, the daemon side itself, standalone, the entity and so forth, of course, repository. The integration into the repository, the integration into the data map, and then the consumer side with the clients testing some generic transient in its testing from the uh, consumer sides. I also want the testing to include all of the breakdown modes that we have. I think on the level of transient, base transient, the teardown is not so much concerned with executing, but providing the primitives for that. I don't even know if it needs dedicated entity entities for that, since every activity's teardown is so different. Not sure. Okay, so just write this first part of the quest. Indexed quest, next indexed up. Um, keep the yap to a minimum code heavy tangle format."/ + MID-TURN /"… scaffold temporary test suites for this."/ + MID-TURN /"And since we have now discovered that the micro key for this is actually virtual, I want you to rename transient repository to virtual repository and entity, of course, too."/
+
+The quest was drafted as m64-the-transient-entity, then moved to =.ikiro/quests/m64-the-virtual-entity.org=.
+The probe =systems/runtime/tests/virtual.discovery.test.js= (Host real + Probe virtual) went red twice before
+green:
+- init crashed at =EntityComparator.getPkGetter=: =virtual: true= alone is overwritten, because
+  =EntityMetadata.sync()= derives =virtual = !!this.expression= (=core/typings.js:101=).
+- after adding a throwing expression, five reds: metadata is keyed by CLASS name (=get("Probe")= → not found); a
+  LOADED m:1 expands in =toJSON= (cold → id); the real side's loaded inverse serializes the PK-less virtual as
+  =null=; the strip adds =owner: true= on the owning m:1.
+- fixes: =get(ProbeEntity)=, =hidden: true= on the real 1:m, the repository normalizes to-ones by id for
+  matching. **12/12 green.**
+
+Quest body: laws (all measured) · M0 green · M1 =VirtualEntitySchema= · M2 =VirtualEntity.ts= recast in place
+(=VirtualEntity extends BaseEntity=, =virtual = { expression: throws }= spread, =VirtualRepository extends
+EntityRepository=, =#plain= normalizer, before/after dispatch, =remove({})= as the teardown primitive, teardown
+= =hooks.beforeDelete=) · M3 shard table (one hunk: =datamap.errors= NOT_FOUND code) · M4 Probe scenario over
+one multiplex socket · M5 daemon suite (storage, events, breakdowns, invariants) · M6 wire + consumer suite
+(pop in / diff one field on the same instance / drop; stranger isolation; remove-all under subscription;
+socket drop → resumed resync; a persisted cache never resurrects) · M7 typology stub suite · hunks · 6 forks ·
+m65 pointer. Indexed live. Claim-guard fire: I had "Constraint/Issue zero consumers". Measured: four
+=index.ts= re-export lines (=:4,25,26,39=) and zero users. Corrected.
+
+** 9 · /"ikiro compact"/ + MID-TURN /"/clear"/ — this fold; the clear waits behind it.
+
+* laws
+
+- **mikro's virtual = =!!expression=.** =virtual: true= is overwritten. A virtual entity with no driver path
+  declares an expression that THROWS. No PK, no table, no identity map.
+- **The storage lives on the CLASS** (=static entities=): =getRepository= mints one repository instance per em,
+  and every request is a =clear: true= fork.
+- **A repository never holds the daemon.** Organs reach routes through aperture closures (=reactive(repo,
+  twitch)= precedent). A capability that needs a live handle keeps the handle on the ENTITY in private fields.
+- **Match to-ones by id, never by the wire.** A loaded m:1 expands in =toJSON=.
+- **A real 1:m targeting a virtual is =hidden: true=**, or every broadcast of the real row carries =null=s.
+- **Teardown in the base is a primitive** (=remove({})= through =beforeDelete=). Execution is the entity's own
+  mikro hook.
+- **Nouns:** =process= and =Action= are taken. =activity= is pinned for m65. =TransientRepository= was
+  renamed =VirtualRepository= by beef.
+- Provenance memory was stale: rows carry a =mode= owner (=Symbol.ts:65=, =Literal.ts:105=).
+
+* state at fold
+
+- ON DISK, uncommitted: =.ikiro/quests/m64-the-virtual-entity.org= (indexed live) ·
+  =systems/runtime/tests/virtual.discovery.test.js= 12/12 (temporary scaffold, kept as the M0 suite). No
+  source file touched.
+- m64 M1–M7 DESIGNED. beef decides the Constraint/Issue strike (recommended: 2 files + =index.ts:25,26= + two
+  names on =:39=), the =localStorage= shim, and the 6 forks.
+- m65 the activity: unwritten, pointer only.
+- Memory: =project_activity_virtual_entity= carries the arc (table → transient → virtual), and its index line
+  is updated. The provenance memory still reads stale. Settled here: its "no owner column" claim is false on
+  disk. The memory file is not rewritten in this fold, and the line is noted for the next memory pass.
+
+* callouts
+
+Four claim-guard fires (=assume-dont-verify=, hook-caught):
+- turn 1: a memory's emptiness restated as code fact
+- turn 3: "zero consumers" on =Action=
+- turn 8: "zero consumers" on Constraint/Issue
+- after turn 7: an "unmeasured" line that the next turn honoured
+
+The family is unchanged: a ZERO carried from a grep narrowed to callers, never counting export sites. Rule
+already landed (the hook); obeyed every time with a pasted envelope.
+
+One RULING that is also a fault: turn 5's =this.daemon= was fabricated in a sketch, the "fabricated APIs"
+family. Recorded, no new rule: pre-flight already names it.

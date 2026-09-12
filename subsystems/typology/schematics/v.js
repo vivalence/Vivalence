@@ -119,6 +119,14 @@ export function entityFactory(descriptor, base) {
 
   factory.$id = descriptor.$id;
   factory.descriptor = descriptor;
+  factory.traits = descriptor.traits ?? {};
+  factory.trait = (row, name) => {
+    const schema = factory.traits[name];
+    if (!schema) throw new Error(`[v] ${descriptor.$id} declares no trait ${name}`);
+    const held = row?.traits?.includes(name) ? row.trait?.[name] : undefined;
+    if (!held || [...schema.errors(held)][0]) return {};
+    return schema.cast(held);
+  };
   return factory;
 }
 

@@ -1,4 +1,4 @@
-import { specimen, soma, v, Url, Connection, Cortex, Vector, shard, shape } from "@vivalence/typology";
+import { specimen, Controller, soma, v, Url, Connection, Cortex, Vector, shard, shape } from "@vivalence/typology";
 import { cortex as mountCortex } from "@vivalence/runtime/daemon/aperture";
 import { create } from "./scenarios/cortex.js";
 
@@ -45,6 +45,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
   specimen.describe("render", () => {
     specimen.it("unleashed resolves opus through the wire", async () => {
       const folded = await remote.hallucinate.dialogue.render({
+        controller: new Controller(),
         policy: { tune: "unleashed" },
         turns: [{ role: "user", parts: [{ type: "text", text: "casa" }] }],
       });
@@ -54,6 +55,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
 
     specimen.it("balanced resolves sonnet (exact tune re-resolved daemon-side)", async () => {
       const folded = await remote.hallucinate.dialogue.render({
+        controller: new Controller(),
         policy: { tune: "balanced" },
         turns: [{ role: "user", parts: [{ type: "text", text: "hola" }] }],
       });
@@ -65,6 +67,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
     specimen.it("packets flow open → close, session sealed over SSE", async () => {
       const { packets, turn } = await collect(
         await remote.hallucinate.dialogue.stream({
+          controller: new Controller(),
           policy: { tune: "unleashed" },
           turns: [{ role: "user", parts: [{ type: "text", text: "flow" }] }],
         }),
@@ -83,6 +86,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
         return { message: `${ctx.input.query} means house` };
       });
       const folded = await remote.hallucinate.dialogue.render({
+        controller: new Controller(),
         policy: { tune: "unleashed" },
         turns: [{ role: "user", parts: [{ type: "text", text: "what is casa" }] }],
         tools,
@@ -96,6 +100,7 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
   specimen.describe("object synthesis", () => {
     specimen.it("derivation runs client-side over a single proxied dialogue round", async () => {
       const folded = await remote.hallucinate.object.render({
+        controller: new Controller(),
         policy: { tune: "unleashed" },
         turns: [{ role: "user", parts: [{ type: "text", text: "casa" }] }],
         output: { schema: v.object({ query: v.string() }) },

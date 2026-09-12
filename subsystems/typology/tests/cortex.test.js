@@ -1,4 +1,5 @@
-import { specimen, Cortex, nearest } from "@vivalence/typology";
+import { specimen, Controller, Cortex, Span, Vector, nearest, shard, v } from "@vivalence/typology";
+import { metronome } from "./scenarios/metronome.js";
 
 function mockFaculties() {
   const text = (tag) => ({
@@ -127,5 +128,39 @@ specimen.describe("Cortex", () => {
     specimen.expect(populatedCortex().findOne({ type: "object" }).tune).toEqual([0.3, 0.7, 0.8, 0.5]);
 
     specimen.expect(new Cortex().register([mockFaculties()[3]]).findOne({ type: "object" })).toBe(undefined);
+  });
+
+  specimen.it("hallucinate: gate → fill → lowered Request; verbatim.render derives from the stream", async () => {
+    const { Request } = v.primitives.hallucination;
+    const clock = metronome([{ packets: [{ event: "/turn/full", turn: { role: "assistant", parts: [{ type: "text", text: "ok" }], meta: { state: "complete" } } }] }]);
+    const spoken = metronome([{ packets: [{ event: "/verbatim/final", transcript: "buongiorno", segment: 0 }] }], "verbatim");
+    const cortex = new Cortex().register([clock.faculty, spoken.faculty]);
+    specimen.expect(cortex.hallucinator).toBe(undefined);
+    specimen.expect(new Cortex().hallucinate).not.toBe(cortex.hallucinate);
+    specimen.expect(cortex.hallucinate).toBe(cortex.hallucinate);
+
+    await specimen.expect(cortex.hallucinate.dialogue.render({ turns: [] })).rejects.toThrow(/controller/);
+    await specimen.expect(cortex.hallucinate.dialogue.render({ controller: {}, turns: [] })).rejects.toThrow(/requires a controller/);
+    await specimen.expect(cortex.hallucinate.dialogue.render({ controller: new Controller(), turns: "no" })).rejects.toThrow(/invalid dialogue hallucination \/turns: /);
+    specimen.expect(clock.seen.requests).toEqual([]);
+
+    const root = new Controller({ stdout: new Span("hallucination") });
+    clock.release(1);
+    const folded = await cortex.hallucinate.dialogue.render({ controller: root, system: { a: "1", b: "2" }, turns: [], tools: new Vector(), policy: { cache: { marks: ["b"] } } });
+    specimen.expect(folded.meta.state).toBe("complete");
+
+    const [request] = clock.seen.requests;
+    specimen.expect([...Request.errors(request)]).toEqual([]);
+    specimen.expect(request).not.toHaveProperty("policy");
+    specimen.expect(request).not.toHaveProperty("controller");
+    specimen.expect(request.cache).toEqual({ marks: ["b"] });
+    specimen.expect((await root.settled).code).toBe("DONE");
+
+    spoken.release(1);
+    const heard = new Controller({ stdout: new Span("hallucination") });
+    const text = await cortex.hallucinate.verbatim.render({ controller: heard, source: (async function* () {})(), policy: { harmonize: { window: 1 } } });
+    specimen.expect(text).toBe("buongiorno");
+    specimen.expect((await heard.settled).code).toBe("DONE");
+    specimen.expect(shard.hallucinate.routing([{ nature: "verbatim" }, { nature: "render" }])).toEqual({ avenue: "verbatim", via: "render" });
   });
 });

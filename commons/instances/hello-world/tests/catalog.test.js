@@ -1,6 +1,8 @@
 import {
+  Controller,
   fromm,
   shard,
+  Span,
   specimen,
   steer,
   ToolCall,
@@ -260,6 +262,7 @@ let seenRequest = null;
 
 const litArmed = new Vector().slurp(tools);
 litArmed.use(shard.context.bind("daemon", lit));
+litArmed.use(shard.context.bind("controller", new Controller({ stdout: new Span("hallucination") })));
 const litInvoke = (name, input) =>
   steer.dispatch.invoke(
     litArmed,

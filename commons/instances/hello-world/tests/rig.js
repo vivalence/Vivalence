@@ -1,4 +1,4 @@
-import { Cortex, soma, Vector } from "@vivalence/typology";
+import { Controller, Cortex, Span, soma, Vector } from "@vivalence/typology";
 import { EMITTER, GENERATIVE, HARNESSED } from "@vivalence/runtime/daemon/traits";
 import { emitter, generator } from "../page/index.js";
 import { web } from "../tools/web.js";
@@ -68,26 +68,34 @@ export const rig = async (script) => {
   const row = {
     id: "thread-1",
     counter: 0,
+    phase: "CONVERSATION",
     traits: [],
     trait: {},
+    user: { id: "user-1" },
     bindBuffer(buffer) {
       buffer.thread = this;
       buffer.index = this.counter++;
       return buffer;
     },
   };
-  const threads = { findOne: async () => row };
+  const threads = { findOne: async () => row, findOneOrFail: async () => row };
   const scripted = faculty(script);
   const daemon = {
     cortex: new Cortex().register([scripted.faculty]),
     entities: {
       thread: threads,
+      // the harness stamps the dock's turn id onto the row after chaining, so the stub takes the patch too.
+      activity: {
+        control: async () => ({ id: "activity-1", controller: new Controller({ stdout: new Span("hallucination") }) }),
+        updateOne: async () => null,
+      },
       turn: {
         history: async () => [],
         chain: async (turn) => ({ id: "turn-1", ...turn }),
       },
       em: { flush: async () => {}, fork: () => ({ create: () => null, flush: async () => {}, clear: () => {}, getReference: () => null }) },
       buffer: {
+        find: async () => [],
         create: async ({ thread: bind, ...fields }) => {
           const buffer = { ...fields, thread: null, index: 0 };
           if (bind) (await threads.findOne(bind)).bindBuffer(buffer);
@@ -97,6 +105,7 @@ export const rig = async (script) => {
     },
     services: {},
     mountpoint: { absolute: "/nonexistent/rig" },
+    flatmodes: () => [mode],
   };
   const mode = {
     manifest: { slug: "hello-world", type: "demo" },

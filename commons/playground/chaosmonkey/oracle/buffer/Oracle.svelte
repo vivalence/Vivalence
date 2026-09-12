@@ -1,5 +1,5 @@
 <script>
-  import { v, Span, trace } from "@vivalence/typology";
+  import { v, Controller, Span, trace } from "@vivalence/typology";
   import { Helpdesk } from "@vivalence/drapes";
   import { atom } from "nanostores";
   import Trace from "./Trace.svelte";
@@ -42,6 +42,7 @@
     call.note({ prompt });
     try {
       const request = {
+        controller: new Controller({ stdout: new Span("hallucination") }),
         policy: { tune: "eager" },
         system: { oracle: SYSTEM },
         turns: [{ role: "user", parts: [{ type: "text", text: prompt }] }],
@@ -115,6 +116,7 @@
 
     try {
       const source = await buffer.mode.daemon.cortex.hallucinate.dialogue.stream({
+        controller: new Controller({ stdout: new Span("hallucination") }),
         policy: { tune: "eager" },
         system: { oracle: SYSTEM },
         turns: [turn],
@@ -185,6 +187,42 @@
     }
   }
 
+  // ── the workload — every button here fires through the HARNESS, so the daemon mints an
+  // activity row for it and the F panel, the shoulder and the dock header all light up. the
+  // flags are the stub provider's script: playground runs on @commons/hallucinator/stub.
+  const WORKLOAD = [
+    { name: "trickle", flags: "--deltas 40 --pace 300ms", hint: "12s of deltas — pause and resume mid-stream" },
+    { name: "stall", flags: "--stall 20s --deltas 8", hint: "one 20s gap — stop or kill while it hangs" },
+    { name: "toolstorm", flags: "--tool lookup --rounds 3 --pace 120ms --stall 2s", hint: "three tool rounds — branches in the log" },
+    { name: "flaky", flags: "--fault retryable", hint: "a retryable fault — the belt backs off and retries" },
+    { name: "hung", flags: "--timeout", hint: "yields nothing — only SIGKILL ends it" },
+  ];
+
+  let fired = $state(0);
+
+  // fire and forget: the row is the thing being watched, not the answer. the stream is drained
+  // into the assistant box when it says anything, and a fault is reported there too.
+  function workload(flags, count = 1) {
+    for (let at = 0; at < count; at += 1) {
+      fired += 1;
+      const call = client.branch("/workload").note({ flags, at });
+      (async () => {
+        let text = "";
+        const packets = await buffer.mode.harness.dialogue.stream({
+          thread: terminal.thread?.id,
+          parts: [{ type: "text", text: flags }],
+        });
+        for await (const packet of packets) {
+          if (packet.event === "/part/delta" && packet.delta?.text) assistant.set((text += packet.delta.text));
+          else call.note({ event: packet.event });
+        }
+      })().catch((error) => {
+        call.fault(error);
+        assistant.set(`… ${error.message}`);
+      });
+    }
+  }
+
   let mirroring = $state(false);
   $effect(() => {
     if (!mirroring) return;
@@ -215,10 +253,17 @@
 
   <div class="controls">
     <div class="group">
-      <span class="group-label">client</span>
+      <span class="group-label">client · no row</span>
       <button class="btn" onclick={askCortexObject} disabled={busy}>cortex · object</button>
       <button class="btn" onclick={askHarnessObject} disabled={busy}>harness · object</button>
       <button class="btn" onclick={askCortexStream} disabled={busy}>cortex · stream</button>
+    </div>
+    <div class="group wide">
+      <span class="group-label">workload · minted rows {fired}</span>
+      {#each WORKLOAD as work (work.name)}
+        <button class="btn" title={`${work.hint} · ${work.flags}`} onclick={() => workload(work.flags)}>{work.name}</button>
+      {/each}
+      <button class="btn" title="three at once — three rows" onclick={() => workload("--deltas 30 --pace 250ms", 3)}>×3 parallel</button>
     </div>
     <div class="group">
       <span class="group-label">runtime</span>
@@ -293,6 +338,9 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 20px;
+  }
+  .group.wide {
+    flex-wrap: wrap;
   }
   .group {
     display: flex;

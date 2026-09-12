@@ -43,7 +43,11 @@ export class Pipe {
     return this.tap(callback);
   }
 
-  async *stream(signal) {
+  stream(signal) {
+    return this.replay([], signal);
+  }
+
+  async *replay(backlog, signal) {
     const buffer = [];
     const gate = promise.waiter();
     const untap = this.tap((value) => {
@@ -51,6 +55,7 @@ export class Pipe {
       gate.wake();
     });
     try {
+      yield* backlog;
       while (!signal?.aborted) {
         if (buffer.length) {
           yield buffer.shift();

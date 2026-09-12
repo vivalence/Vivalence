@@ -5,4 +5,5 @@ export { Intent, IntentDossier } from "./intent.js";
 export { Thread, ThreadDossier, ThreadTraits } from "./thread/index.js";
 export { Buffer, BufferDossier } from "./buffer.js";
 export { Turn, TurnDossier } from "./turn.js";
+export { Activity, ActivityDossier, loudest, owed, roster } from "./activity.js";
 export { Literal, LiteralDossier } from "./literal.js";
