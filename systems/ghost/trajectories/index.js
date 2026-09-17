@@ -66,7 +66,7 @@ export default function (trajectory) {
       nature: "/instance/run",
       valence: "run the mounted instance attached (foreground) — exit 1 iff a child exits non-zero; --logged sends their output to <ledger>/logs/<slug>/",
       schema: v.object({
-        process: v.string().desc("runtime | kajuit | all").optional(),
+        process: v.string().desc("runtime | anima | all").optional(),
         logged: v.boolean().desc("write child output to the ledger's logs instead of the terminal").group("flags").optional(),
       }),
     },
@@ -78,7 +78,7 @@ export default function (trajectory) {
       nature: "/instance/start",
       valence: "start the mounted instance detached — a supervisor ghost runs it logged (instance/run --logged) and holds the lock",
       schema: v.object({
-        process: v.string().desc("runtime | kajuit | all").optional(),
+        process: v.string().desc("runtime | anima | all").optional(),
       }),
     },
     instance.start,

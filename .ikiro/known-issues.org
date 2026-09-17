@@ -1399,6 +1399,58 @@ Separate slot (=ctx.request=) moves the read in =rendering · streaming · trans
 ** Workaround
 None needed in-tree; a new internal middleware reads =input= knowing its position relative to lowering. Quest: m65 =* known issues=.
 
+* runtime-rewrites-persisted-trait-rows — OPEN (beef 2026-09-19: /"paladin owns config … its a process, not a configuring pipeline"/)
+
+** Symptom
+
+A trait rename (=TOOLED→TOOLING=, m58) leaves prod rows carrying the old string. The enum keeps a deprecated tail (=Mode.ts:38-41=) so they hydrate, and the RUNTIME rewrites them at daemon boot.
+
+** Root cause
+
+=systems/runtime/daemon/lifecycle/population.js:154= — =mode.entity.traits = [...mode.manifest.traits]=. The daemon boot pass mirrors the row onto the manifest. Configuration work inside the process. Not paladin: =subsystems/paladin/lifecycle/populate.js= resolves env strata + scopes only, touches no row.
+
+** Evidence
+
+Prod =daemon_italian= mode rows measured 2026-09-19: =dojo=, =francesca=, =language-learning= carry =TOOLED=; local italian after one boot carries =TOOLING=. No type⇒traits or trait⇒type law exists anywhere (unrestricted grep over typology · paladin · runtime, live files: 1 textual hit, a =typeof= in =DataEntity.ts:95=).
+
+** Ruling
+
+beef, verbatim: /"paladin owns config. runtime should receive its input and its input alone. it runs. it doesnt change. its a process, not a configuring pipeline. paladin must have a deduction function in lifecycle where we do a few things with traits. a: we flip old traits. b: we validate type:[traits] — certain mode types imply certain traits and some traits require a specific type. paladin owns this."/
+
+** Why not fixed now
+
+m66 (three containers) cuts prod over on the runtime mirror + deprecated tail; that works. The paladin deduction pass is its own quest (number beef's): =subsystems/paladin/lifecycle/<deduce>.js= after =recipe()= — (a) one deprecated→current trait table applied to every mounted manifest, (b) type⇒traits and trait⇒type validation, faults into =instance.requirements=. Then =population.js:154= shrinks or moves behind a repository verb and the enum tail dies with a migration routine.
+
+** Workaround
+
+Keep the old member at the bottom of the enum, restart every instance, drop later.
+
+* bundler-spams-the-mountpoint — OPEN (beef 2026-09-19: /"why do we store the same bundles under different hashes??? should be equal, no?!"/)
+
+** Symptom
+
+=~/.viva/instances/*/mountpoint/daemon_*/bundles= = 3.7G; =language-learning/daemon_playground= alone 595 files; italian 7 files / 55M. Every boot after any repo change adds a 7–10 MB file per APPLICATION mode. Nothing prunes.
+
+** Root cause
+
+Sibling bundles ARE different bytes (every md5 distinct, KB drift) — the hashes are honest, the defect is upstream. =subsystems/paladin/belt/bundler.js:38-57=: on the ENTRY path (=traits/application.js:27=, every APPLICATION mode at boot) no source is digested; the file is compiled first and =hash ??= digest(text)= hashes the OUTPUT. Any change in the import closure (mode svelte, drapes, typology, dapper, a dev path string) → new bytes → new name. =mode.application.view= is in-memory per boot; no row references it. The SOURCE path (generative, =bundle({source})=) hashes the input and dedupes, and Buffer rows persist that hash in =view.json= — a generative bundle is referenced state, an application bundle is an unmanaged cache.
+
+** Evidence
+
+Italian db, 2026-09-19: Buffer rows with a non-null view = 0; each of the 7 on-disk hashes in =Buffer.view= = 0; Mode has no view/hash column. Readers of =bundles/= outside bundler.js: =resolve.js:25= · =application.js:26= · =generative.js:9=, all construct the store path only. Cleanup verbs in =systems/ghost/trajectories= (prune|clean|gc): 0 files.
+
+** Ruling
+
+beef, verbatim: /"i want the fact of persistence questioned. maybe graceful shutdown includes cleanup? for sure we want cleanup commands in ghost. maybe cleanup hooks in runtime + manual? same tooling in paladin."/
+
+** Why not fixed now
+
+Own quest (number beef's). Shape: application bundles keyed on their INPUTS (digest of the entry's import closure, or entry + repo rev + package rev) or not persisted at all; generative bundles stay because rows name them. ONE paladin primitive =paladin.bundler(store).prune({ keep })=; callers = runtime =disintegrate=, a post-compile boot hook, ghost =instance/prune --json= reporting bytes freed. =keep= = live application views + every Buffer-held hash.
+
+** Workaround
+
+=rm -rf <mountpoint>/daemon_*/bundles= while the instance is stopped; the next boot recompiles every APPLICATION mode. Generative views held by Buffer rows are LOST by this — only safe on an instance with none.
+
 * resolved issues — records of built things, CUT (cleanup law: delete records of built things, never un-built design)
 The fixes live in the code and their stories in =compacts/= (grep the name) and =release.md=. Names cut here so a reader can still grep them: =aperture-snapshot-pins-a-daemon-the-instance-no-longer-mounts= · =paladin-scope-overwrite-warning= · =registry-count-test-pins-a-number= · =stripwire-contract-test-reads-a-dead-key= · =prod-nlp-image-lacks-transformers= · =runtime memory runs to 16 GB while the dojo drawer is driven= · =RESOLVED= · =readme-ubuntu-walk-ghost-defects= · =app-relative-mount-keeps-its-dot-segment-and-the-bundler-misses-its-own-output= · =first-attach-user-insert-race= · =secrets-thunk-leak= · =ledger-doctor-counts-every-lock-dead= · =registry-untap-silently-ignores-an-unknown-reference= · =literal-ontology-blank-after-dataset-install= · =italian-instance-env-blank-secrets-shadow-every-lower-stratum= · =consumed-service-with-a-blank-optional-secret-crashes-after-the-gate= · =nlp-provider-blames-the-url-for-a-missing-key= · =cargo-drops-any-path-with-a-space=
 
@@ -1525,3 +1577,312 @@ The harness ALWAYS has a thread in its input, or it throws. Callers stop defendi
 
 Ruled mid-fold, after the m65 followup landed in =research.js=. It is a contract change on the
 harness with at least one live caller that currently passes no thread, so it wants its own go.
+
+* lighthouse-announce-prune-never-matches-in-docker — OPEN (measured m66 WP2)
+
+** Symptom
+
+A daemon removed from an instance leaves its row in the lighthouse forever. Measured: a twin
+instance announced =hello= + =hello2= on :2504; replaced by plain hello-world on the same port,
+=hello2= stayed, runtime log printed no =[announce] pruned= line (evicted.count 0).
+
+** Root cause
+
+=systems/runtime/lifecycle/integrate.js:71= evicts =url LIKE '${origin}%'= with
+=origin = paladin.instance.runtime.statics.serve.origin= — the BIND address (=http://0.0.0.0:2504=).
+Stored urls are =PUBLIC_VIVA_RUNTIME_REMOTE + /daemon/<slug>= (=http://localhost:2504/…=).
+Bind ≠ remote in any container, so the predicate never matches. Only held on a laptop where both
+were =localhost=.
+
+** Why not fixed now
+
+Out of m66 WP2 scope (measure only). Fix is one line: derive the prune prefix from
+=PUBLIC_VIVA_RUNTIME_REMOTE= (the same literal announce writes), not from the bind.
+
+** Workaround
+
+=POST <lighthouse>/entities/daemon/removeOne {"where":{"slug":"<slug>"}}=.
+
+Full measurement: =.ikiro/reference/lighthouse-announce-dynamics.md=.
+
+* dojo-view-refused-without-a-terminal-daemon — OPEN (seen on prod, m66 M3 day)
+
+** Symptom
+
+Anima on =vivalence.com=, signed in, italian threads listed. Opening a dojo buffer from the buffer list with no terminal open (=ACTIVE no thread=):
+
+#+begin_example
+VIEW REFUSED
+can't access property "statics", t.terminal.daemon is undefined
+https://runtime.s4y.vivalence.com/attached/bundle/daemon/italian/mode/game/dojo/ee2cbd0ee14ff18e.svelte.mjs
+#+end_example
+
+** Root cause hypothesis
+
+The dojo view reads =terminal.daemon.statics= (language pair) at render. A buffer opened outside a terminal carries no daemon on its terminal context; the view assumes the terminal exists. App-side (education dojo view + anima buffer opening), not the deploy.
+
+** Why not fixed now
+
+Found while proving M3. beef: /"mark known issue."/ — m66 is the cutover, not the view.
+
+** Workaround
+
+Open a terminal on the italian daemon first, then the buffer.
+
+* mikro-sqlite-migration-generator-glues-pragma-to-the-next-statement — OPEN (measured on prod data, m66 M2)
+
+** Symptom
+
+Booting a NEW image over a populated sqlite db, the migrator generates a diff and crashes running it:
+
+#+begin_example
+[migrator] Processing 'Migration20260920004939'
+MigrationError: create index `Thread_parent_index` on `Thread` (`parent`); - SQLITE_ERROR: no such column: parent
+#+end_example
+
+** Root cause
+
+mikro-orm 6.6.7's sqlite schema generator emits ONE =addSql= holding two statements around a table rebuild:
+
+#+begin_example
+pragma foreign_keys = on;alter table `Thread` add column `parent` …    ← alter never runs
+pragma foreign_keys = on;drop index `Literal_slug_unique`;            ← drop silently skipped
+pragma foreign_keys = on;pragma foreign_keys = off;                    ← FK stays ON through the next rebuild
+#+end_example
+
+The =npm:sqlite3= driver executes only the first statement of a multi-statement string. The migrator is non-transactional (=libsql.viva.js= =transactional: false=), so the db is left half-applied. A second artifact: a column add carries a foreign key that belongs to a neighbour (=alter table Buffer add column traits json … constraint Buffer_thread_foreign references Thread(id)=), which with FK enforcement on would refuse every insert.
+
+Nobody had run this path: dev nukes db + migrations ([[project_mikro_sqlite_fk_change_breaks_migration]]). Prod italian was the first populated db to meet a schema diff.
+
+** Attempts
+
+- Hand pre-step (rename =Memory→Retention=, backfill =Intent.user=) then let mikro run: the migrator passed, then =ensure()= re-inserted intents that already existed under the new =(user, slug, mode)= unique. Parked with brazilian/spanish (unserved).
+- Running mikro's generated SQL through the sqlite3 CLI: honours multi-statement, but ships the bogus FK. Rejected.
+
+** What worked (the cutover)
+
+Road A, =scripts/remigrate-italian.sh= on the prod host: mikro creates the schema on an EMPTY seat (boot once), stop, =ATTACH= the old db, =INSERT INTO new.T (common columns) SELECT … FROM old.T= for every table present in both, ids intact, =pragma foreign_key_check= empty, boot again. Mikro owns schema; we own rows.
+
+** Why not fixed now
+
+Upstream (mikro 6.6.7 sqlite generator vs the =npm:sqlite3= driver). Candidate fixes: mikro upgrade, or a driver that executes multi-statement strings (=better-sqlite3= / =libsql= =exec=). Until then: any populated sqlite db meeting a schema diff goes through road A, never the migrator.
+
+* four-ui-surfaces-ship-a-successor-beside-the-incumbent — OPEN (beef, at the dapper/drapes/droneaid/education/anima survey: /"mark this as a known issue."/)
+
+** Symptom
+
+No crash. Four independent places in the UI stack carry TWO implementations of the
+same thing side by side, the older one wired to every consumer and the newer one
+green under its own tests with zero consumers. Nothing reports a conflict, because
+every half is individually correct. The cost is paid at read time: a person opening
+=dapper/= or =education/modes/= cannot tell which spelling is live without grepping
+consumers, and a census of either tree is wrong by ~30% unless the dead half is
+excluded by hand.
+
+** The four instances (measured at the survey, all four trees on disk)
+
+*** 1. dapper emits two colour contracts, one has no consumers
+
+=lib/flatten.js= emits both on every =design()=:
+
+#+begin_example
+--colors-skeleton-N-*   :root[data-theme=X]   N ∈ 0..4   ~20 consumer files
+--zone-*                .zone-N               N ∈ 0..5   ZERO consumer files
+#+end_example
+
+Zones are the SUCCESSOR and the better model — six named roles documented at
+=themes/nordic.js:5-11= (=canvas · panel · recess · raised · accent · overlay=),
+=ZONE_COUNT = 6= at =lib/flatten.js:1=, pinned hard by =tests/zone-emit.test.js=
+(six zones, seven interactive roles × base/hover/active, error triplet). Then
+=nordic.js:94= sets =.zones=, and =nordic.js:100= sets =colors.skeleton = {0..4}=
+under a local named =compat=. Consumers measured with =grep -rl "colors-skeleton"=:
+education, playground, chess kit, hello-world, drapes skins. Consumers of =--zone-=
+outside dapper itself: none.
+
+Note the arity: zone5 (=overlay=) has NO compat twin, so the one zone a mode would
+reach for — popovers, modals, the chess end card — is the one the live contract
+cannot name.
+
+*** 2. dapper carries =primitives/= as a dead fork of =lib/=
+
+#+begin_example
+primitives/colors.js   391 lines  ┐
+lib/colors.js          452 lines  ┘ differ
+primitives/tokens.js   128 lines  ┐
+lib/tokens.js          130 lines  ┘ differ
+primitives/builders.js  78 lines  = lib/builders.js (identical)
+#+end_example
+
+Live path is =lib/=: =mod.js= re-exports it, =lifecycle/index.js= (the postcss door
+named in =deno.jsonc=) imports =../lib/system.js=. =primitives/= is reached only by
+=belt/postcss-plugin.js= and =tests/builders.test.js= — and =belt/index.js= is
+exported from neither =mod.js= nor =deno.jsonc=, so that whole belt is a second dead
+door. Two palettes on disk, differing, no marker naming the winner.
+
+*** 3. drapes =context/= builds the old contract in JS, for nobody
+
+=context/decorum.js= (=Decorum.use()=), =context/Zone.svelte=, =SkeletonProvider.svelte=,
+=useSkeleton.js=. Zero importers outside =subsystems/drapes/=. =Zone.svelte= re-declares
+16 CSS variables by hand per skeleton level onto a =display: contents= wrapper —
+a pure naming shim over what the cascade already does — and it spells the INCUMBENT
+contract (=--colors-skeleton-{n}-*=), so it is a dead consumer of the half that is
+itself due for retirement.
+
+Adjacent, same shape: =skins/= is 7 components plus a =bak/= of 7 more, and has two
+consumers repo-wide, each taking one — =education .../dataspace/Dashboard.svelte:3=
+takes =Filter=, =anima .../panels/h/Inspector.svelte:6= takes =Skin=. It is the one
+namespace export =drapes/readme.org= carves out specially.
+
+*** 4. education carries a shelved mode tree the same size as the live one
+
+=modes/games/bak/= holds 8 complete modes (=listen= 853, =paradigm= 687, =write= 634,
+=shadow= 582, =conjugation= 441, =flashcard= 331, =translations= 301, =pick= 287 —
+~4.1k lines of =.svelte=), plus =modes/bak/dewey.bak= and a =bak/tmp/= mirror of the
+ENTIRE mode tree (=bak/tmp/modes/games/dojo=, =.../home/aprende=, …). Roughly a third
+of the package's view surface.
+
+This one is NOT drift — =bak/= is beef's recovery surface by the same law that
+protects =quests/bak/= — but it shares the symptom: every measurement of the package
+silently doubles-counts unless the walker excludes it, and there is no convention
+that tells a walker to.
+
+** Root cause
+
+One move, made four times: *ship the successor next to the incumbent, test the
+successor, migrate nothing.* Each half is green in isolation, which is precisely why
+none of the four ever surfaced. A test suite cannot see that its subject has no
+callers; that fact lives only in the consumer grep, and nothing runs one.
+
+The =--zone-*= case is the sharpest illustration — =zone-emit.test.js= asserts six
+zones, seven roles, three states and an error triplet, all passing, on CSS that no
+served bundle has ever read.
+
+** Secondary drift this produced
+
+=drapes/readme.org= documents the state of a tree that no longer exists: =themes/dark.js=
+(disk has =nordic.js= / =paper.js=), a =Modeline= component (no such file anywhere but
+the readme), and =@vivalence/dapper/bsp.css= + =/fonts.css= exports that are COMMENTED
+OUT in =dapper/deno.jsonc=. The readme's =Architecture= section is fiction; its
+=Exports= section — the tree-shaking warning, measured 0.54 → 1.33 MB prod when the
+aggregate =components= map was reinstated — is the most load-bearing paragraph in
+either package and is accurate. A reader has no way to tell those two halves apart.
+
+=systems/anima/README.org= is 0 bytes — the only one of the four surveyed surfaces
+with no written intent, and the one whose architecture beef has flagged on the
+frontier as /"still ... ish. bit convoluted"/.
+
+** Why not fixed now
+
+Every fix is a ruling, not a repair, and all four are beef's:
+
+1. *zones or skeletons* — pick one, delete the other, and =primitives/= with it. Half a
+   day, and it unblocks droneaid and chess taking the same path for mode-local palettes.
+   Blocked on: which contract, and whether zone5/=overlay= is the reason to pick zones.
+2. *what drapes is for* — if anima will not use the semantic components (measured: 9 of
+   56 anima views import drapes at all, taking =Section= ×4, =Icon= ×2, singletons of
+   =Pip=/=Markdown=/=Json=/=Frame=/=Chip=/=skins=), then drapes is a layout+viewport
+   toolkit (=Desk= ×10, =ViewportLock= ×8, =stage= ×4 across education) with a component
+   museum attached. =skins/= at 2 consumers and =context/= at 0 are the first cuts.
+3. *the copied game skeleton in education* — =cloze=, =match=, =judge=, =exhibit=, =impara=
+   are each exactly =drapes=1, tokens=1, styleblock=1=: one skeleton, five copies,
+   diverging. Chess met this and answered with the kit-copy law plus =tests/kit.test.js=
+   pinning the copies byte-equal. Education has the copies without the pin.
+
+** Workaround
+
+Until a ruling: *grep the consumers before believing a test.* For these four trees
+specifically —
+
+#+begin_example
+grep -rl "colors-skeleton" --include=*.svelte --include=*.js .   # live contract
+grep -rl -- "--zone-"      --include=*.svelte --include=*.css .  # successor, expect 0
+#+end_example
+
+— and exclude =modes/games/bak/= + =bak/tmp/= from any education census, or the count
+is wrong by a third.
+
+** Cross-cutting note from the same survey (not a defect, worth keeping)
+
+Colour discipline IMPROVES inward — anima 0 hex across 56 views, education 11 of 67
+(and the 11 are illustration: =Riddler.svelte= draws a jester in CSS, =.cone.gold=,
+=.pom.red= — palette-as-artwork, not chrome), droneaid =Assembly.svelte= all-hex with
+13 vars and a Google-Fonts =Archivo= link. Component reuse runs BACKWARDS — education
+33 drapes imports, anima 9, droneaid 0. *The design system's strongest consumer is the
+package furthest from it, and its weakest is the system it was built for.*
+
+* quest-report-crashes-on-a-quest-that-moved-mid-run — OPEN (measured six times at the survey fold, while a sibling swept the quest root)
+
+** Symptom
+
+=methods/quest-report.py= dies with =FileNotFoundError= and produces NOTHING — no table, no
+partial rows, no note about which quest is missing — when any quest named in
+=quests/index.md= has been moved into =done/= or =discarded/= since that index was
+regenerated.
+
+#+begin_example
+Traceback (most recent call last):
+  File ".ikiro/methods/quest-report.py", line 278, in <module>
+    rows = report(hours=hours, exclude=os.environ.get("CLAUDE_SESSION_ID"))
+  File ".ikiro/methods/quest-report.py", line 146, in report
+    text = open(path, encoding="utf-8", errors="replace").read()
+FileNotFoundError: [Errno 2] No such file or directory: '.ikiro/quests/m63-process-controller.org'
+#+end_example
+
+Measured SIX consecutive runs at one fold, each naming a different file as the sweep
+advanced: =m63-process-controller= → =m53-vcompany= → =m51-standalone-slowstart= →
+=drapes-editor= → =media-editor= → =m56-the-pincer-turns=.
+
+** Root cause
+
+Two unguarded opens on paths derived from the index rather than from disk:
+
+#+begin_example
+quest-report.py:146   report()  text = open(path, encoding="utf-8", errors="replace").read()
+quest-report.py:185   stamp()   text = open(r["path"], encoding="utf-8").read()
+#+end_example
+
+=index.md= is DERIVED and regenerated at sunset, so between its regeneration and the
+report's read there is a window in which a path is listed but gone. The sunset ritual
+(=skills/quest-lifecycle=) moves files one at a time, so the window is open for the whole
+sweep — at this fold, long enough to swallow six runs.
+
+=stamp()= widens it further: it re-opens every row AFTER =report()= has already returned,
+so a quest can survive the read and still be missing at the write. That is the sixth
+failure above — the table printed in full, then stamping died.
+
+** Why this one matters more than its size
+
+The report's own =sessions= column exists to warn the reader that a tree may be moving
+under them — =live: m46-linux-readmen ← edafd0fa (5m ago)=. *The script cannot survive
+the exact condition it was built to announce.* And its failure mode is total rather than
+partial: eighteen rows are lost because one is absent.
+
+Consequence at the fold where this was measured: the compact's =* quest report= section
+was assembled from a =--format md= run with =--stamp= dropped, so the three derived header
+keys on the surviving quests went unstamped and the compact had to say so.
+
+** Attempts
+
+- *Retry* — three back-to-back runs, three different missing files. Retrying does not
+  converge while a sweep is in progress; it only samples it.
+- *Drop =--stamp=* — WORKED for the read half. =--format md= alone exits 0 and prints the
+  table, because =report()= happened to land between two moves. It is luck, not a fix.
+
+** Why not fixed now
+
+=methods/= is ikiro's own and the fold that found this was a UI survey; fixing the tool
+mid-fold would have been unsolicited scope. The fix is small and well-shaped:
+
+1. In =report()=, treat a missing path as a row with status =moved= — resolve it against
+   =quests/done/= and =quests/discarded/= and report where it went, rather than raising.
+2. In =stamp()=, skip a row whose file has vanished since the read and name it in the
+   =stamped:= line.
+3. Consider deriving the row set from =glob= on =quests/*.org= rather than from
+   =index.md=, so the derived index is never load-bearing for a read.
+
+** Workaround
+
+Run =python3 .ikiro/methods/quest-report.py --format md= WITHOUT =--stamp= to get the
+table, and re-run the stamping half at the next fold. If a run crashes, check
+=ls .ikiro/quests/*.org= against the index before assuming the tool is broken — a live
+sibling mid-sunset is the likelier cause, and =git status= will show the moves.

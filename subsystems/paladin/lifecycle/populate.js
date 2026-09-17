@@ -103,10 +103,10 @@ export async function scopes(paladin) {
 //       // "VIVA_REGISTRY_MOUNT", // conditional
 //       // "VIVA_RUNTIME_SERVE", // conditional
 //       // "VIVA_LIGHTHOUSE_SERVE", // conditional
-//       // "VIVA_CLIENT_KAJUIT_SERVE", // conditional
+//       // "VIVA_CLIENT_ANIMA_SERVE", // conditional
 //       // "PUBLIC_VIVA_RUNTIME_REMOTE", // conditional
 //       // "PUBLIC_VIVA_LIGHTHOUSE_REMOTE", // conditional
-//       // "PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE", // conditional
+//       // "PUBLIC_VIVA_CLIENT_ANIMA_REMOTE", // conditional
 //     ])
 //     .throw();
 // }

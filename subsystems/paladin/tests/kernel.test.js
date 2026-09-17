@@ -10,7 +10,7 @@ const HOME = new Path("/fixtures/probe/test.viva.js");
 const inline = {
   manifest: { type: "game", slug: "hello", version: "0.0.1", traits: [] },
   statics: { probe: () => "thunks-fire-in-declarations-never-in-modules" },
-  app: new App(svelte`<h1>hello</h1>`, v.buffer({ data: {} })),
+  application: new App(svelte`<h1>hello</h1>`, v.buffer({ data: {} })),
 };
 
 const pinned = { ...inline, manifest: { ...inline.manifest, slug: "pinned" }, mount: new Path("/pinned/pinned.viva.js") };
@@ -69,7 +69,7 @@ describe("instance kernel references", () => {
     const instance = await mount(module);
     const [daemon] = instance.daemons;
     expect(typeof daemon.kernel[3].statics.probe).toBe("function");
-    expect(daemon.kernel[3].app.source).toContain("hello");
+    expect(daemon.kernel[3].application.source).toContain("hello");
   });
 });
 

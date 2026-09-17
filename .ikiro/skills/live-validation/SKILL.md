@@ -1,11 +1,11 @@
 ---
 name: live-validation
-description: Validate a kajuit change in Chrome without mistaking a tooling artifact — stale mode bundle, HMR scope, a missed coordinate-click — for a real bug. Run the sequence first; the rules explain why each step is there.
+description: Validate a anima change in Chrome without mistaking a tooling artifact — stale mode bundle, HMR scope, a missed coordinate-click — for a real bug. Run the sequence first; the rules explain why each step is there.
 when_to_use: "is it wired?" · "check it in the browser" · "the dock isn't showing" · "thread/create hangs" · after any buffer-view or client change that needs eyes on the DOM.
-paths: systems/kajuit/**
+paths: systems/anima/**
 ---
 
-# live-validation — "is it wired?" / "check it in the browser": kajuit change, real DOM
+# live-validation — "is it wired?" / "check it in the browser": anima change, real DOM
 
 Canon: `.ikiro/self/rituals.md ## live-validation`. Standing rules for the whole browser task, not a one-time walkthrough.
 

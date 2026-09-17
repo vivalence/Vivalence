@@ -1,0 +1,3250 @@
+#+title: media — the cutting room: a multitrack video and audio editor as a mode, ffmpeg on the daemon, the browser previews
+#+filetags: :media:registry:package:mode:ffmpeg:otio:composition:annotation:freight:cargo:svelte:anima:
+#+status: LANDED OFFLINE as =@media= (compact #164) — =~/.viva/registry/media=, no VCS, untapped, never booted, never rendered. beef: /"yes go build. add it to .viva/registry/ package: @media instance media."/ and /"i create instance"/. Built: pure composition verbs · ffprobe · ingest by content hash · peaks/thumbs/proxy · filter_complex render · rows + boot + watcher · 17 aperture verbs · OTIO export · the App (bin · monitor · timeline · inspector). =deno test= 5 passed (33 steps) / 0 failed. The App is compile-only, the browser upload door has never run. m58 renamed =app= → =application= and =kajuit= → =anima= inside the package; still 33/0.
+#+phase: wip (derived)
+#+progress:   9% 2/22 (derived)
+#+next: control (derived)
+#+marker_qa: media-editor/T-drop · pending · I drop three files on the bin; each shows a progress bar, then a row with name · duration · size · resolution; a file already in the bin says so instead of doubling
+#+marker_qa: media-editor/T-import · pending · I paste an absolute path, tick move, press import; the row appears and the file is gone from where it was
+#+marker_qa: media-editor/T-derive · pending · I press derive on a video; stages peaks → thumbs → proxy tick by; its timeline clips then show a thumb strip and audio clips a waveform
+#+marker_qa: media-editor/T-cut · pending · I drag a video from the bin onto V1; its audio lands on A1 at the same frame; space plays, s splits at the playhead, ⌫ ripples, ⇧⌫ leaves a gap, ⌘z undoes
+#+marker_qa: media-editor/T-scrub · pending · I drag the ruler; the monitor follows within a frame or two on a proxied source, and a clip on V2 covers V1 at its opacity
+#+marker_qa: media-editor/T-render · pending · I press render; a bar fills; the output appears under the cut's outputs and in the bin tagged rendered; save downloads it with its name
+#+marker_qa: media-editor/T-dragout · pending · in Chrome I drag a bin row to the desktop and the file lands there
+#+marker_qa: media-editor/T-reload · pending · I reload the page; the same cut reopens (buffer.data.open), the timeline is exactly as I left it
+#+marker_qa: media-editor/P-suite · pending · `deno test --config deno.jsonc -A --no-check ~/.viva/registry/media/` → 5 passed (33 steps) / 0 failed, re-run after any change to the package
+#+marker_qa: media-editor/P-mount · pending · a linkedom mount test renders Media.svelte with a stubbed mode.call and drives place → split → undo without effect_update_depth_exceeded
+#+marker_qa: media-editor/P-wire · pending · a yields route (ingest · derive · render) streams through shape.http + shape.connection.wire, not only a direct handler call
+#+marker_qa: media-editor/P-no-hex · held · tests/app.test.js "no view carries a literal colour" is green at landing
+#+marker_qa: media-editor/P-no-comments · held · `grep -rn "^\s*//\|<!--"` over the package js + svelte → 0 files at landing
+
+* intent (his words, verbatim)
+
+/"i need a new viva mode. one for editing audio and video. how to construct this? self roll or via take some github stuff?"/
+
+/"design multitrack video and audio. render on daemon side. file input either from path or drag n drop. both cases files are copied/stored/moved into mountpoint. i want to be able to download via browser and/or dragndrop out of the browser. literal annotation amen. preview in browser rich. for now just standalone. what ui paradigm to steal? what data schema do we need? what are our ontologies. media, composition, more?"/
+
+/"yes go build. add it to .viva/registry/ package: @media instance media."/ — mid-turn: /"i create instance"/
+
+* the decision trail
+
+Every fork below was put with a recommendation in the design turn; /"yes go build"/ took all of them.
+
+- *borrow the engines, build the ontology.* ffmpeg and ffprobe do the pixels on the daemon; the
+  browser previews with its own =<video>= / =<audio>= elements over proxies and cached peaks. No
+  wasm, no borrowed timeline: OpenShot · Shotcut · Olive are C++/Qt, the web timelines are React.
+- *UI paradigm* — Resolve's Edit page: bin · viewer · timeline · inspector. Descript's transcript
+  rail is the later language-learning seam (annotations), not built.
+- *schema* — OpenTimelineIO's nouns. A composition is tracks; a track is a SEQUENCE of clips and
+  gaps; an item's position is the sum of what precedes it. Ripple edits are free and overlap is
+  impossible by construction; layering comes from tracks. Spans are integer frames at the
+  composition's rate, never float seconds. Rejected: absolute offsets (Premiere) — free placement,
+  but every ripple is a recompute and overlap has to be policed.
+- *ontologies* — three on Literal, storage on =trait.*=, =symbol= derived:
+  =media= (one row per file) · =composition= (ONE row holding the whole timeline; clips are not
+  rows, as paragraphs are not rows — undo is a version of one document, export is one serialize) ·
+  =annotation= (a span on a media or composition, with text and language). Render is not an
+  ontology: it is a streamed process whose output IS a media row tagged =media.origin.rendered=.
+- *names on disk* — =media/<sha256:16>.<ext>=; the row keeps the name it arrived with. Dedupe by
+  content; a file dropped by hand under =media/= is renamed on sync.
+- *Range for the monitor* — the design called it a missing prerequisite in =shard/serve.js=. WRONG:
+  the cargo route (=systems/runtime/lifecycle/resolve.js= =attachCargo=) already answers 206. Its
+  real defect is reading the whole file per request — known issue
+  =cargo-range-reads-the-whole-file-per-request=.
+- *home* — =~/.viva/registry/media=, package =@media=, mode =editor/media=, instance template
+  =instances/media=; beef creates the instance.
+- *the upload door* (found building) — =Socket.feed= decodes upstream as text, so a file cannot
+  cross the anima multiplex. =buffer/upload.js= opens a second plain-http =Connection= over
+  =shard.transmitter.fetcher= + =shard.connection.authorize=, File body, name in =x-viva-name=.
+
+* the law
+
+- =Socket.feed= (=subsystems/typology/prototypes/socket.js:271=) sends text frames: binary never
+  crosses the multiplex.
+- The literal =symbol= fold sets slugs by depth: =[media, media.kind.video, media.rendered]= →
+  ={media:{kind:"video"}}=. A marker sharing a root with a deeper sibling needs the same depth.
+- A JSON column is updated by assigning the property. =known.assign(object.patch(known, data))=
+  left a written composition with 0 of 3 items; which layer ate them is unisolated.
+- A rename-on-settle bin consumes its per-path marks only after a SUCCESSFUL upsert — the watcher
+  probes a half-written render first and throws. Renders write to =renders/.incoming-<uuid>= and
+  rename; a failed file is skipped with a warn, never aborts the pass.
+- FFmpeg 9.0.1 rejects =-filter_complex_script=; =-/filter_complex <file>= is the form.
+- =path.extname(".mp4")= is =""=: =settled(hash, name)= takes a filename.
+
+* on disk
+
+#+BEGIN_EXAMPLE
+~/.viva/registry/media/
+  package.viva.js · README.md
+  instances/media/{instance.viva.js, daemon.js}      mountpoint /Users/finn/vivalence/media
+  modes/editor/media/
+    media.viva.js        MOUNTED · BOOTED · APPLICATION · STANDALONE · EXPOSED  · export application
+    schema.js · composition.js · rows.js · ffmpeg.js · probe.js · ingest.js · derive.js · render.js · boot.js · otio.js
+    aperture/index.js
+    buffer/Media.svelte · engine.js · upload.js · parts/{Bin,Monitor,Timeline,Clip,Inspector}.svelte
+    tests/{composition,engine,boot,aperture,app}.test.js · fixture.js · scenarios.js
+
+<mountpoint>/
+  media/<hash>.<ext>                 originals, content-addressed
+  derived/<hash>/peaks.json          {perSecond: 50, peaks: [0..1]}
+  derived/<hash>/thumbs/00001.jpg    1 fps, 160 wide
+  derived/<hash>/proxy.mp4           ≤720p h264, keyframe every 15
+  renders/<cut>-<stamp8>.<ext>       outputs, also media rows
+  compositions/<slug>.json           the cuts; the row mirrors the file
+#+END_EXAMPLE
+
+| verb | in | out |
+|---|---|---|
+| =/media/list= | — | =[{literal, url, derived:{peaks, proxy, thumbs}}]= |
+| =/media/read= | =slug= | served row |
+| =/media/import= | =path · name? · move?= | served row |
+| =/media/ingest= | raw body · =x-viva-name= | yields =Progress=, last =output= = served row + =duplicate= |
+| =/media/remove= | =slug= | ={slug, path}= |
+| =/media/derive= | =slug · kinds?= | yields =Progress= (peaks · thumbs · proxy · derive) |
+| =/composition/list= | — | =[{slug, id, updatedAt, …document}]= |
+| =/composition/create= | =name · rate? · width? · height?= | row |
+| =/composition/read= | =slug= | ={literal, issues}= |
+| =/composition/write= | =slug · document= | row |
+| =/composition/remove= | =slug= | ={slug, path}= |
+| =/annotation/list= | =target?= | rows |
+| =/annotation/create= | =target · range · rate · kind · text · language?= | row |
+| =/annotation/write= | =slug · fields= | row |
+| =/annotation/remove= | =slug= | ={slug}= |
+| =/render= | =slug · settings{format, crf, preset}= | yields =Progress=, last =output= = rendered media row |
+| =/export/otio= | =slug= | =Timeline.1= |
+
+* milestones
+
+| M | what | state | gate |
+|---|---|---|---|
+| M0 | composition verbs + schema | LANDED | =tests/composition.test.js= 8 |
+| M1 | ffmpeg runner · probe · ingest · derive · render | LANDED | =tests/engine.test.js= 6, real ffmpeg over lavfi |
+| M2 | rows · boot · watcher | LANDED | =tests/boot.test.js= 4 |
+| M3 | aperture verbs · OTIO export | LANDED | =tests/aperture.test.js= 8 |
+| M4 | the App | LANDED, compile-only | =tests/app.test.js= 7 |
+| M5 | tap · instance · boot under the runtime · click-through | OWED — beef | T-* markers |
+| M6 | App mount test | OWED | P-mount |
+| M7 | yields routes over the wire | OWED | P-wire |
+| M8 | cargo Range streams by =seek= | OWED — runtime touch, gated | known issue |
+
+* testing assessment
+
+** in place
+
+The five suites above, run from the repo root. engine · boot · aperture spawn the real =ffmpeg=
+and =ffprobe= on =PATH= against lavfi fixtures (=tests/fixture.js=: =testsrc= + =sine=, 1 s,
+320×240) in temp mountpoints; boot and aperture ride =mountMode= from =@vivalence/runtime/scenarios=
+over the libsql fixture datamap.
+
+COVERAGE GAPS: no mount of any Svelte part (effects never run) · the =yields= routes are driven by
+calling the handler with a hand-built ctx, never through =shape.http= framing or
+=shape.connection.wire= · =buffer/upload.js= and =buffer/engine.js= have no test · the watcher is
+exercised only through =sync()=, never through a real =Deno.watchFs= event · =otio.js= is checked by
+shape, never loaded by an OTIO reader.
+
+** changes
+
+None owed. The m58 rename (=application= export, =anima= client) went through without touching a
+test: 5 passed (33 steps) / 0 failed after it.
+
+** adds
+
+- =tests/mount.test.js= — the anima linkedom rig (=systems/anima/tests/activity.mount.test.js=) over
+  =buffer/Media.svelte= with a stubbed =mode.call=; drive place → split → remove → undo.
+- =tests/wire.test.js= — one yields route through =shape.http= and =shape.connection.wire=.
+- =tests/engine.test.js= — the =buffer/engine.js= helpers (=timecode= · =visible= · =thumbsFor= · =history=).
+
+** pre-DONE gate — the landing envelope
+
+#+BEGIN_EXAMPLE
+deno test --config deno.jsonc -A --no-check ~/.viva/registry/media/
+media aperture — the verbs by slug, over the wire ... ok
+app — the media buffer and its parts compile as runes components ... ok
+media boot — the tree becomes rows, files settle under their hash, the scheme is shared ... ok
+composition — sequential items, gaps model empty space ... ok
+engine — ffprobe, ingest by hash, derived files, the render graph ... ok
+ok | 5 passed (33 steps) | 0 failed
+#+END_EXAMPLE
+
+* QA
+
+** ① testimony
+
+The =T-*= markers in the header, in order: drop · import · derive · cut · scrub · render · drag-out ·
+reload. Pre-registered confusions: an audio-only file dropped on V1 refuses, as does a video with no
+audio stream dropped on A1 — the status bar names the file and the missing stream · a clip trimmed
+past its source's end turns the render into a refusal naming the file · Safari and Firefox have no drag-out, only save.
+
+** ② programmatic
+
+The =P-*= markers in the header. Grep gates that must hold: zero literal colours in any =<style>=
+(held by =app.test.js=) · zero authored comment lines in the package.
+
+* blast table
+
+| file | change | M | kind |
+|---|---|---|---|
+| =~/.viva/registry/media/**= | 31 files (2868 lines of js + svelte, plus README) | M0–M4 | new, no VCS |
+| =.ikiro/known-issues.org= | =cargo-range-reads-the-whole-file-per-request= | — | record |
+| repo product code | none | — | — |
+
+* deferred
+
+- transitions (=Clip= · =Gap= only; OTIO's =Transition= reopens when a crossfade is asked for)
+- HARNESSED · TOOLING — agent tools over the same verbs; reopens with the transcript rail
+- the transcript rail — deepgram verbatim → =annotation= rows → text-driven cuts
+- effects beyond gain and opacity; keyframes
+- a =media.origin.rendered= reverse link from a composition to its outputs (read today by filtering
+  =trait.MEDIA.rendered.composition=)
+
+* forks
+
+- *linked clips* — =Media.svelte= =place()= puts a video's audio on the first audio track at the
+  same frame, then the two are independent items (they move and trim separately). Premiere links
+  them; Resolve lets them drift. His ruling.
+- *the upload door* — a second plain-http =Connection= beside the multiplex, or teach =Socket.feed=
+  binary frames (a typology touch, HOLY).
+- *number* — this quest is unnumbered; his to number.
+- *mountpoint* — =instances/media/daemon.js= points at =/Users/finn/vivalence/media=, which does not
+  have to exist yet: boot makes =media · derived · renders · compositions=.
+
+* release
+
+- added `@media/editor/media` — a multitrack video and audio editor: bin, monitor, timeline, inspector; files by path or drop settle under their content hash on the mountpoint · migrate: none ⟨media-editor⟩
+- added `@media/editor/media` aperture — `/media/{list,read,import,ingest,remove,derive}` · `/composition/{list,create,read,write,remove}` · `/annotation/{list,create,write,remove}` · `/render` · `/export/otio` · migrate: none ⟨media-editor⟩
+- added `@media/instance/media` — the instance template: one daemon, the media mode on a mountpoint · migrate: none ⟨media-editor⟩
+
+* resources
+
+- compact #164 =a-media-mode-is-born-out-of-tree…= — the build walk, the settlement, the two callouts
+- memory =project_media_mode.md=
+- known issue =cargo-range-reads-the-whole-file-per-request=
+- =~/.viva/registry/media/README.md=
+
+* changelog
+
+- 2026-09-16 — designed; landed M0–M4 offline, 5 passed (33 steps) / 0 failed. Coverage: 0 → composition verbs · probe · ingest · derive · render graph + a real render · boot rename/dedupe/prune · 17 aperture verbs · 6 compile gates.
+- 2026-09-16 — fold: =edits.remove= / =edits.lift= now clear the selection; README ffmpeg claim measured.
+- 2026-09-17 — m58 (sibling session) renamed =app= → =application= and =kajuit= → =anima= in =media.viva.js= + =instances/media/instance.viva.js=; suite 5/33/0. This quest authored on /"update the quest"/.
+- 2026-09-17 — beef's first click-walk (T-drop · T-import · T-cut PASSED by his screenshot; T-scrub · T-render open). Two faults + one ask, on /"fix. go"/: (1) a still on V1 never showed — =<video>= refuses =image/png= (Chrome error code 4, measured) and =derive()= skips stills; Monitor now paints a still through =<img>=, =place()= gives a still =STILL = 5= s. (2) mp3 flutter — Monitor re-seeked the element whenever rAF and the audio clock drifted past 80 ms; measured: one seek costs ~74 ms in Chromium so the loop sat 6 ms under its own threshold. Now the first audible audio track is the master clock (=clocked()=), tolerance 0.25 s, no correction while =seeking=. (3) waveform + snaps existed behind the derive button; import and ingest now =sketch= peaks + thumbs on arrival (proxy stays on demand). Bug found on the way: the import route read =freight.catalog= before =await sketch()= admitted the files — argument order. Suite 5/33/0. Files on disk drift from the =* files= blocks below (Monitor.svelte · Media.svelte · aperture/index.js · aperture.test.js) — re-tangle owed. UNVERIFIED live: daemon not restarted, tab was hidden (=document.hidden= true) so Chrome deferred media loads.
+
+* files — LANDED (read off disk when this quest was written)
+
+** =instances/media/daemon.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/instances/media/daemon.js :mkdirp yes
+export const media = {
+  manifest: {
+    type: "daemon",
+    slug: "media",
+    version: "0.1.0",
+    name: "Media",
+    description: "The cutting room: a bin on the mountpoint, compositions over it, ffmpeg behind it.",
+    icon: { emoji: "🎬" },
+  },
+  kernel: [
+    {
+      module: "@media/editor/media",
+      mountpoint: "/Users/finn/vivalence/media",
+    },
+  ],
+};
+#+END_SRC
+
+** =instances/media/instance.viva.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/instances/media/instance.viva.js :mkdirp yes
+import paladin from "@vivalence/paladin";
+import { v } from "@vivalence/typology";
+import { media } from "./daemon.js";
+
+export const manifest = { type: "instance", slug: "media", version: "0.1.0" };
+
+export const runtime = {
+  manifest: { slug: "runtime" },
+  statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
+};
+
+export const datamap = { module: "@commons/datamap/libsql" };
+
+export const daemons = [media];
+
+export const clients = [
+  {
+    manifest: { type: "client", slug: "anima" },
+    statics: { serve: () => paladin.env.get("VIVA_CLIENT_ANIMA_SERVE") },
+  },
+];
+
+export const services = [
+  {
+    manifest: { type: "service", slug: "multiplayer" },
+    module: "@commons/lighthouse/multiplayer",
+    secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+  },
+];
+
+export const lighthouse = {
+  module: "@commons/lighthouse/multiplayer",
+  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
+};
+
+export const environment = v.environment({
+  VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+  VIVA_CLIENT_ANIMA_ORIGIN: v.url().desc("Scheme and authority the anima browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+  VIVA_RUNTIME_SERVE: v.url().desc("Base URL the runtime serves on. Everything else hangs off this latch.").default("${VIVA_RUNTIME_ORIGIN}/").group("addresses"),
+  VIVA_LIGHTHOUSE_SERVE: v.url().desc("Where the hosted lighthouse attaches inside the runtime's own path tree.").default("${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer").group("addresses"),
+  VIVA_CLIENT_ANIMA_SERVE: v.url().desc("Where the anima browser client serves.").default("${VIVA_CLIENT_ANIMA_ORIGIN}/").group("addresses"),
+  PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
+  SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24").default(() => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24))))).group("keys"),
+});
+#+END_SRC
+
+** =package.viva.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/package.viva.js :mkdirp yes
+export const manifest = {
+  owner: "@media",
+  type: "package",
+  slug: "media",
+  version: "0.1.0",
+};
+#+END_SRC
+
+** =modes/editor/media/aperture/index.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/aperture/index.js :mkdirp yes
+import { Aperture, v } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+import { ingest } from "../ingest.js";
+import { derive } from "../derive.js";
+import { render, stamp as fingerprint, target } from "../render.js";
+import { blank, validate } from "../composition.js";
+import { Annotation, Composition, Progress, Settings } from "../schema.js";
+import { ONTOLOGY, annotationRow, compositionPath, slugify } from "../rows.js";
+import { fork, stamp, sync } from "../boot.js";
+import { otio } from "../otio.js";
+
+const at = (ctx, path) => paladin.skills.fs.resolve(ctx.mode.mountpoint.absolute, path);
+
+const one = (ctx, ontology, slug) => ctx.daemon.entities.literal.findOne({ ontology, mode: ctx.mode.id, slug });
+
+const all = (ctx, ontology, where = {}) => ctx.daemon.entities.literal.find({ ontology, mode: ctx.mode.id, ...where });
+
+const served = (catalog, literal) => {
+  const media = literal.trait.MEDIA;
+  const url = (path) => (path ? (catalog[path]?.url ?? null) : null);
+  return {
+    literal,
+    url: url(media.asset.path),
+    derived: {
+      peaks: url(media.derived?.peaks),
+      proxy: url(media.derived?.proxy),
+      thumbs: media.derived?.thumbs
+        ? { ...media.derived.thumbs, frames: Array.from({ length: media.derived.thumbs.count }, (_, i) => url(`${media.derived.thumbs.directory}/${String(i + 1).padStart(5, "0")}.jpg`)) }
+        : null,
+    },
+  };
+};
+
+const binOf = async (ctx) => Object.fromEntries((await all(ctx, ONTOLOGY.media)).map((row) => [row.slug, row.trait.MEDIA]));
+
+const missing = (what, slug) => new Error(`${slug} is not a ${what} in this bin`);
+
+const compositionOf = async (ctx, slug) => {
+  const literal = await one(ctx, ONTOLOGY.composition, slug);
+  if (!literal) throw missing("composition", slug);
+  return literal;
+};
+
+const saveComposition = async (ctx, slug, document) => {
+  if (!v.check(Composition, document)) throw new Error(`not a composition: ${[...v.errors(Composition, document)].map((error) => `${error.path} ${error.message}`).join("; ")}`);
+  const path = compositionPath(slug);
+  await paladin.state.json(at(ctx, path), document);
+  const { literal: [literal] } = await sync(ctx.daemon, ctx.mode, [path]);
+  return literal;
+};
+
+const freeSlug = async (ctx, ontology, wanted) => {
+  const taken = new Set((await all(ctx, ontology)).map((row) => row.slug));
+  let slug = wanted;
+  for (let i = 2; taken.has(slug); i++) slug = `${wanted}-${i}`;
+  return slug;
+};
+
+async function* admitting(ctx, steps) {
+  let step = await steps.next();
+  while (!step.done) {
+    yield step.value;
+    step = await steps.next();
+  }
+  return step.value;
+}
+
+const remember = async (ctx, slug, derived) => {
+  const store = fork(ctx.daemon);
+  const literal = await store.literal.findOne({ ontology: ONTOLOGY.media, mode: ctx.mode.id, slug });
+  literal.trait = { MEDIA: { ...literal.trait.MEDIA, derived } };
+  await store.em.flush();
+  for (const path of [derived.peaks, derived.proxy].filter(Boolean)) ctx.mode.freight.admit(path);
+  if (derived.thumbs) for (const file of await paladin.find.walk(/\.jpg$/)(at(ctx, derived.thumbs.directory))) ctx.mode.freight.admit(file.absolute.slice(ctx.mode.mountpoint.absolute.length + 1));
+  return literal;
+};
+
+export const aperture = new Aperture()
+  .open("/media/list", async (input, ctx) => {
+    const catalog = ctx.mode.freight.catalog;
+    return (await all(ctx, ONTOLOGY.media)).map((row) => served(catalog, row));
+  })
+  .open("/media/read", async (input, ctx) => {
+    const literal = await one(ctx, ONTOLOGY.media, input.slug);
+    if (!literal) throw missing("media", input.slug);
+    return served(ctx.mode.freight.catalog, literal);
+  })
+  .open("/media/import", async (input, ctx) => {
+    const source = paladin.skills.fs.absolute(input.path);
+    const name = input.name ?? source.split("/").pop();
+    const { path } = await ingest(ctx.mode.mountpoint.absolute, { source, name, move: !!input.move });
+    stamp(path, { name });
+    const { literal: [literal] } = await sync(ctx.daemon, ctx.mode, [path]);
+    return served(ctx.mode.freight.catalog, literal);
+  })
+  .open({ nature: "/media/ingest", yields: Progress }, async function* (input, ctx) {
+    const body = ctx.request.raw?.body;
+    if (!body) throw new Error("[media.ingest] no file in the request body");
+    const header = ctx.request.headers.get("x-viva-name");
+    const name = (header && decodeURIComponent(header)) || ctx.request.url.searchParams?.get("name") || "upload";
+    yield { stage: "ingest", fraction: 0 };
+    const { path, duplicate } = await ingest(ctx.mode.mountpoint.absolute, { source: body, name });
+    stamp(path, { name });
+    yield { stage: "ingest", fraction: 0.5 };
+    const { literal: [literal] } = await sync(ctx.daemon, ctx.mode, [path]);
+    yield { stage: "ingest", fraction: 1, done: true, output: { ...served(ctx.mode.freight.catalog, literal), duplicate } };
+  })
+  .open("/media/remove", async (input, ctx) => {
+    const literal = await one(ctx, ONTOLOGY.media, input.slug);
+    if (!literal) throw missing("media", input.slug);
+    const { path } = literal.trait.MEDIA.asset;
+    await Deno.remove(at(ctx, path));
+    await Deno.remove(at(ctx, `derived/${input.slug}`), { recursive: true }).catch(() => {});
+    await sync(ctx.daemon, ctx.mode, [path]);
+    return { slug: input.slug, path };
+  })
+  .open({ nature: "/media/derive", yields: Progress }, async function* (input, ctx) {
+    const literal = await one(ctx, ONTOLOGY.media, input.slug);
+    if (!literal) throw missing("media", input.slug);
+    const derived = yield* admitting(ctx, derive(ctx.mode.mountpoint.absolute, literal.trait.MEDIA, input.kinds ?? undefined));
+    const remembered = await remember(ctx, input.slug, derived);
+    yield { stage: "derive", fraction: 1, done: true, output: served(ctx.mode.freight.catalog, remembered) };
+  })
+  .open("/composition/list", async (input, ctx) =>
+    (await all(ctx, ONTOLOGY.composition)).map((row) => ({ slug: row.slug, id: row.id, updatedAt: row.updatedAt, ...row.trait.COMPOSITION })),
+  )
+  .open("/composition/create", async (input, ctx) => {
+    const document = blank({ name: input.name ?? "Untitled", rate: input.rate, width: input.width, height: input.height });
+    const slug = await freeSlug(ctx, ONTOLOGY.composition, slugify(document.name));
+    return saveComposition(ctx, slug, document);
+  })
+  .open("/composition/read", async (input, ctx) => {
+    const literal = await compositionOf(ctx, input.slug);
+    return { literal, issues: validate(literal.trait.COMPOSITION, await binOf(ctx)) };
+  })
+  .open("/composition/write", async (input, ctx) => {
+    await compositionOf(ctx, input.slug);
+    return saveComposition(ctx, input.slug, input.document);
+  })
+  .open("/composition/remove", async (input, ctx) => {
+    await compositionOf(ctx, input.slug);
+    const path = compositionPath(input.slug);
+    await Deno.remove(at(ctx, path));
+    await sync(ctx.daemon, ctx.mode, [path]);
+    return { slug: input.slug, path };
+  })
+  .open("/annotation/list", async (input, ctx) =>
+    (await all(ctx, ONTOLOGY.annotation)).filter((row) => !input.target || row.trait.ANNOTATION.target === input.target),
+  )
+  .open("/annotation/create", async (input, ctx) => {
+    const fields = v.cast(Annotation, { ...input });
+    if (!v.check(Annotation, fields)) throw new Error(`not an annotation: ${[...v.errors(Annotation, fields)].map((error) => `${error.path} ${error.message}`).join("; ")}`);
+    const store = fork(ctx.daemon);
+    const slug = `${fields.target}.${fields.range.start}.${crypto.randomUUID().slice(0, 8)}`;
+    const row = annotationRow(slug, fields);
+    const literal = store.literal.create({ ...row, symbols: undefined, mode: ctx.mode.id });
+    for (const symbol of await store.symbol.find({ slug: { $in: row.symbols.map((ref) => ref.slug) } })) if (!symbol.mode) literal.symbols.add(symbol);
+    await store.em.flush();
+    literal.assign({ updatedAt: new Date() });
+    await store.em.flush();
+    return literal;
+  })
+  .open("/annotation/write", async (input, ctx) => {
+    const store = fork(ctx.daemon);
+    const literal = await store.literal.findOne({ ontology: ONTOLOGY.annotation, mode: ctx.mode.id, slug: input.slug });
+    if (!literal) throw missing("annotation", input.slug);
+    const fields = { ...literal.trait.ANNOTATION, ...input.fields };
+    if (!v.check(Annotation, fields)) throw new Error(`not an annotation: ${[...v.errors(Annotation, fields)].map((error) => `${error.path} ${error.message}`).join("; ")}`);
+    literal.trait = { ANNOTATION: fields };
+    await store.em.flush();
+    return literal;
+  })
+  .open("/annotation/remove", async (input, ctx) => {
+    const store = fork(ctx.daemon);
+    const literal = await store.literal.findOne({ ontology: ONTOLOGY.annotation, mode: ctx.mode.id, slug: input.slug });
+    if (!literal) throw missing("annotation", input.slug);
+    store.em.remove(literal);
+    await store.em.flush();
+    return { slug: input.slug };
+  })
+  .open({ nature: "/render", yields: Progress }, async function* (input, ctx) {
+    const literal = await compositionOf(ctx, input.slug);
+    const composition = literal.trait.COMPOSITION;
+    const bin = await binOf(ctx);
+    const issues = validate(composition, bin);
+    if (issues.length) throw new Error(`${input.slug} cannot render: ${issues.map((issue) => issue.fault).join("; ")}`);
+    const settings = v.cast(Settings, { ...(input.settings ?? {}) });
+    const path = target(input.slug, composition, settings);
+    stamp(path, { rendered: { composition: input.slug, hash: fingerprint(composition) } });
+    const out = yield* admitting(ctx, render(ctx.mode.mountpoint.absolute, input.slug, composition, bin, settings));
+    const { literal: [row] } = await sync(ctx.daemon, ctx.mode, [out.path]);
+    yield { stage: "render", fraction: 1, done: true, output: served(ctx.mode.freight.catalog, row) };
+  })
+  .open("/export/otio", async (input, ctx) => {
+    const literal = await compositionOf(ctx, input.slug);
+    return otio(input.slug, literal.trait.COMPOSITION, await binOf(ctx));
+  });
+#+END_SRC
+
+** =modes/editor/media/boot.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/boot.js :mkdirp yes
+import { object, v } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+import { INCOMING, digest, settled } from "./ingest.js";
+import { probe } from "./probe.js";
+import { Composition } from "./schema.js";
+import { ONTOLOGY, admitted, compositionPath, compositionRow, mediaRow, scheme } from "./rows.js";
+
+const SETTLE = 250;
+const pending = new Map();
+
+export const fork = (daemon) => {
+  const em = daemon.entities.em.fork();
+  return { em, literal: em.getRepository(daemon.entities.literal.getEntityName()), symbol: em.getRepository(daemon.entities.symbol.getEntityName()) };
+};
+
+export const rows = (store, mode, ontology, fields) => store.literal.find({ ontology, mode: mode.id }, fields ? { fields } : {});
+
+export const ensureScheme = async (store) => {
+  const held = await store.symbol.find({ slug: { $in: scheme.map((symbol) => symbol.slug) } });
+  const present = new Set(held.filter((symbol) => !symbol.mode).map((symbol) => symbol.slug));
+  for (const symbol of scheme) if (!present.has(symbol.slug)) store.symbol.create(symbol);
+  await store.em.flush();
+};
+
+const link = async (store, literal, refs) => {
+  const symbols = await store.symbol.find({ slug: { $in: refs.map((ref) => ref.slug) } });
+  for (const symbol of symbols) if (!symbol.mode && !literal.symbols.contains(symbol)) literal.symbols.add(symbol);
+};
+
+const write = async (store, mode, fresh, known) => {
+  const data = object.omit(fresh, ["symbols"]);
+  if (known) {
+    known.traits = data.traits;
+    known.trait = data.trait;
+    known.ontology = data.ontology;
+    return known;
+  }
+  const literal = store.literal.create({ ...data, mode: mode.id });
+  await link(store, literal, fresh.symbols);
+  return literal;
+};
+
+export const describe = async (root, path) => {
+  const stat = await Deno.stat(`${root}/${path}`).catch(() => null);
+  if (!stat) return null;
+  if (stat.isDirectory) return { path, directory: true };
+  return { path, bytes: stat.size, mtime: stat.mtime?.toISOString() ?? null };
+};
+
+export const stamp = (path, mark) => pending.set(path, { ...(pending.get(path) ?? {}), ...mark });
+
+const canonical = async (root, file) => {
+  const hash = await digest(`${root}/${file.path}`);
+  const path = settled(hash, file.path);
+  if (file.path === path || !file.path.startsWith("media/")) return { ...file, hash };
+  const held = await Deno.stat(`${root}/${path}`).catch(() => null);
+  if (held) await Deno.remove(`${root}/${file.path}`);
+  else await Deno.rename(`${root}/${file.path}`, `${root}/${path}`);
+  return { ...file, hash, path };
+};
+
+const upsertMedia = async (store, mode, file, held) => {
+  const root = mode.mountpoint.absolute;
+  const mark = pending.get(file.path) ?? {};
+  const same = held.find((row) => row.trait.MEDIA.asset.path === file.path);
+  if (same && same.trait.MEDIA.bytes === file.bytes && same.trait.MEDIA.mtime === file.mtime && !mark.name && !mark.rendered) return { literal: same, fresh: false };
+  const name = mark.name ?? same?.trait.MEDIA.name ?? file.path.split("/").pop();
+  const settledFile = await canonical(root, file);
+  const known = same ?? held.find((row) => row.slug === settledFile.hash);
+  const fresh = mediaRow({
+    path: settledFile.path,
+    hash: settledFile.hash,
+    name,
+    bytes: file.bytes,
+    mtime: file.mtime,
+    probe: await probe(`${root}/${settledFile.path}`),
+    derived: known?.trait.MEDIA.derived,
+    rendered: mark.rendered ?? known?.trait.MEDIA.rendered,
+  });
+  mode.freight.admit(settledFile.path);
+  const literal = await write(store, mode, fresh, known);
+  pending.delete(file.path);
+  return { literal, fresh: !known };
+};
+
+const upsertComposition = async (store, mode, file, held) => {
+  const root = mode.mountpoint.absolute;
+  const slug = file.path.slice("compositions/".length, -".json".length);
+  const document = JSON.parse(await Deno.readTextFile(`${root}/${file.path}`));
+  if (!v.check(Composition, document)) throw new Error(`${file.path} is not a composition: ${[...v.errors(Composition, document)].map((error) => `${error.path} ${error.message}`).join("; ")}`);
+  const known = held.find((row) => row.slug === slug);
+  return { literal: await write(store, mode, compositionRow(slug, document), known), fresh: !known };
+};
+
+const ofOntology = (rows, ontology) => rows.filter((row) => row.ontology === ontology);
+
+const pathOf = (row) => (row.ontology === ONTOLOGY.media ? row.trait.MEDIA.asset.path : compositionPath(row.slug));
+
+const belongs = (path) => admitted(path) || (path.startsWith("compositions/") && path.endsWith(".json"));
+
+const skipped = (path) => path.split("/").some((segment) => segment.startsWith(INCOMING) || segment.endsWith(".tmp"));
+
+const reconcile = async (daemon, mode, paths) => {
+  const root = mode.mountpoint.absolute;
+  const store = fork(daemon);
+  const held = [...(await rows(store, mode, ONTOLOGY.media)), ...(await rows(store, mode, ONTOLOGY.composition))];
+  const under = (path) => held.filter((row) => pathOf(row) === path || pathOf(row).startsWith(`${path}/`));
+  const gone = new Set();
+  const files = [];
+  for (const path of paths) {
+    if (skipped(path)) continue;
+    const file = await describe(root, path);
+    if (!file) for (const row of under(path)) gone.add(row);
+    else if (file.directory) {
+      const found = (await paladin.find.index(`${root}/${path}`, mode.statics.ignore)).map((inner) => ({ ...inner, path: `${path}/${inner.path}` }));
+      const present = new Set(found.map((inner) => inner.path));
+      for (const row of under(path)) if (!present.has(pathOf(row))) gone.add(row);
+      files.push(...found.filter((inner) => belongs(inner.path) && !skipped(inner.path)));
+    } else if (belongs(path)) files.push(file);
+  }
+  for (const row of gone) store.em.remove(row);
+  await store.em.flush();
+  const kept = held.filter((row) => !gone.has(row));
+  const literal = [];
+  const created = [];
+  for (const file of files) {
+    try {
+      const { literal: row, fresh } = file.path.startsWith("compositions/")
+        ? await upsertComposition(store, mode, file, ofOntology(kept, ONTOLOGY.composition))
+        : await upsertMedia(store, mode, file, ofOntology(kept, ONTOLOGY.media));
+      if (fresh) created.push(row);
+      literal.push(row);
+    } catch (error) {
+      console.warn(`[MEDIA] ${file.path} skipped: ${error.message.split("\n")[0]}`);
+    }
+  }
+  await store.em.flush();
+  for (const row of created) row.assign({ updatedAt: new Date() });
+  await store.em.flush();
+  return { literal, removed: gone.size };
+};
+
+let chain = Promise.resolve();
+export const sync = (daemon, mode, paths) => (chain = chain.catch(() => {}).then(() => reconcile(daemon, mode, paths)));
+
+export const watch = async (daemon, mode) => {
+  const root = await Deno.realPath(mode.mountpoint.absolute);
+  const ignored = paladin.find.skip(mode.statics.ignore);
+  const watcher = Deno.watchFs(root, { recursive: true });
+  const pending = new Set();
+  let timer = null;
+  const settle = () => {
+    const paths = [...pending];
+    pending.clear();
+    sync(daemon, mode, paths).catch((error) => console.error("[MEDIA:watch]", error));
+  };
+  (async () => {
+    try {
+      for await (const event of watcher) {
+        for (const absolute of event.paths) {
+          const path = absolute.slice(root.length + 1);
+          if (path && !path.split("/").some(ignored) && !path.startsWith("derived/")) pending.add(path);
+        }
+        if (!pending.size) continue;
+        clearTimeout(timer);
+        timer = setTimeout(settle, SETTLE);
+      }
+    } catch (error) {
+      if (!(error instanceof Deno.errors.BadResource)) console.error("[MEDIA:watch]", error);
+    }
+  })();
+  return () => {
+    clearTimeout(timer);
+    watcher.close();
+  };
+};
+
+export async function boot(daemon, mode) {
+  const root = mode.mountpoint.absolute;
+  for (const directory of ["media", "derived", "renders", "compositions"]) await paladin.state.dir(`${root}/${directory}`);
+  await ensureScheme(fork(daemon));
+  const { literal, removed } = await sync(daemon, mode, ["media", "renders", "compositions"]);
+  const store = fork(daemon);
+  console.log(
+    `[MEDIA] ${mode.manifest.type}/${mode.manifest.slug} ${root} ${await store.literal.count({ ontology: ONTOLOGY.media, mode: mode.id })} media · ` +
+      `${await store.literal.count({ ontology: ONTOLOGY.composition, mode: mode.id })} compositions · synced ${literal.length} · pruned ${removed}`,
+  );
+  return watch(daemon, mode);
+}
+#+END_SRC
+
+** =modes/editor/media/buffer/Media.svelte=
+
+#+BEGIN_SRC svelte :tangle ~/.viva/registry/media/modes/editor/media/buffer/Media.svelte :mkdirp yes
+<script>
+  import { untrack } from "svelte";
+  import Bin from "./parts/Bin.svelte";
+  import Monitor from "./parts/Monitor.svelte";
+  import Timeline from "./parts/Timeline.svelte";
+  import Inspector from "./parts/Inspector.svelte";
+  import { duration, history } from "./engine.js";
+  import { frames, clip as makeClip, placeAt, remove, split, trim, move, between, addTrack, lift } from "../composition.js";
+
+  let { terminal, daemon, mode, thread, buffer } = $props();
+
+  let bin = $state.raw([]);
+  let compositions = $state.raw([]);
+  let slug = $state(null);
+  let composition = $state.raw(null);
+  let selection = $state(null);
+  let playhead = $state(0);
+  let playing = $state(false);
+  let zoom = $state(2);
+  let fault = $state(null);
+  let log = $state.raw([]);
+  let busy = $state({});
+  let dirty = $state(false);
+  let width = $state(0);
+
+  const past = history();
+  const byslug = $derived(Object.fromEntries(bin.map((held) => [held.literal.slug, { ...held.literal.trait.MEDIA, url: held.url, derived: held.derived }])));
+  const total = $derived(composition ? duration(composition) : 0);
+  const narrow = $derived(width > 0 && width < 900);
+
+  async function call(route, input, shown = JSON.stringify(input ?? {})) {
+    log = [{ route, arg: shown.slice(0, 80) }, ...untrack(() => log)].slice(0, 3);
+    try {
+      fault = null;
+      const verb = route.split("/").filter(Boolean).reduce((held, key) => held?.[key], mode.call);
+      return await verb(input ?? {});
+    } catch (error) {
+      fault = `${route} · ${error.message}`;
+      return null;
+    }
+  }
+
+  async function* stream(route, input) {
+    const verb = route.split("/").filter(Boolean).reduce((held, key) => held?.[key], mode.call);
+    yield* verb(input ?? {});
+  }
+
+  async function load() {
+    bin = (await call("/media/list")) ?? [];
+    compositions = (await call("/composition/list")) ?? [];
+    const wanted = buffer?.data?.open ?? compositions[0]?.slug ?? null;
+    if (wanted) await open(wanted);
+  }
+
+  async function open(next) {
+    const served = await call("/composition/read", { slug: next });
+    if (!served) return;
+    slug = next;
+    composition = served.literal.trait.COMPOSITION;
+    selection = null;
+    playhead = 0;
+    playing = false;
+    dirty = false;
+    retain();
+  }
+
+  async function retain() {
+    if (!buffer?.id || !daemon.entities?.buffer) return;
+    if (buffer.data?.open === slug) return;
+    buffer.data = { ...buffer.data, open: slug };
+    await daemon.entities.buffer.updateOne({ id: buffer.id }, { data: buffer.data }).catch((error) => (fault = `buffer · ${error.message}`));
+  }
+
+  let saving = null;
+  function commit(next, { record = true } = {}) {
+    if (!next || next === composition) return;
+    if (record) past.push(composition);
+    composition = next;
+    dirty = true;
+    clearTimeout(saving);
+    saving = setTimeout(save, 600);
+  }
+
+  async function save() {
+    if (!slug || !composition) return;
+    const held = composition;
+    const written = await call("/composition/write", { slug, document: held }, `{slug: ${slug}}`);
+    if (written && composition === held) dirty = false;
+    compositions = compositions.map((one) => (one.slug === slug ? { ...one, ...held } : one));
+  }
+
+  async function create() {
+    const name = prompt("Name of the cut", `Cut ${compositions.length + 1}`);
+    if (!name) return;
+    const made = await call("/composition/create", { name });
+    if (!made) return;
+    compositions = [...compositions, { slug: made.slug, ...made.trait.COMPOSITION }];
+    await open(made.slug);
+  }
+
+  function place(trackIndex, frame, mediaSlug) {
+    const media = byslug[mediaSlug];
+    if (!media || !composition) return;
+    const length = Math.max(1, frames(media.duration, composition.rate));
+    const track = composition.tracks[trackIndex];
+    const carries = track.kind === "video" ? media.kind !== "audio" : !!media.audio;
+    if (!carries) {
+      fault = `${media.name} carries no ${track.kind}`;
+      return;
+    }
+    let next = placeAt(composition, trackIndex, frame, makeClip({ media: mediaSlug, duration: length }));
+    if (track.kind === "video" && media.audio) {
+      const audioTrack = next.tracks.findIndex((one) => one.kind === "audio");
+      if (audioTrack >= 0) next = placeAt(next, audioTrack, frame, makeClip({ media: mediaSlug, duration: length }));
+    }
+    commit(next);
+  }
+
+  const edits = {
+    place,
+    select: (held) => (selection = held),
+    split: () => {
+      if (!composition) return;
+      let next = composition;
+      composition.tracks.forEach((_, trackIndex) => (next = split(next, trackIndex, Math.round(playhead))));
+      commit(next);
+    },
+    remove: () => {
+      if (!selection) return;
+      commit(remove(composition, selection.trackIndex, selection.index));
+      selection = null;
+    },
+    lift: () => {
+      if (!selection) return;
+      commit(lift(composition, selection.trackIndex, selection.index));
+      selection = null;
+    },
+    trim: (trackIndex, index, range) => commit(trim(composition, trackIndex, index, range)),
+    move: (trackIndex, from, to) => commit(move(composition, trackIndex, from, to)),
+    between: (trackIndex, index, targetTrack, targetIndex) => commit(between(composition, trackIndex, index, targetTrack, targetIndex)),
+    addTrack: (kind) => commit(addTrack(composition, kind)),
+    patch: (patch) => commit({ ...composition, ...patch }),
+    patchItem: (trackIndex, index, patch) =>
+      commit({ ...composition, tracks: composition.tracks.map((track, i) => (i === trackIndex ? { ...track, items: track.items.map((item, j) => (j === index ? { ...item, ...patch } : item)) } : track)) }),
+    patchTrack: (trackIndex, patch) => commit({ ...composition, tracks: composition.tracks.map((track, i) => (i === trackIndex ? { ...track, ...patch } : track)) }),
+    undo: () => {
+      const held = past.undo(composition);
+      if (held) commit(held, { record: false });
+    },
+    redo: () => {
+      const held = past.redo(composition);
+      if (held) commit(held, { record: false });
+    },
+  };
+
+  async function derive(mediaSlug) {
+    busy = { ...busy, [mediaSlug]: { stage: "derive", fraction: 0 } };
+    try {
+      for await (const step of stream("/media/derive", { slug: mediaSlug })) {
+        busy = { ...busy, [mediaSlug]: step };
+        if (step.done && step.output) bin = bin.map((held) => (held.literal.slug === mediaSlug ? step.output : held));
+      }
+    } catch (error) {
+      fault = `/media/derive · ${error.message}`;
+    }
+    const { [mediaSlug]: _, ...rest } = busy;
+    busy = rest;
+  }
+
+  async function refresh() {
+    bin = (await call("/media/list")) ?? bin;
+  }
+
+  function keys(event) {
+    if (event.target.closest("input, textarea, [contenteditable]")) return;
+    const meta = event.metaKey || event.ctrlKey;
+    if (event.key === " ") {
+      event.preventDefault();
+      playing = !playing;
+    } else if (event.key === "s" && !meta) edits.split();
+    else if (event.key === "Backspace" || event.key === "Delete") {
+      event.preventDefault();
+      event.shiftKey ? edits.lift() : edits.remove();
+    } else if (event.key === "z" && meta) {
+      event.preventDefault();
+      event.shiftKey ? edits.redo() : edits.undo();
+    } else if (event.key === "Home") playhead = 0;
+    else if (event.key === "End") playhead = total;
+    else if (event.key === "ArrowLeft") playhead = Math.max(0, playhead - (event.shiftKey ? composition?.rate ?? 30 : 1));
+    else if (event.key === "ArrowRight") playhead = Math.min(total, playhead + (event.shiftKey ? composition?.rate ?? 30 : 1));
+    else if (event.key === "=" || event.key === "+") zoom = Math.min(20, zoom * 1.25);
+    else if (event.key === "-") zoom = Math.max(0.05, zoom / 1.25);
+  }
+
+  $effect(() => {
+    load();
+  });
+
+  $effect(() =>
+    daemon.entities?.literal?.subscribe?.({ ontology: "media", ...(mode?.id && { mode: mode.id }) }, () => refresh()),
+  );
+</script>
+
+<svelte:window onkeydown={keys} />
+
+<div class="media" class:narrow bind:clientWidth={width}>
+  <header class="bar">
+    <span class="title">{mode.manifest?.name ?? "Media"}</span>
+    <select class="cuts" value={slug ?? ""} onchange={(event) => event.target.value && open(event.target.value)}>
+      <option value="" disabled>— cut —</option>
+      {#each compositions as one (one.slug)}
+        <option value={one.slug}>{one.name}</option>
+      {/each}
+    </select>
+    <button class="ghost" onclick={create}>new cut</button>
+    <span class="grow"></span>
+    {#if dirty}<span class="pip">unsaved</span>{/if}
+    <span class="pip muted">{bin.length} in bin · {compositions.length} cuts</span>
+  </header>
+
+  <section class="bin"><Bin {bin} {daemon} {mode} {busy} {derive} onarrived={refresh} onfault={(message) => (fault = message)} /></section>
+  <section class="monitor"><Monitor {composition} {byslug} bind:playhead bind:playing /></section>
+  <section class="inspector"><Inspector {composition} {slug} {byslug} {selection} {edits} {stream} {call} onrendered={refresh} /></section>
+  <section class="timeline">
+    {#if composition}
+      <Timeline {composition} {byslug} {selection} {edits} bind:playhead bind:zoom {playing} />
+    {:else}
+      <div class="empty">no cut open — make one with “new cut”</div>
+    {/if}
+  </section>
+
+  <footer class="status">
+    {#if fault}<span class="fault">{fault}</span>{/if}
+    {#each log as entry}<span class="entry">{entry.route} {entry.arg}</span>{/each}
+  </footer>
+</div>
+
+<style>
+  .media {
+    height: 100%;
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr) 280px;
+    grid-template-rows: auto minmax(160px, 1fr) minmax(200px, 45%) auto;
+    grid-template-areas:
+      "bar bar bar"
+      "bin monitor inspector"
+      "timeline timeline timeline"
+      "status status status";
+    background: var(--colors-skeleton-0-surface);
+    color: var(--colors-skeleton-0-contrast);
+    font-family: var(--font-family-sans-text);
+    font-size: var(--font-size-sm);
+    overflow: hidden;
+  }
+  .media.narrow {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(140px, 1fr) minmax(180px, 40%) auto auto;
+    grid-template-areas: "bar" "bin" "monitor" "timeline" "inspector" "status";
+  }
+  .bar { grid-area: bar; display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-bottom: 1px solid var(--colors-skeleton-1-boundary); }
+  .title { font-weight: 600; }
+  .cuts { background: var(--colors-skeleton-2-surface); color: inherit; border: 1px solid var(--colors-skeleton-2-boundary); border-radius: var(--border-radius-sm); padding: 2px 6px; }
+  .ghost { background: transparent; color: var(--colors-skeleton-0-primary-base); border: 1px solid var(--colors-skeleton-2-boundary); border-radius: var(--border-radius-sm); padding: 2px 8px; cursor: pointer; }
+  .grow { flex: 1; }
+  .pip { font-size: var(--font-size-2xs); padding: 1px 6px; border-radius: var(--border-radius-sm); background: var(--colors-skeleton-0-warning-base); color: var(--colors-skeleton-0-contrast); }
+  .pip.muted { background: var(--colors-skeleton-2-surface); color: var(--text-support); }
+  .bin { grid-area: bin; min-height: 0; overflow: hidden; border-right: 1px solid var(--colors-skeleton-1-boundary); }
+  .monitor { grid-area: monitor; min-height: 0; overflow: hidden; }
+  .inspector { grid-area: inspector; min-height: 0; overflow: auto; border-left: 1px solid var(--colors-skeleton-1-boundary); }
+  .timeline { grid-area: timeline; min-height: 0; overflow: hidden; border-top: 1px solid var(--colors-skeleton-1-boundary); }
+  .empty { height: 100%; display: grid; place-items: center; color: var(--text-support); }
+  .status { grid-area: status; display: flex; gap: 12px; padding: 3px 10px; font-family: var(--font-family-code); font-size: var(--font-size-2xs); color: var(--text-support); border-top: 1px solid var(--colors-skeleton-1-boundary); overflow: hidden; white-space: nowrap; }
+  .fault { color: var(--colors-skeleton-0-warning-base); }
+</style>
+#+END_SRC
+
+** =modes/editor/media/buffer/engine.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/buffer/engine.js :mkdirp yes
+import { duration, locate, offsets, seconds } from "../composition.js";
+
+export { duration, locate, offsets, seconds };
+
+const pad = (value, width = 2) => String(value).padStart(width, "0");
+
+export const timecode = (frame, rate) => {
+  const whole = Math.max(0, Math.floor(frame));
+  const total = Math.floor(whole / rate);
+  return `${pad(Math.floor(total / 3600))}:${pad(Math.floor((total % 3600) / 60))}:${pad(total % 60)}:${pad(whole % rate)}`;
+};
+
+export const clock = (value) => {
+  const total = Math.max(0, Math.round(value));
+  return `${pad(Math.floor(total / 60))}:${pad(total % 60)}`;
+};
+
+export const bytes = (value) => {
+  if (value < 1024) return `${value} B`;
+  if (value < 1024 ** 2) return `${(value / 1024).toFixed(0)} KB`;
+  if (value < 1024 ** 3) return `${(value / 1024 ** 2).toFixed(1)} MB`;
+  return `${(value / 1024 ** 3).toFixed(2)} GB`;
+};
+
+export const under = (composition, frame) =>
+  composition.tracks.map((track) => {
+    const found = locate(track, frame);
+    return found && found.item.type === "clip" ? { clip: found.item, local: found.local, at: found.at } : null;
+  });
+
+export const visible = (composition, frame) => {
+  const rows = under(composition, frame);
+  for (let i = composition.tracks.length - 1; i >= 0; i--) if (composition.tracks[i].kind === "video" && rows[i] && !composition.tracks[i].mute) return { trackIndex: i, ...rows[i] };
+  return null;
+};
+
+export const source = (media) => media.derived?.proxy ?? media.url;
+
+export const peaksFor = (peaks, item, rate) => {
+  if (!peaks) return [];
+  const from = Math.floor(seconds(item.source.start, rate) * peaks.perSecond);
+  const to = Math.ceil(seconds(item.source.start + item.source.duration, rate) * peaks.perSecond);
+  return peaks.peaks.slice(from, to);
+};
+
+export const drawPeaks = (canvas, bins, color) => {
+  const context = canvas.getContext("2d");
+  const { width, height } = canvas;
+  context.clearRect(0, 0, width, height);
+  if (!bins.length) return;
+  context.fillStyle = color;
+  const step = width / bins.length;
+  const middle = height / 2;
+  for (let i = 0; i < bins.length; i++) {
+    const magnitude = Math.max(1, bins[i] * middle);
+    context.fillRect(i * step, middle - magnitude, Math.max(1, step - 0.5), magnitude * 2);
+  }
+};
+
+export const thumbsFor = (thumbs, item, rate, count) => {
+  if (!thumbs?.frames?.length) return [];
+  const start = seconds(item.source.start, rate);
+  const span = seconds(item.source.duration, rate);
+  return Array.from({ length: count }, (_, i) => {
+    const at = start + (span * (i + 0.5)) / count;
+    const index = Math.min(thumbs.frames.length - 1, Math.floor(at / thumbs.every));
+    return thumbs.frames[index];
+  });
+};
+
+export const snapshot = (composition) => JSON.stringify(composition);
+
+export const history = () => {
+  const past = [];
+  const future = [];
+  return {
+    push(held) {
+      past.push(snapshot(held));
+      if (past.length > 100) past.shift();
+      future.length = 0;
+    },
+    undo(current) {
+      const held = past.pop();
+      if (!held) return null;
+      future.push(snapshot(current));
+      return JSON.parse(held);
+    },
+    redo(current) {
+      const held = future.pop();
+      if (!held) return null;
+      past.push(snapshot(current));
+      return JSON.parse(held);
+    },
+    get depth() {
+      return past.length;
+    },
+  };
+};
+#+END_SRC
+
+** =modes/editor/media/buffer/parts/Bin.svelte=
+
+#+BEGIN_SRC svelte :tangle ~/.viva/registry/media/modes/editor/media/buffer/parts/Bin.svelte :mkdirp yes
+<script>
+  import { clock, bytes } from "../engine.js";
+  import { send, download, dragOut, dropped } from "../upload.js";
+
+  let { bin, daemon, mode, busy, derive, onarrived, onfault } = $props();
+
+  let over = $state(false);
+  let path = $state("");
+  let move = $state(false);
+  let uploads = $state.raw([]);
+  let filter = $state("");
+
+  const listed = $derived(bin.filter((held) => !filter || held.literal.trait.MEDIA.name.toLowerCase().includes(filter.toLowerCase())));
+
+  async function upload(files) {
+    for (const file of files) {
+      const entry = { name: file.name, fraction: 0, done: false };
+      uploads = [...uploads, entry];
+      try {
+        for await (const step of send(daemon, mode, file)) {
+          uploads = uploads.map((held) => (held === entry ? { ...held, fraction: step.fraction, done: !!step.done } : held));
+          if (step.done) {
+            const duplicate = step.output?.duplicate ? " (already in the bin)" : "";
+            uploads = uploads.map((held) => (held.name === file.name ? { ...held, note: duplicate } : held));
+          }
+        }
+      } catch (error) {
+        onfault?.(`upload ${file.name} · ${error.message}`);
+      }
+    }
+    uploads = uploads.filter((held) => !held.done);
+    onarrived?.();
+  }
+
+  function drop(event) {
+    event.preventDefault();
+    over = false;
+    const files = dropped(event);
+    if (files.length) upload(files);
+  }
+
+  async function importPath() {
+    const wanted = path.trim();
+    if (!wanted) return;
+    try {
+      await mode.call.media.import({ path: wanted, move });
+      path = "";
+      onarrived?.();
+    } catch (error) {
+      onfault?.(`/media/import · ${error.message}`);
+    }
+  }
+
+  async function remove(slug) {
+    try {
+      await mode.call.media.remove({ slug });
+      onarrived?.();
+    } catch (error) {
+      onfault?.(`/media/remove · ${error.message}`);
+    }
+  }
+
+  function lift(event, held) {
+    event.dataTransfer.effectAllowed = "copyMove";
+    event.dataTransfer.setData("application/x-viva-media", held.literal.slug);
+    if (held.url) dragOut(event, { url: held.url, name: held.literal.trait.MEDIA.name, type: held.literal.trait.MEDIA.mime });
+  }
+
+  function pick() {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.multiple = true;
+    input.accept = "video/*,audio/*,image/*";
+    input.onchange = () => upload([...input.files]);
+    input.click();
+  }
+</script>
+
+<div class="bin" class:over ondragover={(event) => { event.preventDefault(); over = true; }} ondragleave={() => (over = false)} ondrop={drop} role="list">
+  <div class="head">
+    <input class="filter" placeholder="filter" bind:value={filter} />
+    <button class="ghost" onclick={pick}>add</button>
+  </div>
+  <div class="path">
+    <input placeholder="/absolute/path/to/file.mp4" bind:value={path} onkeydown={(event) => event.key === "Enter" && importPath()} />
+    <label><input type="checkbox" bind:checked={move} /> move</label>
+    <button class="ghost" onclick={importPath}>import</button>
+  </div>
+  <div class="rows">
+    {#each uploads as held (held.name)}
+      <div class="row uploading">
+        <span class="name">{held.name}</span>
+        <span class="meter"><span class="fill" style:width="{Math.round(held.fraction * 100)}%"></span></span>
+      </div>
+    {/each}
+    {#each listed as held (held.literal.slug)}
+      {@const media = held.literal.trait.MEDIA}
+      {@const working = busy[held.literal.slug]}
+      <div class="row" draggable="true" ondragstart={(event) => lift(event, held)} role="listitem">
+        <span class="kind {media.kind}">{media.kind[0]}</span>
+        <span class="name" title={media.asset.path}>{media.name}</span>
+        <span class="meta">{clock(media.duration)} · {bytes(media.bytes)}{#if media.video} · {media.video.width}×{media.video.height}{/if}{#if media.rendered} · rendered{/if}</span>
+        <span class="acts">
+          {#if working}
+            <span class="meter"><span class="fill" style:width="{Math.round(working.fraction * 100)}%"></span></span>
+            <span class="stage">{working.stage}</span>
+          {:else}
+            <button class="tiny" title="peaks · thumbs · proxy" class:done={media.derived?.proxy || media.derived?.peaks} onclick={() => derive(held.literal.slug)}>derive</button>
+            <button class="tiny" onclick={() => download(held.url, media.name)}>save</button>
+            <button class="tiny" onclick={() => remove(held.literal.slug)}>×</button>
+          {/if}
+        </span>
+      </div>
+    {/each}
+    {#if !listed.length && !uploads.length}
+      <div class="empty">drop files here, or import by path</div>
+    {/if}
+  </div>
+</div>
+
+<style>
+  .bin { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+  .bin.over { outline: 2px dashed var(--colors-skeleton-0-primary-base); outline-offset: -4px; }
+  .head, .path { display: flex; gap: 6px; align-items: center; padding: 6px 8px; border-bottom: 1px solid var(--colors-skeleton-1-boundary); }
+  .path label { font-size: var(--font-size-2xs); color: var(--text-support); display: flex; align-items: center; gap: 3px; white-space: nowrap; }
+  input:not([type="checkbox"]) { flex: 1; min-width: 0; background: var(--colors-skeleton-2-surface); color: inherit; border: 1px solid var(--colors-skeleton-2-boundary); border-radius: var(--border-radius-sm); padding: 3px 6px; font-size: var(--font-size-xs); }
+  .ghost, .tiny { background: transparent; color: var(--colors-skeleton-0-primary-base); border: 1px solid var(--colors-skeleton-2-boundary); border-radius: var(--border-radius-sm); padding: 2px 8px; cursor: pointer; font-size: var(--font-size-xs); }
+  .tiny { padding: 0 5px; font-size: var(--font-size-2xs); }
+  .tiny.done { color: var(--text-support); }
+  .rows { flex: 1; overflow: auto; }
+  .row { display: grid; grid-template-columns: 18px minmax(0, 1fr); grid-template-areas: "kind name" "kind meta" "kind acts"; gap: 1px 6px; padding: 5px 8px; border-bottom: 1px solid var(--colors-skeleton-1-boundary); cursor: grab; }
+  .row:hover { background: var(--colors-skeleton-2-surface); }
+  .row.uploading { grid-template-areas: "kind name" "kind meta"; cursor: progress; }
+  .kind { grid-area: kind; width: 16px; height: 16px; border-radius: 3px; display: grid; place-items: center; font-size: var(--font-size-2xs); text-transform: uppercase; background: var(--colors-skeleton-3-surface); color: var(--colors-skeleton-3-contrast); }
+  .kind.video { background: var(--colors-skeleton-0-primary-base); color: var(--colors-skeleton-0-contrast); }
+  .name { grid-area: name; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .meta { grid-area: meta; font-size: var(--font-size-2xs); color: var(--text-support); }
+  .acts { grid-area: acts; display: flex; gap: 4px; align-items: center; }
+  .meter { flex: 1; height: 4px; background: var(--colors-skeleton-3-surface); border-radius: 2px; overflow: hidden; }
+  .fill { display: block; height: 100%; background: var(--colors-skeleton-0-primary-base); }
+  .stage { font-size: var(--font-size-2xs); color: var(--text-support); }
+  .empty { padding: 20px 10px; color: var(--text-support); text-align: center; }
+</style>
+#+END_SRC
+
+** =modes/editor/media/buffer/parts/Clip.svelte=
+
+#+BEGIN_SRC svelte :tangle ~/.viva/registry/media/modes/editor/media/buffer/parts/Clip.svelte :mkdirp yes
+<script>
+  import { drawPeaks, peaksFor, thumbsFor } from "../engine.js";
+
+  let { item, media, kind, rate, width, height, selected, peaks, onselect, ontrim, onlift } = $props();
+
+  let canvas = $state(null);
+  const frames = $derived(kind === "video" && media?.derived?.thumbs ? thumbsFor(media.derived.thumbs, item, rate, Math.max(1, Math.floor(width / 60))) : []);
+  const bins = $derived(kind === "audio" ? peaksFor(peaks, item, rate) : []);
+
+  $effect(() => {
+    if (!canvas) return;
+    canvas.width = Math.max(1, Math.floor(width));
+    canvas.height = Math.max(1, Math.floor(height));
+    drawPeaks(canvas, bins, getComputedStyle(canvas).getPropertyValue("--wave").trim() || "currentColor");
+  });
+
+  function handle(edge) {
+    return (event) => {
+      event.stopPropagation();
+      event.preventDefault();
+      const origin = event.clientX;
+      const start = item.source.start;
+      const held = item.source.duration;
+      const perPixel = 1 / (width / held);
+      const move = (moving) => {
+        const delta = Math.round((moving.clientX - origin) * perPixel);
+        if (edge === "left") ontrim({ start: Math.max(0, start + delta), duration: Math.max(1, held - delta) });
+        else ontrim({ duration: Math.max(1, held + delta) });
+      };
+      const up = () => {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", up);
+      };
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", up);
+    };
+  }
+</script>
+
+<div
+  class="clip {kind}"
+  class:selected
+  class:missing={!media}
+  style:width="{width}px"
+  draggable="true"
+  ondragstart={onlift}
+  onclick={(event) => { event.stopPropagation(); onselect(); }}
+  onkeydown={(event) => (event.key === "Enter" || event.key === " ") && onselect()}
+  role="button"
+  tabindex="-1"
+  title={media?.name ?? item.media}
+>
+  {#if kind === "video"}
+    <div class="strip">
+      {#each frames as frame, i (i)}<img src={frame} alt="" draggable="false" />{/each}
+    </div>
+  {:else}
+    <canvas bind:this={canvas}></canvas>
+  {/if}
+  <span class="label">{media?.name ?? item.media}{#if item.gain !== undefined && item.gain !== 1} · {Math.round(item.gain * 100)}%{/if}{#if item.opacity !== undefined && item.opacity < 1} · {Math.round(item.opacity * 100)}%{/if}</span>
+  <span class="edge left" onpointerdown={handle("left")}></span>
+  <span class="edge right" onpointerdown={handle("right")}></span>
+</div>
+
+<style>
+  .clip { --wave: var(--colors-skeleton-0-primary-base); position: relative; height: 100%; box-sizing: border-box; border: 1px solid var(--colors-skeleton-3-boundary); border-radius: var(--border-radius-sm); background: var(--colors-skeleton-3-surface); overflow: hidden; cursor: grab; user-select: none; }
+  .clip.video { background: var(--colors-skeleton-4-surface); }
+  .clip.selected { border-color: var(--colors-skeleton-0-primary-base); box-shadow: inset 0 0 0 1px var(--colors-skeleton-0-primary-base); }
+  .clip.missing { border-style: dashed; border-color: var(--colors-skeleton-0-warning-base); }
+  .strip { position: absolute; inset: 0; display: flex; }
+  .strip img { height: 100%; flex: 1; object-fit: cover; min-width: 0; opacity: 0.85; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .label { position: absolute; left: 6px; top: 2px; right: 6px; font-size: var(--font-size-2xs); color: var(--colors-skeleton-0-contrast); text-shadow: 0 0 3px var(--colors-skeleton-4-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+  .edge { position: absolute; top: 0; bottom: 0; width: 6px; cursor: ew-resize; }
+  .edge.left { left: 0; }
+  .edge.right { right: 0; }
+  .edge:hover { background: var(--colors-skeleton-0-primary-base); opacity: 0.6; }
+</style>
+#+END_SRC
+
+** =modes/editor/media/buffer/parts/Inspector.svelte=
+
+#+BEGIN_SRC svelte :tangle ~/.viva/registry/media/modes/editor/media/buffer/parts/Inspector.svelte :mkdirp yes
+<script>
+  import { clock, timecode } from "../engine.js";
+  import { download } from "../upload.js";
+
+  let { composition, slug, byslug, selection, edits, stream, call, onrendered } = $props();
+
+  let rendering = $state(null);
+  let rendered = $state.raw([]);
+  let format = $state("mp4");
+  let preset = $state("medium");
+  let crf = $state(20);
+  let issues = $state.raw([]);
+
+  const item = $derived(selection && composition ? composition.tracks[selection.trackIndex]?.items[selection.index] : null);
+  const track = $derived(selection && composition ? composition.tracks[selection.trackIndex] : null);
+  const media = $derived(item?.type === "clip" ? byslug[item.media] : null);
+  const outputs = $derived(Object.values(byslug).filter((held) => held.rendered?.composition === slug));
+
+  async function render() {
+    if (!slug) return;
+    rendering = { stage: "render", fraction: 0 };
+    issues = [];
+    try {
+      for await (const step of stream("/render", { slug, settings: { format, preset, crf: Number(crf) } })) {
+        rendering = step;
+        if (step.done && step.output) rendered = [step.output, ...rendered];
+      }
+      onrendered?.();
+    } catch (error) {
+      issues = [error.message];
+    }
+    rendering = null;
+  }
+
+  async function exportOtio() {
+    const timeline = await call("/export/otio", { slug });
+    if (!timeline) return;
+    const blob = new Blob([JSON.stringify(timeline, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${slug}.otio`;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  }
+
+  const number = (value, fallback) => (Number.isFinite(Number(value)) ? Number(value) : fallback);
+</script>
+
+<div class="inspector">
+  {#if composition}
+    <section>
+      <h3>cut</h3>
+      <label>name <input value={composition.name} onchange={(event) => edits.patch({ name: event.target.value })} /></label>
+      <label>rate <input type="number" min="1" max="240" value={composition.rate} onchange={(event) => edits.patch({ rate: number(event.target.value, composition.rate) })} /></label>
+      <label>size
+        <span class="pair">
+          <input type="number" min="16" value={composition.width} onchange={(event) => edits.patch({ width: number(event.target.value, composition.width) })} />
+          ×
+          <input type="number" min="16" value={composition.height} onchange={(event) => edits.patch({ height: number(event.target.value, composition.height) })} />
+        </span>
+      </label>
+    </section>
+
+    {#if item && track}
+      <section>
+        <h3>{track.kind} clip</h3>
+        <div class="row"><span>media</span><span class="value" title={item.media}>{media?.name ?? item.media}</span></div>
+        <label>in <input type="number" min="0" value={item.source.start} onchange={(event) => edits.trim(selection.trackIndex, selection.index, { start: number(event.target.value, item.source.start) })} /></label>
+        <label>length <input type="number" min="1" value={item.source.duration} onchange={(event) => edits.trim(selection.trackIndex, selection.index, { duration: number(event.target.value, item.source.duration) })} /></label>
+        <div class="row"><span>span</span><span class="value">{timecode(item.source.start, composition.rate)} → {timecode(item.source.start + item.source.duration, composition.rate)}</span></div>
+        {#if track.kind === "audio"}
+          <label>gain <input type="range" min="0" max="2" step="0.05" value={item.gain ?? 1} oninput={(event) => edits.patchItem(selection.trackIndex, selection.index, { gain: Number(event.target.value) })} /> <span class="value">{Math.round((item.gain ?? 1) * 100)}%</span></label>
+        {:else}
+          <label>opacity <input type="range" min="0" max="1" step="0.05" value={item.opacity ?? 1} oninput={(event) => edits.patchItem(selection.trackIndex, selection.index, { opacity: Number(event.target.value) })} /> <span class="value">{Math.round((item.opacity ?? 1) * 100)}%</span></label>
+        {/if}
+        {#if media}
+          <div class="row"><span>source</span><span class="value">{clock(media.duration)}{#if media.video} · {media.video.width}×{media.video.height} @ {media.video.fps}{/if}{#if media.audio} · {media.audio.rate} Hz{/if}</span></div>
+        {/if}
+      </section>
+    {:else}
+      <section class="hint">select a clip to trim it, set gain or opacity</section>
+    {/if}
+
+    <section>
+      <h3>render</h3>
+      <label>format
+        <select bind:value={format}><option value="mp4">mp4 (h264 + aac)</option><option value="wav">wav (audio only)</option><option value="mp3">mp3 (audio only)</option></select>
+      </label>
+      {#if format === "mp4"}
+        <label>preset <select bind:value={preset}>{#each ["ultrafast", "veryfast", "fast", "medium", "slow"] as one}<option value={one}>{one}</option>{/each}</select></label>
+        <label>crf <input type="number" min="0" max="51" bind:value={crf} /></label>
+      {/if}
+      {#if rendering}
+        <div class="meter"><span class="fill" style:width="{Math.round(rendering.fraction * 100)}%"></span></div>
+        <div class="row"><span>{rendering.stage}</span><span class="value">{Math.round(rendering.fraction * 100)}%</span></div>
+      {:else}
+        <div class="acts">
+          <button class="primary" onclick={render}>render</button>
+          <button onclick={exportOtio}>export .otio</button>
+        </div>
+      {/if}
+      {#each issues as issue}<div class="issue">{issue}</div>{/each}
+      {#if outputs.length}
+        <h4>outputs</h4>
+        {#each outputs as out (out.hash)}
+          <div class="row out">
+            <span class="value" title={out.asset.path}>{out.name}</span>
+            <button class="tiny" onclick={() => download(out.url, out.name)}>save</button>
+          </div>
+        {/each}
+      {/if}
+    </section>
+  {/if}
+</div>
+
+<style>
+  .inspector { padding: 8px 10px; display: flex; flex-direction: column; gap: 12px; }
+  section { display: flex; flex-direction: column; gap: 5px; }
+  h3 { margin: 0 0 2px; font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-support); }
+  h4 { margin: 6px 0 0; font-size: var(--font-size-2xs); color: var(--text-support); }
+  label { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: 6px; font-size: var(--font-size-xs); color: var(--text-support); }
+  input, select { min-width: 0; width: 100%; background: var(--colors-skeleton-2-surface); color: var(--colors-skeleton-0-contrast); border: 1px solid var(--colors-skeleton-2-boundary); border-radius: var(--border-radius-sm); padding: 2px 6px; font-size: var(--font-size-xs); }
+  input[type="range"] { padding: 0; }
+  .pair { display: flex; align-items: center; gap: 4px; }
+  .row { display: flex; justify-content: space-between; gap: 8px; font-size: var(--font-size-xs); color: var(--text-support); }
+  .value { color: var(--colors-skeleton-0-contrast); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hint { color: var(--text-support); font-size: var(--font-size-xs); }
+  .acts { display: flex; gap: 6px; }
+  button { background: transparent; color: var(--colors-skeleton-0-contrast); border: 1px solid var(--colors-skeleton-2-boundary); border-radius: var(--border-radius-sm); padding: 3px 10px; font-size: var(--font-size-xs); cursor: pointer; }
+  .primary { color: var(--colors-skeleton-0-primary-base); border-color: var(--colors-skeleton-0-primary-base); }
+  .tiny { padding: 0 6px; font-size: var(--font-size-2xs); }
+  .meter { height: 6px; background: var(--colors-skeleton-3-surface); border-radius: 3px; overflow: hidden; }
+  .fill { display: block; height: 100%; background: var(--colors-skeleton-0-primary-base); }
+  .issue { font-size: var(--font-size-2xs); color: var(--colors-skeleton-0-warning-base); }
+  .out { align-items: center; }
+</style>
+#+END_SRC
+
+** =modes/editor/media/buffer/parts/Monitor.svelte=
+
+#+BEGIN_SRC svelte :tangle ~/.viva/registry/media/modes/editor/media/buffer/parts/Monitor.svelte :mkdirp yes
+<script>
+  import { duration, locate, seconds, source, timecode, visible } from "../engine.js";
+
+  let { composition, byslug, playhead = $bindable(0), playing = $bindable(false) } = $props();
+
+  const TOLERANCE = 0.08;
+  let elements = $state({});
+  let frame = $state(null);
+  let volume = $state(1);
+
+  const total = $derived(composition ? duration(composition) : 0);
+  const rate = $derived(composition?.rate ?? 30);
+  const shown = $derived(composition ? visible(composition, playhead) : null);
+
+  const aspect = $derived(composition ? `${composition.width} / ${composition.height}` : "16 / 9");
+
+  function bind(node, trackIndex) {
+    elements[trackIndex] = node;
+    return { destroy: () => delete elements[trackIndex] };
+  }
+
+  function settle(node, media, target, { play }) {
+    const wanted = source(media);
+    if (node.dataset.src !== wanted) {
+      node.dataset.src = wanted;
+      node.src = wanted;
+      node.load();
+    }
+    if (Math.abs(node.currentTime - target) > TOLERANCE || !play) node.currentTime = target;
+    if (play && node.paused) node.play().catch(() => {});
+    if (!play && !node.paused) node.pause();
+  }
+
+  function drive() {
+    if (!composition) return;
+    composition.tracks.forEach((track, trackIndex) => {
+      const node = elements[trackIndex];
+      if (!node) return;
+      const found = locate(track, playhead);
+      const clip = found && found.item.type === "clip" ? found.item : null;
+      const media = clip && byslug[clip.media];
+      if (!clip || !media || track.mute) {
+        if (!node.paused) node.pause();
+        return;
+      }
+      const target = seconds(clip.source.start + found.local, rate);
+      if (track.kind === "audio") node.volume = Math.min(1, (clip.gain ?? 1) * volume);
+      settle(node, media, target, { play: playing && (track.kind === "audio" || shown?.trackIndex === trackIndex) });
+    });
+  }
+
+  $effect(() => {
+    playhead;
+    playing;
+    composition;
+    drive();
+  });
+
+  $effect(() => {
+    if (!playing) return;
+    let last = performance.now();
+    let handle = requestAnimationFrame(function tick(now) {
+      playhead = Math.min(total, playhead + ((now - last) / 1000) * rate);
+      last = now;
+      if (playhead >= total) {
+        playing = false;
+        return;
+      }
+      handle = requestAnimationFrame(tick);
+    });
+    return () => cancelAnimationFrame(handle);
+  });
+
+  const step = (delta) => (playhead = Math.max(0, Math.min(total, Math.round(playhead) + delta)));
+</script>
+
+<div class="monitor">
+  <div class="screen" style:aspect-ratio={aspect}>
+    {#if composition}
+      {#each composition.tracks as track, trackIndex (trackIndex)}
+        {#if track.kind === "video"}
+          <video use:bind={trackIndex} muted playsinline preload="auto" class:shown={shown?.trackIndex === trackIndex} style:opacity={shown?.trackIndex === trackIndex ? (shown.clip.opacity ?? 1) : 0}></video>
+        {:else}
+          <audio use:bind={trackIndex} preload="auto"></audio>
+        {/if}
+      {/each}
+      {#if !shown}<div class="black"></div>{/if}
+    {:else}
+      <div class="black"></div>
+    {/if}
+  </div>
+  <div class="transport">
+    <button onclick={() => (playhead = 0)} title="home">⇤</button>
+    <button onclick={() => step(-1)} title="one frame back">‹</button>
+    <button class="play" onclick={() => (playing = !playing)}>{playing ? "▮▮" : "▶"}</button>
+    <button onclick={() => step(1)} title="one frame on">›</button>
+    <button onclick={() => (playhead = total)} title="end">⇥</button>
+    <span class="code">{timecode(playhead, rate)}</span>
+    <span class="sep">/</span>
+    <span class="code muted">{timecode(total, rate)}</span>
+    <span class="grow"></span>
+    <input type="range" min="0" max="1" step="0.05" bind:value={volume} title="monitor volume" />
+  </div>
+</div>
+
+<style>
+  .monitor { height: 100%; display: flex; flex-direction: column; min-height: 0; background: var(--colors-skeleton-1-surface, var(--colors-skeleton-0-surface)); }
+  .screen { position: relative; flex: 1; min-height: 0; margin: 8px auto; max-width: 100%; max-height: calc(100% - 44px); background: var(--colors-skeleton-4-surface); border-radius: var(--border-radius-default); overflow: hidden; }
+  video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+  .black { position: absolute; inset: 0; background: var(--colors-skeleton-4-surface); }
+  .transport { display: flex; align-items: center; gap: 4px; padding: 4px 10px; border-top: 1px solid var(--colors-skeleton-1-boundary); }
+  button { background: transparent; color: var(--colors-skeleton-0-contrast); border: 1px solid var(--colors-skeleton-2-boundary); border-radius: var(--border-radius-sm); min-width: 26px; height: 24px; cursor: pointer; }
+  .play { min-width: 40px; color: var(--colors-skeleton-0-primary-base); }
+  .code { font-family: var(--font-family-code); font-size: var(--font-size-xs); margin-left: 8px; }
+  .muted, .sep { color: var(--text-support); }
+  .grow { flex: 1; }
+  input[type="range"] { width: 80px; }
+</style>
+#+END_SRC
+
+** =modes/editor/media/buffer/parts/Timeline.svelte=
+
+#+BEGIN_SRC svelte :tangle ~/.viva/registry/media/modes/editor/media/buffer/parts/Timeline.svelte :mkdirp yes
+<script>
+  import Clip from "./Clip.svelte";
+  import { duration, offsets, timecode } from "../engine.js";
+  import { length, locate } from "../../composition.js";
+
+  let { composition, byslug, selection, edits, playhead = $bindable(0), zoom = $bindable(2), playing } = $props();
+
+  const HEAD = 90;
+  const ROW = 56;
+  let scroller = $state(null);
+  let peaks = $state({});
+  let hover = $state(null);
+
+  const rate = $derived(composition.rate);
+  const total = $derived(duration(composition));
+  const width = $derived(Math.max(600, (total + rate * 10) * zoom));
+  const ticks = $derived.by(() => {
+    const every = zoom >= 8 ? rate / 2 : zoom >= 3 ? rate : zoom >= 1 ? rate * 5 : zoom >= 0.3 ? rate * 30 : rate * 60;
+    const out = [];
+    for (let frame = 0; frame <= total + rate * 10; frame += every) out.push(frame);
+    return out;
+  });
+
+  $effect(() => {
+    for (const slug of new Set(composition.tracks.flatMap((track) => track.items.filter((item) => item.type === "clip").map((item) => item.media)))) {
+      const media = byslug[slug];
+      if (!media?.derived?.peaks || peaks[slug] !== undefined) continue;
+      peaks[slug] = null;
+      fetch(media.derived.peaks).then((response) => response.json()).then((held) => (peaks[slug] = held)).catch(() => (peaks[slug] = null));
+    }
+  });
+
+  const frameAt = (event, node) => {
+    const rect = node.getBoundingClientRect();
+    return Math.max(0, Math.round((event.clientX - rect.left) / zoom));
+  };
+
+  function scrub(event) {
+    const lane = event.currentTarget;
+    playhead = Math.min(total, frameAt(event, lane));
+    const move = (moving) => (playhead = Math.min(total, frameAt(moving, lane)));
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  }
+
+  function lift(trackIndex, index) {
+    return (event) => {
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("application/x-viva-item", JSON.stringify({ trackIndex, index }));
+    };
+  }
+
+  function drop(trackIndex) {
+    return (event) => {
+      event.preventDefault();
+      hover = null;
+      const lane = event.currentTarget;
+      const frame = frameAt(event, lane);
+      const media = event.dataTransfer.getData("application/x-viva-media");
+      if (media) return edits.place(trackIndex, frame, media);
+      const moved = event.dataTransfer.getData("application/x-viva-item");
+      if (!moved) return;
+      const { trackIndex: from, index } = JSON.parse(moved);
+      const track = composition.tracks[trackIndex];
+      const found = locate(track, frame);
+      const target = found ? (found.local > length(found.item) / 2 ? found.index + 1 : found.index) : track.items.length;
+      if (from === trackIndex) edits.move(from, index, target);
+      else if (composition.tracks[from].kind === track.kind) edits.between(from, index, trackIndex, target);
+    };
+  }
+
+  function wheel(event) {
+    if (!event.ctrlKey && !event.metaKey) return;
+    event.preventDefault();
+    zoom = Math.max(0.05, Math.min(20, zoom * (event.deltaY < 0 ? 1.15 : 1 / 1.15)));
+  }
+
+  $effect(() => {
+    if (!playing || !scroller) return;
+    const x = playhead * zoom;
+    if (x < scroller.scrollLeft || x > scroller.scrollLeft + scroller.clientWidth - 40) scroller.scrollLeft = Math.max(0, x - 80);
+  });
+</script>
+
+<div class="timeline" onwheel={wheel}>
+  <div class="tools">
+    <button onclick={edits.split} title="split at playhead (s)">split</button>
+    <button onclick={edits.remove} disabled={!selection} title="ripple delete (⌫)">delete</button>
+    <button onclick={edits.lift} disabled={!selection} title="leave a gap (⇧⌫)">lift</button>
+    <span class="sep"></span>
+    <button onclick={() => edits.addTrack("video")}>+V</button>
+    <button onclick={() => edits.addTrack("audio")}>+A</button>
+    <span class="sep"></span>
+    <button onclick={edits.undo} title="undo (⌘z)">undo</button>
+    <button onclick={edits.redo} title="redo (⇧⌘z)">redo</button>
+    <span class="grow"></span>
+    <input type="range" min="0.05" max="20" step="0.05" bind:value={zoom} title="zoom (⌘ + wheel)" />
+    <span class="code">{timecode(playhead, rate)}</span>
+  </div>
+  <div class="scroll" bind:this={scroller}>
+    <div class="sheet" style:width="{HEAD + width}px" style:--head="{HEAD}px">
+      <div class="ruler" style:height="22px">
+        <div class="head"></div>
+        <div class="lane" style:width="{width}px" onpointerdown={scrub} role="slider" aria-valuenow={playhead} tabindex="-1">
+          {#each ticks as tick (tick)}
+            <span class="tick" style:left="{tick * zoom}px">{timecode(tick, rate).slice(3, 8)}</span>
+          {/each}
+        </div>
+      </div>
+      {#each composition.tracks as track, trackIndex (trackIndex)}
+        {@const starts = offsets(track)}
+        <div class="track {track.kind}" style:height="{ROW}px" class:muted={track.mute}>
+          <div class="head">
+            <span class="name">{track.name}</span>
+            <button class="mute" class:on={track.mute} onclick={() => edits.patchTrack(trackIndex, { mute: !track.mute })}>{track.mute ? "muted" : "on"}</button>
+          </div>
+          <div
+            class="lane"
+            class:hover={hover === trackIndex}
+            style:width="{width}px"
+            ondragover={(event) => { event.preventDefault(); hover = trackIndex; }}
+            ondragleave={() => (hover = null)}
+            ondrop={drop(trackIndex)}
+            onclick={() => edits.select(null)}
+            onkeydown={(event) => event.key === "Escape" && edits.select(null)}
+            role="listbox"
+            tabindex="-1"
+          >
+            {#each track.items as item, index (index)}
+              {#if item.type === "clip"}
+                <div class="slot" style:left="{starts[index] * zoom}px" style:width="{item.source.duration * zoom}px">
+                  <Clip
+                    {item}
+                    media={byslug[item.media]}
+                    kind={track.kind}
+                    {rate}
+                    width={item.source.duration * zoom}
+                    height={ROW - 8}
+                    selected={selection?.trackIndex === trackIndex && selection?.index === index}
+                    peaks={peaks[item.media]}
+                    onselect={() => edits.select({ trackIndex, index })}
+                    ontrim={(range) => edits.trim(trackIndex, index, range)}
+                    onlift={lift(trackIndex, index)}
+                  />
+                </div>
+              {/if}
+            {/each}
+          </div>
+        </div>
+      {/each}
+      <div class="playhead" style:left="{HEAD + playhead * zoom}px"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .timeline { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+  .tools { display: flex; align-items: center; gap: 4px; padding: 4px 8px; border-bottom: 1px solid var(--colors-skeleton-1-boundary); }
+  .tools button { background: transparent; color: var(--colors-skeleton-0-contrast); border: 1px solid var(--colors-skeleton-2-boundary); border-radius: var(--border-radius-sm); padding: 1px 8px; font-size: var(--font-size-xs); cursor: pointer; }
+  .tools button:disabled { color: var(--text-support); cursor: default; }
+  .sep { width: 1px; height: 16px; background: var(--colors-skeleton-2-boundary); margin: 0 4px; }
+  .grow { flex: 1; }
+  .code { font-family: var(--font-family-code); font-size: var(--font-size-xs); color: var(--text-support); }
+  input[type="range"] { width: 110px; }
+  .scroll { flex: 1; overflow: auto; min-height: 0; position: relative; }
+  .sheet { position: relative; min-height: 100%; }
+  .ruler, .track { display: flex; border-bottom: 1px solid var(--colors-skeleton-1-boundary); }
+  .head { position: sticky; left: 0; z-index: 2; width: var(--head); flex: none; box-sizing: border-box; padding: 4px 8px; background: var(--colors-skeleton-2-surface); border-right: 1px solid var(--colors-skeleton-2-boundary); display: flex; flex-direction: column; gap: 2px; }
+  .head .name { font-size: var(--font-size-xs); font-weight: 600; }
+  .mute { align-self: flex-start; background: transparent; color: var(--text-support); border: 1px solid var(--colors-skeleton-2-boundary); border-radius: var(--border-radius-sm); font-size: var(--font-size-2xs); padding: 0 5px; cursor: pointer; }
+  .mute.on { color: var(--colors-skeleton-0-warning-base); }
+  .lane { position: relative; flex: none; height: 100%; }
+  .ruler .lane { cursor: text; background: var(--colors-skeleton-1-surface, var(--colors-skeleton-0-surface)); }
+  .tick { position: absolute; top: 2px; font-family: var(--font-family-code); font-size: var(--font-size-2xs); color: var(--text-support); border-left: 1px solid var(--colors-skeleton-2-boundary); padding-left: 3px; height: 18px; }
+  .track.muted .lane { opacity: 0.5; }
+  .lane.hover { background: var(--colors-skeleton-2-surface); }
+  .slot { position: absolute; top: 4px; bottom: 4px; }
+  .playhead { position: absolute; top: 0; bottom: 0; width: 1px; background: var(--colors-skeleton-0-warning-base); pointer-events: none; z-index: 3; }
+  .playhead::before { content: ""; position: absolute; top: 0; left: -5px; border: 5px solid transparent; border-top: 7px solid var(--colors-skeleton-0-warning-base); }
+</style>
+#+END_SRC
+
+** =modes/editor/media/buffer/upload.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/buffer/upload.js :mkdirp yes
+import { Connection, Url, shard } from "@vivalence/typology";
+
+const doors = new WeakMap();
+
+const door = (daemon) => {
+  if (!doors.has(daemon)) {
+    const connection = new Connection(new Url(daemon.url), shard.transmitter.fetcher);
+    if (daemon.lighthouse?.$authority) connection.use(shard.connection.authorize(daemon.lighthouse.$authority));
+    doors.set(daemon, connection);
+  }
+  return doors.get(daemon);
+};
+
+export async function* send(daemon, mode, file, signal) {
+  const path = `/mode/${mode.type ?? mode.manifest?.type}/${mode.slug ?? mode.manifest?.slug}/media/ingest`;
+  yield* door(daemon).stream(path, signal, { method: "POST", raw: { body: file }, headers: { "x-viva-name": encodeURIComponent(file.name) } });
+}
+
+export const download = async (url, name) => {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  const held = URL.createObjectURL(blob);
+  const anchor = document.createElement("a");
+  anchor.href = held;
+  anchor.download = name;
+  anchor.click();
+  setTimeout(() => URL.revokeObjectURL(held), 10_000);
+};
+
+export const dragOut = (event, { url, name, type }) => {
+  event.dataTransfer.effectAllowed = "copy";
+  event.dataTransfer.setData("DownloadURL", `${type}:${name}:${url}`);
+  event.dataTransfer.setData("text/uri-list", url);
+  event.dataTransfer.setData("text/plain", url);
+};
+
+export const dropped = (event) => {
+  const files = [...(event.dataTransfer?.files ?? [])];
+  return files.filter((file) => /^(video|audio|image)\//.test(file.type) || /\.(mp4|mov|webm|mkv|m4v|mp3|wav|m4a|aac|ogg|flac|png|jpe?g|webp|gif)$/i.test(file.name));
+};
+#+END_SRC
+
+** =modes/editor/media/composition.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/composition.js :mkdirp yes
+export const RATE = 30;
+
+export const blank = ({ name = "Untitled", rate = RATE, width = 1280, height = 720 } = {}) => ({
+  name,
+  rate,
+  width,
+  height,
+  tracks: [
+    { kind: "video", name: "V1", items: [] },
+    { kind: "audio", name: "A1", items: [] },
+  ],
+  markers: [],
+});
+
+export const clip = ({ media, start = 0, duration, gain, opacity }) => ({
+  type: "clip",
+  media,
+  source: { start, duration },
+  ...(gain !== undefined && { gain }),
+  ...(opacity !== undefined && { opacity }),
+});
+
+export const gap = (duration) => ({ type: "gap", duration });
+
+export const length = (item) => (item.type === "gap" ? item.duration : item.source.duration);
+
+export const extent = (track) => track.items.reduce((sum, item) => sum + length(item), 0);
+
+export const duration = (composition) => Math.max(0, ...composition.tracks.map(extent));
+
+export const offsets = (track) => {
+  let at = 0;
+  return track.items.map((item) => {
+    const held = at;
+    at += length(item);
+    return held;
+  });
+};
+
+export const locate = (track, frame) => {
+  const starts = offsets(track);
+  const index = track.items.findIndex((item, i) => frame >= starts[i] && frame < starts[i] + length(item));
+  if (index < 0) return null;
+  return { index, item: track.items[index], at: starts[index], local: frame - starts[index] };
+};
+
+export const frames = (seconds, rate) => Math.round(seconds * rate);
+
+export const seconds = (frame, rate) => frame / rate;
+
+const replaceTrack = (composition, trackIndex, items) => ({
+  ...composition,
+  tracks: composition.tracks.map((track, i) => (i === trackIndex ? { ...track, items } : track)),
+});
+
+const trackAt = (composition, trackIndex) => {
+  const track = composition.tracks[trackIndex];
+  if (!track) throw new Error(`no track ${trackIndex} — the cut has ${composition.tracks.length}`);
+  return track;
+};
+
+const merged = (items) => {
+  const out = [];
+  for (const item of items) {
+    const last = out.at(-1);
+    if (item.type === "gap" && last?.type === "gap") out[out.length - 1] = gap(last.duration + item.duration);
+    else out.push(item);
+  }
+  while (out.at(-1)?.type === "gap") out.pop();
+  return out;
+};
+
+export const insert = (composition, trackIndex, index, item) => {
+  const track = trackAt(composition, trackIndex);
+  const bounded = Math.max(0, Math.min(index, track.items.length));
+  return replaceTrack(composition, trackIndex, merged([...track.items.slice(0, bounded), item, ...track.items.slice(bounded)]));
+};
+
+export const append = (composition, trackIndex, item) => insert(composition, trackIndex, Infinity, item);
+
+export const placeAt = (composition, trackIndex, frame, item) => {
+  const track = trackAt(composition, trackIndex);
+  const end = extent(track);
+  if (frame >= end) {
+    const padded = frame > end ? [...track.items, gap(frame - end)] : track.items;
+    return replaceTrack(composition, trackIndex, merged([...padded, item]));
+  }
+  const found = locate(track, frame);
+  return insert(found.local === 0 ? composition : split(composition, trackIndex, frame), trackIndex, found.local === 0 ? found.index : found.index + 1, item);
+};
+
+export const remove = (composition, trackIndex, index) => {
+  const track = trackAt(composition, trackIndex);
+  if (!track.items[index]) return composition;
+  return replaceTrack(composition, trackIndex, merged(track.items.filter((_, i) => i !== index)));
+};
+
+export const lift = (composition, trackIndex, index) => {
+  const track = trackAt(composition, trackIndex);
+  const item = track.items[index];
+  if (!item) return composition;
+  return replaceTrack(composition, trackIndex, merged(track.items.map((held, i) => (i === index ? gap(length(held)) : held))));
+};
+
+export const split = (composition, trackIndex, frame) => {
+  const track = trackAt(composition, trackIndex);
+  const found = locate(track, frame);
+  if (!found || found.local === 0) return composition;
+  const { item, index, local } = found;
+  const halves =
+    item.type === "gap"
+      ? [gap(local), gap(item.duration - local)]
+      : [
+          { ...item, source: { start: item.source.start, duration: local } },
+          { ...item, source: { start: item.source.start + local, duration: item.source.duration - local } },
+        ];
+  return replaceTrack(composition, trackIndex, [...track.items.slice(0, index), ...halves, ...track.items.slice(index + 1)]);
+};
+
+export const trim = (composition, trackIndex, index, { start, duration: held }) => {
+  const track = trackAt(composition, trackIndex);
+  const item = track.items[index];
+  if (!item) return composition;
+  const next =
+    item.type === "gap"
+      ? gap(Math.max(1, held ?? item.duration))
+      : { ...item, source: { start: Math.max(0, start ?? item.source.start), duration: Math.max(1, held ?? item.source.duration) } };
+  return replaceTrack(composition, trackIndex, merged(track.items.map((one, i) => (i === index ? next : one))));
+};
+
+export const move = (composition, trackIndex, from, to) => {
+  const track = trackAt(composition, trackIndex);
+  if (!track.items[from] || from === to) return composition;
+  const items = track.items.filter((_, i) => i !== from);
+  const bounded = Math.max(0, Math.min(to > from ? to - 1 : to, items.length));
+  items.splice(bounded, 0, track.items[from]);
+  return replaceTrack(composition, trackIndex, merged(items));
+};
+
+export const between = (composition, trackIndex, index, targetTrack, targetIndex) => {
+  const item = trackAt(composition, trackIndex).items[index];
+  if (!item) return composition;
+  return insert(remove(composition, trackIndex, index), targetTrack, targetIndex, item);
+};
+
+export const addTrack = (composition, kind) => {
+  const count = composition.tracks.filter((track) => track.kind === kind).length + 1;
+  return { ...composition, tracks: [...composition.tracks, { kind, name: `${kind === "video" ? "V" : "A"}${count}`, items: [] }] };
+};
+
+export const clipsOf = (composition, kind) =>
+  composition.tracks
+    .map((track, trackIndex) => ({ track, trackIndex }))
+    .filter(({ track }) => !kind || track.kind === kind)
+    .flatMap(({ track, trackIndex }) => {
+      const starts = offsets(track);
+      return track.items.map((item, index) => ({ item, index, trackIndex, at: starts[index] })).filter(({ item }) => item.type === "clip");
+    });
+
+export const validate = (composition, mediaBySlug) => {
+  const issues = [];
+  for (const { item, trackIndex, index } of clipsOf(composition)) {
+    const media = mediaBySlug[item.media];
+    if (!media) {
+      issues.push({ trackIndex, index, fault: `media ${item.media} is not in the bin` });
+      continue;
+    }
+    const available = frames(media.duration, composition.rate);
+    if (item.source.start + item.source.duration > available)
+      issues.push({ trackIndex, index, fault: `clip reads past the end of ${media.name}: ${item.source.start + item.source.duration} > ${available} frames` });
+  }
+  return issues;
+};
+#+END_SRC
+
+** =modes/editor/media/derive.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/derive.js :mkdirp yes
+import paladin from "@vivalence/paladin";
+import { binary, capture, run, settle } from "./ffmpeg.js";
+
+export const PEAKS = { rate: 4000, perSecond: 50 };
+export const THUMBS = { every: 1, width: 160 };
+export const PROXY = { height: 720, keyframe: 15, crf: 26 };
+
+export const home = (hash) => `derived/${hash}`;
+
+export const peaks = async (root, media) => {
+  const raw = await capture(binary.ffmpeg, ["-v", "error", "-i", `${root}/${media.asset.path}`, "-vn", "-ac", "1", "-ar", String(PEAKS.rate), "-f", "s8", "pipe:1"]);
+  const samples = new Int8Array(raw.buffer, raw.byteOffset, raw.byteLength);
+  const window = PEAKS.rate / PEAKS.perSecond;
+  const bins = new Array(Math.ceil(samples.length / window)).fill(0);
+  for (let i = 0; i < samples.length; i++) {
+    const bin = Math.floor(i / window);
+    const magnitude = Math.abs(samples[i]);
+    if (magnitude > bins[bin]) bins[bin] = magnitude;
+  }
+  const path = `${home(media.hash)}/peaks.json`;
+  await paladin.state.json(`${root}/${path}`, { perSecond: PEAKS.perSecond, peaks: bins.map((value) => Math.round((value / 127) * 1000) / 1000) });
+  return path;
+};
+
+export const thumbs = async (root, media, { every = THUMBS.every, width = THUMBS.width } = {}) => {
+  const directory = `${home(media.hash)}/thumbs`;
+  await paladin.state.dir(`${root}/${directory}`);
+  await settle(run(["-i", `${root}/${media.asset.path}`, "-vf", `fps=1/${every},scale=${width}:-2`, "-q:v", "5", `${root}/${directory}/%05d.jpg`], { duration: media.duration, stage: "thumbs" }));
+  const count = (await paladin.find.walk(/\.jpg$/)(`${root}/${directory}`)).length;
+  return { every, width, count, directory };
+};
+
+export async function* proxy(root, media, { height = PROXY.height } = {}) {
+  const path = `${home(media.hash)}/proxy.mp4`;
+  await paladin.state.dir(`${root}/${home(media.hash)}`);
+  const scale = media.video.height > height ? [`-vf`, `scale=-2:${height}`] : [];
+  yield* run(
+    [
+      "-i", `${root}/${media.asset.path}`,
+      ...scale,
+      "-c:v", "libx264", "-preset", "veryfast", "-crf", String(PROXY.crf), "-g", String(PROXY.keyframe), "-pix_fmt", "yuv420p",
+      ...(media.audio ? ["-c:a", "aac", "-b:a", "128k"] : ["-an"]),
+      "-movflags", "+faststart",
+      `${root}/${path}`,
+    ],
+    { duration: media.duration, stage: "proxy" },
+  );
+  return path;
+}
+
+export async function* derive(root, media, kinds = ["peaks", "thumbs", "proxy"]) {
+  const derived = { ...(media.derived ?? {}) };
+  if (kinds.includes("peaks") && media.audio) {
+    yield { stage: "peaks", fraction: 0 };
+    derived.peaks = await peaks(root, media);
+    yield { stage: "peaks", fraction: 1, done: true };
+  }
+  if (kinds.includes("thumbs") && media.kind === "video") {
+    yield { stage: "thumbs", fraction: 0 };
+    derived.thumbs = await thumbs(root, media);
+    yield { stage: "thumbs", fraction: 1, done: true };
+  }
+  if (kinds.includes("proxy") && media.kind === "video") {
+    const steps = proxy(root, media);
+    let step = await steps.next();
+    while (!step.done) {
+      yield step.value;
+      step = await steps.next();
+    }
+    derived.proxy = step.value;
+  }
+  return derived;
+}
+#+END_SRC
+
+** =modes/editor/media/ffmpeg.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/ffmpeg.js :mkdirp yes
+const decoder = new TextDecoder();
+const TAIL = 2000;
+
+export const binary = { ffmpeg: "ffmpeg", ffprobe: "ffprobe" };
+
+export const available = async () => {
+  try {
+    const { code } = await new Deno.Command(binary.ffmpeg, { args: ["-version"], stdout: "null", stderr: "null" }).output();
+    return code === 0;
+  } catch {
+    return false;
+  }
+};
+
+export const capture = async (bin, args) => {
+  const { code, stdout, stderr } = await new Deno.Command(bin, { args, stdout: "piped", stderr: "piped" }).output();
+  if (code !== 0) throw new Error(`[media] ${bin} exited ${code}: ${decoder.decode(stderr).trim().slice(-TAIL)}`);
+  return stdout;
+};
+
+const lines = async function* (readable) {
+  let held = "";
+  for await (const chunk of readable) {
+    held += decoder.decode(chunk, { stream: true });
+    const parts = held.split("\n");
+    held = parts.pop();
+    yield* parts;
+  }
+  if (held) yield held;
+};
+
+export async function* run(args, { duration, stage = "ffmpeg", signal } = {}) {
+  const child = new Deno.Command(binary.ffmpeg, {
+    args: ["-hide_banner", "-nostats", "-y", "-progress", "pipe:1", ...args],
+    stdout: "piped",
+    stderr: "piped",
+    signal,
+  }).spawn();
+  const tail = (async () => {
+    let text = "";
+    for await (const chunk of child.stderr) text = (text + decoder.decode(chunk)).slice(-TAIL);
+    return text;
+  })();
+  let last = 0;
+  yield { stage, fraction: 0 };
+  for await (const line of lines(child.stdout)) {
+    const [key, value] = line.split("=");
+    if (key === "out_time_us" && duration > 0) {
+      const fraction = Math.min(1, Number(value) / 1_000_000 / duration);
+      if (fraction - last >= 0.01) {
+        last = fraction;
+        yield { stage, fraction };
+      }
+    }
+  }
+  const status = await child.status;
+  const stderr = await tail;
+  if (!status.success) throw new Error(`[media] ffmpeg ${stage} exited ${status.code}: ${stderr.trim()}`);
+  yield { stage, fraction: 1, done: true };
+}
+
+export const settle = async (progress) => {
+  let last = null;
+  for await (const step of progress) last = step;
+  return last;
+};
+#+END_SRC
+
+** =modes/editor/media/ingest.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/ingest.js :mkdirp yes
+import { extname } from "@std/path";
+import { crypto } from "@std/crypto";
+import { encodeHex } from "@std/hex";
+import paladin from "@vivalence/paladin";
+
+export const HASH = 16;
+export const INCOMING = ".incoming-";
+
+export const digest = async (path) => {
+  const file = await Deno.open(path, { read: true });
+  return encodeHex(await crypto.subtle.digest("SHA-256", file.readable)).slice(0, HASH);
+};
+
+export const extension = (name) => extname(name).toLowerCase();
+
+export const settled = (hash, name) => `media/${hash}${extension(name)}`;
+
+const relocate = async (from, to) => {
+  try {
+    await Deno.rename(from, to);
+  } catch {
+    await Deno.copyFile(from, to);
+    await Deno.remove(from);
+  }
+};
+
+const arrive = async (root, source) => {
+  const incoming = `${root}/media/${INCOMING}${crypto.randomUUID()}`;
+  await paladin.state.dir(`${root}/media`);
+  if (typeof source === "string") await Deno.copyFile(source, incoming);
+  else {
+    const file = await Deno.open(incoming, { write: true, create: true, truncate: true });
+    await source.pipeTo(file.writable);
+  }
+  return incoming;
+};
+
+export const settle = async (root, incoming, name) => {
+  const hash = await digest(incoming);
+  const path = settled(hash, name);
+  const held = await Deno.stat(`${root}/${path}`).catch(() => null);
+  if (held) await Deno.remove(incoming);
+  else await relocate(incoming, `${root}/${path}`);
+  return { path, hash, name, duplicate: !!held };
+};
+
+export const ingest = async (root, { name, source, move = false }) => {
+  if (typeof source === "string" && move) {
+    const incoming = `${root}/media/${INCOMING}${crypto.randomUUID()}`;
+    await paladin.state.dir(`${root}/media`);
+    await relocate(source, incoming);
+    return settle(root, incoming, name ?? source.split("/").pop());
+  }
+  const incoming = await arrive(root, source);
+  return settle(root, incoming, name ?? (typeof source === "string" ? source.split("/").pop() : "upload"));
+};
+#+END_SRC
+
+** =modes/editor/media/media.viva.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/media.viva.js :mkdirp yes
+import { App, v } from "@vivalence/typology";
+
+export { boot } from "./boot.js";
+export { aperture } from "./aperture/index.js";
+
+export const manifest = {
+  type: "editor",
+  slug: "media",
+  name: "Media",
+  version: "0.1.0",
+  description:
+    "A multitrack cutter over a mountpoint: files arrive by path or by drop and settle under media/<hash>; " +
+    "a composition is tracks of clips and gaps at one rate, saved as a file and mirrored as a row; " +
+    "the daemon probes, derives peaks · thumbs · proxy, and renders through ffmpeg; the browser previews.",
+  traits: ["MOUNTED", "BOOTED", "APPLICATION", "STANDALONE", "EXPOSED"],
+};
+
+export const statics = {
+  ignore: [".incoming-*", "*.tmp", "*.filter", ".DS_Store"],
+};
+
+export const application = new App(
+  "buffer/Media.svelte",
+  v.buffer({
+    data: {
+      open: v.string().optional().desc("Slug of the composition on the timeline. Example: \"lesson-3-intro\""),
+    },
+  }),
+);
+#+END_SRC
+
+** =modes/editor/media/otio.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/otio.js :mkdirp yes
+import { offsets } from "./composition.js";
+
+const time = (value, rate) => ({ OTIO_SCHEMA: "RationalTime.1", value, rate });
+
+const range = (start, duration, rate) => ({ OTIO_SCHEMA: "TimeRange.1", start_time: time(start, rate), duration: time(duration, rate) });
+
+const reference = (media, rate) => ({
+  OTIO_SCHEMA: "ExternalReference.1",
+  name: media.name,
+  target_url: media.asset.path,
+  available_range: range(0, Math.round(media.duration * rate), rate),
+  metadata: { vivalence: { hash: media.hash, mime: media.mime } },
+});
+
+const item = (held, composition, mediaBySlug) =>
+  held.type === "gap"
+    ? { OTIO_SCHEMA: "Gap.1", name: "", source_range: range(0, held.duration, composition.rate) }
+    : {
+        OTIO_SCHEMA: "Clip.2",
+        name: mediaBySlug[held.media]?.name ?? held.media,
+        source_range: range(held.source.start, held.source.duration, composition.rate),
+        media_references: { DEFAULT_MEDIA: mediaBySlug[held.media] ? reference(mediaBySlug[held.media], composition.rate) : { OTIO_SCHEMA: "MissingReference.1", name: held.media } },
+        active_media_reference_key: "DEFAULT_MEDIA",
+        metadata: { vivalence: { media: held.media, ...(held.gain !== undefined && { gain: held.gain }), ...(held.opacity !== undefined && { opacity: held.opacity }) } },
+      };
+
+export const otio = (slug, composition, mediaBySlug) => ({
+  OTIO_SCHEMA: "Timeline.1",
+  name: composition.name,
+  global_start_time: time(0, composition.rate),
+  metadata: { vivalence: { slug, width: composition.width, height: composition.height } },
+  tracks: {
+    OTIO_SCHEMA: "Stack.1",
+    name: "tracks",
+    children: composition.tracks.map((track) => ({
+      OTIO_SCHEMA: "Track.1",
+      name: track.name,
+      kind: track.kind === "video" ? "Video" : "Audio",
+      enabled: !track.mute,
+      children: track.items.map((held) => item(held, composition, mediaBySlug)),
+    })),
+    markers: composition.markers.map((marker) => ({
+      OTIO_SCHEMA: "Marker.2",
+      name: marker.text,
+      marked_range: range(marker.at, 1, composition.rate),
+      color: "PURPLE",
+    })),
+  },
+});
+
+export const starts = (composition) => composition.tracks.map((track) => offsets(track));
+#+END_SRC
+
+** =modes/editor/media/probe.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/probe.js :mkdirp yes
+import { binary, capture } from "./ffmpeg.js";
+
+const decoder = new TextDecoder();
+
+const ratio = (text) => {
+  const [numerator, denominator = 1] = String(text ?? "0").split("/").map(Number);
+  return denominator ? numerator / denominator : 0;
+};
+
+const round = (value, places = 3) => Math.round(value * 10 ** places) / 10 ** places;
+
+export const fold = (report) => {
+  const streams = report.streams ?? [];
+  const video = streams.find((stream) => stream.codec_type === "video" && stream.disposition?.attached_pic !== 1);
+  const audio = streams.find((stream) => stream.codec_type === "audio");
+  const seconds = Number(report.format?.duration ?? video?.duration ?? audio?.duration ?? 0);
+  return {
+    duration: Number.isFinite(seconds) ? round(seconds) : 0,
+    container: report.format?.format_name ?? "",
+    ...(video && {
+      video: {
+        codec: video.codec_name,
+        width: video.width,
+        height: video.height,
+        fps: round(ratio(video.avg_frame_rate) || ratio(video.r_frame_rate)),
+      },
+    }),
+    ...(audio && { audio: { codec: audio.codec_name, rate: Number(audio.sample_rate), channels: audio.channels } }),
+  };
+};
+
+export const probe = async (path) => {
+  const stdout = await capture(binary.ffprobe, ["-v", "error", "-print_format", "json", "-show_format", "-show_streams", path]);
+  return fold(JSON.parse(decoder.decode(stdout)));
+};
+#+END_SRC
+
+** =modes/editor/media/render.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/render.js :mkdirp yes
+import { hash } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+import { run } from "./ffmpeg.js";
+import { INCOMING } from "./ingest.js";
+import { clipsOf, extent, seconds } from "./composition.js";
+
+const AUDIO = { rate: 48000, layout: "stereo" };
+
+const fixed = (value) => value.toFixed(4);
+
+const fill = (kind, seconds, composition) =>
+  kind === "video"
+    ? `color=c=black@0.0:s=${composition.width}x${composition.height}:r=${composition.rate}:d=${fixed(seconds)},format=rgba`
+    : `anullsrc=r=${AUDIO.rate}:cl=${AUDIO.layout},atrim=0:${fixed(seconds)}`;
+
+const videoClip = (input, item, composition) =>
+  `[${input}:v]trim=start=${fixed(seconds(item.source.start, composition.rate))}:end=${fixed(seconds(item.source.start + item.source.duration, composition.rate))},` +
+  `setpts=PTS-STARTPTS,fps=${composition.rate},scale=${composition.width}:${composition.height}:force_original_aspect_ratio=decrease,` +
+  `pad=${composition.width}:${composition.height}:(ow-iw)/2:(oh-ih)/2,setsar=1,format=rgba` +
+  (item.opacity !== undefined && item.opacity < 1 ? `,colorchannelmixer=aa=${fixed(item.opacity)}` : "");
+
+const audioClip = (input, item, composition) =>
+  `[${input}:a]atrim=start=${fixed(seconds(item.source.start, composition.rate))}:end=${fixed(seconds(item.source.start + item.source.duration, composition.rate))},` +
+  `asetpts=PTS-STARTPTS,aformat=sample_rates=${AUDIO.rate}:channel_layouts=${AUDIO.layout}` +
+  (item.gain !== undefined && item.gain !== 1 ? `,volume=${fixed(item.gain)}` : "");
+
+export const graph = (composition, mediaBySlug) => {
+  const inputs = [];
+  const inputOf = (slug) => {
+    const held = inputs.indexOf(slug);
+    if (held >= 0) return held;
+    inputs.push(slug);
+    return inputs.length - 1;
+  };
+  const chains = [];
+  const laid = { video: [], audio: [] };
+  composition.tracks.forEach((track, trackIndex) => {
+    if (track.mute || !track.items.length) return;
+    const labels = [];
+    track.items.forEach((item, index) => {
+      const label = `t${trackIndex}i${index}`;
+      const carries = item.type === "clip" && mediaBySlug[item.media]?.[track.kind];
+      if (item.type === "gap" || !carries) {
+        chains.push(`${fill(track.kind, seconds(item.type === "gap" ? item.duration : item.source.duration, composition.rate), composition)}[${label}]`);
+      } else {
+        const input = inputOf(item.media);
+        chains.push(`${track.kind === "video" ? videoClip(input, item, composition) : audioClip(input, item, composition)}[${label}]`);
+      }
+      labels.push(`[${label}]`);
+    });
+    const out = `${track.kind[0]}${trackIndex}`;
+    chains.push(`${labels.join("")}concat=n=${labels.length}:v=${track.kind === "video" ? 1 : 0}:a=${track.kind === "audio" ? 1 : 0}[${out}]`);
+    laid[track.kind].push(out);
+  });
+  const total = seconds(Math.max(0, ...composition.tracks.map(extent)), composition.rate);
+  let video = null;
+  if (laid.video.length) {
+    let below = laid.video[0];
+    laid.video.slice(1).forEach((above, i) => {
+      chains.push(`[${below}][${above}]overlay=format=auto:eof_action=pass[ov${i}]`);
+      below = `ov${i}`;
+    });
+    chains.push(`[${below}]format=yuv420p,tpad=stop_mode=clone:stop_duration=${fixed(total)},trim=0:${fixed(total)}[vout]`);
+    video = "vout";
+  }
+  let audio = null;
+  if (laid.audio.length) {
+    const padded = laid.audio.map((label, i) => {
+      chains.push(`[${label}]apad=whole_dur=${fixed(total)},atrim=0:${fixed(total)}[ap${i}]`);
+      return `[ap${i}]`;
+    });
+    if (padded.length === 1) chains.push(`${padded[0]}anull[aout]`);
+    else chains.push(`${padded.join("")}amix=inputs=${padded.length}:normalize=0:duration=longest[aout]`);
+    audio = "aout";
+  }
+  return { inputs: inputs.map((slug) => mediaBySlug[slug].asset.path), filter: chains.join(";\n"), video, audio, total };
+};
+
+export const stamp = (composition) => hash.object(composition).toString(16).padStart(8, "0").slice(0, 8);
+
+export const target = (slug, composition, settings) => `renders/${slug}-${stamp(composition)}.${settings.format}`;
+
+export async function* render(root, slug, composition, mediaBySlug, settings) {
+  if (!clipsOf(composition).length) throw new Error(`${slug} has no clips to render`);
+  const built = graph(composition, mediaBySlug);
+  const path = target(slug, composition, settings);
+  const script = `${root}/renders/${slug}-${stamp(composition)}.filter`;
+  await paladin.state.text(script, built.filter);
+  const wantsVideo = settings.format === "mp4" && built.video;
+  const codec = wantsVideo
+    ? ["-map", `[${built.video}]`, "-c:v", "libx264", "-preset", settings.preset, "-crf", String(settings.crf), "-pix_fmt", "yuv420p", "-r", String(composition.rate)]
+    : ["-vn"];
+  const sound = built.audio
+    ? ["-map", `[${built.audio}]`, ...(settings.format === "wav" ? ["-c:a", "pcm_s16le"] : settings.format === "mp3" ? ["-c:a", "libmp3lame", "-q:a", "2"] : ["-c:a", "aac", "-b:a", "192k"])]
+    : ["-an"];
+  if (!wantsVideo && !built.audio) throw new Error(`${slug} renders neither picture nor sound as ${settings.format}`);
+  const incoming = `${root}/renders/${INCOMING}${crypto.randomUUID()}.${settings.format}`;
+  yield* run(
+    [
+      ...built.inputs.flatMap((input) => ["-i", `${root}/${input}`]),
+      "-/filter_complex", script,
+      ...codec,
+      ...sound,
+      ...(settings.format === "mp4" ? ["-movflags", "+faststart"] : []),
+      incoming,
+    ],
+    { duration: built.total, stage: "render" },
+  );
+  await Deno.rename(incoming, `${root}/${path}`);
+  await Deno.remove(script).catch(() => {});
+  return { path, stamp: stamp(composition) };
+}
+#+END_SRC
+
+** =modes/editor/media/rows.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/rows.js :mkdirp yes
+import { extension } from "./ingest.js";
+
+export const MIME = {
+  ".mp4": "video/mp4",
+  ".m4v": "video/mp4",
+  ".mov": "video/quicktime",
+  ".webm": "video/webm",
+  ".mkv": "video/x-matroska",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
+  ".m4a": "audio/mp4",
+  ".aac": "audio/aac",
+  ".ogg": "audio/ogg",
+  ".flac": "audio/flac",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
+  ".gif": "image/gif",
+};
+
+export const FORMATS = Object.keys(MIME).map((held) => held.slice(1));
+
+export const ONTOLOGY = { media: "media", composition: "composition", annotation: "annotation" };
+
+export const mimeOf = (name) => MIME[extension(name)] ?? "application/octet-stream";
+
+export const kindOf = (mime, probe) => (mime.startsWith("image/") ? "image" : probe.video ? "video" : "audio");
+
+export const admitted = (path) => (path.startsWith("media/") || path.startsWith("renders/")) && FORMATS.includes(extension(path).slice(1));
+
+export const slugify = (name) =>
+  name
+    .toLowerCase()
+    .replace(/\.[^.]+$/, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "untitled";
+
+const labeled = (slug, name, description, extra = []) => ({
+  slug,
+  traits: ["ONTOLOGICAL", "LABELED", ...extra],
+  trait: { ONTOLOGICAL: {}, LABELED: { name, description }, ...Object.fromEntries(extra.map((trait) => [trait, {}])) },
+});
+
+export const scheme = [
+  labeled("media", "Media", "A file in the bin: probed, hashed, served.", ["TOPOGRAPHICAL"]),
+  labeled("composition", "Composition", "A cut: tracks of clips and gaps over the bin, at one rate.", ["TOPOGRAPHICAL"]),
+  labeled("annotation", "Annotation", "A span on a media or a composition, with text.", ["TOPOGRAPHICAL"]),
+  labeled("media.kind.video", "Video", "Carries a picture stream."),
+  labeled("media.kind.audio", "Audio", "Carries sound only."),
+  labeled("media.kind.image", "Image", "A still."),
+  labeled("media.origin.rendered", "Rendered", "Came out of a composition."),
+];
+
+export const mediaRow = ({ path, hash, name, bytes, mtime, probe, derived, rendered }) => {
+  const mime = mimeOf(name);
+  const kind = kindOf(mime, probe);
+  return {
+    slug: hash,
+    ontology: ONTOLOGY.media,
+    traits: ["MEDIA"],
+    trait: {
+      MEDIA: {
+        asset: { path },
+        name,
+        hash,
+        mime,
+        kind,
+        bytes,
+        mtime,
+        ...probe,
+        ...(derived && { derived }),
+        ...(rendered && { rendered }),
+      },
+    },
+    symbols: [{ slug: "media" }, { slug: `media.kind.${kind}` }, ...(rendered ? [{ slug: "media.origin.rendered" }] : [])],
+  };
+};
+
+export const compositionRow = (slug, document) => ({
+  slug,
+  ontology: ONTOLOGY.composition,
+  traits: ["COMPOSITION"],
+  trait: { COMPOSITION: document },
+  symbols: [{ slug: "composition" }],
+});
+
+export const annotationRow = (slug, fields) => ({
+  slug,
+  ontology: ONTOLOGY.annotation,
+  traits: ["ANNOTATION"],
+  trait: { ANNOTATION: fields },
+  symbols: [{ slug: "annotation" }],
+});
+
+export const compositionPath = (slug) => `compositions/${slug}.json`;
+#+END_SRC
+
+** =modes/editor/media/schema.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/schema.js :mkdirp yes
+import { v } from "@vivalence/typology";
+
+export const Range = v.object({
+  start: v.integer({ minimum: 0 }).desc("First frame of the span, at the owning rate. Example: 0"),
+  duration: v.integer({ minimum: 1 }).desc("Length of the span in frames. Example: 90"),
+});
+
+export const Clip = v.object({
+  type: v.const("clip"),
+  media: v.string().desc("Slug of the media row the clip reads — its content hash. Example: \"3f9a1c2d4b6e7f80\""),
+  source: Range,
+  gain: v.number({ minimum: 0, maximum: 4 }).optional().desc("Linear audio gain, 1 is unity. Example: 0.8"),
+  opacity: v.number({ minimum: 0, maximum: 1 }).optional().desc("Video opacity, 1 is opaque. Example: 1"),
+});
+
+export const Gap = v.object({
+  type: v.const("gap"),
+  duration: v.integer({ minimum: 1 }).desc("Empty frames before the next item. Example: 30"),
+});
+
+export const Item = v.union([Clip, Gap]);
+
+export const Track = v.object({
+  kind: v.enum(["video", "audio"]),
+  name: v.string().desc("Label on the timeline. Example: \"V1\""),
+  mute: v.boolean().optional(),
+  items: v.array(Item),
+});
+
+export const Marker = v.object({
+  at: v.integer({ minimum: 0 }).desc("Frame the marker sits on. Example: 450"),
+  text: v.string().desc("What the marker says. Example: \"chorus\""),
+});
+
+export const Composition = v.object({
+  name: v.string().desc("Title of the cut. Example: \"lesson 3 intro\""),
+  rate: v.integer({ minimum: 1, maximum: 240 }).desc("Frames per second every span counts in. Example: 30"),
+  width: v.integer({ minimum: 16 }).desc("Frame width of the cut. Example: 1280"),
+  height: v.integer({ minimum: 16 }).desc("Frame height of the cut. Example: 720"),
+  tracks: v.array(Track),
+  markers: v.array(Marker),
+});
+
+export const Stream = {
+  video: v.object({
+    codec: v.string().desc("Video codec name as ffprobe reports it. Example: \"h264\""),
+    width: v.integer(),
+    height: v.integer(),
+    fps: v.number().desc("Frames per second, decimal. Example: 29.97"),
+  }),
+  audio: v.object({
+    codec: v.string().desc("Audio codec name as ffprobe reports it. Example: \"aac\""),
+    rate: v.integer().desc("Sample rate in hertz. Example: 48000"),
+    channels: v.integer().desc("Channel count. Example: 2"),
+  }),
+};
+
+export const Derived = v.object({
+  peaks: v.string().optional().desc("Mountpoint-relative path of the waveform bins. Example: \"derived/3f9a1c2d4b6e7f80/peaks.json\""),
+  proxy: v.string().optional().desc("Mountpoint-relative path of the scrub proxy. Example: \"derived/3f9a1c2d4b6e7f80/proxy.mp4\""),
+  thumbs: v.object({
+    every: v.number().desc("Seconds between frames. Example: 1"),
+    width: v.integer().desc("Frame width in pixels. Example: 160"),
+    count: v.integer().desc("How many frames the strip holds. Example: 12"),
+    directory: v.string().desc("Mountpoint-relative directory of the frames. Example: \"derived/3f9a1c2d4b6e7f80/thumbs\""),
+  }).optional(),
+});
+
+export const Media = v.object({
+  asset: v.object({ path: v.string().desc("Mountpoint-relative path of the file. Example: \"media/3f9a1c2d4b6e7f80.mp4\"") }),
+  name: v.string().desc("Filename the file arrived with. Example: \"interview.mp4\""),
+  hash: v.string().desc("First sixteen hex digits of the content sha256 — also the row slug. Example: \"3f9a1c2d4b6e7f80\""),
+  mime: v.string().desc("Media type by extension. Example: \"video/mp4\""),
+  kind: v.enum(["video", "audio", "image"]),
+  bytes: v.integer(),
+  mtime: v.string().desc("ISO modification time. Example: \"2026-09-16T10:00:00.000Z\""),
+  duration: v.number().desc("Seconds. Example: 12.48"),
+  container: v.string().desc("Container as ffprobe names it. Example: \"mov,mp4,m4a,3gp,3g2,mj2\""),
+  video: Stream.video.optional(),
+  audio: Stream.audio.optional(),
+  derived: Derived.optional(),
+  rendered: v.object({
+    composition: v.string().desc("Slug of the cut this file was rendered from. Example: \"lesson-3-intro\""),
+    hash: v.string().desc("Content hash of the composition document at render time. Example: \"9c1e\""),
+  }).optional(),
+});
+
+export const Annotation = v.object({
+  target: v.string().desc("Slug of the media or composition the span sits on. Example: \"3f9a1c2d4b6e7f80\""),
+  range: Range,
+  rate: v.integer({ minimum: 1 }).desc("Rate the range counts in — the target's own. Example: 30"),
+  kind: v.enum(["transcript", "note", "sentence", "chapter"]),
+  text: v.string().desc("What the span says. Example: \"¿Dónde está la biblioteca?\""),
+  language: v.string().optional().desc("BCP 47 tag of the text. Example: \"es\""),
+});
+
+export const Progress = v.object({
+  stage: v.string().desc("What is being worked. Example: \"proxy\""),
+  fraction: v.number({ minimum: 0, maximum: 1 }).desc("How far along, 0 to 1. Example: 0.42"),
+  done: v.boolean().optional(),
+  output: v.unknown().optional(),
+});
+
+export const Settings = v.object({
+  format: v.enum(["mp4", "wav", "mp3"]).default("mp4"),
+  crf: v.integer({ minimum: 0, maximum: 51 }).default(20),
+  preset: v.enum(["ultrafast", "veryfast", "fast", "medium", "slow"]).default("medium"),
+});
+#+END_SRC
+
+** =modes/editor/media/tests/aperture.test.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/tests/aperture.test.js :mkdirp yes
+import { specimen, v } from "@vivalence/typology";
+import * as media from "../media.viva.js";
+import { boot } from "../boot.js";
+import { digest } from "../ingest.js";
+import { Composition } from "../schema.js";
+import { append, clip, placeAt } from "../composition.js";
+import { editor, drain } from "./scenarios.js";
+import { mountpoint, sample, tone } from "./fixture.js";
+
+const MOUNT = "/mode/editor/media";
+
+specimen.describe("media aperture — the verbs by slug, over the wire", () => {
+  let scenario, root, teardown, outside, hash, cut;
+
+  const call = (route, input = {}) => scenario.conn.call(`${MOUNT}${route}`, input);
+  const handler = (route) => scenario.mode.aperture.branch(route).effect;
+
+  specimen.beforeAll(async () => {
+    root = await mountpoint();
+    outside = await Deno.makeTempDir({ prefix: "outside-" });
+    await sample(outside, { name: "interview.mp4" });
+    await tone(outside, { name: "bed.wav" });
+    hash = await digest(`${outside}/interview.mp4`);
+    scenario = await editor(media, { mountpoint: root });
+    await scenario.scoped(async () => {
+      teardown = await boot(scenario.daemon, scenario.mode);
+    });
+  });
+
+  specimen.afterAll(async () => {
+    await teardown?.();
+    await scenario?.orm?.close();
+    await Deno.remove(root, { recursive: true });
+    await Deno.remove(outside, { recursive: true });
+  });
+
+  specimen.it("/media/import copies a path into the bin and answers the served row", async () => {
+    const held = await call("/media/import", { path: `${outside}/interview.mp4` });
+    specimen.expect(held.literal.slug).toBe(hash);
+    specimen.expect(held.literal.trait.MEDIA.name).toBe("interview.mp4");
+    specimen.expect(held.url).toBe(`http://test/attached/cargo/daemon/test-daemon/media/${hash}.mp4`);
+    specimen.expect(held.derived).toEqual({ peaks: null, proxy: null, thumbs: null });
+    specimen.expect((await Deno.stat(`${outside}/interview.mp4`)).isFile).toBe(true);
+    const moved = await call("/media/import", { path: `${outside}/bed.wav`, move: true });
+    specimen.expect(moved.literal.trait.MEDIA.kind).toBe("audio");
+    specimen.expect(await Deno.stat(`${outside}/bed.wav`).catch(() => null)).toBe(null);
+    specimen.expect((await call("/media/list")).length).toBe(2);
+  });
+
+  specimen.it("/media/ingest streams a body under ?name= and reports progress to a served row", async () => {
+    const source = await sample(outside, { name: "second.mp4", tone: 660 });
+    const body = (await Deno.open(source)).readable;
+    const ctx = {
+      daemon: scenario.daemon,
+      mode: scenario.mode,
+      request: { raw: { body }, url: new URL("http://test/media/ingest?name=second.mp4"), headers: new Map() },
+    };
+    const steps = await scenario.scoped(() => drain(handler("/media/ingest")({}, ctx)));
+    specimen.expect(steps.map((step) => step.fraction)).toEqual([0, 0.5, 1]);
+    const { output } = steps.at(-1);
+    specimen.expect(output.literal.slug).toBe(await digest(source));
+    specimen.expect(output.literal.trait.MEDIA.name).toBe("second.mp4");
+    specimen.expect(output.duplicate).toBe(false);
+    specimen.expect((await call("/media/list")).length).toBe(3);
+  });
+
+  specimen.it("/media/derive writes peaks · thumbs · proxy, remembers them on the row and serves their urls", async () => {
+    const ctx = { daemon: scenario.daemon, mode: scenario.mode, request: {} };
+    const steps = await scenario.scoped(() => drain(handler("/media/derive")({ slug: hash }, ctx)));
+    const stages = steps.map((step) => step.stage).filter((stage, i, all) => all.indexOf(stage) === i);
+    specimen.expect(stages).toEqual(["peaks", "thumbs", "proxy", "derive"]);
+    const { output } = steps.at(-1);
+    specimen.expect(output.derived.peaks).toBe(`http://test/attached/cargo/daemon/test-daemon/derived/${hash}/peaks.json`);
+    specimen.expect(output.derived.proxy).toBe(`http://test/attached/cargo/daemon/test-daemon/derived/${hash}/proxy.mp4`);
+    specimen.expect(output.derived.thumbs.frames[0]).toBe(`http://test/attached/cargo/daemon/test-daemon/derived/${hash}/thumbs/00001.jpg`);
+    const read = await call("/media/read", { slug: hash });
+    specimen.expect(read.literal.trait.MEDIA.derived.proxy).toBe(`derived/${hash}/proxy.mp4`);
+  });
+
+  specimen.it("/composition/create · write · read · list — a file on the mount, a row in the store, issues named", async () => {
+    const created = await call("/composition/create", { name: "Lesson 3 intro" });
+    specimen.expect(created.slug).toBe("lesson-3-intro");
+    specimen.expect(v.check(Composition, created.trait.COMPOSITION)).toBe(true);
+    specimen.expect((await Deno.stat(`${root}/compositions/lesson-3-intro.json`)).isFile).toBe(true);
+    const twin = await call("/composition/create", { name: "Lesson 3 intro" });
+    specimen.expect(twin.slug).toBe("lesson-3-intro-2");
+
+    cut = created.trait.COMPOSITION;
+    cut = { ...cut, width: 320, height: 240 };
+    cut = append(cut, 0, clip({ media: hash, duration: 15 }));
+    cut = placeAt(cut, 0, 30, clip({ media: hash, start: 15, duration: 15 }));
+    cut = append(cut, 1, clip({ media: hash, duration: 30, gain: 0.5 }));
+    const written = await call("/composition/write", { slug: "lesson-3-intro", document: cut });
+    specimen.expect(written.trait.COMPOSITION.tracks[0].items.length).toBe(3);
+    specimen.expect(JSON.parse(await Deno.readTextFile(`${root}/compositions/lesson-3-intro.json`)).tracks[1].items[0].gain).toBe(0.5);
+
+    const read = await call("/composition/read", { slug: "lesson-3-intro" });
+    specimen.expect(read.issues).toEqual([]);
+    const overrun = { ...cut, tracks: [{ ...cut.tracks[0], items: [clip({ media: hash, duration: 900 })] }, cut.tracks[1]] };
+    await call("/composition/write", { slug: "lesson-3-intro-2", document: overrun });
+    specimen.expect((await call("/composition/read", { slug: "lesson-3-intro-2" })).issues[0].fault).toContain("reads past the end of interview.mp4");
+
+    const listed = await call("/composition/list");
+    specimen.expect(listed.map((one) => one.slug).sort()).toEqual(["lesson-3-intro", "lesson-3-intro-2"]);
+    specimen.expect(listed[0].tracks).toBeDefined();
+
+    let refused = null;
+    await call("/composition/write", { slug: "lesson-3-intro", document: { name: "broken" } }).catch((error) => (refused = error.message));
+    specimen.expect(refused).toContain("not a composition");
+  });
+
+  specimen.it("/annotation/create · list · write · remove — spans on a target, rows only", async () => {
+    const created = await call("/annotation/create", { target: hash, range: { start: 0, duration: 30 }, rate: 30, kind: "transcript", text: "hola", language: "es" });
+    specimen.expect(created.ontology).toBe("annotation");
+    specimen.expect(created.trait.ANNOTATION.text).toBe("hola");
+    specimen.expect(created.symbol).toEqual({ annotation: true });
+    await call("/annotation/create", { target: "lesson-3-intro", range: { start: 10, duration: 5 }, rate: 30, kind: "chapter", text: "intro" });
+    specimen.expect((await call("/annotation/list", { target: hash })).length).toBe(1);
+    specimen.expect((await call("/annotation/list")).length).toBe(2);
+    const written = await call("/annotation/write", { slug: created.slug, fields: { text: "hola, ¿qué tal?" } });
+    specimen.expect(written.trait.ANNOTATION.text).toBe("hola, ¿qué tal?");
+    specimen.expect(written.trait.ANNOTATION.language).toBe("es");
+    await call("/annotation/remove", { slug: created.slug });
+    specimen.expect((await call("/annotation/list", { target: hash })).length).toBe(0);
+  });
+
+  specimen.it("/render streams progress and lands a rendered media row in renders/", async () => {
+    const ctx = { daemon: scenario.daemon, mode: scenario.mode, request: {} };
+    const steps = await scenario.scoped(() => drain(handler("/render")({ slug: "lesson-3-intro", settings: { preset: "ultrafast", crf: 30 } }, ctx)));
+    specimen.expect(steps[0]).toEqual({ stage: "render", fraction: 0 });
+    const { output } = steps.at(-1);
+    specimen.expect(output.literal.trait.MEDIA.asset.path.startsWith("renders/lesson-3-intro-")).toBe(true);
+    specimen.expect(output.literal.trait.MEDIA.rendered.composition).toBe("lesson-3-intro");
+    specimen.expect(output.literal.symbol).toEqual({ media: { kind: "video", origin: "rendered" } });
+    specimen.expect(Math.abs(output.literal.trait.MEDIA.duration - 1.5) < 0.1).toBe(true);
+    specimen.expect((await call("/media/list")).length).toBe(4);
+    let refused = null;
+    await scenario.scoped(() => drain(handler("/render")({ slug: "lesson-3-intro-2" }, ctx))).catch((error) => (refused = error.message));
+    specimen.expect(refused).toContain("cannot render");
+  });
+
+  specimen.it("/export/otio writes the cut as an OpenTimelineIO timeline", async () => {
+    const timeline = await call("/export/otio", { slug: "lesson-3-intro" });
+    specimen.expect(timeline.OTIO_SCHEMA).toBe("Timeline.1");
+    specimen.expect(timeline.tracks.children.map((track) => track.kind)).toEqual(["Video", "Audio"]);
+    const [first, gap, second] = timeline.tracks.children[0].children;
+    specimen.expect(first.OTIO_SCHEMA).toBe("Clip.2");
+    specimen.expect(first.media_references.DEFAULT_MEDIA.target_url).toBe(`media/${hash}.mp4`);
+    specimen.expect(gap.OTIO_SCHEMA).toBe("Gap.1");
+    specimen.expect(second.source_range.start_time).toEqual({ OTIO_SCHEMA: "RationalTime.1", value: 15, rate: 30 });
+    specimen.expect(timeline.tracks.children[1].children[0].metadata.vivalence.gain).toBe(0.5);
+  });
+
+  specimen.it("/media/remove deletes the file, its derived directory and the row", async () => {
+    const removed = await call("/media/remove", { slug: hash });
+    specimen.expect(removed.path).toBe(`media/${hash}.mp4`);
+    specimen.expect(await Deno.stat(`${root}/derived/${hash}`).catch(() => null)).toBe(null);
+    specimen.expect((await call("/media/list")).map((one) => one.literal.slug)).not.toContain(hash);
+    specimen.expect((await call("/composition/read", { slug: "lesson-3-intro" })).issues[0].fault).toBe(`media ${hash} is not in the bin`);
+  });
+});
+#+END_SRC
+
+** =modes/editor/media/tests/app.test.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/tests/app.test.js :mkdirp yes
+import { specimen } from "@vivalence/typology";
+import { compile } from "svelte/compiler";
+
+const PARTS = ["Media", "parts/Bin", "parts/Monitor", "parts/Timeline", "parts/Clip", "parts/Inspector"];
+
+specimen.describe("app — the media buffer and its parts compile as runes components", () => {
+  for (const part of PARTS) {
+    specimen.it(`buffer/${part}.svelte compiles without warnings`, async () => {
+      const source = await Deno.readTextFile(new URL(`../buffer/${part}.svelte`, import.meta.url));
+      const out = compile(source, { generate: "client", runes: true, filename: `${part}.svelte` });
+      specimen.expect(out.js.code.length > 0).toBe(true);
+      specimen.expect(out.warnings.map((warning) => `${warning.code}: ${warning.message}`)).toEqual([]);
+    });
+  }
+
+  specimen.it("no view carries a literal colour — every colour is a theme token", async () => {
+    for (const part of PARTS) {
+      const source = await Deno.readTextFile(new URL(`../buffer/${part}.svelte`, import.meta.url));
+      const style = source.slice(source.indexOf("<style>"));
+      specimen.expect(style.match(/#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/gi) ?? []).toEqual([]);
+    }
+  });
+});
+#+END_SRC
+
+** =modes/editor/media/tests/boot.test.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/tests/boot.test.js :mkdirp yes
+import { specimen } from "@vivalence/typology";
+import * as media from "../media.viva.js";
+import { boot, sync } from "../boot.js";
+import { digest, settled } from "../ingest.js";
+import { compositionPath } from "../rows.js";
+import { blank } from "../composition.js";
+import { editor } from "./scenarios.js";
+import { mountpoint, sample, tone } from "./fixture.js";
+
+specimen.describe("media boot — the tree becomes rows, files settle under their hash, the scheme is shared", () => {
+  let scenario, root, teardown, hash;
+
+  specimen.beforeAll(async () => {
+    root = await mountpoint();
+    const dropped = await sample(`${root}/media`, { name: "dropped by hand.mp4" });
+    hash = await digest(dropped);
+    await Deno.mkdir(`${root}/compositions`);
+    await Deno.writeTextFile(`${root}/${compositionPath("first-cut")}`, JSON.stringify(blank({ name: "First cut" })));
+    scenario = await editor(media, { mountpoint: root });
+    await scenario.scoped(async () => {
+      teardown = await boot(scenario.daemon, scenario.mode);
+    });
+  });
+
+  specimen.afterAll(async () => {
+    await teardown?.();
+    await scenario?.orm?.close();
+    await Deno.remove(root, { recursive: true });
+  });
+
+  specimen.it("a file dropped by hand is renamed to media/<hash>.<ext>, its row keeps the name, kind and probe", async () => {
+    await scenario.scoped(async () => {
+      const rows = await scenario.daemon.entities.literal.find({ ontology: "media" });
+      specimen.expect(rows.length).toBe(1);
+      const [row] = rows;
+      specimen.expect(row.slug).toBe(hash);
+      specimen.expect(row.ontology).toBe("media");
+      specimen.expect(row.trait.MEDIA.asset.path).toBe(settled(hash, "dropped by hand.mp4"));
+      specimen.expect(row.trait.MEDIA.name).toBe("dropped by hand.mp4");
+      specimen.expect(row.trait.MEDIA.kind).toBe("video");
+      specimen.expect(row.trait.MEDIA.mime).toBe("video/mp4");
+      specimen.expect(row.trait.MEDIA.video.width).toBe(320);
+      specimen.expect(row.symbol).toEqual({ media: { kind: "video" } });
+      specimen.expect((await Deno.stat(`${root}/${settled(hash, "x.mp4")}`)).isFile).toBe(true);
+      specimen.expect(await Deno.stat(`${root}/media/dropped by hand.mp4`).catch(() => null)).toBe(null);
+      specimen.expect(scenario.mode.freight.catalog[row.trait.MEDIA.asset.path]?.url).toContain("/attached/cargo/daemon/test-daemon/media/");
+    });
+  });
+
+  specimen.it("the scheme symbols exist once, unowned, and the three ontologies are topographical", async () => {
+    await scenario.scoped(async () => {
+      const symbols = await scenario.daemon.entities.symbol.find({ slug: { $in: ["media", "composition", "annotation", "media.kind.video"] } });
+      specimen.expect(symbols.map((symbol) => symbol.slug).sort()).toEqual(["annotation", "composition", "media", "media.kind.video"]);
+      for (const symbol of symbols) specimen.expect(symbol.mode ?? null).toBe(null);
+      specimen.expect(symbols.find((symbol) => symbol.slug === "media").traits).toContain("TOPOGRAPHICAL");
+      specimen.expect(symbols.find((symbol) => symbol.slug === "media.kind.video").traits).not.toContain("TOPOGRAPHICAL");
+    });
+  });
+
+  specimen.it("a composition file on the mount is a composition row", async () => {
+    await scenario.scoped(async () => {
+      const [row] = await scenario.daemon.entities.literal.find({ ontology: "composition" });
+      specimen.expect(row.slug).toBe("first-cut");
+      specimen.expect(row.trait.COMPOSITION.name).toBe("First cut");
+      specimen.expect(row.trait.COMPOSITION.tracks.length).toBe(2);
+      specimen.expect(row.symbol).toEqual({ composition: true });
+    });
+  });
+
+  specimen.it("sync on a changed path upserts by content; a second copy of the same bytes dedupes; a gone file prunes", async () => {
+    await scenario.scoped(async () => {
+      const wav = await tone(`${root}/media`, { name: "tone.wav" });
+      const wavHash = await digest(wav);
+      await sync(scenario.daemon, scenario.mode, ["media/tone.wav"]);
+      let rows = await scenario.daemon.entities.literal.find({ ontology: "media" });
+      specimen.expect(rows.map((row) => row.slug).sort()).toEqual([hash, wavHash].sort());
+      specimen.expect(rows.find((row) => row.slug === wavHash).trait.MEDIA.kind).toBe("audio");
+
+      await Deno.copyFile(`${root}/${settled(wavHash, "x.wav")}`, `${root}/media/copy.wav`);
+      await sync(scenario.daemon, scenario.mode, ["media/copy.wav"]);
+      rows = await scenario.daemon.entities.literal.find({ ontology: "media" });
+      specimen.expect(rows.length).toBe(2);
+      specimen.expect(await Deno.stat(`${root}/media/copy.wav`).catch(() => null)).toBe(null);
+
+      await Deno.remove(`${root}/${settled(wavHash, "x.wav")}`);
+      await sync(scenario.daemon, scenario.mode, [settled(wavHash, "x.wav")]);
+      rows = await scenario.daemon.entities.literal.find({ ontology: "media" });
+      specimen.expect(rows.map((row) => row.slug)).toEqual([hash]);
+    });
+  });
+});
+#+END_SRC
+
+** =modes/editor/media/tests/composition.test.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/tests/composition.test.js :mkdirp yes
+import { specimen } from "@vivalence/typology";
+import { v } from "@vivalence/typology";
+import { Composition } from "../schema.js";
+import { addTrack, append, between, blank, clip, clipsOf, duration, extent, gap, insert, lift, locate, move, offsets, placeAt, remove, split, trim, validate } from "../composition.js";
+
+const a = clip({ media: "aaaa", start: 0, duration: 90 });
+const b = clip({ media: "bbbb", start: 30, duration: 60 });
+
+const cut = () => append(append(blank({ name: "t" }), 0, a), 0, b);
+
+specimen.describe("composition — sequential items, gaps model empty space", () => {
+  specimen.it("blank validates against the schema and has V1 + A1", () => {
+    const held = blank();
+    specimen.expect(v.check(Composition, held)).toBe(true);
+    specimen.expect(held.tracks.map((track) => track.name)).toEqual(["V1", "A1"]);
+    specimen.expect(duration(held)).toBe(0);
+  });
+
+  specimen.it("append lays items end to end; offsets are the running sum", () => {
+    const held = cut();
+    specimen.expect(offsets(held.tracks[0])).toEqual([0, 90]);
+    specimen.expect(extent(held.tracks[0])).toBe(150);
+    specimen.expect(duration(held)).toBe(150);
+  });
+
+  specimen.it("locate names the item under a frame and the local offset into it", () => {
+    const track = cut().tracks[0];
+    specimen.expect(locate(track, 0)).toEqual({ index: 0, item: a, at: 0, local: 0 });
+    specimen.expect(locate(track, 100)).toEqual({ index: 1, item: b, at: 90, local: 10 });
+    specimen.expect(locate(track, 150)).toBe(null);
+  });
+
+  specimen.it("split cuts a clip into two whose source ranges abut", () => {
+    const held = split(cut(), 0, 120);
+    const [, first, second] = held.tracks[0].items;
+    specimen.expect(first.source).toEqual({ start: 30, duration: 30 });
+    specimen.expect(second.source).toEqual({ start: 60, duration: 30 });
+    specimen.expect(extent(held.tracks[0])).toBe(150);
+    specimen.expect(split(cut(), 0, 90)).toEqual(cut());
+  });
+
+  specimen.it("remove ripples; lift leaves a gap; trailing gaps vanish; adjacent gaps merge", () => {
+    specimen.expect(remove(cut(), 0, 0).tracks[0].items).toEqual([b]);
+    const lifted = lift(cut(), 0, 0);
+    specimen.expect(lifted.tracks[0].items).toEqual([gap(90), b]);
+    specimen.expect(lift(lifted, 0, 1).tracks[0].items).toEqual([]);
+    const middle = insert(insert(cut(), 0, 1, gap(10)), 0, 2, gap(5));
+    specimen.expect(middle.tracks[0].items).toEqual([a, gap(15), b]);
+  });
+
+  specimen.it("placeAt pads with a gap past the end, splits when landing inside a clip", () => {
+    const c = clip({ media: "cccc", duration: 10 });
+    specimen.expect(placeAt(cut(), 0, 200, c).tracks[0].items).toEqual([a, b, gap(50), c]);
+    specimen.expect(placeAt(cut(), 0, 150, c).tracks[0].items).toEqual([a, b, c]);
+    const inside = placeAt(cut(), 0, 45, c).tracks[0].items;
+    specimen.expect(inside.map((item) => item.type === "clip" ? item.media : "gap")).toEqual(["aaaa", "cccc", "aaaa", "bbbb"]);
+    specimen.expect(inside[0].source).toEqual({ start: 0, duration: 45 });
+    specimen.expect(inside[2].source).toEqual({ start: 45, duration: 45 });
+    specimen.expect(placeAt(cut(), 0, 90, c).tracks[0].items).toEqual([a, c, b]);
+  });
+
+  specimen.it("trim clamps to sane spans; move reorders; between crosses tracks", () => {
+    specimen.expect(trim(cut(), 0, 0, { start: 10, duration: 0 }).tracks[0].items[0].source).toEqual({ start: 10, duration: 1 });
+    specimen.expect(move(cut(), 0, 0, 2).tracks[0].items).toEqual([b, a]);
+    specimen.expect(move(cut(), 0, 1, 0).tracks[0].items).toEqual([b, a]);
+    const crossed = between(addTrack(cut(), "video"), 0, 1, 2, 0);
+    specimen.expect(crossed.tracks[0].items).toEqual([a]);
+    specimen.expect(crossed.tracks[2]).toEqual({ kind: "video", name: "V2", items: [b] });
+  });
+
+  specimen.it("clipsOf lists every clip with its track and start; validate names what cannot render", () => {
+    specimen.expect(clipsOf(cut(), "video").map(({ item, at }) => [item.media, at])).toEqual([["aaaa", 0], ["bbbb", 90]]);
+    const bin = { aaaa: { name: "a.mp4", duration: 3 }, bbbb: { name: "b.mp4", duration: 2 } };
+    specimen.expect(validate(cut(), bin)).toEqual([{ trackIndex: 0, index: 1, fault: "clip reads past the end of b.mp4: 90 > 60 frames" }]);
+    specimen.expect(validate(cut(), { aaaa: bin.aaaa })[0].fault).toBe("media bbbb is not in the bin");
+  });
+});
+#+END_SRC
+
+** =modes/editor/media/tests/engine.test.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/tests/engine.test.js :mkdirp yes
+import { specimen } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+import { settle } from "../ffmpeg.js";
+import { fold, probe } from "../probe.js";
+import { digest, ingest, settled } from "../ingest.js";
+import { derive } from "../derive.js";
+import { graph, render, target } from "../render.js";
+import { addTrack, append, blank, clip, placeAt } from "../composition.js";
+import { mountpoint, sample, tone } from "./fixture.js";
+
+const REPORT = {
+  format: { format_name: "mov,mp4,m4a,3gp,3g2,mj2", duration: "1.000000" },
+  streams: [
+    { codec_type: "video", codec_name: "h264", width: 320, height: 240, avg_frame_rate: "30/1", r_frame_rate: "30/1", disposition: {} },
+    { codec_type: "audio", codec_name: "aac", sample_rate: "48000", channels: 1 },
+  ],
+};
+
+specimen.describe("engine — ffprobe, ingest by hash, derived files, the render graph", () => {
+  let root, source;
+
+  specimen.beforeAll(async () => {
+    root = await mountpoint();
+    source = await sample(root, { name: "origin.mp4" });
+  });
+
+  specimen.afterAll(async () => {
+    await Deno.remove(root, { recursive: true });
+  });
+
+  specimen.it("fold reads the first video and audio stream off an ffprobe report", () => {
+    specimen.expect(fold(REPORT)).toEqual({
+      duration: 1,
+      container: "mov,mp4,m4a,3gp,3g2,mj2",
+      video: { codec: "h264", width: 320, height: 240, fps: 30 },
+      audio: { codec: "aac", rate: 48000, channels: 1 },
+    });
+    specimen.expect(fold({ format: { format_name: "wav", duration: "2.5" }, streams: [{ codec_type: "audio", codec_name: "pcm_s16le", sample_rate: "44100", channels: 2 }] })).toEqual({
+      duration: 2.5,
+      container: "wav",
+      audio: { codec: "pcm_s16le", rate: 44100, channels: 2 },
+    });
+  });
+
+  specimen.it("probe runs against a real file", async () => {
+    const held = await probe(source);
+    specimen.expect(held.video.width).toBe(320);
+    specimen.expect(held.video.fps).toBe(30);
+    specimen.expect(held.audio.rate).toBe(48000);
+    specimen.expect(Math.abs(held.duration - 1) < 0.15).toBe(true);
+  });
+
+  specimen.it("ingest copies a path under media/<hash>.<ext>, dedupes by content, and streams a body the same way", async () => {
+    const first = await ingest(root, { source });
+    const hash = await digest(source);
+    specimen.expect(first).toEqual({ path: settled(hash, "origin.mp4"), hash, name: "origin.mp4", duplicate: false });
+    specimen.expect((await Deno.stat(`${root}/${first.path}`)).isFile).toBe(true);
+    specimen.expect((await Deno.stat(source)).isFile).toBe(true);
+    const again = await ingest(root, { source, name: "renamed.mp4" });
+    specimen.expect(again.duplicate).toBe(true);
+    specimen.expect(again.path).toBe(first.path);
+    const streamed = await ingest(root, { name: "streamed.mp4", source: (await Deno.open(source)).readable });
+    specimen.expect(streamed.hash).toBe(hash);
+    specimen.expect(streamed.duplicate).toBe(true);
+    const moved = await tone(root, { name: "moved.wav" });
+    const kept = await ingest(root, { source: moved, move: true });
+    specimen.expect(kept.path.endsWith(".wav")).toBe(true);
+    specimen.expect(await Deno.stat(moved).catch(() => null)).toBe(null);
+  });
+
+  specimen.it("derive writes peaks, a thumb strip and a proxy under derived/<hash>, reporting progress", async () => {
+    const held = await ingest(root, { source });
+    const media = { ...(await probe(`${root}/${held.path}`)), asset: { path: held.path }, hash: held.hash, kind: "video" };
+    const steps = [];
+    const run = derive(root, media);
+    let step = await run.next();
+    while (!step.done) {
+      steps.push(step.value);
+      step = await run.next();
+    }
+    const derived = step.value;
+    specimen.expect(steps.map((one) => one.stage).filter((stage, i, all) => all.indexOf(stage) === i)).toEqual(["peaks", "thumbs", "proxy"]);
+    const peaks = JSON.parse(await Deno.readTextFile(`${root}/${derived.peaks}`));
+    specimen.expect(peaks.perSecond).toBe(50);
+    specimen.expect(peaks.peaks.length >= 48 && peaks.peaks.length <= 55).toBe(true);
+    specimen.expect(Math.max(...peaks.peaks) > 0.1).toBe(true);
+    specimen.expect(derived.thumbs.count >= 1 && derived.thumbs.count <= 2).toBe(true);
+    specimen.expect((await probe(`${root}/${derived.proxy}`)).video.codec).toBe("h264");
+  });
+
+  specimen.it("graph lays every track as a concat chain, stacks video by overlay, mixes audio", () => {
+    const bin = {
+      aaaa: { asset: { path: "media/aaaa.mp4" }, duration: 1, video: {}, audio: {} },
+      bbbb: { asset: { path: "media/bbbb.wav" }, duration: 1, audio: {} },
+    };
+    let cut = blank({ name: "g", width: 320, height: 240 });
+    cut = append(cut, 0, clip({ media: "aaaa", duration: 15 }));
+    cut = placeAt(cut, 0, 30, clip({ media: "bbbb", duration: 15 }));
+    cut = append(cut, 1, clip({ media: "bbbb", duration: 30, gain: 0.5 }));
+    cut = addTrack(cut, "video");
+    cut = append(cut, 2, clip({ media: "aaaa", start: 15, duration: 15, opacity: 0.5 }));
+    const built = graph(cut, bin);
+    specimen.expect(built.inputs).toEqual(["media/aaaa.mp4", "media/bbbb.wav"]);
+    specimen.expect(built.total).toBe(1.5);
+    specimen.expect(built.filter).toContain("[0:v]trim=start=0.0000:end=0.5000");
+    specimen.expect(built.filter).toContain("color=c=black@0.0:s=320x240:r=30:d=0.5000,format=rgba[t0i1]");
+    specimen.expect(built.filter).toContain("color=c=black@0.0:s=320x240:r=30:d=0.5000,format=rgba[t0i2]");
+    specimen.expect(built.filter).toContain("[t0i0][t0i1][t0i2]concat=n=3:v=1:a=0[v0]");
+    specimen.expect(built.filter).toContain("[1:a]atrim=start=0.0000:end=1.0000,asetpts=PTS-STARTPTS,aformat=sample_rates=48000:channel_layouts=stereo,volume=0.5000[t1i0]");
+    specimen.expect(built.filter).toContain("colorchannelmixer=aa=0.5000[t2i0]");
+    specimen.expect(built.filter).toContain("[v0][v2]overlay=format=auto:eof_action=pass[ov0]");
+    specimen.expect(built.filter).toContain("[ov0]format=yuv420p,tpad=stop_mode=clone:stop_duration=1.5000,trim=0:1.5000[vout]");
+    specimen.expect(built.filter).toContain("[a1]apad=whole_dur=1.5000,atrim=0:1.5000[ap0]");
+    specimen.expect(built.filter).toContain("[ap0]anull[aout]");
+    specimen.expect(target("g", cut, { format: "mp4" })).toMatch(/^renders\/g-[0-9a-f]{8}\.mp4$/);
+  });
+
+  specimen.it("render produces a file whose duration is the cut's", async () => {
+    const held = await ingest(root, { source });
+    const media = { ...(await probe(`${root}/${held.path}`)), asset: { path: held.path }, hash: held.hash, kind: "video", name: "origin.mp4" };
+    let cut = blank({ name: "r", width: 320, height: 240 });
+    cut = append(cut, 0, clip({ media: held.hash, start: 0, duration: 15 }));
+    cut = placeAt(cut, 0, 30, clip({ media: held.hash, start: 15, duration: 15 }));
+    cut = append(cut, 1, clip({ media: held.hash, start: 0, duration: 45 }));
+    const steps = render(root, "r", cut, { [held.hash]: media }, { format: "mp4", crf: 30, preset: "ultrafast" });
+    let step = await steps.next();
+    const seen = [];
+    while (!step.done) {
+      seen.push(step.value);
+      step = await steps.next();
+    }
+    specimen.expect(seen.at(-1)).toEqual({ stage: "render", fraction: 1, done: true });
+    const out = await probe(`${root}/${step.value.path}`);
+    specimen.expect(Math.abs(out.duration - 1.5) < 0.1).toBe(true);
+    specimen.expect(out.video.width).toBe(320);
+    specimen.expect(out.audio.codec).toBe("aac");
+    const sound = await settle(render(root, "s", { ...cut, tracks: [cut.tracks[1]] }, { [held.hash]: media }, { format: "wav", crf: 20, preset: "ultrafast" }));
+    specimen.expect(sound.done).toBe(true);
+    const rendered = await paladin.find.walk(/^s-.*\.wav$/)(`${root}/renders`);
+    specimen.expect(rendered.length).toBe(1);
+  });
+});
+#+END_SRC
+
+** =modes/editor/media/tests/fixture.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/tests/fixture.js :mkdirp yes
+import { capture, binary } from "../ffmpeg.js";
+
+export const sample = async (directory, { name = "sample.mp4", seconds = 1, size = "320x240", rate = 30, tone = 440 } = {}) => {
+  const path = `${directory}/${name}`;
+  await capture(binary.ffmpeg, [
+    "-v", "error", "-y",
+    "-f", "lavfi", "-i", `testsrc=duration=${seconds}:size=${size}:rate=${rate}`,
+    "-f", "lavfi", "-i", `sine=frequency=${tone}:duration=${seconds}:sample_rate=48000`,
+    "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", "-c:a", "aac", "-shortest",
+    path,
+  ]);
+  return path;
+};
+
+export const tone = async (directory, { name = "tone.wav", seconds = 1, frequency = 440 } = {}) => {
+  const path = `${directory}/${name}`;
+  await capture(binary.ffmpeg, ["-v", "error", "-y", "-f", "lavfi", "-i", `sine=frequency=${frequency}:duration=${seconds}:sample_rate=48000`, path]);
+  return path;
+};
+
+export const mountpoint = async () => {
+  const root = await Deno.makeTempDir({ prefix: "media-" });
+  await Deno.mkdir(`${root}/media`);
+  return root;
+};
+#+END_SRC
+
+** =modes/editor/media/tests/scenarios.js=
+
+#+BEGIN_SRC js :tangle ~/.viva/registry/media/modes/editor/media/tests/scenarios.js :mkdirp yes
+import { Freight, Path, Url } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+import { mountMode } from "@vivalence/runtime/scenarios";
+
+export const editor = async (viva, { mountpoint, statics = viva.statics }) => {
+  const scenario = await mountMode(viva);
+  const { manifest } = viva;
+  scenario.daemon.datamap = scenario.datamap;
+  scenario.mode.entity.installed = "";
+  scenario.mode.module.mount = new Path(new URL(`../${manifest.slug}.viva.js`, import.meta.url).pathname);
+  scenario.mode.statics = statics;
+  scenario.mode.mountpoint = new Path(mountpoint);
+  const files = await paladin.find.walk(/./, statics.ignore)(mountpoint);
+  scenario.mode.freight = new Freight(mountpoint)
+    .stow(files.map((file) => file.absolute.slice(mountpoint.length + 1)))
+    .withUrl(new Url("http://test/attached/cargo/daemon/test-daemon"));
+  return scenario;
+};
+
+export const drain = async (steps) => {
+  const seen = [];
+  for await (const step of steps) seen.push(step);
+  return seen;
+};
+#+END_SRC
+

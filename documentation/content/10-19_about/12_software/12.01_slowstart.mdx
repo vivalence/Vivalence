@@ -299,10 +299,10 @@ record                         ~/.viva/sessions/95964.json
 
 $ viva instance/init
 # three pages — environment: what the schema could not mint (here, only the optional Anthropic
-# key) · booting: runtime + kajuit spawn · create admin — then the instance is up under you:
+# key) · booting: runtime + anima spawn · create admin — then the instance is up under you:
  ● auth/signup SUCCESS  01a06cf7-2687-730f-b320-1db4b265c166
  ● runtime pid 90730 · alive
- ● kajuit pid 90731 · alive
+ ● anima pid 90731 · alive
  enter → stop + exit
 
 $ cat ~/.viva/instances/hello-world/.env
@@ -346,8 +346,8 @@ fault stands, and points back here.
 **control**
 
 ```sh
-viva instance/run [runtime | kajuit]
-viva instance/stop [runtime | kajuit]
+viva instance/run [runtime | anima]
+viva instance/stop [runtime | anima]
 viva instance/delete [slug] [--force]
 ```
 
@@ -363,14 +363,14 @@ is running and asks before acting unless `--force` is given.
 ```sh
 $ viva instance/run
 
-run runtime=8924 kajuit=8925
+run runtime=8924 anima=8925
   VITE v6.3.3  ready in 1467 ms
   ➜  Local:   http://127.0.0.1:1794/
 launching on http://localhost:2501/
 Status:ALIVE
 
 $ ls ~/.viva/locks
-hello-world_runtime.lock  hello-world_kajuit.lock
+hello-world_runtime.lock  hello-world_anima.lock
 ```
 
 For `hello-world` that is two processes:
@@ -378,7 +378,7 @@ For `hello-world` that is two processes:
 | process   | what                    | where                   |
 | --------- | ----------------------- | ----------------------- |
 | `runtime` | daemons, entities, HTTP | `http://localhost:2501` |
-| `kajuit`  | the browser client      | `http://localhost:1794` |
+| `anima`  | the browser client      | `http://localhost:1794` |
 
 The runtime hosts everything as one path tree under one origin: daemons under
 `/daemon/<slug>`, attached services like the lighthouse under `/attached/process/…`, mode

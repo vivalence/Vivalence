@@ -1,4 +1,4 @@
-import { shape, shard, steer, Cargo } from "@vivalence/typology";
+import { Aperture, shape, shard, steer, Cargo } from "@vivalence/typology";
 import { stagger } from "../traits/index.js";
 import { stamp } from "../traits/dataset.js";
 
@@ -38,13 +38,14 @@ export async function modes(daemonDie) {
   await daemonDie.datamap.shard.context(async () => {
     const finalizers = [];
     for (const mode of daemonDie.good.flatmodes()) {
-      mode.aperture
+      const own = mode.aperture;
+      mode.aperture = new Aperture()
         .use(shard.context.bind("daemon", daemonDie.good))
         .use(shard.context.bind("mode", mode))
         .open("/status", (_, ctx) => ctx.mode.status.reflection)
         .open("/manifest", (_, ctx) => ctx.mode.manifest);
 
-      if (mode.module.aperture) mode.aperture.slurp(mode.module.aperture);
+      if (own) mode.aperture.slurp(own);
 
       const held = mode.entity.installed;
       const fresh = await stamp(mode);

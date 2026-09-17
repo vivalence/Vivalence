@@ -43,7 +43,7 @@ specimen.describe("generative view contracts", () => {
     specimen.expect(Served.check({ text: "x", type: "application/javascript" })).toBe(false);
   });
 
-  specimen.it("/metadata/app carries the declaration + boot view", () => {
+  specimen.it("/metadata/application carries the declaration + boot view", () => {
     const view = { kind: "svelte", mount: "/Reader.svelte", bundle: { entries: [{ type: "js", mount: "/Reader.svelte", bytes: 5 }] } };
     specimen.expect(AppMetadata.check({ url: "https://x/attached/bundle", schema: {}, view })).toBe(true);
     specimen.expect(AppMetadata.check({ url: "https://x", schema: {} })).toBe(false); // no view

@@ -11,7 +11,7 @@ export const manifest = {
 };
 
 // the hub renders a self-description of how its intent configured the thread.
-export const app = new App("buffer/Automaton.svelte", v.buffer({ data: {} }));
+export const application = new App("buffer/Automaton.svelte", v.buffer({ data: {} }));
 
 // AIMED intents pull `card` buffers (reuse the Group-2 target) — cross-mode again.
 export const emitter = new Vector().open(

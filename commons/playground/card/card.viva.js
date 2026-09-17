@@ -10,7 +10,7 @@ export const manifest = {
   traits: ["APPLICATION"],
 };
 
-export const app = new App(
+export const application = new App(
   "buffer/Card.svelte",
   v.buffer({ data: { face: v.string() } }),
 );

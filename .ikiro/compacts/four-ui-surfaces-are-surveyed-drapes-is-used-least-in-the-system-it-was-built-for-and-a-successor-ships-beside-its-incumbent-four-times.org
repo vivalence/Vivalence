@@ -1,0 +1,296 @@
+#+title: four UI surfaces are surveyed, drapes is used least in the system it was built for, and a successor ships beside its incumbent four times
+#+filetags: :dapper:drapes:droneaid:education:anima:ui:survey:designsystem:tokens:zones:deadcode:knownissue:census:
+#+index: 179
+#+session: 5 turns (50–54 of this session's 54; 41–49 are #177, 35–40 #170, 28–34 #169, 12–27 #168, 1–11 #167), the sixth fold of one session carried past six /compacts (model opus; no agents; read-only across subsystems/dapper · subsystems/drapes · ~/.viva/registry/droneaid · ~/.viva/registry/education · systems/anima; the only write was .ikiro/known-issues.org; VCS untouched)
+
+* one breath
+
+A short fold, and honestly shaped: three of the five turns are beef, two are harness, and one of beef's three is this
+order. He asked for a survey — /"write up an anlysis of the following pieces"/ — of four UI surfaces at once, read and
+answered inline with nothing written. Then, having read it: /"mark this as a known issue."/
+
+The survey was a measurement, not an opinion. Every claim in it came from a grep or a =wc= in the same turn, and the two
+that mattered most are counts nobody had taken before: *drapes has 33 importing files in education and 9 in anima* —
+the component library is used least in the system it was built for — and *dapper emits two colour contracts, of which
+the newer, better-documented, fully-tested one has zero consumers anywhere*.
+
+That second one turned out not to be a one-off. The same move — ship the successor beside the incumbent, test the
+successor, migrate nothing — is on disk four separate times across these trees. That is what beef marked, and it is
+now =known-issues.org= entry 40.
+
+* the spine — 5 turns
+
+** 50 · =/compact= — NOTHING (harness; the queue echo of 48's fold, which #177 already recorded as turn 49).
+
+** 51 · the continuation summary — NOTHING (harness text, not beef; the context folded between #177's closing report and 52).
+
+** 52 · /"write up an anlysis of the following pieces: the dapper drapes surfaces. the droneaid ui currently. the language
+learning uis. and the anima client. read, respond here inline. no writing files."/ — four surfaces, one order, and an
+explicit output constraint. Landed: the survey, in chat, no files. Decided: measure before asserting — every number below
+came from a tool call in the turn that used it.
+
+** 53 · /"mark this as a known issue."/ — the tail-is-the-payload shape, addressed at the survey's closing verdict rather
+than at any one finding. Read as: the CROSS-CUTTING pattern is the issue, not the four instances separately. Landed:
+=known-issues.org= entry 40, appended, 1668 → 1811 lines.
+
+** 54 · /"ikiro compact"/ — this.
+
+* landed
+
+** the survey (52) — four surfaces, measured
+
+No file written, by order. What it established, with the measurement beside each:
+
+*** dapper ships two colour contracts
+
+=lib/flatten.js= emits both on every =design()= call:
+
+#+begin_example
+--colors-skeleton-N-*   :root[data-theme=X]   N ∈ 0..4   ~20 consumer files
+--zone-*                .zone-N               N ∈ 0..5   ZERO consumer files
+#+end_example
+
+Zones are the successor and the better model — six named roles written out at =themes/nordic.js:5-11=
+(=canvas · panel · recess · raised · accent · overlay=), =ZONE_COUNT = 6= at =lib/flatten.js:1=, pinned by
+=tests/zone-emit.test.js= across six zones × seven roles × three states plus an error triplet. Then =nordic.js:94= sets
+=.zones= and =nordic.js:100= sets =colors.skeleton = {0..4}= under a local literally named =compat=.
+
+The arity is the tell: zone5, =overlay=, has no compat twin. The one zone a mode reaches for — popovers, modals, the
+chess end card that landed in #177 — is the one the live contract cannot name.
+
+*** dapper carries =primitives/= as a dead, DIVERGED fork of =lib/=
+
+=colors.js= 391 vs 452 lines, =tokens.js= 128 vs 130 — differing, not stale copies. =builders.js= identical. Live path is
+=lib/=: =mod.js= re-exports it and =lifecycle/index.js=, the postcss door named in =deno.jsonc=, imports
+=../lib/system.js=. =primitives/= is reached only by =belt/postcss-plugin.js= and =tests/builders.test.js=, and
+=belt/index.js= is exported from neither =mod.js= nor =deno.jsonc= — so that belt is a second dead door. Two palettes on
+disk, differing, nothing naming the winner.
+
+*** drapes =context/= is an orphan spelling the contract that is itself due to retire
+
+=decorum.js=, =Zone.svelte=, =SkeletonProvider.svelte=, =useSkeleton.js= — zero importers outside =subsystems/drapes/=.
+=Zone.svelte= re-declares sixteen CSS variables by hand onto a =display: contents= wrapper, which is a naming shim over
+what the cascade already does, and it spells =--colors-skeleton-{n}-*=. Adjacent: =skins/= is 7 components plus a =bak/=
+of 7 more, with two consumers repo-wide taking one each — =education .../dataspace/Dashboard.svelte:3= takes =Filter=,
+=anima .../panels/h/Inspector.svelte:6= takes =Skin=. It is the one namespace export the drapes readme carves out.
+
+*** what drapes is ACTUALLY for, measured across education's 33 importing files
+
+=Desk= ×10 · =ViewportLock= ×8 · =stage= ×4 · =Pip= / =Keyboard= / =Button= ×3 · =visible= / =preferences= / =Tag= /
+=Shelve= / =Input= / =Card= / =Asset= ×2. Layout and viewport plumbing. *Nobody uses the semantic component pitch* the
+readme leads with — no =<Text as="h1" variant="heading" size="3xl">= anywhere, and the whole BSP =triage= story
+(=Plane= / =Shelve= / =Box=) shows 2 uses.
+
+*** droneaid — the best-composed view of the four, and the only one that cannot be themed
+
+One mode, =modes/assembly/pt10=, 1218 lines with =Assembly.svelte= 516 of them. Raw three.js + OrbitControls, no threlte.
+Step is a single piece of state: =show()= moves camera, explode and scroll together, =retain()= persists it to the
+buffer, and an =$effect= subscribes the buffer back — bidirectional without a loop, because =show= is guarded on
+=!== step= and =retain= on =!== buffer.data.step=.
+
+Against that: 13 hardcoded hex vars at the =.assembly= root and =Archivo= pulled from Google Fonts in =<svelte:head>=.
+Zero dapper, zero drapes. Switch nordic → paper and droneaid stays white-studio.
+
+The contrast that names the choice is next door: chess solved the identical problem at =kit/Theme.svelte= by aliasing
+dapper tokens into short local names (=--s1=, =--sq-dark=) inside =:global(.chess)=, shipped as a COMPONENT so the
+bundler cannot drop it. Same ergonomics for the view author, and it follows the theme. Droneaid's hex is defensible for
+the illustrated surfaces — an assembly studio wants the IKEA look — but =--line=, =--hover=, =--mute=, =--paper= are
+chrome.
+
+Two rough edges recorded: =world.byId[id].swatch= is read unguarded in the chips loop, so a guide step naming a part the
+GLB lacks throws mid-render instead of landing in =fault=; and =explode= is read back from the world on a 100 ms
+=setInterval=, a value the world could push.
+
+*** the language-learning UIs — 67 views, 18k lines, uneven
+
+Token discipline holds where it counts: 50 of 67 files on =--colors-*=, 11 carrying hex, and the hex is concentrated in
+ILLUSTRATION. =Riddler.svelte= draws a jester in CSS — =.cone.gold=, =.pom.red=, a three-stop backdrop gradient. That is
+palette-as-artwork and the no-hex-in-a-view rule should not be read onto it.
+
+Riddler is nonetheless a stub by its own admission — header comment: /"gutted to the bare minimum that RUNS … Everything
+else was stripped."/ 538 lines, no drapes, no tokens, =console.log= on both sides of the aperture call, the riddle read
+once at module scope from =buffer.data?.riddle= so a new riddle never reaches the view, and it is the only view in the
+survey that reaches =buffer.mode.connection.call("/assistant/message")= directly instead of through =mode.call.*=.
+
+Dojo is where the real design lives — 793 + 1042 + 536 + 516 + 384 + 368 + 287 across =Dojo.svelte= and six =parts/=,
+10 drapes imports, 18 files on tokens, zero hex. The only mode with a decomposed view tree, and =Builder.svelte= at
+1042 lines says the decomposition stopped one level short.
+
+And the copied skeleton: =cloze=, =match=, =judge=, =exhibit=, =impara= are each exactly =drapes=1, tokens=1,
+styleblock=1=. One skeleton, five copies, diverging. Chess met this and answered with the kit-copy law plus
+=tests/kit.test.js= pinning the copies byte-equal. Education has the copies without the pin.
+
+*** anima — cleanest colour, least component reuse, worst naming
+
+*Zero hex across all 56 views.* 50 use =var(--)=, 51 carry a scoped =<style>=. The token law holds perfectly, in the
+system the law was written for.
+
+And drapes barely exists here: 9 of 56 files import it, taking =Section= ×4, =Icon= ×2 and singletons of =Pip= /
+=Markdown= / =Json= / =Frame= / =Chip= / =skins=. Anima hand-rolls its chrome against dapper's variables and skips the
+component library.
+
+The anatomy naming is coherent where it is anatomical — =bones/= is crown, spine, shoulder, pincer — and empty where it
+is not: =panels/a..h=. Only A/B/C/G/H mount in =+page.svelte=; D/E/F are tabs inside C, dispatched at =c.svelte:296= by a
+raw =({#if index === 0}…{:else if index === 1}…{:else})=. Panel identity is recoverable only by opening the file, where
+the chess kit next door says itself — =Shell= / =Board= / =Moves= / =Seat= / =Nav=.
+
+=Dock.svelte= is 1845 lines with 122 =class="= sites and no =widgets/= beneath it — the largest view in the repository by
+3.6×, and the mechanical form of the frontier's /"still ... ish. bit convoluted"/.
+
+=+layout.svelte= is dense but honest: five contexts built inline, a =computed()= over two lighthouse atoms driving a
+five-state =gate=, subscriptions unwound by hand in the =onMount= return. One thing to fix — the =window.__viva=
+devtools hatch is marked =@beef Temporary= and ships in the prod bundle UNGUARDED, while the logger tap three lines
+below it is correctly behind =import.meta.env.DEV=.
+
+=systems/anima/README.org= is 0 bytes. The only one of the four surfaces with no written intent, and the one whose
+architecture beef has flagged.
+
+*** the verdict the survey closed on
+
+Four surfaces, one gradient, and the two axes run OPPOSITE ways:
+
+#+begin_example
+colour discipline   anima 0 hex/56  →  education 11/67  →  droneaid all-hex     (improves inward)
+component reuse     education 33    →  anima 9          →  droneaid 0           (runs backwards)
+#+end_example
+
+*The design system's strongest consumer is the package furthest from it, and its weakest is the system it was built for.*
+
+** the known issue (53) — =known-issues.org= entry 40
+
+=* four-ui-surfaces-ship-a-successor-beside-the-incumbent — OPEN=, appended at the tail, 1668 → 1811 lines, 40 entries.
+House sections: Symptom · the four instances · Root cause · Secondary drift · Why not fixed now · Workaround · a
+cross-cutting note.
+
+Root cause written as ONE move made four times: ship the successor beside the incumbent, test the successor, migrate
+nothing. Each half is green in isolation, which is exactly why none of the four surfaced. *A test suite cannot see that
+its subject has no callers* — that fact lives only in the consumer grep, and nothing runs one. =zone-emit.test.js= is the
+sharpest case: six zones, seven roles, three states, an error triplet, all passing, on CSS no served bundle has read.
+
+The fourth instance is filed with a qualifier that matters. Education's =modes/games/bak/= holds 8 complete modes
+(=listen= 853, =paradigm= 687, =write= 634, =shadow= 582, =conjugation= 441, =flashcard= 331, =translations= 301,
+=pick= 287 — ~4.1k lines) plus a =bak/tmp/= mirror of the entire mode tree. That is NOT drift — =bak/= is beef's recovery
+surface under the same law that protects =quests/bak/= — but it shares the symptom exactly: every census of the package
+double-counts unless the walker excludes it by hand, and no convention tells a walker to.
+
+Secondary drift recorded in the same entry: =drapes/readme.org= documents =themes/dark.js= (disk has =nordic.js= /
+=paper.js=), a =Modeline= component that exists nowhere but the readme, and =bsp.css= / =fonts.css= exports that are
+COMMENTED OUT in =dapper/deno.jsonc=. Its =Architecture= section is fiction while its =Exports= section — the
+tree-shaking warning, measured 0.54 → 1.33 MB prod when the aggregate =components= map was reinstated — is the most
+load-bearing paragraph in either package. A reader cannot tell the two halves apart.
+
+Three rulings left for beef, none of them repairs: pick a colour contract and delete the other with =primitives/=;
+decide what drapes is for, with =skins/= at 2 consumers and =context/= at 0 as the first cuts; pin or share education's
+five-times-copied game skeleton.
+
+* settlement
+
+- *Nothing was owed and left undone.* The survey was answered inline under its own no-files constraint, and the one write
+  beef then ordered was made in the turn he ordered it.
+- *The frontier was deliberately not touched.* It is derived, regenerated whole at every disintegrate, and sits at 4998
+  of its 5000-char budget (measured at #177's close). It already reads =known-issues.org= as a source, so entry 40
+  reaches it at the next regeneration without a hand-patch.
+- *No quest was opened.* The three rulings are beef's and none has a number; =mXX= numbering is his. They live in the
+  known-issue's /Why not fixed now/, which is the correct home for a ruling nobody has made.
+- *The =@chess= owed line is unchanged* — #177 left it, this fold added nothing to it. Still: tap, instance/create, VCS
+  init, walk the five views in anima after a runtime restart, rule the engine's home and the GPL-3.0 question.
+
+* callouts
+
+** the sibling session — flagged BEFORE the reading was trusted, and it held
+
+Compact *#178* is not mine. It was written by a concurrent session — /"an assembly ontology takes USD's kind as its
+literal key…"/, m67, 20 beef turns between 10:34 and 11:55 — and its window OVERLAPS turn 52 at 11:54. A survey of the
+droneaid UI taken while a sibling lands droneaid work is exactly the hazard the quest report's =sessions= column exists
+to name.
+
+Checked rather than assumed: every file under =modes/assembly/pt10/= carries an mtime predating the sibling's window by
+more than a week, so the reading is current on disk, and =m67-assembly-ontology.org= is at design stage with no code landed. The reading stands — but it
+stands because it was checked, and =#179= had to be taken instead of =#178= because the sibling stamped first.
+
+** the readme that is half true is worse than the readme that is absent
+
+anima's =README.org= is 0 bytes and misleads nobody. =drapes/readme.org= is long, confident, and describes a =themes/dark.js=
+and a =Modeline= that do not exist — while carrying, three screens down, the single most valuable measured fact in either
+package. A reader who discovers the fiction discounts the measurement with it. The failure is not the drift; it is that
+nothing in the file separates its authored claims from its derived ones.
+
+** four instances read as four problems until the fifth grep
+
+The survey found the =--zone-*= orphan, then =primitives/=, then =context/=, then =bak/= — as four separate notes in four
+separate trees. They only became ONE thing when the verdict was written and the shape repeated. Beef saw it in one
+reading and marked it; the survey had already written it down without naming it. *The pattern was in the evidence before
+it was in the prose*, and composing the verdict is what surfaced it — which is the compact method's section-from-the-whole-
+table rule working on a survey instead of a fold.
+
+** quest-report.py hard-crashes on a quest that moved, instead of reporting it
+
+Measured six times in a row at this fold, each on a different file. =report()= (=quest-report.py:146=) and =stamp()=
+(=:185=) both =open(path)= on a path taken from =quests/index.md= with no guard, so a quest sunset into =done/= between
+the index's regeneration and the report's read takes the whole run down with a =FileNotFoundError= — no table, no
+partial output, nothing about the other seventeen rows.
+
+The irony is exact: the report's own =sessions= column exists to warn that a tree may be moving, and the script cannot
+survive the thing it warns about. The fix is small — treat a missing path as a row whose status is /moved/, resolve it
+against =done/= and =discarded/=, and carry on — and it is what makes the tool usable while a sibling works. Filed as
+=known-issues.org= entry 41 rather than fixed here, because =methods/= is ikiro's and the fold's remit was a survey.
+
+* markers
+
+All three OPEN entries stay OPEN, and this fold touched none of them. Said plainly rather than left silent:
+
+- *the tag index is DEPRECATED* — waits on the next ikiro selfimprove, by beef's own /"mark. no do."/ This fold
+  regenerated the index as the method still requires and did no new tag work.
+- *an empty cortex must warn at boot* — runtime + anima. Nothing in a UI survey reaches it.
+- *cortex snapshot coverage vs the live strip* — the ruling is still the only open half; HOLE 1 and HOLE 2 were confirmed
+  as TEST gaps at the doctor-rewrite fold and nothing here changes that.
+
+* laws
+
+** a green test proves the code runs, never that anything calls it
+
+Four times on disk in these trees. =zone-emit.test.js= passes on CSS with no consumers; =builders.test.js= passes on the
+dead =primitives/= fork. The missing check is not another assertion — it is a CONSUMER GREP, and no suite runs one.
+Before believing a subsystem is live, count its importers from outside its own directory.
+
+** a recovery surface must announce itself to walkers, or every census lies
+
+=bak/= is protected by law and invisible to measurement. Education's is ~4.1k lines of =.svelte= plus a full mirror tree,
+about a third of the package's view surface, and every count taken over =modes/= is wrong by that much until someone
+remembers. The law is right; the convention that tells a walker where it applies does not exist yet.
+
+** a mode-local palette is a THEME ALIAS, not a colour list
+
+Chess and droneaid met the same problem — a package's views want short, local colour names — and answered it opposite
+ways. Chess's =kit/Theme.svelte= aliases dapper tokens into =--s1= / =--sq-dark= inside =:global(.chess)=, shipped as a
+component because the bundler drops a =.css= import. Droneaid declares 13 hex values at its root. The author's
+ergonomics are identical; only one follows the theme. Alias the token, never copy the value — and if the surface is
+genuinely illustration, say so at the declaration so the next reader does not "fix" it.
+
+** measure the thing the sentence is about
+
+The survey's two most useful facts — drapes at 33 education files vs 9 anima files, and =--zone-*= at zero consumers —
+are both counts of CONSUMERS, and neither is visible from inside the package being judged. Reading =dapper/= tells you
+zones exist and are tested. Only =grep -rl= outside it tells you they are unused.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+Read at the fold's close, and it must be read with its own warning attached. A *live sibling session* (=edafd0fa=) was
+sweeping the quest root into =done/= while this fold ran — eighteen live quests became four, including
+=chess-ui-pass=, =m61-chess-domain=, =m65-the-activity=, =m51=, =m53=, =m63=, =drapes-editor=, =media-editor= and
+=readme-can-i=. The table below is therefore a snapshot of a tree that was moving under it.
+
+| quest                   | progress  | status    | next                                                                                                                                                                                                                                                                       | sessions   |
+|-------------------------|-----------|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------|
+| m46-linux-readmen       |  17% 3/18 | wip       | drain                                                                                                                                                                                                                                                                      | 2 (1 live) |
+| m55-recursive-terminals |  20% 3/15 | wip       | go m2 — the anima terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                      | 1          |
+| m60-lighthouse-security |   0% 0/24 | designed  | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                      | 1          |
+| m67-assembly-ontology   |   0% 0/3  | designing | beef — the four inline @beef comments (transitioned from/to · the v schematics · topology grouping · topography name) · the m1 capability list (§milestones). ikiro — on go: the threlte measurement, then the three topology kernels, the pt10 skeleton, the editor mode. | 1 (1 live) |
+live: m46-linux-readmen ← edafd0fa (5m ago)
+live: m67-assembly-ontology ← edafd0fa (5m ago)
+
+*The =--stamp= half did NOT run.* It raced the sweep five times, each failure naming a different quest that had moved
+between the report's read and the stamp's write (=m63= → =m53= → =m51= → =drapes-editor= → =media-editor= → =m56=).
+Stamping is a WRITE into =quests/=, and =quests/= belonged to the sibling for the duration; the three derived header
+keys on the four surviving quests are therefore *unstamped by this fold* and will restamp at the next one. Nothing in
+this compact claims anything about the swept quests' contents.

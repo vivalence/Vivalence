@@ -30,18 +30,18 @@ export async function metadata(die) {
     if (mode.mountpoint) meta.open("/mountpoint", () => mode.mountpoint.absolute);
 
     if (mode.implements("APPLICATION"))
-      meta.open("/app", async () => {
-        if (paladin.is.dev) await mode.app.compile();
+      meta.open("/application", async () => {
+        if (paladin.is.dev) await mode.application.compile();
         return {
           url: die.good.attach.branch("/bundle").branch(mode.mount.absolute).absolute,
-          view: mode.app.view.json,
-          schema: mode.app.schema ?? null,
+          view: mode.application.view.json,
+          schema: mode.application.schema ?? null,
         };
       });
 
     if (mode.implements("EMITTER")) meta.open("/emitter", () => shape.strip(mode.module.emitter));
 
-    // if (mode.implements("TOOLED")) meta.open("/tools", () => someMetadataStripOfModuleTools());
+    // if (mode.implements("TOOLING")) meta.open("/tools", () => someMetadataStripOfModuleTools());
 
     if (mode.implements("FRAUGHT") || mode.implements("MOUNTED")) meta.open("/freight", () => mode.freight.catalog);
 

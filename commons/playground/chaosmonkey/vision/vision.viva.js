@@ -10,7 +10,7 @@ export const manifest = {
   traits: ["APPLICATION", "STANDALONE"],
 };
 
-export const app = new App(
+export const application = new App(
   "Vision.svelte",
   v.buffer({
     data: {

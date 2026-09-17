@@ -1,6 +1,6 @@
 ---
 title: Guide to the repo
-summary: Algebraic types from @typology, the @runtime, and client @kajuit. Shell client @ghost coming soon.
+summary: Algebraic types from @typology, the @runtime, and client @anima. Shell client @ghost coming soon.
 author: claude (agent)
 ---
 
@@ -12,7 +12,7 @@ subsystems/       libraries — imported, never booted
   drapes/         svelte component library
 systems/          processes — things that boot
   runtime/        hosts daemons — entities, traits, HTTP
-  kajuit/         the browser client
+  anima/         the browser client
   ghost/          the CLI, installed as viva (WIP)
 commons/          the ONE package the checkout ships — the content: services, instances, demo modes, test fixtures
   datamaps/ hallucinators/ lighthouses/ services/   core services
@@ -48,7 +48,7 @@ The look. `dapper` is the design system — token primitives and themes. `drapes
 
 The server side. Boots from an instance file: constructs the daemons, gives each its entities, mounts each mode's traits, and serves the whole thing over HTTP. `daemon/` is the heart — a daemon is the sum of its modes, and the runtime is the machine that makes that sentence true.
 
-### kajuit
+### anima
 
 The browser client. A Svelte SPA that logs in against a lighthouse, attaches to daemons, and renders their modes' apps as buffers. Carries the client half of typology — the same types, minus the server-only rooms.
 

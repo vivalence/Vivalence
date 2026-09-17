@@ -1,0 +1,203 @@
+#+title: m61 lands as @chess in the registry — four modes over one position corpus, and the only stockfish on the machine is a fake
+#+filetags: :m61:chess:registry:domain:topology:topography:service:engine:stockfish:buffer:harness:bundler:import:rig:quest:callout:
+#+index: 167
+#+session: 11 turns (2 are skill bodies I loaded), one session across a day and a =/rename chess= (models opus → fable → opus; no agents; ~/.viva/registry/chess (new) · import_map.json · ikiro · memory touched; VCS untouched)
+
+* one breath
+
+The fold opened as a context load — /"load context to write a new standalone mode,instance,daemon"/,
+widened mid-turn to /"domain"/ and /"service"/ — and a look back through the quests found m61, the
+chess design beef had me write from his dossier: six forks owed, nothing landed. Then
+/"now. write into registry my chess domain"/ took it as the go, and three mid-turn messages shaped the
+build while it ran: the path (/"write it into ledger/registry/chess"/ — so =@chess=, not m61's
+=@games=), the four modes (/"one mode for play. buffer holds game position. one mode for chess riddles
+in different levels. one mode for agentic practice."/, replacing m61's five), and a question to answer by
+experiment (/"can modes in domain import from "https://jsr etc?"/).
+
+It landed as 63 files, suites green offline over one rig that uses a real in-memory datamap, a scripted
+engine and a scripted harness. Nothing booted: the package is untapped, no instance exists, no view has
+rendered, and =stockfish= is not installed on this machine. The engine suite drives a fake UCI process
+written for it. A sibling session renamed =app= → =application=, =TOOLED= → =TOOLING= and =kajuit= →
+=anima= inside the new tree while it sat uncommitted. At the fold the whole package still reads
+=18 passed (78 steps) | 0 failed=.
+
+* the spine — 11 turns
+
+** 1 · /"load context to write a new standalone mode,instance,daemon"/ — memory bodies read whole:
+hello-world, m59, droneaid, media, standalone isolation, app export, manifest identity, mode owns rows,
+freight vs mountpoint, hand-knows-foot. Also read: the commons codemap and the hello-world + media
+instance/mode files. Nothing written.
+
+** 2 · MID-TURN /"domain"/ — read the =voffice= and =stucatch= domain kernels and the =Domain= schematic
+(=manifest · traits · kinds · entities=, =additionalProperties=). Domain traits override the runtime's,
+and domain tools arm under =/<slug>=.
+
+** 3 · MID-TURN /"service"/ — read =commons/services/{reader,nlp}=: a service is =manifest= + =provider()=,
+consumed by name. The answer laid out the five nouns and closed on four questions.
+
+** 4 · /"check in past quests on topic."/ — found m61 (designed, six forks), m51 (a flat standalone with an
+inline domain), m53 (voffice live) and =done/m11=. m61's seven corrections restated. =claim-guard= fired on
+/"nothing in v builds a recursive schema"/, a sentence carried from m61 §4 as if measured. Re-measured
+=schematics/v.js:133-155=: =v.node= is absent (held); the recursion claim was overstated, because =v.$ref= →
+=Type.Ref= exists. → callout.
+
+** 5 · /"now. write into registry my chess domain. serivce chess engines, play against agents, play
+against agents that get chess engine given position assessment, positions as literals. games in buffer.
+etc etc. there is a lot to be done for a propper, pro-level equipped, standardized, open chess domain.
+viva style"/ — the go. Read before any write: the rest of m61, the education domain whole (Literal ·
+Retention · Trace · Buffer · aperture + =resolve= · tools · the scenario rig), the runtime
+=Literal=/=Symbol= bases, =population.core=/=services=, =resolution.domain=/=modes=, =aperture.userspace=,
+=traits/dataset.js=, and the harness input shape.
+
+** 6 · MID-TURN /"write it into ledger/registry/chess"/ — owner =@chess=, directory
+=~/.viva/registry/chess=. m61's F1 (=@games= holding =chess/=) is settled by the path.
+
+** 7 · MID-TURN /"mode buffer application for post analysis. one mode for play. buffer holds game
+position. one mode for chess riddles in different levels. one mode for agentic practice."/ — four modes:
+=board/play= · =study/analysis= · =riddle/puzzles= · =coach/practice=. They replace m61's five
+(=board · arena · library · coach · trainer=).
+
+** 8 · =pre-flight= skill body — NOTHING (harness; loaded by me). Its checks ran: surfaces grepped, three
+existing entries read per dataset (word topology symbols · english-to-italian topography · dojo App).
+
+** 9 · MID-TURN /"any imports via deno feature http. shoudl work i THINK?!? test this. can modes in domain
+import from "https://jsr etc?"/ — probed two ways.
+- *daemon side*: an out-of-repo file under the repo config imports =npm:= ✓ · =https://esm.sh= ✓ · =jsr:= ✓ ·
+  a bare specifier ✗ (not in the map).
+- *browser side* (=paladin.bundler=, esbuild): bare =chessground= BUNDLES from node_modules (822 580 B) ·
+  =https://esm.sh/…= stays EXTERNAL (=from "https://esm.sh/chessground@9.1.1"= survives in the output, so
+  it is fetched past the integrity hash) · =npm:= fails to resolve.
+Chosen: bare + one import-map line. The build ran in the same turn chain → =* landed=.
+
+** 10 · /"ikiro compact"/ (after =/rename chess=) — this.
+
+** 11 · =quest-lifecycle= skill body — NOTHING (harness; loaded by me). Its gate ran on m61 → =* settlement=.
+
+* landed
+
+- *package* =~/.viva/registry/chess= (=@chess=): 63 files · 5 695 js/ts/svelte lines · tree, laws, engine
+  contract and suite table in its =README.md=.
+- *domain* =@chess/domain/chess=:
+  - =rules/= — the one runtime chessops importer: FEN · UCI · SAN · PGN · EPD · key · material · phase ·
+    variants.
+  - =Literal.ts= — trait enum (=RECORDED OPENED CLOCKED TERMINATED SOURCED SEATED ANALYSED PLACED EVALUATED
+    BOOKED TABLEBASED CATALOGUED POSED=). Verbs: =reach · evaluated · record · seal · classify · analysed ·
+    puzzle · pose=, every mint through =mint()= under its topology's mode row.
+  - =Trace= — user-filtered.
+  - =analysis/{winrate,judge}= — lichess's win % and accuracy.
+  - aperture: =/rules/* · /position/{reach,eval} · /game/{import,export,list} · /opening/classify ·
+    /analysis/game= (yields) =· /puzzle/{next,attempt,hint,reveal}=.
+  - tools: =chess_{legal,assess,classify,puzzle}=.
+- *topologies* =game · position · opening · puzzle= — symbols only, one =TOPOGRAPHICAL= root each (ECO
+  A00–E99 · five levels · 61 themes).
+- *topographies*, harvested:
+  - =openings= — 3 810 rows from lichess =chess-openings= TSVs.
+  - =puzzles= — 1 000 rows, 200 per level, from the lichess puzzle dump streamed through =zstd -dc=.
+  - Both CC0, each with its =harvest.js=.
+- *service* =@chess/service/stockfish= — =analyse= (async generator) · =evaluate= · =play= over a lazy UCI
+  process with a one-search queue.
+- *modes*:
+  - =board/play= — the buffer holds the live game. Seats: user · engine · hallucinator (=assisted= puts the
+    engine's lines into the prompt). A seat answering illegally twice gets a random legal move and a mark.
+    Mate, resignation and draws seal the game into the corpus.
+  - =study/analysis= — load PGN or a corpus game · =run= yields progress and stamps =ANALYSED= · seek ·
+    =explain= per ply through =object.render=.
+  - =riddle/puzzles= — levels · streak · a nudge that costs the streak · the opponent's reply played for the
+    solver · traces.
+  - =coach/practice= — =CONVERSATIONAL HARNESSED TOOLING=: =practice_{board,assess,move,note}=, with
+    =/practice/turn= streaming the coach on the operator's thread.
+- *instance* =@chess/instance/chess= — the full kernel, =consume.engine=, and the =VIVA_SERVICE_STOCKFISH_*=
+  env group.
+- *tests*: =tests/rig.js= (=mount= · =mountMode= · =engine=) + =services/stockfish/tests/fake-uci.js=. At the
+  fold: =ok | 18 passed (78 steps) | 0 failed=, re-run after the sibling's renames.
+- *repo*: =import_map.json= gained ="chessground": "npm:chessground@9.1.1"=.
+- *memory*: =project_chess_package= (indexed); three of its lines corrected at the fold (→ callouts).
+
+* settlement
+
+- *quest m61* — stays at the root. Gate FAILS on two blockers:
+  - 5 markers still =pending=: =T-no-engine= (boot unmeasured) · =T-transposition= (the visible half) ·
+    =T-endgame-voice= · =T-rating-moves= · =P-sse-analyse=.
+  - =* release= unlifted, and its five lines still name =@games/*=.
+  - Also unbuilt: M5 tablebase · M6 ratings · M7 arena/library/elite/evals · remote seats.
+  - Restamped this fold:
+    - =#+status= · =#+progress= · =#+next=.
+    - the 12 markers: 5 held · 1 revised · 1 broken · 5 pending (see markers).
+    - a changelog entry that names the divergences: =@chess= · four modes · the EPD key over Polyglot
+      Zobrist · no Syzygy.
+  - Index line rewritten to match.
+- *frontier* =## owed=: one =@chess= line. Room made by cutting landed narrative from the m62 and m65 lines;
+  the live-quest count corrected to 15 + 2.
+- *MARKERS* — both OPEN entries (empty-cortex boot warning · cortex snapshot coverage) are untouched by this
+  fold: carried, not settled.
+- *world-sync* — no codemap shard covers =~/.viva/registry/chess= (=commons.md= names the store's TAPPED
+  packages; chess is untapped). None restamped.
+- *VCS* — untouched. The =import_map.json= hunk sits in the dirty tree with the rest.
+
+* callouts
+
+One entry appended to =zettelkasten.md ## Callouts=, family =assume-dont-verify=, ×3:
+1. CARRIED, caught by =claim-guard= (4): a quest's "measured" section restated as a fresh measurement —
+   and it was stale.
+2. closing summary, self-caught at the fold: "GPL-3 dependencies" stated with no measurement (held:
+   =GPL-3.0-or-later= ×2).
+3. MECHANISM, self-caught at the fold, in memory:
+   - "429 after ~10 calls" — measured 14, then 17×429.
+   - "two in-memory ORMs … after closing one" — a mechanism typed beside an observed error; relabeled
+     unisolated.
+
+* markers
+
+m61's twelve, verdicts measured this fold:
+- *held*:
+  - =P-no-v-literal-const= (grep 0).
+  - =P-one-position-row= — the package's only literal =create= is =Literal.ts:77= inside =mint=; =position=
+    is minted by =reach= alone.
+  - =P-null-owner= and =T-reimport=, from =domain.test.js=.
+  - =T-illegal-retry=, from =match.test.js=.
+  - All on the rig, none booted.
+- *revised* =P-chessops-single-import= — 4 importers: =rules/= plus two build-time harvests and one test-time
+  fake engine. The law now reads "the only RUNTIME importer" (README).
+- *broken* =P-example-in-desc= — 53 of 148 =.desc(= outside tests lack =Example:=.
+- *pending* ×5 — see settlement.
+
+=compacts/MARKERS.md=: none added, none settled.
+
+* laws
+
+- Daemon-side modules may import =npm:= · =https:= · =jsr:=, and bare specifiers need the map. In the
+  browser bundle, bare bundles, =https:= stays external past the integrity hash, and =npm:= does not
+  resolve (9).
+- =daemon.call.<door>.<verb>= runs =steer.strategy.direct= on the CALLER's ctx. A mode reaches a domain verb
+  as =ctx.daemon.call.rules.apply({ ...ctx, input, output: undefined })= (5).
+- =Vector.branch()= returns the child. Build the root, branch it, export the root — or the prefix is lost
+  and =shape.proxy= finds nothing (5).
+- The runtime Buffer's default =user= filter is =thread.user=. A buffer minted without a thread is invisible
+  to its own mode's aperture, so apertures default =thread= to =ctx.thread?.id= (5).
+- =population.services= awaits =provider(mask)= with no guard, so a provider that spawns or connects must do
+  it lazily, on the first call (5).
+- A registry-side test that spawns a subprocess with =--config= takes the path from =Deno.cwd()= (suites run
+  from the repo root). A relative =new URL= from =~/.viva= resolves into =~/.viva/=, and the child never
+  starts — the suite hangs on the first handshake timeout (5).
+- A claim carried from a quest's measured section is re-measured or labeled carried, like any other carried
+  zero (4).
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | sessions   |
+|----------------------------+------------+-----------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 3 (1 live) |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 2 (1 live) |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 2 (1 live) |
+| m53-vcompany               |   0% 0/1   | open                                                                  | his restart + the click-through gates (vdex 12 · mail/calendar 12 · gs1–gs6); the six office test files; the three stale vdex reds; then his call on the next stage — chat over telegram · vendor providers · the officer stage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 1 (1 live) |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and the v3 vdex pass (both folded into =m53-vcompany.org=; originals =discarded/m53-vcompany.org= · =done/m53-vcompany.v3-vdex.org=) first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → anima. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1 (1 live) |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the anima terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1 (1 live) |
+| m57-hello-world-researches |  74% 20/27 | open                                                                  | restart (harnessed.js · generative.js · buffer.ts · thread.ts are repo files; buffer migrates). /"research flamingos, with a picture"/ → one <figure>, line reads the label. a follow-up change → `revised buffer <id> index 0 view <new>`, same line re-mounts, no cursor. /"call that page flamingos"/ → one buffer_label.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 1 (1 live) |
+| m58-application-noun       | 100% 3/3   | designed                                                              | beef — one commit for the three renames (add -a pairs the 4259 moves) · coolify step 6 for m3 (image `vivalence/anima:alpine` + `*_anima_*` keys, rollback pair noted) · education + primer + droneaid pushes · restart every instance (m2 rows mirror the manifest at boot) · anima click-walk in chrome. ikiro — sunset to `done/` once prod is on anima; the enum drop of `tooled` is a later pass with the migration routine.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 2 (2 live) |
+| m60-lighthouse-security    |   0% 0/24  | designed                                                              | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 2 (1 live) |
+| m61-chess-domain           |  30% 6/20  | wip                                                                   | beef — tap `~/.viva/registry/chess` · `viva instance/create @chess/instance/chess --use --init` · install stockfish · browser walk of the four views · rule the gpl-3.0-or-later dependency (chessops · chessground) · f6 before m6. ikiro — rename the release lines to @chess at lift; five markers pending                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 1          |
+| m63-process-controller     | —          | designed                                                              | beef — rule the overlap with m65, which now tangles primitives/controller.js · errors/controller.js · prototypes/controller.js; m63 keeps the graph and the socket line                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 1 (1 live) |
+| m65-the-activity           | —          | landed                                                                | beef — followup: tools nesting a harness call hand `ctx.controller?.branch(<faculty>)` (research.js runs under a dispatch; dealer · oracle · registry named by beef) · followup: the polish sites renamed by faculty (verbatim.polish · hal.verbatim({ polish }) · vocal.polish · polish) · then the anima capability (a panel over `daemon.entities.activity` + `row.stdin`) · rule the m63 overlap. diff back into the quest: the =drift:= marks under each section (measured on disk; compact #160 `* landed vs designed` is partly stale).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3 (2 live) |
+| readme-can-i               |   0% 0/5   | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 1          |

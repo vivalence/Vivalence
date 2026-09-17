@@ -11,7 +11,7 @@ export const manifest = {
 };
 
 // The hub is a control surface, not data — its buffer carries nothing.
-export const app = new App("buffer/Spawner.svelte", v.buffer({ data: {} }));
+export const application = new App("buffer/Spawner.svelte", v.buffer({ data: {} }));
 
 export const emitter = new Vector().open(
   {

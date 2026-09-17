@@ -27,7 +27,8 @@ indexed=$(grep -cE '^ ?[0-9]+\. ' "$root/compacts/index.md" 2>/dev/null)
 stray=$(awk '/^## Callouts/{c=1} /^### /{if(!c) n++} END{print n+0}' "$root/zettelkasten.md")
 over=$(for f in "$root"/self/*.md "$root"/world/*.md "$root"/world/codemap/*.md; do
   lim=$(grep -oE 'limit: [0-9]+ chars' "$f" | grep -oE '[0-9]+'); [ -n "$lim" ] || continue
-  n=$(wc -c < "$f"); [ "$n" -gt "$lim" ] && printf '%s %s/%s ' "$(basename "$f")" "$n" "$lim"; done)
+  n=$(LC_ALL=en_US.UTF-8 wc -m < "$f" | tr -d ' ')   # CHARS, not bytes: `·` and `—` are 3 bytes each
+  [ "$n" -gt "$lim" ] && printf '%s %s/%s ' "$(basename "$f")" "$n" "$lim"; done)
 {
   echo "ikiro compact ritual has not run this session."
   echo

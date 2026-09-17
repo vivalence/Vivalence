@@ -8,9 +8,9 @@
       "port": 2501
     },
     {
-      "name": "kajuit",
+      "name": "anima",
       "runtimeExecutable": "deno",
-      "runtimeArgs": ["task", "kajuit/watch"],
+      "runtimeArgs": ["task", "anima/watch"],
       "port": 1794
     },
     {

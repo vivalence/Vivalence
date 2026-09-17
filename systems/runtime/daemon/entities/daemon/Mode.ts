@@ -22,7 +22,7 @@ export enum ModeTraitsEnum {
   HARNESSED = "HARNESSED",
   CONVERSATIONAL = "CONVERSATIONAL",
   AGENTIC = "AGENTIC",
-  TOOLED = "TOOLED", // re: TOOLING
+  TOOLING = "TOOLING",
 
   EMITTER = "EMITTER",
   GENERATIVE = "GENERATIVE",
@@ -38,6 +38,7 @@ export enum ModeTraitsEnum {
   CHAOSMONKEY = "CHAOSMONKEY", // deprecated
   BUFFERED = "BUFFERED", // deprecated
   SELFEVIDENT = "SELFEVIDENT", // depracated
+  TOOLED = "TOOLED", // TODO deprecated → TOOLING; rows written before the rename still hydrate — drop with the migration that rewrites them
 }
 
 export class ModeRepository extends DataRepository {

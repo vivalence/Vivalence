@@ -14,4 +14,4 @@ export const manifest = {
   traits: ["APPLICATION", "STANDALONE", "EMITTER", "HARNESSED", "GENERATIVE"],
 };
 
-export const app = new App("buffer/Reader.svelte", v.buffer({ data: {} }));
+export const application = new App("buffer/Reader.svelte", v.buffer({ data: {} }));

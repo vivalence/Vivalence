@@ -56,6 +56,10 @@ const enroll = async () => {
 
 const remote = () => new Connection(paladin.instance.lighthouse.statics.remote);
 
+const reached = async () => Boolean(await remote().call("/status").catch(() => null));
+
+const standing = { good: { processes: [] }, integrate: async () => {}, disintegrate: async () => {} };
+
 const signup = async (values) => {
   try {
     return await remote().call("/auth/signup", values);
@@ -73,8 +77,13 @@ export async function init(ctx) {
 
   // first run: author the .env from the schema — prose, groups and defaults — then only what is
   // still blank is worth asking a human. same move as ledger/init.
-  const scaffolded = !(await paladin.read.text(file).catch(() => null));
-  if (scaffolded && Object.keys(paladin.instance.environment?.properties ?? {}).length) {
+  const absent = !(await paladin.read.text(file).catch(() => null));
+  const owing = () =>
+    owed(paladin.check.environment(paladin.instance)).some((group) =>
+      group.fields.some((row) => paladin.check.wrong.includes(row.verdict)),
+    );
+  const scaffolded = absent && Object.keys(paladin.instance.environment?.properties ?? {}).length > 0 && owing();
+  if (scaffolded) {
     await paladin.state.text(file, envfile.scaffold(paladin.instance.environment));
     await lifecycle.mount(lifecycle.populate.instance(paladin));
   }
@@ -103,12 +112,14 @@ export async function init(ctx) {
   const [username, password] = ctx.signal.params ?? [];
   if (username && password) {
     if (fill.length) return (ctx.effect = incomplete("incomplete"));
-    const enrolled = await enroll();
-    const die = await paladin.ledger.boot(specs("all"), { instance: enrolled.instance, attachment: "piped" });
+    const alive = await reached();
+    const enrolled = alive ? { instance: null, note: null } : await enroll();
+    const die = alive ? standing : await paladin.ledger.boot(specs("all"), { instance: enrolled.instance, attachment: "piped" });
     try {
       await die.integrate();
       ctx.effect = {
         mount,
+        lighthouse: alive ? "reached" : "booted",
         ...(enrolled.note ? { note: enrolled.note } : {}),
         signup: await signup({ username, password }),
       };
@@ -126,6 +137,7 @@ export async function init(ctx) {
 
   let die = null;
   const boot = async () => {
+    if (await reached()) return (die = standing);
     const enrolled = await enroll();
     die = await paladin.ledger.boot(specs("all"), { instance: enrolled.instance, attachment: "piped" });
     return die;

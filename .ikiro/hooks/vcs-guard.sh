@@ -6,7 +6,9 @@ command=$(jq -r '.tool_input.command // empty' <<<"$input")
 session=$(jq -r '.session_id // "nosession"' <<<"$input")
 
 deny() {
-  printf '%s vcs-guard deny %s\n' "$(date +%s)" "$session" >> "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null
+  # 5th field = the guard's OWN classification (the verb it matched), never the command text:
+  # a numerator for precision without ever writing a path, a value or a secret into the log.
+  printf '%s vcs-guard deny %s %s\n' "$(date +%s)" "$session" "$(cut -d: -f1 <<<"$1" | tr ' ' '-')" >> "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null
   jq -n --arg reason "$1 — If this token is PROSE inside a heredoc or script body, write that file with the Write tool and run it by path." '{
     hookSpecificOutput: {
       hookEventName: "PreToolUse",

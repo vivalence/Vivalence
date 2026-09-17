@@ -1,0 +1,269 @@
+#+title: m66 three containers — a lighthouse that is a runtime with no daemons, a runtime whose ledger lives in a volume, anima; the multiplayer instance reborn as the compose you clone
+#+filetags: :m66:commons:docker:compose:multiplayer:lighthouse:ledger:education:coolify:
+#+status: WP2 MEASURED — runtime reaches the lighthouse across the docker network: announce row at /daemon/<slug>, token verified remotely via /auth/verify, /userspace/handshake per daemon, state survives restart. Announce laws T0–T9 in reference/lighthouse-announce-dynamics.md (row = slug, last announcer wins, prune dead in docker). Deploy image built from git (root ARG VIVA_REGISTRY_TAPS, ledger/init + commons tap baked; stockfish stage) proves three daemons hello/chess/italian on one runtime. Lighthouse no longer takes PUBLIC_VIVA_RUNTIME_REMOTE: the reach url lives on runtime.statics.remote (populate.js latch = clone, throw only with daemons). Anima serves the daemon list after the resolution.js aperture fix. Compose image-only, singular mountpoint. Nothing committed. PROD CUTOVER PLANNED as M1 lighthouse / M2 runtime-under-remote-lighthouse / M3 anima — host measured, ledger proven derived (no volume), the lighthouse db RENAMES on the copy (lighthouse.viva.db -> multiplayer.viva.db) or the new container boots green with zero accounts.
+#+phase: LANDED
+#+progress: M1 LANDED · M2 LANDED · M3 LANDED — three containers on two hosts: lighthouse.s4y (8004, own volume) · runtime.s4y (prod-runtime:local, italian + chess, remote lighthouse) · vivalence.com (anima:alpine). beef: "done. works"
+#+next: sunset to done/ — owed after: delete the two stale lighthouse Daemon rows (brazilian, spanish) on beef's word; orphan volume lighthouse_mountpoint + /root/backup tarball to keep or drop; mikro 6.6.7 sqlite migration generator bug → known-issues; the ensure()/Intent unique miss if br/es ever return
+#+deliverables: M1 lighthouse · M2 runtime under a REMOTE lighthouse · M3 anima
+
+* the prod cutover — three milestones (beef, at the deploy fold)
+Prod today: ONE container on :2501 serving a runtime AND its attached lighthouse, image =2383ec904d87= (2026-08-27), plus a =kajuit= client resource. Coolify is PULL — nothing autodeploys; every deploy is a click. CI needs no tag guard.
+
+Measured on the host before planning:
+#+BEGIN_EXAMPLE
+mountpoint/service_multiplayer/  lighthouse.viva.db 36864 · tokens.json 13473 · migrations/Migration20260325073850.ts
+  Identity 2 · Daemon 3 (brazilian spanish italian → https://runtime.s4y.vivalence.com/daemon/<slug>)
+  _mikro_migrations: Migration20260325073850                    ← new image generates Migration20260919130218
+mountpoint/daemon_{brazilian,italian,spanish}  49.1M 33.8M 31.3M · THREE divergent migration heads
+ledger/  registry.json only — four absolute paths into /viva/repository/registry
+#+END_EXAMPLE
+
+** the ledger is derived, not state
+=registry.json= holds paths of THIS image's layout; HEAD moves the registry to =/viva/ledger/registry= and taps at build time (=Dockerfile:58-65=). So the ledger is a build artifact: rebuilt every build, portable across nothing. *No ledger volume on either container.* Nothing to migrate there — the question that looked like the hard one is closed.
+
+** M1 — lighthouse up on its own endpoint, existing user signs in
+- the data split: =mountpoint/service_multiplayer/= (seated, inside the runtime's volume) becomes its own volume, FLAT at =/viva/lighthouse=.
+- *the db RENAMES.* Prod holds =lighthouse.viva.db=; libsql derives =db.file= as =<slug>.viva.db= and the service slug is =multiplayer=. A straight copy boots GREEN WITH ZERO ACCOUNTS — fresh db, migrator runs, no error anywhere. Copy as =multiplayer.viva.db=.
+- =tokens.json= carries too, or every live session dies. =migrations/= does NOT carry: the directory is materialized from the module at boot, the state lives in =_mikro_migrations=.
+- open, rehearse on a throwaway clone before Coolify sees the volume: the db records =Migration20260325073850=, the new image generates =Migration20260919130218= over the same schema.
+- same server, volume→volume, old prod image as the copy tool. Old volume never written.
+- Coolify: new resource, =VIVA_RUNTIME_ORIGIN=http://0.0.0.0:8004=, explicit port label (the image =EXPOSE=s 2501), own FQDN, =SECRET_VIVA_JWT= identical to prod's or the two identities cannot log in.
+- gate: an existing prod user signs in against the new endpoint. *LANDED.* =beef= login SUCCESS through traefik on =https://lighthouse.s4y.vivalence.com=.
+*** what M1 measured
+- prod's =SECRET_VIVA_JWT= was 18 chars; the recipe demands =minLength: 24=. The schematic refused boot in rehearsal — Question A caught it before Coolify. beef: /"rotate"/ — =openssl rand -base64 24=, live sessions die, accounts survive.
+- the volume is FLAT: =multiplayer.viva.db= + =tokens.json= at =/viva/lighthouse=. =migrations/= dropped; the container regenerates it. Renaming =.snapshot-*.json= was noise — beef's /"drop generated files"/ was right.
+- the lighthouse lives as a SECOND service inside the runtime resource =egcwkgw0cwg0kkwko4owooco=, not its own resource. =lighthouse_mountpoint= declared =external: true=. The Coolify-made =…_lighthouse-mountpoint= volume also holds a copy — orphan, delete later.
+- trap left armed: =runtime:alpine= now names the NEW image. The runtime service in the same compose must stay pinned to the OLD digest (=2383ec904d87=) until M2 or a redeploy click kills prod.
+- backup: =/root/backup/mountpoint-2026-09-20.tgz= (27.9M), full old volume.
+
+** M2 — runtime with a REMOTE lighthouse, userspace reachable
+Never done before: prod has always hosted its own lighthouse.
+- owed: the consumer-only recipe — three education daemons, no hosted lighthouse service. Exists nowhere; every instance in tree declares its own.
+- owed: =VIVA_INSTANCE_MOUNT= repointed — the Coolify value =/viva/repository/registry/viva/instances/multiplayer/= is in no image built from HEAD.
+- owed: education committed, pushed, pinned (detached HEAD at =e9b7075 init=, 6781 dirty paths); CI passes =--build-arg VIVA_REGISTRY_TAPS= (it never does, =.gitlab-ci.yml:23=).
+- before first boot on a new image: snapshot the daemon volume. Three divergent heads, =transactional: false= — a throw half-applies (=known-issues.org:1501=).
+- =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= is one key with two truths across two Coolify resources: the runtime wants the internal reach, anima the public FQDN. MEASURE at first boot.
+- gate: =/daemon/<slug>= rows announce to M1's lighthouse, a token verifies across containers, =/userspace/handshake= answers. *LANDED.*
+*** what M2 measured
+- the image is built ON THE HOST from =Dockerfile= beside the Coolify compose (=scripts/build.sh=): =FROM runtime:alpine= + stockfish stage + =viva registry/tap= education and chess from public github. Coolify compose names it =image: vivalence/prod-runtime:local= with =pull_policy: never=; no =build:= in Coolify. Coolify's cleanup PRUNES an unused local image — build right before the click, or the click fails with =No such image=.
+- the instance is MOUNTED, not baked: =/data/coolify/services/<uuid>/instance/instance.viva.js= → =/viva/instance:ro=. Two daemons inline, italian + chess. beef: /"no runtimes for language other than italian"/ · /"fuck brazilian and spanish"/ — their seats stay on the volume untouched, on their July schema.
+- =.default()= on an env schematic does NOT reach =consume.<x>.statics= thunks — =VIVA_SERVICE_STOCKFISH_*= came back REQUIRED. Question B, measured. Set them explicitly in the compose.
+- *the daemon db renames too* (=resolve.js:24= derives =<slug>.viva.db=): =test-language-italian.viva.db= → =italian.viva.db=, or a fresh empty daemon boots green.
+- *mikro 6.6.7's sqlite migration generator is broken for a populated db.* It glues =pragma foreign_keys = on;= onto the next statement in ONE =addSql=, and the =npm:sqlite3= driver runs only the first statement — the =alter table Thread add column parent= never ran, the index on it crashed the migrator, =drop index= lines were silently skipped, and a bogus =constraint Buffer_thread_foreign references Thread= landed on a json column. Nobody had run this diff before: dev nukes dbs. Prod italian was the first populated db to meet it.
+- the cutover that worked — /road A/: mikro creates the schema on an EMPTY seat (boot once), stop, =ATTACH= the old db and =INSERT INTO new.T (common columns) SELECT … FROM old.T= for every table in both, ids intact, =pragma foreign_key_check= empty, boot again. Mikro owns every byte of schema; we own rows. =scripts/remigrate-italian.sh=, rehearsed on a clone (=scripts/rehearse.sh=) before prod. Corpus 6583 = 6583 after the reinstall pass; user rows unchanged.
+- rejected: /road B/, running mikro's generated SQL through the sqlite3 CLI — ships the bogus FK. And the brazilian/spanish pre-step (Memory→Retention rename, Intent.user backfill) that WORKED through the migrator but then hit =ensure()= re-inserting existing intents under the new =(user, slug, mode)= unique — parked with those daemons.
+- =scripts/= on the host: =lib.sh build.sh premigrate.sh remigrate-italian.sh rehearse.sh gate.sh scout*.sh=. =gate.sh= reads the password from stdin. Rollback: =daemon_italian/italian.old.viva.db= beside the live one, plus =/root/backup/mountpoint-2026-09-20.tgz=.
+- announce measured: a rehearsal runtime with the prod =PUBLIC_VIVA_RUNTIME_REMOTE= wrote =chess= into the LIVE lighthouse's =Daemon= table. Last announcer wins; the rehearsal announces as prod. Fine here, a trap elsewhere.
+
+** M3 — anima wired
+- CI already builds and pushes =anima= (worktree, uncommitted); =systems/kajuit/Dockerfile= is gone.
+- Coolify anima resource still names the =kajuit= image and carries =VIVA_CLIENT_KAJUIT_*= keys — both flip by hand, ikiro cannot read Coolify.
+- gate: daemon list renders, sign-in through anima.
+
+** deferred by ruling, not forgotten
+m60's unauthenticated =/entities/*= CRUD — beef: /"later."/ It becomes public the moment the lighthouse has its own FQDN. The two hardcoded =SECRET_VIVA_JWT=TOTALLYSECUREKEYnot= under =commons/instances/bak/= ship in every image — beef: /"because were local."/ Stale daemon rows: ignore.
+
+* the two files
+
+#+BEGIN_EXAMPLE
+commons/instances/multiplayer/
+  instance.viva.js        the lighthouse recipe — an instance with zero daemons and one service
+  docker-compose.yml      the three-container shape — lighthouse · runtime · anima — run locally, cloned for prod
+#+END_EXAMPLE
+
+Both ship inside =vivalence/runtime:alpine= because =commons/= is copied into the image (=Dockerfile:48=, =systems/runtime/Dockerfile:4=). Nothing else in this quest lands until these two are measured.
+
+* instance.viva.js — the lighthouse recipe
+
+** scope
+- IS: one =manifest.type = "instance"= module whose =daemons= is empty and whose =services= holds the multiplayer lighthouse. The runtime process boots it unchanged (=systems/runtime/lifecycle/populate.js:21,37= fold both arrays; an empty one is a no-op fold — UNMEASURED).
+- IS: self-consuming — its =lighthouse.remote= points at =PUBLIC_VIVA_LIGHTHOUSE_REMOTE=, the same address it serves on when nothing sits in front, so ghost verbs (=instance/init <user> <pass>=) sign up against the service it hosts.
+- IS: env-complete — two address tiers and no chain between them (see /the address law/ below). A container sets where it BINDS and where it is REACHED, plus the jwt.
+- IS NOT: a daemon host. No =@commons/demo/*=, no hallucinators, no anima client. A lighthouse image knows nothing about registries — commons only, zero taps.
+- IS NOT: the hello-world recipe with bits removed. Hello-world keeps hosting its own lighthouse for the README flow; this recipe is the one a REMOTE consumer points at.
+- persists: =service_multiplayer/{multiplayer.viva.db,tokens.json}= under =VIVA_MOUNTPOINT_MOUNT=. That directory is the whole state of the container.
+
+** the file
+#+BEGIN_SRC js
+import paladin from "@vivalence/paladin";
+import { v } from "@vivalence/typology";
+
+export const manifest = { type: "instance", slug: "multiplayer", version: "0.0.1" };
+
+export const environment = v.environment({
+  VIVA_RUNTIME_ORIGIN: v.url().desc("Where this runtime process BINDS: scheme, host, port. Nothing else. Example: http://0.0.0.0:2502").default("http://localhost:2502").group("addresses"),
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Where a consumer REACHES the hosted lighthouse — this instance's own ghost verbs, a peer runtime, a browser. A literal, never derived. Example: https://lighthouse.vivalence.com/attached/process/lighthouse/multiplayer").default("http://localhost:2502/attached/process/lighthouse/multiplayer").group("addresses"),
+  VIVA_LIGHTHOUSE_MOUNT: v.string().desc("Where the hosted lighthouse persists: db, migrations, tokens. Absolute. Example: /viva/lighthouse").group("mounts"),
+  SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Every consumer runtime verifies against it. Generate with: openssl rand -base64 24").group("keys"),
+});
+
+export const runtime = {
+  manifest: { slug: "runtime" },
+  statics: { serve: () => paladin.env.get("VIVA_RUNTIME_ORIGIN") },
+};
+
+export const lighthouse = {
+  module: "@commons/lighthouse/multiplayer",
+  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
+};
+
+export const hallucinators = [];
+
+export const clients = [{ manifest: { type: "client", slug: "ghost" } }];
+
+export const daemons = [];
+
+export const services = [
+  {
+    manifest: { type: "service", slug: "multiplayer" },
+    module: "@commons/lighthouse/multiplayer",
+    mountpoint: () => paladin.env.get("VIVA_LIGHTHOUSE_MOUNT"),
+    datamap: { module: "@commons/datamap/libsql" },
+    secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+  },
+];
+#+END_SRC
+
+** the address law — two tiers, no chain (beef, 2026-09-19: /"serve remote origin feels like one too much?! how can serve === remote??!"/ · /"no copy. confusing af"/)
+Before: ORIGIN → SERVE = =${ORIGIN}/path= → REMOTE = =${SERVE}=. Three keys per addressable thing, two of them copies of the first. The chain only held on localhost; the moment a proxy sat in front, REMOTE stopped being a copy and the default lied.
+
+After — every addressable thing has at most TWO keys, and they answer two different questions:
+- =VIVA_<PROCESS>_ORIGIN= — where the process BINDS. scheme + host + port. The runtime is the only process that binds in an instance; a service attaches INSIDE the runtime's tree, so it has no ORIGIN of its own.
+- =PUBLIC_VIVA_<THING>_REMOTE= — where a consumer REACHES it. Full URL, path included. A LITERAL default (=http://localhost:2502/attached/…=), never =${…}= of another key. Equal to the bind address on a laptop; different behind compose networks, tunnels, proxies. Two truths, two keys, no default pretending they are one.
+- =*_SERVE= keys DIE. The path a service attaches at (=/attached/process/lighthouse/<slug>=) is structural — the attach slot — not configuration. The runtime derives a service's serve URL as =ORIGIN + slot=; nobody types it into an env. =integrate.js:28,61= keeps reading =runtime.statics.serve= (a thunk over ORIGIN now), the service's =statics.serve= thunk is gone.
+
+Radius when this lands (the recipe above is the first file written under the law; the rest is a flag day, its own pass):
+- =commons/instances/hello-world/instance.viva.js:59-65= (7 address keys → 3: =VIVA_RUNTIME_ORIGIN=, =PUBLIC_VIVA_RUNTIME_REMOTE=, =PUBLIC_VIVA_LIGHTHOUSE_REMOTE=) · =~/.viva/instances/*/.env= and =test.viva.js= address blocks · =commons/instances/playground= · anima: =VIVA_CLIENT_ANIMA_ORIGIN= stays (anima binds), =VIVA_CLIENT_ANIMA_SERVE= and =PUBLIC_VIVA_CLIENT_ANIMA_REMOTE= collapse to one =PUBLIC_VIVA_CLIENT_ANIMA_REMOTE= literal — but anima env is NOT m66 (see /does NOT contain/).
+- the runtime hunk: wherever a service's serve URL is read, compute =new Url(origin + "/attached/process/" + type + "/" + slug)= instead of reading env. Grep =_SERVE= across =subsystems systems commons= before touching — the live hits today are the instance recipes and =systems/ghost/bak= only.
+- =language-learning/.env= was patched 09-19 with the OLD chain shape (copied from chess) to boot; it is a consumer of this flag day like every other ledger env.
+
+** measure (before the compose)
+#+BEGIN_SRC sh
+VIVA_INSTANCE_MOUNT=$PWD/commons/instances/multiplayer \
+VIVA_MOUNTPOINT_MOUNT=/tmp/m66/lighthouse \
+SECRET_VIVA_JWT=$(openssl rand -base64 24) \
+deno task runtime/run
+# other shell
+curl -s -X POST http://localhost:2502/attached/process/lighthouse/multiplayer/auth/signup \
+  -H 'content-type: application/json' -d '{"username":"m66","password":"m66m66m66"}'
+ls /tmp/m66/lighthouse            # → service_multiplayer/
+#+END_SRC
+Red here = a runtime hunk (zero-daemon fold), and the quest grows a WP before the compose. Green = compose only.
+
+* docker-compose.yml — the shape you clone
+
+** scope
+- IS: the whole prod topology on one host: =lighthouse= (this recipe, image as pushed, no build), =runtime= (a daemon host pointed at the lighthouse by env), =anima= (image as pushed). Three volumes: =lighthouse= (its mountpoint), =ledger= (the runtime's ledger + instance files), =mountpoint= (the runtime's seat — SINGULAR, one container one seat; beef: /"its singular from the docker perspective"/).
+- IS: image-only. No =build:= — =lighthouse= and =runtime= both run =vivalence/runtime:alpine= as pushed. Ledger, registry, mountpoint seat and bind address are baked ENV in the images (root =Dockerfile=: =viva ledger/init= + =registry/tap commons= + a tap loop; =systems/runtime/Dockerfile=: =VIVA_MOUNTPOINT_MOUNT=, =VIVA_RUNTIME_ORIGIN=, =VOLUME=, =EXPOSE=). =runtime.Dockerfile= died before birth.
+- IS: taps are IMAGE facts, not container facts. Which packages the image carries is one BUILD arg on the root =Dockerfile=, =VIVA_REGISTRY_TAPS=, a space-separated list of repository urls; the owner comes from each =package.viva.js=, the store keeps its VCS (beef, 2026-09-19: /"i want to build the images not from disk but from git"/ · /"no 2 level variables. viva_registry_taps"/ · /"i dont NEED named taps"/ · /"keep."/). A tap layer is cached on its url, not on what the remote holds — measured: a pushed remote served the stale clone until =--no-cache=; =FRESH=1 build.sh= is the switch, no cache-key arg (beef: /"i never greenlit registry_heads"/).
+- IS: the instance is a PATH, =VIVA_INSTANCE_MOUNT=. Local = the commons hello-world inside the image, same as the lighthouse's own recipe. A run-time reference (=VIVA_INSTANCE=@…=) was authored in WP1 and read by nothing; dropped (beef: /"drop"/). It returns only with the entrypoint that materializes it.
+- IS NOT: a lighthouse build. The lighthouse service runs =vivalence/runtime:alpine= verbatim with =VIVA_INSTANCE_MOUNT= pointing INTO the image. No volume for its recipe, no ledger.
+- IS NOT: the anima Dockerfile's concern. Anima stays as built; the compose only feeds it =PUBLIC_*=.
+- IS NOT: production secrets. =.env.example= beside it carries the keys with empty values; compose reads =${…}= from a sibling =.env= (gitignored — same law as the ledger's).
+- open, named in the file: the daemon reaches the lighthouse at =http://lighthouse:2502/…= (compose network), the browser at =http://localhost:2502/…=. One key, two truths. If the runtime consumes =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= daemon-side too, the compose needs a split key or a host alias — MEASURE when the runtime service first boots; until then the file carries the internal value and a comment.
+
+** the file
+#+BEGIN_SRC yaml
+services:
+  lighthouse:
+    image: vivalence/runtime:alpine
+    container_name: lighthouse
+    environment:
+      VIVA_INSTANCE_MOUNT: /viva/repository/commons/instances/multiplayer
+      VIVA_LIGHTHOUSE_MOUNT: /viva/lighthouse
+      VIVA_RUNTIME_ORIGIN: http://0.0.0.0:2502
+      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: ${PUBLIC_VIVA_LIGHTHOUSE_REMOTE:-http://localhost:2502/attached/process/lighthouse/multiplayer}
+      SECRET_VIVA_JWT: ${SECRET_VIVA_JWT}
+    ports:
+      - "2502:2502"
+    volumes:
+      - lighthouse:/viva/lighthouse
+
+  runtime:
+    image: vivalence/runtime:alpine
+    container_name: runtime
+    depends_on:
+      - lighthouse
+    environment:
+      VIVA_INSTANCE_MOUNT: /viva/repository/commons/instances/hello-world
+      PUBLIC_VIVA_RUNTIME_REMOTE: ${PUBLIC_VIVA_RUNTIME_REMOTE:-http://localhost:2501/}
+      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: http://lighthouse:2502/attached/process/lighthouse/multiplayer
+      SECRET_VIVA_JWT: ${SECRET_VIVA_JWT}
+      SECRET_VIVA_ANTHROPIC_API_KEY: ${SECRET_VIVA_ANTHROPIC_API_KEY:-}
+      SECRET_VIVA_OPENROUTER_API_KEY: ${SECRET_VIVA_OPENROUTER_API_KEY:-}
+    ports:
+      - "2501:2501"
+    volumes:
+      - ledger:/viva/ledger
+      - mountpoint:/viva/mountpoint
+
+  anima:
+    image: vivalence/anima:alpine
+    container_name: anima
+    environment:
+      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: ${PUBLIC_VIVA_LIGHTHOUSE_REMOTE:-http://localhost:2502/attached/process/lighthouse/multiplayer}
+    ports:
+      - "1794:1794"
+
+volumes:
+  lighthouse:
+  ledger:
+  mountpoint:
+#+END_SRC
+
+** .env.example beside it (not a third file of this quest — the compose is unreadable without it)
+#+BEGIN_SRC sh
+SECRET_VIVA_JWT=
+SECRET_VIVA_ANTHROPIC_API_KEY=
+SECRET_VIVA_OPENROUTER_API_KEY=
+PUBLIC_VIVA_LIGHTHOUSE_REMOTE=http://localhost:2502/attached/process/lighthouse/multiplayer
+PUBLIC_VIVA_RUNTIME_REMOTE=http://localhost:2501/
+#+END_SRC
+
+** measure
+#+BEGIN_SRC sh
+cd commons/instances/multiplayer && cp .env.example .env   # fill SECRET_VIVA_JWT
+docker compose up lighthouse                                # first: the lighthouse alone, same curl as above against :2502
+docker compose up                                           # then all three
+docker exec runtime viva instance/doctor --json
+docker compose down && docker compose up                    # the account survives: volumes
+#+END_SRC
+
+* measured 2026-09-19 — the lighthouse alone, in docker
+#+BEGIN_EXAMPLE
+docker run … vivalence/runtime:alpine    launching on http://0.0.0.0:2502/ · Status:ALIVE · zero daemon lines · migrator applied Migration20260919130218
+POST /auth/signup {"username":"m66"}     {"status":"SUCCESS","identity":{…,"slug":"m66"},"authority":{access,refresh}}
+volume /viva/lighthouse                  migrations/  multiplayer.viva.db  tokens.json        ← flat: the declared mountpoint, no service_<slug> seat
+restart, same JWT, signup again          {"status":"ERROR","error":{"code":"USERNAME_EXISTS"}} · login SUCCESS
+docker compose up -d lighthouse          Started · signup "compose" SUCCESS · volume multiplayer_lighthouse same three names
+#+END_EXAMPLE
+
+** the mountpoint law grew one clause
+A mounting's own =mountpoint= wins; only an undeclared one takes =<mountpoint scope>/<kind>_<slug>=. Its datamap follows the same rule (=resolve.js:19,21=). The schematic shape was already there (=Datamap.mountpoint= optional, =Service.mountpoint=); resolve simply overwrote it. Descs on both now state the law. Settle step: a service mountpoint thunk fires, lands as Path, datamap follows, =db.file= still =<slug>.viva.db=. The lighthouse recipe therefore needs NO =VIVA_MOUNTPOINT_MOUNT= — one key, =VIVA_LIGHTHOUSE_MOUNT=, one volume, flat.
+
+libsql reads exactly two inputs: =mountpoint/db.file= and =mountpoint/migrations= (=libsql.viva.js:40,44=). No separate db path, no migrations key. Not owed.
+
+** what ghost init did inside the container, and what it does now
+1. No =.env= in the instance dir → =init.js:76= scaffolded one INTO the image dir from schema defaults. The instance =.env= stratum beats process env, so every =-e= was shadowed; =VIVA_LIGHTHOUSE_MOUNT="~/.viva/lighthouse"= is not =^/= → /service[multiplayer].mountpoint must be an absolute path/. Two fixes: the default is gone (REQUIRED — a =*_MOUNT= never carries =~=), and init scaffolds only when =owed()= is non-empty after the process env is read. Measured: =viva instance/init= → /env present/, no file written.
+2. =viva instance/init m66 …= then booted its own runtime (=target.js:52=, task =runtime/run=, =specs("all")=) beside the one already serving → =AddrInUse: Address already in use (os error 98)= at :2502 → /ghost: runtime exited 1/. The verb assumed nothing was running. beef ruled (a): /"init probes lighthouse.statics.remote /status, skips boot when it answers."/ Landed in =init.js=: =reached()= calls =<remote>/status=; when it answers, no =enroll()=, no boot, a standing die with zero processes, and the effect says =lighthouse: reached= (else =booted=). Same probe in the interactive =boot()=. Measured inside the live container: first run SUCCESS with identity + authority, second run USERNAME_EXISTS → login, still no =.env= in the image dir.
+
+** two warts, cosmetic, later
+- =paladin/lifecycle/integrate.js:9= mkdirs =scope.mountpoint= when citizen → an empty =mountpoint/= inside the image dir. Nobody reads it for this instance.
+- Every boot downloads =turndown= + =domino= (what =vip.supply()= mounts from commons), and ghost pulls =@cliffy= on first verb. =deno cache systems/runtime/run.js= in =systems/runtime/Dockerfile= misses both. Image is not offline-safe. One Dockerfile line, with the entrypoint work.
+- =.gitignore:18= =**/.env.*= swallows =.env.example=. Add =!**/.env.example= or the file never ships.
+
+* what this quest does NOT contain (named so the two files stay two)
+- the entrypoint — guarded instance/create · instance/init, so a container takes an instance REFERENCE; ledger/init and taps moved to build time and are in (root =Dockerfile=)
+- hello-world / italian under a REMOTE lighthouse — today both declare the hosted service; a consumer-only variant recipe is owed (fork: variant file · runtime hunk · env flag)
+- CI: the deploy-jobs tag guard, the =runtime-deploy= image line
+- education hygiene (6433 untracked =bak/= files, commit, push, pin rev)
+- prod data: pull the =mountpoint= volume, split =service_multiplayer/= → lighthouse volume, =daemon_<old>/= → =mountpoint/daemon_italian=, rehearse
+- coolify cutover + anima env renames (=KAJUIT= → =ANIMA=)
+
+* release
+- commons: =instances/multiplayer= returns — an instance with zero daemons is a lighthouse; the compose beside it is the three-container shape you clone
+
+** M3 landed — what it measured
+- the anima image reads ONE key at runtime, =PUBLIC_VIVA_LIGHTHOUSE_REMOTE=; the entrypoint writes every =PUBLIC_VIVA_*= into =_app/env.js=, nginx serves on 1794. Every kajuit-era key died with the rename.
+- renaming the compose service =kajuit= → =anima= DROPS the Coolify domain: no traefik labels on the new container, 503 /"no available server"/ from the proxy while nginx answers locally. Re-add the domain on the service in Coolify and redeploy; labels regenerate.
+- prune on S000 after the switch: 6.1G of kajuit/helper/stanza layers.

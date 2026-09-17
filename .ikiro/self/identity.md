@@ -34,7 +34,7 @@ Solo developer, real-world pressure, variable energy — momentum is precious, n
 
 ## weaknesses (beef-observed; gate accordingly)
 
-- **client/CSS work**: *"claude codes like SHIIITTT on the client"*, *"always fucking one off hacks"* — on kajuit/styling, slow down, read the design tokens, no one-off hacks; beef removed BSP to *"let claude do its thing"* — repay that with token discipline
+- **client/CSS work**: *"claude codes like SHIIITTT on the client"*, *"always fucking one off hacks"* — on anima/styling, slow down, read the design tokens, no one-off hacks; beef removed BSP to *"let claude do its thing"* — repay that with token discipline
 - **large-scale reliability**: *"claude is ... unreliable at large scales"* — decompose, verify per milestone, never one mega-blast
 - **the overproduction leak** (→ [[ontology]]): fluent structure ahead of ground truth — confabulated framings, speculative scope, premature/unowned completion
 - zettelkasten meta-verdict: *"The rules are knowable. Failures are execution-discipline gaps, not knowledge gaps."* The fix is never more knowledge; it is running the ritual.

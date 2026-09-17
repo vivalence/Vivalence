@@ -13,7 +13,7 @@ export const manifest = {
 // A pure render target. It owns no progression and no persistence — it just renders
 // its data and fires `buffer.release()` when finished. The terminal's stall decides
 // what release means (STATIC/CONTINUOUS consume it; MANUAL hands it to the app).
-export const app = new App(
+export const application = new App(
   "buffer/Spawned.svelte",
   v.buffer({
     data: { label: v.string(), index: v.integer().default(0) },

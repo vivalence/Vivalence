@@ -16,9 +16,9 @@ export function mountpoints(instance) {
   const point = (kind, slug) => instance.paladin.scope.mountpoint.branch(`/${kind}_${slug}`).absolute;
   const seat = (kind) => (mounting) => {
     const slug = mounting.manifest?.slug;
-    mounting.mountpoint = point(kind, slug);
+    mounting.mountpoint = mounting.mountpoint ?? point(kind, slug);
     if (!mounting.datamap) return;
-    mounting.datamap.mountpoint = mounting.mountpoint;
+    mounting.datamap.mountpoint = mounting.datamap.mountpoint ?? mounting.mountpoint;
     mounting.datamap.statics = {
       ...mounting.datamap.statics,
       db: { file: `${slug}.viva.db`, ...mounting.datamap.statics?.db },

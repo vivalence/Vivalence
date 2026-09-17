@@ -22,7 +22,7 @@ service_multiplayer/ lighthouse.viva.db  migrations  tokens.json
 - **`locks/<slug>.lock`** — ONE per instance, written by the supervising `Die`. **`sessions/<shell-pid>.json`** — per-shell env bags, pid-keyed by `VIVA_PROCESS_ID`. **`logs/<slug>/`** — `<process>.out.log` (attachment `logged`) and `spans.jsonl`.
 - **`instances/<slug>/`** — the shelf. An instance dir off the shelf is *tapped*: the operator's ground, which `delete`/`rename` will not move.
 - **`~/.config/viva/env`** is sourced by `systems/ghost/ghost.sh` **before** the exec and its lines are unconditional `export`s — a caller-supplied `VIVA_LEDGER_MOUNT` is OVERRIDDEN. A scratch ledger needs `XDG_CONFIG_HOME` pointed at an empty dir.
-- Strata, secrecy split, `hydrate`, `settle`, `check.*` are **paladin's** — → `world/codemap/paladin.md`. Only three call sites throw on a bad instance: `prototypes/ledger/ledger.js:29` (`Ledger.boot`), `systems/runtime/run.js:7`, `systems/kajuit/vite.config.mjs:13`.
+- Strata, secrecy split, `hydrate`, `settle`, `check.*` are **paladin's** — → `world/codemap/paladin.md`. Only three call sites throw on a bad instance: `prototypes/ledger/ledger.js:29` (`Ledger.boot`), `systems/runtime/run.js:7`, `systems/anima/vite.config.mjs:13`.
 
 ## the record — `instances.resolve` is the ONE reference reader
 
@@ -197,7 +197,7 @@ async integrate() {
 // viva instance/doctor --json (trimmed) — env rows carry the winning stratum, secrets already masked
 { "mount": "/Users/finn/.viva/instances/hello-world",
   "manifest": { "type": "instance", "slug": "hello-world", "version": "0.0.1", "traits": [] },
-  "daemons": ["hello"], "services": ["multiplayer"], "clients": ["kajuit"],
+  "daemons": ["hello"], "services": ["multiplayer"], "clients": ["anima"],
   "env": [{ "!": null, "key": "SECRET_VIVA_ANTHROPIC_API_KEY", "value": "***", "stratum": "ledger", "reason": null }],
   "problems": [], "faults": [], "dormant": ["daemon[hello].hallucinators[1]"], "lock": null }
 ```

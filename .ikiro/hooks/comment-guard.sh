@@ -19,7 +19,7 @@ if [ "$tool" = "Bash" ]; then
   grep -qE '(>|>>|open\(|write_text|\.write\(|tee )' <<<"$command" || exit 0
   hits=$(grep -nE '^[[:space:]]*(//|/\*)' <<<"$command" | grep -vE '@beef|TODO|https?:' || true)
   [ -n "$hits" ] || exit 0
-  printf '%s comment-guard warn %s\n' "$(date +%s)" "$(jq -r '.session_id // "nosession"' <<<"$input")" >> "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null
+  printf '%s comment-guard warn %s authored-comment\n' "$(date +%s)" "$(jq -r '.session_id // "nosession"' <<<"$input")" >> "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null
   echo "comment-guard (warn, Bash route): a script writing $target carries // lines — code is self-documenting; use the Edit tool so the gate can judge the content." >&2
   exit 0
 fi

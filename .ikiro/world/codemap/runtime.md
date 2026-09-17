@@ -87,11 +87,11 @@ export async function stagger(mode, daemon, traits) {
 - **Two phases.** `resolution.modes` runs every mode's traits, then `Promise.all(finalizers)`, then slurps each `mode.aperture` under `/daemon/<slug>/mode/<type>/<slug>` behind `authorize()`. Terminators run at disintegrate BEFORE the datamap closes. **A declared trait nothing implements → ONE `console.warn`, never a silent no-op.** `EXPOSED` sets `mode.call = shape.proxy(mode.aperture)` — default strategy, unlike `daemon.call`'s.
 - **Identity IS the manifest.** `mode.slug`/`mode.type`/`mode.traits` do not exist — every read is `mode.manifest.*`, and a kernel entry may declare its own `manifest`, so one module kernelled twice is two modes. THE EXCEPTION IS THE ROW: `ModeEntity` keeps flat `slug`/`type`/`traits`/`installed`, unique on `(slug, type)`. **The citizen carries a manifest; the row stays flat.** [[project_manifest_is_identity]]
 - **`FRAUGHT` / `MOUNTED`** — two traits over one `carry(mode, daemon, root)`, which walks the root, `stow`s a `Freight`, hangs it off `daemon.attach/cargo/<daemon>` and opens `/freight`. FRAUGHT roots at `join(module.mount.dirname, module.freight.path.nature)` — what a mode CARRIES; MOUNTED at `mode.mountpoint.absolute` — the tree it SERVES — and **throws by name** when the kernel names none. Every consumer asks FRAUGHT **or** MOUNTED. [[project_freight_vs_mountpoint]]
-- **`APPLICATION`** — `mode.app = new App(entry|{source}, schema)`, entry resolved against `mode.module.mount.dirname`. `mode.app.buffer(desc)` FILLS — **never `cast`**, whose Convert mauls MikroORM Collections. In DEV `/metadata/app` recompiles per read — the ONLY seam that refreshes a view.
+- **`APPLICATION`** — `mode.application = new App(entry|{source}, schema)`, entry resolved against `mode.module.mount.dirname`. `mode.application.buffer(desc)` FILLS — **never `cast`**, whose Convert mauls MikroORM Collections. In DEV `/metadata/application` recompiles per read — the ONLY seam that refreshes a view.
 - **`DATASET`** — no-ops when `mode.entity.installed` is truthy. Sources (`load`/`rows`/`walk`/`read`) upsert in chunks of 100 on a FORKED em, then a link phase. **A declared source is SCHEME, shared by every mounting; a computed `load` source is the mounting's OWN, stamped with `mode` as owner** — two mountings keep two row sets under the same slugs. `stamp(mode)` hashes the sources *and the installer itself*. [[project_mode_owns_rows]]
 - **`DATASINK`** — rows back out to registry files, `{symbol, literal}` only (a user-scoped type THROWS); twitches `/after/<type>/*`, debounced 1500 ms, `drain()` single-flight. **LAW: the dataspace carries NO provenance.** [[project_dataspace_has_no_provenance]]
 - **`INTENTED`** — opens `/after/user/create`, so a NEW user gets every INTENTED peer's intents; the intent is a TEMPLATE `Thread.beforeCreate` copies.
-- **`BOOTED`** — `mode.module.boot(daemon, mode)` runs as a FINALIZER, returns the teardown. **`AGENTIC`** slurps every TOOLED peer's tools under `peer.manifest.slug`.
+- **`BOOTED`** — `mode.module.boot(daemon, mode)` runs as a FINALIZER, returns the teardown. **`AGENTIC`** slurps every TOOLING peer's tools under `peer.manifest.slug`.
 
 ## EMITTER — the pool drains, the thread binds
 
@@ -173,12 +173,12 @@ daemonDie.good.aperture.branch(mode.mount.nature).use(shard.secure.authorize())
 
 - **`authenticate()` = token → `ctx.identity`**, on the daemon ROOT and on `/userspace`. **`authorize()` = identity → `ctx.user`, READS ONLY** (`401 USER_NOT_FOUND — /userspace/handshake first`), on `/userspace/entities` and EVERY mode branch. **Enrollment happens in exactly ONE place**: `/userspace/handshake`. `bind("user")` sits behind `authorize()`. [[project_user_bind_behind_authorize]]
 - **Surfaces**: `/entities/{literal,symbol,mode}` (unscoped) and `/userspace/entities/{intent,thread,buffer,turn}` (owned + scoped), each repository + reactive; `/modes/:type/:method` (only `findOne`); `/cargo`; `/cortex/{render,stream}`, cast against `{type, tune?, request}` first; `/metadata/*`.
-- **`/metadata` is trait-conditional**: daemon-level `manifest`/`statics`/`cargo`/`datamap`/`aperture`/`cortex`/`modes`; per mode `manifest`+`aperture` always, then `statics`, `mountpoint`, `app`, `emitter`, `freight`, `harness`, each gated on its trait. All `shape.strip`ped — **the strip IS the contract.** An async generator handler IS SSE (`shape.http`) — the only escape from kajuit's 8000 ms daemon-call timeout. [[project_aperture_streaming_sse]]
+- **`/metadata` is trait-conditional**: daemon-level `manifest`/`statics`/`cargo`/`datamap`/`aperture`/`cortex`/`modes`; per mode `manifest`+`aperture` always, then `statics`, `mountpoint`, `app`, `emitter`, `freight`, `harness`, each gated on its trait. All `shape.strip`ped — **the strip IS the contract.** An async generator handler IS SSE (`shape.http`) — the only escape from anima's 8000 ms daemon-call timeout. [[project_aperture_streaming_sse]]
 
 ```json
 // systems/runtime/tests/snapshots/tactic-harvest-aperture.snapshot.json — a mode's /metadata strip, over the wire
 { "manifest": { "type": "tactic", "slug": "harvest", "name": "Harvest", "version": "0.1.0",
-    "traits": ["CONVERSATIONAL", "HARNESSED", "TOOLED"], "owner": "@education" },
+    "traits": ["CONVERSATIONAL", "HARNESSED", "TOOLING"], "owner": "@education" },
   "routes": [ { "path": "/status" }, { "path": "/manifest" },
     { "path": "/harness/verbatim/stream", "yields": true, "feeds": "object" },
     { "path": "/harness/dialogue/render" }, { "path": "/harness/dialogue/stream", "yields": true },
@@ -206,7 +206,7 @@ specimen.expect([first.index, second.index]).toEqual([0, 1]); specimen.expect(th
 specimen.expect(stored.map((r) => r.trait.LABELED)).toEqual([{ name: "dewey #0" }, { name: "dewey #1" }]);
 ```
 
-- **traits** — `mode/tooled.test.js` *"['TOOLED', 'HARNESSED'] produces working harness"* and the reverse order; `mode/traits.test.js` pins INTENTED, APPLICATION, EXPOSED, EMITTER, BOOTED. `stagger` itself is invoked in ONE test:
+- **traits** — `mode/tooling.test.js` *"['TOOLING', 'HARNESSED'] produces working harness"* and the reverse order; `mode/traits.test.js` pins INTENTED, APPLICATION, EXPOSED, EMITTER, BOOTED. `stagger` itself is invoked in ONE test:
 
 ```js
 // test: tests/datasink.drain.test.js:118-121

@@ -22,7 +22,7 @@ export const Datamap = v.object(
   {
     module: v.string(),
     statics: Statics({ db: v.object({ file: v.string() }).optional() }).default({}),
-    mountpoint: Mountpoint.optional(),
+    mountpoint: Mountpoint.desc('Where the db and its migrations live. Declared wins; otherwise the mounting\'s seat. Example: "/viva/lighthouse"').optional(),
   },
   { additionalProperties: true },
 );
@@ -43,7 +43,13 @@ export const Module = v.object({ manifest: Manifest }, { additionalProperties: t
 export const Kernel = v.array(v.union([v.string(), Mode, Module]));
 
 export const Runtime = v.object(
-  { manifest: v.object({ slug: Slug }, { additionalProperties: true }), statics: Statics({ serve: Url() }) },
+  {
+    manifest: v.object({ slug: Slug }, { additionalProperties: true }),
+    statics: Statics({
+      serve: Url().desc("Where this runtime BINDS. Example: http://0.0.0.0:2501"),
+      remote: Url().desc("Where a consumer REACHES this runtime; daemons announce under it. Example: https://runtime.vivalence.com/").optional(),
+    }),
+  },
   { additionalProperties: true },
 );
 
@@ -60,7 +66,7 @@ export const Service = v.object(
   {
     manifest: Manifest,
     module: v.string(),
-    mountpoint: Mountpoint,
+    mountpoint: Mountpoint.desc('Where the service persists. Declared wins; otherwise <mountpoint scope>/service_<slug>. Example: "/viva/lighthouse"'),
     statics: Statics({ serve: Url().optional() }).default({}),
     secrets: Secrets.optional(),
     datamap: Datamap,

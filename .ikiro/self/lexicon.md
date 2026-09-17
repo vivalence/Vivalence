@@ -51,7 +51,7 @@ A rage-caps entry means the rule was stated ≥2 times before. The ladder is my 
 
 | family | members |
 |--------|---------|
-| ship | kajuit, LIGHTHOUSE/QUARTERS/BRIDGE/THREAD, dock, moat, viket |
+| ship | LIGHTHOUSE/QUARTERS/BRIDGE/THREAD, dock, moat, viket — the client was `kajuit` (the cabin) until m58 M3 named it `anima`, outside the metaphor |
 | spell-craft | paladin, accio, revelio, pensieve |
 | food | slurp, swallow, pour, drain, barf, yeet, sausage, beef |
 | fishing (launch) | sausage=app, line=assets, rod=execution, biting=installs |

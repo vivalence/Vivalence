@@ -27,6 +27,46 @@ Before touching anything, confirm with the user:
 - **Local target**: `~/.viva/instances/<slug>/mountpoint/` (default; assumed)
 - **Whether to keep existing local mountpoint as backup** (default: yes, move to `bak/`)
 
+## Phase 0 — Inspect, read-only (no stop, no pull)
+
+Measured 2026-09-19 on the live host; every name below was wrong at least once when guessed. Run this first — it answers "what is in prod" without touching the runtime.
+
+```bash
+C=$(docker ps --format '{{.Names}}' | grep '^runtime-')
+V=$(docker volume ls -q | grep '_mountpoint$')
+
+docker inspect $C --format '{{.Config.Image}} {{.Image}}'          # tag + sha = the rollback pin
+docker exec $C env | grep -E '^(VIVA|PUBLIC_VIVA)_' | sort          # what Coolify injects (secrets excluded by the grep)
+docker exec $C tree -d -L 1 /viva                                   # never -L 2 on /viva: repository/ fans out to 9000 lines
+docker exec $C sh -c 'ls $VIVA_INSTANCE_MOUNT; cat $VIVA_INSTANCE_MOUNT/*.viva.js'   # the recipe prod really boots
+
+# sidecar on the base image (has sqlite3 + jq), volume READ-ONLY
+docker run --rm -it -v $V:/m:ro registry.vivalence.org/beef/viva/vivalence/viva:alpine bash
+```
+
+Inside the sidecar:
+
+```bash
+du -sh /m/*
+for db in /m/daemon_*/*.viva.db; do
+  echo "== $db"
+  sqlite3 -readonly "$db" "select slug, traits from Mode order by slug;"
+  sqlite3 -readonly "$db" "select name from _mikro_migrations order by id;"
+  sqlite3 -readonly "$db" "select (select count(*) from Buffer),(select count(*) from Turn),(select count(*) from User);"
+done
+L=/m/service_multiplayer/lighthouse.viva.db
+sqlite3 -readonly $L "select count(*) from Identity; select count(*) from Daemon;"
+jq 'length' /m/service_multiplayer/tokens.json
+```
+
+Names that bite:
+- migrations table is `_mikro_migrations`, not `mikro_orm_migrations`; entity tables are Capitalised (`Mode`, `Buffer`, `Turn`, `User`, `Identity`, `Daemon`).
+- the lighthouse db is `lighthouse.viva.db`; daemon dbs carry whatever `db.file` the recipe that created them pinned (prod: `test-language*.viva.db`), NOT the current default `<slug>.viva.db` (`subsystems/paladin/lifecycle/resolve.js:24`). A mismatch = the new boot mints an empty db beside the old one. Rename the file, keep the dir.
+- a `$D=$(ls -d /m/daemon_*)` with more than one daemon expands to several paths — loop, never assign.
+- `-readonly` on a `:ro` mount is safe while the runtime runs; "disk I/O error" / "unable to open" means a wrong path, not a lock.
+
+State at 2026-09-19 (for diffing next time): `daemon_brazilian` 49M · `daemon_italian` 34M (8 buffers, 401 turns) · `daemon_spanish` 31M · `service_multiplayer` 72K (2 identities, 3 daemon rows). Image sha `2383ec904d87…`. Second volume `…_s4y-arena` unexplained.
+
 ## Procedure
 
 ### Phase 1 — Server side (snapshot)
@@ -69,7 +109,7 @@ scp <SERVER>:/tmp/mountpoint.tgz tmp/
 
 # 7. Extract into scratch (NOT into mountpoint root — it would mix with local state)
 tar -xzf tmp/mountpoint.tgz -C tmp/
-ls tmp/   # confirm: daemon_brazilian/ service_multiplayer/
+ls tmp/   # confirm: daemon_<slug>/ … service_multiplayer/ (prod held three daemons at 2026-09-19)
 
 # 8. Backup existing local mountpoint (don't delete — user may want to revert)
 mkdir -p bak
@@ -105,7 +145,7 @@ Out of scope. Do not attempt without explicit user instruction — overwriting p
 
 ## Compose context
 
-The volume is declared in `commons/instances/starter/docker-compose.yml`:
+The volume is declared in `commons/instances/multiplayer/docker-compose.yml (m66 — owed; the three-container shape splits the old single volume into lighthouse · ledger · mountpoints)`:
 
 ```yaml
 volumes:

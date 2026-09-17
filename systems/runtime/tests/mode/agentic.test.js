@@ -39,15 +39,15 @@ function names(tools) {
 }
 
 specimen.describe("AGENTIC trait", () => {
-  specimen.it("harvests every TOOLED source's tools under its slug", () => {
+  specimen.it("harvests every TOOLING source's tools under its slug", () => {
     const aprende = buildMode({
       slug: "aprende",
-      traits: ["TOOLED"],
+      traits: ["TOOLING"],
       tools: toolVector("flashcard", () => "card"),
     });
     const riddler = buildMode({
       slug: "riddler",
-      traits: ["TOOLED"],
+      traits: ["TOOLING"],
       tools: toolVector("riddle", () => "riddle"),
     });
     const hub = buildMode({ slug: "hub", traits: ["AGENTIC"] });
@@ -61,10 +61,10 @@ specimen.describe("AGENTIC trait", () => {
     specimen.expect(harvested).toContain("riddler_riddle");
   });
 
-  specimen.it("skips modes that don't implement TOOLED", () => {
+  specimen.it("skips modes that don't implement TOOLING", () => {
     const aprende = buildMode({
       slug: "aprende",
-      traits: ["TOOLED"],
+      traits: ["TOOLING"],
       tools: toolVector("flashcard", () => "card"),
     });
     const plain = buildMode({
@@ -86,7 +86,7 @@ specimen.describe("AGENTIC trait", () => {
   specimen.it("does not harvest itself", () => {
     const hub = buildMode({
       slug: "hub",
-      traits: ["TOOLED", "AGENTIC"],
+      traits: ["TOOLING", "AGENTIC"],
       tools: toolVector("own", () => "own"),
     });
     const daemon = daemonOf([hub]);
@@ -103,7 +103,7 @@ specimen.describe("AGENTIC trait", () => {
     let captured = null;
     const aprende = buildMode({
       slug: "aprende",
-      traits: ["TOOLED"],
+      traits: ["TOOLING"],
       tools: toolVector("flashcard", (ctx) => {
         captured = { daemon: ctx.daemon, mode: ctx.mode, input: ctx.input };
         return "card";

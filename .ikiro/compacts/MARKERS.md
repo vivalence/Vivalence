@@ -104,4 +104,54 @@ fields the new hello-world daemon display renders. Still OPEN: the ruling only.
 
 ## SETTLED
 
-(none yet)
+- **the guaranteed shape vs the machinery that gets there** — SETTLED in #176 `* the marker — Question A and Question B, settled`: six values across the prod cutover, Question A answered first each time (JWT minLength, `<slug>.viva.db` ×2, declared mountpoint, typed `remote`), Question B where every surprise lived (defaults not reaching consume statics, Coolify's env/volume/domain/prune roads, the pragma-glued migration). Verdict: write A's one line per value before walking B.
+
+
+<!-- settled #176 -->
+## SETTLED (#176) — the guaranteed shape vs the machinery that gets there (beef, at the prod-deploy fold)
+
+Beef, verbatim: *"maybe thats a nice way to frame it in your ontology of this space. how to think
+when this type of problem is tackled. ikiro mark this for the . whats the ledger schematics at the
+output of paladin and whats the instances at the end of processing - guaranteed. vs whats the
+different ways to get there? defualts fal through, env vars can be deduced, etc etc. there is a lot
+fo machinery. this is the internal semantic for you. ikiro mark."*
+
+The ask is not a fix. It is a FRAME, owed to ikiro itself: when a problem is about state that a
+container carries, separate the two questions and never mix them.
+
+**Question A — what is GUARANTEED at the end of processing.** The post-`settle` shape: what
+`paladin.instance` is, what the ledger holds, what every mountpoint seat is named, which statics are
+decoded prototypes and which are carried raw. This is a SCHEMATIC question with one answer, and it
+is checkable — `subsystems/typology/schematics/primitives/instance.js` plus the settle suite are the
+whole of it.
+
+**Question B — the many roads in.** Defaults falling through, `${…}` interpolation in an environment
+schema, env strata (flag › cwd › instance › .env › os › session › ledger), thunks fired by
+`paladin.hydrate`, `Statics`' `additionalProperties: true` carrying an undeclared key WITHOUT
+decoding it, mountpoint declared-wins-else-seat, image-baked ENV, compose ENV, Coolify ENV. This is
+the MACHINERY, it is plural, and every road is a place a value can arrive wrong.
+
+The failure mode this frame prevents is the one measured this session: the reach-url crash
+(`populate.js:11`, `TypeError: …remote?.clone is not a function`) was diagnosed as a *wiring* bug
+for three proposals running, because nobody asked Question A — what is `runtime.statics.remote`
+GUARANTEED to be? Undeclared in the schematic, so: carried, never decoded, a raw string. Beef's own
+steer — *"or better, the mask of runtime in paladin processing"* — was Question A, and it was right
+at the first asking.
+
+Scope when this is worked: the two questions want a written answer each, side by side, for the
+ledger and for the instance. Not a new subsystem — a page. Where it lands (codemap shard, a method,
+`ikiro.md`) is beef's call.
+
+<!-- settled at the 09-21 selfimprove -->
+## SETTLED (09-21 selfimprove) — the compact tag index is retired
+
+Beef, verbatim: *"mark this as depracated in ikiro. i no longer want to sustain this. too much time in
+updates, not enough payback. when we do our next ikiro selfimprove i want you to inline this into the
+quests/compact/whatever. too much headwind and bloat. mark. no do."*
+
+**Verdict: the `## by tag` fold is GONE; ids stay.** `compacts/index.md` went 507 lines → 185, one line
+per compact (`#+index:` id + slug) and nothing to curate. `methods/compact-index.py` no longer reads or
+requires `#+filetags:` — existing tags are left alone, unread; the id stamper now anchors on `#+title:`
+when a compact has no tags line. The INDEX step in `methods/compact.md` says the same. Nothing else
+consumed the fold: `hooks/compact-gate.sh` counts the numbered roster, which survives. Checked after:
+`179 compacts · 0 ids stamped · next id 180`, gate reports `compacts on disk 179 · indexed 179`.

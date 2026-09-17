@@ -39,10 +39,10 @@ import * as apertureSetup from "../../daemon/aperture/index.js";
 // ── test APPLICATION ──────────────────────────────────────────────────
 // Same as real APPLICATION but skips the svelte bundler (no esbuild).
 const BENCH_APPLICATION = async (mode, daemon) => {
-  mode.app.buffer = async (desc = {}) => {
+  mode.application.buffer = async (desc = {}) => {
     const buffer = daemon.entities.em.create(BufferEntity, {
       mode: mode.entity.id,
-      data: mode.app.fill(desc),
+      data: mode.application.fill(desc),
       view: null,
       index: desc.index ?? 0,
     });

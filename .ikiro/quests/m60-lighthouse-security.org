@@ -1,5 +1,5 @@
 #+title: m60 lighthouse security — two principals, one verify path: the system key is exchanged for a token, signup is invite by default, the entities sit behind the same gates the daemon runs, and the store holds hashes
-#+filetags: :m60:lighthouse:security:jwt:secure:typology:runtime:ghost:kajuit:commons:ledger:invite:signup:tangle:
+#+filetags: :m60:lighthouse:security:jwt:secure:typology:runtime:ghost:anima:commons:ledger:invite:signup:tangle:
 #+status: DESIGNED, nothing landed. Tangleable: every NEW file and every small replaced file is a `:tangle` block; the large files (`auth.js` · `init.js` · `Login.svelte` · the recipes) are `diff` hunks applied by hand. Sanity pass FOLDED (F12–F15): the scope wins in `scoped()` · `ctx.identities` · per-verb throttle · `jti` on every token · P-scope-wins on both suites. Two forks owed to beef before M1 (typology is holy): the name of the one new `secure` verb, and the default signup policy. Code on go.
 #+phase: designed
 #+progress: 0/5
@@ -56,7 +56,7 @@ verify pins the algorithm and the issuer. state is per service, never module-glo
 | F1 | exchange the key for a system JWT rather than compare the key per request — one `jwt.verify` path, the key is not in per-request headers or logs, tokens expire, `shard.secure.*` works unchanged | mine, in the design; beef: "wonderful" |
 | F2 | a system principal is `{ id: sub, type: "system" }` — no Identity row; `getUser()` returns the principal itself so `authorize()` passes without an enrolment table | mine |
 | F3 | identity principals READ their own row only; there is no user-side write on `/entities/identity` — a password change is an `/auth` verb (deferred), never a repository `update` on `authentication` | mine (a scoped `updateOne` would let a user rewrite its own hash and slug) |
-| F4 | `daemon` reads are open to any principal (kajuit populates the daemon list after login); writes are system-only (the runtime's `announce`) | mine, measured: the only writers are `integrate.js:65,72` |
+| F4 | `daemon` reads are open to any principal (anima populates the daemon list after login); writes are system-only (the runtime's `announce`) | mine, measured: the only writers are `integrate.js:65,72` |
 | F5 | `Identity.authentication` is `hidden: true` on the schema — the wire cannot carry the hash even if a gate slips; the row stops holding tokens (`authentication.tokens` has ZERO readers, measured this session) | mine |
 | F6 | invite = a JWT with a `jti` recorded in the store and burned once; 7 days; minted only by a system principal; redeemed by `/auth/signup {username, password, invite}` | beef: "big fan" |
 | F7 | signup policy is a SERVICE static (`statics.signup`), read from `VIVA_LIGHTHOUSE_SIGNUP`; the env schema defaults it | mine — "maybe also a setting on Lighthouse level" |
@@ -102,7 +102,7 @@ readers of authentication.tokens / .credentials outside the writer: identity.js:
 | caller | verbs | principal after M2 |
 |--------+-------+--------------------|
 | `systems/runtime/lifecycle/integrate.js:65,72` announce | `daemon/ensure` · `daemon/remove` | system (exchanged at boot) |
-| `systems/kajuit/src/typology/entities/daemon/dossier.js:42` | `daemon/find` | identity (post-login bearer already set by `shard.connection.authorize`) |
+| `systems/anima/src/typology/entities/daemon/dossier.js:42` | `daemon/find` | identity (post-login bearer already set by `shard.connection.authorize`) |
 | `commons/lighthouses/multiplayer/tests/{datamap,lighthouse}.test.js` | both entities, every verb | system (the scenario mints one) |
 | `systems/ghost/bak/typology/connect.js:11` | `daemon/find` | bak — dead |
 
@@ -1445,7 +1445,7 @@ export async function lighthouse(ctx) {
  };
 #+END_SRC
 
-*** =systems/kajuit/src/typology/stores/lighthouse.js= — surgical: a `signup(username, password, invite)` beside `login`
+*** =systems/anima/src/typology/stores/lighthouse.js= — surgical: a `signup(username, password, invite)` beside `login`
 
 #+BEGIN_SRC diff
 @@ -74,6 +74,26 @@ export class Lighthouse {
@@ -1473,7 +1473,7 @@ export async function lighthouse(ctx) {
    async verify() {
 #+END_SRC
 
-*** =systems/kajuit/src/app/widgets/Login.svelte= — surgical: an invite field, and the help copy tells the truth about signup
+*** =systems/anima/src/app/widgets/Login.svelte= — surgical: an invite field, and the help copy tells the truth about signup
 
 #+BEGIN_SRC diff
 @@ -8,6 +8,8 @@
@@ -1539,7 +1539,7 @@ A signup form with `invite` blank under policy `invite` is answered by the light
 
 *** README + docs
 
-`README.md` — the `## Hello, Instance!` listing re-pasted from the file (byte-identical law); the signup paragraph after step 4 becomes: "To sign up additional users: `viva instance/lighthouse invite` prints a single-use token the person pastes into kajuit's sign-up form, or `viva instance/lighthouse signup <username> <password>` creates the account directly — both speak as a system principal through `SECRET_VIVA_LIGHTHOUSE_KEY`. Signup policy is `VIVA_LIGHTHOUSE_SIGNUP` (`invite` by default)." · `documentation/content/50-59_practice/51_guides/51.02_instance-from-scratch.mdx` — the two listings are captured from the repo (`capture` runs before the build); the prose gains the two-key sentence · `32.01_anatomy-of-an-instance.mdx` — the lighthouse move gains "a system principal announces the daemons".
+`README.md` — the `## Hello, Instance!` listing re-pasted from the file (byte-identical law); the signup paragraph after step 4 becomes: "To sign up additional users: `viva instance/lighthouse invite` prints a single-use token the person pastes into anima's sign-up form, or `viva instance/lighthouse signup <username> <password>` creates the account directly — both speak as a system principal through `SECRET_VIVA_LIGHTHOUSE_KEY`. Signup policy is `VIVA_LIGHTHOUSE_SIGNUP` (`invite` by default)." · `documentation/content/50-59_practice/51_guides/51.02_instance-from-scratch.mdx` — the two listings are captured from the repo (`capture` runs before the build); the prose gains the two-key sentence · `32.01_anatomy-of-an-instance.mdx` — the lighthouse move gains "a system principal announces the daemons".
 
 *** the ledger (NO VCS — capture before touching)
 
@@ -1578,7 +1578,7 @@ Gate: `viva instance/doctor` on each of the five shows `SECRET_VIVA_LIGHTHOUSE_K
 | M1 | `secure.test.js` 3/3 · typology one-shot at baseline |
 | M2 | boots: `runtime/run` hello-world ALIVE · `/entities/daemon/find` no bearer → 401 (curl) |
 | M3 | `gates.test.js` 16/16 · `datamap.test.js` 12/12 · runtime one-shot at baseline · paladin snapshot regenerated, key absent |
-| M4 | doctor rows on 5 shelves · announce clean · kajuit sign-up walk (T2) · ghost suite at baseline |
+| M4 | doctor rows on 5 shelves · announce clean · anima sign-up walk (T2) · ghost suite at baseline |
 | M5 | `grep -rn "#+marker_qa" .ikiro/quests/m60-*` — no `pending` |
 
 A milestone flips DONE only with the named file and the PASTED counts.
@@ -1588,9 +1588,9 @@ A milestone flips DONE only with the named file and the PASTED counts.
 ** testimony — the walk, first person
 
 - I run `viva instance/init` on a shelf that predates m60: the wizard prefills `SECRET_VIVA_LIGHTHOUSE_KEY` with a minted value and `VIVA_LIGHTHOUSE_SIGNUP` with `invite`; I am asked for nothing new. The doctor shows the key as `***`.
-- I start the runtime. The log shows no `[announce]` warning; kajuit after login lists the `hello` daemon as before.
+- I start the runtime. The log shows no `[announce]` warning; anima after login lists the `hello` daemon as before.
 - I `curl -X POST …/entities/identity/find -d '{"where":{}}'` with no header: `401 MISSING_TOKEN`. With my browser's access token: one row, mine, no `authentication`. With a system token: every row, still no `authentication`.
-- I open kajuit signed out, click "have an invite? sign up", type a name and password, leave invite blank: the standing reads `error: signup needs an invite — viva instance/lighthouse invite`. I run that in the shell, paste the token, submit: I am in. I paste the same token for a second account: `that invite is spent, expired, or not ours`.
+- I open anima signed out, click "have an invite? sign up", type a name and password, leave invite blank: the standing reads `error: signup needs an invite — viva instance/lighthouse invite`. I run that in the shell, paste the token, submit: I am in. I paste the same token for a second account: `that invite is spent, expired, or not ours`.
 - I set `VIVA_LIGHTHOUSE_SIGNUP="closed"`, restart, try the form: `signup is closed on this lighthouse — ask an operator for an account`. `viva instance/lighthouse signup ops pass` still works.
 - I `cat tokens.json`: keys are hex, nothing starts with `eyJ`.
 - I type a wrong password eleven times: the eleventh says `too many attempts — wait a minute`.
@@ -1606,7 +1606,7 @@ A milestone flips DONE only with the named file and the PASTED counts.
 #+marker_qa: m60/P-throttle-reach · pending · `grep -c "throttle(" commons/lighthouses/multiplayer/server/auth.js` = 3 (signup · login · system) and `/verify` bare; live: a daemon under load never sees 429 from verify
 #+marker_qa: m60/P-jti · pending · two logins inside one second yield two distinct refresh tokens and two store keys (P-session-cap counts nine)
 #+marker_qa: m60/P-system-writes · pending · `gates.test.js` P-daemon-writes-system; live: announce lands `hello` with no warning
-#+marker_qa: m60/P-invite-once · pending · `gates.test.js` P-invite-once + the kajuit walk (second paste refused)
+#+marker_qa: m60/P-invite-once · pending · `gates.test.js` P-invite-once + the anima walk (second paste refused)
 #+marker_qa: m60/P-policy · pending · `gates.test.js` P-invite-required · P-closed · P-system-signs-up; live: the three standings in the testimony
 #+marker_qa: m60/P-hashed-store · pending · `gates.test.js` P-hashed-store; live: `grep -c eyJ ~/.viva/instances/hello-world/mountpoint/service_multiplayer/tokens.json` = 0 after the reset
 #+marker_qa: m60/P-session-cap · pending · `gates.test.js` P-session-cap
@@ -1646,14 +1646,14 @@ A milestone flips DONE only with the named file and the PASTED counts.
 | `systems/ghost/trajectories/instance/lighthouse.js` | system bearer · `invite` | 4 | tangle (before shown) |
 | `systems/ghost/trajectories/index.js` | valence + schema | 4 | diff |
 | `systems/ghost/trajectories/instance/init.js` | admin signup as system | 4 | diff |
-| `systems/kajuit/src/typology/stores/lighthouse.js` | + `signup` | 4 | diff |
-| `systems/kajuit/src/app/widgets/Login.svelte` | invite field · copy | 4 | diff |
+| `systems/anima/src/typology/stores/lighthouse.js` | + `signup` | 4 | diff |
+| `systems/anima/src/app/widgets/Login.svelte` | invite field · copy | 4 | diff |
 | ledger 5 + registry 4 recipes · 5 `.env` (minted) · 5 `tokens.json` (reset) | the three hunks | 4 | capture then edit |
 | `world/codemap/{commons,runtime,typology}.md` · `world/ledger.md` · `known-issues.org` · `release.md` | restamp | 5 | ikiro |
 
 * deferred
 
-- **password change / reset** — an `/auth/password` verb for an identity principal; today there is no user-side write path at all (F3), which is the safe default. Reopens when kajuit grows a profile surface.
+- **password change / reset** — an `/auth/password` verb for an identity principal; today there is no user-side write path at all (F3), which is the safe default. Reopens when anima grows a profile surface.
 - **roles beyond system | identity** — `secure.claim` takes any predicate; the vocabulary is one bit today. Reopens with the first mode that needs an operator/learner split.
 - **IP-keyed throttle** — `shape.http` does not put the remote address on `ctx.request`; when it does, `throttle({ key })` takes it.
 - **rotating `SECRET_VIVA_JWT`** — every token dies at once; a kid-versioned secret list is the fix. Reopens on the first rotation.
@@ -1679,7 +1679,7 @@ A milestone flips DONE only with the named file and the PASTED counts.
 - changed `lighthouse tokens.json` — refresh entries keyed by sha256(token), 8 sessions per identity · migrate: delete the old file once; every session re-logs ⟨m60⟩
 - added `SECRET_VIVA_LIGHTHOUSE_KEY` · `VIVA_LIGHTHOUSE_SIGNUP` to the hello-world schema — both minted/defaulted at init · migrate: `viva instance/init` on each shelf ⟨m60⟩
 - changed `viva instance/lighthouse` — `invite` verb; `signup` speaks as a system principal when the key is set · migrate: none ⟨m60⟩
-- added kajuit sign-up form — username · password · invite · migrate: none ⟨m60⟩
+- added anima sign-up form — username · password · invite · migrate: none ⟨m60⟩
 - changed `lighthouse /auth/login|signup` — 10 attempts per username per minute, then 429 · migrate: none ⟨m60⟩
 
 * changelog

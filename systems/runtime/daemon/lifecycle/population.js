@@ -2,7 +2,7 @@ import paladin from "@vivalence/paladin";
 import { EntitySchema, wrap } from "@mikro-orm/core";
 
 import { Aperture, Mode, Path, shard, Url, v, Vector } from "@vivalence/typology";
-import { array, is, shape, steer } from "@vivalence/typology";
+import { is, shape, steer } from "@vivalence/typology";
 import { ActivityEntity, ActivityRepository, DataRepository, sets } from "@vivalence/runtime";
 
 import * as traits from "../traits/index.js";
@@ -123,7 +123,7 @@ export async function services(daemonDie) {
   for (const [slug, servicemask] of Object.entries(daemonDie.mask.consume)) {
     const servicecake = daemonDie.register.consume[slug];
     daemonDie.good.services[slug] = await servicecake.provider(servicemask); //@beef pass cortex or something??? maybe service provider should be a vector?
-    if (servicecake.manifest?.traits?.includes("TOOLED") && servicecake.tools) {
+    if (servicecake.manifest?.traits?.includes("TOOLING") && servicecake.tools) {
       daemonDie.good.services[slug].tools = servicecake.tools;
     }
   }
@@ -149,11 +149,9 @@ export async function modes(daemonDie) {
       mode.tools.use(shard.context.bind("daemon", daemonDie.good));
       mode.tools.use(shard.context.bind("mode", mode));
 
-      mode.entity = await daemonDie.good.entities.mode //
-        .ensure({ ...mode.manifest });
+      mode.entity = await daemonDie.good.entities.mode.ensure({ ...mode.manifest });
 
-      mode.entity.traits = array //
-        .unique([...mode.entity.traits, ...mode.manifest.traits]);
+      mode.entity.traits = [...mode.manifest.traits];
 
       await daemonDie.good.entities.em.flush();
 

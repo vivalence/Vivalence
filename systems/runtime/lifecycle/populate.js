@@ -1,5 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { Url, Connection, Path, Aperture } from "@vivalence/typology";
+import { Connection, Path, Aperture } from "@vivalence/typology";
 import { Die as DaemonDie, Daemon } from "@vivalence/runtime/daemon";
 import { Die as ProcessDie, Process } from "@vivalence/runtime/process";
 
@@ -8,7 +8,7 @@ export async function registry(runtimeDie) {
 }
 
 export async function wiring(runtimeDie) {
-  runtimeDie.good.latch = new Url(paladin.env.get("PUBLIC_VIVA_RUNTIME_REMOTE"));
+  runtimeDie.good.latch = paladin.instance.runtime?.statics?.remote?.clone();
 }
 
 export async function aperture(runtimeDie) {
@@ -18,6 +18,9 @@ export async function aperture(runtimeDie) {
 }
 
 export async function daemons(runtimeDie) {
+  if (paladin.instance.daemons.length && !runtimeDie.good.latch)
+    throw new Error("runtime.statics.remote REQUIRED — daemons need a reach url to announce");
+
   for (const mask of paladin.instance.daemons) {
     const daemonDie = new DaemonDie({
       mask,

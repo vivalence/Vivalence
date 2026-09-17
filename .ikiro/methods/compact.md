@@ -22,7 +22,7 @@ backlog item.
 3. **COVERAGE** — every `n` in `1..N` appears in exactly one row. A turn with nothing durable is written `NOTHING`, never skipped in silence. Unaccounted turns > 0 means the walk is not finished. This is the forcing function: the count exists before the writing starts, so a short walk is visibly short rather than plausibly complete.
 4. **SECTIONS** — compose section by section (`#+TOPIC` · `* Arc` beats · failures · `* State at fold`), and fill **each section from the whole row table**. Never write the compact top-to-bottom in one pass: a single pass re-imposes narrative order, which is recency order wearing a different hat.
 5. **BALANCE** — count which rows each section cites. If more than half the citations fall in the last third of `N`, the bias survived; go back to the rows. This is the measurable test, and it is the difference between a method and a wish.
-6. **INDEX** — regenerate `compacts/index.md` (never hand-patch it). A compact nobody can find is not a record: measured once, **32 of 35 were unreachable from live canon**. The check is a count — numbered entries must equal `.org` files in the directory. Give the new compact a `#+filetags:` line or it enters the index untagged and findable only by number (12 of 35 are, today).
+6. **INDEX** — regenerate `compacts/index.md` (never hand-patch it). A compact nobody can find is not a record: measured once, **32 of 35 were unreachable from live canon**. The check is a count — numbered entries must equal `.org` files in the directory. The `## by tag` fold is RETIRED (beef: *"too much time in updates, not enough payback"*, executed 09-21); `#+filetags:` is no longer required on a compact, and nothing reads it. Ids are the citation key and still stamped once, forever.
 8. **QUEST REPORT** — `CLAUDE_SESSION_ID=<this session> python3 .ikiro/methods/quest-report.py --format md --stamp --compact <this compact>`: the five-column table lands as the compact's `* quest report` section and the three derived header keys are restamped on every live quest (totem: `self/totems.md ## quest report`). Read the `sessions` column before claiming anything about the tree — a live sibling means a shard or an hour-old grep can already be false.
 7. **SETTLEMENT** — then the existing scribe pass (see `self/rituals.md ## the scribe's duties`): loose ends resolved by a landed rule get FIXED in the compact turn, budgets checked in chars, date-scan before writing.
 
@@ -63,7 +63,7 @@ for n,(i,ts,_,t,txt) in enumerate(turns,1):
 
 ## the index generator
 
-`python3 .ikiro/methods/compact-index.py` — regenerates `compacts/index.md`; the body of that script IS the spec (it used to live here as a pasted block, and a pasted block is DERIVED prose inside an authored file: the fold that lost nine entries had no runnable generator). Ids are each compact's `#+index:` property, stamped once and never moved, so a citation `#<id> <slug-prefix…>` survives inserts and renames. The check after regeneration is the script's own last line: compacts · tags · untagged · ids stamped.
+`python3 .ikiro/methods/compact-index.py` — regenerates `compacts/index.md`; the body of that script IS the spec (it used to live here as a pasted block, and a pasted block is DERIVED prose inside an authored file: the fold that lost nine entries had no runnable generator). The check after regeneration is the script's own last line: compacts · ids stamped.
 
 ## the canon path audit (world-sync step)
 

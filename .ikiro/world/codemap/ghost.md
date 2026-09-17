@@ -126,7 +126,7 @@ command: { bin: Deno.execPath(), args: ["task", "--config", config, "-q", CHILDR
 // viva instance/doctor --json (`vars` + most `env` rows elided; secrets print `***`)
 {
   "manifest": { "type": "instance", "slug": "hello-world", "version": "0.0.1" },
-  "daemons": ["hello"], "services": ["multiplayer"], "clients": ["kajuit"], "runtime": ["slug", "statics"],
+  "daemons": ["hello"], "services": ["multiplayer"], "clients": ["anima"], "runtime": ["slug", "statics"],
   "env": [{ "!": "!", "key": "PUBLIC_VIVA_RUNTIME_REMOTE", "value": "http://localhost:2501/", "stratum": "instan", "reason": null }],
   "faults": [], "dormant": ["daemon[hello].hallucinators[1]"], "lock": null
 }
@@ -150,6 +150,6 @@ assertEquals(spec.command.env.VIVA_PROCESS_ID, undefined);
 ## where to read the live system
 
 - **Spans: 4 sites, all in-memory.** `mod.js:27-37` opens one `Span("ghost")` per invocation, marks `subject {schema:"signal", id:<absolute argv>}` and faults it on `ctx.error`; `run.js:14` branches `run/<process>`. **`drain()` sites: 0** — `.to(paladin.ledger.pipe)` is commented out (`mod.js:28,41`), so no ghost span reaches disk.
-- **`console.*`: 11 sites outside `bak/`** — `mod.js` 5 (the `--json` dump, four `fail()` lines) · `start.js` 2 · `stop.js` 2 · `run.js` 1 (`run runtime=<pid> kajuit=<pid>`) · `sheets/text-select-a.js` 1. All else prints via the view.
+- **`console.*`: 11 sites outside `bak/`** — `mod.js` 5 (the `--json` dump, four `fail()` lines) · `start.js` 2 · `stop.js` 2 · `run.js` 1 (`run runtime=<pid> anima=<pid>`) · `sheets/text-select-a.js` 1. All else prints via the view.
 - **Taps** — `viva help --json` = the command inventory · `instance/doctor --json` = the snapshot above · `<ledger>/logs/<slug>/` = the only durable ghost-side output, written under `instance/run --logged`. `ledger`/`registry` `doctor` report too, but WRITE.
 

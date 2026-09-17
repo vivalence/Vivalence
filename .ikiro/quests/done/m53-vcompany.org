@@ -1,0 +1,399 @@
+#+title: m53 — vcompany
+#+filetags: :m53:vcompany:voffice:vdex:email:calendar:chat:message:event:dummy:office:officer:commons:instance:typology:runtime:paladin:drapes:
+#+phase: open
+#+progress: RECAST to ONE file (the pre-draft, the V3 vdex pass and the v4 mail+calendar pass folded in; originals under =quests/done/= · =quests/discarded/=). The OFFICE is LANDED and LIVE: =office/vdex= on two mounts (=vdocs= · =corpo=), =office/email= + =office/calendar= over one dummy provider each, 7 mode rows on his daemon; every repo hunk uncommitted. The officers are skeletons; chat and the ledger are slots.
+#+next: his restart + the click-through gates (vdex 12 · mail/calendar 12 · Gs1–Gs6); the six office test files; the three stale vdex reds; then his call on the next stage — chat over telegram · vendor providers · the officer stage.
+
+* ikiro
+
+** intent
+
+A tapped =@vcompany= package whose =vivalence= instance boots ONE office daemon that owns the
+company's documents (=vdex=), mail (=message=) and calendar (=event=) as literals, syncs them from the
+world, serves them to Apps and to agentic modes through tools, and carries the chief officers — the
+company operators — as consumers of those tools. The ledger (=transaction=) is a fourth, empty slot.
+
+Office-first, his order: /"All of this is reference material. I want you to now start thinking
+basically from scratch."/ — the officers need documents and an inbox before they need a persona; the
+port of OpenExecutive is the last stage, not the first.
+
+** rulings (beef, verbatim — the load-bearing ones)
+
+- naming: /"Let's call it the v office domain. One word, v office."/ · /"chief officer. company operator. first as name, second as description."/ · type =office= — /"office."/
+- ontology: /"the ontology for the literal here is a VDEX, kinda like the Jadex, but adapted to the way that Viva lens works"/ · /"the vdex as ontology is CORRECT! ontology is the same. i just want a second mountpoint."/ · /"THE FUCKING VDEX ONTOLOGY MARKER DOESNT DESCRIBE THE FUCKING MODULE"/
+- slug: /"the literal slug should be shorter. not whole filepath in slug. jdex is smarter."/ · /"vdex slug should contain filetype!"/
+- formats: /"index everything but mark some things as readable/unreadable."/ · /"@beef add pdf already. requires propper drapes."/ · /"mime amen."/
+- mount: /"vdex mounts just ONE path! single mount."/ · /"jdex path will be somehwere in my system. no automatic scopes."/ · /"keep two mount."/ (=mount= = route · =mountpoint= = data dir; paladin's own =mask.mount= stays) · /"mountpoint fs. mount internal reference."/
+- masking: /"obviousfuckingly mountpoint is property and masking and all that shit is subject of paladin. thats what he is fucking for."/
+- the mode boundary: /"NO. no leaving the mode!"/ — a mode's files never import outside the mode's directory; a domain export is reached at runtime through =daemon.domain.*= or not at all
+- the walker: /"not sure hardcoding this is smart. think holistically. what do we want?"/ → the ignore doctrine · /"i dont like this yet. something is off. let coneusseur have a pass."/
+- boot: /"On boot, it populates and prunes literals of the VDex ontology from its mount point."/ · /"could we maybe accomplish this with just dataset and datasink? … arbitrary loader …"/ · /"# @beef WEIRD!"/ (on an exported =install()=) → =reader.load=
+- the vdex tooling: /"do we want the plain tools on vdex or an application of these tools? i think the latter. vdex should provide the functionality that fs tools provide. wrap for context and utility."/ · /"not really a tool. more of an emitter."/ (=open=) · /"are literals subscribed to on the client? if so, we want to be precise with our subscription! not just load * when *."/ · /"do we want prune on repository level???!?!?! … just implement inline for now."/ · /"wtf is daemon traits stamp???? what!"/ · /"shouldnt this watch files??!!!"/
+- the index: /"i want the full index. not an abbreviation. rows. no indentation format. agent/human optimized"/
+- ownership: /"New relationship between mode and literals, mode and symbols. I think I want that on typology level."/ → at the landing: /"just one … one mode per literal/symbol"/ · /"no. youre still considereing ontology level. this is purely mode slug."/
+- identity: /"what if we standardize on manifest. no mode.slug at all. neither in the daemon.js instance config … no mode.slug mode.type etc outside manifest."/ · /"manifest also on mode prototype. no getters. on modeentity is the one exception that makes sense to me."/
+- messaging: /"calendar as a mode. email per provider for this reason. maybe some internal shared smtp tooling?!"/ · /"vdex works on disk. source is mountpoint from mode config"/ · /"mail and calendar load dummy data via mode."/ · /"one per"/ · /"now just a demo dataset."/ · /"plus endpoints to record things like mails sent, event created/renamed etc."/ · /"so, dummy modes"/ · /"// @beef add a datasink."/
+- the officers: /"ignore the officers for now. we do the office vdex now. not agentic."/ · /"the modes with which we interact. Those are agentic … And then we have the CEO, CFO, stuff like that that we can basically copy from what the open executive has and expand it."/
+- the App passes: /"i watn you to do a pass on the vdex modes application. surface pass. functionality pass. there will be some rough edges where the design wants features we dont have yet. like drag and drop for file upload and download. mark those. topic later."/ · /"ignore the app. new vdex built in parallel. v3."/
+- testing: /"testing. snapshot testing. i want snapshots up the wazoo on vcompany. … index. snapshotted! prompts snapshotted. literals, everythign. each tool. each aperture."/
+- the bundle: /"why bundle so large??"/ → on the sideEffects patch: /"no. omg. horrible! completely wrong direction. … mark the issue itself without your approach"/
+- this file: /"no tables with fucking text retard. gimme table high level serialized enums numbers. then in depth sections!"/ · /"you come up with all these retarded abbreviatinos. i havent read the quest. quests aare YOURS! wtf are these numbers."/ (a status names things, never this file's ids) · /"git later"/
+
+** laws — what held
+
+- the house mechanism: an ontology IS the one TOPOGRAPHICAL symbol on a literal (the subscriber throws on two); traits carry payload shape; symbols classify. A domain extends the runtime literal with its trait enum and repository verbs.
+- FOUR ontologies on one literal: =vdex= (a file on the mount) · =message= (a message on a channel; channel = a symbol dimension, =MAIL= · =CHAT= carry the channel-shaped fields) · =event= (a span on a calendar) · =transaction= (empty). Trait nouns, never participles: =DOCUMENT= · =MESSAGE= · =MAIL= · =CHAT= · =EVENT= · =TRANSACTION=.
+- the vdex slug = deepest JD coordinate · folded stem · extension (=22.04.re24-05277.pdf= · =12.notes.md= · =readme.org=). Directories never enter the slug; =DOCUMENT.asset.path= is the truth on disk. A JD id is a SYMBOL (=vdex.id.22.04=), a file is a LITERAL. A =NN.00= index file's title labels its coordinate (Johnny.Decimal's rule = the docs site's =jdex.js= rule).
+- the vdex is a dataset SOURCE: typology =reader.load= (=load(mode) → rows=, =stamp(mode) → string=), =load.js= = two loaders over ONE scan, DATASET installs, BOOTED prunes inline through the em and WATCHES (=Deno.watchFs= → =sync(paths)= → per-path rows → the twitch). No fingerprint comparison: an unchanged file is an =assign= with no diff.
+- the vdex speaks SLUGS, never paths: eight verbs (=index find read write file move delete open=) implemented ONCE in the aperture, the tools an application over =ctx.mode.call.<verb>=; =open= is an EMITTER (=/emit/open= → the App buffer). Three faces, one body.
+- the harness index is ROWS: every coordinate, every document as =slug · title=, no fold, no budget.
+- the mode boundary: nothing under a mode imports outside its directory; package fixtures live at the package root (=tests/scenarios.js=); the domain reaches modes at runtime, never by path.
+- the ignore doctrine: ONE glob list (=paladin.belt.ignore.IGNORE=, =*.bak= as data), =skip(globs)= compiled once; the walker's head takes the list beside the pattern (=find.walk(pattern, ignore)(root, depth)=); a caller's list is the WHOLE list (no union); =describe= is a stat; index-ignore ≠ vcs-ignore.
+- masking is PALADIN's: the kernel entry ={manifest, module, mountpoint, statics, secrets}= is hydrated at the pinhole, =dress= converts a declared ABSOLUTE mountpoint (relative THROWS, blank stays REQUIRED, none stays none — nothing minted), =integrate= creates declared dirs at init, =accioOne= folds statics AND manifest module-under-instance and VALIDATES the manifest (=v.primitives.Manifest=); the runtime only READS.
+- manifest is the ONE identity record: =mode.manifest.{type,slug,name,traits}= everywhere on the citizen; =mode.module.manifest= = the registry identity; the DB ROW stays flat (=(slug, type)= unique, the FK from literal/symbol) — the citizen carries a manifest, the row stays flat.
+- mode OWNS rows, single owner: =Literal.mode= · =Symbol.mode= are m:1 nullable, unique =(slug, mode)=; the declared scheme (=dataset/symbols.js=: the ontology marker, formats, slots) is SHARED and unowned; what a mount COMPUTES (=load=) is owned. Every vdex read is scoped by MODE, never by ontology. The prune keep-set reads the MOUNTING's slug (=typeSlug(mode)=), never =manifest.slug= of the module.
+- FRAUGHT vs MOUNTED: a mode that ships files declares =FRAUGHT= + =Freight(<subdir>)= (root = =module.mount.dirname=); one that serves an operator's tree declares =MOUNTED= and no freight (root = =mode.mountpoint.absolute=). The three cargo sites ask either.
+- a path is not a url: =URL.pathname= escapes — decode on the way out, encode PER SEGMENT on the way in (=freight.js= minting + =resolve()=; =paladin.skills.resolve=). Found twice.
+- the provider seam: an office mode names its provider in ONE static (=provider: "dummy/mail"=) and resolves it at call time through =daemon.flatmodes()= (=provider.js=, one refusal); the routes are the contract, not the module. A dummy is the vendor called "none": it owns BOTH directions — a demo DATASET in, a recording aperture out, a DATASINK round-tripping the file its dataset reads (the disk file IS the mailbox). Statics live at mask level; a dummy declares none and refuses by name.
+- the held send: an officer's =reply= HOLDS (=MESSAGE.hold {by, at}= + =message.status.held=); =/key= is the ONLY route that clears it and is NOT armed as a tool. Officer writes, human sends. Same asymmetry on the calendar: =create= · =move= armed, =delete= not.
+- a series is a MASTER with its RFC 5545 =rrule=, expanded in memory for the asked range (=occurrences.js=); an occurrence's slug is =master@YYYY-MM-DD=; =/move= refuses a series.
+- =MESSAGE.external= = ={account, id, thread, etag}=; =external.thread= is the VENDOR's grouping and never the threading edge — threading is the literal's own =uses=/=in=; a mail thread is MESSAGES (the walker filters =ontology === "message"=; events that reference a mail are the calendar's view of it).
+- coordinates cross ontologies: mail and events take =vdex.category.*= / =vdex.id.*= symbols — one coordinate groups documents, mail and the calendar.
+- an App's keys live on its root (=role="presentation" tabindex="-1"=), never =svelte:window=; ⌥ reads =event.code=; rows are =$state.raw=; every wire call lands in the status bar, a refusal in danger ink; the twitch replaces the row in place, never a refetch; drafts survive a switch; sections are cut from TEXT (line ranges), never the AST; every overlay takes dapper =skeleton-4= (there is no zone 5); the tool envelope is m26's ={condition?, output:{message?, object?, literal?:[], buffer?:[]}}=, entity keys SINGULAR.
+- a design-phase App is READ AGAINST THE ROWS SNAPSHOT before landing (the READY draft had =symbol.vdex.id= wrong — it is ={cat: id}=, a string-leaf fold).
+- =stable()= blanks uuid VALUES, never drops a KEY named =id=.
+- the installer's own source seeds EVERY dataset stamp — editing =traits/dataset.js= reinstalls every mode once on every instance, then silence.
+- the literal↔symbol m:n cascades REMOVE both ways: every boot pass rides an em FORK; the fold is an UPDATE fact (fresh rows are touched once); =row()= refs carry no traits (mint from =coordinates(path).symbols=).
+
+** landing ledger (session-relative)
+
+- T0 — 26 package files · paladin =materialize= · =dress= · =accioOne= · =integrate= · runtime three reads + =/mountpoint= · the ledger taps · boot past =[VIP] 404= once the modules existed.
+- T1 — the vdex chain (=types= · =jd= · =title= · =load= · =boot= · =index= · =harness= · =tools= · =aperture= · the stub App) · paladin ignore doctrine + fs verbs · drapes Markdown lift + =Org= + =Pdf= · typology MIME + =reader.load= · FRAUGHT root · fixtures + 3 suites + 5 snapshots; LIVE =[VDEX] … 33 documents · 17 coordinates=.
+- s1/s2 — drapes =Key= · =Tile= · =Plate= · =Entry= · =Empty= · =Pip glow=; the screens App replaces the stub; =/open=; the bundle question LEDGERED.
+- T1.1 — harness · emitter · eight slug verbs ONCE in the aperture · tools over them · per-path =sync= + =Deno.watchFs= · the domain's =nativeDelete= prunes gone · index as rows · r1 (paladin =resolve= percent-encodes) then FIXED.
+- V3 — the App split into a shell + 7 parts + =jdex.js=; second pass: block editor · raw · crumbs · status line · zone-4 overlays; =Paper.svelte= pdf viewer (browser engine per page, windowed ±1); the cargo route fixed for spaced names.
+- two mounts — =mask.slug= honoured → =manifest= folded in paladin; single-owner rows, =(slug, mode)=; every read scoped; the prune keep-set fixed (it had uninstalled both mountings every boot, 11 duplicate sets deep); manifest = the ONE identity record, ~50 sites.
+- v4 — =event= ontology · =dummy/mail= · =dummy/calendar= (DATASET + DATASINK + EXPOSED) · =office/email= · =office/calendar= (server + App) · four kernel lines · =Pip= tone =success=; four landing bugs fixed (=daemon.modes= is a nested map · =ensure()= cascades INSERT through refs → =dummy/link.js mint()= · an unpopulated Collection · a date-only =to= excluded its day); the mail =thread()= walker fixed (events share =uses=).
+- drapes-editor (own quest) — the vdex =raw= view now rides CodeMirror 6 as a drapes subpath.
+
+* on disk
+
+** the package — =~/.viva/registry/vcompany= (no VCS — capture before you delete)
+
+#+begin_example
+vcompany.viva.js                         {type:"package", slug:"vcompany", owner:"@vcompany"}
+README.md · .gitignore                   the tap recipe; **/.env · **/mountpoint
+tests/scenarios.js                       install(daemon, mode) · beside(scenario, viva, statics) · office(viva, {mountpoint, statics, cortex, provider}) · jdex()
+domain/voffice/                          EXPOSED · TOOLED — the literal's domain
+  domain.viva.js · types.js              ONTOLOGY [vdex message event transaction] · STATUS · DIRECTION · KIND · SOURCE
+  entities/kernel/{Literal,Symbol}.ts    LiteralTraitsEnum DOCUMENT MESSAGE MAIL CHAT EVENT TRANSACTION · card.project · search
+  tools/{index,lookup,line}.js           voffice_lookup {text} across ontologies · the line formatter
+  aperture/index.js                      /lookup
+modes/office/message.js                  the message scheme shared by email + chat
+modes/office/vdex/                       DATASET BOOTED MOUNTED APPLICATION EMITTER STANDALONE EXPOSED HARNESSED TOOLED
+  vdex.viva.js · types.js (TEXT) · jd.js (both JD grammars) · title.js (per format)
+  load.js                                coordinates · documents · drain — ONE scan per mode (WeakMap)
+  boot.js                                boot · sync(paths) · watch — em fork per pass, prune inline
+  index.js                               the harness section as ROWS
+  harness.js                             role · doctrine · index · the screen line
+  aperture/index.js                      /index /tree /documents /document /write /file /move /delete · ONE serve() envelope
+  emitter/index.js                       /open {slug, thread?} → app.buffer({data:{open}})
+  tools/index.js                         index find read write file move delete open — over mode.call / mode.emit
+  dataset/symbols.js                     the scheme: vdex · vdex.slot.index · vdex.format.*
+  buffer/Vdex.svelte + jdex.js           the shell (806 l) + the client JD grammar (parse compose sections references find sort)
+  buffer/parts/{Browser,Tree,Columns,Rows,Row,Reader,Outline,Paper}.svelte
+  tests/{jd,jdex,app,boot,tools,vdex.snapshot}.test.js · tests/snapshots/vdex-{aperture,hallucination,index,rows,tools}.snapshot.json
+modes/office/email/                      DATASET BOOTED FRAUGHT APPLICATION EMITTER STANDALONE EXPOSED HARNESSED TOOLED
+  email.viva.js · provider.js · boot.js · harness.js · dataset/symbols.js (+ message.status.held)
+  aperture/index.js                      /account /inbox /message /read /send /key
+  emitter/index.js                       /open {slug, thread?}
+  tools/index.js                         inbox read reply find open (key NOT armed)
+  buffer/Mail.svelte · parts/{Inbox,Thread}.svelte
+  attachments/<slug>/<name>.pdf          the freight (two demo pdfs)
+  tests/app.test.js
+modes/office/calendar/                   DATASET BOOTED APPLICATION EMITTER STANDALONE EXPOSED HARNESSED TOOLED
+  calendar.viva.js · provider.js · boot.js · harness.js · dataset/symbols.js
+  aperture/index.js                      /calendars /agenda /event /create /rename /move /delete /mint
+  emitter/index.js                       /open {slug? on? view? thread?}
+  tools/index.js                         agenda event create rename move open (delete NOT armed)
+  buffer/Calendar.svelte · calendar.js · parts/{Grid,Month,Year,Agenda,Inspector}.svelte
+  tests/{app,calendar}.test.js
+modes/office/chat/                       DATASET EXPOSED HARNESSED — a SKELETON: manifest + scheme, statics.platforms []
+modes/dummy/link.js                      mint(entities, row) — columns first, then edges (the ORM must be handed entities, never refs)
+modes/dummy/mail/                        DATASET DATASINK EXPOSED — mail.viva.js · aperture {/account /messages /send /flag} · dataset/literals/messages.js (5 threads, 7 rows) · tests/mail.test.js
+modes/dummy/calendar/                    DATASET DATASINK EXPOSED — calendar.viva.js · aperture {/calendars /events /create /rename /move /delete} · occurrences.js · dataset/literals/events.js (16 rows) · tests/calendar.test.js
+modes/officer/harness.js                 officer(manifest) → system.officer = one line from daemon.statics.company
+modes/officer/{ceo,cfo,cto}/<slug>.viva.js   HARNESSED EXPOSED — SKELETONS (name + description, no tools, not AGENTIC)
+instances/vcompany/instance.viva.js      runtime · daemons [vcompany] · clients.anima · services [multiplayer] · lighthouse · environment (mail/telegram vars optional)
+instances/vcompany/daemon.js             the TEMPLATE kernel — STALE against the live instance (below)
+#+end_example
+
+** the instance — =~/.viva/instances/vivalence= (record =vivalence=; =.env= · =daemon.js= · =instance.viva.js= · =mountpoint/=)
+
+The live kernel (his edits, canonical):
+
+#+begin_src javascript
+kernel: [
+  "@vcompany/domain/voffice",
+  { manifest: { slug: "vdocs" }, module: "@vcompany/office/vdex", mountpoint: "/Users/finn/vivalence/code/vivalence/documentation/content", statics: { formats, ignore } },
+  { manifest: { slug: "corpo" }, module: "@vcompany/office/vdex", mountpoint: "/Users/finn/vivalence/coorporation",                        statics: { formats, ignore } },
+  { module: "@vcompany/dummy/mail",       statics: { address: "office@vivalence.org", poll: 60 } },
+  { module: "@vcompany/dummy/calendar",   statics: { calendars: [{ slug: "office", name: "Office", vendor: "dummy" }] } },
+  { module: "@vcompany/office/email",     statics: { provider: "dummy/mail" } },
+  { module: "@vcompany/office/calendar",  statics: { provider: "dummy/calendar" } },
+  // office/chat · officer/ceo · cfo · cto — commented out
+]
+#+end_src
+
+DRIFT: the template =instances/vcompany/daemon.js= still carries the T0 kernel (one vdex without a
+=manifest= entry, =office/email= with =address=, =office/chat=, the three officers) — the v4 kernel lines and
+the two-mount shape landed in the INSTANCE only. A fresh =instance/create= from the template would not boot the
+office as it is. Owed (below).
+
+** the entities — as landed
+
+#+begin_example
+literal
+├── vdex         DOCUMENT     {asset:{path}, title, format, readable, bytes, mtime, hash}         body NEVER in the row (cargo serves it)
+├── message      MESSAGE      {channel, direction, from, to[], at, body, external:{account,id,thread,etag}, hold?:{by,at}}
+│                MAIL         {subject, cc[], messageId, inReplyTo, references[], attachments[{path,type,bytes,name}]}
+│                CHAT         {platform, chat, sender:{id,name}, replyTo}                          (no rows yet)
+├── event        EVENT        {kind, title, start, end, allDay, tz, rrule, who, where, external}   deadline = no end + allDay
+└── transaction  TRANSACTION  {at, memo, entries:[{account, amount, currency}]}  Σ amount = 0     (empty slot)
+
+symbols   vdex · vdex.slot.index · vdex.format.* (scheme, SHARED) · vdex.{area,category,id}.* (minted at boot, OWNED per mount)
+          message · message.channel.{email,telegram} · message.direction.{in,out} · message.status.{unread,read,answered,held}
+          event · event.kind.{event,deadline} · event.source.{vendor,mail,officer} · event.calendar.<slug>
+slugs     vdex 22.04.re24-05277.pdf · message email.<hash of Message-ID> · event event.<hash of iCalUID> | event.<source>.<n> · occurrence master@YYYY-MM-DD
+edges     uses/in = threading (a reply uses its parent · a minted event uses its mail) · Literal.mode / Symbol.mode m:1 · unique (slug, mode)
+#+end_example
+
+** the wire — symbolic
+
+| mode             | traits                                                          | aperture                                                     | tools (armed)                              | emitter |
+|------------------+-----------------------------------------------------------------+--------------------------------------------------------------+--------------------------------------------+---------|
+| domain/voffice   | EXPOSED TOOLED                                                  | /lookup                                                      | voffice_lookup                             | —       |
+| office/vdex      | DATASET BOOTED MOUNTED APPLICATION EMITTER STANDALONE EXPOSED HARNESSED TOOLED | /index /tree /documents /document /write /file /move /delete | index find read write file move delete open | /open   |
+| office/email     | DATASET BOOTED FRAUGHT APPLICATION EMITTER STANDALONE EXPOSED HARNESSED TOOLED | /account /inbox /message /read /send /key                    | inbox read reply find open                 | /open   |
+| office/calendar  | DATASET BOOTED APPLICATION EMITTER STANDALONE EXPOSED HARNESSED TOOLED | /calendars /agenda /event /create /rename /move /delete /mint | agenda event create rename move open       | /open   |
+| office/chat      | DATASET EXPOSED HARNESSED                                       | —                                                            | —                                          | —       |
+| dummy/mail       | DATASET DATASINK EXPOSED                                        | /account /messages /send /flag                               | —                                          | —       |
+| dummy/calendar   | DATASET DATASINK EXPOSED                                        | /calendars /events /create /rename /move /delete             | —                                          | —       |
+| officer/{ceo,cfo,cto} | HARNESSED EXPOSED                                          | —                                                            | —                                          | —       |
+
+Beside the eight, every mounted mode's harness arms paladin's layer ② (=entity_* buffer_update thread_update fs_* shell_run=) rooted at the PACKAGE dir — the vdex's own harness therefore carries a =shell_run= whose cwd is not the JDex (sharp; his call whether to shed layer ②). Metadata routes: =/mode/<type>/<slug>/metadata/{statics,mountpoint,app,manifest}= (=manifest= answers the MODULE's slug under a mounting's route — wording question, unread for identity).
+
+** the Apps
+
+- =Vdex.svelte= + 8 parts: 44 px header (crumbs · slug · find with dropdown · read/edit/raw · save chip) · browser (tree · columns · list · grid · ⋯ menu · inline new/rename · drag onto a category · resize handle) · reader (h1 · sections with fold heads · block editor with ⋮⋮ handles and a floating toolbar · footer format/size/age/→ references · =Paper.svelte= for pdf) · outline (sections · links · info · ▲▼ + drag reorder) · 28 px status bar (=[VDEX]= counts · last three calls · last refusal) · keys =j k h l ↵ n r m d ⌫ e v s g / ⌥1 ⌥3 ⌘S ⌘D esc y n= · one breakpoint at 820 · 44 px under coarse pointers. =raw= is CodeMirror 6 through the drapes =editor= subpath (drapes-editor quest).
+- =Mail.svelte= + =Inbox= · =Thread=: header · filters · one row per THREAD with pips · thread in/out · the pdf attachment card jumping into the vdex · the held strip with =key= · the composer with =◆ ceo= · the coord chip · 820 drill.
+- =Calendar.svelte= + =calendar.js= (rangeOf · labelOf · laid · grouped · weeksOf) + =Grid= · =Month= · =Year= · =Agenda= · =Inspector=: range + views · source bar · day/week grid with now · month · year heat · sticky-day list · the inspector with =uses= · keys =d w m y l j k t ↵=.
+- drapes parts the office contributed: =controls/Key= · =display/{Tile,Plate,Entry,Empty}= · =Pip= (=glow= prop, tone =success=) · =display/{Markdown,Org,Pdf}= (+ =markdown.js= · =org.js=). Not yet drawn: =Voffice.svelte= (roster + offices, the domain's App) · =Desk.svelte= (the ceo's) — designed in the original quest's =* screens=, superseded by the V3 idiom; re-cut from the design when their tier lands.
+
+** the repo — every hunk uncommitted (flag-day radius: repo + the package + the instance)
+
+| container | files                                                                                                                                                                  | what                                                                                                   |
+|-----------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------|
+| paladin   | =prototypes/instance.js= · =prototypes/vip.js= · =lifecycle/integrate.js= · =belt/ignore.js= (new) · =belt/find.js= · =skills/fs.js= · =tests/{settle,kernel,skills,find}.test.js= | =materialize= hydrates kernel entries · =dress= declared-absolute only · =accioOne= folds statics + manifest and VALIDATES · declared dirs at init · the ignore doctrine · =fs_stat/move/delete= · =ctx.ignore= · =resolve= decodes |
+| typology  | =prototypes/dataset.js= · =prototypes/freight.js= · =prototypes/mode.js= · =schematics/entities/{mode,literal,symbol}.js= · =schematics/primitives/manifest.js= · =schematics/scalars/index.js= · =tests/{dataset,freight,v,mode-instance.snapshot}.test.js= | =reader.load= · MIME (+pdf md mdx org txt tex html csv jsonc) + per-segment url encoding + decoding =resolve= · a plain data citizen (=manifest= · =implements()=) · owner rel fields · =traits= =.optional().default([])= · the slug scalar's =title= |
+| runtime   | =daemon/lifecycle/population.js= · =daemon/lifecycle/integration.js= · =daemon/aperture/metadata.js= · =daemon/traits/{index,dataset}.js= · =daemon/entities/daemon/Mode.ts= · =daemon/entities/kernel/{Literal,Symbol}.ts= · =tests/dataset.install.test.js= · =tests/daemon/mode-ownership.test.js= | three reads + =mask.manifest= · the prune keep-set from the MOUNTING · =/mountpoint= · =MOUNTED= beside =FRAUGHT= · loader =pull= + stamp fold · =Mode.literals/symbols= 1:m · =Literal.mode/Symbol.mode= m:1 + unique =(slug, mode)= |
+| drapes    | =display/{Markdown,Org,Pdf,Tile,Plate,Entry,Empty,Pip}.svelte= · =display/{markdown,org}.js= · =controls/Key.svelte= · two barrels · =tests/{parts,markdown}.test.js=    | the lift from anima · new renderers · the five office parts · =glow= · tone =success=                    |
+| anima    | =panels/a/widgets/Dock.svelte= (imports the drapes barrel) · =panels/a/widgets/Markdown.svelte= + =panels/a/markdown.js= DELETED · =tests/pincer/markdown.test.js= MOVED to drapes | one renderer                                                                                           |
+| ~/.viva   | =registry.json= (tap =vcompany=) · =instances.json= (record =vivalence=) · the package · the instance                                                                     | the ledger                                                                                             |
+
+** the tests
+
+Package, measured this recast: =deno test --config deno.jsonc -A --no-check ~/.viva/registry/vcompany/= → **25 passed (113 steps) · 2 failed (4 steps)**.
+
+| suite                                         | steps | red | the red                                                                                                       |
+|-----------------------------------------------+-------+-----+---------------------------------------------------------------------------------------------------------------|
+| vdex =jd= · =jdex= · =app= · =boot=           | 6 · 18 · 8 · 10 | 0 | —                                                                                                        |
+| vdex =tools=                                  | 7     | 1   | =file= refusal expects "exists"; T1.1 reworded it to "one document already" — STALE expectation                 |
+| vdex =vdex.snapshot=                          | 5     | 2   | "every tool" yield diff (same wording) · "every aperture route" → 500 =22.09.wire-note.md is not in the vdex @ /delete= — a freshly =/file=d slug not found by =/delete= in the same scope; cause unpinned |
+| =dummy/mail= · =dummy/calendar=               | 13 · 17 | 0 | —                                                                                                            |
+| =office/email/app= · =office/calendar/{app,calendar}= | 5 · 8 · 20 | 0 | —                                                                                                   |
+| OWED: =office/email/tests/{aperture,tools,email.snapshot}= · =office/calendar/tests/{aperture,tools,calendar.snapshot}= | — | — | =/key=, the held send, the thread walk, =/mint= are landed and UNTESTED |
+
+Repo suites, measured this recast (=--no-check=): paladin 41 · 180 clean · drapes 8 · 54 clean · anima 37 · 133 clean ·
+typology 123 · 495 + 1 red (=hallucination snapshot · tool loop=, untouched by m53) · runtime 55 · 347 + 1 red (the
+=multiplayer= instance fixture, =known-issues= =runtime-registry-count-fork-2-multiplayer-stale=). Both reds are ledgered
+and neither is m53's.
+
+** live — measured on his daemon (after the manifest landing; a restart is owed for the newest App bundles)
+
+#+begin_example
+[DATASET:install] office/vdocs  27 literals · 50 symbols · 27 linked      ~/vivalence/code/vivalence/documentation/content
+[DATASET:install] office/corpo  33 literals · 33 symbols · 33 linked      /Users/finn/vivalence/coorporation
+[DATASET:install] dummy/mail literal 7 · dummy/calendar literal 16 · link:literal.uses 7/7
+mode rows      7 — domain/voffice · office/vdocs · office/corpo · dummy/mail · dummy/calendar · office/email · office/calendar
+ownership      vdocs 27 literals · 34 coordinates; corpo 33 · 17; scheme symbols shared, unowned
+aperture       …/mode/office/vdocs 31 routes · …/mode/office/corpo 31 routes
+client         4 rows carry APPLICATION — email · calendar · vdocs · corpo
+cargo          a spaced pdf (Beherrschungs- und Gewinnabführungsvertrag.pdf) → 200 application/pdf
+#+end_example
+
+Leftovers on his db from the prune leak, his wipe (keeps the freshly owned rows and the shared scheme):
+
+#+begin_src sql
+delete from Literal where mode_id is null and ontology = 'vdex';
+delete from Symbol  where mode_id is null and (slug like 'vdex.area.%' or slug like 'vdex.category.%' or slug like 'vdex.id.%');
+#+end_src
+
+* future directions
+
+** owed now (small, in his order)
+
+- restart, then the click-through gates: vdex (12 — open · read · fold · jump · edit · ⌘S · outline reorder · =n= · =r= · drag-move · =d y= · find · a spaced pdf in =Paper= · < 820 · paper theme) · mail + calendar (12 — the dummies install · 5 rows one unread · the notary thread's pdf card lands in the vdex · =key= releases the held strip · a reply lands right-aligned · =◆ ceo= jumps · the week of 7 Sep · =m y l d= · the RE24 deadline's inspector jumps into mail · =j k ↵ esc= · source chips · paper theme) · Gs1 (drapes parts under =nordic= and =paper=) · Gs2 (vdex round trip on disk).
+- the six office test files (the tests table) — the held send · =/key= · the thread walk · =/mint= have no guard.
+- the three vdex reds: reword the =tools= expectation; pin the =/delete= 500 in the snapshot (=/file= then =/delete= in one scope — the (slug, mode) scoping or the sync's fork?); recapture =vdex-tools= · =vdex-aperture=.
+- template drift: fold the live instance kernel back into =instances/vcompany/daemon.js= (two-mount shape · dummies · providers), or rule the template dead.
+- a =name= per kernel entry (=manifest: { slug: "vdocs", name: "…" }=) so the client stops printing the module's name twice.
+- his wipe of the leaked unowned rows (the SQL above).
+- =/metadata/manifest= under a mounting's route answers the module's slug — his wording call.
+- =/mint= on the calendar does =findOne({ slug })= with no ontology and no mode — two mounts may legally hold one slug (0 collisions today); scope it.
+- the symbol duplication v4 noted after the ownership landing (16 rows, 8 distinct, the dummy's copies BARE) — measure again after his wipe; the law is "the office declares the scheme, the provider carries the rows".
+- README: still describes three ontologies and =office/chat= as landed — bring it to the four and the dummies.
+
+** vdex — LATER, marked by his order (/"everything up to the upload, download etc"/)
+
+| item                      | why it waits                                                    | where it lands                                                          |
+|---------------------------+-----------------------------------------------------------------+-------------------------------------------------------------------------|
+| upload · import · drop    | no file trait on the buffer (m54)                               | m54 FILE → =Browser.svelte= drop zone · the freight                     |
+| download · export · OS drag-out | same                                                       | m54 · =Reader.svelte= ↓                                                  |
+| =← in= backlinks · =→ N=  | nothing carries what a document points AT                       | =load.js= mints =uses: string[]= from the reference grammar → =Outline= links tab · =Rows= meta line; the grammar must be ONE module for client + daemon |
+| link editing              | no target picker under the caret, no tracked insertion point     | =Reader.svelte= =wrap()= + the find fold, riding =uses=                 |
+| ocr                       | no service; a pdf's text is not on the mount                    | an office service behind the harness; =load.js= stores a sibling text file (JD way) or a trait field — FORK, his |
+| ↗ ask                     | the officers are out                                            | the =terminal.buffer= cross-App jump (Gs4's gate item), one chip line   |
+| reindex route             | =boot.js= exports =boot · sync · watch=, no route                | one =.open("/reindex")= over =sync=; INPUT = whole mount or a path list — his call |
+| loose-doc rename · duplicate · binary duplicate | id-less documents have no coordinate to place under | =Browser= · =/move= · =/file=                                             |
+| =Freight.evict(path)=     | a deleted document's cargo entry stays until the next boot      | typology (holy) — a later ask; =sync= calls it where it =admit=s        |
+| T1.#2 the sink            | ② owner rows LANDED; ③ =Datasink= per-row TEXT writer + =DOCUMENT.body= under a cap so every edit converges on the entity and the sink writes the file (=/write= stops touching disk) | typology =writer.each= · runtime =datasink.js= narrowed drain · =vdex.viva.js= DATASINK — worked out whole in the original quest's =* T1.B= (now =quests/discarded/m53-vcompany.org=); COLLIDES with m54 |
+| the App bundle            | 2.7 MB per buffer App on a dev instance (inline sourcemap 65 % · barrel reachability · two svelte runtimes) | =known-issues= =buffer-app-bundles-carry-2.6-mb-of-dead-weight= — direction HIS; the sideEffects patch was rejected |
+
+** messaging — what T2 still owes
+
+- =office/chat= over telegram: the skeleton exists; needs =dummy/chat= (his /"one per"/), a provider seam like mail's, =CHAT= rows, =Chat.svelte= (the design's screen 07 exists in the original =* screens=), =/messages /send=, tools, harness =system.chats=.
+- the vendor providers, same seam as the dummies, swapped by ONE static: =gmail/mail= · =outlook/mail= · =proton/mail= (Proton has NO public API — Bridge only) · =gmail/calendar= · =outlook/calendar= · =caldav/calendar=; a shared IMAP/SMTP client BELT the vendor services compose (his /"maybe some internal shared smtp tooling?!"/); deps =npm:imapflow= · =npm:nodemailer= · =npm:grammy= in the root =import_map.json= (FORK — nothing mail-shaped exists in the repo). The house ↔ vendor column map is under resources.
+- the sync cursor's home (=historyId= · =deltaLink= · =UIDVALIDITY+MODSEQ= · =update_id=) — per-account, not per-row; lean a =sync= trait on the MODE row.
+- compose a NEW thread (reply only today) · attendees as a modelled list (=EVENT.attendees[]= when RSVP has somewhere to go; prose =who= today) · drag to move an event (=/move= exists, the grab does not).
+- the instance =consume= + mail secrets (=VIVA_MAIL_IMAP/SMTP=, =SECRET_VIVA_MAIL_*=, =SECRET_VIVA_TELEGRAM_TOKEN= are declared optional in =instance.viva.js= and unread).
+
+** bookkeeping — T3, a slot
+
+=transaction= ontology (=TRANSACTION {at, memo, entries[{account, amount, currency}]}=, Σ = 0 enforced in the repository, accounts as STRUCTURAL symbols = a chart of accounts transported with the mode), own daemon =ledger= + own db, consumed by the office daemon for the cfo's read tools; writes through the decision gate. FORK: kernel literal ontology vs own entity. Nothing designed beyond the row sketch.
+
+** the officer stage — after the office (his m27 gate lives here)
+
+- =officer/ceo= filled: persona from OpenExecutive's =executive_persona.py= near-verbatim ("holding the line" + autonomy tiers, attributed), keyed harness sections persona · company · vdex (the vdex's own =/index=) · inbox (=/inbox {limit}=) · agenda; AGENTIC over =vdex_*= · =email_*= · =calendar_*= · =<slug>_consult=; air-gap fallback answers as the bot; APPLICATION = =Desk.svelte= (tiles from the queries · the inbox top three · a recent document — the cross-App jump through =terminal.buffer= is the gate item).
+- the roster: =cfo= ← =CFO_PROMPT= + =knowledge/builtin/finance/*=; =cto= authored new (no source there); then =clo cso cao cgo cpo cmo cio= — one =/consult= tool each, HARNESSED · TOOLED, never AGENTIC (an officer never consults); a tenth officer is a kernel line. CALL: which of the seven land.
+- the domain's App =Voffice.svelte= (09 roster + 10 offices — the domain IS the office) · the Dock header (08, anima — PROSE until =Dock.svelte:787= is read) · the =◆ ceo= jump from mail.
+- decisions: a =decision= ontology (FORK: fourth kernel ontology vs userspace entity with =user=), OpenExecutive's state machine VERBATIM with compare-and-set transitions (=proposed → approved_unchanged | approved_with_edit | rejected | auto_no_response | failed=, =executed → reversed=), post-turn extraction on a cheap faculty that never touches the state machine, =system.decisions= projection. The held send already IS the gate on mail.
+- scheduler + workflows: a claim-based runner over libsql; morning-brief · eod-digest · investor-update · board-prep as Vector pipelines (FORK: cadence contract). Evals: =packages/core/openexecutive/evals/_scenarios/*.yaml= + =fixtures/companies/*/scenarios/= → a fixture package judged through the harness.
+- m27 (memory + notes projections, the ADVERTISED upgrade) revives as its own quest and gates this stage, not the office.
+- attribution placement for ported Apache-2.0 prose (per-file header vs NOTICE) — his.
+
+** seams with other quests
+
+- =m54-buffer-file= — FILE trait on buffer AND literal; the vdex is its flag day (=/write= + =/document= die there, =data.open= → =trait.FILE=); the verbs' home QUESTIONED (mikro-first =BufferRepository=); RECONCILE with the landed T1.1 aperture verbs before m54 lands.
+- =m55-recursive-terminals= M3 — the nested App on the officer's Desk.
+- =m58-application-noun= — =app → application= · =TOOLED → TOOLING= touch =vcompany= 3+3 / 4 files (no VCS — capture first).
+- =drapes-editor= — CodeMirror owns the vdex =raw= view; his 8 click-through gates unrun.
+- =known-issues= OPEN: =runtime-literal-symbol-m-n-cascades-remove-both-ways= (runtime, holy — his) · =buffer-app-bundles-carry-2.6-mb-of-dead-weight= (direction his) · the boot race under =instance/run= (anima attaches at 4.5 s, the multiplex socket opens after =launching on=; gate the first attach or lengthen the 8 s budget — /"again. very slow."/).
+- paladin's =fs_*= ride layer ② of EVERY mounted mode's harness rooted at the package dir — whether the vdex sheds layer ② is his call; a =shell_run= on the office package dir is sharp.
+
+** forks still open
+
+- the vdex sink (T1.#2 ③) vs m54 FILE — one write path, two designs; beef arbitrates.
+- ocr output: a sibling text file on the mount vs a trait field on the pdf's literal.
+- reindex input: the whole mount vs a path list.
+- =decision=: kernel ontology vs userspace entity.
+- the roster beyond ceo · cfo · cto.
+- mail deps in the root import map.
+- the sync cursor's home.
+- drapes =Org.svelte= as a copy of =Markdown.svelte= vs one =Blocks.svelte= — fold when a third renderer lands.
+- should paladin point kernel entries at all (mode mountpoints are NOT minted; =undefined= = no slot, =null= = REQUIRED) — traced, not landed.
+
+* resources · references
+
+** designs (claude.ai/design, read through =DesignSync=; NOT on local disk)
+
+- project =f7686382-998d-4fe0-9d86-28ddae58839a= "VDex design system": =vcompany Screens.dc.html= (00 shell · M1–M5 mobile · 01–11 apps, 170 kB) · =vcompany System.dc.html= (zones · roots · type · drapes · anima chrome · §06 the office layer, 14 parts · §07 rules) · =V3 System.dc.html= · =V3 office-vdex.dc.html= (85 kB; the pdf viewer re-imported once, 21 → 91 lines) · =V3 office-email.dc.html= · =V3 office-calendar.dc.html= · =v3-data.js= (the fixture: INBOX 5 threads · AGENDA 16 · DOCS 18 · CHATS 2 · ROSTER 10 · OFFICES 5 — the dummies' source material) · =support.js= (the dc runtime, not content) · =github.md=.
+- the token map design → dapper: =--sN/--cN/--bN= → =--colors-skeleton-N-{surface,contrast,boundary}= · =--primary= → =--colors-skeleton-0-primary-base= · =--warning/--success/--danger/--info= → =--colors-skeleton-0-<role>-base= · =--secondary= → =info= · fonts =--font-family-{sans-heading,sans-text,code}= · sizes .55 → =2xs= · .6 → =xs= · .7–.85 → =sm= · .875 → =md= · .9–1 → =base= · 1.2–1.4 → =lg= · 1.6 → =xl= · 1.8 → =2xl= · 2 → =3xl= · radii =--border-radius-{sm,default,lg}= · =--shadow-soft= as is · zone 5 → =skeleton-4=.
+- the rules every App keeps (System §07 · Screens M): slugs · coordinates · states in code face, titles · bodies in sans; primary ink marks the ONE active thing per panel; the zone ladder carries depth (page 0 · list 2 · cards 3 · selection 4); one pulse, one heartbeat, one caret, nothing slides but the pincer; the shell does the layout, the App measures its own width (=bind:clientWidth=, < 820 → list › detail); 44 px rows and keys, 36 px chips under =(pointer: coarse)=.
+- what an App can reach (measured): five =Frame= props =terminal · daemon · mode · thread · buffer= · =daemon.entities.<type>.find/subscribe= · =mode.call.<route>= · another mode's =.call= through its entity · =daemon.cortex.find= · =terminal.buffer=.
+
+** OpenExecutive (the officer stage's source)
+
+- checkout =/Users/finn/code/OpenExecutive= @ =6e15d65= (pin =36ca0e1= + provider/auth docs); upstream two commits further (OpenRouter council dropdown) — nothing port-relevant. 3.9k stars · Apache-2.0 · FastAPI + Next.js + ChromaDB + SQLite. HN 49458418.
+- prompts: =prompts/domain_prompts.py= — =CSO= :1 · =CFO= :29 · =CHRO= :57 · =GC= :86 · =COO= :113 · =CMO= :141 · =CPO= :169 · =BOARD_COMMS= :197 · =TALENT= :225 (skip); =prompts/executive_persona.py= (166 lines) = the ceo's voice; =agents/*.py= eight 16-line specs + =overrides.py= · =triage.py= · =base.py=.
+- knowledge: =knowledge/builtin/{board 6, finance 9, hr 8, failures 15}= — finance = accounting basics · capital allocation · financial modeling · financial statements · fundraising · ipo readiness · saas metrics · unit economics · valuation.
+- decisions: =memory/decision_ledger.py= (two tables — episodic =decisions= + =decision_instances= the gated state machine, =WHERE id=? AND status=?=); the gate = =departments/authority.py= + =gate_mode=; =outbound_guard.py= is anti-spam (dedup · rate · quiet hours, FAIL-OPEN), not the gate.
+- evals: =evals/_scenarios/*.yaml= + =fixtures/companies/*/scenarios/= (NOT =evals/scenarios/= — README stale).
+- skip: =talent_tools.py= · =research_council.py= · =mcp_gateway.py= · Honcho · Fly · ChromaDB and every embedding path.
+- the mapping: orchestrator → =officer/ceo= · specialists → =officer/*= with one =/consult= · dispatch → AGENTIC arms every TOOLED mode under =/<slug>= · RAG → the vdex index in the harness · episodic memory → m27 rows · haiku extraction → a cheap post-turn faculty · scheduler → a libsql claim runner · workflows → Vector pipelines · integrations → provider modes · UI → buffer Apps + drapes.
+
+** JDex
+
+- johnnydecimal.com =11.05 The JDex=: /"An index is not an inventory."/ · one entry per ID = id + title + location(s) + keywords · /"Creating the note is creating the new ID."/ · /"Your filesystem is not your index."/; blog 0182: metadata ABOVE the line, partially nested storage (the JDex files at =00.00=).
+- the Small Business System template =jdex-sbs= (692 files): standard zeros =.00 JDex .01 Inbox .02 Tasks .03 Templates .04 Links .08 Someday .09 Archive= — beef cut ours to =.00=. JDHQ ships a CLI · API · MCP server (beta) — later interop.
+- the three JDexes: =~/vivalence/coorporation= (git; =20-29_koerperschaft= 20 formation / 21 compliance / 22 finance / 23 agreements, =30-39_funding=, =10-19_vivalence= empty, =jdex-sbs/= the template, no =00.00=) — the =corpo= mount · =documentation/content= (=NN-NN_area/NN_category/NN.NN_page.mdx=, =jdex.js= derives areas/categories from disk) — the =vdocs= mount · =~/vivalence/organization= (jj; a stale =00.00 Index.org=, =10-19_viva=) — unmounted.
+- his log doctrine: jdex for filesystem and conceptual structure, c4 · divio · pacelayers beside it; /"need a idea for a registry jdex ontology"/ — open.
+
+** providers (what the endpoints return; memory =reference_provider_entities=)
+
+The law per family: ONE RFC identity + N provider ids + ONE cursor. Proton has no public API.
+
+| house               | gmail                       | graph                       | imap · caldav               |
+|---------------------+-----------------------------+-----------------------------+-----------------------------|
+| =external.id=       | =Message-ID= header         | =internetMessageId=         | =Message-ID= · =UID=        |
+| =external.thread=   | =threadId=                  | =conversationId=            | — · —                       |
+| =external.etag=     | =historyId=                 | =changeKey=                 | =MODSEQ= · =ETag=           |
+| =external.account=  | the mailbox                 | the mailbox                 | the mailbox · the collection |
+| =MESSAGE.body=      | =payload.parts[].body.data= | =body.content=              | =BODYSTRUCTURE= walk        |
+| =MAIL.attachments[]= | =attachmentId=             | =attachments[]=             | part number                 |
+| =EVENT.external.id= | =iCalUID=                   | =iCalUId=                   | =UID=                       |
+| =EVENT.rrule=       | =recurrence[]= (RRULE text) | =patternedRecurrence= (map) | =RRULE=                     |
+| =EVENT.start/end=   | =start.dateTime= · =.date=  | =start.dateTime= + =timeZone= | =DTSTART= · =DTEND=       |
+| =EVENT.allDay=      | =start.date= present        | =isAllDay=                  | =VALUE=DATE=                |
+| =EVENT.kind=        | =eventType=                 | —                           | =VEVENT= vs =VTODO/DUE=     |
+
+The dummy contract a vendor keeps: mail =/messages {since?, limit}= · =/send {to[], subject, body, inReplyTo?, attachments?}= · =/flag {slug, status}= · =/account=; calendar =/events {from, to}= (series expanded) · =/create= · =/rename= · =/move= · =/delete= · =/calendars=.
+
+** compacts (=.ikiro/compacts/=, the arc in order)
+
+=the-office-comes-before-the-executive-the-jdex-becomes-an-ontology…= · =the-crash-was-the-key-not-the-url-the-go-lands-materialize…= · =the-comments-move-the-mask-into-paladin-the-package-lands-in-the-store…= · =the-t1-patch-is-worked-out-twice-the-mode-stops-leaving-its-directory…= · =the-connoisseur-finds-the-bag-in-the-walker-weird-dissolves-into-a-loader…= · =the-rulings-land-t0-the-go-lands-t1-and-the-snapshots-catch-the-capture…= · =the-handoff-lands-the-screens-the-rows-correct-the-draft…= · =the-status-speaks-in-quest-ids-and-is-called-out-then-seven-comments…= · =the-go-lands-six-rows-the-proof-finds-three-defects-a-percent-sign…= · =the-wake-finds-a-sibling-in-the-quest-the-v3-design-is-read-whole…= · =the-pass-finds-a-test-broken-twice-over-an-interpolated-class…= · =the-v3-pass-lands-then-two-mounts-of-one-module-force-the-owner-relation…= · =the-client-shows-two-because-the-prune-uninstalls-them-and-then-manifest-becomes-the-one-identity-record= · =the-providers-are-scouted-three-schema-surfaces-disagree-and-one-dummy-per-mode-becomes-the-seam= · =the-save-answers-the-wrong-shape-five-sweeps-map-the-desk…= (m54) · =rolling-our-own-is-shit-codemirror-was-already-in-the-import-map…= · =only-raw-scrolled-because-codemirror-brought-its-own…= (drapes-editor).
+
+** memory (=~/.claude/projects/…/memory/=)
+
+=project_m53_vcompany= · =project_m53_v4_mail_calendar= · =project_freight_vs_mountpoint= · =project_manifest_is_identity= · =project_mode_owns_rows= · =project_mikro_m_n_cascade_remove_both_ways= · =project_entity_schema_surfaces= · =project_m54_buffer_file= · =project_drapes_editor= · =reference_provider_entities= · =feedback_a_path_is_not_a_url= · =feedback_no_cross_module_relative_imports= · =feedback_universal_over_parochial= · =project_ledger_has_no_vcs=.
+
+** the originals (sunset, unedited)
+
+=quests/discarded/m53-vcompany.pre.org= (beef's draft + the first populate; his m:n ownership sketch) · =quests/discarded/m53-vcompany.org= (the 8285-line working file this recast replaces: every tangle of T0 · T1 · T1.1 · T1.B · screens · V3 landings) · =quests/done/m53-vcompany.v3-vdex.org= (the V3 App pass, every file whole) · =quests/done/m53.v4-mail+calendar.org= (mail + calendar + the dummies, every file whole).
+
+** commands
+
+#+begin_src shell
+viva instances/use vivalence run runtime                                                     # boots the office; Apps bundle at boot only — RESTART, not reload, after a buffer/ change
+viva instance/doctor vivalence --json                                                        # problems [] faults [] dormant []
+deno test --config deno.jsonc -A --no-check ~/.viva/registry/vcompany/                       # the package (25/113 · 2 reds, above)
+deno test --config deno.jsonc -A --no-check ~/.viva/registry/vcompany/modes/office/vdex/tests/
+deno test --config deno.jsonc -A --no-check subsystems/drapes/tests/ subsystems/paladin/tests/ subsystems/typology/tests/ systems/runtime/tests/ systems/anima/tests/
+curl -s http://localhost:2501/daemon/vcompany/mode/office/corpo/metadata/mountpoint          # after /userspace/handshake — the metadata routes are user-gated
+#+end_src
+
+* release — the interface ledger m53 feeds (lifted at sunset, never before)
+
+- added =paladin.belt.ignore= (=IGNORE= · =skip(globs)=) · changed =paladin.belt.find.walk(pattern, ignore)= + =find.index(root, ignore)= + =find.describe= — a caller's ignore list is the WHOLE list, no union · migrate: callers that relied on the built-in skip set pass =IGNORE= explicitly ⟨m53⟩
+- added =fs_stat= · =fs_move= · =fs_delete= to =paladin.skills= beside tree/find/read/write; =ctx.ignore= bound beside =ctx.root= · migrate: none ⟨m53⟩
+- fixed =paladin.skills.resolve= — a spaced or non-ascii path resolves as itself (was percent-encoded) ⟨m53⟩
+- changed kernel entries — object form ={ manifest: {slug, name?…}, module, mountpoint, statics, secrets }=; =mountpoint= must be ABSOLUTE (relative throws at mount, blank stays REQUIRED); =mask.slug= is gone · migrate: =slug:= on a kernel entry → =manifest: { slug }=; any relative mountpoint → absolute ⟨m53⟩
+- changed =mode.slug= · =mode.type= · =mode.traits= → =mode.manifest.{slug,type,traits}= on the daemon citizen (the DB row and =/metadata/modes= stay flat) · migrate: every citizen read; hand-built mode stubs need a =manifest= ⟨m53⟩
+- changed =v.primitives.Manifest= — =traits= is =.optional().default([])=; the slug scalar reports its =title= in faults ⟨m53⟩
+- added =reader.load(load, stamp?)= as a fourth =Dataset= source (typology) — DATASET pulls it, the stamp folds into the reinstall gate · migrate: none ⟨m53⟩
+- added =Freight= MIME =pdf md mdx org txt tex html csv jsonc= · fixed cargo urls — minted per-segment encoded, resolved decoded (spaced filenames serve) ⟨m53⟩
+- added trait =MOUNTED= (runtime) — serves =mode.mountpoint=; =FRAUGHT= keeps the mode's own files · migrate: a mode that served an operator's tree through =FRAUGHT= + =Freight("/")= declares =MOUNTED= ⟨m53⟩
+- added route =GET /daemon/<d>/mode/<type>/<slug>/metadata/mountpoint= (user-gated; never secrets) ⟨m53⟩
+- changed entities =Literal.mode= · =Symbol.mode= (m:1, nullable) · =Mode.literals= · =Mode.symbols= (1:m); unique key =slug= → =(slug, mode)= on both · migrate: mikro syncs the schema; unowned duplicate rows from before are deleted by hand ⟨m53⟩
+- added drapes =display/{Markdown,Org,Pdf,Tile,Plate,Entry,Empty}= · =controls/Key= · =Pip= =glow= prop + tone =success= · removed anima =panels/a/widgets/Markdown.svelte= + =panels/a/markdown.js= · migrate: import =Markdown= from =@vivalence/drapes/display= ⟨m53⟩
+- env: none (=VIVA_MAIL_*= · =SECRET_VIVA_{MAIL_*,TELEGRAM_TOKEN}= are declared optional in the vcompany instance and unread)

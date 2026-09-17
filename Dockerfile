@@ -56,7 +56,14 @@ RUN mkdir -p /root/.deno/bin && sh systems/ghost/install.sh /viva/repository
 # RUN deno install -g --config ./deno.jsonc -f -A -n viva ./systems/ghost/mod.js
 
 ENV PATH="/root/.deno/bin:$PATH"
-ENV VIVA_REPOSITORY_MOUNT=/viva/repository
+ENV VIVA_REPOSITORY_MOUNT=/viva/repository \
+    VIVA_LEDGER_MOUNT=/viva/ledger \
+    VIVA_REGISTRY_MOUNT=/viva/ledger/registry
+
+RUN viva ledger/init /viva/ledger && viva registry/tap /viva/repository/commons
+
+ARG VIVA_REGISTRY_TAPS=""
+RUN for url in $VIVA_REGISTRY_TAPS; do viva registry/tap "$url"; done && viva registry/doctor
 
 CMD ["bash"]
 
