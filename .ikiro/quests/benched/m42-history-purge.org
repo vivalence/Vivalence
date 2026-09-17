@@ -20,7 +20,7 @@ One sentence: *the repo clones at 294 MB because 257 MB of corpus mp3 (plus dead
   257.3 MB   8616   .mp3      registry/kernels/@vivalence (182+) + registry/education (155+) — NOTHING else
    98.9 MB   9919   .js       source + dataset literals (italian verb.js 17.7 MB over 6 revs)
    58.9 MB    345   .json     dead seeds: packages/database + modules/databases duplicates
-   69.1 MB    143   .otf/.ttf systems/kajuit/static/fonts — LIVE path, not purged
+   69.1 MB    143   .otf/.ttf systems/anima/static/fonts — LIVE path, not purged
    30.1 MB     25   .db       testament sqlite (live) + viva.db/ postgres data dir (dead)
    28.4 MB    121   .lock*    deno.lock / bun.lockb revisions — live path churn, stays
   #+END_EXAMPLE
@@ -54,7 +54,7 @@ One sentence: *the repo clones at 294 MB because 257 MB of corpus mp3 (plus dead
 
 1. *Purge list = dead paths only*: =registry/kernels= · =registry/education= · =packages/database= · =modules/databases= · =viva.db=. Fonts (69 MB) and testament sqlite are live-path history — untouched unless beef widens scope.
 2. *Both audio homes go* — education alone leaves 182 MB of mp3 under the pre-rename =registry/kernels/@vivalence= path.
-3. *Rewrite is permanent + total*: every hash changes. Known casualties: =VIVA_BASE= per-commit image ARGs ([[project_kajuit_image_identity]]) point at dead hashes; any pinned commit ref anywhere goes stale; every existing clone is incompatible → reclone, never pull.
+3. *Rewrite is permanent + total*: every hash changes. Known casualties: =VIVA_BASE= per-commit image ARGs ([[project_anima_image_identity]]) point at dead hashes; any pinned commit ref anywhere goes stale; every existing clone is incompatible → reclone, never pull.
 4. *jj re-home, not graft*: the old op log pins the pre-rewrite graph — grafting keeps the 797 MB and risks re-import weirdness. Old checkout dir survives renamed as the backup (the backup zip precedent is law).
 5. *Commit-first gate*: frontier carries four LANDED-uncommitted quests + the education removal. All of it lands on the remote BEFORE the scratch clone — the rewrite preserves only what the pushed graph holds. CLEARED — see status.
 6. *FORK (beef): which remotes receive the rewrite.* =origin= and =github= both carry =master=; M2 as first written re-added one remote. Two adds + two force-pushes, or =github= is abandoned and re-pushed later — either way the choice is explicit, because after M1 the two graphs share no hashes. =presentation= is a disjoint old graph: keep as archive, or delete the remote — decide, do not leave it implicit.
@@ -67,7 +67,7 @@ One sentence: *the repo clones at 294 MB because 257 MB of corpus mp3 (plus dead
 ** M0 — pre-flight (beef)
 
 #+BEGIN_EXAMPLE
-1. commit the working tree — DONE for m39 · m40 · m41 · variant→instance · education removal (on origin/master). At the survey 16 paths were dirty (docs 50.01 · Layout.astro · hello-world.viva.js · kajuit +layout.js · deno.jsonc · .ikiro/*); by the fold sibling sessions had added registry/ → commons/ and quests m45–m49 on top — this step commits whatever the tree holds when beef runs it
+1. commit the working tree — DONE for m39 · m40 · m41 · variant→instance · education removal (on origin/master). At the survey 16 paths were dirty (docs 50.01 · Layout.astro · hello-world.viva.js · anima +layout.js · deno.jsonc · .ikiro/*); by the fold sibling sessions had added registry/ → commons/ and quests m45–m49 on top — this step commits whatever the tree holds when beef runs it
 2. git push origin --all --tags        # origin/master is 1 behind the working copy
    git push github --all --tags        # if fork 6 says github stays
 3. zip -r ~/vivalence-pre-m42.zip ~/vivalence/code/vivalence   # the incident-proven backup

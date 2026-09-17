@@ -28,7 +28,7 @@ export const emitter = new Vector().open(
     });
     span.note({ render }).close();
 
-    const buffer = await vision.app.buffer({
+    const buffer = await vision.application.buffer({
       data: { prompt: ctx.input.prompt, ...render.output.object },
     });
 

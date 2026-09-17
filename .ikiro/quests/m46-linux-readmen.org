@@ -1,8 +1,8 @@
 #+title: m46 linux readmen — two distros walk the README 0–6 under witness, logs inlined
-#+filetags: :readme:docs:ghost:ledger:instance:init:kajuit:rolldown:musl:alpine:ubuntu:docker:qa:
+#+filetags: :readme:docs:ghost:ledger:instance:init:anima:rolldown:musl:alpine:ubuntu:docker:qa:
 #+status: WALKED. ubuntu 24.04 → step 6 reached, hello-world UP, 0 FAIL / 7 steps (5 PASS-WITH-DEVIATION). alpine 3.20 → step 6 reached, hello-world UP, step 4 FAIL verbatim (rolldown demands the musl napi binding under a gnu Deno) → PASS-WITH-DEVIATION after one env var; the README's Deno installer itself is unrunnable on musl.
 #+status: Fixes: L1 APPLIED (README §0 names curl/ca-certificates/unzip + one apt line; 50.01:22 repeats the old claim, owed — emacs autosave present). Every other blast row is a proposal awaiting a per-item `go`. Both containers left RUNNING for inspection.
-#+status: L4 RE-PINNED to a repo cause: vite 6's config bundler hands kajuit's config vite 8.1.0 + rolldown (measured in the ubuntu container). Two taskbags below: ghost process management (B1–B13) · the use/--instance cluster (C1–C12).
+#+status: L4 RE-PINNED to a repo cause: vite 6's config bundler hands anima's config vite 8.1.0 + rolldown (measured in the ubuntu container). Two taskbags below: ghost process management (B1–B13) · the use/--instance cluster (C1–C12).
 #+phase: wip (derived)
 #+progress:  17% 3/18 (derived)
 #+next: drain (derived)
@@ -42,7 +42,7 @@ they saw inlined, so each defect below is a reproduction and not a recollection.
 | ubuntu-walk defect                    | evidence now                                                                                          |
 |---------------------------------------+-------------------------------------------------------------------------------------------------------|
 | naked =instance/run= exit 0 + stack   | =ghost: instance: nothing selected — viva instances/use <slug>, --instance=<slug\|path>, or VIVA_INSTANCE_MOUNT= · exit 1 · < 1 s |
-| every ghost error exit 0              | =instance/run bogus= → =unknown target 'bogus' — expected all \| runtime \| kajuit= exit 1 · =registry/tap= bare → exit 1 · duplicate signup → =Client error: 400 — Username already taken= exit 1 |
+| every ghost error exit 0              | =instance/run bogus= → =unknown target 'bogus' — expected all \| runtime \| anima= exit 1 · =registry/tap= bare → exit 1 · duplicate signup → =Client error: 400 — Username already taken= exit 1 |
 | =ledger/init= headless crash          | =< /dev/null= → =persisted false=, scaffolds, exit 0, on both distros                                  |
 | =instance/auth= verb                  | =instance/lighthouse signup reader secret= → =status SUCCESS= + identity + authority, on both distros  |
 
@@ -528,20 +528,20 @@ $ cat ~/.viva/instances/hello-world/.env               # unmasked — placeholde
 ## addresses
 # Scheme and authority the runtime is reachable at. Every address below derives from it.
 VIVA_RUNTIME_ORIGIN="http://localhost:2501"
-# Scheme and authority the kajuit browser client is reachable at.
-VIVA_CLIENT_KAJUIT_ORIGIN="http://localhost:1794"
+# Scheme and authority the anima browser client is reachable at.
+VIVA_CLIENT_ANIMA_ORIGIN="http://localhost:1794"
 # Base URL the runtime serves on. Everything else hangs off this latch.
 VIVA_RUNTIME_SERVE="${VIVA_RUNTIME_ORIGIN}/"
 # Where the hosted lighthouse attaches inside the runtime's own path tree.
 VIVA_LIGHTHOUSE_SERVE="${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer"
-# Where the kajuit browser client serves.
-VIVA_CLIENT_KAJUIT_SERVE="${VIVA_CLIENT_KAJUIT_ORIGIN}/"
+# Where the anima browser client serves.
+VIVA_CLIENT_ANIMA_SERVE="${VIVA_CLIENT_ANIMA_ORIGIN}/"
 # Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.
 PUBLIC_VIVA_RUNTIME_REMOTE="${VIVA_RUNTIME_SERVE}"
 # Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().
 PUBLIC_VIVA_LIGHTHOUSE_REMOTE="${VIVA_LIGHTHOUSE_SERVE}"
 # The client's own public address, for links it prints about itself.
-PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE="${VIVA_CLIENT_KAJUIT_SERVE}"
+PUBLIC_VIVA_CLIENT_ANIMA_REMOTE="${VIVA_CLIENT_ANIMA_SERVE}"
 
 ## keys
 # Lighthouse signing secret. Generate with: openssl rand -base64 24
@@ -569,13 +569,13 @@ manifest
   version                      0.0.1
 daemons                        playground
 services                       multiplayer
-clients                        ghost  kajuit
+clients                        ghost  anima
 runtime                        slug  statics  datamap
 mountpoint                     /root/.viva/instances/hello-world/mountpoint
 
 vars
   VIVA_RUNTIME_ORIGIN          http://localhost:2501
-  VIVA_CLIENT_KAJUIT_ORIGIN    http://localhost:1794
+  VIVA_CLIENT_ANIMA_ORIGIN    http://localhost:1794
   [… 6 more …]
 
 env
@@ -618,7 +618,7 @@ curl -s -i http://localhost:1794/
 viva instance/lighthouse signup reader secret        # now that it runs
 sqlite3 …/service_multiplayer/lighthouse.viva.db "SELECT id, slug, created_at FROM Identity;"
 viva instance/stop
-viva instance/run runtime   / kajuit  / bogus        # each followed by viva instance/stop
+viva instance/run runtime   / anima  / bogus        # each followed by viva instance/stop
 #+END_EXAMPLE
 
 *** output
@@ -629,11 +629,11 @@ ghost: instance: nothing selected — viva instances/use <slug>, --instance=<slu
 --- exit=1 wall=0s   (stdout empty, the line is on stderr)
 
 # detached run — time to first answer, measured from the setsid:
-  kajuit  :1794/       first answered 200 after 4322 ms
+  anima  :1794/       first answered 200 after 4322 ms
   runtime :2501/status first answered 200 after 5380 ms
 
 $ head -15 <run log>
-run runtime=5546 kajuit=5547
+run runtime=5546 anima=5547
 Task run deno run -A run.js
 Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
@@ -646,11 +646,11 @@ Status:ALIVE
 launching on http://localhost:2501/
 Status:ALIVE
 $[runtime:runtime] Status:ALIVE
-10:34:06 AM [vite-plugin-svelte] /root/vivalence/systems/kajuit/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
+10:34:06 AM [vite-plugin-svelte] /root/vivalence/systems/anima/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
 https://svelte.dev/e/options_removed_hydratable
 
 $ ls -la ~/.viva/locks
--rw-r--r-- 1 root root 158 hello-world_kajuit.lock
+-rw-r--r-- 1 root root 158 hello-world_anima.lock
 -rw-r--r-- 1 root root 159 hello-world_runtime.lock
 $ cat ~/.viva/locks/hello-world_runtime.lock
 {
@@ -699,7 +699,7 @@ id                                    slug    created_at
 01a06bfb-fbba-7461-8d7d-143b3a6c7a4a  reader  1788518071227
 
 $ viva instance/stop                                # exit=0 wall<1s
-ghost: stopped hello-world (runtime=5546, kajuit=5547)
+ghost: stopped hello-world (runtime=5546, anima=5547)
 status                         stopped
 instance                       hello-world
 killed                         2
@@ -713,14 +713,14 @@ Status:ALIVE
 $[runtime:runtime] Status:ALIVE
    stop → killed 1, locks=[]
 
-$ viva instance/run kajuit           # :1794 up after 3697 ms; locks=[hello-world_kajuit.lock]
-run kajuit=6477
+$ viva instance/run anima           # :1794 up after 3697 ms; locks=[hello-world_anima.lock]
+run anima=6477
 Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev
   VITE v6.3.3  ready in 1630 ms
    stop → killed 1, locks=[]
 
 $ viva instance/run bogus            # direct form — exit=1, correct voice
-ghost: instance: unknown target 'bogus' — expected all | runtime | kajuit
+ghost: instance: unknown target 'bogus' — expected all | runtime | anima
 
 $ viva instances/use hello-world run bogus    # chained form — exit=0, NO output at all
 $ viva instances/use hello-world stop bogus   # chained form — exit=0, NO output at all
@@ -742,7 +742,7 @@ README's expected block:
 #+BEGIN_EXAMPLE
 viva instance/run
 
-run runtime=8924 kajuit=8925
+run runtime=8924 anima=8925
   VITE v6.3.3  ready in 1467 ms
   ➜  Local:   http://127.0.0.1:1794/
 launching on http://localhost:2501/
@@ -751,10 +751,10 @@ Status:ALIVE
 
 - *bare =viva instance/run= does not run anything in a fresh shell.* It exits 1 with =ghost: instance: nothing selected …=. The README's §5 block silently assumes you are still in the same shell that ran §4's =instances/use=. Nothing in §5 says so. (defect 2's sibling; see deviations)
 - the real banner is 15 lines, not 5: it adds =Task run …=, =Task watch …=, two SvelteKit =config.kit.files.*= deprecation warnings, a =vite-plugin-svelte= "hydratable option has been removed" warning with a =svelte.dev/e/…= URL, and prints =Status:ALIVE= three times in three shapes (=Status:ALIVE= before the VITE banner, =Status:ALIVE= after =launching on=, and =$[runtime:runtime] Status:ALIVE=). Ordering also differs: the README shows the VITE banner first, reality shows a bare =Status:ALIVE= first. (defect 12)
-- the process/port table is exactly right: runtime → =http://localhost:2501=, kajuit → =http://localhost:1794=, one lock each, =all= is the default, =viva instance/stop= clears both locks and both ports.
+- the process/port table is exactly right: runtime → =http://localhost:2501=, anima → =http://localhost:1794=, one lock each, =all= is the default, =viva instance/stop= clears both locks and both ports.
 - "The runtime answers =/= with a 404 by design" — TRUE, verified (=HTTP/1.1 404 Not Found=, body =null=).
 - =curl http://localhost:2501/status= matches the README's shape byte-for-byte in structure. But "Its pulse is =/status=" oversells it: the timestamp is frozen at boot, identical across calls 4 s (and 53 s) apart. (defect 11)
-- "Run one child on its own with =viva instance/run runtime= or =viva instance/run kajuit=" — TRUE, each writes only its own lock. But a *typo'd* child name is a silent no-op through the chained grammar. (defect 9)
+- "Run one child on its own with =viva instance/run runtime= or =viva instance/run anima=" — TRUE, each writes only its own lock. But a *typo'd* child name is a silent no-op through the chained grammar. (defect 9)
 
 ** step 6 — Summary and next steps
 
@@ -808,13 +808,13 @@ curl -s http://localhost:2501/status ; curl -s http://localhost:1794/ | head -3
     admin   1788517869429
     reader  1788518071227
 
-[x] 6  instance/run — runtime on :2501, kajuit on :1794
+[x] 6  instance/run — runtime on :2501, anima on :1794
     both up after 3s
     {"timestamp":"2026-09-04T10:36:30.957Z","code":"ALIVE","label":"http://localhost:2501/"}
     <!doctype html>
     <html lang="en" data-theme="nordic">
     	<head>
-    locks: hello-world_kajuit.lock  hello-world_runtime.lock
+    locks: hello-world_anima.lock  hello-world_runtime.lock
 
 final state — LEFT RUNNING:
     :2501 -> 404   :1794 -> 200   /status ALIVE   2 locks held
@@ -854,10 +854,10 @@ PASS-WITH-DEVIATION — five of the six checkboxes verify cleanly; claim 1's sec
 | 4 · =viva instance/init= (pty wizard, warm caches)       | 20 s      |
 | 4 · =viva instance/doctor=                               | < 1 s     |
 | 5 · bare =viva instance/run= refusal                     | < 1 s     |
-| 5 · detached run → kajuit :1794 first answers            | 4.3 s     |
+| 5 · detached run → anima :1794 first answers            | 4.3 s     |
 | 5 · detached run → runtime :2501/status first answers    | 5.4 s     |
 | 5 · =viva instance/run runtime= → :2501 up               | 4.1 s     |
-| 5 · =viva instance/run kajuit= → :1794 up                | 3.7 s     |
+| 5 · =viva instance/run anima= → :1794 up                | 3.7 s     |
 | 5 · =viva instance/stop=                                 | < 1 s     |
 | 6 · checklist probes + relaunch, both ports up           | 10 s      |
 |---------------------------------------------------------+-----------|
@@ -916,10 +916,10 @@ The README's headline is "A 'Hello World' in 5 minutes." On warm-ish hardware th
    Severity: *misleads*.
 
 9. *The chained grammar silently swallows an invalid process target.* Symptom:
-   =$ viva instance/run bogus= → ="ghost: instance: unknown target 'bogus' — expected all | runtime | kajuit"=, exit 1 (correct);
+   =$ viva instance/run bogus= → ="ghost: instance: unknown target 'bogus' — expected all | runtime | anima"=, exit 1 (correct);
    =$ viva instances/use hello-world run bogus= → no stdout, no stderr, *exit 0*; same for =… stop bogus=. A bogus *verb* is still caught (=exit 127=).
    Repro: both lines above, back to back.
-   Contradicts README §5 ("Run one child on its own with =viva instance/run runtime= or =viva instance/run kajuit=") read together with §4's chain grammar ("or as one: =viva instances/use hello-world init=").
+   Contradicts README §5 ("Run one child on its own with =viva instance/run runtime= or =viva instance/run anima=") read together with §4's chain grammar ("or as one: =viva instances/use hello-world init=").
    Severity: *misleads*.
 
 10. *The pid-level bind is lost under any forking wrapper, and session records are never reaped.* Symptom, in one script, immediately after a successful =viva instances/use hello-world=:
@@ -989,9 +989,9 @@ The container =readmen-ubuntu= is left *running*, with the instance up:
 
 #+BEGIN_EXAMPLE
 :2501 -> 404      (runtime, 404 on / by design)
-:1794 -> 200      (kajuit, HTML)
+:1794 -> 200      (anima, HTML)
 /status -> {"timestamp":"2026-09-04T10:36:30.957Z","code":"ALIVE","label":"http://localhost:2501/"}
-locks: hello-world_kajuit.lock  hello-world_runtime.lock
+locks: hello-world_anima.lock  hello-world_runtime.lock
 identities: admin, reader
 no host ports published
 #+END_EXAMPLE
@@ -1474,7 +1474,7 @@ for i in $(seq 1 150); do
   R=$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 http://localhost:2501/status 2>/dev/null)
   K=$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 http://localhost:1794/ 2>/dev/null)
   [ -z "$RT" ] && [ "$R" != "000" ] && { RT=$(( $(date +%s%3N) - T0 )); echo "  runtime :2501/status first answered $R after ${RT}ms"; }
-  [ -z "$KJ" ] && [ "$K" != "000" ] && { KJ=$(( $(date +%s%3N) - T0 )); echo "  kajuit  :1794/ first answered $K after ${KJ}ms"; }
+  [ -z "$KJ" ] && [ "$K" != "000" ] && { KJ=$(( $(date +%s%3N) - T0 )); echo "  anima  :1794/ first answered $K after ${KJ}ms"; }
   [ -n "$RT" ] && [ -n "$KJ" ] && break
 done
 echo "  (poll ended at t=$(( ($(date +%s%3N) - T0) / 1000 ))s)"
@@ -1497,7 +1497,7 @@ echo "===== curl -s -i http://localhost:1794/ ====="
 curl -s -i http://localhost:1794/ | head -20
 echo
 echo "===== processes ====="
-ps -eo pid,ppid,etime,cmd | grep -E "ghost/mod.js|run.js|vite|kajuit|runtime" | grep -v grep
+ps -eo pid,ppid,etime,cmd | grep -E "ghost/mod.js|run.js|vite|anima|runtime" | grep -v grep
 echo
 echo "===== viva instances/list while running ====="
 viva instances/list
@@ -1551,7 +1551,7 @@ cat /root/.viva/instances/hello-world/mountpoint/service_multiplayer/tokens.json
 ** step5d.sh
 #+BEGIN_SRC sh
 #!/bin/bash
-# README §5 tail: `viva instance/stop`, then the per-process forms `run runtime|kajuit|bogus`.
+# README §5 tail: `viva instance/stop`, then the per-process forms `run runtime|anima|bogus`.
 export PATH="$HOME/.deno/bin:$PATH"
 cd ~
 viva instances/use hello-world > /dev/null
@@ -1574,9 +1574,9 @@ setsid nohup bash -lc 'export PATH=$HOME/.deno/bin:$PATH; cd ~; viva instances/u
 waitport 2501 60; probe; echo "  head of log:"; head -6 /walk/step5d-runtime.out
 stopit
 echo
-echo "===== D. viva instance/run kajuit ====="
-setsid nohup bash -lc 'export PATH=$HOME/.deno/bin:$PATH; cd ~; viva instances/use hello-world run kajuit' > /walk/step5d-kajuit.out 2>&1 &
-waitport 1794 60; probe; echo "  head of log:"; head -8 /walk/step5d-kajuit.out
+echo "===== D. viva instance/run anima ====="
+setsid nohup bash -lc 'export PATH=$HOME/.deno/bin:$PATH; cd ~; viva instances/use hello-world run anima' > /walk/step5d-anima.out 2>&1 &
+waitport 1794 60; probe; echo "  head of log:"; head -8 /walk/step5d-anima.out
 stopit
 echo
 echo "===== E. viva instance/run bogus ====="
@@ -1624,7 +1624,7 @@ grep -E '^SECRET_' ~/.viva/instances/hello-world/.env
 echo "  probe: identity table:"
 sqlite3 -header -column /root/.viva/instances/hello-world/mountpoint/service_multiplayer/lighthouse.viva.db "SELECT slug, created_at FROM Identity ORDER BY created_at;"
 echo
-echo "===== [x] 6. \`instance/run\` — runtime serving on :2501, kajuit on :1794 ====="
+echo "===== [x] 6. \`instance/run\` — runtime serving on :2501, anima on :1794 ====="
 echo "  starting it for the final probe, detached, and leaving it up:"
 setsid nohup bash -lc 'export PATH=$HOME/.deno/bin:$PATH; cd ~; viva instances/use hello-world run' > /walk/step6-run.out 2>&1 &
 for i in $(seq 1 90); do sleep 1; R=$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 http://localhost:2501/status); K=$(curl -s -o /dev/null -w '%{http_code}' --max-time 2 http://localhost:1794/); [ "$R" = "200" ] && [ "$K" = "200" ] && { echo "    both up after ${i}s"; break; }; done
@@ -5678,20 +5678,20 @@ STEP4-ENV
 ## addresses
 # Scheme and authority the runtime is reachable at. Every address below derives from it.
 VIVA_RUNTIME_ORIGIN="http://localhost:2501"
-# Scheme and authority the kajuit browser client is reachable at.
-VIVA_CLIENT_KAJUIT_ORIGIN="http://localhost:1794"
+# Scheme and authority the anima browser client is reachable at.
+VIVA_CLIENT_ANIMA_ORIGIN="http://localhost:1794"
 # Base URL the runtime serves on. Everything else hangs off this latch.
 VIVA_RUNTIME_SERVE="${VIVA_RUNTIME_ORIGIN}/"
 # Where the hosted lighthouse attaches inside the runtime's own path tree.
 VIVA_LIGHTHOUSE_SERVE="${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer"
-# Where the kajuit browser client serves.
-VIVA_CLIENT_KAJUIT_SERVE="${VIVA_CLIENT_KAJUIT_ORIGIN}/"
+# Where the anima browser client serves.
+VIVA_CLIENT_ANIMA_SERVE="${VIVA_CLIENT_ANIMA_ORIGIN}/"
 # Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.
 PUBLIC_VIVA_RUNTIME_REMOTE="${VIVA_RUNTIME_SERVE}"
 # Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().
 PUBLIC_VIVA_LIGHTHOUSE_REMOTE="${VIVA_LIGHTHOUSE_SERVE}"
 # The client's own public address, for links it prints about itself.
-PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE="${VIVA_CLIENT_KAJUIT_SERVE}"
+PUBLIC_VIVA_CLIENT_ANIMA_REMOTE="${VIVA_CLIENT_ANIMA_SERVE}"
 
 ## keys
 # Lighthouse signing secret. Generate with: openssl rand -base64 24
@@ -6243,20 +6243,20 @@ STEP4-ENV
 ## addresses
 # Scheme and authority the runtime is reachable at. Every address below derives from it.
 VIVA_RUNTIME_ORIGIN="http://localhost:2501"
-# Scheme and authority the kajuit browser client is reachable at.
-VIVA_CLIENT_KAJUIT_ORIGIN="http://localhost:1794"
+# Scheme and authority the anima browser client is reachable at.
+VIVA_CLIENT_ANIMA_ORIGIN="http://localhost:1794"
 # Base URL the runtime serves on. Everything else hangs off this latch.
 VIVA_RUNTIME_SERVE="${VIVA_RUNTIME_ORIGIN}/"
 # Where the hosted lighthouse attaches inside the runtime's own path tree.
 VIVA_LIGHTHOUSE_SERVE="${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer"
-# Where the kajuit browser client serves.
-VIVA_CLIENT_KAJUIT_SERVE="${VIVA_CLIENT_KAJUIT_ORIGIN}/"
+# Where the anima browser client serves.
+VIVA_CLIENT_ANIMA_SERVE="${VIVA_CLIENT_ANIMA_ORIGIN}/"
 # Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.
 PUBLIC_VIVA_RUNTIME_REMOTE="${VIVA_RUNTIME_SERVE}"
 # Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().
 PUBLIC_VIVA_LIGHTHOUSE_REMOTE="${VIVA_LIGHTHOUSE_SERVE}"
 # The client's own public address, for links it prints about itself.
-PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE="${VIVA_CLIENT_KAJUIT_SERVE}"
+PUBLIC_VIVA_CLIENT_ANIMA_REMOTE="${VIVA_CLIENT_ANIMA_SERVE}"
 
 ## keys
 # Lighthouse signing secret. Generate with: openssl rand -base64 24
@@ -6300,20 +6300,20 @@ record                         /root/.viva/sessions/4769.json
 ## addresses
 # Scheme and authority the runtime is reachable at. Every address below derives from it.
 VIVA_RUNTIME_ORIGIN="http://localhost:2501"
-# Scheme and authority the kajuit browser client is reachable at.
-VIVA_CLIENT_KAJUIT_ORIGIN="http://localhost:1794"
+# Scheme and authority the anima browser client is reachable at.
+VIVA_CLIENT_ANIMA_ORIGIN="http://localhost:1794"
 # Base URL the runtime serves on. Everything else hangs off this latch.
 VIVA_RUNTIME_SERVE="${VIVA_RUNTIME_ORIGIN}/"
 # Where the hosted lighthouse attaches inside the runtime's own path tree.
 VIVA_LIGHTHOUSE_SERVE="${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer"
-# Where the kajuit browser client serves.
-VIVA_CLIENT_KAJUIT_SERVE="${VIVA_CLIENT_KAJUIT_ORIGIN}/"
+# Where the anima browser client serves.
+VIVA_CLIENT_ANIMA_SERVE="${VIVA_CLIENT_ANIMA_ORIGIN}/"
 # Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.
 PUBLIC_VIVA_RUNTIME_REMOTE="${VIVA_RUNTIME_SERVE}"
 # Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().
 PUBLIC_VIVA_LIGHTHOUSE_REMOTE="${VIVA_LIGHTHOUSE_SERVE}"
 # The client's own public address, for links it prints about itself.
-PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE="${VIVA_CLIENT_KAJUIT_SERVE}"
+PUBLIC_VIVA_CLIENT_ANIMA_REMOTE="${VIVA_CLIENT_ANIMA_SERVE}"
 
 ## keys
 # Lighthouse signing secret. Generate with: openssl rand -base64 24
@@ -6351,20 +6351,20 @@ manifest
   version                      0.0.1
 daemons                        playground
 services                       multiplayer
-clients                        ghost  kajuit
+clients                        ghost  anima
 runtime                        slug  statics  datamap
 mountpoint                     /root/.viva/instances/hello-world/mountpoint
 
 vars
   VIVA_RUNTIME_ORIGIN          http://localhost:2501
-  VIVA_CLIENT_KAJUIT_ORIGIN    http://localhost:1794
+  VIVA_CLIENT_ANIMA_ORIGIN    http://localhost:1794
   VIVA_RUNTIME_SERVE           ${VIVA_RUNTIME_ORIGIN}/
   VIVA_LIGHTHOUSE_SERVE
 ${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer
-  VIVA_CLIENT_KAJUIT_SERVE     ${VIVA_CLIENT_KAJUIT_ORIGIN}/
+  VIVA_CLIENT_ANIMA_SERVE     ${VIVA_CLIENT_ANIMA_ORIGIN}/
   PUBLIC_VIVA_RUNTIME_REMOTE   ${VIVA_RUNTIME_SERVE}
   PUBLIC_VIVA_LIGHTHOUSE_REMOTE ${VIVA_LIGHTHOUSE_SERVE}
-  PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE ${VIVA_CLIENT_KAJUIT_SERVE}
+  PUBLIC_VIVA_CLIENT_ANIMA_REMOTE ${VIVA_CLIENT_ANIMA_SERVE}
 
 env
 key           at             value          stratum   describe       group
@@ -6538,7 +6538,7 @@ ghost: Network request failed @ /attached/process/lighthouse/multiplayer/auth/si
 
 ** step5-run.out — 22 lines
 #+BEGIN_EXAMPLE
-run runtime=5546 kajuit=5547
+run runtime=5546 anima=5547
 Task run deno run -A run.js
 Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
@@ -6551,7 +6551,7 @@ Status:ALIVE
 launching on http://localhost:2501/
 Status:ALIVE
 $[runtime:runtime] Status:ALIVE
-10:34:06 AM [vite-plugin-svelte] /root/vivalence/systems/kajuit/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
+10:34:06 AM [vite-plugin-svelte] /root/vivalence/systems/anima/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
 https://svelte.dev/e/options_removed_hydratable
 status                         ran
 instance                       hello-world
@@ -6559,7 +6559,7 @@ instance                       hello-world
 children
 process  success  code
 runtime  true     0
-kajuit   true     0
+anima   true     0
 #+END_EXAMPLE
 
 ** step5a.log — 13 lines
@@ -6583,12 +6583,12 @@ docker exec readmen-ubuntu bash /walk/step5a.sh  0.04s user 0.02s system 6% cpu 
 #+BEGIN_EXAMPLE
 === T0 10:34:02.443 : setsid nohup bash -lc 'viva instances/use hello-world run' ===
 spawned wrapper pid=5515
-  kajuit  :1794/ first answered 200 after 4322ms
+  anima  :1794/ first answered 200 after 4322ms
   runtime :2501/status first answered 200 after 5380ms
   (poll ended at t=5s)
 
 ===== head of the run log (README shows 5 lines here) =====
-run runtime=5546 kajuit=5547
+run runtime=5546 anima=5547
 Task run deno run -A run.js
 Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
@@ -6601,7 +6601,7 @@ Status:ALIVE
 launching on http://localhost:2501/
 Status:ALIVE
 $[runtime:runtime] Status:ALIVE
-10:34:06 AM [vite-plugin-svelte] /root/vivalence/systems/kajuit/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
+10:34:06 AM [vite-plugin-svelte] /root/vivalence/systems/anima/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
 https://svelte.dev/e/options_removed_hydratable
   --- total run-log lines so far: 15
 
@@ -6609,13 +6609,13 @@ https://svelte.dev/e/options_removed_hydratable
 total 16
 drwxr-xr-x 2 root root 4096 Sep  4 10:34 .
 drwxr-xr-x 7 root root 4096 Sep  4 10:17 ..
--rw-r--r-- 1 root root  158 Sep  4 10:34 hello-world_kajuit.lock
+-rw-r--r-- 1 root root  158 Sep  4 10:34 hello-world_anima.lock
 -rw-r--r-- 1 root root  159 Sep  4 10:34 hello-world_runtime.lock
---- /root/.viva/locks/hello-world_kajuit.lock:
+--- /root/.viva/locks/hello-world_anima.lock:
 {
   "pid": 5547,
   "instance": "hello-world",
-  "process": "kajuit",
+  "process": "anima",
   "mount": "/root/.viva/instances/hello-world",
   "started": "2026-09-04T10:34:02.806Z"
 }
@@ -6665,8 +6665,8 @@ Keep-Alive: timeout=5
 ===== processes =====
  5515  5508       00:05 deno run --config /root/vivalence/deno.jsonc -A /root/vivalence/systems/ghost/mod.js instances/use hello-world run
  5546  5515       00:05 /root/.deno/bin/deno task --config /root/vivalence/deno.jsonc -q runtime/run
- 5547  5515       00:05 /root/.deno/bin/deno task --config /root/vivalence/deno.jsonc -q kajuit/watch
- 5582  5547       00:05 /root/.deno/bin/deno task --cwd ./systems/kajuit watch
+ 5547  5515       00:05 /root/.deno/bin/deno task --config /root/vivalence/deno.jsonc -q anima/watch
+ 5582  5547       00:05 /root/.deno/bin/deno task --cwd ./systems/anima watch
  5613  5546       00:04 /root/.deno/bin/deno task --cwd ./systems/runtime run
  5643  5613       00:04 /root/.deno/bin/deno run -A run.js
  5666  5582       00:04 /root/.deno/bin/deno run -A npm:vite@6 dev
@@ -6676,7 +6676,7 @@ Keep-Alive: timeout=5
 instances
   0
     slug                       * hello-world
-    running                    runtime kajuit
+    running                    runtime anima
     mount                      /root/.viva/instances/hello-world
     valence                    null
 
@@ -6787,9 +6787,9 @@ Error: in prepare, no such table: user
 }docker exec readmen-ubuntu bash /walk/step5c.sh  0.04s user 0.02s system 1% cpu 4.365 total
 #+END_EXAMPLE
 
-** step5d-kajuit.out — 20 lines
+** step5d-anima.out — 20 lines
 #+BEGIN_EXAMPLE
-run kajuit=6477
+run anima=6477
 Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
 The `config.kit.files.appTemplate` option is deprecated, and will be removed in a future version
@@ -6798,14 +6798,14 @@ Status:ALIVE
   VITE v6.3.3  ready in 1630 ms
 
   ➜  Local:   http://127.0.0.1:1794/
-10:35:20 AM [vite-plugin-svelte] /root/vivalence/systems/kajuit/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
+10:35:20 AM [vite-plugin-svelte] /root/vivalence/systems/anima/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
 https://svelte.dev/e/options_removed_hydratable
 status                         ran
 instance                       hello-world
 
 children
   0
-    process                    kajuit
+    process                    anima
     success                    true
     code                       0
     signal                     null
@@ -6832,9 +6832,9 @@ children
 ** step5d.log — 72 lines
 #+BEGIN_EXAMPLE
 ===== A. state before stop =====
-    :2501=404  :1794=200  locks=[hello-world_kajuit.lock hello-world_runtime.lock ]
+    :2501=404  :1794=200  locks=[hello-world_anima.lock hello-world_runtime.lock ]
 ===== B. viva instance/stop =====
-ghost: stopped hello-world (runtime=5546, kajuit=5547)
+ghost: stopped hello-world (runtime=5546, anima=5547)
 status                         stopped
 instance                       hello-world
 killed                         2
@@ -6870,11 +6870,11 @@ killed                         1
       exit=0
     :2501=000  :1794=000  locks=[]
 
-===== D. viva instance/run kajuit =====
+===== D. viva instance/run anima =====
     :1794 up after 3697ms
-    :2501=000  :1794=200  locks=[hello-world_kajuit.lock ]
+    :2501=000  :1794=200  locks=[hello-world_anima.lock ]
   head of log:
-run kajuit=6477
+run anima=6477
 Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
 The `config.kit.files.appTemplate` option is deprecated, and will be removed in a future version
@@ -6883,7 +6883,7 @@ Status:ALIVE
   VITE v6.3.3  ready in 1630 ms
 
   --- viva instance/stop
-ghost: stopped hello-world (kajuit=6477)
+ghost: stopped hello-world (anima=6477)
 status                         stopped
 instance                       hello-world
 killed                         1
@@ -6910,29 +6910,29 @@ docker exec readmen-ubuntu bash /walk/step5d.sh  0.05s user 0.03s system 0% cpu 
 === viva instance/run bogus  (stdout/stderr split, direct, session-bound) ===
 rc=1
 stdout bytes=0: []
-stderr bytes=76: [ghost: instance: unknown target 'bogus' — expected all | runtime | kajuit]
+stderr bytes=76: [ghost: instance: unknown target 'bogus' — expected all | runtime | anima]
 locks after: []
 
 === controls ===
 -- viva instance/start runtime (detached form) is NOT exercised; only naming:
--- viva instance/start kajuit (detached form) is NOT exercised; only naming:
+-- viva instance/start anima (detached form) is NOT exercised; only naming:
 -- viva instance/start all (detached form) is NOT exercised; only naming:
 -- viva instance/start  (detached form) is NOT exercised; only naming:
 === viva instance/run --help ===
 viva instance/run [process]
 run the mounted instance attached (foreground)
 
-  process      runtime | kajuit | all
+  process      runtime | anima | all
 
 === viva instance/stop bogus ===
-ghost: instance: unknown target 'bogus' — expected all | runtime | kajuit
+ghost: instance: unknown target 'bogus' — expected all | runtime | anima
 rc=1
 #+END_EXAMPLE
 
 ** step5f.log — 9 lines
 #+BEGIN_EXAMPLE
 === A. direct:  viva instance/run bogus ===
-  rc=1  stdout=[]  stderr=[ghost: instance: unknown target 'bogus' — expected all | runtime | kajuit]
+  rc=1  stdout=[]  stderr=[ghost: instance: unknown target 'bogus' — expected all | runtime | anima]
 === B. chained: viva instances/use hello-world run bogus ===
   rc=0  stdout=[]  stderr=[]
 === C. chained with a bogus VERB: viva instances/use hello-world frobnicate ===
@@ -6951,7 +6951,7 @@ now: 2026-09-04T10:37:23.561Z
 
 ** step6-run.out — 16 lines
 #+BEGIN_EXAMPLE
-run runtime=7107 kajuit=7108
+run runtime=7107 anima=7108
 Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev
 Task run deno run -A run.js
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
@@ -6964,7 +6964,7 @@ Status:ALIVE
 launching on http://localhost:2501/
 Status:ALIVE
 $[runtime:runtime] Status:ALIVE
-10:36:31 AM [vite-plugin-svelte] /root/vivalence/systems/kajuit/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
+10:36:31 AM [vite-plugin-svelte] /root/vivalence/systems/anima/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
 https://svelte.dev/e/options_removed_hydratable
 $[runtime:runtime] Status:ALIVE
 #+END_EXAMPLE
@@ -7018,7 +7018,7 @@ slug    created_at
 admin   1788517869429
 reader  1788518071227
 
-===== [x] 6. `instance/run` — runtime serving on :2501, kajuit on :1794 =====
+===== [x] 6. `instance/run` — runtime serving on :2501, anima on :1794 =====
   starting it for the final probe, detached, and leaving it up:
     both up after 3s
   probe: curl -s http://localhost:2501/status
@@ -7028,14 +7028,14 @@ reader  1788518071227
 <html lang="en" data-theme="nordic">
 	<head>
   probe: locks
-hello-world_kajuit.lock
+hello-world_anima.lock
 hello-world_runtime.lock
 
 ===== final state — the container is LEFT with the instance running =====
 
 instances
 slug           running         mount
-,* hello-world  runtime kajuit  /root/.viva/instances/hello-world
+,* hello-world  runtime anima  /root/.viva/instances/hello-world
   multiplayer  —               /tmp/resolve-probe
 
  7081       00:05 deno run --config /root/vivalence/deno.jsonc -A /root/vivalence/systems/ghost/mod.js instances/use hello-world run
@@ -7090,7 +7090,7 @@ viva help <prefix> narrows; an exact nature shows its params
 instances
   0
     slug                         hello-world
-    running                    runtime kajuit
+    running                    runtime anima
     mount                      /root/.viva/instances/hello-world
     valence                    null
 #+END_EXAMPLE
@@ -7100,7 +7100,7 @@ instances
 :2501 -> 404
 :1794 -> 200
 {"timestamp":"2026-09-04T10:36:30.957Z","code":"ALIVE","label":"http://localhost:2501/"}
-hello-world_kajuit.lock
+hello-world_anima.lock
 hello-world_runtime.lock
 #+END_EXAMPLE
 
@@ -7596,14 +7596,14 @@ The env form (Ink), both secrets typed, focus tracked off the =◆= marker:
  ╰────────────────────────────────────────────────────────────────────────────╯
 #+END_EXAMPLE
 
-*The first, fully verbatim attempt never terminated.* kajuit's vite died at boot and
+*The first, fully verbatim attempt never terminated.* anima's vite died at boot and
 =instance/init= sat in "starting processes…" indefinitely (killed after ~5 min):
 
 #+BEGIN_EXAMPLE
  │  undefined  Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev  │
  │  undefined  Task run deno run -A run.js                                    │
  │  undefined  failed to load config from                                     │
- │  /root/vivalence/systems/kajuit/vite.config.mjs                            │
+ │  /root/vivalence/systems/anima/vite.config.mjs                            │
  │  undefined  error when starting dev server:                                │
  │  undefined  Error: Cannot find native binding. npm has a bug related to    │
  │  optional dependencies (https://github.com/npm/cli/issues/4828). Please    │
@@ -7652,13 +7652,13 @@ INITEXIT=0
 #+BEGIN_EXAMPLE
 ## addresses
 VIVA_RUNTIME_ORIGIN="http://localhost:2501"
-VIVA_CLIENT_KAJUIT_ORIGIN="http://localhost:1794"
+VIVA_CLIENT_ANIMA_ORIGIN="http://localhost:1794"
 VIVA_RUNTIME_SERVE="${VIVA_RUNTIME_ORIGIN}/"
 VIVA_LIGHTHOUSE_SERVE="${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer"
-VIVA_CLIENT_KAJUIT_SERVE="${VIVA_CLIENT_KAJUIT_ORIGIN}/"
+VIVA_CLIENT_ANIMA_SERVE="${VIVA_CLIENT_ANIMA_ORIGIN}/"
 PUBLIC_VIVA_RUNTIME_REMOTE="${VIVA_RUNTIME_SERVE}"
 PUBLIC_VIVA_LIGHTHOUSE_REMOTE="${VIVA_LIGHTHOUSE_SERVE}"
-PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE="${VIVA_CLIENT_KAJUIT_SERVE}"
+PUBLIC_VIVA_CLIENT_ANIMA_REMOTE="${VIVA_CLIENT_ANIMA_SERVE}"
 
 ## keys
 SECRET_VIVA_JWT="iT9gQxM3r4iICkCI88S6sbi676bLFR29"
@@ -7692,7 +7692,7 @@ manifest
   version                      0.0.1
 daemons                        playground
 services                       multiplayer
-clients                        ghost  kajuit
+clients                        ghost  anima
 runtime                        slug  statics  datamap
 mountpoint                     /root/.viva/instances/hello-world/mountpoint
 …
@@ -7715,7 +7715,7 @@ locks                          —
 *** verdict
 
 =FAIL= as written, =PASS-WITH-DEVIATION= after one env var. The README's literal step 4 hangs
-forever on Alpine: the kajuit child cannot start and =instance/init= has no failure path for a
+forever on Alpine: the anima child cannot start and =instance/init= has no failure path for a
 child that never announces itself.
 
 *** readme delta
@@ -7755,7 +7755,7 @@ curl -s -i http://localhost:1794/ | head -20
 viva instance/lighthouse signup reader secret
 sqlite3 …/service_multiplayer/lighthouse.viva.db "select * from Identity;"
 viva instance/stop
-viva instance/run runtime   /  kajuit  /  bogus      # each followed by instance/stop
+viva instance/run runtime   /  anima  /  bogus      # each followed by instance/stop
 #+END_EXAMPLE
 
 *** output
@@ -7771,15 +7771,15 @@ ghost: instance: nothing selected — viva instances/use <slug>, --instance=<slu
 Detached run — *both ports answered 5 s after spawn*:
 
 #+BEGIN_EXAMPLE
-t=2s  runtime:2501/status=000  kajuit:1794=000
-t=5s  runtime:2501/status=200  kajuit:1794=200
+t=2s  runtime:2501/status=000  anima:1794=000
+t=5s  runtime:2501/status=200  anima:1794=200
 --- both answered after 5s
 #+END_EXAMPLE
 
 Head of the run log:
 
 #+BEGIN_EXAMPLE
-run runtime=2862 kajuit=2863
+run runtime=2862 anima=2863
 Task run deno run -A run.js
 Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
@@ -7798,7 +7798,7 @@ $[runtime:runtime] Status:ALIVE
 Locks, with contents:
 
 #+BEGIN_EXAMPLE
-hello-world_kajuit.lock   {"pid":2863,"instance":"hello-world","process":"kajuit","mount":"/root/.viva/instances/hello-world","started":"2026-09-04T10:32:19.476Z"}
+hello-world_anima.lock   {"pid":2863,"instance":"hello-world","process":"anima","mount":"/root/.viva/instances/hello-world","started":"2026-09-04T10:32:19.476Z"}
 hello-world_runtime.lock  {"pid":2862,"instance":"hello-world","process":"runtime","mount":"/root/.viva/instances/hello-world","started":"2026-09-04T10:32:19.475Z"}
 #+END_EXAMPLE
 
@@ -7869,9 +7869,9 @@ Stop / per-process runs (full transcript in =step5b.log=):
 
 #+BEGIN_EXAMPLE
 ### state before the stop:
-  :2501/status=200  :1794=200  locks=[hello-world_kajuit.lock hello-world_runtime.lock ]
+  :2501/status=200  :1794=200  locks=[hello-world_anima.lock hello-world_runtime.lock ]
 ### viva instance/stop
-ghost: stopped hello-world (runtime=2862, kajuit=2863)
+ghost: stopped hello-world (runtime=2862, anima=2863)
 status stopped · instance hello-world · killed 2   → exit 0
   :2501/status=000  :1794=000  locks=[]
 
@@ -7879,12 +7879,12 @@ status stopped · instance hello-world · killed 2   → exit 0
   :2501 up after 4s   ·  :1794=000  ·  locks=[hello-world_runtime.lock ]
 ### viva instance/stop  → killed 1, locks=[]
 
-### viva instance/run kajuit
-  :1794 up after 4s   ·  :2501=000  ·  locks=[hello-world_kajuit.lock ]
+### viva instance/run anima
+  :1794 up after 4s   ·  :2501=000  ·  locks=[hello-world_anima.lock ]
 ### viva instance/stop  → killed 1, locks=[]
 
 ### viva instance/run bogus
-ghost: instance: unknown target 'bogus' — expected all | runtime | kajuit
+ghost: instance: unknown target 'bogus' — expected all | runtime | anima
 --- exit=1                       (no lock written, no port opened)
 
 ### viva instance/stop  (nothing running)
@@ -7905,7 +7905,7 @@ survivors.
 
 - The README's expected block is:
   #+BEGIN_EXAMPLE
-  run runtime=8924 kajuit=8925
+  run runtime=8924 anima=8925
     VITE v6.3.3  ready in 1467 ms
     ➜  Local:   http://127.0.0.1:1794/
   launching on http://localhost:2501/
@@ -7956,11 +7956,11 @@ One probe per checkbox — see =step6.sh= / =step6.log=.
      admin   2026-09-04 10:30:51
      reader  2026-09-04 10:32:24
 
-[x] 6  instance/run — runtime on :2501, kajuit on :1794
+[x] 6  instance/run — runtime on :2501, anima on :1794
      both up after 4s
      {"timestamp":"2026-09-04T10:34:25.432Z","code":"ALIVE","label":"http://localhost:2501/"}
      HTTP/1.1 200 OK
-     locks: hello-world_kajuit.lock  hello-world_runtime.lock
+     locks: hello-world_anima.lock  hello-world_runtime.lock
 
 === LEFT RUNNING ===
  4208  /root/.deno/bin/deno run -A run.js
@@ -8004,7 +8004,7 @@ rc file yourself.
 | 5 — bare =instance/run= refusal                             | 1 s       |
 | 5 — =instances/use hello-world run= → both ports answering  | 5 s       |
 | 5 — =instance/run runtime= → :2501 answering                | 4 s       |
-| 5 — =instance/run kajuit= → :1794 answering                 | 4 s       |
+| 5 — =instance/run anima= → :1794 answering                 | 4 s       |
 | 6 — relaunch → both ports answering                         | 4 s       |
 
 ** defects
@@ -8030,16 +8030,16 @@ rc file yourself.
    Severity: *blocks-newcomer* (there is no =~/.bashrc= to source, and Alpine's login shell is
    ash, which reads neither =~/.bashrc= nor =~/.zshrc=).
 
-3. *kajuit cannot boot on musl: rolldown loads the wrong napi binding.*
-   Symptom: =failed to load config from /root/vivalence/systems/kajuit/vite.config.mjs= →
+3. *anima cannot boot on musl: rolldown loads the wrong napi binding.*
+   Symptom: =failed to load config from /root/vivalence/systems/anima/vite.config.mjs= →
    =Error: Cannot find native binding.= at =rolldown@1.1.5/…/binding-TuFFIE_J.mjs:509:34=.
    Root cause measured: the =-gnu= binding *loads* fine and the =-musl= one is rejected with
    =libc.so: cannot open shared object file=, i.e. rolldown's musl auto-detection (it reads
    =/usr/bin/ldd= and =ldd --version=) sees Alpine and demands musl, while the Deno process is
    the gnu build. Note libsql, argon2 and sharp all ship the same gnu/musl pair and resolved
    correctly — only rolldown gets it wrong.
-   Repro: =cd systems/kajuit && deno run -A npm:vite@6 dev=.
-   Contradicts: README §0 "the repo carries everything else" and §5's promise of kajuit on :1794.
+   Repro: =cd systems/anima && deno run -A npm:vite@6 dev=.
+   Contradicts: README §0 "the repo carries everything else" and §5's promise of anima on :1794.
    Severity: *blocks-newcomer* on any musl distro.
 
 4. *=instance/init= hangs forever when any child fails to boot.*
@@ -8181,7 +8181,7 @@ for (const path of candidates) {
 
 ** probe-rolldown.js
 #+BEGIN_SRC js
-// NOT in README. Unwrap the "Cannot find native binding" cause chain that kills kajuit's vite.
+// NOT in README. Unwrap the "Cannot find native binding" cause chain that kills anima's vite.
 try {
   await import("rolldown");
   console.log("rolldown imported OK");
@@ -8661,7 +8661,7 @@ source /root/.bashrc
 cd /root
 echo "### state after instance/init exited (it tears its own processes down):"
 ls -la /root/.viva/locks; curl -s -o /dev/null -m 3 -w "runtime:2501=%{http_code}\n" http://localhost:2501/
-curl -s -o /dev/null -m 3 -w "kajuit:1794=%{http_code}\n" http://localhost:1794/
+curl -s -o /dev/null -m 3 -w "anima:1794=%{http_code}\n" http://localhost:1794/
 echo
 echo "### cat ~/.viva/instances/hello-world/.env   (placeholders, nothing masked)"
 cat /root/.viva/instances/hello-world/.env; echo "--- exit=$?"
@@ -8683,7 +8683,7 @@ timeout 180 viva instance/doctor; echo "--- exit=$?"
 ** step4c-unblock.sh
 #+BEGIN_SRC sh
 #!/bin/sh
-# NOT in README. Minimal unblocking deviation for the kajuit/vite crash on musl:
+# NOT in README. Minimal unblocking deviation for the anima/vite crash on musl:
 # rolldown's napi loader detects Alpine and demands the -musl binding, but this Deno is the
 # glibc build (running on a bundled glibc), so only the -gnu binding can be dlopen'd. The loader
 # honours NAPI_RS_NATIVE_LIBRARY_PATH, so point it at the gnu .node — for every shell and child.
@@ -8719,7 +8719,7 @@ for i in $(seq 1 120); do
   sleep 2
   R=$(curl -s -o /dev/null -m 2 -w '%{http_code}' http://localhost:2501/status 2>/dev/null)
   K=$(curl -s -o /dev/null -m 2 -w '%{http_code}' http://localhost:1794/ 2>/dev/null)
-  echo "t=$(( $(date +%s) - START ))s  runtime:2501/status=$R  kajuit:1794=$K"
+  echo "t=$(( $(date +%s) - START ))s  runtime:2501/status=$R  anima:1794=$K"
   if [ "$R" != "000" ] && [ "$K" != "000" ]; then echo "--- both answered after $(( $(date +%s) - START ))s"; break; fi
 done
 echo
@@ -8768,7 +8768,7 @@ sqlite3 -header -column "$DB" "select * from identity;" 2>&1 || sqlite3 -header 
 #+BEGIN_SRC sh
 #!/bin/bash
 # README step 5 tail: 'viva instance/stop tears down whatever is running and clears the locks',
-# and 'Run one child on its own with viva instance/run runtime or viva instance/run kajuit'.
+# and 'Run one child on its own with viva instance/run runtime or viva instance/run anima'.
 source /root/.bashrc
 cd /root
 viva instances/use hello-world > /dev/null
@@ -8796,10 +8796,10 @@ setsid nohup bash -lc 'viva instances/use hello-world && viva instance/run runti
 waitup 2501; probe; echo "  head:"; head -4 /walk/step5c-runtime.log
 stop
 echo
-echo "### viva instance/run kajuit"
-rm -f /walk/step5c-kajuit.log
-setsid nohup bash -lc 'viva instances/use hello-world && viva instance/run kajuit' > /walk/step5c-kajuit.log 2>&1 &
-waitup 1794; probe; echo "  head:"; head -4 /walk/step5c-kajuit.log
+echo "### viva instance/run anima"
+rm -f /walk/step5c-anima.log
+setsid nohup bash -lc 'viva instances/use hello-world && viva instance/run anima' > /walk/step5c-anima.log 2>&1 &
+waitup 1794; probe; echo "  head:"; head -4 /walk/step5c-anima.log
 stop
 echo
 echo "### viva instance/run bogus"
@@ -8869,7 +8869,7 @@ sqlite3 -header -column /root/.viva/instances/hello-world/mountpoint/service_mul
   "select slug, datetime(created_at/1000,'unixepoch') as created_at from Identity;"
 echo
 echo "=================================================================="
-echo "[x] 6  instance/run — runtime serving on :2501, kajuit on :1794"
+echo "[x] 6  instance/run — runtime serving on :2501, anima on :1794"
 rm -f /walk/step6-run.log
 setsid nohup bash -lc 'viva instances/use hello-world run' > /walk/step6-run.log 2>&1 &
 for i in $(seq 1 60); do
@@ -8879,7 +8879,7 @@ for i in $(seq 1 60); do
   [ "$R" != "000" ] && [ "$K" != "000" ] && { echo "   both up after $((i*2))s"; break; }
 done
 echo "-- runtime /status:"; curl -s http://localhost:2501/status; echo
-echo "-- kajuit / (first line + title):"; curl -s -i http://localhost:1794/ | head -1
+echo "-- anima / (first line + title):"; curl -s -i http://localhost:1794/ | head -1
 curl -s http://localhost:1794/ | grep -o '<title>[^<]*</title>' | head -1
 echo "-- locks:"; ls /root/.viva/locks
 echo
@@ -12790,27 +12790,27 @@ REJECTED /root/vivalence/node_modules/.deno/@rolldown+binding-linux-arm64-musl@1
    -> libc.so: cannot open shared object file: No such file or directory
 #+END_EXAMPLE
 
-** step4-probe-kajuit2.log — 14 lines
+** step4-probe-anima2.log — 14 lines
 #+BEGIN_EXAMPLE
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
 The `config.kit.files.appTemplate` option is deprecated, and will be removed in a future version
-failed to load config from /root/vivalence/systems/kajuit/vite.config.mjs
+failed to load config from /root/vivalence/systems/anima/vite.config.mjs
 error when starting dev server:
 Error: instance: nothing selected — viva instances/use <slug>, --instance=<slug|path>, or VIVA_INSTANCE_MOUNT
     at Instance.get home (file:///root/vivalence/subsystems/paladin/prototypes/instance.js:208:13)
     at resolve (file:///root/vivalence/subsystems/paladin/prototypes/instance.js:97:25)
     at Instance.mount (file:///root/vivalence/subsystems/paladin/prototypes/instance.js:215:11)
-    at async serverConfig (file:///root/vivalence/systems/kajuit/vite.config.mjs:13:3)
-    at async file:///root/vivalence/systems/kajuit/vite.config.mjs:115:33
+    at async serverConfig (file:///root/vivalence/systems/anima/vite.config.mjs:13:3)
+    at async file:///root/vivalence/systems/anima/vite.config.mjs:115:33
     at async loadConfigFromFile (file:///root/vivalence/node_modules/.deno/vite@6.3.3/node_modules/vite/dist/node/chunks/dep-BMIURPaQ.js:49176:20)
     at async resolveConfig (file:///root/vivalence/node_modules/.deno/vite@6.3.3/node_modules/vite/dist/node/chunks/dep-BMIURPaQ.js:48670:24)
     at async _createServer (file:///root/vivalence/node_modules/.deno/vite@6.3.3/node_modules/vite/dist/node/chunks/dep-BMIURPaQ.js:38281:18)
     at async CAC.<anonymous> (file:///root/vivalence/node_modules/.deno/vite@6.3.3/node_modules/vite/dist/node/cli.js:753:20)
 #+END_EXAMPLE
 
-** step4-probe-kajuit.log — 6 lines
+** step4-probe-anima.log — 6 lines
 #+BEGIN_EXAMPLE
-failed to load config from /root/vivalence/systems/kajuit/vite.config.mjs
+failed to load config from /root/vivalence/systems/anima/vite.config.mjs
 error when starting dev server:
 Error: Cannot find native binding. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
     at file:///root/vivalence/node_modules/.deno/rolldown@1.1.5/node_modules/rolldown/dist/shared/binding-TuFFIE_J.mjs:509:34
@@ -13612,26 +13612,26 @@ total 8
 drwxr-xr-x    2 root     root          4096 Sep  4 10:30 .
 drwxr-xr-x    7 root     root          4096 Sep  4 10:21 ..
 runtime:2501=000
-kajuit:1794=000
+anima:1794=000
 
 ### cat ~/.viva/instances/hello-world/.env   (placeholders, nothing masked)
 ## addresses
 # Scheme and authority the runtime is reachable at. Every address below derives from it.
 VIVA_RUNTIME_ORIGIN="http://localhost:2501"
-# Scheme and authority the kajuit browser client is reachable at.
-VIVA_CLIENT_KAJUIT_ORIGIN="http://localhost:1794"
+# Scheme and authority the anima browser client is reachable at.
+VIVA_CLIENT_ANIMA_ORIGIN="http://localhost:1794"
 # Base URL the runtime serves on. Everything else hangs off this latch.
 VIVA_RUNTIME_SERVE="${VIVA_RUNTIME_ORIGIN}/"
 # Where the hosted lighthouse attaches inside the runtime's own path tree.
 VIVA_LIGHTHOUSE_SERVE="${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer"
-# Where the kajuit browser client serves.
-VIVA_CLIENT_KAJUIT_SERVE="${VIVA_CLIENT_KAJUIT_ORIGIN}/"
+# Where the anima browser client serves.
+VIVA_CLIENT_ANIMA_SERVE="${VIVA_CLIENT_ANIMA_ORIGIN}/"
 # Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.
 PUBLIC_VIVA_RUNTIME_REMOTE="${VIVA_RUNTIME_SERVE}"
 # Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().
 PUBLIC_VIVA_LIGHTHOUSE_REMOTE="${VIVA_LIGHTHOUSE_SERVE}"
 # The client's own public address, for links it prints about itself.
-PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE="${VIVA_CLIENT_KAJUIT_SERVE}"
+PUBLIC_VIVA_CLIENT_ANIMA_REMOTE="${VIVA_CLIENT_ANIMA_SERVE}"
 
 ## keys
 # Lighthouse signing secret. Generate with: openssl rand -base64 24
@@ -13688,20 +13688,20 @@ manifest
   version                      0.0.1
 daemons                        playground
 services                       multiplayer
-clients                        ghost  kajuit
+clients                        ghost  anima
 runtime                        slug  statics  datamap
 mountpoint                     /root/.viva/instances/hello-world/mountpoint
 
 vars
   VIVA_RUNTIME_ORIGIN          http://localhost:2501
-  VIVA_CLIENT_KAJUIT_ORIGIN    http://localhost:1794
+  VIVA_CLIENT_ANIMA_ORIGIN    http://localhost:1794
   VIVA_RUNTIME_SERVE           ${VIVA_RUNTIME_ORIGIN}/
   VIVA_LIGHTHOUSE_SERVE
 ${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer
-  VIVA_CLIENT_KAJUIT_SERVE     ${VIVA_CLIENT_KAJUIT_ORIGIN}/
+  VIVA_CLIENT_ANIMA_SERVE     ${VIVA_CLIENT_ANIMA_ORIGIN}/
   PUBLIC_VIVA_RUNTIME_REMOTE   ${VIVA_RUNTIME_SERVE}
   PUBLIC_VIVA_LIGHTHOUSE_REMOTE ${VIVA_LIGHTHOUSE_SERVE}
-  PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE ${VIVA_CLIENT_KAJUIT_SERVE}
+  PUBLIC_VIVA_CLIENT_ANIMA_REMOTE ${VIVA_CLIENT_ANIMA_SERVE}
 
 env
 key           at             value          stratum   describe       group
@@ -13727,8 +13727,8 @@ locks                          —
 TOP: Import "rolldown" not a dependency and not in import map from "file:///root/vivalence/probe-rolldown.js"
     at file:///root/vivalence/probe-rolldown.js:3:16
 
-########## step4-probe-kajuit.log ##########
-failed to load config from /root/vivalence/systems/kajuit/vite.config.mjs
+########## step4-probe-anima.log ##########
+failed to load config from /root/vivalence/systems/anima/vite.config.mjs
 error when starting dev server:
 Error: Cannot find native binding. npm has a bug related to optional dependencies (https://github.com/npm/cli/issues/4828). Please try `npm i` again after removing both package-lock.json and node_modules directory.
     at file:///root/vivalence/node_modules/.deno/rolldown@1.1.5/node_modules/rolldown/dist/shared/binding-TuFFIE_J.mjs:509:34
@@ -13740,17 +13740,17 @@ LOADED   /root/vivalence/node_modules/.deno/@rolldown+binding-linux-arm64-gnu@1.
 REJECTED /root/vivalence/node_modules/.deno/@rolldown+binding-linux-arm64-musl@1.1.5/node_modules/@rolldown/binding-linux-arm64-musl/rolldown-binding.linux-arm64-musl.node
    -> libc.so: cannot open shared object file: No such file or directory
 
-########## step4-probe-kajuit2.log ##########
+########## step4-probe-anima2.log ##########
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
 The `config.kit.files.appTemplate` option is deprecated, and will be removed in a future version
-failed to load config from /root/vivalence/systems/kajuit/vite.config.mjs
+failed to load config from /root/vivalence/systems/anima/vite.config.mjs
 error when starting dev server:
 Error: instance: nothing selected — viva instances/use <slug>, --instance=<slug|path>, or VIVA_INSTANCE_MOUNT
     at Instance.get home (file:///root/vivalence/subsystems/paladin/prototypes/instance.js:208:13)
     at resolve (file:///root/vivalence/subsystems/paladin/prototypes/instance.js:97:25)
     at Instance.mount (file:///root/vivalence/subsystems/paladin/prototypes/instance.js:215:11)
-    at async serverConfig (file:///root/vivalence/systems/kajuit/vite.config.mjs:13:3)
-    at async file:///root/vivalence/systems/kajuit/vite.config.mjs:115:33
+    at async serverConfig (file:///root/vivalence/systems/anima/vite.config.mjs:13:3)
+    at async file:///root/vivalence/systems/anima/vite.config.mjs:115:33
     at async loadConfigFromFile (file:///root/vivalence/node_modules/.deno/vite@6.3.3/node_modules/vite/dist/node/chunks/dep-BMIURPaQ.js:49176:20)
     at async resolveConfig (file:///root/vivalence/node_modules/.deno/vite@6.3.3/node_modules/vite/dist/node/chunks/dep-BMIURPaQ.js:48670:24)
     at async _createServer (file:///root/vivalence/node_modules/.deno/vite@6.3.3/node_modules/vite/dist/node/chunks/dep-BMIURPaQ.js:38281:18)
@@ -14153,26 +14153,26 @@ total 8
 drwxr-xr-x    2 root     root          4096 Sep  4 10:30 .
 drwxr-xr-x    7 root     root          4096 Sep  4 10:21 ..
 runtime:2501=000
-kajuit:1794=000
+anima:1794=000
 
 ### cat ~/.viva/instances/hello-world/.env   (placeholders, nothing masked)
 ## addresses
 # Scheme and authority the runtime is reachable at. Every address below derives from it.
 VIVA_RUNTIME_ORIGIN="http://localhost:2501"
-# Scheme and authority the kajuit browser client is reachable at.
-VIVA_CLIENT_KAJUIT_ORIGIN="http://localhost:1794"
+# Scheme and authority the anima browser client is reachable at.
+VIVA_CLIENT_ANIMA_ORIGIN="http://localhost:1794"
 # Base URL the runtime serves on. Everything else hangs off this latch.
 VIVA_RUNTIME_SERVE="${VIVA_RUNTIME_ORIGIN}/"
 # Where the hosted lighthouse attaches inside the runtime's own path tree.
 VIVA_LIGHTHOUSE_SERVE="${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer"
-# Where the kajuit browser client serves.
-VIVA_CLIENT_KAJUIT_SERVE="${VIVA_CLIENT_KAJUIT_ORIGIN}/"
+# Where the anima browser client serves.
+VIVA_CLIENT_ANIMA_SERVE="${VIVA_CLIENT_ANIMA_ORIGIN}/"
 # Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.
 PUBLIC_VIVA_RUNTIME_REMOTE="${VIVA_RUNTIME_SERVE}"
 # Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().
 PUBLIC_VIVA_LIGHTHOUSE_REMOTE="${VIVA_LIGHTHOUSE_SERVE}"
 # The client's own public address, for links it prints about itself.
-PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE="${VIVA_CLIENT_KAJUIT_SERVE}"
+PUBLIC_VIVA_CLIENT_ANIMA_REMOTE="${VIVA_CLIENT_ANIMA_SERVE}"
 
 ## keys
 # Lighthouse signing secret. Generate with: openssl rand -base64 24
@@ -14229,20 +14229,20 @@ manifest
   version                      0.0.1
 daemons                        playground
 services                       multiplayer
-clients                        ghost  kajuit
+clients                        ghost  anima
 runtime                        slug  statics  datamap
 mountpoint                     /root/.viva/instances/hello-world/mountpoint
 
 vars
   VIVA_RUNTIME_ORIGIN          http://localhost:2501
-  VIVA_CLIENT_KAJUIT_ORIGIN    http://localhost:1794
+  VIVA_CLIENT_ANIMA_ORIGIN    http://localhost:1794
   VIVA_RUNTIME_SERVE           ${VIVA_RUNTIME_ORIGIN}/
   VIVA_LIGHTHOUSE_SERVE
 ${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer
-  VIVA_CLIENT_KAJUIT_SERVE     ${VIVA_CLIENT_KAJUIT_ORIGIN}/
+  VIVA_CLIENT_ANIMA_SERVE     ${VIVA_CLIENT_ANIMA_ORIGIN}/
   PUBLIC_VIVA_RUNTIME_REMOTE   ${VIVA_RUNTIME_SERVE}
   PUBLIC_VIVA_LIGHTHOUSE_REMOTE ${VIVA_LIGHTHOUSE_SERVE}
-  PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE ${VIVA_CLIENT_KAJUIT_SERVE}
+  PUBLIC_VIVA_CLIENT_ANIMA_REMOTE ${VIVA_CLIENT_ANIMA_SERVE}
 
 env
 key           at             value          stratum   describe       group
@@ -14299,12 +14299,12 @@ ghost: instance: nothing selected — viva instances/use <slug>, --instance=<slu
 
 ### README §4 grammar, detached: viva instances/use hello-world run
 spawned pid=2833
-t=2s  runtime:2501/status=000  kajuit:1794=000
-t=5s  runtime:2501/status=200  kajuit:1794=200
+t=2s  runtime:2501/status=000  anima:1794=000
+t=5s  runtime:2501/status=200  anima:1794=200
 --- both answered after 5s
 
 ### head of the run log
-run runtime=2862 kajuit=2863
+run runtime=2862 anima=2863
 Task run deno run -A run.js
 Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
@@ -14317,20 +14317,20 @@ Status:ALIVE
 launching on http://localhost:2501/
 Status:ALIVE
 $[runtime:runtime] Status:ALIVE
-10:32:24 AM [vite-plugin-svelte] /root/vivalence/systems/kajuit/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
+10:32:24 AM [vite-plugin-svelte] /root/vivalence/systems/anima/.svelte-kit/generated/root.svelte The `hydratable` option has been removed. Svelte components are always hydratable now
 https://svelte.dev/e/options_removed_hydratable
 
 ### ls ~/.viva/locks (with contents)
 total 16
 drwxr-xr-x    2 root     root          4096 Sep  4 10:32 .
 drwxr-xr-x    7 root     root          4096 Sep  4 10:21 ..
--rw-r--r--    1 root     root           158 Sep  4 10:32 hello-world_kajuit.lock
+-rw-r--r--    1 root     root           158 Sep  4 10:32 hello-world_anima.lock
 -rw-r--r--    1 root     root           159 Sep  4 10:32 hello-world_runtime.lock
---- /root/.viva/locks/hello-world_kajuit.lock
+--- /root/.viva/locks/hello-world_anima.lock
 {
   "pid": 2863,
   "instance": "hello-world",
-  "process": "kajuit",
+  "process": "anima",
   "mount": "/root/.viva/instances/hello-world",
   "started": "2026-09-04T10:32:19.476Z"
 }
@@ -14448,9 +14448,9 @@ id                                    created_at     updated_at     slug    auth
 01a06bf8-a247-75ac-a432-ec7dab74a90f  1788517851719  1788517851746  admin   {"provider":"password","credentials":{"username":"admin","password":"$argon2id$v=19$m=65536,t=3,p=4$vKY0ve5793zK7/dJJGB5Qg$/wcchnSvJBZioZJc/gPECyFJI0qqmNCE6tqYVq93+Ow"},"tokens":{"access":"eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjAxYTA2YmY4LWEyNDctNzVhYy1hNDMyLWVjN2RhYjc0YTkwZiIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3ODg1MTc4NTEsImV4cCI6MTc4ODYwNDI1MX0.OHC1ByFp4RUz-RyCkgu0HjYDNb9U9cKXxghp9ucu7cA","refresh":"eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjAxYTA2YmY4LWEyNDctNzVhYy1hNDMyLWVjN2RhYjc0YTkwZiIsInR5cGUiOiJyZWZyZXNoIiwiaWF0IjoxNzg4NTE3ODUxLCJleHAiOjE4MDQwNjk4NTF9.ocCbrMEr0J3Fn4mWuCDV6QyyO1W5apKwA4bbr1jePTQ"}}
 01a06bfa-0e93-753b-b806-1fcd7bd91f37  1788517944980  1788517944994  reader  {"provider":"password","credentials":{"username":"reader","password":"$argon2id$v=19$m=65536,t=3,p=4$zzHJjgknn3LnuC0x5E+oAw$dozcRlIua5lD7ebt1Necw1FOURNetfBwTwhtjCU/tik"},"tokens":{"access":"eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjAxYTA2YmZhLTBlOTMtNzUzYi1iODA2LTFmY2Q3YmQ5MWYzNyIsInR5cGUiOiJhY2Nlc3MiLCJpYXQiOjE3ODg1MTc5NDQsImV4cCI6MTc4ODYwNDM0NH0.4yGYbd2674RacuRQIVI30LMMttV03nnrlCGPfCogFCs","refresh":"eyJhbGciOiJIUzI1NiJ9.eyJpZCI6IjAxYTA2YmZhLTBlOTMtNzUzYi1iODA2LTFmY2Q3YmQ5MWYzNyIsInR5cGUiOiJyZWZyZXNoIiwiaWF0IjoxNzg4NTE3OTQ0LCJleHAiOjE4MDQwNjk5NDR9.-7vKs8PmPETD7Z00tDkwOxu4NTQ4mS6EuHhbPCGumnk"}}
 ### state before the stop:
-  :2501/status=200  :1794=200  locks=[hello-world_kajuit.lock hello-world_runtime.lock ]
+  :2501/status=200  :1794=200  locks=[hello-world_anima.lock hello-world_runtime.lock ]
 ### viva instance/stop
-ghost: stopped hello-world (runtime=2862, kajuit=2863)
+ghost: stopped hello-world (runtime=2862, anima=2863)
 status                         stopped
 instance                       hello-world
 killed                         2
@@ -14475,16 +14475,16 @@ killed                         1
   --- exit=0
   :2501/status=000  :1794=000  locks=[]
 
-### viva instance/run kajuit
+### viva instance/run anima
   :1794 up after 4s
-  :2501/status=000  :1794=200  locks=[hello-world_kajuit.lock ]
+  :2501/status=000  :1794=200  locks=[hello-world_anima.lock ]
   head:
 selected                       /root/.viva/instances/hello-world
 stratum                        session
 mount                          /root/.viva/instances/hello-world
 record                         /root/.viva/sessions/3521.json
 ### viva instance/stop
-ghost: stopped hello-world (kajuit=3581)
+ghost: stopped hello-world (anima=3581)
 status                         stopped
 instance                       hello-world
 killed                         1
@@ -14493,7 +14493,7 @@ killed                         1
   :2501/status=000  :1794=000  locks=[]
 
 ### viva instance/run bogus
-ghost: instance: unknown target 'bogus' — expected all | runtime | kajuit
+ghost: instance: unknown target 'bogus' — expected all | runtime | anima
   --- exit=0
   :2501/status=000  :1794=000  locks=[]
 ### viva instance/stop
@@ -14508,7 +14508,7 @@ killed                         0
 ### processes left:
 (none)
 ### viva instance/run bogus
-ghost: instance: unknown target 'bogus' — expected all | runtime | kajuit
+ghost: instance: unknown target 'bogus' — expected all | runtime | anima
 --- exit=1
 
 ### viva instance/stop  (nothing running)
@@ -14529,9 +14529,9 @@ ghost: Network request failed @ /attached/process/lighthouse/multiplayer/auth/si
 ** step5c.log — 60 lines
 #+BEGIN_EXAMPLE
 ### state before the stop:
-  :2501/status=200  :1794=200  locks=[hello-world_kajuit.lock hello-world_runtime.lock ]
+  :2501/status=200  :1794=200  locks=[hello-world_anima.lock hello-world_runtime.lock ]
 ### viva instance/stop
-ghost: stopped hello-world (runtime=2862, kajuit=2863)
+ghost: stopped hello-world (runtime=2862, anima=2863)
 status                         stopped
 instance                       hello-world
 killed                         2
@@ -14556,16 +14556,16 @@ killed                         1
   --- exit=0
   :2501/status=000  :1794=000  locks=[]
 
-### viva instance/run kajuit
+### viva instance/run anima
   :1794 up after 4s
-  :2501/status=000  :1794=200  locks=[hello-world_kajuit.lock ]
+  :2501/status=000  :1794=200  locks=[hello-world_anima.lock ]
   head:
 selected                       /root/.viva/instances/hello-world
 stratum                        session
 mount                          /root/.viva/instances/hello-world
 record                         /root/.viva/sessions/3521.json
 ### viva instance/stop
-ghost: stopped hello-world (kajuit=3581)
+ghost: stopped hello-world (anima=3581)
 status                         stopped
 instance                       hello-world
 killed                         1
@@ -14574,7 +14574,7 @@ killed                         1
   :2501/status=000  :1794=000  locks=[]
 
 ### viva instance/run bogus
-ghost: instance: unknown target 'bogus' — expected all | runtime | kajuit
+ghost: instance: unknown target 'bogus' — expected all | runtime | anima
   --- exit=0
   :2501/status=000  :1794=000  locks=[]
 ### viva instance/stop
@@ -14593,7 +14593,7 @@ killed                         0
 ** step5d.log — 17 lines
 #+BEGIN_EXAMPLE
 ### viva instance/run bogus
-ghost: instance: unknown target 'bogus' — expected all | runtime | kajuit
+ghost: instance: unknown target 'bogus' — expected all | runtime | anima
 --- exit=1
 
 ### viva instance/stop  (nothing running)
@@ -14671,14 +14671,14 @@ admin   2026-09-04 10:30:51
 reader  2026-09-04 10:32:24
 
 ==================================================================
-[x] 6  instance/run — runtime serving on :2501, kajuit on :1794
+[x] 6  instance/run — runtime serving on :2501, anima on :1794
    both up after 4s
 -- runtime /status:
 {"timestamp":"2026-09-04T10:34:25.432Z","code":"ALIVE","label":"http://localhost:2501/"}
--- kajuit / (first line + title):
+-- anima / (first line + title):
 HTTP/1.1 200 OK
 -- locks:
-hello-world_kajuit.lock
+hello-world_anima.lock
 hello-world_runtime.lock
 
 === LEFT RUNNING ON PURPOSE — the orchestrator inspects this container ===
@@ -14799,12 +14799,12 @@ $ ⟩ viva instance/init                         ...ce/code/vivalence
  │  ✦ vivalence                                          booting  │
  │                                                                │
  │  ◐ runtime spawning…                                           │
- │  ◐ kajuit spawning…                                            │
+ │  ◐ anima spawning…                                            │
  │                                                                │
  │  runtime  Task run deno run -A run.js                          │
- │  kajuit  Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A        │
+ │  anima  Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A        │
  │  npm:vite@6 dev                                                │
- │  kajuit  The `config.kit.files.routes` option is deprecated,   │
+ │  anima  The `config.kit.files.routes` option is deprecated,   │
  │  and will be removed in a future version                       │
 
  ╭────────────────────────────────────────────────────────────────╮
@@ -14833,7 +14833,7 @@ $ ⟩ viva instance/init                         ...ce/code/vivalence
  │                                                                │
  │  ● auth/signup SUCCESS  01a06cf7-2687-730f-b320-1db4b265c166   │
  │  ● runtime pid 90730 · alive                                   │
- │  ● kajuit pid 90731 · alive                                    │
+ │  ● anima pid 90731 · alive                                    │
  │                                                                │
  │  enter → stop + exit                                           │
  │                                                                │
@@ -14850,18 +14850,18 @@ manifest
   version                      0.0.1
 daemons                        hello
 services                       multiplayer
-clients                        kajuit
+clients                        anima
 runtime                        slug  statics  datamap
 mountpoint
 /Users/finn/.viva/instances/hello-world/mountpoint
 
 vars
   VIVA_RUNTIME_ORIGIN          http://localhost:2501
-  VIVA_CLIENT_KAJUIT_ORIGIN    http://localhost:1794
+  VIVA_CLIENT_ANIMA_ORIGIN    http://localhost:1794
   VIVA_RUNTIME_SERVE           ${VIVA_RUNTIME_ORIGIN}/
   VIVA_LIGHTHOUSE_SERVE
 ${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer
-  VIVA_CLIENT_KAJUIT_SERVE     ${VIVA_CLIENT_KAJUIT_ORIGIN}/
+  VIVA_CLIENT_ANIMA_SERVE     ${VIVA_CLIENT_ANIMA_ORIGIN}/
   PUBLIC_VIVA_RUNTIME_REMOTE   ${VIVA_RUNTIME_SERVE}
   PUBLIC_VIVA_LIGHTHOUSE_REMOTE ${VIVA_LIGHTHOUSE_SERVE}
 
@@ -14984,7 +14984,7 @@ Whole walk, install to bot-click: ~2 min of machine time, ~140 s of it in =apt= 
 
 #+BEGIN_SRC sh
 VIVA_RUNTIME_ORIGIN="http://0.0.0.0:2501"          # was http://localhost:2501  — Deno would bind [::1] only
-VIVA_CLIENT_KAJUIT_ORIGIN="http://0.0.0.0:1794"    # was http://localhost:1794  — vite host follows it
+VIVA_CLIENT_ANIMA_ORIGIN="http://0.0.0.0:1794"    # was http://localhost:1794  — vite host follows it
 PUBLIC_VIVA_RUNTIME_REMOTE="http://localhost:2501/"                                          # was ${VIVA_RUNTIME_SERVE}
 PUBLIC_VIVA_LIGHTHOUSE_REMOTE="http://localhost:2501/attached/process/lighthouse/multiplayer" # was ${VIVA_LIGHTHOUSE_SERVE}
 #+END_SRC
@@ -14997,7 +14997,7 @@ publish" paragraph), not the README.
 
 ** L30 — first-attach race: a fresh identity's parallel first requests lose the =User= insert
 
-- *symptom*: first sign-in on kajuit shows =DAEMONS 0= and the daemon row reads
+- *symptom*: first sign-in on anima shows =DAEMONS 0= and the daemon row reads
   =hello status · error · Unauthorized — insert into `User` (…)=. A reload is healthy. Every
   newcomer's first browser visit hits it; beef's "private-window first visit" item is very likely this.
 - *pinned from the host*: fresh identity =probe=, 40 parallel =POST /daemon/hello/status= with its bearer:
@@ -15005,7 +15005,7 @@ publish" paragraph), not the README.
    1 {"status":"ERROR","error":{"code":"INVALID_TOKEN","message":"insert into `User` (`id`, `created_at`, `updated_at`, `roles`, `config`) values ('01a06d33-…', 1788538493630, 1788538493630, '[\"USER\"]', '{}') - SQLITE_CONSTRAINT: UNIQUE constraint failed: User.id"}} [401]
   39 {"timestamp":"2026-09-04T16:09:24.945Z","code":"ALIVE"} [200]
   #+END_EXAMPLE
-  6 parallel from the host: 0/6 (docker-proxy staggers them past the window). Kajuit fires seven
+  6 parallel from the host: 0/6 (docker-proxy staggers them past the window). Anima fires seven
   daemon calls within 2 ms of the gate opening (console =18.233–18.235=: status, manifest, cortex,
   aperture, statics, cargo, datamap) — the window is wide open there. The admin =User= row's
   =created_at= =1788538237212= is the browser's first attach to the millisecond; one row, one winner.
@@ -15072,9 +15072,9 @@ publish" paragraph), not the README.
 
 #+BEGIN_EXAMPLE
 container   readmen-live (ubuntu:24.04, sleep infinity)   RUNNING, instance UP
-host ports  127.0.0.1:2501 → runtime   127.0.0.1:1794 → kajuit
+host ports  127.0.0.1:2501 → runtime   127.0.0.1:1794 → anima
 identities  admin/changeme · reader/secret · probe/probe-secret-1     (User rows: 3)
-lock        ~/.viva/locks/hello-world.lock  pid 4173  runtime 4207  kajuit 4208
+lock        ~/.viva/locks/hello-world.lock  pid 4173  runtime 4207  anima 4208
 stop        docker stop readmen-live   (also: stop it BEFORE running a local hello-world — the shadow trap)
 scratch     <scratch>/live/step*.sh + step*.log + vivalence.tar
 #+END_EXAMPLE
@@ -15271,7 +15271,7 @@ cd ~
 F=~/.viva/instances/hello-world/.env
 sed -i \
   -e 's|^VIVA_RUNTIME_ORIGIN=.*|VIVA_RUNTIME_ORIGIN="http://0.0.0.0:2501"|' \
-  -e 's|^VIVA_CLIENT_KAJUIT_ORIGIN=.*|VIVA_CLIENT_KAJUIT_ORIGIN="http://0.0.0.0:1794"|' \
+  -e 's|^VIVA_CLIENT_ANIMA_ORIGIN=.*|VIVA_CLIENT_ANIMA_ORIGIN="http://0.0.0.0:1794"|' \
   -e 's|^PUBLIC_VIVA_RUNTIME_REMOTE=.*|PUBLIC_VIVA_RUNTIME_REMOTE="http://localhost:2501/"|' \
   -e 's|^PUBLIC_VIVA_LIGHTHOUSE_REMOTE=.*|PUBLIC_VIVA_LIGHTHOUSE_REMOTE="http://localhost:2501/attached/process/lighthouse/multiplayer"|' \
   "$F"
@@ -15577,10 +15577,10 @@ next                           viva instance/init <username> <password>
 exit=0 wall=1s
 == .env as scaffolded (secrets masked)
 VIVA_RUNTIME_ORIGIN="http://localhost:2501"
-VIVA_CLIENT_KAJUIT_ORIGIN="http://localhost:1794"
+VIVA_CLIENT_ANIMA_ORIGIN="http://localhost:1794"
 VIVA_RUNTIME_SERVE="${VIVA_RUNTIME_ORIGIN}/"
 VIVA_LIGHTHOUSE_SERVE="${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer"
-VIVA_CLIENT_KAJUIT_SERVE="${VIVA_CLIENT_KAJUIT_ORIGIN}/"
+VIVA_CLIENT_ANIMA_SERVE="${VIVA_CLIENT_ANIMA_ORIGIN}/"
 PUBLIC_VIVA_RUNTIME_REMOTE="${VIVA_RUNTIME_SERVE}"
 PUBLIC_VIVA_LIGHTHOUSE_REMOTE="${VIVA_LIGHTHOUSE_SERVE}"
 SECRET_VIVA_JWT="wdWr…"
@@ -15618,16 +15618,16 @@ manifest
   version                      0.0.1
 daemons                        hello
 services                       multiplayer
-clients                        kajuit
+clients                        anima
 runtime                        slug  statics  datamap
 mountpoint                     /root/.viva/instances/hello-world/mountpoint
 vars
   VIVA_RUNTIME_ORIGIN          http://localhost:2501
-  VIVA_CLIENT_KAJUIT_ORIGIN    http://localhost:1794
+  VIVA_CLIENT_ANIMA_ORIGIN    http://localhost:1794
   VIVA_RUNTIME_SERVE           ${VIVA_RUNTIME_ORIGIN}/
   VIVA_LIGHTHOUSE_SERVE
 ${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer
-  VIVA_CLIENT_KAJUIT_SERVE     ${VIVA_CLIENT_KAJUIT_ORIGIN}/
+  VIVA_CLIENT_ANIMA_SERVE     ${VIVA_CLIENT_ANIMA_ORIGIN}/
   PUBLIC_VIVA_RUNTIME_REMOTE   ${VIVA_RUNTIME_SERVE}
   PUBLIC_VIVA_LIGHTHOUSE_REMOTE ${VIVA_LIGHTHOUSE_SERVE}
 env
@@ -15652,10 +15652,10 @@ exit=0 wall=0s
 #+BEGIN_EXAMPLE
 == .env after the docker bind edit (comments stripped, secrets masked)
 VIVA_RUNTIME_ORIGIN="http://0.0.0.0:2501"
-VIVA_CLIENT_KAJUIT_ORIGIN="http://0.0.0.0:1794"
+VIVA_CLIENT_ANIMA_ORIGIN="http://0.0.0.0:1794"
 VIVA_RUNTIME_SERVE="${VIVA_RUNTIME_ORIGIN}/"
 VIVA_LIGHTHOUSE_SERVE="${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer"
-VIVA_CLIENT_KAJUIT_SERVE="${VIVA_CLIENT_KAJUIT_ORIGIN}/"
+VIVA_CLIENT_ANIMA_SERVE="${VIVA_CLIENT_ANIMA_ORIGIN}/"
 PUBLIC_VIVA_RUNTIME_REMOTE="http://localhost:2501/"
 PUBLIC_VIVA_LIGHTHOUSE_REMOTE="http://localhost:2501/attached/process/lighthouse/multiplayer"
 SECRET_VIVA_JWT="wdWr…"
@@ -15668,16 +15668,16 @@ manifest
   version                      0.0.1
 daemons                        hello
 services                       multiplayer
-clients                        kajuit
+clients                        anima
 runtime                        slug  statics  datamap
 mountpoint                     /root/.viva/instances/hello-world/mountpoint
 vars
   VIVA_RUNTIME_ORIGIN          http://0.0.0.0:2501
-  VIVA_CLIENT_KAJUIT_ORIGIN    http://0.0.0.0:1794
+  VIVA_CLIENT_ANIMA_ORIGIN    http://0.0.0.0:1794
   VIVA_RUNTIME_SERVE           ${VIVA_RUNTIME_ORIGIN}/
   VIVA_LIGHTHOUSE_SERVE
 ${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer
-  VIVA_CLIENT_KAJUIT_SERVE     ${VIVA_CLIENT_KAJUIT_ORIGIN}/
+  VIVA_CLIENT_ANIMA_SERVE     ${VIVA_CLIENT_ANIMA_ORIGIN}/
   PUBLIC_VIVA_RUNTIME_REMOTE   http://localhost:2501/
   PUBLIC_VIVA_LIGHTHOUSE_REMOTE
 http://localhost:2501/attached/process/lighthouse/multiplayer
@@ -15702,7 +15702,7 @@ exit=0
 *** step5-inside.log — 60 lines
 #+BEGIN_EXAMPLE
 == run log (head)
-run runtime=4207 kajuit=4208
+run runtime=4207 anima=4208
 Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev
 Task run deno run -A run.js
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
@@ -15736,7 +15736,7 @@ id                                    slug
 instances
   0
     slug                       * hello-world
-    running                    runtime kajuit
+    running                    runtime anima
     mount                      /root/.viva/instances/hello-world
     valence                    null
 == doctor tail
@@ -15749,13 +15749,13 @@ lock
   processes
 process  pid
 runtime  4207
-kajuit   4208
+anima   4208
   started                      2026-09-04T16:09:23.036Z
 == ps
  4173     0      29 deno run --config /root/vivalence/deno.jsonc -A /root/vivalence/systems/ghost/mod.js insta
  4207  4173      29 /root/.deno/bin/deno task --config /root/vivalence/deno.jsonc -q runtime/run
- 4208  4173      29 /root/.deno/bin/deno task --config /root/vivalence/deno.jsonc -q kajuit/watch
- 4244  4208      29 /root/.deno/bin/deno task --cwd ./systems/kajuit watch
+ 4208  4173      29 /root/.deno/bin/deno task --config /root/vivalence/deno.jsonc -q anima/watch
+ 4244  4208      29 /root/.deno/bin/deno task --cwd ./systems/anima watch
  4275  4207      29 /root/.deno/bin/deno task --cwd ./systems/runtime run
  4309  4244      29 /root/.deno/bin/deno run -A npm:vite@6 dev
  4337  4275      29 /root/.deno/bin/deno run -A run.js
@@ -15765,7 +15765,7 @@ kajuit   4208
 
 *** step5-run.log — 97 lines
 #+BEGIN_EXAMPLE
-run runtime=4207 kajuit=4208
+run runtime=4207 anima=4208
 Task watch VIVA_SYSTEM_ROLE=CLIENT deno run -A npm:vite@6 dev
 Task run deno run -A run.js
 The `config.kit.files.routes` option is deprecated, and will be removed in a future version
@@ -15879,7 +15879,7 @@ checkout this session unless marked =unpinned=. Severity is the walkers' scale: 
 | L1 | ubuntu, alpine | stock image lacks =curl= =ca-certificates= =unzip= (alpine also =bash=); README line 1 cannot start          | §0 "Deno 2.7+ and git are the only prerequisites"                  | README §0 — doc                                                                                          |
 | L2 | ubuntu, alpine | Deno 2.9.6 installer writes NO rc file, no =~/.deno/env=; =viva= absent from every fresh shell; =source ~/.bashrc= is a no-op | §0 line-2 comment, §0 tail "From here on…", §6 claims 1 + 3        | README §0 — doc; =systems/ghost/install.sh= could PRINT the export line it needs                          |
 | L3 | alpine         | installer exits 0 "installed successfully" with an unrunnable gnu binary; no musl Deno ≥ 2.7 exists (3.20 ships 1.43.5; edge 2.7.4 dependency-blocked; upstream has no musl asset); only route = denoland's own bundled glibc | §0 "the repo carries everything else"                              | upstream; README §0 — doc (fork F1)                                                                       |
-| L4 | alpine         | kajuit's vite: rolldown reads =ldd --version=, sees musl, demands the =-musl= napi binding under a gnu Deno → "Cannot find native binding"; =-gnu= binding loads fine; =NAPI_RS_NATIVE_LIBRARY_PATH= unblocks | §5 kajuit on :1794                                                 | REPO-SIDE, measured after the walk: =systems/kajuit/vite.config.mjs:3= =import { defineConfig } from "vite"=; vite 6's config bundler node-resolves that to =node_modules/vite= → =.deno/vite@8.1.0= (astro's, from the =documentation= workspace — Deno links the flat =node_modules/vite= to ONE version) and hardcodes the path; ubuntu probe printed =[probe] config sees vite 8.1.0 rolldown 1.1.5= while the CLI is 6.3.3. On glibc it double-loads silently; on musl rolldown's =isMusl()= picks the =-musl= binding the gnu Deno cannot dlopen. Fix = blast row 16 (no NAPI var needed). beef: /"why not pin the right version in the docs??"/ — it IS pinned: =import_map.json:55= ="vite": "npm:vite@6.3.3"=; Deno honours it (=deno info= → 6.3.3, in-workspace probe → 6.3.3) but vite's default config loader (=bundle=) resolves with NODE rules, not the import map, and the flat link is not steered by the pin (container's fresh install had the pin → link still 8.1.0). docs cannot drop (astro@7.0.9 wants =vite ^8.0.13=), kajuit cannot rise (kit peer =^5\|^6\|^7=, vite-plugin-svelte@5.1 =^6=, @deno/vite-plugin =5\|6\|7=). =--configLoader native= respects the map but then dies on ="@sveltejs/kit/vite" not in import map= (measured) |
+| L4 | alpine         | anima's vite: rolldown reads =ldd --version=, sees musl, demands the =-musl= napi binding under a gnu Deno → "Cannot find native binding"; =-gnu= binding loads fine; =NAPI_RS_NATIVE_LIBRARY_PATH= unblocks | §5 anima on :1794                                                 | REPO-SIDE, measured after the walk: =systems/anima/vite.config.mjs:3= =import { defineConfig } from "vite"=; vite 6's config bundler node-resolves that to =node_modules/vite= → =.deno/vite@8.1.0= (astro's, from the =documentation= workspace — Deno links the flat =node_modules/vite= to ONE version) and hardcodes the path; ubuntu probe printed =[probe] config sees vite 8.1.0 rolldown 1.1.5= while the CLI is 6.3.3. On glibc it double-loads silently; on musl rolldown's =isMusl()= picks the =-musl= binding the gnu Deno cannot dlopen. Fix = blast row 16 (no NAPI var needed). beef: /"why not pin the right version in the docs??"/ — it IS pinned: =import_map.json:55= ="vite": "npm:vite@6.3.3"=; Deno honours it (=deno info= → 6.3.3, in-workspace probe → 6.3.3) but vite's default config loader (=bundle=) resolves with NODE rules, not the import map, and the flat link is not steered by the pin (container's fresh install had the pin → link still 8.1.0). docs cannot drop (astro@7.0.9 wants =vite ^8.0.13=), anima cannot rise (kit peer =^5\|^6\|^7=, vite-plugin-svelte@5.1 =^6=, @deno/vite-plugin =5\|6\|7=). =--configLoader native= respects the map but then dies on ="@sveltejs/kit/vite" not in import map= (measured) |
 | L5 | alpine (distro-independent) | =instance/init= sits on "starting processes…" FOREVER when any child dies                                  | §4 "It runs the instance once. It asks you to create the first user." | =systems/ghost/trajectories/instance/Init.jsx:35-46= — =process.status.then= records the exit into =exits=, =ready= resolves ONLY on =Status:ALIVE=, =await Promise.all(ready)= has no rejection path |
 
 ** misleads
@@ -15900,7 +15900,7 @@ checkout this session unless marked =unpinned=. Severity is the walkers' scale: 
 | L26 | macOS (beef)   | =viva instance/remove= → =no handler= — the verb is =delete=, no "did you mean"                                | README §5 names =instance/delete=                | dispatch — no near-miss voice |
 | L27 | macOS (beef)   | env wizard asks the OPTIONAL Anthropic key BEFORE the REQUIRED JWT                                          | reads as "the key you need first"               | =subsystems/paladin/belt/check.js:123= alphabetical sort; =init.js owed()= inherits |
 | L28 | macOS (beef)   | a <24-char JWT is committed, boots, signs up; doctor says =INVALID= only afterwards (F5 live)                | README §4 "populates .env" + the schema's =minLength=  | =Init.jsx:68= =commit()= writes without re-check; =init.js:24= re-asks next init. MOOT for hello-world since the JWT mints itself (this session) |
-| L30 | docker-live    | LANDED (go, same session) — was: a fresh identity's FIRST browser sign-in =DAEMONS 0 · hello status · error · Unauthorized — insert into `User`…=, 1/40 parallel = =UNIQUE constraint failed: User.id= masked as =INVALID_TOKEN= | §5 "you're inside: the client attaches to the daemons" | =secure.js= split =authenticate= (identity, daemon root) / =authorize= (user, =/userspace/entities= + mode branches); =provider/index.js= =getUser= reads only, =enroll= = ONE =users.upsert(…, {onConflictAction:"ignore"})=; =/userspace/handshake= is the sole enroller; kajuit =dossier.js= handshakes BEFORE the burst. Pinned: =enroll.test.js= 40 parallel → 1 row; live: 40 parallel handshakes → rows 3→4, =beta='s first visit healthy |
+| L30 | docker-live    | LANDED (go, same session) — was: a fresh identity's FIRST browser sign-in =DAEMONS 0 · hello status · error · Unauthorized — insert into `User`…=, 1/40 parallel = =UNIQUE constraint failed: User.id= masked as =INVALID_TOKEN= | §5 "you're inside: the client attaches to the daemons" | =secure.js= split =authenticate= (identity, daemon root) / =authorize= (user, =/userspace/entities= + mode branches); =provider/index.js= =getUser= reads only, =enroll= = ONE =users.upsert(…, {onConflictAction:"ignore"})=; =/userspace/handshake= is the sole enroller; anima =dossier.js= handshakes BEFORE the burst. Pinned: =enroll.test.js= 40 parallel → 1 row; live: 40 parallel handshakes → rows 3→4, =beta='s first visit healthy |
 | L31 | docker-live    | README §0 line 1 verbatim in a root shell: =sudo: command not found=, exit 127; and no =apt-get update= precedes the install anywhere | §0 "stock server images ship without them" — then hands you a line that cannot run on one | README §0 — doc: "as root, or with sudo"; =apt-get update &&= first |
 | L32 | docker-live    | GitHub =b27e0e62e= has NO =commons/= and its README says =@viva/instance/hello-world=; the LOCAL README (=@commons/…=, 384 lines) cannot be walked from the published tree | §0 clone line + §3 create line, read together | beef's push — release state, not text |
 
@@ -15918,7 +15918,7 @@ checkout this session unless marked =unpinned=. Severity is the walkers' scale: 
 | L23 | ubuntu         | =instance/init= parks on "enter → stop + exit" and never returns by itself                                 | §4 reads as a command that finishes             | =Init.jsx= phase "ready" — README §4: say "press Enter to stop it and exit"             |
 | L24 | alpine         | ledger =.env= ships =VIVA_REPOSITORY_MOUNT=""= while =~/.config/viva/env= already holds it                 | invites a "fix"                                 | RESOLVED (docker-live follow-up): an unset key is scaffolded =# KEY=""= — documents, never claims |
 | L29 | macOS (beef)   | =instance/doctor= env table at 66 cols: every cell 6 chars (=PUBLIC=, =SECRET=, =VIVA_C=); =runtime= row prints object KEYS; =vars= raw =${…}= beside =env= resolved | §4 "an overview of the environment" | L15's face at a narrower width; doctor dump = own quest |
-| L33 | docker-live    | §5 run writes ONE lock, =hello-world.lock=, carrying a =processes= table (=runtime 4207 · kajuit 4208=)  | §5 "registers them in the ledger's locks … each … writes only its own lock" | README §5 — doc (m49 shape) |
+| L33 | docker-live    | §5 run writes ONE lock, =hello-world.lock=, carrying a =processes= table (=runtime 4207 · anima 4208=)  | §5 "registers them in the ledger's locks … each … writes only its own lock" | README §5 — doc (m49 shape) |
 | L34 | docker-live    | bare =instance/init= without a tty prints =env present · next viva instance/init <username> <password>= — the headless form the README never names | §4 "It asks you to create the first user" | README §4 — doc: one line naming the headless form |
 | L35 | docker-live    | behind a port publish (docker, any NAT) the localhost defaults bind =[::1]= only; four =.env= lines (SERVE origins =0.0.0.0=, PUBLIC remotes =localhost=) make it reachable | §5 "Open http://localhost:1794" — true only on the host that runs it | 50.01 — doc: a "behind a port publish" paragraph; the SERVE ⟷ PUBLIC split already carries it |
 
@@ -15944,7 +15944,7 @@ Every row is a proposal. Docs rows are mine to draft on =go=; =systems/= rows ar
 | 13| runtime =/status=                                              | =timestamp= per request, or rename the field =started= so it stops claiming to be a pulse                | L11      | design | XS after F4 |
 | 14| sessions reaping                                               | fork F3 first                                                                                             | L10      | design | —    |
 | 15| =instances/untap=                                              | m44's group owns it — a one-verb add mirroring =registry/untap=                                           | L22      | path   | S    |
-| 16| =systems/kajuit/vite.config.mjs:3,:106=                        | drop =import { defineConfig } from "vite"= (identity fn) — =export default async ({ command }) => ({…})=; kajuit then loads ONE vite (6.3.3 via kit/@deno plugin links) and rolldown never enters its process; the =-musl= binding question disappears with it. Root shape: two workspaces (kajuit vite@6, documentation astro→vite@8) share one flat =node_modules/vite= link — any bare =vite= import outside a package boundary is a coin toss. Alternatives: (c) steer the hoist — DEAD, the pin at =import_map.json:55= does not move the flat link; (d) =--configLoader native= in =systems/kajuit/deno.jsonc:17-21= + =import_map.json= entries for ="@sveltejs/kit/"= (measured: native fails without them) — two files, more surface. *(a) APPLIED* on beef's =go a=: import dropped, =export default async ({ command }) => ({…})=; alpine boots kajuit with no NAPI var, local =:1795= boots =VITE v6.3.3=, kajuit 35/0. =deno check vite.config.mjs= is RED before and after (TS2307 =@sveltejs/kit/vite= not in import map — pre-existing, measured on the untouched container file) | L4       | path   | XS — APPLIED |
+| 16| =systems/anima/vite.config.mjs:3,:106=                        | drop =import { defineConfig } from "vite"= (identity fn) — =export default async ({ command }) => ({…})=; anima then loads ONE vite (6.3.3 via kit/@deno plugin links) and rolldown never enters its process; the =-musl= binding question disappears with it. Root shape: two workspaces (anima vite@6, documentation astro→vite@8) share one flat =node_modules/vite= link — any bare =vite= import outside a package boundary is a coin toss. Alternatives: (c) steer the hoist — DEAD, the pin at =import_map.json:55= does not move the flat link; (d) =--configLoader native= in =systems/anima/deno.jsonc:17-21= + =import_map.json= entries for ="@sveltejs/kit/"= (measured: native fails without them) — two files, more surface. *(a) APPLIED* on beef's =go a=: import dropped, =export default async ({ command }) => ({…})=; alpine boots anima with no NAPI var, local =:1795= boots =VITE v6.3.3=, anima 35/0. =deno check vite.config.mjs= is RED before and after (TS2307 =@sveltejs/kit/vite= not in import map — pre-existing, measured on the untouched container file) | L4       | path   | XS — APPLIED |
 | 17| =systems/ghost/install.sh:8-9=                                 | after =ln -sf=: if =$HOME/.deno/bin= is not in =$PATH=, print the one export line (the Deno installer only offers rc editing when stdout is a tty — =install.sh:95-107= upstream; under =docker exec= / CI it writes nothing) | L2       | voice  | XS   |
 
 * testing assessment — mandatory
@@ -15953,7 +15953,7 @@ Every row is a proposal. Docs rows are mine to draft on =go=; =systems/= rows ar
 
 - =systems/ghost/tests/= — 11 files: =create= · =help.wet= · =ledger= · =pick= · =registry= · =rename= ·
   =shellsignal= · =strata.wet= · =tap= · =target= · =use=. 77 tests green at the last bracket.
-- =subsystems/paladin/tests/= 26 · =systems/kajuit= 35 · =systems/runtime= (composition, scenarios).
+- =subsystems/paladin/tests/= 26 · =systems/anima= 35 · =systems/runtime= (composition, scenarios).
 - *COVERAGE GAP, named*: =Init.jsx= has ZERO tests (Ink component supervising child processes — the
   hang in L5 and the =undefined= in L16 live in untested code). =ctx.call= chaining through
   =instances/use= has =use.test.js= but no case for a FAILING sub-call (L9). =shellsignal.test.js=
@@ -16019,7 +16019,7 @@ Pre-DONE gate: a milestone flips only with the named test file AND the pasted su
 #+marker_qa: m46/P-viva-count · pending · =viva registry/list= =@viva= count equals the README §2 block
 #+marker_qa: m46/P-status-pulse · pending · two =/status= calls 2 s apart differ in =timestamp= (or the field is renamed =started=)
 #+marker_qa: m46/T-musl-sentence · DROPPED · F1 closed (c): README silent, facts in known-issues =deno-has-no-musl-build=
-#+marker_qa: m46/P-kajuit-one-vite · DONE (alpine leg) · =readmen-alpine=, patched config, =env -u NAPI_RS_NATIVE_LIBRARY_PATH … vite@6 dev --port 1795= → =Status:ALIVE= · =VITE v6.3.3 ready in 1689 ms= · =Local: http://localhost:1795/=, no "Cannot find native binding". The =console.error(import("vite"))= probe is VOID for the after-state — the probe line itself is a bare =vite= import the bundler node-resolves to 8.1.0 (it measured itself). Local boot on =:1795= = =VITE v6.3.3=; kajuit suite 35/0
+#+marker_qa: m46/P-anima-one-vite · DONE (alpine leg) · =readmen-alpine=, patched config, =env -u NAPI_RS_NATIVE_LIBRARY_PATH … vite@6 dev --port 1795= → =Status:ALIVE= · =VITE v6.3.3 ready in 1689 ms= · =Local: http://localhost:1795/=, no "Cannot find native binding". The =console.error(import("vite"))= probe is VOID for the after-state — the probe line itself is a bare =vite= import the bundler node-resolves to 8.1.0 (it measured itself). Local boot on =:1795= = =VITE v6.3.3=; anima suite 35/0
 #+marker_qa: m46/P-prereqs-readme · DONE · README §0 now reads "Prerequisites: git, plus curl, unzip and CA certificates" + =sudo apt-get install -y curl ca-certificates unzip git= as line 1 of the block
 
 * deferred
@@ -16052,7 +16052,7 @@ Pre-DONE gate: a milestone flips only with the named test file AND the pasted su
 - *F4 =/status= semantics*: pulse (timestamp per request) or boot stamp (rename to =started=)?
   Recommendation: both fields — =started= + =timestamp=; the README's word "pulse" then holds.
 - *F5 what the supervisor forwards*: the 15-line banner is honest but noisy — trim the SvelteKit
-  deprecations at the source (kajuit config) rather than in the README?
+  deprecations at the source (anima config) rather than in the README?
 
 * taskbag — ghost process management
 
@@ -16079,7 +16079,7 @@ like there are issues here all over. collect a taskbag here."/
 | B4  | =process.js:18,:39= + known issue                | =detached= = stdout/stderr =null= + =unref()=: the children have NO log and die with the parent (macOS); =Log= prototype, the =logs/= scaffold and doctor's =collectLogs= read a dir nothing writes                            | attachment decides WHERE output goes, never WHETHER it is kept: detached → =Log.open()=; true detach needs the setsid shim (known issue) |
 | B5  | =process.js:38= + =stop.js:11= + =instances/index.js:55= | lock removal rides =child.status.then= — alive only in the ghost that spawned; a detached child's lock outlives it. =start= compensates (=alive()= + =remove=, =start.js:9-13=); =stop= SIGTERMs whatever pid the lock holds (recycled pid risk); =instances/list= "running" comes from a dead lock | liveness at READ: =ledger.locks()= prunes dead pids — one reader for start/stop/list/doctor      |
 | B6  | =process.js:56-67=                               | =kill()= = SIGTERM then =await status= with no deadline; a child that ignores SIGTERM hangs teardown (and =Ledger.teardown=, and =Init= "enter → stop") forever; SIGKILL only on a throw                                     | SIGTERM → deadline → SIGKILL, one policy                                                           |
-| B7  | =runtime/lifecycle/integrate.js:22,:47= · =kajuit/vite.config.mjs:101= · =Init.jsx:42= | readiness is a string scrape: three producers (=Status("alive")= at listen, =$[runtime:slug] {status}= every patrol, the vite beacon), one substring consumer, no timeout, no structured channel — L21's three-shaped banner is this defect seen from the README | one readiness signal per process (a line the Process recognises, or a probe of =/status=), with a deadline |
+| B7  | =runtime/lifecycle/integrate.js:22,:47= · =anima/vite.config.mjs:101= · =Init.jsx:42= | readiness is a string scrape: three producers (=Status("alive")= at listen, =$[runtime:slug] {status}= every patrol, the vite beacon), one substring consumer, no timeout, no structured channel — L21's three-shaped banner is this defect seen from the README | one readiness signal per process (a line the Process recognises, or a probe of =/status=), with a deadline |
 | B8  | =ledger.js:73-84= + =run.js= (=inherit=)         | =arm()= teardown exits 0 on SIGTERM/SIGQUIT regardless of children; under =inherit= the children share the tty process group → they get the operator's SIGINT AND ghost's SIGTERM                                            | exit code from the fold (B3); signal children once                                                |
 | B9  | =init.js:51-62=                                  | headless =poll()= = 30 × 1 s blind retries; a dead runtime costs 30 s and reports "Network request failed", never "runtime exited 1" — B1's twin                                                                             | poll races the same =ready=/=exited= settlement                                                   |
 | B10 | =ledger/index.js:130-137=                        | doctor =processes.attached= reports the doctor's OWN =attached= set — always empty, every =viva= is a fresh process                                                                                                          | drop the field; processes = locks with liveness (B5)                                              |
@@ -16256,7 +16256,7 @@ is the setsid shim from =known-issues.org=, not these diffs.
 +  }
 #+END_SRC
 
-Throw → =mod.js:41-47= catch → =ctx.error= → =fail()= → =ghost: instance: kajuit exited 1=, exit 1.
+Throw → =mod.js:41-47= catch → =ctx.error= → =fail()= → =ghost: instance: anima exited 1=, exit 1.
 
 *** test first — =systems/ghost/tests/init.test.js= (shape)
 
@@ -16901,16 +16901,16 @@ Steps 1–2 are S and independent of 3–6. Steps 3–4 are one M. Steps 5–6 a
 - this session, tenth pass (docker-live) — fourth walk: stock =ubuntu:24.04=, LOCAL tree (GitHub =b27e0e6= lacks =commons/=), host-published =127.0.0.1:2501/1794=, README 0–6 headless, hello-world LIVE and clicked (=bot= · =agent=) in Chrome from the host. L30–L35 ledgered: the first-attach =User= insert race (pinned 1/40, =INVALID_TOKEN= mask) is the one code defect; the rest are §0/§4/§5 doc deltas + the 4-line docker bind recipe. Container =readmen-live= left RUNNING.
 - this session, ninth pass (docs-survey) — beef walked the README on macOS himself; transcript inlined as the third walk, L25–L29 ledgered. His "function default" ask LANDED (=envfile.fallback=, =init.js:36=, hello-world JWT mints itself; =ledger.test.js= pins it; README fences regenerated; 50.01 §3/§4 walkthroughs recaptured from his run + a scratch-ledger run; =home.mdx= totems rewritten on his order — six, core measured ~15k = typology 10,640 · paladin 2,109 · runtime 2,451 (beef: ghost is NOT core), wc no tests/bak). Wizard-order fix (=check.js:123=) proposed, gated.
 - this session, eighth pass — cluster A of the connoisseur's pass LANDED as m49 M1 (=.ikiro/quests/done/m49-process-ontology-and-control-vector.org=, sunset; the recast lives in =m50-the-three-way-weave.org=): the process-management taskbag (B1–B13 minus B12) and the L5 diffs are superseded by =Process=/=Die= Wafers, one token-claimed lock per instance, a detached supervisor for =start=; the =detached-process-die-on-parent-exit= known issue is RESOLVED by live proof. Cluster B: step 2 (=instances.resolve=) LANDED (seventh pass); steps 1 (door), 5 (start/stop as control natures), 6 (tty sessions) carried into m49 M2 / forks.
-- this session, seventh pass — beef: /"For the selection, you can rewrite them into one shared method."/ LANDED: =ledger.instances.resolve(reference)= (+ =NOTHING=, the one voice; =Instance.home= throws it) in paladin; callers = =mod.js= mounts loop · =instances/use= · =instance/doctor= =split()= · =instance/delete= (new consumer, arrived mid-edit) · =instance/create= default destination via =instances.instance=; =belt/path.js instance()= deleted. Bracket: paladin 28 (143→147 steps) green both sides; ghost 81/1 both sides (=strata.wet.test.js:93= reap race, pre-existing). One red of mine mid-bracket — =paladin.source= sent bare =dir/sub= repo-relative against the path law (=strata.wet.test.js:155=); fixed by treating an undotted path token as =./dir/sub= before =source=. Smoke on the real ledger: =doctor hello-world= · =--instance=hello-world= · =doctor zzz= (filter) · =--instance=zzz= (refused, uncaught at the door) · =--instance=./nope= (pinned, then no instance). Control-vector design paused at beef's interrupt; found so far: =typology/schematics/readme.org:14= ControlVector sketch, =kajuit/client.viva.js:14-34=.
+- this session, seventh pass — beef: /"For the selection, you can rewrite them into one shared method."/ LANDED: =ledger.instances.resolve(reference)= (+ =NOTHING=, the one voice; =Instance.home= throws it) in paladin; callers = =mod.js= mounts loop · =instances/use= · =instance/doctor= =split()= · =instance/delete= (new consumer, arrived mid-edit) · =instance/create= default destination via =instances.instance=; =belt/path.js instance()= deleted. Bracket: paladin 28 (143→147 steps) green both sides; ghost 81/1 both sides (=strata.wet.test.js:93= reap race, pre-existing). One red of mine mid-bracket — =paladin.source= sent bare =dir/sub= repo-relative against the path law (=strata.wet.test.js:155=); fixed by treating an undotted path token as =./dir/sub= before =source=. Smoke on the real ledger: =doctor hello-world= · =--instance=hello-world= · =doctor zzz= (filter) · =--instance=zzz= (refused, uncaught at the door) · =--instance=./nope= (pinned, then no instance). Control-vector design paused at beef's interrupt; found so far: =typology/schematics/readme.org:14= ControlVector sketch, =anima/client.viva.js:14-34=.
 - this session, sixth pass — the connoisseur's pass written over both taskbags: two absences named (the child process is a =Wafer=; the =reference ⟷ mount= pair has no ana), three facts measured (=Deno.Command detached: true= exists in 2.9.6 and gives the child its own process group — the known issue's shim fork is dead; beef's =deno task runtime/watch= refusal is the session stratum, pinned against =~/.viva=; =ledger.instances.resolve()= is cited at =populate.js:40= and defined nowhere). Sketches for every move, a six-step drain, five items owed. No code touched.
 
 - this session, second pass — L1 APPLIED in =README.md= §0 (prerequisites sentence + =sudo apt-get
   install -y curl ca-certificates unzip git= line; =50.01_slowstart.mdx:22= repeats the old claim,
   NOT touched — emacs autosave =#50.01_slowstart.mdx#= present). L4 re-pinned by measurement to a
   repo cause (vite 6 config bundler → =node_modules/vite= = 8.1.0 → rolldown; ubuntu container
-  probe, file restored byte-identical). Blast rows 16 (kajuit one-vite) and 17 (=install.sh= PATH
+  probe, file restored byte-identical). Blast rows 16 (anima one-vite) and 17 (=install.sh= PATH
   voice) added. Two taskbags written on beef's order: ghost process management B1–B13 · the
-  use/--instance cluster C1–C12. QA markers: =P-prereqs-readme= DONE · =P-kajuit-one-vite= pending.
+  use/--instance cluster C1–C12. QA markers: =P-prereqs-readme= DONE · =P-anima-one-vite= pending.
 - this session, third pass — L2 APPLIED: README §0 PATH comment reformulated (tty vs headless,
   =~/.deno/env=), =systems/ghost/install.sh= prints the export line when =~/.deno/env= is absent
   (=sh -n= ok, not live-run). L4 re-measured against beef's "pin it in the docs": the pin EXISTS
@@ -16918,16 +16918,16 @@ Steps 1–2 are S and independent of 3–6. Steps 3–4 are one M. Steps 5–6 a
   =@sveltejs/kit/vite= without map entries (ubuntu container, config restored byte-identical).
   L5 diffs 1–5 filed under the process-management taskbag, unapplied. Zettelkasten callout:
   code-heavy-answers ×4 (verdicts shipped without source or diff).
-- this session, fourth pass — L4 (a) APPLIED in =systems/kajuit/vite.config.mjs= (3 hunks: import
-  line, =export default=, closing paren). Verified: alpine container boots kajuit with
+- this session, fourth pass — L4 (a) APPLIED in =systems/anima/vite.config.mjs= (3 hunks: import
+  line, =export default=, closing paren). Verified: alpine container boots anima with
   =NAPI_RS_NATIVE_LIBRARY_PATH= unset (=VITE v6.3.3=, =Status:ALIVE=); local boot =:1795= green;
-  =deno test systems/kajuit/tests/= 35 passed / 0 failed; both container configs restored
+  =deno test systems/anima/tests/= 35 passed / 0 failed; both container configs restored
   byte-identical (=f5dca23a=). Pre-existing =deno check= red on the file ledgered, not mine.
   Coverage delta: none (config file, no test imports it).
 - this session, fifth pass — F1 CLOSED on beef's word ("this belongs into ikiro not readme"):
   =known-issues.org= =deno-has-no-musl-build= holds the facts + transplant; =T-musl-sentence= dropped.
   L5 explained in prose after the list-answer was rejected. Compact
-  =three-readme-defects-land-the-kajuit-config-was-importing-astros-vite-past-the-pin…= written
+  =three-readme-defects-land-the-anima-config-was-importing-astros-vite-past-the-pin…= written
   (N=12); frontier's docs/README strand evicted whole to known-issues for budget.
 - this session — two opus walkers ran README 0–6 on =ubuntu:24.04= and =alpine:3.20= against GitHub
   =b27e0e62e=; both reached step 6 with =hello-world= up; four ubuntu-walk fixes verified on both;
@@ -16941,7 +16941,7 @@ Steps 1–2 are S and independent of 3–6. Steps 3–4 are one M. Steps 5–6 a
 * release
 
 - changed: ghost never authors `KEY=""`. An unset key is written `# KEY=""` by `ledger/init` and `instance/init` — it documents the key without claiming it, so a value set lower (machine-wide `~/.viva/.env`, the OS) shows through; the wizard fills the commented slot in place (`paladin.state.line` / `state.env`, `systems/ghost/belt/envfile.js`).
-- added: a daemon enrolls an identity ONLY at `/userspace/handshake` (one upsert; `identity.enroll()`); every other route reads the user or answers `401 USER_NOT_FOUND — /userspace/handshake first`. kajuit handshakes before it attaches. (`subsystems/typology/gestalten/shard/secure.js authenticate/authorize`, `commons/lighthouses/multiplayer/provider/index.js`, `systems/runtime/daemon/aperture/userspace.js`)
+- added: a daemon enrolls an identity ONLY at `/userspace/handshake` (one upsert; `identity.enroll()`); every other route reads the user or answers `401 USER_NOT_FOUND — /userspace/handshake first`. anima handshakes before it attaches. (`subsystems/typology/gestalten/shard/secure.js authenticate/authorize`, `commons/lighthouses/multiplayer/provider/index.js`, `systems/runtime/daemon/aperture/userspace.js`)
 - changed: `shard.secure.authorize()` no longer verifies+provisions in one breath — `authenticate()` (identity) sits at the daemon root; `INVALID_TOKEN` now only ever means the token.
 - changed: README §0 pipes the deno installer with `sh -s -- -y` — PATH persists headless (docker, CI, piped); the `export PATH` line is live for the current shell; the apt line carries `apt-get update` and says "drop sudo as root".
 - changed: `deno task install` warns about PATH only when a fresh `$SHELL -lic` shell cannot find `viva` (was: when `~/.deno/env` is absent).
@@ -16958,7 +16958,7 @@ beef: /"run the local readme.md installation steps step by step through docker c
 ** harness
 - =docker run -dit --name readmen-tty --hostname readmen -w /root -p 127.0.0.1:12501:2501 -p 127.0.0.1:11794:1794 ubuntu:24.04 bash= — pid 1 is an interactive bash on =/dev/pts/0=; my step scripts run via =docker exec= and stream to =/proc/1/fd/1= (=tee /walk/stepN.log=), so =docker attach= / =docker logs -f= show them live. beef's shell: =docker exec -it readmen-tty bash= (=exit= there is harmless; =exit= inside =docker attach= kills pid 1 = the container).
 - ALT host ports: at container creation beef's local instance held =127.0.0.1:1794= (=[::1]:2501= too) — publishing the README ports would have failed on 1794 and shadowed the local instance on 2501 (known-issues =readmen-container-shadows-the-local-instance=). Container-side ports stay 2501/1794; the 4-line =.env= edit at step 4 carries =localhost:12501= / =localhost:11794= as the PUBLIC remotes.
-- the LOCAL tree again (=tar= of the working tree, 125 MB after excluding =commons/services/nlp/server/tmp= — a 649 MB stanza model mount that is gitignored, not repo content; the first tar was 811 MB). macOS =tar= wrote 59 AppleDouble =._*= entries (=commons/services/._nlp=, kajuit font licences) — none exist on the host disk; purged in the container; next tar sets =COPYFILE_DISABLE=1=.
+- the LOCAL tree again (=tar= of the working tree, 125 MB after excluding =commons/services/nlp/server/tmp= — a 649 MB stanza model mount that is gitignored, not repo content; the first tar was 811 MB). macOS =tar= wrote 59 AppleDouble =._*= entries (=commons/services/._nlp=, anima font licences) — none exist on the host disk; purged in the container; next tar sets =COPYFILE_DISABLE=1=.
 - =~/.bashrc= carries =export PATH="$HOME/.deno/bin:$PATH"= (README line 3, persisted) and =export VIVA_PROCESS_ID=1= so beef's exec shell and my scripts share ONE terminal (pid 1).
 
 ** step 0 — findings
@@ -17016,7 +17016,7 @@ move 5 "validate & publish" → "settle & publish" with dormant/faults/decode; =
 | verb | verdict | printed |
 |------+---------+---------|
 | =help= | PASS | 17 natures with params + valence, flags line |
-| =ledger/doctor= | DEFECT → FIXED (go) | was =locks/ 0 running 1 dead= + =processes [object Object= (=Doctor.jsx:21= filtered on =lock.alive=, never set); now =1 running= + =runtime=5898 kajuit=5899= — a lock =read()= returns IS alive · known-issues RESOLVED |
+| =ledger/doctor= | DEFECT → FIXED (go) | was =locks/ 0 running 1 dead= + =processes [object Object= (=Doctor.jsx:21= filtered on =lock.alive=, never set); now =1 running= + =runtime=5898 anima=5899= — a lock =read()= returns IS alive · known-issues RESOLVED |
 | =registry/doctor= | PASS | =42 modes · 18 types · 2 owners=, census per owner |
 | =registry/list= · =instances/list= · =instance/doctor= | PASS | lock block with the =processes= table; =dormant daemon[hello].hallucinators[0]= |
 | =instance/lighthouse signup reader secret= ×2 | PASS | =SUCCESS= then =400 — Username already taken= exit 1 |
@@ -17027,8 +17027,8 @@ move 5 "validate & publish" → "settle & publish" with dormant/faults/decode; =
 | =instances/untap= | — | no such verb (=instance/delete= is the untap) |
 | =instance/doctor tapped= (after its delete) | DEFECT-ish | answers for the SESSION instance (hello-world) instead of "no instance 'tapped'" |
 | =registry/bootstrap= (no args) | PASS | usage line, exit 1 |
-| =instance/stop= | PASS | =stopped hello-world (supervisor 4080: runtime=4120, kajuit=4121)=, children exit 0, no listeners, =locks/= empty; second =stop= → =not running · nothing-to-stop= exit 0 |
-| =instance/start= | PASS | =started hello-world (supervisor 5865)=, logged to =logs/hello-world/{runtime,kajuit}.out.log=, lock ALIVE, host =/status= 200 — LEFT RUNNING |
+| =instance/stop= | PASS | =stopped hello-world (supervisor 4080: runtime=4120, anima=4121)=, children exit 0, no listeners, =locks/= empty; second =stop= → =not running · nothing-to-stop= exit 0 |
+| =instance/start= | PASS | =started hello-world (supervisor 5865)=, logged to =logs/hello-world/{runtime,anima}.out.log=, lock ALIVE, host =/status= 200 — LEFT RUNNING |
 
 ** the runtime API from the host (bearer = admin's access token)
 
@@ -17060,7 +17060,7 @@ move 5 "validate & publish" → "settle & publish" with dormant/faults/decode; =
 
 #+BEGIN_EXAMPLE
 container   readmen-m52 (ubuntu:24.04, sleep infinity)   RUNNING, hello-world UP via instance/start (supervisor 5865, logged)
-host ports  127.0.0.1:2501 → runtime   127.0.0.1:1794 → kajuit      users admin/changeme · reader/secret · apiuser/secret1
+host ports  127.0.0.1:2501 → runtime   127.0.0.1:1794 → anima      users admin/changeme · reader/secret · apiuser/secret1
 also        readmen-tty (Up 23 h, 12501/11794) — untouched
 stop        docker stop readmen-m52   (before running the local hello-world — port-shadow trap)
 #+END_EXAMPLE

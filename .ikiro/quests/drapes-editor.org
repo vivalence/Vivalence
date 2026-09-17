@@ -60,7 +60,7 @@ Three readings decide the shape:
   → `lang-css` + `lang-javascript`, pulled in only to highlight code *inside* fences. Same parser otherwise.
   DECIDED: the lezer parser. A JD notes tree is prose, not a source file. Overturnable — it is one import.
 - vim is **+128 kB prod / ~1 MB dev**. It gets its own entry and is never in the base graph.
-- the instance runs `DEVELOPMENT` (`subsystems/paladin/belt/is.js:11`), so the **dev** column is what kajuit
+- the instance runs `DEVELOPMENT` (`subsystems/paladin/belt/is.js:11`), so the **dev** column is what anima
   actually downloads: the App goes 3.27 MB → 6.55 MB. 65 % of that is the inline sourcemap
   (`svelte.js: sourcemap: prod ? false : "inline"`), which is typology's and not this quest's.
 
@@ -263,7 +263,7 @@ file's text, a hole the old textarea had too.
 | vdex `tools` · `vdex.snapshot`           | 2 failed — r1 spaced-path, NOT this quest |
 | typology                                 | 123 passed, 1 failed — the standing `hallucination snapshot … tool loop` red |
 | the real App, prod                       | 635 784 B |
-| the real App, dev (what kajuit downloads) | 5 616 126 B |
+| the real App, dev (what anima downloads) | 5 616 126 B |
 | `cm-editor` in the artifact              | yes |
 | `org-headline-1` in the artifact         | yes |
 | `codemirror-vim` in the artifact         | **no** |

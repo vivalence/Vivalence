@@ -29,7 +29,7 @@ const config = ({ dbName, contextName, entities, subscribers = [], migrations })
 
 ## trait grammar — declarative metadata, functional dispatch
 
-- **Read a trait as a CLAIM, never a value**: `traits.includes("X")` gates, `trait?.X` may legitimately be `null`. `v.<entity>.trait(row, NAME)` (`schematics/v.js` entityFactory) is the one correct read for a schema'd trait; panels reaching straight for `row.trait?.NAME` (`systems/kajuit/src/app/panels/f/f.svelte:14`) skip the gate. Prove a trait from the surface it CAUSES.
+- **Read a trait as a CLAIM, never a value**: `traits.includes("X")` gates, `trait?.X` may legitimately be `null`. `v.<entity>.trait(row, NAME)` (`schematics/v.js` entityFactory) is the one correct read for a schema'd trait; panels reaching straight for `row.trait?.NAME` (`systems/anima/src/app/panels/f/f.svelte:14`) skip the gate. Prove a trait from the surface it CAUSES.
 
 ```js
 // subsystems/typology/schematics/v.js — entityFactory
@@ -56,13 +56,13 @@ return finalizers;
 
 ## STRIPWIRE — one Vector, callable on both sides
 
-- **A trait's ONE Vector is stripped on the daemon, wired on the client.** `systems/runtime/daemon/aperture/metadata.js` opens root strips (`manifest,statics,cargo,datamap,aperture,cortex,modes`) and per-mode strips (`+ mountpoint,app,emitter,freight,harness`); kajuit's `src/typology/entities/mode/traits/` re-hydrates the same spelling. Contract is node-centric `{effect?, branches}`; the ROOT effect strips and wires ("no path is a path").
-- Symmetric: EMITTER · HARNESSED · EXPOSED (`shape.proxy` → `mode.call`) · cortex. Unwired: APPLICATION · TOOLED (`metadata.js:44` commented, in-process only).
+- **A trait's ONE Vector is stripped on the daemon, wired on the client.** `systems/runtime/daemon/aperture/metadata.js` opens root strips (`manifest,statics,cargo,datamap,aperture,cortex,modes`) and per-mode strips (`+ mountpoint,app,emitter,freight,harness`); anima's `src/typology/entities/mode/traits/` re-hydrates the same spelling. Contract is node-centric `{effect?, branches}`; the ROOT effect strips and wires ("no path is a path").
+- Symmetric: EMITTER · HARNESSED · EXPOSED (`shape.proxy` → `mode.call`) · cortex. Unwired: APPLICATION · TOOLING (`metadata.js:44` commented, in-process only).
 
 ```js
 // systems/runtime/daemon/aperture/metadata.js:42  (daemon)
 if (mode.implements("EMITTER")) meta.open("/emitter", () => shape.strip(mode.module.emitter));
-// systems/kajuit/src/typology/entities/mode/traits/emitter.js:30  (client)
+// systems/anima/src/typology/entities/mode/traits/emitter.js:30  (client)
 mode.emit = shape.connection.wire(emit, mode.metadata.emitter);
 ```
 

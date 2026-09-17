@@ -4,7 +4,7 @@ import { lens, pick } from "../../belt/index.js";
 
 const CHILDREN = {
   runtime: { task: "runtime/run" },
-  kajuit: { task: "kajuit/watch" },
+  anima: { task: "anima/watch" },
 };
 
 const INHERITED = ["PATH", "HOME", "TMPDIR", "XDG_CONFIG_HOME", "TERM", "LANG", "DENO_DIR", "NO_COLOR"];

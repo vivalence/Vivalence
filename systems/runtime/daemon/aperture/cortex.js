@@ -1,6 +1,6 @@
 // @beef
 // expose cortex.hallucinate.[faculty][via](xyz)!
-// strip wire into kajuit daemon who branches and aims deamon connection.
+// strip wire into anima daemon who branches and aims deamon connection.
 import { v } from "@vivalence/typology";
 
 const { Request, Tier, Tune } = v.primitives.hallucination;

@@ -104,7 +104,6 @@
     "npm:better-sqlite3@*": "12.8.0",
     "npm:bits-ui@^1.4.0": "1.8.0_svelte@5.39.6",
     "npm:carbon-icons-svelte@^13.3.0": "13.8.0",
-    "npm:chessground@9.1.1": "9.1.1",
     "npm:chessops@0.14.2": "0.14.2",
     "npm:codemirror@*": "6.0.2",
     "npm:codemirror@6": "6.0.2",
@@ -2582,10 +2581,6 @@
     },
     "character-reference-invalid@2.0.1": {
       "integrity": "sha512-iBZ4F4wRbyORVsu0jPV7gXkOsGYjGHPmAyv+HiHG8gi5PtC9KI2j1+v8/tlibRvjoWX027ypmG/n0HtO5t7unw=="
-    },
-    "chessground@9.1.1": {
-      "integrity": "sha512-X4xrBICrixaLATCn+jGEzk58UXcas+9QqJnwVq9nT7AaX2M1CJLMA0vC7noG0s6Tr2zoAHZ1FOviE5b05MgduQ==",
-      "deprecated": true
     },
     "chessops@0.14.2": {
       "integrity": "sha512-7DghoMODSN8a17L9JHYBWhLBaSKROKS7+NDsvseNJ502UTbuZ7EYueIAmo1oD+f0TeEqh+jo2gsUFRhGRKAR3g==",
@@ -7224,7 +7219,19 @@
     "https://esm.sh/@badrap/result@0.2.13/denonext/result.mjs": "acf29d9aef23a37dea4619fd9b78e0e16200c2dc6045d83e2cf0b7e358da3d51",
     "https://esm.sh/@badrap/result@0.2.13?target=denonext": "7027934321a8bff61b6c79be899ee5a29d0165c9102f19b8600ece2c8e75a690",
     "https://esm.sh/chessops@0.14.2/chess": "b5215d4c69bf85b010ec1552c0ad5abc3ff177683b2569ab01afb1e13f543bbb",
-    "https://esm.sh/chessops@0.14.2/denonext/chess.mjs": "550d5421b431d2d212c7e19a9d98f5349bd3cdfc25e248bd8827077778ed0222"
+    "https://esm.sh/chessops@0.14.2/compat": "5ebecb2f0295049f6cf0f574c65d1eeb8b589508f7700fb19bb8044300e348da",
+    "https://esm.sh/chessops@0.14.2/denonext/chess.mjs": "550d5421b431d2d212c7e19a9d98f5349bd3cdfc25e248bd8827077778ed0222",
+    "https://esm.sh/chessops@0.14.2/denonext/compat.mjs": "44619e591db60eb72f60b5849f089dc31bd9cd6addfbdab1f88fb8b33e1abde6",
+    "https://esm.sh/chessops@0.14.2/denonext/fen.mjs": "1524b81c8baecc4673d1aefc9f682e0487e5f01a21402a6da4cbfb2787dcb09b",
+    "https://esm.sh/chessops@0.14.2/denonext/pgn.mjs": "d3e9ef10f4144cf20043415869cc791cae1dced7ef16532514dee3b6d3a295b8",
+    "https://esm.sh/chessops@0.14.2/denonext/san.mjs": "89a0c6f41758f2b11dc2ba6287e73b2537211e6f463826782f19fd5baa9f24d3",
+    "https://esm.sh/chessops@0.14.2/denonext/util.mjs": "94bcbf5606f598a3d3ec7862a6f9a1a97769eb66320dc755a90c16adfe79db9a",
+    "https://esm.sh/chessops@0.14.2/denonext/variant.mjs": "fe3481d38a898e3dbee0bf31d9d5d56393962d7c2c37079943dc272682cedbec",
+    "https://esm.sh/chessops@0.14.2/fen": "02534f5b8fded47dc13f381c3c838bfd29ed538364368d61c46ffbd0b5522af5",
+    "https://esm.sh/chessops@0.14.2/pgn": "11e3a932fa7a843af5afecffb2efe9e480286fdb04e08a6516f6da714f25cb19",
+    "https://esm.sh/chessops@0.14.2/san": "4c64d3d5687f31d4e267e364a87308955ab86ce1acb116e90f1d9b9fe1f32561",
+    "https://esm.sh/chessops@0.14.2/util": "95fafbbf8224c0dee60fc9c038a74696cb744b50930acbf9a712ad3f199e817f",
+    "https://esm.sh/chessops@0.14.2/variant": "fb4ef5d2d71ca5b930a312410b3641a63662cee2159612b503273c8ddc3bc57b"
   },
   "workspace": {
     "dependencies": [
@@ -7292,7 +7299,6 @@
       "npm:autoprefixer@10.4.20",
       "npm:bits-ui@^1.4.0",
       "npm:carbon-icons-svelte@^13.3.0",
-      "npm:chessground@9.1.1",
       "npm:codemirror@6",
       "npm:ebisu-js@2.1.3",
       "npm:echarts@6.0",

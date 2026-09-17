@@ -8,7 +8,7 @@ const manifest = {
   type: "service",
   slug: "nlp-stanza",
   name: "Stanza NLP service",
-  traits: ["SERVER", "DOCKER", "COMPOSE", "TOOLED"],
+  traits: ["SERVER", "DOCKER", "COMPOSE", "TOOLING"],
 };
 
 // const path = as.path.url(import.meta.url);

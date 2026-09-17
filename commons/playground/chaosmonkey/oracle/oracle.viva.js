@@ -16,11 +16,11 @@ export const manifest = {
     "APPLICATION",
     "STANDALONE",
     "HARNESSED",
-    "TOOLED",
+    "TOOLING",
     "EXPOSED",
     "EMITTER",
     "CONVERSATIONAL",
   ],
 };
 
-export const app = new App("buffer/Oracle.svelte", v.buffer({ data: {} }));
+export const application = new App("buffer/Oracle.svelte", v.buffer({ data: {} }));

@@ -17,7 +17,7 @@ export const manifest = {
 };
 
 // the hub is a control surface — its buffer carries nothing.
-export const app = new App("buffer/Dealer.svelte", v.buffer({ data: {} }));
+export const application = new App("buffer/Dealer.svelte", v.buffer({ data: {} }));
 
 // the finite deck the dealer deals from. running off the end = EXHAUSTED.
 const DECK = ["A♠", "K♥", "Q♦", "J♣", "10♠", "9♥", "8♦", "7♣"];

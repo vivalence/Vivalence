@@ -24,6 +24,9 @@ blast    grep every consumer of the symbol (distinguish same-named-different-ver
 test     consumers' suites GREEN before touching anything
 change   the edit
 test     same suites green — green-on-both-sides proves no drift
+fixtures every *.snapshot.test.js in compare mode + SNAPSHOT_HOT=1 for the wire ones against a
+         booted daemon; grep fixtures/ + snapshots/ (repo AND registry) for the old name → ZERO.
+         a suite reads the fixture it is given — a stale fixture is a red no suite reports (beef 09-17)
 blast    re-confirm the consumer set (nothing new wired, siblings untouched)
 ```
 
@@ -58,7 +61,7 @@ blast    re-confirm the consumer set (nothing new wired, siblings untouched)
 - "this pattern deserves an evocative name" → never mint a naming register; extend the existing family or use plain technical words `family: coined-register`
 - "destructure the barrel for brevity" → call through the namespace (`trace.chronicle`, never `const { chronicle } = trace`); destructuring is for DATA a function returns, never for where functions live `family: namespace-destructuring`
 
-## live-validation (kajuit in Chrome)
+## live-validation (anima in Chrome)
 
 - "is it wired?" → **JS DOM assertion** (`javascript_tool`: `querySelector(...).click()` + assert), never screenshot coordinate-clicks; stop coordinate-clicking after 2–3 misses.
 - `thread/create` hangs (network `pending`) ⇒ buffer-bundle esbuild error — read the runtime log, not the console.

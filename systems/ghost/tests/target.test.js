@@ -17,7 +17,7 @@ const mounted = (name, fn) =>
 
 mounted("specs: no target → all children", () => {
   const result = specs(undefined);
-  assertEquals(result.map((spec) => spec.identity.process).sort(), ["kajuit", "runtime"]);
+  assertEquals(result.map((spec) => spec.identity.process).sort(), ["anima", "runtime"]);
 });
 
 mounted("specs: 'runtime' → runtime only", () => {
@@ -26,10 +26,10 @@ mounted("specs: 'runtime' → runtime only", () => {
   assertEquals(result[0].identity.process, "runtime");
 });
 
-mounted("specs: 'kajuit' → kajuit only", () => {
-  const result = specs("kajuit");
+mounted("specs: 'anima' → anima only", () => {
+  const result = specs("anima");
   assertEquals(result.length, 1);
-  assertEquals(result[0].identity.process, "kajuit");
+  assertEquals(result[0].identity.process, "anima");
 });
 
 mounted("specs: unknown target throws", () => {

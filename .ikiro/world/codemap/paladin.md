@@ -1,5 +1,5 @@
 ---
-paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/kajuit/**", "systems/ghost/**"]
+paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/anima/**", "systems/ghost/**"]
 ---
 <!-- writer: agent · derived-from: 61 files; 22 tests · verified: heads 177 · fixtures 2 · console.* 10 · throw() sites 3 · limit: 17600 chars -->
 # codemap: paladin — the composition compiler: one singleton that resolves environment, packages and an instance declaration into masks; it runs nothing
@@ -103,7 +103,7 @@ function settle(instance) {
 ## `check` — the authored schema against what the thunks read
 
 - **`check.environment(instance)`** joins `instance.environment.properties` with `instance.requirements`, one row PER SITE; a key described but never read gets `at: null`. A `SECRET_*` row reports `"***"` or `null`, **never itself**, but is validated against its real value. `UNDOCUMENTED · REQUIRED · INVALID` fail; `ok · optional · documented` pass.
-- **`check.instance(held)`** is the whole verdict — schematic faults plus wrong env rows, faults suppressed at any slot an env row names. `.throw()` is called at exactly THREE edges: `Ledger.boot` (`prototypes/ledger/ledger.js:29`), `systems/runtime/run.js:7` and `systems/kajuit/vite.config.mjs:13` (a `.js`-only grep misses the third). `check.wrong` is the ONE list `instance/doctor` and `instance/init` read.
+- **`check.instance(held)`** is the whole verdict — schematic faults plus wrong env rows, faults suppressed at any slot an env row names. `.throw()` is called at exactly THREE edges: `Ledger.boot` (`prototypes/ledger/ledger.js:29`), `systems/runtime/run.js:7` and `systems/anima/vite.config.mjs:13` (a `.js`-only grep misses the third). `check.wrong` is the ONE list `instance/doctor` and `instance/init` read.
 
 ## Vip + Pensieve
 

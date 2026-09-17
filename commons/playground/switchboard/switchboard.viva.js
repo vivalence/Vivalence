@@ -10,7 +10,7 @@ export const manifest = {
   traits: ["APPLICATION", "STANDALONE", "EMITTER"],
 };
 
-export const app = new App("buffer/Switchboard.svelte", v.buffer({ data: {} }));
+export const application = new App("buffer/Switchboard.svelte", v.buffer({ data: {} }));
 
 // feed `card` buffers on demand (cross-mode) — the set you then switch phases over.
 export const emitter = new Vector().open(

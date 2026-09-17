@@ -1,5 +1,5 @@
 #+title: m50 the three-way weave — wafer, dossiers, masks, and processes. what a vector instantiates · the control vector · the process contract
-#+filetags: :typology:paladin:runtime:ghost:kajuit:process:entity:mask:dossier:die:control:vector:signal:schematics:v:
+#+filetags: :typology:paladin:runtime:ghost:anima:process:entity:mask:dossier:die:control:vector:signal:schematics:v:
 #+status: DESIGNED this session on beef's order (/"maybe dedicated quest is warranted. go build that. take your time."/). Supersedes m49 M2/M3 (m49 sunset to done/ with M1 landed). Nothing applied: M1 (the wording + two schematics) is typology and waits on beef's word; M2–M5 follow it.
 #+status: Number m50 is mine by sequence — beef's ledger; rename on his word.
 #+phase: wip (derived)
@@ -44,9 +44,9 @@ rule (3). A verb never signals a pid; a signal never knows a nature; a die never
 
 - =Wafer= (=typology/prototypes/wafer.js:3-27=): =mask · good · status · abort= + five verbs; subclassed by =systems/runtime/die.js= (runtime), =daemon/die.js= (daemon), =process/die.js= (SERVICE process), and — m49 M1 — paladin's =ledger/process.js= (OS child) and =ledger/die.js= (the set).
 - =Mask= (=schematics/primitives/instance.js:9-16=): ={ module, statics?, secrets? }= — /"declaration of 'turn this into an instance'"/; the instance's daemons/services are masks (=paladin/prototypes/instance.js:110-113=); =die.mask= feeds population (=daemon/lifecycle/population.js:12-16,65-66=).
-- the dossier as it lives: =kajuit/src/typology/entities/{thread,daemon}/dossier.js= — ={ name, kind: () => Class, repository, use: [...middleware] }=; =shape.selbstbestimmt(vector, strategy)= (=gestalten/shape/selbstbestimmt.js:3-17=) walks to the effect and composes the carried =use[]=.
+- the dossier as it lives: =anima/src/typology/entities/{thread,daemon}/dossier.js= — ={ name, kind: () => Class, repository, use: [...middleware] }=; =shape.selbstbestimmt(vector, strategy)= (=gestalten/shape/selbstbestimmt.js:3-17=) walks to the effect and composes the carried =use[]=.
 - the April design (=quests/done/wafer-lifecycle.quest.org:12-25,39,59=): Wafer = the vector, Die = the context in middleware, Process = the live wafer, Cast = the act; /"abort.abort() … middleware unwinds in reverse … one line to kill, deterministic teardown order for free"/.
-- prior control-vector art: =typology/schematics/readme.org:9-14= (=ProcessStateEnum= · =Command= · a =ControlVector= with =/start/:slug /stop/:slug /restart/:slug /status /health/:slug=) · =systems/kajuit/client.viva.js:14-34= (/"bad control vector, but broadly implements the spirit"/).
+- prior control-vector art: =typology/schematics/readme.org:9-14= (=ProcessStateEnum= · =Command= · a =ControlVector= with =/start/:slug /stop/:slug /restart/:slug /status /health/:slug=) · =systems/anima/client.viva.js:14-34= (/"bad control vector, but broadly implements the spirit"/).
 - the OS facts: =Deno.Command detached: true= (own pgroup, outlives the parent) · =Deno.kill(-pgid, sig)= kills a group · =Deno.serve({ path })= + =Deno.createHttpClient({ proxy: { transport: "unix", path } })= round-trip on stable 2.9.6 · SIGURG is the liveness probe (SIGCONT would resume a stopped process) · =deno task= forwards SIGTERM to its leaf.
 - the m49 M1 landing is the live baseline: =ledger.boot → Die=; ONE token-claimed lock; =Lock.read()= prunes; children run with =cwd = mount= (a cwd =.env= outranks the =os= stratum); =start= = detached supervisor ghost; proof transcript in =done/m49-…org=.
 - =v= has =v.enum(vals)= · =v.union= · =v.const= · =v.object= · =v.array= · =v.record= · =v.boolean= · =.desc()= · =.optional()= (=schematics/v.js:94-104=).
@@ -65,10 +65,10 @@ rule (3). A verb never signals a pid; a signal never knows a nature; a die never
 | signal          | =typology/prototypes/signal.js= — a request's signature with flags   | OS signals (SIGTERM …)                                               | typology keeps =Signal=. The OS enum lives at =v.prototypes.process.Signal= — residence disambiguates; prose says "OS signal" (F2) |
 | wafer           | the lifecycle base class                                              | beef: /"the wafer has to go"/                                        | GONE. Nothing inherits. =self/totems.md ## wafer= and =ontology law 4= keep the LIFECYCLE totem under the name =die= |
 | die             | =Wafer= subclass per host (runtime · daemon · service · OS child · set) | =Die= (runtime) vs paladin =Die=                                    | the ONE record of a cast: ={ declaration, good, status, abort, lock? }= + its dossier; same word everywhere per TODO2; residence tells them apart |
-| dossier         | kajuit: ={ name, kind, repository?, use[] }=                          | "dossier" = a document in beef's business drafts (not code)          | the PATTERN: a flat descriptor + =use[]= onion under =shape.selbstbestimmt=; in code =XDossier= (kajuit precedent) |
+| dossier         | anima: ={ name, kind, repository?, use[] }=                          | "dossier" = a document in beef's business drafts (not code)          | the PATTERN: a flat descriptor + =use[]= onion under =shape.selbstbestimmt=; in code =XDossier= (anima precedent) |
 | good            | =die.good= — the live product (=2025.12.20.org:24=: /"repo.good is the instantiated entities"/) | —                                          | unchanged: for an entity the row; for an OS child the =Deno.ChildProcess=; for the runtime the =Runtime=          |
 | status / state  | =Status= atom (=status.js=) · =ProcessStateEnum= sketch               | —                                                                    | =Status= stays the atom; =v.prototypes.process.State= is its enumerated schematic                                 |
-| control vector  | kajuit's =export const control= · the readme sketch                    | —                                                                    | =control(die)= — the Vector built FROM =v.prototypes.control= for the natures the die =implements=               |
+| control vector  | anima's =export const control= · the readme sketch                    | —                                                                    | =control(die)= — the Vector built FROM =v.prototypes.control= for the natures the die =implements=               |
 | supervisor      | (new, m49)                                                            | —                                                                    | the die that holds the lock: the ghost under =run=/=init=, a detached ghost under =start=, the runtime die for daemons |
 | attachment      | =inherit | piped | logged= (m49)                                        | —                                                                    | where stdio goes, never whether it is kept; part of the process contract, not of the command                     |
 
@@ -99,7 +99,7 @@ die = {
 }
 #+END_SRC
 
-** the dossier — the pattern (kajuit precedent, =entities/thread/dossier.js=)
+** the dossier — the pattern (anima precedent, =entities/thread/dossier.js=)
 
 =subsystems/paladin/prototypes/ledger/child.js= — the OS child. Stages are middleware; the effect
 holds; abort unwinds through =stop=.
@@ -234,7 +234,7 @@ export function control(die, implemented = die.implements) {
 | ghost → a detached supervisor | =instance/<nature>= resolves the lock, reaches over it | unix socket =<ledger>/locks/<slug>.sock=, address in the lock (measured stable) |
 | runtime die                   | =aperture.branch("/control").slurp(control(runtimeDie))= | HTTP (the aperture)                                        |
 | daemon die                    | =/attached/…/control=                            | HTTP                                                           |
-| kajuit =client.viva.js=       | =control(die)= over a =vite dev= child           | replaces the "bad control vector"                              |
+| anima =client.viva.js=       | =control(die)= over a =vite dev= child           | replaces the "bad control vector"                              |
 
 * strand 3 — the process contract: states, OS signals, the SIGKILL standard
 
@@ -313,7 +313,7 @@ export const Claim = v.object({
 - M2 — the dossier recast of the paladin ledger: =child.js= + =die.js= as dossiers under =shape.selbstbestimmt=; =Wafer= no longer imported by paladin; =Status.parse= (F7). Gate: =spawn.test.js= (9) + =ledger.test.js= green unchanged in substance; the m49 live proof re-run verbatim.
 - M3 — the control vector: =control(die)= from the schematic; served by the supervisor over the unix socket, address in the claim; ghost natures derived (F3 decides names); help/valence from the table; =instance/status= + =instance/logs= appear. Gate: a wet test =control.wet.test.js= — start → =instance/status= over the socket → =instance/down= → lock gone.
 - M4 — the process contract in force: children in their own process group; the signal table; the SIGKILL standard as one =stop(die)=; SIGINT under =run= exits 0. Gate: =spawn.test.js= gains "SIGINT to the supervisor stops the set once, exit 0" + "grace elapses → SIGKILL".
-- M5 — migration: runtime =Die=/=DaemonDie=/service =Die= onto dossiers; =/control= mounted on the runtime aperture and per daemon; kajuit =client.viva.js= control = =control(die)=; shell subprocesses (=paladin/skills/shell.js= =shell_run=, =belt/clone.js=, =belt/bundler.js=) cast as children with a =deadline=; =Wafer= deleted from typology. Gate: runtime + kajuit + paladin suites green; =docs= 32.01 rewritten (/"A Die is a Wafer"/ → the die + dossier).
+- M5 — migration: runtime =Die=/=DaemonDie=/service =Die= onto dossiers; =/control= mounted on the runtime aperture and per daemon; anima =client.viva.js= control = =control(die)=; shell subprocesses (=paladin/skills/shell.js= =shell_run=, =belt/clone.js=, =belt/bundler.js=) cast as children with a =deadline=; =Wafer= deleted from typology. Gate: runtime + anima + paladin suites green; =docs= 32.01 rewritten (/"A Die is a Wafer"/ → the die + dossier).
 
 * testing assessment
 
@@ -341,7 +341,7 @@ export const Claim = v.object({
 | =Claim.address= + the socket              | start, stop, status, logs                                              | M3        | add    |
 | =detached: true= on children              | run (tty), init                                                        | M4        | change |
 | =runtime/{die,daemon/die,process/die}.js= | run.js, lifecycle modules, tests (53 runtime)                          | M5        | recast |
-| =kajuit/client.viva.js control=           | the manifest's consumers (none live)                                   | M5        | recast |
+| =anima/client.viva.js control=           | the manifest's consumers (none live)                                   | M5        | recast |
 | =typology/prototypes/wafer.js=            | index.client.js, index.ts, docs 32.01, totems, ontology law 4          | M5        | remove |
 
 * deferred
@@ -364,7 +364,7 @@ export const Claim = v.object({
 
 * changelog
 
-- deep pass (beef: /"investigate … m50-the-three-way-weave.org"/ · /"thorough deep pass"/) — every terrain claim held on disk; =spawn.test.js= 9 + =ledger.test.js= 6 = 15 passed / 26 steps (M2 baseline); MEASURED =detached: true= + =stdout: "piped"= → own pgid AND the =Status:ALIVE= line (deno 2.9.6) — M4 rules 3 + 5 coexist; the header =60% 3/5 wip blast= is =quest-report.py= booking m49's =M1/M2/M3= from the status clause — reword gated (compact carries the diff); four sketch defects gated with M1: =State= must be UPPERCASE (=Status.set= uppercases) · =vector(ChildDossier)= has no builder (precedent inline =kajuit …/dataspace.js:22-33=; fork F9 typology =shape= vs paladin-local) · dossiers carry =boot=+=affect=, no =effect:= key · =Contract[n]= needs =valence= or P-control-one-table fails in the sketch; m52 LANDED + sunset — =Ledger.boot:29= =check.instance(…).throw()= is canon, M2 keeps it as stage one; stale refs corrected (Mask :9-16 · paladin instance :110-113 · vite :101). Compact =the-deep-pass-on-m50-…=.
+- deep pass (beef: /"investigate … m50-the-three-way-weave.org"/ · /"thorough deep pass"/) — every terrain claim held on disk; =spawn.test.js= 9 + =ledger.test.js= 6 = 15 passed / 26 steps (M2 baseline); MEASURED =detached: true= + =stdout: "piped"= → own pgid AND the =Status:ALIVE= line (deno 2.9.6) — M4 rules 3 + 5 coexist; the header =60% 3/5 wip blast= is =quest-report.py= booking m49's =M1/M2/M3= from the status clause — reword gated (compact carries the diff); four sketch defects gated with M1: =State= must be UPPERCASE (=Status.set= uppercases) · =vector(ChildDossier)= has no builder (precedent inline =anima …/dataspace.js:22-33=; fork F9 typology =shape= vs paladin-local) · dossiers carry =boot=+=affect=, no =effect:= key · =Contract[n]= needs =valence= or P-control-one-table fails in the sketch; m52 LANDED + sunset — =Ledger.boot:29= =check.instance(…).throw()= is canon, M2 keeps it as stage one; stale refs corrected (Mask :9-16 · paladin instance :110-113 · vite :101). Compact =the-deep-pass-on-m50-…=.
 - this session — DESIGNED on beef's order after the wafer verdict (found in =~/vivalence/private/logs/2026.05.25.org=): the three strands, the wording settlement (14 nouns, two collisions named — =Signature=, =Signal=), the two schematics sketched against the live =v= API (=enum/union/const/object/array/record/boolean=), the control vector's semantics + mounting + transport (measured), the process contract's signal table + SIGKILL standard, the weave table, five milestones with gates, eight forks. m49 M2/M3 lifted here; m49 sunset to done/. Nothing applied.
 
 * release

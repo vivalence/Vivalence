@@ -1,11 +1,11 @@
 #+title: m55 recursive terminals — a buffer renders a buffer: the thread is the daemon's, the terminal is the client's function of it
-#+filetags: :m55:kajuit:drapes:typology:runtime:terminal:thread:frame:buffer:view:sub-thread:control:vcompany:
-#+status: M1 thread lineage LANDED on /"go."/ under the blast bracket — =Thread.parent= m:1 cascade + =Thread.children= 1:m (the Turn shape) · =Buffer.thread= FK gains update/delete cascade · typology =thread.js= =parent=/=children=. Suites identical before/after (typology 123/1 · runtime 53/1, both reds pre-existing). The =parent= column reaches every live db at its next boot (the libsql datamap mints the migration). M2 (the kajuit terminal) and M3 (the nested App) DESIGNED, gated on go.
+#+filetags: :m55:anima:drapes:typology:runtime:terminal:thread:frame:buffer:view:sub-thread:control:vcompany:
+#+status: M1 thread lineage LANDED on /"go."/ under the blast bracket — =Thread.parent= m:1 cascade + =Thread.children= 1:m (the Turn shape) · =Buffer.thread= FK gains update/delete cascade · typology =thread.js= =parent=/=children=. Suites identical before/after (typology 123/1 · runtime 53/1, both reds pre-existing). The =parent= column reaches every live db at its next boot (the libsql datamap mints the migration). M2 (the anima terminal) and M3 (the nested App) DESIGNED, gated on go.
 #+status: The rulings, in order: the child is a THREAD (a sub-thread) · mikro first · NO terminal entity on the daemon — /"thread is daemon. terminal is client!! thats the surface. no overlap."/ · control-vector verbiage on the terminal · =down= never deletes the thread · =up= takes an existing thread. Struck along the way: =buffer.parent=, the shard =verbs= contract, a runtime =TerminalEntity=, m50's =control(die)= as the mechanism (names kept).
 #+status: Number m55 is beef's. =done/m45-abandoned-coherence.org= carries a stray "m55" in its title — file is m45, unrelated.
 #+phase: wip
 #+progress: 1/3
-#+next: go m2 — the kajuit terminal: up · down · status · stop · run · watch, the tree, the schematic, panel F
+#+next: go m2 — the anima terminal: up · down · status · stop · run · watch, the tree, the schematic, panel F
 
 * intent
 
@@ -24,7 +24,7 @@ knows terminals as the function that mirrors and controls a thread, and nothing 
 * terrain — measured this session
 
 ** the terminal is thinner than stated
-=systems/kajuit/src/typology/entities/terminal.js=: three atoms =$thread= · =$buffer= · =$dock=, =daemon=
+=systems/anima/src/typology/entities/terminal.js=: three atoms =$thread= · =$buffer= · =$dock=, =daemon=
 derived from the thread, a stall rebuilt per thread. No mode, no literals, no symbols on it — those
 ride the buffer (=subsystems/typology/schematics/entities/buffer.js=). The stall + vigils hang off
 =$thread=. =terminal.js:11= carries beef's own trace: =// const $view = atom(null;) //@beef!=.
@@ -35,7 +35,7 @@ ride the buffer (=subsystems/typology/schematics/entities/buffer.js=). The stall
 const buffer = $derived(terminal.$buffer);
 component = module.default(target, { terminal, daemon: next.mode.daemon, mode: next.mode, thread: next.thread, buffer: next });
 #+end_src
-Frame has exactly ONE consumer, =systems/kajuit/src/app/panels/a/a.svelte=, which computes the view law
+Frame has exactly ONE consumer, =systems/anima/src/app/panels/a/a.svelte=, which computes the view law
 (=buffer.view.withUrl(mode.app.url) ?? mode.app.view=, =:22-28=) and hands Frame a =view= prop.
 
 ** recursion already compiles
@@ -89,7 +89,7 @@ the stall pulling to =depth()=, turns the log. The pull is CLIENT-driven (=Threa
 - *proposed, NOT ruled* (his /"point or flat?"/ · /"standardize the schematics of terminal … time now
   maybe?!"/): point props ={ terminal, buffer }= — the GENERATIVE valence already promises exactly that
   pair (=runtime/daemon/traits/generative.js:41=) while Frame hands five; the terminal schematic
-  kajuit-local. Both in =* forks=.
+  anima-local. Both in =* forks=.
 
 * milestones
 
@@ -115,9 +115,9 @@ Proof: blast set = typology =v.test.js:174,239-240= · =turn.js= · =user.js= ·
 =Trace.ts= — none reference the new fields, no snapshot pins the schema. Suites before = after:
 =typology 123 passed (493 steps) | 1 failed (2 steps)= (hallucination snapshot) · =runtime 53 passed (334 steps) | 1 failed (1 step)= (registry ingest). Probe: =parent= as id or ={id}= true, =parent: 42= false, =children= rows true / ids false (=buffers='s convention). The self-reference is safe: =entityFactory='s =resolving= guard (=schematics/v.js:52-58=). Migration: =commons/datamaps/libsql/libsql.viva.js:34-37= mints + applies it at boot.
 
-** M2 — the terminal is a function of the thread (kajuit only) — DESIGNED, gated on go
+** M2 — the terminal is a function of the thread (anima only) — DESIGNED, gated on go
 
-*** systems/kajuit/src/typology/entities/terminal.js — mirror + control
+*** systems/anima/src/typology/entities/terminal.js — mirror + control
 
 #+begin_src javascript
 import { atom } from "nanostores";
@@ -189,7 +189,7 @@ The verbs, one meaning each:
 | =watch=  | sub-threads minted elsewhere (a tool's child thread, m26) surface as child terminals              | =subscribe({ parent })=               |
 Thread deletion stays =daemon.entities.thread.removeOne({ id })= — the daemon cascades sub-threads · buffers · turns; the thread vigil then clears every terminal that pointed at them.
 
-*** systems/kajuit/src/typology/stores/terminals.js — the set is a tree
+*** systems/anima/src/typology/stores/terminals.js — the set is a tree
 #+begin_src diff
 -  create() {
 -    const terminal = Terminal({ id: random.id() });
@@ -212,7 +212,7 @@ Thread deletion stays =daemon.entities.thread.removeOne({ id })= — the daemon 
 Crown tabs = =roots=; =$active= stays bridge-local; the order of =$entities= is parents-first at hydrate
 (=app/terminals.js= resolves =parent= by id in a first pass, threads/buffers in the settle pass as today).
 
-*** systems/kajuit/src/typology/schematics/terminal.js — new (kajuit's first schematic; home is fork F2)
+*** systems/anima/src/typology/schematics/terminal.js — new (anima's first schematic; home is fork F2)
 #+begin_src javascript
 import { v } from "@vivalence/typology";
 export const Dock = v.object({ side: v.enum(["left", "right", "top", "bottom"]), share: v.number({ minimum: 0, maximum: 1 }), collapsed: v.boolean(), full: v.boolean().optional() });
@@ -228,10 +228,10 @@ export const TerminalRecord = v.object({
 
 *** the rest of M2
 - =subsystems/drapes/panels/Frame.svelte= reads =terminal.$view=; the =view= prop is REMOVED; the "buffer has no view" standing moves in from =a.svelte= (verb + trace, Frame's own chrome).
-- =systems/kajuit/src/app/panels/a/a.svelte= drops =app= · =modeStatus= · =view= + the =.await= block.
-- =systems/kajuit/src/typology/entities/thread/thread.js= gains =parent = null= (the Turn class precedent, =entities/turn.js:10=).
+- =systems/anima/src/app/panels/a/a.svelte= drops =app= · =modeStatus= · =view= + the =.await= block.
+- =systems/anima/src/typology/entities/thread/thread.js= gains =parent = null= (the Turn class precedent, =entities/turn.js:10=).
 - panel F (=panels/f/f.svelte=): the tree from =terminals.$entities= by =parent=; per row =up= · =down= · =stop= · =run=; =status= inline.
-- tests: =systems/kajuit/tests/terminal.stall.test.js= gains =up=/=down=/=children=/=status= over thread doubles (a =terminals= double with =create/remove=); =tests/terminal.record.test.js= new: =TerminalRecord.check= on =toJSON= output + a bad record refused; =subsystems/typology/tests/v.test.js:239= neighbourhood: =v.thread().check({ …, parent: "p" })= true, =parent: 42= false.
+- tests: =systems/anima/tests/terminal.stall.test.js= gains =up=/=down=/=children=/=status= over thread doubles (a =terminals= double with =create/remove=); =tests/terminal.record.test.js= new: =TerminalRecord.check= on =toJSON= output + a bad record refused; =subsystems/typology/tests/v.test.js:239= neighbourhood: =v.thread().check({ …, parent: "p" })= true, =parent: 42= false.
 
 ** M3 — the nested App (the host is m53's Desk) — DESIGNED, after M2
 
@@ -256,7 +256,7 @@ Frame is unchanged by M3.
 * testing assessment
 
 ** in place
-- =systems/kajuit/tests/terminal.stall.test.js= — =Terminal()= + stall over thread doubles. *GAP: no test on the set (=Terminals=), none on =toJSON=/hydrate.*
+- =systems/anima/tests/terminal.stall.test.js= — =Terminal()= + stall over thread doubles. *GAP: no test on the set (=Terminals=), none on =toJSON=/hydrate.*
 - =subsystems/drapes/tests/parts.test.js= — compile gates. *GAP: =Frame.svelte= is compiled by no suite; the view law has no test.*
 - =subsystems/typology/tests/v.test.js:239-240= — =v.thread()= check. *GAP (M1): =parent= unpinned; the probe stands in.*
 - =systems/runtime/tests/thread.test.js= · =datamap.scoped.test.js= · =view.spawn.test.js= — thread rows through the ORM. *GAP: no cascade test (delete a parent → sub-threads · buffers gone).*
@@ -272,7 +272,7 @@ Frame is unchanged by M3.
 | milestone | gate                                                                                                  |
 |-----------+-------------------------------------------------------------------------------------------------------|
 | M1        | typology + runtime suites at baseline — PASTED above · probe PASTED · (owed) the two pinned tests      |
-| M2        | kajuit suite at baseline (34/115 last measured) + the three adds · drapes suite + =frame.test.js= · 2 grep gates · live: vdex tab unchanged, viewless chrome, panel F tree |
+| M2        | anima suite at baseline (34/115 last measured) + the three adds · drapes suite + =frame.test.js= · 2 grep gates · live: vdex tab unchanged, viewless chrome, panel F tree |
 | M3        | live nested open in the Desk; crown tab unchanged; =find({ parent })= = 1                             |
 
 * QA
@@ -296,7 +296,7 @@ Frame is unchanged by M3.
 #+marker_qa: m55/T-down-keeps-thread · pending · live: `down` on a child terminal leaves `entities/thread/find {id}` intact
 #+marker_qa: m55/T-up-adopts · pending · live: `up({thread})` points a new child at an existing thread; `entities/thread/count` unchanged
 #+marker_qa: m55/T-nested-open · pending · live (M3): the Desk's reader mounts the document; crown tab unchanged; `find({parent: desk.thread})` = 1
-#+marker_qa: m55/P-one-view-law · pending · `grep -rn "withUrl(" systems/kajuit/src/app/` → 0; the fold lives in `entities/terminal.js` only
+#+marker_qa: m55/P-one-view-law · pending · `grep -rn "withUrl(" systems/anima/src/app/` → 0; the fold lives in `entities/terminal.js` only
 #+marker_qa: m55/P-frame-consumers · pending · `grep -rln "<Frame" systems/ subsystems/ commons/ ~/.viva/registry/` → `a.svelte` + nesting Apps, each passing `terminal` only
 
 * blast radius
@@ -306,14 +306,14 @@ Frame is unchanged by M3.
 | =systems/runtime/daemon/entities/userspace/Thread.ts=         | =parent= m:1 cascade · =children= 1:m                    | M1 LANDED | edit         |
 | =systems/runtime/daemon/entities/userspace/Buffer.ts=         | =thread= FK update/delete cascade                        | M1 LANDED | edit         |
 | =subsystems/typology/schematics/entities/thread.js=           | =parent= · =children= relations                          | M1 LANDED | HOLY, go'd   |
-| =systems/kajuit/src/typology/entities/terminal.js=            | =parent= · =children= · =$view= · up down status stop run watch | M2   | edit         |
-| =systems/kajuit/src/typology/stores/terminals.js=             | =create({parent, dock})= · =roots= · =remove= descendants | M2       | edit         |
-| =systems/kajuit/src/typology/schematics/terminal.js=          | =TerminalRecord=                                         | M2        | new          |
-| =systems/kajuit/src/app/terminals.js=                         | persist =parent= · parents-first hydrate · =check()=     | M2        | edit         |
-| =systems/kajuit/src/typology/entities/thread/thread.js=       | =parent = null=                                          | M2        | edit         |
+| =systems/anima/src/typology/entities/terminal.js=            | =parent= · =children= · =$view= · up down status stop run watch | M2   | edit         |
+| =systems/anima/src/typology/stores/terminals.js=             | =create({parent, dock})= · =roots= · =remove= descendants | M2       | edit         |
+| =systems/anima/src/typology/schematics/terminal.js=          | =TerminalRecord=                                         | M2        | new          |
+| =systems/anima/src/app/terminals.js=                         | persist =parent= · parents-first hydrate · =check()=     | M2        | edit         |
+| =systems/anima/src/typology/entities/thread/thread.js=       | =parent = null=                                          | M2        | edit         |
 | =subsystems/drapes/panels/Frame.svelte=                       | reads =terminal.$view= · =view= prop gone · viewless standing | M2   | edit, 1 consumer |
-| =systems/kajuit/src/app/panels/a/a.svelte=                    | drop the view derivation + =.await= block                | M2        | edit         |
-| =systems/kajuit/src/app/panels/f/f.svelte=                    | the tree + the verbs                                     | M2        | edit         |
+| =systems/anima/src/app/panels/a/a.svelte=                    | drop the view derivation + =.await= block                | M2        | edit         |
+| =systems/anima/src/app/panels/f/f.svelte=                    | the tree + the verbs                                     | M2        | edit         |
 | tests: =terminal.stall= · =terminal.record= (new) · =frame= (new) · =v.test= · =thread.test= | gates                       | M1 owed · M2 | new/edit  |
 | m53 =* screens= Desk.svelte                                   | =terminal.up= + =<Frame terminal={reader}>=              | M3        | m53's hunk   |
 
@@ -334,7 +334,7 @@ Frame is unchanged by M3.
 * forks (beef's)
 
 - F1 *point or flat* — App props ={ terminal, buffer }= (the GENERATIVE valence's pair; =daemon= · =mode= · =thread= one dot off the buffer) vs the five Frame hands today. Radius: 10 App files on repo + instance + vcompany, Frame, the valence.
-- F2 *schematic home* — =systems/kajuit/src/typology/schematics/terminal.js= (client-only, his /"thread is daemon. terminal is client"/) vs =subsystems/typology/schematics/= (the vocabulary, reachable by bundles through =mod.client.js=).
+- F2 *schematic home* — =systems/anima/src/typology/schematics/terminal.js= (client-only, his /"thread is daemon. terminal is client"/) vs =subsystems/typology/schematics/= (the vocabulary, reachable by bundles through =mod.client.js=).
 - F3 *auto-merge on =.call=* — =entities/mode/mode.js:55= (=// @beef: choice pending=) would delete the explicit =merge= from every nesting App.
 - F4 *=run= ↔ =escort=* — =run({ escort })= as sketched, or =escort= its own verb.
 
@@ -342,7 +342,7 @@ Frame is unchanged by M3.
 
 - added `Thread.parent` · `Thread.children` — a thread may be a sub-thread of another; deleting a thread now cascades to its sub-threads, buffers and turns (`Buffer.thread` gained the cascade; `Turn.thread` already had it) · migrate: none — the libsql datamap mints the migration at boot ⟨m55⟩
 - (M2, when landed) changed `drapes Frame` — reads the terminal's `$view`; the `view` prop is gone · migrate: pass `terminal` only ⟨m55⟩
-- (M2, when landed) added kajuit `terminal.up · down · status · stop · run · watch` + `terminal.parent` / `children` — terminals form a tree mirroring thread lineage · migrate: none ⟨m55⟩
+- (M2, when landed) added anima `terminal.up · down · status · stop · run · watch` + `terminal.parent` / `children` — terminals form a tree mirroring thread lineage · migrate: none ⟨m55⟩
 
 * changelog
 

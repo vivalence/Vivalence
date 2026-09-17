@@ -142,14 +142,14 @@ describe("check.environment", () => {
   it("one key read from several places yields one row per site — that IS the per-consumer set", () => {
     const list = mk({ PUBLIC_VIVA_LH: "http://x" }).check.environment({
       requirements: [
-        read("clients.kajuit.lighthouse.remote", "PUBLIC_VIVA_LH"),
+        read("clients.anima.lighthouse.remote", "PUBLIC_VIVA_LH"),
         read("daemon[education].lighthouse.remote", "PUBLIC_VIVA_LH"),
       ],
       environment: v.environment({ PUBLIC_VIVA_LH: v.url().desc("lh") }),
     });
     expect(list.length).toBe(2);
     expect(list.map((row) => row.at)).toEqual([
-      "clients.kajuit.lighthouse.remote",
+      "clients.anima.lighthouse.remote",
       "daemon[education].lighthouse.remote",
     ]);
     expect(list.every((row) => row.verdict === "ok")).toBe(true);

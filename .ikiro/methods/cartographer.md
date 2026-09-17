@@ -59,7 +59,7 @@ Third ruling: *"I want a logging trace and I want that in terms of spans and tra
 | `world/codemap/paladin.md` | `subsystems/paladin/**` | 16000 | strata `Env` · `assign/split` · `hydrate` pinhole · `settle` · Vip/Pensieve · skills | a hydrated `instance.requirements` row · a `Mask` · a pensieve key path |
 | `world/ledger.md` | `~/.viva/**` + `subsystems/paladin/prototypes/ledger/**` + `systems/ghost/trajectories/{ledger,instance,registry}/**` | 18000 | record read · lock lifecycle · `ledger.boot → Die` · the verbs' write paths | `instances.json` · `registry.json` · a `sessions/<pid>.json` · a lock file · `instance/doctor --json` (secrets elided) |
 | `world/codemap/ghost.md` | `systems/ghost/**` | 12000 | `ShellSignal` argv dispatch · lens/pick · path law · rendering middleware | a parsed ShellSignal · a lens row · `--json` doctor output |
-| `world/codemap/kajuit.md` | `systems/kajuit/**` `subsystems/dapper/**` `subsystems/drapes/**` | 16000 | decks · terminal = f(thread) · stall/engage · dossier subscriptions · pincer geometry · dapper token pipeline | a client Buffer entity · `$dock` · a dapper token triple · a Frame mount identity |
+| `world/codemap/anima.md` | `systems/anima/**` `subsystems/dapper/**` `subsystems/drapes/**` | 16000 | decks · terminal = f(thread) · stall/engage · dossier subscriptions · pincer geometry · dapper token pipeline | a client Buffer entity · `$dock` · a dapper token triple · a Frame mount identity |
 | `world/codemap/invariants.md` | cross-container (`subsystems/** systems/** commons/**`) | 8000 | none proper — every bullet is a LAW with its grep; code share may sit below 20 % and say so | the MikroORM `config()` · a bundle-spread measurement |
 | `world/codemap/testament.md` | `testament/**` | 3000 | what the dev tree holds and what reads it | one fixture file |
 | `world/map.md` | repo root: containers · `deno.jsonc` tasks · `documentation/content/` tree · run surfaces | 8000 | the L2 tree only; every deeper claim is a pointer to a shard | the `deno.jsonc` tasks block · the docs tree listing |
@@ -74,7 +74,7 @@ Third ruling: *"I want a logging trace and I want that in terms of spans and tra
 | paladin | 6692 → 15998 / 16000 | 22 % | 9 % | 2 | 1 |
 | ledger | 8873 → 17992 / 18000 | 21 % | 11 % | 5 | 1 |
 | ghost | 5331 → 11994 / 12000 | 24 % | 10 % | 4 | 2 |
-| kajuit | 10004 → 16000 / 16000 | 27 % | 10 % | 11 | 2 |
+| anima | 10004 → 16000 / 16000 | 27 % | 10 % | 11 | 2 |
 | commons (V1→V3) | 8440 → 17994 / 18000 | 23 % | 8 % | 11 | 2 |
 | invariants | 6088 → 7977 / 8000 | 19 % | 7 % | 3 | 2 |
 | map | 3807 → 7998 / 8000 | 22 % | 11 % | 5 | 1 |
@@ -122,7 +122,7 @@ You are NOT rewriting the shard. You append ONE section and touch nothing above 
 | runtime | 22000 / 22000 | 12 % | 25 % | 8 % | 823 (old `## testing ladder` folded) | 2 green |
 | commons | 19800 / 19800 | 12 % | 22 % | 8 % | 1 bullet | 2 green |
 | paladin | 17600 / 17600 | 10 % | 21 % | 8 % | 181 | 2 green |
-| kajuit | 17599 / 17600 | 14 % | 22 % | 8 % | 826 (`chain()` block + identity snapshot) | 2 green |
+| anima | 17599 / 17600 | 14 % | 22 % | 8 % | 826 (`chain()` block + identity snapshot) | 2 green |
 | ghost | 13197 / 13200 | 15 % | 23 % | 6 % | 806 (ShellSignal snapshot + old `## tests`) | 2 green |
 | invariants | 8790 / 8800 | 23 % | 17 % | 6 % | 4 bullets | 2 green |
 | testament | 3300 / 3300 | 17 % | 19 % | 9 % | 1 bullet | 1 green |

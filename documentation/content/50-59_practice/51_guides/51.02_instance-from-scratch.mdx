@@ -168,9 +168,9 @@ const flashcard = {
     description:
       "m39 demo — a whole flashcard app declared in the instance file: dataset-seeded literals and symbols, review memory in a dedicated Retention entity, a coach that loads the deck and records reviews.",
     version: "0.0.1",
-    traits: ["APPLICATION", "STANDALONE", "DATASET", "TOOLED", "HARNESSED", "EXPOSED"],
+    traits: ["APPLICATION", "STANDALONE", "DATASET", "TOOLING", "HARNESSED", "EXPOSED"],
   },
-  app: new App(
+  application: new App(
     svelte`
       <script>
         let { buffer } = $props();
@@ -244,7 +244,7 @@ The `traits` array is the mode's contract with the daemon — each name wakes on
 - `APPLICATION` — the mode has a face; the daemon bundles it, the runtime serves it.
 - `STANDALONE` — the face can open without an emitter behind it.
 - `DATASET` — the mode seeds data on first boot.
-- `TOOLED` — the mode arms tools (the deck).
+- `TOOLING` — the mode arms tools (the deck).
 - `HARNESSED` — the mode has a dialogue harness; an LLM can drive it.
 - `EXPOSED` — the mode's aperture is compiled into `mode.call`.
 
@@ -355,8 +355,8 @@ export const lighthouse = {
 
 export const clients = [
   {
-    manifest: { type: "client", slug: "kajuit" },
-    statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
+    manifest: { type: "client", slug: "anima" },
+    statics: { serve: () => paladin.env.get("VIVA_CLIENT_ANIMA_SERVE") },
   },
 ];
 ```
@@ -370,10 +370,10 @@ The declaration reads its environment; two files supply it, side by side at the 
 ```js title="instance.viva.js — the environment schema, beside the manifest"
 export const environment = v.environment({
   VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
-  VIVA_CLIENT_KAJUIT_ORIGIN: v.url().desc("Scheme and authority the kajuit browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+  VIVA_CLIENT_ANIMA_ORIGIN: v.url().desc("Scheme and authority the anima browser client is reachable at.").default("http://localhost:1794").group("addresses"),
   VIVA_RUNTIME_SERVE: v.url().desc("Base URL the runtime serves on. Everything else hangs off this latch.").default("${VIVA_RUNTIME_ORIGIN}/").group("addresses"),
   VIVA_LIGHTHOUSE_SERVE: v.url().desc("Where the hosted lighthouse attaches inside the runtime's own path tree.").default("${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer").group("addresses"),
-  VIVA_CLIENT_KAJUIT_SERVE: v.url().desc("Where the kajuit browser client serves.").default("${VIVA_CLIENT_KAJUIT_ORIGIN}/").group("addresses"),
+  VIVA_CLIENT_ANIMA_SERVE: v.url().desc("Where the anima browser client serves.").default("${VIVA_CLIENT_ANIMA_ORIGIN}/").group("addresses"),
   PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
   PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
   SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24").default(() => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24))))).group("keys"),
@@ -404,7 +404,7 @@ schema carried survive in your `.env`.
 viva instance/create @commons/instance/standalone     # → <ledger>/instances/standalone
 viva instances/use standalone                        # select it for this shell
 viva instance/init                                  # prompts for what the schema says is owed
-viva instance/run                                   # raises the runtime and the kajuit client
+viva instance/run                                   # raises the runtime and the anima client
 ```
 
 `create` with no target shelves the instance under `<ledger>/instances/<slug>`; pass a path as a second

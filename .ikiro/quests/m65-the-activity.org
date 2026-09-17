@@ -1,9 +1,9 @@
 #+title: m65 the activity — the hallucination is a schematic that requires a controller; the controller is carried by a transient entity; its stdin is stripwired; the client subscribes and commands
-#+filetags: :m65:typology:runtime:kajuit:activity:transient:controller:hallucination:schematic:cortex:m63:m64:stripwire:tangle:
-#+status: LANDED — typology · runtime · kajuit · tests green (typology 127/0 · runtime 56/1, the one red is the env-only `registry ingest` · kajuit 32/0 incl. the two-process activity test · commons hello-world rig red BEFORE m65 at #157's `claiming`/`flatmodes`). Ruled mid-implementation by beef: branch BY FACULTY (`verbatim` · `dialogue`, never `format`); hal.verbatim owns the root because a parent settling aborts its children and the trailing polish died under option a. Also landed outside the hunks: `Turn.meta` admits null (persisted turns carry it); the belt closes `abort` when its controller is aborted; `stdin` leaves answer with the reflection; `ActivityEntity.toJSON` collapses to-ones to ids; the served route is `/userspace/entities/activity/:id/stdin/<SIGNAL>`.
+#+filetags: :m65:typology:runtime:anima:activity:transient:controller:hallucination:schematic:cortex:m63:m64:stripwire:tangle:
+#+status: LANDED — typology · runtime · anima · tests green (typology 127/0 · runtime 56/1, the one red is the env-only `registry ingest` · anima 32/0 incl. the two-process activity test · commons hello-world rig red BEFORE m65 at #157's `claiming`/`flatmodes`). Ruled mid-implementation by beef: branch BY FACULTY (`verbatim` · `dialogue`, never `format`); hal.verbatim owns the root because a parent settling aborts its children and the trailing polish died under option a. Also landed outside the hunks: `Turn.meta` admits null (persisted turns carry it); the belt closes `abort` when its controller is aborted; `stdin` leaves answer with the reflection; `ActivityEntity.toJSON` collapses to-ones to ids; the served route is `/userspace/entities/activity/:id/stdin/<SIGNAL>`.
 #+phase: landed
 #+progress: 5/5
-#+next: beef — FOLLOWUP: tools nesting a harness call hand `ctx.controller?.branch(<faculty>)` (research.js runs under a dispatch; dealer · oracle · registry named by beef) · FOLLOWUP: the polish sites renamed BY FACULTY (Verbatim.Polish · hal.verbatim({ polish }) · vocal.polish · POLISH) · then the kajuit capability (a panel over `daemon.entities.activity` + `row.stdin`) · rule the m63 overlap. Diff back into the quest: the =DRIFT:= marks under each section (measured on disk; compact #160 `* landed vs designed` is partly stale).
+#+next: beef — FOLLOWUP: tools nesting a harness call hand `ctx.controller?.branch(<faculty>)` (research.js runs under a dispatch; dealer · oracle · registry named by beef) · FOLLOWUP: the polish sites renamed BY FACULTY (Verbatim.Polish · hal.verbatim({ polish }) · vocal.polish · POLISH) · then the anima capability (a panel over `daemon.entities.activity` + `row.stdin`) · rule the m63 overlap. Diff back into the quest: the =DRIFT:= marks under each section (measured on disk; compact #160 `* landed vs designed` is partly stale).
 
 * the tree
 
@@ -34,7 +34,7 @@ systems/runtime/daemon/
   aperture/userspace.js
   traits/harnessed.js
   die.js
-systems/kajuit/src/typology/entities/
+systems/anima/src/typology/entities/
   activity.js
   index.js
   daemon/dossier.js
@@ -46,7 +46,7 @@ systems/runtime/tests/
   scenarios/activity.js
   activity.integration.test.js
   interactive/activity/daemon.js
-systems/kajuit/tests/interactive/
+systems/anima/tests/interactive/
   activity.test.js
   activity/client.js
   activity/sheet.state.js
@@ -112,23 +112,23 @@ collate =sets.transient=; mint the ONE =ActivityRepository= on =good.entities.ac
 =die.js=
 =disintegrate= drops every live activity before the datamap goes. HUNK.
 
-=activity.js= (kajuit)
+=activity.js= (anima)
 the remote kind + =ActivityDossier=; =stdin= is =daemon.call= at the row's id. NEW.
 
-=entities/index.js= (kajuit)
+=entities/index.js= (anima)
 export the kind and the dossier. HUNK.
 
-=daemon/dossier.js= (kajuit)
+=daemon/dossier.js= (anima)
 register the dossier; =subscribe()= at mount. HUNK.
 
 =scenarios/activity.js=
 the test-only MACHINE copy, =fold= and =ActivityEntity= die; the scenario mounts the real kind under =HARNESSED= on a metronome faculty. REWRITE — =* testing=.
 
-=controller.test.js= · =cortex.test.js= · =metronome.js= · =activity.integration.test.js= · kajuit =activity.test.js= · =client.js= · =sheet.state.js=
+=controller.test.js= · =cortex.test.js= · =metronome.js= · =activity.integration.test.js= · anima =activity.test.js= · =client.js= · =sheet.state.js=
 =* testing=. Four deep tests, one clock.
 
 DRIFT:
-- *touched, not in the tree* — =subsystems/typology/prototypes/index.client.js= · =subsystems/typology/prototypes/errors/index.js= (both in =** barrels + is=) · =subsystems/typology/gestalten/shard/index.client.js= · =commons/hallucinators/{anthropic,openrouter}/provider/index.js= · the blast callers =commons/playground/chaosmonkey/reader/emitter.js= · =commons/playground/chaosmonkey/oracle/buffer/Oracle.svelte= · =commons/instances/hello-world/tools/web.js= · =~/.viva/registry/education/modes/games/riddler/{aperture,emitter}.js= · =~/.viva/registry/education/modes/games/dojo/{emitter/generate,aperture/index}.js= · =~/.viva/registry/education/modes/tactics/harvest/sources/tts.js=; the scaffolds =commons/fixtures/data/{tiers,seed}.js= · =systems/runtime/tests/scenarios/bench.js= · =commons/instances/hello-world/tests/rig.js= · =subsystems/typology/tests/scenarios/index.js=; kajuit =systems/kajuit/tests/interactive/activity/{panel,sheet}.jsx= · =systems/kajuit/tests/interactive/sheet.state.test.js=; the migrated tests =subsystems/typology/tests/{hallucination,hallucination.snapshot,gestalten/hallucinate,dictation.conversation}.test.js= · =systems/runtime/tests/{harness.thread,cortex.stripwire,cortex-contract.snapshot,hallucination-triad.doc,virtual}.test.js=. (#160)
+- *touched, not in the tree* — =subsystems/typology/prototypes/index.client.js= · =subsystems/typology/prototypes/errors/index.js= (both in =** barrels + is=) · =subsystems/typology/gestalten/shard/index.client.js= · =commons/hallucinators/{anthropic,openrouter}/provider/index.js= · the blast callers =commons/playground/chaosmonkey/reader/emitter.js= · =commons/playground/chaosmonkey/oracle/buffer/Oracle.svelte= · =commons/instances/hello-world/tools/web.js= · =~/.viva/registry/education/modes/games/riddler/{aperture,emitter}.js= · =~/.viva/registry/education/modes/games/dojo/{emitter/generate,aperture/index}.js= · =~/.viva/registry/education/modes/tactics/harvest/sources/tts.js=; the scaffolds =commons/fixtures/data/{tiers,seed}.js= · =systems/runtime/tests/scenarios/bench.js= · =commons/instances/hello-world/tests/rig.js= · =subsystems/typology/tests/scenarios/index.js=; anima =systems/anima/tests/interactive/activity/{panel,sheet}.jsx= · =systems/anima/tests/interactive/sheet.state.test.js=; the migrated tests =subsystems/typology/tests/{hallucination,hallucination.snapshot,gestalten/hallucinate,dictation.conversation}.test.js= · =systems/runtime/tests/{harness.thread,cortex.stripwire,cortex-contract.snapshot,hallucination-triad.doc,virtual}.test.js=. (#160)
 - *=prototypes/hallucination.js= note* — "inlined in the Cortex constructor": the ASSEMBLY is (=subsystems/typology/prototypes/cortex.js:39-57=); the compile step is the module-level =compile(hallucinator)= (=:88-104=).
 - *=prototypes/cortex.js= note* — "=get hallucinate= routes, validates, fills, builds the =Context=": no getter; =hallucinate= is a field compiled once, fill → faults → gate → ctx per call (=** prototypes/cortex.js=).
 - *=belt/hallucinate.js= note* — =proceed()= at round start · per packet · after the pump, and =dispatch= races the child's abort (=** belt/hallucinate.js=).
@@ -695,7 +695,7 @@ Served =create= lands a row with no =#controller= (=get stdin= throws); served =
 
 DRIFT:
 - *=prototypes/index.client.js=* — also drops =export * from "./hallucination.js";= (=subsystems/typology/prototypes/index.client.js:33= holds the new line); the hunk shows only the =+=.
-- *=gestalten/shard/index.client.js=* — not in the quest: =export * as hallucinate from "./hallucinate.js";= (=subsystems/typology/gestalten/shard/index.client.js:11=). The constructor now builds from =shard.hallucinate.*=, and kajuit constructs a =Cortex= on the client (=systems/kajuit/src/typology/entities/daemon/dossier.js:127=): the mount faulted =(intermediate value).hallucinate is undefined=. Not verified in the browser. (#160 after landing)
+- *=gestalten/shard/index.client.js=* — not in the quest: =export * as hallucinate from "./hallucinate.js";= (=subsystems/typology/gestalten/shard/index.client.js:11=). The constructor now builds from =shard.hallucinate.*=, and anima constructs a =Cortex= on the client (=systems/anima/src/typology/entities/daemon/dossier.js:127=): the mount faulted =(intermediate value).hallucinate is undefined=. Not verified in the browser. (#160 after landing)
 
 ** blast — live callers of cortex.hallucinate that must hand over a controller (14)
 
@@ -945,11 +945,11 @@ DRIFT:
 DRIFT:
 - *=remove({})= aborts* — it reaches the =ActivityRepository.removeOne= override (=systems/runtime/daemon/entities/transient/Activity.ts:32-39=): each live controller is untapped, then aborted ="activity removed"=, before the datamap goes (=systems/runtime/daemon/die.js:59=). The design dropped rows under live controllers.
 
-* kajuit
+* anima
 
 ** entities/activity.js
 
-#+BEGIN_SRC js :tangle ../../systems/kajuit/src/typology/entities/activity.js
+#+BEGIN_SRC js :tangle ../../systems/anima/src/typology/entities/activity.js
 import { atom } from "nanostores";
 import { RemoteRepository } from "@vivalence/typology";
 import { Entity } from "../prototypes/entity.js";
@@ -991,15 +991,15 @@ export const ActivityDossier = {
 The dossier is the shape =ThreadDossier= and =BufferDossier= have — =name · kind · repository(schema, dataspace) · use[]=; =use= runs once per row on first sight with =ctx.entity= (=Dataspace=, =integrate=). =Object.assign(new kind(), raw)= is how a row is hydrated, so the =status= setter fires. =stdin= is =daemon.call= — the wire over =/metadata/aperture= that =mount= already builds — read at the row's id; the =:id= branch is a Proxy (=gestalten/shape/connection.js:16-24=). =Entity.toJSON= skips atoms on its own; =stdin= is a plain object of functions and would cross, so it is struck.
 
 DRIFT:
-- *the strike* — =const { stdin, ...base }= → =const { stdin: _stdin, ...base }= (=systems/kajuit/src/typology/entities/activity.js:21=); =deno lint= no-unused-vars. (#160)
-- *"=Entity.toJSON= skips atoms on its own"* — false. =Entity.toJSON= skips functions, Sets, Maps and objects whose =constructor !== Object= (=systems/kajuit/src/typology/prototypes/entity.js:5-29=); a nanostores atom is an object literal (=node_modules/nanostores/atom/index.js:10= =let $atom = {=), so =$status= rides out of =row.toJSON()= beside =status= — the leak =Buffer.$label= has.
+- *the strike* — =const { stdin, ...base }= → =const { stdin: _stdin, ...base }= (=systems/anima/src/typology/entities/activity.js:21=); =deno lint= no-unused-vars. (#160)
+- *"=Entity.toJSON= skips atoms on its own"* — false. =Entity.toJSON= skips functions, Sets, Maps and objects whose =constructor !== Object= (=systems/anima/src/typology/prototypes/entity.js:5-29=); a nanostores atom is an object literal (=node_modules/nanostores/atom/index.js:10= =let $atom = {=), so =$status= rides out of =row.toJSON()= beside =status= — the leak =Buffer.$label= has.
 
 ** entities/index.js · daemon/dossier.js
 
 #+BEGIN_SRC diff
---- systems/kajuit/src/typology/entities/index.js
+--- systems/anima/src/typology/entities/index.js
 +export { Activity, ActivityDossier } from "./activity.js";
---- systems/kajuit/src/typology/entities/daemon/dossier.js
+--- systems/anima/src/typology/entities/daemon/dossier.js
  import { BufferDossier } from "../buffer.js";
 +import { ActivityDossier } from "../activity.js";
  …
@@ -1074,7 +1074,7 @@ DRIFT:
 - *the request and the return* — =output: v.primitives.rep.Rep= → =policy: { tune: "capable" }= · =output: { schema: hal.generate.output }= (=:57-71=): =v.primitives.rep= does not exist and =Output= is ={ schema }= (=subsystems/typology/schematics/primitives/hallucination.js:181-183=). It returns =buffer(ctx, { set: [...] })= (=:90=), not ={ message, rep }=.
 - *"controls its own row"* — not every raw caller: =commons/playground/chaosmonkey/oracle/buffer/Oracle.svelte:45,119= and =~/.viva/registry/education/modes/tactics/harvest/sources/tts.js:14= hand a bare controller (no row, no stdin), and dojo =emitter/generate.js= itself runs under a dispatch (=** blast=).
 
-** 3 · kajuit — subscribe per user, command through the same spelling
+** 3 · anima — subscribe per user, command through the same spelling
 
 The client holds the roster as a =RemoteRepository= over =/userspace/entities/activity= — the same =$entities= atom kind the daemon holds, so a sheet renders on both ends. Commands go through =daemon.call=, the wire =mount= already builds over =/metadata/aperture=; the =:id= branch is a Proxy, so the spelling is the daemon's. The dossier (=** entities/activity.js=) hangs =stdin= on every row on first sight — a panel never touches the wire itself.
 
@@ -1094,16 +1094,16 @@ await row.stdin.SIGTERM("user pressed stop");
 
 DRIFT:
 - *=row.error=* — lands at STOPPING, one update before STOPPED (the =stop= verb carries =error: "STOPPED"=), and its message is =[data.message, data.reason, data.signal].find(Boolean)=: ="user pressed stop"= for =SIGTERM("user pressed stop")= (=systems/runtime/tests/activity.integration.test.js:69=), never ="SIGTERM"= once an input rides.
-- *=await row.stdin.SIGSTOP()=* — resolves to the controller's reflection (the leaf returns =controller.toJSON()=): =(await row.stdin.SIGSTOP()).code === "PAUSED"= (=systems/kajuit/tests/interactive/activity.test.js:71-72=).
-- *=row.steps.at(-1)=* — =/hallucination/research= is a dispatch child named by its TOOL; a tool's nested harness call is =/hallucination/<tool>/object= (=/hallucination/lookup/object=, =systems/kajuit/tests/interactive/activity.test.js:64=).
-- *"a panel"* — none in =systems/kajuit/src/=; the consumers are test-side: =systems/kajuit/tests/interactive/activity/panel.jsx:10= (=signal: (row, name, input) => row.stdin[name](input)=) · =sheet.jsx= · =sheet.state.js=, run by the =interactive/activity= tasks in =systems/kajuit/deno.jsonc= and =systems/runtime/deno.jsonc=.
+- *=await row.stdin.SIGSTOP()=* — resolves to the controller's reflection (the leaf returns =controller.toJSON()=): =(await row.stdin.SIGSTOP()).code === "PAUSED"= (=systems/anima/tests/interactive/activity.test.js:71-72=).
+- *=row.steps.at(-1)=* — =/hallucination/research= is a dispatch child named by its TOOL; a tool's nested harness call is =/hallucination/<tool>/object= (=/hallucination/lookup/object=, =systems/anima/tests/interactive/activity.test.js:64=).
+- *"a panel"* — none in =systems/anima/src/=; the consumers are test-side: =systems/anima/tests/interactive/activity/panel.jsx:10= (=signal: (row, name, input) => row.stdin[name](input)=) · =sheet.jsx= · =sheet.state.js=, run by the =interactive/activity= tasks in =systems/anima/deno.jsonc= and =systems/runtime/deno.jsonc=.
 
 * testing — few, deep
 
 Four tests, one per layer, each a whole story: born → signalled → settled → gone. No sleeps: the clock is a faculty the test cranks by hand, so "no packet flows while PAUSED" is a count, not a race. One ledger per story, asserted whole at the end — the walk IS the assertion. The flat invariants (R1 · R6 · =updatedAt= · reads only · a stranger sees nothing) ride inside the stories as one line each, never their own =it=.
 
 DRIFT:
-- *"No sleeps"* — the scaffolds sleep: =sleep.ms(50)= at boot and =sleep.ms(20)= at close (=systems/runtime/tests/scenarios/activity.js:68,87=); =sleep.ms(20)= in =systems/kajuit/tests/interactive/activity/client.js:28=.
+- *"No sleeps"* — the scaffolds sleep: =sleep.ms(50)= at boot and =sleep.ms(20)= at close (=systems/runtime/tests/scenarios/activity.js:68,87=); =sleep.ms(20)= in =systems/anima/tests/interactive/activity/client.js:28=.
 - *"never their own =it="* — R1 · R6 · =updatedAt= also hold their own =it=: ="invariant: a held id is refused at create, a patch never re-keys, and every update stamps updatedAt"= (=systems/runtime/tests/virtual.test.js:76=).
 
 ** typology/tests/scenarios/metronome.js — the clock
@@ -1162,7 +1162,7 @@ export function ledger(repository) {
 #+END_SRC
 
 DRIFT:
-- *the export* — =export * as metronome from "./metronome.js"= (=subsystems/typology/tests/scenarios/index.js:3=): runtime and kajuit read a NAMESPACE off =@vivalence/typology/scenarios= — =metronome.metronome(script)= (=systems/runtime/tests/scenarios/activity.js:39=), =const { ledger, until, tick } = metronome= (=systems/runtime/tests/activity.integration.test.js:5=). (#160; the namespace shape not)
+- *the export* — =export * as metronome from "./metronome.js"= (=subsystems/typology/tests/scenarios/index.js:3=): runtime and anima read a NAMESPACE off =@vivalence/typology/scenarios= — =metronome.metronome(script)= (=systems/runtime/tests/scenarios/activity.js:39=), =const { ledger, until, tick } = metronome= (=systems/runtime/tests/activity.integration.test.js:5=). (#160; the namespace shape not)
 - *=script=* — an array OR a function of the call index; an exhausted script yields ={ packets: [] }= (=subsystems/typology/tests/scenarios/metronome.js:35=). (#160)
 - *a crank releases a GRAIN* — =for (const grain of grains(step))= … =yield* grain= (=:37-41=). A =tool= step is ONE grain of four packets, =/turn/open · /part/open (tool_use) · /part/close · /turn/close { state: "tools" }= (=:19-25=), never =/turn/full= — not a delta; a pump opens its own turn. A =deltas: n= step is n grains of one text turn, with a =state= option (=:26-31=). (#160 says five packets)
 - *=render=* — =soma.drain(stream(…))= → =collect=, a =soma.pour= fold (=:54,61=); =soma.drain(turn)= goes turn → packets, the wrong way.
@@ -1317,7 +1317,7 @@ DRIFT:
 
 ** runtime/tests/scenarios/activity.js — REWRITE
 
-Sheds =MACHINE= · =fold= · =ActivityEntity=. Composes =scenarios/cortex.js='s world — =seed()=, a HARNESSED mode, the real =Cortex= — with the real kind: =entities.activity = new ActivityRepository(orm.em, ActivityEntity)=, =userspace(daemonDie)= mounted (so =/userspace/entities/activity= and =/:id/stdin= are the REAL leaves, not a =/control= stand-in), =/metadata/aperture= served, one metronome faculty registered beside the tutor, one harness tool that branches. Exposes ={ world, clock, as, url, close }=. The cron in =interactive/activity/daemon.js= becomes: crank the clock, one harness call per cycle. The kajuit sheet keeps its keys minus =c/C/b= and the verbs — =sheet.state.js= folds signals only; its test shrinks to one =it=.
+Sheds =MACHINE= · =fold= · =ActivityEntity=. Composes =scenarios/cortex.js='s world — =seed()=, a HARNESSED mode, the real =Cortex= — with the real kind: =entities.activity = new ActivityRepository(orm.em, ActivityEntity)=, =userspace(daemonDie)= mounted (so =/userspace/entities/activity= and =/:id/stdin= are the REAL leaves, not a =/control= stand-in), =/metadata/aperture= served, one metronome faculty registered beside the tutor, one harness tool that branches. Exposes ={ world, clock, as, url, close }=. The cron in =interactive/activity/daemon.js= becomes: crank the clock, one harness call per cycle. The anima sheet keeps its keys minus =c/C/b= and the verbs — =sheet.state.js= folds signals only; its test shrinks to one =it=.
 
 DRIFT:
 - *the kind* — minted by the shared scaffolds, not the scenario: =commons/fixtures/data/seed.js:14= (through =seed()=) · =systems/runtime/tests/scenarios/bench.js:117=. (#160)
@@ -1325,7 +1325,7 @@ DRIFT:
 - *the tool* — =lookup= nests =ctx.mode.harness.object.render({ controller: ctx.controller.branch("object"), … })= (=:25-33=): branch by faculty, so the child path is =/hallucination/lookup/object=, and every tool call spends a second clock entry. (#160)
 - *the mount* — =routes.userspace= over a stand-in die ={ good: daemon, datamap, status, manifest }= (=:58-59=); =/datamap= · =/metadata/aperture= · =/multiplex= · =Deno.serve=, a stranger and a token stub (=:44-67=); the in-process client rides =shard.transmitter.inline= (=:71=). (#160)
 - *exposes* — ={ world, clock, as, url, close }= → ={ ...world, clock, spoken, gate, connect, fixtures: { ...fixtures, stranger }, url, close }= (=:76-90=); =close()= runs =activity.remove({})= (=:85=).
-- *the cron daemon* — prints =READY= · =FIXTURES= lines for the kajuit spawn (=systems/runtime/tests/interactive/activity/daemon.js:21-22=); =--panel= loops harness streams on =sleep.ms(args.tick * 4)= (=:49=).
+- *the cron daemon* — prints =READY= · =FIXTURES= lines for the anima spawn (=systems/runtime/tests/interactive/activity/daemon.js:21-22=); =--panel= loops harness streams on =sleep.ms(args.tick * 4)= (=:49=).
 
 ** runtime/tests/activity.integration.test.js — the row follows the controller
 
@@ -1388,14 +1388,14 @@ The =/verbatim= story is the second =it= on the same rig: =dewey.harness.verbati
 
 DRIFT:
 - *stories* — two =it=s (=systems/runtime/tests/activity.integration.test.js:25,91=); "One story" above and "the second =it=" here disagree — disk follows the latter.
-- *the client seat* — =shard.transmitter.inline= → =shape.http= per request (=systems/runtime/tests/scenarios/activity.js:71=), not multiplex; only the kajuit test crosses multiplex.
+- *the client seat* — =shard.transmitter.inline= → =shape.http= per request (=systems/runtime/tests/scenarios/activity.js:71=), not multiplex; only the anima test crosses multiplex.
 - *the tool turn* — =clock.release(2)= (=:45=): the tool grain plus the nested =object= grain; it waits on =/tool/yield= (=:46=); the child path is =/hallucination/lookup/object= (=:47=), with =/hallucination/lookup= (=:48=) and no =children= left (=:50=).
 - *no =findOneLocal=* — the daemon repository has none (it lives on the typology =RemoteRepository=): =const held = () => daemon.entities.activity.$entities.get()= (=:31=).
 - *after settle* — =row.error.message= ="user pressed stop"= (=:69=); the user's =/find= is empty (=:71=).
 - *the flat laws run on a LIVE row* — =const other = await daemon.entities.activity.control({ user: fixtures.user.id, mode: dewey.id })= (=:74=): mine sees one, the stranger =[]= (=:75-76=); the stranger's =SIGKILL= rejects and =other= stays =IDLE= (=:77-78=); reads-only also refuses =/removeOne= (=:80=); R1 is =create({ id: other.id, user: fixtures.user.id, mode: dewey.id })= (=:81=); R6 and the raw settle run on =other=, walk =["create", "DONE", "RUNNING", "DONE", "delete"]= (=:82-87=). The designed stranger lines ran after the only row was gone — they could not fail. No =bare=; the last =remove({})= lives in =close()=.
 - *the =/verbatim= story* — the transcription is a CHILD: ="/hallucination/verbatim close"=, ="/hallucination/dialogue close"=, the root last ="/hallucination close"= (=:110-112=); walk =["create", "RUNNING", "DONE", "delete"]= (=:108=). The metronome stands in for verbatim only: the repair's =tune: "fast"= resolves to the fixture haiku (=commons/fixtures/data/faculties.js:136=), whose answer is the =/verbatim/polish= event (=:105=). The title still says "its formatting" (=:91=).
 
-** kajuit/tests/interactive/activity.test.js — two processes, the dossier path
+** anima/tests/interactive/activity.test.js — two processes, the dossier path
 
 The daemon is the rewritten =interactive/activity/daemon.js= (real kind, HARNESSED, cron on the clock). The consumer is the real dossier path: =Dataspace= with =ActivityDossier=, =daemon.call= over =/metadata/aperture=, so =row.stdin= is what a panel would touch. One story, from the client's chair only.
 
@@ -1428,12 +1428,12 @@ specimen.it("the client sees every state of the daemon's cron in order, holds an
 #+END_SRC
 
 DRIFT:
-- *the spawn* — the test boots the daemon itself: =tests/interactive/activity/daemon.js --port 0 --tick <n> --cron --silent=, parsing =READY= · =FIXTURES= (=systems/kajuit/tests/interactive/activity.test.js:8-43=); =until= comes from =systems/kajuit/tests/interactive/activity/client.js= with 20 s timeouts.
+- *the spawn* — the test boots the daemon itself: =tests/interactive/activity/daemon.js --port 0 --tick <n> --cron --silent=, parsing =READY= · =FIXTURES= (=systems/anima/tests/interactive/activity.test.js:8-43=); =until= comes from =systems/anima/tests/interactive/activity/client.js= with 20 s timeouts.
 - *the first cycle* — waits for a row born =IDLE= (=:60-61=), since a client joining mid-cycle first sees a RUNNING row; the child path is =/hallucination/lookup/object= (=:64=).
 - *the signalled row* — the first row not already seen, then =until= RUNNING (=:66-70=); =SIGSTOP= answers the reflection, =paused.code= ="PAUSED"= (=:71-72=); the same instance is pinned, =client.repository.findOneLocal({ id: row.id })= =toBe(row)= (=:74=).
 - *the writes* — =create= with =daemon.fixtures.user= (=:82=); =removeOne({ id: row.id })= targets a row already gone (=:83=), so its rejection does not isolate reads-only; SIGHUP is =specimen.expect(row.stdin.SIGHUP).toBe(undefined)= (=:84=) — the designed =rejects= got =undefined=, not a promise.
 - *a stranger* — a second consumer on the stranger token sees =[]= (=:85-87=).
-- *=client.js= · =sheet.jsx=* — =client.js= skips the =/userspace/handshake= that =systems/kajuit/src/typology/entities/daemon/dossier.js:95= runs, and exports =stamp · idOf · short · until=; =systems/kajuit/tests/interactive/activity/sheet.jsx:17= drives its log with =metronome.ledger(repository)=; =sheet.state.test.js= sits in =systems/kajuit/tests/interactive/=, not =activity/=.
+- *=client.js= · =sheet.jsx=* — =client.js= skips the =/userspace/handshake= that =systems/anima/src/typology/entities/daemon/dossier.js:95= runs, and exports =stamp · idOf · short · until=; =systems/anima/tests/interactive/activity/sheet.jsx:17= drives its log with =metronome.ledger(repository)=; =sheet.state.test.js= sits in =systems/anima/tests/interactive/=, not =activity/=.
 
 ** what is deliberately NOT tested
 
@@ -1451,22 +1451,22 @@ DRIFT:
 - =Hallucination= key casing (lowercase by nature) vs =Packet.TurnOpen= — beef's call.
 - grace before =removeOne= — landed lean: none; the ledger proves the last update crosses before the delete.
 - =get stdin= mints a =shape.object= per read; memoize if measured.
-- client-side abort (kajuit → socket =packet.kill= → =line.controller.kill=) stays in m63; it lands as the third source of =ctx.controller=.
+- client-side abort (anima → socket =packet.kill= → =line.controller.kill=) stays in m63; it lands as the third source of =ctx.controller=.
 - m63/m65 tangle overlap — m63's blocks still tangle the three controller files this quest landed; beef's to rule.
 - =transcribe= honours neither =SIGSTOP= nor =SIGTERM= mid-stream (only =respond= checks =proceed()=); a stop lands when the source ends.
 - commons hello-world rig (=tests/rig.js=) — SETTLED at #162: =flatmodes= + =thread.user/phase= + =buffer.find= stubbed against beef's =skills/thread.summary=, snapshots regenerated, 19/0.
 - wire strip = MACHINE alphabet, static; extra natures on a controller are in-process only until the branch reads the instance trie.
 
 LANDED AFTER THE QUEST (compact #162, beside the =DRIFT:= marks — this is design the quest never held):
-- =activity.stdout= — the readable end beside =stdin=: =Pipe.replay(backlog, signal)= (=stream= = =replay([])=), =control= writes a birth =note { activity, ...data }= as record 1, =ActivityEntity.stdout(signal)= yields the journal then live and ends after the settling record, served as =one.open({ nature: "stdout", yields: Record })= (a =yields= edge IS the subscription), read on the client as =row.stdout = daemon.call…[id].stdout=. The kajuit dossier marks =create/update/delete= + every record onto =logger.channel=.
+- =activity.stdout= — the readable end beside =stdin=: =Pipe.replay(backlog, signal)= (=stream= = =replay([])=), =control= writes a birth =note { activity, ...data }= as record 1, =ActivityEntity.stdout(signal)= yields the journal then live and ends after the settling record, served as =one.open({ nature: "stdout", yields: Record })= (a =yields= edge IS the subscription), read on the client as =row.stdout = daemon.call…[id].stdout=. The anima dossier marks =create/update/delete= + every record onto =logger.channel=.
 - the cortex is SEALED — =#hallucinator= private, =compile(hallucinator)= from the constructor, no =use= door; =v.faults= → ={ at, reason }= at four gates; =v.primitives= inside the constructor (beef's =//@beef bad. should be just v.= struck). =Hallucination.Context= now has no reader.
 - =gestalten/shard/index.client.js= exports =hallucinate= — the =Cortex= constructor m65 wrote runs in the browser too (=dossier.js:127=), and the client barrel had never carried that shard.
 - =lifecycle/population.js:81= reads =datamap.entities.em=; libsql returns no =orm= and no test runs =population.datamap=.
 - =ctx.input= changing shape mid-chain is now =* known issues= here + =known-issues.org=.
 
-LANDED AFTER THE QUEST (compact #163 — the kajuit capability this quest's =next= names, plus the backend that makes it demonstrable):
+LANDED AFTER THE QUEST (compact #163 — the anima capability this quest's =next= names, plus the backend that makes it demonstrable):
 - =@commons/hallucinator/stub= (=commons/fixtures/hal/stub/=) — a provider that calls nothing and plays a script that is a PURE function of the request: =--deltas --pace --stall --tool --rounds --fault --timeout --object --say --run=, parsed by =Signal= (the repo's own CLI flag grammar), named scripts on =statics.scripts=, =settings.script= beating the prompt, the round READ off the turns. dialogue ×3 tunes · object · verbatim · speech, every gap interruptible by the abort signal. =commons/instances/playground/= mounts it ALONE (two providers at neighbouring tunes shadow each other on the nearest-tune pick).
-- kajuit — =app/widgets/ActivityTracker.svelte= (shoulder framed + dock header word) · =app/panels/f/widgets/{ActivityRow,ActivitySection,activity.js}= (roster, signals, 700ms kill hold, stdout ring, the ~6s linger a settled row needs because the daemon deletes it at settle) · =typology/entities/activity.js= gains =roster(thread)= + =loudest(rows)=. Every tone a dapper role token; the design's hexes never crossed.
+- anima — =app/widgets/ActivityTracker.svelte= (shoulder framed + dock header word) · =app/panels/f/widgets/{ActivityRow,ActivitySection,activity.js}= (roster, signals, 700ms kill hold, stdout ring, the ~6s linger a settled row needs because the daemon deletes it at settle) · =typology/entities/activity.js= gains =roster(thread)= + =loudest(rows)=. Every tone a dapper role token; the design's hexes never crossed.
 - the dock's stop is the machine now: =harnessed.js= holds =ctx.activity= (=:33-36=) and =chaining= stamps =turn= on the row (=:98=); =Dock.svelte= matches =row.turn === echo.id= and sends =SIGTERM=, the =AbortController= on the SSE read is gone. =VirtualEntity.updateOne= passes =em: this.em= to =assign= or a relation patch on an unmanaged row throws. Stop only — beef: /"I only want a stop for now. No kill and no pause, at least from within the dock."/
 - chaosmonkey oracle is TOOLED with a slow =lookup=, and its buffer carries a workload strip (=trickle · stall · toolstorm · flaky · hung · ×3 parallel=) firing through the harness so the daemon mints the rows.
 - LAW measured in the browser: a =$derived= over an entity the client's identity map mutates IN PLACE never re-runs — read a per-tick counter, or derive from the store array.
@@ -1475,11 +1475,11 @@ LANDED AFTER THE QUEST (compact #165 — the followup's first site, and the dock
 - =research.js= hands =controller: ctx.controller?.branch("dialogue")= (the DRIFT line below counted it as one of the 12 that did not). Inside a turn it mints NO row, its records land in the turn's row under =/hallucination/research/dialogue=, and the turn's SIGTERM or SIGKILL reaches it through =children=. From the app door =/hello/research= nothing binds a controller, so that path keeps its own row. =P-nested= pins it: red at =minted= 1 on the old code, green at 0. =dealer · oracle · registry= are still unhanded.
 - the dock stop is the THREAD's now, beef re-ruling #163's single-row stop: /"i think that should be considered the kill all button. nuclear. stop! everything in this terminal/thread."/ · /"sigterm single, sigkill on hold. 2s. send sigterm eargerly."/ Landed as =panels/a/widgets/stop.svelte.js= + =owed(signal, rows, sent)= read off =MACHINE.transitions=. SIGTERM has no transition from IDLE, so the arming persists: a row that has not opened and a row minted mid-stop each take the signal on arrival.
 - typology, on /"fix. fix"/: a stdin call with no argument crosses the wire as ={}=, so =controller.js= now keeps a reason only when it is a non-empty string and =Failure= picks the first non-empty STRING else the verb. =STOPPED · [object Object]= was built on the daemon, never in the view.
-- the #163 kajuit capability needed four browser-only repairs: the =version= counter looped (=untrack=), panel B's =:global(section .row)= and Tailwind's =.ring= broke the row layout, the stdout log showed raw =performance.now()= and raw JSON, and the dock's buffer chips crashed on a duplicate key twice. A =linkedom= mount rig (=tests/activity.mount.test.js=, =linkedom= scoped to kajuit in =import_map.json=) now runs those effects in a test.
+- the #163 anima capability needed four browser-only repairs: the =version= counter looped (=untrack=), panel B's =:global(section .row)= and Tailwind's =.ring= broke the row layout, the stdout log showed raw =performance.now()= and raw JSON, and the dock's buffer chips crashed on a duplicate key twice. A =linkedom= mount rig (=tests/activity.mount.test.js=, =linkedom= scoped to anima in =import_map.json=) now runs those effects in a test.
 - NEW known issue from beef at the fold: =harness-does-not-require-thread-in-its-input= — the harness should own =ctx.thread= and throw when input carries none; only a bare =cortex.hallucinate= needs the caller to supply it. =research.js= carries the =@beef= mark at the line.
 
 DRIFT:
-- *"15 =mode.harness.*= call sites"* — 12 in source (tests, comments, build output and the ledger mirror excluded), 0 hand a controller: =commons/instances/hello-world/aperture.js:36= · =commons/instances/hello-world/tools/research.js:13= · =commons/playground/chaosmonkey/oracle/aperture.js:12= · =commons/playground/chaosmonkey/oracle/emitter.js:15= · =commons/playground/chaosmonkey/oracle/buffer/Oracle.svelte:71= · =commons/playground/dealer/dealer.viva.js:74= · =systems/kajuit/src/typology/prototypes/dictation.js:73= · =systems/kajuit/src/typology/prototypes/conversation.js:38= · =systems/kajuit/src/app/panels/a/widgets/Dock.svelte:226= · =~/.viva/registry/young-ladys-primer/modes/home/primer/aperture.js:48= · =~/.viva/registry/education/modes/home/aprende/aperture/message.js:21= · =~/.viva/registry/education/modes/teacher/francesca/harness.js:45=. =research.js= the one under a dispatch holds.
+- *"15 =mode.harness.*= call sites"* — 12 in source (tests, comments, build output and the ledger mirror excluded), 0 hand a controller: =commons/instances/hello-world/aperture.js:36= · =commons/instances/hello-world/tools/research.js:13= · =commons/playground/chaosmonkey/oracle/aperture.js:12= · =commons/playground/chaosmonkey/oracle/emitter.js:15= · =commons/playground/chaosmonkey/oracle/buffer/Oracle.svelte:71= · =commons/playground/dealer/dealer.viva.js:74= · =systems/anima/src/typology/prototypes/dictation.js:73= · =systems/anima/src/typology/prototypes/conversation.js:38= · =systems/anima/src/app/panels/a/widgets/Dock.svelte:226= · =~/.viva/registry/young-ladys-primer/modes/home/primer/aperture.js:48= · =~/.viva/registry/education/modes/home/aprende/aperture/message.js:21= · =~/.viva/registry/education/modes/teacher/francesca/harness.js:45=. =research.js= the one under a dispatch holds.
 - *the polish list* — also =polishing= (=subsystems/typology/gestalten/shard/hal.js:3=), ="/verbatim/polish"= (=hal.js:22=), =system: { polish }= (=hal.js:63=).
 - *"=transcribe= honours neither SIGSTOP nor SIGTERM"* — nor SIGKILL: =transcribe · synthesize · vocalize= hand no abort signal (=subsystems/typology/gestalten/belt/hallucinate.js:201,221,235=). A signal reaches only the children alive when it lands (=subsystems/typology/prototypes/controller.js:38=); a repair branched afterwards is a fresh controller (=:43-44=) and runs to its end.
 
@@ -1523,7 +1523,7 @@ Oh my god, I love you. This is perfect.
 |------+---------+--------|
 | tree: =activate.js= | /"@beef ugh"/ · /"@beef uck"/ · =:tangle …/activate.js= /"@beef no."/ | file gone; =ActivityRepository.activate= |
 | =population.js= =sets.virtual= | /"@beef call it transient."/ | =sets.transient= · =entities/transient/= |
-| =userspace.js= | /"@beef transient space or just transient"/ · in the kajuit boot: /"transient. no not transient. hmmm. /userspace/entities/activity. ok yeah. overruled."/ | path stays =/userspace/entities/activity= |
+| =userspace.js= | /"@beef transient space or just transient"/ · in the anima boot: /"transient. no not transient. hmmm. /userspace/entities/activity. ok yeah. overruled."/ | path stays =/userspace/entities/activity= |
 | =Activity.ts= | /"// ActivityTypeEnum "HALLUCINATION""/ · =type =ActivityTypeEnum= · =type: { type: types.string }, //enum= · =export default … // enum= | =ActivityTypeEnum= + ={ enum: true, items }= |
 | =Activity.ts= =exclusive()= + hooks | commented out | struck |
 | =harnessed.js= import | =activate//@beef no.= | import gone |
@@ -1544,7 +1544,7 @@ Oh my god, I love you. This is perfect.
 | =cortex.js= =steps.at(-2)= | /"we want to break down steps as one. some nice little parser fn."/ | =shard.hallucinate.routing(steps)= → ={ avenue, via }= |
 | =cortex.js= ctx | /"what properties are actually needed. define the hallucinatino context too. incl input. in v."/ | =Hallucination.Context=: =input · output · controller · policy · tools= + =steps · signal=; =params= · =state= dropped |
 | =Activity.ts= =activate= | /"// @beef control"/ · /"i am unhappy with this verb. maybe .control()??"/ | =ActivityRepository.control(data, controller?)= |
-| =Activity.ts= =get control= | /"should this maybe be something related to stdin. like sigin, stdin, signal. truenoun or verb? freeing control up as a verb for activating the entity controller relation..?"/ | =get stdin=; route =/activity/:id/stdin/<SIGNAL>=; kajuit =row.stdin= |
+| =Activity.ts= =get control= | /"should this maybe be something related to stdin. like sigin, stdin, signal. truenoun or verb? freeing control up as a verb for activating the entity controller relation..?"/ | =get stdin=; route =/activity/:id/stdin/<SIGNAL>=; anima =row.stdin= |
 | =controller.js= =settled.catch= | /"i don tlike quiet errors"/ | =settled= fulfils with the reflection, =error= on it; no swallow, no unhandled rejection; =states[*].settled= boolean |
 | chat, on =hal.js= | /"a. dont call it polish. technically accurate names. what is the nature of this thing."/ | the transcription holds the root; the written-form step branches as =format= |
 | chat | /"is there anything about the wiring between controller and activity to be done here? their stati are wired, no?"/ · /"or is alreday everything in place. feels like it"/ | yes: the tap and =settled= in =control()=; nothing else owed |

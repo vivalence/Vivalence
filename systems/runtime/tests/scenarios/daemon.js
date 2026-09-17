@@ -6,12 +6,12 @@ import * as routes from "@vivalence/runtime/daemon/aperture";
 import { INTENTED, EMITTER, stagger } from "@vivalence/runtime/daemon/traits";
 
 const APPLICATION = (mode, daemon) => {
-  if (!mode.module.app) return;
-  mode.app.buffer = (desc = {}) => {
+  if (!mode.module.application) return;
+  mode.application.buffer = (desc = {}) => {
     const em = daemon.entities.em;
     const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
-      data: mode.app.fill(desc),
+      data: mode.application.fill(desc),
       view: null,
       index: desc.index ?? 0,
     });
@@ -31,9 +31,9 @@ export async function create() {
   mode.entity = fixtures.mode;
   mode.id = fixtures.mode.id;
 
-  mode.app = mode.module.app = new App("buffer/flashcard.svelte", v.buffer({
+  mode.application = mode.module.application = new App("buffer/flashcard.svelte", v.buffer({
     data: { recall: v.string({ default: "LEARNING" }) },
-  })); // mirror real Mode: mode.app === mode.module.app
+  })); // mirror real Mode: mode.application === mode.module.application
 
   mode.module.dataset = {
     intent: [
@@ -48,7 +48,7 @@ export async function create() {
 
   mode.module.emitter = new Vector().open("/literal", async (ctx) => {
     const recall = ctx.input.recall;
-    return ctx.mode.app.buffer({
+    return ctx.mode.application.buffer({
       data: { recall },
       literals: [ctx.input.literal],
     });

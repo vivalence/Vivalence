@@ -1,5 +1,5 @@
 ---
-paths: ["subsystems/typology/**", "systems/runtime/**", "systems/kajuit/**", "systems/ghost/**"]
+paths: ["subsystems/typology/**", "systems/runtime/**", "systems/anima/**", "systems/ghost/**"]
 ---
 <!-- writer: agent · derived-from: 274 files; prototypes; gestalten; schematics; 91 tests; snapshots · verified: 8 probes (arity·use-order·segment-order·cast·enhance·is.vector·strip·span); greps: mikro·Deno.·barrel; tests: 91 files/467 it/16 fixtures, 2 run green · limit: 22000 chars · revised: armed stack · trait read · hal split · stop path -->
 # codemap: typology — the library (HOLY — ask before touching core types)

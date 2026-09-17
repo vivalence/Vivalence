@@ -18,7 +18,7 @@ paths: ["commons/**"]
 ```json
 // one manifest per type family, read off disk
 { "type": "hallucinator","slug": "deepgram",    "traits": ["MONK"] }
-{ "type": "service",     "slug": "nlp-stanza",  "traits": ["SERVER","DOCKER","COMPOSE","TOOLED"] }
+{ "type": "service",     "slug": "nlp-stanza",  "traits": ["SERVER","DOCKER","COMPOSE","TOOLING"] }
 { "type": "playground",  "slug": "card",        "version": "0.1.0", "traits": ["APPLICATION"] }
 ```
 
@@ -28,28 +28,32 @@ paths: ["commons/**"]
 
 ## hello-world — the assembly
 
-- **`mode.viva.js` is ASSEMBLY only**: manifest + `tools` + `app` + three re-exports. Every behaviour is a sibling file.
+- **`mode.viva.js` is ASSEMBLY only**: manifest + `tools` + `aperture` + `app` + two re-exports. The aperture is built IN the assembly — `use` (one log middleware) · `open` (bot, agent) · `slurp(doors)` at the tail; every handler body is a sibling file.
 
 ```js
 // commons/instances/hello-world/mode.viva.js
 export const manifest = {
   type: "demo", slug: "hello-world",
-  traits: ["HARNESSED","CONVERSATIONAL","TOOLED","EMITTER","APPLICATION","GENERATIVE","EXPOSED","STANDALONE"],
+  traits: ["HARNESSED","CONVERSATIONAL","TOOLING","EMITTER","APPLICATION","GENERATIVE","EXPOSED","STANDALONE"],
 };
 export const tools = new Vector().slurp(doctor).slurp(web).slurp(research);
-export const app = new App("./app/App.svelte");
-export { aperture } from "./aperture.js";
+export const aperture = new Vector()
+  .use(async (ctx, next) => { console.log(ctx.user.id, "calling", ctx.mode.manifest.slug); await next(); })
+  .open("/hello/bot", () => ({ greeting: "Bot says high." }))
+  .open("/hello/agent", persona)
+  .slurp(doors);
+export const application = new App("./app/App.svelte");
 export { harness } from "./harness.js";
 export { emitter, generator } from "./page/index.js";
 ```
 
-- **`aperture.js` opens FIVE doors** `/hello/{doctor,search,research,bot,agent}`. `/hello/research` declares `yields: v.primitives.hallucination.Packet.Response` — that declaration frames it as SSE and exempts the call from the transport timeout. `/hello/search` duplicates no fetch: it calls the same `query()` the armed `web_search` does, because the app cannot reach the `tools` Vector (TOOLED is in-process only).
+- **the aperture opens FIVE doors** `/hello/{doctor,search,research,bot,agent}` — `bot`/`agent` inline in the assembly, `doctor`/`search`/`research` slurped from `tools/doors.js` (`doors` Vector + `persona`, the HAL9000 render). There is NO `aperture.js`. `/hello/research` declares `yields: v.primitives.hallucination.Packet.Response` — that declaration frames it as SSE and exempts the call from the transport timeout. `/hello/search` duplicates no fetch: it calls the same `query()` the armed `web_search` does, because the app cannot reach the `tools` Vector (TOOLING is in-process only).
 - **`harness.js` sets prose at two altitudes** — `system.{hello,machine,render}` at the ROOT `use`, `system.format` on `/dialogue` only: the draw tool is reachable from every harness path, and the dock is the only reader of prose.
-- **`tools/` is FLAT, 7 files** — `index.js` (barrel) · `doctor.js` (192 lines) · `web.js` (two doors; `web_read` returns an ERROR naming the fix when no reader is consumed, never a silent failure) · `wikipedia.js` (keyless client; `TIMEOUT = 6000` must stay UNDER the multiplex's ~8s or the caller gets an empty envelope with no status) · `choose.js` · `research.js` · `brief.js`.
+- **`tools/` is FLAT, 8 files** — `index.js` (barrel) · `doors.js` (the tool handlers on their aperture doors + `persona`) · `doctor.js` (192 lines) · `web.js` (two doors; `web_read` returns an ERROR naming the fix when no reader is consumed, never a silent failure) · `wikipedia.js` (keyless client; `TIMEOUT = 6000` must stay UNDER the multiplex's ~8s or the caller gets an empty envelope with no status) · `choose.js` · `research.js` · `brief.js`.
 
 ## hello-world — the instance
 
-- **`instance.viva.js`** declares one daemon `hello` (`kernel: ["./mode.viva.js"]`, `consume.reader`, two hallucinators keyed off `paladin.secret.get`), a libsql datamap per process (`hello` · `runtime` · `lighthouse` `.viva.db`), `runtime` + `clients.kajuit` + `services.multiplayer`, ONE top-level `lighthouse`, an env schema. **The root `README.md` "Hello, Instance!" block is BYTE-IDENTICAL to this file** (its "Hello, Mode!" block differs from `mode.viva.js` in export ORDER only) — edit both together.
+- **`instance.viva.js`** declares one daemon `hello` (`kernel: ["./mode.viva.js"]`, `consume.reader`, two hallucinators keyed off `paladin.secret.get`), a libsql datamap per process (`hello` · `runtime` · `lighthouse` `.viva.db`), `runtime` + `clients.anima` + `services.multiplayer`, ONE top-level `lighthouse`, an env schema. **The root `README.md` "Hello, Instance!" block is BYTE-IDENTICAL to this file** (its "Hello, Mode!" block differs from `mode.viva.js` in export ORDER only) — edit both together.
 - **every address derives from `${VIVA_RUNTIME_ORIGIN}`; both API keys are `.optional()`.** Values are THUNKS, resolved at hydrate, never at import.
 
 ```js
@@ -101,7 +105,7 @@ export const emitter = new Vector().open(
 ```
 
 - **`generator` arms NOTHING.** GENERATIVE owns `generator_view_{render,revise,inspect,list}` and slurps this vector onto them AFTER — a node opened here WITHOUT an effect rewords the trait's valence while the trait's effect stays, and its `branch("/view").use` runs on every draw and revise: it calls `refuse(ctx.input.source)`, and on a throw sets `ctx.output = {condition:"ERROR", …}` and returns WITHOUT `next()`. `page/draw.js` `refuse()` rejects any `from`/`import(` of an `https?:` specifier — esbuild leaves it EXTERNAL, past the integrity hash.
-- **the armed catalog is exactly EIGHT names** — four from the assembly, four from GENERATIVE, none from `generator`. An armed name is the aperture path joined with `_`; a consumed TOOLED service mounts under its CONSUME KEY, not `manifest.slug`. On a live daemon `fs_*` + `shell_run` sit on top → `world/codemap/runtime.md`.
+- **the armed catalog is exactly EIGHT names** — four from the assembly, four from GENERATIVE, none from `generator`. An armed name is the aperture path joined with `_`; a consumed TOOLING service mounts under its CONSUME KEY, not `manifest.slug`. On a live daemon `fs_*` + `shell_run` sit on top → `world/codemap/runtime.md`.
 
 ```json
 // commons/instances/hello-world/tests/snapshots/hello-world-catalog.snapshot.json — the names
@@ -183,12 +187,12 @@ export const hop = async (url, { fetch: get = fetch, resolve } = {}) => {
 ```
 
 - **`drink()` consumes the stream, so `open()`'s return is the ONLY copy of that page there will ever be** — `{url, status, headers, title, body, bytes, capped, document, skeleton, extract(selector)}`.
-- **`commons/services/nlp`** — slug `nlp-stanza`, traits `SERVER DOCKER COMPOSE TOOLED`. Exports `control` alongside `provider` + `tools`: a Vector of `/status /build /start /up /down` driving docker compose against `server/docker-compose.yml`, its root `use` casting `server/.env.source` → `server/.env` first. TOOLED transports `/classify` into an armed name.
+- **`commons/services/nlp`** — slug `nlp-stanza`, traits `SERVER DOCKER COMPOSE TOOLING`. Exports `control` alongside `provider` + `tools`: a Vector of `/status /build /start /up /down` driving docker compose against `server/docker-compose.yml`, its root `use` casting `server/.env.source` → `server/.env` first. TOOLING transports `/classify` into an armed name.
 
 ## lighthouse, playground, fixtures
 
 - **`commons/lighthouses/multiplayer`** — the identity service (`ATTACHED SERVICE DATAMAP SYSTEMMAP`); its kernel file is three lines of re-export over `server/index.js` (the aperture) + `provider/index.js`. `server()` layers `shard.datamap.inject` → `authority.inject` → `identity.inject` under an error `use` that turns `ERR_JWT_EXPIRED` into a 401.
-- **`commons/playground/*` + `.../chaosmonkey/*`** — the trait testbed, consumed by kernel lists and 7 suites across runtime/kajuit/typology. Pairs, not singletons: `spawner`→`spawned` (render-phase rig), `dealer`→`card` (driver hub + render target, `buffer.release()`), `automaton` (self-configuring thread), `switchboard` (hot-swap stall phase + render cursor), `oracle`→`vision` (aperture calling `harness.object.render`), chaosmonkey `reader` (its own `generator`).
+- **`commons/playground/*` + `.../chaosmonkey/*`** — the trait testbed, consumed by kernel lists and 7 suites across runtime/anima/typology. Pairs, not singletons: `spawner`→`spawned` (render-phase rig), `dealer`→`card` (driver hub + render target, `buffer.release()`), `automaton` (self-configuring thread), `switchboard` (hot-swap stall phase + render cursor), `oracle`→`vision` (aperture calling `harness.object.render`), chaosmonkey `reader` (its own `generator`).
 - **`commons/fixtures/*`** — `fixtures/data/` is NOT a module (no `*.viva.js`): a plain barrel (`seed · assemble · tiers · concretes.ts · faculties · lighthouse · live`) with exactly ONE consumer, `systems/runtime/tests/scenarios/fixtures.js`, by relative path across containers. `@commons/fixture/language-learning` is the deterministic corpus.
 
 ## how it is tested — 30 files · 60 `describe` · 252 `it` · 1 `Deno.test` · 7 snapshot tests · 15 fixtures

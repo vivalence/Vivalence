@@ -1,42 +1,67 @@
-<p align="center"> <a target="_blank" href="https://docs.vivalence.org">Docs</a> · <a href="#hello-mode">Hello</a> · <a href="#quickstart">Quickstart</a> · <a href="#noticeboard">Notices</a> · <a href="#pricing-b2b">Pricing</a> · <a href="#funding-p2p">Funding</a> · <a target="_blank" href="https://discord.gg/QyS9Xt9ht8">Discord</a> </p> <p align="center"> <img src="systems/kajuit/static/videos/vid-viket-seldoncrisis-800x160p-12fps.gif" alt="VivalenceOS" width="100%" /> </p> <p align="center"> <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-fair--source-2ea44f?style=flat-square" alt="License: Fair Source" /></a> <img src="https://img.shields.io/badge/status-early%20alpha-orange?style=flat-square" alt="Status: early alpha" /> <img src="https://img.shields.io/badge/deno-2.7+-000000?style=flat-square&logo=deno" alt="Deno 2.7+" /> <img src="https://img.shields.io/badge/svelte-5-FF3E00?style=flat-square&logo=svelte" alt="Svelte 5" /> <img src="https://img.shields.io/badge/mikroorm-6.6-663399?style=flat-square" alt="MikroORM 6.6" /> <a target="_blank" href="https://ko-fi.com/crackedbeefcake"><img src="https://img.shields.io/badge/ko--fi-support-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a> </p>
+<p align="center"> <a target="_blank" href="https://docs.vivalence.org">Docs</a> · <a href="#hello-mode">Hello</a> · <a href="#quickstart">Quickstart</a> · <a href="#noticeboard">Notices</a> · <a href="#pricing-b2b">Pricing</a> · <a href="#funding-p2p">Funding</a> · <a target="_blank" href="https://discord.gg/QyS9Xt9ht8">Discord</a> </p> <p align="center"> <img src="systems/anima/static/videos/vid-viket-seldoncrisis-800x160p-12fps.gif" alt="VivalenceOS" width="100%" /> </p> <p align="center"> <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-fair--source-2ea44f?style=flat-square" alt="License: Fair Source" /></a> <img src="https://img.shields.io/badge/status-early%20alpha-orange?style=flat-square" alt="Status: early alpha" /> <img src="https://img.shields.io/badge/deno-2.7+-000000?style=flat-square&logo=deno" alt="Deno 2.7+" /> <img src="https://img.shields.io/badge/svelte-5-FF3E00?style=flat-square&logo=svelte" alt="Svelte 5" /> <img src="https://img.shields.io/badge/mikroorm-6.6-663399?style=flat-square" alt="MikroORM 6.6" /> <a target="_blank" href="https://ko-fi.com/crackedbeefcake"><img src="https://img.shields.io/badge/ko--fi-support-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a> </p>
 
 ~ $home
 
-Vivalence is an agentic, modal operating system. AI-harnessed as a first principle. 
+Vivalence is a modal operating system.
+Harnesses, agents, UI, business logic, entity schema, and datasets - everything lives on modes.
 
-Free for private use, <a href="#pricing-b2b">flat license fee</a> for institutional and commercial use. Fair Source.
+Vivalence systems, ...
+- are trivial for an LLM to hallucinate. 
+- can be composed at will.
+- are built from simple, elegant primitives.
+- run on a novel symbolic/literal dataspace.
+- stay coherent and compatible at scale.
+- are AI-harnessed as a first principle.
+
+> A beginning is the time for taking the most delicate care that the balances are correct. 
 
 ## Modality
  
 Your setup shouldn't have to be like anyone else's.
 
-Use viva's modes to build your own harnesses, interfaces, dataspaces, agentic experiences - imagination is the limit.
+A mode is just JavaScript, JSON, HTTP, and HTML — no magic.
 
-A mode is just JavaScript and Svelte — no magic - but they provide everything an application needs. 
-
-→ **[awesome-vivalence](https://github.com/vivalence/awesome-vivalence)** — the registry. PRs welcome. WIP.
+Use them to build your own harnesses, interfaces, dataspaces, and agentic experiences - imagination is the limit.
 
 Fork existing systems, hand-roll your own, or prompt one into existence on an architecture designed for it.
 
-Fable put it well the other day:
-> The demo isn't the individual app. The demo is that two people run the same domain and end up with different apps.
+→ **[awesome-vivalence](https://github.com/vivalence/awesome-vivalence)** — the registry. PRs welcome. WIP.
 
-<!-- - aka beyond mouseless -->
-## AI-harnessed as first principle 
-means two things: 
-**adaptive harnesses** - the agent's tools and identity are shapeable as they execute.
-**programmatic context generation** - what the model sees is assembled from live entities and state.
-<!-- @beef for example for language learning agents, we pull in the last dozen reviews and due vocabulary into context, enable agent tools based on learner state. -->
+
+Fable put it well the other day:
+> The demo isn't the individual app. The demo is that two people run the same modes and end up with different apps.
+
+
+<!-- <\!-- - aka beyond mouseless -\-> -->
+<!-- ## AI-harnessed as first principle -->
+
+<!-- means two things: -->
+
+<!-- **first-class harness** —  -->
+<!-- the harness is a first class primitive of the system.  -->
+<!-- They are part of the blueprint and deeply integrated into the architecture. -->
+
+<!-- Context is programmatic and stateful. What the model sees is assembled from live entities and daemon state. -->
+
+<!-- ```js -->
+<!-- export const harness = new Vector() -->
+<!-- 	.use(async (ctx, next) => { -->
+<!-- 		ctx.hallucination.system.machine = machine(ctx);  -->
+<!-- 		await next(); -->
+<!-- 	}) -->
+<!-- ``` -->
+
+<!-- **architected for coding agents** — a mode is plain JavaScript, JSON, HTTP, and HTML, and the core is ~12k lines: small enough to sit in a context window. Use the open registry for guidance — every tapped package is a worked example. The repository carries its own agent harness and workspace in `.ikiro/` — ontology, methods, invariants — for agents to instruct agents. -->
 
 # Modes and instances
 ## Hello, Mode!
 
-The demo mode. Harnessed, conversational, tooled, generative: this mode can chat, navigate Wikipedia, and render ad-hoc research reports.
+The demo mode. Harnessed, conversational, tooling, generative: this mode can chat, navigate Wikipedia, and render ad-hoc research reports.
 
 `commons/instances/hello-world/mode.viva.js` — what it is:
 ```js
 import { App, Vector } from "@vivalence/typology";
-import { doctor, research, web } from "./tools/index.js";
+import { doctor, doors, persona, research, web } from "./tools/index.js";
 
 export const manifest = {
   type: "demo",
@@ -44,7 +69,7 @@ export const manifest = {
   traits: [
     "HARNESSED",      // mode has access to the daemon's harness
     "CONVERSATIONAL", // mode can be chatted with
-    "TOOLED",         // mode provides agentic tools
+    "TOOLING",         // mode provides agentic tools
 
     "EMITTER",        // mode renders ad-hoc buffers
     "APPLICATION",    // buffers from static svelte
@@ -55,7 +80,16 @@ export const manifest = {
   ],
 };
 
-export const app = new App("./app/App.svelte");
+export const application = new App("./app/App.svelte");
+
+export const aperture = new Vector()
+  .use(async (ctx, next) => {
+    console.log(ctx.user.id, "calling", ctx.mode.manifest.slug);
+    await next();
+  })
+  .open("/hello/bot", () => ({ greeting: "Bot says high." }))
+  .open("/hello/agent", persona)
+  .slurp(doors);
 
 export const tools = new Vector()
   .slurp(doctor)
@@ -63,7 +97,6 @@ export const tools = new Vector()
   .slurp(research);
 
 export { harness } from "./harness.js";
-export { aperture } from "./aperture.js";
 export { emitter, generator } from "./page/index.js";
 ```
 
@@ -72,7 +105,7 @@ The rest is in <a href="commons/instances/hello-world/README.md">the mode's own 
 ## Hello, World!
 
 > Hello, World.
-<p align="center"><img src="documentation/public/images/hello-world.png" alt="the hello-world app in kajuit: header, four avenues" width="100%" /></p>
+<p align="center"><img src="documentation/public/images/hello-world.png" alt="the hello-world app in anima: header, four avenues" width="100%" /></p>
 
 > Tell me about the cultural and etymological significance of the Flamingo.
 <p align="center"><img src="documentation/public/images/hello-world-research.png" alt="a research page the mode drew — Flamingo, with a Wikipedia figure — beside the dock that asked for it" width="100%" /></p>
@@ -123,8 +156,8 @@ export const runtime = {
 
 export const clients = [
   {
-    manifest: { type: "client", slug: "kajuit" },
-    statics: { serve: () => paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE") },
+    manifest: { type: "client", slug: "anima" },
+    statics: { serve: () => paladin.env.get("VIVA_CLIENT_ANIMA_SERVE") },
   },
 ];
 
@@ -148,8 +181,8 @@ export const environment = v.environment({
   PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
 
   // Svelte browser client
-  VIVA_CLIENT_KAJUIT_SERVE: v.url().desc("Where the kajuit browser client serves.").default("${VIVA_CLIENT_KAJUIT_ORIGIN}/").group("addresses"),
-  VIVA_CLIENT_KAJUIT_ORIGIN: v.url().desc("Scheme and authority the kajuit browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+  VIVA_CLIENT_ANIMA_SERVE: v.url().desc("Where the anima browser client serves.").default("${VIVA_CLIENT_ANIMA_ORIGIN}/").group("addresses"),
+  VIVA_CLIENT_ANIMA_ORIGIN: v.url().desc("Scheme and authority the anima browser client is reachable at.").default("http://localhost:1794").group("addresses"),
 
   // Salts, secrets, and services 
   SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24").default(() => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24))))).group("keys"),
@@ -184,7 +217,7 @@ cd vivalence
 deno task install  # system dry-run and `viva` in `~/.deno/bin` 
 ```
 
-The CLI remembers the repo via `$VIVA_REPOSITORY_MOUNT` in `~/.config/viva/env`. From here on you should be able to run `viva`. Test this with f.E. `$ viva ledger/doctor`.
+The CLI remembers the repo via `$VIVA_REPOSITORY_MOUNT` in `~/.config/viva/env`. From here on you should be able to run `viva`. Test this with e.g. `$ viva ledger/doctor`.
 
 ### 1 — `viva ledger/init`
 
@@ -248,7 +281,7 @@ viva instance/create @commons/instance/hello-world
 # viva instance/create @commons/instance/hello-world --use  # --init
 ```
 
-An `instance` is one runnable system: a runtime, its daemons, its clients — declared in one directory. `create` copies the recipe out of the registry onto the ledgers instances (`~/.viva/instances/hello-world/`) or any custom path - recorded in `~/.viva/instances.json`. List all of them with `viva instances/list`
+An `instance` is one runnable system: a runtime, its daemons, its clients — declared in one directory. `create` copies the recipe out of the registry onto the ledger's instances (`~/.viva/instances/hello-world/`) or any custom path - recorded in `~/.viva/instances.json`. List all of them with `viva instances/list`
 
 The standard library `@commons/package/commons` holds common utilities like our `hello-world` instance.
 
@@ -278,7 +311,7 @@ The daily driver command to get an instance running is `instance/run`
 ```sh
 viva instance/run
 
-run runtime=8924 kajuit=8925
+run runtime=8924 anima=8925
   VITE v6.3.3  ready in 1467 ms
   ➜  Local:   http://127.0.0.1:1794/
 launching on http://localhost:2501/
@@ -290,11 +323,11 @@ Boots the instance's children as supervised processes and records them in the in
 | process   | what                    | where                   |
 | --------- | ----------------------- | ----------------------- |
 | `runtime` | daemons, entities, HTTP | `http://localhost:2501` |
-| `kajuit`  | the browser client      | `http://localhost:1794` |
+| `anima`  | the browser client      | `http://localhost:1794` |
 
 Open **http://localhost:1794**, log in with the account from step 4, and you're inside: the client attaches to the daemons and renders their modes. 
 
-Run one child on its own with `viva instance/run runtime` or `viva instance/run kajuit` — each boots only that process, and the instance's one lock lists whichever are up; `all` is the default. `viva instance/stop` tears down whatever is running and clears the locks. `viva instance/delete` removes the instance from the machine — its record, dead locks, logs, the shell sessions that had selected it, and the directory when it lives in `~/.viva/instances` under `~/.viva/instances/`; a directory you tapped from elsewhere stays. It refuses while a child is running, and asks first unless you pass `--force`.
+Run one child on its own with `viva instance/run runtime` or `viva instance/run anima` — each boots only that process, and the instance's one lock lists whichever are up; `all` is the default. `viva instance/stop` tears down whatever is running and clears the locks. `viva instance/delete` removes the instance from the machine — its record, dead locks, logs, the shell sessions that had selected it, and the directory when it lives in `~/.viva/instances` under `~/.viva/instances/`; a directory you tapped from elsewhere stays. It refuses while a child is running, and asks first unless you pass `--force`.
 
 ### 6 — Summary and next steps
 
@@ -303,7 +336,7 @@ Run one child on its own with `viva instance/run runtime` or `viva instance/run 
 - [x] `registry/tap`      — `@commons` recorded from the checkout, `@education` tapped; their modes resolve by reference from any shell
 - [x] `instance/create`   — `hello-world` copied into `~/.viva/instances`, yours to edit and version
 - [x] `instance/init`     — the instance's `.env` populated, your account registered against its lighthouse
-- [x] `instance/run`      — runtime serving on `:2501`, kajuit on `:1794`, and you're ready to log-in and explore.
+- [x] `instance/run`      — runtime serving on `:2501`, anima on `:1794`, and you're ready to log in and explore.
 
 Continue here:
 - [ ] the <a target="_blank" href="https://docs.vivalence.org/12.01_slowstart">Slowstart</a> — the same climb, with the machinery explained at depth.
@@ -337,15 +370,16 @@ Currently under construction are documentation and the registry.
 # Can I ...?
 
 # Pricing (B2B)
+Free for private use, flat license fee for institutional and commercial use. Fair Source.
 
 Vivalence is free for private use. Institutional use requires a license — a flat fee of ~€12/$13/£10/¥2,000/90元 per person per month, with a 10/12 discount on yearly. SaaS, PaaS, and consulting services will follow in time.
 
 Licenses are issued programmatically — <a target="_blank" href="https://vivalence.lemonsqueezy.com/checkout/buy/1716f8a4-2def-4373-b46a-d5447a7e3232">get one here →</a>.
 
-# Funding (P2P) - Crowdfunding, patreonage, grants, sponsorships, and product placement
+# Funding (P2P) - Crowdfunding, patronage, grants, sponsorships, and product placement
 
 I count on private financial contributions, especially early on.
 
 <a target="_blank" href="https://ko-fi.com/crackedbeefcake"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi" /></a>
 
-For one-off gas funding there will be an Open-Collective and a Kickstarter in due course.
+For one-off gas funding there will be an Open Collective and a Kickstarter in due course.

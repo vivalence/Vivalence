@@ -1,6 +1,6 @@
 # hello-world
 
-The demo mode. Conversational, tooled, standalone: it answers about this
+The demo mode. Conversational, tooling, standalone: it answers about this
 machine, searches Wikipedia, reads an article out of it, draws the answer as a
 page of its own — and can hand all three to a second agent in one call.
 
@@ -9,7 +9,7 @@ page of its own — and can hand all three to a second agent in one call.
 ## Shape
 
     mode.viva.js    the assembly — manifest · tools · app · re-exports, nothing else
-    aperture.js     /hello/{doctor,search,bot,agent}
+    tools/doors.js  /hello/{doctor,search,research} + persona
     harness.js      HELLO + machine at the root, FORMAT on /dialogue
     tools/          the belt — index.js the barrel · doctor.js the paladin fold with two doors (/hello/doctor, viva_doctor) ·
                     web.js the doors, wikipedia.js the client, choose.js the picker ·

@@ -66,7 +66,7 @@ What changed the QUESTION while this quest sat:
   "ERROR", output: {message: "no user on this thread — reviews need an owner"}}= — the
   lean's collar exists at ONE seam, as a yield-lexicon ERROR, not option A's throw-at-mint.
   It passes on the aperture =/harness= path, fails soft on the 5 direct echo callers.
-- francesca stopped being the poster child: her live path is kajuit → aperture =/harness=
+- francesca stopped being the poster child: her live path is anima → aperture =/harness=
   behind authorize (=conversation.js:39-40=) — a REQUEST ctx with =ctx.user=. The echo-seam
   user-drop persists only for the 5 in-daemon direct callers.
 - Memory → Retention rename (=Retention.ts:76-81=, same filter block).
@@ -264,7 +264,7 @@ Same mechanism as rank 12, second victim:
 | 3 | INTENTED boot finalizers share ONE fork under =Promise.all= → filter-param cross-talk → dup insert → whole-process BOOT CRASH | ≥2 INTENTED modes (education: clinic 14 + rep-o-gram 8) AND ≥2 users; single-user dev DB safe | total outage, boot-loop |
 | 4 | same-tab logout→login: userB renders userA's REAL threads/intents over a never-torn-down subscription | account switch in one tab; =logout()= clears identity but never drops daemons/subs, =daemon.release= assigned but called NOWHERE | cross-user leak (real content, client-side) |
 | 6 | =input.tools= nature-collision overwrites SHARED module-scope skill leaf → persistent daemon-wide tool DoS | one crafted harness body: JSON =tools:{entity_find:{…}}= can't carry a function → =execute=undefined= → =armed.open= overwrites the shared leaf's effect (PROBE-PROVEN) | tool dead daemon-wide until restart |
-| 10 | concurrent dialogue on one thread → =createdAt=-braided history splits a =tool_use/tool_result= pair → provider 400 | two overlapping streams on one thread (2 tabs / kajuit+bruno; client aborts only its OWN prior); =history()= orders by createdAt, ignores parent linkage | persistent send failure, same-user |
+| 10 | concurrent dialogue on one thread → =createdAt=-braided history splits a =tool_use/tool_result= pair → provider 400 | two overlapping streams on one thread (2 tabs / anima+bruno; client aborts only its OWN prior); =history()= orders by createdAt, ignores parent linkage | persistent send failure, same-user |
 | 14 | echo harness caller (aprende render) drops =ctx.user= → review collar fires ERROR → lost Retention/Trace | aprende =/assistant/message= on brazilian/spanish; echo mints ctx w/o user, =:61= bind skipped | lost write (no wrong-user rows — ORM ambient still scopes) |
 
 ** LATENT — waiting on a named thing
@@ -413,7 +413,7 @@ mode.harness = (provenance) => shape.object(harness, sworn(provenance));
   (=socket.js:156-165=) — thread is NOT head material anywhere, it rides the body.
 - mechanism (NEW): =x-viva-thread= header / =packet.thread= field; one boundary
   middleware after authorize hydrates =ctx.thread= (findOne) + whatever store
-  A/B/D chose. Client caveat: kajuit stamps =thread.id= PER SEND (=conversation.js:39-40=,
+  A/B/D chose. Client caveat: anima stamps =thread.id= PER SEND (=conversation.js:39-40=,
   =Dock.svelte:181=), and a Connection is per-MODE, thread-SHARED, with the active
   thread switching under it (=conversation.js:76= aborts on switch) — "once per
   Connection" is NEW client state plus a re-stamp protocol, not a relocation.
@@ -447,7 +447,7 @@ repo.getEntityManager().getFilterParams("thread")
   broadcast throws loud. Failure mode already shipped and tested
   (=datamap.scoped.test.js= — asserts the broadcast "carries no owner" throw; the mikro
   missing-filter-arg throw is exercised only implicitly in its setup).
-- francesca: premise stale — francesca's live path is kajuit → aperture =/harness=
+- francesca: premise stale — francesca's live path is anima → aperture =/harness=
   behind authorize (=conversation.js:39-40=), a REQUEST ctx with =ctx.user=; the
   echo-seam drop persists only for the 5 in-daemon direct callers. User already
   rides the fork's params there; thread joins the moment harnessed binds it as a param.

@@ -1,19 +1,19 @@
 import { Url, Connection, Mode, Path, Aperture, Vector, shape, shard } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
 import { seed, tiers } from "./fixtures.js";
-import { INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLED, stagger } from "@vivalence/runtime/daemon/traits";
+import { INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING, stagger } from "@vivalence/runtime/daemon/traits";
 
 // ── test-only APPLICATION ─────────────────────────────────────────────
 // No paladin, no bundler. Mirrors the real trait's buffer factory: fill()
 // (Default-only) — never cast(), whose Convert pass mauls MikroORM Collections.
 // Entity classes via tiers.<type>.entity = the actually-registered classes.
 function APPLICATION(mode, daemon) {
-  if (!mode.module.app) return;
-  mode.app.buffer = async (desc = {}) => {
+  if (!mode.module.application) return;
+  mode.application.buffer = async (desc = {}) => {
     const em = daemon.entities.em;
     const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
-      data: mode.app.fill(desc),
+      data: mode.application.fill(desc),
       view: null,
       index: desc.index ?? 0,
     });
@@ -89,8 +89,8 @@ async function wireMode(viva, daemon) {
   await em.flush();
   mode.id = mode.entity.id;
 
-  if (viva.app) {
-    mode.app = mode.module.app = viva.app; // mirror real Mode: Object.assign makes mode.app === mode.module.app
+  if (viva.application) {
+    mode.application = mode.module.application = viva.application; // mirror real Mode: Object.assign makes mode.application === mode.module.application
   }
   if (viva.dataset) mode.module.dataset = viva.dataset;
   if (viva.emitter) mode.module.emitter = new Vector().slurp(viva.emitter);
@@ -105,7 +105,7 @@ async function wireMode(viva, daemon) {
   daemon.modes[viva.manifest.type] ??= {};
   daemon.modes[viva.manifest.type][viva.manifest.slug] = mode;
 
-  const finalizers = await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER, EXPOSED, TOOLED, ...(daemon.cortex && { HARNESSED }) });
+  const finalizers = await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER, EXPOSED, TOOLING, ...(daemon.cortex && { HARNESSED }) });
   for (const finalize of finalizers) await finalize();
 
   daemon.aperture.branch(mode.mount.absolute).slurp(mode.aperture); // → conn-reachable

@@ -1,0 +1,207 @@
+#+title: the chess theme becomes a component because svelte-preprocess blanks a global block, the ladder learns to say when its number is a sample, and stockfish runs as wasm under deno
+#+filetags: :chess:theme:svelte:preprocess:global:paper:dapper:bundler:elo:ladder:sampling:stockfish:wasm:deno:docker:three:threlte:import-map:jsr:deno-lock:review:quest:callout:
+#+index: 169
+#+session: 7 turns (28–34 of this session's 34; 12–27 are #168, 1–11 are #167), one session carried past its second /compact (models fable → opus; no agents; ~/.viva/registry/chess · deno.lock (polluted by a probe, restored) · node_modules/.deno (probe residue removed) · ikiro · memory touched; VCS untouched)
+
+* one breath
+
+#168 folded with the review's nine blockers proposed and not built. After the =/compact=, beef pasted three orders into one message
+(29): /"ikiro wake chesss."/, a ruling — /"threejs and threlte are system level."/ — then my ladder finding with /"fix."/ under it,
+then my whole fix proposal with /"go"/ under it. Everything in the proposal landed, the review's improvements and nits included.
+
+The theme is now a component, =kit/Theme.svelte=, because the bundler drops a =.css= import. The first form of that component,
+a =:global { … }= block, compiled clean under =svelte/compiler= and still shipped nothing: svelte-preprocess, the bundler's first
+stage, blanks the whole =<style>=. The served-bundle test written from #168's corrective rule caught it before any claim was made;
+every rule is now =:global(selector)=. Paper got an override read off dapper's generated sheet. The ladder now samples five searches per
+strength and says, in the panel, when the strengths split. Measured twice on the real engine: full-strength verdicts hold, the weaker
+rungs spread over four equal openings, so the number is honest only where the ladder is =settled=.
+
+Mid-work beef asked why stockfish needs installing at all (31). Answered by measurement, not built: Stockfish 17.1 Lite WASM runs under
+deno, depth 15 in 286 ms. The package suite reads =21 passed (106 steps) | 0 failed= (was 101). Nothing has run in a browser yet.
+
+One near-miss, self-caught and verified harmless: a WASM probe run under the repo's config wrote stockfish into beef's dirty
+=deno.lock=, and I then overwrote that file from HEAD before reading what it held.
+
+* the spine — 7 turns
+
+** 28 · =/compact= — NOTHING (harness; the fold after #168; =compact-gate.sh= ran).
+
+** 29 · MID-TURN, one paste, four orders, read by their tails:
+   - /"ikiro wake chesss."/ — kernel, frontier, quest header read; the quest's =#+next= named the work.
+   - /"threejs and threlte are system level."/ — a RULING on #168's open item (droneaid's map entries vs the no-package-entries
+     ruling): they stay in =import_map.json=; the ruling bites a package's own dependencies only. Frontier line struck; memories
+     =feedback_registry_deps_by_url= and =project_droneaid_package= rewritten.
+   - my ladder finding (/"the "elo of a move" ladder is not reliable … Options: several samples per strength, or count a move as a match
+     if it's within the engine's top few, or hide the number when the top moves are nearly equal."/) + /"fix."/ — built as the first
+     and third options together (→ =* landed= domain); the second (multipv tolerance) not built.
+   - my proposal, all four sections quoted, + /"go"/ — the closing question of my last report (/"all of it … or only the
+     blockers?"/) is answered by the quote: section 4 (improvements and nits) is inside it. All landed (→ =* landed=).
+
+** 30 · the continuation summary — NOTHING (harness text, not beef).
+
+** 31 · MID-TURN /"why do i need to install stockfish at all? would be way bettttter if that was js only. needed? could we maybe build a
+   stockfish docker image like we have for nlp? stanza? probably there is already something"/ — three measurements, one recommendation,
+   nothing built (→ =* landed= engine). The nlp service's pattern read: =commons/services/nlp/server/{Dockerfile,docker-compose.yml}=
+   behind =statics.remote= over HTTP.
+
+** 32 · /"sorry. continue"/ — after beef interrupted mid-tool; NOTHING durable. Resumed at the ladder measurement's readout.
+
+** 33 · /"ikiro compact"/ — this.
+
+** 34 · MID-TURN =/compact= — NOTHING (the harness fold, queued behind this compact).
+
+* landed
+
+- *theme* (29, section 1 of the proposal):
+  - =modes/*/*/buffer/kit/theme.css= ×5 deleted → =kit/Theme.svelte=: a =<style>=-only component, mounted first under =.chess= in all
+    five views. Every rule =:global(selector)=; keyframes =-global-chess-pulse=; =.chess:focus= loses its outline.
+  - The first form, one =:global { … }= block, failed =P-theme-ships= in all five bundles. Traced: esbuild-svelte merges
+    =css: "injected"= correctly, the served bundle held =append_styles($$anchor, $$css5)= with =code: "\n\n/*# sourceMappingURL…"=, and
+    =preprocess(source, sveltePreprocess())= alone returned =<style>\n</style>=. Probed six shapes: only =:global(.a) { … }= survives.
+    A second pass wrapped the 16 one-line rules the first transform skipped (=css_unused_selector= ×16 → 0).
+- *paper* (29, section 2): tokens generated through =subsystems/dapper/lib/system.js design()= and read per theme, never assumed:
+  #+BEGIN_EXAMPLE
+  zone 4       surface   contrast  boundary     zone 3 surface
+  nordic       #243544   #F4F6F9   #4F6175      #1A2A38
+  paper        #DAD4C0   #06081E   #7C725B      #FBFAF2
+  #+END_EXAMPLE
+  =:root[data-theme="paper"] .chess= swaps =--sq-light= ↔ =--sq-dark= to surface/boundary, =--pw= to zone-3 surface with an ink shadow,
+  =--pb= to zone-4 contrast. Dapper emits no =color-scheme= and its palette has no iron/paper ramps, so no theme-blind =light-dark()=.
+- *play* (29, section 3):
+  - aperture: =end(data, result, reason)=. The fifty-move rule ends a match when the FEN's halfmove field reaches 100. Threefold
+    repetition is counted on EPD over the replayed line. =tick(data)= now runs after the driver answers, so a bot's thinking drains its
+    own clock.
+  - view: =drive= stops on unmount (=live=). =fresh(null)= means untimed, and after create it drives a bot to move. =onMount= resumes a
+    match a bot owes a move to. Seat chips are off while =busy=. "plies".
+- *riddles* (29): =replay= set by =/again=; a replay moves no tally in =/move= (fail and solve) or =/reveal=. =/next= with a level is
+  not a failure. The missed move stands on the board (=fen= replayed through it). Schema gains =replay=.
+- *study* (29, section 4): a ladder answer with no rungs throws its =message= into the fault line. The arrows fire only while the view
+  holds focus: a =tabindex="-1"= root, and a =svelte:window= listener that checks =root.contains(document.activeElement)=. The first try,
+  =role="application"= + =onkeydown=, drew =a11y_no_noninteractive_element_interactions=; the final form compiles clean (re-measured at
+  fold, six views).
+- *practice* (29): null ladder → fault. =stalled= (waiting, not thinking, not busy) shows "coach has not moved yet" and a
+  =coach, move= button.
+- *library* (29): the PGN stays unless the import's tone is success. =open(…, { show: false })= then =show()= after =/analysis/load=
+  (=kit/open.js= gains =show=). =count= comes from a new domain door =/game/count=.
+- *board* (29): a 4 px slop before a press becomes a drag; a ✕ on the promotion picker.
+- *ladder* (29, /"fix."/):
+  - =ladder(ctx, { fen, uci, rungs, samples = 5, movetime = 100 })=. =LADDERED[elo] = { plays: [uci…], engine, movetime, at }= only grows;
+    a bigger =samples= tops it up.
+  - Per rung: =plays= · =uci= (the modal move) · =share= · =hold= · =agrees= (share ≥ 0.5).
+  - Per ladder: =elo= (highest rung that agrees) · =spread= (highest rung with share > 0) · =settled= (every hold ≥ 0.6) · =samples=.
+  - New verdict "one of several equal moves"; sentences carry "in k of n searches". The =chess_elo= tool prints =k/n=; both views'
+    bands show it, and an unsettled ladder shows "the strengths split here — several moves are equal, so the number is a sample".
+  - The rig's =plays= may be a list, dealt one per call, cycling.
+- *measured, real Stockfish 19, fresh rig per run* (29):
+  #+BEGIN_EXAMPLE
+  move          run 1   run 2   the rungs, run 1 | run 2
+  e4 @start     full    full    1320 Nf3 · 1600 d4 · 2000 d4 2/5 · 2400 d4 2/5 · 2800 e4 4/5 ✓ · full e4 ✓ | 1320 c4 1/5 · … · full e4 ✓
+  d4 @start     1600    null
+  Nf3 @start    null    2000
+  Nf6 @italian  full    full    2800 Nf6 ✓ · full Nf6 ✓ both runs
+  Bc5 @italian  null    2000
+  #+END_EXAMPLE
+  A cold ladder costs ~3.5 s (30 searches × 100 ms); a warm one ~3 ms.
+- *tests* (29): =P-theme-ships= bundles all five views through =paladin.bundler= and asserts =--sq-light:=, the dapper token, the paper
+  override, =@keyframes chess-pulse= and =.chess .page= in the served code; the five =P-bundle= steps assert =--sq-light:= too.
+  New steps: =P-clock-drain= (a 150 ms model: black between 59 and 59.9 of 60) · =P-fifty-repetition= · =P-miss-again= ·
+  =P-level-switch=. =P-elo-ladder= rewritten (30 plays, shares, spread/settled, top-up to 7, the one-of-several verdict, the tool's
+  =k/n=). Study root and the practice poke join P-render. Every suite removes its temp dir, =render.js= too, and =render.js= no longer
+  strips css imports. =101 → 106= steps.
+- *engine* (31), measured and not built:
+  - WASM: =npm:stockfish@17.1.0= →
+    =src/stockfish-17.1-lite-single-03e3232.js= → =INIT()= → =Stockfish({ locateFile, listener })= → =engine.ccall("command", null,
+    ["string"], [cmd], { async: /^go/.test(cmd) })=. The glue reads =location.hash= at load, so deno needs =--location=. Ready in
+    263 ms; =go movetime 300= reached depth 15 at ~900 knps; =UCI_Elo= min 1320 max 3190. Two failed probes on the way: the default export
+    is a factory of a factory, and without a location the load throws =reading 'hash'=.
+  - Container: =docker run -i --rm <image>= is itself a UCI stdio process, so it fits =statics.binary= + =args= with no code.
+  - Recommendation given: WASM as the default provider, brew opt-in, no container.
+- *README* — the theme paragraph (component, =:global(…)=, paper override, the test) and the ladder paragraph (half the time, spread,
+  settled, the measurement) rewritten.
+
+* settlement
+
+- *the closing question of my report* — /"say if that fits the jsr/https ruling or if it must come from esm.sh"/ (a WASM engine loaded
+  by =npm:=). A clear-cut rule answers it, so it is not carried: =feedback_registry_deps_by_url= says =jsr:= first, else =https://=;
+  =api.jsr.io/packages?query=stockfish= → =total 0=. A WASM provider loads its glue and =.wasm= by =https://=, never =npm:=. Written
+  into the quest's =#+next= and the chess memory. What is still beef's is WHICH home (WASM · brew · container): frontier =## owed=,
+  =@chess= line.
+- *quest =chess-ui-pass=* (29) — stays live; S9 (beef's walk) is what is left. =#+status= · =#+progress= · =#+next= rewritten, S11
+  changelog written. The derived report reads 11/12.
+- *quest m61* — untouched; its =#+next= already points at chess-ui-pass.
+- *frontier =## owed=* (29, 31) — =@chess= line: droneaid's map entries struck (ruled), the engine fork restated with what was measured.
+  4 839 chars.
+- *=deno.lock= + =node_modules/.deno=* (31) — see =* callouts=. Verified at fold: the lock names no stockfish, its diff against HEAD is
+  exactly =13 insertions, 7 deletions= (chessground out, esm.sh in), and a fresh deno run under the repo config leaves no
+  =stockfish@17.1.0= install behind.
+- *MARKERS.md* — its two OPEN entries (empty-cortex boot warning · cortex snapshot coverage) are untouched by this fold: carried.
+- *world-sync* — no codemap shard covers =~/.viva/registry/chess=. The preprocess law belongs to every Svelte view the bundler builds,
+  wherever it lives, and no path glob fires for out-of-tree views, so it went to memory (=project_svelte_preprocess_blanks_global_block=,
+  indexed under svelte/UI) rather than a shard.
+- *deletion sweep* — =theme.css= ×5: live canon, memory and the package, 0 hits outside the quest's and the compacts' records.
+- *balance* — 25 citations: turn 29 carries 19, turn 31 carries 6, turns 33–34 none (0%). Coverage 7/7 rows. The test is weak on a fold where one pasted turn holds the whole go; the rows, not the ratio, are the check here.
+- *VCS* — untouched. =import_map.json= and =deno.lock= sit in the dirty tree for beef.
+
+* callouts
+
+One entry appended to =zettelkasten.md ## Callouts=:
+1. =assume-dont-verify=, RULE FAILURE, self-caught (31): the WASM probe ran with =--config deno.jsonc=, which wrote =stockfish@17.1.0=
+   into beef's uncommitted =deno.lock= and =node_modules/.deno=. My "prune" re-serialized the lock with =json.dumps=, a 1 313-line diff
+   no one could read. I then ran =git show HEAD:deno.lock > deno.lock= over a dirty file without having read its hunks. Verified after the
+   fact, read-only: jj's last working-copy snapshot predates the chess work and holds the lock equal to HEAD; the five sibling sessions
+   active since then never touched it; the diff now is exactly the chess lines. No loss, but only because of timing.
+
+Codeword scan of beef's turns 28–34: 0.
+
+* markers
+
+chess-ui-pass, verdicts measured this fold:
+- *held*:
+  - =P-css-ships= (was broken) — =P-theme-ships= finds the definitions in all five served bundles.
+  - =P-kit-equal= — six files now (=Theme.svelte= replaced =theme.css=). =P-no-hex= — =P-kit-no-hex= walks =Theme.svelte=; 0.
+  - =T-paper-polarity= — held by override, values per theme in =* landed=; the eye's check is still the walk.
+  - =P-deps-by-url= — text corrected: 0 runtime =npm:= imports; one in the test rig, =npm:svelte@5.39.6/server=, a subpath of svelte,
+    which is system level and in the repo map.
+- *revised*: =T-ladder-stable= — sampled, and measured unstable below full strength in open positions; the panel says so.
+- *pending*: =T-walk=.
+
+=compacts/MARKERS.md=: none added, none settled.
+
+* laws
+
+- The bundler's first stage is svelte-preprocess (=subsystems/typology/gestalten/bundle/svelte.js=). It blanks a whole =<style>= that
+  holds a =:global { … }= block, which =svelte/compiler= alone compiles clean. Write =:global(selector)= per rule and =-global-= keyframes.
+  A compile probe is not the served pipeline; only the served bundle proves styling (29).
+- #168's render-the-view rule held on first contact: the served-bundle test went red on a fix a compile probe had called green, before
+  any report claimed it (29).
+- A theme that flips a zone's polarity needs its own override while dapper emits no =color-scheme=. Read the values off =design()=
+  per theme; never infer one theme from the other (29).
+- Stockfish's limited strength is a draw from a handful of near-equal moves. A move's elo is a statistic: sample it, show =k/n=, and say
+  when the strengths split. At full strength the verdict is stable (29).
+- A bot's thinking comes off its own clock only if the clock is read after the driver answers. Fifty moves is the FEN's halfmove
+  field; threefold repetition counts EPD over the replayed line (29).
+- Stockfish 17.1 Lite runs as WASM under deno, about a third of native speed, with =location= defined (31).
+- A probe run with the repo's =--config= writes into the repo's lock and =node_modules=. A dependency probe runs from the scratchpad
+  without it (31).
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | sessions   |
+|----------------------------+------------+-----------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| chess-ui-pass              |  92% 11/12 | wip                                                                   | beef — `viva registry/tap ~/.viva/registry/chess` · `viva instance/create @chess/instance/chess --use --init` · the chrome walk (nordic and paper) · rule the engine's home: a wasm stockfish provider by url (measured: stockfish 17.1 lite-single runs under deno with a `location` set, depth 15 in 286 ms, `uci_elo` 1320–3190; jsr has none, so it would load by `https://`, never `npm:`), the brew binary, or a container behind `statics.remote` as nlp/stanza does · a `color-scheme` per dapper theme would let `light-dark()` replace the paper override. ikiro — nothing until the walk                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | 0          |
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1 (1 live) |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 2 (1 live) |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 2 (1 live) |
+| m53-vcompany               |   0% 0/1   | open                                                                  | his restart + the click-through gates (vdex 12 · mail/calendar 12 · gs1–gs6); the six office test files; the three stale vdex reds; then his call on the next stage — chat over telegram · vendor providers · the officer stage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 1 (1 live) |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and the v3 vdex pass (both folded into =m53-vcompany.org=; originals =discarded/m53-vcompany.org= · =done/m53-vcompany.v3-vdex.org=) first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → anima. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1 (1 live) |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the anima terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1 (1 live) |
+| m57-hello-world-researches |  74% 20/27 | open                                                                  | restart (harnessed.js · generative.js · buffer.ts · thread.ts are repo files; buffer migrates). /"research flamingos, with a picture"/ → one <figure>, line reads the label. a follow-up change → `revised buffer <id> index 0 view <new>`, same line re-mounts, no cursor. /"call that page flamingos"/ → one buffer_label.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 1 (1 live) |
+| m58-application-noun       | 100% 3/3   | designed                                                              | beef — one commit for the three renames (add -a pairs the 4259 moves) · coolify step 6 for m3 (image `vivalence/anima:alpine` + `*_anima_*` keys, rollback pair noted) · education + primer + droneaid pushes · restart every instance (m2 rows mirror the manifest at boot) · anima click-walk in chrome. ikiro — sunset to `done/` once prod is on anima; the enum drop of `tooled` is a later pass with the migration routine.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 2 (1 live) |
+| m60-lighthouse-security    |   0% 0/24  | designed                                                              | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |
+| m61-chess-domain           |  30% 6/20  | wip                                                                   | beef — the package's live gates now ride quest `chess-ui-pass` (tap · instance/create · the walk of five views · the engine fork: brew binary or wasm by url); stockfish 19 is installed · rule the gpl-3.0-or-later dependency (chessops; chessground is gone) · f6 before m6. ikiro — rename the release lines to @chess at lift; five markers pending                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 1          |
+| m63-process-controller     | —          | designed                                                              | beef — rule the overlap with m65, which now tangles primitives/controller.js · errors/controller.js · prototypes/controller.js; m63 keeps the graph and the socket line                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 1          |
+| m65-the-activity           | —          | landed                                                                | beef — followup: tools nesting a harness call hand `ctx.controller?.branch(<faculty>)` (research.js runs under a dispatch; dealer · oracle · registry named by beef) · followup: the polish sites renamed by faculty (verbatim.polish · hal.verbatim({ polish }) · vocal.polish · polish) · then the anima capability (a panel over `daemon.entities.activity` + `row.stdin`) · rule the m63 overlap. diff back into the quest: the =drift:= marks under each section (measured on disk; compact #160 `* landed vs designed` is partly stale).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3 (1 live) |
+| media-editor               |   9% 2/22  | wip                                                                   | control                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 1          |
+| readme-can-i               |   0% 0/5   | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 0          |

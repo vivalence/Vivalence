@@ -1,5 +1,5 @@
 #+title: m51 standalone — one instance, every system: the case study that is also the localhost default
-#+filetags: :commons:instance:standalone:documentation:slowstart:hallucinator:secrets:paladin:runtime:kajuit:voice:agentic:domain:dataset:ledger:
+#+filetags: :commons:instance:standalone:documentation:slowstart:hallucinator:secrets:paladin:runtime:anima:voice:agentic:domain:dataset:ledger:
 #+status: AUTHORED — full patch, nothing blasted. Terrain measured (three poles read, four defects PROVEN by probe — one of them kills every LLM call at HEAD). Numbered m51 on beef's word; forks F1–F8 are beef's; M0 is the prerequisite for anything agentic to answer at all.
 #+phase: design
 #+progress: 0% 0/6
@@ -25,12 +25,12 @@ One sentence: *=@commons/instance/standalone= is a tiny language-learning system
 
 | pole                                | daemons                                                    | services                | clients        | keys                                  | needs                    |
 |-------------------------------------+------------------------------------------------------------+-------------------------+----------------+---------------------------------------+--------------------------|
-| =~/.viva/instances/language-learning= | italian (education: domain·3 topologies·topography·dojo·francesca·harvest·dataspace) + development (8 rigs) | multiplayer · nlp-stanza | ghost · kajuit | JWT ANTHROPIC OPENROUTER ELEVENLABS DEEPGRAM NLP | education tap · docker  |
-| dead =localhost= (=04e46f79d=)        | brazilian (education) + playground (8 rigs)                | multiplayer · nlp-stanza | ghost · kajuit | same                                  | education tap · docker   |
-| dead =standalone= (=04e46f79d=)       | standalone: inline =recall= domain + inline =flashcard= mode | multiplayer             | kajuit         | JWT ANTHROPIC                         | nothing                  |
-| =starter/= (on disk, slug =multiplayer=) | italian (education), spanish+brazilian commented           | multiplayer             | kajuit         | JWT ANTHROPIC OPENROUTER              | education tap; carries the prod =docker-compose.yml= |
+| =~/.viva/instances/language-learning= | italian (education: domain·3 topologies·topography·dojo·francesca·harvest·dataspace) + development (8 rigs) | multiplayer · nlp-stanza | ghost · anima | JWT ANTHROPIC OPENROUTER ELEVENLABS DEEPGRAM NLP | education tap · docker  |
+| dead =localhost= (=04e46f79d=)        | brazilian (education) + playground (8 rigs)                | multiplayer · nlp-stanza | ghost · anima | same                                  | education tap · docker   |
+| dead =standalone= (=04e46f79d=)       | standalone: inline =recall= domain + inline =flashcard= mode | multiplayer             | anima         | JWT ANTHROPIC                         | nothing                  |
+| =starter/= (on disk, slug =multiplayer=) | italian (education), spanish+brazilian commented           | multiplayer             | anima         | JWT ANTHROPIC OPENROUTER              | education tap; carries the prod =docker-compose.yml= |
 
-The middle = everything =commons/= can carry, nothing that needs a tap or a container: the one-file flashcard grown into a domain + two modes, the eight rigs plus =reader=, the three voice-capable hallucinators declared plainly, ghost + kajuit, the compose file.
+The middle = everything =commons/= can carry, nothing that needs a tap or a container: the one-file flashcard grown into a domain + two modes, the eight rigs plus =reader=, the three voice-capable hallucinators declared plainly, ghost + anima, the compose file.
 
 ** what commons can showcase (research sweeps, every claim cited in the tractus below)
 
@@ -83,7 +83,7 @@ commons/instances/
     dataset/symbols.js    word (TOPOGRAPHICAL root) + word.part-of-speech.*
     dataset/literals.js   24 Italian words — TRANSLATED · RANKED · pos symbols
     cargo/.gitkeep        FRAUGHT root — rendered speech lands here
-    docker-compose.yml    runtime · kajuit · documentation images, this instance mounted, secrets from .env
+    docker-compose.yml    runtime · anima · documentation images, this instance mounted, secrets from .env
   fixture/                paladin snapshot fixture                                    stays
   bak/                    localhost/ · starter/ · multiplayer.bak/                    M4 — skip-listed by belt/find.js
 #+end_example
@@ -93,7 +93,7 @@ commons/instances/
 | system                                                                  | file                                   |
 |-------------------------------------------------------------------------+----------------------------------------|
 | instance grammar · =v.environment= · =${VAR}= derivation · =.optional()= | instance.viva.js                       |
-| runtime · two daemons · one path tree · hosted lighthouse · ghost + kajuit | instance.viva.js                     |
+| runtime · two daemons · one path tree · hosted lighthouse · ghost + anima | instance.viva.js                     |
 | kernel reference forms: =./= (travels with the copy) and bare (the registry) | daemon italiano / daemon development |
 | entity OVERRIDE by type · new entity · subscriber accumulation · repository verbs · per-user filter | recall.viva.js         |
 | =APPLICATION EXPOSED TOOLED DATASET= · one Vector two mounts · yield =${condition, output}= | flashcard.viva.js            |
@@ -111,7 +111,7 @@ commons/instances/
 Out, by design: nlp-stanza (docker is a wall for a localhost default), the education tap, DATASINK. 50.01 names them as the divergence — /"the italian instance is this, plus a tap and a container"/.
 
 ** the pages — three vantages, one specimen
-- =50.01_slowstart= → RECAST: *Standalone — the case study*. §0 what you get (tree, map) · §1 install→tap in one recap linking the README · §2 create · use · init · run — doctor CAPTURED on the bare recipe · §3 the machine (instance.viva.js, fence = byte paste) · §4 the domain · §5 the deck + face + dataset (ontology derivation CAPTURED) · §6 the coach — say hi, the mic, /"quiz me"/, INTELLIGENT dial, the armed catalog CAPTURED · §7 the development daemon — one paragraph per rig, what to click · §8 operate — kajuit tour, ghost verbs, logs, stop/delete, compose · §9 *tractus* — the appendix (below). Author byline stays =claude (agent)=.
+- =50.01_slowstart= → RECAST: *Standalone — the case study*. §0 what you get (tree, map) · §1 install→tap in one recap linking the README · §2 create · use · init · run — doctor CAPTURED on the bare recipe · §3 the machine (instance.viva.js, fence = byte paste) · §4 the domain · §5 the deck + face + dataset (ontology derivation CAPTURED) · §6 the coach — say hi, the mic, /"quiz me"/, INTELLIGENT dial, the armed catalog CAPTURED · §7 the development daemon — one paragraph per rig, what to click · §8 operate — anima tour, ghost verbs, logs, stop/delete, compose · §9 *tractus* — the appendix (below). Author byline stays =claude (agent)=.
 - =51.02_instance-from-scratch= → RE-POINTED: the six files section by section, fences regenerated from disk.
 - =32.01_anatomy-of-an-instance= → RE-POINTED: the boot, example revived from =04e46f79d= against =commons/instances/standalone=, counts fixed (~18k), =.env= fence :2501.
 - README: unchanged in substance; §6 gains one "continue" line to =/50.01_slowstart= (already there) and its =@viva= → =@commons=.
@@ -237,10 +237,10 @@ export const manifest = { type: "instance", slug: "standalone", version: "0.0.1"
 
 export const environment = v.environment({
   VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
-  VIVA_CLIENT_KAJUIT_ORIGIN: v.url().desc("Scheme and authority the kajuit browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+  VIVA_CLIENT_ANIMA_ORIGIN: v.url().desc("Scheme and authority the anima browser client is reachable at.").default("http://localhost:1794").group("addresses"),
   VIVA_RUNTIME_SERVE: v.url().desc("Base URL the runtime serves on. Everything else hangs off this latch.").default("${VIVA_RUNTIME_ORIGIN}/").group("addresses"),
   VIVA_LIGHTHOUSE_SERVE: v.url().desc("Where the hosted lighthouse attaches inside the runtime's own path tree.").default("${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer").group("addresses"),
-  VIVA_CLIENT_KAJUIT_SERVE: v.url().desc("Where the kajuit browser client serves.").default("${VIVA_CLIENT_KAJUIT_ORIGIN}/").group("addresses"),
+  VIVA_CLIENT_ANIMA_SERVE: v.url().desc("Where the anima browser client serves.").default("${VIVA_CLIENT_ANIMA_ORIGIN}/").group("addresses"),
   PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
   PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
   SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Generate with: openssl rand -base64 24").group("keys"),
@@ -282,11 +282,11 @@ export const clients = {
       lighthouse: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
     },
   },
-  kajuit: {
-    slug: "kajuit",
+  anima: {
+    slug: "anima",
     traits: ["ATTACHED"],
     statics: {
-      serve: () => new Url(paladin.env.get("VIVA_CLIENT_KAJUIT_SERVE")),
+      serve: () => new Url(paladin.env.get("VIVA_CLIENT_ANIMA_SERVE")),
       lighthouse: { remote: () => new Url(paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE")) },
     },
   },
@@ -832,9 +832,9 @@ services:
     volumes:
       - mountpoint:/viva/mountpoint
 
-  kajuit:
-    image: vivalence/kajuit:alpine
-    container_name: kajuit
+  anima:
+    image: vivalence/anima:alpine
+    container_name: anima
     restart: unless-stopped
     ports:
       - "1794:1794"
@@ -851,7 +851,7 @@ services:
 ** landing gate for M2 (each pasted, not claimed)
 1. =deno check commons/instances/standalone/*.viva.js=
 2. =viva instance/doctor --instance=./commons/instances/standalone= — 10 keys, 3 optional, 0 UNDOCUMENTED.
-3. scratch ledger: =ledger/init= → =registry/list= (census =@commons 24=: +=domain/recall= +=demo/flashcard= +=demo/coach=) → =instance/create @commons/instance/standalone= → =instances/use standalone= → =instance/init you changeme= (JWT only owed) → =instance/run= → =/status= ALIVE · =/daemon/italiano/metadata/modes= 401 · kajuit 200.
+3. scratch ledger: =ledger/init= → =registry/list= (census =@commons 24=: +=domain/recall= +=demo/flashcard= +=demo/coach=) → =instance/create @commons/instance/standalone= → =instances/use standalone= → =instance/init you changeme= (JWT only owed) → =instance/run= → =/status= ALIVE · =/daemon/italiano/metadata/modes= 401 · anima 200.
 4. headless boot (the 32.01 example shape): =literal.count() === 24= · =symbol.count() === 7= · =literal.findOne({slug:"ciao"}).ontology === "word"= · =rank === 1= · =mode.call.deck()= 10 cards · =review ciao true= → streak 1 · =/progress= touched 1.
 5. armed catalog on a coach thread (captured for §6): the 10 + =flashcard_deck flashcard_review flashcard_progress speak=.
 6. with your keys in the instance =.env=: say /"quiz me"/ → deck drawn, a card asked, =speak= called, =▶ coach= chip, audio plays; mic present in the dock.
@@ -875,7 +875,7 @@ services:
 - *ontologies and literals* — =literal.ontology= ← the one TOPOGRAPHICAL symbol · slug convention =<topology>.<dimension>.<value>= · =rankOf= · the DATASET contract (rows =${slug, traits, trait, symbols:[{slug}]}=, upsert then link, minted symbols, the stamp) · over-the-wire only literal/symbol/mode — memory travels through the mode's aperture.
 - *cortex* — faculty =${type, via, tune[4], context, channels}= · the table by provider · =object= derived from =dialogue/render= · =nearest= by tune · no key → no faculty (M0).
 - *voice* — in: verbatim/stream (deepgram) → dock mic, VOCAL thread trait · out: speech/render → cargo → =<audio>= (the coach) · not yet: spoken replies in the dock, two-sided converse (=connection.converse= landed, leaf not).
-- *kajuit* — A stage+dock (dock gated on HARNESSED) · B instruments · C = D navigation (application|conversational modes) · E traits (mode read-only, thread interactive) · F buffers + phase · G telemetry · H inspector · the Phase face =⚏ ⚎ ⚌ ⚍= · =Frame= hands =${terminal, daemon, mode, thread, buffer}=.
+- *anima* — A stage+dock (dock gated on HARNESSED) · B instruments · C = D navigation (application|conversational modes) · E traits (mode read-only, thread interactive) · F buffers + phase · G telemetry · H inspector · the Phase face =⚏ ⚎ ⚌ ⚍= · =Frame= hands =${terminal, daemon, mode, thread, buffer}=.
 
 * M4 — sunset + world
 

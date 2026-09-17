@@ -2,6 +2,10 @@
 
 ## unreleased
 
+### client
+
+- renamed the browser client `kajuit` → `anima` — directory `systems/anima`, package `@vivalence/anima`, client slug `anima` (`viva instance/run anima`, lock `<instance>_anima.lock`), tasks `anima/*`, image `vivalence/anima:alpine`, CI job `deploy-anima` · migrate: rename `VIVA_CLIENT_KAJUIT_*` · `PUBLIC_VIVA_CLIENT_KAJUIT_REMOTE` → `*_ANIMA_*` in every instance `.env` and in prod, `slug: "kajuit"` → `"anima"` in every instance kernel, and point the prod deploy at the new image ⟨m58-M3⟩
+
 ### cli
 
 - renamed `viva instances/use` → `viva instance/use [reference] [--ledger]` — SINGULAR: it selects the one instance this shell acts on; chaining unchanged (`viva instance/use italian run`); `--ledger` declared on the nature · migrate: `viva instances/use …` → `viva instance/use …` ⟨flags-declare-themselves⟩
@@ -30,6 +34,9 @@
 - changed `viva instances/use <slug> [<verb> [args…]]` — selects the instance for THIS shell (`<ledger>/sessions/<VIVA_PROCESS_ID>.json`); trailing params run as `instance/<verb>` on it in the same call · migrate: none ⟨m41⟩
 
 ### api
+
+- renamed the APPLICATION carrier `app` → `application` — kernel export `export const application = new App(…)`, so `mode.module.application` and `mode.application` (one object, `Object.assign`), the client atom `$application`, and the wire route `/metadata/app` → `/metadata/application` · migrate: rename the export in every kernel that declares an App; a kernel left on `app` throws at `traits/application.js` (`mode.module.application` undefined) ⟨m58-M1⟩
+- renamed the trait `TOOLED` → `TOOLING` — enum member, `traits/tooling.js` export, the manifest string in every kernel · changed the persisted `Mode.traits` row: it now MIRRORS the manifest at boot instead of accumulating, so a renamed or dropped trait leaves no ghost in any live db · migrate: flip the string in every manifest (a kernel still saying `TOOLED` boots with the trait logged DECLARED BUT UNIMPLEMENTED and empty `mode.tools`), then restart each instance. `TOOLED` stays in the enum as a deprecated member at the bottom so rows written before the rename still hydrate (mikro validates the enum array on load); it is dropped by a later migration once every instance has booted once ⟨m58-M2⟩
 
 - changed paladin `instance.mount` — a daemon without a `lighthouse` mask inherits the instance's (`held.lighthouse ?? instance.lighthouse`, the already-hydrated object); `v.primitives.instance.Instance.lighthouse` (new) and `Daemon.lighthouse` are `Mask.optional()`; a daemon left with `{}` fails validate as `daemon[<slug>]/lighthouse: must have required properties module` · migrate: none ⟨the-lighthouse-is-declared-once-and-inherited-at-the-pinhole-the-client-site-was-never-read-and-the-quest-index-listed-a-bak-that-had-dissolved⟩
 - changed `Vip.supply()` — a dead record location anywhere under the checkout is rediscovered from `<repository>/commons` and the record rewritten; a dead external one is kept, skipped, and reported (`vip.stale`, `viva ledger/doctor` `present:false`); discovery over a missing `commons/` yields nothing, so `accio` reports `not supplied` instead of a readdir trace · migrate: none ⟨m47-commons⟩

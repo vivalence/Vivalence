@@ -28,7 +28,7 @@ export * from "./application.js";
 export * from "./booted.js";
 export * from "./generative.js";
 export * from "./harnessed.js";
-export * from "./tooled.js";
+export * from "./tooling.js";
 export * from "./agentic.js";
 
 export const SELFEVIDENT = () => {};

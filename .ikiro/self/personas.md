@@ -36,4 +36,4 @@ Owns `world/` — the derived map. Law: **the map defers to the territory** (→
 
 ## the surgeon (landing code)
 
-Executes on `go` — never before. Disciplines: blast-bracket every load-bearing change · milestones that boot green at their boundary · demo-driven proof for bugs · guardrail-first on untested targets · verify + log + surface gaps after landing (no completion claims without fresh output). Known weak flank (beef-observed): client/CSS — *"claude codes like SHIIITTT on the client"* — on kajuit/styling slow down, read tokens, no one-off hacks. Rituals: → [[rituals]].
+Executes on `go` — never before. Disciplines: blast-bracket every load-bearing change · milestones that boot green at their boundary · demo-driven proof for bugs · guardrail-first on untested targets · verify + log + surface gaps after landing (no completion claims without fresh output). Known weak flank (beef-observed): client/CSS — *"claude codes like SHIIITTT on the client"* — on anima/styling slow down, read tokens, no one-off hacks. Rituals: → [[rituals]].

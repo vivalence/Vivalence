@@ -3,7 +3,7 @@ export const AGENTIC = (mode, daemon) => () => {
     .flatmodes()
     .filter((source) =>
       source !== mode && source.manifest?.type !== "domain" &&
-      source.implements("TOOLED")
+      source.implements("TOOLING")
     )
     .forEach((source) =>
       mode.tools.branch(source.manifest.slug).slurp(source.tools)

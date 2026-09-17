@@ -42,7 +42,7 @@ At paladin's own import time, the singleton hands the process environment to `pa
 
 `paladin.instance.mount()` then makes the declaration real, in five moves:
 
-1. **environment** — the instance's own `.env`, at its root and nothing else, folds in through `paladin.claim` at the `instance` stratum. One file at one stratum, so nothing can silently overwrite anything. The key decides secrecy, so a `SECRET_*` reaches the secret store wherever it is written. This is where the runtime, lighthouse and kajuit addresses arrive.
+1. **environment** — the instance's own `.env`, at its root and nothing else, folds in through `paladin.claim` at the `instance` stratum. One file at one stratum, so nothing can silently overwrite anything. The key decides secrecy, so a `SECRET_*` reaches the secret store wherever it is written. This is where the runtime, lighthouse and anima addresses arrive.
 2. **resolve** — find the one module under the instance mount whose manifest says `instance`, then *hydrate* it: every deferred `() =>` fires now, at any depth. The thunk above becomes the string it read. Until this moment the declaration was data; after it, values — still untyped.
 3. **kernel references** — a daemon's `kernel` entries stay unhydrated and get resolved as references instead: a bare specifier points into the registry, `./` is relative to the instance file, and an inline object — the standalone's case — mounts as-is, with the instance file as its home.
 4. **defaults and seats** — the root `lighthouse`, `datamap` and `hallucinators` are copied into every daemon that declares none of its own (a service takes the datamap), and every daemon and service is seated: `mountpoint/daemon_standalone/` is where its database and migrations will live, and its datamap copy is stamped with that seat and a file named for it, `standalone.viva.db`.
@@ -84,7 +84,7 @@ A `Die` is a `Wafer` — the empty lifecycle shape from typology — and `popula
 
 - `APPLICATION` — the svelte source from the declaration is esbuilt into a bundle, cached under the mountpoint; the runtime serves it at `/attached/bundle/…`.
 - `DATASET` — first boot seeds the declared rows: two symbols, two literals, then a link phase wires `ciao ↔ interjection`, `mondo ↔ noun`. Every later boot skips this — the mode's row says `installed`.
-- `TOOLED` — the deck Vector becomes `mode.tools`, daemon and mode bound in.
+- `TOOLING` — the deck Vector becomes `mode.tools`, daemon and mode bound in.
 - `HARNESSED` — the dialogue harness assembles, with the armed tool stack layered under it.
 - `EXPOSED` — the finalizer compiles the mode's callable face:
 

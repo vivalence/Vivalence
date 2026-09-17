@@ -1,0 +1,504 @@
+<script>
+  import { getContext } from "svelte";
+  import { LIGHTHOUSE, TERMINALS } from "$client";
+  import { chain } from "@vivalence/anima";
+  import { belt } from "@vivalence/typology";
+  import { logger } from "$telemetry";
+  import { Section } from "@vivalence/drapes";
+  import ThreadLabel from "./ThreadLabel.svelte";
+
+  const lighthouse = getContext(LIGHTHOUSE);
+  const terminals = getContext(TERMINALS);
+
+  const activeThread = chain(terminals, "$active", "$thread");
+
+  let daemons = lighthouse.$daemons;
+
+  // Unavailable/error daemons are ignored entirely here — they 404 on /batch and would
+  // otherwise render empty with a warning dot. Health is surfaced in the crown instead.
+  const availableDaemons = $derived($daemons.filter((daemon) => daemon.status.is("healthy")));
+
+  let expanded = $state({});
+  const toggle = (slug) => (expanded[slug] = !expanded[slug]);
+
+  let sections = $state({ daemons: true, threads: true, intents: true });
+  const toggleSection = (name) => (sections[name] = !sections[name]);
+
+  let groups = $state({});
+  const groupOpen = (section, slug) =>
+    groups[`${section}:${slug}`] ?? slug === $activeThread?.daemon?.slug;
+  const toggleGroup = (section, slug) => (groups[`${section}:${slug}`] = !groupOpen(section, slug));
+
+  const code = (entity) => entity.status?.reflection?.code?.toLowerCase() ?? "";
+
+  let threads = $state([]);
+  let intents = $state([]);
+
+  // Live count off the thread's $buffers computed (filters the daemon buffer repo by thread),
+  // not the populate snapshot — so a buffer created in F shows here immediately.
+  const bufferCount = (thread) => thread.$buffers?.get()?.length ?? 0;
+
+  $effect(() => {
+    const list = $daemons;
+    const teardowns = [];
+    let cancelled = false;
+
+    const recompute = () => {
+      if (cancelled) return;
+      const gatheredThreads = [];
+      const gatheredIntents = [];
+      for (const daemon of list) {
+        if (!daemon.status.is("healthy")) continue;
+        for (const thread of daemon.entities.thread.$entities.get())
+          gatheredThreads.push({ thread, daemon });
+        for (const intent of daemon.entities.intent?.$entities.get() ?? [])
+          gatheredIntents.push({ intent, daemon });
+      }
+      gatheredThreads.sort((a, b) =>
+        String(b.thread.updatedAt ?? "").localeCompare(String(a.thread.updatedAt ?? "")),
+      );
+      threads = gatheredThreads;
+      intents = gatheredIntents;
+    };
+
+    (async () => {
+      for (const daemon of list) {
+        if (!daemon.status.is("healthy")) continue;
+        teardowns.push(daemon.entities.thread.$entities.subscribe(recompute));
+        const offIntent = daemon.entities.intent?.$entities.subscribe(recompute);
+        if (offIntent) teardowns.push(offIntent);
+        const offBuffer = daemon.entities.buffer?.$entities.subscribe(recompute);
+        if (offBuffer) teardowns.push(offBuffer);
+        await daemon.entities.thread
+          .find({}, { populate: ["mode", "intent"] })
+          .catch((error) => logger.entry(`threads/${daemon.slug}`).fault(error));
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      for (const teardown of teardowns) teardown();
+    };
+  });
+
+  function labelName(label) {
+    return typeof label === "object" ? label?.name : label;
+  }
+
+  async function selectMode(daemon, mode) {
+    try {
+      const terminal = terminals.active ?? terminals.create();
+      const current = terminal.thread;
+      if (current && current.daemon?.slug === daemon.slug) {
+        const previous = current.mode;
+        const label = labelName(current.label);
+        const wasDefault = label === previous?.name || label === previous?.slug;
+
+        await current.daemon.entities.thread.updateOne({ id: current.id }, { mode: mode.id });
+        current.mode = mode;
+
+        if (wasDefault) {
+          const name = mode.name ?? mode.slug;
+          current.label = { ...(typeof current.label === "object" ? current.label : {}), name };
+          await current.daemon.entities.thread.updateOne(
+            { id: current.id },
+            { trait: { ...current.trait, LABELED: { ...(current.trait?.LABELED ?? {}), name } } },
+          );
+        }
+      } else {
+        const thread = await daemon.entities.thread.create({ mode: mode.id });
+        daemon.entities.thread.resolve?.(thread);
+        terminal.thread = thread;
+      }
+    } catch (error) {
+      logger.entry(`threads/${daemon.slug}/${mode.slug}`).fault(error);
+    }
+  }
+
+  async function activateIntent(daemon, intent) {
+    try {
+      const terminal = terminals.active ?? terminals.create();
+      const thread = await daemon.entities.thread.create({
+        mode: intent.mode?.id ?? intent.mode,
+        intent: intent.id,
+      });
+      daemon.entities.thread.resolve?.(thread);
+      terminal.thread = thread;
+    } catch (error) {
+      logger.entry(`threads/${daemon.slug}/${intent.slug}`).fault(error);
+    }
+  }
+
+  async function spawnBuffer(terminal) {
+    const current = terminal?.thread;
+    if (!current) return;
+    const buffer = await current.daemon.entities.buffer.create({
+      mode: current.mode?.id ?? current.mode,
+      thread: current.id,
+      data: {},
+    });
+    terminal.buffer = buffer;
+  }
+
+  function loadThread(thread, fresh = false) {
+    const terminal = fresh ? terminals.create() : (terminals.active ?? terminals.create());
+    terminal.thread = thread;
+    return terminal;
+  }
+
+  async function quickStart(thread) {
+    try {
+      await spawnBuffer(loadThread(thread));
+    } catch (error) {
+      logger.entry("threads/quickstart").fault(error);
+    }
+  }
+
+  async function deleteThread(thread) {
+    try {
+      groups[`threads:${thread.daemon.slug}`] = true;
+      for (const terminal of terminals.entities)
+        if (terminal.thread?.id === thread.id) terminal.thread = null;
+      for (const buffer of thread.$buffers?.get() ?? [])
+        thread.daemon.entities.buffer.drop(buffer.id);
+      await thread.daemon.entities.buffer.remove({ thread: thread.id });
+      await thread.daemon.entities.thread.removeOne({ id: thread.id });
+    } catch (error) {
+      logger.entry(`threads/${thread.id}`).fault(error);
+    }
+  }
+
+  function onThreadAux(thread, event) {
+    if (event.button !== 1) return;
+    event.preventDefault();
+    loadThread(thread, true);
+  }
+</script>
+
+{#snippet threadRow(thread, daemon)}
+  {@const active = $activeThread?.id === thread.id}
+  <div class="row thread" class:on={active}>
+    <button
+      class="cell"
+      onclick={() => loadThread(thread)}
+      ondblclick={() => quickStart(thread)}
+      onauxclick={(event) => onThreadAux(thread, event)}
+      title="click load · dbl-click quick-start · middle-click new terminal">
+      <span class="tick" class:on={active}></span>
+      <span class="name" class:on={active}><ThreadLabel {thread} /></span>
+      <span class="tmode">{thread.mode?.slug ?? "-"}</span>
+      <span class="time">{belt.time.since(thread.updatedAt)}</span>
+      <span class="bufs" class:has={bufferCount(thread) > 0}>{bufferCount(thread)}</span>
+    </button>
+    <button class="x" onclick={() => deleteThread(thread)} title="delete thread">✕</button>
+  </div>
+{/snippet}
+
+{#snippet groupHead(section, daemon, count)}
+  <button class="subgroup" onclick={() => toggleGroup(section, daemon.slug)}>
+    <span class="caret">{groupOpen(section, daemon.slug) ? "▾" : "▸"}</span>
+    <span class="name">{daemon.slug}</span>
+    <span class="count">{count}</span>
+  </button>
+{/snippet}
+
+<div class="panel">
+  <section class="daemons">
+    <Section
+      label="daemons"
+      count={availableDaemons.length}
+      open={sections.daemons}
+      ontoggle={() => toggleSection("daemons")} />
+    {#if sections.daemons}
+      {#each availableDaemons as daemon (daemon.slug)}
+        {@const modes = (daemon.entities?.mode?.$entities.get() ?? []).filter(
+          (m) => m.implements("application") || m.implements("conversational"),
+        )}
+        {@const open = !!expanded[daemon.slug]}
+        <button class="row daemon" onclick={() => toggle(daemon.slug)}>
+          <span class="caret">{open ? "▾" : "▸"}</span>
+          <span class="pip {code(daemon)}"></span>
+          <span class="name">{daemon.slug}</span>
+          <span class="count">{modes.length}</span>
+        </button>
+        {#if open}
+          {#each modes as mode (mode.id)}
+            <button class="row mode" onclick={() => selectMode(daemon, mode)}>
+              <span class="subpip {code(mode)}"></span>
+              <span class="name">{mode.slug}</span>
+              <span class="type">{mode.type}</span>
+            </button>
+          {:else}
+            <div class="row empty mode">no modes</div>
+          {/each}
+        {/if}
+      {:else}
+        <div class="empty">no daemons</div>
+      {/each}
+    {/if}
+  </section>
+
+  <section class="threads">
+    <Section
+      label="threads"
+      count={threads.length}
+      open={sections.threads}
+      ontoggle={() => toggleSection("threads")} />
+    {#if sections.threads}
+      {#if !threads.length}
+        <div class="empty">no threads</div>
+      {:else}
+        {#each availableDaemons as daemon (daemon.slug)}
+          {@const daemonThreads = threads.filter((item) => item.daemon.slug === daemon.slug)}
+          {#if daemonThreads.length}
+            {@render groupHead("threads", daemon, daemonThreads.length)}
+            {#if groupOpen("threads", daemon.slug)}
+              {#each daemonThreads as item (item.thread.id)}{@render threadRow(item.thread, item.daemon)}{/each}
+            {/if}
+          {/if}
+        {/each}
+      {/if}
+    {/if}
+  </section>
+
+  <section class="intents">
+    <Section
+      label="intents"
+      count={intents.length || null}
+      open={sections.intents}
+      ontoggle={() => toggleSection("intents")} />
+    {#if sections.intents}
+      {#if !intents.length}
+        <div class="empty">no intents</div>
+      {:else}
+        {#each availableDaemons as daemon (daemon.slug)}
+          {@const daemonIntents = intents.filter((item) => item.daemon.slug === daemon.slug)}
+          {#if daemonIntents.length}
+            {@render groupHead("intents", daemon, daemonIntents.length)}
+            {#if groupOpen("intents", daemon.slug)}
+              {#each daemonIntents as { intent } (intent.id)}
+                <button class="row intent" onclick={() => activateIntent(daemon, intent)}>
+                  <span class="name">{intent.name ?? intent.slug}</span>
+                  <span class="type">{intent.mode?.slug ?? ""}</span>
+                </button>
+              {/each}
+            {/if}
+          {/if}
+        {/each}
+      {/if}
+    {/if}
+  </section>
+</div>
+
+<style>
+  .panel {
+    min-width: 250px;
+    width: 100%;
+    height: 100%;
+    min-width: 160px;
+    overflow: auto;
+    background: var(--colors-skeleton-3-surface);
+    color: var(--colors-skeleton-3-contrast);
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-sm);
+    letter-spacing: 0.02em;
+    padding: 14px 14px 18px;
+    box-sizing: border-box;
+
+  }
+  section {
+    margin-bottom: 18px;
+  }
+  section:last-child {
+    margin-bottom: 0;
+  }
+  section :global(.section-head) {
+    margin-bottom: 8px;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    padding: 3px 2px;
+    background: none;
+    border: none;
+    border-radius: 2px;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    line-height: 1.1;
+  }
+  button.row {
+    cursor: pointer;
+  }
+  button.row:hover {
+    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 5%, transparent);
+  }
+  .daemon .name {
+    font-weight: 500;
+  }
+  .caret {
+    width: 8px;
+    font-size: var(--font-size-2xs);
+    opacity: 0.45;
+    flex-shrink: 0;
+  }
+  .mode {
+    gap: 8px;
+    padding-left: 22px;
+    opacity: 0.75;
+  }
+  .name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pip {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: color-mix(in srgb, var(--colors-skeleton-3-boundary) 70%, transparent);
+  }
+  .subpip {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 40%, transparent);
+  }
+  .pip.healthy {
+    background: var(--colors-skeleton-0-primary-base);
+  }
+  .pip.unavailable {
+    background: var(--colors-skeleton-0-warning-base);
+  }
+  .pip.error {
+    background: var(--colors-skeleton-0-danger-base);
+  }
+  .count {
+    opacity: 0.4;
+    font-size: var(--font-size-xs);
+  }
+  .type {
+    opacity: 0.4;
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .subgroup {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    width: 100%;
+    background: none;
+    border: none;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    opacity: 0.28;
+    padding: 4px 2px 3px;
+  }
+  .subgroup:hover {
+    opacity: 0.55;
+  }
+  .subgroup .count {
+    font-size: var(--font-size-2xs);
+    opacity: 0.8;
+  }
+  .thread {
+    gap: 0;
+    padding: 0;
+  }
+  .thread .cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+    padding: 4px 2px 4px 4px;
+    background: none;
+    border: none;
+    border-radius: 2px;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    line-height: 1.1;
+    cursor: pointer;
+  }
+  .thread:hover {
+    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 5%, transparent);
+  }
+  .thread .x {
+    padding: 0 6px;
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    opacity: 0.2;
+    flex-shrink: 0;
+  }
+  .thread .x:hover {
+    opacity: 0.75;
+    color: var(--colors-skeleton-0-danger-base);
+  }
+  .thread.on {
+    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 10%, transparent);
+  }
+  .tick {
+    width: 2px;
+    height: 14px;
+    border-radius: 1px;
+    flex-shrink: 0;
+    background: transparent;
+  }
+  .tick.on {
+    background: var(--colors-skeleton-0-primary-base);
+  }
+  .thread .name.on {
+    color: var(--colors-skeleton-0-primary-base);
+  }
+  .tmode {
+    font-size: var(--font-size-2xs);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.3;
+    flex-shrink: 0;
+  }
+  .time {
+    font-size: var(--font-size-xs);
+    opacity: 0.3;
+    width: 26px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .bufs {
+    font-size: var(--font-size-xs);
+    width: 14px;
+    text-align: right;
+    flex-shrink: 0;
+    opacity: 0.25;
+  }
+  .bufs.has {
+    color: var(--colors-skeleton-0-primary-base);
+    opacity: 0.7;
+  }
+  .empty {
+    padding: 4px 2px;
+    opacity: 0.3;
+    text-transform: lowercase;
+  }
+  .empty.mode {
+    padding-left: 22px;
+  }
+  .intent .name {
+    flex: 1;
+  }
+</style>

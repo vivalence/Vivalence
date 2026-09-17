@@ -124,7 +124,7 @@ modes/dummy/mail/                        DATASET DATASINK EXPOSED — mail.viva.
 modes/dummy/calendar/                    DATASET DATASINK EXPOSED — calendar.viva.js · aperture {/calendars /events /create /rename /move /delete} · occurrences.js · dataset/literals/events.js (16 rows) · tests/calendar.test.js
 modes/officer/harness.js                 officer(manifest) → system.officer = one line from daemon.statics.company
 modes/officer/{ceo,cfo,cto}/<slug>.viva.js   HARNESSED EXPOSED — SKELETONS (name + description, no tools, not AGENTIC)
-instances/vcompany/instance.viva.js      runtime · daemons [vcompany] · clients.kajuit · services [multiplayer] · lighthouse · environment (mail/telegram vars optional)
+instances/vcompany/instance.viva.js      runtime · daemons [vcompany] · clients.anima · services [multiplayer] · lighthouse · environment (mail/telegram vars optional)
 instances/vcompany/daemon.js             the TEMPLATE kernel — STALE against the live instance (below)
 #+end_example
 
@@ -197,8 +197,8 @@ Beside the eight, every mounted mode's harness arms paladin's layer ② (=entity
 | paladin   | =prototypes/instance.js= · =prototypes/vip.js= · =lifecycle/integrate.js= · =belt/ignore.js= (new) · =belt/find.js= · =skills/fs.js= · =tests/{settle,kernel,skills,find}.test.js= | =materialize= hydrates kernel entries · =dress= declared-absolute only · =accioOne= folds statics + manifest and VALIDATES · declared dirs at init · the ignore doctrine · =fs_stat/move/delete= · =ctx.ignore= · =resolve= decodes |
 | typology  | =prototypes/dataset.js= · =prototypes/freight.js= · =prototypes/mode.js= · =schematics/entities/{mode,literal,symbol}.js= · =schematics/primitives/manifest.js= · =schematics/scalars/index.js= · =tests/{dataset,freight,v,mode-instance.snapshot}.test.js= | =reader.load= · MIME (+pdf md mdx org txt tex html csv jsonc) + per-segment url encoding + decoding =resolve= · a plain data citizen (=manifest= · =implements()=) · owner rel fields · =traits= =.optional().default([])= · the slug scalar's =title= |
 | runtime   | =daemon/lifecycle/population.js= · =daemon/lifecycle/integration.js= · =daemon/aperture/metadata.js= · =daemon/traits/{index,dataset}.js= · =daemon/entities/daemon/Mode.ts= · =daemon/entities/kernel/{Literal,Symbol}.ts= · =tests/dataset.install.test.js= · =tests/daemon/mode-ownership.test.js= | three reads + =mask.manifest= · the prune keep-set from the MOUNTING · =/mountpoint= · =MOUNTED= beside =FRAUGHT= · loader =pull= + stamp fold · =Mode.literals/symbols= 1:m · =Literal.mode/Symbol.mode= m:1 + unique =(slug, mode)= |
-| drapes    | =display/{Markdown,Org,Pdf,Tile,Plate,Entry,Empty,Pip}.svelte= · =display/{markdown,org}.js= · =controls/Key.svelte= · two barrels · =tests/{parts,markdown}.test.js=    | the lift from kajuit · new renderers · the five office parts · =glow= · tone =success=                    |
-| kajuit    | =panels/a/widgets/Dock.svelte= (imports the drapes barrel) · =panels/a/widgets/Markdown.svelte= + =panels/a/markdown.js= DELETED · =tests/pincer/markdown.test.js= MOVED to drapes | one renderer                                                                                           |
+| drapes    | =display/{Markdown,Org,Pdf,Tile,Plate,Entry,Empty,Pip}.svelte= · =display/{markdown,org}.js= · =controls/Key.svelte= · two barrels · =tests/{parts,markdown}.test.js=    | the lift from anima · new renderers · the five office parts · =glow= · tone =success=                    |
+| anima    | =panels/a/widgets/Dock.svelte= (imports the drapes barrel) · =panels/a/widgets/Markdown.svelte= + =panels/a/markdown.js= DELETED · =tests/pincer/markdown.test.js= MOVED to drapes | one renderer                                                                                           |
 | ~/.viva   | =registry.json= (tap =vcompany=) · =instances.json= (record =vivalence=) · the package · the instance                                                                     | the ledger                                                                                             |
 
 ** the tests
@@ -214,7 +214,7 @@ Package, measured this recast: =deno test --config deno.jsonc -A --no-check ~/.v
 | =office/email/app= · =office/calendar/{app,calendar}= | 5 · 8 · 20 | 0 | —                                                                                                   |
 | OWED: =office/email/tests/{aperture,tools,email.snapshot}= · =office/calendar/tests/{aperture,tools,calendar.snapshot}= | — | — | =/key=, the held send, the thread walk, =/mint= are landed and UNTESTED |
 
-Repo suites, measured this recast (=--no-check=): paladin 41 · 180 clean · drapes 8 · 54 clean · kajuit 37 · 133 clean ·
+Repo suites, measured this recast (=--no-check=): paladin 41 · 180 clean · drapes 8 · 54 clean · anima 37 · 133 clean ·
 typology 123 · 495 + 1 red (=hallucination snapshot · tool loop=, untouched by m53) · runtime 55 · 347 + 1 red (the
 =multiplayer= instance fixture, =known-issues= =runtime-registry-count-fork-2-multiplayer-stale=). Both reds are ledgered
 and neither is m53's.
@@ -286,7 +286,7 @@ delete from Symbol  where mode_id is null and (slug like 'vdex.area.%' or slug l
 
 - =officer/ceo= filled: persona from OpenExecutive's =executive_persona.py= near-verbatim ("holding the line" + autonomy tiers, attributed), keyed harness sections persona · company · vdex (the vdex's own =/index=) · inbox (=/inbox {limit}=) · agenda; AGENTIC over =vdex_*= · =email_*= · =calendar_*= · =<slug>_consult=; air-gap fallback answers as the bot; APPLICATION = =Desk.svelte= (tiles from the queries · the inbox top three · a recent document — the cross-App jump through =terminal.buffer= is the gate item).
 - the roster: =cfo= ← =CFO_PROMPT= + =knowledge/builtin/finance/*=; =cto= authored new (no source there); then =clo cso cao cgo cpo cmo cio= — one =/consult= tool each, HARNESSED · TOOLED, never AGENTIC (an officer never consults); a tenth officer is a kernel line. CALL: which of the seven land.
-- the domain's App =Voffice.svelte= (09 roster + 10 offices — the domain IS the office) · the Dock header (08, kajuit — PROSE until =Dock.svelte:787= is read) · the =◆ ceo= jump from mail.
+- the domain's App =Voffice.svelte= (09 roster + 10 offices — the domain IS the office) · the Dock header (08, anima — PROSE until =Dock.svelte:787= is read) · the =◆ ceo= jump from mail.
 - decisions: a =decision= ontology (FORK: fourth kernel ontology vs userspace entity with =user=), OpenExecutive's state machine VERBATIM with compare-and-set transitions (=proposed → approved_unchanged | approved_with_edit | rejected | auto_no_response | failed=, =executed → reversed=), post-turn extraction on a cheap faculty that never touches the state machine, =system.decisions= projection. The held send already IS the gate on mail.
 - scheduler + workflows: a claim-based runner over libsql; morning-brief · eod-digest · investor-update · board-prep as Vector pipelines (FORK: cadence contract). Evals: =packages/core/openexecutive/evals/_scenarios/*.yaml= + =fixtures/companies/*/scenarios/= → a fixture package judged through the harness.
 - m27 (memory + notes projections, the ADVERTISED upgrade) revives as its own quest and gates this stage, not the office.
@@ -298,7 +298,7 @@ delete from Symbol  where mode_id is null and (slug like 'vdex.area.%' or slug l
 - =m55-recursive-terminals= M3 — the nested App on the officer's Desk.
 - =m58-application-noun= — =app → application= · =TOOLED → TOOLING= touch =vcompany= 3+3 / 4 files (no VCS — capture first).
 - =drapes-editor= — CodeMirror owns the vdex =raw= view; his 8 click-through gates unrun.
-- =known-issues= OPEN: =runtime-literal-symbol-m-n-cascades-remove-both-ways= (runtime, holy — his) · =buffer-app-bundles-carry-2.6-mb-of-dead-weight= (direction his) · the boot race under =instance/run= (kajuit attaches at 4.5 s, the multiplex socket opens after =launching on=; gate the first attach or lengthen the 8 s budget — /"again. very slow."/).
+- =known-issues= OPEN: =runtime-literal-symbol-m-n-cascades-remove-both-ways= (runtime, holy — his) · =buffer-app-bundles-carry-2.6-mb-of-dead-weight= (direction his) · the boot race under =instance/run= (anima attaches at 4.5 s, the multiplex socket opens after =launching on=; gate the first attach or lengthen the 8 s budget — /"again. very slow."/).
 - paladin's =fs_*= ride layer ② of EVERY mounted mode's harness rooted at the package dir — whether the vdex sheds layer ② is his call; a =shell_run= on the office package dir is sharp.
 
 ** forks still open
@@ -317,7 +317,7 @@ delete from Symbol  where mode_id is null and (slug like 'vdex.area.%' or slug l
 
 ** designs (claude.ai/design, read through =DesignSync=; NOT on local disk)
 
-- project =f7686382-998d-4fe0-9d86-28ddae58839a= "VDex design system": =vcompany Screens.dc.html= (00 shell · M1–M5 mobile · 01–11 apps, 170 kB) · =vcompany System.dc.html= (zones · roots · type · drapes · kajuit chrome · §06 the office layer, 14 parts · §07 rules) · =V3 System.dc.html= · =V3 office-vdex.dc.html= (85 kB; the pdf viewer re-imported once, 21 → 91 lines) · =V3 office-email.dc.html= · =V3 office-calendar.dc.html= · =v3-data.js= (the fixture: INBOX 5 threads · AGENDA 16 · DOCS 18 · CHATS 2 · ROSTER 10 · OFFICES 5 — the dummies' source material) · =support.js= (the dc runtime, not content) · =github.md=.
+- project =f7686382-998d-4fe0-9d86-28ddae58839a= "VDex design system": =vcompany Screens.dc.html= (00 shell · M1–M5 mobile · 01–11 apps, 170 kB) · =vcompany System.dc.html= (zones · roots · type · drapes · anima chrome · §06 the office layer, 14 parts · §07 rules) · =V3 System.dc.html= · =V3 office-vdex.dc.html= (85 kB; the pdf viewer re-imported once, 21 → 91 lines) · =V3 office-email.dc.html= · =V3 office-calendar.dc.html= · =v3-data.js= (the fixture: INBOX 5 threads · AGENDA 16 · DOCS 18 · CHATS 2 · ROSTER 10 · OFFICES 5 — the dummies' source material) · =support.js= (the dc runtime, not content) · =github.md=.
 - the token map design → dapper: =--sN/--cN/--bN= → =--colors-skeleton-N-{surface,contrast,boundary}= · =--primary= → =--colors-skeleton-0-primary-base= · =--warning/--success/--danger/--info= → =--colors-skeleton-0-<role>-base= · =--secondary= → =info= · fonts =--font-family-{sans-heading,sans-text,code}= · sizes .55 → =2xs= · .6 → =xs= · .7–.85 → =sm= · .875 → =md= · .9–1 → =base= · 1.2–1.4 → =lg= · 1.6 → =xl= · 1.8 → =2xl= · 2 → =3xl= · radii =--border-radius-{sm,default,lg}= · =--shadow-soft= as is · zone 5 → =skeleton-4=.
 - the rules every App keeps (System §07 · Screens M): slugs · coordinates · states in code face, titles · bodies in sans; primary ink marks the ONE active thing per panel; the zone ladder carries depth (page 0 · list 2 · cards 3 · selection 4); one pulse, one heartbeat, one caret, nothing slides but the pincer; the shell does the layout, the App measures its own width (=bind:clientWidth=, < 820 → list › detail); 44 px rows and keys, 36 px chips under =(pointer: coarse)=.
 - what an App can reach (measured): five =Frame= props =terminal · daemon · mode · thread · buffer= · =daemon.entities.<type>.find/subscribe= · =mode.call.<route>= · another mode's =.call= through its entity · =daemon.cortex.find= · =terminal.buffer=.
@@ -378,7 +378,7 @@ viva instances/use vivalence run runtime                                        
 viva instance/doctor vivalence --json                                                        # problems [] faults [] dormant []
 deno test --config deno.jsonc -A --no-check ~/.viva/registry/vcompany/                       # the package (25/113 · 2 reds, above)
 deno test --config deno.jsonc -A --no-check ~/.viva/registry/vcompany/modes/office/vdex/tests/
-deno test --config deno.jsonc -A --no-check subsystems/drapes/tests/ subsystems/paladin/tests/ subsystems/typology/tests/ systems/runtime/tests/ systems/kajuit/tests/
+deno test --config deno.jsonc -A --no-check subsystems/drapes/tests/ subsystems/paladin/tests/ subsystems/typology/tests/ systems/runtime/tests/ systems/anima/tests/
 curl -s http://localhost:2501/daemon/vcompany/mode/office/corpo/metadata/mountpoint          # after /userspace/handshake — the metadata routes are user-gated
 #+end_src
 
@@ -395,5 +395,5 @@ curl -s http://localhost:2501/daemon/vcompany/mode/office/corpo/metadata/mountpo
 - added trait =MOUNTED= (runtime) — serves =mode.mountpoint=; =FRAUGHT= keeps the mode's own files · migrate: a mode that served an operator's tree through =FRAUGHT= + =Freight("/")= declares =MOUNTED= ⟨m53⟩
 - added route =GET /daemon/<d>/mode/<type>/<slug>/metadata/mountpoint= (user-gated; never secrets) ⟨m53⟩
 - changed entities =Literal.mode= · =Symbol.mode= (m:1, nullable) · =Mode.literals= · =Mode.symbols= (1:m); unique key =slug= → =(slug, mode)= on both · migrate: mikro syncs the schema; unowned duplicate rows from before are deleted by hand ⟨m53⟩
-- added drapes =display/{Markdown,Org,Pdf,Tile,Plate,Entry,Empty}= · =controls/Key= · =Pip= =glow= prop + tone =success= · removed kajuit =panels/a/widgets/Markdown.svelte= + =panels/a/markdown.js= · migrate: import =Markdown= from =@vivalence/drapes/display= ⟨m53⟩
+- added drapes =display/{Markdown,Org,Pdf,Tile,Plate,Entry,Empty}= · =controls/Key= · =Pip= =glow= prop + tone =success= · removed anima =panels/a/widgets/Markdown.svelte= + =panels/a/markdown.js= · migrate: import =Markdown= from =@vivalence/drapes/display= ⟨m53⟩
 - env: none (=VIVA_MAIL_*= · =SECRET_VIVA_{MAIL_*,TELEGRAM_TOKEN}= are declared optional in the vcompany instance and unread)

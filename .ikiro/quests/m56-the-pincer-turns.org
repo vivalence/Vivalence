@@ -1,8 +1,8 @@
 #+title: m56 the pincer turns — a bone reads its own rect, and panel C stops being a triptych
-#+filetags: :m56:kajuit:pincer:bones:panel-c:layout:responsive:design-import:dapper:
+#+filetags: :m56:anima:pincer:bones:panel-c:layout:responsive:design-import:dapper:
 #+status: *M1 + M2 LANDED* (green, uncommitted). Rulings 2·3·5·6 taken on the quest's own recommendations — strike any and the affected hunk is small. From beef's Claude Design project /Pincer responsive redesign directions/. Two parts, as beef framed them: *M1* the top-level t-bone, *M2* the C panel.
 #+status: Read this pass: =Pincer Panel C - Final v3.dc.html= (the named selection), =Pincer C - Drag Handling Wireframes.dc.html=, =Pincer C-Nav Variants.dc.html=, =github.md= (a sync ledger — the project is generated FROM this repo), =support.js= (the dc-runtime, generic). WALKED LIVE off =~/Downloads/Pincer Panel C v3.html= at o=90.
-#+status: The pass found FOUR things reading v3 alone could not. (1) *v3 is one leaf of a fan* — three different panel-C designs and two different pincer interactions live in that project. (2) the wireframes RULE terminal (E) an anchor that never folds, docks or closes — *beef STRUCK it: /"terminal should absolutely dock and close. bullshit"/*. v3's symmetry is the law; the wireframes' =ANCHOR= does not reach kajuit. (3) *the comp's palette IS dapper's =paper= theme* — 21 of 21 hexes measured back to =dapper/lib/colors.js=, so the port is a token substitution, not a colour judgment. (4) *v3's =norm= leaves dead space when every open pane is folded*, and =openPane= can reach that state.
+#+status: The pass found FOUR things reading v3 alone could not. (1) *v3 is one leaf of a fan* — three different panel-C designs and two different pincer interactions live in that project. (2) the wireframes RULE terminal (E) an anchor that never folds, docks or closes — *beef STRUCK it: /"terminal should absolutely dock and close. bullshit"/*. v3's symmetry is the law; the wireframes' =ANCHOR= does not reach anima. (3) *the comp's palette IS dapper's =paper= theme* — 21 of 21 hexes measured back to =dapper/lib/colors.js=, so the port is a token substitution, not a colour judgment. (4) *v3's =norm= leaves dead space when every open pane is folded*, and =openPane= can reach that state.
 #+status: =geometry.js= and =gesture.js= need NO logic change. M1 is three components, one derived rule, and two pieces of dead CSS.
 #+phase: verify
 #+progress: 2/2
@@ -29,7 +29,7 @@ stops being D│E│F and becomes a pane engine that lays out along whichever ax
 
 ** the project is a fan, and v3 is one leaf
 
-=github.md= in the project is a sync ledger: /"repo: vivalence/Vivalence · path: systems/kajuit"/, with a
+=github.md= in the project is a sync ledger: /"repo: vivalence/Vivalence · path: systems/anima"/, with a
 screen map naming the repo files each comp was generated from. The comps are not external art — they are
 derivations of this tree, and they disagree with each other on purpose.
 
@@ -123,12 +123,12 @@ Each component hardcodes exactly one of those:
   =.slot { flex-direction: column }=, =.scanline= (=top: 45px=, animates =translateY=), =.endcap= (=top: 47px=)
 
 *Seen at o=90, driven in Chrome off the export* (=BONE 45=, =FOLDZ 84=, =DOCK_PULL 34=, key
-=kajuit-pincer-panelc-v3= — same v3), pincer at (520, 300):
+=anima-pincer-panelc-v3= — same v3), pincer at (520, 300):
 
-- shoulder = a 45px-wide *column*, =⊘ ‹ ›= stacked. kajuit's row clips two of three.
+- shoulder = a 45px-wide *column*, =⊘ ‹ ›= stacked. anima's row clips two of three.
 - crown = a 45px-wide *column*: =+=, then =Francesca= and =empty= with labels in =writing-mode: vertical-rl=.
-  kajuit's horizontal tab shows about three characters of a terminal name.
-- spine = a 45px-tall *row*: =●L ●B ●S ●I=, each pip beside its glyph. kajuit's column plus
+  anima's horizontal tab shows about three characters of a terminal name.
+- spine = a 45px-tall *row*: =●L ●B ●S ●I=, each pip beside its glyph. anima's column plus
   =padding: 56px 0 14px= puts every dot outside a 45px bar.
 - panel A reads =PANEL A · LEFT= — =A_SIDE[90]=.
 
@@ -261,7 +261,7 @@ last-resort unfold or give =openPane= the guard the other two paths have.
 | =bridge.paneSize=             | =c.svelte= (18 sites) · =bridge.js:90-99,133=                 |
 | =panels/c/c.svelte=           | =+page.svelte:6=                                              |
 
-Nothing outside =systems/kajuit/src= reads any of it. =+page.svelte= is unchanged in both milestones — it
+Nothing outside =systems/anima/src= reads any of it. =+page.svelte= is unchanged in both milestones — it
 already hands each bone its rect and C its rect, which is why M1 is cheap.
 
 * rulings owed — beef's
@@ -288,7 +288,7 @@ already hands each bone its rect and C its rect, which is why M1 is cheap.
 5. *where does the engine live, and how big is =MIN=?* =norm= · =push= · =fitRun= · =layout= are pure.
    *Recommendation:* =stores/bridge/panes.js=, beside geometry/gesture/dock, tested like
    =tests/pincer/dock.geometry.test.js=; =MIN= a constant at 180, not a user setting. Chrome stays
-   kajuit-local under =panels/c/widgets/= until a second consumer asks.
+   anima-local under =panels/c/widgets/= until a second consumer asks.
 6. *does =paneSize= migrate?* The saved shape has no =fold= / =weight= / =open= / order.
    *Recommendation: new key, old key ignored* — a stale layout is worth nothing and =bridge.js:57= already
    tolerates a null read.
@@ -305,7 +305,7 @@ already hands each bone its rect and C its rect, which is why M1 is cheap.
 
 * M1 — the bones follow their own rect · LANDED
 
-*Green:* =deno test systems/kajuit/tests/= 35 passed / 0 failed · =deno task bundle= built clean,
+*Green:* =deno test systems/anima/tests/= 35 passed / 0 failed · =deno task bundle= built clean,
 no =css_unused_selector= on any new rule. Uncommitted.
 
 No store logic changes. Every colour written as a dapper token, never a comp hex.
@@ -339,7 +339,7 @@ The comp hides its centre label when the rect is too short; port that gate *to t
 
 * M2 — panel C becomes the pane engine · LANDED
 
-*Green:* =deno test systems/kajuit/tests/= 37 passed / 0 failed (=panes.test.js= adds 14 steps) ·
+*Green:* =deno test systems/anima/tests/= 37 passed / 0 failed (=panes.test.js= adds 14 steps) ·
 =deno task bundle= clean, no =css_unused_selector=. Uncommitted.
 
 *Rulings taken, not answered* — beef said /"build the cpanel"/ with 2·3·5·6 still open, so each went
@@ -380,22 +380,22 @@ worth keeping verbatim: they are the only documentation these gestures have.
 
 | file                                                    | M1 | M2 | why                                    |
 |----------------------------------------------------------+----+----+----------------------------------------|
-| =systems/kajuit/src/typology/stores/bridge/geometry.js=  | ✓  |    | =axisFor()= + =A_SIDE=                 |
-| =systems/kajuit/src/typology/stores/bridge/index.js=     | ✓  | ✓  | re-exports                             |
-| =systems/kajuit/src/typology/stores/bridge/bridge.js=    |    | ✓  | the pane record replaces =paneSize=    |
-| =systems/kajuit/src/typology/stores/bridge/panes.js=     |    | ✓  | NEW — the engine                       |
-| =systems/kajuit/src/app/bones/shoulder/shoulder.svelte=  | ✓  |    | axis + padding + delete =.sep=         |
-| =systems/kajuit/src/app/bones/crown/crown.svelte=        | ✓  |    | axis + padding + overflow              |
-| =systems/kajuit/src/app/bones/crown/widgets/Tab.svelte=  | ✓  |    | =writing-mode= + delete =.tab-pip=     |
-| =systems/kajuit/src/app/bones/spine/spine.svelte=        | ✓  |    | axis + padding + rule + ornaments      |
-| =systems/kajuit/src/app/bones/pincer/widgets/Hud.svelte= | ✓  |    | NEW — the drag HUD                     |
-| =systems/kajuit/src/app/bones/pincer/pincer.svelte=      | ✓  |    | mounts the HUD                         |
-| =systems/kajuit/src/app/panels/a/a.svelte=               | ✓  |    | the =.label= gate                      |
-| =systems/kajuit/src/app/panels/c/c.svelte=               |    | ✓  | the rewrite                            |
-| =systems/kajuit/src/app/panels/c/widgets/Pane.svelte=    |    | ✓  | NEW — header + strip                   |
-| =systems/kajuit/src/app/panels/c/widgets/Twig.svelte=    |    | ✓  | NEW — the bar + tabs                   |
-| =systems/kajuit/tests/pincer/bones.axis.test.js=         | ✓  |    | NEW                                    |
-| =systems/kajuit/tests/pincer/panes.test.js=              |    | ✓  | NEW                                    |
+| =systems/anima/src/typology/stores/bridge/geometry.js=  | ✓  |    | =axisFor()= + =A_SIDE=                 |
+| =systems/anima/src/typology/stores/bridge/index.js=     | ✓  | ✓  | re-exports                             |
+| =systems/anima/src/typology/stores/bridge/bridge.js=    |    | ✓  | the pane record replaces =paneSize=    |
+| =systems/anima/src/typology/stores/bridge/panes.js=     |    | ✓  | NEW — the engine                       |
+| =systems/anima/src/app/bones/shoulder/shoulder.svelte=  | ✓  |    | axis + padding + delete =.sep=         |
+| =systems/anima/src/app/bones/crown/crown.svelte=        | ✓  |    | axis + padding + overflow              |
+| =systems/anima/src/app/bones/crown/widgets/Tab.svelte=  | ✓  |    | =writing-mode= + delete =.tab-pip=     |
+| =systems/anima/src/app/bones/spine/spine.svelte=        | ✓  |    | axis + padding + rule + ornaments      |
+| =systems/anima/src/app/bones/pincer/widgets/Hud.svelte= | ✓  |    | NEW — the drag HUD                     |
+| =systems/anima/src/app/bones/pincer/pincer.svelte=      | ✓  |    | mounts the HUD                         |
+| =systems/anima/src/app/panels/a/a.svelte=               | ✓  |    | the =.label= gate                      |
+| =systems/anima/src/app/panels/c/c.svelte=               |    | ✓  | the rewrite                            |
+| =systems/anima/src/app/panels/c/widgets/Pane.svelte=    |    | ✓  | NEW — header + strip                   |
+| =systems/anima/src/app/panels/c/widgets/Twig.svelte=    |    | ✓  | NEW — the bar + tabs                   |
+| =systems/anima/tests/pincer/bones.axis.test.js=         | ✓  |    | NEW                                    |
+| =systems/anima/tests/pincer/panes.test.js=              |    | ✓  | NEW                                    |
 
 =panels/b/b.svelte= was in the first draft's table and is *struck* — it has no centre label.
 
@@ -419,7 +419,7 @@ after =openPane(i, 50)= with every other pane docked, the layout must still fill
 *What no test reaches:* the pointer choreography — the dock pull, the strip's vertical hit targets, the
 fold-on-release feel, whether a vertical crown's labels are readable at a real DPI. Live-validation debt.
 Per [[project_pincer_comp_redesign]] the last pass here was blocked twice: no daemon backend (so D/E/F
-render chrome with no data) and the kajuit SPA never reaches =document_idle=, so =computer screenshot=
+render chrome with no data) and the anima SPA never reaches =document_idle=, so =computer screenshot=
 errors on the live tab. *DOM probes via =javascript_tool= and =read_console_messages= work; screenshots of
 the live SPA do not.* The static comp screenshots fine — that is how this pass was walked.
 
@@ -434,7 +434,7 @@ the live SPA do not.* The static comp screenshots fine — that is how this pass
 | 5 | =.sep=, =.tab-pip= and the shoulder container context GONE — grep LIVE files, =.bak= excluded | *PASS* |
 | 6 | HUD appears only while dragging and never intercepts a pointer                 | *PASS*  |
 | 7 | =panes.js= imports nothing from svelte, nanostores, or the DOM                 | *PASS*  |
-| 8 | no comp hex reaches kajuit — every colour is a =var(--colors-…)= token          | *PASS*  |
+| 8 | no comp hex reaches anima — every colour is a =var(--colors-…)= token          | *PASS*  |
 | 9 | =nordic= still renders correctly (the comp is =paper=; both must hold)          | open    |
 |10 | a folded pane measures exactly 44px in both axes of C                          | open    |
 |11 | the all-folded dead-space state cannot paint bare background — guarded in =normalise= | *PASS* |
@@ -460,7 +460,7 @@ Two additions I made while writing, neither in the first draft's hunk list:
    viewport-sized travel (=100vh= / =100vw=), which is the pre-existing sloppiness, not new.
 
 *One number is mine, not measured:* =panels/a/a.svelte= =LABEL_MIN_PX = 96=. The comp gates its own
-12px label on =rects.a.height - 45 - 64 >= 24=; kajuit's label is =font-size-7xl= = =4.3rem= × 1.3 ≈ 89px,
+12px label on =rects.a.height - 45 - 64 >= 24=; anima's label is =font-size-7xl= = =4.3rem= × 1.3 ≈ 89px,
 so 96 is that box plus air at a 16px root. It does NOT track =FONT_SIZES= — at a large root setting the
 gate opens slightly early.
 

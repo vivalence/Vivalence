@@ -30,7 +30,7 @@ const declarations = (vector) =>
     ...(pattern.input && { input: pattern.input }),
   }));
 
-// tooled.js:10 then harnessed.js — the mode's own tools plus the GENERATIVE trait's, with the
+// tooling.js:10 then harnessed.js — the mode's own tools plus the GENERATIVE trait's, with the
 // mode's generator slurped onto them. `tools` alone is NOT what reaches the model.
 const generative = {
   manifest: { slug: "hello-world", type: "demo" },

@@ -1,0 +1,203 @@
+#+title: the Chess Modes design lands on five buffers — the mock was nordic hex for hex, the buffer carries the legal moves, and the real stockfish picks a different move at every rung
+#+filetags: :chess:ui:design:designsync:modes:board:nav:kit:tokens:dapper:elo:ladder:stockfish:library:ssr:import-map:jsr:quest:callout:
+#+index: 168
+#+session: 16 turns (12–27 of this session's 27; 1–11 are #167), one session carried past a /compact (models opus → fable → opus; one agent, opus, read-only review — running at the fold; ~/.viva/registry/chess · import_map.json · deno.lock · ikiro · memory touched; VCS untouched)
+
+* one breath
+
+After #167's walk and a =/compact=, beef handed over a claude.ai/design project — /"Implement: `Chess Modes.dc.html`"/ — and, while
+it was being read, eight mid-turn words that set the whole method: /"reworrk the the whole chess package"/ · /"define scope"/ ·
+/"draw up a plan"/ · /"step through it"/ · /"revue"/ · /"compact"/ · /"full ui pass"/ · /"the $chess nav bar re-implemented on all
+buffers."/. The design was a dc-runtime React prototype of ONE page — a ♞ bar with five tabs and an engine dot, a board column, a side
+column per mode — and every hex in it turned out to be a dapper nordic value. The plan went into a new quest, =chess-ui-pass=, with
+four forks and their defaults, and stopped there until /"go go go go"/.
+
+It landed as eight steps, each ending with its suite's counts. The package went from 63 files to 96. The whole package reads
+=21 passed (101 steps) | 0 failed= (was 18/78). All five views are server-rendered in their suites from rows the rig produced. No
+view has run in a browser: the package is still untapped and no instance exists. Mid-compact beef ruled imports
+(/"i dont want package specific importmap entries. anything by domain installs via https://jsr"/) — executed, suite unchanged — and
+installed stockfish, and the provider was driven against the real engine for the first time. That run found the elo ladder noisy.
+
+* the spine — 16 turns
+
+** 12 · =/compact= — NOTHING (harness; the context fold after #167; =compact-gate.sh= ran).
+
+** 13 · the continuation summary — NOTHING (harness text, not beef). It carried the one owed act: report #167's outcome. Reported.
+
+** 14 · /"Use the claude_design MCP … to import this project: https://claude.ai/design/p/e9a15c4a-… Implement: `Chess Modes.dc.html`"/ —
+=DesignSync= loaded. Project "UI Design Decisions", =PROJECT_TYPE_PROJECT=: =Chess Modes.dc.html= (65 KB) · =support.js= (69 KB, the
+generated dc-runtime) · =github.md= (/"styled from dapper nordic + paper themes … modes were designed from the dossier"/). Read whole,
+with the four current views + =board.css=, dapper's =themes/nordic.js= + =lib/tokens.js=, anima's crown =Tab.svelte=, drapes
+=Frame.svelte= (the props a view gets), and the memory bodies on theme tokens, SSR, effect-wire laws. Grep of the design's hexes
+against =subsystems/dapper/lib/colors.js=: every one a ramp value (deep 900 · iron 50…950 · aqua/indigo/moss/amber/rust 300).
+
+** 15 · MID-TURN /"reworrk the the whole chess package"/ — scope set to the package, not the views alone.
+
+** 16 · MID-TURN /"define scope"/ — =* scope= in/out written: five buffers, the kit, tokens, three domain doors, a library mode; out: URL
+fetch on import, piece set, ratings, tablebase, remote seats, anima's crown/dock, a linkedom mount.
+
+** 17 · MID-TURN /"draw up a plan"/ — =.ikiro/quests/chess-ui-pass.org= (child of m61) with the token map, steps S0–S10, testing
+assessment, 8 markers, blast table, release lines; four forks with defaults: library = a fifth mode · chessground dropped for the
+design's own board · the coach's talk inline, thread-backed · rungs 1320·1600·2000·2400·2800 + full (stockfish's floor is 1320, the
+design's 1200 cannot exist). Indexed. Package backed up to the scratchpad (63 files, 3.9 M).
+
+** 18 · MID-TURN /"step through it"/ — read as the steps' order, not a go; the plan stopped at go (memory
+=feedback_ask_before_implementing=).
+
+** 19 · MID-TURN /"revue"/ — S10 in the plan; spent at the end as one opus review agent over the diff.
+
+** 20 · MID-TURN /"compact"/ — S10's last act; spent at turn 24.
+
+** 21 · MID-TURN /"full ui pass"/ — every view rebuilt on the design, none patched.
+
+** 22 · MID-TURN /"the $chess nav bar re-implemented on all buffers."/ — the kit's =Nav.svelte=; =<Nav= in 5/5 views.
+
+** 23 · /"go go go go"/ (after =/remote-control=) — S1–S8 built, each step green before the next (→ =* landed=).
+
+** 24 · /"ikiro compact"/ — this.
+
+** 25 · MID-TURN, quoting my closing line /"Not mine to touch: import_map.json:147 "chessground" is in HEAD … Drop it when you
+commit."/ — the payload is the tail: /"i dont want package specific importmap entries. anything by domain installs via https://jsr"/.
+Measured: chessops is not on JSR (=api.jsr.io … total: 0=); =https://esm.sh/chessops@0.14.2= 200. =import_map.json= loses the line;
+chessops ×17 in four files moves from =npm:= to =esm.sh=; suite =21 passed (101 steps)=; =deno.lock= +14 remote-hash lines. → callout 3.
+
+** 26 · MID-TURN /"stockfish brew insatlled"/ — =/opt/homebrew/bin/stockfish=, =id name Stockfish 19=, =UCI_Elo min 1320 max 3190=.
+The provider against it: evaluate START d14 in 901 ms (=e2e4 +30 · d2d4 +21 · g1f3 +19=) · scholar's position =mate 1 h5f7= ·
+analyse d8 → 9 records · =about().started= false → true · the ladder at START, movetime 300: =1320 c4 · 1600 d4 · 2000 e4 · 2400 Nf3
+· 2800 Nf3 · full e4=.
+
+** 27 · MID-TURN /"not happy about it tho."/ — read as the brew binary: a host install under a package that, by turn 25's ruling,
+brings its own dependencies by URL. The alternative (a WASM stockfish imported by URL behind the same engine contract) is written as
+his fork in the quest and the frontier. Not built.
+
+* landed
+
+- *domain* (S1 — the doors from the scope (16), the rungs from fork 4 (17)):
+  - =types.js= — =RUNGS= · =RUNG= · =LADDER= · =STATUS=.
+  - =Literal.ts= — trait =LADDERED= (={ [elo|"full"]: { uci, engine, at } }=); verbs =rung= (cache read) · =ladder= (record).
+  - =aperture/index.js= — =ladder()= beside =evaluate()= as the one ladder path (reach → rung cache → =service.play= per miss → record);
+    =/engine/status= (never spawns); =/position/elo=.
+  - =tools= — =chess_elo=. Provider =about()= · Engine =started=. Rig engine scripts =plays= per rung.
+  - domain suite 15 → 19 steps.
+- *the kit* (S2 — planned (17), the bar asked for (22)): =modes/*/*/buffer/kit/= — =Board.svelte= 279 · =Nav.svelte= 145 · =Seat.svelte= 65 · =Moves.svelte= 125 ·
+  =open.js= 33 · =theme.css= 306. Five byte-equal copies. =theme.css= keeps the design's names as aliases of dapper tokens (14).
+  =open.js= is anima's own =selectMode + spawnBuffer= recipe. =tests/render.js= (SSR of a view directory) · =tests/kit.test.js= (6 steps:
+  equal · opens · compiles clean · no hex · 64 squares/32 glyphs · five tabs with the host active).
+- *play* (S3 — rebuilt whole (21)): =MATCH= + =dests= · =check=; =save()= recomputes them; =create= resets a given buffer in place; =/match/seat=. Seat chips
+  cycle the occupant; elo / assisted / clock chips; start for two bots; draw · resign · flip; drawer; the model's comment as the note.
+  =board.css= deleted with chessground, fork 2 (17). match 9 → 11 steps; the app suite now asserts NO chessground.
+- *study* (S4 — rebuilt whole (21)): =tags= · =opening= on load · =ladders= · =/analysis/elo=; eval bar · streaming bar · marks ★ ?! ? ?? · note with =why?= ·
+  the six-band elo panel. 7 → 9 steps.
+- *riddles* (S5 — rebuilt whole (21)): =open= in place · =again= · =reveal= · =nudges= · =line= · =missed=; a nudge costs the streak at once; level strip
+  1–5 with its ask · streak · tally · theme chips. 7 → 10 steps.
+- *practice* (S6 — the talk inline, fork 3 (17)): =create= in place · =/ask= (streams) · =/elo= + =practice_elo= (=ladderOf= finds the student's last ply for either
+  colour); the inline dock reads =thread.$turns= the way anima's Dock does (=text= speaks, =tool_use= rows carry their =tool_result=).
+  8 → 12 steps.
+- *library* (S7 — the fifth mode, fork 1 (17)): =@chess/library/games= — =list= (newest 200, filtered in memory) · =import= (sentences: imported · held ·
+  blank · unreadable); rows open a FRESH study buffer and call =analysis.load= on the sibling's client =call=
+  (=entities/mode/traits/exposed.js:5=). 5 steps new.
+- *instance · README* (S8 — five modes per fork 1 (17)): five modes kernelled; README's tree, laws, engine contract and suite table rewritten.
+- *repo* (25): =import_map.json= loses ="chessground"=; =deno.lock= gains chessops' esm.sh hashes.
+- *numbers*: 63 → 96 files · 33 changed · 4 =board.css= removed · +1 649 / −1 201 lines in files that existed · suite
+  =21 passed (101 steps) | 0 failed=.
+- *memory*: =project_chess_package= rewritten; =feedback_registry_deps_by_url= NEW (25), indexed.
+
+* settlement
+
+- *quest =chess-ui-pass=* (17) — stays live at 9/11. Markers: 9 held · 1 pending walk · 1 pending ladder (see markers). =#+status= ·
+  =#+progress= · =#+next= restamped; changelog S0–S8b with the coverage delta per step; release lines lifted nowhere yet (sunset
+  gate).
+- *quest m61* (15) — its =#+next= (authored at #167, so it outranks the derived value) still named /"install stockfish · browser walk of
+  the four views"/. Rewritten this fold: the live gates point at chess-ui-pass, stockfish marked installed, chessground struck from
+  the GPL line. Status, markers and release lines untouched.
+- *the review agent* (19) — running at the fold. It is ikiro's, not beef's: its findings land in the quest changelog when it returns.
+  Named in the quest's =#+next=; not carried in the frontier.
+- *memory =feedback_theme_tokens_over_literals=* says /"Ask which he wants before porting a mock that ships with its own design."/
+  Settled by the plan, not a question: =* scope= named "every colour and font resolved to dapper tokens" (16) and the go approved it (23); the
+  mock carries a nordic/paper =theme= prop of its own, so tokens are the mock's intent.
+- *frontier =## owed=* (=@chess= line): drop "install stockfish" (26) and "the chessground map line" (25); add "rule the engine: brew
+  binary or WASM by URL" (27) and "droneaid's =three= / =@threlte= map entries vs the ruling" (25). 4 863 chars after trimming the line (a live sibling had pushed the file to 5 044).
+- *MARKERS.md* — its two OPEN entries (empty-cortex boot warning · cortex snapshot coverage) are untouched by this fold: carried.
+- *world-sync* — no codemap shard covers =~/.viva/registry/chess= (untapped); none restamped.
+- *deletion sweep* — =board.css= ×4: live canon and memory, 0 hits outside the quest's own record of the deletion.
+- *VCS* — untouched. =import_map.json= and =deno.lock= sit in the dirty tree.
+
+* callouts
+
+One entry appended to =zettelkasten.md ## Callouts=:
+1. =assume-dont-verify=, RULE FAILURE, CARRIED (17), caught at S8: the plan called the chessground map line /"my own uncommitted
+   hunk"/ three times, from #167's settlement; =git diff= at S8 showed it in HEAD.
+2. =assume-dont-verify=, RULE FAILURE, MEMORY-INDEXED LAW (23, caught by a red): =import.meta.resolve("svelte/internal/server")= under
+   a map that cannot prefix an =npm:= specifier — the droneaid index line says so.
+3. =npm-reflex-in-deno-repo=, RULING (25): the family's rule (/"npm deps ONLY via import_map `npm:` entries"/) was the repo's, and I
+   applied it to a registry package. Flagged for the flywheel: split the Scoreboard row.
+
+Codeword scan of beef's turns 12–27: 0.
+
+* markers
+
+chess-ui-pass, verdicts measured this fold:
+- *held* ×9:
+  - =P-no-hex= (14) — grep 0 outside the kit; =P-kit-no-hex=.
+  - =P-no-chessground= — package 0, =import_map.json= 0 (25).
+  - =P-kit-equal= (17), =P-nav-on-all= (22, 5/5), =P-ssr-each= (21, P-render in all five mode suites).
+  - =P-example-in-desc= — 0 left outside =instances/= (23 added); the 9 in =instance.viva.js= are the m59 template.
+  - =P-effects-no-wire= — every =$effect= body read, 0 wire calls.
+  - =P-deps-by-url= NEW (25) — 0 =npm:= imports in the package; chessops ×17 from =esm.sh=.
+- *pending*:
+  - =T-walk= — beef's Chrome walk, nordic and paper.
+  - =T-ladder-stable= NEW (26) — measured NOT stable at START on the real engine.
+
+=compacts/MARKERS.md=: none added, none settled.
+
+* laws
+
+- A design mock's palette is a sample of the theme. This one mapped hex for hex onto =colors.js=; the kit keeps the mock's variable
+  NAMES and gives them token VALUES, so both themes come out right (14).
+- A mode never imports outside its directory, so shared chrome is copied per mode and a package-root suite pins the copies
+  byte-equal (17, 22).
+- The buffer carries the board's affordances. Each mode's =save()= recomputes =dests= and =check= through the rules door, so no view asks
+  the wire for legal moves and no =$effect= calls the wire. An empty buffer minted by the nav seeds itself from =onMount=, resetting in
+  place (21).
+- A view opens a sibling mode with anima's recipe: mode row → newest thread or =thread.create= + =resolve?.()= → =terminal.thread= →
+  last buffer or =buffer.create({ data: {} })= → =terminal.buffer=. A sibling's client row already has =.call= (22).
+- Server-rendering a Svelte 5 view under Deno: =import.meta.resolve("svelte")= is =src/index-server.js=, and the internals are resolved
+  from it. The scope hash sits INSIDE =class="…"=. esbuild escapes =♞= to =♞= (23).
+- A const shared by a mode's module and its aperture lives in the mode's =types.js=. The =.viva.js= re-exports the aperture, so the
+  cycle throws at load (23).
+- A registry package adds nothing to the repo's import map. It imports by URL: =jsr:= first, =https://= when the package is not on JSR
+  (25).
+- A limited-strength search is randomized. One sample per rung, cached forever, turns the noise between near-equal moves into a verdict
+  (26).
+
+* after the fold — the review (19) came back
+
+Two things this compact states are FALSE as written; the review agent found both and I verified them:
+- =* laws=, line one — /"so both themes come out right"/ — was never measured, and fails twice. =kit/theme.css= never reaches the
+  browser (=subsystems/paladin/belt/bundler.js:24= keeps only the entry's output; the =.css= sibling is dropped), and the mapping is
+  polarity-wrong in paper (zone 4 contrast is ink; its boundary is darker than its surface).
+- =* markers= — =P-ssr-each= reads as proof of the views; the render helper strips CSS imports, so it proves markup only.
+Seven more blockers and the full list: the quest changelog (S10), markers =P-css-ships= · =T-paper-polarity= (broken). Callout
+appended (render-the-view, RULE FAILURE). Fixes proposed to beef, not built.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                      | progress   | status                                                                | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | sessions   |
+|----------------------------+------------+-----------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| chess-ui-pass              |  80% 8/10  | wip                                                                   | beef — `viva registry/tap ~/.viva/registry/chess` · `viva instance/create @chess/instance/chess --use --init` · the chrome walk (nordic and paper) · rule the engine: brew binary (/"not happy about it tho."/) or a wasm stockfish by url. ikiro — fold the review agent's findings (running at the fold) · design the ladder's sampling before its number is shown as a verdict                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 0          |
+| drapes-editor              | —          | landed · the caret bug found and fixed — his click-through gates owed | rebundle + reload, then confirm the caret advances while typing (the one thing the fix is not yet proven against live). then the eight click-through gates below. later, both his call: the language on `#+begin_src js` does not highlight its body; the markdown fence is the same trade.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1 (1 live) |
+| m46-linux-readmen          |  17% 3/18  | wip                                                                   | drain                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |
+| m50-the-three-way-weave    |  60% 3/5   | wip                                                                   | blast                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 2 (1 live) |
+| m51-standalone-slowstart   |   0% 0/18  | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 2 (1 live) |
+| m53-vcompany               |   0% 0/1   | open                                                                  | his restart + the click-through gates (vdex 12 · mail/calendar 12 · gs1–gs6); the six office test files; the three stale vdex reds; then his call on the next stage — chat over telegram · vendor providers · the officer stage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 1 (1 live) |
+| m54-buffer-file            |   0% 0/4   | open                                                                  | reconcile with m53 =* t1.1= and the v3 vdex pass (both folded into =m53-vcompany.org=; originals =discarded/m53-vcompany.org= · =done/m53-vcompany.v3-vdex.org=) first (three quests, one seam, all waiting on go; v3 splits the app into a shell + 7 parts + =buffer/jdex.js= and already points here for file upload — m54's app hunk names the single =vdex.svelte= and must be re-cut onto whichever lands first) (a sibling session, beef's rulings there: the vdex speaks slugs — =/document /write /file /move /delete= implemented once in the aperture, tools wrap =mode.call.<verb>=, =fs_*= slurp gone on vdex; =open= is an emitter; the boot watches files and syncs per path — /"shouldnt this watch files??!!!"/; /"wtf is daemon traits stamp????"/ → gone) — three seams now name the verbs' home (t1.1 aperture · m54 sketch · mikro-first repository), beef arbitrates; then beef reopens the questioned block when ready — order of design there is mikro entity + bufferrepository verbs → typology verb contract → shard mounts → remoterepository mirrors → anima. until then m1 = everything but the verbs. "go m1" → full hunks against the tree as read. | 1 (1 live) |
+| m55-recursive-terminals    |  20% 3/15  | wip                                                                   | go m2 — the anima terminal: up · down · status · stop · run · watch, the tree, the schematic, panel f                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |
+| m56-the-pincer-turns       | 100% 2/2   | verify                                                                | live-walk c at both aspects · markers 2·3·4·10·13·14 need a dom                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | 1 (1 live) |
+| m57-hello-world-researches |  74% 20/27 | open                                                                  | restart (harnessed.js · generative.js · buffer.ts · thread.ts are repo files; buffer migrates). /"research flamingos, with a picture"/ → one <figure>, line reads the label. a follow-up change → `revised buffer <id> index 0 view <new>`, same line re-mounts, no cursor. /"call that page flamingos"/ → one buffer_label.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 1 (1 live) |
+| m58-application-noun       | 100% 3/3   | designed                                                              | beef — one commit for the three renames (add -a pairs the 4259 moves) · coolify step 6 for m3 (image `vivalence/anima:alpine` + `*_anima_*` keys, rollback pair noted) · education + primer + droneaid pushes · restart every instance (m2 rows mirror the manifest at boot) · anima click-walk in chrome. ikiro — sunset to `done/` once prod is on anima; the enum drop of `tooled` is a later pass with the migration routine.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 2 (1 live) |
+| m60-lighthouse-security    |   0% 0/24  | designed                                                              | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |
+| m61-chess-domain           |  30% 6/20  | wip                                                                   | beef — the package's live gates now ride quest `chess-ui-pass` (tap · instance/create · the walk of five views · the engine fork: brew binary or wasm by url); stockfish 19 is installed · rule the gpl-3.0-or-later dependency (chessops; chessground is gone) · f6 before m6. ikiro — rename the release lines to @chess at lift; five markers pending                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | 1          |
+| m63-process-controller     | —          | designed                                                              | beef — rule the overlap with m65, which now tangles primitives/controller.js · errors/controller.js · prototypes/controller.js; m63 keeps the graph and the socket line                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 1          |
+| m65-the-activity           | —          | landed                                                                | beef — followup: tools nesting a harness call hand `ctx.controller?.branch(<faculty>)` (research.js runs under a dispatch; dealer · oracle · registry named by beef) · followup: the polish sites renamed by faculty (verbatim.polish · hal.verbatim({ polish }) · vocal.polish · polish) · then the anima capability (a panel over `daemon.entities.activity` + `row.stdin`) · rule the m63 overlap. diff back into the quest: the =drift:= marks under each section (measured on disk; compact #160 `* landed vs designed` is partly stale).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | 3 (1 live) |
+| media-editor               |   9% 2/22  | wip                                                                   | control                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 1 (1 live) |
+| readme-can-i               |   0% 0/5   | design                                                                | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | 0          |

@@ -261,7 +261,7 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
         runtime: runtime(paladin),
         lighthouse: lighthouse(paladin),
         datamap: libsql,
-        clients: [{ manifest: { type: "client", slug: "kajuit", traits: ["ATTACHED"] }, statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE") } }],
+        clients: [{ manifest: { type: "client", slug: "anima", traits: ["ATTACHED"] }, statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE") } }],
         services: [multiplayer(paladin)],
         environment,
       }),
@@ -270,7 +270,7 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     );
     expect(instance.clients[0].manifest.traits).toEqual(["ATTACHED"]);
     expect(instance.clients[0].statics.serve).toBeInstanceOf(Url);
-    expect(instance.requirements.map((row) => row.at)).toContain("client[kajuit].statics.serve");
+    expect(instance.requirements.map((row) => row.at)).toContain("client[anima].statics.serve");
     expect(instance.requirements.map((row) => row.at)).toContain("service[multiplayer].secrets.jwt");
     expect(instance.faults).toEqual([]);
   });

@@ -24,7 +24,7 @@ const daemon = {
 // the same daemon with NO cortex at all — the shape that used to crash the fold.
 const cortexless = { ...daemon, cortex: null };
 
-// tooled.js:10 then harnessed.js — mode.tools, then the GENERATIVE trait's tools with the
+// tooling.js:10 then harnessed.js — mode.tools, then the GENERATIVE trait's tools with the
 // mode's generator slurped onto them. `tools` alone is a catalog the model never gets.
 const generative = {
   manifest: { slug: "hello-world", type: "demo" },

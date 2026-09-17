@@ -40,7 +40,7 @@ if (args.cron) {
 }
 
 if (args.panel) {
-  const { mount } = await import("../../../../kajuit/tests/interactive/activity/sheet.jsx");
+  const { mount } = await import("../../../../anima/tests/interactive/activity/sheet.jsx");
   setInterval(() => world.clock.release(1), args.tick);
   (async () => {
     for (;;) {
