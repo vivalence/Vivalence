@@ -8,6 +8,7 @@ LANGUAGES = os.environ.get("STANZA_LANGUAGES", "en").split(",")
 PROCESSORS = os.environ.get("STANZA_PROCESSORS", "tokenize,mwt,pos,lemma,depparse")
 PACKAGE = os.environ.get("STANZA_PACKAGE", "gsd")
 SERVICE_PORT = int(os.environ.get("SERVICE_PORT", "5555"))
+SERVICE_KEY = os.environ.get("SERVICE_KEY")
 
 os.makedirs(DEFAULT_MODEL_DIR, exist_ok=True)
 
@@ -118,6 +119,11 @@ def status():
 
 @app.route("/tokenize", methods=["POST"])
 def tokenize():
+    if SERVICE_KEY and request.headers.get("X-Service-Key") != SERVICE_KEY:
+        response = jsonify({"error": "unauthorized", "message": "invalid or missing service key"})
+        response.headers["Content-Type"] = "application/json; charset=utf-8"
+        return response, 401
+
     try:
         data = request.get_json()
         language, text, processors, package = validate_request(data)
@@ -145,4 +151,4 @@ def init_models():
 
 if __name__ == "__main__":
     init_models()
-    app.run(host="0.0.0.0", port=SERVICE_PORT)
+    app.run(host=os.environ.get("SERVICE_HOST", "127.0.0.1"), port=SERVICE_PORT)
