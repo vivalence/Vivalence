@@ -58,6 +58,40 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
     expect(config).not.toContain("VIVA_PROCESS_ID");
   });
 
+  it("init clones the canonical ledger recipe beside .env; a second init keeps the one that is there", async () => {
+    const recipe = `${ledger}/ledger.viva.js`;
+    expect((await Deno.stat(recipe)).isFile).toBe(true);
+    await Deno.writeTextFile(recipe, `export const manifest = { slug: "mine" };\n`);
+    await drive(["ledger/init", ledger]);
+    expect(await Deno.readTextFile(recipe)).toContain(`slug: "mine"`);
+    // put the canonical one back — the rest of this suite reads a ledger that speaks
+    await Deno.copyFile(paladin.scope.repository.branch("commons/ledger/ledger.viva.js").absolute, recipe);
+    paladin.ledger.declaration = undefined;
+  });
+
+  it("init on a ledger whose .env exists appends only the recipe keys it lacks and keeps what is there", async () => {
+    const env = `${ledger}/.env`;
+    const before = await Deno.readTextFile(env);
+    await Deno.writeTextFile(env, before.replace(/^# .*\nVIVA_CLIENT_ANIMA_ORIGIN=.*\n/m, "").replace(/^VIVA_RUNTIME_ORIGIN=.*$/m, 'VIVA_RUNTIME_ORIGIN="http://kept:1/"'));
+    const effect = await drive(["ledger/init", ledger]);
+    expect(effect.authored).toEqual(["VIVA_CLIENT_ANIMA_ORIGIN"]);
+    const after = await Deno.readTextFile(env);
+    expect(after).toContain('VIVA_RUNTIME_ORIGIN="http://kept:1/"');
+    expect(after).toContain("# Scheme and authority the anima browser client is reachable at.");
+    expect(after.match(/^VIVA_CLIENT_ANIMA_ORIGIN=/gm)).toHaveLength(1);
+    expect((await drive(["ledger/init", ledger])).authored).toEqual([]);
+    await Deno.writeTextFile(env, before);
+  });
+
+  it("doctor reports the recipe organ — present, manifest, the slots it speaks", async () => {
+    const effect = await drive(["ledger/doctor"]);
+    expect(effect.recipe.path).toBe(`${ledger}/ledger.viva.js`);
+    expect(effect.recipe.present).toBe(true);
+    expect(effect.recipe.manifest.type).toBe("ledger");
+    expect(effect.recipe.manifest.slug).toBe("ledger"); // derived from the scaffold's stem
+    expect(effect.recipe.slots).toEqual(["environment", "runtime", "lighthouse", "datamap", "hallucinators", "clients", "services"]);
+  });
+
   it("tap records a store-relative reference", async () => {
     const effect = await drive(["registry/tap", "pack"]);
     expect(effect.reference).toBe("pack");
@@ -80,14 +114,14 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
     await Deno.mkdir(`${store}/hollow`);
     const error = await drive(["registry/tap", "hollow"]).then(() => null, (thrown) => thrown);
     expect(String(error).includes("no package declaration")).toBe(true);
-    expect(await paladin.ledger.registry.list()).toEqual(["pack"]);
+    expect(await paladin.ledger.registry.references()).toEqual(["pack"]);
   });
 
   it("tap throws on a missing absolute path, record untouched", async () => {
     const error = await drive(["registry/tap", `${store}/vanished/nowhere`])
       .then(() => null, (thrown) => thrown);
     expect(error).not.toBe(null);
-    expect(await paladin.ledger.registry.list()).toEqual(["pack"]);
+    expect(await paladin.ledger.registry.references()).toEqual(["pack"]);
   });
 
   it("doctor reports homes, the .env organ, and the record with roots", async () => {

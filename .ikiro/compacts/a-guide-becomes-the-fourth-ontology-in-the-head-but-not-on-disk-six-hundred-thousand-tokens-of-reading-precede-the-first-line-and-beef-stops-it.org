@@ -1,0 +1,116 @@
+#+title: a guide becomes the fourth ontology in the head but not on disk, six hundred thousand tokens of reading precede the first line, and beef stops it
+#+index: 201
+#+session: the ninth arc of session fc59f22c (turns 98–107; 87–97 are #200, the rest earlier). One order, one read that never ended, one strike, one fold.
+
+* one breath
+
+The #200 fold closed (98–99) and the continuation came back (100). Then the order (101): /"i put A LOT of effort into the ui and ux."/ — a claude.ai design project (=Guide Player.dc.html= · =Guide Editor.dc.html= · =guide-data.json= · =drone-stage.js=), /"there is basically nothing accidental in here. you will have to slave over this. i want two modes. one for the assembly guide editor, anohter for the assembly guide experience. i want thorough integration into the assymbly domain. the datalevel is your first job. the ontology of steps and guides and such. doesnt exist at all yet. for you to create! you own assembly. design a clean topology. implenent the two modes. make them coherent. all buffer state kept in buffer.data. auto save on editor into the appropriate literals. have fun"/ — and mid-turn (102): /"read up on ikiro and vivalence"/.
+
+I read. The sibling check (quiet: the package's last write 09:53, its transcript 10:58), the design fan through =DesignSync.get_file= (both comps, the seed data, the stand-in stage, the sync note), the whole =@assembly= package (domain · editor v3 · importer · rig), the droneaid package and its shelf, pt10, the runtime's mode and cargo laws, the education annotation pattern, the dapper roles, every kernel and self file, twelve memory bodies, six skills, the m67 rulings, a read-only db census, a green baseline (=ok | 15 passed (81 steps)=), a scratch copy of the package. The design settled in my head and nowhere on disk. Then (103–105): /"ok you;ve overdone it on the inputs"/ · /"damn"/ · /"600k context and youve not even started"/ · /"ikiro compact"/ (106) · /"highlight whats valudable"/ (107). This fold is that highlight: the design is written below so nothing is read twice.
+
+* the spine — 107 turns, this fold 98–107
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 98 | =/compact-walk= re-invocation (the harness, tail of the #200 fold) | NOTHING | — |
+| 99 | =/compact= (the harness) | the #200 compaction | — |
+| 100 | continuation summary (the harness) | the #200 report sent | — |
+| 101 | /"i put A LOT of effort into the ui and ux … i want two modes … the datalevel is your first job … design a clean topology. implenent the two modes … all buffer state kept in buffer.data. auto save on editor …"/ | design-handoff · sibling-reconcile · pre-flight fired; the sibling measured quiet; the design fan fetched whole | — |
+| 102 | mid-turn: /"read up on ikiro and vivalence"/ | kernel · README · self/* · world/* · manual read; then the package, pt10, runtime, education, dapper, memory bodies, skills, m67, the db, a baseline, a scratch copy | the first line of code |
+| 103 | mid-turn: /"ok you;ve overdone it on the inputs"/ | — | the read |
+| 104 | mid-turn: /"damn"/ | — | — |
+| 105 | mid-turn: /"600k context and youve not even started"/ | the callout (RULE FAILURE, scope-inflation) | — |
+| 106 | mid-turn: /"ikiro compact"/ | this fold | — |
+| 107 | mid-turn: /"highlight whats valudable"/ | =* State at fold= below, the memory rewritten to it | — |
+
+Coverage: 98–107, ten turns, each once. 98–100 are the harness.
+
+Balance on the fold's N=10: first third (98–101) the harness and the order, middle (102–104) the read and the strike, last third (105–107) the strike's numbers and the fold. The weight sits in the middle because the read is the whole event.
+
+* failures
+
+- **the read that had no ceiling** — pre-flight says open the memory body, design-handoff says fetch whole and read both texts, sibling-reconcile says re-read before writing, beef says read up on ikiro; each rule says /read before/ and none says /stop reading at/. Composed, they spent ~600k tokens on inputs with zero output. Ledgered as a RULE FAILURE of =scope-inflation= (read-side). The rule that lands: an authoring turn writes its first artifact after the comp and the schematic — the rest is read per file as each is touched; /"read up on X"/ = the kernel and the path-matched shard, not the corpus.
+- **the design lived in the head** — a design derived over an hour existed only as reasoning between tool calls; a compaction would have lost it. The scribe's law, applied: it is written below and in memory before anything else.
+- **the quest report was not run for the sibling check** — mtimes stood in for the =sessions= column; it happened to agree.
+
+* State at fold — what is valuable
+
+** the ontology, ruled here (the fourth ontology is =guide=)
+
+#+begin_src js
+// domain/assembly/schematics.js — ONTOLOGIES after; `stack` gone, SEQUENCED moves part → guide
+part:      { traits: ["LABELED","SOURCED","MODELED","PARAMETRIC","COUNTED"],          layer: true  }
+placement: { traits: ["LABELED","PLACED","JOINED"],                                    layer: false } // JOINED { joins } — torque OUT
+step:      { traits: ["LABELED","ASSEMBLED","INSTRUCTED","ANNOTATED","STAGED"],        layer: false }
+guide:     { traits: ["LABELED","SEQUENCED","INSTRUCTED","ANNOTATED","STAGED"],        layer: false }
+
+ASSEMBLED  { placements: [{ literal: "<placement slug>", active: boolean }] }           // ruled #200; slugs, education's tokens pattern
+SEQUENCED  { subject?: "<part slug>", sections: [{ name, steps: ["<guide>.01", …] }] }  // step order = flatMap; a section is guide content, not a symbol
+INSTRUCTED { lines: [{ text, at? }], images: ["manual/<id>.webp"] }                     // the numbered body + media
+ANNOTATED  { notes: [{ text, symbols: ["note.tip" | "note.warning" | "warn.*"], images?, at? }] } // callouts; torque is a note here
+STAGED     { camera?: { target: VEC3, position: VEC3 }, explode?: 0..1, ghost?: boolean,
+             built?: { steps: [slug], placements: [slug] },                              // absent = every earlier step (the comp's "prerequisites")
+             tints?: { "<placement slug>": TINT } }                                       // TINTS = blue green orange red violet grey → info success warning danger accent contrast
+ANCHOR at  { literals?: [slug], offset?: VEC3, position?: VEC3 }                         // position wins · literals(+offset) · none = the panel
+PREPARED   derived — tools = the step's tool.* symbols · parts = bom(guide, upto n) − bom(guide, upto n−1)
+#+end_src
+
+Folds: =resolve(rows, part)= is the composition (no steps anywhere); =resolve(rows, guide, {upto})= is the subject's composition with, per placement, =at= (the first step index naming it, or null) and =active= (the steps' opinions through =upto=), plus =steps[i].prepared=; =bom(guide, {upto})= over what is active; =tree()= lists guides as roots (steps depth 1, their placements depth 2, keys =guide/step/slug=). Writer: =guide()= mint/over · =step()= reshaped · =sequence(guide, sections)= validates every step · =rename=/=move= rewrite every slug held in =ASSEMBLED= · =at.literals= · =built= (everything naming it follows) · =duplicate= of a guide copies its steps (=<guide>.NN= → =<copy>.NN=), of a step lands after the original in its section · =retract= of a step is refused while a guide names it (the editor unsequences first) · =part()= stops seeding =SEQUENCED=. Verbs: =/guide= · =/step= · =/sequence { guide, sections }= · =/placement= without torque; tools + =guide=. Topologies: new =topologies/guide= (root symbol =guide=); =step= ships =note.tip= and =note.warning= beside =warn.*= · =tool.*=. Step slugs =<guide>.NN=. Importer untouched (=commit.js= mints parts and placements only).
+
+** the two modes
+
+- =modes/editor/guide= — the comp verbatim: 3-column grid =248px | stage | 340px (64 collapsed)=; a steps column with sections (rename, add, delete-when-empty, drag steps between sections, drag sections), an inspector with a Guide tab (subject picker over the roots and their interior parts · name · description · intro lines · notes · camera snapshot · inventory: parts, fasteners, tools) and a Step tab (prerequisites = =built= auto/custom with tints · parts: this step / kit / all, search, select, pull into step, remove · instructions · notes with a kind select · camera · media picker over the cargo's =manual/*.webp= · tool chips). Auto-save: the draft lives in =buffer.data=, 700 ms debounce → =/step= or =/guide= over; a step change commits first. A fresh buffer lists the daemon's guides and offers =+ new guide= (=free(taken, "guide")=, no subject until the Guide tab sets one).
+- =modes/player/guide= — the comp verbatim: full-bleed stage, a 380 px floating panel (title · source · progress bar · sections with the active step expanded: part chips, numbered lines that focus their anchors, note callouts, images → lightbox, tools · Back / Next / Completed). Status per placement: overview = all solid; fresh = named by the step; solid = =built=; ghost = later or kit when ghost is on; else hidden.
+- shared stage kit, COPIED into both, =tests/kit.test.js= at the package root pins the copies equal: GLB per part from the cargo (v3 =scene.js= loader + parent frames), status · tint · explode (radial + lift from the bounds) · settle on step change · focus · snapshot; the view button (click next · hold choose · double-click the step's view), the CSS-3D view cube, zoom · fit · help; the editor adds marquee select.
+- buffer.data — player: =guide step done explode ghost view focus lightbox=; editor: =guide step tab insp sel scopeF scopeQ open subjOpen subjQ picker lb ghost explode view draft editing slugDraft= (transient, local: dnd, saving, calls).
+- theme: tokens, the v3 precedent — =#17214d= → =primary-base= / =--text-primary= · =#f6c630= → =warning-base= (v3's =--step=) · =#3f8a3a= → =success-base= · tip =#3b6fd1= → =info-base= · the warning callout → the =error= box · =#e7e9ed= → =skeleton-2-surface= · the white panel → =skeleton-1-surface=.
+- harnesses: player = pt10's mentor with =[Guide]= rendered from the literals + =[Screen]= + tool =/step { step }=; editor = the author's hand with =[Ontology]= (v3's renderer, copied) + =[Guide]= + =[Screen]=, tools =/open { guide, step? }= · =/select=, the domain's =assembly_*= write.
+
+** measured facts the next session must not re-measure
+
+- the daemon's cargo catalog keys are bare freight paths (=manual/<id>.webp=, =parts/<slug>.glb=); a collision only warns; anima resolves =daemon.getAsset({ path })= off =/metadata/cargo=.
+- the droneaid topography freight is 88 webp and NO =manual.md= — the page index the comp used lives in =~/Downloads/droneaid-manual/manual.md= (=## Page N= + =![](images/<id>.webp)=). Its =warn.tip= / =warn.generic= symbols are inventions; =section.*= in the topography goes unused once sections are guide content.
+- sibling quiet at 11:41: the package's last write 09:53, the "assembly editor" transcript's last write 10:58; the other live session works =commons/dashboards=.
+- =runtime/watch= (pid 85012) watches =~/.viva/registry=: the package lands from a scratch copy in ONE rsync; the package has NO VCS → capture to =~/.viva/bak/= first. An untouched scratch copy sits at =<scratchpad>/work/assembly/=; recopy fresh.
+- the shelf =~/.viva/instances/droneaid/daemon.js= (dashboard in, pt10 out) ≠ the registry copy (pt10 in); both kernels need =@assembly/editor/guide= and =@assembly/player/guide= — shelf first (unwatched, read at boot), then the assembly rsync (the restart), then the registry copy.
+- baseline before any edit: =ok | 15 passed (81 steps) | 0 failed= over =domain/= · =editor/import/= · =editor/assembly/=; db read-only: 50 parts · 72 placements · 0 steps · 71 symbols.
+- landing order: domain (suites RED first) → editor v3 re-base (torque out; steps reached through a guide as subject; =seq= line out) → topologies → the two modes → bundle-check each view (=paladin.bundler(dir).bundle({ kind: "svelte", entry })=) → capture → rsync → the two daemon.js.
+
+** blast · scope — beef, mid-fold: /"blast change"/ · /"scope"/
+
+Radius measured by grep of =SEQUENCED|PREPARED|INSTRUCTED|torque|TORQUES|.steps|stack= at 11:4x — 21 files in =@assembly=, 0 in =@droneaid= code.
+
+| where | files | what moves |
+|---|---|---|
+| domain | =schematics.js= · =entities/kernel/Literal.ts= · =resolve.js= · =aperture/index.js= · =tools/{mint,fold,line}.js= · =assembly.viva.js= (description) | the table above; =stack()= goes, =resolve= gains the guide arm; =LiteralTraitsEnum= +ASSEMBLED ANNOTATED STAGED, PREPARED kept =@deprecated= at the bottom (mikro validates the enum array on hydrate — [[project_trait_enum_migration]]) |
+| domain tests | =tests/{aperture,domain,literal,resolve}.test.js= | RED first: P-guide, P-assembled-by-slug, P-resolve-guide, P-rename-rewrites-assembled, P-retract-step-refused; the old =stool= fixture's steps-on-a-part rewritten |
+| editor v3 | =assembly.viva.js= (=torque= key) · =schematics.js= (=TORQUES=) · =harness.js= · =tools/index.js= (=hostOf= reads a guide) · =buffer/{Assembly.svelte, fold.js, form.js, cli.js, parts/Stage.svelte}= · =tests/assembly.test.js= | torque chips and =seq= out; a step's host is its guide; =upto= only on a guide subject |
+| importer | =schematics.js= (=ONTOLOGIES= / =ISOLATES= restated) | the list gains =guide=; =commit.js= untouched |
+| topologies | =step/dataset/symbols/ontological.js= · NEW =topologies/guide/= | =note.tip= =note.warning=; root =guide= |
+| new | =modes/editor/guide/= · =modes/player/guide/= · =tests/kit.test.js= | the two modes, the copied stage kit pinned equal |
+| droneaid | registry =instances/droneaid/daemon.js= · shelf =~/.viva/instances/droneaid/daemon.js= | both kernels +2 modes +=@assembly/topology/guide= |
+| data | 50 parts hold =SEQUENCED { steps: [] }= seeded by =part()= | tolerated on read, never written again; 0 step rows → no migration |
+
+Scope OUT: =commit.js= · pt10 · runtime · typology (the =connection-aim-dedupes-arrays= workaround stays) · anima · =@droneaid/topography/model= (its test still imports the dead =component=/=assembly= topologies — stale before this, filed not fixed).
+
+** open for beef
+
+The =note.tip= / =note.warning= kinds · the unused =section.*= · =manual.md= into the freight or not · a sub-assembly grafted twice is named by ONE slug in a step (both occurrences install together).
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| design-handoff | 101 | GAP | both texts read and every hex mapped, but its "one line per pane before markup" was never WRITTEN; the body sets no ceiling on the read |
+| sibling-reconcile | 101 | GAP | mtimes stood in for the quest report's =sessions= column, which never ran |
+| pre-flight | 101 | GAP | eight checks all fired at once over the whole package; no check says when the pre-flight is done |
+| compact-walk | 106 | HELD | spine · skills · markers run; N=10; the design written down as the fold's payload |
+| callout | 105 | HELD | RULE FAILURE (scope-inflation, read-side) logged with the corrective rule executed in this turn |
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | sessions   |
+|-------------------------+-----------+----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| ledger-recipe           |  67% 8/12 | building | beef — the number · fork 2 (which instance slims for the runtime live boot; droneaid proposed) · commits in typology, paladin, ghost, commons · the runtime live boot. m0 done: =~/.viva/ledger.viva.js= speaks (no manifest, the environment block in), =~/.viva/.env= authored, chess slimmed.                                                                                                                                                                                                                                                                                                                                              | 0          |
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 1          |
+| m67-assembly-ontology   |  64% 9/14 | building | beef — one number settles the centring: the =/resolve= response's =motor_2/motor.1= translation and rotation off the network pane. then sign in so the editor can be walked by me at all (i do not type credentials), re-import the blend so =harvest.py='s stray fix takes, and confirm the navigation standard. standing: the typology one-liner (=connection-aim-dedupes-arrays=), the mode's name, commits, the =assembly=/=component= symbol purge, @droneaid vcs init. ikiro — the =unique(slug)= migration (ruling 24 is code-only), a mount rig for this package's views (the standing coverage gap), re-embed of a corrected member. | 2 (1 live) |

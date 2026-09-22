@@ -1,102 +1,35 @@
 #+TITLE: Known Issues
 #+STATUS: LIVE LEDGER
+# writer: agent · kind: ledger — OPEN entries only, a resolved entry is CUT (skill known-issues)
 
 Issues we know about and have NOT fixed. Each entry: symptom, root cause hypothesis,
 evidence, attempts, why not fixed now, fallback workaround.
 
-* typology-internals-import-their-own-barrel — SETTLED LATENT (ruled post-m26)
+* connection-aim-dedupes-arrays — OPEN (found on the assembly editor walk, typology is holy)
 
 ** Symptom
 
-Under vite's SSR module runner every kajuit route 500'd:
-
-#+begin_example
-[500] GET /
-TypeError: Cannot read properties of undefined (reading 'array')
-    at new Signature (subsystems/typology/prototypes/signature.js:12:35)
-    at new Pattern   (subsystems/typology/prototypes/pattern.js:9:1)
-    at Vector.branch (subsystems/typology/prototypes/vector.js:28:21)
-    at Vector.open   (subsystems/typology/prototypes/vector.js:51:10)
-    at eval          (subsystems/typology/gestalten/belt/skill/buffer.js:19:4)
-#+end_example
-
-Deno ran the same code green for a whole session. Only the second module
-runner exposed it.
+Any client call through the wired proxy (=mode.call.<nature>(input)= · =daemon.call=) loses the repeated values of every array in its body: a placement's =rotation: [0, 0, 0, 1]= arrives at the daemon as =[0, 1]=, =scale: [1, 1, 1]= as =[1]=, a =translation: [0, 0, 0]= would arrive as =[0]=. The domain answers =500 — [assembly] not a PLACED: / must not have fewer than 4 items; / must not have fewer than 3 items=. A TRS is not a set.
 
 ** Root cause
 
-*Typology's internal modules import from typology's own public barrel*, which
-re-exports them — a cycle. Every hop on the crash path does it:
+=subsystems/typology/prototypes/connection.js:101-105= — =Connection.aim(endpoint, bodyBase)= returns =(body) => this.call(endpoint, object.merge(body, bodyBase), …)=, and =subsystems/typology/gestalten/belt/object.js:235-236= exports =merge= as =deepMergeCore({}, { arrayMergeStrategy: "unique" }, …)=: every array in the body is rebuilt through a =seen= set. =shape.connection.wire= (=subsystems/typology/gestalten/shape/connection.js:46-48=) builds every client-side nature from =aim=, so every =mode.call= and =daemon.call= body passes through it.
 
-#+begin_example
-prototypes/vector.js:1     import { Pattern, Signature }    from "@vivalence/typology";
-prototypes/pattern.js:1    import { object, is, hash }      from "@vivalence/typology";
-prototypes/signature.js:1  import { array, hash, is, cast } from "@vivalence/typology";
-#+end_example
+** Evidence
 
-Measured, whole package: *62 files import their own barrel* — prototypes 23/48,
-gestalten 34/76, entities 4/21, specimen 3/2, schematics 1/26. A module evaluated
-before the barrel finishes populating sees =undefined= for every named import;
-which modules those are is the module runner's choice, and runners differ.
+Tapped =WebSocket.prototype.send= in the anima (09-22, the assembly editor's first live walk): the frame sent for =/daemon/droneaid/mode/editor/assembly/placement= carried ={"translation":[0.56308,0.22989,0.57975],"rotation":[0,1],"scale":[1]}= where the stage had handed =[0,0,0,1]= and =[1,1,1]=. The same input over an inline http =Connection= (=Connection.call=, no =aim=) reaches the domain intact; typebox's =clean · fill · cast · convert= on the mode's =v.record(v.string(), v.any())= input leave arrays intact (probed).
 
-** Why it only bit now
+** Ruling
 
-Two conditions must coincide: (a) a typology-internal module doing WORK at module
-scope, and (b) that work reaching the barrel. Measured: before m26 there were
-*ZERO* module-scope =new Vector/Aperture/Connection= constructions inside
-=prototypes/= or =gestalten/=. =belt/skill/*= was the first, so nobody had ever
-armed condition (a).
+none yet — typology is beef's layer.
 
-*Registry modules are NOT affected and never were* — 28 of them build
-=export const tools/emitter/harness = new Vector()= at module scope today. They
-sit DOWNSTREAM of the barrel, not inside it, so the barrel is fully evaluated
-before they run. The hazard is specific to modules the barrel re-exports.
+** Why not fixed
 
-** Attempts
+The fix is one line in typology — =aim= merging with =merge.withOptions({ arrayMergeStrategy: "replace" }, body, bodyBase)=, or =bodyBase= applied as defaults rather than merged — and typology is not touched without beef's word. Radius: every client call carrying an array with a repeated value; chess (moves are strings) and the importer (settings, no repeats) never met it.
 
-- *Deep-relative imports in the leaf — DID NOT FIX.* At crash time
-  =belt/skill/buffer.js= already imported =../../../prototypes/vector.js= and
-  =../../../schematics/v.js=. It bought exactly one hop before rejoining the same
-  cycle three frames deeper. The trace is the proof: it never fails in the leaf's
-  import line.
-- *Memoized thunk — FIXED, landed.* =let vector; export const buffer = () =>
-  (vector ??= new Vector()…)= — the repo's existing idiom for this hazard
-  (=schematics/prototypes/yield.js= uses it for the same reason). Construction
-  moves to first CALL, by which time every module is evaluated.
+** Workaround
 
-** Why not fixed now (the debarrel)
-
-Making typology's internals import each other by relative path would take the
-barrel off the critical path and is a genuine cycle-smell fix. NOT done:
-
-1. 62 files is a sweep across the HOLY layer — needs beef.
-2. It does not close the bug CLASS. Relative imports make the graph explicit
-   rather than funnelled; internal cycles remain possible and module-scope work
-   stays hostage to eval order. Laziness makes the hazard impossible; debarreling
-   only makes the current order less fragile.
-3. It cuts against the standing import doctrine one layer up
-   ([[feedback_import_through_barrel]]: kajuit imports THROUGH the barrel, never
-   deep paths). A package-internal exception is a NEW rule, beef's to state.
-
-Do the measurement first if it is ever picked up: enumerate the actual cycle set,
-do not sweep 62 files on a hunch.
-
-** Resolution (ruled)
-
-Beef RULED the internal self-barrel imports STAY — "i might actually like teh
-internal barrel imports again" — and rejected both the thunk ("categoric no")
-and any relative-import sweep. The fix was an OWNERSHIP move: the skills (the
-only eval-time constructors inside the barrel) emigrated to
-=systems/runtime/daemon/skills/=, downstream of the barrel, module-scope
-=new Vector()= restored. The entities followed to =daemon/entities/= for the
-same reason (their own emigration, not this bug).
-
-Standing law, superseding the thunk law: *daemon-dependent effects do not live
-in typology* — a layering rule that enforces itself. The 62-file cycle remains,
-LATENT WITH NO TRIGGER: zero module-scope construction inside the barrel. The
-memoized-thunk idiom (=schematics/prototypes/yield.js=) stays valid for anything
-that must construct inside the barrel in the future. Registry + daemon modules
-are unaffected — downstream.
+The assembly editor calls its natures over a plain http =Connection= with =shard.transmitter.fetcher= — the importer's own idiom for =/parse= and =/commit= — through =Connection.call=, which does not merge (=modes/editor/assembly/buffer/Assembly.svelte=, =http()= · =call()=).
 
 * v-facade-pins-typebox-in-every-client-bundle — OPEN (trailing issue on m24)
 
@@ -646,138 +579,6 @@ The base repository is runtime kernel (typology-adjacent, ask-before); every con
 correct today. Fixing it there = the same =$and=-branch compile inside =resolveSymbols=;
 should happen when the second consumer needs mixed conditions.
 
-* frontier evictions (budget) — still open, moved here whole
-
-**DESIGNED, prerequisite CLEARED, every op beef's** — **m42 history-purge** (filter-repo 5 dead paths; owed before the scratch clone: commit the dirty tree · push · zip · filter-repo install; FORKS 6–9 beef's — three remotes, stale push-* refs, the sibling working-copy snapshot; body EVICTED whole → known-issues "frontier evictions") → [[m42-history-purge]] · compact 62
-
-**HOT** — **m43 stucatch** (PIPELINE LIVE — @stucatch package/domain/mode mounted as its own instance; tower ruled literals-only, domain owns entities+fold+twitch, mode BOOTED ingests padded stairs capture; ontology per compact 72 SUPERSEDES the quest's symbol tower; open: placement write-back, reactive literal subscription, hub STILL unflashed, Egor's tilt gate; body EVICTED whole → known-issues "frontier evictions") → [[m43-stucatch]] · **m29 armory** (gate 2 live; m38-wake round UNDEPLOYED, live-verify owed) → [[m29-agent-tools]] + [[project_armed_tool_stack]] · **m27 mind** (4 forks) → [[m27-memory-and-notes]] · **m28 primed** (file in `discarded/`) → [[m28-primed]] · **m25 user-and-thread** (beef)
-
-**M1 LANDED, uncommitted · M2 gated** — **m55 recursive terminals** (`Thread.parent`/`children` + `Buffer.thread` cascade, suites unchanged, migration mints at next boot; LAW: thread is daemon, terminal is client, terminal = f(thread) — NO terminal entity on the runtime; M2 = kajuit `up · down · status · stop · run · watch`; body EVICTED whole → known-issues "frontier evictions"; OWED beef: `go m2` · commit · restart) → [[m55-recursive-terminals]] · compact `the-terminal-is-a-function-of-the-thread…`
-
-**DESIGNED + WALKED LIVE, nothing landed, 5 rulings owed** — **m56 the pincer turns** (beef's design import; three comps + the sync ledger read, v3 driven at o=90. v3 is ONE LEAF of a fan — three panel-C designs, two pincer interactions; the wireframes RULE terminal an anchor (never folds/docks/closes) — beef STRUCK it, /"terminal should absolutely dock and close"/, so v3's symmetry is LAW and the all-docked empty state ships; the palette IS dapper `paper`, 21/21 hexes measured → token substitution, not a colour call; v3's `norm` leaves DEAD SPACE when every open pane is folded, reachable via `openPane` — measured, 470 cases. M1 = one `axisFor(rect)` for shoulder·crown·spine (they hardcode one axis; `geometry.js` already flips) + drag HUD + delete dead `.sep`/`.tab-pip`. M2 = pure `panes.js` engine. `instance` still collides with `paladin.ledger.instances.instance`) → [[m56-the-pincer-turns]]
-
-**DESIGNED, nothing landed** — **m53 v4 mail + calendar** (both V3 designs read whole; `office/email` + `office/calendar` as APPLICATION modes worked out entire — manifest · provider seam · boot · aperture · emitter · tools · harness · App shell + parts — plus ONE dummy provider mode PER office mode: demo dataset in, recording endpoints out, swapped for a vendor by one static; `event` = a FOURTH literal ontology; the officer's reply is HELD until the operator keys it; coordinates cross ontologies) → [[m53.v4-mail+calendar]]
-
-**HOT** — **m43 stucatch** (PIPELINE LIVE — @stucatch package/domain/mode mounted as its own instance; tower ruled literals-only (stage·sensor·signal·fix·track, NO symbols), domain owns entities+fold+twitch, mode BOOTED ingests padded stairs capture, APPLICATION map has playback+photo backdrop; ontology per compact 72 SUPERSEDES the quest's symbol tower; open: placement write-back, reactive literal subscription, hub STILL unflashed across two captures, Egor's tilt gate eats horizontal 0.2–0.66g) → [[m43-stucatch]] · **m29 armory** (gate 2 live; m38-wake round UNDEPLOYED, live-verify owed) → [[m29-agent-tools]] + [[project_armed_tool_stack]] · **m27 mind** (4 forks) → [[m27-memory-and-notes]] · **m28 primed** (file in `discarded/`) → [[m28-primed]] · **m25 user-and-thread** (beef)
-
-**M1 LANDED, uncommitted · M2 gated** — **m55 recursive terminals** (`Thread.parent`/`children` in the Turn shape + `Buffer.thread` cascade + typology relations, suites unchanged, migration mints at next boot; LAW: thread is daemon, terminal is client, terminal = f(thread) — NO terminal entity on the runtime; M2 = kajuit terminal `up · down · status · stop · run · watch` + tree + kajuit-local schematic + `$view` on the terminal; struck: `buffer.parent` · shard `verbs` · `TerminalEntity`; forks his: point vs flat props · schematic home · `mode.js:55` auto-merge; OWED beef: `go m2` · commit · restart) → [[m55-recursive-terminals]] · compact `the-terminal-is-a-function-of-the-thread…`
-
-**T0 + T1 + s1/s2 + V3 + T1.1 LANDED · r1 BLOCKS** — **m53 vcompany** (vdex LIVE on his JDex; T1.1 = harness · emitter · 8 slug verbs ONCE in the aperture · tools · per-path `sync` + `Deno.watchFs`, in `~/.viva/instances` with tests, boot 10/10; the proof found: the literal fold is an UPDATE fact, the literal↔symbol m:n cascades REMOVE both ways (ledgered; every pass on an em fork), `row()` refs carry no traits; ONE blocker = paladin `resolve` percent-encodes spaced paths (diff in the quest, his go); a1 STRUCK — the App is V3's (`m53-vcompany.v3-vdex.org`); OWED beef: r1 go, d1, restart + gates, `OPEN` on buffer-data level; body EVICTED → known-issues "frontier evictions") → [[m53-vcompany]] · compacts `the-office-comes-before-the-executive…` … `the-go-lands-six-rows…`
-
-**DESIGNED + TIED UP, nothing landed** — **m54 buffer FILE** (RULED: FILE = the system asset trait on literal AND buffer · LABELED in M1; QUESTIONED: the verbs' home — `/buffer/file/*` aperture + `daemon.call` is inside out, reopen mikro-first as `BufferRepository` verbs → contract → shard → `RemoteRepository` → kajuit; `v.asset` pinned; plurals = relations + `fs_*`/`entity_find`; `mode.reinstall` RETRACTED → twitch `/after/freight/receive`; M1 stands without the verbs; RECONCILE with m53 `* T1.1` + `m53-vcompany.v3-vdex` first — siblings put the vdex verbs in the aperture (`open` = EMITTER, file watch + per-path sync) and split the App into shell + 7 parts; three quests on one seam, all waiting on go, beef arbitrates) → [[m54-buffer-file]] · compact `the-save-answers-the-wrong-shape…`
-
-** m53 line + lighthouse hoist (evicted whole at compact `the-save-answers-the-wrong-shape…`, frontier 8482/8000 BYTES before the m54 line)
-**T0 + T1 + s1/s2 LANDED** — **m53 vcompany** (rulings: keep two mount · `office` · JDex = an absolute path, no automatic scopes · git later · mime amen · `go t1` · `go.` on `reader.load` after the diff was shown; LIVE in `~/.viva/instances`: `[VDEX] /Users/finn/vivalence/coorporation 33 documents · 17 coordinates`, routes + cargo LIVE; suites vdex 22 steps + 5 snapshots · typology 122/1 · runtime 53/1 (pre-existing) · paladin 41/0; LAW: the installer's source seeds every dataset stamp; → readmen STOPPED; s1/s2 LANDED on `go` (read Apps against the rows snapshot first); bundle weight LEDGERED, direction his; restarted (screens App live); click-through owed; `* T1.#2` his call; RULED: calendar = a mode, email PER PROVIDER + shared IMAP/SMTP belt; 5 snapshots read, `stable()` id over-drop fixed; **next**: the boot race behind his "again. very slow.") → [[m53-vcompany]] · compacts `the-office-comes-before-the-executive…` · `the-crash-was-the-key…` · `the-comments-move-the-mask…` · `the-t1-patch-is-worked-out-twice…` · `the-connoisseur-finds-the-bag…` · `the-rulings-land-t0…` · `the-handoff-lands-the-screens…`
-**LANDED, questless** — **lighthouse hoist** (ONE `export const lighthouse {module, statics.remote}`, daemon inherits at the pinhole, `clients.*.statics.lighthouse` DELETED — never read; repo · instance · `@education` recipes; paladin 37/150; ghost `localhost.viva.js` → `systems/ghost/bak/`; release lines seeded; OWED beef: commit · education push · M5 prod · m51:261-292 old shape) → [[project_lighthouse_hoist]] · **pinhole secrets · user rebind · render fault · `output.object`** (`hydrate` walks fired values, DEFERRED gone; `bind("user")` behind `authorize()`; OWED beef: restart, commit 8) → [[project_hydrate_pinhole_secrets]] · [[project_user_bind_behind_authorize]] · **create --init + locate** (`instance/create --init` pins the new mount at `flag` and chains init, independent of `--use`; `instance/target.js locate()` = ONE lens fold for `use · delete · doctor <t> <f>` — `delete hello` resolves; `doctor <one>` stays exact-or-filter, lens keys match mounts) → compact `the-create-verb-learns-init…` · **rename SINGULAR** (`instance/rename [target] <next>` — instance directory follows the slug, record `mount` + selecting sessions rewritten, tapped dir stays; `instances/rename` GONE; ghost 87/89, both reds pre-existing — `ledger.test.js` init step ledgered) → compact `rename-goes-singular…`
-
-** frontier evictions — the hello-world fold (frontier 7951/8000 chars)
-**LANDED, questless** — **lighthouse hoist** (OWED beef: commit; body EVICTED whole → known-issues "frontier evictions") → [[project_lighthouse_hoist]]
-**LANDED, questless** — **freight splits in two** (`FRAUGHT` carries the mode's own files, `MOUNTED` serves the operator's tree; vdex moved to MOUNTED; ledger invariant 8 pins `mountpoint`=fs, `mount`=internal reference; OPEN: should paladin point kernel entries at all — traced, `undefined` mints / `null` stays a fault)
-**LANDED, questless** — **dev rebundles at metadata** (`/metadata/app` recompiles when `is.dev` — a buffer-view edit now needs a page RELOAD, not a runtime restart; the artifact route CANNOT refresh (content-addressed on the OUTPUT hash); the store never prunes → known-issues `bundle-store-never-prunes`)
-
-** m46 line — three LANDED items (evicted whole at compact `the-readme-walk-opens-a-shared-tty…`, frontier 8549/8000 BYTES — the earlier char count hid the multibyte arrows; landed = recorded in release lines / `world/ledger.md` / runtime shard)
-**unset-is-commented LANDED** (`paladin.state.line`, scaffold writes `# KEY=""`, wizard fills in place — the ledger's Anthropic key no longer shadowed by an instance blank; beef: "commented always. no copy default from global .env").
-the docker recipe = 4 `.env` lines (SERVE origins on `0.0.0.0`, PUBLIC remotes on localhost);
-**L30 first-attach race LANDED** (go): `secure.authenticate` (identity, root) / `authorize` (user) split, `/userspace/handshake` = the ONE enrolling upsert, kajuit handshakes before its burst; `enroll.test.js` 40 parallel → 1 row, `beta`'s first visit healthy;
-
-** m46 line — four items (evicted whole at compact `the-readme-walk-opens-a-shared-tty-step-0-lands-the-installers-y-flag…`, frontier 8306/8000 chars after a sibling session's growth; the walk itself stays on the line)
-**beef's macOS walk**: singular `instance/use`/`remove` reach, wizard asks optional first (`check.js:123`, gated), F5 live.
-**LANDED: function defaults** (`envfile.fallback`; JWT mints itself; `strata.wet` "two shells" RED pre-existing).
-· earlier: `instance/delete` LANDED (B-bag), `Instances.resolve` (C1/C2); beef's `~/.zshrc` exports `VIVA_PROCESS_ID=$$` + repo-root `.env`; C6 open
-`run.js` decodes `128+n` into `signal`; hello-world `App.svelte` light drapes; language-learning dev gate SKETCHED, no go
-
-** m49 sunset pointer (evicted whole at compact `the-create-verb-learns-init-at-the-flag-stratum-delete-hello…`, frontier 8076/8000 chars after a sibling session's growth)
-m49 SUNSET to done/ with M1 LANDED uncommitted (Process/Die Wafers, one token lock, detached supervisor, live-proven) → [[m49-process-ontology-and-control-vector]]
-
-** m48 · m47 · m44 pointer line (evicted whole at compact `the-create-verb-learns-init-at-the-flag-stratum-delete-hello…`, frontier 7976/8000 chars)
-**EVICTED to known-issues (budget)** — **m48 environment-schematics** (DONE, `quests/done/`) → [[m48-environment-schematics]] · **m47 commons** (DONE) → [[m47-commons]] · **m44 authoritative-slugs** (DONE) → [[m44-authoritative-slugs]]
-
-** m39 kernel references (evicted whole at the doctor split, frontier 8084/8000 chars)
-**LANDED, uncommitted** — **m39 kernel references** (beef: commit + prod redeploy; fork A deferred) → [[m39-kernel-references]]
-
-** m40 ledger-convention (evicted whole)
-**LANDED GREEN, uncommitted** — **m40 ledger-convention** (CLI rewrite live: `ledger {init,doctor}` + `registry {tap,untap,bootstrap}` (tap/untap EMIGRATED from /ledger, compact 2) + `instance {create,init,use,run,start,stop,auth,doctor}`, system group dead; store=`<ledger>/registry`, slug mounts, instance fallback; **bonus: viva CLI was DEAD at HEAD** — dispatch rewrap collapsed multi-segment signals, instanceof guard in `steer/dispatch.js`, HOLY edit flagged; 4 suites green, 1 pre-existing typology red; `variant init` = full first-boot wizard (seed .env → boot+signup+teardown, old Init.jsx restored); **M3 docs LANDED** (README renatured · 51.01 rewritten · new 33.01 ledger anatomy · .env.example) — docs build 10 pages green; M2 out of scope; rename LATER; QUEST COMPLETE pending beef commit) → [[m40-ledger-convention]]
-
-
-frontier pointer line, evicted whole at compact 31 (`the-docs-are-read-whole-and-standalone-never-existed…`):
-**EVICTED to known-issues (budget)** — **m40 ledger-convention** (COMPLETE pending commit) → [[m40-ledger-convention]]
-
-** m42 history-purge (evicted whole at compact 31 (`the-docs-are-read-whole-and-standalone-never-existed…`))
-**DESIGNED, all ops beef's** — **m42 history-purge** (filter-repo 5 dead paths: registry/{kernels,education} · packages/database · modules/databases · viva.db — 393 MB blob mass, ALL the mp3; force-push + reclone + fresh jj colocate; gate M0 = commit-everything-first) → [[m42-history-purge]]
-
-** m44 authoritative-slugs (evicted whole)
-**BLASTED GREEN, uncommitted** — **m44 authoritative-slugs** (M1–M7 TDD: record proto lookup/rename/remove · register record-only + catch notes in use/init · create --slug+collision+record-at-birth · use takes row.mount, instance-guess DEAD · instances/tap + instances/rename NEW under the PLURAL group that landed mid-blast (use.js moved there; set-verbs follow) · doctor dangling/orphan/shadowed · docs 50.01+33.01; paladin 26/130/0 · ghost 77/23/0 · sheets 37/0 · docs build Complete; fixture recipe @fixtures/instance/fixture; strata.wet bareword leg re-pinned to the law; commit beef's) (quest = THE PATCH — 18 diff/tangle blocks, every change concrete incl. run/start flip, stop read-only, init enroll() catch ×2, use restructure, rename.js source, routing both files, doctor body; tests author RED-first at blast; quest REWRITTEN by beef's order with all four forks CLOSED: record = MAP (uniqueness structural, "keep.") · MOUNT MEANS PATH "non negotiatable. always." — populate throw PERMANENT, old M4 dead, recast as use.js taking `row.mount` from the record (instance-guess resolution dies) · register throws on unrecorded mount, use/init CATCH + tap note ("amen.", init has TWO call sites) · rename moves locks AND logs ("move on rename. obviously."; session-keyed logs killed on lifetime — sessions are shell-pid ephemera); tap.js tangle carries the bare-token refusal (m41 path law at the door); M3 env hint stays `${destination}`; immutable record id parked in deferred; green ladder M1 record proto → M2 target+callers → M3 create --slug → M4 use record-mount → M5 tap/rename → M6 doctor → M7 docs; `* QA` ADDED per the NEW quest QA meta — 7 testimony + 4 probes + 10 `#+marker_qa` pending) → [[m44-authoritative-slugs]]
-
-
-frontier pointer line, evicted whole at compact 31 (`the-docs-are-read-whole-and-standalone-never-existed…`):
-**BLASTED GREEN, uncommitted** — **m44 authoritative-slugs** (instances.json is the SOLE identity store; `create --slug` records at birth, `use` takes `row.mount`, instance-guess DEAD, `instances/{tap,rename}` under the plural group. Body EVICTED whole → known-issues. Parallel session, not m55's; beef owes commit) → [[m44-authoritative-slugs]]
-
-** m55 abandoned-coherence (evicted whole)
-**LANDED GREEN, uncommitted** — **m55 abandoned-coherence** (env surface FINISHED: ONE file (`<instance>/.env`, `<ledger>/.env`) — `environment.json` DEAD everywhere incl. beef's disk · 7 strata + `observe`/`claim` (a file lands at the stratum that OWNS it; standing in ~/.viva no longer hijacks your selection) · `${VAR}` lazy at `Env.get` (9 addresses ← 3 answers) · `state.env` line upsert (comments are content) · **the pinhole**: `hydrate` fires every thunk and RECORDS what it read — `instance.requirements`, keys LEARNED not declared, zero declarations annotated; secrets deferred so plaintext never lands · `export const environment` sibling schema, CHECKED not generated (`UNDOCUMENTED` only; `UNREAD` killed at a measured 5/17 false-positive rate) · `paladin.check` revived from zero call sites · wizard reads the schema (17 keys → 6 questions) · sheets `Table` + `Form` pages · `instances/{list,use}` · `registry/list` · `create --use` · `doctor [target] [filter]` reusing the picker's fold · 3 recipes `@education/instance/{italian,spanish,brazilian}` · **2 method constraints named** ([[thin]], [[generated]]) after each failed twice · suites typology 122/1 (pre-existing) · paladin 26/0 · sheets 37/0 · ghost 77/0 · runtime 53/0 · docs 10 pages. OPEN: registry has ZERO doc pages · `url.js:111` still returns "NaN" for an absent Url · `ghost/localhost/` orphan · beef owes commit + server migration) → [[m55-abandoned-coherence]] · compact 38
-
-
-frontier pointer line, evicted whole at compact 31 (`the-docs-are-read-whole-and-standalone-never-existed…`):
-**LANDED GREEN, uncommitted** — **m55 abandoned-coherence** (the env surface FINISHED: ONE `.env` per instance and ledger, `hydrate` is the pinhole, `export const environment` schema CHECKED. Body EVICTED whole → known-issues. OPEN: registry has ZERO doc pages · `url.js:111` "NaN" · `ghost/localhost/` orphan; beef owes commit + server migration) → [[m55-abandoned-coherence]] · compact 38
-
-** variant→instance rename (evicted whole)
-**LANDED GREEN, uncommitted** — **variant→instance rename** (flag-day, whole spine; suites match baseline, docs 10 pages, live `/instance/doctor` proven. Local env swaps DONE — the dev instance now lives at `~/.viva/instances/<slug>`; **PROD/other-machine swaps + commit still beef's**) → [[variant-to-instance]]
-  NOTE (m55): the ENV half is subsumed — `environment.json` is gone from repo and disk, the dev instance reads one `.env`, and the local swaps are done. What remains is beef's: PROD/other-machine swaps + commit.
-
-** m41 stratified-env (evicted whole)
-**LANDED GREEN, uncommitted** — **m41 stratified-env** (M1–M7 + rename + path law + punch-list, ALL APPLIED + LIVE-PROVEN on beef's machine: paladin.env → 7-strata first-hit fold `flag > cwd > instance > .env > os > session > ledger` · `Env` strata Map + `strati(key)` voices · `object.filter` · populate filter→tagged-assign, ./ scan, loud VIVA_ENV_FILE, divergence fix · ghost `--instance=`/`--env=` bridges + cwd stratum · `viva instance/use` per-shell (`VIVA_PROCESS_ID` — renamed from VIVA_SHELL — + `sessions/<pid>.json`; the shipped `export VIVA_PROCESS_ID="$$"` in `~/.config/viva/env` NEVER WORKED, ghost.sh sources that file so `$$` was its own pid — now `${VIVA_PROCESS_ID:-$PPID}`, compact 2), bare `--ledger` = machine default, chaining FIXED live (`ctx.call` takes `instance/<verb>` — args[0] IS the path; unit fake hid it, real-CLI wet test now pins) · doctor: strati+shadowed rows, `strata` ladder, byOwner registry (owner→type→slugs), instances rows +mount, beef's section order, mounts the instance, bare effects render via NEW sheets Effect.jsx ink tree (JSON only under --json) (`fn.once` returns undefined after #1 — Promise.resolve wrap), SIGURG prune · register writes `manifest.slug` · **ghost path law**: operator-typed paths pin absolute vs shell cwd at ingress via NEW `systems/ghost/belt/path.js` (`cwd()`+`pin()`; slug-vs-path splits on SYNTAX; repo-relative only for repo property — codeword walk, zettel 08-26) · M7 `ledger.mount` DISSOLVED (getters, publish→spawn) · **machine⇄suite leak**: ledger stratum reads real `~/.viva/environment.json` — ghost ledger.test scrubs; paladin instance.snapshot env-red HEALED by it · blast: typology 120/1 (pre-existing red) · paladin 21/1 (instance.snapshot env-red: ~/.viva/environment.json now {} — beef owes the swap; ledgered in known-issues) · ghost 42/0 (incl. 9 hermetic wet) · runtime 52/0 · kajuit 35/0 · docs 10 pages · OPEN: deregister verb · config prune · init ledger-scope re-register (last overwrite print); beef owes commit + stale config/record cleanup) → [[m41-stratified-env]] · compacts 66–68
-
-
-
-frontier pointer line, evicted whole at compact 31 (`the-docs-are-read-whole-and-standalone-never-existed…`):
-**LANDED GREEN, uncommitted** — **m41 stratified-env** (7-strata env `flag > cwd > instance > .env > os > session > ledger` + ghost path law + doctor strati, ALL LIVE-PROVEN; beef owes commit + stale config cleanup; body EVICTED whole → known-issues "frontier evictions") → [[m41-stratified-env]] · compacts 66–68
-
-** italian pair (evicted whole at compact 79 (`the-trajectory-paragraph-is-remeasured…`))
-**italian pair** — **curriculum LANDED + M4 RUN** (harvest index-first: 5 licensed hits landed, 138 no-audio → TTS queue; license bug FIXED; owed: beef reseeds italian DB, then a 1–160 rep) · **datasink M1–M6 ALL LANDED** (store/admit/receive · stamp = REINSTALL-on-mismatch (superseded stamp-WARN; boot compares every boot, files win, reseed ceremony dead; install de-quadratic'd via forked em, 132s→~20s) · per-sink dirty (claimed-else-ALL, sketch's `!==false` form was unsafe) · typology server `Cargo` prototype (beef killed defineProperty) + kajuit client `Cargo` · `speech.render` avenue + elevenlabs `via.render` · watch-exclude · ModeTraitsEnum +DATASINK (boot crash fix) · harvest mode BUILT `registry/education/modes/tactics/harvest/` — tools 4 steps green, wet tts through real ffmpeg; 5 = tatoeba ceiling, 138 → TTS; OWED: beef mounts `@education/tactic/harvest` in testament italian kernel · M7 live sweep · voice ear-pick · reseed) → `quests/italian-{curriculum,datasink}.quest.org` · compact 61
-
-** evicted at the m38-wake compact (compact 52) — whole item, loss-free
-- **entity-provision-as-trait + TRANSPORTED** (design held only in the frontier until now — restate before building): beef: "rn only domains can provide entities … make that a trait, available to any mode. degrade the domain; upgrade the traits" — collate's domain tier becomes a kernel sweep over trait-carrying modules (manifest check, pre-Mode); domain degrades to traits/kinds/aperture hooks. Sibling: TRANSPORTED marker on the entity descriptor mounts =shard.datamap.repository= + =reactive= generically, deletes the two hardcoded route lists (=aperture/datamap.js=, education =resolve()= hook), and is the lighthouse-closure lever — default off = entities stop leaking. m39 demos V–VI hold the walked context.
-
-** evicted at the m38 compact (compact 51) — whole items, loss-free
-- **BENCHED** — m22-datasink (runtime codemap shard + `35.02`) · m16_client_provisioning · m7-snapshot-testing (3 gaps) · ikiro-modernization (forks await beef)
-- **DONE** (→ `quests/done/`) — m31 package registry
-- **STAGED** — **m32 memoriter** (Anki as out-of-tree package; critical pass DONE, 16 tests green, never booted; nothing go'd) → [[m32-memoriter]]
-- ## known open tails (nothing else records them)
-  
-  - Portuguese pronouns hardcoded in `exhibit/buffer/Exhibit.svelte` only ([[project_language_label_hardcoded]]; pronoun statics = beef)
--  Homed elsewhere: m18 conversation-dissolves (BUILT) · generative-views (m19 LIVE, reader reg. pending)
-- **SUNSET** — **m23 → done/** (beef: "sunset. move everything tangling from m23 to m29") — III/II.1 landed · II.2 → m27 · I beef-side; tangles settled or moved to m29's inherited section (lookup conjugation blindness · types.js/gather twins · progress-as-only-board · valence language law · instrument/mind tail lists) → [[project_m23_domain_root_tutor]]
-- **LANDED+LIVE, unnumbered** — **contractions** HYBRID (I'm ≡ I am: topography `statics.language[slug]` · runtime blind `/metadata/statics` · domain flat `/language` · `string.matches({contractions, elision})` — english = 7 suffix RULES + 3 irregulars, italian = `elision:true` + `po'`, brazilian = 16 colloquial list; bruno `language.bru` green; device rep owed) → [[contractions]] (`quests/contractions.quest.org`)
-- **DESIGN, nothing go'd** — **progress-feedback** (the learner never sees their retention: `/review/literal` returns the evolved retention + writes a Trace, all five games discard it; board's three lies — UNTOUCHED structurally 0, strength collapses to 0.0 for everything overdue, due is a bare int; designer brief + real italian-testament rows in the quest; 5 forks for beef) → [[progress-feedback]]
-- **IMPLEMENTING** — longdistance (audio: enum ✓, instance wire + live boot next) · english-to-spanish (M1 A1+survival) · c-panel-rebuild (metadata cutover tail)
-
-- m30 warts, un-go'd: probe swallows close-code 1001 at F5 teardown · per-MODE metadata boot volley ~35 calls (aggregate `/metadata/modes`) · `store()` coalescing riding epoch close
-- beef's skill roadmap: daemon skills LANDED · paladin skills LANDED (fs_tree/find/read/write + shell_run, root-bound, no trait) · ghost skills next — then standard-skill overrides via keyed layers
-- tactic themes hardcoded Portuguese in `survival/emitter/buildup.js` (21 slugs; 6/20 in italian) — derive from `symbol.find()`
-- cloze unmountable on italian: sentences un-ANNOTATED (0/1015)
-- **proof owed on the next pipeline: kajuit digest must MOVE** (`VIVA_STAMP` build-arg + `:$CI_COMMIT_SHORT_SHA` receipt tag wired both sides; mechanism + history) → [[the-kajuit-image-never-moved-because-its-build-stage-read-nothing-from-the-context-and-the-stamp-arg-was-never-passed]]
-- `translate.snapshot.test.js` RED in BOTH hallucinator packages (anthropic + openrouter), pre-existing: frozen `buildParams` snapshots lack the appraise-era `tool_choice: {type:"any"}` + `respond` tool. Unrelated to the tune/config work (tests never import `provider()`). Refreeze vs investigate — beef's call.
-
-** docs/README simmering strand (evicted whole at the compact `three-readme-defects-land…`)
-
-1. **docs/README** — #1 recurring. README quickstart 0–6 MARKER-FREE (state+expectation closers, §6 checkboxes, deep link `/50.01_slowstart`) + **50.01 truth-synced**; LAW: doc examples CAPTURED never composed (doctor/list/run/install all ran); false `instance/init <slug>` form KILLED (params = user,pass); `create --use` real. Manifest lie now VISIBLE at step 4 (hello-world doctor: brazilian+playground, 8 REQUIRED secrets) — instances reshape owed (dead standalone at HEAD = lane-a). 51.02+32.01 specimen the DEAD standalone (panels dangle green — capture cannot fail). DESIGNED ungated: docs-runner iteration (fail-red · shell channel · `Source file=` · tangle-at-capture) + annotation grammar. OPEN small: README:24 root link. **CLEAN-BOX WALK (readme-walk compact)**: step 4 FIXED (playground-only, 2 secrets; 50.01 re-capture owed) · step 5 kajuit 500 FIXED (`+layout.js` ssr=false) · allow-scripts FIXED — all three ON GitHub master `4b183b72`. **UBUNTU WALK (ubuntu-walk compact, #81 today, report)**: 0–6 ALL LAND on stock ubuntu:24.04 from the GitHub clone; admin+reader in Identity, login SUCCESS, kajuit 200. ALL FOUR DEFECTS LANDED same session (ghost `fail()` exit site · `Instance.home` at paladin · headless refusal + `ledger/init` defaults · `instance/auth`→`lighthouse`) + README 0–5 edits, `registry/list` = `mount owner modes identifier`, Frame hands views `{terminal,daemon,mode,thread,buffer}`; ALL uncommitted, beef owes commit. OPEN: gate says "session expired" on a first visit · `paladin.scope overwrite` warning still prints on `ledger/init`. **DOCTOR SPLIT LANDED** → `world/ledger.md`; forks a/b GATED (known-issues `ledger-doctor-reaps-a-sibling-shell-mid-boot`). **TRAJECTORY + SLOWSTART (compact 79)**: README:240 remeasured — 3y · 800+ commits (jj `all()` 837; HEAD 429, GitHub 408, all refs 1141) · core ~18k = 11,254/4,443/1,974 (wc, no tests/bak.belt), tests 17,686 ≈ 1:1 · 50.01 iterated from beef's quickstart: `init` = populate→run once→first user, `auth signup` NETWORK-ONLY (old "boots headless" claim killed), `run|stop [runtime|kajuit]`, hello-world `ls` minus education.js, step-0→4 anchor fixed, `astro build` green · README `## Hello, Mode!` closer = three sentences (hallucinator explained). SETTLED same turn: `registry/list` now prints `mount owner modes identifier` (beef), notice → `.ikiro/ikiro.md` (beef), typos + `@viva 11` (me). OPEN (beef): instance hello-world still carries education.js (doctor: brazilian + 8 REQUIRED). **DOCS-READ + HELLO-WORLD REGISTRY-FIRST (compact 31 `the-docs-are-read-whole…`)**: `documentation/content` read whole — `@viva/instance/standalone` DOES NOT EXIST (51.02 + 32.01 built on it, captures EMPTY), 32.01 counts stale, 41.01 tree wrong, emacs autosave STAGED, 14.01 `.bak` · 13.01 CUT (no-loss, single-flow) → `tmp.md` at root, unapplied · hello-world = `commons/instances/hello-world/` {hello.js cortex gate · App.svelte · hello-world.viva.js ternary hallucinators · multiplayer.js}, README `Hello, Mode!`/`Hello, Instance!` = byte-verbatim pastes (LAW: registry first), `/status`+`/manifest` captured · OPEN (beef): `## Instance` stub · 50.01 stale on `registry/viva/` + `playground.js` · instance hello-world OLD recipe. Live: 11.01 · 13.01 · 21.01 · 32.01 · 33.01 · 41.01 · 50.01 · 51.02 → [[project_documentation_site]] · compacts `the-quickstart-goes-thin…` + `the-port-thief…`
-
-** m48 environment-schematics (evicted whole at the m44 sunset compact (`the-slug-quest-is-sunset-on-one-word…`), frontier 8306/8000 chars)
-**DONE → `quests/done/` (LANDED under the blast-bracket, M1·M2·M3 + F5 = INVALID values OWED by init; repo + instances + tapped `@education` recipes migrated, OPENROUTER/ELEVENLABS/DEEPGRAM optional; `v.url()` = RFC 3986 grammar on beef's "universally true" order; 14 markers held; release lines lifted; beef owes commit ×2)** — **m48 environment-schematics** (`export const environment = v.environment({…})`: typed values cast at the doctor → new `INVALID`; `.optional()` the ONLY "not owed"; key law refused at import; `usable()` + this session's `required: Boolean` die in M2; M2 = paladin+ghost+recipe ONE milestone by coupling) · **VALIDATED pass 2**: TypeBox `url` format REJECTS localhost → `v.url()` is a PATTERN; `enhance` leaks the SETTER for unset `.default`/`.group` → `v.environment()` unwraps properties; `v.convert` before check; F5 OPEN = init refuses INVALID) → [[m48-environment-schematics]] · compact 31
-
-** m47 commons (evicted whole at compact `the-lighthouse-is-declared-once-and-inherited-at-the-pinhole…`, frontier 8272/8000 chars)
-**LANDED + SUNSET (done/)** — **m47 commons** (`registry/**` → `commons/`, ONE package `@commons` 22 modes, every lookup `@commons/<type>/<slug>`; record self-heals; release lines seeded root `release.md`; F8 adjusted: `fixtures/data` stays; OWED beef: commit · education push · M5 prod) → [[m47-commons]]
-
-** m44 authoritative-slugs (evicted whole at compact `the-lighthouse-is-declared-once-and-inherited-at-the-pinhole…`, frontier 8272/8000 chars)
-**LANDED + SUNSET (done/)** — **m44 authoritative-slugs** (SUNSET to done/: `instances.json` = the ONE instance identity, `register()` reads it or throws; `--slug` · `instances/tap` · `instances/rename` · doctor `dangling|orphan|shadowed`; 10 markers probed on a scratch ledger — 7 held, 3 revised by m49's one lock; release lines lifted; commit beef's) → [[m44-authoritative-slugs]]
-
-
-** evicted at the m53 design compact (frontier 9417/8000 chars)
-**WALKED ×5, proposals gated** — **m46 linux-readmen** (ubuntu + alpine walked README 0–6 on `b27e0e62e`, both reach hello-world UP; 24 defects · 17 proposals, L1 L2 L4 APPLIED; TASKBAGS B1–B13 · C1–C12; CONNOISSEUR PASS six-step drain, gated; `instances.resolve` LANDED uncommitted. **docker-live walk**: stock ubuntu:24.04 + the LOCAL tree → hello-world LIVE on host `127.0.0.1:2501/1794`, `bot`/`agent` clicked in Chrome; L30 first-attach race + unset-is-commented LANDED (→ release lines, `world/ledger.md`, runtime shard); containers all KILLED on beef's order; **tty walk, step 0 only** (beef: "tty open so i can attach besides you and you slop up the docs for both of us"): container `readmen-tty` RUNNING — pid 1 bash on a pty, my steps stream into it, host ports `12501/11794` because **walk containers are a TRAP** — a `readmen*` on `0.0.0.0` shadows the local instance for Firefox (`[::1]` vs v4) → known-issues `readmen-container-shadows-the-local-instance`; README §0 FIXED on order (`apt-get update`, installer `sh -s -- -y` — it persists PATH only with a tty on stdout or `-y`, live `export PATH`); LANDED (go): `install.sh:9` asks a fresh `$SHELL -lic` · paladin boot never scaffolds an absent LEDGER home, `ledger/doctor` before init creates nothing and says `✗ ledger → viva ledger/init`; GitHub `d9c2cd8` carries `commons/` but its README lags the hoist + `--use --init` → push beef's; steps 1–6 on `go`; **m52 walk**: 0–6 PASS, `readmen-m52` (RUNNING :2501/:1794, Chrome = beef's), every verb + the API from the host, 5 known-issues, 2 FIXED (lock-dead doctor · untap refuses), §1/§2 CAPTURED) → [[m46-linux-readmen]] · compacts: the readme-walks + the shared-tty
-
-
-** evicted at the m53 design compact, second pass (frontier 8290/8000 chars after a sibling re-stamp)
-**DESIGNED, prerequisite CLEARED, every op beef's** — **m42 history-purge** (filter-repo 5 dead paths; re-measured: 269.8 MB / 8615 mp3 still in history, HEAD purge-paths 0, 410 `refs/jj/keep` pin 706 hidden snapshots; education + m39/m40/m41 + variant→instance already on `origin/master`; owed before the scratch clone: commit the dirty tree (16 paths at survey, sibling-widened by commons + m45–m49 since) · push · zip · filter-repo install; FORKS 6–9 beef's: THREE remotes (origin gitea · github · presentation disjoint) → publish per remote · 40 stale `push-*` on origin, prune before or carry · `github/master` = sibling working-copy snapshot origin never got · M3 carry-over list measured) → [[m42-history-purge]] · compact 62
-
 * OPEN — daemon /after/literal/update twitch never fires (create lane does)
 Observed live on the stucatch instance: shape.subscriber wires all six lanes and
 population.js:80-81 registers it on the ORM event manager; /after/literal/create
@@ -791,15 +592,6 @@ Worked around in stucatch: the placement/adjust aperture verbs own their refold
 directly (refoldAll after flush); the update-twitch registration stays in place and
 is idempotent if the lane ever comes alive. Diagnose before any other domain leans
 on entity-update reactivity.
-
-* RESOLVED — `instances/use --ledger` is undeclared and collides with the global mount flag
-RESOLVED with the singular rename: the verb is =instance/use= and =ledger= is declared on its schema as =v.boolean().group("flags")=; the mount =--ledger=<path>= derives from =paladin.mounts= (the env schematic); a bare flag throws unless the shell or the nature declares a boolean of that name (=mod.js= pre-flight over =census=).
-`trajectories/instances/use.js:35` reads `ctx.signal.flags?.ledger === true` to pick the
-machine default over the session record, but `ledger` is not in the nature's schema — so it
-never reaches help's param list and survives only inside the valence prose. It also shares
-its spelling with the global mount flag `--ledger=<path>`, and the two are told apart only
-by `=== true` versus a string. Declare it as `v.boolean()` (help now renders booleans as
-`--name`) or rename it; either way the collision is real and currently invisible.
 
 * OPEN — hello-world recipe names =@education/*=, unsupplied on any public surface (README step 3 unbootable)
 
@@ -1298,7 +1090,7 @@ docker ps --format '{{.Names}}\t{{.Ports}}'
 #+end_src
 
 Then close the other tab. Read the =NAME= column, not just the pid — the IPv4/IPv6
-split ([[project_localhost_ipv6_serve_split]]) makes =127.0.0.1= and =[::1]= look alike
+split (`project_localhost_ipv6_serve_split`) makes =127.0.0.1= and =[::1]= look alike
 in a summary.
 
 * settle-holds-lifecycle-business-in-a-prototype — OPEN (beef ruled, m-unassigned)
@@ -1452,6 +1244,8 @@ Own quest (number beef's). Shape: application bundles keyed on their INPUTS (dig
 =rm -rf <mountpoint>/daemon_*/bundles= while the instance is stopped; the next boot recompiles every APPLICATION mode. Generative views held by Buffer rows are LOST by this — only safe on an instance with none.
 
 * resolved issues — records of built things, CUT (cleanup law: delete records of built things, never un-built design)
+*Cut 09-22, the prune*: =frontier evictions (budget)= — 34,170 chars, a quarter of this file, holding frontier overflow from m38–m56 that was "moved here whole" at eleven folds. Not a defect ledger entry at any point: every quest it named is sunset (=done/= · =discarded/= · =benched/=), it had re-dumped m43 · m53 · m55 · m44 twice each without removing the older copy, and the live owed lines it carried are in =world/frontier.md ## owed=. A budget eviction goes to the artifact that OWNS the item; this one went to whichever file had room. Also cut: =RESOLVED — instances/use --ledger is undeclared and collides with the global mount flag= (resolved, and this file is OPEN-only).
+
 The fixes live in the code and their stories in =compacts/= (grep the name) and =release.md=. Names cut here so a reader can still grep them: =aperture-snapshot-pins-a-daemon-the-instance-no-longer-mounts= · =paladin-scope-overwrite-warning= · =registry-count-test-pins-a-number= · =stripwire-contract-test-reads-a-dead-key= · =prod-nlp-image-lacks-transformers= · =runtime memory runs to 16 GB while the dojo drawer is driven= · =RESOLVED= · =readme-ubuntu-walk-ghost-defects= · =app-relative-mount-keeps-its-dot-segment-and-the-bundler-misses-its-own-output= · =first-attach-user-insert-race= · =secrets-thunk-leak= · =ledger-doctor-counts-every-lock-dead= · =registry-untap-silently-ignores-an-unknown-reference= · =literal-ontology-blank-after-dataset-install= · =italian-instance-env-blank-secrets-shadow-every-lower-stratum= · =consumed-service-with-a-blank-optional-secret-crashes-after-the-gate= · =nlp-provider-blames-the-url-for-a-missing-key= · =cargo-drops-any-path-with-a-space=
 
 
@@ -1652,7 +1446,7 @@ pragma foreign_keys = on;pragma foreign_keys = off;                    ← FK st
 
 The =npm:sqlite3= driver executes only the first statement of a multi-statement string. The migrator is non-transactional (=libsql.viva.js= =transactional: false=), so the db is left half-applied. A second artifact: a column add carries a foreign key that belongs to a neighbour (=alter table Buffer add column traits json … constraint Buffer_thread_foreign references Thread(id)=), which with FK enforcement on would refuse every insert.
 
-Nobody had run this path: dev nukes db + migrations ([[project_mikro_sqlite_fk_change_breaks_migration]]). Prod italian was the first populated db to meet a schema diff.
+Nobody had run this path: dev nukes db + migrations (`project_mikro_sqlite_fk_change_breaks_migration`). Prod italian was the first populated db to meet a schema diff.
 
 ** Attempts
 
@@ -1886,3 +1680,400 @@ Run =python3 .ikiro/methods/quest-report.py --format md= WITHOUT =--stamp= to ge
 table, and re-run the stamping half at the next fold. If a run crashes, check
 =ls .ikiro/quests/*.org= against the index before assuming the tool is broken — a live
 sibling mid-sunset is the likelier cause, and =git status= will show the moves.
+
+* path-codec-encode-assumes-an-array — OPEN
+** Symptom
+=v.primitives.instance.Instance.encode(instance)= on a settled (decoded) instance throws
+=TypeError: signature.absolute.join is not a function= at
+=subsystems/typology/schematics/prototypes/signatures.js:19=. Any =Path()= codec leaf holding a
+=Path= prototype dies on encode; =Url()= encodes fine (=(s) => s.absolute=).
+** Root cause
+=signatures.js:19= — =const path = (signature) => signature.pathname ?? "/" + signature.absolute.join("/")=.
+=Path.absolute= is a string, not an array; =pathname= is undefined on a =Path=. The =Path= codec's
+Encode half was never exercised: settle only DECODES (=integrate.js:107=), nothing folds a decoded
+instance back.
+** Evidence
+m68 apply, M4b's door: the runtime tried =Instance.faults(Read.encode(paladin.instance))= to judge
+the decoded instance in wire form — the encode threw on =daemons[0].mountpoint= (a =Path=). Probe:
+=lifecycle.mount(paladin.instance)= on droneaid → =settle faults: 0=, =serve is Url=, then
+=Read.encode= → the TypeError above.
+** Ruling
+none yet — typology is HOLY.
+** Why not fixed
+Typology core; a one-line fix (=signature.absolute=) is beef's to say. m68's door dropped the encode
+instead and asks for =runtime= alone (paladin judged the leaves at settle).
+** Workaround
+Never encode a decoded instance; judge before decode (paladin's =settle= order: cast → faults →
+decode) or judge shape without codec leaves.
+
+* an-empty-cortex-must-warn-at-boot-in-the-runtime-and-in-kajuit — OPEN (moved from compacts/MARKERS.md at the skills fold; carried five folds unexecuted)
+** Symptom · Root cause · Evidence · Ruling
+Beef, verbatim: *"ahh ohh this is imortant as a knowon issue. i watn to be warned differntly
+about this. kajuit adn runtime."*
+
+The known issue: a daemon whose instance declares no `hallucinators` (or whose keys all stay
+blank) boots with an EMPTY cortex and stays silent until the first hallucination, which dies
+deep in the belt — `shard/hallucinate.js:42` *"no 'dialogue' faculty resolves a 'stream'
+avenue"* — surfacing as a 500 on `/harness/dialogue/stream`. `acid()`
+(`systems/runtime/daemon/lifecycle/population.js:106`) warns only when a provider REFUSES;
+zero providers is not a refusal. Seen on the fresh droneaid instance (`instance/create` copied
+a kernel that had no hallucinators block).
+
+Owed, designed at the fold: (1) runtime — `acid()` warns at boot when a HARNESSED /
+CONVERSATIONAL daemon ends with an empty cortex, and the belt error names the cause
+(no faculties registered vs no match for the tune); (2) kajuit — the daemon display /
+boot display shows the empty cortex as a state, not a crash on the first message.
+Fixed today at the config layer only: droneaid registry + instance kernels carry the block.
+** Why not fixed
+Code work in the runtime / kajuit, gated on beef's per-item go; the design is in the entry above.
+** Workaround
+none — the config layer carries the block on droneaid today
+
+* cortex-snapshot-coverage-vs-the-live-strip — OPEN (moved from compacts/MARKERS.md at the skills fold; carried five folds unexecuted)
+** Symptom · Root cause · Evidence · Ruling
+Beef, verbatim: *"do a comparison between the keys i provided you in hallucinator cortex
+etc, all specific copy paste by me, and compare it to the snapshot. are we snapshotting
+completely and correctly?"*
+
+The three copy-pastes to compare against:
+
+1. the `acid()` boot dump — `{ mask, service, faculties }` for `@commons/hallucinator/anthropic`
+2. the `Cortex { faculties: Map(1) { "dialogue" => [3] } }` dump from the same boot
+3. `GET /daemon/hello/metadata/cortex` → the live 3-faculty strip, pulled under beef's token
+
+Against `systems/runtime/tests/snapshots/cortex-contract-strip.snapshot.json` (one faculty)
+and `cortex-contract-render.snapshot.json`, pinned by `systems/runtime/tests/cortex-contract.snapshot.test.js`.
+
+**First reading, taken live. The specific holes and the specific drift:**
+
+Emitter is `subsystems/typology/gestalten/shape/cortex.js:1-10`. Seven keys, two of them
+behind conditional spreads. What each surface actually carries:
+
+|            | strip emits | contract snapshot | stripwire fixture | LIVE (anthropic) |
+|------------+-------------+-------------------+-------------------+------------------|
+| type       | always      | dialogue ×1       | dialogue ×3, verbatim, speech | dialogue ×3 |
+| tune       | always      | [0.9,1,0.3,0.5]   | 3-length, padded  | 4-length native  |
+| context    | always      | 200000            | 200000 ×3         | 1000000 ×2, 200000 |
+| channels   | always      | flat strings      | flat + OBJECT form | flat strings    |
+| provider   | CONDITIONAL | *** ABSENT ***    | *** ABSENT ***    | "anthropic" ×3   |
+| config     | CONDITIONAL | *** ABSENT ***    | *** ABSENT ***    | {model: …} ×3    |
+| via        | always      | ["render"]        | render+stream ×2, render ×1 | render+stream ×3 |
+
+*** HOLE 1 — `provider` is never exercised anywhere.*** Stamped in
+`systems/runtime/daemon/lifecycle/population.js:113` (`{...faculty, provider: service.manifest.slug}`),
+emitted by the strip, rendered by the client. No fixture on either test path declares it:
+`contractFaculty()` (`cortex-contract.snapshot.test.js:19`) and the shared
+`commons/fixtures/data/faculties.js:65-117` both omit it. The conditional spread therefore
+never fires in any test, and the key is absent from both pinned JSONs.
+
+*** HOLE 2 — `config` is never exercised anywhere.*** Same two fixtures, same omission.
+Real providers set `config: { model: "claude-opus-5" }`
+(`commons/hallucinators/anthropic/provider/index.js:68`ff). It is the only field that names
+WHICH model a faculty is.
+
+*** Both unpinned fields are the two the client reads.*** hello-world `App.svelte` renders
+`faculty.provider` and `faculty.config?.model` in the attached list; `Intelligent.svelte:31`
+reads the faculty list for the tune picker. The wire could stop emitting either and the
+whole suite stays green.
+
+*** HOLE 3 — the contract snapshot pins a ONE-faculty cortex.*** `cortex-contract-strip.snapshot.json`
+is a single-element array, single avenue `["render"]`. Multi-faculty ORDER across
+`[...cortex.faculties.values()].flat()` is asserted in `cortex.stripwire.test.js` but never
+frozen in a snapshot, so a reordering is caught only by that test's own expectations.
+
+*** HOLE 4 — object-form `channels` never reaches a snapshot.*** `commons/fixtures/data/faculties.js:126,148`
+declare `channels: { in: [{ type: "audio", codec: "pcm_16000" }] }` for verbatim/speech.
+Only flat-string dialogue channels are pinned. The strip copies `channels` by reference, so
+the two shapes are untested against each other.
+
+*** DRIFT — `tune` arity, benign but unrecorded.*** Fixtures declare 3-length tune;
+`Cortex.register` (`prototypes/cortex.js:48`) pads to 4 with 0.5. Live providers declare 4
+natively. The snapshot froze the PADDED value, so it pins the pad, not the declaration —
+correct today, silent if the pad ever changes.
+
+Settle at the fold: is a second contract fixture owed — one provider-stamped,
+config-bearing, both-avenues faculty — or does `cortex-contract` deliberately pin the
+MINIMUM, with provenance coverage belonging in `cortex.stripwire.test.js`? Beef rules.
+
+**MEASURED LIVE at the doctor-rewrite fold — the table above is no longer inference.**
+A probe fed `Cortex.register` two real-shaped faculties and read `shape.cortex.strip` back:
+
+- keys emitted: `['type','tune','context','channels','provider','config','via']` — both
+  conditional spreads DO fire, with `provider: "anthropic"` and `config: {model: "claude-opus-5"}`.
+- a 3-length `tune` came back 4-length with `0.5` appended — the pad fires exactly as HOLE/DRIFT
+  described, so the snapshot pins the pad and not the declaration.
+
+So HOLE 1 and HOLE 2 are confirmed TEST gaps, not code gaps — and they remain precisely the two
+fields the new hello-world daemon display renders. Still OPEN: the ruling only.
+** Why not fixed
+Code work in the runtime / kajuit, gated on beef's per-item go; the design is in the entry above.
+** Workaround
+none — the config layer carries the block on droneaid today
+
+* compact-gate-hangs-when-run-by-hand — OPEN (measured at compact #196)
+
+** Symptom
+=bash .ikiro/hooks/compact-gate.sh= invoked from a Bash tool call never returns. Four background shells were found stuck on it at one fold — three of them carried over from two EARLIER folds, alive for hours. =pkill -f compact-gate.sh= reaped all four (exit 144).
+
+** What is not wrong
+The hook itself works: as a =PreCompact= hook the harness runs it with a real stdin and it completes (the =/compact= at compact #195 reported =PreCompact … completed successfully=).
+
+** Reading
+It blocks on stdin (or on something the harness supplies) that a plain Bash invocation never closes. The compact walk's step 9 tells the scribe to run the budget check and then =/compact= again — a scribe who also runs the gate by hand to "verify" leaks a process every fold.
+
+** Owed
+Either make the script exit when stdin is not a tty, or strike "run the gate by hand" from the ritual. Until then: run =budget.py= for the check and let =/compact= fire the hook.
+
+* decoded-path-has-no-trace — OPEN
+** Symptom
+A =Path()= / =Url()= slot decoded at settle is a fresh prototype: =trace= is null, so =nature= equals =absolute=. A reader that branches a parent aperture by =mode.mount.nature= (=systems/runtime/daemon/lifecycle/resolution.js:76=, =daemon/aperture/metadata.js:25=) gets the whole path when the seat was handed in as a runtime-rooted string — =[multiplex] no route for "/daemon/droneaid/mode/domain/assembly/metadata/aperture"= on beef's watch.
+** Root cause
+=subsystems/typology/prototypes/path.js= — =absolute= walks =trace= concatenating each ancestor's =nature=; a Path built by =new Path("/a/b")= has no ancestor. The old runtime mount was BRANCHED off the daemon's mount, so =nature= was relative and =absolute= full; a codec cannot rebuild that lineage from a string.
+** Evidence
+m68 M2b live (compact #197): seven =metadata/*= 404s the moment the seats moved upstream; paladin and runtime suites green throughout. Fixed on the paladin side by seating a mode UNDER its daemon (=/mode/<type>/<slug>=) and composing =daemon.mount + mode.mount= at the two runtime-rooted readers.
+** Ruling
+none yet — the typology is HOLY. beef's slot sentence already reads /"The mode's path under its daemon"/.
+** Why not fixed
+A decoded prototype carrying its parent would need the codec to know the parent slot — a typology design, not a hunk. Today the convention (=mount= is the path under the PARENT, =url= full) makes =nature= and =absolute= agree for every seat.
+** Workaround
+Seat under the parent; compose at the reader; never hand a decoded seat to a =branch()= that expects a relative part.
+
+* assembly-fold-graft-precedence — OPEN (read from code at compact #200, not run)
+** Symptom
+A root step's over at a path inside a grafted sub-part is lost; a part whose base layer is empty (its placements all in steps) is no interior.
+** Root cause
+=~/.viva/registry/assembly/domain/assembly/resolve.js= =resolve()=: the graft runs AFTER the stack fold and =held.set(prefix(at, inner.path), …)= replaces whatever the root's layers said at that path — the reference beats the local layer, the inverse of LIVRPS. =interior()= is =layerOf(rows, slug).length > 0=, the base layer alone.
+** Evidence
+The brief =reference/droneaid-guide-briefing.md §9=; no test pins either.
+** Ruling
+Superseded by the step rework (compact #200): steps become overs applied after the graft, and the base is the only layer — both dissolve by construction. Until it lands, they stand.
+** Why not fixed
+The rework is planned (=reference/assembly-step-rework.md=) and held behind a live sibling on the same files.
+** Workaround
+Import flat (=groups: false=): nothing grafts.
+
+* literal-slug-unique-index-is-per-mode — OPEN
+** Symptom
+The domain's law is "a slug is unique in the daemon" (ruling 24); the database allows the same slug twice under two modes.
+** Root cause
+=systems/runtime/daemon/entities/kernel/Literal.ts:84= =uniques: [{ properties: ["slug", "mode"] }]= → index =Literal_slug_mode_id_unique (slug, mode_id)=. Uniqueness is enforced only by =LiteralRepository.mint= (=findOne({ slug })=).
+** Evidence
+=.schema Literal= on =~/.viva/instances/droneaid/mountpoint/daemon_droneaid/droneaid.viva.db= at compact #200.
+** Ruling
+none yet — the runtime kernel is shared by every domain; direction is beef's.
+** Why not fixed
+A per-daemon unique on =slug= alone would bind education too, where a slug's uniqueness per mode may be the intent.
+** Workaround
+The repository is the only writer; the law holds while that stays true.
+
+* guide-buffer-points-at-a-missing-guide — OPEN
+** Symptom
+The one =editor/guide= buffer on droneaid holds =guide: "guide_1"=; no =guide_1= literal exists. The mode answers =/read refused= instead of the guide list.
+** Root cause
+Both guide apps trust =buffer.data.guide=; nothing falls back when the literal is gone.
+** Evidence
+droneaid db read-only at compact #202: 0 guide rows, 1 buffer.
+** Ruling
+none yet
+** Why not fixed
+found at the fold; a few lines in both apps.
+** Workaround
+open a fresh buffer.
+
+* anima-section-row-global-leaks-into-modes — OPEN
+** Symptom
+A mode's `.row` inside any `<section>` gains `padding: 3px 16px; gap: 12px; align-items: baseline`. The guide stage's control bar sat 16px right and 15px taller than the comp (beef's console: `.bar` 373, `.ctl` 389, bar 75 tall).
+** Root cause
+`systems/anima/src/app/panels/b/widgets/Section.svelte:54` `:global(section .row)` (also `.row .k`, `.row .v`, `.row.click`, `.actions`, `.act`, `.act.on`) — global, and mode buffers mount inside anima's tree.
+** Evidence
+compact "a cube that matched its comp in isolation…"; a probe of Stage alone measured the comp exactly.
+** Ruling
+none yet, direction is his
+** Why not fixed
+anima is not @assembly's; scoping the rule is an anima change.
+** Workaround
+modes avoid the class names `row`, `actions`, `act` (the guide modes now use `controls`, `step-row`, `toc-row`, `lit`).
+
+* conversation-error-close-never-faults — OPEN (drained from the anima shard at the 09-23 baseline cut)
+** Symptom
+A `/response/close {state:"error"}` packet pours into `soma`; the UI never shows a fault.
+** Root cause
+`systems/anima` `conversation.js` `drain()` sets `$error` only from a THROW.
+** Why not fixed
+Carried in a shard, never filed. A silent fail.
+
+* stripwire-drift-check-is-vacuous — OPEN (drained from invariants.md)
+** Symptom
+`stripwire.contract.test.js` is green and prints `0/30 modes have an instance vantage`.
+** Root cause
+The drift check needs a booted daemon (`SNAPSHOT_HOT=1`); without one it compares nothing.
+** Workaround
+Read the printed vantage count before trusting the green.
+
+* tests-no-task-runs — OPEN (drained from invariants.md + commons.md)
+** Symptom
+42 `*.test.*` under `~/.viva/registry` are run by no task. Three commons suites need a LIVE process and carry no skip: `nlp/tests/service.test.js` (:5555), `multiplayer/tests/{auth,lighthouse}.test.js` (:1729).
+** Why not fixed
+Owed: a registry test task, and a self-skip on the live suites.
+
+* panel-f-reads-trait-past-the-claim-gate — OPEN (drained from invariants.md)
+** Symptom
+`systems/anima/src/app/panels/f/f.svelte:14` reads `row.trait?.NAME` directly.
+** Why not fixed
+Carried in a shard, never filed.
+
+* bruno-asserts-unported — OPEN (drained from testament.md)
+** Symptom
+`testament/_bruno/instances/**` is untracked, on this disk only; the successor `specimen/` has 47 bru asserts unported.
+
+* ghost-spans-never-reach-disk — OPEN, ruling owed (drained from ghost.md)
+** Symptom
+`.to(paladin.ledger.pipe)` is commented out at `systems/ghost/mod.js:28,41`; no ghost span reaches `spans.jsonl`.
+** Ruling
+The commented lines are beef's — intended or not is his call.
+
+* untested-seams — OPEN (drained from the codemap shards; each grep → 0 test mentions at the cut)
+- anima: `+layout.svelte` gate · `client.js` decks · `dossier.js` · `harnessed.js` · `thread.js` (`engage`, `PHASES`) · `chain.js` · `conversation.js` · `terminals.js` · `navigation.js` · `Frame.svelte` · `dapper/lifecycle/`
+- paladin: `integrate.statements` · `remount` · `scribe` · `check.path` · `state.dir` · `is.citizen`
+- ghost: `instance/{run,start,stop}` argv-only; `instance/lighthouse` zero
+- runtime: `collate`/`seal(` · `prune(` · `carry(` · `ProcessDie` · `perpetuate` · `/attached/*`
+- typology: the dispatch-vs-tree `use` asymmetry (`invoke.test.js` covers a root `use` only)
+
+* lighthouse-storage-key-object-object — OPEN
+=systems/anima/src/typology/stores/lighthouse.js:7= =STORAGE_KEY = (url) => `lighthouse:${url}`= is called with =lighthouse.connection.url= (:185), a typology =Url= whose =Symbol.toPrimitive= is commented out (=subsystems/typology/prototypes/url.js:237=) → every lighthouse persists under ONE key =lighthouse:[object Object]= (confirmed live at the boot-display landing). Cold tabs also write ={"authority":{},"identity":{}}= (nanostores =effect= fires at once, :197).
+* runtime-image-base-rides-a-mutable-tag — OPEN
+=systems/runtime/Dockerfile:1= =FROM vivalence/viva:alpine= (and =documentation/Dockerfile:1= capture stage) — a mutable local tag on a shared runner; anima fixed it with =ARG VIVA_BASE= + per-commit =$CI_COMMIT_SHORT_SHA= tag (=systems/anima/Dockerfile:2=). Root Dockerfile never COPYs =deno.lock=. A coolify pull printing only Pulling/Pulled cannot tell 'current' from 'tag never moved'.
+* dataspace-rows-carry-no-provenance — OPEN (design, unbuilt)
+No Symbol/Literal row records which module installed it: =repo.find({traits:["ONTOLOGICAL"]})= on italian matches its 3 =word.suffix.*= symbols AND 156 owned by =topologies/{word,sentence,conjugation}= — a DATASINK drain would claim another package's vocabulary. =report.orphans = repo.count({}) - claimed.size= is daemon-wide too. Workaround: slug-namespaced selectors (={slug:{$like:"word.suffix.%"}}=), never trait-based, unless the module is the daemon's only DATASET; demo sinks on =daemon_playground=. Fix (unbuilt): provenance stamped at install, =find=/=count= scoped by it.
+* entity-descriptors-diverge-from-tables — OPEN (measured m53 v4, no ruling)
+Three surfaces: typology =schematics/entities/*.js= (docs, checked by nothing — =v.rel= discards relation bodies) · runtime =EntitySchema= (the tables) · =daemon/skills/entity.js= =/entity/schema= (derived per request — the only one that cannot lie). Divergences: =Mode.installed= boolean vs string hash · =Literal= lacks =ontology= · =Buffer= lacks =status=/=view= · =Thread= lacks =phase= · =Intent= declares =type= the table does not have. =Mode.traits= is comma-joined TEXT, =Literal/Symbol.traits= json. italian: 2381/2593 symbols bare (=traits: []=, the =word.lemma.*= minted by refs). Workaround: read the EntitySchema or ask =/entity/schema=, never the descriptor.
+* OPEN — exhibit-hardcodes-portuguese-persons
+`~/.viva/registry/education/modes/games/exhibit/buffer/Exhibit.svelte:24` `if (syms["word.person.first"] && syms["word.number.singular"]) return "eu";` — persons are a topology property: resolve `word.person.*`/`word.number.*` via `trait.LABELED.name` daemon-side. Pronoun labels land as a `LANGUAGE` field on `statics.language[slug]` — /"for now just whatever is available, in the future i will provide those as statics"/
+
+* hallucinator-provider-throws-at-boot-kills-the-daemon — OPEN (folded from auto-memory 09-23)
+** Symptom
+A hallucinator provider module that throws while booting takes the whole daemon down.
+** Ruling
+A `refused` state for the provider is designed, not built.
+** Workaround
+A blank-secret provider is pruned pre-boot (`subsystems/paladin/lifecycle/integrate.js` `alive`), so only a provider with secrets that still throws bites.
+
+* aprende-message-reads-render-object — OPEN (found on the harness dossier pass)
+** Symptom
+=education/modes/home/aprende= =/assistant/message= throws =[aprende/message] render.object.answer missing= on every call; =askTutor= in =Aprende.svelte= gets no answer.
+** Root cause
+=aprende/aperture/message.js:32-36= reads =render.object=; =ctx.mode.harness.object.render= returns the =soma.transcript= fold, whose object sits at =render.output.object= (primer, hello-world, Oracle read it there).
+** Evidence
+read against =belt/hallucinate.js render()= and =subsystems/typology/tests/hallucination.test.js= (=folded.output.object=). Not exercised live.
+** Ruling
+none yet.
+** Why not fixed
+registry code, no =go=.
+** Workaround
+none.
+** Reference
+=.ikiro/reference/harnesses/harness.md §7= · G12.
+
+* intelligent-rounds-overrides-call-config — OPEN (found on the harness dossier pass)
+** Symptom
+A thread whose INTELLIGENT trait sets =rounds= overrides the =config.rounds= a caller passes to the harness. hello-world's nested researcher (=config: { rounds: 30 }=) is capped at the thread's dial — =rounds: 1= starves it.
+** Root cause
+=systems/runtime/daemon/traits/harnessed.js:45-49= =requesting= spreads =...config= FIRST, then =ctx.intelligent.rounds=. The researcher passes =thread=, so =claiming= reads the outer thread's INTELLIGENT.
+** Evidence
+=commons/instances/hello-world/tools/research.js:4-7= comment: /"the researcher's own budget — NOT the thread's INTELLIGENT.rounds … would starve a research pass if it were dialed low."/ — the code does the opposite. Read, not run.
+** Ruling
+none yet — precedence (call over thread, or thread over call) is beef's call.
+** Why not fixed
+runtime precedence change; needs a ruling.
+** Workaround
+leave the thread's INTELLIGENT.rounds unset on threads that run research.
+** Reference
+=.ikiro/reference/harnesses/harness.md §6.1= · G7.
+
+* dock-never-shows-conversation-error — OPEN (found on the empty-answer pass)
+** Symptom
+A dialogue stream that THROWS on the client (a transport error, a 401 mid-stream, a dropped socket) leaves the Dock silent: no entry, no chip, the placeholder or the last turn only.
+** Root cause
+=systems/anima/src/typology/prototypes/conversation.js:24= =drain= catches and sets =$error=; =Dock.svelte= reads =recorder.$error= (dictation) only — no consumer of =conversation.$error= exists.
+** Evidence
+grep =\$error= over =Dock.svelte=: one hit, =dictationFault = recorder.$error=. Read, not run.
+** Ruling
+none — a verdict on the persisted turn covers the belt's =/response/close= faults (=state: error=), not a throw before the harness answers.
+** Why not fixed
+outside the empty-answer scope; the shape (a chip under the entry, or a line under the input) is beef's call.
+** Workaround
+the runtime log: =[hal /hallucination] fault …= prints on the daemon side.
+
+* mikro-flush-queue-strands-on-a-failed-commit — OPEN (found on droneaid's guide round 2, 09-23)
+** Symptom
+Concurrent =em.flush()= calls on ONE fork: the first runs, the rest queue; when the running commit throws, every queued flush's promise never settles. Live: a round of 4 =assembly_step= + =assembly_sequence= + =open= — 3 faults, 3 calls pending forever, the activity RUNNING, no =/response/close=.
+** Root cause
+=@mikro-orm/core/6.6.7/unit-of-work/UnitOfWork.js:302= =commit()= — a flush while =working= pushes a thunk onto =flushQueue= and returns a promise only that thunk resolves; the drain =while (this.flushQueue.length)= sits AFTER =await this.doCommit()= inside =try=, so a throw skips it and =finally= resets =working= with the queue still holding the dead thunks. The concurrent commits also corrupt each other: =fks is not iterable= (=PivotCollectionPersister.js:89=, rig) · =Cannot read properties of null (reading '0')= (live).
+** Evidence
+Scratchpad probe =parallel-steps.test.js= on the assembly rig: 4 steps + a sequence in =Promise.all= → build.04 · build.05 PENDING after 3 s; the same round through the real =respond= (=guide.test.js= =S-one-round-many-writers=) hung past 60 s before serial dispatch, green after.
+** Ruling
+beef 09-23: /"serial."/ — =belt.hallucinate.dispatch= runs a round's calls one at a time; =@beef= marker: /"mightt in the future change to parallel"/.
+** Why not fixed
+The strand is mikro's code; any caller that flushes one fork concurrently (two tools in one handler, a =Promise.all= over repository verbs) still meets it.
+** Workaround
+Never =Promise.all= writers over one fork — sequence them, or give each its own =RequestContext.create= fork.
+
+* hello-world-research-rig-red — OPEN (found as a baseline red on the serial-dispatch bracket, 09-23)
+** Symptom
+=commons/instances/hello-world/tests/research.test.js= → 0 passed | 1 failed (7 steps); =research.snapshot.test.js= → 1 passed | 1 failed (S4). Every step dies before its first assertion: =TypeError: Cannot read properties of undefined (reading 'absolute')=.
+** Root cause
+=systems/runtime/daemon/traits/generative.js:5= =paladin.bundler(mode.bundles.absolute)= — the rig (=commons/instances/hello-world/tests/rig.js:118=) hands GENERATIVE a mode with no =bundles= path. The trait grew the read; the rig was never taught it.
+** Evidence
+Identical failure count before and after the serial-dispatch change (baseline and beat 4 of the bracket); the stack names =rig.js:118= → =generative.js:5= on every step.
+** Ruling
+none.
+** Why not fixed
+Outside the dispatch bracket; the rig belongs to hello-world's research suite, and the missing key's shape (a =Path= under the rig's mountpoint) is a one-line rig fix nobody has ordered.
+** Workaround
+None — the nested-research contract (P-yield · P-nodoublebind · P-early · P-nested · S4) is unguarded until the rig carries =bundles=.
+
+* code-breaks-its-own-codemap-trap — OPEN (found by the m69 2.2 re-grounding: 243 traps checked against the tree)
+** Symptom
+Four places where the live code or record contradicts a trap its own shard states as law:
+- =systems/anima/src/app/panels/g/g.svelte:12= =let story = $state(logger.$story.get())= — a deep =$state= over the trace story; =world/codemap/anima.md= forbids deep =$state= over class instances.
+- =systems/anima/src/app/panels/a/widgets/Dock.svelte:744-745= =disabled={!harnessed}= · =readonly={listening}= on the one field element — the FOCUS LAW (=anima.md=: /never =disabled=/=readonly=/) is broken in the dock itself.
+- =deno.jsonc:43= and =:45= both define ="ghost/watch"=; the second wins and carries no =--watch= — =deno task ghost/watch= does not watch.
+- =~/.viva/instances.json= maps =italian= to =~/.viva/instances/italian=, which no longer exists (=ls= → No such file or directory).
+** Root cause
+The traps were written as law; nothing checked the code against them until =methods/codemap.py= grounded every trap (m69 2.2). The code drifted under standing shards.
+** Evidence
+The re-grounding pass (=traps.jsonl=, 244 rows, 09-23) and a second read of each line on disk the same evening.
+** Ruling
+none — each is product code (anima · the root tasks) or the ledger record; beef's go per item.
+** Why not fixed
+m69 moves nothing under =systems/= · =subsystems/= · =commons/= · =~/.viva= (its blast table); each fix needs a =go=.
+** Workaround
+=deno task ghost/watch= → =deno run -A --watch ./systems/ghost/mod.js= by hand; pick a daemon's instance by row count, never the =italian= record (=world/ledger.md=).
+
+* d-panel-buffer-count-counts-only-loaded-buffers — OPEN (found by the d-panel census, 09-25)
+** Symptom
+Panel d's thread row shows a buffer count that disagrees with the runtime: droneaid, one load — runtime 1 buffer, panel 0 on four threads; a second load drifted on a different set of three. The count moves with load order; the runtime tally does not.
+** Root cause
+=systems/anima/src/typology/entities/thread/dossier.js:24= =thread.$buffers= filters the daemon's anima buffer repo by thread — it counts buffers anima has LOADED, and buffers load per focused thread (=/client/focus/<id>= → =buffer/find=), not with =thread/find=.
+** Evidence
+The temporary census (removed) diffed =repository.connection.call("/find")= against =repository.$entities.get()=: buffer kind, 4 ids =runtime only= at settle (=ce04-2212= · =ce04-636a= · =ce1d-859f= · =ce22-6272=); 9 of 9 held a few seconds later.
+** Ruling
+none yet — beef saw the drift; no fix asked.
+** Why not fixed
+Either a count from the runtime (=/count= by thread) or buffers loaded with the thread list; both change what the panel fetches.
+** Workaround
+Read the count after the thread is focused, or query =buffer/find= by thread.
+
+* anima-thread-traits-drift-from-the-runtime-row — OPEN (found by the d-panel census, 09-25)
+** Symptom
+12 of 13 droneaid threads: the runtime row stores =traits: []=, anima's =thread.$traits= holds =["LABELED"]= or =["LABELED","MASKED"]=. Anima derives trait names the row never carries.
+** Root cause
+Unlocated — =thread.$traits= is not assigned in =entities/thread/dossier.js= or =thread/traits/=; the derivation lives elsewhere in the thread wiring.
+** Evidence
+Census drift, shared column =traits= compared canonically (sorted keys): =01a0c885…= runtime =[]= · anima =["LABELED","MASKED"]=; =01a0c8af…= anima =["LABELED"]=.
+** Ruling
+none yet.
+** Why not fixed
+Unknown whether the drift is intended (client-side trait claims) or a write-back that never happens; beef's call.
+** Workaround
+Read traits off the runtime row for truth; anima's =$traits= is a client view.

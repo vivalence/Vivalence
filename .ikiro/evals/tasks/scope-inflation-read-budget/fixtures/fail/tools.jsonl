@@ -1,0 +1,25 @@
+{"name":"Read","input":{"file_path":"/repo/.ikiro/ikiro.md"}}
+{"name":"Read","input":{"file_path":"/repo/.ikiro/world/map.md"}}
+{"name":"Read","input":{"file_path":"/repo/.ikiro/world/codemap/ghost.md"}}
+{"name":"Read","input":{"file_path":"/repo/.ikiro/world/codemap/paladin.md"}}
+{"name":"Read","input":{"file_path":"/repo/.ikiro/world/codemap/runtime.md"}}
+{"name":"Read","input":{"file_path":"/repo/.ikiro/self/connoisseur.md"}}
+{"name":"Read","input":{"file_path":"/repo/.ikiro/self/ontology.md"}}
+{"name":"Read","input":{"file_path":"/repo/.ikiro/skills/pre-flight/SKILL.md"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/mod.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/typology.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/belt/index.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/belt/pick.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/belt/lens.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/prototypes/shellcontext.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/trajectories/index.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/trajectories/instance/index.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/trajectories/instance/use.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/trajectories/instances/index.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/trajectories/instances/tap.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/trajectories/ledger/index.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/tests/tap.test.js"}}
+{"name":"Read","input":{"file_path":"/repo/subsystems/paladin/prototypes/ledger/instances.js"}}
+{"name":"Bash","input":{"command":"cat /repo/subsystems/paladin/prototypes/ledger/registry.js"}}
+{"name":"Bash","input":{"command":"sed -n 1,200p /repo/systems/runtime/lifecycle/populate.js"}}
+{"name":"Edit","input":{"file_path":"/repo/systems/ghost/trajectories/instances/index.js","old_string":"instances.open(\n  {\n    nature: \"/list\",","new_string":"instances.open(\n  {\n    nature: \"/count\",\n    valence: \"how many instances the shelf holds\",\n    schema: v.object({}),\n  },\n  async (ctx) => {\n    ctx.effect = { count: (await paladin.ledger.instances.list()).length };\n  },\n);\n\ninstances.open(\n  {\n    nature: \"/list\","}}

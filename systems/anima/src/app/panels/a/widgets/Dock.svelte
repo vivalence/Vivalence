@@ -14,6 +14,7 @@
     turnThinking,
     turnTools,
     turnArtifacts,
+    turnVerdict,
     toolResults,
     isToolTurn,
     toolCensus,
@@ -193,6 +194,7 @@
       failures: tools.filter((tool) => tool.status === "error").length,
       artifacts: turnArtifacts(turn),
       buffers: toolBuffers(tools),
+      verdict: turnVerdict(turn),
     };
   }
 
@@ -404,7 +406,7 @@
     for (const turn of source) {
       if (isToolTurn(turn)) continue;
       const projected = project(turn, results);
-      if (!projected.text && !projected.tools.length && !projected.artifacts.length) continue;
+      if (!projected.text && !projected.tools.length && !projected.artifacts.length && !projected.verdict) continue;
       const date = turnDate(turn);
       const day = dayKey(date);
       if (date && day !== prevDay) {
@@ -417,6 +419,7 @@
         prior.text = [prior.text, projected.text].filter(Boolean).join("\n\n");
         prior.think = [prior.think, projected.think].filter(Boolean).join("\n\n");
         prior.failures += projected.failures;
+        prior.verdict = projected.verdict ?? prior.verdict;
         prior.artifacts = [...prior.artifacts, ...projected.artifacts];
         prior.buffers = toolBuffers(prior.tools);
         prior.census = turnCensus(prior.tools);
@@ -657,6 +660,9 @@
           {/if}
           {#if item.text}
             <div class="text"><Markdown text={item.text} /></div>
+          {/if}
+          {#if item.verdict}
+            <div class="verdict"><span class="chip bad">{item.verdict.state}</span> {item.verdict.message}</div>
           {/if}
           {#if item.artifacts.length}
             <div class="artifacts">
@@ -1527,6 +1533,14 @@
   }
   .band.runnable {
     color: var(--colors-skeleton-0-primary-base);
+  }
+  .verdict {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    color: var(--text-support);
+    font-size: 0.85em;
+    margin-top: 0.25em;
   }
   .chip.bad {
     color: var(--colors-skeleton-0-danger-base);

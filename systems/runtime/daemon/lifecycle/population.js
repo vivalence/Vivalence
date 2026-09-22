@@ -7,22 +7,9 @@ import { ActivityEntity, ActivityRepository, DataRepository, sets } from "@vival
 
 import * as traits from "../traits/index.js";
 
-const unmask = (register) => register.service ?? register;
-
 export async function core(die) {
-  const registry = {
-    lighthouse: die.mask.lighthouse,
-    hallucinators: die.mask.hallucinators,
-    datamap: die.mask.datamap,
-    kernel: die.mask.kernel,
-    consume: die.mask.consume,
-  };
-
-  die.register = await paladin.vip.accioMap(registry);
-
-  die.good.domain = v.primitives.kernel.Domain.cast(
-    die.register.kernel.map(unmask).find((module) => module.manifest?.type === "domain") ?? {},
-  );
+  die.register = await paladin.ledger.registry.wire(die.mask);
+  die.good.domain = die.register.domain;
 
   die.instance.traits = {
     ...traits,
@@ -72,7 +59,7 @@ export function wiring(daemonDie) {
 
 export async function datamap(daemonDie) {
   daemonDie.datamap = await daemonDie.register.datamap.provider(
-    daemonDie.mask.datamap,
+    daemonDie.register.datamap,
     daemonDie.instance.entities,
     daemonDie.instance.subscribers,
   );
@@ -88,7 +75,7 @@ export async function datamap(daemonDie) {
 
 export async function authority(daemonDie) {
   daemonDie.good.lighthouse = await daemonDie.register.lighthouse //
-    .provider(daemonDie.mask.lighthouse, daemonDie.good.entities.user);
+    .provider(daemonDie.register.lighthouse, daemonDie.good.entities.user);
 
   daemonDie.good.aperture //
     .use(shard.secure.authority(daemonDie.good.lighthouse))
@@ -104,44 +91,33 @@ export async function authority(daemonDie) {
 }
 
 export async function acid(daemonDie) {
-  for (const [index, { service, mask }] of (daemonDie.register.hallucinators ?? []).entries()) {
+  for (const [index, citizen] of daemonDie.register.hallucinators.entries()) {
     try {
-      const faculties = await service.provider(mask);
+      const faculties = await citizen.provider(citizen);
       daemonDie.good.cortex.register(
-        faculties.map((faculty) => ({ ...faculty, provider: service.manifest.slug })),
+        faculties.map((faculty) => ({ ...faculty, provider: citizen.manifest.slug })),
       );
-      // console.log({ mask, service, faculties });
     } catch (error) {
       const at = `daemon[${daemonDie.slug}].hallucinators[${index}]`;
-      console.warn(`[provider] ${at} ${service.manifest.slug} refused — ${error.message}`);
+      console.warn(`[provider] ${at} ${citizen.manifest.slug} refused — ${error.message}`);
     }
   }
   // console.log(daemonDie.good.cortex);
 }
 
 export async function services(daemonDie) {
-  for (const [slug, servicemask] of Object.entries(daemonDie.mask.consume)) {
-    const servicecake = daemonDie.register.consume[slug];
-    daemonDie.good.services[slug] = await servicecake.provider(servicemask); //@beef pass cortex or something??? maybe service provider should be a vector?
-    if (servicecake.manifest?.traits?.includes("TOOLING") && servicecake.tools) {
-      daemonDie.good.services[slug].tools = servicecake.tools;
+  for (const [slug, citizen] of Object.entries(daemonDie.register.consume)) {
+    daemonDie.good.services[slug] = await citizen.provider(citizen); //@beef pass cortex or something??? maybe service provider should be a vector?
+    if (citizen.manifest.traits.includes("TOOLING") && citizen.tools) {
+      daemonDie.good.services[slug].tools = citizen.tools;
     }
   }
 }
 
 export async function modes(daemonDie) {
   await daemonDie.datamap.shard.context(async () => {
-    for (const register of daemonDie.register.kernel) {
-      const mask = register.mask ?? {};
-      const mode = new Mode(unmask(register));
-      mode.manifest = mask.manifest ?? mode.manifest;
-      mode.statics = mask.statics ?? mode.statics;
-      mode.secrets = mask.secrets ?? {};
-      mode.mountpoint = mask.mountpoint ?? null;
-      mode.mount = daemonDie.good.mount
-        .clone()
-        .branch(`/mode/${mode.manifest.type}/${mode.manifest.slug}`);
-      mode.url = daemonDie.good.url.branch(mode.mount.nature);
+    for (const citizen of daemonDie.register.kernel) {
+      const mode = new Mode(citizen);
 
       if (!mode.aperture) mode.aperture = new Aperture();
 

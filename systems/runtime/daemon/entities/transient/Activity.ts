@@ -12,7 +12,12 @@ const RING = 12;
 export class ActivityRepository extends VirtualRepository<ActivityEntity> {
   #taps = new Map<string, () => void>();
 
-  async control(data: object, controller = new Controller({ stdout: new Span("hallucination") })): Promise<ActivityEntity> {
+  async control(
+    data: object,
+    controller = new Controller({
+      stdout: new Span("hallucination").to((record) => console.log(`[hal ${record.path}] ${record.verb}`, record.data ?? "")),
+    }),
+  ): Promise<ActivityEntity> {
     const activity = await this.create(data);
     activity.controller = controller;
     controller.stdout.note({ activity: activity.id, ...data });

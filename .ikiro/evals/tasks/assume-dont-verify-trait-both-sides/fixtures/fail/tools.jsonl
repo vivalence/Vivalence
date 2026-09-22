@@ -1,0 +1,2 @@
+{"name":"Grep","input":{"pattern":"CONVERSATIONAL","path":"/repo/systems/runtime/daemon/traits"}}
+{"name":"Edit","input":{"file_path":"/repo/commons/instances/hello-world/mode.viva.js","old_string":"    \"CONVERSATIONAL\", // mode can be chatted with\n","new_string":""}}

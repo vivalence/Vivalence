@@ -8,8 +8,12 @@ beef dropped two artifacts in =~/Downloads=: =anki/= (the package tree, already 
 and =memoriter.patch= (the anki → memoriter rename diff, with a by-hand variant-wiring note in
 its tail). Both moved here:
 
-- =.ikiro/quests/m32-memoriter/memoriter/= — the package (49 files after the pass, 344K, 200K
+- =.ikiro/quests/discarded/m32-memoriter/memoriter/= — the package (49 files after the pass, 344K, 200K
   placeholder freight). Folder renamed =anki/= → =memoriter/= to match =manifest.slug=.
+  *CUT 09-22 at the prune*: 360K of abandoned source under a DISCARDED quest, carried because the
+  quest was sunset rather than because anything read it. All 50 files were tracked, so revival is
+  =git show <rev>:.ikiro/quests/discarded/m32-memoriter/memoriter/<path>= — read-only, per the
+  quest-lifecycle law. The patch beside it and this record survive; the tree does not.
 - =.ikiro/quests/m32-memoriter/memoriter.patch= — the rename patch, historical record only.
   Its wiring tail is SUPERSEDED by =* wiring= below (it names =localhost.viva.js= and a hand
   edit of =registry.json=; neither is how the system works).

@@ -331,7 +331,7 @@ requests (last-scheduler's context wins).
    returned (=shape/http.js:47= publishes the iterator; Deno's writer pumps it).
    ORM fork survives ONLY because inject re-wraps each pull with =carry()=.
    Proven empirically: probe =inside=USER-123 · outside=null · carried=USER-123=
-   ([[project_reactive_owner_orm_context]]). Any SECOND ambient store needs its
+   (`project_reactive_owner_orm_context`). Any SECOND ambient store needs its
    own carry pass — or must BE the same store.
 2. *debounced datasink drain* — =traits/datasink.js:60-71=: =fn.debounce(…, 1500)=
    (=belt/fn.js:13-21=, raw setTimeout, reset per write). Fires 1500ms after the
@@ -341,7 +341,7 @@ requests (last-scheduler's context wins).
    in principle. Defused today only because datasink REFUSES user-scoped types
    (=datasink.js:12-15=, dataspace-only throw).
 3. *pool drain* — =traits/emitter.js:41-51=: delegate promises are created inside
-   the request frame (=ctx.pool.add= before flush, [[feedback_emitter_delegation_via_pool]])
+   the request frame (=ctx.pool.add= before flush, `feedback_emitter_delegation_via_pool`)
    and =drain()= is awaited in-middleware → ORM fork AND any ALS survive.
    The weakest hatch — everything passes it.
 4. *reactive broadcast* — =shard/datamap.js:176-195=: =/after= handlers run in the
@@ -349,7 +349,7 @@ requests (last-scheduler's context wins).
    =getFilterParams("user")= resolves in EVERY write context, including lazy
    streams; null throws loud (:185-189). The landed decision: owner rides
    ORM-carried filter params, NOT ambient — =shard.ambient.store= was in
-   resolution.js and was REMOVED for exactly this hatch ([[project_reactive_owner_orm_context]]:
+   resolution.js and was REMOVED for exactly this hatch (`project_reactive_owner_orm_context`:
    "Do NOT reintroduce ambient for owner routing").
 
 * options
@@ -405,7 +405,7 @@ mode.harness = (provenance) => shape.object(harness, sworn(provenance));
 - francesca: B's one genuine win — the direct-harness call sits inside the
   authorized chain, so =current()= reads through the echo seam with zero
   forwarding. The same no-forwarding property is the hazard everywhere else.
-- prior art says no: tried, removed ([[project_reactive_owner_orm_context]]).
+- prior art says no: tried, removed (`project_reactive_owner_orm_context`).
 
 ** C — REQUEST HEAD + hydrate at the boundary
 - wire today: auth = authorization header / =?token= (=secure.js:12-14=);
@@ -488,7 +488,7 @@ into D + collar, or bless the A-state) rather than a green-field pick.
   repo already runs one ambient, with capture-and-reenter at every hatch that
   needs it (=libsql.viva.js:48-63=).
 - broadcast owner decision — carried filter params, not ambient; loud-throw
-  tripwire (=shard/datamap.js:180-189=, [[project_reactive_owner_orm_context]]).
+  tripwire (=shard/datamap.js:180-189=, `project_reactive_owner_orm_context`).
 - =shard/ambient.js= — built, dormant, one test caller (=multiplex.filter.test.js:23=).
 - packet frame — ={frame, signal, verb, query, token, input, stream}=
   (=socket.js:139-179=); per-frame re-auth already answers "stale context on

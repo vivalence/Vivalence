@@ -44,6 +44,18 @@
             "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/import-guard.sh\"",
             "timeout": 10,
             "statusMessage": "import-guard: no leaving the mode"
+          },
+          {
+            "type": "command",
+            "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/watch-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "watch-guard: a watched tree lands in one burst"
+          },
+          {
+            "type": "command",
+            "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/kernel-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "kernel-guard: plans are quests · fair-source copy"
           }
         ]
       },
@@ -55,6 +67,18 @@
             "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/agent-guard.sh\"",
             "timeout": 10,
             "statusMessage": "agent-guard: a fan-out is a proposal"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Read|Edit|Write|Grep|Glob|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/outside-rules.py\"",
+            "timeout": 10
           }
         ]
       }
@@ -80,6 +104,17 @@
             "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/compact-gate.sh\"",
             "timeout": 10,
             "statusMessage": "compact-gate: fold the session before /compact"
+          }
+        ]
+      }
+    ],
+    "InstructionsLoaded": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/loaded-log.sh\"",
+            "timeout": 5
           }
         ]
       }

@@ -6,7 +6,7 @@ import paladin from "@vivalence/paladin";
 let supplied = null;
 
 export async function accio(reference) {
-  supplied ??= paladin.vip.supply();
+  supplied ??= paladin.ledger.registry.supply();
   await supplied;
-  return await paladin.vip.accio(reference);
+  return await paladin.ledger.registry.accio(reference);
 }

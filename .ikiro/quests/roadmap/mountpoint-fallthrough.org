@@ -1,0 +1,35 @@
+#+title: mountpoint fallthrough — a mode's ground seated by paladin, the way a daemon's is
+#+filetags: :roadmap:paladin:mountpoint:mode:instance:ledger:
+#+status: LANDED the hour it was written (09-21) — a mini quest, unnumbered: beef ruled it mid-turn and the runtime was down on it.
+#+phase: landed
+#+progress: 1/1
+#+next: beef — restart =deno task runtime/watch= (the watcher follows commons + registry, not subsystems/paladin); commit paladin + the droneaid recipe.
+
+* the ruling
+beef: /"can we set mountpoints on instance or daemon level? paladin question. i suspect not?! i'd like the the same fallthrough idea as we have on services and hallucinators and env variables also for mountpoints. aka there is some default and they branch and relate, and i want to be able to overwrite them at any point, resulting in that being the fallthrough. top level is the ledger mount, then the env variable instance mount, then the mode/service mount. they'd autoresolve if not set. but can be overwritten."/ — then, on the runtime dying with =[MOUNTED] editor/import serves its mountpoint, but its kernel entry names none=: /"well. the mountpoint should be on EVERY mode by default as a function of paladin doing its thing."/ · /"paladin wires up the environment"/.
+
+* measured before the cut
+the fallthrough already existed down to daemon and service, each level overridable:
+#+begin_example
+ledger       ~/.viva                          VIVA_LEDGER_MOUNT            populate.scopes
+instance     <ledger>/instances/<slug>        VIVA_INSTANCE_MOUNT          populate.scopes
+mountpoint   <instance>/mountpoint            VIVA_MOUNTPOINT_MOUNT        populate.scopes
+daemon       <mountpoint>/daemon_<slug>       recipe daemon.mountpoint     resolve.mountpoints
+service      <mountpoint>/service_<slug>      recipe service.mountpoint    resolve.mountpoints
+mode         —                                kernel entry only            MOUNTED threw
+#+end_example
+media and vdex hardcoded absolute paths; the importer invented =VIVA_DRONEAID_IMPORT= with a =${VIVA_INSTANCE_MOUNT}= default that read =undefined= in beef's watch shell (the instance comes from the session stratum there). the variable was wrong regardless — beef: /"no overwrite needed. no custom variable."/
+
+* what landed
+=subsystems/paladin/lifecycle/resolve.js= — =ground(daemon)= after the daemon/service seats: every kernel entry gets =mountpoint = entry.mountpoint ?? <daemon.mountpoint>/mode_<type>_<slug>=. a bare reference becomes ={ module, mountpoint }= (the same entry, its seat spelled out; =Instance.cast= then makes the Path through the =Mode= schematic); a path names =modes/<type>/<slug>/= when it follows the convention, else the file's slug; an inline module keeps its shape and carries the seat as a key. an override at any level above re-roots what is below.
+
+=subsystems/paladin/tests/kernel.test.js= — the "bare kept / absolute kept" pins now read =.module=; a new case pins the seat for every form and that a declared mountpoint wins.
+
+the runtime reads what paladin seated (=population.js:140 mode.mountpoint = mask.mountpoint ?? null=) — untouched; =MOUNTED='s throw is now a guard nothing reaches. the droneaid recipe is the plain reference =@assembly/editor/import=; the importer's ground is =<instance>/mountpoint/daemon_droneaid/mode_editor_import/=.
+
+* tests at the landing
+paladin 41 suites / 187 steps green (=kernel.test.js= repinned: bare/absolute entries read =.module=, a new case seats every form; =settle.test.js=: a string entry is seated, an entry with no mountpoint is seated, a declared-but-blank one stays a REQUIRED fault). runtime 63 / 417 green. ghost 89–90 / 25 with one order-dependent failure in =ledger.test.js= ("instance init authors .env" sees =present= in the full run, =scaffolded= alone) — measured against HEAD's resolve.js swapped into the same tree: fails identically, so it predates the seat and is not this quest's. live: beef's =runtime/watch= booted the seat — =mountpoint/daemon_droneaid/mode_editor_import/= is the only mode ground minted (MOUNTED carries; the others are seated, not minted).
+
+* left
+- an inline module (a test fixture, hello-world) carries the seat as a key the runtime does not read — the runtime line would be =mask.mountpoint ?? register.mountpoint=; not needed by anything MOUNTED today.
+- media and vdex keep their explicit paths: that IS the override, and their operators' directories.

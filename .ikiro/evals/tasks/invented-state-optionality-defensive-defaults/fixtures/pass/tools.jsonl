@@ -1,0 +1,3 @@
+{"name":"Read","input":{"file_path":"/repo/commons/instances/hello-world/tools/doors.js"}}
+{"name":"Grep","input":{"pattern":"cortex\\.find","path":"/repo/commons/instances/hello-world","-n":true}}
+{"name":"Edit","input":{"file_path":"/repo/commons/instances/hello-world/tools/doors.js","old_string":"  .open(\"/hello/doctor\", (ctx) => report(ctx))","new_string":"  .open(\"/hello/doctor\", (ctx) => report(ctx))\n  .open(\"/hello/census\", (ctx) => {\n    const faculties = ctx.daemon.cortex.find({});\n    return { count: faculties.length, via: faculties.map((faculty) => faculty.via) };\n  })"}}

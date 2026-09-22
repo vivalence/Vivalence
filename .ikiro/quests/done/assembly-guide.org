@@ -1,0 +1,330 @@
+#+title: the assembly guide — a fourth ontology =guide= in @assembly, and two modes over it: =@assembly/editor/guide= (authoring) and =@assembly/player/guide= (the experience), both from beef's design project 9842f920
+#+filetags: :assembly:guide:step:ontology:mode:editor:player:stage:design:droneaid:
+#+status: BUILT + LANDED on beef's /"go execute. build both"/ — M1 domain · M2 editor v3 re-base · M3 topologies · M4 player · M5 editor · M6 landed in ONE rsync with both kernels; 20 suites green on the live tree (100 steps); the daemon booted with 11 modes. The LIVE walk in anima owed (its doors take a lighthouse token; beef signs in). Six forks taken on my leans, his word owed. Number owed by beef (mXX is his ledger).
+#+status: (was) DESIGNED — ontology, folds, writer, verbs, two modes, blast and landing order ruled in compact #201; nothing written.
+#+phase: wip (derived)
+#+progress:  47% 7/15 (derived)
+#+next: control (derived)
+
+* intent
+
+beef, verbatim:
+
+/"i put A LOT of effort into the ui and ux. … there is basically nothing accidental in here. you will have to slave over this. i want two modes. one for the assembly guide editor, anohter for the assembly guide experience. i want thorough integration into the assymbly domain. the datalevel is your first job. the ontology of steps and guides and such. doesnt exist at all yet. for you to create! you own assembly. design a clean topology. implenent the two modes. make them coherent. all buffer state kept in buffer.data. auto save on editor into the appropriate literals. have fun"/
+
+/"given the scope and the design, i want you to write a quest for youreself."/
+
+The commissions, two handoffs from claude.ai/design/p/9842f920-22cc-4d2c-bb47-4285138b39a4 (read with =DesignSync.get_file=, decoded under =<scratchpad>/design/=):
+- =Guide Player.dc.html= + =support.js= → =@assembly/player/guide=
+- =Guide Editor.dc.html= + =support.js= → =@assembly/editor/guide=
+- siblings in the project, the spec's data: =guide-data.json= (the sample guide) · =drone-stage.js= (the comp's stage)
+
+One sentence: *a part is what a thing IS, a guide is how you BUILD it* — composition stays on part + placement, process moves onto =guide= + =step=, and both modes read and write only those literals.
+
+* the law
+
+#+BEGIN_EXAMPLE
+1. Composition ≠ process. resolve(rows, part) never sees a step. A step names placements by SLUG,
+   never by row id, never by nesting.
+2. A guide orders steps; a step belongs to exactly the guides that name it. Order is
+   SEQUENCED.sections.flatMap(steps). A section is guide content, not a symbol.
+3. PREPARED is derived, never stored: tools = the step's tool.* symbols; parts = bom(upto n) − bom(upto n−1).
+4. The repository is the only writer. Natures are repository verbs; tools and both modes ride them
+   through daemon.call. A mode never imports outside its own directory.
+5. Every slug a step holds (ASSEMBLED, at.literals, built) follows a rename / move. No dangling slug
+   survives a writer verb.
+6. All screen state lives in buffer.data — down to the selection, the open inspector tab and the
+   unsaved draft. The editor saves the draft into the literal it came from, debounced 700 ms.
+7. The comp is ported verbatim in geometry and behaviour; every colour is a theme token; every datum is
+   re-sourced from the daemon.
+8. The package has no VCS and sits under runtime/watch: built in a scratch copy, captured to
+   ~/.viva/bak/, landed in ONE rsync.
+9. Reading is bounded (feedback_read_budget): a milestone reads the files it edits, when it edits them.
+   Hunks are authored at the milestone, not ahead of it.
+#+END_EXAMPLE
+
+* terrain — measured
+
+Measured this session (the design reads, compact #201) and re-checked at 11:58 against the live tree.
+
+| fact | value | how |
+|---|---|---|
+| baseline | =ok \vert 15 passed (81 steps) \vert 0 failed= over =domain/= · =editor/import/= · =editor/assembly/= | =deno test= in the package |
+| db, read-only | 50 parts · 72 placements · 0 steps · 71 symbols | =sqlite3 'file:…?mode=ro'= |
+| parts holding =SEQUENCED { steps: [] }= | 50 (seeded by =part()=) | db |
+| blast radius | 21 files in =@assembly=, 0 in =@droneaid= code | grep =SEQUENCED\vert PREPARED\vert INSTRUCTED\vert torque\vert TORQUES\vert .steps\vert stack= |
+| freight | droneaid topography: 88 webp, NO =manual.md= | =find= |
+| page index | =~/Downloads/droneaid-manual/manual.md= (=## Page N= + =![](images/<id>.webp)=) | read |
+| cargo keys | bare freight paths: =manual/<id>.webp=, =parts/<slug>.glb=; anima resolves =daemon.getAsset({ path })= off =/metadata/cargo= | runtime read |
+| comp inventions | =warn.tip= · =warn.generic= (not in the step topology) | grep |
+| kernels | shelf =~/.viva/instances/droneaid/daemon.js= (dashboard in, pt10 out) ≠ registry =instances/droneaid/daemon.js= (pt10 in) | diff |
+| watcher | =runtime/watch= pid 85012 over =~/.viva/registry= + =commons= | =ps= |
+| sibling at 11:58 | =edafd0fa= live on m67 (2m); since the scratch copy it changed ONLY =modes/editor/import/{import.viva.js, buffer/Import.svelte, buffer/parts/Queue.svelte}= (the queue's pause toggle out) — outside this blast; domain + editor v3 byte-equal to =<scratchpad>/work/assembly/= | =diff -rq= |
+
+* the ontology
+
+=~/.viva/registry/assembly/domain/assembly/schematics.js= — =ONTOLOGIES= after (=stack= gone, =SEQUENCED= moves part → guide):
+
+#+begin_src js
+part:      { traits: ["LABELED","SOURCED","MODELED","PARAMETRIC","COUNTED"],   layer: true  }
+placement: { traits: ["LABELED","PLACED","JOINED"],                             layer: false } // JOINED { joins } — torque OUT
+step:      { traits: ["LABELED","ASSEMBLED","INSTRUCTED","ANNOTATED","STAGED"], layer: false }
+guide:     { traits: ["LABELED","SEQUENCED","INSTRUCTED","ANNOTATED","STAGED"], layer: false }
+
+ASSEMBLED  { placements: [{ literal: "<placement slug>", active: boolean }] }
+SEQUENCED  { subject?: "<part slug>", sections: [{ name, steps: ["<guide>.01", …] }] }
+INSTRUCTED { lines: [{ text, at? }], images: ["manual/<id>.webp"] }
+ANNOTATED  { notes: [{ text, symbols: ["note.tip" | "note.warning" | "warn.*"], images?, at? }] }
+STAGED     { camera?: { target: VEC3, position: VEC3 }, explode?: 0..1, ghost?: boolean,
+             built?: { steps: [slug], placements: [slug] },   // absent = every earlier step
+             tints?: { "<placement slug>": TINT } }          // blue green orange red violet grey
+ANCHOR at  { literals?: [slug], offset?: VEC3, position?: VEC3 } // position wins · literals(+offset) · none = the panel
+PREPARED   derived — never stored
+#+end_src
+
+| member | on | new? | reader | writer |
+|---|---|---|---|---|
+| ASSEMBLED | step | new | resolve guide arm · both modes | =/step= |
+| SEQUENCED | guide (was part) | moves | resolve · tree · both modes | =/guide= · =/sequence= |
+| INSTRUCTED | step · guide | reshaped (=lines[]= + =images[]=) | both modes | =/step= · =/guide= |
+| ANNOTATED | step · guide | new | both modes | =/step= · =/guide= |
+| STAGED | step · guide | new | the stage kit | =/step= · =/guide= |
+| PREPARED | — | derived; enum member kept =@deprecated= at the bottom | resolve | none |
+
+Folds (=domain/assembly/resolve.js=):
+
+| fold | returns |
+|---|---|
+| =resolve(rows, part)= | the composition; no steps anywhere |
+| =resolve(rows, guide, { upto })= | the subject's composition; per placement =at= (first step index naming it, or null) + =active= (steps' opinions through =upto=); =steps[i].prepared= |
+| =bom(guide, { upto })= | counts over what is active |
+| =tree()= | guides as roots · steps depth 1 · their placements depth 2 · keys =guide/step/slug= |
+
+Writer (the repository):
+
+| verb | change |
+|---|---|
+| =guide()= | NEW: mint / over |
+| =step()= | reshaped to the four traits |
+| =sequence(guide, sections)= | NEW: every step must exist |
+| =rename= · =move= | rewrite every slug held in =ASSEMBLED= · =at.literals= · =built= |
+| =duplicate= | a guide copies its steps (=<guide>.NN= → =<copy>.NN=); a step lands after the original in its section |
+| =retract= | a step named by a guide is refused (the editor unsequences first) |
+| =part()= | stops seeding =SEQUENCED= |
+| =stack()= | gone |
+
+Natures: =/guide= · =/step= · =/sequence { guide, sections }= · =/placement= without torque. Tools: + =guide=. Step slugs =<guide>.NN=.
+
+Topologies: =topologies/step= ships =note.tip= · =note.warning= beside =warn.*= · =tool.*=; NEW =topologies/guide= (root symbol =guide=). The importer's =commit.js= is untouched: it mints parts and placements only.
+
+* the two modes — one line per pane: shows what, from where
+
+** =@assembly/player/guide= — =Guide Player.dc.html=
+
+| pane | shows | from |
+|---|---|---|
+| stage (full bleed) | the subject's GLBs, status-coloured per placement | cargo =parts/<slug>.glb= · =resolve(guide, { upto })= |
+| panel head (380 px, floating) | title · source · progress bar | guide =LABELED= · =SOURCED= of the subject · =buffer.data.done= |
+| sections | section names, steps collapsed, the active step expanded | =SEQUENCED.sections= |
+| active step | part chips · numbered lines (click → focus the anchor) · note callouts · images → lightbox · tools | =steps[i].prepared= · =INSTRUCTED= · =ANNOTATED= · cargo =manual/*.webp= |
+| foot | Back · Next · Completed | =buffer.data.step= |
+| stage controls | the view button (click next · hold choose · double-click the step's view) · CSS-3D view cube · zoom · fit · help | =STAGED.camera= |
+
+Status per placement: overview = all solid · fresh = named by the step · solid = =built= · ghost = later or kit when ghost is on · else hidden.
+
+=buffer.data=: =guide step done explode ghost view focus lightbox=.
+
+** =@assembly/editor/guide= — =Guide Editor.dc.html=
+
+| pane | shows | from |
+|---|---|---|
+| fresh buffer | the daemon's guides + =+ new guide= | =tree()= roots · =free(taken, "guide")= |
+| steps column (248 px) | sections: rename · add · delete when empty · drag steps between sections · drag sections | =SEQUENCED.sections= → =/sequence= |
+| stage | the player's stage + marquee select | the kit |
+| inspector, Guide tab (340 px, 64 collapsed) | subject picker (roots + their interior parts) · name · description · intro lines · notes · camera snapshot · inventory: parts, fasteners, tools | the guide's literal · =bom(guide)= |
+| inspector, Step tab | prerequisites (=built= auto / custom, tints) · parts: this step / kit / all, search, select, pull in, remove · instructions · notes with a kind select · camera · media picker · tool chips | the step's literal · cargo =manual/*.webp= · step topology =tool.*= |
+
+Auto-save: the draft lives in =buffer.data.draft=; 700 ms debounce → =/step= or =/guide= over; a step switch commits first.
+
+=buffer.data=: =guide step tab insp sel scopeF scopeQ open subjOpen subjQ picker lb ghost explode view draft editing slugDraft=. Transient, local only: dnd · saving · calls in flight.
+
+** the stage kit — shared, copied
+
+COPIED into both modes; =tests/kit.test.js= at the package root pins the copies equal. GLB per part from the cargo, built on v3's =scene.js= loader with parent frames. Status · tint · explode (radial + lift from the bounds) · settle on step change · focus · snapshot.
+
+** theme — tokens, never hex (v3 precedent)
+
+| comp | token |
+|---|---|
+| =#17214d= | =primary-base= / =--text-primary= |
+| =#f6c630= | =warning-base= (v3's =--step=) |
+| =#3f8a3a= | =success-base= |
+| tip =#3b6fd1= | =info-base= |
+| warning callout | the =error= box |
+| =#e7e9ed= | =skeleton-2-surface= |
+| white panel | =skeleton-1-surface= |
+| TINTS | blue green orange red violet grey → info success warning danger accent contrast |
+
+Gate: =grep -o '#[0-9a-fA-F]\{3,8\}'= over both modes → 0.
+
+** harnesses
+
+| mode | sections | tools |
+|---|---|---|
+| player | pt10's mentor · =[Guide]= from the literals · =[Screen]= | =/step { step }= |
+| editor | =[Ontology]= (v3's renderer, copied) · =[Guide]= · =[Screen]= | =/open { guide, step? }= · =/select=; the domain's =assembly_*= write |
+
+** what the design wants and the system does not have
+
+- the page index (=manual.md=) is not in the freight → media picker lists bare =manual/<id>.webp=, no page numbers (fork 3)
+- =warn.tip= · =warn.generic= → =note.tip= · =note.warning= (fork 1)
+- a sub-assembly grafted twice is named by ONE slug in a step → both occurrences install together (fork 4)
+
+* forks (beef)
+
+| # | fork | options | lean | ruling |
+|---|---|---|---|---|
+| 1 | note kinds | =note.tip= · =note.warning= in the step topology · reuse =warn.*= only | new =note.*= beside =warn.*= | TAKEN on the lean (=topologies/step/dataset/symbols/ontological.js=); a note's kind = its first =note.*=, a =warn.*= alone reads as a warning |
+| 2 | =section.*= in the topography | purge · keep unused | purge at the next topography pass (out of scope here) | OPEN — untouched, =@droneaid/topography/model= is out of scope |
+| 3 | =manual.md= into the freight | ship it (picker shows pages) · leave it (bare ids) | ship it | OPEN — NOT shipped (droneaid's freight is out of scope); the picker lists the cargo's =manual/*.webp= bare, a picture's label is its index in the step |
+| 4 | a grafted-twice sub-assembly | one slug installs both · a per-occurrence path | one slug | TAKEN on the lean — =P-once-named-twice-installed= pins it |
+| 5 | mode type of the experience | =player= (the comp's word) · another | =player= | TAKEN — the identifier is =@assembly/player/guide=; type is free in the runtime |
+| 6 | m67 | this quest owns the step/guide half, m67 keeps composition + the editor v3 | split as stated | TAKEN — v3 is the composition editor now: torque, =upto=, =seq= and =step= out; guides and steps are tree rows that open their subject |
+| 7 | a nested placement is its own opinion | a step naming a placement installs what sits under its path too · only what it names | only what it names | TAKEN — a bolt under an arm is pulled in on its own (=P-bom= in the editor v3 suite); the grafted interior of a placed PART installs with it (fork 4) |
+
+Ruled: the fourth ontology is =guide= (#201) · ASSEMBLED by slug, education's tokens pattern (#200) · torque is note content · PREPARED derived.
+
+* milestones
+
+Each is built in the scratch copy (=<scratchpad>/work/assembly/=, recopied fresh at M1) and boots green at its boundary. Nothing reaches =~/.viva= until M6.
+
+** M1 — domain: the ontology, the folds, the writer (suites RED first)
+Files: =domain/assembly/{schematics.js, entities/kernel/Literal.ts, resolve.js, aperture/index.js, tools/{mint,fold,line}.js, assembly.viva.js}=. Tests first: =domain/assembly/tests/{aperture,domain,literal,resolve}.test.js=. =LiteralTraitsEnum= + ASSEMBLED ANNOTATED STAGED; PREPARED =@deprecated= at the bottom (`project_trait_enum_migration`). The old =stool= fixture's steps-on-a-part rewritten as a guide.
+
+** M2 — editor v3 re-base + the importer's list
+=modes/editor/assembly/{assembly.viva.js, schematics.js, harness.js, tools/index.js, buffer/{Assembly.svelte, fold.js, form.js, cli.js, parts/Stage.svelte}, tests/assembly.test.js}=: torque chips and =seq= out; a step's host is its guide; =upto= only on a guide subject. =modes/editor/import/schematics.js=: =ONTOLOGIES= / =ISOLATES= gain =guide=.
+
+** M3 — topologies
+=topologies/step/dataset/symbols/ontological.js= + =note.tip= =note.warning= (fork 1). NEW =topologies/guide/= (root =guide=).
+
+** M4 — the stage kit + =player/guide=
+=modes/player/guide/= whole (manifest · aperture · application · harness · tools · buffer); the kit; =tests/kit.test.js=.
+
+** M5 — =editor/guide=
+=modes/editor/guide/= whole; the kit copied; auto-save; dnd; the media picker.
+
+** M6 — land
+Bundle-check each view (=paladin.bundler(dir).bundle({ kind: "svelte", entry })=) → the hex gate → [[sibling-reconcile]] (quest report, =diff -rq= live vs scratch; a sibling's change is merged, never overwritten) → capture =~/.viva/registry/assembly= + both =daemon.js= to =~/.viva/bak/assembly-guide-<date>/= → =lsof :2501= → shelf =daemon.js= (+2 modes, =@assembly/topology/guide=) → ONE rsync of the package → registry =daemon.js= → the walk.
+
+* blast table
+
+| file | change | M | kind |
+|---|---|---|---|
+| =~/.viva/registry/assembly/domain/assembly/schematics.js= | ONTOLOGIES · the four trait shapes · =stack= out | 1 | edit |
+| =…/domain/assembly/entities/kernel/Literal.ts= | enum +3, PREPARED @deprecated | 1 | edit |
+| =…/domain/assembly/resolve.js= | guide arm · bom upto · tree roots | 1 | edit |
+| =…/domain/assembly/aperture/index.js= | =/guide= =/step= =/sequence=; =/placement= torque out | 1 | edit |
+| =…/domain/assembly/tools/{mint,fold,line}.js= | + guide | 1 | edit |
+| =…/domain/assembly/assembly.viva.js= | description | 1 | edit |
+| =…/domain/assembly/tests/{aperture,domain,literal,resolve}.test.js= | RED first | 1 | test |
+| =…/modes/editor/assembly/= (9 files + test) | torque · seq out; host = guide | 2 | edit |
+| =…/modes/editor/import/schematics.js= | + guide | 2 | edit |
+| =…/topologies/step/dataset/symbols/ontological.js= | + note.* | 3 | edit |
+| =…/topologies/guide/= | root =guide= | 3 | NEW |
+| =…/modes/player/guide/= | the experience | 4 | NEW |
+| =…/tests/kit.test.js= | copies pinned equal | 4 | NEW |
+| =…/modes/editor/guide/= | the authoring | 5 | NEW |
+| =~/.viva/instances/droneaid/daemon.js= (shelf) | +2 modes, +topology | 6 | edit |
+| =~/.viva/registry/droneaid/instances/droneaid/daemon.js= | +2 modes, +topology | 6 | edit |
+| db | 50 parts keep =SEQUENCED { steps: [] }=: read, never written; 0 step rows | — | none |
+
+Scope OUT: =commit.js= · pt10 · runtime · typology (the =connection-aim-dedupes-arrays= workaround stays) · anima · =@droneaid/topography/model= (its test imports the dead =component=/=assembly= topologies — stale before this, filed not fixed).
+
+* testing assessment
+
+** in place
+15 files · 81 steps over =domain/= · =editor/import/= · =editor/assembly/=. COVERAGE GAP: no view of this package is mounted by any test (m67's standing gap); both new modes inherit it — M6's bundle-check and the live walk are the only render proof.
+
+** changes
+| test | why |
+|---|---|
+| =domain/assembly/tests/resolve.test.js= | steps leave the part fold |
+| =domain/assembly/tests/literal.test.js= | enum + shapes |
+| =modes/editor/assembly/tests/assembly.test.js= | torque · seq out |
+
+** adds
+| test | pins |
+|---|---|
+| P-guide | =guide()= mints, =sequence()= refuses an unknown step |
+| P-assembled-by-slug | a step names placements by slug; =resolve(guide)= marks =at= and =active= |
+| P-resolve-guide | =upto= walks active; =bom= deltas = PREPARED parts |
+| P-rename-rewrites-assembled | rename of a placement rewrites ASSEMBLED · at.literals · built |
+| P-retract-step-refused | retract of a sequenced step is refused |
+| P-duplicate-guide | =<g>.NN= → =<copy>.NN= |
+| =tests/kit.test.js= | the two kit copies are byte-equal |
+| player / editor mode tests | tools =/step= · =/open= · =/select= against a stub daemon |
+
+** green ladder
+| M | gate |
+|---|---|
+| 1 | domain suites green; baseline suites still 15/15 minus the rewritten |
+| 2 | =editor/assembly= + =editor/import= green |
+| 3 | topology seeds load |
+| 4 | kit test + player tests green; player view bundles |
+| 5 | editor tests green; editor view bundles; hex gate 0 |
+| 6 | live: both modes load in anima on droneaid |
+
+Not DONE until the walk in anima has run both modes on one real guide and the markers below read =held=.
+
+* QA
+
+** ① testimony
+- I open a fresh =editor/guide= buffer, I see the droneaid guides and =+ new guide=, no default guide.
+- I set the subject to the frame, add a section, add a step, pull two placements in; I reload the tab and the step, its placements and my open inspector tab are all back.
+- I type an instruction line, wait a second, open =player/guide= on the same guide: the line is there.
+- In the player I press Next: the step's parts come in fresh, the earlier ones are solid, later ones hidden; ghost on shows them grey.
+- I rename a placement in v3; the step that named it still names it.
+
+** ② programmatic + markers
+#+marker_qa: assembly-guide/P-guide · held · guide mints, sequence refuses an unknown step — =P-step-guide-sequence=, =P-guide= (aperture) · guide mints, sequence refuses an unknown step
+#+marker_qa: assembly-guide/P-assembled-by-slug · held · resolve(guide) carries at + active per placement — =P-guide= (resolve), =P-closure-resolve-bom= · resolve(guide) carries at + active per placement
+#+marker_qa: assembly-guide/P-rename-rewrites-assembled · held · no dangling slug after rename/move — =P-rename-rewrites-assembled=, =P-move-follows= · no dangling slug after rename/move
+#+marker_qa: assembly-guide/P-retract-step-refused · held · a sequenced step cannot be retracted — =P-retract-closure=, =P-retract= (aperture) · a sequenced step cannot be retracted
+#+marker_qa: assembly-guide/P-kit-pinned · held · the two kit copies are equal — =tests/kit.test.js= · the two kit copies are equal
+#+marker_qa: assembly-guide/P-hex-zero · held · no hex literal in either mode — =tests/kit.test.js= · no hex literal in either mode
+#+marker_qa: assembly-guide/T-fresh-buffer · revised · fresh editor buffer lists guides, holds no default — re-homed 09-24 to m71/T-guide-fresh-buffer (beef: these three are one)
+#+marker_qa: assembly-guide/T-autosave · revised · draft survives reload and reaches the literal within 700 ms + a flush — re-homed 09-24 to m71/T-guide-autosave (beef: these three are one)
+#+marker_qa: assembly-guide/T-player-status · revised · fresh / solid / ghost / hidden follow the step — re-homed 09-24 to m71/T-player-status (beef: these three are one)
+
+* deferred
+
+| item | reopens when |
+|---|---|
+| the LIVE walk of both modes in anima on droneaid (=T-fresh-buffer=, =T-autosave=, =T-player-status= markers) | beef signs in; I never type credentials |
+| a droneaid guide authored from =~/Downloads/droneaid-manual/manual.md= (the comp's =guide-data.json= is the spec: 15 steps in 8 sections) | the walk holds |
+| =section.*= purge in the topography | fork 2 ruled purge |
+| a mount rig for this package's views | m67's gap is taken up |
+| =@droneaid/topography/model= stale test | its own pass |
+| authoring a real droneaid guide from =manual.md= | both modes walked |
+
+* changelog
+
+- DESIGNED: baseline =ok | 15 passed (81 steps) | 0 failed=. Nothing landed.
+- M1 domain — suites rewritten RED first, then =ok | 7 passed (49 steps) | 0 failed= over =domain/=. Faults met and fixed: =rename= built its slug map after re-slugging the placements (every follower missed); the repository's =resolve= had to init a step's symbol collection for =prepared.tools=; two ordering expectations of mine. =retract= with =closure= now takes a part's interior fastener that no other root places (=bolt_m3_16= went with =rack=) — correct, the test said otherwise.
+- M2 editor v3 re-base + importer list — =ok | 15 passed (84 steps) | 0 failed= over the baseline set (81 → 84). =call("/step")= on the editor's aperture throws synchronously now (no such nature): the test expects the throw, not a rejection.
+- M3 topologies — folded into M1 (the rig needs the guide root to mint a guide).
+- M4 player — =ok | 2 passed (8 steps)=. The SSR rig collided =kit/Stage.svelte= → =Stage.js= with =kit/stage.js= on this case-insensitive disk: the three module is =kit/scene.js= (v3's name).
+- M5 editor — =ok | 3 passed (8 steps)= + =tests/kit.test.js= (copies byte-equal, hex literals 0 in both modes).
+- Bundle check — =bundle.svelte= (paladin's own call) compiles the player view (10.0 MB dev), the editor view (10.3 MB), the re-based v3 (10.5 MB); the one hex in each bundle text is vendored client code, the same count v3 had.
+- M6 landed 12:42 — capture =~/.viva/bak/assembly-guide-20260923-1242/= (145 files) → sibling guard (every live file newer than the copy byte-equal to the build: clean) → shelf =daemon.js= → ONE rsync (no =--delete=) → registry =daemon.js=. Live tree: =ok | 20 passed (100 steps) | 0 failed=. =/metadata/daemons= → droneaid =modes: 11= (8 + topology/guide + editor/guide + player/guide); the mode doors answer =MISSING_TOKEN= to an unsigned curl, so the walk is beef's.
+- Sibling =edafd0fa= (live on m67) changed only the importer's queue pause toggle (=Import.svelte= · =Queue.svelte= · =import.viva.js=) between the design and the landing; the build copy carried it, nothing of theirs was overwritten.
+- Coverage: 15 files / 81 steps → 20 files / 100 steps. The mount-rig gap stands: no test mounts a view live; SSR renders the fresh buffer of each mode.
+
+* release
+
+- =@assembly/domain/assembly= — ONTOLOGIES gains =guide=; =part= loses SEQUENCED; =step= is =LABELED ASSEMBLED INSTRUCTED ANNOTATED STAGED= (INSTRUCTED reshaped to =lines[] + images[]=, PREPARED derived and deprecated); JOINED loses =torque=; natures + =/guide=, =/sequence { guide, sections }= (was =part, steps=), =/step= reshaped, =/resolve= and =/bom= fold a guide; tools + =assembly_guide=; =resolve.js= drops =stack=, gains =order=, =marks=.
+- =@assembly/editor/assembly= — buffer data drops =upto= and =torque=; tools =open { slug }= (no =upto=; a guide opens its subject; a step is refused), =focus= likewise; composer verbs =step= and =seq= gone, =open … upto= gone; aperture drops =/step= and =/sequence=.
+- =@assembly/editor/import= — schematics =ONTOLOGIES= + =guide=.
+- =@assembly/topology/step= — + =note.tip=, =note.warning=. NEW =@assembly/topology/guide=.
+- NEW =@assembly/editor/guide=, =@assembly/player/guide=, =tests/kit.test.js=.
+- droneaid kernels (shelf and registry) mount the three.

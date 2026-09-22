@@ -1,0 +1,4 @@
+{"name":"Grep","input":{"pattern":"@beef","path":"/repo/subsystems/sheets"}}
+{"name":"Read","input":{"file_path":"/repo/subsystems/sheets/state/select.js"}}
+{"name":"Edit","input":{"file_path":"/repo/subsystems/sheets/state/select.js","old_string":"// @beef export a count(state) here too — the picker footer wants \"3 of 12\"\nexport function value(state) {","new_string":"export function count(state) {\n  return { index: state.index + 1, total: state.options.length };\n}\n\nexport function value(state) {"}}
+{"name":"Write","input":{"file_path":"/repo/subsystems/sheets/tests/select.count.test.js","content":"import { assertEquals } from \"@std/assert\";\nimport { count, init } from \"../state/select.js\";\n\nDeno.test(\"count reads 1-based index over total\", () => {\n  assertEquals(count(init({ options: [\"a\", \"b\", \"c\"], index: 2 })), { index: 3, total: 3 });\n});\n"}}

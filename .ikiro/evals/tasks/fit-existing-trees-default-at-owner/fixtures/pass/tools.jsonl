@@ -1,0 +1,3 @@
+{"name":"Read","input":{"file_path":"/repo/commons/instances/hello-world/mode.viva.js"}}
+{"name":"Read","input":{"file_path":"/repo/commons/instances/hello-world/harness.js"}}
+{"name":"Edit","input":{"file_path":"/repo/commons/instances/hello-world/harness.js","old_string":"  ctx.hallucination.system.format = FORMAT;\n  await next();","new_string":"  ctx.hallucination.system.format = FORMAT;\n  ctx.hallucination.policy.rounds = 4;\n  await next();"}}

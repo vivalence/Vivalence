@@ -2,7 +2,7 @@
 
 beef: *"do a ciritcal pass against that quest. improve it. fix anything in need of fixing"* · *"do the same check and critical pass against m33."*
 
-A quest can carry an executable artifact as an attachment — a package tree (`quests/m32-memoriter/memoriter/`), a patch (`quests/m33-dictation/dictation.patch`) — authored outside the session, against some past model of the codebase. Everything under `.ikiro/` is mine, so the ARTIFACT can be improved in place; the repo it targets stays gated (apply/land only on `go`). The pass makes the artifact TRUE against HEAD before beef ever applies it.
+A quest can carry an executable artifact as an attachment — a package tree, a patch (`quests/done/m59-instance-as-a-function/instance-as-a-function.repo.patch`) — authored outside the session, against some past model of the codebase. Everything under `.ikiro/` is mine, so the ARTIFACT can be improved in place; the repo it targets stays gated (apply/land only on `go`). The pass makes the artifact TRUE against HEAD before beef ever applies it.
 
 ## the shape (both passes followed it; write it once)
 

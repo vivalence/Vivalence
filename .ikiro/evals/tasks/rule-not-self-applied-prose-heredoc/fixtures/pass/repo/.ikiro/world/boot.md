@@ -1,0 +1,5 @@
+# boot — from viva instance/run to :2501
+
+The ghost verb resolves the instance selected for this shell, reads its record from the ledger, and spawns the runtime process with the instance mount in its environment. Nothing the verb does touches the daemon; it hands over and waits for the lock file to say the process is alive.
+
+The runtime boots through paladin: the record is mounted, the environment checked, every declared daemon populated from its kernel modules, and their traits installed in manifest order. Only then does the server bind the port the instance record names, 2501 by default, and answer the first status call.

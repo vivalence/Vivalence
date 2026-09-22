@@ -1,7 +1,9 @@
 import paladin, { lifecycle } from "@vivalence/paladin";
+import { RECIPE } from "@vivalence/paladin/typology";
 import { isAbsolute, resolve } from "@std/path";
+import * as dotenv from "@std/dotenv";
 import { Path, v, Vector } from "@vivalence/typology";
-import { config, envfile, path } from "../../belt/index.js";
+import { config, envfile, path, recipe as voice } from "../../belt/index.js";
 import { Init } from "./Init.jsx";
 import { Doctor } from "./Doctor.jsx";
 import { store } from "../registry/index.js";
@@ -16,15 +18,10 @@ const SCOPES = [
   ["mountpoint", 1],
 ];
 
-// the ledger owns a .env but has no declaration to hang a sibling export on, so its schema is here.
-// same shape as an instance's `environment`, same writer, same doctor rendering.
-const environment = v.environment({
-  VIVA_REPOSITORY_MOUNT: v.string().desc("Absolute path to the vivalence checkout. Repo-relative resolution needs it.").group("homes"),
-  SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Machine-wide Anthropic key.").group("keys").optional(),
-  SECRET_VIVA_OPENROUTER_API_KEY: v.string().desc("Machine-wide OpenRouter key.").group("keys").optional(),
-  SECRET_VIVA_ELEVENLABS_API_KEY: v.string().desc("Machine-wide ElevenLabs key.").group("keys").optional(),
-  SECRET_VIVA_DEEPGRAM_API_KEY: v.string().desc("Machine-wide Deepgram key.").group("keys").optional(),
-});
+// the ledger's .env schema lives in its own declaration now — commons/ledger/ledger.viva.js is the
+// canonical one, cloned to <ledger>/ledger.viva.js at init; the schema is its `environment` export.
+const SLOTS = Object.keys(v.primitives.instance.Ledger.properties).filter((slot) => slot !== "manifest");
+const canonical = () => paladin.scope.repository.branch(`commons/ledger/${RECIPE}`);
 
 export const ledger = new Vector();
 
@@ -51,6 +48,7 @@ ledger.open(
 
     const root = new Path(choice.mount);
     paladin.scopes([["ledger", () => true, () => root]]);
+    paladin.ledger.declaration = undefined; // re-rooted: whatever recipe was read belongs to the old home
     for (const sub of SCAFFOLD) {
       await Deno.mkdir(paladin.scope.ledger.branch(sub).absolute, { recursive: true });
     }
@@ -58,10 +56,27 @@ ledger.open(
     const instances = paladin.scope.ledger.branch("instances.json");
     if (!(await paladin.read.json(instances, null))) await paladin.state.json(instances, {});
 
+    const recipe = paladin.scope.ledger.branch(RECIPE);
+    if (!(await Deno.stat(recipe.absolute).catch(() => null))) await Deno.copyFile(canonical().absolute, recipe.absolute);
+    const declaration = await paladin.ledger.recipe();
+    const environment = declaration?.environment ?? v.environment({});
+
+    // the .env is authored FROM the recipe's environment: absent → the whole scaffold; present → only
+    // the keys it lacks are appended (groups, prose, defaults), what is there is never touched. so a
+    // ledger that learns a slot re-runs init and its .env learns the slot's keys — whatever the ledger
+    // declares has its env vars in the ledger.
     const env = paladin.scope.ledger.branch(".env");
-    if (!(await paladin.read.text(env).catch(() => null))) {
-      await paladin.state.text(env, envfile.scaffold(environment));
+    const held = await paladin.read.text(env).catch(() => null);
+    const missing = held === null
+      ? Object.keys(environment.properties)
+      : Object.keys(environment.properties).filter((key) => !new RegExp(`^#?\\s*${key}=`, "m").test(held));
+    if (held === null) await paladin.state.text(env, envfile.scaffold(environment));
+    else if (missing.length) {
+      const subset = v.environment(Object.fromEntries(missing.map((key) => [key, environment.properties[key]])));
+      await paladin.state.text(env, `${held.replace(/\n*$/, "\n")}\n${envfile.scaffold(subset)}`);
     }
+    // what the file says now, at the ledger stratum — the seed below must see the defaults just written
+    paladin.claim(await dotenv.load({ envPath: env.absolute }), "ledger", env.absolute);
     const seed = Object.entries(environment.properties).filter(
       ([key]) => paladin.env.get(key) === null && paladin.secret.get(key) === null,
     );
@@ -70,7 +85,9 @@ ledger.open(
       ...choice,
       ledger: paladin.scope.ledger.absolute,
       scaffolded: SCAFFOLD,
+      recipe: recipe.absolute,
       env: env.absolute,
+      authored: missing,
       fill: seed.map(([key]) => key),
     };
   },
@@ -87,6 +104,8 @@ ledger.open(
     const home = paladin.scope.ledger;
     const env = home.branch(".env");
     const record = await collectRecord(paladin.ledger.registry);
+    const declaration = await paladin.ledger.recipe().catch((error) => ({ error: error.message }));
+    const spoken = declaration && !declaration.error;
 
     const report = {
       homes: {
@@ -94,6 +113,18 @@ ledger.open(
         store: paladin.scope.registry?.absolute ?? null,
         instances: home.branch("instances").absolute,
         record: paladin.ledger.registry.path.absolute,
+      },
+      // the ledger's own declaration: present, its manifest, the slots it speaks for every instance on it
+      recipe: {
+        // any .viva.js at the root; the scaffold's name is ledger.viva.js, the doctor reports what is there
+        path: declaration?.source?.absolute ?? (await paladin.find.viva(home, 0).catch(() => []))[0]?.absolute ?? home.branch(RECIPE).absolute,
+        present: Boolean(spoken) || (await paladin.find.viva(home, 0).catch(() => [])).length > 0,
+        spoken: Boolean(spoken),
+        manifest: spoken ? declaration.manifest : null,
+        slots: spoken ? Object.keys(voice.spoken(declaration, SLOTS)) : [],
+        // one line per slot, what it says — the same voice instance/doctor uses for `inherited`
+        declared: spoken ? voice.spoken(declaration, SLOTS) : {},
+        ...(declaration?.error ? { error: declaration.error } : {}),
       },
       scopes: await Promise.all(
         SCOPES.map(async ([name, depth]) => ({
@@ -131,7 +162,7 @@ ledger.open(
 );
 
 async function collectRecord(registry) {
-  const references = await registry.list();
+  const references = await registry.references();
   const entries = await Promise.all(
     references.map(async (reference) => {
       const root = registry.resolve(reference);

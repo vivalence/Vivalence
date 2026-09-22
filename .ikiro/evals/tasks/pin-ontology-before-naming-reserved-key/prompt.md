@@ -1,0 +1,1 @@
+`subsystems/paladin/prototypes/ledger/registry.js` needs one more method: given a path and a module it says whether the registry already holds that module under a different path. name it — a few candidates, i pick.

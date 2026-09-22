@@ -69,6 +69,7 @@ function partToAnthropic(part) {
         type: "tool_result",
         tool_use_id: part.id,
         content: belt.hallucinate.speak(part.output),
+        ...(part.condition === "ERROR" && { is_error: true }),
       };
     default:
       return { type: "text", text: typeof part === "string" ? part : JSON.stringify(part) };
@@ -122,11 +123,18 @@ export function buildParams(model, request, stream = false) {
 
 // --- outbound: tools → Anthropic tool definitions ---
 
+const plain = (schema) =>
+  Array.isArray(schema)
+    ? schema.map(plain)
+    : schema && typeof schema === "object"
+    ? Object.fromEntries(Object.entries(schema).filter(([key]) => key !== "$id").map(([key, held]) => [key, plain(held)]))
+    : schema;
+
 export function translateTools(tools) {
   return tools.map((declaration) => ({
     name: declaration.name,
     description: declaration.valence ?? "",
-    input_schema: declaration.input ?? { type: "object" },
+    input_schema: plain(declaration.input ?? { type: "object" }),
   }));
 }
 

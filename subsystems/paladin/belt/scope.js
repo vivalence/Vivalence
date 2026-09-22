@@ -7,6 +7,7 @@ export default async function (paladin) {
   paladin.scopes = (declarations) => {
     declarations.forEach(([name, condition, resolver]) => {
       if (scopes.has(name)) console.warn("paladin.scope overwrite");
+      if (name === "ledger") delete paladin.ledger.held;
       scopes.set(name, [condition, resolver]);
     });
   };

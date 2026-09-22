@@ -1,0 +1,2 @@
+{"name":"Read","input":{"file_path":"/repo/commons/instances/hello-world/app/Inspector.svelte"}}
+{"name":"Edit","input":{"file_path":"/repo/commons/instances/hello-world/app/Inspector.svelte","old_string":"  let held = $state(null);\n  $effect(() => {\n    held = { ...row, seen: (held?.seen ?? 0) + 1 };\n  });","new_string":"  let held = $derived({ ...row, seen: Date.now() });"}}

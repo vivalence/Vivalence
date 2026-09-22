@@ -50,10 +50,7 @@ const settled = (result) => {
     output: bag ? (bag.message ?? null) : output,
     entities: entities && Object.keys(entities).length ? entities : null,
     object: bag ? (bag.object ?? null) : null,
-    status:
-      result.condition === "ERROR" || (bag ? bag.message?.error : output?.error)
-        ? "error"
-        : "ok",
+    status: result.condition === "ERROR" ? "error" : "ok",
   };
 };
 
@@ -239,4 +236,19 @@ export function turnArtifacts(turn) {
       part?.type === "file" ||
       part?.type === "artifact",
   );
+}
+
+const VERDICTS = {
+  length: (meta) => `the model returned nothing — its output limit was hit before a word${meta.provider?.model ? ` (${meta.provider.model})` : ""}`,
+  filter: () => "the answer was filtered by the provider",
+  abort: () => "stopped",
+  error: (meta) => meta.fault?.message ?? "the provider failed",
+};
+
+export function turnVerdict(turn) {
+  const state = turn?.meta?.state;
+  if (turn?.role !== "assistant" || !state || state === "complete" || state === "tools") return null;
+  if (turnText(turn) || turnArtifacts(turn).length || (turn.parts ?? []).some((part) => part?.type === "tool_use")) return null;
+  const message = VERDICTS[state]?.(turn.meta) ?? `closed ${state}`;
+  return { state, message };
 }

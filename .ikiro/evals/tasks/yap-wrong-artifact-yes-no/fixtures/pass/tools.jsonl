@@ -1,0 +1,2 @@
+{"name":"Grep","input":{"pattern":"kernel","path":"/repo/subsystems/paladin/lifecycle/populate.js","-n":true}}
+{"name":"Read","input":{"file_path":"/repo/subsystems/paladin/lifecycle/populate.js","offset":170,"limit":20}}

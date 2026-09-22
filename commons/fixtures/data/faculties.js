@@ -69,6 +69,17 @@ export function lastUserText(turns) {
   return "";
 }
 
+const spread = (names, favoured) => names.map((_, index) => (index === favoured ? 0.9 : 0.1 / (names.length - 1)));
+
+export function decided(question) {
+  if (question.options) {
+    const names = Object.keys(question.options);
+    return Object.fromEntries(names.map((name, index) => [name, spread(names, 0)[index]]));
+  }
+  if (question.levels) return spread(question.levels, 1);
+  return 0.9;
+}
+
 export function hasToolResult(turns) {
   return turns.at(-1)?.parts?.some((part) => part.type === "tool_result");
 }
@@ -134,6 +145,17 @@ export function faculties() {
       channels: { in: ["text", "tool_result"], out: ["text"] },
       via: {
         render: async ({ turns }) => textTurn(`[haiku] ${lastUserText(turns)}`),
+      },
+    },
+    {
+      type: "choice",
+      tune: [0.4, 0.3, 1.0, 0.9],
+      context: 32000,
+      options: 26,
+      choices: null,
+      channels: { in: ["text", "object"], out: ["object"] },
+      via: {
+        render: async ({ questions }) => Object.fromEntries(Object.entries(questions).map(([key, question]) => [key, decided(question)])),
       },
     },
   ];

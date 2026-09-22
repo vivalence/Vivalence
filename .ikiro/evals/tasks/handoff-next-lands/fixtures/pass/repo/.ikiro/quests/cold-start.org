@@ -1,0 +1,16 @@
+#+title: cold start — a planted quest the eval's handoff points at
+#+status: DESIGNED — two milestones, nothing landed
+
+* intent
+
+beef: /"go."/ on the design.
+
+* milestones
+
+** M1 — the index line
+** M2 — the reader
+
+* changelog
+
+- 09-23 — M1 opened from a cold start: the handoff was read
+- 09-22 — DESIGNED.

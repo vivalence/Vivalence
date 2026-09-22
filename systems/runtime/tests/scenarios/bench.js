@@ -62,26 +62,34 @@ async function resolve(items) {
   for (const item of items) {
     if (typeof item === "string") {
       if (!paladinMounted) {
-        await paladin.vip.supply();
+        await paladin.ledger.registry.supply();
         paladinMounted = true;
       }
-      resolved.push(await paladin.vip.accio(item));
+      resolved.push(await paladin.ledger.registry.accio(item));
     } else {
       // Raw imports are frozen Module namespace objects.
       // Wrap in a plain object so population.modes can set .mount etc.
       const wrapped = { ...item };
-      if (!wrapped.mount) {
-        // Synthetic mount path — population.modes uses this to resolve
-        // buffer.path relative to the .viva.js directory. Without a real
-        // filesystem path, use the slug from manifest.
+      if (!wrapped.source) {
+        // Synthetic source path — the traits resolve buffer.path relative to the .viva.js directory.
+        // Without a real filesystem path, use the slug from manifest.
         const slug = wrapped.manifest?.slug ?? "unknown";
         const type = wrapped.manifest?.type ?? "mode";
-        wrapped.mount = new Path(`/bench/${type}/${slug}`);
+        wrapped.source = new Path(`/bench/${type}/${slug}`);
       }
       resolved.push(wrapped);
     }
   }
-  return resolved;
+  // the seats paladin would have minted: mount · url · bundles under the bench daemon
+  return resolved.map((citizen) => {
+    const { type, slug } = citizen.manifest;
+    return {
+      ...citizen,
+      mount: citizen.mount ?? new Path(`/mode/${type}/${slug}`),
+      url: citizen.url ?? new Url(`http://bench/daemon/bench/mode/${type}/${slug}`),
+      bundles: citizen.bundles ?? new Path(`/bench/bundles/${type}/${slug}`),
+    };
+  });
 }
 
 // ── bench ──────────────────────────────────────────────────────────

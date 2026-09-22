@@ -1,0 +1,2 @@
+{"name":"Bash","input":{"command":"grep -rl slowstart /repo/documentation/"}}
+{"name":"Edit","input":{"file_path":"/repo/README.md","old_string":"https://docs.vivalence.org/12.01_slowstart","new_string":"https://docs.vivalence.org/12.02_quickstart"}}

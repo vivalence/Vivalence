@@ -66,7 +66,7 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
   it("doctor reads the record against the store — tapped roots, an untapped resident, the census by owner", async () => {
     await author(store, "gamma", "@gamma");
     const effect = await drive(["registry/doctor"]);
-    expect(effect.record.tapped).toBe((await paladin.ledger.registry.list()).length);
+    expect(effect.record.tapped).toBe((await paladin.ledger.registry.references()).length);
     expect(effect.record.stale).toEqual([]);
     expect(effect.store.path).toBe(new Path(store).absolute);
     expect(effect.store.untapped).toEqual([`${store}/gamma`]);
@@ -78,6 +78,14 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     expect(effect.pensieve.owners >= 2).toBe(true);
     expect(effect.pensieve.modes >= effect.pensieve.owners).toBe(true);
     await Deno.remove(`${store}/gamma`, { recursive: true });
+  });
+
+  it("doctor: integrity lists a faulted module with the schematic's sentence", async () => {
+    await Deno.writeTextFile(`${store}/alpha/bare.viva.js`, `export const manifest = { type: "game", slug: "bare", version: "0.0.1", traits: ["BOOTED"] };`);
+    const effect = await drive(["registry/doctor"]);
+    const row = effect.integrity.find((held) => held.path.endsWith("/alpha/bare.viva.js"));
+    expect(row.faults).toEqual(["BOOTED: no boot export"]);
+    await Deno.remove(`${store}/alpha/bare.viva.js`);
   });
 
   it("doctor: a declaration nested under a recorded root is covered, never untapped", async () => {
@@ -98,7 +106,7 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     await Deno.remove(`${store}/rot`, { recursive: true });
     const effect = await drive(["registry/doctor"]);
     expect(effect.record.stale).toEqual(["rot"]);
-    expect((await paladin.ledger.registry.list()).includes("rot")).toBe(true);
+    expect((await paladin.ledger.registry.references()).includes("rot")).toBe(true);
     expect(effect.packages.find((held) => held.owner === "@rot")).toBe(undefined);
     await drive(["registry/untap", "rot"]);
   });
@@ -120,7 +128,7 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
   });
 
   it("bootstrap records the package it just authored", async () => {
-    const record = await paladin.ledger.registry.list();
+    const record = await paladin.ledger.registry.references();
     expect(record.includes(`${made}/mine`)).toBe(true);
   });
 

@@ -103,8 +103,9 @@ export const report = async (ctx) => {
       // shape.cortex.strip reads cortex.faculties, so `?? []` hands it an array with no
       // .faculties and throws — the fallback WAS the crash. A cortexless daemon reports none.
       cortex: ctx.daemon.cortex ? shape.cortex.strip(ctx.daemon.cortex) : [],
-      dormant: paladin.instance.dormant.map((at) => ({
+      dormant: paladin.instance.dormant.map(({ at, module }) => ({
         at,
+        module,
         secrets: paladin.instance.requirements
           .filter((held) => held.at.startsWith(`${at}.`))
           .flatMap(({ at: slot, read, unset }) =>
@@ -140,9 +141,9 @@ export const report = async (ctx) => {
 
     registry: {
       mount: paladin.scope.registry?.absolute ?? null,
-      locations: await paladin.ledger.registry.list(),
-      stale: paladin.vip.stale ?? [],
-      modules: [...paladin.vip.pensieve].flatMap(([owner, types]) =>
+      locations: await paladin.ledger.registry.references(),
+      stale: paladin.ledger.registry.stale,
+      modules: [...paladin.ledger.registry.pensieve].flatMap(([owner, types]) =>
         [...types].flatMap(([type, slugs]) =>
           [...slugs].map(([slug, versions]) => {
             const [version] = [...versions.keys()];

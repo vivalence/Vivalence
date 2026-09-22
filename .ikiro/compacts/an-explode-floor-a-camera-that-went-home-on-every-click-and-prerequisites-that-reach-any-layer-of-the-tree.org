@@ -1,0 +1,60 @@
+#+title: an explode floor, a camera that went home on every click, and prerequisites that reach any layer of the tree
+#+index: 206
+#+session: the third fold of session fc59f22c (turns 148–157; 131–147 are #204). Three corrections from beef on the guide editor's stage and step tab: the explode slider could not reach 0 on the Guide tab, every gesture reset the camera, and prerequisites could only name steps or the stage's selection.
+
+* one breath
+
+/"on empty buffer. the explosion view set to 0 doesnt show an explosion of 0."/ (149). `kit/scene.js:184` floored explode at 0.75 on the overview (`S.overview ? Math.max(0.75, S.explode) : S.explode`) and `Stage.svelte:220` showed the same floor on the slider. Both floors removed; the slider is the truth. The Guide tab now opens unexploded — an opening value, never a floor, if beef wants one back. His screenshot showed the slider at 0 under the old code, which should have read 0.75; unexplained, the fix covers both.
+
+/"and i fucking HATE that every time i click something, select something, or whatever, the frame function gets called. OMG. way to fucking agressive."/ (151). No code called `frame()` on a click; `show()` in `kit/scene.js` ended with `view("step")`, and `show` re-runs whenever `stageEntries` re-derives, which every `retain` does. The camera now goes home only when the set of entry ids changes (`shown` key). Step and view changes, double-click, F and the player's chip focus still move it, on purpose.
+
+/"prerequisites should allow me to select STEPS, parts or placements. anything in any layer of the tree."/ (152). I proposed the shape before coding — one searchable picker, `built.parts` optional, a nested pick brings its descendants and not its parent — and beef said /"go"/ (154). Landed: `schematics.js` `built.parts`; `Literal.ts:41,56` renames and references follow parts; `kit/guide.js` `expand(id, steps, fold)` resolves step → installs, part → every placement of it, placement → itself, the last two walking `children`; `built()` and `tints()` both expand, so a tint on a step or part now reaches the stage (it reached nothing before); the editor's step dropdown and "+ selected parts" replaced by one search over Steps and Parts (placements indented by depth, "+ all" per part). Test `P-built-any-layer`; 20 passed (101 steps) on the scratch copy, 12 passed (66 steps) on the live tree.
+
+* the spine — 157 turns, this fold 148–157
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 148 | the continuation summary | the fold report for #204 | — |
+| 149 | /"[Image #17] on empty buffer. the explosion view set to 0 doesnt show an explosion of 0."/ | overview floor removed in scene.js + Stage.svelte, both modes, one rsync; 5/16 | the 0.75 floor |
+| 150 | the screenshot path | harness artifact | — |
+| 151 | /"…the frame function gets called. OMG. way to fucking agressive."/ | `show()` goes home only on a new set of entries; one rsync; 5/16 | camera reset on every retain |
+| 152 | /"[Image #18] prerequisites should allow me to select STEPS, parts or placements. anything in any layer of the tree."/ | the shape proposed, one fork (parent of a nested pick: my lean no) | — |
+| 153 | the screenshot path | harness artifact | — |
+| 154 | /"go"/ | built.parts, expand(), rename follow, picker, test; eight files in one rsync; 20/101 | the step dropdown, "+ selected parts" |
+| 155 | /"ikiro compact"/ | this fold | — |
+| 156 | /compact (mid-turn) | harness artifact | — |
+| 157 | the skill re-invocation | harness artifact | — |
+
+Coverage 148–157, ten rows. Balance on the fold's N=10: citations 149 · 151 · 152 · 154 — two in each of the first two thirds, none in the last, which is fold mechanics.
+
+* failures
+
+- None of beef's; no codeword. Two of mine: the explode floor and the go-home in `show()` were both mine from the earlier folds, shipped without a click-through in the browser.
+- The first `expand()` dropped a placement id when no fold was passed; the existing P-through-built test caught it before landing.
+
+* State at fold
+
+- LANDED, not walked in the browser by me: explode without a floor, camera stays put on gestures, prerequisites over steps · parts · placements at any depth. beef's reload is the check.
+- Fork taken on my lean, his word welcome: a nested placement's parent is not built with it.
+- Owed to beef (unchanged): view label to custom on canvas orbit and wheel, the anima walk, his word on the seven forks.
+- Backups: `~/.viva/bak/assembly-explode-*`, `assembly-home-*`, `assembly-prereq-*`.
+- Live sibling: "assembly editor" (edafd0fa), owns `modes/editor/assembly/**`; nothing of theirs touched.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| compact-walk | 156 | HELD | spine and skills run by id |
+| debugging | 149 | MISSED | a screenshot with a complaint; reproduce-first was skipped, the source read instead — it held, but the 0-vs-0.75 slider reading stayed unexplained |
+| debugging | 151 | MISSED | same trigger; the cause was traced by grep, no reproduction |
+| pre-flight | 154 | MISSED | an authoring turn over a schema; grep-before-propose was done by hand |
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | sessions   |
+|-------------------------+-----------+----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| assembly-guide          |  47% 7/15 | wip      | control                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 1 (1 live) |
+| ledger-recipe           |  67% 8/12 | building | beef — the number · fork 2 (which instance slims for the runtime live boot; droneaid proposed) · commits in typology, paladin, ghost, commons · the runtime live boot. m0 done: =~/.viva/ledger.viva.js= speaks (no manifest, the environment block in), =~/.viva/.env= authored, chess slimmed.                                                                                                                                                                                                                                                                                                                                              | 0          |
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 1          |
+| m67-assembly-ontology   |  64% 9/14 | building | beef — one number settles the centring: the =/resolve= response's =motor_2/motor.1= translation and rotation off the network pane. then sign in so the editor can be walked by me at all (i do not type credentials), re-import the blend so =harvest.py='s stray fix takes, and confirm the navigation standard. standing: the typology one-liner (=connection-aim-dedupes-arrays=), the mode's name, commits, the =assembly=/=component= symbol purge, @droneaid vcs init. ikiro — the =unique(slug)= migration (ruling 24 is code-only), a mount rig for this package's views (the standing coverage gap), re-embed of a corrected member. | 2 (1 live) |
+| m69-ikiro-ikiro         |   0% 0/10 | design   | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 2 (2 live) |

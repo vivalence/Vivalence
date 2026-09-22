@@ -8,8 +8,8 @@ import { Doctor } from "./Doctor.jsx";
 export const registry = new Vector();
 
 async function packages() {
-  await paladin.vip.supply();
-  const references = await paladin.ledger.registry.list();
+  await paladin.ledger.registry.supply();
+  const references = await paladin.ledger.registry.references();
   return Promise.all(
     references.map(async (reference) => {
       const root = paladin.ledger.registry.resolve(reference);
@@ -56,9 +56,9 @@ registry.open(
     schema: v.object({}),
   },
   async (ctx) => {
-    await paladin.vip.supply();
     const registry = paladin.ledger.registry;
-    const references = await registry.list();
+    await registry.supply();
+    const references = await registry.references();
     const entries = await Promise.all(
       references.map(async (reference) => {
         const root = registry.resolve(reference);
@@ -67,7 +67,7 @@ registry.open(
       }),
     );
     const packages = [];
-    for (const [owner, ownerMap] of paladin.vip.pensieve) {
+    for (const [owner, ownerMap] of paladin.ledger.registry.pensieve) {
       const types = {};
       for (const [type, typeMap] of [...ownerMap].sort(declarationFirst)) types[type] = [...typeMap.keys()].sort();
       const tapped = entries.find((entry) => entry.owners.includes(owner));
@@ -81,8 +81,10 @@ registry.open(
     }
 
     const report = {
-      record: { path: registry.path.absolute, tapped: references.length, stale: paladin.vip.stale, entries },
+      record: { path: registry.path.absolute, tapped: references.length, stale: registry.stale, entries },
       store: await store(paladin, entries.map((entry) => entry.root)),
+      // what the fold said at mount: one row per faulted path
+      integrity: [...registry.integrity].map(([path, faults]) => ({ path: path.replace(/^\/registry/, ""), faults: [...faults] })),
       pensieve: {
         modes: packages.reduce((sum, held) => sum + held.modes, 0),
         types: new Set(packages.flatMap((held) => Object.keys(held.types))).size,
@@ -121,11 +123,11 @@ registry.open(
     if (!source) throw new Error("usage: viva registry tap <path | git url> [target]");
     source = path.source(source);
     if (target) target = resolve(path.cwd(), target);
-    const reference = await paladin.vip.tap(source, target);
+    const reference = await paladin.ledger.registry.tap(source, target);
     ctx.effect = {
       reference,
       root: paladin.ledger.registry.resolve(reference).absolute,
-      record: await paladin.ledger.registry.list(),
+      record: await paladin.ledger.registry.references(),
     };
   },
 );
@@ -141,7 +143,7 @@ registry.open(
     if (!reference) throw new Error("usage: viva registry untap <reference>");
     const held = await tapped(reference);
     if (!held) throw new Error(`registry/untap: no tapped package '${reference}' — viva registry/list`);
-    ctx.effect = { untapped: held.reference, record: await paladin.vip.untap(held.reference) };
+    ctx.effect = { untapped: held.reference, record: await paladin.ledger.registry.untap(held.reference) };
   },
 );
 

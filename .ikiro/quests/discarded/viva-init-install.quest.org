@@ -146,4 +146,4 @@ deno task ghost/run /instance/run                                      # :2501 r
 - =subsystems/typology/gestalten/cast/primitives.js:24= — =lookup= identifier parse
 - =testament/variant/= — the working dev variant (promotion source)
 - =.env.example= (repo root) — the env template shape
-- [[project_paladin_env_publish]] · [[project_m11_package_ontology]] · codemap =ghost.md= / =paladin.md= / =registry.md=
+- `project_paladin_env_publish` · `project_m11_package_ontology` · codemap =ghost.md= / =paladin.md= / =registry.md=

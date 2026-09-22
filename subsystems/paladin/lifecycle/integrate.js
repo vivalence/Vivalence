@@ -50,10 +50,6 @@ export async function secure(paladin) {
 
 // validate migrated to prototypes/instance.js (part of instance.mount).
 
-// export async function mount(paladin) {
-// return await paladin.vip.mount(new Path(paladin.env.get("VIVA_VIP_MOUNT")));
-// }
-
 // export async function statements(paladin) {
 //   const directories = [...Object.values(paladin.scope).map((p) => p.absolute)];
 
@@ -80,7 +76,8 @@ const dormant = (instance, at, mask) => {
     .map(([name]) => name);
   const why = mask ? `${mask.module} — empty ${blank.join(", ")}` : "nothing declared";
   console.warn(`[instance] ${at} filtered, ${why}`);
-  instance.dormant.push(at);
+  // the row names what lived there: a reader sees the module, never just an index into a roster it can no longer count
+  instance.dormant.push({ at, module: mask?.module ?? null, empty: blank });
   return false;
 };
 
@@ -99,6 +96,9 @@ export function settle(instance) {
   }
   Instance.cast(instance);
   const faults = Instance.faults(instance).map(({ at, reason }) => `${label(instance, at)} ${reason}`);
+  // required BECAUSE daemons are declared — the schematic cannot say it; a blank read is the env row's, not this
+  if (instance.daemons.length && instance.runtime && !("remote" in instance.runtime.statics))
+    faults.push(`runtime.statics.remote required — ${instance.daemons.length} daemons announce under it`);
   const echoed = (sentence) => {
     const source = sentence.replace(/^(?:daemon|service)\[[^\]]*\]\./, "");
     return source !== sentence && faults.includes(source);

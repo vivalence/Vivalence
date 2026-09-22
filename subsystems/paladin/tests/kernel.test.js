@@ -3,7 +3,7 @@ import { expect } from "@std/expect";
 import { App, Path, svelte, v } from "@vivalence/typology";
 import { Paladin } from "../prototypes/paladin.js";
 import * as lifecycle from "../lifecycle/index.js";
-import { Vip } from "../prototypes/vip.js";
+import { Registry } from "../prototypes/ledger/registry.js";
 
 const HOME = new Path("/fixtures/probe/test.viva.js");
 
@@ -13,7 +13,7 @@ const inline = {
   application: new App(svelte`<h1>hello</h1>`, v.buffer({ data: {} })),
 };
 
-const pinned = { ...inline, manifest: { ...inline.manifest, slug: "pinned" }, mount: new Path("/pinned/pinned.viva.js") };
+const pinned = { ...inline, manifest: { ...inline.manifest, slug: "pinned" }, source: new Path("/pinned/pinned.viva.js") };
 
 const module = {
   manifest: { type: "instance", slug: "probe", version: "0.0.1" },
@@ -48,21 +48,39 @@ const mount = (mod) => {
 };
 
 describe("instance kernel references", () => {
-  it("the four kernel forms resolve: bare kept, absolute kept, relative vs the instance file, inline stamped with the instance mount", async () => {
+  it("the four kernel forms resolve: bare kept, absolute kept, relative vs the instance file, inline stamped with the instance mount — each seated with its mountpoint", async () => {
     const instance = await mount(module);
     const [daemon] = instance.daemons;
-    expect(daemon.kernel[0]).toBe("@commons/playground/spawner");
-    expect(daemon.kernel[1]).toBe("/elsewhere/greeter.viva.js");
-    expect(daemon.kernel[2]).toBe("/fixtures/probe/greeter/greeter.viva.js");
+    expect(daemon.kernel[0].module).toBe("@commons/playground/spawner");
+    expect(daemon.kernel[1].module).toBe("/elsewhere/greeter.viva.js");
+    expect(daemon.kernel[2].module).toBe("/fixtures/probe/greeter/greeter.viva.js");
     expect(daemon.kernel[3].manifest.slug).toBe("hello");
-    expect(daemon.kernel[3].mount).toBe(HOME);
+    expect(daemon.kernel[3].source).toBe(HOME);
     expect(instance.faults).toEqual([]);
   });
 
-  it("an inline entry carrying its own mount keeps it", async () => {
+  it("every mode has a ground without the recipe saying one: <daemon mountpoint>/mode_<type>_<slug>; a reference names both, a path names what it can, a declared mountpoint wins", async () => {
+    const instance = await mount({
+      ...module,
+      daemons: [{ ...module.daemons[0], kernel: [...module.daemons[0].kernel, "/pkg/modes/editor/import/import.viva.js", { module: "@commons/editor/media", mountpoint: "/Users/op/media" }] }],
+    });
+    const [daemon] = instance.daemons;
+    expect(daemon.mountpoint.absolute).toBe("/mountpoint/daemon_probe");
+    expect(daemon.kernel[0].mountpoint).toBeInstanceOf(Path);
+    expect(daemon.kernel[0].mountpoint.absolute).toBe("/mountpoint/daemon_probe/mode_playground_spawner");
+    expect(daemon.kernel[1].mountpoint.absolute).toBe("/mountpoint/daemon_probe/mode_greeter");
+    expect(daemon.kernel[2].mountpoint.absolute).toBe("/mountpoint/daemon_probe/mode_greeter");
+    // an inline module carries the seat as a key — a string, since the Module schematic casts no Mountpoint; nothing reads it
+    expect(daemon.kernel[3].mountpoint).toBe("/mountpoint/daemon_probe/mode_game_hello");
+    expect(daemon.kernel[5].mountpoint.absolute).toBe("/mountpoint/daemon_probe/mode_editor_import");
+    expect(daemon.kernel[6].mountpoint.absolute).toBe("/Users/op/media");
+    expect(instance.faults).toEqual([]);
+  });
+
+  it("an inline entry carrying its own source keeps it", async () => {
     const instance = await mount(module);
     const [daemon] = instance.daemons;
-    expect(String(daemon.kernel[4].mount)).toBe(String(pinned.mount));
+    expect(String(daemon.kernel[4].source)).toBe(String(pinned.source));
   });
 
   it("an inline module is module-shaped: hydrate never fires inside it — thunks and App survive settle", async () => {
@@ -73,29 +91,32 @@ describe("instance kernel references", () => {
   });
 });
 
-describe("Vip.accioOne", () => {
+describe("registry.accio — the citizen", () => {
   const fake = (modules) => ({ read: { viva: async (path) => modules[path.absolute ?? String(path)] } });
 
-  it("an absolute path reads the module and stamps its mount", async () => {
-    const vip = new Vip(fake({ "/elsewhere/greeter.viva.js": { manifest: { type: "game", slug: "greeter", version: "0.0.1" } } }));
-    const resolved = await vip.accioOne("/elsewhere/greeter.viva.js");
+  it("an absolute path reads the module and stamps its source", async () => {
+    const registry = new Registry(fake({ "/elsewhere/greeter.viva.js": { manifest: { type: "game", slug: "greeter", version: "0.0.1" } } }));
+    const resolved = await registry.accio("/elsewhere/greeter.viva.js");
     expect(resolved.manifest.slug).toBe("greeter");
-    expect(resolved.mount).toBeInstanceOf(Path);
-    expect(resolved.mount.absolute).toBe("/elsewhere/greeter.viva.js");
+    expect(resolved.source).toBeInstanceOf(Path);
+    expect(resolved.source.absolute).toBe("/elsewhere/greeter.viva.js");
   });
 
-  it("an inline module (manifest, no module key) passes through verbatim", async () => {
-    const vip = new Vip(fake({}));
-    const entry = { manifest: { type: "game", slug: "hello", version: "0.0.1" }, mount: HOME };
-    expect(await vip.accioOne(entry)).toBe(entry);
+  it("an inline module (manifest, no module key) is its own citizen", async () => {
+    const registry = new Registry(fake({}));
+    const entry = { manifest: { type: "game", slug: "hello", version: "0.0.1" }, source: HOME };
+    const citizen = await registry.accio(entry);
+    expect(citizen.module).toBe(entry);
+    expect(citizen.identifier).toBe(null);
+    expect(citizen.manifest.slug).toBe("hello");
   });
 
-  it("a mask-shaped query pairs module and mask; the module's statics sit under the mask's, key by key", async () => {
-    const vip = new Vip(fake({}));
-    vip.accio = async () => ({ manifest: { type: "office", slug: "vdex" }, statics: { formats: ["md"], ignore: ["bak"] } });
-    const { service, mask } = await vip.accioOne({ module: "@vcompany/office/vdex", statics: { formats: ["md", "org"] } });
-    expect(service.manifest.slug).toBe("vdex");
-    expect(mask.statics).toEqual({ formats: ["md", "org"], ignore: ["bak"] });
-    expect(mask.module).toBe("@vcompany/office/vdex");
+  it("a mask folds over what it names — the module's statics sit under the mask's, key by key; module is the object, identifier the string", async () => {
+    const registry = new Registry(fake({}));
+    registry.lookup = async () => ({ manifest: { type: "office", slug: "vdex", version: "0.0.1" }, statics: { formats: ["md"], ignore: ["bak"] }, source: new Path("/pensieve/vdex.viva.js") });
+    const citizen = await registry.accio({ module: "@vcompany/office/vdex", statics: { formats: ["md", "org"] } });
+    expect(citizen.module.manifest.slug).toBe("vdex");
+    expect(citizen.statics).toEqual({ formats: ["md", "org"], ignore: ["bak"] });
+    expect(citizen.identifier).toBe("@vcompany/office/vdex");
   });
 });

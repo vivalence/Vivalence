@@ -1,0 +1,1730 @@
+#+title: m68 the paladin pipeline — the runtime executes what paladin hands it; registry, services, seats and checks move upstream, one fold per mask, one registry under the ledger
+#+filetags: :paladin:runtime:registry:typology:instance:services:traits:ghost:
+#+status: LANDED — beef /"go"/ · /"finish up the quest."/ · /"when done, move to done"/: M7 and M2b landed on his word (/"mount in."/, fork 12 /"lighthouse type multiplayer slug service static"/, fork 13 /"still called a reference"/). Gates: paladin 47 passed (220 steps) · runtime 64 passed (418 steps) · typology 127 passed (513 steps) · ghost registry green, ledger 17/18 (the pre-existing =present/scaffolded= step). Live on droneaid after the .env migration: =/status= ALIVE, the lighthouse answers at =/attached/process/service/lighthouse/multiplayer=. Every milestone landed; commits are beef's.
+#+phase: done
+#+progress: 9/9
+#+next: sunset — commits are beef's (three moves in the working copy: =vip.js= gone, two test renames); prod: set =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= to the lighthouse host's =/attached/process/service/lighthouse/multiplayer= before the next deploy.
+
+* intent
+
+beef, verbatim (this session):
+
+/"run a search across the runtime and daemon to find cases where the runtime lifecycles does work that belongs in the paladin. the runtime should receive/consume a completely resolved instance. no config or mapping by the runtime. runtime should be a pure executive function. we have schematics into paladin and out of paladin. paladin does masking, wiring, mapping, and configuring. runtime executed what it was given."/
+
+The sweep (this session's report) found three kinds of paladin work living in =systems/runtime=: registry resolution (mask → module), address derivation (slug → mount/url/store paths), and validation the schematic already states. beef's rulings, per item:
+
+- *A — registry.* /"registry mounting is considered runtime property. paladin offers an interface to do this. we rename paladin.vip to paladin.ledger.registry[...] important tho, runtime expects the resulting mode output returns to be processed and wired."/
+- *D — services.* /"services should be just as processed wired nd mapped by the paladin. we providethe runtime with the specific static declared wired finished output shape we expect it to have."/
+- *E — the three checks.* /"yes. amen. fix."/
+- *F — the runtime manifest default.* /"we have this in ledger / instance. that."/
+- *B/C — the double fold.* /"work out the good solution and propose."/ → proposal in chat, fork 1 here.
+- *G — trait integrity.* beef's design question (verbatim in fork 4) → three shapes proposed, the third RULED: M6.
+
+One sentence: *the registry is one organ under the ledger, it hands back modules already folded with their masks, and the runtime never computes a path, a manifest or a rule again.*
+
+* the law
+
+- *Supply is the runtime's moment; the verb is paladin's.* =registry.supply()= runs at runtime boot (and in ghost verbs that need the pensieve), never inside =lifecycle.mount= — the doctor keeps mounting an instance without touching the registry. But what =supply= and =accio= RETURN is finished: manifest folded, statics folded, secrets carried, seat carried. The runtime reads fields; it never writes =??=.
+- *One fold per mask, one rule.* mask ⊕ module folds ONCE, in the registry's accio: =manifest= key-wise (mask wins) — =traits= ACCUMULATE, a mask adds and never strips, because settle's cast fills =traits: []= on every =Service= and =Client= mask manifest and a fill is not a word — =statics= key-wise (mask wins), =secrets= mask whole, =mountpoint= mask (seated upstream by =resolve.ground=). The runtime's second fold (=population.modes:118-122=) is deleted.
+- *A schema rule is a fault, not a runtime throw.* What typology can state, =integrate.settle= reports and the doctor prints; the runtime asserts nothing it was handed.
+- *Integrity is a fold, the span is its only log, a throw is its only stop.* A rule is a pair =[applies(module), apply(module, span) → module]=. =probe(rules)(module, span)= is =reduce=: the module threads through every applicable rule, in authored order. Two kinds of rule and no more (beef: /"cut out all the logic rules"/): a TYPE validates against its schematic (=Manifest= for all, =Domain= for a domain — so "a domain has entities" is the schematic's sentence); a TRAIT names the export it travels with (=TRAITS= in paladin's =integrity.js= for now, trait → prototype; the keys are the known traits). A rule says what is wrong with =span.fault= — the fold continues, every fault is known; a rule THROWS only for a file unfit to register (no slug); that file alone stays out, its path carries the throw. No return code, no severity field, no =integrity= field on the module: the registry's span pipes its faults into a =Map= (path → sentences), the doctor reads the map, and every road out of the registry — =lookup=, a path read, the folded citizen — passes =assert=, which throws the joined faults of what it hands back. The consumer that names a broken module pays; the registry never does.
+- *One registry.* =paladin.ledger.registry= is the record (=registry.json=: list · add · remove · resolve · discover · seed · reconcile) AND the pensieve (mount · supply · tap · untap · accio · list). =paladin.vip= is gone. The =Registry= is HELD on the ledger, minted on first access and kept — a pensieve must persist.
+
+* terrain (verified in-session)
+
+- =subsystems/paladin/prototypes/vip.js= — =Vip= holds the =Pensieve=; =mount(root)= stamps owner on a COPY; =supply()= reconciles through =this.paladin.ledger.registry=; =tap/untap= write the record through it; =accioOne(query)= already folds =manifest= and =statics= key-wise for a =query.module= object (=:96-113=) and returns ={ service, mask }=. =accioMap= resolves a bag.
+- =subsystems/paladin/prototypes/ledger/ledger.js:19= — =get registry()= mints =new Registry(...)= per access. =Registry= (=prototypes/ledger/registry.js=) is the record only.
+- =paladin.vip= call sites (grep, bak dirs excluded): 55 lines across 16 files — paladin 4 (=paladin.js · integrate.js= comment · =boot.test.js · vip.tap.test.js= 19) · ghost 12 (=belt/lens.js · trajectories/registry/index.js · registry/bootstrap.js · instance/create.js=) · runtime 14 (=die.js= comments · =lifecycle/populate.js · daemon/lifecycle/population.js · tests/registry.count.test.js · tests/scenarios/{registry,bench}.js=) · commons 4 (=instances/hello-world/tools/doctor.js · lighthouses/multiplayer/server/entities.js=).
+- =systems/runtime/lifecycle/populate.js= — =registry()= calls =supply=; =wiring()= clones =runtime.statics.remote= as =latch=; =daemons()= throws =runtime.statics.remote REQUIRED= when daemons exist, then derives =mount = /daemon/<slug>=, =url=, =attach=; =processes()= accios each service's module, keeps only =ATTACHED= ones, calls =module.aperture(aperture, mask)=.
+- =systems/runtime/lifecycle/integrate.js:28-31= — =launch()= warns =No runtime serve URL configured= and returns when =runtime.statics.serve= is missing. Typology =Runtime.statics.serve= is REQUIRED.
+- =systems/runtime/die.js:7= — =get manifest() { return paladin.instance.runtime?.manifest ?? { slug: "runtime" } }=.
+- =systems/runtime/process/die.js:7= — =get manifest() { return this.module.manifest }= — the MODULE's manifest; =Service.manifest= on the mask (typology: required, the identity) is ignored.
+- =systems/runtime/daemon/lifecycle/population.js= — =core()= builds the =registry= bag from the mask and =accioMap=s it, casts =Domain= from the kernel; =modes()= folds =mask.manifest ?? mode.manifest · statics · secrets · mountpoint= a second time and derives =mode.mount · mode.url=.
+- =systems/runtime/daemon/traits/generative.js:5= throws on missing =daemon.mountpoint=; =traits/index.js:83= throws when =MOUNTED= has no =mode.mountpoint=. =Daemon.mountpoint= is REQUIRED in typology; =resolve.ground= seats every mode.
+- =subsystems/typology/schematics/primitives/instance.js= — =Runtime.statics.remote= optional unconditionally; =Instance.runtime= optional; =Service.manifest= required.
+- =subsystems/paladin/lifecycle/integrate.js:settle= — filters dormant masks, casts, collects =instance.faults= with labels; the seam where a conditional rule belongs.
+- =subsystems/typology/prototypes/span.js= — =Span= has =note(data) · fault(error) · mark · open · close=, a root =journal= capped at =CONFIG.journal = 1000= records (=:5=), and a =Pipe= reachable by =span.to(sink)=. The pipe is the index; the journal stays a log — hundreds of modules times a few notes would roll the cap.
+- =subsystems/typology/schematics/primitives/manifest.js:13= — =traits: v.array(v.string())=, no enum; the runtime's =daemon/traits/index.js= table is the only list of known traits. =TRAITS= in =integrity.js= names the traits paladin checks an export for (fork 5 RULED: typology untouched); the tree declares 13 more (fork 8).
+- =Vip.mount= registers a COPY (={ ...module, mount }=); the raw =read.viva= namespace is frozen — a rule mutating in place mutates the copy; a rule returning ={ ...module }= never touches either.
+- Runtime: =traits/index.js:11= warns on an unknown trait; =resolution.js:44-49= warns =aperture without EXPOSED= / =datasink without DATASINK=; =booted.js:7= warns BOOTED without =boot=. One becomes a rule and dies at M6 (BOOTED without =boot=); the unknown-trait warn stays (no rule replaces it — fork 8); the two export-without-trait warnings stay — notes were cut with the logic rules.
+- Runtime tests: no test calls =lifecycle.mount= (pre-existing gap, named in =ledger-recipe=); =tests/scenarios/registry.js= and =bench.js= call =paladin.vip.supply/accio= directly — they rename, nothing else.
+
+* milestones
+
+** M1 — paladin: one registry (A) — LANDED
+=Vip= folds into =Registry=: =prototypes/ledger/registry.js= gains =pensieve · mount · supply · tap · untap · accio · accioOne · accioMany · accioMap · list · stale=; the record verbs stay. =Ledger= holds it: =get registry()= mints once (=this.held ??==) — lazily, because =scope.ledger= resolves in =populate.scopes= after the =Paladin= constructor. =prototypes/vip.js= deleted; =paladin.vip= deleted; every consumer renamed (16 files). =tests/vip.tap.test.js= → =tests/registry.tap.test.js=.
+Gate: paladin suite green (42 → 42, the tap test renamed); ghost =registry.test.js · ledger.test.js= green; runtime =registry.count.test.js= green; =grep -rn "paladin\.vip\|\.vip\." --include=*.js --include=*.jsx --include=*.ts . | grep -v bak= returns zero.
+
+** M2 — the fold happens once (B/C) — LANDED
+=registry.accio(query)= returns the FOLDED citizen for every query shape: a bare reference or path → the module; a ={ module, … }= mask → ={ ...module, ...mask, module, reference, manifest, statics, secrets, mountpoint }= — the mask's word whole (a service's =datamap=, a seated entry's seats), =manifest= and =statics= module ⊕ mask key-wise, =secrets= and =mountpoint= the mask's word. Runtime =population.core= becomes =die.register = await paladin.ledger.registry.wire(die.mask)= — the registry resolves every slot of the daemon mask to a citizen and picks =domain= from the kernel. =population.modes= drops its four =??= lines: =new Mode(citizen)= carries everything. =accioOne · accioMany · accioMap= die.
+Gate: new =subsystems/paladin/tests/registry.wire.test.js= — the citizen shape per query kind, the bag, the domain pick. Runtime suite green.
+
+** M3 — services wired by paladin (D) — LANDED
+=populate.recipe= hydrates =service[<slug>]=, =resolve.mountpoints= seats it; the runtime's =processes()= asks the registry for each service's citizen ONCE (supply is the runtime's moment, so the module object lands after =lifecycle.mount=) and reads it: the ATTACHED ones spawn, the rest are named — =instance.dormant= gains ={ at: "service[<slug>]", module, empty: [], why: "not ATTACHED — consumed only" }=. =process/die.js= KEEPS its manifest getter (the module's) — found live: the runtime mints the process seat =/attached/process/<type>/<slug>= from the die's identity, and every recipe's =VIVA_LIGHTHOUSE_SERVE= says =lighthouse/multiplayer=, the module's type; the declared =service/multiplayer= moved the seat and announce 404'd. Fork 11.
+Gate: runtime =tests/repository.populate.test.js= + scenarios green; two service cases in =registry.wire.test.js=.
+
+** M4 — the checks fall to settle (E) + the manifest default (F) — LANDED
+- =integrate.settle=: =runtime.statics.remote= REQUIRED when =instance.daemons.length= — one fault line =runtime.statics.remote required — <n> daemons announce under it=. Runtime =populate.daemons:21= throw deleted.
+- =integrate.launch:28-31= warn deleted; =serve= is required by typology, the fault is already =runtime.statics.serve required= from cast.
+- =traits/generative.js:5= throw deleted; =traits/index.js:83= MOUNTED throw deleted (=resolve.ground= seats; a blank =mountpoint= is already a REQUIRED fault by the doctor).
+- =runtime/die.js:7= → =return paladin.instance.runtime.manifest;= — the runtime's own door (M4b) refuses an instance without one.
+Gate: paladin =settle.test.js= +1 (remote-with-daemons); runtime suite green; grep gates below.
+
+** M2b — the seats move upstream (fork 2 RULED) — LANDED (/"mount in."/ then /"finish up the quest."/: all six slots, =Service.mount= in, =statics.serve= out)
+=Daemon= gains =mount · url · attach=, =Mode= gains =mount · url · bundles= (typology, HOLY); =resolve.mountpoints= addresses daemons, =ground= seats typed entries, =wire= seats the rest; seven runtime sites read instead of mint; freight root and application entry stay the module's. Hunks under =* the patch ** M2b=.
+Gate: =settle.test.js= +2 · =registry.wire.test.js= +1 · snapshot regenerated · runtime 63/417 · bundle-path grep = 0.
+Fork 11 RULED folds in — /"no dedicated lighthouse servee. computed attachment path."/: paladin seats every service at =/attached/process/<type>/<slug>= from the folded manifest (=Service.mount=, HOLY), the daemons' =lighthouse.statics.remote= defaults to this runtime's reach + the seat of the service hosting the same module, =Service.statics.serve= leaves typology (HOLY), =VIVA_LIGHTHOUSE_SERVE= leaves the three recipes and =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= loses its default (set it only for a lighthouse on another host), the runtime reads =processDie.mask.mount= and the process die's manifest is the DECLARED one again. One seam, fork 12: the folded manifest says =service/multiplayer= today, so the address moves off =lighthouse/multiplayer=. Hunks under =* the patch ** M2b= (the fork 11 block).
+
+** M4b — the out-schematic (fork 3 RULED) — LANDED
+=systems/runtime/typology/schematics/instance.js= NEW: the runtime's =Instance= = paladin's with =runtime= required; =run.js= faults at the door. Hunks under =* the patch ** M4b=.
+Gate: =tests/door.test.js= 2 steps.
+
+** M5 — the runtime pass + the live boot — LANDED on droneaid (beef's watch): boot · announce · anima's socket over the multiplex; =/daemon/droneaid/status= answers
+Runtime suite green as-is; =deno task runtime/watch= on beef's ledger; =viva instance/doctor chess= reads =problems — · faults —=; anima reaches the daemon; =/daemon/droneaid/status= answers (=/scan= was a name of mine — no such door exists; beef: /"what scan?"/).
+
+** M6 — integrity: the fold over pairs (G) — LANDED, one rule fewer
+=subsystems/paladin/prototypes/ledger/integrity.js= NEW: =TRAITS=, =RULES= (pairs), =probe(rules)=. =Registry= gains =span = new Span({ nature: "/registry" })= and =integrity = new Map()= (path → sentences) filled by the span's pipe; =mount(root)= probes each copy on the file's own branch inside a per-file try — a throw is a fault under that path and the walk continues; =assert(path, module)= throws the joined sentences under a path, and every road out (=lookup=, a path read, the folded citizen on its =/entry/<type>/<slug>= branch — a mask can add traits) passes it. Ghost =registry/doctor= gains an =integrity= organ: one line per faulted path. One runtime warning dies (=booted.js:7=); the unknown-trait warn stays — no rule replaces it (fork 8).
+
+The hunks — =integrity.js= tangled, the registry side, the ghost organ, the runtime warnings, both test files — are under =* the patch ** M6=.
+
+Gate: new =subsystems/paladin/tests/registry.integrity.test.js= — a domain validates against =Domain= (its entities default today, so the sentence waits on typology); a trait without its export faults; a marker trait asks nothing; a refused manifest faults, only a missing slug throws; order is authored order; =accio= of a faulted module throws the sentences; a slugless file faults under its own path, siblings register; a mask-added trait throws on the entry, the module itself still resolves; the index outlives the journal cap. Ghost =registry.test.js= +1. Runtime green with one warning gone.
+
+** M7 — after the walk: source · identifier · the open set · the ledger's default — LANDED before M2b (no typology)
+Four rulings from the tour, none touching typology, all in the way of M2b. (a) fork 7: the pensieve's stamp of the FILE becomes =source= (paladin already says it: =find.type= · =Ledger.recipe=); =mount= is the seat alone; nine readers follow. (b) =reference= → =identifier= for =@owner/type/slug= only; the record's entries (=registry.json=: =commons=, =~/.viva/registry/chess=) STAY =reference= — fork 13 RULED, /"we refere to something. by unique name or unique path. reference"/. (c) fork 8: the runtime's =[trait] … declares X, which nothing implements= warn goes — the set is open by design. (d) fork 9: the ledger's manifest derivation is ONE function, =derive(module, source)=, and the registry walk applies it to a manifest-less file under =ledger/= — =commons/ledger/ledger.viva.js= registers as =@commons/ledger/ledger=, the red row is gone. Hunks under =* the patch ** M7=.
+Gate: paladin =registry.mount.test.js= (=source= stamped) · =registry.wire.test.js= + =kernel.test.js= (=citizen.identifier=) · =registry.integrity.test.js= +1 (a manifest-less file under =ledger/= registers as =ledger/<name>=) · runtime =tests/mode/traits.test.js= (no warn step) · ghost =registry.test.js= · =grep -rn "module\.mount\b\|\.mount\.dirname" subsystems/paladin systems/runtime systems/ghost --include=*.js | grep -v tests= → 0 · =grep -rn "citizen\.reference\|module(reference)" subsystems systems --include=*.js= → 0.
+
+* the patch — every milestone to the hunk
+
+Every fork is ruled; the hunks are written to the rulings (=* forks=).
+
+** M1 — one registry
+
+=Vip= folds into =Registry=. The pensieve and every mount verb move; the record verbs stay; the =Registry= is minted ONCE.
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/ledger/registry.js
++++ subsystems/paladin/prototypes/ledger/registry.js
+@@ -1,5 +1,7 @@
+ import { dirname, isAbsolute, relative } from "@std/path";
+-import { Path } from "@vivalence/typology";
++import { cast, is, Path, v } from "@vivalence/typology";
++import { Pensieve } from "../pensieve.js";
+
+ const normalize = (reference) =>
+   isAbsolute(reference) ? reference : reference.replace(/^\.\//, "");
+@@ -7,8 +9,10 @@
+ export class Registry {
+   constructor(paladin, path) {
+     this.paladin = paladin;
+     this.path = path;
++    this.pensieve = new Pensieve();
++    this.stale = [];
+   }
+
+   read() {
+@@ -107,4 +111,120 @@
+     await this.write(record);
+     return { locations: record.filter((reference) => !stale.includes(reference)), stale };
+   }
++
++  // ——— the pensieve side (was prototypes/vip.js) ———
++
++  async mount(root) {
++    const paths = await this.paladin.find.viva(root);
++    const modules = [];
++    for (const path of paths) {
++      const module = await this.paladin.read.viva(path);
++      modules.push({ ...module, mount: new Path(path) });
++    }
++    const declaration = modules.find((module) => module.manifest?.type === "package");
++    const owner = declaration?.manifest?.owner;
++    if (modules.length && !owner)
++      throw new Error(`[registry] mount ${root.absolute}: package declares no owner — author manifest.owner (e.g. "@commons")`);
++    for (const module of modules) {
++      // a copy: read.viva returns the live namespace. the mount's owner stamps; the module's own locks.
++      this.pensieve.register({
++        ...module,
++        manifest: { ...module.manifest, owner: module.manifest?.owner ?? owner },
++      });
++    }
++    return this;
++  }
++
++  // held, so a second supply in one process starts from an empty pensieve
++  async supply() {
++    this.pensieve = new Pensieve();
++    const checkout = this.paladin.scope.repository;
++    const commons = checkout?.branch("commons");
++    const reconciled = await this.reconcile(checkout, commons);
++    const locations = reconciled?.locations ?? await this.seed(commons);
++    this.stale = reconciled?.stale ?? [];
++    for (const location of locations) await this.mount(this.resolve(location));
++    return this;
++  }
++
++  // tap = materialize + record. mount is the runtime's moment — supply() folds the record at boot.
++  async tap(source, target) {
++    let reference = source;
++    if (this.paladin.clone.remote(source)) {
++      if (!target && !this.paladin.scope.registry)
++        throw new Error(`[registry] tap ${source}: no package store — a remote tap clones into scope.registry (set VIVA_REGISTRY_MOUNT)`);
++      const slug = source.split("/").at(-1).replace(/\.git$/, "");
++      const destination = target ? new Path(target) : this.paladin.scope.registry.branch(slug);
++      await this.paladin.clone(source, destination);
++      reference = target ? destination.absolute : slug;
++    } else if (target) {
++      throw new Error(`[registry] tap ${source}: target only applies to a remote source — a local tap records the reference in place`);
++    }
++    const root = this.resolve(reference);
++    const stat = await Deno.stat(root.absolute).catch(() => null);
++    if (!stat)
++      throw new Error(`[registry] tap ${source}: nothing at ${root.absolute} — pass a path, a remote, or a reference already in the store`);
++    const home = stat.isFile ? new Path(dirname(root.absolute)) : root;
++    const declarations = await this.paladin.find.type(home, "package");
++    if (!declarations.length)
++      throw new Error(`[registry] tap ${source}: no package declaration (manifest.type "package") under ${home.absolute}`);
++    if (declarations.length === 1) reference = this.reference(dirname(declarations[0].source.absolute));
++    await this.add(reference);
++    return reference;
++  }
++
++  // untap = record removal ONLY — the store keeps the working copy; next supply() simply omits it.
++  untap(reference) {
++    return this.remove(reference);
++  }
++
++  list(query = {}) {
++    return this.pensieve.byType(query.type);
++  }
++
++  async lookup(query) {
++    const lookup = cast.lookup(query);
++    if (!this.pensieve.has(lookup.owner))
++      throw new Error(`[registry] package ${lookup.owner} not supplied on this system`);
++    const module = await this.pensieve.revelio(lookup);
++    if (module) return module;
++    throw new Error(`[registry] Module 404: ${JSON.stringify({ lookup })}`);
++  }
++
++  // M1 only: accioOne · accioMany · accioMap land verbatim from vip.js:96-142 ([VIP] → [registry]) so the
++  // runtime boots between milestones; accio(query) is lookup(query). M2 rewrites all four.
++
++  toJSON() {
++    return { record: this.path?.absolute ?? null, pensieve: this.pensieve };
++  }
+ }
+#+END_SRC
+beef: /"is there something that can be deleted as a result of this?"/ — yes, and the quest names it:
+- =subsystems/paladin/prototypes/vip.js= — the whole file (VCS, beef).
+- =Vip.toJSON= — the =pensive= typo dies with it; =Registry.toJSON= says =record · pensieve=.
+- =accioOne · accioMany · accioMap= — kept in M1 only so the runtime boots between milestones; M2 deletes all three. After M2 the verbs are =accio= and =wire=. =tests/kernel.test.js:94-114= (=describe("Vip.accioOne")=, three sites) rewrites to =registry.accio= and the citizen shape in M2.
+- =paladin.vip= and the =// mountables — siblings of vip= comment in =paladin.js=.
+- =systems/runtime/die.js:78-102= — the commented =vip.mount(kernels|modes|services)= block; =subsystems/paladin/lifecycle/integrate.js:54= — the commented =VIVA_VIP_MOUNT= line; =systems/runtime/tests/registry.count.test.js:56= — the comment pointing at =vip.test.js= (no such file; the lock case lives in =registry.tap.test.js= after the rename).
+- =Registry.reference()= and =resolve()= keep their bodies; =tap= calls them as =this.= instead of through =this.paladin.ledger.registry.= — the round trip through the ledger getter is gone.
+- =systems/ghost/bak/typology/variant.js= — a bak file naming =vip=; untouched, it is beef's bench.
+Name collision, resolved: the record's =list()= (references) and the pensieve's =list(query)= (modules by type) both want the name. The record's becomes =references()=; its consumers (=ghost registry/index.js:12= · =ledger/index.js:106= · =registry/bootstrap.js:70= · =hello-world doctor:144= · tests) rename with it. The pensieve's =list= keeps the name — it is what =lens.modes= and =registry/list= mean.
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/ledger/registry.js
++++ subsystems/paladin/prototypes/ledger/registry.js
+@@
+-  async list() {
++  async references() {
+     return (await this.read()) ?? [];
+   }
+
+   async has(reference) {
+-    return (await this.list()).includes(normalize(reference));
++    return (await this.references()).includes(normalize(reference));
+   }
+
+   async add(reference) {
+     reference = normalize(reference);
+-    const references = await this.list();
++    const references = await this.references();
+@@
+   async remove(reference) {
+     reference = normalize(reference);
+-    const next = (await this.list()).filter((held) => held !== reference);
++    const next = (await this.references()).filter((held) => held !== reference);
+#+END_SRC
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/ledger/ledger.js
++++ subsystems/paladin/prototypes/ledger/ledger.js
+@@ -15,9 +15,11 @@
+   get instances() {
+     return new Instances(this.paladin, this.paladin.scope.ledger.branch("instances.json"));
+   }
+
++  // held, not minted per access: the registry carries the pensieve, and a pensieve must persist.
++  // lazy because scope.ledger resolves in populate.scopes, after the Paladin constructor.
+   get registry() {
+-    return new Registry(this.paladin, this.paladin.scope.ledger.branch("registry.json"));
++    return (this.held ??= new Registry(this.paladin, this.paladin.scope.ledger.branch("registry.json")));
+   }
+#+END_SRC
+
+Tests that re-scope the ledger AFTER a first access (=ghost/tests/registry.test.js= sets scopes in =beforeAll= on the booted default export) would read a stale path if anything touched =ledger.registry= before. Guard, one line in =belt/scope.js=: when =scopes()= (re)defines =ledger=, =delete paladin.ledger.held= — the same reset =ledger/init= does for =declaration=.
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/paladin.js
++++ subsystems/paladin/prototypes/paladin.js
+@@ -1,7 +1,6 @@
+ import { Env, v } from "@vivalence/typology";
+ import belt from "../belt/index.js";
+ import { Ledger } from "./ledger/index.js";
+-import { Vip } from "./vip.js";
+@@ -92,7 +91,6 @@
+-    // mountables — siblings of vip, own their state
++    // the ledger owns its state: instances, registry (record + pensieve), locks, logs
+     this.ledger = new Ledger(this);
+-    this.vip = new Vip(this);
+   }
+--- subsystems/paladin/prototypes/index.js
++++ subsystems/paladin/prototypes/index.js
+@@ -1,5 +1,4 @@
+ export * from "./paladin.js";
+-export * from "./vip.js";
+ export * from "./pensieve.js";
+ export * from "./ledger/index.js";
+ export * from "./instance.js";
+--- subsystems/paladin/prototypes/ledger/index.js
++++ subsystems/paladin/prototypes/ledger/index.js
+@@ -1 +1,2 @@
+ export * from "./ledger.js";
++export * from "./registry.js";
+#+END_SRC
+
+=subsystems/paladin/prototypes/vip.js= is removed and =tests/vip.tap.test.js= moves to =tests/registry.tap.test.js= — both through the VCS, beef's hand.
+
+The consumers, one sed per shape (run from the repo root, then read the diff):
+
+#+BEGIN_SRC sh
+# every verb: paladin.vip.<verb> → paladin.ledger.registry.<verb>; test-local paladins too (first.vip, runtime.vip, next.vip, fresh.vip)
+grep -rl "\.vip\b" --include=*.js --include=*.jsx --include=*.ts . | grep -v "/bak/" | grep -v node_modules \
+  | xargs sed -i '' -E 's/\b(paladin|first|runtime|next|fresh)\.vip\b/\1.ledger.registry/g'
+# the record's list() → references() at its call sites
+sed -i '' 's/paladin\.ledger\.registry\.list()/paladin.ledger.registry.references()/' \
+  systems/ghost/trajectories/registry/index.js systems/ghost/trajectories/ledger/index.js \
+  commons/instances/hello-world/tools/doctor.js systems/ghost/trajectories/registry/bootstrap.js \
+  subsystems/paladin/tests/registry.tap.test.js subsystems/paladin/tests/registry.test.js subsystems/paladin/tests/ledger.test.js \
+  systems/ghost/tests/registry.test.js systems/ghost/tests/ledger.test.js
+#+END_SRC
+
+Hand hunks the sed cannot make:
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/tests/boot.test.js
++++ subsystems/paladin/tests/boot.test.js
+@@ -1,2 +1,3 @@
+ import { specimen } from "@vivalence/typology";
+-import { Paladin, Ledger, Instance, Vip, populate, mount } from "@vivalence/paladin/typology";
++import { Path } from "@vivalence/typology";
++import { Paladin, Ledger, Instance, Registry, populate, mount } from "@vivalence/paladin/typology";
+@@ -8,4 +9,6 @@
+-  it("constructor wires ledger/vip as siblings — the lifecycle populates the instance", () => {
++  it("constructor wires the ledger; the registry is the ledger's, held once — the lifecycle populates the instance", () => {
+     const fresh = new Paladin();
+     expect(fresh.ledger).toBeInstanceOf(Ledger);
+-    expect(fresh.vip).toBeInstanceOf(Vip);
++    fresh.scopes([["ledger", () => true, () => new Path("/tmp/boot")]]);
++    expect(fresh.ledger.registry).toBeInstanceOf(Registry);
++    expect(fresh.ledger.registry).toBe(fresh.ledger.registry);
+@@ -25,2 +28,2 @@
+-  it("the booted default export already has vip from construction and an instance from the lifecycle", () => {
+-    expect(paladin.vip).toBeInstanceOf(Vip);
++  it("the booted default export holds one registry and an instance from the lifecycle", () => {
++    expect(paladin.ledger.registry).toBeInstanceOf(Registry);
+--- subsystems/paladin/tests/registry.tap.test.js
++++ subsystems/paladin/tests/registry.tap.test.js
+@@ -36 +36 @@
+-describe("Vip.tap — materialize + record, never mount", () => {
++describe("Registry.tap — materialize + record, never mount", () => {
+@@ -42 +42 @@
+-    expect(paladin.vip.pensieve.size).toBe(0);
++    expect(paladin.ledger.registry.pensieve.size).toBe(0);
+--- systems/ghost/trajectories/registry/index.js
++++ systems/ghost/trajectories/registry/index.js
+@@ -59,2 +59,2 @@
+-    await paladin.vip.supply();
+-    const registry = paladin.ledger.registry;
++    const registry = paladin.ledger.registry;
++    await registry.supply();
+@@ -84 +84 @@
+-      record: { path: registry.path.absolute, tapped: references.length, stale: paladin.vip.stale, entries },
++      record: { path: registry.path.absolute, tapped: references.length, stale: registry.stale, entries },
+#+END_SRC
+
+Gate: =deno test subsystems/paladin= 42/195 (the tap suite renamed, +2 asserts in boot) · =deno test systems/ghost/tests/registry.test.js systems/ghost/tests/ledger.test.js= green · =deno test systems/runtime/tests/registry.count.test.js= green · =grep -rn "\.vip\b" --include=*.js --include=*.jsx --include=*.ts . | grep -v bak= → 0.
+
+** M2 — the fold happens once
+
+=accio= returns the FOLDED citizen; =wire= builds a daemon's bag. The citizen is the module's exports with the mask's word laid over: =manifest= (module ⊕ mask, key-wise), =statics= (module ⊕ mask, key-wise), =secrets= (the mask's, ={}= default), =mountpoint= (the mask's, seated by =resolve.ground=), =module= (the raw module object — =mode.module.mount · .dataset · .emitter= keep resolving), =reference= (the mask's =module= string, for =/metadata=).
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/ledger/registry.js
++++ subsystems/paladin/prototypes/ledger/registry.js
+@@
+-  // M1 only: accioOne · accioMany · accioMap land verbatim from vip.js:96-142 ([VIP] → [registry]) so the
+-  // runtime boots between milestones; accio(query) is lookup(query). M2 rewrites all four.
+-  async accio(query) { … }
+-  async accioOne(query) { … }
+-  async accioMany(many) { … }
+-  async accioMap(many) { … }
++  // a reference resolves through the pensieve; an absolute path reads the file
++  async module(reference) {
++    if (!isAbsolute(reference)) return this.lookup(reference);
++    return { ...(await this.paladin.read.viva(reference)), mount: new Path(reference) };
++  }
++
++  // mask ⊕ module, ONCE. a string is the module; an inline module (manifest, no reference) is its own
++  // citizen; a mask folds over what it names — its word whole (a service's datamap, a seated entry's
++  // seats), manifest and statics by key (mask wins) — traits ACCUMULATE, a mask adds and never strips
++  // (settle fills traits: [] on every mask manifest) — secrets and the seat the mask's alone.
++  // module is the object, reference the string.
++  async accio(query) {
++    if (is.string(query)) return this.module(query);
++    if (!query.module) return { ...query, module: query, reference: null };
++    const module = await this.module(query.module);
++    return {
++      ...module,
++      ...query,
++      module,
++      reference: query.module,
++      manifest: v.primitives.Manifest.cast({ ...module.manifest, ...query.manifest, traits: [...new Set([...traits(module.manifest), ...traits(query.manifest)])] }),
++      statics: { ...module.statics, ...query.statics },
++      secrets: query.secrets ?? {},
++      mountpoint: query.mountpoint ?? null,
++    };
++  }
++
++  // a daemon mask → its bag: every slot a citizen, the domain picked from the kernel
++  async wire(mask) {
++    const many = (queries) => Promise.all(queries.map((query) => this.accio(query)));
++    const kernel = await many(mask.kernel);
++    return {
++      lighthouse: await this.accio(mask.lighthouse),
++      datamap: await this.accio(mask.datamap),
++      hallucinators: await many(mask.hallucinators),
++      consume: Object.fromEntries(await Promise.all(Object.entries(mask.consume).map(async ([slug, query]) => [slug, await this.accio(query)]))),
++      kernel,
++      domain: v.primitives.kernel.Domain.cast(kernel.find((citizen) => citizen.manifest.type === "domain") ?? {}),
++    };
++  }
+#+END_SRC
+
+The mask's other keys ride whole: a =Service= mask carries =datamap= (its aperture reads it), a seated entry carries =mount · url · bundles= — the hunk's five named keys would have dropped both (found at apply). Two behaviours change on purpose. =accioMap= used to hand back the bare MODULE for an object query — =lighthouse= and =datamap= arrived unfolded and the runtime read their masks separately; now every slot is a citizen. =accioOne= used to return ={ service, mask }=; the pair is gone, the citizen carries both. =kernel · hallucinators · consume= default in typology (=[] · [] · {}=) and =settle= already drops a null consume slot, so =wire= reads them bare; =Manifest.cast= fills =traits: []=, so no reader of =citizen.manifest.traits= needs =?.=.
+
+The runtime, reading the bag:
+
+#+BEGIN_SRC diff
+--- systems/runtime/daemon/lifecycle/population.js
++++ systems/runtime/daemon/lifecycle/population.js
+@@ -8,24 +8,12 @@
+ import * as traits from "../traits/index.js";
+
+-const unmask = (register) => register.service ?? register;
+-
+ export async function core(die) {
+-  const registry = {
+-    lighthouse: die.mask.lighthouse,
+-    hallucinators: die.mask.hallucinators,
+-    datamap: die.mask.datamap,
+-    kernel: die.mask.kernel,
+-    consume: die.mask.consume,
+-  };
+-
+-  die.register = await paladin.vip.accioMap(registry);
+-
+-  die.good.domain = v.primitives.kernel.Domain.cast(
+-    die.register.kernel.map(unmask).find((module) => module.manifest?.type === "domain") ?? {},
+-  );
++  die.register = await paladin.ledger.registry.wire(die.mask);
++  die.good.domain = die.register.domain;
+
+   die.instance.traits = {
+@@ -73,5 +61,5 @@
+ export async function datamap(daemonDie) {
+   daemonDie.datamap = await daemonDie.register.datamap.provider(
+-    daemonDie.mask.datamap,
++    daemonDie.register.datamap,
+     daemonDie.instance.entities,
+     daemonDie.instance.subscribers,
+@@ -90,3 +78,3 @@
+   daemonDie.good.lighthouse = await daemonDie.register.lighthouse //
+-    .provider(daemonDie.mask.lighthouse, daemonDie.good.entities.user);
++    .provider(daemonDie.register.lighthouse, daemonDie.good.entities.user);
+@@ -106,13 +94,13 @@
+ export async function acid(daemonDie) {
+-  for (const [index, { service, mask }] of (daemonDie.register.hallucinators ?? []).entries()) {
++  for (const [index, citizen] of daemonDie.register.hallucinators.entries()) {
+     try {
+-      const faculties = await service.provider(mask);
++      const faculties = await citizen.provider(citizen);
+       daemonDie.good.cortex.register(
+-        faculties.map((faculty) => ({ ...faculty, provider: service.manifest.slug })),
++        faculties.map((faculty) => ({ ...faculty, provider: citizen.manifest.slug })),
+       );
+     } catch (error) {
+       const at = `daemon[${daemonDie.slug}].hallucinators[${index}]`;
+-      console.warn(`[provider] ${at} ${service.manifest.slug} refused — ${error.message}`);
++      console.warn(`[provider] ${at} ${citizen.manifest.slug} refused — ${error.message}`);
+     }
+   }
+@@ -122,8 +110,7 @@
+ export async function services(daemonDie) {
+-  for (const [slug, servicemask] of Object.entries(daemonDie.mask.consume)) {
+-    const servicecake = daemonDie.register.consume[slug];
+-    daemonDie.good.services[slug] = await servicecake.provider(servicemask);
+-    if (servicecake.manifest?.traits?.includes("TOOLING") && servicecake.tools) {
+-      daemonDie.good.services[slug].tools = servicecake.tools;
++  for (const [slug, citizen] of Object.entries(daemonDie.register.consume)) {
++    daemonDie.good.services[slug] = await citizen.provider(citizen);
++    if (citizen.manifest.traits.includes("TOOLING") && citizen.tools) {
++      daemonDie.good.services[slug].tools = citizen.tools;
+     }
+   }
+ }
+@@ -133,12 +120,6 @@
+ export async function modes(daemonDie) {
+   await daemonDie.datamap.shard.context(async () => {
+-    for (const register of daemonDie.register.kernel) {
+-      const mask = register.mask ?? {};
+-      const mode = new Mode(unmask(register));
+-      mode.manifest = mask.manifest ?? mode.manifest;
+-      mode.statics = mask.statics ?? mode.statics;
+-      mode.secrets = mask.secrets ?? {};
+-      mode.mountpoint = mask.mountpoint ?? null;
++    for (const citizen of daemonDie.register.kernel) {
++      const mode = new Mode(citizen);
+       mode.mount = daemonDie.good.mount
+#+END_SRC
+
+=Mode= (=typology/prototypes/mode.js=) does =Object.assign(this, module); this.module = module= — so =mode.module= is the citizen, and =mode.module.mount= · =.dataset= · =.emitter= · =.boot= resolve through the spread. Every =mode.module.x= reader in the traits keeps working unchanged. One reader changes: =mode.module.manifest= is now the FOLDED manifest, which is what =stamp()= and the metadata endpoints wanted anyway.
+
+Provider signatures: =provider(citizen)= receives what =provider(mask)= received plus the module's own exports. =commons/datamaps/libsql= · =commons/lighthouses/multiplayer= · every hallucinator provider read =mask.statics · mask.secrets · mask.mountpoint= — all still there under the same keys. Grep gate before landing: =grep -rn "provider(" commons --include=*.js= and read each for a key the citizen renames (=module= is now the object, =reference= the string).
+
+NEW =subsystems/paladin/tests/registry.wire.test.js=:
+
+#+BEGIN_SRC js :tangle ../../subsystems/paladin/tests/registry.wire.test.js :mkdirp yes
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import { Path } from "@vivalence/typology";
+import { Paladin } from "../prototypes/paladin.js";
+
+// an in-memory pensieve: modules under @probe, no disk. accio and wire fold over what revelio hands back.
+const boot = (modules) => {
+  const paladin = new Paladin();
+  paladin.scopes([["ledger", () => true, () => new Path("/fixtures/wire")]]);
+  const registry = paladin.ledger.registry;
+  for (const module of modules) registry.pensieve.register({ ...module, mount: new Path(`/fixtures/wire/${module.manifest.slug}.viva.js`) });
+  return registry;
+};
+
+const MODULES = [
+  { manifest: { owner: "@probe", type: "package", slug: "probe", version: "0.0.1" } },
+  { manifest: { owner: "@probe", type: "domain", slug: "chess", version: "0.0.1", traits: ["TOOLING"] }, entities: {}, statics: { depth: 3, seed: 1 } },
+  { manifest: { owner: "@probe", type: "game", slug: "board", version: "0.0.1", traits: ["EXPOSED"] }, aperture: () => {}, statics: { theme: "wood" } },
+  { manifest: { owner: "@probe", type: "lighthouse", slug: "light", version: "0.0.1" }, provider: (citizen) => citizen },
+  { manifest: { owner: "@probe", type: "datamap", slug: "map", version: "0.0.1" }, provider: (citizen) => citizen },
+];
+
+describe("registry.accio — mask ⊕ module, once", () => {
+  it("a bare reference is the module, untouched", async () => {
+    const registry = boot(MODULES);
+    const module = await registry.accio("@probe/game/board");
+    expect(module.manifest.slug).toBe("board");
+    expect(module.statics).toEqual({ theme: "wood" });
+    expect(module.reference).toBeUndefined();
+  });
+
+  it("a mask folds manifest and statics by key, mask winning; secrets and the seat are the mask's; module and reference ride along", async () => {
+    const registry = boot(MODULES);
+    const citizen = await registry.accio({
+      module: "@probe/game/board",
+      manifest: { slug: "board-2" },
+      statics: { size: 8 },
+      secrets: { key: "k" },
+      mountpoint: new Path("/seat"),
+    });
+    expect(citizen.manifest).toMatchObject({ owner: "@probe", type: "game", slug: "board-2", traits: ["EXPOSED"] });
+    expect(citizen.statics).toEqual({ theme: "wood", size: 8 });
+    expect(citizen.secrets).toEqual({ key: "k" });
+    expect(citizen.mountpoint.absolute).toBe("/seat");
+    expect(citizen.reference).toBe("@probe/game/board");
+    expect(citizen.module.manifest.slug).toBe("board");
+    expect(typeof citizen.aperture).toBe("function");
+  });
+
+  it("a mask without statics or secrets still yields both keys — no ?? downstream", async () => {
+    const registry = boot(MODULES);
+    const citizen = await registry.accio({ module: "@probe/domain/chess" });
+    expect(citizen.statics).toEqual({ depth: 3, seed: 1 });
+    expect(citizen.secrets).toEqual({});
+    expect(citizen.mountpoint).toBe(null);
+  });
+
+  it("an inline module is its own citizen", async () => {
+    const registry = boot(MODULES);
+    const inline = { manifest: { type: "game", slug: "inline", version: "0.0.1", traits: [] } };
+    const citizen = await registry.accio(inline);
+    expect(citizen.module).toBe(inline);
+    expect(citizen.reference).toBe(null);
+  });
+
+});
+
+describe("registry.wire — a daemon mask to its bag", () => {
+  const mask = {
+    manifest: { type: "daemon", slug: "d", version: "0.0.1" },
+    lighthouse: { module: "@probe/lighthouse/light" },
+    datamap: { module: "@probe/datamap/map", statics: { db: { file: "d.viva.db" } } },
+    hallucinators: [],
+    consume: { light: { module: "@probe/lighthouse/light" } },
+    kernel: [{ module: "@probe/domain/chess", mountpoint: new Path("/m/chess") }, { module: "@probe/game/board", mountpoint: new Path("/m/board") }],
+  };
+
+  it("every slot is a citizen; the kernel keeps its order; the domain is picked from it", async () => {
+    const bag = await boot(MODULES).wire(mask);
+    expect(bag.lighthouse.provider(bag.lighthouse).manifest.slug).toBe("light");
+    expect(bag.datamap.statics).toEqual({ db: { file: "d.viva.db" } });
+    expect(bag.hallucinators).toEqual([]);
+    expect(Object.keys(bag.consume)).toEqual(["light"]);
+    expect(bag.kernel.map((citizen) => citizen.manifest.slug)).toEqual(["chess", "board"]);
+    expect(bag.domain.manifest.slug).toBe("chess");
+  });
+
+  it("a kernel without a domain wires an empty domain, not a throw", async () => {
+    const bag = await boot(MODULES).wire({ ...mask, kernel: [mask.kernel[1]] });
+    expect(bag.domain.manifest?.slug).toBeUndefined();
+    expect(bag.domain.entities ?? {}).toEqual({});
+  });
+
+  it("a slot naming an unsupplied package throws that package, not the whole bag silently", async () => {
+    await expect(boot(MODULES).wire({ ...mask, lighthouse: { module: "@gone/lighthouse/x" } })).rejects.toThrow("package @gone not supplied");
+  });
+
+  it("an entry paladin could not type — a bare path — is seated by wire from the folded manifest", async () => {
+    const dir = await Deno.makeTempDir({ prefix: "wire_" });
+    await Deno.writeTextFile(`${dir}/loose.viva.js`, `export const manifest = { type: "game", slug: "loose", version: "0.0.1" };`);
+    const seated = { ...mask, mount: new Path("/daemon/d"), mountpoint: new Path("/mp/daemon_d"), kernel: [{ module: `${dir}/loose.viva.js`, mountpoint: new Path("/mp/daemon_d/mode_loose") }] };
+    const [entry] = (await boot(MODULES).wire(seated)).kernel;
+    expect(entry.mount.absolute).toBe("/daemon/d/mode/game/loose");
+    expect(entry.bundles.absolute).toBe("/mp/daemon_d/bundles/game/loose");
+    expect(entry.url).toBeUndefined();
+  });
+});
+
+describe("registry.accio — a service mask", () => {
+  const SERVICES = [
+    { manifest: { owner: "@probe", type: "package", slug: "probe", version: "0.0.1" } },
+    { manifest: { owner: "@probe", type: "service", slug: "attached", version: "0.0.1", traits: ["ATTACHED"] }, aperture: () => {} },
+    { manifest: { owner: "@probe", type: "service", slug: "quiet", version: "0.0.1", traits: [] }, provider: () => ({}) },
+  ];
+
+  it("the declared manifest is the identity; the module's traits ride under it", async () => {
+    const citizen = await boot(SERVICES).accio({ manifest: { type: "service", slug: "mine" }, module: "@probe/service/attached", mountpoint: new Path("/s") });
+    expect(citizen.manifest.slug).toBe("mine");
+    expect(citizen.manifest.traits).toEqual(["ATTACHED"]);
+  });
+
+  it("a consumed-only service folds like any other — the runtime, not the registry, decides not to spawn it", async () => {
+    const citizen = await boot(SERVICES).accio({ manifest: { type: "service", slug: "q" }, module: "@probe/service/quiet", mountpoint: new Path("/q") });
+    expect(citizen.manifest.traits).toEqual([]);
+    expect(citizen.aperture).toBeUndefined();
+  });
+});
+#+END_SRC
+
+Gate: =deno test subsystems/paladin/tests/registry.wire.test.js= 7 steps (the path seat is M2b's, the service cases M3's — 10 in all) · =deno test systems/runtime= 63/417 · =grep -n "?? " systems/runtime/daemon/lifecycle/population.js= → only the =sets= collate lines.
+
+** M2b — the seats move upstream (fork 2, RULED)
+
+beef: /"yes … good sketch. work out the hunk into quest."/ Two classes. What is INSTANCE-known — slug, the runtime's reach, the mountpoint — seats in =resolve.mountpoints=, before supply. What is MODULE-known — a freight path, an application entry, read off the module's own exports relative to its own file — is the module's address, not configuration; it stays where the module is read (=traits/index.js:75= · =application.js:9=). One seam between them: a kernel entry whose type paladin cannot read from the reference (a bare path outside =modes/<type>/<slug>/=) gets its =mount · url · bundles= in =wire=, where the mask and the module meet; the runtime reads fields either way.
+
+Typology — the addresses become slots (HOLY, one file):
+
+#+BEGIN_SRC diff
+--- subsystems/typology/schematics/primitives/instance.js
++++ subsystems/typology/schematics/primitives/instance.js
+@@ export const Mode = v.object(
+     mountpoint: v.union([Mountpoint, v.null()]).optional(),
+     statics: Statics().optional(),
+     secrets: Secrets.optional(),
++    mount: Path().desc('The mode\'s path under its daemon. Declared wins; otherwise /mode/<type>/<slug>. Example: "/mode/game/board"').optional(),
++    url: Url().desc("Where a consumer reaches the mode: the daemon's url + mount. Example: https://runtime.vivalence.com/daemon/chess/mode/game/board").optional(),
++    bundles: Mountpoint.desc('Where its compiled views live. Declared wins; otherwise <daemon mountpoint>/bundles/<type>/<slug>. Example: "/viva/instances/chess/mountpoint/daemon_chess/bundles/game/board"').optional(),
+   },
+@@ export const Daemon = v.object(
+     mountpoint: Mountpoint,
+     statics: Statics().default({}),
++    mount: Path().desc('The daemon\'s path under the runtime. Declared wins; otherwise /daemon/<slug>. Example: "/daemon/chess"').optional(),
++    url: Url().desc("Where a consumer reaches the daemon: runtime.statics.remote + mount. Example: https://runtime.vivalence.com/daemon/chess").optional(),
++    attach: Url().desc("Where the runtime serves this daemon's bundles and cargo: remote + /attached. Example: https://runtime.vivalence.com/attached").optional(),
+     kernel: Kernel.default([]),
+#+END_SRC
+
+Strings in, prototypes out: =Instance.cast= at settle decodes =Path()= and =Url()= the way =mountpoint= lands as a =Path= today. =remote= at seating time is the hydrated STRING (decode is settle's), hence =new Url(remote)=.
+
+Paladin — the seating:
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/lifecycle/resolve.js
++++ subsystems/paladin/lifecycle/resolve.js
+@@ -1,2 +1,2 @@
+ import { basename, dirname } from "@std/path";
+-import { cast, is, v } from "@vivalence/typology";
++import { cast, is, Url, v } from "@vivalence/typology";
+@@ -19,4 +19,5 @@
+ export function mountpoints(instance) {
+   const point = (kind, slug) => instance.paladin.scope.mountpoint.branch(`/${kind}_${slug}`).absolute;
++  const reach = instance.runtime?.statics?.remote && new Url(instance.runtime.statics.remote);
+   const seat = (kind) => (mounting) => {
+@@ -30,5 +31,14 @@
+   };
++  // the daemon's word wins, else its slug under the runtime's reach; no reach → no url, settle names it
++  const address = (daemon) => {
++    daemon.mount ??= `/daemon/${daemon.manifest?.slug}`;
++    if (!reach) return;
++    daemon.url ??= reach.branch(daemon.mount).absolute;
++    daemon.attach ??= reach.branch("/attached").absolute;
++  };
+   instance.daemons.forEach(seat("daemon"));
+   instance.services.forEach(seat("service"));
++  instance.daemons.forEach(address);
+   instance.daemons.forEach(ground);
+ }
+@@ -42,17 +53,19 @@
+-const identity = (entry) => {
++// [type, slug] of a kernel entry, or null when the reference cannot say; the entry's own manifest wins
++const identity = (entry) => {
++  const own = entry?.manifest;
++  if (own?.type && own.slug) return [own.type, own.slug];
+   const module = is.string(entry) ? entry : entry?.module;
+   if (is.string(module) && module.startsWith("@")) {
+     const { type, slug } = cast.lookup(module);
+-    return type && slug ? `${type}_${slug}` : null;
++    return type && slug ? [type, slug] : null;
+   }
+   if (is.string(module)) {
+-    // a path: modes/<type>/<slug>/<slug>.viva.js names both; any other file names the slug alone
++    // a path: modes/<type>/<slug>/<slug>.viva.js names both; any other file names the slug alone, no type
+     const dir = dirname(module);
+     const slug = basename(module).replace(/\.viva\.[jt]s$/, "");
+-    return basename(dirname(dirname(dir))) === "modes" ? `${basename(dirname(dir))}_${slug}` : slug;
++    return basename(dirname(dirname(dir))) === "modes" ? [basename(dirname(dir)), slug] : [null, slug];
+   }
+-  if (entry?.manifest?.type && entry?.manifest?.slug) return `${entry.manifest.type}_${entry.manifest.slug}`;
+   return null;
+ };
+@@ -58,12 +71,22 @@
+ function ground(daemon) {
+   const seat = (entry) => {
+     const id = identity(entry);
+     if (!id) return entry;
+-    const mountpoint = `${daemon.mountpoint}/mode_${id}`;
+-    if (is.string(entry)) return { module: entry, mountpoint };
+-    // a declared mountpoint is the entry's word even when its thunk came back blank: that is a
+-    // REQUIRED fault the doctor names, never a seat minted over it. only silence gets the seat.
+-    return "mountpoint" in entry ? entry : { ...entry, mountpoint };
++    const [type, slug] = id;
++    const held = is.string(entry) ? { module: entry } : entry;
++    // a declared mountpoint is the entry's word even when its thunk came back blank (a REQUIRED fault,
++    // never a seat minted over it); only silence gets the seat, mode_<type>_<slug> or mode_<slug>
++    const mountpoint = "mountpoint" in held ? held.mountpoint : `${daemon.mountpoint}/mode_${[type, slug].filter(Boolean).join("_")}`;
++    if (!type) return { ...held, mountpoint }; // the type is the module's word — wire seats the rest
++    const mount = `${daemon.mount}/mode/${type}/${slug}`;
++    return {
++      ...held,
++      mountpoint,
++      mount: held.mount ?? mount,
++      url: held.url ?? (daemon.url ? new Url(daemon.url).branch(mount).absolute : undefined),
++      bundles: held.bundles ?? `${daemon.mountpoint}/bundles/${type}/${slug}`,
++    };
+   };
+   daemon.kernel = (daemon.kernel ?? []).map(seat);
+ }
+#+END_SRC
+
+The registry — the fallback seat for an entry paladin could not type, in =wire=. =mask.mount · url · mountpoint= are decoded prototypes here (=lifecycle.mount= ran); the seats come back as prototypes too, so both roads yield the same. =new Path(…)= rather than =mask.mount.branch(…)=: =Path.branch= registers the child on the parent's =gauges=, and the mask is shared — =Url.branch= mints clean.
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/ledger/registry.js
++++ subsystems/paladin/prototypes/ledger/registry.js
+@@ -2 +2 @@
+-import { cast, is, Path, v } from "@vivalence/typology";
++import { cast, is, Path, Url, v } from "@vivalence/typology";
+@@ async wire(mask) {
+-    const kernel = await many(mask.kernel);
++    // an entry whose reference named no type is seated here, by the folded manifest — same rule, later moment
++    const seated = (citizen) => {
++      if (citizen.mount) return citizen;
++      const { type, slug } = citizen.manifest;
++      const mount = new Path(`${mask.mount.absolute}/mode/${type}/${slug}`);
++      return { ...citizen, mount, url: mask.url?.branch(mount.absolute), bundles: new Path(`${mask.mountpoint.absolute}/bundles/${type}/${slug}`) };
++    };
++    const kernel = (await many(mask.kernel)).map(seated);
+#+END_SRC
+
+Runtime — reading, never minting; seven sites:
+
+#+BEGIN_SRC diff
+--- systems/runtime/lifecycle/populate.js
++++ systems/runtime/lifecycle/populate.js
+@@ -24,11 +24,8 @@
+   for (const mask of paladin.instance.daemons) {
+     const daemonDie = new DaemonDie({
+       mask,
+       good: new Daemon({ manifest: mask.manifest }),
+     });
+-
+-    daemonDie.good.mount = new Path(`/daemon/${daemonDie.slug}`);
+-    daemonDie.good.url = runtimeDie.good.latch //
+-      .branch(daemonDie.good.mount.nature);
+-
+-    daemonDie.good.attach = runtimeDie.good.latch.branch("/attached");
++    daemonDie.good.mount = mask.mount;
++    daemonDie.good.url = mask.url;
++    daemonDie.good.attach = mask.attach;
+     runtimeDie.good.daemons.push(daemonDie);
+   }
+--- systems/runtime/daemon/lifecycle/population.js
++++ systems/runtime/daemon/lifecycle/population.js
+@@ modes()
+       const mode = new Mode(citizen);
+-      mode.mount = daemonDie.good.mount
+-        .clone()
+-        .branch(`/mode/${mode.manifest.type}/${mode.manifest.slug}`);
+-      mode.url = daemonDie.good.url.branch(mode.mount.nature);
+--- systems/runtime/lifecycle/resolve.js
++++ systems/runtime/lifecycle/resolve.js
+@@ -23,4 +23,2 @@
+-        const bundler = paladin.bundler(
+-          `${daemonDie.good.mountpoint.absolute}/bundles/${mode.manifest.type}/${mode.manifest.slug}`,
+-        );
++        const bundler = paladin.bundler(mode.bundles.absolute);
+--- systems/runtime/daemon/traits/application.js
++++ systems/runtime/daemon/traits/application.js
+@@ -24,4 +24,2 @@
+-      const store =
+-        `${daemon.mountpoint.absolute}/bundles/${mode.manifest.type}/${mode.manifest.slug}`;
+-      mode.application.view = await paladin.bundler(store).bundle(
++      mode.application.view = await paladin.bundler(mode.bundles.absolute).bundle(
+--- systems/runtime/daemon/traits/generative.js
++++ systems/runtime/daemon/traits/generative.js
+@@ -7,4 +7,2 @@
+-  const bundler = paladin.bundler(
+-    `${daemon.mountpoint.absolute}/bundles/${mode.manifest.type}/${mode.manifest.slug}`,
+-  );
++  const bundler = paladin.bundler(mode.bundles.absolute);
+#+END_SRC
+
+=latch= stays (=runtime.statics.remote.clone()=): the runtime's own address, for its own use. =Path= leaves =populate.js='s import. =mode.mount= and =mode.url= arrive on the citizen as decoded =Path= / =Url= — =mode.mount.nature= and =.absolute= readers (=resolution.js:76 · metadata.js:25,36 · resolve.js:30=) are unchanged.
+
+Tests — =settle.test.js= +2 (after the seat cases):
+
+#+BEGIN_SRC js
+  it("a daemon is addressed from its slug and the runtime's reach; its entries under it, typed from the reference", async () => {
+    const instance = await mount(
+      (paladin) => ({
+        runtime: { ...runtime(paladin), statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE"), remote: () => paladin.env.get("VIVA_PROBE_REMOTE") } },
+        lighthouse: lighthouse(paladin), datamap: libsql, environment,
+        daemons: [daemon({ kernel: ["@vcompany/domain/voffice"] })],
+      }),
+      SET,
+    );
+    const [held] = instance.daemons;
+    expect(held.mount.absolute).toBe("/daemon/probe");
+    expect(held.url.absolute).toBe("http://localhost:2501/lighthouse/daemon/probe");
+    expect(held.attach.absolute).toBe("http://localhost:2501/lighthouse/attached");
+    const [entry] = held.kernel;
+    expect(entry.mount.absolute).toBe("/daemon/probe/mode/domain/voffice");
+    expect(entry.url.absolute).toBe("http://localhost:2501/lighthouse/daemon/probe/mode/domain/voffice");
+    expect(entry.bundles.absolute).toBe("/mountpoint/daemon_probe/bundles/domain/voffice");
+    expect(instance.faults).toEqual([]);
+  });
+
+  it("no remote → no url, no attach; the mount still seats; an entry's declared mount wins; a path entry without a type carries only its mountpoint", async () => {
+    const instance = await mount(
+      (paladin) => ({
+        runtime: runtime(paladin), lighthouse: lighthouse(paladin), datamap: libsql, environment,
+        daemons: [daemon({ kernel: [{ module: "@vcompany/domain/voffice", mount: "/elsewhere" }, "/abs/loose.viva.js"] })],
+      }),
+      SET,
+    );
+    const [held] = instance.daemons;
+    expect(held.mount.absolute).toBe("/daemon/probe");
+    expect(held.url).toBeUndefined();
+    expect(held.kernel[0].mount.absolute).toBe("/elsewhere");
+    expect(held.kernel[0].url).toBeUndefined();
+    expect(held.kernel[1].mountpoint.absolute).toBe("/mountpoint/daemon_probe/mode_loose");
+    expect(held.kernel[1].mount).toBeUndefined();
+  });
+#+END_SRC
+
+=registry.wire.test.js= +1 — the bare-path case in the =wire= describe (tangled above under M2).
+
+=instance.snapshot.test.js= regenerates: each daemon gains =mount · url · attach=, each typed entry =mount · url · bundles=; hello-world's =mode.viva.js= entry (a path, no type) gains nothing — say so in the changelog.
+
+The fork 11 block — the computed attachment (beef: /"no dedicated lighthouse servee. computed attachment path."/):
+
+#+BEGIN_SRC diff
+--- subsystems/typology/schematics/primitives/instance.js   (HOLY — two lines)
+@@ export const Service = v.object(
+-    statics: Statics({ serve: Url().optional() }).default({}),
++    statics: Statics().default({}),
++    mount: Path().desc('Where the runtime attaches the service: /attached/process/service/<type>/<slug>, the folded manifest after the static segment. Example: "/attached/process/service/lighthouse/multiplayer"').optional(),
+--- subsystems/paladin/lifecycle/resolve.js
+@@ export function mountpoints(instance) {   (after `address`)
++  // a service attaches under the runtime at a computed path — nothing declares it
++  const attach = (service) => { service.mount ??= `/attached/process/service/${service.manifest.type}/${service.manifest.slug}`; };
++  // the daemons' lighthouse: its declared remote, else this runtime's reach + the seat of the service hosting the same module
++  const hosted = instance.services.find((service) => service.module === instance.lighthouse?.module);
++  instance.services.forEach(attach);
++  if (instance.lighthouse && reach && hosted) instance.lighthouse.statics.remote ??= reach.branch(hosted.mount).absolute;
+--- commons/ledger/ledger.viva.js   (same three lines in commons/instances/{playground,hello-world}/instance.viva.js)
+@@ export const services = [
+-    manifest: { type: "service", slug: "multiplayer" },
++    manifest: { type: "lighthouse", slug: "multiplayer" },
+-    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+@@ export const environment = v.environment({
+-  VIVA_LIGHTHOUSE_SERVE: v.url().desc("Where the hosted lighthouse attaches inside the runtime's own path tree.").default("${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer").group("addresses"),
+-  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
++  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED. Set it for a lighthouse on another host; unset, paladin computes this runtime's reach + the hosting service's seat.").group("addresses").optional(),
+--- systems/runtime/lifecycle/resolve.js
+@@ attachProcesses
+-        .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
++        .branch(processDie.mask.mount.absolute)
+@@ root.open("/services"
+-      mount: `/attached/process/${processDie.type}/${processDie.slug}`,
+-      metadata: `/attached/process/${processDie.type}/${processDie.slug}/metadata`,
++      mount: processDie.mask.mount.absolute,
++      metadata: `${processDie.mask.mount.absolute}/metadata`,
+--- systems/runtime/process/die.js
+-  // the module's: the seat /attached/process/<type>/<slug> is minted from it, and every recipe's
+-  // VIVA_LIGHTHOUSE_SERVE names lighthouse/multiplayer — the declared manifest waits on the seat moving upstream
+-  get manifest() { return this.module.manifest; }
++  // the declared one: the seat is read off the mask, never minted from this
++  get manifest() { return this.mask.manifest; }
+#+END_SRC
+
+=settle.test.js= +1 — a service gains =mount= =/attached/process/<type>/<slug>=; a lighthouse whose remote is unset reads =<runtime remote>/attached/process/<type>/<slug>= of the hosting service; a declared remote stays. Existing =.env= files carry =VIVA_LIGHTHOUSE_SERVE= and =PUBLIC_VIVA_LIGHTHOUSE_REMOTE="${VIVA_LIGHTHOUSE_SERVE}"= (droneaid =.env:9,15=; the ledger =.env:18,24=) — a PINNED remote wins, so those two lines must go from every local =.env= or the old address is announced again: the =* release= migrate line.
+
+Gate: =settle.test.js= +3 · =registry.wire.test.js= 8 steps · snapshot regenerated and read · runtime 63/417 · =grep -rn "/bundles/\|/daemon/\${" systems/runtime --include=*.js | grep -v tests= → 0.
+
+
+** M3 — services wired
+
+The runtime reads =instance.services[i]=, asks the registry for its citizen ONCE (a lookup, after supply — the runtime's moment), spawns the ATTACHED ones and names the rest.
+
+#+BEGIN_SRC diff
+--- systems/runtime/lifecycle/populate.js
++++ systems/runtime/lifecycle/populate.js
+@@ -39,12 +39,20 @@
+ export async function processes(runtimeDie) {
+-  for (const mask of paladin.instance.services) {
+-    const module = await paladin.vip.accio(mask.module);
+-    // if module.implements(trait) TODO
+-    if (module.manifest?.traits?.includes("ATTACHED") && module.aperture) {
+-      const aperture = new Aperture();
+-      const good = (await module.aperture(aperture, mask)) || aperture;
+-      const processDie = new ProcessDie({ mask, module, good, register: module });
+-      runtimeDie.good.processes.push(processDie);
+-    }
++  for (const service of paladin.instance.services) {
++    const citizen = await paladin.ledger.registry.accio(service);
++    // a service without ATTACHED is consumed by daemons, never spawned — a row, not a silence
++    if (!citizen.manifest.traits.includes("ATTACHED")) {
++      paladin.instance.dormant.push({ at: `service[${citizen.manifest.slug}]`, module: citizen.reference, empty: [], why: "not ATTACHED — consumed only" });
++      continue;
++    }
++    const aperture = new Aperture();
++    const good = (await citizen.aperture(aperture, citizen)) || aperture;
++    runtimeDie.good.processes.push(new ProcessDie({ mask: citizen, module: citizen.module, good, register: citizen.module }));
+   }
+ }
+--- systems/runtime/process/die.js
++++ systems/runtime/process/die.js
+@@ -4,9 +4,6 @@
+ export class Die extends Wafer {
+   constructor(die) {
+     super(die);
+   }
+-  get manifest() {
+-    return this.module.manifest;
+-  }
+
+   async integrate() {
+#+END_SRC
+
+=Wafer.manifest= is =this.mask.manifest= — the folded one, the mask's =slug= over the module's =traits=. =Service.manifest= is required by typology, so the citizen's manifest always carries the declared identity. =ATTACHED= is in =TRAITS= (M6): a service that declares it without an =aperture= is a registry fault and =accio= throws — the runtime tests the trait and nothing else.
+
+The doctor already prints =instance.dormant=; the =why= key is new and the row voice gains it:
+
+#+BEGIN_SRC diff
+--- systems/ghost/trajectories/instance/doctor.js
++++ systems/ghost/trajectories/instance/doctor.js
+@@
+     dormant: Object.fromEntries(
+-      paladin.instance.dormant.map(({ at, module, empty }) => [at, `${module ?? "nothing declared"}${empty.length ? ` — empty ${empty.join(", ")}` : ""}`]),
++      paladin.instance.dormant.map(({ at, module, empty, why }) => [
++        at,
++        `${module ?? "nothing declared"}${empty.length ? ` — empty ${empty.join(", ")}` : ""}${why ? ` — ${why}` : ""}`,
++      ]),
+     ),
+#+END_SRC
+
+The doctor mounts without supply, so the non-ATTACHED row appears at RUNTIME boot, not in the doctor — the doctor cannot know a module's traits without the pensieve. The row is in the runtime's log and =/metadata/instance=.
+
+Gate: =registry.wire.test.js= 10 steps · runtime =repository.populate.test.js= + scenarios green · =instance.snapshot.test.js= unchanged (hello-world's multiplayer is ATTACHED).
+
+** M4 — the checks fall to settle; the manifest default dies
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/lifecycle/integrate.js
++++ subsystems/paladin/lifecycle/integrate.js
+@@ -100,6 +100,20 @@
+   Instance.cast(instance);
+   const faults = Instance.faults(instance).map(({ at, reason }) => `${label(instance, at)} ${reason}`);
++  // required BECAUSE daemons are declared — the schematic cannot say it; a blank read is the env row's, not this
++  if (instance.daemons.length && instance.runtime && !("remote" in instance.runtime.statics))
++    faults.push(`runtime.statics.remote required — ${instance.daemons.length} daemons announce under it`);
+   const echoed = (sentence) => {
+#+END_SRC
+
+#+BEGIN_SRC diff
+--- systems/runtime/lifecycle/populate.js
++++ systems/runtime/lifecycle/populate.js
+@@ -20,7 +20,4 @@
+ export async function daemons(runtimeDie) {
+-  if (paladin.instance.daemons.length && !runtimeDie.good.latch)
+-    throw new Error("runtime.statics.remote REQUIRED — daemons need a reach url to announce");
+-
+   for (const mask of paladin.instance.daemons) {
+--- systems/runtime/lifecycle/integrate.js
++++ systems/runtime/lifecycle/integrate.js
+@@ -22 +22 @@
+-      console.log(`$[runtime:${paladin.instance.runtime?.manifest.slug}]`, die.status);
++      console.log(`$[runtime:${paladin.instance.runtime.manifest.slug}]`, die.status);
+@@ -27,9 +27,5 @@
+ export async function launch(runtimeDie) {
+-  const url = paladin.instance.runtime?.statics?.serve;
+-  if (!url) {
+-    console.warn("No runtime serve URL configured");
+-    return;
+-  }
++  const url = paladin.instance.runtime.statics.serve;
+
+   console.log(`launching on ${url.absolute}`);
+--- systems/runtime/die.js
++++ systems/runtime/die.js
+@@ -6,3 +6,3 @@
+   get manifest() {
+-    return paladin.instance.runtime?.manifest ?? { slug: "runtime" };
++    return paladin.instance.runtime.manifest;
+   }
+--- systems/runtime/daemon/traits/generative.js
++++ systems/runtime/daemon/traits/generative.js
+@@ -4,6 +4,3 @@
+ export const GENERATIVE = async (mode, daemon) => {
+-  if (!daemon.mountpoint) {
+-    throw new Error("GENERATIVE: daemon carries no mountpoint");
+-  }
+   const bundler = paladin.bundler(
+--- systems/runtime/daemon/traits/index.js
++++ systems/runtime/daemon/traits/index.js
+@@ -80,8 +80,2 @@
+-export const MOUNTED = (mode, daemon) => {
+-  if (!mode.mountpoint) {
+-    throw new Error(
+-      `[MOUNTED] ${mode.manifest.type}/${mode.manifest.slug} serves its mountpoint, but its kernel entry names none`,
+-    );
+-  }
+-  return carry(mode, daemon, mode.mountpoint.absolute);
+-};
++export const MOUNTED = (mode, daemon) => carry(mode, daemon, mode.mountpoint.absolute);
+#+END_SRC
+
+=die.js:78-102=, the commented-out =vip.mount= block, goes with the name. =run.js= keeps =paladin.check.instance(paladin.instance).throw()=; the runtime's own door follows it (M4b).
+
+Appended to =subsystems/paladin/tests/settle.test.js= (inside the describe, after the =runtime.statics.remote is a Url= case):
+
+#+BEGIN_SRC js
+  it("daemons without runtime.statics.remote is a fault; a blank remote is the env row's, said once", async () => {
+    const undeclared = await mount(
+      (paladin) => ({ runtime: runtime(paladin), lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], environment }),
+      SET,
+    );
+    expect(undeclared.faults).toEqual(["runtime.statics.remote required — 1 daemons announce under it"]);
+    const blank = await mount(
+      (paladin) => ({
+        runtime: { ...runtime(paladin), statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE"), remote: () => paladin.env.get("VIVA_PROBE_REMOTE") } },
+        lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], environment,
+      }),
+      { VIVA_PROBE_SERVE: SET.VIVA_PROBE_SERVE },
+    );
+    expect(blank.faults.some((sentence) => sentence.startsWith("runtime.statics.remote required"))).toBe(false);
+    expect(sentences(blank)).toContain("VIVA_PROBE_REMOTE REQUIRED at runtime.statics.remote");
+  });
+#+END_SRC
+
+Every settle case that declares =daemons= with a =runtime= lacking =remote= reds by design on the new row — grep =daemons: [= in the file; cases without a =runtime= at all stay green (the slot is optional in). Add =remote= where a runtime and daemons meet.
+
+Gate: =settle.test.js= +1 (the remote case; the runtime case moves to M4b) · runtime 63/417 · =grep -rn "REQUIRED —\|No runtime serve URL\|carries no mountpoint\|names none" systems/runtime/lifecycle systems/runtime/daemon/traits= → 0.
+
+** M4b — the out-schematic: optional in, required out (fork 3, RULED)
+
+beef: /"runtime optional on instance at the beginning of paladin. but required at input to runtime."/ and, on a =Served= export in typology: /"no. bad naming. … move it into the runtime/typology/schematics."/ So: typology's =Instance= stays the IN shape; the runtime owns the OUT shape it consumes, in its own schematics, under the same name — the runtime's =Instance= IS what the runtime means by an instance.
+
+#+BEGIN_SRC js :tangle ../../systems/runtime/typology/schematics/instance.js :mkdirp yes
+import { v } from "@vivalence/typology";
+
+// what the runtime consumes: paladin's Instance, judged by paladin at settle (Path() and Url() are codecs — a settled
+// instance is DECODED, and a schematic judges the wire form), plus the one slot paladin leaves optional: runtime.
+export const Instance = v.object({ runtime: v.object({}, { additionalProperties: true }) }, { additionalProperties: true });
+#+END_SRC
+
+#+BEGIN_SRC js :tangle ../../systems/runtime/typology/index.js :mkdirp yes
+export * as schematics from "./schematics/instance.js";
+#+END_SRC
+
+#+BEGIN_SRC diff
+--- systems/runtime/run.js
++++ systems/runtime/run.js
+@@ -1,2 +1,3 @@
+ import paladin, { lifecycle } from "@vivalence/paladin";
+ import { Die, Runtime } from "@vivalence/runtime";
++import { schematics } from "./typology/index.js";
+@@ -6,3 +7,6 @@
+   await lifecycle.mount(paladin.instance);
+   paladin.check.instance(paladin.instance).throw();
++  // the runtime's door: what paladin may leave optional, the runtime requires
++  const faults = schematics.Instance.faults(paladin.instance);
++  if (faults.length) throw new Error(`runtime: ${faults.map((fault) => `${fault.at} ${fault.reason}`).join(" · ")}`);
+   const die = new Die({ good: new Runtime() });
+#+END_SRC
+
+M4's =conditional= loses its first row (=runtime required — …=); the =remote=-when-daemons row stays, =settle= is the only place that can say "required BECAUSE". M4's first appended settle case dies with the row; the runtime gains its own:
+
+#+BEGIN_SRC js :tangle ../../systems/runtime/tests/door.test.js :mkdirp yes
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import { schematics } from "../typology/index.js";
+
+describe("the runtime's door — optional for paladin, required here", () => {
+  const sentences = (held) => schematics.Instance.faults(held).map(({ at, reason }) => `${at} ${reason}`);
+
+  it("an instance without a runtime is refused at the door, by the slot", () => {
+    expect(sentences({ manifest: { type: "instance", slug: "x", version: "0.0.1" }, environment: {} })).toEqual(["/ must have required properties runtime"]);
+  });
+  it("an instance with one passes, whatever else it lacks — paladin judged the rest", () => {
+    expect(sentences({ manifest: { type: "instance", slug: "x", version: "0.0.1" }, environment: {}, runtime: { manifest: { slug: "runtime" } } })).toEqual([]);
+  });
+});
+#+END_SRC
+
+=v.faults= spells a missing required property at its PARENT — =/ must have required properties runtime= — and =faults= fills no default, so the test hands the door a settled instance (list slots =[]=) the way paladin does. Found live (beef's watch on droneaid): settle DECODES when it has no faults, =Path()= and =Url()= are codecs, and a schematic judges the WIRE form — the door read =/runtime/statics/serve must be string= on a =Url=. Encoding it back is not open either: the =Path= codec's encode (=schematics/prototypes/signatures.js:19=) does =signature.absolute.join("/")= on a string — nobody had ever encoded a decoded Path (known issue, HOLY). So the door cannot re-spell paladin's leaves: paladin judged them at settle and =check.throw()= runs first; the door's =Instance= is =runtime= present, the rest =additionalProperties=. The sentence is the same.
+
+Gate: =systems/runtime/tests/door.test.js= 2 steps · =settle.test.js= the remote case only · runtime 63/417 + 2.
+
+
+** M5 — the runtime pass + the live boot — LANDED on droneaid
+
+No hunks. =deno test systems/runtime= pasted; =deno task runtime/watch= on beef's ledger; =viva instance/doctor chess= pasted; anima reaches the daemon; =/daemon/droneaid/status= answers (=/scan= was a name of mine — no such door exists; beef: /"what scan?"/). Codemaps =paladin.md= (the registry organ, the fold, =wire=) and =runtime.md= (the executive runtime: what it no longer does).
+
+** M6 — integrity: the fold over pairs
+
+beef on the first cut: /"tooling is not implied by domain. entities are."/ · /"not true. actually cut out all the logic rules. for now just check that traits travel with their prototypes (and v.schema validate where applicative! - which should take care of validating a domain has entities.)"/ — so no implications, no prohibitions, no notes. Two kinds of rule only: a TYPE validates against its schematic; a TRAIT names the export it travels with. The pair shape and the fold stay.
+
+The trait → prototype table lives in PALADIN for now (beef: /"no. keep it in the paladin for now."/) — =integrity.js= owns it; typology is untouched by this milestone. Its keys are the traits paladin knows; the runtime's implementations stay the runtime's. The values came from a grep of what each trait reads off =mode.module= (=traits/*.js=). Moving it beside =Manifest= (and =manifest.traits= to an enum over its keys) is the day typology wants it — fork 5, later.
+
+One consequence: =Domain.entities= keeps its ={}= default in typology, so "a domain has entities" does NOT fault yet — the schematic rule runs, =Domain.faults= says nothing about an absent =entities=. Named in deferred; the rule is in place, the sentence arrives with the typology line.
+
+NEW =subsystems/paladin/prototypes/ledger/integrity.js=:
+
+#+BEGIN_SRC js :tangle ../../subsystems/paladin/prototypes/ledger/integrity.js :mkdirp yes
+import { v } from "@vivalence/typology";
+
+// a rule is [applies(module), apply(module, span) → module]: a fault goes to the span and the fold goes on,
+// a throw stops the mount of that file. two kinds: a type validates against its schematic, a trait names
+// the export it travels with (null: a marker, nothing to carry).
+export const TRAITS = {
+  EXPOSED: "aperture",
+  ATTACHED: "aperture",
+  BOOTED: "boot",
+  DATASET: "dataset",
+  INTENTED: "dataset",
+  DATASINK: "datasink",
+  EMITTER: "emitter",
+  APPLICATION: "application",
+  TOOLING: "tools",
+  FRAUGHT: "freight",
+  HARNESSED: null,
+  GENERATIVE: null,
+  MOUNTED: null,
+  AGENTIC: null,
+  SELFEVIDENT: null,
+  CONVERSATIONAL: null,
+  STANDALONE: null,
+};
+
+const SCHEMATICS = { domain: v.primitives.kernel.Domain };
+
+const traits = (module) => module.manifest.traits ?? [];
+// a copy is filled first — the schematic's defaults are not the module's fault (settle judges the same way)
+const validate = (schematic, pick = (module) => module) => (module, span) => {
+  for (const { at, reason } of schematic.faults(schematic.fill({ ...pick(module) }))) span.fault(new Error(`${at} ${reason}`));
+  return module;
+};
+const fault = (sentence) => (module, span) => (span.fault(new Error(sentence(module))), module);
+
+export const RULES = [
+  [(module) => !module.manifest?.slug, () => { throw new Error("no manifest.slug — unfit to register"); }],
+  [() => true, validate(v.primitives.Manifest, (module) => module.manifest)],
+  ...Object.entries(SCHEMATICS).map(([type, schematic]) => [(module) => module.manifest.type === type, validate(schematic)]),
+  ...Object.entries(TRAITS)
+    .filter(([, prototype]) => prototype)
+    .map(([name, prototype]) => [(module) => traits(module).includes(name) && module[prototype] === undefined, fault(() => `${name}: no ${prototype} export`)]),
+];
+
+export const probe = (rules) => (module, span) =>
+  rules.reduce((held, [applies, apply]) => (applies(held) ? apply(held, span) : held), module);
+#+END_SRC
+
+The registry side — one map, one gate:
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/ledger/registry.js
++++ subsystems/paladin/prototypes/ledger/registry.js
+@@ -1,5 +1,6 @@
+ import { dirname, isAbsolute, relative } from "@std/path";
+-import { cast, is, Path, Url, v } from "@vivalence/typology";
++import { cast, is, Path, Span, Url, v } from "@vivalence/typology";
+ import { Pensieve } from "../pensieve.js";
++import { probe, RULES } from "./integrity.js";
+@@
+   constructor(paladin, path) {
+     this.paladin = paladin;
+     this.path = path;
+     this.pensieve = new Pensieve();
+     this.stale = [];
++    // the span is the only log; its pipe fills the index the doctor and assert() read — what is wrong under a
++    // path, said once however often it is probed (the journal is capped, the map is not)
++    this.span = new Span({ nature: "/registry" });
++    this.integrity = new Map();
++    this.span.to((record) => record.verb === "fault" && (this.integrity.get(record.path) ?? this.integrity.set(record.path, new Set()).get(record.path)).add(record.data.message));
+   }
+@@
+   async mount(root) {
+     const paths = await this.paladin.find.viva(root);
+     const modules = [];
+     for (const path of paths) {
+-      const module = await this.paladin.read.viva(path);
+-      modules.push({ ...module, mount: new Path(path) });
++      const span = this.span.branch(path);
++      try {
++        modules.push(probe(RULES)({ ...(await this.paladin.read.viva(path)), mount: new Path(path) }, span));
++      } catch (error) {
++        span.fault(error); // unfit to register: the file's path carries it, the walk continues
++      }
+     }
+@@
+   async supply() {
+     this.pensieve = new Pensieve();
++    this.integrity.clear();
+@@
+   async lookup(query) {
+     const lookup = cast.lookup(query);
+     if (!this.pensieve.has(lookup.owner))
+       throw new Error(`[registry] package ${lookup.owner} not supplied on this system`);
+     const module = await this.pensieve.revelio(lookup);
+-    if (module) return module;
++    if (module) return this.assert(module.mount.absolute, module);
+     throw new Error(`[registry] Module 404: ${JSON.stringify({ lookup })}`);
+   }
++
++  // throws what the fold recorded under path; the consumer that names a faulted module pays, the registry never does
++  assert(path, module) {
++    const faults = this.integrity.get(`${this.span.absolute}${path}`);
++    if (faults) throw new Error(`[registry] ${path}: ${[...faults].join(" · ")}`);
++    return module;
++  }
+@@
+   async module(reference) {
+     if (!isAbsolute(reference)) return this.lookup(reference);
+-    return { ...(await this.paladin.read.viva(reference)), mount: new Path(reference) };
++    const module = probe(RULES)({ ...(await this.paladin.read.viva(reference)), mount: new Path(reference) }, this.span.branch(reference));
++    return this.assert(reference, module);
+   }
+@@
+   async accio(query) {
+     if (is.string(query)) return this.module(query);
+     if (!query.module) return { ...query, module: query, reference: null };
+     const module = await this.module(query.module);
+-    return {
++    const citizen = {
+       ...module,
+       ...query,
+       module,
+       reference: query.module,
+       manifest: v.primitives.Manifest.cast({ ...module.manifest, ...query.manifest }),
+       statics: { ...module.statics, ...query.statics },
+       secrets: query.secrets ?? {},
+       mountpoint: query.mountpoint ?? null,
+     };
++    // a mask can add traits or break the manifest: the folded citizen is probed on the entry's own branch
++    const entry = `${module.mount.absolute}/entry/${citizen.manifest.type}/${citizen.manifest.slug}`;
++    return this.assert(entry, probe(RULES)(citizen, this.span.branch(entry)));
+   }
+#+END_SRC
+
+=Span.absolute= joins the heritage's natures with =/= and squashes doubles, so a branch whose nature is an absolute path records at =/registry/Users/…/bare.viva.js= — =assert= reads =span.absolute + path=, the same key; a path is in the map only if something is wrong under it. The entry branch sits under the file's (=…/bare.viva.js/entry/domain/bare=): an entry's faults never count against the module, and a mount fault reaches every entry of that module through =lookup= first. A slugless file is a throw inside the try: the fault lands under its own path, the file never registers, the doctor names it beside the others.
+
+=Span= is exported from typology's =prototypes/index.client.js:30=, which the server barrel re-exports — =import { Span } from "@vivalence/typology"= resolves as =ledger/log.js= already relies on.
+
+Ghost, the doctor organ:
+
+#+BEGIN_SRC diff
+--- systems/ghost/trajectories/registry/index.js
++++ systems/ghost/trajectories/registry/index.js
+@@ -82,6 +82,12 @@
+     const report = {
+       record: { path: registry.path.absolute, tapped: references.length, stale: registry.stale, entries },
+       store: await store(paladin, entries.map((entry) => entry.root)),
++      // what the fold said at mount: one row per faulted path
++      integrity: [...registry.integrity].map(([path, faults]) => ({ path: path.replace(/^\/registry/, ""), faults: [...faults] })),
+       pensieve: {
+--- systems/ghost/trajectories/registry/Doctor.jsx
++++ systems/ghost/trajectories/registry/Doctor.jsx
+@@ -14 +14 @@
+-  const { record, store, pensieve, packages } = report;
++  const { record, store, pensieve, packages, integrity } = report;
+@@ -44,2 +44,17 @@
+         <Line name="pensieve" note={`${pensieve.modes} modes · ${pensieve.types} types · ${pensieve.owners} owners`} path="" />
++        <Line name="integrity" note={`${integrity.length} faulted`} path="" warn={integrity.length > 0} />
++        {integrity.map((row) => (
++          <Box key={row.path} flexDirection="column">
++            <Text color="red">{"  ✗ "}{tail(inside(row.path), width - 6)}</Text>
++            {row.faults.map((sentence) => <Text key={sentence} color="red">{"      "}{sentence}</Text>)}
++          </Box>
++        ))}
+       </Box>
+#+END_SRC
+
+The runtime warning that dies — one: BOOTED-without-boot (a trait rule now). The unknown-trait warn STAYS: the rule that would replace it was a third kind (a prohibition), and the tree declares 13 traits =TRAITS= does not know — fork 8. The two export-without-trait warnings in =resolution.js:44-49= STAY — they were notes, and notes are logic rules beef cut; the runtime keeps saying them until a rule is wanted.
+
+#+BEGIN_SRC diff
+--- systems/runtime/daemon/traits/booted.js
++++ systems/runtime/daemon/traits/booted.js
+@@ -5,8 +5,2 @@
+ export const BOOTED = (mode, daemon) => {
+-  if (!is.fn(mode.module.boot)) {
+-    console.warn(
+-      `[BOOTED] ${mode.manifest.type}/${mode.manifest.slug} declares BOOTED without a boot(daemon, mode) export`,
+-    );
+-    return;
+-  }
+   let teardown;
+#+END_SRC
+
+NEW =subsystems/paladin/tests/registry.integrity.test.js=:
+
+#+BEGIN_SRC js :tangle ../../subsystems/paladin/tests/registry.integrity.test.js :mkdirp yes
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import { Path, Span } from "@vivalence/typology";
+import { Paladin } from "../prototypes/paladin.js";
+import { probe, RULES } from "../prototypes/ledger/integrity.js";
+
+const span = () => new Span({ nature: "/probe" });
+const said = (held, verb) => held.records.filter((record) => record.verb === verb).map((record) => record.data?.message ?? record.data);
+
+describe("integrity — the fold over pairs", () => {
+  it("a domain validates against Domain; today its entities default, so a bare domain passes (the sentence arrives with typology's line)", () => {
+    const held = span();
+    const probed = probe(RULES)({ manifest: { type: "domain", slug: "bare", version: "0.0.1", traits: [] } }, held);
+    expect(probed.manifest.slug).toBe("bare");
+    expect(said(held, "fault")).toEqual([]);
+    const wrong = span();
+    probe(RULES)({ manifest: { type: "domain", slug: "bad", version: "0.0.1", traits: [] }, entities: "not a record" }, wrong);
+    expect(said(wrong, "fault").some((sentence) => sentence.startsWith("/entities "))).toBe(true);
+  });
+
+  it("a trait names the export it travels with — missing is a fault, present is silence", () => {
+    const held = span();
+    probe(RULES)({ manifest: { type: "game", slug: "g", version: "0.0.1", traits: ["EXPOSED", "BOOTED"] }, aperture: () => {} }, held);
+    expect(said(held, "fault")).toEqual(["BOOTED: no boot export"]);
+  });
+
+  it("a marker trait carries nothing and asks nothing", () => {
+    const held = span();
+    probe(RULES)({ manifest: { type: "game", slug: "g", version: "0.0.1", traits: ["STANDALONE", "CONVERSATIONAL"] } }, held);
+    expect(said(held, "fault")).toEqual([]);
+  });
+
+  it("a manifest the schematic refuses is a fault, not a throw — only a missing slug throws", () => {
+    const held = span();
+    probe(RULES)({ manifest: { type: 42, slug: "g", version: "0.0.1", traits: [] } }, held);
+    expect(said(held, "fault").some((sentence) => sentence.startsWith("/type "))).toBe(true);
+    expect(() => probe(RULES)({ manifest: { type: "game" } }, span())).toThrow("unfit to register");
+  });
+
+  it("order is authored order: a rule that rewrites the module is read by the rule after it", () => {
+    const held = span();
+    const rules = [
+      [() => true, (module, s) => (s.note("first"), { ...module, manifest: { ...module.manifest, traits: ["EXPOSED"] } })],
+      [(module) => module.manifest.traits.includes("EXPOSED"), (module, s) => (s.note("second"), module)],
+    ];
+    probe(rules)({ manifest: { type: "game", slug: "g", traits: [] } }, held);
+    expect(said(held, "note")).toEqual(["first", "second"]);
+  });
+});
+
+// the registry side: mount probes on the copy, a throw faults under the file's path and the walk continues,
+// every road out passes assert(), a mask-added trait throws on the entry and leaves the module resolvable.
+const author = async (dir, files) => {
+  await Deno.mkdir(dir, { recursive: true });
+  for (const [name, text] of Object.entries(files)) await Deno.writeTextFile(`${dir}/${name}`, text);
+};
+
+const boot = (store) => {
+  const paladin = new Paladin();
+  paladin.scopes([
+    ["ledger", () => true, () => new Path(store)],
+    ["registry", () => true, () => new Path(store)],
+  ]);
+  return paladin.ledger.registry;
+};
+
+const PACK = `export const manifest = { owner: "@pack", type: "package", slug: "pack", version: "0.0.1" };`;
+
+describe("registry — integrity at mount and at accio", () => {
+  it("mount: a faulted module registers and is listed; a slugless file faults under its own path; siblings register", async () => {
+    const store = await Deno.makeTempDir({ prefix: "integrity_" });
+    await author(`${store}/pack`, {
+      "pack.viva.js": PACK,
+      "bare.viva.js": `export const manifest = { type: "domain", slug: "bare", version: "0.0.1", traits: ["EXPOSED"] };`,
+      "fine.viva.js": `export const manifest = { type: "game", slug: "fine", version: "0.0.1", traits: ["EXPOSED"] }; export const aperture = () => {};`,
+      "nameless.viva.js": `export const manifest = { type: "game", version: "0.0.1" };`,
+    });
+    const registry = boot(store);
+    await registry.mount(new Path(`${store}/pack`));
+    expect((await registry.list({ type: "game" })).map((module) => module.manifest.slug)).toEqual(["fine"]);
+    expect((await registry.list({ type: "domain" })).map((module) => module.manifest.slug)).toEqual(["bare"]);
+    const faulted = [...registry.integrity.keys()];
+    expect(faulted.some((path) => path.endsWith("/bare.viva.js"))).toBe(true);
+    expect(faulted.some((path) => path.endsWith("/nameless.viva.js"))).toBe(true);
+  });
+
+  it("accio of a faulted module throws its sentences; a clean sibling resolves", async () => {
+    const store = await Deno.makeTempDir({ prefix: "integrity_" });
+    await author(`${store}/pack`, {
+      "pack.viva.js": PACK,
+      "bare.viva.js": `export const manifest = { type: "domain", slug: "bare", version: "0.0.1", traits: ["EXPOSED"] };`,
+      "fine.viva.js": `export const manifest = { type: "game", slug: "fine", version: "0.0.1" };`,
+    });
+    const registry = boot(store);
+    await registry.mount(new Path(`${store}/pack`));
+    await expect(registry.accio({ module: "@pack/domain/bare" })).rejects.toThrow("/bare.viva.js: EXPOSED: no aperture export");
+    await expect(registry.accio("@pack/domain/bare")).rejects.toThrow("EXPOSED: no aperture export");
+    expect((await registry.accio("@pack/game/fine")).manifest.slug).toBe("fine");
+  });
+
+  it("a trait the MASK adds throws on the entry — the module itself still resolves", async () => {
+    const store = await Deno.makeTempDir({ prefix: "integrity_" });
+    await author(`${store}/pack`, {
+      "pack.viva.js": PACK,
+      "fine.viva.js": `export const manifest = { type: "game", slug: "fine", version: "0.0.1" };`,
+    });
+    const registry = boot(store);
+    await registry.mount(new Path(`${store}/pack`));
+    await expect(registry.accio({ module: "@pack/game/fine", manifest: { traits: ["BOOTED"] } })).rejects.toThrow("/entry/game/fine: BOOTED: no boot export");
+    expect((await registry.accio("@pack/game/fine")).manifest.slug).toBe("fine");
+  });
+
+  it("the index outlives the journal cap: 1 200 modules, one fault each, every one in the map", async () => {
+    const store = await Deno.makeTempDir({ prefix: "integrity_" });
+    const files = { "pack.viva.js": PACK };
+    for (let i = 0; i < 1200; i++) files[`m${i}.viva.js`] = `export const manifest = { type: "game", slug: "m${i}", version: "0.0.1", traits: ["EXPOSED"] };`;
+    await author(`${store}/pack`, files);
+    const registry = boot(store);
+    await registry.mount(new Path(`${store}/pack`));
+    expect(registry.integrity.size).toBe(1200);
+    expect(registry.span.records.length).toBeLessThan(registry.integrity.size);
+  });
+});
+#+END_SRC
+
+Ghost =tests/registry.test.js= +1, after the doctor census case:
+
+#+BEGIN_SRC js
+  it("doctor: integrity lists a faulted module with the schematic's sentence", async () => {
+    await Deno.writeTextFile(`${store}/alpha/bare.viva.js`, `export const manifest = { type: "game", slug: "bare", version: "0.0.1", traits: ["BOOTED"] };`);
+    const effect = await drive(["registry/doctor"]);
+    const row = effect.integrity.find((held) => held.path.endsWith("/alpha/bare.viva.js"));
+    expect(row.faults).toEqual(["BOOTED: no boot export"]);
+    await Deno.remove(`${store}/alpha/bare.viva.js`);
+  });
+#+END_SRC
+
+Why =supply()= resets: the registry is HELD, so a second =registry/doctor= in one process re-supplies; a fresh =Pensieve= and a cleared map at the top keep one truth per supply.
+
+Gate: =registry.integrity.test.js= 9 steps · ghost =registry.test.js= +1 · typology untouched · runtime green with one warning gone · =grep -rn "declares BOOTED" systems/runtime= → 0. Landed: 9 · 29 · 64/418 · 0.
+
+** M7 — after the walk: source · identifier · the open set · the ledger's default
+
+(a) =source= — the file a module was read from. beef: /"source for the file (option 1)"/.
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/ledger/registry.js
+@@ async mount(root) {
+-      const mount = new Path(path);
+-      const span = this.span.branch(mount.absolute);
++      const source = new Path(path);
++      const span = this.span.branch(source.absolute);
+       try {
+-        modules.push(probe(RULES)({ ...(await this.paladin.read.viva(path)), mount }, span));
++        modules.push(probe(RULES)({ ...(await this.paladin.read.viva(path)), source }, span));
+@@ lookup
+-    return this.assert(module.mount.absolute, module);
++    return this.assert(module.source.absolute, module);
+@@ async module(identifier) {
+-    const module = probe(RULES)({ ...(await this.paladin.read.viva(reference)), mount: new Path(reference) }, this.span.branch(reference));
++    const module = probe(RULES)({ ...(await this.paladin.read.viva(identifier)), source: new Path(identifier) }, this.span.branch(identifier));
+@@ accio
+-    const entry = `${module.mount.absolute}/entry/${citizen.manifest.type}/${citizen.manifest.slug}`;
++    const entry = `${module.source.absolute}/entry/${citizen.manifest.type}/${citizen.manifest.slug}`;
+--- systems/runtime/daemon/traits/dataset.js   (the same one-word change at the other eight)
+-  const at = `${mode.module.mount.dirname}/${source.walk ?? source.read}`;
++  const at = `${mode.module.source.dirname}/${source.walk ?? source.read}`;
+#+END_SRC
+
+The other readers, one word each: =systems/runtime/daemon/traits/index.js:75= · =application.js:9= · =datasink.js:64= · =dataset.js:35= · =skills/mode.js:7= · =systems/ghost/trajectories/instance/create.js:26= (=module.mount.absolute=) · =registry/bootstrap.js:38= · test stubs =registry.wire.test.js= + =kernel.test.js= (=mount: new Path("/pensieve/vdex.viva.js")= → =source=) · =registry.mount.test.js= asserts =source=. After this, =.mount= on a citizen is the seat and nothing else.
+
+(b) =identifier= — beef: /"take a look at renaming the registry/pensieve/vip 'reference' to 'identifier'. ie when we have @owner/type/slug thats an identifier now. this frees up the term reference. maybe we use that in the future. not today."/ The survey (46 files hold the word; two senses inside the registry, five outside it):
+
+| today | what it names | after | where |
+| =module(reference)= · =citizen.reference= · the accio comment · =resolve.js:40= comment | =@owner/type/slug= — the pensieve's key | =module(identifier)= · =citizen.identifier= | =registry.js:191-211= · =lifecycle/resolve.js:40= · =populate.js:41= (runtime dormant row) · tests =registry.wire.test.js:24-63= · =kernel.test.js:62-120= |
+| =references()= · =add(reference)= · =remove= · =has= · =resolve(reference)= · =reference(absolute)= · =normalize= · =tap= returns one · =paladin.js:11= "bare references" | an entry of =registry.json= — a package referred to by unique name or unique path: =commons=, =~/.viva/registry/chess= | STAYS =reference= (fork 13 RULED: /"we refere to something. by unique name or unique path. reference"/) | =registry.js:8-96,142-168= · ghost =registry/index.js= (27 lines: rows, =tapped(reference)=, =registry/untap <reference>=) · =ledger/index.js:165-172= · =commons/instances/hello-world/tools/doctor.js= · tests =registry.test.js= · =registry.tap.test.js= · ghost =registry.test.js= · =ledger.test.js= |
+| ghost rows' =identifier= (=registry/index.js:23=, the package's modules space-joined) | already the word | stays | — |
+| =Manifest.identifier= getter (=prototypes/manifest.js:6=) = =@owner/type/slug=, zero callers | already the word, already the shape (owner carries its =@=) | stays — the one getter that spells it | — |
+| =mask.module= (typology =Mode.module: v.string()=) | the identifier as AUTHORED in a recipe | stays — HOLY, /"not today"/ | — |
+| KEEP — =ledger.instances.resolve(reference)= (an instance: slug or path) · =paladin.source(reference)= · ghost =lens.reference(row)= + =pick= (a lens's address function; yields =owner/type/slug= for modes, =slug= for instances) · typology =entity-manager.identity/resolve(name, reference)= · =env.js= =${}= reference · =auth.js= "identity reference" | other senses, other organs | untouched | — |
+
+One milestone, flag-day, no alias: =registry.js:191-211= · =resolve.js:40= · =populate.js:41= · the two test files, then the grep in the gate (=citizen.reference= → 0; the record's =reference= lines stay).
+
+(c) the open set — beef: /"there will always be unknown mode traits and types. thats by design. must be an open set. assume the existance of more."/
+
+#+BEGIN_SRC diff
+--- systems/runtime/daemon/traits/index.js
+@@ export async function stagger(mode, daemon, traits) {
+   for (const trait of mode.manifest.traits) {
+-    // a declared trait nothing implements is a wiring bug, not a no-op — say so once.
+-    if (!traits[trait]) console.warn(`[trait] ${at} declares ${trait}, which nothing implements`);
+     const result = await traits[trait]?.(mode, daemon);
+#+END_SRC
+
+=TRAITS= in =integrity.js= stays what it is: the traits whose EXPORT paladin checks — a list of what travels with a prototype, never a list of what exists. =EXPOSED= without =aperture= (=traits/index.js:44=) is not this: paladin faults it at accio since M6, the runtime never sees one.
+
+(d) the ledger's default — beef: /"the ledger shuold DEFAULT a manifest. the actual file can overwrite it. it suspect thats cosmetic for now."/
+
+#+BEGIN_SRC diff
+--- subsystems/paladin/prototypes/ledger/ledger.js
++// the ledger's word by its place: type and slug from the file; the file's own manifest overwrites it
++export const derive = (module, source) => ({ type: "ledger", slug: source.filename.replace(/\.viva\.[jt]s$/, ""), ...(module.manifest ?? {}) });
+@@ async recipe() {
+-    const manifest = { type: "ledger", slug: source.filename.replace(/\.viva\.[jt]s$/, ""), ...(module.manifest ?? {}) };
++    const manifest = derive(module, source);
+--- subsystems/paladin/prototypes/ledger/registry.js
+-import { dirname, isAbsolute, relative } from "@std/path";
++import { basename, dirname, isAbsolute, relative } from "@std/path";
++import { derive } from "./ledger.js";
+@@ async mount(root) {
+       try {
+-        modules.push(probe(RULES)({ ...(await this.paladin.read.viva(path)), source }, span));
++        const module = await this.paladin.read.viva(path);
++        // a file under ledger/ is a ledger: its manifest defaults from its place, the file's word overwrites
++        const manifest = basename(dirname(path)) === "ledger" ? derive(module, source) : module.manifest;
++        modules.push(probe(RULES)({ ...module, manifest, source }, span));
+#+END_SRC
+
+=commons/ledger/ledger.viva.js= then registers as =@commons/ledger/ledger= (type =ledger=, in the pensieve like any module — /"registry is anarchy. whatever. we dont care."/); rule one keeps throwing for a manifest-less file anywhere else. =registry.integrity.test.js= +1: a manifest-less file under =<root>/ledger/= registers as =ledger/<name>=; one with =manifest = { slug: "x" }= keeps its word. =ledger.recipe.test.js= unchanged — =derive= is the same line it already tests.
+
+* testing assessment
+
+- *In place.* paladin: =tests/vip.tap.test.js= (19 sites — tap, untap, record) · =tests/registry.test.js= (reconcile) · =tests/ledger.test.js= (seed) · =tests/boot.test.js= (2 vip sites) · =tests/settle.test.js= · =tests/kernel.test.js= · =tests/instance.snapshot.test.js= (REAL =~/.viva=). runtime: =tests/registry.count.test.js= (pensieve leaves) · =tests/scenarios/registry.js · bench.js= (supply + accio) · =repository.populate.test.js= · daemon scenarios (build dies BY HAND — no =lifecycle.mount=, the pre-existing gap). ghost: =tests/registry.test.js · ledger.test.js=.
+- *COVERAGE GAP.* No test walks mask → module → =Mode= through =population.core/modes= against a registry; the double fold is guarded by nothing. No test asserts what =process/die.manifest= is. The seam paladin → runtime is the live boot only.
+- *Changes.* Every vip site renames (M1) — 6 test files. =kernel.test.js= (M2): the three =accioOne= sites read the citizen shape. =instance.snapshot.test.js= regenerates once (M2b, the seats); =dormant= stays as is (multiplayer is ATTACHED). =settle.test.js= +1 (M4) +2 (M2b).
+- *Adds.* =subsystems/paladin/tests/registry.wire.test.js= (M2 · M2b · M3) · =systems/runtime/tests/door.test.js= (M4b) · =subsystems/paladin/tests/registry.integrity.test.js= (M6).
+- *Journal cap.* =Span.CONFIG.journal = 1000= — the integrity index lives in the pipe sink, not the journal; a test mounts 1 200 fixture modules with one fault each and asserts the map is complete while the journal is not.
+
+| milestone | gate |
+| M1 | paladin 42/195 · ghost registry green, ledger 17/18 (pre-existing) · runtime registry.count RED until M6 (=commons/ledger/ledger.viva.js= registered under a blank type — fork 9) · vip grep = 0 — LANDED |
+| M2 | =registry.wire.test.js= 9 steps (M3's two service cases pass on accio alone; the bare-path case is M2b's) · runtime 62/416 + the census — LANDED |
+| M2b | =settle.test.js= +2 · =registry.wire.test.js= 8 steps · snapshot regenerated · runtime 63/417 · bundle-path grep = 0 |
+| M3 | =registry.wire.test.js= 9 (10 with M2b) · runtime =repository.populate= green · ghost =strata.wet= 12 green — LANDED |
+| M4 | =settle.test.js= +1 (a =reaching= helper; =ledger.recipe.test.js= runtimes gain =remote= too) · grep gate 0 — LANDED |
+| M4b | =systems/runtime/tests/door.test.js= 2 steps — LANDED |
+| M5 | droneaid on beef's watch: =launching on http://localhost:2501/= · =Status:ALIVE= · =$[runtime:runtime] Status:ALIVE= · =[multiplex] socket upgraded — 1 open=; =instance/doctor= =problems — · faults —= — LANDED; codemaps paladin.md · runtime.md rewritten |
+| M6 | =registry.integrity.test.js= 9 steps · ghost +1 (29) · typology untouched · runtime 64/418 · =declares BOOTED= grep 0 — LANDED; the real ledger faults 5 paths (fork 9 · fork 10) |
+
+* QA
+
+** testimony
+- I run =viva registry/list= and read the same table as before; nothing in ghost's voice changes, only the organ under it.
+- I declare a mode with =statics: { x: 1 }= in the kernel and the module declares =statics: { x: 0, y: 2 }=; =/metadata/statics= on the mode reads ={ x: 1, y: 2 }= — one rule, key-wise, mask wins.
+- I declare a service whose module has no ATTACHED trait; =viva instance/doctor= shows it under =dormant= with =not ATTACHED — consumed only=; the runtime does not spawn it and does not stay silent.
+- I declare daemons and no =runtime.statics.remote=; =viva instance/doctor= reads the fault; the runtime never reaches its own throw.
+- I declare =BOOTED= on a mode that exports no =boot=; =viva registry/doctor= reads one red line under that file: =BOOTED: no boot export=; =deno task runtime= fails on the ONE daemon whose kernel names it, with the same sentence and the file's path; the other daemons boot.
+- I export =aperture= and forget =EXPOSED=; nothing in the registry says so (notes were cut) — the runtime still warns at boot, as today.
+- I drop a file with no slug into the registry; the doctor names its path; every sibling still lists.
+- I delete =runtime= from an instance that has daemons; the doctor is quiet (optional in); =deno task runtime= refuses at its door with =runtime: /runtime …=, never at =die.manifest=.
+
+** programmatic + markers
+#+marker_qa: m68-paladin-pipeline/P-vip-dead · DONE (0) · =grep -rn "\.vip\b" --include=*.js --include=*.jsx --include=*.ts . | grep -v bak= returns 0
+#+marker_qa: m68-paladin-pipeline/P-one-fold · DONE (0) · =grep -n "mask\.\(manifest\|statics\|secrets\|mountpoint\) ??" systems/runtime/daemon/lifecycle/population.js= returns 0
+#+marker_qa: m68-paladin-pipeline/P-no-runtime-accio · DONE (the dead =terrans= comment block cut with it) · =grep -rn "accio\|wire(" systems/runtime --include=*.js | grep -v tests= returns exactly two lines — =processes()= (one accio per service) and =core()= (one wire per daemon)
+#+marker_qa: m68-paladin-pipeline/P-no-runtime-rule · DONE (0) · =grep -rn "REQUIRED\|No runtime serve URL\|carries no mountpoint\|names none" systems/runtime/lifecycle systems/runtime/daemon/traits= returns 0
+#+marker_qa: m68-paladin-pipeline/P-no-runtime-seat · held (0) · =grep -rn "/bundles/\|new Path(\`/daemon/" systems/runtime --include=*.js | grep -v tests= returns 0
+#+marker_qa: m68-paladin-pipeline/T-door · held (unit 2/2; live: the door reduced to =runtime= present after the codec find) · =deno task runtime= on an instance without =runtime= refuses with =runtime: / must have required properties runtime= before any die is built
+#+marker_qa: m68-paladin-pipeline/P-registry-held · DONE (boot.test) · =paladin.ledger.registry === paladin.ledger.registry= is true (one object, one pensieve)
+#+marker_qa: m68-paladin-pipeline/T-dormant-service · held (unit: =registry.wire.test.js= consumed-only case + =populate.processes= files the row; no live instance carries a consumed-only service to print) · a non-ATTACHED service prints under =dormant= in =instance/doctor=
+#+marker_qa: m68-paladin-pipeline/P-no-runtime-trait-warn · DONE (revised) · =grep -rn "declares BOOTED" systems/runtime= returns 0; =which nothing implements= STAYS (fork 8) with =aperture without EXPOSED= / =datasink without DATASINK=
+#+marker_qa: m68-paladin-pipeline/P-fold-is-reduce · DONE · =grep -n "reduce" subsystems/paladin/prototypes/ledger/integrity.js= hits the one runner; no =severity=, no =integrity =\s*{= on a module anywhere
+#+marker_qa: m68-paladin-pipeline/P-one-gate · DONE (lookup · module · accio) · =grep -n "assert(" subsystems/paladin/prototypes/ledger/registry.js= hits =lookup=, =module= and =accio= — nothing leaves the registry unprobed
+#+marker_qa: m68-paladin-pipeline/T-fault-names-the-consumer · held (unit: =registry.integrity.test.js= a mask's trait throws on the entry, the module still resolves; =registry/doctor= lists =integrity= rows; live: vcompany refused at boot on the sentence before fork 10 landed) · a faulted domain fails exactly the daemon that names it; =registry/doctor= lists it whether consumed or not
+
+* blast table
+
+| file | change | M | kind |
+| =subsystems/paladin/prototypes/vip.js= | DELETE — body moves into =ledger/registry.js= | M1 | move |
+| =subsystems/paladin/prototypes/ledger/registry.js= | + =pensieve · mount · supply · tap · untap · list · lookup · module · accio · wire · stale= ; the record's =list()= → =references()= ; =accio= returns the folded citizen | M1 M2 | grow |
+| =subsystems/paladin/belt/scope.js= | =scopes()= re-rooting the ledger drops =ledger.held= | M1 | edit |
+| =systems/ghost/trajectories/ledger/index.js= | =registry.list()= → =references()= | M1 | rename |
+| =subsystems/paladin/prototypes/ledger/ledger.js= | =get registry()= → held (=??==) | M1 | edit |
+| =subsystems/paladin/prototypes/paladin.js= | drop =this.vip= | M1 | edit |
+| =subsystems/paladin/prototypes/index.js= | drop =vip.js= export | M1 | edit |
+| =subsystems/paladin/tests/vip.tap.test.js= → =registry.tap.test.js= | rename + 19 sites | M1 | rename |
+| =subsystems/paladin/tests/vip.test.js= → =registry.mount.test.js= | rename + 5 =new Vip= sites (the quest had missed this file) | M1 | rename |
+| =subsystems/paladin/tests/ledger.recipe.test.js= | three runtimes gain =remote= (daemons beside them) | M4 | edit |
+| =systems/runtime/tests/mode/traits.test.js= | the BOOTED-without-boot case dies with the warning it pinned | M6 | edit |
+| =systems/runtime/lifecycle/populate.js= | the dead =terrans= comment block cut (it carried an =accio=) | M3 | edit |
+| =subsystems/paladin/tests/boot.test.js= | 2 sites | M1 | rename |
+| =subsystems/paladin/tests/registry.wire.test.js= | NEW | M2 M3 | add |
+| =subsystems/paladin/lifecycle/integrate.js= | =settle=: remote-with-daemons fault | M4 | edit |
+| =systems/ghost/belt/lens.js= · =trajectories/registry/index.js= · =registry/bootstrap.js= · =instance/create.js= | 12 sites rename | M1 | rename |
+| =commons/instances/hello-world/tools/doctor.js= · =commons/lighthouses/multiplayer/server/entities.js= | 4 sites rename | M1 | rename |
+| =systems/runtime/lifecycle/populate.js= | =registry()= rename · =daemons()= throw deleted · =processes()= asks once, spawns ATTACHED, names the rest | M1 M3 M4 | edit |
+| =systems/runtime/lifecycle/integrate.js= | =launch= warn deleted | M4 | edit |
+| =systems/runtime/die.js= | manifest getter, no default; dead vip comments cut | M4 | edit |
+| =systems/runtime/process/die.js= | the manifest getter STAYS (the module's) — the seat is minted from it; fork 11 | M3 | — |
+| =systems/ghost/trajectories/instance/doctor.js= | dormant row voice gains =why= | M3 | edit |
+| =systems/runtime/daemon/lifecycle/population.js= | =core= → =registry.wire(mask)= ; =modes= drops the second fold | M2 | edit |
+| =systems/runtime/daemon/traits/generative.js= · =traits/index.js= | two throws deleted | M4 | edit |
+| =systems/runtime/tests/registry.count.test.js= · =scenarios/registry.js= · =scenarios/bench.js= | 9 sites rename | M1 | rename |
+| =subsystems/paladin/prototypes/ledger/integrity.js= | NEW — =RULES= pairs + =probe= | M6 | add |
+| =subsystems/paladin/prototypes/ledger/registry.js= | =span · integrity= map · probe in =mount= and =module= · =assert= on every road out · the entry branch in =accio= | M6 | edit |
+| =subsystems/paladin/tests/registry.integrity.test.js= | NEW | M6 | add |
+| =systems/ghost/trajectories/registry/index.js= · =Doctor.jsx= | =integrity= organ | M6 | edit |
+| =systems/runtime/daemon/traits/booted.js= | one warning deleted (BOOTED-without-boot); the unknown-trait warn in =traits/index.js= stays (fork 8) | M6 | edit |
+| =subsystems/typology/schematics/primitives/instance.js= | =Daemon= + =mount · url · attach=, =Mode= + =mount · url · bundles= (HOLY — ask first) | M2b | edit |
+| =subsystems/paladin/lifecycle/resolve.js= | =address()=, =identity= → =[type, slug]=, =ground= seats =mount · url · bundles= | M2b | edit |
+| =subsystems/paladin/tests/snapshots/paladin-instance.snapshot.json= | regenerated: the seats | M2b | regen |
+| =systems/runtime/lifecycle/populate.js= · =daemon/lifecycle/population.js= · =lifecycle/resolve.js= · =daemon/traits/application.js= · =daemon/traits/generative.js= | seven mint sites → reads | M2b | edit |
+| =systems/runtime/typology/schematics/instance.js= · =typology/index.js= | NEW — the runtime's =Instance=, =runtime= required | M4b | add |
+| =systems/runtime/run.js= | the door: faults of the runtime's =Instance= throw | M4b | edit |
+| =systems/runtime/tests/door.test.js= | NEW | M4b | add |
+| =subsystems/typology/= (traits) | UNTOUCHED — =TRAITS= lives in paladin's =integrity.js= for now (beef); =Domain.entities= keeps its default | M6 | — |
+| =subsystems/paladin/tests/kernel.test.js= | =Vip.accioOne= describe → =registry.accio=, the citizen shape (3 sites) | M2 | edit |
+| =.ikiro/world/codemap/paladin.md= · =runtime.md= | the registry organ, the fold, the executive runtime, the integrity fold | M5 M6 | doc |
+| =subsystems/paladin/prototypes/ledger/registry.js= | =mount= stamp → =source= (4 sites) ; =reference= → =identifier= (module sense, 8 lines; the record's 36 =reference= lines STAY) ; =derive= for a file under =ledger/= | M7 | rename+edit |
+| =subsystems/paladin/prototypes/ledger/ledger.js= | =export const derive= ; =recipe()= uses it | M7 | edit |
+| =systems/runtime/daemon/traits/{index,application,datasink,dataset}.js= · =skills/mode.js= | =mode.module.mount= → =.source= (6 sites) ; the unknown-trait warn cut (=index.js:9-10=) | M7 | rename+edit |
+| =systems/runtime/lifecycle/populate.js:41= | =citizen.reference= → =.identifier= | M7 | rename |
+| =systems/ghost/trajectories/instance/create.js:26= · =registry/bootstrap.js:38= | =module.mount= → =.source= (2) — the ghost's record =reference= lines stay | M7 | rename |
+| paladin tests =registry.{mount,wire,integrity}.test.js= · =kernel.test.js= ; runtime =tests/mode/traits.test.js= | =source= · =identifier= follow ; integrity +1 (ledger default) ; the warn step gone | M7 | edit |
+| =subsystems/typology/schematics/primitives/instance.js= | =Service=: =statics.serve= OUT, =mount= IN (HOLY) | M2b | edit |
+| =subsystems/paladin/lifecycle/resolve.js= | =attach= seats services ; the lighthouse remote defaults to reach + the hosting seat | M2b | edit |
+| =commons/ledger/ledger.viva.js= · =commons/instances/{playground,hello-world}/instance.viva.js= | the service's =statics.serve= line and =VIVA_LIGHTHOUSE_SERVE= OUT ; =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= optional, no default | M2b | edit |
+| =systems/runtime/lifecycle/resolve.js:14,126-127= · =process/die.js:7= | read =processDie.mask.mount= ; the declared manifest | M2b | edit |
+| =~/.viva/registry/vcompany/modes/{office/chat,officer/{ceo,cfo,cto}}/<slug>.viva.js:9= | =EXPOSED= dropped (LANDED, captured) | fork 10 | data |
+
+* deferred
+
+- *Freight root and application entry* stay in the runtime traits: the module's own declaration relative to its own file, readable only once the module is — the module's address, not configuration. Reopens if a mask ever wants to re-root either.
+- *"a domain has entities".* The schematic rule runs; =Domain.entities= defaults ={}= in typology so nothing faults. One line in =kernel.js= (drop the default) makes it bite — typology, HOLY, beef's day.
+- *=TRAITS= into typology.* Beside =Manifest=, =manifest.traits= an enum over its keys, the Mode entity's mikro enum fed from the same list. beef: /"keep it in the paladin for now."/
+- *Implications, prohibitions, notes.* Cut on beef's word (/"cut out all the logic rules"/). The pair shape takes them back the day one is wanted; the two export-without-trait warnings stay in the runtime until then.
+- *Rules beyond these.* The array is the place; beef: /"I'll want to iterate, expand, and work this out over time."/ Each new pair is one line and one test case; no quest needed.
+- *=lifecycle.mount= coverage in the runtime suite* — the seam stays live-boot-guarded until a runtime test mounts a recipe (named twice now).
+
+* forks
+
+- *fork 1 — RULED: =wire=.* beef: /"wire"/. =paladin.ledger.registry.wire(mask)= — the hunks already say it.
+- *fork 2 — RULED: paladin seats.* beef: /"yes. propose to me inline here."/ then /"yes to the rest. good sketch. work out the hunk into quest."/ — M2b. One seam: an entry whose reference names no type is seated in =wire= by the folded manifest.
+- *fork 3 — RULED: optional in, required out.* beef: /"runtime optional on instance at the beginning of paladin. but required at input to runtime."/ — the IN schematic (=Instance=) keeps =runtime= optional; the OUT schematic the runtime casts on entry requires it. The =Served= name REJECTED (/"bad naming … move it into the runtime/typology/schematics"/): the runtime owns =systems/runtime/typology/schematics/instance.js= exporting its own =Instance=; =run.js= faults at the door. M4b. The =remote=-when-daemons row stays in =settle=.
+- *fork 4 — trait integrity (G).* beef, verbatim: /"We need a kind of default resolution map and implication map, some sort of processing on the traits. Where, for example, if a mode is a certain type, then we imply and forbid certain traits. And if a certain trait is given, then we expect the property to be there correspondingly. These have different severities though. … I think I want to have this as a, like a processing pipeline mapping thing in the Paladin dedicated structure that probes content and traits. of modes as they are being processed and instantiated. … it feels like it should be part of the registry. Integrity checks, if, if it's a domain then it's expected to uh, export entities. … Maybe we want an array of what is it? Tuples, two functions. One to identify does this criteria apply, and then a second to actually execute the criteria. And then in that criteria, we can we have a we have a span probably for logging. And then we have the ability to throw, and if we throw, then we stop the the, the return. I don't think the registry should be able to return a, an error type. Maybe just throw, but that feels kind of yeah, shit. Then you export one wrong thing, and the entire thing blows up in your face. But we need to have the information. Because we, we can't just boot through a non-functional set of modes without telling anybody."/ First proposal (objects with =when · then · severity=) REJECTED: /"No, I don't like this object when then severity. I want a functional solution. I want an array of arrays where each array contains two functions. One is the applies and the second is the applying. … it updates the mode, it changes the mode in some way … and then it returns either an error or null if everything is alright. So it's a mutating function."/ Second proposal (in chat): =RULES = [[applies(module), apply(module, span)], …]= — =apply= MUTATES (implied traits written onto the manifest), notes on the span, returns =null= or an =Error=; a returned Error is collected into =module.integrity.faults= and the pipeline continues; a THROW stops the mount of that module. Runner =probe(module, span)= at =registry.mount= on the copy, again on the folded citizen in =accio= (a mask can add traits). =accio= of a faulted module throws the joined faults — the consumer pays, never the registry; =registry/doctor= lists every faulted entry. Order in the array is execution order (implications first). Prerequisite for an unknown-trait rule: a =TRAITS= enum in typology (HOLY). beef then: /"if we do have the span on there, then we don't need the return logic. We can just transport our information through the span, or if it's a critical error, then we actually throw."/ and asked for the functional, the OO and the Lisp/Haskell reading. Third shape (chat): the fold — =apply(module, span) → module=, =reduce= threads it; the span is the Writer, =throw= is the Left; the predicate stays separate so the doctor can LIST which rules apply without running them; the pipe sink is the index, the journal a capped log. RULED: /"Yes, this is our solution. Very pretty. I like this. Um, amen. I finish out the quest. No apply yet."/ Tangled at M6.
+- *fork 5 — RULED: the =TRAITS= table stays in paladin.* /"no. keep it in the paladin for now."/ — =integrity.js= exports it; typology untouched; the typology move and =Domain.entities= required are deferred (see deferred).
+
+- *fork 6 — RULED: =mount= stays.* beef asked whether the slot (=/daemon/<slug>=, =/mode/<type>/<slug>=) is misnamed — /"it isn't a mount itself. It's more like a reference … Reference, name, identity, reference. Mount?"/ Survey: =mount= carries five meanings in the tree (the verb · the file a module was read from · this pathname · =AIMED.mount= · =mountpoint=). =nature= proposed (every reader spells =.mount.nature=) and REJECTED: /"nature is definitely not it. Nature is within signature an identity key."/ Ruling: /"Maybe mount is actually correct. I mean, it is a path where to find something … Mount point would be file system specific. I'm okay with that."/ — =mount= is the path where a thing is found under its parent; =mountpoint= is the filesystem's. The hunks stand.
+
+- *fork 7 — RULED: =source=.* beef: /"source for the file (option 1)"/ → M7 (a). The survey that asked: Found at M2: the pensieve stamps the FILE a module was read from as =mount= (={ ...module, mount: new Path(path) }=), and fork 6 ruled =mount= for the SEAT (=/daemon/<slug>/mode/<type>/<slug>=). On one citizen both want the key. Today (no seats yet) =citizen.mount= is the file and =mode.module.mount.dirname= readers (=datasink.js:64 · traits/index.js:75 · application.js:9 · dataset.js:27,35 · skills/mode.js:7=) are fine; at M2b a seated entry's =mount= overrides it and those readers break, and =wire='s fallback =citizen.mount ? citizen : seat= never seats a bare path. Paladin already names a read file =source= (=find.type= stamps it, =Ledger.recipe= returns it): the pensieve's stamp becomes =source=, =mount= is the seat alone, =Mode.module.source= reads the file — paladin + runtime + ghost (=bootstrap.js:38 · create.js:26=), typology untouched. Or the runtime keeps =mode.module = citizen.module=. beef's call before M2b.
+- *fork 8 — RULED: an open set.* beef: /"there will always be unknown mode traits and types. thats by design. must be an open set. assume the existance of more."/ → no unknown-trait rule ever; the runtime's warn goes too, M7 (c). What asked: The unknown-trait rule faulted 20 real modules at apply: AIMED · MASKED · QUEUEING (every education game + the three playgrounds), MONK (the three hallucinators), SERVICE · DATAMAP · SYSTEMMAP (multiplayer), SERVER · DOCKER · COMPOSE (nlp), LABELED · ONTOLOGICAL · TOPOGRAPHICAL (conjugation). The rule was a third kind (a prohibition) the law forbids; DROPPED with its test; the runtime's per-mode warn stays. To have it back: the names in =TRAITS= (prototype or null) and one pair.
+- *fork 9 — RULED: the ledger defaults its manifest.* beef: /"the ledger shuold DEFAULT a manifest. the actual file can overwrite it. it suspect thats cosmetic for now."/ → =derive= shared by the recipe and the walk, M7 (d). What asked: =commons/ledger/ledger.viva.js= has no manifest by design (ledger-recipe); =mount(commons)= reads it: before M6 it registered under =@commons= with a blank type (the runtime census red, M1–M4b); since M6 it faults =no manifest.slug — unfit to register= and stays out — a red row in =registry/doctor= forever. Either the walk skips it by name, or the recipe lives outside a package root.
+- *fork 11 — RULED: computed.* beef: /"no dedicated lighthouse servee. computed attachment path."/ → folded into M2b (=Service.mount= seated by paladin, =statics.serve= and =VIVA_LIGHTHOUSE_SERVE= gone). What asked: The runtime mints =/attached/process/<type>/<slug>= (=lifecycle/resolve.js:14,126=) from the process die's identity, while the service mask DECLARES its seat — =statics.serve= (=VIVA_LIGHTHOUSE_SERVE=, "where the hosted lighthouse attaches inside the runtime's own path tree", =…/attached/process/lighthouse/multiplayer= in every recipe and every =.env=, prod included). M3's declared identity (=service/multiplayer=) moved the mint and the lighthouse vanished from its address: =announce= 404'd at =/attached/process/lighthouse/multiplayer/entities/daemon/ensure=. Reverted to the module's manifest for now. The M2b way: paladin seats the process from =statics.serve= (declared wins, =/attached/process/<type>/<slug>= only for silence), the runtime reads the seat, and the identity question dissolves. Until then the declared =Service.manifest= is identity nowhere but the doctor.
+- *fork 10 — LANDED.* beef: /"remove the trait."/ → =EXPOSED= dropped from the four manifests (=~/.viva/registry/vcompany/modes/{office/chat,officer/ceo,officer/cfo,officer/cto}/<slug>.viva.js:9=; no VCS there — originals under =~/.viva/bak/registry/vcompany-20260922/=). What it was: =modes/office/chat= · =officer/{ceo,cfo,cto}= declare EXPOSED without =aperture=; since M6 =accio= throws on each — the vcompany daemon refuses at boot with the sentence. beef's package.
+- *fork 12 — RULED.* beef: /"/attached/process/service/lighthouse/multiplayer — lighthouse type multiplayer slug service static."/ → the seat is =/attached/process/service/<type>/<slug>=: =service= a STATIC segment (the slot), then the folded manifest's type and slug; the recipes declare =manifest: { type: "lighthouse", slug: "multiplayer" }=. The address moves either way, so the =.env= migrate line stands. What asked: With fork 11 the seat is =/attached/process/<type>/<slug>= from the FOLDED manifest, and every recipe declares the service =manifest: { type: "service", slug: "multiplayer" }= over a module that says =lighthouse/multiplayer= — so the address moves from =/attached/process/lighthouse/multiplayer= to =/attached/process/service/multiplayer=. Both sides compute, so locally nothing breaks — except a =.env= that PINS =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= to the old path (every scaffolded one does, via =VIVA_LIGHTHOUSE_SERVE=), and prod, where the lighthouse is its own container and the runtime's =.env= pins its address. Two ways: the recipes declare =type: "lighthouse"= (the mask names what the module IS; =services= is already the slot; the address stays) — or =service= stays and the =.env=s migrate. I lean =lighthouse=. beef's call.
+- *fork 13 — RULED: =reference= stays for the record.* beef: /"whatever. still called a reference. we refere to something. by unique name or unique path. reference"/ → =registry.json='s entries keep the word (=references() · add · remove · resolve · tap · untap=, the doctor's column); only =@owner/type/slug= becomes =identifier=. =location= withdrawn. What asked: The rename frees =reference= only if the record's entries (=registry.json=: =commons=, =~/.viva/registry/chess=, a path or a slug under =scope.registry=) get a word too. =location= is what =reconcile= already returns (={ locations, stale }=) and what the codemap says (/"a dead location"/). =root= is taken (=resolve(location)= returns the root Path). If not =location=: =entry=? =mount=? beef's call before M7 (b).
+
+* changelog
+
+- this session — designed from the sweep + beef's rulings A · D · E · F; B/C · seats proposed in chat, held as forks 1–2. G: three shapes, the third ruled — M6 written, tangled. /"No apply yet."/
+- this session, later — /"the quest is way too flat"/: =* the patch= added, every milestone to the hunk; two NEW test files and =integrity.js= tangleable; the record's =list()= → =references()= collision found and named; the held registry needs =supply()= to reset the pensieve and the index, and =scopes()= to drop =ledger.held=.
+- this session, later still — four =@beef= comments in the patch treated: the deletions list under M1; the settle comment cut to one line; the logic rules CUT (/"tooling is not implied by domain. entities are."/ · /"cut out all the logic rules. for now just check that traits travel with their prototypes (and v.schema validate where applicative!)"/) — =RULES= is now schematic-by-type + trait-by-prototype; tests and the ghost case follow; two runtime warnings die instead of three.
+- this session, after that — /"no. keep it in the paladin for now."/: =TRAITS= moves into =integrity.js=, typology untouched; =Domain.entities= required deferred; the integrity tests assert the schematic rule RUNS (a malformed =entities=); fork 5 RULED.
+- this session, then — forks 1 · 2 · 3 ruled in three words each (/"wire"/ · /"yes … work out the hunk into quest"/ · /"runtime optional on instance at the beginning of paladin. but required at input to runtime"/, =Served= rejected): M2b the seats (typology slots, =address · identity · ground=, the =wire= fallback, seven runtime reads, +3 tests, snapshot regen) and M4b the runtime's own =Instance= schematic + the door in =run.js= + =door.test.js=; M4 loses its runtime row. Fork 6 (/"maybe mount is actually correct"/): =mount= stays, =nature= refused.
+- this session, last — quality pass (/"no comment spam … no unnecessary intermediate variables … no excessive defaulting … one coherent, overall reasonable thing"/): the four stale fork paragraphs cut; one citizen road (=module(reference)= — a seated path entry no longer hits =cast.lookup=); one gate (=assert(path, module)= on =lookup · module · accio=, the M2 manifest throw folded into it); one index (path → sentences, faults only — notes were cut, the doctor organ and its rows follow); =ATTACHED= joins =TRAITS= and the runtime tests the trait alone; =accioMany · accioMap= die at M2; =v.faults= pointers pinned (=/entities=, =/runtime=); =Path.branch= grows gauges, so seats are minted with =new Path=; the settle row is one =if=; stale gates, blast rows, testimony and markers brought to the hunks; forks and changelog in order. Then beef: =sound= and =nature= both /"shit"/ — =assert(path, module)=.
+
+
+- renamed `paladin.vip` → `paladin.ledger.registry` — one organ: record + pensieve; `supply · accio · tap · untap · list · pensieve · stale` move, the record verbs stay · migrate: rename every call site ⟨m68-paladin-pipeline⟩
+- renamed `paladin.ledger.registry.list()` (the record) → `references()` — `list(query)` is the pensieve's · migrate: four ghost/commons sites + tests ⟨m68-paladin-pipeline⟩
+- changed `provider(mask)` → `provider(citizen)` — same keys plus the module's exports; `module` is the object, `reference` the string · migrate: a provider reading `mask.module` as a string reads `reference` ⟨m68-paladin-pipeline⟩
+- changed `paladin.ledger.registry.accio(mask)` — returns the FOLDED citizen (manifest · statics key-wise, secrets · mountpoint carried), no second fold downstream; `accioOne · accioMany · accioMap` removed, `wire(mask)` builds a daemon's bag · migrate: drop `mask.x ?? module.x` chains; a bag is `wire` ⟨m68-paladin-pipeline⟩
+- changed `instance.dormant` — a non-ATTACHED service is a row, not a silence · migrate: none ⟨m68-paladin-pipeline⟩
+- changed `instance.faults` — `runtime.statics.remote required` when daemons declared · migrate: declare it ⟨m68-paladin-pipeline⟩
+- added `Daemon.mount · url · attach` and `Mode.mount · url · bundles` — seated by paladin (or `wire` for an untyped path entry); declared wins · migrate: none; a mode that computed its bundle path reads `mode.bundles` ⟨m68-paladin-pipeline⟩
+- added `@vivalence/runtime` `typology/schematics/instance.js` `Instance` — paladin's with `runtime` required; `run.js` refuses at the door · migrate: an instance the runtime boots declares `runtime` ⟨m68-paladin-pipeline⟩
+- added `paladin.ledger.registry.integrity` — a Map path → Set of fault sentences; `registry/doctor` prints it; `lookup · module · accio` throw the joined faults of what they would hand back · migrate: fix the file the sentence names ⟨m68-paladin-pipeline⟩
+- added `paladin` `prototypes/ledger/integrity.js` `TRAITS` — trait → the export it travels with; the keys are the traits paladin knows · migrate: a new trait is one line there before the runtime implements it ⟨m68-paladin-pipeline⟩
+- removed runtime warning `declares BOOTED without a boot` — the registry says it at mount, the doctor lists it; `declares X, which nothing implements` stays (fork 8) · migrate: none ⟨m68-paladin-pipeline⟩
+- removed runtime throws `runtime.statics.remote REQUIRED` · `No runtime serve URL configured` · `GENERATIVE: daemon carries no mountpoint` · `[MOUNTED] … names none` — the doctor says it first · migrate: none ⟨m68-paladin-pipeline⟩
+- this session, apply — beef /"go m68"/: M1 → M2 → M3 → M4 → M4b → M6 landed in order, M2b held for the HOLY word (and fork 7), M5 behind it. Deviations, each found against the tree: the citizen carries the mask's word whole (=...query=); =vip.test.js= → =registry.mount.test.js= (a file the quest's grep had missed); the =vip= and =terrans= comment blocks cut; =validate= fills a copy before it faults (=Domain= defaults =traits · entities · schematics=, every real domain faulted otherwise); the unknown-trait rule DROPPED (fork 8) and the runtime warn restored; the door reads =/ must have required properties runtime=; =registry.wire.test.js= holds 9 until M2b. Gates: paladin 47/214 · runtime 64/418 · ghost registry 29, ledger 17/18 (pre-existing) · every P marker DONE but the seat one. The real ledger's integrity map: 5 paths (forks 9 · 10). The file moves (=vip.js= removed, two test renames) were made in the working copy with plain file operations; no VCS command was run.
+- this session, after the report — beef's watch on droneaid died at the door: =runtime: /runtime/statics/serve must be string · …= (eight codec slots). /"worked before"/. The door judged a DECODED instance; encoding back died on the =Path= codec (typology, known issue); the door now asks for =runtime= alone — paladin judged the rest. Door test 2/2; droneaid walks through with =[]=, still decoded.
+- this session, live walk (beef's watch on droneaid) — past the door, =launching on http://localhost:2501/=, =Status:ALIVE=, then =announce= 404 at =/attached/process/lighthouse/multiplayer/…=: the process seat followed the declared identity. =process/die.js= keeps the module's manifest (fork 11).
+- this session, live walk, second 404 — the module manifest back on the process die changed nothing: =viva instance/doctor= clean, the fold proved it — =Instance.cast= at settle fills =traits: []= onto the service mask's manifest, the key-wise fold let it win, =processes()= filed the lighthouse dormant, nothing attached. Traits accumulate in the fold now (=registry.wire.test.js= +1, 10 steps; paladin 47/215); droneaid's lighthouse folds ATTACHED. The old =processes()= read the MODULE's traits, which is why it /"worked before"/.
+- this session, the boot — after the fold fix: =launching on http://localhost:2501/= · =Status:ALIVE= · =$[runtime:runtime] Status:ALIVE= · =[multiplex 10:30:03.168] socket upgraded — 1 open=. M5 landed on droneaid; codemaps paladin.md (the registry organ) and runtime.md (the door, the bag, the throws that died) brought to the tree, both under their limits. 7/8; M2b alone waits on the HOLY word and fork 7.
+- this session, after the fold — /"I don't understand any of these … What's the choice that I'm making?"/ → a before/after tour of the six decisions, each with its quest line and code line (the line rule, now canon). beef's rulings: fork 7 /"source for the file (option 1)"/ · the rename /"take a look at renaming the registry/pensieve/vip 'reference' to 'identifier' …"/ (surveyed: 46 files, two registry senses, a keep-list — M7 (b), fork 13 for the record's word) · fork 11 /"no dedicated lighthouse servee. computed attachment path."/ (folded into M2b; fork 12 for the seat's identity) · fork 8 /"… must be an open set. assume the existance of more."/ (the warn goes) · fork 9 /"the ledger shuold DEFAULT a manifest …"/ (=derive=) · fork 10 /"remove the trait."/ LANDED in the vcompany package (four files, captured). /"registry is anarchy. whatever. we dont care."/ on the pensieve stamp. M7 authored, lands before M2b; the HOLY word on M2b's slots still owed. =* release= organ added — it was missing.
+
+- this session, next turn — /"mount in."/ · fork 12 /"/attached/process/service/lighthouse/multiplayer — lighthouse type multiplayer slug service static."/ → hunks follow (=attach=, the typology example, the recipes' manifest). /"i dont understand 13."/ → a NEW ikiro must: /"just like i want you to note when i say retard - keyword tirgger- the same goes for i dont understand xyz. mark where you shit explained by my feedback. learn and improve your approach adn formatting of explanations in ikiro."/ — lexicon gate, callout ingress, two ledger entries (the line table · fork 13 from internals), memory; 13 re-explained from =registry.json=.
+
+- this session, next — fork 13 /"whatever. still called a reference. we refere to something. by unique name or unique path. reference"/ → the record keeps =reference=; =identifier= is the =@owner/type/slug= alone; =location= withdrawn from M7 (b), the blast table and the release lines.
+
+- this session, the landing — /"go"/ then mid-turn /"finish up the quest."/ · /"when done, move to done"/. M7: =source= stamped at =registry.mount= · =module= · =lookup= · =accio= and in =populate.js='s inline-entry stamp; nine readers + the pensieve's shadow check follow; =identifier= for the module sense (=module(identifier)=, =citizen.identifier=); the unknown-trait warn cut; =derive(module, source)= exported from =ledger.js= and applied by the walk to a file under =ledger/= — read RAW (=read.viva= returns undefined for a manifest-less file, the first probe found; =dirname= wants a string, the second). Paladin 47 passed (216 steps) → runtime reds were four fixtures stamping =module.mount= (=skill.mode= · =dataset.install= · =datasink.drain= · =datasink.roundtrip=) → 64 passed (418 steps). M2b: the six slots + =Service.mount= (typology 127 passed, 513 steps); =resolve.mountpoints= gains =reach · address · attach · lit= and =ground= seats typed entries; =wire= seats the rest (guarded: a mask without a seat seats nothing — the wire fixtures have none); seven runtime sites read; =process/die.js= manifest is the declared one; the three recipes say =type: "lighthouse"=, drop =serve= and =VIVA_LIGHTHOUSE_SERVE=, =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= optional. Two test finds: =Url.branch(mount)= on a daemon url doubled =/daemon/probe= (branch =/mode/<type>/<slug>= instead); a daemons-without-remote case never decodes (its seats are strings — the test says so). Paladin 47 passed (220 steps); snapshot regenerated; runtime reds: the GENERATIVE fixture without =bundles=, the bench scenario minting its own seats → 64 passed (418 steps). LIVE: beef's watcher 404'd at the OLD address — the pinned =.env= lines, as the release line said: =VIVA_LIGHTHOUSE_SERVE= + =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= dropped from droneaid, playground and the ledger =.env=; then the same four edits in =~/.viva/instances/droneaid/instance.viva.js= and =~/.viva/ledger.viva.js= (shelf copies still declaring the key with its default — the doctor's =VIVA_LIGHTHOUSE_SERVE —= row found it); every file captured under =~/.viva/bak/{instances/droneaid,instances/playground,ledger}-20260922/=. The fold on droneaid: faults =[]=, service =/attached/process/service/lighthouse/multiplayer=, lighthouse remote computed to the same, daemon =/daemon/droneaid= · =http://localhost:2501/daemon/droneaid= · =…/attached=, entry =/daemon/droneaid/mode/domain/assembly=. Runtime =/status= ALIVE. Coverage: settle +3 (addresses · no-remote · the service seat and the computed remote) · wire +1 (seated in wire) · integrity +1 (ledger default) · generative and bench fixtures carry seats.
+
+- post-sunset, the migration's true radius — /"i think you fucked up the migration"/: the chess instance still declared =VIVA_LIGHTHOUSE_SERVE= and =type: "service"=, its remote resolved to the OLD seat and =announce= 404'd at boot. The retired name's grep was 21 files on the shelf, not the 3 migrated: thirteen recipes, five =.env=, stucatch's =environment.json= (captured under =~/.viva/bak/lighthouse-migration-20260922/=), then the checkout — the lighthouse host's =docker-compose.yml= (three pinned literals, the prod shape), =fixtures/data/live.js=, both lighthouse tests, =README.md=, docs 51.02 and 32.01, the =@education= README. Live on chess: 0 404s, =/metadata/services= prints the new seat, the seat answers 200. Callout =flag-day-radius=. Ruled after: the service =manifest= stays REQUIRED although the =@owner/type/slug= identifier restates it — /"ok leave it."/ (forks put: required · optional-and-derived via =identity()= · always derived).
+
+* release
+
+- removed `paladin.vip` — the registry is `paladin.ledger.registry` (record + pensieve, held once) · migrate: `paladin.vip.X` → `paladin.ledger.registry.X` ⟨m68⟩
+- renamed `registry.list()` (the record) → `references()` · migrate: rename ⟨m68 M1⟩
+- added `registry.accio(query)` returns the folded citizen; `registry.wire(mask)` the daemon's bag · migrate: a runtime no longer folds `mask ⊕ module` ⟨m68 M2⟩
+- changed four runtime throws are settle faults (`runtime.statics.remote required — N daemons announce under it` and kin) · migrate: read `viva instance/doctor` ⟨m68 M4⟩
+- added the runtime's door: `run.js` faults when `instance.runtime` is absent · migrate: none ⟨m68 M4b⟩
+- added `registry.integrity` (Map path → faults) and `assert` on every road out — a faulted module throws `[registry] <path>: <sentences>` at its consumer · migrate: fix the module the sentence names ⟨m68 M6⟩
+- renamed a registry module's `.mount` (the file it was read from) → `.source`; `.mount` is the seat · migrate: `mode.module.mount.dirname` → `mode.module.source.dirname` ⟨m68 M7⟩
+- renamed `citizen.reference` → `citizen.identifier`; `registry.module(identifier)` · migrate: rename ⟨m68 M7⟩
+- removed the runtime's `[trait] <type>/<slug> declares X, which nothing implements` warn — traits are an open set · migrate: none ⟨m68 M7⟩
+- added a manifest-less file under `<package>/ledger/` registers as `ledger/<name>` · migrate: none ⟨m68 M7⟩
+- removed `VIVA_LIGHTHOUSE_SERVE` and `Service.statics.serve` — a service attaches at `/attached/process/<type>/<slug>`, computed · migrate: drop `VIVA_LIGHTHOUSE_SERVE` and `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` from every local `.env`; keep `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` only for a lighthouse on another host, at that host's `/attached/process/<type>/<slug>` ⟨m68 M2b⟩
+- changed the lighthouse's attachment path — `/attached/process/service/<type>/<slug>` from the folded manifest (`service` a static segment; the recipes declare `type: "lighthouse"`): `/attached/process/lighthouse/multiplayer` → `/attached/process/service/lighthouse/multiplayer` · migrate: prod's `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` re-pins to the lighthouse host's new path ⟨m68 M2b⟩

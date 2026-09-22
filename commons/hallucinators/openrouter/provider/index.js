@@ -3,10 +3,14 @@ import { v } from "@vivalence/typology";
 import {
   buildParams,
   fault,
+  readChoice,
   RESPOND,
   streamTranslator,
+  translateChoice,
   translateResponse,
 } from "./translate.js";
+
+const DECISIONS = "https://openrouter.ai/api/alpha/decisions";
 
 function extractObject(turn, schema) {
   const done = turn.parts.find((part) =>
@@ -43,12 +47,23 @@ const models = {
   },
 };
 
+const choosers = {
+  standard: {
+    id: "typesafe/jev-1.13",
+    tune: [0.4, 0.3, 1.0, 0.95],
+    context: 32000,
+    options: 255,
+    choices: null,
+  },
+};
+
 export default async function provider(service) {
   const client = new OpenAI({
     apiKey: service.secrets.key,
     baseURL: "https://openrouter.ai/api/v1",
   });
   const table = service.statics?.models ?? models;
+  const choosing = service.statics?.choosers ?? choosers;
 
   function makeDialogue(model) {
     const render = async (request, { signal } = {}) => {
@@ -86,6 +101,21 @@ export default async function provider(service) {
     return { render, stream };
   }
 
+  function makeChoice(model) {
+    const render = async (round, { signal } = {}) => {
+      const response = await fetch(DECISIONS, {
+        method: "POST",
+        signal,
+        headers: { authorization: `Bearer ${service.secrets.key}`, "content-type": "application/json" },
+        body: JSON.stringify(translateChoice(model, round)),
+      }).catch((error) => { throw fault(error); });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw fault(Object.assign(new Error(body.error?.message ?? response.statusText), { status: response.status }));
+      return readChoice(body, round);
+    };
+    return { render };
+  }
+
   const faculties = [];
 
   for (const [, model] of Object.entries(table)) {
@@ -106,6 +136,19 @@ export default async function provider(service) {
       },
       config: { model: model.id },
       via: { render, stream },
+    });
+  }
+
+  for (const [, model] of Object.entries(choosing)) {
+    faculties.push({
+      type: "choice",
+      tune: model.tune,
+      context: model.context,
+      options: model.options,
+      choices: model.choices,
+      channels: { in: ["text", "object"], out: ["object"] },
+      config: { model: model.id },
+      via: makeChoice(model),
     });
   }
 

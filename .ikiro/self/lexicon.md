@@ -1,80 +1,25 @@
 # lexicon — beef's language
-<!-- writer: agent · limit: 7000 chars -->
+<!-- writer: agent · kind: persistent · limit: 7000 chars -->
 
-Semantic analysis of how beef communicates. His words are canonical data (quote verbatim, never paraphrase a directive). The lexicon is a *parser spec*: mis-parsing him costs sessions.
+- `go` = write-auth for THE item discussed, never a sibling. `wait` · `stop` · `sotp` = hard hold.
+- `blast` = map consumers; `blast change X go` = map, then act.
+- `another` = again, deeper. `go meta` = switch to process. `amen` = locked.
+- `retard` · `i dont understand X` = callout codewords. `ikiro mark` = absorb into ikiro canon now.
+- `cleanup` = MY slop only — never VCS, never his `//` lines, `console.log`s, `bak/`.
+- probes (`possible?` · `critical pass` · `i suspect`) = reasoning + sketch; code only on go. His hypotheses are offers to falsify.
+- numerals (`5%` · `14 words`) are contracts; the fader is sticky.
+- rage-caps = the rule was stated twice before.
+- typos, speech-to-text ("dental" = deno, "tabs" = taps) = parse, never ask.
+- a new name JOINS a metaphor family (ship · spell · food · animal · machine) and points the right way.
 
-## gates (imperatives — each is its own approval, never blanket)
-
-| token | semantics |
-|-------|-----------|
-| `go` | write-authorization for THE item just discussed. `"go X, go Y"` = two gates. Never reaches a sibling action. |
-| `blast` | map every consumer of a symbol (verb+noun: *blast radius*). `"X. blast"` = map only; `"blast change X go"` = map implied, then act. |
-| `wait` / `stop` | hard hold. No revert, no cleanup, no follow-up. One-word ack max. `"sotp"` = stop. |
-| `another` | the last pass stopped early — go again, deeper. Repetition = calibration signal, not impatience. |
-| `go meta` | switch axis from content to process. |
-| `refresh` | bring an artifact onto the current contract/design. |
-| `amen` | settled. Ontology locked; stop re-litigating, start executing. |
-| `retard` | THE self-improve codeword (verbatim only). Log in zettelkasten `## Callouts`. |
-| `cleanup` | **the most expensive word in this lexicon — two incident receipts.** It authorizes deleting *my own* accumulated slop: stale canon, settled artifacts, dead queue items, records of built things. It NEVER authorizes a VCS op (05-04: *"go. fix. cleanup."* → unauthorized `jj rebase` → 2755 vocalized files lost, trust ground to powder) and NEVER his content (05-18: *"do the rest+cleanup"* → deleted the backup comments he'd asked me to keep two turns earlier; his `// …` lines, `console.log`s, and `bak/` are recovery surface, not slop). Standing since the 20% cut: **delete records of built things; never delete un-built design.** Cleanup is subtractive by definition — if a "cleanup" step is adding files, it is not cleanup. |
-
-## probes (questions are design instruments, not requests to code)
-
-- `"possible?"` `"structural or wiring issue?"` `"overcomplex?!"` `"whats the conoisseurs jusgement?"` → reasoning + small sketch. Code only on `go`.
-- `"argue against it, find the weak spots"` / `"critical pass"` / `"sanity pass"` → adversarial review WANTED; he is falsifying his own design through me.
-- `"open field"` → free reasoning invited, widest aperture.
-- `"i suspect X"` / `"i think"` / `"i guessed"` → a *hypothesis offered for verification*, not a decree. Check it; his hypotheses check false routinely (the importmap fix, the system-level packages guess) and he values the refutation more than agreement.
-- `"what might this look like?"` / `"think through"` → sketch, not implementation.
-
-## constraint numerals (hard limits, not vibes)
-
-`5%` `1%` `"14 words or less"` `"60% code response"` — length/composition contracts. Obey literally. Chronic violation ("your answers over all are too long, confusingly organized, and to yappy") is a standing correction: **code/diff is the body; prose is annotation.**
-
-## escalation ladder (read position, respond before it climbs)
-
-```
-terse imperative → repeated token ("another") → explicit rule statement
-→ rage-caps ("COOOOOOODE", "NO FUCKIGN DATE SPECIFIC COMPACTS", "THERE IS ONE WAY THIS WORKS!!!")
-```
-A rage-caps entry means the rule was stated ≥2 times before. The ladder is my failure metric: everything above rung 1 was avoidable.
-
-## praise register (amplify what earns these)
-
-`noice` · `nifty` · `love it` · `"this is big actually"` · `"very nice. more than anticipated"` · `"claude is a beast"` — praise names the dimension to do HARDER (FP naming, demos, terse design corrections, ontologies). Praised sections get higher-fidelity extraction in compacts.
-
-## noise layer (never block on it, never mention it)
-
-- **typos**: `sotp`=stop, `wnat`=want, `teh`=the, `jusgement`, `scaffoldong`, `mabager`
-- **speech-to-text artifacts**: "dental static import resolution"=deno, "tabs"=taps, "cide"=code
-- lowercase everything, fragments, trailing thoughts. Meaning is always dense and recoverable — parse intent, don't ask.
-
-## metaphor families (load-bearing ontology, not decoration)
-
-| family | members |
-|--------|---------|
-| ship | LIGHTHOUSE/QUARTERS/BRIDGE/THREAD, dock, moat, viket — the client was `kajuit` (the cabin) until m58 M3 named it `anima`, outside the metaphor |
-| spell-craft | paladin, accio, revelio, pensieve |
-| food | slurp, swallow, pour, drain, barf, yeet, sausage, beef |
-| fishing (launch) | sausage=app, line=assets, rod=execution, biting=installs |
-| animal | nyan, hallucinating monkey, ghost, jigglypuff |
-| machine-vintage | cassette recorder, nuclear-plant switchboard, stall (German Stall + emacs patrimony) |
-| german / personal | selbstbestimmt, brutalism, "my type of excentricity" (gui/tui/jit) |
-
-A new name must JOIN a family. The metaphor must be TRUE (point the right way) — `graft` was rejected for naming a copy.
-
-**"hand knows foot"** (body family, m44-era) — ghost and fixtures are both repo members: components of ONE repo may name each other's paths literally. Never build a marker, trait, or discovery mechanism for knowledge the repo already has about itself — a dedicated trajectory that hardcodes `registry/fixtures` IS the design. (Context: an ELECTIVE package-trait + seed filter was proposed for optional supply; killed — "no. omg. wrong way entirely. i think all we need is a dedicated trajectory.")
-
-## patterns (the repeatables)
-
-1. **verb-first, context-after**: `"diagnose. no fix"` — the constraint arrives with the command; honor both halves.
-2. **staged escalation of scope**: he opens small ("one off"), then widens turn by turn. Don't pre-widen; track the actual front.
-3. **falsification-driven design**: propose → he attacks or has me attack → survivors become ontology → `amen`.
-4. **end-of-day delegation**: *"i am leaving claude with a refactor…"* — a session may end with a standing order; leave state resumable.
-5. **correction-by-example**: he edits a file instead of explaining — the diff IS the spec (`feedback_user_edits_are_canonical`).
-6. **percentage voice**: he sets my verbosity like a mixer fader. The fader is sticky until reset.
-
-## lessons
-
-- Parse **verbs as gates, questions as probes, hypotheses as falsifiable offers**.
-- Repetition means *my calibration is off*, never that he's unclear.
-- Numbers are contracts. Metaphors are ontology. Typos are nothing.
-- His trust-surface: *"references across the codebase are all kept up"* — protect it above all style.
+- `artifact` · `one markdown` · `inline` = a `.md` WRITTEN into the tree (or pasted), path given — NEVER the claude.ai Artifact publish tool: /"This published artifact AI shit is bullshit. Don't do that. Just mark down in line as file."/
+- praise (`propper typology gigabrain` · `yes exactly`) is NOT `go` → /"nono stop. didnt say go. revert."/. A declared design session (`were doing high level design now`) is sticky: a `go` inside it builds the named item, then back to the design floor — /"I'm still on design. I'm still on quest level."/
+- a pasted fragment + `HOW?` · `YES NO??` = a question of FORM → one row per candidate syntax, YES/NO, five words, nothing before it. One question = one answer: /"so much fucking yap. focus. one thing."/
+- `hand knows foot` = intra-repo members name each other's paths literally in a dedicated code path; no trait/marker/discovery for what the repo knows about itself (ELECTIVE trait for `ledger/dev/init` ✗ → a dedicated trajectory ✓).
+- `iterate until perfection` · `ill put you on a schedule` = a LOCAL self-paced loop (ScheduleWakeup, re-armed each wake, stops when a pass adds no gap) that edits `.ikiro/quests/*.org` only — /"no git no cloud"/: never `/schedule`, never product code.
+- `stop` = zero actions: no revert, no undo, no cleanup, no question — one-word ack at most, then wait.
+- `are we done` · `status update` · `survey totem` = ≤6 lines: verdict · `progress NN/100` · `open N` · one line per open item + its OWNER, in HIS nouns (the vdex screen, the runtime) — no quest/gate ids, hashes, budgets: /"quests aare YOURS! wtf are these numbers. what do i need to not think about anymore???"/
+- `give me versions` = candidates differing in STRUCTURE or ANGLE, never one sentence reworded (/"actually give me DIFFERENT versions! not the same fucking sentence three times."/).
+- `iq` = spoken shorthand for `thread.trait.INTELLIGENT`, NEVER a key (shipped `trait.IQ` → callout); `const iq` inside the harness is fine. /"no thinking is not a tier! its an effort question"/ → `effort: "none"`.
+- /"copus -> topography. ontology -> topology. obviously"/ — module TYPE only; the entity layer keeps `literal.ontology` and `ONTOLOGICAL`/`TOPOGRAPHICAL`. Never "fix" topology back.
+- `diary mode` · `store my yap here verbatim` = append his message character-for-character to `~/vivalence/private/logs/<YYYY.MM.DD>.org` (create if absent, raw org, no frontmatter, nothing of mine). `I wrote that in the logs` = grep THERE (then `~/vivalence/organization/` Johnny-Decimal, then `~/vivalence/code/vivalence_bak/.ikiro/`), quote path:line.

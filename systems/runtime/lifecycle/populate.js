@@ -4,7 +4,7 @@ import { Die as DaemonDie, Daemon } from "@vivalence/runtime/daemon";
 import { Die as ProcessDie, Process } from "@vivalence/runtime/process";
 
 export async function registry(runtimeDie) {
-  await paladin.vip.supply();
+  await paladin.ledger.registry.supply();
 }
 
 export async function wiring(runtimeDie) {
@@ -18,65 +18,29 @@ export async function aperture(runtimeDie) {
 }
 
 export async function daemons(runtimeDie) {
-  if (paladin.instance.daemons.length && !runtimeDie.good.latch)
-    throw new Error("runtime.statics.remote REQUIRED — daemons need a reach url to announce");
-
   for (const mask of paladin.instance.daemons) {
     const daemonDie = new DaemonDie({
       mask,
       good: new Daemon({ manifest: mask.manifest }),
     });
 
-    daemonDie.good.mount = new Path(`/daemon/${daemonDie.slug}`);
-    daemonDie.good.url = runtimeDie.good.latch //
-      .branch(daemonDie.good.mount.nature);
-
-    daemonDie.good.attach = runtimeDie.good.latch.branch("/attached");
+    daemonDie.good.mount = mask.mount;
+    daemonDie.good.url = mask.url;
+    daemonDie.good.attach = mask.attach;
     runtimeDie.good.daemons.push(daemonDie);
   }
 }
 
 export async function processes(runtimeDie) {
-  for (const mask of paladin.instance.services) {
-    const module = await paladin.vip.accio(mask.module);
-    // if module.implements(trait) TODO
-    if (module.manifest?.traits?.includes("ATTACHED") && module.aperture) {
-      const aperture = new Aperture();
-      const good = (await module.aperture(aperture, mask)) || aperture;
-      const processDie = new ProcessDie({ mask, module, good, register: module });
-      runtimeDie.good.processes.push(processDie);
+  for (const service of paladin.instance.services) {
+    const citizen = await paladin.ledger.registry.accio(service);
+    // a service without ATTACHED is consumed by daemons, never spawned — a row, not a silence
+    if (!citizen.manifest.traits.includes("ATTACHED")) {
+      paladin.instance.dormant.push({ at: `service[${citizen.manifest.slug}]`, module: citizen.identifier, empty: [], why: "not ATTACHED — consumed only" });
+      continue;
     }
+    const aperture = new Aperture();
+    const good = (await citizen.aperture(aperture, citizen)) || aperture;
+    runtimeDie.good.processes.push(new ProcessDie({ mask: citizen, module: citizen.module, good, register: citizen.module }));
   }
 }
-
-// export async function terrans(runtime) {
-//   for (const mask of paladin.instance.daemons) {
-//     const die = new DaemonDie({ mask, good: new Daemon(mask) });
-//     runtime.terra.daemons.push(die);
-//   }
-
-//   for (const mask of paladin.instance.services) {
-//     const register = await paladin.vip.accio(mask.module);
-//     if (register.manifest?.traits?.includes("ATTACHED") && register.aperture) {
-//       const aperture = new Aperture();
-//       const good = (await register.aperture(aperture, mask)) || aperture;
-//       const die = new ProcessDie({ mask, register, good });
-
-//       die.good
-//         .open("/status", () => die.status)
-//         .open("/manifest", () => die.manifest);
-
-//       runtime.aperture
-//         .branch(`/attached/process/${die.type}/${die.slug}`)
-//         // .use(secure.context(rme.instance.lighthouse)).use(secure.authorize()) ?? only on trait PUBLIC
-//         .use(shards.context.attach(die.type, die.mask))
-//         .descendants.push(die.good);
-
-//       die.status.set("alive");
-
-//       runtime.terra.processes.push(die);
-//     }
-//   }
-// }
-
-// // some base aperture. process/mask process/status

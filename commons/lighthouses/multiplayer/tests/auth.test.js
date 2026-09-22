@@ -2,7 +2,7 @@ import { Connection, specimen, Url } from "@vivalence/typology";
 import { shard } from "@vivalence/typology";
 
 const lighthouse = new Connection(
-  new Url("http://localhost:1729/attached/process/lighthouse/multiplayer"),
+  new Url("http://localhost:1729/attached/process/service/lighthouse/multiplayer"),
   shard.transmitter.fetcher,
 );
 

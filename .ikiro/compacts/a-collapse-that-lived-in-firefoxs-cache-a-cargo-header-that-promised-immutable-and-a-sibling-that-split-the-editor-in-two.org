@@ -1,0 +1,67 @@
+#+title: a collapse that lived in firefox's cache, a cargo header that promised immutable, and a sibling that split the editor in two
+#+index: 203
+#+session: the seventh fold of session edafd0fa (turns 239–258; 214–238 are #199). beef's "collapse" measured to the client, cargo's cache header fixed, the importer and editor cleaned on four screenshots, a sibling session found rewriting the editor and a split agreed, the v4 design pass prepared for the next fold.
+
+* one breath
+
+beef opened the fold with the collapse again — /"the imported models are collapsing again. something isnt right. Preview works correctly"/ (240). Measured server-side, everything was right: the 36 placements carry spread translations, the domain `/resolve` and `/tree` over a copy of the db are spread, the GLBs are local geometry in metres, and his own served editor bundle draws the drone spread in my harness. The one asymmetry: the importer's preview cache-busts its GLB URLs (`fresh(url, job)`), the committed views do not, and cargo served every file as `public, max-age=31536000, immutable` (`systems/runtime/lifecycle/resolve.js:4`) on bare paths the importer rewrites. beef ruled the one line — /"-const CARGO_CACHE = "public, max-age=31536000, immutable"; +const CARGO_CACHE = "no-cache"; go"/ (242) — landed, 304 on the etag verified.
+
+/"still. after import the model is collapsed."/ (243). I compared today's GLBs against the 09-22 16:27 ones, found them equal in scale, and RETRACTED the cache theory — the wrong generation: his browser held an older unit-1 set under the same names. Two more screenshots later the numbers closed it (`motor_arm_2.glb` 0.209 m yesterday, 4.17 m after his unit-1 import; specks = small old mesh on 10 m translations, collapse = big old mesh on 0.5 m translations), but I kept theorising from outside anima until beef named the variable: /"ok weird. in chrome all good. firefox issue"/ (255). Firefox kept the pre-fix `immutable` entries; clearing its cached web content once is the whole remedy.
+
+Between those, four small orders on his screenshots: /"remove the pause button"/ (245) — the button, its `running` state, toggle and schema key; /"remove the background tinge in the 3d space. or very very very decent"/ (247) — the importer stage's diagonal stripes, then the editor's floor grid; and /"a lot of the literal crud and harness dont work yet"/ (248). Walking the editor in a harness over his live rows found a sibling session ("guide editor") had rewritten my mode at 12:19–12:42 (steps and guides split out to `@assembly/editor/guide`). A split was agreed by message — `modes/editor/assembly/**` mine, `domain/**` and the guide modes theirs — and they held a `harvest.py:109` translation fix after I measured the ×20 ratio between his two imports. The walk found four defects (rename dropped the subject in a refresh race, the rename input squeezed, the GUIDE filter unlabelled, save below the fold), fixed and landed in one rsync.
+
+The fold closes on /"prepare this as part of your ikiro compact"/ + the design paste + /"that and ikiro compact"/ (257): the comp now measures as a v4 light restyle, fetched and diffed, staged as the OPEN marker for the next fold.
+
+* the spine — 258 turns, this fold 239–258
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 239 | the continuation summary | harness artifact | — |
+| 240 | /"the imported models are collapsing again. something isnt right. Preview works correctly: … part collapses."/ + four screenshots | debugging fired; db, /resolve, /tree, GLBs, harness all measured spread; cargo `immutable` on rewritten paths found | — |
+| 241 | the screenshot paths | harness artifact | — |
+| 242 | /"-const CARGO_CACHE = …immutable"; +const CARGO_CACHE = "no-cache"; go"/ | the line landed; `cache-control: no-cache`, etag → 304 measured | — |
+| 243 | /"still. after import the model is collapsed."/ + the importer's page text | 10:19 re-import measured spread again | the cache theory, retracted against the wrong generation of files |
+| 244 | the screenshot paths | harness artifact | — |
+| 245 | /"remove the pause button"/ | button + `running` + toggle + schema key gone; importer suite `ok \| 3 passed (14 steps)` | a stray `private/tmp/…` dir from `rsync --relative`, removed within a minute, runtime ALIVE, 8 modes |
+| 246 | the screenshot path | harness artifact | — |
+| 247 | /"remove the background tinge in the 3d space. or very very very decent"/ | importer stage stripes → `var(--panel)` | — |
+| 248 | /"still."/ + the design paste + /"a lot of the literal crud and harness dont work yet."/ | sibling found, split agreed; rename race · rename width · GUIDE label · pinned save + Enter · grid removed; landed 13:24 one rsync; editor `ok \| 5 passed (21 steps)`; the cache theory reinstated with the 0.209 → 4.17 m numbers | "the same v3" said from github.md's sync date, the comp unread |
+| 249 | the screenshot path | harness artifact | — |
+| 250 | the sibling's reply (duplicate delivery) | — | — |
+| 251 | the sibling: split yes, nothing in flight, harvest.py:109 fix held for beef | split recorded | — |
+| 252 | the sibling: holding the fix, lighting port in guide only | — | — |
+| 253 | /"no. whatever. not working. i import new model and the commited literals result in garbage."/ | theorising stopped; anima opened in my Chrome → login wall; asked for his login or a network paste | — |
+| 254 | the screenshot paths | harness artifact | — |
+| 255 | /"ok weird. in chrome all good. firefox issue"/ | Firefox's pre-fix immutable entries named; clear-cache steps | — |
+| 256 | /"kk"/ | memory `project_cargo_cache_immutable` | — |
+| 257 | /"prepare this as part of your ikiro compact"/ + the design paste + /"that and ikiro compact"/ | v4 fetched, byte-diffed, OPEN marker written | — |
+| 258 | =/compact= | this fold | — |
+
+Coverage 239–258: every turn in one row. Balance by thirds of this fold's 20: 239–245 carry two orders (the cache line, the pause button) and one correction (243); 246–252 carry two orders (tinge, CRUD) and one correction (248), with the sibling's three messages; 253–258 carry one correction (253), beef's own diagnosis (255) and the design + fold order (257). Weight is even because beef corrected the same symptom three times, one per third — the symptom only closed when he named the browser.
+
+* failures
+
+- *a correct theory retracted against the wrong evidence* — RULE FAILURE `assume-dont-verify`, logged in `zettelkasten.md ## Callouts` (09-23). I compared the GLBs on disk against the 16:27 generation instead of the bytes his browser held, retracted, and spent three turns theorising server-side. The client was never pinned: which browser, which cache. Corrective executed: memory `project_cargo_cache_immutable` (ask WHICH BROWSER first).
+- *a design called unchanged from a metadata date* — the same entry: at 248 I answered "the same v3" from `github.md`'s last sync, the comp unread; at 257 it measures as v4. Whether it changed in between is unknowable now.
+- *`rsync --relative` with absolute sources* — copied three files to `modes/editor/import/private/tmp/…` inside the watched registry. Removed within a minute; the daemon still listed 8 modes. The land after it ran `cd` + relative paths.
+
+* State at fold
+
+- **Repo**: `systems/runtime/lifecycle/resolve.js:4` `CARGO_CACHE = "no-cache"` (the file carried an uncommitted diff before mine). Uncommitted — beef's.
+- **Registry `@assembly`, mine**: `modes/editor/import` — PAUSE removed (`buffer/Import.svelte`, `buffer/parts/Queue.svelte`, `import.viva.js`), stage stripes → `var(--panel)` (`buffer/parts/Stage.svelte`); `modes/editor/assembly` — `act(verb, input, follow)` applies the slug swap before the refresh (inline rename, composer `rename` and `move`), ESC keeps its width, GUIDE labelled, the save row sticky at the inspector's foot with Enter / Cmd+Enter saving, the floor grid gone (`buffer/{Assembly.svelte,scene.js,parts/Tree.svelte,parts/Inspector.svelte}`). Served bundle `66a879cb`.
+- **Walked in the harness** over the live rows, paper theme: rename, dup, delete (7 literals, shared parts kept), new, composer writes and reads, composer rename and move, inspector save by Enter. NOT walked inside anima — its login is beef's.
+- **Sibling**: "guide editor" owns `domain/**`, `topologies/{step,guide}`, `modes/{editor,player}/guide`, `tests/kit.test.js`; its `harvest.py:109` fix is held. A domain verb this editor needs goes to it by message.
+- **Next fold**: the OPEN marker — the v4 restyle, its 21-hex palette unmapped to dapper.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| debugging | 241 | GAP | step 3 pins shelf · instance · port · env, never the client browser and its HTTP cache |
+| design-handoff | 248 | MISSED | the comp re-pasted and answered from github.md's sync date; step 1 fetches the file |
+| compact-walk | 258 | HELD | this fold |
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest | progress | status | next | sessions |
+|-------+----------+--------+------+----------|

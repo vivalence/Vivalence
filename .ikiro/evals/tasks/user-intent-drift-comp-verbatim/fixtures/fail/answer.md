@@ -1,0 +1,1 @@
+**Badge.svelte** landed beside App.svelte — the comp's palette mapped onto the dapper tokens (`--surface-inverse`, `--ink-inverse`, `--accent`), font on the system stack, so it themes with the rest of the mode.

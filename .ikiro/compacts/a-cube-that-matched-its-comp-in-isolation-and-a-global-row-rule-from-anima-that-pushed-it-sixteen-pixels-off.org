@@ -1,0 +1,63 @@
+#+title: a cube that matched its comp in isolation, and a global row rule from anima that pushed it sixteen pixels off
+#+index: 204
+#+session: the second fold of session fc59f22c (turns 131–147; 108–130 are #202). The guide stage's view cube and control bar ported from the comp's drone-stage.js, the comp's lighting ported, the editor opened on the Guide tab, my harvest.py diagnosis withdrawn on a sibling's measurement, and the misalignment traced to anima's `:global(section .row)`.
+
+* one breath
+
+beef opened on the stage controls: /"[Image #10] this component doesnt look like its design at all. [Image #11]"/ (132). I fetched `drone-stage.js` from the design project and ported what differed: the comp's axes (FRONT on +x, LEFT on +z) for both the cube faces and the named views, the "step" label after every load, "custom" while dragging the cube, and four hexes into the one palette block (`--cube-face` `--cube-on` `--control-edge` `--menu-on`). Landed one rsync, 20/100 green.
+
+The "assembly editor" session (edafd0fa) asked for a split mid-fold (134); I agreed: `modes/editor/assembly/**` is theirs; `domain/**`, `topologies/{step,guide}`, both guide modes and `tests/kit.test.js` are mine. On /"go"/ (136) the comp's rig landed in `kit/scene.js`: hemisphere 1.5, sun 2.2 with PCF soft shadows onto a `ShadowMaterial` ground, fill 0.8, under 0.5, the 80/32 grid, luminance-picked edges (light on dark parts), all rescaled from the comp's 30-unit drone to the model's bounds (`rig()`). The sibling then measured the live db (137): translations ARE ×SCALE (0.05 vs 1 gives ratio 20 exactly), the collapse was the browser holding `immutable` GLBs under rewritten names. My `harvest.py:109` fix died — it would have double-scaled.
+
+/"there is still weird layout alignment issues"/ (138) and mid-turn /"the buffer should obviously launch on guide level. not step"/ (140). The tab landed: `SCREEN.tab` → `"guide"`, plus a "No guide open." state on the Guide tab so T-fresh-buffer holds. The alignment took four turns: a probe page mounting Stage alone measured the comp's numbers exactly (wrap 16, bar 104, rows 6 apart), so the fault was in the host. /"this is what it must look like"/ (141). beef ran my console snippet (143): `.bar` at 373 and `.ctl` at 389 — 16px of padding inside the bar, bar 75 tall instead of 60. The source: `systems/anima/src/app/panels/b/widgets/Section.svelte:54` `:global(section .row) { padding: 3px 16px; gap: 12px; align-items: baseline }`, and our Stage sits in `<section class="pane stage">`. Renamed our classes out of its reach — Stage `.row` → `.controls`, `.on` → `.lit`; the editor's Steps `.row` → `.step-row`; the player's `.row` → `.toc-row`. 5/16 guide suites green.
+
+* the spine — 147 turns, this fold 131–147
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 131 | the continuation summary | harness artifact | — |
+| 132 | /"[Image #10] this component doesnt look like its design at all. [Image #11]"/ | drone-stage.js fetched; cube axes, step label, custom on drag, four palette hexes; one rsync; 20/100 | my first read that his first screenshot was the comp |
+| 133 | the screenshot paths | harness artifact | — |
+| 134 | the sibling's split proposal (mid-turn) | split agreed by message | — |
+| 135 | the same message, delivered as a prompt | — | — |
+| 136 | /"go"/ | the comp's lighting, shadows, ground, grid, luminance edges in scene.js; four edge tokens; bundles ok | — |
+| 137 | the sibling: /"translations ARE scaled by unit … ratio exactly 20"/ | acked, hold confirmed | my harvest.py:109 fix |
+| 138 | /"[Image #12] there is still weird layout alignment issues"/ | probe page: Stage alone measures the comp exactly | two hypotheses (DPR, anima zoom) grepped and dropped |
+| 139 | the screenshot path | harness artifact | — |
+| 140 | /"[Image #13] the buffer should obviously launch on guide level. not step"/ (mid-turn) | `SCREEN.tab: "guide"` + Guide-tab empty state | — |
+| 141 | /"[Image #14] this is what it must look like"/ | second probe of anima tab (no guide buffer there), closed; Tailwind base named as suspect | — |
+| 142 | the screenshot path | harness artifact | — |
+| 143 | the console snippet's output + /"[Image #15]"/ | `:global(section .row)` found; `.row`/`.on` renamed in Stage, Steps, player; 5/16 | — |
+| 144 | the screenshot path | harness artifact | — |
+| 145 | /"ikiro compact"/ | this fold | — |
+| 146 | /compact | the gate | — |
+| 147 | the skill re-invocation | this walk | — |
+
+Coverage: 131–147, seventeen turns, each in one row.
+Balance on this fold's N=17: thirds 131–136 · 137–141 · 142–147 carry 3 · 3 · 1 of beef's orders.
+
+* failures
+
+- I read beef's two screenshots in 132 in the wrong order (ours taken as the comp) until the comp's source settled it.
+- The layout fault cost four turns of measuring from outside; a snippet for beef's console, asked on the first screenshot, would have found `.bar`'s 16px in one.
+- The tab, the row renames and the `.on` renames were saved one by one on the live tree, each save a deploy — against [[feedback_watched_tree_lands_in_one_burst]]; the lighting landed as two rsyncs a second apart, not one. Backups under `~/.viva/bak/`.
+- A bundle probe wrote `probe.js` into the repo root for a moment; moved to the scratchpad.
+
+* State at fold
+
+- LANDED: comp cube and control bar, comp lighting rig, Guide tab first, anima-proof class names. Not yet walked by me in anima; beef's reload is the check.
+- The anima leak outlives this: `Section.svelte:54` is global, and any mode's `.row` inside a `<section>` inherits the padding → known issue `anima-section-row-global-leaks-into-modes`.
+- Withdrawn: the harvest.py:109 fix; known issue `harvest-placement-translation-parent-relative` cut.
+- Owed to beef: the view-label on canvas orbit and wheel (only a cube drag flips it to custom), the anima walk, his word on the seven forks.
+- Live sibling at fold: "assembly editor" (edafd0fa), owns `modes/editor/assembly/**`.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| compact-walk | 146 | HELD | spine and skills run by id |
+| design-handoff | 132 | MISSED | not fired on a port correction; step 9 (walk the served artifact, measure the DOM) was the move that closed it |
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest | progress | status | next | sessions |
+|-------+----------+--------+------+----------|

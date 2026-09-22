@@ -2,7 +2,9 @@ import { specimen } from "@vivalence/typology";
 import provider from "../provider/index.js";
 import {
   buildParams,
+  readChoice,
   streamTranslator,
+  translateChoice,
   translateResponse,
   translateTools,
   translateTurns,
@@ -179,6 +181,27 @@ specimen.describe("openrouter provider", () => {
           description: "",
           parameters: { type: "object" },
         },
+      });
+    });
+
+    specimen.it("a nested $id never reaches the wire — gpt-5.1 answers it with finish_reason length and no output (buffer_label, 09-23)", () => {
+      const out = translateTools([{
+        name: "buffer_label",
+        valence: "Name a buffer.",
+        input: {
+          type: "object",
+          required: ["id", "label"],
+          properties: {
+            id: { type: "string" },
+            label: { type: "object", required: ["name"], properties: { name: { type: "string" } }, $id: "Label" },
+          },
+        },
+      }]);
+      specimen.expect(JSON.stringify(out)).not.toContain("$id");
+      specimen.expect(out[0].function.parameters.properties.label).toEqual({
+        type: "object",
+        required: ["name"],
+        properties: { name: { type: "string" } },
       });
     });
   });
@@ -552,18 +575,54 @@ specimen.describe("openrouter provider", () => {
 
   specimen.describe("provider(service)", () => {
     specimen.it(
-      "returns 3 dialogue faculties (no network) with render + stream",
+      "returns 3 dialogue faculties (no network) with render + stream, and one choice faculty with render only",
       async () => {
         const faculties = await provider({ secrets: { key: "fake-key" } });
-        specimen.expect(faculties).toHaveLength(3);
-        for (const faculty of faculties) {
-          specimen.expect(faculty.type).toBe("dialogue");
+        specimen.expect(faculties).toHaveLength(4);
+        for (const faculty of faculties.filter((faculty) => faculty.type === "dialogue")) {
           specimen.expect(Array.isArray(faculty.tune)).toBe(true);
           specimen.expect(typeof faculty.via.render).toBe("function");
           specimen.expect(typeof faculty.via.stream).toBe("function");
         }
+        const [choice] = faculties.filter((faculty) => faculty.type === "choice");
+        specimen.expect(choice.config.model).toBe("typesafe/jev-1.13");
+        specimen.expect([choice.context, choice.options, choice.choices]).toEqual([32000, 255, null]);
+        specimen.expect(Object.keys(choice.via)).toEqual(["render"]);
       },
     );
+
+    specimen.it("translateChoice is the decisions dialect — primer to state, the tag to type, options and levels to criteria; readChoice folds the answers back in the caller's order (live body 09-24)", () => {
+      const round = {
+        primer: { expected: "Vado al mercato.", answer: "Io vado al mercato domani." },
+        questions: {
+          same: { type: "choice", ask: "Does `answer` mean `expected`?", options: { yes: null, partly: "extra or missing detail", no: null } },
+          grade: { type: "score", ask: "How close is `answer` to `expected`?", levels: ["wrong", "close", "exact"] },
+          ok: { type: "noul", ask: "Is `answer` grammatical Italian?" },
+        },
+      };
+      specimen.expect(translateChoice({ id: "typesafe/jev-1.13" }, round)).toEqual({
+        model: "typesafe/jev-1.13",
+        state: { expected: "Vado al mercato.", answer: "Io vado al mercato domani." },
+        questions: {
+          same: { type: "choice", instructions: "Does `answer` mean `expected`?", criteria: { yes: null, partly: "extra or missing detail", no: null } },
+          grade: { type: "score", instructions: "How close is `answer` to `expected`?", criteria: ["wrong", "close", "exact"] },
+          ok: { type: "noul", instructions: "Is `answer` grammatical Italian?" },
+        },
+      });
+      const body = {
+        model: "typesafe/jev-1.13-20260917",
+        answers: {
+          same: { type: "choice", choice: "partly", probabilities: { partly: 0.96, no: 0.01, yes: 0.03 }, confidence: 0.93 },
+          grade: { type: "score", score: 1.01, legend: { 0: "wrong", 1: "close", 2: "exact" }, probabilities: { 0: 0.01, 1: 0.97, 2: 0.02 }, confidence: 0.97 },
+          ok: { type: "noul", noul: 0.97 },
+        },
+        usage: { input_tokens: 397, output_tokens: 70, cost: 1.6674e-05 },
+      };
+      const verdict = readChoice(body, round);
+      specimen.expect(Object.keys(verdict.same)).toEqual(["yes", "partly", "no"]);
+      specimen.expect(verdict).toEqual({ same: { yes: 0.03, partly: 0.96, no: 0.01 }, grade: [0.01, 0.97, 0.02], ok: 0.97 });
+      specimen.expect(() => readChoice({ model: "m", answers: {} }, round)).toThrow(/answered no "same"/);
+    });
 
     specimen.it(
       "only the thinking model exposes thinking channels",
@@ -590,7 +649,7 @@ specimen.describe("openrouter provider", () => {
           },
         },
       });
-      specimen.expect(faculties).toHaveLength(1);
+      specimen.expect(faculties.filter((faculty) => faculty.type === "dialogue")).toHaveLength(1);
       specimen.expect(faculties[0].context).toBe(262144);
     });
   });

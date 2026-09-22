@@ -1,0 +1,1 @@
+- [ ] the <a target="_blank" href="https://docs.vivalence.org/12.01_slowstart">Slowstart</a> — the same climb, with the machinery explained at depth.

@@ -1,0 +1,2 @@
+{"name":"Read","input":{"file_path":"/repo/.ikiro/skills/readme-walk/SKILL.md"}}
+{"name":"Edit","input":{"file_path":"/repo/.ikiro/skills/readme-walk/SKILL.md","old_string":"6. **kill the bodies**","new_string":"7. **free the port** — `kill $(lsof -ti:2501 -sTCP:LISTEN)`; clients hold sockets on the port too, only the listener is the runtime.\n6. **kill the bodies**"}}

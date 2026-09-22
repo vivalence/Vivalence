@@ -18,6 +18,7 @@ export const FacultyType = v.union([
   v.const("speech"),
   v.const("verbatim"),
   v.const("call"),
+  v.const("choice"),
 ]);
 
 export const Part = {};
@@ -71,6 +72,7 @@ Part.ToolUse = v.object({
 Part.ToolResult = v.object({
   type: v.const("tool_result"),
   id: v.string(),
+  condition: v.string().optional(),
   output: v.record(v.string(), v.unknown()),
 });
 
@@ -201,11 +203,41 @@ export const Faculty = v.object({
   type: v.string(),
   tune: Tune,
   context: v.integer().optional(),
+  options: v.integer({ minimum: 2 }).optional().desc("Depth — the largest answer space one choice question may carry. Example: 255"),
+  choices: v.union([v.integer({ minimum: 1 }), v.null()]).optional().desc("Width — questions in one choice render; null unbounded. Example: 1"),
   channels: v
     .object({ in: v.array(v.unknown()), out: v.array(v.unknown()) }, { additionalProperties: true })
     .optional(),
   via: v.record(v.string(), v.unknown()),
 });
+
+const Probability = v.number({ minimum: 0, maximum: 1 });
+const Rubric = v.union([v.string(), v.record(v.string(), v.unknown()), v.null()]);
+const Ask = v.union([v.string(), v.record(v.string(), v.unknown())]).desc('A question, or a question with the data it names. Example: "Does `answer` mean `expected`?"');
+
+export const Choice = {};
+Choice.Question = v.union([
+  v.object({
+    type: v.const("choice").optional(),
+    ask: Ask,
+    options: v.record(v.string(), Rubric).desc('A named set of two or more, a rubric on any; the answer is a distribution over the names. Example: { yes: null, partly: "extra or missing detail", no: null }'),
+  }, { additionalProperties: false }),
+  v.object({
+    type: v.const("score").optional(),
+    ask: Ask,
+    levels: v.array(Rubric, { minItems: 2 }).desc('An ordered set, low to high; the answer is a distribution by index. Example: ["wrong", "close", "exact"]'),
+  }, { additionalProperties: false }),
+  v.object({
+    type: v.const("noul").optional(),
+    ask: Ask.desc('A proposition; the answer is its probability. Example: "Is `answer` grammatical Italian?"'),
+  }, { additionalProperties: false }),
+]).desc("Tagged by kind; shard.hallucinate.tagging fills an absent tag from the shape before the faculty sees it");
+Choice.Round = v.object({
+  primer: v.unknown().desc('What is under judgment. Example: { expected: "Vado al mercato.", answer: "Io vado al mercato domani." }'),
+  questions: v.record(v.string(), Choice.Question).desc('One or more, keyed by the caller; every answer returns under its key. Example: { same: { type: "choice", ask: "Does `answer` mean `expected`?", options: { yes: null, no: null } } }'),
+});
+Choice.Answer = v.union([v.record(v.string(), Probability), v.array(Probability), Probability]);
+Choice.Verdict = v.record(v.string(), Choice.Answer).desc("One distribution per question key, in the question's own shape. Example: { same: { yes: 0.03, partly: 0.96, no: 0.01 }, grade: [0.01, 0.97, 0.02], ok: 0.97 }");
 
 export const Packet = {};
 
@@ -385,6 +417,7 @@ Policy.verbatim = v.object({
   harmonize: v.object({ window: v.integer().optional(), tolerance: v.number().optional(), tail: v.integer().optional() }).optional().desc("belt.verbatim.harmonize options, applied over the faculty's stream. Example: { window: 2 }"),
 }, { default: {} });
 Policy.speech = v.object({ ...shared }, { default: {} });
+Policy.choice = v.object({ ...shared }, { default: {} });
 
 const controlled = (policy) => ({
   controller: v.unknown().desc('A live Controller — required; is.Controller gates it, no schema can. Example: new Controller({ stdout: new Span("hallucination") })'),
@@ -415,11 +448,16 @@ Hallucination.speech = v.object({
   settings: Settings.optional().desc('Provider knobs, opaque. Example: { voice: "aria" }'),
 });
 
+Hallucination.choice = v.object({
+  ...controlled(Policy.choice),
+  ...Choice.Round.properties,
+});
+
 export const Context = v.object({
   input: v.unknown().desc("Hallucination[avenue], filled; lowering rewrites it to the wire Request"),
   output: v.unknown().optional(),
   controller: v.unknown().desc("The record's controller, lifted; is.Controller"),
-  policy: v.union([Policy.dialogue, Policy.verbatim, Policy.speech]).desc("The record's policy, lifted; lowering strips it off input"),
+  policy: v.union([Policy.dialogue, Policy.verbatim, Policy.speech, Policy.choice]).desc("The record's policy, lifted; lowering strips it off input"),
   tools: v.unknown().optional().desc("The armed Vector, lifted off the record by lowering"),
   steps: v.array(v.unknown()),
   signal: v.unknown(),

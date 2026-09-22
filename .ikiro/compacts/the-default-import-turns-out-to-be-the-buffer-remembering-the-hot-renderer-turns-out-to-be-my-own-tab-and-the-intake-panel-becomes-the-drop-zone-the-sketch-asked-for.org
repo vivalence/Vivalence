@@ -1,0 +1,107 @@
+#+title: the default import turns out to be the buffer remembering, the hot renderer turns out to be my own tab, and the intake panel becomes the drop zone the sketch asked for
+#+index: 187
+#+session: 17 turns, 16:35–20:34, model opus with a fable stretch in the middle. Sixth fold of the same session: 1–20 at #178, 21–53 at #180, 54–69 at #181, 70–94 at #182, 95–108 at #183; this covers 109–125 — the half where beef reviewed the screen he had asked for and found it was not the screen he had asked for.
+
+* one breath
+
+One order, three times, in three different words. /"why is there a default imported??!!?! i want to import my own! import file. get all its parts and pieces. remove all defaults from the mode"/ (109). Then, after the sweep: /"there is still an auto import!"/ (119). Then, after that: /"this still dont make sense?!?!?! why is there shit about the mountpoint inn teh ui. i want to update, and that upload should be processed into literals. whats so fiddifcult???"/ (121).
+
+Each time I fixed something smaller than what he said. The first round swept =.default()= out of the schematics and put a =clear= button on the bin. The second found the actual mechanism — the bin IS the buffer (ruling 15), so a buffer row remembers its bin and hands it back on every open; the "default import" was *my own* Chrome test, persisted in beef's thread — and cleared both rows. Only the third round named the thing: the whole intake panel was the wrong shape. Not its defaults. Its shape.
+
+The answer was in the quest's own §intent the entire time, beef's words from the design day: /"how do I import the model? I just like drop something into the editor."/ I had built a mountpoint scanner instead, and then defended it three times by fixing its contents.
+
+What the screen is now: a drop zone, the scale, one button. The =.blend= rides a second plain http connection (media's precedent — the multiplex is text-only) to =/upload=, a streaming door that lands the file and walks harvest → interpret → annotate → embed, yielding the bin after every step while the phase bar counts. Measured on one click: 30 objects → 18 members → 18 named → *18 components + 1 assembly minted*, under six seconds including blender.
+
+Between those: the data pane deleted whole (115), pt10 evicted from the daemon and the db purged (120), and a renderer at 570 % that turned out to be a tab I left open in the previous fold (117).
+
+* the spine — 17 turns
+
+| n | beef | landed |
+| 109 | MID-TURN, during the previous fold's compaction: =/compact= + a screenshot + /"why is there a default imported??!!?! i want to import my own! import file. get all its parts and pieces. remove all defaults from the mode"/ | the order that governs the whole fold |
+| 110 | the same words again as the prompt that carried =/compact= | re-delivery; the compaction fired between them |
+| 111 | the screenshot path alone | 110's image companion |
+| 112 | the continuation summary | harness artifact, not beef's words |
+| 113 | 98 116 ch: the m67 quest, then the whole =@education= README, then /"education serves as a guide for furhter construction of the aseembly&droneaid modes."/ · /"fix this."/ · /"remove this entire top bar"/ · /"remove all the duplication here. any action i might take against an entity happens on the right side in the sidebar. like moving things to other stages."/ · /"also add multi select and drag and drop to the app. drag and drop through stages. select multiple with shift or cmd or whatever the stdandard is here."/ · /"also, the threejs rendering doesnt work … no parts are displaying. either from this fake unwanted import, nor from the existing data."/ | the second-pass list, six orders in one paste |
+| 114 | three screenshots | the evidence for 113 |
+| 115 | MID-TURN /"actually remove the existing data tab completely. makes no sense here"/ | the data pane, =list()=, =/literals=, =/closure= and =resolve()= all deleted |
+| 116 | MID-TURN /"go fix all of the things i mentioned"/ | the go for the whole list |
+| 117 | MID-TURN /"renderer is going nuts"/ + Activity Monitor at 87.2 % | render-on-demand, and the stale tab found |
+| 118 | MID-TURN /"go through my original task list again"/ | the audit, item by item off disk — four more defaults found and cut |
+| 119 | /"there is still an auto import!"/ | the buffer rows: the bin persists, and both threads held one |
+| 120 | /"remove pt10 entirely from the daemon and its dataspace"/ | kernel entry out, db captured then purged, bundles removed |
+| 121 | /"this still dont make sense?!?!?! why is there shit about the mountpoint inn teh ui. i want to update, and that upload should be processed into literals. whats so fiddifcult???"/ | =/upload= — the whole walk behind one button |
+| 122 | MID-TURN, a screenshot of the foot's =assembly · slug · name · target= form: /"and what is this?"/ | the form deleted |
+| 123 | MID-TURN /"this whole componetn still makes no sense"/ | the view rewritten around the drop |
+| 124 | /"ikiro compact"/ | this fold |
+| 125 | =/compact= | harness |
+
+* what landed, by seam
+
+| =buffer/Import.svelte= | rewritten twice (826 lines). Round one: top bar gone · data tab gone · every entity action moved to the inspector over a *selection* (⌘ toggles, shift ranges, a stage pick carries its modifiers) · a row drags the selection onto a phase card. Round two: the intake panel becomes a drop zone + scale + one button, the foot's assembly form gone, the footer itself only drawn when there is something to say |
+| =aperture/index.js= | 11 → *15 doors*. New: =/upload= (streaming, raw body, the whole walk) · =/clear= · =/dissolve= (interpret's inverse) · =/forget= (annotate's inverse). Scoped by ids: =/interpret {objects}= · =/annotate {ids}= · =/embed {ids}= · =/drop {ids, dropped}=. The phase steps factored out so the doors and =/upload= share one implementation |
+| =buffer/scene.js= | selection is a Set, not a slug · the pick hands its modifier keys out · render on demand (camera change · scene change · resize), not every animation frame · =forceContextLoss= on dispose · the camera starts off the origin |
+| defaults | =HARVEST.scale= required · =blend.js= and =harvest.py= refuse a missing scale, =harvest.py= a missing =--out= · the =~/Downloads= line gone · =pt10 · PT10 V3 · @droneaid/topography/model= placeholders gone · =pane= gone from the buffer schema · =selected= is an array · =/drop='s =dropped= required · =write.js= no longer invents the name "import" · =annotate.js= no longer proposes "part" |
+| =instances/droneaid= | =@droneaid/assembly/pt10= out of the kernel; db + migrations captured to =bak/= then purged; =bundles/assembly= (13 MB) removed. Fresh boot: 7 modes · 0 literals · 69 symbols · 0 buffers · 0 threads, users untouched in =service_multiplayer= |
+| tests | =P-upload= (the door's three refusals, nothing touching disk) · =P-moves= (every edge and its inverse, scoped) · =P-clear=. 9 suites / 51 steps green |
+
+* the three rounds of one order
+
+*Round one — the defaults that were not the problem.* I read /"remove all defaults"/ as a grep for =.default()= and swept: the schematics, the placeholders, the =pane= enum, the =~/Downloads= comment. All of it was worth cutting and none of it was what he saw. What he saw was thirty objects sitting in his bin on open.
+
+*Round two — the mechanism.* Ruling 15 says the bin IS the buffer. A buffer row therefore *remembers*, and the importer's screen opens on the last thread. The thirty objects were the intake I had loaded during my own Chrome verification two folds earlier, written into beef's thread and handed back every time he opened it. Two buffer rows held one; I cleared both through the app's own =/clear=, then proved a fresh thread opens empty. Also landed: the buffer subscription is keyed on =buffer.id= and returns early without one — a filter with no id matches every buffer, and another buffer's bin would walk in as an import nobody asked for.
+
+*Round three — the shape.* /"why is there shit about the mountpoint in the ui"/. The mountpoint is the daemon's business. The operator has a file. Everything the panel did — scan the mountpoint, list the blends, list prior intakes, name the intake directory — was the daemon's internals rendered as a form. =/upload= takes the bytes and gives back literals, and the four phase doors stay for the hand's corrections and the harness.
+
+The three rounds are one failure with three chances to catch it: *I answered the sentence's nouns instead of its verb.* "Remove defaults" has a grep. "I want to import my own file" has a design.
+
+* what the blank stage actually was
+
+beef, in 113: /"the threejs rendering doesnt work … no parts are displaying. either from this fake unwanted import, nor from the existing data."/ Two halves, two causes, neither of them three.js:
+
+- *The import half.* His buffer row read =pane: "data", selected: "FlightController00"= — his screenshot exactly. =populate()= returned early on =pane !== "import"= and nothing redrew on the way back. Reproduced by flipping my own theme to paper and looking at the same row. With the data tab deleted, the pane is gone and so is the branch.
+- *The data half.* The 48 literals with no owner at all, whose GLBs had been moved to =bak/= when the instance was rebuilt. Nothing to render because the files were not there. The purge answered it.
+
+The renderer *was* drawing the whole time — a wireframe drone at 0.6 scale, confirmed by zooming the screenshot rather than trusting the small view.
+
+* the hot renderer
+
+beef: /"renderer is going nuts"/ — Activity Monitor at 87.2 %, later measured at 570 %, two hours of CPU in fifty-five minutes of wall clock. Two causes, and only one was code:
+
+1. The stage ran =requestAnimationFrame= unconditionally and rendered every frame whether or not anything had moved. Now =controls.update() || dirty= gates it: the camera's own damping keeps it alive while it moves, a scene change or resize marks it dirty, and an idle stage costs nothing.
+2. The hot process was fifty-five minutes old — the tab *I* opened at 18:13 in the previous fold and never closed. It reconnected through three daemon restarts running a stale bundle. Every same-origin tab shares that renderer process, so my fresh tab froze with it and the live checks stalled twice before it died.
+
+The second one has a rule and I had it: close the tabs you open. Written to memory as =feedback_close_verification_tabs= so the next hot renderer is suspected as a leftover tab before it is suspected as code.
+
+* failures and near-misses
+
+- *Three rounds to hear one order.* Above. The design ruling was in the quest I had compacted myself, in beef's own words, under §intent.
+- *I verified into beef's session and left the mess there.* The bin he called a default was my test. The hot renderer was my tab. Both were artifacts of me verifying in his live Chrome and his live daemon rather than in something of my own — and both read, to him, as the product being broken.
+- *A drag at 19:01 interpreted every loose object* where the call sent was scoped to one. Not reproduced at 19:18 on the same path with the same scoping, and the door and the transport both read clean on inspection. Left open in the quest rather than explained away.
+- *The codemap I minted one fold ago is already stale* — it says eleven importer doors and there are fifteen, and its §the importer describes a screen that no longer exists. Refreshed in this fold; worth noting that a shard written at the end of a session about code still being rewritten has a half-life of hours.
+- *CDP cannot drive native drag-and-drop.* =left_click_drag= fires mouse events; HTML5 DnD needs =DragEvent=. The handlers were exercised by dispatching real DragEvents with a DataTransfer, which proved the handlers and the =move()= path but not the browser's own drag. Said so rather than claiming the drag was verified.
+
+* method
+
+- Fourteen of this fold's seventeen turns arrived MID-TURN, inside running turns. Two of them (122, 123) landed while a tool call was in flight and were answered in the same turn they arrived. A =user=-only walk would have seen six turns where there are seventeen.
+- The extractor ran clean at 125 turns. Turns 109/110/111 are one order delivered three ways — mid-turn, then as the prompt carrying =/compact=, then its image companion — and the 180 s dedupe correctly kept them apart (163 / 160 / 147 ch, different text). Three rows for one instruction is the honest count: he said it three times because the fold was eating it.
+- Chrome as instrument, again: =tabs_context_mcp= → navigate → beef's own session already signed in. The upload was driven by fetching the blend out of the daemon's own cargo, building a =File= from it, and putting it on the input's =files= — the file picker cannot be driven, and =file_upload= only takes files the session was given.
+- The db was captured to =bak/= before the purge, per the ledger-has-no-VCS rule. =~/.viva/bak/instances/droneaid-20260921/daemon_droneaid-db-1933/= holds the db, its migrations and the pre-cut =daemon.js=.
+
+* state at fold
+
+- =@assembly= — 9 suites / 51 steps green. The importer walks end to end from a drop: 30 objects → 18 components + 1 assembly (30 nodes) under =editor/import=, 18 GLBs on the freight.
+- The daemon is empty of everything it did not mint: 0 literals before the walk, 69 symbols (the shipped vocabulary), no pt10, no orphan rows.
+- *The threlte line landed in a sibling session*, not this one — =bundle/svelte.js:46= plus the =target: "esnext"= line six above it, measured against the served bundle (every =async= through =__async=, 185 =#private= sites through helpers, 23 kB lighter at esnext) and driven in Chrome on this importer. m67 ruling 3 is closed; two siblings are live on m67 right now.
+- MARKERS: both cortex entries stay OPEN — sixth consecutive fold. Neither is in this session's path; they wait on runtime and anima work, not on a fold.
+
+* owed
+
+- *beef* — drop the blend and read the eighteen names (the interpreter folds =FlightController00/01= into one board; that is the correction the screen was built for) · the write to =@droneaid/topography/model= · commits in paladin, assembly, droneaid, the repo · ruling 16's word after the first write.
+- *ikiro* — a *re-embed* of a corrected member: a minted row has no way back today, so unmerging or renaming after an embed has nowhere to land. The domain's doors upsert by slug, so it is a small door. The 19:01 drag, if it recurs.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | sessions   |
+|-------------------------+-----------+----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 1          |
+| m67-assembly-ontology   |   0% 0/3  | building | beef — drop your blend, check the names (the interpreter folded flightcontroller00/01 into one board), then the corrections you want and the write to @droneaid/topography/model · commits in paladin, assembly, droneaid, the repo. ikiro — re-embed of a corrected member (a minted row has no way back today). done 09-21 evening on beef's order: the db purged (captured first at =~/.viva/bak/instances/droneaid-20260921/daemon_droneaid-db-1933=), pt10 out of the kernel and its bundles off the mountpoint; the fresh boot reads 0 literals · 69 symbols · 0 buffers · 0 threads, users untouched. open: one drop at 19:01 interpreted every loose object where a scoped call was sent — not reproduced at 19:18 (the same path, scoped, clean); watch for it on the live walk. ruling 16 after the first write; =bundle/svelte.js:46= on go. | 2 (2 live) |

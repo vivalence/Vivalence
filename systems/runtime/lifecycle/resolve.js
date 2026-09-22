@@ -1,7 +1,7 @@
 import paladin from "@vivalence/paladin";
 import { fromm, shard, shape } from "@vivalence/typology";
 
-const CARGO_CACHE = "public, max-age=31536000, immutable";
+const CARGO_CACHE = "no-cache";
 
 export async function attach(runtimeDie) {
   async function attachProcesses(runtimeDie) {
@@ -11,7 +11,7 @@ export async function attach(runtimeDie) {
         .open("/manifest", () => processDie.manifest);
 
       runtimeDie.good.aperture
-        .branch(`/attached/process/${processDie.type}/${processDie.slug}`)
+        .branch(processDie.mask.mount.absolute)
         .use(shard.context.attach(processDie.type, processDie.mask))
         .slurp(processDie.good);
     }
@@ -21,12 +21,11 @@ export async function attach(runtimeDie) {
     for (const daemonDie of runtimeDie.good.daemons) {
       for (const mode of daemonDie.good.flatmodes()) {
         if (!mode.implements("APPLICATION") && !mode.implements("GENERATIVE")) continue;
-        const bundler = paladin.bundler(
-          `${daemonDie.good.mountpoint.absolute}/bundles/${mode.manifest.type}/${mode.manifest.slug}`,
-        );
+        const bundler = paladin.bundler(mode.bundles.absolute);
 
         runtimeDie.good.aperture
           .branch("/attached/bundle")
+          .branch(daemonDie.good.mount.absolute)
           .branch(mode.mount.absolute)
           .open("/(.*)", async (input, ctx) => {
             const served = await bundler.serve(fromm.params(ctx.params).path.absolute);
@@ -123,8 +122,8 @@ export async function metadata(runtimeDie) {
     runtimeDie.good.processes.map((processDie) => ({
       type: processDie.type,
       slug: processDie.slug,
-      mount: `/attached/process/${processDie.type}/${processDie.slug}`,
-      metadata: `/attached/process/${processDie.type}/${processDie.slug}/metadata`,
+      mount: processDie.mask.mount.absolute,
+      metadata: `${processDie.mask.mount.absolute}/metadata`,
     })),
   );
 }

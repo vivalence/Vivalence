@@ -24,7 +24,7 @@ const unique = (rows) => {
 const pull = (source, mode) => {
   if (source.load) return source.load(mode);
   if (source.rows) return source.rows;
-  const at = `${mode.module.mount.dirname}/${source.walk ?? source.read}`;
+  const at = `${mode.module.source.dirname}/${source.walk ?? source.read}`;
   return source.walk ? paladin.find.data(at) : paladin.read[source.codec](at);
 };
 
@@ -32,7 +32,7 @@ const installer = Deno.readTextFile(new URL(import.meta.url));
 
 export const stamp = async (mode) => {
   const dataset = new Dataset(mode.module.dataset ?? {});
-  const mount = mode.module.mount;
+  const mount = mode.module.source;
   const files = [];
   for (const sources of Object.values(dataset.sources)) {
     for (const source of sources) {

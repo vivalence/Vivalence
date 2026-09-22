@@ -3,7 +3,6 @@ import { expect } from "@std/expect";
 import { Path } from "@vivalence/typology";
 import { Paladin } from "../prototypes/paladin.js";
 import { Registry } from "../prototypes/ledger/registry.js";
-import { Vip } from "../prototypes/vip.js";
 
 const scaffold = async () => {
   const ledger = await Deno.makeTempDir({ prefix: "registry_test_ledger_" });
@@ -27,7 +26,7 @@ describe("Registry — reference algebra", () => {
     const { registry } = await scaffold();
     await registry.add("/external/checkout");
     await registry.add("/external/checkout");
-    expect(await registry.list()).toEqual(["/external/checkout"]);
+    expect(await registry.references()).toEqual(["/external/checkout"]);
   });
 
   it("'./pack' and 'pack' are the same reference", async () => {
@@ -35,7 +34,7 @@ describe("Registry — reference algebra", () => {
     await registry.add("./pack");
     expect(await registry.has("pack")).toBe(true);
     await registry.add("pack");
-    expect(await registry.list()).toEqual(["pack"]);
+    expect(await registry.references()).toEqual(["pack"]);
   });
 
   it("remove drops exactly the named reference", async () => {
@@ -43,14 +42,14 @@ describe("Registry — reference algebra", () => {
     await registry.add("/external/checkout");
     await registry.add("pack");
     await registry.remove("./pack");
-    expect(await registry.list()).toEqual(["/external/checkout"]);
+    expect(await registry.references()).toEqual(["/external/checkout"]);
   });
 
   it("remove of an unrecorded reference is a no-op", async () => {
     const { registry } = await scaffold();
     await registry.add("pack");
     expect(await registry.remove("never")).toEqual(["pack"]);
-    expect(await registry.list()).toEqual(["pack"]);
+    expect(await registry.references()).toEqual(["pack"]);
   });
 
   it("resolve — absolute verbatim, relative against the store root", async () => {
@@ -88,7 +87,7 @@ describe("Registry.seed — discovery keeps only package declarations", () => {
 
     const locations = await registry.seed(paladin.scope.registry);
     expect(locations).toEqual([`${store}/real`]);
-    expect(await registry.list()).toEqual([`${store}/real`]);
+    expect(await registry.references()).toEqual([`${store}/real`]);
   });
 });
 
@@ -114,7 +113,7 @@ describe("Registry.reconcile — a dead location never breaks supply", () => {
     const { locations, stale } = await registry.reconcile(checkout, commons);
     expect(locations).toEqual([`${repository}/commons`]);
     expect(stale).toEqual([]);
-    expect(await registry.list()).toEqual([`${repository}/commons`]);
+    expect(await registry.references()).toEqual([`${repository}/commons`]);
   });
 
   it("a dead location outside the checkout is skipped, kept recorded, and reported stale", async () => {
@@ -125,7 +124,7 @@ describe("Registry.reconcile — a dead location never breaks supply", () => {
     const { locations, stale } = await registry.reconcile(checkout, commons);
     expect(locations).toEqual(["real"]);
     expect(stale).toEqual(["/nowhere/checkout"]);
-    expect(await registry.list()).toEqual(["/nowhere/checkout", "real"]);
+    expect(await registry.references()).toEqual(["/nowhere/checkout", "real"]);
   });
 
   it("a record with every location present is returned as-is and not rewritten", async () => {
@@ -152,37 +151,37 @@ describe("Registry.reconcile — a dead location never breaks supply", () => {
   });
 });
 
-describe("Vip.supply — boots over a stale record", () => {
+describe("Registry.supply — boots over a stale record", () => {
   it("mounts the healed checkout package and skips the dead external one", async () => {
     const { paladin, repository, store } = await homed();
     await declare(repository);
     await author(`${store}/real`, "package.viva.js", { owner: "@real", type: "package", slug: "real", version: "0.0.1" });
     await paladin.ledger.registry.write([`${repository}/registry/viva`, "/nowhere/checkout", "real"]);
 
-    const vip = new Vip(paladin);
-    await vip.supply();
-    expect(vip.pensieve.has("@commons")).toBe(true);
-    expect(vip.pensieve.has("@real")).toBe(true);
-    expect(vip.stale).toEqual(["/nowhere/checkout"]);
-    expect(await paladin.ledger.registry.list()).toEqual(["/nowhere/checkout", "real", `${repository}/commons`]);
+    const registry = paladin.ledger.registry;
+    await registry.supply();
+    expect(registry.pensieve.has("@commons")).toBe(true);
+    expect(registry.pensieve.has("@real")).toBe(true);
+    expect(registry.stale).toEqual(["/nowhere/checkout"]);
+    expect(await paladin.ledger.registry.references()).toEqual(["/nowhere/checkout", "real", `${repository}/commons`]);
   });
 
   it("no record seeds from <checkout>/commons", async () => {
     const { paladin, repository } = await homed();
     await declare(repository);
 
-    const vip = new Vip(paladin);
-    await vip.supply();
-    expect(vip.pensieve.has("@commons")).toBe(true);
-    expect(await paladin.ledger.registry.list()).toEqual([`${repository}/commons`]);
+    const registry = paladin.ledger.registry;
+    await registry.supply();
+    expect(registry.pensieve.has("@commons")).toBe(true);
+    expect(await paladin.ledger.registry.references()).toEqual([`${repository}/commons`]);
   });
 
   it("a checkout without commons/ supplies nothing and names the absence at accio", async () => {
     const { paladin } = await homed();
 
-    const vip = new Vip(paladin);
-    await vip.supply();
-    expect(vip.pensieve.has("@commons")).toBe(false);
-    await expect(vip.accio("@commons/datamap/libsql")).rejects.toThrow("not supplied");
+    const registry = paladin.ledger.registry;
+    await registry.supply();
+    expect(registry.pensieve.has("@commons")).toBe(false);
+    await expect(registry.accio("@commons/datamap/libsql")).rejects.toThrow("not supplied");
   });
 });

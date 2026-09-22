@@ -17,6 +17,15 @@ specimen.describe("harness — the thread section", () => {
     await scenario.orm.close();
   });
 
+  specimen.it("harness.choice.render reaches the cortex with the caller's primer and questions", async () => {
+    const { dewey } = scenario;
+    const verdict = await dewey.harness.choice.render({
+      primer: { expected: "sono andato", answer: "ho andato" },
+      questions: { same: { ask: "Does `answer` mean `expected`?", options: { yes: null, no: null } } },
+    });
+    specimen.expect(verdict).toEqual({ same: { yes: 0.9, no: 0.1 } });
+  });
+
   specimen.it("names the thread, the mode and every buffer on it, after the mode's own sections", async () => {
     const { daemon, dewey, em, fixtures, createThread } = scenario;
     const thread = await createThread();

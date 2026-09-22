@@ -1,0 +1,116 @@
+#+title: a round of parallel writers strands mikro's flush queue and dispatch goes serial, choice takes jev's shape in our words, and the choice faculty lands in done
+#+index: 214
+#+session: the second fold of session 8f39f3b2, turns 13–49 (fold N = 37; #210 folded 1–12). beef's thread: a droneaid guide round that hung the Activity and the Dock; then how many options one choice may carry, which became the choice faculty rebuilt on jev's own interface.
+
+* one breath
+
+beef's paste (14) held the whole failure: round 2 fired four =assembly_step=, =assembly_sequence= and =open= in one assistant turn, three faulted, three never closed, and the Activity sat RUNNING. The rig reproduced it offline before any theory — four steps and a sequence in =Promise.all= left two PENDING, stack =fks is not iterable= in mikro's =PivotCollectionPersister=. The cause is one line in mikro 6.6.7: =UnitOfWork.commit= queues concurrent flushes and drains them only after =doCommit= returns, so a throw strands every queued promise. beef ruled in one word (17): /"serial."/ — then (18) /"mark inline in code: mightt in the future change to parallel"/. The bracket ran whole: blast, a baseline with eight pre-existing reds recorded, two RED guardrails (one hung past 60 s through the real =respond=), =settle= + a serial =dispatch=, green both sides.
+
+(19) caught a false claim: I had told him =runtime/watch= misses typology, reading the =--watch== flag. =deno info run.js= lists 351 typology modules; the runtime shard of the previous fold already said so. Retracted the same turn.
+
+(20)–(25) turned a count into a redesign. The 20 was OpenAI's =top_logprobs= cap, not jev's (21 /"jev truth or sircumstantial"/); naming it as a capability died (23 /"no. what happens here actually? we declare how many of the top items we want back."/); jev reads the full logit vector (24); beef refused the compromise (25) /"i dont like this compromise and i want to use the actual jev tech. openrouter has it. find it."/ It was there: =POST /api/alpha/decisions=, =typesafe/jev-1.13=, one live call, three questions, 397 tokens, $1.7e-05.
+
+(26)–(39) settled the interface in JSON: /"yes this is obviously the interface of our faculty."/ (28), /"we take the shape, bring our own words"/ (29), and the principle that ran the rest (30) — /"were taking v0 of the interface rn and making it our standard. where really we should leave the implementation detail to the providers, and our concern is to capture the shared core of the abstraction/interface. thats your job. find THAT shape."/ Out of it: =primer= (32), the verdict is the distribution and nothing else (33 /"the output of render is the end of our concern."/), caps on the faculty flat beside =context= — =options= depth, =choices= width (37) — no =bounds= block (36 /"why keep it?"/), questions tagged (37–38, the yieldmap idiom), and the tags jev's own words (43 /"choice, score and noul are good names actually. we take those."/). (40) became kernel: /"when you show me schematics, also show snapshots. always. ikiro mark!"/
+
+(43) landed M5 across typology · runtime · commons · riddler, green both sides, live 1/1; (44) /"choice must have span. choice ahs controller. must have span."/ gave the avenue =belt.hallucinate.choose=; (47) /"move to done."/ closed m70.
+
+* the spine — turns 13–49
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 13 | =/compact= | the gate passed; #210's fold held | — |
+| 14 | MID-TURN the watcher log + the Activity card · /"we broke. why? it got the frontend stuck too! somethign died"/ | reproduced offline on the assembly rig (=parallel-steps.test.js=); the stack; =UnitOfWork.js:302= read; the chain drawn; serial proposed against a fork per call | — |
+| 15 | the continuation summary (harness text, not beef's) | NOTHING | — |
+| 16 | the screenshot path | read as the Activity card: 12/12 records, three faults, RUNNING 19.2 s | — |
+| 17 | /"serial."/ | blast (one caller, =respond=); baseline 9 suites, =hello-world/research= 8 reds pre-existing; unit guardrail RED, =S-one-round-many-writers= RED by hang; =settle= + serial =dispatch=; green; =typology.md= trap; known-issue =mikro-flush-queue-strands-on-a-failed-commit= | =Promise.all= over a round's tool calls |
+| 18 | MID-TURN /"mark inline in code: mightt in the future change to parallel"/ | =// @beef serial: … might in the future change to parallel= (the gate passes =@beef=) | — |
+| 19 | /"runtime/watch does not watch subsystems/typology. should"/ | =deno info run.js= → 351 typology modules incl. =belt/hallucinate.js=; no change; the sibling had re-pinned my scenario to its new error shape, green | my claim that the watcher missed typology |
+| 20 | /"how many choices can i posit in one request?"/ | one question, 2–26 by schema, 20 on openrouter | — |
+| 21 | /"where is that number from? jev truth or sircumstantial. i assuem this number should live on the settings/config of the provider. that number will evolve and change."/ | 20 = OpenAI's =top_logprobs= ceiling, three literals; the chooser row as its home | — |
+| 22 | /"correct but really badly named. propose 5names. short answer"/ | five names | =ranked= · =options= · =breadth= · =spread= · =choices= |
+| 23 | /"no. what happens here actually? we declare how many of the top items we want back."/ | =top= | the capability framing |
+| 24 | /"what does jev use here?"/ | jev reads the full logit vector; the 20 is the chat API's slice | — |
+| 25 | /"i dont like this compromise and i want to use the actual jev tech. openrouter has it. find it. what are the settings here?"/ | =/api/alpha/decisions= found in OpenRouter's docs; one live call; the settings table | the logprob readout as the choice mechanism |
+| 26 | /"yes this is the direction. show me two sides … we still call it choice. what is a choice hallucinatino? what is its yield? … show me json"/ | the schematic side and the provider side, JSON | — |
+| 27 | /"so wait. i ask 3 questions at once??"/ | yes — fan-out, 12.2× cheaper at 13 questions (TypeSafe's cookbook) | — |
+| 28 | /"yes this is obviously the interface of our faculty."/ | M5 drafted into the quest | the one-question shape |
+| 29 | MID-TURN /"we take the shape, bring our own words"/ | the schema hunk shown | — |
+| 30 | /"… this maxProperties: 255 will need to be set by the faculty … find THAT shape. vivalence is full of these. … is THIS it? or is that a possible function of our impleemntation."/ | core vs jev v0 as a table; the answer is the distribution; caps move to the faculty | =maxProperties: 255= in the core |
+| 31 | /"give me json, not schematics"/ | JSON only | — |
+| 32 | /"state to primer … choice instead of pick. … holds is shit name. propose 15 alternatives."/ | =primer=; fifteen names, =bounds= picked; the cortex path | =state= · =pick= · =holds= |
+| 33 | /"no. not what i meant. we dont need lookup functions. the output of render is the end of our concern. … bounds is good. what do all of questions options and scale mean and is there one too much?"/ | =questions= cut from the caps | =belt.choice= readings |
+| 34 | /"yes. this trails in the quest. hallinate[x].primer is our new system context noun. later. … no. ok simple direct interface. all good. less is more. … options vs scale. are those really different?"/ | one cap =options= | the =primer()= / =question()= harness shards; =scale= as a second cap |
+| 35 | /"what do other faculties call the key containing context size?"/ | =context=, flat on every faculty, read by nothing | — |
+| 36 | /"we might also drop bounds... why keep it?"/ | caps flat beside =context= | =bounds= |
+| 37 | /"… we might call that 'choices'. options not equal choices. depth and width. … do we want to type the question? … at least on schematics level we must be able to infer type."/ | =choices= (width); the tag | typing by shape alone |
+| 38 | /"good. we have the same in our yields, no? yields have types and states, no?"/ | =condition= · =kind= · =event=; =questionmap= sniff + fill | — |
+| 39 | /"yes yes yes. ok. i think we have the design settled now. work out how vivalences repo looks like when this is embedded and wired and running."/ | M5 rulings 14–19 rewritten; the tour, seam by seam | — |
+| 40 | /"when you show me schematics, also show snapshots. always. ikiro mark!"/ | =ikiro.md= comms law; every schematic re-shown with its witness | — |
+| 41 | /"rename truth to the jev name here. nole or something. … state is primer! rename state to primer! otherwise go."/ | =noul=; =state= kept only as jev's wire field | =truth= |
+| 42 | the baseline call interrupted | NOTHING | — |
+| 43 | /"choice, score and noul are good names actually. we take those."/ | M5 landed: schema · =tagging= · =bounding= · cortex · belt cut · strip · fixture · ROUND · harness · provider (=translateChoice= · =readChoice= · fetch) · riddler; typology 127/514 · runtime 65/422 · openrouter 39 · anima 3/9 both sides; live 1/1 | =select= · =scale= tags; =Choice.Lowered=; =belt.choice=; letters |
+| 44 | /"choice must have span. choice ahs controller. must have span."/ | =belt.hallucinate.choose=; =open · note · note · close= pinned and live on the sink | "a gap to note" |
+| 45 | /"tested?"/ | unit + live named; the fault path on the span untested, said so | — |
+| 46 | the quest path · /"done?"/ | title and three markers restamped; =P-riddler= pending, owed | — |
+| 47 | /"move to done."/ | =P-riddler= revised (walk waived); release organ rewritten, four lines lifted; =mv= to =done/=; index; =harness.md= §2.8 rewritten | — |
+| 48 | MID-TURN /"ikiro compact"/ | this fold | — |
+| 49 | MID-TURN =/compact= | the gate this fold settles | — |
+
+Coverage: 13–49, thirty-seven rows, three NOTHING (15 · 42 and the gate-only 13 landed nothing of its own). Balance on the fold's N = 37 (thirds 13–25 · 26–37 · 38–49): the one breath cites 13–25 eleven times, 26–37 twelve, 38–49 six. Weight sits in the middle because that is where beef designed — ten turns of JSON against JSON; the last third is landing and closing.
+
+* failures
+
+- (19) A claim about the watcher read off its flag, against the runtime shard written by this session's previous fold. =deno info= answered it in one call. Callout: zettelkasten, family assume-dont-verify.
+- (22)–(23) Five names for a capability when the number was a request; beef asked what actually happens before any name could fit.
+- (30) The core schema carried jev's 255 — v0 of one provider made standard, the exact thing beef's principle forbids.
+- (33)–(34) Two corrections on one screen for one question: belt readings, then harness shards. The literal and the existing =render= were the answer. Callout: zettelkasten, family user-intent-drift.
+- (36) =bounds= kept as a block of one key for a fold that had not happened.
+- (41) The baseline started while tag names were still moving; the call was refused.
+- (43) =minProperties= on =v.record= is silently dropped (=schematics/v.js:150=); union members without =additionalProperties: false= let the =noul= member swallow an =options= question; the strip dropped =options · choices= so the wired client refused its own round on the floor; the Choice block's comments were denied by the gate. Each surfaced as a red, fixed in the bracket.
+- (44) The choice avenue landed without its span and the report filed that as a gap. The law was in =typology.md=. Callout: zettelkasten, family rule-not-self-applied.
+
+* State at fold
+
+- LANDED — serial dispatch: =subsystems/typology/gestalten/belt/hallucinate.js= =settle= + =dispatch= (=@beef= marked); =hallucinate.test.js= "one at a time"; assembly =modes/editor/guide/tests/guide.test.js= =S-one-round-many-writers=.
+- LANDED — m70 M5: =schematics/primitives/hallucination.js= (=Faculty.options · choices=, =Choice.Question= tagged =choice · score · noul=, =Choice.Round=, =Choice.Verdict=) · =shard/hallucinate.js= (=tagging= · =bounding= · =choosing= → =belt.hallucinate.choose=) · =prototypes/cortex.js:59= · =shape/cortex.js= strip · =belt/choice.js= deleted · =systems/runtime/daemon/{aperture/cortex.js,traits/harnessed.js}= · =commons/fixtures/data/faculties.js= =decided= · =commons/hallucinators/openrouter/provider/{translate,index}.js= on =typesafe/jev-1.13= · =~/.viva/registry/education/modes/games/riddler/aperture.js:35=.
+- MOVED: =cortex-contract-render.snapshot.json= by one line, a sibling's =condition= on =tool_result= absorbed by the regenerate. Every other snapshot untouched.
+- QUEST: =m70-choice-faculty= in =quests/done/=; =P-riddler= =revised= — the anima walk waived by beef, not held. Release: four lines under =## unreleased= (three =api=, one =other=).
+- UNTESTED: the fault path of the choice span (jev answered 200; no throwing chooser on the bench). =bounding= and =choosing= resolve the faculty separately — two choice faculties near one tune could disagree; one exists today.
+- OUTLIVES (known-issues): =mikro-flush-queue-strands-on-a-failed-commit= · =hello-world-research-rig-red= (=generative.js:5= reads =mode.bundles= the rig never carries).
+- CANON restamped: =typology.md= (serial dispatch · choice) · =commons.md= (jev dialect) · =runtime.md:34= (choice branch) · =reference/harnesses/harness.md= §2.8 · =ikiro.md= (schematic + snapshot) · =index.md=.
+- Siblings at fold: =fc59f22c= on assembly-guide · ledger-recipe · m67 · m71; =edafd0fa= on m67. None on the files this fold landed.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| debugging | 14 | HELD | the paste first, reproduced offline in a capped rig probe before any theory, the mechanism pinned to mikro's own line, the fix proposed with its alternative |
+| blast-bracket | 17 | HELD | radius mapped (one caller), baseline with pre-existing reds recorded, two guardrails RED first, green both sides, re-blast matched |
+| quest-lifecycle | 47 | GAP | organ gate ran (marker settled, release lifted, plain =mv=, canon grep caught =harness.md=), but =index.md= has no method — the line moved by hand |
+| compact-walk | 48 | HELD | spine and skills by id; fold N stated against #210's boundary |
+| blast-bracket | 43 | MISSED | M5 reshaped a typology schematic with nine consumers across four containers; the bracket ran by hand |
+| pre-flight | 43 | MISSED | four new nouns and one belt function authored; =v.record= dropping its options was found by a red, not by the check |
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | sessions   |
+|-------------------------+-----------+----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| assembly-guide          |  47% 7/15 | wip      | control                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 2 (1 live) |
+| ledger-recipe           |  67% 8/12 | building | beef — the number · fork 2 (which instance slims for the runtime live boot; droneaid proposed) · commits in typology, paladin, ghost, commons · the runtime live boot. m0 done: =~/.viva/ledger.viva.js= speaks (no manifest, the environment block in), =~/.viva/.env= authored, chess slimmed.                                                                                                                                                                                                                                                                                                                                              | 2 (2 live) |
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 1          |
+| m67-assembly-ontology   |  64% 9/14 | building | beef — one number settles the centring: the =/resolve= response's =motor_2/motor.1= translation and rotation off the network pane. then sign in so the editor can be walked by me at all (i do not type credentials), re-import the blend so =harvest.py='s stray fix takes, and confirm the navigation standard. standing: the typology one-liner (=connection-aim-dedupes-arrays=), the mode's name, commits, the =assembly=/=component= symbol purge, @droneaid vcs init. ikiro — the =unique(slug)= migration (ruling 24 is code-only), a mount rig for this package's views (the standing coverage gap), re-embed of a corrected member. | 3 (2 live) |
+| m71-droneaid-guide      |   0% 0/11 | design   | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 1 (1 live) |
+* handoff
+- quest :: m70-choice-faculty
+- goal :: /"i want to use the actual jev tech. openrouter has it."/ — the choice faculty on jev's interface, in our words
+- done :: M5 landed — =primer= + tagged =questions= → a distribution per key; =options · choices= flat on the faculty; =typesafe/jev-1.13= over =/api/alpha/decisions=; the choice span; moved to =quests/done/=
+- next :: a throwing chooser in =subsystems/typology/tests/cortex.test.js= pins the span's =fault= record — the one path of =belt.hallucinate.choose= no test reaches
+- never :: /"the output of render is the end of our concern."/ — no readings in belt · /"less is more."/ — no builders over a literal
+- owed :: beef — the riddler walk in anima (=P-riddler= revised, not held) · the two trails as their own quests: =context= into the faculty caps, =primer= as the system-context noun across faculties · the commit
+- quest :: none
+- settles :: #210
+- goal :: /"we broke. why? it got the frontend stuck too!"/ — a round of parallel tool calls hung the Activity
+- done :: serial =dispatch= in model order (=@beef= marked for parallel later); two guardrails; known-issues for mikro's queue and the hello-world rig red
+- next :: resend the droneaid guide request — steps =guide_1.02=–=guide_1.05= were never written, the db holds =guide_1= and =guide_1.01= only
+- never :: =Promise.all= over writers on one em fork
+- owed :: beef — the commit · the anthropic live send owed since #210

@@ -1,0 +1,5 @@
+{"name":"Read","input":{"file_path":"/repo/.ikiro/world/codemap/ghost.md"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/trajectories/instances/index.js"}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/trajectories/instances/tap.js"}}
+{"name":"Edit","input":{"file_path":"/repo/systems/ghost/trajectories/instances/index.js","old_string":"instances.open(\n  {\n    nature: \"/list\",","new_string":"instances.open(\n  { nature: \"/count\", valence: \"how many instances the shelf holds\", schema: v.object({}) },\n  async (ctx) => {\n    ctx.effect = { count: (await paladin.ledger.instances.list()).length };\n  },\n);\n\ninstances.open(\n  {\n    nature: \"/list\","}}
+{"name":"Bash","input":{"command":"cd /repo && deno test -A --no-check systems/ghost/tests/tap.test.js"}}

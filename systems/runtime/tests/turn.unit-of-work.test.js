@@ -1,5 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import { TurnEntity } from "@vivalence/runtime";
+import stub from "../../../commons/fixtures/hal/stub/provider/index.js";
 import { create } from "./scenarios/cortex.js";
 
 // a response is ONE unit of work. harnessed.js persists its turns on a forked em and flushes
@@ -118,4 +119,43 @@ specimen.describe("turn persistence — the response is one unit of work", () =>
       }
     },
   );
+});
+
+// a response that closes without an answer is still a response: the close's verdict — state,
+// rounds, the fault — lands on an assistant turn, so the thread and the dock can say WHY there
+// is nothing to read. 09-23: gpt-5.1 answered `hi` with finish_reason length and zero parts; the
+// turn persisted empty, the dock drew nothing.
+specimen.describe("turn persistence — a response with no answer persists its verdict", () => {
+  let world;
+  specimen.beforeAll(async () => {
+    world = await create();
+    world.cortex.faculties.clear();
+    world.cortex.register(await stub({ statics: {} }));
+  });
+  specimen.afterAll(async () => {
+    await world.daemon.entities.activity.remove({});
+    await world.orm.close();
+  });
+
+  const answer = async (text, config) => {
+    const thread = await world.createThread();
+    const stream = await world.dewey.harness.dialogue.stream({ thread: thread.id, parts: [{ type: "text", text }], ...(config && { config }) });
+    for await (const _ of stream);
+    return rows(world.em, thread);
+  };
+
+  specimen.it("a provider close with no parts (length) keeps its empty assistant turn, the response's rounds folded into its meta", async () => {
+    const after = await answer("hi --close length");
+    specimen.expect(after.map((turn) => turn.role)).toEqual(["user", "assistant"]);
+    specimen.expect(after[1].parts).toEqual([]);
+    specimen.expect(after[1].meta).toMatchObject({ state: "length", rounds: 1, provider: { finish_reason: "length" } });
+  });
+
+  specimen.it("a fatal fault before any turn opened mints the assistant turn the provider never did — state error, the fault's message on it", async () => {
+    const after = await answer("hi --fault", { backoff: [] });
+    specimen.expect(after.map((turn) => turn.role)).toEqual(["user", "assistant"]);
+    specimen.expect(after[1].parts).toEqual([]);
+    specimen.expect(after[1].meta).toMatchObject({ state: "error", rounds: 1, fault: { kind: "unknown", message: "[stub] scripted fatal fault" } });
+    specimen.expect(after[1].parent?.id ?? after[1].parent).toBe(after[0].id);
+  });
 });

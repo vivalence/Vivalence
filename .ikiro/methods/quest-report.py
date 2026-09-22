@@ -7,7 +7,7 @@ every column is derived fresh from disk (quests/*.org at the root = live). --sta
 header keys (#+phase · #+progress · #+next, suffixed "(derived)"; an authored value without the suffix
 wins and is never touched). --compact appends or replaces a "* quest report" section in that compact.
 CLAUDE_SESSION_ID in the environment excludes the running session from the sessions column.
-canon: self/totems.md ## quest report · lifecycle: methods/compact.md step 8 · skills/quest-lifecycle.
+canon: lifecycle: methods/compact.md step 8 · skills/quest-lifecycle.
 """
 import os, re, sys, time, glob, shutil, tempfile, subprocess
 

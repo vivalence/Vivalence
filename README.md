@@ -1,11 +1,39 @@
 <p align="center"> <a target="_blank" href="https://docs.vivalence.org">Docs</a> · <a href="#hello-mode">Hello</a> · <a href="#quickstart">Quickstart</a> · <a href="#noticeboard">Notices</a> · <a href="#pricing-b2b">Pricing</a> · <a href="#funding-p2p">Funding</a> · <a target="_blank" href="https://discord.gg/QyS9Xt9ht8">Discord</a> </p> <p align="center"> <img src="systems/anima/static/videos/vid-viket-seldoncrisis-800x160p-12fps.gif" alt="VivalenceOS" width="100%" /> </p> <p align="center"> <a href="LICENSE.md"><img src="https://img.shields.io/badge/license-fair--source-2ea44f?style=flat-square" alt="License: Fair Source" /></a> <img src="https://img.shields.io/badge/status-early%20alpha-orange?style=flat-square" alt="Status: early alpha" /> <img src="https://img.shields.io/badge/deno-2.7+-000000?style=flat-square&logo=deno" alt="Deno 2.7+" /> <img src="https://img.shields.io/badge/svelte-5-FF3E00?style=flat-square&logo=svelte" alt="Svelte 5" /> <img src="https://img.shields.io/badge/mikroorm-6.6-663399?style=flat-square" alt="MikroORM 6.6" /> <a target="_blank" href="https://ko-fi.com/crackedbeefcake"><img src="https://img.shields.io/badge/ko--fi-support-FF5E5B?style=flat-square&logo=ko-fi&logoColor=white" alt="Ko-fi" /></a> </p>
 
-~ $home
+# ~ $home
 
-Vivalence is a modal operating system.
-Harnesses, agents, UI, business logic, entity schema, and datasets - everything lives on modes.
+Vivalence is part framework, part platform, and part operating system. It sits squarely in its own, new category. Uniquely enabled and powered by AI.
 
-Vivalence systems, ...
+<!-- What can you do with `viva`? -->
+<!-- You can build your own agents, dataspaces, and applications.   -->
+<!-- You can share your setups, use existing ones, use them together with others,  -->
+
+## Can I ...?
+
+**...run a Muse on my own box?**
+An instance is that VM: daemon, harness, tools, memory, sqlite, all in one directory you own. `viva instance/create` and it runs. Ship your own Muse as a mode.
+
+**...give my agent their own agent?**
+sure
+
+**...build the thing I actually want?**
+Your apps can look the way you want them to look. Your harnesses can manage agents and hallucinations any way you want. Your dataspace can be schematized in any way SQL allows. 
+
+A mode is JS, JSON, HTTP, HTML - no magic. 
+
+Describe what you want to a coding agent; `.ikiro/` is the harness that tells the agent how.
+
+**...bring your own model?**
+Hallucinators are adapters. Anthropic, OpenRouter, Deepgram, ElevenLabs today. Local is the same shape. No key, still boots.
+
+**...keep ownership of your data?**
+Yes. data lives on disk or in any database supported by MikroORM (sqlite, postgres, mongodb, ...).
+`cp -r` is the export.
+
+**...run vivalence in the cloud?**
+You can run vivalence in a different million ways. Its extremely flexible. Localhost, single cloudvm, or as a distributed cluster. Also, it runs in single and multiplayer setups - cloud colaboration built in.
+
+## Vivalence systems, ...
 - are trivial for an LLM to hallucinate. 
 - can be composed at will.
 - are built from simple, elegant primitives.
@@ -13,22 +41,48 @@ Vivalence systems, ...
 - stay coherent and compatible at scale.
 - are AI-harnessed as a first principle.
 - allow you complete freedom in data, schema, and logic.
+- can procedurally generate UI ad-hoc.
+- are built for shell, web, and soon native & headless.
 
-## Modality
+## What are Modes?
+They are the core pillar of viva's architecture. Every app and system is built from modes. Think of a mode as a plugin, but much more powerful. They implement agent harnesses, domain logic, entity schematics, datasets, GUI and (soon) TUI. 
+
+Modes work by implementing traits. There are currently about a douzen traits and each transports, configures, or facilitates some functionality or behavior. Every vivalence instance is built from modes implementing traits. 
+
+For example: a mode with trait `"APPLICATION"` can export a `svelte` UI like this:
+```js
+import { Application } from "@vivalence/typology"; 
+export const manifest    = { type: "demo", slug: "app", traits: ["APPLICATION"] }
+export const application = new Application("./App.svelte") 
+```
+
+// the runtime and clients coordinate, wire, transport and render the application, and provide it with context and tooling - much of which also provided by modes implementing traits.
+
+<!-- the same mechanism is used to build the harnesses. -->
+// demo of harness from mode side
+// highlight how the appliation can use the harness in svelte
+
+<!-- the same mechanism is used to build http endpoints. -->
+// demo of exposed apertures
+// highlight how the aperture effect can use the harness too
+// demo of mode.connection.call('/') and mode.call framed as shortcut.
+
+<!-- list the other traits.  -->
  
-Your setup shouldn't have to be like anyone else's.
+## Your setup shouldn't have to be like anyone else's.
 
-A mode is just JavaScript, JSON, HTTP, and HTML — no magic.
+A mode is just JavaScript, JSON, HTTP, Svelte and HTML — no magic.
 
-Use them to build your own harnesses, interfaces, dataspaces, and agentic experiences - imagination is the limit.
+Use them to build anything - imagination is the limit, and it will be yours forevery. You own your data, your surfaces, and your solutions.
 
+Fable put it well the other day:
+> The demo isn't the individual app. The demo is that two people run the same modes and end up with different apps.
+
+## Vivalence is built for sharing
 Fork existing systems, hand-roll your own, or prompt one into existence on an architecture designed for it.
 
 → **[awesome-vivalence](https://github.com/vivalence/awesome-vivalence)** — the registry. PRs welcome. WIP.
 
-
-Fable put it well the other day:
-> The demo isn't the individual app. The demo is that two people run the same modes and end up with different apps.
 
 
 <!-- <\!-- - aka beyond mouseless -\-> -->
@@ -162,9 +216,9 @@ export const clients = [
 
 export const services = [
   {
+    manifest: { type: "lighthouse", slug: "multiplayer" },
     module: "@commons/lighthouse/multiplayer",
     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
-    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
   },
 ];
 
@@ -176,8 +230,7 @@ export const environment = v.environment({
   PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
 
   // Identity, authentication, and coordination
-  VIVA_LIGHTHOUSE_SERVE: v.url().desc("Where the hosted lighthouse attaches inside the runtime's own path tree.").default("${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer").group("addresses"),
-  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED. Set it for a lighthouse on another host; unset, paladin computes this runtime's reach + the hosting service's seat.").group("addresses").optional(),
 
   // Svelte browser client
   VIVA_CLIENT_ANIMA_SERVE: v.url().desc("Where the anima browser client serves.").default("${VIVA_CLIENT_ANIMA_ORIGIN}/").group("addresses"),
@@ -369,7 +422,6 @@ Vivalence is ~3 years old and had ~13.2mio lines added and ~13.0mio lines remove
 
 Currently under construction are documentation and the registry.
 
-# Can I ...?
 
 # Pricing (B2B)
 Free for private use, flat license fee for institutional and commercial use. Fair Source.

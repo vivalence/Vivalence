@@ -49,7 +49,7 @@ export async function live(
   let session;
   try {
     session = await connection.call(
-      "/attached/process/lighthouse/multiplayer/auth/login",
+      "/attached/process/service/lighthouse/multiplayer/auth/login",
       credentials,
     );
   } catch (error) {

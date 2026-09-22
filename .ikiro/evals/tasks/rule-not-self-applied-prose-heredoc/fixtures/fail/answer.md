@@ -1,0 +1,1 @@
+Written — `.ikiro/world/boot.md`, two paragraphs: the ghost verb resolving the selected instance and spawning the runtime process, then paladin mounting the record, the daemons populating, and the server binding the port from the instance record.

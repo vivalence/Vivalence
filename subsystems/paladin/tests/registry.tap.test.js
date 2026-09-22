@@ -1,0 +1,140 @@
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import { Path } from "@vivalence/typology";
+import { Paladin } from "../prototypes/paladin.js";
+
+const scaffold = async () => {
+  const ledger = await Deno.makeTempDir({ prefix: "registry_tap_test_ledger_" });
+  const store = await Deno.makeTempDir({ prefix: "registry_tap_test_store_" });
+  const boot = () => {
+    const paladin = new Paladin();
+    paladin.scopes([
+      ["ledger", () => true, () => new Path(ledger)],
+      ["registry", () => true, () => new Path(store)],
+    ]);
+    return paladin;
+  };
+  return { boot, ledger, store };
+};
+
+const author = async (dir, modules) => {
+  await Deno.mkdir(dir, { recursive: true });
+  for (const [filename, manifest] of Object.entries(modules)) {
+    await Deno.writeTextFile(`${dir}/${filename}`, `export const manifest = ${JSON.stringify(manifest)};`);
+  }
+};
+
+const external = async (owner) => {
+  const dir = await Deno.makeTempDir({ prefix: "registry_tap_test_external_" });
+  await author(dir, {
+    "package.viva.js": { owner, type: "package", slug: owner.slice(1), version: "0.0.1" },
+    "write.viva.js": { type: "game", slug: "write", version: "0.0.1" },
+  });
+  return dir;
+};
+
+describe("Registry.tap — materialize + record, never mount", () => {
+  it("tap of an absolute external checkout records it verbatim", async () => {
+    const { boot } = await scaffold();
+    const paladin = boot();
+    const checkout = await external("@external");
+    await paladin.ledger.registry.tap(checkout);
+    expect(await paladin.ledger.registry.references()).toEqual([checkout]);
+    expect(paladin.ledger.registry.pensieve.size).toBe(0);
+  });
+
+  it("tap of a store-relative reference records the bare segment", async () => {
+    const { boot, store } = await scaffold();
+    const paladin = boot();
+    await author(`${store}/pack`, {
+      "pack.viva.js": { owner: "@pack", type: "package", slug: "pack", version: "0.0.1" },
+    });
+    await paladin.ledger.registry.tap("./pack");
+    expect(await paladin.ledger.registry.references()).toEqual(["pack"]);
+  });
+
+  it("tap of a directory without a package declaration throws", async () => {
+    const { boot, store } = await scaffold();
+    const paladin = boot();
+    await author(`${store}/loose`, { "game.viva.js": { type: "game", slug: "loose", version: "0.0.1" } });
+    await expect(paladin.ledger.registry.tap("loose")).rejects.toThrow("no package declaration");
+  });
+
+  it("remote tap without a store scope throws before any clone", async () => {
+    const ledger = await Deno.makeTempDir({ prefix: "registry_tap_test_ledger_" });
+    const paladin = new Paladin();
+    paladin.scopes([["ledger", () => true, () => new Path(ledger)]]);
+    await expect(paladin.ledger.registry.tap("https://example.com/pack.git")).rejects.toThrow("no package store");
+  });
+
+  it("untap removes the record and leaves the store untouched", async () => {
+    const { boot, store } = await scaffold();
+    const paladin = boot();
+    await author(`${store}/pack`, {
+      "pack.viva.js": { owner: "@pack", type: "package", slug: "pack", version: "0.0.1" },
+    });
+    await paladin.ledger.registry.tap("pack");
+    await paladin.ledger.registry.untap("pack");
+    expect(await paladin.ledger.registry.references()).toEqual([]);
+    expect((await Deno.stat(`${store}/pack`)).isDirectory).toBe(true);
+  });
+
+  it("tap → supply → accio: a mixed-kind record mounts at boot; untap starves the next boot", async () => {
+    const { boot, store } = await scaffold();
+    const checkout = await external("@external");
+    const first = boot();
+    await author(`${store}/pack`, {
+      "pack.viva.js": { owner: "@pack", type: "package", slug: "pack", version: "0.0.1" },
+      "judge.viva.js": { type: "game", slug: "judge", version: "0.0.1" },
+    });
+    await first.ledger.registry.tap(checkout);
+    await first.ledger.registry.tap("pack");
+
+    const runtime = boot();
+    await runtime.ledger.registry.supply();
+    expect((await runtime.ledger.registry.accio("@external/game/write")).manifest.owner).toBe("@external");
+    expect((await runtime.ledger.registry.accio("@pack/game/judge")).manifest.owner).toBe("@pack");
+
+    await runtime.ledger.registry.untap(checkout);
+    const next = boot();
+    await next.ledger.registry.supply();
+    await expect(next.ledger.registry.accio("@external/game/write")).rejects.toThrow("not supplied");
+    expect((await next.ledger.registry.accio("@pack/game/judge")).manifest.slug).toBe("judge");
+  });
+
+  it("clone.remote classifies every remote spelling, so a caller can skip path resolution", async () => {
+    const { boot } = await scaffold();
+    const paladin = boot();
+    for (const remote of ["https://host/r.git", "http://host/r", "git@github.com:vivalence/registry-standalone.git", "ssh://host/r.git"]) {
+      expect(paladin.clone.remote(remote)).toBe(true);
+    }
+    for (const local of ["/abs/path", "./rel", "pack", "", null, undefined]) {
+      expect(paladin.clone.remote(local)).toBe(false);
+    }
+  });
+
+  it("tap of a declaration file records the declaration's dirname", async () => {
+    const { boot } = await scaffold();
+    const paladin = boot();
+    const checkout = await external("@external");
+    await paladin.ledger.registry.tap(`${checkout}/package.viva.js`);
+    expect(await paladin.ledger.registry.references()).toEqual([checkout]);
+  });
+
+  it("tap of a directory above the declaration records the declaration's dirname, store-relative", async () => {
+    const { boot, store } = await scaffold();
+    const paladin = boot();
+    await author(`${store}/deep/nested`, {
+      "pack.viva.js": { owner: "@pack", type: "package", slug: "pack", version: "0.0.1" },
+    });
+    await paladin.ledger.registry.tap("deep");
+    expect(await paladin.ledger.registry.references()).toEqual(["deep/nested"]);
+  });
+
+  it("tap of a reference with nothing behind it names what it looked for", async () => {
+    const { boot, store } = await scaffold();
+    const paladin = boot();
+    const thrown = await paladin.ledger.registry.tap("absent").then(() => null, (error) => error);
+    expect(String(thrown)).toContain(`nothing at ${store}/absent`);
+  });
+});

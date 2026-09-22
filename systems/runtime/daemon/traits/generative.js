@@ -2,12 +2,7 @@ import paladin from "@vivalence/paladin";
 import { v, Vector } from "@vivalence/typology";
 
 export const GENERATIVE = async (mode, daemon) => {
-  if (!daemon.mountpoint) {
-    throw new Error("GENERATIVE: daemon carries no mountpoint");
-  }
-  const bundler = paladin.bundler(
-    `${daemon.mountpoint.absolute}/bundles/${mode.manifest.type}/${mode.manifest.slug}`,
-  );
+  const bundler = paladin.bundler(mode.bundles.absolute);
 
   mode.generator = {
     bundle: bundler.bundle,

@@ -93,6 +93,16 @@ specimen.describe("stub · the faculties", () => {
     specimen.expect(fatal.retryable).toBe(false);
   });
 
+  specimen.it("--close length seals an assistant turn with NO parts and that state — what gpt-5.1 did on 09-23", async () => {
+    const [deep] = await provider({ statics: {} });
+    const events = await drain(deep.via.stream({ turns: [said("hi --close length")] }));
+    specimen.expect(events.map((event) => event.event)).toEqual(["/turn/open", "/turn/close"]);
+    specimen.expect(events.at(-1).meta).toEqual({ state: "length", usage: null, provider: { finish_reason: "length", model: "stub-deep" } });
+    const turn = await deep.via.render({ turns: [said("hi --close filter")] });
+    specimen.expect(turn.parts).toEqual([]);
+    specimen.expect(turn.meta.state).toBe("filter");
+  });
+
   specimen.it("render pours the same script into one turn, object included", async () => {
     const [deep] = await provider({ statics: {} });
     const turn = await deep.via.render({

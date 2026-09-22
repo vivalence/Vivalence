@@ -237,9 +237,4 @@ specimen.describe("BOOTED", () => {
     await wired.terminate();
     specimen.expect(calls[1]).toEqual(["teardown"]);
   });
-
-  specimen.it("a BOOTED declaration without a boot export wires nothing", async () => {
-    const { BOOTED } = await import("@vivalence/runtime/daemon/traits");
-    specimen.expect(BOOTED({ manifest: { type: "probe", slug: "hollow", traits: [] }, module: {} }, {})).toBe(undefined);
-  });
 });

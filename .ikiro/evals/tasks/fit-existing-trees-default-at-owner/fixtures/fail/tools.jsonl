@@ -1,0 +1,2 @@
+{"name":"Read","input":{"file_path":"/repo/systems/runtime/daemon/traits/harnessed.js"}}
+{"name":"Edit","input":{"file_path":"/repo/systems/runtime/daemon/traits/harnessed.js","old_string":"      ...(ctx.intelligent.rounds && { rounds: ctx.intelligent.rounds }),","new_string":"      ...(ctx.intelligent.rounds && { rounds: ctx.intelligent.rounds }),\n      ...(ctx.mode.manifest.slug === \"hello-world\" && ctx.signal.nature === \"dialogue\" && { rounds: 4 }),"}}

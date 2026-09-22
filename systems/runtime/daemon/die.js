@@ -17,7 +17,6 @@ export class Die extends Wafer {
   };
 
   instance = {
-    kinds: {},
     traits: {},
     entities: [],
     services: {},

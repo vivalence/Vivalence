@@ -1,0 +1,98 @@
+#+title: the ledger gets a declaration of its own — any .viva.js at its root, with no manifest — and every instance folds from it before a thunk fires
+#+index: 188
+#+session: the second arc of session fc59f22c (turns 8–20; turns 1–7 are #186). One quest designed, blasted, coverage-iterated and driven live in one sitting, with beef ruling from the doctor's output each time.
+
+* one breath
+
+beef pasted paladin's twenty files and the =~/.viva= listing and said what the stub =ledger.viva.js= was for: /"for today i want to use it for supplying defaults and to make each ledger into a coherent unit … i want to apply the same tiered fall-through model we have on env vars on the instance construction … the constructed instance output is still schematics conform. procssing and folding."/ (8). The quest was written first — =quests/ledger-recipe.org=, unnumbered, the number his — with one law: FOLD BEFORE HYDRATE. The ledger's raw slots are copied over the instance's raw module, slot-whole for masks and key-wise for the environment schema, and only then does =at(label)= fire the thunks; so a ledger thunk in an overridden slot never fires and the doctor never sees a read nobody uses.
+
+/"is this already tested? run the coverage. blast change. itterate coverage."/ (9). It was not — nothing read the file, no runtime test mounts a recipe. Baseline coverage taken, M1–M3 blasted, one memo case added on the iterate; paladin's touched files rose a point each, =ledger.js= back to 100.
+
+Then the doctor, three times. /"now adjust the ghost cli. doctor needs display this on ledger and instance."/ (10) — one voice in =ghost/belt/recipe.js=, both doctors speak it. /"why no show?"/ (12) — his file had no manifest and no =import paladin=, and an emacs lock symlink =.#ledger.viva.js= sat beside it; a mute file had read as ABSENT. Made loud, then /"i dont like manifest export on ledger. slug on ledger especilly. can we default them on the viva.js file at ledger root?"/ (14) · /"not ledger.viva.js specifically. ANY .viva.js file at ledger root."/ (15) — the manifest requirement dropped: the file's place derives type and slug, an export only locks. /"ok. move the env variables up."/ (16) — =ledger/init= learns to append the keys an existing =.env= lacks; his ledger recipe got the environment block, his =.env= got ten keys, chess kept only its engine keys, and =viva instance/doctor chess= read =problems — · faults —=.
+
+* the spine — 20 turns
+
+| n | beef | landed |
+| 1–7 | the bundler arc + the compact + the harness continuation | folded in #186; nothing here |
+| 8 | the paladin paste + =~/.viva= listing: /"i want to add the ledger.viva.js file to our system … work out this quest schematics first. paladin second. and then do a pass on the runtime included in the blast testing. work out the diff and propose the change file by file"/ | =quests/ledger-recipe.org= designed; the law, terrain, patch file by file, testing assessment, QA markers, forks |
+| 9 | /"is this already tested? run the coverage. blast change. itterate coverage."/ | baseline coverage; M1 typology =Ledger=; M2 paladin =recipe() · inherited · inherit · the fold=; M3 ghost + =commons/ledger/ledger.viva.js=; =tests/ledger.recipe.test.js=; memo case on iterate |
+| 10 | /"now adjust the ghost cli. doctor needs display this on ledger and instance."/ | =ghost/belt/recipe.js= (=say · spoken=); =ledger/doctor= one line per slot; =instance/doctor= =ledger <file>= + =inherited= block; walked on a temp ledger via =--ledger== |
+| 11 | MID-TURN /"Price of inheriting and actually bold signal. an instance DOES have this requirement. good to have it explicit."/ | fork 4 RULED — the ledger's environment merges WHOLE |
+| 12 | the ledger doctor reading =absent= beside his file: /"why no show?"/ | a mute file made loud: =recipe()= throws naming it; =belt/ignore.js= skips =.#*= and =#*#=; doctor says =mute= |
+| 13 | MID-TURN chess doctor with =runtime null=: /"i inherit a lot more than that. where is the rest"/ | his manifest was nested one deep (=manifest: { manifest: { type } }=); the throw sharpened to say what it found |
+| 14 | his file with a manifest: /"i dont like manifest export on ledger. slug on ledger especilly. can we default them on the viva.js file at ledger root?"/ | derive by default, lock to override: no manifest needed |
+| 15 | MID-TURN /"not ledger.viva.js specifically. ANY .viva.js file at ledger root."/ | =recipe()= walks =find.viva(home, 0)=; slug from the stem; two files throw |
+| 16 | /"ok. move the env variables up. whatever i declare in teh ledger should have its env vars in the ledger"/ | =ledger/init= appends missing keys to an existing =.env= (=authored=); his ledger recipe + =.env= + chess stripped, backups under =~/.viva/bak/= |
+| 17 | /"ikiro compact"/ | this fold |
+| 18 | MID-TURN /"document this in teh codemap"/ | =world/codemap/paladin.md ## the ledger's word= · =world/ledger.md ## the declaration= |
+| 19 | MID-TURN /"s"/ | NOTHING — a stray keystroke |
+| 20 | MID-TURN =/compact= | harness, queued behind this turn |
+
+* the law, as it stands
+
+- ANY =.viva.js= at the ledger root is the ledger (depth 0). Manifest DERIVED: ={ type: "ledger", slug: <stem> }=; an exported =manifest= only locks. Absent silent · two files throw · foreign =manifest.type= throws.
+- Slot-whole for =runtime · lighthouse · datamap · hallucinators · clients · services= (a declared =[]= is "none"); key-wise for =environment=, the instance's key winning. =daemons= never fall through. =SLOTS= derived from typology's =Ledger.properties= — one list.
+- Fold BEFORE hydrate, on a copy. =resolve.inherit(below, above, slot, clone)= is the one verb both tiers speak. =instance.inherited= is the provenance; the runtime never learns the ledger exists.
+- =ledger/init=: clones =commons/ledger/ledger.viva.js= when the root is bare; authors the recipe's keys into =.env=, appending only what an existing file lacks.
+
+* what the suites said
+
+| suite | before | after |
+| typology | 127 / 513 | 127 / 513 |
+| paladin | 41 / 187 | 42 / 195 (=ledger.recipe.test.js= 8 cases; snapshot +=inherited=) |
+| runtime | 63 / 417 | 63 / 417 — untouched; NO test mounts a recipe, the seam is guarded by the live boot only |
+| ghost | 90 / 25, 1 red | 17 of 18 in =ledger.test.js= (+3 cases); the red is the pre-existing order-dependent =present/scaffolded= step |
+
+Coverage, paladin lines: =populate.js= 90.7 → 91.6 · =resolve.js= 87.2 → 88.1 · =ledger.js= 100 → 93.8 → 100 (memo case) · all 89.8 → 90.3. The lines still uncovered are the pre-existing throws, shifted by the insert.
+
+A second ghost red mid-session, "two shells select two instances in parallel", passed 2/2 on rerun: the doctor prunes a session record when =Deno.kill(61001, "SIGURG")= finds no such pid — it depends on what pids the machine holds. Flaky by design, not this quest's.
+
+* what the doctors said at the end
+
+#+begin_example
+  .env            present   10 vars · 2 secrets
+  ledger.viva.js  present   ledger · environment runtime lighthouse datamap hallucinators clients services
+    runtime       runtime
+    lighthouse    @commons/lighthouse/multiplayer
+    …
+$ viva instance/doctor chess
+ledger       /Users/finn/.viva/ledger.viva.js
+inherited
+  runtime        runtime · lighthouse  @commons/lighthouse/multiplayer · … · services  multiplayer
+problems —   faults —
+#+end_example
+
+* failures, in order
+
+- The quest's draft test pinned =clients[0].statics.serve= as the requirement label; the recipe labels a client =client[anima]=. Test fixed, quest corrected.
+- The test fixture built the ledger over a second =Paladin=; its thunks read empty bags. Fixture became a factory over the mount's paladin.
+- A mute root file (no manifest) read as ABSENT — beef's first draft. Made loud; then the requirement itself dropped on his ruling.
+- A line-based strip of chess's prettier-formatted environment mangled it; restored from the backup, cut by entry.
+- =VIVA_LEDGER_MOUNT= in the env does not reach =viva= — =ghost.sh= sources the user config which sets it; =--ledger== does.
+
+* seen, not touched
+
+- chess's own =.env= still holds the ten address keys, so every ledger default is shadowed at the =instan= stratum; delete them there and the rows flip to =ledger=.
+- The other instances (droneaid, hello-world, media, …) still declare the thirteen keys in their recipes — harmless, instance key wins; strip when slimmed.
+- The ledger doctor wraps long slot lines at narrow width (=Organ='s width logic).
+- =Vip.mount= will register a =type: "ledger"= module if a package ever ships one; nothing reads that today.
+
+* owed by beef
+
+The quest number · fork 2 (which instance slims for the runtime live boot — droneaid proposed; hello-world too would change the snapshot fixture and the create template) · commits in typology, paladin, ghost, commons · the runtime live boot on a slimmed instance.
+
+* markers
+
+Two OPEN in =MARKERS.md= (an empty cortex must warn at boot · cortex snapshot coverage) — both code outside =.ikiro/= with no go; carried, said so.
+
+* method
+
+Extractor: N = 20 (raw 25, 5 queue echoes collapsed); seven mid-turn interjections in this arc, all in the transcript this time. Rows 1–7 cite #186 by design. Sections cite: one breath 8–16 · law 14–16 · suites 9 · doctors 10, 16 · failures 9, 12–16. Turns 17–20 are the fold itself. The last third (14–20) carries four of the six ruling citations — and that is where beef ruled, from the doctor's output; the design and the blast (8–9) carry the rest.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | sessions   |
+|-------------------------+-----------+----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| ledger-recipe           |  67% 8/12 | building | beef — the number · fork 2 (which instance slims) · m0: replace =~/.viva/ledger.viva.js= with =commons/ledger/ledger.viva.js= (today it reads =present: false= — harmless, silent) · the live walk · commits in typology, paladin, ghost, commons.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 0          |
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 1          |
+| m67-assembly-ontology   |   0% 0/3  | building | beef — drop your blend, check the names (the interpreter folded flightcontroller00/01 into one board), then the corrections you want and the write to @droneaid/topography/model · commits in paladin, assembly, droneaid, the repo. ikiro — re-embed of a corrected member (a minted row has no way back today). done 09-21 evening on beef's order: the db purged (captured first at =~/.viva/bak/instances/droneaid-20260921/daemon_droneaid-db-1933=), pt10 out of the kernel and its bundles off the mountpoint; the fresh boot reads 0 literals · 69 symbols · 0 buffers · 0 threads, users untouched. open: one drop at 19:01 interpreted every loose object where a scoped call was sent — not reproduced at 19:18 (the same path, scoped, clean); watch for it on the live walk. ruling 16 after the first write; =bundle/svelte.js:46= on go. | 2 (1 live) |

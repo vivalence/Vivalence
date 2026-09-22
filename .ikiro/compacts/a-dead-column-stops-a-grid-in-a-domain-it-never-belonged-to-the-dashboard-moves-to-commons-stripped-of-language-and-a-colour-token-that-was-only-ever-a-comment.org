@@ -1,0 +1,79 @@
+#+title: a dead column stops a grid in a domain it never belonged to, the dashboard moves to commons stripped of language, and a colour token that was only ever a comment
+#+index: 184
+#+session: 16 beef turns (raw 25, 9 queue echoes collapsed), 15:52–16:45, model opus→fable→opus. A SIDE session, run alongside the m67 work: two sibling sessions were live on the same tree the whole hour, and one of them was fixing two of the three faults in my first paste while I was still reading them.
+
+* one breath
+
+The droneaid daemon booted and three identical throws came back off the watcher: /Error: Trying to order by not existing property LiteralEntity.rank/ (1), then the same fault from the client — /"Server error: 500 — request failed @ /daemon/droneaid/entities/literal/findAndCount"/ (2). =rank= is not a property of =LiteralEntity= in any domain. It was a real column once — =systems/ghost/bak/localhost/mountpoint/daemon_brazilian/migrations/Migration20260519114929.ts= still spells =`rank` integer null default 999999= — and it left for a trait, =trait.RANKED.rank=. Two live callers never followed it.
+
+The interesting half is WHERE the caller was. I found it in =education/modes/home/dataspace/Dashboard.svelte= and reported it as an education bug; beef corrected the frame in six words — /"the dashboard is domain specific"/ (6) — and then supplied the evidence himself, the droneaid daemon kernel, every line =@assembly= or =@droneaid= but one: =/"cant be reustd"/= over ="@education/dashboard/dataspace"= (7). The defect was never the column. A general daemon was kernelling a language-learning mode, and that mode's grid knew =trait.TRANSLATED.known=, =trait.LABELED.name= and a sort key that had been dead for months. The bug was the symptom of the misplacement.
+
+Gated before any edit — /"what section of dashboard would need to change?"/ (8) — which is what kept the pass small: ~100 of 969 lines, all in the =<script>= config head, the 800 lines of virtual grid, detail pane and graph already schema-blind. Then the order, three clauses in one line (9): strip the domain, /"keep the old solution in comments"/, /"mark the datamap metadata derivative as a future todo"/. Then, mid-turn, the move: /"while youre at it, move the dashboard into commons!"/ (10) with the destination spelled out (11) — =@commons/dashboard/dataspace=.
+
+It ends on a screenshot (13). The graph pane was transparent with the table bleeding through it, and the branch labels sat on top of the leaf text. One cause for the first: =--colors-skeleton-app-surface= does not exist. It is only in the COMMENTED-OUT block of =subsystems/dapper/belt/tailwind-theme.js:337=, and an undefined custom property inside =color-mix()= invalidates the whole declaration — so the panel had no background at all, only its blur.
+
+* the spine — 16 turns
+
+| n | beef | what landed |
+| 1 | the watcher log pasted: droneaid boots, the dataset reinstalls 32 symbols, then 3× /Error: Trying to order by not existing property LiteralEntity.rank/ with the stack through =socket.js:182= → =shard/datamap.js:62= | =LiteralEntity= read off disk (=systems/runtime/daemon/entities/kernel/Literal.ts:63-76=): =slug · traits · trait · symbol · ontology · symbols · mode · uses · in=. No =rank=. The stack frames are transport, not the fault. |
+| 2 | /"Server error: 500 — request failed @ /daemon/droneaid/entities/literal/findAndCount"/ | the door named: the client's =findAndCount=, not the picker's =find=. Sent me looking for a grid, not a form. |
+| 3 | the 204 755-char browser console dump | three faults in it, only one mine: the =findAndCount= 500 with its two SERVER retries (1430 ms, 2214 ms); ~600 POSTs to =/mode/editor/import/scan= at ~13 ms apart until /Exceeded 300 live WebGL contexts/; =TypeError: can't access property "place", get(...) is null=. I reported all three. The last two were ALREADY DIAGNOSED AND FIXED in a live sibling session — see §the duplicate. |
+| 4 | /"ah"/ | NOTHING — reading. |
+| 5 | /"ok."/ | NOTHING. |
+| 6 | /"the dashboard is domain specific"/ | the correction. I had been treating the education Dashboard as droneaid's own and was about to patch a column. Reframed: a general kernel holding a domain mode. |
+| 7 | /"cant be reustd"/ + the droneaid daemon kernel pasted (=@assembly/domain/assembly=, three =@assembly= topologies, =@droneaid/topography/model=, =@assembly/editor/import=, =@droneaid/assembly/pt10= — and =@education/dashboard/dataspace=) | the evidence, in beef's own hand. One foreign line in an otherwise coherent kernel. |
+| 8 | /"what section of dashboard would need to change?"/ | the gate — enumerate before editing. Mapped: =ENTITIES= :102-177 (=literal= and =symbol= domain, the other five kernel/userspace and already general) · =SORTABLE= :183-186 · =activeKey= :188 / =sortKey= :198 defaults · =IDENTIFY= :89-93. And the finding that matters more than the placement: =rank= is dead in EVERY domain, so the line would have thrown for education too. |
+| 9 | /"ok. rewrite the dashboard for now to contain no domain specific informatino. keep the old solution in comments. mark the datamap metadata derivative as a future todo."/ | all three clauses. =literal= → =slug · ontology · traits · trait · symbol= sorted by =slug=; =symbol= → =slug · traits · trait=; =trait= shown whole (the cell formatter already =JSON.stringify=s objects). Old entries kept verbatim in a comment block, TODO above them naming =daemon.datamap= AND its limit: =trait= is one json column in mikro metadata, so trait sub-columns cannot be derived and want a per-domain override. =rank= out of =SORTABLE=, =sortKey= default → ="slug"=. |
+| 10 | /"while youre at it, move the dashboard into commons!"/ | =mv=, not copy: =~/.viva/registry/education/modes/home/dataspace/= → =commons/dashboards/dataspace/=. =modes/home/aprende= stays. Manifest untouched — =type: "dashboard", slug: "dataspace"=, so the lookup follows the package root. |
+| 11 | /"@commons dashboard dataspace"/ | the spelling, confirmed against =viva registry/doctor=: =@commons 26 modes= now lists =dashboard dataspace=; the =@education= block lists it zero times. |
+| 12 | ="@commons/dashboard/dataspace",= pasted back + /"rewritten everywhere?"/ | the verification gate, answered with an UNRESTRICTED grep over =~/.viva= + the checkout: 8 references in 6 files rewritten (education =README.md:110=, its three instance =daemon.js=, =~/.viva/instances/language-learning/education.js:20,64,106=, =~/.viva/instances/droneaid/daemon.js:22=). The only survivors are stale built bundles under =mountpoint/daemon_italian/bundles/…/*.svelte.mjs=, =FILENAME= stamps on a path that no longer exists — output-hashed, pruned by nothing. |
+| 13 | a screenshot of the graph pane + /"fix"/ | two defects. Bleed-through: =.detail= and =.grid-head= painted with =var(--colors-skeleton-app-surface)=, a token that exists only commented out at =tailwind-theme.js:337= → swapped to =--colors-skeleton-0-surface= (the app tier; =-1-surface= is the raised tier the buttons use). Label collision: in LR the branch labels sat =position: "left"= of their node, in the same band as the depth-1 leaves' right-extending text → branches now =position: "top"=, leaves unchanged, radial untouched. |
+| 14 | the screenshot's source path | same turn as 13 — the harness's second line for one message, not a second order. |
+| 15 | /"ikiro compact"/ | this fold. |
+| 16 | =/clear= | NOTHING — queued, not an instruction. |
+
+* the duplicate — what a live sibling already owned
+
+The quest report says =m67-assembly-ontology · 2 (2 live)=, and the compact roster says more: =#183= (=an effect that writes the state it reads storms every door=) was written at 16:33, covering turns 95–108 of a session that ran 15:56–16:33 — INSIDE this session's hour, on the same tree.
+
+It had already found what I reported off turn 3 as findings #2 and #3. The =scan= storm is one =$effect= in =Import.svelte= that writes =world= and reads it back synchronously; the =place= =TypeError= is that effect's teardown nulling the stage mid-await; the 401 is the same teardown aborting GLB fetches. All three cut, and measured green, while my console paste was still on screen.
+
+So two of the three faults I handed beef were already dead. Nothing was broken by the duplication and nothing was written twice — but the cost was real: I spent turn 3 on an analysis that had no reader. The method's own warning names it exactly — /read the =sessions= column before claiming anything about the tree; a live sibling means an hour-old grep can already be false/. The generalisation: **a console paste is a snapshot of a moment, not of the tree.** When more than one session is live, a log's age is the first thing to establish, before its contents.
+
+* what landed, by seam
+
+| =commons/dashboards/dataspace/= | NEW in the checkout, moved whole out of the education package. =Dashboard.svelte= 1000 lines (was 969) · =dataspace.viva.js= unchanged · =Dashboard.graph.bak.svelte= rode along |
+| =Dashboard.svelte= config head | =ENTITIES= literal/symbol reduced to kernel columns; old entries commented verbatim; TODO for the datamap derivation with its trait-column caveat; =rank= out of =SORTABLE=; =sortKey= → ="slug"= |
+| =Dashboard.svelte= styles + graph | =--colors-skeleton-app-surface= → =--colors-skeleton-0-surface= ×2 (=:717= =.grid-head=, =:831= =.detail=); =treeOptions= branch labels =left= → =top= |
+| six consumer files | =@education/dashboard/dataspace= → =@commons/dashboard/dataspace=, 8 references, across the checkout-external education package and two ledger instances |
+
+* failures and near-misses
+
+- **Diagnosed a placement as a column.** First answer to turn 1 was "=rank= is dead, here are the two call sites, which fix do you want" — correct and beside the point. Beef's six words (6) moved it from a line to a kernel. The tell I missed: the daemon was =droneaid= and the file was under =education/=, and I read that as ordinary reuse instead of as the defect.
+- **Re-derived a sibling's landed fix** (turn 3) — §the duplicate.
+- **Neither fix was rendered.** The landed rule is explicit — /a clean compile is NOT evidence; effects need a MOUNT/ — and I verified the token swap by grep and the label move by reading echarts' option semantics. The screenshot that proves it is beef's to take on the next boot. This is the one place the pass is thinner than it reads.
+- **The =mv= carried residue into the checkout.** =Dashboard.graph.bak.svelte=, 13 787 chars, untouched since long before this work, dead. Flagged, not deleted — deleting an unread file on the way past is the wrong reflex.
+
+* state at fold
+
+- =commons/dashboards/dataspace/= — the mode, general. Resolves as =@commons/dashboard/dataspace=; =viva registry/doctor= reports =@commons 26 modes= with =dashboard dataspace= in the census and nothing of the sort left under =@education=. UNTRACKED in the checkout (=?? commons/dashboards/=) — beef commits.
+- =~/.viva/registry/education/= — =modes/home/dataspace/= GONE, =modes/home/aprende/= intact, =README.md:110= repointed. The package's own git has the move uncommitted alongside a large pre-existing =bak/tmp= staging.
+- =~/.viva/instances/{language-learning,droneaid}/= — kernels repointed, 4 references. Old =dashboard/dataspace= bundles still on the mountpoint with dead =FILENAME= stamps; harmless, and another entry for [[project_bundler_prune]].
+- OWED, mine, small and named: =systems/anima/src/app/panels/e/widgets/form/picker.js:51= still reads =orderBy: { rank: "ASC" }= — the same throw, unfired only because no entity picker has searched since. One line.
+- OWED, beef's rulings: delete =Dashboard.graph.bak.svelte= or keep it · =dataspace.viva.js:7= still describes the mode in education's voice (/"Literal corpus map, retention landscape, trace timeline"/) on a mode that is now general · whether the datamap derivation (the TODO) is worked at all, or the hand-written general columns are the answer.
+- STALE, not touched: =.ikiro/world/codemap/commons.md:7= still says /22 =*.viva.js= … = 21 modules/ and its census has no =dashboard= family. The doctor says 26 modules. The shard wants a pass, and it is not this session's to guess at.
+- MARKERS: both OPEN entries (the empty-cortex boot warning; the cortex snapshot coverage ruling) untouched — nothing this fold went near the cortex. Fourth consecutive fold that says so, which is itself now the signal: an order deferred four times is not deferred, it is unranked.
+- NEXT: restart the droneaid watcher and open the dataspace tab. Three things prove out at once — the literal grid loads (no =rank=), the detail panel is opaque, the graph's labels are legible.
+
+* method
+
+- N=16, every n in exactly one row, three NOTHING rows (4, 5, 16). Turns 13 and 14 are one message split by the harness into image and source line; written as two rows and said to be one.
+- Balance: the last third (11–16) supplies 5 of the ~18 citations across §one breath, §what landed and §failures — the middle (6–10), where the correction and the order live, supplies the most. The bias did not survive, but note WHY it could have: the screenshot is the most vivid turn in the session and the easiest to over-weight.
+- The extractor's tail-print earned its keep twice: turn 7's order (/"cant be reustd"/) sits BEFORE its paste and turn 12's (/"rewritten everywhere?"/) AFTER it. Both would have been read as comments on a code block from the head alone.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | sessions   |
+|-------------------------+-----------+----------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                | 1          |
+| m67-assembly-ontology   |   0% 0/3  | building | beef — purge the daemon db (=rm -rf …/daemon_droneaid/{droneaid.viva.db,migrations}=, users live elsewhere) · walk the importer live: load → interpret → annotate → embed → write to @droneaid/topography/model · commits in paladin, assembly, droneaid, the repo. open: ruling 16 (two owners, one slug) wants beef's word after the first write; =bundle/svelte.js:46= (threlte) on go; beef's ruling on the import.svelte fix i landed without one. shape mapped at =world/codemap/assembly.md=. | 2 (2 live) |

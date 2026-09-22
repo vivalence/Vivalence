@@ -30,6 +30,14 @@ async function* dialogue(model, request, signal) {
     return;
   }
 
+  // a close with nothing in it — the provider's own verdict, no part opened.
+  if (script.close) {
+    yield { event: "/turn/open", turn: { role: "assistant" } };
+    await pause(script.pace, signal);
+    yield { event: "/turn/close", meta: { state: script.close, usage: null, provider: { finish_reason: script.close, model: model.slug } } };
+    return;
+  }
+
   // a tool round, while rounds remain and the mode actually armed the tool.
   const armed = (request.tools ?? []).find((tool) => tool.name === script.tool) ?? (request.tools ?? [])[0];
   if (script.tool && armed && script.round < script.rounds) {

@@ -34,7 +34,7 @@ Two reads back the whole page. =registry/education/modes/home/aprende/buffer/Apr
 - =aperture/board.js= — ONE =retention.find({}, {populate:["strength","literal"]})=, one row per
   studied literal. Panels =Retention.svelte= (status blocks), =Activity.svelte= (strength×due
   scatter + streak), =Ranks.svelte= (weakest/strongest 6+6) all =$derived= from it, so they
-  cannot disagree. Locked in [[project_aprende_board_single_read]].
+  cannot disagree. Locked in `project_aprende_board_single_read`.
 - =aperture/statistics.js= — counts + streak. =:63-64=:
   #+BEGIN_SRC js
       retention: { byStatus, seen: retentions - (byStatus.UNTOUCHED ?? 0), due },
@@ -260,8 +260,8 @@ So the receipt can state a *transition*:
 **** hard constraints (violate these and it ships broken)
 
 - *FOCUS LAW.* Dojo keeps exactly one persistent =<input>= alive, never disabled, never
-  readonly; =TypeInput= stays mounted for every gameplay ([[project_rep_o_mat]],
-  [[project_dojo_mode]]). The receipt *must not* take focus, mount over the input, or reflow the
+  readonly; =TypeInput= stays mounted for every gameplay (`project_rep_o_mat`,
+  `project_dojo_mode`). The receipt *must not* take focus, mount over the input, or reflow the
   input's position. On phone the keyboard is up and must stay up.
 - *Phone first.* beef drives this on a phone. Narrow tier already docks the verdict *above* the
   input (=TokenFeedback dense=). The receipt rides that same dock — one line, not a card.
@@ -442,7 +442,7 @@ Kill the duplicate palette (=Builder.svelte:82-86= vs =palette.js:6-12=). Fork F
 
 - =registry/education/domain/tests/retention/drivers.test.js= — driver registry + evolution.
 - =registry/education/domain/tests/= — domain suite, *15 of 115* at the last count
-  ([[project_test_suite_baseline]]).
+  (`project_test_suite_baseline`).
 - =registry/education/modes/games/dojo/tests/= — dojo suite.
 - *COVERAGE GAP, named:* no test anywhere asserts on what =/review/literal= *returns* to a
   caller. The whole premise of M1 is untested surface. That is the new-test debt.

@@ -40,6 +40,22 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
     const dialogue = remote.find({ type: "dialogue" });
     specimen.expect(dialogue).toHaveLength(3);
     specimen.expect(Object.keys(dialogue[0].via).sort()).toEqual(["render", "stream"]);
+    specimen.expect(Object.keys(remote.findOne({ type: "choice" }).via)).toEqual(["render"]);
+  });
+
+  specimen.it("a choice round crosses the wire: primer and questions out, a distribution per key back in the question's own shape", async () => {
+    const verdict = await remote.hallucinate.choice.render({
+      controller: new Controller(),
+      primer: "Payroll asks for your password on a non-company sign-in page.",
+      questions: {
+        kind: { type: "choice", ask: "What is this email?", options: { legitimate: null, spam: null, phishing: "asks for a credential off-domain" } },
+        risk: { ask: "How dangerous is it?", levels: ["harmless", "suspicious", "hostile"] },
+        urgent: { ask: "Does it press for action now?" },
+      },
+    });
+    specimen.expect(verdict.kind).toEqual({ legitimate: 0.9, spam: 0.05, phishing: 0.05 });
+    specimen.expect(verdict.risk).toEqual([0.05, 0.9, 0.05]);
+    specimen.expect(verdict.urgent).toBe(0.9);
   });
 
   specimen.describe("render", () => {

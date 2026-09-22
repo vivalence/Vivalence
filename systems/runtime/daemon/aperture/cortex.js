@@ -3,12 +3,12 @@
 // strip wire into anima daemon who branches and aims deamon connection.
 import { v } from "@vivalence/typology";
 
-const { Request, Tier, Tune } = v.primitives.hallucination;
+const { Request, Choice, Tier, Tune } = v.primitives.hallucination;
 
 const ROUND = v.object({
   type: v.string(),
   tune: v.union([Tier, Tune]).optional(),
-  request: Request,
+  request: v.union([Request, Choice.Round]),
 });
 
 function validate(input) {

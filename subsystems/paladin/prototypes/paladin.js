@@ -1,7 +1,6 @@
 import { Env, v } from "@vivalence/typology";
 import belt from "../belt/index.js";
 import { Ledger } from "./ledger/index.js";
-import { Vip } from "./vip.js";
 
 const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
 
@@ -90,9 +89,8 @@ export class Paladin {
     belt.clone(this);
     belt.bundler(this);
     belt.hydrate(this);
-    // mountables — siblings of vip, own their state
+    // the ledger owns its state: instances, registry (record + pensieve), locks, logs
     this.ledger = new Ledger(this);
-    this.vip = new Vip(this);
   }
 
   get role() {

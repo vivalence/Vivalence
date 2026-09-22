@@ -1,0 +1,2 @@
+{"name":"Read","input":{"file_path":"/repo/commons/instances/hello-world/app/Inspector.svelte"}}
+{"name":"Edit","input":{"file_path":"/repo/commons/instances/hello-world/app/Inspector.svelte","old_string":"    held = { ...row, seen: (held?.seen ?? 0) + 1 };","new_string":"    if (held === null) held = { ...row, seen: 1 };"}}

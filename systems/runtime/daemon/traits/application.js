@@ -6,7 +6,7 @@ export const APPLICATION = async (mode, daemon) => {
   const declared = mode.module.application;
   const entry = declared.source
     ? null
-    : new Path(resolve(mode.module.mount.dirname, String(declared.mount)));
+    : new Path(resolve(mode.module.source.dirname, String(declared.mount)));
   mode.application = declared.source
     ? new App({ source: declared.source, schema: declared.schema })
     : new App(entry, declared.schema);
@@ -22,9 +22,7 @@ export const APPLICATION = async (mode, daemon) => {
   let compiling = null;
   mode.application.compile = () => {
     compiling ??= (async () => {
-      const store =
-        `${daemon.mountpoint.absolute}/bundles/${mode.manifest.type}/${mode.manifest.slug}`;
-      mode.application.view = await paladin.bundler(store).bundle(
+      mode.application.view = await paladin.bundler(mode.bundles.absolute).bundle(
         mode.application.source
           ? { kind: "svelte", source: mode.application.source }
           : { kind: "svelte", entry: entry.absolute },

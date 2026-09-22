@@ -1,0 +1,3 @@
+{"name":"Grep","input":{"pattern":"CONVERSATIONAL","path":"/repo/systems/runtime"}}
+{"name":"Grep","input":{"pattern":"conversational","-i":true,"path":"/repo/systems/anima/src"}}
+{"name":"Read","input":{"file_path":"/repo/systems/anima/src/app/panels/d/d.svelte","offset":205,"limit":20}}

@@ -13,6 +13,7 @@ export class Instance {
   requirements = [];
   faults = [];
   dormant = [];
+  inherited = []; // the slots the ledger supplied — provenance for the doctor, never read by the runtime
 
   constructor(paladin) {
     this.paladin = paladin;

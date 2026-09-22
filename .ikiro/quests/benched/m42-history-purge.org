@@ -54,7 +54,7 @@ One sentence: *the repo clones at 294 MB because 257 MB of corpus mp3 (plus dead
 
 1. *Purge list = dead paths only*: =registry/kernels= · =registry/education= · =packages/database= · =modules/databases= · =viva.db=. Fonts (69 MB) and testament sqlite are live-path history — untouched unless beef widens scope.
 2. *Both audio homes go* — education alone leaves 182 MB of mp3 under the pre-rename =registry/kernels/@vivalence= path.
-3. *Rewrite is permanent + total*: every hash changes. Known casualties: =VIVA_BASE= per-commit image ARGs ([[project_anima_image_identity]]) point at dead hashes; any pinned commit ref anywhere goes stale; every existing clone is incompatible → reclone, never pull.
+3. *Rewrite is permanent + total*: every hash changes. Known casualties: =VIVA_BASE= per-commit image ARGs (`project_anima_image_identity`) point at dead hashes; any pinned commit ref anywhere goes stale; every existing clone is incompatible → reclone, never pull.
 4. *jj re-home, not graft*: the old op log pins the pre-rewrite graph — grafting keeps the 797 MB and risks re-import weirdness. Old checkout dir survives renamed as the backup (the backup zip precedent is law).
 5. *Commit-first gate*: frontier carries four LANDED-uncommitted quests + the education removal. All of it lands on the remote BEFORE the scratch clone — the rewrite preserves only what the pushed graph holds. CLEARED — see status.
 6. *FORK (beef): which remotes receive the rewrite.* =origin= and =github= both carry =master=; M2 as first written re-added one remote. Two adds + two force-pushes, or =github= is abandoned and re-pushed later — either way the choice is explicit, because after M1 the two graphs share no hashes. =presentation= is a disjoint old graph: keep as archive, or delete the remote — decide, do not leave it implicit.
@@ -120,7 +120,7 @@ cd ~/vivalence/code/vivalence && jj git init --colocate
 # carry over from the backup dir (decision 9): .env* · registry/viva/services/nlp/server/.env · testament/_bruno/instances/ · */tests/snapshots/ · documentation/content/.tangled/ · .claude/settings.local.json
 #+END_EXAMPLE
 
-Gate: 8-suite baseline green ([[project_test_suite_baseline]]) · =viva instance doctor= renders · docs build 10 pages · then and only then the =.pre-m42= dir + zip may retire (beef's call).
+Gate: 8-suite baseline green (`project_test_suite_baseline`) · =viva instance doctor= renders · docs build 10 pages · then and only then the =.pre-m42= dir + zip may retire (beef's call).
 
 * milestones
 

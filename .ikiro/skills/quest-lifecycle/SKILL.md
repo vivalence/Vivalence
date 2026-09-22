@@ -1,8 +1,16 @@
 ---
 name: quest-lifecycle
 description: Quests are sunset, never deleted — move them to done/ or discarded/, keep the index true, revive the dead from VCS with read-only commands.
-when_to_use: closing a quest (landed or abandoned) · "sunset this quest" · "revive <quest>" · any urge to rm/delete a quest file · the quest inventory looks incoherent.
+when_to_use: >-
+  closing a quest (landed or abandoned) · "sunset this quest" · "revive <quest>" · "bench it" · any urge to
+  rm/delete a quest file · the quest inventory looks incoherent.
 ---
+
+## The tree, as of this invocation
+
+```
+!`CLAUDE_SESSION_ID=${CLAUDE_SESSION_ID} python3 .ikiro/methods/quest-report.py --format md | cut -c1-160`
+```
 
 # quest-lifecycle — sunset, revive, index
 
@@ -15,13 +23,16 @@ beef: *"quests get sunset, rarely deleted."* A quest is a decision-trail; deleti
   <live>.org            in flight — the ONLY things at root
   done/                 landed AND verified (pre-DONE gate passed: suites green, changelog written)
   discarded/            sunset without landing — superseded, abandoned, overtaken by a redesign
-  bak/                  beef's recovery surface — NEVER touched, never reorganized (backup-during-migration law)
+  benched/              designed, parked with a reopening trigger — not live, not dead (9 today)
+  roadmap/              beef's forward strands, no milestone yet (3 today)
   index.md              one line per quest, every bucket — the entry point, like compacts/index.md
 ```
 
+(no `bak/` exists under `quests/` — a `bak/` anywhere else is beef's recovery surface, never touched.) Organ gate (a): `python3 .ikiro/methods/markers.py` — its PENDING-IN-DONE rows are the drift list.
+
 ## Sunset (closing a quest)
 
-Run `python3 .ikiro/methods/quest-report.py` first: rows with `next: sunset` are the candidates; `control` means QA markers are still pending, `lift` means release lines are unlifted, `commit` is beef's. A quest whose `sessions` column shows a live sibling is being worked — do not move it. Header keys `#+phase` · `#+progress` · `#+next` are stamped `(derived)` by the report; beef's own value without the suffix wins (totem: `.ikiro/self/totems.md ## quest report`).
+Run `python3 .ikiro/methods/quest-report.py` first: rows with `next: sunset` are the candidates; `control` means QA markers are still pending, `lift` means release lines are unlifted, `commit` is beef's. A quest whose `sessions` column shows a live sibling is being worked — do not move it. Header keys `#+phase` · `#+progress` · `#+next` are stamped `(derived)` by the report; beef's own value without the suffix wins.
 
 0. **Organ gate before any `mv` into `done/`**: (a) every `#+marker_qa` carries a settled verdict — a `pending` on a quest headed to done/ is drift, a `broken` is a Callouts entry (methods/quest.md ## QA); (b) the `* release` organ's entries are LIFTED verbatim into `.ikiro/release.md ## unreleased` under their surface sections — format, file and cut live in the `release` skill (`skills/release/SKILL.md`; release ≠ quest — beef) — a quest with unlifted release lines is not done. `discarded/` needs neither.
 1. Landed + verified → `mv` into `done/`. Abandoned/superseded → `mv` into `discarded/`. **Plain `mv` ONLY — never `git mv`** (ledger 06-28; VCS is write-protected).

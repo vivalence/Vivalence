@@ -37,13 +37,13 @@ export async function svelte(entry, opts = {}) {
     sourcemap: prod ? false : "inline",
     write: false,
     format: "esm",
-    target: "es6",
+    target: "esnext",
     treeShaking: true,
     outdir: dirname(entry),
     plugins: [
       mapimports(imports, baseUrl),
       sveltePlugin({
-        preprocess: sveltePreprocess(),
+        preprocess: sveltePreprocess({ typescript: { compilerOptions: { target: "esnext", verbatimModuleSyntax: true } } }),
         filterWarnings: (warning) => {
           if (["css_unused_selector"].includes(warning.code) || warning.code.startsWith("a11y-"))
             return;

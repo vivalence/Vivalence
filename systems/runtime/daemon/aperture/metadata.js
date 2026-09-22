@@ -33,7 +33,7 @@ export async function metadata(die) {
       meta.open("/application", async () => {
         if (paladin.is.dev) await mode.application.compile();
         return {
-          url: die.good.attach.branch("/bundle").branch(mode.mount.absolute).absolute,
+          url: die.good.attach.branch("/bundle").branch(die.good.mount.absolute).branch(mode.mount.absolute).absolute,
           view: mode.application.view.json,
           schema: mode.application.schema ?? null,
         };

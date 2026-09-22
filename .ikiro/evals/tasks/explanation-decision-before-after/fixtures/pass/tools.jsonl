@@ -1,0 +1,3 @@
+{"name":"Grep","input":{"pattern":"instance-doctor-answers","path":"/repo/.ikiro/known-issues.org","-n":true}}
+{"name":"Read","input":{"file_path":"/repo/.ikiro/known-issues.org","offset":806,"limit":10}}
+{"name":"Read","input":{"file_path":"/repo/systems/ghost/trajectories/instance/target.js"}}

@@ -35,7 +35,7 @@ function resultToMessage(part) {
   return {
     role: "tool",
     tool_call_id: part.id,
-    content: belt.hallucinate.speak(part.output),
+    content: `${part.condition === "ERROR" ? "error: " : ""}${belt.hallucinate.speak(part.output)}`,
   };
 }
 
@@ -128,20 +128,27 @@ export function buildParams(model, request, stream = false) {
   return params;
 }
 
+const plain = (schema) =>
+  Array.isArray(schema)
+    ? schema.map(plain)
+    : schema && typeof schema === "object"
+    ? Object.fromEntries(Object.entries(schema).filter(([key]) => key !== "$id").map(([key, held]) => [key, plain(held)]))
+    : schema;
+
 export function translateTools(tools) {
   return tools.map((declaration) => ({
     type: "function",
     function: {
       name: declaration.name,
       description: declaration.valence ?? "",
-      parameters: declaration.input ?? { type: "object" },
+      parameters: plain(declaration.input ?? { type: "object" }),
     },
   }));
 }
 
 export const fault = (error) => ({
-  kind: error.status === 429 ? "throttled" : [502, 503].includes(error.status) ? "overloaded" : "request",
-  retryable: [408, 429, 500, 502, 503].includes(error.status),
+  kind: error.status === 429 ? "throttled" : [502, 503, 529].includes(error.status) ? "overloaded" : "request",
+  retryable: [408, 429, 500, 502, 503, 529].includes(error.status),
   provider: { status: error.status, message: error.message },
 });
 
@@ -244,4 +251,32 @@ export function streamTranslator() {
   }
 
   return { translate, flush };
+}
+
+const criteria = (question) => (question.options ? { criteria: question.options } : question.levels ? { criteria: question.levels } : {});
+
+export function translateChoice(model, { primer, questions }) {
+  return {
+    model: model.id,
+    state: primer,
+    questions: Object.fromEntries(
+      Object.entries(questions).map(([key, question]) => [key, { type: question.type, instructions: question.ask, ...criteria(question) }]),
+    ),
+  };
+}
+
+const folded = {
+  choice: (answer, question) => Object.fromEntries(Object.keys(question.options).map((name) => [name, answer.probabilities[name] ?? 0])),
+  score: (answer, question) => question.levels.map((_, index) => answer.probabilities[String(index)] ?? 0),
+  noul: (answer) => answer.noul,
+};
+
+export function readChoice(response, { questions }) {
+  return Object.fromEntries(
+    Object.entries(questions).map(([key, question]) => {
+      const answer = response.answers?.[key];
+      if (!answer) throw new Error(`[openrouter] ${response.model} answered no "${key}"`);
+      return [key, folded[answer.type](answer, question)];
+    }),
+  );
 }

@@ -1,0 +1,73 @@
+#+title: a comp ported in porcelain, a stage that forgot its camera on every terminal switch, and a harness rebuilt from its own dossier
+#+index: 208
+#+session: the eighth fold of session edafd0fa (turns 259–281; 239–258 are #203). The v4 comp ported into `@assembly/editor/assembly` in the porcelain palette, the stage controls aligned with the guide editor, parts made solid, the whole view persisted across a remount, double-click framing, one font fix, and the editor's harness rebuilt against `.ikiro/reference/harnesses/`.
+
+* one breath
+
+The fold opened on the design paste re-delivered after the compact (259), then beef named its brief: /"this was the design briefing for the assembly editor:"/ + the Porcelain Design Guide (262) and /"rewrite the assembly desgin"/ (263). The comp's 21 hexes measured as the porcelain + cobalt ramps; they went in verbatim as ONE palette block on `.editor`, the dapper aliases replaced, every pane restyled; landed as one rsync (bundle `7c0915eb`).
+
+/"another pass. align with guide editor"/ (264) brought the stage cluster over from the guide's `kit/Stage.svelte` — view cube, `+ − fit ?`, a view button (click next, hold menu, double-click home), ghost, explode, the HUD — as `scene.js` verbs `look · orbit · zoom · ghosts · spreads · pose · place` (bundle `58d85769`). /"parts arent solid but weirdly half see through"/ (265): the chosen material was translucent; parts went opaque, the ghost recipe became opacity 0.1 with `depthWrite:false` (bundle `783815af`).
+
+/"when i switch back and forth between terminals, the assembly buffer loses its state. not good. almost all state must be run buffer.data"/ (267). Measured in a remount page built in the scratchpad: subject, selection, opened rows survived already; camera, named view and pane scrolls never reached `buffer.data`. All three now do, per subject. The walk also found a latent bug — the refold `$effect` short-circuited on `mounted && loaded`, so `loaded` was never tracked and only an unrelated echo refolded the stage; an echo guard I tried exposed it and was reverted. /"when i double click … the canvas should directly Frame All"/ (269): the refit keyed on the subject NAME before the fold arrived and framed the old model; a `drawing={foldedOf}` prop fixed it. My progress line narrated internals — /"what? what what what?"/ · /"what level is this?"/ · /"where"/ (270–272) — re-explained from his symptom, callout logged. /"testing go"/ · /"go"/ (273–274), /"font sizes differ here"/ (275): the view button carried a 12px override. Landed 18:46 (bundle `c9608735`).
+
+After the compact: /".ikiro/reference/harnesses Build teh harness for assembly."/ (278). The dossier's checklist scored the editor ✗ on six rows; the harness was rebuilt against it — stable sections at the root, `format · screen` on `/dialogue`, `[Screen]` an index cut at 40 with `assembly_resolve` paging the rest, `shard.hal.defaults` balanced/8/low, ROLE naming tools by ARMED name, tools answering `{ message: status(data), buffer: [row] }`. A scripted-cortex rig and `tests/harness.test.js` pin it; landed 19:34:32, editor suites `ok | 6 passed (27 steps) | 0 failed`.
+
+* the spine — 281 turns, this fold 259–281
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 259 | the design paste, re-delivered | — | — |
+| 260 | the continuation summary | resume | — |
+| 261 | design-handoff re-invoked | skill loaded | — |
+| 262 | /"this was the design briefing for the assembly editor:"/ + Porcelain Design Guide | brief fetched; 21 hexes = porcelain + cobalt ramps | — |
+| 263 | /"rewrite the assembly desgin"/ | v4 port: ONE palette block, every pane; editor `ok \| 5 passed (21 steps)`; bundle `7c0915eb` | the dapper alias mapping |
+| 264 | the design paste + /"another pass. align with guide editor"/ | stage cluster from the guide's kit; bundle `58d85769` | — |
+| 265 | /"parts arent solid but weirdly half see through"/ + screenshot | opaque parts, ghost 0.1 no depth write; bundle `783815af` | the translucent material |
+| 266 | the screenshot path | harness artifact | — |
+| 267 | /"…the assembly buffer loses its state. not good. almost all state must be run buffer.data"/ | camera · view · scrolls in `buffer.data`; refold effect tracks `loaded` | an echo guard (canonical JSON, module Map) — reverted, the race did not reproduce as a loss |
+| 268 | /"another thing before you go"/ | — | — |
+| 269 | /"when i double click … the canvas should directly Frame All"/ | `drawing={foldedOf}` — frames the new fold | the subject-name refit |
+| 270 | quotes my progress line + /"what? what what what?"/ | re-explained from the symptom; callout | narration by internals |
+| 271 | /"what level is this?"/ | answered: a scratchpad page, not repo or registry | — |
+| 272 | /"where"/ | the path | — |
+| 273 | /"testing go"/ | remount walk in the scratchpad page | — |
+| 274 | /"go"/ | — | — |
+| 275 | /"font sizes differ here"/ + screenshot | `.control.view` 12px override removed; landed 18:46 bundle `c9608735` | — |
+| 276 | =/compact= | — | — |
+| 277 | the continuation summary | the turn-4 report | — |
+| 278 | /".ikiro/reference/harnesses Build teh harness for assembly."/ | harness rebuilt; `tests/{harness.test.js,scripted.js}`; landed 19:34:32; `ok \| 6 passed (27 steps)`; shard line in `codemap/assembly.md` | `system.assembly` as one key; `entities: { buffer }` returns |
+| 279 | /"ikiro compact"/ | this fold | — |
+| 280 | =/compact= | — | — |
+| 281 | compact-walk re-invoked | this fold | — |
+
+Coverage 259–281: every turn in one row. Balance by thirds of this fold's 23: 259–266 carry three orders (263, 264, 265); 267–274 carry two orders and the one correction (267, 269, 270); 275–281 carry two orders (275, 278). Even — beef ordered at a steady rate; the harness at 278 is one row of weight.
+
+* failures
+
+- *progress narrated by internals* — RULE FAILURE `explanation`, logged in `zettelkasten.md ## Callouts` (09-23, "a progress line narrated my internals"). Corrective executed at 271–272: answered from what he sees (a page in my scratchpad, its path).
+- *an echo guard that broke the remount* — self-caught: the guard stopped the echoes that were, unknowingly, the only thing refolding the stage after a remount. Reverted; the real defect (`&&` short-circuit leaving `loaded` untracked) fixed. The render-the-view law held — the remount page caught it before landing.
+- *four skills MISSED* — see `** skills`.
+
+* State at fold
+
+- **Registry `@assembly/modes/editor/assembly`, mine**: porcelain palette on `.editor`; stage controls; opaque parts; `ghost · explode · camera · view · scrolls` in the buffer schema; double-click frames the new fold; harness rebuilt (`harness.js`, `tools/index.js`, `tests/{assembly,harness}.test.js`, `tests/scripted.js`). Editor `ok | 6 passed (27 steps) | 0 failed`. Runtime pid 65915 ALIVE through every land.
+- **Walked** in scratchpad harness pages only (`harness/remount.html`), never in anima — its login is beef's; owed in `world/frontier.md`.
+- **Harness gaps not mine** (dossier G1, G2): the cache mark lands on the volatile `screen` key (`harnessed.js:150`); every tool error speaks as `[object Object]` on the provider path (`belt/hallucinate.js speak()`) — the editor's refusals are right in the bag and dropped there.
+- **Sibling**: "guide editor" owns `domain/**`, the guide modes, `tests/kit.test.js`; untouched this fold.
+- **Memory store** folded into ikiro mid-fold (#207); the harness fact went to `world/codemap/assembly.md`.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| design-handoff | 261 | HELD | brief fetched, hexes resolved to ramps, ONE palette block, verbatim first |
+| design-handoff | 264 | MISSED | the comp re-pasted with "another pass" fired nothing; the port ran from the earlier load |
+| debugging | 265 | MISSED | a screenshot with a complaint; reproduced by hand in the harness page |
+| debugging | 267 | MISSED | "loses its state" — reproduce-first ran by hand (the remount page) |
+| testing | 278 | MISSED | a new test file written, baseline pasted, guardrail red first — all by hand, the skill never fired |
+| compact-walk | 281 | HELD | spine and skills by id |
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest | progress | status | next | sessions |
+|-------+----------+--------+------+----------|

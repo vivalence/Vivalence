@@ -1,0 +1,595 @@
+#+title: m70 the choice faculty — a sixth faculty that reads a distribution instead of sampling a value; several tagged questions (choice · score · noul) of one primer, a distribution per key; jev's shape in our words
+#+filetags: :m70:cortex:faculty:choice:hallucination:jev:logprobs:belt:openrouter:harness:
+#+status: M5 LANDED 09-24 — choice takes jev's shape in our words: =primer= + tagged =questions= (=choice · score · noul=) → a distribution per key; caps =options · choices= flat on the faculty; openrouter serves =typesafe/jev-1.13= over =/api/alpha/decisions= by plain fetch; riddler reads =verdict.resolved.yes=. Green both sides (typology 127/514 · runtime 65/422 · openrouter 39 · anima 3/9), live 1/1.
+#+status: (was) LANDED 09-23 on beef's /"go on the whole thing."/ — M1 the typology avenue (re-landed strings-only on his ruling) · M2 =harness.choice.render= + the =/cortex/render= ROUND union · M3 the openrouter =choice= faculty on =qwen/qwen3.6-35b-a3b= with =require_parameters= routing · M4 riddler grades by choice. Green: typology 127 passed (514 steps) · runtime 65 passed (422 steps) · openrouter 2 passed (43 steps) · anima cortex suites 3 passed (9 steps) · live probe 3/3 through the real provider. Owed: the riddler walk in anima (I do not type credentials); beef's word on rulings 3 · 7 · 13.
+#+status: (was) BUILDING — M1 the typology avenue LANDED 09-23, re-landed the same day as strings; M2–M4 designed.
+#+status: (was) DESIGNED — beef numbered it on the code (/"m70. go."/, 09-23); four milestones, nothing landed.
+#+phase: wip (derived)
+#+progress:  56% 5/9 (derived)
+#+next: control (derived)
+
+* intent
+
+beef, verbatim:
+
+/"find out all about jev. find out how the tech works. then investigate the faculties of the cortex. i smell a new faculty. whats the capability here? propose a new capability to incorporate jev. collect use cases and work out jev in vivalence can implement this."/
+
+/"dialogue · object · speech · verbatim · call. ... choice? or is jev just object with some sugar?"/
+
+/"fuck jev's types. viva is self contained. choice. yes no?"/
+
+/"choice. then i assume we will need to either have some v.schematics standard to encode the choice types or something. nouk choice score. ... are those implementation details for the provider, or meaningfully different and we should handle that natively?"/
+
+/"hmm. i feel like i want something richer here. can i only pass strings of text into the choice space? what about function signatures? what about objects with properties? etc etc. there must be A LOT of option space here now, or at least soon."/
+
+/"i dont do well with yap. i do well with code. show me code"/ → /"m70. go."/ on the code under =* the sketch beef numbered=.
+
+* what jev is — measured from the sources, 09-23
+
+TypeSafe AI's "System One model" (released 2026-09-15): a =state= (text or JSON) and typed questions in, a probability distribution per question out, never prose. Three question types on their wire: =noul= (P(yes)), =choice= (≤255 options, argmax + probabilities + confidence), =score= (2–10 ordered levels, probability-weighted mean). ~100 ms, $0.042/M input tokens, output free, 32k context, text only. OpenRouter serves it as =typesafe/jev-1.13= at =POST /api/alpha/decisions=.
+
+The mechanism, from =nobodywho.ai/posts/jev-in-25-lines= and =ekzhang/openjev-sglang=: prefill the prompt, read the logprobs of the answer-label tokens at the FIRST output position, softmax. No decode. Confidence = =1 − H(p)/log(n)=. That is the whole trick, and it runs on any model that exposes logprobs, including a 0.6B GGUF on a laptop.
+
+* terrain — measured
+
+Every number from a command run this session against the live tree.
+
+- five faculty types: =subsystems/typology/schematics/primitives/hallucination.js:17-23= (=dialogue · object · speech · verbatim · call=).
+- the cortex mints four avenues in its constructor: =dialogue= · =object= (both =render= + =stream=), =/verbatim=, =/speech= — =subsystems/typology/prototypes/cortex.js:37-58=. Every avenue is a branch of one private Vector compiled by =shape.object= at =:95=.
+- =DERIVATIONS= at =cortex.js:103=: =object → dialogue(render)=, =verbatim(render) → verbatim(stream)=. =object= is derivable because it is a forced =RESPOND= tool call over a dialogue faculty (=commons/hallucinators/openrouter/provider/index.js:11-22=, =anthropic/provider/index.js:23=). A distribution is NOT derivable from a sample — the axis that makes choice a faculty, not sugar.
+- the harness opens =dialogue= and =object= only: =systems/runtime/daemon/traits/harnessed.js:184-190= (=for (const type of ["dialogue", "object"])=).
+- the aperture's =/cortex/render= validates every round as =ROUND{type, tune, request: Request}= — =systems/runtime/daemon/aperture/cortex.js:8-12=; =Request= requires =turns= (=hallucination.js:231=). A choice round would be REFUSED here today.
+- anima re-inflates the strip with =render= → =connection.call("/render", round)= — =subsystems/typology/gestalten/shape/cortex.js:19-20=; a =via: ["render"]= faculty needs nothing new client-side. =dossier.js:100,135= reads =/metadata/cortex= and registers the wired strip.
+- openrouter =buildParams= never asks for logprobs: =commons/hallucinators/openrouter/provider/translate.js:93-130= (=max_tokens · reasoning · tools · tool_choice= only). The provider registers one type, =dialogue=, per model (=provider/index.js:91-108=). Anthropic registers =dialogue= only (=anthropic/provider/index.js:90=) and its API exposes no logprobs — it can never serve choice.
+- belt: =gestalten/belt/array.js= exports =unique · merge · chunk · ensure · ensureFlat · shuffle · reverse · closest · nearest= — no softmax. =belt/index.js= is the barrel (23 namespaces).
+- =Label= primitive exists: =schematics/primitives/label.js= (=name= + optional =description=), exported by =primitives/index.js:6=.
+- =is= has no =Tool= or =faculty= predicate: =gestalten/is/primitives.js= exports =product · lookup= only.
+- collision census in =subsystems/typology= outside tests, whole-word: =option= 0 · =candidate= 7 (locals) · =answer= 3 · =label= 8 + the primitive · =branch= 62 (Vector). =options = {}= is the config-arg idiom on belt functions (=belt/verbatim.js:26=) — plural collides with plain JS, singular is clean.
+- tests that pin the faculty set: =subsystems/typology/tests/cortex.snapshot.test.js:55= asserts =Object.keys(pojo.faculties)= equals =["dialogue", "speech", "object"]= off =commons/fixtures/data/faculties.js:76=; =systems/runtime/tests/cortex.stripwire.test.js:39= "three dialogue faculties"; =cortex-contract.snapshot.test.js:96,100= snapshots the strip and the render round. Adding a choice fixture moves the first; leaving the fixture alone moves none.
+- registry consumers of =harness.object.render= today: =registry/education/modes/games/riddler/aperture.js=, =games/dojo/aperture/index.js=, =home/aprende/aperture/message.js= (=grep tune:=).
+
+* rulings
+
+1. *choice is a faculty, not object with sugar.* Test: derivability. =object= derives from =dialogue= (=cortex.js:103=); a distribution cannot be derived from one sampled value, and Anthropic exposes no logprobs at all. What cannot be derived is its own type.
+2. *viva is self-contained; Jev's types die.* beef: /"fuck jev's types. viva is self contained. choice. yes no?"/ =noul= is =choice(["yes","no"])=; =score= is choice over ordered options plus =expect()=. One primitive.
+3. *the three types are provider details, not native kinds.* The provider only ever produces a distribution over a closed label set; the one semantic bit (ordered or not) is a property of the option array the caller authored. Jev's =noul · choice · score= live in a Jev provider's =translate.js=, exactly where =response.choices[0]= lives for OpenAI today. Taken on my lean; beef's go was on the code that assumes it — QUESTIONED until he says the word.
+4. *options are strings; the surface lifts.* beef asked /"can i only pass strings of text into the choice space? what about function signatures? what about objects with properties?"/ — the first landing answered with =Option{value, label: Label}= + a =lift= in the shard that knew tool declarations. beef, on =v.union([v.string(), Tool, Option])=: /"no. i am against this. thats bad abstraction. the core faculty knwos nothing of the implemntation details of its surface. any processing of tools has already happened at that point. we know our constraints are strings. thats good enough."/ =options: v.array(v.string())=; a mode maps its tools, rows or tiers to strings before the call and back by name after. =Option= · =Label= · =Tool= · =lift= left the faculty the same day.
+5. *the distribution is over things, in option order.* =Verdict = [{option, probability}]=. =pick · confidence · expect · probability= are pure belt readings over it, the way =belt.verbatim= holds =harmonize · fold · transcript=.
+6. *no lift in the core.* Superseded by ruling 4 — the shard renders =A. <option>= per line and nothing else. Whatever knows a Tool from a row lives at the surface (a mode, later the harness wrapper under deferred).
+7. *no derivation.* When no choice faculty is registered the avenue throws =[hallucination] no 'choice' faculty resolves a 'render' avenue= (=hallucinate.js:19=, unchanged). A fallback through =object= would return ={pick: 1}= and call it a probability. Taken on my lean; beef has not ruled.
+8. *render only.* One pass, one distribution; there is nothing to stream. =via: { render }=.
+9. *the aperture round is a union.* =ROUND.request= becomes =Request | Choice.Lowered= so the existing =/cortex/render= door carries a choice round; no new door.
+10. *labels are letters.* =A…Z= — 26 options per call in this quest. Past 26 → deferred.
+11. *the provider gets the controller's AbortSignal, never the vector's Signal.* First live call through =choosing= failed =Connection error.= — =ctx.signal= in a compiled avenue is the vector =Signal= (routing), not an =AbortSignal=; the OpenAI SDK's fetch rejected it. =ctx.controller.abort.signal=, the way =belt.hallucinate.respond= does at =:131=.
+12. *route only to upstreams that honour the parameters.* Measured on =qwen/qwen3.6-35b-a3b=: AkashML and Darkbloom return 20 =top_logprobs=, Venice returns =logprobs: null= on the same request — OpenRouter fans one model across upstreams. =provider: { require_parameters: true }= in =buildChoiceParams=; 3/3 live calls after it.
+13. *riddler is not HARNESSED.* Its traits are =APPLICATION · STANDALONE · EXPOSED · EMITTER=; =ctx.mode.harness= does not exist there. The grade calls =ctx.daemon.cortex.hallucinate.choice.render= with the activity's controller, exactly as the same door calls =object.render= at =aperture.js:22= today. Taken on my lean; the HARNESSED alternative is beef's to order.
+
+* the law
+
+#+BEGIN_EXAMPLE
+A faculty is a kind of hallucination the cortex cannot derive from another.
+choice reads a distribution over a closed set; dialogue samples one value from an open one.
+An option is a string. The core faculty knows nothing of what the string stood for; the surface lifted it and takes it back by name.
+The verdict is over things, in option order. Readings are belt; kinds are not minted for readings.
+A provider that returns no logprobs registers no choice faculty. Absence throws; it never derives.
+#+END_EXAMPLE
+
+* milestones
+
+Each: blast → test → land → test → blast. Boot green at every boundary (=viva /help= first, then the one-file runs under =* testing assessment=).
+
+** M1 typology — the schematic, the readings, the avenue
+
+Files: =hallucination.js= (FacultyType · Choice · Policy.choice · Hallucination.choice) · =belt/choice.js= NEW · =belt/index.js= · =shard/hallucinate.js= (optioning · choosing) · =prototypes/cortex.js= (the =/choice= branch) · =tests/cortex.test.js= (one =it=, self-registering its chooser).
+
+** M2 runtime — the harness and the wire
+
+Files: =traits/harnessed.js= (=choice= joins the type loop, render only) · =aperture/cortex.js= (ROUND union) · =tests/cortex.stripwire.test.js= (a choice round over the wire) · =cortex-contract.snapshot.test.js= (re-capture: the strip gains one faculty when the scenario registers the fixture).
+
+** M3 provider — openrouter reads logprobs
+
+Files: =commons/hallucinators/openrouter/provider/index.js= (=makeChoice= + registration) · =provider/translate.js= (=buildChoiceParams=) · =tests/provider.test.js= (mocked =logprobs.content[0].top_logprobs=). QUESTIONED: which model on OpenRouter returns =top_logprobs= — probed live before the faculty's =config.model= is written. Not Anthropic-routed models.
+
+** M4 first consumer — riddler grades by choice
+
+Files: =~/.viva/registry/education/modes/games/riddler/aperture.js= (yes/no over =expected · answer=, threshold 0.9) and its shelf copy under =~/.viva/instances/<slug>/= ([[shelf-sync]]). Behind its own go; the mode is the first proof that =ctx.mode.harness.choice.render= is reachable from a mode.
+
+* the sketch beef numbered
+
+Consumers, verbatim what he said go on (container-rooted where a file exists today):
+
+#+begin_src js
+// registry/education/modes/games/riddler/aperture.js — strings: yes/no
+const verdict = await ctx.mode.harness.choice.render({
+  state: { expected, answer },
+  question: "Does the answer mean the expected sentence?",
+  options: ["yes", "no"],
+});
+if (belt.choice.probability(verdict, "yes") > 0.9) award();
+
+// a mode — tools: routing; the mode lifts its declarations to names
+const verdict = await ctx.mode.harness.choice.render({
+  state: { message: turn },
+  question: "Which tool should handle this message?",
+  options: shard.hallucinate.declarations(ctx.mode.tools).map((tool) => tool.name),
+});
+if (belt.choice.confidence(verdict) > 0.7) await ctx.daemon.call(belt.choice.pick(verdict), turn);
+
+// a mode — entities: which sense of a word; the mode lifts rows to glosses and looks the pick back up
+const verdict = await ctx.mode.harness.choice.render({
+  state: { sentence },
+  question: "Which sense of the word is used here?",
+  options: senses.map((sense) => sense.gloss),
+});
+learner.note(word, senses.find((sense) => sense.gloss === belt.choice.pick(verdict)));
+
+// a mode — faculties: the cortex choosing its own tier, tier names as strings
+const verdict = await ctx.mode.harness.choice.render({
+  state: { turns: thread.tail(3) },
+  question: "How much capability does the next reply need?",
+  options: Object.keys(tiers),
+});
+const tune = tiers[belt.choice.pick(verdict)];
+
+// registry/education/modes/home/aprende/aperture/message.js — ordered levels
+const verdict = await ctx.mode.harness.choice.render({
+  state: { transcript },
+  question: "Which CEFR level does the writing sit at?",
+  options: ["A1", "A2", "B1", "B2", "C1", "C2"],
+});
+learner.proficiency.set(belt.choice.expect(verdict)); // 2.3 = mostly B1, some B2
+#+end_src
+
+Two deltas from the numbered sketch: the tools case passes =shard.hallucinate.declarations(ctx.mode.tools)= (=hallucinate.js:8=) mapped to names — =ctx.mode.tools.edges()= does not exist on a Vector; and every non-string option is lifted to a string BY THE CALLER (ruling 4), the sense case looks its row back up by gloss.
+
+* the patch
+
+** M1 · =subsystems/typology/schematics/primitives/hallucination.js=
+
+#+begin_src diff
+ export const FacultyType = v.union([
+   v.const("dialogue"),
+   v.const("object"),
+   v.const("speech"),
+   v.const("verbatim"),
+   v.const("call"),
++  v.const("choice"),
+ ]);
+#+end_src
+
+After =Faculty= (=:260=):
+
+#+begin_src diff
++// ── choice · a distribution over a closed set of strings ──────────────────
++// The model reads the options and emits ONE label token. Whatever an option
++// stands for (a tool, a row, a tier) was lifted to its string by the caller;
++// the faculty knows strings only. The verdict is in option order — order is
++// the caller's, so an ordered set (levels) reads as a score through
++// belt.choice.expect.
++export const Choice = {};
++Choice.Lowered = v.object({
++  state: v.unknown().desc("Text, or JSON the provider stringifies"),
++  question: v.string(),
++  labels: v.array(v.string()).desc('One token per option. Example: ["A", "B"]'),
++  text: v.string().desc('The rendered menu. Example: "A. yes\\nB. no"'),
++}).desc("What crosses to the provider; providers return probabilities aligned with labels");
++Choice.Verdict = v.array(v.object({ option: v.string(), probability: v.number({ minimum: 0, maximum: 1 }) }))
++  .desc("The distribution, in option order");
+#+end_src
+
+Policy and Hallucination:
+
+#+begin_src diff
+ Policy.speech = v.object({ ...shared }, { default: {} });
++Policy.choice = v.object({ ...shared }, { default: {} });
+@@
+ Hallucination.speech = v.object({
+   ...controlled(Policy.speech),
+   source: v.unknown().desc('Text, or an async iterable of text. Example: "buongiorno"'),
+   settings: Settings.optional().desc('Provider knobs, opaque. Example: { voice: "aria" }'),
+ });
++
++Hallucination.choice = v.object({
++  ...controlled(Policy.choice),
++  state: v.unknown().desc("Text or JSON under judgment. Example: { expected, answer }"),
++  question: v.string().desc('Example: "Does the answer mean the expected sentence?"'),
++  options: v.array(v.string(), { minItems: 2, maxItems: 26 }).desc('Example: ["yes", "no"]'),
++});
+#+end_src
+
+=Context.policy= union gains =Policy.choice=.
+
+** M1 · =subsystems/typology/gestalten/belt/choice.js= NEW
+
+#+begin_src js :tangle subsystems/typology/gestalten/belt/choice.js
+export const pick = (verdict) =>
+  verdict.reduce((best, row) => (row.probability > best.probability ? row : best)).option;
+
+export const probability = (verdict, value) => verdict.find((row) => row.option === value)?.probability ?? 0;
+
+export const expect = (verdict) => verdict.reduce((sum, row, index) => sum + index * row.probability, 0);
+
+export const confidence = (verdict) => {
+  const present = verdict.map((row) => row.probability).filter((probability) => probability > 0);
+  const entropy = -present.reduce((sum, probability) => sum + probability * Math.log(probability), 0);
+  return verdict.length < 2 ? 1 : 1 - entropy / Math.log(verdict.length);
+};
+#+end_src
+
+** M1 · =subsystems/typology/gestalten/belt/index.js=
+
+beef on a =belt.array.softmax=: /"do i really need my own softmax? and in that case thats more belt/math or so."/ — no. The contract already says providers return PROBABILITIES aligned with labels; logits → probabilities is the provider's translation, like =noul · score= (ruling 3). Softmax lives inline in openrouter's =readChoice=; a Jev provider never needs one; nothing enters belt. (=import_map.json= carries no math lib — measured.)
+
+#+begin_src diff
+ export * as hallucinate from "./hallucinate.js";
++export * as choice from "./choice.js";
+#+end_src
+
+** M1 · =subsystems/typology/gestalten/shard/hallucinate.js=
+
+After =vocalizing= (=:67=):
+
+#+begin_src diff
++const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
++
++const line = (option, index) => `${LETTERS[index]}. ${option}`;
++
++export const optioning = () => async (ctx, next) => {
++  const request = ctx.input ?? {};
++  const options = request.options;
++  ctx.input = {
++    state: request.state,
++    question: request.question,
++    labels: options.map((_, index) => LETTERS[index]),
++    text: options.map(line).join("\n"),
++  };
++  await next();
++  ctx.output = options.map((option, index) => ({ option, probability: ctx.output[index] }));
++};
++
++export const choosing = (cortex) => async (ctx) => {
++  const found = faculty(cortex, "choice", "render", ctx.policy.tune);
++  ctx.output = await found.via.render(ctx.input, { signal: ctx.controller.abort.signal });
++};
+#+end_src
+
+** M1 · =subsystems/typology/prototypes/cortex.js=
+
+#+begin_src diff
+     this.#hallucinator
+       .branch("/speech")
+       .use(shard.hallucinate.sourcing())
+       .open({ nature: "stream", yields: Audio.Any }, shard.hallucinate.synthesizing(this))
+       .open("render", shard.hallucinate.vocalizing(this));
++
++    this.#hallucinator
++      .branch("/choice")
++      .use(shard.hallucinate.optioning())
++      .open("render", shard.hallucinate.choosing(this));
+#+end_src
+
+** M2 · =commons/fixtures/data/faculties.js= (moved from M1 at land time — see changelog)
+
+#+begin_src diff
+   return [
++    {
++      type: "choice",
++      tune: [0.4, 0.3, 1.0, 0.9],
++      context: 32000,
++      channels: { in: ["text", "object"], out: ["object"] },
++      config: { model: "fixture-choice" },
++      via: {
++        render: async ({ labels }) => {
++          const mass = labels.map((_, index) => (index === 0 ? 0.9 : 0.1 / (labels.length - 1)));
++          return mass;
++        },
++      },
++    },
+#+end_src
+
+(the first option always wins at 0.9 — a fixture, not a judge). Measured at M1: =tests/cortex.snapshot.test.js= registers its OWN faculties (=:12-30=), not this file — the commons fixture feeds the RUNTIME scenarios (=systems/runtime/tests/scenarios/fixtures.js= → =commons/fixtures/data=), so it lands with M2 where the stripwire and contract snapshots re-capture.
+
+** M1 · =subsystems/typology/tests/cortex.test.js=
+
+#+begin_src js
+specimen.it("the choice avenue lifts options to labels; the verdict returns things in option order", async () => {
+  const seen = [];
+  const chooser = { type: "choice", tune: [0.4, 0.3, 1.0, 0.9], context: 32000, channels: { in: ["text", "object"], out: ["object"] },
+    via: { render: async (lowered) => { seen.push(lowered); return lowered.labels.map((_, index) => (index === 0 ? 0.9 : 0.1 / (lowered.labels.length - 1))); } } };
+  const cortex = new Cortex().register([chooser]);
+  specimen.expect(cortex.findOne({ type: "choice", via: "stream" })).toBe(undefined);
+  await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), state: "x", question: "?", options: ["only"] })).rejects.toThrow(/invalid choice hallucination \/options/);
+  await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), state: "x", question: "?", options: ["a", { name: "b" }] })).rejects.toThrow(/invalid choice hallucination \/options\/1/);
+
+  const verdict = await cortex.hallucinate.choice.render({
+    controller: new Controller({ stdout: new Span("choice") }),
+    state: { answer: "ho andato" }, question: "Is the auxiliary right?", options: ["yes", "fix", "no"],
+  });
+  specimen.expect(seen[0]).toEqual({ state: { answer: "ho andato" }, question: "Is the auxiliary right?", labels: ["A", "B", "C"], text: "A. yes\nB. fix\nC. no" });
+  specimen.expect(verdict.map((row) => row.option)).toEqual(["yes", "fix", "no"]);
+  specimen.expect(belt.choice.pick(verdict)).toBe("yes");
+  specimen.expect(belt.choice.probability(verdict, "yes")).toBeCloseTo(0.9);
+  specimen.expect(belt.choice.probability(verdict, "absent")).toBe(0);
+  specimen.expect(belt.choice.expect(verdict)).toBeCloseTo(0.15);
+  specimen.expect(belt.choice.confidence(verdict)).toBeGreaterThan(0.5);
+  specimen.expect([...v.primitives.hallucination.Choice.Verdict.errors(verdict)]).toEqual([]);
+  await specimen.expect(new Cortex().hallucinate.choice.render({ controller: new Controller(), state: "x", question: "?", options: ["a", "b"] })).rejects.toThrow(/no 'choice' faculty resolves a 'render' avenue/);
+});
+#+end_src
+
+** M2 · =systems/runtime/daemon/traits/harnessed.js=
+
+#+begin_src diff
+   for (const type of ["dialogue", "object"]) {
+     harness
+       .branch(type)
+       .open("render", (ctx) => ctx.daemon.cortex.hallucinate[type].render(ctx.hallucination))
+       .open({ nature: "stream", yields: Packet.Response }, (ctx) =>
+         ctx.daemon.cortex.hallucinate[type].stream(ctx.hallucination),
+       );
+   }
++
++  harness
++    .branch("choice")
++    .open("render", (ctx) =>
++      ctx.daemon.cortex.hallucinate.choice.render({
++        controller: ctx.controller,
++        policy: ctx.hallucination.policy,
++        state: ctx.input.state,
++        question: ctx.input.question,
++        options: ctx.input.options,
++      }),
++    );
+#+end_src
+
+Measured: =requesting= (=harnessed.js:41-57=) rebuilds =ctx.hallucination= as a dialogue shape — =system · turns · tools · output= — and drops every other key of =ctx.input=. So the choice door reads =state · question · options= off =ctx.input= itself and keeps only what the four root middlewares earned: =ctx.controller= (=activating=, =:33=) and the tune-bearing =policy= (=requesting=, =:44-50=, which folds the thread's INTELLIGENT tune in). =summarizing= (=:182=) is read at land time — if it folds =ctx.output.turns=, a Verdict has none and it passes through.
+
+** M2 · =systems/runtime/daemon/aperture/cortex.js=
+
+#+begin_src diff
+-const { Request, Tier, Tune } = v.primitives.hallucination;
++const { Request, Choice, Tier, Tune } = v.primitives.hallucination;
+
+ const ROUND = v.object({
+   type: v.string(),
+   tune: v.union([Tier, Tune]).optional(),
+-  request: Request,
++  request: v.union([Request, Choice.Lowered]),
+ });
+#+end_src
+
+** M2 · =systems/runtime/tests/cortex.stripwire.test.js=
+
+#+begin_src js
+specimen.it("a choice round crosses the wire: labels out, probabilities back, verdict folded client-side", async () => {
+  const verdict = await remote.hallucinate.choice.render({
+    controller,
+    state: "Payroll asks for your password on a non-company sign-in page.",
+    question: "What is this email?",
+    options: ["legitimate", "spam", "phishing"],
+  });
+  expect(verdict).toHaveLength(3);
+  expect(verdict.reduce((sum, row) => sum + row.probability, 0)).toBeCloseTo(1);
+});
+#+end_src
+
+** M3 · =commons/hallucinators/openrouter/provider/translate.js=
+
+#+begin_src js
+export function buildChoiceParams(model, { state, question, text }) {
+  const content = `${typeof state === "string" ? state : JSON.stringify(state)}\n\n${question}\n\n${text}`;
+  return {
+    model: model.id,
+    messages: [
+      { role: "system", content: "Answer with the letter of one option and nothing else." },
+      { role: "user", content },
+    ],
+    max_tokens: 1,
+    logprobs: true,
+    top_logprobs: 20,
+    reasoning: { enabled: false },
+    provider: { require_parameters: true },
+  };
+}
+
+export function readChoice(response, labels) {
+  const top = response.choices[0]?.logprobs?.content?.[0]?.top_logprobs ?? [];
+  if (!top.length) throw new Error(`[openrouter] ${response.model} returned no logprobs — it cannot serve choice`);
+  const logits = labels.map((label) => top.find((entry) => entry.token.trim() === label)?.logprob ?? -Infinity);
+  const peak = Math.max(...logits);
+  const weights = logits.map((logit) => Math.exp(logit - peak));
+  const mass = weights.reduce((sum, weight) => sum + weight, 0);
+  return weights.map((weight) => weight / mass);
+}
+#+end_src
+
+** M3 · =commons/hallucinators/openrouter/provider/index.js=
+
+#+begin_src diff
++  function makeChoice(model) {
++    const render = async (lowered, { signal } = {}) => {
++      try {
++        const response = await client.chat.completions.create(buildChoiceParams(model, lowered), { signal });
++        return readChoice(response, lowered.labels);
++      } catch (error) {
++        throw fault(error);
++      }
++    };
++    return { render };
++  }
+@@
++  for (const model of table.choice ?? []) {
++    faculties.push({
++      type: "choice",
++      tune: model.tune,
++      context: model.context,
++      channels: { in: ["text", "object"], out: ["object"] },
++      config: { model: model.id },
++      via: makeChoice(model),
++    });
++  }
+#+end_src
+
+=models.choice= is written AFTER the live probe (QUESTIONED above): the candidate with =logprobs= on OpenRouter is an OpenAI-family id; the fixture in =tests/provider.test.js= mocks =choices[0].logprobs.content[0].top_logprobs= for =A · B · C= and asserts the softmax. =top_logprobs: 20= caps this provider at 20 options — a 21st label reads =-Infinity= and gets probability 0; the provider throws instead when =labels.length > 20=.
+
+** M4 · =registry/education/modes/games/riddler/aperture.js=
+
+The yes/no block from =* the sketch beef numbered=, replacing the =harness.object.render= grade it uses today (read at land time, hunk shown then). Shelf copy synced by hand, verified by bundling the shelf entry.
+
+* blast table
+
+| file | change | milestone | kind |
+|---|---|---|---|
+| =subsystems/typology/schematics/primitives/hallucination.js= | FacultyType + Choice + Policy.choice + Hallucination.choice | M1 | schema |
+| =subsystems/typology/gestalten/belt/choice.js= | NEW: pick · of · expect · confidence | M1 | belt |
+| =subsystems/typology/gestalten/belt/index.js= | export choice | M1 | barrel |
+| =subsystems/typology/gestalten/shard/hallucinate.js= | optioning · choosing | M1 | shard |
+| =subsystems/typology/prototypes/cortex.js= | /choice branch | M1 | prototype |
+| =commons/fixtures/data/faculties.js= | choice fixture | M1 | fixture |
+| =subsystems/typology/tests/cortex.test.js= | one it | M1 | test |
+| =subsystems/typology/tests/cortex.snapshot.test.js= | key list + re-capture | M1 | snapshot |
+| =systems/runtime/daemon/traits/harnessed.js= | choice render branch | M2 | trait |
+| =systems/runtime/daemon/aperture/cortex.js= | ROUND union | M2 | aperture |
+| =systems/runtime/tests/cortex.stripwire.test.js= | one it | M2 | test |
+| =systems/runtime/tests/cortex-contract.snapshot.test.js= | re-capture | M2 | snapshot |
+| =commons/hallucinators/openrouter/provider/translate.js= | buildChoiceParams · readChoice | M3 | provider |
+| =commons/hallucinators/openrouter/provider/index.js= | makeChoice + registration | M3 | provider |
+| =commons/hallucinators/openrouter/tests/provider.test.js= | mocked logprobs | M3 | test |
+| =~/.viva/registry/education/modes/games/riddler/aperture.js= | grade by choice | M4 | mode |
+| =~/.viva/instances/<slug>/…/riddler/aperture.js= | shelf sync | M4 | shelf |
+| =systems/anima/src/app/panels/e/widgets/Intelligent.svelte= | none — lists whatever the strip carries | — | untouched |
+
+* testing assessment
+
+in place: =subsystems/typology/tests/cortex.test.js= (4 its: register · nearest · object derivation · lowering) · =cortex.snapshot.test.js= (faculty keys) · =systems/runtime/tests/cortex.stripwire.test.js= (6 its over a real =Deno.serve=) · =cortex-contract.snapshot.test.js= (strip + render round) · =commons/hallucinators/openrouter/tests/provider.test.js= (597 lines, mocked client). COVERAGE GAP: no test anywhere exercises a faculty whose =via.render= returns something other than a Turn — =belt.hallucinate.render= folds packets into a transcript (=belt/hallucinate.js:184=), which is why =choosing= calls =via.render= directly; the harness middlewares' assumptions about =turns= are unread (M2 QUESTIONED).
+
+changes:
+| test | why |
+|---|---|
+| =cortex.snapshot.test.js:55= | the fixture adds a type |
+| =cortex-contract.snapshot.test.js= | the strip gains one faculty if the scenario registers the fixture |
+
+adds: =cortex.test.js= one it (M1) · =cortex.stripwire.test.js= one it (M2) · =provider.test.js= one it (M3).
+
+green ladder:
+| milestone | gate |
+|---|---|
+| M1 | =deno test -A --no-check subsystems/typology/tests/cortex.test.js= · =cortex.snapshot.test.js= |
+| M2 | =deno test -A --no-check systems/runtime/tests/cortex.stripwire.test.js= · =cortex-contract.snapshot.test.js= · =sse.integration.test.js= unchanged |
+| M3 | =deno test -A --no-check commons/hallucinators/openrouter/tests/provider.test.js= + the live probe |
+| M4 | riddler's own suite + a live grade in anima |
+
+Before any milestone flips DONE: =viva /help= alive, baseline pasted before blame, counts pasted as =N passed | F failed=.
+
+* QA
+
+** testimony — pre-registered
+
+I type =deno test -A --no-check subsystems/typology/tests/cortex.test.js=; I see 5 passed, the new it naming =["yes", "no"]= in option order.
+I type a choice round at =:2501/cortex/render= with =type: "choice"= and a =Choice.Lowered= body; I see an array of three numbers summing to 1, not =[cortex] invalid round=.
+I open the E panel's Intelligent widget; I see a =choice= faculty listed with =render= as its only avenue and the probed model as its origin.
+I answer a riddle wrong in riddler; I see no award, and the daemon's span shows one choice round under 500 ms.
+
+** probes
+
+#+marker_qa: m70/T-avenue · held · =subsystems/typology/tests/cortex.test.js= "the choice avenue: several questions of one primer…": three shapes back, an untagged question tagged, empty · 1-option · 4-option · 4-question refusals naming =bench/chooser=, the span =open · note · note · close=
+#+marker_qa: m70/T-wire · held · =systems/runtime/tests/cortex.stripwire.test.js= "a choice round crosses the wire: primer and questions out, a distribution per key back" (strip carries =options · choices=) + =harness.thread.test.js= "harness.choice.render reaches the cortex with the caller's primer and questions"
+#+marker_qa: m70/P-decisions · held · live 09-24 ×2 through =Cortex().register(await provider(…))= on =typesafe/jev-1.13=: ={same:{yes:0.03,partly:0.96,no:0.01}, grade:[0.01,0.97,0.02], ok:0.97}=, 397 input tokens, cost 1.7e-05, the span on the sink; =provider.test.js= pins =translateChoice= and =readChoice= on the live body verbatim
+#+marker_qa: m70/P-absence · held · =cortex.test.js=: =new Cortex().hallucinate.choice.render(…)= rejects =no 'choice' faculty resolves a 'render' avenue=
+#+marker_qa: m70/P-riddler · revised · beef 09-24 /"move to done."/ with the anima walk unrun — riddler's call is proven by =deno check= + the choice avenue suites + the live jev round, NOT by a riddle sent in anima; the walk is not held
+
+* M5 — choice takes jev's shape, in our words (beef 09-24)
+
+Trigger: /"i dont like this compromise and i want to use the actual jev tech. openrouter has it."/ — on the =top_logprobs: 20= literal, which is OpenAI's cap, not JEV's; JEV reads the full logit vector. On the wire found: /"yes this is obviously the interface of our faculty."/ · /"we take the shape, bring our own words"/ · on the schema: /"were taking v0 of the interface rn and making it our standard. where really we should leave the implementation detail to the providers, and our concern is to capture the shared core of the abstraction/interface."/ · /"less is more."/
+
+Found and proven live 09-24: =POST https://openrouter.ai/api/alpha/decisions=, model =typesafe/jev-1.13= (alias =~typesafe/jev-latest=), the OpenRouter key; 3 questions in one call, 397 input tokens, =usage.cost= 1.6674e-05. Settings: context 32 000 (primer + questions); questions per request unbounded but the context; choice ≤255 options; score 2–10 levels; noul = P(yes); no temperature · =max_tokens= · =top_logprobs=; input tokens only; 429 · 529 backoff.
+
+** rulings, superseding 4 · 6 · 10 · 12
+
+14. *a choice hallucination is several questions of ONE primer.* One request, one =primer= (/"state to primer"/), a map of questions keyed by the caller; one answer per key. Ask every question the code might need (TypeSafe fan-out: 13 questions in one call, 12.2× cheaper, same answers).
+15. *three kinds, TAGGED.* =type: choice | score | noul= — jev's words, taken (/"choice, score and noul are good names actually. we take those."/) — a union carries a tag (invariants: /"absence describing an ONTOLOGY is a defect"/; packets =v.const("/turn/open")=). =choice= takes =options= (a named record, a rubric on any, =null= for none), =score= takes =levels= (ordered, low to high), =noul= takes nothing. A =questionmap= =[[tag, sniff]]= fills an absent tag from the shape — the =fromm.yield= yieldmap idiom; a declared tag that contradicts its keys is refused.
+16. *the answer is the distribution, nothing else.* A record by option name · an array by level index · one probability. No =pick=, =score=, =confidence= on the wire — readings, if a caller wants them, are its own; /"the output of render is the end of our concern."/
+17. *the core carries no caps.* Structural minima only (a set ≥2, a scale ≥2). Caps are the FACULTY's, flat beside =context=: =options= (depth — the size of one answer space; a scale is a set with an order, one cap) · =choices= (width — questions in one render, =null= unbounded). Floor when absent: ={ options: 26, choices: 1 }=. The shard refuses past them, naming the faculty; a provider's own refusal (jev 422 on an 11-level scale) comes back through =fault=, in the provider's words. REJECTED: =bounds{}= — a block of one key (/"why keep it?"/); =questions= as a bound — a cost, not a bound; =scale= as a second cap — jev's two heads leaking.
+18. *the surface is direct.* A =const= of questions, a primer literal, =render=. REJECTED: =primer(key, fn)= / =question(key, spec)= harness shards (/"no. ok simple direct interface. all good. less is more."/); belt lookup readings.
+19. *the provider is a plain fetch to =/api/alpha/decisions=*, not the OpenAI SDK — it is not a chat completion. =translateChoice= is the dialect (=ask → instructions=, =options|levels → criteria=, the tag IS the wire type); =readChoice= folds =answers= back — probabilities in the caller's option order, score levels by index, =noul → number=.
+
+Trails (later, their own blast): =context= folds into the caps once a third cap exists; =primer= becomes the system-context noun across faculties (=hallucinate[x].primer= replaces =system=).
+
+** the two sides — JSON
+
+=Hallucination.choice=, what the caller hands =cortex.hallucinate.choice.render= (controller + policy lifted by =Context=):
+#+begin_src json
+{ "primer": { "expected": "Vado al mercato.", "answer": "Io vado al mercato domani." },
+  "questions": {
+    "same":  { "type": "choice", "ask": "Does `answer` mean `expected`?", "options": { "yes": null, "partly": "extra or missing detail", "no": null } },
+    "grade": { "type": "score",  "ask": "How close is `answer` to `expected`?", "levels": ["wrong", "close", "exact"] },
+    "ok":    { "type": "noul",  "ask": "Is `answer` grammatical Italian?" } } }
+#+end_src
+=Choice.Verdict=, one distribution per key, in the question's own shape:
+#+begin_src json
+{ "same": { "yes": 0.03, "partly": 0.96, "no": 0.01 }, "grade": [0.01, 0.97, 0.02], "ok": 0.97 }
+#+end_src
+The faculty: ={ "type": "choice", "tune": [0.4, 0.3, 1.0, 0.95], "context": 32000, "options": 255, "choices": null }=.
+The wire (=translateChoice=): ={ model, state: primer, questions: { same: { type: "choice", instructions, criteria: {…} }, grade: { type: "score", instructions, criteria: […] }, ok: { type: "noul", instructions } } }=. Jev answers ={ answers: { same: { type, choice, probabilities, confidence }, grade: { type, score, legend, probabilities: {"0":…}, confidence }, ok: { type, noul } }, usage: { input_tokens, output_tokens, cost } }= (live, verbatim).
+
+** blast — measured 09-24
+| seam | file | change |
+| schema | =subsystems/typology/schematics/primitives/hallucination.js:202,212-226,437= | =Faculty= + =options · choices= optional; =Choice.Question= tagged union, =Choice.Verdict= keyed; =Choice.Lowered= CUT; =Hallucination.choice{primer, questions}= |
+| shard | =subsystems/typology/gestalten/shard/hallucinate.js:71-91= | =LETTERS · line · optioning= CUT → =tagging()= (questionmap fill) + =bounding()= (caps, names the faculty); =choosing= unchanged |
+| cortex | =subsystems/typology/prototypes/cortex.js:59-62= | =.use(tagging()).use(bounding())= |
+| belt | =subsystems/typology/gestalten/belt/choice.js= · =belt/index.js= | CUT — no readings |
+| runtime | =systems/runtime/daemon/aperture/cortex.js:11= | ROUND =request: v.union([Request, Choice.Round])= where =Choice.Round = { primer, questions }= |
+| runtime | =systems/runtime/daemon/traits/harnessed.js:214= | forwards =primer · questions= |
+| fixture | =commons/fixtures/data/faculties.js:140= | =options: 26, choices: null=; answers by shape: first option 0.9 / level 1 / 0.9 |
+| provider | =commons/hallucinators/openrouter/provider/translate.js= · =index.js= | =buildChoiceParams · readChoice · choosers= → =translateChoice · readChoice= over =fetch=; chooser row ={ id: "typesafe/jev-1.13", tune, context: 32000, options: 255, choices: null }= |
+| consumer | =~/.viva/registry/education/modes/games/riddler/aperture.js:35= | =questions: { resolved: { type: "select", ask, options: { yes: null, no: null } } }=; =verdict.resolved.yes > 0.9= |
+| tests | =cortex.test.js= · =cortex.stripwire.test.js= · =harness.thread.test.js= · =provider.test.js= | shapes above; provider test mocks =answers= |
+
+Order: typology → runtime → fixture → provider → riddler. Each per =go=. Typology is holy — the schema hunk is shown before it lands.
+
+** M5 — landed 09-24 on /"otherwise go."/
+
+Baselines first, one file per run. Typology 127 passed (514 steps) → 127 (514); runtime 65 (422) → 65 (422); openrouter 39 steps → 39; anima =harness-wire= · =oracle-dialogue= · =oracle.snapshot= 3 passed (9 steps); =cortex.snapshot= untouched. Live through the real cortex + provider: ={"same":{"yes":0.03,"partly":0.95,"no":0.02},"grade":[0.01,0.97,0.02],"ok":0.97}=. Radius grep =Choice.Lowered|optioning|belt.choice|buildChoiceParams|labels:= → zero (two =labels:= in the assembly scene kit are 3D labels).
+
+Deviations: (1) =v.record(keys, values)= DROPS its options (=schematics/v.js:150=) — =minProperties= never reached the schema; the set-≥2 and ≥1-question minima moved into =shard.hallucinate.bounding=, where the faculty's caps already refuse. (2) union members needed =additionalProperties: false= — the =noul= member accepted =options=. (3) the strip (=gestalten/shape/cortex.js=) had to carry =options · choices= or the wired client cortex refused its own round on the floor. (4) =cortex-contract-render.snapshot.json= moved ONE line — ="condition": "NOMINAL"= on a tool_result, the sibling's =hallucinate.js:157= change absorbed by the regenerate; the strip snapshot did not move. (5) =fault= gained 529 (jev's overloaded). (6) the choice avenue had NO span — beef: /"choice must have span. choice ahs controller. must have span."/ → =belt.hallucinate.choose(faculty, round, policy)= opens · notes ={faculty, model, questions: {key: type}}= · notes ={verdict}= · faults · closes, the =vocalize= law; =choosing= calls it through =policyOf(ctx)=. Live: =[hal /hallucination] open · note · note · close= on the sink.
+
+* deferred
+
+- a local provider (llama.cpp logprob readout, the 25-line post): trigger — offline or private grading.
+- a faculty predicate in =is= so faculties can be options without naming tiers. Trigger: a second caller wants it.
+- the tools-routing consumer and the CEFR consumer from the sketch: each behind its own go, in its own mode's quest.
+- *the harness as a wrapper over choice + parameters.* beef, on the =harness.choice= hunk: /"this will be interesting. how does the harness benefit the choice? tools are out - maybe as input to choice. vector to toolcall. well tool call needs both selection of tool PLUS the parameters. maybe harness provides a wrapper for that?! hmmm. thats far out tho. anyways. to be expanded on"/. What the harness gives choice TODAY: the controller/activity span, the thread's INTELLIGENT tune, and =arming(ctx)= — the mode's tools, which =shard.hallucinate.declarations= turns into options. The wrapper is two rounds: choice picks the tool over the declarations, then =object= renders the parameters against that one tool's =input= schema — the seat is the unused =call= faculty type (=hallucination.js:20=, zero avenues, zero consumers, measured). Trigger: a mode wants a tool call without a dialogue turn.
+
+* changelog
+
+** M1 — landed 09-23
+
+Baseline before: =cortex.test.js= + =cortex.snapshot.test.js= → 2 passed (5 steps) | 0 failed. After: =deno test -A --no-check subsystems/typology/tests/= → 127 passed (514 steps) | 0 failed; =systems/runtime/tests/cortex.stripwire.test.js= + =cortex-contract.snapshot.test.js= → 2 passed (12 steps) | 0 failed, untouched; =viva /help= alive. No snapshot file moved.
+
+Deviations from the patch as written, then the correction:
+- first landing admitted =v.union([v.string(), Tool, Option])= in =options= because the gate runs BEFORE the shard lifts and a bare tool declaration failed =/options/1: must be string=. Probing that landing measured typebox =fill= copying plain objects under =options[]= and keeping class instances — moot now.
+- beef, on that union: /"no. i am against this. thats bad abstraction. the core faculty knwos nothing of the implemntation details of its surface. any processing of tools has already happened at that point. we know our constraints are strings. thats good enough."/ → RE-LANDED 09-23 as strings only: =Option= · =Label= import · =Tool= member · =lift= removed from =hallucination.js= and =shard/hallucinate.js=; =belt.choice.pick= returns the string, =probability= compares strings; the test drops the Row/declaration cases and gains the =/options/1= refusal of an object. Typology after the re-land: 127 passed (514 steps) | 0 failed.
+- the commons fixture moved to M2 (above).
+
+** M2 — landed 09-23
+
+=harnessed.js= gains the =choice= branch reading =state · question · options= off =ctx.input= (the measured fact: =requesting= rebuilds =ctx.hallucination= as dialogue); =aperture/cortex.js= ROUND takes =v.union([Request, Choice.Lowered])=; the commons fixture adds a =choice= faculty (first option 0.9). Tests: =cortex.stripwire.test.js= +1 it (labels out, probabilities back, verdict folded client-side; the strip shows =via: ["render"]=), =harness.thread.test.js= +1 it. One assertion dropped at land time: =captured.policy.tune= is NOT the mode's =module.tune= — =requesting= folds the THREAD's INTELLIGENT tune only (=harnessed.js:44-50=). Gate: stripwire + contract + harness.thread + sse + cortex.integration → 5 passed (41 steps) | 0 failed; no snapshot file moved.
+
+** M3 — landed 09-23
+
+QUESTIONED resolved by measurement, never guessed: =GET /api/v1/models= lists 151 models with =logprobs= + =top_logprobs=; probed =qwen/qwen3.6-35b-a3b= (the openjev-sglang pick) and =openai/gpt-4.1-mini= on the A/B/C menu over curl — both 20 =top_logprobs=. The provider: =buildChoiceParams= (one token, =top_logprobs: 20=, reasoning off, =require_parameters=) · =readChoice= (softmax inline) · =makeChoice= (>20 labels throws) · a =choosers= table beside =models= so the dialogue loop stays untouched · one =choice= faculty per chooser. Tests: =provider.test.js= +1 it, the =statics.models= it scoped to dialogue faculties → 2 passed (43 steps) | 0 failed. Two defects found live, both rulings now (11 · 12). Live through the cortex, 3/3: =ho andato= vs =sono andato= → no 0.98, confidence 0.88; CEFR over one A2 sentence → A2 0.63–0.66, expect 0.58–0.71; 500–800 ms warm, 14.7 s cold.
+
+Environment, not the quest: =~/.viva/instances/language-learning/.env= and the shell's =OPENROUTER_API_KEY= hold keys OpenRouter answers =User not found=; =~/.viva/.env= holds the live one. Filed in known-issues.
+
+** M4 — landed 09-23, walk owed
+
+=~/.viva/registry/education/modes/games/riddler/aperture.js= — after the assistant's =object= turn, one choice round over ={ riddle, answer, message }= asks /"Does the player's message give the riddle's answer?"/; =resolved = belt.choice.probability(verdict, "yes") > 0.9= replaces =output.object.resolved= for the DONE transition and the reply. =deno check= clean. No shelf copy exists (marker P-riddler). Not walked: anima asks for credentials I do not type.
+
+Full verification after everything: typology =deno test -A --no-check subsystems/typology/tests/= 127 passed (514 steps) | 0 failed · runtime =systems/runtime/tests/= 65 passed (422 steps) | 0 failed (two pre-existing SKIPs: lighthouse login on the droneaid runtime, not this quest's) · openrouter 2 passed (43 steps) | 0 failed · anima =oracle-dialogue= · =harness-wire= · =oracle.snapshot= 3 passed (9 steps) | 0 failed · =viva /help= alive · zero =*.snapshot.json= moved.
+
+* release
+
+- added a sixth faculty type `choice` — `cortex.hallucinate.choice.render({ controller, primer, questions })` asks several questions of ONE primer; a question is tagged `choice` (`options`, a named set) · `score` (`levels`, ordered) · `noul` (a proposition), an absent tag filled from the shape; the verdict is one distribution per key in the question's own shape (a record · an array · a number); a faculty declares its caps flat beside `context` — `options` (depth) · `choices` (width, `null` unbounded; floor 26 · 1) — and the avenue refuses past them naming the faculty; the round runs on the controller's span · migrate: none — new surface ⟨m70-choice-faculty⟩
+- added `harness.choice.render({ primer, questions })` on every HARNESSED mode; `/cortex/render` accepts a `{ primer, questions }` round; the `/metadata/cortex` strip carries `options · choices` · migrate: none ⟨m70-choice-faculty⟩
+- added an openrouter `choice` faculty on `typesafe/jev-1.13` over `POST /api/alpha/decisions` (plain fetch, the same key; `options: 255`, `choices: null`); `statics.choosers` replaces the chooser table; `fault` retries 529 · migrate: none ⟨m70-choice-faculty⟩
+- changed education/riddler — `resolved` is the choice verdict (`verdict.resolved.yes > 0.9`), no longer the assistant's own flag · migrate: none ⟨m70-choice-faculty⟩

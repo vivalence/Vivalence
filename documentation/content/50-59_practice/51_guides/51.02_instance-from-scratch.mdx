@@ -307,6 +307,21 @@ The face itself is Svelte 5 in a tagged template — ``svelte`…` `` — so thi
 
 The harness is middleware on the daemon's dialogue pipeline: it writes one system-prompt section onto the assembling request and passes on. The coach's actual capabilities come from `tools: deck` — when a learner tells it what happened, it calls `/review` itself, and the descriptions it acts on are the `valence` strings you already wrote.
 
+The same harness answers a second kind of question. `dialogue` writes a reply; `choice` weighs a closed set of strings and returns a probability for each, in the order you gave them:
+
+```js title="a grade, inside any HARNESSED mode"
+const verdict = await ctx.mode.harness.choice.render({
+  state: { expected: "sono andato", answer: "ho andato" },
+  question: "Does the answer mean the expected sentence?",
+  options: ["yes", "no"],
+});
+belt.choice.probability(verdict, "yes"); // 0.02
+belt.choice.pick(verdict);               // "no"
+belt.choice.confidence(verdict);         // 0.88 — how peaked the distribution is
+```
+
+The options are strings, and only strings — a tool, a row or a level is named by the mode before the call and looked up by name after. Ordered options read as a score: `belt.choice.expect(verdict)` over `["A1", "A2", "B1", "B2", "C1", "C2"]` returns a position between levels (`0.7` — mostly A2). Nothing is generated: the model reads the menu and the probabilities come from its first token, so a choice costs one token of output and answers in well under a second. It needs a provider that exposes log-probabilities — the OpenRouter hallucinator registers one; the Anthropic API has none, and without a `choice` faculty the call fails loudly rather than guessing.
+
 The dataset is the mode's starter content: two symbols, two literals, the links between them declared by slug. Seeded on first boot, skipped ever after — data lives in the daemon's database, the declaration is just its origin.
 
 ## the machine
@@ -341,10 +356,9 @@ Note what is *not* here: no ports hardcoded, no keys inline. Every environment r
 ```js title="standalone.viva.js — services + clients"
 export const services = [
   {
-    manifest: { type: "service", slug: "multiplayer" },
+    manifest: { type: "lighthouse", slug: "multiplayer" },
     module: "@commons/lighthouse/multiplayer",
     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
-    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
   },
 ];
 
@@ -372,10 +386,9 @@ export const environment = v.environment({
   VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
   VIVA_CLIENT_ANIMA_ORIGIN: v.url().desc("Scheme and authority the anima browser client is reachable at.").default("http://localhost:1794").group("addresses"),
   VIVA_RUNTIME_SERVE: v.url().desc("Base URL the runtime serves on. Everything else hangs off this latch.").default("${VIVA_RUNTIME_ORIGIN}/").group("addresses"),
-  VIVA_LIGHTHOUSE_SERVE: v.url().desc("Where the hosted lighthouse attaches inside the runtime's own path tree.").default("${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer").group("addresses"),
   VIVA_CLIENT_ANIMA_SERVE: v.url().desc("Where the anima browser client serves.").default("${VIVA_CLIENT_ANIMA_ORIGIN}/").group("addresses"),
   PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
-  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED. Set it for a lighthouse on another host; unset, paladin computes this runtime's reach + the hosting service's seat.").group("addresses").optional(),
   SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24").default(() => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24))))).group("keys"),
   SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Anthropic key. Without one the daemon attaches no hallucinator and /hello/agent answers as the bot.").group("keys").optional(),
 });

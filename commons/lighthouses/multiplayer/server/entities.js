@@ -13,7 +13,7 @@ import {
 } from "@vivalence/runtime";
 
 export async function systemmap(servicemask) {
-  const datamap = await paladin.vip.accio(servicemask.datamap.module);
+  const datamap = await paladin.ledger.registry.accio(servicemask.datamap.module);
 
   // const instance = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema]
   //   .map((schema) => ({ schema }));
@@ -103,7 +103,7 @@ export function expose(service, aperture, datamap) {
 //   // console.log({ paladin });
 //   // console.log("sysmap", servicecake);
 //   // console.log("path", servicecake.mount.branch("gaia.db").absolute);
-//   // const datamap = paladin.vip.accio(servicecake.datamap)
+//   // const datamap = paladin.ledger.registry.accio(servicecake.datamap)
 
 //   // const mikroconfig = defineConfig({
 //   //   dbName: join(service.data, "gaia.db"),

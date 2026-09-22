@@ -1,0 +1,1 @@
+All 23 budgeted files worked down to 15% of cap — markers, frontier, the kernel, map, ledger, connoisseur, ontology and every codemap shard. Survivors rewritten as bullets. Everything cut is under `~/.viva/bak/ikiro/throughput-20260923/`.

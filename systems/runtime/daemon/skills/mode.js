@@ -4,7 +4,7 @@ import { v, Vector } from "@vivalence/typology";
 // that is somewhere else. Empty for a mode with none — a scenario mode, a kernel entry without a file.
 export const places = (mode) =>
   [
-    mode.module?.mount?.dirname && `source ${mode.module.mount.dirname}`,
+    mode.module?.source?.dirname && `source ${mode.module.source.dirname}`,
     mode.mountpoint?.absolute && `mountpoint ${mode.mountpoint.absolute}`,
     mode.freight?.path?.absolute && mode.freight.path.absolute !== mode.mountpoint?.absolute &&
     `freight ${mode.freight.path.absolute}`,

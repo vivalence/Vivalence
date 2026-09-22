@@ -17,53 +17,50 @@ backlog item.
 
 ## the walk
 
-1. **SPINE** — extract every beef turn in order, numbered `1..N`. Never from memory; run the extractor below. `N` is now a fact, and the walk has a denominator. The dedupe compares **full text**, never a prefix: two DesignSync handoffs sent 8s apart shared a 200-char prefix and one was silently eaten, while a queue echo is byte-identical and still collapses. Prefix matching cannot tell a duplicate from a sibling. A re-delivery outside the 180s window survives as its own turn on purpose — beef repeating himself is data.
+1. **SPINE** — extract every beef turn in order, numbered `1..N`. Never from memory; run `python3 .ikiro/methods/spine.py <session-id>` (pass the id — the scratchpad dir name is it; the newest transcript is a SIBLING's when one is live). `N` is now a fact, and the walk has a denominator. The dedupe compares **full text**, never a prefix: two DesignSync handoffs sent 8s apart shared a 200-char prefix and one was silently eaten, while a queue echo is byte-identical and still collapses. Prefix matching cannot tell a duplicate from a sibling. A re-delivery outside the 180s window survives as its own turn on purpose — beef repeating himself is data.
+   **1b. SKILLS** — `python3 .ikiro/methods/skills.py <session-id>` prints every `Skill` firing aligned to the turn it sits under, and the `** skills` table skeleton. Mechanical, like the spine: the transcript holds the firings, so they are read, never recalled — and a fold that recalls them records the skills it *remembers* invoking, which is the same recency bias one level up. Run it here; write the verdicts at step 8, once the walk can say whether the skill carried the turn.
 2. **WINDOWS** — walk **oldest first**, ~4 turns per window. Per turn write one row: `n · what beef asked (verbatim when it is a decision, a gate, or a correction) · what landed · what was decided or killed`.
 3. **COVERAGE** — every `n` in `1..N` appears in exactly one row. A turn with nothing durable is written `NOTHING`, never skipped in silence. Unaccounted turns > 0 means the walk is not finished. This is the forcing function: the count exists before the writing starts, so a short walk is visibly short rather than plausibly complete.
 4. **SECTIONS** — compose section by section (`#+TOPIC` · `* Arc` beats · failures · `* State at fold`), and fill **each section from the whole row table**. Never write the compact top-to-bottom in one pass: a single pass re-imposes narrative order, which is recency order wearing a different hat.
 5. **BALANCE** — count which rows each section cites. If more than half the citations fall in the last third of `N`, the bias survived; go back to the rows. This is the measurable test, and it is the difference between a method and a wish.
 6. **INDEX** — regenerate `compacts/index.md` (never hand-patch it). A compact nobody can find is not a record: measured once, **32 of 35 were unreachable from live canon**. The check is a count — numbered entries must equal `.org` files in the directory. The `## by tag` fold is RETIRED (beef: *"too much time in updates, not enough payback"*, executed 09-21); `#+filetags:` is no longer required on a compact, and nothing reads it. Ids are the citation key and still stamped once, forever.
-8. **QUEST REPORT** — `CLAUDE_SESSION_ID=<this session> python3 .ikiro/methods/quest-report.py --format md --stamp --compact <this compact>`: the five-column table lands as the compact's `* quest report` section and the three derived header keys are restamped on every live quest (totem: `self/totems.md ## quest report`). Read the `sessions` column before claiming anything about the tree — a live sibling means a shard or an hour-old grep can already be false.
-7. **SETTLEMENT** — then the existing scribe pass (see `self/rituals.md ## the scribe's duties`): loose ends resolved by a landed rule get FIXED in the compact turn, budgets checked in chars, date-scan before writing.
+7. **QUEST REPORT** — `CLAUDE_SESSION_ID=<this session> python3 .ikiro/methods/quest-report.py --format md --stamp --compact <this compact>`: the five-column table lands as the compact's `* quest report` section and the three derived header keys are restamped on every live quest. Read the `sessions` column before claiming anything about the tree — a live sibling means a shard or an hour-old grep can already be false.
+8. **SKILL VERDICTS** — fill the `** skills` organ: one row per firing, `skill · turn · verdict · the line`, verdict from the closed set in `skills/LEDGER.md` (`HELD · GAP · STALE · MISFIRE · MISSED`). Then add the **MISSED** rows — a turn that needed a skill and got none, including a name reached for that did not resolve. Append every non-`HELD` row to `skills/LEDGER.md`; the compact is the citation, the ledger is the store, because compacts are prunable and a skill corpus kept only in them dies with the next cut. The verdict is on what the skill DID for the turn, not on how it read.
+9. **SETTLEMENT** — then the scribe pass: loose ends resolved by a landed rule get FIXED in the compact turn, budgets checked in chars, date-scan before writing.
+
+## the handoff — how a compact ENDS
+
+/"You're better off with a handoff file and using clear"/ (`reference/harnesses/harness.md` §9.5.5, R #11) — a
+summary is read as history, a handoff is read as orders. Every compact ends in `* handoff`, one block per quest the
+session moved, org description lines, keys repeatable:
+
+```org
+* handoff
+- quest :: m67-assembly-ontology
+- goal :: /"one number settles the centring"/ — the motor_2 translation off the network pane
+- done :: `modes/editor/assembly/buffer/fold.js:88` lanes fold by joint; `deno test … tests/fold.test.js` → ok | 7 passed
+- next :: `curl -s :2501/daemon/assembly/resolve | jq '.motor_2'` and compare to the pane
+- never :: no auto-selection in a fresh buffer (/"no fucking default"/)
+- owed :: beef — the navigation standard · the commit
+```
+
+A block with no `quest` line is session-level (`none`): one per compact, live until a later handoff closes it with
+`- settles :: #<index>` — two sessions' owed items never evict each other. `world/frontier.md` is then DERIVED, never written:
+`python3 .ikiro/methods/handoff.py --write`, and `--check` must read byte-identical. The next session reads
+`handoff.py --latest` first. `next` is ONE step a fresh session can land cold; a `never` carries beef's ruling
+verbatim; `owed` names what only beef can give.
 
 ## the extractor
 
-```python
-import json,os,sys,re,datetime
-D=os.path.expanduser('~/.claude/projects/-Users-finn-vivalence-code-vivalence')
-sid=sys.argv[1] if len(sys.argv)>1 else None
-fp=os.path.join(D,sid+'.jsonl') if sid else max((os.path.join(D,f) for f in os.listdir(D) if f.endswith('.jsonl')),key=os.path.getmtime)
-NOISE=re.compile(r'^<(local-command-caveat|command-name|command-message|command-args|system-reminder|local-command-stdout|task-notification)|^\[SYSTEM NOTIFICATION|^Stop hook feedback|^# /\w+ —|^\[Request interrupted by user\]')   # task notifications and hook feedback are the harness talking, not beef
-def when(s):
-    try: return datetime.datetime.fromisoformat(s.replace('Z','+00:00')).timestamp()
-    except: return 0.0
-raw=[]
-for i,line in enumerate(open(fp,encoding='utf-8',errors='replace')):
-    try: e=json.loads(line)
-    except: continue
-    t=e.get('type'); ts=e.get('timestamp') or ''
-    txt=None
-    if t=='queue-operation' and e.get('content'): txt=e['content']          # MID-TURN
-    elif t=='user':
-        c=e.get('message',{}).get('content')
-        if isinstance(c,str): txt=c
-        elif isinstance(c,list): txt=' '.join(b.get('text','') for b in c if isinstance(b,dict) and b.get('type')=='text')
-    if not txt or not txt.strip(): continue
-    txt=txt.strip()
-    if NOISE.match(txt): continue
-    raw.append((i,ts,when(ts),t,txt))
-turns=[]
-for r in raw:
-    if any(r[4]==k[4] and abs(r[2]-k[2])<180 for k in turns): continue   # FULL text: a queue echo is byte-identical
-    turns.append(r)
-print(f"BEEF TURNS: {len(turns)}  (raw {len(raw)}, {len(raw)-len(turns)} queue duplicates collapsed)")
-for n,(i,ts,_,t,txt) in enumerate(turns,1):
-    print(f"{n:3}. {ts[11:19]} {'MID-TURN' if t=='queue-operation' else 'prompt  '} [{len(txt):5}ch] {' '.join(txt.split())[:118]}")
-```
+`python3 .ikiro/methods/spine.py <session-id>` — the body of that script IS the spec (it lived here as a pasted block until 09-22; the one method whose thesis is "prose is not enforcement" shipped its enforcement as a block to hand-paste every fold). Prints `BEEF TURNS: N (raw R, D queue duplicates collapsed)` then one numbered row per turn, MID-TURN marked, the TAIL of long turns shown.
 
 ## the index generator
 
 `python3 .ikiro/methods/compact-index.py` — regenerates `compacts/index.md`; the body of that script IS the spec (it used to live here as a pasted block, and a pasted block is DERIVED prose inside an authored file: the fold that lost nine entries had no runnable generator). The check after regeneration is the script's own last line: compacts · ids stamped.
+
+## the skills reader
+
+`python3 .ikiro/methods/skills.py <session-id>` — the body IS the spec. Reads `tool_use` blocks named `Skill` out of the same transcript, aligns each to the beef turn it sits under (by importing `spine`, never by re-deriving the numbering), and marks the ones whose `is_error` result says the name did not resolve. `--fold` is the board over all 135 transcripts crossed with `skills/LEDGER.md`: firings · sessions · notes by verdict · never-fired · **names that were reached for and do not exist** — `ikiro-compact` and `ikiro:compact` both reached for within three days of each other, which is the trigger surface saying the fold skill is not called what the hand types.
 
 ## the canon path audit (world-sync step)
 
@@ -85,32 +82,15 @@ An earlier general path-existence checker was built, measured at 7 false positiv
 
 Suggest a successor only at **suffix depth ≥3, unique at that depth**. A unique BASENAME match is not identity — it proposed `systems/runtime/daemon/entities.js` → `registry/viva/lighthouse/multiplayer/server/entities.js`, and `daemon/kernel.js` → `schematics/primitives/kernel.js`. A wrong repoint is worse than a stale path: it reads as freshly verified.
 
-```python
-import os,re,collections
-PATH=re.compile(r'`((?:systems|subsystems|commons|testament|documentation)/[A-Za-z0-9_@./-]+)`')
-GONE=re.compile(r'\b(emigrat|deleted|removed|renamed|no longer|used to|dead|slop|moved|replaced|former|superseded|pre-M11|was at|killed|dissolv|gone|left|old)\w*',re.I)
-DESIGN=re.compile(r'\b(sketch|dormant|DESIGNED|not built|planned|proposed|WITHDRAWN|deferred|parked)\w*',re.I)
-RECORDS={'zettelkasten.md','loop-backlog.md','known-issues.org'}
-MEM=os.path.expanduser('~/.claude/projects/-Users-finn-vivalence-code-vivalence/memory')
-srcs=[os.path.join(MEM,f) for f in sorted(os.listdir(MEM)) if f.endswith('.md')]
-for root,d,fs in os.walk('.ikiro'):
-    if '/compacts' in root: continue
-    srcs+=[os.path.join(root,f) for f in fs if f.endswith(('.md','.org')) and f not in RECORDS]
-for sp in srcs:
-    t=open(sp,encoding='utf-8',errors='replace').read(); wide=len(DESIGN.findall(t))>=3
-    for m in PATH.finditer(t):
-        p=m.group(1).rstrip('/.')
-        if os.path.exists(p) or re.search(r'<|\.\.\.|\*|\{',p): continue
-        ctx=' '.join(t[max(0,m.start()-160):m.end()+160].split())
-        if GONE.search(ctx) or DESIGN.search(ctx) or wide: continue
-        print(f"{os.path.basename(sp):46} {p}")
-```
+`python3 .ikiro/methods/canon-paths.py` — the body IS the spec; the skip classes above are its constants.
 
 ## three traps, all hit while building this
 
 - **Mid-turn interjections are `type: "queue-operation"`, not `user`.** A walk over `user` messages misses them entirely — and in the session that produced this method, the two most consequential instructions were both mid-turn (*"can you add a hook to /compact?"* and *"kill it. move the meta information about how to rebuild the history into m31 root"*). A compact built from a `user`-only walk would have recorded neither, while still looking complete. This is a SECOND bias, sharper than recency: whole instructions are structurally invisible.
 - **Dedupe must be time-windowed, never content-keyed.** Each queued message appears twice (~20 s apart). Keying on content alone collapsed five identical cron-fired prompts into one and cut a 12-turn session to 8 — the naive fix silently deleted four iterations of work. Match on content **within 180 s**.
 - **A quoted turn's payload is its TAIL.** beef often pastes my own text back with the instruction appended — *"…deletion isn't git-reversible — the kernel's* **which 372k?**" and *"…5,333 lines git: A* **kill it.**". The quoted block is the address; the last clause is the order. Reading such a turn as a comment on my text, rather than as an instruction, loses the instruction.
+
+- **A mid-turn message can be missing from the transcript entirely.** A message beef sent while a tool ran — with a screenshot, delivered inside the tool result as *"The user sent a new message while you were working"* — left NO row in the `.jsonl`: no `user`, no `queue-operation`, no text to grep. Its only traces were beef's next turn (*"Ignore the chess message."*) and the assistant's reply. When a turn in the spine answers something the spine does not hold, that is evidence of a lost turn: log it as a dash row between its neighbours, from the reply and the answer, and say it is not in the transcript.
 
 ## the denominator is the point
 

@@ -7,7 +7,7 @@ import { DATASET, DATASINK, stagger } from "../daemon/traits/index.js";
 
 let scenario, daemon, mode, arm, first;
 
-const read = (target) => paladin.read.json(`${mode.module.mount.dirname}/${target}`);
+const read = (target) => paladin.read.json(`${mode.module.source.dirname}/${target}`);
 
 specimen.beforeAll(async () => {
   scenario = await datamap.seed();
@@ -23,7 +23,7 @@ specimen.beforeAll(async () => {
   mode = {
     manifest: { type: "topography", slug: "fixture", traits: [] },
     entity: { installed: false },
-    module: { mount: corpus, dataset: topography.dataset(), datasink: topography.datasink() },
+    module: { source: corpus, dataset: topography.dataset(), datasink: topography.datasink() },
   };
 
   await DATASET(mode, daemon);

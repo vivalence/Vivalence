@@ -20,7 +20,7 @@ specimen.beforeAll(async () => {
   mode = {
     manifest: { type: "topography", slug: "fixture", traits: [] },
     entity: { installed: "" },
-    module: { mount: corpus, dataset: topography.dataset() },
+    module: { source: corpus, dataset: topography.dataset() },
   };
 
   await DATASET(mode, daemon);
@@ -103,7 +103,7 @@ specimen.describe("what install does with a loader", () => {
       slug: "loaded",
       entity: { installed: "" },
       module: {
-        mount: mode.module.mount,
+        mount: mode.module.source,
         dataset: new Dataset({
           symbol: { load: async () => [{ slug: "jd.id.22.04", traits: ["STRUCTURAL"], trait: {} }], stamp: async () => mark },
           literal: { load: async () => [{ slug: "22.04.re.pdf", ontology: "jd", traits: [], trait: {}, symbols: [{ slug: "jd.id.22.04" }] }] },

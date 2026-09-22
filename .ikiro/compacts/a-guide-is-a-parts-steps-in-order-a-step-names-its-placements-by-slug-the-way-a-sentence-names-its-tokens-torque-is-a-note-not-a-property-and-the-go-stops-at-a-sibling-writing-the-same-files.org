@@ -1,0 +1,59 @@
+#+title: a guide is a part's steps in order, a step names its placements by slug the way a sentence names its tokens, torque is a note not a property, and the go stops at a sibling writing the same files
+#+index: 200
+#+session: the eighth arc of session fc59f22c (turns 87–97; 1–7 are #186, 8–21 #188, 22–38 #190, 39–48 #191, 49–59 #194, 60–76 #197, 77–86 #198). A briefing, a design ruled in three turns, a plan, and a go held back.
+
+* one breath
+
+After the #198 fold beef renamed the session "guide editor" and ordered a technical design briefing (89): the =@assembly= and =@droneaid= packages, their schema, the instance database, every aperture, how modes work, the deprecated =@droneaid/assembly/pt10= guide — /"thats what we will build now. we will rebuild the guide, and add an editor to create guides. a tutorial editor."/ Read off disk and a read-only open of =droneaid.viva.db=: three ontologies, ten trait payloads, 12 + 13 + 4 natures, 7 + 3 tools, a census of 50 parts / 72 placements / 0 steps, two roots (one blend imported twice), every literal carrying only its root symbol, and pt10 dissected: 22 island-parts and 16 steps hardcoded in =guide.js= over a sketchfab stand-in. Three findings in =resolve.js=, read from code: a graft overwrites a root step's over at a grafted path; =upto= never reaches inside a grafted part; =interior()= reads the base layer only. Landed as =.ikiro/reference/droneaid-guide-briefing.md=, which beef then cut down on disk.
+
+He pasted the core idea back (90): /"yes. we need to rework the internal abstraction. thats your job now. what SHOULD we implement? whats the right long term abstraction for this problem domain?"/ The answer: split what a thing IS from how it COMES TO BE. Three registers agree — ERP (a BOM line names the operation that consumes it), CAD (an exploded-view step acts on existing instances), USD (=def= vs =over=). A step is an opinion over stable occurrences, never their container. He ruled in one line each (91): /"1 you name 2 if its derivable, great. look at the way language learning conjugations adn sentences annotate their member literals. thats what slugs are for. you own the assembly. plan the change in detail. i assume this is mostly step related and doesnt touch the importer or editor"/. Education's sentence carries =ANNOTATED.tokens[].literal=, a conjugation =CONJUGATED.paradigm[role]=, and =literal_uses= is derived from those slugs — the mechanism =references()= already is. Named =ASSEMBLED=. =PREPARED= derived away. Plan at =.ikiro/reference/assembly-step-rework.md=.
+
+Then the correction that changed the shape (92): /"torque is not a property. its the content of a note. an annotation. i of course need ways to place information and instrcutions on screen. location relative, absolute, or relation to part, at step etc."/ State and note are different things. =JOINED= keeps =joins= only; =ASSEMBLED= members shrink to ={ literal, active }=; a NOTE is content plus an anchor — on a placement, offset from one, at an absolute position, or nowhere (the panel). One fork put: collapse =INSTRUCTED { text, warn, images }= into =ANNOTATED { notes }=, education's own trait name for the same idea. /"go."/ (93). The package captured to =~/.viva/bak/assembly-step-rework-<date>/=, then the first check before the first edit: =Literal.ts=, =schematics.js=, =tests/= and the editor's =cli.js=/=fold.js= had mtimes minutes old, and the transcript next to this one ("assembly editor") was mid-write on =Inspector.svelte=, landing rename · duplicate · focus from a second design pass. Two writers on the same files, and a semantic collision: its =duplicate()= copies a step WITH its layer, which the rework removes. Stopped; two options to beef. /"we have a design. pretty detailed an elaborate"/ (94) — the sibling's v3, now landed as #199: the sequence pane, the bom pane and the command line are gone, a CRUD row and a harness footer are in. My plan's one editor touch (the move-into lane) has no host any more. Then /"get ready"/ · /"ikiro compact"/ (95–96).
+
+* the spine — 97 turns, this fold 87–97
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 87 | =/compact= (the harness) | the #198 fold's compaction ran | — |
+| 88 | continuation summary (the harness) | NOTHING | — |
+| 89 | /"i want you to write me a description of the assembly and droneaid packages … thats what we will build now. we will rebuild the guide, and add an editor to create guides. a tutorial editor. … write that up. inline artifcat md here. ```json/js``` heavy"/ | =reference/droneaid-guide-briefing.md=: 12 sections, the db opened =mode=ro=, three fold findings (§9), nine forks; beef edited it on disk after | — |
+| 90 | the core idea pasted back; /"yes. we need to rework the internal abstraction. thats your job now. what SHOULD we implement? whats the right long term abstraction for this problem domain?"/ | composition ≠ process, cited to ERP · CAD · USD; a sketch of a step as overs by path; two things left to him (the trait's name, PREPARED derived or authored) | the step as a LAYER holding placements |
+| 91 | /"1 you name 2 if its derivable, great. look at the way language learning conjugations adn sentences annotate their member literals. thats what slugs are for. you own the assembly. plan the change in detail. i assume this is mostly step related and doesnt touch the importer or editor"/ | education's =ANNOTATED.tokens[].literal= read; =ASSEMBLED= named; =reference/assembly-step-rework.md= (trait, slug laws, folds, writer table, surfaces, editor one gesture + one count, importer untouched, tests, no migration) | =PREPARED= |
+| 92 | /"torque is not a property. its the content of a note. an annotation. i of course need ways to place information and instrcutions on screen. location relative, absolute, or relation to part, at step etc."/ | the NOTE shape with four anchors; =JOINED.torque= out; members ={ literal, active }=; fork: =INSTRUCTED= collapses into =ANNOTATED { notes }= | torque as a field anywhere |
+| 93 | /"go."/ | capture =~/.viva/bak/assembly-step-rework-<date>/=; the sibling found writing =Literal.ts= · =schematics.js= · tests · =cli.js= · =fold.js= · =Inspector.svelte=; two options put | the edit itself — held |
+| 94 | /"we have a design. pretty detailed an elaborate"/ | read as the sibling's v3 (compact #199): sequence + bom panes and the command line gone, rename · duplicate · focus in | the plan's editor delta (move-into lane) |
+| 95 | mid-turn: /"get ready"/ | — | — |
+| 96 | mid-turn: /"ikiro compact"/ | this fold | — |
+| 97 | =/compact= (the harness) | NOTHING | — |
+
+Coverage: 87–97, eleven turns, each once. 87, 88, 97 are the harness.
+
+Balance on the fold's N=11: first third (87–90) the briefing and the abstraction question, middle (91–93) the three rulings and the held go, last third (94–97) one sentence and the fold. The weight sits in the middle because that is where beef ruled: the name, the derivation, the education pattern, the note.
+
+* failures
+
+- **a plan written against a package a sibling was rewriting** — the plan at 91 named =editor/assembly='s sequence lanes as the one editor touch; #199 had removed them an hour earlier in the transcript beside this one. The read that would have shown it (=ls -t= of the project's transcripts, or the file mtimes) ran only at 93, after "go". [[sibling-reconcile]] never fired; ledgered MISSED. No file was written, so nothing to undo.
+- **a census that was already a second life** — §4.3 of the brief measured 50 / 72 / 0 with two roots; the sibling had purged the table to zero and beef re-imported twice since. The numbers happen to match; the rows are not the ones I read them as. The brief says "measured"; it should say when.
+- **the sibling's own rule, learned second-hand** — #199 killed the watched runtime by landing a mode file by file. The step rework spans =schematics.js= · =Literal.ts= · =resolve.js= · tests under =runtime/watch=: it lands from a scratch copy in ONE rsync, or not at all ([[feedback_watched_tree_lands_in_one_burst]]).
+
+* State at fold
+
+- Ruled, not yet written: composition ≠ process · a step's =ASSEMBLED { placements: [{ literal, active }] }= names occurrences by slug · torque is note content · =PREPARED= derived (bom Δ; tools are =tool.*= symbols) · notes carry an anchor (placement · offset · absolute · none). Open fork: =INSTRUCTED= → =ANNOTATED { notes }= (recommended; his word owed). Memory [[project_assembly_step_rework]].
+- The plan =reference/assembly-step-rework.md= needs a re-base on v3 before "go" runs: no sequence lanes, =duplicate()= of a step, =rename()= of a step's layer, the =focus= tool.
+- The brief =reference/droneaid-guide-briefing.md= is beef's edit now (he cut it on disk); §4 census and §5.5 (editor natures, 13 → v3's set) are stale against #199.
+- The go of 93 is HELD: two writers on =Literal.ts=. Resume when the "assembly editor" transcript is quiet, from a fresh read.
+- Known issues filed: =assembly-fold-graft-precedence= (§9.1 + §9.3), =literal-slug-unique-index-is-per-mode=.
+- Owed to beef: see =world/frontier.md ## owed= (droneaid line: the registry =daemon.js= drift, the two stale root symbols, the INSTRUCTED fork).
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| compact-walk | 96 | HELD | the spine ran with the id; N=11; skills.py listed no firing for this fold, which is itself the finding below |
+| sibling-reconcile | 93 | MISSED | a plan and a "go" against =~/.viva/registry/assembly= with a live sibling writing it; the transcripts' mtimes were read only after go |
+| design-questions | 90 | MISSED (no skill by that name; the memory held) | reasoning + a sketch, no code — the memory [[feedback_design_questions_want_reasoning]] carried it, no skill resolves to it |
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest | progress | status | next | sessions |
+|-------+----------+--------+------+----------|

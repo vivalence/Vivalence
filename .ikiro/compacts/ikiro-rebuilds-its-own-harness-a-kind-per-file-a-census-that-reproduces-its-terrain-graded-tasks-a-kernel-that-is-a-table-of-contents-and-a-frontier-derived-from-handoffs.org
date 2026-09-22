@@ -1,0 +1,21 @@
+#+title: ikiro rebuilds its own harness — a kind per file, a census that reproduces its terrain, graded tasks, a kernel that is a table of contents, and a frontier derived from handoffs
+#+index: 211
+#+session: 399bbea4 — one beef turn (/"work this until done. move to done"/ on `quests/m69-ikiro-ikiro.org`); written mid-session so the hand-written frontier's owed items had a carrier the moment the frontier became derived, finalized at the session's end
+
+* one breath
+
+/"/Users/finn/vivalence/code/vivalence/.ikiro/quests/m69-ikiro-ikiro.org work this until done. move to done"/ (1). The quest's three steps landed in `.ikiro/`: every ikiro file declares a kind, `methods/channels.py` reproduces the 09-23 terrain from the transcripts, `.ikiro/evals/` holds graded tasks with a runner, the kernel is a table of contents, the codemaps carry a generated half, the frontier is derived from compact handoffs, and the reflection pass is an ablation. Record: the quest's `* changelog`.
+
+* State at fold
+
+- in progress — see the quest's changelog; this block is rewritten at the session's end.
+
+* handoff
+- goal :: carry the hand-written frontier of 09-23 into the handoff channel unchanged — every owed line below is verbatim from it
+- owed :: beef — **rotate the Anthropic key** — cleartext in the uncommitted `.ikiro/zettelkasten.md`; rotate, then scrub
+- owed :: beef — commits: m58 · m67 · m68 · assembly-guide · education push
+- owed :: beef — claim-guard: off, for review
+- quest :: assembly-guide
+- owed :: beef — walk in anima (sign in): `@assembly` editor · `editor/guide` · `player/guide`; Firefox: clear cache once
+- owed :: beef — rule: the seven forks in `quests/assembly-guide.org`
+- owed :: beef — rule: one harness bench in `@assembly` — `tests/hal.js` or the sibling's `modes/editor/assembly/tests/scripted.js` (#209)

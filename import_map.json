@@ -147,6 +147,7 @@
     "three": "npm:three@0.186.0",
     "three/addons/loaders/GLTFLoader.js": "npm:three@0.186.0/addons/loaders/GLTFLoader.js",
     "three/addons/controls/OrbitControls.js": "npm:three@0.186.0/addons/controls/OrbitControls.js",
+    "three/addons/controls/TransformControls.js": "npm:three@0.186.0/addons/controls/TransformControls.js",
     "@threlte/core": "npm:@threlte/core@8.6.0",
     "@threlte/extras": "npm:@threlte/extras@9.21.1"
   },

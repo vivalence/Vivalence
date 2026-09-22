@@ -206,7 +206,8 @@ specimen.describe("Hallucination", () => {
       }]);
       const folded = await cortex.hallucinate.dialogue.render({ controller: new Controller(), turns: [userTurn("test")] });
       specimen.expect(folded.output.message).toBe("done");
-      specimen.expect(toolResultTurn.parts[0].output.message.error).toContain("ghost");
+      specimen.expect(toolResultTurn.parts[0].condition).toBe("ERROR");
+      specimen.expect(toolResultTurn.parts[0].output.message).toContain("unknown tool: ghost");
     });
 
     specimen.it("rounds ceiling closes length and render throws", async () => {

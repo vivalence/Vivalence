@@ -32,8 +32,8 @@ describe("Pensieve", () => {
 
   it("a second file claiming a held identity cannot register — the same file re-registers idempotently", () => {
     const pensieve = new Pensieve();
-    const starter = { ...module("@commons", "instance", "multiplayer"), mount: { absolute: "/commons/instances/starter/multiplayer.viva.js" } };
-    const shadow = { ...module("@commons", "instance", "multiplayer"), mount: { absolute: "/commons/instances/copy/multiplayer.viva.js" } };
+    const starter = { ...module("@commons", "instance", "multiplayer"), source: { absolute: "/commons/instances/starter/multiplayer.viva.js" } };
+    const shadow = { ...module("@commons", "instance", "multiplayer"), source: { absolute: "/commons/instances/copy/multiplayer.viva.js" } };
     pensieve.register(starter);
     pensieve.register({ ...starter, manifest: { ...starter.manifest } });
     expect(() => pensieve.register(shadow)).toThrow(/already registered/);

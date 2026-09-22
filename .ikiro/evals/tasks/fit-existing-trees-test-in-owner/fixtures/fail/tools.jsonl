@@ -1,0 +1,3 @@
+{"name":"Read","input":{"file_path":"/repo/commons/instances/hello-world/tools/doors.js"}}
+{"name":"Bash","input":{"command":"ls /repo/systems/runtime/tests/mode"}}
+{"name":"Write","input":{"file_path":"/repo/systems/runtime/tests/mode/persona.test.js","content":"import { assertEquals } from \"@std/assert\";\nimport { persona } from \"../../../../commons/instances/hello-world/tools/doors.js\";\n\nDeno.test(\"persona without a hallucinator\", async () => {\n  const ctx = { daemon: { cortex: { findOne: () => null } }, input: { user: \"hi\" } };\n  assertEquals(await persona(ctx), { greeting: \"No hallucinator attached. Bot says high.\" });\n});\n"}}

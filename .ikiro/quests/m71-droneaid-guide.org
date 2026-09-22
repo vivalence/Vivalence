@@ -1,0 +1,304 @@
+#+title: m71 the droneaid guide — the PT10 manual applied to DRONEAID_model_latest: the kit the blend does not carry (screws and all), their placements, and the 33 steps as literals of the assembly domain
+#+filetags: :m71:droneaid:assembly:guide:step:placement:fastener:generator:blend:manual:
+#+status: DESIGNED — beef numbered it (/"write a quest for this. numbered. next index. droneaid guide"/, 09-24); four milestones, none started; eight forks open, forks 7 and 8 block M1.
+#+phase: design (derived)
+#+progress:   0% 0/16 (derived)
+#+next: go (derived)
+
+* intent
+
+beef, verbatim:
+
+/"we will no take the pt10 guide and apply it to droneaid model latest. build the guide. first identity the missieng parts. create a list for us. screws and all. we create those. then we go through all steps and make a guide from it."/
+
+/"write a quest for this. numbered. next index. droneaid guide"/
+
+The pt10 guide is =~/.viva/registry/droneaid/modes/assembly/pt10/guide.js= — the 15-step manual over a Sketchfab drone, retired from the daemon in m67 (/"stays in the package for M3's seed"/). The model is =~/Downloads/DRONEAID_model_latest.blend=, already imported into the droneaid daemon by =@assembly/editor/import=. The manual is =~/Downloads/droneaid-manual/manual.md= (37 pages, 88 pictures, the pictures already on the topography's freight as =manual/<id>.webp=). The guide is written in the assembly domain's four ontologies — part · placement · step · guide — and read by =@assembly/editor/guide= and =@assembly/player/guide=.
+
+* terrain — measured 09-24
+
+Every number below came from a command run this session: =blender -b= headless over the blend (Blender 5.2.2 LTS, METRIC, scale_length 1), =sqlite3= over the live daemon's store, =grep= over the packages.
+
+** the blend — 31 mesh objects in 6 collections
+
+| collection | objects | note |
+|---|---|---|
+| Drone | Frame_Star · Frame_Top · Frame_Bottom · Motor_Arm0–3 · FrameSpacers.00 (x4) · FrameSpacers.01 · FrameSpacers.02 · Empty.001 | plates, arms, standoffs |
+| Motor | Motor0–3 · Propeller0–3 | |
+| Controller | FlightController00 · FlightController01 · FlightControlSeparators (x8) | ESC · FC · grommets |
+| Antenna | Antenna.00 · Antenna.01 · Antenna.02 · AntennaFixture00 · AntennaFixture02 | |
+| Camera | Camera · CamHolder0 · CamHolder1 | |
+| Components | Computer | |
+
+The importer's scale is 0.05 (metres per blend unit); the composition is world-space, Y-up, blend =(x, y, z)= → daemon =(x, z, −y)= (checked on =antenna_4.antenna.0=: blend loc =[5.481, −8.783, 0.706]= → row =[0.27406, 0.03532, 0.43915]=).
+
+*No bolt holes.* Two scripts over the evaluated meshes (boundary loops; inward-facing wall rings under 8 mm): the plates, the arm (42 verts), the motor (416 verts), the camera holder and the FC boxes carry NO hole. =Frame_Bottom= has two 7.6 mm cutouts, =AntennaFixture00= two 1.6 mm antenna bores. Every fastener position must be derived from the parts' own positions, never read from a hole.
+
+*Anchors, in the daemon's metres (x, y-up, z), measured from the evaluated meshes:*
+
+| anchor | value |
+|---|---|
+| bottom plate (Frame_Star) | x 0.362–0.484 · z −0.470–−0.373 (blend y) · thickness 2.0 mm at y −0.002 |
+| mid plate (Frame_Bottom) | x 0.277–0.559 · thickness 2.0 mm · top face y 0.0096 |
+| top plate (Frame_Top) | x 0.277–0.559 · z −0.445–−0.400 · underside y 0.0372 |
+| standoffs ×4 (FrameSpacers.00) | xy centres (0.46913, −0.40901) (0.37696, −0.40901) (0.46913, −0.43476) (0.37696, −0.43476) · y 0.00975–0.03698 = 27.2 mm |
+| standoffs ×2 (FrameSpacers.01/.02) | (0.28457, −0.43226) (0.28457, −0.41247) · 26.7 mm |
+| grommets ×8 (FlightControlSeparators) | 4 xy: (0.41421, −0.43428) (0.43577, −0.43428) (0.41421, −0.41108) (0.43577, −0.41108) — the stack bolt pattern, 21.6 × 23.2 mm · y 0.0096–0.0234 |
+| ESC (FlightController00) | 30.3 × 30.3 mm at y 0.0140–0.0149 |
+| FC (FlightController01) | same box at y 0.0208–0.0217 |
+| motor 0 | centre (0.2835, −0.5797) · y 0.0096–0.0458 · Ø 35 mm |
+| arm 0 | x 0.269–0.396 · thickness 7.5 mm at y 0–0.0075 |
+| camera | x 0.542–0.569 · y 0.0128–0.0339; holders at z −0.444–−0.432 and mirrored |
+| Computer | 42 × 23 × 11 mm at x 0.315–0.357, rear of the stack |
+
+The blend's arms sit at y 0–0.0075: between the bottom plate (y −0.002) and the mid plate (y 0.0076). That IS the manual's sandwich: bottom plate [1] · arms [6] · sandwich plate [3].
+
+** the daemon — =~/.viva/instances/droneaid/mountpoint/daemon_droneaid/droneaid.viva.db=
+
+| ontology | rows |
+|---|---|
+| part | 25 |
+| placement | 36 |
+| guide | 1 |
+| step | 1 |
+
+One root, =droneaid_model_latest=; six interior parts for the collections (=drone antenna_4 camera_2 components controller motor_2=) placed at the root with no TRS. =guide_1= holds a name, two intro lines, two notes, ONE section "Frame" with =guide_1.01= (installs =drone.frame_star.0= + =drone.frame_bottom.0=, no lines, no name) and an image =images/58cdda885fab.webp= — the freight's folder is =manual/=, so that picture does not resolve.
+
+The blend's objects as the daemon names them, against the manual's kit (page 4):
+
+| blend object | manual | daemon part | placed |
+|---|---|---|---|
+| Frame_Star | bottom plate [1] | =frame_star= | 1 |
+| Frame_Bottom | arm sandwich plate [3] | =frame_bottom= | 1 |
+| Frame_Top | top plate [2] | =frame_top= | 1 |
+| Motor_Arm0–3 | arms ×4 [6] | =motor_arm= | 4 |
+| FrameSpacers.00 (x4) | standoffs [11], stack corners | =frame_spacers= | 1 |
+| FrameSpacers.01 / .02 | standoffs [11], tail | =frame_spacers_2= | 2 |
+| FlightController00 / 01 | ESC / FC | =flight_controller= | 2 |
+| FlightControlSeparators (x8) | silicone grommets ×8 | =flight_control_separators= | 1 |
+| Computer | VTX (QUESTIONED, fork 2) | =computer= | 1 |
+| Antenna.00 / .01 | RX antennas ×2 | =antenna= · =antenna_2= | 1 · 1 |
+| Antenna.02 | VTX antenna | =antenna_3= | 1 |
+| AntennaFixture00 | additional RX antenna mount [8], the tail | =antenna_fixture= | 1 |
+| AntennaFixture02 | antenna mount [10], rear | =antenna_fixture_2= | 1 |
+| CamHolder0 / 1 | camera mount ×2 [9] | =cam_holder= | 2 |
+| Camera · Motor0–3 · Propeller0–3 | camera · motors · props | =camera= =motor= =propeller= | 1 · 4 · 4 |
+
+Not in the blend at all: battery pad [5], battery straps [7], every bolt [12], nuts, RX, pigtail, cables, zip ties, heat shrink, thermal pad, sticker.
+
+** the domain — =~/.viva/registry/assembly/domain/assembly=
+
+- generators (=generators/index.js=): =fastener.bolt {thread, length}= · =fastener.standoff {thread, length}= · =fastener.nut {thread}=; =THREADS= holds M2 M3 M4 M5. No literal uses one today.
+- =PLACED.params= already documents a cable: =Example: { route: [[0, 0, 0], [0.1, 0, 0]] }= — no generator reads it.
+- natures: =/part /placement /step /guide /sequence /move /rename /duplicate /retract /closure /fold /resolve /bom /tree /geometry /literals=; armed as =assembly_part … assembly_bom=.
+- vocabulary: =material.* source.*= (part) · =joint.adhesive bolted plugged pressed threaded tied= (placement) · =note.tip note.warning= · =warn.force length loose magnet orientation tight wires= · =tool.bolt_organizer hex_2_0 hex_5_5 marker screw_gauge tweezers wire_cutters= (step). droneaid's topography adds =family.*= (24) and =section.*= (8: camera checklist frame motors rx stack top_plate vtx).
+- the mode doors answer =MISSING_TOKEN= to an unsigned call (m67); the runtime is up on =:2501= (PID 63684).
+
+** the manual — =~/Downloads/droneaid-manual/manual.md=
+
+37 pages; the kit on page 4; the build on pages 5–34 in 8 sections; the checklist on 35; cleaning on 36. The numbered steps restart per section: Frame 1–17 · Motors 1–6 · Stack (unnumbered, 7 pages) · VTX 1–7 · RX 1–5 · Camera 1–4 · Top plate 1–9 · Checklist 1–4. Pictures: 88 =images/<id>.webp=, all present on the freight as =manual/<id>.webp= (88 files).
+
+* the kit — what the blend does not carry
+
+** fasteners — parametric, the generators exist
+
+| part slug | generator | thread × mm | qty (kit) | used | holds |
+|---|---|---|---|---|---|
+| bolt_m3_16 | fastener.bolt | M3 × 16 | 6 | 6 | bottom plate · arm · mid plate |
+| bolt_m3_18 | fastener.bolt | M3 × 18 | 4 | 4 | bottom plate · arm · mid plate → standoff |
+| bolt_m3_8 | fastener.bolt | M3 × 8 | 16 | 12 | 4 corner standoffs · 8 top plate |
+| bolt_m3_30 | fastener.bolt | M3 × 30 | 4 | 4 | stack, from below |
+| bolt_m3_28 | fastener.bolt | M3 × 28 | 4 | 0 | in the frame set, unused |
+| bolt_m3_12 | fastener.bolt | M3 × 12 | 1 | 0 | diversity RX mount only |
+| bolt_m3_10 | fastener.bolt | M3 × 10 | 16 | 16 | motor → arm, 4 each |
+| bolt_m2_4 | fastener.bolt | M2 × 4 | 2 | 2 | camera → holders |
+| standoff_m3_27 | fastener.standoff | M3 × 27 | 8 | 8 | 4 on the 18 mm bolts · 4 corners |
+| locknut_m3 | fastener.nut | M3 | 4 | 4 | stack top |
+| prop_nut_m5 | fastener.nut | M5 | 4 | 4 | motor shaft |
+
+Standoff length is the blend's own: 27.2 mm. =prop_nut_m5= is the first M5 use of =THREADS=.
+
+** the rest — no mesh, no generator today
+
+| part slug | qty | geometry | how |
+|---|---|---|---|
+| esc | 1 | the FC box | =assembly_duplicate flight_controller → esc= |
+| vtx | 1 | =computer='s box, or a new box | fork 2 |
+| rx | 1 | box 20 × 12 × 4 mm | new generator =solid.box= |
+| grommet_silicone | 8 | bushing Ø 6 × 8 mm | new generator =solid.bushing=; the x8 mesh retired (fork 3) |
+| vtx_pigtail | 1 | none | interior-only part, qty |
+| cable_esc_fc · cable_vtx_fc · cable_camera · cable_rx | 4 | route | new generator =cable.route= over =params.route= |
+| motor_wire | 4 | route | =cable.route= |
+| battery_pad · thermo_adhesive | 1 · 1 | box | =solid.box= |
+| battery_strap · zip_tie · heat_shrink | 2 · 6 · 1 | none | interior-only parts, qty |
+| sticker_id | 1 | none | interior-only part, qty |
+
+Tools are symbols, not parts; the vocabulary is complete but for =tool.jig= (the 3D-printed bolt helper, page 10).
+
+** the anchors — where a fastener goes when no hole says
+
+| fastener | position rule |
+|---|---|
+| bolt_m3_16 ×6 · bolt_m3_18 ×4 | the arm roots: where each arm's inner end overlaps the mid plate, 2 per arm on the arm's centre line, 18 mm at the 4 standoff xy centres, 16 mm the other 6 (2 outer per arm minus the 4 taken) |
+| standoff ×4 (stack) | the 4 measured xy centres, on the mid plate's top face y 0.0096 |
+| standoff ×4 (corners) | the mid plate's 4 corners inset 6 mm — QUESTIONED: the blend has only the 2 tail standoffs at (0.28457, ·); the front pair is derived by mirror about the plate's centre x 0.418 |
+| bolt_m3_8 ×4 (corners) | under the corner standoffs, head below the mid plate |
+| bolt_m3_8 ×8 (top plate) | above every standoff, head on the top plate y 0.0392 |
+| bolt_m3_30 ×4 | the 4 grommet xy, head under the mid plate, shaft up through ESC · FC |
+| grommet ×8 | the 4 grommet xy, y 0.0096 (ESC) and y 0.0149 (FC) |
+| locknut ×4 | the 4 grommet xy at the FC's top y 0.0217 |
+| bolt_m3_10 ×16 | each motor centre + 4 on a 16 × 16 mm square, head under the arm y 0 |
+| prop_nut ×4 | each motor centre, y 0.0458 |
+| bolt_m2_4 ×2 | camera centre x + 4 mm, at each holder's inner face |
+
+* forks (beef)
+
+| # | fork | options | lean | ruling |
+|---|---|---|---|---|
+| 1 | the plate names | rename =frame_star → bottom_plate= · =frame_bottom → mid_plate= · =frame_top → top_plate= — or keep the blend's names | rename; =SOURCED.object= keeps the blend name for the round trip | OPEN |
+| 2 | =computer= | it is the VTX → rename =vtx= · it is a companion computer outside the manual → keep, mint =vtx= as a box | rename: 42 × 23 × 11 mm, at the rear where page 27 puts the VTX, the manual has no computer | OPEN |
+| 3 | the instanced meshes | retire =frame_spacers= (x4) + =flight_control_separators= (x8) from the composition, generate 8 standoffs + 8 grommets one placement each · keep them, one placement for four | retire: steps 7 · 8 · 15 · 17 install them four at a time | OPEN |
+| 4 | granularity | the manual's ≈60 numbered steps · pt10's 15 · one step per change of the build, ≈33 | 33 in 8 sections (the table under M3) | OPEN |
+| 5 | propellers | a "Props" step after the checklist as pt10 had · none, the manual never fits them | keep, last, with the =warn.magnet=-class warning /"never fit props with a battery connected"/ | OPEN |
+| 6 | =guide_1= | build on it, rename to =droneaid= · retract it, seed fresh | retract with closure: one empty step, one dead image path | OPEN |
+| 7 | the authoring channel | a seed script booting the domain's repository over the instance's store, runtime stopped · the mentor's tools with a signed token · the editor by hand | the script: ≈75 fasteners + 33 steps is not a hand's work; it re-runs idempotently (=mint= keeps a held slug, =part()= and =step()= are overs) | OPEN — blocks M1 |
+| 8 | where the seed lives | =@droneaid/modes/assembly/pt10/= reshaped (m67: /"stays in the package for M3's seed"/), the Sketchfab guide and its freight cut · a new =@droneaid/guide/= | pt10 reshaped; nothing else reads it | OPEN |
+
+* the law
+
+#+BEGIN_EXAMPLE
+A part the kit ships is a literal with qty, whether or not a mesh exists for it; the guide's bill is derived, never authored.
+A fastener is a PARAMETRIC part placed once per bolt, its placement carrying JOINED.joins on what it holds and one joint.* symbol; a step names the fastener placements it threads, and "loose" or "tight" is the step's note, not the placement's.
+No coordinate is typed from a picture: every fastener translation is a function of a measured anchor (a standoff centre, the grommet pattern, a motor centre) written in the seed, so a re-import moves them all.
+The seed is idempotent: run twice, the daemon holds the same rows once. It writes through the domain's natures only.
+A step's pictures are the manual's pages on the freight (manual/<id>.webp); a step cites the page it came from in its description.
+#+END_EXAMPLE
+
+* milestones
+
+** M1 the kit — generators and part rows
+- =generators/index.js= (@assembly): =solid.box {x, y, z}= · =solid.bushing {outer, inner, length}= · =cable.route {route, diameter}= (a =TubeGeometry= over a =CatmullRomCurve3=); =THREADS.M5= is there already.
+- =topologies/step/dataset/symbols/ontological.js=: =tool.jig=.
+- the seed's =kit.js=: every row of the two kit tables above as =assembly_part= payloads — slug · name · =parametric= or =modeled= (esc: the FC's GLB) · qty · =family.* material.* source.*= symbols.
+- the renames of forks 1 · 2 through =/rename=; =guide_1= per fork 6.
+- Boots green: the domain suite unchanged + the seed's own suite (=P-kit=: 36 parts by slug, every generator resolves through =/geometry=).
+
+** M2 the placements — every fastener where the anchors say
+- the seed's =placements.js=: the anchor functions (arm root · standoff · grommet · motor · camera) over the measured constants; ≈75 =assembly_placement= payloads into layer =drone= (the composition's one layer for the frame) with =joins= and =joint.bolted= / =joint.threaded= / =joint.pressed= / =joint.plugged= / =joint.tied= / =joint.adhesive=.
+- fork 3's retractions.
+- Boots green: =P-placements= (count by ref = the kit's used column; every =joins= path resolves in =/resolve droneaid_model_latest=; no two fasteners within 1 mm).
+
+** M3 the guide — 33 steps in 8 sections
+- the seed's =steps.js=: the table below, each step =assembly_step= with =placements= · =lines= (the manual's sentences, one per line) · =notes= (=note.warning= + a =warn.*=) · =images= (=manual/<id>.webp= by page) · =symbols= (=tool.*=) · =staged= (a camera per section, =ghost: true=); then =assembly_guide droneaid= with the intro (page 3) and =assembly_sequence=.
+- Boots green: =P-steps= (33 steps; every placement literal a step names exists; every image on the freight; the union of installs = every placement of the composition but the four =bolt_m3_28= and the =bolt_m3_12=, which are never installed).
+
+| # | section | pages | installs |
+|---|---|---|---|
+| 01 | frame | 4 | — (sort the kit: screw_gauge, bolt_organizer) |
+| 02 | frame | 5 | bottom_plate.0 |
+| 03 | frame | 6 | arm.0 · mid_plate.0 · bolt_m3_16.0 |
+| 04 | frame | 7 | arm.1 · bolt_m3_16.1 |
+| 05 | frame | 8 | arm.2 · arm.3 · bolt_m3_16.2 · .3 |
+| 06 | frame | 9 | bolt_m3_18.0–3 · bolt_m3_16.4 · .5 |
+| 07 | frame | 10 | standoff.0–3 (on the 18 mm) |
+| 08 | frame | 11 | standoff.4–7 · bolt_m3_8.0–3 |
+| 09 | frame | 12 | cam_holder.0 · .1 |
+| 10 | frame | 13 | antenna_mount.0 (rear) |
+| 11 | motors | 14 | — (bolt length check) |
+| 12 | motors | 15–16 | motor.0 · prop_nut.0 · bolt_m3_10.0–3 |
+| 13 | motors | 16 | motor.1–3 · prop_nut.1–3 · bolt_m3_10.4–15 |
+| 14 | stack | 17–18 | bolt_m3_30.0–3 |
+| 15 | stack | 19 | grommet.0–3 |
+| 16 | stack | 20 | esc.0 |
+| 17 | stack | 21 | motor_wire.0–3 · grommet.4–7 |
+| 18 | stack | 22 | fc.0 · locknut.0–3 |
+| 19 | stack | 23 | cable_esc_fc.0 |
+| 20 | vtx | 24–25 | cable_vtx_fc.0 |
+| 21 | vtx | 25–27 | vtx_pigtail.0 (through the rear mount) |
+| 22 | vtx | 27 | vtx.0 · thermo_adhesive.0 · zip_tie.0 · .1 |
+| 23 | rx | 28 | antenna.0 (into the rear mount) |
+| 24 | rx | 29 | antenna_2.0 · tail_mount.0 · rx.0 · cable_rx.0 · heat_shrink.0 |
+| 25 | camera | 30 | bolt_m2_4.0 · .1 |
+| 26 | camera | 31 | camera.0 |
+| 27 | camera | 32 | cable_camera.0 |
+| 28 | top_plate | 33 | top_plate.0 · bolt_m3_8.4–11 · zip_tie.2 |
+| 29 | top_plate | 34 | zip_tie.3 (the RX) |
+| 30 | top_plate | 34 | battery_pad.0 · antenna_3.0 · zip_tie.4 · sticker.0 |
+| 31 | checklist | 35 | — |
+| 32 | checklist | 35 | — (show your mentor) |
+| 33 | checklist | — | propeller.0–3 (fork 5) |
+
+** M4 the walk — both modes live on the droneaid daemon
+- beef signs in; =@assembly/player/guide= on =droneaid=: every step seats what its table row says, the pictures load, the bill counts the kit; =@assembly/editor/guide=: the mentor answers /"what does step 6 thread?"/ with the four 18 mm bolts by slug.
+- The assembly editor's stage draws the fasteners from =/geometry=.
+
+* blast table
+
+| file | change | milestone | kind |
+|---|---|---|---|
+| =~/.viva/registry/assembly/domain/assembly/generators/index.js= | +solid.box · solid.bushing · cable.route | M1 | edit |
+| =~/.viva/registry/assembly/domain/assembly/tests/*.test.js= | a generator suite for the three | M1 | edit |
+| =~/.viva/registry/assembly/topologies/step/dataset/symbols/ontological.js= | +tool.jig | M1 | edit |
+| =~/.viva/registry/droneaid/modes/assembly/pt10/{guide.js,compose.js,harness.js,buffer/*,freight/animated_drone.glb,tests/*}= | cut (fork 8) | M1 | delete, captured to =~/.viva/bak/= first |
+| =~/.viva/registry/droneaid/modes/assembly/pt10/seed/{kit.js,anchors.js,placements.js,steps.js}= | the data, pure | M1–M3 | new |
+| =~/.viva/registry/droneaid/modes/assembly/pt10/seed.js= | the writer (fork 7) | M1 | new |
+| =~/.viva/registry/droneaid/modes/assembly/pt10/tests/seed.test.js= | P-kit · P-placements · P-steps over the pure data + the domain in a rig | M1–M3 | new |
+| =~/.viva/registry/droneaid/topographies/model/tests/model.test.js= | imports the dead =component= / =assembly= topologies — stale before m71; repin to =part placement step guide= | M1 | edit |
+| =~/.viva/registry/droneaid/README.md= | §4 build: the guide is =droneaid=, the seed named | M3 | edit |
+| =~/.viva/instances/droneaid/mountpoint/daemon_droneaid/droneaid.viva.db= | the rows, through the natures | M1–M3 | data |
+
+Nothing in the repo moves. Ownership: =domain/**= and =modes/editor/guide= are this session's (compact #213); =modes/editor/assembly/**= is the sibling's and untouched.
+
+* testing assessment
+
+/in place/: =@assembly= 21 suites / 114 steps green on the live tree (compact #213); =@droneaid= pt10 2 suites + the topography's 1, the latter red (dead topology imports, m67 filed it). COVERAGE GAP: no suite reads the droneaid daemon's rows; a guide's correctness (does every step name a real placement, does every picture exist) has never been asserted anywhere — =P-steps= is the first.
+
+/changes/: =topographies/model/tests/model.test.js= | its imports are dead · pt10's two suites | cut with the mode.
+
+/adds/: =seed.test.js= — the data is pure, so =P-kit= and =P-placements= run without a daemon; =P-steps= folds the data through the domain's =resolve= in the rig =systems/runtime/tests/scenarios/registry.js= =accio= uses.
+
+/ladder/: M1 | generators green + P-kit · M2 | P-placements · M3 | P-steps + =/bom droneaid= equals the kit's used column · M4 | the walk's markers held.
+
+Not DONE until the walk's testimony is beef's and =/bom= on the live daemon reads the kit.
+
+* QA
+
+① I run the seed twice; the second run writes nothing and the counts are unchanged. I open the player on =droneaid=, press → 33 times; at step 06 four 18 mm bolts appear at the standoff centres and the mid plate is not yet standing off; at step 18 the FC sits on its grommets and four nuts cap the stack; at step 28 the top plate closes and eight 8 mm bolts sit on it. I ask the editor mentor /"what does step 6 thread?"/ and it answers the four =bolt_m3_18= slugs and the two 16 mm ones.
+
+#+marker_qa: m71/P-kit · pending · 36 part rows by slug, qty as the kit tables; every PARAMETRIC part answers =/geometry=
+#+marker_qa: m71/P-placements · pending · fastener placements by ref equal the used column; every =joins= path resolves; no two fasteners within 1 mm
+#+marker_qa: m71/P-steps · pending · 33 steps, 8 sections; every named placement exists; every image on the freight; installs cover the composition but the unused bolts
+#+marker_qa: m71/P-idempotent · pending · the seed run twice leaves the row counts unchanged
+#+marker_qa: m71/T-player-walk · pending · beef walks 33 steps in =player/guide=; steps 06 · 18 · 28 show what the table says
+#+marker_qa: m71/T-mentor-step · pending · the editor mentor names step 06's six bolts by slug
+#+marker_qa: m71/T-guide-fresh-buffer · pending · a fresh =editor/guide= buffer lists guides, holds no default (was assembly-guide/T-fresh-buffer)
+#+marker_qa: m71/T-guide-autosave · pending · a draft survives reload and reaches the literal within 700 ms + a flush (was assembly-guide/T-autosave)
+#+marker_qa: m71/T-player-status · pending · fresh / solid / ghost / hidden follow the step (was assembly-guide/T-player-status)
+#+marker_qa: m71/T-meet-empty · pending · beef opens the editor after a session that held a subject and meets an empty buffer (was m67/T-meet-empty)
+#+marker_qa: m71/T-navigation · pending · beef walks the standard: a click selects, Enter opens, the arrows walk, Esc peels (was m67/T-navigation)
+
+* carried — from m67 and assembly-guide
+
+beef, 09-24, over the quest root listing with =assembly-guide= · =m67-assembly-ontology= · =m71-droneaid-guide= starred: /"these three are one. move to done whats done."/ m67 (the ontology, the importer, the editor) and assembly-guide (the guide ontology, both guide modes) LANDED and went to =done/=; what they still owed lives here, in the one live quest. Their five pending walks are the markers above, marked =(was …)=.
+
+- *beef* (from m67's =#+next=): the centring number, meaning the =/resolve= response's =motor_2/motor.1= translation and rotation off the network pane · sign in so the editor can be walked · re-import the blend so =harvest.py='s stray fix takes · confirm the navigation standard · the typology one-liner (=connection-aim-dedupes-arrays=) · the mode's name · the =assembly=/=component= symbol purge · @droneaid VCS init · ruling 16's word after the first write · =harvest.js='s object→part map · commits in paladin, assembly, droneaid, the repo.
+- *beef* (from assembly-guide): forks 1 · 4 · 5 · 6 · 7 were taken on my leans and still need your word; fork 3 (=manual.md= into the freight) is OPEN; fork 2 is this quest's =section.*= deferral.
+- *ikiro* (from m67): the =unique(slug)= migration (ruling 24 is code-only) · a mount rig for this package's views (the standing COVERAGE GAP) · re-embed of a corrected member.
+- *handoff #213* (assembly-guide, off the frontier): reload the dock on a guide, ask the editor mentor to change one line of a step. Expect =step_read=, then =assembly_step= carrying every line, then =open=, and the answer ending on =On the operator's screen: …=.
+- *red, found 09-24*: =~/.viva/registry/droneaid/topographies/model/tests/model.test.js:7= imports =../../../../assembly/topologies/component/dataset/symbols/ontological.js=. That is the topology m67 killed, and the path is a relative import past the package root. Any run that collects the file aborts with =Module not found=. M1 touches this topography, so it gets fixed there. Measured the same day without it: =ok | 23 passed (123 steps) | 0 failed= over =@assembly= (domain · 4 modes · =tests/=) + =@droneaid/modes/assembly/pt10=.
+
+* deferred
+
+- the real PT10 V3 hole pattern (a Partizan drawing, or a re-modelled blend with holes) — reopens when a source exists; then the anchors become holes and the seed's functions read them.
+- cable routing as real splines through the standoffs (page 21: /"wrap the motor wires around the stands once"/) — =cable.route= lands straight lines; a routed spline needs the stage to draw =params.route=.
+- textures, the battery, the battery straps' placement — the manual never installs the straps.
+- =section.*= symbols in the topography (m67 fork 2, purge) — untouched here; the guide's sections are =SEQUENCED.sections=, not symbols.
+
+* changelog
+
+- (nothing landed)
+- 09-24: m67 and assembly-guide were sunset into =done/= on beef's /"these three are one"/. Their open walks, owed items and one red moved into =* carried=.
+
+* release
+
+none: no interface moved — the generators grow three keys inside =@assembly='s domain; no nature, no shape, no verb changes.

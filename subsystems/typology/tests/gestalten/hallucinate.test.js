@@ -155,13 +155,18 @@ specimen.describe("belt.hallucinate", () => {
       const controller = new Controller({ stdout: new Span("/test") });
       const settled = await dispatch({ tools, controller }, [{ type: "tool_use", id: "u1", name: "ghost", input: {} }] );
       specimen.expect(settled[0].result.condition).toBe("ERROR");
-      specimen.expect(settled[0].result.output.message.error).toContain("ghost");
+      specimen.expect(settled[0].result.output.message).toContain("unknown tool: ghost");
     });
 
-    specimen.it("runs parallel tool calls", async () => {
+    specimen.it("runs tool calls one at a time, in the model's order — the second sees what the first wrote", async () => {
+      const written = [];
       const tools = new Vector();
-      tools.open({ nature: "a" }, async () => "A");
-      tools.open({ nature: "b" }, async () => "B");
+      tools.open({ nature: "a" }, async () => {
+        await new Promise((resolve) => setTimeout(resolve, 5));
+        written.push("A");
+        return "A";
+      });
+      tools.open({ nature: "b" }, async () => written.join(",") || "nothing yet");
       const controller = new Controller({ stdout: new Span("/test") });
       const settled = await dispatch(
         { tools, controller },
@@ -170,7 +175,7 @@ specimen.describe("belt.hallucinate", () => {
           { type: "tool_use", id: "u2", name: "b", input: {} },
         ],
       );
-      specimen.expect(settled.map((entry) => entry.result.output.message)).toEqual(["A", "B"]);
+      specimen.expect(settled.map((entry) => entry.result.output.message)).toEqual(["A", "A"]);
     });
 
     specimen.it("marks a span branch per tool", async () => {

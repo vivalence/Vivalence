@@ -418,7 +418,7 @@ after =openPane(i, 50)= with every other pane docked, the layout must still fill
 
 *What no test reaches:* the pointer choreography — the dock pull, the strip's vertical hit targets, the
 fold-on-release feel, whether a vertical crown's labels are readable at a real DPI. Live-validation debt.
-Per [[project_pincer_comp_redesign]] the last pass here was blocked twice: no daemon backend (so D/E/F
+Per `project_pincer_comp_redesign` the last pass here was blocked twice: no daemon backend (so D/E/F
 render chrome with no data) and the anima SPA never reaches =document_idle=, so =computer screenshot=
 errors on the live tab. *DOM probes via =javascript_tool= and =read_console_messages= work; screenshots of
 the live SPA do not.* The static comp screenshots fine — that is how this pass was walked.

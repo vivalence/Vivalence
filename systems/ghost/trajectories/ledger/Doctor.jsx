@@ -9,7 +9,7 @@ const columns = () => {
 };
 
 export function Doctor({ report }) {
-  const { homes, scopes, env, record, store, instances, locks, sessions, logs, environment, strata } = report;
+  const { homes, scopes, env, recipe, record, store, instances, locks, sessions, logs, environment, strata } = report;
   const width = columns();
 
   const stale = record.entries.filter((entry) => !entry.present);
@@ -35,6 +35,20 @@ export function Doctor({ report }) {
           note={`${env.vars.length} vars · ${env.secrets.length} secrets${env.blank.length ? ` · ${env.blank.length} blank` : ""}`}
           warn={env.blank.length > 0}
         />
+
+        <Organ
+          name={recipe?.path?.split("/").at(-1) ?? "ledger.viva.js"}
+          count={recipe?.spoken ? "present" : recipe?.present ? "mute" : "absent"}
+          note={recipe?.error ?? (recipe?.spoken ? `${recipe.manifest?.slug ?? "?"} · ${recipe.slots.join(" ")}` : "instances inherit nothing — viva ledger/init")}
+          warn={Boolean(recipe?.error)}
+        />
+        {Object.entries(recipe?.declared ?? {}).map(([slot, line]) => (
+          <Text key={slot} color="gray">
+            {"    "}
+            {slot.padEnd(14)}
+            {line}
+          </Text>
+        ))}
 
         <Organ
           name="registry.json"

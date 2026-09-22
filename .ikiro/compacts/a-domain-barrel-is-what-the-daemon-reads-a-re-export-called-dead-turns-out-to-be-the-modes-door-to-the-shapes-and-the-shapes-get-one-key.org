@@ -1,0 +1,85 @@
+#+title: a domain barrel is what the daemon reads, a re-export called dead turns out to be the modes' door to the shapes, and the shapes get one key
+#+index: 181
+#+session: 69 beef turns (raw 97, 28 queue echoes collapsed), one session, 10:34–14:37, model opus→fable. Third fold of the same session: 1–20 at #178, 21–53 at #180; this covers 54–69 — the half where beef read the landed package and answered it with comments written into the file.
+
+* one breath
+
+The package was on disk and green. beef read it the way a reviewer reads — in the file, at the line — and every comment landed on the same nerve: I had built a JavaScript library and called it a vivalence domain. /"wtf are kinds? who and how is the daeon supposed to interpret this. makes no sense"/ · /"why are these exported?!?!?"/ ×2 · /"why does this domain not have any traits??? you clearly did not design for vivalence"/ (59). Measured against =population.js= · =resolution.js= · =harnessed.js=, the daemon reads six things off a domain module; the barrel served one and broke another — =resolve(daemonDie)=, the runtime hook, was my glTF fold, and a daemon with the domain in its kernel would have died at =Die.resolve=. Reproduced in one line. The rig had never booted a Die, so twenty-two green steps had hidden it.
+
+The order to fix came with a pointer — /"study the eduction package for guidance"/ (62) — and education's shape is the answer: doors are the verbs, one repository call each; tools ride the doors through =daemon.call= with the caller's mode; a tool answers ={message, entities, object}=. Built to that, ruling 14.
+
+Then the reviewer's second pass. /"why are types exported?"/ (63) — I said "no reason" off a grep that only saw =domain.X= in tests, and cut the line. /"kill"/ (64) the same in chess and education. Re-measured before cutting: francesca's harness reads =ctx.daemon.domain.SIGNAL= at runtime, and chess's play mode states the law in a comment — a mode never imports outside its directory, it reaches the domain's shapes through the daemon. The kill was refused and my own cut reverted. And then the third pass, the one that made it right: /"both of these are too flat?! there should be a ancestor key. schematics."/ (65) → every domain's =types.js= is =schematics.js=, on the barrel under one key, =daemon.domain.schematics.X=, and typology's =Domain= cast declares it beside =entities= while the dead =kinds= slot leaves.
+
+Before the fold: /"then lets go back to droneaid. where are we?"/ (67) and, mid-fold, /"we start with setting and populating the daemon now."/ (69). That is the next move.
+
+* the spine — 69 turns
+
+| n | beef | what landed |
+| 1–20 | the ontology designed | FOLDED at #178. |
+| 21–53 | threlte measured off the record · the blend translated · =@assembly= + =@droneaid/topography/model= landed · three corrections · the go | FOLDED at #180. |
+| 54 | =/compact= | NOTHING — the harness's fold. |
+| 55 | (the harness's compaction summary, not beef) | NOTHING — the session's own seam. |
+| 56 | the whole quest pasted back (61 397 ch), then the hole isolated: /"** the ontology, final — @beef give me topology json here."/ | First answer WRONG: manifest metadata (type · slug · version · traits · dataset · counts) and lists of symbol slugs. Not the data. |
+| 57 | the design-era kinds block pasted (=group= · =contains= · =uses: exactly {from, to}=) + /"THIS IS STILL NOT FUCKING TOPOLOGY DATA"/ | The data IS the rows a topology's =Dataset= installs, same shape as the topography's literal files. All 37 symbol rows dumped verbatim from disk under =deno= (component 15 · assembly 7 · step 15) into three per-file JSON blocks; the stale block retitled SUPERSEDED with its three dead claims named against rulings 11 and 6; two families the quest had dropped recovered (=computer= · =connector=); ="mode": "the kind's topology mount owns the row"= corrected to ruling 13. Five blocks parse. |
+| 58 | =/compact= | NOTHING. |
+| 59 | =assembly.viva.js= pasted with four =@beef= comments in it + /"you have not taken into account how vivalence's systems are built"/ | The contract measured (§below); =resolve(daemonDie)= reproduced: /[assembly] no row named "undefined" — cannot stack it/; the =kinds= slot traced to 41480bd1c meaning MODULE TYPES and read nowhere since; §the barrel PROPOSED in the quest with the chess-shaped sketch; two calls left to beef. |
+| 60 | (the harness's compaction summary, not beef) | NOTHING. |
+| 61 | /"go"/ | Reading before writing: chess's rig and barrel test, the rest of the repository, every =kinds= consumer (two tests, one in droneaid). |
+| 62 | /"study the eduction package for guidance"/ (mid-turn, before any file was written) | Education read: aperture = one repository verb per door; =tools/= one file per tool, =index= slurps; a tool calls its door via =ctx.daemon.call[door]({user, mode, thread, input})= and answers ={message, entities: {literal}, object}=; =scenarios/domain.js= mounts the domain the way =resolution.domain= does; doors tested over an inline http connection. Built to it: barrel · =KINDS= private in =Literal.ts= · =owned(slug, owner?)= · =aperture/= ten doors · =tools/{mint,layer,fold,line}= eight tools · =schematics.VERBS= shared · the rig grew the runtime's mount. Two defects on first run (a plain ={id}= into =create=; =shape.strip= keeps only =input=), fixed. =5 passed (33 steps)=; the droneaid suite migrated off the barrel, every row now minted through the writer, =2 passed (9 steps)=. Ruling 14 written. |
+| 63 | /"why are types exported?"/ | Answered "no reason" from a grep of =domain\.[A-Z]= — tests only — and removed the re-export. WRONG; see 64. |
+| 64 | /"kill"/ + my own line pasted: /"Chess and education carry the same dead re-export. Theirs, untouched."/ | Re-measured BEFORE cutting: =education/modes/teacher/francesca/harness.js:26= =const SIGNAL = ctx.daemon.domain.SIGNAL;= and =chess/modes/board/play/types.js:3-5= /"a mode never imports outside its directory — the domain's OCCUPANT is reached at runtime as daemon.domain.OCCUPANT"/. The barrel IS =die.good.domain= (cast with additionalProperties), so the shapes ride it for the modes. Kill refused, assembly's export restored, the tests kept on the file by path (tests are not modes). |
+| 65 | /"const SIGNAL = ctx.daemon.domain.SIGNAL; daemon.domain.NODE — both of these are too flat?! there should be a ancestor key. schematics."/ | Sketch: =export * as schematics from "./schematics.js"=. Radius measured: 4 barrels · 1 runtime reader · 1 note · 2 tests · 28 import sites · the typology =Domain= slot. Two calls asked: rename the file with the key; the typology slot. |
+| 66 | /"go"/ | Both. Swept by RESOLVED path so a mode's own =types.js= stayed: 23 import sites in chess · education · vcompany · assembly · droneaid; the four barrels; francesca; the chess note; the two tests; assembly's README. Typology: =Domain= declares =manifest · traits · entities · schematics=, =kinds= gone; =die.instance.kinds= gone; codemap =runtime.md= restamped. The sweep tripped once on =.#index.js= — an emacs lock for the aperture beef had open — and was rerun idempotently. Green: assembly =5/33= · droneaid model =2/9= · chess =21/109= (the baseline) · education's barrel test =2/7= · runtime bench + multiplex =3/12=; every barrel and francesca's harness resolve under deno. |
+| 67 | /"then lets go back to droneaid. where are we?"/ (mid-turn) | Sorted done · nothing runs · yours · mine: =instances/droneaid/daemon.js= kernel is still =["@droneaid/assembly/pt10"]=, no editor mode exists, neither package tapped. |
+| 68 | /"ikiro compact"/ | This fold. |
+| 69 | /"we start with setting and populating the daemon now."/ (mid-fold) | Recorded as the next move (§state at fold). Begins after this fold. |
+
+* what the daemon reads of a domain — measured, and the law that goes with it
+
+| runtime reads | at | before | after |
+|---|---|---|---|
+| =entities= | =population.js:61= | ✓ | ✓ |
+| =manifest.traits= → staggered; a domain IS a kernel Mode | =population.js:134= · =traits/index.js:6= | =[]= | =EXPOSED TOOLING= |
+| =aperture= → slurped into the root, =daemon.call= built from it | =resolution.js:8-11= | — | ten doors |
+| =resolve(daemonDie)= — the runtime hook | =resolution.js:15= | the glTF fold, THROWS | not exported; no userspace entity to wire |
+| =tools= → armed as =<slug>_*= | =harnessed.js:73= | — | eight |
+| =harness= · =traits= (implementations) | =harnessed.js:179= · =population.js:29= | — | — |
+| =schematics= | =kernel.js:10= cast; read by MODES as =daemon.domain.schematics.X= | flat, one per shape | one key |
+| =kinds= | cast slot born 41480bd1c meaning module types; read nowhere | exported | slot gone; =KINDS= private to the writer |
+
+Ruling 14 (quest §rulings 10 to 13, appended): the domain follows education. Doors are the verbs, one repository call each; a tool rides its door through =daemon.call= carrying user · mode · thread; the App calls the same door over the wire. Ruling 4's tool-first is a MODE's seat — blender headless, the editor's uploads — an aperture that wraps a tool when the App needs a door. Two seats, not one rule.
+
+The law behind =schematics=, in chess's own words at =modes/board/play/types.js:3=: a mode never imports outside its directory; the domain's shapes are reached at runtime through the daemon. So a barrel is exactly =entities · schematics · aperture · tools · manifest= — what the daemon reads plus what the modes read through it — and nothing else: no folds, no generators, no private tables. The folds and the generators stay files, imported by path by the repository, the App and the tests.
+
+* failures and near-misses
+
+- *"Topology data" answered twice with something that was not the data* (56, 57). Manifests, then slug lists. The data is the rows the =Dataset= installs, in the shape the quest already showed for the topography's literal files. When beef says "show me the data", the answer is the rows, dumped from disk, not described.
+- *A library, not a domain* (59). The runtime codemap shard — auto-loaded for the path — documents the =Domain= cast at line 26, the tools slurp at 134, =daemon.call= at 158; my own ruling 13 in the quest named =resolve()= among what the runtime reads. I built against all of it. The rig collated by hand and never booted a Die, so a boot-killer sat under 22 green steps. Rule, executed: a package rig mounts the domain the way =resolution.domain= does — bound, slurped, =daemon.call=, the hook — which chess and education already did and assembly now does.
+- *"Dead, no consumer" off a half grep* (63 → 64). The grep saw =domain.X= imports and not the runtime read =daemon.domain.X=. =self/rituals.md= already carries the rule — a claim shaped "X is dead / unused / zero consumers" gets RE-MEASURED — and it fired where it matters, at the cut, so nothing live was killed; but the claim was spoken first and beef acted on it. The re-measure belongs at the CLAIM, not at the kill. =family: derived-canon-drift=; no codeword this session, so no callout — the rule held at its gate.
+- *A test that pinned the absence.* =P-manifest= asserted =traits: []= — "no doors yet" — a suite certifying the design error it was written beside.
+- *The walker tripped on an editor's lock file.* =.#index.js= is a dangling symlink emacs leaves for a buffer beef has open; =os.walk= lists it, =open()= dies. Half the import sites had been rewritten and no file renamed when it stopped. Idempotent by construction, so a rerun finished it — but a registry sweep must skip =.#*= and anything that is not a regular file, from the first line.
+
+* method
+
+- Turns 55 and 60 are the harness's compaction summaries, not beef — NOTHING rows by the same rule #180 applied to its turn 21. The 180 s dedupe collapsed 28 echoes and let no mechanical repeat through this time.
+- The extractor prints a turn's first 118 characters, and *a quoted turn's payload is its TAIL* — turn 57's order sits after 900 characters of paste, turn 64's after the quoted line. The trap already in the method applies to the method's own print. Fixed this fold: the extractor now prints the tail of a long turn as well.
+- Balance: a partial fold cites only its own range by construction (54–69, sixteen turns, every one in exactly one row). The bias test is per-range; within the range the rows are even.
+
+* state at fold
+
+- =~/.viva/registry/assembly/= — =@assembly= 0.0.1. =domain/assembly/{assembly.viva.js, schematics.js, resolve.js}= · =entities/kernel/{Literal.ts,Symbol.ts}= (=KINDS= private · =owned= · =mint · component · assembly · step · place · join · sequence · closure · resolve · bom=) · =aperture/index.js= (ten doors) · =tools/{index,mint,layer,fold,line}.js= (eight tools) · =generators/= · five suites =5 passed (33 steps)=; =tests/rig.js= mounts the domain as the runtime does (=call · conn.call · invoke=). README rewritten for the barrel. No VCS in the package.
+- =~/.viva/registry/droneaid/topographies/model/= — unchanged rows; the suite migrated off the barrel and through the writer, =2 passed (9 steps)=. The package's =.git= + =.jj= still hold zero commits.
+- =chess= · =education= · =vcompany= — =domain/…/types.js= → =schematics.js=, barrels keyed, francesca =harness.js:26=, the chess note, chess's barrel test. Chess =21 passed (109 steps)= — the baseline. Education's barrel test green; its kernel and aperture suites fail BEFORE this fold on =~/.viva/registry/fixtures/data/seed.js=, a package that is not there (the fixtures→testing rename) — pre-existing, not touched. All of it UNCOMMITTED in packages beef owns.
+- repo — =subsystems/typology/schematics/primitives/kernel.js= (=Domain=: =schematics= in, =kinds= out) · =systems/runtime/daemon/die.js= (=instance.kinds= out) · =.ikiro/world/codemap/runtime.md= line 26 restamped · =.ikiro/quests/m67-assembly-ontology.org= 758 lines, rulings 1–14, §the barrel LANDED · =.ikiro/methods/compact.md= extractor prints tails. Runtime =bench/smoke= + =multiplex.filter= =3 passed (12 steps)=. Uncommitted — beef commits.
+- NEXT (69, beef): *set and populate the droneaid daemon.* Kernel =@assembly/domain/assembly · @assembly/topology/{component,assembly,step} · @droneaid/topography/model= in =instances/droneaid/daemon.js= (today =["@droneaid/assembly/pt10"]=); tap both packages and create the instance — ledger verbs, beef's via =!=; boot; the DATASET install of 37 + 32 symbols and 48 literal rows under the topography's mode; measure the cross-package kernel (education → =@commons= says yes; two registry packages unproven) and the =uses= links through =linkPhase=.
+- OWED, beef's: tap =@assembly= (and droneaid) · =harvest.js='s object→part map, by eye (=FlightController00= = ESC · =Antenna.02= = the VTX antenna) · the M1 capability list · commits in chess, education, vcompany, droneaid and the repo.
+- OWED, mine, on go: =subsystems/typology/gestalten/bundle/svelte.js:46= → =sveltePreprocess({ typescript: { compilerOptions: { target: "esnext", verbatimModuleSyntax: true } } })= (ruling 3, typology); then the editor mode over the rows.
+- UNRESOLVED, named and not fixed: =soft_goods= geometry (14 =procedural_spline= rows) has no trait; the bolt in =frame.05= at =[0,0,0]=; =bolt_m3_8= 16 in the kit, 12 across the steps; the other twelve frame steps and sections are M2.
+- MARKERS: both OPEN entries (the empty-cortex boot warning; cortex snapshot coverage) untouched — nothing this fold went near the cortex. Third consecutive fold that says so.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                           | sessions   |
+|-------------------------+-----------+----------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                          | 1          |
+| m67-assembly-ontology   |   0% 0/3  | building | beef — tap @assembly · check harvest.js's object→part map · rule the droneaid rewrite (daemon kernel + the editor mode = m1) · the m1 capability list (§milestones). ikiro — on go: =bundle/svelte.js:46= (ruling 3), then the droneaid daemon + the editor mode over the rows that now exist. | 1 (1 live) |

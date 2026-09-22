@@ -1,7 +1,7 @@
 import { Connection, specimen, Url, v } from "@vivalence/typology";
 import { shard } from "@vivalence/typology";
 
-const BASE = "http://localhost:1729/attached/process/lighthouse/multiplayer";
+const BASE = "http://localhost:1729/attached/process/service/lighthouse/multiplayer";
 const lighthouse = new Connection(new Url(BASE));
 
 let auth = {};
@@ -92,7 +92,7 @@ specimen.describe("Lighthouse", () => {
 //   bodies,
 // } from "@vivalence/typology/gestalten";
 
-// const BASE = "http://localhost:1729/attached/process/lighthouse/multiplayer";
+// const BASE = "http://localhost:1729/attached/process/service/lighthouse/multiplayer";
 // const lighthouse = new Connection(new Url(BASE), shards.transport.fetcher);
 
 // let auth = {};

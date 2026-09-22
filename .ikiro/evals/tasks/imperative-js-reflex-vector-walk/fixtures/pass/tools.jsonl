@@ -1,0 +1,2 @@
+{"name":"Read","input":{"file_path":"/repo/subsystems/typology/gestalten/steer/trie.js"}}
+{"name":"Edit","input":{"file_path":"/repo/subsystems/typology/gestalten/steer/trie.js","old_string":"  return entries;\n}\n","new_string":"  return entries;\n}\n\nexport function natures(vector) {\n  return rollup(vector).map(({ pattern }) => pattern.nature);\n}\n"}}

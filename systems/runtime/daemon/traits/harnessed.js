@@ -126,12 +126,32 @@ async function* recording(ctx, packets) {
       persisted = folded.turns.length;
       yield packet;
     }
+    parent = verdict(ctx, em, folded, parent);
     await em.flush();
   } catch (error) {
     em.clear();
     throw error;
   }
 }
+
+const verdict = (ctx, em, folded, parent) => {
+  const close = folded?.meta;
+  if (!close || close.state === "complete") return parent;
+  const last = folded.turns.at(-1);
+  if (last?.role === "assistant" && last.parts.length) return parent;
+  if (last?.role === "assistant") {
+    parent.meta = { ...last.meta, ...close };
+    return parent;
+  }
+  return em.create(TurnEntity, {
+    role: "assistant",
+    parts: [],
+    meta: close,
+    parent,
+    thread: ctx.thread?.id,
+    mode: ctx.mode.id,
+  });
+};
 
 const appending = async (ctx, turns) => {
   let parent = ctx.turn;
@@ -189,6 +209,17 @@ export const HARNESSED = (mode, daemon) => {
         ctx.daemon.cortex.hallucinate[type].stream(ctx.hallucination),
       );
   }
+
+  harness
+    .branch("choice")
+    .open("render", (ctx) =>
+      ctx.daemon.cortex.hallucinate.choice.render({
+        controller: ctx.controller,
+        policy: ctx.hallucination.policy,
+        primer: ctx.input.primer,
+        questions: ctx.input.questions,
+      }),
+    );
 
   return () => {
     mode.harness = shape.object(harness, steer.strategy.echo);

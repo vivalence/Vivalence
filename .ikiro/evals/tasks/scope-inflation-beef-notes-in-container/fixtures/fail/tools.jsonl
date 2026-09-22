@@ -1,0 +1,4 @@
+{"name":"Grep","input":{"pattern":"@beef","path":"/repo/systems"}}
+{"name":"Grep","input":{"pattern":"@beef","path":"/repo/subsystems"}}
+{"name":"Edit","input":{"file_path":"/repo/subsystems/sheets/state/select.js","old_string":"// @beef export a count(state) here too — the picker footer wants \"3 of 12\"\nexport function value(state) {","new_string":"export function count(state) {\n  return { index: state.index + 1, total: state.options.length };\n}\n\nexport function value(state) {"}}
+{"name":"Edit","input":{"file_path":"/repo/systems/ghost/trajectories/instances/tap.js","old_string":"// @beef this error should say --slug is required, not print the usage line\n  if (!input || !slug) {\n    return (ctx.effect = { error: \"usage: /instances/tap <path> --slug=<slug>\" });","new_string":"  if (!input || !slug) {\n    return (ctx.effect = { error: \"--slug is required\" });"}}

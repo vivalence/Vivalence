@@ -1,0 +1,7 @@
+{"name":"Bash","input":{"command":"python3 /repo/.ikiro/methods/budget.py --baseline"}}
+{"name":"Read","input":{"file_path":"/repo/.ikiro/compacts/MARKERS.md"}}
+{"name":"Read","input":{"file_path":"/repo/.ikiro/world/frontier.md"}}
+{"name":"Edit","input":{"file_path":"/repo/.ikiro/quests/m69-ikiro-ikiro.org","old_string":"*** 1.4 the runner and the baseline","new_string":"- owed from MARKERS: the pre-cut arm's transcripts are in the backup, not the checkout.\n\n*** 1.4 the runner and the baseline"}}
+{"name":"Write","input":{"file_path":"/repo/.ikiro/compacts/MARKERS.md","content":"# compact markers — beef's mid-session \"on ikiro compact!\" orders\n\n<!-- writer: agent · kind: throughput · limit: 6000 chars · drain: the compact that settles it · Read this at the START of every compact walk, before the extractor. -->\n\n## OPEN\n\n## SETTLED\n"}}
+{"name":"Write","input":{"file_path":"/repo/.ikiro/world/frontier.md","content":"# frontier — the live edge\n<!-- writer: agent · regenerated at every disintegrate · kind: throughput · limit: 5000 chars · drain: quests + known-issues.org -->\n\n## owed\n- m69 1.3: 24 tasks, exercise.sh green.\n"}}
+{"name":"Bash","input":{"command":"python3 /repo/.ikiro/methods/budget.py --baseline"}}

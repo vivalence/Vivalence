@@ -1,227 +1,94 @@
 ---
 paths: ["systems/runtime/**"]
 ---
-<!-- writer: agent · derived-from: run.js die.js runtime.js deno.jsonc lifecycle/* daemon/** tests/** · verified: find systems/runtime → 173 files · console.* → 103 (25 outside tests/bak) · span|mark|chronicle grep → 1 site, a test · 3 probes · tests → 51 files / 267 cases / 36 fixtures · limit: 22000 chars · revised: armed stack · trait read · hal split · stop path -->
-# codemap: runtime — the process that serves daemons: a Die cascade over Deno.serve, modes wired by traits, entities through MikroORM
+<!-- writer: agent · kind: persistent · limit: 22000 chars · traps only -->
+# codemap: runtime — traps the code does not show
 
-## boot — one cascade, four verbs
+- `run.js`: importing it yields a POPULATED die, not a serving one; only `import.meta.main` serves.
+- `Deno.serve` binds `[::1]`; `fetch` picks `127.0.0.1`. (`lifecycle/integrate.js:40` `hostname: url.hostname`) · `project_localhost_ipv6_serve_split`
+- `population.js:collate` — schema/entity/repository OVERRIDE by type, subscribers ACCUMULATE; `{...traits, ...domain.traits}`: a domain's trait implementation wins.
+- `@vivalence/runtime` barrel: explicit exports SHADOW star exports — take lowercase names from `sets.<tier>.<name>`. (`mod.js:6` `* as daemon` shadows `daemon/entities/index.ts:38`)
+- `Thread.parent` cascades, `Turn.parent` has NO deleteRule, `Turn.mode` set null. Schema delta = restart; never hand-write a migration. (`daemon/entities/userspace/Thread.ts:149` · `daemon/entities/userspace/Turn.ts:64,90`)
+- `Buffer.ts:create` — every query first, the mint last (a query auto-flushes the pending row into the wrong seat). `ThreadEntity.bindBuffer` is the ONLY `counter++`; the EMITTER drain binds what it drains, so a mint inside an emitter passes NO thread. `BufferSubscriber.beforeCreate` never reads `data`.
+- `daemon/traits/index.js:stagger` — factories, then finalizers; terminators run BEFORE the datamap closes; an unimplemented declared trait → SILENT skip (`traits[trait]?.(mode, daemon)`), no warn, no throw — the trait set is OPEN (m68 M7).
+- identity IS the manifest: read `mode.manifest.*`, `mode.slug/type/traits` do not exist; the ROW stays flat, unique `(slug, type)`. `project_manifest_is_identity`
+- `mode.mount` is the seat UNDER the daemon; a runtime-rooted key composes `daemon.mount` in front. FRAUGHT carries, MOUNTED serves — ask one OR the other; a blank mountpoint is the doctor's fault. `project_freight_vs_mountpoint`
+- `mode.application.buffer(desc)` FILLS, never `cast`. DEV `/metadata/application` recompiles per read — the only seam that refreshes a view. (`daemon/traits/application.js:19` · `daemon/aperture/metadata.js:34`)
+- DATASET: a declared source is SCHEME (shared), a computed `load` source is the mounting's OWN; `stamp(mode)` hashes the installer itself. `project_mode_owns_rows` DATASINK: a user-scoped type THROWS.
+- `harnessed.js` — seven keyed layers, later wins; paladin `fs_*`/`shell_run` UNBOUND; `armed` binds daemon/mode/user/thread itself; `system.thread` registers LAST; `daemon/skills/index.js` exports NAMESPACES (`entity.entity`). `project_armed_tool_stack`
+- INTELLIGENT/VOCAL claim-gated via `v.thread.trait` (undeclared name THROWS); invocation > thread > mode; modes DEFAULT `??=`, MANDATE `=`. (`daemon/traits/harnessed.js:28` · `subsystems/typology/schematics/v.js:125`)
+- `/dialogue` folds turns on a FORKED em — a tool flushing the root em cannot leak half a response. (`daemon/traits/harnessed.js:109`)
+- `daemon.call` = `shape.proxy(domain.aperture, steer.strategy.direct)` compiled PRE-slurp: a daemon-root `authorize()` would 401 internal calls. (`daemon/lifecycle/resolution.js:11`)
+- `authenticate()` → `ctx.identity`; `authorize()` READS ONLY → `ctx.user`; enrollment ONLY at `/userspace/handshake`; `bind("user")` behind `authorize()`. `project_user_bind_behind_authorize`
+- `/metadata` strips are trait-conditional; the strip IS the contract; an async generator handler IS SSE — the only escape from anima's 8000 ms timeout. `project_aperture_streaming_sse`
+- `deno task test` is `--watch`; one file = `deno test -A --no-check --config <repo>/deno.jsonc <file>`; `tests/snapshots/` GITIGNORED, `SNAPSHOT_HOT=1` regenerates. `project_corpus_snapshot_regime`
+- the ONE console tap on a hallucination is `daemon/entities/transient/Activity.ts:18` — `new Span("hallucination").to(record => console.log(…))`; every open/note/fault/close of the belt and each tool dispatch prints as `[hal /hallucination(/<tool>)] <verb>`. The Activity row's 12-record ring is deleted when the controller settles — never read a finished run off it. `runtime/watch` restarts on the module graph AND `commons` + `~/.viva/registry`: a save to `harnessed.js`, a typology primitive or a provider `translate.js` each printed `Restarting!` (measured).
+- a response close that is not `complete` PERSISTS: `daemon/traits/harnessed.js:137 verdict()` merges `{state, rounds, fault}` onto the provider's empty assistant turn or mints one when no turn opened; anima `systems/anima/src/app/panels/a/widgets/turns.js:251 turnVerdict` draws it. A `length` close with zero parts and `usage: null` = the provider ended before a word — bisect the REQUEST (tools first), not the belt.
 
-- **`systems/runtime/run.js`** is the whole entrypoint: paladin mounts the instance, **the ONE gate throws**, a `Die` populates, and only `import.meta.main` resolves/integrates/perpetuates — importing it gets a POPULATED die, not a serving one.
-- **`Die`** (`systems/runtime/die.js`) extends typology's `Wafer`; `die.good` is a `Runtime` (`server`, `aperture`, `twitch`, `ters`, `daemons[]`, `processes[]`) and its `manifest` is READ from `paladin.instance.runtime`. `perpetuate` traps SIGTERM/SIGINT/SIGQUIT into `disintegrate()` then `Deno.exit(0)`; children disintegrate BEFORE the abort.
+- `daemon/traits/emitter.js:43` mints a fresh `ctx.pool = new Pool()` per `mode.emit.X` — a delegating emitter must `ctx.pool.add(peer.emit.x(input))` (promise or awaited result); a bare `await peer.emit.x(input)` drains the outer pool EMPTY. Correct: `~/.viva/registry/education/modes/home/aprende/emitter/nyan.js:23`.
+- a peer mode is reached at runtime, never imported: `ctx.daemon.modes.game["dojo"].emit.flashcard.feed({...})` (`registry/education/modes/home/aprende/emitter/flashcard.js:12`); `mode.emit = shape.object(emitter)` (`daemon/traits/emitter.js:71`). `import … from "@vivalence/tactic/survival"` does not exist.
+- a mode reaches LLMs through `ctx.mode.harness` only; an internal utility call inside `/dialogue` middleware uses `mode.harness.object.render({ turns, config })` (no scribe coupling; `registry/education/modes/home/aprende/aperture/message.js:21`) — `harness.dialogue.*` there re-enters and persists junk turns. `cortex.resolve`/`via`/`findOne` in a mode = violation.
+- literal selection is repository verbs, never a hand walk: `ctx.daemon.entities.literal.byLastSignal(["MISTAKE","FAILURE"], where, { limit: 3 })` (`registry/education/modes/tactics/survival/emitter/exercise.js:27`) · `byStrength` · `feed/novel/due`; relations via `sentence.uses.getItems()`; annotated tokens only for positional indices (cloze).
+- VIRTUAL entities (`daemon/entities/base/VirtualEntity.ts`): mikro derives `virtual = !!expression`, so `VirtualSchema` pins an `expression` that THROWS (:103); metadata is keyed by CLASS (`get(ProbeEntity)`); a real side's 1:m to a virtual must be `hidden: true` or every broadcast serializes `null`; scope stays FLAT (`{thread:{user}}` matches nothing — to-ones collapse to id); `updateOne` passes `em: this.em` to `assign`. NEVER `allowGlobalContext`, tests included (/"never a gloablContext. also not in testing"/).
+- every tool name that appears in history must be CALLABLE — the fast tier imitates history reliably (a forged `appraise` round was copied four times); a wired async round uses the real armed name (`language-learning_review`). Steering rides the OUTPUT schema `.desc()`s (a `thinking` field ahead of `reviews`), not the prompt. (`registry/education/modes/teacher/francesca/harness.js:123`) `project_armed_tool_stack`
+- `harness.choice.render({ primer, questions })` → `Choice.Verdict` = one distribution per question key (m70 M5): the branch reads `primer · questions` off `ctx.input` because `requesting` (`harnessed.js:41`) rebuilds `ctx.hallucination` as dialogue and drops everything else; keeps `ctx.controller` + the thread-tuned `policy`; render only. The verdict is the end of the concern — no readings. `/cortex/render` ROUND = `Request | Choice.Round` (`aperture/cortex.js:11`). A non-HARNESSED mode (riddler) calls `daemon.cortex.hallucinate.choice.render` with the activity's controller; the round writes that controller's span (`belt.hallucinate.choose`).
+- the harness is a FIXED functional lexicon — `dialogue`/`object` × `render`/`stream` + `choice` × `render` on every HARNESSED mode (/"The vector for harness is not semantic. It's functional lexicographic"/); a mode-specific nature (`/ask`) lives on an EXPOSED aperture, never on the harness or the emitter. Trait names are STATES (`AIMED`, `MASKED`), never capabilities (`AIMABLE` ✗). (`daemon/traits/harnessed.js:204`) `project_chaosmonkey_oracle_harness_testbed`
+- topography snapshots (`tests/topography/harness.js`): three vantages off ONE read-only ORM — `entities.find().toJSON()` ≡ `conn.call("/entities/<x>/find")` ≡ `RemoteRepository.find` — ONE canonical `entity-<x>.snapshot.json`, the other two `toEqual` it; trim at the QUERY (`options.fields`), never the snapshot; no `refreshDatabase`, never flush.
+- `daemon/traits/dataset.js` link phase goes THROUGH the ORM: `find({slug:{$in}},{populate:[prop]})` → `from[prop].add(to)` → `from.assign({ updatedAt: new Date() })` (:258, a collection-only change fires no `beforeUpdate`) → forked flush + clear per 100. Raw pivot SQL skips `LiteralSubscriber` → `ontology`/`symbol` blank (6583 italian rows, `a486a8389`).
+- datamap writes: `/entities/<type>/update` REPLACES json props (mikro assign, no merge) — never send a partial `trait`; every `buffer.data` flush is BROADCAST by `subsystems/typology/gestalten/shard/datamap.js:172 reactive()` to every `{thread}` subscriber INCLUDING the writer (a 1.5 s keep echoed hundreds of KB to a phone); a quiet write goes `em.getConnection().execute` + `em.refresh(row)` — `nativeUpdate` double-encodes json columns on libsql.
+- emitter delegation FORWARDS the thread: the peer's EMITTER drains + flushes in its own context first, so `ctx.pool.add(await peer.emit.x({ ...payload, thread: ctx.input.thread }))` (declare `thread` in the peer's input); without it the buffer persists `thread: null` and never renders (`registry/education/modes/home/aprende/emitter/nyan.js:23` forwards it).
+- mode harness: a ROOT `use` fires with `ctx.hallucination.turns` still `[]` (`/dialogue` fills them; dispatch is root-first); a dialogue-only section is `harness.branch("/dialogue").use(…)` (`commons/instances/hello-world/harness.js:37`). Turns sit past every `cache_control` breakpoint (anthropic `commons/hallucinators/anthropic/provider/translate.js:103-112` marks only last system + last tool): a tool result is re-billed EVERY later turn — size it by what it costs forever (11 kB doctor fold = 6073 uncached tokens/turn).
+- authoring a harness → `.ikiro/reference/harnesses/harness.md` first (§3 walks one from empty file to landed mode; runnable `examples/`); every tool error speaks `[object Object]` today (known-issue `tool-errors-speak-as-object-object`).
+- statics are served BLIND: `daemon/aperture/metadata.js:29` `if (mode.statics) meta.open("/statics", () => mode.statics)`; a per-language static rides `statics.language[slug].<key>` on the TOPOGRAPHY, the education domain folds `/language` — never a `daemon.statics` fold (/"this would force the runtime/daemon to know domain internals."/)
+- "which MOUNTING is this" = the live `mode.manifest`'s `type` + `slug` (the kernel entry folded over the module, mask wins — `subsystems/paladin/prototypes/ledger/registry.js:216`); `mode.module.manifest.slug` answers only "which module" (`daemon/lifecycle/integration.js` prune keep-set read the MODULE's manifest → uninstall per boot, eleven duplicate sets). SQLite treats NULLs as DISTINCT in a unique index: a nulled `mode_id` turns `(slug, mode)` into a duplicate factory. Scope reads by `mode`, never `ontology`.
+- `Literal.symbol` is DERIVED by `LiteralSubscriber` from the `symbols` relation and pivot inserts never dirty the literal: attach symbols BEFORE the create-flush, and a fresh row needs one touch (`assign({updatedAt: new Date()})` + flush) before its fold exists — `daemon/traits/dataset.js:187 linkPhase`. Never trust `symbol.*` on a row created in the current unit of work.
+- a streaming bug: run `tests/sse.integration.test.js` FIRST (real `fetch` → `Deno.serve(http(aperture))`, mock cortex, asserts `meta.state`) — green = the provider, red = viva's SSE chain.
+- `ModeTraitsEnum` (`daemon/entities/daemon/Mode.ts`) is validated on HYDRATE: drop a member and a row still carrying it throws `Invalid enum array items` inside `ObjectHydrator` before `population.js` can mirror it. Rename = add the new member, keep the old at the bottom (`:41` `TOOLED = "TOOLED", // TODO deprecated → TOOLING`), restart every instance, drop in a later pass (/"keep the old trait around, mark it as @deprecated, move it to the bottom of the list"/).
+- a mode trait has THREE homes that drift apart: behavior `daemon/traits/<trait>.js` · persistence `ModeTraitsEnum` (missing → boot dies at flush) · client contract `implements("…")` (`systems/anima/src/app/panels/d/d.svelte:215` `m.implements("application") || m.implements("conversational")`). A dead/live claim needs the three-sided grep (/"how can i fucking chat with an application?? retard. i chat with conversational."/).
 
-```js
-// systems/runtime/run.js:4-23
-const run = await (async function () {
-  await paladin.instance.mount();
-  paladin.check.instance(paladin.instance).throw();
-  const die = new Die({ good: new Runtime() }); await die.populate(); return die; })();
-if (import.meta.main) { await run.resolve(); await run.integrate(); await run.perpetuate(); }
+<!-- generated: python3 .ikiro/methods/codemap.py runtime — never hand-edited -->
+```jsonc
+// systems/runtime
+{
+ "package": "@vivalence/runtime",
+ "exports": {
+  ".": "./mod.js",
+  "./run": "./run.js",
+  "./daemon": "./daemon/index.js",
+  "./daemon/aperture": "./daemon/aperture/index.js",
+  "./daemon/traits": "./daemon/traits/index.js",
+  "./daemon/skills": "./daemon/skills/index.js",
+  "./process": "./process/index.js",
+  "./scenarios": "./tests/scenarios/index.js"
+ },
+ "barrels": {
+  "mod.js": ["* from ./runtime.js", "* from ./die.js", "* from ./daemon/entities/index.ts", "* as lifecycle from ./lifecycle/index.js", "* as daemon from ./daemon/index.js", "* as process from ./process/index.js"],
+  "run.js": ["default"],
+  "daemon/index.js": ["* from ./daemon.js", "* from ./die.js", "* as lifecycle from ./lifecycle/index.js", "* as aperture from ./aperture/index.js", "* as traits from ./traits/index.js"],
+  "daemon/aperture/index.js": ["* from ./userspace.js", "* from ./datamap.js", "* from ./modes.js", "* from ./freight.js", "* from ./metadata.js", "* from ./cortex.js"],
+  "daemon/traits/index.js": ["stagger", "* from ./dataset.js", "* from ./datasink.js", "* from ./intented.js", "* from ./emitter.js", "* from ./application.js", "* from ./booted.js", "* from ./generative.js", "* from ./harnessed.js", "* from ./tooling.js", "* from ./agentic.js", "SELFEVIDENT", "CONVERSATIONAL", "STANDALONE", "EXPOSED", "FRAUGHT", "MOUNTED"],
+  "daemon/skills/index.js": ["* as entity from ./entity.js", "* as buffer from ./buffer.js", "* as thread from ./thread.js", "* as mode from ./mode.js"],
+  "process/index.js": ["* from ./process.js", "* from ./die.js"],
+  "tests/scenarios/index.js": ["* as daemon from ./daemon.js", "* as lighthouse from ./lighthouse.js", "mountMode", "mountModes", "bench", "* as datamap from ./datamap.js", "SymbolConcrete", "BufferConcrete", "provider"]
+ },
+ "tasks": {
+  "run": "deno run -A run.js",
+  "watch": "deno run -A --watch=../../commons,$HOME/.viva/registry run.js",
+  "playground/drain": "deno run -A --no-check tests/drain.playground.js",
+  "test/snapshots": "SNAPSHOT_HOT=1 deno test -A --no-check tests/**/*.snapshot.test.js",
+  "test/cortex": "deno test -A --no-check tests/cortex.integration.test.js",
+  "interactive/activity": "deno run -A --no-check tests/interactive/activity/daemon.js --port 7710 --panel"
+ },
+ "tasks, one file each (all --watch)": 5,
+ "tests": {
+  "tests": 39,
+  "tests/bench": 1,
+  "tests/daemon": 7,
+  "tests/fixtures": 1,
+  "tests/mode": 7,
+  "tests/runtime": 2,
+  "tests/topography": 2
+ }
+}
 ```
-
-- **runtime lifecycle** (`systems/runtime/lifecycle/`): `populate.js` mints a `DaemonDie` per instance daemon and a `ProcessDie` per service declaring `ATTACHED` **and** exporting `aperture`; `resolve.js` attaches `/attached/bundle/**` (APPLICATION **or** GENERATIVE, `x-viva-integrity`) and `/attached/cargo/**` (FRAUGHT **or** MOUNTED, `etag`/`304`/`206`); `integrate.js` `cors.wrap`s `shape.http(aperture)` into `Deno.serve` and announces to the lighthouse. **`Deno.serve` binds what the URL says**: `[::1]` while `fetch` picks `127.0.0.1`.
-
-## the daemon Die
-
-- **`Die.resolve`** runs each child's FULL lifecycle (`populate`/`resolve`/`integrate`) before `attach`/`expose`/`metadata`. In **`daemon/die.js`**: `core`/`wiring`/`datamap`/`authority`/`acid`/`modes`/`handlers`/`services`, then `resolution.{domain,modes,freight}` + `aperture.{datamap,userspace,modes,freight,metadata,cortex}`, then `call`+`prune`. `disintegrate` runs mode `terminators` FIRST, then closes the datamap. **`integration.call`** makes the daemon reachable in-process — a `Connection` over `shard.transmitter.inline(shape.http(aperture))`.
-- **`population.core`** casts the one `manifest.type === "domain"` kernel entry to `v.primitives.kernel.Domain` and folds `{...traits, ...domain.traits}` — **a domain can ship trait implementations and they win**. `acid` builds the `Cortex`; a provider that throws costs ONE `console.warn`, not the boot. **`prune`** drops DB modes absent from config.
-
-## the entity tier fold — `collate` overrides, subscribers accumulate
-
-```js
-// systems/runtime/daemon/lifecycle/population.js:33-63
-const collate = (tiers) => { const slots = {};
-  for (const tier of tiers) for (const descriptor of Object.values(tier)) {
-    const slot = (slots[descriptor.type] ??= { type: descriptor.type, subscribers: new Set() });
-    slot.entity = descriptor.entity ?? slot.entity; slot.schema = descriptor.schema ?? slot.schema; slot.repository = descriptor.repository ?? slot.repository;
-    if (descriptor.subscriber) slot.subscribers.add(descriptor.subscriber); }
-  return Object.values(slots); };
-const seal = (slot) => !slot.schema.meta.abstract ? slot : { …slot, schema: new EntitySchema({ class: slot.entity, extends: slot.schema, … }) };
-const instance = collate([sets.daemon, sets.kernel, sets.userspace, die.good.domain.entities]).map(seal);
-```
-
-- **LAW: schema/entity/repository OVERRIDE by type, subscribers ACCUMULATE** (a `Set`); Collapsing subscribers by type drops the base one — a Literal's base subscriber and the domain's both fire. [[project_entity_variant_assembly]] 
-- **`daemon/entities/`** is the mikro reification: `DataEntity`/`DataRepository`/`DataSchema`, `VirtualEntity`, `trait`, the twelve `*Entity` classes — all on the `@vivalence/runtime` MAIN barrel; `/scenarios`, `/daemon`, `/daemon/traits`, `/process` are subpaths. **GOTCHA: explicit exports SHADOW star exports silently** — take lowercase names from `sets.<tier>.<name>`, never the barrel.
-- **lineage is NOT symmetric**: `Thread.parent` m:1 `deleteRule:"cascade"`, but `Turn.parent` is nullable with **no** deleteRule. `Buffer.thread`/`Buffer.mode` cascade; `Turn.mode` is `set null`. Schema deltas land as the migration the datamap mints at boot — restart, never hand-write a migration.
-
-## Buffer — ONE mint, always LABELED
-
-```js
-// systems/runtime/daemon/entities/userspace/Buffer.ts:25-34
-async create({ thread, literals, symbols, ...fields }: any) {
-  const bound = thread ? await this.em.findOneOrFail(ThreadEntity, thread) : null;
-  const buffer = super.create({ ...fields, ...(literals && { literals: await … findByIdentifiers(literals) }) });
-  bound?.bindBuffer(buffer);
-  return buffer; }
-```
-
-- **LAW: every query first, the mint last** — a query auto-flushes a pending row, and a row flushed before its seat is taken is named for the wrong index. **`ThreadEntity.bindBuffer` is the ONLY `counter++`**: `buffer.index = this.counter++`.
-- `BufferSubscriber.beforeCreate` **never reads `data`**: a claimed `LABELED` is left whole, an unclaimed one gets `LABELED: { name: "<mode.slug> #<index>" }`. Clients read `trait.LABELED.name` ONLY. `SELFEVIDENT`/`CONVERSATIONAL`/`STANDALONE` are marker traits the CLIENT reads.
-
-```json
-// probe: BufferRepository.create({thread, mode, data}) → flush → the row at rest
-{ "id": "01a08864-da99-71af-ba0b-524136a83fe2",
-  "createdAt": "2026-09-09T22:58:26.073Z", "updatedAt": "2026-09-09T22:58:26.073Z",
-  "status": "PENDING", "index": 0, "data": { "title": "Marginalia" }, "view": null,
-  "traits": ["LABELED"], "trait": { "LABELED": { "name": "dewey #0" } },
-  "mode": "01a08864-da88-76fa-a127-b1c0746d6f97", "thread": "01a08864-da8c-74ef-b383-321620c36e22",
-  "literals": [], "symbols": [] }
-```
-
-## traits — `stagger` is the applier
-
-```js
-// systems/runtime/daemon/traits/index.js:5-21
-export async function stagger(mode, daemon, traits) {
-  const finalizers = [];
-  const at = `${mode.manifest.type}/${mode.manifest.slug}`;
-  for (const trait of mode.manifest.traits) {
-    if (!traits[trait]) console.warn(`[trait] ${at} declares ${trait}, which nothing implements`);
-    const result = await traits[trait]?.(mode, daemon);
-    if (is.fn(result)) finalizers.push(result);
-    else if (is.object(result)) {
-      if (is.fn(result.finalize)) finalizers.push(result.finalize);
-      if (is.fn(result.terminate)) (mode.terminators ??= []).push(result.terminate); } }
-  return finalizers; }
-```
-
-- **Two phases.** `resolution.modes` runs every mode's traits, then `Promise.all(finalizers)`, then slurps each `mode.aperture` under `/daemon/<slug>/mode/<type>/<slug>` behind `authorize()`. Terminators run at disintegrate BEFORE the datamap closes. **A declared trait nothing implements → ONE `console.warn`, never a silent no-op.** `EXPOSED` sets `mode.call = shape.proxy(mode.aperture)` — default strategy, unlike `daemon.call`'s.
-- **Identity IS the manifest.** `mode.slug`/`mode.type`/`mode.traits` do not exist — every read is `mode.manifest.*`, and a kernel entry may declare its own `manifest`, so one module kernelled twice is two modes. THE EXCEPTION IS THE ROW: `ModeEntity` keeps flat `slug`/`type`/`traits`/`installed`, unique on `(slug, type)`. **The citizen carries a manifest; the row stays flat.** [[project_manifest_is_identity]]
-- **`FRAUGHT` / `MOUNTED`** — two traits over one `carry(mode, daemon, root)`, which walks the root, `stow`s a `Freight`, hangs it off `daemon.attach/cargo/<daemon>` and opens `/freight`. FRAUGHT roots at `join(module.mount.dirname, module.freight.path.nature)` — what a mode CARRIES; MOUNTED at `mode.mountpoint.absolute` — the tree it SERVES — and **throws by name** when the kernel names none. Every consumer asks FRAUGHT **or** MOUNTED. [[project_freight_vs_mountpoint]]
-- **`APPLICATION`** — `mode.application = new App(entry|{source}, schema)`, entry resolved against `mode.module.mount.dirname`. `mode.application.buffer(desc)` FILLS — **never `cast`**, whose Convert mauls MikroORM Collections. In DEV `/metadata/application` recompiles per read — the ONLY seam that refreshes a view.
-- **`DATASET`** — no-ops when `mode.entity.installed` is truthy. Sources (`load`/`rows`/`walk`/`read`) upsert in chunks of 100 on a FORKED em, then a link phase. **A declared source is SCHEME, shared by every mounting; a computed `load` source is the mounting's OWN, stamped with `mode` as owner** — two mountings keep two row sets under the same slugs. `stamp(mode)` hashes the sources *and the installer itself*. [[project_mode_owns_rows]]
-- **`DATASINK`** — rows back out to registry files, `{symbol, literal}` only (a user-scoped type THROWS); twitches `/after/<type>/*`, debounced 1500 ms, `drain()` single-flight. **LAW: the dataspace carries NO provenance.** [[project_dataspace_has_no_provenance]]
-- **`INTENTED`** — opens `/after/user/create`, so a NEW user gets every INTENTED peer's intents; the intent is a TEMPLATE `Thread.beforeCreate` copies.
-- **`BOOTED`** — `mode.module.boot(daemon, mode)` runs as a FINALIZER, returns the teardown. **`AGENTIC`** slurps every TOOLING peer's tools under `peer.manifest.slug`.
-
-## EMITTER — the pool drains, the thread binds
-
-```js
-// systems/runtime/daemon/traits/emitter.js:42-72
-emitter.use(async (ctx, next) => {
-  ctx.pool = new Pool();
-  await next();
-  if (is.yieldish(ctx.output) || is.buffers(ctx.output)) ctx.pool.add(ctx.output);
-  const result = await ctx.pool.drain();
-  if (ctx.thread && result.condition === "NOMINAL")
-    for (const buffer of result.output.buffer) ctx.thread.bindBuffer(buffer);
-  await daemon.entities.em.flush(); ctx.output = result; });
-return () => { mode.aperture.branch("/emit").slurp(emitter); mode.emit = shape.object(emitter); };
-```
-
-- **The drain BINDS every buffer it drains** — the mint inside an emitter passes NO thread, or the counter advances twice. `thread` is optional: standalone modes emit without one. **The emitter is NOT armed as a tool**; a tool that draws delegates to it.
-
-```json
-// probe: mode.emit.present({thread}) → the emission in motion
-{ "kind": "emission", "condition": "NOMINAL",
-  "output": { "buffer": [ { "id": "01a08865-6229-7397-b5fc-9c208319d190",
-    "status": "PENDING", "data": { "layout": "table", "title": "Test" }, "view": null,
-    "index": 0, "traits": ["LABELED"], "trait": { "LABELED": { "name": "probe #0" } } } ] } }
-```
-
-## GENERATIVE — the model draws its own pages
-
-- `mode.generator = {bundle, inspect, serve, tools}` over `paladin.bundler(<daemon.mountpoint>/bundles/<type>/<slug>)`; **throws when the daemon carries no mountpoint**. There is NO `generator.buffer` — the tools mint through the repository themselves.
-- Four tools under `/view`, armed at `/generator`: **`render`** (compile → mint a LABELED buffer → return the row; `label` REQUIRED) · **`revise`** (the SAME row by id, merging `view`/`label`/`data`) · **`inspect`** (source by hash prefix) · **`list`**. `mode.module.generator` STEERS, slurped AFTER.
-
-## HARNESSED — the armed stack, assembled per call
-
-```js
-// systems/runtime/daemon/traits/harnessed.js:74-130 (trimmed)
-const iq = v.thread.trait(row, "INTELLIGENT"); ctx.vocal = v.thread.trait(row, "VOCAL");
-const armed = new Vector().slurp(skills.entity.entity).slurp(skills.buffer.buffer).slurp(skills.thread.thread);   // skills/index.js exports NAMESPACES: the vector is `entity.entity`
-armed.slurp(skills.mode.mode).slurp(paladin.skills.fs.fs).slurp(paladin.skills.shell.shell);   // UNCONDITIONAL, no root bind: every path absolute
-for (const [slug, service] of Object.entries(daemon.services ?? {})) { if (!service.tools) continue; armed.branch(`/service/${slug}`).use(shard.context.bind("service", service)).slurp(service.tools); }
-if (daemon.domain?.tools) armed.branch("/" + daemon.domain.manifest.slug).slurp(daemon.domain.tools);
-if (mode.tools) armed.slurp(mode.tools);
-if (mode.generator?.tools) armed.branch("/generator").slurp(mode.generator.tools);
-armed.use(shard.context.bind("daemon", daemon)); armed.use(shard.context.bind("mode", mode));
-if (ctx.user) armed.use(shard.context.bind("user", ctx.user)); if (input.thread) armed.use(shard.context.bind("thread", input.thread));
-ctx.hallucination = { policy: { ...config, ...(iq.tune && { tune: iq.tune }), ...(iq.rounds && { rounds: iq.rounds }), ...(tune && { tune }) },
-  ...(iq.effort && { settings: { effort: iq.effort } }), system: …, turns: …, tools: armed };
-```
-
-- **Seven keyed layers, later wins**: ① runtime skills (`daemon/skills/*` incl. `mode_find`; `entity_find` returns `DataRepository.card`) ② paladin `fs_*`+`shell_run`, UNBOUND — absolute paths, the mode's places ride the standing `[Mode …]` line ③ `/service/<slug>` with `ctx.service` ④ the domain ⑤ `mode.tools` ⑥ `/generator` ⑦ invocation-supplied tools. Names join with `_`. [[project_agentic_tool_naming]]
-- **LAW: `armed` binds daemon, mode, user and thread ITSELF** — every tool's ctx carries the caller's identity.
-- **`system.thread` — the runtime's own section, LAST** (`harnessed.js` `standing()`, root `use` registered AFTER the mode-harness slurp so it lands after every mode section): `[Thread id] · label · phase · buffers minted N (Thread.counter IS the buffer counter, `Thread.ts:55`) · traits · user`, `[Mode type/slug] name · traits · mountpoint`, then one row per buffer on the thread (`index · id · label · mode · status · data KEYS · view hash`) naming `buffer_update` / `buffer_label` / `entity_find` as the doors. Volatile, so `cache = { marks: [<last stable key>, "tools"] }` — only this block re-bills. Pinned by `tests/harness.thread.test.js`. Skipped without `input.thread`.
-- **`INTELLIGENT` and `VOCAL` are CLAIM-GATED** through `v.thread.trait(row, NAME)` — schemas on `ThreadDescriptor.traits`, an undeclared name THROWS: `tune`+`rounds` → `policy`, `effort` → `settings`. Precedence is the assignment operator — invocation > thread > mode; modes DEFAULT with `??=`, MANDATE with `=`.
-- **`/dialogue` is a BRANCH, not the root.** It chains the user Turn onto `turn.history()`, then folds the response with `soma.transcript` into `TurnEntity` rows **on a FORKED em** — one unit of work: a tool flushing the root em cannot carry half a response out, and a throw `em.clear()`s it. `/verbatim` is a duplex stream (`feeds: Audio.Packet`).
-- The domain harness slurps BEFORE the mode's; `dialogue` and `object` each get `render`+`stream` onto `daemon.cortex.hallucinate[type]`, published as `mode.harness = shape.object(harness, steer.strategy.echo)`. → Request/Cortex live in `world/codemap/typology.md`.
-
-```json
-// probe: dewey.harness.dialogue.stream({tools:{lookup}}) → the tool seam in motion
-{ "event": "/tool/call", "id": "t1", "name": "lookup", "input": { "query": "what is casa" } }
-{ "event": "/tool/yield", "id": "t1",
-  "result": { "condition": "NOMINAL", "output": { "object": { "definition": "what is casa means house" } } } }
-```
-
-- **the stop does not reach the work** (m62): the Dock's stop aborts the socket line (`socket.js:111`), `socket.js:201` returns without `body.return()`, and `respond()` takes no signal — rounds and provider fetches run on. → m63 the controller.
-- **`daemon.call`** (`daemon/lifecycle/resolution.js:11`) is `shape.proxy(domain.aperture, steer.strategy.direct)`, compiled PRE-slurp: a daemon-root `authorize()` would 401 headerless internal calls. `direct` threads the caller's user/mode/thread, so a tool's `daemon.call[…]` mints rows with real owners.
-
-## aperture — two gates, one enrollment
-
-```js
-// systems/runtime/daemon/aperture/userspace.js:6-29 · daemon/lifecycle/resolution.js:74-78
-branch.use(shard.secure.authenticate());
-branch.open("/handshake", async (ctx) => ({ success: true, user: await ctx.identity.enroll() }));
-const owned = branch.branch("/entities").use(shard.secure.authorize())
-  .use(daemonDie.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
-owned.branch("/buffer").use(shard.datamap.scope(…)).slurp(shard.datamap.repository(entities.buffer)).slurp(shard.datamap.reactive(entities.buffer, twitch, …));
-// resolution.modes — the same pair on every mode branch
-daemonDie.good.aperture.branch(mode.mount.nature).use(shard.secure.authorize())
-  .use(daemonDie.datamap.shard.bind("user", …)).slurp(mode.aperture);
-```
-
-- **`authenticate()` = token → `ctx.identity`**, on the daemon ROOT and on `/userspace`. **`authorize()` = identity → `ctx.user`, READS ONLY** (`401 USER_NOT_FOUND — /userspace/handshake first`), on `/userspace/entities` and EVERY mode branch. **Enrollment happens in exactly ONE place**: `/userspace/handshake`. `bind("user")` sits behind `authorize()`. [[project_user_bind_behind_authorize]]
-- **Surfaces**: `/entities/{literal,symbol,mode}` (unscoped) and `/userspace/entities/{intent,thread,buffer,turn}` (owned + scoped), each repository + reactive; `/modes/:type/:method` (only `findOne`); `/cargo`; `/cortex/{render,stream}`, cast against `{type, tune?, request}` first; `/metadata/*`.
-- **`/metadata` is trait-conditional**: daemon-level `manifest`/`statics`/`cargo`/`datamap`/`aperture`/`cortex`/`modes`; per mode `manifest`+`aperture` always, then `statics`, `mountpoint`, `app`, `emitter`, `freight`, `harness`, each gated on its trait. All `shape.strip`ped — **the strip IS the contract.** An async generator handler IS SSE (`shape.http`) — the only escape from anima's 8000 ms daemon-call timeout. [[project_aperture_streaming_sse]]
-
-```json
-// systems/runtime/tests/snapshots/tactic-harvest-aperture.snapshot.json — a mode's /metadata strip, over the wire
-{ "manifest": { "type": "tactic", "slug": "harvest", "name": "Harvest", "version": "0.1.0",
-    "traits": ["CONVERSATIONAL", "HARNESSED", "TOOLING"], "owner": "@education" },
-  "routes": [ { "path": "/status" }, { "path": "/manifest" },
-    { "path": "/harness/verbatim/stream", "yields": true, "feeds": "object" },
-    { "path": "/harness/dialogue/render" }, { "path": "/harness/dialogue/stream", "yields": true },
-    { "path": "/harness/object/render" }, { "path": "/harness/object/stream", "yields": true } ] }
-```
-
-## how it is tested
-
-**51 files · 267 cases** (`specimen.it` 237, `it` 26, `Deno.test`/`test` 4) **· 36 snapshot fixtures.** `tests/scenarios/` is the cheap rung (in-memory); the rest want `:2501`.
-
-- **boot** — `runtime/disintegrate.test.js` *"disintegrate idempotent under concurrent shutdown signals"*.
-
-```js
-// test: tests/runtime/disintegrate.test.js:9-12
-await Promise.all([die.disintegrate(), die.disintegrate()]);
-assertEquals(die.status.is("STOPPED"), true); assertEquals(die.abort.signal.aborted, true);
-```
-
-- **Buffer** — `buffer.labeled.test.js` *"the repository's create is the ONE mint: a thread id binds and takes the next seat"*.
-
-```js
-// test: tests/buffer.labeled.test.js:70-77
-const first = await daemon.entities.buffer.create({ mode: fixtures.dewey.id, thread: thread.id });
-specimen.expect([first.index, second.index]).toEqual([0, 1]); specimen.expect(thread.counter).toBe(2);
-specimen.expect(stored.map((r) => r.trait.LABELED)).toEqual([{ name: "dewey #0" }, { name: "dewey #1" }]);
-```
-
-- **traits** — `mode/tooling.test.js` *"['TOOLING', 'HARNESSED'] produces working harness"* and the reverse order; `mode/traits.test.js` pins INTENTED, APPLICATION, EXPOSED, EMITTER, BOOTED. `stagger` itself is invoked in ONE test:
-
-```js
-// test: tests/datasink.drain.test.js:118-121
-const finalizers = await stagger(staggered, daemon, { DATASINK });
-specimen.expect(finalizers.length).toBe(1); specimen.expect(staggered.terminators.length).toBe(1);
-```
-
-- **EMITTER, GENERATIVE, DATASET** — *"persisted buffer has correct index from thread counter"*, *"revise keeps the SEAT — same id, same index, counter unmoved"*, *"throws rather than installing anything outside the dataspace"*.
-- **HARNESSED, gates** — *"a tool that flushes the root em mid-response does NOT persist the tool_use turn early"* (`turn.unit-of-work.test.js`), *"a fresh identity is refused the userspace until it handshakes"* (`daemon/userspace.test.js`).
-- **fixtures** — `tests/snapshots/` is GITIGNORED; the ONE tracked fixture is `tests/fixtures/corpus.snapshot.json`. `SNAPSHOT_HOT=1` regenerates: `deno task --cwd systems/runtime test/snapshots`. One file: `deno test -A --no-check --config <repo>/deno.jsonc <file>` — `deno task test` is `--watch` and never exits. [[project_corpus_snapshot_regime]]
-- **gaps** (tests grep → 0): `collate`/`seal(` · `prune(` · `carry(` · `ProcessDie` · `perpetuate` · `/attached/*`.
-
-## where to read the live system
-
-- **spans: the runtime emits NONE.** `grep -rn "\.mark(\|span\.\|chronicle" systems/runtime` → 1 hit, a test (`tests/span-tracked.snapshot.test.js:29`). Nothing in `daemon/` or `lifecycle/` opens a span — **the absence IS the finding**; to trace a call you compose `shard.track.span` yourself, as that test does.
-- **console.\*** — 25 outside `tests/`: `integrate.js:34` launch · `traits/index.js:10` unimplemented trait · `dataset.js:16` install progress · `population.js:117` `[provider] … refused` · `integration.js:15` pruned.
-- **taps**: `/metadata/{daemons,instance,services,aperture}`; `/daemon/<slug>/metadata/{modes,datamap,cortex}`; `…/mode/<t>/<s>/metadata/harness` for the armed surface; `<slug>/status`.
-- **dev loop** — `runtime/watch` watches `commons` + `~/.viva/registry` ONLY: a repo edit does NOT restart it.
+<!-- /generated -->

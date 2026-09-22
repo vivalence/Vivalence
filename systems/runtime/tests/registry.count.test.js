@@ -20,7 +20,7 @@ const leaves = (pensieve) => {
 describe("registry ingest", () => {
   it("lands every module under a stamped owner — nothing ownerless, nothing versionless", async () => {
     await registry();
-    const ingested = leaves(paladin.vip.pensieve);
+    const ingested = leaves(paladin.ledger.registry.pensieve);
 
     expect(ingested.length).toBeGreaterThan(0);
     for (const { owner, type, slug, versions } of ingested) {
@@ -36,7 +36,7 @@ describe("registry ingest", () => {
   // of literal the count did. The invariant is per-owner and survives mounting it later.
   it("gives every ingested owner a package-typed self-manifest — a mount without one cannot register", async () => {
     await registry();
-    const ingested = leaves(paladin.vip.pensieve);
+    const ingested = leaves(paladin.ledger.registry.pensieve);
     const owners = [...new Set(ingested.map((leaf) => leaf.owner))];
 
     expect(owners.length).toBeGreaterThan(0);
@@ -48,17 +48,17 @@ describe("registry ingest", () => {
 
   it("keys a slug once per owner+type, so a mount cannot ingest the same module twice", async () => {
     await registry();
-    const keys = leaves(paladin.vip.pensieve).map((leaf) => `${leaf.owner}/${leaf.type}/${leaf.slug}`);
+    const keys = leaves(paladin.ledger.registry.pensieve).map((leaf) => `${leaf.owner}/${leaf.type}/${leaf.slug}`);
     expect(keys.length).toBe(new Set(keys).size);
   });
 
   // lock-demo fixture assertion POSTPONED with the fixture itself — fork 4.
-  // the LOCK mechanism is still covered, in vip.test.js, via an in-memory fixture.
+  // the LOCK mechanism is still covered, in paladin's registry.mount.test.js, via an in-memory fixture.
 
   it("fork 2: multiplayer + hello-world wafers resolve under @commons", async () => {
     await registry();
-    const multiplayer = await paladin.vip.pensieve.revelio({ owner: "@commons", type: "instance", slug: "multiplayer" });
-    const hello = await paladin.vip.pensieve.revelio({ owner: "@commons", type: "instance", slug: "hello-world" });
+    const multiplayer = await paladin.ledger.registry.pensieve.revelio({ owner: "@commons", type: "instance", slug: "multiplayer" });
+    const hello = await paladin.ledger.registry.pensieve.revelio({ owner: "@commons", type: "instance", slug: "hello-world" });
     expect(multiplayer).toBeTruthy();
     expect(hello).toBeTruthy();
   });

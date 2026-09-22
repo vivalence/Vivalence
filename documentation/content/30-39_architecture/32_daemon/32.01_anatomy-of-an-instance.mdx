@@ -85,7 +85,7 @@ A `Die` is a `Wafer` — the empty lifecycle shape from typology — and `popula
 - `APPLICATION` — the svelte source from the declaration is esbuilt into a bundle, cached under the mountpoint; the runtime serves it at `/attached/bundle/…`.
 - `DATASET` — first boot seeds the declared rows: two symbols, two literals, then a link phase wires `ciao ↔ interjection`, `mondo ↔ noun`. Every later boot skips this — the mode's row says `installed`.
 - `TOOLING` — the deck Vector becomes `mode.tools`, daemon and mode bound in.
-- `HARNESSED` — the dialogue harness assembles, with the armed tool stack layered under it.
+- `HARNESSED` — the harness assembles: `dialogue` and `object` (render · stream) with the armed tool stack layered under them, and `choice` (render) — a probability for each of a closed set of strings, read off the model rather than written by it.
 - `EXPOSED` — the finalizer compiles the mode's callable face:
 
 ```js title="systems/runtime/daemon/traits/index.js — EXPOSED"
@@ -100,10 +100,10 @@ That compiled callable is the daemon-side twin of what the view reaches: `buffer
 
 ## one path tree
 
-`die.resolve()` at the runtime level first cascades every child die through its own lifecycle — the stages above, which the example below staged by hand — then assembles everything into a single tree: processes attach under `/attached/process/lighthouse/multiplayer`, mode bundles under `/attached/bundle/…`, and each daemon's whole aperture is slurped under its mount. Look back at the declaration's own environment:
+`die.resolve()` at the runtime level first cascades every child die through its own lifecycle — the stages above, which the example below staged by hand — then assembles everything into a single tree: processes attach under `/attached/process/service/lighthouse/multiplayer`, mode bundles under `/attached/bundle/…`, and each daemon's whole aperture is slurped under its mount. Look back at the declaration's own environment:
 
 ```sh title=".env"
-"PUBLIC_VIVA_LIGHTHOUSE_REMOTE": "http://localhost:2601/attached/process/lighthouse/multiplayer"
+"PUBLIC_VIVA_LIGHTHOUSE_REMOTE": "http://localhost:2601/attached/process/service/lighthouse/multiplayer"
 ```
 
 The lighthouse *remote* points into the runtime's own path tree. The whole system — daemons, services, bundles, metadata — is one tree of paths under one origin.
@@ -114,7 +114,7 @@ The lighthouse *remote* points into the runtime's own path tree. The whole syste
 
 - `GET /metadata/daemons` → `200` — the runtime knows its children.
 - `GET /daemon/standalone/metadata/modes` → `401 MISSING_TOKEN` — mounted, routing, locked. Identity comes from the lighthouse; in the booted system the client logs in and this returns the mode list.
-- `POST /attached/process/lighthouse/multiplayer/entities/daemon/ensure` → `200` — *announce*: the runtime writes each daemon into the lighthouse through the same `/entities` grammar everything else uses. The system describes itself in its own vocabulary.
+- `POST /attached/process/service/lighthouse/multiplayer/entities/daemon/ensure` → `200` — *announce*: the runtime writes each daemon into the lighthouse through the same `/entities` grammar everything else uses. The system describes itself in its own vocabulary.
 
 Then `perpetuate`: signal handlers, a patrol loop. UP.
 

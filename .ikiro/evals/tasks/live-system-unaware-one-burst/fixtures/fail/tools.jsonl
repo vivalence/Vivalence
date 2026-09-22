@@ -1,0 +1,6 @@
+{"name":"Grep","input":{"pattern":"\\bstanding\\b","path":"/repo/commons/instances/hello-world"}}
+{"name":"Edit","input":{"file_path":"/repo/commons/instances/hello-world/tools/doctor.js","old_string":"export function standing(ctx) {","new_string":"export function posture(ctx) {"}}
+{"name":"Edit","input":{"file_path":"/repo/commons/instances/hello-world/harness.js","old_string":"import { machine, standing } from \"./tools/index.js\";","new_string":"import { machine, posture } from \"./tools/index.js\";"}}
+{"name":"Edit","input":{"file_path":"/repo/commons/instances/hello-world/harness.js","old_string":"machine(standing(ctx))","new_string":"machine(posture(ctx))"}}
+{"name":"Edit","input":{"file_path":"/repo/commons/instances/hello-world/tests/doctor.test.js","old_string":"standing","new_string":"posture","replace_all":true}}
+{"name":"Edit","input":{"file_path":"/repo/commons/instances/hello-world/tests/harness.snapshot.test.js","old_string":"standing","new_string":"posture","replace_all":true}}

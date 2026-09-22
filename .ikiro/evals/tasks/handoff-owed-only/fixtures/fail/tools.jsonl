@@ -1,0 +1,2 @@
+{"name": "Bash", "input": {"command": "python3 .ikiro/methods/handoff.py --latest"}}
+{"name": "Edit", "input": {"file_path": "/repo/.ikiro/zettelkasten.md", "old_string": "sk-ant-", "new_string": ""}}

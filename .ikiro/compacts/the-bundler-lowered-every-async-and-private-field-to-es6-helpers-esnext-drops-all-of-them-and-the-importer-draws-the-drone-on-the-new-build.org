@@ -1,0 +1,65 @@
+#+title: the bundler lowered every async and private field to es6 helpers, esnext drops all of them, and the importer draws the drone on the new build
+#+index: 186
+#+session: 6 turns, 16:54–17:14, model fable. A short session with one seam: the one line ruling 3 of m67 had left owed, then the sibling line beside it that nobody had asked about.
+
+* one breath
+
+beef pasted the m67 quest and the education README as subject and guidance, and under =### first step:= the one-line patch ruling 3 had left owed: =sveltePreprocess({ typescript: { compilerOptions: { target: "esnext", verbatimModuleSyntax: true } } })= at =subsystems/typology/gestalten/bundle/svelte.js:46=. /"fix"/ (2). Landed as pasted.
+
+The report flagged the line six above it — =target: "es6"= on the *esbuild* pass — as the same class of lowering, unverified. beef: /"lets validate this es6 business. inspect a bundle, change it, instapect the bundle, run it in chrome to validate."/ (3). That is the whole session: the served =editor/import= bundle grepped for esbuild's helper names, the same entry rebuilt at =esnext=, the watch shell's own rebuild grepped again, then the mode driven in Chrome on the new hash. es6 was real: every =async= rewritten through =__async=, 185 =#private= sites through =__privateGet/Set/Add= (three.js internals), object spread through =__spreadValues=, class fields through =__publicField=. esnext: zero helpers, 23 kB lighter, the drone drawn from 18 GLBs at 200, zero console errors. /"if works, go"/ (4) — kept; the typology bundle suite green.
+
+Then /"then ikiro compact"/ (5), this fold.
+
+* the spine — 6 turns
+
+| n | beef | landed |
+| 1 | the m67 quest + the @education README, =### first step:= the svelte.js:46 patch, no order | context; superseded by 2 five seconds later, the same paste with the word on the end |
+| 2 | same paste + /"fix"/ | =svelte.js:46= — the =sveltePreprocess= TS target line, verbatim from the quest |
+| 3 | /"lets validate this es6 business. inspect a bundle, change it, instapect the bundle, run it in chrome to validate."/ | the measurement below; =svelte.js:40= =es6 → esnext= |
+| 4 | /"if works, go"/ | kept; =tests/gestalten/bundle.test.js= 1 passed |
+| 5 | MID-TURN /"then ikiro compact"/ | this fold |
+| 6 | MID-TURN =/compact= | harness |
+
+* what the measurement said
+
+The bundle dir is =~/.viva/instances/droneaid/mountpoint/daemon_droneaid/bundles/editor/import/bundle/= — ten output-hashed copies at fold time, the known prune gap. The newest at es6 was =7caa4a744c0a9ab4=; the same entry rebuilt from a scratch script inside =subsystems/typology= (the workspace member owns the =svelte-preprocess= dep — a script outside it cannot resolve it) reproduced it to 29 bytes; the watch shell then rebuilt on save and served =a0af058b11eb17f1=.
+
+| helper | es6 | esnext | served =a0af…= |
+| =__spreadValues= | 21 | 0 | 0 |
+| =__spreadProps= | 8 | 0 | 0 |
+| =__async= | 29 | 0 | 0 |
+| =__privateGet= | 103 | 0 | 0 |
+| =__privateSet= | 49 | 0 | 0 |
+| =__privateAdd= | 33 | 0 | 0 |
+| =__publicField= | 16 | 0 | 0 |
+| =__pow= | 3 | 0 | 0 |
+| bytes | 7 144 409 | 7 121 322 | 7 121 351 |
+
+Two targets, two passes. =sveltePreprocess.typescript.compilerOptions.target= lowers BEFORE svelte compiles — that pass is what broke threlte's =$bindable()= (ruling 3). esbuild's =target= lowers AFTER — never a =$bindable()= risk, but it rewrote every =async= into a generator-and-promise helper and every =#private= field into a WeakMap lookup, on three.js's hot paths, for nothing. Both lines are =esnext= now.
+
+*In Chrome* (=localhost:1794=, the droneaid daemon, beef's session): the page mounted, one =/scan=, WebGL canvas 1568×1074 live. On reload the stage stayed BLANK — the bin arrived through the buffer subscription after the stage =$effect= had already run against an empty bin, and =take()= never calls =populate()= (=Import.svelte:310-316= against =:326-328=). A mode race, not the target: =interpret all= → one =/interpret=, 18 members, 18 GLB fetches all 200, the drone in wireframe, =Frame_Star= picked with the inspector filled. Zero console errors. Then =deno test … subsystems/typology/tests/gestalten/bundle.test.js= — 1 passed, 1 step.
+
+* what landed
+
+| =subsystems/typology/gestalten/bundle/svelte.js= | =:40= =target: "es6"= → =esnext= · =:46= =sveltePreprocess({ typescript: { compilerOptions: { target: "esnext", verbatimModuleSyntax: true } } })= — both uncommitted, beef's VCS |
+| =.ikiro/quests/m67-assembly-ontology.org= | ruling 3 LANDED + the esbuild sibling; =#+next= and =* owed= no longer carry the line |
+
+* seen, not touched
+
+- The reload race above — =take()= should call =populate()= when a bin lands on a live stage; a door action redraws it today. beef's call.
+- =ps= shows nine orphaned =esbuild --service= processes, one per watch restart: nothing in the bundler path calls =esbuild.stop()=; only the typology test does.
+
+* markers
+
+Two OPEN in =compacts/MARKERS.md= (an empty cortex must warn at boot · cortex snapshot coverage vs the live strip) — both are code outside =.ikiro/= with no go this session; neither was touched, neither is settled. Carried, said so.
+
+* method
+
+The extractor ran first: N = 6 (raw 7, one queue echo collapsed). Every turn above has a row. Citations by section: turns 2–4 carry every measurement; 1 and 5–6 are harness and paste. On six turns the balance test is vacuous.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                           | sessions   |
+|-------------------------+-----------+----------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                          | 1          |
+| m67-assembly-ontology   |   0% 0/3  | building | beef — purge the daemon db (=rm -rf …/daemon_droneaid/{droneaid.viva.db,migrations}=, users live elsewhere) · walk the importer live: load → interpret → annotate → embed → write to @droneaid/topography/model · commits in paladin, assembly, droneaid, the repo. open: ruling 16 (two owners, one slug) wants beef's word after the first write;  beef's ruling on the import.svelte fix i landed without one. shape mapped at =world/codemap/assembly.md=. | 2 (2 live) |

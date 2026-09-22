@@ -97,7 +97,8 @@ Deno.test("fromm.yield", async (t) => {
     const read = fromm.yield({
       type: "tool_result",
       id: "t2",
-      output: { message: { error: "unknown tool: x" } },
+      condition: "ERROR",
+      output: { message: "unknown tool: x" },
     });
     specimen.expect(read.condition).toBe("ERROR");
   });

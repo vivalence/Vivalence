@@ -67,7 +67,7 @@ the stall pulling to =depth()=, turns the log. The pull is CLIENT-driven (=Threa
   per-thread. =buffer.parent= STRUCK before landing.
 - *mikro first.* /"we design mikro-orm first! mark that."/ · /"child too?! we ahve that already on the
   entities afaik."/ → the Turn shape verbatim (=parent= m:1 · =children= 1:m =mappedBy=). Memory
-  [[feedback_mikro_first_repository_verbs]].
+  `feedback_mikro_first_repository_verbs`.
 - *no terminal on the daemon.* /"the daemon knows nothing about terminals! no entity terminal on runtime!
   thread is daemon. terminal is client!! thats the surface. no overlap. terminal is a function of thread.
   terminal mirrors and controls thread."/ → the runtime =TerminalEntity=, =ThreadRepository.spawn/status=
@@ -321,7 +321,7 @@ Frame is unchanged by M3.
 
 - *child terminal dock / conversational handling* (beef's order). A child terminal copies the parent's
   =$dock= geometry at =up=; whether a nested Frame gets its OWN Dock pane (chat with the sub-thread's
-  mode, HARNESSED-gated per [[project_dock_per_terminal]]) or shares the crown's, and how the shoulder's
+  mode, HARNESSED-gated per `project_dock_per_terminal`) or shares the crown's, and how the shoulder's
   Phase widget addresses a child's phase, is UNDESIGNED. Panel A hosts exactly one Dock (=a.svelte=).
   Lands in =known-issues.org= with M2.
 

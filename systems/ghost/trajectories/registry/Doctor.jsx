@@ -11,7 +11,7 @@ const columns = () => {
 const tail = (text, room) => (text.length <= room ? text : `…${text.slice(-(room - 1))}`);
 
 export function Doctor({ report }) {
-  const { record, store, pensieve, packages } = report;
+  const { record, store, pensieve, packages, integrity } = report;
   const width = columns();
   const inside = (root) => (store.path && root.startsWith(`${store.path}/`) ? root.slice(store.path.length + 1) : root);
 
@@ -42,6 +42,13 @@ export function Doctor({ report }) {
           </Text>
         ))}
         <Line name="pensieve" note={`${pensieve.modes} modes · ${pensieve.types} types · ${pensieve.owners} owners`} path="" />
+        <Line name="integrity" note={`${integrity.length} faulted`} path="" warn={integrity.length > 0} />
+        {integrity.map((row) => (
+          <Box key={row.path} flexDirection="column">
+            <Text color="red">{"  ✗ "}{tail(inside(row.path), width - 6)}</Text>
+            {row.faults.map((sentence) => <Text key={sentence} color="red">{"      "}{sentence}</Text>)}
+          </Box>
+        ))}
       </Box>
 
       {packages.map((held) => (

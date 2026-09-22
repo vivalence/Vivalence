@@ -21,9 +21,9 @@ export async function create(ctx) {
 
   let mount;
   if (source.startsWith("@")) {
-    await paladin.vip.supply();
-    const module = await paladin.vip.accio(source);
-    mount = dirname(module.mount.absolute);
+    await paladin.ledger.registry.supply();
+    const module = await paladin.ledger.registry.accio(source);
+    mount = dirname(module.source.absolute);
   } else {
     const absolute = path.pin(source);
     const stat = await Deno.stat(absolute);

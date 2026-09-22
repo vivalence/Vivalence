@@ -2,6 +2,7 @@ import * as dotenv from "@std/dotenv";
 import { isAbsolute, join, resolve as resolvePath } from "@std/path";
 import { is, Path, v } from "@vivalence/typology";
 import { Instance } from "../prototypes/instance.js";
+import { inherit } from "./resolve.js";
 
 export async function env(paladin) {
   paladin.assign(Deno.env.toObject(), "os");
@@ -126,26 +127,42 @@ export async function environment(instance) {
 
 const reference = (home) => (entry) =>
   typeof entry !== "string"
-    ? { ...entry, mount: entry.mount ?? home }
+    ? { ...entry, source: entry.source ?? home }
     : isAbsolute(entry)
       ? entry
       : /^\.\.?\//.test(entry)
         ? resolvePath(home.dirname, entry)
         : entry;
 
+// the slots a ledger may speak, from the schematic — manifest is each tier's own, environment folds
+// key-wise below, everything else falls through WHOLE (a declared [] is "none", not "merge").
+const SLOTS = Object.keys(v.primitives.instance.Ledger.properties).filter(
+  (slot) => !["manifest", "environment"].includes(slot),
+);
+
 export async function recipe(instance) {
   const { paladin } = instance;
   const home = instance.home.absolute;
-  const modules = await paladin.find.type(instance.home, "instance").catch((error) => {
+  const found = await paladin.find.type(instance.home, "instance").catch((error) => {
     if (error?.code === "ENOENT") throw new Error(`instance.mount: no instance at ${home}`);
     throw error;
   });
-  if (modules.length !== 1)
-    throw new Error(`instance.mount: expected 1 instance module in ${home}, found ${modules.length}`);
-  const [module] = modules;
-  const environment = module.environment ?? v.environment({});
-  if (!environment.properties)
-    throw new Error(`instance.mount: environment must be v.environment({…}) — ${module.source.absolute}`);
+  if (found.length !== 1)
+    throw new Error(`instance.mount: expected 1 instance module in ${home}, found ${found.length}`);
+  const [own] = found;
+  const declared = own.environment ?? v.environment({});
+  if (!declared.properties)
+    throw new Error(`instance.mount: environment must be v.environment({…}) — ${own.source.absolute}`);
+
+  // the fold: ledger → instance, BEFORE a thunk fires. on a COPY — read.viva returns the live
+  // module namespace. a slot the instance never declared is the ledger's; the environment schema
+  // merges by KEY, the instance's key winning — the same unit the strata fold values by.
+  const ledger = await paladin.ledger.recipe();
+  const module = { ...own };
+  instance.inherited = SLOTS.filter((slot) => inherit(module, ledger, slot));
+  const environment = ledger?.environment?.properties
+    ? v.environment({ ...ledger.environment.properties, ...declared.properties })
+    : declared;
 
   const record = [];
   const at = (label) => (declaration) => paladin.hydrate(declaration, record, label);

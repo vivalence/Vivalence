@@ -20,7 +20,7 @@ deserves its own package. m27 keeps memory + note (semantic); m28 is skill (proc
   persona's clothes." Open (inherited): does a persona become a skill, or stay a plain
   system section?
 
-* trait = three sides (the [[project_trait_has_three_sides]] law)
+* trait = three sides (the `project_trait_has_three_sides` law)
 
 behavior in =systems/runtime/daemon/traits/primed.js= + =ModeTraitsEnum= member + client
 =implements()= where a client surface cares. One side proves nothing.

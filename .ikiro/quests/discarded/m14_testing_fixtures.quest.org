@@ -59,7 +59,7 @@ mount/daemon/cortex scaffolds stay, fold toward bench).
 =population.core='s =collate=/=seal= — schema/entity/repository OVERRIDE,
 subscribers ACCUMULATE, abstract bases sealed. The old scenario =variant.js=
 used the stale =Object.values= merge that DROPS the base =LiteralSubscriber=
-([[project_entity_variant_assembly]]); =@fixtures= registers it (verified: 2
+(`project_entity_variant_assembly`); =@fixtures= registers it (verified: 2
 subscribers reach the provider). typology scenario =provider(variant,
 subscribers)= gained the 3rd arg (mirrors real libsql provider; variant.map
 fallback keeps existing consumers unchanged). bench re-abstracted onto

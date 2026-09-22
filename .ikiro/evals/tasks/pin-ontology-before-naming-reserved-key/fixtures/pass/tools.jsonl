@@ -1,0 +1,3 @@
+{"name":"Read","input":{"file_path":"/repo/subsystems/paladin/prototypes/ledger/registry.js","offset":180,"limit":50}}
+{"name":"Grep","input":{"pattern":"\\b(elsewhere|shadowed|duplicate|holds)\\b","path":"/repo/subsystems"}}
+{"name":"Grep","input":{"pattern":"nature","path":"/repo/subsystems/typology/prototypes/signature.js","-n":true}}

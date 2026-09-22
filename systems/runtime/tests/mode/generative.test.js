@@ -21,6 +21,7 @@ function buildMode({ generator, slug = "gen-test" } = {}) {
   });
   mode.aperture = new Aperture();
   mode.mount = new Path(`/mode/chaosmonkey/${slug}`);
+  mode.bundles = new Path(`${directory}/bundles/chaosmonkey/${slug}`);
   mode.entity = { id: "mode-1" };
   mode.tools = new Vector();
   if (generator) mode.module.generator = generator;

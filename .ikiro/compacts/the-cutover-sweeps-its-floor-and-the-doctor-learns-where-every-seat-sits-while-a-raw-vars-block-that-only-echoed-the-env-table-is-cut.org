@@ -1,0 +1,50 @@
+#+title: the cutover sweeps its floor, and the doctor learns where every seat sits while a raw vars block that only echoed the env table is cut
+#+index: 185
+#+session: 6 beef turns + 4 mid-turn, 195–200 of one session (200 total; #176 folded 141–194). Cleanup after m66, two bounded changes. Four repo files touched, uncommitted. VCS untouched.
+
+* one breath
+
+Two things happened after the m66 fold. First, /"cleanup, sunset, etc."/ (195): the quest went to =done/=, the rehearsal containers and volumes left the host, the two stale lighthouse =Daemon= rows (brazilian, spanish) were deleted so the lighthouse now announces italian + chess only, =lib.sh= was repointed because Coolify had pruned the pre-m66 image, two memories were rewritten, the Coolify tab closed. Kept on purpose, beef's call still owed: the tarball, =italian.old.viva.db=, the brazilian/spanish seats.
+
+Then beef ran =viva instance/doctor= on droneaid and read it (198): /"doctor should tell me also the mountpoints of the services/modes. and theer is duplication with env variables. cut the less interesting one."/ Bounded design, one file, /"go"/ (199). The doctor now prints each daemon's seat with its modes nested under it keyed =type/slug=, services as slug → seat, seats relative to the instance mountpoint (absolute when re-rooted), and the =vars= block is gone. Two mid-turn corrections shaped the key: /"wtf is this annotation?!?!?!!? lowdash?"/ — the key had copied the seat dir's =mode_<type>_<slug>= — then /"mode is implicit"/ · /"makes no sense"/ against a separate =modes= block. Then a third: /"resolve this name. we know what service lives there"/ on =dormant daemon[droneaid].hallucinators[1]= — the index pointed into a roster the filter had already shortened, and the module name died in a =console.warn=. =instance.dormant= rows are now ={ at, module, empty }=, minted in =paladin/lifecycle/integrate.js=; both doctors read the row; six settle assertions updated, suite green.
+
+* the spine — 6 turns
+
+| n   | beef                                                                                                          | landed                                                                                                                             |
+|-----+---------------------------------------------------------------------------------------------------------------+------------------------------------------------------------------------------------------------------------------------------------|
+| 195 | /"cleanup, sunset, etc."/                                                                                     | quest → =done/=; =rt_rehearsal= + =lighthouse_mountpoint= removed; stale =Daemon= rows deleted; =lib.sh OLD_IMAGE= repointed; memories |
+| 196 | =/compact=                                                                                                    | harness fold                                                                                                                       |
+| 197 | continuation summary                                                                                          | NOTHING — reported the cleanup terse                                                                                               |
+| 198 | doctor paste + /"tell me also the mountpoints of the services/modes … duplication with env variables. cut the less interesting one"/ | design: seats map + cut =vars=; waited                                                                                          |
+| 199 | /"go"/                                                                                                        | =systems/ghost/trajectories/instance/doctor.js= patched; first run threw =at.startsWith is not a function= — a seat is a Freight, coerced via =.absolute= |
+| 200 | /"ikiro compact"/                                                                                             | this                                                                                                                               |
+
+* what landed, by seam
+
+- *ghost doctor* — =daemons= is =slug → { mountpoint, <type>/<slug>: seat … }=, modes read off the resolved kernel entry's =mountpoint= (the ground =paladin/lifecycle/resolve.js:56-65= gives every entry); =services= is =slug → seat=. The =mode_= prefix appears only in the seat VALUE, because it is paladin's dir name, never a key. Seats print relative to =mountpoint= when under it, absolute otherwise — the prod shape where a seat is re-rooted stays legible. =vars= cut; =env= + =filter= verified narrowing (=group:keys=).
+- *host* — lighthouse =Daemon= table: italian, chess. =lib.sh= comments the pruned image and names the rollback (tarball + registry digest).
+- *paladin* — a dormant row names its module: ={ at, module, empty }=. The ghost doctor prints =at → module — empty <secrets>= on one line; the hello-world doctor carries =module= beside its requirements join.
+- *memory* — =reference_prod_runtime_host= and =project_m66_three_containers= rewritten to the landed shape.
+
+* failures and near-misses
+
+- Seat values off a mounted instance are Freight objects, not strings: =at.startsWith is not a function=. Coerce =held?.absolute ?? held= and guard with =is.string= before any path arithmetic on a mountpoint.
+- First cut keyed modes =<daemon>/mode_<type>_<slug>= and put them in their own block; beef read the underscore as annotation and the block as redundant. Key is what the reader types, value is what the disk holds — do not let a dir name leak into a key.
+
+* state at fold
+
+- m66 sunset in =done/=. Owed to beef: drop or keep =/root/backup/mountpoint-2026-09-20.tgz=, =daemon_italian/italian.old.viva.db=, the brazilian/spanish seats.
+- Uncommitted on =pqxuzpnm=: =systems/ghost/trajectories/instance/doctor.js= · =subsystems/paladin/lifecycle/integrate.js= · =subsystems/paladin/tests/settle.test.js= · =commons/instances/hello-world/tools/doctor.js=. Beef's =jj new= made the working copy before the paste.
+- m51 =#+status= still stale (four defects PROVEN; closed by m59). Not touched.
+- No open markers.
+
+* method
+
+Extractor run on the session file; six turns, each in one row; no balance concern at N=6.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | sessions   |
+|-------------------------+-----------+----------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                | 1          |
+| m67-assembly-ontology   |   0% 0/3  | building | beef — purge the daemon db (=rm -rf …/daemon_droneaid/{droneaid.viva.db,migrations}=, users live elsewhere) · walk the importer live: load → interpret → annotate → embed → write to @droneaid/topography/model · commits in paladin, assembly, droneaid, the repo. open: ruling 16 (two owners, one slug) wants beef's word after the first write; =bundle/svelte.js:46= (threlte) on go; beef's ruling on the import.svelte fix i landed without one. shape mapped at =world/codemap/assembly.md=. | 2 (2 live) |

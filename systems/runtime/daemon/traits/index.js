@@ -6,8 +6,6 @@ export async function stagger(mode, daemon, traits) {
   const finalizers = [];
   const at = `${mode.manifest.type}/${mode.manifest.slug}`;
   for (const trait of mode.manifest.traits) {
-    // a declared trait nothing implements is a wiring bug, not a no-op — say so once.
-    if (!traits[trait]) console.warn(`[trait] ${at} declares ${trait}, which nothing implements`);
     const result = await traits[trait]?.(mode, daemon);
     if (is.fn(result)) finalizers.push(result);
     else if (is.object(result)) {
@@ -72,15 +70,8 @@ export const FRAUGHT = (mode, daemon) =>
   carry(
     mode,
     daemon,
-    join(mode.module.mount.dirname, mode.module.freight.path.nature),
+    join(mode.module.source.dirname, mode.module.freight.path.nature),
   );
 
 // a mode that SERVES the tree it reads: the operator's mountpoint is the root, and the mode owns none of it.
-export const MOUNTED = (mode, daemon) => {
-  if (!mode.mountpoint) {
-    throw new Error(
-      `[MOUNTED] ${mode.manifest.type}/${mode.manifest.slug} serves its mountpoint, but its kernel entry names none`,
-    );
-  }
-  return carry(mode, daemon, mode.mountpoint.absolute);
-};
+export const MOUNTED = (mode, daemon) => carry(mode, daemon, mode.mountpoint.absolute);

@@ -51,7 +51,7 @@ const yieldmap = [
     "result",
     (thing) => thing?.type === "tool_result",
     (thing) => ({
-      condition: thing.output?.message?.error ? "ERROR" : "NOMINAL",
+      condition: thing.condition ?? "NOMINAL",
       output: thing.output ?? {},
     }),
   ],

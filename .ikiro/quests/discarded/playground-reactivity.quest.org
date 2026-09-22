@@ -393,7 +393,7 @@ above is also shipped + covered by =datamap.scoped.test.js=.
   getter/setter (so =merge='s =existing.data = incoming= fires) + =toJSON= re-add;
   consumers subscribe via =chain(…,"$buffer","$data")=, never =.get()=. NOT a
   =$derived= shadow (rejected — source of truth is =terminal.$buffer=). See
-  [[project_svelte_class_state_gap]].
+  `project_svelte_class_state_gap`.
 - Tests/tooling: =subsystems/typology/tests/gestalten/shard/datamap.scoped.test.js=
   (scoped broadcast, green); =connection.stream= SSE body-leak fixed
   (=finally → reader.cancel()=); Bruno demo at

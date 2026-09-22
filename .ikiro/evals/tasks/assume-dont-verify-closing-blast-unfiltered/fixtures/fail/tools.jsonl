@@ -1,0 +1,1 @@
+{"name":"Bash","input":{"command":"grep -rl --include='*.js' --include='*.svelte' VIVA_RUNTIME_SERVE /repo --exclude-dir=.ikiro --exclude-dir=node_modules"}}

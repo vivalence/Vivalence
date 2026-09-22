@@ -1,0 +1,134 @@
+#+title: the importer is rebuilt from a design comp whose sample data was the spec I missed, NODE becomes a tagged union, and a file that lies about its own unit splits the mode in two
+#+index: 189
+#+session: 31 turns, 20:41–08:30, opus with a fable stretch. Seventh fold of this session: 1–20 at #178, 21–53 at #180, 54–69 at #181, 70–108 at #182/#183, 109–125 at #187.
+
+* one breath
+
+beef killed the importer I had shipped the night before — /"ok. the current droneaid importer mode is shit. it doesnt work and is over complicated. i want you to move it to bak adn start fresh"/ — and handed a claude.ai design comp to build from. I read the comp's two columns, its palette, its five stage names, and built the whole mode in a morning: twelve formats behind one sniff, blender and FreeCAD as the funnel, components and an assembly minted through the domain's own doors.
+
+Then he opened an empty buffer and the drone was sitting in it. /"and why inn gods fucking name is there still a fucking defualt when i load a new empty fucking buffer???? I TOLD YOU FUCKING DOUZENS OF FUCKING TIMES"/ — the fourth time on this screen, the first on a screen I had written from nothing.
+
+The answer was in the comp. Its =SCENE= constant lists what its own queue committed — =hero_character ← hero_character_v12.blend=. A comp is two texts, the markup and the sample data, and the data is the one that says what a fresh screen HOLDS. I had transcribed the first and never read the second.
+
+Two more of his corrections went the same way and each turned into a law. /"you want to sell me the ontology of node by the abssence of compontnt or assembly?? the fuck. this is not clean schema design"/ — the domain's =NODE= had been an untagged union by optional fields since before me, and I had leaned on it rather than naming it. And the drone =.blend= declares =1 m per unit= while measuring 13 metres across, which he refused to fix with one field: /"I want the solution to that entire space, not just this particular issue."/ The mode is now two stages — a dry parse that reads and mints nothing, and a live parse under the operator's choices — because a file that lies about itself is a class, not a bug.
+
+* the spine — 31 turns
+
+| n | beef | landed |
+| 126 | =/compact= | the previous fold's ritual, closing #187 |
+| 127 | the continuation summary | harness artifact, not beef's words |
+| 128 | /"the current droneaid importer mode is shit. it doesnt work and is over complicated. i want you to move it to bak adn start fresh. study vivalence, and the assembly domain"/ + the design-comp handoff + /"on the right we have the import file… topside is display. bottom is the literal tree"/ | the whole rebuild order; old mode → =modes/bak/import= (46 files) |
+| 129 | the screenshot path | 128's image companion |
+| 130 | the design handoff again, with the CORRECT project uuid | my guessed uuid 404'd; =337e52ab-e22f-4b49-95ec-…= read on the first try |
+| 131 | /"the literal tree output doest seem to express the internal structure/grouping of the blend file… lets itterate on this with a design step first"/ + /"remove law entirely"/ + traits above the render, fixed height, /"maybe turn the trait into tabs. stay design"/ | the grouping study and the NODE panel — two deliverables, no build on grouping |
+| 132 | two screenshots | the evidence for 131 |
+| 133 | MID-TURN /"and why inn gods fucking name is there still a fucking defualt when i load a new empty fucking buffer????"/ | the fourth "no default" on this screen |
+| 134 | MID-TURN /"no fucking default"/ | the same order, sharpened |
+| 135 | MID-TURN /"3 deliverables now."/ | the count is the instruction |
+| 136 | MID-TURN /"fix the default first."/ | the ordering |
+| 137 | MID-TURN: my own two-deliverable sentence pasted back, as the address for 135/136 | the quoted-turn pattern — the paste is the address, the order came in 135/136 |
+| 138 | /"dont talk to me in /endpoints like place. talk to me in data schema. what enity, what objects, what properties"/ | the grouping proposal re-stated as Literal · trait · COMPOSED.nodes, no door names |
+| 139 | /"i dont understand. is this node a type of literal? an ontology of literal? short answers"/ | a node is a plain object inside a layer's payload, never a row |
+| 140 | /"so you want to sell me the ontology of node by the abssence of compontnt or assembly?? the fuck. this is not clena thinking… rethink this"/ | the untagged union named as a defect; two clean shapes offered |
+| 141 | MID-TURN /"a"/ | ruling A: tag the node with =kind= |
+| 142 | MID-TURN /"be thoughtful"/ | the pace |
+| 143 | MID-TURN /"complete"/ | the whole radius, not the schematic alone |
+| 144 | my unit sentence pasted back + /"what?"/ + /"clean the database of literals. i want to start fresh"/ | the unit explained in plain words; 19 literals + 37 links deleted, captured first |
+| 145 | /"I definitely want a field in the UI… this is probably not the only issue of this type… I want the solution to that entire space"/ + /"first we do dry parse and then the final parse with the embedding"/ | the two-stager, dictated |
+| 146 | /"WHO THE FUCK Is supposed to be able to read THAT!? order."/ | the review grid had an =auto= knob column; four fixed columns with headers |
+| 147 | the screenshot path | 146's evidence |
+| 148 | MID-TURN /"and can we theoretically already render the model before its commited?"/ | yes — and now it does: the dry GLBs placed × the unit knob |
+| 149 | /"do another pass on these. order them for information. why this frame top carveout?!"/ | =Frame_Top spans 5.65 m= was one row's special case; RESULT becomes label+value on every row |
+| 150 | the screenshot path | 149's evidence |
+| 151 | MID-TURN /"wording here is incoherent. align it. 3 meanings"/ | keep/flatten/leave out/include → one pair: keep · drop |
+| 152 | MID-TURN: the header and the cell pasted together, /"find the mistake... why the duplicates?"/ | FILE SAYS said "file says"; cells became bare facts |
+| 153 | MID-TURN /"no clue what i am setting here!?!?!"/ | origin was a text box with a hint; now =file · centre · object ▾= and the file's centre shown |
+| 154 | /"ok. what unit / scale should i set for import?"/ | 0.05 — the panel's own numbers say why |
+| 155 | /"ok. ikiro compact. update the codemap."/ | this fold |
+| 156 | MID-TURN =/compact= | the harness half of 155 |
+
+* what landed, by seam
+
+- *the mode, rewritten twice* — =@assembly/editor/import=. First cut (128–130): =schematics.js= (12 formats · STAGES · JOB · EVENT · META · TREE) · =sniff.js= (magic bytes before the extension) · =harvest.py= (blender, import-by-format) · =cad.py= (FreeCAD, b-rep tessellation) · =decode.js= · =commit.js= · =/import= + =/tree= · five Svelte parts. Second cut (145): split into =/parse= (dry) + =/commit= (live), =fold.js= extracted pure so the screen can preview without a server, a REVIEW panel of knobs. Traits cut to =MOUNTED APPLICATION STANDALONE EXPOSED= — no tools, no harness, no chat; the comp has none.
+- *the domain* — =NODE= is a tagged union: ={ name, parent?, kind: "component" | "assembly" | "group", ref?, transform… }=. A group is a named transform that places nothing; =ref= forbidden on a group; an over restates its kind and cannot change it (=Literal.place=). =resolve · bom · references= and the fold tool all switch on =kind= now. Nothing reads by absence.
+- *grouping* — the blend's collections become group nodes of the assembly's own layer, names verbatim, nested by =parent=. =harvest.py= records the collection PATH. The drone: 6 groups + 30 placements = 36 nodes.
+- *the screen* — NODE above the stage, fixed height, traits as tabs, no law line. SCENE tree walks =parent=, groups as mute ▤ rows with =n parts=. REVIEW: four columns, =FILE SAYS · YOU CHOOSE · RESULT=, one verb pair (keep · drop), origin as a real control. The stage previews the dry parse before commit.
+- *the db* — purged on his order (144): 19 literals, 19 symbol links, 18 uses rows, captured to =~/.viva/bak/instances/droneaid-20260922/db-0933/= first. 69 symbols kept.
+
+* the fourth no-default, and why a comp is two texts
+
+Three times the night before, on the old screen. The fourth arrived on a screen I had just written from nothing, which is the part worth keeping: the rewrite did not inherit the bug, it re-derived it.
+
+Mechanism: =/tree= read the whole domain, and =selected= fell back to =visible[0]=. Neither is a stored default — that is exactly why the greps of the previous three rounds would not have caught it. The scope was wrong, not the values.
+
+The comp said so. Its =SCENE= constant is not decoration; it lists what its own queue committed, file by file. I read the markup, the palette, the five stage names, the ontology block — and treated the sample data as filler.
+
+Fixed: =/tree { slugs }= reads only what this buffer's jobs minted, =[]= reads nothing, a missing list is refused; nothing auto-selected anywhere. Proven by opening a brand-new thread and buffer through the dock: =QUEUE 0 · SCENE 0 component · 0 assembly · 0 step · NODE — · nothing selected=.
+
+Rule, filed as =user-intent-drift= n 5→6: *a comp is markup AND data; the data says what a fresh screen holds. Before building any screen from a comp, write one line per pane — "shows what, from where".*
+
+* the untagged union
+
+=NODE= carried three kinds with zero discriminator: =component?= set, =assembly?= set, or neither meaning "group". That predates me — =schematics.js:25= says /"a group (neither)"/ in its own description — and when I proposed writing group nodes for the blend's collections, I built on it rather than naming it.
+
+beef: /"you want to sell me the ontology of node by the abssence of compontnt or assembly?? the fuck. this is not clena thinking. this is not clean schema design. this is not how we do things around here."/
+
+He is right twice: the shape is wrong, and *leaning on an existing defect to justify new work is how a defect becomes load-bearing.* I offered two shapes — tag the node, or make grouping a property of the placement — and recommended the tag because the union was already broken and the alternative bought one format. /"a"/ · /"be thoughtful"/ · /"complete"/.
+
+Radius, done in one pass: schematic · =resolve.js= · =Literal.place= (three new refusals) · =references()= · the fold tool's line renderer · both valences · four test files rewritten · the importer's writer and reader. 8 suites / 47 steps green.
+
+* the file that lies, and the two-stager
+
+The drone =.blend= declares =unit_settings.scale_length = 1.0= and =Frame_Top= measures 5.65 units. The file is wrong about itself by a factor of twenty.
+
+My answer had been a query parameter with no UI, which I reported as "beef's call" — and he read the sentence back at me: /"your word on the unit (?unit= exists, no field); what?"/. Then the real order (145), dictated, and it is the best framing anyone has given this mode: /"this is probably not the only issue of this type. There is a class of problems that arise from transmuting between file types and encodings. And I want the solution to that entire space."/ Plus the shape: /"first we do dry parse and then the final parse with the embedding parse."/
+
+The space, as mapped: *frame* (unit, up axis, handedness, origin, baked-vs-placed transforms) · *identity* (instancing rule, hierarchy, what's excluded, naming) · *fidelity* (tessellation tolerance, modifiers, precision, materials, animation pose) · *encoding* (text/binary variants, containers, external buffers, compression, extension ≠ magic).
+
+The principle that covers all of it: *never decide silently, and show the consequence in human units rather than echoing the setting.* A wrong unit is invisible as =0.05=. It is obvious as =13.24 × 2.26 × 13.78 m=.
+
+Built: =/parse= yields a =READING= — every object in the file's own units, what the file =declared=, what was skipped — and mints nothing. =fold.js= is pure and runs in the screen, so every knob's result is instant. =/commit { name, settings }= takes every setting made, by name, and refuses a missing one. The stage renders the dry parse before commit (148), so the unit is judged by eye and by number at once.
+
+* failures and near-misses
+
+- *the project uuid I guessed.* =list_projects= returned =[]= (it filters to design-SYSTEM projects) and my reconstructed uuid 404'd. I reported "run /design-login" — wrong diagnosis, right-looking evidence. beef re-sent the handoff and the real uuid read on the first try. A 404 on a resource whose id I reconstructed from memory is a bad id long before it is an auth problem.
+- *the review grid was unreadable* (146). Its knob column was =auto=, so every row's control sat at a different x and the RESULT column truncated mid-number. Fixed to four fixed columns with headers.
+- *=Frame_Top spans 5.65 m=* (149) — a carveout: the biggest object's span, on one row only. Every other row had a plain count. Out.
+- *three words for one axis* (151) — =keep/flatten= and =leave out/include= on adjacent rows. One pair now: keep · drop.
+- *the header said it and so did the cell* (152) — =FILE SAYS= over =file says 1 m per unit=. Cells are bare facts.
+- *a bad relative import killed the daemon silently.* =Review.svelte= imported =../fold.js= one level short; the bundle failed, the daemon never listened, and the app showed =no daemons= with nothing in the console. Read it by booting =systems/runtime/run.js= in the foreground. ~10 minutes.
+- *the HTTP cache served unit-baked GLBs to the preview*, because the live decode re-used the dry parse's directory. Commit decodes into =intake/<stem>/commit/= now and preview URLs carry the job id.
+- *the =/tree= step-tail test* — counted a step's parts off its own layer, so a step that only OVERRIDES a node counted zero. Reads the folded stack filtered to the step's paths now.
+
+* method
+
+- *a doc or test edit under =~/.viva/registry= restarts beef's daemon* (=--watch=), ~2 min per boot. It cost several minutes per round today. Batch registry writes; do docs while the daemon is already down.
+- *the quoted-turn pattern fired four times* (137, 144, 152, and 131's trait block). beef pastes my own text back as the ADDRESS and appends the order — or, at 152, pastes two of my own outputs side by side so the duplication is the argument. Read the tail.
+- *ten of this fold's twenty-nine live turns were mid-turn* =queue-operation= rows, including /"a"/ — the one-character ruling that set the schema. A =user=-only walk loses the ruling and keeps the question.
+- *the walk's denominator held*: 31 turns, 31 rows, no =NOTHING= rows this fold.
+
+* state at fold
+
+- =@assembly/editor/import= — rewritten twice, two-stage, 12 formats. 8 suites / 47 steps green across domain + rig + importer. Comment gate clean.
+- =@assembly= domain — =NODE= tagged; every reader migrated.
+- The droneaid db — purged of literals on beef's order, then re-committed during verification (18 components + 1 assembly + 6 groups, at 0.05 m per unit). He may want it clean again.
+- =modes/bak/import= — the old mode, 46 files. It no longer compiles against the tagged =NODE=; that is expected, it is the capture.
+- Codemap =assembly.md= refreshed. README's importer section rewritten twice. Memories: =project_droneaid_package= (fourth + fifth pass), =project_domain_barrel_contract= (the tagged union), =feedback_second_correction_means_wrong_shape= (fourth strike).
+- The last two style tweaks (result column widths) compiled clean and landed with a daemon restart I did not re-verify in Chrome.
+
+* owed
+
+- *beef*: the commits — paladin, assembly, droneaid, the repo. Nothing has been committed in any of them this session.
+- *beef*: whether the db should be purged again after my verification runs.
+- *mine*: re-import of the same file overwrites by slug (the domain's doors upsert); nothing deletes a slug that a later parse no longer produces.
+- *mine, in the transmutation space, not built*: handedness detection (negative determinants → a mirror knob) · slug collisions with rows already in the domain, shown before commit · materials and textures · animation pose.
+- *MARKERS*: both entries stay OPEN — the empty-cortex boot warning and the cortex snapshot coverage. Seventh consecutive fold; neither was in this session's path.
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | sessions   |
+|-------------------------+-----------+----------+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| ledger-recipe           |  67% 8/12 | building | beef — the number · fork 2 (which instance slims for the runtime live boot; droneaid proposed) · commits in typology, paladin, ghost, commons · the runtime live boot. m0 done: =~/.viva/ledger.viva.js= speaks (no manifest, the environment block in), =~/.viva/.env= authored, chess slimmed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        | 1 (1 live) |
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 1          |
+| m67-assembly-ontology   |   0% 0/3  | building | beef — drop your blend, check the names (the interpreter folded flightcontroller00/01 into one board), then the corrections you want and the write to @droneaid/topography/model · commits in paladin, assembly, droneaid, the repo. ikiro — re-embed of a corrected member (a minted row has no way back today). done 09-21 evening on beef's order: the db purged (captured first at =~/.viva/bak/instances/droneaid-20260921/daemon_droneaid-db-1933=), pt10 out of the kernel and its bundles off the mountpoint; the fresh boot reads 0 literals · 69 symbols · 0 buffers · 0 threads, users untouched. open: one drop at 19:01 interpreted every loose object where a scoped call was sent — not reproduced at 19:18 (the same path, scoped, clean); watch for it on the live walk. ruling 16 after the first write; =bundle/svelte.js:46= on go. | 2 (2 live) |
+| m68-paladin-pipeline    |   0% 0/15 | designed | beef — rule fork 1 (the wire verb's name) · fork 2 (seats: paladin or the registry) · fork 3 (=runtime= slot required on instance) · then "go" per milestone. no apply until then.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 1 (1 live) |

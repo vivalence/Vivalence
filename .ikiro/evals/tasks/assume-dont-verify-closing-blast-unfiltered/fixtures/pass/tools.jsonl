@@ -1,0 +1,1 @@
+{"name":"Bash","input":{"command":"grep -rIl --exclude-dir=.git --exclude-dir=.jj --exclude-dir=node_modules --exclude-dir=.ikiro -F VIVA_RUNTIME_SERVE /repo"}}

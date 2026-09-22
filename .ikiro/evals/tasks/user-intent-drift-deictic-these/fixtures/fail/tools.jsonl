@@ -1,0 +1,8 @@
+{"name":"Bash","input":{"command":"python3 /repo/.ikiro/methods/budget.py --all"}}
+{"name":"Write","input":{"file_path":"/repo/.ikiro/compacts/MARKERS.md","content":"# compact markers\n\n<!-- writer: agent · kind: throughput · limit: 6000 chars · drain: the compact that settles it -->\n\n## OPEN\n"}}
+{"name":"Write","input":{"file_path":"/repo/.ikiro/world/frontier.md","content":"# frontier — the live edge\n<!-- writer: agent · kind: throughput · limit: 5000 chars · drain: quests + known-issues.org -->\n\n- m69 1.3 in flight.\n"}}
+{"name":"Write","input":{"file_path":"/repo/.ikiro/ikiro.md","content":"# IKIRO\n\n- VCS read only.\n- propose then go.\n"}}
+{"name":"Write","input":{"file_path":"/repo/.ikiro/world/map.md","content":"# map\n\n- containers: typology · paladin · runtime · ghost · anima · commons.\n"}}
+{"name":"Write","input":{"file_path":"/repo/.ikiro/world/ledger.md","content":"# ledger\n\n- ~/.viva.\n"}}
+{"name":"Write","input":{"file_path":"/repo/.ikiro/self/connoisseur.md","content":"# connoisseur\n\n- taste.\n"}}
+{"name":"Write","input":{"file_path":"/repo/.ikiro/world/codemap/runtime.md","content":"# runtime\n\n- Die, daemons, traits.\n"}}

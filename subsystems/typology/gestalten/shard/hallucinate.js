@@ -67,3 +67,36 @@ export const synthesizing = (cortex) => (ctx) => {
 export const vocalizing = (cortex) => async (ctx) => {
   ctx.output = await belt.hallucinate.vocalize(faculty(cortex, "speech", "render", ctx.policy.tune), ctx.input, policyOf(ctx));
 };
+
+const questionmap = [
+  ["choice", (question) => "options" in question],
+  ["score", (question) => "levels" in question],
+  ["noul", () => true],
+];
+
+const tagged = (question) => ({ type: questionmap.find(([, sniff]) => sniff(question))[0], ...question });
+
+const width = (question) => (question.options ? Object.keys(question.options).length : question.levels ? question.levels.length : 2);
+
+export const tagging = () => async (ctx, next) => {
+  ctx.input = { ...ctx.input, questions: Object.fromEntries(Object.entries(ctx.input.questions).map(([key, question]) => [key, tagged(question)])) };
+  await next();
+};
+
+export const bounding = (cortex) => async (ctx, next) => {
+  const found = faculty(cortex, "choice", "render", ctx.policy.tune);
+  const { options = 26, choices = 1 } = found;
+  const name = found.config?.model ?? "choice";
+  const asked = Object.entries(ctx.input.questions);
+  if (!asked.length) throw new Error("[hallucination] a choice asks at least one question");
+  if (choices !== null && asked.length > choices) throw new Error(`[hallucination] '${name}' renders ${choices} question(s) at once; ${asked.length} asked`);
+  for (const [key, question] of asked) {
+    if (width(question) < 2) throw new Error(`[hallucination] "${key}" carries ${width(question)} option(s); a set is two or more`);
+    if (width(question) > options) throw new Error(`[hallucination] '${name}' holds ${options} options; "${key}" carries ${width(question)}`);
+  }
+  await next();
+};
+
+export const choosing = (cortex) => async (ctx) => {
+  ctx.output = await belt.hallucinate.choose(faculty(cortex, "choice", "render", ctx.policy.tune), ctx.input, policyOf(ctx));
+};

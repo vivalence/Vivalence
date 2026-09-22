@@ -8,13 +8,13 @@ const invoke = (armed, name, input) =>
 // three modes, three shapes: one that serves a mountpoint, one that carries freight, one with neither
 const vdex = {
   manifest: { type: "office", slug: "vdex", name: "VDex", traits: ["MOUNTED", "HARNESSED"] },
-  module: { mount: new Path("/registry/vcompany/modes/office/vdex/vdex.viva.js") },
+  module: { source: new Path("/registry/vcompany/modes/office/vdex/vdex.viva.js") },
   mountpoint: new Path("/Users/finn/vivalence/coorporation"),
   freight: { path: new Path("/Users/finn/vivalence/coorporation") },
 };
 const francesca = {
   manifest: { type: "tutor", slug: "francesca", traits: ["FRAUGHT", "HARNESSED"] },
-  module: { mount: new Path("/registry/education/modes/tutor/francesca/francesca.viva.js") },
+  module: { source: new Path("/registry/education/modes/tutor/francesca/francesca.viva.js") },
   freight: { path: new Path("/registry/education/modes/tutor/francesca/assets") },
 };
 const dewey = { manifest: { type: "teacher", slug: "dewey", traits: ["EXPOSED", "HARNESSED"] }, module: {} };

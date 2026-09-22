@@ -56,6 +56,12 @@ export class Cortex {
       .open({ nature: "stream", yields: Audio.Any }, shard.hallucinate.synthesizing(this))
       .open("render", shard.hallucinate.vocalizing(this));
 
+    this.#hallucinator
+      .branch("/choice")
+      .use(shard.hallucinate.tagging())
+      .use(shard.hallucinate.bounding(this))
+      .open("render", shard.hallucinate.choosing(this));
+
     this.hallucinate = compile(this.#hallucinator);
   }
 

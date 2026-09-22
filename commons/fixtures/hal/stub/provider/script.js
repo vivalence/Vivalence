@@ -12,11 +12,12 @@
 //   --timeout             yield nothing, ever; only the signal ends it
 //   --object '{"a":1}'    what the object avenue answers
 //   --say "text"          the text of the answer
+//   --close length        seal the turn with that state and NO parts — length · filter · error
 //
 // the flags are parsed by Signal, the repo's own CLI grammar — prose around them is left alone.
 import { Signal } from "@vivalence/typology";
 
-export const DEFAULTS = { deltas: 12, pace: 40, stall: 0, tool: null, rounds: 1, fault: null, timeout: false, object: null, say: null };
+export const DEFAULTS = { deltas: 12, pace: 40, stall: 0, tool: null, rounds: 1, fault: null, timeout: false, object: null, say: null, close: null };
 
 const MS = { ms: 1, s: 1000 };
 const DURATION = /^(\d+(?:\.\d+)?)(ms|s)?$/;
@@ -51,6 +52,7 @@ export function read(source, scripts = {}, depth = 0) {
   if (held.timeout) plan.timeout = true;
   if (held.object) plan.object = json(held.object);
   if (held.say) plan.say = String(held.say);
+  if (held.close) plan.close = String(held.close);
   return plan;
 }
 

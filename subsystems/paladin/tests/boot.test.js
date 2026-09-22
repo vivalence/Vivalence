@@ -1,14 +1,17 @@
 import { specimen } from "@vivalence/typology";
-import { Paladin, Ledger, Instance, Vip, populate, mount } from "@vivalence/paladin/typology";
+import { Path } from "@vivalence/typology";
+import { Paladin, Ledger, Instance, Registry, populate, mount } from "@vivalence/paladin/typology";
 import paladin from "@vivalence/paladin";
 
 const { describe, it, expect } = specimen;
 
 describe("paladin boot: constructed mountables, no ikiro", () => {
-  it("constructor wires ledger/vip as siblings — the lifecycle populates the instance", () => {
+  it("constructor wires the ledger; the registry is the ledger's, held once — the lifecycle populates the instance", () => {
     const fresh = new Paladin();
     expect(fresh.ledger).toBeInstanceOf(Ledger);
-    expect(fresh.vip).toBeInstanceOf(Vip);
+    fresh.scopes([["ledger", () => true, () => new Path("/tmp/boot")]]);
+    expect(fresh.ledger.registry).toBeInstanceOf(Registry);
+    expect(fresh.ledger.registry).toBe(fresh.ledger.registry);
     expect(fresh.instance).toBe(undefined);
     expect(populate.instance(fresh)).toBeInstanceOf(Instance);
     expect(fresh.instance).toBeInstanceOf(Instance);
@@ -22,8 +25,8 @@ describe("paladin boot: constructed mountables, no ikiro", () => {
     expect(paladin.ikiro).toBe(undefined);
   });
 
-  it("the booted default export already has vip from construction and an instance from the lifecycle", () => {
-    expect(paladin.vip).toBeInstanceOf(Vip);
+  it("the booted default export holds one registry and an instance from the lifecycle", () => {
+    expect(paladin.ledger.registry).toBeInstanceOf(Registry);
     expect(paladin.instance).toBeInstanceOf(Instance);
   });
 

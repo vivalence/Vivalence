@@ -1,0 +1,4 @@
+services:
+  runtime:
+    environment:
+      VIVA_RUNTIME_SERVE: "0.0.0.0:2501"

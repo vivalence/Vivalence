@@ -6,7 +6,7 @@ services:
       VIVA_INSTANCE_MOUNT: /viva/repository/commons/instances/multiplayer
       VIVA_LIGHTHOUSE_MOUNT: /viva/lighthouse
       VIVA_RUNTIME_ORIGIN: http://0.0.0.0:2502
-      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: ${PUBLIC_VIVA_LIGHTHOUSE_REMOTE:-http://localhost:2502/attached/process/lighthouse/multiplayer}
+      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: ${PUBLIC_VIVA_LIGHTHOUSE_REMOTE:-http://localhost:2502/attached/process/service/lighthouse/multiplayer}
       SECRET_VIVA_JWT: ${SECRET_VIVA_JWT}
     ports:
       - "2502:2502"
@@ -21,7 +21,7 @@ services:
     environment:
       VIVA_INSTANCE_MOUNT: /viva/repository/commons/instances/hello-world
       PUBLIC_VIVA_RUNTIME_REMOTE: ${PUBLIC_VIVA_RUNTIME_REMOTE:-http://localhost:2501/}
-      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: http://lighthouse:2502/attached/process/lighthouse/multiplayer
+      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: http://lighthouse:2502/attached/process/service/lighthouse/multiplayer
       SECRET_VIVA_JWT: ${SECRET_VIVA_JWT}
       SECRET_VIVA_ANTHROPIC_API_KEY: ${SECRET_VIVA_ANTHROPIC_API_KEY:-}
       SECRET_VIVA_OPENROUTER_API_KEY: ${SECRET_VIVA_OPENROUTER_API_KEY:-}
@@ -35,7 +35,7 @@ services:
     image: vivalence/anima:alpine
     container_name: anima
     environment:
-      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: ${PUBLIC_VIVA_LIGHTHOUSE_REMOTE:-http://localhost:2502/attached/process/lighthouse/multiplayer}
+      PUBLIC_VIVA_LIGHTHOUSE_REMOTE: ${PUBLIC_VIVA_LIGHTHOUSE_REMOTE:-http://localhost:2502/attached/process/service/lighthouse/multiplayer}
     ports:
       - "1794:1794"
 

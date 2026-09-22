@@ -34,8 +34,8 @@ export async function bootstrap(ctx) {
     const chosen = await pick(ctx, await lens.modes({ type: "package" }), input);
     if (chosen?.aborted) return (ctx.effect = { aborted: true });
     if (chosen) {
-      const module = await paladin.vip.accio(chosen.reference);
-      from = dirname(module.mount.absolute);
+      const module = await paladin.ledger.registry.accio(chosen.reference);
+      from = dirname(module.source.absolute);
     } else {
       const local = path.pin(input);
       const stat = await Deno.stat(local);
@@ -59,7 +59,7 @@ export async function bootstrap(ctx) {
   await Deno.mkdir(target, { recursive: true });
   await Deno.writeTextFile(`${target}/package.viva.js`, declare({ owner, slug, version }));
 
-  await paladin.vip.tap(target);
+  await paladin.ledger.registry.tap(target);
 
   ctx.effect = {
     package: `${owner}/package/${slug}`,
@@ -67,6 +67,6 @@ export async function bootstrap(ctx) {
     slug,
     target,
     from,
-    record: await paladin.ledger.registry.list(),
+    record: await paladin.ledger.registry.references(),
   };
 }

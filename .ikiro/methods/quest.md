@@ -4,7 +4,7 @@ The persistent design surface maintained alongside beef (`**.ikiro/<name>.quest.
 
 ## Structure (an implementation quest carries)
 
-Header keys the report totem reads (`self/totems.md ## quest report`): `#+status:` prose (beef's voice, never edited by me; its keywords drive the phase) · `#+marker_qa:` verdicts (`pending → held | broken | revised`, plus DONE/DROPPED/PASSED as seen in practice) · optional authored overrides `#+phase:` `#+progress:` `#+next:` — the report stamps these three with a `(derived)` suffix; a value without the suffix is authored and wins.
+Header keys the report totem reads (`methods/quest-report.py --help`): `#+status:` prose (beef's voice, never edited by me; its keywords drive the phase) · `#+marker_qa:` verdicts (`pending → held | broken | revised`, plus DONE/DROPPED/PASSED as seen in practice) · optional authored overrides `#+phase:` `#+progress:` `#+next:` — the report stamps these three with a `(derived)` suffix; a value without the suffix is authored and wins.
 
 - **Intent** — what + why, the unifying idea in a few lines.
 - **The decision trail** — the locked design, each fork resolved with the reasoning that settled it (so it is not re-litigated next session). Quote beef verbatim at the load-bearing turns (`feedback_compact_verbatim_user_voice`).
@@ -14,7 +14,7 @@ Header keys the report totem reads (`self/totems.md ## quest report`): `#+status
 - **QA instructions** — two perspectives: human testimony + programmatic markers (see below).
 - **Blast table** — every touchpoint (`file` · change · milestone · kind), sized.
 - **Deferred** — what's out of scope now + the trigger that reopens it.
-- **Forks** — decisions to call before blasting.
+- **Forks** — decisions to call before blasting. Every decision put to beef, in chat, carries its address: `quest.org:LINE` for the fork AND for the hunk it lands, `file:LINE` for the code he must read — grepped at reply time, never recalled (lines drift with every edit above them). beef: *"I also navigate by line. So for all of the code that I'm supposed to look at and the decisions I'm supposed to make, tell me what lines I'm at."*
 - **Changelog** — session-relative, no dates in compacts; quests may date the changelog.
 - **Release** — MANDATORY (may read `none: no interface moved`): every interface delta as ONE line in the single-change format of the `release` skill (`skills/release/SKILL.md`) — `- <verb> \`<surface>\` — <what a consumer notices> · migrate: <action | none> ⟨<quest>⟩`, verb ∈ added·changed·renamed·removed·fixed. Accrues during landing; at sunset the lines LIFT verbatim into `.ikiro/release.md ## unreleased` (quest-lifecycle organ gate). Release ≠ quest (beef, emphatic): the quest records what HAPPENED and merely FEEDS the release ledger; Release records what a CONSUMER now types differently — never merge the two.
 

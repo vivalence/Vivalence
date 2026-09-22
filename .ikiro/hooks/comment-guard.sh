@@ -41,6 +41,7 @@ hits=$(grep -nE '^[[:space:]]*(//|/\*)|[^:]//|[[:space:]]/\*' <<<"$content" \
        | grep -vE '@beef|TODO|eslint|prettier|@ts-|https?:' || true)
 
 if [ -n "$hits" ]; then
+  printf '%s comment-guard deny %s authored-comment\n' "$(date +%s)" "$(jq -r '.session_id // "nosession"' <<<"$input")" >> "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null
   jq -n --arg r "comment-litter gate (kernel no-comments law): authored // lines in product source.
 Strip them — code is self-documenting. If genuinely a beef note, prefix @beef or TODO.
 $hits" '{

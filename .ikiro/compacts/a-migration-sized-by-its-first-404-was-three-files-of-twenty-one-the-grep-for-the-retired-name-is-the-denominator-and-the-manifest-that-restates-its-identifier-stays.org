@@ -1,0 +1,58 @@
+#+title: a migration sized by its first 404 was three files of twenty-one, the grep for the retired name is the denominator, and the manifest that restates its identifier stays
+#+index: 198
+#+session: the seventh arc of session fc59f22c (turns 77–86; 1–7 are #186, 8–21 #188, 22–38 #190, 39–48 #191, 49–59 #194, 60–76 #197). One post-sunset fault on m68, its whole radius migrated, one design question ruled.
+
+* one breath
+
+Straight after the #197 fold beef booted the runtime and pasted two failures (78–79). The watcher died at boot: =ConnectionError: Client error: 404 @ /attached/process/lighthouse/multiplayer/entities/daemon/ensure=, the OLD seat, from =announce=. Anima, a second later, failed every call to the NEW seat with a CORS NetworkError, because nothing was listening. /"i think you fucked up the migration"/ (80). Two replies were cut by the harness's classifier (81–82); /"go"/ (83) reopened it. A probe of the booted instance showed it was =chess=, not droneaid. Its recipe still declared =VIVA_LIGHTHOUSE_SERVE=, still said =manifest: { type: "service", slug: "multiplayer" }=, and its =.env= pinned =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= through the retired key. In #197 I had migrated the three files droneaid's 404 pointed at. One grep for the retired name printed 21 on the shelf: thirteen recipes, five =.env=, stucatch's =environment.json=. All migrated with the same four edits, captured first under =~/.viva/bak/lighthouse-migration-<date>/=. Live on chess: 0 404s, =/metadata/services= printed the new seat, and =POST …/service/lighthouse/multiplayer/manifest= answered 200.
+
+Mid-turn (84) beef pasted a two-line view of old and new manifest (a diff, not a duplicate; the file holds one) and asked: /"should this manifest be superflous? not required?! or?!"/. The answer was yes for this case. The identifier =@commons/lighthouse/multiplayer= says the same type and slug, and =identity()= at =paladin/lifecycle/resolve.js:66= already derives them for kernel entries. Three forks went to him: keep it required, make it optional and derived with the declared value winning, or always derive. /"ok leave it."/ (85). It stays REQUIRED. Before folding, the question "anything open?" turned up the checkout half of the same migration: the lighthouse host's =docker-compose.yml= held three pinned literals at the old seat (the prod shape), and so did =fixtures/data/live.js=, both lighthouse tests, =README.md= (its service block had no manifest at all), docs 51.02 and 32.01, and the =@education= README. All moved. The residue grep now holds two commented-out lines and one typology test that uses the path as a synthetic string.
+
+* the spine — 86 turns, this fold 77–86
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 77 | =/compact= (the harness) | the #197 fold ran; gate passed | — |
+| 78 | mid-turn: watcher paste, =404 @ /attached/process/lighthouse/multiplayer/entities/daemon/ensure= at =integrate.js:61= | the address read as OLD: something still pins it | — |
+| 79 | mid-turn: anima console, CORS NetworkError on =…/service/lighthouse/multiplayer/auth/verify= and =/manifest= | read as downstream: the runtime was dead | — |
+| 80 | mid-turn: /"i think you fucked up the migration"/ | — | my #197 claim that the migration was verified |
+| 81 | continuation summary (the harness) | NOTHING | — |
+| 82 | classifier notice (the harness) | NOTHING; two replies withheld | — |
+| 83 | /"go"/ | probe: instance =chess=, remote at the OLD seat; census 21 shelf files; 19 captured; migration script (manifest → =lighthouse=, =statics.serve= out, =VIVA_LIGHTHOUSE_SERVE= row out, remote =.optional()=); the checkout's =commons/instances/multiplayer= seat + two literals; eight =.env= cleaned of orphan comments; chess boots 0 404s, seat 200; callout =flag-day-radius=; =release.md:81= carries the denominator | =VIVA_LIGHTHOUSE_SERVE= on the shelf |
+| 84 | mid-turn: /"should this manifest be superflous? not required?! or?!"/ | the diff view identified; readers of =service.manifest= listed (=resolve.js:23,41=, runtime =resolve.js:109=, =populate.js:194=); =instance.js:70= requires it; three forks with lines | — |
+| 85 | /"ok leave it. where are we in the process? anything open? else compact"/ | fork 1 RULED (required), in m68's changelog and the m68 memory; checkout residue migrated: compose ×3, =live.js=, two lighthouse tests, README, docs 51.02 and 32.01, =@education= README (captured) | deriving the manifest (forks 2 and 3) |
+| 86 | the compact-walk skill (the harness) | this fold | — |
+
+Coverage: 77–86, ten turns, each once. 77, 81, 82, 86 are the harness.
+
+Balance on the fold's N=10: first third (77–79) two pastes, middle (80–83) the correction and the whole shelf migration, last third (84–86) the question, the ruling, the checkout residue. The weight sits in the middle because that is where beef corrected and said go.
+
+* failures
+
+- **the reproduction taken as the radius** — #197 migrated the three files the droneaid 404 named and called the migration verified by a droneaid boot. The retired name's grep was the denominator: 21 on the shelf, then 13 more hits in the checkout found only at 85. Callout =flag-day-radius= (RULE FAILURE of [[feedback_flag_day_radius]]); =release.md:81= now names the grep.
+- **the checkout half found on a status question** — at 83 the grep ran over =~/.viva= and the checkout for the KEY, not for the old PATH literal. The compose file, the fixture and the tests hold the path, not the key. The residue grep must cover every spelling a flag day retires: the key AND the value it produced.
+- **a kill on an unread PID** — clearing =:2501=, =lsof -ti= returned a client socket; I killed PID 54044 before reading its command. It was Chrome's network-service helper. Chrome restarts it. =lsof -ti:<port>= lists clients too; =-sTCP:LISTEN= names the listener. Callout =assume-dont-verify=.
+
+* State at fold
+
+- m68 in =done/=, sunset holds; changelog +1 (the true radius, the ruling).
+- Shelf and checkout: =VIVA_LIGHTHOUSE_SERVE= and the old seat gone from every live file; residue is two comments and =typology/tests/env.expansion.test.js= (synthetic).
+- Ruled: service =manifest= REQUIRED even where it restates the identifier — /"ok leave it."/
+- Owed (=world/frontier.md ## owed=, m68 line): commits; prod re-pin of =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= to the lighthouse host's =/attached/process/service/lighthouse/multiplayer= — the checkout's =commons/instances/multiplayer/docker-compose.yml= now carries that shape.
+- Markers OPEN: none.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| compact-walk | 85 | HELD | spine by id, fold N stated, coverage every turn |
+| rename-pass | 83 | MISSED | a retired env var is its trigger; its residue grep over repo + =~/.viva/instances= + every tapped package would have found all 34 files in one pass instead of two |
+| capture-before-delete | 83 | MISSED | captures were made (19 + 1) by rule from memory, the skill not fired; no loss |
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | sessions   |
+|-------------------------+-----------+----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| ledger-recipe           |  67% 8/12 | building | beef — the number · fork 2 (which instance slims for the runtime live boot; droneaid proposed) · commits in typology, paladin, ghost, commons · the runtime live boot. m0 done: =~/.viva/ledger.viva.js= speaks (no manifest, the environment block in), =~/.viva/.env= authored, chess slimmed.                                                                                                                                                                                                                                                                                                                                              | 0          |
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 1          |
+| m67-assembly-ontology   |  64% 9/14 | building | beef — one number settles the centring: the =/resolve= response's =motor_2/motor.1= translation and rotation off the network pane. then sign in so the editor can be walked by me at all (i do not type credentials), re-import the blend so =harvest.py='s stray fix takes, and confirm the navigation standard. standing: the typology one-liner (=connection-aim-dedupes-arrays=), the mode's name, commits, the =assembly=/=component= symbol purge, @droneaid vcs init. ikiro — the =unique(slug)= migration (ruling 24 is code-only), a mount rig for this package's views (the standing coverage gap), re-embed of a corrected member. | 2 (2 live) |

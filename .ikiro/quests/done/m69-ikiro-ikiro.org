@@ -1,0 +1,241 @@
+#+title: m69 ikiro ikiro — ikiro rebuilds its own harness from the 09-23 research
+#+filetags: :ikiro:harness:selfmod:
+#+status: DESIGNED, nothing built. Three steps, twelve substeps, six forks owed to beef. Terrain measured 09-23 after the baseline cut; the pre-cut tree is captured at =~/.viva/bak/ikiro/throughput-20260923/= and is the control arm of step 1's eval.
+#+phase: design (derived)
+#+progress:   0% 0/10 (derived)
+#+next: go (derived)
+
+* intent
+
+beef, 09-23, after the baseline cut:
+
+/"this was a bit too agressive. some files are throughput. not each and every one of them. some are more static. map, ledger, codemaps, ikiro root, coneusseur ... these are all quite persistant. not an issue that you evicted them tho. we will rebuild them. better. you know how to build harnesses now since you did all that research in the references. i want you to take that knowledge and improve yourself. write up a three step, 12 substep plan for how to rebuild yourself. quest 69. ikiro ikiro"/
+
+and mid-turn: /"hackernews.md, reddit.md, primary.md and viva-census.md."/
+
+on the census: /"this is catastrophic. map and ikiro must alwasy be read. ontology and coneusseur probable in 50%. ledger maybe 15%-25%. why is this. memory should be pruned too. work the memories up into ikiro content where fits."/
+
+and the law under it: /"on reason i want ikiro code and data heavy is that i want your responses data and code heavy. and you are primed by your first 50k tokens. more code and data in there, more code and data out. thast why we did snapshot testing. so you have something to look at!"/
+
+The order that preceded it: /"budget is the upper limit. baseline is 15% of budget. these are throuput vectors. work them through. trash them."/ — right for the throughput files, too broad for the persistent ones.
+
+* terrain — measured 09-23, this session
+
+Channels — what reaches my context, and how:
+
+| channel | loads | measured |
+|---|---|---|
+| Claude Code base prompt + tool catalog | always | wake median *55 960 tokens* (min 42 474 · max 116 897) over the last 40 transcripts, first assistant turn's input + cache read + cache creation |
+| =MEMORY.md= (auto-memory index) | always | 19 686 bytes of a 20 KB hook · 301 memory files · NOT version-controlled |
+| SessionStart hooks' additional context | always | two output-style blocks inject every turn (caveman · learning) — beef's settings, not ikiro's |
+| skills listing (frontmatter) | always | 28 skills · 120 firings all-time · 10 never fired (=skills.py --fold=) |
+| =.claude/rules= → =.ikiro/world/codemap/= | by path glob | 10 shards; the ONLY ikiro channel that loads without a read |
+| =.ikiro/ikiro.md= (the kernel) | deliberate read only | read in *31 of 60* recent sessions — no =CLAUDE.md= exists in the repo, the README's Agent Directive is the only pointer |
+| =self/*= | deliberate read only | rituals 15/60 · lexicon 4 · connoisseur 2 · ontology 1 · identity 1 |
+| =world/{map,ledger,frontier}.md= | deliberate read only | map 8 · ledger 7 · frontier 21 |
+| ledgers | deliberate read only | zettelkasten 18 · known-issues 16 · quests/index 23 |
+
+So the persistent files beef named — kernel, connoisseur, map, ledger — are either half-read (the kernel) or practically dark (connoisseur 2/60). The research predicts exactly this: /"anything it can't access in-context while running effectively doesn't exist"/ (OpenAI, =reference/harnesses/primary.md=).
+
+Budgets after the 09-23 cut (=methods/budget.py --all=): 23 files, 37 220 chars of a 256 800 cap (14.5%). Before, e.g.: =ikiro.md= 10 352 → 1 244 · =self/connoisseur.md= 14 079 → 1 628 · =world/ledger.md= 17 558 → 1 663 · =world/codemap/runtime.md= 21 989 → 3 296. Every file has one kind today — a =limit:= — and the cut treated all of them as throughput.
+
+Enforcement:
+- 11 guard scripts in =.ikiro/hooks/=, 10 hook entries wired in =.claude/settings.json=, rig =hooks/exercise.sh= 34/34.
+- Callouts ledger: 211 headings, 50 families. =yap-wrong-artifact= measured worse since 09-22: median 257 words outside fences, 62% of turns over 200. The claim-guard is retired (beef 09-19), so =assume-dont-verify= has no numerator.
+
+Research that bears on this, all in =.ikiro/reference/harnesses/= (cited by file and entry — the four files were merged the same evening into =reference/harnesses/harness.md=, whose §12.4 maps them: =primary.md= → §9 + S ids · =hackernews.md= #N → HN #N and =reddit.md= #N → R #N in §12.3 · =viva-census.md= → §4.4 + §10.1):
+- memory files short, hand-written, table of contents not encyclopedia (OpenAI ~100 lines, HumanLayer <60) · /"repository overviews … are not helpful"/, context files +20% cost for no gain (ETH) — =primary.md=
+- an always-loaded compressed index 100% vs skills 79%, skills never invoked in 56% of cases (Vercel) — =hackernews.md= #7
+- /"Every component in a harness encodes an assumption about what the model can't do on its own"/; Anthropic cut 80% of Claude Code's prompt for the Claude 5 generation with no measurable loss — =primary.md= · =hackernews.md= #6
+- reset + structured handoff beats compaction; /"You're better off with a handoff file and using clear"/ — =primary.md= · =reddit.md= #11
+- /"There is NO way to guarantee compliance only via the prompt … scripted deterministically"/ · =.claude/rules= /"seems to work better for me than CLAUDE.md"/ — =reddit.md= #10
+- grade the artifact not the path · 20–50 real tasks · pass^k · read the transcripts · gaps under 3 pts are noise — =primary.md= (Anthropic evals, infra noise)
+- auto-memory distrusted; version-controlled memory preferred — =hackernews.md= #6
+- the census of viva's own 19 harnesses (=viva-census.md=) — the same laws apply to them; that work is NOT this quest (→ deferred)
+
+* forks — beef's to rule
+
+| # | fork | options | lean |
+|---|---|---|---|
+| F1 | the kind names | =static · throughput · ledger= · =persistent · throughput · ledger= · his words | =persistent= — his word |
+| F2 | the kernel's channel | RULED by beef — the TARGETS: kernel + map always · ontology + connoisseur ~50% · ledger 15–25%. Mechanism landed 09-23 inside =.ikiro/=: symlinks in =world/codemap/= (= =.claude/rules/=) — =ikiro.md= · =map.md= with no =paths:= (load at launch), =connoisseur.md= · =ontology.md= · =ledger.md= path-gated. Open: a repo-root =CLAUDE.md= importing the kernel is the only channel the docs promise survives =/compact= | measure with =hooks.log-loaded= first; add =CLAUDE.md= only if the always-on rules drop at compaction |
+| F3 | memory under version control | move =~/.claude/projects/…/memory/= into =.ikiro/memory/= with a symlink back · leave it outside VCS | move — 301 files with no history is the one store a cleanup can lose |
+| F4 | the eval's size | tasks × trials × arms: 24 × 3 × 2 = 144 headless runs · 12 × 2 × 2 = 48 | 24 × 3 × 2, run once as the baseline, then 12 × 2 per ablation — token spend is gated, the count is his |
+| F5 | the budget of a persistent file | its cap only · a band (e.g. 30–60% of cap) · rebuild on drift, no size target | cap only + the derived half regenerated, so size follows the territory |
+| F6 | where generated halves live | inside the shard between markers · a sibling =*.gen.md= | inside, between markers — one file per channel, the rules glob loads one path |
+
+* the law
+
+#+BEGIN_EXAMPLE
+Every ikiro file declares a KIND. PERSISTENT files are rebuilt, never trashed: an authored half
+(traps, laws, rulings — what the code cannot show) and a generated half (re-derived from the
+territory by a script at stamp time). THROUGHPUT files idle at 15% of their cap and drain to an
+owner. LEDGERS are append-only.
+
+What loads first primes what comes out: persistent files are CODE and DATA — snippets with their
+paths, JSON probes, snapshots, before/after — never prose about code. Prose in the prefix, prose
+in the reply.
+
+A file matters only through the channel that loads it. Each persistent file names its channel,
+and the channel census measures whether it arrives.
+
+A rule that can be checked is a hook or an instrument. A rule that cannot be checked is a line
+in a table of contents, or it is deleted. Compliance is scripted, never begged.
+
+A change to the harness is proven by the eval, never by resembling a better harness: the same
+tasks, the same model, pass^k before and after, transcripts read. Deltas under the noise floor
+are not results.
+#+END_EXAMPLE
+
+* milestones — three steps, twelve substeps
+
+Each step boots green at its boundary: =budget.py= exit 0 · =hooks/exercise.sh= all PASS · =skills.py --fold= parses every ledger line · the quest report reads this quest.
+
+** step 1 — MEASURE: the kind law, the channel census, the eval, the baseline
+
+*** 1.1 the kind law
+- Every budgeted file's header carries =kind: persistent | throughput | ledger= (names per F1).
+- =methods/budget.py= reads the kind: persistent → cap only (F5), throughput → cap + 15% baseline, ledger → skipped.
+- =skills/budget-eviction= and the flywheel's prune step fire on THROUGHPUT only — the 09-23 overreach becomes impossible, not just discouraged.
+- The kinds, from beef's list and the census: persistent = =ikiro.md= · =self/connoisseur.md= · =self/ontology.md= · =self/lexicon.md= · =self/identity.md= · =world/map.md= · =world/ledger.md= · =world/codemap/**=; throughput = =world/frontier.md= · =loop-backlog.md= · =zettelkasten.md ## Open= · =compacts/MARKERS.md=; ledger = =zettelkasten.md ## Callouts= · =known-issues.org= · =release.md= · =skills/LEDGER.md=.
+- Gate: =budget.py --all= prints a kind per row; an ABOVE line is printed only for throughput.
+
+*** 1.2 the channel census
+- =methods/channels.py=: per session over the transcripts, (a) wake tokens split by source where the transcript allows it, (b) which ikiro files were read and by which verb (Read · cat · sed · grep), (c) which rules shards auto-loaded (path matched), (d) which skills fired.
+- Output: one table per file — sessions that saw it / sessions it was relevant to (a session touching its paths).
+- Replaces the throwaway probes of this session (=scratchpad/wake.py=, =scratchpad/reads.py=).
+- Gate: the census reproduces this quest's terrain numbers (31/60 kernel, 2/60 connoisseur) on the same window.
+
+*** 1.3 the eval set
+- 24 real tasks mined from the Callouts ledger and the compacts — each one a correction beef had to make, turned into a task with a GRADED ARTIFACT: the defect caught, the rule applied, the file placed right. /"grade what the agent produced, not the path it took"/.
+- Spread across the top families: =assume-dont-verify= · =yap-wrong-artifact= · =user-intent-drift= · =scope-inflation= · =live-system-unaware= · =pin-ontology-before-naming= · =rule-not-self-applied= · =fit-existing-trees=.
+- Each task: prompt · fixture (a copy of the tree at that moment, or a minimal repro) · grader (a script: grep, test, hook replay, file placement) · the ledger entry it came from.
+- Store: =.ikiro/evals/tasks/<family>-<slug>/{prompt.md,grade.sh,source.md}=.
+- Gate: every grader is exercised against the ledger's own failing artifact → FAIL, and against the corrected one → PASS. An ungraded task is not in the set.
+
+*** 1.4 the runner and the baseline
+- =methods/eval.sh=: =claude -p --model claude-opus-5-5 --output-format stream-json --max-turns N= inside an =rsync= copy of the repo in the scratchpad — never a git worktree (VCS writes are forbidden).
+- Pinned: model, effort, max turns, timeout, the copy's hooks. Results to =.ikiro/evals/runs/<date>-<arm>.jsonl= — pass@k, pass^k, tokens, turns.
+- Two arms (size per F4): the post-cut tree (today) and the pre-cut tree from the backup — the 09-23 cut is a natural ablation, measured instead of argued.
+- Gate: both arms run; three transcripts per arm are READ and one line written on each; the noise floor is measured by re-running one arm.
+
+** step 2 — REBUILD the persistent surfaces, better
+
+*** 2.1 the kernel as a table of contents
+- =.ikiro/ikiro.md= ≤ 100 lines: hard gates (VCS · manifest · propose→go), the routing table /"before you touch X, read Y"/ (container → shard, act → skill), and a compressed one-line index of every skill (the Vercel hybrid: always-loaded index + on-demand bodies).
+- The channel per F2. Nothing descriptive: /"repository overviews … are not helpful"/.
+- Gate: the census shows the kernel in every session of the window; the eval does not regress against 1.4's baseline beyond the noise floor.
+
+*** 2.2 the codemaps, half generated
+- =methods/codemap.py <container>=: the generated half — exports per barrel, tasks, entry points, test files, the live taps — written between markers (F6), regenerated at stamp time, never hand-edited.
+- The authored half: traps only, each citing its source (a ledger entry, a known-issues id, a compact) — the 09-23 cut already reduced each shard to roughly this; the rebuild re-grounds every kept line against the source and the code.
+- =verified:= stamps name the check that ran (=codemap.py= exit, trap sources resolved).
+- Gate: =codemap.py --check= finds no drift between the generated half and the tree; every trap resolves to a source.
+
+*** 2.3 map, ledger, connoisseur
+- =world/map.md=: generated from the workspace probe (=deno.jsonc= members, tasks, run surfaces) + an authored line per container.
+- =world/ledger.md=: generated from =viva instance/doctor --json= and the ghost trajectories' verb table + the authored traps (the ten kept on 09-23).
+- =self/connoisseur.md=: the nineteen triggers authored; the canon examples EXTRACTED by =path:line= at build time — a pasted excerpt rotted three times, an extracted one cannot.
+- Each names its channel and is added to 2.1's routing table where it applies (connoisseur ← any code landing; ledger ← =~/.viva= work).
+- Gate: census relevance ratio up on all three; the eval's code-shape tasks (=imperative-js-reflex=, =fit-existing-trees=) do not regress.
+
+*** 2.4 memory, folded and versioned
+- Per F3: memory under =.ikiro/memory/=, version-controlled.
+- The index as a table of contents: =project_*= facts that describe the code move to their codemap's traps or their quest; =MEMORY.md= keeps user · feedback · reference and live project pointers.
+- Target from the research, not from the hook: the index is read at every wake, so every line is paid every session.
+- Gate: =MEMORY.md= ≤ 10 KB; no memory body lost (count before = moved + kept + deleted-with-reason); the eval does not regress.
+
+** step 3 — WIRE the loop: throughput, backpressure, reset, decay
+
+*** 3.1 throughput vectors, formalized
+- Each throughput file declares its DRAIN (frontier → quests and known-issues · loop-backlog → quests · =## Open= → quests or trash · MARKERS → the compact that consumes it).
+- =hooks/compact-gate.sh= refuses a fold while a throughput file sits above baseline, and prints which drain it owes.
+- Gate: the rig exercises the gate against a throughput file above baseline (deny) and a persistent one above 15% (allow).
+
+*** 3.2 the compact as a handoff
+- /"reset beats summarize"/: a compact ends in a structured handoff block — =goal · done · next · never · owed=. The next session reads the latest one first; =world/frontier.md= is derived from the live handoffs, not hand-written.
+- =methods/compact.md= and =skills/compact-walk= gain the block; =methods/handoff.py= derives the frontier.
+- Gate: the frontier regenerates byte-identical from the handoffs; a fresh session given only the handoff lands its next step (one eval task per handoff shape).
+
+*** 3.3 backpressure over prose
+- Every rule in the kernel and the skills is sorted: CHECKABLE → a hook, an instrument or a grader in the eval set; UNCHECKABLE → a routing line or deleted.
+- Guards emit errors only (/"Backpressure should surface errors only"/).
+- Owed rungs from the scoreboard land here as proposals for beef's wiring call: the yap meter warns in-turn · watch-guard → deny · vcs-guard skips heredoc bodies · a narrowed claim-guard.
+- Gate: each kernel rule carries its enforcer or its routing role in the table of contents; =hooks/exercise.sh= covers every wired guard.
+
+*** 3.4 the decay audit
+- The reflection pass becomes an ABLATION: remove one component (a kernel line, a skill, a shard's authored half, a hook), re-run the step-1 eval subset, keep only what moves pass^k beyond the noise floor.
+- Re-run whenever the model generation changes (Opus 5.5 today, Fable 5.1 next) — /"harnesses have to keep getting simpler as models are post-trained on agent trajectories"/.
+- Results land as Scoreboard rows, so the harness has a numerator that does not route through beef's attention.
+- Gate: one full ablation round recorded; at least one component deleted or kept on the evidence, with the numbers.
+
+* blast table
+
+| file | change | substep | kind |
+|---|---|---|---|
+| =.ikiro/methods/budget.py= | read =kind:=; baseline only for throughput | 1.1 | edit |
+| every budgeted file's header | =kind:= field | 1.1 | edit |
+| =.ikiro/skills/budget-eviction/SKILL.md= · =skills/flywheel/SKILL.md= | throughput-only | 1.1 | edit |
+| =.ikiro/methods/channels.py= | new | 1.2 | new |
+| =.ikiro/evals/tasks/**= | 24 tasks + graders | 1.3 | new |
+| =.ikiro/methods/eval.sh= · =.ikiro/evals/runs/= | runner + results | 1.4 | new |
+| =.ikiro/ikiro.md= | TOC rebuild | 2.1 | rewrite |
+| =CLAUDE.md= (repo root) | import line, per F2 | 2.1 | new — outside =.ikiro/=, beef's go |
+| =.ikiro/methods/codemap.py= | new | 2.2 | new |
+| =.ikiro/world/codemap/*.md= (10) | generated half + re-grounded traps | 2.2 | rewrite |
+| =.ikiro/world/map.md= · =world/ledger.md= · =self/connoisseur.md= | half generated | 2.3 | rewrite |
+| =~/.claude/projects/-Users-finn-vivalence-code-vivalence/memory/= → =.ikiro/memory/= | move + symlink, per F3 | 2.4 | move — capture first |
+| =.ikiro/hooks/compact-gate.sh= · =hooks/exercise.sh= | throughput drain gate | 3.1 | edit |
+| =.ikiro/methods/compact.md= · =skills/compact-walk/SKILL.md= · =methods/handoff.py= | handoff block + derived frontier | 3.2 | edit + new |
+| =.claude/settings.json= | rungs beef approves | 3.3 | edit — beef's wiring call |
+| =.ikiro/skills/reflection/SKILL.md= | ablation pass | 3.4 | rewrite |
+
+Nothing under =systems/= · =subsystems/= · =commons/= · =~/.viva/registry= moves.
+
+* testing assessment
+
+- *in place*: =hooks/exercise.sh= (34 cases) · =methods/quest-report.py --test= · =budget.py='s own refusal on an empty selector. COVERAGE GAP: nothing measures whether a harness change helps. The only numerator today is beef's corrections, and the Scoreboard's own header says /"quiet measures BEEF'S ATTENTION, not my behaviour"/.
+- *adds*: the eval set (1.3) with a grader per task · =channels.py= reproducing the terrain numbers · =codemap.py --check= · the compact-gate throughput case in the rig · the handoff → frontier regeneration check.
+- *per-step green ladder*:
+
+| step | gate |
+|---|---|
+| 1 | kinds in =budget.py= · census reproduces terrain · every grader FAIL→PASS on its own source · both arms run, transcripts read |
+| 2 | kernel in every session · =codemap.py --check= clean · memory count reconciles · eval within noise of baseline or better |
+| 3 | rig covers the throughput gate · frontier regenerates · one ablation round recorded |
+
+- Pre-DONE: a step is DONE when its gate's output is pasted into the changelog, never on a description of it.
+
+* QA
+
+① testimony — I start a fresh session in this repo and type /"what are the hard gates here?"/; I see the VCS law without having read any file. I touch =systems/runtime/…= and the runtime shard's traps are in context. I ask /"which skill for a rename?"/ and the kernel's index answers before any skill body loads.
+
+② markers
+
+#+marker_qa: m69-ikiro-ikiro/P-kind-law · pending · =budget.py --all= prints a kind per row and ABOVE only for throughput
+#+marker_qa: m69-ikiro-ikiro/P-census-reproduces · pending · =channels.py= over the 09-23 window prints kernel 31/60 and connoisseur 2/60
+#+marker_qa: m69-ikiro-ikiro/P-graders-bite · pending · every eval grader FAILs its ledger artifact and PASSes the corrected one
+#+marker_qa: m69-ikiro-ikiro/P-cut-measured · pending · pre-cut vs post-cut pass^k recorded with the measured noise floor
+#+marker_qa: m69-ikiro-ikiro/T-kernel-arrives · pending · a fresh session answers the hard gates with zero reads
+#+marker_qa: m69-ikiro-ikiro/P-codemap-check · pending · =codemap.py --check= clean on all ten shards
+#+marker_qa: m69-ikiro-ikiro/P-memory-reconciles · pending · memory files before = moved + kept + deleted-with-reason
+#+marker_qa: m69-ikiro-ikiro/P-throughput-gate · pending · the compact gate refuses a throughput file above baseline, allows a persistent one
+#+marker_qa: m69-ikiro-ikiro/P-frontier-derived · pending · frontier regenerates byte-identical from the handoffs
+#+marker_qa: m69-ikiro-ikiro/P-ablation-round · pending · one component removed or kept on eval numbers
+
+* deferred
+
+- viva's own 19 harnesses (=reference/harnesses/harness.md= §4.4 + §10.1, formerly =viva-census.md=) — the same laws applied to the product: defaults everywhere, sections by stability, tool shaping, the stub's ={ query }= caveat. Reopens as its own quest once this one's eval runner exists to measure it.
+- A sandbox for autonomous runs (/"sandbox over prompts"/) — reopens when a loop runs unattended over the registry.
+- Model-harness fit for non-Claude models — reopens if a GPT or local model drives ikiro.
+
+* changelog
+
+- 09-23 — WHY the census read catastrophic, from the docs (=code.claude.com/docs/en/memory=): /"Files in subdirectories load on demand when Claude reads files in those directories"/ — so =.ikiro/claude.md= was never loaded at launch even before the 09-04 rename to =ikiro.md= (commit =b0fc2f75f=), and after it nothing loaded it at all; /"Rules without a paths field are loaded unconditionally"/ and /"The .claude/rules/ directory supports symlinks"/ — the one ikiro channel that worked held only codemaps. Nothing ever pointed =self/= at a channel.
+- 09-23 — LANDED ahead of step 1: kinds labelled in every budgeted header (=kind: persistent · throughput=), =budget.py= reads them (persistent: cap only) and skips symlinks · five symlinks in =.ikiro/world/codemap/= (kernel, map always; connoisseur, ontology, ledger by =paths:=) · =hooks/loaded-log.sh= wired on =InstructionsLoaded= → =hooks.log-loaded= (the census numerator, 1.2) · memory captured to =~/.viva/bak/ikiro/memory-20260923/= (301 files) and two read-only classifiers folding it (2.4). BLOCKER for 1.4: headless =claude -p= in this shell answers =401 API key is invalid= (an =ANTHROPIC_API_KEY= in the env) — the eval runner needs a working key; the canary proof waits on beef typing =canary= in a fresh session.
+- 09-23 — 2.4 LANDED (memory fold, ahead of order on beef's /"work the memories up into ikiro content where fits"/): 300 memories classified by two read-only opus agents (JSONL per batch), applied by one writer: 179 FOLD · 118 TRASH · 3 KEEP. Folds landed as code/data lines in 17 ikiro files + 5 new =reference/= files + a new =world/codemap/education.md= + 6 =known-issues.org= entries; 11 comms-contract memories rewritten into the kernel's =## comms= by hand. A file was deleted only if its bytes still matched the capture (297 deleted, 0 skipped). =MEMORY.md= 19 686 → 887 bytes, three entries left (user profile, two private references). Dead =[[memory]]= links un-bracketed in 38 files. Stale lines fixed on the way: =remount()= (retired) · "the registry has no VCS" (per package, measured: 4 of 8 carry =.git=). Open for step 2: the always-loaded files still carry almost no code — =ikiro.md= 2 fences, =map.md= 0.
+- 09-23 — DESIGNED. Terrain measured this session by =scratchpad/wake.py= (wake median 55 960 tokens, 40 transcripts) and =scratchpad/reads.py= (read counts, 60 transcripts); budgets from =budget.py --all=. Nothing built.
+
+* release
+
+none: no interface moved — ikiro's harness only; =CLAUDE.md= at the repo root (F2) would be the one visible file, and gets a line here if ruled in.

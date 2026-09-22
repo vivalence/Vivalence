@@ -1,10 +1,14 @@
 import paladin, { lifecycle } from "@vivalence/paladin";
 import { Die, Runtime } from "@vivalence/runtime";
+import { schematics } from "./typology/index.js";
 
 const run = await (async function () {
   // console.log("paladin.env", paladin.env);
   await lifecycle.mount(paladin.instance);
   paladin.check.instance(paladin.instance).throw();
+  // the runtime's door: what paladin may leave optional, the runtime requires
+  const faults = schematics.Instance.faults(paladin.instance);
+  if (faults.length) throw new Error(`runtime: ${faults.map((fault) => `${fault.at} ${fault.reason}`).join(" · ")}`);
   // console.log("paladin.instance", paladin.instance);
   // console.log("paladin.instance", JSON.stringify(paladin.instance, null, 2));
   const die = new Die({ good: new Runtime() });

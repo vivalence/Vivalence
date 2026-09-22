@@ -4,8 +4,9 @@ export class Die extends Wafer {
   constructor(die) {
     super(die);
   }
+  // the declared one: the seat is read off the mask, never minted from this
   get manifest() {
-    return this.module.manifest;
+    return this.mask.manifest;
   }
 
   async integrate() {

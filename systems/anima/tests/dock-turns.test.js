@@ -21,7 +21,30 @@ import {
   sessionUsage,
   tokens,
   turnManifest,
+  turnVerdict,
 } from "../src/app/panels/a/widgets/turns.js";
+
+specimen.describe("turnVerdict", () => {
+  specimen.it("is null for a complete answer, a tool round, a user turn and a turn with no meta", () => {
+    specimen.expect(turnVerdict({ role: "assistant", parts: [{ type: "text", text: "hi" }], meta: { state: "complete" } })).toBe(null);
+    specimen.expect(turnVerdict({ role: "assistant", parts: [{ type: "tool_use", name: "x" }], meta: { state: "tools" } })).toBe(null);
+    specimen.expect(turnVerdict({ role: "user", parts: [], meta: { state: "length" } })).toBe(null);
+    specimen.expect(turnVerdict({ role: "assistant", parts: [] })).toBe(null);
+  });
+
+  specimen.it("names the close that left nothing to read — length, filter, abort, error with the fault's message", () => {
+    specimen.expect(turnVerdict({ role: "assistant", parts: [], meta: { state: "length", provider: { finish_reason: "length", model: "openai/gpt-5.1" } } }))
+      .toEqual({ state: "length", message: "the model returned nothing — its output limit was hit before a word (openai/gpt-5.1)" });
+    specimen.expect(turnVerdict({ role: "assistant", parts: [], meta: { state: "filter" } })).toEqual({ state: "filter", message: "the answer was filtered by the provider" });
+    specimen.expect(turnVerdict({ role: "assistant", parts: [], meta: { state: "abort" } })).toEqual({ state: "abort", message: "stopped" });
+    specimen.expect(turnVerdict({ role: "assistant", parts: [], meta: { state: "error", fault: { kind: "request", message: "401 invalid key" } } }))
+      .toEqual({ state: "error", message: "401 invalid key" });
+  });
+
+  specimen.it("a length close that still said something is NOT a verdict — the text is the answer", () => {
+    specimen.expect(turnVerdict({ role: "assistant", parts: [{ type: "text", text: "half an ans" }], meta: { state: "length" } })).toBe(null);
+  });
+});
 
 specimen.describe("turnText", () => {
   specimen.it("joins text parts and ignores non-text", () => {
@@ -61,7 +84,7 @@ specimen.describe("turnTools pairing", () => {
     const turn = {
       parts: [
         { type: "tool_use", id: "t1", name: "x" },
-        { type: "tool_result", tool_use_id: "t1", output: { error: "boom" } },
+        { type: "tool_result", tool_use_id: "t1", condition: "ERROR", output: { message: "boom" } },
       ],
     };
     specimen.expect(turnTools(turn)[0].status).toBe("error");

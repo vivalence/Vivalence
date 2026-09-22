@@ -1,7 +1,13 @@
 ---
 name: pull-prod-mountpoint
-description: Snapshot the prod runtime's mountpoint (daemon SQLite + service state) out of its docker named volume and swap it into the local testament without trampling existing snapshots — ~24 shell ops with three foot-guns beef has already hit.
-when_to_use: "pull prod state" · "snapshot the prod daemon" · "run prod data locally" · "grab the prod sqlite" · debugging a prod-only bug against local code.
+description: >-
+  Snapshot the prod runtime's mountpoint (daemon SQLite + service state) out of its docker named volume and swap
+  it into the local ledger instance at ~/.viva/instances/<slug>/mountpoint/ without trampling existing
+  snapshots — ~24 shell ops with three foot-guns beef has already hit. Use when a prod-only bug needs prod data
+  against local code.
+when_to_use: >-
+  "pull prod state" · "snapshot the prod daemon" · "run prod data locally" · "grab the prod sqlite" · debugging
+  a prod-only bug against local code.
 ---
 
 # pull-prod-mountpoint — "pull prod state" / "grab the prod sqlite": prod daemon → the ledger instance (`~/.viva/instances/<slug>/`, never `testament/` — that tree is gone)
@@ -15,8 +21,6 @@ This skill captures a workflow that is otherwise ~24 manual shell ops with at le
 1. The volume is **named**, not bind-mounted — there's no host path to `tar` directly.
 2. SQLite WAL must flush before snapshotting, so the runtime must be **stopped first**.
 3. Local `daemon_brazilian/` and `service_multiplayer/` already exist; extracting on top mixes prod and local state silently.
-
-> **Wiring note (for Finn):** This skill lives under `.ikiro/skills/` for ontology reasons but Claude Code only auto-discovers from `.claude/skills/` or `~/.claude/skills/`. Wire it up via `ln -s ../.ikiro/skills .claude/skills` (or equivalent) so it becomes invocable.
 
 ## Inputs to confirm before running
 

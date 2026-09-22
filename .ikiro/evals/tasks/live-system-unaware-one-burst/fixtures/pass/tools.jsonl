@@ -1,0 +1,10 @@
+{"name":"Bash","input":{"command":"lsof -nP -iTCP:2501 -sTCP:LISTEN"}}
+{"name":"Grep","input":{"pattern":"\\bstanding\\b","path":"/repo/commons/instances/hello-world"}}
+{"name":"Bash","input":{"command":"rsync -a /repo/commons/instances/hello-world/ /private/tmp/claude-501/scratchpad/hello-world/"}}
+{"name":"Edit","input":{"file_path":"/private/tmp/claude-501/scratchpad/hello-world/tools/doctor.js","old_string":"export function standing(ctx) {","new_string":"export function posture(ctx) {"}}
+{"name":"Edit","input":{"file_path":"/private/tmp/claude-501/scratchpad/hello-world/harness.js","old_string":"standing","new_string":"posture","replace_all":true}}
+{"name":"Edit","input":{"file_path":"/private/tmp/claude-501/scratchpad/hello-world/tests/doctor.test.js","old_string":"standing","new_string":"posture","replace_all":true}}
+{"name":"Edit","input":{"file_path":"/private/tmp/claude-501/scratchpad/hello-world/tests/harness.snapshot.test.js","old_string":"standing","new_string":"posture","replace_all":true}}
+{"name":"Bash","input":{"command":"cd /private/tmp/claude-501/scratchpad/hello-world && deno test -A --no-check tests/doctor.test.js"}}
+{"name":"Bash","input":{"command":"rsync -a /private/tmp/claude-501/scratchpad/hello-world/ /repo/commons/instances/hello-world/"}}
+{"name":"Bash","input":{"command":"grep -rn '\\bstanding\\b' /repo/commons/instances/hello-world"}}

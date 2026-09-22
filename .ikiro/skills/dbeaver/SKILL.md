@@ -1,7 +1,9 @@
 ---
 name: dbeaver
 description: CRUD DBeaver connections by editing data-sources.json (desktop DBeaver has no API); `create-instance <slug>` mounts every *.viva.db of an instance. Quit DBeaver first.
-when_to_use: "add the <slug> dbs to DBeaver" · "point DBeaver at this sqlite file" · after `viva instance/create` · which connections exist.
+when_to_use: >-
+  "add the <slug> dbs to DBeaver" · "point DBeaver at this sqlite file" · after `viva instance/create` · which
+  connections exist.
 ---
 
 # dbeaver · the connection registry is a JSON file

@@ -1,0 +1,607 @@
+#+title: the ledger recipe — ~/.viva/ledger.viva.js becomes a declaration; runtime · lighthouse · datamap · hallucinators · clients · services fall through ledger → instance → daemon the way env vars fall through the strata
+#+filetags: :ledger:paladin:typology:instance:fallthrough:recipe:ghost:runtime:
+#+status: M0–M4 LANDED, held 09-24 — four suites re-run, the runtime boots on a slimmed droneaid folded from the ledger; uncommitted; release lifted. The anima → daemon handshake not walked; the gate's =/scan= names no route. Number owed by beef (mXX is his ledger).
+#+phase: landed
+#+progress: 4/4 · M1–M4 held · release lifted · sunset owed
+#+next: beef — the number · commits in typology, paladin, ghost, commons · sunset to =done/= once no sibling holds the quest
+
+* intent
+
+beef, verbatim (this session):
+
+/"i want to add the ledger.viva.js file to our system. it should have its manifest, eventually will have paths and export/imports for registry and instances, but for today i want to use it for supplying defaults and to make each ledger into a coherent unit."/
+
+/"defaults meaning this: each instances has a set of repeating exports. hallucinators, datamaps, client, runtime, etc. i want to apply the same tiered fall-through model we have on env vars on the instance construction. this set of default masks ive named above should be declared at the top level, and be overwriteable by the levels below. a ledger can export runtime, and each instance inherits unless it overwrites. the constructed instance output is still schematics conform. procssing and folding."/
+
+/"work out this quest schematics first. paladin second. and then do a pass on the runtime included in the blast testing."/
+
+The stub already on disk, =~/.viva/ledger.viva.js=, in beef's hand:
+#+begin_src js
+// todo
+// manifest type ledger
+// lighthouse, runtime, clients.
+// all optional. instances can overwrite by declaring.
+// env vars too.
+#+end_src
+
+One sentence: *the ledger gets a declaration of its own, and the instance is FOLDED from it before a single thunk fires* — slot by slot for the masks, key by key for the environment schema, then the fold is hydrated, seated, settled and cast exactly as today. The runtime never learns the ledger exists.
+
+* the law
+
+Three tiers, one direction, one rule per tier:
+
+#+begin_example
+tier        declares                                   falls through to
+ledger      <ledger>/ledger.viva.js   manifest.type "ledger"    every instance on this ledger
+instance    <instance>/*.viva.js      manifest.type "instance"  every daemon / service in it (already: resolve.defaults)
+daemon      recipe daemons[n]                                    its modes (already: resolve.ground for the seat)
+#+end_example
+
+- *A SLOT is the unit for a mask; a KEY is the unit for the environment.* =runtime · lighthouse · datamap · hallucinators · clients · services= fall through WHOLE: an instance that declares =hallucinators: []= has said "none", not "merge mine in". This is the same rule =resolve.defaults= already applies daemon-ward (=inherit(daemon, "hallucinators")=), so the two tiers speak one verb. The environment schema folds key-wise because the strata already fold VALUES key-wise — a KEY decides (m41), and the doctor must know that the ledger's =SECRET_VIVA_ANTHROPIC_API_KEY= is documented when the hallucinator that reads it came from the ledger.
+- *Fold BEFORE hydrate.* If the ledger's thunks fired and the instance overrode the slot, the requirements record would carry reads nobody uses — false REQUIRED rows in the doctor. So the raw modules fold first (thunks unfired), then =at(label)= walks the folded declaration once. Every downstream organ — =hydrate= · =resolve.mountpoints= · =resolve.ground= · =settle= · =check= · =Instance.cast= — sees exactly what it sees today.
+- *=daemons= never fall through.* A daemon IS what an instance is; a ledger has none. =manifest= is each tier's own.
+- *The ledger's slots are the =Ledger= schematic's keys.* Paladin derives the slot list from =Object.keys(Ledger.properties)= — no second list to drift.
+- *The file's place IS the declaration — derive by default, lock to override.* ANY =.viva.js= at the ledger root (depth 0: =instances/= and =registry/= below are not its word) is the ledger. =manifest.type= derives (=ledger=), =manifest.slug= derives from the stem (=viva.viva.js= → =viva=, the scaffold's =ledger.viva.js= → =ledger=); an exported =manifest= only LOCKS a field. beef: /"i dont like manifest export on ledger. slug on ledger especilly. can we default them on the viva.js file at ledger root?"/ · /"not ledger.viva.js specifically. ANY .viva.js file at ledger root."/ The instance keeps its manifest (many per ledger, the slug is its record key); the ledger is one per home, its name is its place.
+- *Absent is silent; two is a throw; a foreign type is a throw.* No file → nothing inherited, =instance.inherited = []=. Two files → =ledger: one declaration per ledger — <home> holds a.viva.js, b.viva.js=. A =manifest.type= other than =ledger= → =declares manifest.type "x" — a file at the ledger root is the ledger; drop the type or say "ledger"=. (The earlier =mute= verdict is gone with the manifest requirement — beef's first draft, =manifest: { manifest: { type } }=, now derives and is simply LOCKED to nothing useful: the nested key is ignored.)
+- *Provenance is a list, not a relabel.* =instance.inherited= names the slots the ledger supplied; =instance/doctor= prints it. Requirement rows keep the slot label (=runtime.statics.serve=) whoever declared it — the doctor's question is "what does this instance read", not "who wrote the line".
+- *The runtime is untouched.* It reads =paladin.instance.runtime · lighthouse · daemons · services= after =lifecycle.mount= — the folded, cast instance. The runtime pass is a blast: its suite, then a live boot on a slimmed recipe.
+
+* terrain (verified in-session)
+
+- =prototypes/instance.js= — the =Instance= prototype: =manifest environment runtime lighthouse datamap hallucinators clients services daemons requirements faults dormant=. No ledger field.
+- =lifecycle/populate.js:recipe= — =find.type(instance.home, "instance")= must find exactly one; =environment= must be =v.environment({…})=; =at(label)= hydrates each slot; daemons' kernel entries resolve relative to =module.source=.
+- =lifecycle/resolve.js:defaults= — the daemon-ward fold, a local =inherit(mounting, slot)= with =v.clone=. Runs AFTER hydrate on decoded data.
+- =lifecycle/index.js:mount= — =environment → recipe → defaults → mountpoints → settle → publish=, memoised per instance.
+- =prototypes/ledger/ledger.js= — =Ledger= is minted once in the =Paladin= constructor; getters mint =Instances= / =Registry= per access; =lock · log · boot=. Nothing reads =ledger.viva.js= anywhere — the stub sits unread.
+- =belt/find.js:type(path, type, depth)= — =depth 0= = root files only (=if (depth > 0) yield* search(…)=). =read.viva= throws on a module with neither =manifest= nor =default= — the current stub would throw the moment something reads it; it gets its manifest in M0.
+- =schematics/primitives/instance.js= — =Instance= has =runtime · lighthouse · datamap · hallucinators= optional, =clients · services · daemons= defaulted =[]=. =Service.mountpoint= and =Daemon.mountpoint= are REQUIRED at cast — seated by =resolve.mountpoints= first. So a ledger's =services= cannot be cast through =Service= before seating; the ledger declaration is folded, never cast on its own (fork 3).
+- =schematics/primitives/environment.js= — =v.environment(properties)= wraps each held schema with =plain()= (a descriptor copy, symbols included) into =v.object(…, {additionalProperties: false})=. Re-passing =.properties= through it is a no-op copy — the key-merge is one call.
+- =systems/ghost/trajectories/ledger/index.js= — the ledger's =.env= schema is HARDCODED there (=// the ledger owns a .env but has no declaration to hang a sibling export on=). That comment is this quest's origin story: the declaration now exists, the schema moves into it.
+- =systems/ghost/trajectories/instance/create.js= — clones =commons/instances/hello-world= to the shelf. The same verb-shape serves =ledger/init= for the ledger recipe.
+- Tests that mock =paladin.find.type = async () => [mod]= (=kernel.test.js= · =settle.test.js=) declare NO =ledger= scope → =paladin.scope.ledger= is undefined → the ledger read returns null without calling =find=. They stay green untouched. =ledger.test.js= · =registry.test.js= · =vip.tap.test.js= point =VIVA_LEDGER_MOUNT= at a temp dir with no =ledger.viva.js= → =[]= → null. =instance.snapshot.test.js= mounts against the REAL =~/.viva= — it will read beef's real =ledger.viva.js=; hello-world declares every slot so nothing folds in, and the snapshot gains one key (=inherited: []=).
+- The runtime: =systems/runtime/tests/= has no test that calls =lifecycle.mount= — every scenario builds daemons by hand (=scenarios/daemon.js=). COVERAGE GAP, pre-existing: the seam between paladin's fold and the runtime's read is guarded only by the live boot.
+- Instances on this machine that repeat the six slots verbatim: =hello-world · droneaid · chess= (read); =media · stucatch · vivalence · playground · language-learning= (not read, same shape by the create verb).
+
+* milestones
+
+** M1 — typology: the =Ledger= schematic (HOLY — ask first, one file)
+=schematics/primitives/instance.js= gains =Ledger=. Gate: typology suite green; =v.primitives.instance.Ledger.properties= lists =manifest environment runtime lighthouse datamap hallucinators clients services=.
+
+** M2 — paladin: read, fold, name
+=prototypes/ledger/ledger.js:recipe()= · =prototypes/instance.js:inherited= · =lifecycle/resolve.js:inherit= exported and reused · =lifecycle/populate.js:recipe= folds slots and environment before hydrating. Gate: =tests/ledger.recipe.test.js= NEW green; =kernel · settle · populate · instance.snapshot= green (snapshot regenerated: one key).
+
+** M3 — ghost: the ledger owns its declaration
+=commons/ledger/ledger.viva.js= NEW (the canonical default, cloned by =ledger/init=) · =trajectories/ledger/index.js= init clones it when absent and reads its =environment= for the =.env= scaffold; doctor reports the =recipe= organ · =trajectories/instance/doctor.js= prints =inherited=. Gate: ghost =tests/ledger.test.js= +2 cases green.
+
+** M4 — the runtime pass (blast, no change)
+Runtime suite green as-is (nothing in it reaches the fold — named gap). Then live: =~/.viva/ledger.viva.js= carries the six slots, =droneaid/instance.viva.js= slimmed to =manifest · daemons · environment= (beef's file, fork 2), =viva instance/doctor= shows =inherited: runtime lighthouse datamap hallucinators clients services= and zero problems, =deno task runtime/watch= boots, anima at =:1794= reaches the daemon, one =/scan= answers. The =testament= wet suite untouched.
+
+* the patch
+
+** M1 — =subsystems/typology/schematics/primitives/instance.js=
+
+#+begin_src diff
+@@ export const Instance = v.object(
+   { additionalProperties: true },
+ );
+
++// a ledger's word: what every instance on it inherits, slot by slot, unless it declares the slot
++// itself. no daemons — a daemon is what an instance IS. services are declared seatless here and
++// seated per instance by resolve.mountpoints, so this shape is FOLDED into an Instance, never cast
++// on its own. the slot list paladin folds is Object.keys(Ledger.properties) minus manifest.
++export const Ledger = v.object(
++  {
++    manifest: Manifest,
++    environment: v.object({}, { additionalProperties: true }).optional(),
++    runtime: Runtime.optional(),
++    lighthouse: Lighthouse.optional(),
++    datamap: Datamap.optional(),
++    hallucinators: v.array(Mask).optional(),
++    clients: v.array(Client).optional(),
++    services: v.array(Service).optional(),
++  },
++  { additionalProperties: true },
++);
++
+ export const Requirement = v.object({
+#+end_src
+
+** M2 — =subsystems/paladin/prototypes/ledger/ledger.js=
+
+#+begin_src diff
+@@ export class Ledger {
+   log(instance) {
+     return new Log(this.paladin, instance);
+   }
+
++  // the ledger's own declaration — <ledger>/ledger.viva.js, depth 0 (instances/ and registry/ below
++  // it are full of .viva.js that are not the ledger's word). read once. absent is silent: a ledger
++  // that says nothing is a ledger whose instances say everything themselves.
++  async recipe() {
++    if (this.declaration !== undefined) return this.declaration;
++    const home = this.paladin.scope.ledger;
++    const modules = home ? await this.paladin.find.type(home, "ledger", 0) : [];
++    if (modules.length > 1)
++      throw new Error(`ledger: expected 1 ledger module in ${home.absolute}, found ${modules.length}`);
++    const [module] = modules;
++    if (module) {
++      const faults = v.primitives.Manifest.faults(module.manifest);
++      if (faults.length)
++        throw new Error(`ledger: ${module.source.absolute} manifest ${faults.map((fault) => `${fault.at} ${fault.reason}`).join(" · ")}`);
++    }
++    return (this.declaration = module ?? null);
++  }
++
+   async boot(specs, { instance = null, attachment = "inherit" } = {}) {
+#+end_src
+plus =import { v } from "@vivalence/typology";= at the top.
+
+** M2 — =subsystems/paladin/prototypes/instance.js=
+
+#+begin_src diff
+   requirements = [];
+   faults = [];
+   dormant = [];
++  inherited = []; // the slots the ledger supplied — provenance for the doctor, never read by the runtime
+#+end_src
+
+** M2 — =subsystems/paladin/lifecycle/resolve.js=
+
+#+begin_src diff
+-export function defaults(instance) {
+-  const inherit = (mounting, slot) => {
+-    if (mounting[slot] === undefined && instance[slot] !== undefined) mounting[slot] = v.clone(instance[slot]);
+-  };
++// the one fall-through verb, both tiers: below takes above's slot when it has none of its own.
++// a declared slot — even [] or null — is below's word. returns whether it fell through.
++export function inherit(below, above, slot, clone = (value) => value) {
++  if (below[slot] !== undefined || above?.[slot] === undefined) return false;
++  below[slot] = clone(above[slot]);
++  return true;
++}
++
++export function defaults(instance) {
+   for (const daemon of instance.daemons) {
+-    inherit(daemon, "lighthouse");
+-    inherit(daemon, "datamap");
+-    inherit(daemon, "hallucinators");
++    for (const slot of ["lighthouse", "datamap", "hallucinators"]) inherit(daemon, instance, slot, v.clone);
+   }
+-  for (const service of instance.services) inherit(service, "datamap");
++  for (const service of instance.services) inherit(service, instance, "datamap", v.clone);
+ }
+#+end_src
+
+** M2 — =subsystems/paladin/lifecycle/populate.js=
+
+#+begin_src diff
+ import { is, Path, v } from "@vivalence/typology";
+ import { Instance } from "../prototypes/instance.js";
++import { inherit } from "./resolve.js";
+@@
++// the slots a ledger may speak, from the schematic — manifest is each tier's own, environment folds
++// key-wise below, everything else falls through WHOLE (a declared [] is "none", not "merge").
++const SLOTS = Object.keys(v.primitives.instance.Ledger.properties).filter(
++  (slot) => !["manifest", "environment"].includes(slot),
++);
++
+ export async function recipe(instance) {
+   const { paladin } = instance;
+   const home = instance.home.absolute;
+-  const modules = await paladin.find.type(instance.home, "instance").catch((error) => {
++  const found = await paladin.find.type(instance.home, "instance").catch((error) => {
+     if (error?.code === "ENOENT") throw new Error(`instance.mount: no instance at ${home}`);
+     throw error;
+   });
+-  if (modules.length !== 1)
+-    throw new Error(`instance.mount: expected 1 instance module in ${home}, found ${modules.length}`);
+-  const [module] = modules;
+-  const environment = module.environment ?? v.environment({});
+-  if (!environment.properties)
+-    throw new Error(`instance.mount: environment must be v.environment({…}) — ${module.source.absolute}`);
++  if (found.length !== 1)
++    throw new Error(`instance.mount: expected 1 instance module in ${home}, found ${found.length}`);
++  const [own] = found;
++  const declared = own.environment ?? v.environment({});
++  if (!declared.properties)
++    throw new Error(`instance.mount: environment must be v.environment({…}) — ${own.source.absolute}`);
++
++  // the fold: ledger → instance, BEFORE a thunk fires. on a COPY — read.viva returns the live
++  // module namespace. a slot the instance never declared is the ledger's; the environment schema
++  // merges by KEY, the instance's key winning — the same unit the strata fold values by.
++  const ledger = await paladin.ledger.recipe();
++  const module = { ...own };
++  instance.inherited = SLOTS.filter((slot) => inherit(module, ledger, slot));
++  const environment = ledger?.environment?.properties
++    ? v.environment({ ...ledger.environment.properties, ...declared.properties })
++    : declared;
+
+   const record = [];
+#+end_src
+Everything from =const record = [];= down is untouched — it already reads =module.<slot>= and =module.source= (the instance's own source, so a daemon's relative kernel entries still resolve against the instance file; a ledger declares no daemons).
+
+** M2 — =subsystems/paladin/tests/ledger.recipe.test.js= (NEW)
+
+#+begin_src js :tangle ../../subsystems/paladin/tests/ledger.recipe.test.js :mkdirp yes
+import { describe, it } from "@std/testing/bdd";
+import { expect } from "@std/expect";
+import { Path, v } from "@vivalence/typology";
+import { Paladin } from "../prototypes/paladin.js";
+import * as lifecycle from "../lifecycle/index.js";
+
+const HOME = new Path("/fixtures/probe/test.viva.js");
+const LEDGER = new Path("/fixtures/ledger");
+
+// find.type answers by (scope, type): the ledger's root for "ledger", the instance home for "instance"
+const mount = ({ ledger = [], instance }, pairs = {}) => {
+  const paladin = new Paladin();
+  paladin.scopes([
+    ["ledger", () => true, () => LEDGER],
+    ["instance", () => true, () => HOME],
+    ["mountpoint", () => true, () => new Path("/mountpoint")],
+  ]);
+  for (const [key, value] of Object.entries(pairs)) paladin.env.set(key, value, "flag");
+  paladin.find.type = async (path, type) =>
+    type === "ledger" ? ledger : [{ manifest: { type: "instance", slug: "probe", version: "0.0.1" }, source: HOME, ...instance }];
+  return lifecycle.mount(lifecycle.populate.instance(paladin));
+};
+
+const ledger = (paladin, extra = {}) => ({
+  manifest: { type: "ledger", slug: "ledger", version: "0.0.1" },
+  source: LEDGER.branch("ledger.viva.js"),
+  runtime: { manifest: { slug: "runtime" }, statics: { serve: () => paladin.env.get("VIVA_LEDGER_SERVE") } },
+  lighthouse: { module: "@commons/lighthouse/multiplayer", statics: { remote: "http://ledger/lighthouse" } },
+  datamap: { module: "@commons/datamap/libsql" },
+  hallucinators: [],
+  clients: [{ manifest: { type: "client", slug: "anima" }, statics: { serve: () => paladin.env.get("VIVA_LEDGER_ANIMA") } }],
+  environment: v.environment({
+    VIVA_LEDGER_SERVE: v.url().desc("ledger says"),
+    VIVA_LEDGER_ANIMA: v.url().desc("ledger says"),
+    VIVA_SHARED: v.string().desc("ledger's word"),
+  }),
+  ...extra,
+});
+
+const daemon = { manifest: { type: "daemon", slug: "probe", version: "0.0.1" }, kernel: [] };
+
+describe("ledger recipe — ledger → instance falls through by SLOT, environment by KEY, before a thunk fires", () => {
+  it("no ledger module: nothing inherited, the instance is what it declares", async () => {
+    const instance = await mount({ instance: { daemons: [daemon], lighthouse: { module: "@commons/lighthouse/multiplayer", statics: { remote: "http://own/" } }, datamap: { module: "@commons/datamap/libsql" } } });
+    expect(instance.inherited).toEqual([]);
+    expect(instance.runtime).toBeUndefined();
+    expect(instance.clients).toEqual([]);
+  });
+
+  it("a declared slot is the instance's; an undeclared one is the ledger's; a daemon takes the ledger's lighthouse through the instance", async () => {
+    const paladin = new Paladin();
+    const instance = await mount(
+      {
+        ledger: [ledger(paladin)],
+        instance: { daemons: [daemon], runtime: { manifest: { slug: "own" }, statics: { serve: "http://own:1/" } } },
+      },
+      { VIVA_LEDGER_ANIMA: "http://anima:1794/" },
+    );
+    expect(instance.runtime.manifest.slug).toBe("own");
+    expect(instance.inherited).toEqual(["lighthouse", "datamap", "hallucinators", "clients"]);
+    expect(instance.clients[0].manifest.slug).toBe("anima");
+    expect(instance.clients[0].statics.serve.href).toBe("http://anima:1794/");
+    expect(instance.daemons[0].lighthouse.statics.remote.href).toBe("http://ledger/lighthouse");
+    expect(instance.faults).toEqual([]);
+  });
+
+  it("a declared [] is 'none' — the ledger's list does not merge in", async () => {
+    const paladin = new Paladin();
+    const instance = await mount({ ledger: [ledger(paladin)], instance: { daemons: [daemon], clients: [] } });
+    expect(instance.clients).toEqual([]);
+    expect(instance.inherited).not.toContain("clients");
+  });
+
+  it("the ledger's thunks fire ONCE, at the instance slot's label, and an overridden slot's thunk never fires", async () => {
+    const paladin = new Paladin();
+    const instance = await mount({
+      ledger: [ledger(paladin)],
+      instance: { daemons: [daemon], runtime: { manifest: { slug: "own" }, statics: { serve: "http://own:1/" } } },
+    });
+    const sites = instance.requirements.map((row) => row.at);
+    expect(sites).toContain("clients[0].statics.serve");
+    expect(sites).not.toContain("runtime.statics.serve");
+    expect(sites.filter((at) => at === "clients[0].statics.serve")).toHaveLength(1);
+  });
+
+  it("environment folds by KEY — the ledger's keys are documented, the instance's key wins a collision", async () => {
+    const paladin = new Paladin();
+    const instance = await mount({
+      ledger: [ledger(paladin)],
+      instance: { daemons: [daemon], environment: v.environment({ VIVA_SHARED: v.string().desc("instance's word"), VIVA_OWN: v.string().desc("own") }) },
+    });
+    const keys = Object.keys(instance.environment.properties);
+    expect(keys).toEqual(expect.arrayContaining(["VIVA_LEDGER_SERVE", "VIVA_LEDGER_ANIMA", "VIVA_SHARED", "VIVA_OWN"]));
+    expect(instance.environment.properties.VIVA_SHARED.description).toBe("instance's word");
+    const rows = instance.paladin.check.environment(instance);
+    expect(rows.find((row) => row.key === "VIVA_LEDGER_ANIMA")?.verdict).toBe("REQUIRED");
+  });
+
+  it("two ledger modules at the root throw; a ledger manifest without a slug throws naming the file", async () => {
+    const paladin = new Paladin();
+    await expect(mount({ ledger: [ledger(paladin), ledger(paladin)], instance: { daemons: [] } })).rejects.toThrow(/expected 1 ledger module/);
+    await expect(mount({ ledger: [ledger(paladin, { manifest: { type: "ledger" } })], instance: { daemons: [] } })).rejects.toThrow(/ledger\.viva\.js manifest/);
+  });
+});
+#+end_src
+
+** M3 — =commons/ledger/ledger.viva.js= (NEW — the canonical default; =ledger/init= clones it)
+
+#+begin_src js :tangle ../../commons/ledger/ledger.viva.js :mkdirp yes
+import paladin from "@vivalence/paladin";
+import { v } from "@vivalence/typology";
+
+// the ledger's word. every instance on this ledger inherits a slot it does not declare itself —
+// runtime · lighthouse · datamap · hallucinators · clients · services — and its environment keys.
+// an instance that declares a slot has said everything about it; a declared [] is "none".
+export const manifest = { type: "ledger", slug: "ledger", version: "0.0.1" };
+
+export const runtime = {
+  manifest: { slug: "runtime" },
+  statics: {
+    serve: () => paladin.env.get("VIVA_RUNTIME_SERVE"),
+    remote: () => paladin.env.get("PUBLIC_VIVA_RUNTIME_REMOTE"),
+  },
+};
+
+export const lighthouse = {
+  module: "@commons/lighthouse/multiplayer",
+  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
+};
+
+export const datamap = { module: "@commons/datamap/libsql" };
+
+export const hallucinators = [
+  {
+    module: "@commons/hallucinator/anthropic",
+    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
+  },
+  {
+    module: "@commons/hallucinator/openrouter",
+    secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
+  },
+];
+
+export const clients = [
+  {
+    manifest: { type: "client", slug: "anima" },
+    statics: { serve: () => paladin.env.get("VIVA_CLIENT_ANIMA_SERVE") },
+  },
+];
+
+export const services = [
+  {
+    manifest: { type: "service", slug: "multiplayer" },
+    module: "@commons/lighthouse/multiplayer",
+    secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
+    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
+  },
+];
+
+// the ledger's own .env schema — what ledger/init scaffolds — plus what the slots above read.
+// an instance's environment merges over this by key; its key wins.
+export const environment = v.environment({
+  VIVA_REPOSITORY_MOUNT: v.string().desc("Absolute path to the vivalence checkout. Repo-relative resolution needs it.").group("homes"),
+  VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
+  VIVA_CLIENT_ANIMA_ORIGIN: v.url().desc("Scheme and authority the anima browser client is reachable at.").default("http://localhost:1794").group("addresses"),
+  VIVA_RUNTIME_SERVE: v.url().desc("Base URL the runtime serves on. Everything else hangs off this latch.").default("${VIVA_RUNTIME_ORIGIN}/").group("addresses"),
+  VIVA_LIGHTHOUSE_SERVE: v.url().desc("Where the hosted lighthouse attaches inside the runtime's own path tree.").default("${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer").group("addresses"),
+  VIVA_CLIENT_ANIMA_SERVE: v.url().desc("Where the anima browser client serves.").default("${VIVA_CLIENT_ANIMA_ORIGIN}/").group("addresses"),
+  PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemons, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
+  SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24").default(() => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24))))).group("keys"),
+  SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Machine-wide Anthropic key. A key left blank leaves its hallucinator dormant.").group("keys").optional(),
+  SECRET_VIVA_OPENROUTER_API_KEY: v.string().desc("Machine-wide OpenRouter key.").group("keys").optional(),
+  SECRET_VIVA_ELEVENLABS_API_KEY: v.string().desc("Machine-wide ElevenLabs key.").group("keys").optional(),
+  SECRET_VIVA_DEEPGRAM_API_KEY: v.string().desc("Machine-wide Deepgram key.").group("keys").optional(),
+});
+#+end_src
+
+** M3 — =systems/ghost/trajectories/ledger/index.js=
+
+#+begin_src diff
+ import { Init } from "./Init.jsx";
+ import { Doctor } from "./Doctor.jsx";
+ import { store } from "../registry/index.js";
+
+ const SCAFFOLD = ["locks", "logs", "registry", "instances", "sessions"];
++const RECIPE = "ledger.viva.js";
+@@
+-// the ledger owns a .env but has no declaration to hang a sibling export on, so its schema is here.
+-// same shape as an instance's `environment`, same writer, same doctor rendering.
+-const environment = v.environment({
+-  VIVA_REPOSITORY_MOUNT: …,
+-  SECRET_VIVA_ANTHROPIC_API_KEY: …,
+-  SECRET_VIVA_OPENROUTER_API_KEY: …,
+-  SECRET_VIVA_ELEVENLABS_API_KEY: …,
+-  SECRET_VIVA_DEEPGRAM_API_KEY: …,
+-});
++// the ledger's .env schema lives in its own declaration now — commons/ledger/ledger.viva.js is the
++// canonical one, cloned to <ledger>/ledger.viva.js at init; the schema is its `environment` export.
++const canonical = () => paladin.scope.repository.branch(`commons/ledger/${RECIPE}`);
+@@ ledger.open( { nature: "/init" …
+     const instances = paladin.scope.ledger.branch("instances.json");
+     if (!(await paladin.read.json(instances, null))) await paladin.state.json(instances, {});
+
++    const recipe = paladin.scope.ledger.branch(RECIPE);
++    if (!(await Deno.stat(recipe.absolute).catch(() => null))) await Deno.copyFile(canonical().absolute, recipe.absolute);
++    const declaration = await paladin.ledger.recipe();
++    const environment = declaration?.environment ?? v.environment({});
++
+     const env = paladin.scope.ledger.branch(".env");
+@@
+     ctx.effect = {
+       ...choice,
+       ledger: paladin.scope.ledger.absolute,
+       scaffolded: SCAFFOLD,
++      recipe: recipe.absolute,
+       env: env.absolute,
+       fill: seed.map(([key]) => key),
+     };
+@@ ledger.open( { nature: "/doctor" …
+     const home = paladin.scope.ledger;
+     const env = home.branch(".env");
+     const record = await collectRecord(paladin.ledger.registry);
++    const declaration = await paladin.ledger.recipe().catch((error) => ({ error: error.message }));
+
+     const report = {
+       homes: { … },
++      recipe: {
++        path: home.branch(RECIPE).absolute,
++        present: Boolean(declaration) && !declaration.error,
++        manifest: declaration?.manifest ?? null,
++        slots: declaration && !declaration.error
++          ? Object.keys(v.primitives.instance.Ledger.properties).filter((slot) => slot !== "manifest" && declaration[slot] !== undefined)
++          : [],
++        ...(declaration?.error ? { error: declaration.error } : {}),
++      },
+       scopes: …,
+#+end_src
+the ghost =clone= belt has only =tree= (what =instance/create= uses) — one file is =Deno.copyFile=. =Doctor.jsx= gains one row block for =recipe= (present · manifest slug · slots joined).
+
+** M3 — =systems/ghost/trajectories/instance/doctor.js=
+
+#+begin_src diff
+     runtime: paladin.instance.runtime?.manifest?.slug ?? null,
++    inherited: paladin.instance.inherited,
+     clients: paladin.instance.clients.map((client) => client.manifest?.slug),
+#+end_src
+
+** M3 — =systems/ghost/tests/ledger.test.js= (+2 cases, inside the existing describe)
+
+#+begin_src js
+  it("init clones the canonical ledger recipe beside .env; a second init keeps the one that is there", async () => {
+    const recipe = `${home}/ledger.viva.js`;
+    expect(await Deno.stat(recipe).then(() => true, () => false)).toBe(true);
+    await Deno.writeTextFile(recipe, `export const manifest = { type: "ledger", slug: "mine", version: "0.0.1" };\n`);
+    await viva(["ledger/init", home]);
+    expect(await Deno.readTextFile(recipe)).toContain(`slug: "mine"`);
+  });
+
+  it("doctor reports the recipe organ — present, manifest, the slots it speaks", async () => {
+    const { report } = await viva(["ledger/doctor", "--json"]);
+    expect(report.recipe.present).toBe(true);
+    expect(report.recipe.manifest.type).toBe("ledger");
+    expect(report.recipe.slots).toEqual(expect.arrayContaining(["runtime", "lighthouse", "datamap", "hallucinators", "clients", "services"]));
+  });
+#+end_src
+(=viva(…)= / =home= are whatever that file's existing harness names them — re-read at blast.)
+
+** M0 — =~/.viva/ledger.viva.js= (beef's file, outside the repo)
+Replace the stub with the clone of =commons/ledger/ledger.viva.js= (or run =viva ledger/init= after M3 — it clones only when absent, so delete the stub first). With the manifest in place =read.viva= stops throwing on it.
+
+** M4 — =~/.viva/instances/droneaid/instance.viva.js= (beef's file, fork 2)
+Slimmed for the live walk:
+#+begin_src js
+import { v } from "@vivalence/typology";
+import { droneaid } from "./daemon.js";
+
+export const manifest = { type: "instance", slug: "droneaid", version: "0.0.1" };
+export const daemons = [droneaid];
+export const environment = v.environment({
+  // only what droneaid adds or re-words; the addresses and keys come from the ledger
+});
+#+end_src
+
+* testing assessment
+
+** in place
+- paladin: =kernel.test.js= (kernel forms + seats) · =settle.test.js= (dormant · faults · seats) · =populate.test.js= (strata binding) · =instance.snapshot.test.js= (hello-world folded, against the REAL ledger) · =ledger.test.js= (belt · lock · instances · registry). 41 suites / 187 steps at the last landing (mountpoint-fallthrough).
+- ghost: =tests/ledger.test.js= (init · doctor · tap · create · instance init) · =strata.wet.test.js= (six rungs, subprocess).
+- runtime: 63 / 417 at the last landing. NOTHING in it calls =lifecycle.mount= — every scenario hand-builds a daemon. COVERAGE GAP (pre-existing, named): the paladin→runtime seam is guarded by the live boot only.
+- typology: no schematic-level test for =primitives/instance.js= shapes beyond what paladin exercises. GAP: =Ledger= is proven through =ledger.recipe.test.js=, not a typology suite.
+
+** changes
+- =paladin/tests/snapshots/paladin-instance.snapshot.json= — regen: one new key =inherited: []=. hello-world declares every slot, so no value moves even on beef's machine where the real ledger speaks.
+- =ghost/tests/ledger.test.js= "init scaffolds …" — the effect gains =recipe=; if the case asserts the effect's key set, it grows by one.
+
+** adds
+- =paladin/tests/ledger.recipe.test.js= — 6 cases, tangled above.
+- =ghost/tests/ledger.test.js= — 2 cases, above.
+
+** green ladder
+| milestone | gate |
+| M1 | =deno test -A subsystems/typology= — count unchanged from baseline; =Ledger.properties= keys as listed |
+| M2 | =deno test -A subsystems/paladin= — baseline + 6 (ledger.recipe) · snapshot regenerated with one key, diff shown |
+| M3 | =deno test -A systems/ghost= — baseline + 2; the order-dependent =ledger.test.js= red noted at mountpoint-fallthrough stays as it was (pre-existing; a baseline run first) |
+| M4 | =deno test -A systems/runtime= — count equal to baseline (no change expected; the gap is named) · live: doctor's =inherited= line · =/scan= answers on the slimmed droneaid |
+
+Pre-DONE: each milestone flips only with the suite output pasted into the changelog.
+
+* QA
+
+** ① testimony
+- I run =viva ledger/doctor= and see a =recipe= block: the path, =present=, the manifest, and =slots: runtime lighthouse datamap hallucinators clients services=. If I have no =ledger.viva.js= it says =present: false= and nothing else complains — a silent ledger is legal.
+- I open =~/.viva/instances/droneaid/instance.viva.js=, delete the =runtime= export, run =viva instance/doctor= and see =inherited: runtime= and NO new problem row — the runtime's =VIVA_RUNTIME_SERVE= row is still there, still =ok=, at =runtime.statics.serve=. I do not see who wrote the line in the row; I see it in =inherited=.
+- I set =clients: []= in an instance and the doctor shows =clients: []= and =inherited= without =clients= — my empty list was my word.
+- I put two =*.viva.js= with =type: "ledger"= at the ledger root and every verb that mounts an instance stops with =ledger: expected 1 ledger module in /Users/…/.viva, found 2=.
+- I run =viva ledger/init= on a fresh home and find =ledger.viva.js= beside =.env=; the =.env= was scaffolded from that file's =environment=.
+
+** ② programmatic + markers
+#+marker_qa: ledger-recipe/P-fold-before-hydrate · held · requirements carries no row for a slot the instance overrode (ledger.recipe.test.js case 4)
+#+marker_qa: ledger-recipe/P-slot-not-merge · held · a declared [] stays [] (case 3)
+#+marker_qa: ledger-recipe/P-env-by-key · held · a ledger key is REQUIRED-visible to check.environment; a collision takes the instance's description (case 5)
+#+marker_qa: ledger-recipe/P-one-slot-list · held · grep: no array literal of slot names in paladin/lifecycle/populate.js — SLOTS is Object.keys(Ledger.properties); the one "hallucinators" left is the pre-existing at("hallucinators") hydrate site
+#+marker_qa: ledger-recipe/P-runtime-blind · held · grep: =ledger.recipe\|inherited= in systems/runtime returns zero — the runtime never learns the ledger exists
+#+marker_qa: ledger-recipe/T-doctor-inherited · held · beef's walk: instance/doctor prints inherited on the slimmed droneaid, zero problems, runtime boots — held 09-24 on the agent's probe, not beef's walk (changelog session 2)
+#+marker_qa: ledger-recipe/T-ghost-env-schema-moved · held · grep: no VIVA_ key literal in systems/ghost/trajectories/ledger/index.js; the one =v.environment({})= left is the empty fallback for a silent ledger
+
+* blast table
+
+| file | change | milestone | kind |
+| =subsystems/typology/schematics/primitives/instance.js= | +=Ledger= | M1 | add, HOLY |
+| =subsystems/paladin/prototypes/ledger/ledger.js= | +=recipe()= memoised read, depth 0, manifest faults | M2 | add |
+| =subsystems/paladin/prototypes/instance.js= | +=inherited= | M2 | add |
+| =subsystems/paladin/lifecycle/resolve.js= | =inherit= exported, =defaults= rides it | M2 | refactor |
+| =subsystems/paladin/lifecycle/populate.js= | =recipe= folds slots + environment before hydrate | M2 | change |
+| =subsystems/paladin/tests/ledger.recipe.test.js= | NEW, 6 cases | M2 | test |
+| =subsystems/paladin/tests/snapshots/paladin-instance.snapshot.json= | regen, +=inherited= | M2 | fixture |
+| =commons/ledger/ledger.viva.js= | NEW canonical ledger | M3 | add |
+| =systems/ghost/trajectories/ledger/index.js= | init clones the recipe, reads its environment; doctor's =recipe= organ; hardcoded schema gone | M3 | change |
+| =systems/ghost/trajectories/ledger/Doctor.jsx= | one block for =recipe= | M3 | view |
+| =systems/ghost/trajectories/instance/doctor.js= | +=ledger= (the file) · =inherited= as ={slot: what it says}= | M3 | add |
+| =systems/ghost/belt/recipe.js= | NEW — =say(slot, held)= · =spoken(declaration, slots)=: one voice for both doctors | M3 | add |
+| =systems/ghost/tests/ledger.test.js= | +2 | M3 | test |
+| =~/.viva/ledger.viva.js= | the stub becomes the clone | M0 | beef |
+| =~/.viva/instances/droneaid/instance.viva.js= | slimmed | M4 | beef, fork 2 |
+| =systems/runtime/**= | nothing | M4 | blast only |
+| =.ikiro/world/codemap/paladin.md= · =world/ledger.md= | the fold, the recipe organ | close | ikiro |
+
+* deferred
+- *Casting the ledger declaration on its own* — needs a seatless =Service= (=Service.mountpoint= is required at cast). Trigger: a ledger typo that only surfaces after the fold at the instance's label.
+- *Registry / instances paths in the ledger recipe* (beef: /"eventually will have paths and export/imports for registry and instances"/) — the =registry= scope and =instances.json= keep their resolvers. Trigger: beef's word on what the ledger exports for them.
+- *Merging lists by slug* (a ledger's two hallucinators + an instance's third) — slot-whole today, by design. Trigger: the first instance that wants "the ledger's plus one".
+- *A ledger stratum for =environment= DEFAULTS* — the ledger's =.env= already is the =ledger= stratum for values; only the schema moved. Nothing more owed.
+- *A runtime test that mounts a recipe* — the pre-existing gap; not this quest's.
+
+* forks (beef)
+1. RULED — no manifest export; type and slug derive from the file's place, lock by exporting one.
+2. the walk instance — droneaid slimmed at M4 (proposed) · hello-world too (changes the snapshot fixture and the create template; a fresh instance on a silent ledger would then not boot).
+3. =commons/ledger/= as the canonical home (proposed; =instance/create= ↔ =commons/instances/hello-world= is the precedent) · a text template inside ghost.
+4. RULED — the ledger's =environment= merges WHOLE into every instance's schema; =VIVA_REPOSITORY_MOUNT= is a documented, required key on every instance. beef: /"Price of inheriting and actually bold signal. an instance DOES have this requirement. good to have it explicit."/
+
+* changelog
+- session 1 — designed; terrain read; the patch drafted file by file. Then beef: /"is this already tested? run the coverage. blast change. itterate coverage."/ — M1–M3 landed as drafted with three deviations: the new test's ledger fixture is a FACTORY over the mount's paladin (a thunk bound to a second =Paladin= reads empty bags); the requirement label for a ledger client is =client[anima].statics.serve= — the recipe's own label, not =clients[0]= (the quest's draft was wrong, the test now pins the real one); =ledger/init= resets =paladin.ledger.declaration= after re-rooting the ledger scope (the memo would otherwise carry the old home's recipe). =commons/ledger/ledger.viva.js= tangled verbatim. =~/.viva/ledger.viva.js= untouched — the manifest-less stub reads as =present: false=, not a throw (=cast.viva= yields no module, =find.type= filters it).
+  Suites (pasted): typology =ok | 127 passed (513 steps)= (baseline 127/513) · paladin =ok | 42 passed (193 steps)= → 42/194 with the memo case (baseline 41/187) · ghost =89 passed (27 steps) | 2 failed= (baseline 90/25 | 1 failed: the pre-existing order-dependent "instance init authors .env" — identical =present/scaffolded= diff; the second, "two shells select two instances in parallel", passed 2/2 on rerun — its session record is pruned when =Deno.kill(61001, "SIGURG")= finds no such pid, so it depends on what pids the machine holds: flaky, not this quest's) · runtime =ok | 63 passed (417 steps)= (baseline 63/417, no change — the seam is untested, as named).
+  Coverage (paladin, =deno coverage=, lines): =lifecycle/populate.js= 90.7 → 91.6 · =lifecycle/resolve.js= 87.2 → 88.1 · =prototypes/ledger/ledger.js= 100 → 93.8 → 100 after the memo case · =prototypes/instance.js= 100 → 100 · all files 89.8 → 90.3. Every line still uncovered in populate/resolve is pre-existing (the ENOENT / two-instances / not-v.environment throws, the relative =paladin.source= branch, the instance =.env= claim) — shifted by the insert, not opened by it.
+  Live: =viva ledger/doctor --json= → =recipe: { present: false, slots: [] }= on the stub · =viva instance/doctor droneaid= → =inherited: []=, problems =[]=, faults =[]=.
+- session 2 (09-24) — beef, on this quest's path: /"done?"/, then after the verification ran: /"go"/. M4 verified fresh, then the close-out that is ikiro's.
+  Suites (pasted, 09-24 ~15:05): typology =ok | 127 passed (514 steps) | 0 failed= · paladin =ok | 47 passed (220 steps) | 0 failed= · runtime =ok | 65 passed (422 steps) | 0 failed= · ghost =tests/ledger.test.js= =FAILED | 0 passed (17 steps) | 1 failed (1 step)= — the pre-existing =present= / =scaffolded= red at =systems/ghost/tests/ledger.test.js:213=, unchanged. The rise over session 1 (paladin 42/195 · runtime 63/417) is sibling work in the same =@= (=prototypes/ledger/integrity.js= · =registry.js= · =systems/runtime/tests/door.test.js=), not this quest's. The full ghost suite was not re-run.
+  Live: =viva instance/doctor droneaid --json= and =… chess --json= → =inherited: runtime lighthouse datamap hallucinators clients services= · problems 0 · faults =[]=. Neither recipe declares any of the six slots — fork 2 settled by the tree: both instances are slim (droneaid mtime 09-23 18:54). The runtime watcher (pid 63684, started 09-23 21:11, after the droneaid slim and the ledger file at 18:37) holds =daemon_droneaid/droneaid.viva.db= AND =service_multiplayer/multiplayer.viva.db= — droneaid declares no =services=, so the multiplayer service booted from the ledger's slot: the fold reaches the runtime. anima =:1794= → 200; Chrome holds 8 established sockets on =:2501=.
+  Markers re-grepped: P-runtime-blind 0 · P-one-slot-list 0 · T-ghost-env-schema-moved: three =VIVA_= hits in =trajectories/ledger/index.js=, none a schema key (=VIVA_LEDGER_MOUNT= shell-config writer :43-44, =VIVA_INSTANCE_MOUNT= payload read :194).
+  Deviations: the M4 gate's =/scan= names no route — grep over systems · subsystems · commons · the registry returns zero; nothing was probed in its place. The anima → daemon handshake (=/userspace/handshake= through the lighthouse) was NOT walked in a browser — the sockets show the client reaches the runtime, not that droneaid's handshake passes. T-doctor-inherited flipped on the agent's probe, not beef's walk.
+  Close-out: the four =* release= lines lifted verbatim into =.ikiro/release.md ## unreleased= (cli ×3, env ×1); =world/ledger.md= gains the recipe trap (the blast table's close row; =codemap/paladin.md:13-14= already carried the fold). NOT moved to =done/=: the quest report shows a live sibling (=fc59f22c=, 12m) — the quest-lifecycle law.
+- session 1, cont. 4 — beef: /"move the env variables up. whatever i declare in teh ledger should have its env vars in the ledger"/ → =ledger/init= authors the recipe's keys into an EXISTING =.env=: only the keys the file lacks are appended (groups, prose, defaults), what is there is untouched; the effect carries =authored=; the file is re-claimed at the ledger stratum so =fill= sees the defaults just written. ghost =tests/ledger.test.js= +1 (17 of 18, same red). Then beef's files (backed up under =~/.viva/bak/= first): the canonical =environment= block appended to =~/.viva/ledger.viva.js=; =viva ledger/init ~/.viva= authored 10 keys into =~/.viva/.env= (=fill=: the three optional provider keys); =chess/instance.viva.js= keeps only its three =VIVA_SERVICE_STOCKFISH_*= keys — the strip is by ENTRY (the recipe is prettier-formatted, a line strip mangled it once; restored from the backup, cut again).
+- session 1, cont. 3 — beef: /"i dont like manifest export on ledger. slug on ledger especilly."/ → the manifest requirement dropped: =Ledger.recipe()= walks =find.viva(home, 0)=, reads the one file through =read.module=, derives ={ type: "ledger", slug: <stem> }= and spreads an exported manifest over it as a lock; two files throw; a foreign type throws. =commons/ledger/ledger.viva.js= has no manifest export (a commented lock line). ghost =ledger/doctor= names the organ after the file it found. paladin =ok | 42 passed (195 steps)= — the snapshot suite green again now that the real ledger speaks. ghost =tests/ledger.test.js= 16 of 17, the same pre-existing red. Live on beef's ledger: =ledger.viva.js  present  ledger · runtime lighthouse datamap hallucinators clients services= with the six lines; =viva instance/doctor chess= (slimmed by hand to manifest · daemons · environment) → =ledger /Users/finn/.viva/ledger.viva.js=, six =inherited= lines, =clients anima=.
+- session 1, cont. 2 — beef's =ledger.viva.js= (no =import paladin=, manifest nested one too deep) read as =absent=, chess slimmed by hand showed =runtime null · faults daemon[chess] must have required properties lighthouse, datamap=. Two cuts: =Ledger.recipe()= throws on a mute root file (=belt/ignore.js= now skips emacs =.#name= lock symlinks and =#name#= autosaves — a =.#ledger.viva.js= symlink tripped the reader with =ERR_UNSUPPORTED_DIR_IMPORT=); =ledger/doctor= says =mute= with the reason. =tests/ledger.recipe.test.js= 8 cases. =instance.snapshot.test.js= is RED on this machine until the real ledger file speaks — it mounts the real =~/.viva= (pre-existing hazard, now loud).
+- session 1, cont. — beef: /"now adjust the ghost cli. doctor needs display this on ledger and instance."/ → =belt/recipe.js= (the voice: runtime → slug, lighthouse/datamap → module, lists → joined, environment → key count); =ledger/doctor= prints one gray line per declared slot under the =ledger.viva.js= organ; =instance/doctor= prints =ledger <file>= and =inherited= as a block of =slot  what-it-says=. Walked on a temp ledger (=--ledger=/tmp/ledger-MIvK=, =ledger/init= there, a slim instance of manifest · daemons · environment({})): the ledger organ reads =present  ledger · environment runtime lighthouse datamap hallucinators clients services= with the seven lines under it; the instance reads =ledger /tmp/…/ledger.viva.js= and six inherited lines; runtime =runtime=, clients =anima=, services =multiplayer= — the slim instance is whole. Note: =VIVA_LEDGER_MOUNT= in the env does NOT reach =viva= (ghost.sh sources the user config, which sets it); =--ledger== does. ghost =tests/ledger.test.js= 16 of 17 after — the one red is the pre-existing =present/scaffolded= step, unchanged. Fork 4 ruled mid-walk.
+
+* release
+- added `<ledger>/<any>.viva.js` — a ledger declares `runtime · lighthouse · datamap · hallucinators · clients · services · environment` once; every instance on it inherits a slot it does not declare, its environment keys merge under the instance's ; no `manifest` export needed — type and slug derive from the file's place, an exported `manifest` locks · migrate: none (absent ledger recipe = today's behaviour); `viva ledger/init` now writes `ledger.viva.js` ⟨ledger-recipe⟩
+- changed `viva instance/doctor` — prints `inherited: <slots>` · migrate: none ⟨ledger-recipe⟩
+- changed `viva ledger/doctor` — a `recipe` organ (path · present · manifest · slots) · migrate: none ⟨ledger-recipe⟩
+- changed `viva ledger/init` — the `.env` scaffold reads the ledger recipe's `environment` (was a schema hardcoded in ghost); on an existing `.env` it appends only the keys the file lacks and reports them as `authored` · migrate: none ⟨ledger-recipe⟩

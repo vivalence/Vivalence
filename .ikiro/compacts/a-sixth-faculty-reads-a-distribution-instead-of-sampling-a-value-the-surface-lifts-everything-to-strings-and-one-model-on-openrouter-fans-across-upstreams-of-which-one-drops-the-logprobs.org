@@ -1,0 +1,99 @@
+#+title: a sixth faculty reads a distribution instead of sampling a value, the surface lifts everything to strings, and one model on openrouter fans across upstreams of which one drops the logprobs
+#+index: 212
+#+session: one fold of session 73fd63c4, 18 turns (2 mid-turn). beef's thread: /"i smell a new faculty"/ — jev, the cortex, a capability, its quest, four milestones landed on one go, then two dead keys cut and the live one moved.
+
+* one breath
+
+Jev (TypeSafe's "System One" decision model) turned out to be one trick — prefill, read the logprobs of the answer labels at the first output position, softmax — and that trick is not derivable from =dialogue= the way =object= is, which made it the sixth faculty: =choice=. beef killed Jev's three question types in one line (4), killed my rich =Option{value, label}= in one line (13) — /"the core faculty knwos nothing of the implemntation details of its surface"/ — and the faculty reads strings only. Quest m70 landed whole: the typology avenue, =harness.choice.render= + the =/cortex/render= union, an openrouter =choice= faculty on =qwen/qwen3.6-35b-a3b=, riddler grading by verdict. Two defects only the live call could show: the vector's routing =Signal= handed to the SDK as an AbortSignal, and OpenRouter routing one model to an upstream that returns =logprobs: null=. Then the keys: two dead ones in =~/dotfiles/.zprofile= cut, the only live Anthropic key moved from an instance to the ledger root. Record: =quests/m70-choice-faculty.org=.
+
+* the spine — 18 turns
+
+| n | beef | landed · died |
+|---|---|---|
+| 1 | /"find out all about jev … i smell a new faculty. whats the capability here?"/ | repo grep: no jev; cortex mapped — five faculty types (=hallucination.js:17-23=), avenues (=cortex.js:37-58=), =DERIVATIONS= (=:103=) |
+| 2 | mid-turn: the nobodywho link | the 25-line readout read: logits of label tokens, softmax; the parody names the real product |
+| 3 | mid-turn: /"choice? or is jev just object with some sugar?"/ | ruled by derivability: =object= derives from =dialogue=, a distribution cannot derive from a sample; Anthropic exposes no logprobs |
+| 4 | /"fuck jev's types. viva is self contained. choice. yes no?"/ | one primitive: =noul= = choice over yes/no, =score= = choice over ordered options + =expect()=; collision census =option= 0 in typology |
+| 5 | /"nouk choice score … implementation details for the provider, or meaningfully different?"/ | provider details: the one semantic bit (ordered) is the caller's array; readings live in belt like =belt.verbatim= |
+| 6 | /"show me this example for the three choice types"/ | the three consumers as code: yes/no · error family · CEFR levels |
+| 7 | /"i want something richer … function signatures? objects with properties?"/ | ontology-pass: two things want naming (member · space), fifteen candidates, =Label= stolen, tension named — who lifts a thing to text |
+| 8 | /"i dont do well with yap. i do well with code. show me code"/ | the whole design as sketches: =Option= schema · =lift= · =choosing= · provider readout · belt readings · five consumers |
+| 9 | /"m70. go."/ + the consumers pasted back | quest m70 written from measured terrain; index line; markers clean. Numbering arrived from him |
+| 10 | /"i commented the patch."/ | three marks: =of= → =probability=; softmax OUT of belt (/"do i really need my own softmax?"/) → inline in the provider; the harness-wrapper seed to deferred |
+| 11 | /"go"/ | M1 landed; the gate runs before the lift so a bare tool declaration failed =/options/1= → =Tool= admitted; typebox =fill= measured copying POJOs under =options[]=, keeping class instances; typology 127/514 |
+| 12 | /"whats a tool here?"/ | =Tool= = the wire declaration of one Vector edge (=hallucinate.js:8= =declarations=); the =valence=-optional defect in =lift= shown |
+| 13 | /"no. i am against this. thats bad abstraction … we know our constraints are strings. thats good enough."/ | =Option= · =Label= · =Tool= · =lift= die; =options: v.array(v.string())=; the surface lifts |
+| 14 | /"go"/ | re-landed strings-only, 127/514; quest folded (rulings 4 · 6 rewritten, the law, the sketch, the hunks, the identity finding dropped) |
+| 15 | /"go on the whole thing."/ | M2 · M3 · M4 landed; the two live defects (rulings 11 · 12); model chosen by =GET /models= + curl probe, never guessed; live 3/3; riddler not HARNESSED (ruling 13); runtime 65/422; known-issues entry on the dead keys |
+| 16 | /"the shell OPENROUTER_API_KEY are dead … there should be a dead anthropic key there too. remove the values and comment the keys. language-learning/.env remove the keys."/ | source =~/dotfiles/.zprofile= (symlink; =sed -i= refused); both shell keys probed dead and commented empty; language-learning OPENROUTER cut; its ANTHROPIC probed ALIVE and the only one → HELD, asked |
+| 17 | /"move it."/ | live Anthropic key → =~/.viva/.env:4= (over a commented dead value, bak kept), instance line commented empty, probed alive at the root; known-issues entry cut as resolved |
+| 18 | /"ikiro compact. important one. docuemtn the new capability. including in the harness reference!"/ | this fold; =.ikiro/reference/harnesses/harness.md= §2.8 (the call, the path by =file:line=, eight laws, when-to-use, live numbers) + step 0 · step 8 · §2.1 · §12.1; codemap typology · runtime · commons; docs =32.01= · =51.02= (astro build: 10 pages, green) |
+
+Coverage: 18 of 18. Balance: thirds cite 1–6 → 3 rulings (derivability · one primitive · provider details), 7–12 → 4 (Option/Label design, softmax out, =of= renamed, Tool named), 13–18 → 6 (strings-only, signal, routing, riddler seat, keys). The weight sits late because beef ruled the shape twice on the landed code (13) and because two defects exist only at the live seam (15) — the denominator is this fold's 18.
+
+* rulings — beef's, verbatim where he wrote them
+
+- =choice= is a faculty, not sugar: derivability is the test (3). Mine, unopposed.
+- /"fuck jev's types. viva is self contained. choice. yes no?"/ (4) — one primitive; =noul= · =score= are readings.
+- the three types are provider details (5) — taken on my lean, his go was on the code; QUESTIONED in the quest.
+- /"the core faculty knwos nothing of the implemntation details of its surface. any processing of tools has already happened at that point. we know our constraints are strings. thats good enough."/ (13) — the surface lifts, the core reads strings. The strongest ruling of the session and the one that erased the most code.
+- /"do i really need my own softmax? and in that case thats more belt/math or so."/ (10) — logits → probabilities is the provider's translation; nothing enters belt.
+- absence throws, no derivation through =object= (ruling 7) — mine; his word owed.
+- riddler grades through =daemon.cortex= directly because it is not HARNESSED (ruling 13) — mine; his word owed.
+
+* failures
+
+- Sketching =ctx.mode.tools.edges()= — no such method on a Vector; caught by grep at quest time, not at sketch time.
+- Two landings of one milestone: =Option= + =lift= built the surface INTO the faculty; beef's 13 was the second correction on one screen for that shape (12 asked, 13 refused). The connoisseur line that would have caught it: the faculty's contract is the wire, and the wire carries strings.
+- Landed code passed every suite and failed the first live call twice: =ctx.signal= (a routing Signal) as the SDK's AbortSignal → =Connection error.=; then =logprobs: null= from Venice behind the same model id. Neither is reachable by a mocked client. The live probe is the test for a provider seam.
+- Key values reached my terminal output once (the =diff= of the zprofile edit printed the dead values) — dead keys, but the habit is wrong: cut with =cut -c1-30= or lengths, never a raw diff of a secrets file.
+- The =sed -i= on =~/.zprofile= refused (a symlink) — resolved with =readlink -f= and a python edit at the target.
+
+* State at fold
+
+- LANDED, all green: typology 127 passed (514 steps) · runtime 65 passed (422 steps) · openrouter 2 passed (43 steps) · anima cortex suites 3 passed (9 steps) · live 3/3 through the real provider · zero snapshot files moved · =viva /help= alive.
+- =subsystems/typology=: =FacultyType= +=choice=; =Choice.Lowered= · =Choice.Verdict= · =Policy.choice= · =Hallucination.choice{state, question, options: string[2..26]}=; =belt.choice.{pick, probability, expect, confidence}=; =shard.hallucinate.{optioning, choosing}=; the =/choice= branch, render only.
+- =systems/runtime=: =harness.choice.render= on every HARNESSED mode (reads =state · question · options= off =ctx.input=, keeps the controller and the thread-tuned policy); =/cortex/render= ROUND = =Request | Choice.Lowered=.
+- =commons=: openrouter =choosers= table (=qwen/qwen3.6-35b-a3b=), =buildChoiceParams= (one token · =top_logprobs: 20= · reasoning off · =provider.require_parameters=), =readChoice= (softmax inline, >20 labels throws); the fixture chooser feeding runtime scenarios.
+- =~/.viva/registry/education/…/riddler/aperture.js=: =resolved = probability(yes) > 0.9=; no shelf copy exists. NOT walked in anima.
+- keys: =~/dotfiles/.zprofile:1-3= commented empty (the dotfiles repo shows =M .zprofile=, beef's to commit); =language-learning/.env= ANTHROPIC + OPENROUTER commented empty; =~/.viva/.env:4= holds the live Anthropic key (probed 12 models), =:5= the live OpenRouter key. The root's previous commented Anthropic value survives only in =~/.viva/bak/shell-20260923/viva.env=. The shell keeps the dead exports until a new login.
+- the =call= faculty type: zero avenues, zero consumers (measured) — the seat for "select the tool PLUS the parameters", deferred in the quest with beef's words.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| ontology-pass | 7 | HELD | collision list from disk, two things named, fifteen candidates by register, precedent steal, the principle, the table, the tension — and no mechanism until 8 asked for code |
+| quest-authoring | 9 | HELD | twelve organs from measured terrain, his words verbatim, markers prefixed; three marks answered in place at 10 |
+| compact-walk | 18 | HELD | markers empty, spine and skills by id, rows before sections |
+| blast-bracket | 11 | MISSED | =FacultyType= · =Policy= · =Hallucination= have consumers across three containers; landed on suite counts, never a blast list |
+| testing | 11 | MISSED | baseline pasted and one-file runs by hand; the skill never fired — the guardrail was never RED first |
+| pre-flight | 9 | MISSED | =ctx.mode.tools.edges()= reached the sketch; a grep would have refused it |
+| capture-before-delete | 16 | MISSED | the captures were made (=bak/instances/…= · =bak/shell-20260923/=) by hand before the edits; the skill's trigger (=.env= under =~/.viva=) never fired |
+| known-issues | 15 | MISSED | the dead-keys entry filed by hand in the skill's shape, then cut at 17 as resolved |
+| shelf-sync | 15 | MISSED | the "no shelf copy" fact measured by =find=, not by the skill |
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | sessions   |
+|-------------------------+-----------+----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| assembly-guide          |  47% 7/15 | wip      | control                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 2 (1 live) |
+| ledger-recipe           |  67% 8/12 | building | beef — the number · fork 2 (which instance slims for the runtime live boot; droneaid proposed) · commits in typology, paladin, ghost, commons · the runtime live boot. m0 done: =~/.viva/ledger.viva.js= speaks (no manifest, the environment block in), =~/.viva/.env= authored, chess slimmed.                                                                                                                                                                                                                                                                                                                                              | 1 (1 live) |
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 1          |
+| m67-assembly-ontology   |  64% 9/14 | building | beef — one number settles the centring: the =/resolve= response's =motor_2/motor.1= translation and rotation off the network pane. then sign in so the editor can be walked by me at all (i do not type credentials), re-import the blend so =harvest.py='s stray fix takes, and confirm the navigation standard. standing: the typology one-liner (=connection-aim-dedupes-arrays=), the mode's name, commits, the =assembly=/=component= symbol purge, @droneaid vcs init. ikiro — the =unique(slug)= migration (ruling 24 is code-only), a mount rig for this package's views (the standing coverage gap), re-embed of a corrected member. | 3 (2 live) |
+| m69-ikiro-ikiro         |   0% 0/10 | design   | go                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 3 (1 live) |
+| m70-choice-faculty      |  56% 5/9  | wip      | control                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 2 (2 live) |
+* handoff
+- quest :: m70-choice-faculty
+- goal :: /"i smell a new faculty. whats the capability here?"/ → =choice=: a distribution over strings, four milestones landed
+- done :: =subsystems/typology/prototypes/cortex.js= =/choice= branch · =systems/runtime/daemon/traits/harnessed.js= =harness.choice.render= · =commons/hallucinators/openrouter/provider/translate.js= =buildChoiceParams= + =readChoice= · riddler =resolved= by verdict; typology 127/514 · runtime 65/422 · live 3/3
+- next :: sign in to anima; one riddle wrong, one right — =resolved= flips only on the right (=m70/P-riddler=)
+- never :: no lift inside the faculty — /"we know our constraints are strings. thats good enough."/; no derivation of choice through =object=; no softmax in belt
+- owed :: beef — rulings 3 (Jev's types are provider details) · 7 (absence throws) · 13 (riddler stays un-HARNESSED, calls the cortex directly)
+- owed :: beef — the =call= faculty seat: choice over declarations then =object= against the picked tool's =input= (deferred with his words in the quest)
+- quest :: none
+- goal :: dead keys out, the live one at the root
+- done :: =~/dotfiles/.zprofile:1-3= commented empty · =language-learning/.env= ANTHROPIC + OPENROUTER commented empty · =~/.viva/.env:4= live Anthropic key (12 models), =:5= live OpenRouter; baks under =~/.viva/bak/shell-20260923/= and =bak/instances/language-learning-20260923/=
+- next :: open a new shell — the dead keys stay exported until then
+- never :: a raw =diff= or =cat= of a secrets file into the terminal — lengths or =cut -c1-30=
+- owed :: beef — commit =~/dotfiles= · commit m70 (typology · runtime · commons · education) · say whether the root's OLD commented Anthropic value (now only in the bak) was one to keep

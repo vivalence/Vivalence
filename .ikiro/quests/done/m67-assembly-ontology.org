@@ -1,0 +1,515 @@
+#+title: m67 the assembly ontology — kind is the ontology key; components, assemblies and steps as literals; an importer that walks a blend into the daemon part by part; @droneaid the first product on it
+#+filetags: :m67:droneaid:assembly:ontology:literal:symbol:kind:usd:gltf:three:importer:harness:topology:topography:erp:lms:
+#+status: BUILDING — rulings 1–24 in; the ontology REWRITTEN 09-22 to part · placement · step (compact #192), slugs unique with no owner (24). The editor REBUILT 09-22 from beef's design project (=Assembly Editor.dc.html=, imported through the design MCP): four panes on one buffer, a pure fold whose =frames()= composes a placement against its PARENT (the grafted-interior defect, fixed), a one-line verb parser, a joint mode that writes =JOINED=, a bill beside the sequence, and a buffer that MEETS YOU EMPTY (no dock in it — that is anima's). The navigation standard was the design's explicit hand-off to the implementer and is written down under =** the navigation standard= — QUESTIONED until beef walks it. 13 suites / 73 steps green, nine views compile client+server, the client bundle builds; NOT walked live — anima asks for credentials I do not type. One typology defect stands, filed in known-issues (=connection-aim-dedupes-arrays=), worked around in the mode.
+#+status: (was) BUILDING — rulings 1–24 in; the ontology REWRITTEN 09-22 to part · placement · step (compact #192), slugs unique with no owner (24). The editor's three pieces LANDED 09-22 on beef's go — the domain answers every verb, =@ …
+#+phase: building
+#+progress: 1/3 · M1 the importer LANDED · M2 the topography EMPTY BY DESIGN, the live walk fills it · M3 the guide untouched
+#+next: beef — ONE number settles the centring: the =/resolve= response's =motor_2/motor.1= translation and rotation off the network pane. Then sign in so the editor can be walked by me at all (I do not type credentials), re-import the blend so =harvest.py='s stray fix takes, and confirm the navigation standard. Standing: the typology one-liner (=connection-aim-dedupes-arrays=), the mode's name, commits, the =assembly=/=component= symbol purge, @droneaid VCS init. ikiro — the =unique(slug)= migration (ruling 24 is code-only), a mount rig for this package's views (the standing COVERAGE GAP), re-embed of a corrected member.
+
+* intent
+
+beef, verbatim, the design-bearing lines:
+
+/"our task today is to design an ontology for the droneaid case. the case is that we want something between an erp and an lms. the erp has sets of parts and the lms guides a user through the construction of a concrete product made from parts. parts have some hierarchichal structure internally. i construct the frame from parts and the frame is the input and a prerequisite for construction of further parts."/
+
+/"anything concrete is a literal. symbols are abstracts, not aggregates. a conjugation table is the still an literal as aggregate of many literals. specific concrete vs abstract symbolic."/
+
+/"the ontology is not derive from droneaid but the domain droneaid uses to solve its problem. whats the 3d/vr format we wish we had used?"/ · /"in USD we probably already have names for things like part assembly and step what does USD call that internally"/
+
+/"just like the language learning is derived from universal dependencies and the part of speech, that is our kind here — kind is the ontology key. And from that we can derive the literal space."/
+
+/"i want to construct this in 3 parts. first is an editor. i watn to be able to create parts, assemble them, group them, change and edit them, etc. some blender style stuff in threejs. ill want this as both ui and harness."/ · /"the editor harness need to have the current buffer added to the system prompt on every call. it needs to know how it can update teh shapes of a literal. it needs to know what types of literals are aka what our ontology is."/
+
+/"how do I import the model? I just like drop something into the editor. The editor places, interprets, creates its own representation of this. And then part by part we navigate through embedding this into the system, i.e. creating literals and creating the freight the files then creating all of the component parts the parametrics all of the stuff that's missing yet"/
+
+/"now work out the domain, the topology, and a single example of a topography. i guess it makes actually sense to move to a new package for the base parts. lets call it assembly. topography stays in droneaid. we will rewrite droneaid from scratch once assembly is done"/ · /"take your time. have fun. good rather than fast. good=coherent, scalable, flexible"/
+
+The director order (the go, 09-21, dictated mid-turn): /"I consider you to be the director, the integrator. And I now want the ability to import, process, annotate, and embed a blend file into my newly created daemon. I want you to tap the registry. I want you to create a new instance. In the ledger directly, no intermediate, no prototype in any of the other packages that we have. … I want you to copy the stuff in the drone aid instance that's already in the ledger. I want you to move the old stuff into buck and create a new one that broadly match the keys. … And then create this mode for importing and I think I already want the ability to at least view the components and assemblies and such that we have on disk that were created through the importer and that are now in the daemon itself."/ → /"this constitutes go"/.
+
+Three parts: (1) the importer — App + harness over one ontology · (2) the pt10 topography written by it · (3) the guide, the LMS half, the PDF the authority for where each screw goes.
+
+* rulings
+
+1. *kind is the ontology key.* USD's model hierarchy minus =group=, plus =step= (ours; USD has no noun for it). =subcomponent= dropped: zero uses across Kitchen_set · OpenChessSet · hardware. A literal's ONE TOPOGRAPHICAL symbol IS its kind; the runtime stamps it as =ontology=.
+2. *format.* glTF 2.0 is the file and the wire. USD's composition model — reference · over · class · instanceable — is the ROW model, never written as .usda. Placement is NOT a literal: it is the xformOp on the reference.
+3. *three as engine, threlte as binding.* MEASURED: =bundle.svelte= as-is FAILED on threlte (47× /"=$bindable()= can only be used inside a =$props()= declaration"/, first at =@threlte/core/dist/components/T/T.svelte:25=). Cause: =svelte-preprocess@6.0.3='s TS pass ran at its default old =target= and downlevelled threlte's rest-destructure into a =__rest= helper, so =$bindable()= landed outside =$props()=. LANDED, both lines of =subsystems/typology/gestalten/bundle/svelte.js=:
+
+#+begin_src js
+// subsystems/typology/gestalten/bundle/svelte.js:40,46
+-    target: "es6",
++    target: "esnext",
+-        preprocess: sveltePreprocess(),
++        preprocess: sveltePreprocess({ typescript: { compilerOptions: { target: "esnext", verbatimModuleSyntax: true } } }),
+#+end_src
+
+   Two passes, two targets: the preprocess line lowers BEFORE svelte compiles (the =$bindable()= break); esbuild's =target= lowers AFTER. Measured on the served =editor/import= bundle: es6 rewrote every =async= through =__async= (29), 185 =#private= sites through =__privateGet/Set/Add= (three.js internals), spread through =__spreadValues= (21), class fields through =__publicField= (16); esnext has none of them and is 23 kB lighter. Driven in Chrome on the esnext build: 18 GLBs at 200, the drone drawn, zero console errors; =tests/gestalten/bundle.test.js= green. =typescript: false= also passes but closes TS enums — beef: /"we want ts"/ · /"why close this door?"/. Everything shipped so far is RAW three, not threlte. beef's 2024 threlte + rapier prototype: =quests/roadmap/threlte-rapier-drapes.org=.
+4. *tool-first, at the mode.* A mode's capability is a =tools= verb; the aperture WRAPS it when the App needs a door. Blender headless is the mode's (=blend.js= + =harvest.py=, media's =ffmpeg.js= precedent); the browser never writes. Promote to the domain when a second mode wants it. Governs a MODE only — see 14.
+5. *Two packages.* =@assembly= is the base (domain + topologies + the importer); =@droneaid= keeps the product (its topography, its guide, its instance).
+6. *A step is a layer; an assembly is a layer stack.* USD's LayerStack: the stage at step N is sublayers 0…N composed, later stronger. =COMPOSED{nodes}= + =JOINED{joints}= are the traits of a LAYER — an assembly and a step both carry them. An assembly adds =SEQUENCED{steps}=; =resolve(slug, {upto: k})= folds its own layer then steps 0…k. No intermediate product is ever a row: "the frame after step 5" is derived. =TRANSITIONED= is dead — order is the sequence.
+7. *Operations are entity and repository methods; tools use them.* beef: /"some of these arent tools. they are entity operations! they are methods on entity or repository."/ The entity READS (=row.nodes · joints · steps · layer=), the repository is the ONLY WRITER (=component · assembly · step · place · join · sequence=, maintains =uses=) and QUERIES (=closure=) and FOLDS (=resolve · bom=). The folds are pure functions in =resolve.js= over plain rows — no em, no flush — and the App imports the same file to fold the dataspace's rows in the browser. Measured: =v= has NO =tuple=, NO =lazy= (beef: /"not sure v.lazy array is real"/ — it is not), so nodes are FLAT, glTF's own shape: one array, hierarchy by =parent= path. TRS is glTF's node TRS verbatim.
+8. *Three topologies, one per kind.* Ruling 6 puts the seam between the two layers (assembly · step) and the one with geometry (component). Each topology mints its own families.
+9. *The topography is =@droneaid/topography/model=, version =0.0.0=* — beef: /"droneaid model.0000"/. The model IS the topography; =pt10= is the frame's name, not the product's.
+10. *Rows are metres, Y-up — glTF's own law.* Converted at harvest; =SOURCED.scale= remembers Blender's factor for the round trip. Embed bakes SCALE only, never rotation: one =arm= component, four nodes with rotation.
+11. *No OVERRIDDEN trait.* Later layer wins by path (LIVRPS, local opinion): a node re-declared with only =name= + what changes is an over; a joint re-declared by =fastener= with =torque: "tight"= is step 13. Removal is USD's word: =active: false=. =group= is a node with neither =component= nor =assembly= — never a row.
+12. *=COUNTED{qty}= is the kit.* What the box ships. What the build uses is =bom()=, derived. The check is the two disagreeing.
+13. *The domain declares what it hardcodes; the owner is the caller's.* beef: /"whatever the assembly domain hardcodes/requires in terms of traits/entities/ontologies/topologies must be part of the domain declaration itself."/ Education is blind to its topologies because it never mints a literal; assembly must, so it cannot be blind to its KINDS — =KINDS= is a private table in =Literal.ts= read by =mint= and nowhere else. Chess's =owner(kind)= lookup is GONE: every writer takes the owner from the caller (the topography being edited, or the mode that mints). The domain never looks a topology up.
+14. *The domain follows education; ruling 4 governs a mode.* On a domain the doors ARE the verbs — one repository call each — and a tool rides its door through =daemon.call= carrying the caller; the App calls the same door over the wire. Two seats, not one rule. The barrel is =entities · schematics · aperture · tools · manifest= and nothing else (§the barrel).
+15. *The bin IS the buffer.* A phase is derived off the bin — a loose object is intake, a member is interpret, annotated is annotate, minted is embed — never stored. =bin N= in the header IS the buffer index.
+16. *The importer mints under itself; write publishes.* Rows in the daemon are the import mode's (a row's owner is a single mode); the topography's copy is what =/write= puts on disk and what a fresh daemon installs. Two owners, one slug — by design; =/literals= says whose. OPEN: beef's word after the first live write.
+17. *No symbol is guessed.* =annotate= proposes slug · name · count; material and source are the hand's or the agent's, from the vocabulary the harness lists.
+18. *Every mode has a ground, seated by paladin.* =resolve.ground= seats a kernel entry at =<daemon.mountpoint>/mode_<type>_<slug>= unless the entry names one; a declared-but-blank one stays a REQUIRED fault the doctor names. beef: /"the mountpoint should be on EVRERY mode by default as a function of paladin doing its thing."/ · /"paladin wires up the environment"/ · /"no overwrite needed. no custom variable."/ The fallthrough is now ledger → instance → mountpoint → daemon/service → mode, each overridable, an override re-rooting everything below. Record: =roadmap/mountpoint-fallthrough.org=.
+19. *The daemon starts empty.* A topography ships its vocabulary and its pages; its rows are what the importer writes into =dataset/literals/=. Nothing authored by hand or by a script rides a dataset — and an upsert never deletes, so a shipped row is permanent. beef, on the 48 =harvest.js= rows the kernel installed: /"why is there data in at all?!??!!?"/ · /"makes no sense. shouldnt be"/.
+
+20. *A placement is a literal.* beef: /"is the nodes maybe a literal? It sounds like that would make sense. Um, because both the the component or assembly, though they are specific things, and the placement of something is also a specific thing. So I don't see why that shouldn't be a dedicated literal. And group still, yeah, it doesn't make sense to me also."/ A placement's slug is =<layer>.<path>= (=/= → =.=), so the same layer, parent and name again IS the same row — an over by construction. =ref= is never absent: a placement that places nothing is unrepresentable, which is what killed =group=. Supersedes ruling 2's "placement is NOT a literal" and ruling 11's group clause.
+21. *Part swallows component and assembly.* beef: /"let's call them assembly and placement. Or no, I like part and placement. Part. Placement and step where part and placement are both part of the assembly ontology and step will be its own thing later for the guide tutorial."/ The two differed only by which field was absent — a union by absence — and a bought sub-assembly (a motor you order AND whose interior you know) was inexpressible under either. =COMPOSED · NODE · JOINT · LAYER= gone; a layer's contents are the placements that name it; =JOINED= rides the fastener's placement. Rulings 6 and 8 read with =part= for =assembly=. Two ways to nest, never blurred: =parent= is structure inside ONE layer; =ref= naming a part with an interior grafts that composition under the placement's path.
+22. *Every import is its own.* beef: /"I don't think the import should overwrite anything that we already have in the system. They should be standalone and for the rest... No, yeah, no, no existing parts. Each import is its own. And if we ever want this existing part substitution, then I think we can add that on later. Go."/ =settings.into= names the root part; a slug the mode already owns is suffixed. The top level is derived — a part nothing places is a root (beef: /"but now our commit misses the overarching top level container. what should that be?"/).
+23. *Two manifests name a daemon's mounts.* The registry's =instances/<slug>/daemon.js= AND the installed =~/.viva/instances/<slug>/daemon.js=; a topology renamed in one and not the other 404s the boot — measured on beef's watcher: =[VIP] Module 404: {"owner":"@assembly","type":"topology","slug":"component"}=.
+24. *A slug is unique. There is no owner.* beef: /"So absolutely slugs are unique. There's only one slug ever. And if there's a conflict in naming, then we need more annotation, more depth to our pieces. We might just number them, but the slugs are actually are truly unique. no separate owner, you clearly have not understood the way that vivalence's systems work. I suggest that you inspect your own Ikiro context. Literals don't require an owner. They might have one optionally in term, as a mode attached, but that is not something, there's no owner."/ Measured: the runtime's =Literal.mode= is optional (=entities/kernel/Literal.ts:73=, =mode?: Rel<ModeEntity>=) and its own upsert key is =unique(opt) { return { slug } }= (=:17=); the =(slug, mode)= db unique exists for one module kernelled twice (m53), a runtime concern. In this domain the slug IS the identity: every lookup is =findOne({ slug })=, =mint= refuses a slug anyone holds, =mode= is an annotation the minting mode may leave. The importer's =taken= set becomes every slug in the daemon, not the mode's. Supersedes ruling 13's "every writer takes the owner from the caller" and ruling 16's two-owners-one-slug; the aperture's =owner= input and the tools' no-owner pin (=tests/domain.test.js:30=) both go.
+
+* the ontology
+
+Rewritten 09-22 (rulings 20–23). Three ontologies; =component=, =assembly= and =group= are gone. The writer's table, verbatim from =domain/assembly/entities/kernel/Literal.ts:42= (=ONTOLOGIES=, private, read by =mint= and nowhere else):
+
+#+begin_src json
+{"ontologies": {"part":      {"traits": ["LABELED","SOURCED","MODELED","PARAMETRIC","COUNTED","SEQUENCED"], "layer": true,  "stack": true,  "law": "what a thing IS — geometry of its own, a kit count, an interior, any mix"},
+                "placement": {"traits": ["LABELED","PLACED","JOINED"],                                       "layer": false, "stack": false, "law": "one occurrence of a part under a layer; ref never absent; slug = <layer>.<path>"},
+                "step":      {"traits": ["LABELED","INSTRUCTED","PREPARED"],                                  "layer": true,  "stack": false, "law": "a layer of change with instructions; placements name it as their layer"}},
+ "relations":  {"symbols": "the ontology's root + families", "uses": "a placement its ref AND its layer, a part its steps — maintained by the repository; `in` is the reverse edge", "mode": "the caller's mode owns the row (ruling 13)"},
+ "derived":    ["resolve(slug, {upto}) — the glTF-shaped tree, a ref with an interior grafted under its path", "bom(slug, {upto}) — part → count, sealed by a counted part that has an interior", "the roots — parts nothing places"]}
+#+end_src
+
+| trait | ontologies | payload |
+| =LABELED= | all | ={name, description?}= |
+| =SOURCED= | part | ={file, object?, scale?, url?, credit?}= — the Blender round trip |
+| =MODELED= | part | ={file, tris?, bbox?}= — a GLB on the freight, metres, Y-up |
+| =PARAMETRIC= | part | ={generator, params}= — geometry generated at read |
+| =COUNTED= | part | ={qty}= — the kit |
+| =SEQUENCED= | part | ={steps: [slug]}= — the layer stack, weakest first |
+| =PLACED= | placement | ={layer, name, parent?, ref, translation?, rotation?, scale?, active?, params?}= |
+| =JOINED= | placement | ={joins: [PATH], torque?}= — the kind of joint is a =joint.*= symbol |
+| =INSTRUCTED= | step | ={text, warn?, images?}= |
+| =PREPARED= | step | ={parts?: {slug: qty}, tools?: [symbol]}= |
+
+Vocabulary on disk: =@assembly/topology/part= 15 (=material.*= 6 · =source.*= 8) · =placement= 7 (=joint.*= 6) · =step= 15 (=warn.*= 7 · =tool.*= 7) · =@droneaid/topography/model= 32 (=family.*= 24 · =section.*= 8). The law stands: a topology ships what is true of EVERY product, a topography what is true of ONE.
+
+* what landed
+
+** =@assembly= — the domain and the topologies
+
+#+begin_example
+~/.viva/registry/assembly/                          @assembly 0.0.1 — TAPPED by path
+  domain/assembly/
+    assembly.viva.js            entities · schematics · aperture · tools · manifest{EXPOSED, TOOLING} — nothing else (ruling 14)
+    entities/kernel/Literal.ts  the trait enum · entity reads · the only writer · closure · resolve · bom · uses; KINDS private (ruling 13)
+    entities/kernel/Symbol.ts   chess's, verbatim
+    schematics.js               NODE · JOINT · LAYER · GENERATOR · PATH · TORQUES · TRAITS · VERBS
+    resolve.js                  pure: path · layerOf · fold · stack · resolve · bom — the App imports the same file
+    generators/index.js         fastener.bolt · standoff · nut — metres, no DOM
+    aperture/index.js           ELEVEN doors: /component /assembly /step · /place /join /sequence · /resolve /bom /closure · /literals · /geometry
+    tools/{mint,layer,fold,line}.js   eight tools, each riding its door through daemon.call with the caller
+  tests/rig.js                  resolution.domain verbatim — bound, slurped, daemon.call, the hook, an inline http conn
+  topologies/{component,assembly,step}/
+#+end_example
+
+=/literals= is the eleventh door, minted for the importer's data pane: rows as cards, every owner or one, every kind or one, a search over slug and name; each card carries its =owner=.
+
+** =@assembly/editor/import= — the importer (M1)
+
+The sketch's four bins as doors over ONE buffer's =data.bin=. MOUNTED (paladin seats the ground, ruling 18) · APPLICATION · STANDALONE · EXPOSED · TOOLING · HARNESSED · CONVERSATIONAL.
+
+| phase | doors | what |
+| intake =file · scale · placement= | =/scan /harvest /load= | =/harvest= runs blender headless through =harvest.py= (every mesh object to a GLB in its local frame, metres, Y-up, + =blend.json= with every placement); =/load= reads an intake already on the mountpoint; =/scan= says what is there and whether blender is |
+| interpret =members · split · match= | =/interpret /unmerge /merge /drop= | objects → members: ONE component with N placements |
+| annotate =slug · symbols · qty= | =/annotate= | proposes slug · name · count for every unnamed member, or sets one; no symbol guessed (17) |
+| embed =rows · freight · assembly= | =/assembly /embed= | mints through the DOMAIN's doors under the import mode (13) |
+| — | =/write= | serializes to =<target>/dataset/literals/<assembly>.json= + =freight/parts= |
+
+*The interpretation rule, measured on the droneaid harvest:* name stem + (tris, bbox to the mm) → *18 members from 30 objects*. Arms and motors fold to one with four placements; a mirrored instance never gives the file or the id; =(xN)= is =copies=, one welded object, the intake cuts nothing; FlightController00/01 fold (one geometry) and =/unmerge= is the hand's correction. The fingerprint rounds with =Math.round(x*10**p)/10**p= — =toFixed= kept a trailing-zero string mismatch and gave 15 members.
+
+Embed: 18 components (=SOURCED= back to the blend, =MODELED parts/<slug>.glb= copied onto the mountpoint, =COUNTED=) + one assembly whose own layer places every instance — 29 nodes, =bom.arm = 4=. Idempotent.
+
+Tools =import_{interpret,annotate,drop,embed,write}= ride the same doors on the thread's newest import buffer. The harness puts the bin (member by member, with phase and naming) and the daemon's =material.* source.* family.* joint.*= rows in the system section.
+
+** =@droneaid= — the instance, the topography
+
+Rebuilt on the ledger shelf, beef's shape:
+
+#+begin_src js
+  kernel: [
+    "@assembly/domain/assembly",
+    "@assembly/topology/component",
+    "@assembly/topology/assembly",
+    "@assembly/topology/step",
+    "@droneaid/topography/model",
+    "@assembly/editor/import",
+
+    "@commons/dashboard/dataspace",
+  ],
+#+end_src
+
+The old instance went to =~/.viva/bak/instances/droneaid-20260921=; =.env= carried over, keys aligned. The topography ships 32 symbols + the manual's 88 webp + =dataset/literals/.keep= and *nothing else*: the 48 rows, =freight/parts= and =harvest.js= are in =topographies/model/bak/=, and the harvest became the importer's test fixture (ruling 19). Boot prints =upsert:literal 0 rows=.
+
+Measured at boot: topologies 15 · 7 · 15 symbols; topography 32 symbols, 0 literals. The cross-package kernel resolves (=@assembly/…= for a =@droneaid= daemon) and =linkPhase= links =symbols=/=uses= — both were unproven before.
+
+** paladin — the mountpoint fallthrough (ruling 18)
+
+=lifecycle/resolve.js= gained =ground()= after the daemon/service seats. =identity(entry)= reads a reference (=@assembly/editor/import= → =editor_import=), a path (=modes/editor/import/import.viva.js= → =editor_import=) or an inline manifest, and the seat is =<daemon.mountpoint>/mode_<id>=.
+
+#+begin_src js
+    // a declared mountpoint is the entry's word even when its thunk came back blank: that is a
+    // REQUIRED fault the doctor names, never a seat minted over it. only silence gets the seat.
+    return "mountpoint" in entry ? entry : { ...entry, mountpoint };
+#+end_src
+
+Two paladin suites repinned (=kernel.test.js= pins every entry form's seat; =settle.test.js= keeps the declared-but-blank law verbatim). What this killed: an invented =VIVA_DRONEAID_IMPORT= that resolved under =viva instance/run= and was =undefined= in beef's watch shell.
+
+** the barrel — beef's four comments on =assembly.viva.js=
+
+/"wtf are kinds? who and how is the daemon supposed to interpret this"/ · /"why are these exported?!?!?"/ ×2 · /"why does this domain not have any traits??? you clearly did not design for vivalence"/
+
+Measured off =population.js= · =resolution.js= · =harnessed.js= — what the daemon reads of a domain module:
+
+| runtime reads | at |
+| =entities= | =population.js:61= |
+| =manifest.traits= → staggered (a domain IS a kernel Mode) | =population.js:134= · =traits/index.js:6= |
+| =aperture= → slurped, =daemon.call= built from it | =resolution.js:8-11= |
+| =resolve(daemonDie)= — the runtime hook for the domain's OWN userspace entities | =resolution.js:15= |
+| =tools= → armed as =<slug>_*= | =harnessed.js:73= |
+| =harness= · =traits= implementations (they WIN over the runtime's) | =harnessed.js:179= · =population.js:29= |
+| =kinds= | read NOWHERE — a dead slot born 41480bd1c meaning MODULE TYPES |
+
+- *=resolve= was a boot-killer.* Reproduced: =resolve(daemonDie) THROWS: [assembly] no row named "undefined" — cannot stack it=. A daemon with the domain in its kernel died at =Die.resolve=, beneath 22 green steps, because the rig collated by hand and never built a Die. The export is gone; the rig now mounts the way =resolution.domain= does.
+- *=traits: []=* meant no =daemon.call=, no tools, no doors — and a test asserted the absence. Now =EXPOSED TOOLING=.
+- *=schematics=, not flat.* beef: /"both of these are too flat?! there should be a ancestor key. schematics."/ Every domain's =types.js= became =schematics.js= under ONE barrel key; =v.primitives.kernel.Domain= declares the slot and drops the dead =kinds= one. Swept by RESOLVED path: 23 import sites across chess · education · vcompany · assembly · droneaid, the four barrels, francesca's harness, chess's law note.
+- *The re-export I nearly killed twice.* A first grep saw only =domain.X= in tests and I called the shapes dead; re-measuring AT THE CUT saved them — =education/modes/teacher/francesca/harness.js:26= reads =ctx.daemon.domain.schematics.SIGNAL= at runtime and =chess/modes/board/play/types.js:3= states the law: /a mode never imports outside its directory/. The barrel IS =die.good.domain=.
+
+** tests
+
+| suite | |
+| =assembly/domain/assembly/tests/= | 5 suites / 34 steps — barrel · doors · one-root · Example-in-desc · generators · the repository over a real datamap · the fold laws over a stool |
+| =assembly/modes/editor/import/tests/= | 4 suites / 14 steps — interpret · annotate/bin/harness pure, then load → interpret → unmerge → drop → annotate → embed → write over the real datamap |
+| =droneaid/topographies/model/tests/= | 1 suite / 4 steps — manifest · 32 symbols, none overlapping · *an EMPTY literal dataset* · the manual's pages |
+| =droneaid/modes/assembly/pt10/tests/= | compose + harness, untouched |
+| =paladin= | =kernel.test.js= · =settle.test.js= repinned for ruling 18 |
+
+blender is measured live (=P-blender= prints where it is), never a suite step. Pre-existing and proven not mine: a ghost =ledger.test.js= "init authors .env" fails in the full suite, passes alone, and fails identically with HEAD's =resolve.js= swapped in.
+
+* the screen
+
+Reviewed live during the fold (beef, four orders): /"no preselected import!"/ · /"this is a: misnamed not rows in daemons and bin but \"import\" and \"data\""/ · /"and the view of rows in daemon is SHIIIIT. makes no semantic sense. what do i want? more like a search/tree ... rewrite"/ · /"why is there data in at all?!??!!?"/
+
+What it is now: a phase bar (=intake · interpret · annotate · embed=, counts derived off the bin), a left column that flips between *import* and *data*, the stage in the middle, an inspector on the right, the phase actions along the foot. Nothing preselected — the operator names the file, the scale (=harvest.py='s 1, not a product's number) and the origin. The data pane is a search-tree: owner → assembly → its steps in order → the nodes each places; components against the kit with where-used; a step click folds the stage =upto= that step; parametric parts built by the domain's =/geometry= door.
+
+** measured — the bundle, the hardcodes, the loops
+
+Run against the live daemon's bundles and the mode on disk.
+
+*The bundle.* Four output-hashed copies of =editor/import= sit on the mountpoint at 26 MB total (=dashboard/dataspace= has five at 49 MB) — the known =bundler prune= gap, nothing deletes them. One bundle:
+
+| | import | pt10 |
+| on disk | 7 195 667 B | 6 659 340 B |
+| code | 1 794 kB | 1 553 kB |
+| inline sourcemap | 5 357 kB | 5 066 kB |
+| three | *1 604 kB (89 %)* | 1 352 kB |
+| svelte | 165 kB | 166 kB |
+| the mode's own | 24 kB | 35 kB |
+
+Two findings. (a) *The bundle is three.* =three.core.js= + =three.module.js= + =GLTFLoader= (99 kB) + =OrbitControls= (31 kB); the mode's own code is 1.3 % of it. (b) *=ObjectLoader= costs 252 kB.* =three.core.js= is 885 kB here against pt10's 633 kB, and the 90 classes only in this bundle are exactly =ObjectLoader='s registries — =Geometries= · =Curves= · =MaterialLoader= · =BufferGeometryLoader= and every geometry and material class they can name. One call does it: =new THREE.ObjectLoader().parse(json)= in =buffer/scene.js:placeObject=, used only to draw a parametric bolt from =/geometry=. Passing three.js JSON over the wire means shipping the universal parser. Also: the bundle is svelte's DEV build (=dev-fallback.js= · =dev/tracing.js= · =dev/ownership.js=) with an inline sourcemap three times the size of the code — right for a watch shell, worth one look before anything ships.
+
+*Hardcodes.* Everything product-specific in the mode is a =.desc= =Example:= — required by the rule, and an example must be concrete. Three are NOT examples and show on screen in a general-purpose mode: =buffer/Import.svelte:476-478= places =pt10=, =PT10 V3= and =@droneaid/topography/model= as input placeholders. Same class as the preselected import beef killed. =harvest.py:3= carries beef's =~/Downloads= path in its usage comment.
+
+*The loops.* Confirmed live from beef's console — hundreds of =/scan=, then of =/literals= and =/closure=, inside one millisecond; =TypeError: can't access property "place", get(...) is null= at =Import.svelte:225=; =/closure= answering 500 over and over. beef: /"almost any action tirggers this"/.
+
+1. *The stage =$effect= self-invalidates.* It WRITES =world= and then READS =world= (=populate()='s first line), =bin=, =pane= and =selected= — all synchronously, all tracked. Any of them changing re-runs the effect, which disposes the renderer, builds a new =stage()=, and calls =scan()= again. The stack beef pasted shows the drive wheel: =entity-manager.cast → merge → refreshStore → notify → recompute → update_effect=. pt10 does the same job and does not loop, because it writes =world= *inside an async IIFE* — after an await, untracked — and never reads it synchronously. That is the whole difference.
+2. *=populate()= has no re-entry guard and no re-check after its awaits.* The teardown sets =world = null= while an earlier =populate= is still awaiting =world.place=; the guard is only at the top. That is the =TypeError= at line 225, verbatim.
+3. *=list()= is N+1 over the wire* — one =/literals=, then one =/closure= per assembly, sequentially awaited.
+4. *Every door answer is taken twice* — once from the door's own reply (=take(answered.bin)=) and once from the buffer subscription, because the row that comes back over the wire is never the same object as the one in hand.
+
+The 401 and the 500 were both casualties of the loop, not separate bugs: the 401 was the teardown aborting GLB fetches already in flight, and the 500 was =/closure= called for a row whose owner the daemon cannot name. The catalog was never wrong — =daemon.getAsset= resolves against =die.good.cargo=, which =lifecycle/resolution.js:26= builds from every FRAUGHT *or MOUNTED* mode's freight, so the importer's mountpoint IS in it.
+
+*The cut, landed and measured.*
+
+- =world= stops being =$state=: the markup never reads the stage, and an effect that writes a =$state= it also reads invalidates itself. pt10 escapes the same shape only because it writes =world= inside an async IIFE.
+- The stage effect's body moves under an await, so it depends on =container= and nothing else. Reading =bin= · =pane= · =world= synchronously there is what rebuilt the renderer — and re-scanned, re-listed, re-closed — on every bin change and every pick.
+- =populate= and =resolve= hold the stage in a local and carry a token: a newer draw, or a rebuilt stage, retires the older one at its next await. That is the =TypeError= at line 225, structurally.
+- =list= fans its closures out with =Promise.all= instead of N sequential awaits, and refuses to run twice at once.
+- =/closure= is skipped for an owner the daemon cannot name — without an owner an ambiguous slug is a 500 (ruling 16), not an answer.
+
+*Measured after the cut* (beef's session, Chrome, the =droneaid= daemon): opening the buffer = *one* =/scan=; the data pane = *one* =/literals=; loading =intake/DRONEAID_model_latest= = *one* =/load= + one cargo refetch, 30 objects, the drone drawn in wireframe on the stage; picking =Frame_Star= = *one* =buffer/updateOne=, the part lit, the inspector reading =Frame_Star.glb · 624 tris · 122 × 2 × 97 mm · scale 0.05=. Zero console errors. Suites after: *10 passed, 52 steps*.
+
+One thing the live look also showed: the daemon still holds *48 literals with no owner at all* — the old =harvest.js= rows, orphaned when the instance was recreated. They are why =/closure= had nothing to answer. beef's purge clears them; ruling 19 keeps them from coming back.
+
+** the second pass — beef's review of the running screen
+
+beef, on the screen after the loop cut: /"why is there a default imported??!!?! i want to import my own! import file. get all its parts and pieces. remove all defaults from the mode"/ · /"remove this entire top bar"/ · /"remove all the duplication here. any action i might take against an entity happens on the right side in the sidebar. like moving things to other stages. also add multi select and drag and drop to the app. drag and drop through stages."/ · /"the threejs rendering doesnt work"/ · /"actually remove the existing data tab completely. makes no sense here"/ · /"go fix all of the things i mentioned"/.
+
+*The default.* Not a default at all: the buffer row persisted the bin ikiro's own Chrome check had loaded, so every reopen showed it. Now =/clear= empties the bin and the intake panel offers ONE path — pick a .blend on the mountpoint, give the scale, harvest every part. The rows of earlier intakes are gone from the screen (=/load= stays a door for the harness and the tests).
+
+*The empty stage.* beef's buffer row read =pane: "data", selected: FlightController00= — exactly his screenshot. =populate()= bailed on the data pane and nothing redrew when the import pane came back. With the data tab gone the pane is gone with it. The other half — "nor from the existing data" — is the 48 ownerless rows whose GLBs sit in =bak/=; the purge answers that, not code.
+
+*Defaults out.* =HARVEST.scale= required, =blend.js= and =harvest.py= refuse a missing scale, the =~/Downloads= line gone from the usage comment; =pt10 · PT10 V3 · @droneaid/topography/model= placeholders gone; =pane= dropped, =selected= is a set; =/drop= takes =ids= and a required =dropped= — the direct strategy fills no default, so the door refuses a missing one outright. What stays: the BIN shape's empty containers (=objects: []= …) and =statics.ignore= — shape and filter, not values.
+
+*One surface.* The left column is the tree only. Everything done TO a part is on the right, over the selection: annotate · unmerge · merge · drop/take back · *move to* any phase. The foot keeps the assembly form and the bin-wide moves (interpret all · annotate all · embed all · write) — one copy.
+
+*Selection and moves.* Click, ⌘ toggles, shift ranges over the visible rows; a stage pick carries its modifiers. A row drags the whole selection onto a phase card. Every edge is a door with its inverse — =/interpret ⇄ /dissolve=, =/annotate ⇄ /forget=, each scoped by =ids=/=objects= — but embed: the domain mints and never unmints, so a minted row refuses dissolve, forget and drop alike. A loose object dropped on annotate or embed walks every door on the way.
+
+*The renderer.* beef: /"renderer is going nuts"/ — Chrome's 1794 renderer at 87 %, later 570 %, 2 h of CPU in 55 min of wall time. The stage drew every animation frame whether or not anything moved; now it renders on demand — camera change, scene change, resize — and =dispose= forces the WebGL context loss. The hot process is 55 min old: the tab ikiro opened at 18:13 in the previous context and left open. Every localhost:1794 tab shares that process, so a fresh tab hangs with it; the live checks stop there.
+
+*Measured live before the hang* (bundle 18:59, paper theme): =clear= → empty bin; harvest of =DRONEAID_model_latest.blend= at 0.05 / Frame_Star → blender 20 s → 30 parts on the stage, one =/scan= at open, zero console errors; shift-range + ⌘ → 8 selected, all lit; a drop of DragEvents onto interpret moved them; a =/dissolve= over HTTP pushed the bin into the view through the subscription; a sidebar move fired but the multiplex refused the socket mid-call; on a fresh tab after the hot one died, the sidebar move over the socket went through scoped — one =/interpret=, 60 ms, 1 intake / 17 interpret. Suites: 9 / 50 steps green across =@assembly=, 4 / 16 in the importer (P-moves and P-clear new).
+
+** the third pass — upload, not mountpoint
+
+beef: /"why is there shit about the mountpoint in the ui. i want to upload, and that upload should be processed into literals. whats so difficult???"/ · on the foot's assembly form: /"and what is this?"/ · /"this whole component still makes no sense"/.
+
+The screen now: a drop zone (or click to choose), the scale — the one thing the file cannot tell — and *import every part*. The =.blend= rides a plain http connection of its own (media's precedent: the multiplex is text-only) to =/upload=, a streaming door that lands the file on the mountpoint and walks harvest → interpret → annotate → embed, yielding the bin after every step; the phase bar counts the walk as it runs. The assembly is named after the file (=slugify(stem)=). The foot's assembly slug · name · target form is gone — the importer's internals, not the operator's; =/assembly= and =/write= stay doors for the harness. No =/scan= at open, no intake list, no mountpoint word on screen.
+
+Measured live, one click: 30 objects → 18 members → 18 named → 18 minted, the drone on the stage, =embed · done= — under six seconds including blender. The daemon: 18 components + 1 assembly under =editor/import=, 30 nodes (nothing dropped — the test walk dropped the computer), 18 GLBs under =parts/=.
+
+The tension left standing: a minted row has no way back, so the hand's corrections (unmerge two boards the interpreter folded, rename) must come as a re-mint — the domain's doors upsert by slug, the embed skips what is embedded. Owed: a *re-embed* of a corrected member.
+
+* references
+
+| =~/Downloads/DRONEAID_model_latest.blend= | blender 5.2.2, METRIC, 6 collections, 29 objects (28 MESH + 1 EMPTY), 4 materials, no custom props, NO parenting — hierarchy is collection only. Measured: =object.scale= non-unit everywhere (0.018…1.265) · =(xN)= is ONE mesh with N copies welded · =Motor_Arm= scale has negative components · =FlightControlSeparators= carries a MIRROR modifier. Missing from the blend: every fastener, cable, VTX, RX, grommet, battery pad/strap, zip tie, sticker, bolt jig. |
+| =~/Downloads/pt10_scan_manifest.xlsx= | sheet Parts, 49 rows: =section · part_id · pretty_name · qty · spec · island · probable_source · actual_source · mesh_file=. =island= and =source= are both abstract vocabularies, i.e. symbols. 11 fastener rows, all =parametric= with a =spec= string; =mesh_file= empty in every row. |
+| =~/Downloads/droneaid-manual/manual.md= + 88 webp | the 120 MB PDF as 37 pages. Frame p3–13 · Motors p14–16 · Stack p17–23 · VTX p24–27 · RX p28–29 · Camera p30–32 · Top plate p33–34 · Checklist p35. Every step: a Prepare block, numbered text, ⚠️ warnings, photos; bolt counts explicit. The .md is the corpus, the images are freight. |
+
+Registry facts the design rests on: the runtime =Literal= is =slug · traits[] · trait{} · symbols m:n · mode m:1 · uses m:n self · in m:n self=, unique =(slug, mode)=, =ontology= stamped from the one TOPOGRAPHICAL symbol. Chess is the shape for a domain's entities; education is the shape for its doors and tools; media is the precedent for a mode that shells out.
+
+* exercise 1 — the blend translated
+
+beef: /"as a first exercise, i want you to take the droneaid model blend and translate it to gltf / glb / usd"/. Headless =blender -b … -P export.py=, scripts re-runnable in the scratchpad.
+
+Out: =droneaid.glb= 1 457 416 B (38 nodes · 30 meshes · 4 materials) · =parts/<object>.glb= ×30 (Propeller* 306 kB each, 14 548 tris ×4 = 60 % of the model; the rest ≤ 81 kB) · =manifest.json= per part · Blender's own =usd_export= FLAT (root Xform → 30 Xform → Mesh, no collections, no kind) · =usd/droneaid.usda= composed by hand, Kitchen_set shape, validated through the bundled pxr at 0 warnings: =kinds {assembly: 1, group: 6, component: 30}=.
+
+Measured on the way:
+- The glTF node tree from collections IS the =group= layer for free; the same six are the USD groups.
+- Blender writes =userProperties:blender:object_name= into every USD prim — =SOURCED='s back-pointer comes from the exporter itself.
+- Units lie: =metersPerUnit = 1= but =Frame_Bottom= is 5.645 units and a real PT10 is ≈ 0.28 m — the scene is ≈ 20×. The harvest takes =--scale=; 0.05 was read off the motor can (0.698 units ≈ 35 mm) and gives a 0.42 m motor-to-motor diagonal, a 10-inch wheelbase.
+- Blender's per-object export renames the duplicate =.001= inside the part file: reference the file's =defaultPrim=, never a guessed prim path (first validation: 30 unresolved references).
+- usda dictionaries want one entry per line; two keys on one line is a parse error at the second.
+- The =(xN)= welds survive both exports as one mesh — the island cut stays the intake's job.
+- =Motor_Arm0/2= carry negative scale; baked, the four arms are byte-identical GLBs (5 220 B) — one component, qty 4, exactly as the flow predicted.
+
+* usd textbook
+
+Pixar =Kitchen_set= · ASWF =usd-wg/assets= (OpenChessSet; =RelationshipEncapsulationTests/…/hardware.modeling.usda=, a Blender-exported bolt + washer assembly). Patterns, verbatim from the files: a component is THREE files (=X.usd= interface with =kind= + =assetInfo= + a payload → =X_payload.usd= → =X.geom.usd=); an assembly is =Xform(kind="assembly")= → =Xform(kind="group")= → =def "Name" (references = @asset@) { xformOp… }=, the reference carrying no kind of its own; =class Scope "Prototypes"= holds abstract components (Kitchen_set does without it); =modelingVariant= chosen at the reference site; =PointInstancer= for N identical pieces.
+
+| ours | textbook | verdict |
+| component row | =Toaster.usd= interface + payload + geom | ✔ =MODELED= is the geom file, =assetInfo= is =LABELED= + =SOURCED= |
+| =COMPOSED.nodes[].component= + TRS | =def "X" (references = …) { xformOp… }= | ✔ exactly; the node carries no kind |
+| group | =def Xform "…_grp" (kind = "group")= | ✔ a node with children, not a row |
+| family | =class Scope "Prototypes"= | ✔ symbol side; plain file references su* the editor — beef's first part, landed 09-22 on go
+
+beef, verbatim: /"Okay, and now we need to build the editor of the assembly package. We had written about this previously in the context of Drone 8 and the general assembly packages. Check the quest, check compacts, read in the ontology and domain, read and understand and inspect the database also for the entities that we have. Extrapolate the problem space we are trying to solve and then work out an editor that we can use to uh, create, read, update, delete our assemblies and placements, parts and placements, yes."/ — on top of the design day's /"first is an editor. i watn to be able to create parts, assemble them, group them, change and edit them, etc. some blender style stuff in threejs. ill want this as both ui and harness."/ and /"the editor harness need to have the current buffer added to the system prompt on every call. it needs to know how it can update teh shapes of a literal. it needs to know what types of literals are aka what our ontology is."/
+
+** terrain — measured
+
+Read-only over =file:~/.viva/instances/droneaid/mountpoint/daemon_droneaid/droneaid.viva.db?mode=ro= and the registry on disk, this session.
+
+| literals | part 50 · placement 72 · step 0 — every one under ONE owner, =editor/import= (=01a0c507-4f75-74cc…=) |
+| roots | 2 — =droneaid_model_latest= and =droneaid_model_latest_2=: the SAME blend committed twice, every part and placement twice, suffixed |
+| interior parts | 6 per import (=drone antenna_4 camera_2 components controller motor_2=) — the collections: =LABELED + SEQUENCED{steps: []}= only, placed under the root with no TRS, so every leaf translation is world-space and the model sits at ≈ [0.42, 0, 0.42] |
+| placement labels | every =LABELED.name= is the machine name (="motor_arm.0"=) |
+| the rest | no =JOINED=, no torque, no step, no sequence, no family symbol on any literal — 122 literals carry their root symbol and nothing else |
+| stale symbols | =assembly= and =component= sit in =Symbol= with no owner and no link — the old topologies' roots; an upsert never deletes (beef's purge, capture first) |
+| =camera.0= | at =[0,0,0]= — the =harvest.py:109= fallback owed from compact #192 |
+| domain | 10 endpoints · 6 tools (armed under =assembly_*= for EVERY mode's thread — =daemon/traits/harnessed.js:73=) · 8 suites / 49 steps green |
+| harness precedent | =droneaid/modes/assembly/pt10/harness.js=: reads the thread's open buffer (=findOne({thread, mode}, {orderBy: {index: "desc"}})=), puts the screen in =hallucination.system=, its one tool writes =literal.data= and answers =buffer: [literal]= |
+| stage precedent | =modes/editor/import/buffer/scene.js= (6 258 B): GLB cache · OrbitControls · raycast pick · render on demand · =show(entries, lit)=. =TransformControls.js= is in three's addons and NOT in =import_map.json= (three's entries are EXACT: =three · GLTFLoader · OrbitControls=) |
+
+** the problem space
+
+The domain is a type/occurrence cut with a layer stack on top. The importer fills the type side from a file and the occurrence side from the file's collections. What no file carries is everything the ERP half and the LMS half are FOR, and today nothing can author it:
+
+- the kit — =qty= where the importer wrote 1, =material.*= and =source.*= on every part, the 11 parametric fasteners (=fastener.bolt · standoff · nut= exist as generators; no literal uses one)
+- the structure — the collections' identity TRS, a label on a placement, the interpreter's wrong folds
+- the joints — =JOINED{joins, torque}= + a =joint.*= symbol on a fastener's placement
+- the guide — =step= literals with =INSTRUCTED= and =PREPARED=, sequenced into a part; =active: false= to take something away in a later layer
+- the corrections — a wrong commit taken back (25 duplicated parts), a placement deleted, one part swapped for another
+
+The CRUD the domain answers today, verb by verb — the gaps ARE the first milestone:
+
+| | part | placement | step |
+| create | =/part= | =/placement= | =/step= |
+| read | =/literals /closure /resolve /bom= | same | same |
+| update | ✗ — =mint= returns the held literal, merges nothing | over via =/placement=: TRS · label · joins · torque · active · params — NOT layer · parent · name (the slug) | ✗ |
+| delete | =/retract= — refused while referenced, the error names who | =/retract= | =/retract= — refused while sequenced |
+| symbols after mint | ✗ | ✗ | ✗ |
+| move · reorder | — | ✗ | =/sequence= |
+| where used | ✗ — =in= is on the literal, no endpoint reads it | — | — |
+
+** forks — open, beef rules
+
+*ownership — RULED (24), landed.* A slug is unique in the daemon; no literal has an owner. Every verb's subject is its slug, in the input; nothing is resolved from the thread or a buffer. What goes: the aperture's =owner= input, =owned(slug, owner)=, the mint's =needs an owner= refusal, the =(slug, mode)= lookups in =/literals= =/tree= =/retract=, the tools' no-owner pin. What stays: =literal.mode= as the annotation the minting mode leaves. Naming conflicts are answered by depth — a longer slug, a number — never by a second owner.
+
+*the name.* =@assembly/editor/assembly= — /"the editor of the assembly package"/, beside =editor/import=; =domain/assembly= is a different type, no collision. Taken on the go; beef renames if he wants =editor/parts= or =editor/scene=.
+
+*raw three or threlte.* Ruling 3 says threlte as binding, measured green under esnext; everything shipped is raw three. The stage's state is imperative — a gizmo mid-drag, a raycast, a pick set — and the buffer-effect laws are already paid for in =scene.js=. Landed as raw three: =scene.js= copied into the mode and grown by =TransformControls=; threlte when rapier is wanted (=roadmap/threlte-rapier-drapes.org=).
+
+*which verbs the agent gets.* =/move= yes (=assembly_move=); =/retract= hand-only — the model proposes, the hand clicks. Landed so.
+
+*substitution now or later.* beef, ruling 22: /"if we ever want this existing part substitution, then I think we can add that on later."/ The db's 25 duplicates are one whole second import, which =/retract= of its closure answers. Later — see deferred.
+
+** the domain answers every verb
+
+Every verb a repository method, every endpoint one call, every tool riding its endpoint (ruling 14). Container-rooted, all under =~/.viva/registry/assembly/domain/assembly/=.
+
+| verb | endpoint | what changes |
+| =part= · =step= become overs | =/part= =/step= | =mint= keeps returning the held literal; =part()= and =step()= MERGE what they carry onto it the way =placement()= does — a trait present in the payload replaces its payload, a trait absent stays. =symbols= present replaces the family set (the root stays). The importer's idempotency is untouched: it never re-mints a slug it seeded. |
+| =move= | =/move { slug, layer?, parent?, name? }= | a placement's identity is =<layer>.<path>=: the literal is re-slugged with its payload carried, every placement whose =parent= starts with the old path re-slugged with it, every =JOINED.joins= naming the old path rewritten, =uses= rebuilt — one flush. Refused for a part or a step (their slug IS identity; a rename is =LABELED.name=). |
+| =tree= promoted | =/tree { slugs?, owner? }= | the importer's walk (=modes/editor/import/aperture/index.js= =/tree=) moves to the domain — ruling 4: promote when a second mode wants it. No =slugs= reads every root the owner has; the importer keeps calling it with its slugs. Every card gains =used= (the =in= count) so the inspector says where a part is used before a retract. |
+| =retract= names the closure | =/retract { slugs, closure? }= | =closure: true= takes the named literals and everything only they reach — a root and its interior in one call, refusing (as now) whatever a literal outside still references. The editor shows the list before the click; nothing prunes silently. |
+| identity | every verb | the subject is the slug in the input; =findOne({ slug })=; =mint= refuses a held slug (ruling 24) |
+
+Schematics: =VERBS.move= · =VERBS.tree= · =VERBS.retract.closure=; the =TREE= / =ROW= shapes move from the importer's =schematics.js= into the domain's, the importer restating what its screen reads (a mode never imports outside its directory; pinned equal by a suite, chess's law).
+
+** the screen — one line per pane, what it shows and from where
+
+- *LITERALS* (left) — every root in the daemon from =/tree= with no slugs, the minting mode shown as an annotation; its placements and interiors and steps nested; =PART= isolate flattens to the kit with =qty= and =used=; a search over slug and name. A fresh buffer draws the tree and selects NOTHING.
+- *STAGE* (centre) — =resolve(subject, {upto})= drawn from each part's GLB (=/geometry= for a parametric one), the subject being the picked root or step; a step slider =upto= when the subject has steps, inactive placements ghosted; click picks (⌘ toggles, shift ranges), a =TransformControls= gizmo on the selection — translate · rotate · scale, =G R S= keys, local/world — and ONE =/placement= over per release; =frame= fits, isolate as the importer's.
+- *INSPECTOR* (right) — the selected literal headed by its ontology; every trait a form DERIVED from =daemon.domain.schematics.TRAITS[<trait>]= — field, type, the =.desc= with its Example as placeholder — so the form and the harness read one source (/"it needs to know how it can update teh shapes of a literal"/); symbols as chips from the installed vocabulary grouped by family, the ontology's families only (=material.* source.*= on a part, =joint.*= on a placement, =tool.* warn.*= on a step); =used n= with the literals; actions: *place into…* (a part → pick a layer among the subject's layers → =/placement= at identity, then the gizmo) · *add step* · *sequence* (drag order → =/sequence=) · *move* · *retract* (the closure listed, confirm) — the one action surface, over a multi-selection, as beef ruled for the importer.
+- *NEW* — =+ part= (slug · name · qty · a generator with its params, or no geometry — an interior-only part) · =+ step= (slug · name · text · warn · prepared). A GLB is the importer's business: drop it there, place it here.
+- *DOCK* — NOT a pane of this buffer. The conversation is anima's own integrated dock beside the view; the mode carries =CONVERSATIONAL= · =HARNESSED= so that dock reaches this harness and these tools (beef, on the design comp that draws one: /"the dock is of course the integrated dock of anima."/).
+
+Buffer: =data = { subject?, upto?, selected: [], isolate? }= — no default in any of them, no owner.
+
+** the harness
+
+=harness.js=, pt10's seat, on every call:
+
+| system section | from |
+| =[Ontology]= | the three ontologies, their traits and every payload's fields with the =.desc= lines — rendered from =daemon.domain.schematics= (=ONTOLOGIES= · =TRAITS=), never authored twice |
+| =[Vocabulary]= | the installed symbols by family, =daemon.entities.symbol.find= |
+| =[Screen]= | the open buffer: subject · =upto= · the selection · the folded tree in the =assembly_resolve= tool's own line format (=path ← ref @ [x, y, z]=), so the model works with real paths |
+
+Tools: the domain's six, each calling its endpoint with the slugs the model names, plus the mode's own — =/open { slug, upto? }= (put a literal on screen, pt10's =/step=) · =/select { slugs }= · =/move=. A tool's answer carries =buffer: [literal]= so the screen follows the model.
+
+** milestones (unnumbered — beef numbers) — all three LANDED 09-22
+
+- *the domain answers every verb* — blast · =Literal.ts= overs, =move=, =tree=, =retract.closure=, =through()= owner · suites (P-over-part · P-over-step-symbols · P-move-carries-children · P-tree-roots · P-retract-closure · P-slug-unique) RED first · land · =tests/domain.test.js:30= repinned (tool and endpoint take one input; no =owner= anywhere) · the importer's =/tree= calls the domain's · 8 suites green · blast.
+- *the screen* — the mode's skeleton (=assembly.viva.js= · =schematics.js= restating =TREE ROW= · =aperture= wrapping the endpoints the App needs · =buffer/=) · =import_map.json= gains =three/addons/controls/TransformControls.js= EXACT · both =daemon.js= manifests mount it (ruling 23) · shelf-sync · Chrome walk on the live db.
+- *the harness* — =harness.js= · =tools/index.js= · a suite that renders the system section from a fixture buffer and pins =[Ontology]= equal to the schematics.
+- *the rebuild from beef's design* (LANDED 09-22, second go) — the four-pane screen, the pure fold with composed parent frames, the line, the joint mode, the bill, meet-empty, and the navigation standard above. The comp's DOCK pane is an artifact of the recreation (it redrew anima's chrome around the view) — beef: /"the dock is of course the integrated dock of anima."/ No dock in the buffer; the mode stays CONVERSATIONAL · HARNESSED so anima's own dock reaches it.
+
+** the navigation standard — the implementer's call, beef to confirm
+
+beef's design project ("Editor assembly recreation", =Assembly Editor.dc.html=) marks its own tree navigation a PLACEHOLDER and hands the standard to the implementer verbatim: /"NAVIGATION IS NOT SPECIFIED HERE — IMPLEMENTER'S CALL … beef found it counter-intuitive and it should NOT be copied as-is."/ It names six open questions: what a click means vs. what opens a subject · keyboard as the primary road · the expansion model · how a 36-placement fold stays legible · where multi-select lives · tree ↔ stage ↔ timeline reciprocity. The standard chosen, applied to all three panes:
+
+#+BEGIN_EXAMPLE
+CURSOR and SELECTION are different things.
+  cursor     one row, where the keyboard is. local to the view.
+  selection  0..n slugs, on the buffer. what the inspector and the stage read.
+
+A CLICK SELECTS. A selection NEVER changes the subject.
+OPENING DESCENDS, and is a separate, explicit act — four ways in, one way out:
+  Enter · o        open the cursor row          dbl-click a row     open it
+  click its TAIL   ("6 placements" / "← arm")   dbl-click a mesh    open what it places
+  a PLACEMENT opens WHAT IT PLACES (its ref) — so any layer of the hierarchy (an antenna, a
+  camera, a motor bought assembled) becomes the subject on its own. A STEP opens its part
+  folded upto itself. `open <slug>` on the line and the open tool land the same place.
+  u · Backspace    up one. The header carries the trail as clickable crumbs.
+
+j k ↑ ↓   walk the cursor          g G   first · last
+l →       expand, else descend     h ←   collapse, else ascend
+space x   toggle into selection    Esc   peel: dialog → notice → selection → up
+/         the search               :     the line
+[ ]       upto − +                 1-4   isolate ALL · PART · PLACEMENT · STEP
+
+A selection arriving from OUTSIDE (a tool, a stage pick, a lane) auto-expands the tree to it
+and moves the cursor there. Tree, stage and sequence read one cursor and one selection.
+Legibility: the isolate filter, `upto`, and children that only walk when their branch is open.
+#+END_EXAMPLE
+
+Walked by beef 09-22 and corrected on the spot: /"i\'d want to be able to directly click into intermediate assemblies. like seeing everything in the antenna, camera or other placements. any layer of the hierarchy."/ Opening a placement had gone UP (to its layer) — it now goes DOWN (to its =ref=), the tail is a direct click in, the stage takes a double-click, a trail of crumbs and =u= / =Backspace= come back out, and =Esc='s last step is /up/ rather than a clear.
+
+** blast table
+
+| file | change | milestone | kind |
+| =~/.viva/registry/assembly/domain/assembly/entities/kernel/Literal.ts= | =part()= =step()= merge on held; =symbols= on an over; =move()=; =tree()=; =retract(slugs, owner, {closure})= | verbs | change |
+| =~/.viva/registry/assembly/domain/assembly/aperture/index.js= | =/move= =/tree=; =/retract.closure=; =/literals= card =used= | verbs | change |
+| =~/.viva/registry/assembly/domain/assembly/schematics.js= | =VERBS.move= =VERBS.tree=; =TREE ROW= | verbs | change |
+| =~/.viva/registry/assembly/domain/assembly/tools/{mint,layer,index}.js= | =assembly_move=; no owner anywhere | verbs | change |
+| =~/.viva/registry/assembly/domain/assembly/tests/{domain,literal,aperture,tools}.test.js= | the six probes; the owner pin and the =elsewhere= case (one slug under two modes) deleted | verbs | change |
+| =~/.viva/registry/assembly/modes/editor/import/{aperture/index.js,commit.js}= | =/tree= calls the domain's; =taken= is every slug in the daemon | verbs | change |
+| =~/.viva/registry/assembly/modes/editor/assembly/= | =assembly.viva.js · schematics.js · harness.js · tools/index.js · aperture/index.js · buffer/Assembly.svelte · buffer/scene.js · buffer/parts/{Tree,Stage,Inspector,Form,Symbols,Steps,New}.svelte · tests/= | screen · harness | new |
+| =~/vivalence/code/vivalence/import_map.json= | =three/addons/controls/TransformControls.js= | screen | change (repo, on go) |
+| =~/.viva/registry/droneaid/instances/droneaid/daemon.js= AND =~/.viva/instances/droneaid/daemon.js= | mount =@assembly/editor/assembly= | screen | change (both — ruling 23) |
+| =~/.viva/instances/droneaid/= shelf copy | the mode synced | screen | shelf-sync |
+| =~/.viva/registry/assembly/modes/editor/assembly/buffer/{fold,cli}.js= | new — the pure fold (=frames= composes a placement against its PARENT's matrix) and the one-line verb parser | rebuild | new |
+| =~/.viva/registry/assembly/modes/editor/assembly/buffer/{Assembly.svelte,form.js,scene.js}= | five panes + seams + keyboard; dotted fields for a nested trait payload; surfaces · ghosting · joint mode · world→local on release | rebuild | change |
+| =~/.viva/registry/assembly/modes/editor/assembly/buffer/parts/= | =Tree · New · Stage · Inspector · Sequence · Bom · Notice · Retract= (=Steps.svelte= → =Sequence.svelte=) | rebuild | change |
+| =~/.viva/registry/assembly/modes/editor/assembly/{schematics,harness,aperture/index,tools/index}.js= | =GIZMOS= gains =joint=, =PANES=; =/bom= wrapped; the harness names the roots when nothing is open; =isolate= tool | rebuild | change |
+| =~/.viva/registry/assembly/tests/render.js= | an import that leaves the view's directory resolves against the real tree | rebuild | change |
+| =.ikiro/world/codemap/assembly.md= | after landing | — | ikiro |
+
+** testing assessment
+
+/in place/: 8 suites / 49 steps (domain 5/35 · importer 3/14), the rig mounting the way =resolution.domain= does. COVERAGE GAP: nothing renders any view of this package in a suite — the importer's screen was proven by a Chrome walk only; the stage stays that way (WebGL), the inspector's derived form and the harness's system section do not.
+/changes/: =tests/domain.test.js:30= (no =owner= on any input, tool or endpoint) · =tests/literal.test.js= P-part (the =elsewhere= case — one slug under two modes — is now a refusal).
+/adds/: P-over-part · P-over-step-symbols · P-move-carries-children · P-tree-roots · P-retract-closure · P-slug-unique (domain) · P-form-from-schematics (the form's fields = the shape's keys, every trait) · P-harness-screen (a fixture buffer → the three sections) · P-endpoints (the mode's endpoints over the rig).
+/ladder/: verbs | 8 suites green, the importer's suite unchanged · screen | compile + the offline render of the inspector (linkedom) + the Chrome walk · harness | P-harness-screen.
+Pre-DONE: every probe green, the Chrome walk's testimony in the changelog with counts pasted.
+
+** QA
+
+① I open a fresh editor buffer on the droneaid daemon: LITERALS shows two roots, the stage is empty, the inspector says nothing selected. I pick =droneaid_model_latest=: the drone draws, no =upto= (no steps). I click =motor_arm.0= on the stage: the inspector heads PLACEMENT, =PLACED= shows its translation; I drag the gizmo and release: ONE =/placement= on the wire, the translation field follows. I =+ step= =frame.01=, sequence it under =droneaid_model_latest=, select =bolt_m3_16= (made with =+ part= as =fastener.bolt=), /place into/ =frame.01=: the slider appears, =upto 1= shows the bolt, =upto 0= does not. I select the second root and retract with closure: the list names 25 parts and 36 placements, I confirm, LITERALS shows one root.
+② =#+marker_qa= below.
+
+#+marker_qa: m67-assembly-ontology/T-editor-empty-open · held · a fresh editor buffer lists the tree, draws nothing, selects nothing — SSR (T-editor-empty-open) and live 13:07
+#+marker_qa: m67-assembly-ontology/P-over-part · held · /part with a held slug merges the traits it carries and leaves the rest — P-over-part, P-mint
+#+marker_qa: m67-assembly-ontology/P-move-carries-children · held · /move re-slugs a placement, its parent-path children and every join naming its path, one flush — P-move-carries-children
+#+marker_qa: m67-assembly-ontology/P-slug-unique · held · a slug held by any mode is refused at mint; every lookup is by slug alone — P-slug-unique ×2
+#+marker_qa: m67-assembly-ontology/T-gizmo-one-over · held · one gizmo release is one /placement call on the wire — live 13:19, one POST 200, the translation read back
+#+marker_qa: m67-assembly-ontology/P-form-from-schematics · held · the inspector's fields per trait equal the schematic's keys — P-fields, P-schematics
+#+marker_qa: m67-assembly-ontology/P-frames · held · a nested placement composes its parent's frame, not world space — P-frames, P-frames-loop
+#+marker_qa: m67-assembly-ontology/P-line · held · one line is one nature, with the domain's real generator params — P-line-mint, P-line-layer, P-line-screen
+#+marker_qa: m67-assembly-ontology/P-fields-nested · held · a trait payload with properties of its own becomes dotted fields and rides the over whole — P-fields-nested
+#+marker_qa: m67-assembly-ontology/T-meet-empty · revised · beef opens the editor after a session that held a subject and meets an empty buffer — re-homed 09-24 to m71/T-meet-empty (beef: these three are one)
+#+marker_qa: m67-assembly-ontology/T-navigation · revised · beef walks the standard: a click selects, Enter opens, the arrows walk, Esc peels — re-homed 09-24 to m71/T-navigation (beef: these three are one)
+
+** deferred
+
+- =/substitute { from, to }= — every placement's =ref= rewritten, then =from= retracted; reopens when a fold correction wants it (the interpreter's =Antenna.00/.01/.02= are three objects, not one).
+- undo — a later layer is not undo; an over history would be a literal-level journal. Reopens when the gizmo bites.
+- threlte + rapier — =roadmap/threlte-rapier-drapes.org=.
+- materials · textures · animation pose — the importer's owed list.
+- geometry authored in the editor beyond generators (three ops + GLTFExporter, design day turn 9) — the importer takes a file, the editor places it.
+
+** changelog
+
+- *baseline* (before any change): =ok | 8 passed (49 steps) | 0 failed= over =domain/= + =modes/editor/import/=.
+- *the domain answers every verb* — =Literal.ts=: =named(slug)= replaces =owned=, =mint= refuses a held slug, =part()= / =step()= are overs through one =over()= (a label carried whole, =symbols= present is the family set again, an unknown symbol refused), =move()=, =retract(slugs, {closure})= with the fixpoint that keeps what another root still references, =tree()= ported from the importer with =used= and the =mode= annotation; =symbolsNamed= refuses an unknown symbol. Aperture: 12 natures (=/move= =/tree= new, =owner= gone from every input); tools: 7 (=assembly_move= new). Suites rewritten: =domain/= =ok | 5 passed (40 steps)=. Two defects the red-first run caught: an over with only a =description= reset the name to the slug (=labeled()= now carries the name), and a retracted literal came back on the next flush — the root symbol's inverse =literals= collection held it by propagation without ever being initialised, so the unit of work never released it (=removeWithoutPropagation= on each symbol's inverse, probed at =scratchpad/repersist.probe.js=). =move= first rewrote joins only in the old layer AFTER re-layering the family, so a moved child's own joins stayed stale — the affected set is taken before the rebase.
+- *the importer* — =commit.js= seeds =taken= from every slug in the daemon; =/tree= calls the domain's; =ROW= carries =mode= + =used= instead of =owner=; =ok | 3 passed (14 steps)= unchanged.
+- *the screen* — =modes/editor/assembly/= new: =assembly.viva.js= (APPLICATION STANDALONE EXPOSED HARNESSED TOOLING CONVERSATIONAL) · =schematics.js= · =aperture/index.js= (=/schematics= =/vocabulary= + every domain verb wrapped) · =buffer/Assembly.svelte= + =parts/{Tree,Stage,Inspector,Steps,New}.svelte= + =scene.js= (the importer's stage + =TransformControls=) + =form.js= (pure). =import_map.json= gained the EXACT =three/addons/controls/TransformControls.js= entry; BOTH droneaid manifests mount =@assembly/editor/assembly= (ruling 23). The bundle: 7.33 MB with its inline sourcemap, =TransformControls · OrbitControls · GLTFLoader · ObjectLoader= all in. Walked live in beef's anima on the droneaid daemon (13:07–13:20): a fresh buffer lists =25 part · 36 placement · 0 step=, one root, stage empty, nothing selected; the root opens and the drone draws; a click on the stage picks =motor_2.motor.1= (PLACEMENT ← motor, the form filled from the schematic, =parent?= showing its example); the gizmo drags the motor and the release is ONE =POST /placement 200= — after which the inspector reads the new translation and the row carries =rotation [0,0,0,1]= and =scale [1,1,1]=. Zero console errors. The form's SAVE is one =POST /placement 200= too — the translation typed back to =[0.56308, 0.01777, 0.57975]= and read back from the db; its first try answered =500 — must have required properties ref=: an over of a placement must carry its =ref= (PLACED requires it), so =form.js= keeps =ref= in a placement's identity set. The first gizmo release answered =500 — not a PLACED: / must not have fewer than 4 items; / must not have fewer than 3 items=: =Connection.aim= merges every body through =belt.object.merge=, whose default array strategy is =unique= — =[0,0,0,1]= left the client as =[0,1]= (tapped at =WebSocket.prototype.send=). Filed as =known-issues.org: connection-aim-dedupes-arrays= (typology is beef's); the mode calls its natures over a plain http =Connection= with =shard.transmitter.fetcher=, the importer's own idiom.
+- *the harness* — =harness.js= (=[Ontology]= rendered from the domain's schematics, =[Vocabulary]=, =[Screen]=) + =tools/index.js= (=open= · =select=). Proven by suite (the runtime's composition: the mode's harness slurped into a host vector, a nature opened after); not driven by a model live — the droneaid daemon's hallucinator is filtered (=empty key=), so a chat turn has no model to reach.
+- *the editor suite* — =modes/editor/assembly/tests/assembly.test.js=: =ok | 2 passed (10 steps)= — the form pure (P-fields · P-values-payload), the mode over the rig (P-manifest · P-schematics · P-vocabulary · P-verbs · P-tools · P-harness · P-retract), the view server-rendered (T-editor-empty-open) through =tests/render.js= (chess's, copied). Three rig facts learned: =Thread= lives in =sets.userspace=, a =User= row is ={ roles, config }=, and the runtime's Buffer =user= filter needs =em.setFilterParams= the way =intented.js= sets it.
+- *the whole package*: =ok | 10 passed (64 steps) | 0 failed (4s)= — =deno test --config deno.jsonc -A --no-check ~/.viva/registry/assembly/{domain,modes/editor/import,modes/editor/assembly}/=.
+- *the rebuild from beef's design project* (second go, 09-22) — imported =Assembly Editor.dc.html= · =assembly-stage.js= from claude.ai/design =09fe99e8= through the design MCP and implemented against the real natures, not its simulation. Four panes on one buffer, each toggled from the header and separated by a dragged seam (tree · stage · inspector, footer sequence + bom); =buffer/fold.js= new and pure (=compose= · =multiply= · =frames= · =visible= · =lanes= · =bill=); =buffer/cli.js= new and pure (one line, one nature, the REAL generator params =({ thread: "M3", length: 16 })=, not the design's guessed ={d,l}=); =form.js= grew dotted fields for a trait payload that has properties of its own (=sourced.object=), written back through =into()= so the whole trait rides the over; =scene.js= gained surfaces (picked solid, the rest ghosted), a =joint= mode that picks two placements and writes =JOINED= with a torque, a hover readout, and a release that converts world TRS back through the INVERSE parent matrix before it sends one =/placement=; =Steps.svelte= → =Sequence.svelte= beside a new =Bom.svelte= reading =/bom=; =Notice= carries the domain's refusal verbatim, =Retract= lists the closure first. The comp's DOCK pane was built and then CUT on beef's correction — /"the dock is of course the integrated dock of anima."/ It is an artifact of a recreation that redrew anima's chrome around the view; a pane here would be a second road to one thread. The mode keeps CONVERSATIONAL · HARNESSED so anima's own dock reaches this harness and these tools. THE GRAFTED-INTERIOR DEFECT IS FIXED: =frames()= accumulates each placement's PARENT matrix and the stage composes against it (P-frames: a child at =[0,0,1]= under a parent at =[1,0,0]= turned 90° about Y lands at =[2,0,0]=). MEET EMPTY: the view clears =subject= · =upto= · =selected= in its own row on mount, so a durable buffer never re-opens what the last session held while a tool's =open= still lands mid-session through the subscription. Counts: =modes/editor/assembly= =ok | 5 passed (19 steps) | 0 failed=; whole package =domain ok | 5 passed (40 steps)= · =import ok | 3 passed (14 steps)= · =editor ok | 5 passed (19 steps)= — 13 suites / 73 steps, 0 failed, no pre-existing reds. Nine .svelte files compile clean in BOTH client and server mode (0 failures, 0 non-a11y warnings); the client bundle builds at 10 571 756 bytes through =bundle.svelte= with the repo's import map. =tests/render.js= learned to absolutise an import that leaves the view's directory — the SSR rig only copied the view's own folder, so =../schematics.js= 404ed.
+- *NOT walked live*: anima (=127.0.0.1:1794=) asks for a username and password and I do not type credentials. The daemon on =:2501= has been up since 13:22 and did NOT restart on the registry edits (same pid, same status timestamp), so the running mode module predates this work. beef signs in and walks it; the two stale =editor/assembly= buffer rows in the db (=subject: droneaid_model_latest=, 13:48 and 14:20 — my earlier walk's) are now harmless because the view clears them on mount, but they are still mine to delete.
+- *not a suite, beef's call*: the =ObjectLoader= cost stands.
+
+** release
+
+- =@assembly/domain/assembly= — =/part= and =/step= are overs (the same slug again merges what the payload carries); =/move= and =/tree= new; =/retract= takes =closure=; =owner= gone from every input, =/literals= cards say =mode= (an annotation) instead; =ONTOLOGIES= is an object on the schematics; =TREE · ROW · SCENE= on the schematics; a tool's input is its nature's input. Tools: =assembly_move= new.
+- =@assembly/editor/import= — =/tree= rides the domain's; =ROW.owner= → =ROW.mode= + =ROW.used=; a second import of a file suffixes against every slug in the daemon.
+- =@assembly/editor/assembly= — new mode; natures =/schematics /vocabulary /tree /resolve /bom /closure /part /step /placement /sequence /move /retract /geometry=; tools =open= · =select= · =isolate=.
+- =@assembly/editor/assembly= (rebuild) — nature =/bom= added; tool =isolate { isolate }= added; =GIZMOS= gains =joint=; the buffer's =gizmo= enum widens. The view clears its own =subject= · =upto= · =selected= on mount.
+- =~/.viva/registry/assembly/tests/render.js= — an import that leaves the view's directory now resolves against the real tree instead of the temp store.
+- repo: =import_map.json= + =three/addons/controls/TransformControls.js= (EXACT). Both droneaid daemon manifests mount the editor.
+
+* milestones
+
+| | M1 the importer | M2 the topography | M3 the guide |
+| state | *LANDED* — =@assembly/editor/import=, 4 suites/14 steps; the screen runs and loops (§measured) | *EMPTY BY DESIGN* (ruling 19) — the live walk fills it | untouched |
+| owed | the effect fix, then drive it in Chrome | load → interpret → annotate → embed → write; then the 11 parametric fasteners and the remaining manual sections by harness | step rows from =manual.md=; =@droneaid/guide/pt10=; =modes/assembly/pt10= sunset, its 22 parts and 16 steps seeding the rows |
+
+M2's numbers, when the walk happens: the bolt's placement in frame.05 is the one number no source has; the blend's welds (standoffs ×4, grommets ×8) are parametric rows with no placement; the =family.*= mapping was by eye (=FlightController00= = ESC because the manual stacks FC on ESC; =Antenna.02= = the VTX antenna because it is the long one) and beef checks it.
+
+* owed
+
+- *beef* — walk the importer live on the empty daemon · commits in paladin, assembly, droneaid, the repo · ruling 16's word after the first write · =harvest.js='s object→part map. DONE by ikiro on his order: the purge (db captured to =bak/= first) and pt10 out of the daemon — =@droneaid/assembly/pt10= stays in the package for M3's seed, it just no longer mounts.
+- *ikiro* — the =ObjectLoader= cost (252 kB), svelte's dev build and the three droneaid placeholders in a general mode are beef's call · the double-take (a door's reply and the buffer echo both land) costs one extra render, not a loop, and is left.
+
+* release
+
+(nothing lands outside =.ikiro/= without go)

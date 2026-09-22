@@ -378,3 +378,13 @@ Run before shipping any corpus changes:
 14. **Examples are unique per entity** (no copy-paste across multiple entities)
 15. **Paradigm bundles have all 4 cells** (`firstSingular`, `thirdSingular`, `firstPlural`, `thirdPlural`) — no syncretic collapse, even where 1sg=3sg surface form
 16. **No orphan word literals** — every `<lemma>.verb.<mood>.<tense>.<person>.<number>` entry in verb.js must be referenced by a paradigm bundle (or explicitly excluded with a documented reason)
+
+## pt-BR vs pt-PT (umbrella `por` conflates both)
+A self-declared (tatoeba `user_languages.csv` col 4) → B BR-tag owners (`tags.csv`) → C marker ratio per contributor → D listen 3-5 mp3s.
+BR: `você` · `ônibus trem celular geladeira banheiro sorvete` · `café da manhã` · `estou + Vndo`
+PT: `tu + Vs` · `autocarro comboio telemóvel frigorífico gelado` · `pequeno-almoço` · `casa de banho` · `estou a + Vinf`
+PT markers > 0.5% of a contributor's corpus → exclude. Procedure: `git show 4c5a1e2d5c~1:.ikiro/quests/tatoeba-harvest.quest.org` Step 3.
+## content is hand-composed
+/"i dont want script. i want you to build a good dataset."/ — TRANSLATED · EXEMPLIFIED · example choice: by hand, never generated. Code only assembles: hand-written dict → assembler fills `traits`, `RANKED` (wordfreq), shared symbol block → write the JS file.
+## QA critique (≥50 entries I authored, at the END only)
+mechanical rule audit → manual sweep → 3 parallel agents: linguistic (calque, register, tense) · schema (symbols, slugs, RANKED) · coverage (orphans, refs, rank). Buckets BLOCKER/IMPROVEMENT/NIT → MUST-FIX/FIX-IF-CHEAP/DEFER. Never over a sealed corpus: /"its ONE FUNCTION FUCKFACE!"/ — zero agents by default.

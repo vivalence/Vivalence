@@ -61,7 +61,7 @@ export const DATASINK = (mode, daemon) => {
 
         for (const [target, slice] of Datasink.strata(rows, sink.target)) {
           for (const row of slice) claimed.add(row.slug);
-          const path = `${mode.module.mount.dirname}/${target}`;
+          const path = `${mode.module.source.dirname}/${target}`;
           if (
             await paladin.state.scribe(
               path,

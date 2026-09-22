@@ -67,10 +67,9 @@ export const clients = [
 
 export const services = [
   {
-    manifest: { type: "service", slug: "multiplayer" },
+    manifest: { type: "lighthouse", slug: "multiplayer" },
     module: "@commons/lighthouse/multiplayer",
     secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
-    statics: { serve: () => paladin.env.get("VIVA_LIGHTHOUSE_SERVE") },
   },
 ];
 
@@ -78,10 +77,9 @@ export const environment = v.environment({
   VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it. Offset from hello-world's 2501 so both instances can run at once.").default("http://localhost:2502").group("addresses"),
   VIVA_CLIENT_ANIMA_ORIGIN: v.url().desc("Scheme and authority the anima browser client is reachable at.").default("http://localhost:1795").group("addresses"),
   VIVA_RUNTIME_SERVE: v.url().desc("Base URL the runtime serves on. Everything else hangs off this latch.").default("${VIVA_RUNTIME_ORIGIN}/").group("addresses"),
-  VIVA_LIGHTHOUSE_SERVE: v.url().desc("Where the hosted lighthouse attaches inside the runtime's own path tree.").default("${VIVA_RUNTIME_ORIGIN}/attached/process/lighthouse/multiplayer").group("addresses"),
   VIVA_CLIENT_ANIMA_SERVE: v.url().desc("Where the anima browser client serves.").default("${VIVA_CLIENT_ANIMA_ORIGIN}/").group("addresses"),
   PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
-  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED — by the daemon, and by the browser after publish().").default("${VIVA_LIGHTHOUSE_SERVE}").group("addresses"),
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED. Set it for a lighthouse on another host; unset, paladin computes this runtime's reach + the hosting service's seat.").group("addresses").optional(),
   SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24").default(() => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24))))).group("keys"),
   SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Anthropic key. Unread while the stub is the only hallucinator — declared so a swap needs no schema edit.").group("keys").optional(),
 });

@@ -73,35 +73,37 @@ export async function* deliver(pump, backoff, span, signal) {
   }
 }
 
-export async function dispatch({ tools, controller }, parts) {
-  const calls = parts.filter((part) => part.type === "tool_use");
-  return Promise.all(
-    calls.map(async (call) => {
-      const child = controller.branch(call.name);
-      const armed = new Vector().use(async (ctx, next) => { ctx.controller = child; await next(); }).slurp(tools);
-      const cut = new Promise((_, reject) =>
-        child.abort.signal.addEventListener("abort", () => reject(child.status.reflection.error ?? new Error(String(child.abort.signal.reason))), { once: true }),
-      );
-      child.stdout.mark("open", { input: call.input });
-      try {
-        const spoken = fromm.yield(
-          await Promise.race([
-            steer.dispatch.invoke(armed, new ToolCall(call.name).signal, steer.strategy.guarded)(call.input),
-            cut,
-          ]),
-        );
-        child.stdout.mark("close", { condition: spoken.condition });
-        return { call, result: { condition: spoken.condition, output: spoken.output } };
-      } catch (fault) {
-        child.stdout.fault(fault);
-        const message =
-          fault instanceof NotFound
-            ? { error: `unknown tool: ${call.name} — armed: ${armory(tools) || "(none)"}` }
-            : { error: fault.message };
-        return { call, result: { condition: "ERROR", output: { message } } };
-      }
-    }),
+async function settle({ tools, controller }, call) {
+  const child = controller.branch(call.name);
+  const armed = new Vector().use(async (ctx, next) => { ctx.controller = child; await next(); }).slurp(tools);
+  const cut = new Promise((_, reject) =>
+    child.abort.signal.addEventListener("abort", () => reject(child.status.reflection.error ?? new Error(String(child.abort.signal.reason))), { once: true }),
   );
+  child.stdout.mark("open", { input: call.input });
+  try {
+    const spoken = fromm.yield(
+      await Promise.race([
+        steer.dispatch.invoke(armed, new ToolCall(call.name).signal, steer.strategy.guarded)(call.input),
+        cut,
+      ]),
+    );
+    child.stdout.mark("close", { condition: spoken.condition });
+    return { call, result: { condition: spoken.condition, output: spoken.output } };
+  } catch (fault) {
+    child.stdout.fault(fault);
+    const message =
+      fault instanceof NotFound
+        ? `unknown tool: ${call.name} — armed: ${armory(tools) || "(none)"}`
+        : fault.message;
+    return { call, result: { condition: "ERROR", output: { message } } };
+  }
+}
+
+// @beef serial: a round's calls share one em fork and a failed flush strands mikro's queued flushes — might in the future change to parallel
+export async function dispatch(policy, parts) {
+  const settled = [];
+  for (const call of parts.filter((part) => part.type === "tool_use")) settled.push(await settle(policy, call));
+  return settled;
 }
 
 const pump = {
@@ -152,7 +154,7 @@ export async function* respond(faculty, streamOrRender, request, policy) {
       for (const { call, result } of settled) {
         yield { event: "/tool/call", id: call.id, name: call.name, input: call.input };
         yield { event: "/tool/yield", id: call.id, result };
-        parts.push({ type: "tool_result", id: call.id, output: result.output });
+        parts.push({ type: "tool_result", id: call.id, condition: result.condition, output: result.output });
       }
       const answered = { role: "user", parts };
       yield { event: "/turn/full", turn: answered };
@@ -233,6 +235,22 @@ export async function vocalize(faculty, { source, settings }, policy) {
   span.note({ faculty: faculty.type });
   try {
     return await faculty.via.render(source, settings);
+  } catch (fault) {
+    span.fault(fault);
+    throw fault;
+  } finally {
+    span.close();
+  }
+}
+
+export async function choose(faculty, round, policy) {
+  const span = policy.controller.stdout;
+  span.open();
+  span.note({ faculty: faculty.type, model: faculty.config?.model, questions: Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, question.type])) });
+  try {
+    const verdict = await faculty.via.render(round, { signal: policy.controller.abort.signal });
+    span.note({ verdict });
+    return verdict;
   } catch (fault) {
     span.fault(fault);
     throw fault;

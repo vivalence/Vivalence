@@ -1,0 +1,3 @@
+{"name":"Grep","input":{"pattern":"select","path":"/repo/systems/ghost/trajectories","-n":true}}
+{"name":"Grep","input":{"pattern":"\\bmounted\\b","path":"/repo/systems","-l":true}}
+{"name":"Grep","input":{"pattern":"\\b(selected|selection)\\b","path":"/repo/systems/ghost","-l":true}}

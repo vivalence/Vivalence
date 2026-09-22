@@ -48,7 +48,7 @@ const cycle = async ({ from, into, extension }) => {
   const mode = {
     manifest: { type: "topography", slug: `gen-${into}`, traits: [] },
     entity: { installed: false },
-    module: { mount: { dirname: mount }, dataset: shape.dataset, datasink: shape.datasink },
+    module: { source: { dirname: mount }, dataset: shape.dataset, datasink: shape.datasink },
   };
 
   await DATASET(mode, daemon);
@@ -139,7 +139,7 @@ specimen.describe("the composite — cata ∘ ana is idempotent", () => {
     const mode = {
       manifest: { type: "topography", slug: "gen-refix", traits: [] },
       entity: { installed: false },
-      module: { mount: { dirname: mount }, dataset: shape.dataset, datasink: shape.datasink },
+      module: { source: { dirname: mount }, dataset: shape.dataset, datasink: shape.datasink },
     };
 
     await DATASET(mode, daemon);

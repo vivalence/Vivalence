@@ -1,0 +1,57 @@
+#+title: a guide lands in one rsync and reads green while the screen wears my theme and the importer places parts twenty times too far apart
+#+index: 202
+
+* one breath
+
+beef ordered a quest (/"given the scope and the design, i want you to write a quest for youreself."/), then /"go execute. build both"/. The fourth ontology =guide=, the editor v3 re-based to composition, and two modes on one pinned stage kit landed in ONE rsync; 20 suites / 100 steps green live, daemon at 11 modes. The screen then failed him twice: it wore dapper tokens where the comp was the spec (/"this is not the same at all!!! i dont want my own theme yet. that comes later. first make it look pixel perfect like the design!"/), and the imported drone is specks — harvest scaled the parts but not the placements.
+
+* the spine — 130 turns, this fold 108–130 (N=23)
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 108–111 | /"blast change"/ · /"scope"/ · /compact ×2 | #201 blast section; the fold | — |
+| 112 | continuation summary | — | — |
+| 113 | /"given the scope and the design, i want you to write a quest for youreself."/ + the Player handoff paste | =quests/assembly-guide.org= (unnumbered), index, frontier | — |
+| 114 | mid-turn: the Editor handoff paste | both comps in the quest | — |
+| 115 | /"go execute. build both"/ | M1–M6: domain RED-first → green, v3 re-base, topologies, player, editor, kit test, bundle-check, capture, ONE rsync, both kernels | the hex gate as a design rule (died at 124) |
+| 116 | /"did you run any changes outside of the @assembly package?"/ | the two droneaid =daemon.js= kernels, the backup, ikiro notes — nothing in the repo | — |
+| 117 | /"explain the full topology to me now. full sentences, example heavy…"/ | the four ontologies with the drone as example | — |
+| 118 | /"i assume the guides steps are also related in teh literal.uses? i assume that for all relations"/ | yes — every held slug is a =uses= edge; symbols and images are not | — |
+| 119–120 | /"how are the prerequisites encoded?"/ (screenshot) | =STAGED.built= absent = every earlier step; a step-keyed tint paints nothing (found, not fixed) | — |
+| 121–122 | /"as expected?"/ (two screenshots) | read as mine; the view button reads /custom/ | my reading: the screenshots were the claude.ai comp, not the mode |
+| 123 | /"the mode shouldnt have any data to begin with. we start on an emtpy mode?!"/ | db read-only: 0 guides, 0 steps; one editor/guide buffer points at a =guide_1= that does not exist | — |
+| 124–126 | /"this is not the same at all!!! i dont want my own theme yet. that comes later. first make it look pixel perfect like the design!"/ · /"like this"/ | the comp's hexes + Inter / IBM Plex Mono in both modes' root palette, landed 13:04; kit test: hex gate → palette-in-one-place | the dapper mapping |
+| 127 | /"The model that I imported, I scaled it to 0.05% size. And I think that only applied to the parts … the placements were not scaled … we need um, to also scale the whole model."/ | measured: parts 0.28 m, placements at 11 m (≈20×); cause =harvest.py:109= reads a parent-relative glTF node translation | — |
+| 128–130 | /"ikiro compact"/ | this fold | — |
+
+Coverage 108–130: every turn in one row. Balance: 108–115 carries the build order, 116–123 the questions, 124–130 two corrections — the weight sits last because that is where the screen met his eyes.
+
+* failures
+
+- *The comp was the spec and I ported it through the theme.* design-handoff step 4 says resolve every hex to a token; beef's order was the design pixel-perfect first. A standing rule outranked the turn's order. → memory =feedback_design_port_verbatim_first=, callout below.
+- *Green suites, wrong screen.* 100 steps green said nothing about the palette, the stage lighting, or the importer's geometry. The walk was owed and the report said so; the screen still arrived as the first real test.
+- *I read a screenshot as my own mode* (121–122) and diagnosed its view label. The data was the comp's =guide-data.json=; the db held no guide. Check the source of a screenshot before explaining it.
+
+* State at fold
+
+- Quest =quests/assembly-guide.org= LANDED (changelog + release filled); forks 1–7 taken on my leans, his word owed.
+- Palette: the comp's hexes live in each mode's root block only (=P-palette-in-one-place=). Still unlike the comp: the stage (no sun, shadows, ground, luminance edges) — port =drone-stage.js='s lighting into =kit/scene.js=.
+- Importer scale: fix drafted, NOT applied — =harvest.py:109= to world translation × SCALE (rotation likewise), then retract =droneaid_model_latest= and re-import at 0.05. =harvest.py= is m67's; sibling =edafd0fa= last wrote 41 min before. Known issue filed.
+- Owed small fixes: the view button label (derive from =view=), the step-tint fallback, a buffer whose guide is gone falls back to the list. Known issue filed for the last.
+
+** skills
+
+| skill | turn | verdict | line |
+|---|---|---|---|
+| compact-walk | 129 | HELD | spine + skills run by id |
+| quest-authoring | 113 | MISSED | the body was read with =cat=, never fired — the ledger cannot see it |
+| design-handoff | 115 | STALE | step 4 (hex → token) was applied against beef's order: port verbatim first |
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | sessions   |
+|-------------------------+-----------+----------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------|
+| assembly-guide          |  47% 7/15 | wip      | control                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 0          |
+| ledger-recipe           |  67% 8/12 | building | beef — the number · fork 2 (which instance slims for the runtime live boot; droneaid proposed) · commits in typology, paladin, ghost, commons · the runtime live boot. m0 done: =~/.viva/ledger.viva.js= speaks (no manifest, the environment block in), =~/.viva/.env= authored, chess slimmed.                                                                                                                                                                                                                                                                                                                                              | 0          |
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 1          |
+| m67-assembly-ontology   |  64% 9/14 | building | beef — one number settles the centring: the =/resolve= response's =motor_2/motor.1= translation and rotation off the network pane. then sign in so the editor can be walked by me at all (i do not type credentials), re-import the blend so =harvest.py='s stray fix takes, and confirm the navigation standard. standing: the typology one-liner (=connection-aim-dedupes-arrays=), the mode's name, commits, the =assembly=/=component= symbol purge, @droneaid vcs init. ikiro — the =unique(slug)= migration (ruling 24 is code-only), a mount rig for this package's views (the standing coverage gap), re-embed of a corrected member. | 2 (1 live) |

@@ -5,9 +5,9 @@ import paladin from "@vivalence/paladin";
 // ledger, a daemon lens would read the attached set. nothing here is instance-specific.
 
 export async function modes({ type } = {}) {
-  await paladin.vip.supply();
+  await paladin.ledger.registry.supply();
   const rows = [];
-  for (const [owner, ownerMap] of paladin.vip.pensieve) {
+  for (const [owner, ownerMap] of paladin.ledger.registry.pensieve) {
     for (const [kind, typeMap] of ownerMap) {
       if (type && kind !== type) continue;
       for (const [slug, slugMap] of typeMap) {
