@@ -45,6 +45,8 @@ def turns(path):
         txt = None
         if t == "queue-operation" and e.get("content"):
             txt = e["content"]
+        elif t == "attachment" and (e.get("attachment") or {}).get("type") == "queued_command" and e["attachment"].get("humanTurn"):
+            txt = e["attachment"].get("prompt")
         elif t == "user":
             c = e.get("message", {}).get("content")
             if isinstance(c, str):
@@ -77,4 +79,4 @@ if __name__ == "__main__":
     for n, (i, ts, _, t, txt) in enumerate(kept, 1):
         flat = " ".join(txt.split())
         tail = " … " + flat[-90:] if len(flat) > 208 else ""
-        print(f"{n:3}. {ts[11:19]} {'MID-TURN' if t == 'queue-operation' else 'prompt  '} [{len(txt):5}ch] {flat[:118]}{tail}")
+        print(f"{n:3}. {ts[11:19]} {'MID-TURN' if t in ('queue-operation', 'attachment') else 'prompt  '} [{len(txt):5}ch] {flat[:118]}{tail}")

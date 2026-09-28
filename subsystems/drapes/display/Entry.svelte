@@ -27,7 +27,7 @@
     font-size: var(--font-size-xs);
     letter-spacing: 0.12em;
     text-transform: lowercase;
-    color: var(--text-support);
+    color: var(--text-light);
   }
   .entry-foot {
     text-transform: none;
@@ -39,16 +39,16 @@
     max-width: 92%;
     font-family: var(--font-family-sans-text);
     line-height: 1.5;
-    color: var(--colors-skeleton-2-contrast);
+    color: var(--text-strong);
     text-wrap: pretty;
   }
   .entry.out .entry-body {
     max-width: 85%;
     padding: 8px 12px;
-    border: 1px solid var(--colors-skeleton-3-boundary);
+    border: 1px solid var(--boundary);
     border-radius: 8px;
-    background: var(--colors-skeleton-1-surface);
-    color: var(--colors-skeleton-0-contrast);
+    background: var(--surface);
+    color: var(--text-strong);
   }
   .entry-body.draft {
     border-style: dashed;

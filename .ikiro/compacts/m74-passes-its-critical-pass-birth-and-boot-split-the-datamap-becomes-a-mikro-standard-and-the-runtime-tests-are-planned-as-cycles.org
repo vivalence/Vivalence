@@ -1,0 +1,109 @@
+#+title: m74 passes its critical pass — birth and boot split, the datamap becomes a mikro standard, belt.control lands, and the runtime's tests are planned as cycles
+#+index: 229
+#+session: session 886a541b, turns 1–9 (fold N = 9, the third fold of m74; #225 and #227 hold the first two). beef's order in one paste: /"first do 1. tell me. then do 2. tell me. then do 3. summary."/ — his notes remedied and landed, a critical pass of the plan against the runtime's tests, a plan for reworking those tests.
+
+* one breath
+
+(1) Resumed after #227; its report delivered.
+
+(2) One paste carried the whole order: the runtime's source (58 files), the m74 quest with eleven fresh marks, the highlights, three tasks. Task 1: the marks treated — =belt.control= landed on /"@beef go land."/ (typology =131 passed (562 steps) | 0 failed= before and after), the subject born with the die (/"were born before we run ourselves and we die where we come from."/), the =children= bag cut (/"no i dont like this abstraction. wrong place, wrong percpective"/), the process row made just mikro (/"lets use 'just mikro'!"/) — probed: the handles as =persist: false · hidden= props, =status= a getter prop, once-guard setters THROW under =updateOne=.
+
+(3–5) Mid-turn, while two research agents ran: /"are these agents opus??"/ · /"if not stop them!"/ · /"no fable agents"/. Both calls named =model: "opus"=; nothing to stop.
+
+(2, cont.) Task 2, the critical pass: both agents' inventories (59 test files read whole; every consumer over repo + registry), the live runtime's 329 routes read off =:2501=, every seam probed in a sandbox. 20 of 24 claims of the plan broke: the mask a json column carried secrets onto the row's wire, the register on the subject put them on =ctx.daemon=, the readiness line =Status:ALIVE= is paladin's spawn protocol, modes booted before the domain resolved, children executed inside a scope held its request context for life, the milestones did not boot at their boundaries. m74 rewritten (1463 lines); M0 added — a guardrail on today's code, because no test boots the runtime.
+
+(6) beef on task 1's questions: the datamap service /"align with mikro primitives on the interface … the provider jsut implements a shared standard. add the datamap service to the quest. do a first draft v1"/; =disintegrate= /"your call. maybe cut?"/ → cut, =close()=; population vs resolution /"amen"/ → birth in population, boot in resolution. v1 drafted and run: one =Datamap= class in typology, the provider its driver · seat · migrator, =:memory:= when no seat.
+
+(2, cont.) Task 3, in silence: the runtime baseline =63 passed (385 steps) | 0 failed= over 57 files, line coverage 79.9, the boot pipeline 13.8–57.8. The rework written as its own quest, =runtime-scenarios.org=: a scenario is an instance record, a world is that record booted through the run, seven cycles assert ledger · census · chronicle; 59 files → 12. The chronicle caught what 21 green assertions missed — both daemons FAILED on a clean stop, two removers racing on one row.
+
+(7–9) /"time to wind down. finish up"/ · /"get ready for an ikiro compact. tail the ikiro compact after finishing up"/ · the walk.
+
+* the spine — turns 1–9
+
+| n | beef | landed | died |
+|---+------+--------+------|
+| 1 | (continuation summary, not beef) | the #227 report delivered | — |
+| 2 | the paste; /"go through my notes. remedy where remedy is implied. note where questions are posited. land whats marked."/ · /"do a critical pass between teh reality and the quests plan … what interfaces are we expected to be able to provde RIGHT NOW?"/ · /"fewer, richer test cases. integrated lifesized systems - tested over excessive complex rich cycles. more fixtures and scenarios, less do expect (tiny f)"/ · /"you do 3 in silence after 1 and 2 are done."/ | =subsystems/typology/gestalten/belt/control.js= + the =belt/index.js= line; m74 notes pass then critical pass; sandbox =22 passed | 0 failed= across four files; =runtime-scenarios.org=; =quests/index.md= | the =children= bag · the mask as a json column · once-guard setters · =process.exit= in the exported run · =population.mount= · two removers · =stagger= as a lifecycle · children inside a scope |
+| 3 | MID /"are these agents opus??"/ | both launches named =model: "opus"= | — |
+| 4 | MID /"if not stop them!"/ | NOTHING — none to stop | — |
+| 5 | MID /"no fable agents"/ | NOTHING — none on fable | — |
+| 6 | MID the datamap service /"add the datamap service to the quest. do a first draft v1 at this change. whats it look like inside and outside?"/ · =disintegrate= /"your call. maybe cut?"/ · population vs resolution /"amen"/ | =sandbox/datamap.v1.{js,test.js}= =5 passed=; the birth · boot split in the sandbox and the quest; =disintegrate= cut | the scenario provider's =allowGlobalContext: true= (in the plan) |
+| 7 | MID /"time to wind down. finish up"/ | counts corrected in =runtime-scenarios.org=; the quest index | — |
+| 8 | MID /"get ready for an ikiro compact. tail the ikiro compact after finishing up"/ | this walk | — |
+| 9 | the =/compact-walk= re-invocation | this compact | — |
+
+Coverage: 1–9, each once. Turns 3–5 were invisible to =spine.py= (N read 6): the harness writes a mid-turn message as =attachment= · =queued_command=. The extractor learned the shape this fold; the prior session (fd17e14d) re-read with it holds no such turns.
+
+Balance, fold N = 9: first third 3 (the orders, the agent law), middle third 3 (the agent law, the three rulings), last third 0. Not last-heavy: beef ruled in the paste and in one mid-turn message.
+
+* failures
+
+- a sandbox green while every daemon ended FAILED :: 21 passed asserting end states; the chronicle read =open · stop · stop · fault · close=. The pass had already reported "a daemon stops on its own: leaves the repository" as measured. Callout logged, RULE FAILURE (assume-dont-verify).
+- 539 MB of raw coverage under =.ikiro/= :: the baseline's =--coverage= followed the sandbox into the tree; deleted within the hour, no jj snapshot in the window. Callout logged (probe-pollutes-the-tree).
+- the sandbox regressed on its own finding :: the birth · boot split first executed the child runs inside =shard.scope=; the probe written an hour earlier went red and caught it.
+- a first coverage run died on zsh :: an unquoted file list became one path; rerun under bash.
+- prose rode Python heredocs :: every quest edit this fold went through an inline script, the kernel's gate says the Write tool.
+- counts restated before measured :: =.good= 132 → 124, =/daemon/traits= 12 → 14, the =ALIVE= readers 1 → 5, the lifecycles 37 → 36 → 35, =mountMode= importers 11 → 12, outside teardowns 14 → 11. Each corrected on the page before the fold.
+
+* State at fold
+
+- typology :: =gestalten/belt/control.js= new, =belt/index.js= one line; =gestalten/steer/dispatch.js= from #227. Uncommitted; every graph op beef's.
+- m74 :: DESIGNED, critical pass run. 15 of 35 lifecycles written out, 20 ports. M0–M4, M0 the guardrail. The datamap service at =** the datamap service=.
+- runtime-scenarios :: DESIGNED, unnumbered, 718 lines; rides m74 (S0 = m74 M0 … S4 = m74 M4). 9 QUESTIONED.
+- sandbox :: =.ikiro/quests/m74-the-boot-vector/sandbox/= — =structure · seams · world · datamap.service= =21 passed | 0 failed=; =baseline/= holds the live route census, the aperture strip, the suite log, the coverage summary.
+
+After the fold, beef on the quest (turns 10+, the next fold's): subscribers in memory measured, both kinds hear; the row's =manifest= QUESTIONED; paladin budges to =Status:RUNNING= and its wait on the runtime is marked for recast (known issue =paladin-waits-on-the-runtimes-stdout=); /"registry on die. correct."/ · /"same order as today."/; the datamap's =Datamap= class cut on /"why the custom prototye??"/, all of it in the provider (callout, user-intent-drift); then restored on /"i kinda like it actually. makes things easier."/ — trimmed, barrelled under =typology/entities=, the context name a static.
+- methods :: =spine.py= reads the =attachment= mid-turn shape.
+- siblings :: 339ef973 live on m74 at the fold (#228, a prod cutover). Re-read the quest before writing it.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| pre-flight | 2 | HELD | the name =control= grepped over typology before the file; no collision, =trace.hold= namespaced |
+| testing | 2 | HELD | typology baseline pasted before and after the landing; the runtime baseline over 57 files with the two live-writers named |
+| critical-pass | 2 | HELD | base facts off the working copy, the sandbox not the worktree, every absence claim grepped, the consumer side read by two agents |
+| compact-walk | 9 | STALE | the failure table named one mid-turn shape; the harness writes another. Table row and extractor fixed |
+| quest-authoring | 2 | MISSED | runtime-scenarios written whole, m74 rewritten, organs by hand |
+| blast-bracket | 2 | MISSED | a typology primitive landed, bracketed by hand |
+
+* settlement
+
+- MARKERS: =## OPEN= empty.
+- Codeword scan of turns 1–9: none. The agent-law turns are a check, not a strike: both launches named opus, the launch line said so.
+- Callouts: two appended (a RULE FAILURE in assume-dont-verify; probe-pollutes-the-tree).
+- Known issues: none new. The two-remover race lived only in the sketch.
+- LEDGER: three rows appended (STALE ×1, MISSED ×2).
+- Codemap: =codemap.py= reads every shard =generated ok=; the belt line needs no re-stamp.
+- Memory: nothing private; nothing written.
+
+* handoff
+- quest :: m74-the-boot-vector
+- goal :: /"i want to turn all my boot processes in the runtime into vectors. mode, daemon, service and the runtime themselves."/ · /"i want export/filesystem tree match as in typology."/
+- done :: =belt.control= LANDED (=subsystems/typology/gestalten/belt/control.js=, typology =131 passed (562 steps) | 0 failed=); critical pass run — 20 of 24 claims corrected, the datamap service reshaped (one =Datamap= class in =typology/entities=, mikro's =orm= whole on it, every provider ends in =new Datamap(orm)=), birth · boot split; sandbox =22 passed | 0 failed=
+- next :: go on M0 — a boot test green on today's code
+- never :: /"were born before we run ourselves and we die where we come from."/ — the subject is minted with the die, never by a =core= lifecycle
+- never :: /"no i dont like this abstraction. wrong place, wrong percpective"/ — the parent births in population and boots in resolution; no =children= bag
+- never :: /"lets use 'just mikro'!"/ — handles are mikro props (=persist: false · hidden=), never private once-guards
+- never :: a mask on the wire — the row's column is =manifest=, the mask a hidden handle
+- never :: mikro outside its barrel — /"mikro has been in typology before. just barrel it carfully and were good."/; =Datamap= reaches a consumer only through =@vivalence/typology/entities=, never =mod.ts=
+- owed :: beef — the QUESTIONED (first: the row's =manifest=, a domain's =resolve(daemon)=) · the naming pass · go per milestone · the uncommitted typology change
+
+- quest :: runtime-scenarios
+- goal :: /"fewer, richer test cases. integrated lifesized systems - tested over excessive complex rich cycles. more fixtures and scenarios, less do expect (tiny f)"/
+- done :: designed, unnumbered; baseline =63 passed (385 steps) | 0 failed= over 57 files, line coverage 79.9; =world.test.js= one cycle told twice, equal, zero faults
+- next :: apart, or m74 M4
+- never :: a world that is absent is a pass — no case returns early on a missing instance
+- never :: a test writes into a runtime it did not boot
+- owed :: beef — the number, the 9 QUESTIONED, go on S0
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions   |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0          |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3          |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 1 (1 live) |
+| m73-anima-and-design-system-comps |  79% 11/14 | wip      | go                                                                                                | 1 (1 live) |
+| m74-the-boot-vector               |   9% 2/23  | wip      | blast                                                                                             | 3 (3 live) |
+| runtime-scenarios                 |   0% 0/22  | design   | go                                                                                                | 0          |

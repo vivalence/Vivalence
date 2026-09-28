@@ -56,6 +56,55 @@
 }
 
 @font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/static/fonts/IBM Plex Sans/IBMPlexSans-VariableFont_wdth,wght.ttf") format("truetype");
+  font-weight: 100 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "IBM Plex Sans";
+  src: url("/static/fonts/IBM Plex Sans/IBMPlexSans-Italic-VariableFont_wdth,wght.ttf") format("truetype");
+  font-weight: 100 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/static/fonts/IBM Plex Mono/IBMPlexMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/static/fonts/IBM Plex Mono/IBMPlexMono-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: "IBM Plex Mono";
+  src: url("/static/fonts/IBM Plex Mono/IBMPlexMono-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Space Mono";
+  src: url("/static/fonts/Space Mono/SpaceMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "Space Mono";
+  src: url("/static/fonts/Space Mono/SpaceMono-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: "VT323";
+  src: url("/static/fonts/VT323/VT323-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
   font-family: "Poppins";
   src: url("/static/fonts/Poppins/Poppins-Thin.ttf") format("truetype");
   font-weight: 100;

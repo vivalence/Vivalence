@@ -1,8 +1,7 @@
 <!--
-  Header — skeleton-aware. Inherits contrast color from current skeleton.
+  Header — the header text step.
 -->
 <script>
-  import { useSkeleton } from "../context/useSkeleton.js";
 
   let {
     as = "h2",
@@ -12,8 +11,6 @@
     actions,
   } = $props();
 
-  const skeleton = useSkeleton();
-  const level = $derived(skeleton());
 
   const sizes = {
     sm: "text-sm",
@@ -29,7 +26,7 @@
 <div class="flex items-center justify-between {className}">
   <svelte:element
     this={as}
-    class="font-sans-heading font-semibold text-skeleton-{level}-contrast {sizes[size]}">
+    class="font-sans-heading font-semibold text-header {sizes[size]}">
     {@render children?.()}
   </svelte:element>
   {#if actions}

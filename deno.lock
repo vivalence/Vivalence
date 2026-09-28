@@ -24,6 +24,7 @@
     "jsr:@std/cli@^1.0.25": "1.0.29",
     "jsr:@std/crypto@1": "1.0.5",
     "jsr:@std/crypto@1.0": "1.0.5",
+    "jsr:@std/data-structures@^1.0.9": "1.0.10",
     "jsr:@std/dotenv@~0.225.5": "0.225.6",
     "jsr:@std/encoding@1": "1.0.10",
     "jsr:@std/encoding@1.0": "1.0.10",
@@ -253,6 +254,9 @@
     "@std/crypto@1.0.5": {
       "integrity": "0dcfbb319fe0bba1bd3af904ceb4f948cde1b92979ec1614528380ed308a3b40"
     },
+    "@std/data-structures@1.0.10": {
+      "integrity": "f574f86b0e07c69b9edc555fcc814b57d29258bad39fd5a34ba8a80ecf033cfe"
+    },
     "@std/dotenv@0.225.6": {
       "integrity": "1d6f9db72f565bd26790fa034c26e45ecb260b5245417be76c2279e5734c421b"
     },
@@ -332,6 +336,7 @@
       "integrity": "a917ffdeb5924c9be436dc78bc32e511760e14d3a96e49c607fc5ecca86d0092",
       "dependencies": [
         "jsr:@std/assert@^1.0.15",
+        "jsr:@std/data-structures",
         "jsr:@std/internal@^1.0.12"
       ]
     },

@@ -315,8 +315,8 @@
     gap: 14px;
     height: 100%;
     padding: 18px;
-    background: var(--colors-skeleton-3-surface);
-    color: var(--colors-skeleton-3-contrast);
+    background: var(--surface-lift);
+    color: var(--text-strong);
     font-family: var(--font-family-code);
     overflow: hidden;
   }
@@ -360,16 +360,16 @@
     padding: 6px 14px;
     font: inherit;
     font-size: var(--font-size-xs);
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
     background: transparent;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 40%, transparent);
+    border: 1px solid color-mix(in srgb, var(--signal-primary) 40%, transparent);
     border-radius: 5px;
     cursor: pointer;
     white-space: nowrap;
     transition: background 0.12s;
   }
   .btn:not(:disabled):hover {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 14%, transparent);
+    background: color-mix(in srgb, var(--signal-primary) 14%, transparent);
   }
   .btn:disabled {
     opacity: 0.4;
@@ -378,8 +378,8 @@
     border-color: color-mix(in srgb, currentColor 20%, transparent);
   }
   .btn.on {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 22%, transparent);
-    border-color: var(--colors-skeleton-0-primary-base);
+    background: color-mix(in srgb, var(--signal-primary) 22%, transparent);
+    border-color: var(--signal-primary);
   }
   .logs {
     display: flex;
@@ -392,9 +392,9 @@
     flex-direction: column;
     flex: 1;
     min-width: 0;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 28%, transparent);
+    border: 1px solid color-mix(in srgb, var(--boundary) 28%, transparent);
     border-radius: 8px;
-    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 3%, transparent);
+    background: color-mix(in srgb, var(--inverse) 3%, transparent);
     overflow: hidden;
   }
   .col-head {
@@ -406,7 +406,7 @@
     letter-spacing: 0.16em;
     text-transform: uppercase;
     opacity: 0.55;
-    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 22%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--boundary) 22%, transparent);
   }
   .count {
     opacity: 0.7;

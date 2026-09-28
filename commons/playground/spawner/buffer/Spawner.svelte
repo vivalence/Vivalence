@@ -91,15 +91,15 @@
     justify-content: center;
     gap: 0.8rem;
     padding: 18px;
-    background: var(--colors-skeleton-2-surface);
-    color: var(--colors-skeleton-2-contrast);
+    background: var(--surface-sunk);
+    color: var(--text-strong);
     font-family: var(--font-family-code);
   }
   .tag {
     font-size: var(--font-size-xs);
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
   }
   .state {
     display: flex;
@@ -108,7 +108,7 @@
     opacity: 0.65;
   }
   .state b {
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
     font-weight: 600;
   }
   .row {
@@ -129,12 +129,12 @@
   }
   .row button:hover {
     opacity: 1;
-    border-color: var(--colors-skeleton-0-primary-base);
+    border-color: var(--signal-primary);
   }
   .row button.on {
     opacity: 1;
-    color: var(--colors-skeleton-0-primary-base);
-    border-color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
+    border-color: var(--signal-primary);
   }
   .hint {
     max-width: 20rem;
@@ -145,7 +145,7 @@
     text-align: center;
   }
   .hint b {
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
     font-weight: 600;
     opacity: 0.9;
   }
@@ -163,7 +163,7 @@
     border-radius: 0.25rem;
   }
   .list li.active {
-    border-color: var(--colors-skeleton-0-primary-base);
+    border-color: var(--signal-primary);
   }
   .list button {
     width: 100%;
@@ -189,6 +189,6 @@
   }
   .dot.on {
     opacity: 1;
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
   }
 </style>

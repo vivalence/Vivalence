@@ -1,0 +1,92 @@
+#+title: m72 survives its critical pass — dapper may import typology, the theme root is zone 1 whole, and fold with its dark and light recipes is cut
+#+index: 218
+#+session: session 9c4d5944, turns 62–76 (fold N = 15, the third fold; #216 holds 1–26, #217 holds 27–61). beef's thread: the last word rulings settled, then /"is our plan solid?"/ against the live dapper tree; the one seam that could kill M2 is proved in a sandbox, and the recipe layer is cut.
+
+* one breath
+
+(62–66) the words settle. /"one."/ · /"sunk and lift."/ · /"soft."/ · /"selected."/ were folded into #217; /"settle these into quest and reference: inverse-on and the zone icon keys (above), label.case beside track, and whole shadows versus geometry plus tone."/ → =inverse-on=, icons on text ink, =shape.label.case= · =.track=, geometry in shape and tone in the zone. 85 root keys, 12 ground keys, 97 per zone block.
+
+(67–68) the critical pass. beef pasted today's dapper and both files: /"is our plan solid?"/. Measured: definition A's =negative.on= at 3.44:1, the theme root with no ground keys, a contrast test that checked only =surface=, a missing =light= recipe, and M2's import of typology unproven. /"M2 makes dapper import typology. this might be a dealbreaker. test this early/first/as part of baseline. rework the quest and reference"/ → a sandbox copy, dapper importing =v= inside =design()=, anima's bundle built, =--probe-typology: held= in the CSS. The quest and the reference reworked: the root is zone 1 whole (ruling 19), floors on all three depth steps, the tie rule, the =--dim= keep-list, the M4 screenshot gate.
+
+(69–73) the recipe layer dies. /"whats this? i dont understand. light/dark are what?"/ → callout, re-explained. /"why would we have light/dark? themes are themes. light dark are not functions but semantic notes on a theme."/ · /"light/dark are classes of themes"/ · /"no we can just ignore dark/light completely. not needed. ignore."/ → =fold= and =lib/recipes.js= cut; each theme names the steps of its own gradients; no =scheme= key. /"update reference adn quest."/
+
+* the spine — turns 62–76
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 62 | MID-TURN /"one."/ · /"not sure. what do we need?"/ · /"sunk and lift."/ | folded in #217, row 60 | — |
+| 63 | MID-TURN /"soft."/ · /"selected."/ · /"not sure. how does either scale."/ · /"not sure. you chose. is it a truth or conveniece/drift?"/ | folded in #217, row 60; the two "not sure" rows answered as leans | — |
+| 64 | /"settle these into quest and reference: inverse-on and the zone icon keys (above), label.case beside track, and whole shadows versus geometry plus tone."/ | ruling 18; =inverse-on=; zone =icon= · =icon-strong= dropped; =shape.label.track=; =Shadow= geometry only, emitted resolved; 85 / 12 / 97 | =on-inverse= · =size.track= · whole shadows |
+| 65 | MID-TURN =/compact= | NOTHING — the harness | — |
+| 66 | the harness's continuation summary | NOTHING — the fold boundary; the settle report delivered after it | — |
+| 67 | today's dapper + =design.md= + the quest pasted · /"is our plan solid?"/ | critical pass: five faults measured (=negative.on= 3.44:1 · root without ground · floors on =surface= only · =light= missing · typology import unproven), =--dim= local in 7 mode files | — |
+| 68 | /"M2 makes dapper import typology. this might be a dealbreaker. test this early/first/as part of baseline. rework the quest and reference"/ | sandbox probe held (bundle 13.9 s → 15.1 s, marker =held= ×2, dapper =10 passed (65 steps) \| 0 failed=); both files reworked, ruling 19, =light= recipe written and measured, =tomato 400= found to carry no =on= | =negative.on: iron[50]= · "root takes zone 1's tone" |
+| 69 | MID-TURN /"whats this? i dont understand. light/dark are what?"/ | callout (=zettelkasten.md=, family explanation); recipe explained; lean: drop recipes | — |
+| 70 | /"wtf is light and dark? we can cut that? why would we have light/dark? themes are themes. light dark are not functions but semantic notes on a theme."/ | the cut drafted inline, northsea written directly; =scheme= offered for =color-scheme= | — |
+| 71 | MID-TURN /"light/dark are classes of themes"/ | =scheme= drafted as the class, 86 keys | — |
+| 72 | /"no we can just ignore dark/light completely. not needed. ignore."/ | =fold= · =lib/recipes.js= · =dark= · =light= cut from both files; northsea and parchment written in their own steps; zone 3 =inverse-on= and =scrim= now derived | =fold= · recipes · =scheme= |
+| 73 | /"update reference adn quest."/ | residue grep clean; =quests/index.md= m72 line re-said (=lift=, own gradients) | "gradients folded in as defaults" |
+| 74 | MID-TURN /"ikiro compact"/ | this fold | — |
+| 75 | MID-TURN =/compact= | NOTHING — the harness | — |
+| 76 | the skill's re-invocation notice | NOTHING | — |
+
+Coverage: 62–76, 15 rows, 4 NOTHING (65 · 66 · 75 · 76), 2 folded in #217 (62 · 63).
+
+* failures
+
+- *a pass that named a risk instead of proving it* (67→68). The critical pass listed the typology import as "unproven" and moved on; its own step 2–3 (sandbox, baseline) was the proof, and beef had to order it: /"this might be a dealbreaker. test this early/first/as part of baseline."/ Run once asked, it took two minutes.
+- *a private noun used as a finding* (67→69). "the =light= recipe is never written" — =recipe=, =dark=, =light= were my coinages, never ruled: /"i dont understand. light/dark are what?"/ Callout logged; the corrective runs in every finding.
+- *built more of a layer instead of asking why it exists* (68→70). A finding said "=light= is missing", so =light= was written and measured, a whole recipe, when each recipe had exactly one caller. beef: /"why would we have light/dark? themes are themes."/
+- *a key offered for a note beef called semantic* (71→72). /"classes of themes"/ read as "add =scheme="; /"ignore dark/light completely. not needed."/
+
+* State at fold
+
+- =.ikiro/quests/m72-zoned-designs.org= — DESIGNED, 1/19 (=m72/P-dapper-imports-typology · held=), no trail: 85 root keys (shape 19 · size 29 · text 8 · control 13 · signal 16), 12 ground keys, four zones of 97, the theme root zone 1 whole; 19 rulings; seven forks (the places · a key's shadow and the mark · the text floor · the size sweep · fonts · the definition's floor · the 150 stop); pipe =definition → theme() → Theme → emit=, no =fold=; northsea and parchment each named in their own gradient steps; M2 opens with the typology import re-proved on the tree. No product code touched.
+- =.ikiro/reference/design.md= — the same system; §8 lists each theme by what it is written in; floors on surface · sunk · lift. Tree identical to the quest's.
+- =.ikiro/quests/index.md= — m72 line re-said.
+- =.ikiro/zettelkasten.md= — one callout, family explanation.
+- scratchpad =sandbox/= — the probe copy (39 MB) with =subsystems/dapper/lib/system.js= patched; the real tree untouched.
+- suites: dapper =10 passed (65 steps) | 0 failed= (sandbox, probe in) · anima =deno task bundle= built, sandbox, before and after.
+- Balance (fold N = 15, thirds 62–66 · 67–71 · 72–76): verbatim citations in the spine 6 · 6 · 2. The last third is light because beef's rulings there are two short lines (72 · 73); the weight sits in the pass and the cut.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| critical-pass | 67 | GAP | the body assumes a patch to dry-apply; on a design-only quest its sandbox step did not translate into "probe the riskiest new seam", so the typology import was listed, not run, until beef ordered it (68) |
+| callout | 69 | HELD | =i dont understand= ingress; entry names the missing definition; re-explanation executed |
+| compact-walk | 75 | HELD | spine + skills by id; third fold, N = 15 |
+| quest-authoring | 68 | MISSED | m72 reworked twice more (68 · 72) by counted-swap scripts; the skill did not fire, recurring from #217 |
+
+* settlement
+
+- #217's State and handoff counts (85 / 14 / 99, eight forks) are stale; this fold's State supersedes them. #217 is left as written.
+- #217's =never= (/"don't leave a trail about the old."/) held through both reworks: no "was", no struck option left in either file.
+- Codeword scan: =i dont understand= at 69 → callout written in turn. No =retard=.
+- MARKERS.md =OPEN= is empty.
+- The probe sandbox is scratchpad-only and dies with the session; the method is recorded in the quest's terrain and changelog.
+
+* handoff
+- quest :: m72-zoned-designs
+- goal :: /"i want to structure our surfaces or leveles or zones. its chaos atm."/ — the token space as the contract, zones as territories with depth inside
+- done :: critical pass against the live dapper tree; dapper importing typology proved in a sandboxed anima bundle; root = zone 1 whole; floors on three depth steps; =fold= and recipes cut, each theme names its own gradient steps; quest and =reference/design.md= agree
+- next :: beef rules the seven forks; then the designer's pass (=reference/design.md= §10); then go on M1
+- never :: /"no we can just ignore dark/light completely. not needed. ignore."/ — no class of theme, no recipe
+- never :: /"don't leave a trail about the old. Don't mark decisions, just update the thing."/
+- never :: a risk named in a pass without the probe that settles it — /"test this early/first/as part of baseline."/
+- owed :: beef — seven fork rulings · go on M1
+- quest :: none
+- settles :: #217
+- goal :: fold turns 27–61
+- done :: its counts superseded by #218's State
+- next :: none
+- never :: —
+- owed :: nothing
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                  | sessions |
+|-------------------------+-----------+----------+---------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone | 0        |
+| m71-droneaid-guide      |   0% 0/16 | design   | go                                                                                    | 3        |
+| m72-zoned-designs       |   5% 1/19 | design   | go                                                                                    | 0        |

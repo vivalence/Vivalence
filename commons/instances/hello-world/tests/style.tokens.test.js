@@ -6,13 +6,13 @@ import { RENDER } from "../page/style.js";
 // that dapper does not emit renders the drawn page unstyled, and nothing else would catch it —
 // the component compiles, mounts and looks broken.
 const ds = await design();
-// per theme, not over the whole sheet: a token only nordic defines would leave a drawn page
+// per theme, not over the whole sheet: a token only northsea defines would leave a drawn page
 // unstyled the moment the operator switches to paper, and vice versa.
 const blocks = Object.fromEntries(
   Object.keys(ds.themes).map((name) => [
     name,
-    ds.output.css.slice(ds.output.css.indexOf(`:root[data-theme="${name}"] {`))
-      .split("}\n")[0],
+    ds.output.css.slice(ds.output.css.indexOf(":root {")).split("}\n")[0] +
+    ds.output.css.slice(ds.output.css.indexOf(`:root[data-theme="${name}"] {`)).split("}\n")[0],
   ]),
 );
 
@@ -37,8 +37,10 @@ specimen.describe(
       "dapper defines every one of them, in EVERY theme it ships",
       () => {
         specimen.expect(Object.keys(blocks).sort()).toEqual([
-          "nordic",
-          "paper",
+          "datasette",
+          "northsea",
+          "parchment",
+          "porcelain",
         ]);
         for (const [name, block] of Object.entries(blocks)) {
           const missing = taught.filter((token) =>

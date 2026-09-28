@@ -1,14 +1,14 @@
 <!--
-  Text — skeleton-aware. The `color` prop accepts:
-    - "contrast"  → skeleton.contrast (default)
+  Text — the `color` prop accepts:
+    - "contrast"  → the strong text step (default)
     - role names: primary | secondary | accent | info | success | warning | danger
-                  → skeleton.<role>.base
+                  → that signal's ink
     - any literal class string → passed through verbatim (escape hatch)
 
   Variant + size + spacing + weight stay structural.
 -->
 <script>
-  import { useSkeleton } from "../context/useSkeleton.js";
+  import { INK, SIGNAL } from "../context/signals.js";
 
   let {
     id = "",
@@ -23,9 +23,6 @@
     class: className = "",
     children,
   } = $props();
-
-  const skeleton = useSkeleton();
-  const level = $derived(skeleton());
 
   const variants = {
     heading: "font-sans-heading",
@@ -76,17 +73,7 @@
     bold: "font-bold",
   };
 
-  const ROLE_COLORS = new Set([
-    "primary", "secondary", "accent",
-    "info", "success", "warning", "danger",
-  ]);
-
-  const colorClass = $derived.by(() => {
-    if (color === "contrast") return `text-skeleton-${level}-contrast`;
-    if (ROLE_COLORS.has(color)) return `text-skeleton-${level}-${color}-base`;
-    // escape hatch — pass literal class string through
-    return color;
-  });
+  const colorClass = $derived(color === "contrast" ? "text-strong" : (INK[SIGNAL[color]] ?? color));
 
   const spacingClass = spacings[spacing || size];
 

@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en" data-theme="nordic">
+<html lang="en" data-theme="northsea">
 	<head>
 		<meta charset="utf-8" />
 		<script>
 			try {
 				const bridge = JSON.parse(localStorage.getItem("vivalence:bridge"));
-				if (bridge?.view?.theme) document.documentElement.dataset.theme = bridge.view.theme;
+				if (["northsea", "parchment", "porcelain", "datasette"].includes(bridge?.view?.theme)) document.documentElement.dataset.theme = bridge.view.theme;
 			} catch (_) {}
 		</script>
 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
@@ -38,7 +38,7 @@
 		</style>
 		%sveltekit.head%
 	</head>
-	<body>
+	<body data-zone="1">
 		%sveltekit.body%
 	</body>
 	<script type="importmap">

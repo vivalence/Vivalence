@@ -3,25 +3,33 @@ import { HighlightStyle } from "@codemirror/language";
 import { tags } from "@lezer/highlight";
 import { marks } from "./org.js";
 
-const ink = "var(--zone-contrast, var(--colors-skeleton-0-contrast))";
+const ink = "var(--text-strong)";
 const dim = (percent) => `color-mix(in srgb, ${ink} ${percent}%, transparent)`;
-const accent = (role) => `var(--zone-${role}-base, var(--colors-skeleton-0-${role}-base))`;
+const FILL = { primary: "var(--signal-primary)", warning: "var(--signal-caution)" };
+const INK = {
+  primary: "var(--signal-primary-ink)", info: "var(--signal-primary-ink)",
+  success: "var(--signal-positive-ink)",
+  warning: "var(--signal-caution-ink)", accent: "var(--signal-caution-ink)",
+  danger: "var(--signal-negative-ink)",
+};
+const fill = (role) => FILL[role];
+const accent = (role) => INK[role];
 
 export const theme = EditorView.theme({
   "&": { color: ink, backgroundColor: "transparent", height: "100%", fontSize: "inherit" },
   "&.cm-focused": { outline: "none" },
   ".cm-scroller": { fontFamily: "var(--font-family-code)", lineHeight: "1.7", overflow: "auto" },
-  ".cm-content": { padding: "12px 0", caretColor: accent("primary") },
+  ".cm-content": { padding: "12px 0", caretColor: fill("primary") },
   ".cm-gutters": { backgroundColor: "transparent", color: dim(35), border: "none", paddingRight: "12px" },
   ".cm-activeLine": { backgroundColor: dim(4) },
   ".cm-activeLineGutter": { backgroundColor: "transparent", color: ink },
-  ".cm-selectionBackground, &.cm-focused .cm-selectionBackground, ::selection": { backgroundColor: `color-mix(in srgb, ${accent("primary")} 25%, transparent)` },
-  ".cm-cursor, .cm-dropCursor": { borderLeftColor: accent("primary") },
-  ".cm-matchingBracket, &.cm-focused .cm-matchingBracket": { backgroundColor: `color-mix(in srgb, ${accent("primary")} 18%, transparent)`, outline: "none" },
+  ".cm-selectionBackground, &.cm-focused .cm-selectionBackground, ::selection": { backgroundColor: `color-mix(in srgb, ${fill("primary")} 25%, transparent)` },
+  ".cm-cursor, .cm-dropCursor": { borderLeftColor: fill("primary") },
+  ".cm-matchingBracket, &.cm-focused .cm-matchingBracket": { backgroundColor: `color-mix(in srgb, ${fill("primary")} 18%, transparent)`, outline: "none" },
   ".cm-foldPlaceholder": { backgroundColor: "transparent", border: "none", color: dim(50) },
-  ".cm-panels": { backgroundColor: "var(--zone-surface, var(--colors-skeleton-4-surface))", color: ink, border: "none" },
-  ".cm-searchMatch": { backgroundColor: `color-mix(in srgb, ${accent("warning")} 30%, transparent)` },
-  ".cm-searchMatch.cm-searchMatch-selected": { backgroundColor: `color-mix(in srgb, ${accent("primary")} 35%, transparent)` },
+  ".cm-panels": { backgroundColor: "var(--surface-lift)", color: ink, border: "none" },
+  ".cm-searchMatch": { backgroundColor: `color-mix(in srgb, ${fill("warning")} 30%, transparent)` },
+  ".cm-searchMatch.cm-searchMatch-selected": { backgroundColor: `color-mix(in srgb, ${fill("primary")} 35%, transparent)` },
 });
 
 export const highlight = HighlightStyle.define([

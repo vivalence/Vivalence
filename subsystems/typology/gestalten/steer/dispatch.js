@@ -1,12 +1,14 @@
 import { Signal, Signature, Long, Short, middleware, NotFound } from "@vivalence/typology";
 import { scope, feed } from "./match.js";
-import { request } from "./strategy.js";
-import { descend } from "./trie.js"; // the carry-fold step, shared with the tree family
+import { request, resolve } from "./strategy.js";
+import { descend } from "./trie.js";
 
-// PATH family — consume a Signal and descend the vector by MATCHING (early-terminate,
-// param/wildcard/remainder binding). Each shares the carry-descend step but mirrors
-// its OWN geometry (a path with a tip-fan for shotgun). Counterpart: tree.js, which
-// enumerates the whole vector. Do not cross-compare the two families' forms.
+export const execute = (vector, context, signal = new Signal()) => {
+  if (!(signal instanceof Signature)) signal = new Signal(signal);
+  const [effect, carry] = traverse(vector, signal);
+  if (!effect) throw new NotFound(signal);
+  return carry(context, resolve(effect));
+};
 
 export function traverse(vector, signals) {
   let position = vector;

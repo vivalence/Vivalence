@@ -110,6 +110,7 @@ export const rig = async (script) => {
   const mode = {
     manifest: { slug: "hello-world", type: "demo" },
     module: { emitter, generator },
+    bundles: { absolute: "/nonexistent/rig" },
     aperture: new Vector(),
     entity: { id: "mode-1" },
     tools: new Vector().slurp(web),

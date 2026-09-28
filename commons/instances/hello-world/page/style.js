@@ -3,8 +3,8 @@
 // into that specific tool, into the generator tool for what HTML and what's spelled to use."
 //
 // fills ctx.hallucination.system.render, written once by harness.js and passed again by the
-// researcher at M4. every token below is emitted by dapper's paper theme — tests/style.tokens.test.js
-// pins that against generateCSS(), because a token taught here that dapper does not emit
+// researcher at M4. every token below is emitted by every theme dapper ships — tests/style.tokens.test.js
+// pins that against design(), because a token taught here that dapper does not emit
 // renders the page unstyled and nothing else in the suite would catch it.
 export const RENDER = `
 HOUSE RULES for every component you draw. These are not suggestions — a component that
@@ -25,8 +25,8 @@ SHELL — always exactly this frame:
     .page {
       height: 100%; overflow-y: auto; box-sizing: border-box;
       padding: 40px 26px 72px;
-      background: var(--colors-skeleton-0-surface);
-      color: var(--text-primary);
+      background: var(--surface);
+      color: var(--text-strong);
       font-family: var(--font-family-sans-text);
     }
   </style>
@@ -50,18 +50,18 @@ RULES
     top when a source carries one; not a gallery.
 
 TOKENS
-  surfaces   --colors-skeleton-0-surface   the field (the page itself)
-             --colors-skeleton-2-surface   sunk — panels, quotes, tables
-             --colors-skeleton-3-surface   raised — a card floating above
-  rules      --colors-skeleton-2-boundary  hairline
-             --colors-skeleton-0-boundary  strong rule
-  type       --text-primary   headings and values
-             --text-body      prose
-             --text-support   labels, captions, timestamps
-  accents    --colors-skeleton-0-primary-base   links, the house teal
-             --colors-skeleton-0-warning-base   caution
-             --colors-skeleton-0-danger-base    trouble
-             --signal-positive                  a live dot
+  surfaces   --surface        the field (the page itself)
+             --surface-sunk   sunk — panels, quotes, tables
+             --surface-lift   raised — a card floating above
+  rules      --boundary-soft  hairline
+             --boundary       strong rule
+  type       --text-strong    headings and values
+             --text-ink       prose
+             --text-light     labels, captions, timestamps
+  accents    --signal-primary-ink    links, the house teal
+             --signal-caution-ink    caution
+             --signal-negative-ink   trouble
+             --signal-positive       a live dot
   scale      --font-size-2xs xs sm md base lg xl 2xl 3xl 4xl
   families   --font-family-sans-text · --font-family-code · --font-family-sans-heading
 
@@ -70,40 +70,40 @@ PATTERNS — the house dialect. Copy these; do not invent a second one.
   a title
     <h1 class="title">Flamingo</h1>
     .title { margin: 0 0 6px; font-family: var(--font-family-sans-heading);
-             font-size: var(--font-size-3xl); line-height: 1.15; color: var(--text-primary); }
+             font-size: var(--font-size-3xl); line-height: 1.15; color: var(--text-strong); }
 
   a standfirst under it
     <p class="standfirst">Wading birds of salt lakes and lagoons, pink from what they eat.</p>
-    .standfirst { margin: 0; font-size: var(--font-size-base); color: var(--text-support); }
+    .standfirst { margin: 0; font-size: var(--font-size-base); color: var(--text-light); }
 
   a section rule — label, hairline, trailing note. The house's one divider.
     <div class="rule"><span class="label">history</span><span class="line"></span>
       <span class="trace">3 sources</span></div>
     .rule  { display: flex; align-items: center; gap: 9px; }
     .line  { flex: 1; height: 1px;
-             background: color-mix(in srgb, var(--colors-skeleton-0-boundary) 90%, transparent); }
+             background: color-mix(in srgb, var(--divider) 90%, transparent); }
     .label { font-family: var(--font-family-code); font-size: var(--font-size-2xs);
-             letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-support); }
+             letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-light); }
     .trace { font-family: var(--font-family-code); font-size: var(--font-size-2xs);
-             letter-spacing: 0.08em; color: var(--text-support); }
+             letter-spacing: 0.08em; color: var(--text-light); }
 
   a paragraph
     <p class="body">Flamingos filter-feed with the head held upside down…</p>
     .body { margin: 0; font-size: var(--font-size-base); line-height: 1.55;
-            color: var(--text-body); }
+            color: var(--text-ink); }
 
   a fact list
     <div class="panel">
       <div class="row"><span class="key">family</span><span class="value">Phoenicopteridae</span></div>
     </div>
     .panel { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px;
-             background: var(--colors-skeleton-2-surface);
-             border: 1px solid var(--colors-skeleton-2-boundary); border-radius: 6px; }
+             background: var(--surface-sunk);
+             border: 1px solid var(--boundary-soft); border-radius: 6px; }
     .row   { display: flex; align-items: baseline; gap: 10px; padding: 3px 0; }
     .key   { flex: none; width: 96px; font-size: var(--font-size-xs);
-             color: var(--text-support); }
+             color: var(--text-light); }
     .value { font-family: var(--font-family-code); font-size: var(--font-size-xs);
-             color: var(--text-primary); }
+             color: var(--text-strong); }
 
   a figure — an image from a page you opened, the source named under it
     <figure class="figure">
@@ -112,21 +112,21 @@ PATTERNS — the house dialect. Copy these; do not invent a second one.
     </figure>
     .figure { margin: 0 0 26px; }
     .figure img { display: block; width: 100%; height: auto; border-radius: 6px;
-                  background: var(--colors-skeleton-2-surface); }
+                  background: var(--surface-sunk); }
     .caption { margin: 6px 0 0; font-family: var(--font-family-code); font-size: var(--font-size-2xs);
-               letter-spacing: 0.08em; color: var(--text-support); }
+               letter-spacing: 0.08em; color: var(--text-light); }
 
   a source you opened
     <a class="source" href={url} target="_blank" rel="noreferrer">{title} ↗</a>
     .source { display: block; font-size: var(--font-size-sm);
-              color: var(--colors-skeleton-0-primary-base); text-decoration: none; }
-    .source:hover { color: var(--colors-skeleton-0-primary-hover); }
+              color: var(--signal-primary-ink); text-decoration: none; }
+    .source:hover { color: var(--signal-primary-ink); }
 
   a pill
     <span class="pill">search engine</span>
-    .pill { padding: 2px 9px; border: 1px solid var(--colors-skeleton-2-boundary);
+    .pill { padding: 2px 9px; border: 1px solid var(--boundary-soft);
             border-radius: 9999px; font-family: var(--font-family-code);
-            font-size: var(--font-size-2xs); color: var(--text-support); }
+            font-size: var(--font-size-2xs); color: var(--text-light); }
 
   prose you already hold as markdown — do not re-implement it
     import { Markdown } from "@vivalence/drapes";

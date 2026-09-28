@@ -1,13 +1,13 @@
 <script>
   import { getContext } from "svelte";
-  import { chain } from "@vivalence/anima";
+  import { TONES, chain, loudest, roster } from "@vivalence/anima";
   import { TERMINALS } from "$client";
-  import { Section, Chip, Pip } from "@vivalence/drapes";
+  import { Chip, Empty, Key, Section, Status, Tag, ToolRow } from "@vivalence/drapes";
+  import Tune from "../../widgets/Tune.svelte";
   import Labeled from "./widgets/Labeled.svelte";
   import Masked from "./widgets/Masked.svelte";
   import Aimed from "./widgets/Aimed.svelte";
   import Queueing from "./widgets/Queueing.svelte";
-  import Intelligent from "./widgets/Intelligent.svelte";
 
   const terminals = getContext(TERMINALS);
 
@@ -15,14 +15,17 @@
   const mode = chain(terminals, "$active", "$thread", "$mode");
   const label = chain(terminals, "$active", "$thread", "$label");
   const threadTraits = chain(terminals, "$active", "$thread", "$traits");
+  const buffers = chain(terminals, "$active", "$thread", "$buffers");
+  const cursor = chain(terminals, "$active", "$buffer");
 
   const TRAITS = [
-    { name: "LABELED", label: "labeled", toggleable: false },
-    { name: "MASKED", label: "masked", toggleable: false },
-    { name: "AIMED", label: "aimed", toggleable: true },
-    { name: "QUEUEING", label: "queueing", toggleable: true },
-    { name: "INTELLIGENT", label: "intelligent", toggleable: true },
+    { name: "LABELED", label: "labeled", toggleable: false, title: "set by the dossier · name + description" },
+    { name: "MASKED", label: "masked", toggleable: false, title: "held while the application carries a schema · seeds buffers" },
+    { name: "AIMED", label: "aimed", toggleable: true, title: "needs emitter branches · pull reads the mount" },
+    { name: "QUEUEING", label: "queueing", toggleable: true, title: "needs aimed · dropping aimed drops it" },
+    { name: "INTELLIGENT", label: "intelligent", toggleable: true, title: "tune · effort · rounds · thinking" },
   ];
+  const EDITORS = { LABELED: Labeled, MASKED: Masked, AIMED: Aimed, QUEUEING: Queueing, INTELLIGENT: Tune };
 
   let open = $state(new Set([]));
   function toggleWidget(name) {
@@ -59,6 +62,30 @@
     current.traits = traits;
   }
 
+  function pick(trait) {
+    const held = active(trait.name);
+    if (!held && !available(trait.name)) return;
+    if (!trait.toggleable) return toggleWidget(trait.name);
+    if (!held && !open.has(trait.name)) toggleWidget(trait.name);
+    toggleTrait(trait.name);
+  }
+
+  function mark(event, name) {
+    event.stopPropagation();
+    toggleTrait(name);
+  }
+
+  let activities = $state.raw([]);
+  $effect(() => {
+    const current = $thread;
+    if (!current) return void (activities = []);
+    return roster(current).subscribe((held) => (activities = held));
+  });
+  const loud = $derived(loudest(activities));
+
+  const ordered = $derived([...($buffers ?? [])].sort((first, second) => (first.index ?? 0) - (second.index ?? 0)));
+  const seated = $derived(ordered.findIndex((buffer) => buffer.id === $cursor?.id));
+
   // phase control + integrity moved OUT of the c-panel into the shoulder widgets (PhaseLever +
   // Integrity) — render-phase is shoulder territory, not trait-config territory.
 
@@ -85,295 +112,121 @@
   }
 </script>
 
-<div class="panel">
-  {#if !$thread}
-    <div class="active-card empty-card">
-      <span class="active-label">active</span>
-      <span class="empty">no thread</span>
-    </div>
-  {:else}
-    <div class="active-card">
-      <span class="active-label">active</span>
-      <div class="crumb">
-        <span class="daemon">{$thread.daemon?.slug ?? "—"}</span>
-        <span class="seg">
-          <span class="sep">/</span>
-          <span class="modename">{$mode?.name ?? $mode?.slug ?? "—"}</span>
-        </span>
-        {#if $mode?.type}<span class="modetype">{$mode.type}</span>{/if}
-        <!-- <span class="sep">/</span> -->
-        <!-- <span class="thlabel">{labelText($label)}</span> -->
-        <!-- <span class="spacer"></span> -->
-      </div>
+{#if !$thread}
+  <Empty verb="no thread" trace="pick one in navigation" />
+{:else}
+  <div class="thread">
+    <div class="thread-crumb">
+      <span class="thread-daemon">{$thread.daemon?.slug ?? "—"}</span>
+      <span class="thread-step">›</span>
+      <span class="thread-mode">{$mode?.name ?? $mode?.slug ?? "—"}</span>
+      {#if $mode?.type}<Tag>{$mode.type}</Tag>{/if}
+      <Status tone={TONES[loud]} word={loud === "NONE" ? "idle" : loud.toLowerCase()} live={loud === "RUNNING"} pulse={loud === "RUNNING"} />
+      <span class="thread-cursor">cursor {seated < 0 ? "–" : seated + 1}/{ordered.length}</span>
+      <span class="thread-spring"></span>
+      {#if $thread.intent}
+        <Key size="mini" muted disabled={savingIntent} label="update intent" title={$thread.intent.name ?? $thread.intent.slug} />
+      {:else}
+        <Key size="mini" disabled={savingIntent} label={savingIntent ? "saving…" : "save as intent"} title="unsaved thread config" onclick={onSaveIntent} />
+      {/if}
     </div>
 
-    <section class="traits">
-      <Section label="mode traits" />
-      <div class="chips">
-        {#each $mode?.traits ?? [] as name (name)}
-          <Chip label={name.toLowerCase()} active />
-        {/each}
-      </div>
-    </section>
-
-    <section class="traits">
-      <Section label="thread traits" />
-      <div class="chips">
+    <div class="thread-part">
+      <Section label="thread traits" count="{$threadTraits?.length ?? 0} on" />
+      <div class="thread-chips">
         {#each TRAITS as trait (trait.name)}
           <Chip
             label={trait.label}
             active={active(trait.name)}
-            mark={chipMark(trait)}
+            mark={available(trait.name) || active(trait.name) ? (open.has(trait.name) ? "▾" : "▸") : null}
             disabled={!available(trait.name) && !active(trait.name)}
-            onclick={() =>
-              (available(trait.name) || active(trait.name)) && toggleWidget(trait.name)}
-            onmark={() => toggleTrait(trait.name)} />
+            title={trait.title}
+            onclick={() => pick(trait)}
+            onmark={() => toggleWidget(trait.name)} />
         {/each}
       </div>
 
       {#each [...open] as name (name)}
         {@const trait = TRAITS.find((entry) => entry.name === name)}
-        {@const on = active(name)}
-        <div class="widget" class:on>
-          <div class="widget-head">
-            <Pip size={6} tone={on ? "primary" : "muted"} />
-            <span class="widget-name">{trait.label}</span>
-            <span class="spacer"></span>
-            <span class="widget-state" class:on>{on ? "active" : "available"}</span>
+        {@const held = active(name)}
+        {@const Editor = EDITORS[name]}
+        <ToolRow
+          name={trait.label}
+          status={held ? "active" : "available"}
+          tone={held ? "primary" : "idle"}
+          title="close the editor"
+          open
+          ontoggle={() => toggleWidget(name)}>
+          {#snippet actions()}
             {#if chipMark(trait)}
-              <span
-                class="widget-mark"
-                class:remove={chipMark(trait) === "×"}
-                onclick={() => toggleTrait(name)}>{chipMark(trait)}</span>
+              <Key
+                tone="ghost"
+                size="mini"
+                square
+                label={chipMark(trait)}
+                title={chipMark(trait) === "×" ? "drop the trait" : "add the trait"}
+                onclick={(event) => mark(event, name)} />
             {/if}
-          </div>
-          <div class="widget-body">
-            {#if name === "LABELED"}
-              <Labeled thread={$thread} />
-            {:else if name === "MASKED"}
-              <Masked thread={$thread} />
-            {:else if name === "AIMED"}
-              <Aimed thread={$thread} />
-            {:else if name === "QUEUEING"}
-              <Queueing thread={$thread} />
-            {:else if name === "INTELLIGENT"}
-              <Intelligent thread={$thread} />
-            {/if}
-          </div>
-        </div>
+          {/snippet}
+          <Editor thread={$thread} />
+        </ToolRow>
       {/each}
-    </section>
-
-    <div class="grow"></div>
-
-    <section class="intent">
-      <div class="intent-head">
-        <span class="active-label">intent</span>
-        <span class="spacer"></span>
-      </div>
-      {#if $thread.intent}
-        <div class="intent-row">
-          <span class="thlabel">{$thread.intent.name ?? $thread.intent.slug}</span>
-          <span class="spacer"></span>
-          <button class="act" disabled={savingIntent}>update intent</button>
-        </div>
-      {:else}
-        <div class="intent-row">
-          <span class="muted">unsaved thread config</span>
-          <span class="spacer"></span>
-          <button class="act" onclick={onSaveIntent} disabled={savingIntent}>
-            {savingIntent ? "saving…" : "save as intent"}
-          </button>
-        </div>
-      {/if}
-    </section>
-  {/if}
-</div>
+    </div>
+  </div>
+{/if}
 
 <style>
-  .panel {
-    min-width: 300px;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
+  .thread {
     display: flex;
     flex-direction: column;
-    background: var(--colors-skeleton-2-surface);
-    color: var(--colors-skeleton-2-contrast);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-sm);
-    letter-spacing: 0.02em;
-    padding: 15px 17px 17px;
-    box-sizing: border-box;
-  }
-  .grow {
-    flex: 1;
-    min-height: 12px;
-  }
-  .active-label {
-    font-size: var(--font-size-xs);
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, currentColor 45%, transparent);
-  }
-  .spacer {
-    flex: 1;
-    min-width: 14px;
-  }
-  .empty,
-  .muted {
-    opacity: 0.35;
-  }
-
-  .active-card {
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 45%, transparent);
-    border-radius: 4px;
-    padding: 11px 15px;
-    margin-bottom: 16px;
-  }
-  .empty-card {
-    display: flex;
-    align-items: center;
     gap: 12px;
-  }
-  .crumb {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    flex-wrap: wrap;
-    margin-top: 7px;
-    font-size: var(--font-size-md);
-  }
-  .crumb .daemon {
-    color: var(--colors-skeleton-0-primary-base);
-    font-weight: 600;
-  }
-  .crumb .modename {
-    color: var(--colors-skeleton-0-primary-base);
-  }
-  .crumb .seg {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    white-space: nowrap;
-  }
-  .crumb .sep {
-    opacity: 0.28;
-  }
-  .crumb .thlabel {
-    color: color-mix(in srgb, currentColor 85%, transparent);
-  }
-  .modetype {
-    padding: 1px 7px;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 55%, transparent);
-    border-radius: 2px;
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    opacity: 0.6;
-  }
-  section :global(.section-head) {
-    margin-bottom: 11px;
-  }
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 7px;
-    margin-bottom: 12px;
-  }
-
-  .widget {
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 40%, transparent);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 9px;
-  }
-  .widget-head {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 13px;
-    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 30%, transparent);
-  }
-  .widget.on .widget-head {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 7%, transparent);
-    border-bottom-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 18%, transparent);
-  }
-  .widget-name {
-    font-size: var(--font-size-xs);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, currentColor 55%, transparent);
-  }
-  .widget.on .widget-name {
-    color: var(--colors-skeleton-0-primary-base);
-  }
-  .widget-state {
-    font-size: var(--font-size-xs);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    opacity: 0.3;
-  }
-  .widget-state.on {
-    color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 65%, transparent);
-    opacity: 1;
-  }
-  .widget-mark {
-    cursor: pointer;
-    opacity: 0.7;
-  }
-  .widget-mark:hover {
-    opacity: 1;
-  }
-  .widget-mark.remove {
-    color: var(--colors-skeleton-0-danger-base);
-  }
-  .widget-body {
-    padding: 11px 13px;
     min-width: 0;
-    overflow-wrap: anywhere;
+    padding: 6px 4px 4px;
+    font-family: var(--font-family-code);
+    font-size: var(--size-type-2xs);
+    color: var(--text-strong);
   }
-
-  .intent {
-    padding-top: 14px;
-    border-top: 1px solid color-mix(in srgb, var(--colors-skeleton-3-boundary) 35%, transparent);
-  }
-  .intent-head {
+  .thread-crumb {
     display: flex;
     align-items: center;
-    margin-bottom: 9px;
+    flex-wrap: wrap;
+    gap: 6px 8px;
+    min-width: 0;
+    padding-bottom: var(--size-depth);
   }
-  .intent-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  .thread-daemon {
+    font-weight: 600;
+    color: var(--signal-primary-ink);
   }
-  .intent-row .thlabel {
-    color: var(--colors-skeleton-0-primary-base);
+  .thread-step {
+    color: var(--text-muted);
+  }
+  .thread-mode {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: var(--text-strong);
   }
-  .act {
-    padding: 0;
-    background: none;
-    border: none;
-    color: inherit;
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    opacity: 0.4;
-    cursor: pointer;
+  .thread-cursor {
+    color: var(--text-light);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
-  .act:hover:not(:disabled) {
-    opacity: 1;
-    color: var(--colors-skeleton-0-primary-base);
+  .thread-spring {
+    flex: 1;
+    min-width: 0;
   }
-  .act:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+  .thread-part {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  .thread-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: var(--size-depth);
   }
 </style>

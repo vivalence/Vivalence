@@ -1,0 +1,117 @@
+#+title: the boot vector becomes run and lifecycle — execute lands in typology, the process row holds a controller, the export tree mirrors typology's, and m74 is rewritten as state
+#+index: 227
+#+session: session fd17e14d, turns 14–47 (fold N = 34, the second fold; turns 1–13 are #225). beef's thread: /"most of m74 is shit. we are still getting the basics right."/ → six passes over =* @claude=, each on his inline marks → /"fix the typology. execute and direct."/ → /"anything outside the run is typology."/ → /"run is exported. runtime runs runs over time. very simple."/ → /"i want mostly code. and entirely state. no history."/
+
+* one breath
+
+(14–19) Resumed after #225. beef had the runtime sketch reformatted, then asked the meta questions — repositories in memory, the schema of the new signals, what =composeRuntimeBootVector= holds, does it scale, what a daemon's vector looks like — and put the answer into the quest under =* @claude=.
+
+(20–24) He marked the answer up hard: the run routed through =shape.object= (/"inside out hierarchy inverted as fuck"/), a repository handed the die with a one-off =subject= (/"why the fuck does the fucking REPOSITORY have DIE access???"/). =run= became =invoke= over =direct=, then his stub asked for a signal default. A scratchpad sandbox of the whole structure ran =3 passed | 5 failed= as the quest had it: hold on =controller.settled= deadlocks, exit read STOPPING because close sat outside the carry, removal on settle missing, the teardown-order claim false. =seal= as a lifecycle fixed three; =8 passed=.
+
+(25–28) His marks settled the parts: mikro for the process repositories (measured: 25 ms, 0 tables, every write in a context), the mask a schematic not a Signal, =Stdin= a =Signature=, =execution= the promise's name, no die on the process — only the controller. The live typology did not parse (his wip =execute=); on /"fix the typology. execute and direct."/ both landed, and the unblocked mikro sandbox hung: a child still IDLE drops SIGTERM. SIGKILL for IDLE, =5 passed=.
+
+(29–35) The directory: =mod.js= measured as an entity barrel (59 of 61 importers take entities), then his meta — =run/ · lifecycle/ · entities/ · prototypes/ · schematics/ · gestalten/=, =sets.daemon= dropped, =network= to typology as =lighthouse=. The section was rewired and sorted by directory down into files. =execute= swapped to =(vector, context, signal = new Signal())=. /"anything outside the run is typology"/ made one barrel.
+
+(36–44) The export pattern read off typology's own barrels — classes flat, families namespaced, kind first — and =lifecycle.control= dissolved into =lifecycle/process.js= (=seal · exit · children=), =controlled= · =hold= to typology's belt. =run= kept over =execution= (noun · verb · result), =run.daemon= IS the Vector, the die uniform =controller · mask= with the subject set by =core=, the controller branched along =mask.mount=: =5 passed=. Then the quest rewritten whole as state, 2496 → 712 lines.
+
+(45–47) /"ikiro comapct"/.
+
+* the spine — turns 14–47
+
+| n  | beef | landed | died |
+|----+------+--------+------|
+| 14 | (continuation summary, not beef) | NOTHING — resumed, the #225 report delivered | — |
+| 15 | the =run.js @beefs= paste; /"clean this up. formatting"/ | sketch reformatted in place; two typo fixes named; six semantic defects listed | — |
+| 16 | /"the repos will be in memory only. if we use micro repos, then we need mikro entities … processes.service.findOne('slug').controller"/ · /"whats the schema of the prototype? keys and values."/ · /"will the control structure and runtime execution model scale like this?"/ · /"most of m74 is shit. we are still getting the basics right."/ | =strategy.direct= as base, =LocalRepository= lean, =Stdin= · =RuntimeMask= schemas, 11 runtime lifecycles, =launch= + ready, the daemon vector, the exit fork | — |
+| 17 | /"write that here:"/ (interrupted) | — | — |
+| 18 | MID =* @claude= | the answer written into the quest at =:82= | — |
+| 19 | MID the quest path, no order | state read, eight old marks mapped | — |
+| 20 | marks: /"wayyyy to convoluted. why the hell go via object … inside out hierarchy inverted as fuck."/ · /"SUBJECT?!?!!?! wtfis this shit one off naming fuck. and why the fuck does the fucking REPOSITORY have DIE access??? w.t.f."/ · /"#die … maybe rename this. instance?"/ · /"go on this."/ · /"my response. rewrite the section."/ | second pass: run over =direct=, =Process { id, mask, die, running }=, a dumb repository, parallel boot | =shape.object= as the route · =control(die, subject)= · a repository with die access |
+| 21 | /"show me the direct function too??!"/ | =fire · resolve · direct= shown | — |
+| 22 | /"in the .org"/ | forms A · B in the quest | — |
+| 23 | his stub /"if no signal, selbstbestimmt matches. maybe signal = new Signal()"/ · /"fill the run fn"/ | =run = invoke(vector, signal, direct)=; probe =3 passed= after one wrong expectation | forms A · B |
+| 24 | /"test if this strucutre is possible on a scratchpad."/ | sandbox =3 passed · 5 failed= as written → =seal= · =exit= lifecycles, removal on settle → =8 passed=; four quest claims corrected | hold on =settled= · close outside the carry · "teardown order stays" |
+| 25 | /"if possible, i'd like to use mikroorm."/ · /"a mask isnt a signal type. its a schematic."/ · /"is stdin a signal? … maybe stdin is not extends signal but signature itself??"/ · /"@beef needed?"/ · /"this feels too thin"/ · /"we call the middlewares lifecycles"/ · /"name it execution. its the literal execution."/ · /"i dont like the current runtime. … how do we structure the runtime dir?"/ | third pass: mikro probe, =Stdin extends Signature=, the IDLE line measured, a tree | =RuntimeMask extends Signal= · =LocalRepository= |
+| 26 | /"i dont think we need the die on the process. we just need the controller."/ · wip =execute= · /"this is small enough for inline. no runtime gestlat steer needed."/ · /"why do we need the runtime?"/ · /"mikro datamap naming."/ · /"read and rewrite the @claude part."/ | fourth pass; the live typology found not parsing; =direct= removed with 16 readers | die on the process · runtime on the daemon die · a runtime steer gestalt |
+| 27 | /"fix the typology. execute and direct."/ | =execute= LANDED, =direct= restored; the mikro sandbox hung → SIGKILL for an IDLE child → =5 passed= | — |
+| 28 | MID /"not cut. just define as schematic."/ | RuntimeMask rewritten as a schematic | "RuntimeMask — cut" |
+| 29 | his directory sketch /"runtime/typology/ -- cut. flatten out."/ · /"plans within plans. do we need mod? whats in run?"/ (interrupted) | — | — |
+| 30 | /"lets just itterate on the scope of ** the runtime directory"/ | =mod.js= consumers measured (59 entities · 2 =Die= · 0 namespaces); =run/= tree; =sets.daemon= 22 readers | — |
+| 31 | /"drop sets daeon. and network might move back to typology as ligthhouse."/ + his meta, /"here. this is our meta."/ | directory section replaced — 184 lines, no backup; his in-file outline lost | =sets.daemon= · =sets.network= |
+| 32 | MID /"rewire @claude"/ | every path moved to the meta; =the wiring= section | — |
+| 33 | /"sort @claude by directory down into files"/ | resorted, 50 of 50 bullets and every fence conserved | the topic order |
+| 34 | /"switch signal and die in execute and make signal optional with fallback."/ | LANDED =(vector, context, signal = new Signal())= | =(vector, signal, context)= |
+| 35 | /"sorry. wrote aother line and overwrote. again previous change."/ · /"do we maybe export these via typology?? i think anything outside the run is typology."/ | two lost edits reapplied; one barrel, subpaths cut (16-file flag day); the child vector as data | the =traits= subpath |
+| 36 | /"what does typology export? … what is the correct export pattern for things that import runtime. … runtime is an extension of typology with a biome/matrix/process/runtime aspect."/ · /"lets chat. short answers."/ | typology's rules: classes flat, families namespaced, kind first | subject-first namespaces |
+| 37 | MID /"short answer"/ | the four-line answer | — |
+| 38 | /"entities.sets.[xyz"/ · /"if its tooling for handling controller stuff then thats gestalten. lifecycle functions are basically shards. just for process lifecycling."/ · /"run is exported. runtime runs runs over time. very simple."/ | =lifecycle.control= dissolved: =seal · exit · children= → =lifecycle/process.js=, =controlled · hold= → typology belt | =lifecycle.control= |
+| 39 | MID /"treat my comments"/ | =controlled({ … })= measured (=create= drops the handles), the mask = =v.primitives.instance.Runtime= measured, the barrel | =control(data, { … })= · an own mask schematic |
+| 40 | /"run imports lifecycle, never reverse. correct."/ · /"whats inside?"/ · /"work out the new typology export pattern … i want export/filesystem tree match as in typology. also mark up where we introduce breaking changes and areas that will need to be revisited."/ | export pattern · typology adjusts (7) · breaking (10) · revisit (11) | =population.daemons= · =.services= |
+| 41 | /"this run-execution rename would mean that we have a conflict with process entity. kinda?! what do you think?"/ | =run= kept: noun · verb · result | =execution/= as the directory |
+| 42 | /"do we need the .vector? is it maybe just run.daemon:Vector and run.mode:Vector"/ | =run.daemon= is the Vector; the die uniform, =core= sets the subject, the branch along =mask.mount= | =.vector= · a die factory per type |
+| 43 | /"ok. propagate thsi into the quest."/ | sandbox =5 passed= with the uniform die; 18 quest edits | — |
+| 44 | MID /"generally rework the quest. you can dump large parts of during and pre. i want mostly code. and entirely state. no history."/ | m74 rewritten, 2496 → 712 lines | =* pre= · =* during= · every history line |
+| 45 | /"ikiro comapct"/ | this walk | — |
+| 46 | =/compact= | — | — |
+| 47 | (compact-walk re-invocation, not beef) | — | — |
+
+Coverage: 14–47, each once. 14 and 47 are not beef turns; 17 and 29 were interrupted by him and carry no order of their own.
+
+Balance (fold N = 34, thirds 14–24 · 25–35 · 36–47): turns carrying a ruling 3 · 8 · 4. Not last-heavy; the weight sits in the middle, where his marks on the third and fourth passes decided the parts.
+
+* failures
+
+- turn 20 — the run routed through =shape.object= and a repository handed the die under a one-off name: both invert the dependency. Callout appended (=zettelkasten.md=, family =inverted-dependency= proposed).
+- turn 24 — the quest as written failed its own sandbox 5 of 8: four claims (hold on =settled=, exit placement, removal on settle, teardown order) were design never run. Found by the run, corrected to measured.
+- turn 23 — one probe expectation wrong: a node's own =use= wraps its descendants, not its own effect (the dispatch law in =world/codemap/typology.md=).
+- turn 31 — the directory section replaced without a backup; the range was 184 lines against an expected 110 and held beef's in-file outline. Named in-turn; later passes backed up first.
+- turn 27 — a sandbox hung past 120 s on the IDLE-drops-SIGTERM fault; my own =deno test= killed by pid. The fault is typology's, now =known-issues.org= =controller-drops-sigterm-while-idle=.
+- turn 26 — two argument orders written in one sketch (=execute= defined =(vector, signal, context)=, called =(vector, context, signal)=); surfaced, settled by beef at 34.
+
+* State at fold
+
+- =subsystems/typology/gestalten/steer/dispatch.js= — =execute(vector, context, signal = new Signal())= LANDED on beef's go (turns 27 · 34); beef's own deletions in that file (the PATH-family comment, the =trie.js= =@beef= line) are his, untouched. =strategy.js= — =direct= restored verbatim. Typology steer + shape =11 passed (34 steps) | 0 failed=, runtime =virtual.test.js= =1 passed (20 steps) | 0 failed=. Uncommitted: every graph op is beef's.
+- =.ikiro/quests/m74-the-boot-vector.org= — 712 lines, state only: intent · nomenclature · the tree · the export pattern · =systems/runtime/= file by file · =subsystems/typology/= · breaking changes · moves · measured · QUESTIONED (14) · milestones M1–M4 (1 of 11 boxes). DESIGNED. At fold beef had added one mark: =:211= /"i think we'd do better witha dedicated population.children function or resolution.process. not sure."/ — not answered this fold.
+- Sandbox =scratchpad/m74/structure/=: =structure.mikro.test.js= =5 passed=, =controlled.repo.probe.test.js= =3 passed=, =execute.probe.test.js= =4 passed=, =structure.test.js= =8 passed=. Session-local, not canon; the quest carries the code.
+- The frontier's m74 block is read by a sibling (=9c4d5944=, m73, #226), which kept it as KEEP.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| compact-walk | 46 | HELD | spine and skills readers run with the session id; markers empty |
+| testing | 24 | MISSED | three sandbox suites built and run, counts pasted, no firing |
+| blast-bracket | 27 | MISSED | =direct= (16 readers) and =execute= grepped by hand both sides, no firing |
+| quest-authoring | 44 | MISSED | m74 rewritten whole, organs chosen by hand, no firing |
+
+(The firings at 6 · 11 · 13 belong to #225's fold.)
+
+* settlement
+
+- MARKERS: =## OPEN= empty.
+- Codeword scan of turns 14–47: none. Caps strikes at 20 → callout logged this fold.
+- Known issues: =controller-drops-sigterm-while-idle= appended — the machine outlives m74 and reaches hallucination activities.
+- LEDGER: three MISSED rows appended.
+- Memory: nothing private; nothing written.
+- Budgets: =world/frontier.md= ABOVE (1257/750); it drains when the owed items settle, the m74 block is live.
+
+* handoff
+- quest :: m74-the-boot-vector
+- goal :: /"i want to turn all my boot processes in the runtime into vectors. mode, daemon, service and the runtime themselves."/ · /"i want export/filesystem tree match as in typology."/
+- done :: =steer.dispatch.execute(vector, context, signal = new Signal())= LANDED in =subsystems/typology/gestalten/steer/dispatch.js=, =direct= restored; typology steer + shape =11 passed (34 steps) | 0 failed=; m74 rewritten as state (712 lines); sandbox =structure.mikro.test.js= =5 passed | 0 failed=
+- next :: answer beef's mark at =.ikiro/quests/m74-the-boot-vector.org:211= (=population.children= / =resolution.process= against =lifecycle.process.children=), then the QUESTIONED lines he rules
+- never :: /"i dont think we need the die on the process. we just need the controller."/ — a process is =mask · controller · execution=
+- never :: /"run imports lifecycle, never reverse. correct."/ — the child's run goes into =children= as data
+- never :: /"i want mostly code. and entirely state. no history."/ — the quest holds no pass history
+- never :: /"lets call one a ctx and the other a die."/ — boot lifecycles take =die=, requests take =ctx=
+- owed :: beef — the 14 QUESTIONED rulings · the naming pass · go per milestone (M1 =belt.control= · the =entities= export) · the uncommitted typology change
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions   |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0          |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3          |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 1 (1 live) |
+| m73-anima-and-design-system-comps |  79% 11/14 | wip      | go                                                                                                | 1 (1 live) |
+| m74-the-boot-vector               |   7% 1/15  | wip      | blast                                                                                             | 1 (1 live) |

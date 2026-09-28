@@ -178,7 +178,7 @@
       </p>
 
       <div class="lead">
-        <a class="cta" href="https://docs.vivalence.org/12.01_slowstart" target="_blank" rel="noreferrer">
+        <a class="cta" href="https://docs.vivalence.org/20.01_slowstart" target="_blank" rel="noreferrer">
           read the slowstart ↗
         </a>
         <span class="aside">or try it right here ↓</span>
@@ -211,7 +211,7 @@
               <span>viva instance/init</span>
               <span class="trace">then instance/run</span>
             </div>
-            <a class="amber" href="https://docs.vivalence.org/12.01_slowstart#4--viva-instancesuse--init--lighthouse" target="_blank" rel="noreferrer">how daemons attach hallucinators ↗</a>
+            <a class="amber" href="https://docs.vivalence.org/20.01_slowstart#4--viva-instancesuse--init--lighthouse" target="_blank" rel="noreferrer">how daemons attach hallucinators ↗</a>
           </div>
         </section>
       {/if}
@@ -591,28 +591,28 @@
 <style>
   .page {
     --zoom: 1.15;
-    --ground: var(--colors-skeleton-0-surface);
-    --sunk: var(--colors-skeleton-2-surface);
-    --raised: var(--colors-skeleton-1-surface);
-    --edge: var(--colors-skeleton-2-boundary);
-    --edge-strong: var(--colors-skeleton-0-boundary);
-    --ink: var(--text-primary);
-    --ink-soft: var(--text-body);
-    --ink-muted: var(--text-support);
-    --ink-faint: var(--text-support);
-    --ink-dim: var(--colors-skeleton-0-boundary);
-    --teal: var(--colors-skeleton-0-primary-base);
-    --teal-bright: var(--colors-skeleton-0-primary-hover);
-    --green: var(--colors-skeleton-0-success-base);
-    --amber: var(--colors-skeleton-0-warning-base);
-    --rust: var(--colors-skeleton-0-danger-base);
-    --indigo: var(--colors-system-info-contrast);
+    --ground: var(--surface);
+    --sunk: var(--surface-sunk);
+    --raised: var(--surface-lift);
+    --edge: var(--boundary-soft);
+    --edge-strong: var(--boundary);
+    --ink: var(--text-strong);
+    --ink-soft: var(--text-ink);
+    --ink-muted: var(--text-light);
+    --ink-faint: var(--text-light);
+    --ink-dim: var(--boundary);
+    --teal: var(--signal-primary);
+    --teal-bright: var(--signal-primary-ink);
+    --green: var(--signal-positive);
+    --amber: var(--signal-caution);
+    --rust: var(--signal-negative);
+    --indigo: var(--signal-primary-ink);
     --pip-good: var(--signal-positive);
     --pip-warm: var(--signal-caution);
     --wash: color-mix(in srgb, var(--teal) 9%, transparent);
     --wash-hover: color-mix(in srgb, var(--teal) 16%, transparent);
     --hairline: color-mix(in srgb, var(--edge-strong) 90%, transparent);
-    --field: var(--colors-skeleton-3-surface);
+    --field: var(--surface-lift);
     min-height: 100%;
     box-sizing: border-box;
     display: flex;
@@ -679,7 +679,7 @@
     color: var(--teal);
   }
   a.amber:hover {
-    color: var(--colors-skeleton-0-warning-hover);
+    color: var(--signal-caution-ink);
   }
   .pip {
     flex: none;
@@ -914,7 +914,7 @@
     background: var(--teal);
     border: 1px solid var(--teal);
     border-radius: 3px;
-    color: var(--colors-skeleton-3-surface);
+    color: var(--inverse-on);
     font-family: var(--font-family-code);
     font-size: calc(var(--font-size-2xs) * var(--zoom));
     letter-spacing: 0.14em;

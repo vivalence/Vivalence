@@ -1,0 +1,92 @@
+#+title: the chess kit flipped for one light theme of three, the radial learns the comp's pull, and the bone keys take its thirty-one pixels
+#+index: 226
+#+session: session 9c4d5944, turns 162–168 (fold N = 7, the ninth fold; #216 holds 1–26, #217 27–61, #218 62–76, #220 77–89, #221 90–109, #222 110–122, #223 123–141, #224 142–161). beef's thread: /"there is still issues with teh live preview during radial usage. also, some of the options are missing from radial"/ with /"and the fucking chess game has the colors of the pieces wrong. WTF!?!?!? how stupid are you. no contextual awareness. wtf."/ → /"moap moap"/ → /"ikiro comapct"/.
+
+* one breath
+
+(162–163) two orders in one message. The chess pieces first: m73's patch 1 added porcelain and datasette, and the chess kit — five copies of =kit/Theme.svelte= in =~/.viva/registry/chess= — flips its squares and pieces for a light ground by theme NAME, parchment alone. On both new themes the white pieces read ink and the black paper; datasette's two squares read near-black. A probe of dapper's four roots pinned it; a guardrail that resolves the kit's aliases against every dapper theme went red (/porcelain: the white piece #0E1A25 reads darker than the black #DFE5EC/); the override now names the three light themes and datasette's squares read its sunk surface and its light ink; green. Then the radial: the comp's =radPull= · =pullP= · =radDown= ported onto the tree's pixel model — a hold pulled out turns and sizes the chassis live, the dead zone puts it back and locks the radial open, the =#= · =T= · eye tiles flip snap · hairline bones · full stage, the centre locks the joint, the home drags. Nine steps pinning today's gestures were written first and hold on both sides; nine new steps are red on the pre-image. The keep-list's =gesture.js= and =geometry.js= changed where the radial lives — his re-raise overrode /"a follow-up quest, never m73"/. Walked in my own tab.
+
+(164–165) /"moap moap"/ over a screenshot of his shoulder standing on porcelain. The keys were =Key='s default — 30 · 51 (clipped by its 45 px bone) · 38 px across; the comp draws every bone key 31 px across its bone, the content stacked, with its own icons. =Key= gained =size="bone"= with =stack=, the comp's icons came from the project, the shoulder's three keys and the crown's took them; the intelligence key's dot gave way to the comp's activity bars.
+
+(166–168) /"ikiro comapct"/, then =/compact= queued — this fold.
+
+* the spine — turns 162–168
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 162 | MID-TURN /"❯ there is still issues with teh live preview during radial usage. also, some of the options are missing from radial"/ … /"and the fucking chess game has the colors of the pieces wrong. WTF!?!?!? how stupid are you. no contextual awareness. wtf."/ | chess: five =kit/Theme.svelte= copies flip for =parchment= · =porcelain= · =datasette= (=~/.viva/registry/chess/modes/board/play/buffer/kit/Theme.svelte:56=), datasette's squares on =--surface-sunk= · =--text-light=; =tests/kit.test.js:101= P-theme-reads red → =1 passed (11 steps) · 0 failed=; the README and =world/codemap/design.md:11= restated; RULE FAILURE =flag-day-radius=. The radial: =bridge/gesture.js= (pull · release · tiles · lock · home · the full stage's doze) · =bridge/geometry.js= (=thickness=) · =bridge/bridge.js= (=layout.locked= · =view.hair= · =view.full=) · =app/+page.svelte= (the gesture, the hairline, the chassis) · =pincer.svelte= (seven dots · three tiles · the lock · the hints · the wells); =tests/pincer/gesture.test.js= 18 steps; anima =72 passed (340 steps) · 0 failed=; m73's status · marker · =** the radial, live= · =* dropped= · changelog · release | the heroicon eye (164) · the lock's walk in the DOM (timed out) |
+| 163 | the harness's continuation summary | NOTHING — the turn above ran under it | — |
+| 164 | [Image #30] /"moap moap"/ — his shoulder standing on porcelain | read as the keys against the comp; measured in my own tab (28 px =Key=, 12 px padding, a 51 px key in a 45 px bone); =subsystems/drapes/controls/Key.svelte= =size="bone"= · =stack=; =app/widgets/Glyph.svelte= =set=; =static/icons/anima/= (=brain= · =chat/lines= · =chat/prompt= · =eye-off=) from the project; buffers · intelligence · dock · terminals on them; drapes =12 passed (107 steps) · 0 failed=; the storage clobber owned | the intelligence key's =Status= dot |
+| 165 | the image's path | read with 164 | — |
+| 166 | /"ikiro comapct"/ | this fold; the kit's new CSS comment struck at settlement | — |
+| 167 | MID-TURN =/compact= | NOTHING — the gate | — |
+| 168 | the =compact-walk= re-invocation notice | NOTHING | — |
+
+Coverage: 162–168 by the spine, 7 rows; NOTHING: 163 · 167 · 168; read with others: 165.
+
+* failures
+
+- *a closed set grew and its consumers were never grepped* (162). Patch 1 added two themes; the chess kit names its light theme by string, and nothing ran =grep -rn 'data-theme="' ~/.viva/registry=. The shard still said two themes. RULE FAILURE, =flag-day-radius=, logged: the first rule of that family greps a RETIRED name, and a value ADDED to a set is the same flag day read the other way.
+- *the keep-list moved* (162). =gesture.js= and =geometry.js= were byte-identical by my own rule since patch 3; beef's re-raise overrode it. The drag, the taps, the hold, the capture, the grid and mobile stand — nine guardrail steps green on both sides — and the change is written into the quest, not smoothed.
+- *a walk's restore overwrote beef's save* (162 → 164). The snapshot taken to keep my walk out of his layout was put back after he had saved his own (porcelain, standing) in his tab; owned at 164, a trap in =world/codemap/anima.md= now.
+- *measured outside his tab* (164). A visual defect is measured in HIS tab first; I reproduced his orientation in mine instead. The keys matched his screenshot; the rule still did not run.
+- *a comment authored where the guard does not look* (162 → 166). The chess kit got a new CSS comment; =comment-guard.sh= filters on =commons · systems · subsystems= and never sees =~/.viva/registry=. Struck at settlement.
+- *a hidden tab's timers* (162). A synthetic tap took a second between down and up and counted as no tap; the lock's walk timed out at 45 s. Down and up back to back; the lock stands on its unit steps.
+- *two walk finds* (162). The centre tile sat under the knob (z 90 under 100); a hairline bone clipped its keys into glyph ends. Both fixed before the report.
+
+* State at fold
+
+- =.ikiro/quests/m73-anima-and-design-system-comps.org= — APPLIED; on top of the six patches: the radial's paint, the =brand= group, the radial's behaviour, the bone keys; =#+marker_qa: m73/T-radial-live · pending= (built, beef's walk owed); =T-four-themes-walk= · =T-ios-standalone= pending; =** after the apply= holds 16 of the audit's 17 (the glyph line built); =** the radial, live= in expectation ↔ reality, its drops under =* dropped=.
+- the tree: anima =72 passed (340 steps) | 0 failed= · drapes =12 passed (107 steps) | 0 failed= · chess kit =1 passed (11 steps) | 0 failed=, its mode suites and domain green; typology · dapper · hello-world untouched this fold, not re-run; =anima/bundle= exit 0, the same 38 warnings. =bridge/dock.js= · =static/manifest.json= byte-identical; =gesture.js= · =geometry.js= changed.
+- captures: =~/.viva/bak/m73/chess-theme-20260929/= (7) · =radial-live-20260929/= (6) · =bone-keys-20260929/= (8).
+- canon: =zettelkasten.md= one RULE FAILURE (=flag-day-radius=) · =world/codemap/design.md:11= (four themes, the chess kit named) · =world/codemap/anima.md= two traps (one storage key for every tab; the page owns the =Gesture=) · the chess README.
+- beef's storage: =vivalence:bridge= holds the save from before my first walk (northsea, orientation 0), put back twice; his open tab holds its own and re-saves on his next change.
+- the chess package (its own jj): five =Theme.svelte=, =tests/kit.test.js=, =README.md= changed — his commit.
+- servers: =runtime/watch= · =anima/watch= still in my background shell. Every Chrome tab of mine closed.
+- m72 · m74 — unmoved by this fold (m74 lives in the sibling =fd17e14d=).
+- Balance (fold N = 7, thirds 162–164 · 165–166 · 167–168): beef's verbatim in the spine 3 · 1 · 0. The weight sits in the first third because both of his orders did — the strike and the re-raise at 162, the screenshot at 164; the rest is the fold.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| debugging | 163 | HELD | chess: a probe of dapper's four roots pinned porcelain · datasette as light themes the kit never flips; the guardrail red before the fix, green after; the served bundle measured in four themes |
+| compact-walk | 167 | HELD | spine and skills by id, ninth fold, N = 7 |
+| budget-eviction | 168 | GAP | the frontier sits at 1257 against 750 and every line over is KEEP by its own rule — a live sibling's m74 handoff (496 chars) and beef's owed session blocks #211–#219 (329); the body names no fate for KEEP alone above baseline, so the gate waits on beef's =compact-go= |
+| live-validation | 162 | MISSED | the chess board and the radial walked in Chrome, no firing |
+| live-validation | 162 | GAP | one storage key for every tab: a snapshot restored after a walk overwrote beef's newer save; and a hidden tab throttles =setTimeout= (a second, then minutes) — a synthetic tap needs down and up back to back, a hold-and-wait walk timed out |
+| testing | 162 | MISSED | guardrails first by its laws — chess P-theme-reads red, the gesture's nine old steps green on the pre-image, nine new red there — no firing; fourth fold running |
+| blast-bracket | 162 | MISSED | the keep-list's =gesture.js= · =geometry.js= changed, their consumers (=+page= · the pincer · =BridgeSection= · the tests) mapped by hand, suites both sides, no firing |
+| callout | 162 | MISSED | beef's caps logged as a RULE FAILURE (=flag-day-radius=) in the skill's shape, the recurrence audit by grep, no firing |
+| quest-authoring | 162 | MISSED | m73's status · marker · two organ blocks · changelog · release written, no firing; eighth fold running |
+| design-handoff | 164 | MISSED | a screenshot of the shoulder against the comp's bone keys: =MG= read from the logic class, the icons fetched, ported — no firing, and its step 9 (a snippet measured in HIS tab) not run |
+
+* settlement
+
+- Codeword scan of 162–168: no =retard=, no =i dont understand=; the caps at 162 logged in the turn as a RULE FAILURE (=flag-day-radius=).
+- MARKERS.md =OPEN= is empty; none added.
+- Fixed now: the chess kit's new CSS comment struck from all five copies; P-kit-equal holds, =ok | 1 passed (11 steps) | 0 failed=.
+- Known issues: none new. Not filed, not measured: the intelligence key's bars and pulse read =row.status= off a roster computed on =$entities= alone, so a status change inside a row may not repaint them.
+- Shards re-stamped: =world/codemap/design.md:11= (CHECK: the four theme roots probed through =design()=, the chess kit test run) · =world/codemap/anima.md= (CHECK: =bridge.js:10,141= · =+page.svelte:36,44= · =pincer.svelte:6= grepped this fold).
+- The skill verdicts' non-HELD rows appended to =skills/LEDGER.md=.
+- Budgets: =world/frontier.md= ABOVE, 1257 against 750. This fold's line is 111; the excess is the live sibling's m74 handoff at #225 (496 — its =next= is a paragraph, its own fold's to drain) and beef's owed session blocks #211–#219 (329). Nothing edited: the drain is upstream (=methods/handoff.py:24=) and the sibling is live. The gate refuses the retry until they drain, or beef runs =touch .ikiro/hooks/compact-go=.
+- #211's owed key: no key-length Anthropic string left under =.ikiro= — the two hits are 33-character placeholders ending =-key=; the rotation stays his to confirm.
+
+* handoff
+- quest :: m73-anima-and-design-system-comps
+- goal :: /"work out the full patch for applying the new design to anima"/ · /"fix"/
+- done :: six patches, the radial (paint · pull · tiles · lock · home), the =brand= group and the bone keys stand; anima =72 passed (340 steps) | 0 failed=; the chess kit flips on all four themes
+- next :: beef walks =m73/T-radial-live=, then the audit's 16
+- never :: /"dont drop that. f.e the settings for mobile, ios. and running it as manifest is working currently."/ — drag, taps, hold, capture, grid and =static/manifest.json= stand; =gesture.js= changed only where the radial lives
+- never :: /"agents should be opus. always unless instructed otherwise."/
+- owed :: beef — the walk (four themes · iOS · the radial by finger) · typology's =brand= without the holy ask · eleven fork rulings · the =release= key · the commit, repo and chess · his two watchers in my shell · his layout, overwritten in storage by my walk's restore
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions   |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0          |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3          |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 0          |
+| m73-anima-and-design-system-comps |  79% 11/14 | wip      | go                                                                                                | 0          |
+| m74-the-boot-vector               |   0% 0/15  | design   | go                                                                                                | 1 (1 live) |

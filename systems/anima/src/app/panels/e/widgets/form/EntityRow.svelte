@@ -7,21 +7,22 @@
   let gloss = $derived(kind === "symbol" ? item.slug : entityGloss(item));
 </script>
 
-<span class="label">{label}</span>
-{#if gloss}<span class="gloss">{gloss}</span>{/if}
+<span class="entity-label">{label}</span>
+{#if gloss}<span class="entity-gloss">{gloss}</span>{/if}
 
 <style>
-  .label {
+  .entity-label {
     color: inherit;
     white-space: nowrap;
   }
-  .gloss {
-    margin-left: auto;
+  .entity-gloss {
+    flex: 1;
+    min-width: 0;
     padding-left: 8px;
-    opacity: 0.5;
-    font-size: var(--font-size-2xs);
     overflow: hidden;
+    text-align: right;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: var(--text-light);
   }
 </style>

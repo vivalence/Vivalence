@@ -1,10 +1,10 @@
 <script>
-  import { getContext } from "svelte";
+  import { getContext, untrack } from "svelte";
   import { LIGHTHOUSE, TERMINALS } from "$client";
-  import { chain } from "@vivalence/anima";
+  import { TONES, chain, loudest } from "@vivalence/anima";
   import { belt } from "@vivalence/typology";
   import { logger } from "$telemetry";
-  import { Section } from "@vivalence/drapes";
+  import { Card, Empty, Input, Key, Pressed, Row, Section, Status } from "@vivalence/drapes";
   import ThreadLabel from "./ThreadLabel.svelte";
 
   const lighthouse = getContext(LIGHTHOUSE);
@@ -14,14 +14,9 @@
 
   let daemons = lighthouse.$daemons;
 
-  // Unavailable/error daemons are ignored entirely here — they 404 on /batch and would
-  // otherwise render empty with a warning dot. Health is surfaced in the crown instead.
   const availableDaemons = $derived($daemons.filter((daemon) => daemon.status.is("healthy")));
 
-  let expanded = $state({});
-  const toggle = (slug) => (expanded[slug] = !expanded[slug]);
-
-  let sections = $state({ daemons: true, threads: true, intents: true });
+  let sections = $state({ threads: true, modes: true, intents: true });
   const toggleSection = (name) => (sections[name] = !sections[name]);
 
   let groups = $state({});
@@ -173,332 +168,492 @@
     event.preventDefault();
     loadThread(thread, true);
   }
+
+  const SORTS = ["recent", "a–z", "type"];
+  const VIEWS = ["card", "list", "table"];
+  const GLYPHS = { card: "▦", list: "☰", table: "▤" };
+  const HEALTH = { healthy: "positive", mounting: "primary", unavailable: "caution", error: "negative" };
+
+  let picked = $state(null);
+  let kind = $state(null);
+  let query = $state("");
+  let searching = $state(false);
+  let well = $state(null);
+  let sort = $state(SORTS[0]);
+  let step = $state(0);
+  let views = $state({ threads: VIEWS[0], modes: VIEWS[0] });
+  let activity = $state.raw({});
+
+  $effect(() => {
+    const healthy = availableDaemons;
+    const census = () => {
+      const held = {};
+      for (const daemon of healthy)
+        for (const row of daemon.entities.activity?.$entities.get() ?? []) {
+          const id = row.thread?.id ?? row.thread;
+          if (id) (held[id] ??= []).push(row);
+        }
+      activity = held;
+    };
+    const teardowns = healthy.map((daemon) => daemon.entities.activity?.$entities.subscribe(() => untrack(census))).filter(Boolean);
+    return () => teardowns.forEach((teardown) => teardown());
+  });
+
+  const threadName = (thread) => labelName(thread.label) ?? thread.mode?.slug ?? thread.id?.slice(0, 8) ?? "";
+  const offered = (daemon) =>
+    (daemon.entities?.mode?.$entities.get() ?? []).filter((mode) => mode.implements("application") || mode.implements("conversational"));
+
+  const THREAD_ORDER = {
+    recent: () => 0,
+    "a–z": (first, second) => threadName(first.thread).localeCompare(threadName(second.thread)),
+    type: (first, second) =>
+      (first.thread.mode?.type ?? "").localeCompare(second.thread.mode?.type ?? "") ||
+      (first.thread.mode?.slug ?? "").localeCompare(second.thread.mode?.slug ?? ""),
+  };
+  const MODE_ORDER = {
+    recent: () => 0,
+    "a–z": (first, second) => (first.mode.slug ?? "").localeCompare(second.mode.slug ?? ""),
+    type: (first, second) => (first.mode.type ?? "").localeCompare(second.mode.type ?? ""),
+  };
+  const META = {
+    recent: ({ thread }) => belt.time.since(thread.updatedAt),
+    "a–z": ({ daemon }) => daemon.slug,
+    type: ({ thread }) => thread.mode?.type ?? "",
+  };
+
+  const needle = $derived(query.trim().toLowerCase());
+  const within = (daemon) => !picked || picked === daemon.slug;
+  const worn = (daemon, mode) => $activeThread?.mode?.id === mode.id && $activeThread?.daemon?.slug === daemon.slug;
+  const typed = (mode) => !kind || mode?.type === kind;
+
+  const kinds = $derived([...new Set(availableDaemons.filter(within).flatMap((daemon) => offered(daemon).map((mode) => mode.type)))].filter(Boolean));
+  const matched = $derived(
+    threads
+      .filter(({ thread, daemon }) => within(daemon) && typed(thread.mode))
+      .filter(({ thread }) => !needle || `${threadName(thread)} ${thread.mode?.slug ?? ""}`.toLowerCase().includes(needle))
+      .sort(THREAD_ORDER[sort]),
+  );
+  const limit = $derived(3 + 6 * (2 ** step - 1));
+  const listed = $derived(matched.slice(0, limit));
+  const more = $derived(Math.min(6 * 2 ** step, matched.length - limit));
+  const modes = $derived(
+    availableDaemons
+      .filter(within)
+      .flatMap((daemon) => offered(daemon).map((mode) => ({ mode, daemon })))
+      .filter(({ mode }) => typed(mode) && (!needle || `${mode.name ?? ""} ${mode.slug ?? ""}`.toLowerCase().includes(needle)))
+      .sort(MODE_ORDER[sort]),
+  );
+  const mounting = $derived($daemons.filter((daemon) => within(daemon) && !daemon.status.is("healthy")).map((daemon) => `${daemon.slug} · ${code(daemon) || "unknown"}`));
+  const offers = $derived(intents.filter(({ daemon, intent }) => within(daemon) && (!needle || `${intent.name ?? ""} ${intent.slug ?? ""}`.toLowerCase().includes(needle))));
+
+  function pick(slug) {
+    picked = slug;
+    kind = null;
+    step = 0;
+  }
+
+  function narrow(name) {
+    kind = kind === name ? null : name;
+    step = 0;
+  }
+
+  function cycle(event, section) {
+    event.stopPropagation();
+    views[section] = VIEWS[(VIEWS.indexOf(views[section]) + 1) % VIEWS.length];
+  }
+
+  function seek() {
+    searching = true;
+    well?.querySelector("input")?.focus();
+  }
+
+  function rest() {
+    if (!query.trim()) searching = false;
+  }
+
+  function discard(event, thread) {
+    event.stopPropagation();
+    deleteThread(thread);
+  }
 </script>
 
-{#snippet threadRow(thread, daemon)}
-  {@const active = $activeThread?.id === thread.id}
-  <div class="row thread" class:on={active}>
-    <button
-      class="cell"
-      onclick={() => loadThread(thread)}
-      ondblclick={() => quickStart(thread)}
-      onauxclick={(event) => onThreadAux(thread, event)}
-      title="click load · dbl-click quick-start · middle-click new terminal">
-      <span class="tick" class:on={active}></span>
-      <span class="name" class:on={active}><ThreadLabel {thread} /></span>
-      <span class="tmode">{thread.mode?.slug ?? "-"}</span>
-      <span class="time">{belt.time.since(thread.updatedAt)}</span>
-      <span class="bufs" class:has={bufferCount(thread) > 0}>{bufferCount(thread)}</span>
-    </button>
-    <button class="x" onclick={() => deleteThread(thread)} title="delete thread">✕</button>
-  </div>
+{#snippet badge(thread)}
+  {@const rows = activity[thread.id] ?? []}
+  {#if rows.length}
+    {@const loud = loudest(rows)}
+    <Status
+      tone={TONES[loud]}
+      word={String(rows.length)}
+      live={loud === "RUNNING"}
+      pulse={loud === "RUNNING"}
+      title={rows.map((row) => row.status.toLowerCase()).join(" · ")} />
+  {/if}
+{/snippet}
+
+{#snippet origin(thread, daemon, columns = false)}
+  <span class="nav-origin" class:nav-column={columns}>{daemon.slug} › {thread.mode?.slug ?? "—"}{bufferCount(thread) ? ` · ${bufferCount(thread)} buf` : ""}</span>
+{/snippet}
+
+{#snippet threadCard(item)}
+  {@const { thread, daemon } = item}
+  <span class="nav-card-names">
+    <span class="nav-card-name"><ThreadLabel {thread} /></span>
+    {@render origin(thread, daemon)}
+  </span>
+  <span class="nav-card-side">
+    <span class="nav-meta">{META[sort](item)}</span>
+    {@render badge(thread)}
+  </span>
+  <Key tone="ghost" size="mini" square label="✕" title="delete thread" onclick={(event) => discard(event, thread)} />
+{/snippet}
+
+{#snippet threadLine(item, columns)}
+  {@const { thread, daemon } = item}
+  <Row
+    selected={$activeThread?.id === thread.id}
+    title="click load · dbl-click quick-start · middle-click new terminal"
+    onclick={() => loadThread(thread)}>
+    <span class="nav-name" class:nav-column={columns}><ThreadLabel {thread} /></span>
+    {@render origin(thread, daemon, columns)}
+    <span class="nav-badge" class:nav-slot={columns}>{@render badge(thread)}</span>
+    <span class="nav-meta" class:nav-slot={columns}>{META[sort](item)}</span>
+    <Key tone="ghost" size="mini" square label="✕" title="delete thread" onclick={(event) => discard(event, thread)} />
+  </Row>
 {/snippet}
 
 {#snippet groupHead(section, daemon, count)}
-  <button class="subgroup" onclick={() => toggleGroup(section, daemon.slug)}>
-    <span class="caret">{groupOpen(section, daemon.slug) ? "▾" : "▸"}</span>
-    <span class="name">{daemon.slug}</span>
-    <span class="count">{count}</span>
-  </button>
+  <Row title="fold this daemon" onclick={() => toggleGroup(section, daemon.slug)}>
+    <span class="nav-caret">{groupOpen(section, daemon.slug) ? "▾" : "▸"}</span>
+    <span class="nav-group">{daemon.slug}</span>
+    <span class="nav-meta">{count}</span>
+  </Row>
 {/snippet}
 
-<div class="panel">
-  <section class="daemons">
-    <Section
-      label="daemons"
-      count={availableDaemons.length}
-      open={sections.daemons}
-      ontoggle={() => toggleSection("daemons")} />
-    {#if sections.daemons}
-      {#each availableDaemons as daemon (daemon.slug)}
-        {@const modes = (daemon.entities?.mode?.$entities.get() ?? []).filter(
-          (m) => m.implements("application") || m.implements("conversational"),
-        )}
-        {@const open = !!expanded[daemon.slug]}
-        <button class="row daemon" onclick={() => toggle(daemon.slug)}>
-          <span class="caret">{open ? "▾" : "▸"}</span>
-          <span class="pip {code(daemon)}"></span>
-          <span class="name">{daemon.slug}</span>
-          <span class="count">{modes.length}</span>
-        </button>
-        {#if open}
-          {#each modes as mode (mode.id)}
-            <button class="row mode" onclick={() => selectMode(daemon, mode)}>
-              <span class="subpip {code(mode)}"></span>
-              <span class="name">{mode.slug}</span>
-              <span class="type">{mode.type}</span>
-            </button>
-          {:else}
-            <div class="row empty mode">no modes</div>
-          {/each}
+{#snippet viewKey(section)}
+  <Key
+    tone="ghost"
+    size="mini"
+    square
+    label={GLYPHS[views[section]]}
+    title="{views[section]} · click to cycle"
+    onclick={(event) => cycle(event, section)} />
+{/snippet}
+
+<div class="nav">
+  <div class="nav-head">
+    <div class="nav-chips">
+      {#if picked}
+        <Key size="row" latched title="every daemon" onclick={() => pick(null)}>
+          <Status tone={HEALTH[code($daemons.find((daemon) => daemon.slug === picked) ?? {})] ?? "idle"} />
+          {picked} ×
+        </Key>
+        {#each kinds as name (name)}
+          <Key size="row" led latched={kind === name} label={name} title="modes of this type" onclick={() => narrow(name)} />
+        {/each}
+      {:else}
+        {#each $daemons as daemon (daemon.slug)}
+          <Key size="row" title="{daemon.slug} · {code(daemon) || 'unknown'}" onclick={() => pick(daemon.slug)}>
+            <Status tone={HEALTH[code(daemon)] ?? "idle"} pulse={code(daemon) === "mounting"} />
+            {daemon.slug}
+          </Key>
+        {:else}
+          <span class="nav-note">no daemons</span>
+        {/each}
+      {/if}
+    </div>
+    <div class="nav-tools">
+      <div class="nav-filter" class:open={searching} role="presentation" onfocusin={() => (searching = true)} onfocusout={rest}>
+        {#if !searching}
+          <Key size="mini" square label="⌕" title="filter" onclick={seek} />
         {/if}
-      {:else}
-        <div class="empty">no daemons</div>
-      {/each}
-    {/if}
-  </section>
+        <span class="nav-well" bind:this={well}>
+          <Input bind:value={query} placeholder="filter" title="filter threads, modes and intents" oninput={() => (step = 0)} />
+        </span>
+      </div>
+      <Key size="mini" title="sort · {sort} · click to cycle" onclick={() => (sort = SORTS[(SORTS.indexOf(sort) + 1) % SORTS.length])}>
+        <span class="nav-pips">{#each SORTS as name (name)}<i class:lit={name === sort}></i>{/each}</span>
+        {sort}
+      </Key>
+    </div>
+  </div>
 
-  <section class="threads">
-    <Section
-      label="threads"
-      count={threads.length}
-      open={sections.threads}
-      ontoggle={() => toggleSection("threads")} />
+  <div class="nav-part">
+    <Section label="change thread" count={matched.length} open={sections.threads} ontoggle={() => toggleSection("threads")}>
+      {#snippet action()}{@render viewKey("threads")}{/snippet}
+    </Section>
     {#if sections.threads}
-      {#if !threads.length}
-        <div class="empty">no threads</div>
+      {#if !listed.length}
+        <Empty verb={threads.length ? "no thread matches" : "no threads"} />
+      {:else if views.threads === "card"}
+        <div class="nav-cards">
+          {#each listed as item (item.thread.id)}
+            <div
+              class="nav-seat"
+              role="presentation"
+              title="click load · dbl-click quick-start · middle-click new terminal"
+              ondblclick={() => quickStart(item.thread)}
+              onauxclick={(event) => onThreadAux(item.thread, event)}>
+              {#if $activeThread?.id === item.thread.id}
+                <Pressed><div class="nav-card">{@render threadCard(item)}</div></Pressed>
+              {:else}
+                <Card onclick={() => loadThread(item.thread)}><div class="nav-card">{@render threadCard(item)}</div></Card>
+              {/if}
+            </div>
+          {/each}
+        </div>
       {:else}
-        {#each availableDaemons as daemon (daemon.slug)}
-          {@const daemonThreads = threads.filter((item) => item.daemon.slug === daemon.slug)}
-          {#if daemonThreads.length}
-            {@render groupHead("threads", daemon, daemonThreads.length)}
-            {#if groupOpen("threads", daemon.slug)}
-              {#each daemonThreads as item (item.thread.id)}{@render threadRow(item.thread, item.daemon)}{/each}
-            {/if}
-          {/if}
-        {/each}
+        <div class="nav-lines">
+          {#each listed as item (item.thread.id)}
+            <div
+              class="nav-seat"
+              role="presentation"
+              ondblclick={() => quickStart(item.thread)}
+              onauxclick={(event) => onThreadAux(item.thread, event)}>
+              {@render threadLine(item, views.threads === "table")}
+            </div>
+          {/each}
+        </div>
+      {/if}
+      {#if more > 0}
+        <div class="nav-more"><Key tone="ghost" size="mini" label="+ {more} more" title="show more threads" onclick={() => (step += 1)} /></div>
       {/if}
     {/if}
-  </section>
+  </div>
 
-  <section class="intents">
-    <Section
-      label="intents"
-      count={intents.length || null}
-      open={sections.intents}
-      ontoggle={() => toggleSection("intents")} />
-    {#if sections.intents}
-      {#if !intents.length}
-        <div class="empty">no intents</div>
+  <div class="nav-part">
+    <Section label="set mode" count={modes.length} open={sections.modes} ontoggle={() => toggleSection("modes")}>
+      {#snippet action()}{@render viewKey("modes")}{/snippet}
+    </Section>
+    {#if sections.modes}
+      {#if views.modes === "card"}
+        <div class="nav-keys">
+          {#each modes as { mode, daemon } (`${daemon.slug}/${mode.id}`)}
+            <Key size="field" wide latched={worn(daemon, mode)} title="click · new thread (same daemon: re-mode)" onclick={() => selectMode(daemon, mode)}>
+              <Status tone={HEALTH[code(mode)] ?? "idle"} />
+              <span class="nav-name">{mode.slug}</span>
+              <span class="nav-kind">{mode.type}</span>
+            </Key>
+          {/each}
+        </div>
       {:else}
-        {#each availableDaemons as daemon (daemon.slug)}
-          {@const daemonIntents = intents.filter((item) => item.daemon.slug === daemon.slug)}
-          {#if daemonIntents.length}
-            {@render groupHead("intents", daemon, daemonIntents.length)}
-            {#if groupOpen("intents", daemon.slug)}
-              {#each daemonIntents as { intent } (intent.id)}
-                <button class="row intent" onclick={() => activateIntent(daemon, intent)}>
-                  <span class="name">{intent.name ?? intent.slug}</span>
-                  <span class="type">{intent.mode?.slug ?? ""}</span>
-                </button>
-              {/each}
-            {/if}
-          {/if}
-        {/each}
+        <div class="nav-lines">
+          {#each modes as { mode, daemon } (`${daemon.slug}/${mode.id}`)}
+            <Row selected={worn(daemon, mode)} title="click · new thread (same daemon: re-mode)" onclick={() => selectMode(daemon, mode)}>
+              <Status tone={HEALTH[code(mode)] ?? "idle"} />
+              <span class="nav-name" class:nav-column={views.modes === "table"}>{mode.slug}</span>
+              {#if views.modes === "table"}<span class="nav-origin">{daemon.slug}</span>{/if}
+              <span class="nav-kind">{mode.type}</span>
+            </Row>
+          {/each}
+        </div>
+      {/if}
+      {#if !modes.length && !mounting.length}
+        <Empty verb="no modes" />
+      {/if}
+      {#if mounting.length}
+        <span class="nav-note">{mounting.join(" · ")} · modes arrive on mount</span>
       {/if}
     {/if}
-  </section>
+  </div>
+
+  <div class="nav-part">
+    <Section label="intents" count={offers.length || null} open={sections.intents} ontoggle={() => toggleSection("intents")} />
+    {#if sections.intents}
+      {#if !offers.length}
+        <Empty verb="no intents" />
+      {:else}
+        <div class="nav-lines">
+          {#each availableDaemons as daemon (daemon.slug)}
+            {@const daemonIntents = offers.filter((item) => item.daemon.slug === daemon.slug)}
+            {#if daemonIntents.length}
+              {@render groupHead("intents", daemon, daemonIntents.length)}
+              {#if groupOpen("intents", daemon.slug)}
+                {#each daemonIntents as { intent } (intent.id)}
+                  <Row title="click · new thread from this intent" onclick={() => activateIntent(daemon, intent)}>
+                    <span class="nav-name nav-inset">{intent.name ?? intent.slug}</span>
+                    <span class="nav-kind">{intent.mode?.slug ?? ""}</span>
+                  </Row>
+                {/each}
+              {/if}
+            {/if}
+          {/each}
+        </div>
+      {/if}
+    {/if}
+  </div>
 </div>
 
 <style>
-  .panel {
-    min-width: 250px;
-    width: 100%;
-    height: 100%;
-    min-width: 160px;
-    overflow: auto;
-    background: var(--colors-skeleton-3-surface);
-    color: var(--colors-skeleton-3-contrast);
+  .nav {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+    padding: 6px 4px 4px;
     font-family: var(--font-family-code);
-    font-size: var(--font-size-sm);
-    letter-spacing: 0.02em;
-    padding: 14px 14px 18px;
-    box-sizing: border-box;
-
+    font-size: var(--size-type-2xs);
+    color: var(--text-strong);
   }
-  section {
-    margin-bottom: 18px;
+  .nav-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
   }
-  section:last-child {
-    margin-bottom: 0;
+  .nav-chips {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: var(--size-depth);
   }
-  section :global(.section-head) {
-    margin-bottom: 8px;
-  }
-  .row {
+  .nav-tools {
+    flex: none;
     display: flex;
     align-items: center;
-    gap: 7px;
-    width: 100%;
-    padding: 3px 2px;
-    background: none;
-    border: none;
-    border-radius: 2px;
-    color: inherit;
-    font: inherit;
-    text-align: left;
-    line-height: 1.1;
+    gap: 6px;
+    padding-bottom: var(--size-depth);
   }
-  button.row {
-    cursor: pointer;
+  .nav-filter {
+    display: flex;
+    align-items: center;
   }
-  button.row:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 5%, transparent);
+  .nav-well {
+    display: block;
+    width: 0;
+    overflow: hidden;
+    transition: width 0.12s;
   }
-  .daemon .name {
-    font-weight: 500;
+  .nav-filter.open .nav-well {
+    width: 118px;
   }
-  .caret {
-    width: 8px;
-    font-size: var(--font-size-2xs);
-    opacity: 0.45;
-    flex-shrink: 0;
+  .nav-pips {
+    display: inline-flex;
+    gap: 2px;
   }
-  .mode {
+  .nav-pips i {
+    width: 4px;
+    height: 4px;
+    border-radius: var(--shape-radius-full);
+    background: var(--boundary);
+  }
+  .nav-pips i.lit {
+    background: var(--signal-primary-ink);
+  }
+  .nav-part {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
-    padding-left: 22px;
-    opacity: 0.75;
+    min-width: 0;
   }
-  .name {
+  .nav-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 6px;
+    padding-bottom: var(--size-depth);
+  }
+  .nav-card {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+  .nav-card-names {
     flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .nav-card-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-family-sans-text);
+    font-size: var(--size-type-xs);
+  }
+  .nav-card-side {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .nav-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .nav-keys {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 6px;
+    padding-bottom: var(--size-depth);
+  }
+  .nav-seat {
+    min-width: 0;
+  }
+  .nav-name {
+    flex: 1;
+    min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .pip {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    background: color-mix(in srgb, var(--colors-skeleton-3-boundary) 70%, transparent);
+  .nav-name.nav-column,
+  .nav-origin.nav-column {
+    flex: 1 1 0;
   }
-  .subpip {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 40%, transparent);
+  .nav-slot {
+    flex: 0 0 44px;
+    justify-content: flex-end;
+    text-align: right;
   }
-  .pip.healthy {
-    background: var(--colors-skeleton-0-primary-base);
+  .nav-name.nav-inset {
+    padding-left: 14px;
   }
-  .pip.unavailable {
-    background: var(--colors-skeleton-0-warning-base);
+  .nav-origin {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-light);
   }
-  .pip.error {
-    background: var(--colors-skeleton-0-danger-base);
+  .nav-badge {
+    flex: none;
+    display: inline-flex;
   }
-  .count {
-    opacity: 0.4;
-    font-size: var(--font-size-xs);
+  .nav-meta,
+  .nav-kind {
+    flex: none;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
   }
-  .type {
-    opacity: 0.4;
-    font-size: var(--font-size-xs);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+  .nav-kind {
+    letter-spacing: var(--shape-label-track);
+    text-transform: var(--shape-label-case);
   }
-  .subgroup {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    width: 100%;
-    background: none;
-    border: none;
-    color: inherit;
-    text-align: left;
-    cursor: pointer;
-    font-family: inherit;
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    opacity: 0.28;
-    padding: 4px 2px 3px;
+  .nav-caret {
+    flex: none;
+    width: 8px;
+    color: var(--text-light);
   }
-  .subgroup:hover {
-    opacity: 0.55;
-  }
-  .subgroup .count {
-    font-size: var(--font-size-2xs);
-    opacity: 0.8;
-  }
-  .thread {
-    gap: 0;
-    padding: 0;
-  }
-  .thread .cell {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .nav-group {
     flex: 1;
     min-width: 0;
-    padding: 4px 2px 4px 4px;
-    background: none;
-    border: none;
-    border-radius: 2px;
-    color: inherit;
-    font: inherit;
-    text-align: left;
-    line-height: 1.1;
-    cursor: pointer;
+    letter-spacing: var(--shape-label-track);
+    text-transform: var(--shape-label-case);
+    color: var(--text-light);
   }
-  .thread:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 5%, transparent);
+  .nav-more {
+    display: flex;
+    justify-content: center;
   }
-  .thread .x {
-    padding: 0 6px;
-    background: none;
-    border: none;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    opacity: 0.2;
-    flex-shrink: 0;
-  }
-  .thread .x:hover {
-    opacity: 0.75;
-    color: var(--colors-skeleton-0-danger-base);
-  }
-  .thread.on {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 10%, transparent);
-  }
-  .tick {
-    width: 2px;
-    height: 14px;
-    border-radius: 1px;
-    flex-shrink: 0;
-    background: transparent;
-  }
-  .tick.on {
-    background: var(--colors-skeleton-0-primary-base);
-  }
-  .thread .name.on {
-    color: var(--colors-skeleton-0-primary-base);
-  }
-  .tmode {
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    opacity: 0.3;
-    flex-shrink: 0;
-  }
-  .time {
-    font-size: var(--font-size-xs);
-    opacity: 0.3;
-    width: 26px;
-    text-align: right;
-    flex-shrink: 0;
-  }
-  .bufs {
-    font-size: var(--font-size-xs);
-    width: 14px;
-    text-align: right;
-    flex-shrink: 0;
-    opacity: 0.25;
-  }
-  .bufs.has {
-    color: var(--colors-skeleton-0-primary-base);
-    opacity: 0.7;
-  }
-  .empty {
-    padding: 4px 2px;
-    opacity: 0.3;
-    text-transform: lowercase;
-  }
-  .empty.mode {
-    padding-left: 22px;
-  }
-  .intent .name {
-    flex: 1;
+  .nav-note {
+    color: var(--text-light);
+    line-height: var(--size-leading-loose);
   }
 </style>

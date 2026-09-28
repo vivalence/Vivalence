@@ -1,218 +1,124 @@
 <script>
   import { getContext } from "svelte";
-  import { BRIDGE, TERMINALS, build } from "$client";
+  import { BRIDGE, build } from "$client";
   import { belt } from "@vivalence/typology";
-  import { chain, stores } from "@vivalence/anima";
-  import Section from "./Section.svelte";
+  import { stores } from "@vivalence/anima";
+  import { Card, Key, Reading, Section } from "@vivalence/drapes";
 
-  const SIDES = ["top", "right", "bottom", "left"];
-  const SIDE_LABELS = { top: "↥", right: "↦", bottom: "↧", left: "↤" };
-  const THEMES = ["nordic", "paper"];
+  let { open = true, ontoggle = null } = $props();
+
+  const THEMES = stores.bridge.THEMES;
   const SIZES = Object.keys(stores.bridge.FONT_SIZES);
+  const SNAPS = [270, 0, 90, 180];
+  const PLACES = ["top", "bottom"];
 
   const bridge = getContext(BRIDGE);
-  const terminals = getContext(TERMINALS);
-  const dock = chain(terminals, "$active", "$dock");
 
-  let g = $state(bridge.view.g);
-  let h = $state(bridge.view.h);
-  let snap = $state(bridge.view.snap);
-  let theme = $state(bridge.view.theme);
-  let fontSize = $state(bridge.view.fontSize);
+  const logging = bridge.view.$g;
+  const inspecting = bridge.view.$h;
+  const snap = bridge.view.$snap;
+  const theme = bridge.view.$theme;
+  const fontSize = bridge.view.$fontSize;
+  const strip = bridge.view.$strip;
+  const viewport = bridge.layout.$viewport;
+  const orientation = bridge.layout.$orientation;
+  const composer = bridge.$composer;
 
   const age = (iso) => (iso ? belt.time.since(iso) : "—");
 
-  bridge.view.$g.subscribe((v) => (g = v));
-  bridge.view.$h.subscribe((v) => (h = v));
-  bridge.view.$snap.subscribe((v) => (snap = v));
-  bridge.view.$theme.subscribe((v) => (theme = v));
-  bridge.view.$fontSize.subscribe((v) => (fontSize = v));
+  const orient = (angle) => {
+    bridge.layout.orientation = stores.bridge.snapToOrientation(angle);
+    bridge.save();
+  };
+
+  const enterSends = () => (bridge.composer = { ...bridge.composer, enterSends: !bridge.composer.enterSends });
 </script>
 
-<Section name="bridge" meta={build.known ? build.change : "unstamped"}>
-  <div class="row">
-    <span class="k">change</span>
-    <span class="v mono" title={build.authored ?? "no working-copy stamp"}
-      >{build.change} · {age(build.authored)}</span>
-  </div>
-  <div class="row">
-    <span class="k">commit</span>
-    <span class="v mono">{build.commit}</span>
-  </div>
-  <div class="row">
-    <span class="k">bundled</span>
-    <span class="v mono" title={build.built ?? "no build stamp"}>{age(build.built)} ago</span>
-  </div>
-  <div class="actions">
-    <button class="act" class:on={g} onclick={() => bridge.toggle("g")}>g</button>
-    <button class="act" class:on={h} onclick={() => bridge.toggle("h")}>h</button>
-    <button class="act" class:on={snap} onclick={() => bridge.toggle("snap")}>snap</button>
-  </div>
-  <div class="row">
-    <span class="k">theme</span>
-    <select
-      class="theme-select"
-      value={theme}
-      onchange={(e) => bridge.setTheme(e.currentTarget.value)}>
+<Section label="config" count={build.known ? build.change : "unstamped"} {open} {ontoggle} />
+{#if open}
+  <Card>
+    <Reading label="change"><span title={build.authored ?? "no working-copy stamp"}>{build.change} · {age(build.authored)}</span></Reading>
+    <Reading label="commit">{build.commit}</Reading>
+    <Reading label="bundled"><span title={build.built ?? "no build stamp"}>{age(build.built)} ago</span></Reading>
+    <Reading label="viewport">{$viewport.width} × {$viewport.height}</Reading>
+  </Card>
+  <div class="latch">
+    <span class="latch-name">theme</span>
+    <div class="latch-keys">
       {#each THEMES as name (name)}
-        <option value={name}>{name}</option>
+        <Key size="row" led latched={$theme === name} label={name} onclick={() => bridge.setTheme(name)} />
       {/each}
-    </select>
+    </div>
   </div>
-  <div class="row">
-    <span class="k">font</span>
-    <span class="size-row">
-      <input
-        class="slider"
-        type="range"
-        min="0"
-        max={SIZES.length - 1}
-        step="1"
-        value={SIZES.indexOf(fontSize)}
-        oninput={(e) => bridge.setFontSize(SIZES[Number(e.currentTarget.value)])} />
-      <span class="size-readout">{fontSize}</span>
-    </span>
+  <div class="latch">
+    <span class="latch-name">font</span>
+    <div class="latch-keys">
+      {#each SIZES as name (name)}
+        <Key size="row" led latched={$fontSize === name} label={name} onclick={() => bridge.setFontSize(name)} />
+      {/each}
+    </div>
   </div>
-
-  {#if $dock}
-    <div class="row">
-      <span class="k">dock</span>
-      <span class="sides">
-        {#each SIDES as s (s)}
-          <button
-            type="button"
-            class="side"
-            class:on={s === $dock.side}
-            title="dock {s}"
-            onclick={() => stores.bridge.setDockSide(terminals.active?.$dock, s)}>{SIDE_LABELS[s]}</button>
-        {/each}
-      </span>
+  <div class="latch">
+    <span class="latch-name">view</span>
+    <div class="latch-keys">
+      <Key size="row" led latched={$snap} label="snap" onclick={() => bridge.toggle("snap")} />
+      <Key size="row" led latched={$composer.enterSends} label="enter sends" onclick={enterSends} />
     </div>
-    <div class="row">
-      <span class="k">size</span>
-      <span class="size-row">
-        <input
-          class="slider"
-          type="range"
-          min="0.18"
-          max="1.0"
-          step="0.01"
-          value={$dock.share ?? 0.32}
-          oninput={(e) => stores.bridge.setDockShare(terminals.active?.$dock, Number(e.currentTarget.value))} />
-        <span class="size-readout">{Math.round(($dock.share ?? 0.32) * 100)}%</span>
-      </span>
+  </div>
+  <div class="latch">
+    <span class="latch-name">telemetry</span>
+    <div class="latch-keys">
+      <Key size="row" led latched={$logging} label="logger" onclick={() => bridge.toggle("g")} />
+      <Key size="row" led latched={$inspecting} label="inspector" onclick={() => bridge.toggle("h")} />
     </div>
-    <div class="row">
-      <span class="k">state</span>
-      <span class="sides">
-        <button
-          type="button"
-          class="side wide"
-          class:on={$dock.collapsed}
-          title="toggle dock"
-          onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)}>{$dock.collapsed ? "show" : "hide"}</button>
-        <button
-          type="button"
-          class="side wide"
-          class:on={$dock.full}
-          title="toggle fullscreen"
-          onclick={() => stores.bridge.setDockFull(terminals.active?.$dock)}>full</button>
-      </span>
+  </div>
+  <div class="latch">
+    <span class="latch-name">orient</span>
+    <div class="latch-keys">
+      {#each SNAPS as angle (angle)}
+        <Key
+          square
+          size="row"
+          latched={stores.bridge.orientationToSnap($orientation) === angle}
+          label={stores.bridge.snapLabel(angle)}
+          title="orient {stores.bridge.A_SIDE[stores.bridge.snapToOrientation(angle)]}"
+          onclick={() => orient(angle)} />
+      {/each}
     </div>
-  {/if}
-</Section>
+  </div>
+  <div class="latch">
+    <span class="latch-name">strip</span>
+    <div class="latch-keys">
+      {#each PLACES as name (name)}
+        <Key size="row" led latched={$strip === name} label={name} onclick={() => bridge.setStrip(name)} />
+      {/each}
+    </div>
+  </div>
+{/if}
 
 <style>
-  .sides {
-    display: inline-flex;
-    gap: 3px;
-    flex: 1;
+  .latch {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 4px 8px;
   }
-  .side {
-    width: 18px;
-    height: 18px;
-    line-height: 1;
-    padding: 0;
-    background: transparent;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 60%, transparent);
-    border-radius: 2px;
-    color: var(--colors-skeleton-2-contrast);
+  .latch-name {
+    flex: 0 0 78px;
+    padding-top: 7px;
     font-family: var(--font-family-code);
-    font-size: var(--font-size-xs);
-    cursor: pointer;
-    opacity: 0.5;
-    transition: opacity 0.16s, color 0.16s, border-color 0.16s;
+    font-size: var(--size-type-2xs);
+    font-weight: 600;
+    letter-spacing: var(--shape-label-track);
+    text-transform: var(--shape-label-case);
+    color: var(--text-light);
   }
-  .side:hover {
-    opacity: 0.9;
-    color: var(--colors-skeleton-0-primary-base);
-  }
-  .side.on {
-    opacity: 1;
-    color: var(--colors-skeleton-0-primary-base);
-    border-color: var(--colors-skeleton-0-primary-base);
-  }
-  .side.wide {
-    width: auto;
-    padding: 0 8px;
-  }
-  .theme-select {
-    -webkit-appearance: none;
-    appearance: none;
-    height: 18px;
-    padding: 0 8px;
-    background: transparent;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 60%, transparent);
-    border-radius: 2px;
-    color: var(--colors-skeleton-2-contrast);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-xs);
-    line-height: 1;
-    cursor: pointer;
-  }
-  .theme-select:hover {
-    color: var(--colors-skeleton-0-primary-base);
-    border-color: var(--colors-skeleton-0-primary-base);
-  }
-  .theme-select option {
-    background: var(--colors-skeleton-1-surface);
-    color: var(--colors-skeleton-1-contrast);
-  }
-  .size-row {
-    display: inline-flex;
-    align-items: center;
+  .latch-keys {
+    flex: 1 1 150px;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
     gap: 6px;
-    flex: 1;
-  }
-  .slider {
-    flex: 1;
-    height: 4px;
-    -webkit-appearance: none;
-    appearance: none;
-    background: color-mix(in srgb, var(--colors-skeleton-0-boundary) 60%, transparent);
-    border-radius: 2px;
-    cursor: pointer;
-  }
-  .slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--colors-skeleton-0-primary-base);
-    cursor: pointer;
-  }
-  .slider::-moz-range-thumb {
-    width: 10px;
-    height: 10px;
-    border: 0;
-    border-radius: 50%;
-    background: var(--colors-skeleton-0-primary-base);
-    cursor: pointer;
-  }
-  .size-readout {
-    min-width: 28px;
-    text-align: right;
-    opacity: 0.6;
-    font-size: var(--font-size-2xs);
+    padding-bottom: var(--size-depth);
   }
 </style>

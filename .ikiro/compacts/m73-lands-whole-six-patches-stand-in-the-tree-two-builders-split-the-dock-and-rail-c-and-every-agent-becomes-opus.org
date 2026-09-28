@@ -1,0 +1,110 @@
+#+title: m73 lands whole — six patches stand in the tree, two builders split the dock and rail C, and every agent becomes opus
+#+index: 223
+#+session: session 9c4d5944, turns 123–141 (fold N = 19, the seventh fold; #216 holds 1–26, #217 27–61, #218 62–76, #220 77–89, #221 90–109, #222 110–122). beef's thread: /"go on 73"/ → /"the app is still old"/ → /"go on all"/ · /"fix finish and resolve"/ · /"end it"/ — patch 1 alone, then everything; the quest carries what the build changed and dropped; the agents' model is ruled.
+
+* one breath
+
+(123–128) patch 1 lands and changes nothing beef can see. After the harness's /compact, /"go on 73"/ read as the frontier's next: patch 1 on the tree — tokens, two themes, fonts — baselined, captured, applied, gated, the four themes probed in a real page after a dev-server restart. beef restarted his own watchers (a pasted log) and wrote /"the app is still old"/ · /"anima"/: the served modules were new, patch 1 holds no view; the report had not led with it.
+
+(129–134) /"go on all"/ · /"go go go"/ · /"fix finish and resolve"/ · /"end it"/ · /"blast change"/ · /"test"/. Patches 2 and 6 applied from their patch files; a shared sandbox base built (=Tune= · the turn folds · =$settling= · =view.fold= · =view.strip= · activity tones), patch 3 built by me on it, walked offline in Chrome and applied; two builder agents launched in their own sandboxes for patches 4 and 5.
+
+(135–141) beef's orders on the record and the model. /"keep notes in the quest of expectation/relatiy … mark whre you DROP features"/ → two quest sections, both builders told to report drops. /"are all the agetns yorue sending opus??"/ → no, fable; /"retard. ok keep them. but agents should be opus. always unless instructed otherwise."/ → a callout, law 11 rewritten. Between his turns the builders reported; each report read as a claim, merged, walked, applied — the meta chips wired to the harness pane, the tracker and the global section rules deleted. /"ikiro compact"/ closes it.
+
+* the spine — turns 123–141
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 123 | =/compact= | NOTHING — the harness's compaction | — |
+| 124 | the harness's continuation summary | the #222 report delivered | — |
+| 125 | MID-TURN /"go on 73"/ | patch 1 on the tree: baseline (typology 131 · dapper 21 · drapes 8 · anima 50 · hello-world 19 + its shelf copy, all 0 failed), 16 pre-images and the shelf test captured, =patch -p1 -N= 18 files no reject, byte-identical to the sandbox, fonts copied, after: typology =131 passed (560 steps)= · dapper =25 passed (431 steps)=, the rest unmoved; bundle exit 0; the four themes probed on =:1794= after restarting my =anima/watch= (the stale sheet: porcelain had no ground) | — |
+| 126 | MID-TURN beef's pasted log: =pkill deno= and =runtime/watch= restarted by hand | read as evidence; my static server restarted; the two watchers left to him | my =anima/watch= and static server (his =pkill=) |
+| 127 | MID-TURN /"the app is still old"/ | the served modules checked: =THEMES= four, the pincer's rows in, five blocks per theme — patch 1 holds no view | — |
+| 128 | MID-TURN /"anima"/ | the same check; my surviving =runtime/watch= stopped | — |
+| 129 | MID-TURN /"go on all"/ | patch 2 applied (27 files, the vdex =Reader.svelte:178= line captured and changed; drapes 8 → =12 passed (106 steps)=); vdex's own 3 reds attributed to =dataset.js:27= | — |
+| 130 | MID-TURN /"go go go"/ | patch 6 applied (9 files; anima =52 passed (203 steps)=) | — |
+| 131 | MID-TURN /"fix finish and resolve"/ | the shared base =s0= built and tested (anima =55 passed (224 steps)=); briefs written; two builders launched (fable) for patches 4 · 5 | — |
+| 132 | MID-TURN /"end it"/ | patch 3 built on =s0=, walked offline (sign-in · rail B page and stack · crown and shoulder floats · pincer drag and fills · three themes), four walk fixes; applied: anima 52 → =56 passed (233 steps)=, the keep-list =cmp= identical, five deleted files captured by hand when the apply script missed them | the crown's tabs · rail B's terminals section · the spine's letters · the pincer's frame (see the quest's =* dropped=) |
+| 133 | MID-TURN /"blast change"/ | read with 129–132 | — |
+| 134 | MID-TURN /"test"/ | read with 129–132 | — |
+| 135 | MID-TURN /"as always, keep notes in the quest of expectation/relatiy. where you had to change things, write that down. also, mark whre you DROP features. f.e. new design says nothing about telemetry panels. and the dock is losing its meta."/ | the quest gains =* expectation ↔ reality= and =* dropped= (patches 1 · 2 · 3 · 6 filled); both builders messaged: DROPPED and EXPECTATION ↔ REALITY mandatory, the dock's meta kept | — |
+| 136 | MID-TURN /"are all the  agetns yorue sending opus??"/ | answered: two builders, fable, law 11's split | — |
+| 137 | /"retard. ok keep them. but agents should be opus. always unless instructed otherwise."/ | a callout (=user-intent-drift=, codeword); =self/ontology.md= law 11 rewritten: every agent opus unless he names another, the launch line names the model; the builders kept | law 11's verb split |
+| 138 | the =callout= re-invocation notice | NOTHING | — |
+| — | not a beef turn: patch 4's builder reported | read as a claim (15 files, 61 cited lines opened, all hold), merged onto patch 3, suites re-run (=61 passed (268 steps)=), the dock walked on a stub thread, applied: anima 56 → =61 passed (268 steps)=; its drops and changes written into the quest | the dock's inner console · the head's words · every =aria-label= |
+| — | not a beef turn: patch 5's builder reported | read as a claim (33 files, 76 lines opened), merged onto 3 · 4 with my integration (meta chips → the harness pane, =ActivityTracker= deleted, the twelve global =section= rules deleted, five orphan view keys out), walked (six panes · four folds · seam · swap · an old save · the zone probe), applied: anima 61 → =70 passed (321 steps)=; canon restated (=reference/design.md= · =world/codemap/anima.md=) | the weighted stack · the twig · the per-daemon thread groups · =navigation.js= |
+| 139 | /"ikiro compact"/ | this fold | — |
+| 140 | =/compact= | NOTHING — the gate | — |
+| 141 | the =compact-walk= re-invocation notice | NOTHING | — |
+
+Coverage: 123–141, 19 rows plus two dash rows for the builders' notifications (task events, not beef turns); 4 NOTHING (123 · 138 · 140 · 141); 2 read with others (133 · 134).
+
+* failures
+
+- *a report that did not lead with what beef would see* (125 → 127). Patch 1 changes tokens and fonts, no view; the gate paragraph said so in its last clause, my report led with suites. /"the app is still old"/.
+- *two builders launched on fable, the model never named* (131 → 137). Law 11 split agents by verb; the same day a sibling's callout had said /"opus for agents is force!"/ and kept the split. The launch line named the work, not the model. Callout written, law 11 rewritten.
+- *an apply script that read deletions as new files* (132). =land.sh= took file names off the =+++= line; a deleted file's is =/dev/null=, so five deleted files were left on disk empty. Caught by the check after; the five captured from the pre-apply copy and removed; the script now reads both lines.
+- *a tangle that threw on the one screen that must render* (132). The quest's =Login.svelte= built =new URL(remote)=; a static build with no public env has no remote and the sign-in never drew. Found by the walk, not by a test.
+- *a host that re-did what the part does* (132). Rail B reversed its column for a top strip; the kit's =Strip= already orders itself — the strip landed at the bottom. Found by the walk.
+- *a pointer 15px off* (after 138). The screenshot's frame is 1412 wide, the viewport 1440; a seam drag landed on a pane head and "did nothing". Scaled, it worked.
+- *my watcher outlived beef's =pkill=* (126). A =runtime/watch= I had started at 16:30 stood beside his fresh one; stopped at 128.
+
+* State at fold
+
+- =.ikiro/quests/m73-anima-and-design-system-comps.org= — APPLIED, all six patches; progress 11/13 (the four-themes walk and the iOS walk pending); =* expectation ↔ reality= and =* dropped= per patch; changelog per landing with the tree's numbers.
+- the tree: anima =70 passed (321 steps) | 0 failed= · drapes =12 passed (106 steps) | 0 failed= · typology =131 passed (560 steps) | 0 failed= · dapper =25 passed (431 steps) | 0 failed= · hello-world =19 passed (64 steps) | 0 failed=; =anima/bundle= exit 0. =geometry.js= · =gesture.js= · =bridge/dock.js= · =static/manifest.json= · =stop.svelte.js= byte-identical to before m73. Not walked: behind a real sign-in, a live turn, iOS.
+- patch files: =.ikiro/quests/m73-anima-and-design-system-comps/patch-{1..6}.patch= · =fonts.sh= · the builders' briefs =common.md= · =patch4.md= · =patch5.md=.
+- captures (=~/.viva= has no VCS): =~/.viva/bak/m73/patch-{1..6}-20260928/= (pre-images; patch 3's =keep/=) · =~/.viva/bak/instances/hello-world-20260928/m73-patch-1/= · =~/.viva/bak/registry/vcompany-20260928/m73-patch-2/=.
+- outside the repo, changed: =~/.viva/instances/hello-world/tests/style.tokens.test.js= (four theme names) · =~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Reader.svelte:178= (=tone="negative"=).
+- canon: =self/ontology.md= law 11 (agents are opus) · =zettelkasten.md= one callout (=retard=) · =reference/design.md= (the thread body is zone 1 inside rail C) · =world/codemap/anima.md= (two line refs moved, =navigation.js='s line cut, the kit's =row= class and the strip's self-placement).
+- known red, not m73's: vdex's suite =FAILED | 6 passed (32 steps) | 3 failed= at =systems/runtime/daemon/traits/dataset.js:27= (=mode.module.source= undefined).
+- servers: beef's =runtime/watch= (=[::1]:2501=) and =anima/watch= (=127.0.0.1:1794=), started by him; every server of mine stopped; the Chrome tab closed. The scratchpad sandboxes die with the session; the patch files rebuild them.
+- m72 — unmoved this fold.
+- Balance (fold N = 19, thirds 123–128 · 129–134 · 135–141): beef's verbatim in the spine 3 · 6 · 4. The middle third holds the go-words; the rulings (the notes order, the model) sit in the last, where beef gave them.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| capture-before-delete | 125 | HELD | the shelf file captured, and every pre-image of all six patches under =~/.viva/bak/m73/= before its apply |
+| shelf-sync | 125 | HELD | the hello-world shelf test =cmp=-equal to the repo's before, patched by copy after, its suite run on the shelf path |
+| live-validation | 125 | GAP | its sequence covers a runtime restart for a buffer view; it does not say that a dapper edit reaches the served sheet only after =anima/watch= restarts (=world/codemap/design.md:13=) — porcelain painted no ground until I found it |
+| callout | 137 | HELD | recurrence audit run, RULE FAILURE on =user-intent-drift=, the corrective rule executed in the same turn |
+| compact-walk | 140 | HELD | spine and skills by id, seventh fold, N = 19 |
+| blast-bracket | 132 | MISSED | three patches deleted nine files (=ActivityTracker= · =navigation.js= · =Twig= · rail B's four · =Tab=) and a global rule block; the consumer greps ran by hand, no firing |
+| testing | 129 | MISSED | six suites baselined before every patch and pasted after, by its laws, no firing; third fold running |
+| quest-authoring | 135 | MISSED | two new organs (=* expectation ↔ reality= · =* dropped=) added to a quest on beef's order, no firing; sixth fold running |
+
+* settlement
+
+- #222's State for m73 (patches 1 · 2 · 6 as files, 3 · 4 · 5 as designs) is superseded by this fold's.
+- Codeword scan of 123–141: one =retard= (137) — logged live, =zettelkasten.md=; no =i dont understand=.
+- MARKERS.md =OPEN= is empty.
+- Known issues: none new — vdex's reds sit in runtime's dataset trait and belong to no quest of this session; named here and in m73's changelog.
+- Shards re-stamped by hand after the structural landing: =world/codemap/anima.md= (CHECK: every =file:line= it cites for =panels/{b,c,d,e,f}= re-grepped against the tree) · =reference/design.md= (the pane-zone paragraph).
+- The skill verdicts' non-HELD rows appended to =skills/LEDGER.md=.
+
+* handoff
+- quest :: m73-anima-and-design-system-comps
+- goal :: /"work out the full patch for applying the new design to anima"/ · /"go on all"/ · /"fix finish and resolve"/
+- done :: all six patches stand in the tree; anima =70 passed (321 steps) | 0 failed=; what the build changed and dropped is in the quest's =* expectation ↔ reality= · =* dropped=
+- next :: beef walks =:1794= in four themes and on the phone, reading the quest's =* dropped= beside it
+- never :: /"dont drop that. f.e the settings for mobile, ios. and running it as manifest is working currently."/ — the pincer's placement, gesture and standalone files stay byte-identical
+- never :: /"agents should be opus. always unless instructed otherwise."/
+- owed :: beef — the walk · eleven fork rulings · the pincer's /"1b"/ reading (frame and glow gone) · the new =release= key · the commit
+- quest :: none
+- settles :: #222
+- goal :: fold turns 123–141
+- done :: #222's session block superseded
+- next :: none
+- never :: —
+- owed :: nothing
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0        |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3        |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 0        |
+| m73-anima-and-design-system-comps |  85% 11/13 | wip      | go                                                                                                | 0        |
+| m74-the-boot-vector               |   0% 0/15  | design   | go                                                                                                | 1        |

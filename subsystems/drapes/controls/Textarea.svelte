@@ -27,7 +27,7 @@
   {placeholder}
   {autofocus}
   bind:value
-  class="w-full h-full outline-0 rounded border bg-skeleton-1-surface border-skeleton-1-boundary text-skeleton-1-contrast font-sans-text {sizes[size]} {className}"
+  class="w-full h-full outline-0 rounded border bg-control-field border-boundary text-strong font-sans-text {sizes[size]} {className}"
 />
 
 <!-- <script> -->

@@ -20,5 +20,6 @@ export * as atom from "./atom.js";
 export * as recipe from "./recipe.js";
 export * as trace from "./trace.js";
 export * as hallucinate from "./hallucinate.js";
+export * as control from "./control.js";
 
 export * as strings from "./string.js"; // depracated

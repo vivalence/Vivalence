@@ -26,7 +26,8 @@
 |---|---|---|
 | `systems/runtime/**` | `world/codemap/runtime.md` | path |
 | `systems/ghost/**` | `world/codemap/ghost.md` | path |
-| `systems/anima/**` · `subsystems/{dapper,drapes}/**` | `world/codemap/anima.md` | path |
+| `systems/anima/**` | `world/codemap/anima.md` | path |
+| `subsystems/{dapper,drapes,sheets}/**` | `world/codemap/design.md` | path |
 | `subsystems/typology/**` | `world/codemap/typology.md` · `typology/schematics.md` | path |
 | `subsystems/paladin/**` | `world/codemap/paladin.md` | path |
 | `commons/**` | `world/codemap/commons.md` | path |

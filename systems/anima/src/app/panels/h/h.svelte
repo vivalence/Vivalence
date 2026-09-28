@@ -42,7 +42,7 @@
 </script>
 
 {#if show}
-  <div class="drawer" style:height="{50 + inspectorHeight}px">
+  <div data-zone="3" class="drawer" style:height="{50 + inspectorHeight}px">
     <div class="modeline">
       <span class="seg hi">H</span>
       <span class="sep">›</span>
@@ -86,14 +86,14 @@
     padding-left: var(--safe-area-left);
     padding-right: var(--safe-area-right);
     min-height: 50px;
-    background: var(--colors-skeleton-1-surface);
-    color: var(--colors-skeleton-1-contrast);
+    background: var(--surface-sunk);
+    color: var(--text-strong);
     font-family: var(--font-family-code);
     z-index: 80;
     display: flex;
     flex-direction: column;
-    border-bottom: 1px solid var(--colors-skeleton-0-boundary);
-    box-shadow: 0 8px 24px var(--shadow-soft);
+    border-bottom: 1px solid var(--boundary);
+    box-shadow: 0 8px 24px var(--shadow);
     overflow: hidden;
   }
   .modeline {
@@ -103,7 +103,7 @@
     height: 32px;
     min-height: 32px;
     padding: 0 6px 0 14px;
-    border-bottom: 1px solid var(--colors-skeleton-0-boundary);
+    border-bottom: 1px solid var(--boundary);
     font-size: var(--font-size-xs);
     text-transform: lowercase;
     letter-spacing: 0.06em;
@@ -125,7 +125,7 @@
     cursor: ns-resize;
     touch-action: none;
     user-select: none;
-    border-top: 1px solid var(--colors-skeleton-0-boundary);
+    border-top: 1px solid var(--boundary);
   }
   .drag-handle:hover .drag-pill,
   .drag-handle.dragging .drag-pill {
@@ -136,24 +136,24 @@
     width: 32px;
     height: 3px;
     border-radius: 2px;
-    background: var(--colors-skeleton-0-boundary);
+    background: var(--divider);
     opacity: 0.35;
     transition: opacity 0.12s, width 0.12s;
   }
 
   .seg { white-space: nowrap; font-size: var(--font-size-2xs); letter-spacing: 0.08em; }
-  .seg.hi { color: var(--colors-skeleton-1-contrast); font-weight: 600; }
-  .seg.lo { color: var(--colors-skeleton-2-contrast); }
-  .sep { color: var(--colors-skeleton-0-boundary); font-size: var(--font-size-xs); flex-shrink: 0; }
+  .seg.hi { color: var(--text-strong); font-weight: 600; }
+  .seg.lo { color: var(--text-strong); }
+  .sep { color: var(--boundary); font-size: var(--font-size-xs); flex-shrink: 0; }
   .spacer { flex: 1; min-width: 0; }
   .btn {
     height: 20px;
     min-width: 24px;
     padding: 0 7px;
     background: none;
-    border: 1px solid var(--colors-skeleton-0-boundary);
+    border: 1px solid var(--boundary);
     border-radius: 4px;
-    color: var(--colors-skeleton-2-contrast);
+    color: var(--text-strong);
     font-family: var(--font-family-code);
     font-size: var(--font-size-2xs);
     font-weight: bold;
@@ -162,13 +162,13 @@
     transition: all 0.12s;
   }
   .btn:hover {
-    background: var(--colors-skeleton-2-surface);
-    color: var(--colors-skeleton-1-contrast);
+    background: var(--surface-sunk);
+    color: var(--text-strong);
   }
   .btn.on {
-    background: var(--colors-skeleton-0-primary-base);
-    color: var(--colors-skeleton-0-contrast);
-    border-color: var(--colors-skeleton-0-boundary);
+    background: var(--signal-primary);
+    color: var(--text-strong);
+    border-color: var(--boundary);
   }
   .btn.close {
     border: none;
@@ -176,7 +176,7 @@
     height: 24px;
   }
   .btn.close:hover {
-    color: var(--colors-skeleton-0-danger-base);
+    color: var(--signal-negative-ink);
   }
 
   @media (max-width: 600px) {

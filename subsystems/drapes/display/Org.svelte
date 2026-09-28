@@ -100,21 +100,21 @@
     line-height: 1.4;
   }
   .md-quote {
-    border-left: 2px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 35%, transparent);
+    border-left: 2px solid color-mix(in srgb, var(--signal-primary) 35%, transparent);
     padding: 2px 0 2px 8px;
     opacity: 0.8;
     margin: 4px 0;
   }
   .md-hr {
     border: none;
-    border-top: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 50%, transparent);
+    border-top: 1px solid color-mix(in srgb, var(--boundary) 50%, transparent);
     margin: 6px 0;
   }
   .md-code {
     margin: 6px 0;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 35%, transparent);
+    border: 1px solid color-mix(in srgb, var(--boundary) 35%, transparent);
     border-radius: 3px;
-    background: color-mix(in srgb, var(--colors-skeleton-0-surface) 35%, transparent);
+    background: color-mix(in srgb, var(--surface-sunk) 35%, transparent);
     overflow: hidden;
   }
   .md-code header {
@@ -122,11 +122,11 @@
     align-items: center;
     gap: 6px;
     padding: 3px 6px 3px 8px;
-    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 35%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--boundary) 35%, transparent);
     font-size: var(--font-size-2xs);
     letter-spacing: 0.08em;
     text-transform: lowercase;
-    background: color-mix(in srgb, var(--colors-skeleton-0-surface) 60%, transparent);
+    background: color-mix(in srgb, var(--surface-sunk) 60%, transparent);
   }
   .md-lang {
     flex: 1;
@@ -143,7 +143,7 @@
   }
   .md-code header button:hover {
     opacity: 1;
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
   }
   .md-code pre {
     margin: 0;
@@ -153,7 +153,7 @@
     line-height: 1.5;
     overflow-x: auto;
     white-space: pre;
-    color: var(--colors-skeleton-0-contrast);
+    color: var(--text-strong);
   }
   .md-code pre.wrap {
     white-space: pre-wrap;
@@ -163,7 +163,7 @@
   .md-table-wrap {
     margin: 6px 0;
     overflow-x: auto;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 35%, transparent);
+    border: 1px solid color-mix(in srgb, var(--boundary) 35%, transparent);
     border-radius: 3px;
   }
   .md-table {
@@ -174,16 +174,16 @@
   .md-table td {
     padding: 4px 8px;
     text-align: left;
-    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 25%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--boundary) 25%, transparent);
     white-space: nowrap;
   }
   .md-table th {
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
     text-transform: lowercase;
     letter-spacing: 0.08em;
     font-weight: 400;
     font-size: var(--font-size-2xs);
-    background: color-mix(in srgb, var(--colors-skeleton-0-surface) 60%, transparent);
+    background: color-mix(in srgb, var(--surface-sunk) 60%, transparent);
   }
   .md-table tbody tr:last-child td {
     border-bottom: none;
@@ -193,18 +193,18 @@
     font-size: 0.92em;
     padding: 1px 4px;
     border-radius: 2px;
-    background: color-mix(in srgb, var(--colors-skeleton-0-boundary) 30%, transparent);
-    color: var(--colors-skeleton-0-contrast);
+    background: color-mix(in srgb, var(--divider) 30%, transparent);
+    color: var(--text-strong);
   }
   strong {
     font-weight: 700;
-    color: var(--colors-skeleton-0-contrast);
+    color: var(--text-strong);
   }
   em {
     font-style: italic;
   }
   a {
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
     text-decoration: underline;
     text-decoration-style: dotted;
     text-underline-offset: 2px;

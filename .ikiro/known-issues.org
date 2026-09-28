@@ -2077,3 +2077,179 @@ none yet.
 Unknown whether the drift is intended (client-side trait claims) or a write-back that never happens; beef's call.
 ** Workaround
 Read traits off the runtime row for truth; anima's =$traits= is a client view.
+
+* typology-schematics-door-cannot-be-a-first-import — OPEN (found by m72 patch 1, 09-28)
+** Symptom
+A process whose first import is =@vivalence/typology/schematics= dies at load: =ReferenceError: Cannot access 'Signature' before initialization= at =subsystems/typology/prototypes/url.js:29= (=export class Url extends Signature=).
+** Root cause
+An import cycle between the schematics and the prototypes; entered from =schematics/index.js= the cycle reaches =url.js= before =Signature= is initialised. Entered from the root door the order happens to resolve. The cycle itself is unlocated.
+** Evidence
+Three one-line scripts, =deno run --config deno.jsonc -A --no-check=: schematics first → the error · =@vivalence/typology= first → =v.object= is a function · root then schematics → both load. anima's =vite.config.mjs:128= aliases the door, and it holds there because the root is already loaded.
+** Ruling
+none yet.
+** Why not fixed
+The cycle sits in typology's prototypes; not m72's territory.
+** Workaround
+Import =v= from =@vivalence/typology= (dapper's =lib/theme.js= · =lib/emit.js= do).
+
+
+* documentation-docs-glob-collects-bak-pages — OPEN (found by the docs area rename, 09-28)
+** Symptom
+The slowstart page's *Next →* leads to =/21.01_verbs-and-nouns= ("Grammar, verbs and nouns"), a page from a benched tree; before the rename 13.01's *Next →* led there. The page is built and routed, but no sidebar lists it.
+** Root cause
+=documentation/src/content.config.ts:6= =pattern: ["*/**/*.mdx", "!**/*.00_*.mdx"]= — the first =*= matches =bak.2029-grammar=, so =bak.2029-grammar/21_vocabulary/21.01_verbs-and-nouns.mdx= enters the =docs= collection. =content/jdex.js= skips the directory (area regex =^(\d{2})-\d{2}_=), so the page has no area and no category, but =Layout.astro= builds prev/next from every collected page.
+** Evidence
+=curl -s :4321/20.01_slowstart | grep -o 'class="next" href="[^"]*"'= → =/21.01_verbs-and-nouns=.
+** Ruling
+none yet — proposed diff: =pattern: ["[0-9]*/**/*.mdx", "!**/*.00_*.mdx"]=.
+** Why not fixed
+A code change to the docs build; the rename's go did not cover it.
+** Workaround
+none; the stray link is live on the dev server.
+
+* registry-mode-suites-red-against-the-runtime — OPEN (found by m72 patch 3, 09-28)
+** Symptom
+Three registry suites are red on the live tree and on a copy of their files from before m72: vdex =6 passed (32 steps) | 3 failed= · dojo =9 passed (42 steps) | 3 failed (22 steps)= · education domain aborts on =Module not found .../registry/fixtures/data/seed.js=.
+** Root cause
+The runtime moved under them. vdex: =systems/runtime/daemon/traits/dataset.js:27= reads =mode.module.source.dirname=, the =mountMode= scenario hands a module without =source=. dojo: =/mode/game/dojo/resolve= answers 500, =LiteralEntity= has no property =retentions= and =ctx.daemon.entities.literal.byLastSignal= is not a function. education domain: a seed path one level too high.
+** Evidence
+=deno test --config deno.jsonc -A --no-check= on =~/.viva/registry/vcompany/modes/office/vdex/tests/= and =education/modes/games/dojo/tests/=, then the same on a scratch copy overlaid with =~/.viva/bak/m72/registry-20260928/=: identical counts.
+** Ruling
+none yet.
+** Why not fixed
+Runtime scenarios and the education domain, outside m72.
+** Workaround
+Run the view tests (=app.test.js=) of a mode; they bundle and pass.
+
+* pages-drawn-before-m72-hold-retired-tokens — OPEN (found by m72 patch 4, 09-28)
+** Symptom
+A page hello-world drew before 09-28 renders unstyled: its stored markup reads =var(--colors-skeleton-0-surface)= · =var(--text-body)= and the sheet no longer declares them.
+** Root cause
+=commons/instances/hello-world/page/style.js= taught the model the old token names; the drawn markup is data in a buffer, outside any rename.
+** Evidence
+The taught table before and after in =tests/snapshots/hello-world-draw.snapshot.json=; no stored page was opened.
+** Ruling
+none yet.
+** Why not fixed
+Stored buffers are beef's data; a rewrite of them is a migration, a compatibility sheet is a shim.
+** Workaround
+Redraw the page; the house style now teaches the slots.
+
+
+* designsync-get-file-truncates-at-256-kib — OPEN (found by m73's read, 09-28)
+** Symptom
+=DesignSync get_file= on the designer's =Anima.dc.html= returns =truncated: true= and exactly 262144 characters: the template (lines 1–318) arrives whole, the component logic breaks off at line 536, before =render()= — every per-element style value the template binds (={{ x.bg }}= · ={{ T.* }}=) is lost.
+** Root cause
+The tool caps a read at 256 KiB (its own description says so); a =.dc.html= that inlines template and logic in one file passes the cap once its logic grows.
+** Evidence
+The persisted tool result of the 09-28 read: ={"truncated": true}=, content length 262144; =Design System.dc.html= (87 KB) came back whole.
+** Ruling
+none yet.
+** Why not fixed
+The cap is the design tool's; no range or offset parameter exists.
+** Workaround
+Read the template for markup and bindings, the project's =dapper/port.js= for the mapping rules, and mark every lost value lost — never guess it. Or have beef open the project in Chrome and read the file from the page. What worked (09-28): the designer ships the cut tail as its own file under the cap (=missing.md=, the logic class whole, 161 KB); the quest is then corrected against it — a census of the template's bindings against the view-model tells the design from its residue.
+
+* controller-drops-sigterm-while-idle — OPEN (found on the m74 sandbox, typology is holy)
+
+** Symptom
+
+A controller still IDLE ignores SIGTERM: =controller.kill("SIGTERM")= marks =stop= on its span and the status stays IDLE. A process that is still booting when its parent stops reaches RUNNING afterwards and holds forever; the parent awaiting it never returns.
+
+** Root cause
+
+=subsystems/typology/schematics/primitives/controller.js:17= — =stop: { RUNNING: "STOPPING", PAUSED: "STOPPING" }=, no IDLE row. =Controller= folds an unmapped transition to the current code (=subsystems/typology/prototypes/controller.js:19=), so the mark is swallowed.
+
+** Evidence
+
+m74 sandbox =scratchpad/m74/structure/structure.mikro.test.js=, case "a daemon refuses at boot": one daemon throws while its sibling is still in =MikroORM.init= (25 ms); the parent's teardown sends SIGTERM to both, the sibling ignores it, reaches RUNNING, holds; the test hangs past 120 s. With SIGKILL for a child still IDLE: span =abort · open · close=, =5 passed | 0 failed=.
+
+** Ruling
+
+none yet — typology is beef's layer. m74 QUESTIONED: =stop: { IDLE: "STOPPED" }= in the machine, or SIGKILL from outside.
+
+** Why not fixed
+
+A machine change reaches every controller — hallucination activities included — and typology is not mine to change unasked.
+
+** Workaround
+
+The caller picks the signal: =controller.kill(controller.status.is("IDLE") ? "SIGKILL" : "SIGTERM")=.
+
+* runtime-dies-when-lighthouse-unreachable — OPEN (found on the prod spanish rehearsal)
+
+** Symptom
+
+A runtime whose recipe names a lighthouse it cannot reach boots every daemon, prints =Status:ALIVE=, then exits: =error: Uncaught (in promise) ConnectionError: Network request failed @ /attached/process/lighthouse/multiplayer/entities/daemon/ensure=. Every daemon on that runtime goes down with it; under =restart: unless-stopped= it loops.
+
+** Root cause
+
+=systems/runtime/lifecycle/integrate.js:61= — =announce= awaits =connection.call("/entities/daemon/ensure", …)= per daemon with no catch; the rejection reaches the top level. The lighthouse is a consumer registry, not a dependency of serving, but a failed announce kills the server that already serves.
+
+** Evidence
+
+Prod host, rehearsal on a cloned mountpoint with =PUBLIC_VIVA_LIGHTHOUSE_REMOTE=http://127.0.0.1:9/…=: =Status:ALIVE=, then =[probe] fetch failed … Requests to port 9 are blocked=, the uncaught =ConnectionError=, =/daemon/spanish/status -> 000=. Same image, a reachable throwaway lighthouse: =up=yes after 15s=, =/daemon/spanish/status -> 401=.
+
+** Ruling
+
+none yet.
+
+** Why not fixed
+
+Found during a prod cutover whose scope was a recipe swap; whether announce retries, degrades to a warning, or stays fatal is a design call.
+
+** Workaround
+
+Keep the lighthouse up before the runtime (the prod compose has =depends_on: lighthouse=). A rehearsal gets its own lighthouse on a private network, never a dead address.
+
+* orphan-migrations-dir-kills-a-renamed-seat — OPEN (found on the prod spanish rehearsal)
+
+** Symptom
+
+A daemon whose seat directory holds a =migrations/= folder from an older schema, but whose db file is absent (renamed, or a different derived name), boots on a fresh db: mikro replays the orphan migrations onto it, then the generated initial migration fails =create table `Mode` … - SQLITE_ERROR: table `Mode` already exists=, the =MigrationError= is uncaught, and the whole runtime exits — every daemon on it.
+
+** Root cause
+
+=commons/datamaps/libsql/libsql.viva.js:42= — the migrations path is =datamap.mountpoint.branch("migrations")=, keyed on the SEAT, while the db is =statics.db.file= (=<slug>.viva.db=, =subsystems/paladin/lifecycle/resolve.js:29=). Folder and file can disagree; nothing checks that the =_mikro_migrations= table and the folder describe the same db.
+
+** Evidence
+
+Prod =daemon_spanish/=: =test-language-spanish.viva.db= (July, 4 migrations) + =migrations/=. Rehearsal boot with the slug =spanish=: =Migration20260716132143= … =Migration20260730221340= applied onto the new =spanish.viva.db=, =Migration20260927184504= failed, =up=no=. With the seat moved to =daemon_spanish.july=: 1 migration, =Status:ALIVE=. =scripts/premigrate.sh= on the host already deleted =daemon_italian/migrations= at the m66 cutover for the same reason, by hand.
+
+** Ruling
+
+none yet.
+
+** Why not fixed
+
+The datamap is commons; a guard (refuse, or ignore a folder whose migrations the db does not record) is a design call.
+
+** Workaround
+
+Before a seat serves a db it did not create, move the seat aside whole (=mv daemon_<slug> daemon_<slug>.<tag>=) or delete its =migrations/=; rehearse on a cloned volume.
+
+* paladin-waits-on-the-runtimes-stdout — OPEN, marked for recast (found on the m74 critical pass)
+
+** Symptom
+
+Paladin knows a child is ready only by parsing its stdout: the ledger's =Process= taps every line and waits for =/^Status:ALIVE$/= before its =Die= claims the lock ALIVE. The runtime and anima each print that line by hand (=console.log(new Status("alive"))=). A runtime that changes its status word, or prints nothing, leaves =viva instance/run= waiting to its 60 s deadline.
+
+** Root cause
+
+=subsystems/paladin/prototypes/ledger/process.js:6= · =:53= — the regex and the tap; =subsystems/paladin/prototypes/ledger/die.js:62= claims ALIVE after it. The printers: =systems/runtime/lifecycle/integrate.js:43= · =systems/anima/vite.config.mjs:101=. The dependency runs upward: paladin, the layer below, reads the output of the process it composes.
+
+** Evidence
+
+m74's critical pass: moving the runtime's status to the controller's =RUNNING= breaks readiness in paladin, a subsystem m74 does not otherwise touch (breaking change 13).
+
+** Ruling
+
+beef, on the pass: /"this should not happen. paladin absolutely should budge to the new meta. also, seems like an issue that the paladin is waiting onthe runtime. antipattern. the paladin exposes state adn interface thats used by the runtime. recast. mark for recast."/ m74 moves the word to =Status:RUNNING= in one landing; the direction is the recast's.
+
+** Why not fixed
+
+The recast is paladin's shape — what state and interface paladin exposes for a child to report into — and no design exists yet.
+
+** Workaround
+
+Printer and reader change in one landing (m74 M3); never one without the other.

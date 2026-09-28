@@ -1,8 +1,7 @@
 <!--
-  Paragraph — skeleton-aware. Inherits contrast color from current skeleton.
+  Paragraph — the plain ink.
 -->
 <script>
-  import { useSkeleton } from "../context/useSkeleton.js";
 
   let {
     size = "md",
@@ -10,8 +9,6 @@
     children,
   } = $props();
 
-  const skeleton = useSkeleton();
-  const level = $derived(skeleton());
 
   const sizes = {
     sm: "text-sm",
@@ -20,6 +17,6 @@
   };
 </script>
 
-<p class="font-sans-text text-skeleton-{level}-contrast {sizes[size]} {className}">
+<p class="font-sans-text text-ink {sizes[size]} {className}">
   {@render children?.()}
 </p>

@@ -1,0 +1,102 @@
+#+title: m73 is worked out in six patches — the theme takes its fonts, porcelain and datasette clear the floors, and the pincer keeps its placement
+#+index: 221
+#+session: session 9c4d5944, turns 90–109 (fold N = 20, the fifth fold; #216 holds 1–26, #217 27–61, #218 62–76, #220 77–89). beef's thread: /"work out the quest. full patch."/ — the designer's two comps read through the design tool, measured against the live tree by two read-only analysts, and written into m73 as six patches with hunks; no code touched.
+
+* one breath
+
+(90–96) the comps arrive again. After the harness's /compact, beef re-pasted both handoffs with a screenshot of the comp in porcelain, then /"work out the quest."/ · /"73"/. The project was read through =DesignSync=: it is already built on our token space (its readme says so), =Anima.dc.html= came back cut at the tool's 256 KiB cap with its template whole, the designer's porcelain and datasette completed through our =theme()= and missed 13 contrast floors.
+
+(97–103) the orders pile up mid-turn. /"important! we have done a lot of adjustments and custom work on the pincer. right now the core placement logic works well. dont drop that. f.e the settings for mobile, ios. and running it as manifest is working currently."/ · /"work out the full patch for applying the new design to anima"/ · /"the anima design is HIGH quality and HIGH design."/ · /"work out the quest. full patch."/ · /"scope is anima, drapes, and dapper"/ · /"if you can, use this as an opportunity to improve anima"/. Two analysts diffed the comp against anima, chrome side and stage side; the skeleton went to disk before their reports.
+
+(104–109) the patches, one ruling, the servers. /"fonts inside the theme; yes"/ ruled the first fork; patch 1 was proven on scratchpad copies; patches 2–6 written from the two analyses. /"stopped my client and runtime. you run"/ — runtime and anima started from this session. /"ikiro compact"/.
+
+* the spine — turns 90–109
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 90 | =/compact= | NOTHING — the fold boundary of #220 | — |
+| 91 | the harness's continuation summary | NOTHING — the #220 report delivered after it | — |
+| 92 | both handoffs re-pasted (Anima · Design System) | =DesignSync list_files= · =get_file= on readme · github · =dapper/{themes,theme,port}.js= · both comps; copies in the scratchpad =m73/= | — |
+| 93 | the screenshot: the comp rendered in porcelain | read as the comp's own render, not his anima | — |
+| 94 | the =design-handoff= re-invocation notice | NOTHING — the skill loaded | — |
+| 95 | MID-TURN /"work out the quest."/ | the quest's terrain begun: probes of porcelain · datasette through our =theme()= | — |
+| 96 | MID-TURN /"73"/ | read as: m73 is the quest | — |
+| 97 | MID-TURN the quest's path | NOTHING — the address of 95 | — |
+| 98 | MID-TURN /"important! … dont drop that. f.e the settings for mobile, ios. and running it as manifest is working currently."/ | the pincer keep-list: placement · gesture · safe area · visualViewport · the manifest and apple metas, 38 ranges cited; =pincer.svelte= may change its paint and its mark only | — |
+| 99 | MID-TURN /"work out the full patch for applying the new design to anima"/ | two read-only analysts launched (chrome · stage), the skeleton with pane lines written to disk first | — |
+| 100 | MID-TURN /"the anima design is HIGH quality and HIGH design."/ | the comp's markup and geometry taken as the design, deviations only where the law demands (tap floor, focus law, unemitted names) | — |
+| 101 | MID-TURN /"work out the quest. full patch."/ | NOTHING new — the order of 99 repeated | — |
+| 102 | MID-TURN /"scope is anima, drapes, and dapper"/ | the typology =font= group and two hello-world test lines named as forced outside the scope | — |
+| 103 | MID-TURN /"if you can, use this as an opportunity to improve anima"/ | the kit replaces fourteen inline recipes; =Dock.svelte= (1852 lines) split into six widgets; law breaks fixed on the way | — |
+| 104 | the quest's path (a prompt after the interim report) | patches 1–6 written: the kit, the chrome, the stage and dock, rail C's tree, =/design=; thirteen forks, the design-wants list, testing, QA | — |
+| 105 | MID-TURN /"- fonts inside the theme; yes"/ | fonts fork RULED; the =font.family= group keyed on today's six emitted names, zero reads moved; proven on copies: 91 root keys · 103 per zone · four themes, 0 floor misses | the fonts fork of m72 |
+| 106 | MID-TURN /"stopped my client and runtime. you run"/ | =runtime/watch= on =[::1]:2501= and =anima/watch= on =127.0.0.1:1794= started in this session's background | — |
+| 107 | /"ikiro compact"/ | this fold | — |
+| 108 | MID-TURN =/compact= | NOTHING — the gate's retry, queued | — |
+| 109 | the skill's re-invocation notice | NOTHING | — |
+
+Coverage: 90–109, 20 rows, 6 NOTHING (90 · 91 · 94 · 97 · 108 · 109), 1 repeat (101).
+
+* failures
+
+- *a probe that read stdin* (95). A =python3 -c "json.load(open('/dev/stdin'))"= opened a =;=-chained command and blocked it; the heredoc after it never ran and the tool timed out into a background task. Two retries before the probe ran.
+- *a proof column that mixed designed and run* (report after 106). The closing table's "proof so far" for patch 3 read "a =keep.test.js= proves it byte-identical" — the test is designed in the quest, not written, not run. Patch 1's proof was real (scratchpad copies); patch 3's was a plan.
+- *an assertion on a count, not on the code* (104). The sandbox writer asserted eight =font= mentions in the patched primitive and found seven; the hunks were right, the guard was wrong. Rewritten to report each missed replacement by name.
+- *the design tool's cap* (92) — not mine, recorded: =get_file= truncates at 256 KiB; filed as =designsync-get-file-truncates-at-256-kib= in =known-issues.org=.
+
+* State at fold
+
+- =.ikiro/quests/m73-anima-and-design-system-comps.org= — DESIGNED, 1749 lines: intent (every order of 95–103 verbatim) · both handoffs · terrain measured · a pane line each · 13 forks (fonts RULED) · six patches with hunks and gates · what the design wants and the system does not have (12) · deferred · testing assessment · QA with 11 markers. Patch 1 proven on scratchpad copies (=m73/sandbox/run.js=); nothing in the tree touched.
+- scratchpad =m73/=: both comps · =chrome.md= (579 lines) · =stage.md= (564 lines) · =themes.js= · =probe.js= · =probe2.js= · =sandbox/=.
+- =.ikiro/quests/index.md= — m73's line rewritten.
+- =.ikiro/known-issues.org= — one new: =designsync-get-file-truncates-at-256-kib=.
+- servers: =runtime/watch= and =anima/watch= run as background tasks of session 9c4d5944, started at beef's word (106); they die with the session.
+- m72 — unmoved this fold; its porcelain · datasette now ride m73 patch 1.
+- Balance (fold N = 20, thirds 90–96 · 97–103 · 104–109): beef's verbatim in the spine 2 · 6 · 3. The weight sits in the middle third because that is where beef poured his orders mid-turn while the analysts ran.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| design-handoff | 93 | GAP | the read budget and the pane lines HELD; the body knows neither the tool's 256 KiB cap nor a comp already on our token space — step 4 (palette verbatim) and step 1 (bundler manifest) did not apply |
+| compact-walk | 108 | HELD | spine + skills by id; fifth fold, N = 20 |
+| quest-authoring | 95 | MISSED | m73 worked out from seed to six patches across 95–104 with no firing; fourth fold running |
+
+* settlement
+
+- #220's State for m73 (SEED) is superseded by this fold's.
+- Codeword scan of 90–109: no =retard=, no =i dont understand=.
+- MARKERS.md =OPEN= is empty.
+- Known issues filed, not left in the quest: one entry.
+- No shard touched: no code landed.
+
+* handoff
+- quest :: m73-anima-and-design-system-comps
+- goal :: /"work out the full patch for applying the new design to anima"/ · /"scope is anima, drapes, and dapper"/ · /"if you can, use this as an opportunity to improve anima"/
+- done :: designed: six patches with hunks, patch 1 proven on scratchpad copies (91 root keys · 103 per zone · four themes, 0 floor misses); fonts fork ruled
+- next :: rule patch 1's forks, go
+- never :: /"dont drop that. f.e the settings for mobile, ios. and running it as manifest is working currently."/ — the pincer's placement, gesture and standalone behaviour stay byte-identical
+- never :: /"what the designer does is what the designer does in its own universe, we apply our own."/
+- owed :: beef — twelve fork rulings · a go per patch · a word on the servers (runtime and anima run from this session)
+- quest :: m72-zoned-designs
+- goal :: /"i want to structure our surfaces or leveles or zones. its chaos atm."/ — the token space as the contract, zones as territories with depth inside
+- done :: four patches applied (#220); porcelain · datasette moved into m73 patch 1
+- next :: walk both themes
+- never :: /"4 patches. go on all 4."/ — no fallback sheet, no dual read of the retired tokens
+- owed :: beef — the walk · nine fork rulings · the close of m72
+- quest :: none
+- settles :: #220
+- goal :: fold turns 90–109
+- done :: #220's session block superseded
+- next :: none
+- never :: —
+- owed :: nothing
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0        |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3        |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 0        |
+| m73-anima-and-design-system-comps |   0% 0/11  | design   | go                                                                                                | 0        |

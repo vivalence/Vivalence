@@ -1,0 +1,98 @@
+#+title: the runtime recast becomes m74 — every process a die cast against a boot vector, held open by its controller; pause is a gate, good is cut, the boot context is a die
+#+index: 225
+#+session: session fd17e14d, turns 1–13 (fold N = 13, the first fold). beef's thread: /"is this as elegant and powerful as i think it is?"/ → /"second. better. smarter."/ → /"opus for agents is force!"/ → three corrections on one design (/"this line makes no fucking sense at all"/ · /"lets cut good"/ · /"lets call one a ctx and the other a die"/) → /"work out the quest. m74. tangle"/.
+
+* one breath
+
+(1–4) beef pasted the runtime daemon, typology shape · shard · steer and the controller, and asked whether turning every boot process (runtime · daemon · service · mode) into a vector — die dissolves into the ctx, carry pre-next populates, post-next tears down, effect runs for months, a controller per process branched along type/slug, a differ over instance config later — is good design. Verdict: yes, supervisor tree + reconciler + bracket out of primitives already owned; bites named (ready ≠ returned, sibling barrier, no un-slurp, module reload, controller machine fit). beef ordered two research agents (prior art, past quests) and /"no code yet."/.
+
+(5–6) /"are the agents opus?"/ — no, both launched without =model=. /"keep running but mark the incident. opus for agents is force!"/ → callout. Pause ruled: gate, not unwind.
+
+(agents land between 6 and 7, no beef turn) prior art: trio =task_status.started= · OTP =proc_lib:init_ack= and start phases · Effection =provide= — ready is a side channel, the controller is ours. The quest sweep: this design is m50's strand 1 / M5 and the April wafer-lifecycle's unchecked phases; the first Vector boot was built once and called /"hideous"/.
+
+(7–11) beef set the order — /"first i want to settle the shape and makeup of each ctx per boot vector, the effect per vector … and an architectural solution to the post hooks"/, /"inline strategy for all of them for now"/, naming second. Three corrections iterated the four hypothetical boot functions to: a top-level boot vector per type, a die per process naming its subject (=die.runtime · die.daemon · die.service · die.mode=), =ctx= left to requests. Then m74 worked out, primitives and the mode barrier run in a scratchpad sandbox.
+
+(12–13) /"ikiro comapct"/.
+
+* the spine — turns 1–13
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 1 | the full paste + the recast ask, first delivery | NOTHING — re-sent as 2 | — |
+| 2 | same paste; /"does this structure make sense? is this as elegant and powerful as i think it is? just meta level. is this good design?"/ | verdict: good; =stagger= is a hand-rolled onion, =ActivityRepository.control= is process-as-entity already; seven bites listed | — |
+| 3 | /"service. runtime/service/slug"/ · /"how do erlang/bracket solve this? … send out a research agent … code heavy!"/ · /"go through past quests on teh subject"/ · on pause: /"paused means taken offline, but still in repo"/ | m50 read in full; two agents launched WITHOUT =model=; pause offered as gate vs unwind; stable pointer vs barf explained; source reload = no in-process fix | — |
+| 4 | MID-TURN /"no code yet."/ | honoured | — |
+| 5 | /"are the agents opus?"/ | no — inherited parent | — |
+| 6 | /"second. better. smarter."/ · /"keep running but mark the incident. opus for agents is force!"/ | callout appended (=zettelkasten.md=, rule-not-self-applied); pause = gate; hook =agent-guard.sh= deny-on-no-model PROPOSED | pause as unwind |
+| — | (no turn) both agents land | prior art relayed; quest sweep relayed: m50 · wafer-lifecycle · m49 · m63 · m65 | — |
+| 7 | /"we will deal with naming second. first i want to settle the shape and makeup of each ctx per boot vector, the effect per vector, the middlewares per vector, the repositories per type, and an architectural solution to the post hooks. … inline strategy for all of them for now."/ | four hypothetical boot functions: ctx + effect per type | — |
+| 8 | /"this line makes no fucking sense at all. wiyh placeholder i meant the boot function. a vector instance inside the effect makes no sense. woth vectior i meant the boot vector at thetop level of the function"/ | top-level boot vector per type, real effect (runtime =Deno.serve=, service =citizen.aperture=) | =ctx.good = new Vector()= in the effect |
+| 9 | /"lets cut good in favor of actually named key."/ | =ctx.runtime · ctx.daemon · ctx.service · ctx.mode= | =good= |
+| 10 | /"i think thats a source of confusion. lets call one a ctx and the other a die."/ | boot object = =die=, request object = =ctx= | =ctx= at boot |
+| 11 | /"work out the quest. m74. tangle"/ | =quests/m74-the-boot-vector.org= (1581 lines), =quests/index.md= line; baseline runtime =65 passed (422 steps) | 0 failed=; sandbox =3 passed (11 steps) | 0 failed= | — |
+| 12 | /"ikiro comapct"/ | this walk | — |
+| 13 | =/compact= | — | — |
+
+Coverage: 1–13, each once; one dash row for the agents' landing, which is not a beef turn.
+
+Balance (fold N = 13, thirds 1–4 · 5–8 · 9–13): rulings cited 1 · 4 · 3. Not last-heavy.
+
+* failures
+
+- two research agents launched with no =model= (turn 3) — law 11 lived in a path-loaded shard not in context; callout #rule-not-self-applied; beef has since rewritten law 11 to /"agents should be opus. always"/.
+- turn 7's answer put a =new Vector()= inside each effect as "placeholder" — read beef's "placeholder vector" as the subject; second correction on one screen followed (turn 9, then 10 re-shaped the noun). The shape, not the detail, was wrong: the boot vector is the unit, the die carries the subject.
+- my claim "span retains records, years-long process grows unbounded" (turn 3 reply) was false — =span.js:5= caps the journal at 1000. Retracted in m74's terrain.
+- sandbox first run: two wrong expectations (last-first teardown under a fanned SIGTERM; a probe that raced =server.finished= against a resolved promise). Corrected to measured behaviour; the first became fork F11.
+- m74 rename counts first taken from line counts; re-measured by occurrence and spliced by script — named as deviation in the report.
+
+* State at fold
+
+- =.ikiro/quests/m74-the-boot-vector.org= DESIGNED, nothing in the product tree. Five milestones: M1 cast primitives · M2 runtime + service (=run.js= rewritten, =die.js= + =process/= deleted) · M3 daemon (flag day: 33+17+3+32 renames, three registry hooks, anima's =ALIVE= literal, the pause gate 503) · M4 mode (latch barrier) · M5 docs, codemap, grep gates.
+- Proven: =cast.js= whole, =daemon/mode.js= whole, =resolution.modes= whole, =integration.launch= with announce injected — sandbox =scratchpad/m74/=. Unrun: =boot.js=, =daemon/boot.js=, =run.js=, every rename, the import cycle (marker =m74/P-import-order=).
+- Eleven forks QUESTIONED (quest =* forks=). Laws settled by beef this session: die/ctx split, no =good=, pause = gate, boot vector top-level.
+- Critical pass owed before any status says tangleable.
+- Callout appended; =self/ontology.md= law 11 was rewritten on disk by beef during the session (opus always).
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| callout | 6 | HELD | recurrence audit ran, family rule-not-self-applied, entry appended under =## Callouts=, hook proposed not wired |
+| quest-authoring | 11 | HELD | organs present, beef verbatim, forks QUESTIONED, markers prefixed =m74/=, index line added; critical pass named as owed |
+| compact-walk | 12 | HELD | spine + skills readers run with the session id |
+| testing | 11 | MISSED | runtime baseline run and sandbox suites pasted by its laws, no firing |
+| blast-bracket | 11 | MISSED | =Die= · =.good= · =stagger= consumer greps (repo + =~/.viva/registry=) run by hand for a symbol with ≥2 consumers, no firing |
+
+* settlement
+
+- MARKERS: =## OPEN= empty — nothing deferred.
+- Codeword scan of 13 turns: none. The turn-8 correction is a strike without codeword — recorded here under failures; beef's /"second correction on one screen = the SHAPE is wrong"/ held (the shape moved at 10).
+- Callout for the agents: logged in-turn (6). =agent-guard.sh= deny is beef's wiring; owed.
+- Known issues: none new — the service-teardown gap is already =open-orm-holds-the-deno-event-loop=.
+- Memory: nothing private; nothing written.
+- At fold beef was annotating m74 in place (1581 → 1672 lines, ten =@beef= marks, his own =run.js= sketch at =** systems/runtime/run.js @beefs=). Not answered this fold; his edit is the spec (law 14), it overrides F1 · F2 · F4 as written: =cast= /"not sure this is needed"/, /"drop the step function"/, repositories per process type on =Runtime=.
+- Scratchpad =m74/= holds the sandbox copies — session-local, not canon; the quest carries the code.
+
+* handoff
+- quest :: m74-the-boot-vector
+- goal :: /"i want to turn all my boot processes in the runtime into vectors. mode, daemon, service and the runtime themselves."/
+- done :: quest designed; =cast.js= · =daemon/mode.js= · =resolution.modes= · =integration.launch= run in a sandbox, =3 passed (11 steps) | 0 failed=; runtime baseline =65 passed (422 steps) | 0 failed=
+- next :: answer beef's ten =@beef= marks in =.ikiro/quests/m74-the-boot-vector.org= (=grep -n @beef=), his =** systems/runtime/run.js @beefs= sketch is the spec: =Runtime= holds =processes: { service: ServiceRepo, daemon: DaemonRepo }=, signals enter as =controller.stdin(new Stdin(…))=, the vector runs via =strategy.run(boot, die)= and /"nothing after this"/, not =cast=; lifecycle functions rewritten as middlewares, =step= dropped. Then the critical pass.
+- never :: /"lets cut good in favor of actually named key."/ — no generic subject slot on a die
+- never :: /"lets call one a ctx and the other a die."/ — boot middleware takes =die=, request middleware takes =ctx=
+- never :: pause unwinds — beef: /"second. better. smarter."/ (gate)
+- owed :: beef — eleven fork rulings (F1 inline vs one =cast= against his /"inline strategy for all of them for now"/) · the naming pass (/"we will deal with naming second."/) · go per milestone · the three =~/.viva/registry= hook edits (F9)
+- quest :: none
+- goal :: agents always opus
+- done :: callout logged; law 11 rewritten by beef on disk
+- owed :: beef — wire =hooks/agent-guard.sh= to deny an =Agent= call with no =model=
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions   |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0          |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3          |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 1 (1 live) |
+| m73-anima-and-design-system-comps |  79% 11/14 | wip      | go                                                                                                | 1 (1 live) |
+| m74-the-boot-vector               |   0% 0/15  | design   | go                                                                                                | 1 (1 live) |

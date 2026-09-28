@@ -1,0 +1,4319 @@
+diff --git a/systems/anima/src/app/+layout.svelte b/systems/anima/src/app/+layout.svelte
+index eae6c4a..b7e88c8 100644
+--- a/systems/anima/src/app/+layout.svelte
++++ b/systems/anima/src/app/+layout.svelte
+@@ -12,6 +12,8 @@
+   import { logger } from "$telemetry";
+   import { LIGHTHOUSE, TERMINALS, BRIDGE, BOX } from "$client";
+   import { stores } from "@vivalence/anima";
++  import { Key } from "@vivalence/drapes";
++  import { gateFor } from "./gate.js";
+   import * as terminalEffects from "./terminals.js";
+   import * as focusEffects from "./focus.js";
+ 
+@@ -62,13 +64,7 @@
+ 
+     const unsubscribeGate = computed(
+       [lighthouse.$isAuthorized, lighthouse.$status],
+-      (authorized, status) => {
+-        if (!authorized) return "signin";
+-        if (status.code === "OFFLINE" || status.code === "ERROR") return "signin";
+-        if (status.code === "POPULATING") return "populating";
+-        if (status.code !== "VERIFIED") return "verifying";
+-        return "ready";
+-      },
++      gateFor,
+     ).subscribe((value) => {
+       gate = value;
+       logger.entry("gate").note({ message: `gate → ${value}` });
+@@ -116,7 +112,7 @@
+   {@render children()}
+   {#if terminalCount === 0}
+     <div class="empty-overlay" onclick={onOpenTerminal} role="presentation">
+-      <span class="empty-prompt">open terminal</span>
++      <Key label="open terminal" />
+     </div>
+   {/if}
+ {:else if gate === "signin"}
+@@ -129,18 +125,15 @@
+ 
+ <style>
+   .gate {
+-    display: grid;
+-    place-items: center;
++    display: flex;
++    flex-direction: column;
++    align-items: center;
+     height: 100svh;
+     box-sizing: border-box;
+-    padding-top: var(--safe-area-top, 0px);
+-    padding-bottom: var(--safe-area-bottom, 0px);
++    padding: calc(10vh + var(--safe-area-top, 0px)) 16px calc(48px + var(--safe-area-bottom, 0px));
++    overflow-y: auto;
+     background: var(--surface);
+     color: var(--text-strong);
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.08em;
+-    text-transform: lowercase;
+   }
+   .empty-overlay {
+     position: fixed;
+@@ -152,19 +145,4 @@
+     background: color-mix(in srgb, var(--surface) 70%, transparent);
+     cursor: pointer;
+   }
+-  .empty-prompt {
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-xs);
+-    letter-spacing: 0.08em;
+-    text-transform: lowercase;
+-    color: var(--text-strong);
+-    opacity: 0.6;
+-    padding: 8px 16px;
+-    border: 1px solid var(--boundary);
+-    border-radius: 4px;
+-    transition: opacity 0.12s;
+-  }
+-  .empty-overlay:hover .empty-prompt {
+-    opacity: 1;
+-  }
+ </style>
+diff --git a/systems/anima/src/app/+page.svelte b/systems/anima/src/app/+page.svelte
+index ff84e1b..4d7c58f 100644
+--- a/systems/anima/src/app/+page.svelte
++++ b/systems/anima/src/app/+page.svelte
+@@ -95,20 +95,5 @@
+     overflow: hidden;
+     overscroll-behavior: none;
+     background: var(--surface);
+-    font-family: var(--font-family-code);
+-  }
+-
+-  /* system alert rail — 1px vermillion strip at the very top of the viewport.
+-     only visible when worst-of-system is "down". danger-without-shouting. */
+-  .system-alert-rail {
+-    position: fixed;
+-    left: 0;
+-    right: 0;
+-    top: 0;
+-    height: 1px;
+-    background: var(--signal-negative);
+-    box-shadow: 0 0 12px var(--signal-negative);
+-    z-index: 200;
+-    pointer-events: none;
+   }
+ </style>
+diff --git a/systems/anima/src/app/bones/crown/crown.svelte b/systems/anima/src/app/bones/crown/crown.svelte
+index da75f20..d17534f 100644
+--- a/systems/anima/src/app/bones/crown/crown.svelte
++++ b/systems/anima/src/app/bones/crown/crown.svelte
+@@ -1,8 +1,10 @@
+ <script>
+   import { getContext } from "svelte";
+   import { stores } from "@vivalence/anima";
++  import { Float, Key } from "@vivalence/drapes";
+   import { TERMINALS } from "$client";
+-  import Tab from "./widgets/Tab.svelte";
++  import Glyph from "../../widgets/Glyph.svelte";
++  import Terminal from "./widgets/Terminal.svelte";
+ 
+   let { rect } = $props();
+ 
+@@ -10,59 +12,74 @@
+ 
+   const terminals = getContext(TERMINALS);
+ 
+-  let tabs = $state([...terminals.entities]);
+-  let activeId = $state(terminals.active?.id);
++  let held = $state([...terminals.entities]);
++  let active = $state(terminals.active?.id);
++  let open = $state(false);
++  let anchor = $state(null);
+ 
+   terminals.$entities.subscribe((entities) => {
+-    tabs = [...entities];
++    held = [...entities];
+   });
+-  terminals.$active.subscribe((t) => (activeId = t?.id));
++  terminals.$active.subscribe((terminal) => (active = terminal?.id));
+ </script>
+ 
+ <div
+   data-zone="0"
+   class="bone"
+-  class:column={axis === "column"}
+   style:left="{rect.left}px"
+   style:top="{rect.top}px"
+   style:width="{rect.width}px"
+   style:height="{rect.height}px">
+-  <div class="population" style:padding={axis === "column" ? "12px 0" : "0 12px"}>
+-    <div
+-      class="tabs"
+-      style:flex-direction={axis}
+-      style:padding={axis === "column" ? "2px 0" : "0 2px"}
+-      style:overflow-x={axis === "column" ? "hidden" : "auto"}
+-      style:overflow-y={axis === "column" ? "auto" : "hidden"}>
+-      <button class="tab add" onclick={() => terminals.create()} title="new terminal">+</button>
+-      {#each tabs as t (t.id)}
+-        <Tab
+-          terminal={t}
+-          {axis}
+-          isActive={t.id === activeId}
+-          onactivate={() => terminals.activate(t.id)}
+-          onclose={() => terminals.remove(t.id)} />
+-      {/each}
+-    </div>
++  <div
++    class="population"
++    style:flex-direction={axis}
++    style:padding={axis === "column" ? "12px 0" : "0 12px"}>
++    <span class="anchor" bind:this={anchor}>
++      <Key
++        square={axis === "column"}
++        latched={open}
++        title="terminals · {held.length}"
++        onclick={() => (open = !open)}>
++        {#if axis === "row"}<Glyph name="terminal" />{/if}
++        <span class="count">{held.length}</span>
++      </Key>
++    </span>
+   </div>
+ </div>
+ 
++{#if open}
++  <Float
++    {anchor}
++    zone="0"
++    title="terminals"
++    side={axis === "column" ? "after" : "below"}
++    onclose={() => (open = false)}>
++    <div class="roster">
++      {#each held as terminal (terminal.id)}
++        <Terminal
++          {terminal}
++          selected={terminal.id === active}
++          onactivate={() => terminals.activate(terminal.id)}
++          onremove={() => terminals.remove(terminal.id)} />
++      {:else}
++        <span class="none">no terminals</span>
++      {/each}
++    </div>
++    <div class="verbs">
++      <Key tone="primary" size="row" wide label="+ new terminal" onclick={() => terminals.create()} />
++    </div>
++  </Float>
++{/if}
++
+ <style>
+   .bone {
+     position: fixed;
+     background: var(--surface);
+-    border-top: 1px solid var(--boundary);
+-    border-bottom: 1px solid var(--boundary);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
+     pointer-events: none;
+     z-index: 50;
+     overflow: hidden;
+   }
+-  .bone.column {
+-    border-top: none;
+-    border-bottom: none;
+-    border-left: 1px solid var(--boundary);
+-    border-right: 1px solid var(--boundary);
+-  }
+   .population {
+     position: absolute;
+     inset: 0;
+@@ -75,45 +92,25 @@
+   .population > * {
+     pointer-events: auto;
+   }
+-  .tabs {
+-    display: flex;
+-    align-items: center;
+-    gap: 10px;
+-    width: 100%;
+-    height: 100%;
+-    scrollbar-width: none;
+-    -ms-overflow-style: none;
++  .anchor {
++    display: inline-flex;
++    padding-bottom: var(--size-depth);
+   }
+-  .tabs::-webkit-scrollbar {
+-    display: none;
++  .count {
++    font-variant-numeric: tabular-nums;
+   }
+-  .tab.add {
+-    flex: 0 0 auto;
+-    height: 24px;
+-    min-height: 24px;
+-    display: inline-flex;
+-    align-items: center;
+-    justify-content: center;
+-    background: color-mix(in srgb, var(--surface-sunk) 30%, transparent);
+-    border: 1px solid color-mix(in srgb, var(--boundary) 50%, transparent);
+-    border-radius: 3px;
+-    color: var(--text-strong);
++  .roster {
++    display: flex;
++    flex-direction: column;
++    gap: 2px;
++  }
++  .none {
++    padding: 6px 8px;
+     font-family: var(--font-family-code);
+-    font-size: var(--font-size-md);
+-    font-weight: 600;
+-    letter-spacing: 0.04em;
+-    text-transform: lowercase;
+-    cursor: pointer;
+-    opacity: 0.4;
+-    min-width: 24px;
+-    max-width: 24px;
+-    padding: 0;
+-    line-height: 0;
+-    transition: opacity 0.16s, background 0.16s, border-color 0.16s, color 0.16s;
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
+   }
+-  .tab.add:hover {
+-    opacity: 0.85;
+-    border-color: var(--signal-primary);
+-    color: var(--signal-primary-ink);
++  .verbs {
++    padding-bottom: var(--size-depth);
+   }
+ </style>
+diff --git a/systems/anima/src/app/bones/crown/widgets/Tab.svelte b/systems/anima/src/app/bones/crown/widgets/Tab.svelte
+deleted file mode 100644
+index 351294c..0000000
+--- a/systems/anima/src/app/bones/crown/widgets/Tab.svelte
++++ /dev/null
+@@ -1,102 +0,0 @@
+-<script>
+-  import { chain } from "@vivalence/anima";
+-
+-  let { terminal, axis, isActive, onactivate, onclose } = $props();
+-
+-  const label = chain(terminal, "$thread", "$label");
+-</script>
+-
+-  <!-- also render indicator of conversation and its current activity -->
+-  <!-- also render indicator of stall and its current activity -->
+-  <!-- render number of buffers -->
+-<div class="tab" class:active={isActive} class:column={axis === "column"} onclick={onactivate}>
+-  <span class="tab-title">{$label?.name ?? " [empty] "}</span>
+-  <button
+-    class="tab-close"
+-    onclick={(e) => {
+-      e.stopPropagation();
+-      onclose();
+-    }}>×</button>
+-</div>
+-
+-<style>
+-  .tab {
+-    flex: 0 0 auto;
+-    max-width: 140px;
+-    display: inline-flex;
+-    align-items: center;
+-    gap: 8px;
+-    padding: 4px 11px;
+-    background: color-mix(in srgb, var(--surface-sunk) 30%, transparent);
+-    border: 1px solid color-mix(in srgb, var(--boundary) 50%, transparent);
+-    border-radius: 3px;
+-    color: var(--text-strong);
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-sm);
+-    line-height: 1;
+-    /* letter-spacing: 0.03em; */
+-    /* text-transform: lowercase; */
+-    cursor: pointer;
+-    opacity: 0.6;
+-    transition:
+-      opacity 0.16s,
+-      background 0.16s,
+-      border-color 0.16s,
+-      color 0.16s;
+-  }
+-  .tab.column {
+-    flex-direction: column;
+-    max-width: none;
+-    max-height: 140px;
+-    padding: 11px 4px;
+-  }
+-  .tab.column .tab-title {
+-    writing-mode: vertical-rl;
+-    max-width: none;
+-    max-height: 100%;
+-  }
+-  .tab:hover {
+-    opacity: 0.92;
+-    background: color-mix(in srgb, var(--surface-sunk) 70%, transparent);
+-    border-color: color-mix(in srgb, var(--boundary) 90%, transparent);
+-  }
+-  .tab.active {
+-    opacity: 1;
+-    border-color: var(--signal-primary);
+-    color: var(--signal-primary-ink);
+-    background: color-mix(in srgb, var(--signal-primary) 8%, transparent);
+-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--signal-primary) 12%, transparent);
+-  }
+-  .tab-close {
+-    flex: 0 0 auto;
+-    background: none;
+-    border: none;
+-    color: inherit;
+-    font-size: var(--font-size-md);
+-    line-height: 1;
+-    padding: 2 0 0 3px;
+-    cursor: pointer;
+-    opacity: 0.45;
+-  }
+-  .tab-close:hover {
+-    opacity: 1;
+-    color: var(--signal-negative-ink, red);
+-  }
+-  .tab-title {
+-    display: inline-block;
+-    max-width: 100%;
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-    white-space: nowrap;
+-    /* direction: rtl; */
+-    /* text-align: right; */
+-    flex: 1;
+-  }
+-  .tab-title::before {
+-    content: "\200E";
+-  }
+-  .tab-flags {
+-    margin-right: 3px;
+-    opacity: 0.6;
+-  }
+-</style>
+diff --git a/systems/anima/src/app/bones/crown/widgets/Terminal.svelte b/systems/anima/src/app/bones/crown/widgets/Terminal.svelte
+new file mode 100644
+index 0000000..95aecef
+--- /dev/null
++++ b/systems/anima/src/app/bones/crown/widgets/Terminal.svelte
+@@ -0,0 +1,60 @@
++<script>
++  import { chain, loudest, roster } from "@vivalence/anima";
++  import { Key, Pip, Row } from "@vivalence/drapes";
++
++  let { terminal, selected = false, onactivate, onremove } = $props();
++
++  const thread = chain(terminal, "$thread");
++  const label = chain(terminal, "$thread", "$label");
++  const settling = chain(terminal, "$settling");
++
++  let activities = $state([]);
++  $effect(() => {
++    if (!$thread) return void (activities = []);
++    return roster($thread).subscribe((rows) => (activities = rows));
++  });
++
++  const running = $derived(loudest(activities) === "RUNNING");
++  const tone = $derived(running ? "primary" : $thread ? "contrast" : "muted");
++  const name = $derived($thread ? ($label?.name ?? "thread") : $settling ? "restoring…" : "empty terminal");
++  const seat = $derived(
++    [terminal.id, [$thread?.daemon?.slug, $thread?.mode?.slug].filter(Boolean).join(" › ")].filter(Boolean).join(" · "),
++  );
++
++  const remove = (event) => {
++    event.stopPropagation();
++    onremove();
++  };
++</script>
++
++<Row {selected} title={seat} onclick={onactivate}>
++  <Pip size={6} {tone} pulse={running} />
++  <span class="name" class:selected class:vacant={!$thread}>{name}</span>
++  <span class="seat">{seat}</span>
++  <Key size="mini" tone="ghost" square label="✕" title="close terminal" onclick={remove} />
++</Row>
++
++<style>
++  .name {
++    flex: 0 1 auto;
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++    color: var(--text-strong);
++  }
++  .name.selected {
++    font-weight: 600;
++  }
++  .name.vacant {
++    color: var(--text-light);
++  }
++  .seat {
++    flex: 1 1 0;
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++    color: var(--text-light);
++  }
++</style>
+diff --git a/systems/anima/src/app/bones/pincer/pincer.svelte b/systems/anima/src/app/bones/pincer/pincer.svelte
+index 0360f59..6605887 100644
+--- a/systems/anima/src/app/bones/pincer/pincer.svelte
++++ b/systems/anima/src/app/bones/pincer/pincer.svelte
+@@ -9,24 +9,8 @@
+ 
+   let pincer = $state(bridge.layout.pincer);
+   let viewportOffsetTop = $state(bridge.viewportOffsetTop);
+-  let theme = $state(bridge.view.theme);
+   bridge.layout.$pincer.subscribe((v) => (pincer = v));
+   bridge.$viewportOffsetTop.subscribe((v) => (viewportOffsetTop = v));
+-  bridge.view.$theme.subscribe((v) => (theme = v));
+-
+-  const PICTOGRAMS = {
+-    northsea:  "/images/pictogram_viket/pic-vinca-viket_white.svg",
+-    parchment: "/images/pictogram_viket/pic-vinca-viket_black.png",
+-    porcelain: "/images/pictogram_viket/pic-vinca-viket_black.png",
+-    datasette: "/images/pictogram_viket/pic-vinca-viket_black.png",
+-  };
+-
+-  const TINTS = {
+-    northsea:  "brightness(0) saturate(100%) invert(72%) sepia(45%) saturate(1156%) hue-rotate(133deg) brightness(94%) contrast(89%) drop-shadow(0 0 4px var(--signal-primary))",
+-    parchment: "drop-shadow(0 1px 2px var(--shadow))",
+-    porcelain: "drop-shadow(0 1px 2px var(--shadow))",
+-    datasette: "drop-shadow(0 1px 2px var(--shadow))",
+-  };
+ 
+   const gesture = new stores.bridge.Gesture(bridge);
+   let dragging = $state(gesture.dragging);
+@@ -69,12 +53,7 @@
+   onpointermove={gesture.move}
+   onpointerup={gesture.up}
+   onpointercancel={gesture.up}>
+-  <img
+-    class="viket-pictogram"
+-    src={PICTOGRAMS[theme] ?? PICTOGRAMS.northsea}
+-    style:--tint={TINTS[theme] ?? TINTS.northsea}
+-    alt="viket"
+-    draggable="false" />
++  <span class="viket-pictogram" role="img" aria-label="viket"></span>
+ </div>
+ 
+ <!-- radial menu -->
+@@ -106,22 +85,18 @@
+ <style>
+   .bone {
+     position: fixed;
+-    background: var(--surface-sunk);
+-    border: 1px solid var(--boundary);
++    background: var(--surface);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
+     pointer-events: none;
+     z-index: 49;
+     overflow: hidden;
+   }
+ 
+-  /* viket — the keystone where spine meets crown.
+-     primary brand element. heavy border, inset glow, structural mass. */
+   .viket {
+     position: fixed;
+     transform: translate(-50%, -50%);
+-    background: var(--surface-sunk);
++    background: transparent;
+     color: var(--text-strong);
+-    border: 2px solid var(--signal-primary);
+-    border-radius: 0;
+     box-sizing: border-box;
+     display: grid;
+     place-items: center;
+@@ -129,76 +104,82 @@
+     touch-action: none;
+     user-select: none;
+     z-index: 100;
+-    box-shadow: inset 0 0 12px color-mix(in srgb, var(--signal-primary) 20%, transparent);
+-    transition:
+-      background 0.12s,
+-      box-shadow 0.12s,
+-      border-color 0.12s;
+-  }
+-  .viket:hover {
+-    background: var(--surface-sunk);
+   }
+   .viket.dragging {
+     cursor: grabbing;
+-    background: var(--surface-sunk);
+-    box-shadow: 0 6px 18px var(--shadow);
+   }
+-  .viket.longpress {
++  .viket.longpress .viket-pictogram {
+     background: var(--signal-caution);
+-    border-color: var(--signal-caution);
+-    color: var(--text-strong);
++    color: var(--signal-caution-on);
+   }
+-  .viket.sticky {
++  .viket.sticky .viket-pictogram {
+     background: var(--signal-caution);
+-    border-color: var(--signal-caution);
+-    color: var(--text-strong);
++    color: var(--signal-caution-on);
+     animation: viket-sticky-pulse 1.6s ease-in-out infinite;
+   }
+   @keyframes viket-sticky-pulse {
+     0%,
+     100% {
+-      box-shadow: 0 4px 16px var(--shadow);
++      box-shadow: 0 0 0 var(--size-ring) var(--boundary), 0 4px 16px var(--shadow);
+     }
+     50% {
+-      box-shadow: 0 4px 24px var(--signal-caution);
++      box-shadow: 0 0 0 var(--size-ring) var(--boundary), 0 4px 24px var(--signal-caution);
+     }
+   }
+-  .viket.tap1 {
++  .viket.tap1 .viket-pictogram {
+     background: var(--signal-primary);
+-    border-color: var(--signal-primary);
+-    color: var(--signal-primary-ink);
++    color: var(--signal-primary-on);
+   }
+-  .viket.tap2 {
++  .viket.tap2 .viket-pictogram {
+     background: var(--signal-positive);
+-    border-color: var(--signal-positive);
+-    color: var(--signal-positive-ink);
++    color: var(--signal-positive-on);
+   }
+-  .viket.tap3 {
++  .viket.tap3 .viket-pictogram {
+     background: var(--signal-caution);
+-    border-color: var(--signal-caution);
+-    color: var(--signal-caution-ink);
++    color: var(--signal-caution-on);
+   }
+   .viket-pictogram {
+-    width: 36px;
+-    height: 36px;
+-    object-fit: contain;
++    width: 35px;
++    height: 35px;
++    display: grid;
++    place-items: center;
++    border-radius: var(--shape-radius-disc);
++    background: var(--surface-lift);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary), 0 var(--size-depth) 0 var(--boundary);
+     user-select: none;
+     pointer-events: none;
+     -webkit-user-drag: none;
++    transition:
++      transform 0.28s cubic-bezier(0.3, 1.3, 0.5, 1),
++      background 0.12s,
++      box-shadow 0.12s;
++  }
++  .viket-pictogram::before {
++    content: "";
++    width: 27px;
++    height: 27px;
++    background: currentColor;
++    -webkit-mask: url(/images/pictogram_viket/pic-vinca-viket_white.svg) center / contain no-repeat;
++    mask: url(/images/pictogram_viket/pic-vinca-viket_white.svg) center / contain no-repeat;
+     transform-origin: center center;
+-    transform: scaleY(1);
+     transition:
+       transform 0.18s ease-out,
+-      filter 0.18s ease-out;
+-    filter: var(--tint);
++      opacity 0.12s;
++  }
++  .viket.dragging .viket-pictogram,
++  .viket.longpress .viket-pictogram,
++  .viket.sticky .viket-pictogram {
++    transform: translateY(var(--size-depth));
+   }
+   /* drag closes the eye; release re-opens it */
+-  .viket.dragging .viket-pictogram {
++  .viket.dragging .viket-pictogram::before {
++    opacity: 0.35;
+     transform: scaleX(1.2) scaleY(0.1);
+     transition: transform 0.08s ease-in;
+   }
+   @media (prefers-reduced-motion: reduce) {
+-    .viket-pictogram {
++    .viket-pictogram,
++    .viket-pictogram::before {
+       transition: none !important;
+     }
+   }
+@@ -225,7 +206,7 @@
+     width: calc(var(--radius) * 2);
+     height: calc(var(--radius) * 2);
+     transform: translate(-50%, -50%);
+-    border-radius: 50%;
++    border-radius: var(--shape-radius-full);
+     background: conic-gradient(
+       from 0deg,
+       var(--signal-negative),
+@@ -258,10 +239,10 @@
+     top: -22px;
+     width: 44px;
+     height: 44px;
+-    background: var(--surface);
+-    color: var(--text-strong);
+-    border: 1px solid var(--boundary);
+-    border-radius: 50%;
++    background: var(--control-contrast);
++    color: var(--control-on);
++    border-radius: var(--shape-radius-disc);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary), 0 var(--size-depth) 0 var(--boundary);
+     display: grid;
+     place-items: center;
+     font-size: var(--font-size-lg);
+@@ -274,12 +255,11 @@
+     box-shadow: 0 4px 12px var(--shadow);
+   }
+   .radial.sticky .radial-target:hover {
+-    background: var(--surface-sunk);
++    background: var(--control-contrast-hover);
+   }
+   .radial-target.active {
+     background: var(--signal-caution);
+-    color: var(--text-strong);
+-    border-color: var(--signal-caution);
++    color: var(--signal-caution-on);
+     box-shadow: 0 0 20px var(--signal-caution);
+   }
+ </style>
+diff --git a/systems/anima/src/app/bones/shoulder/shoulder.svelte b/systems/anima/src/app/bones/shoulder/shoulder.svelte
+index 5bd0cf9..e001ab8 100644
+--- a/systems/anima/src/app/bones/shoulder/shoulder.svelte
++++ b/systems/anima/src/app/bones/shoulder/shoulder.svelte
+@@ -2,33 +2,33 @@
+   import { getContext } from "svelte";
+   import { chain, stores } from "@vivalence/anima";
+   import { TERMINALS } from "$client";
+-  import { loudest, roster } from "@vivalence/anima";
+   import Phase from "./widgets/Phase.svelte";
+-  import ActivityTracker from "../../widgets/ActivityTracker.svelte";
++  import Harness from "./widgets/Harness.svelte";
+   import Dock from "./widgets/Dock.svelte";
+ 
+   let { rect } = $props();
+ 
+   const axis = $derived(stores.bridge.axisFor(rect));
++  const side = $derived(axis === "column" ? "after" : "below");
+ 
+   const terminals = getContext(TERMINALS);
+   const terminal = chain(terminals, "$active");
+   const thread = chain(terminals, "$active", "$thread");
+-  const mode = chain(terminals, "$active", "$thread", "$mode");
++  const label = chain(terminals, "$active", "$thread", "$label");
++
++  let open = $state(null);
++
++  const toggle = (name) => () => (open = open === name ? null : name);
++  const titled = (name) => [name, $label?.name].filter(Boolean).join(" · ");
+ 
+-  // one roster per thread; the shoulder says STATE only — never a count (design rule 6).
+-  let rows = $state([]);
+   $effect(() => {
+-    if (!$thread) return void (rows = []);
+-    return roster($thread).subscribe((held) => (rows = held));
++    if (!$thread) open = null;
+   });
+-  const code = $derived(loudest(rows));
+ </script>
+ 
+ <div
+   data-zone="0"
+   class="bone"
+-  class:column={axis === "column"}
+   style:left="{rect.left}px"
+   style:top="{rect.top}px"
+   style:width="{rect.width}px"
+@@ -38,11 +38,9 @@
+       class="population"
+       style:flex-direction={axis}
+       style:padding={axis === "column" ? "16px 0" : "0 16px"}>
+-      <Phase terminal={$terminal} />
+-      {#if code !== "NONE"}
+-        <ActivityTracker {code} framed title={`activity · ${code.toLowerCase()} · ${rows.length} live`} />
+-      {/if}
+-      {#if $mode?.implements?.("HARNESSED")}<Dock />{/if}
++      <Phase terminal={$terminal} {axis} {side} open={open === "buffers"} title={titled("buffers")} ontoggle={toggle("buffers")} />
++      <Harness thread={$thread} {side} open={open === "harness"} title={titled("intelligence")} ontoggle={toggle("harness")} />
++      <Dock thread={$thread} {side} open={open === "dock"} title={titled("dock")} ontoggle={toggle("dock")} />
+     </div>
+   {/if}
+ </div>
+@@ -51,32 +49,18 @@
+   .bone {
+     position: fixed;
+     background: var(--surface);
+-    border-top: 1px solid var(--boundary);
+-    border-bottom: 1px solid var(--boundary);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
+     z-index: 50;
+     overflow: hidden;
+   }
+-  .bone.column {
+-    border-top: none;
+-    border-bottom: none;
+-    border-left: 1px solid var(--boundary);
+-    border-right: 1px solid var(--boundary);
+-  }
+   .population {
+     position: absolute;
+     inset: 0;
+     display: flex;
+     align-items: center;
+-    gap: 7px;
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.08em;
+-    text-transform: lowercase;
++    gap: 8px;
+     color: var(--text-strong);
+     pointer-events: none;
+     overflow: visible;
+   }
+-  .population > * {
+-    pointer-events: auto;
+-  }
+ </style>
+diff --git a/systems/anima/src/app/bones/shoulder/widgets/Dock.svelte b/systems/anima/src/app/bones/shoulder/widgets/Dock.svelte
+index 5a8e638..bd47b2c 100644
+--- a/systems/anima/src/app/bones/shoulder/widgets/Dock.svelte
++++ b/systems/anima/src/app/bones/shoulder/widgets/Dock.svelte
+@@ -1,53 +1,107 @@
+ <script>
+   import { getContext } from "svelte";
+-  import { chain, stores } from "@vivalence/anima";
++  import { chain, loudest, roster, stores } from "@vivalence/anima";
++  import { Float, Key } from "@vivalence/drapes";
+   import { TERMINALS } from "$client";
+-  import { Icon } from "@vivalence/drapes";
++  import Glyph from "../../../widgets/Glyph.svelte";
++
++  let { thread, side = "below", open = false, title = "dock", ontoggle } = $props();
++
++  const SIDES = { top: "↑", right: "→", bottom: "↓", left: "←" };
+ 
+   const terminals = getContext(TERMINALS);
+   const dock = chain(terminals, "$active", "$dock");
++  const mode = chain(terminals, "$active", "$thread", "$mode");
++
++  let activities = $state([]);
++  let anchor = $state(null);
++
++  $effect(() => {
++    if (!thread) return void (activities = []);
++    return roster(thread).subscribe((held) => (activities = held));
++  });
++
++  const harnessed = $derived($mode?.implements?.("HARNESSED") ?? false);
++  const running = $derived(loudest(activities) === "RUNNING");
++  const live = $derived(harnessed && !$dock?.collapsed);
++  const share = $derived(Math.round(($dock?.share ?? stores.bridge.SHARE_DEFAULT) * 100));
++  const held = () => terminals.active?.$dock;
+ </script>
+ 
+-<button
+-  class="dock"
+-  class:on={!$dock?.collapsed}
+-  title={$dock?.collapsed ? "open chat" : "hide chat"}
+-  onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)}>
+-  <Icon carbon="Chat" size="sm" variant={$dock?.collapsed ? "ui" : "primary"} />
+-  <span class="lbl">chat</span>
+-</button>
++<span class="anchor" bind:this={anchor}>
++  <Key latched={open} muted={!live} title={harnessed ? "dock" : "mode is not harnessed · no dock"} onclick={ontoggle}>
++    <Glyph name="chat" pulse={running && live} />
++  </Key>
++</span>
++
++{#if open}
++  <Float {anchor} zone="0" {title} {side} onclose={ontoggle}>
++    {#if harnessed && $dock}
++      <div class="sides">
++        {#each stores.bridge.DOCK_SIDES as name (name)}
++          <Key
++            square
++            size="row"
++            latched={name === $dock.side}
++            label={SIDES[name]}
++            title="dock {name}"
++            onclick={() => stores.bridge.setDockSide(held(), name)} />
++        {/each}
++      </div>
++      <label class="share">
++        <input
++          class="share-range"
++          type="range"
++          min="18"
++          max="100"
++          step="1"
++          value={share}
++          oninput={(event) => stores.bridge.setDockShare(held(), Number(event.currentTarget.value) / 100)} />
++        <span class="share-reading">{share}%</span>
++      </label>
++      <div class="verbs">
++        <Key size="row" led latched={!$dock.collapsed} label="open" onclick={() => stores.bridge.setDockCollapsed(held())} />
++        <Key size="row" led latched={$dock.full} label="full" onclick={() => stores.bridge.setDockFull(held())} />
++      </div>
++    {:else}
++      <span class="none">mode is not harnessed · no dock</span>
++    {/if}
++  </Float>
++{/if}
+ 
+ <style>
+-  .dock {
++  .anchor {
+     display: inline-flex;
+-    align-items: center;
++    padding-bottom: var(--size-depth);
++    pointer-events: auto;
++  }
++  .sides,
++  .verbs {
++    display: flex;
+     gap: 6px;
+-    height: 22px;
+-    padding: 0 10px;
+-    border-radius: 3px;
+-    cursor: pointer;
+-    font: inherit;
+-    transition: all 0.1s;
+-    border: 1px solid color-mix(in srgb, var(--text-strong) 22%, transparent);
+-    background: var(--surface-sunk);
+-    color: var(--text-strong);
++    padding-bottom: var(--size-depth);
+   }
+-  .dock:hover {
+-    border-color: color-mix(in srgb, var(--signal-primary) 45%, transparent);
++  .share {
++    display: flex;
++    align-items: center;
++    gap: 10px;
+   }
+-  .dock.on {
+-    border-color: var(--signal-primary);
+-    background: color-mix(in srgb, var(--signal-primary) 16%, transparent);
++  .share-range {
++    flex: 1;
++    min-width: 0;
++    accent-color: var(--signal-primary);
+   }
+-  .lbl {
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.12em;
+-    text-transform: uppercase;
+-    font-weight: 600;
+-    opacity: 0.7;
++  .share-reading {
++    min-width: 36px;
++    text-align: right;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    font-variant-numeric: tabular-nums;
++    color: var(--text-light);
+   }
+-  .dock.on .lbl {
+-    color: var(--signal-primary-ink);
+-    opacity: 1;
++  .none {
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
+   }
+ </style>
+diff --git a/systems/anima/src/app/bones/shoulder/widgets/Harness.svelte b/systems/anima/src/app/bones/shoulder/widgets/Harness.svelte
+new file mode 100644
+index 0000000..1286bd8
+--- /dev/null
++++ b/systems/anima/src/app/bones/shoulder/widgets/Harness.svelte
+@@ -0,0 +1,70 @@
++<script>
++  import { TONES, loudest, roster } from "@vivalence/anima";
++  import { Float, Key, Reading, Status } from "@vivalence/drapes";
++  import Glyph from "../../../widgets/Glyph.svelte";
++  import Tune from "../../../widgets/Tune.svelte";
++  import { sessionUsage, tokens } from "../../../panels/a/widgets/turns.js";
++
++  let { thread, side = "below", open = false, title = "intelligence", ontoggle } = $props();
++
++  let activities = $state([]);
++  let traits = $state([]);
++  let turns = $state([]);
++  let anchor = $state(null);
++
++  $effect(() => {
++    if (!thread) return void (activities = []);
++    return roster(thread).subscribe((held) => (activities = held));
++  });
++
++  $effect(() => {
++    if (!thread) return;
++    const offs = [
++      thread.$traits.subscribe((value) => (traits = value ?? [])),
++      thread.$turns?.subscribe?.((value) => (turns = value ?? [])),
++    ].filter(Boolean);
++    return () => offs.forEach((off) => off());
++  });
++
++  const code = $derived(loudest(activities));
++  const running = $derived(code === "RUNNING");
++  const intelligent = $derived(traits.includes("INTELLIGENT"));
++  const spend = $derived(sessionUsage(turns));
++</script>
++
++<span class="anchor" bind:this={anchor}>
++  <Key
++    latched={open}
++    muted={!intelligent}
++    title="activity · {code.toLowerCase()} · {activities.length} live"
++    onclick={ontoggle}>
++    <Glyph name="machine-learning-model" pulse={running} />
++    <Status tone={TONES[code] ?? "none"} pulse={running} />
++  </Key>
++</span>
++
++{#if open}
++  <Float {anchor} zone="0" {title} {side} onclose={ontoggle}>
++    {#if intelligent}
++      <Tune {thread} />
++      <Reading label="context">
++        {#if spend.seen}{tokens(spend.input)} in · {tokens(spend.output)} out{:else}no usage on the wire{/if}
++      </Reading>
++    {:else}
++      <span class="none">off · the mode answers without a model</span>
++    {/if}
++  </Float>
++{/if}
++
++<style>
++  .anchor {
++    display: inline-flex;
++    padding-bottom: var(--size-depth);
++    pointer-events: auto;
++  }
++  .none {
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
++  }
++</style>
+diff --git a/systems/anima/src/app/bones/shoulder/widgets/Phase.svelte b/systems/anima/src/app/bones/shoulder/widgets/Phase.svelte
+index cac33f5..b58bd23 100644
+--- a/systems/anima/src/app/bones/shoulder/widgets/Phase.svelte
++++ b/systems/anima/src/app/bones/shoulder/widgets/Phase.svelte
+@@ -1,12 +1,9 @@
+ <script>
+-  // The Face — one dense shoulder widget: the render-phase FACE (vinca digram lever + name +
+-  // cursor) integrated with the CONTROLS that phase surfaces (thick Carbon icons) and the
+-  // integrity mark. Two registers: thin I-Ching lines for the STATE, bold icons for the VERBS.
+-  // Controls are contextual — each phase shows only the verbs that mean something.
+-  import { Icon } from "@vivalence/drapes";
++  import { Float, Key, Row } from "@vivalence/drapes";
+   import { ThreadTraits } from "@vivalence/anima";
++  import { bufferLabel } from "../../../panels/a/widgets/turns.js";
+ 
+-  let { terminal } = $props();
++  let { terminal, axis, side = "below", open = false, title = "buffers", ontoggle } = $props();
+ 
+   // vinca — the four phases as I-Ching digrams, ordered by how much the stall does.
+   const DIGRAM = { inert: "⚏", manual: "⚎", continuous: "⚌", escort: "⚍" };
+@@ -19,26 +16,15 @@
+     continuous: ["more", "stop"],
+     escort: ["prev", "next", "home"],
+   };
+-  const ICON = { prev: "ChevronLeft", next: "ChevronRight", home: "Undo", more: "Add", stop: "StopFilledAlt" };
+   const LABEL = { prev: "previous", next: "next", home: "home", more: "more", stop: "stop → manual" };
++  const FACE = { prev: "‹ prev", next: "next ›", home: "home", more: "+ more", stop: "stop" };
+ 
+   let phase = $state("manual");
+   let integrity = $state({});
+   let errors = $state([]);
+   let buffers = $state([]);
+   let activeId = $state(null);
+-  let menuOpen = $state(false);
+-  let keyEl = $state(null);
+-  let menuPos = $state({ left: 0, bottom: 0 });
+-
+-  // measure the key on open so the menu can be position:fixed (escapes the pincer's overflow).
+-  function toggleMenu() {
+-    if (!menuOpen && keyEl) {
+-      const rect = keyEl.getBoundingClientRect();
+-      menuPos = { left: rect.left, bottom: window.innerHeight - rect.top + 6 };
+-    }
+-    menuOpen = !menuOpen;
+-  }
++  let anchor = $state(null);
+ 
+   // the 4 phases on an xy grid: rows = who manages (app · stall), cols = stillness → motion.
+   const GRID = [
+@@ -62,7 +48,6 @@
+   const problems = (key) => integrity[key] ?? [];
+   const flagged = $derived(errors.length > 0);
+   const depth = $derived(terminal?.thread?.trait?.QUEUEING?.depth ?? 1);
+-  const showsCursor = $derived(phase === "manual" || phase === "escort");
+   const at = $derived(buffers.findIndex((buffer) => buffer.id === activeId));
+ 
+   function engage(key) {
+@@ -82,291 +67,141 @@
+     else if (key === "more") ThreadTraits.aimed.pull(terminal.thread);
+     else if (key === "stop") engage("manual");
+   }
+-
+-  // portal the menu to <body> — the shoulder's stacking context (z-index + overflow) would
+-  // otherwise clip/bury a fixed popup. body-level → it floats above everything.
+-  function portal(node) {
+-    document.body.appendChild(node);
+-    return { destroy: () => node.remove() };
+-  }
+ </script>
+ 
+-<div class="face">
+-  <!-- status — the integrity LED, leftmost -->
+-  <button
+-    class="ctl led status"
+-    class:flagged
+-    title={flagged ? errors.join(" · ") : "phase ok"}
+-    onclick={() => terminal.thread?.$errors?.set([])}>
+-    <Icon carbon={flagged ? "MisuseOutline" : "CheckmarkOutline"} size="sm" variant={flagged ? "danger" : "success"} />
+-  </button>
+-
+-  <!-- label — the phase name IS the trigger (no icon); click opens the xy menu -->
+-  <button bind:this={keyEl} class="phasekey" class:active={activeId} class:open={menuOpen} title="render phase" onclick={toggleMenu}>
+-    <span class="name">{phase}</span>
+-  </button>
+-
+-  <!-- controls — the phase's verbs -->
+-  {#if CONTROLS[phase].length}
+-    <span class="controls">
++<span class="anchor" bind:this={anchor}>
++  <Key square={axis === "column"} latched={open} title="render phase · {phase}" onclick={ontoggle}>
++    <span class="digram">{DIGRAM[phase]}</span>
++    {#if axis === "row"}<span class="position">{at >= 0 ? at + 1 : "–"}/{buffers.length}</span>{/if}
++  </Key>
++</span>
++
++{#if open}
++  <Float {anchor} zone="0" {title} {side} onclose={ontoggle}>
++    <div class="phases">
++      {#each GRID as pair, line (line)}
++        {#each pair as key (key)}
++          <Key
++            size="row"
++            wide
++            latched={phase === key}
++            muted={problems(key).length > 0}
++            title={problems(key).join(" · ") || null}
++            onclick={() => engage(key)}>
++            <span class="digram">{DIGRAM[key]}</span>
++            {key}
++          </Key>
++        {/each}
++      {/each}
++    </div>
++    {#each ORDER.filter((key) => problems(key).length) as key (key)}
++      <span class="refused">{key} · {problems(key).join(" · ")}</span>
++    {/each}
++    <div class="verbs">
+       {#each CONTROLS[phase] as key (key)}
+-        <button class="ctl" title={LABEL[key]} onclick={() => run(key)}>
+-          <Icon carbon={ICON[key]} size="sm" variant="ui" />
+-        </button>
++        <Key size="row" label={FACE[key]} title={LABEL[key]} onclick={() => run(key)} />
++      {/each}
++      <Key size="row" label="release" title="release the buffer under the cursor" disabled={at < 0} onclick={() => terminal.buffer?.release()} />
++    </div>
++    <div class="queue">
++      {#each buffers as buffer, index (buffer.id)}
++        <Row selected={buffer.id === activeId} onclick={() => (terminal.buffer = buffer)}>
++          <span class="cursor">{buffer.id === activeId ? "▸" : ""}</span>
++          <span class="index">{index + 1}</span>
++          <span class="name">{bufferLabel(buffer)}</span>
++        </Row>
++      {:else}
++        <span class="none">no buffers</span>
+       {/each}
+-    </span>
+-  {/if}
+-
+-  <!-- queue — the queued buffers: position / total (+ depth target under QUEUEING) -->
+-  {#if buffers.length}
+-    <span class="queue" title="queue {at >= 0 ? at + 1 : '–'} of {buffers.length}{phase === 'continuous' ? ` · depth ${depth}` : ''}">
+-      <Icon carbon="DataBase" size="sm" variant="ui" />
+-      <span class="qpos">{at >= 0 ? at + 1 : "–"}/{buffers.length}</span>
+-    </span>
+-  {/if}
+-
+-  {#if menuOpen}
+-    <div class="overlay" use:portal>
+-    <button class="scrim" onclick={() => (menuOpen = false)} aria-label="close"></button>
+-    <div class="menu" style:left="{menuPos.left}px" style:bottom="{menuPos.bottom}px">
+-      <div class="grid">
+-        {#each GRID as row}
+-          {#each row as key (key)}
+-            <button
+-              class="cell"
+-              class:on={phase === key}
+-              class:blocked={problems(key).length > 0}
+-              onclick={() => {
+-                engage(key);
+-                if (!problems(key).length) menuOpen = false;
+-              }}>
+-              <span class="cell-glyph">{DIGRAM[key]}</span>
+-              <span class="cell-name">{key}</span>
+-              {#if problems(key).length}<span class="cell-why">{problems(key).join(" · ")}</span>{/if}
+-            </button>
+-          {/each}
+-        {/each}
+-      </div>
+-      <div class="menu-foot">
+-        <span>queue <b>{buffers.length}</b></span>
+-        <span>depth <b>{depth}</b></span>
+-        <span class:bad={flagged}>{flagged ? `${errors.length} blocked` : "ok"}</span>
+-      </div>
+     </div>
++    <div class="foot">
++      <span>queue {buffers.length}</span>
++      <span>depth {depth}</span>
+     </div>
+-  {/if}
+-</div>
++    {#if flagged}
++      <button class="faults" title="clear" onclick={() => terminal.thread?.$errors?.set([])}>{errors.join(" · ")}</button>
++    {/if}
++  </Float>
++{/if}
+ 
+ <style>
+-  /* a compact control-panel face: flat recessed chassis, chunky flat keys, one control row.
+-     the phase collapses to ONE lit key; clicking it opens the xy phase menu above. */
+-  .face {
+-    position: relative;
+-    display: inline-flex;
+-    align-items: stretch;
+-    height: 30px;
+-    padding: 3px;
+-    gap: 4px;
+-    pointer-events: auto; /* .population sets none; its scoped `> *` rule can't cross into here */
+-    border: 1px solid var(--boundary);
+-    border-radius: 5px;
+-    background: var(--surface-lift);
+-    color: var(--text-strong);
+-    font-family: var(--font-family-code);
+-  }
+-
+-  /* the collapsed phase trigger — the label IS the button; lit display, click opens the menu */
+-  .phasekey {
++  .anchor {
+     display: inline-flex;
+-    align-items: center;
+-    gap: 7px;
+-    height: 22px;
+-    padding: 0 10px;
+-    border-radius: 3px;
+-    border: 1px solid color-mix(in srgb, var(--boundary) 65%, transparent);
+-    background: var(--surface-sunk);
+-    cursor: pointer;
+-    transition: all 0.1s;
+-  }
+-  .phasekey:hover {
+-    border-color: color-mix(in srgb, var(--signal-primary) 45%, transparent);
++    padding-bottom: var(--size-depth);
++    pointer-events: auto;
+   }
+-  /* lit ONLY when a buffer is actually rendered; passive otherwise */
+-  .phasekey.active {
+-    border-color: var(--signal-primary);
+-    background: color-mix(in srgb, var(--signal-primary) 14%, var(--surface-sunk));
+-  }
+-  .phasekey.open {
+-    background: var(--signal-primary);
+-    border-color: var(--signal-primary);
+-    box-shadow: 0 0 8px color-mix(in srgb, var(--signal-primary) 55%, transparent);
+-  }
+-  .name {
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.12em;
+-    text-transform: uppercase;
+-    font-weight: 600;
+-    color: var(--text-strong);
+-    opacity: 0.6;
++  .digram {
++    font-size: var(--size-type-sm);
++    line-height: 1;
++    letter-spacing: 0;
+   }
+-  .phasekey.active .name {
+-    color: var(--signal-primary-ink);
+-    opacity: 1;
++  .position {
++    font-variant-numeric: tabular-nums;
+   }
+-  .phasekey.open .name {
+-    color: var(--inverse-on);
+-    opacity: 1;
++  .phases {
++    display: grid;
++    grid-template-columns: 1fr 1fr;
++    gap: 6px;
++    padding-bottom: var(--size-depth);
+   }
+-  .cursor {
+-    font-size: var(--font-size-2xs);
+-    opacity: 0.6;
+-    padding: 1px 5px;
+-    border-radius: 2px;
+-    background: var(--surface-sunk);
++  .refused {
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--signal-caution-ink);
+   }
+-
+-  /* one unified control row — chunky flat transport keys + the LED */
+-  .controls {
+-    display: inline-flex;
+-    align-items: center;
+-    gap: 3px;
++  .verbs {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 6px;
++    padding-bottom: var(--size-depth);
+   }
+-  .ctl {
+-    display: inline-flex;
+-    align-items: center;
+-    justify-content: center;
++  .queue {
++    display: flex;
++    flex-direction: column;
+     gap: 2px;
+-    min-width: 24px;
+-    height: 22px;
+-    padding: 0 4px;
+-    border-radius: 3px;
+-    border: 1px solid color-mix(in srgb, var(--boundary) 55%, transparent);
+-    background: var(--surface-sunk);
+-    color: var(--text-strong);
+-    font: inherit;
+-    font-size: var(--font-size-2xs);
+-    cursor: pointer;
+-    transition: all 0.1s;
+   }
+-  .ctl:hover {
+-    color: var(--signal-primary-ink);
+-    border-color: color-mix(in srgb, var(--signal-primary) 50%, transparent);
+-  }
+-  .ctl:active {
+-    background: color-mix(in srgb, var(--signal-primary) 20%, var(--surface-sunk));
+-  }
+-  .depth {
+-    cursor: default;
+-    color: var(--signal-primary-ink);
+-  }
+-  /* the LED key — glows by state, no border */
+-  .led {
+-    border-color: transparent;
+-    background: none;
+-    cursor: default;
+-    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--signal-positive) 45%, transparent));
+-  }
+-  .led.flagged {
+-    cursor: pointer;
+-    filter: drop-shadow(0 0 5px color-mix(in srgb, var(--signal-negative) 60%, transparent));
+-  }
+-
+-  /* queue — the queued-buffer readout (position / total), trailing */
+-  .queue {
+-    display: inline-flex;
+-    align-items: center;
+-    gap: 4px;
+-    padding: 0 4px;
++  .cursor {
++    flex: none;
++    width: 8px;
+     color: var(--signal-primary-ink);
+   }
+-  .qpos {
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.04em;
+-    opacity: 0.85;
+-  }
+-
+-  /* the xy phase menu — opens upward from the key; 2x2 grid + a readout foot */
+-  .scrim {
+-    position: fixed;
+-    inset: 0;
+-    background: none;
+-    border: none;
+-    z-index: 60;
+-    cursor: default;
++  .index {
++    flex: none;
++    min-width: 16px;
++    color: var(--text-light);
++    font-variant-numeric: tabular-nums;
+   }
+-  .menu {
+-    position: fixed;
+-    z-index: 61;
+-    padding: 5px;
+-    border: 1px solid var(--boundary);
+-    border-radius: 6px;
+-    background: var(--control-contrast-pressed);
+-    color: var(--text-header);
+-    box-shadow: 0 6px 18px var(--shadow);
++  .name {
++    flex: 1 1 0;
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++    color: var(--text-strong);
+   }
+-  .grid {
+-    display: grid;
+-    grid-template-columns: 1fr 1fr;
+-    gap: 4px;
+-    width: 15rem;
++  .none,
++  .foot {
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
+   }
+-  .cell {
+-    display: grid;
+-    grid-template-columns: auto 1fr;
+-    align-items: center;
+-    gap: 6px;
++  .none {
+     padding: 6px 8px;
+-    border-radius: 4px;
+-    border: 1px solid color-mix(in srgb, var(--boundary-strong) 55%, transparent);
+-    background: var(--surface-lift);
+-    color: var(--text-header);
+-    font: inherit;
+-    cursor: pointer;
+-    text-align: left;
+-    transition: all 0.1s;
+-  }
+-  .cell:hover {
+-    border-color: color-mix(in srgb, var(--signal-primary) 55%, transparent);
+-  }
+-  .cell.on {
+-    color: var(--inverse-on);
+-    background: var(--signal-primary);
+-    border-color: var(--signal-primary);
+-  }
+-  .cell.blocked {
+-    opacity: 0.55;
+-    cursor: not-allowed;
+-    border-color: color-mix(in srgb, var(--signal-negative) 30%, transparent);
+-  }
+-  .cell-glyph {
+-    font-size: var(--font-size-md);
+-    line-height: 1;
+   }
+-  .cell-name {
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.08em;
+-    text-transform: uppercase;
+-  }
+-  .cell-why {
+-    grid-column: 1 / -1;
+-    font-size: var(--font-size-2xs);
+-    color: var(--signal-negative-ink);
+-    opacity: 0.85;
+-  }
+-  .menu-foot {
++  .foot {
+     display: flex;
+-    gap: 12px;
+-    margin-top: 6px;
+-    padding: 4px 4px 0;
+-    border-top: 1px solid color-mix(in srgb, var(--boundary-strong) 55%, transparent);
+-    font-size: var(--font-size-2xs);
+-    opacity: 0.7;
+-  }
+-  .menu-foot b {
+-    color: var(--signal-primary-ink);
++    gap: 14px;
+   }
+-  .menu-foot .bad {
++  .faults {
++    padding: 6px 10px;
++    border: none;
++    border-radius: var(--shape-radius-key);
++    background: none;
++    box-shadow: inset 0 0 0 var(--size-ring) var(--signal-negative);
+     color: var(--signal-negative-ink);
+-    opacity: 1;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    text-align: left;
++    cursor: pointer;
+   }
+ </style>
+diff --git a/systems/anima/src/app/bones/spine/spine.svelte b/systems/anima/src/app/bones/spine/spine.svelte
+index fb4526d..a66033b 100644
+--- a/systems/anima/src/app/bones/spine/spine.svelte
++++ b/systems/anima/src/app/bones/spine/spine.svelte
+@@ -1,6 +1,7 @@
+ <script>
+   import { getContext } from "svelte";
+-  import { stores } from "@vivalence/anima";
++  import { TONES, settled, stores } from "@vivalence/anima";
++  import { Pip } from "@vivalence/drapes";
+   import { LIGHTHOUSE } from "$client";
+ 
+   let { rect } = $props();
+@@ -36,15 +37,34 @@
+       if (error) hint.push(`error · ${error}`);
+       return {
+         slug: daemon.slug,
+-        glyph: daemon.slug.charAt(0).toUpperCase(),
+         health,
+         hint: hint.join("\n"),
+       };
+     });
+   }
+ 
++  const PIPS = { ok: "success", lag: "primary", down: "danger" };
++
+   let daemonDots = $state(dotsFor(lighthouse.$daemons.get()));
+-  lighthouse.$daemons.subscribe((daemons) => (daemonDots = dotsFor(daemons)));
++  let live = $state({});
++  let open = $state(false);
++
++  const watch = (daemons) =>
++    daemons
++      .map((daemon) =>
++        daemon.entities?.activity?.$entities?.subscribe((rows) => {
++          live = { ...live, [daemon.slug]: rows.filter((row) => !settled(row.status)).map((row) => row.status) };
++        }),
++      )
++      .filter(Boolean);
++
++  let watched = [];
++  lighthouse.$daemons.subscribe((daemons) => {
++    daemonDots = dotsFor(daemons);
++    watched.forEach((off) => off());
++    live = {};
++    watched = watch(daemons);
++  });
+ 
+   const lighthouseTooltip = $derived(
+     `lighthouse · ${lighthouseStatus}\n` + `status · ${lighthouse.status.code}\n` + `daemons · ${daemonDots.length}`,
+@@ -54,103 +74,45 @@
+ <div
+   data-zone="0"
+   class="bone"
+-  class:row={axis === "row"}
+   style:left="{rect.left}px"
+   style:top="{rect.top}px"
+   style:width="{rect.width}px"
+-  style:height="{rect.height}px"
+->
+-  <div class="scanline"></div>
+-  <div class="endcap"></div>
++  style:height="{rect.height}px">
+   <div
+     class="population"
+     style:flex-direction={axis}
+     style:padding={axis === "row" ? "0 14px 0 56px" : "56px 0 14px"}>
+-    <div class="slot" style:flex-direction={axis} title={lighthouseTooltip}>
+-      <span class="status-dot lg" data-status={lighthouseStatus}></span>
+-      <span class="glyph">L</span>
+-    </div>
+-    <div class="rule"></div>
+-    {#each daemonDots as dot (dot.slug)}
+-      <div class="slot" style:flex-direction={axis} title={dot.hint}>
+-        <span class="status-dot" data-status={dot.health}></span>
+-        <span class="glyph">{dot.glyph}</span>
+-      </div>
+-    {/each}
++    <button
++      class="lighthouse {lighthouseStatus}"
++      class:open
++      class:across={axis === "row"}
++      title={lighthouseTooltip}
++      onclick={() => (open = !open)}>
++      {#each daemonDots as dot (dot.slug)}
++        <span class="daemon" title={dot.hint}>
++          <Pip size={open ? 8 : 6} tone={PIPS[dot.health]} pulse={dot.health === "lag"} />
++          {#if open && live[dot.slug]?.length}
++            <span class="ticks">
++              {#each live[dot.slug] as code, index (index)}
++                <span class="tick {TONES[code] ?? 'none'}"></span>
++              {/each}
++            </span>
++          {/if}
++        </span>
++      {/each}
++    </button>
+   </div>
+ </div>
+ 
+ <style>
+   .bone {
+     position: fixed;
+-    background: var(--surface-sunk);
+-    border: 1px solid var(--boundary);
++    background: var(--surface);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
+     pointer-events: none;
+     z-index: 50;
+     overflow: hidden;
+   }
+-  .scanline {
+-    position: absolute;
+-    left: 0;
+-    right: 0;
+-    top: 45px;
+-    height: 8px;
+-    pointer-events: none;
+-    background: linear-gradient(
+-      to bottom,
+-      transparent 0%,
+-      var(--signal-primary) 50%,
+-      transparent 100%
+-    );
+-    opacity: 0.18;
+-    animation: heartbeat 4s linear infinite;
+-  }
+-  @keyframes heartbeat {
+-    0%   { transform: translateY(0); opacity: 0; }
+-    20%  { opacity: 0.18; }
+-    100% { transform: translateY(calc(100vh - 100px)); opacity: 0; }
+-  }
+-  .bone.row .scanline {
+-    left: 45px;
+-    right: auto;
+-    top: 0;
+-    bottom: 0;
+-    width: 8px;
+-    height: auto;
+-    background: linear-gradient(
+-      to right,
+-      transparent 0%,
+-      var(--signal-primary) 50%,
+-      transparent 100%
+-    );
+-    animation: heartbeat-row 4s linear infinite;
+-  }
+-  @keyframes heartbeat-row {
+-    0%   { transform: translateX(0); opacity: 0; }
+-    20%  { opacity: 0.18; }
+-    100% { transform: translateX(calc(100vw - 100px)); opacity: 0; }
+-  }
+-  @media (prefers-reduced-motion: reduce) {
+-    .scanline { display: none; }
+-  }
+-  .endcap {
+-    position: absolute;
+-    left: 50%;
+-    top: 47px;
+-    transform: translateX(-50%);
+-    width: 12px;
+-    height: 1px;
+-    background: var(--signal-primary);
+-    opacity: 0.55;
+-    pointer-events: none;
+-  }
+-  .bone.row .endcap {
+-    left: 47px;
+-    top: 50%;
+-    transform: translateY(-50%);
+-    width: 1px;
+-    height: 12px;
+-  }
+   .population {
+     position: absolute;
+     inset: 0;
+@@ -160,62 +122,88 @@
+     gap: 14px;
+     pointer-events: none;
+     color: var(--text-strong);
+-    font-family: var(--font-family-code);
+   }
+-  .slot {
+-    display: flex;
++  .lighthouse {
++    --lighthouse-tone: var(--signal-positive);
++    display: grid;
++    grid-template-columns: repeat(2, auto);
++    gap: 2px;
++    min-width: 12px;
++    min-height: 12px;
++    padding: 3px;
++    border: none;
++    border-radius: var(--shape-radius-xs);
++    background: none;
++    box-shadow: inset 0 0 0 2px var(--lighthouse-tone);
++    cursor: pointer;
++    pointer-events: auto;
++    transition:
++      padding 0.35s cubic-bezier(0.5, 1.6, 0.4, 1),
++      gap 0.35s cubic-bezier(0.5, 1.6, 0.4, 1);
++  }
++  .lighthouse.across {
++    grid-template-columns: none;
++    grid-template-rows: repeat(2, auto);
++    grid-auto-flow: column;
++  }
++  .lighthouse.lag {
++    --lighthouse-tone: var(--signal-primary);
++    animation: lighthouse-checking 1.6s ease-in-out infinite;
++  }
++  .lighthouse.down {
++    --lighthouse-tone: var(--signal-negative);
++  }
++  .lighthouse.open {
++    grid-template-columns: auto;
++    gap: 9px;
++    padding: 8px 6px;
++    box-shadow: inset 0 0 0 var(--size-ring) var(--lighthouse-tone);
++  }
++  .lighthouse.open.across {
++    grid-template-columns: none;
++    grid-template-rows: auto;
++    padding: 6px 8px;
++  }
++  .daemon {
++    display: inline-flex;
+     align-items: center;
+     gap: 4px;
+-    /* .bone/.population are pointer-events:none so the rail doesn't block content behind it;
+-       re-enable here so the dots are hoverable and their title tooltips show. */
+-    pointer-events: auto;
+   }
+-  .glyph {
+-    font-size: var(--font-size-2xs);
+-    line-height: 1;
+-    letter-spacing: 0.06em;
+-    color: var(--text-strong);
+-    opacity: 0.55;
+-    text-transform: uppercase;
+-  }
+-  .rule {
+-    width: 16px;
+-    height: 1px;
+-    background: var(--divider);
+-    opacity: 0.35;
+-    flex: 0 0 auto;
+-  }
+-  .bone.row .rule {
+-    width: 1px;
+-    height: 16px;
+-  }
+-  .status-dot {
+-    display: inline-block;
+-    width: 6px;
+-    height: 6px;
+-    border-radius: 50%;
+-    background: var(--signal-positive);
+-    box-shadow: 0 0 4px color-mix(in srgb, var(--signal-positive) 55%, transparent);
+-    transition: background 0.2s, box-shadow 0.2s;
+-    flex-shrink: 0;
++  .ticks {
++    display: grid;
++    grid-template-columns: repeat(3, 4px);
++    gap: 1px;
+   }
+-  .status-dot.lg {
+-    width: 9px;
+-    height: 9px;
+-    box-shadow: 0 0 6px color-mix(in srgb, var(--signal-positive) 55%, transparent);
++  .tick {
++    width: 4px;
++    height: 3px;
++    background: var(--boundary);
+   }
+-  .status-dot[data-status="lag"] {
+-    background: var(--signal-caution);
+-    box-shadow: 0 0 6px color-mix(in srgb, var(--signal-caution) 55%, transparent);
++  .tick.idle {
++    background: var(--text-light);
+   }
+-  .status-dot.lg[data-status="lag"] {
+-    box-shadow: 0 0 6px color-mix(in srgb, var(--signal-caution) 55%, transparent);
++  .tick.primary {
++    background: var(--signal-primary);
+   }
+-  .status-dot[data-status="down"] {
++  .tick.positive {
++    background: var(--signal-positive);
++  }
++  .tick.caution {
++    background: var(--signal-caution);
++  }
++  .tick.negative {
+     background: var(--signal-negative);
+-    box-shadow: 0 0 6px color-mix(in srgb, var(--signal-negative) 55%, transparent);
+   }
+-  .status-dot.lg[data-status="down"] {
+-    box-shadow: 0 0 8px color-mix(in srgb, var(--signal-negative) 55%, transparent);
++  @keyframes lighthouse-checking {
++    50% {
++      opacity: 0.55;
++    }
++  }
++  @media (prefers-reduced-motion: reduce) {
++    .lighthouse,
++    .lighthouse.lag {
++      transition: none;
++      animation: none;
++    }
+   }
+ </style>
+diff --git a/systems/anima/src/app/gate.js b/systems/anima/src/app/gate.js
+new file mode 100644
+index 0000000..c41ee8a
+--- /dev/null
++++ b/systems/anima/src/app/gate.js
+@@ -0,0 +1,7 @@
++export const gateFor = (authorized, status) => {
++  if (!authorized) return "signin";
++  if (status.code === "OFFLINE" || status.code === "ERROR") return "signin";
++  if (status.code === "POPULATING") return "populating";
++  if (status.code !== "VERIFIED") return "verifying";
++  return "ready";
++};
+diff --git a/systems/anima/src/app/panels/a/widgets/turns.js b/systems/anima/src/app/panels/a/widgets/turns.js
+index 0577f9e..caab093 100644
+--- a/systems/anima/src/app/panels/a/widgets/turns.js
++++ b/systems/anima/src/app/panels/a/widgets/turns.js
+@@ -252,3 +252,90 @@ export function turnVerdict(turn) {
+   const message = VERDICTS[state]?.(turn.meta) ?? `closed ${state}`;
+   return { state, message };
+ }
++
++export const project = (turn, results = toolResults([turn])) => {
++  const tools = turnTools(turn, results).map((tool) => ({
++    ...tool,
++    census: toolCensus(tool.entities),
++    digest: toolDigest(tool.input),
++    channels: toolChannels(tool),
++  }));
++  return {
++    text: turnText(turn),
++    think: turnThinking(turn),
++    tools,
++    census: turnCensus(tools),
++    failures: tools.filter((tool) => tool.status === "error").length,
++    artifacts: turnArtifacts(turn),
++    buffers: toolBuffers(tools),
++    verdict: turnVerdict(turn),
++  };
++};
++
++export const turnDate = (turn) => {
++  const value = turn?.createdAt ? new Date(turn.createdAt) : null;
++  return !value || Number.isNaN(value.getTime()) ? null : value;
++};
++
++export const dayKey = (date) => (date ? date.toISOString().slice(0, 10) : "");
++
++export const dayLabel = (date, now = new Date()) => {
++  if (!date) return "";
++  const yesterday = new Date(now);
++  yesterday.setDate(now.getDate() - 1);
++  if (dayKey(date) === dayKey(now)) return "today";
++  if (dayKey(date) === dayKey(yesterday)) return "yesterday";
++  return date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
++};
++
++export const clockTime = (date) =>
++  date ? `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}` : "";
++
++const spoken = (projected) =>
++  Boolean(projected.text || projected.tools.length || projected.artifacts.length || projected.verdict);
++
++const joined = (prior, projected) => {
++  const tools = [...prior.tools, ...projected.tools];
++  return {
++    ...prior,
++    tools,
++    text: [prior.text, projected.text].filter(Boolean).join("\n\n"),
++    think: [prior.think, projected.think].filter(Boolean).join("\n\n"),
++    failures: prior.failures + projected.failures,
++    verdict: projected.verdict ?? prior.verdict,
++    artifacts: [...prior.artifacts, ...projected.artifacts],
++    buffers: toolBuffers(tools),
++    census: turnCensus(tools),
++  };
++};
++
++export const enrich = (turns, now = new Date()) => {
++  const results = toolResults(turns);
++  return turns.reduce((items, turn) => {
++    if (isToolTurn(turn)) return items;
++    const projected = project(turn, results);
++    if (!spoken(projected)) return items;
++    const date = turnDate(turn);
++    const day = dayKey(date);
++    const last = items.findLast((item) => item.kind === "divider");
++    const ruled = date && day !== (last?.day ?? null) ? [...items, { kind: "divider", id: `div-${day}`, day, label: dayLabel(date, now) }] : items;
++    const prior = ruled.at(-1);
++    if (turn.role === "assistant" && prior?.kind === "turn" && prior.turn.role === "assistant")
++      return [...ruled.slice(0, -1), joined(prior, projected)];
++    return [...ruled, { kind: "turn", turn, date, ...projected }];
++  }, []);
++};
++
++export const exchanges = (items) => items.filter((item) => item.kind === "turn" && (item.tools.length || item.think));
++
++export const callRoster = (held) => [...new Set(held.flatMap((item) => item.tools.map((tool) => tool.name)))];
++
++export const manifest = (items, agent = "agent") =>
++  items
++    .filter((item) => item.kind === "turn")
++    .map((item) => ({
++      id: item.turn.id,
++      who: item.turn.role === "user" ? "you" : agent,
++      time: clockTime(item.date),
++      parts: turnManifest(item.turn).join(" · "),
++    }));
+diff --git a/systems/anima/src/app/panels/b/b.svelte b/systems/anima/src/app/panels/b/b.svelte
+index 75fbff3..b88e705 100644
+--- a/systems/anima/src/app/panels/b/b.svelte
++++ b/systems/anima/src/app/panels/b/b.svelte
+@@ -1,41 +1,106 @@
+ <script>
+-  import LighthouseSection from "./widgets/LighthouseSection.svelte";
+-  import TerminalsSection from "./widgets/TerminalsSection.svelte";
++  import { getContext } from "svelte";
++  import { Strip } from "@vivalence/drapes";
++  import { BRIDGE } from "$client";
+   import BridgeSection from "./widgets/BridgeSection.svelte";
+-  // import MainSection from "./widgets/MainSection.svelte";
+-  // import BoxSection from "./widgets/BoxSection.svelte";
++  import LighthouseSection from "./widgets/LighthouseSection.svelte";
++  import BoxSection from "./widgets/BoxSection.svelte";
++  import DockSection from "./widgets/DockSection.svelte";
+ 
+   let { rect } = $props();
++
++  const SECTIONS = [
++    { name: "config", part: BridgeSection },
++    { name: "auth", part: LighthouseSection },
++    { name: "box", part: BoxSection },
++    { name: "dock", part: DockSection },
++  ];
++  const FOLDS = ["page", "stack"];
++
++  const bridge = getContext(BRIDGE);
++  const fold = bridge.view.$fold;
++  const place = bridge.view.$strip;
++
++  let width = $state(0);
++  let rail = $state(false);
++  let shown = $state("config");
++  let opened = $state(SECTIONS.map((section) => section.name));
++  let hosts = $state({});
++
++  const paged = $derived($fold === "page");
++  const lit = (name) => (paged ? shown === name : opened.includes(name));
++  const keys = $derived(SECTIONS.map(({ name }) => ({ name, label: name, latched: lit(name) })));
++  const drawn = $derived(paged ? SECTIONS.filter((section) => section.name === shown) : SECTIONS);
++
++  const reveal = (name) => requestAnimationFrame(() => hosts[name]?.scrollIntoView({ block: "start", behavior: "smooth" }));
++
++  const pick = (name) => {
++    if (paged) return void (shown = name);
++    const opening = !opened.includes(name);
++    opened = opening ? [...opened, name] : opened.filter((held) => held !== name);
++    if (opening) reveal(name);
++  };
++
++  const solo = (name) => {
++    shown = name;
++    opened = [name];
++    if (!paged) reveal(name);
++  };
++
++  const refold = (name) => {
++    if (name === "page" && !opened.includes(shown)) shown = opened[0] ?? shown;
++    bridge.setFold(name);
++  };
+ </script>
+ 
+ {#if rect.width > 0 && rect.height > 0}
+   <div
+     data-zone="0"
+     class="panel"
++    class:railed={rail}
++    bind:clientWidth={width}
+     style:left="{rect.left}px"
+     style:top="{rect.top}px"
+     style:width="{rect.width}px"
+     style:height="{rect.height}px">
+     <div class="stack">
+-      <BridgeSection />
+-      <LighthouseSection />
+-      <TerminalsSection />
+-      <!-- <MainSection /> -->
++      {#each drawn as section (section.name)}
++        <div class="fold" bind:this={hosts[section.name]}>
++          <section.part open={paged || opened.includes(section.name)} ontoggle={paged ? null : () => pick(section.name)} />
++        </div>
++      {/each}
+     </div>
++    <Strip {keys} folds={FOLDS} fold={$fold} place={$place} {width} bind:rail onpick={pick} onsolo={solo} onfold={refold} />
+   </div>
+ {/if}
+ 
+ <style>
+   .panel {
+     position: fixed;
++    display: flex;
++    flex-direction: column;
+     overflow: hidden;
+     background: var(--surface-sunk);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
+     color: var(--text-strong);
+   }
++  .panel.railed {
++    flex-direction: row;
++  }
+   .stack {
+-    height: 100%;
++    flex: 1;
++    min-width: 0;
++    min-height: 0;
+     overflow-y: auto;
+     display: flex;
+     flex-direction: column;
++    gap: 16px;
++    padding: 14px 12px 20px;
++  }
++  .fold {
++    display: flex;
++    flex-direction: column;
++    gap: 8px;
++    scroll-margin-top: 10px;
+   }
+ </style>
+diff --git a/systems/anima/src/app/panels/b/widgets/BoxSection.svelte b/systems/anima/src/app/panels/b/widgets/BoxSection.svelte
+index cc7b751..46f011c 100644
+--- a/systems/anima/src/app/panels/b/widgets/BoxSection.svelte
++++ b/systems/anima/src/app/panels/b/widgets/BoxSection.svelte
+@@ -1,7 +1,9 @@
+ <script>
+   import { getContext } from "svelte";
++  import { Card, Key, Meter, Section } from "@vivalence/drapes";
+   import { BOX } from "$client";
+-  import Section from "./Section.svelte";
++
++  let { open = true, ontoggle = null } = $props();
+ 
+   const box = getContext(BOX);
+   const microphone = box.device.microphone;
+@@ -51,97 +53,55 @@
+   }
+ </script>
+ 
+-<Section name="box" meta="mic + speaker">
+-  <div class="group">
+-    <header class="group-head">
+-      <span class="group-name">microphone</span>
+-      <span class="group-meta">{micLabel}</span>
+-    </header>
+-    {#if micClaimed}
+-      <div class="meter">
+-        <div class="bar" style:width="{Math.min(micLevel * 200, 100)}%"></div>
+-      </div>
+-    {/if}
+-    {#if micError}<div class="error">{micError}</div>{/if}
+-    <div class="actions">
+-      <button
+-        class="act"
+-        class:on={micClaimed}
+-        class:danger={micPermission === "denied"}
+-        onclick={() => (micClaimed ? microphone.release() : microphone.claim())}>
+-        {micClaimed ? "on" : "off"}
+-      </button>
+-      <button
+-        class="act"
+-        class:on={micPaused}
++<Section label="box" count="mic + speaker" {open} {ontoggle} />
++{#if open}
++  <Card>
++    <Section label="microphone" count={micLabel} rule={false} />
++    {#if micClaimed}<Meter value={micLevel * 2} />{/if}
++    {#if micError}<span class="fault">{micError}</span>{/if}
++    <div class="verbs">
++      <Key
++        size="row"
++        led
++        latched={micClaimed}
++        tone={micPermission === "denied" ? "negative" : "plain"}
++        label={micClaimed ? "on" : "off"}
++        onclick={() => (micClaimed ? microphone.release() : microphone.claim())} />
++      <Key
++        size="row"
++        led
++        latched={micPaused}
+         disabled={!micClaimed}
+-        onclick={() => (micPaused ? microphone.resume() : microphone.pause())}>
+-        {micPaused ? "muted" : "live"}
+-      </button>
++        label={micPaused ? "muted" : "live"}
++        onclick={() => (micPaused ? microphone.resume() : microphone.pause())} />
+     </div>
+-  </div>
+-
+-  <div class="group">
+-    <header class="group-head">
+-      <span class="group-name">speaker</span>
+-      <span class="group-meta">{spkLabel}</span>
+-    </header>
+-    {#if spkError}<div class="error">{spkError}</div>{/if}
+-    <div class="actions">
+-      <button
+-        class="act"
+-        class:on={spkClaimed}
+-        onclick={() => (spkClaimed ? speaker.release() : speaker.claim())}>
+-        {spkClaimed ? "on" : "off"}
+-      </button>
+-      <button class="act" disabled={!spkClaimed} onclick={tone}>tone</button>
+-      <button class="act" disabled={!spkClaimed} onclick={() => speaker.flush()}>flush</button>
++  </Card>
++  <Card>
++    <Section label="speaker" count={spkLabel} rule={false} />
++    {#if spkError}<span class="fault">{spkError}</span>{/if}
++    <div class="verbs">
++      <Key
++        size="row"
++        led
++        latched={spkClaimed}
++        label={spkClaimed ? "on" : "off"}
++        onclick={() => (spkClaimed ? speaker.release() : speaker.claim())} />
++      <Key size="row" disabled={!spkClaimed} label="tone" onclick={tone} />
++      <Key size="row" disabled={!spkClaimed} label="flush" onclick={() => speaker.flush()} />
+     </div>
+-  </div>
+-</Section>
++  </Card>
++{/if}
+ 
+ <style>
+-  .group + .group {
+-    border-top: 1px dashed var(--boundary-soft);
+-    margin-top: 4px;
+-    padding-top: 4px;
+-  }
+-  .group-head {
++  .verbs {
+     display: flex;
+-    align-items: baseline;
+-    gap: 10px;
+-    padding: 4px 16px 2px;
+-  }
+-  .group-name {
+-    color: var(--text-strong);
+-    opacity: 0.55;
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.12em;
+-    text-transform: uppercase;
+-    font-weight: 600;
++    flex-wrap: wrap;
++    gap: 6px;
++    padding-bottom: var(--size-depth);
+   }
+-  .group-meta {
+-    flex: 1;
+-    text-align: right;
+-    color: var(--text-strong);
+-    opacity: 0.85;
+-    font-size: var(--font-size-xs);
+-  }
+-  .error {
+-    padding: 2px 16px 4px;
++  .fault {
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
+     color: var(--signal-negative-ink);
+-    font-size: var(--font-size-2xs);
+-  }
+-  .meter {
+-    height: 4px;
+-    margin: 6px 16px 4px;
+-    background: var(--surface);
+-    overflow: hidden;
+-    border-radius: 1px;
+-  }
+-  .bar {
+-    height: 100%;
+-    background: var(--signal-primary);
+-    transition: width 0.06s linear;
+   }
+ </style>
+diff --git a/systems/anima/src/app/panels/b/widgets/BridgeSection.svelte b/systems/anima/src/app/panels/b/widgets/BridgeSection.svelte
+index 25019c4..8d1b90b 100644
+--- a/systems/anima/src/app/panels/b/widgets/BridgeSection.svelte
++++ b/systems/anima/src/app/panels/b/widgets/BridgeSection.svelte
+@@ -1,218 +1,124 @@
+ <script>
+   import { getContext } from "svelte";
+-  import { BRIDGE, TERMINALS, build } from "$client";
++  import { BRIDGE, build } from "$client";
+   import { belt } from "@vivalence/typology";
+-  import { chain, stores } from "@vivalence/anima";
+-  import Section from "./Section.svelte";
++  import { stores } from "@vivalence/anima";
++  import { Card, Key, Reading, Section } from "@vivalence/drapes";
++
++  let { open = true, ontoggle = null } = $props();
+ 
+-  const SIDES = ["top", "right", "bottom", "left"];
+-  const SIDE_LABELS = { top: "↥", right: "↦", bottom: "↧", left: "↤" };
+   const THEMES = stores.bridge.THEMES;
+   const SIZES = Object.keys(stores.bridge.FONT_SIZES);
++  const SNAPS = [270, 0, 90, 180];
++  const PLACES = ["top", "bottom"];
+ 
+   const bridge = getContext(BRIDGE);
+-  const terminals = getContext(TERMINALS);
+-  const dock = chain(terminals, "$active", "$dock");
+ 
+-  let g = $state(bridge.view.g);
+-  let h = $state(bridge.view.h);
+-  let snap = $state(bridge.view.snap);
+-  let theme = $state(bridge.view.theme);
+-  let fontSize = $state(bridge.view.fontSize);
++  const logging = bridge.view.$g;
++  const inspecting = bridge.view.$h;
++  const snap = bridge.view.$snap;
++  const theme = bridge.view.$theme;
++  const fontSize = bridge.view.$fontSize;
++  const strip = bridge.view.$strip;
++  const viewport = bridge.layout.$viewport;
++  const orientation = bridge.layout.$orientation;
++  const composer = bridge.$composer;
+ 
+   const age = (iso) => (iso ? belt.time.since(iso) : "—");
+ 
+-  bridge.view.$g.subscribe((v) => (g = v));
+-  bridge.view.$h.subscribe((v) => (h = v));
+-  bridge.view.$snap.subscribe((v) => (snap = v));
+-  bridge.view.$theme.subscribe((v) => (theme = v));
+-  bridge.view.$fontSize.subscribe((v) => (fontSize = v));
++  const orient = (angle) => {
++    bridge.layout.orientation = stores.bridge.snapToOrientation(angle);
++    bridge.save();
++  };
++
++  const enterSends = () => (bridge.composer = { ...bridge.composer, enterSends: !bridge.composer.enterSends });
+ </script>
+ 
+-<Section name="bridge" meta={build.known ? build.change : "unstamped"}>
+-  <div class="row">
+-    <span class="k">change</span>
+-    <span class="v mono" title={build.authored ?? "no working-copy stamp"}
+-      >{build.change} · {age(build.authored)}</span>
+-  </div>
+-  <div class="row">
+-    <span class="k">commit</span>
+-    <span class="v mono">{build.commit}</span>
+-  </div>
+-  <div class="row">
+-    <span class="k">bundled</span>
+-    <span class="v mono" title={build.built ?? "no build stamp"}>{age(build.built)} ago</span>
+-  </div>
+-  <div class="actions">
+-    <button class="act" class:on={g} onclick={() => bridge.toggle("g")}>g</button>
+-    <button class="act" class:on={h} onclick={() => bridge.toggle("h")}>h</button>
+-    <button class="act" class:on={snap} onclick={() => bridge.toggle("snap")}>snap</button>
+-  </div>
+-  <div class="row">
+-    <span class="k">theme</span>
+-    <select
+-      class="theme-select"
+-      value={theme}
+-      onchange={(e) => bridge.setTheme(e.currentTarget.value)}>
++<Section label="config" count={build.known ? build.change : "unstamped"} {open} {ontoggle} />
++{#if open}
++  <Card>
++    <Reading label="change"><span title={build.authored ?? "no working-copy stamp"}>{build.change} · {age(build.authored)}</span></Reading>
++    <Reading label="commit">{build.commit}</Reading>
++    <Reading label="bundled"><span title={build.built ?? "no build stamp"}>{age(build.built)} ago</span></Reading>
++    <Reading label="viewport">{$viewport.width} × {$viewport.height}</Reading>
++  </Card>
++  <div class="latch">
++    <span class="latch-name">theme</span>
++    <div class="latch-keys">
+       {#each THEMES as name (name)}
+-        <option value={name}>{name}</option>
++        <Key size="row" led latched={$theme === name} label={name} onclick={() => bridge.setTheme(name)} />
++      {/each}
++    </div>
++  </div>
++  <div class="latch">
++    <span class="latch-name">font</span>
++    <div class="latch-keys">
++      {#each SIZES as name (name)}
++        <Key size="row" led latched={$fontSize === name} label={name} onclick={() => bridge.setFontSize(name)} />
+       {/each}
+-    </select>
++    </div>
+   </div>
+-  <div class="row">
+-    <span class="k">font</span>
+-    <span class="size-row">
+-      <input
+-        class="slider"
+-        type="range"
+-        min="0"
+-        max={SIZES.length - 1}
+-        step="1"
+-        value={SIZES.indexOf(fontSize)}
+-        oninput={(e) => bridge.setFontSize(SIZES[Number(e.currentTarget.value)])} />
+-      <span class="size-readout">{fontSize}</span>
+-    </span>
++  <div class="latch">
++    <span class="latch-name">view</span>
++    <div class="latch-keys">
++      <Key size="row" led latched={$snap} label="snap" onclick={() => bridge.toggle("snap")} />
++      <Key size="row" led latched={$composer.enterSends} label="enter sends" onclick={enterSends} />
++    </div>
+   </div>
+-
+-  {#if $dock}
+-    <div class="row">
+-      <span class="k">dock</span>
+-      <span class="sides">
+-        {#each SIDES as s (s)}
+-          <button
+-            type="button"
+-            class="side"
+-            class:on={s === $dock.side}
+-            title="dock {s}"
+-            onclick={() => stores.bridge.setDockSide(terminals.active?.$dock, s)}>{SIDE_LABELS[s]}</button>
+-        {/each}
+-      </span>
++  <div class="latch">
++    <span class="latch-name">telemetry</span>
++    <div class="latch-keys">
++      <Key size="row" led latched={$logging} label="logger" onclick={() => bridge.toggle("g")} />
++      <Key size="row" led latched={$inspecting} label="inspector" onclick={() => bridge.toggle("h")} />
+     </div>
+-    <div class="row">
+-      <span class="k">size</span>
+-      <span class="size-row">
+-        <input
+-          class="slider"
+-          type="range"
+-          min="0.18"
+-          max="1.0"
+-          step="0.01"
+-          value={$dock.share ?? 0.32}
+-          oninput={(e) => stores.bridge.setDockShare(terminals.active?.$dock, Number(e.currentTarget.value))} />
+-        <span class="size-readout">{Math.round(($dock.share ?? 0.32) * 100)}%</span>
+-      </span>
++  </div>
++  <div class="latch">
++    <span class="latch-name">orient</span>
++    <div class="latch-keys">
++      {#each SNAPS as angle (angle)}
++        <Key
++          square
++          size="row"
++          latched={stores.bridge.orientationToSnap($orientation) === angle}
++          label={stores.bridge.snapLabel(angle)}
++          title="orient {stores.bridge.A_SIDE[stores.bridge.snapToOrientation(angle)]}"
++          onclick={() => orient(angle)} />
++      {/each}
+     </div>
+-    <div class="row">
+-      <span class="k">state</span>
+-      <span class="sides">
+-        <button
+-          type="button"
+-          class="side wide"
+-          class:on={$dock.collapsed}
+-          title="toggle dock"
+-          onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)}>{$dock.collapsed ? "show" : "hide"}</button>
+-        <button
+-          type="button"
+-          class="side wide"
+-          class:on={$dock.full}
+-          title="toggle fullscreen"
+-          onclick={() => stores.bridge.setDockFull(terminals.active?.$dock)}>full</button>
+-      </span>
++  </div>
++  <div class="latch">
++    <span class="latch-name">strip</span>
++    <div class="latch-keys">
++      {#each PLACES as name (name)}
++        <Key size="row" led latched={$strip === name} label={name} onclick={() => bridge.setStrip(name)} />
++      {/each}
+     </div>
+-  {/if}
+-</Section>
++  </div>
++{/if}
+ 
+ <style>
+-  .sides {
+-    display: inline-flex;
+-    gap: 3px;
+-    flex: 1;
+-  }
+-  .side {
+-    width: 18px;
+-    height: 18px;
+-    line-height: 1;
+-    padding: 0;
+-    background: transparent;
+-    border: 1px solid color-mix(in srgb, var(--boundary) 60%, transparent);
+-    border-radius: 2px;
+-    color: var(--text-strong);
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-xs);
+-    cursor: pointer;
+-    opacity: 0.5;
+-    transition: opacity 0.16s, color 0.16s, border-color 0.16s;
+-  }
+-  .side:hover {
+-    opacity: 0.9;
+-    color: var(--signal-primary-ink);
+-  }
+-  .side.on {
+-    opacity: 1;
+-    color: var(--signal-primary-ink);
+-    border-color: var(--signal-primary);
++  .latch {
++    display: flex;
++    flex-wrap: wrap;
++    align-items: flex-start;
++    gap: 4px 8px;
+   }
+-  .side.wide {
+-    width: auto;
+-    padding: 0 8px;
+-  }
+-  .theme-select {
+-    -webkit-appearance: none;
+-    appearance: none;
+-    height: 18px;
+-    padding: 0 8px;
+-    background: transparent;
+-    border: 1px solid color-mix(in srgb, var(--boundary) 60%, transparent);
+-    border-radius: 2px;
+-    color: var(--text-strong);
++  .latch-name {
++    flex: 0 0 78px;
++    padding-top: 7px;
+     font-family: var(--font-family-code);
+-    font-size: var(--font-size-xs);
+-    line-height: 1;
+-    cursor: pointer;
+-  }
+-  .theme-select:hover {
+-    color: var(--signal-primary-ink);
+-    border-color: var(--signal-primary);
++    font-size: var(--size-type-2xs);
++    font-weight: 600;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++    color: var(--text-light);
+   }
+-  .theme-select option {
+-    background: var(--surface);
+-    color: var(--text-strong);
+-  }
+-  .size-row {
+-    display: inline-flex;
+-    align-items: center;
++  .latch-keys {
++    flex: 1 1 150px;
++    min-width: 0;
++    display: flex;
++    flex-wrap: wrap;
+     gap: 6px;
+-    flex: 1;
+-  }
+-  .slider {
+-    flex: 1;
+-    height: 4px;
+-    -webkit-appearance: none;
+-    appearance: none;
+-    background: color-mix(in srgb, var(--divider) 60%, transparent);
+-    border-radius: 2px;
+-    cursor: pointer;
+-  }
+-  .slider::-webkit-slider-thumb {
+-    -webkit-appearance: none;
+-    width: 10px;
+-    height: 10px;
+-    border-radius: 50%;
+-    background: var(--signal-primary);
+-    cursor: pointer;
+-  }
+-  .slider::-moz-range-thumb {
+-    width: 10px;
+-    height: 10px;
+-    border: 0;
+-    border-radius: 50%;
+-    background: var(--signal-primary);
+-    cursor: pointer;
+-  }
+-  .size-readout {
+-    min-width: 28px;
+-    text-align: right;
+-    opacity: 0.6;
+-    font-size: var(--font-size-2xs);
++    padding-bottom: var(--size-depth);
+   }
+ </style>
+diff --git a/systems/anima/src/app/panels/b/widgets/DockSection.svelte b/systems/anima/src/app/panels/b/widgets/DockSection.svelte
+new file mode 100644
+index 0000000..c8ac538
+--- /dev/null
++++ b/systems/anima/src/app/panels/b/widgets/DockSection.svelte
+@@ -0,0 +1,88 @@
++<script>
++  import { getContext } from "svelte";
++  import { chain, stores } from "@vivalence/anima";
++  import { Key, Section } from "@vivalence/drapes";
++  import { TERMINALS } from "$client";
++
++  let { open = true, ontoggle = null } = $props();
++
++  const SIDES = { top: "↑", right: "→", bottom: "↓", left: "←" };
++  const SHARES = [0.18, 0.28, 0.36, 0.44, 0.52, 0.64, 0.8, 1];
++
++  const terminals = getContext(TERMINALS);
++  const thread = chain(terminals, "$active", "$thread");
++  const mode = chain(terminals, "$active", "$thread", "$mode");
++  const dock = chain(terminals, "$active", "$dock");
++
++  const harnessed = $derived($mode?.implements?.("HARNESSED") ?? false);
++  const share = $derived($dock?.share ?? stores.bridge.SHARE_DEFAULT);
++  const held = () => terminals.active?.$dock;
++</script>
++
++<Section label="dock" count={harnessed && $dock ? `${Math.round(share * 100)}%` : null} {open} {ontoggle} />
++{#if open}
++  {#if !$thread}
++    <span class="none">no thread</span>
++  {:else if !harnessed || !$dock}
++    <span class="none">mode is not harnessed · no dock</span>
++  {:else}
++    <div class="sides">
++      {#each stores.bridge.DOCK_SIDES as name (name)}
++        <Key
++          square
++          size="row"
++          latched={name === $dock.side}
++          label={SIDES[name]}
++          title="dock {name}"
++          onclick={() => stores.bridge.setDockSide(held(), name)} />
++      {/each}
++    </div>
++    <div class="shares">
++      {#each SHARES as step (step)}
++        <button
++          class="share"
++          class:filled={step <= share + 0.001}
++          title="{Math.round(step * 100)}%"
++          aria-label="dock share {Math.round(step * 100)}%"
++          onclick={() => stores.bridge.setDockShare(held(), step)}></button>
++      {/each}
++    </div>
++    <div class="verbs">
++      <Key size="row" led latched={!$dock.collapsed} label="show" onclick={() => stores.bridge.setDockCollapsed(held())} />
++      <Key size="row" led latched={$dock.full} label="full" onclick={() => stores.bridge.setDockFull(held())} />
++    </div>
++  {/if}
++{/if}
++
++<style>
++  .none {
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
++  }
++  .sides,
++  .verbs {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 6px;
++    padding-bottom: var(--size-depth);
++  }
++  .shares {
++    display: grid;
++    grid-template-columns: repeat(8, minmax(0, 1fr));
++    gap: 3px;
++  }
++  .share {
++    height: 20px;
++    padding: 0;
++    border: none;
++    border-radius: var(--shape-radius-xs);
++    background: var(--control-contrast);
++    box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++    cursor: pointer;
++  }
++  .share.filled {
++    background: var(--signal-primary);
++    box-shadow: none;
++  }
++</style>
+diff --git a/systems/anima/src/app/panels/b/widgets/LighthouseSection.svelte b/systems/anima/src/app/panels/b/widgets/LighthouseSection.svelte
+index 999642c..56f82c5 100644
+--- a/systems/anima/src/app/panels/b/widgets/LighthouseSection.svelte
++++ b/systems/anima/src/app/panels/b/widgets/LighthouseSection.svelte
+@@ -1,26 +1,142 @@
+ <script>
+   import { getContext } from "svelte";
++  import { stores } from "@vivalence/anima";
++  import { Card, Key, Pip, Reading, Row, Section } from "@vivalence/drapes";
+   import { LIGHTHOUSE } from "$client";
+-  import Section from "./Section.svelte";
++  import { logger } from "$telemetry";
++
++  let { open = true, ontoggle = null } = $props();
++
++  const HEALTH = { healthy: "success", error: "danger" };
+ 
+   const lighthouse = getContext(LIGHTHOUSE);
++  const status = lighthouse.$status;
++  const identity = lighthouse.$identity;
++  const daemons = lighthouse.$daemons;
+ 
+-  let status = $state(lighthouse.status);
+-  let identity = $state(lighthouse.identity);
+-  let daemons = $state(lighthouse.$daemons.get() ?? []);
++  const remote = lighthouse.connection.url.href;
++  const host = URL.canParse(remote) ? new URL(remote).host : remote;
++  const code = $derived(($status?.code ?? "—").replaceAll("_", " ").toLowerCase());
++  const tone = $derived(
++    ["ERROR", "OFFLINE", "SESSION_EXPIRED"].includes($status?.code)
++      ? "danger"
++      : $status?.code === "VERIFIED"
++        ? "success"
++        : "primary",
++  );
++  const reflected = (daemon) => daemon.status?.reflection?.code?.toLowerCase() ?? "—";
+ 
+-  lighthouse.$status.subscribe((v) => (status = v));
+-  lighthouse.$identity.subscribe((v) => (identity = v));
+-  lighthouse.$daemons.subscribe((v) => (daemons = v ?? []));
++  const refresh = () =>
++    stores.lighthouse.boot(lighthouse).catch((error) => logger.entry("lighthouse/refresh").fault(error));
+ </script>
+ 
+-<Section name="lighthouse" meta={(status?.code ?? "—").toLowerCase()}>
+-  <div class="row"><span class="k">identity</span><span class="v">{identity?.slug ?? "—"}</span></div>
+-  <div class="row"><span class="k">daemons</span><span class="v">{daemons.length}</span></div>
+-  {#each daemons as d (d.slug)}
+-    <div class="row"><span class="k">{d.slug}</span><span class="v">{d.status?.reflection?.code?.toLowerCase() ?? "—"}</span></div>
+-  {/each}
+-  <div class="actions">
+-    <button class="act danger" onclick={() => lighthouse.logout()}>logout</button>
++<Section label="auth" count={host} {open} {ontoggle} />
++{#if open}
++  <Card>
++    <div class="identity">
++      <span class="avatar">{($identity?.slug ?? "?").charAt(0).toUpperCase()}</span>
++      <span class="identity-name">{$identity?.slug ?? "—"}</span>
++      <span class="identity-state"><Pip size={6} {tone} pulse={tone === "primary"} />{code}</span>
++      <span class="identity-address">{remote}</span>
++    </div>
++    <Reading label="status">{code}</Reading>
++    <Reading label="daemons">{($daemons ?? []).length}</Reading>
++    <div class="verbs">
++      <Key size="row" label="refresh" onclick={refresh} />
++      <Key size="row" tone="negative" label="sign out" onclick={() => lighthouse.logout()} />
++    </div>
++  </Card>
++  <Section label="daemons" count={($daemons ?? []).length} />
++  <div class="roster">
++    {#each $daemons ?? [] as daemon (daemon.slug)}
++      <Row>
++        <Pip size={6} tone={HEALTH[reflected(daemon)] ?? "primary"} />
++        <span class="daemon-name">{daemon.slug}</span>
++        <span class="daemon-code">{reflected(daemon)}</span>
++      </Row>
++    {:else}
++      <span class="none">no daemons</span>
++    {/each}
+   </div>
+-</Section>
++{/if}
++
++<style>
++  .identity {
++    display: grid;
++    grid-template-columns: 26px minmax(0, 1fr) auto;
++    align-items: center;
++    gap: 2px 10px;
++  }
++  .avatar {
++    grid-row: 1 / 3;
++    width: 26px;
++    height: 26px;
++    display: grid;
++    place-items: center;
++    border-radius: var(--shape-radius-disc);
++    background: var(--surface-sunk);
++    box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++    color: var(--signal-primary-ink);
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-xs);
++    font-weight: 600;
++  }
++  .identity-name {
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++    font-size: var(--size-type-sm);
++    font-weight: 600;
++  }
++  .identity-state {
++    display: inline-flex;
++    align-items: center;
++    gap: 6px;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    font-weight: 600;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++    color: var(--text-light);
++  }
++  .identity-address {
++    grid-column: 2 / 4;
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
++  }
++  .verbs {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 6px;
++    padding-bottom: var(--size-depth);
++  }
++  .roster {
++    display: flex;
++    flex-direction: column;
++    gap: 2px;
++  }
++  .daemon-name {
++    flex: 1 1 0;
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++    font-weight: 600;
++    color: var(--text-strong);
++  }
++  .daemon-code,
++  .none {
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
++  }
++  .none {
++    padding: 6px 8px;
++  }
++</style>
+diff --git a/systems/anima/src/app/panels/b/widgets/MainSection.svelte b/systems/anima/src/app/panels/b/widgets/MainSection.svelte
+deleted file mode 100644
+index b139805..0000000
+--- a/systems/anima/src/app/panels/b/widgets/MainSection.svelte
++++ /dev/null
+@@ -1,29 +0,0 @@
+-<script>
+-  import { getContext } from "svelte";
+-  import { TERMINALS } from "$client";
+-  import Section from "./Section.svelte";
+-
+-  const terminals = getContext(TERMINALS);
+-
+-  let terminal = $state(terminals.active);
+-  let thread = $state(terminals.active?.thread);
+-
+-  const syncThread = () => (thread = terminals.active?.thread ?? null);
+-  terminals.$active.subscribe((v) => {
+-    terminal = v;
+-    syncThread();
+-  });
+-  terminals.$entities.subscribe(syncThread);
+-</script>
+-
+-<Section name="main" meta={thread?.mode?.slug ?? "no thread"}>
+-  <div class="row" title={terminal?.id ?? ""}><span class="k">terminal</span><span class="v mono">{terminal?.id ?? "—"}</span></div>
+-  <div class="row" title={thread?.id ?? ""}><span class="k">thread</span><span class="v mono">{thread?.id ?? "—"}</span></div>
+-  <div class="row"><span class="k">mode</span><span class="v">{thread?.mode?.slug ?? "—"}</span></div>
+-  <div class="row"><span class="k">intent</span><span class="v">{thread?.intent?.slug ?? "—"}</span></div>
+-  {#if thread}
+-    <div class="actions">
+-      <button class="act danger" onclick={() => (terminals.active.thread = null)}>clear thread</button>
+-    </div>
+-  {/if}
+-</Section>
+diff --git a/systems/anima/src/app/panels/b/widgets/Section.svelte b/systems/anima/src/app/panels/b/widgets/Section.svelte
+deleted file mode 100644
+index 7d476b0..0000000
+--- a/systems/anima/src/app/panels/b/widgets/Section.svelte
++++ /dev/null
+@@ -1,120 +0,0 @@
+-<script>
+-  let { name, meta = "", open: initial = false, children } = $props();
+-  let open = $state(initial);
+-</script>
+-
+-<section class:open>
+-  <header onclick={() => (open = !open)} role="button" tabindex="0">
+-    <span class="name">{name}</span>
+-    {#if meta}<span class="meta">{meta}</span>{/if}
+-    <span class="caret">{open ? "−" : "+"}</span>
+-  </header>
+-  {#if open}
+-    <div class="body">{@render children?.()}</div>
+-  {/if}
+-</section>
+-
+-<style>
+-  section {
+-    border-bottom: 1px solid var(--boundary-soft);
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-xs);
+-  }
+-  header {
+-    display: flex;
+-    align-items: baseline;
+-    gap: 10px;
+-    padding: 8px 12px;
+-    cursor: pointer;
+-    user-select: none;
+-  }
+-  header:hover .name { color: var(--signal-primary-ink); }
+-  .name {
+-    flex: 0 0 auto;
+-    color: var(--text-strong);
+-    font-weight: 600;
+-    letter-spacing: 0.14em;
+-    text-transform: uppercase;
+-    font-size: var(--font-size-2xs);
+-  }
+-  .meta {
+-    flex: 1;
+-    color: var(--text-strong);
+-    opacity: 0.4;
+-    text-transform: lowercase;
+-    letter-spacing: 0.04em;
+-    white-space: nowrap;
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-  }
+-  .caret { opacity: 0.35; font-size: var(--font-size-sm); line-height: 1; }
+-  section.open header { border-bottom: 1px dashed var(--boundary-soft); }
+-  .body { padding: 6px 0 4px; }
+-
+-  :global(section .row) {
+-    display: flex;
+-    align-items: baseline;
+-    gap: 12px;
+-    padding: 3px 16px;
+-    min-width: 0;
+-  }
+-  :global(section .row .k) {
+-    flex: 0 0 86px;
+-    color: var(--text-strong);
+-    opacity: 0.5;
+-    font-size: var(--font-size-xs);
+-  }
+-  :global(section .row .v) {
+-    flex: 1;
+-    text-align: right;
+-    color: var(--text-strong);
+-    opacity: 0.92;
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-    white-space: nowrap;
+-    min-width: 0;
+-  }
+-  :global(section .row .v.mono) {
+-    font-feature-settings: "tnum";
+-    font-size: var(--font-size-2xs);
+-    opacity: 0.6;
+-  }
+-  :global(section .row.click) { cursor: pointer; }
+-  :global(section .row.click:hover) { background: var(--surface); }
+-
+-  :global(section .actions) {
+-    display: flex;
+-    gap: 6px;
+-    padding: 8px 16px 6px;
+-    flex-wrap: wrap;
+-  }
+-  :global(section .act) {
+-    height: 22px;
+-    padding: 0 10px;
+-    background: transparent;
+-    border: 1px solid var(--boundary-soft);
+-    color: var(--text-strong);
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.06em;
+-    text-transform: lowercase;
+-    cursor: pointer;
+-    opacity: 0.55;
+-    transition: opacity 0.12s, border-color 0.12s, color 0.12s;
+-  }
+-  :global(section .act:hover:not(:disabled)) {
+-    opacity: 1;
+-    border-color: var(--signal-primary);
+-    color: var(--signal-primary-ink);
+-  }
+-  :global(section .act.on) {
+-    opacity: 1;
+-    border-color: var(--signal-primary);
+-    color: var(--signal-primary-ink);
+-  }
+-  :global(section .act.danger:hover:not(:disabled)) {
+-    border-color: var(--signal-negative);
+-    color: var(--signal-negative-ink);
+-  }
+-  :global(section .act:disabled) { opacity: 0.25; cursor: not-allowed; }
+-</style>
+diff --git a/systems/anima/src/app/panels/b/widgets/TerminalRow.svelte b/systems/anima/src/app/panels/b/widgets/TerminalRow.svelte
+deleted file mode 100644
+index d4f0c71..0000000
+--- a/systems/anima/src/app/panels/b/widgets/TerminalRow.svelte
++++ /dev/null
+@@ -1,24 +0,0 @@
+-<script>
+-  let { terminal, onactivate } = $props();
+-
+-  const thread = terminal.$thread;
+-</script>
+-
+-<div class="row click" onclick={onactivate} role="button" tabindex="0" title={$thread?.id ?? ""}>
+-  <span class="k">{terminal.id}</span>
+-  <span class="v mono">{$thread ? "active" : "idle"}</span>
+-</div>
+-{#if $thread}
+-  <div class="row sub"><span class="k">daemon</span><span class="v">{$thread.daemon?.slug}</span></div>
+-  <div class="row sub"><span class="k">thread</span><span class="v mono">{$thread.id}</span></div>
+-  <div class="row sub"><span class="k">mode</span><span class="v">{$thread.mode?.name}</span></div>
+-{/if}
+-
+-<style>
+-  .sub {
+-    padding-left: 30px;
+-  }
+-  .sub .k {
+-    opacity: 0.35;
+-  }
+-</style>
+diff --git a/systems/anima/src/app/panels/b/widgets/TerminalsSection.svelte b/systems/anima/src/app/panels/b/widgets/TerminalsSection.svelte
+deleted file mode 100644
+index c299f4c..0000000
+--- a/systems/anima/src/app/panels/b/widgets/TerminalsSection.svelte
++++ /dev/null
+@@ -1,21 +0,0 @@
+-<script>
+-  import { getContext } from "svelte";
+-  import { TERMINALS } from "$client";
+-  import Section from "./Section.svelte";
+-  import TerminalRow from "./TerminalRow.svelte";
+-
+-  const terminals = getContext(TERMINALS);
+-
+-  let tabs = $state([...terminals.entities]);
+-  terminals.$entities.subscribe((entities) => (tabs = [...entities]));
+-</script>
+-
+-<Section name="terminals" meta={`${tabs.length} terminal${tabs.length === 1 ? "" : "s"}`}>
+-  {#each tabs as t (t.id)}
+-    <TerminalRow terminal={t} onactivate={() => terminals.activate(t.id)} />
+-  {/each}
+-  <div class="actions">
+-    <button class="act" onclick={() => terminals.create()}>spawn</button>
+-    <button class="act danger" onclick={() => { for (const t of [...terminals.entities]) terminals.remove(t.id); }}>clear</button>
+-  </div>
+-</Section>
+diff --git a/systems/anima/src/app/panels/e/widgets/Intelligent.svelte b/systems/anima/src/app/panels/e/widgets/Intelligent.svelte
+index 44faeb4..9b9288b 100644
+--- a/systems/anima/src/app/panels/e/widgets/Intelligent.svelte
++++ b/systems/anima/src/app/panels/e/widgets/Intelligent.svelte
+@@ -1,13 +1,9 @@
+ <script>
+-  import { tiers, nearest } from "@vivalence/typology";
++  import { nearest } from "@vivalence/typology";
++  import { AXES, EFFORTS, ROUNDS, TIERS, avenues, contextLabel, faculties, origin, summary, thinks, write } from "./intelligent.js";
+ 
+   let { thread } = $props();
+ 
+-  const TIERS = Object.keys(tiers);
+-  const EFFORTS = ["none", "low", "medium", "high"];
+-  const ROUNDS = [1, 2, 5, 10, 25];
+-  const AXES = ["intelligence", "reasoning", "speed", "thrift"];
+-
+   let tune = $state(undefined);
+   let effort = $state(undefined);
+   let thinking = $state(undefined);
+@@ -25,48 +21,18 @@
+     return off;
+   });
+ 
+-  const faculties = $derived.by(() => {
+-    const cortex = thread?.daemon?.cortex;
+-    if (!cortex) return [];
+-    const dialogue = cortex.find({ type: "dialogue" });
+-    return dialogue.length ? dialogue : cortex.find({});
+-  });
+-
+-  const thinks = (faculty) =>
+-    (faculty?.channels?.out ?? []).includes("thinking") ||
+-    (faculty?.channels?.in ?? []).includes("thinking");
++  const pool = $derived(faculties(thread));
+ 
+-  const resolve = (target) => (faculties.length && target != null ? nearest(faculties, target) : null);
++  const resolve = (target) => (pool.length && target != null ? nearest(pool, target) : null);
+   const resolved = $derived(resolve(tune));
+ 
+-  const contextLabel = (context) =>
+-    context >= 1_000_000
+-      ? `${Math.round(context / 1_048_576)}m context`
+-      : context >= 1000
+-        ? `${Math.round(context / 1000)}k context`
+-        : `${context ?? "?"} context`;
+-  const avenues = (faculty) => Object.keys(faculty?.via ?? {}).join(" + ");
+   const thinkingLabel = (faculty) =>
+     !thinks(faculty) ? "no thinking" : effort === "none" ? "thinking off" : "thinking";
+-  const origin = (faculty) => [faculty?.provider, faculty?.config?.model].filter(Boolean).join(" · ");
+-  const summary = (faculty) =>
+-    faculty
+-      ? [faculty.type, origin(faculty), contextLabel(faculty.context), thinks(faculty) ? "thinking" : "no thinking"]
+-          .filter(Boolean)
+-          .join(" · ")
+-      : "";
+-
+-  async function write(patch) {
++  async function put(patch) {
+     if (!thread || saving) return;
+     saving = true;
+     try {
+-      const current = { ...(thread.trait?.INTELLIGENT ?? {}), ...patch };
+-      for (const key of Object.keys(current)) if (current[key] === undefined) delete current[key];
+-      const trait = { ...thread.trait, INTELLIGENT: current };
+-      const claim = thread.traits.includes("INTELLIGENT") ? {} : { traits: [...thread.traits, "INTELLIGENT"] };
+-      await thread.daemon.entities.thread.updateOne({ id: thread.id }, { trait, ...claim });
+-      thread.trait = trait;
+-      if (claim.traits) thread.traits = claim.traits;
++      await write(thread, patch);
+     } finally {
+       saving = false;
+     }
+@@ -82,7 +48,7 @@
+           class="chip"
+           class:on={tune === tier}
+           title={summary(resolve(tier))}
+-          onclick={() => write({ tune: tune === tier ? undefined : tier })}>{tier}</button>
++          onclick={() => put({ tune: tune === tier ? undefined : tier })}>{tier}</button>
+       {/each}
+       {#if Array.isArray(tune)}<span class="chip on">custom</span>{/if}
+     </div>
+@@ -95,7 +61,7 @@
+           class="chip"
+           class:on={effort === level}
+           title={level === "none" ? "no thinking — the model answers directly" : `${level} reasoning effort`}
+-          onclick={() => write({ effort: effort === level ? undefined : level })}
++          onclick={() => put({ effort: effort === level ? undefined : level })}
+           >{level === "none" ? "no thinking" : level}</button>
+       {/each}
+     </div>
+@@ -110,7 +76,7 @@
+           title={count === 1
+             ? "one round — the model answers directly, no tool loop"
+             : `up to ${count} model rounds per turn — each round may call tools`}
+-          onclick={() => write({ rounds: rounds === count ? undefined : count })}>{count}</button>
++          onclick={() => put({ rounds: rounds === count ? undefined : count })}>{count}</button>
+       {/each}
+       {#if rounds !== undefined && !ROUNDS.includes(rounds)}<span class="chip on">{rounds}</span>{/if}
+     </div>
+@@ -122,12 +88,12 @@
+         class="chip"
+         class:on={thinking === true}
+         title="render the thinking process inline on every turn"
+-        onclick={() => write({ thinking: thinking === true ? undefined : true })}>shown</button>
++        onclick={() => put({ thinking: thinking === true ? undefined : true })}>shown</button>
+       <button
+         class="chip"
+         class:on={thinking === false}
+         title="never show the thinking process"
+-        onclick={() => write({ thinking: thinking === false ? undefined : false })}>hidden</button>
++        onclick={() => put({ thinking: thinking === false ? undefined : false })}>hidden</button>
+     </div>
+   </div>
+   {#if resolved}
+diff --git a/systems/anima/src/app/panels/e/widgets/intelligent.js b/systems/anima/src/app/panels/e/widgets/intelligent.js
+new file mode 100644
+index 0000000..00ed606
+--- /dev/null
++++ b/systems/anima/src/app/panels/e/widgets/intelligent.js
+@@ -0,0 +1,44 @@
++import { tiers } from "@vivalence/typology";
++
++export const TIERS = Object.keys(tiers);
++export const EFFORTS = ["none", "low", "medium", "high"];
++export const ROUNDS = [1, 2, 5, 10, 25];
++export const AXES = ["intelligence", "reasoning", "speed", "thrift"];
++
++export const faculties = (thread) => {
++  const cortex = thread?.daemon?.cortex;
++  if (!cortex) return [];
++  const dialogue = cortex.find({ type: "dialogue" });
++  return dialogue.length ? dialogue : cortex.find({});
++};
++
++export const thinks = (faculty) =>
++  (faculty?.channels?.out ?? []).includes("thinking") || (faculty?.channels?.in ?? []).includes("thinking");
++
++export const contextLabel = (context) =>
++  context >= 1_000_000
++    ? `${Math.round(context / 1_048_576)}m context`
++    : context >= 1000
++      ? `${Math.round(context / 1000)}k context`
++      : `${context ?? "?"} context`;
++
++export const avenues = (faculty) => Object.keys(faculty?.via ?? {}).join(" + ");
++
++export const origin = (faculty) => [faculty?.provider, faculty?.config?.model].filter(Boolean).join(" · ");
++
++export const summary = (faculty) =>
++  faculty
++    ? [faculty.type, origin(faculty), contextLabel(faculty.context), thinks(faculty) ? "thinking" : "no thinking"]
++        .filter(Boolean)
++        .join(" · ")
++    : "";
++
++export const write = async (thread, patch) => {
++  const current = { ...(thread.trait?.INTELLIGENT ?? {}), ...patch };
++  for (const key of Object.keys(current)) if (current[key] === undefined) delete current[key];
++  const trait = { ...thread.trait, INTELLIGENT: current };
++  const claim = thread.traits.includes("INTELLIGENT") ? {} : { traits: [...thread.traits, "INTELLIGENT"] };
++  await thread.daemon.entities.thread.updateOne({ id: thread.id }, { trait, ...claim });
++  thread.trait = trait;
++  if (claim.traits) thread.traits = claim.traits;
++};
+diff --git a/systems/anima/src/app/terminals.js b/systems/anima/src/app/terminals.js
+index 4b2b45b..0d7fc9e 100644
+--- a/systems/anima/src/app/terminals.js
++++ b/systems/anima/src/app/terminals.js
+@@ -25,7 +25,9 @@ export function hydrate({ terminals }) {
+   const shells = persisted.map((data) => {
+     if (data.thread || data.buffer)
+       serialized.set(data.id, { thread: data.thread ?? null, buffer: data.buffer ?? null });
+-    return Terminal({ id: data.id, dock: data.dock });
++    const terminal = Terminal({ id: data.id, dock: data.dock });
++    if (serialized.has(data.id)) terminal.$settling.set({ ...serialized.get(data.id) });
++    return terminal;
+   });
+   terminals.$entities.set(shells);
+   const active = shells.find((shell) => shell.id === localStorage.getItem(ACTIVE_KEY)) ?? null;
+@@ -140,6 +142,7 @@ export function settle({ terminals, lighthouse }) {
+         }
+       }
+       if (!remainder.thread && !remainder.buffer) serialized.delete(terminal.id);
++      terminal.$settling.set(serialized.has(terminal.id) ? { ...remainder } : null);
+     }
+     settling?.close();
+   };
+diff --git a/systems/anima/src/app/widgets/Boot.svelte b/systems/anima/src/app/widgets/Boot.svelte
+index 12ebb3a..86bfabc 100644
+--- a/systems/anima/src/app/widgets/Boot.svelte
++++ b/systems/anima/src/app/widgets/Boot.svelte
+@@ -1,6 +1,7 @@
+ <script>
+   import { onDestroy } from "svelte";
+   import { trace } from "@vivalence/typology";
++  import { Pip, Spinner } from "@vivalence/drapes";
+   import { logger } from "$telemetry";
+ 
+   let { gate } = $props();
+@@ -63,12 +64,16 @@
+ </script>
+ 
+ <div class="boot">
++  <div class="title">
++    <Spinner />
++    <span class="title-word">{gate}</span>
++  </div>
+   <div class="stream" bind:this={stream}>
+     {#each rows as row, index (index)}
+-      <div class="row" class:milestone={!!row.message} class:failed={row.failed}>
++      <div class="entry" class:milestone={!!row.message} class:failed={row.failed}>
+         <span class="stamp">[{stamp(row.at)}]</span>
+-        <span class="bracket">
+-          {#if row.failed}[ FAIL ]{:else if row.message}[&nbsp;&nbsp;OK&nbsp;&nbsp;]{/if}
++        <span class="mark">
++          {#if row.failed}<Pip size={6} tone="danger" />{:else if row.message}<Pip size={6} tone="success" />{/if}
+         </span>
+         {#if row.wire}
+           <span class="method">{row.wire.method}</span>
+@@ -80,11 +85,10 @@
+           <span class="message">{row.message ?? row.path}</span>
+         {/if}
+         {#if row.tail}<span class="tail">{row.tail}</span>{/if}
+-        {#if row.elapsed != null}<span class="ms">{row.elapsed.toFixed(0)}ms</span>{/if}
++        {#if row.elapsed != null}<span class="elapsed">{row.elapsed.toFixed(0)}ms</span>{/if}
+       </div>
+     {/each}
+   </div>
+-  <div class="gate-line">{gate}</div>
+ </div>
+ 
+ <style>
+@@ -100,81 +104,72 @@
+     background: var(--surface);
+     color: var(--text-strong);
+     font-family: var(--font-family-code);
+-    font-size: var(--font-size-2xs);
++    font-size: var(--size-type-2xs);
++  }
++  .title {
++    flex: none;
++    display: flex;
++    align-items: center;
++    gap: 8px;
++    padding: 14px 20px 10px;
++    box-shadow: 0 var(--size-ring) 0 var(--boundary);
++    color: var(--text-light);
++  }
++  .title-word {
++    font-weight: 600;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
+   }
+   .stream {
+     flex: 1;
+     overflow-y: auto;
+-    padding: 16px 20px;
++    padding: 12px 20px 16px;
+     display: flex;
+     flex-direction: column;
+     gap: 1px;
+   }
+-  .row {
++  .entry {
+     display: flex;
+     gap: 8px;
+     align-items: baseline;
+     white-space: pre;
+-    opacity: 0.55;
+-  }
+-  .row.milestone {
+-    opacity: 1;
++    color: var(--text-light);
+   }
+-  .stamp {
++  .entry.milestone {
+     color: var(--text-strong);
+-    opacity: 0.35;
+-    flex-shrink: 0;
+-  }
+-  .bracket {
+-    color: var(--signal-primary-ink);
+-    font-weight: 600;
+-    min-width: 62px;
+-    flex-shrink: 0;
+   }
+-  .row.failed .bracket {
++  .entry.failed {
+     color: var(--signal-negative-ink);
+   }
+-  .message {
+-    color: var(--text-strong);
++  .stamp {
++    color: var(--text-muted);
++    flex-shrink: 0;
+   }
+-  .row.failed .message {
+-    color: var(--signal-negative-ink);
++  .mark {
++    display: inline-flex;
++    justify-content: center;
++    min-width: 14px;
++    flex-shrink: 0;
+   }
+   .method {
+-    color: var(--text-strong);
+     min-width: 34px;
+     flex-shrink: 0;
+   }
+   .target {
+-    color: var(--text-strong);
+     overflow: hidden;
+     text-overflow: ellipsis;
+   }
+-  .code {
+-    color: var(--text-strong);
+-    opacity: 0.6;
+-  }
+   .code.error {
+     color: var(--signal-negative-ink);
+-    opacity: 1;
+   }
+   .tail {
+-    color: var(--text-strong);
+-    opacity: 0.45;
++    color: var(--text-muted);
+     overflow: hidden;
+     text-overflow: ellipsis;
+   }
+-  .ms {
+-    color: var(--text-strong);
+-    opacity: 0.35;
++  .elapsed {
++    color: var(--text-muted);
+     margin-left: auto;
+     flex-shrink: 0;
+   }
+-  .gate-line {
+-    border-top: 1px solid var(--boundary);
+-    padding: 6px 20px;
+-    color: var(--text-strong);
+-    letter-spacing: 0.08em;
+-    text-transform: lowercase;
+-  }
+ </style>
+diff --git a/systems/anima/src/app/widgets/Glyph.svelte b/systems/anima/src/app/widgets/Glyph.svelte
+new file mode 100644
+index 0000000..f6066d0
+--- /dev/null
++++ b/systems/anima/src/app/widgets/Glyph.svelte
+@@ -0,0 +1,34 @@
++<script>
++  let { name, size = 14, pulse = false } = $props();
++</script>
++
++<span
++  class="glyph"
++  class:pulse
++  style:--glyph-mask="url(/icons/carbon/32/{name}.svg)"
++  style:--glyph-size="{size}px"
++  aria-hidden="true"></span>
++
++<style>
++  .glyph {
++    flex: none;
++    width: var(--glyph-size);
++    height: var(--glyph-size);
++    background: currentColor;
++    -webkit-mask: var(--glyph-mask) center / contain no-repeat;
++    mask: var(--glyph-mask) center / contain no-repeat;
++  }
++  .glyph.pulse {
++    animation: glyph-pulse 1.2s ease-in-out infinite;
++  }
++  @keyframes glyph-pulse {
++    50% {
++      opacity: 0.45;
++    }
++  }
++  @media (prefers-reduced-motion: reduce) {
++    .glyph.pulse {
++      animation: none;
++    }
++  }
++</style>
+diff --git a/systems/anima/src/app/widgets/Login.svelte b/systems/anima/src/app/widgets/Login.svelte
+index 6758332..b7698aa 100644
+--- a/systems/anima/src/app/widgets/Login.svelte
++++ b/systems/anima/src/app/widgets/Login.svelte
+@@ -1,21 +1,23 @@
+ <script>
++  import { Card, Input, Key, Pip, Pressed, Section, Spinner } from "@vivalence/drapes";
++
+   let { lighthouse, onConnected, onRetry } = $props();
+ 
+   const status = lighthouse.$status;
+   const authorized = lighthouse.$isAuthorized;
+   const remote = lighthouse.connection.url.href;
++  const host = URL.canParse(remote) ? new URL(remote).host : remote;
+ 
+   let username = $state("");
+   let password = $state("");
+ 
+   const busy = $derived($status.code === "AUTHENTICATING");
+   const failed = $derived(["ERROR", "OFFLINE", "SESSION_EXPIRED"].includes($status.code));
+-  const standing = $derived(
+-    $status.code === "IDLE" ? null : $status.code.replaceAll("_", " ").toLowerCase(),
+-  );
++  const standing = $derived($status.code.replaceAll("_", " ").toLowerCase());
++  const tone = $derived(failed ? "danger" : busy ? "primary" : $status.code === "VERIFIED" ? "success" : "muted");
+ 
+   const prompt = $derived(
+-    `anima signin at ${remote} shows "${standing ?? "idle"}` +
++    `anima signin at ${remote} shows "${standing}` +
+       `${$status.message ? `: ${$status.message}` : ""}". ` +
+       "diagnose it: run `viva instance/doctor`, check PUBLIC_VIVA_LIGHTHOUSE_REMOTE " +
+       "in the instance .env, docs at https://docs.vivalence.org. " +
+@@ -30,139 +32,132 @@
+ </script>
+ 
+ <div class="signin">
+-  {#if standing}
+-    <div class="standing" class:failed>
+-      <span class="code">{standing}</span>
+-      {#if $status.message}<span class="detail">{$status.message}</span>{/if}
+-      {#if $authorized && failed}
+-        <button class="again" onclick={onRetry}>retry</button>
+-      {/if}
+-    </div>
+-  {/if}
++  <div class="brand">
++    <span class="brand-name">vivalence/anima</span>
++  </div>
+ 
+-  <form class="credentials" onsubmit={submit}>
+-    <input
+-      bind:value={username}
+-      placeholder="username"
+-      autocapitalize="off"
+-      autocorrect="off"
+-      autocomplete="username"
+-    />
+-    <input
+-      bind:value={password}
+-      type="password"
+-      placeholder="password"
+-      autocapitalize="off"
+-      autocomplete="current-password"
+-    />
+-    <button disabled={busy}>connect</button>
+-  </form>
++  <Card>
++    <Section label="lighthouses" count={1} />
++    <div class="row">
++      <span class="row-name">{lighthouse.identity?.slug ?? host}</span>
++      <span class="row-address">{remote}</span>
++      <span class="row-state">
++        {#if busy}<Spinner />{:else}<Pip size={7} {tone} pulse={busy} />{/if}
++        {standing}
++      </span>
++    </div>
++    {#if $status.message}<span class="detail">{$status.message}</span>{/if}
++    <Pressed>
++      <form class="credentials" onsubmit={submit}>
++        <Input bind:value={username} placeholder="username" autocomplete="username" />
++        <Input bind:value={password} type="password" placeholder="password" autocomplete="current-password" />
++        <div class="verbs">
++          {#if $authorized && failed}<Key size="field" label="retry" onclick={onRetry} />{/if}
++          <Key size="field" tone="primary" type="submit" label="connect" disabled={busy} />
++        </div>
++      </form>
++    </Pressed>
++  </Card>
+ 
+-  <div class="help">
++  <Card sunk>
++    <Section label="help" />
+     <p>there is no signup ui — accounts are created from the shell:</p>
+     <code>viva instance/lighthouse signup &lt;username&gt; &lt;password&gt;</code>
+     <p>docs: <a href="https://docs.vivalence.org" target="_blank">docs.vivalence.org</a></p>
+     <p>stuck? paste this to your llm:</p>
+     <code class="prompt">{prompt}</code>
+-  </div>
++  </Card>
+ </div>
+ 
+ <style>
+   .signin {
+     display: flex;
+     flex-direction: column;
+-    align-items: center;
+-    gap: 24px;
+-    max-width: 44ch;
+-    padding: 0 16px;
++    gap: 18px;
++    width: 100%;
++    max-width: 420px;
+   }
+-  .standing {
++  .brand {
+     display: flex;
+-    flex-direction: column;
+     align-items: center;
+-    gap: 6px;
++    gap: 12px;
+   }
+-  .standing .code {
+-    font-size: var(--font-size-xs);
++  .brand-name {
++    font-family: var(--font-family-sans-heading);
++    font-size: var(--size-type-xl);
++    letter-spacing: -0.01em;
++    color: var(--text-header);
++  }
++  .row {
++    display: grid;
++    grid-template-columns: minmax(0, 1fr) auto;
++    gap: 2px 12px;
++    padding: 10px 12px;
++    border-radius: var(--shape-radius-key);
++    background: var(--control-contrast);
++    color: var(--control-on);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary), 0 var(--size-depth) 0 var(--boundary);
++    margin-bottom: var(--size-depth);
++  }
++  .row-name {
++    font-family: var(--font-family-sans-heading);
++    font-size: var(--size-type-sm);
+     font-weight: 600;
+   }
+-  .standing.failed .code {
+-    color: var(--signal-negative-ink);
+-  }
+-  .standing .detail {
+-    color: var(--text-strong);
+-  }
+-  .again {
+-    background: none;
+-    border: 1px solid var(--boundary);
+-    border-radius: 4px;
+-    color: var(--text-strong);
+-    font: inherit;
+-    letter-spacing: inherit;
+-    padding: 4px 12px;
+-    cursor: pointer;
+-    margin-top: 6px;
++  .row-address {
++    grid-column: 1;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--control-on-muted);
+   }
+-  .again:hover {
+-    background: var(--surface-sunk);
++  .row-state {
++    grid-column: 2;
++    grid-row: 1 / 3;
++    display: inline-flex;
++    align-items: center;
++    gap: 6px;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++  }
++  .detail {
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--signal-negative-ink);
+   }
+   .credentials {
+     display: flex;
+     flex-direction: column;
+-    align-items: stretch;
+-    gap: 12px;
+-    width: 24ch;
++    gap: 10px;
+   }
+-  .credentials input {
+-    background: none;
+-    border: none;
+-    border-bottom: 1px solid var(--text-strong);
+-    outline: none;
+-    font: inherit;
+-    letter-spacing: inherit;
+-    color: inherit;
+-    padding: 0.25em 0;
+-  }
+-  .credentials button {
+-    background: none;
+-    border: 1px solid var(--boundary);
+-    border-radius: 4px;
+-    color: inherit;
+-    font: inherit;
+-    letter-spacing: inherit;
+-    padding: 4px 12px;
+-    cursor: pointer;
+-  }
+-  .credentials button:hover {
+-    background: var(--surface-sunk);
+-  }
+-  .credentials button:disabled {
+-    opacity: 0.5;
+-    cursor: default;
+-  }
+-  .help {
++  .verbs {
+     display: flex;
+-    flex-direction: column;
++    justify-content: flex-end;
+     gap: 8px;
+-    color: var(--text-strong);
+-    text-transform: none;
+-    letter-spacing: normal;
++    padding-bottom: var(--size-depth);
+   }
+-  .help p {
++  p {
+     margin: 0;
++    font-size: var(--size-type-xs);
++    color: var(--text-ink);
+   }
+-  .help a {
+-    color: inherit;
++  a {
++    color: var(--text-link);
+   }
+-  .help code {
++  code {
+     display: block;
+     padding: 6px 10px;
+-    border: 1px solid var(--boundary);
+-    border-radius: 4px;
++    border-radius: var(--shape-radius-key);
++    background: var(--surface-lift);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-code);
+     white-space: pre-wrap;
+     word-break: break-word;
+   }
+-  .help .prompt {
++  .prompt {
+     user-select: all;
+   }
+ </style>
+diff --git a/systems/anima/src/app/widgets/Tune.svelte b/systems/anima/src/app/widgets/Tune.svelte
+new file mode 100644
+index 0000000..0e10745
+--- /dev/null
++++ b/systems/anima/src/app/widgets/Tune.svelte
+@@ -0,0 +1,180 @@
++<script>
++  import { nearest } from "@vivalence/typology";
++  import { Key, Segmented, Stepper, Tag } from "@vivalence/drapes";
++  import { AXES, EFFORTS, TIERS, avenues, contextLabel, faculties, origin, summary, thinks, write } from "../panels/e/widgets/intelligent.js";
++
++  let { thread } = $props();
++
++  let held = $state({});
++  let saving = $state(false);
++
++  $effect(() => {
++    if (!thread) return void (held = {});
++    return thread.$trait.subscribe((value) => (held = value?.INTELLIGENT ?? {}));
++  });
++
++  const pool = $derived(faculties(thread));
++  const resolve = (target) => (pool.length && target != null ? nearest(pool, target) : null);
++  const resolved = $derived(resolve(held.tune));
++  const inert = $derived(Boolean(resolved) && !thinks(resolved));
++
++  const tunes = $derived(TIERS.map((tier) => ({ value: tier, label: tier, title: summary(resolve(tier)) })));
++  const efforts = EFFORTS.map((level) => ({
++    value: level,
++    label: level === "none" ? "no thinking" : level,
++    title: level === "none" ? "no thinking — the model answers directly" : `${level} reasoning effort`,
++  }));
++  const showings = [
++    { value: true, label: "shown", title: "render the thinking process inline on every turn" },
++    { value: false, label: "hidden", title: "never show the thinking process" },
++  ];
++
++  async function put(patch) {
++    if (!thread || saving) return;
++    saving = true;
++    try {
++      await write(thread, patch);
++    } finally {
++      saving = false;
++    }
++  }
++
++  const pick = (key) => (value) => put({ [key]: held[key] === value ? undefined : value });
++</script>
++
++<div class="tune">
++  {#if resolved}
++    <div class="faculty">
++      <span class="faculty-type">{resolved.type}</span>
++      {#if origin(resolved)}<span class="faculty-origin">{origin(resolved)}</span>{/if}
++      <span class="faculty-fact">{contextLabel(resolved.context)}</span>
++      <span class="faculty-fact" class:lit={thinks(resolved) && held.effort !== "none"}>
++        {!thinks(resolved) ? "no thinking" : held.effort === "none" ? "thinking off" : "thinking"}
++      </span>
++      {#if avenues(resolved)}<span class="faculty-fact">{avenues(resolved)}</span>{/if}
++    </div>
++    <div class="axes">
++      {#each AXES as axis, index (axis)}
++        {@const value = resolved.tune?.[index] ?? 0}
++        <span class="axis" title="{axis} {value.toFixed(1)}">
++          <span class="axis-name">{axis}</span>
++          <span class="axis-cells">
++            {#each { length: 5 } as _, cell (cell)}
++              <span class="axis-cell" class:full={value * 5 >= cell + 0.5}></span>
++            {/each}
++          </span>
++        </span>
++      {/each}
++    </div>
++  {:else}
++    <div class="faculty undecided">the mode decides</div>
++  {/if}
++
++  <div class="knob">
++    <span class="knob-name">tune {#if Array.isArray(held.tune)}<Tag tone="primary">custom</Tag>{/if}</span>
++    <Segmented options={tunes} value={held.tune} cell={96} onpick={pick("tune")} />
++  </div>
++  <div class="knob" class:inert title={inert ? "resolved faculty doesn't think — effort has no effect here" : null}>
++    <span class="knob-name">effort</span>
++    <Segmented options={efforts} value={held.effort} cell={96} onpick={pick("effort")} />
++  </div>
++  <div class="knob">
++    <span class="knob-name">rounds</span>
++    <div class="knob-line">
++      <Stepper value={held.rounds ?? 1} min={1} max={25} onchange={(rounds) => put({ rounds })} />
++      {#if held.rounds !== undefined}
++        <Key size="mini" tone="ghost" label="the mode decides" onclick={() => put({ rounds: undefined })} />
++      {/if}
++    </div>
++  </div>
++  <div class="knob">
++    <span class="knob-name">thinking</span>
++    <Segmented options={showings} value={held.thinking} onpick={pick("thinking")} />
++  </div>
++</div>
++
++<style>
++  .tune {
++    display: flex;
++    flex-direction: column;
++    gap: 10px;
++  }
++  .faculty {
++    display: flex;
++    flex-wrap: wrap;
++    align-items: baseline;
++    gap: 4px 10px;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++  }
++  .faculty.undecided {
++    color: var(--text-light);
++    font-style: italic;
++  }
++  .faculty-type {
++    color: var(--signal-primary-ink);
++  }
++  .faculty-origin {
++    color: var(--text-ink);
++    overflow-wrap: anywhere;
++  }
++  .faculty-fact {
++    color: var(--text-light);
++  }
++  .faculty-fact.lit {
++    color: var(--signal-primary-ink);
++  }
++  .axes {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 4px 16px;
++  }
++  .axis {
++    display: inline-flex;
++    align-items: center;
++    gap: 6px;
++    white-space: nowrap;
++  }
++  .axis-name {
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
++  }
++  .axis-cells {
++    display: inline-flex;
++    gap: 2px;
++  }
++  .axis-cell {
++    width: 7px;
++    height: 7px;
++    border-radius: var(--shape-radius-xs);
++    background: var(--boundary);
++  }
++  .axis-cell.full {
++    background: var(--signal-primary);
++  }
++  .knob {
++    display: flex;
++    flex-direction: column;
++    gap: 5px;
++  }
++  .knob.inert {
++    color: var(--text-muted);
++  }
++  .knob-name {
++    display: inline-flex;
++    align-items: center;
++    gap: 6px;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    font-weight: 600;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++    color: var(--text-light);
++  }
++  .knob-line {
++    display: flex;
++    align-items: center;
++    gap: 8px;
++  }
++</style>
+diff --git a/systems/anima/src/client.css b/systems/anima/src/client.css
+index a5bc2a3..bd2bc79 100644
+--- a/systems/anima/src/client.css
++++ b/systems/anima/src/client.css
+@@ -9,6 +9,7 @@ html, body {
+   background: var(--surface);
+   color: var(--text-strong);
+   font-family: var(--font-family-sans-text);
++  line-height: var(--size-leading-loose);
+ }
+ 
+ .debug {
+@@ -19,3 +20,70 @@ html, body {
+   outline: 1px solid red;
+   * { outline: 1px solid red; }
+ }
++
++section .row {
++  display: flex;
++  align-items: baseline;
++  gap: 12px;
++  padding: 3px 16px;
++  min-width: 0;
++}
++section .row .k {
++  flex: 0 0 86px;
++  color: var(--text-strong);
++  opacity: 0.5;
++  font-size: var(--font-size-xs);
++}
++section .row .v {
++  flex: 1;
++  text-align: right;
++  color: var(--text-strong);
++  opacity: 0.92;
++  overflow: hidden;
++  text-overflow: ellipsis;
++  white-space: nowrap;
++  min-width: 0;
++}
++section .row .v.mono {
++  font-feature-settings: "tnum";
++  font-size: var(--font-size-2xs);
++  opacity: 0.6;
++}
++section .row.click { cursor: pointer; }
++section .row.click:hover { background: var(--surface); }
++
++section .actions {
++  display: flex;
++  gap: 6px;
++  padding: 8px 16px 6px;
++  flex-wrap: wrap;
++}
++section .act {
++  height: 22px;
++  padding: 0 10px;
++  background: transparent;
++  border: 1px solid var(--boundary-soft);
++  color: var(--text-strong);
++  font-family: var(--font-family-code);
++  font-size: var(--font-size-2xs);
++  letter-spacing: 0.06em;
++  text-transform: lowercase;
++  cursor: pointer;
++  opacity: 0.55;
++  transition: opacity 0.12s, border-color 0.12s, color 0.12s;
++}
++section .act:hover:not(:disabled) {
++  opacity: 1;
++  border-color: var(--signal-primary);
++  color: var(--signal-primary-ink);
++}
++section .act.on {
++  opacity: 1;
++  border-color: var(--signal-primary);
++  color: var(--signal-primary-ink);
++}
++section .act.danger:hover:not(:disabled) {
++  border-color: var(--signal-negative);
++  color: var(--signal-negative-ink);
++}
++section .act:disabled { opacity: 0.25; cursor: not-allowed; }
+diff --git a/systems/anima/src/typology/entities/activity.js b/systems/anima/src/typology/entities/activity.js
+index 8c7f0e1..0532716 100644
+--- a/systems/anima/src/typology/entities/activity.js
++++ b/systems/anima/src/typology/entities/activity.js
+@@ -39,6 +39,20 @@ const RANK = ["RUNNING", "STOPPING", "PAUSED", "IDLE"];
+ export const loudest = (rows = []) =>
+   RANK.find((code) => rows.some((row) => row.status === code)) ?? "NONE";
+ 
++export const TONES = {
++  IDLE: "idle",
++  RUNNING: "primary",
++  PAUSED: "caution",
++  STOPPING: "caution",
++  DONE: "positive",
++  STOPPED: "idle",
++  FAILED: "negative",
++  ABORTED: "negative",
++  NONE: "none",
++};
++
++export const settled = (code) => Boolean(v.primitives.controller.MACHINE.states[code]?.settled);
++
+ export function owed(signal, rows = [], sent = new Set()) {
+   const { MACHINE } = v.primitives.controller;
+   const from = MACHINE.transitions[MACHINE.signals[signal]] ?? {};
+diff --git a/systems/anima/src/typology/entities/index.js b/systems/anima/src/typology/entities/index.js
+index 854dbf8..391479a 100644
+--- a/systems/anima/src/typology/entities/index.js
++++ b/systems/anima/src/typology/entities/index.js
+@@ -5,5 +5,5 @@ export { Intent, IntentDossier } from "./intent.js";
+ export { Thread, ThreadDossier, ThreadTraits } from "./thread/index.js";
+ export { Buffer, BufferDossier } from "./buffer.js";
+ export { Turn, TurnDossier } from "./turn.js";
+-export { Activity, ActivityDossier, loudest, owed, roster } from "./activity.js";
++export { Activity, ActivityDossier, TONES, loudest, owed, roster, settled } from "./activity.js";
+ export { Literal, LiteralDossier } from "./literal.js";
+diff --git a/systems/anima/src/typology/entities/terminal.js b/systems/anima/src/typology/entities/terminal.js
+index 5dd01bb..62b8d7b 100644
+--- a/systems/anima/src/typology/entities/terminal.js
++++ b/systems/anima/src/typology/entities/terminal.js
+@@ -16,6 +16,7 @@ export function Terminal({ id = null, dock } = {}) {
+   const $buffer = atom(null);
+   // const $view = atom(null;) //@beef!
+   const $dock = atom(dock ?? defaultDock());
++  const $settling = atom(null);
+   let stall = null;
+ 
+   let threadVigil = null;
+@@ -31,6 +32,7 @@ export function Terminal({ id = null, dock } = {}) {
+     $thread,
+     $buffer,
+     $dock,
++    $settling,
+ 
+     get thread() {
+       return $thread.get();
+@@ -52,6 +54,10 @@ export function Terminal({ id = null, dock } = {}) {
+       return $dock.get();
+     },
+ 
++    get settling() {
++      return $settling.get();
++    },
++
+     setDockCollapsed: (collapsed) => setDockCollapsed($dock, collapsed),
+     setDockFull: (full) => setDockFull($dock, full),
+     setDockSide: (side) => setDockSide($dock, side),
+diff --git a/systems/anima/src/typology/stores/bridge/bridge.js b/systems/anima/src/typology/stores/bridge/bridge.js
+index 855d42d..18895b8 100644
+--- a/systems/anima/src/typology/stores/bridge/bridge.js
++++ b/systems/anima/src/typology/stores/bridge/bridge.js
+@@ -82,13 +82,15 @@ export class Bridge {
+         "d.intents": saved?.view?.["d.intents"] ?? true,
+         "d.modes": saved?.view?.["d.modes"] ?? true,
+         f: saved?.view?.f ?? "buffers",
++        fold: saved?.view?.fold === "stack" ? "stack" : "page",
++        strip: saved?.view?.strip === "top" ? "top" : "bottom",
+         g: false,
+         h: false,
+         snap: true,
+         theme: knownTheme(saved?.view?.theme),
+         fontSize: saved?.view?.fontSize ?? "base",
+       },
+-      ["d", "d.threads", "d.intents", "d.modes", "f", "theme", "fontSize"],
++      ["d", "d.threads", "d.intents", "d.modes", "f", "fold", "strip", "theme", "fontSize"],
+     );
+ 
+     this.panes = store(
+@@ -131,6 +133,16 @@ export class Bridge {
+     this.save();
+   };
+ 
++  setFold = (name) => {
++    this.view.$fold.set(name === "stack" ? "stack" : "page");
++    this.save();
++  };
++
++  setStrip = (place) => {
++    this.view.$strip.set(place === "top" ? "top" : "bottom");
++    this.save();
++  };
++
+   save = () => {
+     try {
+       const data = { ...this.layout.toJSON(), view: this.view.toJSON(), panes: this.panes.toJSON(), composer: this.composer };
+diff --git a/systems/anima/tests/bridge.view.test.js b/systems/anima/tests/bridge.view.test.js
+new file mode 100644
+index 0000000..d684393
+--- /dev/null
++++ b/systems/anima/tests/bridge.view.test.js
+@@ -0,0 +1,73 @@
++import { specimen } from "@vivalence/typology";
++import { Bridge } from "../src/typology/stores/bridge/bridge.js";
++
++const STORAGE_KEY = "vivalence:bridge";
++
++const withSaved = (saved, run) => {
++  const held = globalThis.localStorage.getItem(STORAGE_KEY);
++  if (saved === null) globalThis.localStorage.removeItem(STORAGE_KEY);
++  else globalThis.localStorage.setItem(STORAGE_KEY, JSON.stringify(saved));
++  try {
++    return run();
++  } finally {
++    if (held === null) globalThis.localStorage.removeItem(STORAGE_KEY);
++    else globalThis.localStorage.setItem(STORAGE_KEY, held);
++  }
++};
++
++const stored = () => JSON.parse(globalThis.localStorage.getItem(STORAGE_KEY));
++
++specimen.describe("bridge.view — the fold of a rail and the place of its strip", () => {
++  specimen.it("a save from before either key boots page · bottom", () => {
++    withSaved({ view: { theme: "parchment", f: "buffers" } }, () => {
++      const bridge = new Bridge();
++      specimen.expect([bridge.view.fold, bridge.view.strip]).toEqual(["page", "bottom"]);
++      specimen.expect(bridge.view.theme).toBe("parchment");
++    });
++  });
++
++  specimen.it("no save at all boots page · bottom", () => {
++    withSaved(null, () => {
++      const bridge = new Bridge();
++      specimen.expect([bridge.view.fold, bridge.view.strip]).toEqual(["page", "bottom"]);
++    });
++  });
++
++  specimen.it("a saved stack · top is read back", () => {
++    withSaved({ view: { fold: "stack", strip: "top" } }, () => {
++      const bridge = new Bridge();
++      specimen.expect([bridge.view.fold, bridge.view.strip]).toEqual(["stack", "top"]);
++    });
++  });
++
++  specimen.it("a value outside the two falls to the default", () => {
++    for (const value of ["accordion", "free", "left", "", null, 0, true, ["stack"]]) {
++      withSaved({ view: { fold: value, strip: value } }, () => {
++        const bridge = new Bridge();
++        specimen.expect([value, bridge.view.fold, bridge.view.strip]).toEqual([value, "page", "bottom"]);
++      });
++    }
++  });
++
++  specimen.it("setFold and setStrip write the store and the save, and refuse an unknown name", () => {
++    withSaved(null, () => {
++      const bridge = new Bridge();
++      bridge.setFold("stack");
++      bridge.setStrip("top");
++      specimen.expect([bridge.view.fold, bridge.view.strip]).toEqual(["stack", "top"]);
++      specimen.expect([stored().view.fold, stored().view.strip]).toEqual(["stack", "top"]);
++      bridge.setFold("free");
++      bridge.setStrip("sideways");
++      specimen.expect([bridge.view.fold, bridge.view.strip]).toEqual(["page", "bottom"]);
++      specimen.expect([stored().view.fold, stored().view.strip]).toEqual(["page", "bottom"]);
++    });
++  });
++
++  specimen.it("the keys a save held before are still written", () => {
++    withSaved(null, () => {
++      const bridge = new Bridge();
++      bridge.save();
++      specimen.expect(Object.keys(stored().view).sort()).toEqual(["d", "d.intents", "d.modes", "d.threads", "f", "fold", "fontSize", "strip", "theme"]);
++    });
++  });
++});
+diff --git a/systems/anima/tests/dock-turns.test.js b/systems/anima/tests/dock-turns.test.js
+index 0f658e5..c7f077f 100644
+--- a/systems/anima/tests/dock-turns.test.js
++++ b/systems/anima/tests/dock-turns.test.js
+@@ -22,6 +22,12 @@ import {
+   tokens,
+   turnManifest,
+   turnVerdict,
++  enrich,
++  exchanges,
++  callRoster,
++  manifest,
++  project,
++  dayLabel,
+ } from "../src/app/panels/a/widgets/turns.js";
+ 
+ specimen.describe("turnVerdict", () => {
+@@ -434,3 +440,75 @@ specimen.describe("turnCensus", () => {
+     specimen.expect(turnCensus(null).length).toBe(0);
+   });
+ });
++
++specimen.describe("the session's folds — one projection for the dock and the harness pane", () => {
++  const NOW = new Date("2026-03-04T12:00:00");
++  const THREAD = [
++    { id: "u1", role: "user", createdAt: "2026-03-03T09:15:00", parts: [{ type: "text", text: "what is due?" }] },
++    {
++      id: "a1",
++      role: "assistant",
++      createdAt: "2026-03-03T09:15:04",
++      parts: [{ type: "thinking", text: "look at the queue" }, { type: "tool_use", id: "call-1", name: "queue_due", input: { limit: 3 } }],
++      meta: { state: "tools" },
++    },
++    { id: "r1", role: "user", createdAt: "2026-03-03T09:15:05", parts: [{ type: "tool_result", tool_use_id: "call-1", content: "three" }] },
++    { id: "a2", role: "assistant", createdAt: "2026-03-04T10:30:00", parts: [{ type: "text", text: "three cards are due." }], meta: { state: "complete" } },
++  ];
++  const held = Object.freeze(structuredClone(THREAD));
++
++  specimen.it("rules a day before its first turn and drops the tool round", () => {
++    const items = enrich(THREAD, NOW);
++    specimen.expect(items.map((item) => item.kind)).toEqual(["divider", "turn", "turn", "divider", "turn"]);
++    specimen.expect(items.filter((item) => item.kind === "divider").map((item) => item.label)).toEqual(["yesterday", "today"]);
++    specimen.expect(items.filter((item) => item.kind === "turn").map((item) => item.turn.id)).toEqual(["u1", "a1", "a2"]);
++  });
++
++  specimen.it("joins two assistant turns that follow each other into one item", () => {
++    const together = THREAD.map((turn) => (turn.id === "a2" ? { ...turn, createdAt: "2026-03-03T09:15:09" } : turn));
++    const items = enrich(together, NOW).filter((item) => item.kind === "turn");
++    specimen.expect(items.map((item) => item.turn.id)).toEqual(["u1", "a1"]);
++    specimen.expect(items[1].text).toBe("three cards are due.");
++    specimen.expect(items[1].tools.map((tool) => tool.name)).toEqual(["queue_due"]);
++    specimen.expect(items[1].think).toBe("look at the queue");
++  });
++
++  specimen.it("an item is the turn's projection", () => {
++    const [, asked] = enrich(THREAD, NOW);
++    const { kind: _kind, turn: _turn, date: _date, ...projected } = asked;
++    specimen.expect(projected).toEqual(project(THREAD[0], []));
++  });
++
++  specimen.it("exchanges are the turns that called a tool or thought; the roster names each tool once", () => {
++    const calls = exchanges(enrich(THREAD, NOW));
++    specimen.expect(calls.map((item) => item.turn.id)).toEqual(["a1"]);
++    specimen.expect(callRoster(calls)).toEqual(["queue_due"]);
++    specimen.expect(callRoster([...calls, ...calls])).toEqual(["queue_due"]);
++  });
++
++  specimen.it("the manifest names who spoke, when, and in what parts", () => {
++    specimen.expect(manifest(enrich(THREAD, NOW), "dealer")).toEqual([
++      { id: "u1", who: "you", time: "09:15", parts: "text" },
++      { id: "a1", who: "dealer", time: "09:15", parts: "thinking · tool_use" },
++      { id: "a2", who: "dealer", time: "10:30", parts: "text" },
++    ]);
++    specimen.expect(manifest(enrich(THREAD, NOW))[1].who).toBe("agent");
++  });
++
++  specimen.it("an empty thread folds to nothing", () => {
++    specimen.expect(enrich([], NOW)).toEqual([]);
++    specimen.expect(exchanges([])).toEqual([]);
++    specimen.expect(manifest([])).toEqual([]);
++  });
++
++  specimen.it("a day older than yesterday is named by its date", () => {
++    specimen.expect(dayLabel(new Date("2026-02-20T08:00:00"), NOW)).not.toBe("today");
++    specimen.expect(dayLabel(new Date("2026-02-20T08:00:00"), NOW)).not.toBe("yesterday");
++    specimen.expect(dayLabel(null, NOW)).toBe("");
++  });
++
++  specimen.it("the source is not mutated", () => {
++    enrich(THREAD, NOW);
++    specimen.expect(THREAD).toEqual(held);
++  });
++});
+diff --git a/systems/anima/tests/gate.test.js b/systems/anima/tests/gate.test.js
+new file mode 100644
+index 0000000..c82cd3d
+--- /dev/null
++++ b/systems/anima/tests/gate.test.js
+@@ -0,0 +1,52 @@
++import { specimen } from "@vivalence/typology";
++import { gateFor } from "../src/app/gate.js";
++
++const WITNESSES = [
++  { authorized: false, status: { code: "VERIFIED" }, gate: "signin" },
++  { authorized: true, status: { code: "OFFLINE", message: "Network unavailable", canRetry: true }, gate: "signin" },
++  { authorized: true, status: { code: "POPULATING" }, gate: "populating" },
++  { authorized: true, status: { code: "REFRESHED" }, gate: "verifying" },
++  { authorized: true, status: { code: "VERIFIED" }, gate: "ready" },
++];
++
++const lighthouse = Deno.readTextFileSync(new URL("../src/typology/stores/lighthouse.js", import.meta.url));
++const CODES = [...new Set([...lighthouse.matchAll(/code: "([A-Z_]+)"/g)].map((match) => match[1]))].sort();
++
++specimen.describe("gateFor — what the shell shows for a lighthouse's standing", () => {
++  for (const witness of WITNESSES) {
++    specimen.it(`${witness.authorized ? "authorized" : "unauthorized"} · ${witness.status.code} → ${witness.gate}`, () => {
++      specimen.expect(gateFor(witness.authorized, witness.status)).toBe(witness.gate);
++    });
++  }
++
++  specimen.it("the lighthouse writes twelve standings", () => {
++    specimen.expect(CODES).toEqual(["AUTHENTICATED", "AUTHENTICATING", "ERROR", "IDLE", "LOGGED_OUT", "OFFLINE", "POPULATING", "REFRESHED", "REFRESHING", "SESSION_EXPIRED", "VERIFIED", "VERIFYING"]);
++  });
++
++  specimen.it("without authority every standing is the sign-in", () => {
++    for (const code of CODES) specimen.expect([code, gateFor(false, { code })]).toEqual([code, "signin"]);
++  });
++
++  specimen.it("with authority the shell opens on VERIFIED alone", () => {
++    const opened = CODES.filter((code) => gateFor(true, { code }) === "ready");
++    specimen.expect(opened).toEqual(["VERIFIED"]);
++  });
++
++  specimen.it("with authority a lost link and a fault return to the sign-in, every other standing waits", () => {
++    const shown = Object.fromEntries(CODES.map((code) => [code, gateFor(true, { code })]));
++    specimen.expect(shown).toEqual({
++      AUTHENTICATED: "verifying",
++      AUTHENTICATING: "verifying",
++      ERROR: "signin",
++      IDLE: "verifying",
++      LOGGED_OUT: "verifying",
++      OFFLINE: "signin",
++      POPULATING: "populating",
++      REFRESHED: "verifying",
++      REFRESHING: "verifying",
++      SESSION_EXPIRED: "verifying",
++      VERIFIED: "ready",
++      VERIFYING: "verifying",
++    });
++  });
++});
+diff --git a/systems/anima/tests/pincer/theme.test.js b/systems/anima/tests/pincer/theme.test.js
+index 1a73124..be0d682 100644
+--- a/systems/anima/tests/pincer/theme.test.js
++++ b/systems/anima/tests/pincer/theme.test.js
+@@ -75,10 +75,11 @@ specimen.describe("theme names — the views that spell a name", () => {
+     specimen.expect(JSON.parse(guard[1])).toEqual(THEMES);
+   });
+ 
+-  specimen.it("the pincer holds a pictogram for every theme", () => {
+-    const block = source("app/bones/pincer/pincer.svelte").match(/const PICTOGRAMS = \{([^}]+)\}/)[1];
+-    const keys = [...block.matchAll(/^\s*([a-z]+):/gm)].map((match) => match[1]);
+-    specimen.expect(keys.sort()).toEqual([...THEMES].sort());
++  specimen.it("the pincer's mark names no theme: a mask on the ink of its ground", () => {
++    const pincer = source("app/bones/pincer/pincer.svelte");
++    specimen.expect(["PICTOGRAMS", "TINTS", "view.$theme", "view.theme"].filter((name) => pincer.includes(name))).toEqual([]);
++    specimen.expect(THEMES.filter((name) => pincer.includes(name))).toEqual([]);
++    specimen.expect(/\.viket-pictogram::before \{[^}]*background: currentColor;[^}]*mask: url\(/s.test(pincer)).toBe(true);
+   });
+ 
+   specimen.it("the picker reads the bridge's list, never its own", () => {
+diff --git a/systems/anima/tests/terminals.test.js b/systems/anima/tests/terminals.test.js
+new file mode 100644
+index 0000000..15b04fa
+--- /dev/null
++++ b/systems/anima/tests/terminals.test.js
+@@ -0,0 +1,86 @@
++import { atom } from "nanostores";
++import { specimen } from "@vivalence/typology";
++import { hydrate, settle } from "../src/app/terminals.js";
++
++const STORAGE_KEY = "viva.terminals";
++
++const roster = () => {
++  const $entities = atom([]);
++  const $active = atom(null);
++  return {
++    $entities,
++    $active,
++    get entities() {
++      return $entities.get();
++    },
++  };
++};
++
++const hydrated = (persisted) => {
++  const held = globalThis.localStorage.getItem(STORAGE_KEY);
++  globalThis.localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
++  const terminals = roster();
++  try {
++    hydrate({ terminals });
++  } finally {
++    if (held === null) globalThis.localStorage.removeItem(STORAGE_KEY);
++    else globalThis.localStorage.setItem(STORAGE_KEY, held);
++  }
++  return terminals;
++};
++
++const daemon = (findOne) => ({
++  slug: "italian",
++  status: { is: (code) => code === "healthy", $transient: atom(0) },
++  entities: { thread: { findOne }, buffer: { findOne } },
++});
++
++const quiet = async () => {
++  for (let turn = 0; turn < 8; turn += 1) await new Promise((resolve) => setTimeout(resolve, 0));
++};
++
++specimen.describe("terminal.$settling — what a terminal still waits for", () => {
++  specimen.it("a persisted thread and buffer are the reading after hydrate", () => {
++    const terminals = hydrated([{ id: "settling-both", thread: "3f9c1a", buffer: "b71e04" }]);
++    specimen.expect(terminals.entities[0].settling).toEqual({ thread: "3f9c1a", buffer: "b71e04" });
++  });
++
++  specimen.it("a persisted buffer alone reads with a null thread", () => {
++    const terminals = hydrated([{ id: "settling-buffer", buffer: "b71e04" }]);
++    specimen.expect(terminals.entities[0].settling).toEqual({ thread: null, buffer: "b71e04" });
++  });
++
++  specimen.it("a terminal persisted empty settles nothing", () => {
++    const terminals = hydrated([{ id: "settling-none" }]);
++    specimen.expect(terminals.entities[0].settling).toBe(null);
++  });
++
++  specimen.it("the reading is never written to the save", () => {
++    const terminals = hydrated([{ id: "settling-json", thread: "3f9c1a" }]);
++    specimen.expect(Object.keys(terminals.entities[0].toJSON()).sort()).toEqual(["buffer", "dock", "id", "thread"]);
++  });
++
++  specimen.it("no healthy daemon leaves the reading as it was", async () => {
++    const terminals = hydrated([{ id: "settling-pending", thread: "3f9c1a", buffer: "b71e04" }]);
++    const off = settle({ terminals, lighthouse: { $daemons: atom([]) } });
++    await quiet();
++    off();
++    specimen.expect(terminals.entities[0].settling).toEqual({ thread: "3f9c1a", buffer: "b71e04" });
++  });
++
++  specimen.it("an entity no daemon holds ends the reading", async () => {
++    const terminals = hydrated([{ id: "settling-absent", thread: "3f9c1a", buffer: "b71e04" }]);
++    const off = settle({ terminals, lighthouse: { $daemons: atom([daemon(() => Promise.resolve(null))]) } });
++    await quiet();
++    off();
++    specimen.expect(terminals.entities[0].settling).toBe(null);
++  });
++
++  specimen.it("an unreachable daemon keeps the reading set", async () => {
++    const terminals = hydrated([{ id: "settling-unreachable", thread: "3f9c1a", buffer: "b71e04" }]);
++    const off = settle({ terminals, lighthouse: { $daemons: atom([daemon(() => Promise.reject(new Error("socket closed")))]) } });
++    await quiet();
++    off();
++    specimen.expect(terminals.entities[0].settling).toEqual({ thread: "3f9c1a", buffer: "b71e04" });
++  });
++});

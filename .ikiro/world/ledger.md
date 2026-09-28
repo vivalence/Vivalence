@@ -41,7 +41,7 @@ Traps:
   "droneaid": "~/.viva/instances/droneaid"
  },
  "registry — package: tapped · vcs": {
-  "assembly": "tapped · NO VCS",
+  "assembly": "tapped · git",
   "chess": "tapped · git",
   "droneaid": "tapped · git",
   "education": "tapped · git",

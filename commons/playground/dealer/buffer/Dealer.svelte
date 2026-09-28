@@ -78,15 +78,15 @@
     justify-content: center;
     gap: 0.8rem;
     padding: 18px;
-    background: var(--colors-skeleton-2-surface);
-    color: var(--colors-skeleton-2-contrast);
+    background: var(--surface-sunk);
+    color: var(--text-strong);
     font-family: var(--font-family-code);
   }
   .tag {
     font-size: var(--font-size-xs);
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
   }
   .readout {
     display: flex;
@@ -95,7 +95,7 @@
     opacity: 0.7;
   }
   .readout b {
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
     font-weight: 600;
   }
   .readout .muted b {
@@ -121,12 +121,12 @@
   }
   button:hover {
     opacity: 1;
-    border-color: var(--colors-skeleton-0-primary-base);
+    border-color: var(--signal-primary);
   }
   button.on {
     opacity: 1;
-    color: var(--colors-skeleton-0-primary-base);
-    border-color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
+    border-color: var(--signal-primary);
   }
   .theme {
     display: flex;
@@ -139,7 +139,7 @@
     width: 5rem;
     font: inherit;
     font-size: var(--font-size-2xs);
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
     background: transparent;
     border: none;
     border-bottom: 1px solid color-mix(in srgb, currentColor 30%, transparent);
@@ -155,7 +155,7 @@
     max-width: 16rem;
   }
   .hand li.active button {
-    color: var(--colors-skeleton-0-primary-base);
-    border-color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
+    border-color: var(--signal-primary);
   }
 </style>

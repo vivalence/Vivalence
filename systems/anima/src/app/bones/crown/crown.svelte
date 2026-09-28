@@ -1,8 +1,10 @@
 <script>
   import { getContext } from "svelte";
   import { stores } from "@vivalence/anima";
+  import { Float, Key } from "@vivalence/drapes";
   import { TERMINALS } from "$client";
-  import Tab from "./widgets/Tab.svelte";
+  import Glyph from "../../widgets/Glyph.svelte";
+  import Terminal from "./widgets/Terminal.svelte";
 
   let { rect } = $props();
 
@@ -10,57 +12,74 @@
 
   const terminals = getContext(TERMINALS);
 
-  let tabs = $state([...terminals.entities]);
-  let activeId = $state(terminals.active?.id);
+  let held = $state([...terminals.entities]);
+  let active = $state(terminals.active?.id);
+  let open = $state(false);
+  let anchor = $state(null);
 
   terminals.$entities.subscribe((entities) => {
-    tabs = [...entities];
+    held = [...entities];
   });
-  terminals.$active.subscribe((t) => (activeId = t?.id));
+  terminals.$active.subscribe((terminal) => (active = terminal?.id));
 </script>
 
 <div
+  data-zone="0"
   class="bone"
-  class:column={axis === "column"}
   style:left="{rect.left}px"
   style:top="{rect.top}px"
   style:width="{rect.width}px"
   style:height="{rect.height}px">
-  <div class="population" style:padding={axis === "column" ? "12px 0" : "0 12px"}>
-    <div
-      class="tabs"
-      style:flex-direction={axis}
-      style:padding={axis === "column" ? "2px 0" : "0 2px"}
-      style:overflow-x={axis === "column" ? "hidden" : "auto"}
-      style:overflow-y={axis === "column" ? "auto" : "hidden"}>
-      <button class="tab add" onclick={() => terminals.create()} title="new terminal">+</button>
-      {#each tabs as t (t.id)}
-        <Tab
-          terminal={t}
-          {axis}
-          isActive={t.id === activeId}
-          onactivate={() => terminals.activate(t.id)}
-          onclose={() => terminals.remove(t.id)} />
-      {/each}
-    </div>
+  <div
+    class="population"
+    style:flex-direction={axis}
+    style:padding={axis === "column" ? "12px 0" : "0 12px"}>
+    <span class="anchor" bind:this={anchor}>
+      <Key
+        size="bone"
+        stack={axis === "column"}
+        latched={open}
+        title="terminals · {held.length}"
+        onclick={() => (open = !open)}>
+        <Glyph set="anima" name="chat/prompt" size={17} />
+        <span class="count">{held.length}</span>
+      </Key>
+    </span>
   </div>
 </div>
+
+{#if open}
+  <Float
+    {anchor}
+    zone="0"
+    title="terminals"
+    side={axis === "column" ? "after" : "below"}
+    onclose={() => (open = false)}>
+    <div class="roster">
+      {#each held as terminal (terminal.id)}
+        <Terminal
+          {terminal}
+          selected={terminal.id === active}
+          onactivate={() => terminals.activate(terminal.id)}
+          onremove={() => terminals.remove(terminal.id)} />
+      {:else}
+        <span class="none">no terminals</span>
+      {/each}
+    </div>
+    <div class="verbs">
+      <Key tone="primary" size="row" wide label="+ new terminal" onclick={() => terminals.create()} />
+    </div>
+  </Float>
+{/if}
 
 <style>
   .bone {
     position: fixed;
-    background: var(--colors-skeleton-1-surface);
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
-    border-bottom: 1px solid var(--colors-skeleton-1-boundary);
+    background: var(--surface);
+    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
     pointer-events: none;
     z-index: 50;
     overflow: hidden;
-  }
-  .bone.column {
-    border-top: none;
-    border-bottom: none;
-    border-left: 1px solid var(--colors-skeleton-1-boundary);
-    border-right: 1px solid var(--colors-skeleton-1-boundary);
   }
   .population {
     position: absolute;
@@ -74,45 +93,25 @@
   .population > * {
     pointer-events: auto;
   }
-  .tabs {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    height: 100%;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .tabs::-webkit-scrollbar {
-    display: none;
-  }
-  .tab.add {
-    flex: 0 0 auto;
-    height: 24px;
-    min-height: 24px;
+  .anchor {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: color-mix(in srgb, var(--colors-skeleton-0-surface) 30%, transparent);
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-boundary) 50%, transparent);
-    border-radius: 3px;
-    color: var(--colors-skeleton-1-contrast);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-md);
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: lowercase;
-    cursor: pointer;
-    opacity: 0.4;
-    min-width: 24px;
-    max-width: 24px;
-    padding: 0;
-    line-height: 0;
-    transition: opacity 0.16s, background 0.16s, border-color 0.16s, color 0.16s;
+    padding-bottom: var(--size-depth);
   }
-  .tab.add:hover {
-    opacity: 0.85;
-    border-color: var(--colors-skeleton-0-primary-base);
-    color: var(--colors-skeleton-0-primary-base);
+  .count {
+    font-variant-numeric: tabular-nums;
+  }
+  .roster {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .none {
+    padding: 6px 8px;
+    font-family: var(--font-family-code);
+    font-size: var(--size-type-2xs);
+    color: var(--text-light);
+  }
+  .verbs {
+    padding-bottom: var(--size-depth);
   }
 </style>

@@ -1,0 +1,87 @@
+#+title: prod serves spanish for italian — the rehearsal catches a July migrations folder that would have killed every daemon, and a runtime that dies without its lighthouse
+#+index: 228
+#+session: session 339ef973, turns 1–12 (fold N = 12, one fold). beef's thread: /"work out the chagne from italian to spanish"/ → /"you go do that."/ → /"this is prod. be careful"/ → /"if its got rich data, use it."/ /"else chuck it"/ → /"go"/ → /"check that the freight works."/
+
+* one breath
+
+(1–2) beef pasted the prod host — compose, Dockerfile, the mounted =instance/instance.viva.js= serving italian · chess · droneaid — and asked for the change to spanish. The education registry's GitHub HEAD (=b0b8d7a=, equal to local =master=) carries =topographies/english-to-spanish=; harvest · dojo carry no italian literal; francesca is an Italian tutor (=modes/teacher/francesca/francesca.md:6=). The diff: slug, manifest, =statics.language.learning=, the topography, francesca out, no =nlp= consume (prod hosts none). On /"go do."/ it went out as three paste blocks with a rollback line — never booted.
+
+(3–5) /"you go do that."/ — ssh works (=BatchMode=). The host's own =scripts/= read first: =premigrate.sh= · =remigrate-italian.sh= (road A). The volume listed: =daemon_spanish/= holds =test-language-spanish.viva.db= (July, 4 migrations) and a =migrations/= folder — the name the new daemon derives is =spanish.viva.db=, so the paste blocks' move matched nothing. Mid-turn /"this is prod. be careful"/: stop before any write, a plan rehearse → inspect → backup → cutover → verify, two forks put to beef. /"go"/.
+
+(6–8) Mid-turn /"check the spanish database in detail"/ · /"if its got rich data, use it."/ · /"else chuck it"/: one user (the italian one), 110 traces over one afternoon, 80 =Memory= rows (12 LEARNING, 68 UNKNOWN), 0 turns, and =Memory= is today's =Retention= under its July name. Not rich → chucked: served fresh, the July seat kept byte-identical as =daemon_spanish.july=. Rehearsal 1 on a cloned volume: the July migrations replay onto the fresh db, the fifth fails =table `Mode` already exists=, uncaught — the runtime dies, chess and droneaid with it. Seat moved aside: fresh schema, 1699 literals, =Status:ALIVE= — then death again on the dead-port lighthouse (=systems/runtime/lifecycle/integrate.js:61=). Rehearsal 3 with a throwaway lighthouse on a private network: =up=yes after 15s=, spanish · chess =401=.
+
+(9–10) /"go"/: =scripts/backup.sh= → the =…-2112.tgz= tarball (35.7 MB), the italian recipe copied beside, the seat moved, the recipe swapped, =up -d --no-build --force-recreate runtime= on the rehearsed image =581d0504=. Spanish · chess · droneaid =401= over the public host, =restarts=0=. Mid-turn /"check that the freight works."/: =/attached/cargo/daemon/spanish/…= serves three random files =200 audio/mpeg=, real MP3s, a range =206=. Coverage is the topography's: 106 of 1231 words, 80 of 354 sentences.
+
+(11–12) /"ikiro comapct"/.
+
+* the spine — turns 1–12
+
+| n  | beef | landed | died |
+|----+------+--------+------|
+| 1  | the prod host paste; /"work out the chagne from italian to spanish"/ | the diff; GitHub HEAD =b0b8d7a= has the topography; francesca Italian-only; the old-seat risk named, path unverified | — |
+| 2  | /"go do."/ + his prompt | three paste blocks and a rollback line, unrehearsed | — |
+| 3  | MID /"you go do that."/ + his =tree= | ssh confirmed; =scripts/*.sh= read; volume listed; July db counted read-only | "beef pastes it" |
+| 4  | MID /"this is prod. be careful"/ | halted before any write; plan with per-step go; two forks | a direct cutover |
+| 5  | /"go"/ | prod recipe pulled to the scratchpad, edited; rehearsal script written | — |
+| 6  | MID /"check the spanish database in detail"/ | 16 tables counted, trace span one afternoon, =Memory= status mix, same user id as italian | — |
+| 7  | MID /"if its got rich data, use it."/ | ruled not rich against its numbers | migrating July rows |
+| 8  | MID /"else chuck it"/ | fresh seat; rehearsal 1 red (orphan migrations), 2 red (dead lighthouse), 3 green | =find -name "spanish.viva.db*"= as the move |
+| 9  | /"go"/ | backup · recipe copy · =mv daemon_spanish daemon_spanish.july= · recipe swap · =--no-build= recreate · three daemons =401= · =restarts=0=; rehearsal volume + dir removed | italian served |
+| 10 | MID /"check that the freight works."/ | three files =200 audio/mpeg=, a range =206=; coverage table | — |
+| 11 | /"ikiro comapct"/ | this walk | — |
+| 12 | MID =/compact= | — | — |
+
+Coverage: 1–12, each once. No turn lost from the transcript.
+
+Balance (fold N = 12, thirds 1–4 · 5–8 · 9–12): turns carrying a ruling or gate 2 · 3 · 2. The weight sits in the middle, where beef ruled on the data and the rehearsal ran.
+
+* failures
+
+- turn 2 — a prod cutover handed over as paste-ready with a rollback line and no boot: its move matched no file, the orphan =migrations/= stayed, and the recreate would have killed all three daemons. beef's /"this is prod. be careful"/ came before any write; the rehearsal found the crash. Callout appended (=zettelkasten.md=, =assume-dont-verify=, kin =live-system-unaware=).
+- turn 1 — the old seat's db path given as =<path-from-find>= placeholders: the risk was named, the seat not listed until turn 3.
+- turn 6 — the first inspection over ssh broke on nested quoting; moved to a script file uploaded with =scp=.
+- turn 8 — rehearsal 2's dead-port lighthouse was my own fixture and killed the boot; it measured a real defect (below) but was not the check it was meant to be. Rehearsal 3 stood up an isolated lighthouse.
+
+* State at fold
+
+- Prod runtime host, =/data/coolify/services/egcwkgw0cwg0kkwko4owooco/=: =instance/instance.viva.js= serves spanish · chess · droneaid; =instance/instance.viva.js.italian-20260927= is the italian recipe. Image =581d0504…= (=--no-build=; =pull_policy: build= rebuilds on a bare =up=).
+- Prod volume =egcwkgw0cwg0kkwko4owooco_mountpoint=: =daemon_spanish/spanish.viva.db= fresh (0 users, 1 migration, 1699 literals); =daemon_spanish.july/= the July seat untouched; =daemon_italian/= untouched, unserved.
+- Backup: the newest =/data/backup/mountpoint-…-2112.tgz= (35.7 MB), taken before the move.
+- Rollback: =cp instance/instance.viva.js.italian-20260927 instance/instance.viva.js && docker compose up -d --no-build --force-recreate runtime=.
+- Host residue: =alpine:latest= pulled; =rt_spanish_rehearsal= · =rt_spanish_lighthouse= · =rt_spanish_net= · =/root/spanish-rehearsal/= removed.
+- Not walked: anima at vivalence.com listing spanish; a chess game played.
+- Repo and registry: no file changed.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| compact-walk | 11 | HELD | spine and skills readers run with the session id; markers empty |
+| debugging | 8 | MISSED | two red rehearsals isolated by hand (orphan migrations · dead lighthouse), control run green, no firing |
+| capture-before-delete | 9 | MISSED | a seat moved on the prod volume after =scripts/backup.sh=, the capture held by hand, no firing — the skill scopes =~/.viva=, the prod volume is the same shape |
+
+* settlement
+
+- MARKERS: =## OPEN= empty.
+- Codeword scan of turns 1–12: none. The warning at 4 is a correction without a codeword → callout logged as self-caught.
+- Known issues: =runtime-dies-when-lighthouse-unreachable= and =orphan-migrations-dir-kills-a-renamed-seat= appended — both outlive this cutover and neither is mine to rule.
+- LEDGER: two MISSED rows appended.
+- Memory: =reference_prod_runtime_host.md= updated — spanish served, the july seat, the =--no-build= trap, the new rollback pair (private: host paths).
+
+* handoff
+- quest :: none
+- goal :: /"work out the chagne from italian to spanish"/ on the prod runtime
+- done :: prod serves =spanish= · =chess= · =droneaid=; =/daemon/spanish/status= =401=, =restarts=0=; freight =200 audio/mpeg=, range =206=; july seat at =daemon_spanish.july=
+- next :: open vivalence.com, pick Español, play one dojo round — the first client read of the new daemon
+- never :: /"this is prod. be careful"/ — a slug change on a live runtime ships only after a boot on a cloned volume with an isolated lighthouse
+- owed :: beef — the client walk · rulings on =runtime-dies-when-lighthouse-unreachable= and =orphan-migrations-dir-kills-a-renamed-seat= · spanish audio coverage (106/1231 words) is a harvest pass on =english-to-spanish=
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions   |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0          |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3          |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 1 (1 live) |
+| m73-anima-and-design-system-comps |  79% 11/14 | wip      | go                                                                                                | 1 (1 live) |
+| m74-the-boot-vector               |   9% 2/23  | wip      | blast                                                                                             | 3 (3 live) |

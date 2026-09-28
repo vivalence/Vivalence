@@ -37,9 +37,9 @@
     border-radius: 2px;
   }
   .list-item.invocable { cursor: pointer; }
-  .list-item.invocable:hover { background: var(--colors-skeleton-1-surface); }
-  .list-nature { color: var(--colors-skeleton-1-contrast); flex-shrink: 0; }
-  .list-prompt { color: var(--colors-skeleton-2-contrast); opacity: 0.35; font-size: var(--font-size-2xs); }
-  .list-key { color: var(--colors-skeleton-0-primary-base); font-size: var(--font-size-2xs); opacity: 0.4; margin-left: auto; flex-shrink: 0; }
+  .list-item.invocable:hover { background: var(--surface); }
+  .list-nature { color: var(--text-strong); flex-shrink: 0; }
+  .list-prompt { color: var(--text-strong); opacity: 0.35; font-size: var(--font-size-2xs); }
+  .list-key { color: var(--signal-primary-ink); font-size: var(--font-size-2xs); opacity: 0.4; margin-left: auto; flex-shrink: 0; }
   .list-result { opacity: 0.4; font-size: var(--font-size-2xs); }
 </style>

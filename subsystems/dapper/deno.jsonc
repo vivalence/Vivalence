@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "exports": {
     ".": "./mod.js",
+    "./contrast": "./lib/contrast.js",
     "./postcss": "./lifecycle/index.js",
     "./tailwind": "./belt/tailwind-theme.js"
     // "./bsp.css": "./primitives/bsp.css",

@@ -147,3 +147,52 @@ Held at one note, amend on a second: `sibling-reconcile` GAP (the quest report's
 - 8f39f3b2/43 `blast-bracket` MISSED — M5 reshaped a typology schematic with nine consumers across four containers; baseline, blast grep and re-grep ran by hand, the skill never fired · #214
 - 8f39f3b2/43 `pre-flight` MISSED — four new nouns (`Choice.Question` · `Choice.Round` · `tagging` · `bounding`) and `belt.hallucinate.choose`; `v.record` dropping `minProperties` was found by a red test, not by the check · #214
 - 8f39f3b2/58 `live-validation` MISSED — the census was proven in a fresh Chrome tab by hand (console read, a `console.log` wrap, `window.__viva`); the skill never fired · #215
+- 9c4d5944/5 `ontology-pass` MISSED — one concept under three names (zone · skeleton · level), zone names and slot names settled over eight turns by hand; the skill never fired · #216
+- 9c4d5944/46 `design-handoff` MISSED — a `.dc.html` pasted a second time; the comp re-read by hand, the pass never fired, and the reply argued structure from the comp's porcelain hexes until beef: /"what the designer does is what the designer does in its own universe"/ · #217
+- 9c4d5944/45 `quest-authoring` MISSED — m72 rewritten whole three times (45 · 53 · 59) with no firing; marker and structure checks ran by hand · #217
+- 9c4d5944/54 `ontology-pass` MISSED — `body` in two meanings (zone 1 · text step), five names proposed by hand; the skill fired at 48 for zone and not again · #217
+- 9c4d5944/67 `critical-pass` GAP — on a design-only quest (no patch) the sandbox + baseline steps did not translate into "probe the riskiest new seam": the typology import was listed as unproven, not run, until beef: /"test this early/first/as part of baseline."/ · #218
+- 9c4d5944/68 `quest-authoring` MISSED — m72 reworked twice more (68 · 72) by counted-swap scripts, no firing; recurring from #217 · #218
+- 54db1175/12 `shelf-sync` MISSED — `commons/instances/hello-world/app/App.svelte` edited with its shelf copy live; captured, diffed and synced by hand, the skill never fired · #219
+- 9c4d5944/79 `testing` GAP — baseline taken per chosen file, not per touched directory: hello-world's four reds had no before-run and were attributed by import graph until patch 3 · #220
+- 9c4d5944/79 `quest-authoring` MISSED — m72 re-cut into four patches and m73 seeded (87) with no firing; third fold running · #220
+- 9c4d5944/81 `live-validation` MISSED — four Chrome walks with no firing; the first probed the static build's 404 page (entry is `200.html`) · #220
+- 9c4d5944/85 `shelf-sync` MISSED — hello-world shelf synced by hand, its tests overwritten before capture; recurring from 54db1175/12 · #220
+- 9c4d5944/93 `design-handoff` GAP — the body knows neither `DesignSync get_file`'s 256 KiB cap (the comp came back `truncated: true`, `render()` lost) nor a comp already built on our token space, where step 4 (palette verbatim) and step 1 (bundler manifest) do not apply · #221
+- 9c4d5944/95 `quest-authoring` MISSED — m73 worked out from seed to six patches (95–104) with no firing; fourth fold running · #221
+- 9c4d5944/112 `quest-authoring` MISSED — m73 rewritten twice (against the comp's logic class, then by the critical pass) with no firing; fifth fold running · #222
+- 9c4d5944/113 `critical-pass` GAP — the ten steps cover an artifact that can be applied; three of m73's six patches were still designs. The beat the turn needed: for an unbuilt patch, read every `file:line`, every absence claim, every named symbol and every test that reads a touched file against the live tree (two read-only passes: 242 held, 12 moved, 29 wrong) · #222
+- 9c4d5944/113 `testing` MISSED — five suites baselined and re-run in a sandbox copy by its laws (baseline first, one envelope per suite, pasted), no firing · #222
+- 9c4d5944/113 `live-validation` MISSED — the kit walked in Chrome from a sandbox build with no firing; a hidden tab's DOM was read before its screenshot and gave stale values · #222
+- 9c4d5944/125 `live-validation` GAP — the sequence restarts the runtime for a buffer view; it does not say a dapper edit reaches the served sheet only after `anima/watch` restarts (`world/codemap/design.md:13`) — porcelain painted no ground until found · #223
+- 9c4d5944/132 `blast-bracket` MISSED — m73's patches 3 · 5 deleted nine files and a global rule block; the consumer greps ran by hand, no firing · #223
+- 9c4d5944/129 `testing` MISSED — six suites baselined before every patch and pasted after, by its laws, no firing; third fold running · #223
+- 9c4d5944/135 `quest-authoring` MISSED — two organs (`* expectation ↔ reality` · `* dropped`) added to m73 on beef's order, no firing; sixth fold running · #223
+- 9c4d5944/142 `design-handoff` GAP — no step holds the comp against the served tree region by region before a done claim, and none re-fetches the comp before apply; the radial's paint and the pincer's brand ring were found by beef, 17 more by an audit after · #224
+- 9c4d5944/150 `design-handoff` MISSED — the design tool's handoff pasted (`Implement: Anima.dc.html`) over a comp that had moved; fetched, decoded and diffed by its laws, no firing · #224
+- 9c4d5944/145 `live-validation` MISSED — the radial and the brand walked in Chrome, no firing · #224
+- 9c4d5944/155 `live-validation` GAP — a hidden tab never advances a CSS transition: a computed style read after a theme switch reports the state before; the body names `requestAnimationFrame` only · #224
+- 9c4d5944/160 `quest-authoring` MISSED — a QA marker and an audit block added to m73, no firing; seventh fold running · #224
+- fd17e14d/11 `testing` MISSED — runtime baseline (65 passed, 422 steps) and a sandbox suite run and pasted by its laws for m74, no firing
+- fd17e14d/11 `blast-bracket` MISSED — `Die` · `.good` · `stagger` consumers grepped by hand across the repo and `~/.viva/registry` for m74's flag day, no firing
+- 9c4d5944/162 `live-validation` MISSED — the chess board in four themes and the radial walked in Chrome, no firing · #226
+- 9c4d5944/162 `live-validation` GAP — one storage key for every tab: a snapshot restored after a walk overwrote beef's newer save; a hidden tab throttles `setTimeout` (a second, then minutes), so a synthetic tap needs down and up back to back and a hold-and-wait walk timed out · #226
+- 9c4d5944/162 `testing` MISSED — guardrails first by its laws (chess P-theme-reads red; the gesture's nine old steps green on the pre-image, nine new red there), no firing; fourth fold running · #226
+- 9c4d5944/162 `blast-bracket` MISSED — the keep-list's `gesture.js` · `geometry.js` changed, consumers (`+page` · the pincer · `BridgeSection` · tests) mapped by hand, suites both sides, no firing · #226
+- 9c4d5944/162 `callout` MISSED — beef's caps logged as a RULE FAILURE (`flag-day-radius`) in the skill's shape, the recurrence audit by grep, no firing · #226
+- 9c4d5944/162 `quest-authoring` MISSED — m73's status · marker · two organ blocks · changelog · release written, no firing; eighth fold running · #226
+- 9c4d5944/164 `design-handoff` MISSED — a screenshot of the shoulder against the comp's bone keys: `MG` read from the logic class, the icons fetched, ported, no firing; its step 9 (a snippet measured in HIS tab) not run · #226
+- 9c4d5944/168 `budget-eviction` GAP — frontier 1257/750, every line over it KEEP by the skill's own rule (a live sibling's m74 handoff, 496 chars; beef's owed session blocks #211–#219, 329); no fate named for KEEP alone above baseline, the gate waits on `compact-go` · #226
+- fd17e14d/24 `testing` MISSED — "test if this structure is possible on a scratchpad": three sandbox suites built and run, counts pasted by the skill's laws, no firing · #227
+- fd17e14d/27 `blast-bracket` MISSED — "fix the typology. execute and direct.": `steer.strategy.direct` (16 readers, registry included) and `steer.dispatch.execute` grepped by hand before and after, suites both sides, no firing · #227
+- fd17e14d/44 `quest-authoring` MISSED — "generally rework the quest … entirely state. no history.": m74 rewritten whole (2496 → 712 lines), organs chosen by hand, no firing · #227
+- 339ef973/8 `debugging` MISSED — two red rehearsals of a prod cutover isolated by hand (orphan July migrations · dead-port lighthouse), a green control with an isolated lighthouse, no firing · #228
+- 339ef973/9 `capture-before-delete` MISSED — a daemon seat moved on the prod mountpoint volume after `scripts/backup.sh`, capture held by hand; the skill scopes `~/.viva`, a prod volume is the same shape and not in its trigger surface · #228
+- 886a541b/9 `compact-walk` STALE — the failure table names `queue-operation` as the mid-turn shape; Claude Code 2.1.284 writes a mid-turn message as `attachment` · `queued_command` · `humanTurn`, and `spine.py` read N=6 of 9 (the three agent-law turns lost). Extractor taught the shape this fold · #229
+- 886a541b/2 `quest-authoring` MISSED — "use this opportunity to nugde our testing …": runtime-scenarios written whole (718 lines, organs by hand) and m74 rewritten after its critical pass, no firing · #229
+- 886a541b/2 `blast-bracket` MISSED — "@beef go land." on `belt/control.js`: a typology primitive, bracketed by hand (typology `131 passed (562 steps)` before and after, the name grepped), no firing · #229
+- 886a541b/16 `quest-authoring` MISSED — "cut the yap. loose 40% of text.": m74 rewritten whole while beef marked it live; his 12 inline `@beef` comments lifted into QUESTIONED, no firing · #230
+- 886a541b/23 `callout` MISSED — "dont cut my comments idiot": the entry written by hand, recurrence audit skipped, no firing · #230
+- 886a541b/32 `quest-authoring` MISSED — "work through my notes. drop them where resolved.": 39 marks worked through a hand-written splice script, organs checked by hand; the skill's mark grep ran, no firing · #231
+- 886a541b/36 `rename-pass` GAP — "make this m75.": the skill carries organs for EXECUTING a rename (blast, residue); authoring a rename QUEST with forks still open (four meanings of one word, a word still to choose) has no organ for the partition of meanings itself · #231
+- 886a541b/59 `quest-lifecycle` GAP — "work those into one. merge 75 into 74": no organ for a MERGE (one quest absorbed, the other to `discarded/` with an epitaph, the host's milestone refs renumbered in siblings); its tree preamble runs `.ikiro/methods/quest-report.py` cwd-relative and printed a crash from `.ikiro/quests` · #233

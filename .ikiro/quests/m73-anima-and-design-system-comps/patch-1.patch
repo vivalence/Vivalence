@@ -1,0 +1,703 @@
+diff --git a/commons/instances/hello-world/tests/style.tokens.test.js b/commons/instances/hello-world/tests/style.tokens.test.js
+index 3a1f47e..72c3e74 100644
+--- a/commons/instances/hello-world/tests/style.tokens.test.js
++++ b/commons/instances/hello-world/tests/style.tokens.test.js
+@@ -37,8 +37,10 @@ specimen.describe(
+       "dapper defines every one of them, in EVERY theme it ships",
+       () => {
+         specimen.expect(Object.keys(blocks).sort()).toEqual([
++          "datasette",
+           "northsea",
+           "parchment",
++          "porcelain",
+         ]);
+         for (const [name, block] of Object.entries(blocks)) {
+           const missing = taught.filter((token) =>
+diff --git a/subsystems/dapper/lib/emit.js b/subsystems/dapper/lib/emit.js
+index bd7a9cb..d68216b 100644
+--- a/subsystems/dapper/lib/emit.js
++++ b/subsystems/dapper/lib/emit.js
+@@ -51,7 +51,9 @@ const signal = ({ signal: held }) =>
+     [`--signal-${name}-on`, held[name].on],
+   ]);
+ 
+-export const declarations = (zone) => [...earth(zone), ...shape(zone), ...size(zone), ...text(zone), ...control(zone), ...signal(zone)];
++const font = ({ font: held }) => Object.keys(held.family).map((key) => [`--font-family-${kebab(key)}`, held.family[key]]);
++
++export const declarations = (zone) => [...earth(zone), ...shape(zone), ...size(zone), ...text(zone), ...control(zone), ...signal(zone), ...font(zone)];
+ 
+ const block = (selector, zone) =>
+   `${selector} {\n${declarations(zone).map(([name, value]) => `  ${name}: ${value};`).join("\n")}\n}\n`;
+diff --git a/subsystems/dapper/lib/theme.js b/subsystems/dapper/lib/theme.js
+index 3105477..1e1591d 100644
+--- a/subsystems/dapper/lib/theme.js
++++ b/subsystems/dapper/lib/theme.js
+@@ -148,6 +148,7 @@ const complete = (root, zone, bench) => {
+     text,
+     control: controls(held.control ?? {}, text, signal.primary, laid),
+     signal,
++    font: merge(defaults(groups.font), held.font ?? {}),
+   };
+ };
+ 
+diff --git a/subsystems/dapper/lib/tokens.js b/subsystems/dapper/lib/tokens.js
+index e2d58f9..6f2fd56 100644
+--- a/subsystems/dapper/lib/tokens.js
++++ b/subsystems/dapper/lib/tokens.js
+@@ -1,30 +1,6 @@
+ // import { boxShadow, dropShadow, border, container, spacing, animation } from "./tokens.js";
+ 
+ export const font = {
+-  // family: {
+-  //   brand: ["K2D", "sans-serif"], // Brand elements
+-  //   "sans-heading": ["Poppins", "sans-serif"], // Systemspace, structural interface
+-  //   "sans-text": ["Inter", "sans-serif"], // Interface text, userspace
+-  //   "serif-heading": ["Sabon", "serif"], // Keep for legacy
+-  //   "serif-text": ["Sabon", "serif"], // Keep for legacy
+-  //   monospace: , // Code and mono
+-  //   userspace: , //
+-  //   systemspace: , //
+-  //   inhalt: , //
+-  //   struktur: , //
+-  // brand/identity/theme = systemspace inhalt
+-  // },
+-  family: {
+-    "serif-heading": ["Poppins", "serif"],
+-    "sans-heading": ["Poppins", "sans"],
+-    "serif-text": ["Inter", "Sabon", "serif"],
+-    "sans-text": ["Inter", "sans"],
+-    brand: ["K2D", "sans"],
+-    // /  ()
+-    // / system (names of daemons, modes, valences)
+-    // / client (setting panel labels)
+-    code: ["Victor Mono", "monospace"],
+-  },
+   size: {
+     "2xs": "0.55rem",
+     xs: "0.6rem",
+diff --git a/subsystems/dapper/primitives/font.css b/subsystems/dapper/primitives/font.css
+index 31e24af..6840e1b 100644
+--- a/subsystems/dapper/primitives/font.css
++++ b/subsystems/dapper/primitives/font.css
+@@ -55,6 +55,55 @@
+   font-optical-sizing: auto;
+ }
+ 
++@font-face {
++  font-family: "IBM Plex Sans";
++  src: url("/static/fonts/IBM Plex Sans/IBMPlexSans-VariableFont_wdth,wght.ttf") format("truetype");
++  font-weight: 100 700;
++  font-style: normal;
++}
++@font-face {
++  font-family: "IBM Plex Sans";
++  src: url("/static/fonts/IBM Plex Sans/IBMPlexSans-Italic-VariableFont_wdth,wght.ttf") format("truetype");
++  font-weight: 100 700;
++  font-style: italic;
++}
++@font-face {
++  font-family: "IBM Plex Mono";
++  src: url("/static/fonts/IBM Plex Mono/IBMPlexMono-Regular.ttf") format("truetype");
++  font-weight: 400;
++  font-style: normal;
++}
++@font-face {
++  font-family: "IBM Plex Mono";
++  src: url("/static/fonts/IBM Plex Mono/IBMPlexMono-Medium.ttf") format("truetype");
++  font-weight: 500;
++  font-style: normal;
++}
++@font-face {
++  font-family: "IBM Plex Mono";
++  src: url("/static/fonts/IBM Plex Mono/IBMPlexMono-SemiBold.ttf") format("truetype");
++  font-weight: 600;
++  font-style: normal;
++}
++@font-face {
++  font-family: "Space Mono";
++  src: url("/static/fonts/Space Mono/SpaceMono-Regular.ttf") format("truetype");
++  font-weight: 400;
++  font-style: normal;
++}
++@font-face {
++  font-family: "Space Mono";
++  src: url("/static/fonts/Space Mono/SpaceMono-Bold.ttf") format("truetype");
++  font-weight: 700;
++  font-style: normal;
++}
++@font-face {
++  font-family: "VT323";
++  src: url("/static/fonts/VT323/VT323-Regular.ttf") format("truetype");
++  font-weight: 400;
++  font-style: normal;
++}
++
+ @font-face {
+   font-family: "Poppins";
+   src: url("/static/fonts/Poppins/Poppins-Thin.ttf") format("truetype");
+diff --git a/subsystems/dapper/tests/emit.test.js b/subsystems/dapper/tests/emit.test.js
+index aa088cd..6846b71 100644
+--- a/subsystems/dapper/tests/emit.test.js
++++ b/subsystems/dapper/tests/emit.test.js
+@@ -33,14 +33,14 @@ specimen.describe("emit — the shape of one theme's sheet", () => {
+       ]);
+     });
+ 
+-    specimen.it(`${name}: every block holds 97 declarations, no name twice`, () => {
++    specimen.it(`${name}: every block holds 103 declarations, no name twice`, () => {
+       for (const block of blocks(css)) {
+-        specimen.expect([block.selector, block.declarations.length]).toEqual([block.selector, 97]);
+-        specimen.expect([block.selector, new Set(block.declarations.map(([held]) => held)).size]).toEqual([block.selector, 97]);
++        specimen.expect([block.selector, block.declarations.length]).toEqual([block.selector, 103]);
++        specimen.expect([block.selector, new Set(block.declarations.map(([held]) => held)).size]).toEqual([block.selector, 103]);
+       }
+     });
+ 
+-    specimen.it(`${name}: every block declares the same 97 names in the same order`, () => {
++    specimen.it(`${name}: every block declares the same 103 names in the same order`, () => {
+       const [first, ...rest] = blocks(css).map((block) => block.declarations.map(([held]) => held));
+       for (const names of rest) specimen.expect(names).toEqual(first);
+     });
+@@ -88,9 +88,10 @@ specimen.describe("emit — names", () => {
+     ]);
+   });
+ 
+-  specimen.it("the groups follow: shape 19 · size 29 · text 8 · control 13 · signal 16", () => {
++  specimen.it("the groups follow: shape 19 · size 29 · text 8 · control 13 · signal 16 · font 6", () => {
+     const count = (prefix) => names.filter((name) => name.startsWith(prefix)).length;
+-    specimen.expect([count("--shape-"), count("--size-"), count("--text-"), count("--control-"), count("--signal-")]).toEqual([19, 29, 8, 13, 16]);
++    specimen.expect([count("--shape-"), count("--size-"), count("--text-"), count("--control-"), count("--signal-"), count("--font-")]).toEqual([19, 29, 8, 13, 16, 6]);
++    specimen.expect(names.slice(-6)).toEqual(["--font-family-sans-heading", "--font-family-sans-text", "--font-family-serif-heading", "--font-family-serif-text", "--font-family-brand", "--font-family-code"]);
+   });
+ 
+   specimen.it("camelCase leaves as kebab", () => {
+@@ -108,8 +109,8 @@ specimen.describe("emit — names", () => {
+     }
+   });
+ 
+-  specimen.it("every name is one of today's five prefixes or a ground key", () => {
+-    const stray = names.slice(12).filter((name) => !/^--(shape|size|text|control|signal)-[a-z0-9-]+$/.test(name));
++  specimen.it("every name is one of today's six prefixes or a ground key", () => {
++    const stray = names.slice(12).filter((name) => !/^--(shape|size|text|control|signal|font)-[a-z0-9-]+$/.test(name));
+     specimen.expect(stray).toEqual([]);
+   });
+ 
+@@ -161,7 +162,7 @@ specimen.describe("emit — values", () => {
+   specimen.it("a shadow leaves resolved: shape's geometry with the zone's tone", () => {
+     specimen.expect([zone["--shape-lift"], zone["--shape-sunk"]]).toEqual(["0 12px 30px rgba(0, 0, 0, 0.45)", "inset 0 2px 3px rgba(0, 0, 0, 0.45)"]);
+     const parchment = Object.fromEntries(declarations(THEMES.parchment.zones[0]));
+-    specimen.expect(parchment["--shape-lift"]).toBe("0 12px 30px rgba(61, 55, 42, 0.16)");
++    specimen.expect(parchment["--shape-lift"]).toBe("0 8px 24px rgba(61, 55, 42, 0.16)");
+   });
+ 
+   specimen.it("a zone's own shadow tone reaches its own shadows only", () => {
+@@ -205,36 +206,48 @@ specimen.describe("emit — a zone's override", () => {
+ });
+ 
+ specimen.describe("design() — one sheet: the scales, then every theme", () => {
+-  const SCALES = ["spacing", "font-family", "font-size", "line-height", "box-shadow", "drop-shadow", "container", "border-radius", "animation"];
++  const SCALES = ["spacing", "font-size", "line-height", "box-shadow", "drop-shadow", "container", "border-radius", "animation"];
+   const selectors = [...ds.output.css.matchAll(/^([^\n{}]+) \{$/gm)].map((match) => match[1]);
+ 
+   specimen.it("the sheet is the scales, then each theme emitted, nothing else", () => {
+     specimen.expect(ds.output.css).toBe([scales(), ...Object.entries(THEMES).map(([name, held]) => emit(name, held))].join("\n"));
+-    specimen.expect(Object.keys(ds.themes)).toEqual(["northsea", "parchment"]);
++    specimen.expect(Object.keys(ds.themes)).toEqual(["northsea", "parchment", "porcelain", "datasette"]);
+   });
+ 
+-  specimen.it("eleven blocks: one :root, then five per theme", () => {
+-    specimen.expect(selectors).toHaveLength(11);
++  specimen.it("twenty-one blocks: one :root, then five per theme", () => {
++    specimen.expect(selectors).toHaveLength(21);
+     specimen.expect(selectors[0]).toBe(":root");
+     specimen.expect(selectors.slice(1).every((selector) => selector.startsWith(':root[data-theme="'))).toBe(true);
+   });
+ 
+   specimen.it("the scales sit under a bare :root, so a page with no theme still has its sizes", () => {
+     const block = named(scales(), ":root");
+-    specimen.expect(block.declarations).toHaveLength(62);
++    specimen.expect(block.declarations).toHaveLength(56);
+     const families = [...new Set(block.declarations.map(([name]) => SCALES.find((family) => name.startsWith(`--${family}-`))))];
+     specimen.expect(families).toEqual(SCALES);
+   });
+ 
+   specimen.it("every scale the old sheet emitted is still emitted, under the same name", () => {
+     const names = named(scales(), ":root").declarations.map(([name]) => name);
+-    for (const name of ["--font-size-2xs", "--font-size-base", "--font-size-8xl", "--line-height-2xs", "--font-family-code", "--font-family-sans-text", "--font-family-brand",
++    for (const name of ["--font-size-2xs", "--font-size-base", "--font-size-8xl", "--line-height-2xs",
+       "--border-radius-none", "--border-radius-default", "--border-radius-full", "--spacing-0", "--spacing-8", "--container-padding-lg", "--animation-spin-slow",
+       "--box-shadow-sm", "--box-shadow-xl", "--drop-shadow-none"]) {
+       specimen.expect([name, names.includes(name)]).toEqual([name, true]);
+     }
+   });
+ 
++  specimen.it("a family is the theme's: six names in every theme root and zone block, none under the bare :root", () => {
++    const families = ["--font-family-sans-heading", "--font-family-sans-text", "--font-family-serif-heading", "--font-family-serif-text", "--font-family-brand", "--font-family-code"];
++    specimen.expect(named(scales(), ":root").declarations.filter(([name]) => name.startsWith("--font-family-"))).toEqual([]);
++    for (const block of blocks(ds.output.css).slice(1)) {
++      specimen.expect([block.selector, block.declarations.map(([name]) => name).filter((name) => name.startsWith("--font-family-"))]).toEqual([block.selector, families]);
++    }
++    const held = (name, zone) => Object.fromEntries(declarations(THEMES[name].zones[zone]));
++    specimen.expect(held("northsea", 1)["--font-family-sans-text"]).toBe("Inter, sans-serif");
++    specimen.expect(held("porcelain", 0)["--font-family-code"]).toBe("IBM Plex Mono, monospace");
++    specimen.expect(held("datasette", 3)["--font-family-sans-heading"]).toBe("VT323, Space Mono, monospace");
++  });
++
+   specimen.it("a scale shadow is geometry with the zone's tone, never a colour of its own", () => {
+     const shadows = named(scales(), ":root").declarations.filter(([name]) => /^--(box|drop)-shadow-/.test(name) && name !== "--drop-shadow-none");
+     specimen.expect(shadows).toHaveLength(10);
+@@ -245,7 +258,7 @@ specimen.describe("design() — one sheet: the scales, then every theme", () =>
+     specimen.expect(/#[0-9A-Fa-f]{6}|rgba?\(/.test(scales())).toBe(false);
+     specimen.expect(Object.keys(TOKENS)).toEqual(["spacing", "font", "line-height", "box-shadow", "drop-shadow", "container", "border", "animation"]);
+     const zoned = ds.output.css.slice(scales().length);
+-    specimen.expect(/--(font|line-height|spacing|border-radius|box-shadow|drop-shadow)-/.test(zoned)).toBe(false);
++    specimen.expect(/--(font-size|line-height|spacing|border-radius|box-shadow|drop-shadow)-/.test(zoned)).toBe(false);
+   });
+ 
+   specimen.it("nothing of the retired pipeline is emitted", () => {
+@@ -263,7 +276,7 @@ specimen.describe("design() — one sheet: the scales, then every theme", () =>
+     specimen.expect(ds.output.css.split("{").length).toBe(ds.output.css.split("}").length);
+     const inside = ds.output.css.split("\n").filter((line) => line.startsWith("  "));
+     specimen.expect(inside.filter((line) => !/^  --[a-z0-9-]+: [^;]+;$/.test(line))).toEqual([]);
+-    specimen.expect(inside).toHaveLength(62 + 2 * 5 * 97);
++    specimen.expect(inside).toHaveLength(56 + 4 * 5 * 103);
+   });
+ 
+   specimen.it("dapper's door exports the one pipe and nothing of the old", async () => {
+@@ -304,7 +317,8 @@ specimen.describe("gradients — each theme owns its own", () => {
+     for (const name of Object.keys(THEMES)) {
+       const source = Deno.readTextFileSync(new URL(`../themes/${name}/theme.js`, import.meta.url));
+       const imports = [...source.matchAll(/from "([^"]+)"/g)].map((match) => match[1]);
+-      specimen.expect([name, imports]).toEqual([name, ["../../lib/theme.js", "./gradients.js"]]);
++      const own = (() => { try { Deno.statSync(new URL(`../themes/${name}/gradients.js`, import.meta.url)); return ["./gradients.js"]; } catch { return []; } })();
++      specimen.expect([name, imports]).toEqual([name, ["../../lib/theme.js", ...own]]);
+     }
+   });
+ });
+diff --git a/subsystems/dapper/tests/theme.test.js b/subsystems/dapper/tests/theme.test.js
+index 93b9c91..56c21c8 100644
+--- a/subsystems/dapper/tests/theme.test.js
++++ b/subsystems/dapper/tests/theme.test.js
+@@ -25,7 +25,7 @@ specimen.describe("theme() — the floor", () => {
+   specimen.it("three values complete to a whole theme", () => {
+     const held = theme(FLOOR);
+     specimen.expect(Theme.faults(held)).toEqual([]);
+-    specimen.expect(paths(held)).toHaveLength(85 + 4 * 97);
++    specimen.expect(paths(held)).toHaveLength(91 + 4 * 103);
+   });
+ 
+   specimen.it("below the floor it throws, naming what is lacking", () => {
+@@ -424,14 +424,14 @@ specimen.describe("theme() — the two themes dapper ships", () => {
+ 
+   specimen.it("northsea, parchment and the sparse definition complete to one key set", () => {
+     const keys = paths(theme(SPARSE));
+-    specimen.expect(keys).toHaveLength(85 + 4 * 97);
++    specimen.expect(keys).toHaveLength(91 + 4 * 103);
+     for (const held of Object.values(THEMES)) specimen.expect(paths(held)).toEqual(keys);
+   });
+ 
+-  specimen.it("every zone of both passes Zone and emits 97 declarations", () => {
++  specimen.it("every zone of every theme passes Zone and emits 103 declarations", () => {
+     for (const [name, held] of Object.entries(THEMES)) {
+       held.zones.forEach((zone, index) => {
+-        specimen.expect([name, index, Zone.faults(zone), declarations(zone).length]).toEqual([name, index, [], 97]);
++        specimen.expect([name, index, Zone.faults(zone), declarations(zone).length]).toEqual([name, index, [], 103]);
+       });
+     }
+   });
+@@ -477,3 +477,61 @@ specimen.describe("theme() — the two themes dapper ships", () => {
+     }
+   });
+ });
++
++specimen.describe("theme() — fonts", () => {
++  const FAMILIES = { sansHeading: "Poppins, sans-serif", sansText: "Inter, sans-serif", serifHeading: "Poppins, serif", serifText: "Inter, Sabon, serif", brand: "K2D, sans-serif", code: "Victor Mono, monospace" };
++
++  specimen.it("the floor completes to the six default families, in every zone", () => {
++    const held = theme(FLOOR);
++    specimen.expect(held.font.family).toEqual(FAMILIES);
++    for (const zone of held.zones) specimen.expect(zone.font.family).toEqual(FAMILIES);
++  });
++
++  specimen.it("a stated family reaches every zone and leaves the other five at their defaults", () => {
++    const held = over({ font: { family: { code: "IBM Plex Mono, monospace" } } });
++    specimen.expect(held.zones.map((zone) => zone.font.family.code)).toEqual(Array(4).fill("IBM Plex Mono, monospace"));
++    specimen.expect(held.zones[2].font.family.sansText).toBe("Inter, sans-serif");
++  });
++
++  specimen.it("a zone stating a family overrides its own block alone", () => {
++    const held = over({ font: { family: { code: "IBM Plex Mono, monospace" } }, zones: { 0: "#E9E5D3", 2: { surface: "#FBFAF2", font: { family: { code: "Space Mono, monospace" } } }, 3: "#DAD4C0" } });
++    specimen.expect(held.zones.map((zone) => zone.font.family.code)).toEqual(["IBM Plex Mono, monospace", "IBM Plex Mono, monospace", "Space Mono, monospace", "IBM Plex Mono, monospace"]);
++  });
++
++  specimen.it("an empty family and an unknown family name are refused", () => {
++    specimen.expect(() => over({ font: { family: { code: "" } } })).toThrow();
++    specimen.expect(() => over({ font: { family: { mono: "Space Mono, monospace" } } })).toThrow();
++  });
++});
++
++specimen.describe("porcelain · datasette — the designer's two", () => {
++  const { porcelain, datasette } = THEMES;
++
++  specimen.it("both pass Theme, every zone 103 declarations", () => {
++    for (const [name, held] of Object.entries({ porcelain, datasette })) {
++      specimen.expect([name, Theme.faults(held)]).toEqual([name, []]);
++      held.zones.forEach((zone, index) => specimen.expect([name, index, declarations(zone).length]).toEqual([name, index, 103]));
++    }
++  });
++
++  specimen.it("porcelain's chrome is dark, its body light", () => {
++    specimen.expect([porcelain.zones[0].surface, porcelain.zones[1].surface, porcelain.zones[0].text.header, porcelain.zones[1].text.header]).toEqual(["#0E1A25", "#EDF0F4", "#FFFFFF", "#0E1A25"]);
++  });
++
++  specimen.it("the floor fixes read back: tints stated, the chrome's muted label and focus ring raised", () => {
++    specimen.expect([porcelain.signal.primary.tint, porcelain.zones[3].signal.negative.tint, porcelain.zones[0].control.onMuted]).toEqual(["rgba(61, 82, 140, 0.1)", "rgba(164, 65, 42, 0.1)", "#5F7286"]);
++    specimen.expect([datasette.signal.primary.tint, datasette.zones[3].signal.positive.tint, datasette.zones[0].control.focus]).toEqual(["rgba(200, 64, 26, 0.14)", "rgba(47, 122, 58, 0.14)", "#F0A18B"]);
++  });
++
++  specimen.it("each names its own families, in every zone", () => {
++    specimen.expect(porcelain.zones.map((zone) => [zone.font.family.sansText, zone.font.family.code])).toEqual(Array(4).fill(["IBM Plex Sans, sans-serif", "IBM Plex Mono, monospace"]));
++    specimen.expect(datasette.zones.map((zone) => [zone.font.family.sansHeading, zone.font.family.code])).toEqual(Array(4).fill(["VT323, Space Mono, monospace", "Space Mono, monospace"]));
++  });
++
++  specimen.it("parchment re-tuned: a paper 50 key, rounder corners, a softer divider per zone", () => {
++    const { parchment } = THEMES;
++    specimen.expect([parchment.control.contrast, parchment.control.contrastHover, parchment.control.contrastPressed]).toEqual(["#FBFAF2", "#F5F3E8", "#DAD4C0"]);
++    specimen.expect(parchment.zones.map((zone) => zone.divider)).toEqual(["#E9E5D3", "#F0EDDE", "#F5F3E8", "#DAD4C0"]);
++    for (const zone of parchment.zones) specimen.expect([zone.shape.radius.key, zone.shape.radius.md, zone.shape.label.track, zone.shape.lift, zone.size.row]).toEqual(["md", "7px", ".12em", "0 8px 24px", 7]);
++  });
++});
+diff --git a/subsystems/dapper/themes/datasette/theme.js b/subsystems/dapper/themes/datasette/theme.js
+new file mode 100644
+index 0000000..9d5a726
+--- /dev/null
++++ b/subsystems/dapper/themes/datasette/theme.js
+@@ -0,0 +1,26 @@
++import { theme } from "../../lib/theme.js";
++
++const mono = "Space Mono, monospace";
++const display = "VT323, Space Mono, monospace";
++
++export default theme({
++  shape:   { radius: "0px", label: { case: "uppercase", track: ".08em" }, lift: "6px 6px 0", sunk: "0 0 0 0" },
++  size:    { row: 6.5, depth: "0px" },
++  font:    { family: { sansHeading: display, sansText: mono, serifHeading: display, serifText: mono, brand: display, code: mono } },
++  text:    { header: "#111111", strong: "#111111", ink: "#333333", light: "#5E5E57", muted: "#5E5E57" },
++  control: { contrast: "#FFFFFF", contrastPressed: "#1A1A1A", on: "#333333", onMuted: "#5E5E57", onPressed: "#F4F4F1", field: "#FFFFFF", selected: "rgba(0, 0, 0, 0.05)", focus: "#C8401A", divider: "#2A2A2A" },
++  signal:  { primary:  { fill: "#C8401A", ink: "#A63216", on: "#FFFFFF", tint: "rgba(200, 64, 26, 0.14)" },
++             positive: { fill: "#2F7A3A", ink: "#286830", on: "#FFFFFF", tint: "rgba(47, 122, 58, 0.14)" },
++             caution:  { fill: "#9A6A10", ink: "#725006", on: "#FFFFFF", tint: "rgba(154, 106, 16, 0.14)" },
++             negative: { fill: "#C8401A", ink: "#A63216", on: "#FFFFFF", tint: "rgba(200, 64, 26, 0.14)" } },
++  zones: {
++    0: { surface: "#111111", surfaceSunk: "#000000", surfaceLift: "#2A2A2A", boundary: "#000000", boundaryStrong: "#5E5E57", divider: "#2A2A2A", shadow: "#000000", inverse: "#F4F4F1", inverseOn: "#111111",
++         text:    { header: "#FFFFFF", strong: "#F4F4F1", ink: "#D9D9D4", light: "#A8A8A2", muted: "#8A8A84" },
++         control: { contrast: "#F4F4F1", contrastHover: "#FFFFFF", contrastPressed: "#464646", on: "#111111", onMuted: "#8A8A84", onPressed: "#F4F4F1",
++                    field: "#000000", fieldPlaceholder: "#8A8A84", selected: "rgba(255, 255, 255, 0.06)", focus: "#F0A18B", divider: "#000000", scrollbar: "#5E5E57" },
++         signal:  { primary: { ink: "#F0A18B" }, positive: { ink: "#8FCF98" }, caution: { ink: "#E3B85A" }, negative: { ink: "#F0A18B" } } },
++    1: { surface: "#F4F4F1", surfaceSunk: "#E7E7E2", surfaceLift: "#FFFFFF", boundary: "#2A2A2A", boundaryStrong: "#111111", divider: "#2A2A2A", shadow: "#111111" },
++    2: { surface: "#FFFFFF", surfaceSunk: "#EEEEEA", surfaceLift: "#FFFFFF", boundary: "#2A2A2A", boundaryStrong: "#111111", divider: "#2A2A2A", shadow: "#111111" },
++    3: { surface: "#EEEEEA", surfaceSunk: "#E7E7E2", surfaceLift: "#FFFFFF", boundary: "#2A2A2A", boundaryStrong: "#111111", divider: "#2A2A2A", shadow: "#111111" },
++  },
++});
+diff --git a/subsystems/dapper/themes/index.js b/subsystems/dapper/themes/index.js
+index 9fe2588..2757e98 100644
+--- a/subsystems/dapper/themes/index.js
++++ b/subsystems/dapper/themes/index.js
+@@ -1,4 +1,6 @@
+ import northsea from "./northsea/theme.js";
+ import parchment from "./parchment/theme.js";
++import porcelain from "./porcelain/theme.js";
++import datasette from "./datasette/theme.js";
+ 
+-export const THEMES = { northsea, parchment };
++export const THEMES = { northsea, parchment, porcelain, datasette };
+diff --git a/subsystems/dapper/themes/parchment/theme.js b/subsystems/dapper/themes/parchment/theme.js
+index 82587eb..4a1c834 100644
+--- a/subsystems/dapper/themes/parchment/theme.js
++++ b/subsystems/dapper/themes/parchment/theme.js
+@@ -4,17 +4,20 @@ import { paper, ink, aqua, moss, rose, tomato } from "./gradients.js";
+ const shadow = "rgba(61, 55, 42, 0.16)";
+ 
+ export default theme({
++  shape:   { radius: { "2xs": "2px", xs: "4px", sm: "5px", md: "7px", lg: "10px", xl: "14px", "2xl": "18px", "3xl": "24px", key: "md", field: "md", card: "lg", pill: "full", disc: "full" },
++             label: { track: ".12em" }, lift: "0 8px 24px" },
++  size:    { row: 7 },
+   text:    { header: ink[950], strong: ink[900], ink: paper[800], light: paper[700], muted: paper[600], link: aqua[600], code: rose[600] },
+-  control: { contrast: paper[200], contrastHover: paper[300], contrastPressed: paper[400], on: ink[900], onMuted: paper[700], onPressed: aqua[700],
++  control: { contrast: paper[50], contrastHover: paper[100], contrastPressed: paper[300], on: ink[900], onMuted: paper[700], onPressed: aqua[700],
+              field: paper[50], fieldPlaceholder: paper[600], fieldCaret: aqua[600], focus: aqua[600], scrollbar: paper[400], divider: paper[400] },
+   signal:  { primary:  { fill: aqua[500],   ink: aqua[600],   on: paper[50] },
+              positive: { fill: moss[500],   ink: moss[600],   on: paper[50] },
+              caution:  { fill: rose[500],   ink: rose[600],   on: paper[50] },
+              negative: { fill: tomato[500], ink: tomato[600], on: paper[50] } },
+   zones: {
+-    0: { surface: paper[150], surfaceSunk: paper[200], surfaceLift: paper[100], boundary: paper[500], boundaryStrong: paper[600], divider: paper[300], shadow },
+-    1: { surface: paper[100], surfaceSunk: paper[150], surfaceLift: paper[50],  boundary: paper[500], boundaryStrong: paper[600], divider: paper[300], shadow },
+-    2: { surface: paper[50],  surfaceSunk: paper[100], surfaceLift: paper[50],  boundary: paper[400], boundaryStrong: paper[600], divider: paper[200], shadow },
+-    3: { surface: paper[200], surfaceSunk: paper[300], surfaceLift: paper[100], boundary: paper[400], boundaryStrong: paper[600], divider: paper[400], shadow },
++    0: { surface: paper[150], surfaceSunk: paper[200], surfaceLift: paper[100], boundary: paper[500], boundaryStrong: paper[600], divider: paper[200], shadow },
++    1: { surface: paper[100], surfaceSunk: paper[150], surfaceLift: paper[50],  boundary: paper[500], boundaryStrong: paper[600], divider: paper[150], shadow },
++    2: { surface: paper[50],  surfaceSunk: paper[100], surfaceLift: paper[50],  boundary: paper[400], boundaryStrong: paper[600], divider: paper[100], shadow },
++    3: { surface: paper[200], surfaceSunk: paper[300], surfaceLift: paper[100], boundary: paper[400], boundaryStrong: paper[600], divider: paper[300], shadow },
+   },
+ });
+diff --git a/subsystems/dapper/themes/porcelain/theme.js b/subsystems/dapper/themes/porcelain/theme.js
+new file mode 100644
+index 0000000..476572c
+--- /dev/null
++++ b/subsystems/dapper/themes/porcelain/theme.js
+@@ -0,0 +1,26 @@
++import { theme } from "../../lib/theme.js";
++
++const plex = { sans: "IBM Plex Sans, sans-serif", mono: "IBM Plex Mono, monospace" };
++
++export default theme({
++  shape:   { radius: { "2xs": "2px", xs: "5px", sm: "7px", md: "10px", lg: "14px", xl: "18px", "2xl": "22px", "3xl": "28px", key: "md", field: "md", card: "lg", pill: "full", disc: "full" },
++             label: { case: "none", track: "0em" }, lift: "0 10px 30px", sunk: "inset 0 2px 4px" },
++  size:    { row: 7.5, depth: "3px" },
++  font:    { family: { sansHeading: plex.sans, sansText: plex.sans, serifHeading: plex.sans, serifText: plex.sans, brand: plex.sans, code: plex.mono } },
++  text:    { header: "#0E1A25", strong: "#0E1A25", ink: "#374A5F", light: "#4B5D72", muted: "#5F7286" },
++  control: { contrast: "#FFFFFF", contrastPressed: "#D2DBE7", on: "#374A5F", onMuted: "#5F7286", onPressed: "#3D528C", field: "#FFFFFF", selected: "rgba(14, 26, 37, 0.05)" },
++  signal:  { primary:  { fill: "#3D528C", on: "#FFFFFF", tint: "rgba(61, 82, 140, 0.1)" },
++             positive: { fill: "#3E7A3A", ink: "#2F6130", on: "#FFFFFF", tint: "rgba(62, 122, 58, 0.1)" },
++             caution:  { fill: "#95661B", ink: "#704B10", on: "#FFFFFF", tint: "rgba(149, 102, 27, 0.1)" },
++             negative: { fill: "#A4412A", ink: "#963A24", on: "#FFFFFF", tint: "rgba(164, 65, 42, 0.1)" } },
++  zones: {
++    0: { surface: "#0E1A25", surfaceSunk: "#060D14", surfaceLift: "#243544", boundary: "#040A10", boundaryStrong: "#384A5E", divider: "#243544", shadow: "rgba(0, 0, 0, 0.55)", inverse: "#EDF0F4", inverseOn: "#0E1A25",
++         text:    { header: "#FFFFFF", strong: "#EDF0F4", ink: "#CBD3DD", light: "#AEBBCD", muted: "#8B97A3" },
++         control: { contrast: "#EDF0F4", contrastHover: "#FFFFFF", contrastPressed: "#43505B", on: "#0E1A25", onMuted: "#5F7286", onPressed: "#EDF0F4",
++                    field: "#060D14", fieldPlaceholder: "#8B97A3", selected: "rgba(255, 255, 255, 0.06)", divider: "rgba(0, 0, 0, 0.25)", scrollbar: "#384A5E" },
++         signal:  { primary: { ink: "#AEBBD6" }, positive: { ink: "#9CCB98" }, caution: { ink: "#E2B86A" }, negative: { ink: "#E9A08C" } } },
++    1: { surface: "#EDF0F4", surfaceSunk: "#DFE5EC", surfaceLift: "#FFFFFF", boundary: "#CBD3DD", boundaryStrong: "#AEBBCD", divider: "#D5DCE4", shadow: "rgba(14, 26, 37, 0.14)" },
++    2: { surface: "#FFFFFF", surfaceSunk: "#EDF0F4", surfaceLift: "#FFFFFF", boundary: "#D5DCE4", boundaryStrong: "#AEBBCD", divider: "#E7EBF0", shadow: "rgba(14, 26, 37, 0.14)" },
++    3: { surface: "#E2E7ED", surfaceSunk: "#D5DCE4", surfaceLift: "#FFFFFF", boundary: "#AEBBCD", boundaryStrong: "#5F7286", divider: "#CBD3DD", shadow: "rgba(14, 26, 37, 0.14)" },
++  },
++});
+diff --git a/subsystems/typology/schematics/primitives/theme.js b/subsystems/typology/schematics/primitives/theme.js
+index b5db022..267cdef 100644
+--- a/subsystems/typology/schematics/primitives/theme.js
++++ b/subsystems/typology/schematics/primitives/theme.js
+@@ -16,6 +16,7 @@ export const Factor  = v.number({ minimum: 0 }).desc("Multiplier of size.unit. E
+ export const Ratio   = v.number({ minimum: 0, maximum: 1 }).desc("Opacity. Example: 0.55");
+ export const Leading = v.number({ minimum: 0.8, maximum: 2 }).desc("Unitless line height. Example: 1.45");
+ export const Shadow  = v.string({ minLength: 1 }).desc('Geometry only; the zone\'s shadow gives the tone. Example: "0 12px 30px"');
++export const Family  = v.string({ minLength: 1 }).desc('A CSS font-family list, first choice to fallback. Example: "Inter, sans-serif"');
+ export const Step    = v.enum(STEPS).desc('Names a step of a scale. Example: "sm"');
+ export const Round   = v.enum([...STEPS, "full"]).desc('Names a step of shape.radius. Example: "xs"');
+ export const Relief  = v.enum(["sunk", "lift"]);
+@@ -83,7 +84,18 @@ export const ground = {
+   dim: Ratio.default(0.55),
+ };
+ 
+-export const groups = { shape, size, text, control, signal };
++export const font = {
++  family: {
++    sansHeading:  Family.default("Poppins, sans-serif"),
++    sansText:     Family.default("Inter, sans-serif"),
++    serifHeading: Family.default("Poppins, serif"),
++    serifText:    Family.default("Inter, Sabon, serif"),
++    brand:        Family.default("K2D, sans-serif"),
++    code:         Family.default("Victor Mono, monospace"),
++  },
++};
++
++export const groups = { shape, size, text, control, signal, font };
+ 
+ export const Shape   = whole(shape);
+ export const Size    = whole(size);
+@@ -91,6 +103,7 @@ export const Text    = whole(text);
+ export const Control = whole(control);
+ export const Tone    = whole(tone);
+ export const Signal  = whole(signal);
++export const Font    = whole(font);
+ export const Ground  = whole(ground);
+ export const Zone    = whole({ ...ground, ...groups });
+ 
+@@ -100,6 +113,7 @@ const stated = {
+   text:    loose(text),
+   control: loose(control),
+   signal:  v.object(Object.fromEntries(SIGNALS.map((name) => [name, v.union([Color, loose(tone)]).optional()])), CLOSED),
++  font:    loose(font),
+ };
+ 
+ const territory = v.object({ ...each(ground, (held) => held.optional()), ...each(stated, (held) => held.optional()) }, CLOSED);
+@@ -112,4 +126,4 @@ export const Definition = v.object({
+ export const Theme = v.object({
+   ...each(groups, whole),
+   zones: v.array(Zone, { minItems: 4, maxItems: 4 }),
+-}, CLOSED).desc("What theme() returns: five groups, four zones, every zone its ground and the groups merged.");
++}, CLOSED).desc("What theme() returns: six groups, four zones, every zone its ground and the groups merged.");
+diff --git a/subsystems/typology/tests/theme.test.js b/subsystems/typology/tests/theme.test.js
+index a79c453..07d0eed 100644
+--- a/subsystems/typology/tests/theme.test.js
++++ b/subsystems/typology/tests/theme.test.js
+@@ -66,9 +66,10 @@ const ZONE = {
+     caution: { fill: "#D4A054", ink: "#E7C271", tint: "rgba(212, 160, 84, 0.18)", on: "#060D14" },
+     negative: { fill: "#BE7055", ink: "#EBCDC0", tint: "rgba(190, 112, 85, 0.18)", on: "#060D14" },
+   },
++  font: { family: { sansHeading: "Poppins, sans-serif", sansText: "Inter, sans-serif", serifHeading: "Poppins, serif", serifText: "Inter, Sabon, serif", brand: "K2D, sans-serif", code: "Victor Mono, monospace" } },
+ };
+ 
+-const GROUPS = ["shape", "size", "text", "control", "signal"];
++const GROUPS = ["shape", "size", "text", "control", "signal", "font"];
+ const WHOLE = { ...Object.fromEntries(GROUPS.map((group) => [group, ZONE[group]])), zones: [ZONE, ZONE, ZONE, ZONE] };
+ 
+ const plain = (held) => held !== null && typeof held === "object" && !Array.isArray(held);
+@@ -100,6 +101,7 @@ const SCALARS = [
+   ["Ratio", [0, 0.45, 1], [-0.1, 1.01, ".45", null]],
+   ["Leading", [0.8, 1.1, 1.45, 2], [0.79, 2.01, "1.1"]],
+   ["Shadow", ["0 12px 30px", "inset 0 2px 3px"], ["", 0, null]],
++  ["Family", ["Inter, sans-serif", "VT323, Space Mono, monospace"], ["", 0, null]],
+   ["Step", ["2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"], ["full", "base", "4xl", "", "SM", 1]],
+   ["Round", ["2xs", "3xl", "full"], ["round", "none", "4xl"]],
+   ["Relief", ["sunk", "lift"], ["inset", "raised", "flat", ""]],
+@@ -118,19 +120,19 @@ specimen.describe("theme primitive — the scalars", () => {
+ });
+ 
+ specimen.describe("theme primitive — the token space, counted", () => {
+-  specimen.it("five groups hold 85 keys: shape 19 · size 29 · text 8 · control 13 · signal 16", () => {
++  specimen.it("six groups hold 91 keys: shape 19 · size 29 · text 8 · control 13 · signal 16 · font 6", () => {
+     specimen.expect(Object.fromEntries(GROUPS.map((group) => [group, count(theme.groups[group])]))).toEqual({
+-      shape: 19, size: 29, text: 8, control: 13, signal: 16,
++      shape: 19, size: 29, text: 8, control: 13, signal: 16, font: 6,
+     });
+   });
+ 
+-  specimen.it("a zone owns 12 ground keys and emits 97", () => {
++  specimen.it("a zone owns 12 ground keys and emits 103", () => {
+     specimen.expect(count(theme.ground)).toBe(12);
+-    specimen.expect(paths(ZONE)).toHaveLength(97);
++    specimen.expect(paths(ZONE)).toHaveLength(103);
+   });
+ 
+-  specimen.it("a whole theme holds 85 + 4 × 97 values", () => {
+-    specimen.expect(paths(WHOLE)).toHaveLength(85 + 4 * 97);
++  specimen.it("a whole theme holds 91 + 4 × 103 values", () => {
++    specimen.expect(paths(WHOLE)).toHaveLength(91 + 4 * 103);
+   });
+ 
+   specimen.it("space, type and radius share the eight step names; radius adds full", () => {
+@@ -266,21 +268,21 @@ specimen.describe("theme primitive — Zone and Theme, always all of it", () =>
+     specimen.expect(theme.Theme.faults(WHOLE)).toEqual([]);
+   });
+ 
+-  specimen.it("a zone short of any one of its 97 keys faults at that key's parent", () => {
++  specimen.it("a zone short of any one of its 103 keys faults at that key's parent", () => {
+     for (const path of paths(ZONE)) {
+       const faults = theme.Zone.faults(without(ZONE, path));
+       specimen.expect([pointer(path), faults.map((fault) => fault.at)]).toEqual([pointer(path), [pointer(path.slice(0, -1))]]);
+     }
+   });
+ 
+-  specimen.it("a theme short of any one of its 473 values faults at that value's parent", () => {
++  specimen.it("a theme short of any one of its 503 values faults at that value's parent", () => {
+     for (const path of paths(WHOLE)) {
+       const faults = theme.Theme.faults(without(WHOLE, path));
+       specimen.expect([pointer(path), faults.map((fault) => fault.at).includes(pointer(path.slice(0, -1)))]).toEqual([pointer(path), true]);
+     }
+   });
+ 
+-  specimen.it("every one of a zone's 97 values refuses a value of the wrong kind", () => {
++  specimen.it("every one of a zone's 103 values refuses a value of the wrong kind", () => {
+     for (const path of paths(ZONE)) {
+       const held = path.reduce((carried, key) => carried[key], ZONE);
+       const wrong = typeof held === "number" ? "wrong" : 7;
+@@ -288,6 +290,15 @@ specimen.describe("theme primitive — Zone and Theme, always all of it", () =>
+     }
+   });
+ 
++  specimen.it("a family is a list with a first choice: Font refuses an empty one, a Definition states one alone", () => {
++    specimen.expect(theme.Font.check(ZONE.font)).toBe(true);
++    specimen.expect(theme.Font.check({ family: { ...ZONE.font.family, code: "" } })).toBe(false);
++    specimen.expect(theme.Definition.faults({ font: { family: { code: "IBM Plex Mono, monospace" } } })).toEqual([]);
++    specimen.expect(theme.Definition.check({ font: { family: { mono: "IBM Plex Mono, monospace" } } })).toBe(false);
++    specimen.expect(theme.Definition.check({ font: { size: { md: "1rem" } } })).toBe(false);
++    specimen.expect(theme.Definition.faults({ zones: { 2: { surface: "#FFFFFF", font: { family: { sansText: "IBM Plex Sans, sans-serif" } } } } })).toEqual([]);
++  });
++
+   specimen.it("a theme holds four zones, never three, never five", () => {
+     specimen.expect(theme.Theme.check({ ...WHOLE, zones: [ZONE, ZONE, ZONE] })).toBe(false);
+     specimen.expect(theme.Theme.check({ ...WHOLE, zones: [ZONE, ZONE, ZONE, ZONE, ZONE] })).toBe(false);
+diff --git a/systems/anima/src/app/bones/pincer/pincer.svelte b/systems/anima/src/app/bones/pincer/pincer.svelte
+index 407a359..0360f59 100644
+--- a/systems/anima/src/app/bones/pincer/pincer.svelte
++++ b/systems/anima/src/app/bones/pincer/pincer.svelte
+@@ -17,11 +17,15 @@
+   const PICTOGRAMS = {
+     northsea:  "/images/pictogram_viket/pic-vinca-viket_white.svg",
+     parchment: "/images/pictogram_viket/pic-vinca-viket_black.png",
++    porcelain: "/images/pictogram_viket/pic-vinca-viket_black.png",
++    datasette: "/images/pictogram_viket/pic-vinca-viket_black.png",
+   };
+ 
+   const TINTS = {
+     northsea:  "brightness(0) saturate(100%) invert(72%) sepia(45%) saturate(1156%) hue-rotate(133deg) brightness(94%) contrast(89%) drop-shadow(0 0 4px var(--signal-primary))",
+     parchment: "drop-shadow(0 1px 2px var(--shadow))",
++    porcelain: "drop-shadow(0 1px 2px var(--shadow))",
++    datasette: "drop-shadow(0 1px 2px var(--shadow))",
+   };
+ 
+   const gesture = new stores.bridge.Gesture(bridge);
+diff --git a/systems/anima/src/client.html b/systems/anima/src/client.html
+index 47b099c..cd28e55 100644
+--- a/systems/anima/src/client.html
++++ b/systems/anima/src/client.html
+@@ -5,7 +5,7 @@
+ 		<script>
+ 			try {
+ 				const bridge = JSON.parse(localStorage.getItem("vivalence:bridge"));
+-				if (["northsea", "parchment"].includes(bridge?.view?.theme)) document.documentElement.dataset.theme = bridge.view.theme;
++				if (["northsea", "parchment", "porcelain", "datasette"].includes(bridge?.view?.theme)) document.documentElement.dataset.theme = bridge.view.theme;
+ 			} catch (_) {}
+ 		</script>
+ 		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+diff --git a/systems/anima/src/typology/stores/bridge/bridge.js b/systems/anima/src/typology/stores/bridge/bridge.js
+index ab4fd00..855d42d 100644
+--- a/systems/anima/src/typology/stores/bridge/bridge.js
++++ b/systems/anima/src/typology/stores/bridge/bridge.js
+@@ -23,7 +23,7 @@ export const FONT_SIZES = {
+   "2xl": "22.5px",
+ };
+ 
+-export const THEMES = ["northsea", "parchment"];
++export const THEMES = ["northsea", "parchment", "porcelain", "datasette"];
+ 
+ export const knownTheme = (name) => (THEMES.includes(name) ? name : THEMES[0]);
+ 
+diff --git a/systems/anima/tests/pincer/theme.test.js b/systems/anima/tests/pincer/theme.test.js
+index 8e256f1..1a73124 100644
+--- a/systems/anima/tests/pincer/theme.test.js
++++ b/systems/anima/tests/pincer/theme.test.js
+@@ -18,8 +18,8 @@ const withSaved = (saved, run) => {
+ };
+ 
+ specimen.describe("theme names — one list, every reader agrees with it", () => {
+-  specimen.it("the list is northsea · parchment, northsea the default", () => {
+-    specimen.expect(THEMES).toEqual(["northsea", "parchment"]);
++  specimen.it("the list is northsea · parchment · porcelain · datasette, northsea the default", () => {
++    specimen.expect(THEMES).toEqual(["northsea", "parchment", "porcelain", "datasette"]);
+     specimen.expect(knownTheme(undefined)).toBe("northsea");
+   });
+ 
+diff --git a/systems/anima/tests/zones/slots.test.js b/systems/anima/tests/zones/slots.test.js
+index 47485b7..cba474c 100644
+--- a/systems/anima/tests/zones/slots.test.js
++++ b/systems/anima/tests/zones/slots.test.js
+@@ -51,7 +51,7 @@ specimen.describe("zones — anima and drapes read by name", () => {
+ 
+   specimen.it("every read of a dapper family is a name the sheet emits: a slot or a scale", () => {
+     const DAPPER = /^--(font|line-height|border-radius|box-shadow|drop-shadow|spacing|container|animation|colors|brand|filter|mix|zone)-/;
+-    const stray = reads.filter(({ name }) => DAPPER.test(name) && !scale.has(name) && !locals.has(name)).map(({ at, name }) => `${at} ${name}`);
++    const stray = reads.filter(({ name }) => DAPPER.test(name) && !scale.has(name) && !slots.has(name) && !locals.has(name)).map(({ at, name }) => `${at} ${name}`);
+     specimen.expect(stray).toEqual([]);
+   });
+ 
+@@ -77,7 +77,7 @@ specimen.describe("zones — anima and drapes read by name", () => {
+       Object.values(ds.themes).flatMap((held) => held.zones.flatMap((zone) => declarations(zone).map(([, value]) => value))).filter((value) => /^#[0-9A-F]{6}$/i.test(value)).map((value) => value.toUpperCase()),
+     );
+     const hits = sources.flatMap(({ path, lines }) =>
+-      lines.flatMap((line, index) => (code(line) ? [...line.matchAll(/#[0-9A-Fa-f]{6}\b/g)].filter(([hex]) => painted.has(hex.toUpperCase())).map(([hex]) => `${short(path)}:${index + 1} ${hex}`) : [])));
++      lines.flatMap((line, index) => (code(line) && !/name="theme-color"/.test(line) ? [...line.matchAll(/#[0-9A-Fa-f]{6}\b/g)].filter(([hex]) => painted.has(hex.toUpperCase())).map(([hex]) => `${short(path)}:${index + 1} ${hex}`) : [])));
+     specimen.expect(hits).toEqual([]);
+   });
+ });

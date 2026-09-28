@@ -1,0 +1,93 @@
+#+title: the design system gets a shard and a reference, then zones become a tree of four default groups overridden per zone, and m72 carries it with the themes renamed
+#+index: 216
+#+session: session 9c4d5944, turns 1–26 (fold N = 26, one fold). beef's thread: the design system (dapper · drapes · sheets) mapped, then the zone ladder redesigned from the designer's project into a tree, numbered m72.
+
+* one breath
+
+(1) /"like this reference of anima, write another for our design system. scope is dapper drapes and sheets."/ was read as a codemap shard: =world/codemap/design.md= landed (19 traps grounded), dapper · drapes traps moved out of =anima.md=, =methods/codemap.py= wired. (2) /"i wanted a reference. keep the design system shard."/ — =.ikiro/reference/design.md= written: pipeline, ramps, zone contract, both themes measured (WCAG per zone), a consumer census (1464 skeleton reads), how to rework and add a theme, drift, the re-measure recipes.
+
+(3–4) /"i want to structure our surfaces or leveles or zones. its chaos atm."/ with the designer's =6 Anima.dc.html=: the project read through DesignSync (=tokens/zones.css= · =themes.css= · =bones.css= · the comp's =data-zone= census), anima's per-file backgrounds set against it. (5–17) beef shaped the model turn by turn — /"Let's keep those at numbers … Zone zero is the bones."/ · /"the surfaces should rather be split into surface contrast"/ · /"I like the tree semantic overall. I want that to be the guiding principle."/ · /"control also to root."/ · /"scalp our system for them."/ — ending in the tree: a theme declares shape · text · control · signal as defaults (46 keys), a zone owns 14 ground keys and overrides any group per key, four zones 0–3, 60 declarations per zone block. /"beautiful. absolutely great. so clean."/
+
+(19) /"number it. next index up. zoned designs"/ → =quests/m72-zoned-designs.org=. (20) /"ranem the themes. nordic becomes northsea. paper becomes parchment. porcelain stays. ledger becomes superdisk"/ — rename-pass census over repo + =~/.viva=, keep-list, the =localStorage= trap. (21) /"thoroughly rewrite its structure. deduplicate, clean, no corrections, just correct. make no mistakes"/ — m72 rewritten whole, seven milestones (M1 the rename). (22) /"rename superdisk to Datasette."/ (23) each milestone listed.
+
+* the spine — turns 1–26
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 1 | /"like this reference of anima, write another for our design system. scope is dapper drapes and sheets."/ | =world/codemap/design.md= (19 traps, grounded) · anima.md paths narrowed, 5 traps moved · =codemap.py= =design= shard + string =exports= fix · route row in =ikiro.md= · =map.md= container line | — |
+| 2 | /"i wanted a reference. keep the design system shard. … rework the design tokens of backgrounds 1-4 borders surfaces … add another theme or three. survey the lands. write a design.md"/ | =.ikiro/reference/design.md= (12 sections, measured); §11 recipe run and reproduces §4 | the reading of "reference" as a shard |
+| 3 | images ×4 · /"i want to structure our surfaces or leveles or zones. its chaos atm."/ · the pasted DesignSync handoff | design project read (zones · themes · bones · readme · the comp, truncated at 256 KiB); zone census of the comp vs anima; seven decisions proposed | — |
+| 4 | the screenshot paths (harness-split tail of 3) | NOTHING | — |
+| 5 | MID-TURN /"very much shorter answers. … We don't call it comps, we call it zones. … per zone … surface contrast boundary text, text highlight, text light … danger … per zone … a default and you can overwrite it per zone"/ | six zones named, slots per zone, signals default + override | long answers |
+| 6 | MID-TURN /"Let's keep those at numbers. … Zone zero is the bones. … text header, text strong … negative maybe that's over engineered … default signals and then each zone can override its signal"/ | five-step text ramp; negative set dropped; signal = fill · ink · tint | zone names as identifiers |
+| 7 | MID-TURN /"a critical analysis pass. How do other theme systems work?"/ | Material 3 · Radix · Tailwind/shadcn · Carbon · HIG compared; four to take, two to refuse | — |
+| 8 | MID-TURN /"I like one, two, three, and four, and I like the ones that you refuse. … an inset … at a root level … the 12 step per hue scales, we kind of already have that … write up the complete proposal. Show me lots of JSON … What is the blast radius?"/ | =quests/zones.org= written (intent · terrain · rulings · schematics · milestones · blast) | an elevation scale |
+| 9 | MID-TURN /"If we have a button in a zone, I expect the Surface to reference the background panel … what do our design system inspirations … use to split out surfaces and … buttons"/ | Material state layers vs Radix/Carbon component steps; =control= block proposed | surface-hover · surface-pressed |
+| 10 | MID-TURN /"the surfaces should rather be split into surface contrast. … surface and boundary work together."/ | slot set rewritten; quest updated (old =-contrast= text reads → =--text-strong=) | — |
+| 11 | MID-TURN /"I like the control semantic … I like the signal … express this as … a tree diagram … shell ready"/ | the first tree: theme → shape · focus · signal; zone → surface · control · text · signal | — |
+| 12 | MID-TURN /"I like the tree semantic overall. I want that to be the guiding principle. … mark the ones that are overwritable by wrapping them in parentheses … text … on theme level … shape too … depth … focus … should be in control"/ | parentheses = overridable; text · shape to the root; focus into control | focus theme-wide |
+| 13 | /"control also to root."/ | the tree: four default groups, a zone = ground + overrides | — |
+| 14 | /"what else. … placeholder colors in our control well. write the full set of keys into the root … zones 0-3"/ | full root key set; four zones (old 4 → =contrast-pressed=, old 5 → zone 3 + lift) | zones 4 · 5 |
+| 15 | /"selection … if its the background, shouldnt it be in surface? or is that highlight? … merge them. … radius … the entities … give me the full set, plus … the scalar and an example value. and a '2-4 word description'"/ | selection merged into =control.highlight=; radius per entity kind; the table tree | =text.selection= · =info= |
+| 16 | /"but zones seem thin. … only 3 customs per zone?? there are more. scalp our system for them."/ | property census of anima + drapes (46 · 31 · 14 · 12 hand =color-mix=, ~330 opacities, boundary as fill 21, surface as ink 6) → 14 zone keys | the three-key zone |
+| 17 | /"beautiful. absolutely great. so clean. compile the whole tree for me again."/ | the full tree recompiled; written into the quest as the guiding principle | — |
+| 18 | MID-TURN /"where are we at? do we have a quest yet? whats inside?"/ | the quest's sections by line | — |
+| 19 | /"number it. next index up. zoned designs"/ | =mv zones.org m72-zoned-designs.org=; title · tags · markers =m72/=; index live (3) | — |
+| 20 | /"ranem the themes. nordic becomes northsea. paper becomes parchment. porcelain stays. ledger becomes superdisk"/ | rename-pass census (repo + ~/.viva), keep-list, blast of 14 files, =localStorage= trap | — |
+| 21 | /"very good. update the quest. thoroughly rewrite its structure. deduplicate, clean, no corrections, just correct. make no mistakes"/ | m72 rewritten whole: the tree after intent, eight rulings, schematics regenerated to the tree, M1 = the rename, seven milestones; markers clean; report 0/14 | the six-zone draft schematics |
+| 22 | /"rename superdisk to Datasette."/ | datasette in ruling · M7 · blast · deferred · release; the sed hit beef's quote, restored | — |
+| 23 | /"give me each midestone"/ | M1–M7 with lines | — |
+| 24 | MID-TURN /"milestone*"/ | NOTHING — a spelling fix | — |
+| 25 | /"ok. ikiro compact"/ | this fold | — |
+| 26 | MID-TURN =/compact= | NOTHING — the gate's retry | — |
+
+Coverage: 1–26, 26 rows, 3 NOTHING (4 · 24 · 26).
+
+* failures
+
+- *"reference" read as a shard* (1→2). =reference/anima.md= was the model named; I wrote a codemap shard. beef: /"i wanted a reference. keep the design system shard."/ The shard stayed; the reference came second.
+- *long answers* (3→5). A seven-decision essay on turn 3; beef: /"Okay, very much shorter answers."/ Every later answer was short.
+- *a sed rewrote beef's verbatim* (22). =s/superdisk/datasette/g= over the whole quest changed the intent quote; caught on the grep, restored the same turn. A global replace in a quest excludes the intent block.
+- *schematics written ahead of the model* (8→21). The first quest carried a six-zone, 32-key schematic that the tree then outgrew; it stood marked stale until the rewrite. Designs still moving belong in the conversation, the quest takes them when settled.
+
+* State at fold
+
+- =.ikiro/world/codemap/design.md= (new) · =anima.md= (paths =systems/anima/**= only) · =methods/codemap.py= (=design= shard) — =codemap.py --check= all shards grounded; =assembly= · =ledger= DRIFT pre-existing (=~/.viva= moved).
+- =.ikiro/reference/design.md= — the map for reworking tokens and adding themes; its measurements are the live =nordic= · =paper=.
+- =.ikiro/quests/m72-zoned-designs.org= — DESIGNED, 0/14, seven milestones, one fork (the text floor). No product code touched.
+- designer's project =c9ff72fb= is the source of the four themes' hexes (=tokens/themes.css=).
+- suites at the session's baseline: dapper =10 passed (65 steps) | 0 failed= · drapes =8 passed (54 steps) | 0 failed= · sheets =37 passed | 0 failed=.
+- Balance (fold N = 26, thirds 1–9 · 10–18 · 19–26): verbatim citations 9 · 10 · 5. The middle holds the most because the zone model was ruled there, one turn per slot group.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| design-handoff | 3 | HELD | comp fetched whole to disk, its =data-zone= census read as the spec, no port without go |
+| quest-authoring | 8 | HELD | intent verbatim, terrain measured, schematic + snapshot, markers =m72/= once numbered |
+| rename-pass | 20 | HELD | keep-list before the grep, repo + =~/.viva=, no dual read, the saved-name trap named |
+| compact-walk | 25 | HELD | spine + skills by id; one fold, N = 26 |
+| ontology-pass | 5 | MISSED | three names for one thing (zone · skeleton · level), zone names and slot names decided over eight turns; the skill never fired |
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                  | sessions |
+|-------------------------+-----------+----------+---------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone | 0        |
+| m71-droneaid-guide      |   0% 0/16 | design   | go                                                                                    | 3        |
+| m72-zoned-designs       |   0% 0/14 | design   | go                                                                                    | 0        |
+* handoff
+- quest :: m72-zoned-designs
+- goal :: /"i want to structure our surfaces or leveles or zones. its chaos atm."/ — the tree as the guiding principle
+- done :: =quests/m72-zoned-designs.org= DESIGNED: the tree (46 root keys · 14 zone keys · four zones), eight rulings, schematics input → merged → CSS, seven milestones, blast table; =reference/design.md= and =codemap/design.md= written
+- next :: beef rules the text floor (five steps with =muted= label-only, or four); then M1, the theme rename =nordic → northsea= · =paper → parchment= over the 14 files in the quest's M1
+- never :: /"Let's keep those at numbers."/ — no zone name is ever emitted
+- never :: /"do we want negative maybe that's over engineered"/ — an inverted block is =inverse= / =on-inverse=, never a negative set
+- owed :: beef — the text-floor ruling · go on M1
+- quest :: none
+- settles :: #215
+- goal :: map the design system (dapper · drapes · sheets)
+- done :: codemap shard + reference written, both grounded and measured
+- next :: re-read =reference/design.md= after m72 M6; its numbers describe the pre-m72 vocabulary
+- never :: a global replace in a quest touches the intent block
+- owed :: beef — nothing beyond m72's

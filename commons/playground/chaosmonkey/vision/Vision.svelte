@@ -29,13 +29,13 @@
     gap: 14px;
     padding: 32px;
     text-align: center;
-    background: var(--colors-skeleton-3-surface);
-    color: var(--colors-skeleton-3-contrast);
+    background: var(--surface-lift);
+    color: var(--text-strong);
     font-family: var(--font-family-code);
   }
   .eye {
     font-size: var(--font-size-4xl);
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
     opacity: 0.85;
   }
   .mood {
@@ -43,8 +43,8 @@
     font-size: var(--font-size-2xs);
     letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: var(--colors-skeleton-0-primary-base);
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 40%, transparent);
+    color: var(--signal-primary-ink);
+    border: 1px solid color-mix(in srgb, var(--signal-primary) 40%, transparent);
     border-radius: 999px;
   }
   .say {
@@ -66,14 +66,14 @@
     padding: 6px 16px;
     font: inherit;
     font-size: var(--font-size-xs);
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
     background: transparent;
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-0-primary-base) 40%, transparent);
+    border: 1px solid color-mix(in srgb, var(--signal-primary) 40%, transparent);
     border-radius: 5px;
     cursor: pointer;
     transition: background 0.12s;
   }
   .return:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 14%, transparent);
+    background: color-mix(in srgb, var(--signal-primary) 14%, transparent);
   }
 </style>

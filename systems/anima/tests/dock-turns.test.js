@@ -22,6 +22,12 @@ import {
   tokens,
   turnManifest,
   turnVerdict,
+  enrich,
+  exchanges,
+  callRoster,
+  manifest,
+  project,
+  dayLabel,
 } from "../src/app/panels/a/widgets/turns.js";
 
 specimen.describe("turnVerdict", () => {
@@ -432,5 +438,77 @@ specimen.describe("turnCensus", () => {
     specimen.expect(turnCensus([{ entities: { engram: [1, 2] } }])[0].count).toBe(2);
     specimen.expect(turnCensus([]).length).toBe(0);
     specimen.expect(turnCensus(null).length).toBe(0);
+  });
+});
+
+specimen.describe("the session's folds — one projection for the dock and the harness pane", () => {
+  const NOW = new Date("2026-03-04T12:00:00");
+  const THREAD = [
+    { id: "u1", role: "user", createdAt: "2026-03-03T09:15:00", parts: [{ type: "text", text: "what is due?" }] },
+    {
+      id: "a1",
+      role: "assistant",
+      createdAt: "2026-03-03T09:15:04",
+      parts: [{ type: "thinking", text: "look at the queue" }, { type: "tool_use", id: "call-1", name: "queue_due", input: { limit: 3 } }],
+      meta: { state: "tools" },
+    },
+    { id: "r1", role: "user", createdAt: "2026-03-03T09:15:05", parts: [{ type: "tool_result", tool_use_id: "call-1", content: "three" }] },
+    { id: "a2", role: "assistant", createdAt: "2026-03-04T10:30:00", parts: [{ type: "text", text: "three cards are due." }], meta: { state: "complete" } },
+  ];
+  const held = Object.freeze(structuredClone(THREAD));
+
+  specimen.it("rules a day before its first turn and drops the tool round", () => {
+    const items = enrich(THREAD, NOW);
+    specimen.expect(items.map((item) => item.kind)).toEqual(["divider", "turn", "turn", "divider", "turn"]);
+    specimen.expect(items.filter((item) => item.kind === "divider").map((item) => item.label)).toEqual(["yesterday", "today"]);
+    specimen.expect(items.filter((item) => item.kind === "turn").map((item) => item.turn.id)).toEqual(["u1", "a1", "a2"]);
+  });
+
+  specimen.it("joins two assistant turns that follow each other into one item", () => {
+    const together = THREAD.map((turn) => (turn.id === "a2" ? { ...turn, createdAt: "2026-03-03T09:15:09" } : turn));
+    const items = enrich(together, NOW).filter((item) => item.kind === "turn");
+    specimen.expect(items.map((item) => item.turn.id)).toEqual(["u1", "a1"]);
+    specimen.expect(items[1].text).toBe("three cards are due.");
+    specimen.expect(items[1].tools.map((tool) => tool.name)).toEqual(["queue_due"]);
+    specimen.expect(items[1].think).toBe("look at the queue");
+  });
+
+  specimen.it("an item is the turn's projection", () => {
+    const [, asked] = enrich(THREAD, NOW);
+    const { kind: _kind, turn: _turn, date: _date, ...projected } = asked;
+    specimen.expect(projected).toEqual(project(THREAD[0], []));
+  });
+
+  specimen.it("exchanges are the turns that called a tool or thought; the roster names each tool once", () => {
+    const calls = exchanges(enrich(THREAD, NOW));
+    specimen.expect(calls.map((item) => item.turn.id)).toEqual(["a1"]);
+    specimen.expect(callRoster(calls)).toEqual(["queue_due"]);
+    specimen.expect(callRoster([...calls, ...calls])).toEqual(["queue_due"]);
+  });
+
+  specimen.it("the manifest names who spoke, when, and in what parts", () => {
+    specimen.expect(manifest(enrich(THREAD, NOW), "dealer")).toEqual([
+      { id: "u1", who: "you", time: "09:15", parts: "text" },
+      { id: "a1", who: "dealer", time: "09:15", parts: "thinking · tool_use" },
+      { id: "a2", who: "dealer", time: "10:30", parts: "text" },
+    ]);
+    specimen.expect(manifest(enrich(THREAD, NOW))[1].who).toBe("agent");
+  });
+
+  specimen.it("an empty thread folds to nothing", () => {
+    specimen.expect(enrich([], NOW)).toEqual([]);
+    specimen.expect(exchanges([])).toEqual([]);
+    specimen.expect(manifest([])).toEqual([]);
+  });
+
+  specimen.it("a day older than yesterday is named by its date", () => {
+    specimen.expect(dayLabel(new Date("2026-02-20T08:00:00"), NOW)).not.toBe("today");
+    specimen.expect(dayLabel(new Date("2026-02-20T08:00:00"), NOW)).not.toBe("yesterday");
+    specimen.expect(dayLabel(null, NOW)).toBe("");
+  });
+
+  specimen.it("the source is not mutated", () => {
+    enrich(THREAD, NOW);
+    specimen.expect(THREAD).toEqual(held);
   });
 });

@@ -102,7 +102,7 @@
   }
   .head:hover,
   .leaf:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-1-surface) 55%, transparent);
+    background: color-mix(in srgb, var(--surface) 55%, transparent);
     border-radius: 3px;
   }
   .arrow {
@@ -116,41 +116,41 @@
     transform: rotate(90deg);
   }
   .key {
-    color: var(--colors-skeleton-1-contrast);
+    color: var(--text-strong);
   }
   .colon {
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--boundary);
     margin-left: -2px;
     opacity: 0.7;
   }
   .preview {
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--boundary);
     opacity: 0.75;
   }
   .children {
     padding-left: 11px;
     margin-left: 4px;
-    border-left: 1px solid color-mix(in srgb, var(--colors-skeleton-1-boundary) 22%, transparent);
+    border-left: 1px solid color-mix(in srgb, var(--boundary) 22%, transparent);
   }
   .val.string {
-    color: var(--colors-skeleton-0-success-base);
+    color: var(--signal-positive-ink);
   }
   .val.number {
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
   }
   .val.boolean {
-    color: var(--colors-skeleton-0-warning-base);
+    color: var(--signal-caution-ink);
   }
   .val.null,
   .val.date,
   .muted {
-    color: color-mix(in srgb, var(--colors-skeleton-1-boundary) 65%, transparent);
+    color: color-mix(in srgb, var(--boundary) 65%, transparent);
   }
   .copy {
     opacity: 0;
     border: none;
     background: transparent;
-    color: var(--colors-skeleton-1-boundary);
+    color: var(--boundary);
     cursor: pointer;
     font-size: var(--font-size-2xs);
     padding: 0 2px;
@@ -161,12 +161,12 @@
   }
   .copy:hover {
     opacity: 1;
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
   }
   .more {
     border: none;
     background: transparent;
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
     cursor: pointer;
     font-family: var(--font-family-code);
     font-size: var(--font-size-2xs);

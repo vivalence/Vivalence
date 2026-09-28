@@ -1,0 +1,96 @@
+#+title: m73 is read against the comp's logic class, three forks are ruled, and a critical pass builds patches 1 · 2 · 6 in a sandbox and corrects the claims of 3 · 4 · 5
+#+index: 222
+#+session: session 9c4d5944, turns 110–122 (fold N = 13, the sixth fold; #216 holds 1–26, #217 27–61, #218 62–76, #220 77–89, #221 90–109). beef's thread: /"continue. fix"/ → /"finish up. tell me when ready for apply."/ — the designer's logic class arrives whole, the quest's guesses are replaced by what the comp does, three forks are ruled, and the quest is hardened in a sandbox copy of the tree; no code in the tree touched.
+
+* one breath
+
+(110–112) the logic arrives. After the harness's /compact beat, beef pasted the quest back with the designer's =missing.md= — the logic class the design tool's 256 KiB cap had cut — and /"continue. fix"/. A census of the template's bindings against the view-model (87 roots bound, all computed; 45 computed and bound nowhere) told the design from its residue, and the quest's guesses fell: the shoulder holds three keys, not two; the phase picker has no door in the comp; the pincer's knob is a lift disc; rail B's strip pages and stacks; rail C draws one tree in four folds; the strip fits itself in six steps.
+
+(113–114) the rulings and the pass. /"1b 2 ?a. c ?a second two are long term oriented guesses. finish up. tell me when ready for apply."/ — the pincer keeps today's state fills on the comp's disc; the phase face and rail C take the comp's first option as guesses. Then the critical pass: a copy of the tree in the scratchpad, every suite baselined, patches 1 · 2 · 6 BUILT there, regenerated as patch files, dry-applied on the live tree with no reject, the kit walked in Chrome in four themes; patches 3 · 4 · 5 read claim by claim by two read-only passes.
+
+(115–122) the fold, moved to the end. /"ikiro comapct."/ arrived mid-pass, then /"once done*"/ · /"ikiro cmpact at the enc"/ · /"continue"/ · /"ikiro compact at the end"/ — the pass ran to its end first.
+
+* the spine — turns 110–122
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 110 | the harness's continuation summary | the #221 report delivered after it | — |
+| 111 | the quest file pasted back, with the designer's =missing.md= (the logic class whole, 161 KB) | the class saved to the scratchpad (=m73/missing.md= · =m73/logic.js=), its encoding repaired; nine glyph literals had lost a byte in the paste | — |
+| 112 | MID-TURN /"continue. fix"/ | the quest corrected against the logic: the binding census, the strip's fit, the float's placement, the key's hold and ghost, the shoulder's three floats, the pincer's paint, rail B's and rail C's folds, the whole pane algebra; 50 checks on scratchpad copies; two blast gaps of my own found (=stop.svelte.js= is a tested arming machine · =tests/pincer/panes.test.js= pins the algebra patch 5 deletes) | the filled-key pincer · the scroll-spy strip · the two-key shoulder · =stop.svelte.js= "deleted into a timer" |
+| 113 | /"1b 2 ?a. c ?a second two are long term oriented guesses. finish up. tell me when ready for apply."/ | three forks RULED in the quest; the critical pass: sandbox tree, baseline, patches 1 · 2 · 6 built and carried as patch files (54 files, 3360 lines) that dry-apply clean; the kit walked in Chrome; patches 3 · 4 · 5 checked (242 claims held, 12 moved, 29 wrong), every one corrected in the quest; two forks added | the pincer's ring flashes (fork option a) · =keep.test.js= · the link float (parked) · =gateFor='s third argument |
+| 114 | the =critical-pass= re-invocation notice | NOTHING — the skill loaded | — |
+| 115 | MID-TURN /"ikiro comapct."/ | the fold's skill fired, then beef interrupted it | — |
+| 116 | MID-TURN =/compact= | NOTHING — interrupted | — |
+| 117 | MID-TURN /"once done*"/ | read with 118: the fold comes when the pass is finished | — |
+| 118 | MID-TURN /"ikiro cmpact at the enc"/ | the same order | — |
+| 119 | the =compact-walk= re-invocation notice | NOTHING | — |
+| 120 | /"once done* ikiro cmpact at the enc"/ | the echo of 117 · 118 as a prompt; the pass resumed | — |
+| 121 | MID-TURN /"continue"/ | the pass continued | — |
+| 122 | MID-TURN /"ikiro compact at the end"/ | this fold, after the pass | — |
+
+Coverage: 110–122, 13 rows, 3 NOTHING (114 · 116 · 119), 2 repeats (118 · 120).
+
+* failures
+
+- *two analysts' reports taken as fact* (the fold before, found here). The quest's patches 3 · 4 · 5 were written from two read-only analyses and never checked against the files: 29 claims were wrong and 12 line ranges had moved — a =remainder.daemon= that does not exist, a =mode.module= that does not exist, a link float that cannot fire, a leak block deleted two patches before its last reader. Logged in the ledger (=assume-dont-verify=).
+- *a file judged by its name* (112). =stop.svelte.js= was "deleted into =Key hold=" unread; it arms signals for every live row and has four steps on it.
+- *tangles that did not compile clean* (113). Three kit parts as the quest tangled them warn on a computed role; the kit's own test caught it once the parts existed as files.
+- *a test written on an assumption* (113). Two expectations of mine were guesses — that a zone's =font= never reaches its neighbour (an unstated zone is a copy of its nearest stated one), and a hex for =paper[50]= typed from memory. Both read from the code on the second run.
+- *whole lines dumped* (112). A =grep= over the comp's template printed two lines of ten thousand characters each into the context; the probes after it cut their output.
+- *a hidden tab read before its screenshot* (113). The strip's fit was read from the DOM of a tab that had not painted; the screenshot after it showed the truth. The trap is in the =live-validation= skill, which did not fire.
+
+* State at fold
+
+- =.ikiro/quests/m73-anima-and-design-system-comps.org= — DESIGNED, 2904 lines, a critical pass run: fifteen forks (four ruled: fonts · the pincer's state paint · the phase face · rail C), thirteen QA markers pending, a =* critical pass= section with its method, its table, what held, what was fixed, what is parked.
+- =.ikiro/quests/m73-anima-and-design-system-comps/= — =patch-1.patch= (18 files, 703 lines) · =patch-2.patch= (27 files, 1931 lines) · =patch-6.patch= (9 files, 726 lines) · =fonts.sh= · =deferred/Link.svelte=. Each patch dry-applies on the live tree with no reject.
+- measured in the sandbox, patches 1 · 2 · 6 on a copy: typology =131 passed (560 steps) | 0 failed= · dapper =25 passed (431 steps) | 0 failed= · drapes =12 passed (106 steps) | 0 failed= · anima =52 passed (203 steps) | 0 failed= · hello-world =19 passed (64 steps) | 0 failed=; the bundle builds; the same suites unpatched read 131 (558) · 21 (271) · 8 (54) · 50 (193) · 19 (64). None of it is a tree result.
+- patches 3 · 4 · 5 — unbuilt: designs with hunks and tangles, their claims corrected; their code is written at their go. Patch 4 waits on patch 3 (=Tune=).
+- scratchpad =m73/=: =tree/{base,work,p1,p2,patches,logs}= (the sandbox) · =sandbox2/= (the pure parts and their 53 checks) · =pass/{patch3,patch456}.md= (the two claim reports) · =fix/= (the three quest patchers and the quest as it stood before each). It dies with the session; the patch files rebuild it.
+- =.ikiro/known-issues.org= — =designsync-get-file-truncates-at-256-kib= gained what worked: the designer ships the cut tail as its own file.
+- =.ikiro/zettelkasten.md= — two callouts, both =assume-dont-verify=, self-caught.
+- servers, all from session 9c4d5944: =runtime/watch= on =[::1]:2501= · =anima/watch= on =127.0.0.1:1794= (the live tree) · a static server on =127.0.0.1:4174= serving the SANDBOX build, its =/design= page showing the kit in four themes. They die with the session.
+- m72 — unmoved this fold.
+- Balance (fold N = 13, thirds 110–113 · 114–118 · 119–122): beef's verbatim in the spine 2 · 3 · 3. The words are spread; the work is not — it sits in 112 and 113, the two orders that carried a task; the other eleven turns are the harness and the fold's scheduling.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| critical-pass | 113 | GAP | the ten steps held for the three patches that could be built; the body has no beat for a patch that is still a design — reading every =file:line= and every absence claim against the live file is what found 29 wrong |
+| compact-walk | 118 | HELD | spine + skills by id; sixth fold, N = 13; fired mid-pass on beef's word and deferred on his next |
+| testing | 113 | MISSED | five suites baselined and re-run in a sandbox by its laws, no firing |
+| live-validation | 113 | MISSED | the kit walked in Chrome from a sandbox build, no firing; a hidden tab's DOM read before its screenshot |
+| quest-authoring | 112 | MISSED | the quest rewritten twice (against the logic class, then by the pass) with no firing; fifth fold running |
+
+* settlement
+
+- #221's State for m73 (designed, unverified) is superseded by this fold's.
+- Codeword scan of 110–122: no =retard=, no =i dont understand=.
+- MARKERS.md =OPEN= is empty.
+- Known issues: none new; one entry amended.
+- No shard touched: no code landed. =.ikiro/reference/design.md:306= will read false after m73's patch 5 — named in the quest's blast, restated at its close.
+
+* handoff
+- quest :: m73-anima-and-design-system-comps
+- goal :: /"work out the full patch for applying the new design to anima"/ · /"finish up. tell me when ready for apply."/
+- done :: critical pass run: patches 1 · 2 · 6 built in a sandbox, carried as patch files, dry-apply clean; 3 · 4 · 5 corrected claim by claim
+- next :: go on patch 1
+- never :: /"dont drop that. f.e the settings for mobile, ios. and running it as manifest is working currently."/ — the pincer's placement, gesture and standalone behaviour stay byte-identical
+- never :: a sandbox result is not a tree result — every gate re-runs on the tree
+- owed :: beef — a go per patch · eleven fork rulings · the walks
+- quest :: none
+- settles :: #221
+- goal :: fold turns 110–122
+- done :: #221's session block superseded
+- next :: none
+- never :: —
+- owed :: nothing
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0        |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3        |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 0        |
+| m73-anima-and-design-system-comps |   0% 0/13  | design   | go                                                                                                | 0        |

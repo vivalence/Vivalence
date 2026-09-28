@@ -1,23 +1,15 @@
 <!--
   ErrorBox — display an error message as a styled box.
-  Reads the {surface, contrast, boundary} triplet from the current skeleton.
-  Error is NOT an interactive role: no hover, no active, no states.
+  The negative signal washed to a background, its ink on it, its fill as the line.
 -->
 <script>
-  import { useSkeleton } from "../context/useSkeleton.js";
-
   let {
     title = "",
     class: className = "",
     children,
   } = $props();
 
-  const skeleton = useSkeleton();
-  const level = $derived(skeleton());
-
-  const boxClasses = $derived(
-    `bg-skeleton-${level}-error-surface text-skeleton-${level}-error-contrast border-skeleton-${level}-error-boundary`,
-  );
+  const boxClasses = "bg-signal-negative-tint text-signal-negative-ink border-signal-negative";
 </script>
 
 <div class="rounded border p-3 {boxClasses} {className}" role="alert">

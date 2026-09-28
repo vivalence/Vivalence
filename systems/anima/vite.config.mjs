@@ -130,6 +130,7 @@ export default async ({ command }) => ({
       "@vivalence/dapper/font.css": join(__repo, "./subsystems/dapper/primitives/font.css"),
       "@vivalence/dapper/bsp.css": join(__repo, "./subsystems/dapper/primitives/bsp.css"),
 
+      "@vivalence/dapper/contrast": join(__repo, "./subsystems/dapper/lib/contrast.js"),
       "@vivalence/dapper": join(__repo, "./subsystems/dapper/mod.js"), // ? needed ?
       "@vivalence/drapes": join(__repo, "./subsystems/drapes/mod.js"), // ? needed ?
 

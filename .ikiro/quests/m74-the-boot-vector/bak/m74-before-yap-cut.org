@@ -1,0 +1,1487 @@
+#+title: m74 the boot vector — every process a lifecycle vector executed against a die; its controller is the way in and out; the runtime holds processes as entities
+#+filetags: :m74:runtime:daemon:mode:service:die:controller:vector:lifecycle:process:typology:datamap:
+#+status: DESIGNED, critical pass run. =steer.dispatch.execute= · =belt.control= LANDED in typology. Everything else is sketch: 15 of 35 lifecycles written out, 20 are ports. The structure runs in a sandbox against the live typology and runtime, =.ikiro/quests/m74-the-boot-vector/sandbox/= =21 passed | 0 failed=. No test boots the runtime today; the guardrail is M0. Naming is beef's pass.
+#+phase: wip (derived)
+#+progress:   9% 2/23 (derived)
+#+next: blast (derived)
+
+* intent
+
+/"i want to turn all my boot processes in the runtime into vectors. mode, daemon, service and the runtime themselves."/
+
+/"i want export/filesystem tree match as in typology."/
+
+/"anything outside the run is typology."/
+
+* nomenclature
+
+| word       | is                                                                                        |
+|------------+-------------------------------------------------------------------------------------------|
+| run        | the definition: one lifecycle vector per process type, =run.daemon=                       |
+| lifecycle  | a middleware on a run, =(die, next)=                                                      |
+| die        | what a run executes against: =controller · mask · subject=, plus what the run itself owns |
+| subject    | =die.runtime= · =die.service= · =die.daemon= · =die.mode=, born with the die              |
+| birth      | population: the parent mints controller, subject and row; the row reads IDLE              |
+| boot       | resolution: the parent executes the child's run; the row reads RUNNING                    |
+| execution  | the promise of a started run                                                              |
+| process    | the row =entities.process= holds                                                          |
+| controlled | the wait for a status on a controller                                                     |
+| ctx        | the request context, never at boot                                                        |
+
+#+BEGIN_EXAMPLE
+run.daemon                                   the definition
+steer.dispatch.execute(run.daemon, die)      the verb
+process.execution                            the result, on the row
+#+END_EXAMPLE
+
+| holder                | holds                                                     | reached by                       |
+|-----------------------+-----------------------------------------------------------+----------------------------------|
+| the die               | =controller · mask · <subject>=                           | the run                          |
+| a daemon's die, more  | =register · instance · connection=                        | the run, never a request         |
+| a mode's die, more    | =daemon · traits=                                         | the run                          |
+| the subject           | =aperture · entities · datamap · modes · cortex · …=      | =ctx.daemon=, every hook         |
+| the parent's subject  | its children's subjects: =runtime.daemons= · =daemon.modes= | the parent's lifecycles        |
+| the row               | =type · slug · manifest · status= and three handles       | =entities.process=               |
+
+* the tree
+
+#+BEGIN_EXAMPLE
+systems/runtime/
+  run.js
+  typology.js
+  deno.jsonc
+  run/
+    index.js
+    runtime.js
+    service.js
+    daemon.js
+    mode.js
+  lifecycle/
+    index.js
+    process.js
+    runtime/
+      index.js
+      population.js
+      resolution.js
+      integration.js
+    service/
+      index.js
+      population.js
+    daemon/
+      index.js
+      population.js
+      resolution.js
+      integration.js
+      aperture/
+    mode/
+      index.js
+      population.js
+      resolution.js
+      aperture/
+      traits/
+  entities/
+    index.ts
+    kernel/                 Mode · User · Literal · Symbol · Constraint · Issue
+    userspace/              Intent · Thread · Turn · Buffer
+    transient/              Activity · Process
+  prototypes/
+    index.js
+    runtime.js
+    daemon.js
+  schematics/
+    index.js
+  gestalten/
+    index.js
+    tools/                  things to do with things: high order entity level tools
+    skills/                 how to do things: md heavy, harness for tools and complex interactions, intermediary primitives
+  tests/
+
+subsystems/typology/
+  entities/
+    index.ts
+    base/                   DataEntity · VirtualEntity · properties · trait
+    lighthouse/             Identity · Daemon
+#+END_EXAMPLE
+
+| edge                                        | direction                                      |
+|---------------------------------------------+------------------------------------------------|
+| =run/= → =lifecycle/=                       | a run names its lifecycles                     |
+| =run/<parent>= → =run/<child>=              | a parent hands its child's run to its resolution |
+| =lifecycle/= → =entities/= · =prototypes/=  | a lifecycle mints rows and state               |
+| =lifecycle/= → =run/=                       | NEVER                                          |
+
+* the export pattern
+
+Typology's rules, read off =subsystems/typology/mod.ts= · =gestalten/index.js= · =gestalten/steer/index.js=:
+
+| rule                                                 | example                                     |
+|------------------------------------------------------+---------------------------------------------|
+| a directory has an =index.js=                        | =gestalten/steer/index.js=                  |
+| a file is a namespace named after the file           | ~export * as dispatch from "./dispatch.js"~ |
+| a directory is a namespace named after itself        | ~export * as steer from "./steer/index.js"~ |
+| a directory of THINGS exports them flat              | =prototypes/index.ts= · =run/index.js=      |
+| the root: flat star plus namespace per top directory | =mod.ts=                                    |
+
+#+BEGIN_SRC js
+// systems/runtime/typology.js
+export * from "./entities/index.ts";
+export * from "./prototypes/index.js";
+export * as entities from "./entities/index.ts";
+export * as prototypes from "./prototypes/index.js";
+export * as schematics from "./schematics/index.js";
+export * as gestalten from "./gestalten/index.js";
+export * as lifecycle from "./lifecycle/index.js";
+export * as run from "./run/index.js";
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/run/index.js
+export * from "./runtime.js";
+export * from "./service.js";
+export * from "./daemon.js";
+export * from "./mode.js";
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/index.js
+export * as process from "./process.js";
+export * as runtime from "./runtime/index.js";
+export * as service from "./service/index.js";
+export * as daemon from "./daemon/index.js";
+export * as mode from "./mode/index.js";
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/mode/index.js
+export * as population from "./population.js";
+export * as resolution from "./resolution.js";
+export * as aperture from "./aperture/index.js";
+export * as traits from "./traits/index.js";
+#+END_SRC
+
+#+BEGIN_SRC jsonc
+// systems/runtime/deno.jsonc
+"exports": {
+  ".": "./typology.js",
+  "./scenarios": "./tests/scenarios/index.js"
+}
+#+END_SRC
+
+| file                                | address                                    |
+|-------------------------------------+--------------------------------------------|
+| run/daemon.js                       | =run.daemon=                               |
+| lifecycle/process.js                | =lifecycle.process.seal=                   |
+| lifecycle/runtime/population.js     | =lifecycle.runtime.population.daemons=     |
+| lifecycle/runtime/resolution.js     | =lifecycle.runtime.resolution.daemons=     |
+| lifecycle/daemon/aperture/cortex.js | =lifecycle.daemon.aperture.cortex=         |
+| lifecycle/mode/resolution.js        | =lifecycle.mode.resolution.traits=         |
+| lifecycle/mode/traits/emitter.js    | =lifecycle.mode.traits.EMITTER=            |
+| entities/index.ts                   | =sets= · =entities.sets.kernel=            |
+| entities/transient/Process.ts       | =ProcessEntity= · =entities.ProcessEntity= |
+| prototypes/daemon.js                | =Daemon= · =prototypes.Daemon=             |
+| gestalten/tools/buffer.js           | =gestalten.tools.buffer=                   |
+
+- traits stay flat inside =traits/= :: UPPERCASE and unique; =lifecycle.mode.traits.EMITTER=.
+- a trait is no lifecycle :: it keeps =(mode, daemon)= and returns a finalizer or ={ finalize, terminate }=. Five registry modes and six commons tests call that signature.
+- no namespace takes an entity descriptor's name :: the flat star exports =mode · daemon · process · user · thread · …=, and an explicit export shadows a star export.
+
+* systems/runtime/
+
+** run.js
+
+#+BEGIN_SRC js
+// systems/runtime/run.js
+import paladin, { lifecycle } from "@vivalence/paladin";
+import { Controller, Span, steer } from "@vivalence/typology";
+import { Runtime, run, schematics } from "./typology.js";
+
+if (import.meta.main) {
+  await lifecycle.mount(paladin.instance); // @beef WTF IS THIS?? this is utter retardation.
+  paladin.check.instance(paladin.instance).throw();
+  const faults = schematics.Instance.faults(paladin.instance);
+  if (faults.length) throw new Error(`runtime: ${faults.map((fault) => `${fault.at} ${fault.reason}`).join(" · ")}`);
+
+  const die = {
+    controller: new Controller({ stdout: new Span(`runtime/${paladin.instance.runtime.manifest.slug}`) }),
+    mask: paladin.instance.runtime,
+    runtime: new Runtime({ instance: paladin.instance }),
+  };
+
+  die.controller.stdout.to((record) => console.log(`[${record.path}] ${record.verb}`, record.data ?? record.message ?? ""));
+  for (const signal of ["SIGTERM", "SIGINT", "SIGQUIT"]) Deno.addSignalListener(signal, () => die.controller.kill("SIGTERM", signal));
+
+  await steer.dispatch.execute(run.runtime, die);
+  Deno.exit(die.controller.status.is("STOPPED") ? 0 : 1);
+}
+#+END_SRC
+
+- the exit is the entrypoint's :: the exported run is executed in-process by every scenario; a =Deno.exit= inside it ends the test process. =seal= has settled the status by the time =execute= returns: 0 on a clean stop, 1 on a fault.
+- the subject is born with the die :: /"were born before we run ourselves and we die where we come from."/ Whoever mints a die mints its subject: =run.js= the runtime, the runtime its services and daemons, the daemon its modes.
+- the mount comes before the die :: the mask IS =paladin.instance.runtime=, and the instance exists only once mounted. The door (=schematics.Instance=) stays in the entrypoint.
+- the die carries the instance :: no lifecycle reads =paladin.instance= (14 reads today: =lifecycle/populate.js= 4 · =integrate.js= 4 · =resolve.js= 2 · =run.js= 3 · =die.js= 1). A scenario mints a die over any instance record and executes the same run.
+
+** run/runtime.js
+
+#+BEGIN_SRC js
+// systems/runtime/run/runtime.js
+import { Vector } from "@vivalence/typology";
+import * as lifecycle from "../lifecycle/index.js";
+import { daemon } from "./daemon.js";
+import { service } from "./service.js";
+
+const { process } = lifecycle;
+const { population, resolution, integration } = lifecycle.runtime;
+
+export const runtime = new Vector()
+  .use(process.seal)
+  .use(population.registry)
+  .use(population.datamap)
+  .use(population.wiring)
+  .use(population.aperture)
+  .use(population.services)
+  .use(population.daemons)
+  .use(resolution.services(service))
+  .use(resolution.daemons(daemon))
+  .use(resolution.attach)
+  .use(resolution.expose)
+  .use(resolution.metadata)
+  .use(integration.serve)
+  .use(integration.announce);
+
+runtime.affect(process.effect);
+#+END_SRC
+
+| lifecycle            | today                       | second half             | written |
+|----------------------+-----------------------------+-------------------------+---------|
+| process.seal         | new                         | fault · close           | yes     |
+| population.registry  | =lifecycle/populate.js:6=   |                         | port    |
+| population.datamap   | new                         | =datamap.close=     | yes     |
+| population.wiring    | =lifecycle/populate.js:10=  |                         | port    |
+| population.aperture  | =lifecycle/populate.js:14=  |                         | port    |
+| population.services  | =lifecycle/populate.js:35=  | remove the born         | yes     |
+| population.daemons   | =lifecycle/populate.js:20=  | remove the born         | yes     |
+| resolution.services  | =die.js:22=                 | stop · await            | yes     |
+| resolution.daemons   | =die.js:22=                 | stop · await            | yes     |
+| resolution.attach    | =lifecycle/resolve.js:6=    |                         | port    |
+| resolution.expose    | =lifecycle/resolve.js:90=   |                         | yes     |
+| resolution.metadata  | =lifecycle/resolve.js:101=  |                         | port    |
+| integration.serve    | =lifecycle/integrate.js:27= | =server.shutdown=       | yes     |
+| integration.announce | =lifecycle/integrate.js:52= |                         | port    |
+
+** run/daemon.js
+
+#+BEGIN_SRC js
+// systems/runtime/run/daemon.js
+import { Vector } from "@vivalence/typology";
+import * as lifecycle from "../lifecycle/index.js";
+import { mode } from "./mode.js";
+
+const { process } = lifecycle;
+const { population, resolution, integration, aperture } = lifecycle.daemon;
+
+export const daemon = new Vector()
+  .use(process.seal)
+  .use(population.core)
+  .use(population.wiring)
+  .use(population.datamap)
+  .use(population.authority)
+  .use(population.acid)
+  .use(population.services)
+  .use(population.modes)
+  .use(resolution.domain)
+  .use(resolution.modes(mode))
+  .use(resolution.freight)
+  .use(aperture.datamap)
+  .use(aperture.userspace)
+  .use(aperture.modes)
+  .use(aperture.freight)
+  .use(aperture.metadata)
+  .use(aperture.cortex)
+  .use(integration.call)
+  .use(integration.prune);
+
+daemon.affect(process.effect);
+#+END_SRC
+
+| lifecycle            | today                                   | second half                         | written |
+|----------------------+-----------------------------------------+-------------------------------------+---------|
+| population.core      | =daemon/lifecycle/population.js:10=     |                                     | yes     |
+| population.wiring    | =daemon/lifecycle/population.js:55=     |                                     | port    |
+| population.datamap   | =daemon/lifecycle/population.js:60=     | =activity.remove= · =datamap.close= | yes     |
+| population.authority | =daemon/lifecycle/population.js:76=     |                                     | port    |
+| population.acid      | =daemon/lifecycle/population.js:93=     |                                     | port    |
+| population.services  | =daemon/lifecycle/population.js:108=    |                                     | port    |
+| population.modes     | =daemon/lifecycle/population.js:117=    | remove the born                     | yes     |
+| resolution.domain    | =daemon/lifecycle/resolution.js:5=      |                                     | port    |
+| resolution.modes     | =daemon/lifecycle/resolution.js:37=     | stop · await                        | yes     |
+| resolution.freight   | =daemon/lifecycle/resolution.js:18=     |                                     | port    |
+| aperture.* (6)       | =daemon/aperture/*.js=                  |                                     | port    |
+| integration.call     | =daemon/lifecycle/integration.js:3=     |                                     | port    |
+| integration.prune    | =daemon/lifecycle/integration.js:8=     |                                     | port    |
+
+The order is today's: domain, then the modes' traits, then freight (=daemon/die.js:37-39=). =population.handlers= is cut: =flatmodes= is a method of =Daemon=.
+
+** run/service.js · run/mode.js
+
+#+BEGIN_SRC js
+// systems/runtime/run/service.js
+export const service = new Vector()
+  .use(process.seal)
+  .use(lifecycle.service.population.aperture);
+
+service.affect(process.effect);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/run/mode.js
+export const mode = new Vector()
+  .use(process.seal)
+  .use(lifecycle.mode.population.core)
+  .use(lifecycle.mode.resolution.traits);
+
+mode.affect(process.effect);
+#+END_SRC
+
+** the effect
+
+One effect, four runs. What runs WHILE a process is alive, today:
+
+| process | while alive, today                             | at                        | after                  |
+|---------+------------------------------------------------+---------------------------+------------------------|
+| runtime | OS signal listeners                            | =die.js:57=               | =run.js=               |
+| runtime | patrol every 60 s                              | =die.js:64=               | QUESTIONED             |
+| daemon  | nothing                                        | =daemon/die.js:49=        |                        |
+| service | nothing                                        | =process/die.js:13=       |                        |
+| mode    | nothing; =BOOTED= · =DATASINK= hold a teardown | =daemon/traits/booted.js= | a lifecycle's 2nd half |
+
+- a lifecycle owns what is BUILT and owed back :: both halves around =next()=, the second in a =finally=. The server, the datamap, a mode's terminators.
+- the effect owns only TIME :: the span between =open= and =close=. Work that repeats while alive (a patrol, a heartbeat, a differ over the instance record) is the only kind with a seat in an effect.
+- the event is =stdout.open()= :: the mark moves the machine IDLE → RUNNING (=subsystems/typology/prototypes/controller.js:17=), sets =status.$transient=, and every listener hears it: the parent's =control.controlled=, the =/status= route.
+- the patrol today watches nothing :: it reads =child.status.is("ERROR")= (=lifecycle/integrate.js:18=), a code no one sets.
+
+** lifecycle/process.js
+
+What every process does, whatever its type.
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/process.js
+import { control } from "@vivalence/typology";
+
+export const seal = async (die, next) => {
+  try {
+    await next();
+  } catch (error) {
+    die.controller.stdout.fault(error);
+  } finally {
+    die.controller.stdout.close();
+  }
+};
+
+export const effect = async (die) => {
+  die.controller.stdout.open();
+  await control.hold(die.controller);
+};
+#+END_SRC
+
+- =seal= first :: fault and close run inside the carry; whoever awaits the execution reads a settled status.
+
+** lifecycle/runtime/population.js
+
+Birth. The parent mints the controller, the subject and the row; nothing runs yet.
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/runtime/population.js
+import paladin from "@vivalence/paladin";
+import { Aperture } from "@vivalence/typology";
+import { Daemon } from "../../prototypes/index.js";
+import { sets } from "../../entities/index.ts";
+
+export const datamap = async (die, next) => {
+  const datamap = await paladin.ledger.registry.accio(die.runtime.instance.datamap);
+  die.runtime.datamap = await datamap.provider(datamap, { entities: [sets.transient.process.schema] });
+  die.runtime.entities = die.runtime.datamap.entities;
+  die.runtime.datamap.registerSubscriber(shape.subscriber(die.runtime.twitch));
+  try {
+    await next();
+  } finally {
+    await die.runtime.datamap.close();
+  }
+};
+
+export const services = async (die, next) => {
+  const { process } = die.runtime.entities;
+  const masks = await Promise.all(die.runtime.instance.services.map((query) => paladin.ledger.registry.accio(query)));
+  await die.runtime.datamap.shard.scope(() =>
+    Promise.all(
+      masks.map((mask) => {
+        if (!mask.manifest.traits.includes("ATTACHED"))
+          return die.runtime.instance.dormant.push({ at: `service[${mask.manifest.slug}]`, module: mask.identifier, empty: [], why: "not ATTACHED — consumed only" });
+        die.runtime.services[mask.manifest.slug] = { manifest: mask.manifest, aperture: new Aperture() };
+        return process.create({ type: "service", slug: mask.manifest.slug, manifest: mask.manifest, mask, controller: die.controller.branch(mask.mount.absolute) });
+      }),
+    ),
+  );
+  try {
+    await next();
+  } finally {
+    await process.remove({ type: "service" });
+  }
+};
+
+export const daemons = async (die, next) => {
+  const { process } = die.runtime.entities;
+  await die.runtime.datamap.shard.scope(() =>
+    Promise.all(
+      die.runtime.instance.daemons.map((mask) => {
+        die.runtime.daemons[mask.manifest.slug] = new Daemon({ manifest: mask.manifest, mount: mask.mount, url: mask.url, attach: mask.attach });
+        return process.create({ type: "daemon", slug: mask.manifest.slug, manifest: mask.manifest, mask, controller: die.controller.branch(mask.mount.absolute) });
+      }),
+    ),
+  );
+  try {
+    await next();
+  } finally {
+    await process.remove({ type: "daemon" });
+  }
+};
+#+END_SRC
+
+- the repository is the datamap's :: =entities.process= exists once the datamap does. No =new ProcessRepository=.
+- one repository per datamap :: the entity's name is the key, and =mode= · =daemon= are taken by the persistent entities. The process type is a column: =find({ type: "daemon" })=.
+- the subject sits on the parent :: =die.runtime.daemons.chess=, as =daemon.modes.game.board= does today. The row holds control, the parent holds the child.
+- removing a row aborts what it controls :: the second half removes what was born; a row never booted is aborted at IDLE. =ActivityRepository.removeOne= does the same (=daemon/entities/transient/Activity.ts:40=).
+
+** lifecycle/runtime/resolution.js
+
+Boot. The parent executes each child's run, in order, and waits for RUNNING before the next.
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/runtime/resolution.js
+import { control, shard, steer } from "@vivalence/typology";
+
+export const daemons = (run) => async (die, next) => {
+  const { process } = die.runtime.entities;
+  const processes = await process.find({ type: "daemon" });
+  try {
+    for (const held of processes) {
+      const execution = steer.dispatch.execute(run, { controller: held.controller, mask: held.mask, daemon: die.runtime.daemons[held.slug] });
+      await process.controlled({ id: held.id, execution });
+      await control.controlled(held.controller);
+    }
+    await next();
+  } finally {
+    await process.stop(processes);
+  }
+};
+
+export const services = (run) => async (die, next) => {
+  const { process } = die.runtime.entities;
+  const processes = await process.find({ type: "service" });
+  try {
+    for (const held of processes) {
+      const execution = steer.dispatch.execute(run, { controller: held.controller, mask: held.mask, service: die.runtime.services[held.slug] });
+      await process.controlled({ id: held.id, execution });
+      await control.controlled(held.controller);
+    }
+    await next();
+  } finally {
+    await process.stop(processes);
+  }
+};
+
+export const expose = async (die, next) => {
+  for (const held of await die.runtime.entities.process.find({ type: "daemon" })) {
+    const daemon = die.runtime.daemons[held.slug];
+    const branch = die.runtime.aperture.branch(daemon.mount.nature);
+    branch.branch("/status").slurp(shard.nano.atom(held.controller.status.$transient));
+    branch
+      .open("/manifest", () => daemon.manifest)
+      .slurp(daemon.aperture)
+      .open("/batch", shard.batch.route(branch));
+  }
+  await next();
+};
+#+END_SRC
+
+- the run arrives as an argument :: =resolution.daemons(daemon)= in =run/runtime.js=. =lifecycle/= never imports =run/=.
+- the run is executed OUTSIDE a scope :: a run started inside =shard.scope= holds that request context, and its identity map, for its whole life (measured: =[true, true]= before and after the hold).
+- a boot that fails is heard :: =control.controlled= rejects on the first status that is not RUNNING, with the child's own error.
+- births and boots are in order :: as today (=die.js:22=, =daemon/lifecycle/resolution.js:39=). A mode's =DATASET= install writes one sqlite file; two at once contend.
+
+** lifecycle/runtime/integration.js
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/runtime/integration.js
+import { Status, shape, shard } from "@vivalence/typology";
+
+export const serve = async (die, next) => {
+  const url = die.mask.statics.serve;
+  die.runtime.aperture.open("/multiplex", shard.serve.multiplex(die.runtime.aperture));
+  die.runtime.server = Deno.serve(
+    { port: Number(url.port), hostname: url.hostname, signal: die.controller.abort.signal, onListen: () => console.log(die.controller.status) },
+    shard.cors.wrap(shape.http(die.runtime.aperture)),
+  );
+  try {
+    await next();
+  } finally {
+    await die.runtime.server.shutdown();
+  }
+};
+#+END_SRC
+
+- paladin budges :: /"this should not happen. paladin absolutely should budge to the new meta."/ Paladin's ledger spawns the runtime and waits on stdout for =/^Status:ALIVE$/= (=subsystems/paladin/prototypes/ledger/process.js:6=); anima prints the same line (=systems/anima/vite.config.mjs:101=). The line becomes the controller's =Status:RUNNING=, the regex with it, anima's print with it, in one landing: a runtime printing RUNNING to a paladin reading ALIVE hangs =viva instance/run= to its 60 s deadline.
+- paladin waiting on the runtime is marked for recast :: /"seems like an issue that the paladin is waiting onthe runtime. antipattern. the paladin exposes state adn interface thats used by the runtime. recast. mark for recast."/ Known issue =paladin-waits-on-the-runtimes-stdout=. m74 moves the word, not the direction.
+
+** lifecycle/daemon/population.js
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/daemon/population.js
+export const core = async (die, next) => {
+  die.register = await paladin.ledger.registry.wire(die.mask);
+  die.daemon.domain = die.register.domain;
+  die.instance = { traits: { ...traits, ...die.daemon.domain.traits }, ...assemble([sets.kernel, sets.userspace, sets.transient, die.daemon.domain.entities]) };
+  await next();
+};
+
+export const datamap = async (die, next) => {
+  const { register, instance } = die;
+  die.daemon.datamap = await register.datamap.provider(register.datamap, {
+    entities: instance.entities.map((descriptor) => descriptor.schema),
+    subscribers: instance.subscribers.map((Subscriber) => new Subscriber()),
+  });
+  die.daemon.entities = die.daemon.datamap.entities;
+  die.daemon.twitch.branch("/after").use(shard.datamap.detached(die.daemon.datamap));
+  die.daemon.datamap.registerSubscriber(shape.subscriber(die.daemon.twitch));
+  die.daemon.aperture.use(shard.datamap.inject(die.daemon.datamap));
+  try {
+    await next();
+  } finally {
+    await die.daemon.entities.activity.remove({});
+    await die.daemon.datamap.close();
+  }
+};
+
+export const modes = async (die, next) => {
+  const { process } = die.daemon.entities;
+  await die.daemon.datamap.shard.scope(() =>
+    Promise.all(
+      die.register.kernel.map((mask) => {
+        const mode = new Mode(mask);
+        (die.daemon.modes[mode.manifest.type] ??= {})[mode.manifest.slug] = mode;
+        return process.create({ type: "mode", slug: `${mask.manifest.type}/${mask.manifest.slug}`, manifest: mask.manifest, mask, controller: die.controller.branch(mask.mount.absolute) });
+      }),
+    ),
+  );
+  try {
+    await next();
+  } finally {
+    await process.remove({ type: "mode" });
+  }
+};
+#+END_SRC
+
+- the register stays on the die :: its citizens carry secrets in clear (=subsystems/paladin/prototypes/ledger/registry.js:222=), and the subject is what =ctx.daemon= binds: 385 reads in the registry, 28 in commons. Measured keys of =ctx.daemon=: =aperture · datamap · entities · flatmodes · manifest · modes · mount · url=.
+- =assemble= is =collate= + =seal= :: today twice, in =daemon/lifecycle/population.js:20-46= and =commons/fixtures/data/assemble.js:4-32=.
+
+** lifecycle/daemon/resolution.js
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/daemon/resolution.js
+export const modes = (run) => async (die, next) => {
+  const { process } = die.daemon.entities;
+  const processes = await process.find({ type: "mode" });
+  try {
+    for (const held of processes) {
+      const mode = die.daemon.modes[held.manifest.type][held.manifest.slug];
+      const execution = steer.dispatch.execute(run, { controller: held.controller, mask: held.mask, mode, daemon: die.daemon, traits: die.instance.traits });
+      await process.controlled({ id: held.id, execution });
+      await control.controlled(held.controller);
+    }
+    await die.daemon.datamap.shard.scope(() => Promise.all(die.daemon.flatmodes().flatMap((mode) => mode.finalizers).map((finalize) => finalize())));
+    for (const mode of die.daemon.flatmodes())
+      die.daemon.aperture
+        .branch(mode.mount.nature)
+        .use(shard.secure.authorize())
+        .use(die.daemon.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })))
+        .slurp(mode.aperture);
+    await next();
+  } finally {
+    await process.stop(processes);
+  }
+};
+#+END_SRC
+
+- two phases :: every mode staggers before any finalizes. =AGENTIC= harvests its peers' tools in its finalizer (=daemon/traits/agentic.js:1=) and needs them all wired.
+- terminators run before the datamap closes :: =population.datamap= sits above =population.modes= in the run, so its second half comes later. Measured: =board terminate · puzzles terminate · chess datamap closed=.
+
+** lifecycle/mode/
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/mode/population.js
+export const core = async (die, next) => {
+  const { mode, daemon } = die;
+  const own = mode.aperture;
+  mode.aperture = new Aperture()
+    .use(shard.context.bind("daemon", daemon))
+    .use(shard.context.bind("mode", mode))
+    .open("/status", () => die.controller.status.reflection)
+    .open("/manifest", () => mode.manifest);
+  if (own) mode.aperture.slurp(own);
+  mode.tools = new Vector().use(shard.context.bind("daemon", daemon)).use(shard.context.bind("mode", mode));
+  await daemon.datamap.shard.scope(async () => {
+    const entity = await daemon.entities.mode.ensure({ ...mode.manifest });
+    entity.traits = [...mode.manifest.traits];
+    await daemon.entities.em.flush();
+    mode.entity = wrap(entity).toPOJO();
+    mode.id = mode.entity.id;
+  });
+  await next();
+};
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/mode/resolution.js
+import { stagger, stamp } from "./traits/index.js";
+
+export const traits = async (die, next) => {
+  const { mode, daemon } = die;
+  await daemon.datamap.shard.scope(async () => {
+    const fresh = await stamp(mode);
+    if (mode.entity.installed && mode.entity.installed !== fresh) mode.entity.installed = "";
+    mode.finalizers = await stagger(mode, daemon, die.traits);
+    mode.entity.installed = fresh;
+    await daemon.entities.mode.nativeUpdate({ id: mode.entity.id }, { installed: fresh });
+  });
+  try {
+    await next();
+  } finally {
+    for (const terminate of mode.terminators ?? []) await terminate();
+  }
+};
+#+END_SRC
+
+- a mode's =/status= answers :: today it serves =mode.status=, a =Status= no one sets: =<UNINITIALIZED>= forever (=subsystems/typology/prototypes/mode.js:8=, =daemon/lifecycle/resolution.js:45=). After, the controller's.
+
+** lifecycle/service/
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/service/population.js
+export const aperture = async (die, next) => {
+  const { service } = die;
+  service.aperture = (await die.mask.aperture(service.aperture, die.mask)) || service.aperture;
+  service.aperture.open("/status", () => die.controller.status.reflection).open("/manifest", () => die.mask.manifest);
+  await next();
+};
+#+END_SRC
+
+The hook keeps its signature: =aperture(aperture, citizen)= (=commons/lighthouses/multiplayer/server/index.js:8=).
+
+** entities/index.ts
+
+#+BEGIN_SRC js
+// systems/runtime/entities/index.ts
+export * from "@vivalence/typology/entities";
+
+export const sets = {
+  lighthouse: { identity, daemon },
+  kernel: { user, mode, literal, symbol },
+  userspace: { intent, thread, turn, buffer },
+  transient: { activity, process },
+};
+#+END_SRC
+
+** entities/transient/Process.ts
+
+Just mikro. /"any reason were keeping this out of mikro?? mirko offer features for this. lets use 'just mikro'!"/
+
+#+BEGIN_SRC js
+// systems/runtime/entities/transient/Process.ts
+import { types } from "@mikro-orm/core";
+import { v } from "@vivalence/typology";
+import { VirtualEntity, VirtualRepository, VirtualSchema } from "@vivalence/typology/entities";
+
+export class ProcessEntity extends VirtualEntity {
+  type = "";
+  slug = "";
+  manifest = {};
+  mask = null;
+  controller = null;
+  execution = null;
+
+  get status() {
+    return this.controller?.status.reflection.code ?? null;
+  }
+}
+
+export class ProcessRepository extends VirtualRepository {
+  async controlled({ id, execution }) {
+    const process = await this.findOneOrFail({ id });
+    if (process.execution) throw new Error(`ProcessEntity ${id} is executed`);
+    process.execution = execution;
+    return process;
+  }
+
+  async stop(processes) {
+    for (const { controller } of processes) {
+      if (controller.status.is("IDLE")) await controller.kill("SIGKILL");
+      if (controller.status.is(["RUNNING", "PAUSED"])) await controller.kill("SIGTERM");
+    }
+    await Promise.all(processes.map((process) => process.execution));
+  }
+
+  async removeOne(where) {
+    const process = await this.findOneOrFail(where);
+    const { code } = process.controller.status.reflection;
+    if (!v.primitives.controller.MACHINE.states[code].settled) await process.controller.kill("SIGKILL");
+    return super.removeOne({ id: process.id });
+  }
+}
+
+export const ProcessSchema = new VirtualSchema({
+  class: ProcessEntity,
+  repository: () => ProcessRepository,
+  properties: {
+    type: { type: types.string },
+    slug: { type: types.string },
+    manifest: { type: types.json },
+    mask: { type: "any", persist: false, hidden: true },
+    controller: { type: "any", persist: false, hidden: true },
+    execution: { type: "any", persist: false, hidden: true },
+    status: { type: types.string, persist: false, getter: true },
+  },
+});
+
+export default { type: "process", schema: ProcessSchema, entity: ProcessEntity, repository: ProcessRepository };
+#+END_SRC
+
+#+BEGIN_SRC json
+{
+  "id": "01a0ed87-d45a-7036-9ba3-944b558b953a",
+  "createdAt": "2026-09-29T14:18:17.050Z",
+  "updatedAt": "2026-09-29T14:18:17.050Z",
+  "type": "daemon",
+  "slug": "chess",
+  "manifest": { "type": "daemon", "slug": "chess" },
+  "status": "RUNNING"
+}
+#+END_SRC
+
+| measure                                                        | value                                 |
+|----------------------------------------------------------------+---------------------------------------|
+| =create({ …, mask, controller })= keeps both by identity       | yes                                   |
+| =mask.mount instanceof Path= · =mask.url instanceof Url=       | yes                                   |
+| =JSON.stringify(process)= carries a handle                     | no (=hidden=)                         |
+| a secret on the mask reaches the row's JSON                    | no                                    |
+| =JSON.stringify(process)= carries =status=                     | yes, live (=getter=)                  |
+| =find({ status: "RUNNING" })=                                  | =[]=: a getter is no own key          |
+| =find({ type: "daemon" })= · nested where on =manifest=        | ok                                    |
+| =controlled= twice on one id                                   | throws =ProcessEntity <id> is executed= |
+| once-guard setters (=#controller=) as mikro props: =updateOne= | THROWS =a process is controlled once= |
+| the datamap strip names the three handles                      | yes, as columns of type =any=         |
+| =orm.em.getRepository(ProcessEntity)= class, stable            | =ProcessRepository=, yes              |
+| a fork's =getRepository=                                       | another instance, 0 rows              |
+
+- the mask is a handle :: a mask holds secrets in clear; as a json column it rode every serialization of the row.
+- the row's =manifest= IS the mask's :: one object, measured: a write to =mask.manifest= after =create= reads on the row. QUESTIONED below.
+- one remover :: the birth's second half. A child that stops on its own keeps its row, reading STOPPED or FAILED, until its parent unwinds. Two removers raced: a clean stop ended FAILED on =NOT_FOUND=, the root reading STOPPED over it.
+- =stop= speaks once :: a root SIGTERM has already reached the child; a second mark is noise on its span.
+- plain fields, no guard :: =assign= writes every prop back on update and trips a once-guard setter.
+
+** schematics/index.js
+
+#+BEGIN_SRC js
+// systems/runtime/schematics/index.js
+import { v } from "@vivalence/typology";
+
+export const { Runtime, Daemon, Service, Mode, Mask } = v.primitives.instance;
+
+export const Instance = v.object({ runtime: v.object({}, { additionalProperties: true }) }, { additionalProperties: true });
+#+END_SRC
+
+#+BEGIN_SRC json
+{
+  "manifest": { "type": "instance", "slug": "x", "version": "0.0.1" },
+  "environment": {},
+  "runtime": { "manifest": { "slug": "runtime" } }
+}
+#+END_SRC
+
+- the door is the runtime's own :: typology's =Instance= leaves =runtime= optional (=subsystems/typology/schematics/primitives/instance.js:106=); the runtime requires it. Without the slot: =/ must have required properties runtime= (=tests/door.test.js:10=).
+- the masks are typology's :: =Runtime= (=instance.js:48=) whole.
+
+** prototypes/
+
+#+BEGIN_SRC js
+// systems/runtime/prototypes/index.js
+export * from "./runtime.js";
+export * from "./daemon.js";
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/prototypes/runtime.js
+import { Aperture, Vector } from "@vivalence/typology";
+
+export class Runtime {
+  instance = null;
+  datamap = null;
+  entities = {};
+  aperture = new Aperture();
+  twitch = new Vector();
+  server = null;
+  latch = null;
+  daemons = {};
+  services = {};
+  constructor(fields) {
+    Object.assign(this, fields);
+  }
+}
+#+END_SRC
+
+#+BEGIN_SRC diff
+ // systems/runtime/prototypes/daemon.js   (today systems/runtime/daemon/daemon.js)
+   modes = {}; // map {game:{translations: Mode},teachers:{iroh:Mode}}
+   services = {}; // service providers { nlp:{analyze:(text)=>({annotations[]})} }
++  datamap = null;
++  domain = null;
++
++  flatmodes() {
++    return Object.values(this.modes).flatMap((type) => Object.values(type));
++  }
+#+END_SRC
+
+** gestalten/
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/index.js
+export * as tools from "./tools/index.js";
+export * as skills from "./skills/index.js";
+#+END_SRC
+
+=gestalten/tools/= is today's =daemon/skills/= (=entity · buffer · thread · mode=), read by =lifecycle/mode/traits/harnessed.js=. =gestalten/skills/= is empty.
+
+* subsystems/typology/
+
+** gestalten/steer/dispatch.js — LANDED
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/steer/dispatch.js
+export const execute = (vector, context, signal = new Signal()) => {
+  if (!(signal instanceof Signature)) signal = new Signal(signal);
+  const [effect, carry] = traverse(vector, signal);
+  if (!effect) throw new NotFound(signal);
+  return carry(context, resolve(effect));
+};
+#+END_SRC
+
+| case                  | result                     |
+|-----------------------+----------------------------|
+| no signal             | a+ · b+ · effect · b- · a- |
+| signal ="daemon"=     | a+ · b+ · daemon · b- · a- |
+| vector without effect | throws =NotFound=          |
+
+=steer.strategy.direct= stays: 16 readers.
+
+** gestalten/belt/control.js — LANDED
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/control.js
+export const controlled = (controller, check = (status) => status.code === "RUNNING") =>
+  new Promise((resolve, reject) => {
+    const judge = (status) => (check(status) ? resolve(controller) : reject(status.error ?? new Error(status.code)));
+    if (!controller.status.is("IDLE")) return judge(controller.status.reflection);
+    const stop = controller.status.$transient.listen((status) => {
+      stop();
+      judge(status);
+    });
+  });
+
+export const hold = (controller) =>
+  new Promise((resolve) => {
+    const live = () => controller.status.is(["IDLE", "RUNNING", "PAUSED"]);
+    if (!live()) return resolve();
+    const stop = controller.status.$transient.listen(() => {
+      if (live()) return;
+      stop();
+      resolve();
+    });
+  });
+#+END_SRC
+
+#+BEGIN_SRC diff
+ // subsystems/typology/gestalten/belt/index.js
+ export * as hallucinate from "./hallucinate.js";
++export * as control from "./control.js";
+#+END_SRC
+
+- the IDLE line :: =listen= does not call back on subscribe; without it a process already RUNNING is never heard.
+- =hold= is not =controller.settled= :: SIGTERM gives STOPPING, settled needs the effect to return.
+- typology =tests/= before and after :: =131 passed (562 steps) | 0 failed=. No typology test names =control= yet.
+
+** entities/
+
+#+BEGIN_SRC diff
+ // subsystems/typology/deno.jsonc
+   "./schematics": "./schematics/index.js",
++  "./entities": "./entities/index.ts",
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/entities/index.ts
+export * from "./base/DataEntity.ts";
+export * from "./base/VirtualEntity.ts";
+export { Datamap } from "./datamap.js";
+export * as lighthouse from "./lighthouse/index.ts";
+#+END_SRC
+
+The barrel is typology's mikro door. beef: /"mikro has been in typology before. just barrel it carfully and were good."/ Every =@mikro-orm= import in typology lives under =entities/= and reaches a consumer only through =@vivalence/typology/entities=; =mod.ts= never re-exports it, because the client bundles the root (anima: 41 imports of =@vivalence/typology=, 0 of a subpath, measured).
+
+** the datamap service
+
+beef, on the class: /"i kinda like it actually. makes things easier."/ Before it, on the same draft: /"nooo. i wanted you to rethink the actual service mode. not implement th4e datamap as a prototype.... stupid."/ · /"i suspect we can just keep that all in the provider. why the custom prototye??"/ And the ask it answers: /"i expect we'd do well do just align with mikro primitives on the interface. that way any config goes and the provider jsut implements a shared standard."/
+
+The datamap is a service like every other module in the registry: a =manifest=, a =config=, a =provider=. The shared standard is one class in typology, =Datamap=: mikro's =MikroORM= whole on =orm=, the repositories derived from its metadata, the request context on =shard=, mikro's own names for the rest. A provider is its driver, its seat and its migrator, and ends in =new Datamap(orm)=.
+
+Today two providers implement one surface by hand, and they have drifted:
+
+| member                 | =commons/datamaps/libsql= | =tests/scenarios/datamap.js= | readers            |
+|------------------------+---------------------------+------------------------------+--------------------|
+| =orm=                  | no                        | yes                          | 2                  |
+| =entities=             | yes                       | yes                          | every consumer     |
+| =shard.context=        | yes, /to be depracated/   | yes                          | 6                  |
+| =shard.scope=          | yes                       | no                           | 0                  |
+| =shard.bind=           | yes                       | yes                          | 5                  |
+| =shard.carry=          | yes                       | yes, another body            | 5                  |
+| =subscribe=            | yes                       | yes                          | 7                  |
+| =introspect=           | yes                       | yes                          | 9                  |
+| =disintegrate=         | yes                       | yes                          | 8                  |
+| =allowGlobalContext=   | no                        | yes                          |                    |
+| first argument         | the datamap mask          | the descriptors              | 6 callers          |
+
+The standard, once:
+
+#+BEGIN_SRC js :tangle subsystems/typology/entities/datamap.js
+// subsystems/typology/entities/datamap.js
+import { RequestContext } from "@mikro-orm/core";
+
+export class Datamap {
+  constructor(orm) {
+    this.orm = orm;
+    this.entities = { em: orm.em };
+    for (const meta of Object.values(orm.getMetadata().getAll())) {
+      if (meta.abstract || meta.pivotTable || meta.embeddable) continue;
+      this.entities[meta.className.toLowerCase().replace("entity", "")] = orm.em.getRepository(meta.class);
+    }
+    this.shard = {
+      scope: (task) => RequestContext.create(orm.em, task),
+      bind: (name, resolve) => async (ctx, next) => {
+        RequestContext.getEntityManager(orm.em.name)?.setFilterParams(name, resolve(ctx));
+        await next();
+      },
+      carry: () => {
+        const context = RequestContext.currentRequestContext();
+        return (task) => (context ? RequestContext.storage.run(context, task) : task());
+      },
+    };
+  }
+
+  getMetadata() {
+    return this.orm.getMetadata();
+  }
+
+  registerSubscriber(subscriber) {
+    this.orm.em.getEventManager().registerSubscriber(subscriber);
+  }
+
+  close() {
+    return this.orm.close();
+  }
+}
+#+END_SRC
+
+Inside, a provider:
+
+#+BEGIN_SRC js
+// commons/datamaps/libsql/libsql.viva.js
+import { defineConfig, MikroORM } from "@mikro-orm/sqlite";
+import { Migrator } from "@mikro-orm/migrations";
+import { Datamap } from "@vivalence/typology/entities";
+
+export const manifest = { type: "datamap", slug: "libsql", name: "libsql" };
+
+export const config = (datamap, options = {}) => {
+  const seat = datamap.mountpoint?.branch(datamap.statics.db.file).absolute;
+  const contextName = datamap.statics?.context?.name ?? datamap.statics?.db?.file;
+  return defineConfig({
+    dbName: seat ?? ":memory:",
+    loadStrategy: "balanced",
+    ...(contextName && { contextName }),
+    ...(seat && {
+      extensions: [Migrator],
+      migrations: { tableName: "_mikro_migrations", path: datamap.mountpoint.branch("migrations").absolute, transactional: false },
+    }),
+    ...options,
+  });
+};
+
+export const provider = async (datamap, options) => {
+  const orm = await MikroORM.init(config(datamap, options));
+  if (orm.config.get("dbName") === ":memory:") await orm.schema.createSchema();
+  else {
+    const migrator = orm.getMigrator();
+    if (await migrator.checkMigrationNeeded()) await migrator.createMigration();
+    if ((await migrator.getPendingMigrations()).length) await migrator.up();
+  }
+  return new Datamap(orm);
+};
+#+END_SRC
+
+Outside:
+
+#+BEGIN_SRC js
+// the runtime: no seat, no table, a twitch on its rows
+const datamap = await paladin.ledger.registry.accio(die.runtime.instance.datamap);
+die.runtime.datamap = await datamap.provider(datamap, { entities: [sets.transient.process.schema] });
+die.runtime.datamap.registerSubscriber(shape.subscriber(die.runtime.twitch));
+
+// a daemon: its seat, its migrations
+die.daemon.datamap = await die.register.datamap.provider(die.register.datamap, { entities, subscribers });
+
+// a scenario: the same service, no seat
+const datamap = await libsql.provider({ statics: { context: { name: "world" } } }, { entities, subscribers });
+
+// mikro's own names, on the Datamap
+shard.datamap.strip(die.daemon.datamap.getMetadata());
+await die.daemon.datamap.close();
+#+END_SRC
+
+#+BEGIN_SRC js
+// commons/instances/hello-world/instance.viva.js
+export const datamap = { module: "@commons/datamap/libsql", statics: { context: { name: "runtime" } } };
+#+END_SRC
+
+#+BEGIN_SRC json
+{
+  "datamap": { "module": "@commons/datamap/libsql", "statics": { "db": { "file": "chess.viva.db" } }, "mountpoint": "/viva/mountpoint/daemon_chess" },
+  "options": { "entities": ["<EntitySchema>"], "subscribers": ["<EventSubscriber>"] },
+  "Datamap": ["orm", "entities", "shard", "getMetadata", "registerSubscriber", "close"]
+}
+#+END_SRC
+
+| word today                 | after                         | readers |
+|----------------------------+-------------------------------+---------|
+| =datamap.introspect()=     | =datamap.getMetadata()=       |       9 |
+| =datamap.disintegrate()=   | =datamap.close()=             |       8 |
+| =datamap.subscribe(s)=     | =datamap.registerSubscriber(s)= |     7 |
+| =datamap.shard.context(t)= | =datamap.shard.scope(t)=      |       6 |
+| =datamap.shard.bind(n, r)= | kept                          |       5 |
+| =datamap.shard.carry()=    | kept                          |       5 |
+| =datamap.entities=         | kept, derived from the metadata |     all |
+
+| measure (sandbox =datamap.class.test.js=, =5 passed | 0 failed=)            | value                                  |
+|----------------------------------------------------------------------------+----------------------------------------|
+| =provider(…) instanceof Datamap= · =datamap.orm instanceof MikroORM=       | yes · yes                              |
+| =statics.context.name= → =orm.em.name=                                     | ="runtime"=                            |
+| seated, no name → =orm.em.name=                                            | ="service.viva.db"=                    |
+| the runtime's: repositories                                                | =em · process=                         |
+| a daemon's, in memory: repository keys = descriptor types                  | yes                                    |
+| in memory: =LiteralSubscriber= folds =ontology= at create                  | yes                                    |
+| in memory: =registerSubscriber(twitch)= hears a thread and a process row   | yes                                    |
+| =shard.datamap.strip(datamap.getMetadata())= keys = repository keys        | yes                                    |
+| seated: what the mountpoint holds                                          | =migrations= · =service.viva.db=       |
+| nested scopes, two names: the inner sees the outer's fork                  | no                                     |
+| nested scopes, one name: the other datamap's =getContext= returns this fork | yes                                   |
+
+- mask and options stay apart :: beef: /"maybe merge mask and options?"/ → /"ok."/ on keeping them apart. The rule: the mask carries data (the instance record's, serializable, may hold secrets), the options carry code (=EntitySchema= · subscriber instances). Every registry provider takes its mask first and what the caller hands after.
+- the context name is a static :: beef: /"like context name might just be a static default? statics.context.name."/ =config= reads =statics.context.name=, then =statics.db.file=. A seated datamap is unique by its file; an in-memory one names itself. Two datamaps under one name cross: inside one's scope, the other's =getContext= returns the wrong fork (measured).
+- nested scopes do not stack :: an inner =shard.scope= replaces the request context; the outer datamap's fork is gone inside it (measured). One more reason children execute outside the scope.
+- subscribers do not care where the rows live :: mikro's =EventManager= runs above the driver; a virtual repository dispatches the same events by hand (=daemon/entities/base/VirtualEntity.ts:31=). The runtime passes none it does not need; the twitch on its process rows is the seat a differ, a watchdog or =/processes= subscribe hangs on.
+- =disintegrate= is cut :: beef: /"seems odd. not sure. your call. maybe cut?"/ Mikro's word: =datamap.close()=.
+- the repositories are derived :: from the ORM's metadata, by the rule =shard.datamap.strip= already uses (=subsystems/typology/gestalten/shard/datamap.js:277=). The provider takes no descriptors.
+- typology's shards change one word :: =shard.datamap.inject= and =detached= read =datamap.shard.context= · =carry= today (=subsystems/typology/gestalten/shard/datamap.js:6= · =:248=); after, =datamap.shard.scope= · =datamap.shard.carry=.
+- the scenario provider is cut :: =tests/scenarios/datamap.js:50= becomes a call to the service; with it goes the only =allowGlobalContext: true=.
+- =citizen= is not a word here :: beef: /"not like 'citizen'"/. The accio'd module is named by what it is: =datamap=.
+
+* the contract — what the runtime provides today
+
+Read off the live runtime on =:2501= (instance =chess=, 1 daemon, 11 modes, 1 service), =.ikiro/quests/m74-the-boot-vector/sandbox/baseline/runtime-routes.live.txt=:
+
+| branch                          | routes |
+|---------------------------------+--------|
+| =/status= · =/manifest=         |      2 |
+| =/multiplex=                    |      1 |
+| =/metadata/*=                   |      5 |
+| =/attached/process/service/**=  |     30 |
+| =/attached/bundle/**=           |      4 |
+| =/daemon/<slug>/status= (+ =subscribe=) |      2 |
+| =/daemon/<slug>/manifest= · =batch= · =cargo= · =datamap= · =modes= |      5 |
+| =/daemon/<slug>/metadata/*=     |      7 |
+| =/daemon/<slug>/cortex/*=       |      2 |
+| =/daemon/<slug>/entities/**=    |     39 |
+| =/daemon/<slug>/userspace/**=   |     76 |
+| =/daemon/<slug>/<domain>/**=    |     19 |
+| =/daemon/<slug>/mode/**=        |    137 |
+| total                           |    329 |
+
+#+BEGIN_SRC json
+{ "timestamp": "2026-09-29T14:05:18.836Z", "code": "ALIVE", "label": "http://localhost:2501/" }
+#+END_SRC
+
+What callers hold, outside the wire:
+
+| interface                                   | signature today                                | readers                                        | after                     |
+|---------------------------------------------+------------------------------------------------+------------------------------------------------+---------------------------|
+| a trait                                     | =(mode, daemon)=                               | 11 files in =daemon/traits/=, 14 importing lines | kept, new address       |
+| =stagger=                                   | =(mode, daemon, traits)=                       | 3 scenarios · vcompany                         | kept, new address         |
+| a mode's =boot=                             | =(daemon, mode)=                               | 5 registry modes                               | kept                      |
+| a domain's =resolve=                        | =(daemonDie)=, reads =.good.{entities,twitch,aperture}= | chess · education · stucatch          | =(daemon)=                |
+| a service's =aperture=                      | =(aperture, citizen)=                          | =commons/lighthouses/multiplayer=              | kept                      |
+| a datamap's =provider=                      | =(mask, descriptors, subscribers)=             | 6 callers                                      | =(mask, options)=         |
+| a lighthouse's · hallucinator's · service's =provider= | =(citizen, …)=                      | 9 modules                                      | kept                      |
+| =ctx.daemon=                                | the =Daemon=                                   | registry 385 · commons 28                      | kept                      |
+| an aperture function                        | =(die)=, reads =die.good= · =die.datamap= · =die.manifest= | 5 scenario files                   | =(die, next)=             |
+| the readiness line                          | =Status:ALIVE= on stdout                       | paladin =ledger/process.js:6=                  | =Status:RUNNING=; recast marked |
+
+* breaking changes
+
+| n  | what breaks                                                           | readers | where                                                          |
+|----+-----------------------------------------------------------------------+---------+----------------------------------------------------------------|
+| 1  | =.good= on a runtime die → the subject                                |     124 | runtime 116 · runtime tests 8                                  |
+| 2  | a domain's =resolve(daemonDie)= → =resolve(daemon)=                   |       6 | registry chess · education · stucatch · 2 rigs · 1 scenario    |
+| 3  | the die's own fields: =slug · type · manifest · status · abort=       |      28 | runtime: the =Wafer= getters go with =Die=                     |
+| 4  | =die.datamap= → =die.daemon.datamap=                                  |      15 | runtime                                                        |
+| 5  | =sets.daemon= → =sets.kernel=                                         |      20 | registry/assembly 12 · chess 4 · commons 2 · runtime 2         |
+| 6  | =sets.network= → =sets.lighthouse=                                    |       1 | =commons/lighthouses/multiplayer/server/entities.js:20=        |
+| 7  | =@vivalence/runtime/daemon/traits= → =lifecycle.mode.traits=          |      14 | runtime tests 8 · commons 5 · registry/vcompany 1              |
+| 8  | =runtime.daemon.traits= off the root namespace                        |       3 | registry/vcompany =vdex/tests/=                                |
+| 9  | =@vivalence/runtime/daemon/aperture= → =lifecycle.daemon.aperture=    |       5 | runtime tests                                                  |
+| 10 | =@vivalence/runtime/daemon= · =/process=                              |       3 | =lifecycle/populate.js:3-4= · =tests/scenarios/bench.js:33=    |
+| 11 | relative imports into =daemon/= from =tests/=                         |      12 | runtime tests 8 files                                          |
+| 12 | =Die= · =daemon.Die= · =process.Die=                                  |       2 | =run.js= · =tests/runtime/disintegrate.test.js=                |
+| 13 | status =ALIVE= → =RUNNING= on =/status= and on stdout                 |       7 | anima =dossier.js:147= · =vite.config.mjs:101= · paladin =ledger/process.js:6= · =tests/runtime/composition.test.js= 4 |
+| 14 | =label= leaves the runtime's =/status=                                |       0 | no reader found                                                |
+| 15 | a mode's =/status=: =<UNINITIALIZED>= → the controller's code         |       0 | 30 aperture snapshots list the route, none its body            |
+| 16 | the datamap surface: four words                                       |      30 | runtime 29 · typology 1                                        |
+| 17 | the datamap =provider= signature                                      |       6 | runtime 2 · commons 2 · registry/assembly · chess              |
+| 18 | scenario dies built by hand: ={ good, datamap, status, manifest }=    |       6 | =tests/scenarios/{daemon,bench,activity}.js= · =topography/harness.js= · 2 tests |
+| 19 | importing =run.js= boots nothing                                      |       0 |                                                                |
+| 20 | =documentation/…/12.01_anatomy-of-an-instance.mdx:58-72= names =Die=  |       1 |                                                                |
+
+Not breaking: =DataRepository= · =DataEntity= · =Virtual*= keep their address through the runtime's re-export. =die.register= · =die.instance= · =die.connection= keep their place (17 reads). Ghost's three =.good= reads and paladin's =ledger/die.js= are paladin's own ledger =Die=, another class; =Wafer= stays in typology for it.
+
+* blast table
+
+=systems/runtime/=, 82 files outside =tests/=:
+
+| today                             | files | after                                       | kind                 | milestone |
+|-----------------------------------+-------+---------------------------------------------+----------------------+-----------|
+| =daemon/entities/base/=           |     4 | =subsystems/typology/entities/base/=        | move                 | M1        |
+| =daemon/entities/network/=        |     2 | =subsystems/typology/entities/lighthouse/=  | move                 | M1        |
+| =daemon/entities/daemon/=         |     4 | =entities/kernel/=                          | move                 | M2        |
+| =daemon/entities/kernel/=         |     6 | =entities/kernel/=                          | move                 | M2        |
+| =daemon/entities/userspace/=      |    11 | =entities/userspace/=                       | move                 | M2        |
+| =daemon/entities/transient/=      |     1 | =entities/transient/=                       | move                 | M2        |
+| =daemon/entities/index.ts=        |     1 | =entities/index.ts=                         | move · =sets=        | M2 · M4   |
+| =daemon/skills/=                  |     5 | =gestalten/tools/=                          | move                 | M2        |
+| =daemon/traits/=                  |    11 | =lifecycle/mode/traits/=                    | move                 | M2        |
+| =daemon/aperture/=                |     7 | =lifecycle/daemon/aperture/=                | move · =(die, next)= | M2 · M3   |
+| =daemon/lifecycle/=               |     4 | =lifecycle/daemon/=                         | move · =(die, next)= | M2 · M3   |
+| =lifecycle/populate.js=           |     1 | =lifecycle/runtime/population.js=           | move · =(die, next)= | M2 · M3   |
+| =lifecycle/resolve.js=            |     1 | =lifecycle/runtime/resolution.js=           | move · =(die, next)= | M2 · M3   |
+| =lifecycle/integrate.js=          |     1 | =lifecycle/runtime/integration.js=          | move · =(die, next)= | M2 · M3   |
+| =lifecycle/index.js=              |     1 | =lifecycle/index.js=                        | rewrite              | M2        |
+| =daemon/daemon.js=                |     1 | =prototypes/daemon.js=                      | move · fields        | M2        |
+| =runtime.js=                      |     1 | =prototypes/runtime.js=                     | move · fields        | M2        |
+| =typology/schematics/instance.js= |     1 | =schematics/index.js=                       | move                 | M2        |
+| =typology/index.js=               |     1 |                                             | cut                  | M2        |
+| =daemon/index.js=                 |     1 |                                             | cut                  | M2        |
+| =mod.js=                          |     1 | =typology.js=                               | rewrite              | M2        |
+| =deno.jsonc=                      |     1 | =deno.jsonc=                                | exports              | M2        |
+| =die.js=                          |     1 |                                             | cut                  | M3        |
+| =daemon/die.js=                   |     1 |                                             | cut                  | M3        |
+| =process/=                        |     3 |                                             | cut                  | M3        |
+| =run.js=                          |     1 | =run.js=                                    | rewrite              | M3        |
+| =bak.belt/=                       |     8 |                                             | QUESTIONED           | M4        |
+| =Dockerfile=                      |     1 | =Dockerfile=                                | none                 |           |
+
+New files: =run/{index,runtime,service,daemon,mode}.js= · =lifecycle/process.js= · =lifecycle/{runtime,service,daemon,mode}/index.js= · =lifecycle/service/population.js= · =lifecycle/mode/{population,resolution}.js= · =entities/transient/Process.ts= · =prototypes/index.js= · =gestalten/index.js= · =subsystems/typology/entities/{index.ts,datamap.js}=.
+
+Outside the runtime:
+
+| file                                                                  | change                          | milestone |
+|-----------------------------------------------------------------------+---------------------------------+-----------|
+| =subsystems/typology/gestalten/shard/datamap.js=                      | =shard.context= → =shard.scope=  | M1        |
+| =subsystems/typology/deno.jsonc=                                      | =./entities=                    | M1        |
+| =commons/datamaps/libsql/libsql.viva.js=                              | =new Datamap(orm)= | M1       |
+| =subsystems/typology/entities/datamap.js=                             | new: =Datamap=                  | M1        |
+| =commons/lighthouses/multiplayer/server/entities.js=                  | provider call · =sets.lighthouse= | M1 · M4 |
+| =commons/instances/*/instance.viva.js= · =~/.viva/instances/*=     | =datamap.statics.context.name=  | M1        |
+| =commons/fixtures/data/{seed,tiers,assemble}.js=                      | provider call · =sets=          | M1 · M4   |
+| =commons/instances/hello-world/tests/= 5 files                        | =lifecycle.mode.traits=         | M2        |
+| =~/.viva/registry/{chess,education,stucatch}= domain =resolve=        | =(daemon)=                      | M3        |
+| =~/.viva/registry/{assembly,chess}/tests/rig.js=                      | provider call · =sets= · =resolve= | M1 · M3 · M4 |
+| =~/.viva/registry/education/domain/tests/scenarios/domain.js=         | the scenario's die              | M3        |
+| =~/.viva/registry/vcompany/tests/scenarios.js= · =vdex/tests/= 3      | =lifecycle.mode.traits=         | M2        |
+| =~/.viva/registry/assembly/modes/**/tests/= 5 files                   | =sets.kernel=                   | M4        |
+| =systems/anima/src/typology/entities/daemon/dossier.js:147=           | =RUNNING=                       | M3        |
+| =subsystems/paladin/prototypes/ledger/process.js:6= · =systems/anima/vite.config.mjs:101= | the readiness line, =RUNNING=, one landing | M3 |
+| =documentation/content/10-19_explanation/12_architecture/12.01_anatomy-of-an-instance.mdx= | the die             | M4        |
+| =.ikiro/world/codemap/runtime.md= · =typology.md= · =commons.md=      | re-stamp                        | M4        |
+
+* testing assessment
+
+In place, =systems/runtime/tests/=: 59 files, 7508 lines. Baseline, 57 files (the two that write into a live runtime on =:2501= left out): =ok | 63 passed (385 steps) | 0 failed (1m19s)=.
+
+| class      | files | lines |
+|------------+-------+-------|
+| COMPONENT  |    28 |  4299 |
+| INTEGRATED |    20 |  2523 |
+| SNAPSHOT   |     7 |   466 |
+| UNIT       |     2 |    27 |
+| DOC        |     1 |   108 |
+| BENCH      |     1 |    85 |
+
+| measure                                                        | value |
+|----------------------------------------------------------------+-------|
+| files that construct the runtime =Die=                         |     1 |
+| files that construct the daemon =Die=                          |     0 |
+| calls to =populate= · =resolve= · =integrate= · =perpetuate= on a die |     0 |
+| scenario files that build a die as an object literal           |     4 |
+| files whose subject is typology                                |    11 |
+| files whose subject is partly typology                         |    16 |
+| files that talk to a runtime booted outside the test           |     2 |
+| daemons per scenario, at most                                  |     1 |
+
+COVERAGE GAP: no test boots the runtime. The pipeline m74 replaces has no regression net. Line coverage under the baseline, =sandbox/baseline/runtime-coverage.txt=:
+
+| file                              | line % | function % |
+|-----------------------------------+--------+------------|
+| =lifecycle/resolve.js=            |   13.8 |        0.0 |
+| =daemon/lifecycle/integration.js= |   19.0 |        0.0 |
+| =daemon/traits/application.js=    |   21.6 |        0.0 |
+| =daemon/aperture/metadata.js=     |   24.5 |        0.0 |
+| =daemon/die.js=                   |   28.6 |        0.0 |
+| =lifecycle/populate.js=           |   29.8 |       20.0 |
+| =die.js=                          |   35.7 |       16.7 |
+| =daemon/lifecycle/population.js=  |   37.6 |       33.3 |
+| =process/process.js=              |   42.9 |        0.0 |
+| =daemon/lifecycle/resolution.js=  |   57.8 |       33.3 |
+| =lifecycle/integrate.js=          |   68.6 |        0.0 |
+| all 57 source files               |   79.9 |       74.9 |
+
+| untested today                                                       | at                                        |
+|----------------------------------------------------------------------+-------------------------------------------|
+| =run.js= · =Die.populate= · =resolve= · =integrate= · =perpetuate=   | =die.js:10-68=                            |
+| the daemon =Die=, whole                                              | =daemon/die.js=                           |
+| =population.{core,wiring,datamap,authority,acid,services}=           | =daemon/lifecycle/population.js=          |
+| =resolution.{domain,freight}= · =integration.{call,prune}=           | =daemon/lifecycle/=                       |
+| =aperture.metadata=                                                  | =daemon/aperture/metadata.js=             |
+| the runtime's lifecycle but =registry=                               | =lifecycle/{populate,resolve,integrate}.js= |
+| the service path                                                     | =process/= · =lifecycle/populate.js:35=   |
+| OS signals · the shutdown order                                      | =die.js:57= · =daemon/die.js:55=          |
+| =/attached/bundle= · =/attached/cargo=                               | =lifecycle/resolve.js:20-83=              |
+| =mode.terminators= consumed                                          | =daemon/die.js:56=                        |
+| two daemons in one runtime                                           |                                           |
+| pause · resume of a runtime, a daemon, a mode                        |                                           |
+
+Changes:
+
+| test                                           | why                                              |
+|------------------------------------------------+--------------------------------------------------|
+| =tests/runtime/disintegrate.test.js=           | =Die= is cut; its case moves into the boot scenario |
+| =tests/runtime/composition.test.js=            | four =ALIVE= literals; a hand-built look-alike of =expose= |
+| =tests/door.test.js=                           | =../typology/index.js= → =schematics=            |
+| =tests/scenarios/{daemon,bench,activity}.js= · =topography/harness.js= | the die literal; the aperture functions take =next= |
+| =tests/cortex-contract.snapshot.test.js= · =cortex.stripwire.test.js= | =mountCortex({ good: daemon })=         |
+| 8 files importing =daemon/traits= · =daemon/skills= by path | the address                         |
+
+Adds: =tests/runtime/boot.test.js= (M0, below).
+
+Per-milestone green ladder:
+
+| milestone | gate                                                                                                   |
+|-----------+--------------------------------------------------------------------------------------------------------|
+| M0        | =tests/runtime/boot.test.js= green on TODAY's code; the route census of =chess= = 329                  |
+| M1        | typology =tests/= =131 passed (562 steps)= + the =control= and =datamap= cases; runtime =63 passed (385 steps)= |
+| M2        | runtime =63 passed (385 steps)=; =viva /help=; M0 green; census 329; =grep= of the cut specifiers → 0 |
+| M3        | M0 green with =RUNNING=; census 329; =grep '\.good\b' systems/runtime= → 0; registry suites =chess= · =education= at baseline; =viva instance/run= reaches ready |
+| M4        | =grep 'sets\.\(daemon\|network\)'= → 0 over repo + registry; docs build                                |
+
+No counts, no DONE: every gate is pasted as =N passed (M steps) | F failed=.
+
+* measured
+
+Sandbox =.ikiro/quests/m74-the-boot-vector/sandbox/=: real =Controller= · =Span= · =Vector= · =Aperture= · =Mode= · =Path= · =Url= · =steer= · =control= · mikro; fake masks, fake traits; 1 service, 2 daemons, 3 modes.
+
+| file                  | passed | failed |
+|-----------------------+--------+--------|
+| =structure.test.js=   |      6 |      0 |
+| =seams.test.js=       |     10 |      0 |
+| =datamap.service.test.js= | 4 |      0 |
+| =world.test.js=       |      1 |      0 |
+
+| case                                                                    | result |
+|-------------------------------------------------------------------------+--------|
+| three levels boot, =entities.process= holds RUNNING                     | ok     |
+| every child holds a row at IDLE before the first one runs               | ok     |
+| a fault between birth and boot: the born read ABORTED, the parent FAILED | ok    |
+| span =/runtime/test/daemon/chess=                                       | ok     |
+| span =/runtime/test/attached/process/service/lighthouse/multiplayer=    | ok     |
+| SIGSTOP one daemon: its modes PAUSED, sibling RUNNING                   | ok     |
+| SIGCONT resumes                                                         | ok     |
+| a daemon stops on its own: its row reads STOPPED, its sibling runs on   | ok     |
+| one cycle told twice: ledger · census · chronicle equal, zero faults    | ok     |
+| a daemon refuses at boot: siblings stop, FAILED, exit 1                 | ok     |
+| a mode refuses at boot: fails up two levels                             | ok     |
+| =controlled= twice on one id                                            | throws |
+| the parent serves its children over its own aperture                    | ok     |
+| =ctx.daemon= carries no register                                        | ok     |
+| every mode staggers before any finalizes                                | ok     |
+| terminators before the datamap closes                                   | ok     |
+| the second daemon starts after the first is RUNNING                     | ok     |
+| a run executed outside a scope inherits no request context              | ok     |
+| a run executed inside one holds it for life                             | ok     |
+
+#+BEGIN_EXAMPLE
+/runtime/test registry+
+board stagger
+puzzles stagger
+board finalize
+puzzles finalize
+iroh stagger
+iroh finalize
+/runtime/test serve+
+/runtime/test serve-
+board terminate
+iroh terminate
+puzzles terminate
+chess datamap closed
+education datamap closed
+/runtime/test registry-
+#+END_EXAMPLE
+
+A root SIGTERM fans out to every controller at once (=subsystems/typology/prototypes/controller.js:40=): lifecycles finish in order, children unwind together.
+
+The chronicle of one cycle (boot · pause chess · resume · stop education · stop), per span:
+
+#+BEGIN_SRC json
+{
+  "/runtime/test": ["open", "stop", "close"],
+  "/runtime/test/attached/process/service/lighthouse/multiplayer": ["open", "stop", "close"],
+  "/runtime/test/daemon/chess": ["open", "pause", "resume", "stop", "close"],
+  "/runtime/test/daemon/chess/mode/game/board": ["open", "pause", "resume", "stop", "close"],
+  "/runtime/test/daemon/chess/mode/game/puzzles": ["open", "pause", "resume", "stop", "close"],
+  "/runtime/test/daemon/education": ["open", "stop", "close"],
+  "/runtime/test/daemon/education/mode/teacher/iroh": ["open", "stop", "close"]
+}
+#+END_SRC
+
+* critical pass
+
+Method: the runtime's tests read whole (59 files, per file: imports · what it builds · what it asserts); every consumer of the runtime's surface grepped over repo + =~/.viva/registry=; the live runtime read over =:2501=; every seam of the plan run in the sandbox. Base: the working copy.
+
+| claim of the plan, before the pass                          | verdict  | now                                                        |
+|-------------------------------------------------------------+----------+------------------------------------------------------------|
+| the row holds the mask                                      | BROKEN   | a handle; =manifest= is the column                         |
+| a parent reaches its child through the row                  | BROKEN   | the row holds no subject; the parent's subject does        |
+| =register= · =instance= sit on the subject                  | BROKEN   | on the die; the subject is =ctx.daemon=                    |
+| a mode's die is =controller · mask · mode=                  | BROKEN   | a trait needs the daemon; the die carries it               |
+| =run/mode.js= uses =traits.stagger= as a lifecycle          | BROKEN   | =stagger= takes three arguments; =resolution.traits= wraps it |
+| the modes boot before =resolution.domain=                   | BROKEN   | today's order; birth in population, boot in resolution     |
+| children boot at once                                       | BROKEN   | in order, as today                                         |
+| children are executed inside the parent's scope             | BROKEN   | outside                                                    |
+| a second half after =next()=                                | BROKEN   | in a =finally=                                             |
+| =population.mount= is a lifecycle                           | BROKEN   | the mount precedes the die                                 |
+| =process.exit= sits in the exported run                     | BROKEN   | in =run.js=; a scenario executes the run in-process        |
+| a settled child leaves the repository                       | BROKEN   | two removers raced; the row stays, the parent removes      |
+| =schematics/index.js= re-exports typology's =Instance=      | BROKEN   | the door is the runtime's own                              |
+| status =ALIVE= → =RUNNING=, 1 reader                        | BROKEN   | 7, the readiness line among them; paladin budges           |
+| =.good= 132 readers, ghost 3                                | BROKEN   | 124; ghost's are paladin's ledger die                      |
+| =/daemon/traits= 12 readers                                 | BROKEN   | 14, plus 3 off the root namespace, plus 12 relative        |
+| the runtime's datamap calls the provider                    | BROKEN   | the provider seats a file; the service above               |
+| =activity.remove= at teardown                               | MISSING  | =population.datamap=, second half                          |
+| the =ATTACHED= filter on services                           | MISSING  | =population.services=                                      |
+| the milestones boot green at their boundary                 | BROKEN   | M2 named a run whose child arrives in M3; re-cut           |
+| typology holds zero mikro imports                           | HELD     | the class brings one, barrelled under =entities/=          |
+| importing =run.js=: 0 readers                               | HELD     |                                                            |
+| =execute= · =control= as landed                             | HELD     |                                                            |
+| the controller tree, pause, the exit code                   | HELD     |                                                            |
+
+Plan completion:
+
+| area                                              | done | of  |
+|---------------------------------------------------+------+-----|
+| structure ruled: words · tree · exports · die     |    4 |   4 |
+| typology landings                                 |    2 |   4 |
+| lifecycles written out                            |   15 |  35 |
+| lifecycles that are ports of today's body         |   20 |  35 |
+| claims of the plan that held under the pass       |    4 |  24 |
+| breaking changes with a measured reader count     |   20 |  20 |
+| milestones with a gate                            |    5 |   5 |
+| the gates that exist as tests                     |    0 |   5 |
+| QUESTIONED open                                   |   19 |     |
+
+* QUESTIONED
+
+- a settled child's row :: stays until its parent unwinds (sketched), or leaves on settle as an activity's does.
+- the row's =manifest= :: beef: /"i suspect there is a manifest on mask also. but it makes sense if the entity has its own, independent of the instructino. transient state, stuff like that. hmmm. not sure."/ Today the row holds the mask's own object (measured). Its own copy, or no column and a getter off the mask.
+- a hook's argument :: a domain's =resolve= receives the subject (sketched), as =boot(daemon, mode)= and every trait do; or the die, and with it the register and the controller.
+- the repositories' keys :: derived from the class name (sketched) or handed as descriptors.
+- the daemons' boot :: in order (sketched, today's) or at once; each has its own file.
+- the effect's seat :: =lifecycle.process.effect= (sketched) or typology =control.affect= beside =hold=.
+- teardown order :: fan-out kept and order given up, or a parent kills its children only in its own second half.
+- abort during boot :: no lifecycle reads =die.controller.abort.signal=; a killed child boots fully, then unwinds.
+- machine :: ~stop: { IDLE: "STOPPED" }~ in typology, or SIGKILL from outside as now.
+- hallucinations under the tree :: an activity's controller is a root (=daemon/entities/transient/Activity.ts:17=); a paused daemon's hallucinations run on.
+- =ActivityEntity= is the peer :: it keeps =#controller= private behind a once-guard and is built by hand (=daemon/lifecycle/population.js:68=). Just mikro applies to it the same way.
+- =Mode.status= :: typology's =Mode= carries a =Status= no one sets.
+- =lifecycle/process.js= :: its name.
+- =Stdin= :: runtime =prototypes/= or typology beside =Controller=; =Controller.kill= taking it.
+- =entities= twice in typology :: =schematics/entities/= exists.
+- =controlled= · =hold= :: /"too thin"/, one listener, two predicates.
+- the pause gate :: the 503 on a paused daemon's aperture has no seat.
+- the watchdog :: it watches nothing today; the effect only holds.
+- =bak.belt/= :: 8 files, not read.
+
+Settled:
+
+- the seat of the children :: /"amen"/ · /"same order as today."/ Birth in population, boot in resolution, domain before the modes' traits, every stagger before any finalize.
+- the register :: /"registry on die. correct."/ Never on the subject.
+- the readiness line :: /"paladin absolutely should budge to the new meta."/ =Status:RUNNING= in one landing (breaking 13); paladin waiting on the runtime marked for recast, known issue =paladin-waits-on-the-runtimes-stdout=.
+- subscribers in memory :: measured, both kinds hear; the runtime registers its twitch on its process rows.
+- =disintegrate= :: cut; =close()=.
+- one process repository per datamap :: =type= is a column.
+- =status= on the wire :: a getter prop serializes it live.
+- the =children= bag :: cut.
+
+* milestones
+
+Each: blast → test → land → test → blast. Each boots at its boundary.
+
+** M0 — the guardrail, on today's code
+- [ ] =tests/runtime/boot.test.js=: a runtime booted from an instance record, in a child process, on its own mountpoint and port
+- [ ] it asserts: the readiness line · =/status= · =/metadata/{instance,daemons,services}= · the route census · SIGTERM → exit 0
+- [ ] the census of =chess= held as a fixture: 329
+
+** M1 — typology and the datamap
+- [x] =steer.dispatch.execute=
+- [x] =belt.control=
+- [ ] =tests/gestalten/belt/control.test.js=
+- [ ] =entities/= export: =base= · =lighthouse=
+- [ ] =commons/datamaps/libsql= the service ends in =new Datamap(orm)=; =statics.context.name=; its 6 callers; the datamap words (breaking 16 · 17)
+
+** M2 — the tree, no behavior
+- [ ] =entities/= · =prototypes/= · =schematics/= · =gestalten/= · =lifecycle/*/= moved, bodies untouched
+- [ ] =typology.js=, =mod.js= cut; the specifier flag day (breaking 7 · 8 · 9 · 10 · 11)
+- [ ] =Die= still boots
+
+** M3 — the recast
+- [ ] =lifecycle/process.js= · =entities/transient/Process.ts=
+- [ ] the 35 lifecycles as =(die, next)=; =run/= · =run.js=
+- [ ] =.good= flag day (breaking 1 · 2 · 3 · 4 · 12 · 13 · 18), registry included
+- [ ] the readiness line =Status:RUNNING=: runtime · paladin · anima in one landing; =viva instance/run= reaches ready
+- [ ] =die.js= · =daemon/die.js= · =process/= cut
+
+** M4 — the residue
+- [ ] =sets= flag day (breaking 5 · 6)
+- [ ] the scenarios and the tests, reworked: quest =runtime-scenarios.org=
+- [ ] docs · codemap · grep gates

@@ -1,0 +1,1931 @@
+diff --git a/subsystems/drapes/controls/Field.svelte b/subsystems/drapes/controls/Field.svelte
+index 321dfd9..ec84fce 100644
+--- a/subsystems/drapes/controls/Field.svelte
++++ b/subsystems/drapes/controls/Field.svelte
+@@ -20,8 +20,12 @@
+   .field-label {
+     width: var(--field-label-width);
+     flex: none;
+-    font-size: var(--font-size-sm);
+-    color: color-mix(in srgb, var(--text-strong) 45%, transparent);
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    font-weight: 600;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++    color: var(--text-light);
+   }
+   .field-control {
+     flex: 1;
+diff --git a/subsystems/drapes/controls/Input.svelte b/subsystems/drapes/controls/Input.svelte
+index 7075e98..f7dc2da 100644
+--- a/subsystems/drapes/controls/Input.svelte
++++ b/subsystems/drapes/controls/Input.svelte
+@@ -1,92 +1,31 @@
+ <script>
+-  let {
+-    id = undefined,
+-    name = "",
+-    value = $bindable(""),
+-    label = "",
+-    error = "",
+-    success = false,
+-    helper = "",
+-    size = "md",
+-    disabled = false,
+-    required = false,
+-    placeholder = "",
+-    autocomplete = "",
+-    autofocus = false,
+-    type = "text",
+-    variant = "primary",
+-  } = $props();
+-
+-  let state = $derived.by(() => {
+-    if (error) return "error";
+-    if (success) return "success";
+-    if (disabled) return "disabled";
+-    return "default";
+-  });
+-
+-  const sizeClasses = {
+-    sm: "h-8 px-3 text-sm",
+-    md: "h-10 px-4 text-base",
+-    lg: "h-12 px-4 text-lg",
+-    xl: "h-14 px-5 text-xl",
+-  };
+-
+-  const variantClasses = {
+-    primary: `bg-theme-ui-1 border-theme-border-1 text-theme-text-1
+-        focus:border-interactive-focus-accent `,
+-  };
+-
+-  const stateClasses = {
+-    default: "",
+-    error: "",
+-    success: "",
+-    disabled: "",
+-  };
+-
+-  const baseClasses = "w-full outline-0 rounded border transition-colors font-sans-text";
++  let { value = $bindable(""), type = "text", placeholder = "", name = "", autocomplete = "", autocapitalize = "off", autocorrect = "off", spellcheck = false, title = null, oninput, onkeydown } = $props();
+ </script>
+ 
+-<div class="flex flex-col w-full mb-2">
+-  {#if label}
+-    <label for={id} class="mb-1.5 text-sm font-medium text-gray-900">
+-      {label}
+-      {#if required}
+-        <span class="text-red-500 ml-0.5">*</span>
+-      {/if}
+-    </label>
+-  {/if}
+-
+-  <div class="relative">
+-    <input
+-      {id}
+-      {name}
+-      {type}
+-      {disabled}
+-      {required}
+-      {placeholder}
+-      {autocomplete}
+-      {autofocus}
+-      bind:value
+-      aria-invalid={!!error}
+-      aria-describedby={`${id}-${error ? "error" : "helper"}`}
+-      class="{baseClasses} {sizeClasses[size]} {variantClasses[variant]} {stateClasses[state]}" />
+-
+-    {#if state === "error"}
+-      <div class="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-red-500">error icon</div>
+-    {/if}
+-
+-    {#if state === "success"}
+-      <div class="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-green-500">
+-        success icon
+-      </div>
+-    {/if}
+-  </div>
+-
+-  {#if error || helper}
+-    <p
+-      id={`${id}-${error ? "error" : "helper"}`}
+-      class="mt-1.5 text-sm {error ? 'text-red-500' : 'text-gray-500'}">
+-      {error || helper}
+-    </p>
+-  {/if}
+-</div>
++<input class="field" bind:value {type} {placeholder} {name} {autocomplete} {autocapitalize} {autocorrect} {spellcheck} {title} {oninput} {onkeydown} />
++
++<style>
++  .field {
++    height: var(--size-field);
++    min-width: 0;
++    width: 100%;
++    padding: 0 10px;
++    border: none;
++    border-radius: var(--shape-radius-field);
++    background: var(--control-field);
++    color: var(--text-strong);
++    box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++    outline: none;
++    font: inherit;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-xs);
++    caret-color: var(--control-field-caret);
++  }
++  .field::placeholder {
++    color: var(--control-field-placeholder);
++    opacity: 1;
++  }
++  .field:focus {
++    box-shadow: inset 0 0 0 calc(var(--size-ring) * 1.5) var(--control-focus);
++  }
++</style>
+diff --git a/subsystems/drapes/controls/Key.svelte b/subsystems/drapes/controls/Key.svelte
+index 67d7f41..c71071b 100644
+--- a/subsystems/drapes/controls/Key.svelte
++++ b/subsystems/drapes/controls/Key.svelte
+@@ -1,59 +1,199 @@
+ <script>
+-  let { label, tone = "muted", active = false, disabled = false, title = null, onclick, children } = $props();
++  let { label = null, tone = "plain", size = "key", latched = false, led = false, muted = false, square = false, wide = false, disabled = false, hold = 0, title = null, type = "button", onclick, onhold, onpress, onrelease, children } = $props();
++
++  let holding = $state(false);
++  let pressed = false;
++  let fired = false;
++  let timer = null;
++
++  const press = (event) => {
++    fired = false;
++    if (disabled) return;
++    pressed = true;
++    onpress?.(event);
++    if (!hold) return;
++    holding = true;
++    timer = setTimeout(() => {
++      fired = true;
++      holding = false;
++      onhold?.();
++    }, hold);
++  };
++
++  const lift = (event) => {
++    clearTimeout(timer);
++    holding = false;
++    if (!pressed) return;
++    pressed = false;
++    onrelease?.(event);
++  };
++
++  const click = (event) => {
++    if (disabled || fired) return;
++    onclick?.(event);
++  };
+ </script>
+ 
+-<button class="key {tone}" class:active {disabled} {title} onclick={disabled ? undefined : onclick}>
+-  {#if children}{@render children()}{:else}{label}{/if}
++<button
++  class="key {tone} {size}"
++  class:latched
++  class:muted
++  class:square
++  class:wide
++  class:holding
++  style:--key-hold="{hold}ms"
++  {disabled}
++  {title}
++  {type}
++  onclick={click}
++  onpointerdown={press}
++  onpointerup={lift}
++  onpointerleave={lift}
++  onpointercancel={lift}>
++  {#if hold && tone === "negative"}<span class="fill"></span>{/if}
++  {#if led}<span class="led"></span>{/if}
++  <span class="face">{#if children}{@render children()}{:else}{label}{/if}</span>
+ </button>
+ 
+ <style>
+   .key {
++    position: relative;
++    overflow: hidden;
++    flex: none;
++    height: var(--size-key);
+     display: inline-flex;
+     align-items: center;
+     justify-content: center;
+-    gap: 6px;
+-    padding: 7px 14px;
+-    border: 1px solid var(--boundary);
+-    border-radius: 2px;
+-    background: transparent;
+-    color: color-mix(in srgb, var(--text-strong) 70%, transparent);
++    gap: 7px;
++    padding: 0 12px;
++    border: none;
++    border-radius: var(--shape-radius-key);
++    background: var(--control-contrast);
++    color: var(--control-on);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary), 0 var(--size-depth) 0 var(--boundary);
+     font: inherit;
+     font-family: var(--font-family-code);
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.14em;
+-    text-transform: uppercase;
++    font-size: var(--size-type-2xs);
++    font-weight: 600;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
+     white-space: nowrap;
+     cursor: pointer;
+-    transition: color 0.12s, border-color 0.12s, background 0.12s;
++    user-select: none;
++    transition: transform 0.07s;
++  }
++  .face {
++    position: relative;
++    display: inline-flex;
++    align-items: center;
++    gap: 7px;
++    min-width: 0;
+   }
+   .key:hover {
+-    border-color: var(--signal-primary);
+-    color: var(--signal-primary-ink);
++    background: var(--control-contrast-hover);
++  }
++  .key:active,
++  .key.latched {
++    background: var(--control-contrast-pressed);
++    color: var(--control-on-pressed);
++    box-shadow: var(--shape-sunk), 0 0 0 var(--size-ring) var(--boundary);
++    transform: translateY(var(--size-depth));
++  }
++  .key.muted {
++    color: var(--control-on-muted);
++  }
++  .key.row {
++    height: var(--size-row);
++    padding: 0 10px;
++  }
++  .key.field {
++    height: var(--size-field);
++  }
++  .key.mini {
++    height: 22px;
++    gap: 4px;
++    padding: 0 6px;
++    border-radius: var(--shape-radius-xs);
++  }
++  .key.square {
++    width: var(--size-row);
++    padding: 0;
++  }
++  .key.mini.square {
++    width: 22px;
++  }
++  .key.wide {
++    width: 100%;
+   }
+   .key.primary {
+-    border-color: color-mix(in srgb, var(--signal-primary) 45%, transparent);
+-    color: var(--signal-primary-ink);
++    background: var(--signal-primary);
++    color: var(--signal-primary-on);
++    box-shadow: 0 var(--size-depth) 0 var(--shadow);
+   }
+-  .key.primary:hover,
+-  .key.active {
+-    background: color-mix(in srgb, var(--signal-primary) 9%, transparent);
+-    border-color: var(--signal-primary);
+-    color: var(--signal-primary-ink);
++  .key.primary:hover {
++    background: var(--signal-primary);
++    filter: brightness(1.06);
++  }
++  .key.primary:active {
++    box-shadow: var(--shape-sunk);
+   }
+-  .key.danger {
+-    color: var(--signal-negative-ink);
++  .key.negative {
++    box-shadow: 0 0 0 var(--size-ring) var(--signal-negative), 0 var(--size-depth) 0 var(--signal-negative);
+   }
+-  .key.danger:hover {
+-    border-color: var(--signal-negative);
++  .key.negative:active {
++    background: var(--control-contrast);
++    box-shadow: var(--shape-sunk), 0 0 0 var(--size-ring) var(--signal-negative);
++  }
++  .key.ghost {
++    background: transparent;
++    color: var(--text-light);
++    box-shadow: none;
++  }
++  .key.ghost:hover {
++    background: var(--control-selected);
++    color: var(--signal-primary-ink);
++  }
++  .key.ghost:active,
++  .key.ghost.latched {
++    background: var(--control-selected);
++    color: var(--signal-primary-ink);
++    box-shadow: none;
++    transform: none;
+   }
+   .key:disabled {
+-    opacity: 0.35;
++    opacity: var(--text-disabled);
+     cursor: default;
++    transform: none;
++  }
++  .fill {
++    position: absolute;
++    inset: 0 auto 0 0;
++    width: 0;
++    background: var(--signal-negative-tint);
++    transition: width 0.15s;
++  }
++  .key.holding .fill {
++    width: 100%;
++    transition: width var(--key-hold) linear;
++  }
++  .led {
++    position: relative;
++    flex: none;
++    width: 5px;
++    height: 5px;
++    border-radius: var(--shape-radius-full);
++    background: var(--control-divider);
++  }
++  .key.latched .led {
++    background: var(--signal-primary);
++    box-shadow: 0 0 6px var(--signal-primary);
+   }
+   @media (pointer: coarse) {
+     .key {
+       min-height: 44px;
+-      padding: 0 14px;
++    }
++    .key.square {
++      min-width: 44px;
+     }
+   }
+ </style>
+diff --git a/subsystems/drapes/controls/Segmented.svelte b/subsystems/drapes/controls/Segmented.svelte
+new file mode 100644
+index 0000000..d4ac6d7
+--- /dev/null
++++ b/subsystems/drapes/controls/Segmented.svelte
+@@ -0,0 +1,22 @@
++<script>
++  import Key from "./Key.svelte";
++
++  let { options = [], value = null, size = "row", cell = 64, onpick } = $props();
++
++  const held = $derived(options.map((option) => (typeof option === "string" ? { value: option, label: option } : option)));
++</script>
++
++<div class="segmented" style:--segmented-cell="{cell}px">
++  {#each held as option (option.value)}
++    <Key {size} wide latched={option.value === value} label={option.label} title={option.title ?? null} onclick={() => onpick?.(option.value)} />
++  {/each}
++</div>
++
++<style>
++  .segmented {
++    display: grid;
++    grid-template-columns: repeat(auto-fit, minmax(var(--segmented-cell), 1fr));
++    gap: 6px;
++    padding-bottom: var(--size-depth);
++  }
++</style>
+diff --git a/subsystems/drapes/controls/Stepper.svelte b/subsystems/drapes/controls/Stepper.svelte
+new file mode 100644
+index 0000000..2060fc2
+--- /dev/null
++++ b/subsystems/drapes/controls/Stepper.svelte
+@@ -0,0 +1,33 @@
++<script>
++  import Key from "./Key.svelte";
++
++  let { value = 0, min = 0, max = 99, onchange } = $props();
++
++  const put = (next) => {
++    const held = Math.max(min, Math.min(max, Math.round(next)));
++    if (held !== value) onchange?.(held);
++  };
++</script>
++
++<div class="stepper">
++  <Key size="row" square label="−" title="shift · halve" disabled={value <= min} onclick={(event) => put(event.shiftKey ? value / 2 : value - 1)} />
++  <span class="stepper-value">{value}</span>
++  <Key size="row" square label="+" title="shift · double" disabled={value >= max} onclick={(event) => put(event.shiftKey ? value * 2 : value + 1)} />
++</div>
++
++<style>
++  .stepper {
++    display: inline-flex;
++    align-items: center;
++    gap: 6px;
++    padding-bottom: var(--size-depth);
++  }
++  .stepper-value {
++    min-width: 44px;
++    text-align: center;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-xs);
++    font-variant-numeric: tabular-nums;
++    color: var(--signal-primary-ink);
++  }
++</style>
+diff --git a/subsystems/drapes/controls/index.js b/subsystems/drapes/controls/index.js
+index 89a9a09..56d754a 100644
+--- a/subsystems/drapes/controls/index.js
++++ b/subsystems/drapes/controls/index.js
+@@ -6,8 +6,10 @@ import Keyboard from "./Keyboard.svelte";
+ import ViewportLock from "./ViewportLock.svelte";
+ import Field from "./Field.svelte";
+ import Key from "./Key.svelte";
++import Segmented from "./Segmented.svelte";
++import Stepper from "./Stepper.svelte";
+ import { persist } from "./persist.js";
+ import { visible } from "./visible.js";
+ import { drag } from "./drag.js";
+ 
+-export { Link, Textarea, Button, Input, Keyboard, ViewportLock, Field, Key, persist, visible, drag };
++export { Link, Textarea, Button, Input, Keyboard, ViewportLock, Field, Key, Segmented, Stepper, persist, visible, drag };
+diff --git a/subsystems/drapes/display/Chip.svelte b/subsystems/drapes/display/Chip.svelte
+index ff1d2e9..4f47622 100644
+--- a/subsystems/drapes/display/Chip.svelte
++++ b/subsystems/drapes/display/Chip.svelte
+@@ -1,56 +1,22 @@
+ <script>
+-  import Pip from "./Pip.svelte";
++  import Key from "../controls/Key.svelte";
+ 
+-  let {
+-    label,
+-    active = false,
+-    tone = "primary",
+-    mark = null,
+-    onclick,
+-    onmark,
+-    disabled = false,
+-    title = null,
+-  } = $props();
++  let { label, active = false, mark = null, onclick, onmark, disabled = false, title = null } = $props();
++
++  const marked = (event) => {
++    event.stopPropagation();
++    onmark?.();
++  };
+ </script>
+ 
+-<button class="chip" class:active class:disabled {disabled} {title} onclick={onclick}>
+-  <Pip size={5} tone={active ? tone : "muted"} />
+-  <span class="chip-label">{label}</span>
++<Key size="row" led latched={active} {disabled} {title} {onclick}>
++  {label}
+   {#if mark}
+-    <span
+-      class="chip-mark"
+-      class:remove={mark === "×"}
+-      onclick={(event) => {
+-        event.stopPropagation();
+-        onmark?.();
+-      }}
+-    >{mark}</span>
++    <span class="chip-mark" role="button" tabindex="-1" onclick={marked} onkeydown={(event) => event.key === "Enter" && marked(event)}>{mark}</span>
+   {/if}
+-</button>
++</Key>
+ 
+ <style>
+-  .chip {
+-    display: inline-flex;
+-    align-items: center;
+-    gap: 6px;
+-    padding: 4px 12px;
+-    border: 1px solid color-mix(in srgb, var(--boundary) 40%, transparent);
+-    border-radius: 3px;
+-    background: transparent;
+-    color: color-mix(in srgb, currentColor 55%, transparent);
+-    font: inherit;
+-    font-size: var(--font-size-sm);
+-    letter-spacing: 0.03em;
+-    cursor: pointer;
+-  }
+-  .chip.active {
+-    border-color: color-mix(in srgb, var(--signal-primary) 55%, transparent);
+-    color: var(--signal-primary-ink);
+-  }
+-  .chip.disabled {
+-    opacity: 0.3;
+-    cursor: not-allowed;
+-  }
+   .chip-mark {
+     opacity: 0.7;
+     cursor: pointer;
+@@ -58,7 +24,4 @@
+   .chip-mark:hover {
+     opacity: 1;
+   }
+-  .chip-mark.remove {
+-    color: var(--signal-negative-ink);
+-  }
+ </style>
+diff --git a/subsystems/drapes/display/Empty.svelte b/subsystems/drapes/display/Empty.svelte
+index cb915bb..79d6c4f 100644
+--- a/subsystems/drapes/display/Empty.svelte
++++ b/subsystems/drapes/display/Empty.svelte
+@@ -1,9 +1,12 @@
+ <script>
+-  let { verb, trace = null, tone = null, dashed = false } = $props();
++  import Spinner from "./Spinner.svelte";
++
++  let { verb, trace = null, tone = null, dashed = false, spinner = false } = $props();
+ </script>
+ 
+ <div class="empty" class:dashed>
+-  <span class="empty-verb" class:warning={tone === "warning"}>{verb}</span>
++  {#if spinner}<Spinner />{/if}
++  <span class="empty-verb" class:warning={tone === "warning"} class:negative={tone === "negative"}>{verb}</span>
+   {#if trace}<span class="empty-trace">{trace}</span>{/if}
+ </div>
+ 
+@@ -22,23 +25,26 @@
+     user-select: none;
+   }
+   .empty.dashed {
+-    background: color-mix(in srgb, var(--surface-sunk) 60%, transparent);
+-    border: 1px dashed color-mix(in srgb, var(--boundary) 60%, transparent);
++    background: var(--surface-sunk);
++    box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++    border-radius: var(--shape-radius-card);
+   }
+   .empty-verb {
+-    font-size: var(--font-size-xs);
+-    letter-spacing: 0.16em;
+-    text-transform: uppercase;
+-    opacity: 0.55;
++    font-size: var(--size-type-2xs);
++    font-weight: 600;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++    color: var(--text-light);
+   }
+   .empty-verb.warning {
+     color: var(--signal-caution-ink);
+-    opacity: 0.9;
++  }
++  .empty-verb.negative {
++    color: var(--signal-negative-ink);
+   }
+   .empty-trace {
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.04em;
+-    opacity: 0.35;
+-    line-height: 1.5;
++    font-size: var(--size-type-2xs);
++    color: var(--text-muted);
++    line-height: var(--size-leading-loose);
+   }
+ </style>
+diff --git a/subsystems/drapes/display/Meter.svelte b/subsystems/drapes/display/Meter.svelte
+new file mode 100644
+index 0000000..821f9bf
+--- /dev/null
++++ b/subsystems/drapes/display/Meter.svelte
+@@ -0,0 +1,25 @@
++<script>
++  let { value = 0, tone = "primary" } = $props();
++</script>
++
++<span class="meter"><span class="meter-fill {tone}" style:width="{Math.max(0, Math.min(1, value)) * 100}%"></span></span>
++
++<style>
++  .meter {
++    display: block;
++    height: 4px;
++    border-radius: var(--shape-radius-xs);
++    background: var(--control-field);
++    box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++    overflow: hidden;
++  }
++  .meter-fill {
++    display: block;
++    height: 100%;
++    transition: width 0.06s linear;
++  }
++  .meter-fill.primary { background: var(--signal-primary); }
++  .meter-fill.positive { background: var(--signal-positive); }
++  .meter-fill.caution { background: var(--signal-caution); }
++  .meter-fill.negative { background: var(--signal-negative); }
++</style>
+diff --git a/subsystems/drapes/display/Pip.svelte b/subsystems/drapes/display/Pip.svelte
+index 0d10e4c..8a99921 100644
+--- a/subsystems/drapes/display/Pip.svelte
++++ b/subsystems/drapes/display/Pip.svelte
+@@ -7,7 +7,7 @@
+     danger: "var(--signal-negative)",
+     success: "var(--signal-positive)",
+     contrast: "var(--text-strong)",
+-    muted: "color-mix(in srgb, currentColor 40%, transparent)",
++    muted: "var(--text-muted)",
+   };
+ </script>
+ 
+@@ -24,7 +24,7 @@
+     display: inline-block;
+     width: var(--pip-size);
+     height: var(--pip-size);
+-    border-radius: 50%;
++    border-radius: var(--shape-radius-full);
+     background: var(--pip-color);
+     flex: none;
+   }
+@@ -32,7 +32,7 @@
+     animation: pip-pulse 1.8s ease-in-out infinite;
+   }
+   .glow {
+-    box-shadow: 0 0 4px var(--pip-color);
++    box-shadow: 0 0 6px var(--pip-color);
+   }
+   @keyframes pip-pulse {
+     0%,
+diff --git a/subsystems/drapes/display/Pressed.svelte b/subsystems/drapes/display/Pressed.svelte
+new file mode 100644
+index 0000000..e4c0a8f
+--- /dev/null
++++ b/subsystems/drapes/display/Pressed.svelte
+@@ -0,0 +1,19 @@
++<script>
++  let { children } = $props();
++</script>
++
++<div class="pressed">{@render children()}</div>
++
++<style>
++  .pressed {
++    display: flex;
++    flex-direction: column;
++    gap: 10px;
++    padding: 12px;
++    border-radius: var(--shape-radius-key);
++    background: var(--control-contrast-pressed);
++    color: var(--control-on-pressed);
++    box-shadow: var(--shape-sunk), 0 0 0 var(--size-ring) var(--boundary);
++    transform: translateY(var(--size-depth));
++  }
++</style>
+diff --git a/subsystems/drapes/display/Reading.svelte b/subsystems/drapes/display/Reading.svelte
+new file mode 100644
+index 0000000..2ba677d
+--- /dev/null
++++ b/subsystems/drapes/display/Reading.svelte
+@@ -0,0 +1,31 @@
++<script>
++  let { label, children } = $props();
++</script>
++
++<div class="reading">
++  <span class="reading-label">{label}</span>
++  <span class="reading-value">{@render children()}</span>
++</div>
++
++<style>
++  .reading {
++    display: grid;
++    grid-template-columns: 72px minmax(0, 1fr);
++    gap: 10px;
++    align-items: baseline;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++  }
++  .reading-label {
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++    color: var(--text-light);
++  }
++  .reading-value {
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++    color: var(--text-strong);
++  }
++</style>
+diff --git a/subsystems/drapes/display/Row.svelte b/subsystems/drapes/display/Row.svelte
+new file mode 100644
+index 0000000..6eb94c9
+--- /dev/null
++++ b/subsystems/drapes/display/Row.svelte
+@@ -0,0 +1,36 @@
++<script>
++  let { selected = false, title = null, onclick, children } = $props();
++
++  const onkeydown = (event) => {
++    if (event.key !== "Enter" && event.key !== " ") return;
++    event.preventDefault();
++    onclick(event);
++  };
++</script>
++
++{#if onclick}
++  <div class="row click" class:selected role="button" tabindex="0" {title} {onclick} {onkeydown}>{@render children()}</div>
++{:else}
++  <div class="row" class:selected {title}>{@render children()}</div>
++{/if}
++
++<style>
++  .row {
++    display: flex;
++    align-items: center;
++    gap: 9px;
++    min-width: 0;
++    height: var(--size-row);
++    padding: 0 8px;
++    border-radius: var(--shape-radius-key);
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++  }
++  .row.click {
++    cursor: pointer;
++  }
++  .row.click:hover,
++  .row.selected {
++    background: var(--control-selected);
++  }
++</style>
+diff --git a/subsystems/drapes/display/Section.svelte b/subsystems/drapes/display/Section.svelte
+index 050dd82..86f11d3 100644
+--- a/subsystems/drapes/display/Section.svelte
++++ b/subsystems/drapes/display/Section.svelte
+@@ -9,20 +9,19 @@
+   }
+ </script>
+ 
+-<div
+-  class="section-head"
+-  class:ruled={rule}
+-  class:toggleable={!!ontoggle}
+-  role={ontoggle ? "button" : undefined}
+-  tabindex={ontoggle ? 0 : undefined}
+-  onclick={ontoggle}
+-  {onkeydown}>
++{#snippet head()}
+   {#if ontoggle}<span class="section-caret">{open === false ? "▸" : "▾"}</span>{/if}
+   <span class="section-label">{label}</span>
+   {#if rule}<span class="section-rule"></span>{/if}
+   {#if count != null}<span class="section-count">{count}</span>{/if}
+   {#if action}<span class="section-action">{@render action()}</span>{/if}
+-</div>
++{/snippet}
++
++{#if ontoggle}
++  <div class="section-head toggleable" class:ruled={rule} role="button" tabindex="0" onclick={ontoggle} {onkeydown}>{@render head()}</div>
++{:else}
++  <div class="section-head" class:ruled={rule}>{@render head()}</div>
++{/if}
+ 
+ <style>
+   .section-head {
+@@ -31,20 +30,23 @@
+     gap: 9px;
+   }
+   .section-label {
+-    font-size: var(--font-size-xs);
+-    letter-spacing: 0.16em;
+-    text-transform: uppercase;
+-    color: color-mix(in srgb, var(--text-strong) 55%, transparent);
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    font-weight: 600;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++    color: var(--text-light);
+     white-space: nowrap;
+   }
+   .section-rule {
+     flex: 1;
+-    height: 1px;
+-    background: color-mix(in srgb, var(--divider) 35%, transparent);
++    height: var(--size-ring);
++    background: var(--boundary);
+   }
+   .section-count {
+-    font-size: var(--font-size-xs);
+-    color: color-mix(in srgb, var(--text-strong) 40%, transparent);
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
+   }
+   .section-action {
+     display: inline-flex;
+@@ -55,7 +57,7 @@
+     user-select: none;
+   }
+   .section-caret {
+-    font-size: var(--font-size-xs);
+-    color: color-mix(in srgb, var(--text-strong) 55%, transparent);
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
+   }
+ </style>
+diff --git a/subsystems/drapes/display/Spinner.svelte b/subsystems/drapes/display/Spinner.svelte
+new file mode 100644
+index 0000000..0299854
+--- /dev/null
++++ b/subsystems/drapes/display/Spinner.svelte
+@@ -0,0 +1,23 @@
++<script>
++  let { size = 12 } = $props();
++</script>
++
++<span class="spinner" style:--spinner-size="{size}px"></span>
++
++<style>
++  .spinner {
++    display: inline-block;
++    width: var(--spinner-size);
++    height: var(--spinner-size);
++    box-sizing: border-box;
++    border-radius: var(--shape-radius-full);
++    border: 2px solid var(--signal-primary);
++    border-right-color: transparent;
++    animation: spin 1s linear infinite;
++  }
++  @keyframes spin {
++    to {
++      transform: rotate(360deg);
++    }
++  }
++</style>
+diff --git a/subsystems/drapes/display/Status.svelte b/subsystems/drapes/display/Status.svelte
+new file mode 100644
+index 0000000..c8ca719
+--- /dev/null
++++ b/subsystems/drapes/display/Status.svelte
+@@ -0,0 +1,74 @@
++<script>
++  let { tone = "none", word = null, size = 6, live = false, pulse = false, title = null } = $props();
++</script>
++
++<span class="status {tone}" class:live {title}>
++  <span class="status-dot" class:pulse style:--status-size="{size}px"></span>
++  {#if word}<span class="status-word">{word}</span>{/if}
++</span>
++
++<style>
++  .status {
++    --status-fill: var(--boundary);
++    --status-ink: var(--text-light);
++    display: inline-flex;
++    align-items: center;
++    gap: 6px;
++    line-height: 1;
++  }
++  .status.idle {
++    --status-fill: var(--text-light);
++  }
++  .status.primary {
++    --status-fill: var(--signal-primary);
++    --status-ink: var(--signal-primary-ink);
++  }
++  .status.positive {
++    --status-fill: var(--signal-positive);
++    --status-ink: var(--signal-positive-ink);
++  }
++  .status.caution {
++    --status-fill: var(--signal-caution);
++    --status-ink: var(--signal-caution-ink);
++  }
++  .status.negative {
++    --status-fill: var(--signal-negative);
++    --status-ink: var(--signal-negative-ink);
++  }
++  .status-dot {
++    flex: none;
++    width: var(--status-size);
++    height: var(--status-size);
++    border-radius: var(--shape-radius-full);
++    background: var(--status-fill);
++  }
++  .status.live .status-dot {
++    box-shadow: 0 0 6px var(--status-fill);
++  }
++  .status-dot.pulse {
++    animation: status-pulse 1.2s ease-in-out infinite;
++  }
++  .status-word {
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    font-weight: 600;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++    color: var(--status-ink);
++    white-space: nowrap;
++  }
++  @keyframes status-pulse {
++    0%,
++    100% {
++      opacity: 1;
++    }
++    50% {
++      opacity: 0.25;
++    }
++  }
++  @media (prefers-reduced-motion: reduce) {
++    .status-dot.pulse {
++      animation: none;
++    }
++  }
++</style>
+diff --git a/subsystems/drapes/display/Strip.svelte b/subsystems/drapes/display/Strip.svelte
+new file mode 100644
+index 0000000..3678186
+--- /dev/null
++++ b/subsystems/drapes/display/Strip.svelte
+@@ -0,0 +1,172 @@
++<script>
++  import Key from "../controls/Key.svelte";
++  import Float from "../panels/Float.svelte";
++  import { fit, SHORT } from "./strip.js";
++
++  const SOLO = 450;
++  const CHOOSE = 420;
++
++  let { keys = [], folds = [], fold = null, place = "bottom", width = 0, rail = $bindable(false), onpick, onsolo, onfold } = $props();
++
++  let strip = $state(null);
++  let full = $state([]);
++  let short = $state([]);
++  let folder = $state(0);
++  let turned = $state(null);
++  let listed = $state(false);
++  let choosing = $state(false);
++
++  const cut = (label) => label.slice(0, SHORT);
++  const active = $derived(Math.max(0, keys.findIndex((key) => key.latched)));
++  const held = $derived(
++    fit({ width, full: keys.map((key, index) => full[index] ?? 0), short: keys.map((key, index) => short[index] ?? 0), fold: folder, stacked: fold === "stack", active }),
++  );
++  const page = $derived(held.mode === "pages" ? Math.min(held.pages.length - 1, turned ?? held.page) : 0);
++  const shown = $derived(held.mode === "pages" ? keys.slice(...held.pages[page]) : held.mode === "merged" ? keys.slice(active, active + 1) : keys);
++  const small = $derived(held.mode === "rail" || held.mode === "merged");
++  const side = $derived(held.mode === "rail" ? "after" : place === "top" ? "below" : "above");
++
++  $effect(() => {
++    rail = held.mode === "rail";
++  });
++
++  const pick = (key) => {
++    listed = false;
++    onpick?.(key.name);
++  };
++
++  const choose = (name) => {
++    choosing = false;
++    onfold?.(name);
++  };
++
++  const cycle = () => onfold?.(folds[(folds.indexOf(fold) + 1) % folds.length]);
++</script>
++
++<div class="sizer" inert>
++  {#each keys as key, index (key.name)}
++    <span bind:offsetWidth={full[index]}><Key size="row" led={key.led} label={key.label} /></span>
++    <span bind:offsetWidth={short[index]}><Key size="row" led={key.led} label={cut(key.label)} /></span>
++  {/each}
++  {#if folds.length}<span bind:offsetWidth={folder}><Key size="row" led label={fold} /></span>{/if}
++</div>
++
++<div data-zone="0" class="strip {held.mode} {place}" style:zoom={held.zoom} bind:this={strip}>
++  {#if held.mode === "pages"}
++    <Key size="row" square muted={page === 0} title="previous" label="‹" onclick={() => (turned = Math.max(0, page - 1))} />
++    <span class="spring"></span>
++  {/if}
++  {#each shown as key (key.name)}
++    <Key
++      size={small ? "mini" : "row"}
++      latched={key.latched}
++      led={key.led && !small}
++      title={key.label}
++      hold={SOLO}
++      onhold={() => onsolo?.(key.name)}
++      onclick={() => (held.mode === "merged" ? (listed = !listed) : pick(key))}>
++      {held.labels === "short" ? cut(key.label) : key.label}
++      {#if key.count != null && !small}<span class="count">{key.count}</span>{/if}
++    </Key>
++  {/each}
++  {#if held.mode === "pages"}
++    <span class="spring"></span>
++    <Key size="row" square muted={page === held.pages.length - 1} title="next" label="›" onclick={() => (turned = Math.min(held.pages.length - 1, page + 1))} />
++  {:else}
++    <span class="spring"></span>
++  {/if}
++  {#if folds.length}
++    <Key
++      size={small ? "mini" : "row"}
++      square={held.labels === "short" || small}
++      latched={choosing}
++      title="fold · {fold} · click to cycle · hold for all"
++      hold={CHOOSE}
++      onhold={() => (choosing = true)}
++      onclick={cycle}>
++      <span class="pips">{#each folds as name (name)}<i class:lit={name === fold}></i>{/each}</span>
++      {#if held.mode === "row" && held.labels === "full"}{fold}{/if}
++    </Key>
++  {/if}
++</div>
++
++{#if choosing}
++  <Float anchor={strip} zone="0" {side} snug onclose={() => (choosing = false)}>
++    {#each folds as name (name)}
++      <Key size="row" latched={name === fold} label={name} onclick={() => choose(name)} />
++    {/each}
++  </Float>
++{/if}
++
++{#if listed}
++  <Float anchor={strip} zone="0" {side} snug onclose={() => (listed = false)}>
++    {#each keys as key (key.name)}
++      <Key size="row" latched={key.latched} led={key.led} label={key.label} hold={SOLO} onhold={() => onsolo?.(key.name)} onclick={() => pick(key)} />
++    {/each}
++  </Float>
++{/if}
++
++<style>
++  .sizer {
++    position: absolute;
++    visibility: hidden;
++    pointer-events: none;
++    display: flex;
++    height: 0;
++    overflow: hidden;
++  }
++  .sizer span {
++    flex: none;
++    display: inline-block;
++  }
++  .strip {
++    order: 1;
++    flex: none;
++    position: relative;
++    box-sizing: border-box;
++    display: flex;
++    align-items: center;
++    gap: 6px;
++    padding: 5px 6px calc(5px + var(--size-depth));
++    background: var(--surface-sunk);
++    color: var(--text-strong);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
++  }
++  .strip.top,
++  .strip.rail {
++    order: -1;
++  }
++  .strip.pages {
++    gap: 8px;
++  }
++  .strip.merged {
++    padding: 3px 6px calc(3px + var(--size-depth));
++  }
++  .strip.rail {
++    flex-direction: column;
++    gap: 2px;
++    padding: 4px 3px;
++  }
++  .spring {
++    flex: 1 1 0;
++    min-width: 0;
++  }
++  .count {
++    letter-spacing: 0;
++    color: var(--control-on-muted);
++  }
++  .pips {
++    display: grid;
++    grid-template-columns: repeat(2, 4px);
++    gap: 2px;
++  }
++  .pips i {
++    width: 4px;
++    height: 4px;
++    border-radius: var(--shape-radius-full);
++    background: var(--boundary);
++  }
++  .pips i.lit {
++    background: var(--signal-primary-ink);
++  }
++</style>
+diff --git a/subsystems/drapes/display/Tag.svelte b/subsystems/drapes/display/Tag.svelte
+index d95409b..a1c5b8d 100644
+--- a/subsystems/drapes/display/Tag.svelte
++++ b/subsystems/drapes/display/Tag.svelte
+@@ -1,44 +1,59 @@
+-<!--
+-  Tag — same shape as Button: variant + size. `default` sits on the ground,
+-  every other variant is a signal's fill.
+-
+-  variants: default | primary | secondary | accent | info | success | warning | danger
+--->
+ <script>
+-  import { FILL, SIGNAL } from "../context/signals.js";
+-
+-  let {
+-    variant = "default",
+-    size = "md",
+-    removable = false,
+-    onRemove,
+-    onclick,
+-    class: className = "",
+-    children,
+-  } = $props();
+-
+-  const variantClasses = $derived(variant === "default" ? "bg-surface text-strong border-boundary" : FILL[SIGNAL[variant]]);
+-
+-  const sizes = {
+-    xs: "h-4 px-1 text-xs",
+-    sm: "h-6 px-2 text-xs",
+-    md: "h-8 px-3 text-sm",
+-    lg: "h-10 px-4 text-base",
+-  };
++  let { tone = "plain", led = false, lit = false, title = null, children } = $props();
+ </script>
+ 
+-<span
+-  class="inline-flex items-center justify-center rounded-full border {variantClasses} {sizes[size]} {className}"
+-  {onclick}>
++<span class="tag {tone}" class:lit {title}>
++  {#if led}<i class="tag-led"></i>{/if}
+   {@render children?.()}
+-  {#if removable}
+-    <button
+-      type="button"
+-      class="ml-1 p-0.5 hover:bg-black/5 rounded-full"
+-      onclick={(event) => { event.stopPropagation(); onRemove?.(); }}>
+-      <svg viewBox="0 0 24 24" class="h-3 w-3" fill="none" stroke="currentColor">
+-        <path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round" />
+-      </svg>
+-    </button>
+-  {/if}
+ </span>
++
++<style>
++  .tag {
++    --tag-ink: var(--text-light);
++    --tag-ring: var(--boundary);
++    --tag-fill: var(--signal-positive);
++    display: inline-flex;
++    align-items: center;
++    gap: 5px;
++    padding: 1px 5px;
++    border-radius: var(--shape-radius-xs);
++    box-shadow: inset 0 0 0 var(--size-ring) var(--tag-ring);
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--tag-ink);
++    white-space: nowrap;
++  }
++  .tag.primary {
++    --tag-ink: var(--signal-primary-ink);
++    --tag-ring: var(--signal-primary);
++    --tag-fill: var(--signal-primary);
++  }
++  .tag.positive {
++    --tag-ink: var(--signal-positive-ink);
++    --tag-ring: var(--signal-positive);
++  }
++  .tag.caution {
++    --tag-ink: var(--signal-caution-ink);
++    --tag-ring: var(--signal-caution);
++    --tag-fill: var(--signal-caution);
++  }
++  .tag.negative {
++    --tag-ink: var(--signal-negative-ink);
++    --tag-ring: var(--signal-negative);
++    --tag-fill: var(--signal-negative);
++  }
++  .tag.lit {
++    --tag-ink: var(--text-strong);
++    --tag-ring: var(--tag-fill);
++  }
++  .tag-led {
++    flex: none;
++    width: 5px;
++    height: 5px;
++    border-radius: var(--shape-radius-full);
++    background: var(--boundary);
++  }
++  .tag.lit .tag-led {
++    background: var(--tag-fill);
++  }
++</style>
+diff --git a/subsystems/drapes/display/ToolRow.svelte b/subsystems/drapes/display/ToolRow.svelte
+new file mode 100644
+index 0000000..63bb802
+--- /dev/null
++++ b/subsystems/drapes/display/ToolRow.svelte
+@@ -0,0 +1,126 @@
++<script>
++  import Status from "./Status.svelte";
++
++  let { name = null, digest = null, status = null, tone = "positive", open = false, live = false, title = null, ontoggle = null, actions, children } = $props();
++</script>
++
++<div class="tool-row {tone}" class:open>
++  {#if name}
++    <div class="tool-head">
++      <button class="tool-face" class:still={!ontoggle} {title} onclick={ontoggle}>
++        <Status {tone} {live} pulse={live} />
++        {#if ontoggle}<span class="tool-caret" class:turned={open}>▸</span>{/if}
++        <span class="tool-name">{name}</span>
++        {#if digest}<span class="tool-digest">{digest}</span>{/if}
++        {#if status}<span class="tool-status">{status}</span>{/if}
++      </button>
++      {#if actions}<span class="tool-actions">{@render actions()}</span>{/if}
++    </div>
++    {#if open && children}<div class="tool-body">{@render children()}</div>{/if}
++  {:else}
++    <div class="tool-line">{@render children?.()}</div>
++  {/if}
++</div>
++
++<style>
++  .tool-row {
++    --tool-ink: var(--signal-positive-ink);
++    display: flex;
++    flex-direction: column;
++    min-width: 0;
++    border-radius: var(--shape-radius-key);
++    background: var(--surface-lift);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++  }
++  .tool-row.primary {
++    --tool-ink: var(--signal-primary-ink);
++  }
++  .tool-row.caution {
++    --tool-ink: var(--signal-caution-ink);
++  }
++  .tool-row.negative {
++    --tool-ink: var(--signal-negative-ink);
++    box-shadow: 0 0 0 var(--size-ring) var(--signal-negative);
++  }
++  .tool-row.idle,
++  .tool-row.none {
++    --tool-ink: var(--text-light);
++  }
++  .tool-row.open {
++    box-shadow: 0 0 0 var(--size-ring) var(--signal-primary-tint), 0 0 0 var(--size-ring) var(--boundary);
++  }
++  .tool-head,
++  .tool-line {
++    display: flex;
++    align-items: center;
++    gap: 8px;
++    min-height: var(--size-row);
++    min-width: 0;
++    padding: 0 10px;
++  }
++  .tool-face {
++    flex: 1;
++    min-width: 0;
++    display: flex;
++    align-items: center;
++    gap: 8px;
++    min-height: var(--size-row);
++    padding: 0;
++    border: none;
++    background: none;
++    color: var(--text-strong);
++    font: inherit;
++    text-align: left;
++    cursor: pointer;
++  }
++  .tool-face.still {
++    cursor: default;
++  }
++  .tool-caret {
++    flex: none;
++    color: var(--text-light);
++    transition: transform 0.12s;
++  }
++  .tool-caret.turned {
++    transform: rotate(90deg);
++  }
++  .tool-name {
++    flex: none;
++    font-weight: 600;
++  }
++  .tool-digest {
++    flex: 1;
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++    color: var(--text-light);
++  }
++  .tool-status {
++    flex: none;
++    margin-left: auto;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++    color: var(--tool-ink);
++  }
++  .tool-actions {
++    flex: none;
++    display: inline-flex;
++    align-items: center;
++    gap: 6px;
++  }
++  .tool-body {
++    display: flex;
++    flex-direction: column;
++    gap: 8px;
++    padding: 8px 10px 10px;
++    border-top: var(--size-ring) solid var(--boundary);
++  }
++  @media (pointer: coarse) {
++    .tool-face {
++      min-height: 44px;
++    }
++  }
++</style>
+diff --git a/subsystems/drapes/display/Well.svelte b/subsystems/drapes/display/Well.svelte
+new file mode 100644
+index 0000000..7df89bb
+--- /dev/null
++++ b/subsystems/drapes/display/Well.svelte
+@@ -0,0 +1,16 @@
++<script>
++  let { children } = $props();
++</script>
++
++<div class="well">{@render children()}</div>
++
++<style>
++  .well {
++    display: flex;
++    flex-direction: column;
++    gap: 6px;
++    padding: 8px;
++    background: var(--surface-sunk);
++    border-radius: var(--shape-radius-card);
++  }
++</style>
+diff --git a/subsystems/drapes/display/index.js b/subsystems/drapes/display/index.js
+index 026e59d..271358c 100644
+--- a/subsystems/drapes/display/index.js
++++ b/subsystems/drapes/display/index.js
+@@ -16,5 +16,14 @@ import Tile from "./Tile.svelte";
+ import Plate from "./Plate.svelte";
+ import Entry from "./Entry.svelte";
+ import Empty from "./Empty.svelte";
++import Row from "./Row.svelte";
++import Reading from "./Reading.svelte";
++import Well from "./Well.svelte";
++import ToolRow from "./ToolRow.svelte";
++import Pressed from "./Pressed.svelte";
++import Strip from "./Strip.svelte";
++import Meter from "./Meter.svelte";
++import Spinner from "./Spinner.svelte";
++import Status from "./Status.svelte";
+ 
+-export { Tag, Label, Header, Paragraph, Asset, ErrorBox, Pip, Chip, Section, Helpdesk, Json, Markdown, Org, Pdf, Tile, Plate, Entry, Empty };
++export { Tag, Label, Header, Paragraph, Asset, ErrorBox, Pip, Chip, Section, Helpdesk, Json, Markdown, Org, Pdf, Tile, Plate, Entry, Empty, Row, Reading, Well, ToolRow, Pressed, Strip, Meter, Spinner, Status };
+diff --git a/subsystems/drapes/display/strip.js b/subsystems/drapes/display/strip.js
+new file mode 100644
+index 0000000..fda9e41
+--- /dev/null
++++ b/subsystems/drapes/display/strip.js
+@@ -0,0 +1,34 @@
++export const GAP = 6;
++export const PAD = 12;
++export const SHORT = 3;
++export const ICON = 26;
++export const ARROWS = 64;
++export const TAIL = 56;
++export const ZOOM_FLOOR = 0.8;
++export const PAGE_FLOOR = 3;
++
++const sum = (widths) => widths.reduce((total, width) => total + width, 0);
++const span = (widths, fold) => sum(widths) + GAP * widths.length + fold;
++
++const paginate = (widths, room) => {
++  for (let count = 2; count <= widths.length; count++) {
++    const size = Math.ceil(widths.length / count);
++    if (size < PAGE_FLOOR) return null;
++    const pages = [];
++    for (let from = 0; from < widths.length; from += size) pages.push([from, Math.min(widths.length, from + size)]);
++    if (pages.every(([from, to]) => sum(widths.slice(from, to)) + GAP * (to - from - 1) <= room)) return pages;
++  }
++  return null;
++};
++
++export const fit = ({ width, full, short, fold, stacked = false, active = 0 }) => {
++  const room = width - PAD;
++  if (span(full, fold) <= room) return { mode: "row", labels: "full", zoom: 1 };
++  if (span(short, ICON) <= room) return { mode: "row", labels: "short", zoom: 1 };
++  const zoom = room / span(short, ICON);
++  if (zoom >= ZOOM_FLOOR) return { mode: "row", labels: "short", zoom };
++  if (stacked) return { mode: "rail", labels: "short", zoom: 1 };
++  const pages = paginate(short, room - ARROWS - TAIL);
++  if (pages) return { mode: "pages", labels: "short", zoom: 1, pages, page: Math.max(0, pages.findIndex(([from, to]) => active >= from && active < to)) };
++  return { mode: "merged", labels: "full", zoom: 1 };
++};
+diff --git a/subsystems/drapes/panels/Card.svelte b/subsystems/drapes/panels/Card.svelte
+index 9211fc4..4e368e6 100644
+--- a/subsystems/drapes/panels/Card.svelte
++++ b/subsystems/drapes/panels/Card.svelte
+@@ -1,219 +1,38 @@
+ <script>
+-  let {
+-    variant = "default",
+-    padding = "md",
+-    hover = false,
+-    onclick,
+-    disabled = false,
+-    class: className = "",
+-    children,
+-  } = $props();
++  let { sunk = false, onclick, disabled = false, children } = $props();
+ 
+-  const variants = {
+-    default: "bg-surface-lift border-boundary text-strong",
+-    secondary: "bg-surface-sunk border-boundary-soft text-strong",
+-    ghost: "bg-transparent border-transparent",
+-  };
+-
+-  const paddings = {
+-    none: "",
+-    sm: "p-3",
+-    md: "p-5",
+-    lg: "p-8",
++  const onkeydown = (event) => {
++    if (event.key !== "Enter" && event.key !== " ") return;
++    event.preventDefault();
++    onclick(event);
+   };
+ </script>
+ 
+-<div
+-  class="border rounded-xl {variants[variant]} {paddings[padding]} {hover && !disabled ? 'hover:-translate-y-0.5 hover:shadow-md transition-all' : ''} {disabled ? 'opacity-50 pointer-events-none' : ''} {onclick ? 'cursor-pointer' : ''} {className}"
+-  {onclick}
+-  role={onclick ? "button" : "article"}
+-  tabindex={onclick ? 0 : undefined}
+->
+-  {@render children?.()}
+-</div>
+-
+-<!-- <script lang="ts"> -->
+-<!--   type CardVariant = "default" | "secondary" | "elevated" | "ghost"; -->
+-<!--   type CardPadding = "none" | "sm" | "md" | "lg"; -->
+-<!--   type CardAlignment = "start" | "center" | "end"; -->
+-
+-<!--   let { -->
+-<!--     // Core props -->
+-<!--     variant = "default", -->
+-<!--     padding = "md", -->
+-<!--     hover = false, -->
+-<!--     interactive = false, -->
+-<!--     class: className = "", -->
+-
+-<!--     // Header props -->
+-<!--     title = "", -->
+-<!--     subtitle = "", -->
+-
+-<!--     // Content props -->
+-<!--     content = "", -->
+-<!--     contentAlign = "start", -->
+-
+-<!--     // Footer props -->
+-<!--     footer = "", -->
+-<!--     footerAlign = "start", -->
+-
+-<!--     // Action props -->
+-<!--     onClick = undefined, -->
+-
+-<!--     // Metadata -->
+-<!--     meta = null, -->
+-
+-<!--     // Visual options -->
+-<!--     divider = false, -->
+-<!--     rounded = "xl", -->
+-<!--     elevation = "sm", -->
+-
+-<!--     // State -->
+-<!--     loading = false, -->
+-<!--     disabled = false, -->
+-<!--   } = $props<{ -->
+-<!--     variant?: CardVariant; -->
+-<!--     padding?: CardPadding; -->
+-<!--     hover?: boolean; -->
+-<!--     interactive?: boolean; -->
+-<!--     class?: string; -->
+-<!--     title?: string; -->
+-<!--     subtitle?: string; -->
+-<!--     content?: string; -->
+-<!--     contentAlign?: CardAlignment; -->
+-<!--     footer?: string; -->
+-<!--     footerAlign?: CardAlignment; -->
+-<!--     onClick?: () => void; -->
+-<!--     meta?: Record<string, any> | null; -->
+-<!--     divider?: boolean; -->
+-<!--     rounded?: string; -->
+-<!--     elevation?: "none" | "sm" | "md" | "lg"; -->
+-<!--     loading?: boolean; -->
+-<!--     disabled?: boolean; -->
+-<!--   }>(); -->
+-
+-<!--   // Variant styles -->
+-<!--   const variants = { -->
+-<!--     default: "bg-theme-ui-1 border-theme-border-1", -->
+-<!--     secondary: "bg-theme-ui-2 border-theme-border-2", -->
+-<!--     elevated: "bg-theme-ui-1 border-theme-border-1", -->
+-<!--     ghost: "bg-transparent border-transparent", -->
+-<!--   }; -->
+-
+-<!--   // Padding variants -->
+-<!--   const paddings = { -->
+-<!--     none: "", -->
+-<!--     sm: "p-4", -->
+-<!--     md: "p-6", -->
+-<!--     lg: "p-8", -->
+-<!--   }; -->
+-
+-<!--   // Elevation styles -->
+-<!--   const elevations = { -->
+-<!--     none: "", -->
+-<!--     sm: "shadow-sm", -->
+-<!--     md: "shadow-md", -->
+-<!--     lg: "shadow-lg", -->
+-<!--   }; -->
+-
+-<!--   // Alignment utilities -->
+-<!--   const alignments = { -->
+-<!--     start: "text-left", -->
+-<!--     center: "text-center", -->
+-<!--     end: "text-right", -->
+-<!--   }; -->
+-
+-<!--   // Compute state-based classes -->
+-<!--   let stateClasses = $derived.by(() => { -->
+-<!--     const classes = []; -->
+-
+-<!--     if (hover && !disabled) { -->
+-<!--       classes.push("transition-all duration-200"); -->
+-<!--       classes.push("hover:-translate-y-0.5 hover:shadow-md"); -->
+-<!--     } -->
+-
+-<!--     if (interactive && !disabled) { -->
+-<!--       classes.push("cursor-pointer"); -->
+-<!--     } -->
+-
+-<!--     if (disabled) { -->
+-<!--       classes.push("opacity-50 pointer-events-none"); -->
+-<!--     } -->
+-
+-<!--     if (loading) { -->
+-<!--       classes.push("animate-pulse"); -->
+-<!--     } -->
+-
+-<!--     return classes.join(" "); -->
+-<!--   }); -->
+-
+-<!--   // Build the base classes -->
+-<!--   const baseClasses = [ -->
+-<!--     "border font-sans-text text-theme-text-1", -->
+-<!--     "", -->
+-<!--     `rounded-${rounded}`, -->
+-<!--     variants[variant], -->
+-<!--     paddings[padding], -->
+-<!--     elevations[elevation], -->
+-<!--     stateClasses, -->
+-<!--     className, -->
+-<!--   ].join(" "); -->
+-<!-- </script> -->
+-
+-<!-- <div -->
+-<!--   class={baseClasses} -->
+-<!--   onclick={!disabled && !loading ? onClick : undefined} -->
+-<!--   onkeydown={!disabled && !loading ? onClick : undefined} -->
+-<!--   role={interactive ? "button" : "article"} -->
+-<!--   tabindex={interactive ? 0 : undefined} -->
+-<!--   aria-disabled={disabled} -->
+-<!--   aria-busy={loading}> -->
+-<!--   {#if title || subtitle || meta} -->
+-<!--     <div class="space-y-1 {padding !== 'none' ? 'mb-4' : ''}"> -->
+-<!--       {#if title} -->
+-<!--         <h3 class="text-lg font-sans-head font-semibold leading-none tracking-tight"> -->
+-<!--           {title} -->
+-<!--         </h3> -->
+-<!--       {/if} -->
+-
+-<!--       {#if subtitle} -->
+-<!--         <p class="text-sm"> -->
+-<!--           {subtitle} -->
+-<!--         </p> -->
+-<!--       {/if} -->
+-
+-<!--       {#if meta} -->
+-<!--         <div class="flex gap-2 text-sm"> -->
+-<!--           {#each Object.entries(meta) as [key, value]} -->
+-<!--             <span>{key}: {value}</span> -->
+-<!--           {/each} -->
+-<!--         </div> -->
+-<!--       {/if} -->
+-<!--     </div> -->
+-<!--   {/if} -->
+-
+-<!--   {#if divider && (title || subtitle || meta)} -->
+-<!--     <hr class="border-theme-border-2 -mx-6 mb-4" /> -->
+-<!--   {/if} -->
+-
+-<!--   {#if content} -->
+-<!--     <div class={alignments[contentAlign]}> -->
+-<!--       {content} -->
+-<!--     </div> -->
+-<!--   {/if} -->
+-
+-<!--   {#if footer} -->
+-<!--     <div class="mt-4 {alignments[footerAlign]}"> -->
+-<!--       {#if divider} -->
+-<!--         <hr class="border-theme-border-2 -mx-6 mb-4" /> -->
+-<!--       {/if} -->
+-<!--       {footer} -->
+-<!--     </div> -->
+-<!--   {/if} -->
+-<!-- </div> -->
+-
+-<!-- <style> -->
+-<!--   div { -->
+-<!--     transform: translate(0, 0); -->
+-<!--   } -->
+-<!-- </style> -->
++{#if onclick}
++  <div class="card click" class:sunk class:disabled role="button" tabindex="0" {onclick} {onkeydown}>{@render children?.()}</div>
++{:else}
++  <div class="card" class:sunk class:disabled>{@render children?.()}</div>
++{/if}
++
++<style>
++  .card {
++    display: flex;
++    flex-direction: column;
++    gap: 8px;
++    padding: 10px 12px 12px;
++    background: var(--surface-lift);
++    color: var(--text-strong);
++    border-radius: var(--shape-radius-card);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
++  }
++  .card.sunk {
++    background: var(--surface-sunk);
++  }
++  .card.click {
++    cursor: pointer;
++  }
++  .card.disabled {
++    opacity: var(--text-disabled);
++    pointer-events: none;
++  }
++</style>
+diff --git a/subsystems/drapes/panels/Float.svelte b/subsystems/drapes/panels/Float.svelte
+new file mode 100644
+index 0000000..c3dcbae
+--- /dev/null
++++ b/subsystems/drapes/panels/Float.svelte
+@@ -0,0 +1,84 @@
++<script>
++  import { place } from "./float.js";
++
++  let { anchor, zone, title = null, side = "below", snug = false, onclose, children } = $props();
++
++  let box = $state(null);
++  let at = $state({ left: 0, top: 0 });
++
++  const portal = (node) => {
++    document.body.appendChild(node);
++    return { destroy: () => node.remove() };
++  };
++
++  $effect(() => {
++    if (!box || !anchor) return;
++    const size = box.getBoundingClientRect();
++    at = place(anchor.getBoundingClientRect(), size, { width: window.innerWidth, height: window.innerHeight }, side);
++  });
++</script>
++
++<div class="overlay" data-zone={zone} use:portal>
++  <button class="scrim" onclick={onclose} aria-label="close"></button>
++  <div class="float" class:snug bind:this={box} style:left="{at.left}px" style:top="{at.top}px">
++    {#if title}
++      <div class="float-head">
++        <span class="float-title">{title}</span>
++        <button class="float-close" onclick={onclose}>✕</button>
++      </div>
++    {/if}
++    {@render children()}
++  </div>
++</div>
++
++<style>
++  .scrim {
++    position: fixed;
++    inset: 0;
++    z-index: 60;
++    background: none;
++    border: none;
++    cursor: default;
++  }
++  .float {
++    position: fixed;
++    z-index: 61;
++    display: flex;
++    flex-direction: column;
++    gap: 10px;
++    box-sizing: border-box;
++    width: min(330px, calc(100vw - 16px));
++    max-height: calc(100vh - 16px);
++    overflow: auto;
++    padding: 12px;
++    background: var(--surface-lift);
++    color: var(--text-strong);
++    border-radius: var(--shape-radius-card);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary), var(--shape-lift);
++    font-family: var(--font-family-sans-text);
++    font-size: var(--size-type-xs);
++  }
++  .float.snug {
++    width: max-content;
++    gap: 2px;
++    padding: 4px;
++  }
++  .float-head {
++    display: flex;
++    align-items: center;
++    gap: 8px;
++  }
++  .float-title {
++    font-weight: 600;
++    font-size: var(--size-type-sm);
++  }
++  .float-close {
++    margin-left: auto;
++    background: none;
++    border: none;
++    padding: 0;
++    color: var(--text-light);
++    font: inherit;
++    cursor: pointer;
++  }
++</style>
+diff --git a/subsystems/drapes/panels/float.js b/subsystems/drapes/panels/float.js
+new file mode 100644
+index 0000000..f21a31b
+--- /dev/null
++++ b/subsystems/drapes/panels/float.js
+@@ -0,0 +1,14 @@
++export const GAP = 8;
++export const MARGIN = 6;
++
++const clamp = (value, size, limit) => Math.max(MARGIN, Math.min(value, limit - MARGIN - size));
++
++export const place = (anchor, size, viewport, side = "below") => {
++  const beside = anchor.right + GAP + size.width > viewport.width - MARGIN ? anchor.left - GAP - size.width : anchor.right + GAP;
++  const wanted = side === "above"
++    ? { left: anchor.left, top: anchor.top - GAP - size.height }
++    : side === "after"
++    ? { left: beside, top: anchor.top }
++    : { left: anchor.left, top: anchor.bottom + GAP };
++  return { left: clamp(wanted.left, size.width, viewport.width), top: clamp(wanted.top, size.height, viewport.height) };
++};
+diff --git a/subsystems/drapes/panels/index.js b/subsystems/drapes/panels/index.js
+index a00b4b7..1b73ff6 100644
+--- a/subsystems/drapes/panels/index.js
++++ b/subsystems/drapes/panels/index.js
+@@ -3,5 +3,6 @@ import Card from "./Card.svelte";
+ import Icon from "./icon/Icon.svelte";
+ import Desk from "./Desk.svelte";
+ import Loader from "./loader/Loader.svelte";
++import Float from "./Float.svelte";
+ 
+-export { Frame, Card, Icon, Desk, Loader };
++export { Frame, Card, Icon, Desk, Loader, Float };
+diff --git a/subsystems/drapes/tests/kit.test.js b/subsystems/drapes/tests/kit.test.js
+new file mode 100644
+index 0000000..2449479
+--- /dev/null
++++ b/subsystems/drapes/tests/kit.test.js
+@@ -0,0 +1,105 @@
++import { specimen } from "@vivalence/typology";
++import { compile } from "svelte/compiler";
++import { declarations, THEMES } from "@vivalence/dapper";
++import { fit } from "../display/strip.js";
++import { place } from "../panels/float.js";
++
++const KIT = {
++  controls: ["Key", "Input", "Field", "Segmented", "Stepper"],
++  display: ["Row", "Reading", "Well", "ToolRow", "Pressed", "Strip", "Meter", "Spinner", "Status", "Section", "Pip", "Chip", "Tag", "Empty"],
++  panels: ["Card", "Float"],
++};
++const PARTS = Object.entries(KIT).flatMap(([folder, names]) => names.map((name) => `${folder}/${name}`));
++
++const source = (part) => Deno.readTextFileSync(new URL(`../${part}.svelte`, import.meta.url));
++const barrel = (folder) => Deno.readTextFileSync(new URL(`../${folder}/index.js`, import.meta.url));
++const exported = (text, name) => new RegExp(`export \\{[^}]*\\b${name}\\b`).test(text);
++const slots = new Set(declarations(THEMES.northsea.zones[1]).map(([name]) => name));
++const locals = (text) => new Set([...text.matchAll(/(?:^|[\s;{"':])(--[a-z0-9-]+)\s*[:=]/g)].map((match) => match[1]));
++const reads = (text) => [...new Set([...text.matchAll(/var\(\s*(--[a-z0-9-]+)/g)].map((match) => match[1]))];
++const six = (width) => Array.from({ length: 6 }, () => width);
++
++specimen.describe("the kit — every part compiles, and the barrels hold it", () => {
++  for (const part of PARTS) {
++    specimen.it(`${part}.svelte compiles as a runes component without warnings`, () => {
++      const out = compile(source(part), { generate: "client", runes: true, filename: `${part}.svelte` });
++      specimen.expect(out.js.code.length > 0).toBe(true);
++      specimen.expect(out.warnings.map((warning) => `${warning.code}: ${warning.message}`)).toEqual([]);
++    });
++  }
++
++  specimen.it("the barrels export each part", () => {
++    for (const [folder, names] of Object.entries(KIT)) {
++      const text = barrel(folder);
++      for (const name of names) specimen.expect([folder, name, exported(text, name)]).toEqual([folder, name, true]);
++    }
++  });
++});
++
++specimen.describe("the kit — it reads the sheet by name and paints nothing of its own", () => {
++  for (const part of PARTS) {
++    specimen.it(`${part}.svelte reads declared slots alone: no hex, no color-mix, no 50% radius`, () => {
++      const text = source(part);
++      const own = locals(text);
++      specimen.expect(reads(text).filter((name) => !slots.has(name) && !own.has(name))).toEqual([]);
++      specimen.expect([/#[0-9a-fA-F]{6}\b/.test(text), /color-mix/.test(text), /border-radius: 50%/.test(text)]).toEqual([false, false, false]);
++    });
++  }
++
++  specimen.it("the key holds its recipe: contrast at rest; pressed, sunk and down by the depth when latched", () => {
++    const text = source("controls/Key");
++    for (const read of ["--control-contrast)", "--control-contrast-hover)", "--control-contrast-pressed)", "--control-on-pressed)", "--size-depth)", "--shape-sunk)", "--size-ring)", "--signal-primary)"]) {
++      specimen.expect([read, text.includes(`var(${read}`)]).toEqual([read, true]);
++    }
++    specimen.expect([/signal-[a-z]+-ink/.test(text.replace(/\.key\.ghost[^}]*\}/g, ""))]).toEqual([false]);
++    specimen.expect(/@media \(pointer: coarse\) \{\s*\.key \{\s*min-height: 44px;/.test(text)).toBe(true);
++  });
++
++  specimen.it("a field is never disabled and never readonly", () => {
++    const text = source("controls/Input");
++    specimen.expect([/\bdisabled\b/.test(text), /\breadonly\b/.test(text)]).toEqual([false, false]);
++  });
++});
++
++specimen.describe("fit() — a strip fits itself in six steps", () => {
++  const full = [80, 96, 70, 64, 72, 88];
++
++  specimen.it("whole labels while they fit", () => {
++    specimen.expect(fit({ width: 700, full, short: six(44), fold: 70 })).toEqual({ mode: "row", labels: "full", zoom: 1 });
++  });
++
++  specimen.it("then three letters, then the row zoomed down to .8", () => {
++    specimen.expect(fit({ width: 340, full, short: six(44), fold: 70 })).toEqual({ mode: "row", labels: "short", zoom: 1 });
++    specimen.expect(fit({ width: 300, full, short: six(43), fold: 70 })).toEqual({ mode: "row", labels: "short", zoom: 0.9 });
++  });
++
++  specimen.it("then a rail in the stack fold, pages where three keys fit, one key where nothing does", () => {
++    specimen.expect(fit({ width: 220, full: six(90), short: six(44), fold: 70, stacked: true })).toEqual({ mode: "rail", labels: "short", zoom: 1 });
++    specimen.expect(fit({ width: 312, full: six(90), short: six(54), fold: 70, active: 4 })).toEqual({ mode: "pages", labels: "short", zoom: 1, pages: [[0, 3], [3, 6]], page: 1 });
++    specimen.expect(fit({ width: 220, full: six(90), short: six(44), fold: 70 })).toEqual({ mode: "merged", labels: "full", zoom: 1 });
++  });
++
++  specimen.it("four keys never page; an empty strip is a row", () => {
++    specimen.expect(fit({ width: 150, full: [70, 60, 50, 60], short: [44, 44, 44, 44], fold: 60 }).mode).toBe("merged");
++    specimen.expect(fit({ width: 200, full: [], short: [], fold: 0 })).toEqual({ mode: "row", labels: "full", zoom: 1 });
++  });
++});
++
++specimen.describe("place() — a float sits 8px off its key and 6px inside the viewport", () => {
++  const anchor = { left: 700, top: 20, right: 740, bottom: 48 };
++  const size = { width: 330, height: 200 };
++  const viewport = { width: 800, height: 600 };
++
++  specimen.it("below, clamped at the right edge", () => {
++    specimen.expect(place(anchor, size, viewport)).toEqual({ left: 464, top: 56 });
++  });
++
++  specimen.it("after a key on a column bone, turning to its other side at the edge", () => {
++    specimen.expect(place({ left: 0, top: 300, right: 45, bottom: 331 }, size, viewport, "after")).toEqual({ left: 53, top: 300 });
++    specimen.expect(place(anchor, size, viewport, "after")).toEqual({ left: 362, top: 20 });
++  });
++
++  specimen.it("above, clamped at the top", () => {
++    specimen.expect(place({ left: 10, top: 100, right: 60, bottom: 126 }, size, viewport, "above")).toEqual({ left: 10, top: 6 });
++  });
++});

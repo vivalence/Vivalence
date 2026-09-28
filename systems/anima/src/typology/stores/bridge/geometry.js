@@ -1,4 +1,5 @@
 export const BONE_THICKNESS = 45;
+export const HAIRLINE = 4;
 export const PINCER_SIZE = BONE_THICKNESS;
 export const HALF = BONE_THICKNESS / 2;
 export const EDGE_PADDING = HALF;
@@ -7,6 +8,7 @@ const SNAP_DOMINANT = [0, 50, 100];
 const SNAP_SECONDARY = [13, 21, 34, 66, 79, 87];
 export const SNAP_PERCENTS = [...SNAP_DOMINANT, ...SNAP_SECONDARY].sort((a, b) => a - b);
 export const SNAP_DISTANCE = 28;
+export const WALL_SNAP = 0.1;
 
 export function clamp(value, low, high) {
   return Math.max(low, Math.min(high, value));
@@ -24,6 +26,13 @@ export function snapToGrid(value, axisLength) {
     }
   }
   return nearest;
+}
+
+export function snapToWall(value, axisLength) {
+  const reach = axisLength * WALL_SNAP;
+  if (value - EDGE_PADDING < reach) return EDGE_PADDING;
+  if (axisLength - EDGE_PADDING - value < reach) return axisLength - EDGE_PADDING;
+  return value;
 }
 
 export function snapToOrientation(snapAngle) {
@@ -44,38 +53,39 @@ export function axisFor(rect) {
   return rect.width === BONE_THICKNESS && rect.height !== BONE_THICKNESS ? "column" : "row";
 }
 
-export function rectsForOrientation(orientation, pincer, viewportWidth, viewportHeight) {
+export function rectsForOrientation(orientation, pincer, viewportWidth, viewportHeight, thickness = BONE_THICKNESS) {
+  const half = thickness / 2;
   if (orientation === 0) {
     return {
-      a: { left: 0, top: 0, width: viewportWidth, height: Math.max(0, pincer.y - HALF) },
+      a: { left: 0, top: 0, width: viewportWidth, height: Math.max(0, pincer.y - half) },
       b: {
         left: 0,
-        top: pincer.y + HALF,
-        width: Math.max(0, pincer.x - HALF),
-        height: Math.max(0, viewportHeight - pincer.y - HALF),
+        top: pincer.y + half,
+        width: Math.max(0, pincer.x - half),
+        height: Math.max(0, viewportHeight - pincer.y - half),
       },
       c: {
-        left: pincer.x + HALF,
-        top: pincer.y + HALF,
-        width: Math.max(0, viewportWidth - pincer.x - HALF),
-        height: Math.max(0, viewportHeight - pincer.y - HALF),
+        left: pincer.x + half,
+        top: pincer.y + half,
+        width: Math.max(0, viewportWidth - pincer.x - half),
+        height: Math.max(0, viewportHeight - pincer.y - half),
       },
     };
   }
   if (orientation === 90) {
     return {
-      a: { left: 0, top: 0, width: Math.max(0, pincer.x - HALF), height: viewportHeight },
+      a: { left: 0, top: 0, width: Math.max(0, pincer.x - half), height: viewportHeight },
       b: {
-        left: pincer.x + HALF,
+        left: pincer.x + half,
         top: 0,
-        width: Math.max(0, viewportWidth - pincer.x - HALF),
-        height: Math.max(0, pincer.y - HALF),
+        width: Math.max(0, viewportWidth - pincer.x - half),
+        height: Math.max(0, pincer.y - half),
       },
       c: {
-        left: pincer.x + HALF,
-        top: pincer.y + HALF,
-        width: Math.max(0, viewportWidth - pincer.x - HALF),
-        height: Math.max(0, viewportHeight - pincer.y - HALF),
+        left: pincer.x + half,
+        top: pincer.y + half,
+        width: Math.max(0, viewportWidth - pincer.x - half),
+        height: Math.max(0, viewportHeight - pincer.y - half),
       },
     };
   }
@@ -83,158 +93,159 @@ export function rectsForOrientation(orientation, pincer, viewportWidth, viewport
     return {
       a: {
         left: 0,
-        top: pincer.y + HALF,
+        top: pincer.y + half,
         width: viewportWidth,
-        height: Math.max(0, viewportHeight - pincer.y - HALF),
+        height: Math.max(0, viewportHeight - pincer.y - half),
       },
       b: {
-        left: pincer.x + HALF,
+        left: pincer.x + half,
         top: 0,
-        width: Math.max(0, viewportWidth - pincer.x - HALF),
-        height: Math.max(0, pincer.y - HALF),
+        width: Math.max(0, viewportWidth - pincer.x - half),
+        height: Math.max(0, pincer.y - half),
       },
       c: {
         left: 0,
         top: 0,
-        width: Math.max(0, pincer.x - HALF),
-        height: Math.max(0, pincer.y - HALF),
+        width: Math.max(0, pincer.x - half),
+        height: Math.max(0, pincer.y - half),
       },
     };
   }
   if (orientation === 270) {
     return {
       a: {
-        left: pincer.x + HALF,
+        left: pincer.x + half,
         top: 0,
-        width: Math.max(0, viewportWidth - pincer.x - HALF),
+        width: Math.max(0, viewportWidth - pincer.x - half),
         height: viewportHeight,
       },
       b: {
         left: 0,
         top: 0,
-        width: Math.max(0, pincer.x - HALF),
-        height: Math.max(0, pincer.y - HALF),
+        width: Math.max(0, pincer.x - half),
+        height: Math.max(0, pincer.y - half),
       },
       c: {
         left: 0,
-        top: pincer.y + HALF,
-        width: Math.max(0, pincer.x - HALF),
-        height: Math.max(0, viewportHeight - pincer.y - HALF),
+        top: pincer.y + half,
+        width: Math.max(0, pincer.x - half),
+        height: Math.max(0, viewportHeight - pincer.y - half),
       },
     };
   }
 }
 
-export function bonesForOrientation(orientation, pincer, viewportWidth, viewportHeight) {
+export function bonesForOrientation(orientation, pincer, viewportWidth, viewportHeight, thickness = BONE_THICKNESS) {
+  const half = thickness / 2;
   if (orientation === 0) {
     return {
       shoulder: {
         left: 0,
-        top: pincer.y - HALF,
-        width: Math.max(0, pincer.x - HALF),
-        height: BONE_THICKNESS,
+        top: pincer.y - half,
+        width: Math.max(0, pincer.x - half),
+        height: thickness,
       },
       crown: {
-        left: pincer.x + HALF,
-        top: pincer.y - HALF,
-        width: Math.max(0, viewportWidth - pincer.x - HALF),
-        height: BONE_THICKNESS,
+        left: pincer.x + half,
+        top: pincer.y - half,
+        width: Math.max(0, viewportWidth - pincer.x - half),
+        height: thickness,
       },
       pincer: {
-        left: pincer.x - HALF,
-        top: pincer.y - HALF,
-        width: BONE_THICKNESS,
-        height: BONE_THICKNESS,
+        left: pincer.x - half,
+        top: pincer.y - half,
+        width: thickness,
+        height: thickness,
       },
       spine: {
-        left: pincer.x - HALF,
-        top: pincer.y + HALF,
-        width: BONE_THICKNESS,
-        height: Math.max(0, viewportHeight - pincer.y - HALF),
+        left: pincer.x - half,
+        top: pincer.y + half,
+        width: thickness,
+        height: Math.max(0, viewportHeight - pincer.y - half),
       },
     };
   }
   if (orientation === 90) {
     return {
       shoulder: {
-        left: pincer.x - HALF,
+        left: pincer.x - half,
         top: 0,
-        width: BONE_THICKNESS,
-        height: Math.max(0, pincer.y - HALF),
+        width: thickness,
+        height: Math.max(0, pincer.y - half),
       },
       crown: {
-        left: pincer.x - HALF,
-        top: pincer.y + HALF,
-        width: BONE_THICKNESS,
-        height: Math.max(0, viewportHeight - pincer.y - HALF),
+        left: pincer.x - half,
+        top: pincer.y + half,
+        width: thickness,
+        height: Math.max(0, viewportHeight - pincer.y - half),
       },
       pincer: {
-        left: pincer.x - HALF,
-        top: pincer.y - HALF,
-        width: BONE_THICKNESS,
-        height: BONE_THICKNESS,
+        left: pincer.x - half,
+        top: pincer.y - half,
+        width: thickness,
+        height: thickness,
       },
       spine: {
-        left: pincer.x + HALF,
-        top: pincer.y - HALF,
-        width: Math.max(0, viewportWidth - pincer.x - HALF),
-        height: BONE_THICKNESS,
+        left: pincer.x + half,
+        top: pincer.y - half,
+        width: Math.max(0, viewportWidth - pincer.x - half),
+        height: thickness,
       },
     };
   }
   if (orientation === 180) {
     return {
       shoulder: {
-        left: pincer.x + HALF,
-        top: pincer.y - HALF,
-        width: Math.max(0, viewportWidth - pincer.x - HALF),
-        height: BONE_THICKNESS,
+        left: pincer.x + half,
+        top: pincer.y - half,
+        width: Math.max(0, viewportWidth - pincer.x - half),
+        height: thickness,
       },
       crown: {
         left: 0,
-        top: pincer.y - HALF,
-        width: Math.max(0, pincer.x - HALF),
-        height: BONE_THICKNESS,
+        top: pincer.y - half,
+        width: Math.max(0, pincer.x - half),
+        height: thickness,
       },
       pincer: {
-        left: pincer.x - HALF,
-        top: pincer.y - HALF,
-        width: BONE_THICKNESS,
-        height: BONE_THICKNESS,
+        left: pincer.x - half,
+        top: pincer.y - half,
+        width: thickness,
+        height: thickness,
       },
       spine: {
-        left: pincer.x - HALF,
+        left: pincer.x - half,
         top: 0,
-        width: BONE_THICKNESS,
-        height: Math.max(0, pincer.y - HALF),
+        width: thickness,
+        height: Math.max(0, pincer.y - half),
       },
     };
   }
   if (orientation === 270) {
     return {
       shoulder: {
-        left: pincer.x - HALF,
-        top: pincer.y + HALF,
-        width: BONE_THICKNESS,
-        height: Math.max(0, viewportHeight - pincer.y - HALF),
+        left: pincer.x - half,
+        top: pincer.y + half,
+        width: thickness,
+        height: Math.max(0, viewportHeight - pincer.y - half),
       },
       crown: {
-        left: pincer.x - HALF,
+        left: pincer.x - half,
         top: 0,
-        width: BONE_THICKNESS,
-        height: Math.max(0, pincer.y - HALF),
+        width: thickness,
+        height: Math.max(0, pincer.y - half),
       },
       pincer: {
-        left: pincer.x - HALF,
-        top: pincer.y - HALF,
-        width: BONE_THICKNESS,
-        height: BONE_THICKNESS,
+        left: pincer.x - half,
+        top: pincer.y - half,
+        width: thickness,
+        height: thickness,
       },
       spine: {
         left: 0,
-        top: pincer.y - HALF,
-        width: Math.max(0, pincer.x - HALF),
-        height: BONE_THICKNESS,
+        top: pincer.y - half,
+        width: Math.max(0, pincer.x - half),
+        height: thickness,
       },
     };
   }

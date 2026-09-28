@@ -63,7 +63,7 @@ export const object = (vector, execute = steer.strategy.request) =>
 export function proxy(vector, execute = steer.strategy.request) {
 ```
 ```js
-// subsystems/typology/gestalten/steer/trie.js:9 — steer.fold
+// subsystems/typology/gestalten/steer/trie.js:8 — steer.fold
 export function fold(
   vector,
   step,

@@ -1,0 +1,457 @@
+#+title: m75 one word, one meaning — a mask's route is its reference, a registry address an identifier, a tapped package a location; mount means disk
+#+filetags: :m75:rename:paladin:ghost:registry:mask:mount:reference:identifier:location:typology:
+#+status: DESIGNED, ready for a go on M1. Nothing written. The census is measured, the baselines are taken; seven rulings by beef, the siblings deferred, one fork QUESTIONED with its sketch (meaning 4 kept).
+#+phase: design (derived)
+#+progress:   0% 0/26 (derived)
+#+next: go (derived)
+
+* intent
+
+On the masks of m74, beside =mask.mount=:
+
+/"maybe rename mount to reference? any collisions? mask.reference instaead of mask.mount. unloads  the term mount."/
+
+On the collision, =reference= being the registry's word:
+
+/"what if we move regiistry adress to 'identity' or 'adress'? i prefere identity. butt thats take. fuck."/
+
+/"propose quickly a few ways to rejiggle this such that mount becomes reference, identity entity stays identity."/
+
+On the proposal that takes no new word:
+
+/"identifier is way better."/
+
+/"make this m75."/
+
+* terrain — measured
+
+Whole-word census, =rg -w=, no file-type filter; =node_modules= · =bak= · =static= · =mountpoint= data · =.ikiro= excluded.
+
+** reference, four meanings today
+
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/ledger/registry.js:41 · :97   — 1, where a tapped package lives
+async add(reference) {
+return { locations: record.filter((reference) => !stale.includes(reference)), stale };
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/ghost/belt/lens.js:24 · :43   — 2, what a lens hands back for a picked row
+reference: (row) => `${row.owner}/${row.type}/${row.slug}`,
+reference: (row) => row.slug,
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/ledger/instances.js:37 · systems/ghost/mod.js:173   — 3, what the user typed: a slug or a path
+async resolve(reference) {
+const reference = signal.flags?.[name];
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/entity-manager.js:144 · systems/runtime/daemon/entities/base/DataEntity.ts:39   — 4, an entity by id
+async resolve(name, reference) {
+reference(ref) {
+#+END_SRC
+
+Paladin's own word for meaning 2 exists (=registry.js:196= · =:215=):
+
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/ledger/registry.js
+async module(identifier) {
+identifier: query.module,
+#+END_SRC
+
+| container            | hits | files |
+|----------------------+------+-------|
+| =subsystems/paladin= |   81 |    10 |
+| =systems/ghost=      |   77 |    14 |
+| =subsystems/typology= |  31 |     8 |
+| =commons=            |   16 |     3 |
+| =documentation=      |   14 |     4 |
+| =systems/runtime=    |   13 |    12 |
+| =systems/anima=      |    2 |     2 |
+| =subsystems/dapper=  |    1 |     1 |
+
+| meaning                | word after   | where                                   | hits |
+|------------------------+--------------+-----------------------------------------+------|
+| 1 tapped package       | =location=   | =registry.js= · ghost registry · ledger |  ~95 |
+| 2 lens row             | =identifier= | =lens.js= · =pick.js= · 3 trajectories  |  ~20 |
+| 3 slug or path, typed  | =token=      | =instances.js= · =source.js= · =populate.js= · =use.js= · =mod.js= | 25 |
+| 4 entity by id         | kept         | typology · runtime entities · education |   47 |
+
+The ~ counts are read off the files, not grepped apart: one file carries two meanings (=systems/ghost/trajectories/registry/index.js:36=, a row's =identifier= matched against a typed =reference=).
+
+Registry packages: no reader of =registry.references()=, no reader of a lens's =reference=. One in commons: =commons/instances/hello-world/tools/doctor.js:144=.
+
+** mount, three meanings today
+
+#+BEGIN_SRC js
+// subsystems/paladin/lifecycle/resolve.js:34 · :41 · :93   — a route under the aperture, the meaning that moves
+daemon.mount ??= `/daemon/${daemon.manifest?.slug}`;
+service.mount ??= `/attached/process/service/${service.manifest?.type}/${service.manifest?.slug}`;
+const mount = `/mode/${type}/${slug}`;
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/ledger/instances.js:41 · systems/ghost/trajectories/instance/create.js:41   — a place on disk, stays
+const mount = this.paladin.source(token).absolute;
+await paladin.ledger.instances.write(slug, { mount: destination });
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/ledger/registry.js:102 · systems/anima/src/typology/entities/buffer.js:64   — a verb, stays
+async mount(root) {
+mount: (callback) => {
+#+END_SRC
+
+#+BEGIN_SRC json
+{ "mountpoint": "…/chess/mountpoint/daemon_chess", "mount": "/daemon/chess", "url": "http://localhost:2501/daemon/chess" }
+#+END_SRC
+
+Route sites by receiver (=mode · daemon · service · mask · citizen · good · hosted=, then =.mount=):
+
+| container            | hits | files |
+|----------------------+------+-------|
+| =systems/runtime=    |   25 |    12 |
+| =subsystems/paladin= |    5 |     2 |
+| =commons=            |    3 |     3 |
+| =systems/anima=      |    2 |     2 |
+| =subsystems/typology= |   1 |     1 |
+| =~/.viva/registry=   |    1 |     1 |
+| =~/.viva/instances=  |    1 |     1 |
+
+A floor, not the radius: a bare =mount= local, a =this.mount= inside =Daemon= or =Mode=, a destructured ={ mount }= carry no receiver. The keys add =subsystems/typology/schematics/primitives/instance.js:37= · =:74= · =:86=. No =instance.viva.js= on this machine declares a =mount:= key by hand (grep over =~/.viva/instances/*= and =commons/instances/*=: 0).
+
+The route crosses the wire:
+
+#+BEGIN_SRC js
+// systems/runtime/lifecycle/resolve.js:115 · :125   — /metadata/daemons · /metadata/services
+mount: daemonDie.good.mount.nature,
+mount: processDie.mask.mount.absolute,
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/anima/src/typology/entities/daemon/daemon.js:28
+mount: this.mount?.nature ?? null,
+#+END_SRC
+
+Two siblings carry the same meaning, a route, under the same word:
+
+#+BEGIN_SRC js
+// commons/playground/automaton/automaton.viva.js:41 · subsystems/typology/prototypes/view.js:13
+AIMED: { mount: "/emit/tick" },
+this.mount = new Path(record.mount);
+#+END_SRC
+
+| sibling        | readers | where                                  |
+|----------------+---------+----------------------------------------|
+| =AIMED.mount=  |       9 | anima 6 · commons 3, and registry data |
+| =view.mount=   |       9 | typology · anima                       |
+
+** baselines
+
+| file                                            | passed | steps | failed |
+|-------------------------------------------------+--------+-------+--------|
+| =subsystems/paladin/tests/registry.test.js=     |      4 |    16 |      0 |
+| =subsystems/paladin/tests/registry.tap.test.js= |      1 |    10 |      0 |
+| =subsystems/paladin/tests/registry.wire.test.js= |     3 |    11 |      0 |
+| =subsystems/paladin/tests/kernel.test.js=       |      2 |     7 |      0 |
+| =subsystems/paladin/tests/settle.test.js=       |      2 |    25 |      0 |
+| =subsystems/paladin/tests/ledger.test.js=       |      6 |    26 |      0 |
+| =systems/ghost/tests/registry.test.js=          |      1 |    12 |      0 |
+| =systems/ghost/tests/pick.test.js=              |      7 |     0 |      0 |
+| =systems/ghost/tests/ledger.test.js=            |      0 |    17 |      1 |
+
+=viva /help=: exit 0. The ghost ledger red is pre-existing, =known-issues.org= /ghost-ledger-test-init-step-red-pre-existing/, not this quest's.
+
+* the law
+
+#+BEGIN_EXAMPLE
+mount · mountpoint   a place on disk, and the verb that seats something there
+reference            a mounting and nested address, its consumer the aperture: /daemon/chess · /mode/game/board
+identifier           a registry address: @chess/domain/chess
+location             where a tapped package lives: chess · /abs/path/to/commons
+identity             the lighthouse entity, untouched
+#+END_EXAMPLE
+
+No alias, no dual read, no =held.mount ?? held.reference=: /"entirely. no dual read."/
+
+=reference= is emptied before it is filled. A tree where =reference= means both a tapped package and a route cannot be grepped.
+
+* rulings
+
+- the route :: =mount= → =reference=. /"mask.reference instaead of mask.mount. unloads  the term mount."/ What it means: /"reference is a general mounting and nested reference semantic that finds its consumer in the aperture."/
+- what the user typed :: =token=. /"token."/ =instances.resolve(token)= · =paladin.source(token)= · =use.js=; =instances.js:40= already says it.
+- the siblings :: later. /"i think they do. maybe ref too? hmm.. this would be quite extensive tho. later."/ Parked in =* deferred=.
+- the registry address :: =identifier=. /"identifier is way better."/ Refused: =identity= /"thats take"/ · =address= (78 hits in the registry packages, 56 in the repo) · =specifier= (a new word where paladin has one).
+- the lighthouse entity :: =Identity= stays. /"identity entity stays identity."/
+- the tapped package :: =location=, the word =registry.js= already returns (=:29= · =:79= · =:97=). Proposed with the ruling above, not quoted apart.
+- =registry.reference(absolute)= :: =locate(absolute)=. /"locate."/ It shortens a path to store-relative; =tap= calls it (=registry.js:165=).
+- the wire :: migrate. /"migrate."/ =/metadata/daemons= and =/metadata/services= emit =reference= in the same landing as the mask; anima reads =reference= (=systems/anima/src/typology/entities/daemon/daemon.js:28=). No dual key.
+
+* QUESTIONED
+
+- meaning 4 :: =literal.reference(slug)= · =entityManager.resolve(name, reference)=. Sketched: kept, an entity by id is a reference in mikro's own sense.
+
+* milestones
+
+Each: blast → test → land → test → blast; each boots at its boundary.
+
+** M1 — reference is emptied: location · identifier · token
+
+One milestone: the registry's method names and ghost's callers are one spine, a split leaves =viva registry/list= red.
+
+#+BEGIN_SRC diff
+ // subsystems/paladin/prototypes/ledger/registry.js
+-const normalize = (reference) =>
+-  isAbsolute(reference) ? reference : reference.replace(/^\.\//, "");
++const normalize = (location) =>
++  isAbsolute(location) ? location : location.replace(/^\.\//, "");
+
+-  async references() {
++  async locations() {
+     return (await this.read()) ?? [];
+   }
+
+-  async has(reference) {
+-    return (await this.references()).includes(normalize(reference));
++  async has(location) {
++    return (await this.locations()).includes(normalize(location));
+   }
+
+-  reference(absolute) {
++  locate(absolute) {
+     const store = this.paladin.scope.registry?.absolute;
+
+-  resolve(reference) {
+-    reference = normalize(reference);
+-    if (isAbsolute(reference)) return new Path(reference);
++  resolve(location) {
++    location = normalize(location);
++    if (isAbsolute(location)) return new Path(location);
+
+-    if (declarations.length === 1) reference = this.reference(dirname(declarations[0].source.absolute));
+-    await this.add(reference);
+-    return reference;
++    if (declarations.length === 1) location = this.locate(dirname(declarations[0].source.absolute));
++    await this.add(location);
++    return location;
+#+END_SRC
+
+#+BEGIN_SRC diff
+ // systems/ghost/belt/lens.js
+-    reference: (row) => `${row.owner}/${row.type}/${row.slug}`,
++    identifier: (row) => `${row.owner}/${row.type}/${row.slug}`,
+ …
+-    reference: (row) => row.slug,
++    identifier: (row) => row.slug,
+#+END_SRC
+
+#+BEGIN_SRC diff
+ // systems/ghost/belt/pick.js
+-  const { rows, keys, facets, columns, reference, label = "search", index = 0 } = lens;
++  const { rows, keys, facets, columns, identifier, label = "search", index = 0 } = lens;
+-    return { row, reference: reference(row) };
++    return { row, identifier: identifier(row) };
+#+END_SRC
+
+#+BEGIN_SRC diff
+ // systems/ghost/trajectories/registry/index.js
+-  const references = await paladin.ledger.registry.references();
++  const locations = await paladin.ledger.registry.locations();
+-    rows.find((row) => row.reference === reference || row.reference === reference.replace(/^\.\//, "")) ??
++    rows.find((row) => row.location === location || row.location === location.replace(/^\.\//, "")) ??
+-    schema: v.object({ reference: v.string().desc("recorded reference").optional() }),
++    schema: v.object({ location: v.string().desc("recorded location").optional() }),
+-    if (!reference) throw new Error("usage: viva registry untap <reference>");
++    if (!location) throw new Error("usage: viva registry untap <location>");
+#+END_SRC
+
+#+BEGIN_SRC json
+{ "location": "chess", "root": "/Users/finn/.viva/registry/chess", "owners": ["@chess"] }
+#+END_SRC
+
+- [ ] =registry.js=: =locations() · has · add · remove · locate · resolve · reconcile · tap · untap=
+- [ ] ghost: =belt/lens.js= · =belt/pick.js= · =trajectories/registry/{index.js,bootstrap.js,Doctor.jsx}= · =trajectories/ledger/{index.js,Doctor.jsx}= · =trajectories/instance/create.js=
+- [ ] =commons/instances/hello-world/tools/doctor.js:144= and its copy in =~/.viva/instances/hello-world/=
+- [ ] tests: paladin =registry.test.js= · =registry.tap.test.js= · ghost =registry.test.js= · =pick.test.js= · =ledger.test.js=
+- [ ] docs: =20.01_slowstart.mdx:103-171= · =12.02_anatomy-of-the-ledger.mdx:43= · =:98=
+- [ ] meaning 3 → =token=: =prototypes/ledger/instances.js= · =belt/source.js= · =lifecycle/populate.js:40-49= · ghost =mod.js:173-175= · =trajectories/instance/use.js= · =trajectories/index.js:29=
+- [ ] residue: =reference= in paladin + ghost → 0
+
+** M2 — the route is a reference
+
+One milestone: schematic key · the two producers · the wire · every reader.
+
+#+BEGIN_SRC diff
+ // subsystems/typology/schematics/primitives/instance.js:37 · :74 · :86
+-    mount: Path().desc('The daemon\'s path under the runtime. Declared wins; otherwise /daemon/<slug>. …
++    reference: Path().desc('The daemon\'s route under the runtime. Declared wins; otherwise /daemon/<slug>. …
+#+END_SRC
+
+#+BEGIN_SRC diff
+ // subsystems/paladin/lifecycle/resolve.js:34 · :41 · :93
+-    daemon.mount ??= `/daemon/${daemon.manifest?.slug}`;
+-    daemon.url ??= reach.branch(daemon.mount).absolute;
++    daemon.reference ??= `/daemon/${daemon.manifest?.slug}`;
++    daemon.url ??= reach.branch(daemon.reference).absolute;
+ …
+-    const mount = `/mode/${type}/${slug}`;
++    const reference = `/mode/${type}/${slug}`;
+     return {
+       ...held,
+       mountpoint,
+-      mount: held.mount ?? mount,
+-      url: held.url ?? (daemon.url ? new Url(daemon.url).branch(mount).absolute : undefined),
++      reference: held.reference ?? reference,
++      url: held.url ?? (daemon.url ? new Url(daemon.url).branch(reference).absolute : undefined),
+#+END_SRC
+
+#+BEGIN_SRC diff
+ // subsystems/paladin/prototypes/ledger/registry.js:231
+-      if (citizen.mount || !mask.mount) return citizen;
+-      const mount = new Path(`/mode/${type}/${slug}`);
+-      return { ...citizen, mount, url: mask.url?.branch(mount.absolute), …
++      if (citizen.reference || !mask.reference) return citizen;
++      const reference = new Path(`/mode/${type}/${slug}`);
++      return { ...citizen, reference, url: mask.url?.branch(reference.absolute), …
+#+END_SRC
+
+#+BEGIN_SRC diff
+ // systems/runtime/lifecycle/resolve.js:115 · :125
+-      mount: daemonDie.good.mount.nature,
++      reference: daemonDie.good.reference.nature,
+#+END_SRC
+
+#+BEGIN_SRC json
+{ "mountpoint": "…/chess/mountpoint/daemon_chess", "reference": "/daemon/chess", "url": "http://localhost:2501/daemon/chess" }
+#+END_SRC
+
+- [ ] typology: =schematics/primitives/instance.js= · =prototypes/mode.js= readers · =tests/path.absolute.test.js=
+- [ ] paladin: =lifecycle/resolve.js= · =prototypes/ledger/registry.js:231-234= · =tests/settle.test.js:405-425=
+- [ ] runtime: 12 files, =lifecycle/resolve.js= 9 sites first
+- [ ] the wire: =systems/runtime/lifecycle/resolve.js:115= · =:125= emit =reference=; anima =typology/entities/daemon/{daemon.js,dossier.js}= · =mode/mode.js= read it
+- [ ] a test on the wire key: =/metadata/daemons= and =/metadata/services= carry =reference=, never =mount=
+- [ ] commons: =lighthouses/multiplayer/server/entities.js= · =dashboards/dataspace/Dashboard.svelte= · =instances/hello-world/tools/doctor.js=
+- [ ] =~/.viva=: =registry/vcompany/tests/scenarios.js= · =instances/hello-world/tools/doctor.js=, captured first
+- [ ] residue: =\.mount\b= over repo + =~/.viva= → the keep-list only
+
+** M3 — the residue
+- [ ] m74 rewritten against =reference=, or landed first and swept here
+- [ ] =.ikiro/world/codemap/{paladin,ghost,runtime,typology}.md= re-stamped
+- [ ] =python3 .ikiro/methods/sweep.py mount= · =sweep.py reference=
+
+* keep-list
+
+Written before the grep; the residue check reads against it.
+
+| survives                                     | meaning        |
+|----------------------------------------------+----------------|
+| =mountpoint=                                 | disk           |
+| =VIVA_INSTANCE_MOUNT= · =VIVA_REGISTRY_MOUNT= · =VIVA_REPOSITORY_MOUNT= | disk |
+| =instances.json= rows, ={ mount }=           | disk           |
+| =row.mount= · =found.mount= · =entry.mount= in ghost | disk   |
+| =lifecycle.mount(instance)= · =registry.mount(root)= | verb   |
+| =hooks.mount= · =buffer.mount()= · =on.mount()= · =*.mount.test.js= | verb, anima · sheets |
+| =bundle= entries, ={ type, mount, integrity }= | deferred, reference |
+| =AIMED.mount= · =view.mount=                 | deferred, reference |
+| =literal.reference()= · =entityManager.resolve(name, reference)= | entity by id |
+| =systems/anima/src/app/design/reference.js=  | a file name    |
+| =.ikiro/= · =bak/= · =bak.*/=                | history        |
+
+* blast table
+
+| file                                                    | change                      | milestone | kind    |
+|---------------------------------------------------------+-----------------------------+-----------+---------|
+| =subsystems/paladin/prototypes/ledger/registry.js=      | =location= · =locate=       | M1        | rename  |
+| =subsystems/paladin/tests/registry{,.tap}.test.js=      | =location=                  | M1        | test    |
+| =systems/ghost/belt/{lens,pick}.js=                     | =identifier=                | M1        | rename  |
+| =systems/ghost/trajectories/registry/*=                 | =location= · =identifier=   | M1        | rename  |
+| =systems/ghost/trajectories/ledger/{index.js,Doctor.jsx}= | =location=                | M1        | rename  |
+| =systems/ghost/trajectories/instance/create.js=         | =identifier=                | M1        | rename  |
+| =systems/ghost/tests/{registry,pick,ledger}.test.js=    | both                        | M1        | test    |
+| =commons/instances/hello-world/tools/doctor.js=         | =locations()= · =reference= | M1 · M2   | rename  |
+| =documentation/content/= 3 files                        | =location=                  | M1        | docs    |
+| =subsystems/typology/schematics/primitives/instance.js= | =reference= key ×3          | M2        | schema  |
+| =subsystems/paladin/lifecycle/resolve.js=               | =reference=                 | M2        | rename  |
+| =systems/runtime/lifecycle/resolve.js=                  | =reference=, the wire       | M2        | rename  |
+| =systems/runtime/= 11 more files                        | =reference=                 | M2        | rename  |
+| =systems/anima/src/typology/entities/= 3 files          | =reference=, the wire       | M2        | rename  |
+| =commons/= 3 files                                      | =reference=                 | M2        | rename  |
+| =~/.viva/registry/vcompany/tests/scenarios.js=          | =reference=                 | M2        | rename  |
+| =~/.viva/instances/hello-world/tools/doctor.js=         | both                        | M1 · M2   | rename  |
+
+* testing assessment
+
+In place: the nine files of the baseline above hold the registry's record, the tap, the wire and the picker.
+
+COVERAGE GAP: no test reads =/metadata/daemons= for its keys today; M2 adds one before the wire migrates. m74's M0 =boot.test.js= would cover it whole, and it is not written. No test covers =viva registry/list= output by key.
+
+| test                                        | why                          |
+|---------------------------------------------+------------------------------|
+| paladin =registry.test.js= · =registry.tap.test.js= | the method names     |
+| ghost =pick.test.js=                        | the lens key                 |
+| ghost =registry.test.js= · =ledger.test.js= | the row key, the usage line  |
+| paladin =settle.test.js:405-425=            | =held.mount= on a mask       |
+| typology =path.absolute.test.js=            | =mask.mount=                 |
+| new: the wire key of =/metadata/{daemons,services}= | =reference= on the wire |
+
+| milestone | gate                                                                                  |
+|-----------+---------------------------------------------------------------------------------------|
+| M1        | the nine files at baseline; =viva /help=; =viva registry/list= · =registry/doctor= read |
+| M2        | paladin · typology · runtime at baseline; =viva instance/run= reaches ready; anima lists its daemons |
+| M3        | residue = keep-list                                                                   |
+
+* QA
+
+① I type =viva registry/list=, I see a =location= column and no =reference=. I type =viva registry/untap=, the usage line says =<location>=. I open anima on a running instance, the daemon list is whole.
+
+② =rg -w reference subsystems/paladin systems/ghost= after M1: 0. =rg '\.mount\b'= over repo + =~/.viva= after M2: the keep-list only.
+
+#+marker_qa: m75/T-registry-list · pending · viva registry/list shows location, untap usage says <location>
+#+marker_qa: m75/T-anima-daemons · pending · anima lists its daemons after the wire rename
+#+marker_qa: m75/P-residue-reference · pending · rg -w reference over paladin + ghost reads 0
+#+marker_qa: m75/P-residue-mount · pending · rg \.mount\b over repo + ~/.viva leaves the keep-list only
+
+* deferred
+
+- the siblings :: /"later."/ Both are the same meaning by the law's line, a nested address the aperture consumes:
+
+#+BEGIN_SRC js
+// systems/anima/src/typology/entities/thread/traits/aimed.js:9
+const emission = await thread.mode.connection.call(
+  thread.trait.AIMED.mount,
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/view.js:25 → subsystems/typology/prototypes/bundle.js:29
+return this.bundle.load(this.mount.nature);
+const response = await fetch(this.url + entry.mount);
+#+END_SRC
+
+#+BEGIN_SRC json
+{
+  "AIMED": { "mount": "/emit/tick" },
+  "view": {
+    "kind": "svelte",
+    "hash": "1cf12d9187bd760a503edd296699d018f31c0d6c20559189d2dda52e0bec70be",
+    "mount": "/1cf12d9187bd760a.svelte.mjs",
+    "bundle": { "entries": [{ "type": "js", "mount": "/1cf12d9187bd760a.svelte.mjs", "integrity": "57a26611…", "bytes": 589475 }] }
+  }
+}
+#+END_SRC
+
+=AIMED= from =commons/playground/automaton/automaton.viva.js:41=; =view= a stored buffer row of =~/.viva/instances/hello-world= (=hello.viva.db=, read-only).
+
+  =AIMED.mount= calls a route of the mode's aperture, plainly a reference. =view.mount= names an entry inside a bundle, fetched as =url + entry.mount=: the aperture consumes it only through the bundle's url. Radius: =AIMED= mounts are authored as data in 34 sites over 12 files of registry and commons datasets (=~/.viva/registry/education/modes/tactics/clinic/dataset/index.js= alone 14), each a reinstall. =ref=, the short form: already a local for an entity by id (=systems/runtime/daemon/entities/base/DataEntity.ts:39=), 54 sites over 17 files.
+- the env vars =VIVA_*_MOUNT= :: disk, kept. Reopened only if =mount= itself is renamed.
+
+* changelog
+
+* release
+
+- =viva registry/list= · =registry/doctor= · =registry/tap=: the key =reference= is =location=.
+- =viva registry/untap <location>=.
+- a lens's =reference= is =identifier=.
+- an instance record's masks: =mount= is =reference=.
+- =/metadata/daemons= · =/metadata/services=: the key =mount= is =reference=.

@@ -1,9 +1,11 @@
 <script>
-  // the roster at the top of F. the daemon DELETES an activity the moment it settles, so a
+  // the roster. the daemon DELETES an activity the moment it settles, so a
   // settled row is kept here for a breath with its outcome, then let go — rule 1. the roster
   // is this thread's; every other thread folds behind one line.
-  import { Section } from "@vivalence/drapes";
+  import { owed } from "@vivalence/anima";
+  import { Empty, Key, Row, Section } from "@vivalence/drapes";
   import ActivityRow from "./ActivityRow.svelte";
+  import { settled } from "./activity.js";
   import { untrack } from "svelte";
 
   let { thread, density = "line" } = $props();
@@ -65,36 +67,46 @@
 
   const rows = $derived([...live.filter(mine), ...lingering.filter(mine)]);
   const others = $derived(live.filter((row) => !mine(row)));
+  const running = $derived.by(() => {
+    void version;
+    return live.filter(mine).filter((row) => !settled(row.status));
+  });
 
   const SAID = { SIGSTOP: "pause", SIGCONT: "resume", SIGTERM: "stop", SIGKILL: "kill" };
   async function onsignal(row, name) {
     await row.stdin?.[name]?.(`user pressed ${SAID[name]}`);
   }
+
+  const sent = new Set();
+  function stopAll(event) {
+    event.stopPropagation();
+    for (const row of owed("SIGTERM", running, sent)) onsignal(row, "SIGTERM");
+  }
 </script>
 
-<section class="activity">
-  <Section label="activity" count={rows.length}>
+<div class="roster">
+  <Section label="activity" count="{running.length} live" open={shown} ontoggle={() => (shown = !shown)}>
     {#snippet action()}
-      <button class="mini" onclick={() => (shown = !shown)}>{shown ? "hide" : "show"}</button>
+      <Key tone="ghost" size="mini" label="stop all" disabled={!running.length} title="SIGTERM to every live activity of this thread" onclick={stopAll} />
     {/snippet}
   </Section>
 
   {#if shown}
-    <div class="roster">
+    <div class="roster-rows">
       {#each rows as row (row.id)}
         <ActivityRow {row} {version} {density} {onsignal} {onopen} />
       {/each}
 
       {#if !rows.length}
-        <div class="empty">no activity</div>
+        <Empty verb="no activity" />
       {/if}
 
       {#if others.length}
-        <button class="fold" onclick={() => (otherOpen = !otherOpen)}>
-          <span>{otherOpen ? "▾" : "▸"}</span>
-          <span class="fold-label">other threads</span>
-          <span>{others.length}</span>
-        </button>
+        <Row title="the activities of every other thread" onclick={() => (otherOpen = !otherOpen)}>
+          <span class="roster-caret">{otherOpen ? "▾" : "▸"}</span>
+          <span class="roster-fold">other threads</span>
+          <span class="roster-count">{others.length}</span>
+        </Row>
         {#if otherOpen}
           {#each others as row (row.id)}
             <ActivityRow {row} {version} density="line" {onsignal} />
@@ -103,53 +115,34 @@
       {/if}
     </div>
   {/if}
-</section>
+</div>
 
 <style>
-  .activity {
+  .roster {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
     min-width: 0;
     max-width: 100%;
   }
-  .roster {
+  .roster-rows {
     display: flex;
     flex-direction: column;
     gap: 5px;
     min-width: 0;
   }
-  .empty {
-    padding: 4px 2px;
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-xs);
-    color: var(--colors-skeleton-2-contrast);
-    opacity: 0.5;
+  .roster-caret {
+    flex: none;
+    width: 8px;
+    color: var(--text-light);
   }
-  .fold {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    width: 100%;
-    padding: 4px 2px 3px;
-    background: none;
-    border: none;
-    color: var(--colors-skeleton-0-contrast);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    text-align: left;
-    opacity: 0.45;
-    cursor: pointer;
+  .roster-fold {
+    letter-spacing: var(--shape-label-track);
+    text-transform: var(--shape-label-case);
+    color: var(--text-light);
   }
-  .fold-label { flex: 1; }
-  .mini {
-    background: none;
-    border: none;
-    color: var(--colors-skeleton-0-contrast);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    opacity: 0.45;
-    cursor: pointer;
+  .roster-count {
+    color: var(--text-light);
+    font-variant-numeric: tabular-nums;
   }
 </style>

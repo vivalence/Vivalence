@@ -29,8 +29,8 @@
     align-items: center;
     justify-content: center;
     gap: 0.8rem;
-    background: var(--colors-skeleton-3-surface);
-    color: var(--colors-skeleton-3-contrast);
+    background: var(--surface-lift);
+    color: var(--text-strong);
     font-family: var(--font-family-code);
   }
   .face {
@@ -41,13 +41,13 @@
     padding: 0.4rem 1.1rem;
     font: inherit;
     font-size: var(--font-size-xs);
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
     background: transparent;
-    border: 1px solid var(--colors-skeleton-0-primary-base);
+    border: 1px solid var(--signal-primary);
     border-radius: 0.3rem;
     cursor: pointer;
   }
   .play:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent);
+    background: color-mix(in srgb, var(--signal-primary) 12%, transparent);
   }
 </style>

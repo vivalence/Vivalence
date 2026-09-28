@@ -1,6 +1,7 @@
 <script>
   import { onDestroy } from "svelte";
   import { trace } from "@vivalence/typology";
+  import { Pip, Spinner } from "@vivalence/drapes";
   import { logger } from "$telemetry";
 
   let { gate } = $props();
@@ -63,12 +64,16 @@
 </script>
 
 <div class="boot">
+  <div class="title">
+    <Spinner />
+    <span class="title-word">{gate}</span>
+  </div>
   <div class="stream" bind:this={stream}>
     {#each rows as row, index (index)}
-      <div class="row" class:milestone={!!row.message} class:failed={row.failed}>
+      <div class="entry" class:milestone={!!row.message} class:failed={row.failed}>
         <span class="stamp">[{stamp(row.at)}]</span>
-        <span class="bracket">
-          {#if row.failed}[ FAIL ]{:else if row.message}[&nbsp;&nbsp;OK&nbsp;&nbsp;]{/if}
+        <span class="mark">
+          {#if row.failed}<Pip size={6} tone="danger" />{:else if row.message}<Pip size={6} tone="success" />{/if}
         </span>
         {#if row.wire}
           <span class="method">{row.wire.method}</span>
@@ -80,11 +85,10 @@
           <span class="message">{row.message ?? row.path}</span>
         {/if}
         {#if row.tail}<span class="tail">{row.tail}</span>{/if}
-        {#if row.elapsed != null}<span class="ms">{row.elapsed.toFixed(0)}ms</span>{/if}
+        {#if row.elapsed != null}<span class="elapsed">{row.elapsed.toFixed(0)}ms</span>{/if}
       </div>
     {/each}
   </div>
-  <div class="gate-line">{gate}</div>
 </div>
 
 <style>
@@ -97,84 +101,75 @@
     padding-bottom: var(--safe-area-bottom, 0px);
     padding-left: var(--safe-area-left, 0px);
     padding-right: var(--safe-area-right, 0px);
-    background: var(--colors-skeleton-0-surface);
-    color: var(--colors-skeleton-1-contrast);
+    background: var(--surface);
+    color: var(--text-strong);
     font-family: var(--font-family-code);
-    font-size: var(--font-size-2xs);
+    font-size: var(--size-type-2xs);
+  }
+  .title {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 20px 10px;
+    box-shadow: 0 var(--size-ring) 0 var(--boundary);
+    color: var(--text-light);
+  }
+  .title-word {
+    font-weight: 600;
+    letter-spacing: var(--shape-label-track);
+    text-transform: var(--shape-label-case);
   }
   .stream {
     flex: 1;
     overflow-y: auto;
-    padding: 16px 20px;
+    padding: 12px 20px 16px;
     display: flex;
     flex-direction: column;
     gap: 1px;
   }
-  .row {
+  .entry {
     display: flex;
     gap: 8px;
     align-items: baseline;
     white-space: pre;
-    opacity: 0.55;
+    color: var(--text-light);
   }
-  .row.milestone {
-    opacity: 1;
+  .entry.milestone {
+    color: var(--text-strong);
+  }
+  .entry.failed {
+    color: var(--signal-negative-ink);
   }
   .stamp {
-    color: var(--colors-skeleton-2-contrast);
-    opacity: 0.35;
+    color: var(--text-muted);
     flex-shrink: 0;
   }
-  .bracket {
-    color: var(--colors-skeleton-0-primary-base);
-    font-weight: 600;
-    min-width: 62px;
+  .mark {
+    display: inline-flex;
+    justify-content: center;
+    min-width: 14px;
     flex-shrink: 0;
-  }
-  .row.failed .bracket {
-    color: var(--colors-skeleton-0-danger-base);
-  }
-  .message {
-    color: var(--colors-skeleton-1-contrast);
-  }
-  .row.failed .message {
-    color: var(--colors-skeleton-0-danger-base);
   }
   .method {
-    color: var(--colors-skeleton-2-contrast);
     min-width: 34px;
     flex-shrink: 0;
   }
   .target {
-    color: var(--colors-skeleton-2-contrast);
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-  .code {
-    color: var(--colors-skeleton-2-contrast);
-    opacity: 0.6;
   }
   .code.error {
-    color: var(--colors-skeleton-0-danger-base);
-    opacity: 1;
+    color: var(--signal-negative-ink);
   }
   .tail {
-    color: var(--colors-skeleton-2-contrast);
-    opacity: 0.45;
+    color: var(--text-muted);
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .ms {
-    color: var(--colors-skeleton-2-contrast);
-    opacity: 0.35;
+  .elapsed {
+    color: var(--text-muted);
     margin-left: auto;
     flex-shrink: 0;
-  }
-  .gate-line {
-    border-top: 1px solid var(--colors-skeleton-0-boundary);
-    padding: 6px 20px;
-    color: var(--colors-skeleton-2-contrast);
-    letter-spacing: 0.08em;
-    text-transform: lowercase;
   }
 </style>

@@ -1,73 +1,39 @@
-// Flat scoped skeleton: every skeleton level (0..4) carries its own copy of
-// the full role set. Tailwind classes shape: `bg-skeleton-N-role[-state]`.
-// See .ikiro/pincer.quest.org § Dapper Skeleton Rebuild.
+const SIGNALS = ["primary", "positive", "caution", "negative"];
 
-const INTERACTIVE_ROLES = [
-  "primary",
-  "secondary",
-  "accent",
-  "info",
-  "success",
-  "warning",
-  "danger",
-];
-
-const createSkeletonVariant = (level) => {
-  const tokens = {
-    // structural
-    surface: `var(--colors-skeleton-${level}-surface)`,
-    contrast: `var(--colors-skeleton-${level}-contrast)`,
-    boundary: `var(--colors-skeleton-${level}-boundary)`,
-    // error box (no states)
-    "error-surface": `var(--colors-skeleton-${level}-error-surface)`,
-    "error-contrast": `var(--colors-skeleton-${level}-error-contrast)`,
-    "error-boundary": `var(--colors-skeleton-${level}-error-boundary)`,
-  };
-  for (const role of INTERACTIVE_ROLES) {
-    tokens[`${role}-base`] = `var(--colors-skeleton-${level}-${role}-base)`;
-    tokens[`${role}-hover`] = `var(--colors-skeleton-${level}-${role}-hover)`;
-    tokens[`${role}-active`] = `var(--colors-skeleton-${level}-${role}-active)`;
-  }
-  return tokens;
+const slots = {
+  transparent: "transparent",
+  current: "currentColor",
+  surface: { DEFAULT: "var(--surface)", sunk: "var(--surface-sunk)", lift: "var(--surface-lift)" },
+  boundary: { DEFAULT: "var(--boundary)", strong: "var(--boundary-strong)", soft: "var(--boundary-soft)" },
+  divider: "var(--divider)",
+  inverse: { DEFAULT: "var(--inverse)", on: "var(--inverse-on)" },
+  scrim: "var(--scrim)",
+  header: "var(--text-header)",
+  strong: "var(--text-strong)",
+  ink: "var(--text-ink)",
+  light: "var(--text-light)",
+  muted: "var(--text-muted)",
+  link: "var(--text-link)",
+  code: "var(--text-code)",
+  control: {
+    contrast: { DEFAULT: "var(--control-contrast)", hover: "var(--control-contrast-hover)", pressed: "var(--control-contrast-pressed)" },
+    on: { DEFAULT: "var(--control-on)", muted: "var(--control-on-muted)", pressed: "var(--control-on-pressed)" },
+    field: { DEFAULT: "var(--control-field)", placeholder: "var(--control-field-placeholder)", caret: "var(--control-field-caret)" },
+    selected: "var(--control-selected)",
+    focus: "var(--control-focus)",
+    scrollbar: "var(--control-scrollbar)",
+    divider: "var(--control-divider)",
+  },
+  signal: Object.fromEntries(SIGNALS.map((name) => [name, {
+    DEFAULT: `var(--signal-${name})`,
+    ink: `var(--signal-${name}-ink)`,
+    tint: `var(--signal-${name}-tint)`,
+    on: `var(--signal-${name}-on)`,
+  }])),
 };
 
 export const tailwindClasses = {
-  colors: {
-    palette: {
-      white: "var(--colors-palette-white)",
-      black: "var(--colors-palette-black)",
-      gray: {
-        0: "var(--colors-palette-gray-0)",
-        10: "var(--colors-palette-gray-10)",
-        20: "var(--colors-palette-gray-20)",
-        30: "var(--colors-palette-gray-30)",
-        40: "var(--colors-palette-gray-40)",
-        50: "var(--colors-palette-gray-50)",
-        60: "var(--colors-palette-gray-60)",
-        70: "var(--colors-palette-gray-70)",
-        80: "var(--colors-palette-gray-80)",
-        90: "var(--colors-palette-gray-90)",
-        100: "var(--colors-palette-gray-100)",
-        200: "var(--colors-palette-gray-200)",
-        300: "var(--colors-palette-gray-300)",
-        400: "var(--colors-palette-gray-400)",
-        500: "var(--colors-palette-gray-500)",
-        600: "var(--colors-palette-gray-600)",
-        700: "var(--colors-palette-gray-700)",
-        800: "var(--colors-palette-gray-800)",
-        900: "var(--colors-palette-gray-900)",
-        1000: "var(--colors-palette-gray-1000)",
-      },
-    },
-
-    // five flat scoped skeletons — drop-in replacement for the old
-    // skeleton-* / theme-* / system-* groups.
-    "skeleton-0": createSkeletonVariant(0),
-    "skeleton-1": createSkeletonVariant(1),
-    "skeleton-2": createSkeletonVariant(2),
-    "skeleton-3": createSkeletonVariant(3),
-    "skeleton-4": createSkeletonVariant(4),
-  },
+  colors: slots,
 
   // For now only family and size, needs to be expanded
   fontFamily: {
@@ -151,39 +117,39 @@ export const tailwindClasses = {
     typography: {
       DEFAULT: {
         css: {
-          "--tw-prose-body": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-bold": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-headings": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-bullets": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-lead": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-links": "var(--colors-skeleton-1-primary-base)",
-          "--tw-prose-captions": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-code": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-pre-code": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-quotes": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-counters": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-hr": "var(--colors-skeleton-1-boundary)",
-          "--tw-prose-quote-borders": "var(--colors-skeleton-1-boundary)",
-          "--tw-prose-pre-bg": "var(--colors-skeleton-1-surface)",
-          "--tw-prose-th-borders": "var(--colors-skeleton-1-boundary)",
-          "--tw-prose-td-borders": "var(--colors-skeleton-1-boundary)",
-          "--tw-prose-invert-body": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-invert-headings": "var(--colors-palette-white)",
-          "--tw-prose-invert-lead": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-invert-links": "var(--colors-skeleton-1-primary-base)",
-          "--tw-prose-invert-bold": "var(--colors-palette-white)",
-          "--tw-prose-invert-counters": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-invert-bullets": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-invert-hr": "var(--colors-skeleton-3-boundary)",
-          "--tw-prose-invert-quotes": "var(--colors-skeleton-1-contrast)",
+          "--tw-prose-body": "var(--text-ink)",
+          "--tw-prose-bold": "var(--text-strong)",
+          "--tw-prose-headings": "var(--text-header)",
+          "--tw-prose-bullets": "var(--text-light)",
+          "--tw-prose-lead": "var(--text-ink)",
+          "--tw-prose-links": "var(--text-link)",
+          "--tw-prose-captions": "var(--text-light)",
+          "--tw-prose-code": "var(--text-code)",
+          "--tw-prose-pre-code": "var(--text-strong)",
+          "--tw-prose-quotes": "var(--text-ink)",
+          "--tw-prose-counters": "var(--text-light)",
+          "--tw-prose-hr": "var(--boundary)",
+          "--tw-prose-quote-borders": "var(--boundary)",
+          "--tw-prose-pre-bg": "var(--surface-sunk)",
+          "--tw-prose-th-borders": "var(--boundary)",
+          "--tw-prose-td-borders": "var(--boundary)",
+          "--tw-prose-invert-body": "var(--text-ink)",
+          "--tw-prose-invert-headings": "var(--text-header)",
+          "--tw-prose-invert-lead": "var(--text-ink)",
+          "--tw-prose-invert-links": "var(--text-link)",
+          "--tw-prose-invert-bold": "var(--text-strong)",
+          "--tw-prose-invert-counters": "var(--text-light)",
+          "--tw-prose-invert-bullets": "var(--text-light)",
+          "--tw-prose-invert-hr": "var(--boundary)",
+          "--tw-prose-invert-quotes": "var(--text-ink)",
           "--tw-prose-invert-quote-borders":
-            "var(--colors-skeleton-3-boundary)",
-          "--tw-prose-invert-captions": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-invert-code": "var(--colors-skeleton-1-primary-base)",
-          "--tw-prose-invert-pre-code": "var(--colors-skeleton-1-contrast)",
-          "--tw-prose-invert-pre-bg": "var(--colors-skeleton-3-surface)",
-          "--tw-prose-invert-th-borders": "var(--colors-skeleton-3-boundary)",
-          "--tw-prose-invert-td-borders": "var(--colors-skeleton-2-boundary)",
+            "var(--boundary)",
+          "--tw-prose-invert-captions": "var(--text-light)",
+          "--tw-prose-invert-code": "var(--text-code)",
+          "--tw-prose-invert-pre-code": "var(--text-strong)",
+          "--tw-prose-invert-pre-bg": "var(--surface-sunk)",
+          "--tw-prose-invert-th-borders": "var(--boundary)",
+          "--tw-prose-invert-td-borders": "var(--boundary)",
         },
       },
     },
@@ -191,285 +157,3 @@ export const tailwindClasses = {
 };
 
 export default tailwindClasses;
-
-// ============================================================================
-// safelist — full enumeration of every legal skeleton tailwind class.
-//
-// Components build class names with template strings (`bg-skeleton-${level}-
-// ${role}-base`); tailwind JIT can't see those. Including this list in
-// `tailwind.config.js → safelist` guarantees every combination is generated.
-//
-// Total: ~480 classes. Generated once, reused across all consumers.
-// ============================================================================
-const SKELETON_LEVELS = [0, 1, 2, 3, 4];
-const STRUCTURAL_ROLES = ["surface", "contrast", "boundary"];
-const INTERACTIVE_ROLE_NAMES = [
-  "primary",
-  "secondary",
-  "accent",
-  "info",
-  "success",
-  "warning",
-  "danger",
-];
-const INTERACTIVE_STATES = ["base", "hover", "active"];
-const ERROR_PARTS = ["surface", "contrast", "boundary"];
-const UTILITIES = ["bg", "text", "border", "fill", "stroke"];
-
-export const safelist = (() => {
-  const set = new Set();
-  for (const level of SKELETON_LEVELS) {
-    // structural roles — single value, no state
-    for (const role of STRUCTURAL_ROLES) {
-      for (const util of UTILITIES) {
-        set.add(`${util}-skeleton-${level}-${role}`);
-      }
-    }
-    // interactive roles — base/hover/active
-    for (const role of INTERACTIVE_ROLE_NAMES) {
-      for (const state of INTERACTIVE_STATES) {
-        for (const util of UTILITIES) {
-          set.add(`${util}-skeleton-${level}-${role}-${state}`);
-        }
-      }
-      // hover:/active: variants pointing at hover/active values
-      for (const util of UTILITIES) {
-        set.add(`hover:${util}-skeleton-${level}-${role}-hover`);
-        set.add(`active:${util}-skeleton-${level}-${role}-active`);
-        set.add(`focus:${util}-skeleton-${level}-${role}-hover`);
-      }
-    }
-    // error box — surface/contrast/boundary
-    for (const part of ERROR_PARTS) {
-      for (const util of UTILITIES) {
-        set.add(`${util}-skeleton-${level}-error-${part}`);
-      }
-    }
-  }
-  return [...set];
-})();
-// "--tw-prose-body": "var(--colors-skeleton-1-contrast)",
-// "--tw-prose-bold": "var(--colors-skeleton-2-contrast)",
-// "--tw-prose-headings": "var(--colors-skeleton-2-contrast)",
-// "--tw-prose-bullets": "var(--colors-skeleton-2-contrast)",
-// "--tw-prose-lead": "var(--colors-skeleton-1-contrast)",
-// "--tw-prose-links": "var(--colors-skeleton-app-link)",
-// "--tw-prose-captions": "var(--colors-skeleton-contrast-1)",
-// "--tw-prose-code": "var(--colors-skeleton-contrast-1)",
-// "--tw-prose-pre-code": "var(--colors-skeleton-contrast-1)",
-// "--tw-prose-quotes": "var(--colors-skeleton-contrast-1)",
-// "--tw-prose-counters": "var(--colors-skeleton-contrast-1)",
-// "--tw-prose-hr": "var(--colors-skeleton-boundary-1)",
-// "--tw-prose-quote-borders": "var(--colors-skeleton-boundary-1)",
-// "--tw-prose-pre-bg": "var(--colors-skeleton-surface-1)",
-// "--tw-prose-th-borders": "var(--colors-skeleton-boundary-1)",
-// "--tw-prose-td-borders": "var(--colors-skeleton-boundary-1)",
-
-// // Inverted/dark mode colors
-// "--tw-prose-invert-body": "var(--colors-skeleton-contrast-2)",
-// "--tw-prose-invert-headings": "var(--colors-palette-white)",
-// "--tw-prose-invert-lead": "var(--colors-skeleton-contrast-1)",
-// "--tw-prose-invert-links": "var(--colors-theme-primary-solid)",
-// "--tw-prose-invert-bold": "var(--colors-palette-white)",
-// "--tw-prose-invert-counters": "var(--colors-skeleton-contrast-1)",
-// "--tw-prose-invert-bullets": "var(--colors-skeleton-contrast-1)",
-// "--tw-prose-invert-hr": "var(--colors-skeleton-boundary-3)",
-// "--tw-prose-invert-quotes": "var(--colors-skeleton-contrast-1)",
-// "--tw-prose-invert-quote-borders":
-//   "var(--colors-skeleton-boundary-3)",
-// "--tw-prose-invert-captions": "var(--colors-skeleton-contrast-1)",
-// "--tw-prose-invert-code": "var(--colors-theme-primary-solid)",
-// "--tw-prose-invert-pre-code": "var(--colors-skeleton-contrast-1)",
-// "--tw-prose-invert-pre-bg": "var(--colors-skeleton-surface-3)",
-// "--tw-prose-invert-th-borders": "var(--colors-skeleton-boundary-3)",
-// "--tw-prose-invert-td-borders": "var(--colors-skeleton-boundary-2)",
-// const createNumberedType = (prefix, count = 4) => {
-//   return Array.from({ length: count }, (_, i) => i + 1).reduce(
-//     (nums, num) => ({
-//       ...nums,
-//       // [num]: `var(--colors-${num}-${prefix})`,
-//       // [num]: `var(--colors-${prefix}-${num})`,
-//       [num]: `var(--colors-${prefix}-${num})`,
-//     }),
-//     {},
-//   );
-// };
-
-// const createSemanticVariant = (prefix) => ({
-//   surface: `var(--colors-${prefix}-surface)`,
-//   contrast: `var(--colors-${prefix}-contrast)`,
-//   boundary: `var(--colors-${prefix}-boundary)`,
-//   "hover-surface": `var(--colors-${prefix}-hover-surface)`,
-//   "hover-contrast": `var(--colors-${prefix}-hover-contrast)`,
-//   "hover-boundary": `var(--colors-${prefix}-hover-boundary)`,
-// });
-
-// export default {
-//   colors: {
-//     palette: {
-//       white: "var(--colors-palette-white)",
-//       black: "var(--colors-palette-black)",
-//       gray: {
-//         // suck it
-//         0: "var(--colors-palette-gray-0)",
-//         10: "var(--colors-palette-gray-10)",
-//         20: "var(--colors-palette-gray-20)",
-//         30: "var(--colors-palette-gray-30)",
-//         40: "var(--colors-palette-gray-40)",
-//         50: "var(--colors-palette-gray-50)",
-//         60: "var(--colors-palette-gray-60)",
-//         70: "var(--colors-palette-gray-70)",
-//         80: "var(--colors-palette-gray-80)",
-//         90: "var(--colors-palette-gray-90)",
-//         100: "var(--colors-palette-gray-100)",
-//         200: "var(--colors-palette-gray-200)",
-//         300: "var(--colors-palette-gray-300)",
-//         400: "var(--colors-palette-gray-400)",
-//         500: "var(--colors-palette-gray-500)",
-//         600: "var(--colors-palette-gray-600)",
-//         700: "var(--colors-palette-gray-700)",
-//         800: "var(--colors-palette-gray-800)",
-//         900: "var(--colors-palette-gray-900)",
-//         1000: "var(--colors-palette-gray-1000)",
-//       },
-//     },
-//     "skeleton-app-link": "var(--colors-skeleton-app-link)",
-//     "skeleton-app-surface": "var(--colors-skeleton-app-surface)",
-//     "skeleton-surface": createNumberedType("skeleton-surface", 4),
-//     "skeleton-contrast": createNumberedType("skeleton-contrast", 4),
-//     "skeleton-boundary": createNumberedType("skeleton-boundary", 4),
-
-//     "system-info": createSemanticVariant("system-info"),
-//     "system-success": createSemanticVariant("system-success"),
-//     "system-warning": createSemanticVariant("system-warning"),
-//     "system-error": createSemanticVariant("system-error"),
-//     "system-danger": createSemanticVariant("system-danger"),
-//     "system-disabled": createSemanticVariant("system-disabled"),
-
-//     "theme-primary": createSemanticVariant("theme-primary"),
-//     "theme-secondary": createSemanticVariant("theme-secondary"),
-//     "theme-accent": createSemanticVariant("theme-accent"),
-//   },
-
-//   // For now only family and size, needs to be expanded
-//   fontFamily: {
-//     brand: "var(--font-family-brand)",
-//     "serif-head": "var(--font-family-serif-head)",
-//     "serif-text": "var(--font-family-serif-text)",
-//     "sans-head": "var(--font-family-sans-head)",
-//     "sans-text": "var(--font-family-sans-text)",
-//     code: "var(--font-family-code)",
-//   },
-//   fontSize: {
-//     xs: ["var(--font-size-xs)", "var(--line-height-xs)"],
-//     sm: ["var(--font-size-sm)", "var(--line-height-sm)"],
-//     base: ["var(--font-size-base)", "var(--line-height-base)"],
-//     md: ["var(--font-size-base)", "var(--line-height-base)"],
-//     lg: ["var(--font-size-lg)", "var(--line-height-lg)"],
-//     xl: ["var(--font-size-xl)", "var(--line-height-xl)"],
-//     "2xl": ["var(--font-size-2xl)", "var(--line-height-2xl)"],
-//     "3xl": ["var(--font-size-3xl)", "var(--line-height-3xl)"],
-//     "4xl": ["var(--font-size-4xl)", "var(--line-height-4xl)"],
-//     "5xl": ["var(--font-size-5xl)", "var(--line-height-5xl)"],
-//     "6xl": ["var(--font-size-6xl)", "var(--line-height-6xl)"],
-//     "7xl": ["var(--font-size-7xl)", "var(--line-height-7xl)"],
-//     "8xl": ["var(--font-size-8xl)", "var(--line-height-8xl)"],
-//   },
-//   // tokens
-//   boxShadow: {
-//     sm: "var(--box-shadow-sm)",
-//     DEFAULT: "var(--box-shadow-default)",
-//     md: "var(--box-shadow-md)",
-//     lg: "var(--box-shadow-lg)",
-//     xl: "var(--box-shadow-xl)",
-//   },
-//   dropShadow: {
-//     sm: "var(--drop-shadow-sm)",
-//     DEFAULT: "var(--drop-shadow-default)",
-//     md: "var(--drop-shadow-md)",
-//     lg: "var(--drop-shadow-lg)",
-//     xl: "var(--drop-shadow-xl)",
-//     none: "var(--drop-shadow-none)",
-//   },
-//   borderRadius: {
-//     none: "var(--border-radius-none)",
-//     sm: "var(--border-radius-sm)",
-//     DEFAULT: "var(--border-radius-default)",
-//     lg: "var(--border-radius-lg)",
-//     full: "var(--border-radius-full)",
-//   },
-//   extend: {
-//     spacing: {
-//       0: "var(--spacing-0)",
-//       1: "var(--spacing-1)",
-//       2: "var(--spacing-2)",
-//       3: "var(--spacing-3)",
-//       4: "var(--spacing-4)",
-//       6: "var(--spacing-6)",
-//       8: "var(--spacing-8)",
-//     },
-//     animation: {
-//       "spin-slow": "var(--animation-spin-slow)",
-//     },
-//     container: {
-//       center: false,
-//       padding: {
-//         DEFAULT: "var(--container-padding-default)",
-//         sm: "var(--container-padding-sm)",
-//         lg: "var(--container-padding-lg)",
-//       },
-//     },
-//     screens: {
-//       xs: "320px",
-//       sm: "640px",
-//       md: "768px",
-//       lg: "1024px",
-//       xl: "1280px",
-//       "2xl": "1536px",
-//     },
-//     typography: {
-//       DEFAULT: {
-//         css: {
-//           "--tw-prose-body": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-bold": "var(--colors-skeleton-contrast-2)",
-//           "--tw-prose-headings": "var(--colors-skeleton-contrast-2)",
-//           "--tw-prose-bullets": "var(--colors-skeleton-contrast-2)",
-//           "--tw-prose-lead": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-links": "var(--colors-skeleton-app-link)",
-//           "--tw-prose-captions": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-code": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-pre-code": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-quotes": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-counters": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-hr": "var(--colors-skeleton-boundary-1)",
-//           "--tw-prose-quote-borders": "var(--colors-skeleton-boundary-1)",
-//           "--tw-prose-pre-bg": "var(--colors-skeleton-surface-1)",
-//           "--tw-prose-th-borders": "var(--colors-skeleton-boundary-1)",
-//           "--tw-prose-td-borders": "var(--colors-skeleton-boundary-1)",
-
-//           // Inverted/dark mode colors
-//           "--tw-prose-invert-body": "var(--colors-skeleton-contrast-2)",
-//           "--tw-prose-invert-headings": "var(--colors-palette-white)",
-//           "--tw-prose-invert-lead": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-invert-links": "var(--colors-theme-primary-solid)",
-//           "--tw-prose-invert-bold": "var(--colors-palette-white)",
-//           "--tw-prose-invert-counters": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-invert-bullets": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-invert-hr": "var(--colors-skeleton-boundary-3)",
-//           "--tw-prose-invert-quotes": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-invert-quote-borders":
-//             "var(--colors-skeleton-boundary-3)",
-//           "--tw-prose-invert-captions": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-invert-code": "var(--colors-theme-primary-solid)",
-//           "--tw-prose-invert-pre-code": "var(--colors-skeleton-contrast-1)",
-//           "--tw-prose-invert-pre-bg": "var(--colors-skeleton-surface-3)",
-//           "--tw-prose-invert-th-borders": "var(--colors-skeleton-boundary-3)",
-//           "--tw-prose-invert-td-borders": "var(--colors-skeleton-boundary-2)",
-//         },
-//       },
-//     },
-//   },
-// };
-
-// // console.log(JSON.stringify(tailwind));
-// // export default tailwind;

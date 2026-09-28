@@ -1,7 +1,7 @@
 # map — the repo at L2
 <!-- writer: agent · kind: persistent · limit: 8000 chars -->
 
-Containers, each with a path-gated shard in `world/codemap/`: `subsystems/typology` (the vocabulary, holy) · `subsystems/paladin` (env, scopes, instance record) · `systems/runtime` (Die, daemons, traits, aperture) · `systems/ghost` (`viva`; `~/.viva` → `world/ledger.md`) · `systems/anima` (SvelteKit client + `dapper` · `drapes`) · `commons` (a package, NOT a workspace member — resolves through paladin) · `testament` (gitignored). Laws across all: `codemap/invariants.md`.
+Containers, each with a path-gated shard in `world/codemap/`: `subsystems/typology` (the vocabulary, holy) · `subsystems/paladin` (env, scopes, instance record) · `systems/runtime` (Die, daemons, traits, aperture) · `systems/ghost` (`viva`; `~/.viva` → `world/ledger.md`) · `systems/anima` (SvelteKit client) · `subsystems/{dapper,drapes,sheets}` (design: tokens · Svelte components · ink TUI kit) · `commons` (a package, NOT a workspace member — resolves through paladin) · `testament` (gitignored). Laws across all: `codemap/invariants.md`.
 
 - root tasks are `<container>/<verb>` + aggregates — build · tag · push · stamp run at root (`docker`, `jj log`), ghost's run · watch · install call `systems/ghost` directly, the rest delegate (`--cwd`); `deno task test` never exits (`--watch`) — one-shot `deno test -A --no-check <file>`. `project_test_suite_baseline`
 - `runtime/watch` watches `commons` + `~/.viva/registry`: every save there deploys. `feedback_watched_tree_lands_in_one_burst`

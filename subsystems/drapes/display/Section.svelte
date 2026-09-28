@@ -9,20 +9,19 @@
   }
 </script>
 
-<div
-  class="section-head"
-  class:ruled={rule}
-  class:toggleable={!!ontoggle}
-  role={ontoggle ? "button" : undefined}
-  tabindex={ontoggle ? 0 : undefined}
-  onclick={ontoggle}
-  {onkeydown}>
+{#snippet head()}
   {#if ontoggle}<span class="section-caret">{open === false ? "▸" : "▾"}</span>{/if}
   <span class="section-label">{label}</span>
   {#if rule}<span class="section-rule"></span>{/if}
   {#if count != null}<span class="section-count">{count}</span>{/if}
   {#if action}<span class="section-action">{@render action()}</span>{/if}
-</div>
+{/snippet}
+
+{#if ontoggle}
+  <div class="section-head toggleable" class:ruled={rule} role="button" tabindex="0" onclick={ontoggle} {onkeydown}>{@render head()}</div>
+{:else}
+  <div class="section-head" class:ruled={rule}>{@render head()}</div>
+{/if}
 
 <style>
   .section-head {
@@ -31,20 +30,23 @@
     gap: 9px;
   }
   .section-label {
-    font-size: var(--font-size-xs);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 55%, transparent);
+    font-family: var(--font-family-code);
+    font-size: var(--size-type-2xs);
+    font-weight: 600;
+    letter-spacing: var(--shape-label-track);
+    text-transform: var(--shape-label-case);
+    color: var(--text-light);
     white-space: nowrap;
   }
   .section-rule {
     flex: 1;
-    height: 1px;
-    background: color-mix(in srgb, var(--colors-skeleton-3-boundary) 35%, transparent);
+    height: var(--size-ring);
+    background: var(--boundary);
   }
   .section-count {
-    font-size: var(--font-size-xs);
-    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 40%, transparent);
+    font-family: var(--font-family-code);
+    font-size: var(--size-type-2xs);
+    color: var(--text-light);
   }
   .section-action {
     display: inline-flex;
@@ -55,7 +57,7 @@
     user-select: none;
   }
   .section-caret {
-    font-size: var(--font-size-xs);
-    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 55%, transparent);
+    font-size: var(--size-type-2xs);
+    color: var(--text-light);
   }
 </style>

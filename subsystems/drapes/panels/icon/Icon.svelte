@@ -1,12 +1,11 @@
 <!--
-  Icon — skeleton-aware. variant maps to a fill color sourced from the
-  current skeleton level.
+  Icon — variant maps to a fill colour: text ink for nav and ui, a signal's ink for a role.
 
-  variants: nav | ui | success (and any role name from the skeleton)
+  variants: nav | ui | primary | secondary | accent | info | success | warning | danger
 -->
 <script>
   import Carbon from "./carbon.svelte.js";
-  import { useSkeleton } from "../../context/useSkeleton.js";
+  import { GLYPH, SIGNAL } from "../../context/signals.js";
 
   let {
     carbon = "",
@@ -17,19 +16,7 @@
     ...rest
   } = $props();
 
-  const skeleton = useSkeleton();
-  const level = $derived(skeleton());
-
-  const ROLE_VARIANTS = new Set([
-    "primary", "secondary", "accent",
-    "info", "success", "warning", "danger",
-  ]);
-
-  const variantClass = $derived.by(() => {
-    if (variant === "nav" || variant === "ui") return `fill-skeleton-${level}-contrast`;
-    if (ROLE_VARIANTS.has(variant)) return `fill-skeleton-${level}-${variant}-base`;
-    return "";
-  });
+  const variantClass = $derived(variant === "nav" || variant === "ui" ? "fill-light" : (GLYPH[SIGNAL[variant]] ?? ""));
 
   const sizes = {
     xs: "w-4 h-4",

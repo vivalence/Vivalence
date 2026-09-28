@@ -40,16 +40,24 @@
 </script>
 
 {#if schema}
-  <FormFromSchema {schema} {value} {onchange} daemon={thread?.daemon} />
+  <div class="masked">
+    <FormFromSchema {schema} {value} {onchange} daemon={thread?.daemon} />
+    <span class="masked-note">seeds every buffer this thread creates</span>
+  </div>
 {:else}
-  <span class="muted">no mask schema {traits?.includes("AIMED") ? "· aim at an emitter" : ""}</span>
+  <span class="masked-note">no mask schema {traits?.includes("AIMED") ? "· aim at an emitter" : ""}</span>
 {/if}
 
 <style>
-  .muted {
+  .masked {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+  }
+  .masked-note {
     display: block;
-    opacity: 0.35;
-    font-size: var(--font-size-2xs);
-    padding: 6px 8px;
+    color: var(--text-light);
+    line-height: var(--size-leading-loose);
   }
 </style>

@@ -252,3 +252,102 @@ export function turnVerdict(turn) {
   const message = VERDICTS[state]?.(turn.meta) ?? `closed ${state}`;
   return { state, message };
 }
+
+export const project = (turn, results = toolResults([turn])) => {
+  const tools = turnTools(turn, results).map((tool) => ({
+    ...tool,
+    census: toolCensus(tool.entities),
+    digest: toolDigest(tool.input),
+    channels: toolChannels(tool),
+  }));
+  return {
+    text: turnText(turn),
+    think: turnThinking(turn),
+    tools,
+    census: turnCensus(tools),
+    failures: tools.filter((tool) => tool.status === "error").length,
+    artifacts: turnArtifacts(turn),
+    buffers: toolBuffers(tools),
+    verdict: turnVerdict(turn),
+  };
+};
+
+export const turnDate = (turn) => {
+  const value = turn?.createdAt ? new Date(turn.createdAt) : null;
+  return !value || Number.isNaN(value.getTime()) ? null : value;
+};
+
+export const dayKey = (date) => (date ? date.toISOString().slice(0, 10) : "");
+
+export const dayLabel = (date, now = new Date()) => {
+  if (!date) return "";
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  if (dayKey(date) === dayKey(now)) return "today";
+  if (dayKey(date) === dayKey(yesterday)) return "yesterday";
+  return date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+};
+
+export const clockTime = (date) =>
+  date ? `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}` : "";
+
+const spoken = (projected) =>
+  Boolean(projected.text || projected.tools.length || projected.artifacts.length || projected.verdict);
+
+const joined = (prior, projected) => {
+  const tools = [...prior.tools, ...projected.tools];
+  return {
+    ...prior,
+    tools,
+    text: [prior.text, projected.text].filter(Boolean).join("\n\n"),
+    think: [prior.think, projected.think].filter(Boolean).join("\n\n"),
+    failures: prior.failures + projected.failures,
+    verdict: projected.verdict ?? prior.verdict,
+    artifacts: [...prior.artifacts, ...projected.artifacts],
+    buffers: toolBuffers(tools),
+    census: turnCensus(tools),
+  };
+};
+
+export const enrich = (turns, now = new Date()) => {
+  const results = toolResults(turns);
+  return turns.reduce((items, turn) => {
+    if (isToolTurn(turn)) return items;
+    const projected = project(turn, results);
+    if (!spoken(projected)) return items;
+    const date = turnDate(turn);
+    const day = dayKey(date);
+    const last = items.findLast((item) => item.kind === "divider");
+    const ruled = date && day !== (last?.day ?? null) ? [...items, { kind: "divider", id: `div-${day}`, day, label: dayLabel(date, now) }] : items;
+    const prior = ruled.at(-1);
+    if (turn.role === "assistant" && prior?.kind === "turn" && prior.turn.role === "assistant")
+      return [...ruled.slice(0, -1), joined(prior, projected)];
+    return [...ruled, { kind: "turn", turn, date, ...projected }];
+  }, []);
+};
+
+export const exchanges = (items) => items.filter((item) => item.kind === "turn" && (item.tools.length || item.think));
+
+export const callRoster = (held) => [...new Set(held.flatMap((item) => item.tools.map((tool) => tool.name)))];
+
+export const manifest = (items, agent = "agent") =>
+  items
+    .filter((item) => item.kind === "turn")
+    .map((item) => ({
+      id: item.turn.id,
+      who: item.turn.role === "user" ? "you" : agent,
+      time: clockTime(item.date),
+      parts: turnManifest(item.turn).join(" · "),
+    }));
+
+export const usages = (items, turns) => {
+  const held = items.filter((item) => item.kind === "turn");
+  return new Map(
+    held.map((item, index) => {
+      const from = turns.indexOf(item.turn);
+      const until = held[index + 1] ? turns.indexOf(held[index + 1].turn) : turns.length;
+      const spent = sessionUsage(turns.slice(from, until));
+      return [item.turn.id, spent.seen ? { input: spent.input, output: spent.output } : null];
+    }),
+  );
+};

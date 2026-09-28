@@ -1,0 +1,107 @@
+#+title: the process becomes the daemon, a mode stops being a process, and m75 gives mount, reference, identifier and location one meaning each
+#+index: 231
+#+session: session 886a541b, turns 28–45 (fold N = 18, the fifth fold of m74; #230 holds turns 10–27). The fold opens on the continuation after #230 and closes on /"ikiro compcaat"/.
+
+* one breath
+
+(28–29) Resumed after #230. beef pasted the quest and the sandbox with new marks in the file: /"### task treat my comments."/ Every mark treated beside itself, none removed: processes per type on the subject (=die.runtime.processes.{service,daemon}= · =daemon.processes.mode=), the row carrying =subject=, =kill(signal)= for =stop=, =effect= → =live=, =population.ledger= · =integration.patrol=, the domain a kernel row (my earlier "against" was wrong), =/status= returns the =Status=. Sandbox =26 passed=.
+
+(30–31) =/compact=, resumed; the treatment reported.
+
+(32–33) beef pasted the quest again with more marks and three lines pulled out below it: /"### task work through my notes. drop them where resolved."/ · /"go"/. 34 of 39 notes dropped, 5 kept with answers. The process IS the daemon (=Daemon · Service extends ProcessEntity=), =subject= gone: /"held should return the daemon"/ · /"lets keep daemon.manifest."/ A mode is no process: /"i suspect we can do without a mode as a dedicated runtime process for now."/ · /"but we want the stdout."/ → a run with a span, no controller. =door= → =validate=, =live= → =keepalive= (/"rename: keeplife"/), =latch= cut, =stagger= · =stamp= to gestalten, =Datamap= a prototype, the demo through =stdout=. Sandbox =28 passed=.
+
+(34–36) On =mask.mount= → =reference= colliding: /"what if we move regiistry adress to 'identity' or 'adress'? i prefere identity. butt thats take. fuck."/ · /"propose quickly a few ways …"/. Four ways; A takes no new word. /"identifier is way better."/ · /"what would this look like? sketch it out 20%more"/ · /"make this m75."/
+
+(37–38) Mid-turn mark on the row: /"what about type? type daemon, type service type xyz."/ · on =execute= /"weird."/ · on =kill= /"where shuold be first param. opt second.  maybe just hook intpu update?"/. =type= the class's word, =process.execute(run)=, =kill(where, signal)=; the =update= hook argued against, his.
+
+(39–40) m75 rulings: /"reference is a general mounting and nested reference semantic that finds its consumer in the aperture."/ · what the user typed /"token."/ · the siblings /"i think they do. maybe ref too? hmm.. this would be quite extensive tho. later."/ · /"locate."/ · the wire /"migrate."/
+
+(41–45) /"ikiro compact."/ · /"finish the quest."/ · /"ikiro compcaat"/ · =/compact= · the walk. m75 stamped ready for a go on M1.
+
+* the spine — turns 28–45
+
+| n  | beef | landed | died |
+|----+------+--------+------|
+| 28 | (continuation summary, not beef) | the #230 report state | — |
+| 29 | the quest + sandbox paste, marks in file · /"### task treat my comments."/ | every mark treated in code beside itself; =processes.<type>= repositories; =execute · kill · census · removeOne=; =live=; =population.ledger= · =integration.patrol=; domain validated as a kernel row; sandbox =26 passed=; backup =bak/m74-before-treating-comments.org= | =runtime.{daemons,services,entities}= · the row's =type= · =manifest= columns · =stop(processes)= |
+| 30 | =/compact= | NOTHING — the harness fold | — |
+| 31 | (continuation summary, not beef) | the treatment reported | — |
+| 32 | the quest paste, new marks · /"work through my notes. drop them where resolved."/ | 34 of 39 notes dropped; =Daemon= · =Service= extend =ProcessEntity=; mode a run with =mode.stdout=; =validate= · =keepalive=; =latch= cut; =stagger= · =stamp= → =gestalten/tools/mode.js=; =Datamap= → =typology/prototypes/datamap.js=; ledger tap measured first in the run; sandbox =28 passed=; backup =bak/m74-before-notes-drop.org= | =subject= · =daemon.processes.mode= · =get modes()= · =get domain()= · =die.log= in the demo · =door= · =live= |
+| 33 | MID /"go"/ | same row as 32 | — |
+| 34 | /"what if we move regiistry adress to 'identity' or 'adress'? i prefere identity. butt thats take. fuck."/ · /"propose quickly a few ways …"/ | four ways measured: A (=location= · =identifier=, no new word) · B =specifier= · C =address= · D =seat= | my "collides", too coarse |
+| 35 | A pasted · /"identifier is way better."/ · /"sketch it out 20%more"/ | the sketch from the real files: =registry.js= · =lens.js= · =pick.js= · =resolve.js=; four meanings of =reference= found | — |
+| 36 | /"make this m75."/ | =quests/m75-one-word-one-meaning.org=: census, keep-list, nine baselines, three milestones; index; m74's =:868= answer points to m75 | — |
+| 37 | MID =slug = ""; //@beef what about type? type daemon, type service type xyz.= | =type= on =ProcessEntity=, the class's word; =find({ type })=; sandbox =28 passed= | — |
+| 38 | /"continue"/ (after an interrupt) + his in-file marks on =execute= /"weird."/ and =kill= /"where shuold be first param. opt second.  maybe just hook intpu update?"/ | =process.execute(run)=; =kill(where, signal)=; the =update= hook argued against beside his note; backup =bak/m74-before-type-execute.org= | =ProcessRepository.execute(run, process, die)= |
+| 39 | the law pasted · /"reference is a general mounting and nested reference semantic that finds its consumer in the aperture."/ · /"token."/ · siblings /"later."/ | law line rewritten; =token= ruled; =AIMED.mount= · =view.mount= deferred with sites, a real =view= row from =hello.viva.db= | my "a route under an aperture" · an invented =view= JSON |
+| 40 | /"locate."/ · /"migrate."/ | =locate(absolute)= ruled; the wire migrates, a wire-key test added to M2 | — |
+| 41 | MID /"ikiro compact."/ | this walk | — |
+| 42 | MID /"finish the quest."/ | m75 status: ready for a go on M1; one fork QUESTIONED with its sketch | — |
+| 43 | MID /"ikiro compcaat"/ | same order as 41 | — |
+| 44 | MID =/compact= | NOTHING — the gate's order | — |
+| 45 | the =/compact-walk= re-invocation | this compact | — |
+
+Coverage: 28–45, each once. Balance, fold N = 18: first third (28–33) 9 citations, middle (34–39) 14, last (40–45) 5. Middle-heavy: that is where beef ruled m75, turn by turn.
+
+* failures
+
+- =subject= reborn :: callout 1841 cut =subject= as a one-off name; m74 put it back as a row field. /"wtf is subject supposed to be. youre tripping!"/ · /"SUBJECT??!?!?! wtf"/. Callout RULE FAILURE, =family: inverted-dependency=.
+- destructured locals off the die :: =const { mode, daemon } = die= · =const own = mode.aperture= against =self/connoisseur.md:13=. /"NONONONONONONO…"/ · /"FUCK YOU @claude!"/ · /"no fucking one off scope variable assignments!"/. Same callout.
+- a count across meanings :: "=<mask>.mount= read 50 times in the repo, 36 in the registry" mixed disk, verb and route; the route measures 38 by receiver. Corrected in m74 =:868= and in m75.
+- "collides" too coarse :: =reference= carried four meanings, paladin's own word for one of them was already =identifier=.
+- an invented snapshot :: the first =view= JSON in m75 was made up; replaced by a stored row read from =hello.viva.db=.
+- prose rode heredocs :: quest splices (turn 32), the callout and the ledger rows (this walk) went through Bash heredocs, against /"prose never rides a Bash heredoc"/.
+
+* State at fold
+
+- typology :: =gestalten/belt/control.js= · =belt/index.js= · =gestalten/steer/dispatch.js= uncommitted; every graph op beef's.
+- m74 :: DESIGNED; 20 of 40 lifecycles written; breaking 1–24; 7 =@beef= lines, all answered beside them; the process IS the daemon, a mode no process. Backups: =bak/m74-before-treating-comments.org= · =bak/m74-before-notes-drop.org= · =bak/m74-before-type-execute.org= · =bak/sandbox-before-notes-drop/=.
+- sandbox :: =structure 7 · seams 14 · datamap.class 5 · effect 1 · world 1= → =28 passed | 0 failed=.
+- m75 :: DESIGNED, ready for a go on M1; seven rulings; siblings deferred; meaning 4 QUESTIONED with its sketch (kept). Baseline: paladin 6 files green, ghost =registry · pick= green, ghost =ledger.test.js= red pre-existing (known issue =ghost-ledger-test-init-step-red-pre-existing=).
+- siblings :: 339ef973 and fd17e14d live on m74 at the fold.
+
+** skills
+
+| skill           | turn | verdict | the line |
+|-----------------+------+---------+----------|
+| rename-pass     | 36   | GAP     | organs for executing a rename; none for partitioning a word's meanings while the new words are still being ruled |
+| compact-walk    | 44   | HELD    | spine by id, fold N stated, mid-turn rows kept |
+| quest-authoring | 32   | MISSED  | 39 marks worked through, the organs checked by hand, no firing |
+
+* settlement
+
+- MARKERS: =## OPEN= empty.
+- Codewords, turns 28–45: none of the ledger's (=retard=); caps and =fuck you= in the in-file marks → one RULE FAILURE callout.
+- Known issues: none new; the ghost ledger red named, not the quest's.
+- LEDGER: one GAP, one MISSED appended.
+- Memory: nothing private.
+- Budgets: =budget.py --baseline= reports nothing above.
+
+* handoff
+- quest :: m74-the-boot-vector
+- goal :: /"i want to turn all my boot processes in the runtime into vectors. mode, daemon, service and the runtime themselves."/
+- done :: the process IS the daemon (=Daemon · Service extends ProcessEntity=, =type= the class's word); a mode a run with =mode.stdout=, no process; =process.execute(run)= · =kill(where, signal)=; =validate= · =keepalive=; sandbox =28 passed | 0 failed=
+- next :: beef rules the 7 open marks (=seal= name · ledger tap seat · =execute= reading · =update= hook · mask/options); then M0 =boot.test.js=
+- never :: a wrapper field naming the payload — /"held should return the daemon"/ · /"SUBJECT??!?!?! wtf"/
+- never :: a destructured local off the die — /"no fucking one off scope variable assignments!"/
+- owed :: beef — the open marks · the =ctx.daemon= exposure (masks, controller) · a failing child under a running parent · go per milestone · the uncommitted typology change
+
+- quest :: m75-one-word-one-meaning
+- goal :: /"mask.reference instaead of mask.mount. unloads  the term mount."/ · /"reference is a general mounting and nested reference semantic that finds its consumer in the aperture."/
+- done :: census of =reference= (4 meanings) and =mount= (3); rulings =identifier= · =location= · =token= · =locate= · the wire migrates · siblings later; keep-list; nine baselines; three milestones
+- next :: on beef's go, M1: =subsystems/paladin/prototypes/ledger/registry.js= =references() → locations()=, then the nine test files at baseline
+- never :: =reference= filled before it is emptied — M1 before M2
+- never :: a dual key on the wire — /"migrate."/
+- owed :: beef — go on M1 · meaning 4 (entity by id, sketched kept)
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions   |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0          |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3          |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 1          |
+| m73-anima-and-design-system-comps |  79% 11/14 | wip      | go                                                                                                | 1          |
+| m74-the-boot-vector               |   8% 2/26  | wip      | blast                                                                                             | 3 (2 live) |
+| m75-one-word-one-meaning          |   0% 0/26  | design   | go                                                                                                | 0          |
+| runtime-scenarios                 |   0% 0/22  | design   | go                                                                                                | 0          |

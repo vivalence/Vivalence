@@ -29,15 +29,15 @@
     display: grid;
     place-items: center;
     flex: none;
-    border: 1px solid var(--colors-skeleton-0-primary-base);
-    color: var(--colors-skeleton-0-primary-base);
+    border: 1px solid var(--signal-primary);
+    color: var(--signal-primary-ink);
     font-size: var(--font-size-sm);
     letter-spacing: 0.1em;
     font-weight: 600;
   }
   .plate.muted .plate-mark {
-    border-color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 40%, transparent);
-    color: var(--text-body);
+    border-color: color-mix(in srgb, var(--text-strong) 40%, transparent);
+    color: var(--text-ink);
   }
   .plate-text {
     display: flex;
@@ -56,7 +56,7 @@
   }
   .plate-description {
     font-size: var(--font-size-xs);
-    color: var(--text-support);
+    color: var(--text-light);
     letter-spacing: 0.04em;
   }
   .plate-state {
@@ -67,9 +67,9 @@
     font-size: var(--font-size-2xs);
     letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: var(--text-support);
+    color: var(--text-light);
   }
   .plate-state.primary {
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
   }
 </style>

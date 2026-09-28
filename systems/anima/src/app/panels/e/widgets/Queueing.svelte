@@ -1,5 +1,9 @@
 <script>
+  import { Stepper } from "@vivalence/drapes";
+
   let { thread } = $props();
+
+  const CELLS = [1, 2, 3, 4, 5, 6, 8, 10];
 
   let depth = $state(1);
   let saving = $state(false);
@@ -25,36 +29,63 @@
 </script>
 
 <div class="queueing">
-  <span class="key">depth</span>
-  <input
-    type="range"
-    min="0"
-    max="10"
-    value={depth}
-    onchange={(event) => setDepth(event.currentTarget.value)}
-    class="slider" />
-  <span class="value">{depth}</span>
+  <div class="queueing-line">
+    <span class="queueing-name">depth</span>
+    <div class="queueing-cells">
+      {#each CELLS as cell (cell)}
+        <button class="queueing-cell" class:full={depth >= cell} title="depth {cell}" aria-label="depth {cell}" onclick={() => setDepth(cell)}></button>
+      {/each}
+    </div>
+    <Stepper value={depth} min={0} max={10} onchange={setDepth} />
+  </div>
+  <span class="queueing-note">the stall keeps this many buffers queued · under 1 the continuous phase is refused</span>
 </div>
 
 <style>
   .queueing {
     display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 8px;
-    padding: 6px 8px;
+    min-width: 0;
   }
-  .key {
-    min-width: 44px;
-    opacity: 0.55;
-    font-size: var(--font-size-2xs);
+  .queueing-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 10px;
   }
-  .slider {
+  .queueing-name {
+    flex: 0 0 52px;
+    color: var(--text-light);
+  }
+  .queueing-cells {
+    flex: 1 1 120px;
+    min-width: 0;
+    display: flex;
+    gap: 3px;
+  }
+  .queueing-cell {
     flex: 1;
+    min-width: 0;
+    height: 20px;
+    padding: 0;
+    border: none;
+    border-radius: var(--shape-radius-xs);
+    background: var(--control-contrast);
+    box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
+    cursor: pointer;
   }
-  .value {
-    opacity: 0.6;
-    font-size: var(--font-size-2xs);
-    min-width: 14px;
-    text-align: right;
+  .queueing-cell.full {
+    background: var(--signal-primary);
+    box-shadow: none;
+  }
+  .queueing-note {
+    color: var(--text-light);
+    line-height: var(--size-leading-loose);
+  }
+  @media (pointer: coarse) {
+    .queueing-cell {
+      min-height: 44px;
+    }
   }
 </style>

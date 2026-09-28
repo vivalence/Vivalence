@@ -1,5 +1,6 @@
 <script>
   import { fn } from "@vivalence/typology";
+  import { Input, Key, Row } from "@vivalence/drapes";
   import { catalog, filterCatalog, searchLiterals } from "./picker.js";
   import EntityRow from "./EntityRow.svelte";
 
@@ -55,25 +56,22 @@
 
 <div class="entity-field">
   {#if selected}
-    <div class="selected">
+    <Row selected>
       <EntityRow kind={entity} item={selected} />
-      <button class="x" onclick={clear} title="clear">✕</button>
-    </div>
+      <Key tone="ghost" size="mini" square label="✕" title="clear" onclick={clear} />
+    </Row>
   {:else}
-    <input
-      class="control"
-      value={term}
-      placeholder={description || `search ${entity}…`}
-      oninput={(event) => input(event.currentTarget.value)}
-      onfocus={() => (open = true)} />
+    <div role="presentation" onfocusin={() => (open = true)}>
+      <Input value={term} placeholder={description || `search ${entity}…`} oninput={(event) => input(event.currentTarget.value)} />
+    </div>
   {/if}
 
   {#if open && results.length}
-    <div class="results">
+    <div class="entity-results">
       {#each results as item (item.id ?? item.slug)}
-        <button class="result" onclick={() => pick(item)}>
+        <Row onclick={() => pick(item)}>
           <EntityRow kind={entity} item={item} />
-        </button>
+        </Row>
       {/each}
     </div>
   {/if}
@@ -85,68 +83,17 @@
     min-width: 0;
     position: relative;
   }
-  .selected {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    border: 1px solid var(--colors-skeleton-2-boundary);
-    border-radius: 2px;
-    padding: 2px 5px;
-    font-size: var(--font-size-2xs);
-  }
-  .control {
-    width: 100%;
-    background: transparent;
-    border: 1px solid var(--colors-skeleton-2-boundary);
-    border-radius: 2px;
-    color: inherit;
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    padding: 2px 5px;
-  }
-  .control:focus {
-    outline: none;
-    border-color: var(--colors-skeleton-0-primary-base);
-  }
-  .results {
+  .entity-results {
     position: absolute;
     z-index: 10;
     left: 0;
     right: 0;
-    margin-top: 2px;
+    margin-top: 4px;
     max-height: 180px;
     overflow: auto;
-    background: var(--colors-skeleton-2-surface);
-    border: 1px solid var(--colors-skeleton-2-boundary);
-    border-radius: 2px;
-  }
-  .result {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 3px 6px;
-    background: transparent;
-    border: none;
-    color: inherit;
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    text-align: left;
-    cursor: pointer;
-  }
-  .result:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent);
-  }
-  .x {
-    margin-left: auto;
-    background: none;
-    border: none;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    opacity: 0.4;
-  }
-  .x:hover {
-    opacity: 1;
-    color: var(--colors-skeleton-0-danger-base);
+    padding: 2px;
+    border-radius: var(--shape-radius-card);
+    background: var(--surface-lift);
+    box-shadow: 0 0 0 var(--size-ring) var(--boundary), var(--shape-lift);
   }
 </style>

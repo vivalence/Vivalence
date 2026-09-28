@@ -6,9 +6,10 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: clip;
-  background: var(--colors-skeleton-1-surface);
-  color: var(--colors-skeleton-1-contrast);
+  background: var(--surface);
+  color: var(--text-strong);
   font-family: var(--font-family-sans-text);
+  line-height: var(--size-leading-loose);
 }
 
 .debug {

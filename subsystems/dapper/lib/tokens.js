@@ -1,30 +1,6 @@
 // import { boxShadow, dropShadow, border, container, spacing, animation } from "./tokens.js";
 
 export const font = {
-  // family: {
-  //   brand: ["K2D", "sans-serif"], // Brand elements
-  //   "sans-heading": ["Poppins", "sans-serif"], // Systemspace, structural interface
-  //   "sans-text": ["Inter", "sans-serif"], // Interface text, userspace
-  //   "serif-heading": ["Sabon", "serif"], // Keep for legacy
-  //   "serif-text": ["Sabon", "serif"], // Keep for legacy
-  //   monospace: , // Code and mono
-  //   userspace: , //
-  //   systemspace: , //
-  //   inhalt: , //
-  //   struktur: , //
-  // brand/identity/theme = systemspace inhalt
-  // },
-  family: {
-    "serif-heading": ["Poppins", "serif"],
-    "sans-heading": ["Poppins", "sans"],
-    "serif-text": ["Inter", "Sabon", "serif"],
-    "sans-text": ["Inter", "sans"],
-    brand: ["K2D", "sans"],
-    // /  ()
-    // / system (names of daemons, modes, valences)
-    // / client (setting panel labels)
-    code: ["Victor Mono", "monospace"],
-  },
   size: {
     "2xs": "0.55rem",
     xs: "0.6rem",
@@ -65,19 +41,19 @@ const textShadow = {
 };
 
 const boxShadow = {
-  sm: "0 1px 2px rgb(0, 0, 0, 0.05)",
-  DEFAULT: "1 1px 3px rgb(0, 0, 0, 0.1)",
-  md: "1px 4px 6px  rgb(0, 0, 0, 0.4)",
-  lg: "4px 4px 8px rgb(0, 0, 0, 0.9)",
-  xl: "8px 8px 16px rgb(0, 0, 0, 0.99)",
+  sm: "0 1px 2px var(--shadow)",
+  DEFAULT: "0 1px 3px var(--shadow)",
+  md: "1px 4px 6px var(--shadow)",
+  lg: "4px 4px 8px var(--shadow)",
+  xl: "8px 8px 16px var(--shadow)",
 };
 
 const dropShadow = {
-  sm: "0 1px 2px rgb(0, 0, 0, 0.05)",
-  DEFAULT: "1 1px 3px rgb(0, 0, 0, 0.1)",
-  md: "1px 4px 6px rgb(0, 0, 0, 0.4)",
-  lg: "3px 3px 6px rgb(0, 0, 0, 0.9)",
-  xl: "8px 8px 16px rgb(0, 0, 0, 0.99)",
+  sm: "0 1px 2px var(--shadow)",
+  DEFAULT: "0 1px 3px var(--shadow)",
+  md: "1px 4px 6px var(--shadow)",
+  lg: "3px 3px 6px var(--shadow)",
+  xl: "8px 8px 16px var(--shadow)",
   none: "0 0 #0000",
 };
 
@@ -114,17 +90,23 @@ const spacing = {
   8: "2rem",
 };
 
-export default async function tokens(ds) {
-  ds.tokens = {
-    spacing,
-    font,
-    "line-height": lineHeight,
-    "box-shadow": boxShadow,
-    "drop-shadow": dropShadow,
-    container,
-    border,
-    animation,
-  };
+export const TOKENS = {
+  spacing,
+  font,
+  "line-height": lineHeight,
+  "box-shadow": boxShadow,
+  "drop-shadow": dropShadow,
+  container,
+  border,
+  animation,
+};
 
-  return ds;
-}
+const flat = (held, prefix) =>
+  Object.entries(held).flatMap(([key, value]) =>
+    value !== null && typeof value === "object" && !Array.isArray(value)
+      ? flat(value, `${prefix}-${key}`)
+      : [[`${prefix}-${key}`.toLowerCase(), Array.isArray(value) ? value.join(", ") : value]],
+  );
+
+export const scales = () =>
+  `:root {\n${flat(TOKENS, "-").map(([name, value]) => `  ${name}: ${value};`).join("\n")}\n}\n`;

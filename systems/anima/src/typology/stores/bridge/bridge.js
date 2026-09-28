@@ -6,6 +6,7 @@ import {
   readSafeArea,
   viewportDimensions,
 } from "./geometry.js";
+import { restore } from "./panes.js";
 const STORAGE_KEY = "vivalence:bridge";
 
 export const DEFAULT_COMPOSER = {
@@ -22,6 +23,10 @@ export const FONT_SIZES = {
   xl: "20px",
   "2xl": "22.5px",
 };
+
+export const THEMES = ["northsea", "parchment", "porcelain", "datasette"];
+
+export const knownTheme = (name) => (THEMES.includes(name) ? name : THEMES[0]);
 
 function store(defaults, serialize) {
   const instance = {};
@@ -56,45 +61,39 @@ function loadFromStorage() {
 export class Bridge {
   constructor() {
     const saved = loadFromStorage();
+    const turn = saved?.orientation ?? 0;
 
     this.layout = store(
       {
         pincer: saved?.pincer ?? { x: 0, y: 0 },
-        previous: saved?.previous ?? { x: 0, y: 0 },
-        standard: saved?.standard ?? { x: 0, y: 0 },
-        orientation: saved?.orientation ?? 0,
+        previous: { orientation: turn, ...(saved?.previous ?? { x: 0, y: 0 }) },
+        standard: { orientation: turn, ...(saved?.standard ?? { x: 0, y: 0 }) },
+        orientation: turn,
         inspectorHeight: saved?.inspectorHeight ?? 0,
+        locked: saved?.locked === true,
         viewport: { width: 0, height: 0 },
         home: { x: 0, y: 1 },
         start: { x: 0.33, y: 0.4 },
       },
-      ["pincer", "previous", "standard", "orientation", "inspectorHeight"],
+      ["pincer", "previous", "standard", "orientation", "inspectorHeight", "locked"],
     );
 
     this.view = store(
       {
-        d: saved?.view?.d ?? "outside",
-        "d.threads": saved?.view?.["d.threads"] ?? true,
-        "d.intents": saved?.view?.["d.intents"] ?? true,
-        "d.modes": saved?.view?.["d.modes"] ?? true,
-        f: saved?.view?.f ?? "buffers",
+        fold: saved?.view?.fold === "stack" ? "stack" : "page",
+        strip: saved?.view?.strip === "top" ? "top" : "bottom",
         g: false,
         h: false,
         snap: true,
-        theme: saved?.view?.theme ?? "nordic",
+        hair: saved?.view?.hair === true,
+        full: false,
+        theme: knownTheme(saved?.view?.theme),
         fontSize: saved?.view?.fontSize ?? "base",
       },
-      ["d", "d.threads", "d.intents", "d.modes", "f", "theme", "fontSize"],
+      ["fold", "strip", "hair", "theme", "fontSize"],
     );
 
-    this.panes = store(
-      {
-        open: saved?.panes?.open ?? [true, true, true],
-        fold: saved?.panes?.fold ?? [false, false, false],
-        weight: saved?.panes?.weight ?? [1, 1, 1],
-      },
-      ["open", "fold", "weight"],
-    );
+    this.panes = store(restore(saved?.panes), ["tree", "fold", "expanded", "heights"]);
 
     this.$safeAreaTop = atom(0);
     this.$viewportOffsetTop = atom(0);
@@ -118,12 +117,22 @@ export class Bridge {
   };
 
   setTheme = (name) => {
-    this.view.$theme.set(name);
+    this.view.$theme.set(knownTheme(name));
     this.save();
   };
 
   setFontSize = (name) => {
     this.view.$fontSize.set(name);
+    this.save();
+  };
+
+  setFold = (name) => {
+    this.view.$fold.set(name === "stack" ? "stack" : "page");
+    this.save();
+  };
+
+  setStrip = (place) => {
+    this.view.$strip.set(place === "top" ? "top" : "bottom");
     this.save();
   };
 
@@ -152,25 +161,29 @@ export function bootLayout(bridge) {
     };
     const prev = layout.$previous.get();
     layout.previous = {
+      ...prev,
       x: clamp(prev.x, EDGE_PADDING, next.width - EDGE_PADDING),
       y: clamp(prev.y, EDGE_PADDING, next.height - EDGE_PADDING),
     };
     const std = layout.$standard.get();
     layout.standard = {
+      ...std,
       x: clamp(std.x, EDGE_PADDING, next.width - EDGE_PADDING),
       y: clamp(std.y, EDGE_PADDING, next.height - EDGE_PADDING),
     };
   } else {
     const start = layout.$start.get();
     const home = layout.$home.get();
+    const orientation = layout.$orientation.get();
     layout.pincer = {
       x: clamp(start.x * next.width, EDGE_PADDING, next.width - EDGE_PADDING),
       y: clamp(start.y * next.height, EDGE_PADDING, next.height - EDGE_PADDING),
     };
-    layout.previous = { ...layout.pincer };
+    layout.previous = { ...layout.pincer, orientation };
     layout.standard = {
       x: clamp(home.x * next.width, EDGE_PADDING, next.width - EDGE_PADDING),
       y: clamp(home.y * next.height, EDGE_PADDING, next.height - EDGE_PADDING),
+      orientation,
     };
   }
 }
@@ -196,6 +209,7 @@ export function resize(bridge) {
     else if (orientation === 180) shiftX = deltaWidth;
 
     const reanchor = (position) => ({
+      ...position,
       x: clamp(position.x + shiftX, EDGE_PADDING, next.width - EDGE_PADDING),
       y: clamp(position.y + shiftY, EDGE_PADDING, next.height - EDGE_PADDING),
     });

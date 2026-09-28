@@ -33,15 +33,27 @@
   let viewportOffsetTop = $state(bridge.viewportOffsetTop);
   bridge.$viewportOffsetTop.subscribe((v) => (viewportOffsetTop = v));
 
+  const gesture = new stores.bridge.Gesture(bridge);
+  let radial = $state.raw(gesture.radial);
+  let hair = $state(bridge.view.hair);
+  let full = $state(bridge.view.full);
+  gesture.$radial.subscribe((v) => (radial = v));
+  bridge.view.$hair.subscribe((v) => (hair = v));
+  bridge.view.$full.subscribe((v) => (full = v));
+
+  let thickness = $derived(hair && !radial.show && !full ? stores.bridge.HAIRLINE : stores.bridge.BONE_THICKNESS);
   let rects = $derived(
     stores.bridge.applyViewportOffset(
-      stores.bridge.rectsForOrientation(orientation, pincer, viewport.width, viewport.height),
+      {
+        ...stores.bridge.rectsForOrientation(orientation, pincer, viewport.width, viewport.height, thickness),
+        ...(full ? { a: { left: 0, top: 0, width: viewport.width, height: viewport.height } } : {}),
+      },
       viewportOffsetTop,
     ),
   );
   let bones = $derived(
     stores.bridge.applyViewportOffset(
-      stores.bridge.bonesForOrientation(orientation, pincer, viewport.width, viewport.height),
+      stores.bridge.bonesForOrientation(orientation, pincer, viewport.width, viewport.height, thickness),
       viewportOffsetTop,
     ),
   );
@@ -73,14 +85,16 @@
 {#if viewport.width > 0 && viewport.height > 0}
   <PanelA rect={rects.a} />
 
-  <PanelB rect={rects.b} />
+  <div class="chassis" class:full class:hairline={thickness === stores.bridge.HAIRLINE}>
+    <PanelB rect={rects.b} />
 
-  <PanelC rect={rects.c} />
+    <PanelC rect={rects.c} />
 
-  <BoneShoulder rect={bones.shoulder} />
-  <BoneCrown rect={bones.crown} />
-  <BonePincer rect={bones.pincer} />
-  <BoneSpine rect={bones.spine} />
+    <BoneShoulder rect={bones.shoulder} />
+    <BoneCrown rect={bones.crown} />
+    <BoneSpine rect={bones.spine} />
+  </div>
+  <BonePincer rect={bones.pincer} {gesture} />
 
   <PanelG />
 
@@ -94,21 +108,15 @@
     padding: 0;
     overflow: hidden;
     overscroll-behavior: none;
-    background: var(--colors-skeleton-0-surface);
-    font-family: var(--font-family-code);
+    background: var(--surface);
   }
-
-  /* system alert rail — 1px vermillion strip at the very top of the viewport.
-     only visible when worst-of-system is "down". danger-without-shouting. */
-  .system-alert-rail {
-    position: fixed;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 1px;
-    background: var(--colors-skeleton-0-danger-base);
-    box-shadow: 0 0 12px var(--colors-skeleton-0-danger-base);
-    z-index: 200;
-    pointer-events: none;
+  .chassis {
+    display: contents;
+  }
+  .chassis.full {
+    display: none;
+  }
+  .chassis.hairline > :global(.bone > *) {
+    visibility: hidden;
   }
 </style>

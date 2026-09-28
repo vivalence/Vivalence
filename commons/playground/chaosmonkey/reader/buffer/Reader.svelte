@@ -19,7 +19,7 @@
     gap: 0.5rem;
     text-align: center;
     padding: 2rem;
-    color: var(--colors-skeleton-0-contrast);
+    color: var(--text-strong);
   }
   .glyph {
     font-size: 2.5rem;

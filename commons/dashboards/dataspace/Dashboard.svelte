@@ -1800,24 +1800,23 @@
 
 <style>
   .dataspace {
-    --s0: var(--colors-skeleton-0-surface);
-    --s1: var(--colors-skeleton-1-surface);
-    --s2: var(--colors-skeleton-2-surface);
-    --s3: var(--colors-skeleton-3-surface);
-    --c0: var(--colors-skeleton-0-contrast);
-    --c1: var(--colors-skeleton-1-contrast);
-    --b1: var(--colors-skeleton-1-boundary);
-    --b2: var(--colors-skeleton-2-boundary);
-    --b3: var(--colors-skeleton-3-boundary);
-    --primary: var(--colors-skeleton-0-primary-base);
-    --primary-hover: var(--colors-skeleton-0-primary-hover);
-    --secondary: var(--colors-skeleton-0-secondary-base);
-    --success: var(--colors-skeleton-0-success-base);
-    --warning: var(--colors-skeleton-0-warning-base);
-    --danger: var(--colors-skeleton-0-danger-base);
-    --body: var(--text-body);
-    --support: var(--text-support);
-    --shadow: var(--shadow-soft);
+    --s0: var(--surface);
+    --s1: var(--surface-lift);
+    --s2: var(--surface-sunk);
+    --s3: var(--surface-lift);
+    --c0: var(--text-strong);
+    --c1: var(--text-strong);
+    --b1: var(--boundary);
+    --b2: var(--boundary-soft);
+    --b3: var(--boundary);
+    --primary: var(--signal-primary);
+    --primary-hover: var(--signal-primary-ink);
+    --secondary: var(--signal-primary);
+    --success: var(--signal-positive);
+    --warning: var(--signal-caution);
+    --danger: var(--signal-negative);
+    --body: var(--text-ink);
+    --support: var(--text-light);
     --fz-2xs: var(--font-size-2xs);
     --fz-xs: var(--font-size-xs);
     --fz-sm: var(--font-size-sm);

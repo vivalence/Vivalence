@@ -46,7 +46,7 @@
 
   .desk-controls {
     flex-shrink: 0;
-    border-top: 1px solid var(--colors-skeleton-1-boundary);
+    border-top: 1px solid var(--boundary);
     padding: 0.75rem 1.25rem;
     overflow: hidden;
   }

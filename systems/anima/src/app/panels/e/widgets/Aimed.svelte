@@ -1,4 +1,6 @@
 <script>
+  import { Row } from "@vivalence/drapes";
+
   let { thread } = $props();
 
   let current = $state();
@@ -36,70 +38,49 @@
   }
 </script>
 
-<div class="aimed" class:active>
+<div class="aimed">
   {#each mounts as mount (mount)}
-    <button
-      class="route"
-      class:on={current === mount}
-      onclick={() => pick(mount)}
-      disabled={saving}>
-      <span class="check">{current === mount ? "✓" : ""}</span>
-      <span class="path">{mount}</span>
-    </button>
+    <Row selected={current === mount} title="aim the thread at this mount" onclick={() => pick(mount)}>
+      <span class="aimed-check" class:lit={active}>{current === mount ? "✓" : ""}</span>
+      <span class="aimed-path">{mount}</span>
+      <span class="aimed-meta">{current === mount ? (active ? "mount" : "mount · aimed is off") : ""}</span>
+    </Row>
   {:else}
-    <span class="muted">mode has no emitter</span>
+    <span class="aimed-note">mode has no emitter</span>
   {/each}
+  <span class="aimed-note">the mount is the emitter leaf a pull calls · masked merges into its input</span>
 </div>
 
 <style>
   .aimed {
     display: flex;
     flex-direction: column;
-    gap: 1px;
-    padding: 6px 8px;
-  }
-  .route {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 2px 4px;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 2px;
-    color: inherit;
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    text-align: left;
-    cursor: pointer;
-    opacity: 0.55;
-  }
-  .route:hover {
-    opacity: 0.9;
-    background: color-mix(in srgb, var(--colors-skeleton-2-surface) 50%, transparent);
-  }
-  .route.on {
-    opacity: 1;
-    border-color: color-mix(in srgb, currentColor 35%, transparent);
-    color: color-mix(in srgb, currentColor 50%, transparent);
-  }
-  .aimed.active .route.on {
-    border-color: var(--colors-skeleton-0-primary-base);
-    color: var(--colors-skeleton-0-primary-base);
-  }
-  .path {
+    gap: 2px;
     min-width: 0;
-    overflow-wrap: anywhere;
   }
-  .check {
-    flex: 0 0 auto;
+  .aimed-check {
+    flex: none;
     width: 10px;
-    color: color-mix(in srgb, currentColor 50%, transparent);
+    color: var(--text-light);
   }
-  .aimed.active .check {
-    color: var(--colors-skeleton-0-primary-base);
+  .aimed-check.lit {
+    color: var(--signal-primary-ink);
   }
-  .muted {
-    opacity: 0.35;
-    font-size: var(--font-size-2xs);
+  .aimed-path {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-strong);
+  }
+  .aimed-meta {
+    flex: none;
+    color: var(--text-muted);
+  }
+  .aimed-note {
+    padding-top: 4px;
+    color: var(--text-light);
+    line-height: var(--size-leading-loose);
   }
 </style>

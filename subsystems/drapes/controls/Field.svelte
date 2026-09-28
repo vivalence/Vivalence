@@ -20,8 +20,12 @@
   .field-label {
     width: var(--field-label-width);
     flex: none;
-    font-size: var(--font-size-sm);
-    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 45%, transparent);
+    font-family: var(--font-family-code);
+    font-size: var(--size-type-2xs);
+    font-weight: 600;
+    letter-spacing: var(--shape-label-track);
+    text-transform: var(--shape-label-case);
+    color: var(--text-light);
   }
   .field-control {
     flex: 1;

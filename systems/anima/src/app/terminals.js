@@ -25,7 +25,9 @@ export function hydrate({ terminals }) {
   const shells = persisted.map((data) => {
     if (data.thread || data.buffer)
       serialized.set(data.id, { thread: data.thread ?? null, buffer: data.buffer ?? null });
-    return Terminal({ id: data.id, dock: data.dock });
+    const terminal = Terminal({ id: data.id, dock: data.dock });
+    if (serialized.has(data.id)) terminal.$settling.set({ ...serialized.get(data.id) });
+    return terminal;
   });
   terminals.$entities.set(shells);
   const active = shells.find((shell) => shell.id === localStorage.getItem(ACTIVE_KEY)) ?? null;
@@ -140,6 +142,7 @@ export function settle({ terminals, lighthouse }) {
         }
       }
       if (!remainder.thread && !remainder.buffer) serialized.delete(terminal.id);
+      terminal.$settling.set(serialized.has(terminal.id) ? { ...remainder } : null);
     }
     settling?.close();
   };

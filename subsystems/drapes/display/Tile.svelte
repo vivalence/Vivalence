@@ -10,8 +10,8 @@
 
 <style>
   .tile {
-    background: var(--colors-skeleton-3-surface);
-    color: var(--colors-skeleton-3-contrast);
+    background: var(--surface-lift);
+    color: var(--text-strong);
     padding: 14px;
     display: flex;
     flex-direction: column;
@@ -22,7 +22,7 @@
   .tile-note {
     font-family: var(--font-family-code);
     font-size: var(--font-size-2xs);
-    color: var(--text-support);
+    color: var(--text-light);
   }
   .tile-label {
     letter-spacing: 0.16em;
@@ -35,9 +35,9 @@
     font-weight: 500;
   }
   .tile-value.primary {
-    color: var(--colors-skeleton-0-primary-base);
+    color: var(--signal-primary-ink);
   }
   .tile-value.support {
-    color: var(--text-support);
+    color: var(--text-light);
   }
 </style>

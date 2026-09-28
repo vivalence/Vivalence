@@ -1,9 +1,8 @@
 <!--
-  Link — skeleton-aware. Default uses primary as the link color.
-  Active nav uses primary-base as the active background.
+  Link — the text link colour by default. An active nav link is the primary fill.
 -->
 <script>
-  import { useSkeleton } from "../context/useSkeleton.js";
+  import { FILL } from "../context/signals.js";
 
   let {
     href = "",
@@ -13,17 +12,10 @@
     children,
   } = $props();
 
-  const skeleton = useSkeleton();
-  const level = $derived(skeleton());
-
   const variantClasses = $derived(
     variant === "nav"
-      ? `block px-3 py-1.5 rounded text-sm hover:bg-skeleton-${level}-surface ${
-          active
-            ? `bg-skeleton-${level}-primary-base text-skeleton-${level}-contrast`
-            : `text-skeleton-${level}-contrast`
-        }`
-      : `text-skeleton-${level}-primary-base hover:underline`,
+      ? `block px-3 py-1.5 rounded text-sm border border-transparent hover:bg-surface-lift ${active ? FILL.primary : "text-strong"}`
+      : "text-link hover:underline",
   );
 </script>
 

@@ -1,0 +1,73 @@
+#+title: m75 folds into m74, the rename runs first on today's tree, the sketch and sandbox read reference, and m74 counts seven milestones
+#+index: 233
+#+session: session 886a541b, turns 58–62 (fold N = 5, the seventh fold of m74; #232 holds turns 46–57). The fold opens on the continuation after #232 and closes on /"ikiro compact"/.
+
+* one breath
+
+(58) Resumed after #232; the fold report re-issued.
+
+(59) beef pasted m74 and m75 whole: /"work those into one. merge 75 into 74"/. m75's census, law, rulings and keep-list became m74's =* one word, one meaning=; its blast rows, test rows, gates, QA, deferred and release joined m74's organs; breaking 25–29 added. The rename ordered BEFORE the recast, on today's tree where m75 measured it: M0 guardrail · M1 =reference= emptied · M2 the route is =reference= · M3 typology + datamap · M4 tree · M5 recast · M6 residue. The sketch and the sandbox renamed =mount= → =reference= (route meaning only), sandbox =28 passed | 0 failed=. m75 → =quests/discarded/= by =mv=; =quests/index.md= live 7 → 6; =runtime-scenarios.org= m74 milestone refs +2; frontier re-derived.
+
+(60–62) /"ikiro compact"/ · =/compact= · this walk.
+
+* the spine — turns 58–62
+
+| n  | beef | landed | died |
+|----+------+--------+------|
+| 58 | (continuation summary, not beef) | the #232 report | — |
+| 59 | the m74 + m75 paste · /"work those into one. merge 75 into 74"/ | one quest, 1795 lines, M0–M6; sketch + sandbox on =reference=, =28 passed=; m75 → =discarded/=; index · frontier · =runtime-scenarios.org= renumbered; backups =bak/m74-before-m75-merge.org= · =bak/m75-before-merge.org= · =bak/runtime-scenarios-before-m75-merge.org= · =bak/sandbox-before-reference/= | m75 as a quest · "m74 is written against =mount= until m75 lands" · m74 M1–M4 numbering |
+| 60 | /"ikiro compact"/ | this walk | — |
+| 61 | MID =/compact= | NOTHING — the gate's order | — |
+| 62 | the =/compact-walk= re-invocation | this compact | — |
+
+Coverage: 58–62, each once. Balance, fold N = 5: first third (58–59) 2 citations, middle (60) 1, last (61–62) 1. Front-heavy: the one order sits in 59.
+
+* failures
+
+- the paste not diffed :: m74 and m75 were pasted whole; I merged from disk without checking paste = file. #232 did check. A live sibling (339ef973, 17 m before the merge) was on m74; a divergence would have gone unseen.
+- a sibling live on the quest :: the quest report showed =m74 ← 886a541b · 339ef973=; the merge rewrote m74 anyway, reported after, with backups.
+- a stale pointer outside my reach :: the frontier still reads =runtime-scenarios … m74 M4= from #229's handoff; it means M6 now.
+
+* State at fold
+
+- m74 :: DESIGNED; m75 merged; seven milestones M0–M6, the rename (M1 · M2) before the recast; the sketch on =reference=; the masks JSON stays today's =mount=; 5 =@beef= lines, all record; QA markers =m74/T-registry-list · T-anima-daemons · P-residue-reference · P-residue-mount= pending; report =4% 2/49=, next =control=.
+- m75 :: =quests/discarded/m75-one-word-one-meaning.org=, epitaph in =quests/index.md=.
+- sandbox :: =structure 7 · seams 14 · datamap.class 5 · effect 1 · world 1= → =28 passed | 0 failed=, on =reference=.
+- typology :: =belt/control.js · belt/index.js · steer/dispatch.js= uncommitted; beef's graph op.
+
+** skills
+
+| skill           | turn | verdict | the line |
+|-----------------+------+---------+----------|
+| quest-lifecycle | 59   | GAP     | no merge verb; its tree preamble runs a cwd-relative path and printed a crash from =.ikiro/quests= |
+| compact-walk    | 61   | HELD    | spine by id, fold N stated |
+
+* settlement
+
+- MARKERS: =## OPEN= empty.
+- Codewords, turns 58–62: none.
+- Known issues: none new.
+- LEDGER: one GAP appended.
+- Memory: nothing private.
+- Budgets: see the report.
+
+* handoff
+- quest :: m74-the-boot-vector
+- goal :: /"i want to turn all my boot processes in the runtime into vectors. mode, daemon, service and the runtime themselves."/ · /"mask.reference instaead of mask.mount. unloads  the term mount."/
+- done :: m75 merged, /"work those into one. merge 75 into 74"/; M0 guardrail · M1 · M2 the rename on today's tree · M3–M6 the recast; sketch + sandbox on =reference=, =28 passed | 0 failed=
+- next :: on beef's go, M0: =systems/runtime/tests/runtime/boot.test.js= on today's code, census 329, the =/metadata= keys asserted
+- never :: =reference= filled before it is emptied — M1 before M2
+- never :: a dual key on the wire — /"migrate."/
+- never :: a destructured local off the die — /"no fucking one off scope variable assignments!"/
+- owed :: beef — go on M0 · the rename before the recast (or after, M5 · M6) · the five QUESTIONED · meaning 4 · the uncommitted typology change · =Mode.stdout=
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions   |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0          |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3          |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 1          |
+| m73-anima-and-design-system-comps |  79% 11/14 | wip      | go                                                                                                | 1          |
+| m74-the-boot-vector               |   4% 2/49  | wip      | control                                                                                           | 3 (1 live) |
+| runtime-scenarios                 |   0% 0/18  | design   | go                                                                                                | 0          |

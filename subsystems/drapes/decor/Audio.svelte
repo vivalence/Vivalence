@@ -131,8 +131,8 @@
     width: 60px;
     height: 60px;
     border-radius: 14px;
-    border: 1px solid var(--colors-skeleton-1-boundary);
-    background: var(--colors-skeleton-2-surface);
+    border: 1px solid var(--boundary);
+    background: var(--surface-sunk);
     cursor: pointer;
     padding: 0;
     display: flex;
@@ -142,12 +142,12 @@
   }
 
   .audio-inline:hover {
-    background: var(--colors-skeleton-1-surface);
-    border-color: var(--colors-skeleton-2-contrast);
+    background: var(--surface);
+    border-color: var(--text-strong);
   }
 
   .audio-inline.audio-playing {
-    border-color: var(--colors-skeleton-1-primary-base);
+    border-color: var(--signal-primary);
   }
 
   .audio-bars {
@@ -161,21 +161,21 @@
   }
 
   .audio-play-icon path {
-    fill: var(--colors-skeleton-2-contrast);
+    fill: var(--text-strong);
     transition: fill 0.15s;
   }
 
   .audio-inline:hover .audio-play-icon path {
-    fill: var(--colors-skeleton-1-primary-base);
+    fill: var(--signal-primary-ink);
   }
 
   .audio-bar {
-    fill: var(--colors-skeleton-2-contrast);
+    fill: var(--text-strong);
     transition: fill 0.15s;
   }
 
   .audio-playing .audio-bar {
-    fill: var(--colors-skeleton-1-primary-base);
+    fill: var(--signal-primary-ink);
     animation: pulse 0.6s ease-in-out infinite alternate;
   }
 
@@ -184,7 +184,7 @@
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    border: 1px solid var(--colors-skeleton-1-boundary);
+    border: 1px solid var(--boundary);
     background: transparent;
     cursor: pointer;
     padding: 0;
@@ -195,20 +195,20 @@
     transition: background 0.15s, border-color 0.15s;
   }
   .audio-dot:hover {
-    background: var(--colors-skeleton-1-surface);
-    border-color: var(--colors-skeleton-2-contrast);
+    background: var(--surface);
+    border-color: var(--text-strong);
   }
   .audio-dot.audio-playing {
-    border-color: var(--colors-skeleton-1-primary-base);
+    border-color: var(--signal-primary);
   }
   .audio-bars-dot { width: 22px; height: 22px; }
   .audio-play-dot { width: 18px; height: 18px; }
   .audio-play-dot path {
-    fill: var(--colors-skeleton-2-contrast);
+    fill: var(--text-strong);
     transition: fill 0.15s;
   }
   .audio-dot:hover .audio-play-dot path {
-    fill: var(--colors-skeleton-1-primary-base);
+    fill: var(--signal-primary-ink);
   }
 
   @keyframes pulse {

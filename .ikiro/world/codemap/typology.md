@@ -76,7 +76,7 @@ export function pluck(obj, keys) {
  "tasks": {"test/snapshots": "SNAPSHOT_HOT=1 deno test -A --no-check tests/**/*.snapshot.test.js"},
  "tasks, one file each (all --watch)": 26,
  "tests": {
-  "tests": 59,
+  "tests": 60,
   "tests/gestalten": 6,
   "tests/gestalten/belt": 6,
   "tests/gestalten/shape": 8,

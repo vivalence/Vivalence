@@ -63,12 +63,12 @@
 <style>
   .skin-tree { font-family: var(--font-family-code); font-size: var(--font-size-xs); padding-left: calc(var(--depth) * 6px); white-space: nowrap; overflow-x: auto; }
   .tree-leaf, .tree-branch { padding: 2px 0 2px 4px; display: flex; gap: 6px; align-items: center; cursor: pointer; }
-  .tree-leaf:hover, .tree-branch:hover { background: var(--colors-skeleton-1-surface); border-radius: 2px; }
+  .tree-leaf:hover, .tree-branch:hover { background: var(--surface); border-radius: 2px; }
   .tree-arrow { display: inline-block; width: 10px; transition: transform 0.1s; flex-shrink: 0; }
   .tree-arrow.open { transform: rotate(90deg); }
-  .tree-nature { color: var(--colors-skeleton-1-contrast); }
-  .tree-key { color: var(--colors-skeleton-0-primary-base); opacity: 0.6; font-size: var(--font-size-2xs); }
-  .tree-valence { color: var(--colors-skeleton-0-primary-base); opacity: 0.6; font-size: var(--font-size-2xs); margin-left: auto; }
-  .tree-directed { color: var(--colors-skeleton-0-primary-base); opacity: 0.4; font-size: var(--font-size-2xs); }
+  .tree-nature { color: var(--text-strong); }
+  .tree-key { color: var(--signal-primary-ink); opacity: 0.6; font-size: var(--font-size-2xs); }
+  .tree-valence { color: var(--signal-primary-ink); opacity: 0.6; font-size: var(--font-size-2xs); margin-left: auto; }
+  .tree-directed { color: var(--signal-primary-ink); opacity: 0.4; font-size: var(--font-size-2xs); }
   .tree-result { opacity: 0.4; font-size: var(--font-size-2xs); }
 </style>

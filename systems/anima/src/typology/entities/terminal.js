@@ -16,6 +16,7 @@ export function Terminal({ id = null, dock } = {}) {
   const $buffer = atom(null);
   // const $view = atom(null;) //@beef!
   const $dock = atom(dock ?? defaultDock());
+  const $settling = atom(null);
   let stall = null;
 
   let threadVigil = null;
@@ -31,6 +32,7 @@ export function Terminal({ id = null, dock } = {}) {
     $thread,
     $buffer,
     $dock,
+    $settling,
 
     get thread() {
       return $thread.get();
@@ -50,6 +52,10 @@ export function Terminal({ id = null, dock } = {}) {
 
     get dock() {
       return $dock.get();
+    },
+
+    get settling() {
+      return $settling.get();
     },
 
     setDockCollapsed: (collapsed) => setDockCollapsed($dock, collapsed),

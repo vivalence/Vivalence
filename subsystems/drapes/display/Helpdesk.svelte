@@ -56,7 +56,7 @@
   .helpdesk {
     display: flex;
     font-family: var(--font-family-code);
-    color: var(--colors-skeleton-3-contrast);
+    color: var(--text-strong);
   }
   .slot {
     flex: 1;
@@ -71,16 +71,16 @@
     border-radius: 12px 12px 12px 3px;
   }
   .assistant {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 15%, transparent);
+    background: color-mix(in srgb, var(--signal-primary) 15%, transparent);
     cursor: text;
   }
   .assistant:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 20%, transparent);
+    background: color-mix(in srgb, var(--signal-primary) 20%, transparent);
   }
   .user {
     resize: none;
     background: transparent;
-    border-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 55%, transparent);
+    border-color: color-mix(in srgb, var(--signal-primary) 55%, transparent);
     border-radius: 3px 12px 12px 12px;
   }
   .user::placeholder {

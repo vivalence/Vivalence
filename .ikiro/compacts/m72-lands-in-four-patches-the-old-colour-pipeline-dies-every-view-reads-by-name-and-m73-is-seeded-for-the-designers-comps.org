@@ -1,0 +1,102 @@
+#+title: m72 lands in four patches — the old colour pipeline dies, every view reads by name, and m73 is seeded for the designer's comps
+#+index: 220
+#+session: session 9c4d5944, turns 77–89 (fold N = 13, the fourth fold; #216 holds 1–26, #217 27–61, #218 62–76). beef's thread: /"we now execute this. blast change."/ — the milestones re-cut into four patches, all four given a go and applied in one session, test heavy, walked in Chrome.
+
+* one breath
+
+(77–79) the milestones become patches. beef pasted m72 whole: /"we now execute this. blast change. tell me about the milestones. if you could rework those into 2/3/4 patches, what set is optimal?"/ → build · move, repo · move, registry · retire. /"4 patches. go on all 4."/
+
+(80–83) patch 1 and patch 2. /"test heavy"/ · /"you have chrome"/ → the names, the primitive, =theme()= · =emit= beside today's sheet (dapper 10 → 31 tests), then anima and drapes read by name (764 reads, 14 zone boxes). beef's dev server served the old sheet to a renamed theme until /"restarted."/ with a screenshot.
+
+(84–89) patch 3, patch 4, m73. /"patch"/ · /"fix"/ · /"tell me when the whole quest is applied"/ → registry and commons by name (1344 reads), the old pipeline deleted (dapper 27 → 21 files, sheet 222 kB → 74 kB). The m73 seed: /"write a new quest. start with two pieces of content. a list of files to read … and then starting the question with the two links abve. mcp instcutions. m73"/.
+
+* the spine — turns 77–89
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 77 | the harness's continuation summary | NOTHING — the fold boundary; the #218 report delivered after it | — |
+| 78 | m72 pasted · /"we now execute this. blast change. tell me about the milestones. if you could rework those into 2/3/4 patches, what set is optimal?"/ | four patches proposed with a dependency tree; porcelain shown unable to land early; the 150 fork shown dead; the registry census found stale (media unnamed) | seven milestones |
+| 79 | /"4 patches. go on all 4."/ | patch 1 begun: baseline, capture, rename, the primitive, the pipe; typology door found unloadable as a first import | the =/schematics= door as dapper's import |
+| 80 | MID-TURN /"test heavy"/ | typology =theme.test.js= (a sweep over 473 values) · dapper =theme= · =emit= · =contrast= · anima =pincer/theme= | — |
+| 81 | MID-TURN /"you have chrome"/ | sandbox bundle probed in Chrome: four zones, nesting, a zone's own unit; beef's =:1794= found serving the old sheet | — |
+| 82 | /"restarted."/ + screenshot | patch 2: 764 reads by rule, measured against both themes' hexes (three rules corrected), drapes context deleted, zones on 14 boxes, =places= · =slots= tests, walks before and after | =SkeletonProvider= · =useSkeleton= · =Zone= · =Decorum= |
+| 83 | the screenshot's path | NOTHING — the image of 82 | — |
+| 84 | /"patch"/ | patch 3: census, 79 files captured, 1344 reads moved, hello-world snapshot regenerated, 87 views compiled, chess walked in both themes | — |
+| 85 | MID-TURN /"fix"/ | read as: fix what breaks on the way. hello-world rigs given =mode.bundles=; the stale hello-world shelf synced | — |
+| 86 | MID-TURN /"tell me when the whole quest is applied"/ | patch 4: the old pipeline deleted, =scales()= under a bare =:root=, tailwind to slots, the pincer's mark in its view, the typography map moved after the build caught it; every suite green | =lib/colors.js= · =builders.js= · =flatten.js= · the old themes · =belt/{index,lib,postcss-plugin}.js= · =primitives/*.js= · =safelist= |
+| 87 | MID-TURN the two handoff pastes · /"trailing task. do once done with current task. write a new quest … m73"/ | =.ikiro/quests/m73-anima-and-design-system-comps.org=, SEED: read-first list + both handoffs verbatim; index line | — |
+| 88 | MID-TURN /"ikiro compact"/ | this fold | — |
+| 89 | the skill's re-invocation notice | NOTHING | — |
+
+Coverage: 77–89, 13 rows, 3 NOTHING (77 · 83 · 89).
+
+* failures
+
+- *a renamed theme against a server that holds the old sheet* (79→82). Patch 1 renamed =data-theme= at once while beef's =vite dev= kept dapper in memory: his live anima rendered unstyled until he restarted. Found by the Chrome probe after the rename, not predicted before it. Now a trap in =world/codemap/design.md=.
+- *a baseline narrower than the blast* (79→82). Only =style.tokens.test.js= of hello-world was baselined; the whole directory's four reds surfaced at patch 2 with no before-run, and the attribution rested on the import graph until patch 3 fixed them (runtime drift: =mode.bundles=).
+- *a shelf overwritten before it was captured* (85). The hello-world shelf's tests were synced from commons before the shelf was compared; the stale =mode.viva.js= · =tools/*= were captured, the overwritten tests were not.
+- *a probe that read a 404 page* (81). The static build's entry is =200.html=; the first DOM probe measured an empty page and reported blank tokens.
+- *green tests, a red build* (86). The typography plugin's colour map in =belt/tailwind-theme.js= still read 32 retired tokens; no test scanned dapper itself. Caught by grepping the built sheet; a test now does.
+- *a name check that passed =undefined=* (80). =RegExp.test(undefined)= reads the string ="undefined"=; caught by the new emit test.
+
+* State at fold
+
+- =.ikiro/quests/m72-zoned-designs.org= — APPLIED, 4/4 patches; the changelog carries each gate pasted. Nine forks open, each built on its first option (the places · a key's shadow and the mark · the text floor · the size sweep · fonts · the definition's floor · the key's fill on parchment · the strong boundary's floor · the hues beyond four signals); the 150 fork struck.
+- =subsystems/dapper/= — 21 files, one pipe: =design()= = =scales()= then every theme =emit=ted. =subsystems/typology/schematics/primitives/theme.js= new.
+- anima · drapes · commons · registry (education · vcompany · chess · media · assembly) · the hello-world shelf read slots; 14 =data-zone= boxes.
+- suites: dapper =21 passed (271 steps)= · typology =131 passed (558 steps)= · drapes =8 passed (54 steps)= · anima =50 passed (193 steps)= · hello-world both copies =19 passed (64 steps)= · chess, media, vcompany email · calendar, assembly domain, nyan green; 0 failed each. Pre-existing reds: vdex · dojo · education domain (=known-issues.org=).
+- captures: =~/.viva/bak/m72/{theme-names,registry,hello-world-rigs,hello-world-shelf}-20260928/=.
+- =.ikiro/known-issues.org= — three new: the schematics door · registry suites red against the runtime · pages drawn before m72.
+- =world/codemap/design.md= · =anima.md= — re-stamped, =codemap.py= 21/21 · 35/35 grounded.
+- =.ikiro/quests/m73-anima-and-design-system-comps.org= — SEED.
+- Balance (fold N = 13, thirds 77–80 · 81–85 · 86–89): verbatim citations in the spine 4 · 4 · 3. Even: beef's orders were one-liners spread across the build.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| blast-bracket | 79 | HELD | census before touch, suites both sides of each patch, residue grep closing each |
+| testing | 79 | GAP | baseline taken per chosen file, not per touched directory: hello-world's four reds had no before-run until patch 3 |
+| compact-walk | 88 | HELD | spine + skills by id; fourth fold, N = 13 |
+| quest-authoring | 79 | MISSED | m72 re-cut into patches and m73 seeded (87) by script and by hand, no firing; recurring from #217 · #218 |
+| live-validation | 81 | MISSED | four Chrome walks run without the skill; the first probed a 404 page |
+| shelf-sync | 85 | MISSED | the hello-world shelf synced by hand; its tests overwritten before capture |
+
+* settlement
+
+- #218's State (DESIGNED, no code touched) is superseded by this fold's.
+- Codeword scan of 77–89: no =retard=, no =i dont understand=. /"fix"/ is an order, not a codeword.
+- MARKERS.md =OPEN= is empty.
+- Known issues filed, not left in the quest: three entries.
+- The m72 epitaph waits for beef's walk; the quest stays at the root until he closes it.
+
+* handoff
+- quest :: m72-zoned-designs
+- goal :: /"i want to structure our surfaces or leveles or zones. its chaos atm."/ — the token space as the contract, zones as territories with depth inside
+- done :: four patches applied: names + pipe · anima and drapes by name · registry and commons by name · the old pipeline retired; every suite green, pre-existing reds in known-issues
+- next :: beef restarts =anima/watch=, then walks northsea and parchment through panels A–H, a chat with turns and one education buffer
+- never :: /"4 patches. go on all 4."/ — no fallback sheet, no dual read of the retired tokens
+- never :: /"obviously fucking not shared aqua and moss."/ — a colour belongs to its theme
+- owed :: beef — the walk · nine fork rulings · the close of m72 · then porcelain · datasette
+- quest :: m73-anima-and-design-system-comps
+- goal :: /"write a new quest. start with two pieces of content. a list of files to read … and then starting the question with the two links abve. mcp instcutions. m73"/
+- done :: seeded: the read-first list and both handoffs verbatim
+- next :: =/design-login=, then read =Anima.dc.html= · =Design System.dc.html= · =support.js= · =tokens/sheet.css= through the MCP (skill =design-handoff=)
+- never :: /"what the designer does is what the designer does in its own universe, we apply our own."/
+- owed :: beef — the design login · a go to read the comps
+- quest :: none
+- settles :: #218
+- goal :: fold turns 62–76
+- done :: its State superseded by #220
+- next :: none
+- never :: —
+- owed :: nothing
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0        |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3        |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 0        |
+| m73-anima-and-design-system-comps | —          | design   | go                                                                                                | 0        |

@@ -60,11 +60,11 @@
 </div>
 
 <style>
-  .switchboard { min-height:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.7rem; padding:18px; background:var(--colors-skeleton-2-surface); color:var(--colors-skeleton-2-contrast); font-family:var(--font-family-code); }
-  .tag { font-size:var(--font-size-xs); text-transform:uppercase; letter-spacing:.12em; color:var(--colors-skeleton-0-primary-base); }
-  .readout { display:flex; gap:1rem; font-size:var(--font-size-2xs); opacity:.7; } .readout b { color:var(--colors-skeleton-0-primary-base); font-weight:600; }
+  .switchboard { min-height:100%; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.7rem; padding:18px; background:var(--surface-sunk); color:var(--text-strong); font-family:var(--font-family-code); }
+  .tag { font-size:var(--font-size-xs); text-transform:uppercase; letter-spacing:.12em; color:var(--signal-primary-ink); }
+  .readout { display:flex; gap:1rem; font-size:var(--font-size-2xs); opacity:.7; } .readout b { color:var(--signal-primary-ink); font-weight:600; }
   .row { display:flex; gap:.5rem; }
   button { padding:.35rem .9rem; font:inherit; font-size:var(--font-size-2xs); color:inherit; background:transparent; border:1px solid color-mix(in srgb,currentColor 25%,transparent); border-radius:.3rem; cursor:pointer; opacity:.8; }
-  button:hover { opacity:1; border-color:var(--colors-skeleton-0-primary-base); } button.on, button.cycle { opacity:1; color:var(--colors-skeleton-0-primary-base); border-color:var(--colors-skeleton-0-primary-base); }
+  button:hover { opacity:1; border-color:var(--signal-primary); } button.on, button.cycle { opacity:1; color:var(--signal-primary-ink); border-color:var(--signal-primary); }
   .trace { list-style:none; margin:.3rem 0 0; padding:0; font-size:var(--font-size-2xs); opacity:.5; text-align:center; min-height:5rem; }
 </style>

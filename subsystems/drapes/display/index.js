@@ -16,5 +16,14 @@ import Tile from "./Tile.svelte";
 import Plate from "./Plate.svelte";
 import Entry from "./Entry.svelte";
 import Empty from "./Empty.svelte";
+import Row from "./Row.svelte";
+import Reading from "./Reading.svelte";
+import Well from "./Well.svelte";
+import ToolRow from "./ToolRow.svelte";
+import Pressed from "./Pressed.svelte";
+import Strip from "./Strip.svelte";
+import Meter from "./Meter.svelte";
+import Spinner from "./Spinner.svelte";
+import Status from "./Status.svelte";
 
-export { Tag, Label, Header, Paragraph, Asset, ErrorBox, Pip, Chip, Section, Helpdesk, Json, Markdown, Org, Pdf, Tile, Plate, Entry, Empty };
+export { Tag, Label, Header, Paragraph, Asset, ErrorBox, Pip, Chip, Section, Helpdesk, Json, Markdown, Org, Pdf, Tile, Plate, Entry, Empty, Row, Reading, Well, ToolRow, Pressed, Strip, Meter, Spinner, Status };

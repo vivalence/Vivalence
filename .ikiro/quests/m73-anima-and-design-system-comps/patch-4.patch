@@ -1,0 +1,4315 @@
+diff --git a/subsystems/drapes/panels/Frame.svelte b/subsystems/drapes/panels/Frame.svelte
+index 71028d5..50bf2b4 100644
+--- a/subsystems/drapes/panels/Frame.svelte
++++ b/subsystems/drapes/panels/Frame.svelte
+@@ -1,10 +1,12 @@
+ <script>
+   import { onDestroy } from "svelte";
++  import Empty from "../display/Empty.svelte";
+ 
+-  let { terminal, view = null } = $props();
++  let { terminal, view = null, children } = $props();
+ 
+   const buffer = $derived(terminal.$buffer);
+   const bufferId = $derived($buffer?.id);
++  const address = $derived(view ? `${view.bundle?.url ?? ""}${view.mount?.nature ?? ""}` : "");
+   let component = $state(null);
+   let dom = $state(null);
+   let fault = $state(null);
+@@ -85,27 +87,22 @@
+   <div class="viewport">
+     {#if fault}
+       <div class="fault">
+-        <span class="verb">view refused</span>
+-        <span class="trace">{fault}</span>
+-        {#if view}<span class="trace">{view.bundle?.url ?? ""}{view.mount?.nature ?? ""}</span>{/if}
++        <Empty tone="negative" verb="view refused" trace={fault} />
++        {#if view}<span class="fault-trace">{address}</span>{/if}
+       </div>
+     {:else if view}
+       <div class="stage" bind:this={dom}></div>
+       {#if standing === "loading"}
+         <div class="standing">
+-          <span class="pulse"></span>
+-          <span class="verb">loading view</span>
+-          <span class="trace">{view.bundle?.url ?? ""}{view.mount?.nature ?? ""}</span>
++          <Empty spinner verb="loading view" trace={address} />
+         </div>
+       {/if}
+     {:else if standing === "resolving"}
+       <div class="standing">
+-        <span class="pulse"></span>
+-        <span class="verb">resolving buffer</span>
+-        <span class="trace">{typeof $buffer === "string" ? $buffer : ($buffer?.id ?? "")}</span>
++        <Empty spinner verb="resolving buffer" trace={typeof $buffer === "string" ? $buffer : ($buffer?.id ?? "")} />
+       </div>
+     {:else}
+-      <slot />
++      {@render children?.()}
+     {/if}
+   </div>
+ {/key}
+@@ -126,53 +123,9 @@
+   .standing {
+     position: absolute;
+     inset: 0;
+-    display: flex;
+-    flex-direction: column;
+-    align-items: center;
+-    justify-content: center;
+-    gap: 7px;
++    display: grid;
++    place-items: center;
+     pointer-events: none;
+-    font-family: var(--font-family-code);
+-    user-select: none;
+-  }
+-  .verb {
+-    font-size: var(--font-size-xs);
+-    letter-spacing: 0.16em;
+-    text-transform: uppercase;
+-    opacity: 0.55;
+-  }
+-  .trace {
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.04em;
+-    opacity: 0.35;
+-    max-width: 80%;
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-    white-space: nowrap;
+-  }
+-  .pulse {
+-    width: 6px;
+-    height: 6px;
+-    border-radius: 50%;
+-    background: currentColor;
+-    opacity: 0.5;
+-    animation: frame-pulse 1.2s ease-in-out infinite;
+-  }
+-  @media (prefers-reduced-motion: reduce) {
+-    .pulse {
+-      animation: none;
+-    }
+-  }
+-  @keyframes frame-pulse {
+-    0%,
+-    100% {
+-      opacity: 0.2;
+-      transform: scale(0.8);
+-    }
+-    50% {
+-      opacity: 0.7;
+-      transform: scale(1);
+-    }
+   }
+   .fault {
+     margin: auto;
+@@ -181,18 +134,15 @@
+     align-items: center;
+     gap: 6px;
+     padding: 1rem 1.5rem;
+-    font-family: var(--font-family-code);
+-    color: var(--signal-negative-ink, #c33);
+-    border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+-    border-radius: 2px;
+     max-width: 80%;
++    border-radius: var(--shape-radius-key);
++    box-shadow: inset 0 0 0 var(--size-ring) var(--signal-negative);
++    font-family: var(--font-family-code);
++    color: var(--signal-negative-ink);
+   }
+-  .fault .verb {
+-    opacity: 0.9;
+-  }
+-  .fault .trace {
+-    opacity: 0.7;
+-    white-space: normal;
++  .fault-trace {
++    font-size: var(--size-type-2xs);
+     word-break: break-all;
++    text-align: center;
+   }
+ </style>
+diff --git a/systems/anima/src/app/panels/a/a.svelte b/systems/anima/src/app/panels/a/a.svelte
+index 7ba74e7..30c248d 100644
+--- a/systems/anima/src/app/panels/a/a.svelte
++++ b/systems/anima/src/app/panels/a/a.svelte
+@@ -2,18 +2,23 @@
+   import { getContext } from "svelte";
+   import { TERMINALS } from "$client";
+   import { chain, stores } from "@vivalence/anima";
+-  import { Frame } from "@vivalence/drapes";
++  import { Empty, Frame, Key, Status } from "@vivalence/drapes";
+   import Dock from "./widgets/Dock.svelte";
+ 
+   let { rect } = $props();
+ 
++  const TONES = { PENDING: "idle", ACTIVE: "primary", DONE: "positive", ERROR: "negative", STALE: "caution" };
++
+   const terminals = getContext(TERMINALS);
+ 
+   const terminal = terminals.$active;
+   const thread = chain(terminals, "$active", "$thread");
+   const buffer = chain(terminals, "$active", "$buffer");
++  const buffers = chain(terminals, "$active", "$thread", "$buffers");
++  const phase = chain(terminals, "$active", "$thread", "$phase");
+   const mode = chain(terminals, "$active", "$thread", "$mode");
+   const dock = chain(terminals, "$active", "$dock");
++  const settling = chain(terminals, "$active", "$settling");
+   const application = chain(terminals, "$active", "$buffer", "mode", "$application");
+   const record = chain(terminals, "$active", "$buffer", "$view");
+   const modeStatus = chain(terminals, "$active", "$buffer", "mode", "status", "$transient");
+@@ -33,11 +38,30 @@
+     dockable && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve($dock, rect) : null,
+   );
+ 
+-  const LABEL_MIN_PX = 96;
+-  const stageHeight = $derived(
+-    rect.height - (geom && !full && !geom.vertical ? geom.size : 0),
++  const conversational = $derived(dockable && !($mode?.implements?.("APPLICATION") ?? false));
++  const reason = $derived(
++    $phase === "inert"
++      ? "inert · open a buffer or engage a phase"
++      : $buffers?.length
++        ? "cursor empty"
++        : "no buffers · open or pull",
++  );
++  const refusal = $derived(
++    [
++      `mode ${$buffer?.mode?.slug ?? "—"}`,
++      `application ${$application ? "present" : "pending"}`,
++      $modeStatus?.code && $modeStatus.code !== "HEALTHY" ? `mode ${$modeStatus.code.toLowerCase()}` : null,
++      $modeStatus?.code && $modeStatus.code !== "HEALTHY" && $modeStatus.error
++        ? `${$modeStatus.error.message ?? $modeStatus.error}`
++        : null,
++    ]
++      .filter(Boolean)
++      .join(" · "),
+   );
+-  const labelVisible = $derived(stageHeight >= LABEL_MIN_PX);
++  const status = $derived.by(() => {
++    void $buffers;
++    return $buffer?.status ?? null;
++  });
+ 
+   let last = null;
+   function onSeamDown(event) {
+@@ -60,6 +84,20 @@
+   }
+ </script>
+ 
++{#snippet vacant()}
++  <div class="standing">
++    {#if $settling}
++      <Empty spinner verb="settling · {$settling.thread ? 'thread' : 'buffer'}" />
++    {:else if !$thread}
++      <Empty verb="no thread" trace="pick a mode in navigation · or a thread" />
++    {:else if conversational}
++      <Empty verb="conversational · no application" trace="the dock is the surface" />
++    {:else}
++      <Empty verb="resolving buffer" trace={reason} />
++    {/if}
++  </div>
++{/snippet}
++
+ {#if rect.width > 0 && rect.height > 0}
+   <div
+     data-zone="1"
+@@ -73,19 +111,35 @@
+       {#if $terminal}
+         <Frame terminal={$terminal} {view}>
+           {#if $buffer && !view}
+-            <div class="await">
+-              <span class="await-head">buffer has no view</span>
+-              <span class="await-line">mode {$buffer.mode?.slug ?? "—"} · application {$application ? "present" : "pending"}</span>
+-              {#if $modeStatus?.code && $modeStatus.code !== "HEALTHY"}
+-                <span class="await-line bad">mode {$modeStatus.code.toLowerCase()}{$modeStatus.error ? ` · ${$modeStatus.error.message ?? $modeStatus.error}` : ""}</span>
++            <div class="standing">
++              {#if conversational}
++                <Empty verb="conversational · no application" trace="the dock is the surface" />
++              {:else}
++                <Empty tone="negative" verb="buffer has no view" trace={refusal} />
+               {/if}
+             </div>
+-          {:else if labelVisible}
+-            <span class="label">A</span>
++          {:else}
++            {@render vacant()}
+           {/if}
+         </Frame>
+-      {:else if labelVisible}
+-        <span class="label">A</span>
++        {#if $buffer && view}
++          <div class="status-bar">
++            <Status tone={TONES[status] ?? "none"} />
++            <span>{status?.toLowerCase() ?? ""}</span>
++            <span class="spacer"></span>
++            {#if dockable}
++              <Key
++                size="row"
++                led
++                latched={!$dock?.collapsed}
++                label="chat"
++                title={$dock?.collapsed ? "show the chat" : "hide the chat"}
++                onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)} />
++            {/if}
++          </div>
++        {/if}
++      {:else}
++        {@render vacant()}
+       {/if}
+     </div>
+ 
+@@ -98,6 +152,7 @@
+           onpointermove={onSeamMove}
+           onpointerup={onSeamUp}
+           onpointercancel={onSeamUp}>
++          <span class="grip"></span>
+         </div>
+       {/if}
+       <div
+@@ -124,28 +179,52 @@
+     min-width: 0;
+     min-height: 0;
+     display: flex;
++    flex-direction: column;
+     overflow: auto;
+   }
++  .standing {
++    flex: 1;
++    min-width: 0;
++    min-height: 0;
++    display: grid;
++    place-items: center;
++  }
++  .status-bar {
++    flex: none;
++    display: flex;
++    align-items: center;
++    gap: 8px;
++    padding: 8px 14px 10px;
++    border-top: var(--size-ring) solid var(--boundary);
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
++  }
++  .spacer {
++    flex: 1;
++  }
+   .seam {
+-    flex: 0 0 auto;
+-    background: var(--divider);
+-    opacity: 0.4;
++    flex: 0 0 7px;
++    display: grid;
++    place-items: center;
+     cursor: ns-resize;
+     touch-action: none;
+-    transition:
+-      opacity 0.12s,
+-      background 0.12s;
+   }
+   .seam.vertical {
+-    width: 4px;
+     cursor: ew-resize;
+   }
+-  .seam:not(.vertical) {
+-    height: 4px;
+-  }
+   .seam:hover {
+-    opacity: 1;
+-    background: var(--signal-primary);
++    background: var(--control-selected);
++  }
++  .grip {
++    width: 26px;
++    height: 3px;
++    border-radius: var(--shape-radius-xs);
++    background: var(--boundary);
++  }
++  .seam.vertical .grip {
++    width: 3px;
++    height: 26px;
+   }
+   .dock-slot {
+     flex: 0 0 auto;
+@@ -158,34 +237,4 @@
+     inset: 0;
+     z-index: 2;
+   }
+-  .label {
+-    margin: auto;
+-    font-size: var(--font-size-7xl);
+-    font-weight: 900;
+-    opacity: 0.35;
+-    user-select: none;
+-  }
+-  .await {
+-    margin: auto;
+-    display: flex;
+-    flex-direction: column;
+-    align-items: center;
+-    gap: 6px;
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-xs);
+-    letter-spacing: 0.06em;
+-    user-select: none;
+-  }
+-  .await-head {
+-    text-transform: uppercase;
+-    letter-spacing: 0.16em;
+-    color: color-mix(in srgb, var(--text-strong) 55%, transparent);
+-  }
+-  .await-line {
+-    font-size: var(--font-size-2xs);
+-    color: color-mix(in srgb, var(--text-strong) 40%, transparent);
+-  }
+-  .await-line.bad {
+-    color: var(--signal-negative-ink);
+-  }
+ </style>
+diff --git a/systems/anima/src/app/panels/a/widgets/Composer.svelte b/systems/anima/src/app/panels/a/widgets/Composer.svelte
+new file mode 100644
+index 0000000..182abd5
+--- /dev/null
++++ b/systems/anima/src/app/panels/a/widgets/Composer.svelte
+@@ -0,0 +1,236 @@
++<script>
++  import { Float, Key, Status } from "@vivalence/drapes";
++  import Tune from "../../../widgets/Tune.svelte";
++  import Dictaphone from "./Dictaphone.svelte";
++
++  let {
++    draft = $bindable(""),
++    field = $bindable(null),
++    thread = null,
++    harnessed = false,
++    hint = "",
++    ceiling = 112,
++    error = null,
++    pinned = true,
++    unread = 0,
++    stoppable = false,
++    sending = false,
++    control,
++    tunable = false,
++    tune = null,
++    verbatim = false,
++    recorder,
++    level,
++    coarse = false,
++    onkeydown,
++    onsend,
++    onpin,
++    ondictate,
++    onsettle,
++  } = $props();
++
++  const dictating = $derived(recorder.$active);
++  const committed = $derived(recorder.$committed);
++  const tail = $derived(recorder.$tail);
++  const fault = $derived(recorder.$error);
++
++  const listening = $derived($dictating !== "idle");
++  const sealed = $derived(!harnessed || listening);
++  const stopping = $derived(control.armed === "SIGTERM");
++  const stopTitle = $derived(
++    stopping ? "stopping · hold 2s to kill" : coarse ? "stop · hold 2s to kill" : "stop (esc) · hold 2s to kill",
++  );
++
++  let tuneAnchor = $state(null);
++  let tuneOpen = $state(false);
++
++  const keepFocus = (event) => event.preventDefault();
++
++  function write(event) {
++    if (sealed) return void (event.currentTarget.value = draft);
++    draft = event.currentTarget.value;
++  }
++</script>
++
++<div class="composer">
++  {#if error}
++    <div class="composer-fault" title={error}>error: {error}</div>
++  {/if}
++  {#if !pinned}
++    <span class="composer-pill">
++      <Key
++        size="mini"
++        tone={unread > 0 ? "primary" : "plain"}
++        title="scroll to bottom"
++        onpress={keepFocus}
++        onclick={onpin}>
++        ↓{#if unread > 0}&nbsp;{unread} new{/if}
++      </Key>
++    </span>
++  {/if}
++  <div class="composer-well">
++    {#if listening}
++      <div class="composer-dictation">
++        <Status tone="negative" size={8} pulse />
++        <span>{$committed}</span>
++        {#if $tail}<span class="composer-tail">{$tail}</span>{/if}
++      </div>
++    {/if}
++    <textarea
++      bind:this={field}
++      class="composer-field"
++      class:unharnessed={!harnessed}
++      value={draft}
++      oninput={write}
++      {onkeydown}
++      placeholder={harnessed ? hint : "—"}
++      rows="2"
++      style:max-height="{ceiling}px"></textarea>
++    <div class="composer-keys">
++      {#if tunable}
++        <span class="composer-tune" bind:this={tuneAnchor}>
++          <Key
++            size="row"
++            led
++            latched={tuneOpen}
++            label={Array.isArray(tune) ? "custom" : (tune ?? "mode decides")}
++            title="intelligent · click to tune"
++            onpress={keepFocus}
++            onclick={() => (tuneOpen = !tuneOpen)} />
++        </span>
++      {/if}
++      <span class="composer-spacer"></span>
++      {#if verbatim}
++        <Dictaphone active={dictating} {level} fault={$fault} disabled={sending} onstart={ondictate} onstop={onsettle} />
++      {/if}
++      {#if stoppable}
++        <Key
++          size="row"
++          tone="negative"
++          hold={2000}
++          muted={stopping}
++          onpress={(event) => (keepFocus(event), control.press())}
++          onrelease={control.release}
++          onclick={(event) => event.detail === 0 && control.stop()}
++          label={control.armed === "SIGKILL" ? "killing" : "stop"}
++          title={stopTitle} />
++      {:else}
++        <Key
++          tone="primary"
++          size="row"
++          disabled={!harnessed || !draft.trim()}
++          title={coarse ? "send" : "send (enter)"}
++          onpress={keepFocus}
++          onclick={onsend}>
++          <span class="composer-plane"></span>
++        </Key>
++      {/if}
++    </div>
++  </div>
++</div>
++
++{#if tuneOpen}
++  <Float anchor={tuneAnchor} zone="1" side="above" title="intelligent" onclose={() => (tuneOpen = false)}>
++    <Tune {thread} />
++  </Float>
++{/if}
++
++<style>
++  .composer {
++    position: relative;
++    flex: none;
++    display: flex;
++    flex-direction: column;
++    gap: 6px;
++    padding: 4px var(--dock-gutter, 14px) 10px;
++  }
++  .composer-fault {
++    margin: 0 10px;
++    padding: 6px 10px;
++    border-radius: var(--shape-radius-key);
++    background: var(--surface);
++    box-shadow: inset 0 0 0 var(--size-ring) var(--signal-negative);
++    color: var(--signal-negative-ink);
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    overflow-wrap: anywhere;
++  }
++  .composer-pill {
++    position: absolute;
++    bottom: calc(100% + 10px);
++    left: 50%;
++    z-index: 5;
++    display: inline-flex;
++    transform: translateX(-50%);
++  }
++  .composer-well {
++    position: relative;
++    display: flex;
++    flex-direction: column;
++    gap: 8px;
++    padding: 9px 8px 9px 12px;
++    border-radius: var(--shape-radius-card);
++    background: var(--surface-sunk);
++    color: var(--text-strong);
++    box-shadow: var(--shape-sunk);
++  }
++  .composer-well:focus-within {
++    box-shadow: var(--shape-sunk), 0 0 0 var(--size-ring) var(--control-focus);
++  }
++  .composer-dictation {
++    display: flex;
++    align-items: center;
++    gap: 8px;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-ink);
++    white-space: pre-wrap;
++    overflow-wrap: anywhere;
++  }
++  .composer-tail {
++    font-style: italic;
++    color: var(--text-light);
++  }
++  .composer-field {
++    min-height: 40px;
++    max-height: 112px;
++    padding: 0;
++    border: none;
++    outline: none;
++    resize: none;
++    overflow-y: auto;
++    field-sizing: content;
++    background: transparent;
++    color: var(--text-strong);
++    caret-color: var(--control-field-caret);
++    font-family: var(--font-family-sans-text);
++    font-size: var(--size-type-sm);
++    line-height: 20px;
++  }
++  .composer-field::placeholder {
++    color: var(--control-field-placeholder);
++  }
++  .composer-field.unharnessed {
++    opacity: var(--text-disabled);
++  }
++  .composer-keys {
++    display: flex;
++    flex-wrap: wrap;
++    align-items: center;
++    gap: 6px 7px;
++    padding-bottom: var(--size-depth);
++  }
++  .composer-tune {
++    display: inline-flex;
++  }
++  .composer-spacer {
++    flex: 1;
++  }
++  .composer-plane {
++    width: 13px;
++    height: 13px;
++    background: currentColor;
++    -webkit-mask: url(/icons/heroicons/20/solid/paper-airplane.svg) center / contain no-repeat;
++    mask: url(/icons/heroicons/20/solid/paper-airplane.svg) center / contain no-repeat;
++  }
++</style>
+diff --git a/systems/anima/src/app/panels/a/widgets/Dictaphone.svelte b/systems/anima/src/app/panels/a/widgets/Dictaphone.svelte
+index 3b11ec5..ef236ab 100644
+--- a/systems/anima/src/app/panels/a/widgets/Dictaphone.svelte
++++ b/systems/anima/src/app/panels/a/widgets/Dictaphone.svelte
+@@ -1,73 +1,50 @@
+ <script>
++  import { Key } from "@vivalence/drapes";
++
+   let { active, level, disabled = false, fault = null, onstart, onstop } = $props();
+ 
+   const busy = $derived($active === "arming" || $active === "settling");
+   const listening = $derived($active === "listening");
+ </script>
+ 
+-<button
+-  class="dictaphone"
+-  class:listening
+-  class:busy
+-  onclick={() => (listening ? onstop?.() : onstart?.())}
+-  onpointerdown={(event) => event.preventDefault()}
++<Key
++  square
++  size="row"
++  latched={listening}
+   disabled={disabled || busy}
+   title={fault ?? (listening ? "settle dictation" : "dictate")}
+-  aria-label={listening ? "stop dictation" : "start dictation"}
+->
+-  <span class="pulse" style:transform="scale({1 + Math.min(($level ?? 0) * 6, 0.9)})"></span>
+-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+-    <rect x="9" y="3" width="6" height="11" rx="3" />
+-    <path d="M5 11a7 7 0 0 0 14 0" />
+-    <line x1="12" y1="18" x2="12" y2="21" />
+-  </svg>
+-</button>
++  onpress={(event) => event.preventDefault()}
++  onclick={() => (listening ? onstop?.() : onstart?.())}>
++  <span class="dictaphone-pulse" class:listening style:transform="scale({1 + Math.min(($level ?? 0) * 6, 0.9)})"></span>
++  <span class="dictaphone-glyph" class:busy></span>
++</Key>
+ 
+ <style>
+-  .dictaphone {
+-    position: relative;
+-    width: 32px;
+-    height: 32px;
+-    padding: 0;
+-    display: grid;
+-    place-items: center;
+-    background: color-mix(in srgb, var(--signal-primary) 8%, transparent);
+-    border: 1px solid color-mix(in srgb, var(--signal-primary) 45%, transparent);
+-    border-radius: 2px;
+-    color: var(--signal-primary-ink);
+-    cursor: pointer;
+-    transition: background 0.16s, color 0.16s, border-color 0.16s;
+-    flex-shrink: 0;
+-    overflow: hidden;
+-  }
+-  .dictaphone svg {
+-    width: 15px;
+-    height: 15px;
+-    display: block;
+-    position: relative;
+-  }
+-  .dictaphone:not(:disabled):hover {
+-    background: color-mix(in srgb, var(--signal-primary) 16%, transparent);
+-    border-color: var(--signal-primary);
+-  }
+-  .dictaphone:disabled {
+-    opacity: 0.4;
+-    cursor: progress;
+-  }
+-  .dictaphone.listening {
+-    border-color: var(--signal-negative);
+-    color: var(--signal-negative-ink);
+-  }
+-  .dictaphone.busy {
+-    border-color: var(--signal-primary);
+-  }
+-  .pulse {
++  .dictaphone-pulse {
+     position: absolute;
+     inset: 0;
+-    border-radius: 2px;
+-    background: color-mix(in srgb, currentColor 14%, transparent);
++    border-radius: var(--shape-radius-full);
+     transform-origin: center;
+     transition: transform 0.08s linear;
+     pointer-events: none;
+   }
++  .dictaphone-pulse.listening {
++    background: var(--signal-negative-tint);
++  }
++  .dictaphone-glyph {
++    position: relative;
++    width: 14px;
++    height: 14px;
++    background: currentColor;
++    -webkit-mask: url(/icons/heroicons/20/solid/microphone.svg) center / contain no-repeat;
++    mask: url(/icons/heroicons/20/solid/microphone.svg) center / contain no-repeat;
++  }
++  .dictaphone-glyph.busy {
++    animation: dictaphone-arming 1.2s ease-in-out infinite;
++  }
++  @keyframes dictaphone-arming {
++    50% {
++      opacity: 0.3;
++    }
++  }
+ </style>
+diff --git a/systems/anima/src/app/panels/a/widgets/Dock.svelte b/systems/anima/src/app/panels/a/widgets/Dock.svelte
+index b8849a8..dcce55e 100644
+--- a/systems/anima/src/app/panels/a/widgets/Dock.svelte
++++ b/systems/anima/src/app/panels/a/widgets/Dock.svelte
+@@ -3,55 +3,39 @@
+   import { chain, stores, dictation } from "@vivalence/anima";
+   import { soma } from "@vivalence/typology";
+   import { TERMINALS, BRIDGE, BOX } from "$client";
+-  import { Json, Markdown } from "@vivalence/drapes";
+-  import { loudest, roster as activityRoster } from "@vivalence/anima";
+-  import Dictaphone from "./Dictaphone.svelte";
++  import { Empty } from "@vivalence/drapes";
++  import { TONES, loudest, roster as activityRoster } from "@vivalence/anima";
++  import Composer from "./Composer.svelte";
++  import DockHead from "./DockHead.svelte";
++  import LiveTurn from "./LiveTurn.svelte";
++  import Turn from "./Turn.svelte";
+   import { stopper } from "./stop.svelte.js";
+-  import ActivityTracker from "../../../widgets/ActivityTracker.svelte";
+   import { spliceAt } from "./dictate.js";
+-  import {
+-    turnText,
+-    turnThinking,
+-    turnTools,
+-    turnArtifacts,
+-    turnVerdict,
+-    toolResults,
+-    isToolTurn,
+-    toolCensus,
+-    toolChannels,
+-    toolBuffers,
+-    toolDigest,
+-    turnCensus,
+-    scalarPairs,
+-    bufferLabel,
+-    turnClipboard,
+-    turnManifest,
+-    sessionUsage,
+-    contextSize,
+-    tokens,
+-  } from "./turns.js";
++  import { bufferLabel, enrich, project, turnClipboard, turnText, usages } from "./turns.js";
+ 
+-  let { thread } = $props();
++  let { thread, onconsole = null } = $props();
+ 
+   const terminals = getContext(TERMINALS);
+   const bridge = getContext(BRIDGE);
+   const box = getContext(BOX);
+ 
+-  // reactive reads via chain from the STABLE terminals root (survives thread switches).
+   const turnsStore = chain(terminals, "$active", "$thread", "$turns");
+   const modeStore = chain(terminals, "$active", "$thread", "$mode");
+   const dockStore = chain(terminals, "$active", "$dock");
+   const buffersStore = chain(terminals, "$active", "$thread", "$buffers");
+   const traitStore = chain(terminals, "$active", "$thread", "$trait");
++  const traitsStore = chain(terminals, "$active", "$thread", "$traits");
++  const labelStore = chain(terminals, "$active", "$thread", "$label");
++  const seatedStore = chain(terminals, "$active", "$buffer");
+   const composerStore = bridge.$composer;
+ 
+   let turns = $derived($turnsStore ?? []);
+   let thinkMode = $derived($traitStore?.INTELLIGENT?.thinking);
+   let harnessed = $derived($modeStore?.implements?.("HARNESSED") ?? false);
+   let verbatim = $derived(harnessed && ($modeStore?.daemon?.cortex?.find({ type: "verbatim", via: "stream" }).length ?? 0) > 0);
++  const tunable = $derived(($traitsStore ?? []).includes("INTELLIGENT"));
++  const agent = $derived($labelStore?.name ?? "agent");
+ 
+-  // the header state is the ROW's, not this component's streaming flags: a hallucination the
+-  // dock did not start (a tool, another surface) still says so here.
+   let activities = $state([]);
+   $effect(() => {
+     if (!thread) return void (activities = []);
+@@ -60,21 +44,15 @@
+   });
+   const activityCode = $derived(loudest(activities));
+   const control = stopper(() => ({ activities, sending }));
+-  const stopping = $derived(control.armed === "SIGTERM");
+ 
+   const recorder = dictation({ terminals, box });
+   const dictating = recorder.$active;
+-  const committed = recorder.$committed;
+-  const tail = recorder.$tail;
+-  const dictationFault = recorder.$error;
+   const level = box.device.microphone.$level;
+   let anchor = 0;
+   const listening = $derived($dictating !== "idle");
+   let full = $derived($dockStore?.full ?? false);
++  const side = $derived(stores.bridge.normalizeSide($dockStore?.side));
+ 
+-  // in-flight = pure view state. history is thread.$turns (the repo). the user turn is minted
+-  // here with a client id and persisted under it → the repo delivers the SAME id → echo drops
+-  // on identity, no content-match. `live` = the running fold (soma.scan), null when idle.
+   let live = $state(null);
+   let echo = $state(null);
+   let sending = $state(false);
+@@ -83,68 +61,26 @@
+   let draft = $state("");
+   let textareaEl = $state(null);
+   let dockHeight = $state(0);
+-  let dockWidth = $state(0);
+   let logEl = $state(null);
+   let pinned = $state(true);
+   let unread = $state(0);
+ 
+-  let opened = $state({});
+   let metaOpen = $state(false);
+-  let railOpen = $state(false);
+-  let railSize = $state(320);
+-  let tab = $state("activity");
++  let picked = $state(null);
+   let elapsed = $state(0);
+-  let seam = null;
+ 
+-  const ROWS = 8;
+   const CONSOLES = ["context", "meter", "activity"];
+-  const isOpen = (key, fallback = false) => opened[key] ?? fallback;
+-  const caret = (key, fallback = false) => (isOpen(key, fallback) ? "▾" : "▸");
+-
+-  function toggle(key, fallback = false) {
+-    opened = { ...opened, [key]: !isOpen(key, fallback) };
+-    pinBottom();
+-  }
+ 
+   function openConsole(name) {
+-    if (railOpen && tab === name) return (railOpen = false);
+-    tab = name;
+-    railOpen = true;
+-  }
+-
+-  // orientation flips at 820px: side rail 280–680px, stacked rail 140px–55vh
+-  const narrow = $derived(dockWidth > 0 && dockWidth < 820);
+-  const railExtent = $derived(
+-    narrow
+-      ? Math.min(railSize, Math.max(140, Math.round(dockHeight * 0.55)))
+-      : Math.min(railSize, 680, Math.max(280, Math.round(dockWidth * 0.7))),
+-  );
+-
+-  function seamDown(event) {
+-    event.preventDefault();
+-    event.currentTarget.setPointerCapture(event.pointerId);
+-    seam = { x: event.clientX, y: event.clientY };
++    picked = picked === name ? null : name;
++    onconsole?.(picked);
+   }
+ 
+-  function seamMove(event) {
+-    if (!seam) return;
+-    const dx = event.clientX - seam.x;
+-    const dy = event.clientY - seam.y;
+-    seam = { x: event.clientX, y: event.clientY };
+-    railSize = narrow
+-      ? Math.max(140, Math.min(Math.round(dockHeight * 0.55), railSize + dy))
+-      : Math.max(280, Math.min(680, railSize - dx));
++  function toggleMeta() {
++    metaOpen = !metaOpen;
++    if (!metaOpen && picked) openConsole(picked);
+   }
+ 
+-  function seamUp(event) {
+-    try {
+-      event.currentTarget.releasePointerCapture(event.pointerId);
+-    } catch {}
+-    seam = null;
+-  }
+-
+-  const bufferIds = $derived(new Set(($buffersStore ?? []).map((buffer) => buffer.id)));
+-
+   function launch(row) {
+     const terminal = terminals.active;
+     const buffer = ($buffersStore ?? []).find((candidate) => candidate.id === row.id);
+@@ -158,6 +94,18 @@
+     return bufferLabel(managed);
+   }
+ 
++  const launches = (item) =>
++    item.buffers.map((row) => {
++      const managed = ($buffersStore ?? []).find((candidate) => candidate.id === row.id);
++      return {
++        id: row.id,
++        label: launchLabel(row),
++        line: [thread?.daemon?.slug, managed?.mode?.slug ?? thread?.mode?.slug].filter(Boolean).join(" › "),
++        runnable: Boolean(managed),
++        seated: !full && $seatedStore?.id === row.id,
++      };
++    });
++
+   const coarsePointer = typeof matchMedia === "function" && matchMedia("(pointer: coarse)").matches;
+   const enterSends = $derived(!coarsePointer && ($composerStore?.enterSends ?? true));
+   const hint = $derived(coarsePointer ? "message…" : enterSends ? "message… (shift+enter for newline)" : "message… (enter for newline, shift+enter sends)");
+@@ -167,8 +115,9 @@
+   const busy = $derived(sending || !!live);
+   const showEcho = $derived(!!echo && !turns.some((t) => t.id === echo.id));
+ 
+-  const liveItem = $derived(live ? project(live) : null);
++  const liveItem = $derived(live ? { ...project(live), turn: live, date: null } : null);
+   const liveCall = $derived(liveItem?.tools.find((tool) => tool.status === "running")?.name ?? null);
++  const liveWord = $derived(liveCall ? `calling ${liveCall}` : isStreaming ? "streaming" : "thinking");
+   const elapsedLabel = $derived(`${elapsed.toFixed(1)}s`);
+ 
+   $effect(() => {
+@@ -179,25 +128,6 @@
+     return () => clearInterval(ticker);
+   });
+ 
+-  function project(turn, results) {
+-    const tools = turnTools(turn, results ?? toolResults([turn])).map((tool) => ({
+-      ...tool,
+-      census: toolCensus(tool.entities),
+-      digest: toolDigest(tool.input),
+-      channels: toolChannels(tool),
+-    }));
+-    return {
+-      text: turnText(turn),
+-      think: turnThinking(turn),
+-      tools,
+-      census: turnCensus(tools),
+-      failures: tools.filter((tool) => tool.status === "error").length,
+-      artifacts: turnArtifacts(turn),
+-      buffers: toolBuffers(tools),
+-      verdict: turnVerdict(turn),
+-    };
+-  }
+-
+   function dictate() {
+     anchor = textareaEl?.selectionStart ?? draft.length;
+     recorder.start();
+@@ -241,7 +171,7 @@
+       for await (const turn of soma.scan(
+         thread.mode.harness.dialogue.stream({ thread: thread.id, id, parts }),
+       )) {
+-        live = { ...turn }; // new ref per packet → Svelte reacts (shallow copy at the view)
++        live = { ...turn };
+         pinBottom();
+       }
+     } catch (err) {
+@@ -357,11 +287,17 @@
+     });
+   }
+ 
++  function repin() {
++    pinned = true;
++    pinBottom();
++    unread = 0;
++  }
++
+   let lastCount = 0;
+   $effect(() => {
+     const len = enrichedTurns.filter((item) => item.kind === "turn").length + (isStreaming ? 1 : 0);
+     if (pinned) pinBottom();
+-    else if (len > lastCount) unread += len - lastCount;
++    else if (len > lastCount) unread = untrack(() => unread) + len - lastCount;
+     lastCount = len;
+   });
+ 
+@@ -372,1481 +308,127 @@
+     return () => observer.disconnect();
+   });
+ 
+-  function turnDate(turn) {
+-    const value = turn?.createdAt ? new Date(turn.createdAt) : null;
+-    if (!value || Number.isNaN(value.getTime())) return null;
+-    return value;
+-  }
+-
+-  function dayKey(date) {
+-    if (!date) return "";
+-    return date.toISOString().slice(0, 10);
+-  }
+-
+-  function dayLabel(date) {
+-    if (!date) return "";
+-    const today = new Date();
+-    const yesterday = new Date(today);
+-    yesterday.setDate(today.getDate() - 1);
+-    if (dayKey(date) === dayKey(today)) return "today";
+-    if (dayKey(date) === dayKey(yesterday)) return "yesterday";
+-    return date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+-  }
+-
+-  function clockTime(date) {
+-    if (!date) return "";
+-    return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
+-  }
+-
+-  const enrichedTurns = $derived.by(() => {
+-    const source = showEcho ? [...turns, echo] : turns;
+-    const results = toolResults(source);
+-    const items = [];
+-    let prevDay = null;
+-    for (const turn of source) {
+-      if (isToolTurn(turn)) continue;
+-      const projected = project(turn, results);
+-      if (!projected.text && !projected.tools.length && !projected.artifacts.length && !projected.verdict) continue;
+-      const date = turnDate(turn);
+-      const day = dayKey(date);
+-      if (date && day !== prevDay) {
+-        items.push({ kind: "divider", id: `div-${day}`, label: dayLabel(date) });
+-        prevDay = day;
+-      }
+-      const prior = items.at(-1);
+-      if (turn.role === "assistant" && prior?.kind === "turn" && prior.turn.role === "assistant") {
+-        prior.tools = [...prior.tools, ...projected.tools];
+-        prior.text = [prior.text, projected.text].filter(Boolean).join("\n\n");
+-        prior.think = [prior.think, projected.think].filter(Boolean).join("\n\n");
+-        prior.failures += projected.failures;
+-        prior.verdict = projected.verdict ?? prior.verdict;
+-        prior.artifacts = [...prior.artifacts, ...projected.artifacts];
+-        prior.buffers = toolBuffers(prior.tools);
+-        prior.census = turnCensus(prior.tools);
+-        continue;
+-      }
+-      items.push({ kind: "turn", turn, date, ...projected });
+-    }
+-    return items;
+-  });
+-
+-  const exchanges = $derived(
+-    enrichedTurns.filter((item) => item.kind === "turn" && (item.tools.length || item.think)),
+-  );
+-  const callCount = $derived(exchanges.reduce((total, item) => total + item.tools.length, 0));
+-  const roster = $derived([
+-    ...new Set(exchanges.flatMap((item) => item.tools.map((tool) => tool.name))),
+-  ]);
+-  const manifest = $derived(
+-    enrichedTurns
+-      .filter((item) => item.kind === "turn")
+-      .map((item) => ({
+-        id: item.turn.id,
+-        who: item.turn.role === "user" ? "you" : (thread?.label?.name ?? "agent"),
+-        time: clockTime(item.date),
+-        parts: turnManifest(item.turn).join(" · "),
+-      })),
+-  );
+-  const spend = $derived(sessionUsage(turns));
+-  const held = $derived(contextSize(turns));
+-  // every entity the session touched, summed — a count, so it lives in the console
+-  const harvest = $derived(turnCensus(exchanges.flatMap((item) => item.tools)));
++  const spoken = $derived(showEcho ? [...turns, echo] : turns);
++  const enrichedTurns = $derived(enrich(spoken));
++  const spent = $derived(usages(enrichedTurns, spoken));
+ </script>
+ 
+-{#snippet callRow(tool, base)}
+-  {@const failed = tool.status === "error"}
+-  {@const running = tool.status === "running"}
+-  <div class="call" class:failed class:running>
+-    <button type="button" class="call-head" class:inert={running} onclick={() => !running && toggle(base, failed)}>
+-      {#if running}
+-        <span class="beacon"></span>
+-      {:else}
+-        <span class="fold">{caret(base, failed)}</span>
+-      {/if}
+-      <span class="call-name">{tool.name}</span>
+-      <span class="call-args">{tool.digest}</span>
+-      <span class="grow"></span>
+-      {#if !running}
+-        <span class="call-status {tool.status}">{tool.status}</span>
+-      {/if}
+-    </button>
+-    {#if !running && isOpen(base, failed)}
+-      <div class="call-body">
+-        {#if tool.output !== null && tool.output !== undefined}
+-          {#if typeof tool.output === "string"}
+-            <pre class="call-output">{tool.output}</pre>
+-          {:else}
+-            <div class="scroll"><Json value={tool.output} openDepth={1} /></div>
+-          {/if}
+-        {/if}
+-        {#each tool.channels as channel (channel.key)}
+-          {@const key = `${base}/${channel.key}`}
+-          {@const all = `${key}/all`}
+-          {@const pairs = channel.rows ? null : scalarPairs(channel.value)}
+-          <div class="chan">
+-            <button type="button" class="chan-head" onclick={() => toggle(key)}>
+-              <span class="fold">{caret(key)}</span>
+-              <span class="chan-key">{channel.key}</span>
+-              <span class="chan-sum">{channel.summary}</span>
+-            </button>
+-            {#if isOpen(key)}
+-              {#if channel.rows}
+-                {@const rows = isOpen(all) ? channel.rows : channel.rows.slice(0, ROWS)}
+-                {@const detailed = channel.rows.some((row) => row.gloss || row.band)}
+-                <div class="rows">
+-                  {#each rows as row, ri (row.id ?? ri)}
+-                    <div class="row">
+-                      <span class="row-term">{row.term}</span>
+-                      <span class="row-kind">{row.kind}</span>
+-                      {#if detailed}
+-                        <span class="row-gloss">{row.gloss}</span>
+-                        <span class="row-meter">
+-                          {#if row.band}
+-                            <span class="bar {row.band}"><span style:width="{Math.round((row.fill ?? 0) * 100)}%"></span></span>
+-                            <span class="band {row.band}">{row.band}</span>
+-                          {/if}
+-                        </span>
+-                      {/if}
+-                      {#if row.launchable}
+-                        <button type="button" class="launch" disabled={!bufferIds.has(row.id)} onclick={() => launch(row)}>▶ run</button>
+-                      {/if}
+-                    </div>
+-                  {/each}
+-                  {#if channel.rows.length > ROWS}
+-                    <button type="button" class="more" onclick={() => toggle(all)}>
+-                      {isOpen(all) ? "less" : `${channel.rows.length - ROWS} more…`}
+-                    </button>
+-                  {/if}
+-                </div>
+-              {:else if pairs}
+-                <div class="pairs">
+-                  {#each pairs as pair (pair.key)}
+-                    <span class="pair-key">{pair.key}</span><span class="pair-value">{pair.value}</span>
+-                  {/each}
+-                </div>
+-              {:else}
+-                <div class="scroll chan-body"><Json value={channel.value} openDepth={1} /></div>
+-              {/if}
+-            {/if}
+-          </div>
+-        {/each}
+-      </div>
+-    {/if}
+-  </div>
+-{/snippet}
+-
+-{#snippet activity(item, base)}
+-  {#if item.think && thinkMode == null}
+-    {@const key = `${base}/think`}
+-    <div class="chan">
+-      <button type="button" class="chan-head" onclick={() => toggle(key)}>
+-        <span class="fold">{caret(key)}</span>
+-        <span class="chan-key">thinking</span>
+-      </button>
+-      {#if opened[key]}<div class="think">{item.think}</div>{/if}
+-    </div>
+-  {/if}
+-  {#each item.tools as tool, ti (ti)}
+-    {@render callRow(tool, `${base}/c${ti}`)}
+-  {/each}
+-{/snippet}
+-
+-{#snippet chips(item)}
+-  {#if item.buffers.length}
+-    <div class="launchers">
+-      {#each item.buffers as buffer (buffer.id)}
+-        <button type="button" class="launch" disabled={!bufferIds.has(buffer.id)} onclick={() => launch(buffer)}>▶ {launchLabel(buffer)}</button>
+-      {/each}
+-    </div>
+-  {/if}
+-{/snippet}
+-
+-<div class="dock" bind:clientHeight={dockHeight} bind:clientWidth={dockWidth}>
+-  <header>
+-    <button class="dock-close" onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)} title="collapse" aria-label="collapse dock">
+-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+-        <line x1="6" y1="6" x2="18" y2="18" />
+-        <line x1="18" y1="6" x2="6" y2="18" />
+-      </svg>
+-    </button>
+-    <button class="dock-full" onclick={() => stores.bridge.setDockFull(terminals.active?.$dock)} title={full ? "restore" : "full screen"} aria-label={full ? "restore dock" : "expand dock to full panel"}>
+-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+-        {#if full}
+-          <path d="M10 4v6H4" />
+-          <path d="M14 20v-6h6" />
+-        {:else}
+-          <path d="M4 10V4h6" />
+-          <path d="M20 14v6h-6" />
+-        {/if}
+-      </svg>
+-    </button>
+-    <span class="pip" class:live={harnessed}></span>
+-    <span class="title">{thread?.label?.name ?? "session"}</span>
+-    <span class="dock-spacer"></span>
+-    {#if activityCode !== "NONE"}
+-      <ActivityTracker code={activityCode} label="word" />
+-    {/if}
+-    {#if liveCall}
+-      <span class="state calling">calling <b>{liveCall}</b><span class="elapsed">{elapsedLabel}</span></span>
+-    {:else if isStreaming}
+-      <span class="state streaming">streaming<span class="elapsed">{elapsedLabel}</span></span>
+-    {:else if isThinking}
+-      <span class="state thinking"><span class="dot"></span><span class="dot"></span><span class="dot"></span>thinking</span>
+-    {:else}
+-      <span class="state">idle</span>
+-    {/if}
+-    <button
+-      type="button"
+-      class="meta-toggle"
+-      class:on={metaOpen}
+-      onclick={() => {
+-        metaOpen = !metaOpen;
+-        if (!metaOpen) railOpen = false;
+-      }}
+-      aria-label="toggle meta bar">⋮⋮ meta</button>
+-  </header>
+-
+-  {#if metaOpen}
+-    <div class="meta">
+-      {#each CONSOLES as name (name)}
+-        <button type="button" class="rail-chip" class:on={railOpen && tab === name} onclick={() => openConsole(name)}>{name}</button>
+-      {/each}
+-    </div>
+-  {/if}
+-
+-  <div class="sweep"></div>
+-
+-  <div class="split" class:narrow>
+-  <div class="stream">
+-  <div class="log" bind:this={logEl} onscroll={onScroll}>
++<div class="dock" class:full bind:clientHeight={dockHeight}>
++  <DockHead
++    label={$labelStore?.name ?? "session"}
++    tone={activityCode === "NONE" ? (busy ? "primary" : harnessed ? "idle" : "none") : TONES[activityCode]}
++    word={activityCode === "NONE" ? null : activityCode.toLowerCase()}
++    pulse={busy || activityCode === "RUNNING"}
++    {side}
++    sides={stores.bridge.DOCK_SIDES}
++    {full}
++    meta={metaOpen}
++    consoles={CONSOLES}
++    {picked}
++    onmeta={toggleMeta}
++    onconsole={openConsole}
++    onside={(name) => stores.bridge.setDockSide(terminals.active?.$dock, name)}
++    onfull={() => stores.bridge.setDockFull(terminals.active?.$dock)}
++    oncollapse={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)} />
++
++  <div class="dock-log" bind:this={logEl} onscroll={onScroll}>
+     {#each enrichedTurns as item, index (item.id ?? item.turn?.id ?? index)}
+-      {#if item.kind === "divider"}
+-        <div class="day-divider"><span>{item.label}</span></div>
+-      {:else}
+-        {@const turn = item.turn}
+-        {@const fold = `${turn.id}/open`}
+-        {@const rich = item.tools.length > 0 || (!!item.think && thinkMode == null)}
+-        <div class="entry" class:user={turn.role === "user"} class:agent={turn.role === "assistant"}>
+-          <div class="entry-meta">
+-            {#if turn.role === "assistant"}
+-              <button type="button" class="head" class:inert={!rich} onclick={() => rich && toggle(fold)}>
+-                {#if rich}<span class="fold">{caret(fold)}</span>{/if}
+-                <span class="diamond">◆</span>
+-                <span class="who">{thread?.label?.name ?? "agent"}</span>
+-                {#if item.date}<span class="time" title={item.date.toLocaleString()}>{clockTime(item.date)}</span>{/if}
+-                {#if item.think && thinkMode == null}<span class="tool-count">thought</span>{/if}
+-                {#if item.tools.length}<span class="tool-count">{item.tools.length} {item.tools.length === 1 ? "tool" : "tools"}</span>{/if}
+-                {#if !isOpen(fold)}
+-                  {#if item.failures}<span class="chip bad">{item.failures} failed</span>{/if}
+-                {/if}
+-              </button>
+-            {:else}
+-              {#if item.date}<span class="time" title={item.date.toLocaleString()}>{clockTime(item.date)}</span><span class="sep">·</span>{/if}
+-              <span class="who">you</span>
+-            {/if}
+-            <span class="actions">
+-              <button type="button" class="action" title="copy" onclick={() => copyTurn(turn, item.tools)}>{copied === turn.id ? "copied" : "copy"}</button>
+-              {#if turn.role === "user"}
+-                <button type="button" class="action" title="resend" onclick={() => retryUser(turn)}>retry</button>
+-              {/if}
+-            </span>
+-          </div>
+-          {#if rich && isOpen(fold)}
+-            <div class="activity">{@render activity(item, turn.id)}</div>
+-          {/if}
+-          {@render chips(item)}
+-          {#if item.think && thinkMode === true}
+-            <div class="think inline">{item.think}</div>
+-          {/if}
+-          {#if item.text}
+-            <div class="text"><Markdown text={item.text} /></div>
+-          {/if}
+-          {#if item.verdict}
+-            <div class="verdict"><span class="chip bad">{item.verdict.state}</span> {item.verdict.message}</div>
+-          {/if}
+-          {#if item.artifacts.length}
+-            <div class="artifacts">
+-              {#each item.artifacts as art, ai (ai)}
+-                {#if art.type === "image" && art.source?.data}
+-                  <img class="artifact-img" src={art.source.data} alt={art.alt ?? "image"} />
+-                {:else if art.type === "audio" && art.url}
+-                  <audio class="artifact-audio" controls src={art.url}></audio>
+-                {:else}
+-                  <a class="artifact-card" href={art.url ?? "#"} target="_blank" rel="noreferrer noopener">
+-                    <span class="artifact-glyph">◈</span>
+-                    <span class="artifact-name">{art.name ?? art.url ?? art.type}</span>
+-                  </a>
+-                {/if}
+-              {/each}
+-            </div>
+-          {/if}
+-        </div>
+-      {/if}
++      <Turn
++        {item}
++        {agent}
++        thinking={thinkMode}
++        usage={spent.get(item.turn?.id) ?? null}
++        launches={item.kind === "turn" ? launches(item) : []}
++        copied={item.kind === "turn" && copied === item.turn.id}
++        onlaunch={launch}
++        oncopy={copyTurn}
++        onretry={retryUser}
++        onfold={pinBottom} />
+     {/each}
+ 
+-    {#if liveItem}
+-      <div class="entry agent streaming-entry">
+-        <div class="entry-meta">
+-          <span class="diamond">◆</span>
+-          <span class="who">{thread?.label?.name ?? "agent"}</span>
+-          <span class="time"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+-        </div>
+-        {#if liveItem.tools.length || (liveItem.think && thinkMode == null)}
+-          <div class="activity">{@render activity(liveItem, "live")}</div>
+-        {/if}
+-        {@render chips(liveItem)}
+-        {#if liveItem.think && thinkMode === true}
+-          <div class="think inline">{liveItem.think}</div>
+-        {/if}
+-        {#if liveItem.text}
+-          <div class="text live"><Markdown text={liveItem.text} /></div>
+-        {/if}
+-      </div>
+-    {:else if isThinking}
+-      <div class="entry agent streaming-entry">
+-        <div class="entry-meta">
+-          <span class="diamond">◆</span>
+-          <span class="who">{thread?.label?.name ?? "agent"}</span>
+-          <span class="time"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+-        </div>
+-      </div>
++    {#if liveItem || isThinking}
++      <LiveTurn
++        item={liveItem}
++        {agent}
++        word={liveWord}
++        elapsed={elapsedLabel}
++        thinking={thinkMode}
++        launches={liveItem ? launches(liveItem) : []}
++        onlaunch={launch}
++        onfold={pinBottom} />
+     {/if}
+ 
+     {#if !turns.length && !live && !isThinking}
+-      <div class="placeholder">{harnessed ? "begin" : "no harness"}</div>
++      <div class="dock-begin"><Empty verb={harnessed ? "begin" : "no harness"} /></div>
+     {/if}
+ 
+-    <div class="anchor"></div>
+-  </div>
+-
+-  {#if error}
+-    <div class="error-bar" title={error}>error: {error}</div>
+-  {/if}
+-
+-  <div class="composer">
+-    {#if listening}
+-      <div class="dictation-ghost">
+-        <span class="mark"></span>
+-        <span class="settled">{$committed}</span>{#if $tail}<span class="volatile">&nbsp;{$tail}</span>{/if}
+-      </div>
+-    {/if}
+-    {#if !pinned}
+-      <button type="button" class="new-pill" class:quiet={unread === 0} onpointerdown={(event) => event.preventDefault()} onclick={() => { pinned = true; pinBottom(); unread = 0; }} aria-label="scroll to bottom">
+-        ↓{#if unread > 0}&nbsp;{unread} new{/if}
+-      </button>
+-    {/if}
+-    <textarea
+-      bind:this={textareaEl}
+-      class="input"
+-      bind:value={draft}
+-      onkeydown={onKey}
+-      placeholder={harnessed ? hint : "—"}
+-      disabled={!harnessed}
+-      readonly={listening}
+-      rows="1"
+-      style:max-height="{Math.max(112, Math.round(dockHeight * 0.6))}px"></textarea>
+-
+-    {#if verbatim}
+-      <Dictaphone
+-        active={dictating}
+-        {level}
+-        fault={$dictationFault}
+-        disabled={sending}
+-        onstart={dictate}
+-        onstop={settle} />
+-    {/if}
+-    {#if sending || activities.length}
+-      <button class="send stop" class:stopping onclick={(event) => event.detail === 0 && control.stop()} onpointerdown={(event) => (event.preventDefault(), control.press())} onpointerup={control.release} onpointerleave={control.release} title={stopping ? "stopping · hold 2s to kill" : coarsePointer ? "stop · hold 2s to kill" : "stop (esc) · hold 2s to kill"} aria-label="stop">
+-        <span class="stop-hold" style:width="{control.holding * 100}%"></span>
+-        <svg viewBox="0 0 24 24">
+-          <rect x="7" y="7" width="10" height="10" rx="1" fill="currentColor" />
+-        </svg>
+-      </button>
+-    {:else}
+-      <button class="send" onclick={send} onpointerdown={(event) => event.preventDefault()} disabled={!harnessed || !draft.trim()} title={coarsePointer ? "send" : "send (enter)"} aria-label="send">
+-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+-          <polyline points="9 10 4 15 9 20" />
+-          <path d="M20 4v7a4 4 0 0 1-4 4H4" />
+-        </svg>
+-      </button>
+-    {/if}
+-  </div>
++    <div class="dock-anchor"></div>
+   </div>
+ 
+-  {#if railOpen}
+-    <div
+-      class="seam"
+-      onpointerdown={seamDown}
+-      onpointermove={seamMove}
+-      onpointerup={seamUp}
+-      onpointercancel={seamUp}
+-      role="separator"
+-      aria-label="resize console"
+-      aria-orientation={narrow ? "horizontal" : "vertical"}
+-    ></div>
+-    <aside class="rail" style:flex-basis="{railExtent}px">
+-      <div class="rail-body">
+-        {#if tab === "activity"}
+-          <div class="rail-head"><span>session calls</span><span>{callCount} · {exchanges.length} turns</span></div>
+-          {#each exchanges as item (item.turn.id)}
+-            <div class="exchange">
+-              <div class="exchange-head">
+-                <span class="diamond">◆</span>
+-                <span>{clockTime(item.date)}</span>
+-                <span class="grow"></span>
+-                <span>{item.tools.length} {item.tools.length === 1 ? "call" : "calls"}</span>
+-              </div>
+-              {@render activity(item, item.turn.id)}
+-            </div>
+-          {/each}
+-          {#if !exchanges.length}<div class="rail-empty">no calls yet</div>{/if}
+-        {:else if tab === "context"}
+-          <div class="rail-head"><span>tools declared</span><span>{roster.length}</span></div>
+-          <div class="rail-list">
+-            {#each roster as name (name)}<div class="rail-row"><span class="call-name">{name}</span></div>{/each}
+-            {#if !roster.length}<div class="rail-empty">none seen this thread</div>{/if}
+-          </div>
+-          <div class="rail-head"><span>turn manifest</span><span>{manifest.length} turns</span></div>
+-          <div class="rail-list">
+-            {#each manifest as entry (entry.id)}
+-              <div class="rail-row"><span>{entry.who} · {entry.time}</span><span class="chan-sum">{entry.parts}</span></div>
+-            {/each}
+-          </div>
+-        {:else}
+-          <div class="rail-head"><span>meter</span><span>{thread?.mode?.slug ?? ""}</span></div>
+-          <div class="rail-grid">
+-            <span>turns</span><span>{manifest.length}</span>
+-            <span>calls</span><span>{callCount}</span>
+-            <span>tools</span><span>{roster.length}</span>
+-            {#each harvest as entry (entry.type)}
+-              <span>{entry.type}</span><span>{entry.count}</span>
+-            {/each}
+-            {#if spend.seen}
+-              <span>tokens in</span><span>{tokens(spend.input)}</span>
+-              <span>tokens out</span><span>{tokens(spend.output)}</span>
+-              {#if held != null}<span>context</span><span>{tokens(held)}</span>{/if}
+-            {/if}
+-            {#if busy}<span>elapsed</span><span>{elapsedLabel}</span>{/if}
+-          </div>
+-          {#if !spend.seen}
+-            <div class="rail-empty">no usage on the wire — needs m23 I.2</div>
+-          {/if}
+-        {/if}
+-      </div>
+-    </aside>
+-  {/if}
+-  </div>
++  <Composer
++    bind:draft
++    bind:field={textareaEl}
++    {thread}
++    {harnessed}
++    {hint}
++    ceiling={Math.max(112, Math.round(dockHeight * 0.6))}
++    {error}
++    {pinned}
++    {unread}
++    stoppable={sending || activities.length > 0}
++    {sending}
++    {control}
++    {tunable}
++    tune={$traitStore?.INTELLIGENT?.tune}
++    {verbatim}
++    {recorder}
++    {level}
++    coarse={coarsePointer}
++    onkeydown={onKey}
++    onsend={send}
++    onpin={repin}
++    ondictate={dictate}
++    onsettle={settle} />
+ </div>
+ 
+ <style>
+   .dock {
++    --dock-gutter: 14px;
++    --dock-head-gutter: 6px;
+     width: 100%;
+     height: 100%;
+     display: flex;
+     flex-direction: column;
+     overflow: hidden;
+-    background: var(--surface-sunk);
+-    color: var(--text-strong);
+-    font-family: var(--font-family-code);
+     position: relative;
+-  }
+-  header {
+-    display: flex;
+-    align-items: center;
+-    gap: 8px;
+-    padding: 8px 12px;
+-    border-bottom: 1px solid var(--boundary-soft);
+-    flex-shrink: 0;
+-    font-size: var(--font-size-xs);
+-    letter-spacing: 0.06em;
+-  }
+-  .title {
+-    text-transform: lowercase;
+-    color: var(--text-strong);
+-    opacity: 0.85;
+-  }
+-  .dock-close,
+-  .dock-full {
+-    display: inline-flex;
+-    align-items: center;
+-    justify-content: center;
+-    width: 16px;
+-    height: 16px;
+-    padding: 0;
+-    background: transparent;
+-    border: none;
+-    cursor: pointer;
+-    color: var(--text-light);
+-    transition: color 0.16s;
+-  }
+-  .dock-close svg {
+-    width: 15px;
+-    height: 15px;
+-    display: block;
+-  }
+-  .dock-full svg {
+-    width: 13px;
+-    height: 13px;
+-    display: block;
+-  }
+-  .dock-close:hover,
+-  .dock-full:hover {
+-    color: var(--signal-primary-ink);
+-  }
+-  .pip {
+-    width: 6px;
+-    height: 6px;
+-    border-radius: 50%;
+-    background: var(--divider);
+-    flex-shrink: 0;
+-    transition: background 0.16s, box-shadow 0.16s;
+-  }
+-  .pip.live {
+-    background: var(--signal-primary);
+-    box-shadow: 0 0 4px var(--signal-primary);
+-  }
+-  .dock-spacer {
+-    flex: 1;
+-  }
+-  .state {
+-    color: var(--text-light);
+-    font-size: var(--font-size-xs);
+-    text-transform: uppercase;
+-    letter-spacing: 0.14em;
+-    padding-left: 6px;
+-  }
+-  .state.streaming, .state.thinking {
+-    opacity: 1;
+-    color: var(--signal-primary-ink);
+-    display: inline-flex;
+-    align-items: center;
+-    gap: 2px;
+-  }
+-  .state.thinking .dot:last-of-type {
+-    margin-right: 4px;
+-  }
+-  .meta-toggle {
+-    display: inline-flex;
+-    align-items: center;
+-    gap: 4px;
+-    padding: 4px 10px;
+-    background: transparent;
+-    border: 1px solid color-mix(in srgb, var(--signal-primary) 40%, transparent);
+-    border-radius: 2px;
+-    color: var(--signal-primary-ink);
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.06em;
+-    cursor: pointer;
+-    opacity: 0.7;
+-  }
+-  .meta-toggle:hover, .meta-toggle.on {
+-    opacity: 1;
+-    background: color-mix(in srgb, var(--signal-primary) 10%, transparent);
+-    border-color: var(--signal-primary);
+-  }
+-  .meta {
+-    display: flex;
+-    align-items: stretch;
+-    gap: 8px;
+-    padding: 0 14px 8px;
+-    padding-left: max(14px, calc((100% - 640px) / 2));
+-    padding-right: max(14px, calc((100% - 640px) / 2));
+-    flex-shrink: 0;
+-    font-size: var(--font-size-2xs);
+-  }
+-
+-  .log {
+-    flex: 1;
+-    overflow-y: auto;
+-    padding: 14px 14px 18px;
+-    display: flex;
+-    flex-direction: column;
+-    gap: 12px;
+-    min-height: 0;
+-    font-size: var(--font-size-sm);
+-    line-height: 1.55;
+-    letter-spacing: 0.01em;
+-  }
+-  .log > :not(.anchor) {
+-    overflow-anchor: none;
+-  }
+-  /* side-console width: the log holds a 640px measure and centres inside it */
+-  .split:not(.narrow) .log {
+-    padding-left: max(14px, calc((100% - 640px) / 2));
+-    padding-right: max(14px, calc((100% - 640px) / 2));
+-  }
+-  .anchor {
+-    overflow-anchor: auto;
+-    height: 1px;
+-    flex-shrink: 0;
+-    margin-top: -12px;
+-  }
+-  .day-divider {
+-    display: flex;
+-    align-items: center;
+-    justify-content: center;
+-    margin: 4px 0;
+-    color: var(--text-light);
+-  }
+-  .day-divider::before, .day-divider::after {
+-    content: "";
+-    flex: 1;
+-    height: 1px;
+-    background: var(--divider);
+-  }
+-  .day-divider span {
+-    padding: 0 8px;
+-    font-size: var(--font-size-2xs);
+-    text-transform: lowercase;
+-    letter-spacing: 0.12em;
+-  }
+-
+-  .entry {
+-    display: flex;
+-    flex-direction: column;
+-    gap: 4px;
+-    align-items: stretch;
+-    max-width: 100%;
+-    position: relative;
+-  }
+-  .entry.user {
+-    align-items: flex-end;
+-  }
+-  .entry.agent {
+-    align-items: flex-start;
+-  }
+-  .entry-meta {
+-    display: flex;
+-    align-items: baseline;
+-    gap: 6px;
+-    font-size: var(--font-size-xs);
+-    text-transform: lowercase;
+-    letter-spacing: 0.12em;
+-  }
+-  .who {
+-    color: var(--text-light);
+-  }
+-  .entry.user .who {
+-    color: color-mix(in srgb, var(--signal-primary-ink) 70%, var(--text-strong));
+-    opacity: 0.6;
+-  }
+-  .time {
+-    color: var(--text-light);
+-    font-size: var(--font-size-2xs);
+-  }
+-  .sep {
+-    color: var(--text-light);
+-  }
+-  .diamond {
+-    color: var(--signal-primary-ink);
+-    font-size: var(--font-size-2xs);
+-    opacity: 0.7;
+-  }
+-  .tool-count {
+-    color: var(--text-light);
+-    font-size: var(--font-size-2xs);
+-  }
+-  .actions {
+-    margin-left: auto;
+-    display: inline-flex;
+-    gap: 6px;
+-    opacity: 0;
+-    transition: opacity 0.16s;
+-  }
+-  .entry:hover .actions {
+-    opacity: 1;
+-  }
+-  .action {
+-    background: transparent;
+-    border: none;
+-    color: inherit;
+-    font: inherit;
+-    font-size: var(--font-size-2xs);
+-    text-transform: lowercase;
+-    letter-spacing: 0.12em;
+-    cursor: pointer;
+-    color: var(--text-light);
+-    padding: 0;
+-  }
+-  .action:hover {
+-    color: var(--signal-primary-ink);
+-  }
+-
+-  .text {
+-    word-break: break-word;
+-    color: var(--text-strong);
+-    font-family: var(--font-family-sans-text);
+-    line-height: 1.5;
+-  }
+-  .entry.user .text {
+-    color: var(--text-strong);
+-    max-width: 85%;
+-    padding: 8px 12px;
+-    border: 1px solid var(--boundary);
+-    border-radius: 8px;
+     background: var(--surface-lift);
+-  }
+-  .entry.agent .text {
+     color: var(--text-strong);
+-    max-width: 92%;
+-  }
+-  .text.live :global(> :last-child)::after {
+-    content: "▍";
+-    color: var(--signal-primary-ink);
+-    margin-left: 2px;
+-  }
+-
+-  .sweep {
+-    height: 1px;
+-    flex-shrink: 0;
+-    background: var(--divider);
+-    overflow: hidden;
+-    position: relative;
+-  }
+-  .split {
+-    flex: 1;
+-    min-height: 0;
+-    display: flex;
+-  }
+-  .split.narrow {
+-    flex-direction: column-reverse;
+-  }
+-  .stream {
+-    flex: 1;
+-    min-width: 0;
+-    min-height: 0;
+-    display: flex;
+-    flex-direction: column;
+-  }
+-  .seam {
+-    flex: 0 0 4px;
+-    background: var(--divider);
+-    cursor: ew-resize;
+-    touch-action: none;
+-  }
+-  .split.narrow .seam {
+-    cursor: ns-resize;
+-  }
+-  .seam:hover {
+-    background: var(--signal-primary);
+-  }
+-  .rail {
+-    flex-grow: 0;
+-    flex-shrink: 0;
+-    min-width: 0;
+-    min-height: 0;
+-    display: flex;
+-    flex-direction: column;
+-    background: var(--surface-lift);
+-  }
+-  .rail-chip {
+-    display: inline-flex;
+-    align-items: center;
+-    padding: 6px 14px;
+-    border: 1px solid var(--boundary-soft);
+-    border-radius: 2px;
+-    background: transparent;
+-    font-family: var(--font-family-code);
+-    font-size: inherit;
+-    line-height: var(--line-height-2xs);
+-    letter-spacing: 0.08em;
+-    cursor: pointer;
+-    color: var(--text-light);
++    box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
++    font-family: var(--font-family-sans-text);
+   }
+-  .rail-chip:hover, .rail-chip.on {
+-    color: var(--signal-primary-ink);
+-    border-color: color-mix(in srgb, var(--signal-primary) 50%, transparent);
++  .dock.full {
++    --dock-gutter: clamp(24px, 8%, 120px);
++    --dock-head-gutter: clamp(18px, 6%, 96px);
+   }
+-  .rail-body {
++  .dock-log {
+     flex: 1;
+     min-height: 0;
+     overflow-y: auto;
+-    padding: 8px 10px 14px;
+-    display: flex;
+-    flex-direction: column;
+-    gap: 8px;
+-    font-size: var(--font-size-xs);
+-  }
+-  .rail-head {
+-    display: flex;
+-    justify-content: space-between;
+-    gap: 8px;
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.1em;
+-    color: var(--text-light);
+-    padding-top: 2px;
+-  }
+-  .rail-list, .rail-grid {
+-    display: grid;
+-    gap: 2px 10px;
+-  }
+-  .rail-grid {
+-    grid-template-columns: 1fr auto;
+-  }
+-  .rail-grid span:nth-child(odd) {
+-    color: var(--text-light);
+-  }
+-  .rail-row {
+-    display: flex;
+-    justify-content: space-between;
+-    gap: 8px;
+-    min-width: 0;
+-  }
+-  .rail-row > span {
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-    white-space: nowrap;
+-  }
+-  .rail-empty {
+-    color: var(--text-light);
+-    text-align: center;
+-    padding: 10px 0;
+-    letter-spacing: 0.08em;
+-    font-size: var(--font-size-2xs);
+-  }
+-  .exchange {
+-    display: flex;
+-    flex-direction: column;
+-    gap: 2px;
+-  }
+-  .exchange-head {
+-    display: flex;
+-    align-items: center;
+-    gap: 6px;
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.08em;
+-    color: var(--text-light);
+-  }
+-
+-  .head {
+-    display: flex;
+-    align-items: baseline;
+-    flex-wrap: wrap;
+-    row-gap: 3px;
+-    gap: 6px;
+-    min-width: 0;
+-    background: transparent;
+-    border: none;
+-    padding: 0;
+-    color: inherit;
+-    font: inherit;
+-    font-size: var(--font-size-xs);
+-    letter-spacing: 0.12em;
+-    text-transform: lowercase;
+-    cursor: pointer;
+-  }
+-  .head.inert {
+-    cursor: default;
+-  }
+-  .head:not(.inert):hover .who {
+-    opacity: 0.75;
+-  }
+-  .fold {
+-    width: 10px;
+-    flex-shrink: 0;
+-    text-align: center;
+-    color: var(--text-light);
+-    font-size: var(--font-size-2xs);
+-  }
+-  .grow {
+-    flex: 1;
+-  }
+-  .elapsed {
+-    opacity: 0.45;
+-    letter-spacing: 0.04em;
+-    text-transform: none;
+-    padding-left: 6px;
+-  }
+-  .state.calling {
+-    opacity: 1;
+-    color: var(--signal-caution-ink);
+-  }
+-  .state.calling b {
+-    font-weight: inherit;
+-    color: var(--text-strong);
+-    text-transform: none;
+-    letter-spacing: 0.04em;
+-    padding-left: 5px;
+-  }
+-
+-  .activity {
+-    width: 92%;
+-    min-width: 0;
+-    display: flex;
+-    flex-direction: column;
+-    gap: 2px;
+-    margin: 2px 0 2px 4px;
+-    padding-left: 8px;
+-    border-left: 1px solid var(--boundary-soft);
+-  }
+-  .rail .activity {
+-    width: auto;
+-    margin-left: 0;
+-    padding-left: 6px;
+-  }
+-
+-  .call {
+-    min-width: 0;
+-    display: flex;
+-    flex-direction: column;
+-  }
+-  .call-head {
+-    display: flex;
+-    align-items: center;
+-    gap: 5px;
+-    width: 100%;
+-    min-width: 0;
+-    padding: 2px 6px;
+-    background: var(--surface);
+-    border: 1px solid var(--boundary-soft);
+-    border-radius: 2px;
+-    color: inherit;
+-    font: inherit;
+-    font-size: var(--font-size-xs);
+-    text-transform: lowercase;
+-    letter-spacing: 0.08em;
+-    cursor: pointer;
+-    text-align: left;
+-  }
+-  .call-head:hover {
+-    border-color: var(--boundary);
+-  }
+-  .call.failed .call-head {
+-    border-color: var(--signal-negative);
+-  }
+-  .call.running .call-head {
+-    border-color: var(--signal-primary);
+-  }
+-  .call-name {
+-    flex-shrink: 0;
+-    color: var(--signal-primary-ink);
+-  }
+-  .call-args {
+-    flex-shrink: 1;
+-    min-width: 0;
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-    white-space: nowrap;
+-    font-size: var(--font-size-2xs);
+-    color: var(--text-light);
+-  }
+-  .chip {
+-    flex-shrink: 0;
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.06em;
+-    padding: 0 4px;
+-    border-radius: 2px;
+-    border: 1px solid var(--boundary);
+-    background: transparent;
+-    color: var(--signal-primary-ink);
+-  }
+-  .call-status {
+-    flex-shrink: 0;
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.08em;
+-  }
+-  .call-status.ok {
+-    color: var(--signal-positive-ink);
+-  }
+-  .call-head.inert {
+-    cursor: default;
+-  }
+-  .call-status.error {
+-    color: var(--signal-negative-ink);
+-  }
+-  .beacon {
+-    flex-shrink: 0;
+-    width: 6px;
+-    height: 6px;
+-    border-radius: 50%;
+-    background: var(--signal-caution);
+-    animation: dot-pulse 1.2s ease-in-out infinite;
+-  }
+-  .call-body {
+-    border: 1px solid var(--boundary-soft);
+-    border-top: none;
+-    padding: 3px 6px 4px;
+-    display: flex;
+-    flex-direction: column;
+-    gap: 2px;
+-    min-width: 0;
+-  }
+-  .call-output {
+-    margin: 0;
+-    padding: 0;
+-    max-height: 132px;
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-xs);
+-    line-height: 1.45;
+-    max-width: 100%;
+-    overflow: auto;
+-    overscroll-behavior: contain;
+-    white-space: pre-wrap;
+-  }
+-
+-  .chan {
+-    min-width: 0;
+-    display: flex;
+-    flex-direction: column;
+-  }
+-  .chan-head {
+-    display: flex;
+-    align-items: center;
+-    gap: 5px;
+-    min-width: 0;
+-    padding: 1px 0;
+-    background: transparent;
+-    border: none;
+-    color: inherit;
+-    font: inherit;
+-    cursor: pointer;
+-    text-align: left;
+-  }
+-  .chan-head:hover .chan-key {
+-    color: var(--text-strong);
+-  }
+-  .chan-key {
+-    flex-shrink: 0;
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.12em;
+-    text-transform: lowercase;
+-    color: var(--text-light);
+-  }
+-  .chan-sum {
+-    flex-shrink: 1;
+-    min-width: 0;
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-    white-space: nowrap;
+-    font-size: var(--font-size-2xs);
+-    color: var(--text-light);
+-  }
+-  .chan-body {
+-    padding-left: 15px;
+-    max-height: 132px;
+-    overflow-y: auto;
+-    overscroll-behavior: contain;
+-  }
+-  .scroll {
+-    max-width: 100%;
+-    overflow-x: auto;
+-    overscroll-behavior-x: contain;
+-  }
+-  .think.inline {
+-    margin: 2px 0 6px;
+-  }
+-  .think {
+-    margin-left: 8px;
+-    padding: 2px 0 4px 8px;
+-    border-left: 1px solid var(--boundary-soft);
+-    font-family: var(--font-family-sans-text);
+-    font-size: var(--font-size-sm);
+-    line-height: 1.5;
+-    font-style: italic;
+-    color: var(--text-light);
+-    white-space: pre-wrap;
+-  }
+-
+-  .rows {
+     display: flex;
+     flex-direction: column;
+-    padding-left: 15px;
+-  }
+-  .row {
+-    display: grid;
+-    grid-template-columns: 1fr auto;
+-    gap: 0 10px;
+-    padding: 4px 0;
+-    align-items: baseline;
+-    border-top: 1px solid var(--surface-lift);
+-    min-width: 0;
+-  }
+-  .row > span {
+-    min-width: 0;
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-    white-space: nowrap;
+-  }
+-  .row-term {
+-    font-size: var(--font-size-xs);
+-    color: var(--text-strong);
+-  }
+-  .row-kind {
+-    justify-self: end;
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.06em;
+-    color: var(--text-light);
+-  }
+-  .row-gloss {
+-    font-family: var(--font-family-sans-text);
+-    font-size: var(--font-size-xs);
+-    line-height: 1.4;
+-    color: var(--text-ink);
+-  }
+-  .row-meter {
+-    justify-self: end;
+-    display: inline-flex;
+-    align-items: center;
+-    gap: 6px;
+-  }
+-  .bar {
+-    display: block;
+-    width: 26px;
+-    flex-shrink: 0;
+-    height: 3px;
+-    background: var(--divider);
+-  }
+-  .bar > span {
+-    display: block;
+-    height: 100%;
+-    background: var(--signal-primary);
++    gap: 14px;
++    padding: 14px max(var(--dock-gutter), calc((100% - 640px) / 2)) 10px;
++    font-size: var(--size-type-sm);
++    line-height: var(--size-leading-loose);
+   }
+-  .band {
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.06em;
+-  }
+-  .bar.unknown > span {
+-    background: var(--text-light);
+-  }
+-  .band.unknown {
+-    color: var(--text-light);
+-  }
+-  .bar.weak > span {
+-    background: var(--signal-caution);
+-  }
+-  .band.weak {
+-    color: var(--signal-caution-ink);
+-  }
+-  .bar.strong > span {
+-    background: var(--signal-positive);
+-  }
+-  .band.strong {
+-    color: var(--signal-positive-ink);
+-  }
+-  .band.runnable {
+-    color: var(--signal-primary-ink);
+-  }
+-  .verdict {
+-    display: flex;
+-    align-items: center;
+-    gap: 0.5em;
+-    color: var(--text-light);
+-    font-size: 0.85em;
+-    margin-top: 0.25em;
+-  }
+-  .chip.bad {
+-    color: var(--signal-negative-ink);
+-    border-color: var(--signal-negative);
+-    opacity: 1;
+-  }
+-  .more {
+-    align-self: flex-start;
+-    margin-top: 4px;
+-    padding: 0;
+-    background: transparent;
+-    border: none;
+-    color: inherit;
+-    font: inherit;
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.08em;
+-    color: var(--text-light);
+-    cursor: pointer;
+-  }
+-  .more:hover {
+-    color: var(--text-strong);
+-  }
+-  .pairs {
+-    display: grid;
+-    grid-template-columns: auto 1fr;
+-    gap: 1px 10px;
+-    padding: 2px 0 4px 15px;
+-    font-size: var(--font-size-xs);
+-    min-width: 0;
+-  }
+-  .pair-key {
+-    color: var(--text-light);
+-  }
+-  .pair-value {
+-    min-width: 0;
+-    overflow: hidden;
+-    text-overflow: ellipsis;
+-    white-space: nowrap;
+-    color: var(--text-strong);
+-  }
+-  .launch:disabled {
+-    opacity: 0.3;
+-    cursor: default;
+-    border-color: var(--boundary-soft);
+-    background: transparent;
+-    color: inherit;
+-  }
+-  .launch:disabled:hover {
+-    border-color: var(--boundary-soft);
+-    background: transparent;
+-  }
+-  .launchers {
+-    display: flex;
+-    flex-wrap: wrap;
+-    gap: 5px;
+-    margin: 3px 0;
+-  }
+-  .launch {
+-    grid-column: 1 / -1;
+-    justify-self: start;
+-    margin-top: 3px;
+-    padding: 2px 8px;
+-    border: 1px solid var(--signal-primary);
+-    border-radius: 2px;
+-    background: color-mix(in srgb, var(--signal-primary) 8%, transparent);
+-    color: var(--signal-primary-ink);
+-    font: inherit;
+-    font-size: var(--font-size-2xs);
+-    letter-spacing: 0.06em;
+-    cursor: pointer;
+-  }
+-  .launch:hover {
+-    border-color: var(--signal-primary);
+-    background: color-mix(in srgb, var(--signal-primary) 16%, transparent);
+-  }
+-  .launchers .launch {
+-    grid-column: auto;
+-    margin-top: 0;
+-  }
+-
+-  .artifacts {
+-    display: flex;
+-    flex-wrap: wrap;
+-    gap: 6px;
+-    margin-top: 4px;
+-  }
+-  .artifact-img {
+-    max-width: 100%;
+-    max-height: 220px;
+-    border-radius: 3px;
+-    border: 1px solid var(--boundary-soft);
+-  }
+-  .artifact-audio {
+-    max-width: 100%;
+-    height: 28px;
+-  }
+-  .artifact-card {
+-    display: inline-flex;
+-    align-items: center;
+-    gap: 8px;
+-    padding: 9px 11px;
+-    border: 1px solid color-mix(in srgb, var(--signal-primary) 30%, transparent);
+-    border-radius: 6px;
+-    background: color-mix(in srgb, var(--signal-primary) 5%, transparent);
+-    color: var(--text-strong);
+-    text-decoration: none;
+-    font-size: var(--font-size-xs);
+-  }
+-  .artifact-card:hover {
+-    border-color: color-mix(in srgb, var(--signal-primary) 55%, transparent);
+-  }
+-  .artifact-glyph {
+-    color: var(--signal-primary-ink);
+-  }
+-
+-  .streaming-entry .time .dot,
+-  .state.thinking .dot {
+-    display: inline-block;
+-    width: 4px;
+-    height: 4px;
+-    border-radius: 50%;
+-    background: var(--signal-primary);
+-    margin: 0 1px;
+-    animation: dot-pulse 1.2s ease-in-out infinite;
+-  }
+-  .streaming-entry .time .dot:nth-child(2),
+-  .state.thinking .dot:nth-of-type(2) { animation-delay: 0.2s; }
+-  .streaming-entry .time .dot:nth-child(3),
+-  .state.thinking .dot:nth-of-type(3) { animation-delay: 0.4s; }
+-  @keyframes dot-pulse {
+-    0%, 80%, 100% { opacity: 0.3; transform: scale(0.85); }
+-    40% { opacity: 1; transform: scale(1); }
+-  }
+-
+-  .placeholder {
+-    color: var(--text-light);
+-    font-size: var(--font-size-2xs);
+-    text-align: center;
++  .dock-begin {
+     padding: 24px 0;
+-    letter-spacing: 0.08em;
+-  }
+-
+-  .new-pill {
+-    position: absolute;
+-    bottom: calc(100% + 10px);
+-    left: 50%;
+-    transform: translateX(-50%) scale(1.15);
+-    transform-origin: bottom center;
+-    background: var(--signal-primary);
+-    color: var(--inverse-on);
+-    border: none;
+-    border-radius: 12px;
+-    padding: 4px 10px;
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-2xs);
+-    cursor: pointer;
+-    box-shadow: 0 1px 6px color-mix(in srgb, var(--signal-primary) 50%, transparent);
+-    z-index: 5;
+-  }
+-  .new-pill.quiet {
+-    background: color-mix(in srgb, var(--surface-sunk) 85%, var(--signal-primary));
+-    color: var(--signal-primary-ink);
+-    border: 1px solid var(--signal-primary);
+-    box-shadow: 0 1px 6px color-mix(in srgb, var(--surface) 60%, transparent);
+-  }
+-
+-  .error-bar {
+-    background: var(--signal-negative-tint);
+-    color: var(--signal-negative-ink);
+-    padding: 4px 10px;
+-    border-top: 1px solid var(--signal-negative);
+-    font-size: var(--font-size-2xs);
+-    text-transform: lowercase;
+-    letter-spacing: 0.06em;
+-  }
+-
+-  /* nothing lives behind hover on a coarse pointer, and every row stays thumbable */
+-  @media (pointer: coarse) {
+-    .head, .call-head, .chan-head, .more {
+-      min-height: 32px;
+-    }
+-    .actions {
+-      opacity: 1;
+-    }
+-    .send {
+-      width: 34px;
+-      height: 34px;
+-    }
+-  }
+-
+-  .composer {
+-    position: relative;
+-    display: flex;
+-    gap: 6px;
+-    padding: 6px 7px;
+-    border-top: 1px solid var(--boundary-soft);
+-    flex-shrink: 0;
+-    align-items: flex-end;
+-  }
+-  .input {
+-    flex: 1;
+-    padding: 5px 9px;
+-    border: 1px solid var(--boundary-soft);
+-    border-radius: 2px;
+-    background: transparent;
+-    color: var(--text-strong);
+-    font-family: var(--font-family-code);
+-    font-size: var(--font-size-sm);
+-    letter-spacing: 0.02em;
+-    transition: border-color 0.16s;
+-    resize: none;
+-    min-height: 32px;
+-    max-height: 112px;
+-    field-sizing: content;
+-    line-height: 20px;
+-    overflow-y: auto;
+-  }
+-  .input:focus {
+-    outline: none;
+-    border-color: var(--signal-primary);
+-  }
+-  .input:disabled {
+-    opacity: 0.3;
+-  }
+-  .send {
+-    width: 32px;
+-    height: 32px;
+-    padding: 0;
+-    display: grid;
+-    place-items: center;
+-    background: color-mix(in srgb, var(--signal-primary) 8%, transparent);
+-    border: 1px solid color-mix(in srgb, var(--signal-primary) 45%, transparent);
+-    border-radius: 2px;
+-    color: var(--signal-primary-ink);
+-    cursor: pointer;
+-    transition: background 0.16s, color 0.16s, border-color 0.16s;
+-    flex-shrink: 0;
+-  }
+-  .send svg {
+-    width: 15px;
+-    height: 15px;
+-    display: block;
+-  }
+-  .send:not(.stop):not(:disabled):hover {
+-    background: color-mix(in srgb, var(--signal-primary) 16%, transparent);
+-    border-color: var(--signal-primary);
+-  }
+-  .send:disabled {
+-    background: transparent;
+-    border-color: var(--boundary-soft);
+-    color: var(--text-strong);
+-    opacity: 0.3;
+-    cursor: not-allowed;
+-  }
+-  .send.stop {
+-    position: relative;
+-    overflow: hidden;
+-    touch-action: none;
+-    background: transparent;
+-    border-color: var(--signal-negative);
+-    color: var(--signal-negative-ink);
+-  }
+-  .send.stop svg {
+-    position: relative;
+-  }
+-  .send.stop.stopping {
+-    opacity: 0.7;
+-  }
+-  .stop-hold {
+-    position: absolute;
+-    left: 0;
+-    top: 0;
+-    bottom: 0;
+-    pointer-events: none;
+-    background: color-mix(in srgb, var(--signal-negative) 45%, transparent);
+-  }
+-  .send.stop:hover {
+-    background: color-mix(in srgb, var(--signal-negative) 18%, transparent);
+-  }
+-  .dictation-ghost {
+-    position: absolute;
+-    bottom: calc(100% + 6px);
+-    left: 8px;
+-    right: 8px;
+-    display: flex;
+-    align-items: baseline;
+-    gap: 6px;
+-    padding: 5px 8px;
+-    font-size: 12px;
+-    line-height: 17px;
+-    background: color-mix(in srgb, var(--surface) 92%, transparent);
+-    border: 1px solid color-mix(in srgb, var(--signal-negative) 40%, transparent);
+-    border-radius: 2px;
+-    backdrop-filter: blur(4px);
+-    pointer-events: none;
+-    white-space: pre-wrap;
+-    overflow-wrap: anywhere;
++    overflow-anchor: none;
+   }
+-  .dictation-ghost .mark {
+-    width: 6px;
+-    height: 6px;
+-    border-radius: 50%;
+-    background: var(--signal-negative);
++  .dock-anchor {
++    overflow-anchor: auto;
++    height: 1px;
+     flex-shrink: 0;
+-    align-self: center;
+-    animation: dictation-breathe 1.4s ease-in-out infinite;
+-  }
+-  .dictation-ghost .volatile {
+-    opacity: 0.45;
+-    font-style: italic;
+-  }
+-  @keyframes dictation-breathe {
+-    0%, 100% { opacity: 0.35; }
+-    50% { opacity: 1; }
++    margin-top: -14px;
+   }
+ </style>
+diff --git a/systems/anima/src/app/panels/a/widgets/DockHead.svelte b/systems/anima/src/app/panels/a/widgets/DockHead.svelte
+new file mode 100644
+index 0000000..8014ddd
+--- /dev/null
++++ b/systems/anima/src/app/panels/a/widgets/DockHead.svelte
+@@ -0,0 +1,118 @@
++<script>
++  import { Float, Key, Row, Status } from "@vivalence/drapes";
++
++  let {
++    label,
++    tone = "none",
++    word = null,
++    pulse = false,
++    side = "right",
++    sides = [],
++    full = false,
++    meta = false,
++    consoles = [],
++    picked = null,
++    onmeta,
++    onconsole,
++    onside,
++    onfull,
++    oncollapse,
++  } = $props();
++
++  const GLYPHS = { top: "↑", right: "→", bottom: "↓", left: "←" };
++
++  let anchor = $state(null);
++  let picking = $state(false);
++
++  function pick(name) {
++    picking = false;
++    onside?.(name);
++  }
++</script>
++
++<header class="dock-head">
++  <Status {tone} {word} {pulse} live={pulse} />
++  <span class="dock-label">{label}</span>
++  <Key size="row" tone="ghost" latched={meta} label="⋮⋮ meta" title="toggle meta bar" onclick={onmeta} />
++  <span class="dock-picker" bind:this={anchor}>
++    <Key
++      size="row"
++      tone="ghost"
++      square
++      latched={picking}
++      label={GLYPHS[side]}
++      title="dock side · {side}"
++      onclick={() => (picking = !picking)} />
++  </span>
++  <Key size="row" tone="ghost" square label={full ? "⤡" : "⤢"} title={full ? "restore" : "full"} onclick={onfull} />
++  <Key size="row" tone="ghost" square label="×" title="collapse" onclick={oncollapse} />
++</header>
++
++{#if meta}
++  <div class="dock-meta">
++    {#each consoles as name (name)}
++      <Key size="row" latched={picked === name} label={name} onclick={() => onconsole?.(name)} />
++    {/each}
++  </div>
++{/if}
++
++{#if picking}
++  <Float {anchor} zone="1" snug onclose={() => (picking = false)}>
++    {#each sides as name (name)}
++      <Row selected={name === side} title="dock {name}" onclick={() => pick(name)}>
++        <span class="dock-glyph">{GLYPHS[name]}</span>
++        <span class="dock-side">{name}</span>
++      </Row>
++    {/each}
++  </Float>
++{/if}
++
++<style>
++  .dock-head {
++    flex: 0 0 40px;
++    display: flex;
++    align-items: center;
++    gap: 8px;
++    min-width: 0;
++    padding: 0 var(--dock-head-gutter, 6px) 0 var(--dock-gutter, 14px);
++    border-bottom: var(--size-ring) solid var(--boundary);
++  }
++  .dock-label {
++    flex: 1;
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    font-weight: 600;
++    color: var(--text-strong);
++  }
++  .dock-picker {
++    display: inline-flex;
++  }
++  .dock-meta {
++    flex: none;
++    display: flex;
++    flex-wrap: wrap;
++    gap: 8px;
++    padding: 8px var(--dock-gutter, 14px) calc(8px + var(--size-depth));
++    border-bottom: var(--size-ring) solid var(--boundary);
++  }
++  .dock-glyph {
++    width: 14px;
++    text-align: center;
++    color: var(--text-light);
++  }
++  .dock-side {
++    font-weight: 600;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++    color: var(--text-ink);
++  }
++  @media (pointer: coarse) {
++    .dock-head {
++      flex-basis: 52px;
++    }
++  }
++</style>
+diff --git a/systems/anima/src/app/panels/a/widgets/LiveTurn.svelte b/systems/anima/src/app/panels/a/widgets/LiveTurn.svelte
+new file mode 100644
+index 0000000..26248ee
+--- /dev/null
++++ b/systems/anima/src/app/panels/a/widgets/LiveTurn.svelte
+@@ -0,0 +1,104 @@
++<script>
++  import { Status } from "@vivalence/drapes";
++  import Turn from "./Turn.svelte";
++
++  let {
++    item = null,
++    agent = "agent",
++    word = "thinking",
++    elapsed = "",
++    thinking = null,
++    launches = [],
++    onlaunch,
++    onfold,
++  } = $props();
++
++  const SILENT = {
++    kind: "turn",
++    turn: { role: "assistant" },
++    date: null,
++    text: "",
++    think: "",
++    tools: [],
++    failures: 0,
++    artifacts: [],
++    buffers: [],
++    verdict: null,
++  };
++</script>
++
++<div class="live-turn">
++  <Turn item={item ?? SILENT} {agent} {thinking} {launches} {onlaunch} {onfold}>
++    {#snippet status()}
++      <span class="live-dots"><i></i><i></i><i></i></span>
++      <span class="live-spacer"></span>
++      <Status tone="primary" {word} pulse live />
++      <span class="live-elapsed">{elapsed}</span>
++    {/snippet}
++  </Turn>
++  {#if !item}<span class="live-label">{word}</span>{/if}
++</div>
++
++<style>
++  .live-turn {
++    display: flex;
++    flex-direction: column;
++    gap: 7px;
++    min-width: 0;
++    overflow-anchor: none;
++  }
++  .live-dots {
++    display: inline-flex;
++    gap: 3px;
++  }
++  .live-dots i {
++    width: 4px;
++    height: 4px;
++    border-radius: var(--shape-radius-full);
++    background: var(--signal-primary);
++    animation: live-pulse 1.2s ease-in-out infinite;
++  }
++  .live-dots i:nth-child(2) {
++    animation-delay: 0.2s;
++  }
++  .live-dots i:nth-child(3) {
++    animation-delay: 0.4s;
++  }
++  .live-spacer {
++    flex: 1;
++  }
++  .live-elapsed {
++    font-variant-numeric: tabular-nums;
++    color: var(--text-light);
++  }
++  .live-label {
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--signal-primary-ink);
++  }
++  .live-turn :global(.turn-text > :last-child)::after {
++    content: "";
++    display: inline-block;
++    width: 7px;
++    height: 13px;
++    margin-left: 2px;
++    vertical-align: -2px;
++    background: var(--signal-primary);
++    animation: live-pulse 0.8s ease-in-out infinite;
++  }
++  @keyframes live-pulse {
++    0%,
++    80%,
++    100% {
++      opacity: 0.3;
++    }
++    40% {
++      opacity: 1;
++    }
++  }
++  @media (prefers-reduced-motion: reduce) {
++    .live-dots i {
++      animation: none;
++    }
++  }
++</style>
+diff --git a/systems/anima/src/app/panels/a/widgets/Turn.svelte b/systems/anima/src/app/panels/a/widgets/Turn.svelte
+new file mode 100644
+index 0000000..bd38db0
+--- /dev/null
++++ b/systems/anima/src/app/panels/a/widgets/Turn.svelte
+@@ -0,0 +1,321 @@
++<script>
++  import { Json, Key, Markdown, Meter, Row, Section, Tag, ToolRow, Well } from "@vivalence/drapes";
++  import { clockTime, scalarPairs, tokens } from "./turns.js";
++
++  let {
++    item,
++    agent = "agent",
++    thinking = null,
++    usage = null,
++    launches = [],
++    copied = false,
++    status = null,
++    onlaunch,
++    oncopy,
++    onretry,
++    onfold,
++  } = $props();
++
++  const ROWS = 8;
++  const TONES = { ok: "positive", error: "negative", running: "primary" };
++  const BANDS = { strong: "positive", weak: "caution", runnable: "primary" };
++
++  let opened = $state({});
++  const isOpen = (key, fallback = false) => opened[key] ?? fallback;
++
++  function toggle(key, fallback = false) {
++    opened = { ...opened, [key]: !isOpen(key, fallback) };
++    onfold?.();
++  }
++
++  const mine = $derived(item.turn?.role === "user");
++  const runnable = $derived(new Set(launches.filter((launch) => launch.runnable).map((launch) => launch.id)));
++  const at = $derived(clockTime(item.date));
++  const manifest = $derived(
++    [
++      item.think && thinking !== false ? "thinking" : null,
++      item.tools?.length ? `${item.tools.length} ${item.tools.length === 1 ? "call" : "calls"}` : null,
++    ]
++      .filter(Boolean)
++      .join(" · "),
++  );
++</script>
++
++{#snippet call(tool, key)}
++  {@const failed = tool.status === "error"}
++  {@const running = tool.status === "running"}
++  <ToolRow
++    name={tool.name}
++    digest={tool.digest}
++    status={tool.status}
++    tone={TONES[tool.status] ?? "idle"}
++    live={running}
++    open={!running && isOpen(key, failed)}
++    ontoggle={running ? null : () => toggle(key, failed)}>
++    {#if tool.output !== null && tool.output !== undefined}
++      {#if typeof tool.output === "string"}
++        <pre class="turn-output">{tool.output}</pre>
++      {:else}
++        <div class="turn-scroll"><Json value={tool.output} openDepth={1} /></div>
++      {/if}
++    {/if}
++    {#each tool.channels as channel (channel.key)}
++      {@const fold = `${key}/${channel.key}`}
++      {@const all = `${fold}/all`}
++      {@const pairs = channel.rows ? null : scalarPairs(channel.value)}
++      <Section label={channel.key} count={channel.summary} open={isOpen(fold)} ontoggle={() => toggle(fold)} />
++      {#if isOpen(fold)}
++        {#if channel.rows}
++          {#each isOpen(all) ? channel.rows : channel.rows.slice(0, ROWS) as entity, index (entity.id ?? index)}
++            <Row
++              title={entity.launchable ? "open" : entity.band}
++              onclick={entity.launchable && runnable.has(entity.id) ? () => onlaunch?.(entity) : undefined}>
++              <span class="turn-term">{entity.term}</span>
++              <Tag>{entity.kind}</Tag>
++              <span class="turn-gloss">{entity.gloss}</span>
++              {#if entity.band}
++                <span class="turn-meter"><Meter value={entity.fill ?? 0} tone={BANDS[entity.band]} /></span>
++              {/if}
++            </Row>
++          {/each}
++          {#if channel.rows.length > ROWS}
++            <Key
++              size="mini"
++              tone="ghost"
++              label={isOpen(all) ? "less" : `${channel.rows.length - ROWS} more…`}
++              onclick={() => toggle(all)} />
++          {/if}
++        {:else if pairs}
++          <div class="turn-pairs">
++            {#each pairs as pair (pair.key)}
++              <span class="turn-pair-key">{pair.key}</span><span class="turn-pair-value">{pair.value}</span>
++            {/each}
++          </div>
++        {:else}
++          <div class="turn-scroll"><Json value={channel.value} openDepth={1} /></div>
++        {/if}
++      {/if}
++    {/each}
++  </ToolRow>
++{/snippet}
++
++{#snippet copy()}
++  <Key
++    size="mini"
++    tone="ghost"
++    label={copied ? "copied" : "⧉"}
++    title="copy turn as record"
++    onclick={() => oncopy?.(item.turn, item.tools)} />
++{/snippet}
++
++{#snippet artifacts()}
++  {#if item.artifacts.length}
++    <div class="turn-artifacts">
++      {#each item.artifacts as artifact, index (index)}
++        {#if artifact.type === "image" && artifact.source?.data}
++          <img class="turn-image" src={artifact.source.data} alt={artifact.alt ?? "image"} />
++        {:else if artifact.type === "audio" && artifact.url}
++          <audio class="turn-audio" controls src={artifact.url}></audio>
++        {:else}
++          <a class="turn-artifact" href={artifact.url ?? "#"} target="_blank" rel="noreferrer noopener">
++            <Tag>
++              <span class="turn-glyph">◈</span>
++              {artifact.name ?? artifact.url ?? artifact.type}
++              <span>{artifact.type}</span>
++            </Tag>
++          </a>
++        {/if}
++      {/each}
++    </div>
++  {/if}
++{/snippet}
++
++{#if item.kind === "divider"}
++  <div class="turn-day"><span>{item.label}</span></div>
++{:else}
++  <div class="turn" class:mine>
++    {#if !mine}
++      <div class="turn-head">
++        <span class="turn-mark"></span>
++        <span class="turn-who">{agent}</span>
++        {#if status}
++          {@render status()}
++        {:else}
++          {#if at}<span title={item.date.toLocaleString()}>{at}</span>{/if}
++          <span class="turn-spacer"></span>
++          {#if manifest}<span class="turn-manifest">{manifest}</span>{/if}
++          {#if item.failures}<Tag tone="negative">{item.failures} failed</Tag>{/if}
++          {#if usage}<span class="turn-usage">{tokens(usage.input)} → {tokens(usage.output)}</span>{/if}
++          {@render copy()}
++        {/if}
++      </div>
++    {/if}
++    {#if item.tools.length}
++      <Well>
++        {#each item.tools as tool, index (index)}
++          {@render call(tool, `call/${index}`)}
++        {/each}
++      </Well>
++    {/if}
++    {#if launches.length}
++      <div class="turn-launches">
++        {#each launches as launch (launch.id)}
++          <Key
++            led
++            latched={launch.seated}
++            disabled={!launch.runnable}
++            title="open {launch.label}"
++            onclick={() => onlaunch?.(launch)}>
++            <span>{launch.label}</span>
++            {#if launch.line}<span class="turn-line">{launch.line}</span>{/if}
++          </Key>
++        {/each}
++      </div>
++    {/if}
++    {#if item.think && thinking == null}
++      <Section label="thinking" rule={false} open={isOpen("think")} ontoggle={() => toggle("think")} />
++    {/if}
++    {#if item.think && (thinking === true || (thinking == null && isOpen("think")))}
++      <div class="turn-thought">{item.think}</div>
++    {/if}
++    {#if item.text}
++      <div class="turn-text" class:turn-bubble={mine}><Markdown text={item.text} /></div>
++    {/if}
++    {#if item.verdict}
++      <div class="turn-verdict"><Tag tone="negative">{item.verdict.state}</Tag> {item.verdict.message}</div>
++    {/if}
++    {@render artifacts()}
++    {#if mine}
++      <div class="turn-head">
++        <span class="turn-actions">
++          {@render copy()}
++          <Key size="mini" tone="ghost" label="retry" title="resend" onclick={() => onretry?.(item.turn)} />
++        </span>
++        <span title={item.date?.toLocaleString()}>you{at ? ` · ${at}` : ""}</span>
++      </div>
++    {/if}
++  </div>
++{/if}
++
++<style>
++  .turn-day {
++    display: flex;
++    align-items: center;
++    gap: 10px;
++    overflow-anchor: none;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    font-weight: 600;
++    letter-spacing: var(--shape-label-track);
++    text-transform: var(--shape-label-case);
++    color: var(--text-light);
++  }
++  .turn-day::before,
++  .turn-day::after {
++    content: "";
++    flex: 1;
++    height: var(--size-ring);
++    background: var(--boundary);
++  }
++  .turn {
++    display: flex;
++    flex-direction: column;
++    gap: 7px;
++    min-width: 0;
++    overflow-anchor: none;
++  }
++  .turn.mine {
++    align-self: flex-end;
++    align-items: flex-end;
++    gap: 4px;
++    max-width: 86%;
++  }
++  .turn-text { max-width: 92%; color: var(--text-strong); word-break: break-word; text-wrap: pretty; }
++  .turn-bubble {
++    max-width: 100%;
++    padding: 8px 12px;
++    border-radius: var(--shape-radius-card);
++    background: var(--surface-sunk);
++  }
++  .turn-head {
++    display: flex;
++    align-items: center;
++    gap: 7px;
++    min-width: 0;
++    font-family: var(--font-family-code);
++    font-size: var(--size-type-2xs);
++    color: var(--text-light);
++    white-space: nowrap;
++  }
++  .turn-mark {
++    flex: none;
++    width: 14px;
++    height: 14px;
++    background: currentColor;
++    -webkit-mask: url(/images/pictogram_viket/pic-vinca-viket_white.svg) center / contain no-repeat;
++    mask: url(/images/pictogram_viket/pic-vinca-viket_white.svg) center / contain no-repeat;
++  }
++  .turn-who { flex: none; color: var(--text-ink); }
++  .turn-spacer { flex: 1; }
++  .turn-manifest,
++  .turn-usage,
++  .turn-gloss,
++  .turn-pair-value {
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++  }
++  .turn-usage { font-variant-numeric: tabular-nums; }
++  .turn-actions { display: inline-flex; gap: 4px; opacity: 0; transition: opacity 0.16s; }
++  .turn:hover .turn-actions { opacity: 1; }
++  .turn-launches { display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: var(--size-depth); }
++  .turn-line { font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--control-on-muted); }
++  .turn-thought {
++    padding-left: 12px;
++    border-left: var(--size-ring) solid var(--boundary);
++    font-style: italic;
++    color: var(--text-ink);
++    white-space: pre-wrap;
++  }
++  .turn-verdict { font-size: var(--size-type-xs); color: var(--text-light); }
++  .turn-output,
++  .turn-scroll {
++    max-width: 100%;
++    max-height: 132px;
++    overflow: auto;
++    overscroll-behavior: contain;
++  }
++  .turn-output {
++    margin: 0;
++    font-family: var(--font-family-code);
++    line-height: var(--size-leading-loose);
++    color: var(--text-ink);
++    white-space: pre-wrap;
++  }
++  .turn-term { flex: none; color: var(--text-strong); }
++  .turn-gloss { flex: 1; font-family: var(--font-family-sans-text); color: var(--text-ink); }
++  .turn-meter { flex: 0 0 40px; }
++  .turn-pairs {
++    display: grid;
++    grid-template-columns: auto 1fr;
++    gap: 1px 10px;
++    min-width: 0;
++    padding-left: 8px;
++  }
++  .turn-pair-key { color: var(--text-light); }
++  .turn-pair-value { color: var(--text-strong); }
++  .turn-artifacts { display: flex; flex-wrap: wrap; gap: 6px; }
++  .turn-artifact { text-decoration: none; }
++  .turn-glyph { color: var(--signal-primary-ink); }
++  .turn-image {
++    max-width: 100%;
++    max-height: 220px;
++    border-radius: var(--shape-radius-sm);
++    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
++  }
++  .turn-audio { max-width: 100%; height: 28px; }
++  @media (pointer: coarse) {
++    .turn-actions { opacity: 1; }
++  }
++</style>
+diff --git a/systems/anima/src/app/panels/a/widgets/turns.js b/systems/anima/src/app/panels/a/widgets/turns.js
+index caab093..7e99b40 100644
+--- a/systems/anima/src/app/panels/a/widgets/turns.js
++++ b/systems/anima/src/app/panels/a/widgets/turns.js
+@@ -339,3 +339,15 @@ export const manifest = (items, agent = "agent") =>
+       time: clockTime(item.date),
+       parts: turnManifest(item.turn).join(" · "),
+     }));
++
++export const usages = (items, turns) => {
++  const held = items.filter((item) => item.kind === "turn");
++  return new Map(
++    held.map((item, index) => {
++      const from = turns.indexOf(item.turn);
++      const until = held[index + 1] ? turns.indexOf(held[index + 1].turn) : turns.length;
++      const spent = sessionUsage(turns.slice(from, until));
++      return [item.turn.id, spent.seen ? { input: spent.input, output: spent.output } : null];
++    }),
++  );
++};
+diff --git a/systems/anima/tests/dock/composer.mount.test.js b/systems/anima/tests/dock/composer.mount.test.js
+new file mode 100644
+index 0000000..6ad0260
+--- /dev/null
++++ b/systems/anima/tests/dock/composer.mount.test.js
+@@ -0,0 +1,198 @@
++import { specimen } from "@vivalence/typology";
++import { atom } from "nanostores";
++import { CLIENT, ENTRY, KIT, SRC, build, dom, fire, keys, send } from "./rig.js";
++
++const WIDGETS = {
++  Composer: new URL("app/panels/a/widgets/Composer.svelte", SRC),
++  Dictaphone: new URL("app/panels/a/widgets/Dictaphone.svelte", SRC),
++  Tune: new URL("app/widgets/Tune.svelte", SRC),
++  Key: KIT.Key,
++  Segmented: KIT.Segmented,
++  Stepper: KIT.Stepper,
++  Status: KIT.Status,
++  Tag: KIT.Tag,
++  Float: KIT.Float,
++};
++
++const recorder = (active = "idle") => ({ $active: atom(active), $committed: atom(""), $tail: atom(""), $error: atom(null) });
++
++const stopper = () => {
++  const calls = [];
++  return {
++    calls,
++    control: {
++      armed: null,
++      press: () => calls.push("press"),
++      release: () => calls.push("release"),
++      stop: () => calls.push("stop"),
++    },
++  };
++};
++
++const thread = () => ({
++  id: "t1",
++  $trait: atom({ INTELLIGENT: { tune: "balanced" } }),
++  trait: { INTELLIGENT: { tune: "balanced" } },
++  traits: ["INTELLIGENT"],
++  daemon: { cortex: { find: () => [] } },
++});
++
++specimen.describe("composer — mounted, the field obeys the focus law and the keys hand their pointer on", () => {
++  let directory, document, mount, unmount, flush, state, get, set, Composer;
++  const mounted = [];
++
++  specimen.beforeAll(async () => {
++    directory = await Deno.makeTempDir({ prefix: "anima-composer-mount-" });
++    document = dom();
++    ({ mount, unmount } = await import(ENTRY));
++    ({ flush, state, get, set } = await import(CLIENT));
++    ({ default: Composer } = await (await build(directory, WIDGETS))("Composer"));
++  });
++  specimen.afterEach(() => {
++    for (const app of mounted.splice(0)) unmount(app);
++    flush();
++    document.body.innerHTML = "";
++  });
++  specimen.afterAll(async () => {
++    await Deno.remove(directory, { recursive: true });
++  });
++
++  const compose = (given = {}) => {
++    const draft = state(given.draft ?? "");
++    const held = {
++      field: null,
++      get draft() {
++        return get(draft);
++      },
++    };
++    const { control, calls } = stopper();
++    const sent = [];
++    const target = document.body.appendChild(document.createElement("div"));
++    const app = mount(Composer, {
++      target,
++      props: {
++        thread: thread(),
++        harnessed: true,
++        hint: "message…",
++        control,
++        recorder: recorder(),
++        level: atom(0),
++        onsend: () => sent.push(held.draft),
++        ...given,
++        get draft() {
++          return get(draft);
++        },
++        set draft(value) {
++          set(draft, value);
++        },
++        get field() {
++          return held.field;
++        },
++        set field(value) {
++          held.field = value;
++        },
++      },
++    });
++    mounted.push(app);
++    flush();
++    const field = target.getElementsByTagName("textarea")[0];
++    const key = (tone) => keys(target).find((button) => button.classList.contains(tone)) ?? null;
++    return { held, calls, sent, field, key };
++  };
++
++  const type = (field, text) => {
++    field.value = text;
++    fire(field, "input");
++    flush();
++  };
++
++  const open = (field) => [field.hasAttribute("disabled"), field.hasAttribute("readonly"), Boolean(field.disabled), Boolean(field.readOnly)];
++
++  specimen.it("the field is never disabled and never readonly: without a harness it reverts what is typed", () => {
++    const { held, field } = compose({ harnessed: false });
++    specimen.expect(open(field)).toEqual([false, false, false, false]);
++    specimen.expect(field.getAttribute("placeholder")).toBe("—");
++    type(field, "typed into a thread with no harness");
++    specimen.expect(field.value).toBe("");
++    specimen.expect(held.draft).toBe("");
++  });
++
++  specimen.it("while dictation listens the field stays a field and reverts; idle, it takes the draft", () => {
++    const listening = compose({ draft: "held", recorder: recorder("listening"), verbatim: true });
++    specimen.expect(open(listening.field)).toEqual([false, false, false, false]);
++    type(listening.field, "held and typed over");
++    specimen.expect(listening.field.value).toBe("held");
++    specimen.expect(listening.held.draft).toBe("held");
++
++    const idle = compose();
++    specimen.expect(idle.held.field === idle.field).toBe(true);
++    type(idle.field, "e4");
++    specimen.expect(idle.held.draft).toBe("e4");
++  });
++
++  specimen.it("the stop key calls control.press on pointer down and control.release on up, leave and cancel", () => {
++    const { calls, field, key } = compose({ stoppable: true, sending: true });
++    const stop = key("negative");
++    specimen.expect([Boolean(stop), Boolean(key("primary"))]).toEqual([true, false]);
++    specimen.expect(open(field)).toEqual([false, false, false, false]);
++
++    fire(stop, "pointerdown");
++    specimen.expect(calls).toEqual(["press"]);
++    fire(stop, "pointerup");
++    specimen.expect(calls).toEqual(["press", "release"]);
++
++    fire(stop, "pointerdown");
++    send(stop, "pointerleave");
++    specimen.expect(calls).toEqual(["press", "release", "press", "release"]);
++
++    fire(stop, "pointerdown");
++    send(stop, "pointercancel");
++    specimen.expect(calls).toEqual(["press", "release", "press", "release", "press", "release"]);
++
++    send(stop, "pointerleave");
++    specimen.expect(calls).toHaveLength(6);
++  });
++
++  specimen.it("the stop key's click is the keyboard's path: detail 0 stops, a pointer's click does not", () => {
++    const { calls, key } = compose({ stoppable: true });
++    fire(key("negative"), "click", { detail: 1 });
++    specimen.expect(calls).toEqual([]);
++    fire(key("negative"), "click", { detail: 0 });
++    specimen.expect(calls).toEqual(["stop"]);
++  });
++
++  specimen.it("the send key is disabled on an empty draft, never the field", () => {
++    const empty = compose();
++    specimen.expect(Boolean(empty.key("primary").disabled)).toBe(true);
++    specimen.expect(open(empty.field)).toEqual([false, false, false, false]);
++    fire(empty.key("primary"), "click", { detail: 1 });
++    specimen.expect(empty.sent).toEqual([]);
++
++    type(empty.field, "e4");
++    specimen.expect(Boolean(empty.key("primary").disabled)).toBe(false);
++    fire(empty.key("primary"), "click", { detail: 1 });
++    specimen.expect(empty.sent).toEqual(["e4"]);
++
++    const unharnessed = compose({ harnessed: false, draft: "kept from before" });
++    specimen.expect(Boolean(unharnessed.key("primary").disabled)).toBe(true);
++    specimen.expect(open(unharnessed.field)).toEqual([false, false, false, false]);
++  });
++
++  specimen.it("the tune key opens the intelligence editor in a float of the body zone, and closes it", () => {
++    const { key } = compose({ tunable: true, tune: "balanced" });
++    specimen.expect(document.body.getElementsByClassName("float")).toHaveLength(0);
++    const tune = key("plain");
++    specimen.expect(tune.textContent.trim()).toBe("balanced");
++
++    fire(tune, "click", { detail: 1 });
++    flush();
++    const float = document.body.getElementsByClassName("float")[0];
++    specimen.expect(Boolean(float)).toBe(true);
++    specimen.expect(float.parentNode.getAttribute("data-zone")).toBe("1");
++    specimen.expect(float.textContent).toContain("effort");
++
++    fire(tune, "click", { detail: 1 });
++    flush();
++    specimen.expect(document.body.getElementsByClassName("float")).toHaveLength(0);
++  });
++});
+diff --git a/systems/anima/tests/dock/dock.mount.test.js b/systems/anima/tests/dock/dock.mount.test.js
+new file mode 100644
+index 0000000..0bb24a2
+--- /dev/null
++++ b/systems/anima/tests/dock/dock.mount.test.js
+@@ -0,0 +1,282 @@
++import { specimen } from "@vivalence/typology";
++import { atom } from "nanostores";
++import { BOX, BRIDGE, TERMINALS } from "../../src/client.js";
++import { CLIENT, ENTRY, KIT, SRC, build, dom, fire, keys, words } from "./rig.js";
++
++const ANIMA = [
++  `export { chain } from "${new URL("typology/gestalten/belt/chain.js", SRC).href}";`,
++  `export { dictation } from "${new URL("typology/prototypes/dictation.js", SRC).href}";`,
++  `export { TONES, loudest, owed, roster } from "${new URL("typology/entities/activity.js", SRC).href}";`,
++  `import * as bridge from "${new URL("typology/stores/bridge/dock.js", SRC).href}";`,
++  "export const stores = { bridge };",
++].join("\n");
++
++const WIDGETS = {
++  Dock: new URL("app/panels/a/widgets/Dock.svelte", SRC),
++  DockHead: new URL("app/panels/a/widgets/DockHead.svelte", SRC),
++  Turn: new URL("app/panels/a/widgets/Turn.svelte", SRC),
++  LiveTurn: new URL("app/panels/a/widgets/LiveTurn.svelte", SRC),
++  Composer: new URL("app/panels/a/widgets/Composer.svelte", SRC),
++  Dictaphone: new URL("app/panels/a/widgets/Dictaphone.svelte", SRC),
++  Tune: new URL("app/widgets/Tune.svelte", SRC),
++  stop: new URL("app/panels/a/widgets/stop.svelte.js", SRC),
++  ...KIT,
++};
++
++const HISTORY = [
++  { id: "u1", role: "user", createdAt: "2026-09-28T09:00:00.000Z", parts: [{ type: "text", text: "what is due?" }] },
++  { id: "a1", role: "assistant", createdAt: "2026-09-28T09:00:05.000Z", parts: [{ type: "text", text: "three cards are due." }] },
++];
++
++const ANSWER = [
++  { event: "/turn/open", turn: { role: "assistant" } },
++  { event: "/part/open", index: 0, part: { type: "text", text: "" } },
++  { event: "/part/delta", index: 0, delta: { text: "Nf3 it is" } },
++  { event: "/part/close", index: 0 },
++  { event: "/turn/close", meta: { state: "complete" } },
++];
++
++const gate = () => {
++  let open;
++  const passed = new Promise((resolve) => (open = resolve));
++  return { open, passed };
++};
++
++const row = (id, status) => {
++  const signals = [];
++  return {
++    id,
++    status,
++    thread: "t1",
++    signals,
++    stdin: {
++      SIGTERM: (input) => Promise.resolve(void signals.push(["SIGTERM", input])),
++      SIGKILL: (input) => Promise.resolve(void signals.push(["SIGKILL", input])),
++    },
++  };
++};
++
++const world = ({ traits = ["HARNESSED"], turns = [], rows = [] } = {}) => {
++  const asked = [];
++  const gates = [gate(), gate()];
++  async function* stream(request) {
++    asked.push(request);
++    await gates[0].passed;
++    for (const packet of ANSWER.slice(0, 3)) yield packet;
++    await gates[1].passed;
++    for (const packet of ANSWER.slice(3)) yield packet;
++  }
++  const daemon = { slug: "italian", cortex: { find: () => [] }, entities: { activity: { $entities: atom(rows) } } };
++  const mode = { slug: "dealer", daemon, implements: (trait) => traits.includes(trait), harness: { dialogue: { stream } } };
++  const thread = {
++    id: "t1",
++    daemon,
++    mode,
++    $mode: atom(mode),
++    $turns: atom(turns),
++    $buffers: atom([]),
++    $trait: atom({}),
++    $traits: atom([]),
++    $label: atom({ name: "evening deck" }),
++  };
++  const terminal = {
++    id: "one",
++    thread,
++    $thread: atom(thread),
++    $buffer: atom(null),
++    $dock: atom({ side: "right", share: 0.32, collapsed: false, full: false }),
++  };
++  const $active = atom(terminal);
++  const terminals = {
++    $active,
++    get active() {
++      return $active.get();
++    },
++  };
++  const context = new Map([
++    [TERMINALS, terminals],
++    [BRIDGE, { $composer: atom({ enterSends: true }) }],
++    [BOX, { device: { microphone: { $level: atom(0) } } }],
++  ]);
++  return { asked, gates, thread, terminal, context };
++};
++
++const settle = async (flush) => {
++  for (let turn = 0; turn < 6; turn += 1) {
++    await new Promise((resolve) => setTimeout(resolve, 5));
++    flush();
++  }
++};
++
++specimen.describe("the dock — mounted whole: the log, the echo, the stream, the keys", () => {
++  let directory, document, mount, unmount, flush, Dock;
++  const mounted = [];
++  const dumps = [];
++  const silenced = console.error;
++
++  specimen.beforeAll(async () => {
++    directory = await Deno.makeTempDir({ prefix: "anima-dock-whole-" });
++    document = dom();
++    globalThis.ResizeObserver = class {
++      observe() {}
++      unobserve() {}
++      disconnect() {}
++    };
++    ({ mount, unmount } = await import(ENTRY));
++    ({ flush } = await import(CLIENT));
++    await Deno.writeTextFile(`${directory}/anima.js`, ANIMA);
++    const load = await build(directory, WIDGETS, [[/from "@vivalence\/anima"/g, 'from "./anima.js"']]);
++    ({ default: Dock } = await load("Dock"));
++    console.error = (...args) => dumps.push(String(args[0]?.name ?? args[0]));
++  });
++  specimen.afterEach(async () => {
++    for (const app of mounted.splice(0)) unmount(app);
++    await settle(flush);
++    document.body.innerHTML = "";
++  });
++  specimen.afterAll(async () => {
++    console.error = silenced;
++    await Deno.remove(directory, { recursive: true });
++  });
++
++  const dock = (held, props = {}) => {
++    const target = document.body.appendChild(document.createElement("div"));
++    mounted.push(mount(Dock, { target, props: { thread: held.thread, ...props }, context: held.context }));
++    flush();
++    const field = target.getElementsByTagName("textarea")[0];
++    const key = (word) => keys(target).find((button) => words(button) === word) ?? null;
++    const type = (text) => {
++      field.value = text;
++      fire(field, "input");
++      flush();
++    };
++    const press = (name, more = {}) => {
++      const prevented = [];
++      fire(field, "keydown", { key: name, shiftKey: false, preventDefault: () => prevented.push(name), ...more });
++      flush();
++      return prevented;
++    };
++    return { target, field, key, type, press };
++  };
++
++  specimen.it("an empty thread says begin, one with no harness says so, and nothing loops", () => {
++    const begun = dock(world());
++    specimen.expect(words(begun.target)).toContain("evening deck");
++    specimen.expect(words(begun.target)).toContain("begin");
++    specimen.expect(begun.field.getAttribute("placeholder")).toBe("message… (shift+enter for newline)");
++
++    const bare = dock(world({ traits: [] }));
++    specimen.expect(words(bare.target)).toContain("no harness");
++    specimen.expect(bare.field.getAttribute("placeholder")).toBe("—");
++    specimen.expect([bare.field.hasAttribute("disabled"), bare.field.hasAttribute("readonly")]).toEqual([false, false]);
++    specimen.expect(dumps).toEqual([]);
++  });
++
++  specimen.it("the thread's turns are the log: a day rule, my bubble, their turn under the thread's name", () => {
++    const { target } = dock(world({ turns: HISTORY }));
++    specimen.expect(target.getElementsByClassName("turn-day")).toHaveLength(1);
++    specimen.expect(target.getElementsByClassName("turn-bubble")).toHaveLength(1);
++    const [mine, theirs] = [...target.getElementsByClassName("turn")].map((turn) => words(turn));
++    specimen.expect(mine.startsWith("what is due? ⧉ retry you · ")).toBe(true);
++    specimen.expect(theirs.startsWith("evening deck ")).toBe(true);
++    specimen.expect(theirs.endsWith(" ⧉ three cards are due.")).toBe(true);
++    specimen.expect(words(target)).not.toContain("begin");
++  });
++
++  specimen.it("enter sends the draft under a client id: the echo, the live turn, then the reset", async () => {
++    const held = world({ turns: HISTORY });
++    const { target, field, type, press, key } = dock(held);
++    specimen.expect(Boolean(key("").disabled)).toBe(true);
++    type("Nf3?");
++    specimen.expect(press("Enter", { shiftKey: true })).toEqual([]);
++    specimen.expect(held.asked).toEqual([]);
++
++    specimen.expect(press("Enter")).toEqual(["Enter"]);
++    await settle(flush);
++    specimen.expect(held.asked).toHaveLength(1);
++    const [{ thread, id, parts }] = held.asked;
++    specimen.expect([thread, parts]).toEqual(["t1", [{ type: "text", text: "Nf3?" }]]);
++    specimen.expect(field.value).toBe("");
++    specimen.expect(target.getElementsByClassName("turn-bubble")).toHaveLength(2);
++    specimen.expect(words(target)).toContain("Nf3?");
++    specimen.expect(words(target.getElementsByClassName("live-turn")[0])).toContain("thinking");
++    specimen.expect(Boolean(key("stop"))).toBe(true);
++
++    held.thread.$turns.set([...HISTORY, { id, role: "user", createdAt: new Date().toISOString(), parts }]);
++    held.gates[0].open();
++    await settle(flush);
++    specimen.expect(target.getElementsByClassName("turn-bubble")).toHaveLength(2);
++    const live = words(target.getElementsByClassName("live-turn")[0]);
++    specimen.expect(live).toContain("streaming");
++    specimen.expect(live).toContain("Nf3 it is");
++
++    held.gates[1].open();
++    await settle(flush);
++    specimen.expect(target.getElementsByClassName("live-turn")).toHaveLength(0);
++    specimen.expect(target.getElementsByClassName("turn-bubble")).toHaveLength(2);
++    specimen.expect(Boolean(key("stop"))).toBe(false);
++    specimen.expect(dumps).toEqual([]);
++  });
++
++  specimen.it("arrow up on an empty draft recalls my last turn", async () => {
++    const { field, press } = dock(world({ turns: HISTORY }));
++    specimen.expect(press("ArrowUp")).toEqual(["ArrowUp"]);
++    await settle(flush);
++    specimen.expect(field.value).toBe("what is due?");
++    specimen.expect(press("ArrowUp")).toEqual([]);
++  });
++
++  specimen.it("escape stops a thread that runs: SIGTERM to its live row, the stop key in the send key's place", async () => {
++    const running = row("a-1", "RUNNING");
++    const { press, key } = dock(world({ rows: [running] }));
++    specimen.expect([Boolean(key("stop")), Boolean(key(""))]).toEqual([true, false]);
++    specimen.expect(press("Escape")).toEqual(["Escape"]);
++    await settle(flush);
++    specimen.expect(running.signals).toEqual([["SIGTERM", "user pressed stop"]]);
++  });
++
++  specimen.it("the head's keys write the terminal's dock", () => {
++    const held = world();
++    const { target, key } = dock(held);
++    fire(key("⤢"), "click", { detail: 1 });
++    flush();
++    specimen.expect(held.terminal.$dock.get().full).toBe(true);
++    specimen.expect(target.getElementsByClassName("dock")[0].classList.contains("full")).toBe(true);
++
++    fire(key("→"), "click", { detail: 1 });
++    flush();
++    const rows = [...document.body.getElementsByClassName("float")[0].getElementsByClassName("row")];
++    fire(rows[2], "click", { detail: 1 });
++    flush();
++    specimen.expect(held.terminal.$dock.get().side).toBe("bottom");
++    specimen.expect(Boolean(key("↓"))).toBe(true);
++
++    fire(key("×"), "click", { detail: 1 });
++    specimen.expect(held.terminal.$dock.get().collapsed).toBe(true);
++  });
++
++  specimen.it("the meta bar opens its three chips; a chip latches and hands its name up — the dock itself opens no console", () => {
++    const heard = [];
++    const { target, key } = dock(world({ turns: HISTORY }), { onconsole: (name) => heard.push(name) });
++    specimen.expect(target.getElementsByClassName("dock-meta")).toHaveLength(0);
++    fire(key("⋮⋮ meta"), "click", { detail: 1 });
++    flush();
++    const before = target.getElementsByTagName("*").length;
++
++    fire(key("meter"), "click", { detail: 1 });
++    flush();
++    specimen.expect(key("meter").classList.contains("latched")).toBe(true);
++    specimen.expect(target.getElementsByTagName("*").length).toBe(before);
++
++    fire(key("activity"), "click", { detail: 1 });
++    flush();
++    specimen.expect([key("meter").classList.contains("latched"), key("activity").classList.contains("latched")]).toEqual([false, true]);
++
++    fire(key("activity"), "click", { detail: 1 });
++    fire(key("context"), "click", { detail: 1 });
++    fire(key("⋮⋮ meta"), "click", { detail: 1 });
++    flush();
++    specimen.expect(heard).toEqual(["meter", "activity", null, "context", null]);
++    specimen.expect(target.getElementsByClassName("dock-meta")).toHaveLength(0);
++  });
++});
+diff --git a/systems/anima/tests/dock/rig.js b/systems/anima/tests/dock/rig.js
+new file mode 100644
+index 0000000..2b33613
+--- /dev/null
++++ b/systems/anima/tests/dock/rig.js
+@@ -0,0 +1,102 @@
++import { compile, compileModule } from "svelte/compiler";
++import { parseHTML } from "linkedom";
++
++export const CLIENT = import.meta.resolve("svelte/internal/client");
++export const ENTRY = new URL("../../index-client.js", CLIENT).href;
++export const SRC = new URL("../../src/", import.meta.url);
++export const DRAPES = new URL("../../../../subsystems/drapes/", import.meta.url);
++
++const TYPOLOGY = import.meta.resolve("@vivalence/typology");
++
++export const KIT = {
++  Key: new URL("controls/Key.svelte", DRAPES),
++  Segmented: new URL("controls/Segmented.svelte", DRAPES),
++  Stepper: new URL("controls/Stepper.svelte", DRAPES),
++  Empty: new URL("display/Empty.svelte", DRAPES),
++  Json: new URL("display/Json.svelte", DRAPES),
++  Markdown: new URL("display/Markdown.svelte", DRAPES),
++  Meter: new URL("display/Meter.svelte", DRAPES),
++  Row: new URL("display/Row.svelte", DRAPES),
++  Section: new URL("display/Section.svelte", DRAPES),
++  Spinner: new URL("display/Spinner.svelte", DRAPES),
++  Status: new URL("display/Status.svelte", DRAPES),
++  Tag: new URL("display/Tag.svelte", DRAPES),
++  ToolRow: new URL("display/ToolRow.svelte", DRAPES),
++  Well: new URL("display/Well.svelte", DRAPES),
++  Float: new URL("panels/Float.svelte", DRAPES),
++  Frame: new URL("panels/Frame.svelte", DRAPES),
++};
++
++const parts = (_, names) => names.split(",").map((name) => `import ${name.trim()} from "./${name.trim()}.js";`).join("\n");
++
++const REWRITES = [
++  [/^import ['"]svelte\/internal\/(disclose-version|flags\/[a-z]+)['"];\n?/gm, ""],
++  [/from ['"]svelte\/internal\/client['"]/g, `from "${CLIENT}"`],
++  [/from "svelte"/g, `from "${ENTRY}"`],
++  [/import \{ ([^}]+) \} from "@vivalence\/drapes";/g, parts],
++  [/from "(?:\.\.?\/)+(?:[a-z]+\/)*([A-Z][A-Za-z]*)\.svelte"/g, 'from "./$1.js"'],
++  [/from "\.\/float\.js"/g, `from "${new URL("panels/float.js", DRAPES).href}"`],
++  [/from "\.\/markdown\.js"/g, `from "${new URL("display/markdown.js", DRAPES).href}"`],
++  [/from "\.\/turns\.js"/g, `from "${new URL("app/panels/a/widgets/turns.js", SRC).href}"`],
++  [/from "\.\/dictate\.js"/g, `from "${new URL("app/panels/a/widgets/dictate.js", SRC).href}"`],
++  [/from "\.\/stop\.svelte\.js"/g, 'from "./stop.js"'],
++  [/from "\.\.\/panels\/e\/widgets\/intelligent\.js"/g, `from "${new URL("app/panels/e/widgets/intelligent.js", SRC).href}"`],
++  [/from "@vivalence\/typology"/g, `from "${TYPOLOGY}"`],
++  [/from "\$client"/g, `from "${new URL("client.js", SRC).href}"`],
++];
++
++const runes = (url) => url.pathname.endsWith(".svelte.js");
++
++export async function build(directory, widgets, rewrites = []) {
++  for (const [name, url] of Object.entries(widgets)) {
++    const source = await Deno.readTextFile(url);
++    const out = runes(url)
++      ? compileModule(source, { generate: "client", filename: `${name}.svelte.js`, dev: true })
++      : compile(source, { generate: "client", filename: `${name}.svelte`, css: "external", dev: true });
++    let code = out.js.code;
++    for (const [from, to] of [...rewrites, ...REWRITES]) code = code.replace(from, to);
++    await Deno.writeTextFile(`${directory}/${name}.js`, code);
++  }
++  return (name) => import(`file://${directory}/${name}.js`);
++}
++
++export function dom() {
++  const { window, document } = parseHTML("<!doctype html><html><head></head><body></body></html>");
++  const walk = (node, key) => {
++    for (let proto = Object.getPrototypeOf(node); proto && proto !== window.Node.prototype; proto = Object.getPrototypeOf(proto)) {
++      const desc = Object.getOwnPropertyDescriptor(proto, key);
++      if (desc?.get) return desc.get.call(node);
++    }
++    return null;
++  };
++  for (const key of ["firstChild", "nextSibling"]) {
++    const own = Object.getOwnPropertyDescriptor(window.Node.prototype, key);
++    Object.defineProperty(window.Node.prototype, key, { configurable: true, get() { return walk(this, key) ?? own?.get?.call(this) ?? null; } });
++  }
++  window.Element.prototype.getBoundingClientRect ??= () => ({ left: 0, top: 0, right: 0, bottom: 0, width: 0, height: 0 });
++  window.innerWidth ??= 1280;
++  window.innerHeight ??= 800;
++  Object.assign(globalThis, {
++    window, document,
++    Node: window.Node, Element: window.Element, HTMLElement: window.HTMLElement, Text: window.Text, Comment: window.Comment,
++    DocumentFragment: window.DocumentFragment, Event: window.Event, CustomEvent: window.CustomEvent,
++    HTMLMediaElement: window.HTMLMediaElement ?? class {},
++    MutationObserver: window.MutationObserver ?? class { observe() {} disconnect() {} },
++    requestAnimationFrame: (fn) => setTimeout(fn, 16),
++    getComputedStyle: () => ({ getPropertyValue: () => "" }),
++  });
++  return document;
++}
++
++export const fire = (element, type, detail = {}) => {
++  const handler = element[`__${type}`];
++  const event = Object.assign(new globalThis.window.Event(type), detail);
++  Object.defineProperty(event, "currentTarget", { configurable: true, value: element });
++  return Array.isArray(handler) ? handler[0].call(element, event, ...handler.slice(1)) : handler.call(element, event);
++};
++
++export const send = (element, type) => element.dispatchEvent(new globalThis.window.Event(type));
++
++export const keys = (target) => [...target.getElementsByTagName("button")];
++
++export const words = (target) => target.textContent.replace(/\s+/g, " ").trim();
+diff --git a/systems/anima/tests/dock/stage.mount.test.js b/systems/anima/tests/dock/stage.mount.test.js
+new file mode 100644
+index 0000000..98ae103
+--- /dev/null
++++ b/systems/anima/tests/dock/stage.mount.test.js
+@@ -0,0 +1,239 @@
++import { specimen } from "@vivalence/typology";
++import { atom } from "nanostores";
++import { TERMINALS } from "../../src/client.js";
++import { CLIENT, ENTRY, KIT, SRC, build, dom, fire, keys, words } from "./rig.js";
++
++const CHAIN = new URL("typology/gestalten/belt/chain.js", SRC).href;
++const DOCK = new URL("typology/stores/bridge/dock.js", SRC).href;
++
++const ANIMA = `export { chain } from "${CHAIN}";\nimport * as bridge from "${DOCK}";\nexport const stores = { bridge };\n`;
++const STUB = `<div class="dock-stub">the dock</div>\n`;
++
++const RECT = { left: 0, top: 0, width: 800, height: 600 };
++
++const mode = (traits, slug = "dealer") => ({
++  slug,
++  traits,
++  implements: (trait) => traits.includes(trait),
++  $application: atom(null),
++  status: { $transient: atom(null) },
++});
++
++const thread = (held, { phase = "manual", buffers = [] } = {}) => ({
++  id: "t1",
++  $mode: atom(held),
++  $phase: atom(phase),
++  $buffers: atom(buffers),
++});
++
++const buffer = (held, given = {}) => ({
++  id: "b1",
++  status: "ACTIVE",
++  mode: held,
++  thread: null,
++  $view: atom(null),
++  mounts: 0,
++  mount() {
++    this.mounts += 1;
++  },
++  unmount() {},
++  ...given,
++});
++
++const drawn = (load) => ({ hash: "h1", bundle: { url: "attach/bundle/dealer" }, mount: { nature: "/card" }, load });
++
++const terminal = (given = {}) => ({
++  id: "one",
++  $thread: atom(given.thread ?? null),
++  $buffer: atom(given.buffer ?? null),
++  $dock: atom({ side: "right", share: 0.32, collapsed: true, full: false, ...given.dock }),
++  $settling: atom(given.settling ?? null),
++});
++
++const roster = (held) => {
++  const $active = atom(held);
++  return {
++    $active,
++    get active() {
++      return $active.get();
++    },
++  };
++};
++
++const quiet = async () => {
++  for (let turn = 0; turn < 4; turn += 1) await new Promise((resolve) => setTimeout(resolve, 0));
++};
++
++specimen.describe("panel A — mounted: the frame's states, the status bar, the seam", () => {
++  let directory, document, mount, unmount, flush, Stage;
++  const mounted = [];
++
++  specimen.beforeAll(async () => {
++    directory = await Deno.makeTempDir({ prefix: "anima-stage-mount-" });
++    document = dom();
++    ({ mount, unmount } = await import(ENTRY));
++    ({ flush } = await import(CLIENT));
++    await Deno.writeTextFile(`${directory}/anima.js`, ANIMA);
++    await Deno.writeTextFile(`${directory}/Dock.svelte`, STUB);
++    const load = await build(
++      directory,
++      {
++        Stage: new URL("app/panels/a/a.svelte", SRC),
++        Dock: new URL(`file://${directory}/Dock.svelte`),
++        Frame: KIT.Frame,
++        Empty: KIT.Empty,
++        Spinner: KIT.Spinner,
++        Status: KIT.Status,
++        Key: KIT.Key,
++      },
++      [[/from "@vivalence\/anima"/g, 'from "./anima.js"']],
++    );
++    ({ default: Stage } = await load("Stage"));
++  });
++  specimen.afterEach(() => {
++    for (const app of mounted.splice(0)) unmount(app);
++    flush();
++    document.body.innerHTML = "";
++  });
++  specimen.afterAll(async () => {
++    await Deno.remove(directory, { recursive: true });
++  });
++
++  const stage = (held) => {
++    const target = document.body.appendChild(document.createElement("div"));
++    mounted.push(mount(Stage, { target, props: { rect: RECT }, context: new Map([[TERMINALS, roster(held)]]) }));
++    flush();
++    return target;
++  };
++
++  specimen.it("no terminal and no thread say so, and where to go", () => {
++    const told = "no thread pick a mode in navigation · or a thread";
++    specimen.expect(words(stage(null))).toBe(told);
++    specimen.expect(words(stage(terminal()))).toBe(told);
++  });
++
++  specimen.it("a terminal that is still restored says which entity it waits for, and stops saying it", () => {
++    const held = terminal({ settling: { thread: "3f9c1a", buffer: "b71e04" } });
++    const target = stage(held);
++    specimen.expect(words(target)).toBe("settling · thread");
++    specimen.expect(target.getElementsByClassName("spinner")).toHaveLength(1);
++
++    held.$settling.set({ thread: null, buffer: "b71e04" });
++    flush();
++    specimen.expect(words(target)).toBe("settling · buffer");
++
++    held.$settling.set(null);
++    flush();
++    specimen.expect(words(target)).toBe("no thread pick a mode in navigation · or a thread");
++    specimen.expect(target.getElementsByClassName("spinner")).toHaveLength(0);
++  });
++
++  specimen.it("a thread with no cursor resolves its buffer over the reason", () => {
++    const held = thread(mode(["APPLICATION", "HARNESSED"]), { phase: "inert" });
++    const target = stage(terminal({ thread: held }));
++    specimen.expect(words(target)).toBe("resolving buffer inert · open a buffer or engage a phase");
++
++    held.$phase.set("manual");
++    flush();
++    specimen.expect(words(target)).toBe("resolving buffer no buffers · open or pull");
++
++    held.$buffers.set([{ id: "b1" }]);
++    flush();
++    specimen.expect(words(target)).toBe("resolving buffer cursor empty");
++  });
++
++  specimen.it("a harnessed mode with no application is conversational, with a buffer or without", () => {
++    const spoken = mode(["HARNESSED"]);
++    const told = "conversational · no application the dock is the surface";
++    specimen.expect(words(stage(terminal({ thread: thread(spoken) })))).toBe(told);
++    specimen.expect(words(stage(terminal({ thread: thread(spoken), buffer: buffer(spoken) })))).toBe(told);
++  });
++
++  specimen.it("a buffer with no view is a fault of its own, and names the mode's status", () => {
++    const held = mode(["APPLICATION"]);
++    const target = stage(terminal({ thread: thread(held), buffer: buffer(held) }));
++    specimen.expect(words(target)).toBe("buffer has no view mode dealer · application pending");
++    specimen.expect(target.getElementsByClassName("negative")).toHaveLength(1);
++
++    held.status.$transient.set({ code: "ERROR", error: { message: "bundle refused" } });
++    flush();
++    specimen.expect(words(target)).toBe("buffer has no view mode dealer · application pending · mode error · bundle refused");
++  });
++
++  specimen.it("a view loads under its path, mounts, and the status bar names the buffer's status", async () => {
++    let release;
++    const seen = [];
++    const held = mode(["APPLICATION", "HARNESSED"]);
++    const cursor = buffer(held);
++    const loading = new Promise((resolve) => (release = resolve));
++    cursor.$view.set(drawn(() => loading));
++    const seated = terminal({ thread: thread(held, { buffers: [cursor] }), buffer: cursor });
++    const target = stage(seated);
++    specimen.expect(words(target)).toBe("loading view attach/bundle/dealer/card active chat");
++
++    release({ default: (node, props) => (seen.push(props.buffer.id), { destroy() {} }) });
++    await quiet();
++    flush();
++    specimen.expect(seen).toEqual(["b1"]);
++    specimen.expect(cursor.mounts).toBe(1);
++    specimen.expect(words(target)).toBe("active chat");
++
++    const chat = keys(target).find((key) => words(key) === "chat");
++    specimen.expect(chat.classList.contains("latched")).toBe(false);
++    fire(chat, "click", { detail: 1 });
++    flush();
++    specimen.expect(seated.$dock.get().collapsed).toBe(false);
++    specimen.expect(keys(target).find((key) => words(key) === "chat").classList.contains("latched")).toBe(true);
++  });
++
++  specimen.it("a mode with no harness has no chat key under its view", async () => {
++    const held = mode(["APPLICATION"]);
++    const cursor = buffer(held, { status: "DONE" });
++    cursor.$view.set(drawn(() => Promise.resolve({ default: () => ({ destroy() {} }) })));
++    const target = stage(terminal({ thread: thread(held, { buffers: [cursor] }), buffer: cursor }));
++    await quiet();
++    flush();
++    specimen.expect(words(target)).toBe("done");
++    specimen.expect(keys(target)).toHaveLength(0);
++    const tones = [...target.getElementsByClassName("status")].map((status) => status.classList.contains("positive"));
++    specimen.expect(tones).toEqual([true]);
++  });
++
++  specimen.it("the frame keeps its own two states: a buffer still an id, a view that refused", async () => {
++    const held = mode(["APPLICATION"]);
++    const waiting = stage(terminal({ thread: thread(held), buffer: "b71e04" }));
++    specimen.expect(words(waiting)).toBe("resolving buffer b71e04");
++
++    const cursor = buffer(held);
++    cursor.$view.set(drawn(() => Promise.reject(new Error("integrity mismatch"))));
++    const silenced = console.error;
++    console.error = () => {};
++    try {
++      const refused = stage(terminal({ thread: thread(held, { buffers: [cursor] }), buffer: cursor }));
++      await quiet();
++      flush();
++      specimen.expect(words(refused)).toBe("view refused integrity mismatch attach/bundle/dealer/card active");
++    } finally {
++      console.error = silenced;
++    }
++  });
++
++  specimen.it("an open dock sits behind a seam with a grip; full, the seam is gone", () => {
++    const held = mode(["HARNESSED"]);
++    const seated = terminal({ thread: thread(held), dock: { collapsed: false } });
++    const target = stage(seated);
++    specimen.expect(target.getElementsByClassName("dock-stub")).toHaveLength(1);
++    specimen.expect(target.getElementsByClassName("seam")).toHaveLength(1);
++    specimen.expect(target.getElementsByClassName("grip")).toHaveLength(1);
++    specimen.expect(target.getElementsByClassName("seam")[0].classList.contains("vertical")).toBe(true);
++
++    seated.$dock.set({ ...seated.$dock.get(), full: true });
++    flush();
++    specimen.expect(target.getElementsByClassName("dock-stub")).toHaveLength(1);
++    specimen.expect(target.getElementsByClassName("seam")).toHaveLength(0);
++
++    seated.$dock.set({ ...seated.$dock.get(), collapsed: true });
++    flush();
++    specimen.expect(target.getElementsByClassName("dock-stub")).toHaveLength(0);
++  });
++});
+diff --git a/systems/anima/tests/dock/turns.mount.test.js b/systems/anima/tests/dock/turns.mount.test.js
+new file mode 100644
+index 0000000..0c5ac55
+--- /dev/null
++++ b/systems/anima/tests/dock/turns.mount.test.js
+@@ -0,0 +1,272 @@
++import { specimen } from "@vivalence/typology";
++import { enrich, usages } from "../../src/app/panels/a/widgets/turns.js";
++import { CLIENT, ENTRY, KIT, SRC, build, dom, fire, keys, words } from "./rig.js";
++
++const WIDGETS = {
++  DockHead: new URL("app/panels/a/widgets/DockHead.svelte", SRC),
++  Turn: new URL("app/panels/a/widgets/Turn.svelte", SRC),
++  LiveTurn: new URL("app/panels/a/widgets/LiveTurn.svelte", SRC),
++  Key: KIT.Key,
++  Json: KIT.Json,
++  Markdown: KIT.Markdown,
++  Meter: KIT.Meter,
++  Row: KIT.Row,
++  Section: KIT.Section,
++  Status: KIT.Status,
++  Tag: KIT.Tag,
++  ToolRow: KIT.ToolRow,
++  Well: KIT.Well,
++  Float: KIT.Float,
++};
++
++const NOW = new Date("2026-09-28T12:00:00.000Z");
++
++const THREAD = [
++  { id: "u1", role: "user", createdAt: "2026-09-28T09:00:00.000Z", parts: [{ type: "text", text: "what is due?" }] },
++  {
++    id: "a1",
++    role: "assistant",
++    createdAt: "2026-09-28T09:00:02.000Z",
++    meta: { usage: { input_tokens: 1200, output_tokens: 40 } },
++    parts: [
++      { type: "thinking", text: "the queue holds three cards" },
++      { type: "tool_use", id: "call-1", name: "queue_due", input: { limit: 3 } },
++      { type: "tool_use", id: "call-2", name: "queue_draw", input: { seat: 1 } },
++    ],
++  },
++  {
++    id: "r1",
++    role: "user",
++    createdAt: "2026-09-28T09:00:03.000Z",
++    parts: [
++      {
++        type: "tool_result",
++        tool_use_id: "call-1",
++        output: {
++          message: "three due",
++          buffer: [{ id: "b1", index: 1, trait: { LABELED: { name: "the drawn card" } } }],
++          literal: [{ id: "l1", slug: "casa", ontology: "noun", description: "house", strength: 0.8 }],
++        },
++      },
++      { type: "tool_result", tool_use_id: "call-2", condition: "ERROR", output: "no seat" },
++    ],
++  },
++  {
++    id: "a2",
++    role: "assistant",
++    createdAt: "2026-09-28T09:00:05.000Z",
++    meta: { usage: { input_tokens: 1500, output_tokens: 210 } },
++    parts: [{ type: "text", text: "three cards are due." }],
++  },
++];
++
++const LIVE = {
++  kind: "turn",
++  turn: { role: "assistant" },
++  date: null,
++  text: "drawing the",
++  think: "",
++  tools: [{ name: "queue_draw", digest: "seat 1", status: "running", output: null, channels: [] }],
++  failures: 0,
++  artifacts: [],
++  buffers: [],
++  verdict: null,
++};
++
++specimen.describe("the dock's widgets — mounted: the head, a turn, the live turn", () => {
++  let directory, document, mount, unmount, flush, load;
++  const mounted = [];
++
++  specimen.beforeAll(async () => {
++    directory = await Deno.makeTempDir({ prefix: "anima-dock-mount-" });
++    document = dom();
++    ({ mount, unmount } = await import(ENTRY));
++    ({ flush } = await import(CLIENT));
++    load = await build(directory, WIDGETS);
++  });
++  specimen.afterEach(() => {
++    for (const app of mounted.splice(0)) unmount(app);
++    flush();
++    document.body.innerHTML = "";
++  });
++  specimen.afterAll(async () => {
++    await Deno.remove(directory, { recursive: true });
++  });
++
++  const seat = async (name, props) => {
++    const { default: Widget } = await load(name);
++    const target = document.body.appendChild(document.createElement("div"));
++    mounted.push(mount(Widget, { target, props }));
++    flush();
++    return target;
++  };
++
++  const tap = (element) => {
++    fire(element, "click", { detail: 1 });
++    flush();
++  };
++
++  const items = enrich(THREAD, NOW);
++  const spent = usages(items, THREAD);
++  const [day, mine, theirs] = items;
++  const launches = [{ id: "b1", label: "the drawn card", line: "italian › dealer", runnable: true, seated: false }];
++
++  specimen.it("a day rule says its day; my turn is a bubble with you · at under it, copy and retry beside", async () => {
++    specimen.expect(words(await seat("Turn", { item: day }))).toBe("today");
++
++    const calls = [];
++    const target = await seat("Turn", {
++      item: mine,
++      oncopy: (turn, tools) => calls.push(["copy", turn.id, tools.length]),
++      onretry: (turn) => calls.push(["retry", turn.id]),
++    });
++    specimen.expect(words(target)).toContain("what is due?");
++    specimen.expect(words(target)).toContain("you ·");
++    specimen.expect(target.getElementsByClassName("turn-bubble")).toHaveLength(1);
++    const [copy, retry] = keys(target);
++    tap(copy);
++    tap(retry);
++    specimen.expect(calls).toEqual([["copy", "u1", 0], ["retry", "u1"]]);
++  });
++
++  specimen.it("their turn names who spoke, its manifest and what the joined turn spent", async () => {
++    const target = await seat("Turn", { item: theirs, agent: "dealer", usage: spent.get("a1"), launches });
++    const head = words(target.getElementsByClassName("turn-head")[0]);
++    specimen.expect(head).toContain("dealer");
++    specimen.expect(head).toContain("thinking · 2 calls");
++    specimen.expect(head).toContain("1 failed");
++    specimen.expect(head).toContain("2.7k → 250");
++    specimen.expect(words(target)).toContain("three cards are due.");
++  });
++
++  specimen.it("a tool row is shut until its own toggle opens it; a failed call opens by itself", async () => {
++    const target = await seat("Turn", { item: theirs, agent: "dealer", launches });
++    const faces = [...target.getElementsByClassName("tool-face")];
++    specimen.expect(faces.map((face) => words(face))).toEqual(["▸ queue_due limit 3 ok", "▸ queue_draw seat 1 error"]);
++    specimen.expect(words(target)).not.toContain("three due");
++    specimen.expect(words(target)).toContain("no seat");
++
++    tap(faces[0]);
++    specimen.expect(words(target)).toContain("three due");
++    const heads = [...target.getElementsByClassName("section-head")].map((head) => words(head));
++    specimen.expect(heads.slice(0, 3)).toEqual(["▸ input { limit }", "▸ buffer ×1", "▸ literal ×1"]);
++
++    tap(faces[0]);
++    specimen.expect(words(target)).not.toContain("three due");
++  });
++
++  specimen.it("a channel opens to its rows: term, kind, gloss, a meter; a buffer's row and its card both launch", async () => {
++    const launched = [];
++    const target = await seat("Turn", { item: theirs, agent: "dealer", launches, onlaunch: (buffer) => launched.push(buffer.id) });
++    tap(target.getElementsByClassName("tool-face")[0]);
++    const [, buffer, literal] = [...target.getElementsByClassName("section-head")];
++    tap(literal);
++    specimen.expect(words(target)).toContain("casa noun house");
++    specimen.expect(target.getElementsByClassName("meter")).toHaveLength(1);
++
++    tap(buffer);
++    const row = [...target.getElementsByClassName("row")].find((held) => words(held).startsWith("the drawn card"));
++    tap(row);
++    const card = keys(target).find((key) => words(key).startsWith("the drawn card"));
++    specimen.expect(words(card)).toBe("the drawn card italian › dealer");
++    tap(card);
++    specimen.expect(launched).toEqual(["b1", "b1"]);
++  });
++
++  specimen.it("a buffer the thread no longer holds launches nothing: its card is disabled, its row is no key", async () => {
++    const launched = [];
++    const gone = [{ ...launches[0], runnable: false }];
++    const target = await seat("Turn", { item: theirs, launches: gone, onlaunch: (buffer) => launched.push(buffer.id) });
++    tap(target.getElementsByClassName("tool-face")[0]);
++    tap(target.getElementsByClassName("section-head")[1]);
++    const card = keys(target).find((key) => words(key).startsWith("the drawn card"));
++    specimen.expect(Boolean(card.disabled)).toBe(true);
++    tap(card);
++    specimen.expect(target.getElementsByClassName("click")).toHaveLength(0);
++    specimen.expect(launched).toEqual([]);
++  });
++
++  specimen.it("thinking folds behind its own toggle, shows inline when the thread shows it, and is gone when it hides it", async () => {
++    const folded = await seat("Turn", { item: theirs, thinking: null });
++    specimen.expect(words(folded)).not.toContain("the queue holds three cards");
++    tap([...folded.getElementsByClassName("section-head")].find((head) => words(head).includes("thinking")));
++    specimen.expect(words(folded)).toContain("the queue holds three cards");
++
++    const shown = await seat("Turn", { item: theirs, thinking: true });
++    specimen.expect(words(shown)).toContain("the queue holds three cards");
++    specimen.expect([...shown.getElementsByClassName("section-head")].some((head) => words(head).includes("thinking"))).toBe(false);
++
++    const hidden = await seat("Turn", { item: theirs, thinking: false });
++    specimen.expect(words(hidden)).not.toContain("thinking");
++    specimen.expect(words(hidden)).not.toContain("the queue holds three cards");
++  });
++
++  specimen.it("the live turn says its state and its clock; a running call is a row with no toggle", async () => {
++    const waiting = await seat("LiveTurn", { item: null, agent: "dealer", word: "thinking", elapsed: "0.4s" });
++    specimen.expect(words(waiting)).toBe("dealer thinking 0.4s thinking");
++
++    const calling = await seat("LiveTurn", { item: LIVE, agent: "dealer", word: "calling queue_draw", elapsed: "1.2s" });
++    specimen.expect(words(calling.getElementsByClassName("turn-head")[0])).toBe("dealer calling queue_draw 1.2s");
++    const face = calling.getElementsByClassName("tool-face")[0];
++    specimen.expect(words(face)).toBe("queue_draw seat 1 running");
++    specimen.expect(face.classList.contains("still")).toBe(true);
++    specimen.expect(words(calling)).toContain("drawing the");
++    specimen.expect(calling.getElementsByClassName("live-label")).toHaveLength(0);
++  });
++
++  specimen.it("the head names the thread and its state, and hands every key's press up", async () => {
++    const calls = [];
++    const props = {
++      label: "evening deck",
++      tone: "primary",
++      word: "running",
++      pulse: true,
++      side: "right",
++      sides: ["top", "right", "bottom", "left"],
++      full: false,
++      meta: false,
++      consoles: ["context", "meter", "activity"],
++      picked: null,
++      onmeta: () => calls.push("meta"),
++      onconsole: (name) => calls.push(`console ${name}`),
++      onside: (name) => calls.push(`side ${name}`),
++      onfull: () => calls.push("full"),
++      oncollapse: () => calls.push("collapse"),
++    };
++    const target = await seat("DockHead", props);
++    specimen.expect(words(target)).toBe("running evening deck ⋮⋮ meta → ⤢ ×");
++    const [meta, side, full, collapse] = keys(target);
++    tap(meta);
++    tap(full);
++    tap(collapse);
++    specimen.expect(calls).toEqual(["meta", "full", "collapse"]);
++
++    tap(side);
++    const float = document.body.getElementsByClassName("float")[0];
++    specimen.expect(float.parentNode.getAttribute("data-zone")).toBe("1");
++    const rows = [...float.getElementsByClassName("row")];
++    specimen.expect(rows.map((row) => words(row))).toEqual(["↑ top", "→ right", "↓ bottom", "← left"]);
++    specimen.expect(rows.map((row) => row.classList.contains("selected"))).toEqual([false, true, false, false]);
++    tap(rows[3]);
++    specimen.expect(calls.at(-1)).toBe("side left");
++    specimen.expect(document.body.getElementsByClassName("float")).toHaveLength(0);
++  });
++
++  specimen.it("the meta bar holds the three console chips; a chip hands its name up and latches when it is the picked one", async () => {
++    const calls = [];
++    const target = await seat("DockHead", {
++      label: "evening deck",
++      sides: ["top", "right", "bottom", "left"],
++      meta: true,
++      consoles: ["context", "meter", "activity"],
++      picked: "meter",
++      onconsole: (name) => calls.push(name),
++    });
++    const chips = [...target.getElementsByClassName("dock-meta")[0].getElementsByTagName("button")];
++    specimen.expect(chips.map((chip) => words(chip))).toEqual(["context", "meter", "activity"]);
++    specimen.expect(chips.map((chip) => chip.classList.contains("latched"))).toEqual([false, true, false]);
++    tap(chips[0]);
++    tap(chips[2]);
++    specimen.expect(calls).toEqual(["context", "activity"]);
++  });
++});
+diff --git a/systems/anima/tests/dock/turns.usage.test.js b/systems/anima/tests/dock/turns.usage.test.js
+new file mode 100644
+index 0000000..b959a23
+--- /dev/null
++++ b/systems/anima/tests/dock/turns.usage.test.js
+@@ -0,0 +1,58 @@
++import { specimen } from "@vivalence/typology";
++import { enrich, usages } from "../../src/app/panels/a/widgets/turns.js";
++
++const NOW = new Date("2026-09-28T12:00:00.000Z");
++
++const THREAD = [
++  { id: "u1", role: "user", createdAt: "2026-09-28T09:00:00.000Z", parts: [{ type: "text", text: "what is due?" }] },
++  {
++    id: "a1",
++    role: "assistant",
++    createdAt: "2026-09-28T09:00:02.000Z",
++    meta: { usage: { input_tokens: 1200, output_tokens: 40 } },
++    parts: [{ type: "tool_use", id: "call-1", name: "queue_due", input: { limit: 3 } }],
++  },
++  {
++    id: "r1",
++    role: "user",
++    createdAt: "2026-09-28T09:00:03.000Z",
++    parts: [{ type: "tool_result", tool_use_id: "call-1", output: { message: "three due" } }],
++  },
++  {
++    id: "a2",
++    role: "assistant",
++    createdAt: "2026-09-28T09:00:05.000Z",
++    meta: { usage: { input_tokens: 1500, output_tokens: 210 } },
++    parts: [{ type: "text", text: "three cards are due." }],
++  },
++  { id: "u2", role: "user", createdAt: "2026-09-28T09:01:00.000Z", parts: [{ type: "text", text: "thanks" }] },
++  { id: "a3", role: "assistant", createdAt: "2026-09-28T09:01:02.000Z", parts: [{ type: "text", text: "any time." }] },
++];
++
++specimen.describe("usages — what each turn of the log spent, joined turns summed", () => {
++  specimen.it("a joined turn spends what every turn it spans spent", () => {
++    const items = enrich(THREAD, NOW);
++    const spent = usages(items, THREAD);
++    specimen.expect(items.filter((item) => item.kind === "turn").map((item) => item.turn.id)).toEqual(["u1", "a1", "u2", "a3"]);
++    specimen.expect(spent.get("a1")).toEqual({ input: 2700, output: 250 });
++  });
++
++  specimen.it("a turn with no usage on the wire spends nothing: null, never a zero", () => {
++    const spent = usages(enrich(THREAD, NOW), THREAD);
++    specimen.expect([spent.get("u1"), spent.get("u2"), spent.get("a3")]).toEqual([null, null, null]);
++    specimen.expect([...spent.keys()]).toEqual(["u1", "a1", "u2", "a3"]);
++  });
++
++  specimen.it("an empty log spends nothing", () => {
++    specimen.expect(usages([], []).size).toBe(0);
++  });
++
++  specimen.it("the source is not mutated", () => {
++    const before = JSON.stringify(THREAD);
++    const items = enrich(THREAD, NOW);
++    const held = JSON.stringify(items);
++    usages(items, THREAD);
++    specimen.expect(JSON.stringify(THREAD)).toBe(before);
++    specimen.expect(JSON.stringify(items)).toBe(held);
++  });
++});

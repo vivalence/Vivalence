@@ -1,0 +1,1045 @@
+#+title: m72 zoned designs — the token space as a contract: a theme is a definition completed by theme() into five groups and four numbered zones, each zone a territory with its depth inside, read by name inside a data-zone container; colours owned per theme, each theme naming the steps of its own gradients; the themes renamed northsea · parchment, porcelain · datasette to follow
+#+filetags: :m72:dapper:drapes:anima:typology:zones:themes:tokens:design:rename:
+#+status: APPLIED — all four patches stand in the tree (/"4 patches. go on all 4."/ · /"tell me when the whole quest is applied"/, 09-28): the names and the pipe · anima and drapes by name · registry and commons by name · the old colour pipeline retired. Every gate is pasted in the changelog. Open: nine forks, each built on its first option (the places · a key's shadow and the mark · the text floor · the size sweep · fonts · the definition's floor · the key's fill on parchment · the strong boundary's floor · the hues beyond four signals); the two walks (panel G, panel H, a chat with turns, an education buffer); porcelain · datasette. =.ikiro/reference/design.md= is the sheet of the system.
+#+phase: applied
+#+progress: 100% 4/4 patches
+#+next: beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette
+
+* intent
+
+beef, verbatim (09-28):
+
+/"i want to structure our surfaces or leveles or zones. its chaos atm."/
+
+/"We don't call it comps, we call it zones."/
+
+/"I'm not yet happy with the names for the zones. Let's keep those at numbers. Let's keep names internally dedicated for some of them. Zone zero is the bones."/
+
+/"we have default signals and then each zone can override its signal. I think that makes the most sense."/
+
+/"do we want negative maybe that's over engineered"/
+
+/"the surfaces should rather be split into surface contrast. that would make more sense because we have such a visually layered interface. And then surface and boundary work together."/
+
+/"I like the control semantic, it's a good word for us."/
+
+/"I like the tree semantic overall. I want that to be the guiding principle. And per zone, I want you to mark the ones that are overwritable by wrapping them in parentheses."/
+
+/"control also to root."/
+
+/"We don't want to list an inset because that is how our design system works. We might want to add that to the positioning at a root level where we set that as a scaling or positioning mode, inset and list."/
+
+/"the 12 step per hue scales, we kind of already have that, just we call it colors … through Tailwind we already expose them, which is fine."/
+
+/"but zones seem thin. only 3 customs per zone?? there are more. scalp our system for them."/
+
+/"ranem the themes. nordic becomes northsea. paper becomes parchment. porcelain stays. ledger becomes superdisk"/ · /"rename superdisk to Datasette."/
+
+beef, verbatim (09-28), on sizes — after the colour tree stood:
+
+/"now tell me about the structural tokens. we will itterate sizes and all now."/
+
+/"its not quantum. either planck leght or atom or unit or whatever."/ — on a draft that described =unit= as "the quantum".
+
+/"align space and type. i want the step size set scale be 8."/
+
+beef, verbatim (09-28), on colours — after three tiers were proposed (a shared library, semantically named ramps, slots):
+
+/"i dont like the idea of shared colors but semantic naming of colors."/
+
+/"obviously fucking not shared aqua and moss. why. no sense."/ — on a pick that kept one shared definition of the two gradients both themes use.
+
+/"each theme defines a set of colors. it applies those to our design tokens. why do we need the abstraction for the set of colors if all we care about tis the tokens. themes will in the end be viva modes. js. a trait THEMING."/
+
+/"we have our final token space, and then "ramps" that are folded into  theme defualts. overwriteable."/
+
+/"brilliant. yes this is our approach. work out dapper from this angle."/ — on: the token space is the contract, gradients are the input of an optional helper.
+
+/"theme will be a function. we have v schematic for it."/ · /"these scalars are defined on primitve level of theme."/
+
+/"thats what the theme defines. and it goes into our theeme definiton function to autocomplete and complete the theme."/ — on a witness that labelled a theme's own declaration as output.
+
+/"definition space isnt static. its flexible. output is staic."/ · /"i might define differetn sets of zones and propoerties inside zones and all other keys."/
+
+beef, verbatim (09-28), on where the zones go — after the designer's comp was read again and found to paint the bones from a palette of its own (=data-bone=), outside every zone:
+
+/"what you have from the designer is the designer's work. We want to apply our own structure to that. I don't think I want this bone um, dedicated part, this data bone. I would prefer if we have the data zone zero. Be all of our Chrome and the keys that are missing at the moment for the pincer and stuff are already from the are pulled from our previous design."/
+
+/"Zone zero is the application Chrome, the bones, the panels B and C. I would say that zone one is the standard zone A, and we use zone A on the dock two, and zone A is the default is default used by the applications and buffers."/
+
+/"zones are nested. Maybe zone zero is most of the Chrome. Zone one is some of the Chrome and panel A. And zone two is an alternative for like a entirely standalone thing. And zone three might be. An additional optional space for, for example, debugging tools, something like that. … But inside of debugging, we are also going to have our own s our own subzones. So maybe zone zero and zone three go into debugging"/
+
+/"this is the question of how do we apply this thing that we have just built."/
+
+/"what the designer does is what the designer does in its own universe, we apply our own. The theme layer is flexible, we can adjust what tokens are used where, what theme tokens, what colors go where and so forth. This is about figuring out the internal structure and then we can adjust around that."/ — on an objection argued from the designer's porcelain hexes.
+
+/"I like the depth of living inside of the zone. That makes a lot of sense. Propagate this."/ — on: a zone is a territory, depth is =surface= · =surface-sunk= · =surface-lift= inside it.
+
+/"Chrome standard standalone and tools is very good. I like that. We call it Chrome. Body Island and bench."/ — on the four territories and their names.
+
+beef, verbatim (09-28), on the words — after =body= stood both as zone 1's name and as a text step:
+
+/"The body is also text keys a concern. Is there another word on text that we might use?"/
+
+/"if you think ink makes sense on control, uh, let's use that. Maybe if we already used ink a couple of times, then maybe our key can be header strong ink light muted link code and disabled. Generally, are there keys that we might want to converge across different layers? Are there keys we might want to split?"/
+
+/"there are more than these two semantic abstractions / primitives. what else?"/ — on the rule that =ink= sits on the ground and =on= sits on a fill.
+
+/"might it make sense to apply xs-lg semantics here?"/ — on =radius: { key, card }=.
+
+/"one."/ — on =shape.veil= and zone =scrim=, two words for the dim behind an overlay.
+
+/"sunk and lift."/ — on =inset= · =lift= beside =sunk= · =raised=, two pairs for one depth.
+
+/"soft."/ — on =boundary-soft= beside =text.light=. · /"selected."/ — on =control.highlight=, a tint under its own name.
+
+/"settle these into quest and reference: inverse-on and the zone icon keys (above), label.case beside track, and whole shadows versus geometry plus tone."/ — on the leans: =inverse-on=, icons on text ink, the label whole in shape, geometry in shape and tone in the zone.
+
+/"M2 makes dapper import typology. this might be a dealbreaker. test this early/first/as part of baseline."/ — on a critical pass that found the import unproven inside anima's postcss pass.
+
+/"wtf is light and dark? we can cut that? why would we have light/dark? themes are themes. light dark are not functions but semantic notes on a theme."/ · /"no we can just ignore dark/light completely. not needed. ignore."/ — on =fold= and its two recipes, =dark= and =light=, each serving one theme.
+
+beef, verbatim (09-28), on the execution:
+
+/"we now execute this. blast change."/ · /"4 patches. go on all 4."/ — on four patches: build · move, repo · move, registry · retire.
+
+/"test heavy"/ · /"you have chrome"/
+
+* the tree — the guiding principle
+
+The token space. A theme holds five groups as defaults. A zone is a territory of the interface: its ground, with depth inside it (=surface= · =surface-sunk= · =surface-lift=), plus, in parentheses, overrides of any group, per key. Every =[data-zone="N"]= block emits the merged set.
+
+#+BEGIN_EXAMPLE
+theme                                  scalar   example (northsea)               description
+├── (shape)                                                                      defaults, zone may override
+│   ├── relief                         enum     lift                             sunk | lift mode
+│   ├── radius.2xs                     px       1px                              sharpest corner
+│   ├── radius.xs                      px       2px                              tight corner
+│   ├── radius.sm                      px       3px                              small corner
+│   ├── radius.md                      px       4px                              plain corner
+│   ├── radius.lg                      px       6px                              soft corner
+│   ├── radius.xl                      px       8px                              round corner
+│   ├── radius.2xl                     px       12px                             large corner
+│   ├── radius.3xl                     px       16px                             largest corner
+│   ├── radius.full                    px|%     999px                            fully round
+│   ├── radius.key                     step     radius.2xs (1px)                 keys, chips
+│   ├── radius.field                   step     radius.2xs (1px)                 input wells
+│   ├── radius.card                    step     radius.xs (2px)                  cards, panes
+│   ├── radius.pill                    step     radius.2xs (1px)                 pills, tags
+│   ├── radius.disc                    step     radius.2xs (1px)                 avatars, pips
+│   ├── label.case                     enum     uppercase                        label transform
+│   ├── label.track                    em       .14em                            label letter-spacing
+│   ├── lift                           shadow   0 12px 30px                      floating shadow, geometry
+│   └── sunk                           shadow   inset 0 2px 3px                  pressed shadow, geometry
+├── (size)                                                                       defaults, zone may override
+│   ├── unit                           rem      .25rem (4px)                     base length
+│   ├── space.2xs                      ×unit    1 (4px)                          hair gap
+│   ├── space.xs                       ×unit    2 (8px)                          tight gap
+│   ├── space.sm                       ×unit    3 (12px)                         default gap
+│   ├── space.md                       ×unit    4 (16px)                         section gap
+│   ├── space.lg                       ×unit    6 (24px)                         block gap
+│   ├── space.xl                       ×unit    8 (32px)                         pane gap
+│   ├── space.2xl                      ×unit    12 (48px)                        region gap
+│   ├── space.3xl                      ×unit    16 (64px)                        page gap
+│   ├── type.2xs                       rem      .6875rem (11px)                  labels, meta
+│   ├── type.xs                        rem      .75rem (12px)                    secondary values
+│   ├── type.sm                        rem      .875rem (14px)                   dense body
+│   ├── type.md                        rem      1rem (16px)                      body
+│   ├── type.lg                        rem      1.125rem (18px)                  lead text
+│   ├── type.xl                        rem      1.25rem (20px)                   small heading
+│   ├── type.2xl                       rem      1.5rem (24px)                    heading
+│   ├── type.3xl                       rem      1.75rem (28px)                   display
+│   ├── gap                            step     space.xs (8px)                   gap between siblings
+│   ├── pad.box                        step     space.sm (12px)                  box padding
+│   ├── pad.x                          step     space.sm (12px)                  control inline padding
+│   ├── pad.y                          step     space.2xs (4px)                  control block padding
+│   ├── icon                           step     space.md (16px)                  glyph box
+│   ├── field                          step     space.xl (32px)                  input height
+│   ├── row                            ×unit    6.5 (26px)                       list row height
+│   ├── key                            ×unit    7 (28px)                         key, chip height
+│   ├── leading.tight                  number   1.1                              headings, labels
+│   ├── leading.loose                  number   1.45                             prose
+│   ├── ring                           px       1px                              hairline, never scaled
+│   └── depth                          px       2px                              key drop, never scaled
+├── (text)                                                                       defaults, zone may override
+│   ├── header                         color    #F4F6F9                          headings
+│   ├── strong                         color    #E6EAEF                          values, active rows
+│   ├── ink                            color    #B4BFCB                          prose, the plain ink
+│   ├── light                          color    #8FA0B1                          secondary values
+│   ├── muted                          color    #6B7E91                          labels, meta
+│   ├── link                           color    #51D8D0                          inline links
+│   ├── code                           color    #E7C271                          inline code
+│   └── disabled                       number   .45                              disabled opacity
+├── (control)                                                                    defaults, zone may override
+│   ├── contrast                       color    #384A5E                          key, chip fill
+│   ├── contrast-hover                 color    #4F6175                          hovered key fill
+│   ├── contrast-pressed               color    #243544                          pressed key fill
+│   ├── on                             color    #E6EAEF                          label on a key
+│   ├── on-muted                       color    #8FA0B1                          secondary label on it
+│   ├── on-pressed                     color    #51D8D0                          label on a pressed key
+│   ├── field                          color    #060D14                          input well
+│   ├── field-placeholder              color    #6B7E91                          placeholder ink
+│   ├── field-caret                    color    #1EBCB5                          caret
+│   ├── selected                       color    rgba(30,188,181,.18)             selection, hover wash
+│   ├── focus                          color    #51D8D0                          focus ring
+│   ├── scrollbar                      color    #384A5E                          scrollbar thumb
+│   └── divider                        color    #243544                          rule inside a control
+├── (signal)  × primary · positive · caution · negative                          defaults, zone may override
+│   ├── fill                           color    #1EBCB5                          pip, key, bar
+│   ├── ink                            color    #51D8D0                          signal-coloured text
+│   ├── tint                           color    rgba(30,188,181,.18)             washed background
+│   └── on                             color    #060D14                          text on the fill
+└── zone[0..3]                         0 chrome · 1 body · 2 island · 3 bench    (example: zone 3)
+    ├── surface                        color    #1A2A38                          zone ground
+    ├── surface-sunk                   color    #0E1A25                          well cut into this zone
+    ├── surface-lift                   color    #243544                          block lifted on this zone
+    ├── boundary                       color    #384A5E                          hairline
+    ├── boundary-strong                color    #6B7E91                          selected ring
+    ├── boundary-soft                  color    rgba(56,74,94,.5)                faint inner rule
+    ├── divider                        color    #243544                          rule as a fill: tracks, gaps
+    ├── inverse                        color    #E6EAEF                          fill of an inverted block
+    ├── inverse-on                     color    #1A2A38                          ink on that block
+    ├── shadow                         color    rgba(0,0,0,.45)                  tone of every shadow here
+    ├── scrim                          color    rgba(14,26,37,.6)                dim over this zone
+    ├── dim                            number   .55                              the one opacity for "less"
+    └── (shape) (size) (text) (control) (signal)                                 overrides per key
+#+END_EXAMPLE
+
+Counts: 85 root keys (shape 19 · size 29 · text 8 · control 13 · signal 4×4) · 12 zone keys · 4 zones. One zone block emits 97 declarations.
+
+Space, type and radius share eight step names, =2xs= … =3xl=; radius adds =full=. A length is =unit= × a step; a role (=gap= · =pad= · =icon= · =field=) names a space step, an entity (=key= · =field= · =card= · =pill= · =disc=) names a radius step. =ring= · =depth= and every radius are px.
+
+| scalar | keys |
+|---|---|
+| Color | 47 |
+| Px | 11 |
+| Factor | 10 |
+| Rem | 9 |
+| Step | 6 |
+| Round | 5 |
+| Ratio · Leading · Shadow | 2 each |
+| Em · Relief · Case | 1 each |
+
+* the words
+
+A key is one role plus modifiers. Eight axes carry every word in the tree.
+
+| axis | words | says |
+|---|---|---|
+| role | surface · fill · ink · on · tint · boundary · shadow | what a colour is for |
+| depth | sunk · lift | where a block sits against its ground |
+| state | hover · pressed · focus · disabled | what is happening to it |
+| emphasis | strong · light · muted | how loud it is; the plain step is the bare role |
+| entity | key · field · card · pill · disc · row · icon · label | which thing |
+| signal | primary · positive · caution · negative | which meaning |
+| step | 2xs … 3xl | which size |
+| zone | 0 … 3 | which territory |
+
+| role | means |
+|---|---|
+| =surface= | ground of a territory |
+| =fill= | solid colour of a thing on the ground |
+| =ink= | glyph colour on the ground |
+| =on= | glyph colour on a fill |
+| =tint= | a fill washed to a background |
+| =boundary= | a line around or between |
+| =shadow= | the tone of darkness cast or laid over |
+
+| key | made of |
+|---|---|
+| =surface-sunk= | role surface + depth sunk |
+| =boundary-strong= | role boundary + emphasis strong |
+| =control.contrast-pressed= | role fill + state pressed |
+| =control.on-pressed= | role on + state pressed |
+| =signal.negative.tint= | role tint + signal negative |
+| =text.ink= · =text.strong= | role ink, plain · role ink + emphasis strong |
+| =shape.radius.key= | entity key, naming a step |
+| =size.space.sm= | step sm |
+
+=ink= sits on the ground, =on= sits on a fill: =text.ink= and =signal.*.ink= are read on a surface, =control.on= · =signal.*.on= · =inverse-on= on the fill they belong to. An entity repeats across groups on purpose: =key= and =field= appear in =shape.radius=, in =size= and in =control=.
+
+* the pipe
+
+#+BEGIN_EXAMPLE
+definition                   what a theme declares — any subset of the tree, in any of its forms
+  theme(definition)
+    fill                     a key the definition omits takes its schematic default
+    derive                   a colour the definition omits takes its rule (tint ← fill at .18)
+    merge                    each zone = its ground + the five groups + its own overrides
+  Theme                      static: 85 root keys, four zones of 97
+    emit(name, Theme)        :root[data-theme] = zone 1 whole · four [data-zone] blocks
+#+END_EXAMPLE
+
+The definition is flexible, the Theme is static. A gradient never leaves the theme that owns it: no colour name is emitted, none is shared.
+
+* terrain — measured 09-28
+
+Every number from a command run this session; the census recipes are kept in =~/.viva/bak/ikiro/reference-design-20260928/design.md= §11.
+
+** dapper today
+
+- =subsystems/dapper/lib/system.js:12= =design()= = =colors → tokens → themes → generateCSS=, one mutable =ds= threaded through; =lifecycle/index.js:7= prepends the sheet in anima's postcss pass. Build time only.
+- =subsystems/dapper/lib/builders.js:69= =skeleton({surface, contrast, boundary, roles, error, font})= builds one zone; =interactive()= fans a role out ±1 stop.
+- six zones built (=themes/nordic.js:94=), five emitted as =colors.skeleton {0..4}= (=themes/nordic.js:143=); =.zone-N { --zone-* }= blocks emitted for all six (=lib/flatten.js:36=) with zero class consumers.
+- roles identical in every zone (=themes/nordic.js:28= one =standardRoles=); consumers read them off zone 0.
+- two themes, =nordic= · =paper=; switch via =<html data-theme>= (=systems/anima/src/client.html:2= · =src/typology/stores/bridge/bridge.js:84= · =src/app/panels/b/widgets/BridgeSection.svelte:10=). No bare =:root= block: an unknown theme name blanks every token.
+- a missing token is a =console.warn= (=lib/flatten.js:98=), never a failed build.
+- no importer found for =belt/index.js= · =belt/lib.js= · =belt/postcss-plugin.js= (a second copy of the pipeline over =primitives/{colors,tokens}.js=) · =primitives/builders.js=; =generateZoneCSS= · =ZONE= · =ZONE_COUNT= are read by =tests/zone-emit.test.js= only.
+- dapper imports nothing from typology; typology imports nothing from dapper.
+- the door =@vivalence/typology/schematics= cannot be a process's first import: =Cannot access 'Signature' before initialization= (=subsystems/typology/prototypes/url.js:29=). The root door =@vivalence/typology= loads alone and carries =v=; dapper takes =v= from there.
+- dapper importing typology holds (sandbox, 09-28): =lib/system.js= importing =v= from =@vivalence/typology/schematics= and checking a schematic inside =design()=; =deno task bundle= in anima built and the sheet carried =--probe-typology: held=. Both loaders reach it: =postcss.config.js:3= and =tailwind.config.js:2= import =@vivalence/dapper=; =vite.config.mjs:2= already imports =@vivalence/typology= in the same process. Dapper suite =10 passed (65 steps) | 0 failed= with the import in. =vite dev= not run: beef's server holds =:1794=.
+
+** colours today
+
+| layer (=subsystems/dapper/lib/colors.js=) | contents | direct reads |
+|---|---|---|
+| =palette= | gray (20 stops) · aqua · indigo · pink · red · amber · yellow · citron · lime · white · black | 5, all gray |
+| =tint= | indigo · gray · white · black | 0 |
+| =roots= (=:233=) | 14 gradients × 12 stops (50 … 950) | 0 |
+
+| theme | gradients it picks | role anchor |
+|---|---|---|
+| nordic | iron · deep · aqua · indigo · moss · amber · rust · pink | 300 |
+| paper | paper · ink · aqua · moss · rose · tomato · pink | 500–700 |
+
+- the two themes share 3 of 14 gradients (aqua · moss · pink); =gold= and =slate= are picked by neither.
+- paper's text is split over two gradients: =ink 900= (primary) · =paper 800= (body) · =paper 700= (support) (=themes/paper.js=, the text block).
+- =paper= carries a 13th stop, =150= (=lib/colors.js:373=), read by paper's zone 1; no other gradient has it.
+- =--colors-{theme,system}-*= is built from =palette=, not =roots= (=themes/nordic.js:134=): nearly identical in both themes.
+- role reads by name: boundary 422 · primary 321 · surface 280 · contrast 276 · danger 93 · warning 62 · success 22 · secondary 10 · accent 9 · error 6 · info 4.
+- =var(--shadow-*)= 31 · =var(--signal-*)= 9 · =--brand-= · =--filter-= · =--mix-= 1 each.
+
+** who reads what (anima src · drapes · ~/.viva/registry, bak excluded)
+
+| token | reads |
+|---|---|
+| =--colors-skeleton-N-*= | 1464 (anima 595 · drapes 145 · registry 724) |
+| =--colors-skeleton-1-boundary= | 470 |
+| =--colors-skeleton-0-primary-base= | 350 |
+| =--colors-skeleton-N-<role>-{hover,active}= | 0 |
+| =--text-{primary,body,support}= | 239 |
+| =--colors-{theme,system}-*= (education only) | ~620 |
+| tailwind =*-skeleton-N-*= (drapes, templated) | 9 |
+| =--surface= · =--contrast= · =--boundary= anywhere | 0 |
+| hand =color-mix()= of a skeleton token (anima + drapes) | 46 primary · 31 boundary · 14 contrast · 12 surface |
+| hand =opacity: .2–.8= (anima + drapes) | ~330 |
+| =background ← boundary= (boundary as a fill) | 21 |
+| =color ← surface= (ink on an inverted block) | 6 |
+
+- one file, several zones: =systems/anima/src/app/panels/c/widgets/Pane.svelte= paints zones 0×4 · 1×3 · 2×1; =app/panels/a/widgets/Dock.svelte= 0 · 1×2 · 2.
+- =Dock.svelte:853= redefines =--text-body= / =--text-support= privately.
+- nordic danger on zones 3 and 4: 3.94:1 and 3.38:1 — the one signal that fails; nordic =iron 500= on zone 3: 3.5:1.
+- paper's negative, =tomato 400=, carries no glyph at 4.5:1: paper 50 on it 4.4, ink 900 4.07, ink 950 4.3. =tomato 500= carries paper 50 at 6.38.
+- =subsystems/drapes/context/=: =SkeletonProvider= read by 9 components, mounted 0 times (=useSkeleton.js:14= always 1); =Decorum= · =Zone= 0 consumers.
+- designer's project (claude.ai/design =c9ff72fb=): =[data-zone] { --surface --contrast --boundary --field }=, four themes (porcelain · paper · nordic · ledger), theme-owned shape. In =6 Anima.dc.html= =data-zone="0"= sits on the page root, the shell and panel A (3 of its 4 uses); the bones (shoulder · pincer · crown · spine · pane strips) are =data-bone="chassis"= ×9, a palette of 15 variables outside every zone.
+
+** depth today — =skeleton-N-surface= reads per place (=systems/anima/src/app=, bak excluded)
+
+| place | s0 | s1 | s2 | s3 | s4 |
+|---|---|---|---|---|---|
+| bones/crown | 3 | 1 | 0 | 0 | 0 |
+| bones/pincer | 2 | 1 | 3 | 0 | 0 |
+| bones/shoulder | 0 | 1 | 6 | 4 | 1 |
+| bones/spine | 1 | 0 | 0 | 0 | 0 |
+| panels/a | 5 | 3 | 4 | 0 | 0 |
+| panels/b | 0 | 3 | 1 | 0 | 0 |
+| panels/c | 5 | 5 | 2 | 0 | 0 |
+| panels/d | 0 | 0 | 0 | 1 | 0 |
+| panels/e | 1 | 0 | 4 | 1 | 0 |
+| panels/f | 0 | 1 | 1 | 3 | 0 |
+| panels/g | 1 | 3 | 1 | 0 | 0 |
+| panels/h | 0 | 1 | 1 | 0 | 0 |
+| widgets | 1 | 1 | 2 | 0 | 0 |
+
+Every place mixes two to four levels: a level is a depth step inside a place. No place reads more than three surface levels beside a pressed one (shoulder's s4).
+- the word =zone= lives in dapper (5 files), drapes (5, the unmounted context) and anima (2); nowhere in typology, runtime, ghost, paladin, commons.
+- names taken on disk: =frame= (=Frame.svelte=) · =stage= (=subsystems/drapes/stage/=) · =bones= (=systems/anima/src/app/bones/=) · =panel= (panels a–h).
+
+** sizes today
+
+| surface | reads |
+|---|---|
+| =var(--font-size-*)= (anima + drapes + registry) | 865 |
+| =font-size: var(--font-size-*)= in anima alone | 2xs 162 · xs 42 · sm 8 · md 6 · base 2 · lg 1 · 7xl 1 |
+| =var(--font-family-*)= (anima + drapes + registry) | 473 |
+| =var(--border-radius-*)= | 51 |
+| =var(--spacing-*)= · =--box-shadow-= · =--drop-shadow-= · =--container-= · =--animation-= | 0 each |
+| tailwind =rounded= · =shadow-= (class text) | 29 · 36 |
+| px literals, anima | padding 141 · gap 119 · height 84 · border-radius 76 · border 68 · width 52 |
+| px literals, drapes | padding 31 · gap 21 · border-radius 18 · margin 14 · border 14 · width 12 |
+| rem / em literals | anima 92 · drapes 39 |
+| drapes components with a =size= prop | 12 |
+
+- =subsystems/dapper/lib/tokens.js=: =font.family= 6 · =font.size= 14 steps · =lineHeight= 14 · =spacing= 7 (0 1 2 3 4 6 8) · =border.radius= 5 · =box-shadow= 5; mapped to tailwind in =belt/tailwind-theme.js=.
+- the one size feature is the root font size: =systems/anima/src/app/+page.svelte:54= writes =FONT_SIZES[name]= (=src/typology/stores/bridge/bridge.js:16=, 11px … 22.5px) onto =<html>=. It moves rem, never px.
+- drapes sizes are tailwind strings per component (=subsystems/drapes/controls/Button.svelte:38= =sm: "h-8 px-3 text-sm"=).
+- =--font-size-md= is .875rem and =--font-size-base= is 1rem; in the tree =type.md= is 1rem.
+- =primitives/bsp.css= has one consumer (=subsystems/drapes/triage/Plane.svelte=); =density= (=bridge.js:13=) has no reader.
+
+** v, the schematic kit (=subsystems/typology/schematics/v.js:133=)
+
+=string · number · boolean · integer · object · array · union · intersect · const · enum · record · any · unknown · null=; on a schematic =.desc · .optional · .default · .check · .faults · .fill=. No function type, no partial. Primitives keep their scalars in their own file (=schematics/primitives/controller.js:25= =State= · =Verb= · =Signal=).
+
+** the theme names — census (=grep -rI=, no include filters, repo + ~/.viva)
+
+| surface | file |
+|---|---|
+| theme file | =subsystems/dapper/themes/nordic.js= · =themes/paper.js= · =themes/index.js= |
+| tests | =subsystems/dapper/tests/{nordic,paper}-theme.test.js= · =zone-emit.test.js= · =css-emit.test.js= |
+| anima | =src/client.html:2= · =src/typology/stores/bridge/bridge.js:84= · =src/app/panels/b/widgets/BridgeSection.svelte:10= · =src/app/bones/pincer/pincer.svelte:18= |
+| commons + shelf | =commons/instances/hello-world/tests/style.tokens.test.js:40= · =~/.viva/instances/hello-world/tests/style.tokens.test.js= (NO VCS) |
+| chess | =~/.viva/registry/chess/modes/*/*/buffer/kit/Theme.svelte:56= ×5 · =tests/kit.test.js:90= |
+| browsers | =localStorage vivalence:bridge= holds =view.theme = "nordic"= |
+
+Keep-list: the =paper= gradient (a material; =lib/colors.js:370=, from patch 1 also =themes/parchment/gradients.js=) · =--paper= locals in assembly Guide, droneaid Assembly, vdex =Paper.svelte= (their own palettes) · education literals (the noun) · the colour descriptions =nordic winter sky= · =quiet nordic blue= in =lib/colors.js= · =primitives/colors.js= (comments, the files go in patch 4) · =systems/anima/tests/pincer/theme.test.js= (the retired names, asserted refused) · =commons/dashboards/dataspace/design/dataspace-v2-data.md:2705= (history) · =--dim= as a colour local to 7 mode files (assembly Guide ×2 · Assembly · Import, the education word picker, the stucatch dashboard; 77 reads), shadowing the zone's ratio inside those modes · =.ikiro/= history · =bak/= · built =*.svelte.mjs= under =~/.viva/instances/*/mountpoint= (regenerated, never edited).
+
+* rulings
+
+1. four zones, numbered 0–3, each a territory: 0 chrome · 1 body · 2 island · 3 bench. The number is emitted; the name is documentation.
+2. depth lives inside a zone: =surface= · =surface-sunk= · =surface-lift=. Zones nest in any order.
+3. five default groups on the theme — shape · size · text · control · signal — each overridable per zone, per key; a zone owns 12 ground keys of its own.
+4. =surface= is the ground, =contrast= the fill of a thing on it (a key, a chip, a row block); =contrast= never carries text.
+5. an inverted block declares =inverse= / =inverse-on=.
+6. selection and hover wash are =control.selected=; =focus= lives in control; radius is a scale of steps, and an entity names a step.
+7. relief is a theme-root mode, =shape.relief: sunk | lift=. One pair names depth everywhere: =surface-sunk= · =surface-lift= for grounds, =shape.sunk= · =shape.lift= for their shadows. The dim behind an overlay is the zone's =scrim=, one word.
+8. a pressed thing is =control.contrast-pressed=; a floating thing is =surface-lift= carrying =shape.lift=, in the zone that opened it.
+9. the token space is the contract. A colour belongs to the theme that owns it; slots are all that is emitted; tailwind maps slots.
+10. a theme's gradients live in its own =gradients.js=; its definition names their steps directly. How a theme got its values is its own business.
+11. theme is a function with a =v= schematic on each side; its scalars live in the theme primitive's own file.
+12. the definition is flexible, the Theme is static: a definition may state any subset of zones, of keys inside a zone, of every other key.
+13. every length is =unit= × a step; space and type share eight step names (=2xs= … =3xl=); a role names a space step; type is absolute rem; =ring= and =depth= are px.
+14. the bones are painted in zone 0, with the rest of the chrome.
+15. a place takes its zone by what it is; a theme paints around that.
+16. themes: northsea · parchment · porcelain · datasette. A saved theme name outside the list resolves to the default.
+17. a key is a role plus modifiers on eight axes. =ink= is a glyph on the ground, =on= a glyph on a fill; the plain text step is =text.ink=; a control carries =on= · =on-muted= · =on-pressed=.
+18. a glyph on fill X is =X-on= (=signal.primary.on= · =control.on= · =inverse-on=); icons read text ink, =text.light= and =text.strong= when active; the label is one entity in shape, =label.case= · =label.track=; shape holds a shadow's geometry and the zone its tone, emitted resolved.
+19. the theme root is zone 1 whole: a read outside any =data-zone= resolves as body.
+
+
+* forks
+
+** the places — QUESTIONED
+The place map below carries the first option of each.
+- rails B and C: zone 0 (/"Zone zero is the application Chrome, the bones, the panels B and C."/) · zone 1 (/"Zone one is some of the Chrome and panel A."/).
+- panes D (navigation) · E (trait editors) · G: zone 0, they configure the application · zone 1.
+- pane F (activity): zone 1, it shows a thread's content · zone 0.
+- who sets zone 2: the mode declares itself an island · the host decides per buffer.
+beef decides.
+
+** a key's shadow and the mark — QUESTIONED
+A key at rest casts a ring and a drop in one theme, a drop alone in another; the mark is black on one ground, white on the next. (a) composed in the view from =ring= · =depth= · =shadow=, the mark chosen by the view · (b) =shape.key= and =shape.mark=. beef decides.
+
+** the text floor — QUESTIONED
+northsea =muted= (=iron 500=) is 3.5:1 on zone 3. (a) five steps, =muted= label-only (≥ 3:1, never prose); (b) four steps, =light= the floor at 4.5:1. The tree carries five. beef decides.
+
+** the size sweep — QUESTIONED
+patch 1 emits =--size-*=. Who reads it, and when: (a) tailwind =p-*= · =h-*= · =text-*= remapped onto =--size-*=, drapes size maps untouched · (b) drapes size maps rewritten to the tokens. (c) the reads (=--font-size-*= 865 · =--border-radius-*= 51 · px literals anima ≈560 · drapes ≈120) swept in a milestone of their own after patch 4 · (d) inside patch 2. =row= 6.5 and =key= 7 sit off the scale; 24px and 32px would put them on it. Until it is ruled, =lib/tokens.js= keeps emitting the old scales. beef decides.
+
+** fonts — QUESTIONED
+=var(--font-family-*)= has 473 reads and no group in the tree owns it. (a) a sixth group =font= (=heading · body · code · brand=, scalar =Family=) · (b) inside =size= · (c) outside the theme, emitted by dapper as today. The tree carries none. beef decides.
+
+** the definition's floor — QUESTIONED
+What =theme()= accepts and what it invents. The schematics below carry the first option of each.
+- defaults: =size= and =shape= from the schematic · =size= only · every group, from a base theme.
+- shorthands: a colour for a signal (its =fill=), a colour for a zone (its =surface=), one px for =radius= (every step) · objects only.
+- an omitted zone: copied from the nearest defined zone, the lower on a tie · throws.
+- the floor: one zone =surface=, =text.ink=, =signal.primary= fill; below it =theme()= throws · stricter.
+- a fault in the completed Theme: throws · warns.
+- =Px= in a definition: the string ="1px"= · the bare number =1=. =Color=: hex and =rgba()= · also =oklch()=.
+beef decides.
+
+** the key's fill on parchment — QUESTIONED
+=control.contrast= is =paper 200=, which is zone 3's surface and zone 0's sunk step: a key's fill there is 1.00:1 against its ground, and 1.08–1.21 on the other ten. northsea's runs 1.38–2.20. (a) a key is told by its ring and drop, the fill may vanish · (b) the fill clears every ground of its theme: parchment's key moves to =paper 400=, hover and pressed with it. beef decides.
+
+** the strong boundary's floor — QUESTIONED
+=boundary-strong= is the selected ring. northsea's is below 3:1 on 8 of 12 grounds (1.94 on the island's lift step, 2.30 on the chrome's); parchment's clears 3.21 everywhere. (a) no floor, a ring is decoration · (b) 3:1 on every depth step, northsea's zones 0 · 1 · 2 move one stop lighter. beef decides.
+
+** the hues beyond four signals — QUESTIONED
+The old sheet carried seven roles; the tree carries four signals. =accent= (pink) and =info= (indigo) had 13 reads: the pincer's gesture states (long press · sticky · tap 1 · the radial's active spoke and its six-hue ring) and the org editor's syntax colours (16 tags over six hues). Patch 2 folds =accent= into caution and =info= · =secondary= into primary, so the pincer's long press reads amber and the editor's six hues are three. (a) four signals, the fold stands · (b) a fifth and sixth signal · (c) the pincer and the editor each own a private palette. beef decides.
+
+* the law
+
+#+BEGIN_EXAMPLE
+A zone is a container: data-zone="N" once, on the box; everything inside reads by name and never a zone number.
+The token space is the contract. A definition may be anything that completes into it; a Theme is always all of it.
+A theme states shape · size · text · control · signal once. A zone restates only what differs. Every zone block emits the whole merged set.
+surface is the ground; contrast is what is touched on it; text is text. The three never trade places.
+A colour belongs to its theme. Consumers see slots; tailwind sees slots; a gradient is seen by the theme that owns it and by nothing else.
+A zone is a territory. Depth is three steps inside it: surface, sunk, lift. There is no ladder between zones and no elevation scale.
+A place takes its zone by what it is, never by how dark it should look. Zones nest in any order.
+ink is a glyph on the ground; on is a glyph on a fill. A key is a role and its modifiers, never a new word.
+Relief is one mode per theme.
+A length is unit × a step. A hairline is px. A box rescales by its unit, never by its children.
+A hex in a view is a defect; a zone number in a view is the same defect.
+#+END_EXAMPLE
+
+* the schematics — definition · theme · sheet
+
+Colour values are northsea's and parchment's live gradients (=subsystems/dapper/lib/colors.js:233=), so every number re-measures.
+
+** the theme primitive — scalars, groups, Definition, Theme
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/theme.js
+import { v } from "../v.js";
+
+export const STEPS   = ["2xs", "xs", "sm", "md", "lg", "xl", "2xl", "3xl"];
+export const SIGNALS = ["primary", "positive", "caution", "negative"];
+export const ZONES   = ["0", "1", "2", "3"];
+export const TERRITORIES = { 0: "chrome", 1: "body", 2: "island", 3: "bench" };
+
+export const Hex     = v.string({ pattern: "^#[0-9A-Fa-f]{6}$" }).desc('Opaque colour. Example: "#1A2A38"');
+export const Alpha   = v.string({ pattern: "^rgba\\(\\d{1,3}, ?\\d{1,3}, ?\\d{1,3}, ?(0|1|0?\\.\\d+)\\)$" }).desc('Colour with alpha. Example: "rgba(30, 188, 181, 0.18)"');
+export const Color   = v.union([Hex, Alpha]);
+export const Px      = v.string({ pattern: "^\\d+(\\.\\d+)?px$" }).desc('Never scaled. Example: "1px"');
+export const Percent = v.string({ pattern: "^\\d+(\\.\\d+)?%$" }).desc('Example: "50%"');
+export const Rem     = v.string({ pattern: "^\\d*\\.?\\d+rem$" }).desc('Scales with the root font size. Example: ".25rem"');
+export const Em      = v.string({ pattern: "^\\d*\\.?\\d+em$" }).desc('Example: ".14em"');
+export const Factor  = v.number({ minimum: 0 }).desc("Multiplier of size.unit. Example: 6.5");
+export const Ratio   = v.number({ minimum: 0, maximum: 1 }).desc("Opacity. Example: 0.55");
+export const Leading = v.number({ minimum: 0.8, maximum: 2 }).desc("Unitless line height. Example: 1.45");
+export const Shadow  = v.string({ minLength: 1 }).desc('Geometry only; the zone\'s shadow gives the tone. Example: "0 12px 30px"');
+export const Step    = v.enum(STEPS).desc('Names a step of a scale. Example: "sm"');
+export const Round   = v.enum([...STEPS, "full"]).desc('Names a step of shape.radius. Example: "xs"');
+export const Relief  = v.enum(["sunk", "lift"]);
+export const Case    = v.enum(["uppercase", "lowercase", "capitalize", "none"]);
+export const SignalName = v.enum(SIGNALS);
+export const ZoneIndex  = v.enum(ZONES);
+
+const CLOSED = { additionalProperties: false };
+
+export const leaf = (held) => typeof held.check === "function";
+const each  = (shape, wrap) => Object.fromEntries(Object.entries(shape).map(([key, held]) => [key, wrap(held)]));
+const whole = (shape) => v.object(each(shape, (held) => (leaf(held) ? held : whole(held))), CLOSED);
+const loose = (shape) => v.object(each(shape, (held) => (leaf(held) ? held : loose(held)).optional()), CLOSED);
+const scale = (held, values) => Object.fromEntries(STEPS.map((step, index) => [step, held.default(values[index])]));
+
+export const shape = {
+  relief: Relief.default("lift"),
+  radius: {
+    ...scale(Px, ["1px", "2px", "3px", "4px", "6px", "8px", "12px", "16px"]),
+    full: v.union([Px, Percent]).default("999px"),
+    key: Round.default("2xs"), field: Round.default("2xs"), card: Round.default("xs"), pill: Round.default("2xs"), disc: Round.default("2xs"),
+  },
+  label:  { case: Case.default("uppercase"), track: Em.default(".14em") },
+  lift:   Shadow.default("0 12px 30px"),
+  sunk:   Shadow.default("inset 0 2px 3px"),
+};
+
+export const size = {
+  unit:    Rem.default(".25rem"),
+  space:   scale(Factor, [1, 2, 3, 4, 6, 8, 12, 16]),
+  type:    scale(Rem, [".6875rem", ".75rem", ".875rem", "1rem", "1.125rem", "1.25rem", "1.5rem", "1.75rem"]),
+  gap:     Step.default("xs"),
+  pad:     { box: Step.default("sm"), x: Step.default("sm"), y: Step.default("2xs") },
+  icon:    Step.default("md"),
+  field:   Step.default("xl"),
+  row:     Factor.default(6.5),
+  key:     Factor.default(7),
+  leading: { tight: Leading.default(1.1), loose: Leading.default(1.45) },
+  ring:    Px.default("1px"),
+  depth:   Px.default("2px"),
+};
+
+export const text = {
+  header: Color, strong: Color, ink: Color, light: Color, muted: Color,
+  link: Color, code: Color,
+  disabled: Ratio.default(0.45),
+};
+
+export const control = {
+  contrast: Color, contrastHover: Color, contrastPressed: Color,
+  on: Color, onMuted: Color, onPressed: Color,
+  field: Color, fieldPlaceholder: Color, fieldCaret: Color,
+  selected: Color, focus: Color, scrollbar: Color, divider: Color,
+};
+
+export const tone   = { fill: Color, ink: Color, tint: Color, on: Color };
+export const signal = Object.fromEntries(SIGNALS.map((name) => [name, tone]));
+
+export const ground = {
+  surface: Color, surfaceSunk: Color, surfaceLift: Color,
+  boundary: Color, boundaryStrong: Color, boundarySoft: Color,
+  divider: Color,
+  inverse: Color, inverseOn: Color,
+  shadow: Color.default("rgba(0, 0, 0, 0.45)"), scrim: Color,
+  dim: Ratio.default(0.55),
+};
+
+export const groups = { shape, size, text, control, signal };
+
+export const Shape   = whole(shape);
+export const Size    = whole(size);
+export const Text    = whole(text);
+export const Control = whole(control);
+export const Tone    = whole(tone);
+export const Signal  = whole(signal);
+export const Ground  = whole(ground);
+export const Zone    = whole({ ...ground, ...groups });
+
+const stated = {
+  shape:   loose({ ...shape, radius: v.union([Px, loose(shape.radius)]) }),
+  size:    loose(size),
+  text:    loose(text),
+  control: loose(control),
+  signal:  v.object(Object.fromEntries(SIGNALS.map((name) => [name, v.union([Color, loose(tone)]).optional()])), CLOSED),
+};
+
+const territory = v.object({ ...each(ground, (held) => held.optional()), ...each(stated, (held) => held.optional()) }, CLOSED);
+
+export const Definition = v.object({
+  ...each(stated, (held) => held.optional()),
+  zones: v.object(Object.fromEntries(ZONES.map((index) => [index, v.union([Color, territory]).optional()])), CLOSED).optional(),
+}, CLOSED).desc("What a theme declares: any subset of the token space, in any of its forms.");
+
+export const Theme = v.object({
+  ...each(groups, whole),
+  zones: v.array(Zone, { minItems: 4, maxItems: 4 }),
+}, CLOSED).desc("What theme() returns: five groups, four zones, every zone its ground and the groups merged.");
+#+END_SRC
+
+=leaf= tells a schematic from a plain object by its =check= method. =loose= is new: =v= has no partial. Every object is closed, so a key outside the token space faults where it sits. A schematic default is carried by the leaf (=Rem.default(".25rem")=); =theme()= reads it off the tree. =Definition= spells its signals and zones as optional keys: =v.record= over an enum makes every key required.
+
+| primitive | keys | built from |
+|---|---|---|
+| Shape | 19 | Relief · Px · Percent · Round · Case · Em · Shadow · Color |
+| Size | 29 | Rem · Factor · Step · Leading · Px |
+| Text | 8 | Color · Ratio |
+| Control | 13 | Color |
+| Tone | 4 | Color |
+| Signal | 16 | Tone × 4 |
+| Ground | 12 | Color · Ratio |
+| Zone | 97 | Ground + the five groups |
+| Theme | 85 + 4 × 97 | the five groups + Zone × 4 |
+| Definition | any subset | the same shapes, every key optional, three shorthands |
+
+** the signatures
+
+#+BEGIN_SRC js
+// subsystems/dapper/lib/theme.js · lib/emit.js
+theme : (...Definition)      → Theme          layers merge left to right, then fill · derive · merge; throws on a fault
+contrast : (Color, Color)    → number         lib/contrast.js, beside channels · wash · blend · flatten · luminance
+emit  : (name, Theme)        → string         camelCase keys leave as kebab: surfaceSunk → --surface-sunk
+#+END_SRC
+
+** definition A — northsea, from its gradients
+
+#+BEGIN_SRC js
+// subsystems/dapper/themes/northsea/theme.js
+import { theme } from "../../lib/theme.js";
+import { iron, deep, aqua, moss, amber, rust } from "./gradients.js";
+
+export default theme({
+  shape:   { relief: "lift", radius: { key: "2xs", field: "2xs", card: "xs", pill: "2xs", disc: "2xs" } },
+  text:    { header: iron[50], strong: iron[100], ink: iron[300], light: iron[400], muted: iron[500], link: aqua[200], code: amber[200] },
+  control: { contrast: iron[700], contrastHover: iron[600], contrastPressed: iron[800], on: iron[100], onMuted: iron[400], onPressed: aqua[200],
+             field: iron[950], fieldPlaceholder: iron[500], fieldCaret: aqua[300], focus: aqua[200], scrollbar: iron[700], divider: iron[800] },
+  signal:  { primary:  { fill: aqua[300],  ink: aqua[200],  on: iron[950] },
+             positive: { fill: moss[300],  ink: moss[200],  on: iron[950] },
+             caution:  { fill: amber[300], ink: amber[200], on: iron[950] },
+             negative: { fill: rust[300],  ink: rust[200],  on: iron[950] } },
+  zones: {
+    0: { surface: iron[900], surfaceSunk: iron[950], surfaceLift: iron[850], boundary: iron[800], boundaryStrong: iron[600], divider: iron[850] },
+    1: { surface: deep[900], surfaceSunk: deep[950], surfaceLift: deep[850], boundary: iron[800], boundaryStrong: iron[600], divider: iron[850] },
+    2: { surface: iron[950], surfaceSunk: deep[950], surfaceLift: iron[900], boundary: iron[850], boundaryStrong: iron[700], divider: iron[900], inverse: iron[200], dim: .5 },
+    3: { surface: iron[850], surfaceSunk: iron[900], surfaceLift: iron[800], boundary: iron[700], boundaryStrong: iron[500], divider: iron[800],
+         signal: { negative: { ink: rust[100] } } },
+  },
+});
+#+END_SRC
+
+A gradient is twelve stops of one colour, owned by the theme's own =gradients.js=, shared with none, never emitted; the definition names its steps. Every =tint=, =selected=, =inverse= (but zone 2's), =inverseOn=, =scrim= and =shadow= is left to =theme()=.
+
+The same definition as data — a passing =Definition=:
+
+#+BEGIN_SRC json
+{
+  "shape": { "relief": "lift", "radius": { "key": "2xs", "field": "2xs", "card": "xs", "pill": "2xs", "disc": "2xs" } },
+  "text": { "header": "#F4F6F9", "strong": "#E6EAEF", "ink": "#B4BFCB", "light": "#8FA0B1", "muted": "#6B7E91", "link": "#51D8D0", "code": "#E7C271" },
+  "control": { "contrast": "#384A5E", "contrastHover": "#4F6175", "contrastPressed": "#243544",
+               "on": "#E6EAEF", "onMuted": "#8FA0B1", "onPressed": "#51D8D0", "field": "#060D14", "fieldPlaceholder": "#6B7E91",
+               "fieldCaret": "#1EBCB5", "focus": "#51D8D0", "scrollbar": "#384A5E", "divider": "#243544" },
+  "signal": {
+    "primary":  { "fill": "#1EBCB5", "ink": "#51D8D0", "on": "#060D14" },
+    "positive": { "fill": "#87B56A", "ink": "#B0D19A", "on": "#060D14" },
+    "caution":  { "fill": "#D4A054", "ink": "#E7C271", "on": "#060D14" },
+    "negative": { "fill": "#BE7055", "ink": "#D9A18D", "on": "#060D14" }
+  },
+  "zones": {
+    "0": { "surface": "#0E1A25", "surfaceSunk": "#060D14", "surfaceLift": "#1A2A38", "boundary": "#243544", "boundaryStrong": "#4F6175", "divider": "#1A2A38" },
+    "1": { "surface": "#06101D", "surfaceSunk": "#030812", "surfaceLift": "#0A1628", "boundary": "#243544", "boundaryStrong": "#4F6175", "divider": "#1A2A38" },
+    "2": { "surface": "#060D14", "surfaceSunk": "#030812", "surfaceLift": "#0E1A25", "boundary": "#1A2A38", "boundaryStrong": "#384A5E", "divider": "#0E1A25",
+           "inverse": "#CFD6DE", "dim": 0.5 },
+    "3": { "surface": "#1A2A38", "surfaceSunk": "#0E1A25", "surfaceLift": "#243544", "boundary": "#384A5E", "boundaryStrong": "#6B7E91", "divider": "#243544",
+           "signal": { "negative": { "ink": "#EBCDC0" } } }
+  }
+}
+#+END_SRC
+
+** parchment, from its gradients
+
+#+BEGIN_SRC js
+// subsystems/dapper/themes/parchment/theme.js
+import { theme } from "../../lib/theme.js";
+import { paper, ink, aqua, moss, rose, tomato } from "./gradients.js";
+
+const shadow = "rgba(61, 55, 42, 0.16)";
+
+export default theme({
+  text:    { header: ink[950], strong: ink[900], ink: paper[800], light: paper[700], muted: paper[600], link: aqua[600], code: rose[600] },
+  control: { contrast: paper[200], contrastHover: paper[300], contrastPressed: paper[400], on: ink[900], onMuted: paper[700], onPressed: aqua[700],
+             field: paper[50], fieldPlaceholder: paper[600], fieldCaret: aqua[600], focus: aqua[600], scrollbar: paper[400], divider: paper[400] },
+  signal:  { primary:  { fill: aqua[500],   ink: aqua[600],   on: paper[50] },
+             positive: { fill: moss[500],   ink: moss[600],   on: paper[50] },
+             caution:  { fill: rose[500],   ink: rose[600],   on: paper[50] },
+             negative: { fill: tomato[500], ink: tomato[600], on: paper[50] } },
+  zones: {
+    0: { surface: paper[150], surfaceSunk: paper[200], surfaceLift: paper[100], boundary: paper[500], boundaryStrong: paper[600], divider: paper[200], shadow },
+    1: { surface: paper[100], surfaceSunk: paper[150], surfaceLift: paper[50],  boundary: paper[500], boundaryStrong: paper[600], divider: paper[150], shadow },
+    2: { surface: paper[50],  surfaceSunk: paper[100], surfaceLift: paper[50],  boundary: paper[400], boundaryStrong: paper[600], divider: paper[100], shadow },
+    3: { surface: paper[200], surfaceSunk: paper[300], surfaceLift: paper[100], boundary: paper[400], boundaryStrong: paper[600], divider: paper[300], shadow },
+  },
+});
+#+END_SRC
+
+Measured on parchment's gradients: every text step clears its floor on all twelve grounds (4 zones × surface · sunk · lift); the closest is =text.muted= on zone 3's sunk step, 3.21:1. =control.on= on =control.contrast= 14.83, =control.on-pressed= on =control.contrast-pressed= 5.68, =signal.*.on= on its fill 5.41 (positive) to 7.08 (caution). The island's lift step is its surface: =paper= has no stop above =50=, so =shape.lift= carries the lift there.
+
+** definition B — sparse, by hand (values from parchment's gradients)
+
+Nineteen values, three shorthands, no zone 2, zone 0 denser.
+
+#+BEGIN_SRC js
+// a theme file written in hexes, no gradients
+export default theme({
+  shape:   { relief: "sunk", radius: "3px" },
+  size:    { unit: ".3rem", type: { md: "1.0625rem" } },
+  text:    { strong: "#0B0F2D", ink: "#3D372A", muted: "#5A5240" },
+  control: { contrast: "#DAD4C0", field: "#FBFAF2" },
+  signal:  { primary: "#045554", positive: "#41732A", caution: "#AC575C",
+             negative: { fill: "#C74E31", ink: "#A23920" } },
+  zones:   { 0: { surface: "#F5F3E8", size: { unit: ".2rem" } },
+             1: { surface: "#F0EDDE", boundary: "#A0967C" },
+             3: "#FBFAF2" },
+});
+#+END_SRC
+
+** the forms a definition takes
+
+| form | example | means |
+|---|---|---|
+| omitted key | no =text.header= | derived |
+| omitted group key | no =shape.lift= | schematic default |
+| omitted zone | no zone 2 | the nearest defined zone whole, its overrides included; the lower on a tie |
+| one value for a set | =radius: "3px"= | every step of the radius scale; =full= and the entities keep their default |
+| a colour for a signal | =primary: "#045554"= | its =fill= |
+| a colour for a zone | =3: "#FBFAF2"= | its =surface= |
+| a group key inside a zone | =0: { size: { unit } }= | that zone only |
+| several layers | =theme(a, b, c)= | merged left to right |
+
+** what theme() derives
+
+| key | omitted, it takes |
+|---|---|
+| =text.header= · =strong= · =ink= · =light= · =muted= | the nearest stated text step, stronger side first |
+| =text.link= · =code= | =signal.primary.ink= · =signal.caution.ink= |
+| a signal the definition omits | the primary's =fill= |
+| =signal.*.ink= | its =fill= |
+| =signal.*.tint= | its =fill= at .18 |
+| =signal.*.on= | =text.header= or zone 3's =surface=, whichever contrasts more with the =fill= |
+| =control.contrast= · =control.field= | the zone's =boundary= · the zone's =surfaceSunk= |
+| =control.contrastHover= · =contrastPressed= · =scrollbar= | =control.contrast= |
+| =control.divider= | =control.contrastPressed= |
+| =control.on= · =on-muted= · =on-pressed= | =text.strong= · =text.light= · =signal.primary.ink= |
+| =control.fieldPlaceholder= · =fieldCaret= · =focus= · =selected= | =text.muted= · =primary.fill= · =primary.ink= · =primary.tint= |
+| zone =surface= · =boundary= | the nearest zone that states it, the lower on a tie |
+| zone =boundary=, stated by no zone | a quarter of =text.ink= over its =surface=, opaque |
+| zone =surfaceSunk= · =surfaceLift= · =inverseOn= | its =surface= |
+| zone =boundaryStrong= · =divider= | its =boundary= |
+| zone =boundarySoft= · =scrim= | =boundary= at .5 · =surfaceSunk= at .6 |
+| zone =inverse= | =text.strong= |
+| zone =shadow= · =dim= · =text.disabled= | =rgba(0, 0, 0, 0.45)= · .55 · .45 |
+| =size.*= · =shape.*= | the schematic default (the tree's values) |
+
+** Theme — two definitions, one shape
+
+| key | A northsea | from | B sparse | from |
+|---|---|---|---|---|
+| =text.header= | =#F4F6F9= | stated | =#0B0F2D= | derived |
+| =text.ink= | =#B4BFCB= | stated | =#3D372A= | stated |
+| =text.link= | =#51D8D0= | stated | =#045554= | derived |
+| =shape.radius.card= | =xs= (2px) | stated | =xs= (3px) | default, on a shorthand scale |
+| =shape.lift= | =0 12px 30px= | default | same | default |
+| =size.unit= | =.25rem= | default | =.3rem= | stated |
+| =size.type.md= | =1rem= | default | =1.0625rem= | stated |
+| =size.space.sm= | =3= | default | =3= | default |
+| =signal.primary.tint= | =rgba(30, 188, 181, 0.18)= | derived | =rgba(4, 85, 84, 0.18)= | derived |
+| =signal.negative.ink= | =#D9A18D= | stated | =#A23920= | stated |
+| =control.contrastHover= | =#4F6175= | stated | =#DAD4C0= | derived |
+| =control.on= | =#E6EAEF= | stated | =#0B0F2D= | derived |
+| =zones[0].size.unit= | =.25rem= | merged | =.2rem= | zone override |
+| =zones[2].surface= | =#060D14= | stated | =#F0EDDE= | zone 1 |
+| =zones[3].surface= | =#1A2A38= | stated | =#FBFAF2= | shorthand |
+| =zones[3].boundary= | =#384A5E= | stated | =#A0967C= | zone 1 |
+| =zones[3].signal.negative.ink= | =#EBCDC0= | zone override | =#A23920= | merged |
+
+Zone 3 of A, complete — a passing =Zone=, 97 keys:
+
+#+BEGIN_SRC json
+{
+  "surface": "#1A2A38", "surfaceSunk": "#0E1A25", "surfaceLift": "#243544",
+  "boundary": "#384A5E", "boundaryStrong": "#6B7E91", "boundarySoft": "rgba(56, 74, 94, 0.5)",
+  "divider": "#243544", "inverse": "#E6EAEF", "inverseOn": "#1A2A38",
+  "shadow": "rgba(0, 0, 0, 0.45)", "scrim": "rgba(14, 26, 37, 0.6)", "dim": 0.55,
+  "shape": { "relief": "lift",
+             "radius": { "2xs": "1px", "xs": "2px", "sm": "3px", "md": "4px", "lg": "6px", "xl": "8px", "2xl": "12px", "3xl": "16px", "full": "999px",
+                         "key": "2xs", "field": "2xs", "card": "xs", "pill": "2xs", "disc": "2xs" },
+             "label": { "case": "uppercase", "track": ".14em" },
+             "lift": "0 12px 30px", "sunk": "inset 0 2px 3px" },
+  "size": { "unit": ".25rem",
+            "space": { "2xs": 1, "xs": 2, "sm": 3, "md": 4, "lg": 6, "xl": 8, "2xl": 12, "3xl": 16 },
+            "type": { "2xs": ".6875rem", "xs": ".75rem", "sm": ".875rem", "md": "1rem", "lg": "1.125rem", "xl": "1.25rem", "2xl": "1.5rem", "3xl": "1.75rem" },
+            "gap": "xs", "pad": { "box": "sm", "x": "sm", "y": "2xs" }, "icon": "md", "field": "xl", "row": 6.5, "key": 7,
+            "leading": { "tight": 1.1, "loose": 1.45 }, "ring": "1px", "depth": "2px" },
+  "text": { "header": "#F4F6F9", "strong": "#E6EAEF", "ink": "#B4BFCB", "light": "#8FA0B1", "muted": "#6B7E91", "link": "#51D8D0", "code": "#E7C271", "disabled": 0.45 },
+  "control": { "contrast": "#384A5E", "contrastHover": "#4F6175", "contrastPressed": "#243544",
+               "on": "#E6EAEF", "onMuted": "#8FA0B1", "onPressed": "#51D8D0", "field": "#060D14", "fieldPlaceholder": "#6B7E91",
+               "fieldCaret": "#1EBCB5", "selected": "rgba(30, 188, 181, 0.18)", "focus": "#51D8D0", "scrollbar": "#384A5E", "divider": "#243544" },
+  "signal": {
+    "primary":  { "fill": "#1EBCB5", "ink": "#51D8D0", "tint": "rgba(30, 188, 181, 0.18)", "on": "#060D14" },
+    "positive": { "fill": "#87B56A", "ink": "#B0D19A", "tint": "rgba(135, 181, 106, 0.18)", "on": "#060D14" },
+    "caution":  { "fill": "#D4A054", "ink": "#E7C271", "tint": "rgba(212, 160, 84, 0.18)", "on": "#060D14" },
+    "negative": { "fill": "#BE7055", "ink": "#EBCDC0", "tint": "rgba(190, 112, 85, 0.18)", "on": "#060D14" }
+  }
+}
+#+END_SRC
+
+Only =signal.negative.ink= differs from the theme's default; the merge is per key, so an override never restates its siblings. =boundarySoft= · =inverse= · =inverseOn= · =shadow= · =scrim= · =dim= and every =tint= were derived, the definition states none of them.
+
+** the sheet
+
+#+BEGIN_SRC css
+/* emitted by subsystems/dapper/lib/emit.js — slots only, no gradient, no colour name */
+:root[data-theme="northsea"] {
+  --surface: #06101D;  --surface-sunk: #030812;  --surface-lift: #0A1628;  /* … the 12 ground keys of zone 1 */
+  --shape-relief: lift;  --shape-radius-2xs: 1px;  --shape-radius-xs: 2px;  --shape-radius-sm: 3px;  /* … md · lg · xl · 2xl · 3xl */  --shape-radius-full: 999px;
+  --shape-radius-key: var(--shape-radius-2xs);  --shape-radius-field: var(--shape-radius-2xs);  --shape-radius-card: var(--shape-radius-xs);  --shape-radius-pill: var(--shape-radius-2xs);  --shape-radius-disc: var(--shape-radius-2xs);
+  --shape-label-case: uppercase;  --shape-label-track: .14em;  --shape-lift: 0 12px 30px rgba(0, 0, 0, 0.45);  --shape-sunk: inset 0 2px 3px rgba(0, 0, 0, 0.45);
+  --size-unit: .25rem;  --size-space-2xs: calc(var(--size-unit) * 1);  --size-space-xs: calc(var(--size-unit) * 2);  --size-space-sm: calc(var(--size-unit) * 3);  /* … md · lg · xl · 2xl · 3xl */
+  --size-type-2xs: .6875rem;  --size-type-xs: .75rem;  --size-type-sm: .875rem;  --size-type-md: 1rem;  /* … lg · xl · 2xl · 3xl */
+  --size-gap: var(--size-space-xs);  --size-pad-box: var(--size-space-sm);  --size-pad-x: var(--size-space-sm);  --size-pad-y: var(--size-space-2xs);
+  --size-icon: var(--size-space-md);  --size-field: var(--size-space-xl);  --size-row: calc(var(--size-unit) * 6.5);  --size-key: calc(var(--size-unit) * 7);
+  --size-leading-tight: 1.1;  --size-leading-loose: 1.45;  --size-ring: 1px;  --size-depth: 2px;
+  --text-header: #F4F6F9;  --text-strong: #E6EAEF;  --text-ink: #B4BFCB;  --text-light: #8FA0B1;  --text-muted: #6B7E91;  --text-link: #51D8D0;  --text-code: #E7C271;  --text-disabled: .45;
+  --control-contrast: #384A5E;  --control-contrast-hover: #4F6175;  --control-contrast-pressed: #243544;
+  --control-on: #E6EAEF;  --control-on-muted: #8FA0B1;  --control-on-pressed: #51D8D0;  --control-field: #060D14;  --control-field-placeholder: #6B7E91;
+  --control-field-caret: #1EBCB5;  --control-selected: rgba(30, 188, 181, 0.18);  --control-focus: #51D8D0;  --control-scrollbar: #384A5E;  --control-divider: #243544;
+  --signal-primary: #1EBCB5;  --signal-primary-ink: #51D8D0;  --signal-primary-tint: rgba(30, 188, 181, 0.18);  --signal-primary-on: #060D14;
+  --signal-positive: #87B56A;  /* … positive · caution · negative × ink · tint · on */
+}
+
+/* a zone: the 12 ground keys + the five groups merged — 97 declarations */
+:root[data-theme="northsea"] [data-zone="3"] {
+  --surface: #1A2A38;  --surface-sunk: #0E1A25;  --surface-lift: #243544;
+  --boundary: #384A5E;  --boundary-strong: #6B7E91;  --boundary-soft: rgba(56, 74, 94, 0.5);
+  --divider: #243544;  --inverse: #E6EAEF;  --inverse-on: #1A2A38;
+  --shadow: rgba(0, 0, 0, 0.45);  --scrim: rgba(14, 26, 37, 0.6);  --dim: .55;
+  --shape-relief: lift;  /* … 19 shape keys */
+  --size-unit: .25rem;  /* … 29 size keys, every calc() re-declared here */
+  --text-header: #F4F6F9;  /* … 8 text keys */
+  --control-contrast: #384A5E;  /* … 13 control keys */
+  --signal-primary: #1EBCB5;  /* … 16 signal keys, negative-ink here is #EBCDC0 */
+}
+#+END_SRC
+
+The theme root is zone 1 whole, 97 declarations, so a read outside any =data-zone= resolves as body; a zone block re-declares all of them, merged. The data-zone rule nests under =:root[data-theme]= so two themes never leak into each other. A shadow is emitted resolved: shape's geometry with the zone's =shadow= tone. A =calc(var(--size-unit) * N)= resolves on the element that declares it, so a zone that overrides =unit= rescales only because its block re-declares every length. A =Theme= holds data (=space.sm: 3=); =emit= writes the =calc()=.
+
+** a view, before and after
+
+#+BEGIN_SRC diff
+ <!-- systems/anima/src/app/panels/c/widgets/Pane.svelte -->
+-<div class="pane" style="background: var(--colors-skeleton-1-surface); box-shadow: 0 0 0 1px var(--colors-skeleton-2-boundary)">
+-  <header style="color: var(--colors-skeleton-0-primary-base)">…</header>
+-  <div class="body" style="background: var(--colors-skeleton-0-surface); color: var(--text-support)">…</div>
++<div class="pane" style="background: var(--surface); box-shadow: 0 0 0 var(--size-ring) var(--boundary)">
++  <header style="color: var(--signal-primary-ink)">…</header>
++  <div class="body" style="background: var(--surface-lift); color: var(--text-light)">…</div>
+ </div>
+#+END_SRC
+
+The pane names no zone: rail C carries =data-zone="0"= once, the pane reads the ground and its body the lift step.
+
+** the zone → place map
+
+| zone | territory | what it is |
+|---|---|---|
+| 0 | chrome | the application's own interface |
+| 1 | body | content: what a thread, a buffer, a mode shows; the default |
+| 2 | island | a thing that stands alone, outside the body |
+| 3 | bench | instruments that look at the application |
+
+| place | zone | steps |
+|---|---|---|
+| shoulder · crown · spine | 0 | surface · control |
+| pincer | 0 | surface · lift · control |
+| rail B (config · auth · box · dock) | 0 | surface · lift · control |
+| rail C (terminals · navigation) · panes D E G | 0 | surface · lift · control |
+| pane strips · tab rows | 0 | sunk · control |
+| panel A, the stage | 1 | surface |
+| dock · composer | 1 | sunk · lift · control |
+| chat turns · tool rows · pane F | 1 | sunk · lift |
+| buffers · mode applications | 1 | all |
+| a mode that declares itself an island | 2 | all |
+| inspector (panel H) · logger · debug | 3 | all |
+| a strip inside the bench | 0 inside 3 | surface · control |
+| menus · popovers · toasts | the zone that opened them | lift + =shape.lift= |
+
+A latched key, a selected row and the add form are =control.contrast-pressed= inside whichever zone holds them.
+
+** dapper, after patch 4
+
+#+BEGIN_EXAMPLE
+subsystems/dapper/
+  lib/theme.js                  theme(...Definition) → Theme
+  lib/emit.js                   emit(name, Theme) → css
+  lib/contrast.js               contrast · channels · wash · blend · flatten
+  lib/system.js                 design() = themes → emit, joined
+  themes/index.js               the theme list
+  themes/northsea/theme.js      themes/northsea/gradients.js
+  themes/parchment/theme.js     themes/parchment/gradients.js
+  belt/tailwind-theme.js        slots → classes
+  lifecycle/index.js            the postcss plugin
+  primitives/font.css · bsp.css
+#+END_EXAMPLE
+
+* patches
+
+Each: blast → test → land → test → blast. Boot stays green at every boundary because from patch 1 to patch 4 =design()= emits BOTH sheets: today's pipeline untouched, the tree's appended. One kind of gate per patch.
+
+** patch 1 — build: the names, the primitive, the pipe beside today's
+- names first: =mv subsystems/dapper/themes/nordic.js northsea.js= · =paper.js parchment.js= and their two tests; =ds.themes.northsea= / =.parchment=; literals in =zone-emit= · =css-emit=.
+- anima: =src/typology/stores/bridge/bridge.js= exports =THEMES= and =knownTheme= (a name outside the list resolves to the default), read by the store's boot and by =setTheme=; =src/client.html= boots =northsea= and guards the saved name with the same list; =BridgeSection.svelte= reads =stores.bridge.THEMES=; =pincer.svelte= PICTOGRAMS keys.
+- =commons/instances/hello-world/tests/style.tokens.test.js= and its shelf copy; chess: the five =kit/Theme.svelte=, =tests/kit.test.js:90=, =README.md=. Captured first at =~/.viva/bak/m72/theme-names-20260928/=.
+- then the pipe: =subsystems/typology/schematics/primitives/theme.js= + its line in =primitives/index.js=; =subsystems/dapper/lib/{theme,emit,contrast}.js=; =themes/northsea/{theme,gradients}.js= · =themes/parchment/{theme,gradients}.js=, each theme's gradients copied out of =lib/colors.js=, none shared.
+- =lib/system.js=: today's reduce stays; the themes are completed, checked and their sheet appended. =design()= returns =output.css= (both), =output.today=, =output.zoned=, and the completed themes as =zoned=.
+- one family lives in both sheets, =--signal-{positive,caution,negative}=; the appended sheet wins, so northsea states today's value there. parchment states =500=: =moss 500= holds, =rose 400= → =500= and =tomato 400= → =500= move one stop, because =tomato 400= carries no =on= at 4.5:1; 9 =var(--signal-*)= reads see it.
+- gate: typology + dapper + drapes + anima pincer + hello-world + chess suites green; =anima/bundle= builds; the built sheet holds both halves; a real DOM computes the four zones; today's half byte-identical; residue = the keep-list.
+
+** patch 2 — move, repo: anima and drapes declare zones and read by name
+- =src/client.html= body → =data-zone="1"=; bones and rails B C → =data-zone="0"=; panel H and the debug tray → =data-zone="3"=; per the place map. A zone is set on the territory's outermost box, once, in the same pass that moves the file's reads.
+- every =var(--colors-skeleton-N-…)= in =systems/anima/src= (595) and =subsystems/drapes= (145) → its slot. A surface read maps by the step it plays in its place, never by its level number: the place's ground → =--surface=, a well in it → =--surface-sunk=, a block on it → =--surface-lift=, a level-4 surface → =--control-contrast-pressed= · =-contrast= (text) → =--text-strong=, level 4 → =--text-header= · =-contrast= (background) → =--inverse= · =color ← surface= → =--inverse-on= · =-boundary= → =--boundary=, level 2 → =--boundary-soft=, level 4 → =--boundary-strong=, as a background → =--divider= · =-<role>-base= → =--signal-<role>= (fill) or =--signal-<role>-ink= (text); =--text-{primary,body,support}= → =--text-{strong,ink,light}=; a label on a key → =--control-on=; =--shadow-{soft,strong}= → =--shadow=; =Dock.svelte:853= private text override deleted. The 159 hand =color-mix()= keep their percentages and read slots; folding them into =tint= · =dim= is a design pass of its own. =*.bak.svelte= and =bak.widgets/= under =src= are beef's recovery surface, untouched and outside the gate. The pincer composes its mark in its own view: the outline is =--signal-primary=, the pictogram's tint a per-theme =TINTS= beside =PICTOGRAMS=, reading =--signal-primary= and =--shadow=.
+- drapes: delete =context/{SkeletonProvider.svelte,useSkeleton.js,Zone.svelte,decorum.js}= and their barrel lines; the 9 tailwind-templated components read slots; =subsystems/drapes/editor/theme.js= reads slots.
+- =subsystems/dapper/belt/tailwind-theme.js=: colours map the slots (=bg-surface= · =text-ink= · =border-boundary= · =bg-signal-primary=) beside the skeleton variants and the safelist, which stay until patch 4: commons and the registry are tailwind content too. drapes spells its classes as literals through =context/signals.js= (=SIGNAL= · =FILL= · =INK= · =GLYPH=), so no slot class needs a safelist.
+- gate: =rg "colors-skeleton|colors-palette|text-support|text-primary|text-body|shadow-soft|shadow-strong|useSkeleton|Decorum" systems/anima/src subsystems/drapes= → 0; =data-zone= count in =src= equals the territories of the place map; a screenshot before and after per place of the place map, both themes, in Chrome.
+
+** patch 3 — move, registry
+- commons rides this patch: =commons/playground/**= (10 views) · =commons/dashboards/dataspace/Dashboard.svelte= · =commons/instances/hello-world/{app/App.svelte,page/style.js}= and its draw snapshot read today's tokens; a save there deploys.
+- the census re-run first. Measured 09-28, source files only (=bak= and built =.mjs= excluded): education 545 reads in 37 files (git) · vcompany 359 in 17 (NO VCS) · chess 136 in 6 (git) · media 91 in 6 (NO VCS) · assembly 8 in 4 (git) · droneaid 0 · stucatch 0.
+- chess =kit/Theme.svelte= ×5: the alias block re-points at slots; =tests/kit.test.js= still pins the copies equal.
+- education =--colors-{theme,system}-*= → signal fills/inks/tints; vcompany and media skeleton reads → slots; vdex =Reader.svelte= zone-5 reads → =--surface-lift= + =shape.lift=. Trees without VCS: capture first.
+- modes with private hexes (Watch 88 · Guide 48×2 · Riddler 41 · Assembly 35) untouched — beef's standing licence.
+- gate: each touched mode bundled and walked in Chrome; shelf copies under =~/.viva/instances/*= synced (skill shelf-sync).
+
+** patch 4 — retire today's colour pipeline
+- deleted: =lib/colors.js= · =lib/builders.js= · =lib/flatten.js= · =themes/northsea.js= · =themes/parchment.js= · =belt/{index,lib,postcss-plugin}.js= · =primitives/{colors,tokens,builders}.js= · the four old theme and emit tests · =tests/builders.test.js=; =mod.js= exports =theme · emit · design= and the plugin; =design()= returns =themes= (the completed ones) and =output.css=.
+- =lib/tokens.js= stays and emits itself: =scales()= writes its 62 declarations under a bare =:root= (fonts · type sizes · line heights · spacing · radii · container · animation · shadows), until the size sweep and the fonts fork are ruled. A scale shadow is geometry with =var(--shadow)=; the per-theme alpha ladder is gone.
+- =belt/tailwind-theme.js= drops =palette=, the five skeleton variants and =safelist=; the typography plugin's 32 =--tw-prose-*= read slots.
+- dapper stops emitting =--colors-*= · =--text-{primary,body,support}= · =--zone-*= · =--shadow-{soft,strong}= · =--brand-*= · =--filter-*= · =--mix-*=.
+- gate: residue grep over repo + =~/.viva= → 0 outside =bak=; codemap shards =design.md= · =anima.md= re-stamped; =.ikiro/reference/design.md= checked against the tree.
+
+** after the four — porcelain · datasette
+- two theme files written in hexes, no gradients: the designer's =tokens/themes.css= hexes verbatim (porcelain and ledger blocks) as sparse definitions, =theme()= completing them; =stores.bridge.THEMES=; a test each; =pincer.svelte= pictogram per theme. Never before patch 3: today's sheet holds no block for them, every skeleton read would go blank.
+- gate: theme tests green; the picker walked through all four.
+
+* blast table
+
+| file | change | patch | kind |
+|---|---|---|---|
+| =subsystems/dapper/themes/{nordic,paper}.js= | mv → =northsea.js= · =parchment.js=; theme key; deleted | patch 1 · patch 4 | code |
+| =subsystems/dapper/themes/index.js= | imports · reduce list; the new theme list; + porcelain · datasette | patch 1 · the follow-up | code |
+| =subsystems/dapper/tests/{nordic,paper}-theme.test.js= | mv · literals; deleted | patch 1 · patch 4 | test |
+| =subsystems/dapper/tests/{zone-emit,css-emit,builders}.test.js= | literals; deleted | patch 1 · patch 4 | test |
+| =subsystems/typology/schematics/primitives/theme.js= | new | patch 1 | code · typology |
+| =subsystems/typology/schematics/primitives/index.js= | =export * as theme= | patch 1 | code · typology |
+| =subsystems/typology/tests/theme.test.js= | new | patch 1 | test |
+| =subsystems/dapper/lib/{theme,emit}.js= | new | patch 1 | code |
+| =subsystems/dapper/themes/{northsea,parchment}/{theme,gradients}.js= | new | patch 1 | code |
+| =subsystems/dapper/tests/{theme,emit,contrast}.test.js= | new | patch 1 | test |
+| =subsystems/dapper/lib/system.js= | the tree's sheet appended; today's reduce removed | patch 1 · patch 4 | code |
+| =subsystems/dapper/deno.jsonc= | typology import | patch 1 | config |
+| =subsystems/dapper/belt/tailwind-theme.js= | colours map slots; skeleton variants · safelist · palette removed | patch 2 | code |
+| =subsystems/dapper/lib/{colors,builders,flatten}.js= | deleted | patch 4 | code |
+| =subsystems/dapper/belt/{index,lib,postcss-plugin}.js= · =primitives/{colors,tokens,builders}.js= | deleted | patch 4 | code |
+| =subsystems/dapper/mod.js= | exports | patch 1 · patch 4 | code |
+| =systems/anima/tailwind.config.js= | safelist import removed | patch 2 | config |
+| =systems/anima/src/client.html= · =client.css= | theme default; ground zone | patch 1 · patch 2 | code |
+| =systems/anima/src/typology/stores/bridge/bridge.js:84= | default + unknown-name fallback | patch 1 | code |
+| =systems/anima/src/app/panels/b/widgets/BridgeSection.svelte:10= | THEMES | patch 1 · the follow-up | code |
+| =systems/anima/src/app/bones/pincer/pincer.svelte:18= | PICTOGRAMS keys | patch 1 · the follow-up | code |
+| =systems/anima/src/app/bones/**= (5 files) | =data-zone="0"=; slot reads | patch 2 | code |
+| =systems/anima/src/app/panels/**= (≈40 live files, 595 reads) | zone attrs; slot reads | patch 2 | code |
+| =systems/anima/src/app/widgets/**= (3 files) | slot reads | patch 2 | code |
+| =subsystems/drapes/context/*= (6 files) | deleted | patch 2 | code |
+| =subsystems/drapes/{display,controls,decor,panels}/**= (145 reads) | slot reads | patch 2 | code |
+| =subsystems/drapes/editor/theme.js= | slot reads | patch 2 | code |
+| =commons/instances/hello-world/tests/style.tokens.test.js= + shelf copy | theme list | patch 1 | code · ledger NO VCS |
+| =~/.viva/registry/chess/modes/*/*/buffer/kit/Theme.svelte= ×5 · =tests/kit.test.js= | theme literal; alias block | patch 1 · patch 3 | registry · git |
+| =~/.viva/registry/education/modes/**= (≈30 files, ~620 reads) | compat tokens → signals | patch 3 | registry · git |
+| =~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Reader.svelte= | zone-5 reads | patch 3 | registry · NO VCS |
+| =~/.viva/registry/{assembly,droneaid,stucatch}/**= (≈200 skeleton reads) | slot reads | patch 3 | registry · assembly/stucatch NO VCS |
+| =~/.viva/instances/*/= shelf copies of every touched mode | sync | patch 3 | ledger · NO VCS |
+| =.ikiro/world/codemap/{design,anima,typology}.md= · =.ikiro/reference/design.md= | re-stamped · checked against the landed tree | patch 4 | ikiro |
+
+Radius: 1464 slot reads over ≈80 repo files and ≈60 registry files; four registry trees and every shelf without VCS. patch 1 is a rename over 14 files; patch 1 and patch 2 are additive, patch 1 the first line of dapper inside typology's reach; patch 2 is the flag day inside the repo; patch 3 outside it.
+
+* testing assessment
+
+- in place: =subsystems/dapper/tests/= 10 tests (65 steps), shape + ~20 hexes; =subsystems/drapes/tests/= 8 (54 steps), no colour; =commons/instances/hello-world/tests/style.tokens.test.js= pins the theme list; =~/.viva/registry/chess/tests/kit.test.js= pins the five Theme.svelte copies equal and the parchment override in every served bundle. COVERAGE GAP: no test measures contrast; none asserts a consumer reads only slot names; no mount test renders a zone; no schematic stands behind a theme, a missing token is a warning.
+- changes: =northsea-theme= · =parchment-theme= · =zone-emit= · =css-emit= (literals at patch 1; deleted at patch 4).
+- adds: typology =theme.test.js= · dapper =theme= · =emit= · =contrast= (patch 1) · =systems/anima/tests/zones.residue.test.js= greps =src= for the skeleton names → 0 (patch 2+).
+- green ladder: patch 1 dapper + hello-world + chess suites, residue = keep-list · patch 1 anima bundle with dapper importing typology first, then typology + dapper suites, today's sheet half byte-identical · patch 2 boot + screenshots · patch 2 residue 0 + a screenshot pair per place, both themes · patch 3 chess kit test + each mode bundled · patch 4 residue over =~/.viva= · the follow-up theme tests + picker walk.
+- No patch flips DONE without its gate pasted as =N passed | F failed=.
+
+* QA
+
+** testimony
+I open the theme picker and it lists northsea · parchment; I pick northsea and the bones and both rails read as one frame around the stage; I open a pane in rail C and its body is a lifted block on the rail's ground; I open the inspector and it reads as a tool, with a strip inside it that looks like the rest of the frame; I press a key in the shoulder and it drops by 2px onto the pressed contrast, its label turning to the pressed ink; I open a menu and it floats on a lifted surface with its shadow; I tab through the composer and see the aqua focus ring, not browser blue; a tool row reporting an error shows rust text I can read on the lifted card. I switch to parchment and every one of those reads the same way in ivory. I reload a browser that had "nordic" saved and it comes up in northsea, not blank. I write a theme file of nineteen values and it boots as a whole theme.
+
+** probes
+#+marker_qa: m72/P-rename-residue · held · grep -rIwE "nordic|paper" over repo + ~/.viva returns the keep-list only
+#+marker_qa: m72/P-dapper-imports-typology · held · dapper importing v from typology inside design(): through the root door =@vivalence/typology=: anima's bundle builds and the built sheet carries both halves (sandbox copy of the tree, 09-28)
+#+marker_qa: m72/P-sheet-shape · held · the theme root and every [data-zone] block in the emitted sheet have 97 declarations, the root equal to zone 1, both themes
+#+marker_qa: m72/P-override-merge · held · northsea zone 3 --signal-negative-ink is rust 100 while --signal-negative stays rust 300
+#+marker_qa: m72/P-contrast · held · contrast.test.js green on every zone × depth step × text step, both themes
+#+marker_qa: m72/P-residue-repo · held · rg colors-skeleton systems/anima/src subsystems/drapes → 0 after patch 2
+#+marker_qa: m72/P-definition-range · held · definition A and definition B complete to the same key set, 85 + 4 × 97, and both pass Theme
+#+marker_qa: m72/P-no-gradient-emitted · held · the new sheet holds no gradient name and no --colors- declaration
+#+marker_qa: m72/P-zone-unit · held · a zone overriding size.unit computes --size-row against its own unit in a real DOM
+#+marker_qa: m72/P-nesting · held · a data-zone="0" box inside a data-zone="3" box computes zone 0's --surface in a real DOM
+#+marker_qa: m72/T-northsea-walk · pending · panels A–H, dock, phase widget, one chess and one education buffer in northsea
+#+marker_qa: m72/T-parchment-walk · pending · the same walk in parchment
+
+* deferred
+
+- a theme as a viva mode carrying a trait THEMING (/"themes will in the end be viva modes. js. a trait THEMING."/) — the =Theme= schematic is that trait's value; reopens once patch 4 has left dapper with one pipe.
+- porcelain and datasette as gradients — the designer's hexes land verbatim first; gradients are each theme's own business, on beef's word.
+- key mechanics over =size.depth= / =shape.relief= — tokens emitted at patch 1; the press behaviour is the designer's =components/core/Key.jsx= and a separate port.
+- generated gradients (OKLCH, tonal palettes) — reopens when hand-tuned gradients stop scaling; today the designer ships hexes.
+- the provenance of a completed key (stated · derived · default) returned beside the Theme — reopens when a sparse theme reads flat and nobody can say why.
+- sheets (terminal) has no zone counterpart; none is possible without truecolor.
+
+* changelog
+
+- 09-28 — designed; numbered m72 by beef. Terrain measured. Baseline: dapper =10 passed (65 steps) | 0 failed= · drapes =8 passed (54 steps) | 0 failed= · sheets =37 passed | 0 failed=. Probe in a sandbox copy: anima =deno task bundle= built before and after dapper imported typology, the sheet carried =--probe-typology: held=, dapper =10 passed (65 steps) | 0 failed= with the import in. No code in the tree touched.
+- 09-28 — patch 1. Baseline before: dapper =10 passed (65 steps) | 0 failed= · drapes =8 passed (54 steps) | 0 failed= · typology =127 passed (514 steps) | 0 failed= · hello-world style =1 passed (5 steps) | 0 failed= · chess kit =1 passed (10 steps) | 0 failed=. After: dapper =31 passed (334 steps) | 0 failed= · typology =131 passed (558 steps) | 0 failed= · drapes =8 passed (54 steps) | 0 failed= · anima pincer =8 passed (45 steps) | 0 failed= · hello-world style and its shelf copy =1 passed (5 steps) | 0 failed= · chess kit =1 passed (10 steps) | 0 failed=. New test files: typology =tests/theme.test.js= (44 steps, a sweep over all 473 values of a whole theme) · dapper =tests/theme.test.js= (81) · =tests/emit.test.js= (45) · =tests/contrast.test.js= (143) · anima =tests/pincer/theme.test.js= (12). Today's half of the sheet byte-identical to the sheet after the rename (52596 chars). Anima bundle built in a sandbox copy of the tree (14.0 s); the built sheet holds 4 + 4 zone blocks, no retired name. Real DOM (Chrome, the sandbox build): the four zone surfaces, zone 0 inside zone 3 computing zone 0's surface, zone 3's negative ink =#EBCDC0=, =--size-row= 26px; a zone with =unit: .2rem= computes its row at 20.8px while type and ring hold. Caught by the tests: =emit(undefined, …)= passed the name check. Walk incidents, not the quest's: the schematics door cannot be a first import (known-issues); beef's =:1794= dev server, up five hours, holds the old dapper in memory and serves =nordic= · =paper= blocks to a page asking for =northsea= — a restart of =anima/watch= loads the new sheet. Residue: the keep-list, plus comments in files patch 4 deletes and =Dock.svelte:853= (deleted in patch 2). COVERAGE GAP: no test boots =vite dev=; no mount test renders a zone.
+- 09-28 — patch 2. 764 reads moved by rule in 66 live files (anima 37 · drapes 29), each by the CSS property it sits in and the zone of its place; every rule measured against both themes' hexes before it wrote. Three rules were corrected by that measurement: a level-2 boundary is soft, never a divider (parchment's is a real hairline); a level-3 boundary is the plain hairline; parchment's dividers move to =paper 300= · =300= · =200= · =400=. Values that change: northsea 351 reads, parchment 330 — signal text takes the ink step (aqua 300 → 200, rust 300 → 200), level-2 contrast (=iron 200=) takes =text.strong=, parchment's primary fill takes =aqua 500=. drapes: =context/{SkeletonProvider.svelte,useSkeleton.js,Zone.svelte,decorum.js}= deleted, 0 consumers measured across anima · commons · registry; 11 components spell slot classes. Zones declared on 14 boxes in 11 files. Suites after: dapper =31 passed (334 steps) | 0 failed= · drapes =8 passed (54 steps) | 0 failed= · anima, whole =50 passed (191 steps) | 0 failed= · hello-world · chess kit green. New test files: anima =tests/zones/places.test.js= (7 steps) · =tests/zones/slots.test.js= (11 steps: no retired name, every slot read is declared, no local shadows a slot, tailwind maps every slot colour, no theme hex in a view). Gate grep → 0 outside the bak files. Anima bundle built in the sandbox copy (14.5 s), slot classes generated. Chrome, beef's =:1794=: northsea before and after, parchment after, the chess Play thread opened — rails, bones, panes D E F, the dock and the chess buffer paint; every territory's ground computes as a depth step of its own zone; no text renders black. COVERAGE GAP: no parchment before-shot (the static hex table stands in); panel G, panel H and a chat with turns were not walked.
+- 09-28 — patch 3. Census re-run: 1344 reads in 87 views and 4 scripts (education 550 · vcompany 368 · chess 150 · commons 129 · media 91 · hello-world's shelf 48 · assembly 8). Captured first: 79 files at =~/.viva/bak/m72/registry-20260928/=. 1327 moved by rule in one burst, every mode in zone 1; the rest by hand (hello-world's taught token table, its draw snapshot regenerated, nyan =Review.svelte:20=, chess =kit.test.js:89=). One self-referencing local removed (=Dashboard.svelte= =--shadow=). Level-5 reads (vdex, resolving to nothing before) take =--surface-lift= · =--boundary-strong=. All 87 views compile, no old token in their CSS. Suites: chess =1 passed (10 steps)= · chess domain =7 passed (35 steps)= · media =5 passed (33 steps)= · vcompany email =2 passed (5 steps)= · calendar =8 passed (28 steps)= · assembly domain =7 passed (49 steps)= · nyan =11 passed= · hello-world and its shelf =19 passed (64 steps)=, 0 failed each. Pre-existing reds, proven identical on a copy holding the files as they were: vdex =6 passed | 3 failed= (=systems/runtime/daemon/traits/dataset.js:27= reads =mode.module.source.dirname=, the scenario rig sets none) · dojo =9 passed | 3 failed= (=LiteralEntity= has no =retentions=, =byLastSignal= is not a function) · education domain (=fixtures/data/seed.js= not found). Fixed on the way, not the quest's: three hello-world rigs lacked =mode.bundles= after the runtime moved =GENERATIVE= to it (=systems/runtime/daemon/traits/generative.js:5=); the hello-world shelf was stale against commons (=mode.viva.js= · =tools/*= · README), captured at =~/.viva/bak/m72/hello-world-shelf-20260928/= and synced. Chrome, beef's =:1794=: the chess Play buffer in both themes — no alias unset, no text black, no old token in the served CSS. COVERAGE GAP: education, vcompany and media have no daemon running; their views were compiled, never mounted.
+- 09-28 — patch 4. Deleted: =lib/{colors,builders,flatten}.js= · =themes/{northsea,parchment}.js= · =belt/{index,lib,postcss-plugin}.js= · =primitives/{colors,tokens,builders}.js= · five tests. dapper is 21 files; its door exports =design · theme · emit · declarations · contrast · TOKENS · scales · THEMES · postcssPlugin · tailwindClasses=. The sheet is 11 blocks: =:root= (62 scales), then five per theme. The 60 scale names the old sheet emitted are all still emitted; =--box-shadow-default= · =--drop-shadow-default= are new (tailwind read them, nothing declared them); 8 shadow values change to geometry with =var(--shadow)=. Suites after: dapper =21 passed (271 steps) | 0 failed= · typology =131 passed (558 steps) | 0 failed= · drapes =8 passed (54 steps) | 0 failed= · anima =50 passed (193 steps) | 0 failed= · hello-world, both copies =19 passed (64 steps) | 0 failed=. Anima bundle built in the sandbox copy (10.4 s); the built sheet is 73818 bytes (222224 before), no retired name in it. Real DOM, the sandbox build: every retired token computes empty; the four zones, zone 0 inside zone 3, the bench's negative ink, a zone's own unit and the scales under no theme all compute. Caught by the build, missed by the tests: the typography plugin's colour map in =belt/tailwind-theme.js= still read 32 old tokens; a test now scans dapper itself. Residue over repo + =~/.viva=: the keep-list. Owed to a walk: a page hello-world drew before today holds the old token names in its stored markup and renders unstyled now.
+
+* release
+
+- themes renamed =northsea= · =parchment=; a saved unknown theme name resolves to the default.
+- =@vivalence/typology= gains the =theme= primitive (=Definition= · =Theme= and their scalars).
+- =@vivalence/dapper= exports =theme= · =emit=; emits =[data-zone="0..3"]= blocks (97 declarations) and zone 1 whole on the theme root; =--colors-*= · =--text-{primary,body,support}= · =--shadow-{soft,strong}= · =--zone-*= retired at patch 4; =skeleton= · =interactive= · =box= · =generateZoneCSS= · =ZONE= · =ZONE_COUNT= removed.
+- =@vivalence/dapper/tailwind= maps slots; =safelist= removed.
+- =@vivalence/drapes= drops =SkeletonProvider= · =useSkeleton= · =Zone= · =Decorum=.
+- pending: themes =porcelain= · =datasette= added.

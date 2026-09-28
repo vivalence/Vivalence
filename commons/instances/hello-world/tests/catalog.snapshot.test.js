@@ -35,6 +35,7 @@ const declarations = (vector) =>
 const generative = {
   manifest: { slug: "hello-world", type: "demo" },
   module: { generator },
+  bundles: { absolute: "/nonexistent/catalog" },
 };
 await GENERATIVE(generative, {
   mountpoint: { absolute: "/nonexistent/catalog" },

@@ -37,6 +37,7 @@ Canon: `methods/compact.md` (the walk, the traps). beef: *"one thing thats annoy
 |---|---|---|
 | queue echoes inflate N · a prefix match ate a sibling handoff | #180 · #9 | dedupe is FULL text within 180 s — the extractor does it; never widen the window (#99: a re-delivery past 180 s is a real repeat) |
 | mid-turn turns are `queue-operation`, not `user` | #187 (14 of 17) · #189 (10 of 29, incl. the one-char ruling `/"a"/`) | a user-only walk is structurally blind; the extractor reads both |
+| mid-turn turns are `attachment` · `queued_command` · `humanTurn` (Claude Code 2.1.284) | #229 (3 of 9, the agent-law turns) | `spine.py` reads both shapes since #229; a new harness version is a new shape until the spine is checked against a reply |
 | a mid-turn message missing from the transcript entirely | #182 | evidence is the reply that answers it — dash row, say so |
 | fold-boundary denominator | #92 · #136 · #190 | balance on the fold's N, stated |
 | extractor read a SIBLING transcript | #142 · #131 | pass the session id |

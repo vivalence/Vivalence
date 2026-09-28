@@ -3,6 +3,7 @@
   import "../client.css";
 
   import { env } from "$env/dynamic/public";
+  import { page } from "$app/state";
 
   import { onMount, setContext } from "svelte";
   import { computed } from "nanostores";
@@ -11,6 +12,8 @@
   import { logger } from "$telemetry";
   import { LIGHTHOUSE, TERMINALS, BRIDGE, BOX } from "$client";
   import { stores } from "@vivalence/anima";
+  import { Key } from "@vivalence/drapes";
+  import { gateFor } from "./gate.js";
   import * as terminalEffects from "./terminals.js";
   import * as focusEffects from "./focus.js";
 
@@ -61,13 +64,7 @@
 
     const unsubscribeGate = computed(
       [lighthouse.$isAuthorized, lighthouse.$status],
-      (authorized, status) => {
-        if (!authorized) return "signin";
-        if (status.code === "OFFLINE" || status.code === "ERROR") return "signin";
-        if (status.code === "POPULATING") return "populating";
-        if (status.code !== "VERIFIED") return "verifying";
-        return "ready";
-      },
+      gateFor,
     ).subscribe((value) => {
       gate = value;
       logger.entry("gate").note({ message: `gate → ${value}` });
@@ -109,11 +106,13 @@
   }
 </script>
 
-{#if gate === "ready"}
+{#if page.url.pathname.startsWith("/design")}
+  {@render children()}
+{:else if gate === "ready"}
   {@render children()}
   {#if terminalCount === 0}
     <div class="empty-overlay" onclick={onOpenTerminal} role="presentation">
-      <span class="empty-prompt">open terminal</span>
+      <Key label="open terminal" />
     </div>
   {/if}
 {:else if gate === "signin"}
@@ -126,18 +125,15 @@
 
 <style>
   .gate {
-    display: grid;
-    place-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     height: 100svh;
     box-sizing: border-box;
-    padding-top: var(--safe-area-top, 0px);
-    padding-bottom: var(--safe-area-bottom, 0px);
-    background: var(--colors-skeleton-0-surface);
-    color: var(--colors-skeleton-0-contrast);
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.08em;
-    text-transform: lowercase;
+    padding: calc(10vh + var(--safe-area-top, 0px)) 16px calc(48px + var(--safe-area-bottom, 0px));
+    overflow-y: auto;
+    background: var(--surface);
+    color: var(--text-strong);
   }
   .empty-overlay {
     position: fixed;
@@ -146,22 +142,7 @@
     display: grid;
     place-items: center;
     backdrop-filter: blur(12px);
-    background: color-mix(in srgb, var(--colors-skeleton-0-surface) 70%, transparent);
+    background: color-mix(in srgb, var(--surface) 70%, transparent);
     cursor: pointer;
-  }
-  .empty-prompt {
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-xs);
-    letter-spacing: 0.08em;
-    text-transform: lowercase;
-    color: var(--colors-skeleton-0-contrast);
-    opacity: 0.6;
-    padding: 8px 16px;
-    border: 1px solid var(--colors-skeleton-0-boundary);
-    border-radius: 4px;
-    transition: opacity 0.12s;
-  }
-  .empty-overlay:hover .empty-prompt {
-    opacity: 1;
   }
 </style>

@@ -1,0 +1,80 @@
+#+title: the docs take Diátaxis areas — explanation, tutorials, guides, reference — and slowstart moves to twenty
+#+index: 219
+#+session: session 54db1175, turns 1–14 (fold N = 14, one fold). beef's thread: documentation/ read into context, its four areas renamed onto Diátaxis, architecture folded into explanation, slowstart made the first tutorial.
+
+* one breath
+
+(1) /"load documentation"/ — =documentation/= read: Astro on Deno, Johnny.Decimal content tree, the filesystem is the map (=content/jdex.js=), the slug is the bare filename (=src/content.config.ts:8=), capture never fails (=src/tangle.js=). No codemap shard, no route row.
+
+(2–8) /"rename repository to reference. practice to guides architecture to explanation and add 20-29 tutorials and move 12 software slowstart there."/ — rename-pass fired; census found the slug's consumers outside the docs (=README.md:397=, =commons/instances/hello-world/app/App.svelte:181,214=, the shelf copy); a page may sit on an area (=20.01=, no one-file directory). Held for go; /"still old"/ answered with the gate. Trees asked three times until /"just the functional tree. skip the yap and 00"/.
+
+(9–12) /"merge 30 explanation into 10 about and name it explanaition. 30 daemon and ledger go into 10-19 architecture. and move 50 guides to 30 guides."/ → the tree shown bare → /"ok. yes. this is us. go"/ → landed.
+
+(13) /"obviousl"/ — the reference summary rewritten.
+
+* the spine — turns 1–14
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 1 | /"load documentation"/ | container map: content tree, collections, capture, plugins, components; =:4321= down | — |
+| 2 | /"rename repository to reference. practice to guides architecture to explanation and add 20-29 tutorials and move 12 software slowstart there."/ | rename-pass; census + keep-list; proposal table, =20.01= over =21_x/21.01= | — |
+| 3 | /"start server"/ | =deno task documentation/watch= → =:4321= (astro 7 daemonizes; the task exits 0) | — |
+| 4 | MID-TURN /"watch"/ | NOTHING — already the watch task | — |
+| 5 | MID-TURN the sidebar pasted · /"still old"/ | answered: nothing moved, the gate holds for go | — |
+| 6 | /"give me the full tree"/ | target tree with change marks | — |
+| 7 | MID-TURN /"target"/ | target tree without marks | — |
+| 8 | /"just the functional tree. skip the yap and 00"/ | pages only, no stubs, no prose | the marked and stubbed trees |
+| 9 | /"merge 30 explanation into 10 about and name it explanaition. 30 daemon and ledger go into 10-19 architecture. and move 50 guides to 30 guides."/ | reply started grepping (wikilinks, =<Example name>=) | 30-39 explanation · 50-59 guides |
+| 10 | /"no just show me here"/ | NOTHING — interrupt | the grep |
+| 11 | MID-TURN /"tree"/ | =10-19_explanation/12_architecture/12.01 · 12.02=, =30-39_guides/31_guides/31.02= | — |
+| 12 | /"ok. yes. this is us. go"/ | moves by =mv=; four stubs retitled, two new (=12.00_architecture= · =20.00_tutorials=), five deleted; slugs renumbered in wikilinks, =<Example/Trace/Source name>=, home pillars and start; README + hello-world + shelf (captured to =~/.viva/bak/hello-world/app-20260928/=); =self/rituals.md:32= repointed; server restarted | 32.01 · 33.01 · 51.02 · 12.01_slowstart as slugs |
+| 13 | /"obviousl"/ (tail of the pasted Assess line) | =40.00_reference= summary → "Filesystem reality, to look up"; served on =/jdex= | "+ walks" |
+| 14 | /"ikiro cleanup/compact"/ | this fold; known-issue =documentation-docs-glob-collects-bak-pages= | — |
+
+Coverage: 1–14, 14 rows, 2 NOTHING (4 · 10).
+
+* failures
+
+- *three trees for one ask* (6→8). The full tree carried change marks, then stubs; /"target"/ then /"just the functional tree. skip the yap and 00"/ — two corrections on one screen, the SHAPE was wrong: "tree" means the pages, nothing else.
+- *researched when asked to show* (9→10). A restructure order answered by a grep for wikilinks and example names: /"no just show me here"/. The tree was the answer; consumers are for the go.
+- *zsh does not word-split* (12). =sed … $files= with a newline-joined list ran once on one bogus filename, =set -e= stopped the script mid-way; redone with =xargs=. The moves had landed, the rewrites had not — a half state for one tool call.
+- *the dev server kept old area names* (12). =content/jdex.js= reads the directories with =readdirSync= at module load; moving directories does not touch it, so the running server showed the old areas until a restart.
+
+* State at fold
+
+- =documentation/content/= — =10-19_explanation= (11 identity · 12 architecture 12.01 · 12.02 · 13 economics · 14 license) · =20-29_tutorials= (20.01 slowstart) · =30-39_guides= (31_guides/31.02) · =40-49_reference= (41_tour/41.01). Every page 200 on =:4321=, =/12.01_slowstart= 404. =dist/= stale, =astro build= not run.
+- =README.md:397= · =commons/instances/hello-world/app/App.svelte:181,214= · =~/.viva/instances/hello-world/app/App.svelte= → =/20.01_slowstart=; shelf = repo (=diff -q=).
+- dev server live, pid of the last restart; stop with =deno task documentation/stop=.
+- =known-issues.org= — =documentation-docs-glob-collects-bak-pages=: slowstart's *Next →* leads to the benched =21.01_verbs-and-nouns=; fix proposed, no go.
+- prod =docs.vivalence.org/12.01_slowstart= 404s after the next manual deploy.
+- Balance (fold N = 14, thirds 1–5 · 6–10 · 11–14): verbatim citations in the spine 4 · 4 · 3. Even — the rulings came in two orders, one early (2), one late (9 → 12).
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| rename-pass | 2 | HELD | keep-list before the grep; the unrestricted census found README, the hello-world app and its shelf copy; the residue grep closed at the keep-list |
+| compact-walk | 14 | HELD | spine + skills by id; N = 14, one fold |
+| shelf-sync | 12 | MISSED | a =commons/instances/hello-world= file edited with a shelf copy live; diffed and synced by hand, the skill never fired |
+
+* settlement
+
+- MARKERS OPEN: empty.
+- No codeword in beef's turns (=retard= · =i dont understand=) → no callout.
+- The glob leak outlives this session → known-issues, not a handoff line only.
+- =self/rituals.md:32= named the old slowstart path as live — repointed; line 35's =40-49_repository/46_anima= path is a record of a past miss, left.
+- No quest moved; a session-level handoff only.
+
+* handoff
+- quest :: none
+- goal :: /"rename repository to reference. practice to guides architecture to explanation and add 20-29 tutorials"/ — the docs on Diátaxis areas
+- done :: =documentation/content/= on 10 explanation · 20 tutorials · 30 guides · 40 reference; slugs renumbered in pages, home, README, hello-world and its shelf; dev server on =:4321= serves every page
+- next :: go on the docs glob
+- never :: a tree answer carries only the pages — /"just the functional tree. skip the yap and 00"/
+- never :: an order to show is answered by showing — /"no just show me here"/
+- owed :: beef — go on the =content.config.ts= glob (known-issue =documentation-docs-glob-collects-bak-pages=) · the commit · a docs deploy (=/12.01_slowstart= → =/20.01_slowstart= on prod)
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest | progress | status | next | sessions |
+|-------+----------+--------+------+----------|

@@ -1,19 +1,24 @@
 <script>
   import { getContext } from "svelte";
-  import { TERMINALS } from "$client";
+  import { BRIDGE, TERMINALS } from "$client";
   import { chain, stores } from "@vivalence/anima";
-  import { Frame } from "@vivalence/drapes";
+  import { Empty, Frame } from "@vivalence/drapes";
   import Dock from "./widgets/Dock.svelte";
 
   let { rect } = $props();
 
+
   const terminals = getContext(TERMINALS);
+  const bridge = getContext(BRIDGE);
 
   const terminal = terminals.$active;
   const thread = chain(terminals, "$active", "$thread");
   const buffer = chain(terminals, "$active", "$buffer");
+  const buffers = chain(terminals, "$active", "$thread", "$buffers");
+  const phase = chain(terminals, "$active", "$thread", "$phase");
   const mode = chain(terminals, "$active", "$thread", "$mode");
   const dock = chain(terminals, "$active", "$dock");
+  const settling = chain(terminals, "$active", "$settling");
   const application = chain(terminals, "$active", "$buffer", "mode", "$application");
   const record = chain(terminals, "$active", "$buffer", "$view");
   const modeStatus = chain(terminals, "$active", "$buffer", "mode", "status", "$transient");
@@ -33,11 +38,32 @@
     dockable && rect.width > 0 && rect.height > 0 ? stores.bridge.resolve($dock, rect) : null,
   );
 
-  const LABEL_MIN_PX = 96;
-  const stageHeight = $derived(
-    rect.height - (geom && !full && !geom.vertical ? geom.size : 0),
+  const conversational = $derived(dockable && !($mode?.implements?.("APPLICATION") ?? false));
+  const reason = $derived(
+    $phase === "inert"
+      ? "inert · open a buffer or engage a phase"
+      : $buffers?.length
+        ? "cursor empty"
+        : "no buffers · open or pull",
   );
-  const labelVisible = $derived(stageHeight >= LABEL_MIN_PX);
+  const refusal = $derived(
+    [
+      `mode ${$buffer?.mode?.slug ?? "—"}`,
+      `application ${$application ? "present" : "pending"}`,
+      $modeStatus?.code && $modeStatus.code !== "HEALTHY" ? `mode ${$modeStatus.code.toLowerCase()}` : null,
+      $modeStatus?.code && $modeStatus.code !== "HEALTHY" && $modeStatus.error
+        ? `${$modeStatus.error.message ?? $modeStatus.error}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(" · "),
+  );
+  const consult = (name) => {
+    if (!name) return;
+    bridge.panes.tree = stores.bridge.panes.open(bridge.panes.tree, "harness");
+    bridge.panes.expanded = "harness";
+    bridge.save();
+  };
 
   let last = null;
   function onSeamDown(event) {
@@ -60,8 +86,23 @@
   }
 </script>
 
+{#snippet vacant()}
+  <div class="standing">
+    {#if $settling}
+      <Empty spinner verb="settling · {$settling.thread ? 'thread' : 'buffer'}" />
+    {:else if !$thread}
+      <Empty verb="no thread" trace="pick a mode in navigation · or a thread" />
+    {:else if conversational}
+      <Empty verb="conversational · no application" trace="the dock is the surface" />
+    {:else}
+      <Empty verb="resolving buffer" trace={reason} />
+    {/if}
+  </div>
+{/snippet}
+
 {#if rect.width > 0 && rect.height > 0}
   <div
+    data-zone="1"
     class="panel"
     style:left="{rect.left}px"
     style:top="{rect.top}px"
@@ -72,19 +113,19 @@
       {#if $terminal}
         <Frame terminal={$terminal} {view}>
           {#if $buffer && !view}
-            <div class="await">
-              <span class="await-head">buffer has no view</span>
-              <span class="await-line">mode {$buffer.mode?.slug ?? "—"} · application {$application ? "present" : "pending"}</span>
-              {#if $modeStatus?.code && $modeStatus.code !== "HEALTHY"}
-                <span class="await-line bad">mode {$modeStatus.code.toLowerCase()}{$modeStatus.error ? ` · ${$modeStatus.error.message ?? $modeStatus.error}` : ""}</span>
+            <div class="standing">
+              {#if conversational}
+                <Empty verb="conversational · no application" trace="the dock is the surface" />
+              {:else}
+                <Empty tone="negative" verb="buffer has no view" trace={refusal} />
               {/if}
             </div>
-          {:else if labelVisible}
-            <span class="label">A</span>
+          {:else}
+            {@render vacant()}
           {/if}
         </Frame>
-      {:else if labelVisible}
-        <span class="label">A</span>
+      {:else}
+        {@render vacant()}
       {/if}
     </div>
 
@@ -97,6 +138,7 @@
           onpointermove={onSeamMove}
           onpointerup={onSeamUp}
           onpointercancel={onSeamUp}>
+          <span class="grip"></span>
         </div>
       {/if}
       <div
@@ -104,7 +146,7 @@
         class:full
         style:width={full || !geom.vertical ? "100%" : `${geom.size}px`}
         style:height={full || geom.vertical ? "100%" : `${geom.size}px`}>
-        <Dock thread={$thread} />
+        <Dock thread={$thread} onconsole={consult} />
       </div>
     {/if}
   </div>
@@ -115,36 +157,46 @@
     position: fixed;
     display: flex;
     overflow: hidden;
-    background: var(--colors-skeleton-0-surface);
-    color: var(--colors-skeleton-0-contrast);
+    background: var(--surface);
+    color: var(--text-strong);
   }
   .stage {
     flex: 1;
     min-width: 0;
     min-height: 0;
     display: flex;
+    flex-direction: column;
     overflow: auto;
   }
+  .standing {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    display: grid;
+    place-items: center;
+  }
   .seam {
-    flex: 0 0 auto;
-    background: var(--colors-skeleton-2-boundary);
-    opacity: 0.4;
+    flex: 0 0 7px;
+    display: grid;
+    place-items: center;
     cursor: ns-resize;
     touch-action: none;
-    transition:
-      opacity 0.12s,
-      background 0.12s;
   }
   .seam.vertical {
-    width: 4px;
     cursor: ew-resize;
   }
-  .seam:not(.vertical) {
-    height: 4px;
-  }
   .seam:hover {
-    opacity: 1;
-    background: var(--colors-skeleton-0-primary-base);
+    background: var(--control-selected);
+  }
+  .grip {
+    width: 26px;
+    height: 3px;
+    border-radius: var(--shape-radius-xs);
+    background: var(--boundary);
+  }
+  .seam.vertical .grip {
+    width: 3px;
+    height: 26px;
   }
   .dock-slot {
     flex: 0 0 auto;
@@ -156,35 +208,5 @@
     position: absolute;
     inset: 0;
     z-index: 2;
-  }
-  .label {
-    margin: auto;
-    font-size: var(--font-size-7xl);
-    font-weight: 900;
-    opacity: 0.35;
-    user-select: none;
-  }
-  .await {
-    margin: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--font-family-code);
-    font-size: var(--font-size-xs);
-    letter-spacing: 0.06em;
-    user-select: none;
-  }
-  .await-head {
-    text-transform: uppercase;
-    letter-spacing: 0.16em;
-    color: color-mix(in srgb, var(--colors-skeleton-0-contrast) 55%, transparent);
-  }
-  .await-line {
-    font-size: var(--font-size-2xs);
-    color: color-mix(in srgb, var(--colors-skeleton-0-contrast) 40%, transparent);
-  }
-  .await-line.bad {
-    color: var(--colors-skeleton-0-danger-base);
   }
 </style>

@@ -1,4 +1,3 @@
-// @beef maybe rename to trajectory
 import { Signal, middleware } from "@vivalence/typology";
 import { request } from "./strategy.js";
 

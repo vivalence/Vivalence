@@ -1,9 +1,12 @@
 <script>
-  let { verb, trace = null, tone = null, dashed = false } = $props();
+  import Spinner from "./Spinner.svelte";
+
+  let { verb, trace = null, tone = null, dashed = false, spinner = false } = $props();
 </script>
 
 <div class="empty" class:dashed>
-  <span class="empty-verb" class:warning={tone === "warning"}>{verb}</span>
+  {#if spinner}<Spinner />{/if}
+  <span class="empty-verb" class:warning={tone === "warning"} class:negative={tone === "negative"}>{verb}</span>
   {#if trace}<span class="empty-trace">{trace}</span>{/if}
 </div>
 
@@ -22,23 +25,26 @@
     user-select: none;
   }
   .empty.dashed {
-    background: color-mix(in srgb, var(--colors-skeleton-2-surface) 60%, transparent);
-    border: 1px dashed color-mix(in srgb, var(--colors-skeleton-3-boundary) 60%, transparent);
+    background: var(--surface-sunk);
+    box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
+    border-radius: var(--shape-radius-card);
   }
   .empty-verb {
-    font-size: var(--font-size-xs);
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    opacity: 0.55;
+    font-size: var(--size-type-2xs);
+    font-weight: 600;
+    letter-spacing: var(--shape-label-track);
+    text-transform: var(--shape-label-case);
+    color: var(--text-light);
   }
   .empty-verb.warning {
-    color: var(--colors-skeleton-0-warning-base);
-    opacity: 0.9;
+    color: var(--signal-caution-ink);
+  }
+  .empty-verb.negative {
+    color: var(--signal-negative-ink);
   }
   .empty-trace {
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.04em;
-    opacity: 0.35;
-    line-height: 1.5;
+    font-size: var(--size-type-2xs);
+    color: var(--text-muted);
+    line-height: var(--size-leading-loose);
   }
 </style>

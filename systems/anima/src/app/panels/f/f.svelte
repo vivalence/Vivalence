@@ -57,8 +57,8 @@
 
 <script>
   import { getContext } from "svelte";
-  import { chain, stores } from "@vivalence/anima";
-  import { Section } from "@vivalence/drapes";
+  import { chain } from "@vivalence/anima";
+  import { Key, Reading, Row, Section, Status, Well } from "@vivalence/drapes";
   import ActivitySection from "./widgets/ActivitySection.svelte";
   import { logger } from "$telemetry";
   import { TERMINALS } from "$client";
@@ -72,14 +72,14 @@
   const activeBuffer = chain(terminals, "$active", "$buffer");
   const activeData = chain(terminals, "$active", "$buffer", "$data");
   const activeLabel = chain(terminals, "$active", "$buffer", "$label");
+  const activeView = chain(terminals, "$active", "$buffer", "$view");
+  const served = chain(terminals, "$active", "$thread", "$mode", "$application");
   const buffers = chain(terminals, "$active", "$thread", "$buffers");
   const phase = chain(terminals, "$active", "$thread", "$phase");
 
   let busy = $state(false);
   let listEl = $state(null);
   let showData = $state(false);
-
-  const dock = chain(terminals, "$active", "$dock");
 
   // keep the active row centered in the scrollable list
   $effect(() => {
@@ -107,309 +107,207 @@
     }
   }
 
+  const CONTROLS = {
+    inert: [],
+    manual: ["prev", "next"],
+    continuous: ["more", "stop"],
+    escort: ["prev", "next", "home"],
+  };
+  const LABEL = { prev: "previous", next: "next", home: "home", more: "more", stop: "stop → manual" };
+  const TONES = { PENDING: "idle", ACTIVE: "primary", DONE: "positive", ERROR: "negative", STALE: "caution" };
+
+  const seated = $derived(ordered.findIndex((buffer) => buffer.id === $activeBuffer?.id));
+  const openable = $derived(aimed || (standalone && application));
+  const drawn = $derived($activeView ?? $served?.view ?? null);
+
+  function place(buffer) {
+    const held = terminals.active;
+    if (held) held.buffer = buffer;
+  }
+
+  function step(delta) {
+    if (!ordered.length) return;
+    place(ordered[(Math.max(seated, 0) + delta + ordered.length) % ordered.length] ?? null);
+  }
+
+  const VERBS = {
+    prev: () => step(-1),
+    next: () => step(1),
+    home: () => place(ordered[0] ?? null),
+    more: () => ThreadTraits.aimed.pull($thread).catch((error) => logger.entry(`buffers/${$thread.id}`).fault(error)),
+    stop: () => stopQueue($terminal),
+  };
+
+  function discard(event, buffer) {
+    event.stopPropagation();
+    deleteBuffer($terminal, $thread, buffer);
+  }
 </script>
 
-<div class="panel">
-  {#if harnessed && $thread}
-    <ActivitySection thread={$thread} />
-  {/if}
-
-  {#if harnessed}
-    <section>
-      <Section label="chat" />
-      <button
-        class="act primary"
-        class:engaged={!$dock?.collapsed}
-        onclick={() => stores.bridge.setDockCollapsed(terminals.active?.$dock)}
-        disabled={!$thread}>
-        {$dock?.collapsed ? "start chatting" : "hide chat"}
-      </button>
-    </section>
-  {/if}
-
-  <section>
-    {#if application || queueing}
-      <Section label="buffer" />
-      {#if !$thread}
-        <div class="empty">no thread</div>
-      {:else if queueing}
-        <div class="queue">
-          <button
-            class="queuekey"
-            class:on={$phase === "continuous"}
-            onclick={() => startQueue($terminal)}>start</button>
-          <button
-            class="queuekey"
-            class:on={$phase === "manual"}
-            onclick={() => stopQueue($terminal)}>stop</button>
-        </div>
-      {:else if aimed}
-        <button class="act primary" onclick={onCreate} disabled={busy}
-          >{busy ? "…" : "Open"}</button>
-      {:else if standalone && application}
-        <button class="act primary" onclick={onCreate} disabled={busy}
-          >{busy ? "…" : "Open"}</button>
-      {:else}
-        <button class="act" disabled title="this mode has no emitter — toggle AIMED to pull"
-          >aim required</button>
-      {/if}
-    {/if}
-  </section>
-
-  {#if ordered.length}
-    <section>
-      <Section label="buffers" count={ordered.length}>
-        {#snippet action()}
-          <button
-            class="mini"
-            onclick={() => clearBuffers($terminal, $thread)}
-            disabled={!ordered.length}>clear</button>
-        {/snippet}
-      </Section>
-      <div class="blist" bind:this={listEl}>
-        {#each ordered as buffer (buffer.id)}
-          <div class="brow" class:on={$activeBuffer?.id === buffer.id} data-id={buffer.id}>
-            <button
-              class="cell"
-              onclick={() => activateBuffer($terminal, buffer)}
-              title={buffer.label?.description ?? ""}>
-              <span class="index">{buffer.index ?? 0}</span>
-              <span class="slug">{bufferName(buffer)}</span>
-            </button>
-            <button class="x" onclick={() => deleteBuffer($terminal, $thread, buffer)} title="delete"
-              >✕</button>
-          </div>
-        {/each}
+<div class="stall">
+  <div class="stall-part">
+    <Section label="cursor" count="{seated < 0 ? '–' : seated + 1} / {ordered.length}" />
+    {#if $activeBuffer}
+      <div class="stall-face">
+        <Status tone={TONES[$activeBuffer.status] ?? "none"} word={$activeBuffer.status?.toLowerCase() ?? null} live={$activeBuffer.status === "ACTIVE"} />
+        <span class="stall-title">{$activeLabel?.name ?? `buffer ${$activeBuffer.index ?? 0}`}</span>
       </div>
-    </section>
-  {/if}
-
-  {#if $activeBuffer}
-    <section>
-      <Section label="active buffer" />
-      <div class="kv">
-        <span class="k">name</span><span class="v">{$activeLabel?.name ?? `buffer ${$activeBuffer.index ?? 0}`}</span>
-      </div>
-      {#if $activeLabel?.description}
-        <div class="item">{$activeLabel.description}</div>
-      {/if}
-      <div class="kv">
-        <span class="k">mode</span><span class="v">{modeLabel($activeBuffer)}</span>
-      </div>
-      <div class="kv">
-        <span class="k">literals</span><span class="v">{$activeBuffer.literals?.length ?? 0}</span>
-      </div>
-      <div class="kv">
-        <span class="k">symbols</span><span class="v">{$activeBuffer.symbols?.length ?? 0}</span>
-      </div>
-      {#if $activeBuffer.literals?.length}
-        {#each $activeBuffer.literals as literal}
-          <div class="item">{literal.slug ?? literal.ontology ?? literal.id}</div>
-        {/each}
-      {/if}
-      <div class="kv top">
-        <span class="k">data</span>
-        <button class="mini" onclick={() => (showData = !showData)}>{showData ? "hide" : `show · ${Object.keys($activeData ?? {}).length} keys`}</button>
+      <div class="stall-readings">
+        <Reading label="buffer">{$activeBuffer.index ?? 0} · {String($activeBuffer.id).slice(-8)}</Reading>
+        {#if $activeLabel?.description}<Reading label="description"><span title={$activeLabel.description}>{$activeLabel.description}</span></Reading>{/if}
+        <Reading label="mode">{modeLabel($activeBuffer)}</Reading>
+        <Reading label="view">{drawn ? `${$activeView ? "drawn" : "application"} · ${drawn.mount?.nature ?? drawn.kind ?? "—"}` : "—"}</Reading>
+        <Reading label="literals">
+          {$activeBuffer.literals?.length ?? 0}{#each $activeBuffer.literals ?? [] as literal} · {literal.slug ?? literal.ontology ?? literal.id}{/each}
+        </Reading>
+        <Reading label="symbols">{$activeBuffer.symbols?.length ?? 0}</Reading>
+        <Reading label="data">
+          <Key tone="ghost" size="mini" label={showData ? "hide" : `show · ${Object.keys($activeData ?? {}).length} keys`} onclick={() => (showData = !showData)} />
+        </Reading>
       </div>
       {#if showData}
-        <pre class="json">{JSON.stringify($activeData ?? {}, null, 2)}</pre>
+        <Well><pre class="stall-data">{JSON.stringify($activeData ?? {}, null, 2)}</pre></Well>
       {/if}
-    </section>
+    {:else}
+      <span class="stall-note">{ordered.length ? "cursor empty · pick a buffer below" : "no buffers · open or pull"}</span>
+    {/if}
+
+    {#if application || queueing}
+      <div class="stall-verbs">
+        {#each CONTROLS[$phase] ?? [] as verb (verb)}
+          <Key size="row" label={verb} title={LABEL[verb]} onclick={VERBS[verb]} />
+        {/each}
+        <Key
+          size="row"
+          label="release"
+          disabled={!$activeBuffer}
+          title="release the cursor buffer · the stall advances"
+          onclick={() => $activeBuffer?.release()} />
+        {#if openable}
+          <Key size="row" label={busy ? "…" : "open"} disabled={busy} title="pull through the mount when aimed, else create a buffer" onclick={onCreate} />
+        {:else}
+          <Key size="row" disabled label="aim required" title="this mode has no emitter — toggle AIMED to pull" />
+        {/if}
+        {#if $phase === "continuous"}
+          <Key size="row" latched label="stop queue" title="engage manual" onclick={() => stopQueue($terminal)} />
+        {:else}
+          <Key size="row" muted={!queueing} label="start queue" title="engage continuous · needs aimed + queueing" onclick={() => startQueue($terminal)} />
+        {/if}
+      </div>
+      {#if !openable}
+        <span class="stall-aim">aim required · the thread is not aimed and the mode opens no buffer by itself · toggle aimed in the thread traits</span>
+      {/if}
+    {/if}
+  </div>
+
+  <div class="stall-part">
+    <Section label="buffers" count={ordered.length}>
+      {#snippet action()}
+        <Key tone="ghost" size="mini" label="clear" disabled={!ordered.length} title="delete every buffer of this thread" onclick={() => clearBuffers($terminal, $thread)} />
+      {/snippet}
+    </Section>
+    {#if !ordered.length}
+      <span class="stall-note">no buffers · open or pull</span>
+    {/if}
+    <div class="stall-list" bind:this={listEl}>
+      {#each ordered as buffer (buffer.id)}
+        <div data-id={buffer.id}>
+          <Row selected={$activeBuffer?.id === buffer.id} title={buffer.label?.description ?? ""} onclick={() => activateBuffer($terminal, buffer)}>
+            <span class="stall-index">{buffer.index ?? 0}</span>
+            <span class="stall-name">{bufferName(buffer)}</span>
+            {#if buffer.status}<Status tone={TONES[buffer.status] ?? "none"} word={buffer.status.toLowerCase()} />{/if}
+            <Key tone="ghost" size="mini" square label="✕" title="delete" onclick={(event) => discard(event, buffer)} />
+          </Row>
+        </div>
+      {/each}
+    </div>
+  </div>
+
+  {#if harnessed && $thread}
+    <ActivitySection thread={$thread} />
   {/if}
 </div>
 
 <style>
-  .panel {
-    min-width: 250px;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
+  .stall {
     display: flex;
     flex-direction: column;
-    background: var(--colors-skeleton-3-surface);
-    color: var(--colors-skeleton-3-contrast);
+    gap: 14px;
+    min-width: 0;
     font-family: var(--font-family-code);
-    font-size: var(--font-size-sm);
-    letter-spacing: 0.02em;
-    padding: 14px 14px 18px;
-    box-sizing: border-box;
+    font-size: var(--size-type-2xs);
+    color: var(--text-strong);
   }
-  section {
-    margin-bottom: 16px;
-  }
-  section :global(.section-head) {
-    margin-bottom: 10px;
-  }
-  .empty {
-    opacity: 0.3;
-    padding: 2px 2px;
-  }
-  .queue {
+  .stall-part {
     display: flex;
-    width: max-content;
-    border: 1px solid var(--colors-skeleton-3-boundary);
-    border-radius: 2px;
-    overflow: hidden;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
   }
-  .queuekey {
-    padding: 6px 14px;
-    background: transparent;
-    border: none;
-    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 55%, transparent);
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    cursor: pointer;
-  }
-  .queuekey + .queuekey {
-    border-left: 1px solid var(--colors-skeleton-3-boundary);
-  }
-  .queuekey:hover {
-    color: var(--colors-skeleton-3-contrast);
-    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 5%, transparent);
-  }
-  .queuekey.on {
-    color: var(--colors-skeleton-0-primary-base);
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent);
-  }
-  .act {
-    padding: 7px 14px;
-    background: transparent;
-    border: 1px solid var(--colors-skeleton-3-boundary);
-    border-radius: 2px;
-    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 70%, transparent);
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    cursor: pointer;
-  }
-  .act:hover:not(:disabled) {
-    border-color: var(--colors-skeleton-0-primary-base);
-    color: var(--colors-skeleton-0-primary-base);
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 6%, transparent);
-  }
-  .act:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-  .act.primary {
+  .stall-face {
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 9px;
-    border-color: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 45%, transparent);
-    color: var(--colors-skeleton-0-primary-base);
-  }
-  .act.primary:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 9%, transparent);
-  }
-  .act.engaged {
-    border-color: var(--colors-skeleton-0-primary-base);
-  }
-  .act.engaged:hover:not(:disabled) {
-    border-color: var(--colors-skeleton-0-danger-base);
-    color: var(--colors-skeleton-0-danger-base);
-    background: transparent;
-  }
-  .mini {
-    background: none;
-    border: none;
-    color: inherit;
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    opacity: 0.4;
-    cursor: pointer;
-  }
-  .mini:hover:not(:disabled) {
-    opacity: 0.8;
-  }
-  .mini:disabled {
-    opacity: 0.2;
-    cursor: not-allowed;
-  }
-  .kv {
-    display: flex;
     gap: 8px;
-    padding: 1px 0;
+    min-width: 0;
   }
-  .kv.top {
-    padding-top: 5px;
+  .stall-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-family-sans-heading);
+    font-size: var(--size-type-sm);
+    font-weight: 600;
+    color: var(--text-strong);
   }
-  .k {
-    min-width: 64px;
-    opacity: 0.5;
+  .stall-readings {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
   }
-  .v {
-    color: var(--colors-skeleton-0-primary-base);
-  }
-  .item {
-    opacity: 0.7;
-    padding-left: 64px;
-    font-size: var(--font-size-2xs);
-  }
-  .json {
-    margin: 2px 0 0;
-    font-size: var(--font-size-2xs);
-    opacity: 0.55;
+  .stall-data {
+    margin: 0;
+    font-family: var(--font-family-code);
+    font-size: var(--size-type-2xs);
+    line-height: var(--size-leading-loose);
+    color: var(--text-ink);
     white-space: pre-wrap;
     word-break: break-all;
   }
-  .blist {
+  .stall-note {
+    color: var(--text-light);
+  }
+  .stall-verbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: var(--size-depth);
+  }
+  .stall-aim {
+    color: var(--signal-caution-ink);
+    line-height: var(--size-leading-loose);
+  }
+  .stall-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
     max-height: 320px;
     overflow-y: auto;
     overscroll-behavior: contain;
   }
-  .brow {
-    display: flex;
-    align-items: stretch;
-    border-radius: 2px;
-  }
-  .brow.on {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 10%, transparent);
-  }
-  .brow:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-3-contrast) 5%, transparent);
-  }
-  .cell {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    padding: 5px 2px;
-    background: none;
-    border: none;
-    color: inherit;
-    font: inherit;
-    text-align: left;
-    cursor: pointer;
-  }
-  .index {
-    opacity: 0.3;
-    width: 10px;
+  .stall-index {
     flex: none;
-    font-size: var(--font-size-xs);
-      margin-right: 6px;
+    width: 14px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
   }
-  .slug {
+  .stall-name {
     flex: 1;
-    color: color-mix(in srgb, var(--colors-skeleton-3-contrast) 85%, transparent);
-  }
-  .x {
-    padding: 0 9px;
-    background: none;
-    border: none;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    opacity: 0.35;
-  }
-  .x:hover {
-    opacity: 1;
-    color: var(--colors-skeleton-0-danger-base);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 </style>

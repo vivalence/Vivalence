@@ -1,10 +1,16 @@
 <script>
   import { fn } from "@vivalence/typology";
+  import { Input, Key, Row, Segmented, Tag } from "@vivalence/drapes";
   import { catalog, filterCatalog, searchLiterals } from "./picker.js";
   import EntityRow from "./EntityRow.svelte";
   import SymbolFacets from "./SymbolFacets.svelte";
 
   let { daemon, entity, value = [], onchange } = $props();
+
+  const LANES = [
+    { value: "search", label: "search" },
+    { value: "symbols", label: "symbols ∩" },
+  ];
 
   let lane = $state("search"); // search | symbols (literals only)
   let term = $state("");
@@ -68,31 +74,29 @@
   }
 </script>
 
-<div class="set">
+<div class="entity-set">
   {#if chosen.length}
-    <div class="chips">
+    <div class="entity-chosen">
       {#each chosen as item (item.id ?? item.slug)}
-        <span class="chip">
+        <Tag>
           <EntityRow kind={entity} item={item} />
-          <button class="x" onclick={() => remove(item.id ?? item.slug)} title="remove">✕</button>
-        </span>
+          <Key tone="ghost" size="mini" square label="✕" title="remove" onclick={() => remove(item.id ?? item.slug)} />
+        </Tag>
       {/each}
     </div>
   {/if}
 
-  <div class="builder">
+  <div class="entity-builder">
     {#if entity === "literal"}
-      <div class="lanes">
-        <button class:on={lane === "search"} onclick={() => (lane = "search")}>search</button>
-        <button class:on={lane === "symbols"} onclick={() => (lane = "symbols")}>symbols ∩</button>
-        <span class="count">{ids.length} selected</span>
+      <div class="entity-lanes">
+        <Segmented options={LANES} value={lane} cell={84} onpick={(name) => (lane = name)} />
+        <span class="entity-count">{ids.length} selected</span>
       </div>
     {/if}
 
-    <div class="body">
+    <div class="entity-body">
       {#if entity === "symbol" || lane === "search"}
-        <input
-          class="control"
+        <Input
           value={term}
           placeholder={`search ${entity}…`}
           oninput={(event) => {
@@ -100,26 +104,26 @@
             run(term);
           }} />
         {#if results.length}
-          <div class="results">
+          <div class="entity-found">
             {#each results as item (item.id ?? item.slug)}
-              <button class="result" class:on={ids.includes(item.id ?? item.slug)} onclick={() => add(item)}>
+              <Row selected={ids.includes(item.id ?? item.slug)} onclick={() => add(item)}>
                 <EntityRow kind={entity} item={item} />
-              </button>
+              </Row>
             {/each}
           </div>
         {/if}
       {:else}
         <SymbolFacets {daemon} selected={facetSlugs} onchange={onFacets} />
         {#if facetSlugs.length}
-          <div class="preview-head">
+          <div class="entity-preview">
             <span>{preview.length} in ∩</span>
-            <button class="add-all" disabled={!preview.length} onclick={() => addAll(preview)}>add all</button>
+            <Key size="mini" disabled={!preview.length} label="add all" onclick={() => addAll(preview)} />
           </div>
-          <div class="results">
+          <div class="entity-found">
             {#each preview as item (item.id)}
-              <button class="result" class:on={ids.includes(item.id)} onclick={() => add(item)}>
+              <Row selected={ids.includes(item.id)} onclick={() => add(item)}>
                 <EntityRow kind="literal" item={item} />
-              </button>
+              </Row>
             {/each}
           </div>
         {/if}
@@ -129,138 +133,54 @@
 </div>
 
 <style>
-  .set {
+  .entity-set {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
   }
-  .chips {
+  .entity-chosen {
     display: flex;
     flex-wrap: wrap;
-    gap: 3px;
-  }
-  .chip {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    max-width: 100%;
-    padding: 1px 4px 1px 6px;
-    border: 1px solid var(--colors-skeleton-2-boundary);
-    border-radius: 2px;
-    font-size: var(--font-size-2xs);
-  }
-  .builder {
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-2-boundary) 70%, transparent);
-    border-radius: 3px;
-    background: color-mix(in srgb, var(--colors-skeleton-2-surface) 30%, transparent);
-  }
-  .lanes {
-    display: flex;
-    align-items: center;
     gap: 4px;
-    padding: 4px 6px;
-    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-2-boundary) 50%, transparent);
   }
-  .lanes button {
-    padding: 1px 8px;
-    background: transparent;
-    border: 1px solid var(--colors-skeleton-2-boundary);
-    border-radius: 2px;
-    color: inherit;
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    cursor: pointer;
-    opacity: 0.55;
+  .entity-builder {
+    border-radius: var(--shape-radius-card);
+    background: var(--surface-sunk);
+    box-shadow: inset 0 0 0 var(--size-ring) var(--boundary);
   }
-  .lanes button.on {
-    opacity: 1;
-    border-color: var(--colors-skeleton-0-primary-base);
-    color: var(--colors-skeleton-0-primary-base);
-  }
-  .count {
-    margin-left: auto;
-    font-size: var(--font-size-2xs);
-    opacity: 0.4;
-  }
-  .body {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    padding: 6px;
-    max-height: 260px;
-    overflow: auto;
-  }
-  .control {
-    background: transparent;
-    border: 1px solid var(--colors-skeleton-2-boundary);
-    border-radius: 2px;
-    color: inherit;
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    padding: 2px 5px;
-  }
-  .control:focus {
-    outline: none;
-    border-color: var(--colors-skeleton-0-primary-base);
-  }
-  .results {
-    border: 1px solid color-mix(in srgb, var(--colors-skeleton-2-boundary) 60%, transparent);
-    border-radius: 2px;
-  }
-  .result {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 3px 6px;
-    background: transparent;
-    border: none;
-    color: inherit;
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    text-align: left;
-    cursor: pointer;
-  }
-  .result:hover {
-    background: color-mix(in srgb, var(--colors-skeleton-0-primary-base) 12%, transparent);
-  }
-  .result.on {
-    color: var(--colors-skeleton-0-primary-base);
-    opacity: 0.65;
-  }
-  .preview-head {
+  .entity-lanes {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: var(--font-size-2xs);
-    opacity: 0.6;
+    padding: 6px 8px;
+    border-bottom: var(--size-ring) solid var(--boundary);
   }
-  .add-all {
+  .entity-count {
     margin-left: auto;
-    padding: 1px 8px;
-    background: transparent;
-    border: 1px solid var(--colors-skeleton-0-primary-base);
-    border-radius: 2px;
-    color: var(--colors-skeleton-0-primary-base);
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    cursor: pointer;
+    color: var(--text-light);
+    white-space: nowrap;
   }
-  .add-all:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
+  .entity-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 260px;
+    overflow: auto;
+    padding: 8px;
   }
-  .x {
-    background: none;
-    border: none;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    opacity: 0.4;
+  .entity-found {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
   }
-  .x:hover {
-    opacity: 1;
-    color: var(--colors-skeleton-0-danger-base);
+  .entity-preview {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-bottom: var(--size-depth);
+    color: var(--text-light);
   }
 </style>

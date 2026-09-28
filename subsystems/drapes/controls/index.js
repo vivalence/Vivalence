@@ -6,8 +6,10 @@ import Keyboard from "./Keyboard.svelte";
 import ViewportLock from "./ViewportLock.svelte";
 import Field from "./Field.svelte";
 import Key from "./Key.svelte";
+import Segmented from "./Segmented.svelte";
+import Stepper from "./Stepper.svelte";
 import { persist } from "./persist.js";
 import { visible } from "./visible.js";
 import { drag } from "./drag.js";
 
-export { Link, Textarea, Button, Input, Keyboard, ViewportLock, Field, Key, persist, visible, drag };
+export { Link, Textarea, Button, Input, Keyboard, ViewportLock, Field, Key, Segmented, Stepper, persist, visible, drag };

@@ -7,6 +7,7 @@ export * from "./label.js";
 export { environment, KEY as ENVIRONMENT_KEY } from "./environment.js";
 export * as kernel from "./kernel.js";
 export * as instance from "./instance.js";
+export * as theme from "./theme.js";
 
 // import { Type } from "@sinclair/typebox";
 

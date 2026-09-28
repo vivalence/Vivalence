@@ -1,4 +1,5 @@
 <script>
+  import { Input, Key, Row, Tag } from "@vivalence/drapes";
   import { catalog } from "./picker.js";
 
   let { daemon, selected = [], onchange } = $props();
@@ -40,31 +41,25 @@
 </script>
 
 <div class="facets">
-  <input
-    class="filter"
-    value={filter}
-    placeholder="filter facets…"
-    oninput={(event) => (filter = event.currentTarget.value)} />
-  <div class="cats">
+  <Input value={filter} placeholder="filter facets…" oninput={(event) => (filter = event.currentTarget.value)} />
+  <div class="facets-list">
     {#each shown as facet (facet.key)}
-      <div class="cat">
-        <button class="head" class:open={isOpen(facet)} onclick={() => toggleCat(facet.key)}>
-          <span class="chev">{isOpen(facet) ? "▾" : "▸"}</span>
-          <span class="name">{facet.label}</span>
-          {#if chosen(facet)}<span class="badge">{chosen(facet)}</span>{/if}
-        </button>
+      <div class="facet">
+        <Row selected={isOpen(facet)} onclick={() => toggleCat(facet.key)}>
+          <span class="facet-caret">{isOpen(facet) ? "▾" : "▸"}</span>
+          <span class="facet-name">{facet.label}</span>
+          {#if chosen(facet)}<Tag tone="primary">{chosen(facet)}</Tag>{/if}
+        </Row>
         {#if isOpen(facet)}
-          <div class="values">
+          <div class="facet-values">
             {#each facet.values as value (value.slug)}
-              <button class="value" class:on={selected.includes(value.slug)} onclick={() => toggleValue(value.slug)}>
-                {value.label}
-              </button>
+              <Key size="mini" latched={selected.includes(value.slug)} label={value.label} onclick={() => toggleValue(value.slug)} />
             {/each}
           </div>
         {/if}
       </div>
     {:else}
-      <span class="muted">no facets</span>
+      <span class="facets-note">no facets</span>
     {/each}
   </div>
 </div>
@@ -73,91 +68,38 @@
   .facets {
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 6px;
+    min-width: 0;
   }
-  .filter {
-    background: transparent;
-    border: 1px solid var(--colors-skeleton-2-boundary);
-    border-radius: 2px;
-    color: inherit;
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    padding: 2px 5px;
-  }
-  .filter:focus {
-    outline: none;
-    border-color: var(--colors-skeleton-0-primary-base);
-  }
-  .cats {
+  .facets-list {
     display: flex;
     flex-direction: column;
+    gap: 2px;
     max-height: 200px;
     overflow: auto;
   }
-  .head {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    width: 100%;
-    padding: 2px 2px;
-    background: transparent;
-    border: none;
-    border-bottom: 1px solid color-mix(in srgb, var(--colors-skeleton-2-boundary) 40%, transparent);
-    color: inherit;
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    text-align: left;
-    cursor: pointer;
-    opacity: 0.6;
-  }
-  .head:hover,
-  .head.open {
-    opacity: 1;
-  }
-  .chev {
+  .facet-caret {
+    flex: none;
     width: 8px;
-    opacity: 0.6;
+    color: var(--text-light);
   }
-  .name {
+  .facet-name {
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    letter-spacing: var(--shape-label-track);
+    text-transform: var(--shape-label-case);
   }
-  .badge {
-    padding: 0 4px;
-    border-radius: 6px;
-    background: var(--colors-skeleton-0-primary-base);
-    color: var(--colors-skeleton-3-surface);
-    font-size: var(--font-size-2xs);
-  }
-  .values {
+  .facet-values {
     display: flex;
     flex-wrap: wrap;
-    gap: 3px;
-    padding: 4px 0 6px 14px;
+    gap: 4px;
+    padding: 4px 0 calc(6px + var(--size-depth)) 14px;
   }
-  .value {
-    padding: 1px 6px;
-    background: transparent;
-    border: 1px solid var(--colors-skeleton-2-boundary);
-    border-radius: 2px;
-    color: inherit;
-    font: inherit;
-    font-size: var(--font-size-2xs);
-    cursor: pointer;
-    opacity: 0.6;
-  }
-  .value:hover {
-    opacity: 0.9;
-  }
-  .value.on {
-    opacity: 1;
-    border-color: var(--colors-skeleton-0-primary-base);
-    color: var(--colors-skeleton-0-primary-base);
-  }
-  .muted {
-    opacity: 0.35;
-    font-size: var(--font-size-2xs);
+  .facets-note {
     padding: 4px 0;
+    color: var(--text-light);
   }
 </style>

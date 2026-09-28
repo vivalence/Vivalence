@@ -1,0 +1,80 @@
+#+title: seal becomes settle, the ledger moves into integration, the process executes itself, and every beef mark in m74 is ruled
+#+index: 232
+#+session: session 886a541b, turns 46–57 (fold N = 12, the sixth fold of m74; #231 holds turns 28–45). The fold opens on the continuation after #231 and closes on /"ikiro compact"/.
+
+* one breath
+
+(46–47) Resumed after #231. beef pasted m74 whole, no task line; the paste matched the file line for line. Reported the marks: 8, not the 7 of #231 — =:214= carries no =@beef= tag.
+
+(48–49) /"compare the number of rows before and  after twis switch"/ · /"will this reduce code?"/. Measured by =grep -c .= against the quest's blocks: ~792 → ~733, −7%, inside the sketch's error. =run.js= 65 → 14 and the dies cut; =Process.ts= +62 and the new runtime lifecycles grow; 300 lines port unchanged, =announce= 86 and =attach= 77 the heaviest.
+
+(50) /"just settle is fine."/ · /"what else is open?"/ → =seal= → =settle= in quest and sandbox; the open list: four marks, five QUESTIONED, four gates.
+
+(51) In-mark ruling: /"yes move to integration. but the task is a different one. its to take paladin.log and wire it up into the runtime."/ · /"show me inline here. run the first change"/ → =integration.ledger= taps the root span into =paladin.ledger.log(<instance>).append=; =population.ledger= cut; the sandbox test rewritten for the new seat. =execute= shown inline.
+
+(52–53) /"go"/ on =execute= · /"ok. go. kill stays. mask apart."/ → the two dead mark lines and the merge mark dropped, rulings recorded beside. Every =@beef= in m74 closed.
+
+(54–57) /"ikiro compact"/ · =/compact= · this walk.
+
+* the spine — turns 46–57
+
+| n  | beef | landed | died |
+|----+------+--------+------|
+| 46 | (continuation summary, not beef) | the #231 report | — |
+| 47 | the m74 paste, no task line | paste = file, 1359 lines; marks listed, 8 | my "7 open marks" |
+| 48 | MID /"compare the number of rows before and  after twis switch"/ | the count, per group | — |
+| 49 | MID /"will this reduce code?"/ | "no, ~−7%, the gain is structure" | — |
+| 50 | /"just settle is fine."/ · /"what else is open?"/ | =settle= in quest (=:214 · :249 · :284 · :302 · :310 · :326 · :341= · Settled · M3) and sandbox; open list; backup =bak/m74-before-settle.org= | =seal= · =rescue= · =guard= |
+| 51 | in-mark /"yes move to integration. … wire it up into the runtime."/ · /"show me inline here. run the first change"/ | =integration.ledger= in =run/runtime.js= and =lifecycle/runtime/integration.js=; =seams.test.js:195= rewritten; backup =bak/m74-before-ledger-move.org=; =execute= inline | =population.ledger= · "the ledger tap first in the run" |
+| 52 | the =execute= hunk · /"go"/ | =:826= ruled; =//async execute(run, process, die)= line dropped | =ProcessRepository.execute= |
+| 53 | /"ok. go. kill stays. mask apart."/ | =:826= update-hook ruled against; =:1108= apart ruled; the =kill(signal, where)= and merge mark lines dropped | the =update= hook · a merged mask |
+| 54 | MID /"ikiro compact"/ | this walk | — |
+| 55 | MID =/compact= | NOTHING — the gate's order | — |
+| 56 | the =/compact-walk= re-invocation | this compact | — |
+| 57 | MID =/compact-walk= | same as 56 | — |
+
+Coverage: 46–57, each once. Balance, fold N = 12: first third (46–49) 3 citations, middle (50–53) 7, last (54–57) 2. Middle-heavy: the four rulings sit in 50–53.
+
+* failures
+
+- a mark count by tag :: #231 said 7 open marks; =:214= (/"is it seal? shouldnt it be something like catch?"/) has no =@beef= tag. A count of beef's marks greps his comments, not a tag.
+- prose rode heredocs, again :: the =execute= and =kill=/=mask= rulings went into the quest through Bash python heredocs; recurrence of #231's failure, same fold law /"prose never rides a Bash heredoc"/. The =settle= and ledger splices went through Write'd scripts.
+- a backup to a missing directory :: =cp … bak/…= under =quests/= fell to the fallback, then moved to =m74-the-boot-vector/bak/=.
+- sandbox renamed without a backup :: =lib.js · seams.test.js · effect.test.js= by =sed=, reported.
+
+* State at fold
+
+- m74 :: DESIGNED; every =@beef= ruled. Rulings this fold: =settle= · =integration.ledger= (=paladin.log= wired) · =execute= on the process · =kill= stays, no =update= hook · mask and options apart. Four mark lines stay as record (=:310 · :490-493 · :745 · :845=), his to drop.
+- sandbox :: =structure 7 · seams 14 · datamap.class 5 · effect 1 · world 1= → =28 passed | 0 failed=.
+- the size :: ~792 → ~733 non-blank lines in the boot code, the sketch half written.
+- m75 :: unchanged, ready for a go on M1.
+- typology :: =belt/control.js · belt/index.js · steer/dispatch.js= uncommitted; beef's graph op.
+
+** skills
+
+| skill        | turn | verdict | the line |
+|--------------+------+---------+----------|
+| compact-walk | 55   | HELD    | spine by id, fold N stated, mid-turn rows kept |
+
+* settlement
+
+- MARKERS: =## OPEN= empty.
+- Codewords, turns 46–57: none.
+- Known issues: none new.
+- LEDGER: nothing non-HELD.
+- Memory: nothing private.
+- Budgets: see the report.
+
+* handoff
+- quest :: m74-the-boot-vector
+- goal :: /"i want to turn all my boot processes in the runtime into vectors. mode, daemon, service and the runtime themselves."/
+- done :: every mark ruled: =settle= · =integration.ledger= wires =paladin.log= · =process.execute(run)= · =kill(where, signal)=, no =update= hook · mask and options apart; sandbox =28 passed | 0 failed=
+- next :: on beef's go, M0: =systems/runtime/tests/runtime/boot.test.js= on today's code, census 329
+- never :: a wrapper field naming the payload — /"held should return the daemon"/
+- never :: a destructured local off the die — /"no fucking one off scope variable assignments!"/
+- owed :: beef — go on M0 · the five QUESTIONED (a failing child · =ctx.daemon= exposure · =resolve= arg · teardown order · SIGTERM on IDLE) · the uncommitted typology change · =Mode.stdout=
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest | progress | status | next | sessions |
+|-------+----------+--------+------+----------|

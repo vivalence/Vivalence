@@ -32,7 +32,8 @@ MEMORY = os.path.join(HOME, ".viva", "bak", "ikiro", "memory-20260923")
 SHARDS = {
     "runtime": ["systems/runtime"],
     "ghost": ["systems/ghost"],
-    "anima": ["systems/anima", "subsystems/dapper", "subsystems/drapes"],
+    "anima": ["systems/anima"],
+    "design": ["subsystems/dapper", "subsystems/drapes", "subsystems/sheets"],
     "typology": ["subsystems/typology"],
     "paladin": ["subsystems/paladin"],
     "commons": ["commons"],
@@ -110,12 +111,14 @@ def children(root, depth=1):
 
 def workspace_member(root):
     manifest = jsonc(os.path.join(root, "deno.jsonc"))
+    exports = manifest.get("exports", {})
+    exports = {".": exports} if isinstance(exports, str) else exports
     tasks = manifest.get("tasks", {})
     per_file = sorted(name for name, command in tasks.items() if re.search(r"--watch\s+\S+\.test\.\w+$", command))
     return {
         "package": manifest.get("name"),
-        "exports": manifest.get("exports", {}),
-        "barrels": {target.lstrip("./"): exported(os.path.join(root, target)) for target in manifest.get("exports", {}).values()},
+        "exports": exports,
+        "barrels": {target.lstrip("./"): exported(os.path.join(root, target)) for target in exports.values()},
         "tasks": {name: command for name, command in tasks.items() if name not in per_file},
         "tasks, one file each (all --watch)": len(per_file),
         "tests": tests(root),

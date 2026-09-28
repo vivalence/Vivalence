@@ -1,14 +1,12 @@
 <!--
-  Button — skeleton-aware. Reads the current skeleton level from context and
-  templates its tailwind classes against it. Drop the same Button into a
-  level-1 panel and a level-3 panel — colors shift to match the backdrop
-  with zero prop changes.
+  Button — a signal's fill with its own glyph colour on it. It reads slots by
+  name, so the zone it sits in paints it.
 
   variants: primary | secondary | accent | info | success | warning | danger
   size:     icon | xs | sm | md | lg | xl
 -->
 <script>
-  import { useSkeleton } from "../context/useSkeleton.js";
+  import { FILL, SIGNAL } from "../context/signals.js";
 
   let {
     variant = "primary",
@@ -22,18 +20,7 @@
     children,
   } = $props();
 
-  const skeleton = useSkeleton();
-  const level = $derived(skeleton());
-
-  // class names are templated against the live skeleton level. tailwind
-  // sees the full enumerated set via dapper's safelist export.
-  const variantClasses = $derived(
-    `bg-skeleton-${level}-${variant}-base
-     text-skeleton-${level}-contrast
-     border-skeleton-${level}-${variant}-base
-     hover:bg-skeleton-${level}-${variant}-hover
-     active:bg-skeleton-${level}-${variant}-active`,
-  );
+  const variantClasses = $derived(`${FILL[SIGNAL[variant]]} hover:brightness-110 active:brightness-90`);
 
   const sizes = {
     icon: "w-10 h-10",

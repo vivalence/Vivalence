@@ -394,7 +394,7 @@ Run one child on its own with `viva instance/run runtime` or `viva instance/run 
 - [x] `instance/run`      — runtime serving on `:2501`, anima on `:1794`, and you're ready to log in and explore.
 
 Continue here:
-- [ ] the <a target="_blank" href="https://docs.vivalence.org/12.01_slowstart">Slowstart</a> — the same climb, with the machinery explained at depth.
+- [ ] the <a target="_blank" href="https://docs.vivalence.org/20.01_slowstart">Slowstart</a> — the same climb, with the machinery explained at depth.
 
 Video Guide coming soon.
 

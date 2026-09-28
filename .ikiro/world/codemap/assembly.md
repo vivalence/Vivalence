@@ -25,7 +25,7 @@ paths: ["**/registry/assembly/**", "**/registry/droneaid/**"]
 // ~/.viva/registry/assembly
 {
  "manifest": "package.viva.js",
- "vcs": "NONE — capture before delete",
+ "vcs": "git",
  "modes": ["modes/bak/import", "modes/editor/assembly", "modes/editor/guide", "modes/editor/import", "modes/player/guide"],
  "domain": ["domain/assembly/aperture/index.js", "domain/assembly/assembly.viva.js", "domain/assembly/entities/index.js", "domain/assembly/generators/index.js", "domain/assembly/resolve.js", "domain/assembly/schematics.js", "domain/assembly/tests/aperture.test.js", "domain/assembly/tests/domain.test.js", "domain/assembly/tests/literal.test.js", "domain/assembly/tests/resolve.test.js", "domain/assembly/tests/tools.test.js", "domain/assembly/tools/fold.js", "domain/assembly/tools/index.js", "domain/assembly/tools/layer.js", "domain/assembly/tools/line.js", "domain/assembly/tools/mint.js"],
  "folders": {"domain": 1, "modes": 3, "tests": 4, "topologies": 4},

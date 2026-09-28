@@ -5,11 +5,11 @@ import { atom } from "nanostores";
 import { flat, project, root, spans } from "../src/app/panels/f/widgets/activity.js";
 import { loudest, owed } from "../src/typology/entities/activity.js";
 
-const WIDGETS = ["app/widgets/ActivityTracker", "app/panels/f/widgets/ActivityRow", "app/panels/f/widgets/ActivitySection"];
+const WIDGETS = ["app/panels/f/widgets/ActivityRow", "app/panels/f/widgets/ActivitySection"];
 
 // the surfaces the widgets landed on. they carry warnings older than this quest
 // (shoulder's ".population > *"), so the bar here is: it compiles, and nothing it says is ours.
-const MOUNTED = ["app/panels/f/f", "app/bones/shoulder/shoulder", "app/panels/a/widgets/Dock"];
+const MOUNTED = ["app/panels/e/e", "app/panels/f/f", "app/panels/c/c", "app/bones/shoulder/shoulder", "app/panels/a/widgets/Dock"];
 
 const source = (part) => Deno.readTextFile(new URL(`../src/${part}.svelte`, import.meta.url));
 
@@ -34,7 +34,7 @@ specimen.describe("activity widgets — they compile, and the fold is the wire's
   }
 
   for (const widget of MOUNTED) {
-    specimen.it(`${widget}.svelte still compiles with the tracker mounted`, async () => {
+    specimen.it(`${widget}.svelte compiles, and nothing it says is about an activity`, async () => {
       const out = compile(await source(widget), { generate: "client", runes: true, filename: `${widget}.svelte` });
       specimen.expect(out.js.code.length > 0).toBe(true);
       specimen.expect(out.warnings.filter((warning) => /Activity|tracker|activityRoster/i.test(warning.message))).toEqual([]);

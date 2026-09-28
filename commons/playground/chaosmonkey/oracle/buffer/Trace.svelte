@@ -63,7 +63,7 @@
     border-left: 2px solid transparent;
   }
   .trace.fault {
-    border-left-color: var(--colors-skeleton-0-danger-base);
+    border-left-color: var(--signal-negative);
   }
   .head {
     display: flex;
@@ -118,8 +118,8 @@
     margin: 0 10px 4px 22px;
     padding: 4px 8px;
     border-radius: 4px;
-    background: color-mix(in srgb, var(--colors-skeleton-0-danger-base) 12%, transparent);
-    color: color-mix(in srgb, var(--colors-skeleton-0-danger-base) 90%, white 10%);
+    background: color-mix(in srgb, var(--signal-negative) 12%, transparent);
+    color: color-mix(in srgb, var(--signal-negative-ink) 90%, white 10%);
     font-family: var(--font-family-code);
     font-size: var(--font-size-2xs);
     line-height: 1.4;

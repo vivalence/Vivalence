@@ -1,7 +1,9 @@
 <script>
   import { getContext } from "svelte";
+  import { Card, Key, Meter, Section } from "@vivalence/drapes";
   import { BOX } from "$client";
-  import Section from "./Section.svelte";
+
+  let { open = true, ontoggle = null } = $props();
 
   const box = getContext(BOX);
   const microphone = box.device.microphone;
@@ -51,97 +53,55 @@
   }
 </script>
 
-<Section name="box" meta="mic + speaker">
-  <div class="group">
-    <header class="group-head">
-      <span class="group-name">microphone</span>
-      <span class="group-meta">{micLabel}</span>
-    </header>
-    {#if micClaimed}
-      <div class="meter">
-        <div class="bar" style:width="{Math.min(micLevel * 200, 100)}%"></div>
-      </div>
-    {/if}
-    {#if micError}<div class="error">{micError}</div>{/if}
-    <div class="actions">
-      <button
-        class="act"
-        class:on={micClaimed}
-        class:danger={micPermission === "denied"}
-        onclick={() => (micClaimed ? microphone.release() : microphone.claim())}>
-        {micClaimed ? "on" : "off"}
-      </button>
-      <button
-        class="act"
-        class:on={micPaused}
+<Section label="box" count="mic + speaker" {open} {ontoggle} />
+{#if open}
+  <Card>
+    <Section label="microphone" count={micLabel} rule={false} />
+    {#if micClaimed}<Meter value={micLevel * 2} />{/if}
+    {#if micError}<span class="fault">{micError}</span>{/if}
+    <div class="verbs">
+      <Key
+        size="row"
+        led
+        latched={micClaimed}
+        tone={micPermission === "denied" ? "negative" : "plain"}
+        label={micClaimed ? "on" : "off"}
+        onclick={() => (micClaimed ? microphone.release() : microphone.claim())} />
+      <Key
+        size="row"
+        led
+        latched={micPaused}
         disabled={!micClaimed}
-        onclick={() => (micPaused ? microphone.resume() : microphone.pause())}>
-        {micPaused ? "muted" : "live"}
-      </button>
+        label={micPaused ? "muted" : "live"}
+        onclick={() => (micPaused ? microphone.resume() : microphone.pause())} />
     </div>
-  </div>
-
-  <div class="group">
-    <header class="group-head">
-      <span class="group-name">speaker</span>
-      <span class="group-meta">{spkLabel}</span>
-    </header>
-    {#if spkError}<div class="error">{spkError}</div>{/if}
-    <div class="actions">
-      <button
-        class="act"
-        class:on={spkClaimed}
-        onclick={() => (spkClaimed ? speaker.release() : speaker.claim())}>
-        {spkClaimed ? "on" : "off"}
-      </button>
-      <button class="act" disabled={!spkClaimed} onclick={tone}>tone</button>
-      <button class="act" disabled={!spkClaimed} onclick={() => speaker.flush()}>flush</button>
+  </Card>
+  <Card>
+    <Section label="speaker" count={spkLabel} rule={false} />
+    {#if spkError}<span class="fault">{spkError}</span>{/if}
+    <div class="verbs">
+      <Key
+        size="row"
+        led
+        latched={spkClaimed}
+        label={spkClaimed ? "on" : "off"}
+        onclick={() => (spkClaimed ? speaker.release() : speaker.claim())} />
+      <Key size="row" disabled={!spkClaimed} label="tone" onclick={tone} />
+      <Key size="row" disabled={!spkClaimed} label="flush" onclick={() => speaker.flush()} />
     </div>
-  </div>
-</Section>
+  </Card>
+{/if}
 
 <style>
-  .group + .group {
-    border-top: 1px dashed var(--colors-skeleton-2-boundary);
-    margin-top: 4px;
-    padding-top: 4px;
-  }
-  .group-head {
+  .verbs {
     display: flex;
-    align-items: baseline;
-    gap: 10px;
-    padding: 4px 16px 2px;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-bottom: var(--size-depth);
   }
-  .group-name {
-    color: var(--colors-skeleton-2-contrast);
-    opacity: 0.55;
-    font-size: var(--font-size-2xs);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    font-weight: 600;
-  }
-  .group-meta {
-    flex: 1;
-    text-align: right;
-    color: var(--colors-skeleton-2-contrast);
-    opacity: 0.85;
-    font-size: var(--font-size-xs);
-  }
-  .error {
-    padding: 2px 16px 4px;
-    color: var(--colors-skeleton-0-danger-base);
-    font-size: var(--font-size-2xs);
-  }
-  .meter {
-    height: 4px;
-    margin: 6px 16px 4px;
-    background: var(--colors-skeleton-1-surface);
-    overflow: hidden;
-    border-radius: 1px;
-  }
-  .bar {
-    height: 100%;
-    background: var(--colors-skeleton-2-primary-base);
-    transition: width 0.06s linear;
+  .fault {
+    font-family: var(--font-family-code);
+    font-size: var(--size-type-2xs);
+    color: var(--signal-negative-ink);
   }
 </style>

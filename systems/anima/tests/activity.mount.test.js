@@ -11,17 +11,24 @@ const DRAPES = new URL("../../../subsystems/drapes/", import.meta.url);
 const WIDGETS = {
   ActivitySection: new URL("app/panels/f/widgets/ActivitySection.svelte", SRC),
   ActivityRow: new URL("app/panels/f/widgets/ActivityRow.svelte", SRC),
-  ActivityTracker: new URL("app/widgets/ActivityTracker.svelte", SRC),
   Section: new URL("display/Section.svelte", DRAPES),
+  ToolRow: new URL("display/ToolRow.svelte", DRAPES),
+  Status: new URL("display/Status.svelte", DRAPES),
+  Row: new URL("display/Row.svelte", DRAPES),
+  Empty: new URL("display/Empty.svelte", DRAPES),
+  Spinner: new URL("display/Spinner.svelte", DRAPES),
+  Key: new URL("controls/Key.svelte", DRAPES),
 };
+
+const parts = (whole, names) => names.split(",").map((name) => `import ${name.trim()} from "./${name.trim()}.js";`).join("\n");
 
 const REWRITES = [
   [/^import ['"]svelte\/internal\/(disclose-version|flags\/[a-z]+)['"];\n?/gm, ""],
   [/from ['"]svelte\/internal\/client['"]/g, `from "${CLIENT}"`],
   [/from "svelte"/g, `from "${ENTRY}"`],
-  [/import \{ Section \} from "@vivalence\/drapes"/, 'import Section from "./Section.js"'],
-  [/from "\.\/ActivityRow\.svelte"/, 'from "./ActivityRow.js"'],
-  [/from "\.\.\/\.\.\/\.\.\/widgets\/ActivityTracker\.svelte"/, 'from "./ActivityTracker.js"'],
+  [/import \{ ([^}]+) \} from "@vivalence\/drapes";?/g, parts],
+  [/from "@vivalence\/anima"/g, `from "${new URL("typology/entities/activity.js", SRC).href}"`],
+  [/from "(\.\/[A-Za-z]+)\.svelte"/g, 'from "$1.js"'],
   [/from "\.\/activity\.js"/, `from "${new URL("app/panels/f/widgets/activity.js", SRC).href}"`],
 ];
 
@@ -73,6 +80,8 @@ const row = (id, status = "IDLE", thread = "t1") => {
   };
 };
 
+const titled = (document, word) => [...document.body.getElementsByTagName("button")].find((button) => button.getAttribute("title")?.includes(word));
+
 const press = (element, type) => {
   const handler = element[`__${type}`];
   const event = new globalThis.window.Event(type);
@@ -118,6 +127,7 @@ specimen.describe("activity section — mounted, and driven the way the wire dri
       flush();
     }
     specimen.expect(text()).toContain("/hallucination/lookup RUNNING 0.4s");
+    specimen.expect(text()).toContain("activity 1 live");
 
     const b = row("b-2", "RUNNING", "t2");
     $entities.set([a, b]);
@@ -133,27 +143,28 @@ specimen.describe("activity section — mounted, and driven the way the wire dri
     $entities.set([b]);
     flush();
     specimen.expect(text()).toContain("DONE 0.4s");
-    specimen.expect(text()).toContain("activity 1");
+    specimen.expect(text()).toContain("activity 0 live");
 
     unmount(app);
     flush();
     specimen.expect(dumps).toEqual([]);
   });
-  specimen.it("KILL fires only after the hold: a click sends nothing, a 700ms hold sends SIGKILL with the reason the daemon's Failure reads", async () => {
+  specimen.it("KILL fires only after the hold: a click and a release at 600ms send nothing, a 700ms hold sends SIGKILL with the reason the daemon's Failure reads", async () => {
     const $entities = atom([]);
     const thread = { id: "t1", daemon: { entities: { activity: { $entities } } } };
     const a = row("k-1", "STOPPING");
     const app = mount(ActivitySection, { target: document.body, props: { thread, density: "line" } });
     $entities.set([a]);
     flush();
-    press(document.body.getElementsByClassName("head")[0], "click");
+    press(document.body.getElementsByClassName("tool-face")[0], "click");
     flush();
-    const kill = document.body.getElementsByClassName("kill")[0];
+    const kill = titled(document, "SIGKILL");
     specimen.expect(kill).toBeTruthy();
 
     press(kill, "pointerdown");
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 600));
     press(kill, "pointerup");
+    press(kill, "click");
     await new Promise((resolve) => setTimeout(resolve, 700));
     specimen.expect(a.signals).toEqual([]);
 
@@ -161,6 +172,33 @@ specimen.describe("activity section — mounted, and driven the way the wire dri
     await new Promise((resolve) => setTimeout(resolve, 900));
     press(kill, "pointerup");
     specimen.expect(a.signals).toEqual([["SIGKILL", "user pressed kill"]]);
+
+    unmount(app);
+    flush();
+  });
+  specimen.it("STOP ALL sends SIGTERM to every row of this thread the machine lets it move, once, and to no other thread", () => {
+    const $entities = atom([]);
+    const thread = { id: "t1", daemon: { entities: { activity: { $entities } } } };
+    const running = row("s-1", "RUNNING");
+    const paused = row("s-2", "PAUSED");
+    const idle = row("s-3", "IDLE");
+    const foreign = row("s-4", "RUNNING", "t2");
+    const app = mount(ActivitySection, { target: document.body, props: { thread, density: "line" } });
+    $entities.set([running, paused, idle, foreign]);
+    flush();
+    specimen.expect(text()).toContain("activity 3 live");
+
+    const stop = titled(document, "SIGTERM to every live activity");
+    specimen.expect(stop).toBeTruthy();
+    press(stop, "click");
+    press(stop, "click");
+    specimen.expect([running.signals, paused.signals, idle.signals, foreign.signals]).toEqual([
+      [["SIGTERM", "user pressed stop"]],
+      [["SIGTERM", "user pressed stop"]],
+      [],
+      [],
+    ]);
+    specimen.expect(text()).toContain("activity 3 live");
 
     unmount(app);
     flush();

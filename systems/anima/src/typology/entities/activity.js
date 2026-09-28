@@ -39,6 +39,20 @@ const RANK = ["RUNNING", "STOPPING", "PAUSED", "IDLE"];
 export const loudest = (rows = []) =>
   RANK.find((code) => rows.some((row) => row.status === code)) ?? "NONE";
 
+export const TONES = {
+  IDLE: "idle",
+  RUNNING: "primary",
+  PAUSED: "caution",
+  STOPPING: "caution",
+  DONE: "positive",
+  STOPPED: "idle",
+  FAILED: "negative",
+  ABORTED: "negative",
+  NONE: "none",
+};
+
+export const settled = (code) => Boolean(v.primitives.controller.MACHINE.states[code]?.settled);
+
 export function owed(signal, rows = [], sent = new Set()) {
   const { MACHINE } = v.primitives.controller;
   const from = MACHINE.transitions[MACHINE.signals[signal]] ?? {};

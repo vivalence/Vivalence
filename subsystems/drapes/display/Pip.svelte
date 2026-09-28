@@ -2,12 +2,12 @@
   let { size = 6, tone = "muted", pulse = false, glow = false } = $props();
 
   const tones = {
-    primary: "var(--colors-skeleton-0-primary-base)",
-    warning: "var(--colors-skeleton-0-warning-base)",
-    danger: "var(--colors-skeleton-0-danger-base)",
-    success: "var(--colors-skeleton-0-success-base)",
-    contrast: "var(--colors-skeleton-0-contrast)",
-    muted: "color-mix(in srgb, currentColor 40%, transparent)",
+    primary: "var(--signal-primary)",
+    warning: "var(--signal-caution)",
+    danger: "var(--signal-negative)",
+    success: "var(--signal-positive)",
+    contrast: "var(--text-strong)",
+    muted: "var(--text-muted)",
   };
 </script>
 
@@ -24,7 +24,7 @@
     display: inline-block;
     width: var(--pip-size);
     height: var(--pip-size);
-    border-radius: 50%;
+    border-radius: var(--shape-radius-full);
     background: var(--pip-color);
     flex: none;
   }
@@ -32,7 +32,7 @@
     animation: pip-pulse 1.8s ease-in-out infinite;
   }
   .glow {
-    box-shadow: 0 0 4px var(--pip-color);
+    box-shadow: 0 0 6px var(--pip-color);
   }
   @keyframes pip-pulse {
     0%,
