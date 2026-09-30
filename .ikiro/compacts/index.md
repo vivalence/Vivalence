@@ -237,3 +237,9 @@
 231. `the-process-becomes-the-daemon-a-mode-stops-being-a-process-and-m75-gives-mount-reference-identifier-and-location-one-meaning-each`
 232. `seal-becomes-settle-the-ledger-moves-into-integration-the-process-executes-itself-and-every-beef-mark-in-m74-is-ruled`
 233. `m75-folds-into-m74-the-rename-runs-first-on-todays-tree-the-sketch-and-sandbox-read-reference-and-m74-counts-seven-milestones`
+234. `run-moves-into-the-lifecycles-each-process-type-vector-is-its-execution-js-and-the-word-execution-now-names-two-things`
+235. `the-guardrail-boots-chess-reference-is-emptied-and-refilled-with-the-route-and-a-sweep-agent-lands-the-bundle`
+236. `the-datamap-door-is-refused-twice-the-runtime-tree-moves-every-process-becomes-a-vector-and-m74-lands-its-last-milestone`
+237. `four-chess-harnesses-are-read-the-coach-is-built-headless-offering-skills-play-turns-agentic-and-the-engines-lines-ride-every-board-message`
+238. `the-radial-reads-in-every-theme-home-carries-its-turn-the-centre-wears-a-padlock-and-the-walls-take-the-joint`
+239. `a-thrown-pincer-lands-on-its-wall-after-a-beat-an-entrypoint-opens-its-buffer-and-the-spine-s-dots-show-their-daemons`

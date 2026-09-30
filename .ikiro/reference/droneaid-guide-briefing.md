@@ -6,7 +6,7 @@ This brief is for rebuilding the build guide on the assembly domain and adding a
 
 ### 2.1 Three ontologies, one entity
 
-A **literal** is exactly one of `part`, `placement` or `step`. Its one `TOPOGRAPHICAL` symbol says which. The runtime subscriber stamps that as `row.ontology`, and it throws when a literal carries zero or two (`systems/runtime/daemon/entities/kernel/Literal.ts:141-149`).
+A **literal** is exactly one of `part`, `placement` or `step`. Its one `TOPOGRAPHICAL` symbol says which. The runtime subscriber stamps that as `row.ontology`, and it throws when a literal carries zero or two (`systems/runtime/entities/kernel/Literal.ts:141-149`).
 
 ```js
 // domain/assembly/schematics.js — ONTOLOGIES

@@ -170,9 +170,9 @@ try {
 
   for (const [name, held] of Object.entries(config.mounts)) {
     demand(name, held.shape, held.example);
-    const reference = signal.flags?.[name];
-    if (!is.string(reference)) continue;
-    const pinned = name === "instance" ? (await paladin.ledger.instances.resolve(reference)).mount : path.pin(reference);
+    const token = signal.flags?.[name];
+    if (!is.string(token)) continue;
+    const pinned = name === "instance" ? (await paladin.ledger.instances.resolve(token)).mount : path.pin(token);
     paladin.env.set(held.key, pinned, "flag");
   }
 

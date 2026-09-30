@@ -1,0 +1,72 @@
+#+title: run moves into the lifecycles, each process type's vector is its execution.js, and the word execution now names two things
+#+index: 234
+#+session: session 886a541b, turns 63–68 (fold N = 6, the eighth fold of m74; #233 holds turns 58–62). The fold opens on the continuation after #233 and closes on /"ikir compact"/.
+
+* one breath
+
+(63) Resumed after #233; the fold report re-issued.
+
+(64) beef pasted m74 whole with the tree excerpt: /"i want you to move 'run' into the lifecycles under 'execution.js' rewire the rest"/. =run/{index,runtime,service,daemon,mode}.js= cut; each vector now =lifecycle/<type>/execution.js=, exported bare (=export { execution } from "./execution.js"=) so the path reads =lifecycle.daemon.execution=. =run.js= boots =lifecycle.runtime.execution=; =export * as run= gone from =typology.js=; resolution params =(run)= → =(execution)=; =Process.execute(execution)=. New import rule: an =execution.js= imports sibling files, never =../index.js= (a cycle through the root evaluates =new Vector().use(…)= against an uninitialised namespace). =execution= twice — the vector and the promise field =daemon.execution= — ruled one word in 68: /"this looks good. nicely coherent"/. Sandbox rewired onto =lifecycle.<type>.execution=, =28 passed | 0 failed=.
+
+(65–68) /"ikir compact"/ · =/compact= · this walk, the ruling mid-walk.
+
+* the spine — turns 63–68
+
+| n  | beef | landed | died |
+|----+------+--------+------|
+| 63 | (continuation summary, not beef) | the #233 report | — |
+| 64 | the m74 paste + tree excerpt · /"i want you to move 'run' into the lifecycles under 'execution.js' rewire the rest"/ | m74 1794 → 1808 lines: tree · nomenclature · export pattern · =lifecycle/daemon/index.js= shown · three =** lifecycle/*/execution.js= sections · =run.js= · resolution · =Process.ts= · QUESTIONED · Settled · M5; sandbox =lib.js · seams · structure · world= rewired, =28 passed=; backups =bak/m74-before-execution.org= · =bak/sandbox-before-execution/= | =run/= · =run.<type>= · "=lifecycle/= never imports =run/=" |
+| 65 | /"ikir compact"/ | this walk | — |
+| 66 | MID =/compact= | NOTHING — the gate's order | — |
+| 67 | the =/compact-walk= re-invocation | this compact | — |
+| 68 | MID, the decision block pasted back · /"this looks good. nicely coherent"/ | =execution= twice ruled: one word, vector and promise; m74 QUESTIONED item cut, nomenclature row, Settled | the three options |
+
+Coverage: 63–68, each once. Balance, fold N = 6: first third (63–64) 2 citations, middle (65–66) 1, last (67–68) 2. Even: the order in 64, its one open fork ruled in 68, mid-walk.
+
+* failures
+
+- the paste not diffed, again :: recurrence of #233's first failure. Checked line count (1794 = file) and the five =@beef= marks, not the text line by line; said so in the report.
+- a sibling live on the quest, again :: =m74 ← 886a541b · 339ef973 (24m ago)=; the file's mtime equalled my own #233 merge, so nothing of the sibling's was overwritten. Checked before the write, reported after.
+- a summary grep blinded by colour :: =deno test= output carries ANSI codes; =grep '^ok |'= matched nothing and printed empty counts once. Re-run with a looser pattern.
+
+* State at fold
+
+- m74 :: DESIGNED; the vectors live at =lifecycle/<type>/execution.js=, =run/= gone; the export pattern gains "a process type's vector exports bare"; 5 =@beef= lines, record; =execution= one word for vector and promise, ruled.
+- sandbox :: =structure 7 · seams 14 · datamap.class 5 · effect 1 · world 1= → =28 passed | 0 failed=, on =lifecycle.<type>.execution=.
+- typology :: =belt/control.js · belt/index.js · steer/dispatch.js= uncommitted; beef's graph op.
+
+** skills
+
+| skill        | turn | verdict | the line |
+|--------------+------+---------+----------|
+| compact-walk | 66   | HELD    | spine by id, fold N stated |
+
+* settlement
+
+- MARKERS: =## OPEN= empty.
+- Codewords, turns 63–68: none.
+- Known issues: none new.
+- LEDGER: nothing non-HELD.
+- Memory: nothing private.
+- Budgets: see the report.
+
+* handoff
+- quest :: m74-the-boot-vector
+- goal :: /"i want to turn all my boot processes in the runtime into vectors. mode, daemon, service and the runtime themselves."/ · /"i want you to move 'run' into the lifecycles under 'execution.js' rewire the rest"/
+- done :: =run/= cut, each vector =lifecycle/<type>/execution.js= exported bare, =run.js= boots =lifecycle.runtime.execution=; sandbox =28 passed | 0 failed=
+- next :: on beef's go, M0: =systems/runtime/tests/runtime/boot.test.js= on today's code, census 329, the =/metadata= keys asserted
+- never :: an =execution.js= importing =../index.js= — a cycle through the root
+- never :: =reference= filled before it is emptied — M1 before M2
+- never :: a destructured local off the die — /"no fucking one off scope variable assignments!"/
+- owed :: beef — go on M0 · the rename before the recast · the QUESTIONED · meaning 4 · the uncommitted typology change · =Mode.stdout=
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions   |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0          |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3          |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 1 (1 live) |
+| m73-anima-and-design-system-comps |  79% 11/14 | wip      | go                                                                                                | 1 (1 live) |
+| m74-the-boot-vector               |   4% 2/49  | wip      | control                                                                                           | 3 (3 live) |
+| runtime-scenarios                 |   0% 0/18  | design   | go                                                                                                | 0          |

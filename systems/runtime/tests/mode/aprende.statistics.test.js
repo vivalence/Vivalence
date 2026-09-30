@@ -15,7 +15,7 @@ specimen.describe("aprende: /assistant/wakeup/statistics", () => {
   });
 
   specimen.afterAll(async () => {
-    await scenario.datamap.disintegrate();
+    await scenario.datamap.close();
   });
 
   specimen.it("exposes the endpoint via EXPOSED", () => {

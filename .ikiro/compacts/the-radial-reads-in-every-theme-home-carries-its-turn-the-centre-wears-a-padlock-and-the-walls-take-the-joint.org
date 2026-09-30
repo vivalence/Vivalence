@@ -1,0 +1,94 @@
+#+title: the radial reads in every theme, home carries its turn, the centre wears a padlock, and the walls take the joint
+#+index: 238
+#+session: session 9c4d5944, turns 169–178 (fold N = 10, the tenth fold; #216 holds 1–26, #217 27–61, #218 62–76, #220 77–89, #221 90–109, #222 110–122, #223 123–141, #224 142–161, #226 162–168). beef's thread: /"home seeking doesnt work and the radials central button doesnt do what its supposed to do. another itteration."/ with /"and drop the snapping indicators/highlihghts on the glass blur entirely. bad idea."/ and /"the radials hint is either empty or white on white"/ → /"the walls arent snappy yet."/ → /"ikir compact"/.
+
+* one breath
+
+(169–170) the =/compact= queued after #226 went through the gate; under the harness's summary the #226 report went out — the frontier ABOVE on a sibling's m74 line and beef's owed session blocks, not on this session's.
+
+(171–174) three strikes on the radial in one turn. Before any code, a walk in an isolated headless Chrome — =playwright-core= from deno's npm cache on the installed Chrome, a fresh context owning its own storage (beef's =vivalence:bridge= untouched), the gate flipped client-side through =window.__viva.lighthouse=, a terminal opened. Its first reading, "a tap never goes home", was the rig's own: a fresh profile's =.empty-overlay= lay over the joint and ate the tap; instrumenting the tap caught it before a theory reached code. Then the causes, one each. Porcelain's and datasette's chrome zone hold =text.strong= EQUAL to =control.contrast=, so the comp's key ink read 1.00:1 — the hint, a lit tile against a cold one, the centre's lock state (/"empty or white on white"/). The comp's home is a spot AND a turn; the tree's was a spot. And the comp's home hint said /"tap the pincer to go there"/ while its open radial covers the pincer with the centre tile: the tap it asked for locked the joint, invisibly in porcelain, and every tap after flashed amber — read as both of his first two strikes at once. Built: the radial's inks by PAIR (=--control-on= · =--control-on-muted= · a lit tile inverted · =--boundary-strong= for the rim dots and the minis' stage) with a test that resolves twelve pairs on the chrome zone of every theme (19 under their floor → 0); =layout.standard= · =layout.previous= carry =orientation= (the constructor, the boot and a device rotation spread it beside the keep-list's unchanged x/y arithmetic); a tap on the home handle seeks home, past 8 px it drags; the centre wears a padlock, inverted when locked, painted above the handle; the wells DROPPED on his word. A RULE FAILURE (=flag-day-radius=): the chess rule written the same morning walks consumers that NAME a theme, and the radial names none.
+
+(175) /"the walls arent snappy yet."/ The comp's =snapP= · =wallP= put the joint flush on a wall from within a tenth of the axis — grid on or off, at a drag, a pull, a spoke's share and a home drop. The tree's walls were the grid's 0 and 100 within 28 px behind a 22.5 px padding: 5.5 px, and none with the grid off. =snapToWall= · =land=, four steps red first, walked on a desk and a phone viewport. The first pass had dropped =snapP= as "the ⅛ grid" and the walls in its first two lines went with it — a RULE FAILURE (=assume-dont-verify=) logged at this fold.
+
+(176–178) /"ikir compact"/, then =/compact= queued — this fold.
+
+* the spine — turns 169–178
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 169 | =/compact=, queued after the #226 walk | the gate let it through; the context folded | — |
+| 170 | the harness's continuation summary | the #226 report: N = 7, the frontier ABOVE (1257 against 750) on the sibling's m74 =next= and the owed session blocks, the gate's key (=compact-go=) named | — |
+| 171 | /"home seeking doesnt work and the radials central button doesnt do what its supposed to do. another itteration."/ | the comp re-read (=m73/logic.js=: =stdOf()= a spot and a turn, =pincerTaps=, =radDown= =mid= → =pinLock=, home z 8 under mid z 9, =GL.mid= defined and never drawn); the isolated rig (=scratchpad/radial-walk.js=); =bridge/bridge.js= (=turn= in the constructor, spreads in the boot's clamp and the rotation's =reanchor=) · =bridge/gesture.js= (=placement= · =place= · =seek=, the handle's 8 px threshold, the drag records the turn) · =pincer.svelte= (the padlock, the centre after the handle, =hovered= reset on close, the home hint); =tests/pincer/gesture.test.js= five steps and =tests/pincer/viewport.test.js= three, red first | the reading "a tap never goes home" (the rig's =.empty-overlay=) · the comp's hint /"tap the pincer to go there"/ |
+| 172 | the =debugging= re-invocation notice | NOTHING | — |
+| 173 | MID-TURN /"and drop the snapping indicators/highlihghts on the glass blur entirely. bad idea."/ | =reach= · =wells= · =.well= gone from =pincer.svelte=; DROPPED in m73 with his words | the wells |
+| 174 | MID-TURN /"the radials hint is either empty or white on white"/ | measured on =:1794= in four themes (porcelain =rgb(237, 240, 244)= on =rgb(237, 240, 244)=); the inks by pair; =tests/pincer/theme.test.js= twelve pairs on zone 0, 19 misses → 0; a census of anima =src= and drapes for the same pair (none); RULE FAILURE =flag-day-radius=; =world/codemap/design.md= (the zone-0 equality) · =world/codemap/anima.md= (the isolated rig); m73's status · two reality blocks · the DROPPED block · marker · changelog · release; anima =74 passed (346 steps) · 0 failed=; =anima/bundle= exit 0 | the comp's =--text-strong= · =--text-ink= inks in the radial |
+| 175 | /"the walls arent snappy yet."/ | =bridge/geometry.js= =WALL_SNAP= · =snapToWall= · =bridge/index.js= exports · =bridge/gesture.js= =land= at =move= · =stretch= · =turned= · =homeUp=; four steps red first (=FAILED | 2 passed (20 steps) | 1 failed (4 steps)=) → =ok | 3 passed (24 steps) | 0 failed=; anima =75 passed (350 steps) · 0 failed=; =anima/bundle= exit 0; walked 1280 × 800 and 390 × 844, grid on and off; m73's =** the walls= · marker · changelog · release | the tree's 5.5 px walls |
+| 176 | /"ikir compact"/ | this fold; the comp's hairline wall named as not ported; the ⅛-grid drop line annotated; RULE FAILURE =assume-dont-verify= | — |
+| 177 | MID-TURN =/compact= | NOTHING — the gate | — |
+| 178 | the =compact-walk= re-invocation notice | NOTHING | — |
+
+Coverage: 169–178 by the spine, 10 rows; NOTHING: 172 · 177 · 178. Between 175 and 176 two background notices (the watchers' wrapper shells, exit 144) — not beef's; the deno processes still serve.
+
+* failures
+
+- *a pair is not a name* (174). The radial painted the comp's ink on ground — =--text-strong= on =--control-contrast= — a pair the comp's two themes keep apart and the two new ones make equal. The chess rule of the same morning greps consumers that NAME a theme; the radial names none. RULE FAILURE, =flag-day-radius=, logged in the turn; the pair test now carries the rule.
+- *a drop made by a function's name* (175 → 176). =snapP= held the walls and the eighths; the first pass dropped it as "the ⅛ grid" and the walls went with it. The shape of the ledger's entry on m73's apply — a function filed by one half. RULE FAILURE, =assume-dont-verify=, logged at this fold.
+- *the comp's own contradiction, ported* (171). Its home hint asked for a tap on a pincer its open radial covers with the lock. Now the handle takes the tap; the change is written against the comp in m73.
+- *my first reproduction was the rig's* (171). A fresh profile opens with =.empty-overlay= over the joint; the tap hit the overlay. Caught by listening on the joint before any theory.
+- *a read before its declaration* (171). =hovered= was assigned inside a =subscribe= that nanostores fires at once, above its =let=; moved up before the file ran.
+
+* State at fold
+
+- =.ikiro/quests/m73-anima-and-design-system-comps.org= — APPLIED; on the six patches: the radial (paint · pull · tiles · lock · home · walls), the =brand= group, the bone keys, the radial's second pass; =#+marker_qa: m73/T-radial-live · pending= (built, beef's walk owed); =T-four-themes-walk= · =T-ios-standalone= pending; =** the radial, second pass= · =** the walls= in expectation ↔ reality; the wells and the comp's hairline wall under =* dropped=.
+- the tree: anima =75 passed (350 steps) | 0 failed=; =anima/bundle= exit 0, the same 38 warnings, all drapes; drapes · the chess kit · typology · dapper untouched this fold, not re-run. =bridge/dock.js= · =static/manifest.json= byte-identical; =bridge.js= · =gesture.js= · =geometry.js= · =index.js= · =pincer.svelte= changed.
+- captures: =~/.viva/bak/m73/radial-home-20260929/= (3) · =radial-walls-20260929/= (3).
+- canon: =zettelkasten.md= two RULE FAILUREs (=flag-day-radius= · =assume-dont-verify=) · =world/codemap/design.md= (a pair is not a name) · =world/codemap/anima.md= (the isolated walk).
+- beef's storage: untouched this fold — every walk ran in a fresh headless context. His =vivalence:bridge= may hold =locked: true= from the centre tap he could not see; the padlock now shows it.
+- servers: =runtime/watch= (PID 13059, =:2501=) · =anima/watch= (PID 13125, =:1794=) serve; the wrapper shells in my background exited 144 and the processes run on without them. No Chrome tab of mine opened this fold.
+- m72 · m74 — unmoved by this fold; siblings folded #227–#237.
+- Balance (fold N = 10, thirds 169–171 · 172–175 · 176–178): beef's verbatim in the spine 1 · 3 · 1. The weight sits in the middle because two of his three strikes came mid-turn at 173–174 and the walls at 175; the last third is the fold.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| debugging | 171 | HELD | reproduce before theory: the rig reproduced the hint at 1.00:1 and caught its own artifact (the =.empty-overlay= over the joint) before a theory reached code; the environment pinned first — which profile, whose storage |
+| compact-walk | 177 | HELD | spine and skills by id, tenth fold, N = 10 |
+| live-validation | 171 | MISSED | the served page walked in four themes and two viewports, no firing |
+| live-validation | 171 | GAP | "own tab, own stub row" still shares beef's storage; the isolated walk — =playwright-core= from deno's cache on the installed Chrome, a fresh context, the gate flipped client-side, a terminal opened before the first tap — lives in =world/codemap/anima.md=, not in the skill |
+| testing | 171 | MISSED | guardrails red first on the old code (pairs 19 · gesture 5 · viewport 3 · walls 4), envelopes pasted, no firing |
+| blast-bracket | 171 | MISSED | =layout.standard= · =layout.previous= changed shape; their readers and writers grepped (=pincer.svelte= · =telemetry/inspector.js= · =bridge.js= · =gesture.js= · the tests), suites both sides, no firing |
+| design-handoff | 174 | MISSED | the comp's inks ported and re-ported, no firing |
+| design-handoff | 174 | GAP | step 4 names the palette and the token substitution, never the PAIRS: a comp drawn against two themes carries ink-on-ground pairs that collapse in a third; and a function the port drops is dropped line by line (=snapP=) |
+| callout | 174 | MISSED | two RULE FAILUREs in the skill's shape, the recurrence audits run by grep and =scoreboard.py=, no firing |
+| quest-authoring | 174 | MISSED | m73's status · three organ blocks · two DROPPED blocks · marker · two changelog entries · two release lines, no firing |
+
+* settlement
+
+- Codeword scan of 169–178: no =retard=, no =i dont understand=. The strike at 174 logged in the turn (=flag-day-radius=); the walls at 175 logged here (=assume-dont-verify=).
+- MARKERS.md =OPEN= is empty; none added.
+- Fixed now: the comp's hairline wall named under m73 =* dropped= (the joint stops at =EDGE_PADDING= in both modes, the keep-list); the ⅛-grid drop line annotated with the walls it had swallowed.
+- Known issues: none new.
+- Shards re-stamped: =world/codemap/design.md= (CHECK: porcelain =theme.js:18= read, the four zone-0 values measured on the served page, the pair test run) · =world/codemap/anima.md= (CHECK: =src/app/+layout.svelte:48= grepped, the rig run four times).
+- The skill verdicts' non-HELD rows appended to =skills/LEDGER.md= (8).
+- Budgets: =world/frontier.md= ABOVE, 1312 against 750. This fold's line is 111, as at #226; the rest is the owed session blocks #211 · #212 · #213 · #219 · #225 (352), live siblings' session lines #228 · #237 (306), m72 · m74 · runtime-scenarios (302) and the header (226). Nothing edited: the drain is upstream (=methods/handoff.py=), two of the owners are live. The frontier reads byte-identical to the handoffs.
+
+* handoff
+- quest :: m73-anima-and-design-system-comps
+- goal :: /"work out the full patch for applying the new design to anima"/ · /"fix"/
+- done :: six patches, the radial (paint · pull · tiles · lock · home · walls), the =brand= group and the bone keys stand; the radial's inks read on every theme's chrome zone; anima =75 passed (350 steps) | 0 failed=
+- next :: beef walks =m73/T-radial-live=, then the audit's 16
+- never :: /"dont drop that. f.e the settings for mobile, ios. and running it as manifest is working currently."/ — drag, taps, hold, capture, grid, =EDGE_PADDING= and =static/manifest.json= stand; the boot and the rotation keep their x/y arithmetic
+- never :: /"agents should be opus. always unless instructed otherwise."/
+- owed :: beef — the walk (four themes · iOS · the radial by finger) · typology's =brand= without the holy ask · eleven fork rulings · the =release= key · the commit, repo and chess · his two watchers, orphaned from my shell and serving · his stored layout (overwritten by my earlier restore; it may hold =locked: true=)
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions   |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0          |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3          |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 0          |
+| m73-anima-and-design-system-comps |  79% 11/14 | wip      | go                                                                                                | 0          |
+| m74-the-boot-vector               |  97% 57/59 | wip      | blast                                                                                             | 3 (3 live) |
+| runtime-scenarios                 |   0% 0/18  | design   | go                                                                                                | 1 (1 live) |

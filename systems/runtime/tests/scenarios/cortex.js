@@ -1,7 +1,8 @@
 import { shard, Mode, Path, shape, Aperture, Vector, Cortex } from "@vivalence/typology";
 import { seed, tiers, faculties } from "./fixtures.js";
 
-import { HARNESSED } from "@vivalence/runtime/daemon/traits";
+import { lifecycle } from "@vivalence/runtime";
+const { HARNESSED } = lifecycle.mode.traits;
 
 export async function create({ harness } = {}) {
   const { orm, em, datamap, entities, fixtures } = await seed();
@@ -20,7 +21,7 @@ export async function create({ harness } = {}) {
     manifest: { type: "teacher", slug: "dewey", traits: ["EXPOSED", "HARNESSED"] },
   });
   dewey.aperture = new Aperture();
-  dewey.mount = new Path(`/mode/${dewey.type}/${dewey.slug}`);
+  dewey.reference = new Path(`/mode/${dewey.type}/${dewey.slug}`);
   dewey.entity = deweyEntity;
   dewey.id = deweyEntity.id;
   dewey.module.tune = "balanced";
@@ -35,7 +36,7 @@ export async function create({ harness } = {}) {
 
   const daemon = {
     manifest: { slug: "test-daemon", traits: [] },
-    mount: new Path("/daemon/test-daemon"),
+    reference: new Path("/daemon/test-daemon"),
     aperture: new Aperture(),
     twitch: new Vector(),
     entities,
@@ -49,12 +50,12 @@ export async function create({ harness } = {}) {
   };
 
   daemon.aperture.use(shard.context.bind("daemon", daemon));
-  datamap.subscribe(shape.subscriber(daemon.twitch));
+  datamap.registerSubscriber(shape.subscriber(daemon.twitch));
 
   const finalizer = HARNESSED(dewey, daemon);
   if (typeof finalizer === "function") await finalizer();
 
-  daemon.aperture.branch(dewey.mount.absolute).slurp(dewey.aperture);
+  daemon.aperture.branch(dewey.reference.absolute).slurp(dewey.aperture);
 
   const createThread = async () => {
     const thread = em.create(tiers.thread.entity, {

@@ -1,6 +1,6 @@
-import { Url, Connection, Vector, shape, shard, sleep, v } from "@vivalence/typology";
+import { Url, Connection, Vector, shape, shard, sleep, middleware, v } from "@vivalence/typology";
 import { metronome } from "@vivalence/typology/scenarios";
-import * as routes from "@vivalence/runtime/daemon/aperture";
+import { lifecycle } from "@vivalence/runtime";
 import { create as harnessed } from "./cortex.js";
 import { tiers } from "./fixtures.js";
 
@@ -55,9 +55,9 @@ export async function create({ port = 0, script = (index) => [TOOL, OBJECT, { de
     await next();
   });
 
-  const die = { good: daemon, datamap, status: { reflection: { code: "ALIVE" } }, manifest: daemon.manifest };
-  await routes.userspace(die);
-  daemon.aperture.open("/datamap", () => shard.datamap.strip(datamap.introspect()));
+  daemon.datamap = datamap;
+  await middleware.compose([lifecycle.daemon.aperture.userspace])({ daemon });
+  daemon.aperture.open("/datamap", () => shard.datamap.strip(datamap.getMetadata()));
   daemon.aperture.branch("/metadata").open("/aperture", () => shape.strip(daemon.aperture));
 
   const gate = shard.serve.multiplex(daemon.aperture);

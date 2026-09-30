@@ -206,8 +206,8 @@ specimen.describe("mode traits", () => {
         emptyMode.entity = scenario.fixtures.mode;
         emptyMode.id = scenario.fixtures.mode.id;
         emptyMode.module.emitter = new Vector().open("/nothing", async () => []);
-        const traits = await import("@vivalence/runtime/daemon/traits");
-        for (const finalize of await traits.stagger(emptyMode, scenario.daemon, traits)) await finalize();
+        const { gestalten, lifecycle } = await import("@vivalence/runtime");
+        for (const finalize of await gestalten.belt.stagger(emptyMode, scenario.daemon, lifecycle.mode.traits)) await finalize();
         const result = await emptyMode.emit.nothing({});
         specimen.expect(result.condition).toBe("EXHAUSTED");
         specimen.expect(result.output.buffer).toEqual([]);
@@ -218,7 +218,7 @@ specimen.describe("mode traits", () => {
 
 specimen.describe("BOOTED", () => {
   specimen.it("finalize runs boot with (daemon, mode); terminate calls the returned teardown", async () => {
-    const { BOOTED } = await import("@vivalence/runtime/daemon/traits");
+    const { BOOTED } = (await import("@vivalence/runtime")).lifecycle.mode.traits;
     const calls = [];
     const mode = {
       manifest: { type: "probe", slug: "booted", traits: [] },

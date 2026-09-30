@@ -12,7 +12,7 @@ const schemas = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema];
 
 export async function seed() {
   const orm = await MikroORM.init({
-    ...config({ dbName: ":memory:", entities: schemas }),
+    ...config({}, { entities: schemas }),
     allowGlobalContext: true,
   });
 

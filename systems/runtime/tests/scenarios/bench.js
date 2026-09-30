@@ -24,17 +24,12 @@
 
 import paladin from "@vivalence/paladin";
 import {
-  Url, Connection, Mode, Path, Aperture, Vector,
+  Url, Connection, Mode, Path, Aperture, Vector, Controller, Span, middleware,
   shard, shape, is, array,
 } from "@vivalence/typology";
-import { sets, ActivityEntity, ActivityRepository, UserEntity, BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/runtime";
+import { Daemon, lifecycle, sets, ActivityEntity, ActivityRepository, UserEntity, BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/runtime";
 import { provider as memoryDatamap } from "./datamap.js";
 import { assemble } from "./fixtures.js";
-import { Daemon } from "@vivalence/runtime/daemon";
-import * as traits from "../../daemon/traits/index.js";
-import * as lifecycleResolution from "../../daemon/lifecycle/resolution.js";
-import * as lifecyclePopulation from "../../daemon/lifecycle/population.js";
-import * as apertureSetup from "../../daemon/aperture/index.js";
 
 // ── test APPLICATION ──────────────────────────────────────────────────
 // Same as real APPLICATION but skips the svelte bundler (no esbuild).
@@ -68,7 +63,7 @@ async function resolve(items) {
       resolved.push(await paladin.ledger.registry.accio(item));
     } else {
       // Raw imports are frozen Module namespace objects.
-      // Wrap in a plain object so population.modes can set .mount etc.
+      // Wrap in a plain object so population.modes can set .reference etc.
       const wrapped = { ...item };
       if (!wrapped.source) {
         // Synthetic source path — the traits resolve buffer.path relative to the .viva.js directory.
@@ -80,12 +75,12 @@ async function resolve(items) {
       resolved.push(wrapped);
     }
   }
-  // the seats paladin would have minted: mount · url · bundles under the bench daemon
+  // the seats paladin would have minted: reference · url · bundles under the bench daemon
   return resolved.map((citizen) => {
     const { type, slug } = citizen.manifest;
     return {
       ...citizen,
-      mount: citizen.mount ?? new Path(`/mode/${type}/${slug}`),
+      reference: citizen.reference ?? new Path(`/mode/${type}/${slug}`),
       url: citizen.url ?? new Url(`http://bench/daemon/bench/mode/${type}/${slug}`),
       bundles: citizen.bundles ?? new Path(`/bench/bundles/${type}/${slug}`),
     };
@@ -99,13 +94,12 @@ export async function bench(spec = {}) {
   const domain = kernel.find((module) => module.manifest?.type === "domain");
 
   const instanceTraits = {
-    ...traits,
+    ...lifecycle.mode.traits,
     ...(domain?.traits || {}),
     APPLICATION: BENCH_APPLICATION,
   };
 
   const { entities: instanceEntities, subscribers: instanceSubscribers } = assemble([
-    sets.daemon,
     sets.kernel,
     sets.userspace,
     sets.transient,
@@ -115,18 +109,20 @@ export async function bench(spec = {}) {
   const datamapInstance = await memoryDatamap(instanceEntities, instanceSubscribers);
 
   // ── assemble daemon ──────────────────────────────────────────────
-  const daemon = new Daemon({
-    manifest: { type: "daemon", slug: "bench", version: "0.0.1", traits: [] },
+  const daemon = Object.assign(new Daemon(), {
+    mask: {
+      manifest: { type: "daemon", slug: "bench", version: "0.0.1", traits: [] },
+      reference: new Path("/daemon/bench"),
+      url: new Url("http://bench/daemon/bench"),
+      attach: new Url("http://bench/attached"),
+    },
   });
-  daemon.mount = new Path("/daemon/bench");
-  daemon.url = new Url("http://bench/daemon/bench");
-  daemon.attach = new Url("http://bench/attached");
   daemon.entities = datamapInstance.entities;
   daemon.entities.activity = new ActivityRepository(datamapInstance.orm.em, ActivityEntity);
   daemon.datamap = datamapInstance;
 
   const subscriber = shape.subscriber(daemon.twitch);
-  datamapInstance.subscribe(subscriber);
+  datamapInstance.registerSubscriber(subscriber);
 
   // ── seed a test user (before services, so default auth can reference it) ──
   const user = datamapInstance.entities.em.create(UserEntity, { roles: ["USER"], config: {} });
@@ -135,10 +131,9 @@ export async function bench(spec = {}) {
 
   // ── build die shape that lifecycle functions expect ───────────────
   const die = {
-    good: daemon,
+    controller: new Controller({ stdout: new Span("bench") }),
+    daemon,
     mask: { manifest: daemon.manifest },
-    datamap: datamapInstance,
-    domain,
     instance: {
       traits: instanceTraits,
       entities: instanceEntities,
@@ -148,10 +143,6 @@ export async function bench(spec = {}) {
     register: {
       kernel,
     },
-    connection: null,
-    status: { reflection: { code: "ALIVE" }, set: () => {} },
-    slug: "bench",
-    manifest: daemon.manifest,
   };
 
   // ── services ──────────────────────────────────────────────────────
@@ -185,8 +176,6 @@ export async function bench(spec = {}) {
 
   // ── populate modes (reuse real lifecycle) ─────────────────────────
   daemon.aperture.use(shard.datamap.inject(datamapInstance));
-  await lifecyclePopulation.modes(die);
-  lifecyclePopulation.handlers(die);
 
   // ── resolve (trait application + aperture wiring) ────────────────
   if (domain?.aperture) {
@@ -194,13 +183,20 @@ export async function bench(spec = {}) {
     daemon.aperture.slurp(domain.aperture);
   }
 
-  await lifecycleResolution.modes(die);
-
-  // ── aperture routes ──────────────────────────────────────────────
-  await apertureSetup.datamap(die);
-  if (services.lighthouse) await apertureSetup.userspace(die);
-  await apertureSetup.modes(die);
-  await apertureSetup.freight(die);
+  const ready = Promise.withResolvers();
+  const release = Promise.withResolvers();
+  const execution = middleware.compose([
+    lifecycle.daemon.population.modes,
+    lifecycle.daemon.resolution.modes(lifecycle.mode.execution),
+    lifecycle.daemon.aperture.datamap,
+    ...(services.lighthouse ? [lifecycle.daemon.aperture.userspace] : []),
+    lifecycle.daemon.aperture.modes,
+    lifecycle.daemon.aperture.freight,
+  ])(die, () => {
+    ready.resolve();
+    return release.promise;
+  });
+  await Promise.race([ready.promise, execution]);
 
   // ── connection ───────────────────────────────────────────────────
   const handler = shape.http(daemon.aperture);
@@ -209,7 +205,7 @@ export async function bench(spec = {}) {
 
   // ── DATASET trait: seed ontology/corpus entities ─────────────────
   for (const mode of daemon.flatmodes())
-    if (mode.implements("DATASET")) await traits.DATASET(mode, daemon);
+    if (mode.implements("DATASET")) await lifecycle.mode.traits.DATASET(mode, daemon);
 
   return {
     daemon,
@@ -219,7 +215,9 @@ export async function bench(spec = {}) {
     connection,
     user,
     async teardown() {
-      await datamapInstance.disintegrate();
+      release.resolve();
+      await execution;
+      await datamapInstance.close();
     },
   };
 }

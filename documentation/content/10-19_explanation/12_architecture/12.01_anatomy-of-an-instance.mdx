@@ -24,8 +24,8 @@ That is the whole core — about 26,000 lines. The content in the registry is al
 minimum vocabulary required:
 
 - `instance` — the whole recipe: runtime, daemons, services, clients. One module with `manifest.type: "instance"` per instance directory.
-- `mask` — a compiled declaration: config plus module references plus a mountpoint. Paladin mints masks; the runtime wears them.
-- `die` — the processor of one declaration through the lifecycle `populate → resolve → integrate`. One die for the runtime, one per daemon, one per attached service.
+- `mask` — a compiled declaration: config plus module identifiers plus a mountpoint. Paladin mints masks; the runtime wears them.
+- `die` — the bag a process type's boot vector runs over: `{ controller, mask, runtime | daemon | service }`. One per process; a mode's is `{ mask, mode, daemon, traits }`.
 - `mode` — a daemon citizen, built from one kernel entry. Traits on its manifest decide which machinery wakes for it.
 - `aperture` — a Vector (the system's one shape for anything callable) wearing HTTP methods; every callable face in the system is one.
 - `mountpoint` — the instance's writable home: databases, migrations, view bundles.
@@ -44,43 +44,72 @@ At paladin's own import time, the singleton hands the process environment to `pa
 
 1. **environment** — the instance's own `.env`, at its root and nothing else, folds in through `paladin.claim` at the `instance` stratum. One file at one stratum, so nothing can silently overwrite anything. The key decides secrecy, so a `SECRET_*` reaches the secret store wherever it is written. This is where the runtime, lighthouse and anima addresses arrive.
 2. **resolve** — find the one module under the instance mount whose manifest says `instance`, then *hydrate* it: every deferred `() =>` fires now, at any depth. The thunk above becomes the string it read. Until this moment the declaration was data; after it, values — still untyped.
-3. **kernel references** — a daemon's `kernel` entries stay unhydrated and get resolved as references instead: a bare specifier points into the registry, `./` is relative to the instance file, and an inline object — the standalone's case — mounts as-is, with the instance file as its home.
+3. **kernel identifiers** — a daemon's `kernel` entries stay unhydrated and get resolved as identifiers instead: a bare specifier points into the registry, `./` is relative to the instance file, and an inline object — the standalone's case — mounts as-is, with the instance file as its home.
 4. **defaults and seats** — the root `lighthouse`, `datamap` and `hallucinators` are copied into every daemon that declares none of its own (a service takes the datamap), and every daemon and service is seated: `mountpoint/daemon_standalone/` is where its database and migrations will live, and its datamap copy is stamped with that seat and a file named for it, `standalone.viva.db`.
 5. **settle & publish** — the one `v.primitives.instance.Instance` schematic settles what the pinhole fired: a hallucinator with a blank secret goes *dormant* (off the roster, named on the instance), defaults fill the slots the recipe left out, a daemon still owing a lighthouse or a datamap is a fault by its own name, every miss becomes a sentence in `instance.faults` — never a throw, so the doctor can mount a bare recipe — and a clean slot decodes to its prototype: the string above becomes a `Url`. Then every `PUBLIC_*` var is published to the process environment, where clients can reach it. The boot edge refuses on faults (`instance/run`, and the runtime's own `run.js` below); `mount()` itself never does.
 
-## a die per declaration
+## a vector per process
 
 The runtime's whole entrypoint:
 
 ```js title="systems/runtime/run.js — condensed"
-await paladin.instance.mount()
-paladin.check.instance(paladin.instance).throw()
-const die = new Die({ good: new Runtime() })
-await die.populate()
-// then: await die.resolve() · await die.integrate() · await die.perpetuate()
+await lifecycle.mount(paladin.instance)
+const die = {
+  controller: new Controller({ stdout: new Span(`runtime/${paladin.instance.runtime.manifest.slug}`) }),
+  mask: paladin.instance.runtime,
+  runtime: new Runtime({ instance: paladin.instance }),
+}
+await steer.dispatch.execute(execution, die)
+Deno.exit(die.controller.status.is("STOPPED") ? 0 : 1)
 ```
 
-A `Die` is a `Wafer` — the empty lifecycle shape from typology — and `populate` fills the runtime's body:
+A *die* is a bag, not a class: the controller (a span with a status machine and a stdin of signals), the mask paladin compiled, and the process it carries — `die.runtime` here, `die.daemon` and `die.service` for the children, `die.mode` for a mode. The *execution* is one Vector per process type, `lifecycle/<type>/execution.js`: every beat is a middleware `(die, next)`, and what a beat opens before `await next()` it closes in its own `finally` after it. The effect at the end is `keepalive`: open the controller's span — the readiness line `Status:RUNNING` — and hold until a signal settles it. Stop is the chain unwinding in reverse: the server shut, the children signalled, the datamap closed, the span closed.
 
-- the *latch* — its public base URL; every mount below hangs off it.
-- the registry supply — `vip.supply()` walks the package store into the *pensieve*, a nested map `owner → type → slug → version`. This is how the string `"@commons/datamap/libsql"` later becomes a module.
-- one `DaemonDie` per daemon mask — mounted at `/daemon/standalone`, its URL literally `latch + mount`.
-- one process per `ATTACHED` service that exports an aperture — the multiplayer lighthouse becomes one.
+```js title="systems/runtime/lifecycle/runtime/execution.js"
+export const execution = new Vector()
+  .use(process.settle)
+  .use(population.validate)
+  .use(population.registry)
+  .use(population.datamap)
+  .use(population.aperture)
+  .use(population.services)
+  .use(population.daemons)
+  .use(resolution.services(service))
+  .use(resolution.daemons(daemon))
+  .use(resolution.attach)
+  .use(resolution.expose)
+  .use(resolution.metadata)
+  .use(integration.ledger)
+  .use(integration.patrol)
+  .use(integration.serve)
+  .use(integration.announce)
+
+execution.affect(process.keepalive)
+```
+
+Population fills the runtime's body:
+
+- **validate** — the record is checked (`paladin.check.instance`), then the runtime's own door: the one slot paladin leaves optional.
+- **registry** — `supply()` walks the package store into the *pensieve*, a nested map `owner → type → slug → version`. This is how the string `"@commons/datamap/libsql"` later becomes a module.
+- **datamap** — the runtime's own, in memory: its processes are rows of *virtual entities*, one repository per type — `die.runtime.processes.service` and `.daemon`.
+- **services · daemons** — a row per `ATTACHED` service and per daemon mask: `{ slug, mask, controller }`, the controller a branch of the runtime's under the row's reference — `/daemon/standalone`. The row IS the daemon: `manifest`, `reference` and `url` read the mask; `status` reads the controller.
+
+Resolution raises the children: each row `execute`s its type's vector and the runtime waits for it to reach `RUNNING` before the next — births in order. Then `attach` (services and mode bundles under `/attached/…`), `expose` (each daemon's aperture slurped under its reference, `/status` off the row's atom) and `metadata`. Integration taps the root span into the ledger's `spans.jsonl`, starts the patrol beat (a census of every process's status, once a minute), serves the aperture and announces every daemon to the lighthouse.
 
 ## the daemon assembles its body
 
-`daemonDie.populate()` is where declaration becomes anatomy:
+`lifecycle/daemon/execution.js` runs the same way over `{ controller, mask, daemon }`, and population is where declaration becomes anatomy:
 
-- **core** — `accioMap` resolves the mask's register through the pensieve: lighthouse, datamap, hallucinators, kernel. The kernel entry typed `domain` is singled out — the standalone's `recall` domain, carrying the Retention entity.
-- **entities** — the system's tiers *collate*: `[daemon, kernel, userspace, domain]`, later tiers overriding by type, subscribers accumulating. Retention joins Buffer, Thread, Turn, Mode, User and the rest as a first-class entity.
-- **datamap** — the libsql provider boots the ORM over the collated schemas and automigrates. The database file did not exist a moment before; now `standalone.viva.db` is on disk with every table.
+- **core** — `registry.wire(mask)` resolves the mask's register through the pensieve: lighthouse, datamap, hallucinators, kernel. The kernel entry typed `domain` is singled out — the standalone's `recall` domain, carrying the Retention entity. Then the system's tiers *assemble*: `[kernel, userspace, transient, domain]`, later tiers overriding by type, subscribers accumulating. Retention joins Buffer, Thread, Turn, Mode, User and the rest as a first-class entity.
+- **datamap** — the libsql provider boots the ORM over the assembled schemas and automigrates. The database file did not exist a moment before; now `standalone.viva.db` is on disk with every table. This beat's `finally` closes it, after the activity rows are cleared.
 - **authority** — the lighthouse provider binds to `entities.user`; the daemon's aperture gets its identity middleware.
 - **acid** — a `Cortex`, with the anthropic hallucinator's faculties registered. The coach's brain, idle until called.
-- **modes** — a `Mode` per kernel entry, mounted at `/daemon/standalone/mode/playground/flashcard` — and its row *ensured in the daemon's own mode table*. The daemon records its composition in its own database.
+- **services** — every consumed service's provider, under its consume key.
+- **modes** — a `Mode` per kernel entry, at `/daemon/standalone/mode/playground/flashcard`, with a *stdout*: a branch of the daemon's span. A mode is no process — nothing to kill — but its boot has a voice.
 
 ## traits wake the machinery
 
-`daemonDie.resolve()` first wires the domain (authorization plus per-user data scoping; the recall domain declares no aperture, so `daemon.call` stays null), then processes every mode through *stagger*: each trait's phase one runs, then all finalizers — so no trait ever sees a half-built peer.
+`resolution.domain` wires the domain (authorization plus per-user data scoping; the recall domain declares no aperture, so `daemon.call` stays null), then `resolution.modes` executes the mode vector for every mode: `population.core` builds the mode's aperture and *ensures its row in the daemon's own mode table*; the effect, `resolution.traits`, stamps the dataset sources and *staggers* — each trait's phase one runs, then, once every mode has staggered, all finalizers in one datamap scope — so no trait ever sees a half-built peer. When a mode's chain completes its stdout opens; when the daemon stops, the mode's terminators run and the stdout closes.
 
 - `APPLICATION` — the svelte source from the declaration is esbuilt into a bundle, cached under the mountpoint; the runtime serves it at `/attached/bundle/…`.
 - `DATASET` — first boot seeds the declared rows: two symbols, two literals, then a link phase wires `ciao ↔ interjection`, `mondo ↔ noun`. Every later boot skips this — the mode's row says `installed`.
@@ -88,7 +117,7 @@ A `Die` is a `Wafer` — the empty lifecycle shape from typology — and `popula
 - `HARNESSED` — the harness assembles: `dialogue` and `object` (render · stream) with the armed tool stack layered under them, and `choice` (render) — a probability for each of a closed set of strings, read off the model rather than written by it.
 - `EXPOSED` — the finalizer compiles the mode's callable face:
 
-```js title="systems/runtime/daemon/traits/index.js — EXPOSED"
+```js title="systems/runtime/lifecycle/mode/traits/index.js — EXPOSED"
 mode.call = shape.proxy(mode.aperture)
 ```
 
@@ -96,11 +125,11 @@ That compiled callable is the daemon-side twin of what the view reaches: `buffer
 
 ## the daemon calls itself like anyone else
 
-`daemonDie.integrate()` closes the loop inward. The daemon's internal connection is an *inline transmitter* — `shape.http` of its own aperture called as a function, no socket, no port — so a self-call rides the same shape as any client's call. Then *prune*: the database says what WAS installed, the declaration says what IS — rows for modes and intents no longer declared are removed. Prune is the diff.
+`integration.call` closes the loop inward. The daemon's internal connection is an *inline transmitter* — `shape.http` of its own aperture called as a function, no socket, no port — so a self-call rides the same shape as any client's call. Then *prune*: the database says what WAS installed, the declaration says what IS — rows for modes and intents no longer declared are removed. Prune is the diff.
 
 ## one path tree
 
-`die.resolve()` at the runtime level first cascades every child die through its own lifecycle — the stages above, which the example below staged by hand — then assembles everything into a single tree: processes attach under `/attached/process/service/lighthouse/multiplayer`, mode bundles under `/attached/bundle/…`, and each daemon's whole aperture is slurped under its mount. Look back at the declaration's own environment:
+`resolution.daemons` raised every child above; `attach` and `expose` then assemble everything into a single tree: processes attach under `/attached/process/service/lighthouse/multiplayer`, mode bundles under `/attached/bundle/…`, and each daemon's whole aperture is slurped under its reference. Look back at the declaration's own environment:
 
 ```sh title=".env"
 "PUBLIC_VIVA_LIGHTHOUSE_REMOTE": "http://localhost:2601/attached/process/service/lighthouse/multiplayer"
@@ -110,13 +139,50 @@ The lighthouse *remote* points into the runtime's own path tree. The whole syste
 
 ## the server is a function
 
-`die.integrate()` launches: `Deno.serve(port, shape.http(aperture))` — the entire HTTP server is the aperture folded into one handler function. The example below skips the port and calls that same function in-process:
+`integration.serve`: `Deno.serve(port, shape.http(aperture))` — the entire HTTP server is the aperture folded into one handler function, shut down in the beat's own `finally`. Calling that same function in-process:
 
 - `GET /metadata/daemons` → `200` — the runtime knows its children.
 - `GET /daemon/standalone/metadata/modes` → `401 MISSING_TOKEN` — mounted, routing, locked. Identity comes from the lighthouse; in the booted system the client logs in and this returns the mode list.
 - `POST /attached/process/service/lighthouse/multiplayer/entities/daemon/ensure` → `200` — *announce*: the runtime writes each daemon into the lighthouse through the same `/entities` grammar everything else uses. The system describes itself in its own vocabulary.
 
-Then `perpetuate`: signal handlers, a patrol loop. UP.
+Then `keepalive`: the span opens, `Status:RUNNING` prints, and the runtime holds until a signal. UP.
+
+## a process, held
+
+The whole discipline in a dozen lines — a Vector, a settle, a keepalive, and a controller killed from outside:
+
+```js
+import { Controller, Span, Vector, control, steer } from "@vivalence/typology"
+import { lifecycle } from "@vivalence/runtime"
+
+const run = new Vector()
+  .use(lifecycle.process.settle)
+  .use(async (die, next) => {
+    die.controller.stdout.note("built")
+    try {
+      await next()
+    } finally {
+      die.controller.stdout.note("owed back")
+    }
+  })
+run.affect(lifecycle.process.keepalive)
+
+const die = { controller: new Controller({ stdout: new Span("demo") }) }
+const execution = steer.dispatch.execute(run, die)
+await control.controlled(die.controller)
+await die.controller.kill("SIGTERM")
+await execution
+```
+
+```json
+{
+  "running": "RUNNING",
+  "records": ["note built", "open", "stop", "note owed back", "close"],
+  "settled": "STOPPED"
+}
+```
+
+What a beat built before `next` it owes back after: the note lands between `stop` and `close`, the controller settles `STOPPED`, and the exit code follows.
 
 ## it runs
 

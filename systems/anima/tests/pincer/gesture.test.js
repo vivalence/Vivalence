@@ -6,7 +6,7 @@ import { Gesture } from "../../src/typology/stores/bridge/gesture.js";
 const { describe, it, expect } = specimen;
 
 const capture = { setPointerCapture() {}, releasePointerCapture() {} };
-const at = (x, y) => ({ pointerId: 1, clientX: x, clientY: y, currentTarget: capture, preventDefault() {}, stopPropagation() {} });
+const at = (x, y) => ({ pointerId: 1, clientX: x, clientY: y, timeStamp: Date.now(), currentTarget: capture, preventDefault() {}, stopPropagation() {} });
 
 const walk = (layout, script) => {
   const bridge = new Bridge();
@@ -327,23 +327,31 @@ describe("pincer gesture — the comp's pull, tiles, lock and home", () => {
   });
 });
 
-describe("pincer gesture — the walls take the joint within a tenth of their axis", () => {
-  it("a drag near a wall lands flush on it with the grid on or off; past that reach the grid or the pointer decides", () => {
+describe("pincer gesture — at rest the walls take the joint within a twentieth of their axis", () => {
+  it("a drag kept near a wall for the onset lands flush on it with the grid on or off; past that reach the grid or the pointer decides", () => {
     for (const snap of [false, true]) {
       walk({}, (held) => {
         held.bridge.view.snap = snap;
         held.gesture.down(at(400, 300));
-        held.gesture.move(at(130, 90));
+        held.gesture.move(at(70, 55));
+        expect(held.bridge.layout.pincer).toEqual({ x: 70, y: 55 });
+        held.time.tick(120);
+        held.gesture.move(at(70, 55));
         expect(held.bridge.layout.pincer).toEqual({ x: 22.5, y: 22.5 });
-        held.gesture.move(at(1070, 710));
+        held.gesture.move(at(1140, 770));
+        expect(held.bridge.layout.pincer).toEqual({ x: 1140, y: 770 });
+        held.time.tick(120);
+        held.gesture.move(at(1140, 770));
         expect(held.bridge.layout.pincer).toEqual({ x: 1177.5, y: 777.5 });
+        held.gesture.move(at(90, 70));
+        expect(held.bridge.layout.pincer).toEqual({ x: 90, y: 70 });
         held.gesture.move(at(160, 120));
         expect(held.bridge.layout.pincer).toEqual(snap ? { x: 156, y: 104 } : { x: 160, y: 120 });
       });
     }
   });
 
-  it("a pull that sizes the stage to within a tenth of a wall lands the bone flush on it, and the mini says so first", () => {
+  it("a pull that sizes the stage to within a twentieth of a wall lands the bone flush on it, and the mini says so first", () => {
     walk({}, (held) => {
       hold(held, 400, 300);
       held.gesture.move(at(400, 336));
@@ -353,23 +361,119 @@ describe("pincer gesture — the walls take the joint within a tenth of their ax
     });
   });
 
-  it("a spoke whose kept share lands within a tenth of a wall lands flush on it", () => {
-    walk({ pincer: { x: 400, y: 100 } }, (held) => {
+  it("a spoke whose kept share lands within a twentieth of a wall lands flush on it", () => {
+    walk({ pincer: { x: 400, y: 50 } }, (held) => {
       sticky(held);
-      expect(held.gesture.preview(0)).toEqual({ x: 22.5, y: 100 });
+      expect(held.gesture.preview(0)).toEqual({ x: 22.5, y: 50 });
       held.gesture.spoke(at(0, 0), 0);
       expect(held.bridge.layout.orientation).toBe(90);
-      expect(held.bridge.layout.pincer).toEqual({ x: 22.5, y: 100 });
+      expect(held.bridge.layout.pincer).toEqual({ x: 22.5, y: 50 });
     });
   });
 
-  it("a home handle dropped within a tenth of a wall lands flush on it", () => {
+  it("a home handle dropped within a twentieth of a wall lands flush on it", () => {
     walk({ standard: { x: 400, y: 500, orientation: 0 } }, (held) => {
       sticky(held);
       held.gesture.homeDown(at(400, 500));
-      held.gesture.homeMove(at(1100, 740));
-      held.gesture.homeUp(at(1100, 740));
+      held.gesture.homeMove(at(1140, 760));
+      held.gesture.homeUp(at(1140, 760));
       expect(held.bridge.layout.standard).toEqual({ x: 1177.5, y: 777.5, orientation: 0 });
+    });
+  });
+});
+
+describe("pincer gesture — a thrown joint: the faster it flies at a wall, the farther that wall reaches; in flight after an onset, at once when let go", () => {
+  const fly = (held, points, every) => {
+    for (const [x, y] of points) {
+      held.time.tick(every);
+      held.gesture.move(at(x, y));
+    }
+  };
+  const course = (count) => Array.from({ length: count }, (_, index) => [600 - 25 * (index + 1), 400]);
+
+  it("let go in flight at a wall, the joint flies on to it from across the stage", () => {
+    for (const snap of [false, true]) {
+      walk({ pincer: { x: 600, y: 400 } }, (held) => {
+        held.bridge.view.snap = snap;
+        held.gesture.down(at(600, 400));
+        fly(held, course(4), 10);
+        expect(held.bridge.layout.pincer).toEqual({ x: 500, y: 400 });
+        held.gesture.up(at(500, 400));
+        expect(held.bridge.layout.pincer).toEqual({ x: 22.5, y: 400 });
+        expect(held.bridge.layout.previous).toEqual({ x: 600, y: 400, orientation: 0 });
+        expect(held.saves.length).toBe(1);
+      });
+    }
+  });
+
+  it("a burst at a wall that slows within the onset never jumps to it", () => {
+    walk({ pincer: { x: 600, y: 400 } }, (held) => {
+      held.gesture.down(at(600, 400));
+      const shown = [];
+      for (const [x, every] of [[575, 10], [550, 10], [525, 10], [520, 60], [518, 60]]) {
+        held.time.tick(every);
+        held.gesture.move(at(x, 400));
+        shown.push(held.bridge.layout.pincer.x);
+      }
+      expect(shown).toEqual([575, 550, 525, 520, 518]);
+    });
+  });
+
+  it("held on course for the onset, the wall takes the joint in flight and keeps it while the course holds", () => {
+    walk({ pincer: { x: 600, y: 400 } }, (held) => {
+      held.gesture.down(at(600, 400));
+      fly(held, course(12), 10);
+      expect(held.bridge.layout.pincer).toEqual({ x: 300, y: 400 });
+      fly(held, [[275, 400]], 10);
+      expect(held.bridge.layout.pincer).toEqual({ x: 22.5, y: 400 });
+    });
+  });
+
+  it("slowing off course frees the joint at once, and the drop keeps it where it stopped", () => {
+    walk({ pincer: { x: 600, y: 400 } }, (held) => {
+      held.gesture.down(at(600, 400));
+      fly(held, course(13), 10);
+      expect(held.bridge.layout.pincer).toEqual({ x: 22.5, y: 400 });
+      fly(held, [[273, 400]], 50);
+      expect(held.bridge.layout.pincer).toEqual({ x: 273, y: 400 });
+      held.gesture.up(at(273, 400));
+      expect(held.bridge.layout.pincer).toEqual({ x: 273, y: 400 });
+    });
+  });
+
+  it("the same travel at a walk stays under the pointer, through the drop", () => {
+    walk({ pincer: { x: 600, y: 400 } }, (held) => {
+      held.gesture.down(at(600, 400));
+      fly(held, course(4), 50);
+      expect(held.bridge.layout.pincer).toEqual({ x: 500, y: 400 });
+      held.gesture.up(at(500, 400));
+      expect(held.bridge.layout.pincer).toEqual({ x: 500, y: 400 });
+    });
+  });
+
+  it("each axis flies on its own: let go on a throw down, the joint lands on the floor and keeps its x", () => {
+    walk({ pincer: { x: 600, y: 200 } }, (held) => {
+      held.gesture.down(at(600, 200));
+      fly(held, [[600, 225]], 10);
+      expect(held.bridge.layout.pincer).toEqual({ x: 600, y: 225 });
+      held.gesture.up(at(600, 225));
+      expect(held.bridge.layout.pincer).toEqual({ x: 600, y: 777.5 });
+    });
+  });
+
+  it("a push off a wall frees the joint; the same spot reached at a walk lands flush on the drop", () => {
+    walk({ pincer: { x: 40, y: 400 } }, (held) => {
+      held.gesture.down(at(40, 400));
+      fly(held, [[70, 400]], 30);
+      held.gesture.up(at(70, 400));
+      expect(held.bridge.layout.pincer).toEqual({ x: 70, y: 400 });
+    });
+    walk({ pincer: { x: 40, y: 400 } }, (held) => {
+      held.gesture.down(at(40, 400));
+      fly(held, [[70, 400]], 300);
+      expect(held.bridge.layout.pincer).toEqual({ x: 70, y: 400 });
+      held.gesture.up(at(70, 400));
+      expect(held.bridge.layout.pincer).toEqual({ x: 22.5, y: 400 });
     });
   });
 });

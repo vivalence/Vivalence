@@ -58,6 +58,7 @@ const SHIM = `
 export { chain } from "${new URL("typology/gestalten/belt/chain.js", SRC).href}";
 export { TONES, loudest, owed, roster, settled } from "${new URL("typology/entities/activity.js", SRC).href}";
 export * as ThreadTraits from "${new URL("typology/entities/thread/traits/index.js", SRC).href}";
+export * as ModeTraits from "${new URL("typology/entities/mode/traits/index.js", SRC).href}";
 `;
 
 const parts = (whole, names) => names.split(",").map((name) => `import ${name.trim()} from "./${name.trim()}.js";`).join("\n");
@@ -418,6 +419,32 @@ specimen.describe("the six panes — mounted over a terminal, a thread and its d
       flush();
       specimen.expect(titled("click · new thread from this intent")).toEqual([]);
       flush();
+    });
+  });
+
+  specimen.it("navigation: setting an entrypoint mode opens its buffer — the thread's last on that mode, else a fresh one", async () => {
+    const held = world();
+    const terminal = held.terminals.create();
+    await seated("d", held, async () => {
+      const keys = () => titled("click · new thread (same daemon: re-mode)");
+      specimen.expect(keys().map((key) => text(key))).toEqual(["reader office", "talker chat"]);
+
+      terminal.thread = held.threads[0];
+      fire(keys()[0], "click");
+      await settle();
+      specimen.expect(held.daemon.entities.buffer.said("create")).toEqual([]);
+      specimen.expect(terminal.buffer.id).toBe("buffer-two-0002");
+
+      terminal.thread = held.threads[2];
+      fire(keys()[0], "click");
+      await settle();
+      specimen.expect(held.daemon.entities.buffer.said("create")).toEqual([[{ mode: "m-reader", thread: "thread-three-03", data: {} }]]);
+      specimen.expect(terminal.buffer.id).toBe("buffer-new-0009");
+
+      terminal.thread = held.threads[1];
+      fire(keys()[1], "click");
+      await settle();
+      specimen.expect(terminal.buffer).toBe(null);
     });
   });
 

@@ -15,7 +15,7 @@ export async function statements(paladin) {
   }
 
   // an instance HOME is never created here. everything below lives INSIDE one, so if the home is
-  // absent the reference is wrong and scaffolding it turns a typo into a shelf entry — which is
+  // absent the token is wrong and scaffolding it turns a typo into a shelf entry — which is
   // exactly what `instance/doctor <typo>` used to do, silently, before any verb ran.
   const ledger = paladin.scope.ledger;
   if (ledger && !(await Deno.stat(ledger.absolute).catch(() => null))) return;

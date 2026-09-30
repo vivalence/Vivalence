@@ -92,7 +92,7 @@ specimen.describe("VirtualRepository — events through mikro's EventManager", (
   specimen.beforeAll(() => {
     twitch = new Vector(); seen = [];
     for (const op of ["create", "update", "delete"]) twitch.open(`/after/probe/${op}`, (ctx) => { seen.push([op, ctx.input.entity.id]); });
-    world.datamap.subscribe(shape.subscriber(twitch));
+    world.datamap.registerSubscriber(shape.subscriber(twitch));
   });
   specimen.beforeEach(() => { seen.length = 0; });
 

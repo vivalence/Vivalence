@@ -1,6 +1,6 @@
 import { join } from "@std/path";
 import { specimen, Controller, v, Url, Connection, Cortex, Aperture, Vector, shard, shape } from "@vivalence/typology";
-import { cortex as mountCortex } from "@vivalence/runtime/daemon/aperture";
+import { lifecycle } from "@vivalence/runtime";
 
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
 const HOT = Deno.env.get("SNAPSHOT_HOT") === "1";
@@ -54,7 +54,7 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
 
   specimen.beforeAll(async () => {
     const daemon = { aperture: new Aperture(), cortex: new Cortex().register([contractFaculty()]) };
-    mountCortex({ good: daemon });
+    await lifecycle.daemon.aperture.cortex({ daemon }, async () => {});
     daemon.aperture.branch("/metadata").open("/cortex", () => shape.cortex.strip(daemon.cortex));
 
     const handler = shape.http(daemon.aperture);

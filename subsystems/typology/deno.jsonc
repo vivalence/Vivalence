@@ -8,6 +8,7 @@
     "./gestalten": "./gestalten/index.js",
     "./specimen": "./specimen/index.js",
     "./scenarios": "./tests/scenarios/index.js",
+    "./entities": "./entities/index.ts",
   },
   "publish": {
     "exclude": ["**/#*#"],

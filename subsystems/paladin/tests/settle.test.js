@@ -402,32 +402,32 @@ describe("settle — a kernel entry in object form fires at the pinhole like any
       SET,
     );
     const [held] = instance.daemons;
-    expect(held.mount.absolute).toBe("/daemon/probe");
+    expect(held.reference.absolute).toBe("/daemon/probe");
     expect(held.url.absolute).toBe("http://localhost:2501/lighthouse/daemon/probe");
     expect(held.attach.absolute).toBe("http://localhost:2501/lighthouse/attached");
     const [entry] = held.kernel;
-    expect(entry.mount.absolute).toBe("/mode/domain/voffice");
+    expect(entry.reference.absolute).toBe("/mode/domain/voffice");
     expect(entry.url.absolute).toBe("http://localhost:2501/lighthouse/daemon/probe/mode/domain/voffice");
     expect(entry.bundles.absolute).toBe("/mountpoint/daemon_probe/bundles/domain/voffice");
     expect(instance.faults).toEqual([]);
   });
 
-  it("no remote → no url, no attach; the mount still seats; an entry's declared mount wins; a path entry without a type carries only its mountpoint", async () => {
+  it("no remote → no url, no attach; the reference still seats; an entry's declared reference wins; a path entry without a type carries only its mountpoint", async () => {
     const instance = await mount(
       (paladin) => ({
         runtime: runtime(paladin), lighthouse: lighthouse(paladin), datamap: libsql, environment,
-        daemons: [daemon({ kernel: [{ module: "@vcompany/domain/voffice", mount: "/elsewhere" }, "/abs/loose.viva.js"] })],
+        daemons: [daemon({ kernel: [{ module: "@vcompany/domain/voffice", reference: "/elsewhere" }, "/abs/loose.viva.js"] })],
       }),
       SET,
     );
     // daemons without a remote is settle's fault, so nothing decodes: the seats are strings here
     const [held] = instance.daemons;
-    expect(String(held.mount)).toBe("/daemon/probe");
+    expect(String(held.reference)).toBe("/daemon/probe");
     expect(held.url).toBeUndefined();
-    expect(String(held.kernel[0].mount)).toBe("/elsewhere");
+    expect(String(held.kernel[0].reference)).toBe("/elsewhere");
     expect(held.kernel[0].url).toBeUndefined();
     expect(String(held.kernel[1].mountpoint)).toBe("/mountpoint/daemon_probe/mode_loose");
-    expect(held.kernel[1].mount).toBeUndefined();
+    expect(held.kernel[1].reference).toBeUndefined();
   });
 
   it("a service attaches at /attached/process/service/<type>/<slug>; a lighthouse without a remote reaches the hosting service under this runtime; a declared remote stays", async () => {
@@ -440,7 +440,7 @@ describe("settle — a kernel entry in object form fires at the pinhole like any
       }),
       { ...SET, SECRET_VIVA_PROBE_A: "a-secret-long-enough-for-jwt" },
     );
-    expect(instance.services[0].mount.absolute).toBe("/attached/process/service/lighthouse/multiplayer");
+    expect(instance.services[0].reference.absolute).toBe("/attached/process/service/lighthouse/multiplayer");
     expect(instance.lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse/attached/process/service/lighthouse/multiplayer");
     expect(instance.daemons[0].lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse");
     expect(instance.faults).toEqual([]);

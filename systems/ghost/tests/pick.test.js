@@ -13,7 +13,7 @@ const lens = {
   keys: ["owner", "type", "slug"],
   facets: ["owner", "type"],
   columns: ["owner", "slug"],
-  reference: (row) => `${row.owner}/${row.type}/${row.slug}`,
+  identifier: (row) => `${row.owner}/${row.type}/${row.slug}`,
 };
 
 function fake({ interactive = true, chosen, flags = {} } = {}) {
@@ -36,7 +36,7 @@ function fake({ interactive = true, chosen, flags = {} } = {}) {
 Deno.test("pick: an unambiguous preset resolves without a picker", async () => {
   const { ctx, rendered } = fake();
   const result = await pick(ctx, lens, "standalone");
-  assertEquals(result.reference, "@localhost/instance/standalone");
+  assertEquals(result.identifier, "@localhost/instance/standalone");
   assertEquals(rendered.length, 0);
 });
 
@@ -45,14 +45,14 @@ Deno.test("pick: an ambiguous preset opens the picker with the query preset", as
   const result = await pick(ctx, lens, "@viva");
   assertEquals(rendered[0].query, "@viva");
   assertEquals(rendered[0].rows.length, 3);
-  assertEquals(result.reference, "@viva/instance/multiplayer");
+  assertEquals(result.identifier, "@viva/instance/multiplayer");
 });
 
 Deno.test("pick: no preset opens the picker bare", async () => {
   const { ctx, rendered } = fake({ chosen: rows[0] });
   const result = await pick(ctx, lens);
   assertEquals(rendered[0].query, "");
-  assertEquals(result.reference, "@viva/instance/localhost");
+  assertEquals(result.identifier, "@viva/instance/localhost");
 });
 
 Deno.test("pick: a preset matching nothing yields null so the caller keeps its own branch", async () => {

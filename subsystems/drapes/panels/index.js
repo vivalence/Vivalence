@@ -6,3 +6,4 @@ import Loader from "./loader/Loader.svelte";
 import Float from "./Float.svelte";
 
 export { Frame, Card, Icon, Desk, Loader, Float };
+export { place } from "./float.js";

@@ -10,7 +10,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 function datamapWith({ carry }) {
   const als = new AsyncLocalStorage();
   const shardObject = {
-    context: (fn) => als.run({ live: true }, fn),
+    scope: (fn) => als.run({ live: true }, fn),
     ...(carry && {
       carry: () => {
         const store = als.getStore();

@@ -3,7 +3,9 @@ import { datamap } from "@vivalence/runtime/scenarios";
 import { topography } from "@vivalence/typology/scenarios";
 import { LiteralEntity } from "@vivalence/runtime";
 import paladin from "@vivalence/paladin";
-import { DATASET, DATASINK, stagger } from "../daemon/traits/index.js";
+import { gestalten, lifecycle } from "@vivalence/runtime";
+const { DATASET, DATASINK } = lifecycle.mode.traits;
+const { stagger } = gestalten.belt;
 
 let scenario, daemon, mode, arm, first;
 
@@ -13,7 +15,7 @@ specimen.beforeAll(async () => {
   scenario = await datamap.seed();
   daemon = {
     entities: scenario.repos,
-    datamap: { introspect: () => scenario.orm.getMetadata() },
+    datamap: { getMetadata: () => scenario.orm.getMetadata() },
     twitch: new Vector(),
   };
   daemon.entities.em = scenario.em;

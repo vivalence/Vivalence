@@ -2253,3 +2253,217 @@ The recast is paladin's shape — what state and interface paladin exposes for a
 ** Workaround
 
 Printer and reader change in one landing (m74 M3); never one without the other.
+
+* ghost-strata-wet-test-reads-dead-pids — OPEN (met on the m74 M1 walk)
+
+** Symptom
+
+=systems/ghost/tests/strata.wet.test.js= /"two shells select two instances in parallel"/ fails with =Actual null / Expected <tmp>/…-spanish= for the second shell: =valueOf(second, "VIVA_INSTANCE_MOUNT")= reads nothing. Green at one hour, red at the next, on an unchanged tree.
+
+** Root cause
+
+The test writes two session records for =VIVA_PROCESS_ID= 61001 and 61002 (=strata.wet.test.js:98-99=), then runs two =ledger/doctor= in parallel. The doctor reaps a dead pid's session (=systems/ghost/trajectories/ledger/index.js:189=, =Deno.kill(shell, "SIGURG")=) — so whenever no live process on the machine holds 61002, the first doctor deletes the second shell's session before the second doctor reads it. The rung test above it uses =Deno.pid= and never meets this.
+
+** Evidence
+
+=ps -p 61001 -p 61002= empty → red twice in a row; the M0 baseline run of the same file was green. The three ghost files changed between the two runs (=trajectories/instance/use.js= · =trajectories/index.js= · =mod.js=) are whole-word renames, diffed against HEAD.
+
+** Why not fixed
+
+Ghost's tests are beef's surface; the fix is the test's pids — =Deno.pid= for one shell and a spawned sleeper for the other, or a doctor that skips the reap under a flag.
+
+** Workaround
+
+Read the file's other tests; count this one red as environmental when =ps -p 61001 -p 61002= prints nothing.
+
+* droneaid-model-test-imports-a-topology-assembly-no-longer-has — OPEN (met on the m74 M2 sweep)
+
+** Symptom
+
+=deno test … ~/.viva/registry/droneaid/topographies/model/tests/model.test.js= dies at collection: =Module not found= for =assembly/topologies/component/…= (=model.test.js:7=). One module-not-found in a collected file aborts the whole run it sits in.
+
+** Root cause
+
+The assembly package's topologies are =guide= · =part= · =placement= · =step= today; =component= is gone, and droneaid's model test still imports it by relative path.
+
+** Evidence
+
+The sweep agent's run of =droneaid/topographies/model/tests/model.test.js= (its only droneaid edit was README prose); =ls ~/.viva/registry/assembly/topologies/= shows no =component=.
+
+** Why not fixed
+
+A tapped package's test, beef's; whether the model topography should point at =part= or the test should go is the package's call.
+
+** Workaround
+
+Run droneaid's =modes/= tests on their own (=ok | 2 passed (9 steps)=); leave =topographies/model/tests= out of any collected run.
+
+* docs-anatomy-page-names-an-example-that-has-no-file — OPEN (met on the m74 M6 docs pass)
+
+** Symptom
+
+=documentation/content/10-19_explanation/12_architecture/12.01_anatomy-of-an-instance.mdx= embeds =<Example|Trace|Source name="12.01-anatomy" />= and opens with /"at every build of these docs, the example at the bottom of this page boots the standalone instance headless"/; no =12.01-anatomy.example.js= exists under =documentation/content= (=home.example.js= is the only live example, the rest sit in =documentation/bak/content-scaffold/=), and =@commons/instance/standalone= is not in =commons/instances/= (hello-world · localhost · multiplayer · playground). The tabs render nothing.
+
+** Root cause
+
+The examples were scaffolded under =documentation/bak/content-scaffold/= and never moved beside the page; the standalone instance left commons after the page was written.
+
+** Evidence
+
+=grep -rl 12.01-anatomy documentation= → the mdx only; =find documentation/content -name '*.example.js'= → =home.example.js=; =ls commons/instances= → no =standalone=.
+
+** Why not fixed
+
+m74 M6 re-worded the page for the boot vector and put the keepalive demo in as a fence (verified by =sandbox/effect.test.js= against the landed =lifecycle.process=); a captured example that boots a real instance at every docs build is a docs quest — the standalone recipe would have to come back first.
+
+** Workaround
+
+Read the page's fences; =systems/runtime/tests/runtime/boot.test.js= is the booted proof of the same trip.
+
+* comment-guard-reads-an-escaped-slash-in-a-regex-as-a-comment — OPEN (met on the m74 M5 port)
+
+** Symptom
+
+A =Write= of =systems/runtime/lifecycle/runtime/resolution.js= carrying today's cargo line =fromm.params(ctx.params).path.absolute.replace(/^\//, "")= is DENIED: /"comment-litter gate … authored // lines in product source … 63: const query = …replace(/^\//, "");"/. The line has no comment.
+
+** Root cause
+
+=.ikiro/hooks/comment-guard.sh:36-39= treats =[^:]//= as a trailing label; a regex literal ending in an escaped slash (=\/=) followed by its closing =/= spells =//=.
+
+** Evidence
+
+The deny above, m74 M5; the same line lived unflagged in =lifecycle/integrate.js= before because it was never re-written through the gate. First landing dodged it with =/^\/+/= (strips every leading slash, a behavior change); the compact turn restored the semantics with =/^[/]/= — =deno eval= over ="/a/b.png" · "//a" · "a"= prints the same three results for both, =boot.test.js= =ok | 1 passed (7 steps)=.
+
+** Why not fixed
+
+A hook is beef's wiring (=ontology.md= law 8: the measured never holds the pen on the measure); the matcher change and its rig case in =hooks/exercise.sh= are his call.
+
+** Workaround
+
+Write the slash as a class — =/^[/]/= — never =/^\//=.
+
+* elo-ladder-decides-on-three-of-five-random-samples — OPEN (found reading ChessTrainer's engine measurements)
+
+** Symptom
+
+The domain's move-Elo ladder names a move's Elo as the highest rung that still picks it "at least half the time" — 3 of 5 limited-strength searches at 100 ms. A move Stockfish truly picks half the time at a rung passes that test half the time, so re-running the ladder on one position can name a different Elo for the same move; and the first answer is cached per position and rung, so the noise becomes the record.
+
+** Root cause
+
+=~/.viva/registry/chess/domain/aperture/index.js= =ladder= — =samples = 5=, =agrees: share >= 0.5=, cache first via =literal.rung(position, elo)=. =UCI_LimitStrength= picks with time-seeded randomness (ChessTrainer measured ~±90 Elo per 50-game matchup; a share outside ~25–75% stops discriminating).
+
+** Evidence
+
+Read, not reproduced: the rung loop and its cache at =aperture/index.js:31-66=; =RUNGS = [1320, 1600, 2000, 2400, 2800]= at =domain/schematics.js:139=. ChessTrainer's =.claude/rules/engine.md= (AGPL, read for its measurements only).
+
+** Ruling
+
+none yet.
+
+** Why not fixed
+
+Found while reading an outside repo; more samples, a confidence band, or refusing to cache a split vote are design calls, and each costs engine time.
+
+** Workaround
+
+Read a ladder answer whose =hold= sits near 0.5 as undecided; clear the rung's cache before trusting a second run.
+
+* agentic-doubles-a-self-branched-tool-prefix — OPEN (found scaffolding the chess coach)
+
+** Symptom
+
+A TOOLING mode that branches its own tools under its slug (=coach/practice= declares =.branch("/practice")=) is slurped by AGENTIC under the slug again, so an agentic game's model sees =practice_practice_board=, =practice_practice_move= … — and play's talk now carries them, operating on practice buffers it has no business moving on.
+
+** Root cause
+
+=systems/runtime/daemon/traits/agentic.js:3= — =mode.tools.branch(source.manifest.slug).slurp(source.tools)= prefixes every source; =~/.viva/registry/chess/modes/coach/practice/tools/index.js= prefixes itself for its own harness. Both are right alone.
+
+** Evidence
+
+The names follow from the two lines; the live list on play's harness was not read (no real model call this session).
+
+** Ruling
+
+none yet.
+
+** Why not fixed
+
+Whether practice keeps its self-prefix, AGENTIC skips a prefix it finds, or practice stops being TOOLING (it is an App coach, against "the coach is headless") is beef's call.
+
+** Workaround
+
+None needed until a model reaches for a =practice_practice_*= name; TALK does not name them.
+
+* runtime-watch-leaks-an-esbuild-per-restart — OPEN (found killing an orphaned watcher, m73 09-30)
+
+** Symptom
+
+A =deno task runtime/watch= that has restarted N times holds N esbuild service processes as children, one per restart, none reaped until the watcher dies. An orphaned watcher (PID 13059, up 1 d 17 h) held 43, each with its own start time from 1 d 17 h back to 30 min; they exited with it on SIGINT. A live watcher holds one.
+
+** Root cause
+
+Hypothesis, not proven: =deno … --watch= restarts IN-PROCESS (same PID, =world/codemap/runtime.md=), so every restart re-evaluates =subsystems/typology/gestalten/bundle/svelte.js:3= =import esbuild from "esbuild"= as a fresh module instance, and the first build on it spawns a new service child; nothing calls =esbuild.stop()= on the old one, and the old child's stdin stays open because the process never exits.
+
+** Evidence
+
+=pgrep -P 13059= → 43 PIDs, every one =…/@esbuild/darwin-arm64/bin/esbuild=, elapsed times all distinct; after =kill -INT 13059= none left but the two of the live watchers (=anima/watch='s vite and =runtime/watch=). The per-restart pairing is read from the spread of start times, not from a counted restart.
+
+** Why not fixed
+
+Found outside the quest's ask; the cure (stop the service on a reload, or build through one long-lived service) sits in typology, the holy layer.
+
+** Workaround
+
+Restart the watcher now and then; a long-lived one only costs memory — each service idles.
+
+* domain-routes-carry-no-user — OPEN (found validating m74 at its sunset, 09-30)
+
+** Symptom
+
+On the live italian daemon every domain route that reaches a user-scoped entity answers 500. =systems/runtime/tests/daemon/integration.test.js= against =:2501= reads =FAILED | 0 passed (24 steps) | 1 failed (11 steps)=:
+
+#+BEGIN_EXAMPLE
+500 — No arguments provided for filter 'user' @ /daemon/italian/pick/literal/feed      (pick · due · symbol · trait · trait + symbol)
+500 — Cannot read properties of undefined (reading 'id') @ /daemon/italian/review/literal    (review ×4)
+#+END_EXAMPLE
+
+** Root cause
+
+=systems/runtime/lifecycle/daemon/resolution.js:3-13= guards the domain aperture with =shard.secure.authenticate()= only. A mode branch gets =authorize()= and the =user= bind (=:24-27=); the domain gets neither. So =ctx.user= is unset on =/review/*= (=~/.viva/registry/education/domain/entities/kernel/Literal.ts:209= reads =ctx.user.id=), and on =/pick/*= the =user= filter of =RetentionEntity= (=default: true=) has no args.
+
+Before m74, =/pick/*= answered only after a boot that reinstalled a dataset: that boot left one user's =user= filter param on the global EntityManager, and every request fork copied it. m74 closed that leak, which uncovered the missing bind. The same leak also scoped every caller's requests (any user, any token) to that one user's rows.
+
+#+BEGIN_EXAMPLE
+tree       boot                              PROBE params in /pick/literal/feed          pick
+pre-m74    fresh clone, 9 modes reinstall    {"user":"019d23f1-…"}  global: null        ok 3 rows
+pre-m74    second boot, no reinstall         null                                        500
+m74        stale stamps, 9 modes reinstall   null                                        500
+m74+A      patched sandbox                   {"user":"019d23f1-…"}  from the bind        ok
+#+END_EXAMPLE
+
+** Evidence
+
+Sandboxes under the job scratchpad: the pre-m74 tree from =git show HEAD:= over 215 paths, APFS clones of =~/.viva/registry= and =~/.viva/instances/language-learning=, a probe line in the clones' =Literal.feed= only; the live runtime was never touched. =review= is red on both trees.
+
+Three shapes, each measured:
+
+#+BEGIN_SRC diff
+ // systems/runtime/lifecycle/daemon/resolution.js:6   (A)
+-    die.daemon.domain.aperture.use(shard.context.bind("daemon", die.daemon));
++    die.daemon.domain.aperture
++      .use(shard.context.bind("daemon", die.daemon))
++      .use(shard.secure.authorize())
++      .use(die.daemon.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
+#+END_SRC
+
+- A :: integration =ok | 1 passed (35 steps) | 0 failed= on the italian clone, pick and review both. Breaks =daemon.call= (the direct proxy over the same aperture): a direct call through =authorize()= throws =Cannot read properties of undefined (reading 'headers')=. assembly's modes reach their domain that way (=~/.viva/registry/assembly/modes/editor/import/commit.js:22=). assembly · chess suites stay green only because their rigs never run =resolution.domain=.
+- B :: a guarded wrapper slurped into the daemon aperture. Its middleware lands on every daemon route, =/userspace/handshake= included, which must run before a user exists.
+- C :: A's chain behind a gate that lets a direct call through (=ctx.request= is absent on the direct strategy): ~(ctx, next) => (ctx.request ? authorize()(ctx, next) : next())~. Not run.
+
+** Why not fixed
+
+It is the auth boundary of every domain. Which caller a domain route admits, and whether =/language= needs a userspace user, is beef's call.
+
+** Workaround
+
+None on live italian: pick and review stay 500 until a guard lands. A reinstall no longer brings them back.

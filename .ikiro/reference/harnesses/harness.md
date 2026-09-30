@@ -64,7 +64,7 @@ The fixed lexicon (runtime shard): `dialogue`/`object` × `render`/`stream` on e
 ### 2.1 the assembly
 
 ```js
-// systems/runtime/daemon/traits/harnessed.js:158-229
+// systems/runtime/lifecycle/mode/traits/harnessed.js:158-229
 export const HARNESSED = (mode, daemon) => {
   if (!daemon.cortex) throw new Error("HARNESSED: daemon has no cortex");
   const harness = new Vector()
@@ -122,7 +122,7 @@ leaf   render | stream → daemon.cortex.hallucinate[type](ctx.hallucination)
 ### 2.2 the record you write to
 
 ```js
-// systems/runtime/daemon/traits/harnessed.js:41-58 — requesting
+// systems/runtime/lifecycle/mode/traits/harnessed.js:41-58 — requesting
 const requesting = async (ctx, next) => {
   const { system, prompt, turns, output, tune, config } = ctx.input;
   ctx.hallucination = {
@@ -169,7 +169,7 @@ capable: [0.6, 0.8, 0.4, 0.4]   unleashed: [0.9, 1.0, 0.2, 0.2]   eager:    [0.3
 ### 2.3 arming — the names the model sees
 
 ```js
-// systems/runtime/daemon/traits/harnessed.js:60-85
+// systems/runtime/lifecycle/mode/traits/harnessed.js:60-85
 const arming = (ctx) => {
   const armed = new Vector()
     .slurp(skills.entity.entity).slurp(skills.buffer.buffer).slurp(skills.thread.thread).slurp(skills.mode.mode)
@@ -853,7 +853,7 @@ export const open = (ctx) => {
   if (!thread) return null;
   return ctx.daemon.entities.buffer.findOne({ thread, mode: ctx.mode.id }, { orderBy: { index: "desc" }, filters: false });
 };
-// WRITE in a tool, DIRECT — mutate + flush                       systems/runtime/daemon/skills/buffer.js
+// WRITE in a tool, DIRECT — mutate + flush                       systems/runtime/gestalten/skills/buffer.js
 const row = await ctx.daemon.entities.buffer.findOneOrFail({ id: ctx.input.id });
 row.data = { ...row.data, ...ctx.input.data };
 await ctx.daemon.entities.em.flush();
@@ -875,7 +875,7 @@ export const through = (nature) => async (ctx) => {
 ### 5.2 what is loaded, and the base verbs
 
 ```ts
-// systems/runtime/daemon/entities/index.ts
+// systems/runtime/entities/index.ts
 export const sets = { network: { identity, daemon }, daemon: { user, mode }, kernel: { literal, symbol },
                       userspace: { intent, thread, turn, buffer }, transient: { activity } };
 // population.js:48 — collate([daemon, kernel, userspace, transient, domain.entities]); network never reaches ctx.daemon.entities
@@ -919,12 +919,12 @@ voffice    card slug ontology traits + title · search
 // chess/modes/coach/practice/tools/index.js:7-10, 169
 export const load = async (ctx, id) => { const buffer = await ctx.daemon.entities.buffer.findOneOrFail({ id }); return { buffer, data: { ...buffer.data } }; };
 buffer.literals.add(row);                                       // m:n Buffer↔Literal on seal
-// systems/runtime/daemon/traits/generative.js:81-90 — Buffer.create binds the thread
+// systems/runtime/lifecycle/mode/traits/generative.js:81-90 — Buffer.create binds the thread
 const buffer = await ctx.daemon.entities.buffer.create({ mode: ctx.mode.entity.id, view: view.json, data: ctx.input.data ?? {},
   traits: ["LABELED"], trait: { LABELED: ctx.input.label }, thread: ctx.thread ?? null });
 await ctx.daemon.entities.em.flush();
 return { message: `drew ${named(buffer)}`, buffer: [buffer] };
-// systems/runtime/daemon/traits/emitter.js:28-30, 57-61 — how most mode tools create buffers
+// systems/runtime/lifecycle/mode/traits/emitter.js:28-30, 57-61 — how most mode tools create buffers
 if (ctx.input.thread) ctx.thread = await daemon.entities.thread.findOne(ctx.input.thread);
 if (ctx.thread && result.condition === "NOMINAL") for (const buffer of result.output.buffer) ctx.thread.bindBuffer(buffer);
 await daemon.entities.em.flush();
@@ -966,7 +966,7 @@ const retention = await ctx.daemon.call["/review/literal"]({ user: ctx.user, mod
 ### 5.4 the generic trio and the three projections
 
 ```js
-// systems/runtime/daemon/skills/entity.js:101-161 — entity_find goes through repository.find, so traits · search · symbols filters work for free
+// systems/runtime/gestalten/skills/entity.js:101-161 — entity_find goes through repository.find, so traits · search · symbols filters work for free
 const rows = await repository.find(where, { limit, offset, ...(order && { orderBy: order }),
   ...(fields === "card" && card.populate.length && { populate: card.populate }) });
 const total = await repository.count(where);
@@ -988,7 +988,7 @@ None knows the others. Rows nested under `entities: {…}` (assembly mint, educa
 ### 5.5 the thread summary the runtime appends
 
 ```js
-// systems/runtime/daemon/skills/thread.js:28-39
+// systems/runtime/gestalten/skills/thread.js:28-39
 export const summary = async ({ daemon, mode, thread }) => {
   const modes = new Map(daemon.flatmodes().map((peer) => [peer.id, address(peer)]));
   const buffers = await daemon.entities.buffer.find({ thread: thread.id }, { orderBy: { index: "asc" } });
@@ -1088,7 +1088,7 @@ gaps      VOCAL has no anima widget · ThreadTraitsEnum lists MASKED AIMED QUEUE
 ### 6.3 cache — where the breakpoints land
 
 ```js
-// systems/runtime/daemon/traits/harnessed.js:150-156
+// systems/runtime/lifecycle/mode/traits/harnessed.js:150-156
 const summarizing = async (ctx, next) => {
   if (ctx.thread) {
     ctx.hallucination.policy.cache = { marks: [...Object.keys(ctx.hallucination.system).slice(-1), "tools"] };   // BEFORE thread
@@ -1117,7 +1117,7 @@ tools[…, cache_control] · system[ role · guide · … · LAST-MODE-KEY(cache
 ### 6.4 persistence — the rows one send writes
 
 ```js
-// systems/runtime/daemon/traits/harnessed.js:102-134
+// systems/runtime/lifecycle/mode/traits/harnessed.js:102-134
 const persisting = async (ctx, next) => {
   await next();
   if (ctx.output?.[Symbol.asyncIterator]) ctx.output = recording(ctx, ctx.output);
@@ -1154,7 +1154,7 @@ recording  assistant { parts: [text?, tool_use{id,name,input}], meta: { state: "
 ### 6.5 activity, controller, stop
 
 ```js
-// systems/runtime/daemon/traits/harnessed.js:33-39
+// systems/runtime/lifecycle/mode/traits/harnessed.js:33-39
 const activating = async (ctx, next) => {
   if (!ctx.input.controller) ctx.activity = await ctx.daemon.entities.activity.control({ user: ctx.user?.id ?? null, mode: ctx.mode.id, thread: ctx.thread?.id ?? null });
   ctx.controller = ctx.input.controller ?? ctx.activity.controller;     // pass input.controller to nest without a row
@@ -1182,7 +1182,7 @@ The dock signals every live activity on the thread (roster), not just its own se
 ### 6.6 compaction — what exists, what is dead, what to build
 
 ```ts
-// systems/runtime/daemon/entities/userspace/Turn.ts:25-38 — zero callers, zero tests
+// systems/runtime/entities/userspace/Turn.ts:25-38 — zero callers, zero tests
 // history() ana, fold() cata … the anchor reuses tract's last turn in place, so a real compaction never lands a fresh
 // row with a createdAt between a live prompt and its own reply. Re-chaining a surviving tail is the caller's job.
 async fold(tract, judge) {
@@ -2172,7 +2172,7 @@ Modes keep ROLE and screen; the cache prefix then shares the ontology across the
 
 **A5 · cache marks a mode can own (G1, G3).**
 ```diff
-// systems/runtime/daemon/traits/harnessed.js:152
+// systems/runtime/lifecycle/mode/traits/harnessed.js:152
 -    ctx.hallucination.policy.cache = { marks: [...Object.keys(ctx.hallucination.system).slice(-1), "tools"] };
 +    ctx.hallucination.policy.cache ??= { marks: [...Object.keys(ctx.hallucination.system).slice(-1), "tools", "history"] };
 ```
@@ -2180,7 +2180,7 @@ Modes keep ROLE and screen; the cache prefix then shares the ontology across the
 
 **A6 · a narrowed armory (G10).** A manifest claim that drops the machine tools from a mode's arming:
 ```js
-// PROPOSAL — systems/runtime/daemon/traits/harnessed.js arming
+// PROPOSAL — systems/runtime/lifecycle/mode/traits/harnessed.js arming
 const machine = !ctx.mode.manifest.sandboxed;                    // name to be ruled — a trait is a STATE (e.g. CONFINED), never a capability
 if (machine) armed.slurp(paladin.skills.fs.fs).slurp(paladin.skills.shell.shell);
 ```
@@ -2259,7 +2259,7 @@ an outside source                 → an S/HN/R id in §12, cited where it lands
 ### 12.1 inside — the files every section leans on
 
 ```
-systems/runtime/daemon/traits/harnessed.js         the chain, arming, requesting, persisting, summarizing, HARNESSED
+systems/runtime/lifecycle/mode/traits/harnessed.js         the chain, arming, requesting, persisting, summarizing, HARNESSED
 subsystems/typology/gestalten/belt/hallucinate.js  speak, deliver, dispatch, respond, render
 subsystems/typology/gestalten/shard/hal.js         defaults, verbatim, voice
 subsystems/typology/gestalten/shard/hallucinate.js lowering, derived marks, optioning + choosing (choice)
@@ -2268,8 +2268,8 @@ commons/hallucinators/openrouter/provider/         buildChoiceParams · readChoi
 subsystems/typology/prototypes/{cortex,controller,toolcall}.js
 subsystems/typology/schematics/primitives/{hallucination,controller}.js · schematics/entities/thread.js · schematics/v.js
 subsystems/typology/gestalten/belt/soma.js         pour, scan, transcript
-systems/runtime/daemon/skills/{entity,buffer,thread,mode}.js
-systems/runtime/daemon/entities/{base,kernel,userspace,transient}/*.ts
+systems/runtime/gestalten/skills/{entity,buffer,thread,mode}.js
+systems/runtime/entities/{base,kernel,userspace,transient}/*.ts
 commons/hallucinators/{anthropic,openrouter}/provider/translate.js
 systems/anima/src/typology/entities/mode/traits/harnessed.js · src/app/panels/a/widgets/{Dock.svelte,stop.svelte.js,turns.js} · panels/e/widgets/Intelligent.svelte
 commons/instances/hello-world/{harness.js,mode.viva.js,tools/*} · commons/playground/{chaosmonkey,dealer}

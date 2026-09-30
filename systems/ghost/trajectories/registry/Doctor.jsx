@@ -21,10 +21,10 @@ export function Doctor({ report }) {
 
       <Box flexDirection="column" marginTop={1}>
         <Line name="record" note={`${record.tapped} tapped · ${record.stale.length} stale`} path={record.path} warn={record.stale.length > 0} />
-        {record.stale.map((reference) => (
-          <Text key={reference} color="red">
+        {record.stale.map((location) => (
+          <Text key={location} color="red">
             {"  ✗ "}
-            {reference}
+            {location}
             <Text color="gray">  gone — viva registry/untap</Text>
           </Text>
         ))}

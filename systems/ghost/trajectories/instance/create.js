@@ -16,7 +16,7 @@ export async function create(ctx) {
         error: `no instance module matches '${input ?? ""}' — usage: /instance/create <@owner/instance/slug | ../path> [target]`,
       });
     }
-    source = chosen.reference;
+    source = chosen.identifier;
   }
 
   let mount;

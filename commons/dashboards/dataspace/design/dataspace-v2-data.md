@@ -6,7 +6,7 @@ Numbered sections follow the request.
 
 ## 1. `/datamap` — verbatim strip
 
-`GET /daemon/droneaid/datamap` = `shard.datamap.strip(die.datamap.introspect())`. Note what the strip DROPS: primary key, `createdAt`/`updatedAt` (`onCreate`/`onUpdate`) and any `persist:false` prop. `activity` is a VirtualEntity so its `id/createdAt/updatedAt` survive as plain columns. `mode.traits`/`intent.traits` are `EnumArrayType` (comma-text on disk); every other `traits` is `JsonType`.
+`GET /daemon/droneaid/datamap` = `shard.datamap.strip(die.datamap.getMetadata())`. Note what the strip DROPS: primary key, `createdAt`/`updatedAt` (`onCreate`/`onUpdate`) and any `persist:false` prop. `activity` is a VirtualEntity so its `id/createdAt/updatedAt` survive as plain columns. `mode.traits`/`intent.traits` are `EnumArrayType` (comma-text on disk); every other `traits` is `JsonType`.
 
 ```json
 {

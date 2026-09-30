@@ -1,11 +1,6 @@
-import {
-  defineConfig,
-  FlushMode,
-  MikroORM,
-  RequestContext,
-} from "@mikro-orm/sqlite";
+import { defineConfig, MikroORM } from "@mikro-orm/sqlite";
 import { Migrator } from "@mikro-orm/migrations";
-// import * as libsql from "@libsql/client/node";
+import { Datamap } from "@vivalence/typology";
 
 const manifest = {
   type: "datamap",
@@ -13,83 +8,30 @@ const manifest = {
   name: "libsql",
 };
 
-const config = (
-  { dbName, contextName, entities, subscribers = [], migrations },
-) =>
-  defineConfig({
-    dbName,
-    ...(contextName && { contextName }),
+const config = (datamap, options = {}) => {
+  const seat = datamap.mountpoint?.branch(datamap.statics.db.file).absolute;
+  const contextName = datamap.statics?.context?.name ?? datamap.statics?.db?.file;
+  return defineConfig({
+    dbName: seat ?? ":memory:",
     loadStrategy: "balanced",
-    entities: entities.filter(Boolean),
-    subscribers: subscribers.filter(Boolean).map((Subscriber) =>
-      new Subscriber()
-    ),
-    ...(migrations && {
+    ...(contextName && { contextName }),
+    ...(seat && {
       extensions: [Migrator],
-      migrations: {
-        tableName: "_mikro_migrations",
-        path: migrations,
-        transactional: false,
-      },
+      migrations: { tableName: "_mikro_migrations", path: datamap.mountpoint.branch("migrations").absolute, transactional: false },
     }),
+    ...options,
   });
+};
 
-async function provider(datamap, instance, subscribers) {
-  const orm = await MikroORM.init(
-    config({
-      dbName: datamap.mountpoint.branch(datamap.statics.db.file).absolute,
-      contextName: datamap.statics.db.file,
-      entities: instance.map((v) => v.schema),
-      subscribers: subscribers ?? instance.map((v) => v.subscriber),
-      migrations: datamap.mountpoint.branch("migrations").absolute,
-    }),
-  );
-
-  const migrator = orm.getMigrator();
-  if (await migrator.checkMigrationNeeded()) await migrator.createMigration();
-  const pending = await migrator.getPendingMigrations();
-  if (pending.length > 0) await migrator.up();
-
-  // const repositories = {};
-  // for (const { type, schema, entity } of instance) {
-  //   if (!entity || !type) continue;
-  //   repositories[type] = orm.em.getRepository(entity);
-  // }
-  // return { orm, repositories, entities: repositories };
-
-  const entities = { em: orm.em };
-  for (const { type, schema, entity } of instance) {
-    if (!entity || !type) continue;
-    entities[type] = orm.em.getRepository(entity);
+async function provider(datamap, options) {
+  const orm = await MikroORM.init(config(datamap, options));
+  if (orm.config.get("dbName") === ":memory:") await orm.schema.createSchema();
+  else {
+    const migrator = orm.getMigrator();
+    if (await migrator.checkMigrationNeeded()) await migrator.createMigration();
+    if ((await migrator.getPendingMigrations()).length) await migrator.up();
   }
-
-  return {
-    entities,
-    shard: {
-      context: (fn) => RequestContext.create(orm.em, fn), // to be depracated
-      scope: (fn) => RequestContext.create(orm.em, fn),
-      bind: (name, resolve) => async (ctx, next) => {
-        RequestContext.getEntityManager(orm.em.name)?.setFilterParams(
-          name,
-          resolve(ctx),
-        );
-        await next();
-      },
-      // @beef hacky deep wire — carry the LIVE request context into a lazy streaming body
-      // (datamap.inject re-wraps the response so each pull runs `within`). re-ENTER the same fork
-      // via storage.run — never RequestContext.create, which forks a fresh identity map and would
-      // strand the parent turn.
-      carry: () => {
-        const context = RequestContext.currentRequestContext();
-        return (
-          fn,
-        ) => (context ? RequestContext.storage.run(context, fn) : fn());
-      },
-    },
-    subscribe: (sub) => orm.em.getEventManager().registerSubscriber(sub),
-    introspect: () => orm.getMetadata(),
-    disintegrate: () => orm.close(),
-  };
+  return new Datamap(orm);
 }
 
 export { config, manifest, provider };

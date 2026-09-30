@@ -9,14 +9,14 @@ export const registry = new Vector();
 
 async function packages() {
   await paladin.ledger.registry.supply();
-  const references = await paladin.ledger.registry.references();
+  const locations = await paladin.ledger.registry.locations();
   return Promise.all(
-    references.map(async (reference) => {
-      const root = paladin.ledger.registry.resolve(reference);
+    locations.map(async (location) => {
+      const root = paladin.ledger.registry.resolve(location);
       const declarations = await paladin.find.type(root, "package").catch(() => []);
       const modules = await paladin.find.viva(root).catch(() => []);
       return {
-        reference,
+        location,
         mount: root.absolute,
         owner: declarations.map((module) => module.manifest.owner).join(" ") || null,
         modes: modules.length || null,
@@ -28,12 +28,12 @@ async function packages() {
   );
 }
 
-async function tapped(reference) {
+async function tapped(location) {
   const rows = await packages();
   return (
-    rows.find((row) => row.reference === reference || row.reference === reference.replace(/^\.\//, "")) ??
-      rows.find((row) => row.mount === resolve(reference)) ??
-      rows.find((row) => (row.identifier ?? "").split(" ").includes(reference)) ??
+    rows.find((row) => row.location === location || row.location === location.replace(/^\.\//, "")) ??
+      rows.find((row) => row.mount === resolve(location)) ??
+      rows.find((row) => (row.identifier ?? "").split(" ").includes(location)) ??
       null
   );
 }
@@ -52,18 +52,18 @@ const declarationFirst = ([a], [b]) => (a === "package" ? -1 : b === "package" ?
 registry.open(
   {
     nature: "/doctor",
-    valence: "registry report card — the record against the store and what the taps supply: stale references, untapped residents, the mode census by owner",
+    valence: "registry report card — the record against the store and what the taps supply: stale locations, untapped residents, the mode census by owner",
     schema: v.object({}),
   },
   async (ctx) => {
     const registry = paladin.ledger.registry;
     await registry.supply();
-    const references = await registry.references();
+    const locations = await registry.locations();
     const entries = await Promise.all(
-      references.map(async (reference) => {
-        const root = registry.resolve(reference);
+      locations.map(async (location) => {
+        const root = registry.resolve(location);
         const declarations = await paladin.find.type(root, "package").catch(() => []);
-        return { reference, root: root.absolute, owners: declarations.map((module) => module.manifest.owner) };
+        return { location, root: root.absolute, owners: declarations.map((module) => module.manifest.owner) };
       }),
     );
     const packages = [];
@@ -73,7 +73,7 @@ registry.open(
       const tapped = entries.find((entry) => entry.owners.includes(owner));
       packages.push({
         owner,
-        reference: tapped?.reference ?? null,
+        location: tapped?.location ?? null,
         root: tapped?.root ?? null,
         modes: Object.values(types).reduce((sum, slugs) => sum + slugs.length, 0),
         types,
@@ -81,7 +81,7 @@ registry.open(
     }
 
     const report = {
-      record: { path: registry.path.absolute, tapped: references.length, stale: registry.stale, entries },
+      record: { path: registry.path.absolute, tapped: locations.length, stale: registry.stale, entries },
       store: await store(paladin, entries.map((entry) => entry.root)),
       // what the fold said at mount: one row per faulted path
       integrity: [...registry.integrity].map(([path, faults]) => ({ path: path.replace(/^\/registry/, ""), faults: [...faults] })),
@@ -105,14 +105,14 @@ registry.open(
     schema: v.object({}),
   },
   async (ctx) => {
-    ctx.effect = { packages: (await packages()).map((row) => object.filter(row, (key) => key !== "reference")) };
+    ctx.effect = { packages: (await packages()).map((row) => object.filter(row, (key) => key !== "location")) };
   },
 );
 
 registry.open(
   {
     nature: "/tap",
-    valence: "tap a package — record a reference; a remote source clones into the store (or target)",
+    valence: "tap a package — record a location; a remote source clones into the store (or target)",
     schema: v.object({
       source: v.string().desc("path or git url").optional(),
       target: v.string().desc("clone destination for a remote source").optional(),
@@ -123,11 +123,11 @@ registry.open(
     if (!source) throw new Error("usage: viva registry tap <path | git url> [target]");
     source = path.source(source);
     if (target) target = resolve(path.cwd(), target);
-    const reference = await paladin.ledger.registry.tap(source, target);
+    const location = await paladin.ledger.registry.tap(source, target);
     ctx.effect = {
-      reference,
-      root: paladin.ledger.registry.resolve(reference).absolute,
-      record: await paladin.ledger.registry.references(),
+      location,
+      root: paladin.ledger.registry.resolve(location).absolute,
+      record: await paladin.ledger.registry.locations(),
     };
   },
 );
@@ -136,14 +136,14 @@ registry.open(
   {
     nature: "/untap",
     valence: "untap a package — record removal only, the store keeps the working copy",
-    schema: v.object({ reference: v.string().desc("recorded reference").optional() }),
+    schema: v.object({ location: v.string().desc("recorded location").optional() }),
   },
   async (ctx) => {
-    const reference = ctx.signal.params?.[0];
-    if (!reference) throw new Error("usage: viva registry untap <reference>");
-    const held = await tapped(reference);
-    if (!held) throw new Error(`registry/untap: no tapped package '${reference}' — viva registry/list`);
-    ctx.effect = { untapped: held.reference, record: await paladin.ledger.registry.untap(held.reference) };
+    const location = ctx.signal.params?.[0];
+    if (!location) throw new Error("usage: viva registry untap <location>");
+    const held = await tapped(location);
+    if (!held) throw new Error(`registry/untap: no tapped package '${location}' — viva registry/list`);
+    ctx.effect = { untapped: held.location, record: await paladin.ledger.registry.untap(held.location) };
   },
 );
 

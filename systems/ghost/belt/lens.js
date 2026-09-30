@@ -21,7 +21,7 @@ export async function modes({ type } = {}) {
     keys: ["owner", "type", "slug"],
     facets: ["owner", "type"],
     columns: type ? ["owner", "slug"] : ["owner", "type", "slug"],
-    reference: (row) => `${row.owner}/${row.type}/${row.slug}`,
+    identifier: (row) => `${row.owner}/${row.type}/${row.slug}`,
   };
 }
 
@@ -40,7 +40,7 @@ export async function instances() {
     keys: ["slug", "mount"],
     facets: ["slug"],
     columns: ["slug", "updated", { key: "mount", color: undefined }],
-    reference: (row) => row.slug,
+    identifier: (row) => row.slug,
   };
 }
 

@@ -3,7 +3,7 @@ import { lens, pick } from "../../belt/index.js";
 import { locate, register } from "./target.js";
 
 export async function use(ctx) {
-  const input = ctx.signal.params?.[0];
+  const token = ctx.signal.params?.[0];
 
   const report = () => (ctx.effect = {
     instance: paladin.env.get("VIVA_INSTANCE_MOUNT"),
@@ -11,11 +11,11 @@ export async function use(ctx) {
     mount: paladin.scope.instance?.absolute ?? null,
   });
 
-  let reference = null;
-  if (input) {
-    const found = await locate(ctx, input);
+  let mount = null;
+  if (token) {
+    const found = await locate(ctx, token);
     if (!found.mount) return (ctx.effect = found);
-    reference = found.mount;
+    mount = found.mount;
   } else {
     const instances = await lens.instances();
     // bare `use` where no prompt can happen (a pipe, --json, an empty ledger) stays the report.
@@ -23,7 +23,7 @@ export async function use(ctx) {
     const chosen = await pick(ctx, instances);
     if (chosen?.aborted) return (ctx.effect = { aborted: true });
     if (!chosen) return report();
-    reference = chosen.row.mount;
+    mount = chosen.row.mount;
   }
 
   const shell = Deno.env.get("VIVA_PROCESS_ID");
@@ -38,12 +38,12 @@ export async function use(ctx) {
   const tag = ledger ? "ledger" : "session";
 
   // the ledger's .env is authored — upsert one line. a session record is machine state — JSON.
-  if (ledger) await paladin.state.env(record, { VIVA_INSTANCE_MOUNT: reference });
+  if (ledger) await paladin.state.env(record, { VIVA_INSTANCE_MOUNT: mount });
   else {
     const held = (await paladin.read.json(record, null)) ?? {};
-    await paladin.state.json(record, { ...held, VIVA_INSTANCE_MOUNT: reference });
+    await paladin.state.json(record, { ...held, VIVA_INSTANCE_MOUNT: mount });
   }
-  paladin.env.set("VIVA_INSTANCE_MOUNT", reference, tag);
+  paladin.env.set("VIVA_INSTANCE_MOUNT", mount, tag);
 
   const stratum = paladin.env.provenance("VIVA_INSTANCE_MOUNT");
   let note = null;
@@ -59,7 +59,7 @@ export async function use(ctx) {
   if (rest.length) return (ctx.effect = await ctx.call([`instance/${rest[0]}`, ...rest.slice(1)]));
 
   ctx.effect = {
-    selected: reference,
+    selected: mount,
     stratum,
     mount: paladin.scope.instance.absolute,
     record: record.absolute,

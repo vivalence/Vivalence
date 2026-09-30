@@ -28,6 +28,14 @@ def when(s):
         return 0.0
 
 
+def text(value):
+    if isinstance(value, str):
+        return value
+    if isinstance(value, list):
+        return " ".join(b.get("text", "") for b in value if isinstance(b, dict) and b.get("type") == "text")
+    return None
+
+
 def transcript(sid):
     if sid:
         return os.path.join(D, sid + ".jsonl")
@@ -44,15 +52,11 @@ def turns(path):
         t = e.get("type"); ts = e.get("timestamp") or ""
         txt = None
         if t == "queue-operation" and e.get("content"):
-            txt = e["content"]
+            txt = text(e["content"])
         elif t == "attachment" and (e.get("attachment") or {}).get("type") == "queued_command" and e["attachment"].get("humanTurn"):
-            txt = e["attachment"].get("prompt")
+            txt = text(e["attachment"].get("prompt"))
         elif t == "user":
-            c = e.get("message", {}).get("content")
-            if isinstance(c, str):
-                txt = c
-            elif isinstance(c, list):
-                txt = " ".join(b.get("text", "") for b in c if isinstance(b, dict) and b.get("type") == "text")
+            txt = text(e.get("message", {}).get("content"))
         if not txt or not txt.strip():
             continue
         txt = txt.strip()

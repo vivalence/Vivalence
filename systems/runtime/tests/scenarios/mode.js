@@ -1,7 +1,9 @@
 import { Url, Connection, Mode, Path, Aperture, Vector, shape, shard } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
 import { seed, tiers } from "./fixtures.js";
-import { INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING, stagger } from "@vivalence/runtime/daemon/traits";
+import { gestalten, lifecycle } from "@vivalence/runtime";
+const { INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING } = lifecycle.mode.traits;
+const { stagger } = gestalten.belt;
 
 // ── test-only APPLICATION ─────────────────────────────────────────────
 // No paladin, no bundler. Mirrors the real trait's buffer factory: fill()
@@ -35,7 +37,7 @@ function APPLICATION(mode, daemon) {
 function buildDaemon(datamap, fixtures) {
   const daemon = {
     manifest: { slug: "test-daemon", traits: [] },
-    mount: new Path("/daemon/test-daemon"),
+    reference: new Path("/daemon/test-daemon"),
     aperture: new Aperture(),
     twitch: new Vector(),
     entities: datamap.entities,
@@ -53,7 +55,7 @@ function buildDaemon(datamap, fixtures) {
     },
   };
 
-  datamap.subscribe(shape.subscriber(daemon.twitch));
+  datamap.registerSubscriber(shape.subscriber(daemon.twitch));
 
   daemon.aperture.use(shard.context.bind("daemon", daemon));
   daemon.aperture.use(async (ctx, next) => {
@@ -76,7 +78,7 @@ async function wireMode(viva, daemon) {
   mode.aperture = new Aperture();
   mode.aperture.use(shard.context.bind("daemon", daemon));
   mode.aperture.use(shard.context.bind("mode", mode));
-  mode.mount = new Path(`/mode/${viva.manifest.type}/${viva.manifest.slug}`);
+  mode.reference = new Path(`/mode/${viva.manifest.type}/${viva.manifest.slug}`);
 
   mode.entity =
     (await em.findOne(tiers.mode.entity, { slug: viva.manifest.slug })) ??
@@ -108,7 +110,7 @@ async function wireMode(viva, daemon) {
   const finalizers = await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER, EXPOSED, TOOLING, ...(daemon.cortex && { HARNESSED }) });
   for (const finalize of finalizers) await finalize();
 
-  daemon.aperture.branch(mode.mount.absolute).slurp(mode.aperture); // → conn-reachable
+  daemon.aperture.branch(mode.reference.absolute).slurp(mode.aperture); // → conn-reachable
 
   return mode;
 }

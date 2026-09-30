@@ -7,6 +7,7 @@ export {
   SNAP_PERCENTS,
   SNAP_DISTANCE,
   WALL_SNAP,
+  WALL_FRICTION,
   clamp,
   snapToGrid,
   snapToWall,

@@ -5,8 +5,8 @@ import paladin from "@vivalence/paladin";
 // supply() folds the whole record once; every later accio is a pensieve read.
 let supplied = null;
 
-export async function accio(reference) {
+export async function accio(identifier) {
   supplied ??= paladin.ledger.registry.supply();
   await supplied;
-  return await paladin.ledger.registry.accio(reference);
+  return await paladin.ledger.registry.accio(identifier);
 }

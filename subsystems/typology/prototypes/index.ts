@@ -53,6 +53,7 @@ export * from "./aperture.js";
 export * from "./remote-repository.js";
 export * from "./local-repository.js";
 export * from "./entity-manager.js";
+export * from "./datamap.js";
 export * from "./broadcaster.js";
 export * from "./cortex.js";
 export * from "./controller.js";

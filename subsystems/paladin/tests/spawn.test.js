@@ -18,7 +18,7 @@ const child = (process, script, extra = {}) => ({
   identity: { process, mount: "/tmp" },
   command: { bin: Deno.execPath(), args: ["eval", script], env: ENV, ...extra },
 });
-const ALIVE = 'console.log("Status:ALIVE"); setTimeout(() => Deno.exit(0), 400);';
+const ALIVE = 'console.log("Status:RUNNING"); setTimeout(() => Deno.exit(0), 400);';
 const DIES = "Deno.exit(1);";
 const MUTE = "setTimeout(() => Deno.exit(0), 5000);";
 
@@ -119,7 +119,7 @@ Deno.test({
     await die.perpetuate();
     const text = await paladin.read.text(paladin.scope.ledger.branch("/logs/logged/writer.out.log"));
     assert(text.includes("hello from writer"));
-    assert(text.includes("Status:ALIVE"));
+    assert(text.includes("Status:RUNNING"));
   },
 });
 

@@ -50,7 +50,7 @@ describe("v.primitives.instance — one schematic for the settled unit", () => {
     expect(held.daemons[0].lighthouse.statics.remote).toBeInstanceOf(Url);
   });
 
-  it("the kernel admits a reference, a mode, and an inline module — a mode's mountpoint decodes, null stays null", () => {
+  it("the kernel admits an identifier, a mode, and an inline module — a mode's mountpoint decodes, null stays null", () => {
     const kernel = [
       "@commons/playground/spawner",
       { module: "@vcompany/office/vdex", mountpoint: "/jdex", statics: { formats: ["md"] } },

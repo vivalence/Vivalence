@@ -1,10 +1,10 @@
 import { assert, assertEquals } from "@std/assert";
 import { shard, steer, ToolCall, Vector } from "@vivalence/typology";
 import { seed } from "./scenarios/datamap.js";
-import * as skills from "../daemon/skills/index.js";
+import { gestalten } from "@vivalence/runtime";
 
 const harness = (entities) =>
-  new Vector().use(shard.context.bind("daemon", { entities })).slurp(skills.entity.entity);
+  new Vector().use(shard.context.bind("daemon", { entities })).slurp(gestalten.skills.entity.entity);
 
 const invoke = (armed, name, input) =>
   steer.dispatch.invoke(armed, new ToolCall(name).signal, steer.strategy.guarded)(input);

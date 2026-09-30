@@ -1,6 +1,6 @@
 import { fromm, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { BufferEntity } from "@vivalence/runtime";
-import * as skills from "../daemon/skills/index.js";
+import { gestalten } from "@vivalence/runtime";
 import { create } from "./scenarios/cortex.js";
 
 // every buffer is LABELED: a row that claims the trait is left alone; one that does not is named
@@ -14,7 +14,7 @@ const reload = (em, id) => em.fork().findOneOrFail(BufferEntity, { id });
 const invoke = async (daemon, name, input) =>
   fromm.yield(
     await steer.dispatch.invoke(
-      new Vector().slurp(skills.buffer.buffer).use(shard.context.bind("daemon", daemon)),
+      new Vector().slurp(gestalten.skills.buffer.buffer).use(shard.context.bind("daemon", daemon)),
       new ToolCall(name).signal,
       steer.strategy.guarded,
     )(input),

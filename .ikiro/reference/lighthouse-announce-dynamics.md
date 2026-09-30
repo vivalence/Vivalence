@@ -4,17 +4,16 @@
 
 ## The wire
 
-A runtime process, after its daemons are integrated, announces each of them to the lighthouse named by `paladin.instance.lighthouse.statics.remote` (`systems/runtime/lifecycle/integrate.js:56-77`):
+A runtime process, after its daemons are integrated, announces each of them to the lighthouse named by `paladin.instance.lighthouse.statics.remote` (`systems/runtime/lifecycle/runtime/integration.js:36-56`, the vector's last beat since m74 M5):
 
 ```js
-// systems/runtime/lifecycle/integrate.js
-for (const daemonDie of die.good.daemons) {
-  await connection.call("/entities/daemon/ensure", {
-    data: { slug: daemonDie.slug, url: daemonDie.good.url.absolute },
-  });
+// systems/runtime/lifecycle/runtime/integration.js
+const daemons = await die.runtime.processes.daemon.find();
+for (const daemon of daemons) {
+  await connection.call("/entities/daemon/ensure", { data: { slug: daemon.slug, url: daemon.url.absolute } });
 }
 const evicted = await connection.call("/entities/daemon/remove", {
-  where: { url: { $like: `${origin}%` }, slug: { $nin: slugs } },
+  where: { url: { $like: `${origin}%` }, slug: { $nin: daemons.map((daemon) => daemon.slug) } },
 });
 ```
 
@@ -23,7 +22,7 @@ const evicted = await connection.call("/entities/daemon/remove", {
 The lighthouse serves the row through a generic repository shard (`subsystems/typology/gestalten/shard/datamap.js:138`) over this entity:
 
 ```ts
-// systems/runtime/daemon/entities/network/Daemon.ts
+// subsystems/typology/entities/lighthouse/Daemon.ts
 export class DaemonRepository extends DataRepository {
   unique(query) { return { slug: query.slug }; }
 }
@@ -34,7 +33,7 @@ properties: {
 ```
 
 ```ts
-// systems/runtime/daemon/entities/base/DataEntity.ts:45
+// subsystems/typology/entities/base/DataEntity.ts:45
 async ensure(query) {
   const existing = await this.findOne(this.unique(query));
   if (existing) { existing.assign(query); return existing; }

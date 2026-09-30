@@ -58,9 +58,9 @@ export function Doctor({ report }) {
           tail="registry/doctor"
         />
         {stale.map((entry) => (
-          <Text key={entry.reference} color="red">
+          <Text key={entry.location} color="red">
             {"    ✗ "}
-            {entry.reference}
+            {entry.location}
             <Text color="gray">  gone — viva registry/untap</Text>
           </Text>
         ))}

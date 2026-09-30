@@ -47,7 +47,7 @@ const mount = (mod) => {
   return lifecycle.mount(lifecycle.populate.instance(paladin));
 };
 
-describe("instance kernel references", () => {
+describe("instance kernel identifiers", () => {
   it("the four kernel forms resolve: bare kept, absolute kept, relative vs the instance file, inline stamped with the instance mount — each seated with its mountpoint", async () => {
     const instance = await mount(module);
     const [daemon] = instance.daemons;
@@ -59,7 +59,7 @@ describe("instance kernel references", () => {
     expect(instance.faults).toEqual([]);
   });
 
-  it("every mode has a ground without the recipe saying one: <daemon mountpoint>/mode_<type>_<slug>; a reference names both, a path names what it can, a declared mountpoint wins", async () => {
+  it("every mode has a ground without the recipe saying one: <daemon mountpoint>/mode_<type>_<slug>; an identifier names both, a path names what it can, a declared mountpoint wins", async () => {
     const instance = await mount({
       ...module,
       daemons: [{ ...module.daemons[0], kernel: [...module.daemons[0].kernel, "/pkg/modes/editor/import/import.viva.js", { module: "@commons/editor/media", mountpoint: "/Users/op/media" }] }],

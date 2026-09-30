@@ -14,6 +14,8 @@ const TAP_MAX_MS = 250;
 const TAP_MAX_MOVE = 8;
 const MULTI_TAP_WINDOW = 280;
 const LONG_PRESS_MS = 420;
+const VELOCITY_WINDOW = 80;
+const WALL_ONSET = 120;
 
 export const RADIAL_RADIUS = 108;
 export const FLASH_DURATION_MS = 240;
@@ -35,10 +37,25 @@ const CLOSED = { show: false, sticky: false, snap: 90, anchor: null, back: null,
 
 const arc = (angle, toward) => Math.abs(((angle - toward + 540) % 360) - 180);
 
+const free = (value, length, grid) => clamp(grid ? snapToGrid(value, length) : value, EDGE_PADDING, length - EDGE_PADDING);
+
 const land = (value, length, grid) => {
   const walled = snapToWall(value, length);
-  if (walled !== value) return walled;
-  return clamp(grid ? snapToGrid(value, length) : value, EDGE_PADDING, length - EDGE_PADDING);
+  return walled !== value ? walled : free(value, length, grid);
+};
+
+const onward = (value, length, velocity, shown) => {
+  const walled = snapToWall(value, length, velocity);
+  return walled !== value ? walled : shown;
+};
+
+const sample = (event) => ({ x: event.clientX, y: event.clientY, time: event.timeStamp });
+
+const velocity = (trail) => {
+  const first = trail[0];
+  const last = trail.at(-1);
+  const span = last.time - first.time;
+  return span > 0 ? { x: (last.x - first.x) / span, y: (last.y - first.y) / span } : { x: 0, y: 0 };
 };
 
 export class Gesture {
@@ -53,6 +70,8 @@ export class Gesture {
       downY: 0,
       startPincerX: 0,
       startPincerY: 0,
+      trail: [],
+      walls: { x: null, y: null },
       tapCount: 0,
       tapTimer: null,
       longPressTimer: null,
@@ -98,6 +117,8 @@ export class Gesture {
     this.state.downY = event.clientY;
     this.state.startPincerX = pincer.x;
     this.state.startPincerY = pincer.y;
+    this.state.trail = [sample(event)];
+    this.state.walls = { x: null, y: null };
     this.$dragging.set(false);
     this.$longPress.set(false);
     this.$fromSticky.set(this.$radial.get().sticky);
@@ -113,6 +134,7 @@ export class Gesture {
 
   move = (event) => {
     if (this.state.pointerId !== event.pointerId) return;
+    this.track(event);
     const viewport = this.layout.$viewport.get();
     const deltaX = event.clientX - this.state.downX;
     const deltaY = event.clientY - this.state.downY;
@@ -133,13 +155,37 @@ export class Gesture {
     }
 
     if (this.$dragging.get() && !this.layout.$locked.get()) {
-      const grid = this.view.$snap.get();
       this.layout.pincer = {
-        x: land(this.state.startPincerX + deltaX, viewport.width, grid),
-        y: land(this.state.startPincerY + deltaY, viewport.height, grid),
+        x: this.approach("x", this.state.startPincerX + deltaX, viewport.width),
+        y: this.approach("y", this.state.startPincerY + deltaY, viewport.height),
       };
     }
   };
+
+  track(event) {
+    const now = sample(event);
+    this.state.trail = [...this.state.trail.filter((held) => now.time - held.time <= VELOCITY_WINDOW), now];
+  }
+
+  approach(axis, value, length) {
+    const now = this.state.trail.at(-1);
+    const wall = snapToWall(value, length, velocity(this.state.trail)[axis]);
+    const held = this.state.walls[axis];
+    const caught = wall === value ? null : held?.wall === wall ? held : { wall, since: now.time };
+    this.state.walls[axis] = caught;
+    return caught && now.time - caught.since >= WALL_ONSET ? wall : free(value, length, this.view.$snap.get());
+  }
+
+  fling(event) {
+    this.track(event);
+    const viewport = this.layout.$viewport.get();
+    const pincer = this.layout.$pincer.get();
+    const pace = velocity(this.state.trail);
+    this.layout.pincer = {
+      x: onward(this.state.startPincerX + event.clientX - this.state.downX, viewport.width, pace.x, pincer.x),
+      y: onward(this.state.startPincerY + event.clientY - this.state.downY, viewport.height, pace.y, pincer.y),
+    };
+  }
 
   up = (event) => {
     if (this.state.pointerId !== event.pointerId) return;
@@ -158,6 +204,7 @@ export class Gesture {
     if (this.$dragging.get()) {
       this.$dragging.set(false);
       if (this.layout.$locked.get()) return;
+      this.fling(event);
       this.layout.previous = { x: this.state.startPincerX, y: this.state.startPincerY, orientation: this.layout.$orientation.get() };
       this.bridge.save();
       return;

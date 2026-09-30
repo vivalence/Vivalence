@@ -1,8 +1,8 @@
 import { MikroORM } from "@mikro-orm/core";
 import paladin from "@vivalence/paladin";
 
-import { Url, Connection, shard, shape, Aperture, Vector, specimen, RemoteRepository, RemoteEntityManager } from "@vivalence/typology";
-import * as routes from "@vivalence/runtime/daemon/aperture";
+import { Url, Connection, shard, shape, Aperture, Vector, specimen, middleware, RemoteRepository, RemoteEntityManager } from "@vivalence/typology";
+import { lifecycle } from "@vivalence/runtime";
 import { instance } from "../scenarios/fixtures.js";
 import { accio } from "../scenarios/registry.js";
 
@@ -58,10 +58,10 @@ export async function topography() {
   const domain = await accio("@education/domain/language-learning");
   const descriptors = instance(domain.entities);
   const orm = await MikroORM.init({
-    ...config({
+    ...config({}, {
       dbName: DB,
       entities: descriptors.map((descriptor) => descriptor.schema),
-      subscribers: descriptors.map((descriptor) => descriptor.subscriber),
+      subscribers: descriptors.map((descriptor) => descriptor.subscriber).filter(Boolean).map((Subscriber) => new Subscriber()),
     }),
     allowGlobalContext: true,
   });
@@ -71,9 +71,8 @@ export async function topography() {
     if (entity && type) entities[type] = orm.em.getRepository(entity);
   }
 
-  const daemon = { aperture: new Aperture(), entities, twitch: entities.twitch };
-  const die = { good: daemon, datamap: { introspect: () => orm.getMetadata() } };
-  await routes.datamap(die);
+  const daemon = { aperture: new Aperture(), entities, twitch: entities.twitch, datamap: { getMetadata: () => orm.getMetadata() } };
+  await middleware.compose([lifecycle.daemon.aperture.datamap])({ daemon });
 
   const handler = shape.http(daemon.aperture);
   const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));

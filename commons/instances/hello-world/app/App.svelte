@@ -418,7 +418,7 @@
               <div class="crest">
                 <span class="teal">{held.type}/{held.slug}</span>
                 <span class="spring"></span>
-                <span class="trace">{held.mount}</span>
+                <span class="trace">{held.reference}</span>
               </div>
               <div class="tags">
                 {#each held.traits as trait}<span class="tag teal">{trait}</span>{/each}

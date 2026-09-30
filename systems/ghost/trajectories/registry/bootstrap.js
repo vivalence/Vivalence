@@ -34,7 +34,7 @@ export async function bootstrap(ctx) {
     const chosen = await pick(ctx, await lens.modes({ type: "package" }), input);
     if (chosen?.aborted) return (ctx.effect = { aborted: true });
     if (chosen) {
-      const module = await paladin.ledger.registry.accio(chosen.reference);
+      const module = await paladin.ledger.registry.accio(chosen.identifier);
       from = dirname(module.source.absolute);
     } else {
       const local = path.pin(input);
@@ -67,6 +67,6 @@ export async function bootstrap(ctx) {
     slug,
     target,
     from,
-    record: await paladin.ledger.registry.references(),
+    record: await paladin.ledger.registry.locations(),
   };
 }

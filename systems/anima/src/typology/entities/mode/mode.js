@@ -59,7 +59,7 @@ export const ModeDossier = {
     async (ctx, next) => {
       await next();
       ctx.entity.daemon = ctx.daemon;
-      ctx.entity.mount = ctx.daemon.mount.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
+      ctx.entity.reference = ctx.daemon.reference.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
       ctx.entity.connection = ctx.daemon.connection.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
       ctx.entity.link = ctx.daemon.link.branch(`/${ctx.entity.type}/${ctx.entity.slug}`);
     },

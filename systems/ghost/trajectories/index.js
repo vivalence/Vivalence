@@ -26,7 +26,7 @@ export default function (trajectory) {
       valence:
         "select this shell's instance (VIVA_PROCESS_ID session) — a bare slug resolves against the ledger, an ambiguous or missing one opens the picker; bare use in a pipe prints current + provenance; trailing segments chain under /instance (instance/use italian run)",
       schema: v.object({
-        reference: v.string().desc("slug | /abs | source path — preset for the picker").optional(),
+        token: v.string().desc("slug | /abs | source path — preset for the picker").optional(),
         ledger: v.boolean().desc("write the machine default (<ledger>/.env) instead of this shell's session").group("flags").optional(),
       }),
     },

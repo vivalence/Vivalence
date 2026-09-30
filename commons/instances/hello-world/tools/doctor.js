@@ -88,7 +88,7 @@ export const report = async (ctx) => {
         slug: mode.manifest.slug,
         name: mode.manifest.name ?? mode.manifest.slug,
         traits: mode.manifest.traits ?? [],
-        mount: mode.mount?.nature ?? null,
+        reference: mode.reference?.nature ?? null,
         routes: routes(shape.strip(mode.aperture)),
       })),
       declaration: (mask.kernel ?? []).map(declared),
@@ -141,7 +141,7 @@ export const report = async (ctx) => {
 
     registry: {
       mount: paladin.scope.registry?.absolute ?? null,
-      locations: await paladin.ledger.registry.references(),
+      locations: await paladin.ledger.registry.locations(),
       stale: paladin.ledger.registry.stale,
       modules: [...paladin.ledger.registry.pensieve].flatMap(([owner, types]) =>
         [...types].flatMap(([type, slugs]) =>

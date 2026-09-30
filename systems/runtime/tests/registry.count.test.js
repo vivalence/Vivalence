@@ -1,7 +1,7 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import paladin from "@vivalence/paladin";
-import { registry } from "../lifecycle/populate.js";
+import { lifecycle } from "@vivalence/runtime";
 
 // A CENSUS, not a count. The old assertion pinned a literal (BASELINE + 8), so ordinary
 // registry growth reddened it and the only repair was re-capturing the number — the act
@@ -19,7 +19,7 @@ const leaves = (pensieve) => {
 
 describe("registry ingest", () => {
   it("lands every module under a stamped owner — nothing ownerless, nothing versionless", async () => {
-    await registry();
+    await lifecycle.runtime.population.registry({}, async () => {});
     const ingested = leaves(paladin.ledger.registry.pensieve);
 
     expect(ingested.length).toBeGreaterThan(0);
@@ -35,7 +35,7 @@ describe("registry ingest", () => {
   // disk that this instance does not mount, so naming the mounted set would pin the same kind
   // of literal the count did. The invariant is per-owner and survives mounting it later.
   it("gives every ingested owner a package-typed self-manifest — a mount without one cannot register", async () => {
-    await registry();
+    await lifecycle.runtime.population.registry({}, async () => {});
     const ingested = leaves(paladin.ledger.registry.pensieve);
     const owners = [...new Set(ingested.map((leaf) => leaf.owner))];
 
@@ -47,7 +47,7 @@ describe("registry ingest", () => {
   });
 
   it("keys a slug once per owner+type, so a mount cannot ingest the same module twice", async () => {
-    await registry();
+    await lifecycle.runtime.population.registry({}, async () => {});
     const keys = leaves(paladin.ledger.registry.pensieve).map((leaf) => `${leaf.owner}/${leaf.type}/${leaf.slug}`);
     expect(keys.length).toBe(new Set(keys).size);
   });
@@ -56,7 +56,7 @@ describe("registry ingest", () => {
   // the LOCK mechanism is still covered, in paladin's registry.mount.test.js, via an in-memory fixture.
 
   it("fork 2: multiplayer + hello-world wafers resolve under @commons", async () => {
-    await registry();
+    await lifecycle.runtime.population.registry({}, async () => {});
     const multiplayer = await paladin.ledger.registry.pensieve.revelio({ owner: "@commons", type: "instance", slug: "multiplayer" });
     const hello = await paladin.ledger.registry.pensieve.revelio({ owner: "@commons", type: "instance", slug: "hello-world" });
     expect(multiplayer).toBeTruthy();

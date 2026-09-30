@@ -39,7 +39,7 @@ export async function create({ port = 0 } = {}) {
   entities.probe = new VirtualRepository(em, ProbeEntity);      // the context constructs and holds it — `kernel.constraint = new …`
 
   // no global context, ever: the fixtures are written inside one, like every write after them
-  const { user, stranger, mode, thread } = await datamap.shard.context(async () => {
+  const { user, stranger, mode, thread } = await datamap.shard.scope(async () => {
     const em = orm.em.getContext();
     const user = em.create(UserEntity, { roles: ["USER"], config: {} });
     const stranger = em.create(UserEntity, { roles: ["USER"], config: {} });
@@ -52,11 +52,11 @@ export async function create({ port = 0 } = {}) {
   });
 
   const twitch = new Vector();
-  datamap.subscribe(shape.subscriber(twitch));
+  datamap.registerSubscriber(shape.subscriber(twitch));
 
   // a daemon-side write rides a request context, as in production: fresh identity map → cold references →
   // to-ones serialize as ids → the Broadcaster's `object.match` (===) meets a `{ user }` filter
-  const as = (who, fn) => datamap.shard.context(() => { orm.em.getContext().setFilterParams("user", { user: who.id }); return fn(); });
+  const as = (who, fn) => datamap.shard.scope(() => { orm.em.getContext().setFilterParams("user", { user: who.id }); return fn(); });
 
   const aperture = new Aperture();
   aperture.use(shard.datamap.inject(datamap));
@@ -66,7 +66,7 @@ export async function create({ port = 0 } = {}) {
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
     .slurp(shard.datamap.repository(entities.probe))
     .slurp(shard.datamap.reactive(entities.probe, twitch));
-  aperture.open("/datamap", () => shard.datamap.strip(datamap.introspect()));
+  aperture.open("/datamap", () => shard.datamap.strip(datamap.getMetadata()));
 
   const gate = shard.serve.multiplex(aperture);
   aperture.open("/multiplex", gate);
@@ -82,7 +82,7 @@ export async function create({ port = 0 } = {}) {
       await as(user, () => entities.probe.remove({}));
       abort.abort();
       await sleep.ms(20);
-      await datamap.disintegrate();
+      await datamap.close();
     },
   };
 }

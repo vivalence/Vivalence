@@ -161,3 +161,56 @@ specimen.describe("theme names — the radial reads in every theme", () => {
     specimen.expect(failures).toEqual([]);
   });
 });
+
+specimen.describe("theme names — the spine's cards read in every theme", () => {
+  specimen.it("on the chrome zone of all four themes the hover card, the pinned card, its rows and its empty box keep text apart from its ground", async () => {
+    const styleOf = (text) => text.split("<style>")[1].replace(/\/\*[\s\S]*?\*\//g, "");
+    const rulesOf = (style) =>
+      [...style.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([, selectors, body]) => ({
+        selectors: selectors.split(",").map((selector) => selector.trim()),
+        body: Object.fromEntries([...body.matchAll(/(?<![\w-])(color|background)\s*:\s*([^;]+);/g)].map(([, key, value]) => [key, value.trim()])),
+      }));
+    const spine = rulesOf(styleOf(source("app/bones/spine/spine.svelte")));
+    const float = rulesOf(styleOf(Deno.readTextFileSync(new URL("../../../../subsystems/drapes/panels/Float.svelte", import.meta.url))));
+    const rule = (rules, ...wanted) => Object.assign({}, ...rules.filter(({ selectors }) => selectors.some((selector) => wanted.includes(selector))).map(({ body }) => body));
+
+    const card = rule(spine, ".spine-card").background;
+    const pinned = rule(float, ".float").background;
+    const picked = rule(spine, ".spine-row.picked").background;
+    const pairs = [
+      ["hover card · name", rule(spine, ".spine-name").color, card],
+      ["hover card · modes and threads", rule(spine, ".spine-sub").color, card],
+      ["hover card · activity", rule(spine, ".spine-act-name").color, card],
+      ...["primary", "positive", "caution", "negative"].map((tone) => [`hover card · ${tone} state`, rule(spine, `.spine-state.${tone}`).color, card]),
+      ["pinned card · title", rule(spine, ".spine-title").color, pinned],
+      ["pinned card · labels", rule(spine, ".spine-label").color, pinned],
+      ["pinned card · keys", rule(spine, ".spine-key").color, pinned],
+      ["pinned card · values", rule(spine, ".spine-value").color, pinned],
+      ["pinned card · a row", rule(spine, ".spine-row-name").color, pinned],
+      ["pinned card · the picked row", rule(spine, ".spine-row-name").color, picked],
+      ["pinned card · a busy count, picked", rule(spine, ".spine-row-live.busy").color, picked],
+      ["pinned card · an activity, hovered", rule(spine, ".spine-kid-name").color, rule(spine, ".spine-kid:hover").background],
+      ["pinned card · no connection", rule(spine, ".spine-off").color, rule(spine, ".spine-off").background],
+    ];
+
+    const sheet = (await design()).output.css;
+    const tokens = (selector) => {
+      const start = sheet.indexOf(`${selector} {`);
+      return start < 0 ? {} : Object.fromEntries([...sheet.slice(start, sheet.indexOf("}", start)).matchAll(/(--[a-z0-9-]+):\s*([^;]+);/g)].map(([, key, value]) => [key, value.trim()]));
+    };
+    const failures = [];
+    for (const name of THEMES) {
+      const scope = { ...tokens(`:root[data-theme="${name}"]`), ...tokens(`:root[data-theme="${name}"] [data-zone="0"]`) };
+      const resolve = (value) => {
+        let current = value;
+        for (let depth = 0; depth < 8 && /^var\(--[a-z0-9-]+\)$/.test(current); depth++) current = scope[current.slice(4, -1)];
+        return current;
+      };
+      for (const [label, ink, ground] of pairs) {
+        const ratio = contrast(resolve(ink), resolve(ground));
+        if (!(ratio >= 4.5)) failures.push(`${name} · ${label}: ${ink} on ${ground} reads ${ratio.toFixed(2)}, under 4.5`);
+      }
+    }
+    specimen.expect(failures).toEqual([]);
+  });
+});

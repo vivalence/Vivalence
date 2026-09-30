@@ -1,0 +1,99 @@
+#+title: a thrown pincer lands on its wall after a beat, an entrypoint opens its buffer, and the spine's dots show their daemons
+#+index: 239
+#+session: session 9c4d5944, turns 179–189 (fold N = 11, the eleventh fold; #216 holds 1–26, #217 27–61, #218 62–76, #220 77–89, #221 90–109, #222 110–122, #223 123–141, #224 142–161, #226 162–168, #238 169–178). beef's thread: /"add another mechanic to the pincer drag n drop. […] the faster i move towards a wall, the larger its gravity snap is."/ with /"also, important. when i open a ste a mode and its an entrypoint, automaticlly open the buffer."/ → a screenshot and his terminal's log → /"now the drag n drop feels jumpy. can you add a slight delay to the onset?"/ → the comp's handoff pasted with /"the dots arent behaving yet."/ → /"ikiro compact"/.
+
+* one breath
+
+(179–180) the =/compact= queued after #238 went through; under the harness's summary the #238 report went out.
+
+(181–182) Two orders in one message. The throw: a wall now judges where the dragged joint would LAND — the pointer plus the slide a puck on friction would travel, =v·|v| / 2·0.004=, =v= over the last 80 ms per axis — and its reach at rest halves to a twentieth of the axis, read from /"when i move slow, they arent as grabby"/ as less than today; five steps red on the old engine. The entrypoint: "entrypoint" is the tree's trait =STANDALONE= (=hello-world/mode.viva.js:18=, =Mode.ts:14= =// ? Rename ENTRYPOINT=); setting such a mode in panel D opens the thread's last buffer on it, else mints one — the body in =mode/traits/standalone.js=, reached as =ModeTraits.standalone.open=. Mid-turn beef sent a screenshot and his terminal: his =runtime/watch= faulted =EADDRINUSE= and he ran =pkill deno=. The port was held by MY watcher, restarted from my shell folds ago, listed at #238 as owed to him, alive 1 d 17 h with 43 esbuild services under it; SIGINTed, the leak filed as a known issue, the callout proposes =left-running=. The screenshot's intelligence float says /off · the mode answers without a model/ beside a log where the mode answered through four model rounds — flagged, untouched.
+
+(183) /"now the drag n drop feels jumpy. can you add a slight delay to the onset?"/ Read as the onset of the wall's catch: a burst's landing reached a wall and the joint jumped, then jumped back as the burst slowed. A wall now takes a dragged joint only after its landing has kept to the reach for 120 ms; leaving frees it at once; the drop judges the lift's own velocity with no onset, so a joint let go in flight still flies on. Six steps red on the pre-onset engine, the burst that jumped among them.
+
+(184–186) The comp's handoff pasted, two screenshots, /"the dots arent behaving yet."/ The comp re-fetched whole and diffed against the copy from the chrome port: unchanged but for repaired encoding, a preview theme and one binding. My first line named the screenshots his anima; they were the comp — its lighthouse "beef", its four sample daemons, and "44ms" is its =hash("italian")=. Corrected in the turn; a RULE FAILURE at this fold. The live spine had the comp's look and none of its behaviour. Built after =sp3=: the pill open while verified, folding on a click or a press outside; a dot's hover card (modes · threads · live activities, kept while the pointer is in it, gone 180 ms after); a dot's click pins the daemon's float (facts, every daemon a row, pause · stop · resume through =row.stdin=). The pinned card's first paint — the comp's =--control-on= rows, =--signal-primary-tint= and =--control-selected= grounds — read 1.1–3.9:1 on zone 0 by probe before it landed; its grounds moved to =--surface-sunk=, sixteen pairs pinned. rtt, trends, the histogram and retry have no source and are dropped.
+
+(187–189) /"ikiro compact"/ — this fold. =methods/spine.py= crashed on the image-carrying mid-turn (its text a list of blocks); taught in the fold.
+
+* the spine — turns 179–189
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 179 | =/compact=, queued after the #238 walk | the gate let it through; the context folded | — |
+| 180 | the harness's continuation summary | the #238 report: N = 10, the frontier ABOVE (1312 against 750) on upstream lines, the hairline wall not ported | — |
+| 181 | /"add another mechanic to the pincer drag n drop. the walls are snappier when i move faster. when i move slow, they arent as grabby. this should result in me being able to 'throw' the pincer towards a wall. the faster i move towards a wall, the larger its gravity snap is. also, important. when i open a ste a mode and its an entrypoint, automaticlly open the buffer."/ | =bridge/geometry.js= =WALL_SNAP= 0.05 · =WALL_FRICTION= 0.004 · =snapToWall(value, axisLength, velocity)= · =bridge/gesture.js= the trail and =velocity=; =mode/traits/standalone.js= (new) · =ModeTraits= on the barrel · =panels/d/d.svelte= =selectMode=; =tests/pincer/gesture.test.js= five throw steps red on the old engine (=FAILED | 2 passed (24 steps) | 2 failed (5 steps)=) · =tests/typology/standalone.test.js= three · =tests/panes/bodies.mount.test.js= one step and its =ModeTraits= shim; anima =76 passed (356 steps) | 1 failed (3 steps)=, the red panel A's before the first edit; =anima/bundle= exit 0; the throw walked on desk and phone | the static tenth · "nothing re-lands at the drop" (at 183) |
+| 182 | MID-TURN a screenshot (Francesca's thread, the dojo buffer, the intelligence float) and his terminal's log — =EADDRINUSE=, =pkill deno=, the italian test runtime | my orphaned =runtime/watch= 13057–13059 SIGINTed, its 43 esbuild services gone with it; known issue =runtime-watch-leaks-an-esbuild-per-restart=; the callout (proposed =left-running=); =world/codemap/design.md= (a watcher from my shell ends the turn killed or handed back) · =world/codemap/anima.md= (the stall clears a buffer outside =$buffers=); the float's /off/ beside hal's four rounds flagged (=bones/shoulder/widgets/Harness.svelte:33,69-72=) | the orphan |
+| 183 | /"now the drag n drop feels jumpy. can you add a slight delay to the onset?"/ | =bridge/gesture.js= =WALL_ONSET= 120 · =approach= · =fling= · =track=; the throw's steps re-pinned, two added, red on the pre-onset engine (=FAILED | 2 passed (25 steps) | 2 failed (6 steps)=) → =ok | 12 passed (66 steps) | 0 failed=; anima =76 passed (358 steps) | 1 failed (3 steps)=; =anima/bundle= exit 0; a burst that slows walked on the phone (no jump), a flick let go (flush) | the instant catch |
+| 184 | the comp's handoff pasted (=Anima.dc.html= · =support.js= · =tokens/sheet.css=), two screenshots, /"the dots arent behaving yet."/ | the comp re-fetched and diffed; =bones/spine/spine.svelte= after =sp3=; =@vivalence/drapes= exports =place=; =tests/pincer/spine.mount.test.js= (new, 5 steps) · =tests/pincer/theme.test.js= the spine's sixteen pairs · =tests/zones/places.test.js= the card's zone-0 box; =tests/zones/slots.test.js= caught =--font-family-heading= (the tree's is =--font-family-sans-heading=); drapes =12 passed (107 steps) | 0 failed=; anima =78 passed (364 steps) | 1 failed (3 steps)=; =anima/bundle= exit 0; walked in porcelain and northsea with two stand-in daemons; m73's block, drops, marker, changelog, release | the tooltips · the comp's =--control-on= rows and its tint and selected grounds · rtt · trends · the histogram · retry |
+| 185 | the image records of 184 — the same message | NOTHING | — |
+| 186 | the =design-handoff= re-invocation notice | NOTHING | — |
+| 187 | /"ikiro compact"/ | this fold; =methods/spine.py= taught list-shaped turns; two RULE FAILUREs; the pair law's fill line in =design.md= | — |
+| 188 | MID-TURN =/compact= | NOTHING — the gate | — |
+| 189 | the =compact-walk= re-invocation notice | NOTHING | — |
+
+Coverage: 179–189 by the spine, 11 rows; NOTHING: 185 · 186 · 188 · 189.
+
+* failures
+
+- *my process, booked as his* (182). A =runtime/watch= I had restarted outlived my shell; #238 listed it as owed to beef. His next launch faulted =EADDRINUSE= and he killed every deno process; the SIGTERM left the =--watch= parent idle with 43 leaked esbuild services. Callout logged in the turn, family proposed: =left-running=.
+- *a screenshot's source named from expectation* (184). "Your anima" was written before the datum that names the comp (=hash("italian")= = 44). The third of its kind after #202 · #204. RULE FAILURE, =assume-dont-verify=, logged at this fold.
+- *prose rode a heredoc* (182). The orphan's callout itself, through Bash, as this session's bypass-mode notice invites. RULE FAILURE, =harness-friction=, logged at this fold; the rest of the fold wrote prose through Edit.
+- *the pair law, met again and held* (184). The pinned card's first paint put text on =--control-on= and on two fills; the probe read it 1.1–3.9:1 before anything landed. The rule of #238 working, no callout.
+- *a count from memory* (184). m73's note said fifteen pairs; the test holds sixteen. Counted and fixed in the turn — the #123 shape.
+- *the rig's limits* (181 · 183 · 184). A scripted flick tops out near 1.2 px/ms through CDP, so the desk throw rests on the unit tests; the isolated context lists no daemons, so the entrypoint is unwalked and the spine walked with stand-ins; one click point read as outside fell inside the pinned float — measured by =elementFromPoint=.
+
+* State at fold
+
+- =.ikiro/quests/m73-anima-and-design-system-comps.org= — APPLIED; after the patches: the radial, the =brand= group, the bone keys, the walls, then this fold's throw with its onset, the entrypoint and the spine's dots; =#+marker_qa: m73/T-radial-live · T-throw-live · T-entry-live · T-spine-live · pending= (built, beef's walks owed); =** the throw= · =** the entrypoint opens its buffer= · =** the spine's dots= in expectation ↔ reality; the throw's unbuilt three and the spine's four drops under =* dropped=.
+- the tree: anima =78 passed (364 steps) | 1 failed (3 steps)=; the red is =tests/dock/stage.mount.test.js= (panel A's status bar), red before this fold's first edit and not attributed — the tree moved under it after the last green (the sibling's anima dossier among the changes). drapes =12 passed (107 steps) | 0 failed=. =anima/bundle= exit 0. =bridge/dock.js= · =static/manifest.json= untouched; =EDGE_PADDING= and the boot's arithmetic stand.
+- captures: =~/.viva/bak/m73/throw-20260930/= (8) · =onset-20260930/= (2) · =spine-20260930/= (3).
+- canon: =zettelkasten.md= a callout and two RULE FAILUREs · =known-issues.org= the esbuild leak · =world/codemap/design.md= (the watcher's end; the pair law's fills) · =world/codemap/anima.md= (the stall's trap).
+- servers: beef's =anima/watch= (11389, =:1794=) and =runtime/watch= (11507, =:2501=), started by him; none of mine alive.
+- beef's storage: untouched — every walk ran in a fresh headless context.
+- m72 · m74 · runtime-scenarios — unmoved by this fold.
+- Balance (fold N = 11, thirds 179–182 · 183–186 · 187–189): beef's verbatim in the spine 1 · 2 · 1. The middle carries the onset and the dots, two of his three orders; the last third is the fold.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| pre-flight | 181 | HELD | the surface grepped before a noun (=STANDALONE= in anima and the registry, =snapToWall= · =WALL_SNAP= consumers), the trait's body placed in the trait's module; =ModeTraits= typed without its own grep |
+| design-handoff | 184 | HELD | the comp re-read from the file and diffed, its sample data read as data (=DAEMONS=, =hash()=), the missing sources marked, the served page walked; the source slip is mine, the rule is in step 9 |
+| design-handoff | 184 | GAP | step 1 decodes a bundle and says nothing of the 256 KiB cap: =Anima.dc.html='s logic class lives whole in the project's =missing.md=, and a =get_file= past the output limit lands in a file to decode from |
+| compact-walk | 187 | HELD | spine and skills by id, eleventh fold, N = 11; the spine's list-shaped turn caught by its crash and taught |
+| testing | 181 | MISSED | baseline before the first edit (a red found and set aside), guardrails red on the old engine at 181 · 183, envelopes pasted, no firing |
+| live-validation | 181 | MISSED | the served page walked at 181 · 183 · 184 in the isolated context, no firing |
+| blast-bracket | 181 | MISSED | =snapToWall= · =land= changed signature; consumers grepped (=gesture.js= alone, the barrel), suites both sides, no firing |
+| callout | 182 | MISSED | the orphan's entry written in the skill's shape without the recurrence audit, no firing |
+| known-issues | 182 | MISSED | =runtime-watch-leaks-an-esbuild-per-restart= written in the file's shape, no firing |
+| quest-authoring | 181 | MISSED | m73's status three times, three reality blocks, two drop blocks, three markers, three changelog entries, two release lines, no firing |
+
+* settlement
+
+- Codeword scan of 179–189: no =retard=, no =i dont understand=.
+- MARKERS.md =OPEN= is empty; none added.
+- Callouts: the orphan (182, logged in the turn) · the screenshot's source and the heredoc (logged here).
+- Known issues: =runtime-watch-leaks-an-esbuild-per-restart= (182).
+- Settled from #238's owed: his two watchers — the last orphan SIGINTed; he runs his own.
+- Fixed now: =methods/spine.py= reads a turn whose text is a list of blocks (=text()=, the queue, the attachment and the user message alike) — CHECK: the spine re-run to 189.
+- Shards re-stamped: =world/codemap/design.md= (CHECK: =kill -INT 13059=, =lsof= on =:2501=; the pairs probed over four themes and pinned) · =world/codemap/anima.md= (CHECK: =subsystems/typology/prototypes/stall.js:47= read, =tests/typology/standalone.test.js= red on the plain double, green on the merging one).
+- The skill verdicts' non-HELD rows appended to =skills/LEDGER.md= (7).
+- Budgets: =world/frontier.md= ABOVE — 1186 against 750 before this handoff, 1218 after. This fold's line is 143 (111 at #238: four markers named); the rest is the owed session blocks #211 · #212 · #213 · #219 · #225 (352), live siblings' session lines #228 · #237 (306), m72 · runtime-scenarios (177) and the header (226). Nothing edited: the drain is upstream (=methods/handoff.py=); the frontier reads byte-identical to the handoffs.
+
+* handoff
+- quest :: m73-anima-and-design-system-comps
+- goal :: /"work out the full patch for applying the new design to anima"/ · /"fix"/
+- done :: six patches, the radial, the =brand= group, the bone keys, the walls; the throw with its onset; a =STANDALONE= mode opens its buffer when set; the spine's dots after the comp; anima =78 passed (364 steps) | 1 failed (3 steps)=, the red panel A's and older than this fold
+- next :: beef walks m73's four markers (radial · throw · entry · spine), then the audit's 16
+- never :: /"dont drop that. f.e the settings for mobile, ios. and running it as manifest is working currently."/ — drag, taps, hold, capture, grid, =EDGE_PADDING= and =static/manifest.json= stand; the boot and the rotation keep their x/y arithmetic
+- never :: /"agents should be opus. always unless instructed otherwise."/
+- owed :: beef — the walks (four themes · iOS · by finger · his daemons) · typology's =brand= without the holy ask · eleven fork rulings · the =release= key · the commit, repo and chess · his stored layout (it may hold =locked: true=) · a word on the intelligence float's /off/ beside a mode that answers through a model
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                             | progress   | status   | next                                                                                              | sessions |
+|-----------------------------------+------------+----------+---------------------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security           |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone             | 0        |
+| m71-droneaid-guide                |   0% 0/16  | design   | go                                                                                                | 3        |
+| m72-zoned-designs                 |  83% 10/12 | applied  | beef restarts anima/watch and walks both themes; rules the nine forks; then porcelain · datasette | 0        |
+| m73-anima-and-design-system-comps |  65% 11/17 | wip      | go                                                                                                | 0        |
+| runtime-scenarios                 |   0% 0/18  | design   | go                                                                                                | 1        |

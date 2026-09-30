@@ -1,7 +1,7 @@
 <script>
   import { getContext, untrack } from "svelte";
   import { LIGHTHOUSE, TERMINALS } from "$client";
-  import { TONES, chain, loudest } from "@vivalence/anima";
+  import { ModeTraits, TONES, chain, loudest } from "@vivalence/anima";
   import { belt } from "@vivalence/typology";
   import { logger } from "$telemetry";
   import { Card, Empty, Input, Key, Pressed, Row, Section, Status } from "@vivalence/drapes";
@@ -105,6 +105,7 @@
         daemon.entities.thread.resolve?.(thread);
         terminal.thread = thread;
       }
+      if (mode.implements("STANDALONE")) await ModeTraits.standalone.open(terminal, mode);
     } catch (error) {
       logger.entry(`threads/${daemon.slug}/${mode.slug}`).fault(error);
     }

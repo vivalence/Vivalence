@@ -1,6 +1,6 @@
 # design — the reference
 
-<!-- writer: agent · reference, unbudgeted · written 2026-09-28 from quests/m72-zoned-designs.org · describes the design system as it stands after m72; the tree today still runs the skeleton vocabulary, its traps live in world/codemap/design.md · the census of today's tree is kept in ~/.viva/bak/ikiro/reference-design-20260928/design.md · open points are listed in §11, the sheet carries the quest's first option for each -->
+<!-- writer: agent · reference, unbudgeted · written 2026-09-28 from quests/done/m72-zoned-designs.org · describes the design system as it stands after m72; the tree today still runs the skeleton vocabulary, its traps live in world/codemap/design.md · the census of today's tree is kept in ~/.viva/bak/ikiro/reference-design-20260928/design.md · open points are listed in §11, the sheet carries the quest's first option for each -->
 
 The design system is one contract and the things around it.
 
@@ -508,7 +508,7 @@ The sheet above carries the first option of each.
 
 | what | where |
 |---|---|
-| the plan, its milestones, the blast | `.ikiro/quests/m72-zoned-designs.org` |
+| the plan, its milestones, the blast | `.ikiro/quests/done/m72-zoned-designs.org` |
 | the schematics | `subsystems/typology/schematics/primitives/theme.js` |
 | completing a theme | `subsystems/dapper/lib/theme.js` |
 | the sheet | `subsystems/dapper/lib/emit.js` |

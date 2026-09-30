@@ -1,6 +1,7 @@
 import { specimen, v, shape, shard } from "@vivalence/typology";
 import { Vector, Mode, Aperture, Path } from "@vivalence/typology";
-import { TOOLING, HARNESSED } from "@vivalence/runtime/daemon/traits";
+import { lifecycle } from "@vivalence/runtime";
+const { TOOLING, HARNESSED } = lifecycle.mode.traits;
 import { create } from "../scenarios/cortex.js";
 
 function provision(mode, daemon) {
@@ -13,7 +14,7 @@ function provision(mode, daemon) {
 function buildMode({ tools, harness, slug = "tooling-test", traits = [] } = {}) {
   const mode = new Mode({ manifest: { type: "teacher", slug, traits } });
   mode.aperture = new Aperture();
-  mode.mount = new Path(`/mode/teacher/${slug}`);
+  mode.reference = new Path(`/mode/teacher/${slug}`);
   mode.module.harness = harness ?? new Vector();
   if (tools) mode.module.tools = tools;
   return mode;

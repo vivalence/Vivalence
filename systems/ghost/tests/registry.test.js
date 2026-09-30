@@ -53,7 +53,7 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     await drive(["registry/tap", "beta"]);
   });
 
-  it("tap and untap answer under /registry — an unknown reference refuses and leaves the record", async () => {
+  it("tap and untap answer under /registry — an unknown location refuses and leaves the record", async () => {
     const tapped = await drive(["registry/tap", "alpha"]);
     expect(tapped.record).toEqual(["alpha", "beta"]);
     await expect(drive(["registry/untap", "never-tapped"])).rejects.toThrow("no tapped package 'never-tapped'");
@@ -66,12 +66,12 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
   it("doctor reads the record against the store — tapped roots, an untapped resident, the census by owner", async () => {
     await author(store, "gamma", "@gamma");
     const effect = await drive(["registry/doctor"]);
-    expect(effect.record.tapped).toBe((await paladin.ledger.registry.references()).length);
+    expect(effect.record.tapped).toBe((await paladin.ledger.registry.locations()).length);
     expect(effect.record.stale).toEqual([]);
     expect(effect.store.path).toBe(new Path(store).absolute);
     expect(effect.store.untapped).toEqual([`${store}/gamma`]);
     const alpha = effect.packages.find((held) => held.owner === "@alpha");
-    expect(alpha.reference).toBe("alpha");
+    expect(alpha.location).toBe("alpha");
     expect(alpha.root).toBe(`${store}/alpha`);
     expect(alpha.types.package).toEqual(["alpha"]);
     expect(alpha.modes).toBe(1);
@@ -95,7 +95,7 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     const effect = await drive(["registry/doctor"]);
     expect(effect.store.resident.includes(`${store}/wrap/deep`)).toBe(true);
     expect(effect.store.untapped).toEqual([]);
-    expect(effect.packages.find((held) => held.owner === "@deep").reference).toBe("wrap");
+    expect(effect.packages.find((held) => held.owner === "@deep").location).toBe("wrap");
     await drive(["registry/untap", "wrap"]);
     await Deno.remove(`${store}/wrap`, { recursive: true });
   });
@@ -106,7 +106,7 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     await Deno.remove(`${store}/rot`, { recursive: true });
     const effect = await drive(["registry/doctor"]);
     expect(effect.record.stale).toEqual(["rot"]);
-    expect((await paladin.ledger.registry.references()).includes("rot")).toBe(true);
+    expect((await paladin.ledger.registry.locations()).includes("rot")).toBe(true);
     expect(effect.packages.find((held) => held.owner === "@rot")).toBe(undefined);
     await drive(["registry/untap", "rot"]);
   });
@@ -128,7 +128,7 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
   });
 
   it("bootstrap records the package it just authored", async () => {
-    const record = await paladin.ledger.registry.references();
+    const record = await paladin.ledger.registry.locations();
     expect(record.includes(`${made}/mine`)).toBe(true);
   });
 

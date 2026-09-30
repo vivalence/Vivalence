@@ -1,7 +1,8 @@
 import { specimen, Vector, Datasink, project } from "@vivalence/typology";
 import { datamap } from "@vivalence/runtime/scenarios";
 import { topography } from "@vivalence/typology/scenarios";
-import { DATASET, DATASINK } from "../daemon/traits/index.js";
+import { lifecycle } from "@vivalence/runtime";
+const { DATASET, DATASINK } = lifecycle.mode.traits;
 
 const GENERATIONS = [
   { from: "dataset", into: "gen1", extension: "json" },
@@ -39,7 +40,7 @@ const cycle = async ({ from, into, extension }) => {
   const scenario = await datamap.seed();
   const daemon = {
     entities: scenario.repos,
-    datamap: { introspect: () => scenario.orm.getMetadata() },
+    datamap: { getMetadata: () => scenario.orm.getMetadata() },
     twitch: new Vector(),
   };
   daemon.entities.em = scenario.em;
@@ -130,7 +131,7 @@ specimen.describe("the composite — cata ∘ ana is idempotent", () => {
     const scenario = await datamap.seed();
     const daemon = {
       entities: scenario.repos,
-      datamap: { introspect: () => scenario.orm.getMetadata() },
+      datamap: { getMetadata: () => scenario.orm.getMetadata() },
       twitch: new Vector(),
     };
     daemon.entities.em = scenario.em;

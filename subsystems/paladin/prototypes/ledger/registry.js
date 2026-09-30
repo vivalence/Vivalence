@@ -6,8 +6,8 @@ import { derive } from "./ledger.js";
 
 const traits = (manifest) => manifest?.traits ?? [];
 
-const normalize = (reference) =>
-  isAbsolute(reference) ? reference : reference.replace(/^\.\//, "");
+const normalize = (location) =>
+  isAbsolute(location) ? location : location.replace(/^\.\//, "");
 
 export class Registry {
   constructor(paladin, path) {
@@ -30,43 +30,43 @@ export class Registry {
     return this.paladin.state.json(this.path, locations);
   }
 
-  async references() {
+  async locations() {
     return (await this.read()) ?? [];
   }
 
-  async has(reference) {
-    return (await this.references()).includes(normalize(reference));
+  async has(location) {
+    return (await this.locations()).includes(normalize(location));
   }
 
-  async add(reference) {
-    reference = normalize(reference);
-    const references = await this.references();
-    if (references.includes(reference)) return references;
-    const next = [...references, reference];
+  async add(location) {
+    location = normalize(location);
+    const locations = await this.locations();
+    if (locations.includes(location)) return locations;
+    const next = [...locations, location];
     await this.write(next);
     return next;
   }
 
-  async remove(reference) {
-    reference = normalize(reference);
-    const next = (await this.references()).filter((held) => held !== reference);
+  async remove(location) {
+    location = normalize(location);
+    const next = (await this.locations()).filter((held) => held !== location);
     await this.write(next);
     return next;
   }
 
-  reference(absolute) {
+  locate(absolute) {
     const store = this.paladin.scope.registry?.absolute;
     if (!store) return absolute;
     const segment = relative(store, absolute);
     return segment && !segment.startsWith("..") && !isAbsolute(segment) ? segment : absolute;
   }
 
-  resolve(reference) {
-    reference = normalize(reference);
-    if (isAbsolute(reference)) return new Path(reference);
+  resolve(location) {
+    location = normalize(location);
+    if (isAbsolute(location)) return new Path(location);
     if (!this.paladin.scope.registry)
-      throw new Error(`[PALADIN] registry resolve ${reference}: no package store — a relative reference resolves against scope.registry (set VIVA_REGISTRY_MOUNT)`);
-    return this.paladin.scope.registry.branch(reference);
+      throw new Error(`[PALADIN] registry resolve ${location}: no package store — a relative location resolves against scope.registry (set VIVA_REGISTRY_MOUNT)`);
+    return this.paladin.scope.registry.branch(location);
   }
 
   async discover(scope) {
@@ -84,17 +84,17 @@ export class Registry {
   async reconcile(checkout, commons) {
     const held = await this.read();
     if (!held) return null;
-    const present = async (reference) => Boolean(await Deno.stat(this.resolve(reference).absolute).catch(() => null));
+    const present = async (location) => Boolean(await Deno.stat(this.resolve(location).absolute).catch(() => null));
     const dead = [];
-    for (const reference of held) if (!(await present(reference))) dead.push(reference);
+    for (const location of held) if (!(await present(location))) dead.push(location);
     if (!dead.length) return { locations: held, stale: [] };
-    const inside = (reference) => Boolean(checkout) && this.resolve(reference).absolute.startsWith(`${checkout.absolute}/`);
-    const stale = dead.filter((reference) => !inside(reference));
-    const kept = held.filter((reference) => !dead.includes(reference) || stale.includes(reference));
+    const inside = (location) => Boolean(checkout) && this.resolve(location).absolute.startsWith(`${checkout.absolute}/`);
+    const stale = dead.filter((location) => !inside(location));
+    const kept = held.filter((location) => !dead.includes(location) || stale.includes(location));
     const healed = dead.some(inside) ? (await this.discover(commons)).filter((location) => !kept.includes(location)) : [];
     const record = [...kept, ...healed];
     await this.write(record);
-    return { locations: record.filter((reference) => !stale.includes(reference)), stale };
+    return { locations: record.filter((location) => !stale.includes(location)), stale };
   }
 
   // ——— the pensieve side (was prototypes/vip.js) ———
@@ -143,33 +143,33 @@ export class Registry {
 
   // tap = materialize + record. mount is the runtime's moment — supply() folds the record at boot.
   async tap(source, target) {
-    let reference = source;
+    let location = source;
     if (this.paladin.clone.remote(source)) {
       if (!target && !this.paladin.scope.registry)
         throw new Error(`[registry] tap ${source}: no package store — a remote tap clones into scope.registry (set VIVA_REGISTRY_MOUNT)`);
       const slug = source.split("/").at(-1).replace(/\.git$/, "");
       const destination = target ? new Path(target) : this.paladin.scope.registry.branch(slug);
       await this.paladin.clone(source, destination);
-      reference = target ? destination.absolute : slug;
+      location = target ? destination.absolute : slug;
     } else if (target) {
-      throw new Error(`[registry] tap ${source}: target only applies to a remote source — a local tap records the reference in place`);
+      throw new Error(`[registry] tap ${source}: target only applies to a remote source — a local tap records the location in place`);
     }
-    const root = this.resolve(reference);
+    const root = this.resolve(location);
     const stat = await Deno.stat(root.absolute).catch(() => null);
     if (!stat)
-      throw new Error(`[registry] tap ${source}: nothing at ${root.absolute} — pass a path, a remote, or a reference already in the store`);
+      throw new Error(`[registry] tap ${source}: nothing at ${root.absolute} — pass a path, a remote, or a location already in the store`);
     const home = stat.isFile ? new Path(dirname(root.absolute)) : root;
     const declarations = await this.paladin.find.type(home, "package");
     if (!declarations.length)
       throw new Error(`[registry] tap ${source}: no package declaration (manifest.type "package") under ${home.absolute}`);
-    if (declarations.length === 1) reference = this.reference(dirname(declarations[0].source.absolute));
-    await this.add(reference);
-    return reference;
+    if (declarations.length === 1) location = this.locate(dirname(declarations[0].source.absolute));
+    await this.add(location);
+    return location;
   }
 
   // untap = record removal ONLY — the store keeps the working copy; next supply() simply omits it.
-  untap(reference) {
-    return this.remove(reference);
+  untap(location) {
+    return this.remove(location);
   }
 
   list(query = {}) {
@@ -228,10 +228,10 @@ export class Registry {
     const many = (queries) => Promise.all(queries.map((query) => this.accio(query)));
     // an entry whose identifier named no type is seated here, by the folded manifest — same rule, later moment
     const seated = (citizen) => {
-      if (citizen.mount || !mask.mount) return citizen;
+      if (citizen.reference || !mask.reference) return citizen;
       const { type, slug } = citizen.manifest;
-      const mount = new Path(`/mode/${type}/${slug}`);
-      return { ...citizen, mount, url: mask.url?.branch(mount.absolute), bundles: new Path(`${mask.mountpoint.absolute}/bundles/${type}/${slug}`) };
+      const reference = new Path(`/mode/${type}/${slug}`);
+      return { ...citizen, reference, url: mask.url?.branch(reference.absolute), bundles: new Path(`${mask.mountpoint.absolute}/bundles/${type}/${slug}`) };
     };
     const kernel = (await many(mask.kernel)).map(seated);
     return {

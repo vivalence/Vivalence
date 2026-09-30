@@ -8,7 +8,7 @@ const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
 // examples are each resolver's own default; ghost derives --<name>=<path> from this, in this order.
 const MOUNTS = v.environment({
   VIVA_LEDGER_MOUNT: v.string().desc("machine ledger home — locks, logs, registry, instances, sessions").examples("~/.viva").optional(),
-  VIVA_REPOSITORY_MOUNT: v.string().desc("the vivalence checkout — bare references resolve against it").examples("~/vivalence/code/vivalence").optional(),
+  VIVA_REPOSITORY_MOUNT: v.string().desc("the vivalence checkout — bare tokens resolve against it").examples("~/vivalence/code/vivalence").optional(),
   VIVA_REGISTRY_MOUNT: v.string().desc("package store — remote taps clone here").examples("~/.viva/registry").optional(),
   VIVA_INSTANCE_MOUNT: v.string().desc("instance home — the dir holding its recipe").examples("~/.viva/instances/hello-world").optional(),
   VIVA_MOUNTPOINT_MOUNT: v.string().desc("the instance's served tree — dbs, bundles, tokens").examples("~/.viva/instances/hello-world/mountpoint").optional(),

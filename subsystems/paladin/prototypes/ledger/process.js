@@ -3,7 +3,7 @@ import { TextLineStream } from "@std/streams";
 
 const lines = (stream) => stream.pipeThrough(new TextDecoderStream()).pipeThrough(new TextLineStream());
 const STDIO = { inherit: "inherit", piped: "piped", logged: "piped" };
-const ALIVE = /^Status:ALIVE$/;
+const ALIVE = /^Status:RUNNING$/;
 const encoder = new TextEncoder();
 
 export class Process extends Wafer {

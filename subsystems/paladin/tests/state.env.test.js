@@ -76,7 +76,7 @@ describe("state.env", () => {
     expect(paladin.state.line("VIVA_A", null)).toBe('# VIVA_A=""');
   });
 
-  it("keeps a ${VAR} reference verbatim — expansion is Env.get's job, not the writer's", async () => {
+  it("keeps ${VAR} verbatim — expansion is Env.get's job, not the writer's", async () => {
     const file = await tmp();
     await paladin.state.env(file, { VIVA_SERVE: "${VIVA_ORIGIN}/" });
     expect(await Deno.readTextFile(file)).toBe('VIVA_SERVE="${VIVA_ORIGIN}/"\n');

@@ -42,7 +42,7 @@ const ProbeSchema = new EntitySchema({
 let orm, meta;
 specimen.beforeAll(async () => {
   orm = await MikroORM.init({
-    ...config({ dbName: ":memory:", entities: [HostSchema, ProbeSchema] }),
+    ...config({}, { entities: [HostSchema, ProbeSchema] }),
     allowGlobalContext: true,
   });
   await orm.schema.refreshDatabase();
@@ -140,7 +140,7 @@ const BaseVirtualSchema = new EntitySchema({
 });
 // a NAMED class per pin — mikro keys metadata by class name, and an anonymous class reads as abstract
 const kind = (name) => ({ [name]: class extends BaseVirtualEntity { status = "OPEN"; torn = false; teardown() { this.torn = true; } } })[name];
-const init = (entities) => MikroORM.init({ ...config({ dbName: ":memory:", entities }), allowGlobalContext: true });
+const init = (entities) => MikroORM.init({ ...config({}, { entities }), allowGlobalContext: true });
 
 // the schema-side twin of the kind: every citizen built through it is virtual, no `...spread`, no retyped expression
 class VirtualEntitySchema extends EntitySchema {

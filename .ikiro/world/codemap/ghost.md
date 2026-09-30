@@ -13,7 +13,7 @@ paths: ["systems/ghost/**"]
 - `registry/bootstrap`: the destination NAMES the package; its declaration is REPLACED, not patched. (`trajectories/registry/bootstrap.js:25` · `trajectories/registry/bootstrap.js:60`)
 - `instance/lighthouse` is the auth verb — no `viva auth`; `instance/init` authors `.env` FROM the schema, remounts, asks only blank/INVALID. (`trajectories/instance/lighthouse.js:11` · `trajectories/instance/init.js:87`)
 - lens fuzz includes `mount` — a one-letter slug matches every path. `pick` turns `/` into spaces so `@owner/type/slug` resolves headlessly; a filesystem path → `null`. (`belt/lens.js:40` · `belt/pick.js:11`)
-- path law: operator-typed → `INIT_CWD ?? PWD ?? Deno.cwd()` (`deno task` rewrites cwd); `pin()` refuses `://` and `@`; instance REFERENCES never pin — `instances.resolve()` reads the record. (`belt/path.js:4` · `mod.js:175`)
+- path law: operator-typed → `INIT_CWD ?? PWD ?? Deno.cwd()` (`deno task` rewrites cwd); `pin()` refuses `://` and `@`; an instance TOKEN (a slug or a path, /"token until matched"/) never pins — `instances.resolve(token)` reads the record and answers a `mount` (disk). A lens row's `identifier` is `@owner/type/slug`; the registry record's rows are `location`s (m74 M1). (`belt/path.js:4` · `mod.js:175`)
 - `target.js`: a child env is an ALLOWLIST + `VIVA_*` minus `VIVA_PROCESS_ID`; `instance/start` waits 60 s for `ALIVE`; `run` decodes `128+n` (`deno task` launders signals).
 - the `test` task is a watcher — one file by name. Spans in-memory only (`.to(paladin.ledger.pipe)` commented out) — no ghost span on disk. (`deno.jsonc:14` · `mod.js:41`)
 

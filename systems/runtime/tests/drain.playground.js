@@ -2,7 +2,8 @@ import { Vector, shape, shard, sleep } from "@vivalence/typology";
 import { datamap } from "@vivalence/runtime/scenarios";
 import { topography } from "@vivalence/typology/scenarios";
 import { LiteralEntity } from "@vivalence/runtime";
-import { DATASET, DATASINK } from "../daemon/traits/index.js";
+import { lifecycle } from "@vivalence/runtime";
+const { DATASET, DATASINK } = lifecycle.mode.traits;
 
 const HOME = "/tmp/m22-playground";
 
@@ -37,7 +38,7 @@ say("1 · the daemon — in-memory sqlite, real MikroORM");
 const scenario = await datamap.seed();
 const daemon = {
   entities: scenario.repos,
-  datamap: { introspect: () => scenario.orm.getMetadata() },
+  datamap: { getMetadata: () => scenario.orm.getMetadata() },
   twitch: new Vector(),
 };
 daemon.entities.em = scenario.em;

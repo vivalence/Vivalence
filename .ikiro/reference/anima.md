@@ -161,9 +161,9 @@ const application = chain(terminals, "$active", "$buffer", "mode", "$application
 
 ## 4 · traits — which entity, which list, who reads them
 
-Every trait list has THREE homes that drift apart: the runtime enum (persistence), the runtime behaviour (`systems/runtime/daemon/traits/*`), and the client's `implements("…")` or `traits.includes("…")`. A declared trait with no implementation is skipped SILENTLY (`systems/runtime/daemon/traits/index.js:9`).
+Every trait list has THREE homes that drift apart: the runtime enum (persistence), the runtime behaviour (`systems/runtime/lifecycle/mode/traits/*`), and the client's `implements("…")` or `traits.includes("…")`. A declared trait with no implementation is skipped SILENTLY (`systems/runtime/lifecycle/mode/traits/index.js:9`).
 
-### mode — `ModeTraitsEnum` (`systems/runtime/daemon/entities/daemon/Mode.ts:10`)
+### mode — `ModeTraitsEnum` (`systems/runtime/entities/kernel/Mode.ts:10`)
 
 The client installs exactly four of them (`src/typology/entities/mode/traits/index.js`, run by `applyTraits` at `mode/mode.js:57`, after `mode.connection` exists). All the others are markers the client reads with `mode.implements(name)` (`mode/mode.js:21`, case-insensitive).
 
@@ -198,7 +198,7 @@ const merge = async (yielded) => {
 
 The harness is a fixed lexicon on every HARNESSED mode: `dialogue`/`object` × `render`/`stream`, plus `choice.render`. The dock also reaches `harness.verbatim.stream` for dictation.
 
-### thread — `ThreadTraitsEnum` (`systems/runtime/daemon/entities/userspace/Thread.ts:22`)
+### thread — `ThreadTraitsEnum` (`systems/runtime/entities/userspace/Thread.ts:22`)
 
 Config lives at `thread.trait.<NAME>`. The capability code is FREE functions over the thread (`src/typology/entities/thread/traits/`). Nothing is stamped onto the entity. App code reaches them as `ThreadTraits.aimed.pull(thread)` and `ThreadTraits.queueing.depth(thread)`.
 
@@ -268,7 +268,7 @@ An **activity** is one live hallucination (a transient row). `roster(thread)` gi
 
 A mode is authored in a package (`<slug>.viva.js`, the twelve exports; see skill `mode-development`). anima meets it through three doors:
 
-1. **the strips**: `/metadata/{application,emitter,aperture,harness}` on the mode's branch, emitted per trait by `systems/runtime/daemon/aperture/metadata.js:26-50`.
+1. **the strips**: `/metadata/{application,emitter,aperture,harness}` on the mode's branch, emitted per trait by `systems/runtime/lifecycle/daemon/aperture/metadata.js:26-50`.
 2. **the bundle**: a hashed `.svelte.mjs` compiled by paladin's bundler and served under `attach/bundle/<daemon mount>/<mode mount>`.
 3. **the wires**: `mode.call` · `mode.emit` · `mode.harness`, proxies built from the strips by `shape.connection.wire`.
 
@@ -285,11 +285,11 @@ export const application = new App("./app/App.svelte");
 Server side, APPLICATION compiles that entry. In dev, `/metadata/application` recompiles on EVERY read, and this is the only seam that refreshes a view:
 
 ```js
-// systems/runtime/daemon/aperture/metadata.js:33
+// systems/runtime/lifecycle/daemon/aperture/metadata.js:33
 meta.open("/application", async () => {
   if (paladin.is.dev) await mode.application.compile();
   return {
-    url: die.good.attach.branch("/bundle").branch(die.good.mount.absolute).branch(mode.mount.absolute).absolute,
+    url: die.daemon.attach.branch("/bundle").branch(die.daemon.reference.absolute).branch(mode.reference.absolute).absolute,
     view: mode.application.view.json,
     schema: mode.application.schema ?? null,
   };
@@ -666,8 +666,8 @@ The T-bone chrome and panels A–H. `panels/a/widgets/Dock.svelte` is the larges
 The cursor machine, the view record, the verified loader, the repositories.
 
 **The other end**
-`systems/runtime/daemon/aperture/metadata.js`
-`systems/runtime/daemon/traits/`
+`systems/runtime/lifecycle/daemon/aperture/metadata.js`
+`systems/runtime/lifecycle/mode/traits/`
 What each trait publishes and does server-side.
 <context files="0" tokens="~0">
 

@@ -1,9 +1,10 @@
-import { Url, Connection, shard, Mode, Path, shape, Aperture, Vector, App, v } from "@vivalence/typology";
+import { Url, Connection, shard, Mode, Path, shape, Aperture, Vector, App, middleware, v } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
 import { seed, tiers } from "./fixtures.js";
 
-import * as routes from "@vivalence/runtime/daemon/aperture";
-import { INTENTED, EMITTER, stagger } from "@vivalence/runtime/daemon/traits";
+import { gestalten, lifecycle } from "@vivalence/runtime";
+const { INTENTED, EMITTER } = lifecycle.mode.traits;
+const { stagger } = gestalten.belt;
 
 const APPLICATION = (mode, daemon) => {
   if (!mode.module.application) return;
@@ -27,7 +28,7 @@ export async function create() {
   const modeTraits = ["APPLICATION", "INTENTED", "EMITTER"];
   const mode = new Mode({ manifest: { type: "game", slug: "flashcard", traits: modeTraits } });
   mode.aperture = new Aperture();
-  mode.mount = new Path(`/mode/${mode.manifest.type}/${mode.manifest.slug}`);
+  mode.reference = new Path(`/mode/${mode.manifest.type}/${mode.manifest.slug}`);
   mode.entity = fixtures.mode;
   mode.id = fixtures.mode.id;
 
@@ -61,7 +62,7 @@ export async function create() {
   // };
   const daemon = {
     manifest: { slug: "test-daemon", traits: [] },
-    mount: new Path("/daemon/test-daemon"),
+    reference: new Path("/daemon/test-daemon"),
     aperture: new Aperture(),
     twitch: new Vector(),
     entities,
@@ -75,7 +76,7 @@ export async function create() {
 
   daemon.aperture.use(shard.context.bind("daemon", daemon));
 
-  datamap.subscribe(shape.subscriber(daemon.twitch));
+  datamap.registerSubscriber(shape.subscriber(daemon.twitch));
 
   const TOKENS = { "test-token": "test-identity", "fresh-token": "fresh-identity" };
   const enrolled = new Map([["test-identity", fixtures.user]]);
@@ -99,22 +100,15 @@ export async function create() {
 
   for (const finalize of await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER })) await finalize();
 
-  daemon.aperture.branch(mode.mount.absolute).slurp(mode.aperture);
+  daemon.aperture.branch(mode.reference.absolute).slurp(mode.aperture);
 
-  const die = {
-    good: daemon,
-    datamap,
-    status: { reflection: { code: "ALIVE" } },
-    manifest: daemon.manifest,
-  };
+  daemon.datamap = datamap;
+  const die = { daemon };
 
-  await routes.datamap(die);
-  await routes.userspace(die);
-  await routes.modes(die);
-  await routes.freight(die);
+  await middleware.compose([lifecycle.daemon.aperture.datamap, lifecycle.daemon.aperture.userspace, lifecycle.daemon.aperture.modes, lifecycle.daemon.aperture.freight])(die);
 
   // daemon.aperture.open("/datamap", () => shard.datamap.strip(orm.getMetadata()));
-  daemon.aperture.open("/datamap", () => shard.datamap.strip(die.datamap.introspect()));
+  daemon.aperture.open("/datamap", () => shard.datamap.strip(daemon.datamap.getMetadata()));
 
   const handler = shape.http(daemon.aperture);
   const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));

@@ -12,7 +12,7 @@ when_to_use: >-
 
 # domain-development — five keys, six read points, doors are verbs
 
-Canon (measured 09-22): `subsystems/typology/schematics/primitives/kernel.js:7-15` (the `Domain` cast) · `systems/runtime/daemon/lifecycle/{population,resolution}.js` · `world/codemap/assembly.md` · memory `project_domain_barrel_contract` · `m67-assembly-ontology.org` rulings 13 · 14. Exemplars: `~/.viva/registry/assembly/domain/assembly/assembly.viva.js` (the reference, 5 keys) · `chess/domain/chess.viva.js` (5 + `resolve`).
+Canon (measured 09-22): `subsystems/typology/schematics/primitives/kernel.js:7-15` (the `Domain` cast) · `systems/runtime/lifecycle/daemon/{population,resolution}.js` · `world/codemap/assembly.md` · memory `project_domain_barrel_contract` · `m67-assembly-ontology.org` rulings 13 · 14. Exemplars: `~/.viva/registry/assembly/domain/assembly/assembly.viva.js` (the reference, 5 keys) · `chess/domain/chess.viva.js` (5 + `resolve`).
 
 ## The barrel — beef's ruling
 
@@ -29,12 +29,12 @@ export const manifest = { type: "domain", slug: "assembly", …, traits: ["EXPOS
 
 | key | read at | what it does |
 |---|---|---|
-| `entities` | `population.js:48` collated into the tier fold | the domain's repositories |
-| `manifest.traits` | `population.js:119-120` → `traits/index.js:6` | a domain IS a kernel Mode; `[]` = no `daemon.call`, no tools, no doors |
-| `traits` (implementations) | `population.js:14-17` — the domain's WIN over the runtime's | |
+| `entities` | `population.js:11` assembled into the tier fold (`entities/assemble.js`) | the domain's repositories |
+| `manifest.traits` | `population.js:80` → `gestalten/belt/stagger.js:3` (`stagger`) | a domain IS a kernel Mode; `[]` = no `daemon.call`, no tools, no doors |
+| `traits` (implementations) | `population.js:10` — the domain's WIN over the runtime's | |
 | `schematics` | declared on the cast, `kernel.js:12` | `daemon.domain.schematics.X` — the ONLY runtime path a mode has into the domain |
-| `aperture` | `resolution.js:8-11` slurped; `daemon.call = shape.proxy(domain.aperture, steer.strategy.direct)` | the doors |
-| `resolve` | `resolution.js:15` `await domain.resolve?.(daemonDie)` | optional hook for the domain's OWN userspace entities |
+| `aperture` | `resolution.js:6-9` slurped; `daemon.call = shape.proxy(domain.aperture, steer.strategy.direct)` | the doors |
+| `resolve` | `resolution.js:12` `await die.daemon.domain.resolve?.(die.daemon)` — receives the DAEMON (m74 M5) | optional hook for the domain's OWN userspace entities |
 | `tools` | `harnessed.js` armed as `<slug>_*` | the verbs the harness arms |
 
 `additionalProperties: true` on the cast is what lets `aperture`/`tools`/`resolve` survive. Two outliers on disk, do not copy: education/vcompany star-export the aperture; stucatch carries no `schematics`/`tools` and puts folds ON the barrel (boots only because the cast defaults `schematics` to `{}` and HARNESSED guards `if (daemon.domain?.tools)`).

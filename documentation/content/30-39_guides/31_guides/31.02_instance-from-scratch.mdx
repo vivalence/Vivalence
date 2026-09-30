@@ -24,7 +24,7 @@ This page walks the file section by section — what each part declares and why 
 minimum vocabulary required:
 
 - `manifest` — `{type, slug, version, traits}`. Every module carries one; the `type` decides what the system does with it, the `traits` decide which machinery wakes.
-- `kernel` — a daemon's list of member modules. Usually references into the registry; here, inline objects — the whole daemon's content lives in this one file.
+- `kernel` — a daemon's list of member modules. Usually identifiers into the registry; here, inline objects — the whole daemon's content lives in this one file.
 - `statics` / `secrets` — a declaration's configuration. Every environment read is a thunk (`() => …`) so the file can be imported anywhere without an environment; paladin fires them at mount.
 - `mountpoint` — the instance's writable home. Databases and view bundles land there, never beside your code.
 
@@ -349,7 +349,7 @@ export const daemons = [
 ];
 ```
 
-`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry references (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel the daemon declares nothing else: the datamap, the hallucinators and the lighthouse are declared once, at the instance root, and every daemon inherits its own copy — a daemon declares one of them only to override it, whole-slot. Each is a `{module, statics, secrets}` mask — configuration for a module that lives in the registry, resolved at boot. The copy is seated for its daemon: `mountpoint/daemon_standalone/` is its directory, and its database file is named for it, `standalone.viva.db`. A hallucinator whose secret is blank is *dormant*: dropped from the roster at mount and named by the doctor, so a missing key means a bot answer, never a dead faculty.
+`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry identifiers (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel the daemon declares nothing else: the datamap, the hallucinators and the lighthouse are declared once, at the instance root, and every daemon inherits its own copy — a daemon declares one of them only to override it, whole-slot. Each is a `{module, statics, secrets}` mask — configuration for a module that lives in the registry, resolved at boot. The copy is seated for its daemon: `mountpoint/daemon_standalone/` is its directory, and its database file is named for it, `standalone.viva.db`. A hallucinator whose secret is blank is *dormant*: dropped from the roster at mount and named by the doctor, so a missing key means a bot answer, never a dead faculty.
 
 Note what is *not* here: no ports hardcoded, no keys inline. Every environment read is a thunk into `paladin.env` or `paladin.secret`, and every one hands back a string — the instance schematic mints the `Url`s and fills the `statics` / `consume` slots a recipe leaves out, so the declaration never types or pads anything.
 

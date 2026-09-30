@@ -1278,7 +1278,7 @@
 <div class="dataspace">
   <div class="bar">
     <span class="brand">dataspace</span>
-    <span class="origin">{daemon?.manifest?.slug ?? "daemon"} · {daemon?.mount?.absolute ?? ""}</span>
+    <span class="origin">{daemon?.manifest?.slug ?? "daemon"} · {daemon?.reference?.absolute ?? ""}</span>
     <div class="crumbs">
       {#each crumbs as crumb, index}
         <button class="crumb" data-index={index} onclick={jumpCrumb}>{crumb.label}</button>

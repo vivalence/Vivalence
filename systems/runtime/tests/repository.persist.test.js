@@ -254,10 +254,10 @@ specimen.describe("RemoteRepository.persist", { sanitizeResources: false, saniti
 
     const withCollections = { id: "set-1", slug: "test", type: "game", traits: ["APPLICATION"] };
     withCollections.intents = new Set(["a", "b"]);
-    withCollections.mount = { constructor: class Path {}, nature: "/mode/game/test" };
+    withCollections.reference = { constructor: class Path {}, nature: "/mode/game/test" };
     const strippedCollections = JSON.parse(modeRepository.encode([withCollections])).find((entity) => entity.id === "set-1");
     specimen.expect(strippedCollections.intents).toBeUndefined();
-    specimen.expect(strippedCollections.mount).toBeUndefined();
+    specimen.expect(strippedCollections.reference).toBeUndefined();
     specimen.expect(strippedCollections.traits).toContain("APPLICATION");
 
     const intentRepository = managed(connection, "intent");

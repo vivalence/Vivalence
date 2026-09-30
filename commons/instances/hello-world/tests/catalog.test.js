@@ -8,7 +8,8 @@ import {
   ToolCall,
   Vector,
 } from "@vivalence/typology";
-import { GENERATIVE } from "@vivalence/runtime/daemon/traits";
+import { lifecycle } from "@vivalence/runtime";
+const { GENERATIVE } = lifecycle.mode.traits;
 import { generator, tools } from "../mode.viva.js";
 
 // the mode's report() reads paladin directly, so the fake daemon supplies only what it walks;

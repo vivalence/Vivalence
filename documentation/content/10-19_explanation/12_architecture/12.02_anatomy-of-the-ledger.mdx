@@ -40,7 +40,7 @@ instance lookup belongs to the operator: `viva instances use <slug>` resolves th
 writes the resolved path.
 
 `instances.json` is the identity authority: **the record names instances; manifests name
-recipes.** A module's `manifest.slug` says which recipe a registry reference resolves to,
+recipes.** A module's `manifest.slug` says which recipe a registry identifier resolves to,
 and nothing more — every reader of instance identity (locks, logs, run targets, the
 doctor) goes through the record, and a mount the record does not hold is simply not an
 instance yet: `viva instances/tap <path> --slug=<name>` adopts it.
@@ -95,7 +95,7 @@ At boot, `supply()` reads the record and mounts each entry. Only when the record
 absent entirely does it seed one — by discovery over the repository's own `commons/`,
 so a fresh clone boots the standard packages without ceremony.
 
-`viva registry/doctor` is the record read against the store: stale references (recorded,
+`viva registry/doctor` is the record read against the store: stale locations (recorded,
 gone from disk), untapped residents (in the store, absent from the record — a declaration
 nested under a recorded root counts as tapped), and the census of what every tap supplies,
 by owner and type. `viva registry/list` runs the same `supply()` first, so on a fresh ledger

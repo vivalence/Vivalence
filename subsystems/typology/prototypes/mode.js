@@ -7,6 +7,7 @@ export class Mode {
 
   status = new Status("<uninitialized>", this);
   aperture = null;
+  stdout = null;
 
   constructor(module) {
     Object.assign(this, module);

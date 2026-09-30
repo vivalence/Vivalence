@@ -1,0 +1,234 @@
+#+title: the logic a 256 KiB read cannot reach gets its own file, the pincer takes nordic's ring, and brand splits from signal in four themes
+#+filetags: :anima:design:claude-design:design-sync:m72:zones:tokens:dapper:themes:brand:signal:pincer:viket:northsea:parchment:porcelain:datasette:contrast:debug:read-limit:cleanup:walk:
+#+session: 8 beef turns in the Claude Design project /Design System Anima/. Turn 1 carries the conversation before it ("Shared link") as a summary only, so that conversation is folded from its summary and the files, not walked. The background verifier forked twice (3, 5) and never called back. vivalence/Vivalence master was read, never written; VCS untouched. Lands in =.ikiro/compacts/= by hand.
+
+* one breath
+
+This project ports the designer's =Anima.dc.html= (source project =a3aec912=) onto m72's zoned token space. That space is a contract of
+88 root keys in six groups plus 12 ground keys per zone, across four zones (0 chrome · 1 body · 2 island · 3 bench). Four themes are
+completed by =theme()= and emitted to =tokens/sheet.css=, and the views read tokens by name inside a =data-zone=. =Design System.dc.html=
+is the live reference. The conversation before this one built all of that; here it survives only as a summary (1).
+
+beef asked for what a reader marks as missing to sit behind the debug bench (2). =missing.md= holds Anima's logic class verbatim, because
+a 256 KiB read stops inside it. Then he asked for the pincer to wear the colour it has in nordic (3). It took an aqua ring and glow, wired
+to =--signal-primary=. Asked what brand makes sense elsewhere (4), =paper.js= showed that the source keeps brand apart from signal:
+paper's ring is a warm grey with no glow. So on /"apply the"/ (5) a =brand= group entered the contract, the pincer read it, and all 20
+sheet blocks carry it. Each theme sets outline · glow · filter. A bare /"apply"/ (7) flipped the default theme to parchment on a guess.
+The fold (8) read ikiro's compact method from the repo and wrote this file. It also cleaned the project: 26 files gone, comments cut to
+four lines, =missing.md= regenerated, readme and github.md rewritten, and a =CLAUDE.md= that sends the next conversation here.
+
+* the spine — 8 turns
+
+** 1 · /"Continuing from "Shared link"."/ — the carry-over. The conversation before this one reaches it only as its summary: Anima on the
+   m72 token space across zones 0–3; every view reads custom-property slots, no hex; rails B and C in zone 0 (flagged as a fork);
+   =--veil= → =control.selected=; fonts and the mark outside the tree as =extra=; type and spacing px left for a size sweep; the 13
+   inline popovers clamped inside the shell on phone. Its =Next= line (a verification pass on both systems and the phone popups) never
+   ran, because turn 2 went elsewhere. NOTHING landed.
+
+** 2 · /"some things marked missing. add a button to debug that contains a .md with the missing information"/ — read as the reader's
+   cut: a 256 KiB read of =Anima.dc.html= returns the template whole and stops inside the logic class, before =renderVals()=. beef did
+   not say which reader marked what; the reply named the cut, and he did not correct it. Landed: =missing.md= and a =missing.md= chip in
+   the bench (→ =* landed=). The layout validators found two clips, both older than the change: a pane-strip glyph, and a ✕ in a narrow
+   rail C pane.
+
+** 3 · /"give the pincer the signal/brand color it has in the current nordic theme. check the anima codebase"/ — the repo, after two
+   misses (a file passed as a directory prefix; a pincer path without =src/app/=): =subsystems/dapper/themes/nordic.js= and
+   =systems/anima/src/app/bones/pincer/pincer.svelte=. Landed on the pincer's two looks: zone-0 fill, 2px ring, inset glow and pictogram
+   drop-shadow, all through =--signal-primary= (nordic's =brand.outline= is aqua 300, which is northsea's =signal.primary.fill=).
+   github.md's last sync was rewritten. The reply named one piece not ported, and asked about it; it was never answered: the source fills
+   the pincer with the solid accent (pink) on long-press and the sticky radial.
+
+** 4 · /"what brand colors make sense on the other themes?"/ — =subsystems/dapper/themes/paper.js= read. It sets =brand.outline= to
+   paper 500, a neutral warm grey, and its =filter.brand= is a soft drop-shadow with no glow. So turn 3 had given parchment an aqua ring
+   the source never had. Proposed per theme:
+   - northsea — aqua 300 with its glow (the source).
+   - parchment — paper 500, a soft shadow, no glow (the source).
+   - porcelain — its navy =#3D528C= falls to 2.33:1 on the ink-dark zone 0 (=#0E1A25=), so zone 0 takes =#AEBBD6=, no glow.
+   - datasette — rust =#C8401A= with a hard offset shadow.
+   Plus the contract change: a =brand= group, which the pincer reads instead of =--signal-primary=. The reply closed by asking whether to
+   apply it.
+
+** 5 · /"apply the"/ — the tail is the order (trap 3): apply. The brand group landed in theme.js · themes.js · sheet.css · Anima ·
+   Design System (→ =* landed=).
+
+** 6 · /"m"/ — NOTHING. A stray key, answered with 5's per-theme values.
+
+** 7 · /"apply"/ — bare, with nothing on the table: 6's reply had offered nothing. It landed as a guess: the default theme went northsea
+   → parchment (the state's initial =theme= and the prop's enum default). The validators then found a third old clip: the "balanced"
+   line of rail C's chess engine panel, about 22px. beef's next turn opened /"ok."/
+
+** 8 · /"ok. ikiro compact. check vivalence ikiro for the routine. i want you to write me .org compact. and then cleanup asf. we'll start
+   a new conversation from this basis"/ — this fold. Read from the repo: =.ikiro/methods/compact.md=, =compacts/MARKERS.md=,
+   =methods/compact-index.py=, =methods/thin.md=, =self/totems.md=, the scribe's lines in =self/rituals.md=, and #170 for the shape.
+   Then the cleanup (→ =* cleanup=).
+
+* landed
+
+- *missing.md* (2), regenerated at 8. It holds, in order:
+  - an intro that names where the read stops;
+  - what the cut loses: =renderVals()=, the key recipes, =pinLook=, the strip, rail C's pane tree, =clampPops()=, the pincer's gesture
+    machine, the spine's filler and the bench;
+  - a 92-method index with line numbers;
+  - the logic class verbatim.
+  Now 168 790 bytes. The chip sits in the bench's bottom row beside /back to gate/: =<a href="./missing.md" target="_blank">=, in the
+  row's 20px chip style (an inset =--size-ring= ring in =--boundary-strong=), ink =--text-ink=, titled "the logic class whole — what a
+  256 KiB read of Anima.dc.html cuts off".
+- *the pincer* (3, 5) — =pinLook= builds both looks, and the pictogram span gains =filter: {{ pK.fl }}= = =var(--brand-filter)=.
+  - The rest disc (35px, =--shape-radius-disc=): fill =--surface-lift= → zone-0 =--surface=. Its shadow list is
+    =0 0 0 2px var(--brand-outline)= · =var(--brand-glow)= · the depth drop · the flash ring.
+  - The hairline disc: fill =--control-contrast= → =--surface=, with =0 0 0 2px var(--brand-outline)= · =var(--shape-lift)= · the ring.
+  At 3 the same slots read =--signal-primary= and a =color-mix= glow at 20%. Turn 5 moved all five reads to =--brand-*=.
+- *the brand group* (5):
+  - =dapper/theme.js= — =brand = { outline: d.brand?.outline ?? sig.primary.fill, glow: d.brand?.glow ?? "none", filter: d.brand?.filter
+    ?? "none" }=, a member of the zone-merged groups and of the returned Theme. =emit= writes =--brand-outline=, =--brand-glow= (="none"=
+    → =0 0 0 transparent=) and =--brand-filter=.
+  - =dapper/themes.js= — per theme:
+    - northsea: =aquaN[300]=, glow =inset 0 0 12px rgba(30, 188, 181, 0.2)=, filter =drop-shadow(0 0 4px #1EBCB5)=.
+    - parchment: =paper[500]=, filter =drop-shadow(0 1px 2px rgba(61, 55, 42, 0.16))=.
+    - porcelain: =#3D528C=, and =#AEBBD6= in zone 0.
+    - datasette: =#C8401A=, filter =drop-shadow(2px 2px 0 #000000)=.
+  - =tokens/sheet.css= — the three keys after =--signal-negative-on= in 20 of 20 blocks. Zone blocks go 97 → 100, and the header reads
+    "all 100 keys".
+  - =Design System.dc.html= — the token space gains a =brand= row (outline · glow · filter). Counts go 85 → 88 root keys, five → six
+    groups, 97 → 100.
+- *the default theme* (7) — =theme: "parchment"= in the initial state, and =&quot;default&quot;:&quot;parchment&quot;= in the props.
+  =syncProps= still lets the Tweaks panel switch it.
+
+* cleanup (8)
+
+- *deleted, 26 files*:
+  - =mock.js= — the clickdummies' shared mock world (=window.ANIMA=); Anima reads it 0 times.
+  - =dapper/port.js= — the one-shot §10 port. Its header said to re-run it on a fresh copy of the designer's comp. That had gone false:
+    a re-run drops every hand edit made after the port, the brand group among them. The mapping stays readable in Design System §12,
+    /mapping a design/.
+  - 24 icons that 0 files read (Anima · Design System · the sheet · the themes):
+    - top level: =arrow-path= · =arrow-uturn-left= · =arrows-pointing-in= · =arrows-pointing-out= · =check= · =lock-closed= ·
+      =phone-x-mark= · =plus= · =speaker-wave= · =speaker-x-mark= · =x-mark=;
+    - =chat/=: =dock-in= · =dots= · =ellipsis= · =pair= · =panel-bubble= · =panel= · =quote= · =reply= · =round= · =smile= · =spark= ·
+      =square= · =voice=.
+    25 remain (23, plus =chat/lines= and =chat/prompt=). Anything needed later comes back from heroicons or the designer's project.
+- *thinned* (=.ikiro/methods/thin.md=):
+  - =theme.js=: 15 comment lines → 4. Kept: the zone fallback, =signal.on='s derivation, glow "none" as a transparent shadow, and the
+    root as zone 1 whole. One of the cut lines was false: "85 root keys, four zones of 97".
+  - =themes.js=: 7 → 0.
+  - Anima's logic: four section labels → 0.
+- *corrected*:
+  - Design System: the Mapping header drops "· applied by dapper/port.js", and the =where= list drops =port.js=. §11's fonts fork read
+    "a sixth group font"; brand took the sixth group, so it now reads "a seventh group, font".
+  - =missing.md= regenerated. It had gone stale at 3, 5 and 7, because =pinLook= and the default changed after it was written.
+- *rewritten* — =readme.md= (counts, brand, =missing.md=, no =port.js=) and =github.md= (last sync, screen map, m72's sources marked as
+  absent from master).
+- *added* — =CLAUDE.md=, which points every new conversation in this project at the newest compact.
+
+* state at fold — the basis for the next conversation
+
+- *files*:
+  - =Anima.dc.html= — 385 557 bytes, 1 035 lines. The template is lines 1–318 (220 157 bytes); the logic class is 165 373 bytes, 92
+    methods.
+  - =Design System.dc.html= — 86 691 bytes, 14 sections: Contract · Pipe · Zones · Token space · Words · Scalars · Sheet · How a view
+    reads · Components · Definitions · Themes · Size · Mapping · Open points.
+  - =tokens/sheet.css= — 69 293 bytes, emitted.
+  - =dapper/theme.js= 9 481 bytes · =dapper/themes.js= 10 248 bytes · =missing.md= 168 790 bytes (derived).
+  - Plus =readme.md= · =github.md= · =CLAUDE.md= · =compacts/= (this file) · =viket_black.png= · =viket_white.png= · =icons/= (25) ·
+    =support.js= (the runtime).
+- *the contract* — 88 root keys in six groups (shape · size · text · control · signal · brand), plus 12 ground keys per zone; each zone
+  block declares 100.
+  - Per theme the sheet holds a root and four zone blocks. The root is zone 1 whole, plus three font families and =--mark= ·
+    =--mark-inverse= · =--mark-size=: 106 declarations.
+  - Porcelain's and datasette's zone 0 run to 102, because the mark swaps for the ink chrome.
+  - Fonts and the mark sit outside the tree as =extra=.
+- *zones in Anima*:
+  - 0 chrome — shoulder · crown · pincer · spine · pane strips · rails B C.
+  - 1 body — page root · shell · panel A · dock · composer · buffers.
+  - 3 bench — the debug panel.
+  No Anima element sits in zone 2 (0 =data-zone="2"=); who sets it is a §11 fork.
+- *themes* — northsea (was nordic) · parchment (was paper) · porcelain · datasette (was ledger). The default is parchment (7). The brand
+  ring on each zone 0, as a WCAG ratio:
+  - northsea =#1EBCB5= on =#0E1A25= — 7.47:1
+  - parchment =#A0967C= on =#F0EDDE= — 2.50:1
+  - porcelain =#AEBBD6= on =#0E1A25= — 9.12:1 (its navy runs 6.07–7.54:1 on zones 1–3)
+  - datasette =#C8401A= on =#111111= — 3.78:1
+- *the bench* (zone 3, top right) — theme · preset · viewport (desktop · tablet · phone), /back to gate/, =missing.md=.
+- *the read line* — 262 144 bytes. The template fits whole. The cut lands at line 535, inside =fullToggle=, so =renderVals()= (line 753)
+  and every method after it are out of reach. =missing.md= is the patch.
+
+* open — beef's calls
+
+1. *the parchment default* (7) — a guess on a bare order; beef's next turn opened /"ok."/. Confirm it or revert it.
+2. *the pincer's accent* (3) — the source fills the pincer with the solid accent (pink) on long-press and the sticky radial. This design
+   keeps the flash ring. Asked, never answered.
+3. *parchment's ring* (4, 5) — 2.50:1 on its zone 0, under the 3:1 non-text floor (WCAG 1.4.11). It is the source's own value
+   (=paper.js= =brand.outline= = paper 500). Either a darker step, or the source stands.
+4. *the read line* (2) — at 385 557 bytes, =Anima.dc.html= is 123 413 bytes over 262 144. =missing.md= patches the reader, not the file,
+   and has to be regenerated after every logic edit. Getting under the line means cutting or moving about a third of the file. No
+   candidate is measured yet: the spine's =hash()= filler, the bench, the mock data inside the logic (=DAEMONS=, =MODES= …).
+5. *three clips* (2, 7) — all older than this conversation:
+   - a pane-strip glyph;
+   - a ✕ in a narrow rail C pane;
+   - the "balanced" line of rail C's chess engine panel, about 22px.
+6. *the verification pass* (1) — the summary's =Next= never ran as its own pass. The verifier ran on Anima at 3 and 5 and stayed silent.
+   It never ran on =Design System.dc.html=, and the phone popovers were not walked again.
+7. *§11, eight forks* — the option as drawn · the other:
+   - rails B and C — zone 0 · zone 1
+   - panes D E G · pane F — zone 0 and zone 1 · otherwise
+   - who sets zone 2 — the mode declares itself an island · the host decides
+   - a key's rest shadow · the mark's variant — composed in the view · =shape.key= · =shape.mark=
+   - the text floor — five steps, muted for labels only · four steps
+   - fonts — outside the tree · a seventh group, font
+   - who reads =--size-*= — tailwind remapped · drapes' size maps rewritten
+   - a 13th gradient stop, 150 — none · every gradient gains it
+8. *m72's sources are not on master* (8), measured at this fold:
+   - =.ikiro/reference/design.md= — 0 of 5 316 importable paths.
+   - =.ikiro/quests/m72-zoned-designs.org= — no =m72|zoned= hit under =.ikiro/quests/=. The search is bounded, and one file over the
+     size cap went unsearched.
+   - =subsystems/typology/schematics/primitives/theme.js= — the directory has 11 files and no =theme.js=.
+   - =subsystems/dapper/lib/theme.js= · =lib/emit.js= · =themes/<name>/theme.js= · =gradients.js= — absent. Dapper's themes are flat:
+     =nordic.js= · =paper.js= · =index.js=.
+   Present: =subsystems/dapper/belt/tailwind-theme.js= and =subsystems/drapes/= (=mod.js=). So the Design System's =where= list names
+   m72's target layout, and the =design.md= this project follows cannot be read from master. Where it lives is beef's to say.
+
+* settlement
+
+- *markers* — =compacts/MARKERS.md= has two OPEN entries: the empty-cortex boot warning, and cortex snapshot coverage vs the live strip.
+  Neither is this session's, and both are carried. None added, none settled.
+- *index* — not run, because the design project has no shell. On landing, copy this file into =.ikiro/compacts/= and run
+  =python3 .ikiro/methods/compact-index.py=, which stamps =#+index:= (index.md's last entry at this fold is 170).
+- *quest report* — not derived: =quest-report.py= reads the machine's transcripts. Run it on landing with =--stamp --compact=.
+- *balance* — 29 citations, counted over =* landed= through =* laws=: turn 1 carries 1, turn 2 carries 5, turn 3 carries 6, turn 4 carries 3, turn 5 carries 5, turn 7 carries 5, turn 8 carries 4. The last third of the fold (6–8) holds 9 of 29, 31%. Coverage 8/8 rows.
+- *date scan* — 0 hits for a date pattern in this file.
+- *budgets* — no =self/= or =world/= file touched; the repo is read-only from here.
+- *deletion sweep* — 26 files (→ =* cleanup=). Nothing in the repo.
+- *owed on landing, each on beef's go*:
+  - the callouts below, into =zettelkasten.md=;
+  - a frontier line for m72's design side (the brand group, the read line);
+  - a memory fact: dapper themes carry brand and signal apart.
+- *VCS* — untouched.
+
+* callouts
+
+1. *a guess where a question was owed* (2, 7) — twice an order was read without asking. /"some things marked missing"/ named no reader,
+   and the read stood only because beef did not correct it. /"apply"/ had nothing on the table and still changed the default theme.
+   Rule candidate: a go with no open offer is a question, not an order.
+2. *brand read as signal* (3) — =--signal-primary= happened to equal nordic's brand (aqua 300), so the first theme proved nothing.
+   =paper.js= disproved it at 4. Rule candidate: read two themes before naming the slot a colour rides.
+3. *the surface typed from memory* (3) — a file passed as a directory prefix, and a pincer path from before =src/app/=. This is
+   connoisseur #19, /the surface is grepped, never remembered/. A tree regex found the real path.
+4. *a rounded stamp* (3) — github.md's last sync got a time ending =:00=, not the tool-reported time. This fold's stamp is the tool's.
+
+* laws
+
+- Brand is not signal. Dapper's themes carry both. Nordic's brand happens to equal its primary signal (aqua 300); paper's does not
+  (paper 500, a neutral). Brand is identity (the mark's ring, glow, filter); signal is state (4, 5).
+- A shadow slot that may be "none" emits =0 0 0 transparent=. A bare =none= inside a box-shadow list voids the whole list (5).
+- A read that stops at 262 144 bytes takes a DC's template and loses its logic. A DC whose logic a code agent must read either stays
+  under the line, or carries a derived copy regenerated after every logic edit. A stale copy is worse than none, because it reads as the
+  file (2, 8).
+- Zone 0 is the ink-dark chrome in porcelain and datasette. A brand picked on the light zones is re-measured on zone 0: porcelain's navy
+  fell to 2.33:1 there (4).
+- =github_search_code='s =path_prefix= takes a directory, never a file. Anima's app lives under =systems/anima/src/app/=
+  (=bones/pincer/pincer.svelte=) (3).
+- A one-shot port script goes stale at the first hand edit after it. The mapping belongs in the reference; the script is scratch (8).
+
+* quest report
+
+Not derived — no shell here (→ =* settlement=).

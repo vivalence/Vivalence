@@ -1,6 +1,7 @@
 import { specimen, belt, shard, steer } from "@vivalence/typology";
 import { Vector, Mode, Aperture, Path, ToolCall } from "@vivalence/typology";
-import { AGENTIC } from "@vivalence/runtime/daemon/traits";
+import { lifecycle } from "@vivalence/runtime";
+const { AGENTIC } = lifecycle.mode.traits;
 
 function provision(mode, daemon) {
   mode.tools = new Vector();
@@ -12,7 +13,7 @@ function provision(mode, daemon) {
 function buildMode({ slug, traits = [], tools } = {}) {
   const mode = new Mode({ manifest: { type: "teacher", slug, traits } });
   mode.aperture = new Aperture();
-  mode.mount = new Path(`/mode/teacher/${slug}`);
+  mode.reference = new Path(`/mode/teacher/${slug}`);
   if (tools) mode.module.tools = tools;
   return mode;
 }

@@ -1,5 +1,6 @@
 import { specimen, steer, Vector } from "@vivalence/typology";
-import { EMITTER } from "@vivalence/runtime/daemon/traits";
+import { lifecycle } from "@vivalence/runtime";
+const { EMITTER } = lifecycle.mode.traits;
 import { machine } from "../tools/doctor.js";
 import { harness } from "../harness.js";
 import { emitter } from "../page/index.js";

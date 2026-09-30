@@ -1,4 +1,5 @@
 import { MikroORM, EntitySchema, RequestContext } from "@mikro-orm/core"
+import { Datamap } from "@vivalence/typology"
 import { config } from "../../../../commons/datamaps/libsql/libsql.viva.js"
 import {
   LiteralEntity, LiteralSchema,
@@ -36,7 +37,7 @@ export { SymbolConcrete, BufferConcrete }
 // Takes the instance array ({ type, schema, entity, repository, subscriber }[])
 // and returns the provider interface the runtime expects.
 export const shard = (orm) => ({
-  context: (fn) => RequestContext.create(orm.em, fn),
+  scope: (fn) => RequestContext.create(orm.em, fn),
   carry: () => {
     const current = RequestContext.currentRequestContext()
     return current ? (task) => RequestContext.storage.run(current, task) : (task) => task()
@@ -49,26 +50,13 @@ export const shard = (orm) => ({
 
 export async function provider(instance, subscribers = instance.map((v) => v.subscriber)) {
   const orm = await MikroORM.init({
-    ...config({ dbName: ":memory:", entities: instance.map((v) => v.schema), subscribers }),
+    ...config({}, { entities: instance.map((v) => v.schema), subscribers: subscribers.filter(Boolean).map((Subscriber) => new Subscriber()) }),
     allowGlobalContext: true,
   })
 
   await orm.schema.refreshDatabase()
 
-  const entities = { em: orm.em }
-  for (const { type, entity } of instance) {
-    if (!entity || !type) continue
-    entities[type] = orm.em.getRepository(entity)
-  }
-
-  return {
-    orm,
-    entities,
-    shard: shard(orm),
-    subscribe: (subscriber) => orm.em.getEventManager().registerSubscriber(subscriber),
-    introspect: () => orm.getMetadata(),
-    disintegrate: () => orm.close(),
-  }
+  return new Datamap(orm)
 }
 
 export const schemas = [
@@ -78,7 +66,7 @@ export const schemas = [
 
 export async function seed() {
   const orm = await MikroORM.init({
-    ...config({ dbName: ":memory:", entities: schemas }),
+    ...config({}, { entities: schemas }),
     allowGlobalContext: true,
   })
 

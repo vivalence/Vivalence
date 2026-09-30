@@ -44,12 +44,12 @@ specimen.describe("Path.absolute — system-wide agreement set (every live LEAF 
     specimen.expect(second.absolute).toBe("/repo/topographies/english-to-spanish/freight/audio/adios.mp3");
   });
 
-  specimen.it("mode.mount = good.mount.clone().branch(…) — population.js", () => {
+  specimen.it("mode.reference = good.reference.clone().branch(…) — population.js", () => {
     const good = new Path("/daemon/playground");
-    const mount = good.clone().branch("/mode/chaosmonkey/reader");
+    const reference = good.clone().branch("/mode/chaosmonkey/reader");
 
-    specimen.expect(mount.absolute).toBe(chain(mount));
-    specimen.expect(mount.absolute).toBe("/daemon/playground/mode/chaosmonkey/reader");
+    specimen.expect(reference.absolute).toBe(chain(reference));
+    specimen.expect(reference.absolute).toBe("/daemon/playground/mode/chaosmonkey/reader");
     specimen.expect(good.absolute).toBe("/daemon/playground");
   });
 

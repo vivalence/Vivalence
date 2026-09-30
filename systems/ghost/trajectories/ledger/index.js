@@ -162,14 +162,14 @@ ledger.open(
 );
 
 async function collectRecord(registry) {
-  const references = await registry.references();
+  const locations = await registry.locations();
   const entries = await Promise.all(
-    references.map(async (reference) => {
-      const root = registry.resolve(reference);
+    locations.map(async (location) => {
+      const root = registry.resolve(location);
       return {
-        reference,
+        location,
         root: root.absolute,
-        pinned: isAbsolute(reference),
+        pinned: isAbsolute(location),
         present: Boolean(await Deno.stat(root.absolute).catch(() => null)),
       };
     }),

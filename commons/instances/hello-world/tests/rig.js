@@ -1,5 +1,6 @@
 import { Controller, Cortex, Span, soma, Vector } from "@vivalence/typology";
-import { EMITTER, GENERATIVE, HARNESSED } from "@vivalence/runtime/daemon/traits";
+import { lifecycle } from "@vivalence/runtime";
+const { EMITTER, GENERATIVE, HARNESSED } = lifecycle.mode.traits;
 import { emitter, generator } from "../page/index.js";
 import { web } from "../tools/web.js";
 

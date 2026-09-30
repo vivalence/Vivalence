@@ -10,12 +10,12 @@ specimen.describe("runtime composition", () => {
     scenario = await create();
 
     const runtime = new Aperture();
-    runtime.open("/status", () => ({ code: "ALIVE" }));
+    runtime.open("/status", () => ({ code: "RUNNING" }));
     runtime.open("/manifest", () => ({ slug: "test-runtime" }));
 
     runtime
-      .branch(scenario.daemon.mount.nature)
-      .open("/status", () => ({ code: "ALIVE" }))
+      .branch(scenario.daemon.reference.nature)
+      .open("/status", () => ({ code: "RUNNING" }))
       .open("/manifest", () => scenario.daemon.manifest)
       .slurp(scenario.daemon.aperture);
 
@@ -32,7 +32,7 @@ specimen.describe("runtime composition", () => {
 
   specimen.it("runtime status", async () => {
     const result = await runtimeConn.call("/status");
-    specimen.expect(result.code).toBe("ALIVE");
+    specimen.expect(result.code).toBe("RUNNING");
   });
 
   specimen.it("runtime manifest", async () => {
@@ -42,7 +42,7 @@ specimen.describe("runtime composition", () => {
 
   specimen.it("daemon status via runtime path", async () => {
     const result = await runtimeConn.call("/daemon/test-daemon/status");
-    specimen.expect(result.code).toBe("ALIVE");
+    specimen.expect(result.code).toBe("RUNNING");
   });
 
   specimen.it("daemon cargo via runtime path", async () => {

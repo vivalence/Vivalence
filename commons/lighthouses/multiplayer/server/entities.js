@@ -17,13 +17,11 @@ export async function systemmap(servicemask) {
 
   // const instance = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema]
   //   .map((schema) => ({ schema }));
-  const instance = [sets.network.identity, sets.network.daemon, {
-    schema: AuthenticatorEmbedSchema,
-  }];
+  const entities = [sets.lighthouse.identity.schema, sets.lighthouse.daemon.schema, AuthenticatorEmbedSchema];
 
   // const { orm, entities } = await datamap.provider(servicemask.datamap, instance);
   // return { orm, entities };
-  return await datamap.provider(servicemask.datamap, instance);
+  return await datamap.provider(servicemask.datamap, { entities });
 }
 
 // export function inject(orm) {

@@ -11,7 +11,7 @@ const PLACES = {
   "app/panels/h/h.svelte": ["3"],
   "app/bones/crown/crown.svelte": ["0"],
   "app/bones/shoulder/shoulder.svelte": ["0"],
-  "app/bones/spine/spine.svelte": ["0"],
+  "app/bones/spine/spine.svelte": ["0", "0"],
   "app/bones/pincer/pincer.svelte": ["0", "0", "0", "0", "0"],
   "app/design/+page.svelte": ["1", "0", "1", "2", "3", "0", "1", "2", "3"],
 };

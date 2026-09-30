@@ -47,7 +47,7 @@ specimen.describe("dictation integration — duplex verbatim over one socket, th
     await sleep.ms(100);
     transport = shard.transmitter.multiplex({ authority: { get: () => ({ access: "probe" }) } });
     connection = new Connection(world.url, transport);
-    const mode = connection.branch(scenario.dewey.mount.absolute);
+    const mode = connection.branch(scenario.dewey.reference.absolute);
     harness = shape.connection.wire(
       mode.branch("/harness"),
       shape.strip(scenario.dewey.aperture.branch("/harness")),
@@ -85,7 +85,7 @@ specimen.describe("dictation integration — duplex verbatim over one socket, th
     await scenario.em.flush();
 
     const events = await drain(
-      connection.branch(scenario.dewey.mount.absolute).converse("/harness/verbatim/stream", frames(["alpha", "beta", "gamma"]), {
+      connection.branch(scenario.dewey.reference.absolute).converse("/harness/verbatim/stream", frames(["alpha", "beta", "gamma"]), {
         input: { thread: thread.id },
       }),
     );
@@ -108,7 +108,7 @@ specimen.describe("dictation integration — duplex verbatim over one socket, th
 
     try {
       await drain(
-        connection.branch(scenario.dewey.mount.absolute).converse("/harness/verbatim/stream", trickle(), {
+        connection.branch(scenario.dewey.reference.absolute).converse("/harness/verbatim/stream", trickle(), {
           input: { thread: thread.id },
           signal: controller.signal,
         }),

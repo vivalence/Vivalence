@@ -6,7 +6,7 @@ export class Daemon extends Entity {
   slug = null;
   url = null;
   manifest = null;
-  mount = null;
+  reference = null;
   connection = null;
   entities = null;
   mounting = null;
@@ -25,7 +25,7 @@ export class Daemon extends Entity {
       id: this.id,
       slug: this.slug,
       url: this.url,
-      mount: this.mount?.nature ?? null,
+      reference: this.reference?.nature ?? null,
       manifest: this.manifest,
     };
   }

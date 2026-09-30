@@ -18,7 +18,7 @@ specimen.describe("symbols: m:n slug query", () => {
 
   specimen.beforeAll(async () => {
     orm = await MikroORM.init({
-      ...config({ dbName: ":memory:", entities: [LiteralDomain, SymbolDomain] }),
+      ...config({}, { entities: [LiteralDomain, SymbolDomain] }),
       allowGlobalContext: true,
     });
     await orm.schema.refreshDatabase();

@@ -31,21 +31,21 @@ export function mountpoints(instance) {
   };
   // the daemon's word wins, else its slug under the runtime's reach; no reach → no url, settle names it
   const address = (daemon) => {
-    daemon.mount ??= `/daemon/${daemon.manifest?.slug}`;
+    daemon.reference ??= `/daemon/${daemon.manifest?.slug}`;
     if (!reach) return;
-    daemon.url ??= reach.branch(daemon.mount).absolute;
+    daemon.url ??= reach.branch(daemon.reference).absolute;
     daemon.attach ??= reach.branch("/attached").absolute;
   };
   // a service attaches under the runtime at a computed path: service/<type>/<slug> — nothing declares it
   const attach = (service) => {
-    service.mount ??= `/attached/process/service/${service.manifest?.type}/${service.manifest?.slug}`;
+    service.reference ??= `/attached/process/service/${service.manifest?.type}/${service.manifest?.slug}`;
   };
   // a lighthouse without a declared remote reaches the service hosting the same module, under this runtime
   const lit = (holder) => {
     const hosted = instance.services.find((service) => service.module === holder.lighthouse?.module);
     if (!holder.lighthouse || !reach || !hosted) return;
     holder.lighthouse.statics ??= {};
-    holder.lighthouse.statics.remote ??= reach.branch(hosted.mount).absolute;
+    holder.lighthouse.statics.remote ??= reach.branch(hosted.reference).absolute;
   };
   instance.daemons.forEach(seat("daemon"));
   instance.services.forEach(seat("service"));
@@ -90,12 +90,12 @@ function ground(daemon) {
     // never a seat minted over it); only silence gets the seat, mode_<type>_<slug> or mode_<slug>
     const mountpoint = "mountpoint" in held ? held.mountpoint : `${daemon.mountpoint}/mode_${[type, slug].filter(Boolean).join("_")}`;
     if (!type) return { ...held, mountpoint }; // the type is the module's word — wire seats the rest
-    const mount = `/mode/${type}/${slug}`;
+    const reference = `/mode/${type}/${slug}`;
     return {
       ...held,
       mountpoint,
-      mount: held.mount ?? mount,
-      url: held.url ?? (daemon.url ? new Url(daemon.url).branch(mount).absolute : undefined),
+      reference: held.reference ?? reference,
+      url: held.url ?? (daemon.url ? new Url(daemon.url).branch(reference).absolute : undefined),
       bundles: held.bundles ?? `${daemon.mountpoint}/bundles/${type}/${slug}`,
     };
   };

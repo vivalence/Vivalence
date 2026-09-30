@@ -37,16 +37,16 @@ export async function scopes(paladin) {
       "instance",
       () => paladin.env.has("VIVA_INSTANCE_MOUNT"),
       () => {
-        const reference = paladin.env.get("VIVA_INSTANCE_MOUNT");
+        const token = paladin.env.get("VIVA_INSTANCE_MOUNT");
         // MOUNT MEANS PATH. a bare slug here is an upstream bug — resolving it silently is what
         // let `use` store one. the CLI resolves a slug via ledger.instances.resolve() before writing.
-        if (!reference.includes("/") && !reference.startsWith("."))
+        if (!token.includes("/") && !token.startsWith("."))
           throw new Error(
-            `[PALADIN] VIVA_INSTANCE_MOUNT="${reference}" is a slug — a *_MOUNT is always a path. ` +
-              `try: viva instances/use ${reference}`,
+            `[PALADIN] VIVA_INSTANCE_MOUNT="${token}" is a slug — a *_MOUNT is always a path. ` +
+              `try: viva instances/use ${token}`,
           );
-        if (isAbsolute(reference)) return new Path(reference);
-        return paladin.source(reference);
+        if (isAbsolute(token)) return new Path(token);
+        return paladin.source(token);
       },
     ],
 
@@ -125,7 +125,7 @@ export async function environment(instance) {
   paladin.claim(await dotenv.load({ envPath: file }), "instance", file);
 }
 
-const reference = (home) => (entry) =>
+const anchor = (home) => (entry) =>
   typeof entry !== "string"
     ? { ...entry, source: entry.source ?? home }
     : isAbsolute(entry)
@@ -176,7 +176,7 @@ export async function recipe(instance) {
   const daemon = (label) => ({ kernel = [], ...declaration }) => ({
     ...at(label)(declaration),
     kernel: kernel
-      .map(reference(module.source))
+      .map(anchor(module.source))
       .map((entry, index) =>
         is.object(entry) && is.string(entry.module)
           ? dress(`${label}.kernel[${index}]`)(at(`${label}.kernel[${index}]`)(entry))

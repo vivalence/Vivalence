@@ -1,12 +1,12 @@
 import { search, Search } from "@vivalence/sheets";
 
-// arbitration over a lens :: { label, rows, keys, facets, columns, reference }.
+// arbitration over a lens :: { label, rows, keys, facets, columns, identifier }.
 // one match is the answer, many open the picker with the input as its preset, none hands the
-// caller back its own branch (a path, an @reference). the fold is the SAME one the picker runs,
+// caller back its own branch (a path, an @identifier). the fold is the SAME one the picker runs,
 // so a bare slug never costs a repaint.
 export async function pick(ctx, lens, preset = "") {
-  const { rows, keys, facets, columns, reference, label = "search", index = 0 } = lens;
-  // a reference IS a query — `@commons/instance/localhost` is the three terms the haystack holds,
+  const { rows, keys, facets, columns, identifier, label = "search", index = 0 } = lens;
+  // a identifier IS a query — `@commons/instance/localhost` is the three terms the haystack holds,
   // so a full triple resolves headlessly and a filesystem path simply matches nothing.
   const query = (preset ?? "").replaceAll("/", " ").trim();
 
@@ -15,13 +15,13 @@ export async function pick(ctx, lens, preset = "") {
   const state = search.seek(search.init({ rows, keys, facets }), query);
   if (state.matches.length === 1) {
     const row = search.value(state);
-    return { row, reference: reference(row) };
+    return { row, identifier: identifier(row) };
   }
   if (!state.matches.length && query) return null;
 
   // a picker in a pipe is a hang, not a prompt — name the candidates and let the caller retype.
   if (!ctx.interactive) {
-    const candidates = state.matches.map((at) => `  ${reference(rows[at])}`).join("\n");
+    const candidates = state.matches.map((at) => `  ${identifier(rows[at])}`).join("\n");
     throw new Error(
       `pick: '${query}' matches ${state.matches.length} ${label} entries and this shell cannot prompt:\n${candidates}`,
     );
@@ -29,5 +29,5 @@ export async function pick(ctx, lens, preset = "") {
 
   const chosen = await ctx.view.scroll.render({ rows, keys, facets, columns, query, label, index }, null, Search);
   if (!chosen || chosen.aborted) return { aborted: true };
-  return { row: chosen, reference: reference(chosen) };
+  return { row: chosen, identifier: identifier(chosen) };
 }

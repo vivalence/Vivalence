@@ -8,7 +8,8 @@ const SNAP_DOMINANT = [0, 50, 100];
 const SNAP_SECONDARY = [13, 21, 34, 66, 79, 87];
 export const SNAP_PERCENTS = [...SNAP_DOMINANT, ...SNAP_SECONDARY].sort((a, b) => a - b);
 export const SNAP_DISTANCE = 28;
-export const WALL_SNAP = 0.1;
+export const WALL_SNAP = 0.05;
+export const WALL_FRICTION = 0.004;
 
 export function clamp(value, low, high) {
   return Math.max(low, Math.min(high, value));
@@ -28,10 +29,13 @@ export function snapToGrid(value, axisLength) {
   return nearest;
 }
 
-export function snapToWall(value, axisLength) {
+const slide = (velocity) => (velocity * Math.abs(velocity)) / (2 * WALL_FRICTION);
+
+export function snapToWall(value, axisLength, velocity = 0) {
+  const landing = value + slide(velocity);
   const reach = axisLength * WALL_SNAP;
-  if (value - EDGE_PADDING < reach) return EDGE_PADDING;
-  if (axisLength - EDGE_PADDING - value < reach) return axisLength - EDGE_PADDING;
+  if (landing - EDGE_PADDING < reach) return EDGE_PADDING;
+  if (axisLength - EDGE_PADDING - landing < reach) return axisLength - EDGE_PADDING;
   return value;
 }
 

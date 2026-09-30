@@ -1,6 +1,6 @@
 import { assert, assertEquals } from "@std/assert";
 import { Path, shard, steer, ToolCall, Vector } from "@vivalence/typology";
-import * as skills from "../daemon/skills/index.js";
+import { gestalten } from "@vivalence/runtime";
 
 const invoke = (armed, name, input) =>
   steer.dispatch.invoke(armed, new ToolCall(name).signal, steer.strategy.guarded)(input);
@@ -25,19 +25,19 @@ const daemon = {
   flatmodes: () => [vdex, francesca, dewey],
 };
 
-const armed = new Vector().use(shard.context.bind("daemon", daemon)).slurp(skills.mode.mode);
+const armed = new Vector().use(shard.context.bind("daemon", daemon)).slurp(gestalten.skills.mode.mode);
 
 Deno.test("skill.mode — every mode's places on disk", async (t) => {
   await t.step("places: source, then what a mode serves, then what it carries when that differs", () => {
     assertEquals(
-      skills.mode.places(vdex),
+      gestalten.skills.mode.places(vdex),
       "source /registry/vcompany/modes/office/vdex · mountpoint /Users/finn/vivalence/coorporation",
     );
     assertEquals(
-      skills.mode.places(francesca),
+      gestalten.skills.mode.places(francesca),
       "source /registry/education/modes/tutor/francesca · freight /registry/education/modes/tutor/francesca/assets",
     );
-    assertEquals(skills.mode.places(dewey), "");
+    assertEquals(gestalten.skills.mode.places(dewey), "");
   });
 
   await t.step("mode_find lists the daemon and every mode as rows", async () => {
@@ -67,7 +67,7 @@ Deno.test("skill.mode — every mode's places on disk", async (t) => {
   await t.step("a daemon without a mountpoint names none", async () => {
     const bare = new Vector()
       .use(shard.context.bind("daemon", { manifest: { slug: "test-daemon" }, flatmodes: () => [dewey] }))
-      .slurp(skills.mode.mode);
+      .slurp(gestalten.skills.mode.mode);
     const spoken = await invoke(bare, "mode_find", {});
     assertEquals(spoken.output.message.split("\n")[0], "[Daemon test-daemon]");
   });

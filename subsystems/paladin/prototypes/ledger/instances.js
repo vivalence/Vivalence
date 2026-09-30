@@ -3,7 +3,7 @@ import { isAbsolute } from "@std/path";
 export const NOTHING =
   "instance: nothing selected — viva instance/use <slug|path>, --instance=<slug|path>, or VIVA_INSTANCE_MOUNT=<path>";
 
-const local = (reference) => reference.includes("/") || reference.startsWith(".");
+const local = (token) => token.includes("/") || token.startsWith(".");
 
 export class Instances {
   constructor(paladin, path) {
@@ -34,16 +34,16 @@ export class Instances {
     const hit = Object.entries(all).find(([, held]) => held.mount === mount);
     return hit ? { slug: hit[0], ...hit[1] } : null;
   }
-  async resolve(reference) {
-    if (!reference) throw new Error(NOTHING);
-    if (local(reference)) {
-      const token = isAbsolute(reference) || reference.startsWith(".") ? reference : `./${reference}`;
-      const mount = this.paladin.source(token).absolute;
+  async resolve(token) {
+    if (!token) throw new Error(NOTHING);
+    if (local(token)) {
+      const spelled = isAbsolute(token) || token.startsWith(".") ? token : `./${token}`;
+      const mount = this.paladin.source(spelled).absolute;
       return (await this.lookup(mount)) ?? { slug: null, mount };
     }
-    const held = await this.read(reference);
-    if (!held) throw new Error(`instance: no record '${reference}' — viva instances/list`);
-    return { slug: reference, ...held };
+    const held = await this.read(token);
+    if (!held) throw new Error(`instance: no record '${token}' — viva instances/list`);
+    return { slug: token, ...held };
   }
   async rename(prior, next) {
     const all = await this.paladin.read.json(this.path, {});

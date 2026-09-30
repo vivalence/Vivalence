@@ -1,6 +1,6 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
-import { schematics } from "../typology/index.js";
+import { schematics } from "@vivalence/runtime";
 
 describe("the runtime's door — optional for paladin, required here", () => {
   const sentences = (held) => schematics.Instance.faults(held).map(({ at, reason }) => `${at} ${reason}`);

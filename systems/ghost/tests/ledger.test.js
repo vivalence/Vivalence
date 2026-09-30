@@ -92,9 +92,9 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
     expect(effect.recipe.slots).toEqual(["environment", "runtime", "lighthouse", "datamap", "hallucinators", "clients", "services"]);
   });
 
-  it("tap records a store-relative reference", async () => {
+  it("tap records a store-relative location", async () => {
     const effect = await drive(["registry/tap", "pack"]);
-    expect(effect.reference).toBe("pack");
+    expect(effect.location).toBe("pack");
     expect(effect.record).toEqual(["pack"]);
     expect(effect.root).toBe(`${store}/pack`);
   });
@@ -114,14 +114,14 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
     await Deno.mkdir(`${store}/hollow`);
     const error = await drive(["registry/tap", "hollow"]).then(() => null, (thrown) => thrown);
     expect(String(error).includes("no package declaration")).toBe(true);
-    expect(await paladin.ledger.registry.references()).toEqual(["pack"]);
+    expect(await paladin.ledger.registry.locations()).toEqual(["pack"]);
   });
 
   it("tap throws on a missing absolute path, record untouched", async () => {
     const error = await drive(["registry/tap", `${store}/vanished/nowhere`])
       .then(() => null, (thrown) => thrown);
     expect(error).not.toBe(null);
-    expect(await paladin.ledger.registry.references()).toEqual(["pack"]);
+    expect(await paladin.ledger.registry.locations()).toEqual(["pack"]);
   });
 
   it("doctor reports homes, the .env organ, and the record with roots", async () => {
@@ -133,7 +133,7 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
     expect(effect.env.path).toBe(`${ledger}/.env`);
     expect(effect.env.present).toBe(true);
     expect(effect.record.path).toBe(effect.homes.record);
-    const entry = effect.record.entries.find((held) => held.reference === "pack");
+    const entry = effect.record.entries.find((held) => held.location === "pack");
     expect(entry.root).toBe(`${store}/pack`);
     expect(entry.pinned).toBe(false);
     expect(entry.present).toBe(true);
@@ -145,7 +145,7 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
     await Deno.remove(`${store}/rot`, { recursive: true });
     await author(store, "loose", "@loose");
     const effect = await drive(["ledger/doctor"]);
-    const rotten = effect.record.entries.find((held) => held.reference === "rot");
+    const rotten = effect.record.entries.find((held) => held.location === "rot");
     expect(rotten.present).toBe(false);
     expect(effect.store.path).toBe(new Path(store).absolute);
     expect(effect.store.untapped).toEqual([`${store}/loose`]);
@@ -244,7 +244,7 @@ export const environment = v.environment({
     expect(third.invalid).toEqual([{ key: "VIVA_PROBE_SERVE", reason: "must be RFC 3986 URI with an authority (scheme://…)" }]);
   });
 
-  it("untap of an unrecorded reference refuses and names the list", async () => {
+  it("untap of an unrecorded location refuses and names the list", async () => {
     await expect(drive(["registry/untap", "never-tapped"])).rejects.toThrow("no tapped package 'never-tapped' — viva registry/list");
   });
 

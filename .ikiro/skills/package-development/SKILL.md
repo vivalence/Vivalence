@@ -58,8 +58,8 @@ The MODULE's manifest is authored and immutable. The MOUNTING's manifest is mint
 ## Mount path — read it before touching it
 
 ```
-systems/runtime/lifecycle/populate.js:7            paladin.ledger.registry.supply()   → reconcile(record) → mount(root) → pensieve.register
-systems/runtime/daemon/lifecycle/population.js:11  die.register = registry.wire(die.mask)  → accio() per slot; domain = Domain.cast(kernel.find(type==="domain"))
+systems/runtime/lifecycle/runtime/population.js:16  paladin.ledger.registry.supply()   → reconcile(record) → mount(root) → pensieve.register
+systems/runtime/lifecycle/daemon/population.js:7   die.register = registry.wire(die.mask)  → accio() per slot; domain = Domain.cast(kernel.find(type==="domain"))
 ~/.viva/registry.json                              flat array of references, store-relative or absolute (the checkout is pinned absolute)
 ```
 

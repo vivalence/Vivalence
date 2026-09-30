@@ -15,7 +15,7 @@ specimen.describe("aprende: /assistant/wakeup/literals (symbol intersection)", (
   });
 
   specimen.afterAll(async () => {
-    await scenario.datamap.disintegrate();
+    await scenario.datamap.close();
   });
 
   const intersect = (symbols) => scenario.conn.call(ROUTE, { symbols });

@@ -3,7 +3,7 @@ import { Aperture, Broadcaster, object } from "@vivalence/typology";
 export function inject(datamap) {
   return (ctx, next) => {
     ctx.entities = datamap.entities;
-    return datamap.shard.context(async () => {
+    return datamap.shard.scope(async () => {
       await next();
       const body = ctx.response.body;
       if (

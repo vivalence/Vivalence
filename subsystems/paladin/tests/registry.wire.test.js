@@ -92,12 +92,12 @@ describe("registry.wire — a daemon mask to its bag", () => {
   });
 
   it("an entry that arrives unseated is seated in wire from the folded manifest; a seated one is left alone", async () => {
-    const seated = { ...mask, mount: new Path("/daemon/d"), url: new Url("http://x/daemon/d"), mountpoint: new Path("/m/d") };
-    const bag = await boot(MODULES).wire({ ...seated, kernel: [mask.kernel[1], { ...mask.kernel[0], mount: new Path("/held") }] });
-    expect(bag.kernel[0].mount.absolute).toBe("/mode/game/board");
+    const seated = { ...mask, reference: new Path("/daemon/d"), url: new Url("http://x/daemon/d"), mountpoint: new Path("/m/d") };
+    const bag = await boot(MODULES).wire({ ...seated, kernel: [mask.kernel[1], { ...mask.kernel[0], reference: new Path("/held") }] });
+    expect(bag.kernel[0].reference.absolute).toBe("/mode/game/board");
     expect(bag.kernel[0].url.absolute).toBe("http://x/daemon/d/mode/game/board");
     expect(bag.kernel[0].bundles.absolute).toBe("/m/d/bundles/game/board");
-    expect(bag.kernel[1].mount.absolute).toBe("/held");
+    expect(bag.kernel[1].reference.absolute).toBe("/held");
   });
 
   it("a slot naming an unsupplied package throws that package, not the whole bag silently", async () => {

@@ -82,7 +82,7 @@ export async function live(
     daemons,
     up: true,
     slug: chosen.slug,
-    mount: chosen.mount,
+    reference: chosen.reference,
     identity: session.identity,
     authority: session.authority,
     modes,

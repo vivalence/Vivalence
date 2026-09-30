@@ -39,18 +39,18 @@ describe("Registry.tap — materialize + record, never mount", () => {
     const paladin = boot();
     const checkout = await external("@external");
     await paladin.ledger.registry.tap(checkout);
-    expect(await paladin.ledger.registry.references()).toEqual([checkout]);
+    expect(await paladin.ledger.registry.locations()).toEqual([checkout]);
     expect(paladin.ledger.registry.pensieve.size).toBe(0);
   });
 
-  it("tap of a store-relative reference records the bare segment", async () => {
+  it("tap of a store-relative location records the bare segment", async () => {
     const { boot, store } = await scaffold();
     const paladin = boot();
     await author(`${store}/pack`, {
       "pack.viva.js": { owner: "@pack", type: "package", slug: "pack", version: "0.0.1" },
     });
     await paladin.ledger.registry.tap("./pack");
-    expect(await paladin.ledger.registry.references()).toEqual(["pack"]);
+    expect(await paladin.ledger.registry.locations()).toEqual(["pack"]);
   });
 
   it("tap of a directory without a package declaration throws", async () => {
@@ -75,7 +75,7 @@ describe("Registry.tap — materialize + record, never mount", () => {
     });
     await paladin.ledger.registry.tap("pack");
     await paladin.ledger.registry.untap("pack");
-    expect(await paladin.ledger.registry.references()).toEqual([]);
+    expect(await paladin.ledger.registry.locations()).toEqual([]);
     expect((await Deno.stat(`${store}/pack`)).isDirectory).toBe(true);
   });
 
@@ -118,7 +118,7 @@ describe("Registry.tap — materialize + record, never mount", () => {
     const paladin = boot();
     const checkout = await external("@external");
     await paladin.ledger.registry.tap(`${checkout}/package.viva.js`);
-    expect(await paladin.ledger.registry.references()).toEqual([checkout]);
+    expect(await paladin.ledger.registry.locations()).toEqual([checkout]);
   });
 
   it("tap of a directory above the declaration records the declaration's dirname, store-relative", async () => {
@@ -128,10 +128,10 @@ describe("Registry.tap — materialize + record, never mount", () => {
       "pack.viva.js": { owner: "@pack", type: "package", slug: "pack", version: "0.0.1" },
     });
     await paladin.ledger.registry.tap("deep");
-    expect(await paladin.ledger.registry.references()).toEqual(["deep/nested"]);
+    expect(await paladin.ledger.registry.locations()).toEqual(["deep/nested"]);
   });
 
-  it("tap of a reference with nothing behind it names what it looked for", async () => {
+  it("tap of a location with nothing behind it names what it looked for", async () => {
     const { boot, store } = await scaffold();
     const paladin = boot();
     const thrown = await paladin.ledger.registry.tap("absent").then(() => null, (error) => error);

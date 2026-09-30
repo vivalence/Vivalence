@@ -13,7 +13,7 @@ when_to_use: >-
 
 # mode-development — twelve exports, declared traits, no leaving the mode
 
-Canon (measured 09-22): `subsystems/paladin/lifecycle/resolve.js:46-66` · `systems/runtime/daemon/traits/*.js` · `world/codemap/runtime.md` · `commons/instances/hello-world/mode.viva.js` (the repo exemplar) · `~/.viva/registry/chess/modes/board/play/` (the richest registry exemplar). The package around it → [[package-development]]; the domain it talks to → [[domain-development]].
+Canon (measured 09-22): `subsystems/paladin/lifecycle/resolve.js:46-66` · `systems/runtime/lifecycle/mode/traits/*.js` · `world/codemap/runtime.md` · `commons/instances/hello-world/mode.viva.js` (the repo exemplar) · `~/.viva/registry/chess/modes/board/play/` (the richest registry exemplar). The package around it → [[package-development]]; the domain it talks to → [[domain-development]].
 
 ## The path is code
 
@@ -28,24 +28,24 @@ beef: *"the mountpoint should be on EVRERY mode by default as a function of pala
 
 | export | read at | trait |
 |---|---|---|
-| `manifest` | `registry.js:189` folded with the kernel entry; `population.js:120` | — |
-| `aperture` | `daemon/lifecycle/resolution.js:48` | EXPOSED |
-| `application` | `daemon/traits/application.js:6` `mode.module.application` | APPLICATION |
-| `harness` | `daemon/traits/harnessed.js:180` | HARNESSED |
-| `tools` | `daemon/traits/tooling.js:2-3` | TOOLING |
-| `emitter` | `daemon/traits/emitter.js` | EMITTER |
-| `dataset` | `daemon/traits/dataset.js:34` · `intented.js:6` | DATASET / INTENTED |
-| `datasink` | `resolution.js:64` | DATASINK |
-| `boot` | `daemon/traits/booted.js` | BOOTED |
-| `freight` | `daemon/traits/index.js:74` | FRAUGHT |
-| `statics` | `daemon/traits/index.js:56`, merged key-wise with the kernel entry | — |
-| `provider` | `population.js:110` — a SERVICE, not a mode | — |
+| `manifest` | `registry.js:189` folded with the kernel entry; `lifecycle/daemon/population.js:80` `new Mode(mask)` | — |
+| `aperture` | `lifecycle/mode/population.js:20` slurped into the mode's own | EXPOSED |
+| `application` | `lifecycle/mode/traits/application.js:6` `mode.module.application` | APPLICATION |
+| `harness` | `lifecycle/mode/traits/harnessed.js:200` | HARNESSED |
+| `tools` | `lifecycle/mode/traits/tooling.js:2-3` | TOOLING |
+| `emitter` | `lifecycle/mode/traits/emitter.js` | EMITTER |
+| `dataset` | `lifecycle/mode/traits/dataset.js:36` · `intented.js:6` · `gestalten/belt/stamp.js:7` (the stamp) | DATASET / INTENTED |
+| `datasink` | `lifecycle/mode/traits/datasink.js:9` · the cross-check `lifecycle/mode/resolution.js:17` | DATASINK |
+| `boot` | `lifecycle/mode/traits/booted.js` | BOOTED |
+| `freight` | `lifecycle/mode/traits/index.js:53` | FRAUGHT |
+| `statics` | `lifecycle/mode/traits/index.js:38`, merged key-wise with the kernel entry | — |
+| `provider` | `lifecycle/daemon/population.js:70` — a SERVICE, not a mode | — |
 
 **`application`, never `app`** (m58 landed 09-17; 16 modules export `application`, zero `app`). `new App("buffer/Import.svelte", v.buffer({data:{…}}))` — the entry resolves against the mode's OWN dir. The export NAME is the module key: `Mode` does `Object.assign(this, module)`.
 
 ## Traits — declared, never deduced
 
-`stagger` iterates `mode.manifest.traits` and nothing else (`daemon/traits/index.js:5-21`). Trait → export is REQUIRED; export → trait is not (11 benign mismatches on disk). Cross-checks warn only, except MOUNTED-without-mountpoint which throws and is unreachable since paladin seats every mode. Sixteen implemented: `AGENTIC APPLICATION BOOTED CONVERSATIONAL DATASET DATASINK EMITTER EXPOSED FRAUGHT GENERATIVE HARNESSED INTENTED MOUNTED SELFEVIDENT STANDALONE TOOLING`. The trait set IS the capability declaration — `traits: []` means no `daemon.call`, no tools, no doors, and a green test can assert the absence.
+`stagger` iterates `mode.manifest.traits` and nothing else (`gestalten/belt/stagger.js:3-16`, m74; the mode vector's effect `lifecycle/mode/resolution.js` runs it). Trait → export is REQUIRED; export → trait is not (11 benign mismatches on disk). Cross-checks warn only, except MOUNTED-without-mountpoint which throws and is unreachable since paladin seats every mode. Sixteen implemented: `AGENTIC APPLICATION BOOTED CONVERSATIONAL DATASET DATASINK EMITTER EXPOSED FRAUGHT GENERATIVE HARNESSED INTENTED MOUNTED SELFEVIDENT STANDALONE TOOLING`. The trait set IS the capability declaration — `traits: []` means no `daemon.call`, no tools, no doors, and a green test can assert the absence.
 
 ## Defaults live in the mode's harness vector
 

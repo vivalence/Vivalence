@@ -21,7 +21,7 @@ specimen.describe("multiplex filter context", { sanitizeOps: false, sanitizeReso
     scenario.daemon.aperture
       .use(shard.secure.authorize())
       .use(shard.ambient.store((ctx) => ({ user: ctx.user })))
-      .use(scenario.die.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
+      .use(scenario.daemon.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
 
     scenario.daemon.aperture.open("/probe/filters", (ctx) => {
       const em = RequestContext.getEntityManager();

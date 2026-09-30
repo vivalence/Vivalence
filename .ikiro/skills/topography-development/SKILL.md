@@ -26,7 +26,7 @@ Canon: `m67-assembly-ontology.org` rulings 19 and the vocabulary law (`:60`, `:9
 
 ## Freight without a dataset
 
-A body that ships only payloads (audio, a tablebase, a manual, a 3D model) is a topography with `traits: ["FRAUGHT"]` and no dataset (`m61:73`) — never a new module type. `freight.path.nature` is read at `daemon/traits/index.js:74`; `statics.ignore` filters the walk. FRAUGHT carries, MOUNTED serves (`project_freight_vs_mountpoint`); a path is not a URL — decode out, encode per segment in (`feedback_a_path_is_not_a_url`).
+A body that ships only payloads (audio, a tablebase, a manual, a 3D model) is a topography with `traits: ["FRAUGHT"]` and no dataset (`m61:73`) — never a new module type. `freight.path.nature` is read at `lifecycle/mode/traits/index.js:53`; `statics.ignore` filters the walk. FRAUGHT carries, MOUNTED serves (`project_freight_vs_mountpoint`); a path is not a URL — decode out, encode per segment in (`feedback_a_path_is_not_a_url`).
 
 ## Corpus builds — the precedent that recurs
 

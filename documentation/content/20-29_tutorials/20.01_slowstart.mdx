@@ -100,7 +100,7 @@ $ viva ledger/doctor
 
 Machine state, never git-managed at the top level — its *children* are the git units.
 `viva ledger/doctor` is the report card, shaped like the tree above: one line per organ with
-its count and its anomalies — stale references, untapped residents, dangling or orphaned
+its count and its anomalies — stale locations, untapped residents, dangling or orphaned
 instances, dead locks — then every environment variable with the stratum that won it. What
 the packages *supply* is `viva registry/doctor`'s (step 2).
 [[12.02_anatomy-of-the-ledger]] is the deep anatomy.
@@ -111,7 +111,7 @@ the packages *supply* is `viva registry/doctor`'s (step 2).
 
 ```sh
 viva registry/tap <source: path | git url> [target: path]
-viva registry/untap <reference>
+viva registry/untap <location>
 ```
 
 Adds a **package** to the registry. Packages are modes whose job is to carry other modes:
@@ -149,7 +149,7 @@ pensieve  22 modes · 10 types · 1 owners
   service        nlp-stanza
 
 $ viva registry/tap https://github.com/vivalence/registry-education
-reference                      registry-education
+location                       registry-education
 root                           /home/you/.viva/registry/registry-education
 record                         /home/you/vivalence/commons  registry-education
 
@@ -166,9 +166,9 @@ README.md  bak  domain  education.viva.js  modes  topographies  topologies
 The checkout path is absolute and was recorded by the first registry verb you ran —
 `supply()` seeds the record from `<repository>/commons` when `registry.json` does not exist
 yet, so the standard library is there before you tap anything. The remote one is a bare slug:
-inside the store a reference is kept relative to `<ledger>/registry/`, outside it stays
+inside the store a location is kept relative to `<ledger>/registry/`, outside it stays
 absolute, and `resolve()` branches the slug back onto the store. `untap` removes the
-reference and keeps the working copy.
+location and keeps the working copy.
 
 What a package looks like — `@commons/package/commons`, the standard library:
 
@@ -366,8 +366,7 @@ $ viva instance/run
 run runtime=8924 anima=8925
   VITE v6.3.3  ready in 1467 ms
   ➜  Local:   http://127.0.0.1:1794/
-launching on http://localhost:2501/
-Status:ALIVE
+Status:RUNNING
 
 $ ls ~/.viva/locks
 hello-world_runtime.lock  hello-world_anima.lock

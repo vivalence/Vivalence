@@ -106,7 +106,7 @@ async function mount(daemon, { multiplex, url, attempt }) {
     daemon.status.set(status);
     daemon.manifest = manifest;
     daemon.statics = statics;
-    daemon.mount = new Path(`/daemon/${manifest.slug}`);
+    daemon.reference = new Path(`/daemon/${manifest.slug}`);
     daemon.link = new Path(`/${daemon.lighthouse.manifest.slug}/${manifest.slug}`).rebase("/viva");
     daemon.call = shape.connection.wire(daemon.connection, aperture);
     // await daemon.entities.populate(["mode", "intent", "thread"]);
@@ -144,7 +144,7 @@ async function mount(daemon, { multiplex, url, attempt }) {
     daemon.connection
       .branch("/status")
       .subscribe("/subscribe", (reflection) =>
-        daemon.status.set(reflection?.code === "ALIVE" ? "healthy" : "unavailable"),
+        daemon.status.set(reflection?.code === "RUNNING" ? "healthy" : "unavailable"),
       );
     mounting.note({
       message: `${manifest.slug} mounted`,

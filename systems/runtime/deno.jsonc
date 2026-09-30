@@ -3,13 +3,7 @@
   "description": "a deamon is something intelligent and agentic that doesnt have a soul.",
   "version": "0.0.1",
   "exports": {
-    ".": "./mod.js",
-    "./run": "./run.js",
-    "./daemon": "./daemon/index.js",
-    "./daemon/aperture": "./daemon/aperture/index.js",
-    "./daemon/traits": "./daemon/traits/index.js",
-    "./daemon/skills": "./daemon/skills/index.js",
-    "./process": "./process/index.js",
+    ".": "./typology.js",
     "./scenarios": "./tests/scenarios/index.js",
   },
   "tasks": {

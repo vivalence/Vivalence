@@ -10,7 +10,8 @@ import {
   ToolCall,
   Vector,
 } from "@vivalence/typology";
-import { GENERATIVE } from "@vivalence/runtime/daemon/traits";
+import { lifecycle } from "@vivalence/runtime";
+const { GENERATIVE } = lifecycle.mode.traits;
 
 const SOURCE =
   "<script>let { buffer } = $props();</script><h1>{buffer.data.title}</h1>";
@@ -20,7 +21,7 @@ function buildMode({ generator, slug = "gen-test" } = {}) {
     manifest: { type: "chaosmonkey", slug, traits: ["GENERATIVE"] },
   });
   mode.aperture = new Aperture();
-  mode.mount = new Path(`/mode/chaosmonkey/${slug}`);
+  mode.reference = new Path(`/mode/chaosmonkey/${slug}`);
   mode.bundles = new Path(`${directory}/bundles/chaosmonkey/${slug}`);
   mode.entity = { id: "mode-1" };
   mode.tools = new Vector();
