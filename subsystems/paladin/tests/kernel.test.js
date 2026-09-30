@@ -83,6 +83,16 @@ describe("instance kernel identifiers", () => {
     expect(String(daemon.kernel[4].source)).toBe(String(pinned.source));
   });
 
+  it("a reference entry { module, mountpoint } names its module — no source is stamped on it, so the module's own file stays the citizen's source", async () => {
+    const instance = await mount({
+      ...module,
+      daemons: [{ ...module.daemons[0], kernel: [{ module: "@commons/editor/media", mountpoint: "/Users/op/media" }] }],
+    });
+    const [daemon] = instance.daemons;
+    expect(daemon.kernel[0].module).toBe("@commons/editor/media");
+    expect(daemon.kernel[0].source).toBeUndefined();
+  });
+
   it("an inline module is module-shaped: hydrate never fires inside it — thunks and App survive settle", async () => {
     const instance = await mount(module);
     const [daemon] = instance.daemons;

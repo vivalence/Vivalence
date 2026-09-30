@@ -7,6 +7,18 @@ export const ledger = async (die, next) => {
   await next();
 };
 
+export const patrol = async (die, next) => {
+  const beat = setInterval(
+    () => die.controller.stdout.note({ service: die.runtime.processes.service.census(), daemon: die.runtime.processes.daemon.census() }),
+    60000,
+  );
+  try {
+    await next();
+  } finally {
+    clearInterval(beat);
+  }
+};
+
 export const serve = async (die, next) => {
   const url = die.mask.statics.serve;
   die.runtime.aperture.open("/multiplex", shard.serve.multiplex(die.runtime.aperture));

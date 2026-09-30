@@ -127,7 +127,9 @@ export async function environment(instance) {
 
 const anchor = (home) => (entry) =>
   typeof entry !== "string"
-    ? { ...entry, source: entry.source ?? home }
+    ? entry.module
+      ? entry
+      : { ...entry, source: entry.source ?? home }
     : isAbsolute(entry)
       ? entry
       : /^\.\.?\//.test(entry)

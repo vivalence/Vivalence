@@ -20,6 +20,7 @@ export const execution = new Vector()
   .use(resolution.expose)
   .use(resolution.metadata)
   .use(integration.ledger)
+  .use(integration.patrol)
   .use(integration.serve)
   .use(integration.announce);
 
