@@ -2467,3 +2467,25 @@ It is the auth boundary of every domain. Which caller a domain route admits, and
 ** Workaround
 
 None on live italian: pick and review stay 500 until a guard lands. A reinstall no longer brings them back.
+
+* vcs-guard-denies-read-only-verbs — OPEN (met pushing the registry packages, 09-30)
+
+** Symptom
+
+Four reads DENIED in one session, each as a mutation: =jj bookmark list --all-remotes= (/"jj bookmark: graph mutation"/) · =jj --version= (/"jj --version: graph mutation"/) · =git for-each-ref …= (/"git for-each-ref: graph/worktree mutation"/) · =git --git-dir=<bak>/.git ls-tree …= (/"git --git-dir: graph/worktree mutation"/). A fifth fired on PROSE: the word pair =git refs= inside an =echo "-- git refs"= label.
+
+** Root cause
+
+=.ikiro/hooks/vcs-guard.sh:29-31= allowlists git reads by subcommand; =for-each-ref= is not on it. =:25= strips =-C= · =-c= · =--no-pager= · =-P= before the subcommand, never =--git-dir= / =--work-tree=, so the flag itself is read as the verb. =:46= allows jj =log|st|status|show|diff= only — =bookmark list=, =op show=, =--version=, =workspace list= are reads it cannot tell from writes. =:41= / =:51= match =git <word>= / =jj <word>= anywhere in the line, quotes included.
+
+** Evidence
+
+Session 0b904f23, turns 2–4 and 4, 7, 29 (the chess op-log walk and the old-tree diff). Each worked around with an allowed read: =jj log -r 'remote_bookmarks()'= · =find .git/refs= + =cat .git/packed-refs= · =git -C <dir>= · the =jj= binary's Cellar path.
+
+** Why not fixed
+
+A hook is beef's wiring (=ontology.md= law 8); the allowlist rows and their rig cases in =hooks/exercise.sh= are his call. beef 08-14: /"i want you to read jj/git vcs !!! i use that all the time. just no write!"/ — the guard's own header comment.
+
+** Workaround
+
+=git -C <dir>= instead of =--git-dir=; =find <repo>/.git/refs -type f= + =.git/packed-refs= for refs; =jj log --ignore-working-copy -r 'bookmarks() | remote_bookmarks()'= for bookmarks; =readlink -f "$(which jj)"= for the version; never the words =git= / =jj= + a verb inside an =echo= label.

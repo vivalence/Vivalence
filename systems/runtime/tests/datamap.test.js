@@ -15,19 +15,19 @@ specimen.beforeAll(async () => {
   const aperture = new Aperture()
 
   aperture.branch("/literal")
-    .slurp(shard.datamap.repository(repos.literal))
-    .slurp(shard.datamap.reactive(repos.literal, twitch))
-    .slurp(shard.datamap.ingest(repos.literal))
+    .graft(shard.datamap.repository(repos.literal))
+    .graft(shard.datamap.reactive(repos.literal, twitch))
+    .graft(shard.datamap.ingest(repos.literal))
 
-  aperture.branch("/symbol").slurp(shard.datamap.repository(repos.symbol))
-  aperture.branch("/mode").slurp(shard.datamap.repository(repos.mode))
-  aperture.branch("/intent").slurp(shard.datamap.repository(repos.intent))
+  aperture.branch("/symbol", shard.datamap.repository(repos.symbol))
+  aperture.branch("/mode", shard.datamap.repository(repos.mode))
+  aperture.branch("/intent", shard.datamap.repository(repos.intent))
 
   aperture
     .branch("/thread")
     .use(shard.context.attach("user", fixtures.user))
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
-    .slurp(shard.datamap.repository(repos.thread))
+    .graft(shard.datamap.repository(repos.thread))
 
   const sub = shape.subscriber(twitch)
   scenario.em.getEventManager().registerSubscriber(sub)
@@ -150,7 +150,7 @@ specimen.describe("shard.datamap.reactive", () => {
 specimen.describe("shard.datamap.ingest", () => {
   specimen.it("an ingest stream creates one entity and many in a batch", async () => {
     const aperture = new Aperture()
-    aperture.branch("/literal").slurp(shard.datamap.ingest(scenario.repos.literal))
+    aperture.branch("/literal", shard.datamap.ingest(scenario.repos.literal))
     const handler = shape.http(aperture)
     const encoder = new TextEncoder()
     const post = (body) => handler(new Request("http://test/literal/ingest", {
@@ -180,7 +180,7 @@ specimen.describe("shard.datamap.ingest", () => {
 
   specimen.it("an ingest stream updates and deletes existing entities", async () => {
     const aperture = new Aperture()
-    aperture.branch("/literal").slurp(shard.datamap.ingest(scenario.repos.literal))
+    aperture.branch("/literal", shard.datamap.ingest(scenario.repos.literal))
     const handler = shape.http(aperture)
     const encoder = new TextEncoder()
     const post = (event) => handler(new Request("http://test/literal/ingest", {

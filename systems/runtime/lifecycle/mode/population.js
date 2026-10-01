@@ -17,7 +17,7 @@ export const core = async (die, next) => {
     .use(shard.context.bind("mode", die.mode))
     .open("/status", (_, ctx) => ctx.mode.status.reflection)
     .open("/manifest", (_, ctx) => ctx.mode.manifest);
-  if (die.mode.module.aperture) die.mode.aperture.slurp(die.mode.module.aperture);
+  if (die.mode.module.aperture) die.mode.aperture.graft(die.mode.module.aperture);
 
   die.mode.tools = new Vector().use(shard.context.bind("daemon", die.daemon)).use(shard.context.bind("mode", die.mode));
 

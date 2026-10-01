@@ -1,0 +1,69 @@
+#+title: m74 sunsets into done, runtime-scenarios is discarded, the sidecar drops, and the patrol note is cut and restored
+#+index: 240
+#+session: session 886a541b, turns 89–104 (fold N = 16, the eleventh and last fold of m74; #236 holds turns 81–88). The fold opens on the belt.stagger correction and closes on /"ikiro compact"/.
+
+* one breath
+
+(89) /"gestalten.tools.mode.stagger - we dont watn mode in gestalten and stagger is not a tool. maybe its in belt."/ — moved to =gestalten.belt.stagger= (=systems/runtime/tests/mode/traits.test.js:210= reads it), every typology change highlighted for beef.
+(92–95) /"validate m74 until move to done."/ — the walk of =viva instance/run runtime= on a temp ledger, the process rows driven on a booted chess, every suite baselined; markers 13 held · 1 revised; release lifted 12/12 (a new =### route=); =mv= into =done/=; index and frontier restamped. The runtime red (=integration.test.js= against live italian) traced to the domain aperture's missing =authorize()= + =user= bind, hidden before m74 by a filter-param leak that scoped every caller to one user's rows → known issue =domain-routes-carry-no-user=, shapes A · B · C measured, the choice beef's. =~/.viva/registry/assembly/tests/rig.js:85= residue =good:= fixed.
+(93) /"check if … runtime-scenarios.org can go too?"/ — answered no at the time: stale tangles, the handed coverage gap.
+(94) /"drop this then. … m74-the-boot-vector maybe work parts of it into the done quest"/ — 95 files captured to =~/.viva/bak/ikiro/m74-the-boot-vector-20260930/=, =diff -rq= identical, dropped; the twelve-case COVERAGE GAP and coverage before → after folded into =** sunset — the validation=.
+(97) /"i think this can be dropped no??"/ — yes: =mv= to =discarded/= (0/18 of its own, overtaken, stale against the recast); index live 5 → 4, discarded 45 → 46.
+(99) /"i get spammed by this note on every request. cut whoever is emitting this."/ — =integration.patrol= cut from =systems/runtime/lifecycle/runtime/{integration,execution}.js=.
+(100) /"no. we want the patrol. we just want that note filtered."/ — restored with a =past= string, note only on change.
+(101) /"ah osrry ok fuck no. makes no sense. just keep it. my bad"/ — restored verbatim; the 60 s note stands. Net code delta of 99–101: zero.
+(102–104) /"ikiro compact"/ — this walk.
+
+* rows
+
+| n | ask | landed | died |
+|---|---|---|---|
+| 89 | belt.stagger | ✓ | tools.mode |
+| 90–91 | /compact | — | — |
+| 92 | validate m74 | done/ | — |
+| 93 | runtime-scenarios? | stays | — |
+| 94 | drop sidecar | dropped | 95 files |
+| 95 | skill | — | — |
+| 96 | /compact | — | — |
+| 97 | drop scenarios | discarded/ | — |
+| 98 | continuation | NOTHING | — |
+| 99 | cut note | ✓ | patrol |
+| 100 | dedupe | ✓ | — |
+| 101 | keep | revert | dedupe |
+| 102–104 | compact | this | — |
+
+coverage: 89–104, 16 of 16.
+balance: thirds 89–93 · 94–98 · 99–104 → 3 · 2 · 3 rulings; the last third is the patrol round trip, weight earned.
+
+* failures
+
+- (99) I read /"cut whoever is emitting this"/ as delete the emitter; beef wanted the noise gone, not the patrol. The note fires on a 60 s interval, not per request — the claim in his turn was worth stating BEFORE cutting, not after. No codeword; beef retracted the whole ask himself (/"my bad"/).
+
+* State at fold
+
+- m74 in =done/=; 4 live quests: m60 · m71 · m72 · m73.
+- =systems/runtime/lifecycle/runtime/integration.js= byte-equal to its pre-99 self.
+- live :2501 italian RUNNING.
+
+** skills
+
+| skill | turn | verdict |
+|---|---|---|
+| quest-lifecycle | 94 | HELD |
+| live-validation | 94 | HELD |
+| compact-walk | 103 | HELD |
+
+* handoff
+- quest :: none
+- goal :: /"validate m74 until move to done."/
+- done :: m74 walked, suites baselined, release lifted 12/12, =mv= to =done/=; sidecar captured and dropped; runtime-scenarios discarded; patrol untouched net
+- next :: rule the domain guard A · B · C — then pick and review answer on live italian
+- never :: =rm= a quest; patch the auth boundary unasked; cut an emitter when beef asks for quiet
+- owed :: beef — the m74 commit on =vwqowxzk=; mount-on-import (QUESTIONED); the domain guard (=known-issues.org domain-routes-carry-no-user=)
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                   | progress  | status   | next                                                                                  | sessions |
+|-------------------------+-----------+----------+---------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone | 0        |
+| m71-droneaid-guide      |   0% 0/16 | design   | go                                                                                    | 3        |

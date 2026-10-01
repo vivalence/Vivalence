@@ -14,7 +14,7 @@ import { pin } from "./harness.snapshot.test.js";
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
 
 const invoke = (rigged, input) => {
-  const outer = new Vector().slurp(research);
+  const outer = new Vector().graft(research);
   outer.use(shard.context.bind("daemon", rigged.daemon));
   outer.use(shard.context.bind("mode", rigged.mode));
   outer.use(shard.context.bind("thread", "thread-1"));

@@ -219,3 +219,19 @@ Held at one note, amend on a second: `sibling-reconcile` GAP (the quest report's
 - 9c4d5944/182 `callout` MISSED — the orphaned watcher's entry written in the skill's shape without the recurrence audit, no firing · #239
 - 9c4d5944/182 `known-issues` MISSED — `runtime-watch-leaks-an-esbuild-per-restart` written in the file's shape, no firing · #239
 - 9c4d5944/181 `quest-authoring` MISSED — m73's status three times, three reality blocks, two drop blocks, three markers, three changelog entries, two release lines, no firing · #239
+- 0b904f23/19 `debugging` MISSED — five pasted prod faults (19 · 21 · 22 · 26 · 28) answered from the log with host commands; fired only on beef's /"nonono fix this locally. you have everything here"/ at 29 · #242
+- 0b904f23/29 `testing` MISSED — baseline (4 files, 8 passed), the guardrail red before the fix, envelopes pasted, no firing · #242
+- 0b904f23/7 `capture-before-delete` MISSED — chess's `.git` / `.jj` moved to `~/.viva/bak/registry/` before the re-init, in the skill's shape, no firing · #242
+- 0b904f23/46 `callout` MISSED — three entries written in the skill's shape with a recurrence audit by `grep`, no firing · #242
+- 0b904f23/46 `known-issues` MISSED — `vcs-guard-denies-read-only-verbs` written in the file's shape, no firing · #242
+- 886a541b/106 `testing` MISSED — six baselines on the unpatched tree, envelopes pasted, the assembly bak/ red attributed, no firing · #243
+- 886a541b/106 `critical-pass` MISSED — a sibling's 50-file patch against HEAD: base blobs, dry-apply, the "left alone" comment claim grepped false, consumer hunks read, no firing · #243
+- 886a541b/111 `capture-before-delete` MISSED — five registry packages + the hello-world shelf to `~/.viva/bak/graft/<pkg>-<date>/`, `diff -rq` clean, before the rewrite, no firing · #243
+- cf07c785/5 `quest-lifecycle` MISSED — /"compact benched"/ is the skill's own trigger; the quest written to `quests/benched/` and the index regenerated in its shape, no firing · #244
+- 11950be0/13 `quest-authoring` GAP — its ready-checks (`markers.py`, `quest-report.py`) resolve `.ikiro/quests` from the CWD; run from `.ikiro/` both print an empty table that reads like a pass — run from the repo root · #245
+- 11950be0/9 `testing` MISSED — baseline 3 files before the Turn edit, 12 after, envelopes pasted, no firing · #245
+- 11950be0/10 `debugging` MISSED — the migrator traced through vendored mikro 6.6.7 source to the missing newline, no firing · #245
+- 11950be0/61 `rename-pass` MISFIRE — fired on /"go on the aperture/attachment rename"/, a fork ruling at quest level; four tree files edited then reverted, callout scope-inflation #8 · #246
+- 11950be0/21·26·34·46·49·50·63 `quest-authoring` MISSED — seven "update the quest" turns without a firing; 27 code fences accreted outside `* tangle` until beef: /"you only work in the tangle"/ · #246
+- 11950be0/51·58·65·68 `testing` MISSED — four probe runs, counts pasted in the skill's shape, no firing · #246
+- 11950be0/— `critical-pass` MISSED — a 1700-line tangle read by beef with no adversarial pass first; he found `.row`, the m:1 daemon, the hook, the vector export, the word `aperture` · #246

@@ -179,11 +179,11 @@ specimen.describe("Hallucination", () => {
       specimen.expect(folded.turns).toHaveLength(3);
     });
 
-    specimen.it("a slurped mode tool vector arms the request", async () => {
+    specimen.it("a grafted mode tool vector arms the request", async () => {
       const modeTools = new Vector();
       let ran = false;
       modeTools.open({ nature: "lookup" }, async () => ((ran = true), { message: "house" }));
-      const armed = new Vector().slurp(modeTools);
+      const armed = new Vector().graft(modeTools);
       await populatedCortex().hallucinate
         .dialogue.render({ controller: new Controller(), policy: { tune: "unleashed" }, turns: [userTurn("casa")], tools: armed });
       specimen.expect(ran).toBe(true);

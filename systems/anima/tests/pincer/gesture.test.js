@@ -45,19 +45,25 @@ const hold = ({ gesture, time }, x, y) => {
 };
 
 describe("pincer gesture — what the chassis already does", () => {
-  it("one tap sends the joint home, two swap it back, three make the spot home — each spot carries its turn", () => {
-    walk({ standard: { x: 22.5, y: 777.5, orientation: 270 } }, (held) => {
+  it("one tap swaps the joint with where it last was, and again swaps back; two send it home; three make the spot home — each spot carries its turn", () => {
+    walk({ previous: { x: 600, y: 500, orientation: 90 }, standard: { x: 22.5, y: 777.5, orientation: 270 } }, (held) => {
       taps(held, 1);
+      expect(held.bridge.layout.pincer).toEqual({ x: 600, y: 500 });
+      expect(held.bridge.layout.orientation).toBe(90);
+      expect(held.bridge.layout.previous).toEqual({ x: 400, y: 300, orientation: 0 });
+      taps(held, 1);
+      expect(held.bridge.layout.pincer).toEqual({ x: 400, y: 300 });
+      expect(held.bridge.layout.orientation).toBe(0);
+      expect(held.bridge.layout.previous).toEqual({ x: 600, y: 500, orientation: 90 });
+      taps(held, 2);
       expect(held.bridge.layout.pincer).toEqual({ x: 22.5, y: 777.5 });
       expect(held.bridge.layout.orientation).toBe(270);
       expect(held.bridge.layout.previous).toEqual({ x: 400, y: 300, orientation: 0 });
-      taps(held, 2);
-      expect(held.bridge.layout.pincer).toEqual({ x: 400, y: 300 });
-      expect(held.bridge.layout.orientation).toBe(0);
-      expect(held.bridge.layout.previous).toEqual({ x: 22.5, y: 777.5, orientation: 270 });
+      expect(held.gesture.flash).toBe("tap2");
+      taps(held, 1);
       taps(held, 3);
       expect(held.bridge.layout.standard).toEqual({ x: 400, y: 300, orientation: 0 });
-      expect(held.saves.length).toBe(3);
+      expect(held.saves.length).toBe(5);
     });
   });
 
@@ -267,7 +273,7 @@ describe("pincer gesture — the comp's pull, tiles, lock and home", () => {
       expect(held.bridge.layout.standard).toEqual({ x: 22.5, y: 777.5, orientation: 270 });
       expect(held.bridge.layout.previous).toEqual({ x: 400, y: 300, orientation: 0 });
       expect(held.gesture.radial.show).toBe(false);
-      expect(held.gesture.flash).toBe("tap1");
+      expect(held.gesture.flash).toBe("tap2");
       expect(held.saves.length).toBe(1);
     });
   });

@@ -20,9 +20,9 @@ export const manifest = {
 };
 
 export const tools = new Vector()
-  .slurp(doctor)
-  .slurp(web)
-  .slurp(research);
+  .graft(doctor)
+  .graft(web)
+  .graft(research);
 
 export const application = new App("./app/App.svelte");
 
@@ -33,9 +33,9 @@ export const aperture = new Vector()
   })
   .open("/hello/bot", () => ({ greeting: "Bot says high." }))
   .open("/hello/agent", persona)
-  .slurp(doors);
+  .graft(doors);
 
 export const harness = new Vector()
   .use(shard.hal.defaults({ policy: { tune: "capable", rounds: 10 }, settings: { effort: "low" } }))
-  .slurp(voice);
+  .graft(voice);
 export { emitter, generator } from "./page/index.js";

@@ -17,7 +17,7 @@ specimen.describe("runtime composition", () => {
       .branch(scenario.daemon.reference.nature)
       .open("/status", () => ({ code: "RUNNING" }))
       .open("/manifest", () => scenario.daemon.manifest)
-      .slurp(scenario.daemon.aperture);
+      .graft(scenario.daemon.aperture);
 
     runtimeHandler = shape.http(runtime);
     runtimeConn = new Connection(

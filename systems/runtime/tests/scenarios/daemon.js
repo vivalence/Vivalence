@@ -100,7 +100,7 @@ export async function create() {
 
   for (const finalize of await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER })) await finalize();
 
-  daemon.aperture.branch(mode.reference.absolute).slurp(mode.aperture);
+  daemon.aperture.branch(mode.reference.absolute, mode.aperture);
 
   daemon.datamap = datamap;
   const die = { daemon };

@@ -1,4 +1,5 @@
 #+title: the logic a 256 KiB read cannot reach gets its own file, the pincer takes nordic's ring, and brand splits from signal in four themes
+#+index: 241
 #+filetags: :anima:design:claude-design:design-sync:m72:zones:tokens:dapper:themes:brand:signal:pincer:viket:northsea:parchment:porcelain:datasette:contrast:debug:read-limit:cleanup:walk:
 #+session: 8 beef turns in the Claude Design project /Design System Anima/. Turn 1 carries the conversation before it ("Shared link") as a summary only, so that conversation is folded from its summary and the files, not walked. The background verifier forked twice (3, 5) and never called back. vivalence/Vivalence master was read, never written; VCS untouched. Lands in =.ikiro/compacts/= by hand.
 

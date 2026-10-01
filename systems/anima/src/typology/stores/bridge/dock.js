@@ -2,6 +2,7 @@ export const DOCK_SIDES = ["top", "right", "bottom", "left"];
 export const SHARE_MIN = 0.18;
 export const SHARE_MAX = 1.0;
 export const SHARE_DEFAULT = 0.32;
+export const SNAP_PX = 72;
 
 export const DEFAULT_DOCK = { side: "right", share: SHARE_DEFAULT, collapsed: true, full: false };
 
@@ -47,6 +48,15 @@ export function shareAfterDrag({ side, share, rect, deltaPx }) {
   return clampShare(share + (dragSign(side) * deltaPx) / total);
 }
 
+export function snapAfterDrop({ side, share, rect }) {
+  const total = isVertical(side) ? rect.width : rect.height;
+  if (!total) return { share };
+  const size = share * total;
+  if (size - SHARE_MIN * total <= SNAP_PX) return { share: SHARE_DEFAULT, collapsed: true };
+  if (SHARE_MAX * total - size <= SNAP_PX) return { share: SHARE_DEFAULT, full: true };
+  return { share };
+}
+
 export function defaultDock() {
   return { ...DEFAULT_DOCK };
 }
@@ -77,4 +87,10 @@ export function dragDock($dock, rect, deltaPx) {
   if (!$dock) return;
   const { side, share } = $dock.get();
   setDockShare($dock, shareAfterDrag({ side, share, rect, deltaPx }));
+}
+
+export function dropDock($dock, rect) {
+  if (!$dock) return;
+  const current = $dock.get();
+  $dock.set({ ...current, ...snapAfterDrop({ side: current.side, share: current.share, rect }) });
 }

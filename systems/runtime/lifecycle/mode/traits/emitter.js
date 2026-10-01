@@ -63,10 +63,10 @@ export const EMITTER = async (mode, daemon) => {
     ctx.output = result;
   });
 
-  emitter.slurp(mode.module.emitter);
+  emitter.graft(mode.module.emitter);
 
   return () => {
-    mode.aperture.branch("/emit").slurp(emitter);
+    mode.aperture.branch("/emit", emitter);
     // the emitter is NOT armed as a tool: a tool that draws has to exist separately and delegate.
     mode.emit = shape.object(emitter);
   };

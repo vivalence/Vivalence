@@ -8,7 +8,7 @@ function provision(mode, daemon) {
   mode.tools = new Vector();
   mode.tools.use(shard.context.bind("daemon", daemon));
   mode.tools.use(shard.context.bind("mode", mode));
-  if (mode.module.tools) mode.tools.slurp(mode.module.tools);
+  if (mode.module.tools) mode.tools.graft(mode.module.tools);
 }
 
 function buildMode({ tools, harness, slug = "tooling-test", traits = [] } = {}) {

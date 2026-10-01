@@ -41,8 +41,8 @@ specimen.beforeAll(async () => {
     .branch("/buffer")
     .use(shard.context.attach("user", fixtures.user))
     .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
-    .slurp(shard.datamap.repository(repos.buffer))
-    .slurp(shard.datamap.reactive(repos.buffer, twitch, { scope: (ctx) => ({ user: ctx.user.id }) }))
+    .graft(shard.datamap.repository(repos.buffer))
+    .graft(shard.datamap.reactive(repos.buffer, twitch, { scope: (ctx) => ({ user: ctx.user.id }) }))
     // emitter-style write: raw findOne + reassign data + flush (what /spawned/bump does)
     .post("/bump", async (input) => {
       const target = await repos.buffer.findOne(input.id)

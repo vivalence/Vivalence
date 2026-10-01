@@ -25,7 +25,7 @@ const daemon = {
   flatmodes: () => [vdex, francesca, dewey],
 };
 
-const armed = new Vector().use(shard.context.bind("daemon", daemon)).slurp(gestalten.skills.mode.mode);
+const armed = new Vector().use(shard.context.bind("daemon", daemon)).graft(gestalten.skills.mode.mode);
 
 Deno.test("skill.mode — every mode's places on disk", async (t) => {
   await t.step("places: source, then what a mode serves, then what it carries when that differs", () => {
@@ -67,7 +67,7 @@ Deno.test("skill.mode — every mode's places on disk", async (t) => {
   await t.step("a daemon without a mountpoint names none", async () => {
     const bare = new Vector()
       .use(shard.context.bind("daemon", { manifest: { slug: "test-daemon" }, flatmodes: () => [dewey] }))
-      .slurp(gestalten.skills.mode.mode);
+      .graft(gestalten.skills.mode.mode);
     const spoken = await invoke(bare, "mode_find", {});
     assertEquals(spoken.output.message.split("\n")[0], "[Daemon test-daemon]");
   });

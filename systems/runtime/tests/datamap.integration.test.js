@@ -17,22 +17,22 @@ specimen.beforeAll(async () => {
   const aperture = new Aperture()
 
   aperture.branch("/literal")
-    .slurp(shard.datamap.repository(repos.literal))
-    .slurp(shard.datamap.reactive(repos.literal, twitch))
+    .graft(shard.datamap.repository(repos.literal))
+    .graft(shard.datamap.reactive(repos.literal, twitch))
 
   aperture.branch("/symbol")
-    .slurp(shard.datamap.repository(repos.symbol))
-    .slurp(shard.datamap.reactive(repos.symbol, twitch))
+    .graft(shard.datamap.repository(repos.symbol))
+    .graft(shard.datamap.reactive(repos.symbol, twitch))
 
   aperture.branch("/mode")
-    .slurp(shard.datamap.repository(repos.mode))
+    .graft(shard.datamap.repository(repos.mode))
 
   aperture
     .branch("/thread")
     .use(shard.context.attach("user", fixtures.user))
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
-    .slurp(shard.datamap.repository(repos.thread))
-    .slurp(shard.datamap.reactive(repos.thread, twitch))
+    .graft(shard.datamap.repository(repos.thread))
+    .graft(shard.datamap.reactive(repos.thread, twitch))
 
   const sub = shape.subscriber(twitch)
   scenario.em.getEventManager().registerSubscriber(sub)

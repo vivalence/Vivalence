@@ -114,7 +114,7 @@ export const rig = async (script) => {
     bundles: { absolute: "/nonexistent/rig" },
     aperture: new Vector(),
     entity: { id: "mode-1" },
-    tools: new Vector().slurp(web),
+    tools: new Vector().graft(web),
   };
   (await EMITTER(mode, daemon))();
   await GENERATIVE(mode, daemon);

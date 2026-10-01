@@ -25,7 +25,7 @@ export class Dataspace {
         .use(shard.context.attach("dataspace", this));
 
       if (seed) seed(boot);
-      if (dossier.boot) boot.slurp(dossier.boot);
+      if (dossier.boot) boot.graft(dossier.boot);
 
       for (const fn of dossier.use ?? []) boot.use(fn);
       boot.affect(async () => {});

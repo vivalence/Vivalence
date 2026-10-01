@@ -83,6 +83,7 @@
       event.currentTarget.releasePointerCapture(event.pointerId);
     } catch (_) {}
     last = null;
+    stores.bridge.dropDock(terminals.active?.$dock, rect);
   }
 </script>
 

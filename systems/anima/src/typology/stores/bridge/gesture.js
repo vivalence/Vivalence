@@ -236,8 +236,8 @@ export class Gesture {
       this.$hidden.set(false);
       return;
     }
-    if (count === 1) this.place(this.layout.$standard.get(), "tap1");
-    else if (count === 2) this.place(this.layout.$previous.get(), "tap2");
+    if (count === 1) this.place(this.layout.$previous.get(), "tap1");
+    else if (count === 2) this.place(this.layout.$standard.get(), "tap2");
     else {
       this.layout.standard = this.placement();
       this.pulse("tap3");
@@ -261,7 +261,7 @@ export class Gesture {
       this.pulse("tap3");
       return;
     }
-    this.place(this.layout.$standard.get(), "tap1");
+    this.place(this.layout.$standard.get(), "tap2");
     this.bridge.save();
   }
 

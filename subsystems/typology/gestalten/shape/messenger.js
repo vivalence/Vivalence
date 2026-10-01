@@ -14,7 +14,7 @@ function rehydrate(node, socket, prefix = "") {
     });
   }
   for (const [segment, child] of Object.entries(node?.branches ?? {})) {
-    vector.branch(segment).slurp(rehydrate(child, socket, joinSignal(prefix, segment)));
+    vector.branch(segment, rehydrate(child, socket, joinSignal(prefix, segment)));
   }
   return vector;
 }

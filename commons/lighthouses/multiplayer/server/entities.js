@@ -44,13 +44,13 @@ export async function systemmap(servicemask) {
 export function expose(service, aperture, datamap) {
   aperture
     .branch("/entities/identity")
-    // .slurp(shard.datamap.repository(identityRepo));
-    .slurp(shard.datamap.repository(datamap.entities.identity));
+    // .graft(shard.datamap.repository(identityRepo));
+    .graft(shard.datamap.repository(datamap.entities.identity));
 
   aperture
     .branch("/entities/daemon")
-    // .slurp(shard.datamap.repository(daemonRepo));
-    .slurp(shard.datamap.repository(datamap.entities.daemon));
+    // .graft(shard.datamap.repository(daemonRepo));
+    .graft(shard.datamap.repository(datamap.entities.daemon));
 }
 
 // export function expose(service, aperture) {

@@ -12,32 +12,32 @@ export const userspace = async (die, next) => {
 
   owned
     .branch("/intent")
-    .slurp(shard.datamap.repository(die.daemon.entities.intent))
-    .slurp(shard.datamap.reactive(die.daemon.entities.intent, die.daemon.twitch));
+    .graft(shard.datamap.repository(die.daemon.entities.intent))
+    .graft(shard.datamap.reactive(die.daemon.entities.intent, die.daemon.twitch));
 
   owned
     .branch("/thread")
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
-    .slurp(shard.datamap.repository(die.daemon.entities.thread))
-    .slurp(shard.datamap.reactive(die.daemon.entities.thread, die.daemon.twitch));
+    .graft(shard.datamap.repository(die.daemon.entities.thread))
+    .graft(shard.datamap.reactive(die.daemon.entities.thread, die.daemon.twitch));
 
   owned
     .branch("/buffer")
     .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
-    .slurp(shard.datamap.repository(die.daemon.entities.buffer))
-    .slurp(shard.datamap.reactive(die.daemon.entities.buffer, die.daemon.twitch, { scope: (ctx) => ({ user: ctx.user.id }) }));
+    .graft(shard.datamap.repository(die.daemon.entities.buffer))
+    .graft(shard.datamap.reactive(die.daemon.entities.buffer, die.daemon.twitch, { scope: (ctx) => ({ user: ctx.user.id }) }));
 
   owned
     .branch("/turn")
     .use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } })))
-    .slurp(shard.datamap.repository(die.daemon.entities.turn))
-    .slurp(shard.datamap.reactive(die.daemon.entities.turn, die.daemon.twitch, { scope: (ctx) => ({ user: ctx.user.id }) }));
+    .graft(shard.datamap.repository(die.daemon.entities.turn))
+    .graft(shard.datamap.reactive(die.daemon.entities.turn, die.daemon.twitch, { scope: (ctx) => ({ user: ctx.user.id }) }));
 
   const activity = owned
     .branch("/activity")
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
-    .slurp(shard.datamap.repository(die.daemon.entities.activity, { only: ["find", "findOne", "findOneOrFail", "findAndCount", "count"] }))
-    .slurp(shard.datamap.reactive(die.daemon.entities.activity, die.daemon.twitch));
+    .graft(shard.datamap.repository(die.daemon.entities.activity, { only: ["find", "findOne", "findOneOrFail", "findAndCount", "count"] }))
+    .graft(shard.datamap.reactive(die.daemon.entities.activity, die.daemon.twitch));
 
   // @beef this code breaks the style pattern.
   // @beef shouldnt one of these be a subscription??

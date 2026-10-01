@@ -55,7 +55,7 @@ export async function create({ harness } = {}) {
   const finalizer = HARNESSED(dewey, daemon);
   if (typeof finalizer === "function") await finalizer();
 
-  daemon.aperture.branch(dewey.reference.absolute).slurp(dewey.aperture);
+  daemon.aperture.branch(dewey.reference.absolute, dewey.aperture);
 
   const createThread = async () => {
     const thread = em.create(tiers.thread.entity, {

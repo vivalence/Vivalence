@@ -1,0 +1,1751 @@
+#+title: m76 terminals close the dataring — Terminal moves from anima to the lighthouse beside Identity · Authentication · Authority, and anima keeps only state, no entities
+#+phase: open (derived)
+#+progress:  38% 3/8 (derived)
+#+next: survey (derived)
+
+* intent
+
+#+BEGIN_SRC js
+  Identity {
+    id, slug,                                     
+
+      // what do i want? theme, maybe. lots of the ui stuff, sure.
+      // starting positions and default behavior.
+      // what daemon/mode to start on. maybe in the future behavior for pulling/aiming/queueing etc
+      // 
+    traits: [customized] // ADMIN, SUSPENDED, LOCALIZED, 
+    trait: { // suspended:  { at, reason }, localized:  { language: "de", locale: "de-DE" },
+       CUSTOMIZED: {
+      theme,
+      dock,
+      home: { reference: {daemon,mode} || "daemon/slug/mode/type/slug",
+              // quesiton. is this new-tab/new terminal behaviro or first-boot?
+  	    // do we mark something like un-onboarded where we run a once off experience somewhere that ends in the removal of the trait? maybe some day.
+  	  },     
+    },
+    }
+
+    daemons:         Collection<Daemon>
+    terminals:       Collection<Terminal>
+
+    authentications: Collection<Authentication>
+    // entitlements:       Collection<Entitlement>
+  }
+
+  Authentication {id identity:    m:1 Identity provider:    "password" | "oidc" | "token" credentials: json                               // { username, hash } | { issuer, subject } | {} traits: [PRIMARY, DISABLED] authorities: Collection<Authority>}
+  Authority {id authentication:   m:1 Authentication refresh, device, issuedAt, expiresAt traits: [REVOKED] trait: {revoked: { at, by },}}                                                  // maybe authenticity? we will need a type eventually for entitlements.
+
+  Terminal { // daemon+thread as prop, rel, or trait?
+    id
+    identity: m:1 Identity
+    position // index? what do we call this on buffers on thread?
+    // daemon: Daemon
+    // thread: String,
+    traits: [ACTIVE, DOCKED, SEATED, PINNED, LABELED]
+    trait: {
+      seated:  { daemon: slug, thread: id }, // or here? we watn some coherence between entity on lighthouse and anima. 
+      docked:  { side, share, collapsed, full },    
+      labeled: { name },
+    }
+  }                                                
+#+END_SRC
+
+#+BEGIN_QUOTE
+* yap
+Essentially nothing that is an /entity/ anymore.
+
+Every entity under =typology/entities= is already a =RemoteRepository= over a daemon or lighthouse branch — mode, thread, buffer, turn, activity, intent, literal, symbol, daemon dossier. Terminal was the one locally-owned entity (its own id, its own persistence, its own lifecycle). Once it moves, Anima owns no entities; it owns /state/:
+
+#+BEGIN_SRC md
+Anima-owned (after the move)
+├─ stores/lighthouse.js      $authority, $identity, $status      — session, cached from wire
+├─ stores/terminals.js       $entities, $active                   — projection of lighthouse Terminal rows
+├─ stores/bridge/            geometry, panes, gesture, dock math  — viewport/layout, device-bound
+├─ stores/box/               device, drivers                      — hardware (mic, keys, screen)
+├─ Stall / $settling          per-terminal runtime                — ephemeral, re-derived
+└─ prototypes/dictation      in-flight input                      — never persisted
+#+END_SRC
+
+That is the right shape for what you said: Anima is a display. The division of ownership becomes clean:
+
+#+BEGIN_SRC md
+lighthouse  →  who you are, what you have open, how you like it   (Identity, Terminal, Authority)
+daemon      →  what you're working on                              (Thread, Buffer, Mode, …)
+anima       →  where it is on this screen, right now               (bridge, box, stall)
+#+END_SRC
+
+Two things to decide while you're in there:
+
+- =dock= is split: the /preference/ goes to =Identity.configured.dock=, the /per-terminal/ value to =Terminal.docked=, but =bridge/geometry= (window size, pane split) stays local — it's a property of the glass, not the user. Keep it in localStorage, keyed by device, don't lift it.
+- =$settling= and the serialized-reference dance in =app/terminals.js= exist because the terminal held a thread id it couldn't resolve yet. With =seated: { daemon, thread }= living on the lighthouse row the same race exists — the daemon may be unreachable — so the resolver survives, it just reads from the row instead of localStorage.
+
+Net: Anima shrinks from "client with a database" to "client with a cache", and the only truly Anima-owned things are the ones that would be wrong to sync across devices.
+#+END_QUOTE
+
+* workstreams and deliverables
+
+beef, 10-03, after the lighthouse/anima intersection was mapped: /"terminal is remote now. when we sign in to the lighthouse from the client we pull the terminals and daemons. rn anima works differently. i dont think we need any changes on runtime level."/ Then: /"workstreams vs deliverables."/
+
+** deliverables — the milestones
+
+| d | deliverable | lands in | state |
+|---|---|---|---|
+| a | changes to the current identity / autho / authr — with the traits worked out | =subsystems/typology/entities/lighthouse/Identity.ts= | designed — F4 · F5 |
+| b | the new terminal entity with all its traits, relations, and props | =subsystems/typology/entities/lighthouse/Terminal.ts= · =index.ts= | designed — F1 · F2 · F3, tangle drafted |
+| c | the lighthouse serves them | =commons/lighthouses/multiplayer/server/entities.js:21= · the =/entities/terminal= door | designed — F7 · F8 · the door |
+| d | the client consumes the terminal via remote repo | =systems/anima/src/typology/entities/terminal.js= (a =TerminalDossier=) | designed |
+| e | the client lifecycle and stores adjusted for the new reality | =systems/anima/src/app/terminals.js= · =stores/terminals.js= · =stores/lighthouse.js:49= · =+layout.svelte:77= | designed — F9 · F10, in depth |
+| f | the lighthouse as a static =attachment= Vector (F12); the runtime binds =service= · =mask=, builds the datamap tier (=entities= optional, default the typology lighthouse set) | =commons/lighthouses/multiplayer/attachment/= · =gestalten/= · =systems/runtime/lifecycle/service/= · =shard/datamap.js= | designed — F11, third shape |
+
+Struck from scope before the deliverables were set: Authority (/"ignore authority"/) and the Authentication entity (/"ignore authentication"/). Deliverable a's "autho / authr" is the EXISTING =AuthenticatorEmbedEntity= (=Identity.ts:10=), not new entities.
+
+** workstreams — the order of work
+
+| w | workstream | feeds |
+|---|---|---|
+| 1 | work out identity traits | a |
+| 2 | work out the terminal entity and ex/imports and wire it into lighthouse | b · c · f |
+| 3 | work out the anima repository, stores, lifecycle, and integration | d · e |
+
+** the pipe — measured 10-03
+
+Where the lighthouse gets its entities (typology, never runtime — runtime re-exports):
+
+#+BEGIN_EXAMPLE
+subsystems/typology/entities/lighthouse/{Identity,Daemon}.ts
+  subsystems/typology/entities/lighthouse/index.ts               export { daemon, identity }
+    systems/runtime/entities/index.ts:19,39                      sets.lighthouse = { identity, daemon }
+      commons/lighthouses/multiplayer/server/entities.js:12,21   [identity.schema, daemon.schema, AuthenticatorEmbedSchema] → datamap.provider
+#+END_EXAMPLE
+
+The runtime touch is one key in =sets.lighthouse= — metadata, no behavior.
+
+What anima holds today, per noun:
+
+| noun | anima today | file |
+|---|---|---|
+| Identity | =map({})= — raw JSON from =/auth/login=, not an entity | =stores/lighthouse.js:12,71= |
+| Daemon | entity: =Daemon= class + =DaemonDossier=, =RemoteRepository("/entities/daemon")= | =entities/daemon/dossier.js:46-49= |
+| Terminal | local factory, =localStorage["viva.terminals"]= | =app/terminals.js:4,17= |
+
+Boot today vs after:
+
+#+BEGIN_EXAMPLE
+boot(lighthouse)                               stores/lighthouse.js:245
+  populate                                     :252
+    dataspace.populate(["daemon"])             → $daemons
+hydrate({terminals})                           app/terminals.js:17   ← localStorage, blind to identity
+settle({terminals, lighthouse})                :87                   ← resolves {thread, buffer} against healthy daemons
+
+after:
+  populate
+    dataspace.populate(["daemon", "terminal"]) ← one more dossier, identity-scoped server-side
+  settle                                       ← survives; reads seated.{daemon, thread} instead of localStorage
+#+END_EXAMPLE
+
+** forks — workstream 2, the Terminal entity
+
+*** F1 the daemon/thread binding — RULED: relation + prop
+
+beef: /"terminal: how to resolve the daemon/thread bindnig??"/ Three shapes were laid out (A relation + string prop · B atomic =SEATED= trait · C hybrid); my lean was B. beef: /"i'd consider this a payoff, reall. we absolutely want to list terminals per daemon at some point. thread will never live on the lighthouse. modes will."/ · /"but really the true nature of that is a relation. its not a trait. a terminal is pretty much expected to have a thread to exist usefully. optionality ooonly because of crud states."/ · /"no hybrid. just these two. which?"/ → A.
+
+Why it settled: Daemon rows share the lighthouse db with Terminal (=entities.js:21=) so the FK is real; =set null= unseats on daemon removal; per-daemon listing is a plain =where=; when modes reach the lighthouse =mode: m:1 Mode= slots in the same way. Thread stays a string — it never lives on the lighthouse. =SEATED= is gone: seated ≡ =daemon !== null=. The one invalid state (thread without daemon) closes with a hook in the shape of =Thread.ts:77-81=.
+
+*** F2 the order field — RULED: =index=
+
+beef: /"position // index? what do we call this on buffers on thread?"/ → =Buffer.ts:73= =index: { type: types.integer, default: 0 }=, seated by =thread.bindBuffer= (=Buffer.ts:33=). beef: /"call it index."/ Terminal's index is seated by the identity at create, same move.
+
+*** F3 the trait set — RULED: DOCKED · LABELED
+
+Census of every =terminal.*= read in anima (=grep -rhoE "terminal\??\.(\$?[a-zA-Z]+)"=): =id= 22 · =thread/$thread= 26 · =buffer/$buffer= 20 · =$settling= 4 · =$dock= 2 · =mode= 2 · =daemon= 2. Only DOCKED exists on the row today. beef on the derived pair: /"we dont want mode on terminal at all!"/ — the one =terminal?.mode= reader is =telemetry/inspector.js:47=, already dead (=Terminal()= never exposes =mode=; it prints "—"); it reads =terminal.thread.mode= or goes. /"and daemon should be able to be read from entity now."/ — =terminal.daemon= stops being a thread getter (=entities/terminal.js:74=) and becomes the row's relation. No terminal label (the =$label= hits are thread's and buffer's — =Dock.svelte:28=, =f.svelte:74=), nothing pins, and active is the collection pointer (=terminals.active/$active= 32 reads, =localStorage["viva.terminals.active"]=), not a row flag. beef: /"we also want labaled."/ ACTIVE and PINNED out: active stays glass state like =bridge/geometry=, lifted only if cross-device resume becomes a want; PINNED has no reader.
+
+*** the Terminal row as ruled
+
+→ tangle: =subsystems/typology/entities/lighthouse/Terminal.ts=
+
+→ witness moved to =* tangle=
+
+*** F4 identity traits — RULED: ADMIN · THEMED · DOCKED · HOMED, one per customization
+
+beef: /"idenity: what traits do we have?"/ · /"there havent been any traits yet. but its rich ground."/ Identity today is =id · slug · authentication= (=Identity.ts:33-35=), no =traits=, no =trait=; anima's =$identity= has zero readers outside =stores/lighthouse.js=. My first shape was one =CUSTOMIZED { theme, dock, home }=. beef: /"we might want to split all the customizations out into traits... customized really isnt the trait. traits are speciifc"/ → one trait per customization, each with its own presence. Keys UPPERCASE like every other trait (=ThreadTraitsEnum.AIMED=, client reads =thread.trait.AIMED.mount= at =aimed.js:10=).
+
+| trait | payload | absent means | today |
+|---|---|---|---|
+| ADMIN | — | not admin | =User.roles= enum, zero readers (=User.ts:6-10=) |
+| THEMED | ={ theme }= | =knownTheme(undefined)= | =localStorage["vivalence:bridge"].view.theme= (=bridge.js:90=) |
+| DOCKED | ={ side, share, collapsed, full }= | =defaultDock()= | =stores/bridge/dock.js= — same name, same shape as =Terminal.DOCKED=; identity's is the default, terminal's the instance |
+| HOMED | ={ daemon, mode }= | an empty terminal, as today | nowhere — =terminals.create()= takes no args (=stores/terminals.js:21=) |
+
+Out: SUSPENDED · LOCALIZED (no reader, no writer — first one adds it). Glass stays glass: =fold · strip · hair · fontSize= stay in =vivalence:bridge=. beef's two embedded questions: =home= is new-terminal behavior, not first-boot (/"is this new-tab/new terminal behaviro or first-boot?"/); un-onboarded = =traits: []= — absence is the state, onboarding writes the traits, no trait for it ever. Pull/aim/queue defaults later ride a default Intent in HOMED, not identity traits — those live on Intent (=Intent.ts:9-10=).
+
+=User.roles= and =User.config= become dead once Identity carries ADMIN and the customizations — strip under m78 (entity edit → no 6.6.7 boot), see =* deferred=.
+
+*** F5 identity ↔ daemon — RULED: m:n, daemons are shared
+
+beef added =daemons: Collection<Daemon>= to Identity. I proposed =Daemon.identity: m:1= (ownership). beef: /"daemon has one identity??? weird. wrong. a daemon has many users. weird. daemons are shared."/ → m:n through an explicit pivot, Daemon stays ownerless. Explicit =pivotTable= pins the name across mikro 7's case rename (m78 F2). =/entities/daemon= filters through the pivot ={ identities: ctx.identity }= — the client stops seeing other identities' daemons (today everyone gets every row, =lighthouse.js:258=).
+
+*** F6 the thread-without-daemon guard — STRUCK
+
+I carried a =guardSeat= hook (thread set, daemon null → throw) through two proposals. beef: /"no. fuck off. stop carrying your hallucinations."/ Nothing guards the pairing; both nullable, CRUD states are allowed to be partial.
+
+** the lighthouse set as ruled
+
+→ tangle: =subsystems/typology/entities/lighthouse/Identity.ts=
+
+→ tangle: =subsystems/typology/entities/lighthouse/Daemon.ts=
+
+→ tangle: =subsystems/typology/entities/lighthouse/Terminal.ts=
+
+→ tangle: =subsystems/typology/entities/lighthouse/index.ts=
+
+The witness — one identity, two shared daemons, one seated and one fresh terminal:
+
+→ witness moved to =* tangle=
+
+** forks — workstream 2, the door and the ctx
+
+*** F7 the ctx model — RULED: =ctx.lighthouse= on the daemon, =ctx.identity= on the lighthouse only
+
+Trigger: my first door diff set =ctx.identity.row=. beef: /"ctx.identity.row .... .row? what?? where the fuck do we call anything .row?? stupid. if we call it ctx.identity and we have an identity entity then identity is that entity. think! look!"/ · /"ctx.identity = { -- misnamed obviously! i supect thats also a runtime problem?"/ Looked: it is. Both planes hang a wrapper under the name =identity=:
+
+#+BEGIN_EXAMPLE
+lighthouse  server/identity.js:5     ctx.identity = { findOne, identify }          a repository view — findOne IS ctx.entities.identity.findOne (shard/datamap.js:5)
+daemon      provider/index.js:24     ctx.identity = { identity, getUser, enroll }  a session handle — the identity is ctx.identity.identity
+#+END_EXAMPLE
+
+beef's wiring: /"context entities identity find one on the lighthouse is correct. … what we have on daemon with context user is the actual entity from the user side, it's correct. Identity, I think, should be context lighthouse. … The authority middleware uses the lighthouse to establish that. … Context daemon is correct. Context identity on the daemon I think we can rename to lighthouse. Unless there is already a lighthouse, in which case, why haven't you told me? And context authority, I think it's more of a middleware, really."/ Then: /"I don't think I want a context.identity in the daemon at all. On the lighthouse, we might call it the identity, context.identity, once we have that established."/
+
+Measured: =ctx.lighthouse= exists nowhere (0 hits, runtime · typology · commons). =ctx.identity= readers on the daemon: 2 (=secure.js:33=, =userspace.js:6=). =ctx.authority= readers: 1 (=secure.js:21=). =ctx.user= readers: 11, all correct, untouched.
+
+| plane | key | kind | today → after |
+|---|---|---|---|
+| daemon | =ctx.daemon= | prototype | unchanged |
+| daemon | =ctx.mode= | prototype | unchanged |
+| daemon | =ctx.user= | ENTITY =UserEntity= | unchanged (=secure.js:33=, =harnessed.js:27=) |
+| daemon | =ctx.thread= · =ctx.activity= · =ctx.turn= | ENTITY | unchanged |
+| daemon | =ctx.entities= | prototype (repositories) | unchanged |
+| daemon | =ctx.identity= | prototype ={ identity, getUser, enroll }= | → =ctx.lighthouse= ={ getUser, enroll }= — what the lighthouse vouched for this token; the claim closes over =identity.id= |
+| daemon | =ctx.authority= | the provider object | gone — the provider is the middleware's argument |
+| daemon | =ctx.scope= | per-call predicate | unchanged |
+| lighthouse | =ctx.entities= | prototype ={ identity, daemon, terminal }= | gains =terminal= |
+| lighthouse | =ctx.identity= | prototype ={ findOne, identify }= | → ENTITY =IdentityEntity=, set by =identity.authenticate()= on =/entities/*=; absent on =/auth/*= |
+| lighthouse | =ctx.jwt= · =ctx.rft= | prototype | unchanged |
+| lighthouse | =ctx.scope= | per-call predicate | new on =/entities/daemon= (={ identities }=) and =/entities/terminal= (={ identity }=) |
+
+Kinds, as named in session: ENTITY = a row of the plane's own db · prototype = /"functions on top of data"/ (beef) · per-call = values that live for one request and are rewritten by shards (=input · output · params · scope=; the codebase has no word for the class — "pipeline" was mine, open).
+
+The law that falls out: each plane hangs exactly its own rows as entities, one prototype for its datamap, one prototype per foreign authority (=ctx.lighthouse= on the daemon; nothing yet on the lighthouse). =identity= appears on one plane and means one thing there. Entitlements later land in =authorize(provider)= where =ctx.lighthouse= meets =ctx.user= — no new ctx key.
+
+*** F8 the shard — RULED: =shard.secure= → =shard.auth=
+
+beef: /"So the question is secure.js. Maybe we call that identify.js, not sure yet."/ → /"I think also why it is misnamed, we should, I think, call it identity."/ · /"I want that rename."/ Then, inline on the tangle (10-03): /"@beef shard.identity -> shard.auth!"/ — =auth=, the verb pair's family name; =identity= stays the lighthouse's own word (=gestalten/identity.js=, =ctx.identity=). =authority()= is deleted (the provider rides the argument); =authenticate= and =authorize= take it.
+
+→ tangle: =subsystems/typology/gestalten/shard/index.js=
+
+→ tangle: =subsystems/typology/gestalten/shard/auth.js=
+
+→ tangle: =systems/runtime/lifecycle/daemon/population.js:42=
+
+→ tangle: =commons/lighthouses/multiplayer/provider/index.js:24-33=
+
+Residue: [[rename-pass]] grep for =secure= over repo + =~/.viva/registry= at tangle. Runtime scope: 3 runtime files + 1 shard + 1 provider, ~10 lines — beef's earlier /"i dont think we need any changes on runtime level"/ is superseded by this fork.
+
+*** the door — deliverable c as ruled
+
+beef: /"lighthouse also implements the /metadata as a paradigm to facilitate metadata transactions like datamap."/ → mirror of =metadata.js:5-10=. =/entities/identity= dropped — an identity reads itself through =/auth/verify= (/"why 3 times?"/); =verify= and =login= return the traits.
+
+→ tangle: =commons/lighthouses/multiplayer/server/identity.js=
+
+→ tangle: =commons/lighthouses/multiplayer/server/auth.js=
+
+→ tangle: =commons/lighthouses/multiplayer/server/index.js:33-34=
+
+→ tangle: =commons/lighthouses/multiplayer/server/entities.js=
+
+*** the identify · authorize · scope walk — measured
+
+Six functions carry the system: =shard.secure.{authority, authenticate, authorize}= · =shard.datamap.{scope, repository, reactive}= · =datamap.shard.bind= (=prototypes/datamap.js:11-21=).
+
+#+BEGIN_EXAMPLE
+identify   Authorization: Bearer <access>
+  shard.secure.authenticate()                           resolution.js:4 (every route) · userspace.js:5
+    ctx.identity = ctx.authority.authenticate(token)    secure.js:21
+      POST lighthouse /auth/verify { access }           provider/index.js:41-45     ← every daemon call round-trips; no local verify
+        ctx.jwt.verify → payload.type === "access"      auth.js:162-166
+        → { identity: { id } }                          auth.js:174
+      → { identity, getUser, enroll }                   provider/index.js:24-33
+
+authorize  shard.secure.authorize() = authenticate ∘ admit    resolution.js:24 (every mode) · userspace.js:10
+    ctx.user = ctx.identity.getUser()                   secure.js:33
+      users.findOne({ id: identity.id })                provider/index.js:26        ← User.id == Identity.id, the ring
+    none → 401 "… /userspace/handshake first"           secure.js:37
+  /userspace/handshake → enroll()                       userspace.js:6 · provider/index.js:27-32   the only write that mints a User
+
+scope      ORM   datamap.shard.bind("user", …) → em.setFilterParams → Turn.filters.user default    userspace.js:11 · Turn.ts:59
+           door  shard.datamap.scope(…) → ctx.scope → scoped("where"|"data") merges into input    userspace.js:20,26,32,38 · datamap.js:50-57
+           wire  reactive(…, { scope }) stamps serialized.user from getFilterParams                datamap.js:185-190
+#+END_EXAMPLE
+
+HOLE, read from source not run: =scoped()= does =object.merge(ctx.scope, input.where)= (=datamap.js:53=) and =merge= is =deepMergeCore({}, …, ...sources)=, later source wins (=object.js:235=). A client's =where: { user: "other" }= overrides the door scope. On the daemon the ORM filter still holds; on the lighthouse there is no filter layer, so =/entities/terminal= under =scope= alone is overridable. Fix: =merge(input[target] || {}, ctx.scope)= — scope last. And a =filters: { identity: … }= on =TerminalSchema= mirroring =Turn.ts:59= gives the lighthouse its ORM layer. Both QUESTIONED below.
+
+** forks — workstream 3, the client
+
+*** F9 the buffer — RULED: the Stall re-derives from the thread; nothing persists a buffer pointer
+
+beef: /"about the buffer, buffers are kept in the serialized remainder. And what I want is that the stall rederives from thread. That's what the thread is for. And that's what the client does is it matches the two, it integrates the thread and the terminal."/
+
+Measured: the Stall already does it. Its source is =thread.$buffers= (=terminal.js:88-100=), a computed over the daemon's buffer store filtered by thread (=thread/dossier.js:24-26=); =stall.settle()= with a non-empty list and no active calls =advance()= → =list[at + 1] ?? list[0]= (=stall.js:47-55=). Mount a thread with =$buffer= null and the first buffer is active without any stored id. So the =buffer= half of today's remainder (=app/terminals.js:21,59,120-135=) was redundant; it goes with =hydrate=/=persist=. The row carries =daemon= + =thread=; the client integrates the two by resolving the thread and letting the Stall do the rest.
+
+*** F10 the daemon relation on the wire — RESOLVED by =init()=
+
+Measured: the lighthouse =Dataspace= never calls =init()= — the only caller is the daemon's mount (=daemon/dossier.js:104=); =lighthouse.js:258= populates without it. So =/datamap= is never fetched from the lighthouse today, =em.schema= stays undefined, and =wire()= (=shard/datamap.js:301-312=) never runs there. That is why daemons are looked up by slug by hand. With the =/metadata/datamap= door (deliverable c) and an =init()= in =populate=, =wire= gives the terminal repository =stores.daemon= and the m:1 resolves to the live =Daemon= entity by id — no slug mapping, no populate option. The "id → slug" open item closes here.
+
+** deliverable d — the Terminal dossier, as designed
+
+=Terminal()= is a factory returning a closure (=entities/terminal.js:14=); every other anima entity is a class over =Entity= (=prototypes/entity.js=) and =dossier.kind()= returns a class the =RemoteEntityManager= instantiates and merges into (=remote-entity-manager.js:70-100=). Terminal becomes a class; the atoms become fields; the getters stay so the 11 consumer sites read as today.
+
+→ tangle: =systems/anima/src/typology/entities/terminal.js=
+
+The dossier's =use= runs once per merged row (=dataspace.js:30-35=) — the right place to seed =$dock= from the row's DOCKED, else the identity's DOCKED (F4), else =defaultDock()=. =ctx.lighthouse= is the =Lighthouse= store attached by =seedLighthouse= (=lighthouse.js:233=); its =identity= is the login/verify JSON, which carries =trait= after deliverable c.
+
+Witness — one row as the wire delivers it, and the entity after =use=:
+
+→ witness moved to =* tangle=
+
+#+BEGIN_EXAMPLE
+terminal.daemon      → Daemon { slug: "brazilian", status, entities, … }   wired by id through stores.daemon
+terminal.thread      → "0192d000-…"                                        until settle
+terminal.$thread     → null → ThreadEntity                                 settle, once brazilian is healthy
+terminal.$buffer     → null → first buffer                                  Stall.settle() on $thread mount
+terminal.$dock       → { side: "right", share: 0.4, … }                     from trait.DOCKED
+#+END_EXAMPLE
+
+** deliverable e — the client lifecycle, in depth
+
+Today's mount block, the whole lifecycle in one place:
+
+→ tangle: =systems/anima/src/app/+layout.svelte:63-86=
+
+*** the store — =stores/terminals.js=
+
+The store stops owning the array. =$entities= IS the repository's store (=RemoteRepository.manage= sets =this.$entities = entityManager.stores[name]=, =remote-repository.js:16-21=); =$active= stays the store's own, glass state (F3).
+
+→ tangle: =systems/anima/src/typology/stores/terminals.js=
+
+=create()= becomes async. Consumers — 11 sites, three shapes:
+
+| shape | sites | after |
+|---|---|---|
+| fire-and-forget =terminals.create()= | =+layout.svelte:105= · =c.svelte:243= · =Terminals.svelte:53= · =crown.svelte:70= · =inspector.js:48= | unchanged — a floating promise is fine, the row lands in =$entities= |
+| =terminals.active ?? terminals.create()= then =terminal.thread = …= | =Mode.svelte:59,71= · =d.svelte:85,116,140= | =await= — these seat a thread on the result |
+| =activate= · =remove= | =Terminals.svelte:39,45= · =crown.svelte:63-64= · =inspector.js:54= | unchanged |
+
+Ordering: =index= is seated by the server (=TerminalRepository.create=, the tangle); the store sorts =$entities= by =index= where it renders a roster (=Terminals.svelte:33=, =crown.svelte=). Today's newest-first array order dies with the array.
+
+*** the effects — =app/terminals.js=
+
+| effect | today (:17-85) | after |
+|---|---|---|
+| =hydrate= | localStorage → shells, =serialized= map | GONE — =populate(["daemon", "terminal"])= is the hydration |
+| =persist= | every =$thread= · =$buffer= · =$dock= change → one JSON blob | =sync= — =$dock= change → =updateOne({ id }, { traits: +DOCKED, trait: { …trait, DOCKED } })= debounced (a dock drag fires per pixel, =dock.js:86=); =$thread= mount → =updateOne({ id }, { daemon: thread.daemon.id, thread: thread.id })=; =$thread= null → ={ daemon: null, thread: null }=. =$buffer= never written (F9) |
+| =settle= | =serialized= remainder → =restore("thread")= + =restore("buffer")= against healthy daemons | SURVIVES — reads =terminal.thread= (the row's id) and =terminal.daemon=; =restore("thread")= only, on THAT daemon, not every healthy one; buffer branch (:120-135) deleted |
+| =$settling= | set from the remainder | set when =terminal.thread= is an id and =$thread= is null; cleared when resolved or ABSENT |
+
+→ tangle: =systems/anima/src/app/terminals.js=
+
+ABSENT on a seated row = the thread was deleted on the daemon → the client unseats: =updateOne({ id }, { daemon: null, thread: null })=. The daemon-side =set null= handles a deleted daemon; the client handles a deleted thread. Both roads to an empty terminal are covered.
+
+*** the lighthouse store — =stores/lighthouse.js=
+
+→ tangle: =systems/anima/src/typology/stores/lighthouse.js=
+
+=Dataspace.init()= calls =connection.call("/datamap")= (=dataspace.js:44=); the daemon serves it at root AND under =/metadata= (=aperture/datamap.js:4=, =metadata.js:10=). The lighthouse mirrors both so =init()= stays one line; the =/manifest= call moves to =/metadata/manifest=. =verify= now returns =traits= + =trait= (deliverable c), so =$identity= carries THEMED · DOCKED · HOMED after boot — =+page.svelte:63= reads the theme from it instead of =bridge.view.$theme= when present (THEMED absent → today's path).
+
+*** the layout — =+layout.svelte=
+
+→ tangle: =systems/anima/src/app/+layout.svelte:77-86=
+
+=terminals= is constructed where the lighthouse is, after the dataspace exists: =new Terminals(lighthouse.dataspace.terminal)= — today it is a bare =new Terminals()= set in context under =TERMINALS= (=client.js:3=); the construction site is =+layout.svelte= (not read this pass — the one line to find at tangle).
+
+*** the boot, after
+
+#+BEGIN_EXAMPLE
+boot(lighthouse)                                     lighthouse.js:245
+  verifyAuth → $identity { id, slug, traits, trait }       ← THEMED · DOCKED · HOMED available
+  populate
+    /metadata/manifest
+    dataspace.init()        → /metadata/datamap → wire(): terminal.stores.daemon = daemon repo
+    populate(["daemon", "terminal"])                        ← both identity-scoped by the lighthouse (c)
+      each terminal row → Terminal (use: $dock from DOCKED, mountStall)
+sync({ terminals })                                  $dock · $thread → updateOne, debounced
+settle({ terminals, lighthouse })                    per terminal with a thread id: wait for ITS daemon healthy → findOne → $thread
+  $thread mount → Stall(source: thread.$buffers) → settle() → $buffer = first buffer      ← F9, no stored pointer
+HOMED on create: terminals.create() with no seat → if identity.trait.HOMED, the Mode pane's open-thread path seats it (d.svelte:140 shape)
+#+END_EXAMPLE
+
+*** glass vs row — what stays in localStorage
+
+| key | today | after |
+|---|---|---|
+| =viva.terminals= | the shells + remainder | GONE |
+| =viva.terminals.active= | =$active= id | stays — which tab is focused is glass (F3) |
+| =lighthouse:<url>= | authority + identity JSON | stays — session cache |
+| =vivalence:bridge= | fold · strip · hair · theme · fontSize | stays; theme reads THEMED first when present |
+| =RemoteRepository.persist()= cache | per-repository, opt-in (=remote-repository.js:23=) | not enabled for terminal — the lighthouse is the cache; enable later if offline boot wants shells |
+
+*** tests
+
+Five anima test files build =Terminal()= as a factory (=terrain :103=): =dictation.store= · =terminal.stall= · =zones/places= · =panes/rail.mount= · =typology/standalone=. After: =new Terminal()= + a rig that sets =$thread= directly — no lighthouse, no repository. =terminal.stall= is the F9 witness: mount a thread with two buffers and =$buffer= null → expect =$buffer= = first buffer. One new test: =stores/terminals= over a fake repository (=create= resolves a row, =removeOne= rejects → =$entities= restored? no: optimistic drop stands, fault logged — pin that).
+
+** deliverable f — the lighthouse as a static aperture Vector; the runtime binds the moving parts, as designed
+
+beef: /"update the way that the lighthouse is executed and laid out in the file system. We recently did a recast on the runtime where we turned everything into vectors and middlewares."/ → m74. Three shapes were walked:
+
+1. an =execution= vector exported by the package, executed by the runtime's service vector — beef: /"i dont like the idea of the execution vector as an export of lighthouse. i still want {manifest,provider,aperture} for this service. lets revert this part of the recast. we call the folder /aperture and here we properly cluster and separate all the building blocks, moving parts, circles and cycles."/
+2. =aperture(aperture, service)= stays a function; =aperture/= holds the blocks — beef: /"what was it before? didnt the service mint its own aprture vector??!"/ — measured: never did, the runtime mints (=prototypes/service.js:7=) and the function decorates (=server/index.js:8=, same in =b0fc2f75f= and =30308ade2=); =population.js:2= accepts a returned one.
+3. beef: /"what if we just export const aperture = new Vector and have the runtime pass the mask via ctx.mask and ctx.service? is that a reasonable approach?"/ → RULED. It is the mode's law already: =mode.viva.js:29= =export const aperture = new Vector()=, =mode/population.js:16-17= binds =daemon= · =mode= into ctx. One structure, one law.
+
+*** F11 the service contract — RULED: =export const aperture = new Vector()=; the runtime binds =service= · =mask=; =entities= optional
+
+| export | kind | who reads it |
+|---|---|---|
+| =manifest= | metadata | the runtime (=population.services=) |
+| =provider= | the daemon-side authority factory | =daemon/population.js:41= |
+| =attachment= | a static =Vector= of doors and middlewares (F12) | =service/population.attachment= grafts it after binding =service= and =mask= |
+| =entities= (optional) | ONE named object of descriptors, the domain's format (=education/domain/entities/index.js=: =export const entities = { literal, symbol, … }=) | =service/population.datamap= → =assemble([entities])=; absent → =lighthouse= from =@vivalence/typology/entities= — beef: /"lets have the entities optional then with the implementation defaulting to import { lighthouse } from '@vivalence/typology/entities'"/ |
+
+Dropped: =SYSTEMMAP= from the manifest traits — beef: /"SYSTEMMAP ??? whats this??"/ — zero readers anywhere (runtime · typology · docs · codemap); its only kin was the lighthouse's own =systemmap()= function (=server/entities.js:15=), deleted with =server/=. =DATAMAP= · =SERVICE= · =ATTACHED= readers: =ATTACHED= gates =population.services= (=runtime/population.js:48=); the other two not yet measured.
+
+The ctx on the lighthouse's doors, after:
+
+| key | set by | kind |
+|---|---|---|
+| =ctx.service= | =service/population.attachment= =bind("service", die.service)= | prototype — the =Service= process entity: =datamap · jwt · rft · manifest · aperture · release= |
+| =ctx.mask= | =bind("mask", die.mask)= | the record: =secrets · mountpoint · datamap · manifest= |
+| =ctx.entities= | =shard.datamap.inject(die.service.datamap)= | prototype — the repositories |
+| =ctx.identity= | =identity.authenticate()= on =/entities/*= | ENTITY |
+| =ctx.lighthouse= | =resolution.attach= =context.attach(service.type, service.mask)= (=runtime/resolution.js:26=, today) | GONE with F12 — =ctx.mask= carries it |
+
+*** F12 the word — RULED: =attachment=, not =aperture=, for what a service hangs on the runtime — beef: /"go on the aperture/attachment rename."/ (a ruling on the fork; nothing lands before a milestone)
+
+beef, reading the tangle: /"export const attachment = new Vector().use(tokens).open("/datamap", datamap); !! its really not an aperture at all, is it. we attach something to the attachment slot of runtime. correct? aperture is only for 'through the daemon'."/ Correct, and the runtime already speaks it: a service's reference IS =/attached/process/service/<type>/<slug>= (=paladin/resolve.js:41=), grafted by =runtime.resolution.attach= (=runtime/resolution.js:24-28=), admitted by the =ATTACHED= trait (=runtime/population.js:48=); bundles ride =/attached/bundle= (=:35=). Only =/daemon/<slug>/…= is an aperture.
+
+| today | after | where |
+|---|---|---|
+| =export { aperture }= | =export { attachment }= | =multiplayer.viva.js= |
+| =aperture/= | =attachment/= | the package folder |
+| =Service.aperture = new Aperture()= | =Service.attachment = new Vector()= | =prototypes/service.js:7= |
+| =die.service.attachment= | =die.service.attachment= | =service/population.js= |
+| =service.aperture= · =context.attach(service.type, service.mask)= | =service.attachment=; the attach line dropped (=ctx.mask= is bound by the service's own population) | =runtime/resolution.js:26-27= |
+| =die.mask.aperture= | =die.mask.attachment= | =service/population.attachment= |
+
+=Vector= not =Aperture=: the service's doors are =open=/=branch=; =Aperture= only adds the HTTP verb table (=aperture.js:5-9=), and =shard.datamap.repository= grafts its own =Aperture= INTO the branch, so the parent's class does not matter. The daemon keeps =aperture=.
+
+*** F14 the service's traits as traits — RULED: beef /"yes on the service traits."/
+
+beef, on =execution = new Vector().use(process.settle).use(population.datamap).use(population.attachment)=: /"i feel like we should implement what is traits as traits here."/
+
+The mode's law, measured: =manifest.traits= names a function each (=lifecycle/mode/traits/<trait>.js=, barrel =traits/index.js=); =stagger(mode, daemon, traits)= runs them IN MANIFEST ORDER with =(mode, daemon)=, a returned function is a finalizer, a returned ={ finalize, terminate }= registers teardown (=gestalten/belt/stagger.js:3-16=); =resolution.traits= is the mode vector's effect (=mode/execution.js:7=); a marker trait is an empty function (=CONVERSATIONAL= · =STANDALONE=, =traits/index.js:19-22=); =implements(trait)= reads the manifest (=prototypes/mode.js:17=). =stagger= is already generic — it reads =subject.manifest.traits= and writes =subject.terminators=; nothing in it says "mode".
+
+The service's three traits today are decoration: =ATTACHED= gates =population.services= (=runtime/population.js:48=), =SERVICE= and =DATAMAP= have no reader. As traits:
+
+#+BEGIN_EXAMPLE
+systems/runtime/lifecycle/service/
+  execution.js        new Vector().use(process.settle).use(resolution.traits)   affect(process.keepalive)
+  resolution.js       traits → stagger(die.service, die.mask, traits); terminators drained on the way out
+  traits/
+    index.js          export * from ./datamap.js · ./attached.js · export const SERVICE = () => {}
+    datamap.js        DATAMAP(service, mask) → service.datamap from assemble([mask.entities ?? lighthouse]); inject; { terminate: close }
+    attached.js       ATTACHED(service, mask) → /status · /manifest; bind service · mask; graft mask.attachment; { terminate: drain service.release }
+#+END_EXAMPLE
+
+→ =* tangle ** RUNTIME *** F14 variant= — the five files
+
+Consequences:
+- MANIFEST ORDER IS EXECUTION ORDER (the mode's law). =DATAMAP= must run before =ATTACHED= — the inject has to sit on =service.attachment= before the doors are grafted and before =bind=. The lighthouse manifest becomes =traits: ["SERVICE", "DATAMAP", "ATTACHED"]= (today =["ATTACHED", "SERVICE", "DATAMAP"]=). =population.services= still gates on =ATTACHED= by inclusion, order-free.
+- =population.datamap= and =population.attachment= (F11's tangle) dissolve into the two trait files; the service vector is two lines like the mode's.
+- a service without =DATAMAP= in its manifest gets no orm — the trait IS the opt-in, no =if (!die.mask.datamap)= guard.
+- =service.controller= must exist on the process entity for =/status= — it does (=processes.service.create({ …, controller })=, =runtime/population.js:50=).
+- the two warnings the mode's =resolution.traits= emits (=aperture without EXPOSED=, =datasink without DATASINK=, =mode/resolution.js:14-19=) have a service twin: =mask.attachment= exported without =ATTACHED=, =mask.entities= exported without =DATAMAP=.
+
+Verified: =Vector.graft= copies the carry — =this.carry.push(...vector.carry)= (=vector.js:65=) after the trie loop. So the lighthouse's =tokens= middleware rides the graft, AFTER the runtime's =inject= · =bind= carries (pushed first, in =DATAMAP= then =ATTACHED=). Order on a request: inject → bind service → bind mask → tokens → door. That is the order the probe ran.
+
+Ruled: the tangle's =service/= is the five trait files; =service/population.js= is gone. The probe checks =stagger= over =["SERVICE", "DATAMAP", "ATTACHED"]= yields two terminators.
+
+*** the cycle — one-time state with a static Vector
+
+Boot-time state (the orm) is generic → the runtime makes it under the mask's =datamap= record and closes it in its =finally=. Service-specific state (the jwt + refresh store) has no boot hook in a static Vector → minted on FIRST request by the =tokens= middleware, memoized on =ctx.service=, released through =service.release= which the runtime drains. A missing secret surfaces at the first =/auth/*= call, not at =Status:RUNNING=. QUESTIONED: accept, or grow a =boot= sibling export the service vector runs once (the modes' answer not read this session — [[mode-development]]).
+
+*** F13 the shard — RULED: repositories resolved per request — beef: /"kk on the repo fn."/
+
+=shard.datamap.repository(repo)= takes a live repository at graft time (=datamap.js:83-85=). A static Vector has none. The shard accepts a resolver: =repository((ctx) => ctx.service.datamap.entities.terminal)= — every door calls =of(ctx)= instead of =repo=. The daemon's call sites pass the repo as before (a non-function resolves to itself). Diff in the tangle.
+
+#+BEGIN_EXAMPLE
+commons/lighthouses/multiplayer/
+  multiplayer.viva.js        manifest · provider · attachment            (entities omitted → the typology lighthouse set)
+  provider/index.js          the daemon-side handle (F7: drops its claim)
+  attachment/
+    index.js                 export const attachment = new Vector().use(tokens).branch("/auth", auth).branch("/entities", entities).branch("/metadata", metadata)
+    tokens.js                middleware: ctx.service.jwt ??= mint(ctx.mask.secrets.jwt, ctx.mask.mountpoint…) — once, release pushed
+    auth.js                  export const auth = new Vector().open("/signup" …) — five doors, read ctx.service.jwt/rft
+    entities.js              export const entities = new Vector().use(authenticate()) + /daemon · /terminal scoped repositories by resolver
+    metadata.js              export const metadata = new Vector().open("/manifest").open("/statics").open("/datamap").open("/attachment")
+  gestalten/
+    identity.js              identify(ctx, credentials) · authenticate() → ctx.identity   (reads ctx.service.jwt)
+    tokens.js                the signing/refresh-store factory (was server/lib/jwt.js)
+systems/runtime/lifecycle/service/
+  execution.js · resolution.js · traits/   F14 — settle · resolution.traits; DATAMAP · ATTACHED · SERVICE as trait functions
+subsystems/typology/entities/lighthouse/index.ts
+                             + authenticator descriptor, so the default set carries the embed
+#+END_EXAMPLE
+
+** open — QUESTIONED
+
+- =Identity_daemons= seed: existing daemon rows have no pivot rows; the lighthouse db is one instance — road A once, or every identity gets every daemon on first boot.
+- Identity on the client: THEMED · DOCKED · HOMED live → an =IdentityDossier= through the dataspace, or the login JSON as today.
+- =TerminalSchema.filters.identity= mirroring =Turn.ts:59= — a second layer under the door scope (now proven to hold alone); belt-and-braces, or not.
+- the word for the per-call ctx class (=input · output · params · scope=) — "pipeline" was mine.
+- the jwt minted on first request (static Vector, no boot hook) vs a =boot= sibling export — a missing secret surfaces at the first =/auth/*=, not at =Status:RUNNING=.
+- =DATAMAP= · =SERVICE= traits: readers not measured; =SYSTEMMAP= had none and is dropped.
+- =Terminals= construction site: where =new Terminals()= is built and set under =TERMINALS= — find at tangle, pass =lighthouse.dataspace.terminal=.
+
+* testing assessment
+
+** in place
+- lighthouse: =commons/lighthouses/multiplayer/tests/{auth,datamap,lighthouse}.test.js= — =auth= and =lighthouse= hit a LIVE =:1729= service (=BASE= hardcoded), =datamap= rides =@vivalence/runtime/scenarios= =lighthouse.create()= which builds an aperture by hand from =repos.identity/daemon= (=scenarios/lighthouse.js:9-15=), not from the package. None exercises the vector, =/metadata=, scoping or Terminal.
+- runtime: =tests/multiplex.filter.test.js:22= and =tests/scenarios/bench.js:149-156= wire =shard.secure.*= directly — flag-day sites, not coverage of the new shape.
+- anima: 5 files build =Terminal()= as a factory (=terrain=).
+- COVERAGE GAP: nothing boots a service mask's =execution= through the runtime's service vector; nothing asserts door scoping on the lighthouse; nothing asserts the Terminal row shape or =index= seating; nothing asserts the Stall re-derives (F9).
+
+** changes
+| test | why |
+|---|---|
+| =multiplayer/tests/datamap.test.js= | the scenario must execute the package's vector against a scratch datamap, not hand-build the aperture; =/entities/daemon= is read-only and identity-scoped now — its create/update/remove cases move to a seeded pivot + =Terminal= |
+| =multiplayer/tests/lighthouse.test.js= | =/manifest= stays (runtime's), =/metadata/manifest= added |
+| =runtime/tests/multiplex.filter.test.js= · =scenarios/bench.js= | =shard.auth.authorize(provider)= · drop the =authority= line |
+| anima's 5 =Terminal()= files | =new Terminal()= + =seat()= |
+
+** adds
+- =commons/lighthouses/multiplayer/tests/shape.test.js= — the probe below as a specimen suite: the 30 checks, in-memory sqlite, the inline transport.
+- =systems/anima/tests/terminal.stall.test.js= gains the F9 case: thread with two buffers, =$buffer= null → first buffer active.
+- =systems/anima/tests/stores/terminals.test.js= — a fake repository: =create= seats =$active=; =remove= drops optimistically and logs a rejected =removeOne=.
+
+** per-milestone green ladder
+to write with the milestones.
+
+* QA
+
+** probe — the lighthouse shape, 10-03
+=reference/m76/probe.js=, run as =deno run -A --no-check testament/m76-probe/probe.js= over the tangled files materialized under =testament/m76-probe/= (gitignored; re-materialize from this quest's =:tangle= blocks). In-memory sqlite via =@mikro-orm/sqlite=, the package's exported =aperture= Vector grafted onto a bare =Aperture= with =service= · =mask= bound, as the runtime's =service/population.aperture= does, =shape.http= + =shard.transmitter.inline= as the wire. the runtime's =service/population.datamap= (paladin accio of the libsql provider) is the one tier NOT run — the probe builds the =Datamap= itself.
+
+Pasted: =33 passed | 0 failed= on the third shape (static Vector, =/metadata= scoped, F14 traits); 30 held on shapes 1 and 2 before the two metadata checks were added. First run =27 passed | 1 failed= — the FAIL was the scope hole, confirmed live: finn read beef's terminal with =where: { identity: beef }=. Second run surfaced the LEAK (populated identity carried =authentication= on the wire) — both fixed in the tangle above and re-proven.
+
+| check | result |
+|---|---|
+| schema builds =Identity · Daemon · Terminal · Identity_daemons= | PASS |
+| the exported =aperture= grafts · =tokens= mints once on first request · =service.release= holds the sweep teardown | PASS ×3 |
+| =/metadata/datamap= strips =terminal{identity m:1, daemon m:1 nullable}= · =/metadata/manifest= · =/metadata/statics= · =/metadata/attachment= · root =/datamap= absent | PASS ×5 |
+| =/auth/signup= · card carries =traits= · =/login= · =/login= rejects · =/verify= card · =/refresh= | PASS ×6 |
+| =/entities/terminal= unauthenticated → 401 =MISSING_TOKEN= | PASS |
+| create seats =identity= from scope · =index= 0 then 1 · other identity's own index 0 · LABELED kept | PASS ×4 |
+| populated identity hides =authentication= · login still reads credentials | PASS ×2 |
+| find scoped: finn 2 · beef 1 · client =where.identity= cannot widen (owners = finn only) | PASS ×3 |
+| =/entities/daemon= through the pivot: finn 1 · beef 0 · create door absent | PASS ×3 |
+| =updateOne= seats daemon + thread · daemon removed → =set null=, thread string stays | PASS ×2 |
+| pivot table literally =Identity_daemons= | PASS |
+
+** testimony — pre-registered, not yet run
+- I sign in on anima, open the Terminals pane: the roster is my lighthouse rows, ordered by =index=; a fresh browser shows the same roster.
+- I drag the dock on terminal 1; reload; the dock is where I left it (DOCKED on the row).
+- I open a thread in terminal 1; reload; =settling= shows until brazilian is healthy, then the thread mounts and the first buffer is active without any stored buffer id (F9).
+- I delete that thread on the daemon; reload; terminal 1 is empty and its row reads =daemon null · thread null=.
+- As beef I see none of finn's terminals or daemons.
+
+#+marker_qa: m76/P-probe-30 · held · reference/m76/probe.js reads 33 passed | 0 failed on the tangled files
+#+marker_qa: m76/P-scope-last · held · where.identity cannot widen the door scope (probe check 23)
+#+marker_qa: m76/P-hidden-auth · held · a populated identity carries no authentication on the wire (probe check 17)
+#+marker_qa: m76/T-roster-cross-device · pending · two browsers, one identity, one roster ordered by index
+#+marker_qa: m76/T-dock-persists · pending · drag · reload · same dock
+#+marker_qa: m76/T-stall-rederives · pending · thread mounts, first buffer active, no buffer id stored
+#+marker_qa: m76/T-unseat-on-absent · pending · deleted thread → row reads daemon null · thread null
+#+marker_qa: m76/T-identity-walls · pending · beef sees none of finn's rows
+
+* deferred
+
+- the daemon's root =/datamap= (served twice: =aperture/datamap.js:4= · =metadata.js:10=) and its 20 root-form callers (=Dashboard.svelte:139=, 16 runtime tests/scenarios, anima scenario tests) — cut to =/metadata/datamap= only, once =Dataspace.init()= has moved. Reopens with the first =/metadata= sweep.
+- strip =User.roles= and =User.config= (=User.ts:13-14=, zero readers) once Identity carries ADMIN and the customizations — reopens with m78 F7 (the Turn delta's road) since it is an entity edit on every daemon db.
+- SUSPENDED · LOCALIZED on Identity — reopens with the first reader.
+- Entitlement (/"// entitlements: Collection<Entitlement>"/ · /"we will need a type eventually for entitlements"/) — reopens when a daemon must be shared with less than full access.
+
+* tangle
+
+Every file of deliverables a–f. =full= replaces the file; =new= did not exist; =diff= is a hunk; =witness= is JSON that passes the schema beside it. Order of landing is the milestones'.
+
+#+BEGIN_EXAMPLE
+subsystems/typology/
+  entities/lighthouse/Identity.ts · Daemon.ts · Terminal.ts · index.ts        full
+  gestalten/shard/auth.js                                                      full (was secure.js)
+  gestalten/shard/index.js · index.client.js · datamap.js                      diff
+systems/runtime/
+  entities/index.ts · prototypes/service.js                                    diff
+  lifecycle/daemon/population.js · resolution.js · aperture/userspace.js       diff
+  lifecycle/runtime/resolution.js                                              diff
+  lifecycle/service/execution.js · resolution.js · traits/{index,datamap,attached}.js   full; population.js deleted
+commons/lighthouses/multiplayer/
+  multiplayer.viva.js · attachment/{index,tokens,auth,entities,metadata}.js · gestalten/{identity,tokens}.js   full; server/ deleted
+  provider/index.js                                                            diff
+systems/anima/src/
+  typology/entities/terminal.js · typology/stores/terminals.js · app/terminals.js   full
+  typology/prototypes/dataspace.js · typology/stores/lighthouse.js · app/+layout.svelte · app/+page.svelte · panels (5 seat sites)   diff
+#+END_EXAMPLE
+
+** typology — subsystems/typology/
+
+*** entities/lighthouse/Identity.ts — full
+=IdentityTraitsEnum= · =traits= · =trait= · =daemons= m:n owner (pivot =Identity_daemons=) · =terminals= 1:m · =authentication= hidden on the wire.
+
+#+BEGIN_SRC js :tangle subsystems/typology/entities/lighthouse/Identity.ts
+import { types, Collection, EntitySchema, type Opt } from "@mikro-orm/core";
+import { DataEntity, DataSchema } from "../base/DataEntity.ts";
+import { DaemonEntity } from "./Daemon.ts";
+import { TerminalEntity } from "./Terminal.ts";
+
+export class AuthenticatorEmbedEntity {
+  provider!: string;
+  credentials: Record<string, any> & Opt = {};
+  tokens: Record<string, string> & Opt = {};
+}
+
+export const AuthenticatorEmbedSchema = new EntitySchema({
+  class: AuthenticatorEmbedEntity,
+  embeddable: true,
+  properties: {
+    provider: { type: types.string, defaultRaw: `''` },
+    credentials: { type: types.json, defaultRaw: `'{}'` },
+    tokens: { type: types.json, defaultRaw: `'{}'` },
+  },
+});
+
+export enum IdentityTraitsEnum {
+  ADMIN = "ADMIN",
+  THEMED = "THEMED",
+  DOCKED = "DOCKED",
+  HOMED = "HOMED",
+}
+
+export class IdentityEntity extends DataEntity {
+  slug!: string;
+  authentication: AuthenticatorEmbedEntity & Opt = {};
+  traits: IdentityTraitsEnum[] & Opt = [];
+  trait: any & Opt = {};
+
+  daemons = new Collection<DaemonEntity>(this);
+  terminals = new Collection<TerminalEntity>(this);
+}
+
+export const IdentitySchema = new EntitySchema({
+  class: IdentityEntity,
+  extends: DataSchema,
+  tableName: "Identity",
+  name: "Identity",
+  properties: {
+    slug: { type: types.string, unique: true },
+    authentication: {
+      kind: "embedded",
+      entity: "AuthenticatorEmbedEntity",
+      object: true,
+      defaultRaw: `'{}'`,
+      hidden: true,
+    },
+    traits: {
+      items: () => IdentityTraitsEnum,
+      enum: true,
+      array: true,
+      defaultRaw: `'[]'`,
+      columnType: "json",
+    },
+    trait: { type: types.json, defaultRaw: `'{}'` },
+    daemons: { kind: "m:n", entity: () => DaemonEntity, owner: true, pivotTable: "Identity_daemons" },
+    terminals: { kind: "1:m", entity: () => TerminalEntity, mappedBy: (terminal) => terminal.identity },
+  },
+});
+
+export default {
+  type: "identity",
+  schema: IdentitySchema,
+  entity: IdentityEntity,
+};
+#+END_SRC
+
+*** entities/lighthouse/Daemon.ts — full
+=identities= m:n inverse · =terminals= 1:m; the commented =VirtualRepository= tail dropped.
+
+#+BEGIN_SRC ts :tangle subsystems/typology/entities/lighthouse/Daemon.ts
+import { types, Collection, EntitySchema } from "@mikro-orm/core";
+import { DataEntity, DataSchema, DataRepository } from "../base/DataEntity.ts";
+import { IdentityEntity } from "./Identity.ts";
+import { TerminalEntity } from "./Terminal.ts";
+
+export class DaemonRepository extends DataRepository {
+  unique(query) {
+    return { slug: query.slug };
+  }
+}
+
+export class DaemonEntity extends DataEntity {
+  url!: string;
+  slug!: string;
+
+  identities = new Collection<IdentityEntity>(this);
+  terminals = new Collection<TerminalEntity>(this);
+}
+
+export const DaemonSchema = new EntitySchema({
+  class: DaemonEntity,
+  extends: DataSchema,
+  repository: () => DaemonRepository,
+  name: "Daemon",
+  tableName: "Daemon",
+  properties: {
+    slug: { type: types.string, unique: true },
+    url: { type: types.string },
+    identities: { kind: "m:n", entity: () => IdentityEntity, mappedBy: (identity) => identity.daemons },
+    terminals: { kind: "1:m", entity: () => TerminalEntity, mappedBy: (terminal) => terminal.daemon },
+  },
+});
+
+export default {
+  type: "daemon",
+  schema: DaemonSchema,
+  entity: DaemonEntity,
+  repository: DaemonRepository,
+};
+#+END_SRC
+
+*** entities/lighthouse/Terminal.ts — new
+=identity= m:1 cascade · =daemon= m:1 nullable set-null · =thread= string · =index= seated by =TerminalRepository.create= · DOCKED · LABELED.
+
+#+BEGIN_SRC ts :tangle subsystems/typology/entities/lighthouse/Terminal.ts
+import { types, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import { DataEntity, DataSchema, DataRepository } from "../base/DataEntity.ts";
+import { IdentityEntity } from "./Identity.ts";
+import { DaemonEntity } from "./Daemon.ts";
+
+export enum TerminalTraitsEnum {
+  DOCKED = "DOCKED",
+  LABELED = "LABELED",
+}
+
+export class TerminalRepository extends DataRepository {
+  async create({ identity, ...fields }: any) {
+    const owner = await this.em.findOneOrFail(IdentityEntity, identity);
+    const index = await this.count({ identity: owner });
+    return super.create({ ...fields, identity: owner, index });
+  }
+}
+
+export class TerminalEntity extends DataEntity {
+  identity!: Rel<IdentityEntity>;
+  daemon: Rel<DaemonEntity> | null & Opt = null;
+  thread: string | null & Opt = null;
+  index: number & Opt = 0;
+  traits: TerminalTraitsEnum[] & Opt = [];
+  trait: any & Opt = {};
+}
+
+export const TerminalSchema = new EntitySchema({
+  class: TerminalEntity,
+  extends: DataSchema,
+  repository: () => TerminalRepository,
+  name: "Terminal",
+  tableName: "Terminal",
+  properties: {
+    identity: { kind: "m:1", entity: () => IdentityEntity, updateRule: "cascade", deleteRule: "cascade" },
+    daemon: { kind: "m:1", entity: () => DaemonEntity, nullable: true, updateRule: "cascade", deleteRule: "set null" },
+    thread: { type: types.string, nullable: true },
+    index: { type: types.integer, default: 0 },
+    traits: {
+      items: () => TerminalTraitsEnum,
+      enum: true,
+      array: true,
+      defaultRaw: `'[]'`,
+      columnType: "json",
+    },
+    trait: { type: types.json, defaultRaw: `'{}'` },
+  },
+});
+
+export default {
+  type: "terminal",
+  schema: TerminalSchema,
+  entity: TerminalEntity,
+  repository: TerminalRepository,
+};
+#+END_SRC
+
+*** entities/lighthouse/index.ts — full
+Exports =terminal= and the =authenticator= descriptor so the default set carries the embed.
+
+#+BEGIN_SRC ts :tangle subsystems/typology/entities/lighthouse/index.ts
+export * from "./Identity.ts";
+export * from "./Daemon.ts";
+export * from "./Terminal.ts";
+
+import identity, { AuthenticatorEmbedEntity, AuthenticatorEmbedSchema } from "./Identity.ts";
+import daemon from "./Daemon.ts";
+import terminal from "./Terminal.ts";
+
+const authenticator = { type: "authenticator", schema: AuthenticatorEmbedSchema, entity: AuthenticatorEmbedEntity };
+
+export { authenticator, daemon, identity, terminal };
+#+END_SRC
+
+*** entities/lighthouse — witness
+One identity, two shared daemons, one seated and one fresh terminal.
+
+#+BEGIN_SRC json
+{ "id": "0199…", "identity": "0198…", "daemon": null,    "thread": null,    "index": 0, "traits": [], "trait": {} }
+{ "id": "0199…", "identity": "0198…", "daemon": "0197…", "thread": "0192…", "index": 1, "traits": ["DOCKED", "LABELED"],
+  "trait": { "docked": { "side": "right", "share": 0.4, "collapsed": false, "full": false }, "labeled": { "name": "grammar" } } }
+#+END_SRC
+
+#+BEGIN_SRC json
+{
+  "Identity": [{ "id": "0198a000-…", "slug": "finn",
+    "authentication": { "provider": "password", "credentials": { "username": "finn", "password": "$argon2id$…" }, "tokens": {} },
+    "traits": ["ADMIN", "THEMED", "DOCKED", "HOMED"],
+    "trait": { "THEMED": { "theme": "ink" },
+               "DOCKED": { "side": "right", "share": 0.4, "collapsed": false, "full": false },
+               "HOMED":  { "daemon": "brazilian", "mode": "raw" } } }],
+  "Daemon": [{ "id": "0197b000-…", "slug": "brazilian", "url": "http://localhost:2501" },
+             { "id": "0197b001-…", "slug": "chess",     "url": "http://localhost:2502" }],
+  "Identity_daemons": [{ "identity_id": "0198a000-…", "daemon_id": "0197b000-…" },
+                       { "identity_id": "0198a000-…", "daemon_id": "0197b001-…" }],
+  "Terminal": [
+    { "id": "0199c000-…", "identity": "0198a000-…", "daemon": "0197b000-…", "thread": "0192d000-…", "index": 0,
+      "traits": ["DOCKED", "LABELED"],
+      "trait": { "DOCKED": { "side": "right", "share": 0.4, "collapsed": false, "full": false }, "LABELED": { "name": "grammar" } } },
+    { "id": "0199c002-…", "identity": "0198a000-…", "daemon": null, "thread": null, "index": 1, "traits": [], "trait": {} }]
+}
+#+END_SRC
+
+*** gestalten/shard/auth.js — full (was secure.js)
+=authenticate(provider)= → =ctx.lighthouse=; =authorize(provider)= → =ctx.user=; =authority()= gone, the commented tail gone.
+
+#+BEGIN_SRC js :tangle subsystems/typology/gestalten/shard/auth.js
+const refuse = (ctx, status, code, message) => {
+  ctx.response.status = status;
+  ctx.response.body = { status: "ERROR", error: { code, message } };
+};
+
+export function authenticate(provider) {
+  return async (ctx, next) => {
+    if (ctx.lighthouse) return await next();
+    const header = ctx.request.headers?.get("authorization");
+    const param = ctx.request.url.searchParams?.get("token");
+    const token = header?.startsWith("Bearer ") ? header.split(" ")[1] : param;
+    if (!token) return refuse(ctx, 401, "MISSING_TOKEN", "Authorization header or token param required");
+    try {
+      ctx.lighthouse = await provider.authenticate(token);
+    } catch (error) {
+      return refuse(ctx, 401, "INVALID_TOKEN", error.message);
+    }
+    await next();
+  };
+}
+export function authorize(provider) {
+  const identify = authenticate(provider);
+  const admit = async (ctx, next) => {
+    try {
+      ctx.user = await ctx.lighthouse.getUser();
+    } catch {
+      return refuse(ctx, 500, "USER_LOOKUP_FAILED", "Failed to retrieve user");
+    }
+    if (!ctx.user) return refuse(ctx, 401, "USER_NOT_FOUND", "no userspace in this daemon — /userspace/handshake first");
+    await next();
+  };
+  return (ctx, next) => identify(ctx, () => admit(ctx, next));
+}
+#+END_SRC
+
+*** gestalten/shard/index.js · index.client.js — diff
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/index.js:3 AND index.client.js:3 — both barrels export the shard
+-export * as secure from "./secure.js";
++export * as auth from "./auth.js";
+#+END_SRC
+
+*** gestalten/shard/datamap.js — diff
+=scoped()= merges the scope LAST (a client =where= cannot widen it); =repository()= takes a resolver — a repo passed directly resolves to itself, the daemon's eight call sites untouched; the =ensure= guard becomes unconditional.
+
+#+BEGIN_SRC diff
+ function scoped(target, fn) {
+   return async (input, ctx) => {
+     if (ctx.scope) {
+-      input[target] = object.merge(ctx.scope, input[target] || {});
++      input[target] = object.merge(input[target] || {}, ctx.scope);
+     }
+     return fn(input, ctx);
+   };
+ }
+#+END_SRC
+
+#+BEGIN_SRC diff
+ export function repository(repo, { only } = {}) {
+   const aperture = new Aperture();
+-  const em = () => repo.getEntityManager();
++  const of = typeof repo === "function" ? repo : () => repo;
++  const em = (ctx) => of(ctx).getEntityManager();
+
+   aperture.use(errors());
+
+   aperture.post(
+     "/find",
+-    scoped("where", async (input) => repo.find(input.where || {}, sanitize(input.options))),
++    scoped("where", async (input, ctx) => of(ctx).find(input.where || {}, sanitize(input.options))),
+   );
+ …
+   aperture.post(
+     "/create",
+-    scoped("data", async (input) => {
+-      const entity = await repo.create(input.data || {});
+-      await em().flush();
++    scoped("data", async (input, ctx) => {
++      const entity = await of(ctx).create(input.data || {});
++      await em(ctx).flush();
+       return entity;
+     }),
+   );
+#+END_SRC
+
+** runtime — systems/runtime/
+
+*** entities/index.ts — diff
+
+#+BEGIN_SRC diff
+-  lighthouse: { identity: lighthouse.identity, daemon: lighthouse.daemon },
++  lighthouse: { identity: lighthouse.identity, daemon: lighthouse.daemon, terminal: lighthouse.terminal, authenticator: lighthouse.authenticator },
+#+END_SRC
+
+*** prototypes/service.js — diff
+
+#+BEGIN_SRC diff
+// systems/runtime/prototypes/service.js:1-8
+-import { Aperture } from "@vivalence/typology";
++import { Vector } from "@vivalence/typology";
+ …
+ export class Service extends ProcessEntity {
+   type = "service";
+-  aperture = new Aperture();
++  attachment = new Vector();
+ }
+#+END_SRC
+
+*** lifecycle/daemon/population.js · resolution.js · aperture/userspace.js — diff
+=shard.auth.*(die.daemon.lighthouse)=; =ctx.identity= → =ctx.lighthouse=.
+
+#+BEGIN_SRC diff
+// systems/runtime/lifecycle/daemon/population.js:41-43
+   die.daemon.lighthouse = await die.register.lighthouse.provider(die.register.lighthouse, die.daemon.entities.user);
+   die.daemon.aperture
+-    .use(shard.secure.authority(die.daemon.lighthouse))
+     .use(async (ctx, next) => {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/lifecycle/daemon/resolution.js:4,24
+-  die.daemon.aperture.use(shard.secure.authenticate());
++  die.daemon.aperture.use(shard.auth.authenticate(die.daemon.lighthouse));
+ …
+       mode.aperture
+-        .use(shard.secure.authorize())
++        .use(shard.auth.authorize(die.daemon.lighthouse))
+         .use(die.daemon.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/lifecycle/daemon/aperture/userspace.js:5-10
+   const branch = die.daemon.aperture.branch("/userspace");
+-  branch.use(shard.secure.authenticate());
+-  branch.open("/handshake", async (ctx) => ({ success: true, user: await ctx.identity.enroll() }));
++  branch.use(shard.auth.authenticate(die.daemon.lighthouse));
++  branch.open("/handshake", async (ctx) => ({ success: true, user: await ctx.lighthouse.enroll() }));
+
+   const owned = branch
+     .branch("/entities")
+-    .use(shard.secure.authorize())
++    .use(shard.auth.authorize(die.daemon.lighthouse))
+#+END_SRC
+
+*** lifecycle/runtime/resolution.js — diff
+=service.attachment=; the =context.attach(service.type, mask)= line goes — =ctx.mask= is bound by =ATTACHED=.
+
+#+BEGIN_SRC diff
+// systems/runtime/lifecycle/runtime/resolution.js:24-28
+ export const attach = async (die, next) => {
+   for (const service of await die.runtime.processes.service.find()) {
+-    service.aperture.use(shard.context.attach(service.type, service.mask));
+-    die.runtime.aperture.branch(service.reference.absolute, service.aperture);
++    die.runtime.aperture.branch(service.reference.absolute, service.attachment);
+   }
+#+END_SRC
+
+*** lifecycle/service/execution.js — full
+
+#+BEGIN_SRC js :tangle systems/runtime/lifecycle/service/execution.js
+import { Vector } from "@vivalence/typology";
+import * as process from "../process.js";
+import * as resolution from "./resolution.js";
+
+export const execution = new Vector().use(process.settle).use(resolution.traits);
+
+execution.affect(process.keepalive);
+#+END_SRC
+
+*** lifecycle/service/resolution.js — new
+=stagger(die.service, die.mask, traits)= in manifest order; terminators drained on the way out. =population.js= is deleted.
+
+#+BEGIN_SRC js :tangle systems/runtime/lifecycle/service/resolution.js
+import { stagger } from "../../gestalten/belt/index.js";
+import * as traits from "./traits/index.js";
+
+export const traits = async (die, next) => {
+  die.service.finalizers = await stagger(die.service, die.mask, traits);
+  for (const finalize of die.service.finalizers) await finalize();
+  try {
+    await next();
+  } finally {
+    for (const terminate of (die.service.terminators ?? []).reverse()) await terminate();
+  }
+};
+#+END_SRC
+
+*** lifecycle/service/traits/index.js — new
+
+#+BEGIN_SRC js :tangle systems/runtime/lifecycle/service/traits/index.js
+export * from "./datamap.js";
+export * from "./attached.js";
+
+export const SERVICE = () => {};
+#+END_SRC
+
+*** lifecycle/service/traits/datamap.js — new
+=DATAMAP(service, mask)=: orm over =assemble([mask.entities ?? lighthouse])=, inject, terminate closes.
+
+#+BEGIN_SRC js :tangle systems/runtime/lifecycle/service/traits/datamap.js
+import paladin from "@vivalence/paladin";
+import { shard } from "@vivalence/typology";
+import { lighthouse } from "@vivalence/typology/entities";
+import { assemble } from "../../../entities/index.ts";
+
+export const DATAMAP = async (service, mask) => {
+  const provider = await paladin.ledger.registry.accio(mask.datamap.module);
+  const instance = assemble([mask.entities ?? lighthouse]);
+  service.datamap = await provider.provider(mask.datamap, {
+    entities: instance.entities.map((descriptor) => descriptor.schema),
+    subscribers: instance.subscribers.map((Subscriber) => new Subscriber()),
+  });
+  service.entities = service.datamap.entities;
+  service.attachment.use(shard.datamap.inject(service.datamap));
+  return { terminate: () => service.datamap.close() };
+};
+#+END_SRC
+
+*** lifecycle/service/traits/attached.js — new
+=ATTACHED(service, mask)=: =/status= · =/manifest=, bind =service= · =mask=, graft =mask.attachment=, terminate drains =service.release=.
+
+#+BEGIN_SRC js :tangle systems/runtime/lifecycle/service/traits/attached.js
+import { shard } from "@vivalence/typology";
+
+export const ATTACHED = (service, mask) => {
+  service.release = [];
+  service.attachment
+    .open("/status", () => service.controller.status)
+    .open("/manifest", () => service.manifest)
+    .use(shard.context.bind("service", service))
+    .use(shard.context.bind("mask", mask));
+  if (mask.attachment) service.attachment.graft(mask.attachment);
+  return { terminate: async () => { for (const release of service.release) await release(); } };
+};
+#+END_SRC
+
+** lighthouse — commons/lighthouses/multiplayer/
+
+*** multiplayer.viva.js — full
+Export triple =attachment · manifest · provider=; traits in execution order =SERVICE · DATAMAP · ATTACHED=; =SYSTEMMAP= gone; no =entities= export → the typology lighthouse set.
+
+#+BEGIN_SRC js :tangle commons/lighthouses/multiplayer/multiplayer.viva.js
+import provider from "./provider/index.js";
+import { attachment } from "./attachment/index.js";
+
+const manifest = {
+  type: "lighthouse",
+  slug: "multiplayer",
+  name: "Identity service. Provides users with identity, acceses, authentication and authorization.",
+  traits: ["SERVICE", "DATAMAP", "ATTACHED"],
+};
+
+export { attachment, manifest, provider };
+#+END_SRC
+
+*** provider/index.js — diff
+The daemon-side handle keeps only =getUser= · =enroll=.
+
+#+BEGIN_SRC diff
+// commons/lighthouses/multiplayer/provider/index.js:24-33 — the handle keeps only its verbs
+       return {
+-        identity,
+         getUser: () => users.findOne({ id: identity.id }),
+#+END_SRC
+
+*** attachment/index.js — new
+A static Vector; the runtime binds =service= · =mask=, injects =entities=.
+
+#+BEGIN_SRC js :tangle commons/lighthouses/multiplayer/attachment/index.js
+import { Vector } from "@vivalence/typology";
+import { tokens } from "./tokens.js";
+import { auth } from "./auth.js";
+import { entities } from "./entities.js";
+import { metadata } from "./metadata.js";
+
+export const attachment = new Vector().use(tokens);
+
+attachment.branch("/auth", auth);
+attachment.branch("/entities", entities);
+attachment.branch("/metadata", metadata);
+#+END_SRC
+
+*** attachment/tokens.js — new
+Mints =jwt= · =rft= on the first request, once; =release= pushed for the runtime to drain.
+
+#+BEGIN_SRC js :tangle commons/lighthouses/multiplayer/attachment/tokens.js
+import { tokens as mint } from "../gestalten/tokens.js";
+
+export const tokens = async (ctx, next) => {
+  const service = ctx.service;
+  if (!service.jwt) {
+    if (!ctx.mask.secrets?.jwt) throw new Error("JWT secret not configured in service.secrets.jwt");
+    service.minting ??= mint(ctx.mask.secrets.jwt, ctx.mask.mountpoint.branch("/tokens.json").absolute);
+    const { jwt, rft, release } = await service.minting;
+    service.jwt = jwt;
+    service.rft = rft;
+    service.release.push(release);
+  }
+  await next();
+};
+#+END_SRC
+
+*** attachment/auth.js — new
+=/auth/{signup,login,logout,verify,refresh}=; =card()= returns =id · slug · traits · trait=.
+
+#+BEGIN_SRC js :tangle commons/lighthouses/multiplayer/attachment/auth.js
+import { Vector } from "@vivalence/typology";
+import { wrap } from "@vivalence/runtime";
+import * as argon2 from "argon2";
+import { identify } from "../gestalten/identity.js";
+
+const respond = {
+  success: (data = {}) => ({ status: "SUCCESS", ...data }),
+  error: (ctx, code, message, httpStatus = 400) => {
+    ctx.response.status = httpStatus;
+    return { status: "ERROR", error: { code, message } };
+  },
+};
+
+const card = (identity) => ({ id: identity.id, slug: identity.slug, traits: identity.traits, trait: identity.trait });
+
+const authority = async ({ jwt, rft }, identity) => ({
+  access: await jwt.create({ id: identity.id, type: "access" }),
+  refresh: await rft.create({ id: identity.id, type: "refresh" }),
+});
+
+export const auth = new Vector()
+  .open("/signup", async ({ username, password }, ctx) => {
+    if (!username || !password) return respond.error(ctx, "INVALID_INPUT", "Username and password required");
+    const existing = await ctx.entities.identity
+      .createQueryBuilder("i")
+      .where(`json_extract(i.authentication, '$.credentials.username') = ?`, [username])
+      .getSingleResult();
+    if (existing) return respond.error(ctx, "USERNAME_EXISTS", "Username already taken");
+
+    const identity = ctx.entities.identity.create({ slug: username });
+    await ctx.entities.em.flush();
+    const tokens = await authority(ctx.service, identity);
+    wrap(identity).assign({
+      authentication: { provider: "password", credentials: { username, password: await argon2.hash(password) }, tokens },
+    });
+    await ctx.entities.em.flush();
+    return respond.success({ identity: card(identity), authority: tokens });
+  })
+  .open("/login", async ({ username, password }, ctx) => {
+    if (!username || !password) return respond.error(ctx, "INVALID_INPUT", "Username and password required");
+    const identity = await identify(ctx, { username, password });
+    if (!identity) return respond.error(ctx, "INVALID_CREDENTIALS", "Invalid username or password", 401);
+    const tokens = await authority(ctx.service, identity);
+    wrap(identity).assign({ authentication: { tokens } }, { merge: true, mergeObjectProperties: true });
+    return respond.success({ authority: tokens, identity: card(identity) });
+  })
+  .open("/logout", async ({ refresh }, ctx) => {
+    const { jwt, rft } = ctx.service;
+    if (!refresh) return respond.error(ctx, "MISSING_TOKEN", "Refresh token required");
+    if (!rft.verify(refresh)) return respond.error(ctx, "INVALID_TOKEN", "Invalid refresh token", 401);
+    const payload = await jwt.verify(refresh).catch(() => null);
+    if (!payload || payload.type !== "refresh") return respond.error(ctx, "INVALID_TOKEN", "Invalid refresh token", 401);
+    const identity = await ctx.entities.identity.findOne({ id: payload.id });
+    if (identity) {
+      wrap(identity).assign({ authentication: { tokens: { access: null, refresh: null } } }, { mergeObjectProperties: true });
+      await rft.revoke(refresh);
+    }
+    return respond.success({ message: "Logged out" });
+  })
+  .open("/verify", async ({ access }, ctx) => {
+    if (!access) return respond.error(ctx, "MISSING_TOKEN", "Access token required");
+    const payload = await ctx.service.jwt.verify(access).catch(() => null);
+    if (!payload || payload.type !== "access") return respond.error(ctx, "INVALID_TOKEN", "Invalid or expired token", 401);
+    const identity = await ctx.entities.identity.findOne({ id: payload.id });
+    if (!identity) return respond.error(ctx, "IDENTITY_NOT_FOUND", "Identity not found", 401);
+    return respond.success({ identity: card(identity) });
+  })
+  .open("/refresh", async ({ refresh }, ctx) => {
+    const { jwt, rft } = ctx.service;
+    if (!refresh) return respond.error(ctx, "MISSING_TOKEN", "Refresh token required");
+    if (!rft.verify(refresh)) return respond.error(ctx, "INVALID_TOKEN", "Invalid or revoked refresh token", 401);
+    const payload = await jwt.verify(refresh).catch(() => null);
+    if (!payload || payload.type !== "refresh") return respond.error(ctx, "INVALID_TOKEN", "Invalid refresh token", 401);
+    const identity = await ctx.entities.identity.findOne({ id: payload.id });
+    if (!identity) {
+      await rft.revoke(refresh);
+      return respond.error(ctx, "IDENTITY_NOT_FOUND", "Identity not found", 401);
+    }
+    const access = await jwt.create({ id: identity.id, type: "access" });
+    wrap(identity).assign({ authentication: { tokens: { access } } }, { merge: true, mergeObjectProperties: true });
+    return respond.success({ access });
+  });
+#+END_SRC
+
+*** attachment/entities.js — new
+=/daemon= read-only through the pivot; =/terminal= scoped to =ctx.identity=; repositories by resolver.
+
+#+BEGIN_SRC js :tangle commons/lighthouses/multiplayer/attachment/entities.js
+import { Vector, shard } from "@vivalence/typology";
+import { authenticate } from "../gestalten/identity.js";
+
+export const entities = new Vector().use(authenticate());
+
+entities
+  .branch("/daemon")
+  .use(shard.datamap.scope((ctx) => ({ identities: ctx.identity.id })))
+  .graft(shard.datamap.repository((ctx) => ctx.entities.daemon, { only: ["find", "findOne", "findOneOrFail", "count"] }));
+
+entities
+  .branch("/terminal")
+  .use(shard.datamap.scope((ctx) => ({ identity: ctx.identity.id })))
+  .graft(shard.datamap.repository((ctx) => ctx.entities.terminal));
+#+END_SRC
+
+*** attachment/metadata.js — new
+=/metadata/{manifest,statics,datamap,attachment}= — the daemon's set, scoped; no root =/datamap=.
+
+#+BEGIN_SRC js :tangle commons/lighthouses/multiplayer/attachment/metadata.js
+import { Vector, shape, shard } from "@vivalence/typology";
+
+export const metadata = new Vector()
+  .open("/manifest", (input, ctx) => ctx.service.manifest)
+  .open("/statics", (input, ctx) => ctx.mask.statics ?? {})
+  .open("/datamap", (input, ctx) => shard.datamap.strip(ctx.service.datamap.getMetadata()))
+  .open("/attachment", (input, ctx) => shape.strip(ctx.service.attachment));
+#+END_SRC
+
+*** gestalten/identity.js — new
+=identify(ctx, credentials)= · =authenticate()= → =ctx.identity= is the =IdentityEntity=.
+
+#+BEGIN_SRC js :tangle commons/lighthouses/multiplayer/gestalten/identity.js
+import * as argon2 from "argon2";
+
+const refuse = (ctx, code, message) => {
+  ctx.response.status = 401;
+  ctx.response.body = { status: "ERROR", error: { code, message } };
+};
+
+export async function identify(ctx, { username, password }) {
+  if (!username || !password) return null;
+  const identity = await ctx.entities.identity
+    .createQueryBuilder("i")
+    .where(`json_extract(i.authentication, '$.credentials.username') = ?`, [username])
+    .getSingleResult();
+  if (!identity?.authentication?.credentials?.password) return null;
+  const valid = await argon2.verify(identity.authentication.credentials.password, password);
+  return valid ? identity : null;
+}
+
+export function authenticate() {
+  return async (ctx, next) => {
+    const header = ctx.request.headers?.get("authorization");
+    const token = header?.startsWith("Bearer ") ? header.split(" ")[1] : ctx.request.url.searchParams?.get("token");
+    if (!token) return refuse(ctx, "MISSING_TOKEN", "Authorization header or token param required");
+    const payload = await ctx.service.jwt.verify(token).catch(() => null);
+    if (!payload || payload.type !== "access") return refuse(ctx, "INVALID_TOKEN", "Invalid or expired token");
+    ctx.identity = await ctx.entities.identity.findOne({ id: payload.id });
+    if (!ctx.identity) return refuse(ctx, "IDENTITY_NOT_FOUND", "Identity not found");
+    await next();
+  };
+}
+#+END_SRC
+
+*** gestalten/tokens.js — new (was server/lib/jwt.js)
+A factory: no module state, the sweep interval released.
+
+#+BEGIN_SRC js :tangle commons/lighthouses/multiplayer/gestalten/tokens.js
+import * as jose from "jose";
+import { JSONFilePreset } from "lowdb/node";
+
+const ACCESS_TTL = "1d";
+const REFRESH_TTL = "180d";
+const REFRESH_MS = 180 * 24 * 60 * 60 * 1000;
+const SWEEP_MS = 60 * 60 * 1000;
+
+export async function tokens(secret, file) {
+  const key = new TextEncoder().encode(secret);
+  const db = await JSONFilePreset(file, { refresh: {} });
+  await db.read();
+
+  const sign = (payload, expiration) =>
+    new jose.SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime(expiration).sign(key);
+
+  const sweep = async () => {
+    const now = Date.now();
+    let changed = false;
+    for (const [token, entry] of Object.entries(db.data.refresh)) {
+      if (entry.expiresAt && now > entry.expiresAt) {
+        delete db.data.refresh[token];
+        changed = true;
+      }
+    }
+    if (changed) await db.write();
+  };
+
+  const jwt = {
+    create: (payload, expiration = ACCESS_TTL) => sign(payload, expiration),
+    verify: async (token) => (await jose.jwtVerify(token, key)).payload,
+  };
+
+  const rft = {
+    create: async (payload) => {
+      const token = await sign({ ...payload, type: "refresh" }, REFRESH_TTL);
+      db.data.refresh[token] = { ...payload, createdAt: Date.now(), expiresAt: Date.now() + REFRESH_MS };
+      await db.write();
+      return token;
+    },
+    verify: (token) => {
+      const entry = db.data.refresh[token];
+      if (!entry) return false;
+      if (entry.expiresAt && Date.now() > entry.expiresAt) {
+        delete db.data.refresh[token];
+        return false;
+      }
+      return true;
+    },
+    revoke: async (token) => {
+      delete db.data.refresh[token];
+      await db.write();
+    },
+    sweep,
+  };
+
+  await sweep();
+  const interval = setInterval(sweep, SWEEP_MS);
+
+  return { jwt, rft, release: () => clearInterval(interval) };
+}
+#+END_SRC
+
+** client — systems/anima/src/
+
+*** typology/entities/terminal.js — full
+=Terminal= a class over =Entity=; =seat(thread)=; =mountStall= unchanged; =TerminalDossier= on =/entities/terminal=.
+
+#+BEGIN_SRC js :tangle systems/anima/src/typology/entities/terminal.js
+import { atom } from "nanostores";
+import { Stall, Blacklist, RemoteRepository } from "@vivalence/typology";
+import { logger } from "$telemetry";
+import { Entity } from "../prototypes/entity.js";
+import { pull } from "./thread/traits/aimed.js";
+import { depth } from "./thread/traits/queueing.js";
+import { defaultDock, setDockCollapsed, setDockFull, setDockShare, setDockSide } from "../stores/bridge/dock.js";
+
+export class Terminal extends Entity {
+  id = null;
+  identity = null;
+  daemon = null;
+  thread = null;
+  index = 0;
+  traits = [];
+  trait = {};
+
+  $thread = atom(null);
+  $buffer = atom(null);
+  $dock = atom(defaultDock());
+  $settling = atom(null);
+  stall = null;
+
+  get label() {
+    return this.trait.LABELED?.name ?? null;
+  }
+  get dock() {
+    return this.$dock.get();
+  }
+  get settling() {
+    return this.$settling.get();
+  }
+
+  seat(thread) {
+    if ((this.$thread.get()?.id ?? null) !== (thread?.id ?? null)) this.$buffer.set(null);
+    this.$thread.set(thread);
+  }
+
+  setDockCollapsed(collapsed) {
+    return setDockCollapsed(this.$dock, collapsed);
+  }
+  setDockFull(full) {
+    return setDockFull(this.$dock, full);
+  }
+  setDockSide(side) {
+    return setDockSide(this.$dock, side);
+  }
+  setDockShare(share) {
+    return setDockShare(this.$dock, share);
+  }
+}
+
+export function mountStall(terminal) {
+  let threadVigil = null;
+  let bufferVigil = null;
+
+  const vigil = (entity, repository, clear) =>
+    repository?.$entities?.listen((entities) => {
+      if (!entities.some((candidate) => candidate.id === entity.id)) clear();
+    }) ?? null;
+
+  terminal.$buffer.subscribe((buffer) => {
+    bufferVigil?.();
+    bufferVigil = buffer ? vigil(buffer, terminal.$thread.get()?.daemon?.entities?.buffer, () => terminal.$buffer.set(null)) : null;
+  });
+
+  terminal.$thread.subscribe((thread) => {
+    threadVigil?.();
+    threadVigil = thread ? vigil(thread, thread.daemon?.entities?.thread, () => terminal.seat(null)) : null;
+    terminal.stall?.deactivate();
+    terminal.stall =
+      thread &&
+      Stall({
+        source: thread.$buffers,
+        active: terminal.$buffer,
+        phase: thread.$phase,
+        pull: () => pull(thread, { blacklist: new Blacklist().absorb(thread.$buffers.get()) }),
+        depth: () => depth(thread),
+      });
+    terminal.stall?.on.release((buffer) => {
+      thread.daemon.entities.buffer.drop(buffer.id);
+      thread.daemon.entities.buffer
+        .removeOne({ id: buffer.id })
+        .catch((error) => logger.entry(`buffers/release/${buffer.id}`).fault(error));
+    });
+  });
+}
+
+export const TerminalDossier = {
+  name: "terminal",
+  kind: () => Terminal,
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind());
+    repo.connect(dataspace.connection.branch("/entities/terminal"));
+    return repo;
+  },
+  use: [
+    async (ctx, next) => {
+      await next();
+      const terminal = ctx.entity;
+      if (terminal.stall !== null || terminal.$thread.lc) return;
+      const docked = terminal.trait.DOCKED ?? ctx.lighthouse.identity?.trait?.DOCKED;
+      if (docked) terminal.$dock.set({ ...docked });
+      mountStall(terminal);
+    },
+  ],
+};
+#+END_SRC
+
+*** typology/entities/terminal.js — witness
+
+#+BEGIN_SRC json
+{ "id": "0199c000-…", "identity": { "id": "0198a000-…" }, "daemon": { "id": "0197b000-…" }, "thread": "0192d000-…", "index": 0,
+  "traits": ["DOCKED", "LABELED"], "trait": { "DOCKED": { "side": "right", "share": 0.4, "collapsed": false, "full": false }, "LABELED": { "name": "grammar" } } }
+#+END_SRC
+
+*** typology/stores/terminals.js — full
+=$entities= is the repository's store sorted by =index=; =create= · =remove= go through the repository; =$active= stays glass.
+
+#+BEGIN_SRC js :tangle systems/anima/src/typology/stores/terminals.js
+import { atom, computed } from "nanostores";
+import { logger } from "$telemetry";
+
+export class Terminals {
+  $active = atom(null);
+
+  constructor(repository) {
+    this.repository = repository;
+    this.$entities = computed(repository.$entities, (entities) => [...entities].sort((a, b) => a.index - b.index));
+  }
+
+  get entities() {
+    return this.$entities.get();
+  }
+  get active() {
+    return this.$active.get();
+  }
+  set active(terminal) {
+    this.$active.set(terminal);
+  }
+
+  async create(seat = {}) {
+    const terminal = await this.repository.create(seat);
+    this.$active.set(terminal);
+    return terminal;
+  }
+
+  activate(id) {
+    this.$active.set(this.entities.find((terminal) => terminal.id === id));
+  }
+
+  async remove(id) {
+    if (this.active?.id === id) this.$active.set(this.entities.filter((terminal) => terminal.id !== id).at(-1) ?? null);
+    this.repository.drop(id);
+    await this.repository.removeOne({ id }).catch((error) => logger.entry(`terminals/remove/${id}`).fault(error));
+  }
+}
+#+END_SRC
+
+*** app/terminals.js — full
+=hydrate= · =persist= gone; =sync= writes DOCKED (debounced) and the seat; =settle= resolves the row's thread on ITS daemon, unseats on ABSENT.
+
+#+BEGIN_SRC js :tangle systems/anima/src/app/terminals.js
+import { logger } from "$telemetry";
+
+const ABSENT = Symbol("absent");
+const UNREACHABLE = Symbol("unreachable");
+const PENDING = Symbol("pending");
+const DOCK_DEBOUNCE_MS = 250;
+
+const named = (outcome) => (outcome === ABSENT ? "absent" : outcome === UNREACHABLE ? "unreachable" : "resolved");
+
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+export function sync({ terminals }) {
+  const write = (terminal, data) =>
+    terminals.repository
+      .updateOne({ id: terminal.id }, data)
+      .catch((error) => logger.entry(`terminals/sync/${terminal.id}`).fault(error));
+
+  const dock = (terminal) => {
+    let timer = null;
+    return terminal.$dock.subscribe((value) => {
+      if (same(value, terminal.trait.DOCKED)) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        const traits = terminal.traits.includes("DOCKED") ? terminal.traits : [...terminal.traits, "DOCKED"];
+        write(terminal, { traits, trait: { ...terminal.trait, DOCKED: value } });
+      }, DOCK_DEBOUNCE_MS);
+    });
+  };
+
+  const seat = (terminal) =>
+    terminal.$thread.subscribe((thread) => {
+      const next = { daemon: thread?.daemon?.id ?? null, thread: thread?.id ?? null };
+      const current = { daemon: terminal.daemon?.id ?? terminal.daemon ?? null, thread: terminal.thread ?? null };
+      if (same(next, current)) return;
+      write(terminal, next);
+    });
+
+  let inner = [];
+  const off = terminals.$entities.subscribe((entities) => {
+    inner.forEach((unsubscribe) => unsubscribe());
+    inner = entities.flatMap((terminal) => [dock(terminal), seat(terminal)]);
+  });
+  return () => {
+    off();
+    inner.forEach((unsubscribe) => unsubscribe());
+  };
+}
+
+export function settle({ terminals, lighthouse }) {
+  const restore = async (terminal) => {
+    const daemon = terminal.daemon;
+    if (!daemon?.status?.is("healthy") || !daemon.entities?.thread) return PENDING;
+    try {
+      const entity = await daemon.entities.thread.findOne({ id: terminal.thread }, { populate: ["mode", "intent"] });
+      if (entity) {
+        daemon.entities.thread.resolve?.(entity);
+        return entity;
+      }
+    } catch (error) {
+      logger.entry("settle/thread").note({ id: terminal.thread, daemon: daemon.slug }).fault(error);
+      return UNREACHABLE;
+    }
+    return ABSENT;
+  };
+
+  const pass = async () => {
+    let settling = null;
+    const record = (data) => (settling ??= logger.entry("settle").open()).note(data);
+    for (const terminal of terminals.entities) {
+      if (!terminal.thread || terminal.$thread.get()) {
+        terminal.$settling.set(null);
+        continue;
+      }
+      const outcome = await restore(terminal);
+      if (outcome === PENDING) {
+        terminal.$settling.set({ thread: terminal.thread });
+        continue;
+      }
+      record({ message: `thread ${named(outcome)}`, terminal: terminal.id, thread: terminal.thread });
+      if (outcome === UNREACHABLE) continue;
+      if (outcome === ABSENT) {
+        await terminals.repository
+          .updateOne({ id: terminal.id }, { daemon: null, thread: null })
+          .catch((error) => logger.entry(`terminals/unseat/${terminal.id}`).fault(error));
+      } else {
+        terminal.seat(outcome);
+      }
+      terminal.$settling.set(null);
+    }
+    settling?.close();
+  };
+
+  let inflight = null;
+  let queued = false;
+  const attempt = () => {
+    if (inflight) {
+      queued = true;
+      return inflight;
+    }
+    inflight = (async () => {
+      do {
+        queued = false;
+        await pass();
+      } while (queued);
+      inflight = null;
+    })();
+    return inflight;
+  };
+
+  let statuses = [];
+  const offDaemons = lighthouse.$daemons.subscribe((daemons) => {
+    statuses.forEach((unsubscribe) => unsubscribe());
+    statuses = daemons.map((daemon) => daemon.status.$transient.subscribe(() => attempt()));
+    attempt();
+  });
+  const offTerminals = terminals.$entities.subscribe(() => attempt());
+  return () => {
+    offDaemons();
+    offTerminals();
+    statuses.forEach((unsubscribe) => unsubscribe());
+  };
+}
+#+END_SRC
+
+*** typology/prototypes/dataspace.js — diff
+Both planes serve =/metadata/datamap=.
+
+#+BEGIN_SRC diff
+   async init() {
+     if (!this.connection) return;
+-    this.datamap = await this.connection.call("/datamap");
++    this.datamap = await this.connection.call("/metadata/datamap");
+     this.em.schema = this.datamap;
+   }
+#+END_SRC
+
+*** typology/stores/lighthouse.js — diff
+
+#+BEGIN_SRC diff
+ import { Dataspace } from "../prototypes/dataspace.js";
+ import { DaemonDossier } from "../entities/daemon/index.js";
++import { TerminalDossier } from "../entities/terminal.js";
+ …
+     this.dataspace = new Dataspace({
+-      entities: [DaemonDossier],
++      entities: [DaemonDossier, TerminalDossier],
+       connection: this.connection,
+       seed: seedLighthouse(this),
+     });
+ …
+   lighthouse.$populating = (async () => {
+-    lighthouse.manifest = await lighthouse.connection.call("/manifest");
++    lighthouse.manifest = await lighthouse.connection.call("/metadata/manifest");
++    await lighthouse.dataspace.init();
+     const mounting = logger.entry("daemons").open();
+-    await lighthouse.dataspace.populate(["daemon"]);
++    await lighthouse.dataspace.populate(["daemon", "terminal"]);
+#+END_SRC
+
+*** app/+layout.svelte — diff
+
+#+BEGIN_SRC diff
+-  const terminals = new stores.terminals.Terminals();
++  const terminals = new stores.terminals.Terminals(lighthouse.dataspace.terminal);
+   setContext(TERMINALS, terminals);
+ …
+-    terminalEffects.hydrate({ terminals });
+-
+-    const unpersist = terminalEffects.persist({ terminals });
++    const unsync = terminalEffects.sync({ terminals });
+     const unsettle = terminalEffects.settle({ terminals, lighthouse });
+     const unfocus = focusEffects.focus({ terminals });
+
+     return () => {
+       unfocus();
+-      unpersist();
++      unsync();
+       unsettle();
+#+END_SRC
+
+*** app/+page.svelte — diff
+THEMED wins over the glass theme when present.
+
+#+BEGIN_SRC diff
+-    const unsubscribeTheme = bridge.view.$theme.subscribe(
+-      (theme) => (document.documentElement.dataset.theme = theme),
+-    );
++    const unsubscribeTheme = computed([bridge.view.$theme, lighthouse.$identity], (theme, identity) => identity?.trait?.THEMED?.theme ?? theme).subscribe(
++      (theme) => (document.documentElement.dataset.theme = theme),
++    );
+#+END_SRC
+
+*** panels — the five seat sites — diff
+=Mode.svelte:59,71= · =d.svelte:85,116,140=; every other =terminal.thread= read becomes =$thread=.
+
+#+BEGIN_SRC diff
+// systems/anima/src/app/panels/c/panes/Mode.svelte:59 (and :71 · d.svelte:85,116,140 alike)
+-      const terminal = terminals.active ?? terminals.create();
+-      terminal.thread = thread;
++      const terminal = terminals.active ?? (await terminals.create());
++      terminal.seat(thread);
+#+END_SRC
+
+** proof
+- =deno check= is not the gate: the live =lighthouse/index.ts= reads 37 errors, =Turn.ts= 142, every suite runs =--no-check=.
+- a fresh scratch db through =sets.lighthouse= builds =Identity · Daemon · Terminal · Identity_daemons=; the witnesses insert and read back — =reference/m76/probe.js=, =33 passed | 0 failed=.
+- the entity cycle (Identity ↔ Daemon ↔ Terminal) resolves because every cross-reference is a thunk or a type — the kernel's own shape (=Turn.ts:3-5=).
+
+* terrain — measured
+10-01, by =ls= / =wc -l= / =grep -rln Terminal=:
+
+- The pasted text says =typology/entities=. On disk, anima's entities live in =systems/anima/src/typology/entities/=: activity · buffer · daemon/ · intent · literal · mode/ · symbol · terminal · thread/ · turn. =subsystems/typology/entities/= holds only =base/= and =lighthouse/= (=Daemon.ts= · =Identity.ts= · =todo.org=).
+- The terminal today:
+  - =systems/anima/src/typology/entities/terminal.js=, 115 lines
+  - =systems/anima/src/typology/stores/terminals.js=, 37 lines
+  - =systems/anima/src/app/terminals.js=, 177 lines
+- 5 anima test files name =Terminal=: =dictation.store= · =terminal.stall= · =zones/places= · =panes/rail.mount= · =typology/standalone=.
+- 44 =localStorage= hits across =systems/anima/**/*.js=. Not yet sorted into what moves to the row and what stays on the glass.
+- Not measured yet: the lighthouse store for =Identity=, the shape of today's =Identity.ts= rows, and who reads =$settling=.
+

@@ -35,8 +35,8 @@ const generative = {
 await GENERATIVE(generative, {
   mountpoint: { absolute: "/nonexistent/catalog" },
 });
-const armed = new Vector().slurp(tools);
-armed.branch("/generator").slurp(generative.generator.tools);
+const armed = new Vector().graft(tools);
+armed.branch("/generator", generative.generator.tools);
 armed.use(shard.context.bind("daemon", daemon));
 
 const names = () =>
@@ -172,7 +172,7 @@ specimen.describe("viva_doctor — a daemon with no cortex", () => {
   specimen.it(
     "P-nocortex: the fold reports no faculties instead of throwing",
     async () => {
-      const bare = new Vector().slurp(tools);
+      const bare = new Vector().graft(tools);
       bare.use(shard.context.bind("daemon", cortexless));
       const { output } = await steer.dispatch.invoke(
         bare,
@@ -262,7 +262,7 @@ const lit = {
 };
 let seenRequest = null;
 
-const litArmed = new Vector().slurp(tools);
+const litArmed = new Vector().graft(tools);
 litArmed.use(shard.context.bind("daemon", lit));
 litArmed.use(shard.context.bind("controller", new Controller({ stdout: new Span("hallucination") })));
 const litInvoke = (name, input) =>
@@ -315,7 +315,7 @@ specimen.describe("web_read — lit, once a reader is consumed", () => {
           },
         },
       };
-      const angryArmed = new Vector().slurp(tools);
+      const angryArmed = new Vector().graft(tools);
       angryArmed.use(shard.context.bind("daemon", angry));
       const { condition, output } = await steer.dispatch.invoke(
         angryArmed,

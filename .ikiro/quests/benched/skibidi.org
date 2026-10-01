@@ -1,0 +1,130 @@
+#+title: skibidi — a Skype on vivalence: rooms over a LiveKit SFU, the daemon mints tokens, media never touches it
+#+filetags: :skibidi:service:livekit:webrtc:sfu:docker:compose:attached:tooling:call:
+#+status: BENCHED on /"compact benched"/ after one design conversation and one throwaway spike. Nothing on disk in the tree. The spike (scratchpad only, deleted with the session) proved the whole chain on loopback: =npm:livekit-server-sdk= under Deno mints a token, drives a =livekit/livekit-server --dev= container (create · list · delete room), a browser =livekit-client= joins with a student token, the roster reads =canPublish:false= from Deno. Two forks open, no milestone authored. Reopens when beef says the word.
+
+* intent (his words, verbatim)
+
+/"want to think through an idea with you. Let's say we use vivalence to create a something like a Skype app. Let's call it Skibidi. We want some protocol to start a mode to get on the call with someone. The, the daemon is probably the negotiator. And the connection should probably be peer-to-peer. I mean, it's just a buffer that two users enter. Or a thread that two users enter. No, a buffer that two users enter. Hmm. Or a buffer that is by the domain connected. That, I think, is more realistic. Or same buffer. I don't know. So uh, what kind of... Uh, would we use a WebRTC for that? Audio, video, what would be the best stack to get a like some sort of Skype system going?"/
+
+/"1:m for sure."/
+
+/"investigate the nlp service for architecture inspiration. more vivalence native architecture? something in system only?"/
+
+/"test it"/
+
+* terrain — measured
+
+Every line below was read from the tree in the design session, paths container-rooted.
+
+- A buffer is one user's. =systems/runtime/entities/userspace/Buffer.ts:59= — =filters.user.cond = ({ thread: { user } })=, default on; =Buffer.ts:46= =mode!: Rel<ModeEntity>; thread?: Rel<ThreadEntity>=. "A buffer two users enter" fights this law; "own buffer each, something connects them" fits it.
+- The datamap already broadcasts every entity write to subscribers: =subsystems/typology/gestalten/shard/datamap.js:172= =reactive()= → =broadcaster.push=, =:198= =GET /subscribe= streams a filtered iterable. A signaling channel exists without a websocket server. Unused by this design once the SFU owns roster.
+- Three service shapes in =commons=, the union is the shape:
+
+| citizen | traits | where the server runs | provider returns |
+|---|---|---|---|
+| =lighthouses/multiplayer= | ATTACHED SERVICE DATAMAP SYSTEMMAP | in the runtime process, =runtime/resolution.js:24= branches =service.aperture= at =service.reference= | ={ authenticate }= |
+| =services/nlp= (=service/nlp-stanza=) | SERVER DOCKER COMPOSE TOOLING | a Python container; =control= vector =/build /up /down= over =ctx.tools.compose= | =async ({ text }) => …= over HTTP |
+| =services/reader= | none | nowhere, in-process | ={ open }= |
+
+- A daemon consumes a service at =systems/runtime/lifecycle/daemon/population.js:68= — =die.daemon.services[slug] = await citizen.provider(citizen)=; TOOLING grafts =citizen.tools= onto it. The runtime mounts only ATTACHED ones (=runtime/population.js:43=, else =dormant: "not ATTACHED — consumed only"=).
+- nlp's =control= vector is an ORPHAN: =grep -rn "env.cast\|compose.up" systems subsystems= → 0 files. Nothing in ghost drives it; docker is run by hand today.
+- The spike, Deno 2.9.6, LiveKit server 1.13.7, =livekit-server-sdk@2.19.1=, =livekit-client@2= from jsdelivr:
+
+| step | result |
+|---|---|
+| =AccessToken= mint | 267-byte JWT, claims ={video:{room,roomJoin,canSubscribe,canPublish:false},sub:"u_finn"}= |
+| =RoomServiceClient= create · list · delete | round-trip, =RM_tBcL3RJXjWe2= |
+| browser connect =ws://127.0.0.1:7880= student token | =connected … version: 1.13.7, protocol: 17= |
+| =listParticipants= after the join | =[{identity:"u_student",canPublish:false,tracks:0}]= |
+
+Not measured: media (no track published), TURN across NAT (loopback only), prod (Coolify).
+
+* the decision trail
+
+*** 1 — peer-to-peer or server · RULED by /"1:m for sure."/
+P2P mesh is n² upstream encodes; fine at 1:1, dead at 1:m. An SFU forwards one upstream per client. The 1:1 design (a =Call= row with offer · answer · candidates over the datamap broadcaster, needing a cross-user scope on the row) died with the ruling.
+
+*** 2 — which SFU · recommended LiveKit, not contested
+LiveKit (Go, one docker binary, pure-JS server SDK that runs under Deno — proven) over mediasoup (Node worker Deno cannot host), Janus (plugin config), ion-sfu (dormant). Egress · recording · transcription hooks are LiveKit's, a later language-learning seam.
+
+*** 3 — shared buffer or own buffer · settled by the SFU
+Roster and media live in LiveKit. Each user's mode renders its own buffer with a token from =daemon.call skibidi.join=. No Buffer scope change, no runtime change.
+
+*** 4 — "something in system only?" · RULED no, by terrain
+=systems/= is runtime · ghost · anima, the machine. Skibidi is a citizen package. First citizen carrying BOTH halves — DOCKER (media outside) and ATTACHED (webhooks inside) — with no new trait invented.
+
+*** 5 — who authorizes · the grant
+Policy is a LiveKit grant minted by the daemon: =canPublish: shape !== "LECTURE"=. The daemon decides, LiveKit enforces, the mode carries nothing.
+
+* the shape (proposed, nothing authored)
+
+#+BEGIN_EXAMPLE
+commons/services/skibidi/
+  service.viva.js        manifest · control · aperture · provider · tools
+  server/
+    docker-compose.yml   livekit-server + coturn (nlp pattern, env cast)
+    livekit.yaml
+    .env.source
+    webhook.js           aperture (ATTACHED): LiveKit → Room / Participant rows
+    entities.js          systemmap: Room · Participant (own datamap, multiplayer pattern)
+  provider/index.js      token mint + RoomServiceClient
+  tools/index.js         /room/open · /room/join · /room/mute  (TOOLING — a hallucinator can open a room)
+#+END_EXAMPLE
+
+#+BEGIN_SRC js
+// commons/services/skibidi/service.viva.js
+const manifest = {
+  type: "service",
+  slug: "skibidi",
+  name: "Skibidi — rooms, tokens, roster over a LiveKit SFU",
+  traits: ["SERVER", "DOCKER", "COMPOSE", "ATTACHED", "SERVICE", "DATAMAP", "SYSTEMMAP", "TOOLING"],
+};
+export { aperture, control, manifest, provider, tools };
+#+END_SRC
+
+#+BEGIN_SRC js
+// commons/services/skibidi/provider/index.js
+import { AccessToken, RoomServiceClient } from "livekit-server-sdk";
+
+export default function provider(service) {
+  const { remote, rtc } = service.statics;
+  const { key, secret } = service.secrets;
+  const rooms = new RoomServiceClient(remote, key, secret);
+  return {
+    rooms,
+    token: async ({ identity, room, shape }) => {
+      const token = new AccessToken(key, secret, { identity });
+      token.addGrant({ room, roomJoin: true, canSubscribe: true, canPublish: shape !== "LECTURE" });
+      return { url: rtc, token: await token.toJwt() };
+    },
+  };
+}
+#+END_SRC
+
+#+BEGIN_SRC json
+{ "url": "wss://rtc.vivalence.org", "token": "eyJhbGciOiJIUzI1NiJ9.eyJ2aWRlbyI6eyJyb29tIjoiYTEtbW9uZGF5Iiwicm9vbUpvaW4iOnRydWUsImNhblN1YnNjcmliZSI6dHJ1ZSwiY2FuUHVibGlzaCI6ZmFsc2V9LCJzdWIiOiJ1X2Zpbm4ifQ.…" }
+#+END_SRC
+
+Boot after:
+
+#+BEGIN_EXAMPLE
+runtime
+  services        ← skibidi ATTACHED → process row
+  attach          ← /service/skibidi/webhook mounted, LiveKit posts participant_joined here
+daemon (education)
+  consume.skibidi ← provider → daemon.services.skibidi.{rooms,token}
+  armed catalog   ← tools: room/open · room/join
+mode call/skibidi
+  buffer view     ← livekit-client in the browser, token from daemon.call skibidi.join
+#+END_EXAMPLE
+
+* forks — open, QUESTIONED
+
+- *the =control= orphan.* Resurrect it as a ghost verb (=viva service/up skibidi= runs compose), or keep docker by hand as nlp does today. Skibidi would be the vector's first consumer either way.
+- *which 1:m.* LECTURE (one publishes, m subscribe, raise-hand promotes) · CONFERENCE (all publish, teacher moderates, UI pain past ~20) · BOTH (a room has a =shape=, grants derived). The grant line above assumes BOTH.
+- *a media walk.* Teacher publishes, student hears — two browsers, mic permission. Unwalked.
+- *TURN on prod.* coturn beside LiveKit in Coolify, or LiveKit's embedded TURN. ~15% of NATs fail silently without one.
+
+* deferred
+
+Milestones · blast table · testing assessment · QA markers · changelog · release — none authored. A benched quest carries the design and the proof, not the ladder. Reopens on beef's word; the first act then is the =control= ruling, the second the =which 1:m= ruling, then milestones.

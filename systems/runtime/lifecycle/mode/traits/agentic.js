@@ -6,6 +6,6 @@ export const AGENTIC = (mode, daemon) => () => {
       source.implements("TOOLING")
     )
     .forEach((source) =>
-      mode.tools.branch(source.manifest.slug).slurp(source.tools)
+      mode.tools.branch(source.manifest.slug, source.tools)
     );
 };

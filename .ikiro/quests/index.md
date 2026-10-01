@@ -2,8 +2,12 @@
 
 > Derived — regenerate at every sunset/revival (`skills/quest-lifecycle/`). Root = live only; `done/` = landed + verified; `discarded/` = sunset without landing; `benched/` = beef's bench; `bak/` = beef's recovery surface, untouched. ⚑ = classification is the 09-01 revival's judgment call (header status and landed reality disagreed, or the lean was mine) — beef curates. Bucket names follow DISK, never a rename that was only ever made in this file.
 
-## live (2) — the only quests at the root
+## live (6) — the only quests at the root
 
+- `m78-mikro-7.org` — m78 mikro 7 — mikro-orm 6.6.7 → 7.2.3: the migrator mikro owns rebuilds a sqlite table without gluing statements, the driver is chosen, metadata is keyed by class; the 20 live dbs cross on a pinned schema (DESIGNED 10-02, numbered m78 by beef: research copied to `reference/mikro-7/` — upstream · census · smoke scripts; five milestones pin · dry diff · flag day · crossing · residue, nothing built; eight forks owed — driver · pivot pin · update rules · Map-keyed Datamap · the road for 20 dbs · timing vs m76 · the Turn delta's road · jsr; the trigger `Turn.mode` REQUIRED sits uncommitted)
+- `vector-attach-graft.org` — vector attach · graft — a vector attaches by edge (`branch(sig, v)`) and copies by node (`graft`); `slurp` and `set` deleted (BUILT 10-01 in a sandbox clone by a sibling agent, 50-file patch + one new test, not landed; M1 apply · M2 beef eyeballs the frozen-copy sites · M3 the live walk)
+- `m76-terminals-close-the-dataring.org` — m76 terminals close the dataring — Terminal moves to the lighthouse beside Identity · Authentication · Authority; anima keeps state, no entities (INTENT 10-01: beef's schema verbatim, terrain first-measured, F3 m60 overlap · F4 ACTIVE hook · F5 wire owed)
+- `m77-droneaid-homecoming.org` — m77 droneaid homecoming (SEEDED 10-01: title only, every organ QUESTIONED; relation to m71 QUESTIONED)
 - `m71-droneaid-guide.org` — m71 the droneaid guide — the PT10 manual applied to DRONEAID_model_latest: the kit the blend does not carry (screws and all), their placements, and the 33 steps as literals of the assembly domain (DESIGNED 09-24, numbered by beef; four milestones, none started; eight forks open — the plate names, computer = VTX?, the instanced meshes, granularity, props, guide_1, the authoring channel, where the seed lives)
 - `m60-lighthouse-security.org` — m60 lighthouse security — two principals, one verify path (DESIGNED, tangleable, nothing landed: a system key EXCHANGED at `/auth/system` for a 1h bearer, never carried; signup `open | invite | closed` default invite with system-minted single-use invite JWTs; `/entities/{identity,daemon}` behind `secure.authorize()` + the one new `secure.claim` — identity reads its own row only, daemon writes system-only; `Identity.authentication` hidden, the row drops its tokens (zero readers); `tokens.json` keyed by sha256, 8 sessions per identity; verify pins HS256 + issuer, `jwt.js` a per-service closure; per-username throttle. Runtime scenario rebuilt to host the REAL `compose()` → `gates.test.js` 15 cases + typology `secure.test.js` 3. Two forks owed: the claim verb's name, the signup default)
 
@@ -111,8 +115,9 @@
 - `m39-kernel-references/` — dir, 2 files
 - `paradigm-cell-completion/` — dir, 3 files
 
-## benched/ (9) — beef's bench: parked live quests (bucket outside the lifecycle skill's structure; indexed as found)
+## benched/ (10) — beef's bench: parked live quests (bucket outside the lifecycle skill's structure; indexed as found)
 
+- `skibidi.org` — skibidi — a Skype on vivalence: a `commons/services/skibidi` citizen carrying DOCKER (LiveKit SFU outside) and ATTACHED (webhooks inside), the daemon mints grant tokens, media never touches it (BENCHED unnumbered on "compact benched": designed, spike green on loopback — token · rooms · browser join · roster; two forks open — the orphan `control` vector, lecture · conference · both; compact #244)
 - `m25-user-and-thread-handling.org` — m25 — user and thread handling
 - `m27-memory-and-notes.org` — m27 — mind: memory + note
 - `m42-history-purge.org` — m42 history purge — filter-repo the dead registry mass out of git history

@@ -66,10 +66,10 @@ specimen.beforeAll(async () => {
   scenario = await datamap.seed();
 
   const aperture = new Aperture();
-  aperture.branch("/entities/literal").slurp(shard.datamap.repository(scenario.repos.literal));
-  aperture.branch("/entities/symbol").slurp(shard.datamap.repository(scenario.repos.symbol));
-  aperture.branch("/entities/mode").slurp(shard.datamap.repository(scenario.repos.mode));
-  aperture.branch("/entities/intent").slurp(shard.datamap.repository(scenario.repos.intent));
+  aperture.branch("/entities/literal", shard.datamap.repository(scenario.repos.literal));
+  aperture.branch("/entities/symbol", shard.datamap.repository(scenario.repos.symbol));
+  aperture.branch("/entities/mode", shard.datamap.repository(scenario.repos.mode));
+  aperture.branch("/entities/intent", shard.datamap.repository(scenario.repos.intent));
 
   connection = new Connection(
     new Url("http://test"),

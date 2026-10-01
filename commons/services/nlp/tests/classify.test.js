@@ -42,7 +42,7 @@ const SAMPLE = [
 
 const armed = new Vector()
   .use(shard.context.bind("service", async ({ text }) => SAMPLE))
-  .slurp(tools);
+  .graft(tools);
 
 const invoke = (name, input) =>
   steer.dispatch.invoke(

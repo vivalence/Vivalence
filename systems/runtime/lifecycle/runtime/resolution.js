@@ -23,10 +23,8 @@ export const daemons = (execution) => async (die, next) => {
 
 export const attach = async (die, next) => {
   for (const service of await die.runtime.processes.service.find()) {
-    die.runtime.aperture
-      .branch(service.reference.absolute)
-      .use(shard.context.attach(service.type, service.mask))
-      .slurp(service.aperture);
+    service.aperture.use(shard.context.attach(service.type, service.mask));
+    die.runtime.aperture.branch(service.reference.absolute, service.aperture);
   }
 
   for (const daemon of await die.runtime.processes.daemon.find()) {
@@ -95,11 +93,10 @@ export const attach = async (die, next) => {
 
 export const expose = async (die, next) => {
   for (const daemon of await die.runtime.processes.daemon.find()) {
-    const branch = die.runtime.aperture.branch(daemon.reference.nature);
-    branch.branch("/status").slurp(shard.nano.atom(daemon.$status));
+    const branch = die.runtime.aperture.branch(daemon.reference.nature, daemon.aperture);
+    branch.branch("/status", shard.nano.atom(daemon.$status));
     branch
       .open("/manifest", () => daemon.manifest)
-      .slurp(daemon.aperture)
       .open("/batch", shard.batch.route(branch));
   }
   await next();

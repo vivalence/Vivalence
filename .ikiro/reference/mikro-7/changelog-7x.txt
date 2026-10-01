@@ -1,0 +1,544 @@
+# Change Log
+All notable changes to this project will be documented in this file.
+See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
+## [7.2.3] (2026-09-30)
+### Bug Fixes
+* **core:** detect changes to decimal strings beyond double precision ([#8368]), closes [high-precision](https://github.com/hi/issues/precision)
+* **mssql:** skip TPT child tables when reseeding identities in `clear()` ([#8358])
+* **oracle:** introspect primary keys so the schema diff can restore and change them ([#8357])
+* **oracle:** return non-PK autoincrement and generated columns after inserts ([#8359])
+* **postgres:** don't restore stale inbound FKs when repartitioning a table ([#8371]), closes [#8369]
+* **postgres:** drop unique index expressions via `drop index` instead of `drop constraint` ([#8365]), closes [#8363]
+* **postgres:** leave list/range partitions not declared in metadata unmanaged ([#8370]), closes [#8362]
+* **postgres:** normalize double precision casts and `between` in check constraint diffs ([#8366]), closes [#8361]
+* **postgres:** respect identity options when diffing and rendering columns ([#8351]), closes [#8350]
+* **sql:** declare the primary key once when replacing it with a new autoincrement column ([#8354])
+* **sqlite:** rebuild the table when the primary key is added or changed ([#8356])
+* **sql:** only convert regexps that LIKE can express ([#8367])
+* **sql:** only skip auto-generated enum checks when diffing check constraints ([#8375]), closes [#8374]
+* **sql:** restore a missing primary key in the schema diff ([#8355])
+## [7.2.2] (2026-09-28)
+### Bug Fixes
+* **core:** allow falsy values in concurrency checks ([#8318])
+* **core:** compare FK column for primary key conditions on polymorphic relations ([#8328]), closes [#8326]
+* **core:** do not mutate the where condition and data passed to the EntityManager ([#8291]), closes [#8290]
+* **core:** handle primary key values and objects in polymorphic and relation conditions ([#8329]), closes [#8328]
+* **core:** hydrate partial upsert results without mismatching entities ([#8294])
+* **core:** keep entity identity for relations using `targetKey` ([#8323]), closes [#8322]
+* **core:** keep the input order in `em.upsertMany()` when a split batch has duplicate rows ([#8310])
+* **core:** make compiled function keys independent of module evaluation order ([#8339]), closes [#8335]
+* **core:** map upsertMany results to the corresponding SQL inputs ([#8305])
+* **core:** merge columns supplied only by some rows in `em.upsertMany()` ([#8298])
+* **core:** preserve concurrency values in batch lock checks ([#8317])
+* **core:** preserve entity schema when restoring cached results ([#8303])
+* **core:** preserve existing groups when lifting relation filters ([#8304])
+* **core:** resolve repositories in non-transactional callbacks ([#8316])
+* **core:** respect custom `fieldNames` in polymorphic relations ([#8324])
+* **core:** respect locally disabled transactions during flush ([#8306])
+* **mongodb:** throw on unsupported polymorphic relation conditions ([#8326])
+* **mssql:** handle OUTPUT results on tables with triggers ([#8295])
+* **mssql:** preserve columns from heterogeneous upsert inputs ([#8296])
+* **mssql:** restrict TPT identity inserts to the owning table ([#8297])
+* **sql:** apply target filters when populating polymorphic relations ([#8330])
+* **sql:** do not convert custom types twice in `em.countBy()` ([#8342]), closes [#8341]
+* **sql:** do not treat persisted properties as virtual in paginated orderBy ([#8309]), closes [#8308]
+* **sql:** handle STI subtypes with conflicting property columns and types ([#8340])
+* **sql:** keep halfvec and sparsevec dimensions during postgres introspection ([#8315]), closes [#5739]
+* **sql:** keep rows when ordering by polymorphic relation targets ([#8334])
+* **sql:** resolve embedded formulas in partial field selections ([#8301])
+* **sql:** resolve inline embeddable columns that shadow the property name ([#8293]), closes [#8292]
+* **sql:** respect `distinct()` and `distinctOn()` in `qb.getCount()` ([#8312]), closes [#8311]
+* **sql:** respect property returning hints on updates and upserts ([#8299])
+### Performance Improvements
+* **sql:** cache kysely result maps and table name lookups ([#8337]), closes [#8336]
+## [7.2.1] (2026-09-19)
+### Bug Fixes
+* **core:** escape the remaining property names in generated code ([#8289]), closes [#8221]
+* **core:** keep populated relations clean after a result cache hit ([#8269]), closes [#8268]
+* **mssql:** map legacy `ntext` and `image` column types ([#8288]), closes [#8287]
+* **sql:** do not emit returning clause inside the update sub-query ([#8283]), closes [#8282]
+* **sql:** preserve filtered many-to-many references ([#8273])
+* **sql:** respect property returning hints on inserts ([#8277])
+* **sql:** select inline embeddable columns once when populating via joins ([#8272]), closes [#8271]
+### Features
+* **sql:** support read-replica routing in em.execute ([#8262])
+# [7.2.0] (2026-09-07)
+### Bug Fixes
+* **cli:** surface the real error when a TypeScript loader fails to load ([#8245])
+* **core:** decompose nested cursor groups lexicographically
+* **core:** follow the platform's own null ordering in cursor pagination
+* **core:** handle `orderBy` directions carrying a nulls qualifier ([#8247])
+* **core:** preserve nested populate filters across loading strategies ([#8243])
+* **core:** treat `@Formula` properties as nullable in cursor pagination ([#8249])
+* **decorators:** skip `@oxc-node/core` helper frames when resolving entity path ([#8246])
+* **postgres:** forward `pool.min` to the `pg` pool ([#8237]), closes [#8234]
+### Features
+* **cli:** add a "-q" param, to suppress informational output ([#7886])
+* **cli:** add Nub TypeScript loader option ([#8253])
+* **cli:** the "--combined" argument of cache:generate can optionally be a path to the cache file ([#7963])
+* **core:** add `getNativeClient()` to access the underlying database client ([#8148]), closes [#8146]
+* **core:** add `through` option for read-only to-one relations resolved via subquery ([#8239]), closes [#8238]
+* **core:** add native support for row level security ([#7984]), closes [#6137] [#6413] [#6493] [#6493]
+* **core:** allow map to bypass identity map ([#8199])
+* **core:** allow specifying a callback for the RequestContext options ([#7925])
+* **core:** rework cursor pagination for custom types and nullable columns ([#8103]), closes [#8097]
+* **core:** support `await using` via `Symbol.asyncDispose` ([#8159]), closes [#8158]
+* **core:** support `index` option on M:N properties for pivot table join columns ([#8160]), closes [#8156]
+* **core:** support configurable string normalization ([#8169]), closes [#8165]
+* **core:** support named parameters in `em.execute()` ([#8173]), closes [#8093]
+* **migrations:** allow opting out of snapshot updates on migrate ([#8039])
+* **mongo:** add `$all` query operator support ([#7931])
+* **sql-js:** add sql.js driver for in-memory SQLite in WebAssembly ([#7783])
+* **sql:** support the `$all` operator on collection properties ([#8248]), closes [#7931]
+### Performance Improvements
+* **core:** skip structural variance measurement of `defineEntity` builder and entity types ([#8242]), closes [#8240]
+## [7.1.15] (2026-09-03)
+### Bug Fixes
+* **core:** apply TPT concurrency check only to the table that declares it ([#8228]), closes [#8227] [#8226] [#8226]
+* **core:** apply TPT version property only to the table that declares it ([#8227]), closes [#8226]
+* **core:** escape entity property names in generated hydration/comparison code ([#8221])
+* **core:** infer `serializer` callback value from relation kind in `defineEntity` ([#8215]), closes [#8214]
+* **core:** resolve user-class lookups by class reference instead of class name ([#8209]), closes [#8208]
+* **core:** support polymorphic relations inside embeddables ([#8219]), closes [#8218] [#8217]
+* **sql:** join TPT parent tables for relations targeting a sub-class ([#8233]), closes [#8231]
+* **sql:** keep relation filters within their own join branch ([#8212]), closes [#8210]
+* **sql:** prevent endless loop when entity filters form a relation cycle ([#8213]), closes [#8211]
+* **sql:** support upsert for TPT entities ([#8229]), closes [#8226] [#8226]
+## [7.1.14] (2026-08-26)
+### Bug Fixes
+* **core:** don't double-wrap `orderBy` in M:N dataloader batch load ([#8194]), closes [#8193]
+* **core:** don't require the discriminator value when creating an STI entity ([#8201]), closes [#7677] [#8200]
+* **core:** evict referrers holding a removed entity in their primary key ([#8205]), closes [#8203]
+* **core:** infer primary key from plain class base in `defineEntity` ([#8207])
+* **core:** respect explicit join alias in JSON property conditions ([#8195]), closes [#8192]
+* **postgres:** strip array-typed casts cleanly when recovering check constraints ([#8198]), closes [#8197]
+* **sql:** keep row-value tuples in `$in` on a `raw()` key ([#8202])
+* **sql:** skip trigger diff when only one side uses `expression` ([#8191]), closes [#8190]
+## [7.1.13] (2026-08-20)
+### Bug Fixes
+* **core:** accept plain arrays for enum array properties in EntityData ([#8167]), closes [#8166]
+* **core:** derive FK field names from `targetKey` instead of composite PKs ([#8172])
+* **core:** don't overwrite existing rows with onCreate generated values in upsert ([#8186]), closes [#7399]
+* **core:** keep `$or` conditions intact when populating to-many relations ([#8181]), closes [#8176] [#8180]
+* **core:** keep `$or` conditions intact when populating to-one relations ([#8176]), closes [#1882] [#6658] [#8175]
+* **core:** respect `connectionType` option in `em.countBy()` ([#8188]), closes [#8187]
+* **core:** skip enum check constraints for `json`/`jsonb` columns ([#8184]), closes [#8183]
+* **decorators:** don't mutate base class metadata in TC39 decorators ([#8177]), closes [#8178]
+* **query-builder:** keep filter `$or` intact when it spans joined to-one relations ([#8182]), closes [#8176] [#8176] [#8179]
+* **sql:** convert custom type values in kysely where clauses ([#8189])
+### Features
+* **core:** inherit `collation` from referenced PK on FK columns ([#8171]), closes [#8170]
+## [7.1.12] (2026-08-17)
+### Bug Fixes
+* **core:** do not mutate caller-provided options in `merge`, `create`, `getReference` and `fork` ([#8150]), closes [#8144] [#8143]
+* **core:** do not mutate the options object provided by the caller ([#8144]), closes [#8143]
+* **core:** use own-property checks in populate hints, canPopulate, and filter options ([#8164])
+* **postgres:** emit and diff the index access method ([#8126]), closes [#8124]
+* **postgres:** flatten dollar-quoted bodies in raw trigger and routine DDL ([#8142]), closes [#8063] [#8062] [#8140]
+* **postgres:** keep parens balanced when stripping casts from introspected checks ([#8125]), closes [#8123]
+* **query-builder:** allow alias-prefixed keys in nested `$and`/`$or` groups ([#8147]), closes [#8145]
+* **schema:** create foreign keys of new tables after altering existing ones ([#8151]), closes [#8141]
+* **sql:** compare quoted decimal defaults numerically ([#8132]), closes [#8131]
+* **sql:** resolve TPT parent alias in JSON property conditions ([#8163]), closes [#8162]
+* **sql:** support joining a table or CTE by name via sql.ref() ([#8161]), closes [#8157]
+## [7.1.11] (2026-08-06)
+### Bug Fixes
+* **core:** ignore metadata cache entries cached from a different source file ([#8111]), closes [#8107]
+* **core:** ignore own `__proto__` key when cloning objects ([#8120])
+* **core:** resolve entity metadata via class references instead of class names ([#8108]), closes [#8107]
+* **entity-generator:** emit check constraints in generated entities ([#8121]), closes [#8114]
+* **entity-generator:** keep index column order when columns map to relations ([#8119]), closes [#8116]
+* **entity-generator:** preserve advanced options of single-column indexes ([#8122]), closes [#8118] [#8118]
+* **entity-generator:** preserve the where clause of partial indexes ([#8118]), closes [#8115]
+* **migrations:** allow stable migration names when class names are minified ([#8109])
+* **sql:** infer columns with a default value as kysely `Generated` ([#8117]), closes [#8113]
+## [7.1.10] (2026-08-04)
+### Bug Fixes
+* **core:** duck-type `Routine.is()` to survive the CJS/ESM dual-package hazard ([#8094]), closes [#7289] [#8092]
+* **core:** map cursor offsets based on property types ([#8097])
+* **core:** prevent hash collisions for nested composite keys ([#8088])
+* **mongo:** support cursor pagination ordered by date inside object embeddable ([#8102]), closes [#8097]
+* **mssql:** support predictable primary key names ([#8095])
+* **sql:** nest joins referenced by `on` conditions instead of only newly added ones ([#8101]), closes [#8100] [7681/#8091] [#8100] [#8099]
+* **sql:** prevent forward join alias references when applying joined filters ([#8091]), closes [#7681] [#8090]
+* **sql:** yield all rows merged from the final batch when streaming ([#8089]), closes [#8078]
+## [7.1.9] (2026-07-30)
+### Bug Fixes
+* **core:** fix batch updates when the whole primary key is one relation ([#8065])
+* **core:** keep `null` value of embedded arrays in snapshots and hydration ([#8046]), closes [#8045]
+* **core:** keep the fixed order column as the sole pivot PK for polymorphic M:N ([#8083])
+* **core:** map returning values back to entities after batch update ([#8056])
+* **core:** support mixed STI child types in batch updates ([#8057])
+* **core:** support version and optimistic locking on nested composite keys ([#8064])
+* **entity-generator:** correctly escape generated string literals and keys ([#8048])
+* **entity-generator:** sanitize file names taken from database metadata ([#8052])
+* **libsql:** stop recycling local connections every 10 seconds ([#8050])
+* **migrations:** sanitize custom migration names into valid class identifiers ([#8053])
+* **mssql:** execute `create trigger` in its own query batch ([#8072])
+* **mssql:** manage table and column comments via extended properties ([#8076])
+* **oracledb:** bind every returned column of a multi column property ([#8059])
+* **oracle:** keep the config user in sync with the pool after `dropDatabase()` ([#8043])
+* **oracle:** set the session schema when the connection user differs from `dbName` ([#8042]), closes [#8040]
+* **postgresql:** don't crash the process when the server drops a connection ([#8069])
+* **sql:** apply column comment changes in a single schema update pass ([#8077])
+* **sql:** apply query cancellation strategies inside transactions ([#8067])
+* **sql:** compile an empty `$or` to an always-false predicate ([#8054])
+* **sql:** emit valid SQL for negated and empty condition groups ([#8060])
+* **sql:** include composite FK values in the pivot row hash ([#8082]), closes [#8078] [#8078]
+* **sql:** keep multi line comments intact when grouping schema DDL ([#8079])
+* **sql:** keep multi line trigger bodies stable across schema updates ([#8074])
+* **sql:** keep pivot rows distinct when the fixed order column is not unique ([#8078]), closes [#8075]
+* **sql:** keep polymorphic pivot rows distinct when the fixed order column is not unique ([#8085]), closes [#8078]
+* **sql:** keep the original error when the rollback of a failed transaction also fails ([#8068])
+* **sql:** load M:N collections of owners with a nested composite PK ([#8080])
+* **sql:** load the owner side of a polymorphic M:N pivot shared by owners of different PK arity ([#8084]), closes [#8081]
+* **sql:** load the owner side of a polymorphic M:N with a composite PK owner ([#8081]), closes [#8080]
+* **sql:** normalize implicit aggregate aliases and multi word casts ([#8058]), closes [#8055]
+* **sql:** normalize trigger bodies when generating DDL ([#8063]), closes [#8061]
+* **sql:** pass a flat PK array when persisting M:N of a composite PK owner ([#8073])
+## [7.1.8] (2026-07-28)
+### Bug Fixes
+* **core:** convert custom types when querying composite PK via array form ([#8035])
+* **core:** don't let a partially loaded fork entity clobber the parent context ([#8036])
+* **core:** fix infinite recursion when flushing a `mapToPk` FK with value `0` ([#8004]), closes [#8003]
+* **core:** key composite primary keys with custom types by their database form ([#8029]), closes [#8021]
+* **core:** populate 1:m collections of parents with falsy PK values ([#8002]), closes [#8000]
+* **core:** respect custom type conversion in identity map lookups ([#8021]), closes [#8020]
+* **migrations:** respect `skipTables`/`skipViews` when rewriting the snapshot ([#8038]), closes [#8037]
+* **migrations:** store the create snapshot in the resolved migrations folder ([#8027]), closes [#8024]
+* **sql:** do not apply collection `where` of non-joined nested relations ([#8030]), closes [#8022]
+* **sql:** order introspection queries so generated schema diffs are stable ([#8031])
+* **sql:** preserve query builder field types across joins and CTEs ([#8005])
+## [7.1.7] (2026-07-17)
+### Bug Fixes
+* **core:** ignore special object keys in `assign()` ([#7998])
+* **core:** support same-named nested embeddables with different props in polymorphic embeddables ([#7986]), closes [#7983]
+* **mariadb:** keep JSON columns as strings on mysql2 3.23+ ([#7994]), closes [#7981]
+* **mssql:** map FK, CHECK, PK/unique, deadlock and lock-timeout errors to driver exceptions ([#7959])
+* **mssql:** retry create database when the model database is locked ([#7985])
+* **postgres:** make check introspection columnName deterministic ([#7992]), closes [#7991]
+* **sql:** validate order by direction against known values ([#7996])
+## [7.1.6] (2026-07-13)
+### Bug Fixes
+* **core:** carry merged ancestor builders so Kysely types span multi-level `extends` ([#7939]), closes [#7938] [#7938] [#7938] [#7937]
+* **core:** ignore process-local metadata `_id` when loading from cache ([#7978]), closes [#7975]
+* **core:** infer `string` for `time` type properties instead of `any` ([#7961])
+* **core:** keep custom-typed PK snapshots in DB-form to avoid spurious updates ([#7973]), closes [#7966]
+* **core:** make entity type inference robust under TS 7 stable type ordering ([#7948]), closes [microsoft/typescript-go#4464](https://github.com/microsoft/typescript-go/issues/4464)
+* **core:** support `@Check()` on class level with TC39 decorators ([#7982])
+* **mysql:** treat (current_date) and curdate() date defaults as equal ([#7956])
+* **oracle:** keep FK schema owner case consistent with columns and tables ([#7964]), closes [#7960]
+* **sql:** avoid phantom changeset for inline embeddable loaded via joined strategy ([#7971]), closes [#7954]
+* **sql:** do not propagate TPT parent check constraints to child tables ([#7944]), closes [#7714] [#7935]
+* **sql:** expose columns inherited via `extends` in `getKysely()` table type ([#7938]), closes [#7937]
+* **sql:** infer array columns as arrays in Kysely table types ([#7972]), closes [#7967]
+* **sql:** keep non-lazy `@Formula` out of partial-index predicate rendering ([#7947]), closes [#7946]
+* **sql:** keep nullable relation FK columns nullable in class-based Kysely inference ([#7965]), closes [#7962]
+* **sql:** stop schema diff churning on generated columns with underscore literals ([#7955])
+* **sql:** support orderBy on persist(false) virtual fields with pagination ([#7979]), closes [#7932]
+## [7.1.5] (2026-06-26)
+### Bug Fixes
+* **cli:** discovery:export casts the DriverEntityManager to the right type ([#7873])
+* **core:** apply populateOrderBy to select-in relations without leaking into M:N pivots ([#7915]), closes [#7910]
+* **core:** avoid evaluating getters when snapshotting unhydrated references ([#7919]), closes [#7918]
+* **core:** enable RequestContext to use almost all fork options ([#7920])
+* **core:** keep async-clonable resources by reference in config clone ([#7887]), closes [#7862] [#7862] [#7870] [#7862]
+* **core:** key change set groups by metadata id to avoid dropped writes ([#7904]), closes [#7511] [#7903]
+* **core:** skip view entities in schema.clear() ([#7880]), closes [#7874]
+* **core:** stop STI subtype property leaking to siblings when shared by 2+ children ([#7923]), closes [#7922]
+* **migrations:** restore triggers when reading the migration snapshot ([#7882]), closes [#7878]
+* **mssql:** return result sets from callRoutine without OUT params ([#7879]), closes [#7872]
+* **pglite:** make createDatabase/dropDatabase true no-ops in single-database mode ([#7885])
+* **pglite:** really close in-memory instances on orm.close() ([#7870]), closes [#7862]
+* **postgres:** handle stored routines with unnamed parameters ([#7917]), closes [#7905]
+* **sql:** derive bulk insert columns from all rows, not just the first ([#7884]), closes [#7871]
+* **sql:** keep nested collection populateOrderBy by a to-one relation field under joined strategy ([#7916]), closes [#7911]
+* **sql:** resolve target entity schema in nested collection operators ([#7895]), closes [#7894]
+* **sql:** serialize array operators as a single literal in JOIN-ON conditions ([#7900]), closes [#7899]
+* **sql:** strip comments from view definitions in schema generator ([#7883]), closes [#7875]
+## [7.1.4] (2026-06-06)
+### Bug Fixes
+* **core:** allow array return in onCreate/onUpdate on embedded/scalar arrays ([#7848]), closes [#7847]
+* **core:** avoid spurious updates for object embeddables with undeclared keys ([#7823]), closes [#7821] [#7821]
+* **core:** avoid stack overflow in IdentityMap.keys()/values() for large maps ([#7857])
+* **core:** keep STI primary key NOT NULL when a child re-declares it ([#7828]), closes [#7826]
+* **core:** populate polymorphic embedded arrays loaded via a relation ([#7846]), closes [#7845]
+* **core:** use owner targetKey for inverse collection loads ([#7844]), closes [#7842] [#7842]
+* **postgres:** don't mis-detect JSON operator checks as enums ([#7829]), closes [#7822]
+* **postgres:** introspect native enums with no members ([#7830]), closes [#7825]
+* **postgres:** unwrap single-paren CHECK shell for bare boolean CASE bodies ([#7827]), closes [#7824]
+* **sql:** emit column name for kysely on-create/on-update hook injection ([#7837]), closes [#7836]
+### Features
+* **cli:** added searchConfiguration() to analyze config file for context ([#7834])
+* **pglite:** support named databases inside a cluster ([#7854]), closes [#7852]
+## [7.1.3] (2026-05-31)
+### Bug Fixes
+* **core:** emit composite unique for OneToOne across 3+ STI variants ([#7806]), closes [#7805]
+* **core:** support `mapToPk` scalar typing with ES decorators ([#7818]), closes [#7817]
+### Features
+* **core:** support onReserveConnection across SQL drivers ([#7815]), closes [/github.com/mikro-orm/mikro-orm/discussions/6137#discussioncomment-16625910](https://github.com//github.com/mikro-orm/mikro-orm/discussions/6137/issues/discussioncomment-16625910)
+* **postgres:** support adding and changing partitioning on existing tables ([#7816])
+* **schema:** add `ignoreRoutines` option to leave routines unmanaged ([#7810])
+* **schema:** add `ignoreTriggers` option and skip trigger drops in safe mode ([#7809])
+## [7.1.2] (2026-05-29)
+### Bug Fixes
+* **cli:** allow `discovery:export` to generate an empty list of entities ([#7795])
+* **core:** avoid circular type in defineEntity index/unique `where` with self-referencing relations ([#7784]), closes [#7440]
+* **core:** preserve sibling conditions next to `$and`/`$or` on relation filters ([#7790])
+* **core:** reload non-merged columns after upsert with a raw conflict target ([#7800])
+* **migrations:** stop migrator.up() from churning a snapshot that matches the DB ([#7804]), closes [#7803] [#7798] [#7798]
+* **sql:** expose raw aliases in QueryBuilder execute() result type ([#7785])
+* **sql:** handle scalar PK in joined mapping of composite-FK relations ([#7802]), closes [#7801]
+* **sql:** stabilize MySQL snapshot serialization for decimal/text/extra/comment ([#7797]), closes [#7235] [#7608] [#7796]
+* **sql:** stop spurious Postgres schema diff on geometry typmod and truncated check names ([#7803]), closes [#7798] [#7798]
+* **sql:** stop sqlite snapshot flip on table/column comments ([#7799]), closes [#7798]
+### Features
+* **postgres:** support `EXCLUDE` constraints via `@Check` ([#7789]), closes [#7787]
+## [7.1.1] (2026-05-22)
+### Bug Fixes
+* **cli:** skip local-dependency check under Deno ([#7767]), closes [#7766]
+* **core:** reload suppressed entities from partially-suppressed upsertMany ([#7779]), closes [#7775]
+* **core:** skip PK collapse when composite FK doesn't align with target PK ([#7765]), closes [#7764]
+* **migrations:** preserve partial unique index `where` predicate in snapshot ([#7778]), closes [#7773]
+* **postgres:** recast column default when changing array element type ([#7769])
+* **schema:** detect removed default on boolean columns ([#7777]), closes [#7774]
+* **seeder:** widen `Factory.model` type to `EntityName<T>` ([#7776]), closes [#7768]
+# [7.1.0] (2026-05-20)
+### Bug Fixes
+* **core:** coerce ISO date strings to `Date` in `em.assign()` ([#7740]), closes [#7737]
+* **core:** skip M:N inverse scrub for STI siblings that can't reference the entity ([#7759]), closes [/github.com/ameinhardt/reproduction/blob/e7faf2d4863c2a71c847277973a84bc8333da50b/src/example.test.ts#L45-L51](https://github.com//github.com/ameinhardt/reproduction/blob/e7faf2d4863c2a71c847277973a84bc8333da50b/src/example.test.ts/issues/L45-L51)
+* **core:** treat inlined embeddables as loaded when their leaves are ([#7758])
+* **mongo:** clean up inlined pivot on em.remove when owning side is populated ([#7755]), closes [#7752]
+* **mongo:** create collections before ensuring indexes in `create()` ([#7745])
+* **mongo:** throw on em.remove of inlined-pivot M:N target with uninitialized owning side ([#7752]), closes [#7750]
+* **sql:** infer scalar array properties as columns in Kysely types ([#7753]), closes [#7751]
+* **sql:** wrap raw subqueries with parens inside INSERT VALUES ([#7754]), closes [#7749]
+### Features
+* **cli:** add `discovery:export` command ([#7335]), closes [#7323] [#7323]
+* **cli:** add `migration:log` and `migration:unlog` commands ([#7347]), closes [#5390]
+* **cli:** emit typed `EntityManager` alias from `discovery:export` ([#7756])
+* **core:** accept enum references directly in `items` ([#7606])
+* **core:** add `discriminator` option and column-name override ([#7748]), closes [#7121]
+* **core:** add `em.clone()` and `qb.insertFrom()` for server-side row cloning ([#7365]), closes [#5820]
+* **core:** add `em.countBy()` for grouped counting ([#7372])
+* **core:** add `fields` whitelist option to `serialize()` ([#7517]), closes [#7507]
+* **core:** add `initNullableProperties` config option ([#7554]), closes [#7551]
+* **core:** add `LazyRef<T>`, `Loadable` mixin, and `unref()` escape hatch ([#7587])
+* **core:** add `where` option for partial indexes and unique constraints ([#7593])
+* **core:** add a `chunkSize` option to streams ([#7520])
+* **core:** add column-level `collation` support for SQL drivers ([#7615]), closes [#4286]
+* **core:** add dataloader support for `Collection.loadCount()` ([#7373]), closes [#7372] [#6425]
+* **core:** add type-safe `using` option for index hints ([#7375]), closes [#7175]
+* **core:** auto-generated classes inherit from parent with defineEntity extends ([#7404])
+* **core:** expose query cancellation via `AbortSignal` ([#7629])
+* **core:** per-parent limiting for populated collections ([#7370]), closes [#1059]
+* **core:** support `array` option on scalar properties ([#7378]), closes [#7363]
+* **core:** support stored procedures and functions ([#7693]), closes [#5253]
+* **core:** union-target polymorphic M:N relations ([#7569]), closes [#7564] [#7564]
+* **migrations:** add migration:rollup command ([#7468]), closes [#3633]
+* **migrations:** support runtime schema context ([#7597]), closes [#3319] [#4928]
+* **pglite:** add PGlite driver ([#7622])
+* **postgresql:** add support for table partitioning ([#7497]), closes [#6944] [#6944]
+* **schema:** add database trigger support ([#7379]), closes [#5053]
+* **sql:** bind `getKysely()` to the current transaction context ([#7701]), closes [#7679]
+## [7.0.17] (2026-05-17)
+### Bug Fixes
+* **core:** allow local `forceObject: false` to override global setting ([#7739]), closes [#7738]
+* **core:** avoid duplicate queries when `:ref` populate overlaps with `fields` ([#7720])
+* **core:** carry user-declared STI discriminator through mergeData ([#7736]), closes [#7735]
+* **core:** merge index `columns` overrides with the full property list ([#7733])
+* **core:** populate partial inverse one-to-one refs ([#7721])
+* **core:** propagate pivot entity to STI root for inverse M:N ([#7725]), closes [#7724]
+* **core:** resolve TPT parent alias for custom-typed inherited columns ([#7731])
+* **core:** scope auto-joined filter refs to fields shared by all polymorphic targets ([#7723]), closes [#7722]
+* **core:** scope STI subclass discriminator when extends is a schema ([#7727]), closes [#7726]
+## [7.0.16] (2026-05-14)
+### Bug Fixes
+* **core:** do not propagate parent indexes to child TPT tables ([#7715]), closes [#7714]
+* **core:** pass entity instance to `beforeUpsert` hook and propagate mutations to SQL ([#7716])
+* **core:** reset stale collections on upserted entities ([#7718])
+* **core:** resolve polymorphic TPT-child filter columns to parent table ([#7719]), closes [#7717]
+* **core:** respect partial `fields` option when populating inverse 1:1 relations ([#7708])
+* **core:** treat `LockMode.NONE` like `undefined` in `em.findOne()` ([#7704]), closes [#7702]
+* **schema:** centralize identifier-length truncation across platforms ([#7706])
+### Features
+* **core:** expose embedded sub-columns to check constraint callbacks ([#7713]), closes [#7712]
+* **postgres:** support `driverOptions.onPoolCreated` hook for `pg.Pool` ([#7711])
+## [7.0.15] (2026-05-09)
+### Bug Fixes
+* **core:** apply array customType to scalar arrays defined via property chain ([#7689]), closes [#7688]
+* **core:** apply filters to inverse 1:1 populate joins instead of duplicating them ([#7684]), closes [#7680]
+* **core:** narrow inherited discriminator to literal value in `defineEntity` ([#7678]), closes [#7677]
+* **migrations:** log migration inside the runner's transaction ([#7676])
+* **mysql:** default maxIdle when pool.idleTimeoutMillis is set ([#7673]), closes [#7672]
+* **sql:** apply customType SQL wrappers in getKysely ([#7682]), closes [#7679]
+* **sql:** nest auto-joins inside a join cond's target to avoid forward references ([#7683]), closes [#7681]
+## [7.0.14] (2026-05-04)
+### Bug Fixes
+* **core:** avoid crash on STI subclass with 1:M override ([#7636]), closes [#7635]
+* **core:** drop entity from persist/remove stacks in `uow.unsetIdentity()` ([#7639]), closes [#7638]
+* **core:** escape embedded quote characters in quoteIdentifier ([#7653])
+* **core:** escape JSON path keys in getSearchJsonPropertyKey ([#7656])
+* **core:** respect `hidden` flag with `populate: ['*']` in `serialize()` ([#7637]), closes [#7634]
+* **sql:** avoid duplicate result cache write on `em.find()` ([#7645]), closes [#6923] [#7644]
+### Features
+* **sql:** add `MikroORM` and `defineConfig` variants in `@mikro-orm/sql` ([#7647])
+## [7.0.13] (2026-04-27)
+### Bug Fixes
+* **cli:** don't auto-register extensions on CLI-passed options ([#7614]), closes [#7613]
+* **core:** allow `targetKey` to point at a primary key ([#7626]), closes [#7625]
+* **core:** infer FK column from accessor name for backing-field relations ([#7627])
+* **core:** link TPT subclass iterated before its abstract parent ([#7611]), closes [#7609]
+* **core:** merge nested `fields` paths into explicit `populate` ([#7605])
+* **mssql:** clean up `.mdf/.ldf` files on drop ([#7621])
+* **mssql:** use `set offline` instead of `set single_user` to drop databases ([#7620])
+* **mysql:** skip password callback when reusing a pooled connection ([#7604]), closes [#7576]
+* **postgres:** treat `timetz` / `time with time zone` as aliases in schema diff ([#7618]), closes [#7616]
+* **sql:** stabilize migration snapshot serialization ([#7608]), closes [#7607] [pre-#7607](https://github.com/pre-/issues/7607) [#7610] [#7607] [#7610]
+## [7.0.12] (2026-04-23)
+### Bug Fixes
+* **core:** avoid crash on STI subclass @ManyToOne override targeting same hierarchy ([#7599]), closes [#7598]
+* **core:** expand polymorphic entity refs in where filters ([#7579]), closes [#7578]
+* **core:** expand polymorphic entity refs inside scalar operators ([#7581]), closes [#7579] [#7578]
+* **core:** recognize TypeScript's `__esDecorate` helper in decorator path lookup ([#7584]), closes [#7583]
+* **core:** skip getter-only properties in assignDefaultValues ([#7575]), closes [#7574]
+* **mysql:** resolve password callback per-connection for short-lived tokens ([#7577]), closes [#7576]
+* **postgres:** schema-qualify generated `drop index` statements ([#7603])
+* **sql:** forward ignoreBranch options for M2M pivot alias resolution ([#7591]), closes [#7590]
+## [7.0.11] (2026-04-16)
+### Bug Fixes
+* **core:** allow `unknown` values for `Opt<unknown>` properties ([#7555])
+* **core:** hydrate version property when merging data via SELECT_IN populate ([#7547]), closes [#7543]
+* **core:** prevent infinite loop with `populate: ['*']` and `refresh: true` ([#7548]), closes [#7544]
+* **core:** support TPT inheritance targets in polymorphic relations ([#7564]), closes [#7563]
+* **core:** unwrap IType serialized type for scalar-based properties in EntityDTO ([#7549]), closes [/github.com/mikro-orm/mikro-orm/discussions/6555#discussioncomment-16520713](https://github.com//github.com/mikro-orm/mikro-orm/discussions/6555/issues/discussioncomment-16520713)
+* **core:** validate TPT leaf entity indexes against own properties ([#7573]), closes [#7570]
+* **decorators:** allow ES decorators on abstract classes ([#7556]), closes [#7553]
+* **migrations:** skip database connection in `create()` and `getPending()` when snapshot exists ([#7568]), closes [#7493] [/github.com/mikro-orm/mikro-orm/discussions/7481#discussioncomment-16538274](https://github.com//github.com/mikro-orm/mikro-orm/discussions/7481/issues/discussioncomment-16538274)
+* **postgres:** normalize `!=` to `<>` in check constraint diffing ([#7541]), closes [#7540]
+* **schema:** convert default values of custom-typed properties to DB form ([#7567]), closes [#7565]
+* **schema:** detect native enum value changes on array columns ([#7561]), closes [#7560]
+### Features
+* **core:** add `logging` option to `em.upsert()`, `nativeUpdate()` etc ([#7562]), closes [#7557]
+## [7.0.10] (2026-04-10)
+### Bug Fixes
+* **core:** avoid forwarding `cwd: undefined` to tinyglobby ([#7510]), closes [#7509]
+* **core:** brand raw query fragments via prototype property ([#7519]), closes [#7518]
+* **core:** emit enum check constraints for embedded enum properties ([#7526])
+* **core:** guard user-defined prototype getters against deep-clone walkers ([#7508]), closes [#7151]
+* **core:** populate TPT child-specific relations when entity is already in identity map ([#7536]), closes [#7529]
+* **core:** skip composite PK inlining when operator value is an array ([#7524])
+* **core:** skip inverse collections when deduplicating ownColumns ([#7504]), closes [#7490]
+* **core:** skip namespace-merged functions in `extractEnumValues`, closes [#7500]
+* **core:** skip overwriting loaded entities with uninitialized references during transaction merge ([#7531]), closes [#7528]
+* **core:** use change set meta in commit order to fix cross-ORM flush ([#7513]), closes [#7511]
+* **core:** use globally registered entity marker symbol ([#7518]), closes [#7515]
+* **core:** use globally registered symbols for Reference/Collection markers ([#7535]), closes [#7515] [#7515] [#7534]
+* **sql:** allow joining relations on entity-typed CTE in `from()` ([#7523]), closes [mikro-orm/mikro-orm#7485]
+* **sql:** skip redundant mapResult in QB when row is already mapped ([#7533]), closes [#7527]
+## [7.0.9] (2026-04-06)
+### Bug Fixes
+* **core:** escape special characters in base Platform array marshalling ([#7489]), closes [#7488]
+* **core:** include generated columns in mergeData diff for identity map reuse ([#7491]), closes [#7421] [#7486]
+* **core:** resolve EntityIdentifier in composite FK with shared join columns ([#7477])
+* **core:** respect compiledFunctions in driver's EntityComparator ([#7494])
+* **core:** skip shared join columns with null value in mapDataToFieldNames ([#7490])
+* **core:** use symbol brand in CollectionShape to prevent false structural matches ([#7473]), closes [#7470]
+* **migrations:** skip database connection in checkSchema() when snapshot exists ([#7493])
+* **sql:** fix null composite FK producing `undefined` column values in `nativeInsertMany` ([#7476]), closes [#7475]
+* **sql:** fix populate of 1:1 on TPT leaf entity with joined strategy ([#7474]), closes [#7469]
+* **sql:** skip relation props without fieldNames in TPT column mapping ([#7472]), closes [#7471]
+* **sql:** use composite unique constraint for OneToOne on STI entities ([#7480]), closes [#7479]
+## [7.0.8] (2026-04-01)
+### Bug Fixes
+* **core:** exclude namespace functions from enum type inference in `defineEntity` ([#7449]), closes [#7446]
+* **core:** fix wrong column name for nested inline embeddables when parent is null ([#7464]), closes [#7463]
+* **core:** make recomputeSingleChangeSet TPT-aware ([#7460]), closes [#7455]
+* **core:** populate child-specific relations for TPT entities with `populate: ['*']` ([#7459]), closes [#7453]
+* **core:** resolve circular type inference in `defineEntity` with composite `primaryKeys` ([#7447]), closes [#7445]
+* **core:** skip FK nullification on orphan removal when FK is part of PK ([#7462]), closes [#7461]
+* **core:** use full entity snapshot for TPT entities in commitCreateChangeSets ([#7458]), closes [#7454]
+* **sql:** use pivot entity schema for wildcard check in M:N joins ([#7466])
+## [7.0.7] (2026-03-31)
+### Bug Fixes
+* **core:** apply embedded sub-property defaults during upsert ([#7411])
+* **core:** fire orphan removal for OneToOne replacement when inverse already set ([#7436])
+* **core:** preserve user changes on references during initialization ([#7421])
+* **core:** prevent incorrect nullification of 1:1 inverse relations during joined loading ([#7434])
+* **core:** resolve circular type inference in defineEntity with repository + filters ([#7441]), closes [#7440]
+* **core:** resolve entity name from registry in MetadataProvider ([#7408])
+* **core:** skip required validation for embeddables with only formula properties ([#7429])
+* **core:** use className instead of tableName for pivot join column names ([#7430])
+* **mssql:** use equality conditions for composite PK batch updates ([#7442])
+* **repo:** use npx to invoke lint-staged and commitlint in husky hooks
+* **sql:** fix count queries with composite PKs and toMany joins ([#7415]), closes [#7414]
+* **sql:** fix nativeEnumName schema handling with config-level schema ([#7435]), closes [#7432]
+* **sql:** generate indexes for materialized view entities ([#7419]), closes [#7417]
+* **sql:** infer Kysely table names for classes extending `defineEntity().class` ([#7425]), closes [#7423]
+* **sql:** pass transaction context through schema introspection to avoid deadlock ([#7426]), closes [#7424]
+* **sql:** resolve alias placeholder in raw fragments used as operator values ([#7427]), closes [#7422]
+## [7.0.6] (2026-03-26)
+### Bug Fixes
+* **core:** allow `readonly` enum builder items in `defineEntity()` ([#7406]), closes [#7352]
+* **core:** apply onCreate hooks in em.upsert and em.upsertMany ([#7400]), closes [#7399]
+* **core:** preserve explicit entity name in defineEntity + setClass during discovery, closes [#7391]
+* **core:** prevent prototype pollution in `Utils.merge`
+* **core:** tighten query construction validation
+* **decorators:** handle esbuild ES decorator stack frames in path lookup
+* **reflection:** resolve inherited property types with ES decorators in TsMorphMetadataProvider, closes [#7389]
+* **schema:** escape single quotes in enum CHECK constraints ([#7396]), closes [#7395]
+## [7.0.5] (2026-03-23)
+### Bug Fixes
+* **core:** handle `check` constraint in `defineEntity` ([#7374])
+* **core:** handle Bun path lookup for native ES decorators ([#7382]), closes [/bun.com/blog/bun-v1.3.10#tc39](https://github.com//bun.com/blog/bun-v1.3.10/issues/tc39) [#7381]
+* **core:** handle JSON column type conversion in `em.refresh()` for detached entities, closes [#7383]
+* **core:** handle JSON column type conversion in `em.refresh()` for detached entities, closes [#7383]
+* **core:** ignore discriminator column in changeset for uninitialized STI references ([#7385]), closes [#7384]
+* **core:** share EntitySchema.REGISTRY across CJS/ESM module boundaries ([#7377]), closes [#7376]
+* **mssql:** force-disconnect sessions before dropping database
+* **sql:** infer FK columns for decorator entities in `getKysely` types ([#7368]), closes [#7367]
+* **sql:** use column name mapping for decorator entities in `getKysely` types ([#7369]), closes [#7367]
+## [7.0.4] (2026-03-20)
+### Bug Fixes
+* **core:** accept readonly arrays in `EnumOptions.items`, closes [#7352]
+* **core:** discover `defineEntity` classes via glob when only class is exported ([#7355])
+* **core:** exclude unloaded lazy ref properties from snapshot generator ([#7353])
+* **core:** prevent double-wrapping of ScalarReference in hydrator
+* **core:** strip `persist: false` properties from upsert data ([#7345]), closes [#7344]
+* **decorators:** handle Rolldown-bundled @oxc-project/runtime in path lookup
+* **migrations:** stop making up() and down() async unnecessarily ([#7338])
+* **reflection:** detect array enums from text-based type before clearing enum flag, closes [#7352]
+* **sql:** accept custom types in QueryBuilder operators for joined entities ([#7342]), closes [#7341]
+* **sql:** prune redundant joins in pagination outer query ([#7339]), closes [#6681]
+### Features
+* **cli:** add oxc as a TS loader option via `@oxc-node/core` ([#7354])
+* **postgresql:** generate check constraints for enum array columns ([#7356]), closes [#7352]
+## [7.0.3] (2026-03-18)
+### Bug Fixes
+* **cli:** support Yarn PnP with ESM loader ([#7327]), closes [#7324]
+* **core:** add missing index/unique options to defineEntity type ([#7320])
+* **core:** allow base entity properties in defineEntity indexes/uniques with extends ([#7326])
+* **core:** provide intellisense for `fields` hint in find options ([#7325])
+* **core:** respect partial loading fields hint in serialize() return type ([#7333])
+* **decorators:** polyfill metadata symbol if not available ([#7312])
+* **postgres:** handle native enum arrays in non-default schemas ([#7330]), closes [#7318]
+* **schema:** handle SELECT * expansion in view schema diffing ([#7313]), closes [#7308]
+* **sql:** convert undefined FK values to null in batch updates ([#7334])
+* **sql:** fix polymorphic relations with default filters on target entities ([#7332]), closes [#7317]
+* **sql:** fix populating TPT relations with embeddables or custom types in child entities ([#7331]), closes [#7329]
+### Features
+* **core:** add `strictNullable()` property builder ([#7314]), closes [#7307]
+## [7.0.2] (2026-03-14)
+### Bug Fixes
+* **core:** apply property `default` values when creating new entity instances ([#7301]), closes [#7284]
+* **core:** handle CJS entity files in folder-based discovery ([#7287])
+* **core:** preserve nullability in Opt/Hidden branded types for defineEntity ([#7295]), closes [#7291]
+* **core:** use branded types for built-in type detection in CJS/ESM dual-package hazard ([#7293])
+* **core:** use EntitySchema.is() instead of instanceof for CJS/ESM dual-package hazard ([#7289])
+* **decorators:** skip @oxc-project/runtime frames in decorator path lookup
+* **entity-generator:** emit enum definitions before entity class
+* **schema:** handle multiline view expressions in SQLite schema diffing ([#7294]), closes [#7292]
+## [7.0.1] (2026-03-11)
+### Bug Fixes
+* update lockfile for v7 peer dependencies
+* update peer dependency constraints to v7 and pin on release

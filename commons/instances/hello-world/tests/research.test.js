@@ -12,7 +12,7 @@ import { research, ROUNDS } from "../tools/research.js";
 import { calling, rig, saying, SOURCE } from "./rig.js";
 
 const invoke = (rigged, input) => {
-  const outer = new Vector().slurp(research);
+  const outer = new Vector().graft(research);
   outer.use(shard.context.bind("daemon", rigged.daemon));
   outer.use(shard.context.bind("mode", rigged.mode));
   outer.use(shard.context.bind("thread", "thread-1"));
@@ -170,7 +170,7 @@ specimen.describe(
           return this.length;
         };
 
-        const outer = new Vector().slurp(research);
+        const outer = new Vector().graft(research);
         outer.use(shard.context.bind("daemon", rigged.daemon));
         outer.use(shard.context.bind("mode", rigged.mode));
         outer.use(shard.context.bind("thread", "thread-1"));

@@ -1,0 +1,247 @@
+#+title: m78 mikro 7 — mikro-orm 6.6.7 → 7.2.3: the migrator mikro owns rebuilds a sqlite table without gluing statements, the driver is chosen, metadata is keyed by class; the 20 live dbs cross on a pinned schema
+#+filetags: :m78:mikro:datamap:migration:sqlite:typology:runtime:ledger:commons:registry:
+#+status: DESIGNED 10-02, unnumbered. The research stands in =.ikiro/reference/mikro-7/= (upstream · census · re-runnable smoke scripts; both agents on opus). Nothing built. The trigger sits uncommitted: =Turn.mode= REQUIRED + the =user= filter on Turn (=systems/runtime/entities/userspace/Turn.ts:59,91=) — a schema delta that every populated db meets at its next boot through the glued-pragma migrator. Seven forks owed to beef: the driver · the pivot pin · the update-rule default · the Map-keyed Datamap · the road for the 20 live dbs · timing against m76 · the Turn delta's road.
+#+phase: design (derived)
+#+progress:   0% 0/13 (derived)
+#+next: go (derived)
+
+* intent
+
+beef, 10-02, after the Turn change exposed the migrator (/"the migrator isn't transactional"/ · /"are there other migrators?"/):
+
+#+BEGIN_QUOTE
+yes. mikro. find that migrator. is there a setting weremissing? how does mikro interact with it? are htere other ways?
+#+END_QUOTE
+
+Answered: one migrator (=commons/datamaps/libsql/libsql.viva.js:30=), mikro's own, no setting fixes it, =transactional: false= is right for sqlite; the glue is a missing newline in =BaseSqliteSchemaHelper.getAlterTable= of 6.6.7 (still in 6.6.17), fixed structurally in 7.x. Then:
+
+#+BEGIN_QUOTE
+investigate mikro7 migration experiences, go through recent issues, study the changelog, map the expected changes to our codebase, and explain any deep structural changes or conceptual changes from v6 to v7.
+#+END_QUOTE
+
+#+BEGIN_QUOTE
+work this into a quest. indexed. do a through copy of this work for tuture reference.
+#+END_QUOTE
+
+The copy is =.ikiro/reference/mikro-7/= (README · upstream.md · census.md · changelog-7x.txt · m6/m7 metadata shapes · issues/*.json · smoke/). This quest carries the decisions and the road; the reference carries the evidence.
+
+* terrain — measured 10-02
+
+Every number from a command run this session (the two agents' runs are in =reference/mikro-7/=; the session re-read the load-bearing lines in 7.2.3 itself).
+
+- versions: ours =@mikro-orm/{core,sqlite,knex,migrations}@6.6.7= + =sqlite3@5.1.7= + =knex@3.1.0= (=import_map.json:42-44=, =node_modules/.deno=); npm =latest= 7.2.3 (2026-09-30), =latest-v6= 6.6.17. Deno 2.9.6.
+- the one boot path: =commons/datamaps/libsql/libsql.viva.js= — =:memory:= → =orm.schema.createSchema()= (:28); a file → =getMigrator()= · =checkMigrationNeeded()= → =createMigration()= · =getPendingMigrations()= → =up()= (:30-32), =transactional: false= (:20). Three callers: the runtime's own process datamap (=systems/runtime/lifecycle/runtime/population.js:22=), every daemon (=lifecycle/daemon/population.js:23=), the multiplayer lighthouse (=commons/lighthouses/multiplayer/server/entities.js:24=).
+- the glue, 6.6.7: =node_modules/.deno/@mikro-orm+knex@6.6.7/…/dialects/sqlite/BaseSqliteSchemaHelper.js:193-197= =sql.push('pragma foreign_keys = on;'); return sql.join('\n')= — no trailing blank line; =schema/SqlSchemaGenerator.js:238-242= =ret += diff=; =migrations/Migrator.js:276= splits on =;\n=; =sqlite3= =connection.all(sql)= runs the first statement only. Unchanged in 6.6.17 (packed, =:199=).
+- 7.2.3: =sql/dialects/sqlite/SqliteSchemaHelper.js:639= =getAlterTempTableSQL= returns an ARRAY; =schema/SqlSchemaGenerator.js:341= appends per statement with padding; =:180= FK matched to ITS column (=fk.columnNames[0] === column.name=). Both bugs run-proven fixed (=reference/mikro-7/upstream.md §5=).
+- the migration-setting table (=core/utils/Configuration.js:84= defaults vs ours): =transactional= true/FALSE · =allOrNothing= true/inert · =disableForeignKeys= false/false · =safe= false · =dropTables= true · =multipleStatements= unset (read only by =schema.execute=) · =migrations.generator= default. None removes the glue; =generator= is the one hook that could split it inside 6.x (deferred).
+- metadata keying, 7.2.3: =core/metadata/MetadataStorage.js:65= =getAll() { return this.#metadataMap }= — a =Map= keyed by class; =core/metadata/EntitySchema.js:369= throws on a string =entity=; =core/EntityManager.js:98-105= hands a repository the class it was asked for.
+- pivot naming, 7.2.3: =core/metadata/MetadataDiscovery.js:505= =joinTableName(meta.className, meta2.tableName, prop.name, meta.tableName)=; =naming-strategy/UnderscoreNamingStrategy.js:5= =classToTableName(entityName, tableName) { return tableName ?? this.underscore(entityName) }=; self-ref m:n columns =:792= =baseName = isExplicitTableName(meta) ? meta.tableName : meta.className=. 6.6.7 had =joinTableName(meta.tableName, …)= with =classToTableName(entityName)= underscoring it (=core/metadata/MetadataDiscovery.js:480=, =UnderscoreNamingStrategy.js:6,15=) — so =Literal= → =literal=.
+- the live pivots (=brazilian.viva.db=, read-only): =literal_uses(literal_entity_1_id, literal_entity_2_id)= · =symbol_literals(symbol_entity_id, literal_entity_id)= · =buffer_literals= · =buffer_symbols=; every pivot FK =on delete cascade on update cascade=. =hello.viva.db= tables: Buffer Intent Literal Mode Symbol Thread Turn User _mikro_migrations buffer_literals buffer_symbols literal_uses symbol_literals.
+- the census (=reference/mikro-7/census.md=): 55 files import =@mikro-orm/*= (38 repo + 17 registry); =EntitySchema= 35 · =types= 29 · =Collection= 14; m:1 40 (19 with =updateRule=, 21 =deleteRule=) · 1:m 17 · m:n 7 · =pivotTable= 0; raw SQL strings 3 live (2 name a pivot); =getAll()= walked at =subsystems/typology/prototypes/datamap.js:7= and =gestalten/shard/datamap.js:274=; =createQueryBuilder= 2 (lighthouse auth); =getKnex= 0.
+- on disk: 66 =Migration*.ts= under =~/.viva/instances= (63 live, 36 with =PRAGMA=), 20 =.snapshot-*.json=, one per mountpoint; =_mikro_migrations= rows and snapshots read by v7 unchanged (run: nothing pending, names matched).
+- the dbs: 12 live daemon dbs + the 7 multiplayer mountpoints + 1 service; Turn rows 229 across 8 dbs, 0 null =mode=, 0 dangling; Buffer =thread is null= 199/273 in =daemon_brazilian= (the =set null= orphans of known-issue =mikro-sqlite-migration-generator-glues-pragma-to-the-next-statement= §"Still armed").
+- drivers: =@mikro-orm/sqlite@7.2.3= pins =better-sqlite3@13.0.3= (prebuilt binaries in the tarball, no install script; THROWS on a multi-statement string); =@mikro-orm/sql= + =NodeSqliteDialect= (=node:sqlite=, Deno 2.2+, no native; =execute("A; B")= and =executeDump= SILENTLY run A only — =smoke/multi.js=); no v7 package depends on =sqlite3=. =deno.jsonc:28,80= and =Dockerfile:51= allow/deny install scripts for =npm:sqlite3=.
+- transactional migrations on sqlite: =transactional: true= rebuilds a referenced table INSIDE a tx where =pragma foreign_keys= is a no-op → =ForeignKeyConstraintViolationException=, rolled back (=smoke/smoke-tx.js=). =false= stays.
+- the v6→v7 first diff, run on a v6-built db with unchanged entities: =__temp_alter= rebuild of every table with an m:1 — v6's default =Cascade.PERSIST= wrote =on update cascade= (=knex/schema/DatabaseTable.js:126-135=), v7 writes =prop.updateRule ?? schemaConfig.defaultUpdateRule= (=sql/schema/DatabaseTable.js:191=). =schemaGenerator.defaultUpdateRule: "cascade"= makes it near-empty (=smoke/v7diff.js … compat=).
+- nothing listens on =:2501=, no =--watch= runs (=lsof= · =pgrep=, 10-02) — the Turn delta is unapplied everywhere.
+
+* the deep changes — v6 → v7, for the reader arriving cold
+
+1. SQL generation moved inside mikro. v6 handed table changes to knex; knex's sqlite compiler held both our bugs (the glued pragma, the FK on =column[0]= of a string). v7 writes every statement itself as an array item and uses kysely only as the runner — /"Kysely is now used as the query runner, while the actual query building is done entirely by MikroORM itself"/ (release blog). The glue cannot recur.
+2. The driver is yours to choose, and =sqlite3= is gone. =@mikro-orm/sqlite= = better-sqlite3 (loud on a multi-statement string); =@mikro-orm/sql= + =NodeSqliteDialect= = =node:sqlite= (silent, the same failure class as today's bug); libsql · sql.js beside them. =driverOptions= takes a Kysely dialect straight.
+3. Entities are identified by their class, not by name strings. =getAll()= is a =Map<class, meta>=; =entity: "Name"= throws at discovery; a repository's =entityName= is the class; =prop.pivotEntity= and =meta.extends= are objects. Our =Datamap= and the strip iterate =getAll()= as a plain object and would come back EMPTY, silently.
+4. Rules are declared, never inferred. No FK =on update=/=on delete= or nullability from =cascade=; =validate= and =strict= always on; auto-flush before a query checks only =persist=ed entities. Every v6-built db carries the implied =on update cascade=; v7's first comparison rebuilds those tables unless the rule is declared.
+5. Defaults flipped: =processOnCreateHooksEarly= true (ids and timestamps at =em.create=, not flush — =BufferRepository.create= orders queries before the mint, =Buffer.ts:23=); =forceUtcTimezone= true (=CURRENT_TIMESTAMP= rows read as UTC); =loadStrategy= =balanced= (ours already).
+6. The migrator is built in (umzug gone), the words changed (=orm.migrator= · =checkSchema= · =create= · =getPending= · =up=; =orm.schema= · =create= · =refresh=), the snapshot normalized; =checkSchema()= diffs the snapshot FILE, not the live db; a v6 history table and snapshot read fine. =transactional: false= stays a law on sqlite.
+7. ESM-only, Node 22.17+, on JSR too (untested here). =emit: "js"= migrations are still CJS and fail under Deno — ours are =.ts= (ESM) already.
+
+* forks
+
+Each: options · beef's ruling verbatim · why it settled. Unruled = QUESTIONED; my lean first.
+
+** F1 the driver
+- better-sqlite3 (=@mikro-orm/sqlite=, prebuilt binary, THROWS on two statements in one string) · =node:sqlite= (=@mikro-orm/sql= + =NodeSqliteDialect=, zero native, SILENTLY runs the first statement) · libsql (=@mikro-orm/libsql=, native; =import_map.json:46= already maps =@libsql/client= for something else).
+- lean: better-sqlite3 — loud beats silent; today's whole incident was a silent first-statement-only driver. The =Dockerfile:51= allow-scripts line becomes moot (no install script). QUESTIONED.
+
+** F2 pinning the pivots
+- explicit =pivotTable= · =joinColumns= · =inverseJoinColumns= on the four owners (=kernel/Symbol.ts:58= · =kernel/Literal.ts:111= · =userspace/Buffer.ts:100,106=; education re-declares =uses= at =Literal.ts:272=) · a custom =namingStrategy= that ignores the fourth argument.
+- lean: explicit on the owners — one structure made visible, grep-able, and the two raw SQL strings that name =literal_uses= · =symbol_literals= stay true by construction. Landed on v6 FIRST (the names are v6's today, so v6 shows no diff) so the v7 diff never sees a rename. QUESTIONED.
+
+** F3 the update/delete rules
+- =schemaGenerator: { defaultUpdateRule: "cascade" }= global · explicit =updateRule= · =deleteRule= · =nullable= on every m:1 (40; 19 · 21 carry one today).
+- lean: explicit per relation, landed on v6 — v7's own law is "declared, never inferred"; a global default is a hidden rule over an explicit grammar (connoisseur). Each relation's rule is read off the LIVE db (=pragma foreign_key_list=) so the pin is the truth, not a guess. QUESTIONED.
+
+** F4 the Map-keyed Datamap
+- keep the key =meta.className.toLowerCase().replace("entity","")= and iterate =getAll().values()= · key by the descriptor =type= from =sets.<tier>.<name>= (=systems/runtime/entities/index.ts:36=) · the strip keyed by =meta.className=.
+- lean: iterate the Map, keep the key — minimal delta, the census proved every descriptor's =type= equals the derived key (m74 M3). Typology is HOLY: beef's call before any line. QUESTIONED.
+
+** F5 the road for the 20 live dbs
+- let v7's migrator run at first boot (bug fixed; the diff near-empty after F2 · F3) · road A per db (empty seat + =ATTACH= + =INSERT … SELECT=, as prod italian) · a hybrid: migrator for the daemons, road A for brazilian (273 buffers, 199 orphans).
+- lean: the migrator, AFTER the dry diff (milestone "dry diff") shows exactly what it will run per db, and after a =capture-before-delete= of every mountpoint. Road A stays the fallback for any db whose diff is not the expected set. QUESTIONED.
+
+** F6 timing against m76
+- mikro-7 first (m76's new lighthouse tables then land on a working migrator) · m76 first (additive tables, create-only, safe on v6) · interleaved.
+- lean: mikro-7 first — m76 adds =Terminal= rows to the lighthouse and reshapes =Identity= (traits · =configured=), a rebuild of a populated =Identity= table, exactly the shape v6 glues. QUESTIONED.
+
+** F7 the Turn delta's road
+- ride mikro-7 (no populated instance boots on v6 until "flag day"; the delta is the first migration v7 runs) · road A now on the 8 populated dbs · revert the =nullable= half, keep the filter, until mikro-7.
+- lean: ride — nothing is running, the delta is one rebuild of =Turn= with 229 rows and a guard test owed either way; a boot of a populated instance before then is the ONE thing to refuse (the law below). QUESTIONED.
+
+** F8 jsr or npm
+- =npm:@mikro-orm/*@7.2.3= (smoke-proven) · =jsr:@mikro-orm/*= (published, untested).
+- lean: npm; jsr deferred. QUESTIONED.
+
+* the law
+
+#+BEGIN_EXAMPLE
+mikro owns the schema; we own the rows. Never a hand-written migration, never a hand-edited snapshot.
+migrations.transactional stays false on sqlite: pragma foreign_keys is a no-op inside a transaction, a rebuild inside one violates its own FKs.
+a populated sqlite db meets a schema delta ONLY through a migrator that splits statements — until mikro-7 lands, no populated instance boots on 6.6.7 after an entity edit; the delta waits or goes road A (capture first).
+a pivot's name and columns are DECLARED on the owner, never derived from a naming strategy's current mood; a raw SQL string may name a pivot only because the owner declares that name.
+every m:1 declares nullable · updateRule · deleteRule; a rule that is not written is not a rule.
+a driver that runs one statement of two and says nothing is refused; the driver throws or runs all.
+metadata is walked as a Map of classes; a repository knows its class, never its class's name.
+the first v7 boot of a populated db is preceded by its dry diff on a copy, and the diff is the expected set or the boot does not happen.
+#+END_EXAMPLE
+
+* milestones
+
+Each boots green at its boundary; the first three land on 6.6.7 and change no behaviour; "flag day" is one atomic swap; "crossing" is per db behind a capture.
+
+** pin — the schema says on v6 what v7 will read
+- declare =pivotTable= · =joinColumns= · =inverseJoinColumns= on =kernel/Symbol.ts:58= (=symbol_literals=, =symbol_entity_id= · =literal_entity_id=), =kernel/Literal.ts:111= (=literal_uses=, =literal_entity_1_id= · =literal_entity_2_id=), =userspace/Buffer.ts:100,106= (=buffer_literals= · =buffer_symbols=, =buffer_entity_id= · …), and education =Literal.ts:272= (the re-declared =uses=) — the names the live dbs already have.
+- declare =updateRule= · =deleteRule= · =nullable= on every m:1 that lacks one (40 − 19/21), each read off =pragma foreign_key_list= of a live db, never guessed; the relations that relied on =Cascade.REMOVE=/=ALL= get their =deleteRule: "cascade"= written.
+- =Identity.ts:40= =entity: () => AuthenticatorEmbedEntity= (works on v6 too). =DataEntity.ts:101= =Utils.className(this.entityName)= (works on v6: =className= of a string is the string).
+- gate: on 6.6.7, =orm.schema.getUpdateSchemaSQL()= against a COPY of each of the 20 dbs is empty except the Turn delta (and the armed =Buffer.thread= rule in the 5 language-learning dbs, known-issue §"Still armed") — the pin changed no name.
+
+** dry diff — v7 reads our entities against copies of every db
+- a scratchpad sandbox (never the worktree): =reference/mikro-7/smoke/deno.json='s map + the repo's entity files copied in; =getUpdateSchemaSQL({ wrap: false })= per db copy, saved to =reference/mikro-7/diffs/<mountpoint>.sql=.
+- expected set per db: the =Turn= rebuild (mode NOT NULL + cascade) · the =Buffer.thread= rule where armed · nothing else. A pivot drop, a column rename, an unexpected rebuild = back to "pin".
+- gate: 20 diff files, each read, each the expected set; the count of =drop table= lines across all 20 = 0.
+
+** flag day — one atomic swap to 7.2.3
+- =import_map.json=: =@mikro-orm/core= · =@mikro-orm/sql= (was knex) · =@mikro-orm/migrations= · =@mikro-orm/sqlite= at 7.2.3; =knex= dropped; =deno.jsonc:28,80= · =Dockerfile:51= lose =npm:sqlite3=.
+- =commons/datamaps/libsql/libsql.viva.js=: =orm.schema.create()= · =orm.migrator= · =checkSchema()= · =create()= · =getPending()= · =up()=; the driver per F1; =transactional: false= kept; =emit: "ts"= explicit.
+- =subsystems/typology/prototypes/datamap.js:7= · =gestalten/shard/datamap.js:274=: iterate the Map (F4).
+- =tests/scenarios/datamap.js:57,73= · =commons/fixtures/data/lighthouse.js:19= · =symbols-query.test.js:24= · =virtual.discovery.test.js:48,55,155= · =typology/tests/datamap.test.js:21,27=: the words.
+- =raw("random()")= as an =orderBy= key beside string keys (education =Literal.ts:167=, chess =Literal.ts:208=) — rejected in v7; rewrite as the one raw key or =qb=.
+- =BufferRepository.create= (=Buffer.ts:23=) re-read under =processOnCreateHooksEarly=; =forceUtcTimezone= set explicitly to the value the rows mean.
+- gate: every suite green on =:memory:= — typology · paladin · runtime · chess · assembly · hello-world · education · commons · ghost at their baselines (pasted counts); =viva instance/run= on a FRESH temp ledger reaches =Status:RUNNING=; the multiplayer lighthouse fixture boots.
+
+** crossing — the 20 live dbs, one at a time, behind a capture
+- per mountpoint: =capture-before-delete= → boot the instance → the automatic migrator runs the dry-diff set → =pragma foreign_key_check= empty → row counts per table equal the capture's → =Status:RUNNING= → stop.
+- order: =hello-world= (63 turns, the smallest populated) → =playground= → =chess= · =droneaid= · =vivalence= → =language-learning= (brazilian last: 273 buffers, 199 orphans — F5 may send it road A) → the 7 multiplayer mountpoints → prod (`pull-prod-mountpoint` first, the known-issue's road A retired).
+- gate: 20 of 20 with =foreign_key_check= empty and counts equal, pasted per db.
+
+** residue — the words out of the tree
+- grep gates (QA below) at zero; =known-issues.org= entry =mikro-sqlite-migration-generator-glues-pragma-to-the-next-statement= CUT (resolved entries leave the ledger); =world/codemap/{invariants,runtime,typology,commons,ledger}.md= re-read for =getMigrator= · =createSchema= · =refreshDatabase= · =sqlite3= · =knex=; =reference/mikro-7/README.md= gains the crossing's numbers; release lines lifted.
+
+* blast table
+
+| file | change | milestone | kind |
+|---|---|---|---|
+| =systems/runtime/entities/kernel/Symbol.ts:58= | pivotTable · joinColumns · inverseJoinColumns | pin | schema |
+| =systems/runtime/entities/kernel/Literal.ts:111,116= | pivotTable · joinColumns · inverseJoinColumns (self m:n) | pin | schema |
+| =systems/runtime/entities/userspace/Buffer.ts:100,106= | pivotTable · joinColumns · inverseJoinColumns | pin | schema |
+| =~/.viva/registry/education/domain/entities/kernel/Literal.ts:272= | the re-declared =uses= pinned the same | pin | schema |
+| every m:1 lacking a rule (40 − 19/21; runtime kernel · userspace · transient, 5 registry domains, =commons/fixtures/language-learning=) | =updateRule= · =deleteRule= · =nullable= written | pin | schema |
+| =subsystems/typology/entities/lighthouse/Identity.ts:40= | =entity: () => AuthenticatorEmbedEntity= | pin | code |
+| =subsystems/typology/entities/base/DataEntity.ts:101= | =Utils.className(this.entityName)= | pin | code |
+| =reference/mikro-7/diffs/*.sql= | 20 dry diffs | dry diff | artifact |
+| =import_map.json:42-44= | 7.2.3 · =sql= for =knex= · driver per F1 | flag day | deps |
+| =deno.jsonc:28,80= · =Dockerfile:51= | =npm:sqlite3= out | flag day | deps |
+| =commons/datamaps/libsql/libsql.viva.js:1-35= | words · driver · =emit= | flag day | code |
+| =subsystems/typology/prototypes/datamap.js:7= | Map iteration | flag day | code |
+| =subsystems/typology/gestalten/shard/datamap.js:274= | Map iteration | flag day | code |
+| =systems/runtime/tests/scenarios/datamap.js:57,73= | =refresh()= | flag day | test |
+| =commons/fixtures/data/lighthouse.js:19= | =refresh()= | flag day | test |
+| =systems/runtime/tests/daemon/symbols-query.test.js:24= · =tests/virtual.discovery.test.js:48,55,155= · =subsystems/typology/tests/datamap.test.js:21,27= | words · Map · entity fn · v7 error text | flag day | test |
+| =~/.viva/registry/education/domain/entities/kernel/Literal.ts:167= · =~/.viva/registry/chess/domain/entities/kernel/Literal.ts:208= | =raw()= orderBy key | flag day | code |
+| =systems/runtime/entities/userspace/Buffer.ts:23= | re-read under early onCreate | flag day | code |
+| =~/.viva/instances/*/mountpoint/*/= (20) | migrated by the automatic migrator, captured first | crossing | ledger |
+| =~/.viva/bak/instances/<slug>-20YYMMDD/= (20) | the captures | crossing | ledger |
+| prod runtime volume | pull · diff · cross | crossing | prod |
+| =.ikiro/known-issues.org= | the glued-pragma entry cut | residue | ikiro |
+| =.ikiro/world/codemap/{invariants,runtime,typology,commons,ledger}.md= | the words | residue | ikiro |
+| =.ikiro/release.md= | the lines below lifted | residue | ikiro |
+
+* testing assessment
+
+** in place
+- =subsystems/typology/tests/datamap.test.js= (Datamap over =:memory:=) · =systems/runtime/tests/scenarios/datamap.js= (every rig, registry rigs included) · =tests/virtual.discovery.test.js= · =tests/virtual.test.js= · =tests/daemon/symbols-query.test.js= · =tests/topography/harness.js= · =tests/repository.populate.test.js= (monkeypatches =connection.execute=) · education =domain/tests/kernel/literal.test.js:200,207= (=sqlite_master= · =pragma foreign_key_check= — the ONE on-disk schema probe) · =domain/tests/userspace/scoping.test.js=.
+- COVERAGE GAP: no test boots a POPULATED file db through the migrator; no test asserts a pivot's name or columns; no test asserts an FK rule as written on disk; no test asserts the =user= filter on Turn or the required =mode= (10-02's delta is unguarded); no test runs a two-statement string through the driver.
+
+** changes
+| test | why |
+|---|---|
+| =systems/runtime/tests/scenarios/datamap.js:57,73= | =refreshDatabase= → =refresh= |
+| =commons/fixtures/data/lighthouse.js:19= | same |
+| =systems/runtime/tests/daemon/symbols-query.test.js:24= | =createSchema= → =create= |
+| =systems/runtime/tests/virtual.discovery.test.js:48,55,155= | =createSchema= · =getAll()= Map · a v6 error message asserted verbatim |
+| =subsystems/typology/tests/datamap.test.js:21,27= | string =entity= · =createSchema= |
+| =systems/runtime/tests/repository.populate.test.js:11-18= | the =execute(query, params, method)= monkeypatch re-read against =sql/AbstractSqlConnection= |
+
+** adds
+- =systems/runtime/tests/datamap/schema.names.test.js= — boots the runtime entity set on =:memory:=, reads =sqlite_master= + =pragma foreign_key_list= per table, asserts the four pivot names and columns and every m:1's rules as DECLARED (written RED on v6 before "pin" for the rules that are implied today).
+- =systems/runtime/tests/datamap/migrate.populated.test.js= — copies a fixture v6 db (a captured =hello.viva.db=, 63 turns, committed under =tests/fixtures/=) to tmp, boots =libsql.provider= over it, asserts =foreign_key_check= empty and per-table counts equal before/after. The migrator's first real test.
+- =systems/runtime/tests/datamap/driver.multi.test.js= — =execute("create table a (x); create table b (y);")= THROWS (F1 better-sqlite3) — the law "a driver that runs one of two is refused".
+- =systems/runtime/tests/turn.scope.test.js= — two users, one thread each; =history({})= under A's filter returns A's turns only; =chain({ … no mode })= throws at flush.
+
+** per-milestone green ladder
+| milestone | gate |
+|---|---|
+| pin | =schema.names.test.js= green on 6.6.7 · =getUpdateSchemaSQL= empty on 20 copies except the Turn/Buffer deltas · typology · runtime · chess · assembly · education at baseline, pasted |
+| dry diff | 20 =diffs/*.sql= read, =drop table= count 0, each the expected set |
+| flag day | every suite at baseline on 7.2.3, pasted; =driver.multi.test.js= green; =viva instance/run= on a fresh temp ledger → =Status:RUNNING= |
+| crossing | =migrate.populated.test.js= green; per db =foreign_key_check= empty + counts equal, pasted |
+| residue | QA grep gates 0 · =turn.scope.test.js= green · known-issue cut |
+
+No milestone flips DONE without its named test file and the pasted counts.
+
+* QA
+
+** ① testimony
+- I run =viva instance/run hello-world= on the new tree. The daemon prints =Status:RUNNING= within 3 s; the log shows ONE migration processed, named for today, and no =MigrationError=. Panel A lists the same threads as yesterday, each with its turns in order. I never see a half-migrated db; if I do, the capture is one =cp -r= away.
+- I edit an entity's =deleteRule= under =runtime/watch= with a populated instance up. The watcher restarts, the migrator rebuilds the table, the instance comes back RUNNING, =pragma foreign_key_check= is empty. The incident that opened this quest cannot repeat.
+- I open =commons/datamaps/libsql/libsql.viva.js= and read which driver we run, in one import line, and that =transactional: false= carries its reason in the quest's law, not a comment.
+- I grep the tree for =sqlite3= and find only the CLI in a shell snippet, never a dependency.
+
+** ② programmatic probes + markers
+#+marker_qa: m78/P-pivot-names · pending · `schema.names.test.js` — `symbol_literals` · `literal_uses` · `buffer_literals` · `buffer_symbols` with their v6 columns, declared on the owners; `grep -rn "pivotTable:" systems/runtime/entities ~/.viva/registry/*/domain/entities --include=*.ts` = 5
+#+marker_qa: m78/P-rules-declared · pending · `grep -rn 'kind: "m:1"' -A6 systems/runtime/entities ~/.viva/registry/*/domain/entities commons/fixtures --include=*.ts | grep -c updateRule` equals the m:1 count; the same for `deleteRule`
+#+marker_qa: m78/P-dry-diff · pending · 20 files in `reference/mikro-7/diffs/`, `grep -l "drop table" reference/mikro-7/diffs/*.sql` = 0, each diff the expected set
+#+marker_qa: m78/P-no-old-words · pending · `rg "getMigrator\(|createSchema\(|refreshDatabase\(|checkMigrationNeeded|createMigration\(|getPendingMigrations|@mikro-orm/knex" subsystems systems commons ~/.viva/registry` = 0
+#+marker_qa: m78/P-no-sqlite3 · pending · `rg "npm:sqlite3|\"sqlite3\"|from \"sqlite3\"" import_map.json deno.jsonc Dockerfile deno.lock` = 0 after flag day
+#+marker_qa: m78/P-map-walk · pending · `rg "Object\.(values|entries)\((orm\.)?(getMetadata\(\)|metadata)\.getAll\(\)" subsystems systems` = 0; `datamap.test.js` asserts `entities.<type>` present for every non-abstract class
+#+marker_qa: m78/P-driver-loud · pending · `driver.multi.test.js` — a two-statement `execute` THROWS
+#+marker_qa: m78/P-fk-check · pending · per crossed db `sqlite3 "file:<db>?mode=ro" "pragma foreign_key_check"` prints nothing, 20 of 20
+#+marker_qa: m78/P-rows-kept · pending · per crossed db, `select count(*) from <table>` for every table equals the capture's, pasted in the changelog
+#+marker_qa: m78/P-turn-scope · pending · `turn.scope.test.js` — the `user` filter on Turn holds; a mode-less `chain` throws
+#+marker_qa: m78/P-known-issue-cut · pending · `grep -c "mikro-sqlite-migration-generator-glues-pragma" .ikiro/known-issues.org` = 0 after residue
+#+marker_qa: m78/T-hello-crossing · pending · `viva instance/run hello-world` on 7.2.3 over the captured db → `Status:RUNNING`, one migration, 63 turns in panel A
+#+marker_qa: m78/T-watch-rebuild · pending · a `deleteRule` edit under `runtime/watch` on a populated instance restarts to RUNNING with `foreign_key_check` empty
+
+* deferred
+- a custom =migrations.generator= splitting the glued =addSql= inside 6.x — ten lines, proven in the scratchpad if mikro-7 is parked; reopens if F6 sends m76 first on 6.6.7.
+- =jsr:@mikro-orm/*= — reopens when the npm path is green and a Deno-native import matters.
+- the =@libsql/client= mapping at =import_map.json:46= (not mikro's) — reopens if F1 picks libsql.
+- =Buffer.thread= orphans in brazilian (199/273) — a data question (reattach · drop), not a schema one; reopens at the crossing of =daemon_brazilian=.
+- =Daemon=/=Service= =extends: ProcessSchema= (a non-abstract parent) against v7's TPT inheritance detection — reopens at flag day if the runtime's =:memory:= datamap refuses it.
+- =em.stream()= and =migration:rollup= — new words, no consumer yet.
+
+* changelog
+
+** 10-02 — research, no code
+- the trigger: =Turn.mode= REQUIRED + the =user= filter (=Turn.ts:59,91=) — 229 live turns, 0 null, 0 dangling (12 dbs + 10 backups read-only); 12 turn-touching test files green after the edit: =turn.unit-of-work= 2 passed (5 steps) · =multiplex.filter= 1 (5) · =cortex.integration= 1 (23) · =cortex.stripwire= 1 (11) · =harness.thread= 1 (2) · =sse.integration= 1 (3) · =multiplex.integration= 1 (5) · =activity.integration= 1 (3) · =stub.activity= 1 (6) · =mode/tooling= 1 (8) · hello-world =research= 1 (7) · hal =stub= 2 (14) — 0 failed each. =world/codemap/runtime.md:13= updated. No populated db booted; nothing listens on =:2501=.
+- the migrator traced to =BaseSqliteSchemaHelper.getAlterTable='s missing newline (6.6.7, 6.6.17); the settings table read off =Configuration.js:84=; 7.2.3 verified fixed in source.
+- two opus agents: upstream (guide · changelog · 134 issues · deep changes · both bugs run-proven · the first-diff rebuild measured) and the census (55 files, 13 breakpoints ranked); the session re-read pivot naming, =getAll()=, the string-entity throw and =getRepository= in 7.2.3 — the census's 7.0.2 read on join columns corrected by 7.0.7 #7430.
+- the copy: =.ikiro/reference/mikro-7/= (README · upstream.md · census.md · changelog-7x.txt · m6/m7.txt · issues/ 22 json · smoke/ 15 scripts), 1.8 MB.
+- coverage: before = the migrator untested on a populated db; after = unchanged (nothing built).
+
+* release
+
+none yet: no interface moved. Lines that WILL lift at the sunset, drafted:
+
+- changed =commons/datamaps/libsql= — mikro-orm 7.2.3 over better-sqlite3 (was 6.6.7 over sqlite3 + knex); a populated sqlite db meeting a schema delta is migrated by mikro's own migrator, no road A · migrate: =deno task dependencies= (no install script for the driver), restart every instance once; =~/.viva/instances/*/mountpoint/*/migrations= gain one file each ⟨m78⟩
+- changed =Turn.mode= — required, cascade, like =Buffer.mode=; =Turn= carries the =user= filter =thread.user= · migrate: none (no row had a null mode) ⟨m78 · 10-02⟩
+- removed =npm:sqlite3= · =@mikro-orm/knex= from the import map · migrate: none ⟨m78⟩

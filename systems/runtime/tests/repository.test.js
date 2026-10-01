@@ -10,10 +10,10 @@ specimen.beforeAll(async () => {
   scenario = await datamap.seed();
 
   const aperture = new Aperture();
-  aperture.branch("/literal").slurp(shard.datamap.repository(scenario.repos.literal));
-  aperture.branch("/symbol").slurp(shard.datamap.repository(scenario.repos.symbol));
-  aperture.branch("/mode").slurp(shard.datamap.repository(scenario.repos.mode));
-  aperture.branch("/intent").slurp(shard.datamap.repository(scenario.repos.intent));
+  aperture.branch("/literal", shard.datamap.repository(scenario.repos.literal));
+  aperture.branch("/symbol", shard.datamap.repository(scenario.repos.symbol));
+  aperture.branch("/mode", shard.datamap.repository(scenario.repos.mode));
+  aperture.branch("/intent", shard.datamap.repository(scenario.repos.intent));
 
   connection = new Connection(
     new Url("http://test"),

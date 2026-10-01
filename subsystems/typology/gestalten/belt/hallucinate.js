@@ -75,7 +75,7 @@ export async function* deliver(pump, backoff, span, signal) {
 
 async function settle({ tools, controller }, call) {
   const child = controller.branch(call.name);
-  const armed = new Vector().use(async (ctx, next) => { ctx.controller = child; await next(); }).slurp(tools);
+  const armed = new Vector().use(async (ctx, next) => { ctx.controller = child; await next(); }).graft(tools);
   const cut = new Promise((_, reject) =>
     child.abort.signal.addEventListener("abort", () => reject(child.status.reflection.error ?? new Error(String(child.abort.signal.reason))), { once: true }),
   );

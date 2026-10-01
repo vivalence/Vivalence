@@ -8,11 +8,11 @@ export async function create() {
 
   aperture
     .branch("/entities/identity")
-    .slurp(shard.datamap.repository(repos.identity));
+    .graft(shard.datamap.repository(repos.identity));
 
   aperture
     .branch("/entities/daemon")
-    .slurp(shard.datamap.repository(repos.daemon));
+    .graft(shard.datamap.repository(repos.daemon));
 
   const handler = shape.http(aperture);
   const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));

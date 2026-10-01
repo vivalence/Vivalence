@@ -95,9 +95,9 @@ async function wireMode(viva, daemon) {
     mode.application = mode.module.application = viva.application; // mirror real Mode: Object.assign makes mode.application === mode.module.application
   }
   if (viva.dataset) mode.module.dataset = viva.dataset;
-  if (viva.emitter) mode.module.emitter = new Vector().slurp(viva.emitter);
+  if (viva.emitter) mode.module.emitter = new Vector().graft(viva.emitter);
   if (viva.harness) mode.module.harness = viva.harness;
-  if (viva.aperture) mode.aperture.slurp(viva.aperture); // exported aperture endpoints
+  if (viva.aperture) mode.aperture.graft(viva.aperture); // exported aperture endpoints
   if (viva.tools) mode.module.tools = viva.tools;
 
   mode.tools = new Vector();
@@ -110,7 +110,7 @@ async function wireMode(viva, daemon) {
   const finalizers = await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER, EXPOSED, TOOLING, ...(daemon.cortex && { HARNESSED }) });
   for (const finalize of finalizers) await finalize();
 
-  daemon.aperture.branch(mode.reference.absolute).slurp(mode.aperture); // → conn-reachable
+  daemon.aperture.branch(mode.reference.absolute, mode.aperture); // → conn-reachable
 
   return mode;
 }

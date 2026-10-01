@@ -46,7 +46,7 @@ export class TurnEntity extends DataEntity {
   children = new Collection<TurnEntity>(this);
 
   thread!: Rel<ThreadEntity>;
-  mode?: Rel<ModeEntity>;
+  mode!: Rel<ModeEntity>;
 
   [EntityRepositoryType]?: TurnRepository;
 }
@@ -56,6 +56,12 @@ export const TurnSchema = new EntitySchema<TurnEntity, DataEntity>({
   extends: DataSchema,
   tableName: "Turn",
   repository: () => TurnRepository,
+  filters: {
+    user: {
+      cond: (args: any) => ({ thread: { user: args.user } }),
+      default: true,
+    },
+  },
   properties: {
     role: { type: types.string },
     parts: { type: types.json, defaultRaw: `'[]'` },
@@ -86,8 +92,8 @@ export const TurnSchema = new EntitySchema<TurnEntity, DataEntity>({
       kind: "m:1",
       entity: () => ModeEntity,
       fieldName: "mode",
-      nullable: true,
-      deleteRule: "set null",
+      updateRule: "cascade",
+      deleteRule: "cascade",
     },
   },
 });

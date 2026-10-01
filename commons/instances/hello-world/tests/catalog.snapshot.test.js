@@ -42,8 +42,8 @@ await GENERATIVE(generative, {
   mountpoint: { absolute: "/nonexistent/catalog" },
 });
 const catalog = () => {
-  const armed = new Vector().slurp(tools);
-  armed.branch("/generator").slurp(generative.generator.tools);
+  const armed = new Vector().graft(tools);
+  armed.branch("/generator", generative.generator.tools);
   return armed;
 };
 
@@ -52,9 +52,9 @@ const catalog = () => {
 const armory = () =>
   declarations(
     new Vector()
-      .slurp(paladin.skills.fs.fs)
-      .slurp(paladin.skills.shell.shell)
-      .slurp(catalog()),
+      .graft(paladin.skills.fs.fs)
+      .graft(paladin.skills.shell.shell)
+      .graft(catalog()),
   ).map(({ name }) => name);
 
 specimen.describe(

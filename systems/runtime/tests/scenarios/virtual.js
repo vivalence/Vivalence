@@ -64,8 +64,8 @@ export async function create({ port = 0 } = {}) {
     .branch("/probe")
     .use(shard.context.attach("user", user))
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
-    .slurp(shard.datamap.repository(entities.probe))
-    .slurp(shard.datamap.reactive(entities.probe, twitch));
+    .graft(shard.datamap.repository(entities.probe))
+    .graft(shard.datamap.reactive(entities.probe, twitch));
   aperture.open("/datamap", () => shard.datamap.strip(datamap.getMetadata()));
 
   const gate = shard.serve.multiplex(aperture);

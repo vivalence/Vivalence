@@ -35,7 +35,7 @@ const assemble = async (path) => {
     ctx.daemon = { mountpoint: null, entities: {}, flatmodes: () => [] };
     await next();
   });
-  run.slurp(harness);
+  run.graft(harness);
   run.branch("/dialogue").open("/render", (ctx) => ctx.hallucination.system);
   run.open("/render", (ctx) => ctx.hallucination.system);
 

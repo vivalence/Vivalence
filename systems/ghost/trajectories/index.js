@@ -16,9 +16,9 @@ export const flags = v.object({
 });
 
 export default function (trajectory) {
-  trajectory.branch("/ledger").slurp(ledger);
-  trajectory.branch("/registry").slurp(registry);
-  trajectory.branch("/instances").slurp(instances);
+  trajectory.branch("/ledger", ledger);
+  trajectory.branch("/registry", registry);
+  trajectory.branch("/instances", instances);
 
   trajectory.open(
     {

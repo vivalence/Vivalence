@@ -86,7 +86,7 @@ const stub = (mode) => {
 // mirrors harnessed.js: the trait speaks /view, the ARMING namespaces it under /generator.
 const armed = (mode, daemon, thread = "thread-1") => {
   const vector = new Vector();
-  vector.branch("/generator").slurp(mode.generator.tools);
+  vector.branch("/generator", mode.generator.tools);
   vector.use(shard.context.bind("daemon", daemon));
   vector.use(shard.context.bind("mode", mode));
   if (thread) vector.use(shard.context.bind("thread", thread));

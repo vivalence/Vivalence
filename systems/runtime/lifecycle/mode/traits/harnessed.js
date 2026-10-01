@@ -59,20 +59,20 @@ const requesting = async (ctx, next) => {
 
 const arming = (ctx) => {
   const armed = new Vector()
-    .slurp(skills.entity.entity)
-    .slurp(skills.buffer.buffer)
-    .slurp(skills.thread.thread)
-    .slurp(skills.mode.mode)
-    .slurp(paladin.skills.fs.fs)
-    .slurp(paladin.skills.shell.shell);
+    .graft(skills.entity.entity)
+    .graft(skills.buffer.buffer)
+    .graft(skills.thread.thread)
+    .graft(skills.mode.mode)
+    .graft(paladin.skills.fs.fs)
+    .graft(paladin.skills.shell.shell);
   for (const [slug, service] of Object.entries(ctx.daemon.services ?? {})) {
     if (service.tools) {
-      armed.branch(`/service/${slug}`).use(shard.context.bind("service", service)).slurp(service.tools);
+      armed.branch(`/service/${slug}`).use(shard.context.bind("service", service)).graft(service.tools);
     }
   }
-  if (ctx.daemon.domain?.tools) armed.branch(ctx.daemon.domain.manifest.slug).slurp(ctx.daemon.domain.tools);
-  if (ctx.mode.tools) armed.slurp(ctx.mode.tools);
-  if (ctx.mode.generator?.tools) armed.branch("/generator").slurp(ctx.mode.generator.tools);
+  if (ctx.daemon.domain?.tools) armed.branch(ctx.daemon.domain.manifest.slug, ctx.daemon.domain.tools);
+  if (ctx.mode.tools) armed.graft(ctx.mode.tools);
+  if (ctx.mode.generator?.tools) armed.branch("/generator", ctx.mode.generator.tools);
   for (const [name, supplied] of Object.entries(ctx.input.tools ?? {})) {
     const { execute, ...edge } = typeof supplied === "function" ? { execute: supplied } : supplied;
     armed.open({ nature: new ToolCall(name).signal.pathname, ...edge }, execute);
@@ -196,8 +196,8 @@ export const HARNESSED = (mode, daemon) => {
 
   harness.branch("/dialogue").use(chaining).use(persisting);
 
-  if (daemon.domain?.harness) harness.slurp(daemon.domain.harness);
-  if (mode.module.harness) harness.slurp(mode.module.harness);
+  if (daemon.domain?.harness) harness.graft(daemon.domain.harness);
+  if (mode.module.harness) harness.graft(mode.module.harness);
 
   harness.use(summarizing);
 
@@ -223,6 +223,6 @@ export const HARNESSED = (mode, daemon) => {
 
   return () => {
     mode.harness = shape.object(harness, steer.strategy.echo);
-    mode.aperture.branch("/harness").slurp(harness);
+    mode.aperture.branch("/harness", harness);
   };
 };

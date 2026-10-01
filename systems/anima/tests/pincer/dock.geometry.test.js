@@ -11,6 +11,7 @@ import {
   dragSign,
   resolve,
   shareAfterDrag,
+  snapAfterDrop,
   defaultDock,
 } from "../../src/typology/stores/bridge/dock.js";
 
@@ -101,6 +102,15 @@ specimen.describe("dock.geometry — constraint invariants", () => {
 
   specimen.it("shareAfterDrag ignores zero-dimension rects (keeps share)", () => {
     specimen.expect(shareAfterDrag({ side: "right", share: 0.3, rect: { width: 0, height: 0 }, deltaPx: 50 })).toBe(0.3);
+  });
+
+  specimen.it("a drop within 72 px of the floor shuts the dock, within 72 px of the ceiling fills it, between keeps the share; a snap resets the share", () => {
+    const rect = { width: 1000, height: 600 };
+    specimen.expect(snapAfterDrop({ side: "right", share: 0.2, rect })).toEqual({ share: SHARE_DEFAULT, collapsed: true });
+    specimen.expect(snapAfterDrop({ side: "right", share: 0.26, rect })).toEqual({ share: 0.26 });
+    specimen.expect(snapAfterDrop({ side: "right", share: 0.95, rect })).toEqual({ share: SHARE_DEFAULT, full: true });
+    specimen.expect(snapAfterDrop({ side: "bottom", share: 0.3, rect })).toEqual({ share: SHARE_DEFAULT, collapsed: true });
+    specimen.expect(snapAfterDrop({ side: "right", share: 0.3, rect: { width: 0, height: 0 } })).toEqual({ share: 0.3 });
   });
 
   specimen.it("defaultDock is a valid dock (passes resolve() unchanged)", () => {

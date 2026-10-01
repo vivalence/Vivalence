@@ -28,7 +28,7 @@ specimen.beforeAll(async () => {
   scenario = await datamap.seed();
 
   const aperture = new Aperture();
-  aperture.branch("/entities/mode").slurp(shard.datamap.repository(scenario.repos.mode));
+  aperture.branch("/entities/mode", shard.datamap.repository(scenario.repos.mode));
 
   connection = new Connection(
     new Url("http://test"),

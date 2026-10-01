@@ -180,7 +180,7 @@ export async function bench(spec = {}) {
   // ── resolve (trait application + aperture wiring) ────────────────
   if (domain?.aperture) {
     domain.aperture.use(shard.context.bind("daemon", daemon));
-    daemon.aperture.slurp(domain.aperture);
+    daemon.aperture.graft(domain.aperture);
   }
 
   const ready = Promise.withResolvers();

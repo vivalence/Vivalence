@@ -13,9 +13,9 @@ specimen.beforeAll(async () => {
 
   const aperture = new Aperture()
 
-  aperture.branch("/literal").slurp(shard.datamap.repository(repos.literal))
-  aperture.branch("/symbol").slurp(shard.datamap.repository(repos.symbol))
-  aperture.branch("/mode").slurp(shard.datamap.repository(repos.mode))
+  aperture.branch("/literal", shard.datamap.repository(repos.literal))
+  aperture.branch("/symbol", shard.datamap.repository(repos.symbol))
+  aperture.branch("/mode", shard.datamap.repository(repos.mode))
 
   scenario.orm.em.setFilterParams("user", { user: fixtures.user.id })
 
@@ -23,7 +23,7 @@ specimen.beforeAll(async () => {
     .branch("/thread")
     .use(shard.context.attach("user", fixtures.user))
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
-    .slurp(shard.datamap.repository(repos.thread))
+    .graft(shard.datamap.repository(repos.thread))
 
   aperture.open("/manifest", () => ({ slug: "test", version: "0.0.1" }))
   aperture.open("/cargo", () => ({ assets: true }))

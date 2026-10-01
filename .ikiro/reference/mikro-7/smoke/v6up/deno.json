@@ -1,0 +1,9 @@
+{
+  "nodeModulesDir": "none",
+  "imports": {
+    "@mikro-orm/core": "npm:@mikro-orm/core@7.2.3",
+    "@mikro-orm/sql": "npm:@mikro-orm/sql@7.2.3",
+    "@mikro-orm/migrations": "npm:@mikro-orm/migrations@7.2.3",
+    "@mikro-orm/sqlite": "npm:@mikro-orm/sqlite@7.2.3"
+  }
+}

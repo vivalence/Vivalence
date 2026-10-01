@@ -1,0 +1,9 @@
+{
+  "nodeModulesDir": "auto",
+  "imports": {
+    "@mikro-orm/core": "npm:@mikro-orm/core@6.6.7",
+    "@mikro-orm/sqlite": "npm:@mikro-orm/sqlite@6.6.7",
+    "@mikro-orm/knex": "npm:@mikro-orm/knex@6.6.7",
+    "@mikro-orm/migrations": "npm:@mikro-orm/migrations@6.6.7"
+  }
+}

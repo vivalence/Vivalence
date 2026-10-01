@@ -19,19 +19,21 @@ export class Vector {
     return this;
   }
 
-  branch(signature) {
+  branch(signature, vector) {
     const pattern = new this.signature(signature);
 
     if (pattern.nature == null && !pattern.heir) return this;
 
     let edge = this.trie.get(pattern.nature);
     if (!edge) {
-      edge = { pattern, trajectory: new this.constructor(this, this.signature) };
+      edge = { pattern, trajectory: (!pattern.heir && vector) || new this.constructor(this, this.signature) };
       this.trie.set(pattern.nature, edge);
+    } else if (vector && !pattern.heir) {
+      edge.trajectory.graft(vector);
     }
 
     if (pattern.heir) {
-      return edge.trajectory.branch(pattern.heir);
+      return edge.trajectory.branch(pattern.heir, vector);
     }
     return edge.trajectory;
   }
@@ -47,46 +49,16 @@ export class Vector {
     return this;
   }
 
-  set(vector) {
-    console.log("vector.set() is depracated");
-    return this.slurp(vector);
-  }
-
-  // share; later wins — on the effect AND on the edge. A collision never writes
-  // into either source: it mints a fresh node carrying both sides merged, keyed
-  // by the LATER pattern (its valence/input replace the earlier edge's). The
-  // snapshot keeps iteration blind to the entries a collision re-sets.
-  slurp(vector) {
+  graft(vector) {
     if (vector === this) return this;
     if (vector.effect) this.effect = vector.effect;
 
-    for (const [nature, edge] of [...vector.trie]) {
-      const collided = this.trie.get(nature);
-      if (collided) {
-        this.trie.set(nature, {
-          pattern: edge.pattern,
-          trajectory: new this.constructor(this, this.signature)
-            .slurp(collided.trajectory)
-            .slurp(edge.trajectory),
-        });
-      } else {
-        this.trie.set(nature, edge);
-      }
-    }
-
-    this.carry.push(...vector.carry);
-
-    return this;
-  }
-
-  swallow(vector) {
-    if (vector.effect) this.effect = vector.effect;
-
     for (const [nature, edge] of vector.trie) {
-      const existing = this.trie.get(nature)?.trajectory;
-      const branch = existing ?? new this.constructor(this, this.signature);
-      branch.swallow(edge.trajectory);
-      if (!existing) this.trie.set(nature, { pattern: edge.pattern, trajectory: branch });
+      const existing = this.trie.get(nature);
+      const branch = existing?.trajectory ?? new this.constructor(this, this.signature);
+      branch.graft(edge.trajectory);
+      if (existing) existing.pattern = edge.pattern;
+      else this.trie.set(nature, { pattern: edge.pattern, trajectory: branch });
     }
 
     this.carry.push(...vector.carry);

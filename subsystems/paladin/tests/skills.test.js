@@ -14,7 +14,7 @@ const harness = async () => {
   await Deno.writeTextFile(`${root}/dataset/rows.json`, `[1, 2, 3]`);
   await Deno.writeTextFile(`${root}/readme.md`, "line one\nline two\nline three");
   await Deno.writeTextFile(`${root}/empty.txt`, "");
-  const armed = new Vector().slurp(fs).slurp(shell);
+  const armed = new Vector().graft(fs).graft(shell);
   return { root, armed };
 };
 

@@ -144,7 +144,7 @@ function CONVERSATIONAL(mode) {
   mode.aperture.open(
     "/conversation",
     shard.serve.websocket((ws) => {
-      const connectionVector = new Vector().slurp(conversation);
+      const connectionVector = new Vector().graft(conversation);
       const socket = new Socket(ws, connectionVector);
       socket.state.conversation = new Conversation(connectionVector, socket);
     }),

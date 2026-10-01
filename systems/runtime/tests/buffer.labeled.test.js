@@ -14,7 +14,7 @@ const reload = (em, id) => em.fork().findOneOrFail(BufferEntity, { id });
 const invoke = async (daemon, name, input) =>
   fromm.yield(
     await steer.dispatch.invoke(
-      new Vector().slurp(gestalten.skills.buffer.buffer).use(shard.context.bind("daemon", daemon)),
+      new Vector().graft(gestalten.skills.buffer.buffer).use(shard.context.bind("daemon", daemon)),
       new ToolCall(name).signal,
       steer.strategy.guarded,
     )(input),

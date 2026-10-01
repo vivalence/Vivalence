@@ -5,7 +5,7 @@ export const domain = async (die, next) => {
 
   if (die.daemon.domain.aperture) {
     die.daemon.domain.aperture.use(shard.context.bind("daemon", die.daemon));
-    die.daemon.aperture.slurp(die.daemon.domain.aperture);
+    die.daemon.aperture.graft(die.daemon.domain.aperture);
     die.daemon.call = shape.proxy(die.daemon.domain.aperture, steer.strategy.direct);
   }
 
@@ -20,11 +20,10 @@ export const modes = (execution) => async (die, next) => {
     }
     await die.daemon.datamap.shard.scope(() => Promise.all(die.daemon.flatmodes().flatMap((mode) => mode.finalizers).map((finalize) => finalize())));
     for (const mode of die.daemon.flatmodes()) {
-      die.daemon.aperture
-        .branch(mode.reference.nature)
+      mode.aperture
         .use(shard.secure.authorize())
-        .use(die.daemon.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })))
-        .slurp(mode.aperture);
+        .use(die.daemon.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
+      die.daemon.aperture.branch(mode.reference.nature, mode.aperture);
     }
     await next();
   } finally {

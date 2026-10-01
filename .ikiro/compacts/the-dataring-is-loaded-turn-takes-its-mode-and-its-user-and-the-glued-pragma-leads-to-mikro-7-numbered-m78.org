@@ -1,0 +1,87 @@
+#+title: the dataring is loaded, Turn takes its mode and its user, and the glued pragma leads to mikro 7 — numbered m78
+#+index: 245
+#+session: session 11950be0, turns 1–15 (fold N = 15, the first fold). Opens on /"load the dataring. all entities and their relations"/, closes on /"ikiro compact"/ + a mid-turn =/compact=.
+
+* one breath
+
+beef asked for the whole data topology; it was read from the entity files of all four planes (lighthouse · daemon kernel/userspace/transient · registry domains · anima). His m76 schema closed the ring (Identity ─ Terminal ─seated─▶ Thread ─▶ User ═id═ Identity); Authority and Authentication were struck from scope. Turn's =mode= was found nullable on paper and never null on disk (229 rows, 0 null, 0 dangling); on /"go"/ it became REQUIRED + cascade and Turn took Buffer's =user= filter. The migration that change implies led to the migrator: one migrator, mikro's own, 6.6.7's =getAlterTable= missing one newline so =pragma foreign_keys = on;= glues the next statement and =sqlite3= drops it. Two opus agents mapped mikro 7 (upstream + census); both bugs fixed in 7.2.3, but the first v7 boot rebuilds tables, renames pivots by case and keys metadata by class. All of it became quest =m78-mikro-7.org= with a 1.8 MB evidence copy in =reference/mikro-7/=.
+
+* rows
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 1 | /"load the dataring. all entities and their relations"/ | the four-plane map: lighthouse =Identity · Daemon=; kernel =User · Mode · Literal · Symbol= (+ virtual Constraint · Issue); userspace =Intent · Thread · Buffer · Turn=; transient =Activity · Process=; registry Retention · Trace; anima =Terminal= the one local entity; =User.id == Identity.id= via =enroll= | — |
+| 2 | his m76 schema pasted · /"this closes the dataring."/ | the loop shown; three seams: ADMIN/config two homes (=User.ts:6= vs =Identity.traits=), =seated.daemon= could be =m:1 Daemon=, the embed's readers | — |
+| 3 | /"ignore authority"/ (mid-turn) | ring restated without Authority | Authority + =REVOKED= out of scope |
+| 4 | /"ignore authentication"/ | ring = Identity ─ Terminal ─▶ Thread ─▶ User ═ Identity; two seams left | Authentication entity out; the embed stays |
+| 5 | /"what relations do activities have?"/ | five outbound m:1 (=Activity.ts:89=), nothing inbound; the 12-record ring; deletes itself on settle | — |
+| 6 | /"and turns?"/ | Turn → Thread · Mode? · Turn(parent); ← Thread · Mode · Activity; =history · chain · fold=; flagged =set null= vs =Mode.turns= cascade REMOVE; flagged no =user= filter | — |
+| 7 | /"check if you can find instances of turns without modes"/ | 12 live dbs + 10 backups read-only: 229 turns, 0 null mode, 0 dangling; all four =chain= call sites pass =mode: ctx.mode.id= | — |
+| 8 | /"make the that relationship between turn and mode required. turn has user through thread like buffer. does buffer require mode?"/ | Buffer.mode required, cascade both; the diff proposed; the migration hazard named (sqlite rebuild through the glued-pragma known issue); found brazilian 199/273 buffers =thread is null= | — |
+| 9 | /"go"/ | =Turn.ts=: =mode!= · no =nullable= · =updateRule/deleteRule: cascade= · =filters.user {thread:{user}}=; =lsof :2501= empty first; baseline 3 files then 12 files green after (counts in m78 changelog); =world/codemap/runtime.md:13= re-stamped | road A on the 8 dbs — not run, owed |
+| 10 | quoted my migrator bullet · /"the migrator isn't transactional are there other migrators?"/ | one migrator (=libsql.viva.js:30=), the lighthouse rides the same provider, the multiplayer one commented out, road A script only on prod; =transactional: false= from commit =b0fc2f75f fix docs=, reason unrecorded; brazilian's orphans tied to the armed =Buffer.thread set null= | — |
+| 11 | /"yes. mikro. find that migrator. is there a setting weremissing? how does mikro interact with it? are htere other ways?"/ | the trace: =BaseSqliteSchemaHelper.js:193= =join('\n')= no trailing blank → =SqlSchemaGenerator.js:242= =ret += diff= → =Migrator.js:276= split on =;\n= → =sqlite3 all()= first statement only; no setting fixes it; 6.6.17 identical, 7.2.3 arrays; four ways (custom =migrations.generator= · mikro 7 · driver swap · road A) | — |
+| 12 | /"investigate mikro7 migration experiences, go through recent issues, study the changelog, map the expected changes to our codebase, and explain any deep structural changes or conceptual changes from v6 to v7."/ | two opus agents (upstream · census); pivot naming verified by hand in 7.0.2 then 7.2.3 (=MetadataDiscovery.js:505=, =UnderscoreNamingStrategy.js:5=); #7430 corrected the census's join-column claim; the report: seven deep changes, eight breakpoints, issues, driver table | — |
+| 13 | /"work this into a quest. indexed. do a through copy of this work for tuture reference."/ (mid-turn) | =quests/mikro-7.org= (12 organs, 8 forks, 5 milestones, 13 markers); =reference/mikro-7/= README · upstream.md · census.md · changelog · m6/m7 · 22 issue json · 15 smoke scripts; index live 5 → 6 | — |
+| 14 | /"number it."/ (mid-turn) | =m78-mikro-7.org=; title · filetags · 13 markers =m78/= · release ⟨m78⟩ · index · README | — |
+| 15 | /"ikiro compact"/ (mid-turn) + =/compact= | this fold | — |
+
+Coverage: 1–15, each in one row.
+
+* failures
+
+- MISSED =testing= at 9 — the baseline-then-after was run in the skill's shape (3 files before, 12 after, envelopes pasted) without firing it.
+- MISSED =debugging= at 10–11 — a defect traced (the migrator) by reading the vendored source, no firing; nothing went wrong for lack of it.
+- GAP =quest-authoring= at 13 — its "before calling it ready" runs =markers.py= and =quest-report.py=, both resolve =.ikiro/quests= from the CWD/=CLAUDE_PROJECT_DIR=; run from =.ikiro/= they print an empty table that reads like a pass. The beat: run them from the repo root.
+- the census agent read mikro 7.0.2 out of the Deno cache, not 7.2.3; its join-column rename was stale (#7430, 7.0.7). Caught by re-reading the 7.2.3 source before the report, recorded in =census.md= as =[7.2.3]=.
+- at 9 I answered a two-option question's /"go"/ as option one's code half and held its =~/.viva= half for a separate go — said so in the reply, not silent.
+
+* State at fold
+
+- live quests 6: =m78-mikro-7= (designed, 0/13, 8 forks), =vector-attach-graft=, =m76=, =m77=, =m71=, =m60=.
+- the tree: =systems/runtime/entities/userspace/Turn.ts= edited, uncommitted (Turn.mode required + cascade, =user= filter). No populated db booted; no runtime or watcher up at the edit.
+- =.ikiro/=: =quests/m78-mikro-7.org= new · =quests/index.md= · =reference/mikro-7/= new (1.8 MB) · =world/codemap/runtime.md:13= · this compact.
+- the scratchpad =mikro/= (packed 6.6.7 · 6.6.17 · 7.2.3 trees, v6/v7 dbs) is session-local; everything worth keeping is in =reference/mikro-7/=.
+
+Balance (fold N = 15): rows citing a ruling or decision — thirds 1–5: 3 (2 · 3 · 4), 6–10: 2 (8 · 9), 11–15: 3 (11 · 13 · 14). Even; the weight follows the arc from topology to migrator to quest.
+
+** skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| quest-authoring | 13 | GAP | the organs held (numbering waited for beef, intent verbatim, markers prefixed); the ready-checks print an empty table when run from =.ikiro/= — run from the repo root |
+| compact-walk | 15 | HELD | spine · skills · rows · balance · settlement walked |
+| testing | 9 | MISSED | baseline 3 files, after 12, envelopes pasted, no firing |
+| debugging | 10 | MISSED | the migrator traced through vendored mikro source, no firing |
+
+* settlement
+
+- codeword scan of 15 turns: no /"retard"/, no /"i dont understand"/ — no callout.
+- known issues: =mikro-sqlite-migration-generator-glues-pragma-to-the-next-statement= stays OPEN — its fix is m78; the quest's residue milestone cuts it. Nothing new outlives a quest.
+- memory: nothing private learned; the durable facts live in m78 + =reference/mikro-7/= + =runtime.md:13=.
+- shard =world/codemap/runtime.md:13= re-stamped at 9 (Turn.mode required, the filter, road A pointer).
+
+* handoff
+- quest :: m78-mikro-7
+- goal :: /"investigate mikro7 migration experiences … map the expected changes to our codebase"/ → a quest that crosses 20 live sqlite dbs to 7.2.3 without the glued pragma
+- done :: =quests/m78-mikro-7.org= DESIGNED, 8 forks QUESTIONED with leans; =reference/mikro-7/= (upstream · census · smoke scripts re-runnable); the Turn delta in =Turn.ts:59,91=, 12 test files green
+- next :: beef rules F1 (driver, lean better-sqlite3) and F2 (pivot pin, lean explicit on the owners) at =quests/m78-mikro-7.org= ** F1 · ** F2; then milestone "pin" on 6.6.7
+- never :: boot a populated instance on 6.6.7 after an entity edit (the m78 law); =migrations.transactional: true= on sqlite
+- owed :: beef — the eight forks; the commit of =Turn.ts= + =.ikiro=; F7: whether the Turn delta rides m78 or goes road A now
+- quest :: m76-terminals-close-the-dataring
+- goal :: /"this closes the dataring."/ — Terminal to the lighthouse beside Identity
+- done :: the ring mapped across four planes; Authority and Authentication struck (/"ignore authority"/ · /"ignore authentication"/)
+- next :: rule the two seams — ADMIN/config homes (=User.roles= vs =Identity.traits=, =User.config= vs =Identity.configured=) and =seated.daemon= as =m:1 Daemon=
+- never :: Authority or an Authentication entity in m76's scope
+- owed :: beef — the two seams; whether m76 waits for m78 (m78 F6, lean mikro first)
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                            | progress  | status   | next                                                                                                                 | sessions |
+|----------------------------------+-----------+----------+----------------------------------------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security          |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                | 1        |
+| m71-droneaid-guide               |   0% 0/16 | design   | go                                                                                                                   | 0        |
+| m76-terminals-close-the-dataring | —         | open     | survey                                                                                                               | 3        |
+| m77-droneaid-homecoming          | —         | open     | survey                                                                                                               | 2        |
+| m78-mikro-7                      |   0% 0/13 | design   | go                                                                                                                   | 0        |
+| vector-attach-graft              |  33% 1/3  | landing  | beef eyeballs m2 (auth + attach middleware now ride the source apertures; arming deep-copies); then m3 the live walk | 1        |

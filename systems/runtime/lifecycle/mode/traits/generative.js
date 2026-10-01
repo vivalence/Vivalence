@@ -11,7 +11,7 @@ export const GENERATIVE = async (mode, daemon) => {
     tools: tools(),
   };
 
-  if (mode.module.generator) mode.generator.tools.slurp(mode.module.generator);
+  if (mode.module.generator) mode.generator.tools.graft(mode.module.generator);
 };
 
 const SOURCE = v

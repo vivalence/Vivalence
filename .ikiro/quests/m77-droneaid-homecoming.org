@@ -1,0 +1,37 @@
+#+title: m77 droneaid homecoming
+#+filetags: :m77:droneaid:
+#+status: SEEDED 10-01: title and number are beef's, the body is not written yet. Every organ below is QUESTIONED until beef gives the intent. Neighbour: m71-droneaid-guide.org (live). Whether this quest absorbs it, follows it or runs beside it is QUESTIONED.
+#+phase: open (derived)
+#+progress: — (derived)
+#+next: survey (derived)
+
+* intent
+/"m77 - droneaid homecoming"/
+
+* terrain — measured
+QUESTIONED: nothing has been measured yet. Waiting on what "homecoming" means: does droneaid move from ~/.viva/registry/droneaid into the repo, or something else?
+
+* forks
+QUESTIONED: none recorded yet.
+
+* the law
+QUESTIONED
+
+* milestones
+QUESTIONED
+
+* blast table
+QUESTIONED
+
+* testing assessment
+QUESTIONED
+
+* QA
+QUESTIONED: no markers yet.
+
+* deferred
+
+* changelog
+
+* release
+QUESTIONED
