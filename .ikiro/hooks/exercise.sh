@@ -78,20 +78,19 @@ IKIRO_WATCH_LIVE=1 expect allow watch-guard.sh "$(edit_json /Users/finn/.viva/re
 IKIRO_WATCH_LIVE=1 expect allow watch-guard.sh "$(edit_json /r/systems/anima/src/app/x.svelte 'x')"              "outside the watched trees"
 rm -f "${TMPDIR:-/tmp}/ikiro-watch-exercise"
 
-# compact-gate — m69 3.1: the retry is refused while a THROUGHPUT file sits above baseline, and passes over a
-# PERSISTENT file above 15% (rebuilt, never drained). Exit 2 is the refusal; each case is a throwaway project.
-gate_case() { # gate_case <want exit> <kind> <label>
+# compact-gate — first /compact of a session refused; the retry passes once world/frontier.md is newer than the stamp
+gate_case() { # gate_case <want exit> <touch-frontier 0|1> <label>
   project=$(mktemp -d); mkdir -p "$project/.ikiro/methods" "$project/.ikiro/world"
-  cp ../methods/budget.py "$project/.ikiro/methods/budget.py"
-  { echo "# fixture"; echo "<!-- kind: $2 · limit: 1000 chars · drain: a quest -->"; printf 'x%.0s' $(seq 1 500); echo; } > "$project/.ikiro/world/fixture.md"
+  cp ../methods/cap.py "$project/.ikiro/methods/cap.py"
   session="exercise-compact-$2"; mkdir -p "${TMPDIR:-/tmp}/ikiro-compact-gate"; : > "${TMPDIR:-/tmp}/ikiro-compact-gate/$session"
+  [ "$2" = 1 ] && { sleep 1; echo "# frontier" > "$project/.ikiro/world/frontier.md"; } || { echo "# frontier" > "$project/.ikiro/world/frontier.md"; touch -t 202001010000 "$project/.ikiro/world/frontier.md"; }
   jq -cn --arg s "$session" '{session_id:$s,compaction_trigger:"manual"}' | CLAUDE_PROJECT_DIR="$project" bash compact-gate.sh >/dev/null 2>&1
   got=$?
   if [ "$got" = "$1" ]; then echo "PASS compact-gate.sh exit $1  $3"; else echo "FAIL compact-gate.sh want exit $1 got $got  $3"; fail=1; fi
   rm -rf "$project" "${TMPDIR:-/tmp}/ikiro-compact-gate/$session"
 }
-gate_case 2 throughput "retry, throughput 500/1000 above its 150 baseline"
-gate_case 0 persistent "retry, persistent 500/1000 above 15% — rebuilt, not drained"
+gate_case 2 0 "retry, frontier untouched since the refusal"
+gate_case 0 1 "retry, frontier rewritten after the refusal"
 
 # kernel-guard — m69 3.3, staged: the kernel's two checkable one-liners that had no guard
 edit_session() { jq -cn --arg p "$1" --arg s "$2" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$s}}'; }
@@ -101,29 +100,21 @@ expect deny  kernel-guard.sh "$(edit_session /r/documentation/src/content/docs/i
 expect allow kernel-guard.sh "$(edit_session /r/documentation/src/content/docs/index.mdx 'fair-source, source-available')" "public copy says fair-source"
 expect allow kernel-guard.sh "$(edit_session /r/.ikiro/ikiro.md 'never "open-source"')"                         "the kernel quoting the rule"
 
-# outside-rules.py — m69 2.3: `.claude/rules` paths never fire outside the repo; the hook delivers ONE shard per call,
-# most specific glob first, each shard once per session, and stays silent inside the repo
-rules_case() { # rules_case <want shard|-> <path> <label>
-  got=$(jq -cn --arg p "$2" '{session_id:"exercise-rules",tool_name:"Read",tool_input:{file_path:$p}}' \
-    | CLAUDE_PROJECT_DIR="$(cd .. && cd .. && pwd)" python3 outside-rules.py | jq -r '.hookSpecificOutput.additionalContext' 2>/dev/null \
-    | sed -nE '1s/^<!-- rules via outside-rules.py: (.+) -->$/\1/p')
-  if [ "${got:--}" = "$1" ]; then echo "PASS outside-rules.py ${got:--}  $3"; else echo "FAIL outside-rules.py want $1 got ${got:--}  $3"; fail=1; fi
+# cap-guard — a write past `limit: N chars` is refused; a capped file without a limit is refused; quests are never capped
+cap_case() { # cap_case <want> <json> <label>
+  out=$(IKIRO_GUARD_MODE=deny bash cap-guard.sh <<<"$2" 2>&1)
+  got=allow; grep -q '"deny"' <<<"$out" && got=deny
+  if [ "$got" = "$1" ]; then echo "PASS cap-guard.sh $1  $3"; else echo "FAIL cap-guard.sh want $1 got $got  $3"; fail=1; fi
 }
-rm -rf "${TMPDIR:-/tmp}/ikiro-outside-rules/exercise-rules"
-rules_case world/codemap/assembly.md "$HOME/.viva/registry/assembly/package.viva.js" "registry package → its own shard first"
-rules_case self/connoisseur.md "$HOME/.viva/registry/assembly/package.viva.js" "same session, next call → the next shard"
-rules_case - "$(cd ../.. && pwd)/systems/runtime/run.js" "inside the repo → silent (the path channel works there)"
-rm -rf "${TMPDIR:-/tmp}/ikiro-outside-rules/exercise-rules"
-
-# the observe-only hooks — each case asserts its log grew by one row, the numerator it exists to write
-grows() { # grows <log> <hook> <json> <label>
-  log="$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/$1"
-  before=$(wc -l < "$log" 2>/dev/null || echo 0)
-  bash "$2" <<<"$3" >/dev/null 2>&1
-  after=$(wc -l < "$log" 2>/dev/null || echo 0)
-  if [ "$after" -gt "$before" ]; then echo "PASS $2 logged  $4"; else echo "FAIL $2 wrote no row  $4"; fail=1; fi
-}
-grows hooks.log-yap yap-meter.sh "$(jq -cn '{session_id:"exercise",last_assistant_message:"one two three\n```\ncode\n```"}')" "a turn's words outside fences"
-grows hooks.log-loaded loaded-log.sh "$(jq -cn '{session_id:"exercise",hook_event_name:"InstructionsLoaded",file_path:"/r/.ikiro/ikiro.md",load_reason:"session_start"}')" "an instruction file entering context"
+capdir=$(mktemp -d); mkdir -p "$capdir/.ikiro/world" "$capdir/.ikiro/quests"
+{ echo "<!-- limit: 100 chars -->"; printf 'y%.0s' $(seq 1 60); echo; } > "$capdir/.ikiro/world/small.md"
+export CLAUDE_PROJECT_DIR="$capdir"
+cap_case deny  "$(jq -cn --arg p "$capdir/.ikiro/world/small.md" --arg c "<!-- limit: 100 chars -->$(printf 'z%.0s' $(seq 1 120))" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "Write past the limit"
+cap_case allow "$(jq -cn --arg p "$capdir/.ikiro/world/small.md" --arg c "<!-- limit: 100 chars -->short" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "Write under the limit"
+cap_case deny  "$(jq -cn --arg p "$capdir/.ikiro/world/small.md" --arg o "yyyy" --arg n "$(printf 'w%.0s' $(seq 1 80))" '{tool_name:"Edit",session_id:"exercise",tool_input:{file_path:$p,old_string:$o,new_string:$n}}')" "Edit whose result passes the limit"
+cap_case allow "$(jq -cn --arg p "$capdir/.ikiro/world/small.md" --arg o "yyyy" --arg n "yy" '{tool_name:"Edit",session_id:"exercise",tool_input:{file_path:$p,old_string:$o,new_string:$n}}')" "Edit that shrinks"
+cap_case deny  "$(jq -cn --arg p "$capdir/.ikiro/world/nolimit.md" --arg c "# no header" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "a capped file born without a limit"
+cap_case allow "$(jq -cn --arg p "$capdir/.ikiro/quests/big.org" --arg c "$(printf 'q%.0s' $(seq 1 5000))" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "a quest is never capped"
+unset CLAUDE_PROJECT_DIR; rm -rf "$capdir"
 
 exit $fail

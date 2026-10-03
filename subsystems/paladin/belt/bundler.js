@@ -1,3 +1,4 @@
+import { dirname } from "@std/path";
 import { View, bundle as compiler, crypto } from "@vivalence/typology";
 
 const ARTIFACT = /^\/?[0-9a-f]{16}\.(svelte|html)\.mjs$/;
@@ -78,6 +79,34 @@ export default function bundler(paladin) {
       throw new Error(`bundler.inspect: unknown view: ${hash}`);
     };
 
-    return { bundle, serve, inspect };
+    const prune = async ({ dry = false } = {}) => {
+      const artifacts = await paladin.find.walk(ARTIFACT)(`${directory}/bundle`, 0).catch(() => []);
+      const described = await Promise.all(
+        artifacts.map(async (artifact) => {
+          const stat = await Deno.stat(artifact.absolute);
+          return {
+            name: artifact.absolute.slice(`${directory}/bundle/`.length),
+            bytes: stat.size,
+            mtime: stat.mtime,
+            sourced: Boolean(await Deno.stat(artifact.absolute.replace(/\.mjs$/, "")).catch(missing)),
+          };
+        }),
+      );
+      const removed = described.filter((held) => !held.sourced).sort((a, b) => b.mtime - a.mtime).slice(1);
+      if (!dry) for (const held of removed) await Deno.remove(at(held.name));
+      return {
+        directory,
+        kept: described.length - removed.length,
+        removed: removed.map(({ name, bytes }) => ({ name, bytes })),
+        bytes: removed.reduce((sum, held) => sum + held.bytes, 0),
+      };
+    };
+
+    return { directory, bundle, serve, inspect, prune };
+  };
+
+  paladin.bundler.under = async (root) => {
+    const artifacts = await paladin.find.walk(ARTIFACT)(root).catch(() => []);
+    return [...new Set(artifacts.map((artifact) => dirname(dirname(artifact.absolute))))].map(paladin.bundler);
   };
 }

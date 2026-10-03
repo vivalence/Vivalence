@@ -7,6 +7,7 @@ import { config, envfile, path, recipe as voice } from "../../belt/index.js";
 import { Init } from "./Init.jsx";
 import { Doctor } from "./Doctor.jsx";
 import { store } from "../registry/index.js";
+import { sweep } from "../instance/cleanup.js";
 
 const SCAFFOLD = ["locks", "logs", "registry", "instances", "sessions"];
 
@@ -158,6 +159,19 @@ ledger.open(
 
     ctx.effect = report;
     await ctx.view?.scroll.emit({ report }, null, Doctor);
+  },
+);
+
+ledger.open(
+  {
+    nature: "/cleanup",
+    valence: "prune stale view bundles across every recorded instance — instance/cleanup over the whole ledger, one confirmation; asks unless --force",
+    schema: v.object({ force: v.boolean().desc("skip the confirmation").group("flags").optional() }),
+  },
+  async (ctx) => {
+    const record = await paladin.ledger.instances.list();
+    const mounts = await Promise.all(record.map(async ({ mount }) => (mount && (await Deno.stat(mount).catch(() => null)) ? [mount] : [])));
+    ctx.effect = await sweep(ctx, mounts.flat(), "ledger");
   },
 );
 

@@ -113,14 +113,10 @@ specimen.describe("panel A — mounted: the frame's states, the status bar, the 
   });
 
   specimen.it("a terminal that is still restored says which entity it waits for, and stops saying it", () => {
-    const held = terminal({ settling: { thread: "3f9c1a", buffer: "b71e04" } });
+    const held = terminal({ settling: { thread: "3f9c1a" } });
     const target = stage(held);
     specimen.expect(words(target)).toBe("settling · thread");
     specimen.expect(target.getElementsByClassName("spinner")).toHaveLength(1);
-
-    held.$settling.set({ thread: null, buffer: "b71e04" });
-    flush();
-    specimen.expect(words(target)).toBe("settling · buffer");
 
     held.$settling.set(null);
     flush();

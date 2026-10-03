@@ -36,7 +36,7 @@ export { thread, turn, buffer };
 export { activity };
 
 export const sets = {
-  lighthouse: { identity: lighthouse.identity, daemon: lighthouse.daemon },
+  lighthouse: { identity: lighthouse.identity, daemon: lighthouse.daemon, terminal: lighthouse.terminal, authenticator: lighthouse.authenticator },
   kernel: { user, mode, literal, symbol },
   userspace: { intent, thread, turn, buffer },
   transient: { activity },

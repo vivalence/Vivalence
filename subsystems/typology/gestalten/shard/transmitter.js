@@ -297,7 +297,7 @@ export const fetcher = async (ctx) => {
       response.setError(ConnectionError.fromStatus(res.status, response));
     }
   } catch (error) {
-    console.warn(`[probe ${stamp()}] fetch failed ${request.url.absolute}`, error);
+    console.warn(`[probe ${stamp()}] fetch failed ${request.url.absolute} — ${error.cause?.message ?? error.message}`);
     response.status = 0;
     response.error = ConnectionError.fromFetch(error, request);
     response.body = { request, error };

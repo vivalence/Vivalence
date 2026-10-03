@@ -1,42 +1,41 @@
 <script>
   import { getContext, untrack } from "svelte";
   import { chain, stores } from "@vivalence/anima";
-  import { Empty, Key, Strip } from "@vivalence/drapes";
+  import { Empty, Strip } from "@vivalence/drapes";
   import { BRIDGE, TERMINALS } from "$client";
-  import PanelD from "../d/d.svelte";
-  import PanelE from "../e/e.svelte";
-  import PanelF from "../f/f.svelte";
-  import Pane from "./widgets/Pane.svelte";
-  import Terminals from "./panes/Terminals.svelte";
-  import Mode from "./panes/Mode.svelte";
-  import Buffer from "./panes/Buffer.svelte";
-  import Harness from "./panes/Harness.svelte";
+  import Terminals from "./cards/Terminals.svelte";
+  import Threads from "./cards/Threads.svelte";
+  import Modes from "./cards/Modes.svelte";
+  import Thread from "./cards/Thread.svelte";
+  import Mode from "./cards/Mode.svelte";
+  import Buffers from "./cards/Buffers.svelte";
+  import Buffer from "./cards/Buffer.svelte";
+  import Harness from "./cards/Harness.svelte";
 
   let { rect } = $props();
 
   const bridge = getContext(BRIDGE);
   const terminals = getContext(TERMINALS);
   const panes = stores.bridge.panes;
-  const { FOLDS, PANE_BAR, PANE_HEAD, PANE_MIN, PANE_NAMES } = panes;
+  const { FOLDS, LABELS, PANE_BAR, PANE_HEAD, PANE_MIN, PANE_NAMES, SHORTS } = panes;
 
-  const LABELS = { terminal: "terminals" };
   const LEDS = ["buffer", "harness"];
-  const BODIES = { terminal: Terminals, navigation: PanelD, mode: Mode, buffer: Buffer, harness: Harness };
+  const BODIES = { terminal: Terminals, threads: Threads, modes: Modes, thread: Thread, mode: Mode, buffers: Buffers, buffer: Buffer, harness: Harness };
   const CURSORS = { pane: () => "grabbing", height: () => "ns-resize", seam: (gripped) => (gripped.seam.dir === "h" ? "ew-resize" : "ns-resize") };
 
-  const tree = bridge.panes.$tree;
-  const fold = bridge.panes.$fold;
-  const expanded = bridge.panes.$expanded;
-  const heights = bridge.panes.$heights;
-  const previous = bridge.panes.$previous;
+  const tree = bridge.panels.c.$tree;
+  const fold = bridge.panels.c.$fold;
+  const expanded = bridge.panels.c.$expanded;
+  const heights = bridge.panels.c.$heights;
+  const previous = bridge.panels.c.$previous;
   const place = bridge.view.$strip;
 
   const roster = terminals.$entities;
+  const active = terminals.$active;
   const settling = chain(terminals, "$active", "$settling");
   const thread = chain(terminals, "$active", "$thread");
   const mode = chain(terminals, "$active", "$thread", "$mode");
   const buffers = chain(terminals, "$active", "$thread", "$buffers");
-  const cursor = chain(terminals, "$active", "$buffer");
 
   let grab = $state.raw(null);
   let region = $state(null);
@@ -54,33 +53,31 @@
   );
 
   const held = $derived(grab?.tree ?? $tree);
-  const drawn = $derived(panes.arrange(held, $fold, $expanded, grab?.heights ?? $heights));
+  const shown = $derived($settling ? held : panes.prune(held, allowed));
+  const drawn = $derived(panes.arrange(shown, $fold, $expanded, grab?.heights ?? $heights));
   const alone = $derived(held?.type === "leaf" && Boolean($previous));
   const keys = $derived(
     PANE_NAMES.filter((name) => allowed[name]).map((name) => ({
       name,
       label: LABELS[name] ?? name,
-      latched: panes.latched({ tree: held, fold: $fold, expanded: $expanded }, name),
+      short: SHORTS[name],
+      latched: panes.latched({ tree: shown, fold: $fold, expanded: $expanded }, name),
       led: LEDS.includes(name),
     })),
   );
 
-  const ordered = $derived([...($buffers ?? [])].sort((first, second) => (first.index ?? 0) - (second.index ?? 0)));
-  const seated = $derived(ordered.findIndex((buffer) => buffer.id === $cursor?.id));
-
   function commit(next) {
-    for (const [key, value] of Object.entries(next)) bridge.panes[key] = value;
+    for (const [key, value] of Object.entries(next)) bridge.panels.c[key] = value;
     bridge.save();
   }
 
+  const seated = $derived($active?.id ?? null);
   $effect(() => {
-    if ($settling) return;
-    const pruned = panes.prune($tree, allowed);
-    if (pruned === $tree) return;
-    untrack(() => commit({ tree: pruned }));
+    if (!seated) return;
+    untrack(() => commit(panes.reveal({ tree: $tree }, "threads", panes.grain(rect))));
   });
 
-  const pick = (name) => commit(panes.tap({ tree: $tree, fold: $fold }, name));
+  const pick = (name) => commit(panes.tap({ tree: $tree, fold: $fold, dir: panes.grain(rect) }, name));
   const park = (name) => commit({ tree: panes.remove($tree, name) });
   const solo = (name) => commit({ ...panes.solo($tree, name, $previous), expanded: name });
   const show = (name) => commit({ expanded: name });
@@ -176,10 +173,11 @@
 
     {#each drawn.leaves as leaf (leaf.pane)}
       {@const at = seat(leaf)}
+      {@const Body = BODIES[leaf.pane]}
       <div class="leaf" class:flow={leaf.flow} style:left={at.left} style:top={at.top} style:width={at.width} style:height={at.height}>
-        <Pane
+        <Body
           name={leaf.pane}
-          label={LABELS[leaf.pane] ?? leaf.pane}
+          framed
           folded={leaf.folded ?? false}
           flowing={Boolean(leaf.flow) && leaf.height === null}
           grabbable={$fold === "free"}
@@ -190,10 +188,7 @@
           {ongrab}
           ontap={show}
           onsolo={solo}
-          onpark={park}
-          actions={leaf.pane === "terminal" ? spawn : leaf.pane === "buffer" ? position : null}>
-          {@render body(leaf.pane)}
-        </Pane>
+          onpark={park} />
         {#if leaf.flow}
           <div
             class="handle"
@@ -239,26 +234,6 @@
   <Strip {keys} folds={FOLDS} fold={$fold} place={$place} {width} bind:rail onpick={pick} onsolo={solo} onfold={refold} />
 </div>
 
-{#snippet spawn()}
-  <Key size="mini" label="+ terminal" title="open a terminal" onclick={() => terminals.create()} />
-{/snippet}
-
-{#snippet position()}
-  <span class="position">{seated < 0 ? "–" : seated + 1} / {ordered.length}</span>
-{/snippet}
-
-{#snippet body(pane)}
-  {#if pane === "thread"}
-    <PanelE />
-    {#if $thread}
-      <div data-zone="1" class="thread-body"><PanelF /></div>
-    {/if}
-  {:else}
-    {@const Body = BODIES[pane]}
-    <Body />
-  {/if}
-{/snippet}
-
 <style>
   .panel {
     --pane-gutter: 2px;
@@ -287,11 +262,13 @@
     min-height: 0;
     position: relative;
     overflow: hidden;
-    background: var(--surface-sunk);
+    background: var(--surface);
   }
   .region.stack {
     display: flex;
     flex-direction: column;
+    gap: 10px;
+    padding: 14px;
     overflow-y: auto;
     overscroll-behavior: contain;
   }
@@ -314,18 +291,7 @@
   .leaf.flow {
     position: relative;
     flex: 0 0 auto;
-  }
-  .thread-body {
-    margin-top: 8px;
-    padding: 8px;
-    border-radius: var(--shape-radius-card);
-    background: var(--surface);
-    color: var(--text-strong);
-    box-shadow: 0 0 0 var(--size-ring) var(--boundary);
-  }
-  .position {
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
+    padding: 0;
   }
   .handle {
     position: absolute;

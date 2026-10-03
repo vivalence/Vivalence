@@ -89,6 +89,35 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
     expect(served.text).toContain("innerHTML");
   });
 
+  it("prune keeps the newest compiled view and every sourced page", async () => {
+    const root = await Deno.makeTempDir({ dir: directory, prefix: "prune-" });
+    const pruning = paladin.bundler(`${root}/bundles/game/board`);
+    const entry = `${root}/Board.svelte`;
+    await Deno.writeTextFile(entry, SOURCE);
+    const stale = await pruning.bundle({ kind: "svelte", entry });
+    await Deno.utime(`${pruning.directory}/bundle${stale.mount.nature}`, 1, 1);
+    await Deno.writeTextFile(entry, SOURCE.replace("18", "20"));
+    const current = await pruning.bundle({ kind: "svelte", entry });
+    const page = await pruning.bundle({ kind: "html", source: "<h1>page</h1>" });
+    await Deno.utime(`${pruning.directory}/bundle${page.mount.nature}`, 1, 1);
+
+    expect((await paladin.bundler.under(root)).map((held) => held.directory)).toEqual([pruning.directory]);
+
+    const dry = await pruning.prune({ dry: true });
+    expect(dry.kept).toBe(2);
+    expect(dry.removed.map((held) => held.name)).toEqual([stale.mount.nature.slice(1)]);
+    expect(await pruning.serve(stale.mount.nature)).not.toBe(null);
+
+    const pruned = await pruning.prune();
+    expect(pruned.removed).toEqual(dry.removed);
+    expect(pruned.bytes).toBe(dry.removed[0].bytes);
+    expect(await pruning.serve(stale.mount.nature)).toBe(null);
+    expect(await pruning.serve(current.mount.nature)).not.toBe(null);
+    expect(await pruning.serve(page.mount.nature)).not.toBe(null);
+    expect((await pruning.prune()).removed).toEqual([]);
+    expect((await paladin.bundler(`${root}/absent`).prune()).kept).toBe(0);
+  });
+
   it("refuses what it must", async () => {
     const refused = async (fn) => {
       try {

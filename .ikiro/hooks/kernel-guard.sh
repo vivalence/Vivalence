@@ -10,7 +10,7 @@ log="$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log"
 
 reason="" class=""
 case "$path" in
-  */docs/superpowers/plans/*) reason="plans are quests in .ikiro/quests/ (skill quest-authoring), never docs/superpowers/plans/"; class=plan-placement ;;
+  */docs/superpowers/plans/*) reason="plans are quests in .ikiro/quests/ (skill quest), never docs/superpowers/plans/"; class=plan-placement ;;
 esac
 if [ -z "$reason" ]; then
   case "$path" in

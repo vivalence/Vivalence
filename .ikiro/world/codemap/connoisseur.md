@@ -1,1 +1,1 @@
-../../self/connoisseur.md
+../../connoisseur.md

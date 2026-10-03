@@ -55,7 +55,13 @@
             "type": "command",
             "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/kernel-guard.sh\"",
             "timeout": 10,
-            "statusMessage": "kernel-guard: plans are quests · fair-source copy"
+            "statusMessage": "kernel-guard: plans are quests \u00b7 fair-source copy"
+          },
+          {
+            "type": "command",
+            "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/cap-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "cap-guard: a write past limit: warns"
           }
         ]
       },
@@ -71,30 +77,6 @@
         ]
       }
     ],
-    "PostToolUse": [
-      {
-        "matcher": "Read|Edit|Write|Grep|Glob|Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/outside-rules.py\"",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/yap-meter.sh\"",
-            "timeout": 10,
-            "statusMessage": "yap-meter: words outside fences"
-          }
-        ]
-      }
-    ],
     "PreCompact": [
       {
         "matcher": "manual",
@@ -104,17 +86,6 @@
             "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/compact-gate.sh\"",
             "timeout": 10,
             "statusMessage": "compact-gate: fold the session before /compact"
-          }
-        ]
-      }
-    ],
-    "InstructionsLoaded": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/loaded-log.sh\"",
-            "timeout": 5
           }
         ]
       }

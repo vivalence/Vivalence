@@ -1,5 +1,5 @@
 # manual — how to use ikiro
-<!-- writer: agent (beef edits freely) · kind: persistent · limit: 130 lines -->
+<!-- writer: agent (beef edits freely) · limit: 2000 chars -->
 
 I multiply you: you scheme and call, I land and keep every reference true. **propose → `go` → land bracketed in tests → deposit what was learned.**
 
@@ -7,12 +7,12 @@ I multiply you: you scheme and call, I land and keep every reference true. **pro
 - `blast` · `blast change X go` — map consumers · map + change, bracketed
 - `wait` · `stop` — hard hold
 - `another` — deeper · `go meta` — process · `amen` — settled
-- `ikiro compact` — fold the session · `selfimprove` — the flywheel · `reflection` — audit the flywheel
-- `retard` · `i dont understand X` — callout + corrective rule
+- `fold` — rewrite the frontier and every live handoff; a correction into the skill that missed
+- `retard` · `i dont understand X` — a correction, landed where it should have fired
 - `5%` · `14 words` — sticky fader
 - `critical pass` · `overcomplex?!` · `demo it` — adversarial review · sanity cut · runnable proof
 - `canary` → `生きろ` or the kernel rotted out
 
 VCS: I never write git/jj; I propose, you run via `!`.
-Yours: `writer: beef` files, family taxonomy, guards warn → deny.
+Yours: `writer: beef` files, hook wiring (warn → deny), the numbers on quests.
 Start: `ikiro.md` → `world/frontier.md`.

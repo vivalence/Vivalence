@@ -1,11 +1,12 @@
 <script>
   import { getContext } from "svelte";
   import { stores } from "@vivalence/anima";
-  import { Card, Key, Pip, Reading, Row, Section } from "@vivalence/drapes";
+  import { Key, Pip, Reading, Row } from "@vivalence/drapes";
   import { LIGHTHOUSE } from "$client";
   import { logger } from "$telemetry";
+  import Card from "../../c/cards/Card.svelte";
 
-  let { open = true, ontoggle = null } = $props();
+  let { ...chrome } = $props();
 
   const HEALTH = { healthy: "success", error: "danger" };
 
@@ -30,9 +31,9 @@
     stores.lighthouse.boot(lighthouse).catch((error) => logger.entry("lighthouse/refresh").fault(error));
 </script>
 
-<Section label="auth" count={host} {open} {ontoggle} />
-{#if open}
-  <Card>
+<Card label="lighthouse" meta={host} {...chrome}>
+  <div class="card-stack">
+  <div class="card-group">
     <div class="identity">
       <span class="avatar">{($identity?.slug ?? "?").charAt(0).toUpperCase()}</span>
       <span class="identity-name">{$identity?.slug ?? "—"}</span>
@@ -45,8 +46,8 @@
       <Key size="row" label="refresh" onclick={refresh} />
       <Key size="row" tone="negative" label="sign out" onclick={() => lighthouse.logout()} />
     </div>
-  </Card>
-  <Section label="daemons" count={($daemons ?? []).length} />
+  </div>
+  <span class="card-name">daemons · {($daemons ?? []).length}</span>
   <div class="roster">
     {#each $daemons ?? [] as daemon (daemon.slug)}
       <Row>
@@ -58,7 +59,8 @@
       <span class="none">no daemons</span>
     {/each}
   </div>
-{/if}
+  </div>
+</Card>
 
 <style>
   .identity {

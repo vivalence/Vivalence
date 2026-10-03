@@ -1,7 +1,7 @@
 import { Cargo, shape, shard, steer } from "@vivalence/typology";
 
 export const domain = async (die, next) => {
-  die.daemon.aperture.use(shard.secure.authenticate());
+  die.daemon.aperture.use(die.daemon.lighthouse.shard.authenticate);
 
   if (die.daemon.domain.aperture) {
     die.daemon.domain.aperture.use(shard.context.bind("daemon", die.daemon));
@@ -21,7 +21,7 @@ export const modes = (execution) => async (die, next) => {
     await die.daemon.datamap.shard.scope(() => Promise.all(die.daemon.flatmodes().flatMap((mode) => mode.finalizers).map((finalize) => finalize())));
     for (const mode of die.daemon.flatmodes()) {
       mode.aperture
-        .use(shard.secure.authorize())
+        .use(die.daemon.lighthouse.shard.authorize)
         .use(die.daemon.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
       die.daemon.aperture.branch(mode.reference.nature, mode.aperture);
     }

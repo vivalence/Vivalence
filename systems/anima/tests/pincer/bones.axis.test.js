@@ -48,7 +48,7 @@ specimen.describe("bones.axis — a bone reads its own rect", () => {
   });
 
   specimen.it("an arm shorter than its thickness keeps its axis", () => {
-    const edge = { 0: { x: 54, y: 300 }, 90: { x: 400, y: 30 }, 180: { x: 1170, y: 300 }, 270: { x: 400, y: 770 } };
+    const edge = { 0: { x: 54, y: 300 }, 90: { x: 400, y: 30 }, 180: { x: 30, y: 300 }, 270: { x: 400, y: 30 } };
     const expected = { 0: "row", 90: "column", 180: "row", 270: "column" };
     for (const orientation of ORIENTATIONS) {
       const bones = bonesAt(orientation, edge[orientation]);

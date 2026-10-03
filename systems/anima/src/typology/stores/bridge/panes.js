@@ -1,7 +1,9 @@
 export const PANE_BAR = 44;
 export const PANE_HEAD = 32;
 export const PANE_MIN = 60;
-export const PANE_NAMES = ["terminal", "navigation", "thread", "mode", "buffer", "harness"];
+export const PANE_NAMES = ["terminal", "threads", "modes", "thread", "mode", "buffers", "buffer", "harness"];
+export const LABELS = { terminal: "terminals" };
+export const SHORTS = { terminal: "trm", threads: "all", modes: "mds", thread: "thr", mode: "mod", buffers: "bfs", buffer: "buf", harness: "hrn" };
 export const FOLDS = ["page", "stack", "accordion", "free"];
 export const RATIO_MIN = 0.15;
 export const RATIO_MAX = 0.85;
@@ -21,6 +23,8 @@ const BESIDE = {
   bottom: (held, fresh) => split("v", 0.5, held, fresh),
 };
 
+export const grain = ({ width, height }) => (width > height ? "h" : "v");
+
 export const leaves = (tree) => (!tree ? [] : tree.type === "leaf" ? [tree.pane] : [...leaves(tree.a), ...leaves(tree.b)]);
 
 export const remove = (tree, pane) => {
@@ -31,12 +35,14 @@ export const remove = (tree, pane) => {
   return !a ? b : !b ? a : { ...tree, a, b };
 };
 
-export const open = (tree, pane) => {
+export const open = (tree, pane, dir = "v") => {
   if (!tree) return leaf(pane);
   if (leaves(tree).includes(pane)) return tree;
-  if (pane === "terminal") return split("v", 0.3, leaf(pane), tree);
-  return split(tree.type === "split" && tree.dir === "v" ? "h" : "v", 0.5, tree, leaf(pane));
+  if (pane === "terminal") return split(dir, 0.3, leaf(pane), tree);
+  return split(dir, 0.5, tree, leaf(pane));
 };
+
+export const reveal = ({ tree }, pane, dir) => ({ tree: open(tree, pane, dir), expanded: pane });
 
 export const swap = (tree, first, second) => {
   if (!tree) return tree;
@@ -108,25 +114,47 @@ export const shown = (tree, expanded) => (leaves(tree).includes(expanded) ? expa
 
 export const latched = ({ tree, fold, expanded }, pane) => (PAGED.includes(fold) ? shown(tree, expanded) === pane : leaves(tree).includes(pane));
 
-export const tap = ({ tree, fold }, pane) => {
-  if (!leaves(tree).includes(pane)) return { tree: open(tree, pane), expanded: pane };
+export const tap = ({ tree, fold, dir }, pane) => {
+  if (!leaves(tree).includes(pane)) return reveal({ tree }, pane, dir);
   return PAGED.includes(fold) ? { expanded: pane } : { tree: remove(tree, pane) };
 };
 
 export const available = ({ terminals = 0, thread = false, buffers = 0, application = false, harnessed = false }) => ({
   terminal: true,
-  navigation: terminals > 0,
+  threads: terminals > 0,
+  modes: terminals > 0,
   thread,
   mode: thread,
+  buffers: thread && (buffers > 0 || application),
   buffer: thread && (buffers > 0 || application),
   harness: thread && harnessed,
 });
 
 export const prune = (tree, allowed) => leaves(tree).filter((pane) => !allowed[pane]).reduce(remove, tree);
 
-export const DEFAULT = { tree: open(leaf("navigation"), "terminal"), fold: "page", expanded: "terminal", heights: {}, previous: null };
+export const DEFAULT = { tree: leaf("threads"), fold: "page", expanded: "threads", heights: {}, previous: null };
 
-export const restore = (saved) =>
-  saved?.tree && FOLDS.includes(saved.fold) && leaves(saved.tree).every((pane) => PANE_NAMES.includes(pane))
-    ? { tree: saved.tree, fold: saved.fold, expanded: saved.expanded ?? leaves(saved.tree)[0], heights: saved.heights ?? {}, previous: null }
-    : structuredClone(DEFAULT);
+export const KEYS = ["tree", "fold", "expanded", "heights"];
+
+export const arrangement = ({ names, folds, DEFAULT }) => ({
+  names,
+  folds,
+  DEFAULT,
+  restore: (saved) =>
+    saved?.tree && folds.includes(saved.fold) && leaves(saved.tree).every((pane) => names.includes(pane))
+      ? { tree: saved.tree, fold: saved.fold, expanded: saved.expanded ?? leaves(saved.tree)[0], heights: saved.heights ?? {}, previous: null }
+      : structuredClone(DEFAULT),
+});
+
+export const SECTION_NAMES = ["config", "auth", "box", "dock"];
+
+export const PANELS = {
+  b: arrangement({
+    names: SECTION_NAMES,
+    folds: ["page", "stack"],
+    DEFAULT: { tree: SECTION_NAMES.reduce(open, null), fold: "page", expanded: "config", heights: {}, previous: null },
+  }),
+  c: arrangement({ names: PANE_NAMES, folds: FOLDS, DEFAULT }),
+};
+
+export const restore = PANELS.c.restore;

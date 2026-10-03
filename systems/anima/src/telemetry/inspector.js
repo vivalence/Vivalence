@@ -25,7 +25,7 @@ export const project = (lighthouse, terminals, bridge) =>
 
 export function compose(lighthouse, terminals, bridge) {
   const terminal = terminals.active;
-  const thread = terminal?.thread;
+  const thread = terminal?.$thread.get();
   const daemons = lighthouse.$daemons.get() ?? [];
   const shells = terminals.$entities?.get?.() ?? [];
 
@@ -42,11 +42,11 @@ export function compose(lighthouse, terminals, bridge) {
 
     table("active", [
       row("terminal", { name: terminal?.id ?? "—" }),
-      row("thread", { name: thread?.id ?? "—" }),
+      row("thread", { name: terminal?.thread ?? "—" }),
       row("daemon", { name: terminal?.daemon?.slug ?? String(terminal?.daemon ?? "—") }),
-      row("mode", { name: terminal?.mode?.slug ?? String(terminal?.mode ?? "—") }),
+      row("mode", { name: thread?.mode?.slug ?? String(thread?.mode ?? "—") }),
       row("spawn", "new terminal", () => terminals.create()),
-      ...(thread ? [row("clear", "clear thread", () => (terminals.active.thread = null))] : []),
+      ...(terminal?.thread ? [row("clear", "clear thread", () => terminal.seat(null))] : []),
     ]),
 
     table(

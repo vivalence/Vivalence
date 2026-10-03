@@ -108,6 +108,19 @@ export default function (trajectory) {
 
   trajectory.open(
     {
+      nature: "/instance/cleanup",
+      valence:
+        "prune stale view bundles under the instance's mountpoint — per mode the newest compiled view and every generated page (its source sits beside it) stay; asks unless --force",
+      schema: v.object({
+        target: v.string().desc("slug or path (defaults to the mounted instance)").optional(),
+        force: v.boolean().desc("skip the confirmation").group("flags").optional(),
+      }),
+    },
+    instance.cleanup,
+  );
+
+  trajectory.open(
+    {
       nature: "/instance/rename",
       valence:
         "rename an instance — record key, logs, the sessions that selected it, and the dir when it lives on the shelf (a tapped dir stays); refuses while running",

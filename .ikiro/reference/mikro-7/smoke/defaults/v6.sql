@@ -1,0 +1,18 @@
+CREATE TABLE `Mode` (`id` text not null, primary key (`id`));
+CREATE TABLE `Symbol` (`id` text not null, primary key (`id`));
+CREATE TABLE `Literal` (`id` text not null, primary key (`id`));
+CREATE TABLE `Turn` (`id` text not null, `parent` text null, `mode` text not null, constraint `Turn_parent_foreign` foreign key(`parent`) references `Turn`(`id`) on delete set null on update cascade, constraint `Turn_mode_foreign` foreign key(`mode`) references `Mode`(`id`) on delete cascade on update cascade, primary key (`id`));
+CREATE INDEX `Turn_parent_index` on `Turn` (`parent`);
+CREATE INDEX `Turn_mode_index` on `Turn` (`mode`);
+CREATE TABLE `symbol_literals` (`symbol_entity_id` text not null, `literal_entity_id` text not null, constraint `symbol_literals_symbol_entity_id_foreign` foreign key(`symbol_entity_id`) references `Symbol`(`id`) on delete cascade on update cascade, constraint `symbol_literals_literal_entity_id_foreign` foreign key(`literal_entity_id`) references `Literal`(`id`) on delete cascade on update cascade, primary key (`symbol_entity_id`, `literal_entity_id`));
+CREATE INDEX `symbol_literals_symbol_entity_id_index` on `symbol_literals` (`symbol_entity_id`);
+CREATE INDEX `symbol_literals_literal_entity_id_index` on `symbol_literals` (`literal_entity_id`);
+CREATE TABLE `literal_uses` (`literal_entity_1_id` text not null, `literal_entity_2_id` text not null, constraint `literal_uses_literal_entity_1_id_foreign` foreign key(`literal_entity_1_id`) references `Literal`(`id`) on delete cascade on update cascade, constraint `literal_uses_literal_entity_2_id_foreign` foreign key(`literal_entity_2_id`) references `Literal`(`id`) on delete cascade on update cascade, primary key (`literal_entity_1_id`, `literal_entity_2_id`));
+CREATE INDEX `literal_uses_literal_entity_1_id_index` on `literal_uses` (`literal_entity_1_id`);
+CREATE INDEX `literal_uses_literal_entity_2_id_index` on `literal_uses` (`literal_entity_2_id`);
+INSERT INTO `Mode` VALUES ('m');
+INSERT INTO `Symbol` VALUES ('s1'), ('s2');
+INSERT INTO `Literal` VALUES ('l1'), ('l2');
+INSERT INTO `symbol_literals` VALUES ('s1', 'l1'), ('s1', 'l2'), ('s2', 'l2');
+INSERT INTO `literal_uses` VALUES ('l1', 'l2');
+INSERT INTO `Turn` VALUES ('t1', null, 'm'), ('t2', 't1', 'm'), ('t3', 't2', 'm');

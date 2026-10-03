@@ -5,7 +5,8 @@ import { v } from "@vivalence/typology";
 // the export it travels with (null: a marker, nothing to carry).
 export const TRAITS = {
   EXPOSED: "aperture",
-  ATTACHED: "aperture",
+  ATTACHED: "attachment",
+  PROVIDER: "provider",
   BOOTED: "boot",
   DATASET: "dataset",
   INTENTED: "dataset",
@@ -40,6 +41,8 @@ export const RULES = [
   ...Object.entries(TRAITS)
     .filter(([, prototype]) => prototype)
     .map(([name, prototype]) => [(module) => traits(module).includes(name) && module[prototype] === undefined, fault(() => `${name}: no ${prototype} export`)]),
+  [(module) => traits(module).includes("SERVICE") && !traits(module).includes("ATTACHED") && module.control === undefined, fault(() => "SERVICE: no control export (a service that is not ATTACHED exports its control vector)")],
+  [(module) => traits(module).includes("PROVIDER") && !traits(module).includes("SERVICE"), fault(() => "PROVIDER: not a SERVICE (a provider is what a service exports)")],
 ];
 
 export const probe = (rules) => (module, span) =>

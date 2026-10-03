@@ -4,6 +4,7 @@
 #+phase: open (derived)
 #+progress: — (derived)
 #+next: survey (derived)
+#+states: — (derived)
 
 * intent
 /"m77 - droneaid homecoming"/

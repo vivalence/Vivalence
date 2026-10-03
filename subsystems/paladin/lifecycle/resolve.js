@@ -40,18 +40,9 @@ export function mountpoints(instance) {
   const attach = (service) => {
     service.reference ??= `/attached/process/service/${service.manifest?.type}/${service.manifest?.slug}`;
   };
-  // a lighthouse without a declared remote reaches the service hosting the same module, under this runtime
-  const lit = (holder) => {
-    const hosted = instance.services.find((service) => service.module === holder.lighthouse?.module);
-    if (!holder.lighthouse || !reach || !hosted) return;
-    holder.lighthouse.statics ??= {};
-    holder.lighthouse.statics.remote ??= reach.branch(hosted.reference).absolute;
-  };
   instance.daemons.forEach(seat("daemon"));
   instance.services.forEach(seat("service"));
   instance.services.forEach(attach);
-  lit(instance);
-  instance.daemons.forEach(lit);
   instance.daemons.forEach(address);
   instance.daemons.forEach(ground);
 }

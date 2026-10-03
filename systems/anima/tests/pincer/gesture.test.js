@@ -165,7 +165,7 @@ const sticky = (held) => {
   held.gesture.up(at(400, 300));
 };
 
-describe("pincer gesture — the comp's pull, tiles, lock and home", () => {
+describe("pincer gesture — the comp's pull, tiles and home", () => {
   it("a pull past the ring turns the chassis and carries the joint along it, live; the dead zone puts it back; the ring turns alone", () => {
     walk({}, (held) => {
       hold(held, 400, 300);
@@ -213,27 +213,12 @@ describe("pincer gesture — the comp's pull, tiles, lock and home", () => {
     }
   });
 
-  it("a sticky radial's tiles flip their flags; the centre locks the joint, and a locked joint neither drags, jumps nor turns", () => {
+  it("a sticky radial's tiles flip their flags and close it", () => {
     walk({}, (held) => {
       sticky(held);
       held.gesture.tile(at(0, 0), "hair");
       expect(held.bridge.view.hair).toBe(true);
       expect(held.gesture.radial.show).toBe(false);
-      sticky(held);
-      held.gesture.lock(at(0, 0));
-      expect(held.bridge.layout.locked).toBe(true);
-      held.gesture.down(at(400, 300));
-      held.gesture.move(at(500, 350));
-      held.gesture.up(at(500, 350));
-      taps(held, 1);
-      hold(held, 400, 300);
-      held.gesture.move(at(650, 300));
-      held.gesture.up(at(650, 300));
-      expect(held.bridge.layout.pincer).toEqual({ x: 400, y: 300 });
-      expect(held.bridge.layout.orientation).toBe(0);
-      hold(held, 400, 300);
-      held.gesture.move(rim(400, 300, 315, 80));
-      expect(held.gesture.radial.toggle).toBe("snap");
     });
   });
 
@@ -275,19 +260,6 @@ describe("pincer gesture — the comp's pull, tiles, lock and home", () => {
       expect(held.gesture.radial.show).toBe(false);
       expect(held.gesture.flash).toBe("tap2");
       expect(held.saves.length).toBe(1);
-    });
-  });
-
-  it("a locked joint refuses the home handle's tap with the caution flash and stays put", () => {
-    walk({ locked: true, standard: { x: 22.5, y: 777.5, orientation: 270 } }, (held) => {
-      sticky(held);
-      held.gesture.homeDown(at(22.5, 777.5));
-      held.gesture.homeUp(at(22.5, 777.5));
-      expect(held.bridge.layout.pincer).toEqual({ x: 400, y: 300 });
-      expect(held.bridge.layout.orientation).toBe(0);
-      expect(held.gesture.radial.show).toBe(false);
-      expect(held.gesture.flash).toBe("tap3");
-      expect(held.saves.length).toBe(0);
     });
   });
 

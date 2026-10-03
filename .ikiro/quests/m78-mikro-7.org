@@ -1,9 +1,11 @@
-#+title: m78 mikro 7 — mikro-orm 6.6.7 → 7.2.3: the migrator mikro owns rebuilds a sqlite table without gluing statements, the driver is chosen, metadata is keyed by class; the 20 live dbs cross on a pinned schema
+#+title: m78 mikro 7 — mikro-orm 6.6.7 → 7.2.3: the migrator mikro owns rebuilds a sqlite table without gluing statements, the driver is chosen, metadata is keyed by class; the 22 live dbs cross on a pinned schema
 #+filetags: :m78:mikro:datamap:migration:sqlite:typology:runtime:ledger:commons:registry:
-#+status: DESIGNED 10-02, unnumbered. The research stands in =.ikiro/reference/mikro-7/= (upstream · census · re-runnable smoke scripts; both agents on opus). Nothing built. The trigger sits uncommitted: =Turn.mode= REQUIRED + the =user= filter on Turn (=systems/runtime/entities/userspace/Turn.ts:59,91=) — a schema delta that every populated db meets at its next boot through the glued-pragma migrator. Seven forks owed to beef: the driver · the pivot pin · the update-rule default · the Map-keyed Datamap · the road for the 20 live dbs · timing against m76 · the Turn delta's road.
+#+status: DESIGNED, 10-05 re-measured: the full blast (=.ikiro/reference/mikro-7/blast.md=, persisted under =* terrain — re-measured 10-05=) and the v7 capabilities (=.ikiro/reference/mikro-7/capabilities.md=, F9 · =* deferred=). F1 RULED /"better-sqlite3."/ · F2 RULED /"pin the names. fuck it."/ — the four pivots declared on 6.6.7 without a go, kept (/"dont revert"/); the pin milestone stays open (rules per F3, =Identity.ts= · =DataEntity.ts=, the guard test). Owed to beef: F3 (three options now) · F4 · F5 · F6 · F7 · F8 · F9. Flag day: nothing built.
+#+status: (was) DESIGNED 10-02, unnumbered. The research stands in =.ikiro/reference/mikro-7/= (upstream · census · re-runnable smoke scripts; both agents on opus). Nothing built. The trigger sits uncommitted: =Turn.mode= REQUIRED + the =user= filter on Turn (=systems/runtime/entities/userspace/Turn.ts:59,91=) — a schema delta that every populated db meets at its next boot through the glued-pragma migrator. Seven forks owed to beef: the driver · the pivot pin · the update-rule default · the Map-keyed Datamap · the road for the 20 live dbs · timing against m76 · the Turn delta's road.
 #+phase: design (derived)
-#+progress:   0% 0/13 (derived)
+#+progress:   0% 0/16 (derived)
 #+next: go (derived)
+#+states: — (derived)
 
 * intent
 
@@ -27,17 +29,17 @@ The copy is =.ikiro/reference/mikro-7/= (README · upstream.md · census.md · c
 
 * terrain — measured 10-02
 
-Every number from a command run this session (the two agents' runs are in =reference/mikro-7/=; the session re-read the load-bearing lines in 7.2.3 itself).
+Every number from a command run this session (the two agents' runs are in =.ikiro/reference/mikro-7/=; the session re-read the load-bearing lines in 7.2.3 itself).
 
 - versions: ours =@mikro-orm/{core,sqlite,knex,migrations}@6.6.7= + =sqlite3@5.1.7= + =knex@3.1.0= (=import_map.json:42-44=, =node_modules/.deno=); npm =latest= 7.2.3 (2026-09-30), =latest-v6= 6.6.17. Deno 2.9.6.
 - the one boot path: =commons/datamaps/libsql/libsql.viva.js= — =:memory:= → =orm.schema.createSchema()= (:28); a file → =getMigrator()= · =checkMigrationNeeded()= → =createMigration()= · =getPendingMigrations()= → =up()= (:30-32), =transactional: false= (:20). Three callers: the runtime's own process datamap (=systems/runtime/lifecycle/runtime/population.js:22=), every daemon (=lifecycle/daemon/population.js:23=), the multiplayer lighthouse (=commons/lighthouses/multiplayer/server/entities.js:24=).
 - the glue, 6.6.7: =node_modules/.deno/@mikro-orm+knex@6.6.7/…/dialects/sqlite/BaseSqliteSchemaHelper.js:193-197= =sql.push('pragma foreign_keys = on;'); return sql.join('\n')= — no trailing blank line; =schema/SqlSchemaGenerator.js:238-242= =ret += diff=; =migrations/Migrator.js:276= splits on =;\n=; =sqlite3= =connection.all(sql)= runs the first statement only. Unchanged in 6.6.17 (packed, =:199=).
-- 7.2.3: =sql/dialects/sqlite/SqliteSchemaHelper.js:639= =getAlterTempTableSQL= returns an ARRAY; =schema/SqlSchemaGenerator.js:341= appends per statement with padding; =:180= FK matched to ITS column (=fk.columnNames[0] === column.name=). Both bugs run-proven fixed (=reference/mikro-7/upstream.md §5=).
+- 7.2.3: =sql/dialects/sqlite/SqliteSchemaHelper.js:639= =getAlterTempTableSQL= returns an ARRAY; =schema/SqlSchemaGenerator.js:341= appends per statement with padding; =:180= FK matched to ITS column (=fk.columnNames[0] === column.name=). Both bugs run-proven fixed (=.ikiro/reference/mikro-7/upstream.md §5=).
 - the migration-setting table (=core/utils/Configuration.js:84= defaults vs ours): =transactional= true/FALSE · =allOrNothing= true/inert · =disableForeignKeys= false/false · =safe= false · =dropTables= true · =multipleStatements= unset (read only by =schema.execute=) · =migrations.generator= default. None removes the glue; =generator= is the one hook that could split it inside 6.x (deferred).
 - metadata keying, 7.2.3: =core/metadata/MetadataStorage.js:65= =getAll() { return this.#metadataMap }= — a =Map= keyed by class; =core/metadata/EntitySchema.js:369= throws on a string =entity=; =core/EntityManager.js:98-105= hands a repository the class it was asked for.
 - pivot naming, 7.2.3: =core/metadata/MetadataDiscovery.js:505= =joinTableName(meta.className, meta2.tableName, prop.name, meta.tableName)=; =naming-strategy/UnderscoreNamingStrategy.js:5= =classToTableName(entityName, tableName) { return tableName ?? this.underscore(entityName) }=; self-ref m:n columns =:792= =baseName = isExplicitTableName(meta) ? meta.tableName : meta.className=. 6.6.7 had =joinTableName(meta.tableName, …)= with =classToTableName(entityName)= underscoring it (=core/metadata/MetadataDiscovery.js:480=, =UnderscoreNamingStrategy.js:6,15=) — so =Literal= → =literal=.
 - the live pivots (=brazilian.viva.db=, read-only): =literal_uses(literal_entity_1_id, literal_entity_2_id)= · =symbol_literals(symbol_entity_id, literal_entity_id)= · =buffer_literals= · =buffer_symbols=; every pivot FK =on delete cascade on update cascade=. =hello.viva.db= tables: Buffer Intent Literal Mode Symbol Thread Turn User _mikro_migrations buffer_literals buffer_symbols literal_uses symbol_literals.
-- the census (=reference/mikro-7/census.md=): 55 files import =@mikro-orm/*= (38 repo + 17 registry); =EntitySchema= 35 · =types= 29 · =Collection= 14; m:1 40 (19 with =updateRule=, 21 =deleteRule=) · 1:m 17 · m:n 7 · =pivotTable= 0; raw SQL strings 3 live (2 name a pivot); =getAll()= walked at =subsystems/typology/prototypes/datamap.js:7= and =gestalten/shard/datamap.js:274=; =createQueryBuilder= 2 (lighthouse auth); =getKnex= 0.
+- the census (=.ikiro/reference/mikro-7/census.md=): 55 files import =@mikro-orm/*= (38 repo + 17 registry); =EntitySchema= 35 · =types= 29 · =Collection= 14; m:1 40 (19 with =updateRule=, 21 =deleteRule=) · 1:m 17 · m:n 7 · =pivotTable= 0; raw SQL strings 3 live (2 name a pivot); =getAll()= walked at =subsystems/typology/prototypes/datamap.js:7= and =gestalten/shard/datamap.js:274=; =createQueryBuilder= 2 (lighthouse auth); =getKnex= 0.
 - on disk: 66 =Migration*.ts= under =~/.viva/instances= (63 live, 36 with =PRAGMA=), 20 =.snapshot-*.json=, one per mountpoint; =_mikro_migrations= rows and snapshots read by v7 unchanged (run: nothing pending, names matched).
 - the dbs: 12 live daemon dbs + the 7 multiplayer mountpoints + 1 service; Turn rows 229 across 8 dbs, 0 null =mode=, 0 dangling; Buffer =thread is null= 199/273 in =daemon_brazilian= (the =set null= orphans of known-issue =mikro-sqlite-migration-generator-glues-pragma-to-the-next-statement= §"Still armed").
 - drivers: =@mikro-orm/sqlite@7.2.3= pins =better-sqlite3@13.0.3= (prebuilt binaries in the tarball, no install script; THROWS on a multi-statement string); =@mikro-orm/sql= + =NodeSqliteDialect= (=node:sqlite=, Deno 2.2+, no native; =execute("A; B")= and =executeDump= SILENTLY run A only — =smoke/multi.js=); no v7 package depends on =sqlite3=. =deno.jsonc:28,80= and =Dockerfile:51= allow/deny install scripts for =npm:sqlite3=.
@@ -45,13 +47,80 @@ Every number from a command run this session (the two agents' runs are in =refer
 - the v6→v7 first diff, run on a v6-built db with unchanged entities: =__temp_alter= rebuild of every table with an m:1 — v6's default =Cascade.PERSIST= wrote =on update cascade= (=knex/schema/DatabaseTable.js:126-135=), v7 writes =prop.updateRule ?? schemaConfig.defaultUpdateRule= (=sql/schema/DatabaseTable.js:191=). =schemaGenerator.defaultUpdateRule: "cascade"= makes it near-empty (=smoke/v7diff.js … compat=).
 - nothing listens on =:2501=, no =--watch= runs (=lsof= · =pgrep=, 10-02) — the Turn delta is unapplied everywhere.
 
+* terrain — re-measured 10-05, the full blast
+
+beef 10-05: /"do a full blast assessmetn on repo adn registry to capture the full blast radius"/ → /"persist to quest."/ Map only, stamped 10-05 ~18:00 (=runtime/watch= live on strata, sibling 36f616e1 running suites). Scripts + raw outputs: =.ikiro/reference/mikro-7/blast/=; the long form: =.ikiro/reference/mikro-7/blast.md=.
+
+| radius | count |
+|---|---|
+| files naming mikro, any text | 392 |
+| live code files importing =@mikro-orm/*= | 58 (41 repo · 17 registry) |
+| testament copies · dead (=bak/=, =*.bak.*=) | 23 · 49 |
+| imported names · missing in 7.2.3 | 30 · 0 |
+| =@mikro-orm/knex= imports | 0 |
+| sqlite dbs (daemons · multiplayer) | 22 (13 · 9) |
+| m:1 FKs on disk with implied =on update cascade= | 186 |
+| migration files · with =pragma= · with =down()= | 66 · 36 · 0 |
+| cached mode bundles naming mikro | 205 (a schematic =.desc= string; 0 =@mikro-orm= code) |
+
+** breaks at flag day
+- the boot: =commons/datamaps/libsql/libsql.viva.js:28= =createSchema= · =:30-32= =getMigrator= · =checkMigrationNeeded= · =createMigration= · =getPendingMigrations=; reached from =systems/runtime/lifecycle/runtime/population.js:22= · =lifecycle/daemon/population.js:23= · =lifecycle/service/traits/datamap.js:8=.
+- schema verbs, 6 sites: =systems/runtime/tests/scenarios/datamap.js:57,73= (the assembly + chess rigs boot through it) · =commons/fixtures/data/lighthouse.js:20= · =systems/runtime/tests/virtual.discovery.test.js:48= · =systems/runtime/tests/daemon/symbols-query.test.js:24= · =subsystems/typology/tests/datamap.test.js:27=.
+- =getAll()= is a =Map= — =Object.*= of it is =[]=, silent: =subsystems/typology/prototypes/datamap.js:7= (=daemon.entities.<type>= undefined) · =subsystems/typology/gestalten/shard/datamap.js:291= (strip ={}=; its key becomes the class) · =virtual.discovery.test.js:55= · =commons/lighthouses/multiplayer/tests/shape.test.js:28=.
+- a string relation target throws at discovery: =subsystems/typology/entities/lighthouse/Identity.ts:47-48= =entity: "AuthenticatorEmbedEntity"= (9 multiplayer services) · =subsystems/typology/tests/datamap.test.js:21=.
+- =subsystems/typology/entities/base/DataEntity.ts:101= =this.entityName.charAt(0)= — =entityName= is the class in 7.2.3 (smoke: =function=); =getEntityName()= returns the string on both 6.6.7 (=EntityRepository.d.ts:181=) and 7.2.3.
+- =virtual.discovery.test.js:154= asserts v6's /"Torn entity is missing @PrimaryKey()"/ verbatim.
+- deps: =import_map.json:42-44= · =deno.jsonc:28,80= (+ commented =:107,:143=) · =Dockerfile:51= (=:12= apk =sqlite= is the CLI, stays) · =deno.lock= 8 entries; CI 0 hits.
+
+** shifts — no throw
+- 186 implied =on update cascade= → one =__temp_alter= rebuild per table with an m:1 at each db's first v7 boot (F3).
+- =onCreate= inside =em.create=: =DataEntity.ts:152,155,160,161= · education =Retention.ts:107,113,119= · =commons/fixtures/language-learning/entities/Retention.ts:74=; 96 =create(= sites in 30 files; =Buffer.ts:23= is the ordering law to re-read.
+- auto-flush before a query sees only =persist=ed changes — dependents beyond =Buffer.ts:23= not greppable.
+
+** struck by a 7.2.3 smoke (=.ikiro/reference/mikro-7/blast/raw.js=)
+- a lone =raw("random()")= orderBy key — accepted (education =Literal.ts:167= · chess =Literal.ts:208= leave the blast).
+- =raw()= LIKE keys under =$and= and spread (=DataEntity.ts:102-103=) — work.
+- =metadata.get("Name")= · =find("Name")= — resolve through the className map (=core/metadata/MetadataStorage.js:87-98=); only =has()= is false (no live caller).
+- =createQueryBuilder("i").where(sql, params).getSingleResult()= (=commons/lighthouses/multiplayer/attachment/auth.js:26,53= · =gestalten/identity.js:31=) — kept (=sql/query/QueryBuilder.d.ts:838=).
+- =forceUtcTimezone: true= — inert: dates are INTEGER epoch ms on disk.
+- =Migration= (66 on-disk files import it) — still exported.
+
+** the 22 dbs
+| mountpoint | Turn·Buffer·Literal·Identity | m:1 upd-cascade | migrations (pragma) | executed |
+|---|---|---|---|---|
+| chess · daemon_chess | 2·8·4823·- | 17 | 2 (1) | 2 |
+| droneaid · daemon_droneaid | 27·14·63·- | 13 | 3 (2) | 3 |
+| droneaid · service_multiplayer | -·-·-·2 | 2 | 2 (0) | 2 |
+| hello-world · daemon_hello | 63·9·0·- | 13 | 4 (2) | 4 |
+| language-learning · daemon_brazilian | 30·273·2223·- | 17 | 20 (20) | 28 |
+| language-learning · daemon_italian | 8·3·6583·- | 20 | 1 (0) | 1 |
+| language-learning · daemon_playground | 0·0·0·- | 10 | 11 (7) | 11 |
+| language-learning · daemon_spanish | 2·13·1699·- | 17 | 4 (2) | 4 |
+| language-learning · daemon_standalone | 0·0·2·- | 11 | 1 (0) | 1 |
+| language-learning · service_multiplayer | -·-·-·9 | 0 | 3 (0) | 3 |
+| media · daemon_media | 0·1·5·- | 13 | 1 (0) | 1 |
+| playground · daemon_playground | 31·1·0·- | 13 | 1 (0) | 1 |
+| strata · daemon_strata | 0·4·151·- | 15 | 1 (0) | 1 |
+| strata · service_multiplayer | -·-·-·1 | 2 | 1 (0) | 1 |
+| stucatch · daemon_stucatch | 0·2·283·- | 10 | 3 (2) | 3 |
+| vivalence · daemon_vcompany | 64·14·83·- | 13 | 2 (0) | 2 |
+| chess · hello-world · media · playground · stucatch · vivalence =service_multiplayer= (6) | -·-·-·1-2 | 0 | 1 (0) | 1 |
+
+=Identity_daemons= exists in droneaid and strata only (m76 crossed there). =daemon_brazilian= logs 28 executed against 20 files (+3 in =migrations/bak/=) — history by name, read fine by v7. Prod is not in this map.
+
+** unknowns — no grep answers them
+- the real entity set has never been DISCOVERED by 7.2.3 (=validate= · =strict= always on): =Process= (=type: "any"= · =persist: false= · =hidden= · =getter=), the virtual trick, =Daemon=/=Service= =extends: ProcessSchema=, enum arrays with =items: () => …=. "dry diff" measures it first.
+- v7's wording for the missing-PK error (=virtual.discovery.test.js:154=).
+- auto-flush dependents beyond =Buffer.ts:23=.
+- the prod volume's schema.
+
 * the deep changes — v6 → v7, for the reader arriving cold
 
 1. SQL generation moved inside mikro. v6 handed table changes to knex; knex's sqlite compiler held both our bugs (the glued pragma, the FK on =column[0]= of a string). v7 writes every statement itself as an array item and uses kysely only as the runner — /"Kysely is now used as the query runner, while the actual query building is done entirely by MikroORM itself"/ (release blog). The glue cannot recur.
 2. The driver is yours to choose, and =sqlite3= is gone. =@mikro-orm/sqlite= = better-sqlite3 (loud on a multi-statement string); =@mikro-orm/sql= + =NodeSqliteDialect= = =node:sqlite= (silent, the same failure class as today's bug); libsql · sql.js beside them. =driverOptions= takes a Kysely dialect straight.
-3. Entities are identified by their class, not by name strings. =getAll()= is a =Map<class, meta>=; =entity: "Name"= throws at discovery; a repository's =entityName= is the class; =prop.pivotEntity= and =meta.extends= are objects. Our =Datamap= and the strip iterate =getAll()= as a plain object and would come back EMPTY, silently.
+3. Entities are identified by their class, not by name strings. =getAll()= is a =Map<class, meta>=; =entity: "Name"= throws at discovery; a repository's =entityName= is the class; =prop.pivotEntity= and =meta.extends= are objects. Our =Datamap= and the strip iterate =getAll()= as a plain object and would come back EMPTY, silently. A class-name STRING still resolves through =get= · =find= (=core/metadata/MetadataStorage.js:87-98=, smoke 10-05); only =has("Name")= turned false.
 4. Rules are declared, never inferred. No FK =on update=/=on delete= or nullability from =cascade=; =validate= and =strict= always on; auto-flush before a query checks only =persist=ed entities. Every v6-built db carries the implied =on update cascade=; v7's first comparison rebuilds those tables unless the rule is declared.
-5. Defaults flipped: =processOnCreateHooksEarly= true (ids and timestamps at =em.create=, not flush — =BufferRepository.create= orders queries before the mint, =Buffer.ts:23=); =forceUtcTimezone= true (=CURRENT_TIMESTAMP= rows read as UTC); =loadStrategy= =balanced= (ours already).
+5. Defaults flipped: =processOnCreateHooksEarly= true (ids and timestamps at =em.create=, not flush — =BufferRepository.create= orders queries before the mint, =Buffer.ts:23=); =forceUtcTimezone= true — inert here: our dates are INTEGER epoch ms on disk (10-05); =loadStrategy= =balanced= (ours already).
 6. The migrator is built in (umzug gone), the words changed (=orm.migrator= · =checkSchema= · =create= · =getPending= · =up=; =orm.schema= · =create= · =refresh=), the snapshot normalized; =checkSchema()= diffs the snapshot FILE, not the live db; a v6 history table and snapshot read fine. =transactional: false= stays a law on sqlite.
 7. ESM-only, Node 22.17+, on JSR too (untested here). =emit: "js"= migrations are still CJS and fail under Deno — ours are =.ts= (ESM) already.
 
@@ -61,21 +130,25 @@ Each: options · beef's ruling verbatim · why it settled. Unruled = QUESTIONED;
 
 ** F1 the driver
 - better-sqlite3 (=@mikro-orm/sqlite=, prebuilt binary, THROWS on two statements in one string) · =node:sqlite= (=@mikro-orm/sql= + =NodeSqliteDialect=, zero native, SILENTLY runs the first statement) · libsql (=@mikro-orm/libsql=, native; =import_map.json:46= already maps =@libsql/client= for something else).
-- lean: better-sqlite3 — loud beats silent; today's whole incident was a silent first-statement-only driver. The =Dockerfile:51= allow-scripts line becomes moot (no install script). QUESTIONED.
+- lean: better-sqlite3 — loud beats silent; today's whole incident was a silent first-statement-only driver. The =Dockerfile:51= allow-scripts line becomes moot (no install script).
+- RULED 10-05, beef: /"better-sqlite3."/ — after the fresh smoke: node:sqlite =execute("A; B")= ran A only, better-sqlite3 threw /"The supplied SQL string contains more than one statement"/. =import { defineConfig, MikroORM } from "@mikro-orm/sqlite"= stays byte-identical at =commons/datamaps/libsql/libsql.viva.js:1=; the driver moves with the version.
 
 ** F2 pinning the pivots
 - explicit =pivotTable= · =joinColumns= · =inverseJoinColumns= on the four owners (=kernel/Symbol.ts:58= · =kernel/Literal.ts:111= · =userspace/Buffer.ts:100,106=; education re-declares =uses= at =Literal.ts:272=) · a custom =namingStrategy= that ignores the fourth argument.
 - lean: explicit on the owners — one structure made visible, grep-able, and the two raw SQL strings that name =literal_uses= · =symbol_literals= stay true by construction. Landed on v6 FIRST (the names are v6's today, so v6 shows no diff) so the v7 diff never sees a rename. QUESTIONED.
+- measured 10-05 (=.ikiro/reference/mikro-7/smoke/defaults/=, brazilian's own pivot DDL, 7.2.3 over better-sqlite3): bare entities → the diff opens with =create table `Literal_uses`= and dies on it, /"table `Literal_uses` already exists"/ — SQLite folds table names, v7's comparator (=sql/schema/DatabaseSchema.js:43= =t.name === name=) does not; nothing ran, rows kept, and under the boot migrator every boot of a populated db dies here. Pinned → =(no diff)=. RULED 10-05, beef: /"pin the names. fuck it."/ — landed the same day on 6.6.7 WITHOUT a go (/"i didnt say go. right?"/ → /"dont revert"/; callout scope-inflation #9); kept by beef's word. Letting mikro name the pivots is therefore road A per db (rows copied into =Symbol_literals= · =Literal_uses(literal_1_id, literal_2_id)=, the two raw strings rewritten), never the migrator. beef 10-05: /"why do we have to set all this values at all? why not juust let mikro set the default?"/
 
 ** F3 the update/delete rules
-- =schemaGenerator: { defaultUpdateRule: "cascade" }= global · explicit =updateRule= · =deleteRule= · =nullable= on every m:1 (40; 19 · 21 carry one today).
-- lean: explicit per relation, landed on v6 — v7's own law is "declared, never inferred"; a global default is a hidden rule over an explicit grammar (connoisseur). Each relation's rule is read off the LIVE db (=pragma foreign_key_list=) so the pin is the truth, not a guess. QUESTIONED.
+- =schemaGenerator: { defaultUpdateRule: "cascade" }= global · explicit =updateRule= · =deleteRule= · =nullable= on every m:1 (40; 19 · 21 carry one today) · nothing: mikro's v7 defaults.
+- lean 10-02: explicit per relation, landed on v6, each rule read off the LIVE db (=pragma foreign_key_list=).
+- lean 10-05, after the defaults probe: nothing — let mikro default. v7 still writes =on delete set null= for a nullable m:1 (=Turn.parent= bare → =on delete set null=) and =on update cascade on delete cascade= on every pivot FK; the only loss is the implied =on update cascade= on m:1, and every PK is a =v7()= uuid minted once (=subsystems/typology/entities/base/DataEntity.ts:152=), so that rule never fires. No m:1 carries =Cascade.ALL=/=REMOVE= (4 uses: 2 m:n, 2 1:m), so no v6 cascade-derived delete rule moves. Cost: one =__temp_alter= rebuild per table with an m:1 at the first v7 boot — probe: rows kept, second diff empty, =foreign_key_check= clean, a parent delete still nulls the child. REJECTED: the 10-02 lean — it pins a rule nothing reads, on 40 relations. QUESTIONED.
+- 10-05 blast + capabilities: the rebuild is 186 FKs over the 22 dbs — every table with an m:1, once each. The zero-rebuild lever is =schemaGenerator: { defaultUpdateRule: "cascade" }= (=core/utils/Configuration.d.ts:880=; =smoke/v7diff.js … compat= → near-empty): one global line against a rule nothing fires, versus 22 dbs rebuilt behind their captures. Three options, beef's call.
 
 ** F4 the Map-keyed Datamap
 - keep the key =meta.className.toLowerCase().replace("entity","")= and iterate =getAll().values()= · key by the descriptor =type= from =sets.<tier>.<name>= (=systems/runtime/entities/index.ts:36=) · the strip keyed by =meta.className=.
 - lean: iterate the Map, keep the key — minimal delta, the census proved every descriptor's =type= equals the derived key (m74 M3). Typology is HOLY: beef's call before any line. QUESTIONED.
 
-** F5 the road for the 20 live dbs
+** F5 the road for the 22 live dbs
 - let v7's migrator run at first boot (bug fixed; the diff near-empty after F2 · F3) · road A per db (empty seat + =ATTACH= + =INSERT … SELECT=, as prod italian) · a hybrid: migrator for the daemons, road A for brazilian (273 buffers, 199 orphans).
 - lean: the migrator, AFTER the dry diff (milestone "dry diff") shows exactly what it will run per db, and after a =capture-before-delete= of every mountpoint. Road A stays the fallback for any db whose diff is not the expected set. QUESTIONED.
 
@@ -90,6 +163,12 @@ Each: options · beef's ruling verbatim · why it settled. Unruled = QUESTIONED;
 ** F8 jsr or npm
 - =npm:@mikro-orm/*@7.2.3= (smoke-proven) · =jsr:@mikro-orm/*= (published, untested).
 - lean: npm; jsr deferred. QUESTIONED.
+
+** F9 what v7 adds, taken at flag day
+- beef 10-05: /"what capabilities does v7 offer?"/ — survey at =.ikiro/reference/mikro-7/capabilities.md= (opus agent; verified in the 7.2.3 sources).
+- options: nothing beyond the swap · =slowQueryThreshold= (one =config= key, =core/utils/Configuration.d.ts:749=) · =schemaGenerator.defaultUpdateRule= (F3) · drop the redundant =loadStrategy: "balanced"= (=libsql.viva.js:16=; v7's default, =core/utils/Configuration.js:44=).
+- automatic, no option: SQLite migrations gain a real =down()= (=core/platforms/Platform.js:734=) — every migration created at boot from flag day on.
+- lean: the swap and the automatic only; =slowQueryThreshold= the one key worth riding along (observability, no schema effect); everything else waits in =* deferred= for a consumer. QUESTIONED.
 
 * the law
 
@@ -109,57 +188,59 @@ the first v7 boot of a populated db is preceded by its dry diff on a copy, and t
 Each boots green at its boundary; the first three land on 6.6.7 and change no behaviour; "flag day" is one atomic swap; "crossing" is per db behind a capture.
 
 ** pin — the schema says on v6 what v7 will read
-- declare =pivotTable= · =joinColumns= · =inverseJoinColumns= on =kernel/Symbol.ts:58= (=symbol_literals=, =symbol_entity_id= · =literal_entity_id=), =kernel/Literal.ts:111= (=literal_uses=, =literal_entity_1_id= · =literal_entity_2_id=), =userspace/Buffer.ts:100,106= (=buffer_literals= · =buffer_symbols=, =buffer_entity_id= · …), and education =Literal.ts:272= (the re-declared =uses=) — the names the live dbs already have.
-- declare =updateRule= · =deleteRule= · =nullable= on every m:1 that lacks one (40 − 19/21), each read off =pragma foreign_key_list= of a live db, never guessed; the relations that relied on =Cascade.REMOVE=/=ALL= get their =deleteRule: "cascade"= written.
-- =Identity.ts:40= =entity: () => AuthenticatorEmbedEntity= (works on v6 too). =DataEntity.ts:101= =Utils.className(this.entityName)= (works on v6: =className= of a string is the string).
-- gate: on 6.6.7, =orm.schema.getUpdateSchemaSQL()= against a COPY of each of the 20 dbs is empty except the Turn delta (and the armed =Buffer.thread= rule in the 5 language-learning dbs, known-issue §"Still armed") — the pin changed no name.
+- pivots — DECLARED 10-05 (without a go, kept): =systems/runtime/entities/kernel/Symbol.ts:62= (=symbol_literals=, =symbol_entity_id= · =literal_entity_id=) · =kernel/Literal.ts:115= (=literal_uses=, =literal_entity_1_id= · =literal_entity_2_id=) · =userspace/Buffer.ts:104,113= (=buffer_literals= · =buffer_symbols=) · education =Literal.ts:276=; 6.6.7 discovered pivots + =getCreateSchemaSQL= byte-identical before/after (changelog 10-05).
+- rules per F3 (QUESTIONED): nothing · the global =defaultUpdateRule= · written per m:1 off =pragma foreign_key_list=.
+- =subsystems/typology/entities/lighthouse/Identity.ts:47-48= =entity: () => AuthenticatorEmbedEntity= (works on v6 too). =subsystems/typology/entities/base/DataEntity.ts:101= =this.getEntityName()= (a string on 6.6.7 =EntityRepository.d.ts:181= and on 7.2.3).
+- gate: =schema.names.test.js= green on 6.6.7; =orm.schema.getUpdateSchemaSQL()= against a COPY of each of the 22 dbs is empty except the Turn delta (and the armed =Buffer.thread= rule in the language-learning dbs, known-issue §"Still armed").
 
 ** dry diff — v7 reads our entities against copies of every db
-- a scratchpad sandbox (never the worktree): =reference/mikro-7/smoke/deno.json='s map + the repo's entity files copied in; =getUpdateSchemaSQL({ wrap: false })= per db copy, saved to =reference/mikro-7/diffs/<mountpoint>.sql=.
+- a scratchpad sandbox (never the worktree): =.ikiro/reference/mikro-7/smoke/deno.json='s map + the repo's entity files copied in; FIRST the real entity sets (runtime · each registry domain) DISCOVERED by 7.2.3 on =:memory:= — the blast's top unknown, strict =validate=; then =getUpdateSchemaSQL({ wrap: false })= per db copy, saved to =.ikiro/reference/mikro-7/diffs/<mountpoint>.sql=.
 - expected set per db: the =Turn= rebuild (mode NOT NULL + cascade) · the =Buffer.thread= rule where armed · nothing else. A pivot drop, a column rename, an unexpected rebuild = back to "pin".
-- gate: 20 diff files, each read, each the expected set; the count of =drop table= lines across all 20 = 0.
+- gate: every entity set discovered without a throw; 22 diff files, each read, each the expected set; the count of =drop table= lines across all 22 = 0.
 
 ** flag day — one atomic swap to 7.2.3
-- =import_map.json=: =@mikro-orm/core= · =@mikro-orm/sql= (was knex) · =@mikro-orm/migrations= · =@mikro-orm/sqlite= at 7.2.3; =knex= dropped; =deno.jsonc:28,80= · =Dockerfile:51= lose =npm:sqlite3=.
-- =commons/datamaps/libsql/libsql.viva.js=: =orm.schema.create()= · =orm.migrator= · =checkSchema()= · =create()= · =getPending()= · =up()=; the driver per F1; =transactional: false= kept; =emit: "ts"= explicit.
-- =subsystems/typology/prototypes/datamap.js:7= · =gestalten/shard/datamap.js:274=: iterate the Map (F4).
-- =tests/scenarios/datamap.js:57,73= · =commons/fixtures/data/lighthouse.js:19= · =symbols-query.test.js:24= · =virtual.discovery.test.js:48,55,155= · =typology/tests/datamap.test.js:21,27=: the words.
-- =raw("random()")= as an =orderBy= key beside string keys (education =Literal.ts:167=, chess =Literal.ts:208=) — rejected in v7; rewrite as the one raw key or =qb=.
-- =BufferRepository.create= (=Buffer.ts:23=) re-read under =processOnCreateHooksEarly=; =forceUtcTimezone= set explicitly to the value the rows mean.
+- =import_map.json:42-44=: =@mikro-orm/core= · =@mikro-orm/migrations= · =@mikro-orm/sqlite= at 7.2.3 (=@mikro-orm/sqlite= IS better-sqlite3, F1); no =knex= mapping exists; =deno.jsonc:28,80= (+ commented =:107,:143=) · =Dockerfile:51= lose =npm:sqlite3=; =deno.lock= re-resolved.
+- =commons/datamaps/libsql/libsql.viva.js=: =orm.schema.create()= · =orm.migrator= · =checkSchema()= · =create()= · =getPending()= · =up()=; =transactional: false= kept; =emit: "ts"= explicit; F9's keys if ruled.
+- =subsystems/typology/prototypes/datamap.js:7= · =gestalten/shard/datamap.js:291= (key by =meta.className=): iterate the Map (F4).
+- =tests/scenarios/datamap.js:57,73= · =commons/fixtures/data/lighthouse.js:20= · =symbols-query.test.js:24= · =virtual.discovery.test.js:48,55,154= · =typology/tests/datamap.test.js:21,27= · =commons/lighthouses/multiplayer/tests/shape.test.js:28=: the words.
+- =BufferRepository.create= (=Buffer.ts:23=) re-read under =processOnCreateHooksEarly= and the persist-only auto-flush.
 - gate: every suite green on =:memory:= — typology · paladin · runtime · chess · assembly · hello-world · education · commons · ghost at their baselines (pasted counts); =viva instance/run= on a FRESH temp ledger reaches =Status:RUNNING=; the multiplayer lighthouse fixture boots.
 
-** crossing — the 20 live dbs, one at a time, behind a capture
+** crossing — the 22 live dbs, one at a time, behind a capture
 - per mountpoint: =capture-before-delete= → boot the instance → the automatic migrator runs the dry-diff set → =pragma foreign_key_check= empty → row counts per table equal the capture's → =Status:RUNNING= → stop.
-- order: =hello-world= (63 turns, the smallest populated) → =playground= → =chess= · =droneaid= · =vivalence= → =language-learning= (brazilian last: 273 buffers, 199 orphans — F5 may send it road A) → the 7 multiplayer mountpoints → prod (`pull-prod-mountpoint` first, the known-issue's road A retired).
-- gate: 20 of 20 with =foreign_key_check= empty and counts equal, pasted per db.
+- order: =hello-world= (63 turns, the smallest populated) → =playground= → =chess= · =droneaid= · =vivalence= → =language-learning= (brazilian last: 273 buffers, 199 orphans — F5 may send it road A) → =media= · =stucatch= · =strata= → the 9 multiplayer mountpoints → prod (`pull-prod-mountpoint` first, the known-issue's road A retired).
+- gate: 22 of 22 with =foreign_key_check= empty and counts equal, pasted per db.
 
 ** residue — the words out of the tree
-- grep gates (QA below) at zero; =known-issues.org= entry =mikro-sqlite-migration-generator-glues-pragma-to-the-next-statement= CUT (resolved entries leave the ledger); =world/codemap/{invariants,runtime,typology,commons,ledger}.md= re-read for =getMigrator= · =createSchema= · =refreshDatabase= · =sqlite3= · =knex=; =reference/mikro-7/README.md= gains the crossing's numbers; release lines lifted.
+- grep gates (QA below) at zero; =known-issues.org= entry =mikro-sqlite-migration-generator-glues-pragma-to-the-next-statement= CUT (resolved entries leave the ledger); =world/codemap/{invariants,runtime,typology,commons,ledger}.md= re-read for =getMigrator= · =createSchema= · =refreshDatabase= · =sqlite3= · =knex=; =.ikiro/reference/mikro-7/README.md= gains the crossing's numbers; release lines lifted.
 
 * blast table
 
 | file | change | milestone | kind |
 |---|---|---|---|
-| =systems/runtime/entities/kernel/Symbol.ts:58= | pivotTable · joinColumns · inverseJoinColumns | pin | schema |
-| =systems/runtime/entities/kernel/Literal.ts:111,116= | pivotTable · joinColumns · inverseJoinColumns (self m:n) | pin | schema |
-| =systems/runtime/entities/userspace/Buffer.ts:100,106= | pivotTable · joinColumns · inverseJoinColumns | pin | schema |
-| =~/.viva/registry/education/domain/entities/kernel/Literal.ts:272= | the re-declared =uses= pinned the same | pin | schema |
-| every m:1 lacking a rule (40 − 19/21; runtime kernel · userspace · transient, 5 registry domains, =commons/fixtures/language-learning=) | =updateRule= · =deleteRule= · =nullable= written | pin | schema |
-| =subsystems/typology/entities/lighthouse/Identity.ts:40= | =entity: () => AuthenticatorEmbedEntity= | pin | code |
-| =subsystems/typology/entities/base/DataEntity.ts:101= | =Utils.className(this.entityName)= | pin | code |
-| =reference/mikro-7/diffs/*.sql= | 20 dry diffs | dry diff | artifact |
-| =import_map.json:42-44= | 7.2.3 · =sql= for =knex= · driver per F1 | flag day | deps |
-| =deno.jsonc:28,80= · =Dockerfile:51= | =npm:sqlite3= out | flag day | deps |
-| =commons/datamaps/libsql/libsql.viva.js:1-35= | words · driver · =emit= | flag day | code |
+Re-derived 10-05 from =.ikiro/reference/mikro-7/blast.md= (the full map: breaks · shifts · verified safe · 22 dbs · unknowns).
+
+| file | change | milestone | kind |
+|---|---|---|---|
+| =systems/runtime/entities/kernel/Symbol.ts:62= | pivotTable · joinColumns · inverseJoinColumns — LANDED 10-05 | pin | schema |
+| =systems/runtime/entities/kernel/Literal.ts:115= | pivotTable · joinColumns · inverseJoinColumns (self m:n) — LANDED 10-05 | pin | schema |
+| =systems/runtime/entities/userspace/Buffer.ts:104,113= | pivotTable · joinColumns · inverseJoinColumns — LANDED 10-05 | pin | schema |
+| =~/.viva/registry/education/domain/entities/kernel/Literal.ts:276= | the re-declared =uses= pinned the same — LANDED 10-05 | pin | schema |
+| every m:1 lacking a rule (186 FKs on disk carry the implied =on update cascade=) | per F3: nothing (one rebuild per table) · or =schemaGenerator.defaultUpdateRule: "cascade"= (no rebuild) · or written per relation | pin | schema |
+| =subsystems/typology/entities/lighthouse/Identity.ts:47-48= | =entity: () => AuthenticatorEmbedEntity= | pin | code |
+| =subsystems/typology/entities/base/DataEntity.ts:101= | =this.getEntityName()= (string in 7.2.3, smoke) | pin | code |
+| =.ikiro/reference/mikro-7/diffs/*.sql= | 22 dry diffs | dry diff | artifact |
+| =import_map.json:42-44= | 7.2.3 ×3; =@mikro-orm/sqlite= IS better-sqlite3 (F1) | flag day | deps |
+| =deno.jsonc:28,80= (+ commented =:107,:143=) · =Dockerfile:51= · =deno.lock= (8) | =npm:sqlite3= out | flag day | deps |
+| =commons/datamaps/libsql/libsql.viva.js:1-35= | words · =emit= | flag day | code |
 | =subsystems/typology/prototypes/datamap.js:7= | Map iteration | flag day | code |
-| =subsystems/typology/gestalten/shard/datamap.js:274= | Map iteration | flag day | code |
+| =subsystems/typology/gestalten/shard/datamap.js:291= | Map iteration, key by =meta.className= | flag day | code |
 | =systems/runtime/tests/scenarios/datamap.js:57,73= | =refresh()= | flag day | test |
-| =commons/fixtures/data/lighthouse.js:19= | =refresh()= | flag day | test |
-| =systems/runtime/tests/daemon/symbols-query.test.js:24= · =tests/virtual.discovery.test.js:48,55,155= · =subsystems/typology/tests/datamap.test.js:21,27= | words · Map · entity fn · v7 error text | flag day | test |
-| =~/.viva/registry/education/domain/entities/kernel/Literal.ts:167= · =~/.viva/registry/chess/domain/entities/kernel/Literal.ts:208= | =raw()= orderBy key | flag day | code |
+| =commons/fixtures/data/lighthouse.js:20= | =refresh()= | flag day | test |
+| =systems/runtime/tests/daemon/symbols-query.test.js:24= · =tests/virtual.discovery.test.js:48,55,154= · =subsystems/typology/tests/datamap.test.js:21,27= · =commons/lighthouses/multiplayer/tests/shape.test.js:28= | words · Map · entity fn · v7 error text | flag day | test |
 | =systems/runtime/entities/userspace/Buffer.ts:23= | re-read under early onCreate | flag day | code |
-| =~/.viva/instances/*/mountpoint/*/= (20) | migrated by the automatic migrator, captured first | crossing | ledger |
-| =~/.viva/bak/instances/<slug>-20YYMMDD/= (20) | the captures | crossing | ledger |
+| =~/.viva/instances/*/mountpoint/*/= (22) | migrated by the automatic migrator, captured first | crossing | ledger |
+| =~/.viva/bak/instances/<slug>-20YYMMDD/= (22) | the captures | crossing | ledger |
 | prod runtime volume | pull · diff · cross | crossing | prod |
 | =.ikiro/known-issues.org= | the glued-pragma entry cut | residue | ikiro |
 | =.ikiro/world/codemap/{invariants,runtime,typology,commons,ledger}.md= | the words | residue | ikiro |
@@ -169,15 +250,16 @@ Each boots green at its boundary; the first three land on 6.6.7 and change no be
 
 ** in place
 - =subsystems/typology/tests/datamap.test.js= (Datamap over =:memory:=) · =systems/runtime/tests/scenarios/datamap.js= (every rig, registry rigs included) · =tests/virtual.discovery.test.js= · =tests/virtual.test.js= · =tests/daemon/symbols-query.test.js= · =tests/topography/harness.js= · =tests/repository.populate.test.js= (monkeypatches =connection.execute=) · education =domain/tests/kernel/literal.test.js:200,207= (=sqlite_master= · =pragma foreign_key_check= — the ONE on-disk schema probe) · =domain/tests/userspace/scoping.test.js=.
-- COVERAGE GAP: no test boots a POPULATED file db through the migrator; no test asserts a pivot's name or columns; no test asserts an FK rule as written on disk; no test asserts the =user= filter on Turn or the required =mode= (10-02's delta is unguarded); no test runs a two-statement string through the driver.
+- COVERAGE GAP: no test boots a POPULATED file db through the migrator; no test asserts a pivot's name or columns; no test asserts an FK rule as written on disk; no test asserts the =user= filter on Turn or the required =mode= (10-02's delta is unguarded); no test runs a two-statement string through the driver; no test has discovered the real entity sets under 7.2.3 (strict =validate=); no test asserts =datamap.entities.<type>= is populated for every non-abstract class (the silent =getAll()= break).
 
 ** changes
 | test | why |
 |---|---|
 | =systems/runtime/tests/scenarios/datamap.js:57,73= | =refreshDatabase= → =refresh= |
-| =commons/fixtures/data/lighthouse.js:19= | same |
-| =systems/runtime/tests/daemon/symbols-query.test.js:24= | =createSchema= → =create= |
-| =systems/runtime/tests/virtual.discovery.test.js:48,55,155= | =createSchema= · =getAll()= Map · a v6 error message asserted verbatim |
+| =commons/fixtures/data/lighthouse.js:20= | same |
+| =systems/runtime/tests/daemon/symbols-query.test.js:24= | =refreshDatabase= → =refresh= |
+| =systems/runtime/tests/virtual.discovery.test.js:48,55,154= | =refreshDatabase= · =getAll()= Map · a v6 error message asserted verbatim |
+| =commons/lighthouses/multiplayer/tests/shape.test.js:28= | =getAll()= Map |
 | =subsystems/typology/tests/datamap.test.js:21,27= | string =entity= · =createSchema= |
 | =systems/runtime/tests/repository.populate.test.js:11-18= | the =execute(query, params, method)= monkeypatch re-read against =sql/AbstractSqlConnection= |
 
@@ -190,8 +272,8 @@ Each boots green at its boundary; the first three land on 6.6.7 and change no be
 ** per-milestone green ladder
 | milestone | gate |
 |---|---|
-| pin | =schema.names.test.js= green on 6.6.7 · =getUpdateSchemaSQL= empty on 20 copies except the Turn/Buffer deltas · typology · runtime · chess · assembly · education at baseline, pasted |
-| dry diff | 20 =diffs/*.sql= read, =drop table= count 0, each the expected set |
+| pin | =schema.names.test.js= green on 6.6.7 · =getUpdateSchemaSQL= empty on 22 copies except the Turn/Buffer deltas · typology · runtime · chess · assembly · education at baseline, pasted |
+| dry diff | every entity set discovered by 7.2.3 · 22 =diffs/*.sql= read, =drop table= count 0, each the expected set |
 | flag day | every suite at baseline on 7.2.3, pasted; =driver.multi.test.js= green; =viva instance/run= on a fresh temp ledger → =Status:RUNNING= |
 | crossing | =migrate.populated.test.js= green; per db =foreign_key_check= empty + counts equal, pasted |
 | residue | QA grep gates 0 · =turn.scope.test.js= green · known-issue cut |
@@ -207,14 +289,17 @@ No milestone flips DONE without its named test file and the pasted counts.
 - I grep the tree for =sqlite3= and find only the CLI in a shell snippet, never a dependency.
 
 ** ② programmatic probes + markers
-#+marker_qa: m78/P-pivot-names · pending · `schema.names.test.js` — `symbol_literals` · `literal_uses` · `buffer_literals` · `buffer_symbols` with their v6 columns, declared on the owners; `grep -rn "pivotTable:" systems/runtime/entities ~/.viva/registry/*/domain/entities --include=*.ts` = 5
+#+marker_qa: m78/P-pivot-names · pending · `schema.names.test.js` — `symbol_literals` · `literal_uses` · `buffer_literals` · `buffer_symbols` with their v6 columns, declared on the owners; `grep -rn "pivotTable:" systems/runtime/entities ~/.viva/registry/*/domain/entities --include=*.ts --exclude-dir=bak` = 5 (10-05: 5 — the declarations hold; the test is owed)
 #+marker_qa: m78/P-rules-declared · pending · `grep -rn 'kind: "m:1"' -A6 systems/runtime/entities ~/.viva/registry/*/domain/entities commons/fixtures --include=*.ts | grep -c updateRule` equals the m:1 count; the same for `deleteRule`
-#+marker_qa: m78/P-dry-diff · pending · 20 files in `reference/mikro-7/diffs/`, `grep -l "drop table" reference/mikro-7/diffs/*.sql` = 0, each diff the expected set
+#+marker_qa: m78/P-dry-diff · pending · 22 files in `.ikiro/reference/mikro-7/diffs/`, `grep -l "drop table" .ikiro/reference/mikro-7/diffs/*.sql` = 0, each diff the expected set
 #+marker_qa: m78/P-no-old-words · pending · `rg "getMigrator\(|createSchema\(|refreshDatabase\(|checkMigrationNeeded|createMigration\(|getPendingMigrations|@mikro-orm/knex" subsystems systems commons ~/.viva/registry` = 0
 #+marker_qa: m78/P-no-sqlite3 · pending · `rg "npm:sqlite3|\"sqlite3\"|from \"sqlite3\"" import_map.json deno.jsonc Dockerfile deno.lock` = 0 after flag day
-#+marker_qa: m78/P-map-walk · pending · `rg "Object\.(values|entries)\((orm\.)?(getMetadata\(\)|metadata)\.getAll\(\)" subsystems systems` = 0; `datamap.test.js` asserts `entities.<type>` present for every non-abstract class
+#+marker_qa: m78/P-map-walk · pending · `rg -n "getAll\(\)" subsystems systems commons` — every hit walks the Map (`.values()` · `for … of`), none feeds `Object.values|entries|keys` (10-05: 4 do — `prototypes/datamap.js:7` · `shard/datamap.js:291` via `const all` · `virtual.discovery.test.js:55` · `multiplayer/tests/shape.test.js:28`); `datamap.test.js` asserts `entities.<type>` present for every non-abstract class
+#+marker_qa: m78/P-entity-name · pending · `rg "entityName\.charAt" subsystems systems commons ~/.viva/registry` = 0 (10-05: 1, `DataEntity.ts:101`)
+#+marker_qa: m78/P-string-target · pending · `rg 'entity:\s*"[A-Z]' subsystems systems commons ~/.viva/registry -g '*.ts' -g '*.js'` = 0 (10-05: 2, `Identity.ts:48` · `typology/tests/datamap.test.js:21`)
+#+marker_qa: m78/P-discovered · pending · the dry-diff sandbox discovers the runtime set and every registry domain set under 7.2.3 on `:memory:` without a throw, pasted per set
 #+marker_qa: m78/P-driver-loud · pending · `driver.multi.test.js` — a two-statement `execute` THROWS
-#+marker_qa: m78/P-fk-check · pending · per crossed db `sqlite3 "file:<db>?mode=ro" "pragma foreign_key_check"` prints nothing, 20 of 20
+#+marker_qa: m78/P-fk-check · pending · per crossed db `sqlite3 "file:<db>?mode=ro" "pragma foreign_key_check"` prints nothing, 22 of 22
 #+marker_qa: m78/P-rows-kept · pending · per crossed db, `select count(*) from <table>` for every table equals the capture's, pasted in the changelog
 #+marker_qa: m78/P-turn-scope · pending · `turn.scope.test.js` — the `user` filter on Turn holds; a mode-less `chain` throws
 #+marker_qa: m78/P-known-issue-cut · pending · `grep -c "mikro-sqlite-migration-generator-glues-pragma" .ikiro/known-issues.org` = 0 after residue
@@ -226,10 +311,28 @@ No milestone flips DONE without its named test file and the pasted counts.
 - =jsr:@mikro-orm/*= — reopens when the npm path is green and a Deno-native import matters.
 - the =@libsql/client= mapping at =import_map.json:46= (not mikro's) — reopens if F1 picks libsql.
 - =Buffer.thread= orphans in brazilian (199/273) — a data question (reattach · drop), not a schema one; reopens at the crossing of =daemon_brazilian=.
-- =Daemon=/=Service= =extends: ProcessSchema= (a non-abstract parent) against v7's TPT inheritance detection — reopens at flag day if the runtime's =:memory:= datamap refuses it.
-- =em.stream()= and =migration:rollup= — new words, no consumer yet.
+- =Daemon=/=Service= =extends: ProcessSchema= (a non-abstract parent) — TPT is opt-in (=inheritance: 'tpt'=, =core/metadata/types.d.ts:76=), so v7 leaves it alone; strict =validate= is the remaining question, answered by "dry diff".
+- v7 capabilities with no consumer yet (=.ikiro/reference/mikro-7/capabilities.md=), each reopens on its trigger:
+  - =migrator.logMigration= · =unlogMigration= · =rollup= — a half-applied migration under =transactional: false=, or brazilian's 20-file history folded.
+  - =getNativeClient()= (better-sqlite3 =.pragma()= · =.backup()= · =.function()=) — a capture taken by the driver itself.
+  - named parameters =:name= · =:name:= in =execute= — the dojo =aperture/index.js:85= table/column splice.
+  - =em.countBy= · =Collection.loadCount= — a tally over a property (the dojo pivot tally is not one).
+  - =populateHints= — a per-query =select-in=.
+  - =$size= · =$all= · CTEs =qb.with()= (Turn/Thread =parent= chains) · =unionWhere= · =em.stream()= · typed =em.getKysely()= (retires hard-coded pivot names).
+  - entity =orderBy= (=Turn.ts:9= =createdAt ASC=) · =through= ("latest turn of a thread") · =targetKey= · =StringType({ trim, case })= · =collation=.
+  - =triggers= · view entities · partial indexes · =attachDatabases= (joins across daemon files) · routines (JS UDFs).
+  - =await using orm= (test rigs) · =RequestContext.create= fork options (=typology/prototypes/datamap.js:11=).
+- =changelog-7x.txt= stops at 7.0.1 — the 7.0.0 section lives in the 7.2.3 tarball's =CHANGELOG.md:840-977=; reopens when the copy is next refreshed.
 
 * changelog
+
+** 10-05 — F1 ruled, the defaults probe
+- F1: /"better-sqlite3."/ after a fresh re-run of =smoke/multi.js= · =bs3.js= (node:sqlite ran A of =A; B=, better-sqlite3 threw).
+- =smoke/defaults/= (=v6.sql= = brazilian's =Turn= · =symbol_literals= · =literal_uses= DDL with rows; =probe.js <db> bare|pivots|pinned diff|apply|delete=): bare dies on =create table `Literal_uses`=; pivots-only = one =Turn= rebuild dropping =on update cascade=, applied with every row kept; pinned = no diff. F2 holds, F3's lean moves to "let mikro default".
+- F2 ruled /"pin the names. fuck it."/ and LANDED on 6.6.7 WITHOUT a go — the ruling was read as one; beef: /"i didnt say go. right?"/ → /"dont revert"/: =pivotTable= · =joinColumns= · =inverseJoinColumns= on =systems/runtime/entities/kernel/Symbol.ts:62= · =kernel/Literal.ts:115= · =userspace/Buffer.ts:104,113= · =~/.viva/registry/education/domain/entities/kernel/Literal.ts:276=; =Identity.daemons= already names =Identity_daemons= and v7 keeps its className columns, typology untouched. Proof (scratchpad harness, =assemble([kernel, userspace, transient(, education)])= under 6.6.7): discovered pivots + =getCreateSchemaSQL= byte-IDENTICAL bare vs pinned and before vs after the edit, runtime set (12 tables) and education set (14). =runtime/watch= was live on strata (=:2501=): spans show a teardown + fresh open after the saves, both strata dbs re-held, migrations unchanged (1 file each, =Migration20261003194330.ts=). Suites identical to the baseline taken before the edit: typology =datamap= 1 (3) · runtime =datamap= 1 (19) · =repository.persist= 1 (5) · =repository.populate= 1 (2) · =virtual.discovery= 1 (20) · =symbols-query= 1 (8) · education =retention/drivers= 4 (13) · =retention/bayesian= 5 (36) · dojo =machine= 9 (33) — 0 failed each; PRE-EXISTING reds, same both sides: education =kernel/literal= (/"Module not found …/registry/fixtures/data/seed.js"/) · =aperture= · =tools= (/"reading 'authorize'"/) · dojo =aperture= · =emitter= (=literal[method] is not a function=, =no property 'retentions'=). Owed: =schema.names.test.js= (the guard that turns red on v7 if a pin is dropped).
+- the full blast (beef: /"do a full blast assessmetn on repo adn registry to capture the full blast radius"/), map only: =.ikiro/reference/mikro-7/blast.md= + =blast/= scripts. 58 live files import mikro (41 repo · 17 registry), 30 names, 0 missing in 7.2.3; breaks = the boot words · 6 schema-verb sites · 4 =getAll()= walks · =Identity.ts:47-48= string target · =DataEntity.ts:101= =charAt= on a class · one asserted v6 error text · deps; 22 dbs, 186 implied =on update cascade= FKs, 66 migrations (36 =pragma=, 0 =down()=). Struck from the blast table after a 7.2.3 smoke: the =raw("random()")= orderBy keys (a lone raw key is accepted) — and the census's string-lookup worry (=get("Name")= / =find("Name")= still resolve; only =has()= and =getAll()= changed). Biggest unknown: the real entity set has never been discovered by 7.2.3 (strict =validate=) — "dry diff" measures it. Capabilities: =.ikiro/reference/mikro-7/capabilities.md=.
+- persisted (beef /"persist to quest."/): =* terrain — re-measured 10-05, the full blast= · deep changes 3 · 5 corrected · F3 gains the =defaultUpdateRule= option · F9 · milestones re-lined (20 → 22 dbs, =shard/datamap.js:291=, =lighthouse.js:20=, =shape.test.js:28=, =DataEntity.ts:101= → =getEntityName()=; the =raw()= orderBy bullet removed) · coverage gap · QA markers =P-entity-name= · =P-string-target= · =P-discovered=, =P-map-walk= widened · deferred re-derived from the capabilities. Sibling 36f616e1 live on the quest (suites only, no writes) while this ran.
+- corrected: the census's "drop + create per pivot" loses no rows — the create comes first and fails; and v7 does NOT turn an unwritten nullable delete rule into NO ACTION (said in session, wrong): it writes =set null=.
 
 ** 10-02 — research, no code
 - the trigger: =Turn.mode= REQUIRED + the =user= filter (=Turn.ts:59,91=) — 229 live turns, 0 null, 0 dangling (12 dbs + 10 backups read-only); 12 turn-touching test files green after the edit: =turn.unit-of-work= 2 passed (5 steps) · =multiplex.filter= 1 (5) · =cortex.integration= 1 (23) · =cortex.stripwire= 1 (11) · =harness.thread= 1 (2) · =sse.integration= 1 (3) · =multiplex.integration= 1 (5) · =activity.integration= 1 (3) · =stub.activity= 1 (6) · =mode/tooling= 1 (8) · hello-world =research= 1 (7) · hal =stub= 2 (14) — 0 failed each. =world/codemap/runtime.md:13= updated. No populated db booted; nothing listens on =:2501=.
@@ -245,3 +348,7 @@ none yet: no interface moved. Lines that WILL lift at the sunset, drafted:
 - changed =commons/datamaps/libsql= — mikro-orm 7.2.3 over better-sqlite3 (was 6.6.7 over sqlite3 + knex); a populated sqlite db meeting a schema delta is migrated by mikro's own migrator, no road A · migrate: =deno task dependencies= (no install script for the driver), restart every instance once; =~/.viva/instances/*/mountpoint/*/migrations= gain one file each ⟨m78⟩
 - changed =Turn.mode= — required, cascade, like =Buffer.mode=; =Turn= carries the =user= filter =thread.user= · migrate: none (no row had a null mode) ⟨m78 · 10-02⟩
 - removed =npm:sqlite3= · =@mikro-orm/knex= from the import map · migrate: none ⟨m78⟩
+
+* handoff
+
+- 10-07, from quest =lighthouseless= (lands ON 7.2.3; m78 is its first milestone or precedes it — beef's order): (1) an STI root (=discriminatorColumn= = a m:1 FK) on the node:sqlite dialect reports a =__temp_alter= rebuild from =getUpdateSchemaSQL()= right after =schema.create()= — TPT reports in sync; the first-boot diff pin (§6.1) must cover it. (2) =orm.discoverEntity(newcomer)= alone throws (=MetadataDiscovery.js:1377= wants the root in the new set); pass the whole hierarchy + =reset= names. Probes: the session scratchpad =v7/{sti.daemon.v7,daemon.only.v7,daemon.late2.v7}.js=, =deno.json= copied from =reference/mikro-7/smoke/=. Later the same day: =lighthouseless= REJECTED STI (fixed kernel schema, a repository per daemon) — (1) is no longer load-bearing for it; it stays m78's own finding about the dialect, pinned by =v7/review.v7.js= (the rebuild recurs even after =schema.update()=, so a STI root on node:sqlite never reaches "in sync").

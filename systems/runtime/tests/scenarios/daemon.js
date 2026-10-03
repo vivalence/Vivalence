@@ -1,8 +1,8 @@
-import { Url, Connection, shard, Mode, Path, shape, Aperture, Vector, App, middleware, v } from "@vivalence/typology";
+import { Url, Connection, shard, Mode, Path, shape, Aperture, Vector, App, middleware, v, Status } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
 import { seed, tiers } from "./fixtures.js";
 
-import { gestalten, lifecycle } from "@vivalence/runtime";
+import { Lighthouse, gestalten, lifecycle } from "@vivalence/runtime";
 const { INTENTED, EMITTER } = lifecycle.mode.traits;
 const { stagger } = gestalten.belt;
 
@@ -80,22 +80,20 @@ export async function create() {
 
   const TOKENS = { "test-token": "test-identity", "fresh-token": "fresh-identity" };
   const enrolled = new Map([["test-identity", fixtures.user]]);
-  daemon.aperture.use(async (ctx, next) => {
-    ctx.authority = {
-      authenticate: async (token) => {
-        const id = TOKENS[token];
-        if (!id) throw new Error("invalid token");
-        return {
-          identity: { id },
-          getUser: async () => enrolled.get(id) ?? null,
-          enroll: async () => {
-            if (!enrolled.has(id)) enrolled.set(id, { ...fixtures.user, id });
-            return enrolled.get(id);
-          },
-        };
-      },
-    };
-    await next();
+  const wire = {
+    call: async () => ({}),
+    fetch: async (endpoint, body) => {
+      const id = TOKENS[body.access];
+      if (!id) return { ok: false, body: { status: "ERROR", error: { code: "INVALID_TOKEN", message: "invalid token" } } };
+      return endpoint === "/auth/verify" ? { ok: true, body: { identity: { id } } } : { ok: true, body: { status: "SUCCESS" } };
+    },
+  };
+  daemon.lighthouse = new Lighthouse(wire, {
+    status: new Status("RUNNING"), daemon: daemon.slug, remote: "http://test-daemon",
+    users: {
+      findOne: async ({ id }) => enrolled.get(id) ?? null,
+      upsert: async ({ id }) => { if (!enrolled.has(id)) enrolled.set(id, { ...fixtures.user, id }); },
+    },
   });
 
   for (const finalize of await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER })) await finalize();

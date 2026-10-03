@@ -1,4 +1,4 @@
-import { Aperture, Broadcaster, object } from "@vivalence/typology";
+import { Vector, Aperture, Broadcaster, object } from "@vivalence/typology";
 
 export function inject(datamap) {
   return (ctx, next) => {
@@ -47,11 +47,22 @@ export function sanitize(options = {}) {
   return safe;
 }
 
+const plain = (value) => value != null && typeof value === "object" && !Array.isArray(value);
+
+function narrow(given, scope) {
+  const base = typeof given === "string" ? { id: given } : plain(given) ? { ...given } : {};
+  for (const [key, wall] of Object.entries(scope)) {
+    const held = base[key];
+    if (plain(wall) && typeof held === "string") base[key] = { id: held, ...wall };
+    else if (plain(wall) && plain(held)) base[key] = narrow(held, wall);
+    else base[key] = wall;
+  }
+  return base;
+}
+
 function scoped(target, fn) {
   return async (input, ctx) => {
-    if (ctx.scope) {
-      input[target] = object.merge(ctx.scope, input[target] || {});
-    }
+    if (ctx.scope) input[target] = narrow(input[target], ctx.scope);
     return fn(input, ctx);
   };
 }
@@ -82,19 +93,20 @@ export function errors() {
 
 export function repository(repo, { only } = {}) {
   const aperture = new Aperture();
-  const em = () => repo.getEntityManager();
+  const of = typeof repo === "function" ? repo : () => repo;
+  const em = (ctx) => of(ctx).getEntityManager();
 
   aperture.use(errors());
 
   aperture.post(
     "/find",
-    scoped("where", async (input) => repo.find(input.where || {}, sanitize(input.options))),
+    scoped("where", async (input, ctx) => of(ctx).find(input.where || {}, sanitize(input.options))),
   );
 
   aperture.post(
     "/findOne",
     scoped("where", async (input, ctx) => {
-      const result = await repo.findOne(input.where || {}, sanitize(input.options));
+      const result = await of(ctx).findOne(input.where || {}, sanitize(input.options));
       ctx.response.status = 200;
       return result;
     }),
@@ -102,65 +114,65 @@ export function repository(repo, { only } = {}) {
 
   aperture.post(
     "/findOneOrFail",
-    scoped("where", async (input) =>
-      repo.findOneOrFail(input.where || {}, sanitize(input.options)),
+    scoped("where", async (input, ctx) =>
+      of(ctx).findOneOrFail(input.where || {}, sanitize(input.options)),
     ),
   );
 
   aperture.post(
     "/findAndCount",
-    scoped("where", async (input) => repo.findAndCount(input.where || {}, sanitize(input.options))),
+    scoped("where", async (input, ctx) => of(ctx).findAndCount(input.where || {}, sanitize(input.options))),
   );
 
   aperture.post(
     "/count",
-    scoped("where", async (input) => repo.count(input.where || {}, sanitize(input.options))),
+    scoped("where", async (input, ctx) => of(ctx).count(input.where || {}, sanitize(input.options))),
   );
 
   aperture.post(
     "/create",
-    scoped("data", async (input) => {
-      const entity = await repo.create(input.data || {});
-      await em().flush();
+    scoped("data", async (input, ctx) => {
+      const entity = await of(ctx).create(input.data || {});
+      await em(ctx).flush();
       return entity;
     }),
   );
 
   aperture.post(
     "/upsert",
-    scoped("data", async (input) => {
-      const entity = await repo.upsert(input.data || {}, sanitize(input.options));
-      await em().flush();
+    scoped("data", async (input, ctx) => {
+      const entity = await of(ctx).upsert(input.data || {}, sanitize(input.options));
+      await em(ctx).flush();
       return entity;
     }),
   );
 
-  if (typeof repo.ensure === "function") {
+  if (typeof repo === "function" || typeof repo.ensure === "function") {
     aperture.post(
       "/ensure",
-      scoped("data", async (input) => {
-        const entity = await repo.ensure(input.data || {});
-        await em().flush();
+      scoped("data", async (input, ctx) => {
+        const entity = await of(ctx).ensure(input.data || {});
+        await em(ctx).flush();
         return entity;
       }),
     );
   }
 
-  aperture.post("/updateOne", scoped("where", (input) => repo.updateOne(input.where || {}, input.data || {})));
-  aperture.post("/update", scoped("where", (input) => repo.update(input.where || {}, input.data || {})));
+  aperture.post("/updateOne", scoped("where", (input, ctx) => of(ctx).updateOne(input.where || {}, input.data || {})));
+  aperture.post("/update", scoped("where", (input, ctx) => of(ctx).update(input.where || {}, input.data || {})));
 
   aperture.post(
     "/removeOne",
-    scoped("where", async (input) => {
-      const entity = await repo.removeOne(input.where || {});
+    scoped("where", async (input, ctx) => {
+      const entity = await of(ctx).removeOne(input.where || {});
       return { ok: true, id: entity.id };
     }),
   );
 
   aperture.post(
     "/remove",
-    scoped("where", async (input) => {
-      const entities = await repo.remove(input.where || {});
+    scoped("where", async (input, ctx) => {
+      const entities = await of(ctx).remove(input.where || {});
       return { count: entities.length, ids: entities.map((e) => e.id) };
     }),
   );
@@ -169,36 +181,41 @@ export function repository(repo, { only } = {}) {
   return aperture;
 }
 
-export function reactive(repo, twitch, { scope } = {}) {
+export function reactive(repo, twitch, { scope, filter = "user" } = {}) {
   const aperture = new Aperture();
   const broadcaster = new Broadcaster();
-  const name = repo.getEntityName().toLowerCase().replace("entity", "");
+  const of = typeof repo === "function" ? repo : () => repo;
+  const twitchOf = typeof twitch === "function" && !(twitch instanceof Vector) ? twitch : () => twitch;
+  let wired = false;
 
-  for (const op of ["create", "update", "delete"]) {
-    twitch.open(`/after/${name}/${op}`, (ctx) => {
-      const serialized = ctx.input.entity?.toJSON?.() ?? ctx.input.entity;
-      // user-scoped entity: the owner rides the ORM request context (the `user` filter param that
-      // scopes find; resolution.js binds it per-request). `carry` re-enters that same context for a
-      // lazy stream, so this resolves in ANY write context. null = the write escaped its context →
-      // fail loud, never drop.
-      if (scope && serialized && typeof serialized === "object") {
-        const owner = repo.getEntityManager().getFilterParams("user")?.user ?? null;
-        if (owner == null)
-          throw new Error(
-            `[reactive] ${name}/${op} is user-scoped but the ORM context carries no owner — the write escaped its request context (a lazy stream must \`carry\` it); a user-scoped write must never drop silently.`,
-          );
-        serialized.user = owner; // stamp the flat id so the broadcaster matches a { user } filter
-      }
-      // match the serialized (wire) shape, not the live ORM entity — relations
-      // on the live entity are unloaded References that never === a scalar id.
-      broadcaster.push({ op, entity: serialized }, serialized);
-    });
-  }
+  const wire = (ctx) => {
+    if (wired) return;
+    wired = true;
+    const repository = of(ctx);
+    const name = repository.getEntityName().toLowerCase().replace("entity", "");
+    for (const op of ["create", "update", "delete"]) {
+      twitchOf(ctx).open(`/after/${name}/${op}`, (hook) => {
+        const serialized = hook.input.entity?.toJSON?.() ?? hook.input.entity;
+        if (scope && serialized && typeof serialized === "object") {
+          const owner = repository.getEntityManager().getFilterParams(filter)?.[filter] ?? null;
+          if (owner == null)
+            throw new Error(
+              `[reactive] ${name}/${op} is ${filter}-scoped but the ORM context carries no owner — the write escaped its request context (a lazy stream must \`carry\` it); a scoped write must never drop silently.`,
+            );
+          serialized[filter] = owner;
+        }
+        broadcaster.push({ op, entity: serialized }, serialized);
+      });
+    }
+  };
+
+  if (typeof repo !== "function" && twitch instanceof Vector) wire(null);
 
   aperture.get("/subscribe", async (input, ctx) => {
+    wire(ctx);
     const resolved = scope ? scope(ctx) : ctx.scope || {};
-    const filter = { ...(input?.where || {}), ...resolved };
-    const { iterable, unsubscribe } = broadcaster.subscribe(filter);
+    const filtered = { ...(input?.where || {}), ...resolved };
+    const { iterable, unsubscribe } = broadcaster.subscribe(filtered);
     ctx.request.raw?.signal?.addEventListener("abort", unsubscribe);
     ctx.response.body = iterable;
   });

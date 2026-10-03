@@ -1,1 +1,1 @@
-../../self/ontology.md
+../../self.md

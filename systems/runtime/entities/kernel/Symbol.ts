@@ -59,6 +59,9 @@ export const SymbolSchema = new EntitySchema({
       kind: "m:n",
       entity: () => LiteralEntity,
       inversedBy: (literal) => literal.symbols,
+      pivotTable: "symbol_literals",
+      joinColumns: ["symbol_entity_id"],
+      inverseJoinColumns: ["literal_entity_id"],
       cascade: [Cascade.REMOVE],
     },
 

@@ -4,9 +4,11 @@ import {
   clamp,
   isDeviceRotation,
   readSafeArea,
+  rectsForOrientation,
   viewportDimensions,
 } from "./geometry.js";
-import { restore } from "./panes.js";
+import { KEYS, PANELS, grain } from "./panes.js";
+import { startFor } from "./start.js";
 const STORAGE_KEY = "vivalence:bridge";
 
 export const DEFAULT_COMPOSER = {
@@ -70,17 +72,14 @@ export class Bridge {
         standard: { orientation: turn, ...(saved?.standard ?? { x: 0, y: 0 }) },
         orientation: turn,
         inspectorHeight: saved?.inspectorHeight ?? 0,
-        locked: saved?.locked === true,
+        terminal: saved?.terminal ?? null,
         viewport: { width: 0, height: 0 },
-        home: { x: 0, y: 1 },
-        start: { x: 0.33, y: 0.4 },
       },
-      ["pincer", "previous", "standard", "orientation", "inspectorHeight", "locked"],
+      ["pincer", "previous", "standard", "orientation", "inspectorHeight", "terminal"],
     );
 
     this.view = store(
       {
-        fold: saved?.view?.fold === "stack" ? "stack" : "page",
         strip: saved?.view?.strip === "top" ? "top" : "bottom",
         g: false,
         h: false,
@@ -90,10 +89,13 @@ export class Bridge {
         theme: knownTheme(saved?.view?.theme),
         fontSize: saved?.view?.fontSize ?? "base",
       },
-      ["fold", "strip", "hair", "theme", "fontSize"],
+      ["strip", "hair", "theme", "fontSize"],
     );
 
-    this.panes = store(restore(saved?.panes), ["tree", "fold", "expanded", "heights"]);
+    this.panels = {
+      b: store(PANELS.b.restore(saved?.panels?.b ?? (saved?.view?.fold ? { ...PANELS.b.DEFAULT, fold: saved.view.fold } : null)), KEYS),
+      c: store(PANELS.c.restore(saved?.panels?.c ?? saved?.panes), KEYS),
+    };
 
     this.$safeAreaTop = atom(0);
     this.$viewportOffsetTop = atom(0);
@@ -126,11 +128,6 @@ export class Bridge {
     this.save();
   };
 
-  setFold = (name) => {
-    this.view.$fold.set(name === "stack" ? "stack" : "page");
-    this.save();
-  };
-
   setStrip = (place) => {
     this.view.$strip.set(place === "top" ? "top" : "bottom");
     this.save();
@@ -138,7 +135,7 @@ export class Bridge {
 
   save = () => {
     try {
-      const data = { ...this.layout.toJSON(), view: this.view.toJSON(), panes: this.panes.toJSON(), composer: this.composer };
+      const data = { ...this.layout.toJSON(), view: this.view.toJSON(), panels: { b: this.panels.b.toJSON(), c: this.panels.c.toJSON() }, composer: this.composer };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     } catch (_) {}
   };
@@ -172,20 +169,19 @@ export function bootLayout(bridge) {
       y: clamp(std.y, EDGE_PADDING, next.height - EDGE_PADDING),
     };
   } else {
-    const start = layout.$start.get();
-    const home = layout.$home.get();
-    const orientation = layout.$orientation.get();
-    layout.pincer = {
-      x: clamp(start.x * next.width, EDGE_PADDING, next.width - EDGE_PADDING),
-      y: clamp(start.y * next.height, EDGE_PADDING, next.height - EDGE_PADDING),
-    };
-    layout.previous = { ...layout.pincer, orientation };
-    layout.standard = {
-      x: clamp(home.x * next.width, EDGE_PADDING, next.width - EDGE_PADDING),
-      y: clamp(home.y * next.height, EDGE_PADDING, next.height - EDGE_PADDING),
-      orientation,
-    };
+    const placed = startFor(next);
+    layout.pincer = placed.pincer;
+    layout.orientation = placed.orientation;
+    layout.previous = { ...placed.pincer, orientation: placed.orientation };
+    layout.standard = placed.standard;
+    bridge.panels.c.fold = placed.fold;
   }
+}
+
+export function railGrain(bridge) {
+  const { layout } = bridge;
+  const viewport = layout.$viewport.get();
+  return grain(rectsForOrientation(layout.$orientation.get(), layout.$pincer.get(), viewport.width, viewport.height).c);
 }
 
 export function resize(bridge) {

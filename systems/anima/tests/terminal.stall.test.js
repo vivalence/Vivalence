@@ -1,6 +1,6 @@
 import { atom } from "nanostores";
 import { assertEquals } from "jsr:@std/assert";
-import { Terminal } from "../src/typology/entities/terminal.js";
+import { Terminal, mountStall } from "../src/typology/entities/terminal.js";
 
 // a buffer double with the release hook the stall bridges through.
 const buf = (id) => {
@@ -40,22 +40,23 @@ const thread = (buffers, { phase = "manual", depth = 1 } = {}) => {
 Deno.test("terminal builds a stall from the thread; phase drives terminal.$buffer", async () => {
   const [a, b] = [buf("a"), buf("b")];
   const t = thread([a, b]); // manual
-  const terminal = new Terminal({ id: "term" });
-  terminal.thread = t;
+  const terminal = new Terminal();
+  mountStall(terminal);
+  terminal.$thread.set(t);
 
   // MANUAL — settle auto-focuses the first buffer (the old a-panel $effect, now the stall).
-  assertEquals(terminal.buffer.id, "a");
+  assertEquals(terminal.$buffer.get().id, "a");
 
   // release advances the cursor AND the terminal's on.release hook evicts (drop called).
   a.done();
-  assertEquals(terminal.buffer.id, "b");
+  assertEquals(terminal.$buffer.get().id, "b");
   assertEquals(t.dropped, ["a"]);
 
   // INERT — a deliberate null is respected; no auto-focus, release no-ops through the stall.
   t.$phase.set("inert");
   terminal.$buffer.set(null);
   t.$buffers.set([b]); // a tick
-  assertEquals(terminal.buffer, null);
+  assertEquals(terminal.$buffer.get(), null);
 });
 
 Deno.test("continuous: the stall pulls via AIMED to keep depth filled", async () => {
@@ -74,8 +75,9 @@ Deno.test("continuous: the stall pulls via AIMED to keep depth filled", async ()
       },
     },
   };
-  const terminal = new Terminal({ id: "term2" });
-  terminal.thread = t;
+  const terminal = new Terminal();
+  mountStall(terminal);
+  terminal.$thread.set(t);
 
   t.$phase.set("continuous"); // engage → one pull (guard prevents a stampede)
   await Promise.resolve();

@@ -52,7 +52,7 @@ export const DaemonDossier = {
       // console.log("daemon/dossier ctx.entity", ctx.entity);
 
       const daemon = ctx.entity;
-      const url = new Url(daemon.url);
+      const url = new Url(daemon.remote);
 
       const multiplex = shard.transmitter.multiplex({ authority: ctx.lighthouse.$authority });
       daemon.connection = new Connection(url, shard.transmitter.retry(multiplex, { maxRetries: 2 }))
@@ -84,7 +84,7 @@ export const DaemonDossier = {
 const RETRY = { base: 5000, ceiling: 60000 };
 
 async function mount(daemon, { multiplex, url, attempt }) {
-  const mounting = logger.entry(`daemon/${daemon.slug ?? daemon.url}`).open();
+  const mounting = logger.entry(`daemon/${daemon.slug ?? daemon.remote}`).open();
   const probing = Date.now();
   daemon.status.set("mounting");
   mounting.note({ message: "probing", url: url.absolute, attempt });
@@ -164,7 +164,7 @@ async function mount(daemon, { multiplex, url, attempt }) {
     }
     daemon.status.set({ code: "unavailable", error });
     mounting.note({
-      message: `${daemon.slug ?? daemon.url} unreachable (${error.type}) — will retry`,
+      message: `${daemon.slug ?? daemon.remote} unreachable (${error.type}) — will retry`,
       attempt,
       ms: Date.now() - probing,
     });

@@ -1,0 +1,540 @@
+#+title: runtime independence — vivalence off Deno: one source on Deno · Node · Bun, one resolution through a ledger-level node_modules, two seams per host, and at the end a viva binary that needs no runtime installed
+#+filetags: :roadmap:host:deno:node:bun:paladin:ghost:typology:runtime:registry:specimen:toolchain:
+#+status: ROADMAP — prep only, nothing lands; unindexed on beef's word (/"unindexed."/). Terrain measured 10-06 on this machine (deno 2.9.6 · node 20.17.0 · bun absent). Two probes held on Node AND Deno in a scratchpad: out-of-tree registry code resolves `@vivalence/*` + npm through a ledger-level node_modules with ONE module instance; a `node:test` suite runs under both runners. Every fork QUESTIONED.
+#+phase: roadmap
+#+progress: 0/9
+#+next: beef — rule F1 (which independence) and F0 (the word); M0 needs Node 24 + Bun on this machine (an install, his go)
+
+* intent
+
+beef, verbatim, 10-06, opening a fresh session:
+
+/"write a roadmap quest. unindexed."/
+
+/"what would it take to make vivalence runtime independent? move away from deno, to standard node? or rather, to make it entirely independent!"/
+
+* the answer in English
+
+The =Deno.*= calls are the cheap part. 153 live in the repo's production code and 67 in the registry's, almost all fs · env · process, and each has a =node:*= twin that Deno 2 and Bun both implement. Rewriting them is mechanical.
+
+The real cost is three things Deno does that Node does not. First, a process-global import map: registry code at =~/.viva/registry= has no node_modules of its own and still resolves the repo's names, because Deno applies =import_map.json= to every module in the process. Second, loading =.ts= and =.jsx= on the fly: typology's front door is =mod.ts=. Third, the =npm:= · =jsr:= · =https:= specifiers. The first one is solved by one =package.json= and one link under the ledger, which held on Node and Deno today. The second means turning 51 =.ts= and 27 =.jsx= files into =.js=. The third means moving 130 import-map entries and 17 esm.sh lines into package.json.
+
+After that, two seams per host remain: serve with websocket upgrade, and spawning itself. Then the toolchain: tasks, specimen, Dockerfiles, CI, and 73 lines of canon that name Deno.
+
+A move to Node alone pays nearly every one of these costs and ends coupled to Node. Making vivalence host-agnostic adds per-host branches in the two seams plus a CI matrix, and it ends the question. "Entirely independent" means a =viva= binary that runs on a machine with no JS runtime installed. That is a compile step over host-agnostic source, not a different road.
+
+* terrain — measured
+
+10-06. Every number below was printed by a command run in this session. The census excludes =node_modules= · =testament= · =bak/= · =*.org= · =*.md= · =*.json=. "prod" means not under =tests/= · =test/= · =*.test.*=.
+
+** hosts on this machine
+
+| host | version |
+|------+---------|
+| deno | 2.9.6 |
+| node | 20.17.0 |
+| bun | absent |
+
+** live prod =Deno.*= per container
+
+| container | calls | files |
+|-----------+-------+-------|
+| =subsystems/paladin= | 74 | 17 |
+| =systems/ghost= | 58 | 16 |
+| =systems/runtime= | 8 | 4 |
+| =subsystems/typology= | 6 | 4 |
+| =systems/anima= | 4 | 2 |
+| =subsystems/sheets= | 1 | 1 |
+| =commons= | 1 | 1 |
+| =documentation= | 1 | 1 |
+| =subsystems/dapper= | 0 | 0 |
+| =subsystems/drapes= | 0 | 0 |
+| repo | 153 | 46 |
+| =~/.viva/registry= | 67 | 18 |
+
+** repo prod by family
+
+| family | calls | twin |
+|--------+-------+------|
+| fs | 83 | =node:fs/promises= |
+| env | 30 | =process.env= |
+| process | 25 | =node:process= · =node:child_process= |
+| tty | 7 | =process.stdin= · =process.stdout= |
+| net | 3 | seam |
+| other | 5 | =Deno.errors= ×4 · =Deno.customInspect= ×1 |
+
+Top APIs: =env= 30 · =stat= 26 · =readTextFile= 11 · =readDir= 9 · =writeTextFile= 8 · =mkdir= 7 · =remove= 6 · =Command= 6.
+
+** tests
+
+| measure | repo | registry |
+|---------+------+----------|
+| test files | 281 | — |
+| files touching =Deno.*= | 102 | 32 |
+| =Deno.*= calls | 673 | 141 |
+| files through =specimen= | 238 | — |
+| files calling =Deno.test= | 28 | — |
+| files importing =@std/testing/bdd= | 17 | — |
+
+** specifiers and transpile
+
+| measure | repo | registry |
+|---------+------+----------|
+| =import_map.json= =jsr:= entries | 36 | — |
+| =import_map.json= =npm:= entries | 94 | — |
+| =import_map.json= duplicate keys | 5 | — |
+| inline =npm:= lines | 5 | 2 |
+| inline =jsr:= lines | 1 | 0 |
+| =https:= import lines | 0 | 17 |
+| =.jsx= files | 27 | 0 |
+| live =.ts= files | 32 | 19 |
+| =.ts= files with =enum= | 8 | 6 |
+| files importing =@vivalence/*= | — | 339 |
+| =node_modules= dirs | 1 | 0 |
+
+The 5 duplicate keys are the =@cliffy/*= family, listed at rc.8 (=import_map.json:19-23=) and again at rc.7 (=:113-117=). JSON keeps the last value, so rc.7 is the live one. =@std/fs= is already =npm:fs-extra= (=:27=).
+
+The repo's inline =npm:= lines are =commons/services/reader/extract.js:1= · =service.viva.js:1= plus 3 tests. The registry's are =npm:svelte@5.39.6/server= ×2. The only inline =jsr:= is =systems/ghost/tests/address.test.js:19=. All 17 =https:= lines are =esm.sh/chessops@0.14.2/*=, in 4 chess files.
+
+** invocation and toolchain
+
+| measure | count |
+|---------+-------|
+| =deno run= · =deno test= invocations in the 10 =deno.jsonc= | 90 |
+| live invocations without =-A= | 0 |
+| live =--allow-*= flags | 0 |
+| Dockerfiles | 4 |
+| Dockerfiles =FROM denoland/deno= | 2 |
+| spawn-self sites | 3 |
+| =Deno.serve= sites | 1 |
+| =Deno.upgradeWebSocket= sites | 1 |
+| canon lines naming deno (=ikiro.md= · =world/= · =.claude/skills=) | 73 |
+
+The non-=-A= hits are the commented legacy aggregates in root =deno.jsonc=. The 2 =--allow-*= hits are a test and an html fixture. So Deno's permission model is unused today.
+
+** probes — scratchpad, 10-06
+
+| probe | node 20.17.0 | deno 2.9.6 | bun |
+|-------+--------------+------------+-----|
+| import =subsystems/typology/mod.ts= | =ERR_UNKNOWN_FILE_EXTENSION= | ✓ | — |
+| out-of-tree bare =@vivalence/*= + npm via =<ledger>/node_modules= | ✓ | ✓ | — |
+| one module instance, runtime ↔ registry | =true= | =true= | — |
+| same, without =<ledger>/package.json= | CJS fallback | =not a dependency= | — |
+| =node:test= describe/it suite | =tests 2 · pass 2= | =1 passed (3 steps)= | — |
+
+* in depth
+
+** what Deno does that Node does not — the real cost
+
+1. *The process-global import map.* Deno applies =import_map.json= to every module the process loads. That is how 339 registry files import =@vivalence/*= (plus =svelte= 36 · =@mikro-orm/core= 18 · =three= 7) with zero =node_modules= under =~/.viva/registry=. Node and Bun resolve differently: they walk up from the importing file's own directory. The probe below gives every host the same answer, using no loader hooks:
+
+#+begin_example
+probe-walk/
+  repo/
+    package.json                      { "type": "module" }
+    typology/package.json             { "name": "@vivalence/typology", "exports": { ".": "./mod.js", "./specimen": "./specimen.js" } }
+    typology/mod.js                   imports "@vivalence/typology/specimen" (self-reference)
+    node_modules/@vivalence/typology → ../../typology
+    node_modules/typebox             → <repo>/node_modules/typebox
+    runtime/run.js                    imports "@vivalence/typology", then import(<registry mode>)
+  ledger/
+    package.json                      { "type": "module" }
+    node_modules                     → ../repo/node_modules
+    registry/chess/mode.js            imports "@vivalence/typology" + "typebox"
+#+end_example
+
+#+begin_example
+node:  self-reference ok | …/repo/typology/mod.js | object      one instance: true
+deno:  self-reference ok | …/repo/typology/mod.js | object      one instance: true
+no ledger package.json →  node: "To load an ES module, set "type": "module""   deno: Import "typebox" not a dependency
+#+end_example
+
+Resolution follows the realpath, so the registry and the runtime share one typology. Both the ledger's =package.json= and its =node_modules= are load-bearing.
+
+2. *=.ts= and =.jsx= at load time.* =subsystems/typology/mod.ts= is 12 lines with zero type syntax. Its line 12 is =export * from "./types.d.ts"=, a declaration file imported at runtime. Node 20 refuses the extension. Node's newer type stripping is said to reject =enum=, which is unmeasured here because Node 24 is not installed. There are 9 live =enum= declarations in 8 repo files, plus 6 registry files. No Node version runs JSX. Deno transpiles it because root =deno.jsonc= sets =compilerOptions.jsx: "react"=.
+
+3. *Specifier schemes.* =jsr:= covers 36 map entries (=@std/*= · =@cliffy/*= · =@oak/*= · =@cross/*=). =npm:= covers 94 entries plus 7 inline lines. =https:= is chess only. Two canon laws exist only because of these schemes. The first is =world/map.md:18=: Deno cannot prefix-map into =npm:=. The second is the package law in the same bullet: /"A registry package adds nothing to the repo's import_map.json and imports by URL"/ (=~/.viva/registry/chess/topographies/puzzles/harvest.js:12=):
+
+#+begin_src js
+// ~/.viva/registry/chess/topographies/puzzles/harvest.js:12
+import { Chess } from "https://esm.sh/chessops@0.14.2/chess";
+#+end_src
+
+** what is cheap — the calls
+
+There are 150 of 153 repo prod calls in the fs · env · process · tty · other families. Each one is a one-line swap onto a =node:*= twin, which Deno 2 and Bun both implement:
+
+#+BEGIN_SRC diff
+// subsystems/paladin/belt/read.js:1
+ import { cast } from "@vivalence/typology";
+ import * as jsonc from "@std/jsonc";
++import { readFile } from "node:fs/promises";
+…
+-    text: async (path) => await Deno.readTextFile(resolve(path)),
++    text: async (path) => await readFile(resolve(path), "utf8"),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/run.js:17
+-  for (const signal of ["SIGTERM", "SIGINT", "SIGQUIT"]) Deno.addSignalListener(signal, () => die.controller.kill("SIGTERM", signal));
++  for (const signal of ["SIGTERM", "SIGINT", "SIGQUIT"]) process.on(signal, () => die.controller.kill("SIGTERM", signal));
+…
+-  Deno.exit(die.controller.status.is("STOPPED") ? 0 : 1);
++  process.exit(die.controller.status.is("STOPPED") ? 0 : 1);
+#+END_SRC
+
+=run.js:6= gates on =import.meta.main=. The Node version that supports it is unmeasured; it is an M0 row.
+
+** the seams — what no common API covers
+
+1. *serve + websocket upgrade, as ONE seam.* The handler is already host-neutral: =shape.http(aperture)= is a =Request → Response= function, and =Bun.serve= takes the same shape. Node's http server cannot upgrade from inside a fetch handler, because the upgrade arrives on the server's ='upgrade'= event. So whoever opens the server must also own the upgrade. =serve.js:40= already flags websocket routes (=fn.websocket = true=), so the seam can find them:
+
+#+BEGIN_SRC diff
+// systems/runtime/lifecycle/runtime/integration.js:25
+-  const server = Deno.serve(
+-    { port: Number(url.port), hostname: url.hostname, signal: die.controller.abort.signal, onListen() {} },
+-    shard.cors.wrap(shape.http(die.runtime.aperture)),
+-  );
++  const server = shard.serve.listen(
++    { port: Number(url.port), hostname: url.hostname, signal: die.controller.abort.signal },
++    shard.cors.wrap(shape.http(die.runtime.aperture)),
++  );
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/serve.js:33
+ export function websocket(handler) {
+   const fn = (ctx) => {
+-    const { socket, response } = Deno.upgradeWebSocket(ctx.request.raw);
++    const { socket, response } = listen.upgrade(ctx.request.raw);
+     handler(socket, ctx);
+     return response;
+   };
+#+END_SRC
+
+Static files at =serve.js:21= (=Deno.open(filepath).readable=) become =Readable.toWeb(createReadStream(filepath))=. Whether =listen= is hand-written per host or rides =srvx= + =crossws= is M0's probe.
+
+2. *spawn-self.* Ghost spawns its own binary through a task runner:
+
+#+begin_src js
+// systems/ghost/trajectories/instance/target.js:5
+const CHILDREN = {
+  runtime: { task: "runtime/run" },
+  anima: { task: "anima/watch" },
+};
+#+end_src
+
+#+BEGIN_SRC diff
+// systems/ghost/trajectories/instance/target.js:56
+-    command: { bin: Deno.execPath(), args: ["task", "--config", config, "-q", CHILDREN[process].task], cwd: mount, env },
++    command: { bin: process.execPath, args: [...host.run, CHILDREN[process].entry], cwd: mount, env },
+#+END_SRC
+
+Here =host.run= is =["run", "-A", "--config", <repo>/deno.jsonc]= on Deno and =[]= on Node and Bun. =entry= is =systems/runtime/run.js= for the runtime and =node_modules/vite/bin/vite.js= for anima. The same change applies at =start.js:11= (the supervisor) and =ghost.sh:11= (=exec deno run …=), and =target.js:10= stops carrying =DENO_DIR=.
+
+Spawning the entry directly instead of through =deno task= retires two canon laws that exist only because of the task runner. =world/codemap/ghost.md:27= says /"`deno task` rewrites cwd"/. =:37= says /"`deno task` launders signals into codes"/.
+
+3. *watch* is not code. Today it is =deno run -A --watch=../../commons,$HOME/.viva/registry run.js= (=systems/runtime/deno.jsonc:11=), which restarts in-process (=world/map.md:14=). Node's =--watch --watch-path= and Bun's =--watch= exist, but their Linux behaviour and restart semantics are M0 rows. It stays a script line per host.
+
+** what leaving Deno-only costs — measured
+
+| Deno feature | used today | after |
+|--------------+------------+-------|
+| permissions | 0 of 90 invocations | — |
+| =deno fmt= | banned (=world/map.md:15=) | — |
+| =deno compile= | 0 | F1.3 · M8 |
+| =jsr:= =@std/*= | 14 map entries | =node:*= or =@jsr/std__*= |
+| =deno task= | every =<container>/<verb>= | package.json =scripts= |
+| =deno test= | every suite | =node --test= · =deno test= · =bun test= |
+| =deno.lock= | 7351 lines | the package manager's lock |
+
+** the Deno tax already in canon
+
+Each of these laws names Deno as its cause. Which ones vanish on another host is measured at M0, not assumed:
+
+- =world/map.md:12= — docs: never =@deno/vite-plugin=; npm deps only in the root import map; Rolldown has no musl binding under deno
+- =world/map.md:14= — =--watch= restarts in-process; =ps= is never restart evidence
+- =world/map.md:18= — Deno cannot prefix-map into =npm:=
+- =world/codemap/ghost.md:10= — duplicate =ghost/watch= key; JSONC keeps the last
+- =world/codemap/ghost.md:27= · =:37= — =deno task= rewrites cwd and launders signals
+- =world/codemap/anima.md:24= — under Deno, bare =svelte= is the SERVER stub
+- =world/codemap/runtime.md:12= — =Deno.serve= binds =[::1]=
+- =quests/roadmap/threlte-rapier-drapes.org= — the =three/addons= barrel imports =https:=, refused by Deno's ESM loader; the 2024 log /"deno cant import .svelte files … cost me most of the day"/
+
+* forks — QUESTIONED
+
+Each fork below changes product shape or ontology, so each is beef's. Every lean is mine and unratified.
+
+** F0 — the word
+
+"runtime" is already taken: =systems/runtime=, the =Runtime= prototype (=systems/runtime/run.js:12=), =die.runtime=. In beef's sentence, "runtime independent" means the JS engine underneath.
+
+1. *host* — Deno · Node · Bun are hosts. It joins the spirit family: a ghost, a daemon, an anima inhabit a host.
+2. *engine* — the plain technical word.
+3. keep "runtime" and carry the double meaning.
+
+Lean: 1. This quest says "host" provisionally.
+
+** F1 — which independence
+
+1. *Node* — swap one vendor for another.
+2. *host-agnostic* — one source runs on Deno · Node · Bun, and a CI matrix proves it.
+3. *entirely independent* — option 2, plus =viva= ships as a single executable, so a machine with no JS runtime runs it.
+
+Lean: 2 now, 3 as the last milestone. Option 1 pays the same resolution, transpile, specifier, seam and toolchain costs as 2, and still ends coupled to one vendor. Option 2 adds per-host branches in two seams and a matrix. Option 3 compiles source that option 2 has already made neutral, and any host's compiler can do that.
+
+** F2 — the registry's import law
+
+Today a package /"imports by URL"/ (=world/map.md:18=). Node and Bun load no =https:= module.
+
+1. A package declares its own deps in a =package.json=, and =paladin.ledger.registry.tap= (=subsystems/paladin/prototypes/ledger/registry.js:145=) installs them into =<package>/node_modules=. Shared names (=@vivalence/*= · =svelte= · =@mikro-orm/core=) resolve upward to =<ledger>/node_modules=. This gives one resolution law on every host.
+2. Tap vendors each URL module into the package, pinned by hash. No network at boot.
+3. URL imports stay, and each host gets a loader hook that fetches them (Node =module.register=, Bun =Bun.plugin=).
+
+Lean: 1. The probe already proved its upper half on two hosts. Option 3 re-implements Deno's loader twice. Option 2 invents a vendoring format.
+
+Hazard: a shared name declared as a regular dependency installs a second copy, and the result is two svelte instances. Shared names must be peers, installed without peers. That is unmeasured and is an M0 row.
+
+** F3 — where the host is chosen
+
+1. Whoever ran =viva= decides. Ghost spawns its children with =process.execPath=, so the host is the binary that ran =ghost.sh=.
+2. A new instance-record export beside =datamap= (=export const host = …=), seated by paladin.
+
+Lean: 1. Option 2 puts a new noun on the holy record for a choice nobody has asked to make per instance.
+
+** F4 — the view idiom
+
+=world/map.md:16=: sheets are /"ink@5 + react@18 JSX"/, and ghost renders =Init= · =Doctor= · =Help= as =.jsx=. Node runs no JSX.
+
+1. =htm= tagged templates bound to =React.createElement=. No build step, and it reads like JSX.
+2. Plain =h(Box, props, …)= calls. No dependency.
+3. Keep =.jsx= and give Node a transpiling loader hook. That makes a seam only Node needs.
+
+Lean: 1.
+
+#+BEGIN_SRC diff
+// systems/ghost/trajectories/registry/Doctor.jsx:18
+-  return (
+-    <Box flexDirection="column">
+-      <Text bold>viva registry/doctor</Text>
++  return html`
++    <${Box} flexDirection="column">
++      <${Text} bold>viva registry/doctor<//>
+#+END_SRC
+
+* decisions — mine
+
+1. *Staging.* Deno stays green at every milestone. Each milestone adds a host to what passes and never swaps one out. REJECTED: a flag day — /"unreliable at large scales"/ (=self.md=).
+2. *The dialect.* Commodity calls use =node:*= builtins and web standards. REJECTED: a vivalence wrapper over fs — Deno 2 and Bun already implement =node:fs=, so a wrapper would be a second API for the same call.
+3. *No new module for the seams.* serve + upgrade lives where the upgrade already lives (=subsystems/typology/gestalten/shard/serve.js=). spawn-self lives in ghost, the only self-spawner (paladin's =skills/shell.js= spawns the user's shell and =belt/clone.js= spawns git; neither spawns itself). watch is a script line. REJECTED: a =host= subsystem — it would carry two functions.
+4. *Resolution* is package.json + node_modules: a root =package.json= (workspaces + deps) and one per member (=name= · =exports= · =type=). Deno 2 reads both. =import_map.json= and =deport_map.jsonc= are deleted at M1's end, and the duplicate =@cliffy= keys die with them.
+5. *=.ts= → =.js=.* An =enum= becomes an =Object.freeze= table. =mod.ts= becomes =mod.js=, and =types.d.ts= leaves the runtime graph.
+6. *specimen stays the one test door.* It is backed by =node:test=, which held on Node and Deno. The 28 =Deno.test= files and 17 direct =@std/testing/bdd= files route through it. specimen sits in typology's PROD barrel (=subsystems/typology/mod.ts:10= =export * as specimen=), so every runtime import already loads the test harness. That makes its backing a production concern, not just a test one.
+7. *Order against live quests.* =m78-mikro-7= rewrites the mikro layer that the =.ts= entities sit on, so it lands before M2 touches them. =runtime-testing-recast='s census (=HOME= set to an empty dir) is M5's baseline.
+
+* the law
+
+Proposed end state, to be ratified when this leaves roadmap/:
+
+1. A vivalence source file runs unchanged on every supported host. No file outside the two seams names a host (=Deno.= · =Bun.=).
+2. There is one resolution: package.json + node_modules — the repo's workspaces, plus the ledger's =package.json= and =node_modules=. No import map, and no =npm:= · =jsr:= · =https:= specifier.
+3. Nothing transpiles at load. Server-side source is =.js=; =.svelte= stays bundler-owned.
+4. A suite is green when it is green on every host in the matrix. Counts are stated per host: =node --test= counts leaves, =deno test= counts tests + steps (probe: =tests 2= vs =1 passed (3 steps)=).
+5. A child process runs on the host that runs its parent.
+
+* deliverables
+
+| d | deliverable | lands in | state |
+|---+-------------+----------+-------|
+| d1 | root + member =package.json= | repo root · 9 members | open |
+| d2 | =<ledger>/package.json= + =node_modules= link | =systems/ghost/trajectories/ledger/index.js= | open |
+| d3 | =.ts= / =.jsx= → =.js= | typology · runtime · commons · ghost · sheets · registry | open |
+| d4 | =Deno.*= → =node:*= | 46 repo files · 18 registry files | open |
+| d5 | =shard.serve.listen= + =upgrade= | =subsystems/typology/gestalten/shard/serve.js= | open |
+| d6 | spawn-self | =systems/ghost/trajectories/instance/{target,start}.js= · =ghost.sh= | open |
+| d7 | specimen on =node:test= | =subsystems/typology/specimen/= | open |
+| d8 | registry deps per F2 | =~/.viva/registry/**= · =registry.js:145= | open |
+| d9 | scripts · images · CI matrix · canon | root · 4 Dockerfiles · =.gitlab-ci.yml= · =.ikiro= | open |
+| d10 | =viva= binary | ghost · =Dockerfile= | open |
+
+* milestones
+
+| M | milestone | containers | state | gate |
+|---+-----------+------------+-------+------|
+| M0 | probes on Node 24 · Bun | scratchpad | open | probe table: 0 unmeasured rows |
+| M1 | resolution | root · members · ghost · paladin | open | deno suites = baseline · =viva /help= |
+| M2 | =.ts= · =.jsx= → =.js= | typology · runtime · commons · ghost · sheets | open | deno suites = baseline |
+| M3 | dialect | paladin · ghost · runtime · typology · anima · sheets · commons | open | prod =Deno\.= hits ⊆ seam files |
+| M4 | seams | typology · runtime · ghost | open | =Status:RUNNING= on node + deno · =/multiplex= handshake on both |
+| M5 | specimen + test dialect | typology · every suite | open | 0 failed on node + deno, per-host counts |
+| M6 | registry | =~/.viva/registry= · paladin | open | =viva registry/doctor= green on node + deno |
+| M7 | toolchain + canon | root · Dockerfiles · CI · =.ikiro= | open | matrix deno · node · bun green · 4 images build |
+| M8 | the binary (F1.3) | ghost · =Dockerfile= | open | a container with no JS runtime runs =viva /help= |
+
+** M0 — probes
+
+Every row is measured on Node 24 LTS and Bun, and the scratchpad rows also on Deno:
+
+- the ledger walk: does Bun follow the realpath with one instance?
+- =node:test= under =bun test=
+- =@std/expect= · =@std/jsonc= · =@std/path= via =npm.jsr.io= (=@jsr/std__*=) on Node and Bun
+- =@cliffy/command@1.0.0-rc.7= on Node and Bun
+- =listen= + =upgrade=: hand-written per host vs =srvx= + =crossws=
+- =--watch= on Linux, per host
+- native addons (=@libsql/client/node= · =argon2= · =better-sqlite3=) under Bun
+- the minimum Node version: type stripping, =import.meta.main=, =import.meta.dirname=
+- peers resolving upward without a second copy (the F2 hazard)
+- which installer links =@vivalence/*= into =node_modules= (=deno install= · =npm= · =pnpm= · =bun install=)
+
+** M1 — resolution
+
+Seat the ledger:
+
+#+BEGIN_SRC diff
+// systems/ghost/trajectories/ledger/index.js:52
+     for (const sub of SCAFFOLD) {
+       await Deno.mkdir(paladin.scope.ledger.branch(sub).absolute, { recursive: true });
+     }
++    await paladin.state.json(paladin.scope.ledger.branch("package.json"), { type: "module", private: true });
++    await symlink(paladin.scope.repository.branch("node_modules").absolute, paladin.scope.ledger.branch("node_modules").absolute, "dir");
+#+END_SRC
+
+Then add a member manifest beside each =deno.jsonc= (typology's exports, today =subsystems/typology/deno.jsonc:4-12=):
+
+#+begin_src json
+// subsystems/typology/package.json
+{
+  "name": "@vivalence/typology",
+  "type": "module",
+  "exports": {
+    ".": "./mod.js",
+    "./prototypes": "./prototypes/index.js",
+    "./schematics": "./schematics/index.js",
+    "./gestalten": "./gestalten/index.js",
+    "./specimen": "./specimen/index.js",
+    "./scenarios": "./tests/scenarios/index.js",
+    "./entities": "./entities/index.js"
+  }
+}
+#+end_src
+
+Finally, the repo's 6 inline =npm:= / =jsr:= lines become bare specifiers. The registry's 2 move at M6.
+
+** M2 — transpile out
+
+#+BEGIN_SRC diff
+// systems/runtime/entities/kernel/Constraint.ts:4
+-export enum ConstraintType {
+-  SCHEMATIC = "SCHEMATIC",
+-  EXISTENTIAL = "EXISTENTIAL",
+-  RELATIONAL = "RELATIONAL",
+-}
++export const ConstraintType = Object.freeze({
++  SCHEMATIC: "SCHEMATIC",
++  EXISTENTIAL: "EXISTENTIAL",
++  RELATIONAL: "RELATIONAL",
++});
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/mod.ts:12
+-export * from "./types.d.ts";
+#+END_SRC
+
+=specimen/index.js:6= imports =describe, it= and never uses them, so the M5 diff drops that line.
+
+** M5 — specimen
+
+#+BEGIN_SRC diff
+// subsystems/typology/specimen/index.js:1
+-export * from "@std/testing/bdd";
++export { describe, it, before, after, beforeEach, afterEach } from "node:test";
+ export * from "@std/assert";
+ export * from "@std/expect";
+ export { snapshot } from "./snapshot.js";
+
+-import { describe, it } from "@std/testing/bdd";
+ import { expect } from "@std/expect";
+#+END_SRC
+
+=@std/assert= and =@std/expect= stay only if M0 measures them green on Node and Bun. Otherwise =node:assert/strict= and an =expect= that M0 picks replace them.
+
+* blast table
+
+| file | change | milestone | kind |
+|------+--------+-----------+------|
+| =import_map.json= · =deport_map.jsonc= | ∅ | M1 | remove |
+| =package.json= (root) | workspaces + deps | M1 | add |
+| =<member>/package.json= ×9 | name · exports · type | M1 | add |
+| =deno.jsonc= + =<member>/deno.jsonc= ×9 | imports ∅ · tasks → scripts | M1 · M7 | edit |
+| =systems/ghost/trajectories/ledger/index.js:52= | + =package.json= · + link | M1 | edit |
+| =commons/services/reader/{extract.js,service.viva.js}:1= | =npm:= → bare | M1 | edit |
+| =commons/services/reader/tests/*.test.js= ×3 · =systems/ghost/tests/address.test.js:19= | =npm:= · =jsr:= → bare | M1 | edit |
+| =subsystems/typology/mod.ts= | → =mod.js= · =:12= ∅ | M2 | rename |
+| live =.ts= ×32 (8 with =enum=) | → =.js= | M2 | rename |
+| =.jsx= ×27 (ghost · sheets) | → =.js= per F4 | M2 | rename |
+| repo prod files ×46 | =Deno.*= → =node:*= | M3 | edit |
+| =systems/runtime/lifecycle/runtime/integration.js:25= | → =shard.serve.listen= | M4 | edit |
+| =subsystems/typology/gestalten/shard/serve.js:21= · =:35= | static · upgrade | M4 | edit |
+| =systems/ghost/trajectories/instance/target.js:5= · =:10= · =:56= | CHILDREN → entry · =DENO_DIR= ∅ · spawn-self | M4 | edit |
+| =systems/ghost/trajectories/instance/start.js:11= | spawn-self | M4 | edit |
+| =systems/ghost/ghost.sh:11= | =exec deno= → host | M4 | edit |
+| =subsystems/typology/specimen/index.js:1= · =snapshot.js:126= | → =node:test= · =node:fs= | M5 | edit |
+| repo test files ×102 · =Deno.test= ×28 · =@std/testing/bdd= ×17 | → =node:*= · specimen | M5 | edit |
+| =~/.viva/registry/**= prod ×18 · tests ×32 | =Deno.*= → =node:*= | M6 | edit |
+| =~/.viva/registry/chess/{domain/rules/index.js,topographies/openings/harvest.js,topographies/puzzles/harvest.js,services/stockfish/tests/fake-uci.js}= | =esm.sh= → deps | M6 | edit |
+| =~/.viva/registry/**= =.ts= ×19 (6 with =enum=) | → =.js= | M6 | rename |
+| =subsystems/paladin/prototypes/ledger/registry.js:145= | tap installs deps | M6 | edit |
+| =Dockerfile= · =systems/{runtime,anima}/Dockerfile= · =documentation/Dockerfile= | base · =CMD= | M7 | edit |
+| =.gitlab-ci.yml= | + host matrix | M7 | edit |
+| =.ikiro/world/map.md= · =world/codemap/*.md= · =.claude/skills/*= | 73 lines | M7 | edit |
+| =README.md= · =documentation/content/**= ×5 | install pages | M7 | edit |
+
+* testing assessment
+
+- The baseline is per host. =node --test= and =deno test= count the same suite differently (probe: =tests 2 · pass 2= vs =1 passed (3 steps)=), so parity means 0 failed on each, never equal counts.
+- M1–M3 are gated on Deno alone, by suite counts equal to a baseline taken before M1. Pre-existing reds are attributed by name (frontier: =registry-mode-suites-red-against-the-runtime= · =ghost-ledger-test-init-step-red-pre-existing=).
+- =viva /help= is the CLI-alive proof before every suite count (=world/map.md:17=).
+- COVERAGE GAP: nothing boots the runtime on two hosts today. M4's gate is the first test that does.
+- COVERAGE GAP: Bun is entirely unmeasured. It is not installed.
+- COVERAGE GAP: no test covers watch semantics, and =world/map.md:14='s restart-evidence law will change per host.
+- COVERAGE GAP: native addons under Bun and inside a single binary.
+- COVERAGE GAP: the websocket upgrade on Node. =tests/sse.integration.test.js= covers SSE over a real =fetch= → =Deno.serve=, but no websocket.
+
+* QA
+
+#+marker_qa: runtime-independence/P-ledger-walk · held · out-of-tree @vivalence/* + npm through <ledger>/node_modules, one instance (node 20.17 · deno 2.9.6; bun pending)
+#+marker_qa: runtime-independence/P-node-test-specimen · held · a node:test describe/it suite green under node --test and deno test (bun pending)
+#+marker_qa: runtime-independence/T-node-boots · pending · /"I type `node systems/runtime/run.js` in an instance mount, I see `Status:RUNNING` and :2501/multiplex upgrades"/
+#+marker_qa: runtime-independence/T-ghost-on-node · pending · /"I type `viva /help` with ghost.sh exec'ing node, I see the help sheet"/
+#+marker_qa: runtime-independence/T-start-on-node · pending · /"I type `viva instance/start`, I see runtime and anima children whose host is node"/
+#+marker_qa: runtime-independence/T-registry-on-node · pending · /"I type `viva registry/doctor` on a node-hosted ledger with chess tapped, I see it green and the puzzles harvest runs"/
+#+marker_qa: runtime-independence/T-bun-boots · pending · /"I type `bun systems/runtime/run.js`, I see `Status:RUNNING`"/
+#+marker_qa: runtime-independence/T-binary · pending · /"in a container with no deno, node or bun, I type `viva /help`, I see the help sheet"/
+
+* deferred
+
+- Edge hosts (Workers · Deno Deploy): the runtime spawns processes and opens sqlite files, so it is not a WinterTC target. Typology alone might be.
+- Dropping Deno is not a goal. It stays a supported host.
+- The binary's compiler (=deno compile= · =bun build --compile= · Node SEA) is QUESTIONED at M8.
+- =subsystems/dapper= · =subsystems/drapes=: 0 =Deno.*=, browser-only through the bundler, so nothing to do here. The same goes for anima and documentation output, which is static files under nginx: their host is build-time only (vite · astro are Node-native).
+
+* changelog
+
+- 10-06 — written from a fresh session. The census ran through =rg= scripts in the session scratchpad (=measure.sh= · =measure2.sh= · =measure3.sh= · =measure4.sh=). Probes =probe-walk/= and =probe-test/= live in the same scratchpad: both held on node 20.17.0 and deno 2.9.6, with their outputs pasted under =* terrain — measured=. Every BEFORE line in the 12 diff hunks was replayed dry through =methods/apply-diffs.py= against the live tree: =hunks landed 12 · missed 0=. The NEW sides are sketches, not tangle. No repo or =~/.viva= file was touched. Not added to =quests/index.md= or =world/frontier.md=, per /"unindexed."/
+
+* release
+
+Draft lines, to be lifted only at landing:
+
+#+begin_example
+### cli
+- changed `viva` — runs on node or bun as well as deno; the host is the binary that runs ghost.sh · migrate: none ⟨runtime-independence⟩
+### env
+- removed `import_map.json` · `deport_map.jsonc` — dependencies live in package.json · migrate: a registry package declares its deps in its own package.json ⟨runtime-independence⟩
+- added `<ledger>/package.json` · `<ledger>/node_modules` — seated by `viva ledger/init` · migrate: re-run `viva ledger/init` ⟨runtime-independence⟩
+#+end_example
+
+* handoff
+
+Nothing is in flight. The next session starts with beef's rulings on F0 · F1, then F2 · F3 · F4. M0 needs Node 24 LTS and Bun installed on this machine, which is an install on his machine and so his go. The probes in the scratchpad are session-scoped; if they are gone, the =probe-walk= layout above is enough to rebuild them in two minutes. The quest stays out of =index.md= and =frontier.md= until beef numbers it or says otherwise.

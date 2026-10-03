@@ -1,11 +1,7 @@
-import {
-  types,
-  Collection,
-  EntitySchema,
-  type Opt,
-  type Rel,
-} from "@mikro-orm/core";
+import { types, Collection, EntitySchema, type Opt } from "@mikro-orm/core";
 import { DataEntity, DataSchema } from "../base/DataEntity.ts";
+import { DaemonEntity } from "./Daemon.ts";
+import { TerminalEntity } from "./Terminal.ts";
 
 export class AuthenticatorEmbedEntity {
   provider!: string;
@@ -23,9 +19,21 @@ export const AuthenticatorEmbedSchema = new EntitySchema({
   },
 });
 
+export enum IdentityTraitsEnum {
+  ADMIN = "ADMIN",
+  THEMED = "THEMED",
+  DOCKED = "DOCKED",
+  HOMED = "HOMED",
+}
+
 export class IdentityEntity extends DataEntity {
   slug!: string;
   authentication: AuthenticatorEmbedEntity & Opt = {};
+  traits: IdentityTraitsEnum[] & Opt = [];
+  trait: any & Opt = {};
+
+  daemons = new Collection<DaemonEntity>(this);
+  terminals = new Collection<TerminalEntity>(this);
 }
 
 export const IdentitySchema = new EntitySchema({
@@ -40,15 +48,23 @@ export const IdentitySchema = new EntitySchema({
       entity: "AuthenticatorEmbedEntity",
       object: true,
       defaultRaw: `'{}'`,
+      hidden: true,
     },
+    traits: {
+      items: () => IdentityTraitsEnum,
+      enum: true,
+      array: true,
+      defaultRaw: `'[]'`,
+      columnType: "json",
+    },
+    trait: { type: types.json, defaultRaw: `'{}'` },
+    daemons: { kind: "m:n", entity: () => DaemonEntity, owner: true, pivotTable: "Identity_daemons" },
+    terminals: { kind: "1:m", entity: () => TerminalEntity, mappedBy: (terminal) => terminal.identity },
   },
 });
-
-// export default { IdentitySchema, IdentityEntity };
 
 export default {
   type: "identity",
   schema: IdentitySchema,
   entity: IdentityEntity,
-  // repository: IdentityRepository,
 };

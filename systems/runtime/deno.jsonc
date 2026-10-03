@@ -8,7 +8,7 @@
   },
   "tasks": {
     "run": "deno run -A run.js",
-    "watch": "deno run -A --watch=../../commons,$HOME/.viva/registry run.js",
+    "watch": "deno run -A --watch=../../commons,$HOME/.viva/registry --watch-exclude=**/dataset/** run.js",
     "test": "deno test -A --no-check --watch tests/**/*.test.js",
     "playground/drain": "deno run -A --no-check tests/drain.playground.js",
     "test/snapshots": "SNAPSHOT_HOT=1 deno test -A --no-check tests/**/*.snapshot.test.js",

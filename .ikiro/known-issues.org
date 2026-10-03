@@ -1,6 +1,6 @@
 #+TITLE: Known Issues
 #+STATUS: LIVE LEDGER
-# writer: agent · kind: ledger — OPEN entries only, a resolved entry is CUT (skill known-issues)
+# writer: agent · kind: ledger · limit: 200000 chars — OPEN entries only, a resolved entry is CUT (skill quest)
 
 Issues we know about and have NOT fixed. Each entry: symptom, root cause hypothesis,
 evidence, attempts, why not fixed now, fallback workaround.
@@ -724,7 +724,43 @@ sessions"). Proposed in the registry/doctor session, GATED on beef's go.
 ** Fallback
 
 Never run two =ledger/doctor= within the same second on a ledger whose sessions you care
-about; =instance/doctor= is the read-only probe.
+about; =instance/doctor= is the read-only probe. In a suite: count this one red as environmental when =ps -p 61001 -p 61002= prints nothing.
+
+** Met again — m74 M1 walk (merged here 10-05 from =ghost-strata-wet-test-reads-dead-pids=), and 10-05 session test-suite
+
+Green at one hour, red at the next on an unchanged tree. 10-05: red 3/3 (suite · one file · HEAD copy). Control on the exact test body: dead pids =61001/61002= → =[false,true]= three rounds of three; two live =sleep= pids → =[true,true]= three of three — the reap, not a concurrent =supply()=. Run in sequence, doctor two deletes BOTH session files (its own after reading it) and doctor one reads =null=.
+
+Test-side patch, proven on a scratch copy (=ok | 12 passed | 0 failed=) — the two shells become live processes:
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/strata.wet.test.js
+-  const one = { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: "61001", INIT_CWD: neutral };
+-  const two = { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: "61002", INIT_CWD: neutral };
+-  await viva(["instance/use", italian], one);
+-  await viva(["instance/use", spanish], two);
+-  const [first, second] = await Promise.all([doctor([], one), doctor([], two)]);
+-  assertEquals(valueOf(first, "VIVA_INSTANCE_MOUNT"), italian);
+-  assertEquals(valueOf(second, "VIVA_INSTANCE_MOUNT"), spanish);
+-  assertEquals(stratumOf(first, "VIVA_INSTANCE_MOUNT"), "session");
++  const shells = [0, 1].map(() => new Deno.Command("sleep", { args: ["60"], stdout: "null", stderr: "null" }).spawn());
++  const [one, two] = shells.map((shell) => ({ VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: String(shell.pid), INIT_CWD: neutral }));
++  try {
++    await viva(["instance/use", italian], one);
++    await viva(["instance/use", spanish], two);
++    const [first, second] = await Promise.all([doctor([], one), doctor([], two)]);
++    assertEquals(valueOf(first, "VIVA_INSTANCE_MOUNT"), italian);
++    assertEquals(valueOf(second, "VIVA_INSTANCE_MOUNT"), spanish);
++    assertEquals(stratumOf(first, "VIVA_INSTANCE_MOUNT"), "session");
++  } finally {
++    for (const shell of shells) shell.kill("SIGKILL");
++    await Promise.all(shells.map((shell) => shell.status));
++  }
+ });
+#+END_SRC
+
+The choice (beef): fork a — the doctor stops mutating, the product fix that flips the =:119= pin — or this patch — the doctor keeps reaping, the test stops faking dead shells. They do not exclude each other.
+
+Met at the m79 sandbox pass (10-05): =11 passed | 1 failed= on the repo, on an unpatched copy and with m79 applied, the same step — independent of m79.
 
 * session-selection-invisible-to-bare-deno-task — OPEN (design gated)
 
@@ -827,6 +863,19 @@ the README's security notice covers it today. Belongs on the lighthouse-security
 
 * ghost-ledger-test-init-step-red-pre-existing — OPEN
 =systems/ghost/tests/ledger.test.js= step /"instance init authors .env from the schema, then asks only for the blanks"/ is RED: =first.env= answers ="present"= where ="scaffolded"= is expected. Not environmental (=env -u VIVA_PROCESS_ID= same), not the rename move (HEAD copy with the rename change reverted → same red). Surfaced while landing =instance/rename= singular; ghost suite 87/89 with this + the known =strata.wet= "two shells" red.
+Root cause (10-05, session test-suite): the suite's own =ledger/init= step mints =SECRET_VIVA_JWT= into the temp ledger =.env= — the recipe default, =commons/ledger/ledger.viva.js:61= /"Minted at first init"/. The probe instance's only required key carries the same name (=systems/ghost/tests/ledger.test.js:204=), so the =ledger= stratum answers it: =owing()= is false, =systems/ghost/trajectories/instance/init.js:85= never scaffolds, =:135= answers =present=. Probe at the first =instance/init=: secret strata =ledger= true, the six others false. Control with an empty real ledger: the same red.
+Patch, proven on a scratch copy (=ok | 1 passed (18 steps) | 0 failed=) — the probe owes a key no ledger recipe mints, seven occurrences inside the one step:
+#+BEGIN_SRC diff
+// systems/ghost/tests/ledger.test.js
+-  SECRET_VIVA_JWT: v.string().desc("signing secret").group("keys"),
++  SECRET_VIVA_PROBE_SIGNING: v.string().desc("signing secret").group("keys"),
+-    expect(first.fill).toEqual(["SECRET_VIVA_JWT"]);
++    expect(first.fill).toEqual(["SECRET_VIVA_PROBE_SIGNING"]);
+-    expect(/^# SECRET_VIVA_JWT=""$/m.test(held)).toBe(true);
++    expect(/^# SECRET_VIVA_PROBE_SIGNING=""$/m.test(held)).toBe(true);
+#+END_SRC
+The choice (beef): rename — the step tests the instance's own blank — or keep the JWT and add a step asserting inheritance: the ledger holds it, =instance/init= answers =present=.
+Met at the m79 sandbox pass (10-05): =0 passed (17 steps) | 1 failed= on an unpatched copy and with m79 applied, the same step — independent of m79.
 
 * runtime-registry-count-fork-2-multiplayer-stale — PRE-EXISTING RED (ledgered at the m53 T1 landing)
 
@@ -1604,83 +1653,6 @@ Colour discipline IMPROVES inward — anima 0 hex across 56 views, education 11 
 33 drapes imports, anima 9, droneaid 0. *The design system's strongest consumer is the
 package furthest from it, and its weakest is the system it was built for.*
 
-* quest-report-crashes-on-a-quest-that-moved-mid-run — OPEN (measured six times at the survey fold, while a sibling swept the quest root)
-
-** Symptom
-
-=methods/quest-report.py= dies with =FileNotFoundError= and produces NOTHING — no table, no
-partial rows, no note about which quest is missing — when any quest named in
-=quests/index.md= has been moved into =done/= or =discarded/= since that index was
-regenerated.
-
-#+begin_example
-Traceback (most recent call last):
-  File ".ikiro/methods/quest-report.py", line 278, in <module>
-    rows = report(hours=hours, exclude=os.environ.get("CLAUDE_SESSION_ID"))
-  File ".ikiro/methods/quest-report.py", line 146, in report
-    text = open(path, encoding="utf-8", errors="replace").read()
-FileNotFoundError: [Errno 2] No such file or directory: '.ikiro/quests/m63-process-controller.org'
-#+end_example
-
-Measured SIX consecutive runs at one fold, each naming a different file as the sweep
-advanced: =m63-process-controller= → =m53-vcompany= → =m51-standalone-slowstart= →
-=drapes-editor= → =media-editor= → =m56-the-pincer-turns=.
-
-** Root cause
-
-Two unguarded opens on paths derived from the index rather than from disk:
-
-#+begin_example
-quest-report.py:146   report()  text = open(path, encoding="utf-8", errors="replace").read()
-quest-report.py:185   stamp()   text = open(r["path"], encoding="utf-8").read()
-#+end_example
-
-=index.md= is DERIVED and regenerated at sunset, so between its regeneration and the
-report's read there is a window in which a path is listed but gone. The sunset ritual
-(=skills/quest-lifecycle=) moves files one at a time, so the window is open for the whole
-sweep — at this fold, long enough to swallow six runs.
-
-=stamp()= widens it further: it re-opens every row AFTER =report()= has already returned,
-so a quest can survive the read and still be missing at the write. That is the sixth
-failure above — the table printed in full, then stamping died.
-
-** Why this one matters more than its size
-
-The report's own =sessions= column exists to warn the reader that a tree may be moving
-under them — =live: m46-linux-readmen ← edafd0fa (5m ago)=. *The script cannot survive
-the exact condition it was built to announce.* And its failure mode is total rather than
-partial: eighteen rows are lost because one is absent.
-
-Consequence at the fold where this was measured: the compact's =* quest report= section
-was assembled from a =--format md= run with =--stamp= dropped, so the three derived header
-keys on the surviving quests went unstamped and the compact had to say so.
-
-** Attempts
-
-- *Retry* — three back-to-back runs, three different missing files. Retrying does not
-  converge while a sweep is in progress; it only samples it.
-- *Drop =--stamp=* — WORKED for the read half. =--format md= alone exits 0 and prints the
-  table, because =report()= happened to land between two moves. It is luck, not a fix.
-
-** Why not fixed now
-
-=methods/= is ikiro's own and the fold that found this was a UI survey; fixing the tool
-mid-fold would have been unsolicited scope. The fix is small and well-shaped:
-
-1. In =report()=, treat a missing path as a row with status =moved= — resolve it against
-   =quests/done/= and =quests/discarded/= and report where it went, rather than raising.
-2. In =stamp()=, skip a row whose file has vanished since the read and name it in the
-   =stamped:= line.
-3. Consider deriving the row set from =glob= on =quests/*.org= rather than from
-   =index.md=, so the derived index is never load-bearing for a read.
-
-** Workaround
-
-Run =python3 .ikiro/methods/quest-report.py --format md= WITHOUT =--stamp= to get the
-table, and re-run the stamping half at the next fold. If a run crashes, check
-=ls .ikiro/quests/*.org= against the index before assuming the tool is broken — a live
-sibling mid-sunset is the likelier cause, and =git status= will show the moves.
-
 * path-codec-encode-assumes-an-array — OPEN
 ** Symptom
 =v.primitives.instance.Instance.encode(instance)= on a settled (decoded) instance throws
@@ -1810,20 +1782,6 @@ Code work in the runtime / kajuit, gated on beef's per-item go; the design is in
 ** Workaround
 none — the config layer carries the block on droneaid today
 
-* compact-gate-hangs-when-run-by-hand — OPEN (measured at compact #196)
-
-** Symptom
-=bash .ikiro/hooks/compact-gate.sh= invoked from a Bash tool call never returns. Four background shells were found stuck on it at one fold — three of them carried over from two EARLIER folds, alive for hours. =pkill -f compact-gate.sh= reaped all four (exit 144).
-
-** What is not wrong
-The hook itself works: as a =PreCompact= hook the harness runs it with a real stdin and it completes (the =/compact= at compact #195 reported =PreCompact … completed successfully=).
-
-** Reading
-It blocks on stdin (or on something the harness supplies) that a plain Bash invocation never closes. The compact walk's step 9 tells the scribe to run the budget check and then =/compact= again — a scribe who also runs the gate by hand to "verify" leaks a process every fold.
-
-** Owed
-Either make the script exit when stdin is not a tty, or strike "run the gate by hand" from the ritual. Until then: run =budget.py= for the check and let =/compact= fire the hook.
-
 * decoded-path-has-no-trace — OPEN
 ** Symptom
 A =Path()= / =Url()= slot decoded at settle is a fresh prototype: =trace= is null, so =nature= equals =absolute=. A reader that branches a parent aperture by =mode.mount.nature= (=systems/runtime/daemon/lifecycle/resolution.js:76=, =daemon/aperture/metadata.js:25=) gets the whole path when the seat was handed in as a runtime-rooted string — =[multiplex] no route for "/daemon/droneaid/mode/domain/assembly/metadata/aperture"= on beef's watch.
@@ -1844,11 +1802,11 @@ A root step's over at a path inside a grafted sub-part is lost; a part whose bas
 ** Root cause
 =~/.viva/registry/assembly/domain/assembly/resolve.js= =resolve()=: the graft runs AFTER the stack fold and =held.set(prefix(at, inner.path), …)= replaces whatever the root's layers said at that path — the reference beats the local layer, the inverse of LIVRPS. =interior()= is =layerOf(rows, slug).length > 0=, the base layer alone.
 ** Evidence
-The brief =reference/droneaid-guide-briefing.md §9=; no test pins either.
+The brief =.ikiro/reference/droneaid-guide-briefing.md §9=; no test pins either.
 ** Ruling
 Superseded by the step rework (compact #200): steps become overs applied after the graft, and the base is the only layer — both dissolve by construction. Until it lands, they stand.
 ** Why not fixed
-The rework is planned (=reference/assembly-step-rework.md=) and held behind a live sibling on the same files.
+The rework is planned (=.ikiro/reference/assembly-step-rework.md=) and held behind a live sibling on the same files.
 ** Workaround
 Import flat (=groups: false=): nothing grafts.
 
@@ -1866,17 +1824,17 @@ A per-daemon unique on =slug= alone would bind education too, where a slug's uni
 ** Workaround
 The repository is the only writer; the law holds while that stays true.
 
-* guide-buffer-points-at-a-missing-guide — OPEN
+* guide-buffer-points-at-a-missing-guide — OPEN, the editor half (the player half fixed 10-07)
 ** Symptom
-The one =editor/guide= buffer on droneaid holds =guide: "guide_1"=; no =guide_1= literal exists. The mode answers =/read refused= instead of the guide list.
+A guide buffer whose =buffer.data.guide= names a retracted guide answers =/read refused= and never lists the guides; the runtime prints =Error: [assembly] no literal named "guide_1"= from =player/guide/aperture/index.js:16=. 10-07: four droneaid buffers held =guide_1= after m71 retracted it.
 ** Root cause
 Both guide apps trust =buffer.data.guide=; nothing falls back when the literal is gone.
-** Evidence
-droneaid db read-only at compact #202: 0 guide rows, 1 buffer.
+** Fix, player (10-07, beef's go)
+=modes/player/guide/buffer/Guide.svelte:90= — on a refused read, ask =/guides=; the slug absent → =retain({ guide: null, step: 0 })=, the list shows; any other refusal still says =/read refused=. Player suites green (=3 passed (12 steps)=); the lost-guide path itself is unpinned (no test reaches the view's catch).
 ** Ruling
-none yet
+the player's fix is the shape; the editor's =buffer/Guide.svelte= wants the same four lines on go.
 ** Why not fixed
-found at the fold; a few lines in both apps.
+the editor half was not in the go.
 ** Workaround
 open a fresh buffer.
 
@@ -1912,13 +1870,13 @@ Read the printed vantage count before trusting the green.
 
 * tests-no-task-runs — OPEN (drained from invariants.md + commons.md)
 ** Symptom
-42 `*.test.*` under `~/.viva/registry` are run by no task. Three commons suites need a LIVE process and carry no skip: `nlp/tests/service.test.js` (:5555), `multiplayer/tests/{auth,lighthouse}.test.js` (:1729).
+42 `*.test.*` under `~/.viva/registry` are run by no task. One commons suite needs a LIVE process and carries no skip: `commons/services/nlp/tests/service.test.js` (:5555, stanza). Measured 10-06 under `HOME=<empty dir>`: `multiplayer/tests/{auth,lighthouse}.test.js` pass with no process (12 · 10 steps) — no longer live.
 ** Why not fixed
-Owed: a registry test task, and a self-skip on the live suites.
+Owed: a registry test task; the nlp suite renamed `service.live.test.js` and excluded from the default glob — quest `runtime-testing-recast` M0.
 
 * panel-f-reads-trait-past-the-claim-gate — OPEN (drained from invariants.md)
 ** Symptom
-`systems/anima/src/app/panels/f/f.svelte:14` reads `row.trait?.NAME` directly.
+`systems/anima/src/app/panels/c/cards/Thread.svelte:10` reads `thread.trait?.MASKED` directly (moved from `panels/f/f.svelte:14` 10-06).
 ** Why not fixed
 Carried in a shard, never filed.
 
@@ -2114,8 +2072,45 @@ Three registry suites are red on the live tree and on a copy of their files from
 The runtime moved under them. vdex: =systems/runtime/daemon/traits/dataset.js:27= reads =mode.module.source.dirname=, the =mountMode= scenario hands a module without =source=. dojo: =/mode/game/dojo/resolve= answers 500, =LiteralEntity= has no property =retentions= and =ctx.daemon.entities.literal.byLastSignal= is not a function. education domain: a seed path one level too high.
 ** Evidence
 =deno test --config deno.jsonc -A --no-check= on =~/.viva/registry/vcompany/modes/office/vdex/tests/= and =education/modes/games/dojo/tests/=, then the same on a scratch copy overlaid with =~/.viva/bak/m72/registry-20260928/=: identical counts.
+Met again by m78's pin bracket (one-file runs, before and after, identical): education =domain/tests/kernel/literal.test.js= still aborts on =seed.js=; =domain/tests/aperture/aperture.test.js:7= and =domain/tests/tools/tools.test.js:8= now red too — /"TypeError: Cannot read properties of undefined (reading 'authorize')"/; dojo =aperture= · =emitter= as above.
+10-05, session test-suite — every package run from the repo root on a scratch copy of the registry. education aborts at collection. File by file, four causes:
+- =domain/tests/scenarios/domain.js:11= calls =shard.secure.authorize()=; m76 deleted =subsystems/typology/gestalten/shard/secure.js= and its M4 residue grep stopped at the repo root. That is the =authorize= TypeError.
+- =systems/runtime/tests/scenarios/daemon.js:25= =create()= seeds no domain, and dojo calls =mountMode(dojo)= bare, while =commons/fixtures/data/seed.js:6-8= says a mode calling domain repository methods must mount its domain. That is the missing =retentions= · =byLastSignal= · =feed= · =novel= · =review= · =due=.
+- =kernel/literal.test.js:2= · =userspace/scoping.test.js:3-4= import =../../../../fixtures/data/= from the =commons/= era.
+- vcompany =FAILED | 16 passed (65 steps) | 11 failed (30 steps)=: its own rig writes =mode.module.mount= (=~/.viva/registry/vcompany/tests/scenarios.js:28,54=), DATASET reads =mode.module.source.dirname= (=systems/runtime/lifecycle/mode/traits/dataset.js:27=).
+Patch set, proven on the copies — education =ok | 39 passed (187 steps)=, vcompany =FAILED | 25 passed (113 steps) | 2 failed (4 steps)=, runtime with the rig change =ok | 76 passed (429 steps)=:
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/daemon.js
+-export async function create() {
+-  const { orm, em, datamap, entities, fixtures } = await seed();
++export async function create(options = {}) {
++  const { orm, em, datamap, entities, fixtures } = await seed(options.entities);
+// systems/runtime/tests/scenarios/index.js
++export * as fixtures from "./fixtures.js"
+// ~/.viva/registry/education/domain/tests/scenarios/domain.js
+-  const scenario = await scenarios.create();
++  const scenario = await scenarios.create({ entities: domain.entities });
+-    .use(shard.secure.authorize())
++    .use(good.lighthouse.shard.authorize)
+// ~/.viva/registry/education/modes/games/dojo/tests/{aperture,emitter,tools}.test.js
++import { entities } from "../../../../domain/entities/index.js";
+-    scenario = await mountMode(dojo);
++    scenario = await mountMode(dojo, { entities });
+// ~/.viva/registry/education/domain/tests/kernel/literal.test.js — userspace/scoping.test.js the same, its tiers. → fixtures.tiers.
+-import { seed } from "../../../../fixtures/data/seed.js";
++import { fixtures } from "@vivalence/runtime/scenarios";
++import { entities } from "../../entities/index.js";
+-  scenario = await seed();
++  scenario = await fixtures.seed(entities);
+// ~/.viva/registry/vcompany/tests/scenarios.js — NO VCS: capture to ~/.viva/bak/ first (skill readme)
+-  mode.module.mount = at(manifest);
++  mode.module.source = at(manifest);
+-  scenario.mode.module.mount = new Path(
++  scenario.mode.module.source = new Path(
+#+END_SRC
+=create(options)= mirrors =mountMode(viva, options)= (=systems/runtime/tests/scenarios/mode.js:120=); =fixtures= on the scenarios barrel keeps =commons/fixtures/data/= at its one consumer, =systems/runtime/tests/scenarios/fixtures.js=.
 ** Ruling
-none yet.
+none yet. Owed with the patch: the vdex ordering — the 2 left in vcompany. =vcompany/modes/office/vdex/aperture/index.js:39-40= throws /"is one document already"/ (the id is taken) before =:42= throws /"exists"/ (the path is taken); =vdex/tests/tools.test.js:80= re-files =22.07 Payroll= and expects "exists", =vdex.snapshot.test.js:150= is the same family. Which refusal wins a same-id re-file: the id check (the test changes) or the path check (=:39= lets its own path through).
 ** Why not fixed
 Runtime scenarios and the education domain, outside m72.
 ** Workaround
@@ -2253,50 +2248,6 @@ The recast is paladin's shape — what state and interface paladin exposes for a
 ** Workaround
 
 Printer and reader change in one landing (m74 M3); never one without the other.
-
-* ghost-strata-wet-test-reads-dead-pids — OPEN (met on the m74 M1 walk)
-
-** Symptom
-
-=systems/ghost/tests/strata.wet.test.js= /"two shells select two instances in parallel"/ fails with =Actual null / Expected <tmp>/…-spanish= for the second shell: =valueOf(second, "VIVA_INSTANCE_MOUNT")= reads nothing. Green at one hour, red at the next, on an unchanged tree.
-
-** Root cause
-
-The test writes two session records for =VIVA_PROCESS_ID= 61001 and 61002 (=strata.wet.test.js:98-99=), then runs two =ledger/doctor= in parallel. The doctor reaps a dead pid's session (=systems/ghost/trajectories/ledger/index.js:189=, =Deno.kill(shell, "SIGURG")=) — so whenever no live process on the machine holds 61002, the first doctor deletes the second shell's session before the second doctor reads it. The rung test above it uses =Deno.pid= and never meets this.
-
-** Evidence
-
-=ps -p 61001 -p 61002= empty → red twice in a row; the M0 baseline run of the same file was green. The three ghost files changed between the two runs (=trajectories/instance/use.js= · =trajectories/index.js= · =mod.js=) are whole-word renames, diffed against HEAD.
-
-** Why not fixed
-
-Ghost's tests are beef's surface; the fix is the test's pids — =Deno.pid= for one shell and a spawned sleeper for the other, or a doctor that skips the reap under a flag.
-
-** Workaround
-
-Read the file's other tests; count this one red as environmental when =ps -p 61001 -p 61002= prints nothing.
-
-* droneaid-model-test-imports-a-topology-assembly-no-longer-has — OPEN (met on the m74 M2 sweep)
-
-** Symptom
-
-=deno test … ~/.viva/registry/droneaid/topographies/model/tests/model.test.js= dies at collection: =Module not found= for =assembly/topologies/component/…= (=model.test.js:7=). One module-not-found in a collected file aborts the whole run it sits in.
-
-** Root cause
-
-The assembly package's topologies are =guide= · =part= · =placement= · =step= today; =component= is gone, and droneaid's model test still imports it by relative path.
-
-** Evidence
-
-The sweep agent's run of =droneaid/topographies/model/tests/model.test.js= (its only droneaid edit was README prose); =ls ~/.viva/registry/assembly/topologies/= shows no =component=.
-
-** Why not fixed
-
-A tapped package's test, beef's; whether the model topography should point at =part= or the test should go is the package's call.
-
-** Workaround
-
-Run droneaid's =modes/= tests on their own (=ok | 2 passed (9 steps)=); leave =topographies/model/tests= out of any collected run.
 
 * docs-anatomy-page-names-an-example-that-has-no-file — OPEN (met on the m74 M6 docs pass)
 
@@ -2481,6 +2432,7 @@ Four reads DENIED in one session, each as a mutation: =jj bookmark list --all-re
 ** Evidence
 
 Session 0b904f23, turns 2–4 and 4, 7, 29 (the chess op-log walk and the old-tree diff). Each worked around with an allowed read: =jj log -r 'remote_bookmarks()'= · =find .git/refs= + =cat .git/packed-refs= · =git -C <dir>= · the =jj= binary's Cellar path.
+10-05, session test-suite: =git archive HEAD | tar -x -C <scratch>= denied (/"git archive: graph/worktree mutation"/) — it writes nothing to the repo. Worked around: =git ls-tree -r HEAD= · =git hash-object --stdin-paths= (no =-w=) · =git show HEAD:<path>= over a clonefile of the tree.
 
 ** Why not fixed
 
@@ -2489,3 +2441,241 @@ A hook is beef's wiring (=ontology.md= law 8); the allowlist rows and their rig 
 ** Workaround
 
 =git -C <dir>= instead of =--git-dir=; =find <repo>/.git/refs -type f= + =.git/packed-refs= for refs; =jj log --ignore-working-copy -r 'bookmarks() | remote_bookmarks()'= for bookmarks; =readlink -f "$(which jj)"= for the version; never the words =git= / =jj= + a verb inside an =echo= label.
+
+* announce-without-a-bearer — OPEN (m76 M2, the lighthouse attachment)
+
+** Symptom
+
+=POST /attached/process/service/lighthouse/multiplayer/daemons/announce { slug, remote, reported }= answers any caller: no bearer, no service token. Anyone who can reach the lighthouse can write or move a daemon row (=remote=, =reported=) by slug.
+
+** Root cause
+
+Service-to-service auth never existed: the old =runtime/integration.js announce= wrote through the open =/entities/daemon/ensure= verb the same way (=367e85993=). m76 narrowed the surface to ONE route (=commons/lighthouses/multiplayer/attachment/daemons.js=) and kept the hole knowingly (F18 ruled lighthouse-facilitated access for later).
+
+** Evidence
+
+=commons/lighthouses/multiplayer/attachment/daemons.js:5= — =new Vector().open("/announce", …)= with no =authenticate()=; =systems/runtime/prototypes/lighthouse.js beacon()= sends no header. The quest's =* deferred= holds the shape (lighthouse-facilitated access, stale daemons via =reported= + =updatedAt=).
+
+** Why not fixed
+
+A daemon has no identity of its own yet; minting one is the enrollment design beef deferred (/"That comes later."/). A bearer here without that design would be a second ad-hoc secret. Direction ruled 10-05, beef: /"we will add a machine user and attach that to our instance/per daemon/per runtime. that machine user can make lighthouse requests."/ — announce rides that identity's bearer through the same =authenticate()= the entity routes use.
+
+** Workaround
+
+The lighthouse sits inside the runtime's network boundary; a daemon that lies about =reported= only mislabels its own row.
+
+* stopped-beacon-lands-after-the-server-closes — OPEN (found 10-05, beef's droneaid ^C)
+
+** Symptom
+
+On SIGINT the runtime log prints two =[probe …] fetch failed …/daemons/announce … Connection refused= AFTER every =close= line; the lighthouse's =Daemon= row keeps =reported RUNNING= for a daemon that is gone. The same refused line prints once at boot, before =Status:RUNNING=.
+
+** Root cause
+
+=systems/runtime/prototypes/lighthouse.js:23= — =status.$transient.subscribe(() => this.beacon())= fires on every transition. At boot the first transitions run before =integration.serve= binds the port (=lifecycle/runtime/execution.js:24=); at shutdown =STOPPED= lands after =serve='s =finally= has shut the server down. Both beacons are refused and swallowed; only the mid-life ones and =integration.announce= (after =serve=) reach the lighthouse.
+
+** Evidence
+
+beef's paste 10-05 12:13: =[probe 12:13:27.163] fetch failed= before the mode =open= lines; =[probe 12:13:33.375]= and =.377= after =[/runtime/runtime/daemon/droneaid] close=. =sqlite3 … "select slug, reported from Daemon"= on droneaid's lighthouse db reads =droneaid|RUNNING= with nothing listening on :2501.
+
+** Why not fixed
+
+The order is the lifecycle's: =announce= rides =serve=, and a stop beacon that must land needs the server alive one beat longer, or a lighthouse that marks rows stale by =updatedAt= (m76 =* deferred=, stale daemons). beef's call on which; m60 owns the lighthouse surface.
+
+** Workaround
+
+Read =reported= with =updatedAt= beside it; a boot-time refused line before =Status:RUNNING= is noise, not a fault.
+
+* panel-a-status-strip-tests-outlive-the-strip — OPEN (found landing m76 M3)
+
+** Symptom
+
+=systems/anima/tests/dock/stage.mount.test.js= fails three of nine steps: "a view loads under its path…" expects =loading view attach/bundle/dealer/card active chat=, "a mode with no harness has no chat key" expects =done= and one =.status.positive=, "the frame keeps its own two states" expects =… active=. The rendered words carry no status word and no =chat= key.
+
+** Root cause
+
+Panel A (=systems/anima/src/app/panels/a/a.svelte=) draws =Frame= + =Dock= only; no element prints a buffer's =status= or a =chat= key under the view anywhere in =src/app/panels/a/= (=grep 'class="status"\|"chat"'= → 0). The strip left with the anima rework (=72acf68d1 new anima, pincer, tbone…=); the steps stayed.
+
+** Evidence
+
+m76's whole diff to =a.svelte= is the one settling line (=git diff -- systems/anima/src/app/panels/a/a.svelte=); the three steps red before and after it. The other six steps (settling included) are green.
+
+** Why not fixed
+
+The strip's return or the steps' cut is beef's call on panel A's shape, not m76's.
+
+** Workaround
+
+Read the suite as 6/9; the three reds are not a regression signal.
+
+* second-browser-unseats-a-fresh-seat — OPEN (found running m76's testimony, 10-03)
+
+** Symptom
+
+Two tabs of one identity on a fresh chess boot. Tab 1 picks PLAY: =thread/create= on the daemon, then =terminal/updateOne { daemon, thread }= on the lighthouse (200, the response carries both). Within the same second tab 2 logs =terminal/unseat= and writes =updateOne { daemon: null, thread: null }=; the wire row reads =null · null=, tab 1 keeps the board. Twice in a row on the first two seats; the third stuck.
+
+** Root cause
+
+=systems/anima/src/typology/entities/terminal.js:81= =derive()= runs on every lighthouse row event. Tab 2 receives the row (=thread= set) through =/entities/terminal/subscribe= BEFORE the daemon's =/userspace/entities/thread/subscribe= delivers the minted thread; the daemon reads =healthy=, =store.findOneLocal({ id })= (=:100=) misses, and the branch treats a local miss as ABSENT: =:107= notes =terminal/unseat= and =:108= writes =null · null= for every reader. Two SSE streams, no ordering between them.
+
+** Evidence
+
+Chess fresh boot =:27611=, console of tab 2 at 23:22:18 and 23:24:20: =/client/terminal/unseat note= then =updateOne= each time; the wire row's =updatedAt= equals the seat's second. Re-seating the same ={ daemon, thread }= by curl once both tabs' thread stores held the id: no unseat, all three readers agree. The probe (=.ikiro/reference/m76/probe.client.test.js=) pinned the inverse hazard with a =DaemonDouble= defaulting to =mounting= — the race needs a healthy daemon and a late event, which the double never produces.
+
+** Why not fixed
+
+The fix is a shape decision, not a line: ABSENT must be confirmed against the daemon (=store.findOne({ id })= over the wire, or a grace until the thread store has seen the id) before any reader writes =null=, and a reader that did not seat the row has weaker standing to unseat it. beef rules the shape (F10's "the Terminal's daemon m:1 resolves to the dossier" is where the standing would live).
+
+** Workaround
+
+One tab per identity while seating; a reload of the seated tab re-derives from the daemon's store and the row survives.
+
+* sign-out-keeps-the-roster — OPEN (found running m76's testimony, 10-03)
+
+** Symptom
+
+Sign out as =m76=, sign in as =kiro= in the same tab: the Terminals pane still lists m76's three rows and the chess daemon chip; =window.__viva.terminals.$entities= holds m76's rows while =$identity= reads kiro. A reload as kiro reads 0 rows, 0 daemons — the wall holds on the wire and on a fresh load; only the in-tab stores outlive the identity.
+
+** Root cause
+
+=systems/anima/src/typology/stores/lighthouse.js:155= =logout()= clears =$authority= · =$identity= · =$status= and nothing else; =systems/anima/src/app/+layout.svelte:40= builds =Terminals(lighthouse.dataspace.terminal)= once, and the dataspace's repositories (=$entities=, the =/subscribe= handle opened under the old bearer) are never dropped or re-opened on an identity change.
+
+** Evidence
+
+Tab 2 of the chess fresh boot after sign out → sign in: =identity: kiro=, =roster: [01a103a3, 01a103a4, 01a103a5]=, =daemons: [chess]=; the same tab reloaded: =roster: []=, =daemons: []=.
+
+** Why not fixed
+
+Whether a sign-out tears the dataspace down (and re-inits it from =/metadata/datamap= on the next sign-in) or the layout rebuilds =Terminals= per identity is beef's call on the client's shape; either lands outside m76's hunks.
+
+** Workaround
+
+Reload after a sign-out.
+
+* hello-world-mode-hook-reads-ctx-user-before-authorize — OPEN (found running m76's testimony, 10-03)
+
+** Symptom
+
+A fresh hello-world boot: anima's daemon card reads =error=, =SET MODE= shows =hello · error · modes arrive on mount=; every =/daemon/hello/mode/demo/hello-world/metadata/*= answers 500 =Cannot read properties of undefined (reading 'id')= with a bearer, 401 =MISSING_TOKEN= without.
+
+** Root cause
+
+=commons/instances/hello-world/mode.viva.js:31= (the shelf copy is byte-equal on these lines) =.use(async (ctx, next) => { console.log(ctx.user.id, …) })= is grafted on the mode's =aperture= at module load; =systems/runtime/lifecycle/daemon/resolution.js:23= adds =lighthouse.shard.authorize= to =mode.aperture= AFTER the mode executed, so the mode's own middleware runs first, before any =ctx.user= exists. The order is the same before m76 (=shard.secure.authorize()= sat on the same line); m76 swapped the middleware, not the order.
+
+** Evidence
+
+=runtime-hello-world.log=: =[multiplex] "/daemon/hello/mode/demo/hello-world/metadata/aperture" failed TypeError … at mode.viva.js:31:26= for aperture · emitter · application · harness; =curl -H "authorization: Bearer …" …/metadata/emitter= → 500.
+
+Met again at the m79 fold (10-05, read, not run): the hook is still at =mode.viva.js:29-33=, and m79's localhost recipe seats the chaosmonkey oracle instead of the demo until this closes — =.ikiro/quests/m79-terminal-ghost.org= M5.
+
+** Why not fixed
+
+Either the demo drops the hook (it is a demo of a mode logging its caller) or the runtime mounts =authorize= ahead of the mode's own =use= — the second changes every mode's middleware order and is beef's.
+
+** Workaround
+
+Delete the =.use= at =mode.viva.js:29-32= in the instance copy; the modes then arrive on mount.
+
+* connection-stream-drops-the-callers-signal — OPEN (found at the m79 fold, 10-05, by reading)
+
+** Symptom
+
+=Connection.stream(endpoint, signal)=, =observe()= and =subscribe()= take an =AbortSignal= that never reaches the transport: aborting it cancels no fetch, closes no multiplex frame and never reaches the server's =ctx.request.raw.signal=. =subscribe='s returned teardown aborts its own controller, which the reconnect loop reads only BETWEEN streams — an open SSE stays open until the server sends or closes it.
+
+** Root cause
+
+=subsystems/typology/prototypes/connection.js:80-88= =fetch= spreads the caller's options into =new Request({ url, body, ...options })=; =subsystems/typology/prototypes/request.js:4-24= reads =url · method · headers · body · query · path · raw · options= and never =signal=; =get signal()= (=:26=) mints the request's OWN controller, aborted only by =request.abort()= (the =shard.connection.timeout= shard). Every transport listens to that own signal (=gestalten/shard/transmitter.js:261= the fetcher, the multiplex's abort listener).
+
+** Evidence
+
+The three files read whole at the m79 fold (10-05); nothing ran. =connection.js:144-171= =subscribe= checks =controller.signal.aborted= only after a stream ends. No live caller depends on the signal reaching the server: anima's dock stops through =activity.stdin=, and the one caller that passed a signal (=anima/src/typology/prototypes/conversation.js=) is dead since m18.
+
+** Ruling
+
+None yet; direction is beef's.
+
+** Why not fixed
+
+Typology is holy, and the link (abort the request's own controller when a passed =signal= aborts) moves every transport's abort path. m79 needs only that a reader who STOPS ends the server's generator, which =Response.stream= learning =cancel= gives (m79 M7).
+
+** Workaround
+
+Stop iterating: =return()= the stream, or =break= out of the =for await= — =sse.frames= cancels its reader on the way out, and once m79 M7 lands the cancel returns the server's iterator.
+
+* init-wizard-passes-instance-where-the-kit-reads-variant — OPEN
+
+** Symptom
+
+=viva instance/init= shows the plain =✦ vivalence= wordmark where the banner logo (=✦ V I V A  L E N C E= + tagline) was meant, and its "instance up" banner paints cyan, not green.
+
+** Root cause
+
+=systems/ghost/trajectories/instance/Init.jsx:137= =<Logo instance="banner" />= and =:211= =<Banner instance="success" …>= — both kit components read =variant= (=subsystems/sheets/components/Logo.jsx:18= =Logo({ variant = "word" })= · =Banner.jsx:6= =Banner({ variant = "info", … })=), so the prop is ignored and the defaults paint.
+
+** Evidence
+
+Rendered through ink with a fake TTY by the m79 architecture pass (10-05): =.ikiro/reference/tui.md= §3, the init wizard's =ready= phase — wordmark, cyan banner.
+
+** Ruling
+
+None yet; direction is beef's.
+
+** Why not fixed
+
+Two attribute renames in one file; outside m79's tangle (M3 touches =Init.jsx:18,54= only). A one-line fix on go.
+
+** Workaround
+
+None needed — cosmetic.
+
+* sheets-pads-columns-by-string-length-cjk-and-emoji-misalign — OPEN
+
+** Symptom
+
+A table or picker row holding a Japanese, Chinese or Korean word, or an emoji, pushes every cell to its right out of column.
+
+** Root cause
+
+The kit measures a cell by =String.length= and pads with =padEnd= — =subsystems/sheets/components/Search.jsx:88-100= =measure= · =pad=, the same in =Table.jsx= and =Help.jsx:29= (=padEnd(24)=); a CJK glyph occupies two terminal cells, an emoji two, a combining mark none. ink's own =Text= wraps by display width; the kit's hand padding does not.
+
+** Evidence
+
+=.ikiro/reference/tui.md= §1 (unicode width hazards) and §2 (the kit inventory), 10-05. A language-learning OS puts CJK in every picker the moment a Japanese topology is tapped.
+
+** Ruling
+
+None yet; direction is beef's.
+
+** Why not fixed
+
+Needs a width measure (=string-width= is in ink's dependency tree; none in the kit) used by =measure= · =pad= and every =padEnd= in a sheet — a kit-wide change, not m79's.
+
+** Workaround
+
+Keep CJK out of padded columns; render it in a =Text= of its own.
+
+* writeback-under-a-watched-tree-redeploys — OPEN (named on the lighthouseless review, 10-07)
+
+** Symptom
+
+A runtime that writes composition changes back into its instance file (quest =lighthouseless= M4, =paladin.state.scribe= on =instance.json=) redeploys itself when that file sits under a watched tree: =runtime/watch= watches =commons= and =~/.viva/registry= minus =dataset/= (=world/map.md=), so a writeback into =commons/instances/<slug>/instance.json= is a save the watcher deploys.
+
+** Root cause
+
+The watcher cannot tell an authored save from the runtime's own write; both land on the same path.
+
+** Evidence
+
+=deno.jsonc= =runtime/watch= task: =--watch-exclude=**/dataset/**= is the only exclusion (m71 10-06). Not yet reproduced — writeback is unbuilt.
+
+** Ruling
+
+beef 10-07: /"That is a known issue. We can't have write back on watched modes. That is known."/
+
+** Why not fixed
+
+Out of =lighthouseless='s scope; a shelf instance (=~/.viva/instances/<slug>=) is not watched, and that is where writeback runs in practice.
+
+** Workaround
+
+Run writeback-bearing instances from a shelf, never from =commons/instances/= under =runtime/watch=.

@@ -11,7 +11,6 @@
   let viewportOffsetTop = $state(bridge.viewportOffsetTop);
   let viewport = $state(bridge.layout.viewport);
   let standard = $state(bridge.layout.standard);
-  let locked = $state(bridge.layout.locked);
   let snap = $state(bridge.view.snap);
   let hair = $state(bridge.view.hair);
   let full = $state(bridge.view.full);
@@ -19,7 +18,6 @@
   bridge.$viewportOffsetTop.subscribe((v) => (viewportOffsetTop = v));
   bridge.layout.$viewport.subscribe((v) => (viewport = v));
   bridge.layout.$standard.subscribe((v) => (standard = v));
-  bridge.layout.$locked.subscribe((v) => (locked = v));
   bridge.view.$snap.subscribe((v) => (snap = v));
   bridge.view.$hair.subscribe((v) => (hair = v));
   bridge.view.$full.subscribe((v) => (full = v));
@@ -80,7 +78,6 @@
       hair: `hairline bones${onOff(hair)}`,
       full: `hide the t-bones · pincer fades, returns when you come near${onOff(full)}`,
       home: "home · tap to go there · drag to move",
-      lock: locked ? "pincer locked · click to unlock" : "lock the pincer in place",
     };
     if (hot in said) return said[hot];
     if (hot !== null) return HINTS[stores.bridge.snapToOrientation(Number(hot))];
@@ -215,17 +212,6 @@
         onpointercancel={gesture.homeUp}
         onpointerenter={() => (hovered = "home")}
         onpointerleave={() => (hovered = null)}></span>
-    {/if}
-    {#if radial.sticky}
-      <div
-        class="radial-lock"
-        class:on={locked}
-        class:hot={hot === "lock"}
-        role="img"
-        aria-label={locked ? "unlock" : "lock"}
-        onpointerdown={gesture.lock}
-        onpointerenter={() => (hovered = "lock")}
-        onpointerleave={() => (hovered = null)}></div>
     {/if}
     {#if hint}
       <span class="radial-hint" class:above={!hintBelow}>{hint}</span>
@@ -445,8 +431,7 @@
     background: var(--text-strong);
   }
   .radial-mini,
-  .radial-tile,
-  .radial-lock {
+  .radial-tile {
     position: absolute;
     left: calc(var(--unit) * -15);
     top: calc(var(--unit) * -15);
@@ -469,8 +454,7 @@
   .radial-mini i {
     position: absolute;
   }
-  .radial-tile,
-  .radial-lock {
+  .radial-tile {
     --glyph: var(--control-on-muted);
     --bar: calc(var(--unit) * 14);
     --line: calc(var(--unit) * 1.5);
@@ -484,22 +468,9 @@
   .radial-tile {
     transform: rotate(var(--angle)) translate(calc(var(--unit) * 64)) rotate(calc(-1 * var(--angle)));
   }
-  .radial-tile.on,
-  .radial-lock.on {
+  .radial-tile.on {
     --glyph: var(--control-contrast);
     background-color: var(--control-on);
-  }
-  .radial-lock::before {
-    content: "";
-    width: calc(var(--unit) * 16);
-    height: calc(var(--unit) * 16);
-    background: var(--glyph);
-    -webkit-mask: url(/icons/carbon/32/unlocked.svg) center / contain no-repeat;
-    mask: url(/icons/carbon/32/unlocked.svg) center / contain no-repeat;
-  }
-  .radial-lock.on::before {
-    -webkit-mask-image: url(/icons/carbon/32/locked.svg);
-    mask-image: url(/icons/carbon/32/locked.svg);
   }
   .radial-tile.grid {
     background-image:
@@ -538,8 +509,7 @@
     mask: url(/icons/anima/eye-off.svg) center / contain no-repeat;
   }
   .radial-mini.hot,
-  .radial-tile.hot,
-  .radial-lock.hot {
+  .radial-tile.hot {
     scale: 1.12;
     box-shadow:
       0 0 0 var(--size-ring) var(--boundary),
@@ -547,7 +517,6 @@
   }
   .radial.sticky .radial-mini,
   .radial.sticky .radial-tile,
-  .radial.sticky .radial-lock,
   .radial.sticky .radial-home {
     pointer-events: auto;
     cursor: pointer;
@@ -631,7 +600,6 @@
   @media (prefers-reduced-motion: reduce) {
     .radial-mini,
     .radial-tile,
-    .radial-lock,
     .radial-dot,
     .veil {
       transition: none;

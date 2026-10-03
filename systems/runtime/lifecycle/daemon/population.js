@@ -38,9 +38,13 @@ export const datamap = async (die, next) => {
 };
 
 export const authority = async (die, next) => {
-  die.daemon.lighthouse = await die.register.lighthouse.provider(die.register.lighthouse, die.daemon.entities.user);
+  die.daemon.lighthouse = die.register.lighthouse.provider(die.register.lighthouse, {
+    users: die.daemon.entities.user,
+    status: die.daemon.controller.status,
+    daemon: die.daemon.slug,
+    remote: die.daemon.url.absolute,
+  });
   die.daemon.aperture
-    .use(shard.secure.authority(die.daemon.lighthouse))
     .use(async (ctx, next) => {
       ctx.daemon.connection = die.connection.clone();
       ctx.daemon.connection.use(async (context, next) => {

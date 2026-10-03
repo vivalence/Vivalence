@@ -143,7 +143,7 @@ The lighthouse *remote* points into the runtime's own path tree. The whole syste
 
 - `GET /metadata/daemons` → `200` — the runtime knows its children.
 - `GET /daemon/standalone/metadata/modes` → `401 MISSING_TOKEN` — mounted, routing, locked. Identity comes from the lighthouse; in the booted system the client logs in and this returns the mode list.
-- `POST /attached/process/service/lighthouse/multiplayer/entities/daemon/ensure` → `200` — *announce*: the runtime writes each daemon into the lighthouse through the same `/entities` grammar everything else uses. The system describes itself in its own vocabulary.
+- `POST /attached/process/service/lighthouse/multiplayer/daemons/announce` → `200` — *announce*: each daemon's `Lighthouse` pushes `{ slug, remote, reported }` whenever its status moves, and the runtime beat after `serve` announces once more so a refused lighthouse surfaces at boot. The system describes itself in its own vocabulary.
 
 Then `keepalive`: the span opens, `Status:RUNNING` prints, and the runtime holds until a signal. UP.
 

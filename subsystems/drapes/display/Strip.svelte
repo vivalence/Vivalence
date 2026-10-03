@@ -16,7 +16,7 @@
   let listed = $state(false);
   let choosing = $state(false);
 
-  const cut = (label) => label.slice(0, SHORT);
+  const cut = (key) => key.short ?? key.label.slice(0, SHORT);
   const active = $derived(Math.max(0, keys.findIndex((key) => key.latched)));
   const held = $derived(
     fit({ width, full: keys.map((key, index) => full[index] ?? 0), short: keys.map((key, index) => short[index] ?? 0), fold: folder, stacked: fold === "stack", active }),
@@ -46,7 +46,7 @@
 <div class="sizer" inert>
   {#each keys as key, index (key.name)}
     <span bind:offsetWidth={full[index]}><Key size="row" led={key.led} label={key.label} /></span>
-    <span bind:offsetWidth={short[index]}><Key size="row" led={key.led} label={cut(key.label)} /></span>
+    <span bind:offsetWidth={short[index]}><Key size="row" led={key.led} label={cut(key)} /></span>
   {/each}
   {#if folds.length}<span bind:offsetWidth={folder}><Key size="row" led label={fold} /></span>{/if}
 </div>
@@ -65,7 +65,7 @@
       hold={SOLO}
       onhold={() => onsolo?.(key.name)}
       onclick={() => (held.mode === "merged" ? (listed = !listed) : pick(key))}>
-      {held.labels === "short" ? cut(key.label) : key.label}
+      {held.labels === "short" ? cut(key) : key.label}
       {#if key.count != null && !small}<span class="count">{key.count}</span>{/if}
     </Key>
   {/each}

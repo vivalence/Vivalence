@@ -3,9 +3,10 @@
   import { BRIDGE, build } from "$client";
   import { belt } from "@vivalence/typology";
   import { stores } from "@vivalence/anima";
-  import { Card, Key, Reading, Section } from "@vivalence/drapes";
+  import { Key, Reading } from "@vivalence/drapes";
+  import Card from "../../c/cards/Card.svelte";
 
-  let { open = true, ontoggle = null } = $props();
+  let { ...chrome } = $props();
 
   const THEMES = stores.bridge.THEMES;
   const SIZES = Object.keys(stores.bridge.FONT_SIZES);
@@ -34,14 +35,14 @@
   const enterSends = () => (bridge.composer = { ...bridge.composer, enterSends: !bridge.composer.enterSends });
 </script>
 
-<Section label="config" count={build.known ? build.change : "unstamped"} {open} {ontoggle} />
-{#if open}
-  <Card>
+<Card label="bridge" meta={build.known ? build.change : "unstamped"} {...chrome}>
+  <div class="card-stack">
+  <div class="card-group">
     <Reading label="change"><span title={build.authored ?? "no working-copy stamp"}>{build.change} · {age(build.authored)}</span></Reading>
     <Reading label="commit">{build.commit}</Reading>
     <Reading label="bundled"><span title={build.built ?? "no build stamp"}>{age(build.built)} ago</span></Reading>
     <Reading label="viewport">{$viewport.width} × {$viewport.height}</Reading>
-  </Card>
+  </div>
   <div class="latch">
     <span class="latch-name">theme</span>
     <div class="latch-keys">
@@ -94,7 +95,8 @@
       {/each}
     </div>
   </div>
-{/if}
+  </div>
+</Card>
 
 <style>
   .latch {

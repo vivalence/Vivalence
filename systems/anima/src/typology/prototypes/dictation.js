@@ -45,7 +45,7 @@ export function dictation({ terminals, box }) {
 
   async function start() {
     if ($active.get() !== "idle") return;
-    const thread = terminals.active?.thread;
+    const thread = terminals.active?.$thread.get();
     if (!thread?.mode?.harness?.verbatim?.stream) {
       $error.set("no verbatim harness on this thread");
       return;

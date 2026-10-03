@@ -10,6 +10,7 @@
 
   let username = $state("");
   let password = $state("");
+  let helping = $state(false);
 
   const busy = $derived($status.code === "AUTHENTICATING");
   const failed = $derived(["ERROR", "OFFLINE", "SESSION_EXPIRED"].includes($status.code));
@@ -60,12 +61,14 @@
   </Card>
 
   <Card sunk>
-    <Section label="help" />
-    <p>there is no signup ui — accounts are created from the shell:</p>
-    <code>viva instance/lighthouse signup &lt;username&gt; &lt;password&gt;</code>
-    <p>docs: <a href="https://docs.vivalence.org" target="_blank">docs.vivalence.org</a></p>
-    <p>stuck? paste this to your llm:</p>
-    <code class="prompt">{prompt}</code>
+    <Section label="help" open={helping} ontoggle={() => (helping = !helping)} />
+    {#if helping}
+      <p>there is no signup ui — accounts are created from the shell:</p>
+      <code>viva instance/lighthouse signup &lt;username&gt; &lt;password&gt;</code>
+      <p>docs: <a href="https://docs.vivalence.org" target="_blank">docs.vivalence.org</a></p>
+      <p>stuck? paste this to your llm:</p>
+      <code class="prompt">{prompt}</code>
+    {/if}
   </Card>
 </div>
 

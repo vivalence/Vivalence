@@ -1,17 +1,14 @@
 # frontier — the live edge
-<!-- writer: methods/handoff.py, derived — never hand-edited · kind: throughput · limit: 5000 chars · drain: settle the handoff -->
-One line per live handoff. In full: `handoff.py --owed` · `--latest`.
+<!-- writer: agent, rewritten whole at every fold · limit: 2000 chars -->
 
-- session #211 — owed 3
-- session #212 — next: open a new shell — the dead keys stay exported until then — owed 1
-- session #213 — next: in the dock, make any mentor call `select` on a slug that does not exist — the next turn must quote the refusal, not `[object Object]` — owed 2
-- session #219 — next: go on the docs glob — owed 1
-- session #225 — owed 1
-- session #228 — next: open vivalence.com, pick Español, play one dojo round — the first client read of the new daemon — owed 1
-- session #237 — next: open Play in anima, ask the dock "what's happening on this board?" — the first real-model read of the talk, the coach's skills and the pushed lines — owed 1
-- session #240 — next: rule the domain guard A · B · C — then pick and review answer on live italian — owed 1
-- session #242 — next: =curl -s https://vivalence.com/_app/env.js= prints the =/service/= path — owed 1
-- session #244 — next: reopens on beef's word — first act the =control= ruling (ghost verb or docker by hand), second the =which 1:m= ruling (lecture · conference · both)
-- `m76-terminals-close-the-dataring` #246 — next: beef rules the milestone cut proposed at the fold (M1 typology entities + shard · M2 runtime service traits + lighthouse tree · M3 client · M4 residue; M1 is an entity edit → m78 law, road A once on the lighthouse db or wait for m78); then =* milestones= + green ladder + blast table are written from it — owed 1
-- `m78-mikro-7` #246 — next: beef rules F1 (driver) and F2 (pivot pin) — owed 1
-- `vector-attach-graft` #243 — next: beef rules M2 (auth + attach middleware now ride the source apertures; =arming= deep-copies) — then M3: =open()= a top-level route on booted hello-world, answer over HTTP — owed 1
+- `lighthouseless` — reviewed 10-07, STI REJECTED, forks 1 · 3 · 5 ruled, tangle M0–M5 complete; next: beef reads it, rules fork 2, numbers it, orders m78, names M0 for `go`; owed: `nosti.v7.js` → `tests/mint.test.js` · anima's tangle
+- `m78-mikro-7` — next: the dry-diff discovery on `:memory:` (`m78/P-discovered`); `lighthouseless` lands ON 7.2.3 and names m78 first; owed: the STI-root rebuild (now m78's alone) · `discoverEntity` whole-hierarchy rule (its `* handoff`)
+- `runtime-testing-recast` — ruled 10-06; next: M0 · M1 · P1 on a scratchpad copy, patch per file; owed: its number
+- `ikiro-rewrite` — next: beef numbers it and commits; a fresh session answers `canary`; owed: `corpus.py` on his word
+- `m79-terminal-ghost` — next: beef's go on M1 (argv on typology `Signal`); owed: replay M3·M11–13, F7·F10·F13–22, M6 fix, the walks
+- `anima-panels-cards` — `Anima.dc.html` ported, uncommitted; next: beef walks `:1794` signed in; owed: F6 · F9 · F10, commit + number
+- `m76-terminals-close-the-dataring` — next: beef's commit; then sunset; owed first: its three suite reds (enroll · terminals.remote · census)
+- `m60-lighthouse-security` — next: beef rules f-name and f-default; `lighthouseless` moves the lighthouse into the runtime — re-read first
+- `m71-droneaid-guide` — M0–M3 LANDED 10-06; next: beef restarts, walks the player, rules forks 9 · 10; owed: commits ×3
+- `m77` droneaid homecoming — seeded; on his word
+- standing: a new shell drops the dead exported keys · the dock quoting a mentor's refusal, not `[object Object]` · `curl -s https://vivalence.com/_app/env.js` prints the `/service/` path · stale tests: pensieve lookup→revelio, paladin hal257 · suite 10-05: proven patches wait on go in known-issues `ledger-doctor-reaps-a-sibling-shell-mid-boot` · `ghost-ledger-test-init-step-red-pre-existing` · `registry-mode-suites-red-against-the-runtime`

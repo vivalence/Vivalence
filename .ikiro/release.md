@@ -1,10 +1,15 @@
 # release
-<!-- writer: agent · kind: ledger — the interface changelog; quests feed it, a tag cuts it (skill release) -->
+<!-- writer: agent · kind: ledger · limit: 60000 chars — the interface changelog; quests feed it, a tag cuts it (skill quest) -->
 
 ## unreleased
 
 ### client
 
+- changed anima's crown — one bone key per terminal (a pip, its name, ✕), the active one latched, `+` last; on a vertical bone the name runs bottom to top; the roster float and `crown/widgets/Terminal.svelte` are gone · migrate: none ⟨10-05⟩
+- removed the pincer's lock — `bridge.layout.locked` · `gesture.lock` · the radial's centre padlock; a saved `locked` is ignored · migrate: none ⟨10-05⟩
+- added `bridge.layout.terminal` · `Terminals.settle(id)` — the active terminal survives a reload; a remembered id that is gone falls to index 0 · migrate: none ⟨10-05⟩
+- changed `bridge.panes` → `bridge.panels.{b,c}` — `stores.bridge.panes.PANELS` holds one `arrangement({ names, folds, DEFAULT })` per panel; panel B's sections save their tree · fold · expanded like C's; panel C masks the panes a terminal cannot show and never writes the mask into the save; `bridge.view.fold` · `setFold` are gone · migrate: a saved `panes` reads as `panels.c`, a saved `view.fold` as panel B's fold ⟨10-05⟩
+- changed panel D's `change thread` · `set mode` — open on the list view · migrate: none ⟨10-05⟩
 - changed anima's spine — the pill opens while the lighthouse is verified and folds on a click or a press outside; a dot shows its daemon's card on hover and pins the daemon's float on a click (facts, the daemons, live activities with pause · stop · resume) · migrate: none ⟨m73⟩
 - changed `snapToWall(value, axisLength, velocity = 0)` · `WALL_SNAP` 0.1 → 0.05 — a dragged joint's wall judges its landing, the pointer plus `v·|v| / 2·WALL_FRICTION`, `v` over the last 80 ms, per axis; a wall takes a dragged joint after its landing has kept to the reach for 120 ms; the drop throws a joint let go in flight on to its wall; `stores.bridge` exports `WALL_FRICTION` · migrate: none ⟨m73⟩
 - changed panel D's `set mode` — a `STANDALONE` mode opens the thread's last buffer on it, or mints one · migrate: none ⟨m73⟩
@@ -151,3 +156,23 @@
 - changed `deno task dependencies` — allow-scripts gains better-sqlite3+argon2 (signup hashing on fresh machines) · migrate: none ⟨compact-79-readme-walk⟩
 - changed `kajuit dev` — SSR off (`src/app/+layout.js` ssr=false, SPA mode; dev routes no longer 500 on the barrel race) · migrate: none ⟨compact-79-readme-walk⟩
 - changed `@viva/instance/hello-world` — playground-only (education daemon + nlp-stanza service removed; env schema 17→10 keys, wizard asks 2 secrets) · migrate: education setups start from `starter/` or a private recipe ⟨compact-79-readme-walk⟩
+
+- removed `shard.secure` (`authority` · `authenticate` · `authorize`) — the daemon's auth middlewares are `die.daemon.lighthouse.shard.authenticate` · `.authorize` on the new `Lighthouse` prototype (`@vivalence/runtime`) · migrate: `shard.secure.authenticate()` → `die.daemon.lighthouse.shard.authenticate`; the `authority` line goes ⟨m76 M1⟩
+- added `Lighthouse` to `@vivalence/runtime` — `new Lighthouse(connection, { users, status, daemon, remote })`: `shard` · `verify(token)` · `authenticate(token)` → `{ getUser, enroll }` · `announce()` as the effect of `status.$transient` · migrate: none ⟨m76 M1⟩
+- changed the daemon's request ctx — `ctx.identity` (a session handle) → `ctx.lighthouse` `{ getUser, enroll }`; `ctx.user` unchanged · migrate: `ctx.identity.enroll()` → `ctx.lighthouse.enroll()` ⟨m76 M1⟩
+- changed `sets.lighthouse` — gains `terminal` · `authenticator`; `Identity` carries `traits` · `trait` and hides `authentication` on the wire; `Identity ↔ Daemon` m:n through `Identity_daemons` · migrate: an entity edit — fresh instance only until m78 ⟨m76 M1⟩
+- changed `shard.datamap.scoped` — the route's scope NARROWS a client `where` (a scalar under an object wall becomes `{ id, …wall }`), it never merges under it · migrate: none; a client that widened past its wall now reads its own rows ⟨m76 M1⟩
+- changed `shard.datamap.reactive(repo, twitch, { scope, filter })` — resolvers for `repo` and `twitch`, `filter` names the ORM filter stamped on the wire (`user` default) · migrate: none for the daemon's call sites ⟨m76 M1⟩
+- changed the service contract — a lighthouse exports `attachment · manifest · provider`; traits `SERVICE · PROVIDER · DATAMAP · ATTACHED` run in manifest order; paladin: `PROVIDER` names the `provider` export, `ATTACHED` the `attachment`, a `SERVICE` that is not ATTACHED exports `control`, a `PROVIDER` is a `SERVICE` · through `lifecycle/service/traits/`; `service/population.js` is gone; the runtime binds `service` · `mask`, injects `entities` · migrate: a service's `aperture(aperture, service)` function becomes `export const attachment ` new Vector()= ⟨m76 M2⟩
+- changed the announce — each daemon's `Lighthouse` calls `/daemons/announce { slug, remote, reported }` on construction and on every status transition, no bearer; the runtime beat only awaits; nothing prunes · migrate: a lighthouse must serve `/daemons/announce` ⟨m76 M2⟩
+- changed the lighthouse `Daemon` row — `url` → `remote`; `reported` (the daemon's last status word, default `UNKNOWN`); `updatedAt` is its age · migrate: readers of the row's `url` read `remote` ⟨m76 M1⟩
+- changed the lighthouse provider — `provider(mask, { users, connection? })` → a `Lighthouse`, arity 2 like the datamap's; `enroll()` asks `/auth/enroll` before minting the user · migrate: `provider(lighthouse, users)` → `provider(lighthouse, { users })` ⟨m76 M2⟩
+- removed `/entities/identity` and the open `/entities/daemon` verbs — `/entities/daemon` is authenticated, through the pivot, `find · findOne · findOneOrFail · count` only · migrate: a daemon announces through `/daemons/announce`; nothing reads identities over the wire ⟨m76 M2⟩
+- added `/entities/terminal/*` (the repository verbs, two walls) and `/entities/terminal/subscribe` (SSE, identity-scoped) · migrate: none ⟨m76 M2⟩
+- added `/auth/enroll { access, daemon }` — writes `Identity_daemons`; `/daemons/announce` · migrate: none ⟨m76 M2⟩
+- added `/metadata/{manifest,datamap,statics,attachment}`; the root `/datamap` never existed on the lighthouse · migrate: clients call `/metadata/datamap` ⟨m76 M2⟩
+- removed the token file — the refresh token lives on the identity row; `/auth/logout` nulls it · migrate: none; a running lighthouse's `tokens.json` is dead data ⟨m76 M2⟩
+- changed anima's `Terminal` — a row-backed entity over `RemoteRepository`: `id · identity · daemon · thread · index · traits · trait`; `seat(thread)` writes the row; `$thread` · `$buffer` · `$dock` · `$settling` derive; the `thread` / `buffer` accessors and the factory are gone · migrate: `terminal.thread ` x` → `terminal.seat(x)`; `terminal.thread` → `terminal.$thread.get()`; `terminal.buffer` → `terminal.$buffer.get()= ⟨m76 M3⟩
+- changed `Terminals` — `new Terminals(repository)`; `create()` is async; the roster arrives by subscription from the lighthouse; `localStorage["viva.terminals"]` is dead · migrate: `await terminals.create()` ⟨m76 M3⟩
+- removed `app/terminals.js` (`hydrate` · `persist`) · migrate: none ⟨m76 M3⟩
+- changed `Dataspace.init()` — reads `/metadata/datamap`; the lighthouse dataspace initializes before populate · migrate: a mocked lighthouse answers `/metadata/datamap` ⟨m76 M3⟩

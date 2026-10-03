@@ -1,6 +1,6 @@
-import { Url, Connection, Vector, shape, shard, sleep, middleware, v } from "@vivalence/typology";
+import { Url, Connection, Vector, shape, shard, sleep, middleware, v, Status } from "@vivalence/typology";
 import { metronome } from "@vivalence/typology/scenarios";
-import { lifecycle } from "@vivalence/runtime";
+import { Lighthouse, lifecycle } from "@vivalence/runtime";
 import { create as harnessed } from "./cortex.js";
 import { tiers } from "./fixtures.js";
 
@@ -44,20 +44,20 @@ export async function create({ port = 0, script = (index) => [TOOL, OBJECT, { de
   const stranger = em.create(tiers.user.entity, { roles: ["USER"], config: {} });
   await em.flush();
   const enrolled = new Map([[TOKENS.user, fixtures.user], [TOKENS.stranger, stranger]]);
-  daemon.aperture.use(async (ctx, next) => {
-    ctx.authority = {
-      authenticate: async (token) => {
-        const user = enrolled.get(token);
-        if (!user) throw new Error("invalid token");
-        return { identity: { id: user.id }, getUser: async () => user, enroll: async () => user };
-      },
-    };
-    await next();
-  });
+  const wire = {
+    call: async () => ({}),
+    fetch: async (endpoint, body) => {
+      const user = enrolled.get(body.access);
+      if (!user) return { ok: false, body: { status: "ERROR", error: { code: "INVALID_TOKEN", message: "invalid token" } } };
+      return endpoint === "/auth/verify" ? { ok: true, body: { identity: { id: user.id } } } : { ok: true, body: { status: "SUCCESS" } };
+    },
+  };
+  daemon.lighthouse = new Lighthouse(wire, { status: new Status("RUNNING"), daemon: daemon.slug, remote: "http://test-activity", users: { findOne: async ({ id }) => [...enrolled.values()].find((user) => user.id === id) ?? null, upsert: async () => {} } });
 
   daemon.datamap = datamap;
   await middleware.compose([lifecycle.daemon.aperture.userspace])({ daemon });
   daemon.aperture.open("/datamap", () => shard.datamap.strip(datamap.getMetadata()));
+  daemon.aperture.open("/metadata/datamap", () => shard.datamap.strip(datamap.getMetadata()));
   daemon.aperture.branch("/metadata").open("/aperture", () => shape.strip(daemon.aperture));
 
   const gate = shard.serve.multiplex(daemon.aperture);

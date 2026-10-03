@@ -1,9 +1,10 @@
 <script>
   import { getContext } from "svelte";
-  import { Card, Key, Meter, Section } from "@vivalence/drapes";
+  import { Key, Meter } from "@vivalence/drapes";
   import { BOX } from "$client";
+  import Card from "../../c/cards/Card.svelte";
 
-  let { open = true, ontoggle = null } = $props();
+  let { ...chrome } = $props();
 
   const box = getContext(BOX);
   const microphone = box.device.microphone;
@@ -53,10 +54,10 @@
   }
 </script>
 
-<Section label="box" count="mic + speaker" {open} {ontoggle} />
-{#if open}
-  <Card>
-    <Section label="microphone" count={micLabel} rule={false} />
+<Card label="box" meta="mic + speaker" {...chrome}>
+  <div class="card-stack">
+  <div class="card-group">
+    <span class="card-name">microphone · {micLabel}</span>
     {#if micClaimed}<Meter value={micLevel * 2} />{/if}
     {#if micError}<span class="fault">{micError}</span>{/if}
     <div class="verbs">
@@ -75,9 +76,9 @@
         label={micPaused ? "muted" : "live"}
         onclick={() => (micPaused ? microphone.resume() : microphone.pause())} />
     </div>
-  </Card>
-  <Card>
-    <Section label="speaker" count={spkLabel} rule={false} />
+  </div>
+  <div class="card-group">
+    <span class="card-name">speaker · {spkLabel}</span>
     {#if spkError}<span class="fault">{spkError}</span>{/if}
     <div class="verbs">
       <Key
@@ -89,8 +90,9 @@
       <Key size="row" disabled={!spkClaimed} label="tone" onclick={tone} />
       <Key size="row" disabled={!spkClaimed} label="flush" onclick={() => speaker.flush()} />
     </div>
-  </Card>
-{/if}
+  </div>
+  </div>
+</Card>
 
 <style>
   .verbs {

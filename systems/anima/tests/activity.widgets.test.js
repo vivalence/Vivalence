@@ -2,14 +2,12 @@ import { specimen } from "@vivalence/typology";
 import { compile } from "svelte/compiler";
 import { effect_root, flush, get, set, state, untrack, user_effect } from "svelte/internal/client";
 import { atom } from "nanostores";
-import { flat, project, root, spans } from "../src/app/panels/f/widgets/activity.js";
+import { flat, project, root, spans } from "../src/app/bones/spine/activity.js";
 import { loudest, owed } from "../src/typology/entities/activity.js";
 
-const WIDGETS = ["app/panels/f/widgets/ActivityRow", "app/panels/f/widgets/ActivitySection"];
-
-// the surfaces the widgets landed on. they carry warnings older than this quest
+// the surfaces that read an activity. they carry warnings older than this quest
 // (shoulder's ".population > *"), so the bar here is: it compiles, and nothing it says is ours.
-const MOUNTED = ["app/panels/e/e", "app/panels/f/f", "app/panels/c/c", "app/bones/shoulder/shoulder", "app/panels/a/widgets/Dock"];
+const MOUNTED = ["app/panels/c/cards/Thread", "app/panels/c/c", "app/bones/spine/spine", "app/bones/shoulder/shoulder", "app/panels/a/widgets/Dock"];
 
 const source = (part) => Deno.readTextFile(new URL(`../src/${part}.svelte`, import.meta.url));
 
@@ -24,15 +22,7 @@ const RING = [
   { span: 1, trace: null, path: "/hallucination", verb: "pause", at: 4000 },
 ];
 
-specimen.describe("activity widgets — they compile, and the fold is the wire's own data", () => {
-  for (const widget of WIDGETS) {
-    specimen.it(`${widget}.svelte compiles without warnings`, async () => {
-      const out = compile(await source(widget), { generate: "client", runes: true, filename: `${widget}.svelte` });
-      specimen.expect(out.js.code.length > 0).toBe(true);
-      specimen.expect(out.warnings.map((warning) => `${warning.code}: ${warning.message}`)).toEqual([]);
-    });
-  }
-
+specimen.describe("activity surfaces — they compile, and the fold is the wire's own data", () => {
   for (const widget of MOUNTED) {
     specimen.it(`${widget}.svelte compiles, and nothing it says is about an activity`, async () => {
       const out = compile(await source(widget), { generate: "client", runes: true, filename: `${widget}.svelte` });

@@ -1,2 +1,0 @@
-{"name":"Glob","input":{"pattern":"documentation/**/*slowstart*"}}
-{"name":"Read","input":{"file_path":"/repo/documentation/content.config.ts"}}

@@ -10,6 +10,7 @@ import {
   RATIO_MIN,
   arrange,
   available,
+  grain,
   insert,
   landing,
   latched,
@@ -20,6 +21,7 @@ import {
   prune,
   remove,
   restore,
+  reveal,
   setRatio,
   shown,
   solo,
@@ -36,7 +38,7 @@ const WHOLE = { x: 0, y: 0, w: 100, h: 100 };
 const leaf = (pane) => ({ type: "leaf", pane });
 const terminal = open(null, "terminal");
 const two = open(terminal, "thread");
-const three = open(two, "buffer");
+const three = open(two, "buffer", "h");
 const witness = { type: "split", dir: "v", ratio: 0.5, a: leaf("terminal"), b: leaf("thread") };
 const frozen = JSON.stringify(three);
 
@@ -55,8 +57,8 @@ const withSaved = (saved, run) => {
 const stored = () => JSON.parse(globalThis.localStorage.getItem(STORAGE_KEY));
 
 specimen.describe("panes — the names and the measures", () => {
-  specimen.it("six panes, four folds, a head under a bar, a ratio inside its bounds", () => {
-    specimen.expect(PANE_NAMES).toEqual(["terminal", "navigation", "thread", "mode", "buffer", "harness"]);
+  specimen.it("eight panes, four folds, a head under a bar, a ratio inside its bounds", () => {
+    specimen.expect(PANE_NAMES).toEqual(["terminal", "threads", "modes", "thread", "mode", "buffers", "buffer", "harness"]);
     specimen.expect(FOLDS).toEqual(["page", "stack", "accordion", "free"]);
     specimen.expect([PANE_BAR, PANE_HEAD, PANE_MIN]).toEqual([44, 32, 60]);
     specimen.expect([RATIO_MIN, RATIO_MAX]).toEqual([0.15, 0.85]);
@@ -72,12 +74,23 @@ specimen.describe("panes — the tree: open · remove · swap · insert · move"
     specimen.expect(two).toEqual(witness);
   });
 
-  specimen.it("open splits the root against its grain", () => {
+  specimen.it("open splits the root along the dir handed in, under it by default", () => {
     specimen.expect([three.dir, leaves(three)]).toEqual(["h", ["terminal", "thread", "buffer"]]);
+    specimen.expect(open(two, "buffer").dir).toBe("v");
   });
 
-  specimen.it("open sets terminals on top at .3", () => {
+  specimen.it("open sets terminals first at .3, along the dir handed in", () => {
     specimen.expect(open(leaf("thread"), "terminal")).toEqual({ type: "split", dir: "v", ratio: 0.3, a: leaf("terminal"), b: leaf("thread") });
+    specimen.expect(open(leaf("thread"), "terminal", "h").dir).toBe("h");
+  });
+
+  specimen.it("grain reads a rect: wider than tall splits side by side, else stacked", () => {
+    specimen.expect([grain({ width: 400, height: 855 }), grain({ width: 345, height: 300 }), grain({ width: 300, height: 300 })]).toEqual(["v", "h", "v"]);
+  });
+
+  specimen.it("reveal opens a parked pane along the dir and shows it; an open one stays where it is", () => {
+    specimen.expect(reveal({ tree: terminal }, "threads", "v")).toEqual({ tree: { type: "split", dir: "v", ratio: 0.5, a: terminal, b: leaf("threads") }, expanded: "threads" });
+    specimen.expect(reveal({ tree: three }, "thread", "h").tree).toBe(three);
   });
 
   specimen.it("open leaves a pane already open where it is", () => {
@@ -267,17 +280,17 @@ specimen.describe("panes — layout and the four folds", () => {
 
 specimen.describe("panes — what a terminal can show", () => {
   specimen.it("no terminal shows the terminals pane alone", () => {
-    specimen.expect(available({})).toEqual({ terminal: true, navigation: false, thread: false, mode: false, buffer: false, harness: false });
+    specimen.expect(available({})).toEqual({ terminal: true, threads: false, modes: false, thread: false, mode: false, buffers: false, buffer: false, harness: false });
   });
 
-  specimen.it("a harnessed thread with no buffer and no application shows all but the buffer", () => {
-    specimen.expect(available({ terminals: 1, thread: true, harnessed: true })).toEqual({ terminal: true, navigation: true, thread: true, mode: true, buffer: false, harness: true });
+  specimen.it("a harnessed thread with no buffer and no application shows all but the two buffer panes", () => {
+    specimen.expect(available({ terminals: 1, thread: true, harnessed: true })).toEqual({ terminal: true, threads: true, modes: true, thread: true, mode: true, buffers: false, buffer: false, harness: true });
   });
 
-  specimen.it("a buffer or an application opens the buffer pane, and only on a thread", () => {
+  specimen.it("a buffer or an application opens the buffer panes, and only on a thread", () => {
     specimen.expect(available({ terminals: 1, thread: true, buffers: 2 }).buffer).toBe(true);
-    specimen.expect(available({ terminals: 1, thread: true, application: true }).buffer).toBe(true);
-    specimen.expect(available({ terminals: 1, buffers: 2, application: true, harnessed: true })).toEqual({ terminal: true, navigation: true, thread: false, mode: false, buffer: false, harness: false });
+    specimen.expect(available({ terminals: 1, thread: true, application: true }).buffers).toBe(true);
+    specimen.expect(available({ terminals: 1, buffers: 2, application: true, harnessed: true })).toEqual({ terminal: true, threads: true, modes: true, thread: false, mode: false, buffers: false, buffer: false, harness: false });
   });
 
   specimen.it("prune removes what the terminal cannot show", () => {
@@ -287,18 +300,22 @@ specimen.describe("panes — what a terminal can show", () => {
 });
 
 specimen.describe("panes — the save", () => {
-  specimen.it("the default sets terminals over navigation at .3, in the page fold", () => {
-    specimen.expect([DEFAULT.tree.ratio, leaves(DEFAULT.tree), DEFAULT.fold, DEFAULT.expanded]).toEqual([0.3, ["terminal", "navigation"], "page", "terminal"]);
+  specimen.it("the default opens on threads alone, in the page fold — no terminal leaf seeded", () => {
+    specimen.expect([DEFAULT.tree, DEFAULT.fold, DEFAULT.expanded]).toEqual([leaf("threads"), "page", "threads"]);
   });
 
   specimen.it("a save of three arrays boots the default", () => {
     specimen.expect(restore({ open: [true, true, true], fold: [false, false, false], weight: [1, 1, 1] })).toEqual({
-      tree: { type: "split", dir: "v", ratio: 0.3, a: leaf("terminal"), b: leaf("navigation") },
+      tree: leaf("threads"),
       fold: "page",
-      expanded: "terminal",
+      expanded: "threads",
       heights: {},
       previous: null,
     });
+  });
+
+  specimen.it("a save naming the retired navigation pane boots the default", () => {
+    specimen.expect(restore({ tree: open(leaf("navigation"), "terminal"), fold: "page" })).toEqual(DEFAULT);
   });
 
   specimen.it("a save naming an unknown pane or an unknown fold boots the default", () => {
@@ -323,15 +340,30 @@ specimen.describe("panes — the save", () => {
     const first = restore(null);
     specimen.expect(first !== DEFAULT && first.tree !== DEFAULT.tree && first.heights !== DEFAULT.heights).toBe(true);
     first.heights.terminal = 300;
-    first.tree.ratio = 0.8;
-    specimen.expect([DEFAULT.heights, DEFAULT.tree.ratio]).toEqual([{}, 0.3]);
+    first.tree.pane = "terminal";
+    specimen.expect([DEFAULT.heights, DEFAULT.tree.pane]).toEqual([{}, "threads"]);
   });
 
   specimen.it("the bridge boots the default from a save made before the tree", () => {
     withSaved({ panes: { open: [true, false, true], fold: [false, true, false], weight: [2, 1, 1] }, view: { theme: "parchment" } }, () => {
       const bridge = new Bridge();
-      specimen.expect([leaves(bridge.panes.tree), bridge.panes.fold, bridge.panes.expanded, bridge.panes.heights, bridge.panes.previous]).toEqual([["terminal", "navigation"], "page", "terminal", {}, null]);
+      specimen.expect([leaves(bridge.panels.c.tree), bridge.panels.c.fold, bridge.panels.c.expanded, bridge.panels.c.heights, bridge.panels.c.previous]).toEqual([["threads"], "page", "threads", {}, null]);
       specimen.expect(bridge.view.theme).toBe("parchment");
+    });
+  });
+
+  specimen.it("panel b: a save from before the panels carries its fold over, the default stacks every section on the page fold", () => {
+    withSaved({ view: { fold: "stack" } }, () => {
+      const bridge = new Bridge();
+      specimen.expect([leaves(bridge.panels.b.tree), bridge.panels.b.fold, bridge.panels.b.expanded]).toEqual([["config", "auth", "box", "dock"], "stack", "config"]);
+      bridge.panels.b.tree = leaf("box");
+      bridge.panels.b.fold = "page";
+      bridge.save();
+      specimen.expect(stored().panels.b).toEqual({ tree: leaf("box"), fold: "page", expanded: "config", heights: {} });
+      specimen.expect([leaves(new Bridge().panels.b.tree), new Bridge().panels.b.fold, stored().view.fold]).toEqual([["box"], "page", undefined]);
+    });
+    withSaved({ panels: { b: { tree: leaf("box"), fold: "free" } } }, () => {
+      specimen.expect(leaves(new Bridge().panels.b.tree)).toEqual(["config", "auth", "box", "dock"]);
     });
   });
 
@@ -339,15 +371,15 @@ specimen.describe("panes — the save", () => {
     withSaved(null, () => {
       const bridge = new Bridge();
       const alone = solo(three, "thread", null);
-      bridge.panes.tree = alone.tree;
-      bridge.panes.previous = alone.previous;
-      bridge.panes.fold = "free";
-      bridge.panes.expanded = "thread";
-      bridge.panes.heights = { thread: 240 };
+      bridge.panels.c.tree = alone.tree;
+      bridge.panels.c.previous = alone.previous;
+      bridge.panels.c.fold = "free";
+      bridge.panels.c.expanded = "thread";
+      bridge.panels.c.heights = { thread: 240 };
       bridge.save();
-      specimen.expect(stored().panes).toEqual({ tree: leaf("thread"), fold: "free", expanded: "thread", heights: { thread: 240 } });
+      specimen.expect(stored().panels.c).toEqual({ tree: leaf("thread"), fold: "free", expanded: "thread", heights: { thread: 240 } });
       const reloaded = new Bridge();
-      specimen.expect([reloaded.panes.tree, reloaded.panes.fold, reloaded.panes.expanded, reloaded.panes.heights, reloaded.panes.previous]).toEqual([leaf("thread"), "free", "thread", { thread: 240 }, null]);
+      specimen.expect([reloaded.panels.c.tree, reloaded.panels.c.fold, reloaded.panels.c.expanded, reloaded.panels.c.heights, reloaded.panels.c.previous]).toEqual([leaf("thread"), "free", "thread", { thread: 240 }, null]);
     });
   });
 });
@@ -370,7 +402,8 @@ specimen.describe("panes — every op returns a new tree", () => {
     prune(three, available({}));
     restore({ tree: three, fold: "free", heights });
     tap({ tree: three, fold: "free" }, "thread");
-    tap({ tree: three, fold: "page" }, "mode");
+    tap({ tree: three, fold: "page", dir: "h" }, "mode");
+    reveal({ tree: three }, "modes", "h");
     latched({ tree: three, fold: "stack", expanded: "thread" }, "thread");
     under(layout(three).leaves, 10, 10);
     landing(layout(three).leaves[0], "center");

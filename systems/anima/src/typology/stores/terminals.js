@@ -1,13 +1,13 @@
-import { atom } from "nanostores";
-import { random } from "@vivalence/typology";
-import { Terminal } from "../entities/terminal.js";
+import { atom, computed } from "nanostores";
+import { logger } from "$telemetry";
 
-// membership + active pointer only. Hydration, persistence and serialized-reference
-// settlement are effects mounted over this structure from the app layer
-// (src/app/terminals.js) — the store knows nothing of storage, daemons or lighthouse.
 export class Terminals {
-  $entities = atom([]);
   $active = atom(null);
+
+  constructor(repository) {
+    this.repository = repository;
+    this.$entities = computed(repository.$entities, (entities) => [...entities].sort((a, b) => a.index - b.index));
+  }
 
   get entities() {
     return this.$entities.get();
@@ -19,19 +19,26 @@ export class Terminals {
     this.$active.set(terminal);
   }
 
-  create() {
-    const terminal = Terminal({ id: random.id() });
-    this.$entities.set([terminal, ...this.$entities.get()]);
+  async create(seat = {}) {
+    const terminal = await this.repository.create(seat);
     this.$active.set(terminal);
     return terminal;
+  }
+
+  settle(id) {
+    if (this.active) return this.active;
+    const seat = this.entities.find((terminal) => terminal.id === id) ?? this.entities[0] ?? null;
+    this.$active.set(seat);
+    return seat;
   }
 
   activate(id) {
     this.$active.set(this.entities.find((terminal) => terminal.id === id));
   }
 
-  remove(id) {
-    this.$entities.set(this.entities.filter((terminal) => terminal.id !== id));
-    if (this.active?.id === id) this.$active.set(this.$entities.get().at(-1) ?? null);
+  async remove(id) {
+    if (this.active?.id === id) this.$active.set(this.entities.filter((terminal) => terminal.id !== id).at(-1) ?? null);
+    this.repository.drop(id);
+    await this.repository.removeOne({ id }).catch((error) => logger.entry(`terminals/remove/${id}`).fault(error));
   }
 }

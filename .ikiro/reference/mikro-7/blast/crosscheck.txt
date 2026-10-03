@@ -1,0 +1,39 @@
+package | name | live files | kind | v6 | v7 | first site
+core | EntitySchema | 53 | value | yes | yes | ~/.viva/registry/assembly/domain/assembly/entities/kernel/Literal.ts:1
+core | types | 46 | value | yes | yes | ~/.viva/registry/assembly/domain/assembly/entities/kernel/Literal.ts:1
+core | Opt | 38 | type | type | type | ~/.viva/registry/assembly/domain/assembly/entities/kernel/Literal.ts:1
+core | Collection | 26 | value | yes | yes | ~/.viva/registry/education/domain/entities/kernel/Literal.ts:1
+core | Rel | 26 | type | type | type | ~/.viva/registry/chess/domain/entities/userspace/Trace.ts:1
+core | EntityRepositoryType | 21 | value | yes | yes | ~/.viva/registry/assembly/domain/assembly/entities/kernel/Literal.ts:1
+core | RequestContext | 9 | value | yes | yes | ~/.viva/registry/education/domain/tests/userspace/scoping.test.js:2
+core | Cascade | 6 | value | yes | yes | ~/vivalence/code/vivalence/systems/runtime/entities/kernel/Literal.ts:1
+core | BaseEntity | 5 | value | yes | yes | ~/vivalence/code/vivalence/subsystems/typology/entities/base/DataEntity.ts:1
+core | EntityRepository | 5 | value | yes | yes | ~/vivalence/code/vivalence/subsystems/typology/entities/base/DataEntity.ts:1
+core | EventArgs | 5 | type | type | type | ~/.viva/registry/education/domain/entities/kernel/Literal.ts:9
+core | EventSubscriber | 5 | value | NO | type-only | ~/.viva/registry/education/domain/entities/kernel/Literal.ts:1
+core | MikroORM | 5 | value | yes | yes | ~/vivalence/code/vivalence/commons/fixtures/data/lighthouse.js:1
+core | wrap | 5 | value | yes | yes | ~/vivalence/code/vivalence/systems/runtime/entities/index.ts:1
+core | raw | 4 | value | yes | yes | ~/.viva/registry/chess/domain/entities/kernel/Literal.ts:1
+sqlite | MikroORM | 4 | value | yes | yes | ~/vivalence/code/vivalence/commons/datamaps/libsql/libsql.viva.js:1
+core | EventType | 3 | value | yes | yes | ~/vivalence/code/vivalence/subsystems/typology/entities/base/VirtualEntity.ts:1
+sqlite | defineConfig | 3 | value | yes | yes | ~/vivalence/code/vivalence/commons/datamaps/libsql/libsql.viva.js:1
+core | EntityManager | 2 | type | type | type | ~/vivalence/code/vivalence/subsystems/typology/entities/base/VirtualEntity.ts:1
+core | EntityMetadata | 2 | type | type | type | ~/vivalence/code/vivalence/subsystems/typology/entities/base/VirtualEntity.ts:1
+core | EntityName | 2 | type | type | type | ~/vivalence/code/vivalence/subsystems/typology/entities/base/VirtualEntity.ts:1
+core | EntitySchemaMetadata | 2 | type | type | type | ~/vivalence/code/vivalence/subsystems/typology/entities/base/VirtualEntity.ts:1
+core | UniqueConstraintViolationException | 2 | value | yes | yes | ~/vivalence/code/vivalence/commons/lighthouses/multiplayer/attachment/auth.js:3
+core | Utils | 2 | value | yes | yes | ~/vivalence/code/vivalence/subsystems/typology/entities/base/VirtualEntity.ts:1
+core | defineEntity | 2 | value | yes | yes | ~/vivalence/code/vivalence/subsystems/typology/entities/base/properties.js:3
+core | helper | 2 | value | yes | yes | ~/vivalence/code/vivalence/systems/runtime/entities/index.ts:1
+core | ChangeSetType | 1 | value | yes | yes | ~/.viva/registry/education/domain/entities/kernel/Literal.ts:1
+core | FlushEventArgs | 1 | type | type | type | ~/.viva/registry/education/domain/entities/kernel/Literal.ts:9
+migrations | Migrator | 1 | value | yes | yes | ~/vivalence/code/vivalence/commons/datamaps/libsql/libsql.viva.js:2
+sqlite | EntitySchema | 1 | value | yes | yes | ~/vivalence/code/vivalence/subsystems/typology/tests/datamap.test.js:2
+
+live files 81 dead files 49
+   64 ~/vivalence
+    7 registry:education
+    4 registry:chess
+    3 registry:assembly
+    2 registry:vcompany
+    1 registry:stucatch

@@ -1,4 +1,5 @@
 import { specimen, sleep } from "@vivalence/typology";
+import { atom } from "nanostores";
 import { dictation } from "../src/typology/prototypes/dictation.js";
 
 const pause = (signal, ms) =>
@@ -59,7 +60,7 @@ function fakeTerminals(events) {
       },
     },
   };
-  return { terminals: { active: { thread } }, captured };
+  return { terminals: { active: { $thread: atom(thread) } }, captured };
 }
 
 specimen.describe("anima dictation prototype", () => {
@@ -137,7 +138,7 @@ specimen.describe("anima dictation prototype", () => {
 
   specimen.it("refuses to start without a verbatim harness on the active thread", async () => {
     const box = fakeBox([]);
-    const dictaphone = dictation({ terminals: { active: { thread: { id: "t2", mode: { harness: {} } } } }, box });
+    const dictaphone = dictation({ terminals: { active: { $thread: atom({ id: "t2", mode: { harness: {} } }) } }, box });
     await dictaphone.start();
     specimen.expect(dictaphone.$active.get()).toBe("idle");
     specimen.expect(dictaphone.$error.get()).toContain("verbatim");

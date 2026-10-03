@@ -24,7 +24,8 @@ export {
   isDeviceRotation,
 } from "./geometry.js";
 
-export { Bridge, bootLayout, resize, attachViewport, DEFAULT_COMPOSER, FONT_SIZES, THEMES, knownTheme } from "./bridge.js";
+export { Bridge, bootLayout, resize, attachViewport, railGrain, DEFAULT_COMPOSER, FONT_SIZES, THEMES, knownTheme } from "./bridge.js";
+export { SCREENS, screenOf, startFor } from "./start.js";
 export * from "./dock.js";
 export * as panes from "./panes.js";
 

@@ -1,2 +1,0 @@
-{"name":"Read","input":{"file_path":"/repo/.ikiro/compacts/MARKERS.md"}}
-{"name":"Bash","input":{"command":"jj rebase -s @ -d trunk"}}

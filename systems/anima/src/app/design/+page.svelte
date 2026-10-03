@@ -26,7 +26,7 @@
   const verdicts = $derived(
     THEMES.map((name) => ({ name, zones: ZONES.map(({ zone }) => (sheet[name]?.[zone] ? verdict(audit(sheet[name][zone].values)) : null)) })),
   );
-  const keys = $derived(["terminal", "navigation", "thread", "mode", "buffer", "harness"].map((name) => ({ name, label: name === "terminal" ? "terminals" : name, latched: name === pane, led: name === "buffer" || name === "harness" })));
+  const keys = $derived(["terminal", "threads", "modes", "thread", "mode", "buffers", "buffer", "harness"].map((name) => ({ name, label: name === "terminal" ? "terminals" : name, latched: name === pane, led: name === "buffer" || name === "harness" })));
 
   const scale = (family, step) => held["1"]?.values[`--${family}-${step}`] ?? null;
 

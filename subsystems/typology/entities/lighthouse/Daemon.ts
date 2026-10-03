@@ -1,5 +1,7 @@
-import { types, EntitySchema, type Opt, type Rel } from "@mikro-orm/core";
+import { types, Collection, EntitySchema } from "@mikro-orm/core";
 import { DataEntity, DataSchema, DataRepository } from "../base/DataEntity.ts";
+import { IdentityEntity } from "./Identity.ts";
+import { TerminalEntity } from "./Terminal.ts";
 
 export class DaemonRepository extends DataRepository {
   unique(query) {
@@ -8,8 +10,12 @@ export class DaemonRepository extends DataRepository {
 }
 
 export class DaemonEntity extends DataEntity {
-  url!: string;
   slug!: string;
+  remote!: string;
+  reported!: string;
+
+  identities = new Collection<IdentityEntity>(this);
+  terminals = new Collection<TerminalEntity>(this);
 }
 
 export const DaemonSchema = new EntitySchema({
@@ -20,7 +26,10 @@ export const DaemonSchema = new EntitySchema({
   tableName: "Daemon",
   properties: {
     slug: { type: types.string, unique: true },
-    url: { type: types.string },
+    remote: { type: types.string },
+    reported: { type: types.string, defaultRaw: `'UNKNOWN'` },
+    identities: { kind: "m:n", entity: () => IdentityEntity, mappedBy: (identity) => identity.daemons },
+    terminals: { kind: "1:m", entity: () => TerminalEntity, mappedBy: (terminal) => terminal.daemon },
   },
 });
 
@@ -30,30 +39,3 @@ export default {
   entity: DaemonEntity,
   repository: DaemonRepository,
 };
-
-// export class VirtualRepository extends Array {
-//   "#entity": any;
-//   public async add(entity: any) {
-//     super.push(entity);
-//   }
-//   public async create(data: any) {
-//     const entity = new this["#entity"](data);
-//     super.push(entity);
-//     return entity;
-//   }
-//   public delete(entity: any) {
-//     //
-//   }
-// }
-// export class ConstraintRepository extends VirtualRepository {
-//   constructor(data: any) {
-//     super();
-//     this["#entity"] = ConstraintEntity;
-//   }
-//   byTrait(trait) {
-//     return this.filter((constraint) => constraint.traits.includes(trait));
-//   }
-//   byBranch(branch) {
-//     return this.filter((c) => c.branch.join() === branch.join());
-//   }
-// }

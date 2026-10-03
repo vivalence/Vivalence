@@ -112,6 +112,9 @@ export const LiteralSchema = new EntitySchema({
       kind: "m:n",
       entity: () => LiteralEntity,
       inversedBy: "in",
+      pivotTable: "literal_uses",
+      joinColumns: ["literal_entity_1_id"],
+      inverseJoinColumns: ["literal_entity_2_id"],
     },
     in: {
       kind: "m:n",

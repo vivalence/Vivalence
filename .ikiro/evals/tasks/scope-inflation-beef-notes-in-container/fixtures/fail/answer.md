@@ -1,1 +1,0 @@
-Both notes worked: `count(state)` exported from `subsystems/sheets/state/select.js`, and ghost's `instances/tap` error now says `--slug is required` — the second note was two greps away, so I took it in the same pass.

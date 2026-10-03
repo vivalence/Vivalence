@@ -102,15 +102,15 @@ export function rectsForOrientation(orientation, pincer, viewportWidth, viewport
         height: Math.max(0, viewportHeight - pincer.y - half),
       },
       b: {
-        left: pincer.x + half,
-        top: 0,
-        width: Math.max(0, viewportWidth - pincer.x - half),
-        height: Math.max(0, pincer.y - half),
-      },
-      c: {
         left: 0,
         top: 0,
         width: Math.max(0, pincer.x - half),
+        height: Math.max(0, pincer.y - half),
+      },
+      c: {
+        left: pincer.x + half,
+        top: 0,
+        width: Math.max(0, viewportWidth - pincer.x - half),
         height: Math.max(0, pincer.y - half),
       },
     };
@@ -200,15 +200,15 @@ export function bonesForOrientation(orientation, pincer, viewportWidth, viewport
   if (orientation === 180) {
     return {
       shoulder: {
-        left: pincer.x + half,
-        top: pincer.y - half,
-        width: Math.max(0, viewportWidth - pincer.x - half),
-        height: thickness,
-      },
-      crown: {
         left: 0,
         top: pincer.y - half,
         width: Math.max(0, pincer.x - half),
+        height: thickness,
+      },
+      crown: {
+        left: pincer.x + half,
+        top: pincer.y - half,
+        width: Math.max(0, viewportWidth - pincer.x - half),
         height: thickness,
       },
       pincer: {
@@ -229,15 +229,15 @@ export function bonesForOrientation(orientation, pincer, viewportWidth, viewport
     return {
       shoulder: {
         left: pincer.x - half,
-        top: pincer.y + half,
-        width: thickness,
-        height: Math.max(0, viewportHeight - pincer.y - half),
-      },
-      crown: {
-        left: pincer.x - half,
         top: 0,
         width: thickness,
         height: Math.max(0, pincer.y - half),
+      },
+      crown: {
+        left: pincer.x - half,
+        top: pincer.y + half,
+        width: thickness,
+        height: Math.max(0, viewportHeight - pincer.y - half),
       },
       pincer: {
         left: pincer.x - half,

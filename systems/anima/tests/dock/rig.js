@@ -40,7 +40,7 @@ const REWRITES = [
   [/from "\.\/turns\.js"/g, `from "${new URL("app/panels/a/widgets/turns.js", SRC).href}"`],
   [/from "\.\/dictate\.js"/g, `from "${new URL("app/panels/a/widgets/dictate.js", SRC).href}"`],
   [/from "\.\/stop\.svelte\.js"/g, 'from "./stop.js"'],
-  [/from "\.\.\/panels\/e\/widgets\/intelligent\.js"/g, `from "${new URL("app/panels/e/widgets/intelligent.js", SRC).href}"`],
+  [/from "\.\/intelligent\.js"/g, `from "${new URL("app/widgets/intelligent.js", SRC).href}"`],
   [/from "@vivalence\/typology"/g, `from "${TYPOLOGY}"`],
   [/from "\$client"/g, `from "${new URL("client.js", SRC).href}"`],
 ];

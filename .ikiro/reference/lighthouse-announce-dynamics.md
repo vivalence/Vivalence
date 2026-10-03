@@ -4,17 +4,21 @@
 
 ## The wire
 
-A runtime process, after its daemons are integrated, announces each of them to the lighthouse named by `paladin.instance.lighthouse.statics.remote` (`systems/runtime/lifecycle/runtime/integration.js:36-56`, the vector's last beat since m74 M5):
+A runtime process, after its daemons are integrated, announces each of them to the lighthouse named by `paladin.instance.lighthouse.statics.remote` (`systems/runtime/lifecycle/runtime/integration.js:36`, the vector's last beat since m74 M5). Since 10-06 (re-read, not re-measured): the beat is one `ensure` per daemon on every status transition; there is NO eviction — the `$like`/`$nin` prune that stood here is gone from both sides of the wire, and `commons/lighthouses/multiplayer/tests/shape.test.js:170` pins "announce · enroll — no prune". The laws under **Measured** below that speak of a prune describe the m66 code, not the current one.
 
 ```js
-// systems/runtime/lifecycle/runtime/integration.js
-const daemons = await die.runtime.processes.daemon.find();
-for (const daemon of daemons) {
-  await connection.call("/entities/daemon/ensure", { data: { slug: daemon.slug, url: daemon.url.absolute } });
+// systems/runtime/lifecycle/runtime/integration.js:36
+export const announce = async (die, next) => {
+  const daemons = await die.runtime.processes.daemon.find();
+  await Promise.all(daemons.map((daemon) => daemon.lighthouse?.listen()));
+  await next();
+};
+// systems/runtime/prototypes/lighthouse.js:37
+announce() {
+  return this.connection.call("/daemons/announce", { slug: this.daemon, remote: this.remote, reported: this.status.reflection.code });
 }
-const evicted = await connection.call("/entities/daemon/remove", {
-  where: { url: { $like: `${origin}%` }, slug: { $nin: daemons.map((daemon) => daemon.slug) } },
-});
+// commons/lighthouses/multiplayer/attachment/daemons.js:10
+const daemon = await ctx.entities.daemon.ensure({ slug, remote, reported });
 ```
 
 `url` = `PUBLIC_VIVA_RUNTIME_REMOTE` + `/daemon/<slug>`. Not `/attached/process/daemon/…`; daemons hang off the runtime root.

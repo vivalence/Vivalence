@@ -41,7 +41,7 @@ export class Dataspace {
 
   async init() {
     if (!this.connection) return;
-    this.datamap = await this.connection.call("/datamap");
+    this.datamap = await this.connection.call("/metadata/datamap");
     this.em.schema = this.datamap;
   }
 

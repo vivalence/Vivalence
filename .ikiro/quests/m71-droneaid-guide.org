@@ -1,9 +1,10 @@
 #+title: m71 the droneaid guide — the PT10 manual applied to DRONEAID_model_latest: the kit the blend does not carry (screws and all), their placements, and the 33 steps as literals of the assembly domain
 #+filetags: :m71:droneaid:assembly:guide:step:placement:fastener:generator:blend:manual:
-#+status: DESIGNED — beef numbered it (/"write a quest for this. numbered. next index. droneaid guide"/, 09-24); four milestones, none started; eight forks open, forks 7 and 8 block M1.
-#+phase: design (derived)
-#+progress:   0% 0/16 (derived)
-#+next: go (derived)
+#+status: LANDED 10-06 on /"go. execute. full quest"/ — M0–M3 live: =@droneaid/topography/models= (41 parts · 113 placements · 16 GLBs) and =@droneaid/topography/guides= (1 guide · 33 steps · 88 pages) install from =dataset/= and drain back (P-roundtrip offline =written: 0=); the 63 import rows retracted through =/retract=; pt10 cut; the runtime restarted in-process with 12 modes. OPEN: M4 (beef's walk, the live P-roundtrip after his restart on the new watch task), fork 9, fork 10 (two orphan rows of the rename).
+#+phase: verify (derived)
+#+progress:  75% 12/16 (derived)
+#+next: beef restarts pid 1200 on the new =watch= task, moves one placement, reads =git -C ~/.viva/registry/droneaid diff= (derived)
+#+states: — (derived)
 
 * intent
 
@@ -98,6 +99,28 @@ Not in the blend at all: battery pad [5], battery straps [7], every bolt [12], n
 
 37 pages; the kit on page 4; the build on pages 5–34 in 8 sections; the checklist on 35; cleaning on 36. The numbered steps restart per section: Frame 1–17 · Motors 1–6 · Stack (unnumbered, 7 pages) · VTX 1–7 · RX 1–5 · Camera 1–4 · Top plate 1–9 · Checklist 1–4. Pictures: 88 =images/<id>.webp=, all present on the freight as =manual/<id>.webp= (88 files).
 
+** the sources — found 10-06
+
+| source | path |
+|---|---|
+| the manual, original | =~/Downloads/EDTH 2026 DroneAid Hamburg Assembly Manual PnP v1.3.1 (compressed).pdf= (3.1 MB; full =….docx.pdf= 120 MB beside it) |
+| the manual as text + pictures | =~/Downloads/droneaid-manual/{manual.md,images/}= (37 pages, 88 webp) |
+| the model | =~/Downloads/DRONEAID_model_latest.blend=; exports =~/Downloads/droneaid/= (glb · gltf · usda · usdc · =manifest.json= · =parts/=) |
+| scan manifest | =~/Downloads/pt10_scan_manifest.xlsx= — unread |
+| the old guide | =~/.viva/registry/droneaid/modes/assembly/pt10/guide.js= (107 lines, 16 steps over the Sketchfab stand-in) |
+| old step rows | =~/.viva/registry/droneaid/topographies/model/bak/dataset/literals/steps.json= (retired ontology) |
+| early mocks | =~/Downloads/{pt10-assembly,drone-assembly}.html= (09-12) |
+| the comp's sample guide | design 9842f920 =guide-data.json= (15 steps, 8 sections) — not on disk, fetch with DesignSync |
+
+** the instance — re-measured 10-06
+
+- runtime pid 1200 on :2501 since 10-06 09:36 (=--watch= over =commons= + =~/.viva/registry=); =/metadata/daemons= → droneaid, 11 modes.
+- rows unchanged since 09-24: part 25 · placement 36 · guide 1 · step 1; 61 by =editor/import=, 2 by =editor/guide=. 74 symbols, 0 attached beyond the roots; =component= · =assembly= still installed.
+- shelf =~/.viva/instances/droneaid/daemon.js= is EMPTY (1 byte); the kernel lives inline in =instance.viva.js= (10 =@assembly=/=@droneaid= mounts + =@commons/dashboard/dataspace=), every other slot commented → the ledger recipe. Registry =instances/droneaid/daemon.js= mounts =@droneaid/assembly/pt10= and no dashboard.
+- shelf =.env=: addresses + =SECRET_VIVA_JWT=; both AI keys blank → no mentor (M4's =T-mentor-step= waits on one).
+- 12 buffers, 14 threads, 27 turns all 09-23; newest buffer =player/guide= 10-06 09:52 on =guide_1= step 0.
+- mountpoint 1.7 G, of it 1.7 G =bundles/=: 193 view bundles, ~10 MB per watched save, never pruned (known issue =bundler-spams-the-mountpoint=).
+
 * the kit — what the blend does not carry
 
 ** fasteners — parametric, the generators exist
@@ -155,50 +178,145 @@ Tools are symbols, not parts; the vocabulary is complete but for =tool.jig= (the
 
 | # | fork | options | lean | ruling |
 |---|---|---|---|---|
-| 1 | the plate names | rename =frame_star → bottom_plate= · =frame_bottom → mid_plate= · =frame_top → top_plate= — or keep the blend's names | rename; =SOURCED.object= keeps the blend name for the round trip | OPEN |
-| 2 | =computer= | it is the VTX → rename =vtx= · it is a companion computer outside the manual → keep, mint =vtx= as a box | rename: 42 × 23 × 11 mm, at the rear where page 27 puts the VTX, the manual has no computer | OPEN |
-| 3 | the instanced meshes | retire =frame_spacers= (x4) + =flight_control_separators= (x8) from the composition, generate 8 standoffs + 8 grommets one placement each · keep them, one placement for four | retire: steps 7 · 8 · 15 · 17 install them four at a time | OPEN |
-| 4 | granularity | the manual's ≈60 numbered steps · pt10's 15 · one step per change of the build, ≈33 | 33 in 8 sections (the table under M3) | OPEN |
-| 5 | propellers | a "Props" step after the checklist as pt10 had · none, the manual never fits them | keep, last, with the =warn.magnet=-class warning /"never fit props with a battery connected"/ | OPEN |
-| 6 | =guide_1= | build on it, rename to =droneaid= · retract it, seed fresh | retract with closure: one empty step, one dead image path | OPEN |
-| 7 | the authoring channel | a seed script booting the domain's repository over the instance's store, runtime stopped · the mentor's tools with a signed token · the editor by hand | the script: ≈75 fasteners + 33 steps is not a hand's work; it re-runs idempotently (=mint= keeps a held slug, =part()= and =step()= are overs) | OPEN — blocks M1 |
-| 8 | where the seed lives | =@droneaid/modes/assembly/pt10/= reshaped (m67: /"stays in the package for M3's seed"/), the Sketchfab guide and its freight cut · a new =@droneaid/guide/= | pt10 reshaped; nothing else reads it | OPEN |
+| 1 | the plate names | rename =frame_star → bottom_plate= · =frame_bottom → mid_plate= · =frame_top → top_plate= — or keep the blend's names | rename; =SOURCED.object= keeps the blend name for the round trip | RULED 10-06: /"call frame star -> frame root."/ — =frame_star → frame_root=; =frame_bottom= · =frame_top= keep the blend's names (his list named one; QUESTIONED one line: =frame_bottom= IS the manual's arm-sandwich plate [3], not the bottom) |
+| 2 | =computer= | it is the VTX → rename =vtx= · it is a companion computer outside the manual → keep, mint =vtx= as a box | rename: 42 × 23 × 11 mm, at the rear where page 27 puts the VTX, the manual has no computer | RULED 10-06: beef's screenshot = the box flat on the mid plate at the tail, zip-tie slots beside it, the antenna mount behind (/"no clue what that is."/); manual p27 glues the VTX to the frame with thermo adhesive + 2 zip-ties through holes in the frame, pigtail in the 3D-printed mount — it IS the VTX; the RX (p28) is heat-shrunk onto a cable. =computer → vtx=; =family.computer= symbol goes |
+| 3 | the instanced meshes | retire =frame_spacers= (x4) + =flight_control_separators= (x8) from the composition, generate 8 standoffs + 8 grommets one placement each · keep them, one placement for four | retire: steps 7 · 8 · 15 · 17 install them four at a time | RULED 10-06: /"unweld them. we watn a piece per."/ — the welded GLBs are split into islands (pt10's =compose.js: splitIslands=, union-find on welded vertices, reused in the harvest); ONE island becomes the part's GLB (=standoff= · =grommet=, the blend's own mesh, not a generator), placed once per piece: 8 standoffs (4 stack islands + 2 tail + 2 mirrored corners — the tail pair =frame_spacers_2= folds into the same part), 8 grommets |
+| 4 | granularity | the manual's ≈60 numbered steps · pt10's 15 · one step per change of the build, ≈33 | 33 in 8 sections (the table under M3) | RULED 10-06: /"33 in 8 sections"/ |
+| 5 | propellers | a "Props" step after the checklist as pt10 had · none, the manual never fits them | keep, last, with the =warn.magnet=-class warning /"never fit props with a battery connected"/ | RULED 10-06: /"final 33 step."/ |
+| 6 | =guide_1= | build on it, rename to =droneaid= · retract it, seed fresh | retract with closure: one empty step, one dead image path; the seed carries its two intro lines and two notes over verbatim | RULED 10-06: /"new. that was just a click demo. free to kill."/ — its intro lines and two notes still ride into the authored guide |
+| 7 | the authoring channel | a seed script booting the domain's repository over the instance's store, runtime stopped · the same seed over http on the live doors · the mentor's tools · the editor by hand | the script | RULED 10-06, and it reshapes the quest: /"important! i want the guide, all pieces, all literals in fact, as part of the droneaid modes on disk in vcs. the drone, its parts, and the guide are something i install. and when ichange something, i wnat the dataset to be persisted to disk. dataset <> datasink loop closed. full cata/ana. we just dont run --watch on datasink modes."/ — see =* the loop= |
+| 8 | where the seed lives | pt10 reshaped · =@droneaid/guide/= · =droneaid/seed/= | =droneaid/seed/= | RULED 10-06: /"7 answers 8."/ + /"call it models. and add another topography for guides."/ — the drone's rows ARE =topographies/models/dataset/literals/{parts,placements}.js=, its GLBs =topographies/models/freight/parts/*.glb=; the guide's rows ARE =topographies/guides/dataset/literals/{guides,steps}.js=, its manual pictures =topographies/guides/freight/manual/=; each topography's authoring scripts live in its own =harvest/=; pt10 is captured to =~/.viva/bak/= and cut, with the registry =instances/droneaid/daemon.js= line that mounts it |
+| 9 | a drained row's owner | (a) the drain un-owns what it writes (=literal.mode → null=: the file owns it now) · (b) DATASET matches by slug alone · (c) leave it | (a) — one line in the drain, and the install's =(slug, mode)= key stays honest | OPEN — found 10-06 designing the loop (see trap 2); needed before the first hand edit of a drained file, not before M0 |
+| 10 | the rename's two orphan rows | (a) a scoped mikro script removes the Mode row =topography/model= and the Symbol row =family.computer= (the DATASET upsert never deletes) · (b) leave them: the first =family.%= drain writes =family.computer= back into =families.js= (24 families, the ruled cut undone) | (a) — five lines, run once, on go | OPEN 10-06 — measured after the landing: =select slug from Symbol where slug='family.computer'= → 1 row |
+| 11 | the hub bolts' pattern | the 16 mm rule: one per arm at r 40 mm on the arm's centre line + two on the bottom plate's x axis at ±52 mm; the 18 mm at the four stack-standoff centres | as landed (=harvest/anchors.js hubBolts=) | QUESTIONED 10-06 — no hole in any mesh (terrain); a Partizan drawing or a re-modelled blend rules it, the function moves, the rows follow |
 
 * the law
 
 #+BEGIN_EXAMPLE
 A part the kit ships is a literal with qty, whether or not a mesh exists for it; the guide's bill is derived, never authored.
 A fastener is a PARAMETRIC part placed once per bolt, its placement carrying JOINED.joins on what it holds and one joint.* symbol; a step names the fastener placements it threads, and "loose" or "tight" is the step's note, not the placement's.
-No coordinate is typed from a picture: every fastener translation is a function of a measured anchor (a standoff centre, the grommet pattern, a motor centre) written in the seed, so a re-import moves them all.
-The seed is idempotent: run twice, the daemon holds the same rows once. It writes through the domain's natures only.
+No coordinate is typed from a picture: every fastener translation is a function of a measured anchor (a standoff centre, the grommet pattern, a motor centre) written in the harvest, so a re-import moves them all.
+The rows live on disk, in VCS, as the topography's DATASET; the daemon is working memory. DATASET installs them, DATASINK drains every change back; the harvest writes the dataset files ONCE in the drain's own canonical form, so a drain over an untouched install is a no-op diff.
 A step's pictures are the manual's pages on the freight (manual/<id>.webp); a step cites the page it came from in its description.
 #+END_EXAMPLE
 
+* the loop — fork 7, ruled 10-06
+
+Both halves exist in the runtime; nothing new is invented, the topography declares them. =DATASET= (=systems/runtime/lifecycle/mode/traits/dataset.js=) installs a mode's files into the daemon when the files' stamp differs from =mode.installed=; =DATASINK= (=traits/datasink.js=) opens =twitch /after/literal/{create,update,delete}=, marks the sink dirty, and 1500 ms after the last write drains every claimed row to the file in canonical form (sorted by slug, sparse, ordered keys) and restamps =installed=. The round trip is pinned: =systems/runtime/tests/datasink.roundtrip.test.js= — js → json → js → json, byte-identical dataspaces. The live precedent: =~/.viva/registry/education/topographies/english-to-italian/italian.viva.js= (traits =DATASET FRAUGHT DATASINK=, sinks on =literal= only).
+
+Two topographies, ruled 10-06 (/"call it models. and add another topography for guides."/): =model= renames to =models= and keeps the drone; =guides= is new and holds the guide. The sinks split by ontology, so no row is claimed twice — the drain's query is daemon-wide (=traits/datasink.js:53= =repo.find(sink.where ?? {})=, no mode filter), disjoint selectors are the only fence.
+
+#+begin_src js
+// ~/.viva/registry/droneaid/topographies/models/models.viva.js — after (renamed from model/model.viva.js)
+import { Dataset, Datasink, Freight, project } from "@vivalence/typology";
+
+export const manifest = { type: "topography", slug: "models", …, traits: ["DATASET", "FRAUGHT", "DATASINK"] };
+export const freight = new Freight("freight");
+export const dataset = new Dataset({ symbol: "dataset/symbols", literal: "dataset/literals" });
+export const datasink = new Datasink({
+  symbol:  [[{ slug: { $like: "family.%" } }, "dataset/symbols/families.js"]],
+  literal: [[{ ontology: "part" },      project.omit("in"), "dataset/literals/parts.js"],
+            [{ ontology: "placement" }, project.omit("in"), "dataset/literals/placements.js"]],
+});
+#+end_src
+
+#+begin_src js
+// ~/.viva/registry/droneaid/topographies/guides/guides.viva.js — new
+import { Dataset, Datasink, Freight, project } from "@vivalence/typology";
+
+export const manifest = { type: "topography", slug: "guides", …, traits: ["DATASET", "FRAUGHT", "DATASINK"] };
+export const freight = new Freight("freight");
+export const dataset = new Dataset({ symbol: "dataset/symbols", literal: "dataset/literals" });
+export const datasink = new Datasink({
+  symbol:  [[{ slug: { $like: "section.%" } }, "dataset/symbols/sections.js"]],
+  literal: [[{ ontology: "guide" }, project.omit("in"), "dataset/literals/guides.js"],
+            [{ ontology: "step" },  project.omit("in"), "dataset/literals/steps.js"]],
+});
+#+end_src
+
+#+begin_src js
+// ~/.viva/registry/droneaid/instances/droneaid/daemon.js — kernel, after
+"@assembly/topology/guide",
+"@droneaid/topography/models",
+"@droneaid/topography/guides",
+"@assembly/editor/import",
+#+end_src
+
+=models= mounts before =guides=: a step's =uses= and a guide's =SEQUENCED.subject= name the drone's slugs.
+
+A row as the drain writes it (what the harvest must emit so the first drain is a no-op):
+
+#+begin_src js
+// dataset/literals/placements.js — one row
+{ slug: "drone.bolt_m3_18.0", traits: ["LABELED", "PLACED", "JOINED"],
+  trait: { LABELED: { name: "bolt_m3_18.0" },
+           PLACED: { layer: "drone", name: "bolt_m3_18.0", ref: "bolt_m3_18", translation: [0.46913, -0.002, -0.40901] },
+           JOINED: { joins: ["frame_root.0", "motor_arm.0", "frame_bottom.0"] } },
+  symbols: [{ slug: "placement" }, { slug: "joint.bolted" }],
+  uses: [{ slug: "bolt_m3_18" }, { slug: "drone" }] }
+#+end_src
+
+Traps, each measured 10-06:
+1. *the import rows collide.* The db's unique index is =(slug, mode_id)=; the 61 import rows carry =mode = editor/import=, DATASET installs file rows with =mode = null= and keys its upsert on =(slug, holder)= — the same slug lands TWICE and =named(slug)= goes ambiguous. The import rows (and =guide_1=, fork 6) go BEFORE the first install: beef deletes =guide_1= then =droneaid_model_latest= with closure in the assembly editor's Retract dialog (two clicks, no token, no script), or I run =/retract= over the stopped runtime on his go.
+2. *a minted row is owned.* A row the guide editor mints carries =mode = editor/guide=; the drain writes it to the file fine, but a later HAND edit of that file reinstalls by =(slug, null)=, misses the owned row, and duplicates it — fork 9.
+3. *the watch.* =systems/runtime/deno.jsonc:11= watches =~/.viva/registry= whole; a drain writes under it → an in-process restart → every APPLICATION mode rebundled (~10 MB each, known issue =bundler-spams-the-mountpoint=). Deno 2.9.6 has =--watch-exclude=: the task gains =--watch-exclude=$HOME/.viva/registry/*/topographies/*/dataset= (glob support verified at M0, else the one path). beef restarts the runtime (pid 1200) after the task changes.
+4. *relations.* The drain projects every m:n of =literal=: =symbols= · =uses= · =in=. =in= is the inverse of =uses= — the sink shape drops it. =uses= stays in the file: the repository derives it on every write, but DATASET creates rows without the repository, so the file carries the edges and =linkPhase= relinks them. =ontology= is restamped by =LiteralSubscriber.beforeUpdate= on the link flush.
+5. *provenance.* A =literal= sink with a bare selector claims every literal in the daemon (known issue, the italian trap). Here each sink names ONE ontology and the two topographies split them (=models=: part · placement; =guides=: guide · step), so every literal has exactly one file. The =symbol= sinks are slug-scoped (=family.%= · =section.%=); the =@assembly= topologies own the rest.
+6. *geometry.* =MODELED.file= is =parts/<slug>.glb=, resolved through the daemon-wide flat cargo catalog; the GLBs move from the importer's seat to =topographies/models/freight/parts/= (36 files, 1.4 MB; the largest, =propeller.glb=, 307 KB — under jj's 1 MiB snapshot limit). The seat's copies stay until beef deletes them.
+7. *the harvest is not a mode.* =topographies/models/harvest/{kit,anchors,placements}.js= and =topographies/guides/harvest/steps.js= are pure data modules, each beside a =harvest.js= that writes its topography's =dataset/literals/*.js= through =Datasink.canonical=, run by hand (=deno run -A harvest.js=), re-run after a re-import of the blend. Between harvests the drain owns the files; a harvest overwrites what the drain wrote — the harvest is the stronger layer by decision, never by accident (it runs on beef's word).
+8. *across the two topographies.* A step's =uses= names placements in =models=. =linkPhase= resolves a slug daemon-wide (=traits/dataset.js:191=) but matches only a row whose owner is this mode or null (=:183–187=). A placement owned by =editor/assembly= therefore does not resolve, and the link MINTS a bare stub with the same slug (=:207–214=). Fork 9 lean (a), "the drain un-owns what it writes", closes this too. A missing slug at install time (=guides= before =models=) also stubs; the later =models= install upserts the stub by =(slug, null)= and heals it — the kernel still lists =models= first.
+9. *the rename.* =model= → =models= is a new mode reference: the mode row =topography/model= stays orphaned in the db (it owns 0 rows; its symbols installed with =mode = null=); the shelf =~/.viva/instances/droneaid/instance.viva.js:27= and the registry =instances/droneaid/daemon.js:16= both name it (ledger: two manifests) — the shelf moves through the verbs, never by hand.
+
+* landed 10-06 — what the go built, and where it left the plan
+
+Everything was built in a scratchpad mirror of both packages, proven there, and landed in ONE rsync per package at 14:37 (law 20); the runtime (pid 1200) restarted in-process and mounted 12 modes. Deviations from the plan above, each with its reason (law 10):
+
+| planned | landed | why |
+|---|---|---|
+| the blend's collections as sub-layers (=antenna_4= · =camera_2= · =components= · =controller= · =motor_2= · the root =droneaid_model_latest=) | ONE layer =drone=; every placement =drone.<ref>.<n>=; six collection parts gone | the collections carried no TRS; a fastener joins across them (a 30 mm bolt holds =frame_bottom.0= · =esc.0= · =fc.0=) and =JOINED.joins= are paths in ONE layer; M2 said "layer drone" |
+| =grommet= = one island of the blend's FlightControlSeparators (fork 3 paraphrase) | =grommet= = =solid.bushing {outer 6, inner 3, length 5}= ×8 | the welded mesh splits into FOUR columns (plate → FC, 13.7 mm), not eight pieces (=harvest/glb.js islands=, measured); beef's word was a piece per — eight pieces need a generator |
+| =standoff= island | as planned: =freight/parts/standoff.glb= (124 tris, 27.2 mm, base at the origin), 8 placements | — |
+| =antenna= · =antenna_2= · =antenna_3= | =antenna_rx= (qty 2, Antenna.00's mesh, placed at Antenna.00's AND Antenna.01's TRS) · =antenna_vtx= (Antenna.02) | the kit ships "RX antennas 2x" as one line; Antenna.01's bent mesh is dropped (deferred) |
+| =antenna_fixture= · =antenna_fixture_2= | =tail_mount= [8] · =antenna_mount= [10] | the manual's names |
+| =flight_controller= ×2 | =esc= · =fc=, the same GLB copied twice | two kit lines, two parts |
+| cables as placements with =params.route= | one PART per cable (=cable_esc_fc= · =cable_vtx_fc= · =cable_camera= · =cable_rx=), =motor_wire= one part mirrored by =PLACED.scale= | the stage builds geometry per PART and never reads a placement's =params= (=modes/player/guide/buffer/Guide.svelte:85=) |
+| the sink selector ={ ontology: "part" }= | ="part"= — the root symbol's slug — and a =lean= shape | the drain filters the PROJECTED row, which has no =ontology=; a custom shape replaces =project.lean=, so it leans itself (trap, measured: =written: 2= until fixed) |
+| =/retract= over the STOPPED runtime | =/retract= with closure over the live db from a scoped mikro process (=scratchpad/retract.js=, 63 rows → 0), the runtime idle | sqlite serialises two processes; the runtime holds no cross-request cache; the dry run read clean first |
+| the shelf kernel "through the verbs" | =~/.viva/instances/droneaid/instance.viva.js:27= edited by hand | no verb edits a kernel; the file is beef's authored recipe, not ledger structure |
+| =--watch-exclude=$HOME/.viva/registry/*/topographies/*/dataset= | =--watch-exclude=**/dataset/**= | the only glob form deno 2.9.6 honours (four forms measured); it also covers chess · education · vcompany · the four =@assembly= topologies |
+| 36 GLBs | 16 (15 copied from the importer's seat under the new slugs + =standoff.glb=), 644 KB | the seat's =_2= duplicates are earlier imports; one file per part |
+| M1's =source.*= symbols on blend parts | none; parametric parts carry =source.parametric= | the blend's provenance is unknown — no symbol invented |
+
+The harvest in numbers: =models= 23 families · 41 parts (16 MODELED · 15 PARAMETRIC · 9 COUNTED only · the root) · 113 placements (26 from the blend · 87 authored off the anchors); =guides= 8 sections · 1 guide · 33 steps naming 113 placements once each, 87 of the 88 pages cited. Suites: =@droneaid= =ok | 6 passed (15 steps)= (live, after the landing) · =@assembly= =25 passed | 1 failed= (the red is =modes/bak/import/tests/import.test.js=, red before this quest) · the editor's harness snapshot regenerated for =tool.jig= (one line of diff).
+
 * milestones
 
-** M1 the kit — generators and part rows
-- =generators/index.js= (@assembly): =solid.box {x, y, z}= · =solid.bushing {outer, inner, length}= · =cable.route {route, diameter}= (a =TubeGeometry= over a =CatmullRomCurve3=); =THREADS.M5= is there already.
-- =topologies/step/dataset/symbols/ontological.js=: =tool.jig=.
-- the seed's =kit.js=: every row of the two kit tables above as =assembly_part= payloads — slug · name · =parametric= or =modeled= (esc: the FC's GLB) · qty · =family.* material.* source.*= symbols.
-- the renames of forks 1 · 2 through =/rename=; =guide_1= per fork 6.
-- Boots green: the domain suite unchanged + the seed's own suite (=P-kit=: 36 parts by slug, every generator resolves through =/geometry=).
+** M0 the loop — the topography drains, the watch looks away — LANDED 10-06, the live P-roundtrip waits on beef's restart
+- =topographies/model/= → =topographies/models/= (=models.viva.js=, slug =models=, =DATASINK= + its sink block); =tests/models.test.js= repinned to =part placement= (its red, carried).
+- =topographies/guides/= new: =guides.viva.js= (=DATASET FRAUGHT DATASINK=), =dataset/{symbols,literals}/=, =freight/manual/= (the manual pictures move from =models=), =tests/guides.test.js=.
+- both kernels (registry recipe + shelf, trap 9) name =models= then =guides=.
+- =systems/runtime/deno.jsonc:11=: =--watch-exclude= on the dataset dirs; beef restarts the runtime.
+- the harvest's first pass writes the blend's 25 parts + 36 placements as they stand into =dataset/literals/{parts,placements}.js= (renames of forks 1 · 2 applied in the files: =frame_root=, =vtx=), the GLBs into =freight/parts/=; =guide_1= + the import root retracted (trap 1); boot → DATASET installs → the assembly editor shows the same drone.
+- =P-roundtrip=: an edit in the assembly editor (move one placement) lands in =placements.js= within 1.5 s + a flush; =git -C ~/.viva/registry/droneaid diff= shows ONE row; the daemon restarted reinstalls nothing (stamp equal).
+- pt10 captured to =~/.viva/bak/droneaid-pt10-<date>/=, cut; the registry =instances/droneaid/daemon.js= aligned to the shelf's kernel.
 
-** M2 the placements — every fastener where the anchors say
-- the seed's =placements.js=: the anchor functions (arm root · standoff · grommet · motor · camera) over the measured constants; ≈75 =assembly_placement= payloads into layer =drone= (the composition's one layer for the frame) with =joins= and =joint.bolted= / =joint.threaded= / =joint.pressed= / =joint.plugged= / =joint.tied= / =joint.adhesive=.
-- fork 3's retractions.
-- Boots green: =P-placements= (count by ref = the kit's used column; every =joins= path resolves in =/resolve droneaid_model_latest=; no two fasteners within 1 mm).
+** M1 the kit — generators and part rows — LANDED 10-06
+- =generators/index.js= (@assembly): =solid.box {x, y, z}= · =solid.bushing {outer, inner, length}= · =cable.route {route, diameter}= + =tests/generators.test.js= (5 steps green); =topologies/step/dataset/symbols/ontological.js=: =tool.jig=; the editor's harness snapshot regenerated.
+- =models/harvest/kit.js= + =rows.js parts()=: 41 rows; =P-kit= green (every PARAMETRIC part built by the live domain's =generate=).
 
-** M3 the guide — 33 steps in 8 sections
-- the seed's =steps.js=: the table below, each step =assembly_step= with =placements= · =lines= (the manual's sentences, one per line) · =notes= (=note.warning= + a =warn.*=) · =images= (=manual/<id>.webp= by page) · =symbols= (=tool.*=) · =staged= (a camera per section, =ghost: true=); then =assembly_guide droneaid= with the intro (page 3) and =assembly_sequence=.
-- Boots green: =P-steps= (33 steps; every placement literal a step names exists; every image on the freight; the union of installs = every placement of the composition but the four =bolt_m3_28= and the =bolt_m3_12=, which are never installed).
+** M2 the placements — every fastener where the anchors say — LANDED 10-06
+- =models/harvest/anchors.js= (plates · standoffs · grommets · arms · motors · camera · vtx, functions over =blend.js=) + =rows.js placements()=: 113 rows in layer =drone=; =P-placements= green (by ref = the kit's used column, every join a sibling, no two fasteners within 1 mm, the 26 blend placements verbatim).
+
+** M3 the guide — 33 steps in 8 sections — LANDED 10-06
+- =guides/harvest/steps.js= (authored: lines verbatim from the manual, notes with =warn.*=, pages by id, tools, a camera per section) + =rows.js=: 33 steps + the guide =droneaid= over =drone=; =P-steps= green (every named placement exists, each installed once, the props last); =/bom droneaid upto 33= = the kit's used column; =fold.steps[5].prepared= = ={ bolt_m3_18: 4, bolt_m3_16: 2 }= + =tool.hex_2_0=.
 
 | # | section | pages | installs |
 |---|---|---|---|
 | 01 | frame | 4 | — (sort the kit: screw_gauge, bolt_organizer) |
-| 02 | frame | 5 | bottom_plate.0 |
-| 03 | frame | 6 | arm.0 · mid_plate.0 · bolt_m3_16.0 |
-| 04 | frame | 7 | arm.1 · bolt_m3_16.1 |
-| 05 | frame | 8 | arm.2 · arm.3 · bolt_m3_16.2 · .3 |
+| 02 | frame | 5 | frame_root.0 |
+| 03 | frame | 6 | motor_arm.0 · frame_bottom.0 · bolt_m3_16.0 |
+| 04 | frame | 7 | motor_arm.1 · bolt_m3_16.1 |
+| 05 | frame | 8 | motor_arm.2 · motor_arm.3 · bolt_m3_16.2 · .3 |
 | 06 | frame | 9 | bolt_m3_18.0–3 · bolt_m3_16.4 · .5 |
 | 07 | frame | 10 | standoff.0–3 (on the 18 mm) |
 | 08 | frame | 11 | standoff.4–7 · bolt_m3_8.0–3 |
@@ -221,16 +339,18 @@ A step's pictures are the manual's pages on the freight (manual/<id>.webp); a st
 | 25 | camera | 30 | bolt_m2_4.0 · .1 |
 | 26 | camera | 31 | camera.0 |
 | 27 | camera | 32 | cable_camera.0 |
-| 28 | top_plate | 33 | top_plate.0 · bolt_m3_8.4–11 · zip_tie.2 |
+| 28 | top_plate | 33 | frame_top.0 · bolt_m3_8.4–11 · zip_tie.2 |
 | 29 | top_plate | 34 | zip_tie.3 (the RX) |
 | 30 | top_plate | 34 | battery_pad.0 · antenna_3.0 · zip_tie.4 · sticker.0 |
 | 31 | checklist | 35 | — |
 | 32 | checklist | 35 | — (show your mentor) |
 | 33 | checklist | — | propeller.0–3 (fork 5) |
 
-** M4 the walk — both modes live on the droneaid daemon
+** M4 the walk — both modes live on the droneaid daemon — OPEN, beef's
+- beef restarts the runtime (pid 1200 still runs the OLD =watch= task; until then a drain under =~/.viva/registry= redeploys once per edit — harmless, the stamp is equal on the way back).
+- the live =P-roundtrip=: move one placement in the assembly editor → within 1.5 s + a flush =git -C ~/.viva/registry/droneaid diff topographies/models/dataset/literals/placements.js= shows ONE row's =translation=; restart → =[DATASET:install]= prints nothing for =models=.
 - beef signs in; =@assembly/player/guide= on =droneaid=: every step seats what its table row says, the pictures load, the bill counts the kit; =@assembly/editor/guide=: the mentor answers /"what does step 6 thread?"/ with the four 18 mm bolts by slug.
-- The assembly editor's stage draws the fasteners from =/geometry=.
+- The assembly editor's stage draws the fasteners from =/geometry= — the first look at the derived positions (fork 11).
 
 * blast table
 
@@ -239,36 +359,46 @@ A step's pictures are the manual's pages on the freight (manual/<id>.webp); a st
 | =~/.viva/registry/assembly/domain/assembly/generators/index.js= | +solid.box · solid.bushing · cable.route | M1 | edit |
 | =~/.viva/registry/assembly/domain/assembly/tests/*.test.js= | a generator suite for the three | M1 | edit |
 | =~/.viva/registry/assembly/topologies/step/dataset/symbols/ontological.js= | +tool.jig | M1 | edit |
-| =~/.viva/registry/droneaid/modes/assembly/pt10/{guide.js,compose.js,harness.js,buffer/*,freight/animated_drone.glb,tests/*}= | cut (fork 8) | M1 | delete, captured to =~/.viva/bak/= first |
-| =~/.viva/registry/droneaid/modes/assembly/pt10/seed/{kit.js,anchors.js,placements.js,steps.js}= | the data, pure | M1–M3 | new |
-| =~/.viva/registry/droneaid/modes/assembly/pt10/seed.js= | the writer (fork 7) | M1 | new |
-| =~/.viva/registry/droneaid/modes/assembly/pt10/tests/seed.test.js= | P-kit · P-placements · P-steps over the pure data + the domain in a rig | M1–M3 | new |
-| =~/.viva/registry/droneaid/topographies/model/tests/model.test.js= | imports the dead =component= / =assembly= topologies — stale before m71; repin to =part placement step guide= | M1 | edit |
-| =~/.viva/registry/droneaid/README.md= | §4 build: the guide is =droneaid=, the seed named | M3 | edit |
-| =~/.viva/instances/droneaid/mountpoint/daemon_droneaid/droneaid.viva.db= | the rows, through the natures | M1–M3 | data |
+| =~/.viva/registry/droneaid/topographies/model/= → =models/= | the rename (dir · =models.viva.js= · slug), +DATASINK, the =models= sink block | M0 | move · edit |
+| =~/.viva/registry/droneaid/topographies/models/dataset/literals/{parts,placements}.js= | the drone's rows, canonical; drain-owned after the harvest | M0–M2 | new |
+| =~/.viva/registry/droneaid/topographies/models/dataset/symbols/ontological.js= | =family.computer= out; the drain writes =families.js=; =section.*= move to =guides= | M0 | edit |
+| =~/.viva/registry/droneaid/topographies/models/freight/parts/*.glb= | 36 from the importer's seat + =standoff.glb= · =grommet.glb= islands | M0–M1 | new |
+| =~/.viva/registry/droneaid/topographies/models/harvest/{kit,anchors,placements}.js= + =harvest.js= | the drone's authoring scripts, pure data + the canonical writer | M0–M2 | new |
+| =~/.viva/registry/droneaid/topographies/models/tests/{models,harvest}.test.js= | repin the dead imports; P-kit · P-placements | M0–M2 | edit · new |
+| =~/.viva/registry/droneaid/topographies/guides/guides.viva.js= | new topography, =DATASET FRAUGHT DATASINK=, the =guides= sink block | M0 | new |
+| =~/.viva/registry/droneaid/topographies/guides/dataset/{symbols/sections.js,literals/{guides,steps}.js}= | the guide's rows + the 8 sections | M0–M3 | new |
+| =~/.viva/registry/droneaid/topographies/guides/freight/manual/= | the manual pictures, moved from =model/freight/manual/= | M0 | move |
+| =~/.viva/registry/droneaid/topographies/guides/harvest/steps.js= + =harvest.js= · =tests/{guides,harvest}.test.js= | the 33 steps; P-steps over both topographies' rows + the domain in the rig | M3 | new |
+| =~/.viva/instances/droneaid/instance.viva.js= | kernel =model= → =models= + =guides= (trap 9), through the verbs | M0 | data |
+| =~/.viva/registry/droneaid/modes/assembly/pt10/= | cut (fork 8), captured to =~/.viva/bak/droneaid-pt10-<date>/= first | M0 | delete |
+| =~/.viva/registry/droneaid/instances/droneaid/daemon.js= | pt10 out, dashboard in, =model= → =models= + =guides= — aligned to the shelf | M0 | edit |
+| =~/.viva/registry/droneaid/README.md= | §4 build: the guide is =droneaid=, the harvest named | M3 | edit |
+| =systems/runtime/deno.jsonc= | =watch=: =--watch-exclude= on the dataset dirs (the one repo line) | M0 | edit |
+| =systems/runtime/lifecycle/mode/traits/datasink.js= | fork 9: the drain un-owns what it writes | fork 9 | edit, on go |
+| =~/.viva/instances/droneaid/mountpoint/daemon_droneaid/droneaid.viva.db= | the import rows + =guide_1= retracted (trap 1); then only ever written through the natures, drained to disk | M0 | data |
 
-Nothing in the repo moves. Ownership: =domain/**= and =modes/editor/guide= are this session's (compact #213); =modes/editor/assembly/**= is the sibling's and untouched.
+Ownership: =domain/**= and both guide modes are this session's; =modes/editor/assembly/**= is untouched.
 
 * testing assessment
 
 /in place/: =@assembly= 21 suites / 114 steps green on the live tree (compact #213); =@droneaid= pt10 2 suites + the topography's 1, the latter red (dead topology imports, m67 filed it). COVERAGE GAP: no suite reads the droneaid daemon's rows; a guide's correctness (does every step name a real placement, does every picture exist) has never been asserted anywhere — =P-steps= is the first.
 
-/changes/: =topographies/model/tests/model.test.js= | its imports are dead · pt10's two suites | cut with the mode.
+/changes/: =topographies/model/tests/model.test.js= (→ =models/tests/models.test.js=) | its imports are dead · pt10's two suites | cut with the mode.
 
-/adds/: =seed.test.js= — the data is pure, so =P-kit= and =P-placements= run without a daemon; =P-steps= folds the data through the domain's =resolve= in the rig =systems/runtime/tests/scenarios/registry.js= =accio= uses.
+/adds/: =harvest.test.js= — the data is pure, so =P-kit= and =P-placements= run without a daemon; =P-steps= folds the data through the domain's =resolve= in the rig =systems/runtime/tests/scenarios/registry.js= =accio= uses; =P-roundtrip= is live (M0), its offline twin is the runtime's =datasink.roundtrip.test.js= over the topography scenario.
 
-/ladder/: M1 | generators green + P-kit · M2 | P-placements · M3 | P-steps + =/bom droneaid= equals the kit's used column · M4 | the walk's markers held.
+/ladder/: M0 | the loop closes live (one edit → one row in the file) · M1 | generators green + P-kit · M2 | P-placements · M3 | P-steps + =/bom droneaid= equals the kit's used column · M4 | the walk's markers held.
 
 Not DONE until the walk's testimony is beef's and =/bom= on the live daemon reads the kit.
 
 * QA
 
-① I run the seed twice; the second run writes nothing and the counts are unchanged. I open the player on =droneaid=, press → 33 times; at step 06 four 18 mm bolts appear at the standoff centres and the mid plate is not yet standing off; at step 18 the FC sits on its grommets and four nuts cap the stack; at step 28 the top plate closes and eight 8 mm bolts sit on it. I ask the editor mentor /"what does step 6 thread?"/ and it answers the four =bolt_m3_18= slugs and the two 16 mm ones.
+① I move one placement in the assembly editor and =git diff= in the droneaid package shows one row; I restart the runtime and it installs nothing. I open the player on =droneaid=, press → 33 times; at step 06 four 18 mm bolts appear at the standoff centres and the mid plate is not yet standing off; at step 18 the FC sits on its grommets and four nuts cap the stack; at step 28 the top plate closes and eight 8 mm bolts sit on it. I ask the editor mentor /"what does step 6 thread?"/ and it answers the four =bolt_m3_18= slugs and the two 16 mm ones.
 
-#+marker_qa: m71/P-kit · pending · 36 part rows by slug, qty as the kit tables; every PARAMETRIC part answers =/geometry=
-#+marker_qa: m71/P-placements · pending · fastener placements by ref equal the used column; every =joins= path resolves; no two fasteners within 1 mm
-#+marker_qa: m71/P-steps · pending · 33 steps, 8 sections; every named placement exists; every image on the freight; installs cover the composition but the unused bolts
-#+marker_qa: m71/P-idempotent · pending · the seed run twice leaves the row counts unchanged
+#+marker_qa: m71/P-kit · proven 10-06 · 41 part rows by slug, qty as the kit tables; every PARAMETRIC part built by the live domain's generators (=models/tests/harvest.test.js=)
+#+marker_qa: m71/P-placements · proven 10-06 · 113 placements; fasteners by ref equal the used column; every join a sibling; no two fasteners within 1 mm; the blend's 26 verbatim
+#+marker_qa: m71/P-steps · proven 10-06 · 33 steps, 8 sections; every named placement exists, each installed once; 87 pages on the freight; =/bom upto 33= = the used column (=guides/tests/harvest.test.js=)
+#+marker_qa: m71/P-roundtrip · proven offline 10-06 · install → drain =written: 0= for both topographies over the assembly rig; the harvest re-run is a no-op (=P-canonical=). LIVE half pending: one edit in the editor → one row in the file; a restart reinstalls nothing
 #+marker_qa: m71/T-player-walk · pending · beef walks 33 steps in =player/guide=; steps 06 · 18 · 28 show what the table says
 #+marker_qa: m71/T-mentor-step · pending · the editor mentor names step 06's six bolts by slug
 #+marker_qa: m71/T-guide-fresh-buffer · pending · a fresh =editor/guide= buffer lists guides, holds no default (was assembly-guide/T-fresh-buffer)
@@ -287,6 +417,14 @@ beef, 09-24, over the quest root listing with =assembly-guide= · =m67-assembly-
 - *handoff #213* (assembly-guide, off the frontier): reload the dock on a guide, ask the editor mentor to change one line of a step. Expect =step_read=, then =assembly_step= carrying every line, then =open=, and the answer ending on =On the operator's screen: …=.
 - *red, found 09-24*: =~/.viva/registry/droneaid/topographies/model/tests/model.test.js:7= imports =../../../../assembly/topologies/component/dataset/symbols/ontological.js=. That is the topology m67 killed, and the path is a relative import past the package root. Any run that collects the file aborts with =Module not found=. M1 touches this topography, so it gets fixed there. Measured the same day without it: =ok | 23 passed (123 steps) | 0 failed= over =@assembly= (domain · 4 modes · =tests/=) + =@droneaid/modes/assembly/pt10=.
 
+* handoff
+
+- goal: the droneaid guide as rows — the kit, the fastener placements, 33 steps — installed from the package and drained back to it; beef walks it in the player.
+- done 10-06: M0–M3 landed on /"go. execute. full quest"/ (=* landed 10-06=): two topographies with their harvests, tests and freight; =@assembly= gains three generators + =tool.jig=; the 63 import rows retracted; pt10 captured to =~/.viva/bak/droneaid-pt10-20261006/= and cut; registry =daemon.js= + shelf kernel aligned (=models= · =guides= · dashboard); =systems/runtime/deno.jsonc= =watch= excludes =**/dataset/**=; README rewritten. Live after the in-process restart: 12 modes, =part 41 · placement 113 · guide 1 · step 33=, 0 owned, 373 =uses= edges.
+- next (beef): restart the runtime so the new =watch= task holds → move one placement in the assembly editor → =git -C ~/.viva/registry/droneaid diff= shows one row → walk =player/guide= on =droneaid= (markers T-*). Then rule fork 10 (two orphan rows; lean (a), a five-line scoped script on go) and fork 9. Commits: =@assembly= (4 files), =@droneaid= (whole), the repo (=deno.jsonc= + ikiro).
+- never: type a coordinate off a picture; write a row into the db by any road but the natures (the file is the record, the drain is the pen); hand-edit a drained file while an owned row exists (fork 9); re-run a harvest while the daemon runs (it overwrites the drain's files); drop a stage control on a small screen (/"why a limited set?"/); read the window width inside a buffer.
+- owed: fork 11's hub pattern when a drawing exists · Antenna.01's bent mesh · the walk of both responsive modes in anima · GuideTab folding on tablet/phone · the comp's palette (=#172E6E= · =#D4A054=) on his theme word · an AI key for the mentor · the =modes/bak/import= red (pre-existing, =@assembly=).
+
 * deferred
 
 - the real PT10 V3 hole pattern (a Partizan drawing, or a re-modelled blend with holes) — reopens when a source exists; then the anchors become holes and the seed's functions read them.
@@ -296,7 +434,12 @@ beef, 09-24, over the quest root listing with =assembly-guide= · =m67-assembly-
 
 * changelog
 
-- (nothing landed)
+- 10-07: beef restarted on the new =watch= task; the log showed =[FREIGHT] slug collision= ×7 and =no literal named "guide_1"= — the player now drops a lost guide back to its list (=player/guide/buffer/Guide.svelte:90=, known issue =guide-buffer-points-at-a-missing-guide=, editor half open); the importer's =parts/= seat was already empty (removed 10-06 15:14, not by this session; its 15 meaningful GLBs live in =models/freight/parts=), so the collisions end at the next boot.
+- 10-06 14:37: LANDED M0–M3 on /"go. execute. full quest"/ — one rsync per package after the scratchpad proof; =/retract= with closure took the 63 import rows (dry run first, then =--go=, runtime idle); the runtime restarted in-process to 12 modes and installed 188 literals. Deviations tabled under =* landed 10-06=. Forks 10 · 11 opened. Codemap =assembly.md= · skill =topography= · =map.md= · =runtime.md= updated; =~/.viva/bak/droneaid-pt10-20261006/= holds pt10, the old =model/= and the old manifests.
+- 10-06: beef on the sink sketch: /"call it models. and add another topography for guides."/ — =model= → =models= (the drone), =guides= new (the guide); sinks split by ontology; traps 8 (cross-topography links stub owned rows — fork 9 again) and 9 (the rename's two manifests + orphan mode row) measured from =traits/dataset.js= · =traits/datasink.js=.
+- 10-06 13:40: beef ruled forks 1–8 (table). Fork 7 — the dataset ⇄ datasink loop — reshapes the quest: M0 added, "seed" became the harvest that writes the topography's dataset files, pt10 cut at M0, the step table re-slugged to the parts that will exist (=frame_root= · =motor_arm= · =frame_bottom= · =frame_top=). Fork 9 opened (a drained row's owner). The VTX settled from manual p27 against his screenshot.
+- 10-06: forks explained, fork 8 gains =droneaid/seed/=, fork 7 the http road; sources + instance measured into terrain. beef: /"ok. we will do that process now."/
+- 10-06: both guide modes responsive; the stage kit back byte-equal to its original after the =compact= cut was reverted.
 - 09-24: m67 and assembly-guide were sunset into =done/= on beef's /"these three are one"/. Their open walks, owed items and one red moved into =* carried=.
 
 * release

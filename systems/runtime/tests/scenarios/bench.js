@@ -25,9 +25,9 @@
 import paladin from "@vivalence/paladin";
 import {
   Url, Connection, Mode, Path, Aperture, Vector, Controller, Span, middleware,
-  shard, shape, is, array,
+  shard, shape, is, array, Status,
 } from "@vivalence/typology";
-import { Daemon, lifecycle, sets, ActivityEntity, ActivityRepository, UserEntity, BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/runtime";
+import { Daemon, Lighthouse, lifecycle, sets, ActivityEntity, ActivityRepository, UserEntity, BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/runtime";
 import { provider as memoryDatamap } from "./datamap.js";
 import { assemble } from "./fixtures.js";
 
@@ -146,23 +146,13 @@ export async function bench(spec = {}) {
   };
 
   // ── services ──────────────────────────────────────────────────────
-  // lighthouse → daemon.lighthouse (auth provider for shard.secure.authority)
+  // lighthouse → daemon.lighthouse (the Lighthouse prototype, F19)
   // hallucinator → daemon.hallucinator (AI provider for HARNESSED trait)
   // consume → daemon.services[slug] (external services like NLP)
   const services = spec.services || {};
 
-  if (services.lighthouse) {
-    daemon.lighthouse = services.lighthouse;
-    daemon.aperture.use(shard.secure.authority(daemon.lighthouse));
-  } else {
-    // Default: permissive auth that accepts any token
-    daemon.aperture.use(async (ctx, next) => {
-      ctx.authority = {
-        authenticate: async () => ({ getUser: async () => user }),
-      };
-      await next();
-    });
-  }
+  daemon.lighthouse = services.lighthouse ??
+    new Lighthouse({ call: async () => ({}), fetch: async () => ({ ok: true, body: { identity: { id: user.id } } }) }, { users: { findOne: async () => user }, status: new Status("RUNNING"), daemon: daemon.slug, remote: daemon.url.absolute });
 
   if (services.hallucinator) {
     daemon.hallucinator = services.hallucinator;

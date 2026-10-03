@@ -1,1 +1,0 @@
-Dead — `systems/runtime/daemon/traits/` has zero implementations and `stagger` only installs what the traits table carries, so a mode declaring it gets nothing. Stripped it from `commons/instances/hello-world/mode.viva.js`.

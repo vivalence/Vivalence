@@ -6,6 +6,7 @@ const WIDGETS = {
   Composer: new URL("app/panels/a/widgets/Composer.svelte", SRC),
   Dictaphone: new URL("app/panels/a/widgets/Dictaphone.svelte", SRC),
   Tune: new URL("app/widgets/Tune.svelte", SRC),
+  Faculty: new URL("app/widgets/Faculty.svelte", SRC),
   Key: KIT.Key,
   Segmented: KIT.Segmented,
   Stepper: KIT.Stepper,

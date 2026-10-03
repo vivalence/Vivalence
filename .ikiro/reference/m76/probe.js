@@ -5,6 +5,9 @@ import { AuthenticatorEmbedSchema, IdentitySchema, DaemonSchema, TerminalSchema 
 import { attachment as exported } from "./commons/lighthouses/multiplayer/attachment/index.js";
 import { stagger } from "./systems/runtime/gestalten/belt/stagger.js";
 import * as serviceTraits from "./systems/runtime/lifecycle/service/traits/index.js";
+import { RULES, probe as integrity } from "./subsystems/paladin/prototypes/ledger/integrity.js";
+import { manifest as lighthouseManifest } from "./commons/lighthouses/multiplayer/multiplayer.viva.js";
+import provider from "./commons/lighthouses/multiplayer/provider/index.js";
 
 const results = [];
 const check = (name, ok, detail = "") => results.push({ name, ok: !!ok, detail });
@@ -26,7 +29,10 @@ const mask = {
   secrets: { jwt: "probe-secret-probe-secret-probe-secret" },
   mountpoint: { branch: (p) => ({ absolute: here + p.replace(/^\//, "") }) },
 };
-const service = { attachment: new Aperture(), manifest: { type: "lighthouse", slug: "multiplayer" }, datamap, entities: datamap.entities, release: [] };
+const service = { attachment: new Aperture(), manifest: { type: "lighthouse", slug: "multiplayer" }, datamap, entities: datamap.entities };
+service.twitch = new Vector();
+service.twitch.branch("/after").use(shard.datamap.detached(datamap));
+datamap.registerSubscriber(shape.subscriber(service.twitch));
 service.attachment
   .use(shard.datamap.inject(datamap))
   .use(shard.context.bind("service", service))
@@ -34,12 +40,11 @@ service.attachment
 service.attachment.graft(exported);
 const die = { service };
 check("the exported aperture grafts (trie carries /auth · /entities · /metadata · /datamap)", ["auth", "entities", "metadata"].every((n) => [...service.attachment.trie.keys()].includes(n)), [...service.attachment.trie.keys()].join(","));
-check("tokens not minted before the first request", service.jwt === undefined);
 {
-  const subject = { manifest: { traits: ["SERVICE", "DATAMAP", "ATTACHED"] }, attachment: new Aperture(), controller: { status: "RUNNING" } };
+  const subject = { manifest: { traits: ["SERVICE", "PROVIDER", "DATAMAP", "ATTACHED"] }, attachment: new Aperture(), controller: { status: "RUNNING" } };
   const fake = { ...serviceTraits, DATAMAP: async (svc) => { svc.datamap = datamap; svc.attachment.use(shard.datamap.inject(datamap)); return { terminate: () => {} }; } };
   const finalizers = await stagger(subject, { attachment: exported, statics: {} }, fake);
-  check("F14: stagger over [SERVICE, DATAMAP, ATTACHED] → 2 terminators, 0 finalizers, doors grafted", subject.terminators?.length === 2 && finalizers.length === 0 && [...subject.attachment.trie.keys()].includes("auth"), `terminators ${subject.terminators?.length} finalizers ${finalizers.length} trie ${[...subject.attachment.trie.keys()].join(",")}`);
+  check("F14: stagger over [SERVICE, PROVIDER, DATAMAP, ATTACHED] → 1 terminator (the orm), 0 finalizers, doors grafted", subject.terminators?.length === 1 && finalizers.length === 0 && [...subject.attachment.trie.keys()].includes("auth"), `terminators ${subject.terminators?.length} finalizers ${finalizers.length} trie ${[...subject.attachment.trie.keys()].join(",")}`);
 }
 
 const handler = shape.http(die.service.attachment);
@@ -50,7 +55,7 @@ const as = (token) => new Connection(new Url("http://test"), shard.transmitter.i
 });
 
 const meta = await conn.call("/metadata/datamap");
-check("tokens minted once on the first request · release holds the sweep teardown", service.jwt && service.release.length === 1, String(service.release.length));
+check("no token store: the service carries no jwt state", service.jwt === undefined && service.release === undefined);
 check("/metadata/datamap", meta?.terminal && meta?.identity && meta?.daemon, Object.keys(meta ?? {}).join(","));
 check("/metadata/datamap: terminal.properties", meta?.terminal?.properties?.identity?.kind === "m:1" && meta?.terminal?.properties?.daemon?.kind === "m:1", JSON.stringify(meta?.terminal?.properties));
 check("/metadata/manifest", (await conn.call("/metadata/manifest"))?.slug === "multiplayer");
@@ -95,7 +100,7 @@ check("/entities/terminal/find: scoped to beef (1 row)", Array.isArray(theirs) &
 const override = await finn.call("/entities/terminal/find", { where: { identity: other.identity.id } });
 check("HOLE closed: client where.identity cannot widen the scope", Array.isArray(override) && override.length === 2 && override.every((row) => (row.identity?.id ?? row.identity) === signup.identity.id), `returned ${override?.length} rows, owners ${JSON.stringify([...new Set(override?.map((r) => r.identity?.id ?? r.identity))])} (finn only = scope wins)`);
 
-const daemon = await datamap.entities.daemon.create({ slug: "brazilian", url: "http://localhost:2501" });
+const daemon = await datamap.entities.daemon.create({ slug: "brazilian", remote: "http://localhost:2501", reported: "RUNNING" });
 await orm.em.flush();
 const identity = await datamap.entities.identity.findOneOrFail({ id: signup.identity.id }, { populate: ["daemons"] });
 identity.daemons.add(daemon);
@@ -104,7 +109,7 @@ const visible = await finn.call("/entities/daemon/find", { where: {} });
 check("/entities/daemon/find: through the pivot (finn sees 1)", visible?.length === 1 && visible[0].slug === "brazilian", JSON.stringify(visible?.map((d) => d.slug)));
 const hidden = await beef.call("/entities/daemon/find", { where: {} });
 check("/entities/daemon/find: beef has no pivot row → 0", Array.isArray(hidden) && hidden.length === 0, String(hidden?.length));
-const write = (await finn.fetch("/entities/daemon/create", { data: { slug: "x", url: "http://x" } })).body;
+const write = (await finn.fetch("/entities/daemon/create", { data: { slug: "x", remote: "http://x" } })).body;
 check("/entities/daemon: create door closed (only read verbs)", write == null || write?.code === "NOT_FOUND" || write?.status === "ERROR" || write?.error, JSON.stringify(write));
 
 const seated = await finn.call("/entities/terminal/updateOne", { where: { id: t1.id }, data: { daemon: daemon.id, thread: "0192-thread" } });
@@ -116,7 +121,50 @@ check("daemon removed → terminal.daemon set null (thread string stays)", (unse
 const pivot = await orm.em.getConnection().execute(`select name from sqlite_master where type='table' order by name`);
 check("pivot table named Identity_daemons", pivot.some((r) => r.name === "Identity_daemons"), pivot.map((r) => r.name).join(","));
 
-for (const release of service.release) release();
+// F18 · F19 — announce (open, status rides it) · enroll writes the pivot · no prune
+const announced = await conn.call("/daemons/announce", { slug: "rhythm", remote: "http://localhost:2501", reported: "MOUNTING" });
+check("/daemons/announce: no token → daemon row with reported status", announced?.slug === "rhythm" && announced?.reported === "MOUNTING" && typeof announced?.id === "string", JSON.stringify(announced));
+const reannounced = await conn.call("/daemons/announce", { slug: "rhythm", remote: "http://localhost:2502", reported: "RUNNING" });
+check("/daemons/announce: same slug → same row, remote and reported moved (ensure)", reannounced?.id === announced?.id && reannounced?.remote === "http://localhost:2502" && reannounced?.reported === "RUNNING", JSON.stringify(reannounced));
+const stopped = await conn.call("/daemons/announce", { slug: "rhythm", remote: "http://localhost:2502", reported: "STOPPED" });
+check("/daemons/announce: STOPPED lands; updatedAt is the age", stopped?.reported === "STOPPED" && typeof stopped?.updatedAt === "string", JSON.stringify({ reported: stopped?.reported, updatedAt: stopped?.updatedAt }));
+const users = { rows: [], upsert: async (row) => { users.rows.push(row); }, findOne: async ({ id }) => users.rows.find((r) => r.id === id) ?? null };
+const status = { code: "RUNNING", $transient: { subscribe: (fn) => { fn(0); return () => {}; } } };
+const lighthouse = provider({ statics: {} }, { users, connection: conn, status, daemon: "rhythm", remote: "http://localhost:2502" });
+await lighthouse.announced;
+const handle = await lighthouse.authenticate(signup.authority.access);
+const enrolled = await handle.enroll();
+const granted = await finn.call("/entities/daemon/find", { where: {} });
+check("provider → Lighthouse: construction announces (RUNNING on the row); enroll → /auth/enroll writes the pivot (finn sees rhythm) and mints the user", enrolled?.id === signup.identity.id && granted?.some((d) => d.slug === "rhythm" && d.reported === "RUNNING"), JSON.stringify({ user: enrolled, daemons: granted?.map((d) => [d.slug, d.reported]) }));
+await handle.enroll();
+const again = await finn.call("/entities/daemon/find", { where: {} });
+check("enroll twice → one pivot row", again?.filter((d) => d.slug === "rhythm").length === 1, JSON.stringify(again?.map((d) => d.slug)));
+const stale = (await conn.fetch("/auth/enroll", { access: "not-a-token", daemon: "rhythm" })).body;
+check("/auth/enroll: stale token refused", stale?.status === "ERROR" && stale?.error?.code === "INVALID_TOKEN", JSON.stringify(stale));
+const unknown = (await conn.fetch("/auth/enroll", { access: signup.authority.access, daemon: "ghost" })).body;
+check("/auth/enroll: unannounced daemon refused", unknown?.status === "ERROR" && unknown?.error?.code === "DAEMON_NOT_FOUND", JSON.stringify(unknown));
+const ghost = provider({ statics: {} }, { users, connection: conn, status, daemon: "ghost", remote: "http://ghost" });
+await ghost.announced;
+const announcedByConstruction = await datamap.entities.daemon.findOne({ slug: "ghost" });
+check("a Lighthouse announces its daemon at construction (ghost row exists, status RUNNING)", announcedByConstruction?.reported === "RUNNING" && announcedByConstruction?.remote === "http://ghost", JSON.stringify(announcedByConstruction && { slug: announcedByConstruction.slug, reported: announcedByConstruction.reported }));
+const pruned = (await conn.fetch("/daemons/prune", { origin: "http://localhost:2502", keep: [] })).body;
+check("/daemons/prune does not exist (no pruning — unsafe)", pruned == null || pruned?.status === "ERROR" || pruned?.error, JSON.stringify(pruned));
+
+// F17 — paladin integrity: PROVIDER names the provider export, ATTACHED the attachment, SERVICE wants a control vector unless ATTACHED
+const faults = (module) => { const held = []; integrity(RULES)(module, { fault: (error) => held.push(error.message) }); return held; };
+const sound = { manifest: lighthouseManifest, attachment: exported, provider: () => {} };
+check("integrity: the lighthouse module passes (SERVICE · PROVIDER · DATAMAP · ATTACHED, attachment + provider exports)", faults(sound).length === 0, faults(sound).join(" | "));
+const noProvider = { manifest: lighthouseManifest, attachment: exported };
+check("integrity: PROVIDER without a provider export faults", faults(noProvider).some((f) => f.startsWith("PROVIDER: no provider export")), faults(noProvider).join(" | "));
+const bare = { manifest: { slug: "bare", type: "service", traits: ["SERVICE"] } };
+check("integrity: SERVICE that is not ATTACHED wants a control export", faults(bare).some((f) => f.startsWith("SERVICE: no control export")), faults(bare).join(" | "));
+const controlled = { manifest: { slug: "ctl", type: "service", traits: ["SERVICE"] }, control: new Vector() };
+check("integrity: SERVICE with a control vector and no ATTACHED passes", faults(controlled).length === 0, faults(controlled).join(" | "));
+const orphan = { manifest: { slug: "orphan", type: "service", traits: ["PROVIDER"] }, provider: () => {} };
+check("integrity: PROVIDER without SERVICE faults", faults(orphan).some((f) => f.startsWith("PROVIDER: not a SERVICE")), faults(orphan).join(" | "));
+const oldWord = { manifest: { slug: "old", type: "service", traits: ["SERVICE", "ATTACHED"] }, aperture: new Vector() };
+check("integrity: ATTACHED names attachment, an aperture export no longer satisfies it", faults(oldWord).some((f) => f.startsWith("ATTACHED: no attachment export")), faults(oldWord).join(" | "));
+
 await orm.close();
 const pass = results.filter((r) => r.ok).length;
 for (const r of results) console.log(`${r.ok ? "PASS" : "FAIL"}  ${r.name}${r.detail ? `  — ${r.detail}` : ""}`);

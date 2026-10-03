@@ -2,12 +2,12 @@ import { shard, v } from "@vivalence/typology";
 
 export const userspace = async (die, next) => {
   const branch = die.daemon.aperture.branch("/userspace");
-  branch.use(shard.secure.authenticate());
-  branch.open("/handshake", async (ctx) => ({ success: true, user: await ctx.identity.enroll() }));
+  branch.use(die.daemon.lighthouse.shard.authenticate);
+  branch.open("/handshake", async (ctx) => ({ success: true, user: await ctx.lighthouse.enroll() }));
 
   const owned = branch
     .branch("/entities")
-    .use(shard.secure.authorize())
+    .use(die.daemon.lighthouse.shard.authorize)
     .use(die.daemon.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
 
   owned

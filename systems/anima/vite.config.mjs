@@ -98,7 +98,7 @@ function beacon() {
   return {
     name: "viva-status-beacon",
     configureServer(server) {
-      server.httpServer?.once("listening", () => console.log(new Status("alive")));
+      server.httpServer?.once("listening", () => console.log(new Status("running")));
     },
   };
 }

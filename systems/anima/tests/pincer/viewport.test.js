@@ -24,11 +24,14 @@ specimen.describe("bridge.viewport — home and back carry their turn", () => {
     });
   });
 
-  specimen.it("a fresh boot gives home and back the boot's turn", () => {
+  specimen.it("a fresh boot places the joint for its screen and gives home and back that turn", () => {
     withSaved(null, () => {
       const bridge = new Bridge();
       bootLayout(bridge);
-      specimen.expect([bridge.layout.previous.orientation, bridge.layout.standard.orientation]).toEqual([0, 0]);
+      const turn = bridge.layout.orientation;
+      specimen.expect([0, 90, 180, 270].includes(turn)).toBe(true);
+      specimen.expect([bridge.layout.previous.orientation, bridge.layout.standard.orientation]).toEqual([turn, turn]);
+      specimen.expect(bridge.layout.previous).toEqual({ ...bridge.layout.pincer, orientation: turn });
     });
   });
 

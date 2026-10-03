@@ -29,7 +29,7 @@ export function conversation({ terminal, box }) {
   }
 
   function send(parts, { tune } = {}) {
-    const thread = terminal.thread;
+    const thread = terminal.$thread.get();
     down?.abort();
     down = new AbortController();
     $pending.set(true);

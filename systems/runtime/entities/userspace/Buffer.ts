@@ -101,12 +101,18 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
       kind: "m:n",
       entity: () => LiteralEntity,
       owner: true,
+      pivotTable: "buffer_literals",
+      joinColumns: ["buffer_entity_id"],
+      inverseJoinColumns: ["literal_entity_id"],
     },
 
     symbols: {
       kind: "m:n",
       entity: () => SymbolEntity,
       owner: true,
+      pivotTable: "buffer_symbols",
+      joinColumns: ["buffer_entity_id"],
+      inverseJoinColumns: ["symbol_entity_id"],
     },
   },
 });

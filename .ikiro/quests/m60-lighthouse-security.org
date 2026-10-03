@@ -1,6 +1,7 @@
 #+title: m60 lighthouse security — two principals, one verify path: the system key is exchanged for a token, signup is invite by default, the entities sit behind the same gates the daemon runs, and the store holds hashes
 #+filetags: :m60:lighthouse:security:jwt:secure:typology:runtime:ghost:anima:commons:ledger:invite:signup:tangle:
 #+status: DESIGNED, nothing landed. Tangleable: every NEW file and every small replaced file is a `:tangle` block; the large files (`auth.js` · `init.js` · `Login.svelte` · the recipes) are `diff` hunks applied by hand. Sanity pass FOLDED (F12–F15): the scope wins in `scoped()` · `ctx.identities` · per-verb throttle · `jti` on every token · P-scope-wins on both suites. Two forks owed to beef before M1 (typology is holy): the name of the one new `secure` verb, and the default signup policy. Code on go.
+#+states: — (derived)
 #+phase: designed
 #+progress: 0/5
 #+next: beef — rule F-name (`secure.claim`) and F-default (`invite`); then "go" per milestone

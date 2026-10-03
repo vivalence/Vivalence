@@ -3,6 +3,7 @@ import { shard } from "@vivalence/typology";
 import { logger } from "$telemetry";
 import { Dataspace } from "../prototypes/dataspace.js";
 import { DaemonDossier } from "../entities/daemon/index.js";
+import { TerminalDossier } from "../entities/terminal.js";
 
 const STORAGE_KEY = (url) => `lighthouse:${url}`;
 
@@ -45,7 +46,7 @@ export class Lighthouse {
       .use(shard.connection.track(connection));
 
     this.dataspace = new Dataspace({
-      entities: [DaemonDossier],
+      entities: [DaemonDossier, TerminalDossier],
       connection: this.connection,
       seed: seedLighthouse(this),
     });
@@ -241,9 +242,11 @@ export async function populate(lighthouse) {
 
   lighthouse.$status.set({ code: "POPULATING" });
   lighthouse.$populating = (async () => {
-    lighthouse.manifest = await lighthouse.connection.call("/manifest");
+    lighthouse.manifest = await lighthouse.connection.call("/metadata/manifest");
+    await lighthouse.dataspace.init();
     const mounting = logger.entry("daemons").open();
-    await lighthouse.dataspace.populate(["daemon"]);
+    await lighthouse.dataspace.populate(["daemon", "terminal"]);
+    lighthouse.dataspace.terminal.subscribe();
     lighthouse.$daemons.set([...lighthouse.dataspace.daemon.$entities.get()]);
     for (const daemon of lighthouse.$daemons.get()) {
       let code = daemon.status.reflection.code;

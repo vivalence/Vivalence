@@ -1,0 +1,23 @@
+mountpoint | db KiB | tables | rows(Turn·Buffer·Literal·Identity) | m:1 FKs on update cascade | pivots | migrations (pragma · down) | snapshot | _mikro_migrations
+chess · daemon_chess | 11796 | 14 | 2·8·4823·- | 17 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 2 (1 · 0) | 1 | 2
+chess · service_multiplayer | 36 | 3 | -·-·-·1 | 0 | - | 1 (0 · 0) | 1 | 1
+droneaid · daemon_droneaid | 488 | 13 | 27·14·63·- | 13 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 3 (2 · 0) | 1 | 3
+droneaid · service_multiplayer | 68 | 5 | -·-·-·2 | 2 | Identity_daemons | 2 (0 · 0) | 1 | 2
+hello-world · daemon_hello | 1228 | 13 | 63·9·0·- | 13 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 4 (2 · 0) | 1 | 4
+hello-world · service_multiplayer | 36 | 3 | -·-·-·1 | 0 | - | 1 (0 · 0) | 1 | 1
+language-learning · daemon_brazilian | 28656 | 15 | 30·273·2223·- | 17 | symbol_literals,buffer_symbols,buffer_literals,literal_uses | 20 (20 · 0) | 1 | 28
+language-learning · daemon_italian | 19484 | 15 | 8·3·6583·- | 20 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 1 (0 · 0) | 1 | 1
+language-learning · daemon_playground | 240 | 13 | 0·0·0·- | 10 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 11 (7 · 0) | 1 | 11
+language-learning · daemon_spanish | 6640 | 15 | 2·13·1699·- | 17 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 4 (2 · 0) | 1 | 4
+language-learning · daemon_standalone | 224 | 14 | 0·0·2·- | 11 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 1 (0 · 0) | 1 | 1
+language-learning · service_multiplayer | 44 | 3 | -·-·-·9 | 0 | - | 3 (0 · 0) | 1 | 3
+media · daemon_media | 220 | 13 | 0·1·5·- | 13 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 1 (0 · 0) | 1 | 1
+media · service_multiplayer | 36 | 3 | -·-·-·1 | 0 | - | 1 (0 · 0) | 1 | 1
+playground · daemon_playground | 232 | 13 | 31·1·0·- | 13 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 1 (0 · 0) | 1 | 1
+playground · service_multiplayer | 36 | 3 | -·-·-·1 | 0 | - | 1 (0 · 0) | 1 | 1
+strata · daemon_strata | 680 | 15 | 0·4·151·- | 15 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 1 (0 · 0) | 1 | 1
+strata · service_multiplayer | 68 | 5 | -·-·-·1 | 2 | Identity_daemons | 1 (0 · 0) | 1 | 1
+stucatch · daemon_stucatch | 472 | 13 | 0·2·283·- | 10 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 3 (2 · 0) | 1 | 3
+stucatch · service_multiplayer | 36 | 3 | -·-·-·1 | 0 | - | 1 (0 · 0) | 1 | 1
+vivalence · daemon_vcompany | 480 | 13 | 64·14·83·- | 13 | literal_uses,symbol_literals,buffer_symbols,buffer_literals | 2 (0 · 0) | 1 | 2
+vivalence · service_multiplayer | 36 | 3 | -·-·-·2 | 0 | - | 1 (0 · 0) | 1 | 1

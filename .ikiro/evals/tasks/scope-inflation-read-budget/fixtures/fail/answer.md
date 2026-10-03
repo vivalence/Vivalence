@@ -1,1 +1,0 @@
-Read up on ghost end to end — belt, prototypes, every trajectory, the tests, the runtime's lifecycle, paladin's ledger, the shards and the compacts — then landed `/count` on `systems/ghost/trajectories/instances/index.js`.

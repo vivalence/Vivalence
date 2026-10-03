@@ -1,6 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import { atom } from "nanostores";
-import { Terminal } from "../../src/typology/entities/terminal.js";
+import { Terminal, mountStall } from "../../src/typology/entities/terminal.js";
 import { ModeTraits } from "../../src/typology/entities/mode/index.js";
 
 const { describe, it, expect } = specimen;
@@ -37,8 +37,9 @@ const thread = (id, buffers, create) => {
 };
 
 const seated = (held) => {
-  const terminal = Terminal({ id: "x" });
-  terminal.thread = held;
+  const terminal = new Terminal();
+  mountStall(terminal);
+  terminal.$thread.set(held);
   return terminal;
 };
 
@@ -48,8 +49,8 @@ describe("an entrypoint mode opens its buffer when it is set", () => {
     const terminal = seated(held);
     await ModeTraits.standalone.open(terminal, entry);
     expect(held.minted).toEqual([{ mode: "m1", thread: "t1", data: {} }]);
-    expect(terminal.buffer).toBe(held.$buffers.get()[0]);
-    expect(terminal.buffer.id).toBe("b1");
+    expect(terminal.$buffer.get()).toBe(held.$buffers.get()[0]);
+    expect(terminal.$buffer.get().id).toBe("b1");
   });
 
   it("a thread that already holds buffers on the mode reopens its last one and mints none", async () => {
@@ -61,7 +62,7 @@ describe("an entrypoint mode opens its buffer when it is set", () => {
     const terminal = seated(held);
     await ModeTraits.standalone.open(terminal, entry);
     expect(held.minted).toEqual([]);
-    expect(terminal.buffer.id).toBe("b2");
+    expect(terminal.$buffer.get().id).toBe("b2");
   });
 
   it("a terminal moved to another thread while the mint is in flight keeps that thread's screen", async () => {
@@ -69,9 +70,9 @@ describe("an entrypoint mode opens its buffer when it is set", () => {
     const held = thread("t1", [], (fields) => new Promise((resolve) => (settle = () => resolve(fields))));
     const terminal = seated(held);
     const opening = ModeTraits.standalone.open(terminal, entry);
-    terminal.thread = thread("t2", []);
+    terminal.$thread.set(thread("t2", []));
     settle();
     await opening;
-    expect(terminal.buffer).toBe(null);
+    expect(terminal.$buffer.get()).toBe(null);
   });
 });

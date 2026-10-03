@@ -1,1 +1,0 @@
-Added `/hello/time` to `commons/instances/hello-world/tools/doors.js` — ISO clock plus the process's IANA zone, with a short note above the door on why both are returned (ISO is UTC by design; the page picks).

@@ -1,10 +1,11 @@
 <script>
   import { getContext } from "svelte";
   import { chain, stores } from "@vivalence/anima";
-  import { Key, Section } from "@vivalence/drapes";
+  import { Key } from "@vivalence/drapes";
   import { TERMINALS } from "$client";
+  import Card from "../../c/cards/Card.svelte";
 
-  let { open = true, ontoggle = null } = $props();
+  let { ...chrome } = $props();
 
   const SIDES = { top: "↑", right: "→", bottom: "↓", left: "←" };
   const SHARES = [0.18, 0.28, 0.36, 0.44, 0.52, 0.64, 0.8, 1];
@@ -19,8 +20,8 @@
   const held = () => terminals.active?.$dock;
 </script>
 
-<Section label="dock" count={harnessed && $dock ? `${Math.round(share * 100)}%` : null} {open} {ontoggle} />
-{#if open}
+<Card label="dock" meta={harnessed && $dock ? `${Math.round(share * 100)}%` : null} {...chrome}>
+  <div class="card-stack">
   {#if !$thread}
     <span class="none">no thread</span>
   {:else if !harnessed || !$dock}
@@ -52,7 +53,8 @@
       <Key size="row" led latched={$dock.full} label="full" onclick={() => stores.bridge.setDockFull(held())} />
     </div>
   {/if}
-{/if}
+  </div>
+</Card>
 
 <style>
   .none {

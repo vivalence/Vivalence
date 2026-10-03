@@ -154,7 +154,7 @@ export class Gesture {
       }
     }
 
-    if (this.$dragging.get() && !this.layout.$locked.get()) {
+    if (this.$dragging.get()) {
       this.layout.pincer = {
         x: this.approach("x", this.state.startPincerX + deltaX, viewport.width),
         y: this.approach("y", this.state.startPincerY + deltaY, viewport.height),
@@ -203,7 +203,6 @@ export class Gesture {
 
     if (this.$dragging.get()) {
       this.$dragging.set(false);
-      if (this.layout.$locked.get()) return;
       this.fling(event);
       this.layout.previous = { x: this.state.startPincerX, y: this.state.startPincerY, orientation: this.layout.$orientation.get() };
       this.bridge.save();
@@ -226,10 +225,6 @@ export class Gesture {
   };
 
   handleTaps(count) {
-    if (this.layout.$locked.get()) {
-      this.pulse("tap3");
-      return;
-    }
     if (this.view.$full.get()) {
       if (count === 1) this.view.full = false;
       else this.$autoHide.set(!this.$autoHide.get());
@@ -257,10 +252,6 @@ export class Gesture {
   }
 
   seek() {
-    if (this.layout.$locked.get()) {
-      this.pulse("tap3");
-      return;
-    }
     this.place(this.layout.$standard.get(), "tap2");
     this.bridge.save();
   }
@@ -296,7 +287,7 @@ export class Gesture {
     const angle = ((Math.atan2(vectorY, vectorX) * 180) / Math.PI + 360) % 360;
     const reachable = length > TOGGLE_REACH.from && length < TOGGLE_REACH.to;
     const toggle = (reachable && Object.keys(TOGGLES).find((name) => arc(angle, TOGGLES[name]) < TOGGLE_ARC)) || null;
-    if (length < DEAD_ZONE || toggle || this.layout.$locked.get()) {
+    if (length < DEAD_ZONE || toggle) {
       this.restore(radial.back);
       this.$radial.set({ ...radial, snap: orientationToSnap(radial.back.orientation), length, reach: 0, toggle, rotate: false });
       return;
@@ -381,7 +372,7 @@ export class Gesture {
 
   spoke = (event, angle) => {
     event.stopPropagation();
-    if (!this.$radial.get().sticky || this.layout.$locked.get()) return;
+    if (!this.$radial.get().sticky) return;
     const orientation = snapToOrientation(angle);
     this.layout.pincer = this.turned(orientation);
     this.layout.orientation = orientation;
@@ -394,14 +385,6 @@ export class Gesture {
     if (!this.$radial.get().sticky) return;
     this.$radial.set(CLOSED);
     this.bridge.toggle(name);
-    this.bridge.save();
-  };
-
-  lock = (event) => {
-    event.stopPropagation();
-    if (!this.$radial.get().sticky) return;
-    this.$radial.set(CLOSED);
-    this.layout.locked = !this.layout.$locked.get();
     this.bridge.save();
   };
 

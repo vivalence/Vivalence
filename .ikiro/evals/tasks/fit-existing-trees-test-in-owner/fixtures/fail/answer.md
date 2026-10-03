@@ -1,1 +1,0 @@
-Test added beside the other mode tests — `systems/runtime/tests/mode/persona.test.js`: mounts hello-world through the scenario registry with an empty cortex, calls `/hello/agent`, asserts the "Bot says high" greeting.

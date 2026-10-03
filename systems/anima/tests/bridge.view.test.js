@@ -17,49 +17,45 @@ const withSaved = (saved, run) => {
 
 const stored = () => JSON.parse(globalThis.localStorage.getItem(STORAGE_KEY));
 
-specimen.describe("bridge.view — the fold of a rail and the place of its strip", () => {
-  specimen.it("a save from before either key boots page · bottom", () => {
+specimen.describe("bridge.view — the place of the strip", () => {
+  specimen.it("a save from before the key boots bottom", () => {
     withSaved({ view: { theme: "parchment", f: "buffers", d: "outside", "d.threads": true } }, () => {
       const bridge = new Bridge();
-      specimen.expect([bridge.view.fold, bridge.view.strip]).toEqual(["page", "bottom"]);
+      specimen.expect(bridge.view.strip).toBe("bottom");
       specimen.expect(bridge.view.theme).toBe("parchment");
     });
   });
 
-  specimen.it("no save at all boots page · bottom", () => {
+  specimen.it("no save at all boots bottom", () => {
     withSaved(null, () => {
       const bridge = new Bridge();
-      specimen.expect([bridge.view.fold, bridge.view.strip]).toEqual(["page", "bottom"]);
+      specimen.expect(bridge.view.strip).toBe("bottom");
     });
   });
 
-  specimen.it("a saved stack · top is read back", () => {
-    withSaved({ view: { fold: "stack", strip: "top" } }, () => {
+  specimen.it("a saved top is read back", () => {
+    withSaved({ view: { strip: "top" } }, () => {
       const bridge = new Bridge();
-      specimen.expect([bridge.view.fold, bridge.view.strip]).toEqual(["stack", "top"]);
+      specimen.expect(bridge.view.strip).toBe("top");
     });
   });
 
   specimen.it("a value outside the two falls to the default", () => {
     for (const value of ["accordion", "free", "left", "", null, 0, true, ["stack"]]) {
-      withSaved({ view: { fold: value, strip: value } }, () => {
+      withSaved({ view: { strip: value } }, () => {
         const bridge = new Bridge();
-        specimen.expect([value, bridge.view.fold, bridge.view.strip]).toEqual([value, "page", "bottom"]);
+        specimen.expect([value, bridge.view.strip]).toEqual([value, "bottom"]);
       });
     }
   });
 
-  specimen.it("setFold and setStrip write the store and the save, and refuse an unknown name", () => {
+  specimen.it("setStrip writes the store and the save, and refuses an unknown name", () => {
     withSaved(null, () => {
       const bridge = new Bridge();
-      bridge.setFold("stack");
       bridge.setStrip("top");
-      specimen.expect([bridge.view.fold, bridge.view.strip]).toEqual(["stack", "top"]);
-      specimen.expect([stored().view.fold, stored().view.strip]).toEqual(["stack", "top"]);
-      bridge.setFold("free");
+      specimen.expect([bridge.view.strip, stored().view.strip]).toEqual(["top", "top"]);
       bridge.setStrip("sideways");
-      specimen.expect([bridge.view.fold, bridge.view.strip]).toEqual(["page", "bottom"]);
-      specimen.expect([stored().view.fold, stored().view.strip]).toEqual(["page", "bottom"]);
+      specimen.expect([bridge.view.strip, stored().view.strip]).toEqual(["bottom", "bottom"]);
     });
   });
 
@@ -67,18 +63,18 @@ specimen.describe("bridge.view — the fold of a rail and the place of its strip
     withSaved({ view: { d: "outside", "d.threads": true, "d.intents": true, "d.modes": true, f: "buffers", theme: "porcelain" } }, () => {
       const bridge = new Bridge();
       bridge.save();
-      specimen.expect(Object.keys(stored().view).sort()).toEqual(["fold", "fontSize", "hair", "strip", "theme"]);
+      specimen.expect(Object.keys(stored().view).sort()).toEqual(["fontSize", "hair", "strip", "theme"]);
       specimen.expect(stored().view.theme).toBe("porcelain");
     });
   });
 
-  specimen.it("the hairline bones and the pin lock survive a reload; the full stage never does", () => {
-    withSaved({ locked: true, view: { hair: true, full: true } }, () => {
+  specimen.it("the hairline bones survive a reload; the full stage never does", () => {
+    withSaved({ view: { hair: true, full: true } }, () => {
       const bridge = new Bridge();
-      specimen.expect([bridge.view.hair, bridge.layout.locked, bridge.view.full]).toEqual([true, true, false]);
+      specimen.expect([bridge.view.hair, bridge.view.full]).toEqual([true, false]);
       bridge.view.full = true;
       bridge.save();
-      specimen.expect([stored().view.hair, stored().locked, stored().view.full]).toEqual([true, true, undefined]);
+      specimen.expect([stored().view.hair, stored().view.full]).toEqual([true, undefined]);
     });
   });
 });

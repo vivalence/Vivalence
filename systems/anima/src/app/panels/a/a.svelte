@@ -60,11 +60,10 @@
   );
   const consult = (name) => {
     if (!name) return;
-    bridge.panes.tree = stores.bridge.panes.open(bridge.panes.tree, "harness");
-    bridge.panes.expanded = "harness";
+    bridge.panels.c.tree = stores.bridge.panes.open(bridge.panels.c.tree, "harness", stores.bridge.railGrain(bridge));
+    bridge.panels.c.expanded = "harness";
     bridge.save();
   };
-
   let last = null;
   function onSeamDown(event) {
     event.preventDefault();
@@ -90,7 +89,7 @@
 {#snippet vacant()}
   <div class="standing">
     {#if $settling}
-      <Empty spinner verb="settling · {$settling.thread ? 'thread' : 'buffer'}" />
+      <Empty spinner verb="settling · thread" />
     {:else if !$thread}
       <Empty verb="no thread" trace="pick a mode in navigation · or a thread" />
     {:else if conversational}

@@ -6,7 +6,7 @@ const PLACES = {
   "client.html": ["1"],
   "app/panels/a/a.svelte": ["1"],
   "app/panels/b/b.svelte": ["0"],
-  "app/panels/c/c.svelte": ["0", "1"],
+  "app/panels/c/c.svelte": ["0"],
   "app/panels/g/g.svelte": ["0"],
   "app/panels/h/h.svelte": ["3"],
   "app/bones/crown/crown.svelte": ["0"],
@@ -50,26 +50,25 @@ specimen.describe("zones — a place takes its zone by what it is", () => {
     specimen.expect(Deno.readTextFileSync(`${SOURCE}client.html`).includes('<body data-zone="1">')).toBe(true);
   });
 
-  specimen.it("the chrome opens in zone 0: every bone and both rails; the thread pane's body alone is the body", () => {
+  specimen.it("the chrome opens in zone 0: every bone and both rails, and nothing under them opens another zone", () => {
     const chrome = Object.entries(PLACES).filter(([path]) => /bones\/|panels\/[bc]\//.test(path));
     specimen.expect(chrome).toHaveLength(6);
-    for (const [path, zones] of chrome) specimen.expect([path, zones[0]]).toEqual([path, "0"]);
-    const bodies = chrome.filter(([, zones]) => zones.some((zone) => zone !== "0"));
-    specimen.expect(bodies).toEqual([["app/panels/c/c.svelte", ["0", "1"]]]);
-    const rail = Deno.readTextFileSync(`${SOURCE}app/panels/c/c.svelte`);
-    specimen.expect(rail.includes('<div data-zone="1" class="thread-body"><PanelF /></div>')).toBe(true);
+    for (const [path, zones] of chrome) specimen.expect([path, [...new Set(zones)]]).toEqual([path, ["0"]]);
   });
 
-  specimen.it("the panes declare nothing: they sit in rail C's chrome, the thread pane's body in the box rail C opens for it", () => {
+  specimen.it("the cards declare nothing: they sit in rail C's chrome", () => {
     const panes = [
-      "app/panels/d/d.svelte",
-      "app/panels/e/e.svelte",
-      "app/panels/f/f.svelte",
-      "app/panels/c/widgets/Pane.svelte",
-      "app/panels/c/panes/Terminals.svelte",
-      "app/panels/c/panes/Mode.svelte",
-      "app/panels/c/panes/Buffer.svelte",
-      "app/panels/c/panes/Harness.svelte",
+      "app/panels/c/cards/Card.svelte",
+      "app/panels/c/cards/Row.svelte",
+      "app/panels/c/cards/Link.svelte",
+      "app/panels/c/cards/Terminals.svelte",
+      "app/panels/c/cards/Threads.svelte",
+      "app/panels/c/cards/Modes.svelte",
+      "app/panels/c/cards/Thread.svelte",
+      "app/panels/c/cards/Mode.svelte",
+      "app/panels/c/cards/Buffers.svelte",
+      "app/panels/c/cards/Buffer.svelte",
+      "app/panels/c/cards/Harness.svelte",
     ];
     for (const path of panes) {
       specimen.expect([path, Deno.statSync(`${SOURCE}${path}`).isFile, declared[path]]).toEqual([path, true, undefined]);

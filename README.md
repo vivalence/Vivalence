@@ -230,7 +230,7 @@ export const environment = v.environment({
   PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
 
   // Identity, authentication, and coordination
-  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED. Set it for a lighthouse on another host; unset, paladin computes this runtime's reach + the hosting service's seat.").group("addresses").optional(),
+  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED. Example: http://localhost:2501/attached/process/service/lighthouse/multiplayer").group("addresses"),
 
   // Svelte browser client
   VIVA_CLIENT_ANIMA_SERVE: v.url().desc("Where the anima browser client serves.").default("${VIVA_CLIENT_ANIMA_ORIGIN}/").group("addresses"),

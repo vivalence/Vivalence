@@ -1,4 +1,5 @@
-import { specimen, sleep, shape, shard, Url, Connection } from "@vivalence/typology";
+import { specimen, sleep, shape, shard, Url, Connection, Status } from "@vivalence/typology";
+import { Lighthouse } from "@vivalence/runtime";
 import { RequestContext } from "@mikro-orm/core";
 import { bench } from "./scenarios/bench.js";
 
@@ -11,15 +12,14 @@ specimen.describe("multiplex filter context", { sanitizeOps: false, sanitizeReso
   specimen.beforeAll(async () => {
     scenario = await bench({
       services: {
-        lighthouse: {
-          authenticate: async () => ({
-            getUser: async () => ({ id: "probe-user", roles: ["USER"] }),
-          }),
-        },
+        lighthouse: new Lighthouse(
+          { call: async () => ({}), fetch: async () => ({ ok: true, body: { identity: { id: "probe-user" } } }) },
+          { users: { findOne: async () => ({ id: "probe-user", roles: ["USER"] }) }, status: new Status("RUNNING"), daemon: "bench", remote: "http://bench" },
+        ),
       },
     });
     scenario.daemon.aperture
-      .use(shard.secure.authorize())
+      .use(scenario.daemon.lighthouse.shard.authorize)
       .use(shard.ambient.store((ctx) => ({ user: ctx.user })))
       .use(scenario.daemon.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
 

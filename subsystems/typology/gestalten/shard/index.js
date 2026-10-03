@@ -1,6 +1,5 @@
 export * as transmitter from "./transmitter.js";
 export * as context from "./context.js";
-export * as secure from "./secure.js";
 export * as connection from "./connection.js";
 export * as cors from "./cors.js";
 export * as caching from "./caching.js";

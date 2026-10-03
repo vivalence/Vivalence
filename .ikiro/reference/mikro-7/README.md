@@ -6,8 +6,11 @@ Collected 2026-10-02 by two opus agents (one upstream, one on the tree) plus the
 reference/mikro-7/
   README.md          this file — the map
   upstream.md        the v6→v7 upgrade guide condensed · CHANGELOG 7.0.0→7.2.3 · the issues · the deep changes · the two bug fixes verified
-  census.md          every @mikro-orm touchpoint in the repo + ~/.viva/registry, ranked by what breaks under v7
-  changelog-7x.txt   the raw CHANGELOG.md of mikro-orm v7.2.3, 7.0.0→7.2.3 (44 kB)
+  census.md          every @mikro-orm touchpoint in the repo + ~/.viva/registry, ranked by what breaks under v7 (10-02)
+  blast.md           the full blast 10-05 — breaks · shifts · verified safe · the 22 dbs · unknowns; supersedes census counts
+  blast/             its scripts + raw outputs (imports.py → crosscheck.py · sweep.py · ledger.py · exports.js · raw.js)
+  capabilities.md    what v7 ADDS, verdict per feature for this tree (10-05)
+  changelog-7x.txt   the raw CHANGELOG.md of mikro-orm v7.2.3 — INCOMPLETE: stops at 7.0.1 (line 544), the 7.0.0 section is missing (the tarball's CHANGELOG.md:840-977 has it)
   m6.txt · m7.txt    EntityMetadata.d.ts member lists, 6.6.7 vs 7.2.3 (the "metadata shape changed")
   issues/*.json      GitHub REST dumps: searches (sqlite · mig · upg · perf · filt · deno · es) and single issues i<N>.json
   smoke/             re-runnable Deno scripts against 7.2.3 (nodeModulesDir none; DENO_DIR anywhere)
@@ -22,6 +25,8 @@ reference/mikro-7/
     v6/v6mig.js      builds a v6 db THROUGH the v6 migrator (mikro_orm_migrations + snapshot) for the upgrade test
     v6up/v7.js       v7 migrator over the v6-migrated db: nothing pending, executed names match
     v6up/v7fresh*.js emit "js" migrations under Deno → `exports is not defined` (CJS); emit "ts" is ESM
+    defaults/v6.sql  brazilian's Turn · symbol_literals · literal_uses DDL with rows (build: sqlite3 x.db < v6.sql)
+    defaults/probe.js  <db> bare|pivots|pinned diff|apply|delete — what mikro 7's own defaults do to a v6 db (10-05)
 ```
 
 ## re-run

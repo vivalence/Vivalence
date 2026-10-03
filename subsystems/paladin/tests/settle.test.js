@@ -430,19 +430,32 @@ describe("settle — a kernel entry in object form fires at the pinhole like any
     expect(held.kernel[1].reference).toBeUndefined();
   });
 
-  it("a service attaches at /attached/process/service/<type>/<slug>; a lighthouse without a remote reaches the hosting service under this runtime; a declared remote stays", async () => {
+  it("a service attaches at /attached/process/service/<type>/<slug>; a declared lighthouse remote stays", async () => {
+    const instance = await mount(
+      (paladin) => ({
+        runtime: reaching(paladin), datamap: libsql, environment,
+        lighthouse: lighthouse(paladin),
+        services: [multiplayer(paladin)],
+        daemons: [daemon()],
+      }),
+      { ...SET, SECRET_VIVA_PROBE_A: "a-secret-long-enough-for-jwt" },
+    );
+    expect(instance.services[0].reference.absolute).toBe("/attached/process/service/lighthouse/multiplayer");
+    expect(instance.lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse");
+    expect(instance.daemons[0].lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse");
+    expect(instance.faults).toEqual([]);
+  });
+
+  it("a lighthouse without a remote is a fault — the hosting service is never guessed", async () => {
     const instance = await mount(
       (paladin) => ({
         runtime: reaching(paladin), datamap: libsql, environment,
         lighthouse: { module: "@commons/lighthouse/multiplayer" },
         services: [multiplayer(paladin)],
-        daemons: [daemon({ lighthouse: lighthouse(paladin) })],
+        daemons: [daemon()],
       }),
       { ...SET, SECRET_VIVA_PROBE_A: "a-secret-long-enough-for-jwt" },
     );
-    expect(instance.services[0].reference.absolute).toBe("/attached/process/service/lighthouse/multiplayer");
-    expect(instance.lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse/attached/process/service/lighthouse/multiplayer");
-    expect(instance.daemons[0].lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse");
-    expect(instance.faults).toEqual([]);
+    expect(instance.faults).toContain("lighthouse must have required properties statics");
   });
 });

@@ -1,0 +1,264 @@
+#+title: anima panels as cards — rails B and C from Panels.dc.html, the comp's start positions per screen
+#+filetags: :anima:design:bridge:
+#+status: BUILT 10-06 on beef's /"you go."/ — M0 · M1 · M2 landed on the real tree, uncommitted; anima `78 passed (362 steps) | 2 failed (5 steps)`, both reds pre-existing (`dock/stage.mount` 3 · `terminals.remote` 2); `anima/bundle` built; the three start screens walked headless, the two rails shot in stack · accordion; M3 on beef's screen owed; REWORK 10-06 /"i reworked the panes. update them"/ — the commission moves to `Anima.dc.html` (six panes, a `mode` card back), M4 · M5 designed below, wait on go; unnumbered — beef numbers it
+
+* intent
+
+/"rework the b and c panels for this design. its a massive simplifiation."/
+
+/"the design in another file has the starting positions for new page loads on different screen sizes. use them!"/
+
+The comp is `Panels.dc.html`: five cards in one auto-fit grid — =terminals · navigation · thread · buffer · harness=. No tree, no folds, no seams, no strip, no drag. Every colour in it is a dapper token already (`var(--surface-lift)` …, 0 hex literals), so the palette block the design skill asks for is empty: the comp speaks the m72 token space.
+
+The start positions live in `Anima.dc.html`'s logic class, `applyDef` (`missing.md:221-226` of the project): one placement per screen — desk · tablet · phone — each a pincer, an orientation and a home.
+
+* terrain — measured 10-06
+
+| file | lines | fate |
+|---|---|---|
+| `systems/anima/src/app/panels/c/c.svelte` | 403 | rewritten → a grid of five cards |
+| `systems/anima/src/app/panels/c/widgets/Pane.svelte` | 124 | deleted |
+| `systems/anima/src/app/panels/c/panes/Terminals.svelte` | 93 | → `cards/Terminals.svelte` |
+| `systems/anima/src/app/panels/c/panes/Mode.svelte` | 252 | deleted (folds into thread + buffer cards) |
+| `systems/anima/src/app/panels/c/panes/Buffer.svelte` | 106 | → `cards/Buffer.svelte`, trimmed |
+| `systems/anima/src/app/panels/c/panes/Harness.svelte` | 202 | → `cards/Harness.svelte`, rewritten |
+| `systems/anima/src/app/panels/d/d.svelte` | 665 | deleted → `cards/Navigation.svelte` |
+| `systems/anima/src/app/panels/e/e.svelte` | 232 | deleted → `cards/Thread.svelte` |
+| `systems/anima/src/app/panels/e/widgets/{Aimed,Labeled,Masked,Queueing}.svelte` | 86 · 79 · 63 · 91 | F2 |
+| `systems/anima/src/app/panels/e/widgets/intelligent.js` | 44 | kept — the INTELLIGENT writer |
+| `systems/anima/src/app/widgets/Tune.svelte` | 180 | kept (the dock reads it) |
+| `systems/anima/src/app/panels/f/f.svelte` | 310 | deleted (cursor + open move into the thread card) |
+| `systems/anima/src/app/panels/f/widgets/ActivitySection.svelte` · `ActivityRow.svelte` · `Buffer.bak.svelte` | 148 · 216 · 434 | deleted (activities live on the spine since 10-05) |
+| `systems/anima/src/app/panels/b/b.svelte` | 110 | F1 |
+| `systems/anima/src/app/panels/b/widgets/{Bridge,Lighthouse,Box,Dock}Section.svelte` | 124 · 142 · 107 · 88 | F1 |
+| `systems/anima/src/typology/stores/bridge/panes.js` | 152 | deleted |
+| `systems/anima/src/typology/stores/bridge/bridge.js` | 255 | `panels` · `view.strip` · `setStrip` · `start` · `home` out; the start-per-screen in |
+| `systems/anima/src/typology/stores/bridge/geometry.js` | 290 | F4 |
+| `systems/anima/tests/panes/tree.test.js` | 397 (49 its) | deleted with the algebra |
+| `systems/anima/tests/panes/rail.mount.test.js` | 343 (10 its) | → `cards.mount.test.js` |
+| `systems/anima/tests/panes/bodies.mount.test.js` | 768 (13 its) | rewritten per card |
+| `systems/anima/tests/pincer/viewport.test.js` | 5 its | "a fresh boot gives home and back the boot's turn" rewritten |
+| `systems/anima/tests/pincer/bones.axis.test.js` | 4 orientations | F4 |
+
+Readers of the tree outside C: `panels/a/a.svelte:63` (`consult` opens the harness pane) · `panels/b/b.svelte` · `stores/bridge/index.js` (`export * as panes`) · `bridge.js` (`PANELS`, `KEYS`, the save) · `tests/panes/*`.
+
+** the comp's start positions (`applyDef`, T = 45, px/py = the bone's top-left as % of the shell)
+
+| screen | pincer | orientation | home (standard) | what shows |
+|---|---|---|---|---|
+| desk | x 400 px · y 0 | 270 | x 0 · y centre | a 400 px rail of C on the left, stage right; B height 0 |
+| tablet | x 0 · y centre | 0 | x centre · y max | stage on top, C the bottom half; B width 0 |
+| phone | x 0 · y 300 px | 180 | x centre · y 0 | C the top 300 px, stage below; B width 0 |
+
+In anima's units (`layout.pincer` is the bone's CENTRE, `HALF` = 22.5): desk pincer = `(422.5, 22.5)`, home `(22.5, H/2)`; tablet pincer = `(22.5, H/2)`, home `(W/2, H − 22.5)`; phone pincer = `(22.5, 322.5)`, home `(W/2, 22.5)`. Home = the full stage on every screen (B and C at zero).
+
+On every screen B starts at zero size. The design's phone rail adds a =bridge= key that toggles B's content inside C (`missing.md:791` `phoneB`).
+
+** the design's orientation law vs anima's (`missing.md:726` vs `geometry.js`)
+
+| orientation | design: B · C · shoulder · crown | anima today |
+|---|---|---|
+| 0 | B left · C right · shoulder left · crown right | same |
+| 90 | B top · C bottom · shoulder top · crown bottom | same |
+| 180 | B left · C right · shoulder left · crown right | B right · C left · shoulder right · crown left |
+| 270 | B top · C bottom · shoulder top · crown bottom | B top · C bottom · shoulder BOTTOM · crown TOP |
+
+The design mirrors (shoulder always with B, crown always with C); anima rotates, and its 270 already breaks its own rotation. The phone start (`px 0`, 180) puts C on top only under the design's law.
+
+* the pane lines — the SCENE is the spec
+
+grid `repeat(auto-fit, minmax(min(100%, 300px), 1fr))` · gap 10 · pad 14 · zone 0 cards inside the zone 1 root · 12 px `--font-family-code`
+card `--surface-lift` · ring `--size-ring solid --boundary` · `--shape-radius-card` · min-height 220
+head `--surface-sunk` · 11 px 600 uppercase .1em · right slot plain 400 `--text-light`
+row min-height `--size-row` · pad 0 8 · radius key · selected = `--control-contrast-pressed` + `--shape-sunk`
+key 24–26 px · `--control-contrast` / `--control-on` · 11.5 px 500 · pill 22 px inset ring `--boundary-strong`
+
+1. =terminals= — a row per lighthouse terminal: name = the seated thread's label (settling → "settling", none → "no thread"), right = `terminal.id` head 6; selected = `terminals.active`; pick → `terminals.activate`; `+ terminal` → `terminals.create()`; empty → "no terminals". ✕ per row is not in the comp: KEPT (a control is never lost) as the row's right key on hover. from `TERMINALS.$entities` · `terminal.$thread.$label`.
+2. =navigation= — head right = the daemon slug (F3). threads: label · age (relative `updatedAt`), newest 3 then `+ N more` / `less`; pick → `terminal.seat(thread)` (D's `loadThread`). modes: dot `--signal-positive` (healthy) · name · type; pick → D's `selectMode` (re-mode the current thread on the same daemon, else a new thread; STANDALONE opens its buffer). from `daemon.entities.thread.$entities` · `daemon.modes`.
+3. =thread= — head right = cursor `i / n`. crumb daemon › thread label · loudest activity (`roster` → `loudest`, "idle" at NONE). mode: two-letter cap · name · type · the MODE's trait pills lowercase. cursor: the active buffer's label (heading font 15) · keys prev · next · open (F's rule: AIMED → `aimed.pull`, else STANDALONE + APPLICATION → create with the MASKED seed; neither → the key says "aim required"). buffers: `$index` · label · status; selected = `terminal.$buffer`; pick → `terminal.$buffer.set`; empty → "no buffers". from `terminal.$thread` · `thread.$mode` · `thread.$buffers` · `terminal.$buffer`.
+4. =buffer= — head right = cursor `i / n`. the active buffer's label (heading 15). mode: `name · type`. hooks: mount · unmount · release pills, lit when `buffer.hooks.<name>.length`. Shown only with a cursor; else the card says "cursor empty". from `terminal.$buffer` · `buffer.mode` · `buffer.hooks`.
+5. =harness= — head right = thread label. meter: three tiles turns · calls · tools from `turns.js` (`manifest` · `exchanges` · `callRoster`). intelligent: tune `frugal fast balanced capable unleashed eager` · effort `none low medium high` · thinking `shown hidden`; a key toggles `thread.trait.INTELLIGENT[k]` through `e/widgets/intelligent.js`; rounds stepper 1..50 (shift ×2 / ÷2, click on the count clears). note: `sessionUsage` when seen, else "no usage on the wire". Shown only when `mode.implements("HARNESSED")`; else the card says so.
+
+Not in the comp, cut (mine): the tree · four folds · seams · solo · park · the strip and `view.strip` · the Mode pane's wires · siblings · mint (a mode pick in navigation mints) · the queue keys (the shoulder's Phase widget engages phases) · F's data dump and ActivitySection · D's intents, search, views, grouping.
+
+* forks — ruled 10-06 on beef's /"you go."/ (the forks handed to me, my leans taken): F1 a · F2 a · F3 a · F4 a · F5 the proposed numbers
+
+** F1 — panel B. The comp names no B; the start positions give B zero size on every screen; the design's phone rail toggles B's content inside C.
+- (a) B = four cards in the same grammar — =bridge · lighthouse · box · dock= — no strip, no folds; `b.svelte` 110 → ~40, the four sections re-skinned as card bodies
+- (b) B dissolves: its four cards join C's grid after the five; `rects.b` draws nothing; the T-bone keeps the B region empty
+- (c) B stays as it is today
+@beef: a · b · c?
+
+** F2 — the thread's trait editors (LABELED · MASKED · AIMED · QUEUEING, save-as-intent). Not in the comp. AIMED and QUEUEING have no other writer in anima.
+- (a) a =traits= row under the mode block in the thread card: the chips as today, an editor unfolds under the row
+- (b) cut — AIMED · QUEUEING · MASKED unreachable from anima until a later design pass
+@beef?
+
+** F3 — navigation over N daemons. The comp shows one daemon in the head.
+- (a) the head slot is a picker: tap cycles the healthy daemons; the lists are that daemon's
+- (b) every healthy daemon's threads and modes in one list each, the daemon slug as the row's right meta
+- (c) one navigation card per healthy daemon
+@beef?
+
+** F4 — the orientation law (terrain table above).
+- (a) adopt the design's mirror: `geometry.js` 180 swaps b↔c and shoulder↔crown; 270 swaps shoulder↔crown; `bones.axis.test.js` + a saved 180/270 layout re-read (migrate: a saved orientation 180 shows B and C on the other side)
+- (b) keep anima's rotation; the phone start mirrors to the right edge (`pincer.x = W − 22.5`), spine on the right
+Recommend (a): the start positions assume it, and it fixes the 270 inconsistency.
+@beef?
+
+** F5 — the screen rule. The design's viewport is a prop (desk · tablet 834×1194 · phone 390×844).
+- proposed: phone = width < 600 · tablet = width < 1100 or height > width · desk otherwise (the design's own `narrow = phone || w < 560` for the dock side)
+@beef: numbers?
+
+* rework 10-06 — /"i reworked the panes. update them"/ · the handoff names `Anima.dc.html`
+
+** terrain — measured 10-06 (DesignSync, project e88abb87)
+
+| file | bytes read | truncated | what |
+|---|---|---|---|
+| `Anima.dc.html` | 261846 | yes (256 KiB cap) | template whole (lines 1–318), logic cut |
+| `missing.md` | 168188 | no | the logic class whole, derived |
+| `Panels.dc.html` | 15k | no | FIVE cards, no `mode` — the older extraction M1 was built from |
+
+- `missing.md` is STALE against the template (beef's pasted coverage note, 10-06: /"missing.md is stale against the logic edits (PANES, WG, measureBars, tabs removed)"/) — its `PANES` (six) and `flags` (seven) are not the spec. A first read took `isMs` · `isBs` for dead blocks; WRONG, corrected the same hour. The TEMPLATE renders eight predicates: `isR isN isMs isT isM isBs isB isH`.
+- the designer's note: /"Rail C panes — eight, paired selection · inspection"/ · /"Strip keys cut to distinct shorts when narrow: trm · all · mds · thr · mod · bfs · buf · hrn."/ · /"Rail opens on threads; no terminal leaf seeded."/ · /"Modes rows share the thread-row key look; never pressed, by design."/ · /"rounds as a ± picker — shift doubles/halves, starts at 10"/ · cut: /"Cursor dot, cursor status, cursor title, 'healthy', identity, daemon, view, bundle, harness rows; the intelligent note and claim badge."/
+- `E.chips` · `E.widgets` · `E.phases` · `F.acts` · `MP.threads` · `MP.bundle` · `RL.toolRows` · `RL.exchanges` are bound nowhere in the template → not spec.
+- the comp's pane head (L226–227): 28 px, label, spring, `+ terminal` (terminals), `F.pos` (buffer), solo ⤢, park ✕ — `Card.svelte` already draws this.
+
+** the pane lines — the live render is the spec (Anima.dc.html line · shows what · from where)
+
+| pane | short | lines | shows | source in anima |
+|---|---|---|---|---|
+| terminals | trm | 226 · 229 | rows label (italic when vacant) · id6 · ✕; empty = `no terminals` + a `+ terminal` key IN the body | `terminals.$entities` |
+| threads | all | 230–231 | the daemon's threads, 3 then `+ N more` / less; a row seats the terminal | `daemon.entities.thread` |
+| modes | mds | 237 | the daemon's modes, name · type, never pressed; pick → F10 | `daemon.modes` |
+| thread | thr | 233–235 | crumb `daemon › … · activity`; `cursor`: position right, hint when empty, verbs `open` · `start queue`/`stop queue` · the phase's verbs · `release` | `terminal.$thread` · `$buffer` · `$buffers` · `roster(thread)` · `thread.engage` |
+| mode | mod | 238 | mark (2 letters) · name · type; trait pills titled; keys `new thread` · `replace` · `recompile` | `thread.$mode` |
+| buffers | bfs | 239 | the thread's buffers idx · title · status (coloured); `clear` | `$buffers` · `daemon.entities.buffer.remove` |
+| buffer | buf | 240–243 | head meta = position; hint when no cursor; `mode` grid name · type; `hooks` pills lit; `clear` | `terminal.$buffer` · `buffer.hooks` |
+| harness | hrn | 245–248 | `mode is not harnessed`; meter auto-fit 72 px `input · output · context · calls`; `intelligent` = tune · effort · thinking rows + rounds ± (shift ×2 · ÷2) + the faculty line + the four axes | `$turns` (`sessionUsage` · `contextSize`) · `trait.INTELLIGENT` · `daemon.cortex` |
+
+Default tree = `leaf("threads")`, expanded `threads` (/"Rail opens on threads; no terminal leaf seeded."/). `available`: terminal always; threads · modes when a terminal exists; thread · mode on a thread; buffers · buffer on a thread with buffers or an APPLICATION; harness on HARNESSED. A saved tree naming `navigation` fails `restore` and boots the default.
+
+** forks and calls
+
+- F6 — the thread's trait chips and editors. The comp drops them AGAIN (no `E.chips` in the template). F2a stands unless reversed: AIMED · QUEUEING · MASKED have no other writer in anima; a comp omitting live chrome is not an order to cut it (skill `design`). @beef: F2a stands?
+- F8 (mine, FOCUS LAW): rounds are keys − · count · + (the note's ± picker), shift doubles/halves, an unset rounds shows `—`, first press lands 10 (/"starts at 10"/); no `<input>`. The harness's `intelligent` block reuses `app/widgets/Tune.svelte`'s faculty line + axes; the three option rows and rounds follow the comp's row layout (52 px label column).
+- F9 (mine, content): the thread crumb reads `daemon › label` where the comp reads `daemon › mode` — the mode card now carries the mode. @beef: flip if you want the slug.
+- F10 — a modes row. The note: /"modes (pick → spawns a thread)"/. Today (`Navigation.svelte:69` `selectMode`) a pick RE-MODES the active thread when it shares the daemon, else mints. The mode card's `replace` (comp: /"pick another mode · re-modes this thread"/) needs a re-mode somewhere. (a) a modes row always mints; `replace` reveals the modes pane and re-moding is gone · (b) a modes row mints; `replace` arms a one-shot re-mode for the next pick · (c) today's rule stays on the modes row; `replace` reveals modes. Lean (c): one rule, no armed state, the test `T-navigation-pick` holds. @beef: a · b · c?
+- the comp wants, the system lacks (skill `design` 8 — marked, topic later): `recompile` (no client verb re-bundles an application). Out of this quest's ask: the bones (/"Widgets … flow: fill the shoulder while it has room, spill to the crown"/, the terminals widget back) — `* deferred`.
+
+* deliverables
+
+| d | deliverable | lands in | state |
+|---|---|---|---|
+| d1 | `stores/bridge/start.js` — pure `startFor({ width, height }) → { pincer, orientation, standard }` + `screenOf({ width, height })` | `systems/anima/src/typology/stores/bridge/` | designed |
+| d2 | `bootLayout` fresh boot reads `startFor`; `layout.start` · `layout.home` removed | `bridge.js` | designed |
+| d3 | geometry per F4 | `geometry.js` | QUESTIONED |
+| d4 | `c.svelte` = the grid; `cards/{Terminals,Navigation,Thread,Buffer,Harness}.svelte` | `panels/c/` | designed |
+| d5 | `panels/d` · `panels/e` (F2) · `panels/f` · `c/panes` · `c/widgets/Pane.svelte` deleted | `panels/` | designed |
+| d6 | `panes.js` deleted; `bridge.panels` · `PANELS` · `KEYS` · `view.strip` · `setStrip` gone; `a.svelte` `consult` → no-op removed; `index.js` export dropped; the save drops `panels` | `stores/bridge/` · `panels/a` | designed |
+| d7 | panel B per F1 | `panels/b/` | QUESTIONED |
+| d8 | tests: `tree.test.js` deleted · `cards.mount.test.js` · `bodies.mount.test.js` per card · `pincer/start.test.js` · `viewport.test.js` fresh-boot case · `bones.axis.test.js` per F4 | `systems/anima/tests/` | designed |
+| d9 | release lines (below) | `.ikiro/release.md` | drafted |
+| d10 | `PANE_NAMES` eight `terminal · threads · modes · thread · mode · buffers · buffer · harness`; `DEFAULT` = `leaf("threads")`; `available` per the pane lines; `grain(rect)` · `open(tree, pane, dir)` · `tap({…, dir})` · `reveal` | `stores/bridge/panes.js` | designed |
+| d11 | `cards/{Threads,Modes,Mode,Buffers}.svelte` new (`Navigation.svelte` split, deleted); `Thread.svelte` → crumb + cursor verbs (+ F6 traits); `Buffer.svelte` → hint + mode + hooks + clear; `Harness.svelte` → meter ×4 + the intelligent rows; `Terminals.svelte` empty-state key; `cards/threads.js` `mint` · `remode` shared by Modes + Mode; `c.svelte` `LABELS` · `SHORTS` for the strip | `panels/c/cards/` · `c.svelte` | designed |
+| d12 | `startFor` carries `fold` (desk `free`, else `page`); `bootLayout` writes it on a fresh boot; `c.svelte` passes `dir: grain(rect)`, reveals navigation on `$active` | `start.js` · `bridge.js` · `c.svelte` · `a.svelte` | designed |
+| d13 | tests: `tree.test.js` six names + `grain` + `reveal`; `rail.mount` BODIES + title arrays; `cards.mount` labels + a `mode` case + a buffers-list case moved; `start.test.js` fold per screen | `systems/anima/tests/` | designed |
+
+* milestones
+
+| M | milestone | containers | state | gate |
+|---|---|---|---|---|
+| M0 | the start per screen: d1 · d2 · d3 | anima | designed | `deno test -A --no-check systems/anima/tests/pincer/` green; a fresh profile at 1440×900 · 834×1194 · 390×844 lands the table |
+| M1 | the five cards: d4 · d5 · d6 · d8 | anima | designed | anima suite green minus the pre-existing `dock/stage.mount.test.js` red; `anima/bundle` exit 0 |
+| M2 | panel B: d7 | anima | QUESTIONED | the same |
+| M3 | the walk on the served anima, three screens, the comp beside each screenshot | anima | pending | QA markers held |
+| M4 | the six panes of `Anima.dc.html`: d10 (names · available) · d11 · d13 | anima | designed, waits on go | `tests/panes/` green; anima suite minus the two pre-existing reds; `anima/bundle` exit 0 |
+| M5 | desk starts in `free`, splits follow C's grain, a seated terminal reveals navigation: d10 (grain · reveal) · d12 · d13 | anima | designed, waits on go | `tests/pincer/start.test.js` + `tests/panes/` green; a cleared `vivalence:bridge` at 1440×900 boots `free` |
+
+* blast table
+
+| file | change | milestone | kind |
+|---|---|---|---|
+| `systems/anima/src/typology/stores/bridge/start.js` | new | M0 | code |
+| `systems/anima/src/typology/stores/bridge/bridge.js` | bootLayout · stores | M0 · M1 | code |
+| `systems/anima/src/typology/stores/bridge/geometry.js` | 180 · 270 (F4) | M0 | code |
+| `systems/anima/src/typology/stores/bridge/index.js` | exports | M0 · M1 | code |
+| `systems/anima/src/typology/stores/bridge/panes.js` | deleted | M1 | code |
+| `systems/anima/src/app/panels/c/c.svelte` | rewritten | M1 | code |
+| `systems/anima/src/app/panels/c/cards/*.svelte` | new ×5 | M1 | code |
+| `systems/anima/src/app/panels/c/panes/*` · `c/widgets/Pane.svelte` | deleted | M1 | code |
+| `systems/anima/src/app/panels/d/*` · `panels/f/*` | deleted | M1 | code |
+| `systems/anima/src/app/panels/e/*` | deleted or folded (F2) | M1 | code |
+| `systems/anima/src/app/panels/a/a.svelte` | `consult` | M1 | code |
+| `systems/anima/src/app/panels/b/*` | F1 | M2 | code |
+| `systems/anima/tests/panes/*` · `tests/pincer/*` | per d8 | M0 · M1 | test |
+| `.ikiro/world/codemap/anima.md` | the panels line · the dogma tree line | M1 | canon |
+| `.ikiro/release.md` | d9 | M1 · M2 | ledger |
+| `systems/anima/src/typology/stores/bridge/panes.js` | six names · `available.mode` · `grain` · `open(…, dir)` · `tap` · `reveal` | M4 · M5 | code |
+| `systems/anima/src/typology/stores/bridge/start.js` · `bridge.js` | `fold` per screen, written at a fresh boot | M5 | code |
+| `systems/anima/src/app/panels/c/c.svelte` | `BODIES.mode` · `dir: grain(rect)` · the reveal effect | M4 · M5 | code |
+| `systems/anima/src/app/panels/c/cards/Mode.svelte` · `cards/threads.js` | new | M4 | code |
+| `systems/anima/src/app/panels/c/cards/{Thread,Buffer,Harness,Terminals,Navigation}.svelte` | re-cut per the pane lines | M4 | code |
+| `systems/anima/src/app/panels/a/a.svelte` | `consult` passes C's grain | M5 | code |
+| `systems/anima/tests/panes/*` · `tests/pincer/start.test.js` | d13 | M4 · M5 | test |
+| `.ikiro/world/codemap/anima.md` | `PANE_NAMES` six · the start rule's fold | M4 · M5 | canon |
+
+* testing assessment
+
+The pure surface: `start.js` (three screens → three placements, the clamp into the viewport), `geometry.js` (F4). The mounted surface: the rig in `tests/panes/rig.js` + the daemon double in `bodies.mount.test.js` carry over; one `it` per card, the grid's masks (no thread → thread · buffer · harness cards say so), no strip. COVERAGE GAP: the screen rule at first paint reads `visualViewport` — no unit test reaches it; M3's walk holds it. The comp's pixel claims are proven on the served bundle, never in linkedom (codemap law).
+
+* QA
+
+#+marker_qa: anima-panels-cards/T-desk-start · pending · a fresh profile at 1440×900 lands C as a 400 px left rail, stage right, B at zero
+#+marker_qa: anima-panels-cards/T-tablet-start · pending · 834×1194 lands the stage on top, C the bottom half
+#+marker_qa: anima-panels-cards/T-phone-start · pending · 390×844 lands C in the top 300 px, stage below
+#+marker_qa: anima-panels-cards/T-five-cards · pending · with a thread on a HARNESSED mode all five cards draw, in the comp's order, one column at 300 px
+#+marker_qa: anima-panels-cards/T-navigation-pick · pending · a thread row seats the terminal; a mode row mints or re-modes; `+ 6 more` unfolds
+#+marker_qa: anima-panels-cards/T-thread-cursor · pending · prev · next walk the buffers, open pulls or creates, the cursor count follows
+#+marker_qa: anima-panels-cards/T-harness-intelligent · pending · a tune key writes `trait.INTELLIGENT.tune`, rounds steps and clears, the dock reads the same value
+#+marker_qa: anima-panels-cards/T-eight-cards · pending · with a seated thread the strip holds eight keys `terminals · threads · modes · thread · mode · buffers · buffer · harness`, narrow shorts `trm · all · mds · thr · mod · bfs · buf · hrn`; a fresh rail opens on threads
+#+marker_qa: anima-panels-cards/T-mode-card · pending · the mode card shows mark · name · type · pills; `new thread` mints a thread on that mode; `replace` per F10
+#+marker_qa: anima-panels-cards/T-buffers-clear · pending · the buffers card lists the thread's buffers; `clear` (buffers or buffer card) empties the list and the cursor
+#+marker_qa: anima-panels-cards/T-desk-free · pending · a cleared `vivalence:bridge` at 1440×900 boots the rail in `free`; opening a third pane splits along C's grain (stacked in the 400 px rail); picking a terminal opens navigation
+
+* deferred
+
+- the phone =bridge= key (B's content inside C on phone) — after F1
+- the token pass is already done: the comp speaks dapper; nothing deferred here
+- intents in navigation — after F2
+- the bones from the 10-06 coverage note: the terminals widget back in the shoulder (columns icon + count); widgets `terminals · buffers · harness · dock` flowing shoulder → crown, re-measured on resize (`data-bar`) — a bones quest, not this one
+- `recompile` on the mode card — no client verb re-bundles an application; the key waits on the verb
+
+* release (drafted, lifted at sunset)
+
+- changed anima's rail C — the panes are the comp's eight cards `terminals · threads · modes · thread · mode · buffers · buffer · harness` (`Anima.dc.html`, 10-06 rework: navigation splits into threads + modes, the mode block and `new thread · replace` move to a `mode` card, the buffers list and `clear` to a `buffers` card, the harness meter reads `input · output · context · calls`); a fresh rail opens on threads; the tree, the four folds, solo · park and the strip stay · migrate: a saved tree naming `navigation` boots the default tree ⟨anima-panels-cards⟩
+- changed `stores.bridge.startFor` — carries `fold`: desk boots `free`, tablet and phone `page`; `panes.open(tree, pane, dir)` splits along the dir handed in (`grain(rect)`: wider than tall → `h`), `panes.reveal` opens and shows a pane; a seated terminal reveals navigation · migrate: none (a saved fold wins) ⟨anima-panels-cards⟩
+- changed anima's rail B — four cards `bridge · lighthouse · box · dock` in the same grammar; folds page · stack and the strip stay · migrate: none ⟨anima-panels-cards⟩
+- removed anima's `panels/d` · `panels/e` · `panels/f` · `panels/c/panes` · `panels/c/widgets/Pane.svelte`; the trait editors live under `panels/c/cards/traits/`, `intelligent.js` under `app/widgets/`, `activity.js` under `bones/spine/` · migrate: none ⟨anima-panels-cards⟩
+- added `stores.bridge.startFor` · `screenOf` · `SCREENS` (phone < 600 · tablet < 1100 or portrait · desk) · migrate: none ⟨anima-panels-cards⟩
+- changed `stores.bridge.bootLayout` — a fresh boot places the pincer per screen (desk · tablet · phone) with its orientation and home; `layout.start` · `layout.home` are gone · migrate: none ⟨anima-panels-cards⟩
+- changed `stores.bridge.rectsForOrientation` · `bonesForOrientation` at 180 and 270 — shoulder with B, crown with C, B and C mirrored (F4a) · migrate: a saved orientation 180 shows B and C on the other side ⟨anima-panels-cards⟩
+
+* changelog
+
+- 10-06 M0: `stores/bridge/start.js` (`screenOf` · `startFor` · `SCREENS`), `bootLayout` reads it on a fresh boot, `layout.start` · `layout.home` gone; `geometry.js` 180 swaps b↔c and shoulder↔crown, 270 swaps shoulder↔crown (F4a); `tests/pincer/start.test.js` new, `viewport.test.js` fresh-boot case and `bones.axis.test.js` edge table updated — `tests/pincer/` `ok | 16 passed (77 steps) | 0 failed` (baseline 14/72). Headless walk at 1440×900 · 834×1194 · 390×844: desk C `0,45 400×855` stage `445,0`; tablet stage `0,0 834×575` C `45,620`; phone C `45,0 345×300` stage from 345 — the quest's table verbatim.
+- 10-06 M1: five cards under `panels/c/cards/` (`Card` · `Row` · `Terminals` · `Navigation` · `Thread` · `Buffer` · `Harness`), the trait editors moved to `c/cards/traits/`, `intelligent.js` → `app/widgets/`, `activity.js` → `bones/spine/`; `panels/d` · `panels/e` · `panels/f` · `c/panes` · `c/widgets/Pane.svelte` deleted (captured first under `~/.viva/bak/anima-panels-20261006/`); `PANE_NAMES` drops `mode`. The card body scrolls inside its pane (`.card.framed .card-body { overflow: auto }`), flows at its own height in the stack fold.
+- 10-06 DEVIATION, corrected the same hour: the tree · four folds · strip were CUT as "simplification" → /"and fuck. omg. you removed the view modes. are you retarded???"/ — restored: `panes.js` back, `c.svelte` the rail again with the cards as bodies, the pane chrome (grab · tap · solo · park) merged into `Card`'s head, `b.svelte` the rail again with the four sections as cards; `tree.test.js` · `rail.mount.test.js` back and adapted (five panes, `.card-label` · `.card-head`), `cards.mount.test.js` mounts the rail in the stack fold. The correction landed in skill `design`.
+- 10-06 beef's screenshot: cards overflowing their grid rows — measured headless: a 432 px card in a 220 px row (the auto-fit grid). Gone with the rails' return; in stack both rails flow the cards at their own height, in page · accordion · free the card is framed and its body scrolls (headless: `bridge 716h body 686/686 · terminals 716h body 686/686`).
+- 10-06 M2 (F1a): `b.svelte` four cards `bridge · lighthouse · box · dock`, the drapes `Section` heads and inner `Card` wrappers out of the four sections, `Strip` + folds page · stack kept.
+- 10-06 suite: `deno test … systems/anima/tests/` → `FAILED | 78 passed (362 steps) | 2 failed (5 steps)`; `panel A — mounted` 3 steps = `known-issues.org` `systems/anima/tests/dock/stage.mount.test.js` (pre-existing, m73 recorded `1 failed (3 steps)`); `d · e — the client over the remote repository` 2 steps = m76's owed `terminals.remote` red (frontier). `vite build` → `✓ built in 20.46s`.
+- 10-06 blast: `rg '\$start\b|\$home\b|layout\.start|layout\.home|panels/[def]/|c/panes|widgets/Pane|ActivitySection|ActivityRow|ThreadLabel' systems/anima/src systems/anima/tests` → 0.
+- 10-06 M4 · M5 on /"dont tell me. do"/ — landed, uncommitted. F6 kept the trait chips (F2a) · F9 crumb `daemon › label` · F10 (c) today's rule on the modes row, `replace` reveals modes — my calls, his to flip. `panes.js` eight names + `LABELS` · `SHORTS` · `grain` · `reveal` · `open(…, dir)` · `DEFAULT = leaf("threads")`; `start.js` `fold` (desk `free`); `bridge.js` `bootLayout` writes it, `railGrain(bridge)` for callers outside C (`a.svelte` consult, `Mode.svelte` replace); `c.svelte` reveal effect on `$active`; cards `Threads` · `Modes` · `Mode` · `Buffers` new, `Navigation` deleted, `Thread` · `Buffer` · `Harness` · `Terminals` re-cut; `cards/threads.js` · `cards/buffers.js` the shared verbs; `app/widgets/Faculty.svelte` split out of `Tune.svelte` (both the dock's Tune and the harness card read it); drapes `Strip` takes `key.short` before its 3-letter cut. Suite: `deno test … systems/anima/tests/` → `FAILED | 78 passed (369 steps) | 2 failed (5 steps)` — the same two pre-existing reds (panel A 3 · d·e 2); `tests/panes/ + pincer/ + zones/` `ok | 30 passed (164 steps)`; drapes `ok | 12 passed (107 steps)`; `vite build` `✔ done`. Two reds were mine mid-way (dock rigs missing `Faculty`) — fixed. A rig bug caught: `PANE_NAMES.reduce(panes.open, null)` handed the index in as `dir`.
+
+- 10-06 13:20–14:00 (beef's screenshots + /"cmon. you didnt do the design at all"/): the cursor moved thread → buffers card; `cards/Link.svelte` (a link reveals a pane: thread → mode · buffers · harness); intents commented out in the markup (the comment gate denies `//` in the script — `saveIntent` stays defined, unbound); the comp's pane skin verbatim (`Card` 28 px head + ring, `surface-lift` body, rows and keys in the key look with depth, `Row` pressed = sunk); the bones FLOW: `bones/flow.js` (`flow({names, sizes, room})` fills the shoulder in order, spills the rest to the crown), `bones/Widgets.svelte` one widget set for both bones measured by `ResizeObserver`, `bones/widgets/Terminals.svelte` (columns icon + count, popover rows · ✕ · `+ terminal`), crown tabs deleted (`~/.viva/bak/anima-bones-20261006/`), `static/icons/anima/view-columns.svg` from the comp. Suite at baseline `78 passed (370 steps) | 2 failed (5 steps)`; build ✔. Headless walk: gate passes client-side, `faults: []`, desk start puts the terminals widget in the crown (shoulder length 0) — cards with a seated thread need beef's signed-in screen.
+
+- 10-06 /"i dont have crud on threads. change"/: threads card head `+` mints on the seated thread's mode (no seat → a `+ thread` link to modes); per row ✎ renames into `trait.LABELED.name`, ✕ arms (`delete?`) then `removeOne` — the terminal vigil unseats itself. Verbs `rename` · `drop` in `cards/threads.js`. Suite `78 passed (371 steps) | 2 failed (5 steps)` (baseline +1 spec); build ✔.
+* handoff
+
+- goal: anima's chassis wears `Anima.dc.html` (design project e88abb87) — rail C's eight panes in the comp's skin inside the live tree · folds · strip, rail B as four cards, the bones' widgets flowing shoulder → crown, a fresh profile landing the comp's per-screen start.
+- done: M0 start · M1/M2 cards (10-06) · M4 eight panes · M5 desk `free` + grain + threads reveal · the 13:20 pass (cursor → buffers card, `Link`, intents out, the comp's pane skin, the bones flow + terminals widget) — all uncommitted, suite at baseline `78 passed (370 steps) | 2 failed (5 steps)`, `* changelog`.
+- next: beef walks `:1794` signed in (cleared `vivalence:bridge` for the desk start) against the QA markers — the pane skin and the bones flow have only been seen headless without a thread; then his rulings on F6 (trait chips kept) · F9 (crumb = label) · F10 (modes row re-modes on the same daemon); then commit + number.
+- never: delete chrome a comp does not draw (tree · folds · strip · solo · park); port a comp's structure without its look, or defer a section its coverage note names — skill `design`; select rows by `.row` — `.card-row`; `PANE_NAMES.reduce(panes.open, …)` (the index lands as `dir`).
+- owed: the live walk; `recompile` waits on a client verb; the comp's own `WG` flow logic sits past the 256 KiB read — `bones/flow.js` is reconstructed from the designer's note, re-check when beef shares the logic; the phone `bridge` key (B inside C); release lines lifted at sunset. Re-read the comp from the project, never from this file.

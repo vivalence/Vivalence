@@ -23,8 +23,7 @@ export const daemons = (execution) => async (die, next) => {
 
 export const attach = async (die, next) => {
   for (const service of await die.runtime.processes.service.find()) {
-    service.aperture.use(shard.context.attach(service.type, service.mask));
-    die.runtime.aperture.branch(service.reference.absolute, service.aperture);
+    die.runtime.aperture.branch(service.reference.absolute, service.attachment);
   }
 
   for (const daemon of await die.runtime.processes.daemon.find()) {

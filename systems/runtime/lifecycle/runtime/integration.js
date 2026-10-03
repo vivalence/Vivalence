@@ -1,5 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { Connection, shard, shape } from "@vivalence/typology";
+import { shard, shape } from "@vivalence/typology";
 
 export const ledger = async (die, next) => {
   const log = paladin.ledger.log(die.runtime.instance.manifest.slug);
@@ -34,22 +34,7 @@ export const serve = async (die, next) => {
 };
 
 export const announce = async (die, next) => {
-  const remote = die.runtime.instance.lighthouse?.statics?.remote;
-  if (remote) {
-    const connection = new Connection(remote);
-    const origin = die.runtime.instance.runtime?.statics?.serve?.origin;
-    const daemons = await die.runtime.processes.daemon.find();
-
-    for (const daemon of daemons) {
-      await connection.call("/entities/daemon/ensure", { data: { slug: daemon.slug, url: daemon.url.absolute } });
-    }
-
-    if (origin) {
-      const evicted = await connection.call("/entities/daemon/remove", {
-        where: { url: { $like: `${origin}%` }, slug: { $nin: daemons.map((daemon) => daemon.slug) } },
-      });
-      if (evicted?.count) console.log(`[announce] pruned ${evicted.count} stale daemons`, evicted.ids);
-    }
-  }
+  const daemons = await die.runtime.processes.daemon.find();
+  await Promise.all(daemons.map((daemon) => daemon.lighthouse?.listen()));
   await next();
 };

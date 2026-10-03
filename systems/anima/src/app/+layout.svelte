@@ -14,7 +14,6 @@
   import { stores } from "@vivalence/anima";
   import { Key } from "@vivalence/drapes";
   import { gateFor } from "./gate.js";
-  import * as terminalEffects from "./terminals.js";
   import * as focusEffects from "./focus.js";
 
   import Login from "./widgets/Login.svelte";
@@ -38,7 +37,7 @@
   const bridge = new stores.bridge.Bridge();
   setContext(BRIDGE, bridge);
 
-  const terminals = new stores.terminals.Terminals();
+  const terminals = new stores.terminals.Terminals(lighthouse.dataspace.terminal);
   setContext(TERMINALS, terminals);
 
   const box = new stores.box.Box();
@@ -72,20 +71,21 @@
 
     const unsubscribeTerminals = terminals.$entities.subscribe((entities) => {
       terminalCount = entities.length;
+      terminals.settle(bridge.layout.terminal);
+    });
+    const unsubscribeActive = terminals.$active.subscribe((terminal) => {
+      if (!terminal || bridge.layout.terminal === terminal.id) return;
+      bridge.layout.terminal = terminal.id;
+      bridge.save();
     });
 
-    terminalEffects.hydrate({ terminals });
-
-    const unpersist = terminalEffects.persist({ terminals });
-    const unsettle = terminalEffects.settle({ terminals, lighthouse });
     const unfocus = focusEffects.focus({ terminals });
 
     return () => {
       unfocus();
-      unpersist();
-      unsettle();
       unsubscribeGate();
       unsubscribeTerminals();
+      unsubscribeActive();
     };
   });
 
@@ -102,7 +102,7 @@
   }
 
   function onOpenTerminal() {
-    terminals.create();
+    terminals.create().catch((error) => logger.entry("terminals/create").fault(error));
   }
 </script>
 

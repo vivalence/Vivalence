@@ -6,9 +6,10 @@ import {
   DaemonSchema,
   IdentityEntity,
   IdentitySchema,
+  TerminalSchema,
 } from "@vivalence/runtime";
 
-const schemas = [IdentitySchema, DaemonSchema, AuthenticatorEmbedSchema];
+const schemas = [IdentitySchema, DaemonSchema, TerminalSchema, AuthenticatorEmbedSchema];
 
 export async function seed() {
   const orm = await MikroORM.init({
@@ -30,7 +31,7 @@ export async function seed() {
 
   const daemon = em.create(DaemonEntity, {
     slug: "test-language",
-    url: "http://localhost:5173/daemon/test-language",
+    remote: "http://localhost:5173/daemon/test-language",
   });
 
   await em.flush();

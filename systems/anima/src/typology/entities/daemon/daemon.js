@@ -4,7 +4,8 @@ import { Status } from "@vivalence/typology";
 export class Daemon extends Entity {
   id = null;
   slug = null;
-  url = null;
+  remote = null;
+  reported = null;
   manifest = null;
   reference = null;
   connection = null;
@@ -24,7 +25,8 @@ export class Daemon extends Entity {
     return {
       id: this.id,
       slug: this.slug,
-      url: this.url,
+      remote: this.remote,
+      reported: this.reported,
       reference: this.reference?.nature ?? null,
       manifest: this.manifest,
     };

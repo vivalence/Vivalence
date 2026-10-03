@@ -111,7 +111,7 @@ specimen.describe("lifecycle vector", () => {
 // ── dataspace + integrate (integration) ───────────────────────────
 
 specimen.describe("dataspace integrate", () => {
-  const connection = mockConnection({ "/datamap": () => ({}) });
+  const connection = mockConnection({ "/metadata/datamap": () => ({}) });
 
   specimen.it("repo registered on dataspace, integrator stored on EM", async () => {
     const dossier = {

@@ -85,7 +85,7 @@
     const terminal = terminals.active;
     const buffer = ($buffersStore ?? []).find((candidate) => candidate.id === row.id);
     if (!terminal || !buffer) return;
-    terminal.buffer = buffer;
+    terminal.$buffer.set(buffer);
     if (full) stores.bridge.setDockFull(terminal.$dock, false);
   }
 

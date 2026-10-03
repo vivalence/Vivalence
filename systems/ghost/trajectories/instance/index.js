@@ -8,3 +8,4 @@ export { init } from "./init.js";
 export { run } from "./run.js";
 export { start } from "./start.js";
 export { stop } from "./stop.js";
+export { cleanup } from "./cleanup.js";

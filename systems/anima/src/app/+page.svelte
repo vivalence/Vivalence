@@ -10,18 +10,18 @@
   import BoneCrown from "./bones/crown/crown.svelte";
   import BonePincer from "./bones/pincer/pincer.svelte";
   import BoneSpine from "./bones/spine/spine.svelte";
+  import { WIDGETS, flow, room } from "./bones/flow.js";
 
-  import { stores } from "@vivalence/anima";
-  import { TERMINALS, BRIDGE } from "$client";
+  import { computed } from "nanostores";
+  import { chain, stores } from "@vivalence/anima";
+  import { LIGHTHOUSE, TERMINALS, BRIDGE } from "$client";
 
   const bridge = getContext(BRIDGE);
+  const lighthouse = getContext(LIGHTHOUSE);
   const terminals = getContext(TERMINALS);
 
-  let thread = $state(terminals.active?.thread);
-  const syncThread = () => (thread = terminals.active?.thread ?? null);
-  terminals.$active.subscribe(syncThread);
-  terminals.$entities.subscribe(syncThread);
-  let pageTitle = $derived(thread?.mode?.name ?? thread?.mode?.slug ?? "@vivalence");
+  const thread = chain(terminals, "$active", "$thread");
+  let pageTitle = $derived($thread?.mode?.name ?? $thread?.mode?.slug ?? "@vivalence");
 
   let pincer = $state(bridge.layout.pincer);
   let orientation = $state(bridge.layout.orientation);
@@ -58,9 +58,22 @@
     ),
   );
 
+  let sizes = $state({});
+  let opened = $state(null);
+  const measure = (name, extent) => {
+    if (extent > 0 && sizes[name] !== extent) sizes[name] = extent;
+  };
+  const toggleWidget = (name) => (opened = opened === name ? null : name);
+  const widgets = $derived($thread ? WIDGETS : WIDGETS.slice(0, 1));
+  const flowed = $derived(flow({ names: widgets, sizes, room: room(bones.shoulder, stores.bridge.axisFor(bones.shoulder)) }));
+
+  $effect(() => {
+    if (opened && !widgets.includes(opened)) opened = null;
+  });
+
   onMount(() => {
     stores.bridge.bootLayout(bridge);
-    const unsubscribeTheme = bridge.view.$theme.subscribe(
+    const unsubscribeTheme = computed([bridge.view.$theme, lighthouse.$identity], (theme, identity) => identity?.trait?.THEMED?.theme ?? theme).subscribe(
       (theme) => (document.documentElement.dataset.theme = theme),
     );
     const unsubscribeFontSize = bridge.view.$fontSize.subscribe(
@@ -90,8 +103,8 @@
 
     <PanelC rect={rects.c} />
 
-    <BoneShoulder rect={bones.shoulder} />
-    <BoneCrown rect={bones.crown} />
+    <BoneShoulder rect={bones.shoulder} names={flowed.shoulder} open={opened} ontoggle={toggleWidget} onmeasure={measure} />
+    <BoneCrown rect={bones.crown} names={flowed.crown} open={opened} ontoggle={toggleWidget} onmeasure={measure} />
     <BoneSpine rect={bones.spine} />
   </div>
   <BonePincer rect={bones.pincer} {gesture} />

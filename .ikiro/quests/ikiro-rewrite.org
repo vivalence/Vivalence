@@ -1,0 +1,139 @@
+#+title: ikiro rewrite — a capped self over a sealed corpus
+#+status: DESIGNED 10-05 · unnumbered · nothing moved
+#+writer: agent · beef numbers and rules
+
+* intent — beef verbatim, 10-05
+
+/"ikiro is too fat. way too fat. there is so much stuff and shit and annotatino and meta and bla bla bla. why. why do we have ~900 files in ikiro?? i want to streamline yourself."/
+
+/"send off research agents into other harnesses like hermes-agent"/
+
+/"this can be compressed."/ (skills · methods · self+world+kernel) · /"why do we need this still?"/ (evals) · /"these two should be incorporated and clensed. we will use them as guine pigs later for our new ikiro harness"/ (compacts · quests)
+
+/"rewrite ikiro harness. i run the new ikiro harness later against compacts, quests, references. cut cutables"/ · /"make sure to not cut live stuff"/
+
+* terrain — measured 10-05
+
+| bucket | files | bytes | verdict |
+|---|---|---|---|
+| compacts/ | 255 | 4.7M | corpus |
+| quests/done + discarded | 165 | ~8M | corpus |
+| quests root + roadmap + benched + index | 20 | — | LIVE |
+| reference/ | 96 | 2.6M | corpus (5 live pointers re-pathed) |
+| evals/tasks | 26 dirs | 940K | corpus (graders for the later run) |
+| evals/runs | 5 | 1.0M | CUT — all 09-23, never re-run |
+| zettelkasten.md | 1 | 449K | corpus |
+| known-issues.org · release.md | 2 | 200K | LIVE, untouched |
+| skills/ | 28 + LEDGER | 252K | 28 → 12, LEDGER → corpus |
+| methods/ | 17 py + 7 md | 276K | 17 → 4 |
+| hooks/ | 15 | 42K | 15 → 10 |
+| self/ | 7 | 48K | 7 → 2 |
+| world/codemap | 16 | 144K | LIVE, untouched (caps noted, no trim) |
+
+Always-loaded today: ikiro.md 8.9K + map.md 5.3K + frontier 2.2K + the path-fired shard. Not the fat. The fat: history without retention (780 files) and a process surface grown one callout at a time (28 skills · 15 hooks · 24 methods · 7 self files · a 50-row scoreboard).
+
+Research (two agents, hermes-agent · OpenHands · Pi · OpenCode/oh-my-opencode · Letta · Codex): every harness boots a small capped file (hermes MEMORY.md 2,200 chars, refuses over cap; OpenHands 6,000; Codex AGENTS.md 32 KiB), loads skills by description on demand, keeps raw history searchable (FTS5 / JSONL / SQLite) instead of curated summaries, and lands corrections as a small edit to the skill or memory that missed. None keeps per-session folds or a correction scoreboard. Hermes' skip list: trivia · re-discoverable facts · raw dumps · session ephemera.
+
+* rulings — beef's, verbatim where he spoke
+
+- corpus kept, not deleted: /"i run the new ikiro harness later against compacts, quests, references"/
+- live stays: /"make sure to not cut live stuff"/ — live = root quests · roadmap · benched · frontier · known-issues · release · codemap shards · wired hooks · tangle/apply-diffs (m79 depends)
+- OWED: cap-guard deny vs warn (kernel law: guards warn → deny once fires are counted; a cap that warns is no cap)
+- OWED: the number
+- OWED: `.claude/settings.json` diff (outside `.ikiro/`, his go)
+
+* the law — the new shape in one line each
+
+1. **a self is small enough to hold whole**: every live `.ikiro` file carries `limit: N chars`; a write past it is refused, never compacted away.
+2. **history is data, not prose**: `corpus/` is sealed — read by `methods/corpus.py` (FTS5), never loaded, never hand-edited; nothing is summarized into a second place.
+3. **a correction lands where it should have fired**: `retard` · `i dont understand X` → ≤2 lines into the skill or `self.md`, same turn, one line appended to `corpus/callouts.md`. Twice broken → a hook (beef wires). No families · rungs · scoreboard · flywheel · reflection.
+4. **a fold is a handoff**: `world/frontier.md` rewritten by hand (≤2000) + each live quest's `* handoff`; no compact file. The transcript under `~/.claude/projects/` is the raw record.
+5. **skills are verbs, recipes are nouns**: process skills by verb (change · debug · name · quest · fold), recipe skills by thing (mode · domain · package · topography · design · readme · ops).
+
+* the tree after
+
+#+begin_example
+.ikiro/
+  ikiro.md              kernel · limit 6000 (principle · VCS · gates · comms · boot)
+  self.md               identity + laws + lexicon · limit 8000 (from identity · ontology · lexicon · rituals · personas · totems)
+  connoisseur.md        code doctrine · limit 12000 (moved from self/, content unchanged)
+  manual.md             beef-facing · limit 2000
+  README.md             layout + flow · limit 3000
+  world/map.md · ledger.md · frontier.md (limit 2000, hand-written) · codemap/<n>.md (unchanged)
+  quests/<live>.org · roadmap/ · benched/ · index.md (live · roadmap · benched only)
+  known-issues.org · release.md
+  skills/<12>/SKILL.md  limit 5000 (recipes 7000)
+    change    pre-flight + blast-bracket + testing + critical-pass
+    debug     debugging + live-validation + shelf-sync
+    name      ontology-pass + rename-pass
+    quest     quest-authoring + quest-lifecycle + release + known-issues
+    fold      compact-walk + callout + sibling-reconcile (+ budget-eviction, now the cap)
+    mode · domain · package · topography   (the four recipes, trimmed)
+    design    design-handoff
+    readme    readme-walk + capture-before-delete
+    ops       pull-prod-mountpoint + dbeaver
+  hooks/   vcs-guard · comment-guard · kernel-guard · watch-guard · import-guard · log-guard · cwd-guard · agent-guard · compact-gate (reads frontier mtime) · cap-guard (NEW) · exercise.sh
+  methods/ cap.py (measure every limit) · corpus.py (FTS5 over corpus/, db gitignored) · tangle.py · apply-diffs.py
+  corpus/  compacts/ · quests/ (done + discarded) · reference/ · evals/ (tasks) · zettelkasten.md · skills-ledger.md · callouts.md (new, append-only)
+#+end_example
+
+Self after: ~75 files. Corpus: ~780 under one sealed dir. Total count barely moves; the SELF shrinks 100 → 75 files and ~700K → ~250K, with every file capped.
+
+* cut — recoverable by `jj file show -r <change> <path>`
+
+- `evals/runs/` (5, 1.0M)
+- hooks: `claim-guard.sh` (retired 09-19) · `yap-meter.sh` (log-only, nothing reads it) · `loaded-log.sh` · `fanout-go` (0 bytes) · `outside-rules.py` (staged, never ruled)
+- methods: `board.py` · `scoreboard.py` · `fires.py` · `skills.py` · `channels.py` · `spine.py` · `markers.py` · `compact-index.py` · `handoff.py` · `quest-report.py` · `canon-paths.py` · `sweep.py` · `patch.py` · `codemap.py` · `eval.sh` · every `methods/*.md` spec (the script body was the spec; the scripts go)
+- `self/rituals.md` anti-rationalization list → folded into `self.md` laws, the dated incident clauses dropped
+- `zettelkasten.md ## Scoreboard` → gone; `## Callouts` → corpus
+- `loop-backlog.md` → its three OPEN lines into frontier, file gone
+
+* blast — consumers of what moves
+
+| symbol | consumers | after |
+|---|---|---|
+| `.ikiro/reference/` | m76 · m78 · codemap/assembly · codemap/runtime · known-issues | sed → `corpus/reference/` |
+| `methods/budget.py` | 12 refs in skills · kernel | `methods/cap.py` |
+| `methods/quest-report.py` | 8 refs in skills | gone; `fold` skill names the hand step |
+| `self/ontology.md` | symlink `world/codemap/ontology.md` (paths: quests · skills · *.viva.js) | symlink → `../../self.md` |
+| `self/connoisseur.md` | symlink `world/codemap/connoisseur.md` | → `../../connoisseur.md` |
+| 28 skill names | ikiro.md index · README · self · quests | the 12 names; old names grep → 0 outside corpus |
+| hooks in `.claude/settings.json` | Stop · InstructionsLoaded · PostToolUse entries | beef's diff: remove 3, add cap-guard |
+
+* milestones
+
+** M0 seal the corpus
+`mkdir corpus`; `mv` compacts · quests/done · quests/discarded · reference · evals/tasks · zettelkasten.md · skills/LEDGER.md; `rm -r evals/runs`; sed the five reference pointers; regenerate `quests/index.md` (live · roadmap · benched; done = `ls corpus/quests`); `.gitignore` += `.ikiro/corpus/.fts.db`.
+Gate: `grep -rn 'reference/\|zettelkasten\|compacts/' --include='*.md' --include='*.org' --include='*.sh' --include='*.py' .ikiro --exclude-dir=corpus` → only `corpus/` paths.
+
+** M1 the self
+Write `ikiro.md` ≤6000 · `self.md` ≤8000 · `manual.md` · `README.md` · `world/frontier.md` by hand from today's; move `connoisseur.md`; repoint the two symlinks; `rm -r self/`.
+Gate: `cap.py` prints no OVER; `canary` → `生きろ` in a fresh session.
+
+** M2 the skills
+12 SKILL.md, strict-YAML frontmatter, each ≤ cap, every trigger phrase of the 28 preserved in the 12 descriptions; `rm` the 16 old dirs.
+Gate: `deno eval` parses all 12 frontmatters; `/help`-style listing shows 12; grep of every old skill name outside corpus → 0.
+
+** M3 instruments + hooks
+`methods/cap.py` (~60 lines) · `methods/corpus.py` (sqlite FTS5, builds on first run, `corpus.py "<query>"` → path:line) · `hooks/cap-guard.sh` (Write|Edit under `.ikiro/`, computes resulting size, denies over `limit:`) · `compact-gate.sh` reads frontier.md mtime · `exercise.sh` rig cases for cap-guard; `rm` the cut hooks and methods.
+Gate: `bash hooks/exercise.sh` green; `corpus.py "lighthouse announce"` returns hits; proposed `settings.json` diff pasted for beef.
+
+** M4 census
+`find .ikiro -type f -not -path '*/corpus/*' | wc -l` ≤ 80; `du -sh` of the self; `cap.py` whole; the quest moves to `corpus/quests/` on beef's word.
+
+* testing assessment
+Hooks: `exercise.sh` (fixture pairs, bites or blunt). Caps: `cap.py` exit 1 on OVER. Corpus: one query with a known answer from a compact. Skills: YAML parse + listing. No product code touched; no runtime test.
+
+* handoff
+- goal — a self small enough to hold whole: capped files, skills by verb and noun, history as searchable data, corrections landing in the skill that missed.
+- done — M0–M4 and the settings diff. Self = 54 files · 564K, every file under `cap.py`; 12 skills; 11 hooks = 11 wired; `corpus.py` over `.ikiro` + `~/.viva/bak/ikiro/corpus-20261005/`; compact-gate reads frontier mtime; two known issues about dead instruments CUT; shards marked hand-kept (generator retired).
+- next — beef numbers this quest and commits (563 D · 35 A · 29 M · 18 untracked); a fresh session answers `canary`; first real fold under skill `fold`.
+- never — a `corpus/` dir inside the repo (/"remove the corpus directory. back up"/); a compact file; a scoreboard; `deno fmt`.
+- owed — `corpus.py` over the transcripts (`~/.claude/projects/…/*.jsonl`) if beef wants recall there, one ROOTS line; the number.
+
+* changelog
+- 10-05 DESIGNED — research folded, terrain measured, tree drawn. Nothing moved.
+- 10-05 beef mid-flight: /"actually no. remove the corpus directory. back up"/ then /"self is good. keep references and quests right below .ikiro/"/ — no `corpus/` in the repo: compacts · evals/tasks · zettelkasten · skills-ledger moved to `~/.viva/bak/ikiro/corpus-20261005/`; `reference/` and `quests/{done,discarded}` stay under `.ikiro/`; `corpus.py` indexes both roots, db beside the backup.
+- 10-05 M0 · M1 · M3 landed: self 7 → 1 (`self.md` 7.5K/8K), kernel 3.9K/6K, frontier hand-written, `cap.py` · `cap-guard.sh` · `corpus.py` · new `compact-gate.sh`, rig 47 PASS; 15 methods + their specs cut. `yap-meter` · `loaded-log` · `outside-rules` RESTORED from HEAD: still wired in `.claude/settings.json`, their absence errored every tool call — they go with beef's settings diff.
+- 10-05 M2 · M4 landed: 28 skills → 12 (two opus agents, every trigger phrase kept, strict YAML parsed, `dbeaver.js` moved under `ops/`); old names grepped to zero in live files; rig 47 PASS; `cap.py` clean; self = 54 files, 564K (quests 8.6M · reference 2.6M beside it, uncapped by beef's word). Unverified: `canary` in a fresh session. Owed: the settings diff · cap-guard deny vs warn · the number.
+- 10-05 beef: /"ok. warn on cap. no interrupt."/ · /"you write settings"/ — cap-guard default `warn` (kernel · self law 4 · README · cap.py say so); `.claude/settings.json` rewritten: PostToolUse · Stop · InstructionsLoaded entries gone, cap-guard wired on Write|Edit in warn; `yap-meter` · `loaded-log` · `outside-rules` deleted for good. 11 wired hooks, 11 files. Owed: the number · the commit.

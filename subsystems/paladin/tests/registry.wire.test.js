@@ -108,7 +108,7 @@ describe("registry.wire — a daemon mask to its bag", () => {
 describe("registry.accio — a service mask", () => {
   const SERVICES = [
     { manifest: { owner: "@probe", type: "package", slug: "probe", version: "0.0.1" } },
-    { manifest: { owner: "@probe", type: "service", slug: "attached", version: "0.0.1", traits: ["ATTACHED"] }, aperture: () => {} },
+    { manifest: { owner: "@probe", type: "service", slug: "attached", version: "0.0.1", traits: ["ATTACHED"] }, attachment: () => {} },
     { manifest: { owner: "@probe", type: "service", slug: "quiet", version: "0.0.1", traits: [] }, provider: () => ({}) },
   ];
 

@@ -5,7 +5,7 @@ import { CLIENT, DRAPES, ENTRY, KIT, SRC, build, dom, fire, send, words } from "
 
 const ACTIVITY = new URL("typology/entities/activity.js", SRC).href;
 const GEOMETRY = new URL("typology/stores/bridge/geometry.js", SRC).href;
-const PROJECT = new URL("app/panels/f/widgets/activity.js", SRC).href;
+const PROJECT = new URL("app/bones/spine/activity.js", SRC).href;
 const PLACE = new URL("panels/float.js", DRAPES).href;
 
 const ANIMA = `export { TONES, settled } from "${ACTIVITY}";\nimport * as bridge from "${GEOMETRY}";\nexport const stores = { bridge };\n`;
@@ -62,7 +62,7 @@ specimen.describe("the spine — mounted: the lighthouse's pill, its daemons' do
       [
         [/from "@vivalence\/anima"/g, 'from "./anima.js"'],
         [/import \{ Float, Key, Pip, place \} from "@vivalence\/drapes";/, `import Float from "./Float.js";\nimport Key from "./Key.js";\nimport Pip from "./Pip.js";\nimport { place } from "${PLACE}";`],
-        [/from "\.\.\/\.\.\/panels\/f\/widgets\/activity\.js"/g, `from "${PROJECT}"`],
+        [/from "\.\/activity\.js"/g, `from "${PROJECT}"`],
       ],
     );
     ({ default: Spine } = await load("Spine"));

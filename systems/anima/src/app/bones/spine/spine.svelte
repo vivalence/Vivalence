@@ -3,7 +3,7 @@
   import { TONES, settled, stores } from "@vivalence/anima";
   import { Float, Key, Pip, place } from "@vivalence/drapes";
   import { LIGHTHOUSE } from "$client";
-  import { project } from "../../panels/f/widgets/activity.js";
+  import { project } from "./activity.js";
 
   let { rect } = $props();
 

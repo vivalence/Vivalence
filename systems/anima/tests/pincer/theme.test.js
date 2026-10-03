@@ -121,8 +121,6 @@ specimen.describe("theme names — the radial reads in every theme", () => {
 
     const tile = rule(".radial-tile");
     const tileOn = rule(".radial-tile", ".radial-tile.on");
-    const lock = rule(".radial-lock");
-    const lockOn = rule(".radial-lock", ".radial-lock.on");
     const hint = rule(".radial-hint");
     const frame = rule(".radial-mini").background;
     const pairs = [
@@ -130,9 +128,6 @@ specimen.describe("theme names — the radial reads in every theme", () => {
       ["tile glyph, off", tile["--glyph"], tile["background-color"], 3],
       ["tile glyph, on", tileOn["--glyph"], tileOn["background-color"], 3],
       ["tile face, on against off", tileOn["background-color"], tile["background-color"], 3],
-      ["centre glyph, off", lock["--glyph"], lock["background-color"], 3],
-      ["centre glyph, on", lockOn["--glyph"], lockOn["background-color"], 3],
-      ["centre face, on against off", lockOn["background-color"], lock["background-color"], 3],
       ["rim dot, hot against cold", rule(".radial-dot", ".radial-dot.hot").background, rule(".radial-dot").background, 3],
       ["mini bones against the stage", frame, inks.a, 3],
       ["mini bones against a panel", frame, inks.b, 3],

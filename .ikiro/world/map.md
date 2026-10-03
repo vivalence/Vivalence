@@ -4,7 +4,7 @@
 Containers, each with a path-gated shard in `world/codemap/`: `subsystems/typology` (the vocabulary, holy) · `subsystems/paladin` (env, scopes, instance record) · `systems/runtime` (Die, daemons, traits, aperture) · `systems/ghost` (`viva`; `~/.viva` → `world/ledger.md`) · `systems/anima` (SvelteKit client) · `subsystems/{dapper,drapes,sheets}` (design: tokens · Svelte components · ink TUI kit) · `commons` (a package, NOT a workspace member — resolves through paladin) · `testament` (gitignored). Laws across all: `codemap/invariants.md`.
 
 - root tasks are `<container>/<verb>` + aggregates — build · tag · push · stamp run at root (`docker`, `jj log`), ghost's run · watch · install call `systems/ghost` directly, the rest delegate (`--cwd`); `deno task test` never exits (`--watch`) — one-shot `deno test -A --no-check <file>`. `project_test_suite_baseline`
-- `runtime/watch` watches `commons` + `~/.viva/registry`: every save there deploys. `feedback_watched_tree_lands_in_one_burst`
+- `runtime/watch` watches `commons` + `~/.viva/registry` MINUS every `dataset/` dir (`--watch-exclude=**/dataset/**`, m71 10-06 — a DATASINK drain must not redeploy): every other save there deploys; a dataset edit installs on the next restart. `feedback_watched_tree_lands_in_one_burst`
 - ports come from the instance record: runtime `:2501`, anima `:1794`; `:2501/` 404 is not down. (`commons/instances/hello-world/instance.viva.js:61`)
 - every entrypoint boots through `lifecycle.mount(paladin.instance)`; the runtime checks the record in its first lifecycle beat, `paladin.check.instance(…).throw()` (`systems/runtime/run.js:7` · `systems/runtime/lifecycle/runtime/population.js:9`, m74 M5). `run.js` executes `lifecycle.runtime.execution` on a die `{ controller, mask, runtime }`; readiness is the stdout line `Status:RUNNING`.
 - docs: `documentation/` (Astro), `capture` re-runs every `content/**/*.example.js` into its `.snapshot.json` before every build. (`documentation/src/tangle.js:33`)
@@ -15,9 +15,9 @@ Containers, each with a path-gated shard in `world/codemap/`: `subsystems/typolo
 - NEVER `deno fmt`: `deno.jsonc` has no `fmt` block, files are hand-kept ~120 cols, fmt reflows the WHOLE file to 80. Mangled → `git show HEAD:<path> > scratch`, reapply the hunk by hand. `project_no_deno_fmt`
 - `subsystems/sheets` — the TUI kit (ink@5 + react@18 JSX, deps via root `import_map.json`): `state/*.js` pure reducers (the TDD surface) · `components/*.jsx` thin views; ghost renders a trajectory's own `*.jsx` (`Init` · `Doctor` · `Help`, sheets atoms inside) through `ctx.view.scroll.render(props, null, Component)`; never `minHeight = stdout.rows` (full repaint per key). (`systems/ghost/trajectories/instance/init.js:149`)
 - CLI-alive proof before any suite count: `viva /help` (every verb imports ghost's belt at module scope). A test reaches another package through `systems/runtime/tests/scenarios/registry.js` `accio(reference)`, never a relative path; ONE module-not-found in a collected file aborts the whole suite.
-- Deno cannot prefix-map into `npm:` — `"three/addons/": "npm:three/addons/"` fails; only exact entries work (`"three/addons/controls/OrbitControls.js": "npm:three@…/examples/jsm/controls/OrbitControls.js"`). A registry package adds nothing to the repo's `import_map.json` and imports by URL. (`chess/topographies/puzzles/harvest.js:12`)
+- Deno cannot prefix-map into `npm:` — `"three/addons/": "npm:three/addons/"` fails; only exact entries work (`"three/addons/controls/OrbitControls.js": "npm:three@0.186.0/addons/controls/OrbitControls.js"`, `import_map.json:149`). A registry package adds nothing to the repo's `import_map.json` and imports by URL. (`~/.viva/registry/chess/topographies/puzzles/harvest.js:12`)
 
-<!-- generated: python3 .ikiro/methods/codemap.py map — never hand-edited -->
+<!-- writer: agent · hand-kept since 10-05 (the generator retired) -->
 ```jsonc
 // deno.jsonc — the workspace
 {
