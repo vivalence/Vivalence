@@ -1,5 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import { gateFor } from "../src/app/gate.js";
+import { STANDINGS } from "../src/typology/stores/lighthouse.js";
 
 const WITNESSES = [
   { authorized: false, status: { code: "VERIFIED" }, gate: "signin" },
@@ -9,8 +10,7 @@ const WITNESSES = [
   { authorized: true, status: { code: "VERIFIED" }, gate: "ready" },
 ];
 
-const lighthouse = Deno.readTextFileSync(new URL("../src/typology/stores/lighthouse.js", import.meta.url));
-const CODES = [...new Set([...lighthouse.matchAll(/code: "([A-Z_]+)"/g)].map((match) => match[1]))].sort();
+const CODES = [...STANDINGS].sort();
 
 specimen.describe("gateFor — what the shell shows for a lighthouse's standing", () => {
   for (const witness of WITNESSES) {

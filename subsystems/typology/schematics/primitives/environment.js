@@ -2,7 +2,13 @@ import { v } from "../v.js";
 
 export const KEY = /^(VIVA|PUBLIC_VIVA|SECRET_VIVA)_[A-Z0-9_]+$/;
 
-const plain = (schema) => Object.defineProperties({}, Object.getOwnPropertyDescriptors(schema));
+const KINDS = { string: "String", number: "Number", integer: "Integer", boolean: "Boolean" };
+
+const plain = (schema) =>
+  Object.defineProperties({}, {
+    ...("~kind" in schema || !KINDS[schema.type] ? {} : { "~kind": { value: KINDS[schema.type] } }),
+    ...Object.getOwnPropertyDescriptors(schema),
+  });
 
 export const environment = (properties = {}) => {
   const stray = Object.keys(properties).filter((key) => !KEY.test(key));

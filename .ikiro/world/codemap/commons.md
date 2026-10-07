@@ -7,13 +7,13 @@ paths: ["commons/**"]
 ## finding and declaring
 
 - a module's lookup is `@commons/<manifest.type>/<manifest.slug>` — the MANIFEST's words, never the directory: `services/nlp/` is `service/nlp-stanza`, `instances/hello-world/mode.viva.js` is `demo/hello-world`. Grep the slug, not the path. (`services/nlp/service.viva.js:9` · `instances/hello-world/mode.viva.js:6`)
-- `manifest` is METADATA only; new behaviour = a sibling export. `SELFEVIDENT` · `CONVERSATIONAL` · `STANDALONE` are empty marker traits — they do nothing on their own. (`systems/runtime/lifecycle/mode/traits/index.js:16` · `:19` · `:22`)
+- `manifest` is METADATA only; new behaviour = a sibling export. `SELFEVIDENT` · `CONVERSATIONAL` are empty marker traits — they do nothing on their own (`systems/runtime/traits/selfevident.js:1` · `conversational.js:1`). `STANDALONE` is dead (m81 10-10): every mode is an entrypoint; the enum keeps it deprecated (`systems/runtime/entities/Mode.ts:44`).
 - discovery skips `bak archive slp node_modules .git`: anything under `instances/bak/` or `hallucinators/bak/` is unreachable — moving a module there unregisters it. (`subsystems/paladin/belt/ignore.js:4`)
-- a consumed TOOLING service mounts under its CONSUME KEY, not its `manifest.slug` → `ctx.daemon.services.<key>`. (`systems/runtime/lifecycle/daemon/population.js:73`)
+- a consumed TOOLING service mounts under its CONSUME KEY, not its `manifest.slug` → `ctx.services.<key>`. (`systems/runtime/lifecycle/daemon/population.js:54`)
 
 ## hello-world
 
-- the root `README.md` "Hello, Instance!" block MIRRORS `instances/hello-world/instance.viva.js` but is not byte-identical (README folds `consume` to one line, omits `runtime.statics.remote`, regroups `environment`) → an edit lands in BOTH. `~/.viva/instances/hello-world/` is the copy the runtime bundles; a MOVE deletes there too. (`README.md:166` · `README.md:201`)
+- the root `README.md` "Hello, Instance!" shows TWO files since 10-09: hello-world's `instance.viva.json` (manifest + daemons, nothing else) and `ledger/ledger.viva.json` (every slot it inherits) — an edit to either moves the README. `~/.viva/instances/hello-world/` is the copy the runtime bundles; a MOVE deletes there too. (`README.md:166` · `README.md:201`)
 - the armed catalog is exactly EIGHT names; adding a tool reds `P-catalog`. (`instances/hello-world/tests/catalog.test.js:57`)
 - `/hello/research` declares `yields: Packet.Response` → served as SSE, which is what exempts it from the request timeout; the `research` TOOL folds the same stream (a tool result cannot stream) into NOMINAL/ERROR — an ERROR carrying a buffer means the page IS on screen. (`instances/hello-world/tools/doors.js:21` · `tools/research.js:45`)
 - `research.js` `ROUNDS = 30` is the researcher's budget, NOT the thread's `INTELLIGENT.rounds` — dialing the thread down must not starve research. (`instances/hello-world/tools/research.js:7`)
@@ -31,8 +31,7 @@ paths: ["commons/**"]
 
 ## services
 
-- reader: `guard` refuses before the request leaves; `hop` re-guards EVERY redirect. `drink()` consumes the stream — what it returns is the ONLY copy. Reached as `ctx.daemon.services.reader`, never kernelled. (`services/reader/hop.js:21` · `:42` · `instances/hello-world/tools/web.js:72`)
-- the multiplayer lighthouse is `attachment · manifest · provider`, traits `SERVICE · PROVIDER · DATAMAP · ATTACHED`; `/announce` takes no bearer (known-issue `announce-without-a-bearer`). (`lighthouses/multiplayer/multiplayer.viva.js:8` · `attachment/daemons.js:5`)
+- reader: `guard` refuses before the request leaves; `hop` re-guards EVERY redirect. `drink()` consumes the stream — what it returns is the ONLY copy. Reached as `ctx.services.reader`, never kernelled. (`services/reader/hop.js:21` · `:42` · `instances/hello-world/tools/web.js:72`)
 
 ## fixtures and tests
 
@@ -41,7 +40,7 @@ paths: ["commons/**"]
 - NO commons task and no `deno.json*` under `commons/` — run a file by name with the root config (`deno test -A --no-check <file>`).
 - `*.snapshot.json` is gitignored: a fresh checkout's snapshot test throws on the missing file until a run with `SNAPSHOT_HOT=1`. (`hallucinators/openrouter/tests/translate.snapshot.test.js:11` · `instances/hello-world/tests/harness.snapshot.test.js:18`)
 - `services/nlp/tests/service.test.js` needs a LIVE python+stanza process and has no skip (only `tokenize.test.js` skips) → it reds on a machine without stanza.
-- `lighthouses/multiplayer/tests/{shape,auth,lighthouse,datamap}` ride ONE in-process rig — `create()` → `{ conn, connect(token), signup, seedDaemon, close, … }` over the fixture seed; never spawn a process for them. (`systems/runtime/tests/scenarios/lighthouse.js:6` · `:61`)
+- the lighthouse is the runtime's since m80 (`commons/lighthouses/` is gone): `systems/runtime/tests/lighthouse/{shape,auth,lighthouse,datamap}` ride ONE in-process rig — `create()` → `{ conn, connect(token), signup, seedDaemon, close, … }` over the fixture seed; never spawn a process for them. (`systems/runtime/tests/scenarios/lighthouse.js:13`)
 
 <!-- writer: agent · hand-kept, recounted 10-06 (entries per dir, bak/ excluded) -->
 ```jsonc
@@ -54,7 +53,7 @@ paths: ["commons/**"]
   "fixtures": {"data": 8, "hal": 1, "instance": 1, "language-learning": 2},
   "hallucinators": {"anthropic": 3, "deepgram": 3, "elevenlabs": 3, "openrouter": 3},
   "instances": {"hello-world": 8, "localhost": 0, "multiplayer": 3, "playground": 1},
-  "ledger": ["ledger.viva.js"],
+  "ledger": ["ledger.viva.json", "environment.json"],
   "lighthouses": {"multiplayer": 5},
   "playground": {"automaton": 2, "card": 2, "chaosmonkey": 3, "dealer": 2, "spawned": 2, "spawner": 2, "switchboard": 2},
   "services": {"nlp": 5, "reader": 8}

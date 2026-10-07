@@ -13,8 +13,8 @@ const bySlug = (rows) => [...rows].sort((a, b) => a.slug.localeCompare(b.slug));
 async function project(entities) {
   const literals = await entities.literal.find({}, { populate: ["symbols"] });
   const symbols = await entities.symbol.findAll();
-  const retentions = await entities.retention.find({}, { populate: ["literal"] });
-  const traces = await entities.trace.find({}, { populate: ["literal"] });
+  const retentions = await entities.note.find({ traits: "RETAINED" }, { populate: ["literal"] });
+  const traces = await entities.note.find({ traits: "TRACED" }, { populate: ["literal"] });
   const modes = await entities.mode.findAll();
   const intents = await entities.intent.findAll();
   const threads = await entities.thread.findAll();
@@ -34,11 +34,11 @@ async function project(entities) {
       trait: symbol.trait,
     })),
     retentions: [...retentions]
-      .sort((a, b) => a.status.localeCompare(b.status))
-      .map((retention) => ({ status: retention.status, literal: retention.literal.slug })),
+      .sort((a, b) => a.trait.RETAINED.status.localeCompare(b.trait.RETAINED.status))
+      .map((retention) => ({ status: retention.trait.RETAINED.status, literal: retention.literal.slug })),
     traces: [...traces]
-      .sort((a, b) => a.status.localeCompare(b.status))
-      .map((trace) => ({ status: trace.status, signal: trace.signal, literal: trace.literal.slug })),
+      .sort((a, b) => a.trait.TRACED.snapshot.status.localeCompare(b.trait.TRACED.snapshot.status))
+      .map((trace) => ({ status: trace.trait.TRACED.snapshot.status, signal: trace.trait.TRACED.signal, literal: trace.literal.slug })),
     modes: bySlug(modes).map((mode) => ({ slug: mode.slug, type: mode.type, traits: mode.traits })),
     intents: bySlug(intents).map((intent) => ({ slug: intent.slug, traits: intent.traits, trait: intent.trait })),
     threads: threads.map((thread) => ({ cursor: thread.cursor, counter: thread.counter })),

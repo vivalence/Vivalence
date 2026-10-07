@@ -6,6 +6,7 @@ const SIGNALS = { 129: "SIGHUP", 130: "SIGINT", 131: "SIGQUIT", 137: "SIGKILL", 
 export async function run(ctx) {
   const instance = await register();
   await lifecycle.mount(paladin.instance);
+  if (ctx.signal.flags?.prune === true) Deno.env.set("VIVA_RUNTIME_PRUNE", "1");
   const attachment = ctx.signal.flags?.logged === true ? "logged" : "inherit";
   const die = await paladin.ledger.boot(specs(ctx.signal.params[0]), { instance, attachment });
 

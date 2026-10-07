@@ -1,8 +1,8 @@
 import { Vector, Aperture, Broadcaster, object } from "@vivalence/typology";
+import { serialize } from "@mikro-orm/core";
 
 export function inject(datamap) {
   return (ctx, next) => {
-    ctx.entities = datamap.entities;
     return datamap.shard.scope(async () => {
       await next();
       const body = ctx.response.body;
@@ -60,9 +60,15 @@ function narrow(given, scope) {
   return base;
 }
 
+function stamp(given, scope) {
+  const base = plain(given) ? { ...given } : {};
+  for (const [key, wall] of Object.entries(scope)) if (!plain(wall)) base[key] = wall;
+  return base;
+}
+
 function scoped(target, fn) {
   return async (input, ctx) => {
-    if (ctx.scope) input[target] = narrow(input[target], ctx.scope);
+    if (ctx.scope) input[target] = target === "data" ? stamp(input[target], ctx.scope) : narrow(input[target], ctx.scope);
     return fn(input, ctx);
   };
 }
@@ -195,9 +201,9 @@ export function reactive(repo, twitch, { scope, filter = "user" } = {}) {
     const name = repository.getEntityName().toLowerCase().replace("entity", "");
     for (const op of ["create", "update", "delete"]) {
       twitchOf(ctx).open(`/after/${name}/${op}`, (hook) => {
-        const serialized = hook.input.entity?.toJSON?.() ?? hook.input.entity;
+        const serialized = hook.input.entity ? serialize(hook.input.entity) : hook.input.entity;
         if (scope && serialized && typeof serialized === "object") {
-          const owner = repository.getEntityManager().getFilterParams(filter)?.[filter] ?? null;
+          const owner = hook.input.em.getFilterParams(filter)?.[filter] ?? null;
           if (owner == null)
             throw new Error(
               `[reactive] ${name}/${op} is ${filter}-scoped but the ORM context carries no owner — the write escaped its request context (a lazy stream must \`carry\` it); a scoped write must never drop silently.`,
@@ -286,12 +292,21 @@ export function detached(datamap) {
   };
 }
 
+export function owned() {
+  return async (ctx, next) => {
+    const { meta, entity } = ctx.input ?? {};
+    if (!meta?.properties?.daemon) return next();
+    const owner = entity?.daemon?.slug ?? entity?.daemon ?? null;
+    const mine = owner === null ? ctx.reference.absolute.startsWith("/runtime/") : ctx.reference.absolute === `/daemon/${owner}`;
+    if (mine) await next();
+  };
+}
+
 export function strip(metadata) {
   const schema = {};
-  const all = metadata.getAll();
-  for (const [name, meta] of Object.entries(all)) {
+  for (const meta of metadata.getAll().values()) {
     if (meta.abstract || meta.pivotTable) continue;
-    const normalized = name.toLowerCase().replace("entity", "");
+    const normalized = meta.className.toLowerCase().replace("entity", "");
     const properties = {};
     const columns = {};
     for (const prop of Object.values(meta.properties)) {

@@ -1,38 +1,12 @@
-// ── bench ───────────────────────────────────────────────────────────
-// Test-grade daemon factory. Boots a real daemon from registry modules
-// using the actual lifecycle pipeline, but with in-memory sqlite and
-// stubbed infrastructure.
-//
-// Accepts raw imported modules OR paladin specifier strings.
-//
-//   await bench({
-//     kernel: [
-//       "@education/domain/language-learning",
-//       "@education/ontology/word",
-//       "@education/game/flashcard",
-//     ],
-//   })
-//
-//   await bench({
-//     kernel: [domainModule, ontologyModule, flashcardModule],
-//     services: {
-//       lighthouse: { authenticate: async (token) => ({ getUser: async () => user }) },
-//       hallucinator: { object: async () => ({}), action: async () => ({}) },
-//       consume: { nlp: { analyze: async (text) => ({ tokens: [] }) } },
-//     },
-//   })
-
 import paladin from "@vivalence/paladin";
-import {
-  Url, Connection, Mode, Path, Aperture, Vector, Controller, Span, middleware,
-  shard, shape, is, array, Status,
-} from "@vivalence/typology";
-import { Daemon, Lighthouse, lifecycle, sets, ActivityEntity, ActivityRepository, UserEntity, BufferEntity, LiteralEntity, SymbolEntity } from "@vivalence/runtime";
-import { provider as memoryDatamap } from "./datamap.js";
-import { assemble } from "./fixtures.js";
+import { Connection, contexts, Controller, fromm, middleware, Path, shape, shard, Span, Twitch, Url } from "@vivalence/typology";
+import { Daemon, lifecycle, sets, kernel, gestalten, ActivityEntity, ActivityRepository, UserEntity, DaemonEntity, BufferEntity, traits as catalog } from "@vivalence/runtime";
+import { assemble } from "../../gestalten/belt/assemble.js";
+import { provider as memoryDatamap, stack } from "./datamap.js";
+import { connector, lighthouseOf } from "./daemon.js";
 
-// ── test APPLICATION ──────────────────────────────────────────────────
-// Same as real APPLICATION but skips the svelte bundler (no esbuild).
+const { gather, mint, strike } = gestalten.belt;
+
 const BENCH_APPLICATION = async (mode, daemon) => {
   mode.application.buffer = async (desc = {}) => {
     const buffer = daemon.entities.em.create(BufferEntity, {
@@ -49,8 +23,6 @@ const BENCH_APPLICATION = async (mode, daemon) => {
 
 let paladinMounted = false;
 
-// ── resolve ────────────────────────────────────────────────────────
-// Turn a mixed array of strings + raw modules into resolved modules.
 async function resolve(items) {
   if (!items?.length) return [];
   const resolved = [];
@@ -62,12 +34,8 @@ async function resolve(items) {
       }
       resolved.push(await paladin.ledger.registry.accio(item));
     } else {
-      // Raw imports are frozen Module namespace objects.
-      // Wrap in a plain object so population.modes can set .reference etc.
       const wrapped = { ...item };
       if (!wrapped.source) {
-        // Synthetic source path — the traits resolve buffer.path relative to the .viva.js directory.
-        // Without a real filesystem path, use the slug from manifest.
         const slug = wrapped.manifest?.slug ?? "unknown";
         const type = wrapped.manifest?.type ?? "mode";
         wrapped.source = new Path(`/bench/${type}/${slug}`);
@@ -75,7 +43,6 @@ async function resolve(items) {
       resolved.push(wrapped);
     }
   }
-  // the seats paladin would have minted: reference · url · bundles under the bench daemon
   return resolved.map((citizen) => {
     const { type, slug } = citizen.manifest;
     return {
@@ -87,29 +54,22 @@ async function resolve(items) {
   });
 }
 
-// ── bench ──────────────────────────────────────────────────────────
 export async function bench(spec = {}) {
-  const kernel = await resolve(spec.kernel || []);
+  const modules = await resolve(spec.modes || []);
+  const domain = modules.find((module) => module.manifest?.type === "domain");
 
-  const domain = kernel.find((module) => module.manifest?.type === "domain");
+  const instanceTraits = { ...catalog, APPLICATION: BENCH_APPLICATION };
 
-  const instanceTraits = {
-    ...lifecycle.mode.traits,
-    ...(domain?.traits || {}),
-    APPLICATION: BENCH_APPLICATION,
-  };
+  const { entities: descriptors, twitch: twitches } = assemble(stack);
+  const datamapInstance = await memoryDatamap(descriptors);
+  const em = datamapInstance.entities.em;
+  const runtimeTwitch = new Twitch();
+  for (const held of twitches) runtimeTwitch.graft(held);
+  runtimeTwitch.branch("/after").use(shard.datamap.detached(datamapInstance));
+  datamapInstance.registerSubscriber(runtimeTwitch);
 
-  const { entities: instanceEntities, subscribers: instanceSubscribers } = assemble([
-    sets.kernel,
-    sets.userspace,
-    sets.transient,
-    domain?.entities || {},
-  ]);
-
-  const datamapInstance = await memoryDatamap(instanceEntities, instanceSubscribers);
-
-  // ── assemble daemon ──────────────────────────────────────────────
   const daemon = Object.assign(new Daemon(), {
+    slug: "bench",
     mask: {
       manifest: { type: "daemon", slug: "bench", version: "0.0.1", traits: [] },
       reference: new Path("/daemon/bench"),
@@ -117,59 +77,39 @@ export async function bench(spec = {}) {
       attach: new Url("http://bench/attached"),
     },
   });
-  daemon.entities = datamapInstance.entities;
-  daemon.entities.activity = new ActivityRepository(datamapInstance.orm.em, ActivityEntity);
+  const traits = Object.fromEntries(Object.keys(sets.kernel).map((kind) => [kind, gather(kernel, domain, modules, kind)]));
+  daemon.minted = mint({ slug: "bench", kinds: sets.kernel, traits });
+  daemon.entities = { ...datamapInstance.entities, ...strike(daemon.minted, em, sets.kernel), activity: new ActivityRepository(em, ActivityEntity) };
   daemon.datamap = datamapInstance;
+  daemon.twitch = new Twitch().use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
+  daemon.twitch.branch("/after").use(shard.datamap.detached(datamapInstance));
+  if (domain?.twitch) daemon.twitch.graft(domain.twitch);
+  datamapInstance.registerSubscriber(daemon.twitch);
 
-  const subscriber = shape.subscriber(daemon.twitch);
-  datamapInstance.registerSubscriber(subscriber);
+  em.create(DaemonEntity, { slug: "bench", mask: daemon.mask.manifest });
+  const user = em.create(UserEntity, { slug: "bench" });
+  await em.flush();
+  em.setFilterParams("user", { user: user.id });
 
-  // ── seed a test user (before services, so default auth can reference it) ──
-  const user = datamapInstance.entities.em.create(UserEntity, { roles: ["USER"], config: {} });
-  await datamapInstance.entities.em.flush();
-  datamapInstance.entities.em.setFilterParams("user", { user: user.id });
-
-  // ── build die shape that lifecycle functions expect ───────────────
   const die = {
     controller: new Controller({ stdout: new Span("bench") }),
     daemon,
     mask: { manifest: daemon.manifest },
-    instance: {
-      traits: instanceTraits,
-      entities: instanceEntities,
-      subscribers: instanceSubscribers,
-      services: {},
-    },
-    register: {
-      kernel,
-    },
+    instance: { traits: instanceTraits, services: {} },
+    register: { modes: modules },
   };
 
-  // ── services ──────────────────────────────────────────────────────
-  // lighthouse → daemon.lighthouse (the Lighthouse prototype, F19)
-  // hallucinator → daemon.hallucinator (AI provider for HARNESSED trait)
-  // consume → daemon.services[slug] (external services like NLP)
   const services = spec.services || {};
-
-  daemon.lighthouse = services.lighthouse ??
-    new Lighthouse({ call: async () => ({}), fetch: async () => ({ ok: true, body: { identity: { id: user.id } } }) }, { users: { findOne: async () => user }, status: new Status("RUNNING"), daemon: daemon.slug, remote: daemon.url.absolute });
-
-  if (services.hallucinator) {
-    daemon.hallucinator = services.hallucinator;
-  }
-
+  if (services.hallucinator) daemon.hallucinator = services.hallucinator;
   if (services.consume) {
-    for (const [slug, service] of Object.entries(services.consume)) {
-      daemon.services[slug] = service;
-    }
+    for (const [slug, service] of Object.entries(services.consume)) daemon.services[slug] = service;
   }
 
-  // ── populate modes (reuse real lifecycle) ─────────────────────────
-  daemon.aperture.use(shard.datamap.inject(datamapInstance));
+  const lighthouse = lighthouseOf(datamapInstance, datamapInstance.entities.user);
+  daemon.aperture.use(shard.datamap.inject(datamapInstance)).use(lighthouse.authenticate).use(lighthouse.bind);
 
-  // ── resolve (trait application + aperture wiring) ────────────────
   if (domain?.aperture) {
-    domain.aperture.use(shard.context.bind("daemon", daemon));
+    domain.aperture.use(shard.context.spread(contexts.host, daemon));
     daemon.aperture.graft(domain.aperture);
   }
 
@@ -179,8 +119,6 @@ export async function bench(spec = {}) {
     lifecycle.daemon.population.modes,
     lifecycle.daemon.resolution.modes(lifecycle.mode.execution),
     lifecycle.daemon.aperture.datamap,
-    ...(services.lighthouse ? [lifecycle.daemon.aperture.userspace] : []),
-    lifecycle.daemon.aperture.modes,
     lifecycle.daemon.aperture.freight,
   ])(die, () => {
     ready.resolve();
@@ -188,21 +126,22 @@ export async function bench(spec = {}) {
   });
   await Promise.race([ready.promise, execution]);
 
-  // ── connection ───────────────────────────────────────────────────
   const handler = shape.http(daemon.aperture);
-  const connection = new Connection(new Url("http://bench"), shard.transmitter.inline(handler));
+  const connect = connector(handler);
+  const connection = await connect(user);
   daemon.connection = connection;
 
-  // ── DATASET trait: seed ontology/corpus entities ─────────────────
-  for (const mode of daemon.flatmodes())
-    if (mode.implements("DATASET")) await lifecycle.mode.traits.DATASET(mode, daemon);
+  for (const mode of fromm.modes(daemon.modes).flat)
+    if (mode.implements("DATASET")) await catalog.DATASET(mode, daemon);
 
   return {
     daemon,
     die,
+    lighthouse,
     orm: datamapInstance.orm,
-    em: datamapInstance.entities.em,
+    em,
     connection,
+    connect,
     user,
     async teardown() {
       release.resolve();
@@ -211,4 +150,3 @@ export async function bench(spec = {}) {
     },
   };
 }
-

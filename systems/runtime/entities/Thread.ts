@@ -1,0 +1,165 @@
+import { EntitySchema, Collection, types, type Opt, type Rel } from "@mikro-orm/core";
+
+// import * as object from "../../gestalten/belt/object.js";
+import { object } from "@vivalence/typology";
+
+import { DataRepository, DataEntity, DataSchema } from "./index.ts";
+import { UserEntity } from "./index.ts";
+import { ModeEntity } from "./index.ts";
+import { IntentEntity } from "./index.ts";
+import { BufferEntity } from "./index.ts";
+import { TurnEntity } from "./index.ts";
+
+export enum ThreadPhaseEnum {
+  INERT = "inert", // app/target self-manages; deliberate-empty respected
+  MANUAL = "manual", // cursor discipline (auto-focus + advance-on-release); app drives pulls
+  CONTINUOUS = "continuous", // manual + pull to keep depth() buffers queued
+  ESCORT = "escort", // continuous that returns to the launch buffer when the queue drains
+  /** @deprecated legacy phase; retained only so pre-existing Thread rows pass the enum CHECK */
+  STREAM = "stream",
+}
+
+export enum ThreadTraitsEnum {
+  MASKED = "MASKED", // emitter input
+  AIMED = "AIMED", // pointing at emitter
+  QUEUEING = "QUEUEING", // pre-pulling buffers
+  LABELED = "LABELED", // UI display name
+  // SELFEVIDENT = "SELFEVIDENT", // access mode buffer without daemon-roundtrip.
+  // CONVERSATIONAL = "CONVERSATIONAL", //
+}
+
+export class ThreadEntity extends DataEntity {
+  // hash 24char: f(id)
+  user!: Rel<UserEntity>;
+  mode!: Rel<ModeEntity>;
+
+  phase: ThreadPhaseEnum & Opt = ThreadPhaseEnum.MANUAL;
+  traits: ThreadTraitsEnum[] & Opt = [];
+  trait: any & Opt = {};
+
+  parent?: Rel<ThreadEntity>;
+  children = new Collection<ThreadEntity>(this);
+
+  buffers = new Collection<BufferEntity>(this);
+  turns = new Collection<TurnEntity>(this);
+
+  counter: number & Opt = 0; // these two might be candidates for a trait?!
+  cursor: number & Opt = 0; // these two might be candidates for a trait?!
+
+  // mount?: string & Opt = ""; // also trait MOUNTED
+
+  intent?: Rel<IntentEntity>;
+
+  bindBuffer(buffer: BufferEntity) {
+    buffer.thread = this;
+    buffer.index = this.counter++;
+    return buffer;
+  }
+}
+
+export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
+  class: ThreadEntity,
+  extends: DataSchema,
+  tableName: "Thread",
+  repository: () => DataRepository,
+  filters: {
+    user: {
+      cond: (args: any) => ({ user: args.user }),
+      default: true,
+    },
+  },
+  hooks: {
+    beforeCreate: [
+      async (args: any) => {
+        const thread = args.entity;
+        if (!thread.intent) return;
+        const intent =
+          typeof thread.intent === "object" && thread.intent.traits
+            ? thread.intent
+            : await args.em.findOne(IntentEntity, thread.intent);
+        if (!intent?.traits) return;
+        thread.traits = [...intent.traits];
+        thread.trait = object.merge(intent.trait, thread.trait);
+
+        // labeled trait
+      },
+    ],
+  },
+  properties: {
+    user: {
+      kind: "m:1",
+      entity: () => UserEntity,
+      fieldName: "user",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+    },
+
+    mode: {
+      kind: "m:1",
+      entity: () => ModeEntity,
+      fieldName: "mode",
+      nullable: true,
+      updateRule: "cascade",
+      deleteRule: "cascade",
+    },
+
+    intent: {
+      kind: "m:1",
+      entity: () => IntentEntity,
+      fieldName: "intent",
+      nullable: true,
+    },
+
+    phase: {
+      type: types.string,
+      defaultRaw: `'${ThreadPhaseEnum.MANUAL}'`,
+      enum: true,
+      items: () => ThreadPhaseEnum,
+    },
+
+    traits: {
+      columnType: "json",
+      defaultRaw: `'[]'`,
+      enum: true,
+      array: true,
+      items: () => ThreadTraitsEnum,
+    },
+
+    trait: { type: types.json },
+
+    counter: { type: types.integer },
+    cursor: { type: types.integer },
+
+    buffers: {
+      kind: "1:m",
+      entity: () => BufferEntity,
+      mappedBy: (buffer) => buffer.thread,
+    },
+
+    turns: {
+      kind: "1:m",
+      entity: () => TurnEntity,
+      mappedBy: (turn) => turn.thread,
+    },
+
+    parent: {
+      kind: "m:1",
+      entity: () => ThreadEntity,
+      fieldName: "parent",
+      nullable: true,
+      deleteRule: "cascade",
+    },
+
+    children: {
+      kind: "1:m",
+      entity: () => ThreadEntity,
+      mappedBy: (thread) => thread.parent,
+    },
+  },
+});
+
+export default {
+  type: "thread",
+  schema: ThreadSchema,
+  entity: ThreadEntity,
+};

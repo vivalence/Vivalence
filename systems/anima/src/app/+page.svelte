@@ -73,7 +73,7 @@
 
   onMount(() => {
     stores.bridge.bootLayout(bridge);
-    const unsubscribeTheme = computed([bridge.view.$theme, lighthouse.$identity], (theme, identity) => identity?.trait?.THEMED?.theme ?? theme).subscribe(
+    const unsubscribeTheme = computed([bridge.view.$theme, lighthouse.$user], (theme, user) => user?.trait?.THEMED?.theme ?? theme).subscribe(
       (theme) => (document.documentElement.dataset.theme = theme),
     );
     const unsubscribeFontSize = bridge.view.$fontSize.subscribe(

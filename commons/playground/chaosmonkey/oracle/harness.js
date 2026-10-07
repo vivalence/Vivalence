@@ -20,7 +20,7 @@ harness.use(async (ctx, next) => {
 //     const tract = turns.slice(0, -COMPACT_KEEP);
 //     const kept = turns.slice(-COMPACT_KEEP);
 
-//     const summary = await ctx.daemon.entities.turn.fold(tract, async (tract) => {
+//     const summary = await ctx.entities.turn.fold(tract, async (tract) => {
 //       // mode.harness.object.render, not .dialogue — /object has no scribe/history-load
 //       // coupling in harnessed.js, so this doesn't persist junk turns and doesn't recurse
 //       // (different branch entirely from the /dialogue chain this middleware runs inside).
@@ -45,7 +45,7 @@ harness.use(async (ctx, next) => {
 
 //     if (kept[0]) {
 //       kept[0].parent = summary;
-//       await ctx.daemon.entities.em.flush();
+//       await ctx.entities.em.flush();
 //     }
 //     ctx.hallucination.entities.turn.replace([summary, ...kept]);
 //   }

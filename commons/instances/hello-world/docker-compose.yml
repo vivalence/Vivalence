@@ -1,0 +1,28 @@
+services:
+  runtime:
+    image: vivalence/runtime:alpine
+    env_file: .env
+    environment:
+      VIVA_INSTANCE_MOUNT: /viva/instance
+      VIVA_RUNTIME_ORIGIN: http://0.0.0.0:2501
+      PUBLIC_VIVA_RUNTIME_REMOTE: ${PUBLIC_VIVA_RUNTIME_REMOTE:-http://localhost:2501/}
+    volumes:
+      - ./:/viva/instance
+    ports:
+      - "2501:2501"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:2501/status"]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+  anima:
+    image: vivalence/anima:alpine
+    environment:
+      PUBLIC_VIVA_RUNTIME_REMOTE: ${PUBLIC_VIVA_RUNTIME_REMOTE:-http://localhost:2501/}
+      PUBLIC_VIVA_CLIENT_ANIMA_REMOTE: ${PUBLIC_VIVA_CLIENT_ANIMA_REMOTE:-http://localhost:1794/}
+    ports:
+      - "1794:1794"
+    depends_on:
+      runtime:
+        condition: service_healthy

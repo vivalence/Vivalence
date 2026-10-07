@@ -19,14 +19,14 @@ export const aperture = new Vector().open(
       span.branch("render").note(render);
       const object = render.output.object;
 
-      const userTurn = await ctx.daemon.entities.turn.chain({
+      const userTurn = await ctx.entities.turn.chain({
         role: "user",
         parts: [{ type: "text", text: ctx.input.prompt }],
         thread: ctx.input.thread,
         mode: ctx.mode.id,
       });
 
-      const assistantTurn = await ctx.daemon.entities.turn.chain({
+      const assistantTurn = await ctx.entities.turn.chain({
         role: "assistant",
         parts: [
           { type: "text", text: object?.answer ?? "" },

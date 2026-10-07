@@ -1,5 +1,7 @@
 # mikro-orm 6.6.7 → 7.2.3 — the full blast, 2026-10-05
 
+> DATED — before m80/m81: daemons no longer call the datamap provider (they borrow the runtime's, `systems/runtime/lifecycle/daemon/population.js:25`), `entities/lighthouse/` and `commons/lighthouses/` are gone, the traits live at `systems/runtime/traits/`.
+
 Map only, nothing changed. Radius: the repo (`systems` · `subsystems` · `commons` · `testament` · `documentation` + root files) · `~/.viva/registry` · `~/.viva/instances` (read-only sqlite). Supersedes `census.md` (10-02) for counts; m76 moved files since. Re-derive with `blast/` (scripts + raw outputs; `exports.js` · `raw.js` need a DENO_DIR holding 7.2.3 — the one used lived in session 11950be0's scratchpad).
 
 | radius | count |
@@ -102,7 +104,7 @@ TypeError on every `find`/`findOne` carrying a `traits` filter. `this.getEntityN
 | `DataEntity.ts:102-103` `raw()` LIKE keys | Symbol keys survive `$and` and spread | smoke `[1]` · `[2]` |
 | education `Literal.ts:167` · chess `Literal.ts:208` `orderBy: { [raw("random()")]: "asc" }` | a lone raw key is accepted | smoke |
 | education `Literal.ts:319-320` `afterFlush` + `uow.getChangeSets()` | hook names identical | `upstream.md` §1 |
-| the four pivots + `Identity_daemons` | names and columns declared on the owners (10-05) | `quests/m78-mikro-7.org` F2 |
+| the four pivots + `Identity_daemons` | names and columns declared on the owners (10-05) | `quests/done/m78-mikro-7.org` F2 |
 | raw SQL naming pivots: dojo `aperture/index.js:36` · education `Literal.ts:338` · `multiplayer/tests/shape.test.js:167` | true by the pin | — |
 | `shard/datamap.js:306` `prop.targetMeta?.name` | `EntityMetadata.name` kept | `m7.txt:60` |
 | `Cascade.REMOVE` ×4 | on m:n (`Literal.ts:103` · `Symbol.ts:65`) and 1:m (`Mode.ts:93,101`) only — no FK inference moves | sweep |

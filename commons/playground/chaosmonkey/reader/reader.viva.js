@@ -11,7 +11,7 @@ export const manifest = {
   description:
     "Conversational UI craftsman — describe any interface in chat and it is bundled live into your frame, then reshaped wish by wish.",
   version: "0.1.0",
-  traits: ["APPLICATION", "STANDALONE", "EMITTER", "HARNESSED", "GENERATIVE"],
+  traits: ["APPLICATION", "EMITTER", "HARNESSED", "GENERATIVE"],
 };
 
 export const application = new App("buffer/Reader.svelte", v.buffer({ data: {} }));

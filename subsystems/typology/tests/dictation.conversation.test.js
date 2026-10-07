@@ -87,7 +87,7 @@ async function pipeline({ vocal = {}, hypotheses, final, correct, chunks = ["oi"
     fastDialogue(correct ?? ((text) => text), delay),
   ]);
   const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(chunks) } } });
-  ctx.daemon = { cortex };
+  ctx.cortex = cortex;
   ctx.controller = new Controller({ stdout: new Span("hallucination") });
   ctx.vocal = vocal;
   await shard.hal.verbatim({ polish })(ctx);
@@ -129,7 +129,7 @@ specimen.describe("dictation flow — hal.verbatim over the cortex", () => {
       { ...fastDialogue((text) => text), via: { render: async () => { throw new Error("provider down"); } } },
     ]);
     const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(["hi"]) } } });
-    ctx.daemon = { cortex };
+    ctx.cortex = cortex;
     ctx.controller = new Controller({ stdout: new Span("hallucination") });
   ctx.controller = new Controller({ stdout: new Span("hallucination") });
     ctx.vocal = {};
@@ -154,7 +154,7 @@ specimen.describe("dictation flow — hal.verbatim over the cortex", () => {
     const faculty = { ...scriptedFaculty([], ""), via: { stream: () => turns() } };
     const cortex = new Cortex().register([faculty, fastDialogue((text) => text.toUpperCase(), 60)]);
     const ctx = new Context({ request: { url: "http://socket/harness/verbatim/stream", body: {}, raw: { body: source(["x"]) } } });
-    ctx.daemon = { cortex };
+    ctx.cortex = cortex;
     ctx.controller = new Controller({ stdout: new Span("hallucination") });
   ctx.controller = new Controller({ stdout: new Span("hallucination") });
     ctx.vocal = {};

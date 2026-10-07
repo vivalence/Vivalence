@@ -1,5 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { Path, specimen, steer, Vector } from "@vivalence/typology";
+import { Path, specimen, steer, v, Vector } from "@vivalence/typology";
 import { ShellContext, ShellSignal } from "../typology.js";
 import trajectories from "../trajectories/index.js";
 
@@ -13,6 +13,7 @@ const strategy = (carry, effect) => async (context) => {
   return context.effect;
 };
 
+const COMMONS = new URL("../../../commons", import.meta.url).pathname;
 const trajectory = new Vector();
 trajectories(trajectory);
 
@@ -32,12 +33,15 @@ async function author(root, slug, owner) {
 describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", () => {
   let ledger;
   let store;
+  const TAPPED = () => ({ "@commons": { slug: "commons", mount: COMMONS }, "@pack": { slug: "pack", mount: "./registry/pack" } });
 
   beforeAll(async () => {
     ledger = await Deno.makeTempDir({ prefix: "ghost-ledger-" });
-    store = await Deno.makeTempDir({ prefix: "ghost-store-" });
+    store = `${ledger}/registry`;
+    await Deno.mkdir(store);
     Deno.env.set("XDG_CONFIG_HOME", await Deno.makeTempDir({ prefix: "ghost-config-" }));
     paladin.env.delete("VIVA_INSTANCE_MOUNT");
+    paladin.env.set("VIVA_REPOSITORY_MOUNT", new URL("../../..", import.meta.url).pathname.replace(/\/$/, ""), "flag");
     paladin.scopes([
       ["ledger", () => true, () => new Path(ledger)],
       ["registry", () => true, () => new Path(store)],
@@ -45,13 +49,15 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
     await author(store, "pack", "@pack");
   });
 
-  it("init scaffolds locks/logs/registry/instances/sessions + instances.json + the shell line", async () => {
+  it("init scaffolds locks/logs/registry/instances/sessions + instances.json + the shell line, and taps commons", async () => {
     const effect = await drive(["ledger/init", ledger]);
     expect(effect.scaffolded).toEqual(["locks", "logs", "registry", "instances", "sessions"]);
     for (const sub of effect.scaffolded) {
       expect((await Deno.stat(`${ledger}/${sub}`)).isDirectory).toBe(true);
     }
     expect(await paladin.read.json(new Path(`${ledger}/instances.json`))).toEqual({});
+    expect(effect.commons).toBe(COMMONS);
+    expect(await paladin.ledger.registry.tapped()).toEqual({ "@commons": { slug: "commons", mount: COMMONS } });
     // VIVA_PROCESS_ID is NOT written here — ghost.sh derives it from $PPID, the invoking shell.
     // a `$$` in this file would expand inside ghost.sh, minting a new id on every invocation.
     const config = await Deno.readTextFile(`${Deno.env.get("XDG_CONFIG_HOME")}/viva/env`).catch(() => "");
@@ -59,13 +65,13 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
   });
 
   it("init clones the canonical ledger recipe beside .env; a second init keeps the one that is there", async () => {
-    const recipe = `${ledger}/ledger.viva.js`;
+    const recipe = `${ledger}/ledger.viva.json`;
     expect((await Deno.stat(recipe)).isFile).toBe(true);
-    await Deno.writeTextFile(recipe, `export const manifest = { slug: "mine" };\n`);
+    await Deno.writeTextFile(recipe, `{ "manifest": { "slug": "mine" } }\n`);
     await drive(["ledger/init", ledger]);
-    expect(await Deno.readTextFile(recipe)).toContain(`slug: "mine"`);
+    expect(await Deno.readTextFile(recipe)).toContain(`"slug": "mine"`);
     // put the canonical one back — the rest of this suite reads a ledger that speaks
-    await Deno.copyFile(paladin.scope.repository.branch("commons/ledger/ledger.viva.js").absolute, recipe);
+    await Deno.copyFile(paladin.scope.repository.branch("commons/ledger/ledger.viva.json").absolute, recipe);
     paladin.ledger.declaration = undefined;
   });
 
@@ -85,23 +91,23 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
 
   it("doctor reports the recipe organ — present, manifest, the slots it speaks", async () => {
     const effect = await drive(["ledger/doctor"]);
-    expect(effect.recipe.path).toBe(`${ledger}/ledger.viva.js`);
+    expect(effect.recipe.path).toBe(`${ledger}/ledger.viva.json`);
     expect(effect.recipe.present).toBe(true);
     expect(effect.recipe.manifest.type).toBe("ledger");
     expect(effect.recipe.manifest.slug).toBe("ledger"); // derived from the scaffold's stem
-    expect(effect.recipe.slots).toEqual(["environment", "runtime", "lighthouse", "datamap", "hallucinators", "clients", "services"]);
+    expect(effect.recipe.slots).toEqual(["environment", "runtime", "datamap", "hallucinators", "clients"]);
   });
 
-  it("tap records a store-relative location", async () => {
+  it("tap records the owner → slug and mount", async () => {
     const effect = await drive(["registry/tap", "pack"]);
-    expect(effect.location).toBe("pack");
-    expect(effect.record).toEqual(["pack"]);
+    expect(effect.owner).toBe("@pack");
+    expect(effect.record).toEqual(TAPPED());
     expect(effect.root).toBe(`${store}/pack`);
   });
 
   it("re-tap is idempotent", async () => {
     const effect = await drive(["registry/tap", "pack"]);
-    expect(effect.record).toEqual(["pack"]);
+    expect(effect.record).toEqual(TAPPED());
   });
 
   it("tap of a local source with a target throws", async () => {
@@ -114,14 +120,14 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
     await Deno.mkdir(`${store}/hollow`);
     const error = await drive(["registry/tap", "hollow"]).then(() => null, (thrown) => thrown);
     expect(String(error).includes("no package declaration")).toBe(true);
-    expect(await paladin.ledger.registry.locations()).toEqual(["pack"]);
+    expect(await paladin.ledger.registry.tapped()).toEqual(TAPPED());
   });
 
   it("tap throws on a missing absolute path, record untouched", async () => {
     const error = await drive(["registry/tap", `${store}/vanished/nowhere`])
       .then(() => null, (thrown) => thrown);
     expect(error).not.toBe(null);
-    expect(await paladin.ledger.registry.locations()).toEqual(["pack"]);
+    expect(await paladin.ledger.registry.tapped()).toEqual(TAPPED());
   });
 
   it("doctor reports homes, the .env organ, and the record with roots", async () => {
@@ -133,7 +139,7 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
     expect(effect.env.path).toBe(`${ledger}/.env`);
     expect(effect.env.present).toBe(true);
     expect(effect.record.path).toBe(effect.homes.record);
-    const entry = effect.record.entries.find((held) => held.location === "pack");
+    const entry = effect.record.entries.find((held) => held.owner === "@pack");
     expect(entry.root).toBe(`${store}/pack`);
     expect(entry.pinned).toBe(false);
     expect(entry.present).toBe(true);
@@ -145,7 +151,7 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
     await Deno.remove(`${store}/rot`, { recursive: true });
     await author(store, "loose", "@loose");
     const effect = await drive(["ledger/doctor"]);
-    const rotten = effect.record.entries.find((held) => held.location === "rot");
+    const rotten = effect.record.entries.find((held) => held.owner === "@rot");
     expect(rotten.present).toBe(false);
     expect(effect.store.path).toBe(new Path(store).absolute);
     expect(effect.store.untapped).toEqual([`${store}/loose`]);
@@ -181,59 +187,48 @@ describe("viva ledger/{init,doctor} + registry/{tap,untap} + instance/create", (
   });
 
   it("instance create without a target shelves under <ledger>/instances/<slug>", async () => {
-    await Deno.writeTextFile(
-      `${store}/pack/probe.viva.js`,
-      `export const manifest = { type: "instance", slug: "probe", version: "0.0.1" };`,
-    );
+    await Deno.mkdir(`${store}/pack/probe`, { recursive: true });
+    await Deno.writeTextFile(`${store}/pack/probe/instance.viva.json`, JSON.stringify({ manifest: { type: "instance", slug: "probe", version: "0.0.1" } }));
     const effect = await drive(["instance/create", "@pack/instance/probe"]);
     expect(effect.target).toBe(`${ledger}/instances/probe`);
     expect(effect.env).toBe(`VIVA_INSTANCE_MOUNT=${ledger}/instances/probe`);
-    expect((await Deno.stat(`${ledger}/instances/probe/probe.viva.js`)).isFile).toBe(true);
+    expect((await Deno.stat(`${ledger}/instances/probe/instance.viva.json`)).isFile).toBe(true);
   });
 
   it("instance init authors .env from the schema, then asks only for the blanks", async () => {
     const home = `${ledger}/instances/probe`;
     await Deno.remove(`${home}/.env`).catch(() => {});
-    await Deno.writeTextFile(
-      `${home}/probe.viva.js`,
-      `import { v } from "@vivalence/typology";
-export const manifest = { type: "instance", slug: "probe" };
-export const environment = v.environment({
-  VIVA_SYSTEM_MODE: v.string().desc("mode").group("identity").default("DEVELOPMENT"),
-  VIVA_PROBE_SERVE: v.url().desc("serve").group("addresses").default("http://localhost:1"),
-  SECRET_VIVA_JWT: v.string().desc("signing secret").group("keys"),
-  SECRET_VIVA_PROBE_OPTIONAL: v.string().desc("optional, unset").group("keys").optional(),
-  SECRET_VIVA_PROBE_TOKEN: v.string({ minLength: 24 }).desc("minted secret").group("keys").default(() => \`minted-\${crypto.randomUUID()}\`),
-});
-`,
-    );
+    const environment = v.environment({
+      VIVA_SYSTEM_MODE: v.string().desc("mode").group("identity").default("DEVELOPMENT"),
+      VIVA_PROBE_SERVE: v.url().desc("serve").group("addresses").default("http://localhost:1"),
+      SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("signing secret").group("keys"),
+      SECRET_VIVA_PROBE_OPTIONAL: v.string().desc("optional, unset").group("keys").optional(),
+    });
+    await Deno.writeTextFile(`${home}/instance.viva.json`, JSON.stringify({ manifest: { type: "instance", slug: "probe" }, environment: JSON.parse(JSON.stringify(environment)) }));
     paladin.scopes([["instance", () => true, () => new Path(home)]]);
 
     const first = await drive(["instance/init"]);
-    expect(first.env).toBe("scaffolded");
-    // the key WITH a default is written, not asked for; only the blank one is owed
-    expect(first.fill).toEqual(["SECRET_VIVA_JWT"]);
+    // the file is authored from the schema and the jwt MINTED by init (fork 7b): nothing is owed, the verdict is present
+    expect(first.env).toBe("present");
+    expect(first.fill).toBeUndefined();
     const held = await Deno.readTextFile(`${home}/.env`);
     expect(held.includes('VIVA_SYSTEM_MODE="DEVELOPMENT"')).toBe(true);
     expect(held.includes("# signing secret")).toBe(true);
-    // an unset key is written COMMENTED — it documents without claiming, so a ledger value shows through
-    expect(/^# SECRET_VIVA_JWT=""$/m.test(held)).toBe(true);
+    // an unset OPTIONAL key is written COMMENTED — it documents without claiming, so a ledger value shows through
     expect(/^# SECRET_VIVA_PROBE_OPTIONAL=""$/m.test(held)).toBe(true);
-    expect(paladin.secret.strata.get("instance")?.SECRET_VIVA_JWT).toBe(undefined);
     expect(paladin.secret.strata.get("instance")?.SECRET_VIVA_PROBE_OPTIONAL).toBe(undefined);
-    expect(typeof paladin.secret.strata.get("instance")?.SECRET_VIVA_PROBE_TOKEN).toBe("string");
-    // a function default is fired once at scaffold — the file holds the minted value, not the thunk
-    const minted = held.match(/^SECRET_VIVA_PROBE_TOKEN="(minted-[0-9a-f-]{36})"$/m)?.[1];
+    const minted = held.match(/^SECRET_VIVA_JWT="([A-Za-z0-9+/=]{32})"$/m)?.[1];
     expect(typeof minted).toBe("string");
+    expect(paladin.secret.strata.get("instance")?.SECRET_VIVA_JWT).toBe(minted);
 
     // the writer fills the commented slot IN PLACE — under its description, inside its group, no twin
-    await paladin.state.env(`${home}/.env`, { SECRET_VIVA_JWT: "x" });
+    await paladin.state.env(`${home}/.env`, { SECRET_VIVA_PROBE_OPTIONAL: "x" });
     const written = await Deno.readTextFile(`${home}/.env`);
-    expect(written.includes('# signing secret\nSECRET_VIVA_JWT="x"\n')).toBe(true);
-    expect(written.includes("# SECRET_VIVA_JWT")).toBe(false);
+    expect(written.includes('# optional, unset\nSECRET_VIVA_PROBE_OPTIONAL="x"\n')).toBe(true);
+    expect(written.includes("# SECRET_VIVA_PROBE_OPTIONAL")).toBe(false);
     const second = await drive(["instance/init"]);
     expect(second.env).toBe("present");
-    expect((await Deno.readTextFile(`${home}/.env`)).includes(`SECRET_VIVA_PROBE_TOKEN="${minted}"`)).toBe(true);
+    expect((await Deno.readTextFile(`${home}/.env`)).includes(`SECRET_VIVA_JWT="${minted}"`)).toBe(true);
 
     // a SET value that fails its type is owed like a blank one — named with its reason, never booted onto
     const filled = await Deno.readTextFile(`${home}/.env`);
@@ -250,7 +245,7 @@ export const environment = v.environment({
 
   it("untap removes the record, store keeps the working copy", async () => {
     const effect = await drive(["registry/untap", "pack"]);
-    expect(effect.record).toEqual([]);
+    expect(effect.record).toEqual({ "@commons": { slug: "commons", mount: COMMONS } });
     expect((await Deno.stat(`${store}/pack`)).isDirectory).toBe(true);
   });
 });

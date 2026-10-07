@@ -84,6 +84,9 @@ const dormant = (instance, at, mask) => {
 export function settle(instance) {
   const { Instance } = v.primitives.instance;
   instance.dormant = [];
+  instance.hallucinators = (instance.hallucinators ?? []).filter(
+    (mask, index) => alive(mask) || dormant(instance, `hallucinators[${index}]`, mask),
+  );
   for (const daemon of instance.daemons) {
     const at = `daemon[${daemon.manifest?.slug}]`;
     daemon.hallucinators = (daemon.hallucinators ?? []).filter(

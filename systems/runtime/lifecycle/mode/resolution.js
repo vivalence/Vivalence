@@ -1,7 +1,8 @@
-import { stagger, stamp } from "../../gestalten/belt/index.js";
+import { stagger } from "../../gestalten/belt/index.js";
+import { stamp } from "../../traits/dataset.js";
 
 export const traits = async (die) => {
-  await die.daemon.datamap.shard.scope(async () => {
+  await die.host.datamap.shard.scope(async () => {
     const held = die.mode.entity.installed;
     const fresh = await stamp(die.mode);
     if (typeof held === "string" && held && held !== fresh) {
@@ -9,7 +10,11 @@ export const traits = async (die) => {
       die.mode.entity.installed = "";
     }
 
-    die.mode.finalizers = await stagger(die.mode, die.daemon, die.traits);
+    die.mode.finalizers = await stagger(die.mode, die.host, die.traits);
+
+    for (const name of die.mode.manifest.traits.filter((name) => !die.traits[name])) {
+      console.warn(`[trait] ${die.mode.manifest.type}/${die.mode.manifest.slug} declares ${name}, which ${die.host.reference.absolute} does not offer`);
+    }
 
     if (die.mode.module.aperture && !die.mode.implements("EXPOSED")) {
       console.warn(`[trait] ${die.mode.manifest.type}/${die.mode.manifest.slug} exports aperture without EXPOSED`);
@@ -19,6 +24,6 @@ export const traits = async (die) => {
     }
 
     die.mode.entity.installed = fresh;
-    await die.daemon.entities.mode.nativeUpdate({ id: die.mode.entity.id }, { installed: fresh });
+    await die.host.entities.mode.nativeUpdate({ id: die.mode.entity.id }, { installed: fresh });
   });
 };

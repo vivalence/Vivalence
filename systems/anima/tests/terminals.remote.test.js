@@ -18,8 +18,21 @@ class DaemonDouble {
 const DaemonDossierDouble = {
   name: "daemon",
   kind: () => DaemonDouble,
-  repository: (schema, dataspace) => new RemoteRepository(schema.kind()).connect(dataspace.connection.branch("/entities/daemon")),
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind()).connect(dataspace.connection.branch("/metadata/daemons"));
+    repo.find = async () => {
+      const roster = await dataspace.connection.call("/metadata/daemons");
+      return repo.epoch(() => Promise.all(roster.map((row) => repo.cast({ id: row.slug, slug: row.slug }))));
+    };
+    return repo;
+  },
 };
+
+const roster = (house) =>
+  house.aperture
+    .branch("/metadata")
+    .open("/datamap", () => shard.datamap.strip(house.datamap.orm.getMetadata()))
+    .open("/daemons", () => house.datamap.shard.scope(async () => (await house.datamap.entities.daemon.find({})).map((row) => ({ slug: row.slug, reference: `/daemon/${row.slug}` }))));
 
 const threadDouble = (id, daemon) => ({ id, daemon, $buffers: atom([]), $phase: atom("manual"), trait: { QUEUEING: { depth: 1 } } });
 const tick = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -33,30 +46,32 @@ const until = async (predicate, ms = 1500) => {
 };
 
 async function client(house, username, access = null) {
-  let identity;
-  if (!access) ({ identity, access } = await house.signup(username));
-  else identity = (await house.connect(access).call("/auth/verify", { access })).identity;
-  const lighthouse = { $identity: map(identity), $daemons: atom([]), get identity() { return this.$identity.get(); } };
+  let user;
+  if (!access) ({ user, access } = await house.signup(username));
+  else user = (await house.connect(access).call("/lighthouse/verify", { access })).user;
+  const lighthouse = { $user: map(user), $daemons: atom([]), get user() { return this.$user.get(); } };
   const connection = house.connect(access);
   const dataspace = new Dataspace({
     entities: [DaemonDossierDouble, TerminalDossier],
     connection,
+    runtime: connection,
     seed: (vector) => vector.use(shard.context.bind("lighthouse", lighthouse)),
   });
   await dataspace.init();
   await dataspace.populate(["daemon", "terminal"]);
   const terminals = new Terminals(dataspace.terminal);
-  return { identity, access, lighthouse, connection, dataspace, terminals };
+  return { user, access, lighthouse, connection, dataspace, terminals };
 }
 
 Deno.test("d · e — the client over the remote repository and its subscription", async (t) => {
   const house = await lighthouse.create();
+  roster(house);
   const finn = await client(house, "finn");
-  const row = (terminal) => finn.connection.call("/entities/terminal/findOne", { where: { id: terminal.id } });
+  const row = (terminal) => finn.connection.call("/userspace/entities/terminal/findOne", { where: { id: terminal.id } });
 
   await t.step("init reads /metadata/datamap into the remote em schema", () => {
     assert(finn.dataspace.em.schema.terminal?.properties?.daemon?.kind === "m:1");
-    assert(finn.dataspace.em.schema.terminal?.properties?.identity?.kind === "m:1");
+    assert(finn.dataspace.em.schema.terminal?.properties?.user?.kind === "m:1");
   });
 
   await t.step("create seats index 0 then 1; the store sorts by index; active follows; the entity knows its repository", async () => {
@@ -79,25 +94,25 @@ Deno.test("d · e — the client over the remote repository and its subscription
   });
 
   await t.step("the row carries no authentication (hidden on the wire)", async () => {
-    const rows = await finn.connection.call("/entities/terminal/find", { options: { populate: ["identity"] } });
-    assertEquals(rows[0].identity.authentication, undefined);
-    assertEquals(rows[0].identity.slug, "finn");
+    const rows = await finn.connection.call("/userspace/entities/terminal/find", { options: { populate: ["user"] } });
+    assertEquals(rows[0].user.authentication, undefined);
+    assertEquals(rows[0].user.slug, "finn");
   });
 
-  await t.step("two walls: another identity sees none of finn's rows, cannot widen with where.identity, its own index starts at 0", async () => {
+  await t.step("two walls: another user sees none of finn's rows, cannot widen with where.user, its own index starts at 0", async () => {
     const beef = await client(house, "kiro");
     assertEquals(beef.terminals.entities.length, 0);
-    const widened = await beef.connection.call("/entities/terminal/find", { where: { identity: finn.identity.id } });
+    const widened = await beef.connection.call("/userspace/entities/terminal/find", { where: { user: finn.user.id } });
     assertEquals(widened.length, 0);
     const own = await beef.terminals.create();
     assertEquals(own.index, 0);
-    assertEquals((await finn.connection.call("/entities/terminal/find")).length, 2);
+    assertEquals((await finn.connection.call("/userspace/entities/terminal/find")).length, 2);
   });
 
-  await t.step("DOCKED: the identity's trait, else the row's; a drag persists after the debounce; an idle row stays untouched", async () => {
+  await t.step("DOCKED: the user's trait, else the row's; a drag persists after the debounce; an idle row stays untouched", async () => {
     const [first, second] = finn.terminals.entities;
     assertEquals(first.dock.side, "right");
-    finn.lighthouse.$identity.setKey("trait", { DOCKED: { side: "left", share: 0.5, collapsed: false, full: false } });
+    finn.lighthouse.$user.setKey("trait", { DOCKED: { side: "left", share: 0.5, collapsed: false, full: false } });
     const third = await finn.terminals.create();
     assertEquals(third.dock.side, "left");
     await finn.terminals.remove(third.id);
@@ -109,16 +124,18 @@ Deno.test("d · e — the client over the remote repository and its subscription
     assertEquals((await row(second)).traits, []);
   });
 
-  const brazilian = await house.seedDaemon("brazilian", [finn.identity.id]);
+  const brazilian = await house.seedDaemon("brazilian", [finn.user.id]);
   await finn.dataspace.populate(["daemon"]);
   const daemonEntity = finn.dataspace.daemon.$entities.get()[0];
 
-  await t.step("the pivot: finn's daemon arrives as a DaemonDouble through /entities/daemon", () => {
+  await t.step("the pivot: finn's daemon arrives as a DaemonDouble through /metadata/daemons", async () => {
+    assertEquals((await finn.connection.call("/metadata/daemons")).map((row) => row.slug), ["brazilian"]);
     assert(daemonEntity instanceof DaemonDouble);
     assertEquals(daemonEntity.slug, "brazilian");
   });
 
-  const seated = threadDouble("0192-thread", daemonEntity);
+  const row0192 = await finn.connection.call("/userspace/entities/thread/create", { data: { trait: {} } });
+  const seated = threadDouble(row0192.id, daemonEntity);
   seated.$buffers.set([{ id: "b1", on: { release: () => {} } }]);
   daemonEntity.entities.thread.$entities.set([seated]);
   daemonEntity.healthy();
@@ -126,25 +143,25 @@ Deno.test("d · e — the client over the remote repository and its subscription
   await t.step("seat writes the row; $thread derives from the daemon's thread store; the m:1 resolves back to the double", async () => {
     const [first] = finn.terminals.entities;
     await first.seat(seated);
-    assertEquals([first.thread, first.daemon instanceof DaemonDouble], ["0192-thread", true]);
-    assertEquals((await row(first)).daemon, brazilian.id);
+    assertEquals([first.thread, first.daemon instanceof DaemonDouble], [row0192.id, true]);
+    assertEquals((await row(first)).daemon, brazilian.slug);
     assertEquals(first.$thread.get(), seated);
     assertEquals(first.$buffer.get()?.id, "b1");
     assertEquals(first.settling, null);
   });
 
-  await t.step("subscription: a second client of the same identity sees the seat move without a reload", async () => {
+  await t.step("subscription: a second client of the same user sees the seat move without a reload", async () => {
     const twin = await client(house, "finn", finn.access);
     const offSubscription = twin.dataspace.terminal.subscribe();
     await settled();
     const [first] = finn.terminals.entities;
     const mirror = twin.terminals.entities.find((terminal) => terminal.id === first.id);
-    assertEquals(mirror.thread, "0192-thread");
+    assertEquals(mirror.thread, row0192.id);
     await first.seat(null);
     await until(() => mirror.thread === null);
     assertEquals(mirror.daemon, null);
     await first.seat(seated);
-    await until(() => mirror.thread === "0192-thread");
+    await until(() => mirror.thread === row0192.id);
     setDockSide(first.$dock, "top");
     await until(() => mirror.trait.DOCKED?.side === "top");
     assertEquals(mirror.dock.side, "top");
@@ -154,7 +171,7 @@ Deno.test("d · e — the client over the remote repository and its subscription
   await t.step("settling: an unhealthy daemon → $settling { thread }, $thread null; healthy again → mounted", async () => {
     const [first] = finn.terminals.entities;
     daemonEntity.healthy("mounting");
-    assertEquals(first.settling, { thread: "0192-thread" });
+    assertEquals(first.settling, { thread: row0192.id });
     assertEquals(first.$thread.get(), null);
     daemonEntity.healthy("healthy");
     assertEquals(first.$thread.get(), seated);
@@ -174,7 +191,7 @@ Deno.test("d · e — the client over the remote repository and its subscription
     finn.terminals.activate(second.id);
     await finn.terminals.remove(second.id);
     assertEquals(finn.terminals.active, first);
-    assertEquals(await finn.connection.call("/entities/terminal/count"), 1);
+    assertEquals(await finn.connection.call("/userspace/entities/terminal/count"), 1);
   });
 
   await t.step("toJSON: no $ keys, no stall, no repository", () => {

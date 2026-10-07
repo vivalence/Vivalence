@@ -1,24 +1,22 @@
-import { Aperture, Cargo, Cortex, Vector, shard } from "@vivalence/typology";
+import { Aperture, Cargo, contexts, shard } from "@vivalence/typology";
 import { VirtualSchema } from "@vivalence/typology/entities";
 import { ProcessEntity, ProcessRepository, ProcessSchema } from "../entities/index.ts";
 
 export class Daemon extends ProcessEntity {
   type = "daemon";
-  aperture = new Aperture().use(shard.context.bind("daemon", this));
+  aperture = new Aperture().use(shard.context.spread(contexts.host, this));
   connection = null;
   call = null;
-  authority = null;
-  lighthouse = null;
-  harness = null;
   entity = null;
   statics = null;
   mountpoint = null;
   cargo = new Cargo();
-  cortex = new Cortex();
+  cortex = null;
   datamap = null;
   domain = null;
   entities = {};
-  twitch = new Vector();
+  twitch = null;
+  minted = {};
   modes = {};
   services = {};
 
@@ -34,9 +32,6 @@ export class Daemon extends ProcessEntity {
     return this.manifest.traits || [];
   }
 
-  flatmodes() {
-    return Object.values(this.modes).flatMap((type) => Object.values(type));
-  }
 }
 
 export const DaemonSchema = new VirtualSchema({ class: Daemon, extends: ProcessSchema, repository: () => ProcessRepository, properties: {} });

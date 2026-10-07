@@ -1,6 +1,9 @@
 """apply-diffs — every `#+BEGIN_SRC diff` hunk of one quest section as an exact-text replacement.
 
-    python3 apply-diffs.py <quest.org> "<section heading>" [--write] [--skip path ...]
+    python3 apply-diffs.py <quest.org> "<section heading>" [--write] [--root <dir>] [--skip path ...]
+
+`--root` lands on a COPY (the replay law: a fresh copy, never the repo); without it the root is the repo.
+REJECTED 10-08: a hard-coded root — a replay run from a copy with --write landed 11 ghost files in the repo.
 
 A block's first line is `// <path>:<line> …`; `…` lines split sub-hunks; `-`/`+`/` ` prefixes are old/new/context,
 an empty line is empty context. Per file: every anchor must match exactly once BEFORE anything is written
@@ -8,10 +11,10 @@ an empty line is empty context. Per file: every anchor must match exactly once B
 """
 import re, sys
 
-ROOT = "/Users/finn/vivalence/code/vivalence/"
+ROOT = (sys.argv[sys.argv.index("--root") + 1].rstrip("/") + "/") if "--root" in sys.argv else "/Users/finn/vivalence/code/vivalence/"
 quest, section = sys.argv[1], sys.argv[2]
 write = "--write" in sys.argv
-skip = set(sys.argv[sys.argv.index("--skip") + 1 :]) if "--skip" in sys.argv else set()
+skip = set(sys.argv[sys.argv.index("--skip") + 1 :]) - {"--root"} if "--skip" in sys.argv else set()
 
 text = open(quest, encoding="utf-8").read().split("\n")
 start = next(i for i, line in enumerate(text) if line.strip() == section)

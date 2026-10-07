@@ -1,12 +1,12 @@
-import { specimen, v, shape, shard } from "@vivalence/typology";
+import { contexts, shape, shard, specimen, v } from "@vivalence/typology";
 import { Vector, Mode, Aperture, Path } from "@vivalence/typology";
-import { lifecycle } from "@vivalence/runtime";
-const { TOOLING, HARNESSED } = lifecycle.mode.traits;
+import { traits } from "@vivalence/runtime";
+const { TOOLING, HARNESSED } = traits;
 import { create } from "../scenarios/cortex.js";
 
 function provision(mode, daemon) {
   mode.tools = new Vector();
-  mode.tools.use(shard.context.bind("daemon", daemon));
+  mode.tools.use(shard.context.spread(contexts.host, daemon));
   mode.tools.use(shard.context.bind("mode", mode));
   if (mode.module.tools) mode.tools.graft(mode.module.tools);
 }
@@ -52,11 +52,11 @@ specimen.describe("tool provisioning + TOOLING marker", () => {
       specimen.expect(mode.aperture.branch("/tool").effect).toBe(null);
     });
 
-    specimen.it("tool execute receives ctx.daemon and ctx.mode", async () => {
+    specimen.it("tool execute receives the host words flat and ctx.mode", async () => {
       let captured = null;
       const tools = new Vector();
       tools.open({ nature: "probe", input: v.object({}) }, async (ctx) => {
-        captured = { daemon: ctx.daemon, mode: ctx.mode };
+        captured = { entities: ctx.entities, mode: ctx.mode };
         return { ok: true };
       });
       const mode = buildMode({ tools, slug: "prober" });
@@ -67,7 +67,7 @@ specimen.describe("tool provisioning + TOOLING marker", () => {
       const result = await call.probe({});
 
       specimen.expect(result).toEqual({ ok: true });
-      specimen.expect(captured.daemon).toBe(scenario.daemon);
+      specimen.expect(captured.entities).toBe(scenario.daemon.entities);
       specimen.expect(captured.mode).toBe(mode);
     });
   });

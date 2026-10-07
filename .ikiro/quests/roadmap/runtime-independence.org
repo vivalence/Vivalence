@@ -37,20 +37,45 @@ A move to Node alone pays nearly every one of these costs and ends coupled to No
 
 ** live prod =Deno.*= per container
 
-| container | calls | files |
-|-----------+-------+-------|
-| =subsystems/paladin= | 74 | 17 |
-| =systems/ghost= | 58 | 16 |
-| =systems/runtime= | 8 | 4 |
-| =subsystems/typology= | 6 | 4 |
-| =systems/anima= | 4 | 2 |
-| =subsystems/sheets= | 1 | 1 |
-| =commons= | 1 | 1 |
-| =documentation= | 1 | 1 |
-| =subsystems/dapper= | 0 | 0 |
-| =subsystems/drapes= | 0 | 0 |
-| repo | 153 | 46 |
-| =~/.viva/registry= | 67 | 18 |
+| container | 10-06 calls | 10-06 files | 10-09 calls | 10-09 files |
+|-----------+-------------+-------------+-------------+-------------|
+| =subsystems/paladin= | 74 | 17 | 78 | 18 |
+| =systems/ghost= | 58 | 16 | 64 | 17 |
+| =systems/runtime= | 8 | 4 | 8 | 4 |
+| =subsystems/typology= | 6 | 4 | 6 | 4 |
+| =systems/anima= | 4 | 2 | 4 | 2 |
+| =subsystems/sheets= | 1 | 1 | 1 | 1 |
+| =commons= | 1 | 1 | 1 | 1 |
+| =documentation= | 1 | 1 | 1 | 1 |
+| =subsystems/dapper= | 0 | 0 | 0 | 0 |
+| =subsystems/drapes= | 0 | 0 | 0 | 0 |
+| repo | 153 | 46 | 163 | 48 |
+| =~/.viva/registry= | 67 | 18 | 79 | 20 |
+| dead =systems/ghost/bak/= | — | — | 30 | 9 |
+| dead =systems/runtime/bak.belt/= | — | — | 14 | 4 |
+
+The 10-09 column is =rg -o '\bDeno\.[A-Za-z]+'= per container, excluding =node_modules= · =testament= · =tests/= · =test/= · =*.test.*= · =*.md= · =*.mdx= · =*.org= · =*.json= · =bak/= · =bak.*/=. The 10-06 scripts are gone with their scratchpad, so the delta (repo +10, registry +12) is not attributed: it may be growth since m80 landed, or a different exclusion set. Every container outside paladin except dapper and drapes names Deno.
+
+** live sites outside paladin — 10-09
+
+| file | APIs |
+|------+------|
+| =systems/runtime/lifecycle/runtime/integration.js:25= | =serve= (seam) |
+| =subsystems/typology/gestalten/shard/serve.js:21,35= | =open= · =upgradeWebSocket= (seam) |
+| =systems/ghost/trajectories/instance/{target,start}.js= | =execPath= (seam) |
+| =systems/runtime/run.js:17,20= | =addSignalListener= · =exit= |
+| =systems/runtime/gestalten/belt/stamp.js:4,23,26= | =readTextFile= |
+| =systems/runtime/lifecycle/runtime/resolution.js:65,74= | =stat= · =readFile= |
+| =subsystems/typology/gestalten/shard/receiver.js:2,17= | =stdin.readable= · =stdout.write= |
+| =subsystems/typology/prototypes/url.js:233= | =customInspect= |
+| =subsystems/typology/specimen/snapshot.js:126= | =writeTextFileSync= |
+| =systems/anima/client.viva.js:38,41= | =stat= · =Command= |
+| =systems/anima/vite.config.mjs:55,69= | =Command= · =env= |
+| =subsystems/sheets/components/Table.jsx:9= | =consoleSize= |
+| =commons/services/reader/guard.js:23= | =resolveDns= |
+| =documentation/src/tangle.js:38= | =exit= |
+
+Ghost's 64 across 17 files: =stat= 18 · =readDir= 8 · =env= 7 · =remove= 4 · =mkdir= 4 · =copyFile= 3 · =writeTextFile= 2 · =rename= 2 · =kill= 2 · =exit= 2 · =execPath= 2 · =cwd= 2 · =consoleSize= 2 · =args= 2 · =stdout= 1 · =stdin= 1 · =readTextFile= 1 · =Command= 1. The heaviest file is =systems/ghost/trajectories/ledger/index.js= (18 lines).
 
 ** repo prod by family
 
@@ -331,6 +356,7 @@ Lean: 1.
 5. *=.ts= → =.js=.* An =enum= becomes an =Object.freeze= table. =mod.ts= becomes =mod.js=, and =types.d.ts= leaves the runtime graph.
 6. *specimen stays the one test door.* It is backed by =node:test=, which held on Node and Deno. The 28 =Deno.test= files and 17 direct =@std/testing/bdd= files route through it. specimen sits in typology's PROD barrel (=subsystems/typology/mod.ts:10= =export * as specimen=), so every runtime import already loads the test harness. That makes its backing a production concern, not just a test one.
 7. *Order against live quests.* =m78-mikro-7= rewrites the mikro layer that the =.ts= entities sit on, so it lands before M2 touches them. =runtime-testing-recast='s census (=HOME= set to an empty dir) is M5's baseline.
+8. *Dead =bak/= trees are cut, not excluded, before the dialect milestone.* =systems/ghost/bak/= (30 calls · 9 files) and =systems/runtime/bak.belt/= (14 · 4) would otherwise fail its gate (prod =Deno\.= hits ⊆ seam files). A cut is code, so it waits for beef's per-item go. REJECTED: an exclusion glob in the gate — a dead file that names a host is still in the source.
 
 * the law
 
@@ -423,7 +449,7 @@ Finally, the repo's 6 inline =npm:= / =jsr:= lines become bare specifiers. The r
 ** M2 — transpile out
 
 #+BEGIN_SRC diff
-// systems/runtime/entities/kernel/Constraint.ts:4
+// systems/runtime/entities/Constraint.ts:4
 -export enum ConstraintType {
 -  SCHEMATIC = "SCHEMATIC",
 -  EXISTENTIAL = "EXISTENTIAL",
@@ -522,6 +548,7 @@ Finally, the repo's 6 inline =npm:= / =jsr:= lines become bare specifiers. The r
 * changelog
 
 - 10-06 — written from a fresh session. The census ran through =rg= scripts in the session scratchpad (=measure.sh= · =measure2.sh= · =measure3.sh= · =measure4.sh=). Probes =probe-walk/= and =probe-test/= live in the same scratchpad: both held on node 20.17.0 and deno 2.9.6, with their outputs pasted under =* terrain — measured=. Every BEFORE line in the 12 diff hunks was replayed dry through =methods/apply-diffs.py= against the live tree: =hunks landed 12 · missed 0=. The NEW sides are sketches, not tangle. No repo or =~/.viva= file was touched. Not added to =quests/index.md= or =world/frontier.md=, per /"unindexed."/
+- 10-09 — beef: /"Okay, are there any dependencies on Deno outside of Paladin?"/, then /"Write that into the quest."/ Re-census, every container, one method (stated under the table): repo 163 calls · 48 files, registry 79 · 20; outside paladin 85 · 30. Added the 10-09 columns, the dead =bak/= rows, =** live sites outside paladin — 10-09=, and decision 8. No repo or =~/.viva= file was touched.
 
 * release
 

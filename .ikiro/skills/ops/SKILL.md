@@ -50,7 +50,8 @@ jq 'length' /m/service_multiplayer/tokens.json
 ```
 
 - `_mikro_migrations`, not `mikro_orm_migrations`; tables Capitalised (`Mode` `Buffer` `Turn` `User` `Identity` `Daemon`).
-- daemon dbs carry the `db.file` their creating recipe pinned (prod: `test-language*.viva.db`), NOT the default `<slug>.viva.db` (`subsystems/paladin/lifecycle/resolve.js:24`); a mismatch mints an empty db beside the old. Rename the file, keep the dir.
+- daemon dbs carry the `db.file` their creating recipe pinned (prod: `test-language*.viva.db`), NOT the default `<slug>.viva.db` (`paladin/lifecycle/resolve.js:29`); a mismatch mints an empty db beside the old. Rename the file, keep the dir.
+- PROD only; local since m80 = ONE `<instance>.viva.db` (`runtime/population.js:31`).
 - `$D=$(ls -d /m/daemon_*)` over several daemons expands to several paths — loop, never assign.
 - `-readonly` on `:ro` is safe live; "disk I/O error" = wrong path, not a lock.
 
@@ -95,7 +96,7 @@ ls ~/.viva/instances/<slug>/mountpoint/
 sqlite3 ~/.viva/instances/<slug>/mountpoint/daemon_brazilian/<dbname>.sqlite ".tables"
 ```
 
-Then `viva instance/use <slug> run`; report boot/migration errors. A bind mount in `commons/instances/multiplayer/docker-compose.yml` would drop the sidecar.
+Then `viva instance/use <slug> run`; report boot/migration errors. `commons/instances/hello-world/docker-compose.yml` is the one compose.
 
 ## DBeaver connections
 

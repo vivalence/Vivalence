@@ -15,14 +15,14 @@ when_to_use: >-
 <!-- limit: 5000 chars -->
 # name — "i dont like the name" · "rename X to Y everywhere": lock a noun, then land it
 
-The recurring order: agent proposes a mechanism → beef refuses in one line → the ontology gets named. Run this BEFORE the sketch.
+Order: I propose a mechanism → beef refuses in one line → the ontology gets named. Run this BEFORE the sketch.
 
 ## lock — the ontology pass
 
 1. **the dissatisfaction is the spec** — /"lets globally rename cake. i dont like the name."/ · /"not process or job … don't call it the ledger"/: what the word must NOT be.
-2. **collision list from disk FIRST** — `ls subsystems/typology/schematics/prototypes/ subsystems/typology/gestalten/shard/` and a census: how many THINGS the word means today. State the count you MEASURED.
+2. **collision list from disk FIRST** — `ls` typology's `prototypes/` · `gestalten/shard/` and a census: how many THINGS the word means today, MEASURED. A collision is a DIFFERENT concept, named as such; the word naming the values is the heir — REJECTED 10-10: `bundle` struck against its own `Bundle` (/"why bundle is out so fast"/).
 3. **count what wants naming** — /"Two things want naming: the UNIT and the ORGAN."/ One word per concept across the wire.
-4. **propose fifteen** — clustered by REGISTER (machine · body · authority …), one-line case each, STRUCK candidates kept visible, a stated **Lean**, never a decision. Plain technical words; extend the existing family. REJECTED: a coined register — /"what is Crib?"/.
+4. **propose fifteen** — clustered by REGISTER, one-line case each, STRUCK kept, a **Lean**, never a decision. Plain words; extend the family. REJECTED: a coined register — /"what is Crib?"/ · a noun coined in a sketch as if code — /"what is host. never heard of host. yours or code?"/: first use says `(mine, 0 hits)`.
 5. **precedent** — in-repo AND external (/"what does USD call that internally"/) → STEAL or INVENT.
 6. **the PRINCIPLE that decides**, not just the winner — /"Residence disambiguates; one noun per concept across the wire"/.
 7. **the noun→meaning table**, one row per term, `DEAD` included.
@@ -45,7 +45,7 @@ Design mode — /"ignore the forks. were doing high level design now."/ · /"You
 2. **term census** — identifiers · `manifest.type` strings · scope keys · `VIVA_*` env vars · route nouns · file and directory names · fixtures · snapshots · docs · bruno · docker/compose · `.mjs`. `grep -rI` with NO include filters — /"did you cover bruno? testing? json?"/ · /"svelte"/ · /"docker?"/ · /"compose??"/
 3. **radius = the whole machine** — repo + `~/.viva/instances/*` + `~/.viva/registry/*`. A tapped package reported "owed" is not landed. `~/.viva` has no VCS → capture first (skill `readme`).
 4. **relative imports** — `grep -rn '\.\./.*<old>/'`.
-5. **new names exact** — `grep -rn '<new>'` before writing; a same-name-different-concept is named as such.
+5. **new names exact** — `grep -rn '<new>'` before writing.
 6. **the atomic spine** — scope key · env var · `find.type` · manifest `type` strings · ledger path form in ONE milestone; a split leaves boot red.
 7. **bracket it** — skill `change`: suites green before and after, snapshots in compare mode + `SNAPSHOT_HOT=1` for wire ones, fixtures + snapshots (repo AND registry) → ZERO old name.
 8. **residue grep against the keep-list** — anything outside it is a miss.

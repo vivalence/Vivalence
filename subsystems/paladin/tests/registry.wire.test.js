@@ -68,40 +68,38 @@ describe("registry.accio — mask ⊕ module, once", () => {
 describe("registry.wire — a daemon mask to its bag", () => {
   const mask = {
     manifest: { type: "daemon", slug: "d", version: "0.0.1" },
-    lighthouse: { module: "@probe/lighthouse/light" },
     datamap: { module: "@probe/datamap/map", statics: { db: { file: "d.viva.db" } } },
     hallucinators: [],
     consume: { light: { module: "@probe/lighthouse/light" } },
-    kernel: [{ module: "@probe/domain/chess", mountpoint: new Path("/m/chess") }, { module: "@probe/game/board", mountpoint: new Path("/m/board") }],
+    modes: [{ module: "@probe/domain/chess", mountpoint: new Path("/m/chess") }, { module: "@probe/game/board", mountpoint: new Path("/m/board") }],
   };
 
-  it("every slot is a citizen; the kernel keeps its order; the domain is picked from it", async () => {
+  it("every slot is a citizen; the modes keeps its order; the domain is picked from it", async () => {
     const bag = await boot(MODULES).wire(mask);
-    expect(bag.lighthouse.provider(bag.lighthouse).manifest.slug).toBe("light");
     expect(bag.datamap.statics).toEqual({ db: { file: "d.viva.db" } });
     expect(bag.hallucinators).toEqual([]);
     expect(Object.keys(bag.consume)).toEqual(["light"]);
-    expect(bag.kernel.map((citizen) => citizen.manifest.slug)).toEqual(["chess", "board"]);
+    expect(bag.modes.map((citizen) => citizen.manifest.slug)).toEqual(["chess", "board"]);
     expect(bag.domain.manifest.slug).toBe("chess");
   });
 
-  it("a kernel without a domain wires an empty domain, not a throw", async () => {
-    const bag = await boot(MODULES).wire({ ...mask, kernel: [mask.kernel[1]] });
+  it("a modes without a domain wires an empty domain, not a throw", async () => {
+    const bag = await boot(MODULES).wire({ ...mask, modes: [mask.modes[1]] });
     expect(bag.domain.manifest?.slug).toBeUndefined();
-    expect(bag.domain.entities ?? {}).toEqual({});
+    expect(bag.domain.traits).toEqual({ literal: [], symbol: [], note: [], mode: [] });
   });
 
   it("an entry that arrives unseated is seated in wire from the folded manifest; a seated one is left alone", async () => {
     const seated = { ...mask, reference: new Path("/daemon/d"), url: new Url("http://x/daemon/d"), mountpoint: new Path("/m/d") };
-    const bag = await boot(MODULES).wire({ ...seated, kernel: [mask.kernel[1], { ...mask.kernel[0], reference: new Path("/held") }] });
-    expect(bag.kernel[0].reference.absolute).toBe("/mode/game/board");
-    expect(bag.kernel[0].url.absolute).toBe("http://x/daemon/d/mode/game/board");
-    expect(bag.kernel[0].bundles.absolute).toBe("/m/d/bundles/game/board");
-    expect(bag.kernel[1].reference.absolute).toBe("/held");
+    const bag = await boot(MODULES).wire({ ...seated, modes: [mask.modes[1], { ...mask.modes[0], reference: new Path("/held") }] });
+    expect(bag.modes[0].reference.absolute).toBe("/mode/game/board");
+    expect(bag.modes[0].url.absolute).toBe("http://x/daemon/d/mode/game/board");
+    expect(bag.modes[0].bundles.absolute).toBe("/m/d/bundles/game/board");
+    expect(bag.modes[1].reference.absolute).toBe("/held");
   });
 
   it("a slot naming an unsupplied package throws that package, not the whole bag silently", async () => {
-    await expect(boot(MODULES).wire({ ...mask, lighthouse: { module: "@gone/lighthouse/x" } })).rejects.toThrow("package @gone not supplied");
+    await expect(boot(MODULES).wire({ ...mask, datamap: { module: "@gone/datamap/x" } })).rejects.toThrow("package @gone not supplied");
   });
 });
 
@@ -121,8 +119,8 @@ describe("registry.accio — a service mask", () => {
   it("a settled mask carries traits: [] — the schematic's fill, not its word: the module's traits stay; a mask's own add, never strip", async () => {
     const filled = await boot(SERVICES).accio({ manifest: { type: "service", slug: "mine", traits: [] }, module: "@probe/service/attached", mountpoint: new Path("/s") });
     expect(filled.manifest.traits).toEqual(["ATTACHED"]);
-    const added = await boot(SERVICES).accio({ manifest: { type: "service", slug: "mine", traits: ["STANDALONE"] }, module: "@probe/service/attached", mountpoint: new Path("/s") });
-    expect(added.manifest.traits).toEqual(["ATTACHED", "STANDALONE"]);
+    const added = await boot(SERVICES).accio({ manifest: { type: "service", slug: "mine", traits: ["CONVERSATIONAL"] }, module: "@probe/service/attached", mountpoint: new Path("/s") });
+    expect(added.manifest.traits).toEqual(["ATTACHED", "CONVERSATIONAL"]);
   });
 
   it("a consumed-only service folds like any other — the runtime, not the registry, decides not to spawn it", async () => {

@@ -1,5 +1,7 @@
 # Assembly — the domain, the importer, and the editor we want
 
+> DATED — measured before m80/m81. Since: a tool or App calls a nature through `ctx.call`, not `daemon.call` (the host's words ride flat, m81; `daemon.call` remains the daemon's own proxy) · a mode reaches shapes through `ctx.domain.schematics` · the domain barrel is `traits · schematics · aperture · tools · manifest` (`entities/kernel/*` → `traits/`) · ONE db `mountpoint/droneaid.viva.db` (m80). Re-read the code before trusting a line.
+
 > Three readings of one package. Part I and Part II are MEASURED against the live tree and the live
 > droneaid dataspace (read-only sqlite, `file:…?mode=ro`); every count below came off a command run
 > for this document, not off recall. Part III is a design dossier — what the editor must become —

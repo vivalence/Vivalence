@@ -196,7 +196,7 @@ const world = () => {
     slug: "reader",
     name: "Reader",
     type: "office",
-    traits: ["APPLICATION", "STANDALONE", "EMITTER", "EXPOSED"],
+    traits: ["APPLICATION", "EMITTER", "EXPOSED"],
     metadata: {
       emitter: { branches: { due: { branches: {}, effect: { input: { type: "object", properties: { limit: { type: "integer" } } } } }, fresh: { branches: {}, effect: {} } } },
       aperture: { branches: { look: { branches: {}, effect: {} } } },
@@ -395,7 +395,7 @@ specimen.describe("rail C — five cards over a terminal, a thread and its daemo
       const card = find("mode");
       specimen.expect(text(card.querySelector(".mode-mark"))).toBe("RE");
       specimen.expect(text(card)).toContain("Reader");
-      specimen.expect([...card.querySelectorAll(".card-pill")].map(text)).toEqual(["application", "standalone", "emitter", "exposed"]);
+      specimen.expect([...card.querySelectorAll(".card-pill")].map(text)).toEqual(["application", "emitter", "exposed"]);
       fire(key(card, "new thread"), "click");
       await turn();
       specimen.expect(held.daemon.entities.thread.said("create")[0]).toEqual([{ mode: "m-reader" }]);

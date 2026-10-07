@@ -29,7 +29,7 @@ paths: ["systems/ghost/**"]
 ## verbs
 
 - `registry/bootstrap`: the destination dir NAMES the package (`basename(target)`); its `package.viva.js` is REPLACED whole, never patched. (`trajectories/registry/bootstrap.js:25` · `:60`)
-- `instance/lighthouse <signup|login|password>` IS the auth verb — there is no `viva auth`; `password` signs a 2-minute operator JWT from `SECRET_VIVA_JWT`. (`trajectories/instance/lighthouse.js:5` · `:12`)
+- `instance/user <signup|login|password>` IS the auth verb (m80 10-08: `instance/lighthouse` died) — there is no `viva auth`; `password` signs a 2-minute operator JWT from `SECRET_VIVA_JWT`. (`trajectories/instance/user.js:5` · `:20`)
 - `instance/init` scaffolds `.env` FROM the schema, re-mounts (`lifecycle.mount(lifecycle.populate.instance(paladin))`), then asks only blank/INVALID keys. (`trajectories/instance/init.js:76` · `:87`)
 - env schema: `.optional()` is the ONLY "not owed"; `.default` is raw, never validated; a `.default(fn)` fires only while AUTHORING — at scaffold and as the wizard's preset for an owed key — through `fallback(held)`, after which the `.env` holds the value. Groups: addresses · keys · services (free-form: `homes` · `mounts` · `engine` · `office` ride too); the ungrouped wizard section is `unset` (/"not other but unset"/). (`belt/envfile.js:5` · `trajectories/instance/init.js:36`)
 - `instance/start` detaches the SUPERVISOR: `new Deno.Command(cmd, { detached: true, stdio "null" }).spawn()` + `unref()` → own pgid, outlives the parent (`unref()` alone never detached); then waits 60 s for lock `ALIVE` or throws naming the logs. Paladin `Process` never detaches; `Deno.kill(-pgid, "SIGTERM")` takes a whole group. (`trajectories/instance/start.js:23` · `:41`)

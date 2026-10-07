@@ -142,32 +142,43 @@ const SLOTS = Object.keys(v.primitives.instance.Ledger.properties).filter(
   (slot) => !["manifest", "environment"].includes(slot),
 );
 
+const optional = (schema) =>
+  Object.fromEntries(
+    Object.entries(schema?.properties ?? {}).map(([key, held]) => [
+      key,
+      schema.required?.includes(key) ? held : { ...held, "~optional": true },
+    ]),
+  );
+
 export async function recipe(instance) {
   const { paladin } = instance;
   const home = instance.home.absolute;
-  const found = await paladin.find.type(instance.home, "instance").catch((error) => {
-    if (error?.code === "ENOENT") throw new Error(`instance.mount: no instance at ${home}`);
+  const file = instance.home.branch("instance.viva.json");
+  const authored = await paladin.read.json(file).catch((error) => {
+    if (error?.code === "ENOENT") throw new Error(`instance.mount: no instance.viva.json at ${home}`);
     throw error;
   });
-  if (found.length !== 1)
-    throw new Error(`instance.mount: expected 1 instance module in ${home}, found ${found.length}`);
-  const [own] = found;
-  const declared = own.environment ?? v.environment({});
-  if (!declared.properties)
-    throw new Error(`instance.mount: environment must be v.environment({…}) — ${own.source.absolute}`);
+  const own = Object.fromEntries(
+    await Promise.all(Object.entries(authored).map(async ([slot, value]) => [slot, slot === "manifest" ? value : await paladin.read.part(file, value, slot)])),
+  );
+  const faults = v.primitives.instance.InstanceMask.faults(own);
+  if (faults.length) throw new Error(`instance.mount: ${file.absolute} ${faults.map(({ at, reason }) => `${at} ${reason}`).join(" · ")}`);
+  instance.raw = own;
+  const declared = own.environment ?? { type: "object", properties: {} };
 
   // the fold: ledger → instance, BEFORE a thunk fires. on a COPY — read.viva returns the live
   // module namespace. a slot the instance never declared is the ledger's; the environment schema
   // merges by KEY, the instance's key winning — the same unit the strata fold values by.
   const ledger = await paladin.ledger.recipe();
-  const module = { ...own };
+  const module = { ...own, source: file };
   instance.inherited = SLOTS.filter((slot) => inherit(module, ledger, slot));
-  const environment = ledger?.environment?.properties
-    ? v.environment({ ...ledger.environment.properties, ...declared.properties })
-    : declared;
+  const environment = v.interface([v.environment(optional(ledger?.environment))], v.environment(optional(declared)).properties, { additionalProperties: false });
+  const retyped = Object.keys(environment.properties).filter((key) => v.isNever(environment.properties[key]));
+  if (retyped.length)
+    throw new Error(`instance.mount: ${file.absolute} environment ${retyped.join(" ")} retypes the ledger's key — an instance narrows a key, restating its type`);
 
   const record = [];
-  const at = (label) => (declaration) => paladin.hydrate(declaration, record, label);
+  const at = (label) => (declaration) => paladin.expand(declaration, record, label);
   const slug = (declaration) => declaration.manifest?.slug;
   const dress = (label) => (entry) => {
     const declared = entry.mountpoint;
@@ -175,25 +186,24 @@ export async function recipe(instance) {
       throw new Error(`instance.mount: ${label}.mountpoint must be absolute — ${declared}`);
     return entry;
   };
-  const daemon = (label) => ({ kernel = [], ...declaration }) => ({
+  const bearer = (label) => ({ modes = [], ...declaration }) => ({
     ...at(label)(declaration),
-    kernel: kernel
+    modes: modes
       .map(anchor(module.source))
       .map((entry, index) =>
         is.object(entry) && is.string(entry.module)
-          ? dress(`${label}.kernel[${index}]`)(at(`${label}.kernel[${index}]`)(entry))
+          ? dress(`${label}.modes[${index}]`)(at(`${label}.modes[${index}]`)(entry))
           : entry
       ),
   });
 
   instance.manifest = module.manifest;
   instance.environment = environment;
-  instance.runtime = at("runtime")(module.runtime);
-  instance.lighthouse = at("lighthouse")(module.lighthouse);
+  instance.runtime = is.object(module.runtime) ? bearer("runtime")(module.runtime) : at("runtime")(module.runtime);
   instance.datamap = at("datamap")(module.datamap);
   instance.hallucinators = at("hallucinators")(module.hallucinators);
   instance.clients = (module.clients ?? []).map((declaration) => at(`client[${slug(declaration)}]`)(declaration));
   instance.services = (module.services ?? []).map((declaration) => at(`service[${slug(declaration)}]`)(declaration));
-  instance.daemons = (module.daemons ?? []).map((declaration) => daemon(`daemon[${slug(declaration)}]`)(declaration));
+  instance.daemons = (module.daemons ?? []).map((declaration) => bearer(`daemon[${slug(declaration)}]`)(declaration));
   instance.requirements = record;
 }

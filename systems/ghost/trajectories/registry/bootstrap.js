@@ -67,6 +67,6 @@ export async function bootstrap(ctx) {
     slug,
     target,
     from,
-    record: await paladin.ledger.registry.locations(),
+    record: await paladin.ledger.registry.tapped(),
   };
 }

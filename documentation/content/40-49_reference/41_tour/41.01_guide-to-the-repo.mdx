@@ -11,11 +11,12 @@ subsystems/       libraries — imported, never booted
   dapper/         design tokens and themes
   drapes/         svelte component library
 systems/          processes — things that boot
-  runtime/        hosts daemons — entities, traits, HTTP
+  runtime/        hosts modes, itself and in daemons — entities, traits, HTTP
   anima/         the browser client
   ghost/          the CLI, installed as viva (WIP)
 commons/          the ONE package the checkout ships — the content: services, instances, demo modes, test fixtures
-  datamaps/ hallucinators/ lighthouses/ services/   core services
+  datamaps/ hallucinators/ services/   core services
+  ledger/         the canonical ledger recipe
   instances/      runnable instance recipes
   playground/     demo modes
   fixtures/       test data
@@ -46,11 +47,11 @@ The look. `dapper` is the design system — token primitives and themes. `drapes
 
 ### runtime
 
-The server side. Boots from an instance file: constructs the daemons, gives each its entities, mounts each mode's traits, and serves the whole thing over HTTP. `daemon/` is the heart — a daemon is the sum of its modes, and the runtime is the machine that makes that sentence true.
+The server side. Boots from an instance file: constructs the daemons, gives each its entities, mounts each mode's traits, and serves the whole thing over HTTP. A mode runs on a *host* — a daemon at `/daemon/<slug>` or the runtime itself at `/runtime/<slug>` — through one code path, `gestalten/belt/host.js`; the traits live in `traits/`, the boot beats in `lifecycle/<type>/`. A daemon is the sum of its modes, and the runtime is the machine that makes that sentence true.
 
 ### anima
 
-The browser client. A Svelte SPA that logs in against a lighthouse, attaches to daemons, and renders their modes' apps as buffers. Carries the client half of typology — the same types, minus the server-only rooms.
+The browser client. A Svelte SPA that logs in against the runtime, attaches to daemons, and renders their modes' apps as buffers. Carries the client half of typology — the same types, minus the server-only rooms.
 
 ### ghost
 
@@ -64,9 +65,9 @@ The content. A package is a unit of modes; everything a daemon is made of comes 
 
 - `datamap/libsql` — the database service. Entities in, schema out, automigration included.
 - `hallucinator/` — intelligence providers behind one interface: `anthropic`, `openrouter` (LLM), `elevenlabs` (speech out), `deepgram` (speech in).
-- `lighthouse/` — identity and auth: `localhost` for single-player, `multiplayer` for real accounts.
-- `nlp` — linguistic analysis as a service.
-- `instance/` — the runnable recipes: `localhost`, `multiplayer`, and the one-file `standalone` demo from the Run an Instance guide.
+- `ledger/` — `ledger.viva.json`, the canonical ledger recipe `viva ledger/init` clones into the ledger.
+- `nlp` — linguistic analysis as a service; `reader` — a page reader a daemon consumes.
+- `instance/` — the runnable recipes, one `instance.viva.json` each: `hello-world` (the demo mode and its instance) and `playground`. Identity is no service here: the runtime carries it.
 
 ### playground
 

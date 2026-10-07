@@ -4,11 +4,11 @@ paths: ["**/registry/education/**"]
 <!-- writer: agent · kind: persistent · limit: 8000 chars · folded from auto-memory 09-23 (m69 2.4); the territory is a registry package outside the repo root — the paths glob is unproven for auto-load, read deliberately -->
 # codemap: education — the language package (topographies · modes games/home/tactics/teacher · domain)
 
-- every education kernel reads `statics.language` — an instance daemon without it breaks every game; shape (`instances/italian/daemon.js:14`):
+- every education kernel reads `statics.language` — an instance daemon without it breaks every game; shape (`instances/italian/instance.viva.json:96`):
 ```json
 { "known": { "slug": "english", "name": "English" }, "learning": { "slug": "italian", "name": "Italian" } }
 ```
-- literal ranks number per ONTOLOGY, so `rank: ASC` across ontologies is meaningless — an unconstrained `feed`/`novel` interleaves words, sentences and conjugations; pass an ontology in `where` (it runs through `constrain`). (`domain/entities/kernel/Literal.ts:62` · `:70` · `project_game_ontology_guard`)
+- literal ranks number per ONTOLOGY, so `rank: ASC` across ontologies is meaningless — an unconstrained `feed`/`novel` interleaves words, sentences and conjugations; pass an ontology in `where` (it runs through `constrain`). (`domain/traits/literal/retained.js:27` · `:35` · `project_game_ontology_guard`)
 - design debt, deferred by beef: grammar facets (tense, person) sit under `word.*` — /"scoping tense and person into word.* is wrong semantically"/ (~694 conjugation entries).
 - exercise persons are a topology property: resolve `word.person.*` via `trait.LABELED.name` daemon-side, never a hardcoded pronoun — `Exhibit.svelte` still maps symbols to Portuguese `"eu"`/`"tu"`, wrong for italian/spanish (`modes/games/exhibit/buffer/Exhibit.svelte:22`, known-issues).
 

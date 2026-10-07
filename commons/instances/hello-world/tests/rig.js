@@ -1,6 +1,6 @@
-import { Controller, Cortex, Span, soma, Vector } from "@vivalence/typology";
-import { lifecycle } from "@vivalence/runtime";
-const { EMITTER, GENERATIVE, HARNESSED } = lifecycle.mode.traits;
+import { Controller, Cortex, Path, Span, soma, Vector } from "@vivalence/typology";
+import { traits } from "@vivalence/runtime";
+const { EMITTER, GENERATIVE, HARNESSED } = traits;
 import { emitter, generator } from "../page/index.js";
 import { web } from "../tools/web.js";
 
@@ -82,6 +82,7 @@ export const rig = async (script) => {
   const threads = { findOne: async () => row, findOneOrFail: async () => row };
   const scripted = faculty(script);
   const daemon = {
+    type: "daemon",
     cortex: new Cortex().register([scripted.faculty]),
     entities: {
       thread: threads,
@@ -106,7 +107,7 @@ export const rig = async (script) => {
     },
     services: {},
     mountpoint: { absolute: "/nonexistent/rig" },
-    flatmodes: () => [mode],
+    reference: new Path("/daemon/hello"),
   };
   const mode = {
     manifest: { slug: "hello-world", type: "demo" },
@@ -116,6 +117,7 @@ export const rig = async (script) => {
     entity: { id: "mode-1" },
     tools: new Vector().graft(web),
   };
+  daemon.modes = { [mode.manifest.type]: { [mode.manifest.slug]: mode } };
   (await EMITTER(mode, daemon))();
   await GENERATIVE(mode, daemon);
   Object.assign(mode.generator, capability());

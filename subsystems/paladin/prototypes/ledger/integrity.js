@@ -21,15 +21,13 @@ export const TRAITS = {
   AGENTIC: null,
   SELFEVIDENT: null,
   CONVERSATIONAL: null,
-  STANDALONE: null,
 };
 
 const SCHEMATICS = { domain: v.primitives.kernel.Domain };
 
 const traits = (module) => module.manifest.traits ?? [];
-// a copy is filled first — the schematic's defaults are not the module's fault (settle judges the same way)
 const validate = (schematic, pick = (module) => module) => (module, span) => {
-  for (const { at, reason } of schematic.faults(schematic.fill({ ...pick(module) }))) span.fault(new Error(`${at} ${reason}`));
+  for (const { at, reason } of schematic.faults(schematic.fill(pick(module)))) span.fault(new Error(`${at} ${reason}`));
   return module;
 };
 const fault = (sentence) => (module, span) => (span.fault(new Error(sentence(module))), module);

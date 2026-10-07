@@ -87,6 +87,18 @@ export class DataRepository extends EntityRepository {
     return super.findOne(this.resolveTraits(where), opts);
   }
 
+  findOneOrFail(where, opts?) {
+    return super.findOneOrFail(this.resolveTraits(where), opts);
+  }
+
+  findAndCount(where, opts?) {
+    return super.findAndCount(this.resolveTraits(where), opts);
+  }
+
+  count(where = {}, opts?) {
+    return super.count(this.resolveTraits(where), opts);
+  }
+
   resolveTraits(where) {
     if (!where?.traits) return where;
     const { traits, ...rest } = where;
@@ -98,7 +110,7 @@ export class DataRepository extends EntityRepository {
           ? { $contains: traits }
           : traits;
 
-    const col = `\`${this.entityName.charAt(0).toLowerCase()}0\`.traits`;
+    const col = `\`${this.getEntityName().charAt(0).toLowerCase()}0\`.traits`;
     const has = (t) => ({ [raw(`${col} LIKE ?`, [`%${t}%`])]: [] });
     const hasNot = (t) => ({ [raw(`${col} NOT LIKE ?`, [`%${t}%`])]: [] });
 

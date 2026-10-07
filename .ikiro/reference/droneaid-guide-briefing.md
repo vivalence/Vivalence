@@ -1,5 +1,7 @@
 # DroneAid guide: technical design briefing
 
+> DATED — measured on the pre-m80 tree. Since: the record is `instance.viva.json` with `daemons[].modes` (no `daemon.js`, `kernel` died in m81, the shelf renamed in place 10-10) · no lighthouse service (m80) · ONE db `mountpoint/droneaid.viva.db` (m80) · ctx is flat: `ctx.daemon.call` → `ctx.call`, `ctx.daemon.domain` → `ctx.domain` (m81) · `entities/kernel/Literal.ts` → `systems/runtime/entities/Literal.ts`. Re-read the code before trusting a line.
+
 This brief is for rebuilding the build guide on the assembly domain and adding a tutorial editor that authors guides.
 
 ## 2. The ontology

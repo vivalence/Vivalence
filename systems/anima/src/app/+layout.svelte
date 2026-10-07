@@ -26,7 +26,7 @@
   let terminalCount = $state(0); // refactor away
 
   const connection = new Connection(
-    new Url(env.PUBLIC_VIVA_LIGHTHOUSE_REMOTE),
+    new Url(env.PUBLIC_VIVA_RUNTIME_REMOTE),
     shard.transmitter.retry(shard.transmitter.fetcher, { maxRetries: 2 }),
   );
   connection.use(shard.track.span((call) => call.request.url.pathname, logger.channel));

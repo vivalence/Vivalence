@@ -1,4 +1,5 @@
 import paladin, { lifecycle } from "@vivalence/paladin";
+import { RECIPE } from "@vivalence/paladin/typology";
 import { basename } from "@std/path";
 import { is } from "@vivalence/typology";
 import { search } from "@vivalence/sheets";
@@ -62,7 +63,7 @@ export async function doctor(ctx) {
         daemon.manifest?.slug,
         Object.fromEntries([
           ["mountpoint", seat(daemon.mountpoint)],
-          ...(daemon.kernel ?? [])
+          ...(daemon.modes ?? [])
             .filter((entry) => entry?.mountpoint)
             .map((entry) => {
               const [, type, slug] = basename(seat(entry.mountpoint) ?? "").match(/^mode_([^_]+)_(.+)$/) ?? [];
@@ -77,7 +78,7 @@ export async function doctor(ctx) {
     manifest: paladin.instance.manifest,
     runtime: paladin.instance.runtime?.manifest?.slug ?? null,
     // the ledger's word in this instance: which slots it supplied and what they say; the file that said it
-    ledger: paladin.instance.inherited.length ? paladin.scope.ledger.branch("ledger.viva.js").absolute : null,
+    ledger: paladin.instance.inherited.length ? paladin.scope.ledger.branch(RECIPE).absolute : null,
     inherited: voice.spoken(paladin.instance, paladin.instance.inherited),
     clients: paladin.instance.clients.map((client) => client.manifest?.slug),
     mountpoint: root,

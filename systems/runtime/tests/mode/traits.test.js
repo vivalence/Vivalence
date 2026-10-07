@@ -1,5 +1,5 @@
 import { specimen, shape, Aperture, Vector, Mode } from "@vivalence/typology";
-import { IntentEntity, BufferEntity, ThreadEntity } from "@vivalence/runtime";
+import { BufferEntity, IntentEntity, ThreadEntity, traits } from "@vivalence/runtime";
 import { create } from "../scenarios/daemon.js";
 
 const EXPOSED = (mode) => {
@@ -41,7 +41,7 @@ specimen.describe("mode traits", () => {
     });
 
     specimen.it("intent queryable via datamap", async () => {
-      const result = await scenario.authedConn.call("/userspace/entities/intent/findOne", {
+      const result = await scenario.userspace.call("/userspace/entities/intent/findOne", {
         where: { slug: "survival-flashcard" },
       });
       specimen.expect(result.slug).toBe("survival-flashcard");
@@ -87,8 +87,8 @@ specimen.describe("mode traits", () => {
     specimen.it("arity 2 handlers work through object compilation", async () => {
       const mode = new Mode({ manifest: { type: "test", slug: "arity", traits: ["EXPOSED"] } });
       mode.aperture = new Aperture();
-      mode.aperture.open("/echo", (input, ctx) => ({ got: input, has: "daemon" in ctx }));
-      mode.aperture.use(async (ctx, next) => { ctx.daemon = "d"; await next(); });
+      mode.aperture.open("/echo", (input, ctx) => ({ got: input, has: "entities" in ctx }));
+      mode.aperture.use(async (ctx, next) => { ctx.entities = {}; await next(); });
       const fin = await EXPOSED(mode);
       await fin();
       const result = await mode.call.echo({ x: 1 });
@@ -96,16 +96,16 @@ specimen.describe("mode traits", () => {
       specimen.expect(result.has).toBe(true);
     });
 
-    specimen.it("context has daemon and mode, no request", async () => {
+    specimen.it("context has the host words and mode, no request", async () => {
       const mode = new Mode({ manifest: { type: "test", slug: "ctx-check", traits: ["EXPOSED"] } });
       mode.aperture = new Aperture();
       mode.aperture.open("/probe", (ctx) => ({
-        hasDaemon: "daemon" in ctx,
+        hasDaemon: "entities" in ctx,
         hasMode: "mode" in ctx,
         hasRequest: "request" in ctx,
       }));
       mode.aperture.use(async (ctx, next) => {
-        ctx.daemon = "d";
+        ctx.entities = {};
         ctx.mode = "m";
         await next();
       });
@@ -207,7 +207,7 @@ specimen.describe("mode traits", () => {
         emptyMode.id = scenario.fixtures.mode.id;
         emptyMode.module.emitter = new Vector().open("/nothing", async () => []);
         const { gestalten, lifecycle } = await import("@vivalence/runtime");
-        for (const finalize of await gestalten.belt.stagger(emptyMode, scenario.daemon, lifecycle.mode.traits)) await finalize();
+        for (const finalize of await gestalten.belt.stagger(emptyMode, scenario.daemon, traits)) await finalize();
         const result = await emptyMode.emit.nothing({});
         specimen.expect(result.condition).toBe("EXHAUSTED");
         specimen.expect(result.output.buffer).toEqual([]);
@@ -218,7 +218,7 @@ specimen.describe("mode traits", () => {
 
 specimen.describe("BOOTED", () => {
   specimen.it("finalize runs boot with (daemon, mode); terminate calls the returned teardown", async () => {
-    const { BOOTED } = (await import("@vivalence/runtime")).lifecycle.mode.traits;
+    const { BOOTED } = (await import("@vivalence/runtime")).traits;
     const calls = [];
     const mode = {
       manifest: { type: "probe", slug: "booted", traits: [] },

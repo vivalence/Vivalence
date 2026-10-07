@@ -69,7 +69,7 @@ export const web = new Vector()
       }),
     },
     async (ctx) => {
-      const reader = ctx.daemon.services?.reader;
+      const reader = ctx.services?.reader;
       // the daemon may not consume a reader yet. say what to do instead, not just what is wrong —
       // web_search's own valence sends the model here before it quotes anything.
       if (!reader) {
@@ -85,7 +85,7 @@ export const web = new Vector()
       }
       try {
         const page = await reader.open(ctx.input.url);
-        const folded = await ctx.daemon.cortex.hallucinate.object.render({
+        const folded = await ctx.cortex.hallucinate.object.render({
           controller: ctx.controller.branch("object"),
           policy: { tune: "frugal" },
           system: { choose: CHOOSE },

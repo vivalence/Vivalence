@@ -1,6 +1,6 @@
 import { specimen, Vector } from "@vivalence/typology";
-import { lifecycle } from "@vivalence/runtime";
-const { EMITTER } = lifecycle.mode.traits;
+import { traits } from "@vivalence/runtime";
+const { EMITTER } = traits;
 import { emitter } from "../page/index.js";
 
 const SOURCE = `<script>
@@ -42,6 +42,7 @@ const rig = () => {
     },
   };
   const daemon = {
+    type: "daemon",
     entities: {
       thread: threads,
       em: { flush: async () => {} },

@@ -14,7 +14,6 @@ export const manifest = {
   version: "0.1.0",
   traits: [
     "APPLICATION",
-    "STANDALONE",
     "HARNESSED",
     "TOOLING",
     "EXPOSED",

@@ -49,6 +49,7 @@ export * from "./pool.js";
 // export * from "./remedy/index.ts";
 
 export * from "./vector.js";
+export * from "./twitch.js";
 export * from "./aperture.js";
 export * from "./remote-repository.js";
 export * from "./local-repository.js";

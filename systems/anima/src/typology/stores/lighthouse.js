@@ -1,5 +1,5 @@
 import { map, atom, computed, effect } from "nanostores";
-import { shard } from "@vivalence/typology";
+import { Connection, shard } from "@vivalence/typology";
 import { logger } from "$telemetry";
 import { Dataspace } from "../prototypes/dataspace.js";
 import { DaemonDossier } from "../entities/daemon/index.js";
@@ -7,13 +7,15 @@ import { TerminalDossier } from "../entities/terminal.js";
 
 const STORAGE_KEY = (url) => `lighthouse:${url}`;
 
+export const STANDINGS = ["IDLE", "AUTHENTICATING", "AUTHENTICATED", "VERIFYING", "REFRESHING", "REFRESHED", "POPULATING", "VERIFIED", "OFFLINE", "ERROR", "SESSION_EXPIRED", "LOGGED_OUT"];
+
 export class Lighthouse {
   $authority = map({});
-  $identity = map({});
+  $user = map({});
   $status = atom({ code: "IDLE" });
 
   $isAuthorized = computed(this.$authority, (a) => !!a?.access && !!a?.refresh);
-  $isIdentified = computed(this.$identity, (i) => !!i?.id);
+  $isIdentified = computed(this.$user, (user) => !!user?.id);
 
   $daemons = atom([]);
   manifest = null;
@@ -21,8 +23,8 @@ export class Lighthouse {
   get authority() {
     return this.$authority.get();
   }
-  get identity() {
-    return this.$identity.get();
+  get user() {
+    return this.$user.get();
   }
   get status() {
     return this.$status.get();
@@ -45,17 +47,32 @@ export class Lighthouse {
       .use(shard.connection.timeout())
       .use(shard.connection.track(connection));
 
+    this.multiplex = shard.transmitter.multiplex({ authority: this.$authority });
+    this.runtime = new Connection(connection.url, shard.transmitter.retry(this.multiplex, { maxRetries: 2 }))
+      .use(shard.track.request())
+      .use(shard.track.fault())
+      .use(shard.connection.timeout(8000));
+
     this.dataspace = new Dataspace({
       entities: [DaemonDossier, TerminalDossier],
       connection: this.connection,
+      runtime: this.runtime,
       seed: seedLighthouse(this),
     });
   }
 
-  async login(username, password) {
+  signup(username, password) {
+    return this.enter("/lighthouse/signup", { username, password });
+  }
+
+  login(username, password) {
+    return this.enter("/lighthouse/login", { username, password });
+  }
+
+  async enter(route, credentials) {
     this.$status.set({ code: "AUTHENTICATING" });
 
-    const response = await this.connection.fetch("/auth/login", { username, password });
+    const response = await this.connection.fetch(route, credentials);
 
     if (response.error) {
       this.$status.set({
@@ -66,12 +83,12 @@ export class Lighthouse {
       return { status: "ERROR", error: response.error };
     }
 
-    const { authority, identity } = response.body;
+    const { authority, user } = response.body;
     if (authority) this.$authority.set(authority);
-    if (identity) this.$identity.set(identity);
+    if (user) this.$user.set(user);
 
     this.$status.set({ code: "AUTHENTICATED" });
-    return { status: "OK", identity };
+    return { status: "OK", user };
   }
 
   async verify() {
@@ -82,7 +99,7 @@ export class Lighthouse {
 
     this.$status.set({ code: "VERIFYING" });
 
-    const response = await this.connection.fetch("/auth/verify", { access: auth.access });
+    const response = await this.connection.fetch("/lighthouse/verify", { access: auth.access });
 
     if (response.isNetworkError) {
       this.$status.set({
@@ -104,6 +121,7 @@ export class Lighthouse {
     }
 
     if (response.body.status === "SUCCESS") {
+      if (response.body.user) this.$user.set(response.body.user);
       return { status: "OK" };
     }
 
@@ -118,7 +136,7 @@ export class Lighthouse {
 
     this.$status.set({ code: "REFRESHING" });
 
-    const response = await this.connection.fetch("/auth/refresh", { refresh: auth.refresh });
+    const response = await this.connection.fetch("/lighthouse/refresh", { refresh: auth.refresh });
 
     if (response.isNetworkError) {
       this.$status.set({
@@ -155,11 +173,12 @@ export class Lighthouse {
   logout() {
     const auth = this.$authority.get();
     this.$authority.set(null);
-    this.$identity.set(null);
+    this.$user.set(null);
     this.$status.set({ code: "LOGGED_OUT" });
+    this.multiplex.close();
 
     if (auth?.refresh) {
-      this.connection.fetch("/auth/logout", { refresh: auth.refresh }).catch(() => {});
+      this.connection.fetch("/lighthouse/logout", { refresh: auth.refresh }).catch(() => {});
     }
   }
 
@@ -168,7 +187,7 @@ export class Lighthouse {
       status: this.$status.get(),
       isIdentified: this.$isIdentified.get(),
       isAuthorized: this.$isAuthorized.get(),
-      identity: this.$identity.get(),
+      user: this.$user.get(),
       authority: this.$authority.get(),
     };
   }
@@ -188,26 +207,26 @@ export function hydrate(lighthouse) {
 
   if (stored) {
     try {
-      const { authority, identity } = JSON.parse(stored);
+      const { authority, user } = JSON.parse(stored);
       if (authority) lighthouse.$authority.set(authority);
-      if (identity) lighthouse.$identity.set(identity);
+      if (user) lighthouse.$user.set(user);
     } catch {
       hydration.note({ message: "cached authority corrupt — discarded" });
       localStorage.removeItem(key);
     }
   }
 
-  const identity = lighthouse.$identity.get()?.id ?? null;
+  const user = lighthouse.$user.get()?.id ?? null;
   hydration.note({
-    message: identity ? "authority restored from cache" : "no cached authority",
-    identity,
+    message: user ? "authority restored from cache" : "no cached authority",
+    user,
     refresh: !!lighthouse.$authority.get()?.refresh,
   });
   hydration.close();
 
-  effect([lighthouse.$authority, lighthouse.$identity], (authority, identity) => {
-    if (authority || identity) {
-      localStorage.setItem(key, JSON.stringify({ authority, identity }));
+  effect([lighthouse.$authority, lighthouse.$user], (authority, user) => {
+    if (authority || user) {
+      localStorage.setItem(key, JSON.stringify({ authority, user }));
     } else {
       localStorage.removeItem(key);
     }

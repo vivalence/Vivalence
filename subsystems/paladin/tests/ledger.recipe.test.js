@@ -4,9 +4,11 @@ import { Path, v } from "@vivalence/typology";
 import { Paladin } from "../prototypes/paladin.js";
 import * as lifecycle from "../lifecycle/index.js";
 
-const HOME = new Path("/fixtures/probe/test.viva.js");
+const HOME = new Path("/fixtures/probe");
 const LEDGER = new Path("/fixtures/ledger");
-const FILE = LEDGER.branch("viva.viva.js");
+const plain = (held) => JSON.parse(JSON.stringify(held));
+const files = (ledger, instance) => async (path, fallback) =>
+  String(path.absolute ?? path).endsWith("/ledger.viva.json") ? (ledger ? plain(ledger) : fallback) : plain(instance);
 
 // ledger is a factory over the mount's paladin — its thunks must read the SAME bags the fold hydrates.
 // any .viva.js at the root is the declaration: find.viva names it, read.module reads it
@@ -19,50 +21,48 @@ const mount = ({ ledger = () => null, instance }, pairs = {}) => {
     ["mountpoint", () => true, () => new Path("/mountpoint")],
   ]);
   for (const [key, value] of Object.entries(pairs)) paladin.env.set(key, value, "flag");
-  paladin.find.viva = async () => (module ? [FILE] : []);
-  paladin.read.module = async () => module;
-  paladin.find.type = async () => [{ manifest: { type: "instance", slug: "probe", version: "0.0.1" }, source: HOME, ...instance }];
+  paladin.secret.set("SECRET_VIVA_LEDGER_JWT", "a-signing-secret-of-twenty-four-or-more", "flag");
+  paladin.read.json = files(module, { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, ...instance });
   return lifecycle.mount(lifecycle.populate.instance(paladin));
 };
 
 // no manifest export — the file at the root is the declaration; type and slug derive
 const ledger = (paladin, extra = {}) => ({
-  runtime: { manifest: { slug: "runtime" }, statics: { serve: () => paladin.env.get("VIVA_LEDGER_SERVE"), remote: "http://ledger/" } },
-  lighthouse: { module: "@commons/lighthouse/multiplayer", statics: { remote: "http://ledger/lighthouse" } },
+  runtime: { manifest: { slug: "runtime" }, statics: { serve: "${VIVA_LEDGER_SERVE}", remote: "http://ledger/" }, secrets: { jwt: "${SECRET_VIVA_LEDGER_JWT}" } },
   datamap: { module: "@commons/datamap/libsql" },
   hallucinators: [],
-  clients: [{ manifest: { type: "client", slug: "anima" }, statics: { serve: () => paladin.env.get("VIVA_LEDGER_ANIMA") } }],
+  clients: [{ manifest: { type: "client", slug: "anima" }, statics: { serve: "${VIVA_LEDGER_ANIMA}" } }],
   environment: v.environment({
     VIVA_LEDGER_SERVE: v.url().desc("ledger says"),
     VIVA_LEDGER_ANIMA: v.url().desc("ledger says"),
     VIVA_SHARED: v.string().desc("ledger's word"),
+    SECRET_VIVA_LEDGER_JWT: v.string({ minLength: 24 }).desc("jwt"),
   }),
   ...extra,
 });
 
-const daemon = { manifest: { type: "daemon", slug: "probe", version: "0.0.1" }, kernel: [] };
+const daemon = { manifest: { type: "daemon", slug: "probe", version: "0.0.1" }, modes: [] };
 
 describe("ledger recipe — ledger → instance falls through by SLOT, environment by KEY, before a thunk fires", () => {
   it("no ledger module: nothing inherited, the instance is what it declares", async () => {
-    const instance = await mount({ instance: { daemons: [daemon], lighthouse: { module: "@commons/lighthouse/multiplayer", statics: { remote: "http://own/" } }, datamap: { module: "@commons/datamap/libsql" } } });
+    const instance = await mount({ instance: { daemons: [daemon], datamap: { module: "@commons/datamap/libsql" } } });
     expect(instance.inherited).toEqual([]);
     expect(instance.runtime).toBeUndefined();
     expect(instance.clients).toEqual([]);
   });
 
-  it("a declared slot is the instance's; an undeclared one is the ledger's; a daemon takes the ledger's lighthouse through the instance", async () => {
+  it("a declared slot is the instance's; an undeclared one is the ledger's; the runtime is the instance's own", async () => {
     const instance = await mount(
       {
         ledger: (paladin) => ledger(paladin),
-        instance: { daemons: [daemon], runtime: { manifest: { slug: "own" }, statics: { serve: "http://own:1/", remote: "http://own:1/" } } },
+        instance: { daemons: [daemon], runtime: { manifest: { slug: "own" }, statics: { serve: "http://own:1/", remote: "http://own:1/" }, secrets: { jwt: "${SECRET_VIVA_LEDGER_JWT}" } } },
       },
       { VIVA_LEDGER_ANIMA: "http://anima:1794/" },
     );
     expect(instance.runtime.manifest.slug).toBe("own");
-    expect(instance.inherited).toEqual(["lighthouse", "datamap", "hallucinators", "clients"]);
+    expect(instance.inherited).toEqual(["datamap", "hallucinators", "clients"]);
     expect(instance.clients[0].manifest.slug).toBe("anima");
     expect(instance.clients[0].statics.serve.href).toBe("http://anima:1794/");
-    expect(instance.daemons[0].lighthouse.statics.remote.href).toBe("http://ledger/lighthouse");
     expect(instance.faults).toEqual([]);
   });
 
@@ -75,7 +75,7 @@ describe("ledger recipe — ledger → instance falls through by SLOT, environme
   it("the ledger's thunks fire ONCE, at the instance's own label (client[anima]), and an overridden slot's thunk never fires", async () => {
     const instance = await mount({
       ledger: (paladin) => ledger(paladin),
-      instance: { daemons: [daemon], runtime: { manifest: { slug: "own" }, statics: { serve: "http://own:1/", remote: "http://own:1/" } } },
+      instance: { daemons: [daemon], runtime: { manifest: { slug: "own" }, statics: { serve: "http://own:1/", remote: "http://own:1/" }, secrets: { jwt: "${SECRET_VIVA_LEDGER_JWT}" } } },
     });
     const sites = instance.requirements.map((row) => row.at);
     expect(sites).toContain("client[anima].statics.serve");
@@ -95,6 +95,19 @@ describe("ledger recipe — ledger → instance falls through by SLOT, environme
     expect(rows.find((row) => row.key === "VIVA_LEDGER_ANIMA")?.verdict).toBe("REQUIRED");
   });
 
+  it("environment composes as an interface — an instance narrows a ledger key's default; a retyped key throws naming it", async () => {
+    const narrowed = await mount({
+      ledger: (paladin) => ledger(paladin),
+      instance: { daemons: [daemon], environment: v.environment({ VIVA_LEDGER_SERVE: v.url().default("http://own:2502/").desc("own port") }) },
+    });
+    expect(narrowed.environment.properties.VIVA_LEDGER_SERVE.default).toBe("http://own:2502/");
+    expect(narrowed.environment.properties.VIVA_SHARED.description).toBe("ledger's word");
+    await expect(mount({
+      ledger: (paladin) => ledger(paladin),
+      instance: { daemons: [daemon], environment: v.environment({ VIVA_SHARED: v.integer().desc("retyped") }) },
+    })).rejects.toThrow(/environment VIVA_SHARED retypes the ledger's key/);
+  });
+
   it("the ledger is read ONCE per paladin — a second mount folds from the memo, find is not asked again", async () => {
     const paladin = new Paladin();
     paladin.scopes([
@@ -103,9 +116,8 @@ describe("ledger recipe — ledger → instance falls through by SLOT, environme
       ["mountpoint", () => true, () => new Path("/mountpoint")],
     ]);
     let asked = 0;
-    paladin.find.viva = async () => [FILE];
-    paladin.read.module = async () => (asked += 1, ledger(paladin));
-    paladin.find.type = async () => [{ manifest: { type: "instance", slug: "probe", version: "0.0.1" }, source: HOME, daemons: [daemon] }];
+    const read = files(ledger(paladin), { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, daemons: [daemon] });
+    paladin.read.json = async (path, fallback) => (String(path.absolute).endsWith("/ledger.viva.json") && (asked += 1), read(path, fallback));
     const first = await lifecycle.mount(lifecycle.populate.instance(paladin));
     const second = await lifecycle.mount(lifecycle.populate.instance(paladin));
     expect(asked).toBe(1);
@@ -116,32 +128,24 @@ describe("ledger recipe — ledger → instance falls through by SLOT, environme
   it("the manifest derives from the file's place — type ledger, slug from the stem — and an exported manifest LOCKS a field", async () => {
     const paladin = new Paladin();
     paladin.scopes([["ledger", () => true, () => LEDGER]]);
-    paladin.find.viva = async () => [FILE];
-    paladin.read.module = async () => ledger(paladin);
+    paladin.read.json = files(ledger(paladin));
     const derived = await paladin.ledger.recipe();
-    expect(derived.manifest).toEqual({ type: "ledger", slug: "viva" });
-    expect(derived.source.absolute).toBe("/fixtures/ledger/viva.viva.js");
+    expect(derived.manifest).toEqual({ type: "ledger", slug: "ledger" });
+    expect(derived.source.absolute).toBe("/fixtures/ledger/ledger.viva.json");
     const locked = new Paladin();
     locked.scopes([["ledger", () => true, () => LEDGER]]);
-    locked.find.viva = async () => [FILE];
-    locked.read.module = async () => ledger(locked, { manifest: { slug: "finns-other" } });
+    locked.read.json = files(ledger(locked, { manifest: { slug: "finns-other" } }));
     expect((await locked.ledger.recipe()).manifest).toEqual({ type: "ledger", slug: "finns-other" });
   });
 
   it("a manifest that says it is something else throws naming the file; a bad slug throws through the schematic", async () => {
     const paladin = new Paladin();
     paladin.scopes([["ledger", () => true, () => LEDGER]]);
-    paladin.find.viva = async () => [FILE];
-    paladin.read.module = async () => ledger(paladin, { manifest: { type: "instance" } });
-    await expect(paladin.ledger.recipe()).rejects.toThrow(/viva\.viva\.js declares manifest\.type "instance"/);
+    paladin.read.json = files(ledger(paladin, { manifest: { type: "instance" } }));
+    await expect(paladin.ledger.recipe()).rejects.toThrow(/ledger\.viva\.json declares manifest\.type "instance"/);
     const bad = new Paladin();
     bad.scopes([["ledger", () => true, () => LEDGER]]);
-    bad.find.viva = async () => [FILE];
-    bad.read.module = async () => ledger(bad, { manifest: { slug: "Not A Slug" } });
-    await expect(bad.ledger.recipe()).rejects.toThrow(/viva\.viva\.js manifest/);
-    const two = new Paladin();
-    two.scopes([["ledger", () => true, () => LEDGER]]);
-    two.find.viva = async () => [FILE, LEDGER.branch("other.viva.js")];
-    await expect(two.ledger.recipe()).rejects.toThrow(/one declaration per ledger — .* holds viva\.viva\.js, other\.viva\.js/);
+    bad.read.json = files(ledger(bad, { manifest: { slug: "Not A Slug" } }));
+    await expect(bad.ledger.recipe()).rejects.toThrow(/ledger\.viva\.json manifest/);
   });
 });

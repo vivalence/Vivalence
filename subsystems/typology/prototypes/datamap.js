@@ -1,10 +1,11 @@
 import { RequestContext } from "@mikro-orm/core";
+import { shape } from "@vivalence/typology";
 
 export class Datamap {
   constructor(orm) {
     this.orm = orm;
     this.entities = { em: orm.em };
-    for (const meta of Object.values(orm.getMetadata().getAll())) {
+    for (const meta of orm.getMetadata().getAll().values()) {
       if (meta.abstract || meta.pivotTable || meta.embeddable) continue;
       this.entities[meta.className.toLowerCase().replace("entity", "")] = orm.em.getRepository(meta.class);
     }
@@ -25,8 +26,9 @@ export class Datamap {
     return this.orm.getMetadata();
   }
 
-  registerSubscriber(subscriber) {
-    this.orm.em.getEventManager().registerSubscriber(subscriber);
+  registerSubscriber(twitch) {
+    const scope = (args, task) => RequestContext.create(args.em, task);
+    this.orm.em.getEventManager().registerSubscriber(shape.subscriber(twitch, { scope }));
   }
 
   close() {

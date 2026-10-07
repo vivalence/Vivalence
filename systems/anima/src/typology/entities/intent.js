@@ -12,7 +12,7 @@ export const IntentDossier = {
   kind: () => Intent,
   repository: (schema, dataspace) => {
     const repo = new RemoteRepository(schema.kind());
-    repo.connect(dataspace.connection.branch("/userspace/entities/intent"));
+    repo.connect(dataspace.runtime.branch("/userspace/entities/intent"));
     return repo;
   },
 

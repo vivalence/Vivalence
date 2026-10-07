@@ -21,7 +21,7 @@ function normalize(path) {
 }
 function join(...paths) {
   // Join paths and normalize
-  const joined = paths.filter(Boolean).join("/").replace(/\/+/g, "/"); // collapse multiple slashes
+  const joined = paths.filter((part) => part && part !== "/").join("/").replace(/\/+/g, "/"); // collapse multiple slashes
 
   return normalize(joined);
 }

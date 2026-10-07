@@ -27,3 +27,4 @@ v.thread = entityFactory(entities.ThreadDescriptor, entities.DataEntitySchema);
 v.user = entityFactory(entities.UserDescriptor, entities.DataEntitySchema);
 
 export { v };
+export * as contexts from "./primitives/contexts.js";

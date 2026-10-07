@@ -7,7 +7,7 @@ export const manifest = {
   description:
     "Intent-driven: open one of its intents and the thread self-configures + self-manages.",
   version: "0.1.0",
-  traits: ["APPLICATION", "STANDALONE", "EMITTER"],
+  traits: ["APPLICATION", "EMITTER"],
 };
 
 // the hub renders a self-description of how its intent configured the thread.
@@ -20,7 +20,7 @@ export const emitter = new Vector().open(
     input: v.object({ count: v.integer({ minimum: 1 }).default(1) }),
   },
   async (ctx) => {
-    const card = ctx.daemon.modes.playground.card;
+    const card = ctx.modes.playground.card;
     const start = ctx.thread?.counter ?? 0;
     for (let i = 0; i < ctx.input.count; i++) {
       ctx.pool.add(card.buffer({ data: { face: `#${start + i}` } }));

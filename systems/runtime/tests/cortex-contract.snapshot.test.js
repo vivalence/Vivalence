@@ -1,5 +1,5 @@
 import { join } from "@std/path";
-import { specimen, Controller, v, Url, Connection, Cortex, Aperture, Vector, shard, shape } from "@vivalence/typology";
+import { specimen, Controller, v, Url, Connection, Cortex, Aperture, Vector, cortex, shard, shape } from "@vivalence/typology";
 import { lifecycle } from "@vivalence/runtime";
 
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
@@ -53,9 +53,9 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
   let sealed;
 
   specimen.beforeAll(async () => {
-    const daemon = { aperture: new Aperture(), cortex: new Cortex().register([contractFaculty()]) };
-    await lifecycle.daemon.aperture.cortex({ daemon }, async () => {});
-    daemon.aperture.branch("/metadata").open("/cortex", () => shape.cortex.strip(daemon.cortex));
+    const daemon = { type: "daemon", aperture: new Aperture(), cortex: new Cortex().register([contractFaculty()]) };
+    await lifecycle.host.aperture.cortex({ host: daemon }, async () => {});
+    daemon.aperture.branch("/metadata").open("/cortex", () => cortex.strip(daemon.cortex));
 
     const handler = shape.http(daemon.aperture);
     exchanges = [];
@@ -74,7 +74,7 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
       shard.transmitter.inline(recordingHandler),
     );
     strip = await connection.call("/metadata/cortex");
-    const remote = new Cortex().register(shape.cortex.wire(connection.branch("/cortex"), strip));
+    const remote = new Cortex().register(cortex.wire(connection.branch("/cortex"), strip));
 
     const tools = new Vector()
       .open({ nature: "lookup" }, async (ctx) => ({ message: `${ctx.input.query} means house` }))
@@ -97,11 +97,11 @@ specimen.describe("cortex contract snapshot — what actually crosses the daemon
     pin(strip, "cortex-contract-strip.snapshot.json");
   });
 
-  specimen.it("the /cortex/render rounds: tools cross stripped of execute, settings + output ride", () => {
-    const rounds = exchanges.filter((exchange) => exchange.pathname === "/cortex/render");
+  specimen.it("the /cortex/dialogue/render rounds: the bare request, its tune beside it; tools cross stripped of execute, settings + output ride", () => {
+    const rounds = exchanges.filter((exchange) => exchange.pathname === "/cortex/dialogue/render");
     specimen.expect(rounds).toHaveLength(2);
-    specimen.expect(rounds[0].body.request.tools.find((tool) => tool.name === "lookup")).toEqual({ name: "lookup" });
-    specimen.expect(rounds[0].body.request.tools.find((tool) => tool.name === "grade").execute).toBe(undefined);
+    specimen.expect(rounds[0].body.tools.find((tool) => tool.name === "lookup")).toEqual({ name: "lookup" });
+    specimen.expect(rounds[0].body.tools.find((tool) => tool.name === "grade").execute).toBe(undefined);
     specimen.expect(sealed.output.message).toBe("casa means house");
     pin(rounds, "cortex-contract-render.snapshot.json");
   });

@@ -58,9 +58,8 @@ describe("aperture snapshot: /metadata (consumer vantage)", { sanitizeResources:
     const modes = await connection.call(`/daemon/${daemon}/metadata/modes`, {});
     for (const mode of modes) {
       const stem = `/daemon/${daemon}/mode/${mode.type}/${mode.slug}/metadata`;
-      const manifest = await connection.call(`${stem}/manifest`, {});
       const aperture = await connection.call(`${stem}/aperture`, {});
-      const pojo = { manifest, routes: routes(aperture) };
+      const pojo = { mode, routes: routes(aperture) };
       const { path } = snapshot(pojo, { base, dry: DRY, parse: (x) => x, locate: `${mode.type}-${mode.slug}-aperture.snapshot.json` });
       const bytes = JSON.stringify(pojo).length;
       console.log(`[aperture ${DRY ? "DRY" : "WRITE"}] ${mode.type}/${mode.slug} → ${path} · ${bytes} bytes · ~${Math.ceil(bytes / 4)} tokens`);

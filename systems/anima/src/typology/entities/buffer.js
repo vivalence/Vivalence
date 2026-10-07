@@ -91,7 +91,7 @@ export const BufferDossier = {
   kind: () => Buffer,
   repository: (schema, dataspace) => {
     const repo = new RemoteRepository(schema.kind());
-    repo.connect(dataspace.connection.branch("/userspace/entities/buffer"));
+    repo.connect(dataspace.runtime.branch("/userspace/entities/buffer"));
     return repo;
   },
 

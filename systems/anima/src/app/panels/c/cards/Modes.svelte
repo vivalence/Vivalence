@@ -39,7 +39,7 @@
   async function pick(mode) {
     try {
       const terminal = await pickMode(terminals, daemon, mode);
-      if (terminal && mode.implements("STANDALONE")) await ModeTraits.standalone.open(terminal, mode);
+      if (terminal && mode.implements("APPLICATION")) await ModeTraits.standalone.open(terminal, mode);
     } catch (error) {
       logger.entry(`threads/${daemon.slug}/${mode.slug}`).fault(error);
     }

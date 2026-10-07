@@ -10,15 +10,15 @@ what is currently running — lives under it.
 
 minimum vocabulary required:
 
-- `record` — `registry.json`, the list of package locations. Managed by `tap`/`untap`, read at boot. The only mount truth.
+- `record` — `registry.json`, one row per tapped package keyed by its owner: `slug`, `mount`, and the `remote` it was cloned from. Managed by `tap`/`untap`, read at boot. The only mount truth.
 - `store` — `registry/`, the default directory packages materialize into. A location heuristic, nothing more.
 - `instances/` — where created instances land when no target is given.
 - `instance` — one runnable system at its mount: `instances.json` records them, locks and logs key by them.
 
 ```
 ~/.viva/
-  registry.json          the record: package locations (absolute = pinned checkouts,
-                         relative = store children)
+  registry.json          the record: owner → { slug, mount, remote? } (mount absolute,
+                         or relative to this file)
   instances.json         known instances on this machine
   .env                   the machine's own environment, hand-authored (viva instances use x --ledger upserts one line)
   locks/                 <instance>_<process>.lock — what is running

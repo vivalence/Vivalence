@@ -1,6 +1,6 @@
 # mikro-7 — the research behind quest `m78-mikro-7.org`
 
-Collected 2026-10-02 by two opus agents (one upstream, one on the tree) plus the session's own reads of the 6.6.7 and 7.2.3 sources. Everything here is a COPY for future reference; the quest `.ikiro/quests/m78-mikro-7.org` carries the decisions.
+Collected 2026-10-02 by two opus agents (one upstream, one on the tree) plus the session's own reads of the 6.6.7 and 7.2.3 sources. Everything here is a COPY for future reference; the quest `.ikiro/quests/done/m78-mikro-7.org` carries the decisions.
 
 ```
 reference/mikro-7/

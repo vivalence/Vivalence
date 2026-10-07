@@ -29,8 +29,7 @@ specimen.beforeAll(async () => {
     .use(shard.datamap.scope((ctx) => ({ user: ctx.user.id })))
     .graft(shard.datamap.repository(repos.thread))
 
-  const sub = shape.subscriber(twitch)
-  scenario.em.getEventManager().registerSubscriber(sub)
+  scenario.datamap.registerSubscriber(twitch)
 
   const handler = shape.http(aperture)
   conn = new Connection(
@@ -45,7 +44,7 @@ specimen.afterAll(async () => {
 
 specimen.describe("shard.datamap.repository", () => {
   specimen.it("a repository creates, reads, counts, and finds one", async () => {
-    const created = await conn.call("/literal/create", { data: { slug: "created", trait: {} } })
+    const created = await conn.call("/literal/create", { data: { slug: "created", mode: scenario.fixtures.mode.id, trait: {} } })
     specimen.expect(created.id).toBeDefined()
     specimen.expect(created.slug).toBe("created")
 
@@ -65,13 +64,13 @@ specimen.describe("shard.datamap.repository", () => {
   })
 
   specimen.it("a repository updates, removes, and ensures", async () => {
-    const mutable = await conn.call("/literal/create", { data: { slug: "mutable", trait: {} } })
+    const mutable = await conn.call("/literal/create", { data: { slug: "mutable", mode: scenario.fixtures.mode.id, trait: {} } })
     const updated = await conn.call("/literal/updateOne", {
       where: { id: mutable.id }, data: { trait: { TAGGED: true } },
     })
     specimen.expect(updated.trait.TAGGED).toBe(true)
 
-    const ephemeral = await conn.call("/literal/create", { data: { slug: "ephemeral", trait: {} } })
+    const ephemeral = await conn.call("/literal/create", { data: { slug: "ephemeral", mode: scenario.fixtures.mode.id, trait: {} } })
     const removed = await conn.call("/literal/removeOne", { where: { id: ephemeral.id } })
     specimen.expect(removed.ok).toBe(true)
     specimen.expect(await scenario.repos.literal.findOne({ slug: "ephemeral" })).toBeNull()
@@ -139,7 +138,7 @@ specimen.describe("shard.datamap.reactive", () => {
       events.push({ custom: true, slug: ctx.input.entity?.slug })
     })
 
-    await conn.call("/literal/create", { data: { slug: "twitch-fire", trait: {} } })
+    await conn.call("/literal/create", { data: { slug: "twitch-fire", mode: scenario.fixtures.mode.id, trait: {} } })
 
     specimen.expect(events.length).toBe(1)
     specimen.expect(events[0].custom).toBe(true)
@@ -159,7 +158,7 @@ specimen.describe("shard.datamap.ingest", () => {
 
     const single = await (await post(new ReadableStream({
       start(controller) {
-        controller.enqueue(encoder.encode('data: {"op":"create","data":{"slug":"ingested","trait":{}}}\n\n'))
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ op: "create", data: { slug: "ingested", mode: scenario.fixtures.mode.id, trait: {} } })}\n\n`))
         controller.close()
       },
     }))).json()
@@ -168,8 +167,8 @@ specimen.describe("shard.datamap.ingest", () => {
 
     const many = await (await post(new ReadableStream({
       start(controller) {
-        controller.enqueue(encoder.encode('data: {"op":"create","data":{"slug":"batch-a","trait":{}}}\n\n'))
-        controller.enqueue(encoder.encode('data: {"op":"create","data":{"slug":"batch-b","trait":{}}}\n\n'))
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ op: "create", data: { slug: "batch-a", mode: scenario.fixtures.mode.id, trait: {} } })}\n\n`))
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ op: "create", data: { slug: "batch-b", mode: scenario.fixtures.mode.id, trait: {} } })}\n\n`))
         controller.close()
       },
     }))).json()
@@ -194,12 +193,12 @@ specimen.describe("shard.datamap.ingest", () => {
       }),
     }))
 
-    const toUpdate = await conn.call("/literal/create", { data: { slug: "ingest-update", trait: {} } })
+    const toUpdate = await conn.call("/literal/create", { data: { slug: "ingest-update", mode: scenario.fixtures.mode.id, trait: {} } })
     const updated = await (await post({ op: "update", where: { id: toUpdate.id }, data: { trait: { INGESTED: true } } })).json()
     specimen.expect(updated.length).toBe(1)
     specimen.expect(updated[0].trait.INGESTED).toBe(true)
 
-    const toDelete = await conn.call("/literal/create", { data: { slug: "ingest-delete", trait: {} } })
+    const toDelete = await conn.call("/literal/create", { data: { slug: "ingest-delete", mode: scenario.fixtures.mode.id, trait: {} } })
     const deleted = await (await post({ op: "delete", where: { id: toDelete.id } })).json()
     specimen.expect(deleted.length).toBe(1)
     specimen.expect(deleted[0].ok).toBe(true)
@@ -244,7 +243,9 @@ specimen.describe("shard.datamap.strip", () => {
     specimen.expect(schema.literal.properties.symbols.owner).toBeUndefined()
 
     specimen.expect(schema.thread.properties.intent.nullable).toBe(true)
-    specimen.expect(schema.thread.properties.mode.nullable).toBeUndefined()
+    specimen.expect(schema.thread.properties.mode.nullable).toBe(true)
+    specimen.expect(schema.literal.properties.mode.nullable).toBeUndefined()
+    specimen.expect(schema.literal.properties.daemon.target).toBe("daemon")
   })
 })
 
@@ -276,6 +277,7 @@ specimen.describe("shard.datamap.wire", () => {
   })
 
   specimen.it("wire hydrates cross-repo relations and wraps entities in prototypes", async () => {
+    scenario.em.clear()
     const schema = shard.datamap.strip(scenario.orm.getMetadata())
     const entityManager = new RemoteEntityManager(conn, schema)
     const literal = entityManager.register("literal", new RemoteRepository())
@@ -285,8 +287,8 @@ specimen.describe("shard.datamap.wire", () => {
     shard.datamap.wire({ literal, symbol }, schema)
 
     await symbol.find()
-    const literals = await literal.find({}, { populate: ["symbols"] })
-    const fromStore = symbol.$entities.get()[0]
+    const literals = await literal.find({ slug: "hello" }, { populate: ["symbols"] })
+    const fromStore = symbol.$entities.get().find((row) => row.slug === "greeting")
     specimen.expect(literals[0].symbols[0]).toBe(fromStore)
 
     class TestMode {

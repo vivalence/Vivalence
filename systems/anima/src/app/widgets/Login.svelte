@@ -20,7 +20,7 @@
   const prompt = $derived(
     `anima signin at ${remote} shows "${standing}` +
       `${$status.message ? `: ${$status.message}` : ""}". ` +
-      "diagnose it: run `viva instance/doctor`, check PUBLIC_VIVA_LIGHTHOUSE_REMOTE " +
+      "diagnose it: run `viva instance/doctor`, check PUBLIC_VIVA_RUNTIME_REMOTE " +
       "in the instance .env, docs at https://docs.vivalence.org. " +
       "look in the repository in .ikiro for orientation and solutions.",
   );
@@ -40,7 +40,7 @@
   <Card>
     <Section label="lighthouses" count={1} />
     <div class="row">
-      <span class="row-name">{lighthouse.identity?.slug ?? host}</span>
+      <span class="row-name">{lighthouse.user?.slug ?? host}</span>
       <span class="row-address">{remote}</span>
       <span class="row-state">
         {#if busy}<Spinner />{:else}<Pip size={7} {tone} pulse={busy} />{/if}
@@ -64,7 +64,7 @@
     <Section label="help" open={helping} ontoggle={() => (helping = !helping)} />
     {#if helping}
       <p>there is no signup ui — accounts are created from the shell:</p>
-      <code>viva instance/lighthouse signup &lt;username&gt; &lt;password&gt;</code>
+      <code>viva instance/user signup &lt;username&gt; &lt;password&gt;</code>
       <p>docs: <a href="https://docs.vivalence.org" target="_blank">docs.vivalence.org</a></p>
       <p>stuck? paste this to your llm:</p>
       <code class="prompt">{prompt}</code>

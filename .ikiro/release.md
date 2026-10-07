@@ -27,6 +27,10 @@
 
 ### cli
 
+- renamed `viva instance/lighthouse` → `viva instance/user`; added `viva instance/start --prune` — drops the rows of a daemon gone from `instance.viva.json`; without it start refuses, naming the daemon · migrate: none ⟨m80⟩
+- changed `viva registry/tap` — prints `owner` and `root` (was `location`), `record` is the owner-keyed object; a cloned remote is recorded · migrate: read `owner` ⟨registry-record⟩
+- changed `viva registry/untap` — takes an owner, slug, identifier or mount (`viva registry/untap @chess`); the effect's `untapped` is the owner · migrate: none ⟨registry-record⟩
+- changed `viva registry/list` · `registry/doctor` · `ledger/doctor` rows — keyed by `owner`, carry `slug` · `mount` · `remote`; `location` is gone · migrate: read `owner` / `mount` ⟨registry-record⟩
 - renamed `viva registry/list` · `registry/doctor` · `registry/tap` row key `reference` → `location` — where a tapped package lives · migrate: read `location` ⟨m74 M1⟩
 - renamed `viva registry/untap <reference>` → `viva registry/untap <location>` — the argument's name; its value is unchanged · migrate: none ⟨m74 M1⟩
 - renamed ghost's lens row key `reference` → `identifier` — the registry address a picker row carries · migrate: rename ⟨m74 M1⟩
@@ -60,11 +64,37 @@
 
 ### route
 
+- removed `/userspace/handshake` · `/auth/enroll` · `/daemons/announce` · `/daemon/<slug>/userspace/*`; added `/lighthouse/{signup,login,verify,refresh,logout}` · `/userspace/entities/*` at the runtime's root · migrate: clients call the runtime's root ⟨m80⟩
+- removed the root's `/manifest` · `/metadata/modes` · `/metadata/instance`, each host's `/manifest` (`/runtime/<slug>` · `/daemon/<slug>`) and each mode's `/metadata/manifest` — the root answers `/status` and its own `/metadata/{manifest,aperture,datamap,daemons,services}`; a host's modes are at `<host>/metadata/modes` behind the token; a mode's record is its Mode row (`<host>/entities/mode/findOne`) · migrate: `/manifest` → `/metadata/manifest`; root `/metadata/modes` → `/runtime/<slug>/metadata/modes` with a token ⟨m81 M⟩
+- added `POST /runtime/<slug>/mode/<type>/<slug>/…` behind the lighthouse · runtime cargo `/attached/cargo/runtime/<slug>/…` — a runtime mode's seat, its listing, its freight · migrate: none (no client reads a runtime mode yet) ⟨m81 R3 · R6⟩
+- changed the runtime's reference `/` → `/runtime/<slug>` (`/runtime/runtime` on the default slug), written by paladin into `instance.runtime.reference` · `url`; `Runtime.slug` · `Runtime.reference` come from the record, never hardcoded · migrate: a hand-built runtime die passes `slug` · `reference` ⟨m81 R6⟩
+- added `GET /runtime/<slug>/status` · `POST /runtime/<slug>/batch` · `GET /runtime/<slug>/metadata/{manifest,statics,cargo,datamap,aperture,cortex,modes}` · `GET /runtime/<slug>/mode/<type>/<slug>/metadata/*`, behind the token — the runtime host serves what a daemon serves · migrate: none ⟨m81 C1⟩
+- changed `GET /daemon/<slug>/metadata/modes` — each row gains `reference`, absolute; both rungs list `{ type, slug, name, traits, reference, metadata }` · migrate: none ⟨m81 C2⟩
+- added `POST /runtime/<slug>/cortex/<type>/{render,stream}` — the runtime's cortex, routed like a daemon's · migrate: none ⟨m81 C4⟩
+- changed the runtime host's aperture `/runtime/<slug>/…` — the whole branch takes the token (was: only `/mode`) · migrate: none ⟨m81 C1⟩
+- changed `POST /daemon/<slug>/cortex/{render,stream}` with `{ type, tune, request }` → `POST /daemon/<slug>/cortex/<type>/{render,stream}`, body = the request with `tune` beside its keys · migrate: typology `belt.cortex.wire` in the same change ⟨m81 pass⟩
+- removed `POST /daemon/<slug>/modes/:type/:method` — 0 callers; a mode's record is `POST /daemon/<slug>/entities/mode/findOne` · migrate: none ⟨m81 pass⟩
 - renamed `/metadata/daemons` · `/metadata/services` key `mount` → `reference` · migrate: read `reference` ⟨m74 M2⟩
 - changed the runtime's `/status` — answers `{ timestamp, code }` with `code: "RUNNING"`; `label` left it; every process's `/status` is its controller's `Status` · migrate: read `code`, drop `label` ⟨m74 M5⟩
 - renamed the runtime's stdout readiness line `Status:ALIVE` → `Status:RUNNING` — `viva instance/run` and `paladin.ledger.boot` wait for it · migrate: a supervisor matching `^Status:ALIVE$` matches `^Status:RUNNING$` ⟨m74 M5⟩
 ### api
 
+- changed `entity_find` · `entity_count` · `entity_schema` on `user` and `activity` — a signed-in caller reads only their own user row and their own runs, before: every user's · migrate: none ⟨m81 F7⟩
+- changed a mode trait's signature `(mode, daemon)` → `(mode, host)` · migrate: none ⟨m81 H1⟩
+- removed `ctx.daemon` · `ctx.runtime` — the host's words ride flat: `ctx.entities · call · cortex · modes · services · statics · domain · mountpoint · reference · cargo` · migrate: `.ikiro/methods/flatten-ctx.py <tree> --all --write`, then the hand blocks ⟨m81 flatten⟩
+- removed `daemon.flatmodes()` · `runtime.flatmodes()` → `fromm.modes(modes).flat` · migrate: the same script ⟨m81 flatten⟩
+- added `contexts` (typology) — every ctx key a schematic, six contexts · `shard.context.{lift, spread, conform}` · migrate: none ⟨m81 flatten⟩
+- changed `mode_find`'s first line `[Daemon <slug>]` → `[Host <reference>]` · migrate: none ⟨m81 flatten⟩
+- renamed `lifecycle.mode.traits` → `traits` (`@vivalence/runtime`) · migrate: imports, `.ikiro/quests/done/m81-runtime-harness.org` registry blocks ⟨m81 traits⟩
+- changed the runtime's root server `die.runtime.aperture` → `die.aperture`; `die.runtime.aperture` is the runtime-as-host, mounted at `/runtime/<slug>` · migrate: a hand-built runtime die passes `aperture` ⟨m81 R6⟩
+- fixed `Url.branch("/")` — identity, like `Aperture.branch("/")`; a root-seated host's cargo url no longer ends in `//` · migrate: none ⟨m81 R3⟩
+- added `gestalten.shard.cargo` · `gestalten.belt.{traits,host}` — the runtime's gestalten mirrors typology's belt/shard split · migrate: none ⟨m81 pass⟩
+- renamed `lifecycle.daemon.aperture.{metadata,cortex}` → `lifecycle.host.aperture.{metadata,cortex}`, run over `die.host` on both rungs · migrate: a hand-built die passes `{ host }` ⟨m81 C1⟩
+- renamed `gestalten.belt.stagger(mode, daemon, traits)` → `stagger(bearer, context, traits)`; `belt.stamp` → `lifecycle.mode.traits.stamp` · migrate: imports ⟨m81 pass⟩
+- fixed `Signature.lua` — walked from `undefined`, always returned `undefined` · migrate: none ⟨m81 K, landed 10-09⟩
+- fixed `thread_update` — returns `{ id, phase, traits, trait, counter, cursor }`, never the row · migrate: none ⟨m81⟩
+- removed `systems/runtime/lifecycle/runtime/aperture/cortex.js` — an orphan · migrate: none ⟨m81 F2⟩
+- added `@vivalence/typology` `v.interface(heritage, props, opts)` · `v.isNever(schema)` — TypeBox `Interface` and `IsNever`, enhanced · migrate: none ⟨m80⟩
 - added `@vivalence/drapes` `place` — the float placement (`panels/float.js`) · migrate: none ⟨m73⟩
 - added `@vivalence/anima` `ModeTraits` — `standalone.open(terminal, mode)` beside the mode trait hooks · migrate: none ⟨m73⟩
 - added `@vivalence/drapes` `Key` `size="bone"` · `stack` — 31 px across a bone, the face stacked on a standing one; anima's `Glyph` takes a `set` (`carbon/32` the default); `static/icons/anima/` holds the comp's `brain` · `chat/lines` · `chat/prompt` · `eye-off` · migrate: none ⟨m73⟩
@@ -114,6 +144,12 @@
 
 ### entity
 
+- changed `User` — the lighthouse's `Identity` folds into the runtime's `User` (traits · trait; authentication hidden on the wire); `Daemon` is a row (`mask`), `User ↔ Daemon` through `User_daemons`, written on first use · migrate: sign up again — no user survives ⟨m80⟩
+- added `Note` with traits `RETAINED` · `TRACED` (a child per review); removed `Retention` · `Trace` · migrate: none — no row survives ⟨m80⟩
+- changed the datamap — ONE runtime db with a fixed kernel schema, a repository per (daemon, kind) scoped by mikro's `daemon` filter; every per-daemon `.viva.db` dropped · migrate: restart on a fresh mountpoint, sign up again ⟨m80⟩
+- added user trait `HOME` (`{ reference }`) · `instance.clients[].home` — the mode a thread with none enters: the user's over the client's · migrate: none ⟨m81 P⟩
+- changed `Mode.daemon` — nullable, a runtime mode's row has none · migrate: restart every instance (schema delta) ⟨m81 H3⟩
+- changed `Turn` — reads carry the `user` filter through `thread.user`: a bound user sees only their own threads' turns, chains onto no other user's thread, and an unbound read throws · migrate: none ⟨m78⟩
 - renamed an instance record mask's `mount` → `reference` — `v.primitives.instance.{Mode,Service,Daemon}.reference`, the route under the parent (`/daemon/chess`); `mount` means disk · migrate: a recipe declaring `mount:` on a daemon · mode · service declares `reference:` ⟨m74 M2⟩
 - renamed `sets.network` → `sets.lighthouse` (`identity · daemon`); `sets.daemon` (`user · mode`) folds into `sets.kernel` (`user · mode · literal · symbol`) · migrate: `sets.network` → `sets.lighthouse`, `sets.daemon.X` → `sets.kernel.X` ⟨m74 M6⟩
 - fixed dataset install — `Literal.ontology` and `Literal.symbol` derive again on install: the link phase writes pivots through the ORM (per-chunk populate · add · `updatedAt`), so `LiteralSubscriber` fires; the install stamp folds the installer's own source, so this change reinstalls every DATASET mode at next boot and backfills the rows · migrate: none, boot once ⟨a-blank-never-claims⟩
@@ -123,6 +159,8 @@
 
 ### env
 
+- removed `PUBLIC_VIVA_LIGHTHOUSE_REMOTE` · `VIVA_LIGHTHOUSE_MOUNT` — the lighthouse is the runtime's own; the browser reads `PUBLIC_VIVA_RUNTIME_REMOTE` · migrate: set `PUBLIC_VIVA_RUNTIME_REMOTE` where the lighthouse key stood, prod's Coolify included ⟨m80⟩
+- changed the ledger → instance environment fold — an instance key composes with the ledger's as a TypeBox interface: it narrows (restating `type`), a retype throws at mount, a typeless override is dropped · migrate: restate `type` on every overriding key ⟨m80⟩
 - changed instance settle — a consumed service (`daemon.consume.<slug>`) whose secret is blank is dormant like a hallucinator: dropped at mount, named `daemon[<slug>].consume.<name>` by the doctor, `daemon.services.<slug>` absent; the nlp provider names what it misses (`statics.remote` / `secrets.key`) · migrate: none ⟨a-blank-never-claims⟩
 - changed env fold — a blank value (`KEY=""`) never claims: paladin's ingress drops it, so a lower stratum voices the key and a blank REQUIRED secret reads as absent (dormant hallucinator, not a gate failure); the writer already wrote unset as `# KEY=""` · migrate: none ⟨a-blank-never-claims⟩
 - removed `VIVA_REGISTRY_MOUNT` from the image (F2) — the store is the ledger volume's `registry/` · migrate: none ⟨m47-commons⟩
@@ -138,6 +176,20 @@
 
 ### other
 
+- changed the instance recipe — JSON reconciled at boot (was the `instance.viva.js` module), nothing written back · migrate: convert each shelf by hand ⟨m80⟩
+- removed mode trait `STANDALONE` — every mode is an entrypoint; a manifest still declaring it logs `[trait] … declares STANDALONE, which … does not offer` at boot, the enum keeps the word so old rows hydrate · migrate: drop it from `manifest.traits` ⟨m81 N⟩
+- added `runtime.modes` in the instance record · renamed `daemons[].kernel` → `daemons[].modes` — a mode runs on the runtime rung · migrate: every `instance.viva.json` and ledger declaring `kernel` ⟨m81 H⟩
+- removed `DATASET` · `DATASINK` from the runtime's catalog — a runtime mode declaring them is skipped · migrate: none ⟨m81 traits⟩
+- added `RUNTIME` to a mode's traits — the mode declares it runs on the runtime rung · migrate: none ⟨m81 R1⟩
+- fixed the runtime host's reference — a runtime slot naming no manifest mounted at `/runtime/undefined` (the slug's default came after the reference was written); now `/runtime/runtime` · migrate: none ⟨m81⟩
+- changed `commons/datamaps/libsql` — mikro-orm 7.2.3 over better-sqlite3 (was 6.6.7 over sqlite3 + knex); a populated db meeting a schema delta is migrated by mikro's own migrator; a two-statement `execute` throws · migrate: `deno task dependencies` ⟨m78⟩
+- changed mikro's auto-flush — a query flushes only queued creates and removes of its type, never a changed loaded row (6.6.9 flushed it): `row.slug = x` then `find({ slug: x })` misses, and a lazy `collection.init()` drops pending changes on the rows it loads · migrate: flush first, or populate up front ⟨m78⟩
+- removed `npm:sqlite3` · `@mikro-orm/knex` from the import map · migrate: none ⟨m78⟩
+- changed `registry.json` — a JSON list of locations → an object keyed by owner: `{ "@chess": { "slug": "chess", "mount": "./registry/chess", "remote": "git@…" } }`; `mount` is relative to the record file, or absolute; the list shape throws on read · migrate: rewrite the record by hand (`~/.viva/bak/ikiro/registry-record-20261009/` holds this machine's list) ⟨registry-record⟩
+- changed the `runtime` slot — `manifest` defaults to `{ "slug": "runtime" }`; a recipe states it only to rename the runtime, and a stated manifest still names its slug · migrate: none ⟨m80⟩
+- changed `ledger.viva.json` · `instance.viva.json` — a top-level slot is its content, a path (relative to the file, or absolute) or a `${KEY}` naming either; the ledger declares `instances` · `registry` (inline = read-only, a declared file that is gone throws) and `environment` moves to `./environment.json` · migrate: `viva ledger/init` copies `environment.json`; a ledger without the keys keeps its files beside it ⟨m80⟩
+- renamed `instance.json` → `instance.viva.json` · `ledger.json` → `ledger.viva.json` — paladin finds every `*.viva.*` through one `find.viva` → `read.viva` path · migrate: `mv` the recipe on every shelf and ledger ⟨m80⟩
+- changed `commons/instances/{hello-world,playground}` — they declare only what differs from the shipped ledger (hello-world: manifest + daemons) · migrate: a shelf boots on a ledger that holds `runtime · datamap · clients · environment` (`viva ledger/init` writes one) ⟨m80⟩
 - changed education/riddler — `resolved` is the choice verdict (`verdict.resolved.yes > 0.9`), no longer the assistant's own flag · migrate: none ⟨m70-choice-faculty⟩
 - added `three@0.186.0` (+ exact `three/addons/loaders/GLTFLoader.js` · `three/addons/controls/OrbitControls.js`) · `@threlte/core@8.6.0` · `@threlte/extras@9.21.1` to `import_map.json` — a Deno import map cannot prefix-map into `npm:`, so addon subpaths are exact entries; the browser bundler resolves them from `node_modules` regardless · migrate: none ⟨a-package-is-born-out-of-tree⟩
 

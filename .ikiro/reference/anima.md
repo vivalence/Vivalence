@@ -161,9 +161,9 @@ const application = chain(terminals, "$active", "$buffer", "mode", "$application
 
 ## 4 · traits — which entity, which list, who reads them
 
-Every trait list has THREE homes that drift apart: the runtime enum (persistence), the runtime behaviour (`systems/runtime/lifecycle/mode/traits/*`), and the client's `implements("…")` or `traits.includes("…")`. A declared trait with no implementation is skipped SILENTLY (`systems/runtime/lifecycle/mode/traits/index.js:9`).
+Every trait list has THREE homes that drift apart: the runtime enum (persistence), the runtime behaviour (`systems/runtime/traits/*`), and the client's `implements("…")` or `traits.includes("…")`. A declared trait with no implementation is skipped and LOGGED at boot (`systems/runtime/lifecycle/mode/resolution.js:15`, m81) — the host's catalog decides; the runtime's lacks `DATASET · DATASINK`.
 
-### mode — `ModeTraitsEnum` (`systems/runtime/entities/kernel/Mode.ts:10`)
+### mode — `ModeTraitsEnum` (`systems/runtime/entities/Mode.ts:12`)
 
 The client installs exactly four of them (`src/typology/entities/mode/traits/index.js`, run by `applyTraits` at `mode/mode.js:57`, after `mode.connection` exists). All the others are markers the client reads with `mode.implements(name)` (`mode/mode.js:21`, case-insensitive).
 
@@ -176,6 +176,7 @@ The client installs exactly four of them (`src/typology/entities/mode/traits/ind
 | `STANDALONE` | marker | — | — | F: Open without AIMED |
 | `CONVERSATIONAL` | marker | — | — | D lists the mode |
 | `GENERATIVE` | `traits/generative.js` bundler + `generator_*` tools | — | — | `buffer.$view` (drawn view) |
+| `RUNTIME` | marker (m81: the mode runs on the runtime rung) | — | — | — |
 | `SELFEVIDENT` | marker · deprecated | — | — | `panels/d/navigation.js` (no importer) |
 | `TOOLING` `AGENTIC` `BOOTED` `INTENTED` `DATASET` `DATASINK` `FRAUGHT` `MOUNTED` | runtime | `/freight` for FRAUGHT · MOUNTED | — | — |
 | `TOPOGRAPHICAL` `TOPOLOGICAL` | enum only | — | — | — |
@@ -198,7 +199,7 @@ const merge = async (yielded) => {
 
 The harness is a fixed lexicon on every HARNESSED mode: `dialogue`/`object` × `render`/`stream`, plus `choice.render`. The dock also reaches `harness.verbatim.stream` for dictation.
 
-### thread — `ThreadTraitsEnum` (`systems/runtime/entities/userspace/Thread.ts:22`)
+### thread — `ThreadTraitsEnum` (`systems/runtime/entities/Thread.ts:22`)
 
 Config lives at `thread.trait.<NAME>`. The capability code is FREE functions over the thread (`src/typology/entities/thread/traits/`). Nothing is stamped onto the entity. App code reaches them as `ThreadTraits.aimed.pull(thread)` and `ThreadTraits.queueing.depth(thread)`.
 
@@ -266,10 +267,10 @@ An **activity** is one live hallucination (a transient row). `roster(thread)` gi
 
 ## 5 · how a mode reaches the screen
 
-A mode is authored in a package (`<slug>.viva.js`, the twelve exports; see skill `mode-development`). anima meets it through three doors:
+A mode is authored in a package (`<slug>.viva.js`, the twelve exports; see skill `mode`). anima meets it through three doors:
 
-1. **the strips**: `/metadata/{application,emitter,aperture,harness}` on the mode's branch, emitted per trait by `systems/runtime/lifecycle/daemon/aperture/metadata.js:26-50`.
-2. **the bundle**: a hashed `.svelte.mjs` compiled by paladin's bundler and served under `attach/bundle/<daemon mount>/<mode mount>`.
+1. **the strips**: `/metadata/{application,emitter,aperture,harness}` on the mode's branch, emitted per trait by `systems/runtime/lifecycle/host/aperture/metadata.js:25-50`, on every host: `/daemon/<slug>/mode/…/metadata/*` and `/runtime/<slug>/mode/…/metadata/*`.
+2. **the bundle**: a hashed `.svelte.mjs` compiled by paladin's bundler and served under `/attached/bundle/<host reference>/<mode reference>`, every host, the runtime's included (`systems/runtime/lifecycle/runtime/resolution.js:42-49`).
 3. **the wires**: `mode.call` · `mode.emit` · `mode.harness`, proxies built from the strips by `shape.connection.wire`.
 
 ```js
@@ -285,7 +286,7 @@ export const application = new App("./app/App.svelte");
 Server side, APPLICATION compiles that entry. In dev, `/metadata/application` recompiles on EVERY read, and this is the only seam that refreshes a view:
 
 ```js
-// systems/runtime/lifecycle/daemon/aperture/metadata.js:33
+// systems/runtime/lifecycle/host/aperture/metadata.js:34
 meta.open("/application", async () => {
   if (paladin.is.dev) await mode.application.compile();
   return {
@@ -666,8 +667,8 @@ The T-bone chrome and panels A–H. `panels/a/widgets/Dock.svelte` is the larges
 The cursor machine, the view record, the verified loader, the repositories.
 
 **The other end**
-`systems/runtime/lifecycle/daemon/aperture/metadata.js`
-`systems/runtime/lifecycle/mode/traits/`
+`systems/runtime/lifecycle/host/aperture/metadata.js`
+`systems/runtime/traits/`
 What each trait publishes and does server-side.
 <context files="0" tokens="~0">
 

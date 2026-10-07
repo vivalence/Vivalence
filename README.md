@@ -165,84 +165,42 @@ The agent harness, the api endpoint, procedural rendering, and many more capabil
 
 ## Hello, Instance!
 
-The instance the mode ships in: the mode in the kernel, two hallucinators and one sqlite datamap declared once at the root and inherited by every daemon, ports and secrets as one schema.
+The instance the mode ships in, as one JSON file: its manifest and its one daemon, the mode in its modes. Everything else it inherits from the ledger it lands on: the runtime, two hallucinators, one sqlite datamap, the anima client, ports and secrets as one schema. A slot the instance declares is its own; an environment key it declares narrows the ledger's, never retypes it. The runtime reads both at boot and reconciles its rows against them; nothing is written back.
 
-```js
-import paladin from "@vivalence/paladin";
-import { v } from "@vivalence/typology";
-
-export const manifest = { type: "instance", slug: "hello-world", version: "0.0.1" };
-
-export const datamap = { module: "@commons/datamap/libsql" };
-
-export const lighthouse = {
-  module: "@commons/lighthouse/multiplayer",
-  statics: { remote: () => paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") },
-};
-
-export const hallucinators = [
-  {
-    module: "@commons/hallucinator/anthropic",
-    secrets: { key: () => paladin.secret.get("SECRET_VIVA_ANTHROPIC_API_KEY") },
-  },
-  {
-    module: "@commons/hallucinator/openrouter",
-    secrets: { key: () => paladin.secret.get("SECRET_VIVA_OPENROUTER_API_KEY") },
-  },
-];
-
-export const daemons = [
-  {
-    manifest: { type: "daemon", slug: "hello", version: "0.0.1" },
-    kernel: [
-        "./mode.viva.js"
-        // or: "@commons/demo/hello-world"
-    ],
-    consume: { reader: { module: "@commons/service/reader" } },
-  },
-];
-
-export const runtime = {
-  manifest: { slug: "runtime" },
-  statics: { serve: () => paladin.env.get("VIVA_RUNTIME_SERVE") },
-};
-
-export const clients = [
-  {
-    manifest: { type: "client", slug: "anima" },
-    statics: { serve: () => paladin.env.get("VIVA_CLIENT_ANIMA_SERVE") },
-  },
-];
-
-export const services = [
-  {
-    manifest: { type: "lighthouse", slug: "multiplayer" },
-    module: "@commons/lighthouse/multiplayer",
-    secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_JWT") },
-  },
-];
-
-
-export const environment = v.environment({
-  // Deno Runtime
-  VIVA_RUNTIME_ORIGIN: v.url().desc("Scheme and authority the runtime is reachable at. Every address below derives from it.").default("http://localhost:2501").group("addresses"),
-  VIVA_RUNTIME_SERVE: v.url().desc("Base URL the runtime serves on. Everything else hangs off this latch.").default("${VIVA_RUNTIME_ORIGIN}/").group("addresses"),
-  PUBLIC_VIVA_RUNTIME_REMOTE: v.url().desc("Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.").default("${VIVA_RUNTIME_SERVE}").group("addresses"),
-
-  // Identity, authentication, and coordination
-  PUBLIC_VIVA_LIGHTHOUSE_REMOTE: v.url().desc("Lighthouse address as CONSUMED. Example: http://localhost:2501/attached/process/service/lighthouse/multiplayer").group("addresses"),
-
-  // Svelte browser client
-  VIVA_CLIENT_ANIMA_SERVE: v.url().desc("Where the anima browser client serves.").default("${VIVA_CLIENT_ANIMA_ORIGIN}/").group("addresses"),
-  VIVA_CLIENT_ANIMA_ORIGIN: v.url().desc("Scheme and authority the anima browser client is reachable at.").default("http://localhost:1794").group("addresses"),
-
-  // Salts, secrets, and services 
-  SECRET_VIVA_JWT: v.string({ minLength: 24 }).desc("Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24").default(() => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24))))).group("keys"),
-  SECRET_VIVA_ANTHROPIC_API_KEY: v.string().desc("Anthropic key. Declare either provider, both, or neither — a key left blank leaves its hallucinator dormant.").group("keys").optional(),
-  SECRET_VIVA_OPENROUTER_API_KEY: v.string().desc("OpenRouter key. The alternative provider. With neither key the daemon attaches no hallucinator and /hello/agent answers as the bot.").group("keys").optional(),
-});
-
+```jsonc
+// commons/instances/hello-world/instance.viva.json
+{
+  "manifest": { "type": "instance", "slug": "hello-world", "version": "0.0.1" },
+  "daemons": [
+    {
+      "manifest": { "type": "daemon", "slug": "hello", "version": "0.0.1" },
+      "modes": ["./mode.viva.js"],
+      "consume": { "reader": { "module": "@commons/service/reader" } }
+    }
+  ]
+}
 ```
+
+```jsonc
+// commons/ledger/ledger.viva.json — what `viva ledger/init` clones; a string slot is a path, or a ${KEY} naming a path or the content
+{
+  "instances": "./instances.json",
+  "registry": "./registry.json",
+  "environment": "./environment.json",
+  "runtime": {
+    "statics": { "serve": "${VIVA_RUNTIME_SERVE}", "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}" },
+    "secrets": { "jwt": "${SECRET_VIVA_JWT}" }
+  },
+  "datamap": { "module": "@commons/datamap/libsql" },
+  "hallucinators": [
+    { "module": "@commons/hallucinator/anthropic", "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" } },
+    { "module": "@commons/hallucinator/openrouter", "secrets": { "key": "${SECRET_VIVA_OPENROUTER_API_KEY}" } }
+  ],
+  "clients": [{ "manifest": { "type": "client", "slug": "anima" }, "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" } }]
+}
+```
+
+Identity is the runtime's own: `SECRET_VIVA_JWT` signs its users, and every daemon behind it authenticates against that one remote. There is no identity service to declare.
 
 # Quickstart
 
@@ -355,7 +313,7 @@ viva instance/init                 # populates instance .env
 ```
 `instance/use` selects one instance out of the set for this shell. 
 
-To sign up additional users, use `viva instance/lighthouse signup <username> <password>` — it talks to the running lighthouse, so the instance has to be up (step 5).
+To sign up additional users, use `viva instance/user signup <username> <password>` — it talks to the running runtime, so the instance has to be up (step 5).
 
 Running `viva instance/doctor` should provide you with an overview of the environment, runtime, clients, daemons, and services — plus `faults` (what the schematic refused) and `dormant` (hallucinators whose key is blank).
 
@@ -390,7 +348,7 @@ Run one child on its own with `viva instance/run runtime` or `viva instance/run 
 - [x] `ledger/init`       — `~/.viva` exists: the one directory Vivalence owns on your machine
 - [x] `registry/tap`      — `@commons` recorded from the checkout, `@education` tapped; their modes resolve by reference from any shell
 - [x] `instance/create`   — `hello-world` copied into `~/.viva/instances`, yours to edit and version
-- [x] `instance/init`     — the instance's `.env` populated, your account registered against its lighthouse
+- [x] `instance/init`     — the instance's `.env` populated, your account registered with its runtime
 - [x] `instance/run`      — runtime serving on `:2501`, anima on `:1794`, and you're ready to log in and explore.
 
 Continue here:

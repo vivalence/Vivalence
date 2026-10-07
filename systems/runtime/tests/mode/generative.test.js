@@ -1,17 +1,6 @@
-import {
-  Aperture,
-  belt,
-  fromm,
-  Mode,
-  Path,
-  shard,
-  specimen,
-  steer,
-  ToolCall,
-  Vector,
-} from "@vivalence/typology";
-import { lifecycle } from "@vivalence/runtime";
-const { GENERATIVE } = lifecycle.mode.traits;
+import { Aperture, belt, contexts, fromm, Mode, Path, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
+import { traits } from "@vivalence/runtime";
+const { GENERATIVE } = traits;
 
 const SOURCE =
   "<script>let { buffer } = $props();</script><h1>{buffer.data.title}</h1>";
@@ -87,7 +76,7 @@ const stub = (mode) => {
 const armed = (mode, daemon, thread = "thread-1") => {
   const vector = new Vector();
   vector.branch("/generator", mode.generator.tools);
-  vector.use(shard.context.bind("daemon", daemon));
+  vector.use(shard.context.spread(contexts.host, daemon));
   vector.use(shard.context.bind("mode", mode));
   if (thread) vector.use(shard.context.bind("thread", thread));
   return vector;

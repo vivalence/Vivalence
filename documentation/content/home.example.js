@@ -6,7 +6,7 @@ export async function run() {
   const span = new Span("greet")
   span.open()
 
-  // ONE declaration — the same shape a daemon grafts under /mode/:type/:slug.
+  // ONE declaration — the same shape a host grafts under <host>/mode/:type/:slug.
   const vector = new Vector().open("/greet", (context) => ({ hello: context.request.body.name }))
   span.note({ declared: "/greet" })
 

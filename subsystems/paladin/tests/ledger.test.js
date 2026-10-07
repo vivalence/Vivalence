@@ -162,8 +162,8 @@ describe("Ledger.registry", () => {
       );
     }
     const seeded = await paladin.ledger.registry.seed({ absolute: registryRoot });
-    expect(seeded.sort()).toEqual([`${registryRoot}/alpha`, `${registryRoot}/beta`]);
-    expect((await paladin.ledger.registry.read()).sort()).toEqual(seeded.sort());
+    expect(seeded).toEqual({ "@alpha": { slug: "alpha", mount: `${registryRoot}/alpha` }, "@beta": { slug: "beta", mount: `${registryRoot}/beta` } });
+    expect(await paladin.ledger.registry.read()).toEqual(seeded);
   });
 
   it("read returns null before any seed", async () => {

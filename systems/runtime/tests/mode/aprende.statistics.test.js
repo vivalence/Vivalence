@@ -11,7 +11,7 @@ specimen.describe("aprende: /assistant/wakeup/statistics", () => {
   let scenario;
 
   specimen.beforeAll(async () => {
-    scenario = await mountMode(await accio("@education/homepage/aprende"));
+    scenario = await mountMode(await accio("@education/homepage/aprende"), { domain: await accio("@education/domain/language-learning") });
   });
 
   specimen.afterAll(async () => {

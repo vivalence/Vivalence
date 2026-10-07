@@ -1,4 +1,4 @@
-import { specimen, Controller, soma, v, Url, Connection, Cortex, Vector, shard, shape } from "@vivalence/typology";
+import { specimen, Controller, soma, v, Url, Connection, Cortex, Vector, cortex, shard, shape } from "@vivalence/typology";
 import { lifecycle } from "@vivalence/runtime";
 import { create } from "./scenarios/cortex.js";
 
@@ -21,15 +21,15 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
     scenario = await create();
     const { daemon } = scenario;
 
-    await lifecycle.daemon.aperture.cortex({ daemon }, async () => {});
-    daemon.aperture.branch("/metadata").open("/cortex", () => shape.cortex.strip(daemon.cortex));
+    await lifecycle.host.aperture.cortex({ host: daemon }, async () => {});
+    daemon.aperture.branch("/metadata").open("/cortex", () => cortex.strip(daemon.cortex));
 
     const connection = new Connection(
       new Url("http://test"),
       shard.transmitter.inline(shape.http(daemon.aperture)),
     );
     const strip = await connection.call("/metadata/cortex");
-    remote = new Cortex().register(shape.cortex.wire(connection.branch("/cortex"), strip));
+    remote = new Cortex().register(cortex.wire(connection.branch("/cortex"), strip));
   });
 
   specimen.afterAll(async () => {

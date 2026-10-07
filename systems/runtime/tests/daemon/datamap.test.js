@@ -13,7 +13,7 @@ specimen.describe("daemon routes", () => {
   });
 
   specimen.it("intent has mode relation", async () => {
-    const result = await scenario.authedConn.call("/userspace/entities/intent/findOne", {
+    const result = await scenario.userspace.call("/userspace/entities/intent/findOne", {
       where: { slug: "survival-flashcard" },
     });
     specimen.expect(result.mode).toBeTruthy();
@@ -35,9 +35,9 @@ specimen.describe("daemon routes", () => {
     const mode = entityManager.register("mode", new RemoteRepository());
     mode.connect(scenario.conn.branch("/entities/mode"));
     const intent = entityManager.register("intent", new RemoteRepository());
-    intent.connect(scenario.authedConn.branch("/userspace/entities/intent"));
+    intent.connect(scenario.userspace.branch("/userspace/entities/intent"));
     const thread = entityManager.register("thread", new RemoteRepository());
-    thread.connect(scenario.authedConn.branch("/userspace/entities/thread"));
+    thread.connect(scenario.userspace.branch("/userspace/entities/thread"));
     shard.datamap.wire({ mode, intent, thread }, schema);
 
     specimen.expect(thread.schema.stores.mode).toBe(mode);
@@ -48,19 +48,10 @@ specimen.describe("daemon routes", () => {
     specimen.expect(intents[0].mode).toBe(mode.$entities.get()[0]);
   });
 
-  specimen.it("modes findOne by slug", async () => {
-    const result = await scenario.conn.call("/modes/game/findOne", {
-      where: { slug: "flashcard" },
-    });
-    specimen.expect(result.manifest.slug).toBe("flashcard");
-  });
-
-  specimen.it("mode has traits", async () => {
-    const result = await scenario.conn.call("/modes/game/findOne", {
-      where: { slug: "flashcard" },
-    });
-    specimen.expect(result.manifest.traits).toContain("INTENTED");
-    specimen.expect(result.manifest.traits).toContain("EMITTER");
-    specimen.expect(result.manifest.traits).toContain("APPLICATION");
+  specimen.it("a mode's record reads through /entities/mode, like any entity — no /modes route", async () => {
+    const result = await scenario.conn.call("/entities/mode/findOne", { where: { id: scenario.mode.entity.id } });
+    specimen.expect(result.id).toBe(scenario.mode.entity.id);
+    specimen.expect(result.slug).toBe(scenario.mode.entity.slug);
+    specimen.expect(result.traits).toEqual(scenario.mode.entity.traits);
   });
 });

@@ -1,16 +1,15 @@
 import { types } from "@mikro-orm/core";
-import { Aperture, Vector, shape, shard, Url, sleep } from "@vivalence/typology";
-import { VirtualEntity, VirtualRepository, VirtualSchema, ThreadEntity, UserEntity, ModeEntity } from "@vivalence/runtime";
-import { provider, schemas } from "./datamap.js";
+import { Aperture, Twitch, shape, shard, Url, sleep } from "@vivalence/typology";
+import { VirtualEntity, VirtualRepository, VirtualSchema, ThreadEntity, UserEntity, ModeEntity, DaemonEntity } from "@vivalence/runtime";
+import { provider, descriptors, DAEMON } from "./datamap.js";
 
-// a status, a payload, an owner, a thread, one private handle — every wire, specific to nothing
 export class ProbeEntity extends VirtualEntity {
   user; thread;
   status = "OPEN";
   payload = {};
   #torn = false;
   get torn() { return this.#torn; }
-  teardown() { this.#torn = true; }          // the mikro beforeDelete hook
+  teardown() { this.#torn = true; }
 }
 
 export const ProbeSchema = new VirtualSchema({
@@ -24,26 +23,21 @@ export const ProbeSchema = new VirtualSchema({
   },
 });
 
-export const probe = { type: "probe", schema: ProbeSchema };   // no `entity`: the ORM discovers the schema, the provider mints nothing
-
-const describe = (schema) => ({
-  type: schema.meta.class.name.toLowerCase().replace("entity", ""),
-  schema,
-  entity: schema.meta.class,
-});
+export const probe = { type: "probe", schema: ProbeSchema };
 
 export async function create({ port = 0 } = {}) {
-  const datamap = await provider([...schemas.map(describe), probe]);
+  const datamap = await provider([...descriptors, probe]);
   const { entities, orm } = datamap;
-  const em = orm.em;                                            // the GLOBAL em: every verb routes to the request's fork via getContext()
-  entities.probe = new VirtualRepository(em, ProbeEntity);      // the context constructs and holds it — `kernel.constraint = new …`
+  const em = orm.em;
+  entities.probe = new VirtualRepository(em, ProbeEntity);
 
-  // no global context, ever: the fixtures are written inside one, like every write after them
   const { user, stranger, mode, thread } = await datamap.shard.scope(async () => {
     const em = orm.em.getContext();
-    const user = em.create(UserEntity, { roles: ["USER"], config: {} });
-    const stranger = em.create(UserEntity, { roles: ["USER"], config: {} });
-    const mode = em.create(ModeEntity, { slug: "test", type: "test", traits: [], installed: "installed" });
+    const user = em.create(UserEntity, { slug: "finn" });
+    const stranger = em.create(UserEntity, { slug: "kiro" });
+    em.create(DaemonEntity, { slug: DAEMON, mask: {} });
+    await em.flush();
+    const mode = em.create(ModeEntity, { daemon: DAEMON, slug: "test", type: "test", traits: [], installed: "installed" });
     await em.flush();
     em.setFilterParams("user", { user: user.id });
     const thread = em.create(ThreadEntity, { user: user.id, mode: mode.id, traits: [] });
@@ -51,11 +45,9 @@ export async function create({ port = 0 } = {}) {
     return { user, stranger, mode, thread };
   });
 
-  const twitch = new Vector();
-  datamap.registerSubscriber(shape.subscriber(twitch));
+  const twitch = new Twitch();
+  datamap.registerSubscriber(twitch);
 
-  // a daemon-side write rides a request context, as in production: fresh identity map → cold references →
-  // to-ones serialize as ids → the Broadcaster's `object.match` (===) meets a `{ user }` filter
   const as = (who, fn) => datamap.shard.scope(() => { orm.em.getContext().setFilterParams("user", { user: who.id }); return fn(); });
 
   const aperture = new Aperture();

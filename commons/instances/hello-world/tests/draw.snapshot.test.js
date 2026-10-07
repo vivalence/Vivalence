@@ -1,6 +1,6 @@
 import { specimen, steer, Vector } from "@vivalence/typology";
-import { lifecycle } from "@vivalence/runtime";
-const { EMITTER } = lifecycle.mode.traits;
+import { traits } from "@vivalence/runtime";
+const { EMITTER } = traits;
 import { machine } from "../tools/doctor.js";
 import { harness } from "../harness.js";
 import { emitter } from "../page/index.js";
@@ -32,7 +32,7 @@ const assemble = async (path) => {
   const run = new Vector();
   run.use(async (ctx, next) => {
     ctx.hallucination = { system: {} };
-    ctx.daemon = { mountpoint: null, entities: {}, flatmodes: () => [] };
+    Object.assign(ctx, { mountpoint: null, entities: {}, modes: {} });
     await next();
   });
   run.graft(harness);
@@ -121,6 +121,7 @@ specimen.describe(
         },
       };
       const daemon = {
+        type: "daemon",
         entities: {
           thread: { findOne: async () => row },
           em: { flush: async () => {} },

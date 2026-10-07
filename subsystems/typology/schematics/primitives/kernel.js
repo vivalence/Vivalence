@@ -7,8 +7,8 @@ import { Manifest } from "./manifest.js";
 export const Domain = v.object(
   {
     manifest:   Manifest.optional(),
-    traits:     v.record(v.string(), v.unknown()).default({}),
-    entities:   v.record(v.string(), v.unknown()).default({}),
+    traits:     v.object({ literal: v.array(v.unknown()).default([]), symbol: v.array(v.unknown()).default([]), note: v.array(v.unknown()).default([]), mode: v.array(v.unknown()).default([]) }).default({}),
+    twitch:     v.unknown().optional(),
     schematics: v.record(v.string(), v.unknown()).default({}),
   },
   { additionalProperties: true },

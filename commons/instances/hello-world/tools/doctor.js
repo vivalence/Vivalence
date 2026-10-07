@@ -1,5 +1,5 @@
 import paladin from "@vivalence/paladin";
-import { shape, v, Vector } from "@vivalence/typology";
+import { cortex, fromm, shape, v, Vector } from "@vivalence/typology";
 
 const slots = (bag) => Object.keys(bag ?? {});
 
@@ -24,17 +24,17 @@ export const variables = (env = paladin.env) =>
 // the standing facts, off state already in memory. NO filesystem walk: report()'s two
 // ledger.list() awaits are what keeps this a separate reader and not a projection of the fold.
 export const standing = (ctx) => {
-  const here = ctx.daemon.mountpoint?.absolute ?? null;
+  const here = ctx.mountpoint?.absolute ?? null;
   const mask =
     paladin.instance.daemons.find((held) => held.mountpoint?.absolute === here) ??
       {};
   return {
     instance: paladin.instance.manifest,
     daemon: { slug: mask.manifest?.slug ?? null, mountpoint: here },
-    entities: Object.keys(ctx.daemon.entities ?? {}).filter((name) =>
+    entities: Object.keys(ctx.entities ?? {}).filter((name) =>
       name !== "em"
     ).sort(),
-    modes: ctx.daemon.flatmodes().map((mode) => ({
+    modes: fromm.modes(ctx.modes).flat.map((mode) => ({
       slug: mode.manifest.slug,
       traits: mode.manifest.traits ?? [],
       routes: routes(shape.strip(mode.aperture)),
@@ -61,29 +61,29 @@ export const machine = ({ instance, daemon, modes, entities, faults }) =>
   ].join("\n");
 
 export const report = async (ctx) => {
-  const here = ctx.daemon.mountpoint?.absolute ?? null;
+  const here = ctx.mountpoint?.absolute ?? null;
   const mask =
     paladin.instance.daemons.find((held) => held.mountpoint?.absolute === here) ??
       {};
-  const modes = ctx.daemon.flatmodes();
+  const modes = fromm.modes(ctx.modes).flat;
 
   return {
     daemon: {
       slug: mask.manifest?.slug ?? null,
       manifest: mask.manifest ?? null,
       mountpoint: here,
-      statics: ctx.daemon.statics ?? {},
+      statics: ctx.statics ?? {},
       lighthouse: {
         module: mask.lighthouse?.module ?? null,
-        remote: paladin.env.get("PUBLIC_VIVA_LIGHTHOUSE_REMOTE") ?? null,
+        remote: paladin.env.get("PUBLIC_VIVA_RUNTIME_REMOTE") ?? null,
       },
       datamap: {
         ...declared(mask.datamap ?? {}),
-        entities: Object.keys(ctx.daemon.entities ?? {}).filter((name) =>
+        entities: Object.keys(ctx.entities ?? {}).filter((name) =>
           name !== "em"
         ).sort(),
       },
-      kernel: modes.map((mode) => ({
+      modes: modes.map((mode) => ({
         type: mode.manifest.type,
         slug: mode.manifest.slug,
         name: mode.manifest.name ?? mode.manifest.slug,
@@ -91,7 +91,7 @@ export const report = async (ctx) => {
         reference: mode.reference?.nature ?? null,
         routes: routes(shape.strip(mode.aperture)),
       })),
-      declaration: (mask.kernel ?? []).map(declared),
+      declaration: (mask.modes ?? []).map(declared),
       hallucinators: (mask.hallucinators ?? []).map((held) => ({
         module: held.module,
         secrets: slots(held.secrets),
@@ -102,7 +102,7 @@ export const report = async (ctx) => {
       })),
       // shape.cortex.strip reads cortex.faculties, so `?? []` hands it an array with no
       // .faculties and throws — the fallback WAS the crash. A cortexless daemon reports none.
-      cortex: ctx.daemon.cortex ? shape.cortex.strip(ctx.daemon.cortex) : [],
+      cortex: ctx.cortex ? cortex.strip(ctx.cortex) : [],
       dormant: paladin.instance.dormant.map(({ at, module }) => ({
         at,
         module,
@@ -141,7 +141,7 @@ export const report = async (ctx) => {
 
     registry: {
       mount: paladin.scope.registry?.absolute ?? null,
-      locations: await paladin.ledger.registry.locations(),
+      locations: Object.values(await paladin.ledger.registry.tapped()).map((entry) => entry.mount),
       stale: paladin.ledger.registry.stale,
       modules: [...paladin.ledger.registry.pensieve].flatMap(([owner, types]) =>
         [...types].flatMap(([type, slugs]) =>
@@ -171,7 +171,7 @@ export const doctor = new Vector().open(
       "`viva instance/doctor` prints, read straight off paladin. You already have the " +
       "standing facts in front of you: the instance, the daemon, the modes and their " +
       "routes. This is everything under them, in three parts. `daemon` is the one you are " +
-      "running inside: its manifest, the modes its kernel resolved to with their " +
+      "running inside: its manifest, the modes it resolved with their " +
       "traits and routes, the datamap and the entities it opened, the hallucinators it " +
       "declared and which secret slots each wants, the cortex faculties actually attached, " +
       "and anything left dormant for want of a key. `ledger` is the machine's own record: " +

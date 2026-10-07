@@ -1,0 +1,38 @@
+#+title: modes as a map — paladin hands every bearer =modes= keyed, never an array
+#+filetags: :roadmap:paladin:typology:instance:modes:runtime:
+#+status: ROADMAP — beef's strand 10-09, unnumbered; nothing designed past the measure below. Rides m81 M0 (the key =modes= on both rungs through paladin) or lands after it.
+
+* intent
+
+beef, verbatim, 10-09, mid-m81:
+
+/"add to known issues / roadmap: changing runtime.modes and deamons.modes to a json map instead of a array. or rather, make the paladin transformation output instance.daemons[].modes = {}. array may stay but be transformed. default into {[slug]:mode}."/
+
+* terrain — measured 10-09
+
+| what | today | where |
+|------+-------+-------|
+| the record key | =kernel=, an array (m81 M0 renames it =modes=) | =subsystems/typology/schematics/primitives/instance.js:83= · =:134= |
+| the mask accepts | =v.array(v.union([v.string(), ModeMask]))= | =instance.js:134= |
+| paladin populate | maps the array entry by entry, labels =kernel[<index>]= | =subsystems/paladin/lifecycle/populate.js:189= |
+| paladin resolve | =daemon.kernel = (daemon.kernel ?? []).map(seat)= | =subsystems/paladin/lifecycle/resolve.js:93= |
+| paladin wire | =kernel = (await many(mask.kernel)).map(seated)=; =domain= found by =.find= | =subsystems/paladin/prototypes/ledger/registry.js:243= · =:249= |
+| the runtime already keys | =daemon.modes[type][slug]=, =flatmodes()= over it | m81 =* design — M0= =flatmodes= |
+| a mode's identity | unique =(daemon, slug, type)= — slug alone is not unique per daemon | =systems/runtime/entities/Mode.ts:76= |
+
+* shape — beef's words, read literally
+
+- the instance record may still say an array; paladin's transformation outputs a map: =instance.daemons[].modes = { [key]: mode }=, and =instance.runtime.modes= the same.
+- the array is the authoring sugar, defaulted into the map.
+
+* forks — QUESTIONED
+
+- K1 the key: =slug= (his words) · =type/slug= · nested =[type][slug]= (what the runtime keys today). A slug alone collides when two types share it (=Mode.ts:76=).
+- K2 the map as authoring form too: may an instance write =modes: { hello: "./mode.viva.js" }= directly, or array in, map out only?
+- K3 where it lands: inside m81 M0 (the key is being renamed anyway, one blast) · or after it.
+- K4 the domain: today found by =.find(type === "domain")= over the array; under a map — a fixed key, or still found by type.
+
+* handoff
+
+- next: beef rules K1 · K3; then measure every =kernel= / =modes= reader that indexes or iterates (=many(mask.kernel)= · =populate= labels · doctor · fixtures) and stage it.
+- owed: nothing landed.

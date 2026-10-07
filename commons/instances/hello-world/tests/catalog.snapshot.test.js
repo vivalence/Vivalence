@@ -1,8 +1,8 @@
 import { join } from "@std/path";
 import { belt, specimen, steer, Vector } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
-import { lifecycle } from "@vivalence/runtime";
-const { GENERATIVE } = lifecycle.mode.traits;
+import { traits } from "@vivalence/runtime";
+const { GENERATIVE } = traits;
 import { generator, tools } from "../mode.viva.js";
 
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;

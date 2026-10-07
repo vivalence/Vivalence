@@ -1,7 +1,7 @@
 <!-- writer: agent · reference, unbudgeted · written 2026-10-05 against the working tree (a sibling was editing anima) · every claim cites file:line · LIVE vs DESIGNED (m79) marked -->
 # tui — the terminal face of `viva`, for the designer of the ghost chrome
 
-`viva` is the command-line client of vivalence, a fair-source, source-available language-learning OS. The repo calls it **ghost** (`systems/ghost`). Today it is a verb runner: one command in, one effect out, a few interactive screens on the way. Quest m79 (`.ikiro/quests/m79-terminal-ghost.org`) turns it into a second **client** beside **anima**, the browser: a persistent frame, the **chrome**, around a chat **dock**, over the same lighthouse, terminals and threads anima uses. This file is what a designer needs to mock that chrome up without opening the code.
+`viva` is the command-line client of vivalence, a fair-source, source-available language-learning OS. The repo calls it **ghost** (`systems/ghost`). Today it is a verb runner: one command in, one effect out, a few interactive screens on the way. Quest m79 (`.ikiro/quests/benched/m79-terminal-ghost.org`) turns it into a second **client** beside **anima**, the browser: a persistent frame, the **chrome**, around a chat **dock**, over the same lighthouse, terminals and threads anima uses. This file is what a designer needs to mock that chrome up without opening the code.
 
 ## contents
 
@@ -35,21 +35,21 @@ How to read it:
 
 The house nouns. Use these words exactly; never a synonym ("pane" is not a terminal, "chat window" is not the dock).
 
-- **instance** — one deployment recipe (`instance.viva.js`): its runtime, daemons, services, lighthouse, clients and environment schema; `commons/instances/hello-world/instance.viva.js:60` (its `environment` export). One per ghost process (m79 law, quest :206).
-- **ledger** (`~/.viva`) — the machine's home: `locks · logs · registry · instances · sessions` plus `instances.json`, `.env`, `ledger.viva.js`; `systems/ghost/trajectories/ledger/index.js:11` (the scaffold), `.ikiro/world/ledger.md`.
-- **runtime** — the server process an instance boots; ready when it prints `Status:RUNNING`; `systems/runtime/run.js` (`.ikiro/world/map.md`), serves `:2501`.
-- **daemon** — a server unit inside the runtime that holds modes and their rows; a lighthouse row `subsystems/typology/entities/lighthouse/Daemon.ts:12`.
-- **mode** — one thing a daemon serves (a home, a game, a tool), shaped by its traits; `systems/runtime/entities/kernel/Mode.ts:10` (`APPLICATION` · `HARNESSED` · `CONVERSATIONAL` …).
-- **trait** — a named capability on a row: a `traits` list plus a `trait` config object; `subsystems/typology/entities/base/trait.js:3`.
-- **lighthouse** — the auth and daemon-roster server every client logs in against; anima connects at `systems/anima/src/app/+layout.svelte:28-34`; module `commons/lighthouses/multiplayer`.
-- **identity** — the logged-in user row on the lighthouse; traits `THEMED · DOCKED · HOMED`, `subsystems/typology/entities/lighthouse/Identity.ts:22-26`.
-- **terminal** — a lighthouse row that seats ONE thread (and its buffer and dock) for an identity: `identity · daemon · thread · index · traits · trait`, `subsystems/typology/entities/lighthouse/Terminal.ts:19-26`; anima's tab, `systems/anima/src/typology/entities/terminal.js:11`.
-- **thread** — a daemon row binding a mode and a trait config, with a render phase `inert · manual · continuous · escort`; `systems/runtime/entities/userspace/Thread.ts:13-31`.
-- **buffer** — a daemon row that IS one screen of a mode (`data · view · traits · trait`); `systems/runtime/entities/userspace/Buffer.ts:37`.
+- **instance** — one deployment record (`instance.viva.json`): its manifest, daemons (each with its `modes`), optionally `runtime.modes`; every other slot it inherits from the ledger recipe; `commons/instances/hello-world/instance.viva.json`. One per ghost process (m79 law, quest :206).
+- **ledger** (`~/.viva`) — the machine's home: `locks · logs · registry · instances · sessions` plus `instances.json`, `environment.json`, `ledger.viva.json`; `systems/ghost/trajectories/ledger/index.js:11` (the scaffold), `.ikiro/world/ledger.md`.
+- **runtime** — the server process an instance boots; ready when it prints `Status:RUNNING`; `systems/runtime/run.js` (`.ikiro/world/map.md`), serves `:2501`; itself a HOST at `/runtime/<slug>` (m81) that can seat modes (`runtime.modes`).
+- **daemon** — a host inside the runtime at `/daemon/<slug>` that holds modes and their rows (one shared db, scoped by its slug); a row `systems/runtime/entities/Daemon.ts:11`.
+- **mode** — one thing a host serves (a home, a game, a tool) at `<host>/mode/<type>/<slug>`, shaped by its traits; on a daemon or the runtime (`systems/runtime/gestalten/belt/host.js`); `systems/runtime/entities/Mode.ts:12` (`APPLICATION` · `HARNESSED` · `CONVERSATIONAL` …).
+- **trait** — a named capability on a row: a `traits` list plus a `trait` config object; `subsystems/typology/gestalten/belt/traits.js:5` (`define`).
+- **lighthouse** — the runtime's auth at `/lighthouse/…` (m80: no separate server) every client logs in against; `systems/runtime/lifecycle/runtime/aperture/lighthouse.js:4-12`; anima connects through `PUBLIC_VIVA_RUNTIME_REMOTE` (`systems/anima/src/app/+layout.svelte:28-31`).
+- **identity** — the logged-in user, a runtime row `UserEntity` (`systems/runtime/entities/User.ts:32`) with a free `traits` list; `THEMED · HOMED` no longer exist, `DOCKED` lives on the terminal.
+- **terminal** — a runtime row that seats ONE thread (and its buffer and dock) for a user: `user · daemon · thread · index · traits · trait`, `systems/runtime/entities/Terminal.ts:13-19`; anima's tab, `systems/anima/src/typology/entities/terminal.js:11`.
+- **thread** — a daemon row binding a mode and a trait config, with a render phase `inert · manual · continuous · escort`; `systems/runtime/entities/Thread.ts:13-31`.
+- **buffer** — a daemon row that IS one screen of a mode (`data · view · traits · trait`); `systems/runtime/entities/Buffer.ts:37`.
 - **dock** — the chat surface of a `HARNESSED` mode, one per terminal: transcript, live turn, composer; `systems/anima/src/typology/stores/bridge/dock.js:7`, `systems/anima/src/app/panels/a/widgets/Dock.svelte:316`.
-- **turn** — one message of a thread's transcript, `role` + `parts` (text, tool calls); `systems/runtime/entities/userspace/Turn.ts:40-42`.
-- **activity** — a live server process (a hallucination) with a status machine and signal stdin; `systems/runtime/entities/transient/Activity.ts:6-53`; its status → tone map `systems/anima/src/typology/entities/activity.js:42-52`.
-- **home** — the identity's home mode, the trait `HOMED` (`Identity.ts:26`); zero readers today; beef: /"home is an identity trait."/ (quest :31, F4 :219).
+- **turn** — one message of a thread's transcript, `role` + `parts` (text, tool calls); `systems/runtime/entities/Turn.ts:45-47`.
+- **activity** — a live server process (a hallucination) with a status machine and signal stdin; `systems/runtime/entities/Activity.ts:6-53`; its status → tone map `systems/anima/src/typology/entities/activity.js:42-52`.
+- **home** — the user's home mode (the trait `HOMED` died with `Identity.ts` in m80; m81's home mode is designed, not landed); beef: /"home is an identity trait."/ (quest :31, F4 :219).
 - **yap** — DESIGNED (m79): free text after `viva` that matches no command or reference; the root remainder `(.*)`, sent as a turn to home (quest :25-27, :159).
 - **command** — a ghost verb on the trajectory, `noun/verb` (`instance/use`); `systems/ghost/trajectories/index.js:23-165`.
 - **reference** — DESIGNED (m79): a mode slug or `home` opened as a literal verb at mount (`viva flashcards`), quest :156-163.
@@ -863,7 +863,7 @@ export const view = {
 beef, 10-05 (quest :35): /"its really view.render(data, Component) where component is either fullscreen or inline. i dont see view emit as relevant. so we have two ways. rendering inside the effect - might be fullscreen or inline. rendering a persistant app - like chat harness whatever."/ → /"render interactive and shell. i guess chrome might be how we name the custom interactive fullscreen components."/
 
 ```jsx
-// .ikiro/quests/m79-terminal-ghost.org:997 — the new view (tangled for subsystems/sheets/mod.jsx, not built)
+// .ikiro/quests/benched/m79-terminal-ghost.org:997 — the new view (tangled for subsystems/sheets/mod.jsx, not built)
 export const view = {
   emit(data, Component) { /* one frame, as today */ },
   render(data, Component, controller) { /* the Component owns inline or fullscreen; resolves on controller.stdout.close(result) */ },
@@ -1026,7 +1026,7 @@ Nothing in this section is built. The quest is `TANGLED, PROVEN IN A SANDBOX 10-
 Captured from the quest's `Choice.jsx` and `Dock.jsx` copied into a scratch file (sheets imports, a fake session over nanostores atoms, the client's `roster`/`owed` stubbed). DESIGNED (m79): not in the tree.
 
 ```text
-// .ikiro/quests/m79-terminal-ghost.org:1498 — Choice.jsx, with a home, then without
+// .ikiro/quests/benched/m79-terminal-ghost.org:1498 — Choice.jsx, with a home, then without
 no handler for what did i get wrong yesterday
 home: @education/home/aprende
 › send to home
@@ -1041,7 +1041,7 @@ your identity carries no HOMED trait — nothing to send to
 Colours: `no handler for`, `home: …`, the hint gray; the sentence bold; the missing-trait line yellow; the cursor row cyan.
 
 ```text
-// .ikiro/quests/m79-terminal-ghost.org:3052 — Dock.jsx, the first turn streaming (fixture session, inline launch), 80 columns
+// .ikiro/quests/benched/m79-terminal-ghost.org:3052 — Dock.jsx, the first turn streaming (fixture session, inline launch), 80 columns
 you
 what did i get wrong yesterday
 
@@ -1056,7 +1056,7 @@ You asked about the subjunctive after 'penso che' — twice you wrote
 ```
 
 ```text
-// .ikiro/quests/m79-terminal-ghost.org:3052 — Dock.jsx, idle after two turns, instance/doctor's effect in the slot (joined launch)
+// .ikiro/quests/benched/m79-terminal-ghost.org:3052 — Dock.jsx, idle after two turns, instance/doctor's effect in the slot (joined launch)
 you
 what did i get wrong yesterday
 
@@ -1073,7 +1073,7 @@ runtime                        runtime
 ```
 
 ```text
-// .ikiro/quests/m79-terminal-ghost.org:3052 — Dock.jsx, an error on the line
+// .ikiro/quests/benched/m79-terminal-ghost.org:3052 — Dock.jsx, an error on the line
 you
 hi
 
@@ -1227,7 +1227,7 @@ Vocabulary recap: instance · ledger · runtime · daemon · mode · trait · li
 
 Files read (line counts by `wc -l`, 2026-10-05; anima files marked * were being edited by a sibling during the read):
 
-- `.ikiro/world/codemap/design.md` 76 · `.ikiro/world/codemap/anima.md` 77 · `.ikiro/world/codemap/ghost.md` 39 · `.ikiro/reference/design.md` 519 (TOC, §1–3, §7–8) · `.ikiro/reference/anima.md` 674 (TOC, §1, §6–9) · `.ikiro/quests/m79-terminal-ghost.org` 3472 (:1-275, :822-1352, :1353-1580, :2852-3165, :3396-3472)
+- `.ikiro/world/codemap/design.md` 76 · `.ikiro/world/codemap/anima.md` 77 · `.ikiro/world/codemap/ghost.md` 39 · `.ikiro/reference/design.md` 519 (TOC, §1–3, §7–8) · `.ikiro/reference/anima.md` 674 (TOC, §1, §6–9) · `.ikiro/quests/benched/m79-terminal-ghost.org` 3472 (:1-275, :822-1352, :1353-1580, :2852-3165, :3396-3472)
 - `subsystems/sheets/mod.jsx` 195 · `theme.js` 12 · `deno.jsonc` 10 · `cliffy.js` 8 · `components/` Actions 26 · Background 10 · Banner 25 · Chrome 13 · Confirm 25 · Effect 53 · Field 21 · Form 46 · JsonTree 77 · List 19 · Logo 55 · MultiSelect 55 · PasswordInput 6 · Search 100 · Select 52 · Table 53 · Tasks 26 · TextArea 37 · TextInput 51 · `state/` form 46 · multiselect 21 · search 61 · select 14 · text 22 · `tests/` field-protocol 13 · form.pages 87 · form.state 48 · multiselect.state 28 · search.state 89 · select.state 30 · text.state 33
 - `systems/ghost/mod.js` 202 · `trajectories/Help.jsx` 70 · `trajectories/help.js` 30 · `trajectories/index.js` 166 · `trajectories/instance/Init.jsx` 225 · `init.js` 151 · `delete.js` 69 · `doctor.js` 105 · `use.js` 68 · `trajectories/ledger/Init.jsx` 72 · `Doctor.jsx` 170 · `index.js` 289 · `trajectories/registry/Doctor.jsx` 80 · `index.js` 161 · `belt/pick.js` 33 · `belt/lens.js` 47 · `trajectories/sheets/index.js` 2 · `text-select-a.js` 20 · `text-select-b.js` 64
 - `systems/anima/src/app/+layout.svelte` 148* (141 at first read) · `+page.svelte` 121 · `bones/crown/crown.svelte` 88 · `bones/crown/widgets/Tab.svelte` 61 · `bones/shoulder/shoulder.svelte` 66 · `bones/shoulder/widgets/Phase.svelte` 207 · `Harness.svelte` 125 · `Dock.svelte` 113 · `bones/spine/spine.svelte` 644 · `bones/pincer/pincer.svelte` 608* (640 at first read) · `panels/a/a.svelte` 213 · `panels/a/widgets/Dock.svelte` 434 · `DockHead.svelte` 118 · `Turn.svelte` 321 · `LiveTurn.svelte` 104 · `Composer.svelte` 236 · `stop.svelte.js` 61 · `panels/b/b.svelte` 106 · `panels/c/c.svelte` 409 · `panels/c/panes/Terminals.svelte` 93 · `panels/d/d.svelte` 665* · `panels/e/e.svelte` 232 · `panels/f/f.svelte` 310 · `panels/g/g.svelte` 484 · `panels/h/h.svelte` 186 · `typology/stores/bridge/bridge.js` 258 · `geometry.js` 290 · `dock.js` 96 · `gesture.js` 461* (478 at first read) · `panes.js` 132 · `typology/entities/terminal.js` 176 · `typology/entities/activity.js` (lines 40-60) · `client.html` 55 · `tests/zones/places.test.js` 83

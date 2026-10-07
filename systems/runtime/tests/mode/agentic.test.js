@@ -1,11 +1,11 @@
-import { specimen, belt, shard, steer } from "@vivalence/typology";
+import { belt, contexts, shard, specimen, steer } from "@vivalence/typology";
 import { Vector, Mode, Aperture, Path, ToolCall } from "@vivalence/typology";
-import { lifecycle } from "@vivalence/runtime";
-const { AGENTIC } = lifecycle.mode.traits;
+import { traits } from "@vivalence/runtime";
+const { AGENTIC } = traits;
 
 function provision(mode, daemon) {
   mode.tools = new Vector();
-  mode.tools.use(shard.context.bind("daemon", daemon));
+  mode.tools.use(shard.context.spread(contexts.host, daemon));
   mode.tools.use(shard.context.bind("mode", mode));
   if (mode.module.tools) mode.tools.graft(mode.module.tools);
 }
@@ -106,7 +106,7 @@ specimen.describe("AGENTIC trait", () => {
       slug: "aprende",
       traits: ["TOOLING"],
       tools: toolVector("flashcard", (ctx) => {
-        captured = { daemon: ctx.daemon, mode: ctx.mode, input: ctx.input };
+        captured = { entities: ctx.entities, mode: ctx.mode, input: ctx.input };
         return "card";
       }),
     });
@@ -124,7 +124,7 @@ specimen.describe("AGENTIC trait", () => {
 
     specimen.expect(result).toBe("card");
     specimen.expect(captured.mode).toBe(aprende);
-    specimen.expect(captured.daemon).toBe(daemon);
+    specimen.expect(captured.entities).toBe(daemon.entities);
     specimen.expect(captured.input).toEqual({ term: "gato" });
   });
 });

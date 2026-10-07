@@ -1,5 +1,5 @@
 import { sleep } from "@vivalence/typology";
-import { create, TOKENS } from "../../scenarios/activity.js";
+import { create } from "../../scenarios/activity.js";
 
 const flag = (name, fallback) => {
   const at = Deno.args.indexOf(`--${name}`);
@@ -13,7 +13,7 @@ const world = await create({ port: args.port });
 const { user, stranger } = world.fixtures;
 const thread = await world.createThread();
 const activities = world.daemon.entities.activity;
-const fixtures = { user: user.id, stranger: stranger.id, mode: world.dewey.id, thread: thread.id, tokens: TOKENS };
+const fixtures = { user: user.id, stranger: stranger.id, mode: world.dewey.id, thread: thread.id, tokens: { user: world.tokens[user.id], stranger: world.tokens[stranger.id] } };
 
 activities.$entities.subscribe((held) => log("store", held.map((row) => `${row.id.slice(-6)}:${row.status}`).join(" ") || "∅"));
 

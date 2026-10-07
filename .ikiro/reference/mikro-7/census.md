@@ -1,5 +1,7 @@
 # mikro-orm touchpoints in vivalence — census 2026-10-02
 
+m80 landed 10-08 over this census: the runtime entities are flat in `systems/runtime/entities/`, `assemble.js` is `gestalten/belt/assemble.js` (`seal` dead), education's and chess's `domain/entities/` are dead; daemons borrow the runtime's datamap, no provider call each. m81 landed 10-10: `lifecycle/mode/traits/` is `systems/runtime/traits/`, the daemon's prune is `gestalten/belt/host.js`, `lifecycle/daemon/aperture/metadata.js` is `lifecycle/host/aperture/metadata.js`. The rows below read the 10-02 tree; m78 re-measures before it lands.
+
 Agent report (opus, Explore), re-flowed. 55 files import `@mikro-orm/*` (38 repo, 17 registry). The agent read v7.0.2 from the Deno cache (`~/Library/Caches/deno/npm/registry.npmjs.org/@mikro-orm/*/7.0.2`); the session re-checked its load-bearing claims against 7.2.3 (notes marked `[7.2.3]`).
 
 Shorthand: `REPO/` = the checkout · `REG/` = `~/.viva/registry/` · `C7/` = the 7.0.2 cache. Excluded: `node_modules`, `.ikiro`, `testament`, `docs`, `bak/`, `*.bak.*`, `REG/education/topologies/sentence/topography.bak/`, `REG/education/domain/aperture/bak.pick/` (the only knex-style `qb.execute("all")` + `_SymbolToLiteral`, dead).

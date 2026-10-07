@@ -18,8 +18,10 @@ export * as sse from "./sse.js";
 export * as verbatim from "./verbatim.js";
 export * as atom from "./atom.js";
 export * as recipe from "./recipe.js";
+export * as traits from "./traits.js";
 export * as trace from "./trace.js";
 export * as hallucinate from "./hallucinate.js";
 export * as control from "./control.js";
+export * as cortex from "./cortex.js";
 
 export * as strings from "./string.js"; // depracated

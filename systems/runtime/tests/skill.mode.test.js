@@ -1,5 +1,5 @@
 import { assert, assertEquals } from "@std/assert";
-import { Path, shard, steer, ToolCall, Vector } from "@vivalence/typology";
+import { contexts, Path, shard, steer, ToolCall, Vector } from "@vivalence/typology";
 import { gestalten } from "@vivalence/runtime";
 
 const invoke = (armed, name, input) =>
@@ -22,10 +22,11 @@ const dewey = { manifest: { type: "teacher", slug: "dewey", traits: ["EXPOSED", 
 const daemon = {
   manifest: { slug: "vcompany" },
   mountpoint: new Path("/Users/finn/.viva/instances/vivalence/mountpoint/daemon_vcompany"),
-  flatmodes: () => [vdex, francesca, dewey],
+  reference: new Path("/daemon/vcompany"),
+  modes: { office: { vdex }, tutor: { francesca }, teacher: { dewey } },
 };
 
-const armed = new Vector().use(shard.context.bind("daemon", daemon)).graft(gestalten.skills.mode.mode);
+const armed = new Vector().use(shard.context.spread(contexts.host, daemon)).graft(gestalten.skills.mode.mode);
 
 Deno.test("skill.mode — every mode's places on disk", async (t) => {
   await t.step("places: source, then what a mode serves, then what it carries when that differs", () => {
@@ -43,7 +44,7 @@ Deno.test("skill.mode — every mode's places on disk", async (t) => {
   await t.step("mode_find lists the daemon and every mode as rows", async () => {
     const spoken = await invoke(armed, "mode_find", {});
     const rows = spoken.output.message.split("\n");
-    assertEquals(rows[0], "[Daemon vcompany] · mountpoint /Users/finn/.viva/instances/vivalence/mountpoint/daemon_vcompany");
+    assertEquals(rows[0], "[Host /daemon/vcompany] · mountpoint /Users/finn/.viva/instances/vivalence/mountpoint/daemon_vcompany");
     assertEquals(
       rows[1],
       "office/vdex · VDex · traits MOUNTED HARNESSED · source /registry/vcompany/modes/office/vdex · " +
@@ -66,9 +67,9 @@ Deno.test("skill.mode — every mode's places on disk", async (t) => {
 
   await t.step("a daemon without a mountpoint names none", async () => {
     const bare = new Vector()
-      .use(shard.context.bind("daemon", { manifest: { slug: "test-daemon" }, flatmodes: () => [dewey] }))
+      .use(shard.context.spread(contexts.host, { reference: new Path("/daemon/test-daemon"), modes: { teacher: { dewey } } }))
       .graft(gestalten.skills.mode.mode);
     const spoken = await invoke(bare, "mode_find", {});
-    assertEquals(spoken.output.message.split("\n")[0], "[Daemon test-daemon]");
+    assertEquals(spoken.output.message.split("\n")[0], "[Host /daemon/test-daemon]");
   });
 });

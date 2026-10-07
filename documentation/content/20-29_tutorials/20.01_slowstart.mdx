@@ -45,7 +45,7 @@ $ viva ledger/doctor                                    # proves the link; the l
 
 One thing rides along invisibly: `ghost.sh` exports `VIVA_PROCESS_ID`, the pid of the shell
 that invoked it. That id is what later lets each terminal hold its own instance
-([step 4](#4--viva-instancesuse--init--lighthouse)).
+([step 4](#4--viva-instanceuse--init--user)).
 
 ## 1 — `viva ledger/init`
 
@@ -111,7 +111,7 @@ the packages *supply* is `viva registry/doctor`'s (step 2).
 
 ```sh
 viva registry/tap <source: path | git url> [target: path]
-viva registry/untap <location>
+viva registry/untap <owner | slug | mount>
 ```
 
 Adds a **package** to the registry. Packages are modes whose job is to carry other modes:
@@ -134,41 +134,41 @@ $ viva registry/doctor
 
 record    1 tapped · 0 stale              /home/you/.viva/registry.json
 store     0 resident · 0 untapped         /home/you/.viva/registry
-pensieve  22 modes · 10 types · 1 owners
+pensieve  24 modes · 10 types · 1 owners
+integrity 0 faulted
 
-@commons       22 modes  /home/you/vivalence/commons
+@commons       24 modes  /home/you/vivalence/commons
   package        commons
   chaosmonkey    oracle  reader  vision
+  dashboard      dataspace
   datamap        libsql
   demo           hello-world
   fixture        language-learning
-  hallucinator   anthropic  deepgram  elevenlabs  openrouter
-  instance       fixture  hello-world  multiplayer
-  lighthouse     multiplayer
+  hallucinator   anthropic  deepgram  elevenlabs  openrouter  stub
+  instance       fixture  hello-world  playground
   playground     automaton  card  dealer  spawned  spawner  switchboard
-  service        nlp-stanza
+  service        nlp-stanza  reader
 
 $ viva registry/tap https://github.com/vivalence/registry-education
-location                       registry-education
+owner                          @education
 root                           /home/you/.viva/registry/registry-education
-record                         /home/you/vivalence/commons  registry-education
 
 $ cat ~/.viva/registry.json
-[
-  "/home/you/vivalence/commons",
-  "registry-education"
-]
+{
+  "@commons": { "slug": "commons", "mount": "/home/you/vivalence/commons" },
+  "@education": { "slug": "education", "mount": "./registry/registry-education", "remote": "https://github.com/vivalence/registry-education" }
+}
 
 $ ls ~/.viva/registry/registry-education
 README.md  bak  domain  education.viva.js  modes  topographies  topologies
 ```
 
-The checkout path is absolute and was recorded by the first registry verb you ran —
-`supply()` seeds the record from `<repository>/commons` when `registry.json` does not exist
-yet, so the standard library is there before you tap anything. The remote one is a bare slug:
-inside the store a location is kept relative to `<ledger>/registry/`, outside it stays
-absolute, and `resolve()` branches the slug back onto the store. `untap` removes the
-location and keeps the working copy.
+The record is keyed by the owner each package declares. The checkout path is absolute and was
+recorded by the first registry verb you ran — `supply()` seeds the record from
+`<repository>/commons` when `registry.json` does not exist yet, so the standard library is there
+before you tap anything. The remote one was cloned beside the record, so its `mount` is relative
+to `registry.json`, and its `remote` is kept so it can be cloned again. `untap @education` removes
+the row and keeps the working copy.
 
 What a package looks like — `@commons/package/commons`, the standard library:
 
@@ -176,12 +176,12 @@ What a package looks like — `@commons/package/commons`, the standard library:
 commons/
   package.viva.js            manifest: { owner: "@commons", type: "package", slug: "commons" }
   datamaps/libsql/           database provider
-  lighthouses/multiplayer/   identity service
+  ledger/                    the canonical ledger recipe
   hallucinators/anthropic/   AI providers
   hallucinators/elevenlabs/
   services/nlp/
   instances/hello-world/     runnable instance recipes
-  instances/starter/
+  instances/playground/
   playground/                demo modes — the development rigs
   fixtures/                  test data and the language-learning fixture corpus
 ```
@@ -234,13 +234,14 @@ target                         ~/.viva/instances/hello-world
 env                            VIVA_INSTANCE_MOUNT=~/.viva/instances/hello-world
 
 $ ls ~/.viva/instances/hello-world
-App.svelte  instance.viva.js  mode.viva.js
+README.md  app  docker-compose.yml  harness.js  instance.viva.json  mode.viva.js  page  tests  tools
 
 $ cat ~/.viva/instances.json
 {
   "hello-world": {
+    "createdAt": "…",
     "mount": "/home/you/.viva/instances/hello-world",
-    "createdAt": "…"
+    "updatedAt": "…"
   }
 }
 ```
@@ -250,19 +251,19 @@ the `source` line prints what it resolved to. `viva instances/list` shows every 
 does *not* contain: its own location. You needed its location to read its files, so storing
 it inside would be circular. Location is the ledger's knowledge.
 
-## 4 — `viva instance/use` · `init` · `lighthouse`
+## 4 — `viva instance/use` · `init` · `user`
 
 **control**
 
 ```sh
 viva instance/use <slug> [--ledger]
 viva instance/init [username password]
-viva instance/lighthouse signup <username> <password>
+viva instance/user <signup|login|password> <username> <password>
 ```
 
 `use` selects one instance out of the set for this shell. `init` completes one boot
 lifecycle: it populates `.env`, prompting for what cannot be deduced — mostly service
-secrets; it runs the instance once; it asks you to create the first user. `lighthouse signup`
+secrets; it runs the instance once; it asks you to create the first user. `user signup`
 adds users to a running instance.
 
 **environment** — the selection `use` writes ends up as `VIVA_INSTANCE_MOUNT`, resolved
@@ -311,7 +312,7 @@ $ cat ~/.viva/instances/hello-world/.env
 VIVA_RUNTIME_ORIGIN="http://localhost:2501"
 …
 ## keys
-# Lighthouse signing secret. Minted at first init; rotate with: openssl rand -base64 24
+# Signing secret. Minted by viva instance/init; rotate with: openssl rand -base64 24
 SECRET_VIVA_JWT="P5BP…"
 # Anthropic key. Without one the daemon attaches no hallucinator and /hello/agent answers as the bot.
 # SECRET_VIVA_ANTHROPIC_API_KEY=""
@@ -327,15 +328,15 @@ dormant                        daemon[hello].hallucinators[0]
 lock                           null
 ```
 
-One environment file — `.env`, never committed — and one schema, the declaration's own
-`environment` export. `init` scaffolds `.env` from the schema — prose, groups, defaults —
-then asks only for what is still blank. A default may be a function: it fires once, at
-scaffold, and the minted value is what the file holds — the lighthouse signing secret is made
-that way, so the wizard has nothing to ask for it. Defaults reference each other with `${VAR}`,
+One environment file — `.env`, never committed — and one schema, the `environment` object
+in `instance.viva.json`. `init` scaffolds `.env` from the schema — prose, groups, defaults —
+then asks only for what is still blank. A JSON schema holds no function, so the one secret that must be random is
+minted by `init` itself, once, at scaffold (`systems/ghost/belt/envfile.js`) — the minted value
+is what the file holds, and the wizard has nothing to ask for it. Defaults reference each other with `${VAR}`,
 expanded on read, so nine addresses derive from one origin and moving to a real host is a
 single edit. A `SECRET_*` key is a secret wherever it is written. Then `init` boots the
-instance piped, signs the first user up against the lighthouse — the identity service; there
-is no signup UI — and shuts down again. `instance/doctor` afterwards: every key with its
+instance piped, signs the first user up at the runtime — `/lighthouse/signup`, the identity
+the runtime carries itself; there is no signup UI — and shuts down again. `instance/doctor` afterwards: every key with its
 verdict, plus daemons, services, clients, runtime — and two lines the instance schematic adds:
 `faults`, what it refused (an address that is not a URL), and `dormant`, hallucinators dropped
 because their key is blank (the Anthropic one above). `instance/run` refuses while a verdict or a
@@ -379,9 +380,10 @@ For `hello-world` that is two processes:
 | `runtime` | daemons, entities, HTTP | `http://localhost:2501` |
 | `anima`  | the browser client      | `http://localhost:1794` |
 
-The runtime hosts everything as one path tree under one origin: daemons under
-`/daemon/<slug>`, attached services like the lighthouse under `/attached/process/…`, mode
-bundles under `/attached/bundle/…`.
+The runtime hosts everything as one path tree under one origin: itself under
+`/runtime/<slug>` (`/runtime/runtime` by default), daemons under `/daemon/<slug>`, each
+host's modes under `<host>/mode/<type>/<slug>`, attached services like `nlp-stanza` under
+`/attached/process/…`, mode bundles under `/attached/bundle/…`, identity under `/lighthouse/…`.
 
 Open **http://localhost:1794**, log in with the account from step 4, and you are inside:
 the client attaches to the daemons and renders their modes.

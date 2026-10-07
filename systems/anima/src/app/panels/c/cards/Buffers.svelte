@@ -55,7 +55,7 @@
   const position = $derived(`${seated < 0 ? "–" : seated + 1} / ${ordered.length}`);
   const aimed = $derived($threadTraits?.includes("AIMED") ?? false);
   const queueing = $derived($threadTraits?.includes("QUEUEING") ?? false);
-  const openable = $derived(aimed || (($mode?.implements?.("STANDALONE") ?? false) && ($mode?.implements?.("APPLICATION") ?? false)));
+  const openable = $derived(aimed || ($mode?.implements?.("APPLICATION") ?? false));
   const hint = $derived(ordered.length ? "cursor empty · pick a buffer" : "no buffers · open or pull");
 
   const place = (buffer) => terminals.active?.$buffer.set(buffer);

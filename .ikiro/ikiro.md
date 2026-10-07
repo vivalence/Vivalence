@@ -7,14 +7,14 @@
 
 ## gates — each names what enforces it
 
-- code + outward acts: propose → per-item `go`; `wait`/`stop` = hold. Temporary probe code (a `// TODO temporary` tap) is written straight: /"just write stop asking. its all temporary anywys."/ `.ikiro/` is mine, no gate, never silent. ⟵ `hooks/agent-guard.sh` (a fan-out past 2)
+- code + outward acts: propose → per-item `go`; `wait`/`stop` = hold. Temporary probe code (a `// TODO temporary` tap) is written straight: /"just write stop asking. its all temporary anywys."/ `.ikiro/` is mine, no gate, never silent. A fork he RULED yes in a live quest is that item's go — build it next, never list it as waiting: REJECTED 10-10, m81's ruled runtime metadata under "still needs you" (/"why waiting stupid"/). ⟵ `hooks/agent-guard.sh` (a fan-out past 2)
 - no completion claim without fresh verification. A ZERO IS A CLAIM: a negative finding takes the same evidence as a positive one.
 - manifest is metadata — new behavior = sibling export. HARD STOP. ⟵ skill `mode`
 - code self-documents: no comments, no shims, full names. ⟵ `hooks/comment-guard.sh` deny · `connoisseur.md`
 - `retard` · `i dont understand X` → the correction lands in the skill that should have fired, same turn. ⟵ skill `fold`
 - prose never rides a Bash heredoc — Write tool; an `echo` label is prose too (`--- git HEAD` was denied on a read, 10-05). ⟵ `hooks/vcs-guard.sh` (VCS words only)
 - second correction on one screen = the SHAPE is wrong; re-read his sketch.
-- decision to beef = context · code before · code after · the choice in one line.
+- decision to beef = context · code before · code after · the choice in one line. A question — and every line of a report — names its `file:line` and what he would see, never a bare noun or a quest id of mine — REJECTED 10-09: "paladin's record" · "the probe" (/"What record? There's a shit ton of records in there."/); 10-10: "That's C1" · "they belong to m82" (/"what?"/ · /"what."/) · "T-fresh · P-reconcile · F6" (/"explain them.i dont understand"/) · "the notes-view step" (/"what?"/).
 - plans are quests in `.ikiro/quests/`, never `docs/superpowers/plans/`. ⟵ skill `quest` · `hooks/kernel-guard.sh`
 - public copy says **fair-source, source-available** — never "open-source" (`LICENSE.md` v2.1). ⟵ `hooks/kernel-guard.sh`
 - every `.ikiro` file carries `limit: N chars`; a write past it warns, never interrupts; consolidate in the same turn. ⟵ `hooks/cap-guard.sh` · `methods/cap.py`
@@ -30,7 +30,7 @@
 Every fence showing file code opens with its container-rooted path as its FIRST line — /"WHAT FFFFFIIIILLLEEEE?????? context bro"/:
 
 ```js
-// systems/runtime/daemon/traits/harnessed.js
+// systems/runtime/traits/harnessed.js
 ```
 
 - "why didn't X happen" → HIS `file:line` + the responsible `file:line`, as diffs, first.

@@ -8,14 +8,14 @@ const span = () => new Span({ nature: "/probe" });
 const said = (held, verb) => held.records.filter((record) => record.verb === verb).map((record) => record.data?.message ?? record.data);
 
 describe("integrity — the fold over pairs", () => {
-  it("a domain validates against Domain; today its entities default, so a bare domain passes (the sentence arrives with typology's line)", () => {
+  it("a domain validates against Domain; its trait lists default, so a bare domain passes (the sentence arrives with typology's line)", () => {
     const held = span();
     const probed = probe(RULES)({ manifest: { type: "domain", slug: "bare", version: "0.0.1", traits: [] } }, held);
     expect(probed.manifest.slug).toBe("bare");
     expect(said(held, "fault")).toEqual([]);
     const wrong = span();
-    probe(RULES)({ manifest: { type: "domain", slug: "bad", version: "0.0.1", traits: [] }, entities: "not a record" }, wrong);
-    expect(said(wrong, "fault").some((sentence) => sentence.startsWith("/entities "))).toBe(true);
+    probe(RULES)({ manifest: { type: "domain", slug: "bad", version: "0.0.1", traits: [] }, traits: "not an object" }, wrong);
+    expect(said(wrong, "fault").some((sentence) => sentence.startsWith("/traits "))).toBe(true);
   });
 
   it("a trait names the export it travels with — missing is a fault, present is silence", () => {
@@ -26,7 +26,7 @@ describe("integrity — the fold over pairs", () => {
 
   it("a marker trait carries nothing and asks nothing", () => {
     const held = span();
-    probe(RULES)({ manifest: { type: "game", slug: "g", version: "0.0.1", traits: ["STANDALONE", "CONVERSATIONAL"] } }, held);
+    probe(RULES)({ manifest: { type: "game", slug: "g", version: "0.0.1", traits: ["AGENTIC", "CONVERSATIONAL"] } }, held);
     expect(said(held, "fault")).toEqual([]);
   });
 

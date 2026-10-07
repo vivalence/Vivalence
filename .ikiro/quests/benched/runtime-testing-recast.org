@@ -1,0 +1,374 @@
+#+title: runtime + paladin testing recast — the test rig IS the lifecycle: one scenario boots a daemon through `lifecycle.daemon.execution` on an inline mask, one scenario mounts an instance through `lifecycle.mount` on an in-memory recipe; fixtures are rows, doubles are citizens; the hand-built daemons, the composed beat subsets, the eleven copied paladin helpers and the global context go
+#+filetags: :runtime:paladin:commons:education:vcompany:media:chess:assembly:
+#+status: BENCHED 10-10 (beef: /"runtime-testing-recast go"/) — reopens after m84 lands, M0 re-measured first on that tree. (was) RULED 10-06 (F1–F9 every lean; the temp law, M0 census 270/281 green under an empty HOME), unnumbered — runtime surveyed and the shape proven in a scratchpad copy (`tests/scenarios/boot.js` + a 5-step test: 78 ms boot, 4 of 5 green, the fifth my own expectation); paladin surveyed on /"extend the pass"/ and its one-scenario consolidation proven (four suites ported, `ok | 6 passed (46 steps)` unpatched = patched); nothing landed; beef rules F1–F9 before any go.
+#+phase: design (derived)
+
+* intent
+
+beef, 10-05, after the suite session's land-list:
+
+/"i think this points at a larger topic. we recently changed teh way runtimes work. they are mostly pure functions now operating on vectors. which is nice. but we never adjusted the testin gto this new reality. its now time for you to do this. go into runtime testing. look at the struutre and its components and variances. how do we test? look at ikiro testing. codemaps, etc. specifically how scenarios, fixtures, and other testing systems work in the runtime. are there any old paradigms in place that shouldnt be? are there some opportunities enabled by teh runtime recast? is there coverage missing somewhere? your task is to polish the testing. good one over. you're free to take time, just get it nice and spitting!"/
+
+Then, on the runtime report: /"cool. extend the pass. the same i said ealrier also applies to the paladin. also rewritten."/
+
+* terrain — measured 10-05
+
+Baseline, a clonefile copy of the live tree (`@` wpmyssqo), `VIVA_REPOSITORY_MOUNT` on the copy, `deno test -A --no-check --config deno.jsonc tests/` from `systems/runtime`:
+
+| suite              | files | lines | envelope                                                  |
+|--------------------+-------+-------+-----------------------------------------------------------|
+| runtime `tests/`   |    60 |  7831 | `FAILED · 74 passed (426 steps) · 2 failed (3 steps) (1m32s)` |
+| `tests/scenarios/` |    10 |  1074 | the rigs                                                  |
+| `commons/fixtures/data/` | 8 | 683 | seed · tiers · faculties · lighthouse · live             |
+| registry rigs      |     5 |   463 | chess · assembly · vcompany · media · education           |
+
+The two reds are the m76 WIP's own (`daemon/enroll.test.js` · `runtime/boot.test.js` census), fixes in `done/m76-terminals-close-the-dataring.org` changelog 10-05.
+
+Coverage of the same run (`deno coverage --include='systems/runtime/(lifecycle|prototypes|entities|gestalten)'`), the lifecycle vectors alone:
+
+| file                                     | branch % | line % |
+|------------------------------------------+----------+--------|
+| `lifecycle/process.js`                   |      0.0 |   23.5 |
+| `lifecycle/daemon/population.js`         |     14.3 |   20.5 |
+| `lifecycle/daemon/integration.js`        |      0.0 |   23.5 |
+| `lifecycle/daemon/aperture/metadata.js`  |      0.0 |   23.1 |
+| `lifecycle/runtime/population.js`        |     16.7 |   22.4 |
+| `lifecycle/runtime/resolution.js`        |     40.0 |   14.8 |
+| `lifecycle/runtime/integration.js`       |      0.0 |   17.1 |
+| `lifecycle/service/resolution.js`        |      0.0 |   30.8 |
+| `lifecycle/service/traits/attached.js`   |      0.0 |   27.3 |
+| `lifecycle/service/traits/datamap.js`    |      0.0 |   26.3 |
+| `lifecycle/mode/traits/application.js`   |      0.0 |   21.6 |
+| `entities/Process.ts`                    |     18.2 |   45.0 |
+| all 61 files                             |     74.8 |   80.3 |
+
+The line % on those files is the import; nothing executes them in-process. The one boot that runs the vectors is `runtime/boot.test.js` — a child process on the chess instance, 60 s, outside coverage.
+
+** the rigs — what each hand-builds instead of booting
+
+| rig                              | lines | consumers | daemon literal | `flatmodes()` copy | APPLICATION double | lifecycle beats composed by hand | traits called directly | `allowGlobalContext` |
+|----------------------------------+-------+-----------+----------------+--------------------+--------------------+----------------------------------+------------------------+----------------------|
+| `scenarios/daemon.js`            |   133 |         9 | yes            | yes                | yes                | 4 aperture beats                 | 3                      | via seed             |
+| `scenarios/mode.js`              |   151 |  3 + 9 registry | yes       | yes                | yes                | 0                                | 6                      | via seed             |
+| `scenarios/cortex.js`            |    82 |        10 | yes            | yes                | no                 | 0                                | 1                      | via seed             |
+| `scenarios/bench.js`             |   214 |         2 | `new Daemon()` | no                 | yes                | 6 beats, hand `resolve`          | 1                      | via datamap          |
+| `scenarios/activity.js`          |    91 |         1 | from cortex    | —                  | —                  | 1 beat + hand `/metadata`        | 0                      | via seed             |
+| `scenarios/virtual.js`           |    88 |         2 | none           | —                  | —                  | 0 (hand aperture)                | 0                      | no                   |
+| `scenarios/lighthouse.js`        |    62 |  1 + 5 registry | service literal | —              | —                  | 0                                | 0                      | via fixtures         |
+| `scenarios/datamap.js`           |   105 |  6 + 14 registry | —           | —                  | —                  | —                                | —                      | yes ×2               |
+| `topography/harness.js`          |   112 |         2 | yes            | —                  | —                  | 1 beat                           | 0                      | yes                  |
+| `chess/tests/rig.js`             |   221 |        12 | yes            | yes                | own                | 0 (resolution.domain verbatim)   | 0                      | via provider         |
+| `assembly/tests/rig.js`          |    98 |        11 | yes            | yes                | —                  | 0 (resolution.domain verbatim)   | 0                      | via provider         |
+| `vcompany/tests/scenarios.js`    |    89 |         6 | from mountMode | —                  | —                  | 0                                | 2                      | via seed             |
+| `media/…/tests/scenarios.js`     |    24 |         5 | from mountMode | —                  | —                  | 0                                | 0                      | via seed             |
+| `education/…/scenarios/domain.js`|    31 |        13 | from daemon.js | —                  | —                  | 0 (`shard.secure` residue)       | 0                      | via seed             |
+
+Counts: `flatmodes()` copied into 5 rigs and 1 test; `collate`/`seal` copied verbatim into 2 registry rigs beside `gestalten/belt/assemble.js` (was `entities/assemble.js`, m80) and `commons/fixtures/data/assemble.js` (dies, m80); the APPLICATION double written 3 times; `supply()` memoized twice (`scenarios/registry.js:9` · `bench.js:60`); `allowGlobalContext: true` at 7 sites against the law (`codemap/runtime.md`: /"never a gloablContext. also not in testing"/); 9 test files run with `sanitizeOps: false, sanitizeResources: false`; 21 `bak`/`todo` files tracked in git under `systems/runtime` (`bak.belt/` 8 · `entities/*/bak` 5 · `entities/userspace/todo` 5 · `Intent.bak.ts` · `tests/scenarios/{entities.bak.ts,variant.bak.js}`).
+
+** what the rigs hide — three lies the real vector tells differently
+
+1. Every mode aperture rides `lighthouse.shard.authorize` + the `user` bind since vector-attach-graft 10-01 (`lifecycle/daemon/resolution.js:modes`). `daemon.js` wires neither; `daemon/smoke.test.js` and `daemon/datamap.test.js` call `/mode/game/flashcard/emit/literal` on the UNAUTHED connection and pass. On the real vector that is a 401 (proven, prototype step 2).
+2. `daemon.js` seats the flashcard mode on the fixtures' `dojo` row (`mode.entity = fixtures.mode`, slug `dojo`, type `game`): the row lies about which mode owns its buffers. The vector mints the row from the manifest (`lifecycle/mode/population.js:core`).
+3. The domain is a kernel citizen and `population.modes` makes a `Mode` of it — `/metadata/modes` lists `domain/<slug>` beside the games (`tests/snapshots/modes-aperture.snapshot.json` carries `"type": "domain"`). No rig seats the domain that way; `education/domain/tests/scenarios/domain.js` grafts it by hand and still calls `shard.secure.authorize()`, deleted in m76 M1.
+
+** found on the way
+
+- `prototypes/daemon.js:9` `connection = null` is never filled by the vector: `lifecycle/daemon/integration.js:call` sets `die.connection`, `population.authority` reads `die.connection.clone()`. Product reads of `daemon.connection`: zero (`grep -rn "daemon\.connection" lifecycle prototypes gestalten registry commons` → the two `die.` sites only). The field is dead; `activity.js` and `bench.js` filled it by hand. F5.
+- `deno 2.9.6` exited 139 (SIGSEGV, no report) three times on the prototype when `beforeAll` threw a `TypeError` after a booted daemon with the flashcard mode and seeded rows; the same throw without the mode exits 1 with a report; a direct re-run with the mode did not crash. QUESTIONED, evidence only — `scratchpad/proto-run.log`.
+- `paladin.ledger.registry.supply()` measured: the first call is the registry fold; `accio("@commons/datamap/libsql")` after it 0 ms (`scratchpad/supply-time.js`).
+
+* the design — one rig, the real vector
+
+The recast made every lifecycle a `(die, next)` over a bag. The daemon's bag is `{ controller, mask, daemon }` (`entities/Process.ts:30`), and the ONLY thing `population.core` asks of the outside world is `paladin.ledger.registry.wire(mask)` — which already accepts INLINE citizens: `accio(query)` returns `{ ...query, module: query, identifier: null }` for an object without `module` (`subsystems/paladin/prototypes/ledger/registry.js:209`), and `wire` seats every kernel entry under `mask.reference` (`:231`). So a scenario needs no paladin ledger, no composed subset of beats, no daemon literal: it hands the real vector a mask whose slots are inline citizens, and boots.
+
+#+BEGIN_SRC js
+// systems/runtime/tests/scenarios/boot.js — proven in the scratchpad copy, 10-05
+const mask = {
+  manifest: { type: "daemon", slug, version: "0.0.1", traits: [] },
+  reference: new Path(`/daemon/${slug}`),
+  url: new Url(`http://test/daemon/${slug}`),
+  attach: new Url("http://test/attached"),
+  mountpoint,                                                    // a temp dir; bundles · freight land there
+  statics, secrets: {},
+  kernel: [{ ...domain, traits: { ...domain.traits, APPLICATION } }, ...kernel],   // the domain's trait wins (population.core)
+  lighthouse: { manifest: { type: "lighthouse", slug: "double" }, provider: (_, options) => new Lighthouse(wire(identities), options) },
+  datamap: { manifest: { type: "datamap", slug: "memory" }, statics: { context: { name: `scenario/${slug}` } }, mountpoint: null, provider: libsql },
+  hallucinators: hallucinators.map((provider, index) => ({ manifest: { type: "hallucinator", slug: `fixture-${index}` }, provider })),
+  consume,
+};
+const daemon = Object.assign(new Daemon(), { slug, mask, controller: new Controller({ stdout: new Span(`daemon/${slug}`) }) });
+await daemon.execute(lifecycle.daemon.execution);               // resolves RUNNING, rejects on a fault — Process.ts:29
+#+END_SRC
+
+What the prototype proved (`scratchpad/proto/systems/runtime/tests/proto.boot.test.js`):
+
+| step                                                                 | result | ms |
+|----------------------------------------------------------------------+--------+----|
+| boot: RUNNING, 12 repositories (`retention · trace` from the fixture domain) | ok | 78 |
+| the mode row is the manifest's; INTENTED landed the intent for a user seeded AFTER boot (the twitch) | ok | 3 |
+| unauthed `/mode/game/flashcard/emit/literal` → 401                   | ok     |  2 |
+| authed thread create → emit → buffer bound, `/userspace/entities/buffer/find` | ok | 35 |
+| `/metadata/modes` lists `domain/scenario` + `game/flashcard`         | my expectation wrong, the vector right | 3 |
+| SIGTERM: STOPPED, every span closed in order, the datamap closed (a scope after it rejects) | ok | 2 |
+
+The memory datamap is the REAL `@commons/datamap/libsql` provider with `mountpoint: null` → `:memory:` + `createSchema()` (`commons/datamaps/libsql/libsql.viva.js:28`) — `scenarios/datamap.js`'s hand `MikroORM.init` + `refreshDatabase` + `allowGlobalContext` is retired by it. The lighthouse double keeps ONE wire shape (`fetch("/auth/verify") · fetch("/auth/enroll")`) instead of the three copies in `daemon.js · activity.js · bench.js`; the real multiplayer attachment stays available through `scenarios/lighthouse.js` for the enroll tests (F3).
+
+Every write after boot rides a request scope — the rig's `as(user, task)` is `datamap.shard.scope` + `setFilterParams`; the global `em` leaves the bag (F4).
+
+#+BEGIN_SRC js
+// systems/runtime/tests/scenarios/boot.js — the bag
+return { daemon, as, connect, identities, close };
+// as(user, (em) => …)        a request scope, the user filter bound — the only write path
+// connect(token)             an inline http connection over daemon.aperture, Bearer when given
+// close()                    SIGTERM → await daemon.execution → rm the temp mountpoint
+#+END_SRC
+
+** the shape against the old rigs
+
+| today                                   | after                                                        |
+|-----------------------------------------+--------------------------------------------------------------|
+| `scenarios/daemon.js create()`          | `daemon.create(options)` = the boot above                    |
+| `scenarios/mode.js mountMode(viva, o)`  | `daemon.create({ kernel: [viva], ...o })` + `mode` on the bag |
+| `scenarios/mode.js mountModes(vivas)`   | `daemon.create({ kernel: vivas })`, `daemon.modes`           |
+| `scenarios/cortex.js create({harness})` | `daemon.create({ kernel: [dewey], hallucinators: [faculties] })` + `thread(mode)` |
+| `scenarios/activity.js create()`        | the same + `serve(daemon, { port })` for the multiplex tests |
+| `scenarios/bench.js bench({kernel})`    | retired — it was this, hand-rolled                           |
+| `scenarios/datamap.js provider · seed`  | `provider` → the libsql citizen; `seed()` → `fixtures.rows(em)` |
+| `commons/fixtures/data/seed.js`         | `rows(em)` seeds corpus + user, no mode or intent rows (the vector mints those) |
+| 3 APPLICATION doubles                   | ONE `fixtures.traits.APPLICATION`, handed in through the domain's `traits` |
+| `topography/harness.js`                 | unchanged (a read-only file db, three vantages — its own concern) |
+| `scenarios/virtual.js`                  | unchanged (the virtual entity under a hand aperture — its own concern) |
+| `runtime/composition.test.js`           | rewritten on the real runtime vector in a child, M5          |
+
+* forks — ruled 10-06, every lean stands
+
+beef: /"i dont care about any of these. your judgement calls."/ — F1 mask · F2 alias · F3 double by default · F4 out everywhere, staged · F5 cut · F6 child on a temp ledger · F7 parameters · F8 snapshot on a temp ledger · F9 helper only. His one word on the pass became the law above every fork (M0):
+
+/"Decides: whether a test result depends on this machine's ~/.viva. -- no test inside /repo depends on this! in repo testing we ought to stub in a temp."/
+
+** M0 — the temp law: no repo test reads this machine
+
+The census: every `*.test.js` under `systems · subsystems · commons` (281 files) run one by one with `HOME=<empty dir>`, `env -i` (no `VIVA_*` in the process), the repository mount on the copy — red or skip = dependent. Ran 10-06 (`scratchpad/results-census/verdicts.txt`, 281 files): 270 green with no machine; 11 red. Three of the eleven are the live machine's own reds, not dependence — `anima/tests/dock/stage.mount.test.js` + `anima/tests/terminals.remote.test.js` (red on the 10-05 live run too, `results/anima.log`: m76's and the anima skin's) and `ghost/tests/ledger.test.js` (known-issue `ghost-ledger-test-init-step-red-pre-existing`, `present` vs `scaffolded`). The grep estimate (48 files) over-matched twelvefold; the run is the denominator. Known-issue `tests-no-task-runs` is half stale: `commons/lighthouses/multiplayer/tests/{auth,lighthouse}.test.js` pass with no process (12 · 10 steps).
+
+| file                                                       | road to the machine                                   | fate                                                                   | M  |
+|------------------------------------------------------------+-------------------------------------------------------+------------------------------------------------------------------------+----|
+| `runtime/tests/bench/smoke.test.js`                        | `@education` not supplied                             | retired with `bench.js`                                                | M4 |
+| `runtime/tests/mode/aprende.literals.test.js`              | `@education/home/aprende`                             | MOVES to `registry/education/modes/home/aprende/tests/` (git)          | M3 |
+| `runtime/tests/mode/aprende.statistics.test.js`            | `@education/home/aprende`                             | MOVES, same                                                            | M3 |
+| `runtime/tests/mode/emitters.test.js`                      | `@education/game/*` emitters                          | MOVES to `registry/education/modes/games/tests/`                       | M3 |
+| `runtime/tests/repository.populate.test.js`                | `@education/domain/language-learning` repositories    | MOVES to `registry/education/domain/tests/`                            | M3 |
+| `runtime/tests/runtime/boot.test.js`                       | `instances.resolve("chess")` — the shelf              | F6: the child rig on a temp ledger over an inline record               | M5 |
+| `runtime/tests/daemon/enroll.test.js`                      | `Daemon not announced` — m76's `listen()` red, commons-only after | m76's fix; stays (commons is in the repo)                   | —  |
+| `commons/services/nlp/tests/service.test.js`               | `:5555` stanza                                        | renamed `service.live.test.js`; the default glob excludes `*.live.test.js` | M4 |
+| `runtime/tests/topography/{literal,symbol}.snapshot.test.js` | `paladin.scope.mountpoint` → `daemon_brazilian/test-language.viva.db`; `missing()` skips the whole suite silently (green = not run) | MOVES to `registry/education/domain/tests/`, the db its own fixture | M3 |
+| `paladin/tests/instance.snapshot.test.js`                  | folds `~/.viva/ledger.viva.js` into hello-world (green either way, output machine-bound) | F8: `homed()`                                 | P3 |
+| `runtime/tests/registry.count.test.js`                     | `supply()` over the real `registry.json` (invariants hold on any record) | stays: a temp ledger seeded from `<repo>/commons` says the same | M4 |
+
+The law for the glob: `*.live.test.js` = needs a machine, never in a task's default pattern, run by name. A test that needs `:2501` or a registry package is not a repo test — it moves to the package it is about (`fit-existing-trees`), or it is live.
+
+- F1 the law of the rig :: the rig boots the REAL `lifecycle.daemon.execution` on an inline mask (above) · OR composes the exported beats minus `population.core` (bench's way, drifts) · OR product grows `die.register ??=` so a pre-seated register skips `wire` (one line, a second way in). My lean: the mask — zero product change, `wire` already takes inline citizens, and the domain-wins fold hands the APPLICATION double in through the front door.
+- F2 one rig or four :: `daemon.create` alone with `mountMode` kept as a two-line alias for the 9 registry callers · OR migrate the 9 to `daemon.create` and cut `mountMode`. Lean: keep the alias this pass (the registry packages are their own trees), cut when they move.
+- F3 the lighthouse :: the double (one wire shape, 2 fetches) by default, the real multiplayer attachment on ask (`lighthouse: "multiplayer"`, what `enroll.test.js` seats today) · OR real always. Lean: double by default — 78 ms boots; real where the test is ABOUT enrollment.
+- F4 the global context :: `allowGlobalContext` out of every rig (7 sites), `em`/`orm` off the bag, 24 test files write through `as(user, (em) => …)` · OR keep `allowGlobalContext` in `datamap.provider` for the unit suites (datamap · repository · entity-manager · subscriber · thread · virtual, 13 files) and ban it only in the daemon rig. Lean: the law says never; stage it — M1 bans it in the daemon rig, M4 the unit suites, each with counts.
+- F5 `Daemon.connection` :: dead field — cut it from `prototypes/daemon.js` · OR the vector fills it (`die.daemon.connection = die.connection` in `integration.call`). Lean: cut; `ctx.daemon.connection` is minted per request by `population.authority` and nothing reads the field.
+- F6 the runtime vector in-process :: `integration.ledger` writes `~/.viva/logs/<slug>/spans.jsonl` through `paladin.ledger.log` (`subsystems/paladin/prototypes/ledger/log.js:4`), and `VIVA_LEDGER_MOUNT` is read at paladin import — an in-process runtime boot writes the real ledger. Child process on a temp ledger (what `boot.test.js` does for chess) generalized over an inline instance record · OR in-process with the ledger beat accepted · OR benched. Lean: the child, M5 — it is the only boot that proves `run.js`, signals and the exit code.
+
+* paladin — the second pass, measured 10-05
+
+Baseline, the same clonefile copy, `deno test -A --no-check --config deno.jsonc tests/` from `subsystems/paladin`:
+
+| suite               | files | lines | envelope                                     |
+|---------------------+-------+-------+----------------------------------------------|
+| paladin `tests/`    |    25 |  3179 | `ok · 47 passed (221 steps) · 0 failed (16s)` |
+| `tests/scenarios/`  |     0 |     0 | none — every rig is copied per file          |
+
+Coverage (`deno coverage --include='subsystems/paladin/(lifecycle|prototypes|belt|skills)'`): all files **90.6 % branch · 93.5 % line**. The lowest: `belt/is.js` 50.0 branch · `skills/shell.js` 72.2 · `belt/read.js` 75.0 (78.7 line) · `prototypes/ledger/integrity.js` 75.0 · `belt/clone.js` 40.6 line (the clone itself needs a remote) · `lifecycle/integrate.js` 87.2 (`statements` — the known untested seam).
+
+** the verdict — the lifecycle IS tested whole; the rigs are the debt
+
+Paladin's recast is the opposite shape from the runtime's: `lifecycle.mount` is a memoized SEQUENCE of functions over the `instance` bag (`populate.environment → populate.recipe → resolve.defaults → resolve.mountpoints → integrate.settle → publish`, `lifecycle/index.js:8`), not a Vector — and five suites run it WHOLE on an in-memory recipe (`settle` · `kernel` · `lighthouse` · `ledger.recipe` · `instance.snapshot`). Nothing composes a subset; nothing calls a lifecycle beat by hand except `populate.test.js`, whose subject IS the beat. The coverage table says the same. What has not caught up is HOW the world is doubled:
+
+| old paradigm                                                              | count | files                                                                 |
+|---------------------------------------------------------------------------+-------+-----------------------------------------------------------------------|
+| a rig helper copied per file (`mount` ×4 · `mkPaladin`/`mkScoped` ×3 · `boot`/`scaffold` ×4) | 11 | settle · kernel · lighthouse · ledger.recipe · ledger · spawn · populate · registry.{wire,integrity,test,tap} |
+| a belt reader overridden by assignment (`paladin.find.type = …` · `find.viva` · `read.module` · `registry.lookup`) | 14 | settle 1 · kernel 2 · lighthouse 1 · ledger.recipe 10 |
+| the DEFAULT singleton imported — `mod.js` runs `populate.env · scopes · integrate.statements` against the real `~/.viva` on import | 6 | boot · corpus · find · instance.snapshot · state · state.env |
+| `Deno.env.set/delete` — process-global mutation with a restore wrapper    |     7 | populate 4 · source 2 · state.env 1                                   |
+| `sanitizeOps: false, sanitizeResources: false`                           |    10 | spawn 9 · bundler 1                                                   |
+| a snapshot folding the REAL ledger recipe (`~/.viva/ledger.viva.js`) into the fixture instance — CAPTURE, gitignored, machine-bound | 1 | instance.snapshot (`inherited: []` today, a ledger slot tomorrow) |
+| a task naming a file that does not exist                                 |     1 | `deno.jsonc` `test/vip` → `tests/vip.test.js`                         |
+| direct `../prototypes` · `../lifecycle` · `../belt` imports, the barrel bypassed | 13 | kernel · ledger.recipe · lighthouse · settle · registry.* · source · skills · bundler · pensieve |
+
+The one impurity the pass found in product: `populate.env` and `populate.scopes` read the PROCESS (`Deno.env.toObject()` · `INIT_CWD` · `VIVA_ENV_FILE` · `HOME` · `VIVA_PROCESS_ID`, `lifecycle/populate.js:8-17,31,85`), so `populate.test.js` must mutate `Deno.env` to test them. Every other beat is a function of the bag. F7.
+
+** the design — one scenario, the same seam, once
+
+A recipe's thunks close over the paladin they were authored against (`import paladin from "@vivalence/paladin"` in production, `(paladin) => ({ … })` in a test), so a fresh paladin CANNOT read a recipe from disk: the module must be in memory, and the one seam it enters through is the reader (`paladin.find.type`). That double is right; writing it four ways is not. Proven on the scratchpad copy — the four `mount` helpers replaced by one module, the four suites ported, same envelope both sides:
+
+#+BEGIN_SRC js
+// subsystems/paladin/tests/scenarios/index.js — proven 10-05
+export function fresh({ env = {}, secrets = {}, ledger = null, home = HOME, mountpoint = MOUNTPOINT } = {}) {
+  const paladin = new Paladin();
+  paladin.scopes([["ledger", () => true, () => LEDGER], ["instance", () => true, () => home], ["mountpoint", () => true, () => mountpoint]]);
+  for (const [key, value] of Object.entries(env)) paladin.env.set(key, value, "flag");
+  for (const [key, value] of Object.entries(secrets)) paladin.secret.set(key, value, "flag");
+  const declaration = is.fn(ledger) ? ledger(paladin) : ledger;
+  paladin.find.viva = async () => (declaration ? [RECIPE] : []);
+  paladin.read.module = async () => declaration;
+  return paladin;
+}
+
+export function mount(declare, options = {}) {              // the REAL pipeline over an in-memory recipe
+  const paladin = fresh(options);
+  const declared = is.fn(declare) ? declare(paladin) : declare;
+  const module = { manifest: PROBE, source: options.home ?? HOME, ...declared };
+  paladin.find.type = async () => [module];
+  return lifecycle.mount(lifecycle.populate.instance(paladin));
+}
+
+export async function homed({ env = {} } = {}) {           // a temp ledger, scopes by the real populate — the disk verbs
+  const root = await Deno.makeTempDir({ prefix: "paladin-scenario-" });
+  …
+  await lifecycle.populate.scopes(paladin);
+  return { paladin, root };
+}
+#+END_SRC
+
+| port                      | before                                             | after                                                   |
+|---------------------------+----------------------------------------------------+---------------------------------------------------------|
+| `settle.test.js:10`       | 12-line `mount(declare, pairs, secrets)`           | `scenario.mount(declare, { env, secrets })`             |
+| `lighthouse.test.js:18`   | 11-line `mount(exports)`                           | `mount(exports)` from the scenario                      |
+| `kernel.test.js:40`       | 9-line `mount(mod)`                                | `scenario.mount(mod, { home: mod.source })`             |
+| `ledger.recipe.test.js:13`| 15-line `mount` + 5 hand-built paladins            | `scenario.mount(instance, { env, ledger })` · `fresh({ ledger })` ×4 |
+| envelope, four files      | `ok · 6 passed (46 steps) · 0 failed (947ms)`      | `ok · 6 passed (46 steps) · 0 failed (921ms)`           |
+
+Diffs kept: `scratchpad/recast/paladin/{settle,ledger.recipe,kernel,lighthouse}.diff` (190 lines) · `scenarios.index.js`.
+
+** forks — paladin
+
+- F7 the process reads :: `populate.env(paladin, { os = Deno.env.toObject(), cwd = Deno.env.get("INIT_CWD") ?? … } = {})` and `populate.scopes(paladin, { home = Deno.env.get("HOME"), shell = Deno.env.get("VIVA_PROCESS_ID") } = {})` — the beats become functions of their inputs, `populate.test.js` drops `scrubbed` and `Deno.env` mutation (4 sites) · OR keep the process reads and the wrapper. Lean: the parameters — it is the recast's own sentence (/"mostly pure functions"/), one file, the defaults keep `mod.js` unchanged. Product change → go.
+- F8 the default singleton in tests :: `boot.test.js` keeps its two assertions on `paladin` (they are ABOUT the booted export) and `instance.snapshot.test.js` moves to `homed()` + the repo's hello-world home, so the snapshot no longer folds the machine's `~/.viva/ledger.viva.js` · OR leave both. Lean: move the snapshot, keep boot's two lines. `corpus · find · state · state.env` only use belt verbs — they take `fresh()`.
+- F9 the supervisor suite :: `spawn.test.js` (9 tests, sanitizers off, real children) tests `Die` · `Process` — the shape known-issue `paladin-waits-on-the-runtimes-stdout` marks for recast and m79 hosts in-process. Leave as is until that recast · OR port to `homed()` now (the `mkPaladin` copy goes, the sanitizer flags stay). Lean: port the helper only; the shape is m79's.
+
+** deliverables — paladin
+
+| d | deliverable                                                           | lands in                                        | state  |
+|---+-----------------------------------------------------------------------+-------------------------------------------------+--------|
+| l | `scenarios/index.js` — `fresh` · `mount` · `homed`                    | `subsystems/paladin/tests/scenarios/index.js`   | proven |
+| m | settle · kernel · lighthouse · ledger.recipe on `mount`/`fresh`       | `subsystems/paladin/tests/`                     | proven |
+| n | ledger · spawn · populate · registry.{wire,integrity,test,tap} on `homed`/`fresh` (the 7 remaining copies) | `subsystems/paladin/tests/` | designed |
+| o | F7: `populate.env`/`scopes` take their process reads as parameters; `populate.test.js` without `scrubbed` | `subsystems/paladin/lifecycle/populate.js` · `tests/populate.test.js` | F7 |
+| p | F8: `instance.snapshot.test.js` on `homed()`; `corpus · find · state · state.env` on `fresh()` | `subsystems/paladin/tests/` | F8 |
+| q | `deno.jsonc` `test/vip` task cut; the 13 barrel-bypass imports → `@vivalence/paladin/typology` | `subsystems/paladin/deno.jsonc` · `tests/` | designed |
+| r | codemap `paladin.md`: one line — the scenario and the reader seam     | `.ikiro/world/codemap/paladin.md`               | designed |
+
+** milestones — paladin
+
+| M  | milestone                                   | state  | gate                                                                      |
+|----+---------------------------------------------+--------+---------------------------------------------------------------------------|
+| P1 | l · m                                       | proven | the four files `6 passed (46 steps)`; `grep -c "new Paladin" tests/{settle,kernel,lighthouse,ledger.recipe}.test.js` → 0 |
+| P2 | n · q                                       | designed | `ok · 47 passed (221 steps)`; `grep -n "^const mount\|^async function mkPaladin\|^const scaffold\|^const boot" tests/*.test.js` → 0 |
+| P3 | o (F7) · p (F8)                             | designed | `grep -c "Deno.env" tests/populate.test.js` → 0; the snapshot regenerated with `inherited: []` from a temp ledger |
+| P4 | r; F9 ruled                                 | designed | `cap.py` silent                                                           |
+
+* the law
+
+- a scenario boots what production boots: the vector, whole; a test never composes a subset of beats, never calls a trait by hand (the 9 files that do today migrate or justify in a comment-free way: the trait tests `mode/{agentic,generative,tooling}.test.js` test the trait as a function — they stay).
+- a double is a citizen: it enters through the mask slot the real thing enters through (`lighthouse · datamap · hallucinators · consume`, a domain's `traits`), never by assignment onto a booted daemon.
+- a fixture is rows: `rows(em)` writes into whatever datamap it is handed; it mints no mode and no intent — those are the vector's.
+- every write rides a request scope; the bag carries no global `em`.
+- `close()` is SIGTERM: the test proves the unwind every time it tears down.
+- one word per thing: `scenario` is the bag, `rig` is a registry package's own (chess · assembly keep theirs), `fixtures` is data.
+
+* deliverables
+
+| d | deliverable                                                        | lands in                                              | state    |
+|---+--------------------------------------------------------------------+-------------------------------------------------------+----------|
+| a | `daemon.create(options)` = the vector boot, bag `{ daemon, mode?, as, connect, identities, close }` | `systems/runtime/tests/scenarios/daemon.js` | proven as `boot.js` |
+| b | `mountMode(viva, options)` alias over a; `mountModes` the same      | `systems/runtime/tests/scenarios/mode.js` → index      | designed |
+| c | `fixtures.rows(em)` + `fixtures.traits.APPLICATION` + `fixtures.lighthouse.wire(identities)` | `commons/fixtures/data/{seed,traits,lighthouse}.js` | designed |
+| d | `cortex` and `activity` scenarios on a; `thread(mode)` · `serve(daemon)` helpers | `systems/runtime/tests/scenarios/{cortex,activity}.js` | designed |
+| e | `bench.js` · `scenarios/datamap.js provider` · `entities.bak.ts` · `variant.bak.js` cut; index rewritten | `systems/runtime/tests/scenarios/`            | designed |
+| f | `tests/daemon/boot.test.js` — the prototype's 5 steps as the rig's own contract | `systems/runtime/tests/daemon/`             | proven   |
+| g | the 9 + 10 + 2 consumer files on the new bag (authed calls, `as` scopes, `close`) | `systems/runtime/tests/**`                | designed |
+| h | registry: education `domain.js` on `daemon.create({ domain })`, dojo · vcompany · media on `mountMode(viva, { domain })` | `~/.viva/registry/{education,vcompany,media}` | designed; vcompany/media NO VCS → capture first |
+| i | `runtime.create()` — a child on a temp ledger over an inline instance record; `composition.test.js` rewritten on it | `systems/runtime/tests/scenarios/runtime.js` · `tests/runtime/` | F6 |
+| j | the bak sweep: 21 tracked `bak`/`todo` files under `systems/runtime` listed for beef's `rm` | this quest, `* blast table` | listed |
+| k | known-issues: the 139, `Daemon.connection`, the two authed-call lies | `.ikiro/known-issues.org` | owed at landing |
+
+* milestones
+
+| M  | milestone                                                   | containers                 | state   | gate                                                                 |
+|----+-------------------------------------------------------------+----------------------------+---------+----------------------------------------------------------------------|
+| M1 | the rig: a · c · f; `daemon/*.test.js` + `mode/traits.test.js` on it (authed) | runtime · commons   | proven in scratchpad | `tests/daemon/` green on the copy; `boot.test.js` 5 steps; coverage `daemon/population.js` branch > 80 % |
+| M2 | cortex · activity · multiplex · sse · dictation · stub · turn on d | runtime                 | designed | the 10 cortex consumers at their step counts                         |
+| M3 | mountMode on a; `mode/{aprende,emitters}` + registry h       | runtime · education · vcompany · media | designed | dojo 3 files · vcompany 6 · media 5 green; `grep shard.secure` → 0 |
+| M4 | the global context out (F4): unit suites on `as`; e          | runtime                    | designed | `grep allowGlobalContext systems commons` → 0; 60 files at their counts |
+| M5 | i (F6): the runtime child rig; `composition.test.js` real    | runtime                    | designed | `/metadata/{daemons,services}` · `/attached/*` · SIGTERM exit 0 on an inline record, no chess dependency |
+| M6 | j · k · codemap `runtime.md` + skill `testing` Rigs section rewritten | .ikiro             | designed | `cap.py` silent; moved names → 0                                     |
+
+* blast table
+
+| file                                                                   | change                                   | M  | kind    |
+|------------------------------------------------------------------------+------------------------------------------+----+---------|
+| `systems/runtime/tests/scenarios/daemon.js`                            | rewrite: the vector boot                 | M1 | rig     |
+| `systems/runtime/tests/scenarios/index.js`                             | exports: daemon · mountMode · lighthouse · virtual; bench · datamap cut | M1 | barrel |
+| `commons/fixtures/data/seed.js`                                        | `seed()` → `rows(em)`; mode/intent rows cut | M1 | fixture |
+| `commons/fixtures/data/traits.js`                                      | new: APPLICATION double                  | M1 | fixture |
+| `commons/fixtures/data/lighthouse.js`                                  | + `wire(identities)`; `allowGlobalContext` cut | M1 | fixture |
+| `commons/fixtures/data/index.js`                                       | barrel                                   | M1 | barrel  |
+| `systems/runtime/tests/daemon/boot.test.js`                            | new, from the prototype                  | M1 | test    |
+| `systems/runtime/tests/daemon/{smoke,datamap,batch,userspace}.test.js` | bag · authed calls · `close`             | M1 | test    |
+| `systems/runtime/tests/mode/traits.test.js`                            | bag · `as`                               | M1 | test    |
+| `systems/runtime/tests/scenarios/cortex.js`                            | on daemon.create; `thread(mode)`         | M2 | rig     |
+| `systems/runtime/tests/scenarios/activity.js`                          | on daemon.create; `serve`                | M2 | rig     |
+| `systems/runtime/tests/{cortex.*,buffer.labeled,dictation.*,hallucination-triad.doc,harness.thread,multiplex.*,sse.*,stub.activity,turn.unit-of-work,mode/tooling}.test.js` | bag | M2 | test |
+| `systems/runtime/tests/scenarios/mode.js`                              | `mountMode` alias                        | M3 | rig     |
+| `systems/runtime/tests/mode/{aprende.literals,aprende.statistics,emitters}.test.js` | `{ domain }`                 | M3 | test    |
+| `~/.viva/registry/education/domain/tests/scenarios/domain.js`          | on `daemon.create({ domain })`, `shard.secure` out | M3 | rig (git) |
+| `~/.viva/registry/education/modes/games/dojo/tests/*.test.js`          | `mountMode(dojo, { domain })`            | M3 | test (git) |
+| `~/.viva/registry/vcompany/tests/scenarios.js`                         | `{ domain }`; `module.mount` → `source`  | M3 | rig (NO VCS) |
+| `~/.viva/registry/media/modes/editor/media/tests/scenarios.js`         | `module.mount` → `source`                | M3 | rig (NO VCS) |
+| `systems/runtime/tests/scenarios/datamap.js`                           | cut (provider → libsql citizen; schemas → fixtures) | M4 | rig |
+| `systems/runtime/tests/{datamap.*,repository.*,entity-manager.*,subscriber,thread,virtual.*,view.spawn,dataset.install,datasink.*,batch.*}.test.js` | `as` scopes | M4 | test |
+| `systems/runtime/tests/scenarios/bench.js` · `tests/bench/smoke.test.js` | cut                                    | M4 | rig     |
+| `systems/runtime/tests/scenarios/{entities.bak.ts,variant.bak.js}`     | cut                                      | M4 | bak     |
+| `systems/runtime/tests/scenarios/runtime.js`                           | new: child on a temp ledger              | M5 | rig     |
+| `systems/runtime/tests/runtime/{composition,boot}.test.js`             | on runtime.create                        | M5 | test    |
+| `systems/runtime/prototypes/daemon.js`                                 | `connection = null` cut (F5)             | M5 | product |
+| `systems/runtime/{bak.belt/**,entities/bak/**,entities/todo/**}` | beef's `rm` — 21 files | M6 | bak |
+| `.ikiro/world/codemap/runtime.md` · `.claude/skills/testing/SKILL.md ## Rigs` | the rig's one sentence         | M6 | canon   |
+
+* testing assessment
+
+The rig is the test of the vector: every `daemon.create` executes `population.core → … → integration.prune` and every `close()` executes the unwind. COVERAGE GAP closed by M1: `lifecycle/daemon/*` · `lifecycle/mode/*` · `lifecycle/process.js` in-process. COVERAGE GAP standing after M1: the service vector (`lifecycle/service/*`, nothing boots a service mask — m76 F-list names it too), `/attached/{bundle,cargo}` (runtime resolution), two daemons in one runtime, pause · resume, the patrol — M5's child reaches the runtime beats; pause · resume stay owed. COVERAGE GAP never closed by a rig: the bundler (APPLICATION's `compile()`), by design a double.
+
+Gate per milestone: the envelope on the scratchpad copy, unpatched beside patched (`FAILED · 74 passed (426 steps) · 2 failed (3 steps)` is the unpatched side today), every pre-existing file at its step count or its delta named.
+
+* QA
+
+#+marker_qa: runtime-testing-recast/P-boot · pending · tests/daemon/boot.test.js 5 steps green on the live tree after M1, authed emit included
+#+marker_qa: runtime-testing-recast/P-coverage · pending · deno coverage after M1: lifecycle/daemon/population.js branch > 80 %, lifecycle/process.js > 0
+#+marker_qa: runtime-testing-recast/P-global-context · pending · grep allowGlobalContext over systems + commons + registry tests → 0 after M4
+#+marker_qa: runtime-testing-recast/P-registry · pending · education 13 · vcompany 11 · media 5 files green from the repo root after M3
+
+* deferred
+
+- `topography/harness.js` and `scenarios/virtual.js` keep their hand apertures: one reads a 400 MB file db read-only across three vantages, the other proves the virtual entity under the datamap shards alone. Neither is a daemon.
+- the chess · assembly rigs: a domain under a daemon literal with `collate`/`seal` copied verbatim. On `daemon.create({ domain })` they would boot the vector too — their packages' pass, after M3 proves the shape on education.
+- `tests/interactive/activity/daemon.js` · `tests/drain.playground.js`: playgrounds on the scenarios; they follow M2 by import.
+
+* QUESTIONED
+
+- the 139 :: deno 2.9.6 died without a report three times; the direct repro exits 1. Evidence kept, cause unknown.
+- `tests-no-task-runs` (known issue) :: a registry test task is still owed; this quest adds files there and runs them by path.
+- the service vector :: a `service.create()` rig over an inline attachment mask is the same shape (`lifecycle.service.execution` on `{ controller, mask, service }`); not designed here — m76 names the gap.
+
+* handoff
+
+benched 10-10: its census predates m81's landing and m84 rewrites the harness tests on this ground; reopen after m84, re-measure M0 before any block.
+goal: one rig that boots the real daemon vector; one paladin scenario over the real `lifecycle.mount`; no repo test reads this machine; fixtures as rows; doubles as citizens; the global context out.
+done: both surveys (terrain tables); the runtime prototype (`scratchpad/recast/boot.js` + `proto.boot.test.js`, 4/5, the fifth the vector's truth); the paladin port (`scratchpad/recast/paladin/`, four suites, `6 passed (46 steps)` both sides); F1–F9 RULED 10-06 (every lean); M0 census — 281 files under an empty HOME, 270 green, 8 dependents each with a fate (`** M0`).
+next: M0 · M1 · P1 built in a fresh scratchpad copy (the scratchpad is session-ephemeral — rebuild from this file's blocks), envelope beside baseline per file, then the patch to beef per file; education's moved tests land in the education package.
+never: compose a beat subset in a rig; `allowGlobalContext` as a test convenience; seat a mode on another mode's row; a repo test reading `~/.viva`, `:2501` or a registry package; a test-rig choice handed to beef as a fork.
+owed: known-issues at landing (the 139, `Daemon.connection`, the unauthed mode calls); the number — beef's.

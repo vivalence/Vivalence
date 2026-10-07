@@ -69,7 +69,7 @@ export const ActivityDossier = {
   kind: () => Activity,
   repository: (schema, dataspace) => {
     const repo = new RemoteRepository(schema.kind());
-    repo.connect(dataspace.connection.branch("/userspace/entities/activity"));
+    repo.connect(dataspace.runtime.branch("/userspace/entities/activity"));
     return repo;
   },
 

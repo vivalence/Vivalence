@@ -55,7 +55,7 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
 
   it("tap and untap answer under /registry — an unknown location refuses and leaves the record", async () => {
     const tapped = await drive(["registry/tap", "alpha"]);
-    expect(tapped.record).toEqual(["alpha", "beta"]);
+    expect(tapped.record).toEqual({ "@alpha": { slug: "alpha", mount: `${store}/alpha` }, "@beta": { slug: "beta", mount: `${store}/beta` } });
     await expect(drive(["registry/untap", "never-tapped"])).rejects.toThrow("no tapped package 'never-tapped'");
     expect(await drive(["registry/list"]).then((effect) => effect.packages.map((row) => row.mount))).toEqual([
       `${store}/alpha`,
@@ -63,15 +63,24 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     ]);
   });
 
+  it("untap finds a package by its slug when the slug is not the owner's name", async () => {
+    await Deno.mkdir(`${store}/uno`, { recursive: true });
+    await Deno.writeTextFile(`${store}/uno/uno.viva.js`, `export const manifest = { owner: "@one", type: "package", slug: "uno", version: "0.0.1" };`);
+    await drive(["registry/tap", "uno"]);
+    expect((await drive(["registry/untap", "uno"])).untapped).toBe("@one");
+    expect(await paladin.ledger.registry.has("@one")).toBe(false);
+    await Deno.remove(`${store}/uno`, { recursive: true });
+  });
+
   it("doctor reads the record against the store — tapped roots, an untapped resident, the census by owner", async () => {
     await author(store, "gamma", "@gamma");
     const effect = await drive(["registry/doctor"]);
-    expect(effect.record.tapped).toBe((await paladin.ledger.registry.locations()).length);
+    expect(effect.record.tapped).toBe(Object.keys(await paladin.ledger.registry.tapped()).length);
     expect(effect.record.stale).toEqual([]);
     expect(effect.store.path).toBe(new Path(store).absolute);
     expect(effect.store.untapped).toEqual([`${store}/gamma`]);
     const alpha = effect.packages.find((held) => held.owner === "@alpha");
-    expect(alpha.location).toBe("alpha");
+    expect(alpha.mount).toBe(`${store}/alpha`);
     expect(alpha.root).toBe(`${store}/alpha`);
     expect(alpha.types.package).toEqual(["alpha"]);
     expect(alpha.modes).toBe(1);
@@ -88,15 +97,15 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     await Deno.remove(`${store}/alpha/bare.viva.js`);
   });
 
-  it("doctor: a declaration nested under a recorded root is covered, never untapped", async () => {
+  it("doctor: a tap of a wrapping dir records the declaration inside it, never untapped", async () => {
     await Deno.mkdir(`${store}/wrap`, { recursive: true });
     await author(`${store}/wrap`, "deep", "@deep");
-    await paladin.ledger.registry.add("wrap");
+    await drive(["registry/tap", "wrap"]);
     const effect = await drive(["registry/doctor"]);
     expect(effect.store.resident.includes(`${store}/wrap/deep`)).toBe(true);
     expect(effect.store.untapped).toEqual([]);
-    expect(effect.packages.find((held) => held.owner === "@deep").location).toBe("wrap");
-    await drive(["registry/untap", "wrap"]);
+    expect(effect.packages.find((held) => held.owner === "@deep").mount).toBe(`${store}/wrap/deep`);
+    await drive(["registry/untap", "@deep"]);
     await Deno.remove(`${store}/wrap`, { recursive: true });
   });
 
@@ -105,8 +114,8 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     await drive(["registry/tap", "rot"]);
     await Deno.remove(`${store}/rot`, { recursive: true });
     const effect = await drive(["registry/doctor"]);
-    expect(effect.record.stale).toEqual(["rot"]);
-    expect((await paladin.ledger.registry.locations()).includes("rot")).toBe(true);
+    expect(effect.record.stale).toEqual(["@rot"]);
+    expect(await paladin.ledger.registry.has("@rot")).toBe(true);
     expect(effect.packages.find((held) => held.owner === "@rot")).toBe(undefined);
     await drive(["registry/untap", "rot"]);
   });
@@ -128,8 +137,8 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
   });
 
   it("bootstrap records the package it just authored", async () => {
-    const record = await paladin.ledger.registry.locations();
-    expect(record.includes(`${made}/mine`)).toBe(true);
+    const record = await paladin.ledger.registry.tapped();
+    expect(record["@mine"]).toEqual({ slug: "mine", mount: `${made}/mine` });
   });
 
   it("bootstrap from a source clones the tree and renames the declaration", async () => {

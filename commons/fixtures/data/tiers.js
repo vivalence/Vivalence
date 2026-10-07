@@ -1,13 +1,13 @@
 import { sets } from "@vivalence/runtime";
-import { entities as domain } from "../language-learning/entities/index.js";
 
-export const stack = [sets.kernel, sets.userspace, sets.transient, domain];
+export const stack = [sets.identity, sets.composition, sets.kernel, sets.userspace, sets.transient];
 
 export const tiers = {
+  ...sets.identity,
+  ...sets.composition,
   ...sets.kernel,
   ...sets.userspace,
   ...sets.transient,
-  ...domain,
 };
 
 export const instance = (extra = {}) => Object.values({ ...tiers, ...extra });

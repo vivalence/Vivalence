@@ -1,19 +1,10 @@
-import {
-  Controller,
-  fromm,
-  shard,
-  Span,
-  specimen,
-  steer,
-  ToolCall,
-  Vector,
-} from "@vivalence/typology";
+import { contexts, Controller, fromm, shard, Span, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { research, ROUNDS } from "../tools/research.js";
 import { calling, rig, saying, SOURCE } from "./rig.js";
 
 const invoke = (rigged, input) => {
   const outer = new Vector().graft(research);
-  outer.use(shard.context.bind("daemon", rigged.daemon));
+  outer.use(shard.context.spread(contexts.host, rigged.daemon));
   outer.use(shard.context.bind("mode", rigged.mode));
   outer.use(shard.context.bind("thread", "thread-1"));
   return steer.dispatch.invoke(
@@ -171,7 +162,7 @@ specimen.describe(
         };
 
         const outer = new Vector().graft(research);
-        outer.use(shard.context.bind("daemon", rigged.daemon));
+        outer.use(shard.context.spread(contexts.host, rigged.daemon));
         outer.use(shard.context.bind("mode", rigged.mode));
         outer.use(shard.context.bind("thread", "thread-1"));
         outer.use(shard.context.bind("controller", tool));

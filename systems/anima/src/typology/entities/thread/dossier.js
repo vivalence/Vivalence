@@ -8,7 +8,7 @@ export const ThreadDossier = {
   kind: () => Thread,
   repository: (schema, dataspace) => {
     const repo = new RemoteRepository(schema.kind());
-    repo.connect(dataspace.connection.branch("/userspace/entities/thread"));
+    repo.connect(dataspace.runtime.branch("/userspace/entities/thread"));
     return repo;
   },
 

@@ -73,7 +73,7 @@ specimen.describe("buffer lifecycle", { sanitizeResources: false, sanitizeOps: f
     specimen.expect(buffer.id).toBeTruthy();
     specimen.expect(buffer.view).toBe(null);
     specimen.expect(buffer.data.recall).toBe("LEARNING");
-    specimen.expect(buffer.literals.map((literal) => literal.id)).toContain(scenario.fixtures.hello.id);
+    specimen.expect(buffer.literals.map((literal) => literal.id ?? literal)).toContain(scenario.fixtures.hello.id);
     specimen.expect(buffer.context).toBe(null);
   });
 

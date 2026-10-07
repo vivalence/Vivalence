@@ -1,0 +1,10 @@
+{
+  "manifest": { "type": "instance", "slug": "hello-world", "version": "0.0.1" },
+  "daemons": [
+    {
+      "manifest": { "type": "daemon", "slug": "hello", "version": "0.0.1" },
+      "modes": ["./mode.viva.js"],
+      "consume": { "reader": { "module": "@commons/service/reader" } }
+    }
+  ]
+}

@@ -1,41 +1,25 @@
-import { MikroORM, EntitySchema, RequestContext } from "@mikro-orm/core"
-import { Datamap } from "@vivalence/typology"
+import { MikroORM, RequestContext } from "@mikro-orm/core"
+import * as typology from "@vivalence/typology"
+import { Datamap, Twitch } from "@vivalence/typology"
 import { config } from "../../../../commons/datamaps/libsql/libsql.viva.js"
-import {
-  LiteralEntity, LiteralSchema,
-  SymbolEntity, SymbolSchema,
-  BufferEntity, BufferSchema,
-  ModeEntity, ModeSchema, ModeRepository,
-  IntentEntity, IntentSchema,
-  UserEntity, UserSchema,
-  ThreadEntity, ThreadSchema,
-  DataRepository,
-} from "@vivalence/runtime"
+import { kernel, sets, DaemonEntity, UserEntity } from "@vivalence/runtime"
+import { assemble } from "../../gestalten/belt/assemble.js"
+import { mint, strike } from "../../gestalten/belt/traits.js"
 
-const LiteralConcrete = new EntitySchema({
-  class: LiteralEntity, extends: LiteralSchema,
-  tableName: "Literal", name: "Literal",
-  repository: () => DataRepository,
-})
+export const DAEMON = "test-daemon"
 
-const SymbolConcrete = new EntitySchema({
-  class: SymbolEntity, extends: SymbolSchema,
-  tableName: "Symbol", name: "Symbol",
-  repository: () => DataRepository,
-})
+export const stack = [sets.identity, sets.composition, sets.kernel, sets.userspace, sets.transient]
 
-const BufferConcrete = new EntitySchema({
-  class: BufferEntity, extends: BufferSchema,
-  tableName: "Buffer", name: "Buffer",
-  repository: () => DataRepository,
-})
+const assembled = assemble(stack)
 
-export { SymbolConcrete, BufferConcrete }
+export const descriptors = assembled.entities
+
+export const twitches = assembled.twitch
 
 // ── in-memory datamap provider ─────────────────────────────────────
 // Same contract as @vivalence/datamap/libsql provider() but sqlite :memory:.
-// Takes the instance array ({ type, schema, entity, repository, subscriber }[])
-// and returns the provider interface the runtime expects.
+// Takes the descriptors ({ type, schema, entity, repository, twitch }[]) and returns the Datamap
+// the runtime expects; the caller registers its twitch through datamap.registerSubscriber(twitch).
 export const shard = (orm) => ({
   scope: (fn) => RequestContext.create(orm.em, fn),
   carry: () => {
@@ -48,58 +32,47 @@ export const shard = (orm) => ({
   },
 })
 
-export async function provider(instance, subscribers = instance.map((v) => v.subscriber)) {
+export async function provider(instance) {
   const orm = await MikroORM.init({
-    ...config({}, { entities: instance.map((v) => v.schema), subscribers: subscribers.filter(Boolean).map((Subscriber) => new Subscriber()) }),
+    ...config({}, { entities: instance.map((v) => v.schema) }),
     allowGlobalContext: true,
   })
 
-  await orm.schema.refreshDatabase()
+  await orm.schema.refresh()
 
   return new Datamap(orm)
 }
 
-export const schemas = [
-  LiteralConcrete, SymbolConcrete, BufferConcrete,
-  ModeSchema, IntentSchema, UserSchema, ThreadSchema,
-]
+// the daemon's own repositories: every kernel kind scoped to DAEMON through mikro's filter, the kernel's traits
+export const struck = (em, traits = kernel) => strike(mint({ slug: DAEMON, kinds: sets.kernel, traits }), em, sets.kernel)
 
 export async function seed() {
-  const orm = await MikroORM.init({
-    ...config({}, { entities: schemas }),
-    allowGlobalContext: true,
-  })
-
-  await orm.schema.refreshDatabase()
+  const datamap = await provider(descriptors)
+  const { orm } = datamap
   const em = orm.em
+  const twitch = new Twitch()
+  for (const held of assembled.twitch) twitch.graft(held)
+  twitch.branch("/after").use(typology.shard.datamap.detached(datamap))
+  datamap.registerSubscriber(twitch)
 
-  const user = em.create(UserEntity, { roles: ["USER"], config: {} })
+  const user = em.create(UserEntity, { slug: "beef" })
+  const daemon = em.create(DaemonEntity, { slug: DAEMON, mask: { manifest: { type: "daemon", slug: DAEMON } } })
   await em.flush()
   em.setFilterParams("user", { user: user.id })
 
-  const symbol = em.create(SymbolEntity, { slug: "greeting", trait: {} })
-  const hello = em.create(LiteralEntity, { slug: "hello", trait: {}, symbol: {} })
-  const goodbye = em.create(LiteralEntity, { slug: "goodbye", trait: {}, symbol: {} })
+  const repos = { ...datamap.entities, ...struck(em) }
+
+  const mode = repos.mode.create({ slug: "test", type: "test", traits: ["APPLICATION"], installed: "installed" })
+  await em.flush()
+
+  const symbol = repos.symbol.create({ slug: "greeting", mode, trait: {} })
+  const hello = repos.literal.create({ slug: "hello", mode, trait: {}, symbol: {} })
+  const goodbye = repos.literal.create({ slug: "goodbye", mode, trait: {}, symbol: {} })
   await em.flush()
 
   hello.symbols.add(symbol)
   goodbye.symbols.add(symbol)
   await em.flush()
 
-  const mode = em.create(ModeEntity, {
-    slug: "test", type: "test", traits: ["APPLICATION"], installed: "installed",
-  })
-  await em.flush()
-
-  const repos = {
-    literal: em.getRepository(LiteralEntity),
-    symbol: em.getRepository(SymbolEntity),
-    buffer: em.getRepository(BufferEntity),
-    mode: em.getRepository(ModeEntity),
-    intent: em.getRepository(IntentEntity),
-    user: em.getRepository(UserEntity),
-    thread: em.getRepository(ThreadEntity),
-  }
-
-  return { orm, em, repos, shard: shard(orm), fixtures: { user, symbol, hello, goodbye, mode } }
+  return { orm, em, datamap, twitch, repos, shard: shard(orm), fixtures: { user, daemon, symbol, hello, goodbye, mode } }
 }

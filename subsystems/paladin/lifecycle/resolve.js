@@ -10,8 +10,9 @@ export function inherit(below, above, slot, clone = (value) => value) {
 }
 
 export function defaults(instance) {
+  if (instance.runtime) instance.runtime.manifest ??= v.primitives.instance.Runtime.properties.manifest.fill();
   for (const daemon of instance.daemons) {
-    for (const slot of ["lighthouse", "datamap", "hallucinators"]) inherit(daemon, instance, slot, v.clone);
+    for (const slot of ["datamap"]) inherit(daemon, instance, slot, v.clone);
   }
   for (const service of instance.services) inherit(service, instance, "datamap", v.clone);
 }
@@ -43,17 +44,28 @@ export function mountpoints(instance) {
   instance.daemons.forEach(seat("daemon"));
   instance.services.forEach(seat("service"));
   instance.services.forEach(attach);
+  const root = (runtime) => {
+    runtime.mountpoint ??= instance.paladin.scope.mountpoint.absolute;
+    runtime.reference ??= `/runtime/${runtime.manifest?.slug}`;
+    if (!reach) return;
+    runtime.url ??= reach.branch(runtime.reference).absolute;
+    runtime.attach ??= reach.branch("/attached").absolute;
+  };
   instance.daemons.forEach(address);
   instance.daemons.forEach(ground);
+  if (instance.runtime) {
+    root(instance.runtime);
+    ground(instance.runtime);
+  }
 }
 
-// a mode's ground falls through the way a daemon's does: the kernel entry's own word wins, else
+// a mode's ground falls through the way a daemon's does: the modes entry's own word wins, else
 // one directory under its daemon's mountpoint — mode_<type>_<slug>, beside bundles/ and the db.
 // so every mode has a mountpoint without the recipe saying one, and a MOUNTED mode serves it; an
 // override at any level above (env → instance → daemon) re-roots what is below it. a bare
 // identifier becomes { module, mountpoint } — the same entry, its seat spelled out. an inline
 // module keeps its shape (nothing is hydrated inside it) and carries the seat as a key.
-// [type, slug] of a kernel entry, or null when the identifier cannot say; the entry's own manifest wins
+// [type, slug] of a modes entry, or null when the identifier cannot say; the entry's own manifest wins
 const identity = (entry) => {
   const own = entry?.manifest;
   if (own?.type && own.slug) return [own.type, own.slug];
@@ -71,7 +83,7 @@ const identity = (entry) => {
   return null;
 };
 
-function ground(daemon) {
+function ground(bearer) {
   const seat = (entry) => {
     const id = identity(entry);
     if (!id) return entry;
@@ -79,16 +91,16 @@ function ground(daemon) {
     const held = is.string(entry) ? { module: entry } : entry;
     // a declared mountpoint is the entry's word even when its thunk came back blank (a REQUIRED fault,
     // never a seat minted over it); only silence gets the seat, mode_<type>_<slug> or mode_<slug>
-    const mountpoint = "mountpoint" in held ? held.mountpoint : `${daemon.mountpoint}/mode_${[type, slug].filter(Boolean).join("_")}`;
+    const mountpoint = "mountpoint" in held ? held.mountpoint : `${bearer.mountpoint}/mode_${[type, slug].filter(Boolean).join("_")}`;
     if (!type) return { ...held, mountpoint }; // the type is the module's word — wire seats the rest
     const reference = `/mode/${type}/${slug}`;
     return {
       ...held,
       mountpoint,
       reference: held.reference ?? reference,
-      url: held.url ?? (daemon.url ? new Url(daemon.url).branch(reference).absolute : undefined),
-      bundles: held.bundles ?? `${daemon.mountpoint}/bundles/${type}/${slug}`,
+      url: held.url ?? (bearer.url ? new Url(bearer.url).branch(reference).absolute : undefined),
+      bundles: held.bundles ?? `${bearer.mountpoint}/bundles/${type}/${slug}`,
     };
   };
-  daemon.kernel = (daemon.kernel ?? []).map(seat);
+  bearer.modes = (bearer.modes ?? []).map(seat);
 }

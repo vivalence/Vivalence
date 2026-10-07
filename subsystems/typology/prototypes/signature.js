@@ -198,7 +198,7 @@ export class Signature {
   //   // snatch // severe(brats) {return cast .array(this.ancestory()) .map((s) => this.grab(s)) .filter((f) => !!f);}
   // last universal ancestor
   get lua() {
-    let position;
+    let position = this;
     while (position?.gauges.length === 1) position = position.trace;
     return position;
   }

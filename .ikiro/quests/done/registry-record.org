@@ -1,0 +1,1127 @@
+#+title: registry record
+#+filetags: :paladin:ledger:registry:typology:ghost:
+#+status: LANDED 10-09, unnumbered — beef /"fix."/ · /"apply once confident."/: the record is owner → { slug, mount, remote? }, =~/.viva/registry.json= migrated; =viva registry/doctor= → 8 tapped · 0 stale · 0 faulted. Pins ruled later (/"we do pin later."/) — DONE 10-09.
+
+* intent
+
+/"i think the registry json needs more information. a different schema. the list dont cut it no more. packages. slugs. mounts. how does jj workspaces and emacs straight.el do it?"/
+
+/"tell me about the registry.json again. how does straigh.el do it? we'd want the same git pull bla bla we have already, just a propper registry.json format."/
+
+* terrain — measured 10-09
+
+=~/.viva/registry.json= is a list of LOCATIONS: a store dir name (resolved against =scope.registry=) or an absolute path. Identity is DERIVED by mounting each =package.viva.js= on every read; the record names no package. Tap clones a git URL (=subsystems/paladin/belt/clone.js:17-25=, jj then git) and then records only the folder — the URL is dropped (=subsystems/paladin/prototypes/ledger/registry.js:160=). No pull exists anywhere.
+
+| owner | folder | remote (=.git/config=) |
+|---|---|---|
+| =@education= | =education= | =git@github.com:vivalence/registry-education.git= |
+| =@commons= | repo =commons= | — |
+| =@vcompany= | =vcompany= | no =.git= |
+| =@chess= | =chess= | =git@github.com:vivalence/registry-chess.git= |
+| =@media= | =media= | no =.git= |
+| =@droneaid= | =droneaid= | =git@github.com:vivalence/registry-droneaid.git= |
+| =@assembly= | =assembly= | =git@github.com:vivalence/registry-assembly.git= |
+| =@strata= | =/Users/finn/code/strata= | git, no remote |
+
+Owner == slug for all 8. =stucatch= untapped 13:21 outside this session. The 4 remotes are named =github=, none =origin= (CORRECTED 10-09: an earlier line here read "no git package has an origin" as "no remote"). Repo ≠ folder (=registry-chess= → =chess=) — straight's package ≠ repo.
+
+* precedent — read off beef's disk
+
+- jj: =.jj/repo/workspace_store/index= is a protobuf map NAME → PATH relative to the store (="default"= → ="../../"=). Name first, path second.
+- straight.el: =~/.emacs.d/straight/build-cache.el= keyed by package, each entry its recipe =(:package "magit" :local-repo "magit" :type git :host github :repo "magit/magit")=. =:local-repo= is a folder NAME under =repos/=; =:host= + =:repo= is the source; =:type= is the VCS. Pins live apart in =versions/<profile>.el= (absent here).
+
+| straight | the record |
+|---|---|
+| =:package= | the key =@chess= |
+| =:local-repo= | =mount= |
+| =:host= + =:repo= | =remote= |
+| =:type git= | — (beef: not now) |
+| =versions/default.el= | a lockfile, later (fork 2) |
+
+* beef's shape — 10-09
+
+/"{ "@chess": { "slug":"xxx", "mount": "PATH", "remote": "git@github.com:<you>/chess.git" }"/ · /"i suspect 'type' is also valuable in mthe future maybe."/ → /"type wouldnt be package, it would be git|jj|fs|whatever. no need for nwo."/ · /""@media": { "slug": "media", "mount": "./registry/media" },"/
+
+#+BEGIN_SRC jsonc
+// ~/.viva/registry.json — after the hand migration; the walk below mounted exactly this
+{
+  "@education": { "slug": "education", "mount": "./registry/education", "remote": "git@github.com:vivalence/registry-education.git" },
+  "@commons": { "slug": "commons", "mount": "/Users/finn/vivalence/code/vivalence/commons" },
+  "@vcompany": { "slug": "vcompany", "mount": "./registry/vcompany" },
+  "@chess": { "slug": "chess", "mount": "./registry/chess", "remote": "git@github.com:vivalence/registry-chess.git" },
+  "@media": { "slug": "media", "mount": "./registry/media" },
+  "@droneaid": { "slug": "droneaid", "mount": "./registry/droneaid", "remote": "git@github.com:vivalence/registry-droneaid.git" },
+  "@assembly": { "slug": "assembly", "mount": "./registry/assembly", "remote": "git@github.com:vivalence/registry-assembly.git" },
+  "@strata": { "slug": "strata", "mount": "/Users/finn/code/strata" }
+}
+#+END_SRC
+
+* the law
+
+- the key is the owner the package declares; =slug= is its slug; key + =package= + slug is the identifier =@chess/package/chess=.
+- =mount= is absolute, or relative to the record file (inline record: the ledger home) — the ledger parts' rule. Tap writes =./…= when the package sits under the record's dir, absolute otherwise.
+- a tap ARGUMENT keeps its frame: a bare name is a folder in =scope.registry=, an absolute path is taken whole (=Registry.stored=).
+- =remote= is written only by a tap that cloned; a local tap records none.
+- one owner, one mount: tapping an owner already tapped elsewhere throws; a root with two package declarations throws.
+- a record its package contradicts throws at mount, naming both identifiers — never mounts a lie.
+- the list shape throws on read ("not a registry record: / must be object") — no dual read.
+
+* forks
+
+| f | question | ruling |
+|---|---|---|
+| 1 | the key | RULED 10-09 by his shape — owner =@chess= |
+| 2 | pins | RULED 10-09 — /"we do pin later."/ → =* deferred= (a lockfile beside the record, written by a freeze verb, once pull or re-clone reads it) |
+| 5 | =type= | RULED 10-09 — VCS kind (=git= · =jj= · =fs=), /"no need for nwo"/ → =* deferred= |
+
+* blast table
+
+| file | change | kind |
+|---|---|---|
+| =subsystems/typology/schematics/primitives/instance.js= | =Tapped= beside =Ledger= | typology core (+12) |
+| =subsystems/paladin/prototypes/ledger/registry.js= | the record half rewritten; =mount= checks its claim; =tap= returns the owner | product |
+| =systems/ghost/trajectories/registry/index.js= | rows from the record; =untap= by owner · slug · identifier · mount | product |
+| =systems/ghost/trajectories/registry/bootstrap.js= | =record= = =tapped()= | product |
+| =systems/ghost/trajectories/ledger/index.js= | init writes ={}=; doctor rows by owner | product |
+| =systems/ghost/trajectories/ledger/Doctor.jsx= | stale row names owner + mount | product |
+| =commons/instances/hello-world/tools/doctor.js= | =locations= = the mounts | product |
+| 8 test files | expectations to the object; 5 new cases | test |
+| 2 =documentation/= mdx | the record described | doc |
+| =~/.viva/registry.json= | hand migration (shape above) | data, no VCS — capture first |
+| =~/.viva/instances/hello-world/tools/doctor.js= | the shelf copy, same hunk as commons | data |
+| =README.md:249= | =0 pinned · 0 store= — unchanged label, still true | none |
+
+* testing assessment
+
+- sandbox =scratchpad/registry/{base,tree}= — a =cp -cR= of the live tree minus =.git .jj=, =VIVA_REPOSITORY_MOUNT= at the copy.
+- unpatched: =FAILED | 158 passed (284 steps) | 1 failed (46s)=; patched: =FAILED | 158 passed (288 steps) | 1 failed (45s)= — paladin · ghost · runtime =fresh= · =hello= · typology =instance=. The red both sides is =strata.wet= "two shells" (=known-issues.org:682=).
+- new cases: add of an owner tapped elsewhere throws · =locate= relative/absolute · the list shape throws · a record the package contradicts throws · two declarations under one root throw · a second checkout of one owner throws.
+- walk: =Registry= over =~/.viva= with the record above held inline (read-only, a write throws) → =@assembly:10 @chess:16 @commons:25 @droneaid:4 @education:24 @media:3 @strata:17 @vcompany:12= · stale 0 · faulted 0; today's list through the unpatched copy prints the same line. =~/.viva/registry.json= md5 unchanged across the walk.
+- connoisseur pass 10-09: =add= compares by =object.equals= (=subsystems/typology/gestalten/belt/object.js:153=), not a hand =JSON.stringify=; the no-owner throw lives once in =declared=; ghost rows carry =slug=, =untap= matches it (new case: =@one= slug =uno=, =untap uno=); ghost =ledger.test.js= store moved under the ledger, so =pack= mounts =./registry/pack=, =pinned: false=.
+- after the pass, same command both sides: base =ok | 157 passed (273 steps) | 0 failed=; patched =FAILED | 156 passed (278 steps) | 1 failed= — the red is =strata.wet= "two shells", which flips on base too (ok, then FAILED, 2 runs): flaky, not deterministic as =known-issues.org= says. Live repo after the apply: the same line.
+- COVERAGE GAP: the remote tap's recorded =remote= is not exercised (a clone needs a network); the doc's =registry/tap= print is written by hand, not captured.
+
+* tangle — 17 files, 63 hunks
+
+Replay: =apply-diffs.py= on a fresh =cp -cR= of the base → =files 17 · hunks landed 63 · missed 0 · WRITTEN=, the copy against the sandbox 0 differences; dry on the live repo =missed 0=; the 17 live files unmoved since the copy.
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/instance.js:173
+ );
+
++export const Tapped = v.record(
++  v.string(),
++  v.object(
++    {
++      slug: Slug.desc("The package's slug — key, package and slug name it whole: @chess/package/chess. Example: chess"),
++      mount: v.string().desc("Where the package lives — relative to the record file, or absolute. Example: ./registry/chess"),
++      remote: v.string().desc("The git remote tap cloned it from. Example: git@github.com:vivalence/registry-chess.git").optional(),
++    },
++    { additionalProperties: false },
++  ),
++).desc("The registry record — one row per tapped package, keyed by its owner");
++
+ export const Requirement = v.object({
+   at: v.string(),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/ledger/registry.js:1
+-import { basename, dirname, isAbsolute, relative } from "@std/path";
+-import { cast, is, Path, Span, v } from "@vivalence/typology";
++import { basename, dirname, isAbsolute, relative, resolve as absolute } from "@std/path";
++import { cast, is, object, Path, Span, v } from "@vivalence/typology";
+ import { Pensieve } from "../pensieve.js";
+ import { probe, RULES } from "./integrity.js";
+…
+ const normalize = (location) =>
+   isAbsolute(location) ? location : location.replace(/^\.\//, "");
++
++const declared = (module) => {
++  const root = dirname(module.source.absolute);
++  if (!module.manifest?.owner) throw new Error(`[registry] ${root}: package declares no owner — author manifest.owner (e.g. "@commons")`);
++  return { owner: module.manifest.owner, slug: module.manifest.slug, root };
++};
+
+ export class Registry {
+…
+
+   async read() {
+-    if (this.held) return structuredClone(this.held);
+-    return await this.paladin.read.json(this.path, this.fallback ? null : undefined).catch((error) => {
+-      throw new Error(`registry: ${this.path.absolute} ("${this.from}") — ${error?.code === "ENOENT" ? "no such file" : error.message}`);
+-    });
++    const record = this.held
++      ? structuredClone(this.held)
++      : await this.paladin.read.json(this.path, this.fallback ? null : undefined).catch((error) => {
++        throw new Error(`registry: ${this.path.absolute} ("${this.from}") — ${error?.code === "ENOENT" ? "no such file" : error.message}`);
++      });
++    if (record === null || v.check(v.primitives.instance.Tapped, record)) return record;
++    const errors = [...v.errors(v.primitives.instance.Tapped, record)].map((error) => `${error.instancePath || "/"} ${error.message}`);
++    throw new Error(`registry: ${this.path?.absolute ?? `inline ("${this.from}")`} — not a registry record: ${errors.join(" · ")}`);
+   }
+
+-  async write(locations) {
++  async write(record) {
+     if (this.held) throw new Error(`registry: inline ("${this.from}") — read-only; declare a path to write`);
+-    return await this.paladin.state.json(this.path, locations);
++    return await this.paladin.state.json(this.path, record);
+   }
+
+-  async locations() {
+-    return (await this.read()) ?? [];
++  async tapped() {
++    return (await this.read()) ?? {};
+   }
+
+-  async has(location) {
+-    return (await this.locations()).includes(normalize(location));
++  async has(owner) {
++    return Object.hasOwn(await this.tapped(), owner);
+   }
+
+-  async add(location) {
+-    location = normalize(location);
+-    const locations = await this.locations();
+-    if (locations.includes(location)) return locations;
+-    const next = [...locations, location];
++  async add(owner, entry) {
++    const record = await this.tapped();
++    const held = record[owner];
++    if (held && held.mount !== entry.mount)
++      throw new Error(`[registry] ${owner} is tapped at ${held.mount} — untap it before tapping ${entry.mount}`);
++    const next = { ...record, [owner]: { ...held, ...entry } };
++    if (held && object.equals(next[owner], held)) return record;
+     await this.write(next);
+     return next;
+   }
+
+-  async remove(location) {
+-    location = normalize(location);
+-    const next = (await this.locations()).filter((held) => held !== location);
++  async remove(owner) {
++    const record = await this.tapped();
++    if (!Object.hasOwn(record, owner)) return record;
++    const next = Object.fromEntries(Object.entries(record).filter(([held]) => held !== owner));
+     await this.write(next);
+     return next;
+   }
+
+-  locate(absolute) {
+-    const store = this.paladin.scope.registry?.absolute;
+-    if (!store) return absolute;
+-    const segment = relative(store, absolute);
+-    return segment && !segment.startsWith("..") && !isAbsolute(segment) ? segment : absolute;
++  get base() {
++    return this.path ? dirname(this.path.absolute) : this.paladin.scope.ledger.absolute;
+   }
+
+-  resolve(location) {
++  locate(root) {
++    const segment = relative(this.base, root);
++    return segment && !segment.startsWith("..") && !isAbsolute(segment) ? `./${segment}` : root;
++  }
++
++  resolve(mount) {
++    return new Path(isAbsolute(mount) ? mount : absolute(this.base, mount));
++  }
++
++  stored(location) {
+     location = normalize(location);
+     if (isAbsolute(location)) return new Path(location);
+…
+   }
+
++  row({ owner, slug, root }) {
++    return [owner, { slug, mount: this.locate(root) }];
++  }
++
+   async discover(scope) {
+     if (!scope || !(await Deno.stat(scope.absolute).catch(() => null))) return [];
+-    const declarations = await this.paladin.find.type(scope, "package");
+-    return [...new Set(declarations.map((module) => dirname(module.source.absolute)))];
++    return (await this.paladin.find.type(scope, "package")).map(declared);
+   }
+
+   async seed(scope) {
+-    const locations = await this.discover(scope);
+-    await this.write(locations);
+-    return locations;
++    const record = Object.fromEntries((await this.discover(scope)).map((found) => this.row(found)));
++    await this.write(record);
++    return record;
+   }
+
+…
+     const held = await this.read();
+     if (!held) return null;
+-    const present = async (location) => Boolean(await Deno.stat(this.resolve(location).absolute).catch(() => null));
++    const present = async (owner) => Boolean(await Deno.stat(this.resolve(held[owner].mount).absolute).catch(() => null));
+     const dead = [];
+-    for (const location of held) if (!(await present(location))) dead.push(location);
+-    if (!dead.length) return { locations: held, stale: [] };
+-    const inside = (location) => Boolean(checkout) && this.resolve(location).absolute.startsWith(`${checkout.absolute}/`);
+-    const stale = dead.filter((location) => !inside(location));
+-    const kept = held.filter((location) => !dead.includes(location) || stale.includes(location));
+-    const healed = dead.some(inside) ? (await this.discover(commons)).filter((location) => !kept.includes(location)) : [];
+-    const record = [...kept, ...healed];
++    for (const owner of Object.keys(held)) if (!(await present(owner))) dead.push(owner);
++    if (!dead.length) return { record: held, stale: [] };
++    const inside = (owner) => Boolean(checkout) && this.resolve(held[owner].mount).absolute.startsWith(`${checkout.absolute}/`);
++    const stale = dead.filter((owner) => !inside(owner));
++    const kept = Object.fromEntries(Object.entries(held).filter(([owner]) => !dead.includes(owner) || stale.includes(owner)));
++    const healed = dead.some(inside)
++      ? (await this.discover(commons)).filter((found) => !Object.hasOwn(kept, found.owner)).map((found) => this.row(found))
++      : [];
++    const record = { ...kept, ...Object.fromEntries(healed) };
+     await this.write(record);
+-    return { locations: record.filter((location) => !stale.includes(location)), stale };
++    return { record: Object.fromEntries(Object.entries(record).filter(([owner]) => !stale.includes(owner))), stale };
+   }
+
+   // ——— the pensieve side (was prototypes/vip.js) ———
+
+-  async mount(root) {
++  async mount(root, claim = null) {
+     const paths = await this.paladin.find.viva(root);
+     const modules = [];
+…
+     if (modules.length && !owner)
+       throw new Error(`[registry] mount ${root.absolute}: package declares no owner — author manifest.owner (e.g. "@commons")`);
++    if (claim && (owner !== claim.owner || declaration?.manifest?.slug !== claim.slug))
++      throw new Error(`[registry] mount ${root.absolute}: the record names ${claim.owner}/package/${claim.slug}, the package declares ${owner}/package/${declaration?.manifest?.slug} — re-tap it`);
+     for (const module of modules) {
+       // a copy: read.viva returns the live namespace. the mount's owner stamps; the module's own locks.
+…
+     const commons = checkout?.branch("commons");
+     const reconciled = await this.reconcile(checkout, commons);
+-    const locations = reconciled?.locations ?? await this.seed(commons);
++    const record = reconciled?.record ?? await this.seed(commons);
+     this.stale = reconciled?.stale ?? [];
+-    for (const location of locations) await this.mount(this.resolve(location));
++    for (const [owner, { slug, mount }] of Object.entries(record)) await this.mount(this.resolve(mount), { owner, slug });
+     return this;
+   }
+…
+   async tap(source, target) {
+     let location = source;
++    let remote = null;
+     if (this.paladin.clone.remote(source)) {
+       if (!target && !this.paladin.scope.registry)
+…
+       const destination = target ? new Path(target) : this.paladin.scope.registry.branch(slug);
+       await this.paladin.clone(source, destination);
+-      location = target ? destination.absolute : slug;
++      location = destination.absolute;
++      remote = source;
+     } else if (target) {
+       throw new Error(`[registry] tap ${source}: target only applies to a remote source — a local tap records the location in place`);
+     }
+-    const root = this.resolve(location);
++    const root = this.stored(location);
+     const stat = await Deno.stat(root.absolute).catch(() => null);
+     if (!stat)
+…
+     if (!declarations.length)
+       throw new Error(`[registry] tap ${source}: no package declaration (manifest.type "package") under ${home.absolute}`);
+-    if (declarations.length === 1) location = this.locate(dirname(declarations[0].source.absolute));
+-    await this.add(location);
+-    return location;
++    if (declarations.length > 1)
++      throw new Error(`[registry] tap ${source}: ${declarations.length} package declarations under ${home.absolute} — tap one: ${declarations.map((module) => dirname(module.source.absolute)).join(" · ")}`);
++    const [owner, entry] = this.row(declared(declarations[0]));
++    await this.add(owner, remote ? { ...entry, remote } : entry);
++    return owner;
+   }
+
+   // untap = record removal ONLY — the store keeps the working copy; next supply() simply omits it.
+-  untap(location) {
+-    return this.remove(location);
++  untap(owner) {
++    return this.remove(owner);
+   }
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/trajectories/registry/index.js:1
+ import paladin from "@vivalence/paladin";
+ import { resolve } from "@std/path";
+-import { object, v, Vector } from "@vivalence/typology";
++import { v, Vector } from "@vivalence/typology";
+ import { path } from "../../belt/index.js";
+ import { bootstrap } from "./bootstrap.js";
+…
+ async function packages() {
+   await paladin.ledger.registry.supply();
+-  const locations = await paladin.ledger.registry.locations();
++  const record = await paladin.ledger.registry.tapped();
+   return Promise.all(
+-    locations.map(async (location) => {
+-      const root = paladin.ledger.registry.resolve(location);
+-      const declarations = await paladin.find.type(root, "package").catch(() => []);
++    Object.entries(record).map(async ([owner, { slug, mount, remote }]) => {
++      const root = paladin.ledger.registry.resolve(mount);
+       const modules = await paladin.find.viva(root).catch(() => []);
+-      return {
+-        location,
+-        mount: root.absolute,
+-        owner: declarations.map((module) => module.manifest.owner).join(" ") || null,
+-        modes: modules.length || null,
+-        identifier: declarations
+-          .map((module) => `${module.manifest.owner}/${module.manifest.type}/${module.manifest.slug}`)
+-          .join(" ") || null,
+-      };
++      return { owner, slug, identifier: `${owner}/package/${slug}`, mount: root.absolute, remote: remote ?? null, modes: modules.length || null };
+     }),
+   );
+ }
+
+-async function tapped(location) {
++async function tapped(name) {
+   const rows = await packages();
+-  return (
+-    rows.find((row) => row.location === location || row.location === location.replace(/^\.\//, "")) ??
+-      rows.find((row) => row.mount === resolve(location)) ??
+-      rows.find((row) => (row.identifier ?? "").split(" ").includes(location)) ??
+-      null
+-  );
++  return rows.find((row) => [row.owner, row.slug, row.identifier, row.mount].includes(name) || row.mount === resolve(name)) ?? null;
+ }
+
+…
+   const scope = paladin.scope.registry;
+   if (!scope) return { path: null, resident: [], untapped: [] };
+-  const found = await paladin.ledger.registry.discover(scope).catch(() => []);
++  const found = (await paladin.ledger.registry.discover(scope).catch(() => [])).map((held) => held.root);
+   const resident = found.filter((root) => !found.some((other) => other !== root && root.startsWith(`${other}/`)));
+   const covered = (root) => tapped.some((held) => root === held || root.startsWith(`${held}/`));
+…
+   {
+     nature: "/doctor",
+-    valence: "registry report card — the record against the store and what the taps supply: stale locations, untapped residents, the mode census by owner",
++    valence: "registry report card — the record against the store and what the taps supply: stale owners, untapped residents, the mode census by owner",
+     schema: v.object({}),
+   },
+…
+     const registry = paladin.ledger.registry;
+     await registry.supply();
+-    const locations = await registry.locations();
+-    const entries = await Promise.all(
+-      locations.map(async (location) => {
+-        const root = registry.resolve(location);
+-        const declarations = await paladin.find.type(root, "package").catch(() => []);
+-        return { location, root: root.absolute, owners: declarations.map((module) => module.manifest.owner) };
+-      }),
+-    );
++    const entries = Object.entries(await registry.tapped()).map(([owner, { slug, mount, remote }]) => (
++      { owner, slug, mount, root: registry.resolve(mount).absolute, remote: remote ?? null }
++    ));
+     const packages = [];
+     for (const [owner, ownerMap] of paladin.ledger.registry.pensieve) {
+       const types = {};
+       for (const [type, typeMap] of [...ownerMap].sort(declarationFirst)) types[type] = [...typeMap.keys()].sort();
+-      const tapped = entries.find((entry) => entry.owners.includes(owner));
++      const tapped = entries.find((entry) => entry.owner === owner);
+       packages.push({
+         owner,
+-        location: tapped?.location ?? null,
++        mount: tapped?.mount ?? null,
+         root: tapped?.root ?? null,
+         modes: Object.values(types).reduce((sum, slugs) => sum + slugs.length, 0),
+…
+
+     const report = {
+-      record: { path: registry.path?.absolute ?? null, tapped: locations.length, stale: registry.stale, entries },
++      record: { path: registry.path?.absolute ?? null, tapped: entries.length, stale: registry.stale, entries },
+       store: await store(paladin, entries.map((entry) => entry.root)),
+       // what the fold said at mount: one row per faulted path
+…
+   {
+     nature: "/list",
+-    valence: "every tapped package — mount, the owner it declares, how many modes it carries, and its identifier",
++    valence: "every tapped package — owner, identifier, mount, remote, and how many modes it carries",
+     schema: v.object({}),
+   },
+   async (ctx) => {
+-    ctx.effect = { packages: (await packages()).map((row) => object.filter(row, (key) => key !== "location")) };
++    ctx.effect = { packages: await packages() };
+   },
+ );
+…
+   {
+     nature: "/tap",
+-    valence: "tap a package — record a location; a remote source clones into the store (or target)",
++    valence: "tap a package — record owner → slug, mount; a remote source clones into the store (or target) and is recorded",
+     schema: v.object({
+       source: v.string().desc("path or git url").optional(),
+…
+     source = path.source(source);
+     if (target) target = resolve(path.cwd(), target);
+-    const location = await paladin.ledger.registry.tap(source, target);
+-    ctx.effect = {
+-      location,
+-      root: paladin.ledger.registry.resolve(location).absolute,
+-      record: await paladin.ledger.registry.locations(),
+-    };
++    const owner = await paladin.ledger.registry.tap(source, target);
++    const record = await paladin.ledger.registry.tapped();
++    ctx.effect = { owner, root: paladin.ledger.registry.resolve(record[owner].mount).absolute, record };
+   },
+ );
+…
+     nature: "/untap",
+     valence: "untap a package — record removal only, the store keeps the working copy",
+-    schema: v.object({ location: v.string().desc("recorded location").optional() }),
++    schema: v.object({ package: v.string().desc("owner, slug, identifier or mount. Example: @chess").optional() }),
+   },
+   async (ctx) => {
+-    const location = ctx.signal.params?.[0];
+-    if (!location) throw new Error("usage: viva registry untap <location>");
+-    const held = await tapped(location);
+-    if (!held) throw new Error(`registry/untap: no tapped package '${location}' — viva registry/list`);
+-    ctx.effect = { untapped: held.location, record: await paladin.ledger.registry.untap(held.location) };
++    const name = ctx.signal.params?.[0];
++    if (!name) throw new Error("usage: viva registry untap <owner | slug | mount>");
++    const held = await tapped(name);
++    if (!held) throw new Error(`registry/untap: no tapped package '${name}' — viva registry/list`);
++    ctx.effect = { untapped: held.owner, record: await paladin.ledger.registry.untap(held.owner) };
+   },
+ );
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/trajectories/registry/bootstrap.js:68
+     target,
+     from,
+-    record: await paladin.ledger.registry.locations(),
++    record: await paladin.ledger.registry.tapped(),
+   };
+ }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/trajectories/ledger/index.js:64
+     }
+     const declaration = await paladin.ledger.recipe();
+-    for (const [slot, empty] of [["instances", {}], ["registry", []]]) {
++    for (const slot of ["instances", "registry"]) {
+       const { path: record, held } = paladin.ledger.record(slot);
+-      if (!held && !(await Deno.stat(record.absolute).catch(() => null))) await paladin.state.json(record, empty);
++      if (!held && !(await Deno.stat(record.absolute).catch(() => null))) await paladin.state.json(record, {});
+     }
+-    const commons = await paladin.ledger.registry.tap(paladin.scope.repository.branch("commons").absolute);
++    const commons = paladin.scope.repository.branch("commons").absolute;
++    await paladin.ledger.registry.tap(commons);
+     const environment = declaration?.environment ?? v.environment({});
+
+…
+
+ async function collectRecord(registry) {
+-  const locations = await registry.locations();
++  const record = await registry.tapped();
+   const entries = await Promise.all(
+-    locations.map(async (location) => {
+-      const root = registry.resolve(location);
++    Object.entries(record).map(async ([owner, { mount, remote }]) => {
++      const root = registry.resolve(mount);
+       return {
+-        location,
++        owner,
++        mount,
+         root: root.absolute,
+-        pinned: isAbsolute(location),
++        remote: remote ?? null,
++        pinned: isAbsolute(mount),
+         present: Boolean(await Deno.stat(root.absolute).catch(() => null)),
+       };
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/trajectories/ledger/Doctor.jsx:59
+         />
+         {stale.map((entry) => (
+-          <Text key={entry.location} color="red">
++          <Text key={entry.owner} color="red">
+             {"    ✗ "}
+-            {entry.location}
++            {entry.owner} {entry.mount}
+             <Text color="gray">  gone — viva registry/untap</Text>
+           </Text>
+#+END_SRC
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/tools/doctor.js:142
+     registry: {
+       mount: paladin.scope.registry?.absolute ?? null,
+-      locations: await paladin.ledger.registry.locations(),
++      locations: Object.values(await paladin.ledger.registry.tapped()).map((entry) => entry.mount),
+       stale: paladin.ledger.registry.stale,
+       modules: [...paladin.ledger.registry.pensieve].flatMap(([owner, types]) =>
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/tests/registry.test.js:22
+ };
+
+-describe("Registry — location algebra", () => {
++const EXTERNAL = { slug: "external", mount: "/external/checkout" };
++const PACK = { slug: "pack", mount: "./registry/pack" };
++
++describe("Registry — the record, owner → { slug, mount, remote? }", () => {
+   it("add is idempotent", async () => {
+     const { registry } = await scaffold();
+-    await registry.add("/external/checkout");
+-    await registry.add("/external/checkout");
+-    expect(await registry.locations()).toEqual(["/external/checkout"]);
++    await registry.add("@external", EXTERNAL);
++    await registry.add("@external", EXTERNAL);
++    expect(await registry.tapped()).toEqual({ "@external": EXTERNAL });
+   });
+
+-  it("'./pack' and 'pack' are the same location", async () => {
++  it("add of an owner tapped at another mount throws and leaves the record", async () => {
+     const { registry } = await scaffold();
+-    await registry.add("./pack");
+-    expect(await registry.has("pack")).toBe(true);
+-    await registry.add("pack");
+-    expect(await registry.locations()).toEqual(["pack"]);
++    await registry.add("@pack", PACK);
++    await expect(registry.add("@pack", { slug: "pack", mount: "/elsewhere/pack" })).rejects.toThrow("@pack is tapped at ./registry/pack — untap it");
++    expect(await registry.tapped()).toEqual({ "@pack": PACK });
+   });
+
+-  it("remove drops exactly the named location", async () => {
++  it("remove drops exactly the named owner; an unrecorded owner is a no-op", async () => {
+     const { registry } = await scaffold();
+-    await registry.add("/external/checkout");
+-    await registry.add("pack");
+-    await registry.remove("./pack");
+-    expect(await registry.locations()).toEqual(["/external/checkout"]);
++    await registry.add("@external", EXTERNAL);
++    await registry.add("@pack", PACK);
++    expect(await registry.remove("@never")).toEqual({ "@external": EXTERNAL, "@pack": PACK });
++    await registry.remove("@pack");
++    expect(await registry.tapped()).toEqual({ "@external": EXTERNAL });
++    expect(await registry.has("@pack")).toBe(false);
+   });
+
+-  it("remove of an unrecorded location is a no-op", async () => {
+-    const { registry } = await scaffold();
+-    await registry.add("pack");
+-    expect(await registry.remove("never")).toEqual(["pack"]);
+-    expect(await registry.locations()).toEqual(["pack"]);
++  it("resolve — absolute verbatim, relative against the record file", async () => {
++    const { registry, ledger } = await scaffold();
++    expect(registry.resolve("/external/checkout").absolute).toBe("/external/checkout");
++    expect(registry.resolve("./registry/pack").absolute).toBe(`${ledger}/registry/pack`);
+   });
+
+-  it("resolve — absolute verbatim, relative against the store root", async () => {
+-    const { registry, store } = await scaffold();
+-    expect(registry.resolve("/external/checkout").absolute).toBe("/external/checkout");
+-    expect(registry.resolve("pack").absolute).toBe(`${store}/pack`);
+-    expect(registry.resolve("./pack").absolute).toBe(`${store}/pack`);
++  it("locate — beside the record file is relative, anywhere else absolute", async () => {
++    const { registry, ledger } = await scaffold();
++    expect(registry.locate(`${ledger}/registry/pack`)).toBe("./registry/pack");
++    expect(registry.locate("/external/checkout")).toBe("/external/checkout");
+   });
+
+-  it("resolve of a relative location without a store scope throws", async () => {
++  it("a tap location without a store scope throws", async () => {
+     const ledger = await Deno.makeTempDir({ prefix: "registry_test_ledger_" });
+     const paladin = new Paladin();
+     paladin.scopes([["ledger", () => true, () => new Path(ledger)]]);
+     const registry = new Registry(paladin, new Path(`${ledger}/registry.json`));
+-    expect(registry.resolve("/external/checkout").absolute).toBe("/external/checkout");
+-    expect(() => registry.resolve("pack")).toThrow("no package store");
++    expect(registry.stored("/external/checkout").absolute).toBe("/external/checkout");
++    expect(() => registry.stored("pack")).toThrow("no package store");
+   });
+
+-  it("the file shape stays a plain JSON array of strings", async () => {
++  it("the file is a plain JSON object keyed by owner", async () => {
+     const { paladin, registry } = await scaffold();
+-    await registry.add("/external/checkout");
+-    await registry.add("pack");
+-    const raw = await paladin.read.json(registry.path, null);
+-    expect(raw).toEqual(["/external/checkout", "pack"]);
++    await registry.add("@external", EXTERNAL);
++    await registry.add("@pack", { ...PACK, remote: "git@github.com:vivalence/registry-pack.git" });
++    expect(await paladin.read.json(registry.path, null)).toEqual({
++      "@external": EXTERNAL,
++      "@pack": { ...PACK, remote: "git@github.com:vivalence/registry-pack.git" },
++    });
++  });
++
++  it("a record in the list shape throws naming the file — no dual read", async () => {
++    const { registry, ledger } = await scaffold();
++    await Deno.writeTextFile(`${ledger}/registry.json`, JSON.stringify(["pack"]));
++    await expect(registry.tapped()).rejects.toThrow(`registry: ${ledger}/registry.json — not a registry record: / must be object`);
+   });
+ });
+…
+     await Deno.writeTextFile(`${store}/stray/notes.txt`, "not a package");
+
+-    const locations = await registry.seed(paladin.scope.registry);
+-    expect(locations).toEqual([`${store}/real`]);
+-    expect(await registry.locations()).toEqual([`${store}/real`]);
++    const record = await registry.seed(paladin.scope.registry);
++    expect(record).toEqual({ "@real": { slug: "real", mount: `${store}/real` } });
++    expect(await registry.tapped()).toEqual(record);
+   });
+ });
+…
+     const { registry, repository, checkout, commons } = await homed();
+     await declare(repository);
+-    await registry.write([`${repository}/registry/viva`, `${repository}/registry/testing`]);
++    await registry.write({ "@viva": { slug: "viva", mount: `${repository}/registry/viva` }, "@testing": { slug: "testing", mount: `${repository}/registry/testing` } });
+
+-    const { locations, stale } = await registry.reconcile(checkout, commons);
+-    expect(locations).toEqual([`${repository}/commons`]);
++    const { record, stale } = await registry.reconcile(checkout, commons);
++    expect(record).toEqual({ "@commons": { slug: "commons", mount: `${repository}/commons` } });
+     expect(stale).toEqual([]);
+-    expect(await registry.locations()).toEqual([`${repository}/commons`]);
++    expect(await registry.tapped()).toEqual(record);
+   });
+
+…
+     const { registry, store, checkout, commons } = await homed();
+     await author(`${store}/real`, "package.viva.js", { owner: "@real", type: "package", slug: "real", version: "0.0.1" });
+-    await registry.write(["/nowhere/checkout", "real"]);
++    const held = { "@gone": { slug: "gone", mount: "/nowhere/checkout" }, "@real": { slug: "real", mount: `${store}/real` } };
++    await registry.write(held);
+
+-    const { locations, stale } = await registry.reconcile(checkout, commons);
+-    expect(locations).toEqual(["real"]);
+-    expect(stale).toEqual(["/nowhere/checkout"]);
+-    expect(await registry.locations()).toEqual(["/nowhere/checkout", "real"]);
++    const { record, stale } = await registry.reconcile(checkout, commons);
++    expect(record).toEqual({ "@real": held["@real"] });
++    expect(stale).toEqual(["@gone"]);
++    expect(await registry.tapped()).toEqual(held);
+   });
+
+…
+     const { registry, store, checkout, commons } = await homed();
+     await author(`${store}/real`, "package.viva.js", { owner: "@real", type: "package", slug: "real", version: "0.0.1" });
+-    await registry.write(["real"]);
++    const held = { "@real": { slug: "real", mount: `${store}/real` } };
++    await registry.write(held);
+     const before = (await Deno.stat(registry.path.absolute)).mtime;
+
+-    const { locations, stale } = await registry.reconcile(checkout, commons);
+-    expect(locations).toEqual(["real"]);
++    const { record, stale } = await registry.reconcile(checkout, commons);
++    expect(record).toEqual(held);
+     expect(stale).toEqual([]);
+     expect((await Deno.stat(registry.path.absolute)).mtime).toEqual(before);
+…
+     await declare(repository);
+     await author(`${store}/real`, "package.viva.js", { owner: "@real", type: "package", slug: "real", version: "0.0.1" });
+-    await paladin.ledger.registry.write([`${repository}/registry/viva`, "/nowhere/checkout", "real"]);
++    await paladin.ledger.registry.write({
++      "@viva": { slug: "viva", mount: `${repository}/registry/viva` },
++      "@gone": { slug: "gone", mount: "/nowhere/checkout" },
++      "@real": { slug: "real", mount: `${store}/real` },
++    });
+
+     const registry = paladin.ledger.registry;
+…
+     expect(registry.pensieve.has("@commons")).toBe(true);
+     expect(registry.pensieve.has("@real")).toBe(true);
+-    expect(registry.stale).toEqual(["/nowhere/checkout"]);
+-    expect(await paladin.ledger.registry.locations()).toEqual(["/nowhere/checkout", "real", `${repository}/commons`]);
++    expect(registry.stale).toEqual(["@gone"]);
++    expect(Object.keys(await paladin.ledger.registry.tapped())).toEqual(["@gone", "@real", "@commons"]);
++  });
++
++  it("a record the package's own declaration contradicts throws at mount, naming both", async () => {
++    const { paladin, store } = await homed();
++    await author(`${store}/real`, "package.viva.js", { owner: "@real", type: "package", slug: "real", version: "0.0.1" });
++    await paladin.ledger.registry.write({ "@other": { slug: "real", mount: `${store}/real` } });
++    await expect(paladin.ledger.registry.supply()).rejects.toThrow("the record names @other/package/real, the package declares @real/package/real");
+   });
+
+…
+     await registry.supply();
+     expect(registry.pensieve.has("@commons")).toBe(true);
+-    expect(await paladin.ledger.registry.locations()).toEqual([`${repository}/commons`]);
++    expect(await paladin.ledger.registry.tapped()).toEqual({ "@commons": { slug: "commons", mount: `${repository}/commons` } });
+   });
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/tests/registry.tap.test.js:6
+ const scaffold = async () => {
+   const ledger = await Deno.makeTempDir({ prefix: "registry_tap_test_ledger_" });
+-  const store = await Deno.makeTempDir({ prefix: "registry_tap_test_store_" });
++  const store = `${ledger}/registry`;
++  await Deno.mkdir(store);
+   const boot = () => {
+     const paladin = new Paladin();
+…
+
+ describe("Registry.tap — materialize + record, never mount", () => {
+-  it("tap of an absolute external checkout records it verbatim", async () => {
++  it("tap of an external checkout records owner → slug and the absolute mount", async () => {
+     const { boot } = await scaffold();
+     const paladin = boot();
+     const checkout = await external("@external");
+-    await paladin.ledger.registry.tap(checkout);
+-    expect(await paladin.ledger.registry.locations()).toEqual([checkout]);
++    expect(await paladin.ledger.registry.tap(checkout)).toBe("@external");
++    expect(await paladin.ledger.registry.tapped()).toEqual({ "@external": { slug: "external", mount: checkout } });
+     expect(paladin.ledger.registry.pensieve.size).toBe(0);
+   });
+
+-  it("tap of a store-relative location records the bare segment", async () => {
++  it("tap of a store location beside the record records the mount relative to the record file", async () => {
+     const { boot, store } = await scaffold();
+     const paladin = boot();
+…
+     });
+     await paladin.ledger.registry.tap("./pack");
+-    expect(await paladin.ledger.registry.locations()).toEqual(["pack"]);
++    expect(await paladin.ledger.registry.tapped()).toEqual({ "@pack": { slug: "pack", mount: "./registry/pack" } });
+   });
+
+…
+     });
+     await paladin.ledger.registry.tap("pack");
+-    await paladin.ledger.registry.untap("pack");
+-    expect(await paladin.ledger.registry.locations()).toEqual([]);
++    await paladin.ledger.registry.untap("@pack");
++    expect(await paladin.ledger.registry.tapped()).toEqual({});
+     expect((await Deno.stat(`${store}/pack`)).isDirectory).toBe(true);
+   });
+…
+     expect((await runtime.ledger.registry.accio("@pack/game/judge")).manifest.owner).toBe("@pack");
+
+-    await runtime.ledger.registry.untap(checkout);
++    await runtime.ledger.registry.untap("@external");
+     const next = boot();
+     await next.ledger.registry.supply();
+…
+     const checkout = await external("@external");
+     await paladin.ledger.registry.tap(`${checkout}/package.viva.js`);
+-    expect(await paladin.ledger.registry.locations()).toEqual([checkout]);
++    expect(await paladin.ledger.registry.tapped()).toEqual({ "@external": { slug: "external", mount: checkout } });
+   });
+
+…
+     });
+     await paladin.ledger.registry.tap("deep");
+-    expect(await paladin.ledger.registry.locations()).toEqual(["deep/nested"]);
++    expect(await paladin.ledger.registry.tapped()).toEqual({ "@pack": { slug: "pack", mount: "./registry/deep/nested" } });
++  });
++
++  it("tap of a directory holding two package declarations throws naming both", async () => {
++    const { boot, store } = await scaffold();
++    const paladin = boot();
++    await author(`${store}/two/one`, { "one.viva.js": { owner: "@one", type: "package", slug: "one", version: "0.0.1" } });
++    await author(`${store}/two/other`, { "other.viva.js": { owner: "@other", type: "package", slug: "other", version: "0.0.1" } });
++    await expect(paladin.ledger.registry.tap("two")).rejects.toThrow("2 package declarations under");
++    expect(await paladin.ledger.registry.tapped()).toEqual({});
++  });
++
++  it("a second checkout of a tapped owner throws — one owner, one mount", async () => {
++    const { boot } = await scaffold();
++    const paladin = boot();
++    const first = await external("@external");
++    const second = await external("@external");
++    await paladin.ledger.registry.tap(first);
++    await expect(paladin.ledger.registry.tap(second)).rejects.toThrow(`@external is tapped at ${first} — untap it`);
+   });
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/tests/ledger.test.js:163
+     }
+     const seeded = await paladin.ledger.registry.seed({ absolute: registryRoot });
+-    expect(seeded.sort()).toEqual([`${registryRoot}/alpha`, `${registryRoot}/beta`]);
+-    expect((await paladin.ledger.registry.read()).sort()).toEqual(seeded.sort());
++    expect(seeded).toEqual({ "@alpha": { slug: "alpha", mount: `${registryRoot}/alpha` }, "@beta": { slug: "beta", mount: `${registryRoot}/beta` } });
++    expect(await paladin.ledger.registry.read()).toEqual(seeded);
+   });
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/tests/ledger.parts.test.js:62
+     expect(JSON.parse(await Deno.readTextFile(join(declared.root, "records/instances.json"))).probe.mount).toBe("/probe");
+
+-    const inline = await world({ "ledger/ledger.viva.json": { instances: { held: { mount: "/held" } }, registry: "${VIVA_PROBE_REGISTRY}" } }, { VIVA_PROBE_REGISTRY: '["/tapped"]' });
++    const inline = await world({ "ledger/ledger.viva.json": { instances: { held: { mount: "/held" } }, registry: "${VIVA_PROBE_REGISTRY}" } }, { VIVA_PROBE_REGISTRY: '{ "@tapped": { "slug": "tapped", "mount": "/tapped" } }' });
+     expect((await inline.paladin.ledger.instances.read("held")).mount).toBe("/held");
+-    expect(await inline.paladin.ledger.registry.locations()).toEqual(["/tapped"]);
++    expect(await inline.paladin.ledger.registry.tapped()).toEqual({ "@tapped": { slug: "tapped", mount: "/tapped" } });
+     await expect(inline.paladin.ledger.instances.write("probe", { mount: "/probe" })).rejects.toThrow(/instances: inline .* read-only/);
+-    await expect(inline.paladin.ledger.registry.write([])).rejects.toThrow(/registry: inline .*"\$\{VIVA_PROBE_REGISTRY\}".* read-only/);
++    await expect(inline.paladin.ledger.registry.write({})).rejects.toThrow(/registry: inline .*"\$\{VIVA_PROBE_REGISTRY\}".* read-only/);
+   });
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/registry.test.js:56
+   it("tap and untap answer under /registry — an unknown location refuses and leaves the record", async () => {
+     const tapped = await drive(["registry/tap", "alpha"]);
+-    expect(tapped.record).toEqual(["alpha", "beta"]);
++    expect(tapped.record).toEqual({ "@alpha": { slug: "alpha", mount: `${store}/alpha` }, "@beta": { slug: "beta", mount: `${store}/beta` } });
+     await expect(drive(["registry/untap", "never-tapped"])).rejects.toThrow("no tapped package 'never-tapped'");
+     expect(await drive(["registry/list"]).then((effect) => effect.packages.map((row) => row.mount))).toEqual([
+…
+   });
+
++  it("untap finds a package by its slug when the slug is not the owner's name", async () => {
++    await Deno.mkdir(`${store}/uno`, { recursive: true });
++    await Deno.writeTextFile(`${store}/uno/uno.viva.js`, `export const manifest = { owner: "@one", type: "package", slug: "uno", version: "0.0.1" };`);
++    await drive(["registry/tap", "uno"]);
++    expect((await drive(["registry/untap", "uno"])).untapped).toBe("@one");
++    expect(await paladin.ledger.registry.has("@one")).toBe(false);
++    await Deno.remove(`${store}/uno`, { recursive: true });
++  });
++
+   it("doctor reads the record against the store — tapped roots, an untapped resident, the census by owner", async () => {
+     await author(store, "gamma", "@gamma");
+     const effect = await drive(["registry/doctor"]);
+-    expect(effect.record.tapped).toBe((await paladin.ledger.registry.locations()).length);
++    expect(effect.record.tapped).toBe(Object.keys(await paladin.ledger.registry.tapped()).length);
+     expect(effect.record.stale).toEqual([]);
+     expect(effect.store.path).toBe(new Path(store).absolute);
+     expect(effect.store.untapped).toEqual([`${store}/gamma`]);
+     const alpha = effect.packages.find((held) => held.owner === "@alpha");
+-    expect(alpha.location).toBe("alpha");
++    expect(alpha.mount).toBe(`${store}/alpha`);
+     expect(alpha.root).toBe(`${store}/alpha`);
+     expect(alpha.types.package).toEqual(["alpha"]);
+…
+   });
+
+-  it("doctor: a declaration nested under a recorded root is covered, never untapped", async () => {
++  it("doctor: a tap of a wrapping dir records the declaration inside it, never untapped", async () => {
+     await Deno.mkdir(`${store}/wrap`, { recursive: true });
+     await author(`${store}/wrap`, "deep", "@deep");
+-    await paladin.ledger.registry.add("wrap");
++    await drive(["registry/tap", "wrap"]);
+     const effect = await drive(["registry/doctor"]);
+     expect(effect.store.resident.includes(`${store}/wrap/deep`)).toBe(true);
+     expect(effect.store.untapped).toEqual([]);
+-    expect(effect.packages.find((held) => held.owner === "@deep").location).toBe("wrap");
+-    await drive(["registry/untap", "wrap"]);
++    expect(effect.packages.find((held) => held.owner === "@deep").mount).toBe(`${store}/wrap/deep`);
++    await drive(["registry/untap", "@deep"]);
+     await Deno.remove(`${store}/wrap`, { recursive: true });
+   });
+…
+     await Deno.remove(`${store}/rot`, { recursive: true });
+     const effect = await drive(["registry/doctor"]);
+-    expect(effect.record.stale).toEqual(["rot"]);
+-    expect((await paladin.ledger.registry.locations()).includes("rot")).toBe(true);
++    expect(effect.record.stale).toEqual(["@rot"]);
++    expect(await paladin.ledger.registry.has("@rot")).toBe(true);
+     expect(effect.packages.find((held) => held.owner === "@rot")).toBe(undefined);
+     await drive(["registry/untap", "rot"]);
+…
+
+   it("bootstrap records the package it just authored", async () => {
+-    const record = await paladin.ledger.registry.locations();
+-    expect(record.includes(`${made}/mine`)).toBe(true);
++    const record = await paladin.ledger.registry.tapped();
++    expect(record["@mine"]).toEqual({ slug: "mine", mount: `${made}/mine` });
+   });
+
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/ledger.test.js:34
+   let ledger;
+   let store;
++  const TAPPED = () => ({ "@commons": { slug: "commons", mount: COMMONS }, "@pack": { slug: "pack", mount: "./registry/pack" } });
+
+   beforeAll(async () => {
+     ledger = await Deno.makeTempDir({ prefix: "ghost-ledger-" });
+-    store = await Deno.makeTempDir({ prefix: "ghost-store-" });
++    store = `${ledger}/registry`;
++    await Deno.mkdir(store);
+     Deno.env.set("XDG_CONFIG_HOME", await Deno.makeTempDir({ prefix: "ghost-config-" }));
+     paladin.env.delete("VIVA_INSTANCE_MOUNT");
+…
+     expect(await paladin.read.json(new Path(`${ledger}/instances.json`))).toEqual({});
+     expect(effect.commons).toBe(COMMONS);
+-    expect(await paladin.ledger.registry.locations()).toEqual([COMMONS]);
++    expect(await paladin.ledger.registry.tapped()).toEqual({ "@commons": { slug: "commons", mount: COMMONS } });
+     // VIVA_PROCESS_ID is NOT written here — ghost.sh derives it from $PPID, the invoking shell.
+     // a `$$` in this file would expand inside ghost.sh, minting a new id on every invocation.
+…
+   });
+
+-  it("tap records a store-relative location", async () => {
++  it("tap records the owner → slug and mount", async () => {
+     const effect = await drive(["registry/tap", "pack"]);
+-    expect(effect.location).toBe("pack");
+-    expect(effect.record).toEqual([COMMONS, "pack"]);
++    expect(effect.owner).toBe("@pack");
++    expect(effect.record).toEqual(TAPPED());
+     expect(effect.root).toBe(`${store}/pack`);
+   });
+…
+   it("re-tap is idempotent", async () => {
+     const effect = await drive(["registry/tap", "pack"]);
+-    expect(effect.record).toEqual([COMMONS, "pack"]);
++    expect(effect.record).toEqual(TAPPED());
+   });
+
+…
+     const error = await drive(["registry/tap", "hollow"]).then(() => null, (thrown) => thrown);
+     expect(String(error).includes("no package declaration")).toBe(true);
+-    expect(await paladin.ledger.registry.locations()).toEqual([COMMONS, "pack"]);
++    expect(await paladin.ledger.registry.tapped()).toEqual(TAPPED());
+   });
+
+…
+       .then(() => null, (thrown) => thrown);
+     expect(error).not.toBe(null);
+-    expect(await paladin.ledger.registry.locations()).toEqual([COMMONS, "pack"]);
++    expect(await paladin.ledger.registry.tapped()).toEqual(TAPPED());
+   });
+
+…
+     expect(effect.env.present).toBe(true);
+     expect(effect.record.path).toBe(effect.homes.record);
+-    const entry = effect.record.entries.find((held) => held.location === "pack");
++    const entry = effect.record.entries.find((held) => held.owner === "@pack");
+     expect(entry.root).toBe(`${store}/pack`);
+     expect(entry.pinned).toBe(false);
+…
+     await author(store, "loose", "@loose");
+     const effect = await drive(["ledger/doctor"]);
+-    const rotten = effect.record.entries.find((held) => held.location === "rot");
++    const rotten = effect.record.entries.find((held) => held.owner === "@rot");
+     expect(rotten.present).toBe(false);
+     expect(effect.store.path).toBe(new Path(store).absolute);
+…
+   it("untap removes the record, store keeps the working copy", async () => {
+     const effect = await drive(["registry/untap", "pack"]);
+-    expect(effect.record).toEqual([COMMONS]);
++    expect(effect.record).toEqual({ "@commons": { slug: "commons", mount: COMMONS } });
+     expect((await Deno.stat(`${store}/pack`)).isDirectory).toBe(true);
+   });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/qa/fresh.test.js:24
+     expect([code, effect?.error ?? null]).toEqual([0, null]);
+     for (const file of ["ledger.viva.json", "instances.json"]) expect([file, await exists(join(world.root, "ledger", file))]).toEqual([file, true]);
+-    expect(JSON.parse(await Deno.readTextFile(join(world.root, "ledger/registry.json")))).toEqual([effect.commons]);
++    expect(JSON.parse(await Deno.readTextFile(join(world.root, "ledger/registry.json")))).toEqual({ "@commons": { slug: "commons", mount: effect.commons } });
+     expect(effect.commons.endsWith("/commons")).toBe(true);
+     expect(err).not.toContain("Error");
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/runtime/hello.test.js:73
+     await copy(ledger, join(root, "ledger"));
+     await Deno.writeTextFile(join(root, "ledger/instances.json"), "{}\n");
+-    await Deno.writeTextFile(join(root, "ledger/registry.json"), `${JSON.stringify([join(REPOSITORY, "commons")])}\n`);
++    await Deno.writeTextFile(join(root, "ledger/registry.json"), `${JSON.stringify({ "@commons": { slug: "commons", mount: join(REPOSITORY, "commons") } })}\n`);
+   }
+   await Deno.mkdir(join(root, "instance/mountpoint"), { recursive: true });
+#+END_SRC
+
+#+BEGIN_SRC diff
+// documentation/content/10-19_explanation/12_architecture/12.02_anatomy-of-the-ledger.mdx:11
+ minimum vocabulary required:
+
+-- `record` — `registry.json`, the list of package locations. Managed by `tap`/`untap`, read at boot. The only mount truth.
++- `record` — `registry.json`, one row per tapped package keyed by its owner: `slug`, `mount`, and the `remote` it was cloned from. Managed by `tap`/`untap`, read at boot. The only mount truth.
+ - `store` — `registry/`, the default directory packages materialize into. A location heuristic, nothing more.
+ - `instances/` — where created instances land when no target is given.
+…
+ ```
+ ~/.viva/
+-  registry.json          the record: package locations (absolute = pinned checkouts,
+-                         relative = store children)
++  registry.json          the record: owner → { slug, mount, remote? } (mount absolute,
++                         or relative to this file)
+   instances.json         known instances on this machine
+   .env                   the machine's own environment, hand-authored (viva instances use x --ledger upserts one line)
+#+END_SRC
+
+#+BEGIN_SRC diff
+// documentation/content/20-29_tutorials/20.01_slowstart.mdx:151
+
+ $ viva registry/tap https://github.com/vivalence/registry-education
+-location                       registry-education
++owner                          @education
+ root                           /home/you/.viva/registry/registry-education
+-record                         /home/you/vivalence/commons  registry-education
+
+ $ cat ~/.viva/registry.json
+-[
+-  "/home/you/vivalence/commons",
+-  "registry-education"
+-]
++{
++  "@commons": { "slug": "commons", "mount": "/home/you/vivalence/commons" },
++  "@education": { "slug": "education", "mount": "./registry/registry-education", "remote": "https://github.com/vivalence/registry-education" }
++}
+
+ $ ls ~/.viva/registry/registry-education
+…
+ ```
+
+-The checkout path is absolute and was recorded by the first registry verb you ran —
+-`supply()` seeds the record from `<repository>/commons` when `registry.json` does not exist
+-yet, so the standard library is there before you tap anything. The remote one is a bare slug:
+-inside the store a location is kept relative to `<ledger>/registry/`, outside it stays
+-absolute, and `resolve()` branches the slug back onto the store. `untap` removes the
+-location and keeps the working copy.
++The record is keyed by the owner each package declares. The checkout path is absolute and was
++recorded by the first registry verb you ran — `supply()` seeds the record from
++`<repository>/commons` when `registry.json` does not exist yet, so the standard library is there
++before you tap anything. The remote one was cloned beside the record, so its `mount` is relative
++to `registry.json`, and its `remote` is kept so it can be cloned again. `untap @education` removes
++the row and keeps the working copy.
+
+ What a package looks like — `@commons/package/commons`, the standard library:
+#+END_SRC
+
+* migration — by hand, after the code lands
+
+1. capture =~/.viva/registry.json= to =~/.viva/bak/ikiro/registry-record-<YYYYMMDD>/=.
+2. write the record in =* beef's shape=.
+3. land the =commons/instances/hello-world/tools/doctor.js= hunk on the shelf copy =~/.viva/instances/hello-world/tools/doctor.js= (byte-identical to commons today).
+4. =viva registry/doctor= → 8 tapped · 0 stale · 0 faulted.
+
+* deferred
+
+- a pull verb — =jj git fetch= / =git pull= in every mount that carries a =remote=.
+- a missing mount with a =remote= clones it back (straight on a fresh machine).
+- a local tap of a git checkout reads its remote from =.git/config=.
+- =type= — the VCS kind, beef 10-09: /"no need for nwo"/.
+- pins — a lockfile beside the record, written by a freeze verb; the record stays tap-stable (straight's =versions/= split). Nothing reads one until the pull verb or re-clone lands.
+
+* release
+
+- changed `registry.json` — a JSON list of locations → an object keyed by owner: `{ "@chess": { "slug": "chess", "mount": "./registry/chess", "remote": "git@…" } }`; `mount` is relative to the record file · migrate: rewrite the record by hand (the list shape throws on read) ⟨registry-record⟩
+- changed `viva registry/tap` — prints `owner` and `root`, the record is the object; a cloned remote is recorded · migrate: none ⟨registry-record⟩
+- changed `viva registry/untap` — takes an owner, slug, identifier or mount (`viva registry/untap @chess`) · migrate: none ⟨registry-record⟩
+
+* changelog
+
+- 10-09 shape ruled by beef (owner key · slug · mount · remote; =type= deferred); tangled and proven in a sandbox — numbers in =* testing assessment=.
+- 10-09 connoisseur pass (5 fixes), replay =files 17 · hunks landed 63 · missed 0=, 0 differences; applied live, the 17 files byte-equal to the sandbox; migrated by hand — the list captured to =~/.viva/bak/ikiro/registry-record-20261009/registry.json.list=, the shelf =doctor.js= to =hello-world.doctor.js= beside it.
+
+* handoff
+
+- goal: the registry record names packages — owner → { slug, mount, remote? }, the list retired.
+- done: shape ruled; 17 files landed; =~/.viva/registry.json= + the shelf =doctor.js= migrated; doctor 8 tapped · 0 stale · 0 faulted.
+- next: none — =done/= 10-09, =* release= lifted into =release.md=.
+- never: a dual read of the list shape · a record a package's own manifest contradicts · a =type= field before beef asks.
+- owed: his number; pins + a pull verb (=* deferred=).

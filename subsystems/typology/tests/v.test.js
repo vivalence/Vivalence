@@ -1,4 +1,5 @@
-import { specimen, v, Url } from "@vivalence/typology";
+import { Path, specimen, v, Url } from "@vivalence/typology";
+import * as domain from "./scenarios/domain/index.js";
 
 specimen.describe("v", () => {
   specimen.it("a schema judges every shape", () => {
@@ -115,13 +116,42 @@ specimen.describe("v", () => {
     specimen.expect(point.description).toBe("A 1D point");
   });
 
+  specimen.it("cast and fill shape a fresh value along the schematic — the source is never written, a module namespace casts", () => {
+    const Domain = v.primitives.kernel.Domain;
+    const cast = Domain.cast({ ...domain });
+    specimen.expect(cast.traits.mode).toEqual([]);
+    specimen.expect("mode" in domain.traits).toBe(false);
+    specimen.expect(cast.traits.literal).not.toBe(domain.traits.literal);
+    specimen.expect(cast.traits.literal[0]).toBe(domain.traits.literal[0]);
+    specimen.expect(typeof cast.traits.literal[0].schematic.fill).toBe("function");
+    specimen.expect(cast.aperture).toBe(domain.aperture);
+    specimen.expect(Object.keys(cast.schematics)).toEqual(["LANGUAGE"]);
+
+    const source = { traits: { literal: [] }, aperture: () => "live", held: new Path("/x") };
+    const filled = Domain.fill(source);
+    specimen.expect(filled).not.toBe(source);
+    specimen.expect(filled.traits).not.toBe(source.traits);
+    specimen.expect(filled.traits.mode).toEqual([]);
+    specimen.expect(source.traits.mode).toBeUndefined();
+    specimen.expect(filled.aperture).toBe(source.aperture);
+    specimen.expect(filled.held).toBe(source.held);
+
+    class Held {
+      traits = {};
+    }
+    const held = new Held();
+    specimen.expect(Domain.cast(held)).toBe(held);
+    specimen.expect(held.traits.mode).toEqual([]);
+  });
+
   specimen.it("cast fills, create births, clean strips", () => {
     const recall = v.object({ recall: v.string().default("LEARNING") });
     specimen.expect(recall.cast({}).recall).toBe("LEARNING");
     specimen.expect(recall.cast({ recall: "KNOWN" }).recall).toBe("KNOWN");
 
     const input = {};
-    specimen.expect(v.object({ x: v.number().default(0) }).cast(input)).toBe(input);
+    specimen.expect(v.object({ x: v.number().default(0) }).cast(input)).toEqual({ x: 0 });
+    specimen.expect(input).toEqual({});
 
     const born = v.object({ name: v.string().default("unnamed"), count: v.integer().default(0) }).create();
     specimen.expect(born.name).toBe("unnamed");
@@ -256,7 +286,14 @@ specimen.describe("v", () => {
     specimen.expect(v.thread.trait({ traits: [], trait: { INTELLIGENT: { tune: "capable" } } }, "INTELLIGENT")).toEqual({});
     specimen.expect(v.thread.trait({ traits: ["INTELLIGENT"], trait: { INTELLIGENT: { rounds: 99 } } }, "INTELLIGENT")).toEqual({});
     specimen.expect(v.thread.trait(null, "VOCAL")).toEqual({});
-    specimen.expect(() => v.thread.trait(worn, "LABELED")).toThrow("declares no trait LABELED");
+    specimen.expect(() => v.thread.trait(worn, "LABELED")).toThrow("no trait LABELED in a vocabulary of INTELLIGENT · VOCAL");
+  });
+  specimen.it("a user reads HOME — the mode a thread with none enters, claimed and cast", () => {
+    specimen.expect(Object.keys(v.user.traits)).toEqual(["HOME"]);
+    const homed = { traits: ["HOME"], trait: { HOME: { reference: "/daemon/italian/mode/teacher/francesca" } } };
+    specimen.expect(v.user.trait(homed, "HOME")).toEqual({ reference: "/daemon/italian/mode/teacher/francesca" });
+    specimen.expect(v.user.trait({ traits: [], trait: homed.trait }, "HOME")).toEqual({});
+    specimen.expect(v.user.trait({ traits: ["HOME"], trait: { HOME: {} } }, "HOME")).toEqual({});
   });
   specimen.it("url is RFC 3986 with an authority — any scheme, localhost included, ${} defaults excluded", () => {
     for (const held of [
@@ -345,28 +382,29 @@ specimen.describe("v", () => {
   });
 
   specimen.it("instance statics are typed where typology knows the key — serve and remote, everything else rides along", () => {
-    const { Runtime, Lighthouse, Client, Service, Daemon } = v.primitives.instance;
+    const { Runtime, Client, Service, Daemon } = v.primitives.instance;
     const runtime = { slug: "runtime" };
-    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "NaN" } })][0].instancePath).toBe("/statics/serve");
-    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "http://localhost:2501/", extra: 1 } })].length).toBe(0);
-    specimen.expect([...Lighthouse.errors({ module: "m", statics: {} })][0].message).toContain("remote");
+    const secrets = { jwt: "a-signing-secret-of-twenty-four-or-more" };
+    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "NaN" }, secrets })][0].instancePath).toBe("/statics/serve");
+    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "http://localhost:2501/", extra: 1 }, secrets })].length).toBe(0);
+    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "http://localhost:2501/" } })][0].message).toContain("secrets");
     specimen.expect([...Client.errors({ manifest: { type: "client", slug: "ghost" }, statics: {} })].length).toBe(0);
     specimen.expect([...Service.errors(Service.cast({ manifest: { type: "service", slug: "svc" }, module: "m", mountpoint: "/m/service_svc", datamap: { module: "m" } }))].length).toBe(0);
     const daemon = {
       manifest: { type: "daemon", slug: "d", version: "0.0.1" },
       mountpoint: "/m/daemon_d",
-      lighthouse: { module: "m", statics: { remote: "http://lighthouse/" } },
       datamap: { module: "m" },
     };
-    Daemon.cast(daemon);
-    specimen.expect(daemon.hallucinators).toEqual([]);
-    specimen.expect(daemon.statics).toEqual({});
-    specimen.expect(daemon.consume).toEqual({});
+    const cast = Daemon.cast(daemon);
+    specimen.expect(cast.hallucinators).toEqual([]);
+    specimen.expect(cast.statics).toEqual({});
+    specimen.expect(cast.consume).toEqual({});
+    specimen.expect(daemon.hallucinators).toBeUndefined();
   });
 
   specimen.it("faults — errors with the scalar's title in place of its regex, addressed by pointer", () => {
     const { Instance } = v.primitives.instance;
-    const faults = Instance.faults({ manifest: { type: "instance", slug: "i" }, environment: {}, runtime: { manifest: { slug: "runtime" }, statics: { serve: "nope" } }, daemons: [], services: [], clients: [] });
+    const faults = Instance.faults({ manifest: { type: "instance", slug: "i" }, environment: {}, runtime: { manifest: { slug: "runtime" }, statics: { serve: "nope" }, secrets: { jwt: "a-signing-secret-of-twenty-four-or-more" } }, daemons: [], services: [], clients: [] });
     specimen.expect(faults).toEqual([{ at: "/runtime/statics/serve", reason: "must be RFC 3986 URI with an authority (scheme://…)" }]);
     specimen.expect(v.faults(v.object({ a: v.string() }), {})).toEqual([{ at: "/", reason: "must have required properties a" }]);
   });

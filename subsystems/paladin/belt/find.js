@@ -45,7 +45,7 @@ export default function find(config) {
 
   const readMany = (reader) => (paths) => Promise.all(paths.map(reader)); //map cast path
 
-  const viva = walk(/\.(viva.js|viva.ts|viva.md|viva.org)$/);
+  const viva = walk(/\.(viva.js|viva.ts|viva.md|viva.org|viva.json)$/);
 
   const DATA = /\.(jsonc?|jsonl|js|ts|mjs)$/;
 

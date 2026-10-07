@@ -51,7 +51,7 @@ specimen.beforeAll(async () => {
       return target
     })
 
-  scenario.em.getEventManager().registerSubscriber(shape.subscriber(twitch))
+  scenario.datamap.registerSubscriber(twitch)
 
   const handler = shape.http(aperture)
   const abort = new AbortController()
@@ -120,7 +120,8 @@ specimen.describe("shard.datamap.reactive — scoped broadcast", () => {
       RequestContext.getEntityManager().setFilterParams("user", undefined) // owner absent on this context
       try {
         await subscriber.afterCreate({
-          entity: { toJSON: () => ({ id: "bare", data: {} }) },
+          entity: buffer,
+          em: RequestContext.getEntityManager(),
           meta: { className: "BufferEntity" },
         })
       } catch (error) {

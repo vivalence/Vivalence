@@ -88,7 +88,7 @@ export class Paladin {
     belt.source(this);
     belt.clone(this);
     belt.bundler(this);
-    belt.hydrate(this);
+    belt.expand(this);
     // the ledger owns its state: instances, registry (record + pensieve), locks, logs
     this.ledger = new Ledger(this);
   }

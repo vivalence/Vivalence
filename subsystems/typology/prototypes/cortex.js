@@ -76,6 +76,12 @@ export class Cortex {
     return this;
   }
 
+  split(supplied) {
+    const cortex = new Cortex();
+    for (const [type, held] of this.faculties) cortex.faculties.set(type, [...held]);
+    return cortex.register(supplied);
+  }
+
   find(supplied) {
     const query = where(supplied);
     const stored = query.type

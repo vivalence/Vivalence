@@ -7,7 +7,7 @@ export const manifest = {
   description:
     "Render-phase rig — the persistent hub that spawns Spawned buffers.",
   version: "0.1.0",
-  traits: ["APPLICATION", "STANDALONE", "EMITTER"],
+  traits: ["APPLICATION", "EMITTER"],
 };
 
 // The hub is a control surface, not data — its buffer carries nothing.
@@ -20,7 +20,7 @@ export const emitter = new Vector().open(
   },
   async (ctx) => {
     // console.log("playground/spawn", ctx.input);
-    const spawned = ctx.daemon.modes.playground.spawned;
+    const spawned = ctx.modes.playground.spawned;
     // emit `count` render targets; no self-sentinel — the single spawner buffer is the hub.
     for (let index = 0; index < ctx.input.count; index++) {
       ctx.pool.add(

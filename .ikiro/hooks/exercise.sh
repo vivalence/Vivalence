@@ -67,6 +67,16 @@ out=$(IKIRO_GUARD_MODE=warn bash agent-guard.sh <<<"$agent_json" 2>/dev/null)
 if grep -q '"deny"' <<<"$out"; then echo "FAIL agent-guard.sh warn mode denied"; fail=1; else echo "PASS agent-guard.sh allow  warn mode third subagent"; fi
 rm -f "$count_file"
 
+# lifecycle-guard — the 10-08 shape: seven (ctx, next) middlewares written as consts into a trait file
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/mode/traits/harnessed.js 'const claiming = async (ctx, next) => { await next(); };')" "shard const in a trait"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/mode/traits/harnessed.js 'const chaining = (mode) => async (ctx, next) => { await next(); };')" "curried shard"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/host/aperture/cortex.js 'const round = (via) => async (ctx) => { ctx.output = 1; };')" "effect factory in a beat file"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/daemon/population.js 'export const modes = async (die, next) => { await next(); };')" "a beat"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/daemon/resolution.js '  die.daemon.aperture.use(async (ctx, next) => { await next(); });')" "inline use inside a beat"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/mode/traits/tooling.js 'export const TOOLING = (mode, host) => { mode.tools.graft(mode.module.tools); };')" "a trait"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/gestalten/shard/harness.js 'export const claiming = (mode) => async (ctx, next) => {};')" "the shard home"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/tests/x.test.js 'const f = async (ctx, next) => {};')" "test file"
+
 # watch-guard — the 09-23 shapes: buffer/cli.js then buffer/fold.js of one mode under a live watcher
 rm -f "${TMPDIR:-/tmp}/ikiro-watch-exercise"
 reg=/Users/finn/.viva/registry/assembly/modes/editor/assembly

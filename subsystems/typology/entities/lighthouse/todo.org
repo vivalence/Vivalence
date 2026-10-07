@@ -1,9 +1,0 @@
-move to @typology
-
-* future entities
-service
-process
-entitlement
-
-current agreement/trade/contract/deal
-

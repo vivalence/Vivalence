@@ -16,8 +16,6 @@ when_to_use: >-
 <!-- limit: 6000 chars -->
 # quest — "write a quest" · "sunset" · "cut a release" · "known issues!": the decision trail
 
-Spec: `methods/quest.md`. One file, no sidecars, beef's voice verbatim, unnumbered until he numbers it.
-
 ## author
 
 ```org
@@ -26,23 +24,22 @@ Spec: `methods/quest.md`. One file, no sidecars, beef's voice verbatim, unnumber
 #+status: <landing prose; beef's words inside /"…"/>
 ```
 
-Organs: `* intent` (beef VERBATIM) · `* terrain — measured` (every number from a command run this session) · rulings (`* forks`/`* decisions`: options · his ruling verbatim · why; `amen` per item) · `* the law` · `* deliverables` (`d · deliverable · lands in · state`) · `* milestones` (`M · milestone · containers · state · gate`, each boots green) · `* blast table` (`file · change · milestone · kind`, incl. `~/.viva`) · `* testing assessment` (with `COVERAGE GAP:`) · `* QA` (testimony /"I type X, I see Y"/ + `#+marker_qa: <quest>/<T|P>-<slug> · pending · <what>`, verdict `pending → held | broken | revised`) · `* deferred` · `* changelog` (pasted counts, attributed reds) · `* release` · `* handoff`.
+Organs: `* intent` (beef VERBATIM) · `* terrain — measured` (numbers run this session) · rulings (`* forks`/`* decisions`: options · his ruling verbatim · why; `amen` per item) · `* the law` · `* deliverables` · `* milestones` (each green) · `* blast table` (incl. `~/.viva`) · `* testing assessment` (`COVERAGE GAP:`) · `* QA` (testimony /"I type X, I see Y"/ + `#+marker_qa: <quest>/<T|P>-<slug> · pending · <what>`, `pending → held | broken | revised`) · `* deferred` · `* changelog` (pasted counts, attributed reds) · `* release` · `* handoff`.
 
-Tangle: new files whole; edits as `#+BEGIN_SRC diff` hunks `methods/apply-diffs.py` lands — first line `// <path>:<line>`, `…` between sub-hunks, one file a block, old lines exact (REJECTED: `@@`, `… unchanged …` — unlandable); a full tangle shows the live BEFORE. Every `### []` to a diff — /"way too flat"/.
+Tangle: new files whole; edits as `#+BEGIN_SRC diff` hunks `methods/apply-diffs.py` lands — first line `// <path>:<line>`, `…` between sub-hunks, one file a block, old lines exact (REJECTED: `@@`, `… unchanged …`); a full tangle shows the live BEFORE; a move = a `Moves` row, `mv` first, its block on the NEW path; a new file's place: its codemap shard. Every `### []` to a diff — /"way too flat"/.
 
 beef's corrections:
 1. /"gimme table high level serialized enums numbers. then in depth sections!"/ — no prose in cells.
-2. container-rooted path on every snippet — /"WHAT FILE?????? context bro"/.
-3. grep the quest for new `@beef` marks before every reply.
-4. unsettled = QUESTIONED, not guessed.
-5. remove about as much as you add.
-6. never answer in quest shorthand (M2, T3) — nouns and paths.
-7. numbering is his — never invent or extend `mXX`.
-8. a go on a sketch is a go on the ITEM; praise is not a go.
-9. every decision carries `quest.org:LINE` + `file:LINE`, grepped at reply time.
-10. a fork is his only when it changes product shape or ontology; a rig, a test tree, a staging order is mine, decided in the report; a principle is never an option. REJECTED: nine test forks — /"i dont care about any of these. your judgement calls."/
+2. grep the quest for new `@beef` marks every reply; treated → prepend `// -- `.
+3. unsettled = QUESTIONED, not guessed.
+4. remove about as much as you add.
+5. never shorthand (M2, MP) — nouns, paths; a milestone is a NOUN (/"whtat the fuck is MP!?"/).
+6. numbering is his — never invent or extend `mXX`.
+7. a decision carries `quest.org:LINE` + `file:LINE`, grepped.
+8. a killed name leaves every block that turn; SUPERSEDED only while its heir is QUESTIONED (/"why is there still forge?"/). A re-tangle replays EVERY ruling against every block, one grep each, pasted; a relabeled header is no rewrite (/"you did not fucking rewrite the tangle"/).
+9. a fork is his only when it changes product shape or ontology; a rig, a test tree, a staging order is mine, decided in the report; a principle is never an option. REJECTED: nine test forks — /"i dont care about any of these. your judgement calls."/
 
-Before ready: `grep -n 'marker_qa' <quest>` (every id `<quest>/`-prefixed, `·` separators) · update `quests/index.md` · critical pass (skill `change`) before `#+status` says tangleable · its blocks replay through `apply-diffs.py` on a fresh copy, 0 differences · a table-cell gate is pipe-free (`grep -E -e a -e b`).
+Before ready: `grep -n 'marker_qa' <quest>` · `quests/index.md` · critical pass (skill `change`) + connoisseur per hunk before `#+status` says tangleable · blocks replay on a copy (`--root`), paths equal · cells pipe-free. Replay proves the tangle, not the tree: PROVEN = WHOLE census, serial, on the landing tree; land on the repo AS IT STANDS (drift → `diff3 -m`); never `head`-cut a site list.
 
 ## lifecycle — sunset, never delete
 
@@ -58,14 +55,14 @@ Before ready: `grep -n 'marker_qa' <quest>` (every id `<quest>/`-prefixed, `·` 
   index.md      one line per quest, every bucket
 ```
 
-1. gate into `done/`: no `pending` marker (a `broken` is a correction for skill `fold`); `* release` lines LIFTED into `release.md`.
+1. gate into `done/`: no `pending` marker (a `broken` → skill `fold`); `* release` lines LIFTED into `release.md`.
 2. plain `mv` ONLY, never `git mv`, never `rm`.
 3. the content stays; the epitaph goes in `index.md`.
 4. drop its line from `world/frontier.md`; grep live canon for the old path.
 
-A quest a live session holds is not yours to move. Revive read-only:
+Never move a live session's quest. Revive read-only:
 
-`git log --diff-filter=D --name-only -- '.ikiro/quests'` · `git show <del-commit>^:<path>`. Deleted while DONE → `done/`, mid-design → `discarded/`; name kept; binary freight flagged.
+`git log --diff-filter=D --name-only -- '.ikiro/quests'` · `git show <del-commit>^:<path>`. Deleted DONE → `done/`, mid-design → `discarded/`; name kept, freight flagged.
 
 ## release — the interface ledger
 
@@ -75,7 +72,7 @@ A quest a live session holds is not yours to move. Revive read-only:
 - <verb> `<surface>` — <what a consumer notices, before → after> · migrate: <action | none> ⟨<quest>⟩
 ```
 
-verb ∈ `added · changed · renamed · removed · fixed`; surface = what a consumer types; `migrate:` real on every breaking line; one change = one line.
+verb ∈ `added · changed · renamed · removed · fixed`; surface = what a consumer types; `migrate:` real on every breaking line.
 
 Cut (beef runs via `!`): a release hangs on a TAG; jj cannot create tags, a bookmark is a BRANCH.
 
@@ -84,7 +81,7 @@ jj git push
 gh release create v0.1.0 --target <sha> --notes-file notes.md
 ```
 
-`v0.1.0-alpha.1` + `--prerelease` = prerelease; `v0.1.0@alpha` is not a thing (jj reads `@` as remote). `--generate-notes` off.
+`v0.1.0-alpha.1` + `--prerelease`; `v0.1.0@alpha` is not a thing; `--generate-notes` off.
 
 ## known issues — OPEN only, never a quest section
 
@@ -102,4 +99,4 @@ gh release create v0.1.0 --target <sha> --notes-file notes.md
 
 - /"mark the issue itself without your approach as an issue in ikiro"/ → the issue plus his REJECTED approach, none of mine.
 - resolved is CUT, never a resolved tail.
-- `* deferred` = in scope later; a known issue = a live defect nobody is fixing now.
+- `* deferred` = in scope later; a known issue = a live defect nobody fixes now.

@@ -21,59 +21,69 @@ const author = async (dir, filename, manifest) => {
   await Deno.writeTextFile(`${dir}/${filename}`, `export const manifest = ${JSON.stringify(manifest)};`);
 };
 
-describe("Registry — location algebra", () => {
+const EXTERNAL = { slug: "external", mount: "/external/checkout" };
+const PACK = { slug: "pack", mount: "./registry/pack" };
+
+describe("Registry — the record, owner → { slug, mount, remote? }", () => {
   it("add is idempotent", async () => {
     const { registry } = await scaffold();
-    await registry.add("/external/checkout");
-    await registry.add("/external/checkout");
-    expect(await registry.locations()).toEqual(["/external/checkout"]);
+    await registry.add("@external", EXTERNAL);
+    await registry.add("@external", EXTERNAL);
+    expect(await registry.tapped()).toEqual({ "@external": EXTERNAL });
   });
 
-  it("'./pack' and 'pack' are the same location", async () => {
+  it("add of an owner tapped at another mount throws and leaves the record", async () => {
     const { registry } = await scaffold();
-    await registry.add("./pack");
-    expect(await registry.has("pack")).toBe(true);
-    await registry.add("pack");
-    expect(await registry.locations()).toEqual(["pack"]);
+    await registry.add("@pack", PACK);
+    await expect(registry.add("@pack", { slug: "pack", mount: "/elsewhere/pack" })).rejects.toThrow("@pack is tapped at ./registry/pack — untap it");
+    expect(await registry.tapped()).toEqual({ "@pack": PACK });
   });
 
-  it("remove drops exactly the named location", async () => {
+  it("remove drops exactly the named owner; an unrecorded owner is a no-op", async () => {
     const { registry } = await scaffold();
-    await registry.add("/external/checkout");
-    await registry.add("pack");
-    await registry.remove("./pack");
-    expect(await registry.locations()).toEqual(["/external/checkout"]);
+    await registry.add("@external", EXTERNAL);
+    await registry.add("@pack", PACK);
+    expect(await registry.remove("@never")).toEqual({ "@external": EXTERNAL, "@pack": PACK });
+    await registry.remove("@pack");
+    expect(await registry.tapped()).toEqual({ "@external": EXTERNAL });
+    expect(await registry.has("@pack")).toBe(false);
   });
 
-  it("remove of an unrecorded location is a no-op", async () => {
-    const { registry } = await scaffold();
-    await registry.add("pack");
-    expect(await registry.remove("never")).toEqual(["pack"]);
-    expect(await registry.locations()).toEqual(["pack"]);
-  });
-
-  it("resolve — absolute verbatim, relative against the store root", async () => {
-    const { registry, store } = await scaffold();
+  it("resolve — absolute verbatim, relative against the record file", async () => {
+    const { registry, ledger } = await scaffold();
     expect(registry.resolve("/external/checkout").absolute).toBe("/external/checkout");
-    expect(registry.resolve("pack").absolute).toBe(`${store}/pack`);
-    expect(registry.resolve("./pack").absolute).toBe(`${store}/pack`);
+    expect(registry.resolve("./registry/pack").absolute).toBe(`${ledger}/registry/pack`);
   });
 
-  it("resolve of a relative location without a store scope throws", async () => {
+  it("locate — beside the record file is relative, anywhere else absolute", async () => {
+    const { registry, ledger } = await scaffold();
+    expect(registry.locate(`${ledger}/registry/pack`)).toBe("./registry/pack");
+    expect(registry.locate("/external/checkout")).toBe("/external/checkout");
+  });
+
+  it("a tap location without a store scope throws", async () => {
     const ledger = await Deno.makeTempDir({ prefix: "registry_test_ledger_" });
     const paladin = new Paladin();
     paladin.scopes([["ledger", () => true, () => new Path(ledger)]]);
     const registry = new Registry(paladin, new Path(`${ledger}/registry.json`));
-    expect(registry.resolve("/external/checkout").absolute).toBe("/external/checkout");
-    expect(() => registry.resolve("pack")).toThrow("no package store");
+    expect(registry.stored("/external/checkout").absolute).toBe("/external/checkout");
+    expect(() => registry.stored("pack")).toThrow("no package store");
   });
 
-  it("the file shape stays a plain JSON array of strings", async () => {
+  it("the file is a plain JSON object keyed by owner", async () => {
     const { paladin, registry } = await scaffold();
-    await registry.add("/external/checkout");
-    await registry.add("pack");
-    const raw = await paladin.read.json(registry.path, null);
-    expect(raw).toEqual(["/external/checkout", "pack"]);
+    await registry.add("@external", EXTERNAL);
+    await registry.add("@pack", { ...PACK, remote: "git@github.com:vivalence/registry-pack.git" });
+    expect(await paladin.read.json(registry.path, null)).toEqual({
+      "@external": EXTERNAL,
+      "@pack": { ...PACK, remote: "git@github.com:vivalence/registry-pack.git" },
+    });
+  });
+
+  it("a record in the list shape throws naming the file — no dual read", async () => {
+    const { registry, ledger } = await scaffold();
+    await Deno.writeTextFile(`${ledger}/registry.json`, JSON.stringify(["pack"]));
+    await expect(registry.tapped()).rejects.toThrow(`registry: ${ledger}/registry.json — not a registry record: / must be object`);
   });
 });
 
@@ -85,9 +95,9 @@ describe("Registry.seed — discovery keeps only package declarations", () => {
     await Deno.mkdir(`${store}/stray`, { recursive: true });
     await Deno.writeTextFile(`${store}/stray/notes.txt`, "not a package");
 
-    const locations = await registry.seed(paladin.scope.registry);
-    expect(locations).toEqual([`${store}/real`]);
-    expect(await registry.locations()).toEqual([`${store}/real`]);
+    const record = await registry.seed(paladin.scope.registry);
+    expect(record).toEqual({ "@real": { slug: "real", mount: `${store}/real` } });
+    expect(await registry.tapped()).toEqual(record);
   });
 });
 
@@ -108,33 +118,35 @@ describe("Registry.reconcile — a dead location never breaks supply", () => {
   it("a dead location anywhere under the checkout is replaced by rediscovering <checkout>/commons", async () => {
     const { registry, repository, checkout, commons } = await homed();
     await declare(repository);
-    await registry.write([`${repository}/registry/viva`, `${repository}/registry/testing`]);
+    await registry.write({ "@viva": { slug: "viva", mount: `${repository}/registry/viva` }, "@testing": { slug: "testing", mount: `${repository}/registry/testing` } });
 
-    const { locations, stale } = await registry.reconcile(checkout, commons);
-    expect(locations).toEqual([`${repository}/commons`]);
+    const { record, stale } = await registry.reconcile(checkout, commons);
+    expect(record).toEqual({ "@commons": { slug: "commons", mount: `${repository}/commons` } });
     expect(stale).toEqual([]);
-    expect(await registry.locations()).toEqual([`${repository}/commons`]);
+    expect(await registry.tapped()).toEqual(record);
   });
 
   it("a dead location outside the checkout is skipped, kept recorded, and reported stale", async () => {
     const { registry, store, checkout, commons } = await homed();
     await author(`${store}/real`, "package.viva.js", { owner: "@real", type: "package", slug: "real", version: "0.0.1" });
-    await registry.write(["/nowhere/checkout", "real"]);
+    const held = { "@gone": { slug: "gone", mount: "/nowhere/checkout" }, "@real": { slug: "real", mount: `${store}/real` } };
+    await registry.write(held);
 
-    const { locations, stale } = await registry.reconcile(checkout, commons);
-    expect(locations).toEqual(["real"]);
-    expect(stale).toEqual(["/nowhere/checkout"]);
-    expect(await registry.locations()).toEqual(["/nowhere/checkout", "real"]);
+    const { record, stale } = await registry.reconcile(checkout, commons);
+    expect(record).toEqual({ "@real": held["@real"] });
+    expect(stale).toEqual(["@gone"]);
+    expect(await registry.tapped()).toEqual(held);
   });
 
   it("a record with every location present is returned as-is and not rewritten", async () => {
     const { registry, store, checkout, commons } = await homed();
     await author(`${store}/real`, "package.viva.js", { owner: "@real", type: "package", slug: "real", version: "0.0.1" });
-    await registry.write(["real"]);
+    const held = { "@real": { slug: "real", mount: `${store}/real` } };
+    await registry.write(held);
     const before = (await Deno.stat(registry.path.absolute)).mtime;
 
-    const { locations, stale } = await registry.reconcile(checkout, commons);
-    expect(locations).toEqual(["real"]);
+    const { record, stale } = await registry.reconcile(checkout, commons);
+    expect(record).toEqual(held);
     expect(stale).toEqual([]);
     expect((await Deno.stat(registry.path.absolute)).mtime).toEqual(before);
   });
@@ -156,14 +168,25 @@ describe("Registry.supply — boots over a stale record", () => {
     const { paladin, repository, store } = await homed();
     await declare(repository);
     await author(`${store}/real`, "package.viva.js", { owner: "@real", type: "package", slug: "real", version: "0.0.1" });
-    await paladin.ledger.registry.write([`${repository}/registry/viva`, "/nowhere/checkout", "real"]);
+    await paladin.ledger.registry.write({
+      "@viva": { slug: "viva", mount: `${repository}/registry/viva` },
+      "@gone": { slug: "gone", mount: "/nowhere/checkout" },
+      "@real": { slug: "real", mount: `${store}/real` },
+    });
 
     const registry = paladin.ledger.registry;
     await registry.supply();
     expect(registry.pensieve.has("@commons")).toBe(true);
     expect(registry.pensieve.has("@real")).toBe(true);
-    expect(registry.stale).toEqual(["/nowhere/checkout"]);
-    expect(await paladin.ledger.registry.locations()).toEqual(["/nowhere/checkout", "real", `${repository}/commons`]);
+    expect(registry.stale).toEqual(["@gone"]);
+    expect(Object.keys(await paladin.ledger.registry.tapped())).toEqual(["@gone", "@real", "@commons"]);
+  });
+
+  it("a record the package's own declaration contradicts throws at mount, naming both", async () => {
+    const { paladin, store } = await homed();
+    await author(`${store}/real`, "package.viva.js", { owner: "@real", type: "package", slug: "real", version: "0.0.1" });
+    await paladin.ledger.registry.write({ "@other": { slug: "real", mount: `${store}/real` } });
+    await expect(paladin.ledger.registry.supply()).rejects.toThrow("the record names @other/package/real, the package declares @real/package/real");
   });
 
   it("no record seeds from <checkout>/commons", async () => {
@@ -173,7 +196,7 @@ describe("Registry.supply — boots over a stale record", () => {
     const registry = paladin.ledger.registry;
     await registry.supply();
     expect(registry.pensieve.has("@commons")).toBe(true);
-    expect(await paladin.ledger.registry.locations()).toEqual([`${repository}/commons`]);
+    expect(await paladin.ledger.registry.tapped()).toEqual({ "@commons": { slug: "commons", mount: `${repository}/commons` } });
   });
 
   it("a checkout without commons/ supplies nothing and names the absence at accio", async () => {

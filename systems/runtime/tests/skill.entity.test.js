@@ -1,10 +1,10 @@
 import { assert, assertEquals } from "@std/assert";
-import { shard, steer, ToolCall, Vector } from "@vivalence/typology";
+import { contexts, shard, steer, ToolCall, Vector } from "@vivalence/typology";
 import { seed } from "./scenarios/datamap.js";
-import { gestalten } from "@vivalence/runtime";
+import { ActivityEntity, ActivityRepository, gestalten, UserEntity } from "@vivalence/runtime";
 
 const harness = (entities) =>
-  new Vector().use(shard.context.bind("daemon", { entities })).graft(gestalten.skills.entity.entity);
+  new Vector().use(shard.context.spread(contexts.host, { entities })).graft(gestalten.skills.entity.entity);
 
 const invoke = (armed, name, input) =>
   steer.dispatch.invoke(armed, new ToolCall(name).signal, steer.strategy.guarded)(input);
@@ -69,6 +69,50 @@ Deno.test("skill.entity — the generic entity trio", async (t) => {
     assertEquals(spoken.condition, "ERROR");
     assert(spoken.output.message.includes("litreal"));
     assert(spoken.output.message.includes("literal"));
+  });
+
+  await orm.close();
+});
+
+Deno.test("skill.entity — a bound user reads only their own user row and activities", async (t) => {
+  const { orm, em, repos, fixtures } = await seed();
+  const intruder = em.create(UserEntity, { slug: "intruder" });
+  await em.flush();
+  const activity = new ActivityRepository(em, ActivityEntity);
+  await activity.create({ user: fixtures.user.id });
+  await activity.create({ user: intruder.id });
+  await activity.create({ user: null });
+  const armed = harness({ em, ...repos, activity });
+
+  await t.step("entity_find user answers the bound user alone", async () => {
+    const spoken = await invoke(armed, "entity_find", { entity: "user", fields: "full" });
+    assertEquals(spoken.output.user.map((row) => row.slug), ["beef"]);
+    assertEquals(spoken.output.total, 1);
+  });
+
+  await t.step("entity_find activity answers the bound user's runs and the system's, never another user's", async () => {
+    const spoken = await invoke(armed, "entity_find", { entity: "activity", fields: "full" });
+    assertEquals(spoken.output.activity.map((row) => row.user), [fixtures.user.id, null]);
+    assertEquals(spoken.output.total, 2);
+  });
+
+  await t.step("a where naming another user cannot widen the scope", async () => {
+    const spoken = await invoke(armed, "entity_find", { entity: "activity", where: { user: intruder.id } });
+    assertEquals(spoken.output.total, 0);
+  });
+
+  await t.step("another user's run is not found by id", async () => {
+    const [theirs] = activity.$entities.get().filter((row) => (row.user?.id ?? row.user) === intruder.id);
+    assertEquals(await activity.findOne({ id: theirs.id }), null);
+  });
+
+  await t.step("a lookup across users says so — the signer's — and reads every user", async () => {
+    assertEquals((await repos.user.find({}, { filters: { user: false } })).map((row) => row.slug).sort(), ["beef", "intruder"]);
+  });
+
+  await t.step("with no user bound, every run is read", async () => {
+    em.setFilterParams("user", undefined);
+    assertEquals((await activity.find({})).length, 3);
   });
 
   await orm.close();

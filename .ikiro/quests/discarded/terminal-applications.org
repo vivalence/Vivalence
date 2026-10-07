@@ -1,0 +1,54 @@
+#+title: terminal applications — a mode bundles and serves a TUI app the way it serves a svelte app today; buffers render in the terminal; generative and procedural faces included
+#+filetags: :roadmap:runtime:mode:buffer:sheets:ghost:paladin:bundler:generative:
+#+status: ROADMAP 10-09, unnumbered — beef, as an aside: /"add a roadmap quest"/. Terrain measured 10-09; every fork QUESTIONED; nothing lands.
+#+phase: roadmap
+#+progress: 0/0
+
+* intent
+
+beef, verbatim, 10-09, mid the registry-record design:
+
+/"aside. add a roadmap quest: terminal applications where we develop teh capabiltiy to bundle and serve tui apps from modes and buffers. incl generative/procedural."/
+
+* terrain — measured 10-09
+
+| surface | today | file |
+|---|---|---|
+| a mode's app | =APPLICATION= trait bundles svelte, =mode.application.buffer(desc)= creates a buffer entity filled by the app's schema | =systems/runtime/lifecycle/mode/traits/application.js:5-38= |
+| generative | =GENERATIVE= hands a hallucinator the bundler; =SOURCE= asks for "A COMPLETE Svelte 5 component" | =systems/runtime/lifecycle/mode/traits/generative.js:4-24= |
+| bundler kinds | =svelte= · =html= — no =jsx= | =subsystems/paladin/belt/bundler.js:17-32= |
+| buffers | =buffers: v.array(v.buffer())= on mode and thread | =subsystems/typology/schematics/entities/mode.js:16= · =thread.js:42= |
+| terminal kit | =subsystems/sheets= — ink@5 + react@18, 19 components; ghost renders its own =*.jsx= through =ctx.view.scroll.render= | =world/map.md= sheets line |
+| the parked shape | m79 F17 option (d) "a bundled ink module run in the client (APPLICATION's twin)" — RULED 10-06 /"we dont need that now. start withuot."/ | =m79-terminal-ghost.org:237= |
+
+* the shape in English — a draft, not a ruling
+
+The browser already does this. A mode with =APPLICATION= ships a svelte app; the runtime bundles it through paladin's bundler and serves it by hash; anima =import()=s it and renders each buffer's =data= through it. =GENERATIVE= does the same with source a hallucinator wrote.
+
+The terminal twin is the same pipe with a third bundler kind. A =jsx= kind compiles an ink component with =react= · =ink= · =@vivalence/sheets= external; ghost imports it by URL (Deno imports a URL) and renders the buffer in the stage, where F17's parked (d) put a mode's face. Generative: =SOURCE= gains an ink twin, so a hallucinator can write a terminal face. Procedural: a face built from the buffer's schema with no authored component (Blender draws its panels from RNA) — the floor every buffer gets for free.
+
+#+BEGIN_SRC js
+// subsystems/paladin/belt/bundler.js — sketch, a third kind beside svelte · html
+jsx: {
+  ext: "jsx",
+  compile: async (entry) => /* esbuild, external: react · ink · @vivalence/sheets */,
+},
+#+END_SRC
+
+* forks — QUESTIONED
+
+| f | question | options |
+|---|---|---|
+| 1 | where a mode declares its terminal app | a sibling export beside =application= · =application= gains a =terminal= entry |
+| 2 | the invariant /"nothing domain or mode specific can be loaded rendered or run on the client"/ (=invariants.md=) | bend it as anima does — server-bundled, loaded by id · keep it — procedural faces only |
+| 3 | procedural | the floor for every buffer · opt-in per mode |
+| 4 | generative | one =SOURCE= per surface · one prompt asking for both |
+| 5 | reopen m79 F17 | this quest owns the mode's face · F17 stays parked until m79 lands |
+
+* handoff
+
+- goal: a mode's buffers render in the terminal — authored, generated or derived — through one bundler pipe.
+- done: terrain measured; the shape drafted; five forks.
+- next: beef rules fork 5 (does this reopen m79 F17), then a design pass.
+- never: ghost composing a mode's paths · a second bundler.
+- owed: his number; m79's ruling on F17.

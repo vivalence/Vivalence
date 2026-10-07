@@ -1,13 +1,13 @@
-import { shard, Mode, Path, shape, Aperture, Vector, Cortex } from "@vivalence/typology";
+import { Aperture, contexts, Cortex, Mode, Path, shard, Twitch, Vector } from "@vivalence/typology";
 import { seed, tiers, faculties } from "./fixtures.js";
 
-import { lifecycle } from "@vivalence/runtime";
-const { HARNESSED } = lifecycle.mode.traits;
+import { traits } from "@vivalence/runtime";
+const { HARNESSED } = traits;
 
 export async function create({ harness } = {}) {
-  const { orm, em, datamap, entities, fixtures } = await seed();
+  const { orm, em, datamap, entities, runtime, twitch, fixtures, held } = await seed();
 
-  const deweyEntity = em.create(tiers.mode.entity, {
+  const deweyEntity = entities.mode.create({
     slug: "dewey",
     type: "teacher",
     traits: ["EXPOSED", "HARNESSED"],
@@ -34,23 +34,9 @@ export async function create({ harness } = {}) {
     });
   }
 
-  const daemon = {
-    manifest: { slug: "test-daemon", traits: [] },
-    reference: new Path("/daemon/test-daemon"),
-    aperture: new Aperture(),
-    twitch: new Vector(),
-    entities,
-    modes: { teacher: { dewey } },
-    cortex,
-    cargo: { version: "0.0.1", test: true },
-    services: {},
-    flatmodes() {
-      return Object.values(this.modes).flatMap((type) => Object.values(type));
-    },
-  };
+  const daemon = Object.assign(held, { type: "daemon", aperture: new Aperture(), modes: { teacher: { dewey } }, cortex, cargo: { version: "0.0.1", test: true } });
 
-  daemon.aperture.use(shard.context.bind("daemon", daemon));
-  datamap.registerSubscriber(shape.subscriber(daemon.twitch));
+  daemon.aperture.use(shard.context.spread(contexts.host, daemon));
 
   const finalizer = HARNESSED(dewey, daemon);
   if (typeof finalizer === "function") await finalizer();
@@ -76,6 +62,9 @@ export async function create({ harness } = {}) {
     orm,
     em,
     datamap,
+    entities,
+    runtime,
+    twitch,
     fixtures: { ...fixtures, dewey: deweyEntity },
     createThread,
   };

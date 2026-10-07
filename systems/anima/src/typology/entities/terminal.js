@@ -11,7 +11,7 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
 export class Terminal extends Entity {
   id = null;
-  identity = null;
+  user = null;
   daemon = null;
   thread = null;
   index = 0;
@@ -64,7 +64,7 @@ export class Terminal extends Entity {
 
 }
 
-export function mountSeat(terminal, identity) {
+export function mountSeat(terminal, user) {
   let bound = null;
   let unbind = [];
   terminal.$dock.listen(() => terminal.persistDock());
@@ -79,7 +79,7 @@ export function mountSeat(terminal, identity) {
   };
 
   const derive = () => {
-    const docked = terminal.trait.DOCKED ?? identity?.trait?.DOCKED;
+    const docked = terminal.trait.DOCKED ?? user?.trait?.DOCKED;
     terminal.derivedDock = docked ?? null;
     if (docked && !same(docked, terminal.$dock.get())) terminal.$dock.set({ ...docked });
 
@@ -160,7 +160,7 @@ export const TerminalDossier = {
   kind: () => Terminal,
   repository: (schema, dataspace) => {
     const repo = new RemoteRepository(schema.kind());
-    repo.connect(dataspace.connection.branch("/entities/terminal"));
+    repo.connect(dataspace.runtime.branch("/userspace/entities/terminal"));
     return repo;
   },
   use: [
@@ -170,7 +170,7 @@ export const TerminalDossier = {
       if (terminal.repository) return;
       terminal.repository = ctx.repository;
       mountStall(terminal);
-      mountSeat(terminal, ctx.lighthouse.identity);
+      mountSeat(terminal, ctx.lighthouse.user);
     },
   ],
 };

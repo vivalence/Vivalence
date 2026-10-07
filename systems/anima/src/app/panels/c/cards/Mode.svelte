@@ -12,7 +12,6 @@
     EXPOSED: "aperture · mode.call proxies its routes",
     HARNESSED: "dialogue · object · choice · verbatim over render/stream",
     GENERATIVE: "draws a view per buffer · beats the application's",
-    STANDALONE: "opens a buffer without an aim",
     CONVERSATIONAL: "listed for chat",
     TOOLING: "tools on the harness",
   };
@@ -35,7 +34,7 @@
     busy = true;
     try {
       const terminal = await mint(terminals, current.daemon, held);
-      if (held.implements("STANDALONE")) await ModeTraits.standalone.open(terminal, held);
+      if (held.implements("APPLICATION")) await ModeTraits.standalone.open(terminal, held);
     } catch (error) {
       logger.entry(`threads/${current.daemon?.slug}/${held.slug}`).fault(error);
     } finally {

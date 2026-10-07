@@ -1,7 +1,8 @@
-import { specimen, sleep, shape, shard, Url, Connection, Status } from "@vivalence/typology";
-import { Lighthouse } from "@vivalence/runtime";
+import { specimen, sleep, shape, shard, Url, Connection } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
 import { bench } from "./scenarios/bench.js";
+import { SECRET } from "./scenarios/daemon.js";
+import { signer } from "../lifecycle/runtime/lighthouse/signer.js";
 
 specimen.describe("multiplex filter context", { sanitizeOps: false, sanitizeResources: false }, () => {
   let scenario;
@@ -10,18 +11,10 @@ specimen.describe("multiplex filter context", { sanitizeOps: false, sanitizeReso
   let muxed;
 
   specimen.beforeAll(async () => {
-    scenario = await bench({
-      services: {
-        lighthouse: new Lighthouse(
-          { call: async () => ({}), fetch: async () => ({ ok: true, body: { identity: { id: "probe-user" } } }) },
-          { users: { findOne: async () => ({ id: "probe-user", roles: ["USER"] }) }, status: new Status("RUNNING"), daemon: "bench", remote: "http://bench" },
-        ),
-      },
-    });
-    scenario.daemon.aperture
-      .use(scenario.daemon.lighthouse.shard.authorize)
-      .use(shard.ambient.store((ctx) => ({ user: ctx.user })))
-      .use(scenario.daemon.datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })));
+    scenario = await bench({});
+    const access = await signer(SECRET).access(scenario.user);
+    scenario.daemon.aperture.branch("/userspace").use(shard.datamap.scope((ctx) => ({ user: ctx.user.id }))).branch("/entities/thread").graft(shard.datamap.repository(scenario.daemon.entities.thread));
+    scenario.daemon.aperture.branch("/userspace/entities/turn").use(shard.datamap.scope((ctx) => ({ thread: { user: ctx.user.id } }))).graft(shard.datamap.repository(scenario.daemon.entities.turn));
 
     scenario.daemon.aperture.open("/probe/filters", (ctx) => {
       const em = RequestContext.getEntityManager();
@@ -51,8 +44,7 @@ specimen.describe("multiplex filter context", { sanitizeOps: false, sanitizeReso
     world = { abort, gate, url: new Url(`http://localhost:${server.addr.port}`) };
     await sleep.ms(50);
 
-    scenario.connection.use(shard.connection.authorize({ get: () => ({ access: "probe" }) }));
-    transport = shard.transmitter.multiplex({ authority: { get: () => ({ access: "probe" }) } });
+    transport = shard.transmitter.multiplex({ authority: { get: () => ({ access }) } });
     muxed = new Connection(world.url, transport);
   });
 
@@ -79,7 +71,7 @@ specimen.describe("multiplex filter context", { sanitizeOps: false, sanitizeReso
     const overMux = await muxed.call("/probe/filters", {});
     specimen.expect(overMux).toEqual(inline);
     specimen.expect(overMux.hasFork).toBe(true);
-    specimen.expect(overMux.params).toEqual({ user: "probe-user" });
+    specimen.expect(overMux.params).toEqual({ user: scenario.user.id });
   });
 
   specimen.it("RequestContext fork spans every stream pull through the multiplex", async () => {

@@ -1,24 +1,57 @@
+import { contexts, Path, shard, Twitch } from "@vivalence/typology";
 import { provider } from "@vivalence/runtime/scenarios";
-import { ActivityEntity, ActivityRepository } from "@vivalence/runtime";
-import { assemble } from "./assemble.js";
+import { ActivityEntity, ActivityRepository, gestalten, kernel, sets } from "@vivalence/runtime";
 import { stack, tiers } from "./tiers.js";
 
-// `extra` = a domain module's entity descriptors. a mode that calls domain repository methods
-// (literal.feed, literal.novel) must mount its domain — @testing carries only the thin
-// retention/trace pair its own corpus needs, and never smuggles another package's entities in.
-export async function seed(extra = {}) {
-  const { entities, subscribers } = assemble([...stack, extra]);
-  const datamap = await provider(entities, subscribers);
+const { gather, mint, strike } = gestalten.belt;
+
+export const DAEMON = "test-daemon";
+
+export async function seed(domain = {}) {
+  const { entities: descriptors, twitch: twitches } = gestalten.belt.assemble(stack);
+  const datamap = await provider(descriptors);
   const { orm } = datamap;
   const em = datamap.entities.em;
-  datamap.entities.activity = new ActivityRepository(orm.em, ActivityEntity);
+  const twitch = new Twitch();
+  for (const held of twitches) twitch.graft(held);
+  twitch.branch("/after").use(shard.datamap.detached(datamap));
+  datamap.registerSubscriber(twitch);
+  const activity = new ActivityRepository(orm.em, ActivityEntity);
+  const runtime = { ...datamap.entities, activity };
 
-  const user = em.create(tiers.user.entity, { roles: ["USER"], config: {} });
+  const user = em.create(tiers.user.entity, { slug: "beef" });
+  const daemon = em.create(tiers.daemon.entity, { slug: DAEMON, mask: { manifest: { type: "daemon", slug: DAEMON } } });
   await em.flush();
   em.setFilterParams("user", { user: user.id });
 
-  const symbol = (slug, trait = {}) =>
-    em.create(tiers.symbol.entity, { slug, traits: ["ONTOLOGICAL"], trait });
+  const traits = Object.fromEntries(Object.keys(sets.kernel).map((kind) => [kind, gather(kernel, domain, [], kind)]));
+  const entities = { ...runtime, ...strike(mint({ slug: DAEMON, kinds: sets.kernel, traits }), em, sets.kernel) };
+
+  const held = {
+    slug: DAEMON,
+    manifest: { slug: DAEMON, traits: [] },
+    reference: new Path(`/daemon/${DAEMON}`),
+    entities,
+    datamap,
+    domain,
+    twitch: new Twitch(),
+    modes: {},
+    services: {},
+  };
+  held.twitch.use(shard.context.spread(contexts.host, held)).use(shard.datamap.owned());
+  held.twitch.branch("/after").use(shard.datamap.detached(datamap));
+  if (domain.twitch) held.twitch.graft(domain.twitch);
+  datamap.registerSubscriber(held.twitch);
+
+  const mode = entities.mode.create({
+    slug: "dojo",
+    type: "game",
+    traits: ["APPLICATION", "INTENTED", "EMITTER"],
+    installed: "seed",
+  });
+  await em.flush();
+
+  const symbol = (slug, trait = {}) => entities.symbol.create({ slug, mode, traits: ["ONTOLOGICAL"], trait });
   const greeting = symbol("greeting");
   const casual = symbol("casual");
   const polite = symbol("polite");
@@ -37,8 +70,9 @@ export async function seed(extra = {}) {
 
   const literal = (slug, known, learning, extra = {}) => {
     const { symbols = [], ...rest } = extra;
-    const entity = em.create(tiers.literal.entity, {
+    const entity = entities.literal.create({
       slug,
+      mode,
       ontology: "word",
       traits: ["TRANSLATED"],
       trait: { TRANSLATED: { known, learning } },
@@ -90,8 +124,9 @@ export async function seed(extra = {}) {
   });
   const chamar = literal("chamar.verb", "to call", "chamar");
 
-  const paradigm = em.create(tiers.literal.entity, {
+  const paradigm = entities.literal.create({
     slug: "chamar.presente.indicativo",
+    mode,
     ontology: "conjugation",
     traits: [],
     trait: {
@@ -109,53 +144,32 @@ export async function seed(extra = {}) {
   paradigm.symbols.add(mood);
   await em.flush();
 
-  const now = new Date();
+  const now = Date.now();
+  const retained = (row, status, lastSignal, due) =>
+    entities.note.create({
+      user,
+      literal: row,
+      slug: `retention.${row.slug}`,
+      traits: ["RETAINED"],
+      trait: { RETAINED: { driver: "BAYESIAN", status, lastSignal, state: {}, due: new Date(due).toISOString(), lastAt: now } },
+    });
   const retention = {
-    known: em.create(tiers.retention.entity, {
-      user,
-      literal: hello,
-      status: "KNOWN",
-      lastSignal: "SUCCESS",
-      state: {},
-      nextAt: new Date(now.getTime() + 86_400_000),
-      lastAt: now,
-    }),
-    learning: em.create(tiers.retention.entity, {
-      user,
-      literal: goodbye,
-      status: "LEARNING",
-      lastSignal: "MISTAKE",
-      state: {},
-      nextAt: new Date(now.getTime() - 86_400_000),
-      lastAt: now,
-    }),
+    known: retained(hello, "KNOWN", "SUCCESS", now + 86_400_000),
+    learning: retained(goodbye, "LEARNING", "MISTAKE", now - 86_400_000),
   };
   await em.flush();
 
-  em.create(tiers.trace.entity, {
-    user,
-    literal: hello,
-    retention: retention.known,
-    signal: { enum: "SUCCESS" },
-    status: "SUCCESS",
-    snapshot: {},
-  });
-  em.create(tiers.trace.entity, {
-    user,
-    literal: goodbye,
-    retention: retention.learning,
-    signal: { enum: "MISTAKE" },
-    status: "MISTAKE",
-    snapshot: {},
-  });
-  await em.flush();
-
-  const mode = em.create(tiers.mode.entity, {
-    slug: "dojo",
-    type: "game",
-    traits: ["APPLICATION", "INTENTED", "EMITTER", "STANDALONE"],
-    installed: true,
-  });
+  const traced = (row, parent, signal) =>
+    entities.note.create({
+      user,
+      literal: row,
+      parent,
+      slug: `trace.${crypto.randomUUID()}`,
+      traits: ["TRACED"],
+      trait: { TRACED: { signal: { enum: signal }, snapshot: { status: parent.trait.RETAINED.status, due: parent.trait.RETAINED.due } } },
+    });
+  traced(hello, retention.known, "SUCCESS");
+  traced(goodbye, retention.learning, "MISTAKE");
   await em.flush();
 
   const intent = em.create(tiers.intent.entity, {
@@ -182,9 +196,13 @@ export async function seed(extra = {}) {
     orm,
     em,
     datamap,
-    entities: datamap.entities,
+    entities,
+    runtime,
+    twitch,
+    held,
     fixtures: {
       user,
+      daemon,
       hello,
       goodbye,
       thanks,

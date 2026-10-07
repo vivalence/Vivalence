@@ -73,8 +73,8 @@ trajectory
   .use(async (ctx, next) => {
     // shell cwd — deno task rewrites Deno.cwd() to repo root; INIT_CWD preserves user shell cwd
     const cwd = path.cwd();
-    const modules = await paladin.find.type(new Path(cwd), "instance", 0);
-    if (modules.length) {
+    const recipe = await Deno.stat(new Path(cwd).branch("instance.viva.json").absolute).catch(() => null);
+    if (recipe?.isFile) {
       paladin.env.set("VIVA_INSTANCE_MOUNT", cwd, "cwd");
       ctx.instance = await lifecycle.mount(paladin.instance);
     }

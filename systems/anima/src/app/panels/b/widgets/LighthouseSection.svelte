@@ -12,7 +12,7 @@
 
   const lighthouse = getContext(LIGHTHOUSE);
   const status = lighthouse.$status;
-  const identity = lighthouse.$identity;
+  const identity = lighthouse.$user;
   const daemons = lighthouse.$daemons;
 
   const remote = lighthouse.connection.url.href;

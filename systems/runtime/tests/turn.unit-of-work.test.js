@@ -37,7 +37,7 @@ specimen.describe("turn persistence — the response is one unit of work", () =>
         tools: {
           lookup: {
             execute: async (ctx) => {
-              await ctx.daemon.entities.em.flush();
+              await ctx.entities.em.flush();
               seen.push((await rows(em, thread)).map((turn) => turn.role));
               return { definition: `${ctx.input.query} means house` };
             },

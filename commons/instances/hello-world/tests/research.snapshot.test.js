@@ -1,12 +1,5 @@
 import { join } from "@std/path";
-import {
-  fromm,
-  shard,
-  specimen,
-  steer,
-  ToolCall,
-  Vector,
-} from "@vivalence/typology";
+import { contexts, fromm, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { research } from "../tools/research.js";
 import { calling, rig, saying, SOURCE } from "./rig.js";
 import { pin } from "./harness.snapshot.test.js";
@@ -15,7 +8,7 @@ const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
 
 const invoke = (rigged, input) => {
   const outer = new Vector().graft(research);
-  outer.use(shard.context.bind("daemon", rigged.daemon));
+  outer.use(shard.context.spread(contexts.host, rigged.daemon));
   outer.use(shard.context.bind("mode", rigged.mode));
   outer.use(shard.context.bind("thread", "thread-1"));
   return steer.dispatch.invoke(

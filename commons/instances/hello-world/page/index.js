@@ -53,7 +53,7 @@ export const emitter = new Vector().open(
       kind: "svelte",
       source: refuse(ctx.input.source),
     });
-    const buffer = await ctx.daemon.entities.buffer.create({
+    const buffer = await ctx.entities.buffer.create({
       mode: ctx.mode.entity.id,
       view: view.json,
       data: ctx.input.data ?? {},

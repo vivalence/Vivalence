@@ -7,7 +7,6 @@ const many = (list, say) => (list?.length ? list.map(say).join(" · ") : "none")
 const VOICE = {
   environment: (held) => `${Object.keys(held?.properties ?? {}).length} keys`,
   runtime: slug,
-  lighthouse: module,
   datamap: module,
   hallucinators: (held) => many(held, module),
   clients: (held) => many(held, slug),

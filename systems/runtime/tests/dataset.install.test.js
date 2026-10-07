@@ -1,25 +1,24 @@
-import { specimen, Vector, Dataset } from "@vivalence/typology";
+import { specimen, Twitch, Dataset } from "@vivalence/typology";
 import { datamap } from "@vivalence/runtime/scenarios";
 import { topography } from "@vivalence/typology/scenarios";
-import { LiteralSubscriber } from "@vivalence/runtime";
-import { lifecycle } from "@vivalence/runtime";
-const { DATASET } = lifecycle.mode.traits;
+import { traits } from "@vivalence/runtime";
+const { DATASET } = traits;
 
 let scenario, daemon, mode;
 
 specimen.beforeAll(async () => {
   scenario = await datamap.seed();
-  scenario.orm.em.getEventManager().registerSubscriber(new LiteralSubscriber());
   daemon = {
     entities: scenario.repos,
     datamap: { getMetadata: () => scenario.orm.getMetadata() },
-    twitch: new Vector(),
+    twitch: new Twitch(),
   };
   daemon.entities.em = scenario.em;
 
   const corpus = await topography.corpus();
   mode = {
     manifest: { type: "topography", slug: "fixture", traits: [] },
+    id: scenario.fixtures.mode.id,
     entity: { installed: "" },
     module: { source: corpus, dataset: topography.dataset() },
   };
@@ -98,8 +97,8 @@ specimen.describe("what install refuses", () => {
 specimen.describe("what install does with a loader", () => {
   specimen.it("pulls rows from load(mode), links them, and stamp() folds the loader's stamp", async () => {
     const { gestalten, lifecycle } = await import("@vivalence/runtime");
-    const { DATASET } = lifecycle.mode.traits;
-    const { stamp } = gestalten.belt;
+    const { DATASET } = traits;
+    const { stamp } = traits;
     let mark = "one";
     const loaded = {
       ...mode,

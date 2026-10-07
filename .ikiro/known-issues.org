@@ -579,20 +579,6 @@ The base repository is runtime kernel (typology-adjacent, ask-before); every con
 correct today. Fixing it there = the same =$and=-branch compile inside =resolveSymbols=;
 should happen when the second consumer needs mixed conditions.
 
-* OPEN — daemon /after/literal/update twitch never fires (create lane does)
-Observed live on the stucatch instance: shape.subscriber wires all six lanes and
-population.js:80-81 registers it on the ORM event manager; /after/literal/create
-dispatches (the whole signal→fix→track fold rides it), but an UPDATE flushed from a
-domain aperture handler (trait reassign + em.flush, UPDATE SQL provably lands) never
-reaches a handler opened on /after/literal/update — an unconditional console probe in
-the handler stayed silent while PLACED changed in the DB. tests/subscriber.test.js
-pins the update lane GREEN against the scenario datamap, so the gap is
-production-spine-specific (transport request context? detached pump? em identity?).
-Worked around in stucatch: the placement/adjust aperture verbs own their refold
-directly (refoldAll after flush); the update-twitch registration stays in place and
-is idempotent if the lane ever comes alive. Diagnose before any other domain leans
-on entity-update reactivity.
-
 * OPEN — hello-world recipe names =@education/*=, unsupplied on any public surface (README step 3 unbootable)
 
 README-walk on a clean Linux box (compact 63 (`the-readme-walk-lands-admin-in-the-identity-table…`)): =registry/viva/instances/hello-world/education.js=
@@ -694,7 +680,7 @@ second musl reader appears on the tracker; the transplant script above is the an
 ** Symptom
 
 =systems/ghost/tests/strata.wet.test.js= "two shells select two instances in parallel" is
-RED since the doctor split, deterministic (3/3 in isolation):
+RED since the doctor split, deterministic (3/3 in isolation; 10-09: flips ok/FAILED on an unpatched copy, 2 runs):
 
 #+begin_example
 two shells select two instances in parallel ... FAILED (938ms)
@@ -1298,61 +1284,32 @@ Own quest (number beef's). Shape: application bundles keyed on their INPUTS (dig
 The fixes live in the code and their stories in =compacts/= (grep the name) and =release.md=. Names cut here so a reader can still grep them: =aperture-snapshot-pins-a-daemon-the-instance-no-longer-mounts= · =paladin-scope-overwrite-warning= · =registry-count-test-pins-a-number= · =stripwire-contract-test-reads-a-dead-key= · =prod-nlp-image-lacks-transformers= · =runtime memory runs to 16 GB while the dojo drawer is driven= · =RESOLVED= · =readme-ubuntu-walk-ghost-defects= · =app-relative-mount-keeps-its-dot-segment-and-the-bundler-misses-its-own-output= · =first-attach-user-insert-race= · =secrets-thunk-leak= · =ledger-doctor-counts-every-lock-dead= · =registry-untap-silently-ignores-an-unknown-reference= · =literal-ontology-blank-after-dataset-install= · =italian-instance-env-blank-secrets-shadow-every-lower-stratum= · =consumed-service-with-a-blank-optional-secret-crashes-after-the-gate= · =nlp-provider-blames-the-url-for-a-missing-key= · =cargo-drops-any-path-with-a-space=
 
 
-* sqlite-fk-change-plus-column-add-mints-a-corrupt-alter — OPEN
+* migration-non-transactional-leaves-a-failed-migration-half-applied — OPEN (the wound left when mikro 7.2.3 fixed the FK weld and the glued pragma, 10-08)
 
 ** Symptom
 
-A daemon boot dies in the migrator:
-
-#+begin_example
-MigrationError: Migration20260911114957 (up) failed:
-alter table `Buffer` add column `traits` json not null default '[]'
-  constraint `Buffer_thread_foreign` references `Thread` (`id`) on update cascade on delete cascade;
-- SQLITE_ERROR: Cannot add a REFERENCES column with non-NULL default value
-#+end_example
-
-The foreign key belongs to =thread=; it is welded onto =traits=, an unrelated column added
-in the same diff.
+A migration that throws midway is left PARTIALLY applied and unrecorded in =_mikro_migrations=; a retry dies at a
+different statement.
 
 ** Root cause
 
-=@mikro-orm/knex/dialects/sqlite/SqliteTableCompiler.js:22= searches for the =add column=
-statement belonging to the FK's own column using =column[0]= on a value that =columnize=
-returns as a STRING, so the index yields a single backtick and the search matches ANY added
-column. The FK's =__temp_alter= path is skipped and the constraint is appended to whichever
-column came first. Identical at upstream =v6.6.16=; 7.x dropped knex.
-
-Precondition: the table must need **both** a changed FK rule and an added column in one
-diff. The FK rule drift is itself invisible until then — mikro diffs =.snapshot-*.json=,
-never the live db, so a db born before an entity's =deleteRule= changed carries the old
-rule silently.
-
-** Second wound
-
-=commons/datamaps/libsql/libsql.viva.js= sets =transactional: false=, so the throw leaves
-the migration PARTIALLY applied and unrecorded in =_mikro_migrations=. A retry dies at a
-different statement.
-
-Third, smaller: mikro emits =pragma foreign_keys = on;drop index `X`;= as ONE =addSql=; the
-driver runs the pragma and discards the rest, so that =drop index= silently never happens.
+=commons/datamaps/libsql/libsql.viva.js= sets =transactional: false=. Since 7.2.3 every statement is its own =addSql=
+and better-sqlite3 throws on a multi-statement string, so nothing is skipped silently any more — but nothing rolls
+back either.
 
 ** Evidence
 
-Reproduced byte-for-byte against a copy of =italian.viva.db= (2026-09-11) with the real
-entity assembly. That instance is REPAIRED and boots clean.
+Reproduced 2026-09-11 against a copy of =italian.viva.db= (the FK weld, mikro 6.6.7). The two v6 bugs are fixed and
+run-proven in 7.2.3 (=.ikiro/reference/mikro-7/upstream.md= §5); this wound is configuration, not a mikro bug.
 
-** Still armed
+** Why not fixed
 
-All five =language-learning= daemon dbs carry =Buffer.thread on delete set null= with
-snapshots that have not advanced (brazilian holds 273 buffers). They fire at next boot.
+No populated db crosses the m80 flag day (every shelf is dropped), so no migration has failed since.
 
 ** Workaround
 
-One table rebuild to the entity's DDL — mikro's own =__temp_alter= recipe — then delete the
-failed =Migration*.ts= and KEEP the advanced snapshot; =checkMigrationNeeded()= then reads
-false. Where the snapshot has NOT advanced, rebuild the FK only and let mikro mint the
-columns. Never author a migration: see =feedback_mikro_owns_the_db=, mechanic (3).
-Full account: compact #146 =a-foreign-key-drifted-while-nobody-looked…=.
+One table rebuild to the entity's DDL — mikro's own =__temp_alter= recipe — then delete the failed =Migration*.ts= and
+KEEP the advanced snapshot; =migrator.checkSchema()= then reads false. Never author a migration.
 
 * cargo-range-reads-the-whole-file-per-request — OPEN
 
@@ -1398,7 +1355,7 @@ entity, or absent.
 
 ** Root cause
 
-=normalizing= (=systems/runtime/daemon/traits/harnessed.js:24=) reads
+=claiming= (=systems/runtime/traits/harnessed.js:23=; re-pointed 10-10, the read left =normalizing=) reads
 =ctx.thread = ctx.input.thread ? await findOneOrFail(...) : …= — thread is OPTIONAL there, and a
 call with none proceeds. =activating= then mints an activity row with =thread: null=
 (=:35=), which is how =/hello/agent= produces rows no thread roster can show.
@@ -1420,33 +1377,6 @@ The harness ALWAYS has a thread in its input, or it throws. Callers stop defendi
 
 Ruled mid-fold, after the m65 followup landed in =research.js=. It is a contract change on the
 harness with at least one live caller that currently passes no thread, so it wants its own go.
-
-* lighthouse-announce-prune-never-matches-in-docker — OPEN (measured m66 WP2)
-
-** Symptom
-
-A daemon removed from an instance leaves its row in the lighthouse forever. Measured: a twin
-instance announced =hello= + =hello2= on :2504; replaced by plain hello-world on the same port,
-=hello2= stayed, runtime log printed no =[announce] pruned= line (evicted.count 0).
-
-** Root cause
-
-=systems/runtime/lifecycle/integrate.js:71= evicts =url LIKE '${origin}%'= with
-=origin = paladin.instance.runtime.statics.serve.origin= — the BIND address (=http://0.0.0.0:2504=).
-Stored urls are =PUBLIC_VIVA_RUNTIME_REMOTE + /daemon/<slug>= (=http://localhost:2504/…=).
-Bind ≠ remote in any container, so the predicate never matches. Only held on a laptop where both
-were =localhost=.
-
-** Why not fixed now
-
-Out of m66 WP2 scope (measure only). Fix is one line: derive the prune prefix from
-=PUBLIC_VIVA_RUNTIME_REMOTE= (the same literal announce writes), not from the bind.
-
-** Workaround
-
-=POST <lighthouse>/entities/daemon/removeOne {"where":{"slug":"<slug>"}}=.
-
-Full measurement: =.ikiro/reference/lighthouse-announce-dynamics.md=.
 
 * dojo-view-refused-without-a-terminal-daemon — OPEN (seen on prod, m66 M3 day)
 
@@ -1471,44 +1401,6 @@ Found while proving M3. beef: /"mark known issue."/ — m66 is the cutover, not 
 ** Workaround
 
 Open a terminal on the italian daemon first, then the buffer.
-
-* mikro-sqlite-migration-generator-glues-pragma-to-the-next-statement — OPEN (measured on prod data, m66 M2)
-
-** Symptom
-
-Booting a NEW image over a populated sqlite db, the migrator generates a diff and crashes running it:
-
-#+begin_example
-[migrator] Processing 'Migration20260920004939'
-MigrationError: create index `Thread_parent_index` on `Thread` (`parent`); - SQLITE_ERROR: no such column: parent
-#+end_example
-
-** Root cause
-
-mikro-orm 6.6.7's sqlite schema generator emits ONE =addSql= holding two statements around a table rebuild:
-
-#+begin_example
-pragma foreign_keys = on;alter table `Thread` add column `parent` …    ← alter never runs
-pragma foreign_keys = on;drop index `Literal_slug_unique`;            ← drop silently skipped
-pragma foreign_keys = on;pragma foreign_keys = off;                    ← FK stays ON through the next rebuild
-#+end_example
-
-The =npm:sqlite3= driver executes only the first statement of a multi-statement string. The migrator is non-transactional (=libsql.viva.js= =transactional: false=), so the db is left half-applied. A second artifact: a column add carries a foreign key that belongs to a neighbour (=alter table Buffer add column traits json … constraint Buffer_thread_foreign references Thread(id)=), which with FK enforcement on would refuse every insert.
-
-Nobody had run this path: dev nukes db + migrations (`project_mikro_sqlite_fk_change_breaks_migration`). Prod italian was the first populated db to meet a schema diff.
-
-** Attempts
-
-- Hand pre-step (rename =Memory→Retention=, backfill =Intent.user=) then let mikro run: the migrator passed, then =ensure()= re-inserted intents that already existed under the new =(user, slug, mode)= unique. Parked with brazilian/spanish (unserved).
-- Running mikro's generated SQL through the sqlite3 CLI: honours multi-statement, but ships the bogus FK. Rejected.
-
-** What worked (the cutover)
-
-Road A, =scripts/remigrate-italian.sh= on the prod host: mikro creates the schema on an EMPTY seat (boot once), stop, =ATTACH= the old db, =INSERT INTO new.T (common columns) SELECT … FROM old.T= for every table present in both, ids intact, =pragma foreign_key_check= empty, boot again. Mikro owns schema; we own rows.
-
-** Why not fixed now
-
-Upstream (mikro 6.6.7 sqlite generator vs the =npm:sqlite3= driver). Candidate fixes: mikro upgrade, or a driver that executes multi-statement strings (=better-sqlite3= / =libsql= =exec=). Until then: any populated sqlite db meeting a schema diff goes through road A, never the migrator.
 
 * four-ui-surfaces-ship-a-successor-beside-the-incumbent — OPEN (beef, at the dapper/drapes/droneaid/education/anima survey: /"mark this as a known issue."/)
 
@@ -1718,7 +1610,7 @@ and `cortex-contract-render.snapshot.json`, pinned by `systems/runtime/tests/cor
 
 **First reading, taken live. The specific holes and the specific drift:**
 
-Emitter is `subsystems/typology/gestalten/shape/cortex.js:1-10`. Seven keys, two of them
+Emitter is `subsystems/typology/gestalten/belt/cortex.js:1-12`. Seven keys, two of them
 behind conditional spreads. What each surface actually carries:
 
 |            | strip emits | contract snapshot | stripwire fixture | LIVE (anthropic) |
@@ -1768,7 +1660,7 @@ config-bearing, both-avenues faculty — or does `cortex-contract` deliberately 
 MINIMUM, with provenance coverage belonging in `cortex.stripwire.test.js`? Beef rules.
 
 **MEASURED LIVE at the doctor-rewrite fold — the table above is no longer inference.**
-A probe fed `Cortex.register` two real-shaped faculties and read `shape.cortex.strip` back:
+A probe fed `Cortex.register` two real-shaped faculties and read `belt.cortex.strip` back:
 
 - keys emitted: `['type','tune','context','channels','provider','config','via']` — both
   conditional spreads DO fire, with `provider: "anthropic"` and `config: {model: "claude-opus-5"}`.
@@ -1936,7 +1828,7 @@ none.
 ** Symptom
 A thread whose INTELLIGENT trait sets =rounds= overrides the =config.rounds= a caller passes to the harness. hello-world's nested researcher (=config: { rounds: 30 }=) is capped at the thread's dial — =rounds: 1= starves it.
 ** Root cause
-=systems/runtime/daemon/traits/harnessed.js:45-49= =requesting= spreads =...config= FIRST, then =ctx.intelligent.rounds=. The researcher passes =thread=, so =claiming= reads the outer thread's INTELLIGENT.
+=systems/runtime/traits/harnessed.js:46-48= =requesting= spreads =...config= FIRST, then =ctx.intelligent.rounds=. The researcher passes =thread=, so =claiming= reads the outer thread's INTELLIGENT.
 ** Evidence
 =commons/instances/hello-world/tools/research.js:4-7= comment: /"the researcher's own budget — NOT the thread's INTELLIGENT.rounds … would starve a research pass if it were dialed low."/ — the code does the opposite. Read, not run.
 ** Ruling
@@ -1975,20 +1867,6 @@ beef 09-23: /"serial."/ — =belt.hallucinate.dispatch= runs a round's calls one
 The strand is mikro's code; any caller that flushes one fork concurrently (two tools in one handler, a =Promise.all= over repository verbs) still meets it.
 ** Workaround
 Never =Promise.all= writers over one fork — sequence them, or give each its own =RequestContext.create= fork.
-
-* hello-world-research-rig-red — OPEN (found as a baseline red on the serial-dispatch bracket, 09-23)
-** Symptom
-=commons/instances/hello-world/tests/research.test.js= → 0 passed | 1 failed (7 steps); =research.snapshot.test.js= → 1 passed | 1 failed (S4). Every step dies before its first assertion: =TypeError: Cannot read properties of undefined (reading 'absolute')=.
-** Root cause
-=systems/runtime/daemon/traits/generative.js:5= =paladin.bundler(mode.bundles.absolute)= — the rig (=commons/instances/hello-world/tests/rig.js:118=) hands GENERATIVE a mode with no =bundles= path. The trait grew the read; the rig was never taught it.
-** Evidence
-Identical failure count before and after the serial-dispatch change (baseline and beat 4 of the bracket); the stack names =rig.js:118= → =generative.js:5= on every step.
-** Ruling
-none.
-** Why not fixed
-Outside the dispatch bracket; the rig belongs to hello-world's research suite, and the missing key's shape (a =Path= under the rig's mountpoint) is a one-line rig fix nobody has ordered.
-** Workaround
-None — the nested-research contract (P-yield · P-nodoublebind · P-early · P-nested · S4) is unguarded until the rig carries =bundles=.
 
 * code-breaks-its-own-codemap-trap — OPEN (found by the m69 2.2 re-grounding: 243 traps checked against the tree)
 ** Symptom
@@ -2069,15 +1947,16 @@ none; the stray link is live on the dev server.
 ** Symptom
 Three registry suites are red on the live tree and on a copy of their files from before m72: vdex =6 passed (32 steps) | 3 failed= · dojo =9 passed (42 steps) | 3 failed (22 steps)= · education domain aborts on =Module not found .../registry/fixtures/data/seed.js=.
 ** Root cause
-The runtime moved under them. vdex: =systems/runtime/daemon/traits/dataset.js:27= reads =mode.module.source.dirname=, the =mountMode= scenario hands a module without =source=. dojo: =/mode/game/dojo/resolve= answers 500, =LiteralEntity= has no property =retentions= and =ctx.daemon.entities.literal.byLastSignal= is not a function. education domain: a seed path one level too high.
+The runtime moved under them. vdex: =systems/runtime/traits/dataset.js:58= reads =mode.module.source.dirname=, the =mountMode= scenario hands a module without =source=. dojo: =/mode/game/dojo/resolve= answers 500, =LiteralEntity= has no property =retentions= and =ctx.daemon.entities.literal.byLastSignal= is not a function. education domain: a seed path one level too high.
 ** Evidence
 =deno test --config deno.jsonc -A --no-check= on =~/.viva/registry/vcompany/modes/office/vdex/tests/= and =education/modes/games/dojo/tests/=, then the same on a scratch copy overlaid with =~/.viva/bak/m72/registry-20260928/=: identical counts.
 Met again by m78's pin bracket (one-file runs, before and after, identical): education =domain/tests/kernel/literal.test.js= still aborts on =seed.js=; =domain/tests/aperture/aperture.test.js:7= and =domain/tests/tools/tools.test.js:8= now red too — /"TypeError: Cannot read properties of undefined (reading 'authorize')"/; dojo =aperture= · =emitter= as above.
+10-10, after m81's land, the registry census per file: education green; vcompany still red in 5 files (=modes/dummy/{calendar,mail}= · =modes/office/vdex/{boot,tools,vdex.snapshot}=), each =TypeError: Cannot read properties of undefined (reading 'dirname')= — the same =source.dirname= read, unchanged by the land.
 10-05, session test-suite — every package run from the repo root on a scratch copy of the registry. education aborts at collection. File by file, four causes:
 - =domain/tests/scenarios/domain.js:11= calls =shard.secure.authorize()=; m76 deleted =subsystems/typology/gestalten/shard/secure.js= and its M4 residue grep stopped at the repo root. That is the =authorize= TypeError.
 - =systems/runtime/tests/scenarios/daemon.js:25= =create()= seeds no domain, and dojo calls =mountMode(dojo)= bare, while =commons/fixtures/data/seed.js:6-8= says a mode calling domain repository methods must mount its domain. That is the missing =retentions= · =byLastSignal= · =feed= · =novel= · =review= · =due=.
 - =kernel/literal.test.js:2= · =userspace/scoping.test.js:3-4= import =../../../../fixtures/data/= from the =commons/= era.
-- vcompany =FAILED | 16 passed (65 steps) | 11 failed (30 steps)=: its own rig writes =mode.module.mount= (=~/.viva/registry/vcompany/tests/scenarios.js:28,54=), DATASET reads =mode.module.source.dirname= (=systems/runtime/lifecycle/mode/traits/dataset.js:27=).
+- vcompany =FAILED | 16 passed (65 steps) | 11 failed (30 steps)=: its own rig writes =mode.module.mount= (=~/.viva/registry/vcompany/tests/scenarios.js:28,54=), DATASET reads =mode.module.source.dirname= (=systems/runtime/traits/dataset.js:58=).
 Patch set, proven on the copies — education =ok | 39 passed (187 steps)=, vcompany =FAILED | 25 passed (113 steps) | 2 failed (4 steps)=, runtime with the rig change =ok | 76 passed (429 steps)=:
 #+BEGIN_SRC diff
 // systems/runtime/tests/scenarios/daemon.js
@@ -2271,6 +2150,11 @@ m74 M6 re-worded the page for the boot vector and put the keepalive demo in as a
 
 Read the page's fences; =systems/runtime/tests/runtime/boot.test.js= is the booted proof of the same trip.
 
+** 10-08 — 31.02 too, and the shape is now illegal (beef, at the m80 docs pass: /"mark for future known issues."/)
+
+=documentation/content/30-39_guides/31_guides/31.02_instance-from-scratch.mdx= walks the same =@commons/instance/standalone=, section by section, and embeds =31.02-flashcard= (no file either). m80 made the specimen illegal, not just absent: an instance is one =instance.viva.json= (references, no code), identity is the runtime's own (=/lighthouse/*=, no hosted service, no announce), a domain brings traits over one fixed schema — never an entity or a table. Both pages open with a "Superseded" note since 10-08; marked, not rewritten. A true rewrite needs a new worked example — an =instance.viva.json=, a mode, a domain with a trait in place of the Retention entity, its =*.example.js=. The workaround above died with m80 (=boot.test.js= is deleted): the repository README's "Hello, Instance!" and =commons/instances/hello-world/instance.json= are the living recipe.
+
+
 * comment-guard-reads-an-escaped-slash-in-a-regex-as-a-comment — OPEN (met on the m74 M5 port)
 
 ** Symptom
@@ -2327,7 +2211,7 @@ A TOOLING mode that branches its own tools under its slug (=coach/practice= decl
 
 ** Root cause
 
-=systems/runtime/daemon/traits/agentic.js:3= — =mode.tools.branch(source.manifest.slug).slurp(source.tools)= prefixes every source; =~/.viva/registry/chess/modes/coach/practice/tools/index.js= prefixes itself for its own harness. Both are right alone.
+=systems/runtime/traits/agentic.js:9= — =mode.tools.branch(source.manifest.slug).slurp(source.tools)= prefixes every source; =~/.viva/registry/chess/modes/coach/practice/tools/index.js= prefixes itself for its own harness. Both are right alone.
 
 ** Evidence
 
@@ -2442,50 +2326,6 @@ A hook is beef's wiring (=ontology.md= law 8); the allowlist rows and their rig 
 
 =git -C <dir>= instead of =--git-dir=; =find <repo>/.git/refs -type f= + =.git/packed-refs= for refs; =jj log --ignore-working-copy -r 'bookmarks() | remote_bookmarks()'= for bookmarks; =readlink -f "$(which jj)"= for the version; never the words =git= / =jj= + a verb inside an =echo= label.
 
-* announce-without-a-bearer — OPEN (m76 M2, the lighthouse attachment)
-
-** Symptom
-
-=POST /attached/process/service/lighthouse/multiplayer/daemons/announce { slug, remote, reported }= answers any caller: no bearer, no service token. Anyone who can reach the lighthouse can write or move a daemon row (=remote=, =reported=) by slug.
-
-** Root cause
-
-Service-to-service auth never existed: the old =runtime/integration.js announce= wrote through the open =/entities/daemon/ensure= verb the same way (=367e85993=). m76 narrowed the surface to ONE route (=commons/lighthouses/multiplayer/attachment/daemons.js=) and kept the hole knowingly (F18 ruled lighthouse-facilitated access for later).
-
-** Evidence
-
-=commons/lighthouses/multiplayer/attachment/daemons.js:5= — =new Vector().open("/announce", …)= with no =authenticate()=; =systems/runtime/prototypes/lighthouse.js beacon()= sends no header. The quest's =* deferred= holds the shape (lighthouse-facilitated access, stale daemons via =reported= + =updatedAt=).
-
-** Why not fixed
-
-A daemon has no identity of its own yet; minting one is the enrollment design beef deferred (/"That comes later."/). A bearer here without that design would be a second ad-hoc secret. Direction ruled 10-05, beef: /"we will add a machine user and attach that to our instance/per daemon/per runtime. that machine user can make lighthouse requests."/ — announce rides that identity's bearer through the same =authenticate()= the entity routes use.
-
-** Workaround
-
-The lighthouse sits inside the runtime's network boundary; a daemon that lies about =reported= only mislabels its own row.
-
-* stopped-beacon-lands-after-the-server-closes — OPEN (found 10-05, beef's droneaid ^C)
-
-** Symptom
-
-On SIGINT the runtime log prints two =[probe …] fetch failed …/daemons/announce … Connection refused= AFTER every =close= line; the lighthouse's =Daemon= row keeps =reported RUNNING= for a daemon that is gone. The same refused line prints once at boot, before =Status:RUNNING=.
-
-** Root cause
-
-=systems/runtime/prototypes/lighthouse.js:23= — =status.$transient.subscribe(() => this.beacon())= fires on every transition. At boot the first transitions run before =integration.serve= binds the port (=lifecycle/runtime/execution.js:24=); at shutdown =STOPPED= lands after =serve='s =finally= has shut the server down. Both beacons are refused and swallowed; only the mid-life ones and =integration.announce= (after =serve=) reach the lighthouse.
-
-** Evidence
-
-beef's paste 10-05 12:13: =[probe 12:13:27.163] fetch failed= before the mode =open= lines; =[probe 12:13:33.375]= and =.377= after =[/runtime/runtime/daemon/droneaid] close=. =sqlite3 … "select slug, reported from Daemon"= on droneaid's lighthouse db reads =droneaid|RUNNING= with nothing listening on :2501.
-
-** Why not fixed
-
-The order is the lifecycle's: =announce= rides =serve=, and a stop beacon that must land needs the server alive one beat longer, or a lighthouse that marks rows stale by =updatedAt= (m76 =* deferred=, stale daemons). beef's call on which; m60 owns the lighthouse surface.
-
-** Workaround
-
-Read =reported= with =updatedAt= beside it; a boot-time refused line before =Status:RUNNING= is noise, not a fault.
-
 * panel-a-status-strip-tests-outlive-the-strip — OPEN (found landing m76 M3)
 
 ** Symptom
@@ -2566,7 +2406,7 @@ A fresh hello-world boot: anima's daemon card reads =error=, =SET MODE= shows =h
 
 =runtime-hello-world.log=: =[multiplex] "/daemon/hello/mode/demo/hello-world/metadata/aperture" failed TypeError … at mode.viva.js:31:26= for aperture · emitter · application · harness; =curl -H "authorization: Bearer …" …/metadata/emitter= → 500.
 
-Met again at the m79 fold (10-05, read, not run): the hook is still at =mode.viva.js:29-33=, and m79's localhost recipe seats the chaosmonkey oracle instead of the demo until this closes — =.ikiro/quests/m79-terminal-ghost.org= M5.
+Met again at the m79 fold (10-05, read, not run): the hook is still at =mode.viva.js:29-33=, and m79's localhost recipe seats the chaosmonkey oracle instead of the demo until this closes — =.ikiro/quests/benched/m79-terminal-ghost.org= M5.
 
 ** Why not fixed
 
@@ -2654,11 +2494,37 @@ Needs a width measure (=string-width= is in ink's dependency tree; none in the k
 
 Keep CJK out of padded columns; render it in a =Text= of its own.
 
+* sheets-textinput-inserts-a-carriage-return-from-a-merged-chunk — OPEN
+
+** Symptom
+
+Text typed fast or pasted, followed by Enter, is not submitted: the line stays in the input with a raw carriage return inside it, the cursor jumps to column 0, and the next keys paint over the prompt. A Tab inside such a chunk is inserted the same way.
+
+** Root cause
+
+ink hands =useInput= one chunk per read; when the loop is busy rendering, =text\r= arrives as ONE input whose =key.return= is false. =subsystems/sheets/components/TextInput.jsx:31= submits only on =key.return=; =:35= inserts any other input whole, the =\r= included.
+
+** Evidence
+
+=testament/prototypes/ghost/= under a pseudo-tty, 10-07: a line typed at 10 ms a key then Enter rendered =runtime › /daemon/list\rabc▌= — nothing ran. The prototype's kit copy splits the chunk at the first =\r= or =\n=, inserts the head and submits; the walk then ran clean.
+
+** Ruling
+
+None yet; direction is beef's.
+
+** Why not fixed
+
+A kit change for every consumer of =TextInput= (the forms, =Search=, the dock); not this session's ask.
+
+** Workaround
+
+Type at human speed; the prototype's copy carries the split.
+
 * writeback-under-a-watched-tree-redeploys — OPEN (named on the lighthouseless review, 10-07)
 
 ** Symptom
 
-A runtime that writes composition changes back into its instance file (quest =lighthouseless= M4, =paladin.state.scribe= on =instance.json=) redeploys itself when that file sits under a watched tree: =runtime/watch= watches =commons= and =~/.viva/registry= minus =dataset/= (=world/map.md=), so a writeback into =commons/instances/<slug>/instance.json= is a save the watcher deploys.
+A runtime that writes composition changes back into its instance file (quest =lighthouseless= M4, =paladin.state.scribe= on =instance.viva.json=) redeploys itself when that file sits under a watched tree: =runtime/watch= watches =commons= and =~/.viva/registry= minus =dataset/= (=world/map.md=), so a writeback into =commons/instances/<slug>/instance.viva.json= is a save the watcher deploys.
 
 ** Root cause
 
@@ -2672,6 +2538,8 @@ The watcher cannot tell an authored save from the runtime's own write; both land
 
 beef 10-07: /"That is a known issue. We can't have write back on watched modes. That is known."/
 
+Reading 10-07: the lighthouseless runtime writes NOTHING back (/"we dont yet add any of the implementation to have the runtime add list remove or anything to daemons. none."/) — the issue stands for any future writeback, not for the quest as tangled.
+
 ** Why not fixed
 
 Out of =lighthouseless='s scope; a shelf instance (=~/.viva/instances/<slug>=) is not watched, and that is where writeback runs in practice.
@@ -2679,3 +2547,147 @@ Out of =lighthouseless='s scope; a shelf instance (=~/.viva/instances/<slug>=) i
 ** Workaround
 
 Run writeback-bearing instances from a shelf, never from =commons/instances/= under =runtime/watch=.
+
+* trait-claim-like-matches-a-superstring — OPEN (measured on the m80 campaign, typology is holy)
+** Symptom
+A =where= of ={ traits: "RETAINED" }= through =DataRepository.find= also matches a row whose =traits= holds =PRERETAINED= (any superstring), and a claim inside a relation's =where= (=notes: { traits: "RETAINED" }=) is never resolved at all.
+** Root cause
+=subsystems/typology/entities/base/DataEntity.ts= =resolveTraits= folds a claim into =`<alias>0`.traits LIKE '%NAME%'= over the JSON text and only for the ROOT alias.
+** Evidence
+m3 =UNKNOWNS.org= =mint-repository-entity-class= (read, not run: the LIKE); the m80 design pass left the LIKE in place and routed claims through =count · findAndCount · findOneOrFail= as well (they skipped =resolveTraits= — =count({ traits })= answered 0, measured =scratchpad/design/probes/scope.js=).
+** Ruling
+None yet; m80 lands with the LIKE. A true claim is a JSON array membership (=json_each= / =EXISTS (SELECT 1 FROM json_each(traits) WHERE value = ?)=), and a relation-level claim needs the relation's alias.
+** Why not fixed
+Typology is holy and no trait name in the tree is a superstring of another today; a fix is its own small quest with a measure on 6.6.7 AND 7.2.3.
+** Workaround
+Name traits so none is a superstring of another; keep claims at the root alias (education's note-side verbs query =notes: { trait: { RETAINED: { … } } }=, a payload path, not a claim).
+* instance-delete-leaves-the-ledger-pointing-at-the-deleted-shelf — OPEN
+** Symptom
+After =viva instance/use <slug> --ledger= then =viva instance/delete <slug> --force=, =~/.viva/.env= still holds =VIVA_INSTANCE_MOUNT="<the deleted mount>"=; every later =viva= from a cwd without its own =.env= resolves a shelf that is gone.
+** Root cause
+=systems/ghost/trajectories/instance/delete.js:29-35= collects only =sessions/*.json= whose =VIVA_INSTANCE_MOUNT= equals the mount and removes them (=:64=); the ledger stratum that =instance/use --ledger= upserts (=systems/ghost/trajectories/instance/use.js:37-41=, =paladin.state.env(~/.viva/.env, { VIVA_INSTANCE_MOUNT })=) is never read.
+** Evidence
+10-08, m80 T-fresh ghost walk: =hello-walk= selected with =--ledger=, deleted; =diff= of =~/.viva/.env= against the pre-walk capture = one line, =VIVA_INSTANCE_MOUNT="/Users/finn/.viva/instances/hello-walk"=. =instances.json= and =sessions/= were cleaned.
+** Ruling
+None.
+** Why not fixed
+Found on a walk; the fix (unset or comment the ledger line when it names the deleted mount, the session sweep's twin) waits on beef.
+** Workaround
+=viva instance/use <another> --ledger= after a delete, or edit the line out of =~/.viva/.env= by hand.
+
+* a-key-reference-carries-a-string-where-the-thunk-cast — OPEN (measured converting the shipped recipes, 10-09)
+** Symptom
+A strata world minted from the =~/.viva/instances/strata= shelf is LOCKED (no dev tools, no ticking by hand) while its =.env= says =VIVA_STRATA_LOCKED=false=.
+** Root cause
+The pre-m80 recipe read =locked: () => paladin.env.get("VIVA_STRATA_LOCKED") === "true"=; m80's JSON form is ="locked": "${VIVA_STRATA_LOCKED}"=, and a whole-string =${KEY}= keeps the env value's type — a string. The daemon settles =statics.locked = "false"=, and =~/code/strata/domain/world/aperture/index.js:37= reads =!!ctx.daemon.statics?.locked= → =true=. Same loss, harmless or not yet measured: =seed= · =beat= (=Number(…)=, strata), =consume.engine.statics.threads= · =hash= (=Number(…)=, chess), =consume.nlp.statics.remote= (=new Url(…)=, education ×3).
+** Evidence
+Probe on beef's shelf: =lifecycle.mount= → =daemons[0].statics= = ={"seed":"7","speed":"normal","locked":"false","beat":"250"}=, =typeof locked= = =string=. The converter that ported the shipped recipes names every lost cast (=~/.viva/bak/ikiro/shipped-recipes-20261009/= holds the modules it read).
+** Ruling
+None.
+** Why not fixed
+Two shapes, beef's call: the consumer casts what it reads (=locked === true || locked === "true"=), or the recipe grammar learns a typed reference (the environment schema already says =type= per key — expansion could cast by it).
+** Workaround
+Leave =VIVA_STRATA_LOCKED= unset is NOT a workaround (the default is ="false"=, still truthy); set the shelf's ="locked"= to the literal =false= by hand.
+
+* anima-interactive-activity-stdout-tail — OPEN (found 10-09, the m81 client campaign)
+** Symptom
+=systems/anima/tests/interactive/activity.test.js= fails its one step at =:86=. The held row reaches =STOPPED= through =row.stdin= (the walk assertion before it holds), but its stdout's last three verbs read =close · fault · close= where the test expects =resume · stop · close=.
+** Root cause
+Unmeasured. A =SIGCONT= then =SIGTERM= through =row.stdin= yields a =fault= record and a second =close= on stdout in place of =resume= · =stop=.
+** Evidence
+Red on the repo as it stands (=scratchpad/rig9=) and on m81's land (=rig8=), equal, =HOME= empty, run alone. =[Diff] Actual / Expected=: =- "fault", - "close"= against =+ "resume", + "stop"=.
+** Ruling
+None.
+** Why not fixed
+Outside m81: red equally before and after its land, the same diff.
+** Workaround
+None needed for a land — count it among anima's two pre-existing reds.
+
+* sheets-textinput-drops-keys-faster-than-a-commit — OPEN (found 10-10, m82 Q8 probe)
+** Symptom
+Keys typed into =TextInput= faster than one React commit vanish: =bonjour= pushed at 0 ms lands as =bnor=. A paste is one chunk and survives; a key-repeat or a scripted driver does not.
+** Root cause
+=edit= builds the next value from =current=, read in the render closure (=subsystems/sheets/components/TextInput.jsx:22=); two keys before a re-render both edit the same stale value.
+** Evidence
+Plain Node, no browser, =testament/prototypes/ink-in-anima/src/node-race.jsx=: gap 0 ms → =value=bnor=, 1 · 5 · 20 ms → =value=bonjour=. The browser reproduces it the same way (=drive.mjs= =typing=).
+** Ruling
+m82 Q10 (10-10): sheets ports to OpenTUI; =TextInput= retires for OpenTUI's =<input>= (fast typing whole, probed). The entry dies with the port.
+** Why not fixed
+Found by a design probe; no code go.
+** Workaround
+None.
+
+* sheets-table-sizes-from-deno-console — OPEN (found 10-10, m82 Q8 probe)
+** Symptom
+=Table= sizes to 80 columns in any host but a Deno tty — inside an xterm of 60 columns it wraps.
+** Root cause
+=terminal()= reads =Deno.consoleSize()= (=subsystems/sheets/components/Table.jsx:9=) and falls back to 80; ink's own =stdout.columns= is never read.
+** Evidence
+The browser rig rendered =Table= with no error at 80 columns, whatever the xterm width (=testament/prototypes/ink-in-anima/drive-barrel.mjs=).
+** Ruling
+m82 Q10 (10-10): sheets ports to OpenTUI + Solid; =Table= is re-cut there over the renderer's width. The entry dies with the port.
+** Why not fixed
+Found by a design probe; no code go.
+** Workaround
+None.
+
+* prod-runs-the-pre-m80-runtime — OPEN (m80 moved to done 10-10; beef: /"m80 i do prod in time."/)
+
+** Symptom
+A push deploys the m80 · m81 runtime to prod (=.gitlab-ci.yml:1-3= =when: always=, deploy jobs =:36-52=, no branch filter) onto prod's pre-m80 state.
+
+** Root cause
+Prod's runtime finds no =instance.viva.json=; anima's one Coolify key is =PUBLIC_VIVA_LIGHTHOUSE_REMOTE= while the code reads =PUBLIC_VIVA_RUNTIME_REMOTE= (=systems/anima/src/app/+layout.svelte:29=); the lighthouse container's =commons/instances/multiplayer= is gone and every prod account lives in its =multiplayer.viva.db=.
+
+** Ruling
+beef runs the cutover, on his clock (10-10).
+
+** Workaround
+No push until the cutover: volume backup · =instance.viva.json= · the env key · the lighthouse container retired · push. Detail: =quests/done/m80-lighthouseless.org= =* handoff=.
+
+* package-docs-show-pre-m80-recipes — OPEN (carried from m80's owed list at its close, 10-10)
+
+** Symptom
+Docs 12.01 · 31.02 (see =docs-anatomy-page-names-an-example-that-has-no-file=) and the READMEs of chess · education · droneaid · media · vcompany show the =.viva.js= + =daemon.js= recipes; the education · chess READMEs still name the dead =domain/entities/*=.
+
+** Why not fixed
+Docs work, not in m80's landing.
+
+* qa-italian-rig-cannot-run-on-the-live-registry — OPEN (carried from m80, measured 10-10)
+
+** Symptom
+=systems/runtime/tests/qa/italian.test.js:7= reads =VIVA_QA_REGISTRY= else the rig's =campaign/registry=: on the repo it skips. Pointed at =~/.viva/registry= (10-10) it fails at =:62=: =registry/tap … failed: Download https://registry.npmjs.org/ebisu-js= — the copied education package resolves its npm dependency inside the temp world, sandbox off and the registry reachable (=curl= 200).
+
+** Workaround
+The live walk (=quests/done/m80-lighthouseless.org= =T-italian=) and the education suites (=~/.viva/registry/education/domain/tests/kernel/literal.test.js=).
+
+* datasink-drain-rewrites-the-authored-dataset — OPEN (measured on m80's Italian walk, 10-10)
+
+** Symptom
+One literal update on a freshly installed =english-to-italian= (6583 literals) drains in ~160 s and rewrites 13 files under =~/.viva/registry/education/topographies/english-to-italian/dataset/literals/= in another form — quoted keys, slug order, symbol lists (=words/adjective.js= 24253 → 26715 lines, the same 4357 slugs) — and adds =words/preposition.js= (462 slugs). A revert drain does not give the authored =words/noun.js= back.
+
+** Root cause
+Hypothesis: the authored dataset is not in =Datasink.canonical= form, and the strata split routes rows into a =preposition= stratum the authored files fold into =adposition= (=systems/runtime/traits/datasink.js:64-70=).
+
+** Evidence
+The drained copy at =~/.viva/bak/ikiro/qa-italian-20261010/english-to-italian.drained=; the package restored from the pre-walk copy, 0 files differing (the 8 dataset files =git status= marks =M= were modified before the walk).
+
+** Ruling
+Owed: is the canonical form the dataset's form (a one-time rewrite, then committed), or must the drain keep the authored form?
+
+** Workaround
+Update no literal on a daemon whose topography drains unless the rewrite is wanted.
+
+* dojo-judge-sends-no-turns — OPEN (met on m80's Italian walk, 10-10)
+
+** Symptom
+=POST /daemon/italian/mode/game/dojo/judge= → 500 =[hallucinate] 'dialogue' response closed error after 1 rounds — 400 … messages: at least one message is required= (Anthropic).
+
+** Root cause
+The judge renders an object with =turns: []= and the rubric in =system= (=~/.viva/registry/education/modes/games/dojo/aperture/index.js:247=); Anthropic requires one message. The only =turns: []= caller in the registry.
+
+** Why not fixed
+Package code, outside the walk; the fix is the rubric as a user turn, or the Anthropic dialect.
+
+** Workaround
+None live: =balanced= resolves to Anthropic on language-learning.

@@ -1,4 +1,4 @@
-import { v, Vector } from "@vivalence/typology";
+import { fromm, v, Vector } from "@vivalence/typology";
 
 // a mode's places on disk: its source, what it serves (the mountpoint), what it carries (freight) when
 // that is somewhere else. Empty for a mode with none — a scenario mode, a kernel entry without a file.
@@ -30,10 +30,9 @@ export const mode = new Vector().open(
   (ctx) => ({
     output: {
       message: [
-        `[Daemon ${ctx.daemon.manifest.slug}]` +
-        (ctx.daemon.mountpoint ? ` · mountpoint ${ctx.daemon.mountpoint.absolute}` : ""),
-        ...ctx.daemon
-          .flatmodes()
+        `[Host ${ctx.reference.absolute}]` +
+        (ctx.mountpoint ? ` · mountpoint ${ctx.mountpoint.absolute}` : ""),
+        ...fromm.modes(ctx.modes).flat
           .filter((mode) =>
             (!ctx.input.type || mode.manifest.type === ctx.input.type) &&
             (!ctx.input.slug || mode.manifest.slug === ctx.input.slug)

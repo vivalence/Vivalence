@@ -15,7 +15,6 @@ export const manifest = {
     "GENERATIVE",     // buffers hallucinated at runtime
 
     "EXPOSED",        // mode serves http endpoints
-    "STANDALONE",     // mode is an entrypoint on the client
   ],
 };
 

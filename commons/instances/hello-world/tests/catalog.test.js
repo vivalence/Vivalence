@@ -1,25 +1,18 @@
-import {
-  Controller,
-  fromm,
-  shard,
-  Span,
-  specimen,
-  steer,
-  ToolCall,
-  Vector,
-} from "@vivalence/typology";
-import { lifecycle } from "@vivalence/runtime";
-const { GENERATIVE } = lifecycle.mode.traits;
+import { contexts, Controller, fromm, Path, shard, Span, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
+import { traits } from "@vivalence/runtime";
+const { GENERATIVE } = traits;
 import { generator, tools } from "../mode.viva.js";
 
 // the mode's report() reads paladin directly, so the fake daemon supplies only what it walks;
 // every assertion here is on KEYS, never on this machine's content.
 const daemon = {
+  type: "daemon",
   mountpoint: null,
   entities: {},
   services: {},
   cortex: { faculties: new Map() },
-  flatmodes: () => [],
+  reference: new Path("/daemon/hello"),
+  modes: {},
 };
 
 // the same daemon with NO cortex at all — the shape that used to crash the fold.
@@ -37,7 +30,7 @@ await GENERATIVE(generative, {
 });
 const armed = new Vector().graft(tools);
 armed.branch("/generator", generative.generator.tools);
-armed.use(shard.context.bind("daemon", daemon));
+armed.use(shard.context.spread(contexts.host, daemon));
 
 const names = () =>
   steer.trie.rollup(armed, () => null).map((entry) =>
@@ -166,14 +159,14 @@ specimen.describe("viva_doctor — the whole record, no knobs", () => {
 });
 
 specimen.describe("viva_doctor — a daemon with no cortex", () => {
-  // tools/doctor.js read shape.cortex.strip(ctx.daemon.cortex ?? []) — and strip() reads
+  // tools/doctor.js read shape.cortex.strip(ctx.cortex ?? []) — and strip() reads
   // cortex.faculties, so the `?? []` fallback threw on the very case it was written for.
   // The fallback WAS the crash.
   specimen.it(
     "P-nocortex: the fold reports no faculties instead of throwing",
     async () => {
       const bare = new Vector().graft(tools);
-      bare.use(shard.context.bind("daemon", cortexless));
+      bare.use(shard.context.spread(contexts.host, cortexless));
       const { output } = await steer.dispatch.invoke(
         bare,
         new ToolCall("viva_doctor").signal,
@@ -211,8 +204,7 @@ specimen.describe("web_search — the door, without the index", () => {
     "P-count: omitting count still arrives as 8 at the effect",
     () => {
       const [, search] = nodes();
-      const input = { query: "deno permission flags" };
-      search.pattern.input.cast(input);
+      const input = search.pattern.input.cast({ query: "deno permission flags" });
       specimen.expect(input.count).toBe(8);
       specimen.expect([...search.pattern.input.errors(input)].length).toBe(0);
     },
@@ -263,7 +255,7 @@ const lit = {
 let seenRequest = null;
 
 const litArmed = new Vector().graft(tools);
-litArmed.use(shard.context.bind("daemon", lit));
+litArmed.use(shard.context.spread(contexts.host, lit));
 litArmed.use(shard.context.bind("controller", new Controller({ stdout: new Span("hallucination") })));
 const litInvoke = (name, input) =>
   steer.dispatch.invoke(
@@ -316,7 +308,7 @@ specimen.describe("web_read — lit, once a reader is consumed", () => {
         },
       };
       const angryArmed = new Vector().graft(tools);
-      angryArmed.use(shard.context.bind("daemon", angry));
+      angryArmed.use(shard.context.spread(contexts.host, angry));
       const { condition, output } = await steer.dispatch.invoke(
         angryArmed,
         new ToolCall("web_read").signal,

@@ -1,5 +1,11 @@
 import paladin from "@vivalence/paladin";
 import { shard, shape } from "@vivalence/typology";
+import { host } from "../../gestalten/belt/index.js";
+
+export const prune = async (die, next) => {
+  await host.prune(die.host);
+  await next();
+};
 
 export const ledger = async (die, next) => {
   const log = paladin.ledger.log(die.runtime.instance.manifest.slug);
@@ -21,20 +27,14 @@ export const patrol = async (die, next) => {
 
 export const serve = async (die, next) => {
   const url = die.mask.statics.serve;
-  die.runtime.aperture.open("/multiplex", shard.serve.multiplex(die.runtime.aperture));
+  die.aperture.open("/multiplex", shard.serve.multiplex(die.aperture));
   const server = Deno.serve(
     { port: Number(url.port), hostname: url.hostname, signal: die.controller.abort.signal, onListen() {} },
-    shard.cors.wrap(shape.http(die.runtime.aperture)),
+    shard.cors.wrap(shape.http(die.aperture)),
   );
   try {
     await next();
   } finally {
     await server.shutdown();
   }
-};
-
-export const announce = async (die, next) => {
-  const daemons = await die.runtime.processes.daemon.find();
-  await Promise.all(daemons.map((daemon) => daemon.lighthouse?.listen()));
-  await next();
 };

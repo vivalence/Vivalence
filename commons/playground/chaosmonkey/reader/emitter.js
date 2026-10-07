@@ -9,8 +9,8 @@ const AUTHOR = [
 export const emitter = new Vector().open(
   { nature: "/conjure", input: v.object({ brief: v.string() }) },
   async (ctx) => {
-    const activity = await ctx.daemon.entities.activity.control({ user: ctx.user?.id ?? null, mode: ctx.mode.id, thread: ctx.thread?.id ?? null });
-    const response = await ctx.daemon.cortex.hallucinate.dialogue.render({
+    const activity = await ctx.entities.activity.control({ user: ctx.user?.id ?? null, mode: ctx.mode.id, thread: ctx.thread?.id ?? null });
+    const response = await ctx.cortex.hallucinate.dialogue.render({
       controller: activity.controller,
       system: { author: AUTHOR },
       turns: [{
@@ -22,7 +22,7 @@ export const emitter = new Vector().open(
       kind: "svelte",
       source: response.output.message,
     });
-    const buffer = await ctx.daemon.entities.buffer.create({
+    const buffer = await ctx.entities.buffer.create({
       mode: ctx.mode.entity.id,
       view: view.json,
     });

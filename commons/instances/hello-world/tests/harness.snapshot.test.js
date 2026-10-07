@@ -24,6 +24,7 @@ export function pin(subject, file) {
 const STANDING = {
   instance: { slug: "hello-world" },
   daemon: {
+    type: "daemon",
     slug: "runtime",
     mountpoint: "/ledger/instances/hello-world/mountpoint",
   },

@@ -4,6 +4,7 @@ import * as population from "./population.js";
 import * as resolution from "./resolution.js";
 import * as integration from "./integration.js";
 import * as aperture from "./aperture/index.js";
+import * as host from "../host/index.js";
 import { execution as mode } from "../mode/execution.js";
 
 export const execution = new Vector()
@@ -11,7 +12,6 @@ export const execution = new Vector()
   .use(population.core)
   .use(population.wiring)
   .use(population.datamap)
-  .use(population.authority)
   .use(population.acid)
   .use(population.services)
   .use(population.modes)
@@ -19,11 +19,9 @@ export const execution = new Vector()
   .use(resolution.modes(mode))
   .use(resolution.freight)
   .use(aperture.datamap)
-  .use(aperture.userspace)
-  .use(aperture.modes)
   .use(aperture.freight)
-  .use(aperture.metadata)
-  .use(aperture.cortex)
+  .use(host.aperture.metadata)
+  .use(host.aperture.cortex)
   .use(integration.call)
   .use(integration.prune);
 

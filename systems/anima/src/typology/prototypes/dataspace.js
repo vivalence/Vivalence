@@ -12,8 +12,9 @@ function strategy(carry) {
 export class Dataspace {
   schemas = new Map();
 
-  constructor({ entities, connection, seed }) {
+  constructor({ entities, connection, runtime, seed }) {
     this.connection = connection;
+    this.runtime = runtime;
     this.em = new RemoteEntityManager(connection, {});
 
     for (const dossier of entities) {

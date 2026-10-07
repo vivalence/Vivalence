@@ -9,7 +9,7 @@ const columns = () => {
 };
 
 export function Doctor({ report }) {
-  const { homes, scopes, env, recipe, record, store, instances, locks, sessions, logs, environment, strata } = report;
+  const { homes, scopes, env, recipe, records, record, store, instances, locks, sessions, logs, environment, strata } = report;
   const width = columns();
 
   const stale = record.entries.filter((entry) => !entry.present);
@@ -37,7 +37,7 @@ export function Doctor({ report }) {
         />
 
         <Organ
-          name={recipe?.path?.split("/").at(-1) ?? "ledger.viva.js"}
+          name={recipe?.path?.split("/").at(-1) ?? "ledger.viva.json"}
           count={recipe?.spoken ? "present" : recipe?.present ? "mute" : "absent"}
           note={recipe?.error ?? (recipe?.spoken ? `${recipe.manifest?.slug ?? "?"} · ${recipe.slots.join(" ")}` : "instances inherit nothing — viva ledger/init")}
           warn={Boolean(recipe?.error)}
@@ -51,16 +51,16 @@ export function Doctor({ report }) {
         ))}
 
         <Organ
-          name="registry.json"
+          name={records.registry}
           count={`${record.entries.length} tapped`}
           note={`${pinned} pinned · ${record.entries.length - pinned} store · ${stale.length} stale`}
           warn={stale.length > 0}
           tail="registry/doctor"
         />
         {stale.map((entry) => (
-          <Text key={entry.location} color="red">
+          <Text key={entry.owner} color="red">
             {"    ✗ "}
-            {entry.location}
+            {entry.owner} {entry.mount}
             <Text color="gray">  gone — viva registry/untap</Text>
           </Text>
         ))}
@@ -79,7 +79,7 @@ export function Doctor({ report }) {
           </Text>
         ))}
 
-        <Organ name="instances.json" count={`${instances.length} recorded`} note="" />
+        <Organ name={records.instances} count={`${instances.length} recorded`} note="" />
         <Rows
           rows={instances.map((row) => ({
             slug: row.slug,

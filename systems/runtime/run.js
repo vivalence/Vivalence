@@ -1,5 +1,5 @@
 import paladin, { lifecycle } from "@vivalence/paladin";
-import { Controller, Span, steer } from "@vivalence/typology";
+import { Aperture, Controller, Path, Span, steer } from "@vivalence/typology";
 import { Runtime } from "./prototypes/index.js";
 import { execution } from "./lifecycle/runtime/execution.js";
 
@@ -7,9 +7,10 @@ if (import.meta.main) {
   await lifecycle.mount(paladin.instance);
 
   const die = {
+    aperture: new Aperture(),
     controller: new Controller({ stdout: new Span(`runtime/${paladin.instance.runtime.manifest.slug}`) }),
     mask: paladin.instance.runtime,
-    runtime: new Runtime({ instance: paladin.instance }),
+    runtime: new Runtime({ instance: paladin.instance, slug: paladin.instance.runtime.manifest.slug, reference: new Path(paladin.instance.runtime.reference) }),
   };
 
   die.controller.stdout.to((record) => console.log(`[${record.path}] ${record.verb}`, record.data ?? record.message ?? ""));

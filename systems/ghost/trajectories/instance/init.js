@@ -1,4 +1,5 @@
 import paladin, { lifecycle } from "@vivalence/paladin";
+import * as dotenv from "@std/dotenv";
 import { Connection } from "@vivalence/typology";
 import { envfile } from "../../belt/index.js";
 import { register, specs } from "./target.js";
@@ -54,7 +55,7 @@ const enroll = async () => {
   }
 };
 
-const remote = () => new Connection(paladin.instance.lighthouse.statics.remote);
+const remote = () => new Connection(paladin.instance.runtime.statics.remote);
 
 const reached = async () => Boolean(await remote().call("/status").catch(() => null));
 
@@ -62,10 +63,10 @@ const standing = { good: { processes: [] }, integrate: async () => {}, disintegr
 
 const signup = async (values) => {
   try {
-    return await remote().call("/auth/signup", values);
+    return await remote().call("/lighthouse/signup", values);
   } catch (error) {
     if (error.context?.response?.body?.error?.code !== "USERNAME_EXISTS") throw error;
-    return await remote().call("/auth/login", values);
+    return await remote().call("/lighthouse/login", values);
   }
 };
 
@@ -85,6 +86,11 @@ export async function init(ctx) {
   const scaffolded = absent && Object.keys(paladin.instance.environment?.properties ?? {}).length > 0 && owing();
   if (scaffolded) {
     await paladin.state.text(file, envfile.scaffold(paladin.instance.environment));
+    await lifecycle.mount(lifecycle.populate.instance(paladin));
+  }
+  const minted = envfile.mint(paladin.instance.environment, await dotenv.load({ envPath: file.absolute }));
+  if (Object.keys(minted).length) {
+    await paladin.state.env(file, minted);
     await lifecycle.mount(lifecycle.populate.instance(paladin));
   }
 

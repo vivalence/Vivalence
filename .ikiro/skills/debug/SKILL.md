@@ -65,7 +65,7 @@ diff -q "$S/<file>" "$T/<file>"
 ```
 
 1. capture to `~/.viva/bak/instances/<slug>-<YYYYMMDD>/` (skill `readme`, capture before delete).
-2. `cp` touched files by name; never `rsync --delete`; never overwrite the shelf `instance.viva.js` blind.
+2. `cp` touched files by name; never `rsync --delete`; never overwrite the shelf `instance.viva.json` blind.
 3. verify on the SHELF — in `VIVA_SYSTEM_MODE=DEVELOPMENT` a reload re-bundles at `/metadata/application`; a buffer view needs a restart.
 4. say /"verified on the shelf bundle"/, never "verified".
 

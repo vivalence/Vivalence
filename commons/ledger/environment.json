@@ -1,0 +1,74 @@
+{
+  "type": "object",
+  "required": [
+    "VIVA_REPOSITORY_MOUNT",
+    "VIVA_RUNTIME_ORIGIN",
+    "VIVA_CLIENT_ANIMA_ORIGIN",
+    "VIVA_RUNTIME_SERVE",
+    "VIVA_CLIENT_ANIMA_SERVE",
+    "PUBLIC_VIVA_RUNTIME_REMOTE",
+    "SECRET_VIVA_JWT"
+  ],
+  "properties": {
+    "VIVA_REPOSITORY_MOUNT": {
+      "type": "string",
+      "description": "Absolute path to the vivalence checkout. Repo-relative resolution needs it.",
+      "group": "homes"
+    },
+    "VIVA_RUNTIME_ORIGIN": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.\\-]*://(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:]|%[0-9A-Fa-f]{2})*@)?(?:\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9\\-._~!$&'()*+,;=:]+)\\]|(?:[A-Za-z0-9\\-._~!$&'()*+,;=]|%[0-9A-Fa-f]{2})*)(?::[0-9]*)?(?:/(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})*)*(?:\\?(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?(?:#(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?$",
+      "title": "RFC 3986 URI with an authority (scheme://…)",
+      "description": "Scheme and authority the runtime is reachable at. Every address below derives from it.",
+      "default": "http://localhost:2501",
+      "group": "addresses"
+    },
+    "VIVA_CLIENT_ANIMA_ORIGIN": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.\\-]*://(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:]|%[0-9A-Fa-f]{2})*@)?(?:\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9\\-._~!$&'()*+,;=:]+)\\]|(?:[A-Za-z0-9\\-._~!$&'()*+,;=]|%[0-9A-Fa-f]{2})*)(?::[0-9]*)?(?:/(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})*)*(?:\\?(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?(?:#(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?$",
+      "title": "RFC 3986 URI with an authority (scheme://…)",
+      "description": "Scheme and authority the anima browser client is reachable at.",
+      "default": "http://localhost:1794",
+      "group": "addresses"
+    },
+    "VIVA_RUNTIME_SERVE": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.\\-]*://(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:]|%[0-9A-Fa-f]{2})*@)?(?:\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9\\-._~!$&'()*+,;=:]+)\\]|(?:[A-Za-z0-9\\-._~!$&'()*+,;=]|%[0-9A-Fa-f]{2})*)(?::[0-9]*)?(?:/(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})*)*(?:\\?(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?(?:#(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?$",
+      "title": "RFC 3986 URI with an authority (scheme://…)",
+      "description": "Base URL the runtime serves on. Everything else hangs off this latch.",
+      "default": "${VIVA_RUNTIME_ORIGIN}/",
+      "group": "addresses"
+    },
+    "VIVA_CLIENT_ANIMA_SERVE": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.\\-]*://(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:]|%[0-9A-Fa-f]{2})*@)?(?:\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9\\-._~!$&'()*+,;=:]+)\\]|(?:[A-Za-z0-9\\-._~!$&'()*+,;=]|%[0-9A-Fa-f]{2})*)(?::[0-9]*)?(?:/(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})*)*(?:\\?(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?(?:#(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?$",
+      "title": "RFC 3986 URI with an authority (scheme://…)",
+      "description": "Where the anima browser client serves.",
+      "default": "${VIVA_CLIENT_ANIMA_ORIGIN}/",
+      "group": "addresses"
+    },
+    "PUBLIC_VIVA_RUNTIME_REMOTE": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9+.\\-]*://(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:]|%[0-9A-Fa-f]{2})*@)?(?:\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9\\-._~!$&'()*+,;=:]+)\\]|(?:[A-Za-z0-9\\-._~!$&'()*+,;=]|%[0-9A-Fa-f]{2})*)(?::[0-9]*)?(?:/(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})*)*(?:\\?(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?(?:#(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?$",
+      "title": "RFC 3986 URI with an authority (scheme://…)",
+      "description": "Runtime address the browser bundle calls. Reaches it through publish(), not a thunk.",
+      "default": "${VIVA_RUNTIME_SERVE}",
+      "group": "addresses"
+    },
+    "SECRET_VIVA_JWT": {
+      "type": "string",
+      "minLength": 24,
+      "description": "Signing secret. Minted by viva instance/init when blank, never by ledger/init; rotate with: openssl rand -base64 24",
+      "group": "keys"
+    },
+    "SECRET_VIVA_ANTHROPIC_API_KEY": {
+      "type": "string",
+      "description": "Machine-wide Anthropic key. A key left blank leaves its hallucinator dormant.",
+      "group": "keys"
+    },
+    "SECRET_VIVA_OPENROUTER_API_KEY": { "type": "string", "description": "Machine-wide OpenRouter key.", "group": "keys" },
+    "SECRET_VIVA_ELEVENLABS_API_KEY": { "type": "string", "description": "Machine-wide ElevenLabs key.", "group": "keys" },
+    "SECRET_VIVA_DEEPGRAM_API_KEY": { "type": "string", "description": "Machine-wide Deepgram key.", "group": "keys" }
+  },
+  "additionalProperties": false
+}

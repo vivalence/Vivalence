@@ -1,5 +1,7 @@
 # Lighthouse Announce Dynamics — measured
 
+> OBSOLETE since m80 (10-08): the multiplayer lighthouse, `/daemons/announce` and the beacon are gone (`commons/lighthouses/` and `systems/runtime/prototypes/lighthouse.js` deleted; the lighthouse is the runtime's own `/lighthouse/…`, `systems/runtime/lifecycle/runtime/aperture/lighthouse.js`). Kept as the record of m66 WP2; nothing below describes live code.
+
 > What the multiplayer lighthouse actually holds about daemons, and how that record moves when runtimes come and go. Every law below was measured against live containers (WP2 of m66), not read off the code alone. Code refs are container-rooted. Re-measure before trusting a line that a later hunk touched.
 
 ## The wire

@@ -1,0 +1,63 @@
+{
+  "manifest": { "type": "instance", "slug": "playground", "version": "0.0.1" },
+  "hallucinators": [
+    {
+      "module": "@commons/hallucinator/stub",
+      "statics": {
+        "scripts": {
+          "slow": "--deltas 40 --pace 300ms",
+          "stalled": "--stall 20s --deltas 8",
+          "toolstorm": "--tool lookup --rounds 3 --pace 120ms --stall 2s",
+          "flaky": "--fault retryable",
+          "hung": "--timeout"
+        }
+      }
+    }
+  ],
+  "daemons": [
+    {
+      "manifest": {
+        "type": "daemon",
+        "slug": "playground",
+        "version": "0.0.1",
+        "name": "Playground",
+        "description": "buffer reactivity + harness testbed",
+        "icon": { "emoji": "🧪" }
+      },
+      "modes": [
+        "@commons/playground/spawner",
+        "@commons/playground/spawned",
+        "@commons/playground/dealer",
+        "@commons/playground/card",
+        "@commons/playground/automaton",
+        "@commons/playground/switchboard",
+        "@commons/chaosmonkey/vision",
+        "@commons/chaosmonkey/oracle",
+        "@commons/chaosmonkey/reader"
+      ]
+    }
+  ],
+  "environment": {
+    "type": "object",
+    "required": ["VIVA_RUNTIME_ORIGIN", "VIVA_CLIENT_ANIMA_ORIGIN"],
+    "properties": {
+      "VIVA_RUNTIME_ORIGIN": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9+.\\-]*://(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:]|%[0-9A-Fa-f]{2})*@)?(?:\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9\\-._~!$&'()*+,;=:]+)\\]|(?:[A-Za-z0-9\\-._~!$&'()*+,;=]|%[0-9A-Fa-f]{2})*)(?::[0-9]*)?(?:/(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})*)*(?:\\?(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?(?:#(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?$",
+        "title": "RFC 3986 URI with an authority (scheme://…)",
+        "description": "Scheme and authority the runtime is reachable at. Every address below derives from it. Offset from hello-world's 2501 so both instances can run at once.",
+        "default": "http://localhost:2502",
+        "group": "addresses"
+      },
+      "VIVA_CLIENT_ANIMA_ORIGIN": {
+        "type": "string",
+        "pattern": "^[A-Za-z][A-Za-z0-9+.\\-]*://(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:]|%[0-9A-Fa-f]{2})*@)?(?:\\[(?:[0-9A-Fa-f:.]+|v[0-9A-Fa-f]+\\.[A-Za-z0-9\\-._~!$&'()*+,;=:]+)\\]|(?:[A-Za-z0-9\\-._~!$&'()*+,;=]|%[0-9A-Fa-f]{2})*)(?::[0-9]*)?(?:/(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})*)*(?:\\?(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?(?:#(?:(?:[A-Za-z0-9\\-._~!$&'()*+,;=:@]|%[0-9A-Fa-f]{2})|[/?])*)?$",
+        "title": "RFC 3986 URI with an authority (scheme://…)",
+        "description": "Scheme and authority the anima browser client is reachable at.",
+        "default": "http://localhost:1795",
+        "group": "addresses"
+      }
+    },
+    "additionalProperties": false
+  }
+}

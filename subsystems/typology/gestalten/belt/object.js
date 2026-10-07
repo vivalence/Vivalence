@@ -86,11 +86,6 @@ export function strip(obj) {
 
 export const stripNulls = strip;
 
-// descend through an object's keys into a fresh POJO, entering object-valued keys
-// until none remain. scalars are leaves; an object already on the descent path is a
-// leaf (cycle guard) — so a circular spine (entity → em → daemon → …) terminates
-// instead of looping forever. dumb on purpose: no Date/Collection handling, and a
-// getter that throws will throw. for curated, JSON-safe captures use specimen.snapshot.
 export const descend = (value, seen = new WeakSet()) => {
   if (value === null || typeof value !== "object") return value;
   if (seen.has(value)) return undefined; // cycle leaf
@@ -105,7 +100,11 @@ export const ordered = (value) =>
   is.array(value)
     ? value.map(ordered)
     : is.object(value)
-      ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, ordered(value[key])]))
+      ? Object.fromEntries(
+          Object.keys(value)
+            .sort()
+            .map((key) => [key, ordered(value[key])]),
+        )
       : value;
 
 export function clone(value) {
@@ -170,7 +169,10 @@ const deepMergeCore = (current, options, visited, ...sources) => {
 
     for (const key in source) {
       const sourceValue = source[key];
-      if (sourceValue === null) { delete current[key]; continue; }
+      if (sourceValue === null) {
+        delete current[key];
+        continue;
+      }
       const customFn = options.customMergeFunctions?.[sourceValue?.constructor?.name];
 
       if (sourceValue && customFn) {
@@ -187,18 +189,24 @@ const deepMergeCore = (current, options, visited, ...sources) => {
             : new Set([...(current[key] || []), ...sourceValue]);
       } else if (is.array(sourceValue)) {
         if (options.arrayMergeStrategy === "unique") {
-          const existing = current[key] || []
-          const seen = new Set(existing.map((x) => typeof x === "object" ? JSON.stringify(x) : x))
-          const merged = [...existing]
+          const existing = current[key] || [];
+          const seen = new Set(
+            existing.map((x) => (typeof x === "object" ? JSON.stringify(x) : x)),
+          );
+          const merged = [...existing];
           for (const item of sourceValue) {
-            const k = typeof item === "object" ? JSON.stringify(item) : item
-            if (!seen.has(k)) { seen.add(k); merged.push(item) }
+            const k = typeof item === "object" ? JSON.stringify(item) : item;
+            if (!seen.has(k)) {
+              seen.add(k);
+              merged.push(item);
+            }
           }
-          current[key] = merged
+          current[key] = merged;
         } else {
-          current[key] = options.arrayMergeStrategy === "replace"
-            ? sourceValue
-            : [...(current[key] || []), ...sourceValue]
+          current[key] =
+            options.arrayMergeStrategy === "replace"
+              ? sourceValue
+              : [...(current[key] || []), ...sourceValue];
         }
       } else if (sourceValue instanceof Date) {
         if (!(current[key] instanceof Date)) {

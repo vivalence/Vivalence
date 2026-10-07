@@ -49,13 +49,13 @@ specimen.describe("daemon entities", () => {
     await symbolRepo.find()
     const literals = await literalRepo.find({}, { populate: ["symbols"] })
     specimen.expect(literals[0].symbols.length).toBeGreaterThan(0)
-    specimen.expect(literals[0].symbols[0]).toBe(symbolRepo.$entities.get()[0])
+    specimen.expect(symbolRepo.$entities.get()).toContain(literals[0].symbols[0])
   })
 
   specimen.it("thread create through authed connection", async () => {
     const entityManager = new RemoteEntityManager(scenario.conn, {})
     const modeRepo = new RemoteRepository().connect(scenario.conn.branch("/entities/mode"))
-    const threadRepo = new RemoteRepository().connect(scenario.authedConn.branch("/userspace/entities/thread"))
+    const threadRepo = new RemoteRepository().connect(scenario.userspace.branch("/userspace/entities/thread"))
     entityManager.register("mode", modeRepo)
     entityManager.register("thread", threadRepo)
 

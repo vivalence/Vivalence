@@ -1,5 +1,8 @@
-import { cast } from "@vivalence/typology";
+import { cast, is, Path } from "@vivalence/typology";
+import { dirname, isAbsolute, resolve as absolute } from "@std/path";
 import * as jsonc from "@std/jsonc";
+
+const CONTENT = /^\s*[[{]/;
 
 export default function read(paladin) {
   const resolve = (path) => path?.absolute || path;
@@ -26,17 +29,33 @@ export default function read(paladin) {
       }
     },
 
-    module: async (path) => await import(resolve(path)),
+    module: async (path) => (resolve(path).endsWith(".json") ? await readers.json(path) : await import(resolve(path))),
 
     data: async (path) => {
       const module = await import(resolve(path));
       return module.default ?? module;
     },
 
-    viva: async (path) => {
-      const module = await import(resolve(path));
-      return cast.viva(module);
-    },
+    viva: async (path) => cast.viva(await readers.module(path)),
+  };
+
+  const locate = (source, value, at) => {
+    const origin = resolve(source);
+    if (!is.string(value)) return { held: value, from: origin };
+    const record = [];
+    const spoken = paladin.expand(value, record, at);
+    const unset = record.flatMap((row) => row.unset);
+    if (unset.length) throw new Error(`${origin} ${at}: ${unset.join(" ")} unset — "${value}" names no file and no content`);
+    if (CONTENT.test(spoken)) return { held: jsonc.parse(spoken), from: value };
+    return { path: new Path(isAbsolute(spoken) ? spoken : absolute(dirname(origin), spoken)), from: value };
+  };
+
+  const part = async (source, value, at) => {
+    const located = locate(source, value, at);
+    if (!located.path) return located.held;
+    return await paladin.read.json(located.path).catch((error) => {
+      throw new Error(`${resolve(source)} ${at}: "${value}" → ${located.path.absolute} — ${error?.code === "ENOENT" ? "no such file" : error.message}`);
+    });
   };
 
   const readFile = async (path) => {
@@ -56,5 +75,7 @@ export default function read(paladin) {
     jsonl: readers.jsonl,
     module: readers.module,
     data: readers.data,
+    locate,
+    part,
   };
 }

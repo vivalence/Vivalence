@@ -45,14 +45,14 @@ specimen.beforeAll(async () => {
     ...config({}, { entities: [HostSchema, ProbeSchema] }),
     allowGlobalContext: true,
   });
-  await orm.schema.refreshDatabase();
+  await orm.schema.refresh();
   meta = orm.getMetadata().get(ProbeEntity);
 });
 specimen.afterAll(() => orm.close());
 
 specimen.describe("m64 M0 — a virtual entity inside the graph", () => {
   specimen.it("metadata is keyed by CLASS name — `name:` is not the key", () => {
-    specimen.expect(Object.keys(orm.getMetadata().getAll()).sort()).toEqual(["HostEntity", "ProbeEntity"]);
+    specimen.expect([...orm.getMetadata().getAll().values()].map((meta) => meta.className).sort()).toEqual(["HostEntity", "ProbeEntity"]);
     specimen.expect(meta.virtual).toBe(true);
     specimen.expect(meta.primaryKeys).toEqual([]);
   });
@@ -173,7 +173,7 @@ specimen.describe("m64 M0 — beef: a VirtualSchema the citizen extends", () => 
     const orm2 = await init([schema]);
     const meta2 = orm2.getMetadata().get(Torn);
     specimen.expect(meta2.virtual).toBe(true);
-    specimen.expect(meta2.extends).toBe("BaseVirtualEntity");
+    specimen.expect(meta2.extends).toBe(BaseVirtualEntity);
     specimen.expect(meta2.props.map((p) => p.name).sort()).toEqual(["createdAt", "id", "status"]);
     specimen.expect(meta2.hooks.beforeDelete).toEqual(["teardown"]);
     specimen.expect(orm2.em.getRepository(Torn)).toBeInstanceOf(KindRepository);

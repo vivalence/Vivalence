@@ -1,10 +1,13 @@
 import { MikroORM } from "@mikro-orm/core";
 import paladin from "@vivalence/paladin";
 
-import { Url, Connection, shard, shape, Aperture, Vector, specimen, middleware, RemoteRepository, RemoteEntityManager } from "@vivalence/typology";
-import { lifecycle } from "@vivalence/runtime";
+import { Aperture, Connection, contexts, Datamap, middleware, RemoteEntityManager, RemoteRepository, shape, shard, specimen, Twitch, Url } from "@vivalence/typology";
+import { gestalten, kernel, lifecycle, sets } from "@vivalence/runtime";
 import { instance } from "../scenarios/fixtures.js";
 import { accio } from "../scenarios/registry.js";
+
+const { gather, mint, strike } = gestalten.belt;
+const DAEMON = "brazilian";
 
 class LiteralKind {}
 class SymbolKind {}
@@ -56,22 +59,19 @@ export const SYMBOL_SLUGS = [
 export async function topography() {
   const { config } = await accio("@commons/datamap/libsql");
   const domain = await accio("@education/domain/language-learning");
-  const descriptors = instance(domain.entities);
+  const descriptors = instance();
   const orm = await MikroORM.init({
-    ...config({}, {
-      dbName: DB,
-      entities: descriptors.map((descriptor) => descriptor.schema),
-      subscribers: descriptors.map((descriptor) => descriptor.subscriber).filter(Boolean).map((Subscriber) => new Subscriber()),
-    }),
+    ...config({}, { dbName: DB, entities: descriptors.map((descriptor) => descriptor.schema) }),
     allowGlobalContext: true,
   });
+  const datamap = new Datamap(orm);
+  const traits = Object.fromEntries(Object.keys(sets.kernel).map((kind) => [kind, gather(kernel, domain, [], kind)]));
+  const entities = { ...datamap.entities, ...strike(mint({ slug: DAEMON, kinds: sets.kernel, traits }), orm.em, sets.kernel) };
 
-  const entities = { em: orm.em, twitch: new Vector() };
-  for (const { type, entity } of descriptors) {
-    if (entity && type) entities[type] = orm.em.getRepository(entity);
-  }
-
-  const daemon = { aperture: new Aperture(), entities, twitch: entities.twitch, datamap: { getMetadata: () => orm.getMetadata() } };
+  const daemon = { slug: DAEMON, aperture: new Aperture(), entities, twitch: new Twitch(), datamap };
+  daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
+  daemon.twitch.branch("/after").use(shard.datamap.detached(datamap));
+  datamap.registerSubscriber(daemon.twitch);
   await middleware.compose([lifecycle.daemon.aperture.datamap])({ daemon });
 
   const handler = shape.http(daemon.aperture);

@@ -1,5 +1,7 @@
 # harness — the reference
 
+> DATED — written before m81's land (10-10). Read through these moves: `ctx.daemon.X` → `ctx.X` (the host's words ride flat, `subsystems/typology/schematics/primitives/contexts.js`) · `systems/runtime/lifecycle/mode/traits/` → `systems/runtime/traits/` · a trait is `(mode, host)` · `daemon.flatmodes()` → `fromm.modes(host.modes).flat` · the record key `kernel` → `modes`. Line numbers into moved files are stale; re-grep before citing. `examples/` are red since `Vector.slurp` left (`TypeError: … slurp is not a function`, 10-10).
+
 <!-- writer: agent · reference, unbudgeted · folds the nine files of the harness dossier (dossier · hackernews · reddit · primary · viva-census · wording · entities · mechanisms · client) into one · inside claims cite file:line (repo paths repo-rooted, registry paths ~/.viva/registry-rooted) · outside claims cite a source id (S·HN·R, §12) · examples/ run green · baseline .ikiro/quests/done/m29-agent-tools.org -->
 
 ```

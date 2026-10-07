@@ -48,7 +48,7 @@ COPY subsystems/ ./subsystems/
 COPY commons/ ./commons/
 COPY documentation/deno.jsonc ./documentation/deno.jsonc
 
-RUN deno install --allow-scripts=npm:sqlite3,npm:svelte-preprocess
+RUN deno install --allow-scripts=npm:svelte-preprocess
 
 RUN mkdir -p /root/.deno/bin && sh systems/ghost/install.sh /viva/repository
 

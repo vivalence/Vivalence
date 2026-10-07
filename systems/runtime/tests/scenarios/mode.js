@@ -1,14 +1,11 @@
-import { Url, Connection, Mode, Path, Aperture, Vector, shape, shard } from "@vivalence/typology";
+import { Aperture, contexts, Mode, Path, shape, shard, Twitch, Vector } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
 import { seed, tiers } from "./fixtures.js";
-import { gestalten, lifecycle } from "@vivalence/runtime";
-const { INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING } = lifecycle.mode.traits;
+import { gestalten, traits } from "@vivalence/runtime";
+import { connector, lighthouseOf } from "./daemon.js";
+const { INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING } = traits;
 const { stagger } = gestalten.belt;
 
-// ── test-only APPLICATION ─────────────────────────────────────────────
-// No paladin, no bundler. Mirrors the real trait's buffer factory: fill()
-// (Default-only) — never cast(), whose Convert pass mauls MikroORM Collections.
-// Entity classes via tiers.<type>.entity = the actually-registered classes.
 function APPLICATION(mode, daemon) {
   if (!mode.module.application) return;
   mode.application.buffer = async (desc = {}) => {
@@ -30,18 +27,10 @@ function APPLICATION(mode, daemon) {
   };
 }
 
-// ── daemon scaffold ────────────────────────────────────────────────
-// entities = the datamap repos, keyed by type — exactly daemon.good.entities
-// in the real runtime. Aperture carries the daemon on ctx (effects read
-// ctx.daemon.entities) + a test authority for any auth-gated branch.
-function buildDaemon(datamap, fixtures) {
-  const daemon = {
-    manifest: { slug: "test-daemon", traits: [] },
-    reference: new Path("/daemon/test-daemon"),
+function buildDaemon({ datamap, runtime, held }) {
+  const daemon = Object.assign(held, {
+    type: "daemon",
     aperture: new Aperture(),
-    twitch: new Vector(),
-    entities: datamap.entities,
-    modes: {},
     statics: {
       language: {
         known: { slug: "english", name: "English" },
@@ -49,40 +38,25 @@ function buildDaemon(datamap, fixtures) {
       },
     },
     cargo: { version: "0.0.1", test: true, "audio/thanks.mp3": true },
-    services: {},
-    flatmodes() {
-      return Object.values(this.modes).flatMap((type) => Object.values(type));
-    },
-  };
-
-  datamap.registerSubscriber(shape.subscriber(daemon.twitch));
-
-  daemon.aperture.use(shard.context.bind("daemon", daemon));
-  daemon.aperture.use(async (ctx, next) => {
-    ctx.authority = {
-      authenticate: async (token) => {
-        if (token === "test-token") return { getUser: async () => fixtures.user };
-        throw new Error("invalid token");
-      },
-    };
-    await next();
   });
 
-  return daemon;
+  const lighthouse = lighthouseOf(datamap, runtime.user);
+  daemon.aperture.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
+
+  return { daemon, lighthouse };
 }
 
-// ── wire a single .viva.js into the daemon ─────────────────────────
 async function wireMode(viva, daemon) {
   const em = daemon.entities.em;
   const mode = new Mode({ manifest: viva.manifest });
   mode.aperture = new Aperture();
-  mode.aperture.use(shard.context.bind("daemon", daemon));
+  mode.aperture.use(shard.context.spread(contexts.host, daemon));
   mode.aperture.use(shard.context.bind("mode", mode));
   mode.reference = new Path(`/mode/${viva.manifest.type}/${viva.manifest.slug}`);
 
   mode.entity =
-    (await em.findOne(tiers.mode.entity, { slug: viva.manifest.slug })) ??
-    em.create(tiers.mode.entity, {
+    (await daemon.entities.mode.findOne({ slug: viva.manifest.slug })) ??
+    daemon.entities.mode.create({
       slug: viva.manifest.slug,
       type: viva.manifest.type,
       traits: viva.manifest.traits,
@@ -92,16 +66,16 @@ async function wireMode(viva, daemon) {
   mode.id = mode.entity.id;
 
   if (viva.application) {
-    mode.application = mode.module.application = viva.application; // mirror real Mode: Object.assign makes mode.application === mode.module.application
+    mode.application = mode.module.application = viva.application;
   }
   if (viva.dataset) mode.module.dataset = viva.dataset;
   if (viva.emitter) mode.module.emitter = new Vector().graft(viva.emitter);
   if (viva.harness) mode.module.harness = viva.harness;
-  if (viva.aperture) mode.aperture.graft(viva.aperture); // exported aperture endpoints
+  if (viva.aperture) mode.aperture.graft(viva.aperture);
   if (viva.tools) mode.module.tools = viva.tools;
 
   mode.tools = new Vector();
-  mode.tools.use(shard.context.bind("daemon", daemon));
+  mode.tools.use(shard.context.spread(contexts.host, daemon));
   mode.tools.use(shard.context.bind("mode", mode));
 
   daemon.modes[viva.manifest.type] ??= {};
@@ -110,26 +84,22 @@ async function wireMode(viva, daemon) {
   const finalizers = await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER, EXPOSED, TOOLING, ...(daemon.cortex && { HARNESSED }) });
   for (const finalize of finalizers) await finalize();
 
-  daemon.aperture.branch(mode.reference.absolute, mode.aperture); // → conn-reachable
+  daemon.aperture.branch(mode.reference.absolute, mode.aperture);
 
   return mode;
 }
 
-// ── public API ─────────────────────────────────────────────────────
-
 export async function mountMode(viva, options = {}) {
-  const { orm, em, datamap, fixtures } = await seed(options.entities);
-  const daemon = buildDaemon(datamap, fixtures);
+  const world = await seed(options.domain);
+  const { orm, em, datamap, fixtures } = world;
+  const { daemon, lighthouse } = buildDaemon(world);
   if (options.cortex) daemon.cortex = options.cortex;
   const mode = await wireMode(viva, daemon);
 
   const handler = shape.http(daemon.aperture);
-  const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
-  const authedConn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
-  authedConn.use(async (ctx, next) => {
-    ctx.request.headers.set("authorization", "Bearer test-token");
-    await next();
-  });
+  const connect = connector(handler);
+  const anonymous = await connect();
+  const conn = await connect(fixtures.user);
 
   const scoped = (fn) =>
     RequestContext.create(orm.em, async () => {
@@ -137,15 +107,16 @@ export async function mountMode(viva, options = {}) {
       return fn(RequestContext.getEntityManager());
     });
 
-  return { mode, daemon, datamap, orm, em, fixtures, conn, authedConn, scoped };
+  return { mode, daemon, lighthouse, datamap, orm, em, fixtures, conn, authedConn: conn, anonymous, connect, scoped };
 }
 
 export async function mountModes(vivas) {
-  const { orm, em, datamap, fixtures } = await seed();
-  const daemon = buildDaemon(datamap, fixtures);
+  const world = await seed();
+  const { orm, em, datamap, fixtures } = world;
+  const { daemon, lighthouse } = buildDaemon(world);
   const modes = {};
   for (const viva of vivas) {
     modes[viva.manifest.slug] = await wireMode(viva, daemon);
   }
-  return { modes, daemon, datamap, orm, em, fixtures };
+  return { modes, daemon, lighthouse, datamap, orm, em, fixtures };
 }

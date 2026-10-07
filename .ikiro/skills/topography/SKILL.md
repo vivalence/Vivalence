@@ -27,7 +27,7 @@ Canon: `quests/done/m61-chess-domain.org:73` · `quests/done/m22-datasink.org` �
 
 ## Freight without a dataset
 
-A body that ships only payloads (audio, a tablebase, a manual, a 3D model) is a topography with `traits: ["FRAUGHT"]` and no dataset (`m61:73`). REJECTED: a new module type. `freight.path.nature` is read at `lifecycle/mode/traits/index.js:53`; `statics.ignore` filters the walk. FRAUGHT carries, MOUNTED serves; a path is not a URL — decode out, encode per segment in.
+A body that ships only payloads (audio, a tablebase, a manual, a 3D model) is a topography with `traits: ["FRAUGHT"]` and no dataset (`m61:73`). REJECTED: a new module type. `freight.path.nature` is read at `systems/runtime/traits/fraught.js:17`; `statics.ignore` filters the walk. FRAUGHT carries, MOUNTED serves; a path is not a URL — decode out, encode per segment in.
 
 ## Corpus builds — the standing laws
 
@@ -50,4 +50,4 @@ topographies/<body>/freight/…
 - `<body>.viva.js` — `manifest { type:"topography", …, traits:["DATASET","FRAUGHT"] }` · `dataset` · `freight`.
 - `freight/…` — the payloads, walked at mount.
 
-Two manifests can mount the same topology — the package's and `~/.viva/instances/<slug>/daemon.js` — one module kernelled twice is two modes (skill `package`). The shelf copy drifts → skill `debug`.
+Two manifests can mount the same topology — the package's and `~/.viva/instances/<slug>/instance.viva.json` — one module listed twice in `modes` is two modes (skill `package`). The shelf copy drifts → skill `debug`.

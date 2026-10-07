@@ -17,11 +17,11 @@ Canon: `subsystems/paladin/belt/find.js` · `subsystems/paladin/prototypes/ledge
 
 ## The recipe — content, never a filename
 
-`belt/find.js:48,69-75` walks every `.viva.{js,ts,md,org}` and filters by `manifest.type`; `registry.js:65-66`: package root = `dirname(declaration)`.
+`belt/find.js:48,69-75` walks every `.viva.{js,ts,md,org}` and filters by `manifest.type`; `registry.js:13`: package root = `dirname(declaration)`.
 
 - A package is a DIRECTORY holding a `*.viva.js` whose `manifest.type === "package"`. Two spellings, both legal, do not pick: `package.viva.js` (assembly · chess · droneaid · media · stucatch) · `<slug>.viva.js` (education · vcompany · young-ladys-primer).
 - The walk is infinite-depth; stucatch declares at `stucatch/vivaware/package.viva.js` and `registry.tap` heals the reference to the declaration's dirname.
-- `~/.viva/ledger.viva.js` is NOT a package — ANY `.viva.js` at ledger root, depth 0, manifest DERIVED `{type:"ledger", slug:<stem>}`; an exported manifest only LOCKS the name.
+- `~/.viva/ledger.viva.json` is NOT a package — the ledger recipe (m80), manifest DERIVED `{type:"ledger", slug:"ledger"}`; a declared manifest only LOCKS the name.
 - Invisible dirs: `bak archive slp node_modules .git .DS_Store *.bak .#* #*#` (`belt/ignore.js:4`).
 
 ## Layout — the type is the directory
@@ -33,12 +33,12 @@ Canon: `subsystems/paladin/belt/find.js` · `subsystems/paladin/prototypes/ledge
   modes/<type>/<slug>/<slug>.viva.js
   topologies/<kind>/…  topographies/<body>/…
   services/<slug>/<slug>.viva.js
-  instances/<slug>/{instance.viva.js, daemon.js}
+  instances/<slug>/instance.viva.json
   tests/rig.js · tests/scenarios.js
 ```
 
 - the declaration — `{ type:"package", slug, owner:"@<slug>", version, traits:[] }`.
-- `modes/` — the convention is CODE: `paladin/lifecycle/resolve.js:46-51`.
+- `modes/` — the convention is CODE: `paladin/lifecycle/resolve.js:76-80`.
 - `services/` — a provider, not a mode (`chess/services/stockfish`).
 - `instances/<slug>/` — the template `instance/create` COPIES to `~/.viva/instances/<slug>/`.
 - `tests/` — package-root fixtures; the domain reaches modes at runtime, never by path.
@@ -56,13 +56,13 @@ Canon: `subsystems/paladin/belt/find.js` · `subsystems/paladin/prototypes/ledge
 
 ## Manifest — authored identity, folded at mount
 
-The MODULE's manifest is authored and immutable. The MOUNTING's is minted by paladin: `Manifest.cast({...module.manifest, ...query.manifest})` (`registry.js:189`), kernel entry's keys winning, validated at the pinhole; the citizen carries it, the row stays flat. One module kernelled twice with two manifests is two modes. `traits` are DECLARED — nothing deduces them.
+The MODULE's manifest is authored and immutable. The MOUNTING's is minted by paladin: `Manifest.cast({...module.manifest, ...query.manifest})` (`registry.js:253`), modes entry's keys winning, validated at the pinhole; the citizen carries it, the row stays flat. One module listed twice in `modes` with two manifests is two modes. `traits` are DECLARED — nothing deduces them.
 
 ## Mount path — read it before touching it
 
 ```
-systems/runtime/lifecycle/runtime/population.js:16  paladin.ledger.registry.supply() → reconcile(record) → mount(root) → pensieve.register
-systems/runtime/lifecycle/daemon/population.js:7    die.register = registry.wire(die.mask) → accio() per slot; domain = Domain.cast(kernel.find(type==="domain"))
+systems/runtime/lifecycle/runtime/population.js:18  paladin.ledger.registry.supply() → reconcile(record) → mount(root) → pensieve.register
+systems/runtime/lifecycle/daemon/population.js:7    die.register = registry.wire(die.mask) → accio() per slot; domain = Domain.cast(modes.find(type==="domain")); the runtime wires its own record the same way (runtime/population.js:73)
 ~/.viva/registry.json                               flat array of references, store-relative or absolute
 ```
 

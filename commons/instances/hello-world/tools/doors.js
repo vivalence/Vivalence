@@ -24,7 +24,7 @@ export const doors = new Vector()
   );
 
 export async function persona(ctx) {
-  if (!ctx.daemon.cortex.findOne({ type: "object", via: "render" })) {
+  if (!ctx.cortex.findOne({ type: "object", via: "render" })) {
     return { greeting: "No hallucinator attached. Bot says high." };
   }
 

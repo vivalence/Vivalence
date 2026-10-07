@@ -2,9 +2,11 @@
 
 # ghost against Emacs · Neovim · tmux — the reference
 
-This is a study for beef's critical pass on `.ikiro/quests/m79-terminal-ghost.org`. It compares three well-known architectures (Emacs, Neovim, tmux), with short notes on Blender's operators, Plan 9's Acme and plumber, the Language Server Protocol and VS Code's `contributes`, against ghost (`viva`, `systems/ghost`), the runtime daemon it talks to (`systems/runtime`), and the modes the daemon hosts. It sets out options and leaves every decision to beef. QUESTIONED marks a decision that is still open.
+> DATED 10-05 — vivalence citations predate m80 and m81. Read through: `systems/runtime/lifecycle/mode/traits/` → `systems/runtime/traits/` · `gestalten/belt/stagger.js` → `gestalten/belt/traits.js` · `lifecycle/daemon/aperture/{metadata,cortex}.js` → `lifecycle/host/aperture/` (run on the runtime and each daemon, the listing carries `reference`) · an undeclared trait is now LOGGED, never silent (`systems/runtime/lifecycle/mode/resolution.js:15`) · `ctx.daemon` → the flat host words · `flatmodes()` → `fromm.modes(…).flat` · `entities/{kernel,lighthouse}/` → `systems/runtime/entities/`. External citations are unaffected.
 
-**How to read a citation.** An external claim links to its primary document, and the link text names the section. A vivalence claim carries `path:line`, container-rooted. Quest lines are `m79:<line>`, meaning `.ikiro/quests/m79-terminal-ghost.org:<line>`.
+This is a study for beef's critical pass on `.ikiro/quests/benched/m79-terminal-ghost.org`. It compares three well-known architectures (Emacs, Neovim, tmux), with short notes on Blender's operators, Plan 9's Acme and plumber, the Language Server Protocol and VS Code's `contributes`, against ghost (`viva`, `systems/ghost`), the runtime daemon it talks to (`systems/runtime`), and the modes the daemon hosts. It sets out options and leaves every decision to beef. QUESTIONED marks a decision that is still open.
+
+**How to read a citation.** An external claim links to its primary document, and the link text names the section. A vivalence claim carries `path:line`, container-rooted. Quest lines are `m79:<line>`, meaning `.ikiro/quests/benched/m79-terminal-ghost.org:<line>`.
 
 **The quest moved while this was written.** `m79-terminal-ghost.org` was edited live during this study (3472 lines at the first read, 3641 at the last). Every `m79:` number here is re-read against the 3641-line file, and a copy of that version sits at `/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/da11b0ef-dfe0-4389-8aab-b79ed0fcf255/scratchpad/comparison/m79-snapshot.org`. If a line has moved, grep for the quoted anchor.
 
@@ -761,7 +763,7 @@ Two points from the comparison bear on it:
 - `.ikiro/world/map.md`
 - `.ikiro/world/codemap/{ghost,runtime,typology,invariants,ledger,ontology}.md`
 - `.ikiro/skills/mode/SKILL.md`
-- `.ikiro/quests/m79-terminal-ghost.org`: 1-275, 718-740, 1353-1420, 2852-2960, 3049-3140
+- `.ikiro/quests/benched/m79-terminal-ghost.org`: 1-275, 718-740, 1353-1420, 2852-2960, 3049-3140
 
 **ghost**
 - `systems/ghost/mod.js`

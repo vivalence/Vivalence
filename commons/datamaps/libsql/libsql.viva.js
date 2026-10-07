@@ -17,7 +17,7 @@ const config = (datamap, options = {}) => {
     ...(contextName && { contextName }),
     ...(seat && {
       extensions: [Migrator],
-      migrations: { tableName: "_mikro_migrations", path: datamap.mountpoint.branch("migrations").absolute, transactional: false },
+      migrations: { tableName: "_mikro_migrations", path: datamap.mountpoint.branch("migrations").absolute, transactional: false, snapshotOnMigrate: false },
     }),
     ...options,
   });
@@ -25,11 +25,11 @@ const config = (datamap, options = {}) => {
 
 async function provider(datamap, options) {
   const orm = await MikroORM.init(config(datamap, options));
-  if (orm.config.get("dbName") === ":memory:") await orm.schema.createSchema();
+  if (orm.config.get("dbName") === ":memory:") await orm.schema.create();
   else {
-    const migrator = orm.getMigrator();
-    if (await migrator.checkMigrationNeeded()) await migrator.createMigration();
-    if ((await migrator.getPendingMigrations()).length) await migrator.up();
+    const migrator = orm.migrator;
+    if (await migrator.checkSchema()) await migrator.create();
+    if ((await migrator.getPending()).length) await migrator.up();
   }
   return new Datamap(orm);
 }

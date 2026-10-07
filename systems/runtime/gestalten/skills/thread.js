@@ -1,4 +1,4 @@
-import { v, Vector } from "@vivalence/typology";
+import { fromm, v, Vector } from "@vivalence/typology";
 import { places } from "./mode.js";
 
 const named = (row) => row.trait?.LABELED?.name ?? "unlabeled";
@@ -25,9 +25,9 @@ const bufferline = (buffer, modes) =>
   `${buffer.index} · ${buffer.id} · ${named(buffer)} · ${modes.get(buffer.mode.id)} · ${buffer.status} · ${shown(buffer.data)}` +
   (buffer.view?.hash ? ` · view ${buffer.view.hash}` : "");
 
-export const summary = async ({ daemon, mode, thread }) => {
-  const modes = new Map(daemon.flatmodes().map((peer) => [peer.id, address(peer)]));
-  const buffers = await daemon.entities.buffer.find({ thread: thread.id }, { orderBy: { index: "asc" } });
+export const summary = async ({ modes: seated, entities, mode, thread }) => {
+  const modes = new Map(fromm.modes(seated).flat.map((peer) => [peer.id, address(peer)]));
+  const buffers = await entities.buffer.find({ thread: thread.id }, { orderBy: { index: "asc" } });
   return [
     threadline(thread),
     modeline(mode),
@@ -59,11 +59,11 @@ export const thread = new Vector().open(
     }),
   },
   async (ctx) => {
-    const row = await ctx.daemon.entities.thread.findOneOrFail({
+    const row = await ctx.entities.thread.findOneOrFail({
       id: ctx.input.id,
     });
     row.trait = { ...row.trait, ...ctx.input.trait };
-    await ctx.daemon.entities.em.flush();
+    await ctx.entities.em.flush();
     return { message: `thread ${row.id} updated`, thread: [row] };
   },
 );

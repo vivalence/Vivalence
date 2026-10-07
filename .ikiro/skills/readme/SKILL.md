@@ -49,7 +49,7 @@ Scratch variant: `viva instance/create <scratch> --init` → walk → `viva inst
 
 1. **versioned?** `git -C <dir> rev-parse --show-toplevel 2>/dev/null || echo NO-VCS` — versioned is read-only for me.
 2. **running?** `ps aux | grep deno` · `viva ledger/doctor` (`locks/`) · `lsof <db>`. A schema change under `--watch` IS a deployment.
-3. **capture** to `~/.viva/bak/<scope>/<slug>-<YYYYMMDD>/` (e.g. `~/.viva/bak/instances/droneaid-20260922/db-0933/`): a db with its migrations and the `daemon.js` that mounted it; a recipe whole. Say what you kept: /"19 literals, 19 symbol links, 18 uses rows, captured to … first. 69 symbols kept."/
+3. **capture** to `~/.viva/bak/<scope>/<slug>-<YYYYMMDD>/` (e.g. `~/.viva/bak/instances/droneaid-20260922/db-0933/`): a db with its migrations and the `instance.viva.json` that mounted it; a recipe whole. Say what you kept: /"19 literals, 19 symbol links, 18 uses rows, captured to … first. 69 symbols kept."/
 4. REJECTED: a scratchpad copy as the only copy — `cleanup` destroys it.
 5. cut by entry, never by line.
 6. a hunk bound for `~/.viva/instances` is complete and reverse-appliable — no `…`.

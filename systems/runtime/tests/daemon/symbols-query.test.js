@@ -1,15 +1,6 @@
-// ── temporary test ──────────────────────────────────────────
-// verifies that resolveSymbols on LiteralRepository correctly
-// rewrites symbol sugar into native MikroORM m:n queries.
-
 import { specimen } from "@vivalence/typology";
-import { MikroORM } from "@mikro-orm/core";
-import { config } from "../../../../commons/datamaps/libsql/libsql.viva.js";
-import {
-  LiteralEntity,
-  SymbolEntity,
-} from "@vivalence/runtime";
-import { LiteralDomain, SymbolDomain } from "../scenarios/fixtures.js";
+import { datamap } from "@vivalence/runtime/scenarios";
+import { LiteralEntity } from "@vivalence/runtime";
 
 specimen.describe("symbols: m:n slug query", () => {
   let orm, em, repo;
@@ -17,40 +8,32 @@ specimen.describe("symbols: m:n slug query", () => {
   let greetingSym, farewellSym;
 
   specimen.beforeAll(async () => {
-    orm = await MikroORM.init({
-      ...config({}, { entities: [LiteralDomain, SymbolDomain] }),
-      allowGlobalContext: true,
-    });
-    await orm.schema.refreshDatabase();
-    em = orm.em;
+    const scenario = await datamap.seed();
+    orm = scenario.orm;
+    em = scenario.em;
+    const { mode } = scenario.fixtures;
 
-    greetingSym = em.create(SymbolEntity, { slug: "greeting", traits: [], trait: {} });
-    farewellSym = em.create(SymbolEntity, { slug: "farewell", traits: [], trait: {} });
+    greetingSym = scenario.fixtures.symbol;
+    farewellSym = scenario.repos.symbol.create({ slug: "farewell", mode, traits: [], trait: {} });
     await em.flush();
 
-    hello = em.create(LiteralEntity, {
-      slug: "hello",
-      traits: ["TRANSLATED"],
-      trait: { TRANSLATED: { known: "hello", learning: "olá" } },
-      symbol: { word: true },
-    });
-    goodbye = em.create(LiteralEntity, {
-      slug: "goodbye",
-      traits: ["TRANSLATED"],
-      trait: { TRANSLATED: { known: "goodbye", learning: "tchau" } },
-      symbol: { word: true },
-    });
-    orphan = em.create(LiteralEntity, {
+    hello = scenario.fixtures.hello;
+    goodbye = scenario.fixtures.goodbye;
+    const wordSym = scenario.repos.symbol.create({ slug: "word", mode, traits: ["TOPOGRAPHICAL"], trait: {} });
+    hello.symbols.add(wordSym);
+    goodbye.symbols.add(wordSym);
+    hello.assign({ updatedAt: new Date() });
+    goodbye.assign({ updatedAt: new Date() });
+    orphan = scenario.repos.literal.create({
       slug: "orphan",
+      mode,
       traits: ["TRANSLATED"],
       trait: { TRANSLATED: { known: "orphan", learning: "órfão" } },
       symbol: { word: true },
     });
     await em.flush();
 
-    hello.symbols.add(greetingSym);
     hello.symbols.add(farewellSym);
-    goodbye.symbols.add(greetingSym);
     await em.flush();
 
     repo = em.getRepository(LiteralEntity);

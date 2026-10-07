@@ -27,10 +27,10 @@ specimen.describe("populate never multiplies", () => {
     fetched.length = 0;
     const literals = await scenario.entities.literal.find(
       { symbols: ["greeting", "casual"] },
-      { limit: 2, populate: ["retentions"] },
+      { limit: 2, populate: ["notes"] },
     );
     specimen.expect(literals.length).toBe(2);
-    specimen.expect(literals.every((literal) => literal.retentions.isInitialized())).toBe(true);
+    specimen.expect(literals.every((literal) => literal.notes.isInitialized())).toBe(true);
     const widest = Math.max(...fetched.map((entry) => entry.rows));
     specimen.expect(widest).toBeLessThanOrEqual(2);
   });

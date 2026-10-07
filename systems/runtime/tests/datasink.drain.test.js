@@ -1,10 +1,10 @@
-import { specimen, sleep, Vector, shape, shard } from "@vivalence/typology";
+import { contexts, Path, shard, sleep, specimen, Twitch } from "@vivalence/typology";
 import { datamap } from "@vivalence/runtime/scenarios";
 import { topography } from "@vivalence/typology/scenarios";
-import { LiteralEntity } from "@vivalence/runtime";
+
 import paladin from "@vivalence/paladin";
-import { gestalten, lifecycle } from "@vivalence/runtime";
-const { DATASET, DATASINK } = lifecycle.mode.traits;
+import { gestalten, traits } from "@vivalence/runtime";
+const { DATASET, DATASINK } = traits;
 const { stagger } = gestalten.belt;
 
 let scenario, daemon, mode, arm, first;
@@ -14,17 +14,21 @@ const read = (target) => paladin.read.json(`${mode.module.source.dirname}/${targ
 specimen.beforeAll(async () => {
   scenario = await datamap.seed();
   daemon = {
+    slug: scenario.fixtures.daemon.slug,
+    reference: new Path(`/daemon/${scenario.fixtures.daemon.slug}`),
     entities: scenario.repos,
     datamap: { getMetadata: () => scenario.orm.getMetadata() },
-    twitch: new Vector(),
+    twitch: new Twitch(),
   };
   daemon.entities.em = scenario.em;
-  daemon.twitch.branch("/after").use(shard.datamap.detached(scenario));
+  daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
+  daemon.twitch.branch("/after").use(shard.datamap.detached(scenario.datamap));
 
   const corpus = await topography.corpus();
   mode = {
     manifest: { type: "topography", slug: "fixture", traits: [] },
-    entity: { installed: false },
+    id: scenario.fixtures.mode.id,
+    entity: { installed: "" },
     module: { source: corpus, dataset: topography.dataset(), datasink: topography.datasink() },
   };
 
@@ -90,9 +94,9 @@ specimen.describe("the drain — daemon rows back out to registry files", () => 
 
 specimen.describe("the twitch gate", () => {
   specimen.it("marks nothing dirty until the finalizer arms it, then goes incremental", async () => {
-    scenario.em.getEventManager().registerSubscriber(shape.subscriber(daemon.twitch));
+    scenario.datamap.registerSubscriber(daemon.twitch);
 
-    scenario.em.create(LiteralEntity, { slug: "pre-arm", trait: {}, symbol: {} });
+    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "pre-arm", trait: {}, symbol: {} });
     await scenario.em.flush();
     await sleep.ms(5);
 
@@ -101,7 +105,7 @@ specimen.describe("the twitch gate", () => {
 
     arm();
 
-    scenario.em.create(LiteralEntity, { slug: "post-arm", trait: {}, symbol: {} });
+    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "post-arm", trait: {}, symbol: {} });
     await scenario.em.flush();
     await sleep.ms(5);
 
@@ -117,7 +121,7 @@ specimen.describe("the twitch gate", () => {
       ...mode,
       manifest: { type: "topography", slug: "terminable", traits: ["DATASINK"] },
       terminators: collected,
-      entity: { installed: false },
+      entity: { installed: "" },
     };
     const finalizers = await stagger(staggered, daemon, { DATASINK });
 
@@ -129,7 +133,7 @@ specimen.describe("the twitch gate", () => {
     staggered.datasink.drain = (input) => (drained++, guarded(input));
 
     finalizers[0]();
-    scenario.em.create(LiteralEntity, { slug: "terminated", trait: {}, symbol: {} });
+    scenario.repos.literal.create({ mode: scenario.fixtures.mode, slug: "terminated", trait: {}, symbol: {} });
     await scenario.em.flush();
     await sleep.ms(5);
 

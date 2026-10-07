@@ -6,12 +6,25 @@ export const NOTHING =
 const local = (token) => token.includes("/") || token.startsWith(".");
 
 export class Instances {
-  constructor(paladin, path) {
+  constructor(paladin, path, { held = null, from = null, fallback = true } = {}) {
     this.paladin = paladin;
     this.path = path;
+    this.held = held;
+    this.from = from;
+    this.fallback = fallback;
+  }
+  async all() {
+    if (this.held) return structuredClone(this.held);
+    return await this.paladin.read.json(this.path, this.fallback ? {} : undefined).catch((error) => {
+      throw new Error(`instances: ${this.path.absolute} ("${this.from}") — ${error?.code === "ENOENT" ? "no such file" : error.message}`);
+    });
+  }
+  async persist(all) {
+    if (this.held) throw new Error(`instances: inline ("${this.from}") — read-only; declare a path to write`);
+    await this.paladin.state.json(this.path, all);
   }
   async read(slug) {
-    return (await this.paladin.read.json(this.path, {}))[slug] ?? null;
+    return (await this.all())[slug] ?? null;
   }
   // where a slug LIVES. a *_MOUNT env var is always a path, never a slug — a caller that
   // accepts a slug from an operator resolves it through here before storing anything.
@@ -20,17 +33,17 @@ export class Instances {
   }
 
   async list() {
-    const all = await this.paladin.read.json(this.path, {});
+    const all = await this.all();
     return Object.entries(all).map(([slug, held]) => ({ slug, ...held }));
   }
   async write(slug, partial) {
-    const all = await this.paladin.read.json(this.path, {});
+    const all = await this.all();
     const now = new Date().toISOString();
     all[slug] = { ...(all[slug] ?? { createdAt: now }), ...partial, updatedAt: now };
-    await this.paladin.state.json(this.path, all);
+    await this.persist(all);
   }
   async lookup(mount) {
-    const all = await this.paladin.read.json(this.path, {});
+    const all = await this.all();
     const hit = Object.entries(all).find(([, held]) => held.mount === mount);
     return hit ? { slug: hit[0], ...hit[1] } : null;
   }
@@ -46,16 +59,16 @@ export class Instances {
     return { slug: token, ...held };
   }
   async rename(prior, next) {
-    const all = await this.paladin.read.json(this.path, {});
+    const all = await this.all();
     if (!all[prior]) throw new Error(`instances: no record '${prior}'`);
     if (all[next]) throw new Error(`instances: '${next}' already held`);
     all[next] = { ...all[prior], updatedAt: new Date().toISOString() };
     delete all[prior];
-    await this.paladin.state.json(this.path, all);
+    await this.persist(all);
   }
   async remove(slug) {
-    const all = await this.paladin.read.json(this.path, {});
+    const all = await this.all();
     delete all[slug];
-    await this.paladin.state.json(this.path, all);
+    await this.persist(all);
   }
 }

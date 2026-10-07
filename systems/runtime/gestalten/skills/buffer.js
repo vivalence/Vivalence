@@ -22,11 +22,11 @@ export const buffer = new Vector()
       }),
     },
     async (ctx) => {
-      const row = await ctx.daemon.entities.buffer.findOneOrFail({
+      const row = await ctx.entities.buffer.findOneOrFail({
         id: ctx.input.id,
       });
       row.data = { ...row.data, ...ctx.input.data };
-      await ctx.daemon.entities.em.flush();
+      await ctx.entities.em.flush();
       return { message: `updated ${named(row)}`, buffer: [row] };
     },
   )
@@ -46,9 +46,9 @@ export const buffer = new Vector()
       }),
     },
     async (ctx) => {
-      const row = await ctx.daemon.entities.buffer.findOneOrFail({ id: ctx.input.id });
+      const row = await ctx.entities.buffer.findOneOrFail({ id: ctx.input.id });
       row.trait = { ...row.trait, LABELED: ctx.input.label };
-      await ctx.daemon.entities.em.flush();
+      await ctx.entities.em.flush();
       return { message: `labeled ${named(row)}`, buffer: [row] };
     },
   );

@@ -30,7 +30,7 @@ const world = () => {
   const stdin = Object.fromEntries(["SIGSTOP", "SIGCONT", "SIGTERM"].map((signal) => [signal, (reason) => said.push([signal, reason])]));
   const running = { id: "a1", status: "RUNNING", thread: "t1", steps: [{ path: "/hallucination", verb: "open", at: 0 }], stdin };
   const italian = daemon("italian", {
-    modes: [mode("dojo", ["APPLICATION", "STANDALONE"]), mode("francesca", ["CONVERSATIONAL", "HARNESSED"]), mode("word", ["TOPOLOGICAL"])],
+    modes: [mode("dojo", ["APPLICATION"]), mode("francesca", ["CONVERSATIONAL", "HARNESSED"]), mode("word", ["TOPOLOGICAL"])],
     threads: [{ id: "t1", label: { name: "lesson" } }, { id: "t2", label: { name: "drill" } }],
     activities: [running, { id: "a0", status: "DONE", thread: "t2", steps: [] }],
   });

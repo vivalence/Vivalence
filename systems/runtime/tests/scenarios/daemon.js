@@ -1,10 +1,14 @@
-import { Url, Connection, shard, Mode, Path, shape, Aperture, Vector, App, middleware, v, Status } from "@vivalence/typology";
+import { Aperture, App, Connection, contexts, middleware, Mode, Path, shape, shard, steer, Twitch, Url, v, Vector } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
 import { seed, tiers } from "./fixtures.js";
+import { gestalten, lifecycle, traits } from "@vivalence/runtime";
+import { authenticate, signer } from "../../lifecycle/runtime/lighthouse/signer.js";
+import { userspace as userspaceBeat } from "../../lifecycle/runtime/aperture/userspace.js";
 
-import { Lighthouse, gestalten, lifecycle } from "@vivalence/runtime";
-const { INTENTED, EMITTER } = lifecycle.mode.traits;
+const { INTENTED, EMITTER } = traits;
 const { stagger } = gestalten.belt;
+
+export const SECRET = "scenario-secret-scenario-secret-scenario";
 
 const APPLICATION = (mode, daemon) => {
   if (!mode.module.application) return;
@@ -22,8 +26,23 @@ const APPLICATION = (mode, daemon) => {
   };
 };
 
-export async function create() {
-  const { orm, em, datamap, entities, fixtures } = await seed();
+export const lighthouseOf = (datamap, users) => ({
+  secret: SECRET,
+  users,
+  authenticate: authenticate({ secret: SECRET, users }),
+  bind: datamap.shard.bind("user", (ctx) => ({ user: ctx.user.id })),
+});
+
+export const connector = (handler) => async (user) => {
+  const connection = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
+  if (!user) return connection;
+  const access = await signer(SECRET).access(user);
+  return connection.use(async (ctx, next) => (ctx.request.headers.set("authorization", `Bearer ${access}`), await next()));
+};
+
+export async function create({ domain = {} } = {}) {
+  const world = await seed(domain);
+  const { orm, em, datamap, entities, runtime, fixtures, held } = world;
 
   const modeTraits = ["APPLICATION", "INTENTED", "EMITTER"];
   const mode = new Mode({ manifest: { type: "game", slug: "flashcard", traits: modeTraits } });
@@ -34,7 +53,7 @@ export async function create() {
 
   mode.application = mode.module.application = new App("buffer/flashcard.svelte", v.buffer({
     data: { recall: v.string({ default: "LEARNING" }) },
-  })); // mirror real Mode: mode.application === mode.module.application
+  }));
 
   mode.module.dataset = {
     intent: [
@@ -55,73 +74,33 @@ export async function create() {
     });
   });
 
-  // const daemon = {
-  //   ...
-  //   entities: { em, twitch: new Vector() },
-  //   ...
-  // };
-  const daemon = {
-    manifest: { slug: "test-daemon", traits: [] },
-    reference: new Path("/daemon/test-daemon"),
-    aperture: new Aperture(),
-    twitch: new Vector(),
-    entities,
-    modes: { game: { flashcard: mode } },
-    cargo: { version: "0.0.1", test: true },
-    services: {},
-    flatmodes() {
-      return Object.values(this.modes).flatMap((type) => Object.values(type));
-    },
-  };
+  const daemon = Object.assign(held, { type: "daemon", aperture: new Aperture(), modes: { game: { flashcard: mode } }, cargo: { version: "0.0.1", test: true } });
 
-  daemon.aperture.use(shard.context.bind("daemon", daemon));
+  const lighthouse = lighthouseOf(datamap, runtime.user);
+  daemon.aperture.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.inject(datamap)).use(lighthouse.authenticate).use(lighthouse.bind);
 
-  datamap.registerSubscriber(shape.subscriber(daemon.twitch));
-
-  const TOKENS = { "test-token": "test-identity", "fresh-token": "fresh-identity" };
-  const enrolled = new Map([["test-identity", fixtures.user]]);
-  const wire = {
-    call: async () => ({}),
-    fetch: async (endpoint, body) => {
-      const id = TOKENS[body.access];
-      if (!id) return { ok: false, body: { status: "ERROR", error: { code: "INVALID_TOKEN", message: "invalid token" } } };
-      return endpoint === "/auth/verify" ? { ok: true, body: { identity: { id } } } : { ok: true, body: { status: "SUCCESS" } };
-    },
-  };
-  daemon.lighthouse = new Lighthouse(wire, {
-    status: new Status("RUNNING"), daemon: daemon.slug, remote: "http://test-daemon",
-    users: {
-      findOne: async ({ id }) => enrolled.get(id) ?? null,
-      upsert: async ({ id }) => { if (!enrolled.has(id)) enrolled.set(id, { ...fixtures.user, id }); },
-    },
-  });
+  if (domain.aperture) {
+    domain.aperture.use(shard.context.spread(contexts.host, daemon));
+    daemon.aperture.graft(domain.aperture);
+    daemon.call = shape.proxy(domain.aperture, steer.strategy.direct);
+  }
 
   for (const finalize of await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER })) await finalize();
 
   daemon.aperture.branch(mode.reference.absolute, mode.aperture);
 
-  daemon.datamap = datamap;
   const die = { daemon };
-
-  await middleware.compose([lifecycle.daemon.aperture.datamap, lifecycle.daemon.aperture.userspace, lifecycle.daemon.aperture.modes, lifecycle.daemon.aperture.freight])(die);
-
-  // daemon.aperture.open("/datamap", () => shard.datamap.strip(orm.getMetadata()));
-  daemon.aperture.open("/datamap", () => shard.datamap.strip(daemon.datamap.getMetadata()));
+  await middleware.compose([lifecycle.daemon.aperture.datamap, lifecycle.daemon.aperture.freight])(die);
 
   const handler = shape.http(daemon.aperture);
-  const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
+  const connect = connector(handler);
+  const anonymous = await connect();
+  const conn = await connect(fixtures.user);
 
-  const authedConn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
-  authedConn.use(async (ctx, next) => {
-    ctx.request.headers.set("authorization", "Bearer test-token");
-    await next();
-  });
-
-  const freshConn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));
-  freshConn.use(async (ctx, next) => {
-    ctx.request.headers.set("authorization", "Bearer fresh-token");
-    await next();
-  });
+  const runtimeAperture = new Aperture().use(shard.datamap.inject(datamap));
+  await userspaceBeat({ aperture: runtimeAperture, runtime: { datamap, entities: runtime, twitch: world.twitch, lighthouse } }, async () => {});
+  runtimeAperture.branch(daemon.reference.nature, daemon.aperture);
+  const userspace = await connector(shape.http(runtimeAperture))(fixtures.user);
 
   const scoped = (fn) => RequestContext.create(orm.em, async () => {
     const scopedEm = RequestContext.getEntityManager();
@@ -129,5 +108,5 @@ export async function create() {
     return fn(scopedEm);
   });
 
-  return { daemon, die, handler, conn, authedConn, freshConn, orm, em, fixtures, mode, scoped };
+  return { daemon, die, lighthouse, handler, conn, authedConn: conn, anonymous, userspace, runtimeAperture, connect, orm, em, datamap, fixtures, mode, scoped };
 }

@@ -15,7 +15,7 @@ export const TurnDossier = {
   kind: () => Turn,
   repository: (schema, dataspace) => {
     const repo = new RemoteRepository(schema.kind());
-    repo.connect(dataspace.connection.branch("/userspace/entities/turn"));
+    repo.connect(dataspace.runtime.branch("/userspace/entities/turn"));
     return repo;
   },
 

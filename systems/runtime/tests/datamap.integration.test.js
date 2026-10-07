@@ -34,8 +34,7 @@ specimen.beforeAll(async () => {
     .graft(shard.datamap.repository(repos.thread))
     .graft(shard.datamap.reactive(repos.thread, twitch))
 
-  const sub = shape.subscriber(twitch)
-  scenario.em.getEventManager().registerSubscriber(sub)
+  scenario.datamap.registerSubscriber(twitch)
 
   const handler = shape.http(aperture)
   const abort = new AbortController()
@@ -53,7 +52,7 @@ specimen.afterAll(async () => {
 
 specimen.describe("datamap over HTTP", () => {
   specimen.it("CRUD works over real network", async () => {
-    const created = await conn.call("/literal/create", { data: { slug: "net-create", trait: {} } })
+    const created = await conn.call("/literal/create", { data: { slug: "net-create", mode: scenario.fixtures.mode.id, trait: {} } })
     specimen.expect(created.slug).toBe("net-create")
 
     const found = await conn.call("/literal/find", { where: { slug: "net-create" } })
@@ -82,7 +81,7 @@ specimen.describe("reactive subscriptions over HTTP", () => {
     })()
 
     await sleep.ms(50)
-    await conn.call("/literal/create", { data: { slug: "sse-create", trait: {} } })
+    await conn.call("/literal/create", { data: { slug: "sse-create", mode: scenario.fixtures.mode.id, trait: {} } })
     await reader
 
     specimen.expect(events.length).toBe(1)
@@ -92,7 +91,7 @@ specimen.describe("reactive subscriptions over HTTP", () => {
   })
 
   specimen.it("subscribe receives update events", async () => {
-    const created = await conn.call("/literal/create", { data: { slug: "sse-update", trait: {} } })
+    const created = await conn.call("/literal/create", { data: { slug: "sse-update", mode: scenario.fixtures.mode.id, trait: {} } })
 
     const events = []
     const controller = new AbortController()
@@ -115,7 +114,7 @@ specimen.describe("reactive subscriptions over HTTP", () => {
   })
 
   specimen.it("subscribe receives delete events", async () => {
-    const created = await conn.call("/literal/create", { data: { slug: "sse-delete", trait: {} } })
+    const created = await conn.call("/literal/create", { data: { slug: "sse-delete", mode: scenario.fixtures.mode.id, trait: {} } })
 
     const events = []
     const controller = new AbortController()
@@ -147,7 +146,7 @@ specimen.describe("reactive subscriptions over HTTP", () => {
     })()
 
     await sleep.ms(50)
-    await conn.call("/symbol/create", { data: { slug: "sse-symbol", trait: {} } })
+    await conn.call("/symbol/create", { data: { slug: "sse-symbol", mode: scenario.fixtures.mode.id, trait: {} } })
     await reader
 
     specimen.expect(events[0].op).toBe("create")
@@ -162,7 +161,7 @@ specimen.describe("RemoteRepository over HTTP", () => {
     const repo = entityManager.register("literal", new RemoteRepository())
     repo.connect(conn.branch("/literal"))
 
-    const created = await repo.create({ slug: "remote-net", trait: {} })
+    const created = await repo.create({ slug: "remote-net", mode: scenario.fixtures.mode.id, trait: {} })
     specimen.expect(created.slug).toBe("remote-net")
     specimen.expect(repo.$entities.get()).toContain(created)
 
@@ -185,7 +184,7 @@ specimen.describe("RemoteRepository over HTTP", () => {
     const unsub = repo.subscribe()
     await sleep.ms(50)
 
-    await conn.call("/literal/create", { data: { slug: "sub-driven", trait: {} } })
+    await conn.call("/literal/create", { data: { slug: "sub-driven", mode: scenario.fixtures.mode.id, trait: {} } })
     await sleep.ms(200)
 
     const store = repo.$entities.get()

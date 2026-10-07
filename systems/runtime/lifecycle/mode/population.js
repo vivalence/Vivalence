@@ -1,5 +1,5 @@
 import { wrap } from "@mikro-orm/core";
-import { Aperture, Vector, shard } from "@vivalence/typology";
+import { Aperture, contexts, shard, Vector } from "@vivalence/typology";
 
 export const stdout = async (die, next) => {
   try {
@@ -13,18 +13,18 @@ export const stdout = async (die, next) => {
 
 export const core = async (die, next) => {
   die.mode.aperture = new Aperture()
-    .use(shard.context.bind("daemon", die.daemon))
+    .use(shard.context.spread(contexts.host, die.host))
     .use(shard.context.bind("mode", die.mode))
     .open("/status", (_, ctx) => ctx.mode.status.reflection)
     .open("/manifest", (_, ctx) => ctx.mode.manifest);
   if (die.mode.module.aperture) die.mode.aperture.graft(die.mode.module.aperture);
 
-  die.mode.tools = new Vector().use(shard.context.bind("daemon", die.daemon)).use(shard.context.bind("mode", die.mode));
+  die.mode.tools = new Vector().use(shard.context.spread(contexts.host, die.host)).use(shard.context.bind("mode", die.mode));
 
-  await die.daemon.datamap.shard.scope(async () => {
-    const entity = await die.daemon.entities.mode.ensure({ ...die.mode.manifest });
+  await die.host.datamap.shard.scope(async () => {
+    const entity = await die.host.entities.mode.ensure({ ...die.mode.manifest });
     entity.traits = [...die.mode.manifest.traits];
-    await die.daemon.entities.em.flush();
+    await die.host.entities.em.flush();
     die.mode.entity = wrap(entity).toPOJO();
     die.mode.id = die.mode.entity.id;
   });

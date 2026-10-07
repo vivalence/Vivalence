@@ -10,7 +10,7 @@ export const emitter = new Vector().open(
       input: ctx.input,
     });
 
-    const vision = ctx.daemon.modes.chaosmonkey.vision;
+    const vision = ctx.modes.chaosmonkey.vision;
 
     const render = await ctx.mode.harness.object.render({
       turns: [{

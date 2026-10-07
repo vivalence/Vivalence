@@ -55,19 +55,19 @@ specimen.describe("RemoteRepository", () => {
     specimen.expect(typeof counted).toBe("number");
     specimen.expect(counted).toBeGreaterThan(0);
 
-    const created = await literals.create({ slug: "repo-create", trait: {} });
+    const created = await literals.create({ slug: "repo-create", mode: scenario.fixtures.mode.id, trait: {} });
     specimen.expect(literals.$entities.get()).toContain(created);
 
-    const ensured = await modes.ensure({ slug: "repo-ensure", type: "test", traits: [], installed: false });
+    const ensured = await modes.ensure({ slug: "repo-ensure", type: "test", traits: [], installed: "" });
     specimen.expect(ensured.slug).toBe("repo-ensure");
     specimen.expect(modes.$entities.get()).toContain(ensured);
 
-    const mutable = await literals.create({ slug: "repo-mut", trait: {} });
+    const mutable = await literals.create({ slug: "repo-mut", mode: scenario.fixtures.mode.id, trait: {} });
     const updated = await literals.updateOne({ id: mutable.id }, { trait: { X: 1 } });
     specimen.expect(updated).toBe(mutable);
     specimen.expect(updated.trait.X).toBe(1);
 
-    const doomed = await literals.create({ slug: "repo-rm", trait: {} });
+    const doomed = await literals.create({ slug: "repo-rm", mode: scenario.fixtures.mode.id, trait: {} });
     const before = literals.$entities.get().length;
     await literals.removeOne({ id: doomed.id });
     specimen.expect(literals.$entities.get().length).toBe(before - 1);
@@ -81,7 +81,7 @@ specimen.describe("RemoteRepository", () => {
     const results = await typed.find({ slug: "hello" });
     specimen.expect(results[0]).toBeInstanceOf(Literal);
 
-    const created = await typed.create({ slug: "proto-create", trait: {} });
+    const created = await typed.create({ slug: "proto-create", mode: scenario.fixtures.mode.id, trait: {} });
     specimen.expect(created).toBeInstanceOf(Literal);
   });
 

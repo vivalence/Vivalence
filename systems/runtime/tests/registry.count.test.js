@@ -55,11 +55,9 @@ describe("registry ingest", () => {
   // lock-demo fixture assertion POSTPONED with the fixture itself — fork 4.
   // the LOCK mechanism is still covered, in paladin's registry.mount.test.js, via an in-memory fixture.
 
-  it("fork 2: multiplayer + hello-world wafers resolve under @commons", async () => {
+  it("fork 2: the hello-world wafer resolves under @commons", async () => {
     await lifecycle.runtime.population.registry({}, async () => {});
-    const multiplayer = await paladin.ledger.registry.pensieve.revelio({ owner: "@commons", type: "instance", slug: "multiplayer" });
     const hello = await paladin.ledger.registry.pensieve.revelio({ owner: "@commons", type: "instance", slug: "hello-world" });
-    expect(multiplayer).toBeTruthy();
     expect(hello).toBeTruthy();
   });
 });

@@ -7,8 +7,7 @@ import {
   RemoteRepository,
   Span,
   shape,
-  shard,
-} from "@vivalence/typology";
+  shard, cortex } from "@vivalence/typology";
 import { logger } from "$telemetry";
 import { Daemon } from "./daemon.js";
 import { Cargo } from "../../prototypes/cargo.js";
@@ -42,7 +41,14 @@ export const DaemonDossier = {
   kind: () => Daemon,
   repository: (schema, dataspace) => {
     const repo = new RemoteRepository(schema.kind());
-    repo.connect(dataspace.connection.branch("/entities/daemon"));
+    repo.connect(dataspace.connection.branch("/metadata/daemons"));
+    repo.find = async () => {
+      const roster = await dataspace.connection.call("/metadata/daemons");
+      const origin = new Url(dataspace.connection.url);
+      return repo.epoch(() =>
+        Promise.all(roster.map((row) => repo.cast({ id: row.slug, slug: row.slug, reference: row.reference, remote: origin.branch(row.reference).absolute }))),
+      );
+    };
     return repo;
   },
 
@@ -65,6 +71,7 @@ export const DaemonDossier = {
       daemon.release = multiplex.close;
       daemon.entities = new Dataspace({
         connection: daemon.connection,
+        runtime: ctx.lighthouse.runtime,
         entities,
         seed: seedDaemon(daemon),
       });
@@ -93,8 +100,7 @@ async function mount(daemon, { multiplex, url, attempt }) {
     .listen((state) => mounting.note({ message: `multiplex → ${state}` }));
 
   try {
-    await daemon.connection.call("/userspace/handshake");
-    const [status, manifest, cortex, aperture, statics] = await Promise.all([
+    const [status, manifest, stripped, aperture, statics] = await Promise.all([
       daemon.connection.call("/status"),
       daemon.connection.call("/metadata/manifest"),
       daemon.connection.call("/metadata/cortex"),
@@ -133,7 +139,7 @@ async function mount(daemon, { multiplex, url, attempt }) {
     });
 
     daemon.cortex = new Cortex().register(
-      shape.cortex.wire(daemon.connection.branch("/cortex"), cortex),
+      cortex.wire(daemon.connection.branch("/cortex"), stripped),
     );
 
     for (const mode of modes) {

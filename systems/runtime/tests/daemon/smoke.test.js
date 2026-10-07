@@ -16,7 +16,7 @@ specimen.describe("smoke: full lifecycle", () => {
   });
 
   specimen.it("create thread via userspace", async () => {
-    thread = await scenario.authedConn.call("/userspace/entities/thread/create", {
+    thread = await scenario.userspace.call("/userspace/entities/thread/create", {
       data: {
         mode: scenario.fixtures.mode.id,
         intent: scenario.fixtures.intent.id,
@@ -36,11 +36,11 @@ specimen.describe("smoke: full lifecycle", () => {
     specimen.expect(buffers).toHaveLength(1);
     specimen.expect(buffers[0].id).toBeTruthy();
     specimen.expect(buffers[0].data.recall).toBe("LEARNING");
-    specimen.expect(buffers[0].literals.map((l) => l.id)).toContain(scenario.fixtures.hello.id);
+    specimen.expect(buffers[0].literals.map((l) => l.id ?? l)).toContain(scenario.fixtures.hello.id);
   });
 
   specimen.it("query buffers via userspace", async () => {
-    const found = await scenario.authedConn.call("/userspace/entities/buffer/find", {
+    const found = await scenario.userspace.call("/userspace/entities/buffer/find", {
       where: { thread: thread.id },
     });
     specimen.expect(found.length).toBeGreaterThan(0);
@@ -65,7 +65,7 @@ specimen.describe("smoke: full lifecycle", () => {
   });
 
   specimen.it("all buffers ordered by index", async () => {
-    const all = await scenario.authedConn.call("/userspace/entities/buffer/find", {
+    const all = await scenario.userspace.call("/userspace/entities/buffer/find", {
       where: { thread: thread.id },
     });
     const indexs = all.map((b) => b.index);

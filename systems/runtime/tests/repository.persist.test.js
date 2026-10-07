@@ -46,7 +46,7 @@ specimen.describe("RemoteRepository.persist", { sanitizeResources: false, saniti
     specimen.expect(parsed.length).toBeGreaterThan(0);
     specimen.expect(parsed[0].slug).toBeDefined();
 
-    await literals.create({ slug: "persist-create", trait: {} });
+    await literals.create({ slug: "persist-create", mode: scenario.fixtures.mode.id, trait: {} });
     const afterCreate = JSON.parse(localStorage.getItem(literalKey));
     specimen.expect(afterCreate.find((entity) => entity.slug === "persist-create")).toBeDefined();
 
@@ -226,16 +226,16 @@ specimen.describe("RemoteRepository.persist", { sanitizeResources: false, saniti
     enrichable.persist();
     const modes = await enrichable.find();
     for (const mode of modes) {
-      mode.daemon = { slug: "brazilian" };
+      mode.dossier = { slug: "brazilian" };
       mode.connection = { fake: true };
       mode.call = () => {};
     }
     const enriched = modes[0];
-    specimen.expect(enriched.daemon.slug).toBe("brazilian");
+    specimen.expect(enriched.dossier.slug).toBe("brazilian");
 
     await enrichable.find();
     await enrichable.revalidating;
-    specimen.expect(enriched.daemon.slug).toBe("brazilian");
+    specimen.expect(enriched.dossier.slug).toBe("brazilian");
     specimen.expect(enriched.connection.fake).toBe(true);
     specimen.expect(typeof enriched.call).toBe("function");
   });

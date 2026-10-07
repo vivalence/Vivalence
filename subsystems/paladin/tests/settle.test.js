@@ -4,56 +4,55 @@ import { Path, Url, v } from "@vivalence/typology";
 import { Paladin } from "../prototypes/paladin.js";
 import * as lifecycle from "../lifecycle/index.js";
 
-const HOME = new Path("/fixtures/probe/test.viva.js");
+const JWT = "a-signing-secret-of-twenty-four-or-more";
 
 const mount = (declare, pairs = {}, secrets = {}) => {
   const paladin = new Paladin();
   paladin.scopes([
-    ["instance", () => true, () => new Path("/fixtures/probe/test.viva.js")],
+    ["instance", () => true, () => new Path("/fixtures/probe")],
     ["mountpoint", () => true, () => new Path("/mountpoint")],
   ]);
   for (const [key, value] of Object.entries(pairs)) paladin.env.set(key, value, "flag");
   for (const [key, value] of Object.entries(secrets)) paladin.secret.set(key, value, "flag");
-  const module = { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, source: HOME, ...declare(paladin) };
-  paladin.find.type = async () => [module];
+  paladin.secret.set("SECRET_VIVA_PROBE_JWT", JWT, "flag");
+  const module = JSON.parse(JSON.stringify({ manifest: { type: "instance", slug: "probe", version: "0.0.1" }, ...declare(paladin) }));
+  paladin.read.json = async () => module;
   return lifecycle.mount(lifecycle.populate.instance(paladin));
 };
 
 const runtime = (paladin) => ({
   manifest: { slug: "runtime" },
-  statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE") },
+  statics: { serve: "${VIVA_PROBE_SERVE}" },
+  secrets: { jwt: "${SECRET_VIVA_PROBE_JWT}" },
 });
 // a runtime that reaches: daemons announce under remote, so settle requires it beside them
-const reaching = (paladin) => ({ ...runtime(paladin), statics: { ...runtime(paladin).statics, remote: () => paladin.env.get("VIVA_PROBE_REMOTE") } });
-const lighthouse = (paladin) => ({
-  module: "@commons/lighthouse/multiplayer",
-  statics: { remote: () => paladin.env.get("VIVA_PROBE_REMOTE") },
-});
+const reaching = (paladin) => ({ ...runtime(paladin), statics: { ...runtime(paladin).statics, remote: "${VIVA_PROBE_REMOTE}" } });
 const libsql = { module: "@commons/datamap/libsql" };
 const daemon = (extra = {}) => ({ manifest: { type: "daemon", slug: "probe", version: "0.0.1" }, ...extra });
 const anthropic = (paladin) => ({
   module: "@commons/hallucinator/anthropic",
-  secrets: { key: () => paladin.secret.get("SECRET_VIVA_PROBE_A") },
+  secrets: { key: "${SECRET_VIVA_PROBE_A}" },
 });
 const deepgram = (paladin) => ({
   module: "@commons/hallucinator/deepgram",
-  secrets: { key: () => paladin.secret.get("SECRET_VIVA_PROBE_D") },
+  secrets: { key: "${SECRET_VIVA_PROBE_D}" },
 });
 const stanza = (paladin) => ({
   module: "@commons/service/nlp-stanza",
-  secrets: { key: () => paladin.secret.get("SECRET_VIVA_PROBE_D") },
-  statics: { remote: () => paladin.env.get("VIVA_PROBE_REMOTE") },
+  secrets: { key: "${SECRET_VIVA_PROBE_D}" },
+  statics: { remote: "${VIVA_PROBE_REMOTE}" },
 });
-const multiplayer = (paladin) => ({
-  manifest: { type: "lighthouse", slug: "multiplayer" },
-  module: "@commons/lighthouse/multiplayer",
-  secrets: { jwt: () => paladin.secret.get("SECRET_VIVA_PROBE_A") },
+const nlp = (paladin) => ({
+  manifest: { type: "service", slug: "nlp" },
+  module: "@commons/service/nlp-stanza",
+  secrets: { key: "${SECRET_VIVA_PROBE_A}" },
 });
 
 const environment = v.environment({
   VIVA_PROBE_SERVE: v.url().desc("serve"),
   VIVA_PROBE_REMOTE: v.url().desc("remote"),
   SECRET_VIVA_PROBE_A: v.string().desc("a"),
+  SECRET_VIVA_PROBE_JWT: v.string({ minLength: 24 }).desc("jwt"),
   SECRET_VIVA_PROBE_D: v.string().desc("d").optional(),
 });
 
@@ -71,7 +70,7 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
 
   it("runtime.statics.remote is a Url when declared and absent without a fault when not", async () => {
     const declared = await mount(
-      (paladin) => ({ runtime: { ...runtime(paladin), statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE"), remote: () => paladin.env.get("VIVA_PROBE_REMOTE") } }, environment }),
+      (paladin) => ({ runtime: { ...runtime(paladin), statics: { serve: "${VIVA_PROBE_SERVE}", remote: "${VIVA_PROBE_REMOTE}" } }, environment }),
       SET,
     );
     expect(declared.runtime.statics.remote).toBeInstanceOf(Url);
@@ -85,12 +84,12 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
 
   it("daemons without runtime.statics.remote is a fault; a blank remote is the env row's, said once", async () => {
     const undeclared = await mount(
-      (paladin) => ({ runtime: runtime(paladin), lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], environment }),
+      (paladin) => ({ runtime: runtime(paladin), datamap: libsql, daemons: [daemon()], environment }),
       SET,
     );
     expect(undeclared.faults).toEqual(["runtime.statics.remote required — 1 daemons announce under it"]);
     const blank = await mount(
-      (paladin) => ({ runtime: reaching(paladin), lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], environment }),
+      (paladin) => ({ runtime: reaching(paladin), datamap: libsql, daemons: [daemon()], environment }),
       { VIVA_PROBE_SERVE: SET.VIVA_PROBE_SERVE },
     );
     expect(blank.faults.some((sentence) => sentence.startsWith("runtime.statics.remote required"))).toBe(false);
@@ -105,58 +104,41 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     expect(sentences(instance)).toEqual(["SECRET_VIVA_PROBE_A REQUIRED", "VIVA_PROBE_REMOTE REQUIRED", "VIVA_PROBE_SERVE REQUIRED at runtime.statics.serve"]);
   });
 
-  it("statics, consume, hallucinators and kernel need not be authored — the schematic fills them", async () => {
-    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], environment }), SET);
+  it("statics, consume, hallucinators and modes need not be authored — the schematic fills them", async () => {
+    const instance = await mount((paladin) => ({ datamap: libsql, daemons: [daemon()], environment }), SET);
     const [held] = instance.daemons;
     expect(held.statics).toEqual({});
     expect(held.consume).toEqual({});
     expect(held.hallucinators).toEqual([]);
-    expect(held.kernel).toEqual([]);
+    expect(held.modes).toEqual([]);
     expect(instance.faults).toEqual([]);
   });
 
-  it("the root datamap is every mounting's default: a COPY, seated in the mounting's directory, its file named for the mounting", async () => {
+  it("the root datamap is a service's default: a COPY, seated in the service's directory, its file named for it — a daemon opens none of its own", async () => {
     const instance = await mount(
-      (paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], services: [multiplayer(paladin)], environment }),
+      (paladin) => ({ datamap: libsql, daemons: [daemon()], services: [nlp(paladin)], environment }),
       SET,
       { SECRET_VIVA_PROBE_A: "a" },
     );
-    const [held] = instance.daemons;
     const [service] = instance.services;
-    expect(held.datamap).not.toBe(instance.datamap);
-    expect(held.datamap.module).toBe("@commons/datamap/libsql");
-    expect(held.datamap.mountpoint).toBeInstanceOf(Path);
-    expect(held.datamap.mountpoint.absolute).toBe("/mountpoint/daemon_probe");
-    expect(held.datamap.statics.db.file).toBe("probe.viva.db");
-    expect(service.mountpoint.absolute).toBe("/mountpoint/service_multiplayer");
-    expect(service.datamap.mountpoint.absolute).toBe("/mountpoint/service_multiplayer");
-    expect(service.datamap.statics.db.file).toBe("multiplayer.viva.db");
+    expect(service.mountpoint.absolute).toBe("/mountpoint/service_nlp");
+    expect(service.datamap.mountpoint.absolute).toBe("/mountpoint/service_nlp");
+    expect(service.datamap.statics.db.file).toBe("nlp.viva.db");
     expect(instance.datamap.mountpoint).toBeUndefined();
     expect(instance.faults).toEqual([]);
   });
 
-  it("a mounting's own datamap keeps its file; the seat is still stamped", async () => {
-    const instance = await mount(
-      (paladin) => ({
-        lighthouse: lighthouse(paladin),
-        datamap: libsql,
-        daemons: [daemon({ datamap: { module: "@elsewhere/datamap/pg", statics: { db: { file: "legacy.viva.db" } } } })],
-        environment,
-      }),
-      SET,
+  it("a daemon declaring its own datamap is refused at mount — the runtime has ONE datamap", async () => {
+    await expect(mount((paladin) => ({ datamap: libsql, daemons: [daemon({ datamap: { module: "@elsewhere/datamap/pg" } })], environment }), SET)).rejects.toThrow(
+      "/daemons/0 must not have additional properties",
     );
-    const [held] = instance.daemons;
-    expect(held.datamap.module).toBe("@elsewhere/datamap/pg");
-    expect(held.datamap.statics.db.file).toBe("legacy.viva.db");
-    expect(held.datamap.mountpoint.absolute).toBe("/mountpoint/daemon_probe");
   });
 
   it("a mounting's own mountpoint wins over the seat, thunk fired, and its datamap follows it", async () => {
     const instance = await mount(
       (paladin) => ({
-        lighthouse: lighthouse(paladin),
         datamap: libsql,
-        services: [{ ...multiplayer(paladin), mountpoint: () => paladin.env.get("VIVA_PROBE_LIGHTHOUSE_MOUNT") }],
+        services: [{ ...nlp(paladin), mountpoint: "${VIVA_PROBE_LIGHTHOUSE_MOUNT}" }],
         environment: v.environment({ ...environment.properties, VIVA_PROBE_LIGHTHOUSE_MOUNT: v.string().desc("the lighthouse directory") }),
       }),
       { ...SET, VIVA_PROBE_LIGHTHOUSE_MOUNT: "/lighthouse" },
@@ -165,14 +147,13 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     expect(service.mountpoint).toBeInstanceOf(Path);
     expect(service.mountpoint.absolute).toBe("/lighthouse");
     expect(service.datamap.mountpoint.absolute).toBe("/lighthouse");
-    expect(service.datamap.statics.db.file).toBe("multiplayer.viva.db");
+    expect(service.datamap.statics.db.file).toBe("nlp.viva.db");
     expect(instance.faults).toEqual([]);
   });
 
-  it("root hallucinators are every daemon's default, whole-slot: a daemon declaring its own replaces the list", async () => {
+  it("root hallucinators are the RUNTIME's — nothing falls through to a daemon; a daemon's own list is its own", async () => {
     const instance = await mount(
       (paladin) => ({
-        lighthouse: lighthouse(paladin),
         datamap: libsql,
         hallucinators: [anthropic(paladin), deepgram(paladin)],
         daemons: [daemon(), daemon({ manifest: { type: "daemon", slug: "other" }, hallucinators: [deepgram(paladin)] })],
@@ -182,11 +163,10 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
       { SECRET_VIVA_PROBE_A: "a", SECRET_VIVA_PROBE_D: "d" },
     );
     const [probe, other] = instance.daemons;
-    expect(probe.hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/anthropic", "@commons/hallucinator/deepgram"]);
-    expect(probe.hallucinators).not.toBe(instance.hallucinators);
+    expect(instance.hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/anthropic", "@commons/hallucinator/deepgram"]);
+    expect(probe.hallucinators).toEqual([]);
     expect(other.hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/deepgram"]);
     expect(instance.requirements.map((row) => row.at)).toEqual([
-      "lighthouse.statics.remote",
       "hallucinators[0].secrets.key",
       "hallucinators[1].secrets.key",
       "daemon[other].hallucinators[0].secrets.key",
@@ -197,7 +177,6 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
   it("a hallucinator whose secret is blank is dormant: off the roster, named on the instance, still in the record", async () => {
     const instance = await mount(
       (paladin) => ({
-        lighthouse: lighthouse(paladin),
         datamap: libsql,
         daemons: [daemon({ hallucinators: [anthropic(paladin), deepgram(paladin)] })],
         environment,
@@ -213,10 +192,9 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     expect(instance.faults).toEqual([]);
   });
 
-  it("a root hallucinator whose secret is blank is dormant in every daemon that inherited it — the record row is the root's", async () => {
+  it("a root hallucinator whose secret is blank is dormant on the runtime's roster, named at the root, still in the record", async () => {
     const instance = await mount(
       (paladin) => ({
-        lighthouse: lighthouse(paladin),
         datamap: libsql,
         hallucinators: [anthropic(paladin), deepgram(paladin)],
         daemons: [daemon(), daemon({ manifest: { type: "daemon", slug: "other" } })],
@@ -225,14 +203,9 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
       SET,
       { SECRET_VIVA_PROBE_A: "canary" },
     );
-    expect(instance.daemons.map((held) => held.hallucinators.map((mask) => mask.module))).toEqual([
-      ["@commons/hallucinator/anthropic"],
-      ["@commons/hallucinator/anthropic"],
-    ]);
-    expect(instance.dormant).toEqual([
-      { at: "daemon[probe].hallucinators[1]", module: "@commons/hallucinator/deepgram", empty: ["key"] },
-      { at: "daemon[other].hallucinators[1]", module: "@commons/hallucinator/deepgram", empty: ["key"] },
-    ]);
+    expect(instance.hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/anthropic"]);
+    expect(instance.daemons.map((held) => held.hallucinators)).toEqual([[], []]);
+    expect(instance.dormant).toEqual([{ at: "hallucinators[1]", module: "@commons/hallucinator/deepgram", empty: ["key"] }]);
     expect(instance.requirements.map((row) => row.at)).toContain("hallucinators[1].secrets.key");
     expect(instance.faults).toEqual([]);
   });
@@ -240,7 +213,6 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
   it("a consumed service whose secret is blank is dormant: off the daemon, named on the instance", async () => {
     const instance = await mount(
       (paladin) => ({
-        lighthouse: lighthouse(paladin),
         datamap: libsql,
         daemons: [daemon({ hallucinators: [anthropic(paladin)], consume: { nlp: stanza(paladin) } })],
         environment,
@@ -257,7 +229,6 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
   it("bootable = no fault and no wrong env row; a required blank refuses, an optional blank does not", async () => {
     const declare = (paladin) => ({
       runtime: reaching(paladin),
-      lighthouse: lighthouse(paladin),
       datamap: libsql,
       daemons: [daemon({ hallucinators: [anthropic(paladin), deepgram(paladin)] })],
       environment,
@@ -276,15 +247,6 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     expect(sentences(refused)).toEqual(["SECRET_VIVA_PROBE_A REQUIRED at daemon[probe].hallucinators[0].secrets.key"]);
   });
 
-  it("inheritance happens before settle: a daemon's inherited lighthouse is its OWN decoded copy", async () => {
-    const instance = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon()], environment }), SET);
-    const [held] = instance.daemons;
-    expect(held.lighthouse).not.toBe(instance.lighthouse);
-    expect(held.lighthouse.statics.remote).toBeInstanceOf(Url);
-    expect(held.lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse");
-    expect(instance.lighthouse.statics.remote).toBeInstanceOf(Url);
-  });
-
   it("a faulted slot stays as hydrated — decode never runs on a value the schematic refused; one sentence per location", async () => {
     const instance = await mount((paladin) => ({ runtime: runtime(paladin), environment }), { ...SET, VIVA_PROBE_SERVE: "not a url" });
     expect(instance.runtime.statics.serve).toBe("not a url");
@@ -295,25 +257,13 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     ]);
   });
 
-  it("a thunk element that yields null is dormant, not a fault; a thunk on the key that yields null is an empty roster", async () => {
-    const element = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon({ hallucinators: [() => null, anthropic(paladin)] })], environment }), SET, { SECRET_VIVA_PROBE_A: "a" });
-    expect(element.daemons[0].hallucinators.map((mask) => mask.module)).toEqual(["@commons/hallucinator/anthropic"]);
-    expect(element.dormant).toEqual([{ at: "daemon[probe].hallucinators[0]", module: null, empty: [] }]);
-    expect(element.faults).toEqual([]);
-    const key = await mount((paladin) => ({ lighthouse: lighthouse(paladin), datamap: libsql, daemons: [daemon({ hallucinators: () => null })], environment }), SET);
-    expect(key.daemons[0].hallucinators).toEqual([]);
-    expect(key.dormant).toEqual([]);
-    expect(key.faults).toEqual([]);
-  });
-
   it("identity is a manifest everywhere — runtime, client and service rows are labeled by it", async () => {
     const instance = await mount(
       (paladin) => ({
         runtime: runtime(paladin),
-        lighthouse: lighthouse(paladin),
         datamap: libsql,
-        clients: [{ manifest: { type: "client", slug: "anima", traits: ["ATTACHED"] }, statics: { serve: () => paladin.env.get("VIVA_PROBE_SERVE") } }],
-        services: [multiplayer(paladin)],
+        clients: [{ manifest: { type: "client", slug: "anima", traits: ["ATTACHED"] }, statics: { serve: "${VIVA_PROBE_SERVE}" } }],
+        services: [nlp(paladin)],
         environment,
       }),
       SET,
@@ -322,16 +272,16 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     expect(instance.clients[0].manifest.traits).toEqual(["ATTACHED"]);
     expect(instance.clients[0].statics.serve).toBeInstanceOf(Url);
     expect(instance.requirements.map((row) => row.at)).toContain("client[anima].statics.serve");
-    expect(instance.requirements.map((row) => row.at)).toContain("service[multiplayer].secrets.jwt");
+    expect(instance.requirements.map((row) => row.at)).toContain("service[nlp].secrets.key");
     expect(instance.faults).toEqual([]);
   });
 });
 
 const office = (paladin) =>
   daemon({
-    kernel: [
+    modes: [
       "@vcompany/domain/voffice",
-      { module: "@vcompany/office/vdex", mountpoint: () => paladin.env.get("VIVA_PROBE_VDEX"), statics: { formats: ["md"] } },
+      { module: "@vcompany/office/vdex", mountpoint: "${VIVA_PROBE_VDEX}", statics: { formats: ["md"] } },
       { module: "@vcompany/office/email", statics: { poll: 60 } },
     ],
   });
@@ -340,11 +290,11 @@ const officeEnvironment = v.environment({
   VIVA_PROBE_SERVE: v.url().desc("serve"),
   VIVA_PROBE_REMOTE: v.url().desc("remote"),
   VIVA_PROBE_VDEX: v.string().desc("the jdex directory"),
+  SECRET_VIVA_PROBE_JWT: v.string({ minLength: 24 }).desc("jwt"),
 });
 
 const officeInstance = (paladin) => ({
   runtime: reaching(paladin),
-  lighthouse: lighthouse(paladin),
   datamap: libsql,
   daemons: [office(paladin)],
   environment: officeEnvironment,
@@ -352,13 +302,13 @@ const officeInstance = (paladin) => ({
 
 const relativeInstance = (paladin) => ({
   ...officeInstance(paladin),
-  daemons: [daemon({ kernel: [{ module: "@vcompany/office/chat", mountpoint: "./chats" }] })],
+  daemons: [daemon({ modes: [{ module: "@vcompany/office/chat", mountpoint: "./chats" }] })],
 });
 
-describe("settle — a kernel entry in object form fires at the pinhole like any mask", () => {
+describe("settle — a modes entry in object form fires at the pinhole like any mask", () => {
   it("the mountpoint thunk fires and lands as a Path; the entry keeps its module and statics; the string entry beside it is seated under the daemon", async () => {
     const instance = await mount(officeInstance, { ...SET, VIVA_PROBE_VDEX: "/jdex" });
-    const [domain, entry] = instance.daemons[0].kernel;
+    const [domain, entry] = instance.daemons[0].modes;
     expect(domain.module).toBe("@vcompany/domain/voffice");
     expect(domain.mountpoint.absolute).toBe("/mountpoint/daemon_probe/mode_domain_voffice");
     expect(entry.module).toBe("@vcompany/office/vdex");
@@ -370,21 +320,21 @@ describe("settle — a kernel entry in object form fires at the pinhole like any
 
   it("an unset mountpoint is REQUIRED at its slot — the doctor names the entry; nothing is minted over it", async () => {
     const instance = await mount(officeInstance, SET);
-    expect(sentences(instance)).toContain("VIVA_PROBE_VDEX REQUIRED at daemon[probe].kernel[1].mountpoint");
-    expect(instance.daemons[0].kernel[1].mountpoint).toBeNull();
+    expect(sentences(instance)).toContain("VIVA_PROBE_VDEX REQUIRED at daemon[probe].modes[1].mountpoint");
+    expect(instance.daemons[0].modes[1].mountpoint).toBeNull();
   });
 
   it("an entry without a mountpoint is seated under its daemon — mode_<type>_<slug>; a declared one, blank or not, is never seated over", async () => {
     const instance = await mount(officeInstance, { ...SET, VIVA_PROBE_VDEX: "/jdex" });
-    expect(instance.daemons[0].kernel[2].mountpoint).toBeInstanceOf(Path);
-    expect(instance.daemons[0].kernel[2].mountpoint.absolute).toBe("/mountpoint/daemon_probe/mode_office_email");
-    expect(instance.daemons[0].kernel[2].statics).toEqual({ poll: 60 });
+    expect(instance.daemons[0].modes[2].mountpoint).toBeInstanceOf(Path);
+    expect(instance.daemons[0].modes[2].mountpoint.absolute).toBe("/mountpoint/daemon_probe/mode_office_email");
+    expect(instance.daemons[0].modes[2].statics).toEqual({ poll: 60 });
     expect(instance.faults).toEqual([]);
   });
 
   it("a relative mountpoint is refused at mount — declared means absolute", async () => {
     await expect(mount(relativeInstance, SET)).rejects.toThrow(
-      "instance.mount: daemon[probe].kernel[0].mountpoint must be absolute — ./chats",
+      "instance.mount: daemon[probe].modes[0].mountpoint must be absolute — ./chats",
     );
   });
 
@@ -396,8 +346,8 @@ describe("settle — a kernel entry in object form fires at the pinhole like any
   it("a daemon is addressed from its slug and the runtime's reach; its entries under it, typed from the identifier", async () => {
     const instance = await mount(
       (paladin) => ({
-        runtime: reaching(paladin), lighthouse: lighthouse(paladin), datamap: libsql, environment,
-        daemons: [daemon({ kernel: ["@vcompany/domain/voffice"] })],
+        runtime: reaching(paladin), datamap: libsql, environment,
+        daemons: [daemon({ modes: ["@vcompany/domain/voffice"] })],
       }),
       SET,
     );
@@ -405,18 +355,27 @@ describe("settle — a kernel entry in object form fires at the pinhole like any
     expect(held.reference.absolute).toBe("/daemon/probe");
     expect(held.url.absolute).toBe("http://localhost:2501/lighthouse/daemon/probe");
     expect(held.attach.absolute).toBe("http://localhost:2501/lighthouse/attached");
-    const [entry] = held.kernel;
+    const [entry] = held.modes;
     expect(entry.reference.absolute).toBe("/mode/domain/voffice");
     expect(entry.url.absolute).toBe("http://localhost:2501/lighthouse/daemon/probe/mode/domain/voffice");
     expect(entry.bundles.absolute).toBe("/mountpoint/daemon_probe/bundles/domain/voffice");
     expect(instance.faults).toEqual([]);
   });
 
-  it("no remote → no url, no attach; the reference still seats; an entry's declared reference wins; a path entry without a type carries only its mountpoint", async () => {
+  it("a runtime naming no manifest seats at /runtime/runtime — its slug is the schematic's default before its reference is written", async () => {
+    const { manifest, ...bare } = reaching();
+    const instance = await mount(() => ({ runtime: bare, datamap: libsql, environment }), SET);
+    expect(instance.runtime.manifest.slug).toBe("runtime");
+    expect(instance.runtime.reference.absolute).toBe("/runtime/runtime");
+    expect(instance.runtime.url.absolute).toBe("http://localhost:2501/lighthouse/runtime/runtime");
+    expect(instance.faults).toEqual([]);
+  });
+
+  it("no remote → no url, no attach; the reference still seats; a path entry without a type carries only its mountpoint", async () => {
     const instance = await mount(
       (paladin) => ({
-        runtime: runtime(paladin), lighthouse: lighthouse(paladin), datamap: libsql, environment,
-        daemons: [daemon({ kernel: [{ module: "@vcompany/domain/voffice", reference: "/elsewhere" }, "/abs/loose.viva.js"] })],
+        runtime: runtime(paladin), datamap: libsql, environment,
+        daemons: [daemon({ modes: [{ module: "@vcompany/domain/voffice" }, "/abs/loose.viva.js"] })],
       }),
       SET,
     );
@@ -424,38 +383,31 @@ describe("settle — a kernel entry in object form fires at the pinhole like any
     const [held] = instance.daemons;
     expect(String(held.reference)).toBe("/daemon/probe");
     expect(held.url).toBeUndefined();
-    expect(String(held.kernel[0].reference)).toBe("/elsewhere");
-    expect(held.kernel[0].url).toBeUndefined();
-    expect(String(held.kernel[1].mountpoint)).toBe("/mountpoint/daemon_probe/mode_loose");
-    expect(held.kernel[1].reference).toBeUndefined();
+    expect(String(held.modes[0].reference)).toBe("/mode/domain/voffice");
+    expect(held.modes[0].url).toBeUndefined();
+    expect(String(held.modes[1].mountpoint)).toBe("/mountpoint/daemon_probe/mode_loose");
+    expect(held.modes[1].reference).toBeUndefined();
   });
 
-  it("a service attaches at /attached/process/service/<type>/<slug>; a declared lighthouse remote stays", async () => {
+  it("a service attaches at /attached/process/service/<type>/<slug>; no lighthouse slot exists to declare", async () => {
     const instance = await mount(
       (paladin) => ({
         runtime: reaching(paladin), datamap: libsql, environment,
-        lighthouse: lighthouse(paladin),
-        services: [multiplayer(paladin)],
+        services: [nlp(paladin)],
         daemons: [daemon()],
       }),
-      { ...SET, SECRET_VIVA_PROBE_A: "a-secret-long-enough-for-jwt" },
+      SET,
+      { SECRET_VIVA_PROBE_A: "a" },
     );
-    expect(instance.services[0].reference.absolute).toBe("/attached/process/service/lighthouse/multiplayer");
-    expect(instance.lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse");
-    expect(instance.daemons[0].lighthouse.statics.remote.absolute).toBe("http://localhost:2501/lighthouse");
+    expect(instance.services[0].reference.absolute).toBe("/attached/process/service/service/nlp");
+    expect(instance.lighthouse).toBeUndefined();
+    expect(instance.daemons[0].lighthouse).toBeUndefined();
     expect(instance.faults).toEqual([]);
   });
 
-  it("a lighthouse without a remote is a fault — the hosting service is never guessed", async () => {
-    const instance = await mount(
-      (paladin) => ({
-        runtime: reaching(paladin), datamap: libsql, environment,
-        lighthouse: { module: "@commons/lighthouse/multiplayer" },
-        services: [multiplayer(paladin)],
-        daemons: [daemon()],
-      }),
-      { ...SET, SECRET_VIVA_PROBE_A: "a-secret-long-enough-for-jwt" },
+  it("a migrated shelf that still says lighthouse is refused at mount, the key named", async () => {
+    await expect(mount((paladin) => ({ runtime: runtime(paladin), lighthouse: { module: "@commons/lighthouse/multiplayer" }, environment }), SET)).rejects.toThrow(
+      "/ must not have additional properties",
     );
-    expect(instance.faults).toContain("lighthouse must have required properties statics");
   });
 });

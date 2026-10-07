@@ -1,7 +1,7 @@
 import paladin from "@vivalence/paladin";
-import { fromm, shard, shape } from "@vivalence/typology";
-
-const CARGO_CACHE = "no-cache";
+import { Cargo, contexts, fromm, shape, shard } from "@vivalence/typology";
+import { host } from "../../gestalten/belt/index.js";
+import { cargo } from "../../gestalten/shard/index.js";
 
 export const services = (execution) => async (die, next) => {
   try {
@@ -14,26 +14,38 @@ export const services = (execution) => async (die, next) => {
 
 export const daemons = (execution) => async (die, next) => {
   try {
-    for (const daemon of await die.runtime.processes.daemon.find()) await daemon.execute(execution);
+    for (const daemon of await die.runtime.processes.daemon.find()) await daemon.execute(execution, { runtime: die.runtime });
     await next();
   } finally {
     await die.runtime.processes.daemon.kill({}, "SIGTERM");
   }
 };
 
+export const modes = (execution) => async (die, next) => {
+  die.runtime.aperture.use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
+  try {
+    await host.resolve(die.host, execution, die.traits);
+    die.runtime.cargo = new Cargo(() => fromm.modes(die.runtime.modes).flat.filter((mode) => mode.implements("FRAUGHT") || mode.implements("MOUNTED")).map((mode) => mode.freight));
+    await next();
+  } finally {
+    await host.release(die.host);
+  }
+};
+
+const hosts = async (die) => [...(await die.runtime.processes.daemon.find()), die.host];
+
 export const attach = async (die, next) => {
   for (const service of await die.runtime.processes.service.find()) {
-    die.runtime.aperture.branch(service.reference.absolute, service.attachment);
+    die.aperture.branch(service.reference.absolute, service.attachment);
   }
 
-  for (const daemon of await die.runtime.processes.daemon.find()) {
-    for (const mode of daemon.flatmodes()) {
+  for (const bearer of await hosts(die)) {
+    for (const mode of fromm.modes(bearer.modes).flat) {
       if (!mode.implements("APPLICATION") && !mode.implements("GENERATIVE")) continue;
       const bundler = paladin.bundler(mode.bundles.absolute);
-
-      die.runtime.aperture
+      die.aperture
         .branch("/attached/bundle")
-        .branch(daemon.reference.absolute)
+        .branch(bearer.reference.absolute)
         .branch(mode.reference.absolute)
         .open("/(.*)", async (input, ctx) => {
           const served = await bundler.serve(fromm.params(ctx.params).path.absolute);
@@ -46,77 +58,43 @@ export const attach = async (die, next) => {
           return served.text;
         });
     }
-  }
 
-  for (const daemon of await die.runtime.processes.daemon.find()) {
-    const modes = daemon.flatmodes().filter((mode) => mode.implements("FRAUGHT") || mode.implements("MOUNTED"));
-    if (!modes.length) continue;
-
-    die.runtime.aperture
+    const fraught = fromm.modes(bearer.modes).flat.filter((mode) => mode.implements("FRAUGHT") || mode.implements("MOUNTED"));
+    if (!fraught.length) continue;
+    die.aperture
       .branch("/attached/cargo")
-      .branch(daemon.reference.nature)
-      .use(shard.context.bind("daemon", daemon))
-      .open("/(.*)", async (input, ctx) => {
-        const query = fromm.params(ctx.params).path.absolute.replace(/^[/]/, "");
-        for (const mode of modes) {
-          const entry = mode.freight.resolve(query);
-          if (!entry) continue;
-          const filePath = mode.freight.path.branch("/" + entry.path).absolute;
-          const stat = await Deno.stat(filePath);
-          const etag = `"${stat.size}-${stat.mtime?.getTime() ?? 0}"`;
-          const headers = {
-            "content-type": entry.type,
-            "cache-control": CARGO_CACHE,
-            etag,
-            "accept-ranges": "bytes",
-          };
-          if (ctx.request.headers.get("if-none-match") === etag) return new Response(null, { status: 304, headers });
-          const bytes = await Deno.readFile(filePath);
-          const range = /^bytes=(\d*)-(\d*)$/.exec(ctx.request.headers.get("range") ?? "");
-          if (!range) return new Response(bytes, { status: 200, headers });
-          const start = range[1] ? Number(range[1]) : Math.max(0, bytes.length - Number(range[2]));
-          const end = range[1] && range[2] ? Math.min(Number(range[2]), bytes.length - 1) : bytes.length - 1;
-          if (start > end || start >= bytes.length)
-            return new Response(null, { status: 416, headers: { ...headers, "content-range": `bytes */${bytes.length}` } });
-          return new Response(bytes.subarray(start, end + 1), {
-            status: 206,
-            headers: { ...headers, "content-range": `bytes ${start}-${end}/${bytes.length}` },
-          });
-        }
-        ctx.response.status = 404;
-      });
+      .branch(bearer.reference.nature)
+      .use(shard.context.spread(contexts.host, bearer))
+      .open("/(.*)", cargo.serve(() => fraught));
   }
 
   await next();
 };
 
 export const expose = async (die, next) => {
+  const runtime = die.aperture.branch(die.runtime.reference.nature, die.runtime.aperture);
+  runtime.branch("/status", shard.nano.atom(die.runtime.controller.status.$transient));
+  runtime.open("/batch", shard.batch.route(runtime));
   for (const daemon of await die.runtime.processes.daemon.find()) {
-    const branch = die.runtime.aperture.branch(daemon.reference.nature, daemon.aperture);
+    const branch = die.aperture.branch(daemon.reference.nature, daemon.aperture);
     branch.branch("/status", shard.nano.atom(daemon.$status));
-    branch
-      .open("/manifest", () => daemon.manifest)
-      .open("/batch", shard.batch.route(branch));
+    branch.open("/batch", shard.batch.route(branch));
   }
   await next();
 };
 
 export const metadata = async (die, next) => {
-  const root = die.runtime.aperture.branch("/metadata");
+  const root = die.aperture.branch("/metadata");
 
   root.open("/manifest", () => die.mask.manifest);
-  root.open("/aperture", () => shape.strip(die.runtime.aperture));
-
-  root.open("/instance", () => ({
-    daemons: die.runtime.instance.daemons.map((daemon) => daemon.manifest),
-    services: die.runtime.instance.services.map((service) => ({ ...service.manifest, module: service.module })),
-  }));
+  root.open("/aperture", () => shape.strip(die.aperture));
+  root.open("/datamap", () => shard.datamap.strip(die.runtime.datamap.getMetadata()));
 
   root.open("/daemons", async () =>
     (await die.runtime.processes.daemon.find()).map((daemon) => ({
       slug: daemon.slug,
       reference: daemon.reference.nature,
-      modes: daemon.flatmodes().length,
+      modes: fromm.modes(daemon.modes).flat.length,
       metadata: `${daemon.reference.nature}/metadata`,
     })),
   );

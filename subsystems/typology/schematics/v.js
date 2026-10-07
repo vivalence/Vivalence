@@ -1,6 +1,7 @@
 import { IsOptional, Type } from "typebox";
 import { Pointer, Value } from "typebox/value";
 import { Compile } from "typebox/compile";
+import { claim } from "../gestalten/belt/traits.js";
 
 const faults = (schema, value) =>
   [...Value.Errors(schema, value)].map((error) => {
@@ -29,6 +30,18 @@ const collect = (schema, value, target) =>
 
 const derive = (target, patch) =>
   Object.assign(Object.defineProperties({}, Object.getOwnPropertyDescriptors(target)), patch);
+
+const plain = (value) =>
+  value !== null && typeof value === "object" && !Array.isArray(value) && !("~kind" in value) && [Object.prototype, null].includes(Object.getPrototypeOf(value));
+
+const fresh = (schema, value) => {
+  if (Type.IsArray(schema)) return Array.isArray(value) ? value.map((item) => fresh(schema.items, item)) : value;
+  if (Type.IsIntersect(schema)) return schema.allOf.reduce((held, part) => fresh(part, held), value);
+  if (!plain(value) || !(Type.IsObject(schema) || Type.IsRecord(schema))) return value;
+  const seat = (key) =>
+    Type.IsRecord(schema) ? Type.RecordValue(schema) : schema.properties[key] ?? (plain(schema.additionalProperties) ? schema.additionalProperties : null);
+  return Object.fromEntries(Object.entries(value).map(([key, held]) => [key, seat(key) ? fresh(seat(key), held) : held]));
+};
 
 function enhance(schema) {
   return new Proxy(schema, {
@@ -61,9 +74,8 @@ function enhance(schema) {
       if (prop === "faults") return (value) => faults(target, value);
       if (prop === "collect") return (value, held) => collect(target, value, held);
       if (prop === "compile") return () => Compile(target);
-      if (prop === "fill") return (value) => (Value.Default(target, value), value);
-      if (prop === "cast")
-        return (value) => (Value.Default(target, value), Value.Convert(target, value), value);
+      if (prop === "fill") return (value) => Value.Default(target, fresh(target, value));
+      if (prop === "cast") return (value) => Value.Convert(target, Value.Default(target, fresh(target, value)));
       return Reflect.get(target, prop, receiver);
     },
   });
@@ -120,13 +132,7 @@ export function entityFactory(descriptor, base) {
   factory.$id = descriptor.$id;
   factory.descriptor = descriptor;
   factory.traits = descriptor.traits ?? {};
-  factory.trait = (row, name) => {
-    const schema = factory.traits[name];
-    if (!schema) throw new Error(`[v] ${descriptor.$id} declares no trait ${name}`);
-    const held = row?.traits?.includes(name) ? row.trait?.[name] : undefined;
-    if (!held || [...schema.errors(held)][0]) return {};
-    return schema.cast(held);
-  };
+  factory.trait = (row, name, vocabulary = factory.traits) => claim(row, name, { ...factory.traits, ...vocabulary });
   return factory;
 }
 
@@ -139,6 +145,7 @@ export const v = {
   array: (items, opts) => enhance(Type.Array(items, opts)),
   union: (variants, opts) => enhance(Type.Union(variants, opts)),
   intersect: (schemas, opts) => enhance(Type.Intersect(schemas, opts)),
+  interface: (heritage, props, opts) => enhance(Type.Interface(heritage, props, opts)),
   const: (val) => enhance(Type.Literal(val)),
   enum: (vals, opts) =>
     enhance(
@@ -161,8 +168,8 @@ export const v = {
   check: (schema, value) => Value.Check(schema, value),
   decode: (schema, value) => Value.Decode(schema, value),
   encode: (schema, value) => Value.Encode(schema, value),
-  fill: (schema, value) => (Value.Default(schema, value), value),
-  cast: (schema, value) => (Value.Default(schema, value), Value.Convert(schema, value), value),
+  fill: (schema, value) => Value.Default(schema, fresh(schema, value)),
+  cast: (schema, value) => Value.Convert(schema, Value.Default(schema, fresh(schema, value))),
   convert: (schema, value) => Value.Convert(schema, value),
   errors: (schema, value) => Value.Errors(schema, value),
   faults,
@@ -170,5 +177,6 @@ export const v = {
   create: (schema) => Value.Create(schema),
   clean: (schema, value) => Value.Clean(schema, value),
   isOptional: (schema) => IsOptional(schema),
+  isNever: (schema) => Type.IsNever(schema),
   compile: (schema) => Compile(schema),
 };

@@ -195,7 +195,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     expect(Object.keys(paladin.scope).sort()).toEqual(keys.map(flag).sort());
     for (const key of keys) {
       const record = [];
-      paladin.hydrate(() => paladin.scope[flag(key)], record, flag(key));
+      paladin.expand(`\${${key}}`, record, flag(key));
       expect(record[0].read).toEqual([key]);
     }
   });

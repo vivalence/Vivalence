@@ -17,6 +17,8 @@ import Example from "../../../src/components/Example.astro"
 import Trace from "../../../src/components/Trace.astro"
 import Tabs from "../../../src/components/Tabs.astro"
 
+> **Superseded.** This guide walks the one-file `.viva.js` instance: an entity, a domain and a mode declared inline in one module, beside a hosted lighthouse service. An instance is now one `instance.viva.json` — references and configuration, no code — the runtime carries identity itself, and a domain brings traits, never an entity or a table. Since m81 a daemon's modules sit under `modes` (the runtime may declare its own `runtime.modes`), and a mode's context carries its host's words flat — `ctx.entities`, never `ctx.daemon.entities`; the code below speaks that vocabulary. The walk stays until its rewrite lands; the living recipe is `commons/instances/hello-world/instance.viva.json` (the repository README, *Hello, Instance!*).
+
 A Mode is one citizen. An **Instance** is the whole recipe — runtime, daemons, services, client. `@commons/instance/standalone` is the shortest complete thing Vivalence can be: one file that declares a persisted entity, a domain, a mode with a face and an LLM coach, the machine that boots them, and some placeholder data.
 
 This page walks the file section by section — what each part declares and why it is the way it is. Its sibling [[12.01_anatomy-of-an-instance]] follows the same file through the machine: what paladin, the runtime and the daemon do with each of these declarations at boot. Build here, understand there.
@@ -24,7 +26,7 @@ This page walks the file section by section — what each part declares and why 
 minimum vocabulary required:
 
 - `manifest` — `{type, slug, version, traits}`. Every module carries one; the `type` decides what the system does with it, the `traits` decide which machinery wakes.
-- `kernel` — a daemon's list of member modules. Usually identifiers into the registry; here, inline objects — the whole daemon's content lives in this one file.
+- `modes` — a host's list of member modules (a daemon's, or the runtime's own). Usually identifiers into the registry; here, inline objects — the whole daemon's content lives in this one file.
 - `statics` / `secrets` — a declaration's configuration. Every environment read is a thunk (`() => …`) so the file can be imported anywhere without an environment; paladin fires them at mount.
 - `mountpoint` — the instance's writable home. Databases and view bundles land there, never beside your code.
 
@@ -84,7 +86,7 @@ const domain = {
 };
 ```
 
-Review memory gets its *own entity* instead of a JSON blob on some existing row. The declaration is the standard MikroORM tuple — class, schema, repository — wrapped in a kernel entry typed `domain`; at boot its entities join the system's own as equals ([[12.01_anatomy-of-an-instance]] shows the collate). The unique on `literal` pins the shape: one memory row per word. And nobody writes a migration — the daemon automigrates the schema into the instance's own database.
+Review memory gets its *own entity* instead of a JSON blob on some existing row. The declaration is the standard MikroORM tuple — class, schema, repository — wrapped in a `modes` entry typed `domain`; at boot its entities join the system's own as equals ([[12.01_anatomy-of-an-instance]] shows the collate). The unique on `literal` pins the shape: one memory row per word. And nobody writes a migration — the daemon automigrates the schema into the instance's own database.
 
 ## the deck — one vector, two mounts
 
@@ -98,8 +100,8 @@ const deck = new Vector()
         "Load the deck — every literal with its symbols and its retention (the dedicated review-memory entity; zeros when the literal was never reviewed).",
     },
     async (ctx) => {
-      const literals = await ctx.daemon.entities.literal.find({}, { populate: ["symbols"] });
-      const retentions = await ctx.daemon.entities.retention.find({}, { populate: ["literal"] });
+      const literals = await ctx.entities.literal.find({}, { populate: ["symbols"] });
+      const retentions = await ctx.entities.retention.find({}, { populate: ["literal"] });
       const kept = new Map(retentions.map((row) => [row.literal.slug, row]));
       return {
         condition: "OK",
@@ -130,16 +132,16 @@ const deck = new Vector()
       }),
     },
     async (ctx) => {
-      const literal = await ctx.daemon.entities.literal.findOne({ slug: ctx.input.literal });
+      const literal = await ctx.entities.literal.findOne({ slug: ctx.input.literal });
       if (!literal)
         return { condition: "ERROR", output: { message: `no literal '${ctx.input.literal}'` } };
       const row =
-        (await ctx.daemon.entities.retention.findOne({ literal: literal.id })) ??
-        ctx.daemon.entities.retention.create({ literal, streak: 0, seen: 0 });
+        (await ctx.entities.retention.findOne({ literal: literal.id })) ??
+        ctx.entities.retention.create({ literal, streak: 0, seen: 0 });
       row.seen += 1;
       row.streak = ctx.input.remembered ? row.streak + 1 : 0;
       row.lastSignal = ctx.input.remembered ? "SUCCESS" : "FAILURE";
-      await ctx.daemon.entities.em.flush();
+      await ctx.entities.em.flush();
       return {
         condition: "OK",
         output: {
@@ -153,7 +155,7 @@ const deck = new Vector()
   );
 ```
 
-A `Vector` is a declaratively dispatched tree of handlers — the system's one shape for anything callable. Two natures here: `/load` reads the deck through the daemon's repositories, `/review` upserts one Retention row. The `valence` strings aren't comments — they're the tool descriptions the LLM coach reads. The `input` schema on `/review` is the declared contract: the coach's tool schema and the client wire both derive from it.
+A `Vector` is a declaratively dispatched tree of handlers — the system's one shape for anything callable. Two natures here: `/load` reads the deck through the host's repositories (`ctx.entities`), `/review` upserts one Retention row. The `valence` strings aren't comments — they're the tool descriptions the LLM coach reads. The `input` schema on `/review` is the declared contract: the coach's tool schema and the client wire both derive from it.
 
 Declared once, this vector is mounted twice in the mode below — `tools: deck` arms the coach with it, `aperture: deck` exposes it to the view as `mode.call`. Same behavior, two callers, zero duplication.
 
@@ -168,7 +170,7 @@ const flashcard = {
     description:
       "m39 demo — a whole flashcard app declared in the instance file: dataset-seeded literals and symbols, review memory in a dedicated Retention entity, a coach that loads the deck and records reviews.",
     version: "0.0.1",
-    traits: ["APPLICATION", "STANDALONE", "DATASET", "TOOLING", "HARNESSED", "EXPOSED"],
+    traits: ["APPLICATION", "DATASET", "TOOLING", "HARNESSED", "EXPOSED"],
   },
   application: new App(
     svelte`
@@ -239,10 +241,9 @@ const flashcard = {
   ),
 ```
 
-The `traits` array is the mode's contract with the daemon — each name wakes one piece of machinery at boot:
+The `traits` array is the mode's contract with its host — each name wakes one piece of machinery at boot:
 
 - `APPLICATION` — the mode has a face; the daemon bundles it, the runtime serves it.
-- `STANDALONE` — the face can open without an emitter behind it.
 - `DATASET` — the mode seeds data on first boot.
 - `TOOLING` — the mode arms tools (the deck).
 - `HARNESSED` — the mode has a dialogue harness; an LLM can drive it.
@@ -305,7 +306,7 @@ The face itself is Svelte 5 in a tagged template — ``svelte`…` `` — so thi
 };
 ```
 
-The harness is middleware on the daemon's dialogue pipeline: it writes one system-prompt section onto the assembling request and passes on. The coach's actual capabilities come from `tools: deck` — when a learner tells it what happened, it calls `/review` itself, and the descriptions it acts on are the `valence` strings you already wrote.
+The harness is middleware on the host's dialogue pipeline: it writes one system-prompt section onto the assembling request and passes on. The coach's actual capabilities come from `tools: deck` — when a learner tells it what happened, it calls `/review` itself, and the descriptions it acts on are the `valence` strings you already wrote.
 
 The same harness answers a second kind of question. `dialogue` writes a reply; `choice` weighs a closed set of strings and returns a probability for each, in the order you gave them:
 
@@ -344,12 +345,12 @@ export const hallucinators = [
 export const daemons = [
   {
     manifest: { type: "daemon", slug: "standalone", version: "0.0.1", name: "Standalone", description: "the m39 one-file machine", icon: { emoji: "🃏" } },
-    kernel: [domain, flashcard],
+    modes: [domain, flashcard],
   },
 ];
 ```
 
-`kernel: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry identifiers (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its kernel entries come from. Around the kernel the daemon declares nothing else: the datamap, the hallucinators and the lighthouse are declared once, at the instance root, and every daemon inherits its own copy — a daemon declares one of them only to override it, whole-slot. Each is a `{module, statics, secrets}` mask — configuration for a module that lives in the registry, resolved at boot. The copy is seated for its daemon: `mountpoint/daemon_standalone/` is its directory, and its database file is named for it, `standalone.viva.db`. A hallucinator whose secret is blank is *dormant*: dropped from the roster at mount and named by the doctor, so a missing key means a bot answer, never a dead faculty.
+`modes: [domain, flashcard]` is the whole daemon — the two objects declared above, inline. In a grown instance these are registry identifiers (`"@education/domain/language-learning"`); the mechanism is the same, the daemon doesn't care where its `modes` entries come from. Around them the daemon declares nothing else: the datamap, the hallucinators and the lighthouse are declared once, at the instance root, and every daemon inherits its own copy — a daemon declares one of them only to override it, whole-slot. Each is a `{module, statics, secrets}` mask — configuration for a module that lives in the registry, resolved at boot. The copy is seated for its daemon: `mountpoint/daemon_standalone/` is its directory, and its database file is named for it, `standalone.viva.db`. A hallucinator whose secret is blank is *dormant*: dropped from the roster at mount and named by the doctor, so a missing key means a bot answer, never a dead faculty.
 
 Note what is *not* here: no ports hardcoded, no keys inline. Every environment read is a thunk into `paladin.env` or `paladin.secret`, and every one hands back a string — the instance schematic mints the `Url`s and fills the `statics` / `consume` slots a recipe leaves out, so the declaration never types or pads anything.
 
@@ -375,7 +376,7 @@ export const clients = [
 ];
 ```
 
-The lighthouse appears twice on purpose. Under `services` it is *hosted*: the instance runs its own identity service, attached inside the runtime's path tree. Under `lighthouse` it is *consumed*: a module and a remote URL, inherited by every daemon. In this instance both point at the same instance — the standalone is self-sufficient — but the split is what lets a fleet of instances share one lighthouse later. The hosted service takes the root datamap like a daemon does, seated at `mountpoint/service_multiplayer/` with `multiplayer.viva.db` in it. And every citizen names itself the same way — runtime, client, service, daemon, kernel entry: a `manifest` carrying its `type` and `slug`.
+The lighthouse appears twice on purpose. Under `services` it is *hosted*: the instance runs its own identity service, attached inside the runtime's path tree. Under `lighthouse` it is *consumed*: a module and a remote URL, inherited by every daemon. In this instance both point at the same instance — the standalone is self-sufficient — but the split is what lets a fleet of instances share one lighthouse later. The hosted service takes the root datamap like a daemon does, seated at `mountpoint/service_multiplayer/` with `multiplayer.viva.db` in it. And every citizen names itself the same way — runtime, client, service, daemon, `modes` entry: a `manifest` carrying its `type` and `slug`.
 
 ## environment
 

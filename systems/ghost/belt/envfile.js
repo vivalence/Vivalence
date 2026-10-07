@@ -2,7 +2,14 @@ import paladin from "@vivalence/paladin";
 
 // a .env authored FROM a schema: groups become sections, describes become the comments above
 // each key. state.env upserts values afterwards and leaves all of this alone.
-export const fallback = (held) => (typeof held?.default === "function" ? held.default() : (held?.default ?? ""));
+export const fallback = (held) => held?.default ?? "";
+export const MINTED = { SECRET_VIVA_JWT: () => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(24)))) };
+export const mint = (schema, bag = {}) =>
+  Object.fromEntries(
+    Object.entries(MINTED)
+      .filter(([key]) => key in (schema.properties ?? {}) && !bag[key])
+      .map(([key, make]) => [key, make()]),
+  );
 
 export function scaffold(schema) {
   const groups = new Map();

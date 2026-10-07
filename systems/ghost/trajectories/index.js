@@ -68,6 +68,7 @@ export default function (trajectory) {
       schema: v.object({
         process: v.string().desc("runtime | anima | all").optional(),
         logged: v.boolean().desc("write child output to the ledger's logs instead of the terminal").group("flags").optional(),
+        prune: v.boolean().desc("drop datamap rows of daemons no longer in instance.viva.json (VIVA_RUNTIME_PRUNE=1)").group("flags").optional(),
       }),
     },
     instance.run,
@@ -79,6 +80,7 @@ export default function (trajectory) {
       valence: "start the mounted instance detached — a supervisor ghost runs it logged (instance/run --logged) and holds the lock",
       schema: v.object({
         process: v.string().desc("runtime | anima | all").optional(),
+        prune: v.boolean().desc("drop datamap rows of daemons no longer in instance.viva.json (VIVA_RUNTIME_PRUNE=1)").group("flags").optional(),
       }),
     },
     instance.start,
@@ -134,15 +136,15 @@ export default function (trajectory) {
 
   trajectory.open(
     {
-      nature: "/instance/lighthouse",
-      valence: "signup or login against the mounted instance's lighthouse",
+      nature: "/instance/user",
+      valence: "signup, login or reset a password against the mounted instance's runtime",
       schema: v.object({
-        action: v.string().desc("signup | login").optional(),
+        action: v.string().desc("signup | login | password").optional(),
         username: v.string().optional(),
         password: v.string().optional(),
       }),
     },
-    instance.lighthouse,
+    instance.user,
   );
 
   trajectory.open(

@@ -49,8 +49,8 @@ async function seedInstance(slug) {
   const dir = await Deno.makeTempDir({ suffix: `-${slug}` });
   await Deno.mkdir(`${dir}/environment`, { recursive: true });
   await Deno.writeTextFile(
-    `${dir}/${slug}.viva.js`,
-    `export const manifest = { type: "instance", slug: "${slug}" };\n`,
+    `${dir}/instance.viva.json`,
+    `{ "manifest": { "type": "instance", "slug": "${slug}" } }\n`,
   );
   return dir;
 }
@@ -178,8 +178,8 @@ Deno.test("path law — ./dotted and bare dir/sub both pin to the shell cwd, slu
     await Deno.mkdir(`${stand}/${dir}/environment`, { recursive: true });
     const slug = dir.split("/").pop();
     await Deno.writeTextFile(
-      `${stand}/${dir}/${slug}.viva.js`,
-      `export const manifest = { type: "instance", slug: "${slug}" };\n`,
+      `${stand}/${dir}/instance.viva.json`,
+      `{ "manifest": { "type": "instance", "slug": "${slug}" } }\n`,
     );
   }
   const env = { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: String(Deno.pid), INIT_CWD: stand };
@@ -218,8 +218,8 @@ Deno.test("path law — --instance flag pins the same way", async () => {
   const stand = await Deno.makeTempDir();
   await Deno.mkdir(`${stand}/flagged/environment`, { recursive: true });
   await Deno.writeTextFile(
-    `${stand}/flagged/flagged.viva.js`,
-    `export const manifest = { type: "instance", slug: "flagged" };\n`,
+    `${stand}/flagged/instance.viva.json`,
+    `{ "manifest": { "type": "instance", "slug": "flagged" } }\n`,
   );
   const env = { VIVA_LEDGER_MOUNT: home, INIT_CWD: stand };
   const held = await doctor(["--instance=./flagged"], env);
@@ -232,8 +232,8 @@ Deno.test("chaining through the real CLI — use <path> doctor --json returns th
   const stand = await Deno.makeTempDir();
   await Deno.mkdir(`${stand}/chained/environment`, { recursive: true });
   await Deno.writeTextFile(
-    `${stand}/chained/chained.viva.js`,
-    `export const manifest = { type: "instance", slug: "chained" };\n`,
+    `${stand}/chained/instance.viva.json`,
+    `{ "manifest": { "type": "instance", "slug": "chained" } }\n`,
   );
   const env = { VIVA_LEDGER_MOUNT: home, VIVA_PROCESS_ID: String(Deno.pid), INIT_CWD: stand };
   const { out, err } = await viva(["instance/use", "./chained", "doctor", "--json"], env);
@@ -247,8 +247,8 @@ Deno.test("doctor <target> <filter> — the target rides the instances lens, a s
   const stand = await Deno.makeTempDir();
   await Deno.mkdir(`${stand}/chained/environment`, { recursive: true });
   await Deno.writeTextFile(
-    `${stand}/chained/chained.viva.js`,
-    `export const manifest = { type: "instance", slug: "chained" };\n`,
+    `${stand}/chained/instance.viva.json`,
+    `{ "manifest": { "type": "instance", "slug": "chained" } }\n`,
   );
   await Deno.writeTextFile(`${home}/instances.json`, JSON.stringify({ chained: { mount: `${stand}/chained` } }));
   const env = { VIVA_LEDGER_MOUNT: home, INIT_CWD: await Deno.makeTempDir() };

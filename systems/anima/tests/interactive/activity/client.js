@@ -12,6 +12,7 @@ export async function consumer(url, token) {
   const daemon = { connection };
   const entities = new Dataspace({
     connection,
+    runtime: connection,
     entities: [ActivityDossier],
     seed: (vector) => vector.use(shard.context.bind("daemon", daemon)),
   });

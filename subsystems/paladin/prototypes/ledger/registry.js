@@ -1,5 +1,5 @@
-import { basename, dirname, isAbsolute, relative } from "@std/path";
-import { cast, is, Path, Span, v } from "@vivalence/typology";
+import { basename, dirname, isAbsolute, relative, resolve as absolute } from "@std/path";
+import { cast, is, object, Path, Span, v } from "@vivalence/typology";
 import { Pensieve } from "../pensieve.js";
 import { probe, RULES } from "./integrity.js";
 import { derive } from "./ledger.js";
@@ -9,10 +9,19 @@ const traits = (manifest) => manifest?.traits ?? [];
 const normalize = (location) =>
   isAbsolute(location) ? location : location.replace(/^\.\//, "");
 
+const declared = (module) => {
+  const root = dirname(module.source.absolute);
+  if (!module.manifest?.owner) throw new Error(`[registry] ${root}: package declares no owner — author manifest.owner (e.g. "@commons")`);
+  return { owner: module.manifest.owner, slug: module.manifest.slug, root };
+};
+
 export class Registry {
-  constructor(paladin, path) {
+  constructor(paladin, path, { held = null, from = null, fallback = true } = {}) {
     this.paladin = paladin;
     this.path = path;
+    this.held = held;
+    this.from = from;
+    this.fallback = fallback;
     this.pensieve = new Pensieve();
     this.stale = [];
     // the span is the only log; its pipe fills the index the doctor and assert() read — what is wrong under a
@@ -22,46 +31,63 @@ export class Registry {
     this.span.to((record) => record.verb === "fault" && (this.integrity.get(record.path) ?? this.integrity.set(record.path, new Set()).get(record.path)).add(record.data.message));
   }
 
-  read() {
-    return this.paladin.read.json(this.path, null);
+  async read() {
+    const record = this.held
+      ? structuredClone(this.held)
+      : await this.paladin.read.json(this.path, this.fallback ? null : undefined).catch((error) => {
+        throw new Error(`registry: ${this.path.absolute} ("${this.from}") — ${error?.code === "ENOENT" ? "no such file" : error.message}`);
+      });
+    if (record === null || v.check(v.primitives.instance.Tapped, record)) return record;
+    const errors = [...v.errors(v.primitives.instance.Tapped, record)].map((error) => `${error.instancePath || "/"} ${error.message}`);
+    throw new Error(`registry: ${this.path?.absolute ?? `inline ("${this.from}")`} — not a registry record: ${errors.join(" · ")}`);
   }
 
-  write(locations) {
-    return this.paladin.state.json(this.path, locations);
+  async write(record) {
+    if (this.held) throw new Error(`registry: inline ("${this.from}") — read-only; declare a path to write`);
+    return await this.paladin.state.json(this.path, record);
   }
 
-  async locations() {
-    return (await this.read()) ?? [];
+  async tapped() {
+    return (await this.read()) ?? {};
   }
 
-  async has(location) {
-    return (await this.locations()).includes(normalize(location));
+  async has(owner) {
+    return Object.hasOwn(await this.tapped(), owner);
   }
 
-  async add(location) {
-    location = normalize(location);
-    const locations = await this.locations();
-    if (locations.includes(location)) return locations;
-    const next = [...locations, location];
+  async add(owner, entry) {
+    const record = await this.tapped();
+    const held = record[owner];
+    if (held && held.mount !== entry.mount)
+      throw new Error(`[registry] ${owner} is tapped at ${held.mount} — untap it before tapping ${entry.mount}`);
+    const next = { ...record, [owner]: { ...held, ...entry } };
+    if (held && object.equals(next[owner], held)) return record;
     await this.write(next);
     return next;
   }
 
-  async remove(location) {
-    location = normalize(location);
-    const next = (await this.locations()).filter((held) => held !== location);
+  async remove(owner) {
+    const record = await this.tapped();
+    if (!Object.hasOwn(record, owner)) return record;
+    const next = Object.fromEntries(Object.entries(record).filter(([held]) => held !== owner));
     await this.write(next);
     return next;
   }
 
-  locate(absolute) {
-    const store = this.paladin.scope.registry?.absolute;
-    if (!store) return absolute;
-    const segment = relative(store, absolute);
-    return segment && !segment.startsWith("..") && !isAbsolute(segment) ? segment : absolute;
+  get base() {
+    return this.path ? dirname(this.path.absolute) : this.paladin.scope.ledger.absolute;
   }
 
-  resolve(location) {
+  locate(root) {
+    const segment = relative(this.base, root);
+    return segment && !segment.startsWith("..") && !isAbsolute(segment) ? `./${segment}` : root;
+  }
+
+  resolve(mount) {
+    return new Path(isAbsolute(mount) ? mount : absolute(this.base, mount));
+  }
+
+  stored(location) {
     location = normalize(location);
     if (isAbsolute(location)) return new Path(location);
     if (!this.paladin.scope.registry)
@@ -69,37 +95,42 @@ export class Registry {
     return this.paladin.scope.registry.branch(location);
   }
 
+  row({ owner, slug, root }) {
+    return [owner, { slug, mount: this.locate(root) }];
+  }
+
   async discover(scope) {
     if (!scope || !(await Deno.stat(scope.absolute).catch(() => null))) return [];
-    const declarations = await this.paladin.find.type(scope, "package");
-    return [...new Set(declarations.map((module) => dirname(module.source.absolute)))];
+    return (await this.paladin.find.type(scope, "package")).map(declared);
   }
 
   async seed(scope) {
-    const locations = await this.discover(scope);
-    await this.write(locations);
-    return locations;
+    const record = Object.fromEntries((await this.discover(scope)).map((found) => this.row(found)));
+    await this.write(record);
+    return record;
   }
 
   async reconcile(checkout, commons) {
     const held = await this.read();
     if (!held) return null;
-    const present = async (location) => Boolean(await Deno.stat(this.resolve(location).absolute).catch(() => null));
+    const present = async (owner) => Boolean(await Deno.stat(this.resolve(held[owner].mount).absolute).catch(() => null));
     const dead = [];
-    for (const location of held) if (!(await present(location))) dead.push(location);
-    if (!dead.length) return { locations: held, stale: [] };
-    const inside = (location) => Boolean(checkout) && this.resolve(location).absolute.startsWith(`${checkout.absolute}/`);
-    const stale = dead.filter((location) => !inside(location));
-    const kept = held.filter((location) => !dead.includes(location) || stale.includes(location));
-    const healed = dead.some(inside) ? (await this.discover(commons)).filter((location) => !kept.includes(location)) : [];
-    const record = [...kept, ...healed];
+    for (const owner of Object.keys(held)) if (!(await present(owner))) dead.push(owner);
+    if (!dead.length) return { record: held, stale: [] };
+    const inside = (owner) => Boolean(checkout) && this.resolve(held[owner].mount).absolute.startsWith(`${checkout.absolute}/`);
+    const stale = dead.filter((owner) => !inside(owner));
+    const kept = Object.fromEntries(Object.entries(held).filter(([owner]) => !dead.includes(owner) || stale.includes(owner)));
+    const healed = dead.some(inside)
+      ? (await this.discover(commons)).filter((found) => !Object.hasOwn(kept, found.owner)).map((found) => this.row(found))
+      : [];
+    const record = { ...kept, ...Object.fromEntries(healed) };
     await this.write(record);
-    return { locations: record.filter((location) => !stale.includes(location)), stale };
+    return { record: Object.fromEntries(Object.entries(record).filter(([owner]) => !stale.includes(owner))), stale };
   }
 
   // ——— the pensieve side (was prototypes/vip.js) ———
 
-  async mount(root) {
+  async mount(root, claim = null) {
     const paths = await this.paladin.find.viva(root);
     const modules = [];
     for (const path of paths) {
@@ -118,6 +149,8 @@ export class Registry {
     const owner = declaration?.manifest?.owner;
     if (modules.length && !owner)
       throw new Error(`[registry] mount ${root.absolute}: package declares no owner — author manifest.owner (e.g. "@commons")`);
+    if (claim && (owner !== claim.owner || declaration?.manifest?.slug !== claim.slug))
+      throw new Error(`[registry] mount ${root.absolute}: the record names ${claim.owner}/package/${claim.slug}, the package declares ${owner}/package/${declaration?.manifest?.slug} — re-tap it`);
     for (const module of modules) {
       // a copy: read.viva returns the live namespace. the mount's owner stamps; the module's own locks.
       this.pensieve.register({
@@ -135,26 +168,28 @@ export class Registry {
     const checkout = this.paladin.scope.repository;
     const commons = checkout?.branch("commons");
     const reconciled = await this.reconcile(checkout, commons);
-    const locations = reconciled?.locations ?? await this.seed(commons);
+    const record = reconciled?.record ?? await this.seed(commons);
     this.stale = reconciled?.stale ?? [];
-    for (const location of locations) await this.mount(this.resolve(location));
+    for (const [owner, { slug, mount }] of Object.entries(record)) await this.mount(this.resolve(mount), { owner, slug });
     return this;
   }
 
   // tap = materialize + record. mount is the runtime's moment — supply() folds the record at boot.
   async tap(source, target) {
     let location = source;
+    let remote = null;
     if (this.paladin.clone.remote(source)) {
       if (!target && !this.paladin.scope.registry)
         throw new Error(`[registry] tap ${source}: no package store — a remote tap clones into scope.registry (set VIVA_REGISTRY_MOUNT)`);
       const slug = source.split("/").at(-1).replace(/\.git$/, "");
       const destination = target ? new Path(target) : this.paladin.scope.registry.branch(slug);
       await this.paladin.clone(source, destination);
-      location = target ? destination.absolute : slug;
+      location = destination.absolute;
+      remote = source;
     } else if (target) {
       throw new Error(`[registry] tap ${source}: target only applies to a remote source — a local tap records the location in place`);
     }
-    const root = this.resolve(location);
+    const root = this.stored(location);
     const stat = await Deno.stat(root.absolute).catch(() => null);
     if (!stat)
       throw new Error(`[registry] tap ${source}: nothing at ${root.absolute} — pass a path, a remote, or a location already in the store`);
@@ -162,14 +197,16 @@ export class Registry {
     const declarations = await this.paladin.find.type(home, "package");
     if (!declarations.length)
       throw new Error(`[registry] tap ${source}: no package declaration (manifest.type "package") under ${home.absolute}`);
-    if (declarations.length === 1) location = this.locate(dirname(declarations[0].source.absolute));
-    await this.add(location);
-    return location;
+    if (declarations.length > 1)
+      throw new Error(`[registry] tap ${source}: ${declarations.length} package declarations under ${home.absolute} — tap one: ${declarations.map((module) => dirname(module.source.absolute)).join(" · ")}`);
+    const [owner, entry] = this.row(declared(declarations[0]));
+    await this.add(owner, remote ? { ...entry, remote } : entry);
+    return owner;
   }
 
   // untap = record removal ONLY — the store keeps the working copy; next supply() simply omits it.
-  untap(location) {
-    return this.remove(location);
+  untap(owner) {
+    return this.remove(owner);
   }
 
   list(query = {}) {
@@ -223,7 +260,7 @@ export class Registry {
     return this.assert(entry, probe(RULES)(citizen, this.span.branch(entry)));
   }
 
-  // a daemon mask → its bag: every slot a citizen, the domain picked from the kernel
+  // a bearer's mask → its bag: every slot a citizen, the domain picked from its modes
   async wire(mask) {
     const many = (queries) => Promise.all(queries.map((query) => this.accio(query)));
     // an entry whose identifier named no type is seated here, by the folded manifest — same rule, later moment
@@ -233,14 +270,13 @@ export class Registry {
       const reference = new Path(`/mode/${type}/${slug}`);
       return { ...citizen, reference, url: mask.url?.branch(reference.absolute), bundles: new Path(`${mask.mountpoint.absolute}/bundles/${type}/${slug}`) };
     };
-    const kernel = (await many(mask.kernel)).map(seated);
+    const modes = (await many(mask.modes ?? [])).map(seated);
     return {
-      lighthouse: await this.accio(mask.lighthouse),
-      datamap: await this.accio(mask.datamap),
-      hallucinators: await many(mask.hallucinators),
-      consume: Object.fromEntries(await Promise.all(Object.entries(mask.consume).map(async ([slug, query]) => [slug, await this.accio(query)]))),
-      kernel,
-      domain: v.primitives.kernel.Domain.cast(kernel.find((citizen) => citizen.manifest.type === "domain") ?? {}),
+      ...(mask.datamap && { datamap: await this.accio(mask.datamap) }),
+      hallucinators: await many(mask.hallucinators ?? []),
+      consume: Object.fromEntries(await Promise.all(Object.entries(mask.consume ?? {}).map(async ([slug, query]) => [slug, await this.accio(query)]))),
+      modes,
+      domain: v.primitives.kernel.Domain.cast(modes.find((citizen) => citizen.manifest.type === "domain") ?? {}),
     };
   }
 

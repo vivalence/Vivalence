@@ -1,13 +1,17 @@
 import { Signal, steer } from "@vivalence/typology"
 
-export function subscriber(vector) {
+export function subscriber(vector, { scope = (args, task) => task() } = {}) {
+  const dispatch = (signal, args) => async () => {
+    for (const handler of steer.dispatch.shotgun(vector, signal)) await handler(args)
+  }
   async function emit(phase, op, args) {
     const name = args.meta?.className?.toLowerCase()?.replace("entity", "")
       ?? args.entity?.constructor?.name?.toLowerCase()?.replace("entity", "")
     if (!name) return
 
     const signal = new Signal(`${phase}/${name}/${op}`)
-    for (const handler of steer.dispatch.shotgun(vector, signal)) await handler(args)
+    if (phase === "before") return dispatch(signal, args)()
+    await scope(args, dispatch(signal, args))
   }
 
   return {

@@ -1,0 +1,814 @@
+#+title: m84 harness runtime — the runtime's home, the switch between modes, the woken run; tools a mode imports
+#+filetags: :runtime:harness:home:tools:handoff:twitch:
+#+status: SCAFFOLDED 10-10 from m81 — beef: /"is the m84 harness runtime session the harness half? - yes."/ m81's harness half moved here whole; the rulings stay in m81's =* decisions= and =* forks=, cited by =m81-runtime-harness.org:LINE=. Next: the harness map on those rulings (/"we do the harness map later."/), then the M1 rework — re-derived from the transcript, never relabelled (/"you did not fucking rewrite the tangle"/).
+<!-- limit: 120000 chars -->
+
+* intent
+
+| # | strand |
+|---+--------|
+| A | m81's strands A–P are this quest's ground (=m81-runtime-harness.org:5-27=): A /"i need a harness for the runtime"/ · B the mode-less turn · D tools and skills, all vectors · E no external harness · H a mode that runs straight in the runtime · L /"launch an entirely empty runtime harness … how we allow users to overwrite them"/ · N · P the fork walk 10-10 |
+| B | 10-10: /"is the m84 harness runtime session the harness half? - yes."/ |
+
+* rulings — in m81, by line
+
+| ruling | where |
+|--------+-------|
+| the home is a POINTER, two ways: =user.trait.HOME= › =instance.clients[].home= — both words LANDED in typology 10-10; the client resolves (m82) | =m81-runtime-harness.org:112= · =:121= · =:123= |
+| home arms nothing yet (F6) | =:114= |
+| tools are IMPORTED by a mode, never autoloaded by the trait (R2) | =:87= · =:88= |
+| a =RUNTIME= trait lets a mode into the runtime (R1) | =:86= |
+| every user-data repo scoped by the bound user — LANDED 10-10 | =:115= · =:122= |
+| history is the whole thread (F8) | =:116= |
+| a handoff writes the target =Mode= row onto =thread.mode= (R5) | =:117= |
+| =Turn.mode= exists; the model does not see it | =:118= |
+| "drill me": a tool switches the mode, the turn recording it wakes the new mode on the whole thread (F9) | =:119= |
+| =paladin.skills= → =paladin.tools= — m83 carries it (F4) | =:120= |
+
+* build list — what the rulings ask, nothing tangled yet
+
+1. tools imported: =systems/runtime/traits/harnessed.js:62-67= arms six into every harnessed mode today; they leave the trait, and each registry mode that calls one imports it (a census first: which modes call which).
+2. the home: any mode a host seats; the client enters a thread with no mode into =user.trait.HOME= › its own =home=.
+3. the switch tool: resolves an absolute reference to its =Mode= row (=ctx.entities.mode.findOneOrFail({ daemon, type, slug })=, =daemon null= on the runtime) and writes =thread.mode=; it is the one tool the home must arm for F9 (QUESTIONED against F6's "home doesnt arm yet").
+4. the woken run: a twitch on =/after/turn/create= for the turn recording the switch — =owned()= passes every turn to every host (=subsystems/typology/gestalten/shard/datamap.js:298=), so the host whose modes hold the target id claims it; it answers on history alone (=chaining= always writes a user turn, =harnessed.js:89=); it binds the thread's user (precedent =traits/intented.js:5=; an unbound user-scoped write throws, =shard/datamap.js:207=); the client sees it as the thread's Activity.
+5. other modes' turns shown to the model with their mode, their tool calls as text — whole-thread history otherwise hands a mode tool names it cannot call (codemap runtime, "every tool name in history must be CALLABLE").
+
+* tangle — M1 · runtime
+
+STALE 10-09 (L) — beef: /"you did not fucking rewrite the tangle last session and this is causing massive issues!"/ Every block below is the 10-08 shape relabeled: =harnessed.js= arms =paladin.skills.fs.fs= (F4 · F6 ruled against), autoloads =gestalten.tools.*= (RULED 10-09: imported, never autoloaded), no =RUNTIME= trait (R1), reads and binds =ctx.host= (/"no ctx.host. nope never."/ — =harnessed.js= · =summarizing= · =mode_find='s lean), and reads =ctx.daemon.*= / binds =daemon= where the FLATTEN (10-09) puts the host's words flat on ctx (=ctx.entities · ctx.cortex · …=, =spread(contexts.host, host)=, =fromm.modes(ctx.modes).flat=). Nothing here lands; the rework comes after the design, replaying EVERY ruling in =* decisions= against every block, from the transcript. RE-TANGLED 10-09 on the pass's shape (J · K). New files are whole; diffs over a moved tool file read today's bytes (the pass and M0 leave =gestalten/skills/*.js= untouched); the barrels' diffs read the pass's barrels; =harnessed.js= is whole, written over M0's =(mode, host)=. Every harness has a mode under M0 — the home included — so the shards read =ctx.mode= and take no =mode= parameter; F10's refusal collapses (=* forks= F table).
+
+Moves — each row a plain =mv= landed BEFORE any block of this section; a block names the NEW path and diffs the moved file; =systems/runtime/gestalten/skills/= stays and gains =mode.js= · =index.js= new.
+
+| from | to |
+|------+----|
+| =systems/runtime/gestalten/skills/entity.js= | =systems/runtime/gestalten/tools/entity.js= |
+| =systems/runtime/gestalten/skills/buffer.js= | =systems/runtime/gestalten/tools/buffer.js= |
+| =systems/runtime/gestalten/skills/thread.js= | =systems/runtime/gestalten/tools/thread.js= |
+| =systems/runtime/gestalten/skills/mode.js= | =systems/runtime/gestalten/tools/mode.js= |
+| =systems/runtime/gestalten/skills/index.js= | =systems/runtime/gestalten/tools/index.js= |
+
+** =systems/runtime/gestalten/shard/harness.js= — new · bodies PROVEN rig 10-08 (out of =harnessed.js=) · the seven =(ctx, next)= leaves + =lexicon(cortex)=; =ctx.entities= · =ctx.host= · =ctx.mode= bound by the trait
+#+begin_src javascript
+// systems/runtime/gestalten/shard/harness.js
+import { v, Vector } from "@vivalence/typology";
+import { summary, turns } from "../belt/index.js";
+
+const { Packet } = v.primitives.hallucination;
+
+export const normalizing = async (ctx, next) => {
+  ctx.input = typeof ctx.input === "string" ? { prompt: ctx.input } : (ctx.input ?? {});
+  await next();
+};
+
+export const claiming = async (ctx, next) => {
+  ctx.thread = ctx.input.thread
+    ? await ctx.entities.thread.findOneOrFail({ id: ctx.input.thread })
+    : null;
+  ctx.user ??= ctx.thread?.user ?? null;
+  ctx.intelligent = v.thread.trait(ctx.thread, "INTELLIGENT");
+  ctx.vocal = v.thread.trait(ctx.thread, "VOCAL");
+  await next();
+};
+
+export const activating = async (ctx, next) => {
+  if (!ctx.input.controller) {
+    ctx.activity = await ctx.entities.activity.control({ user: ctx.user?.id ?? null, mode: ctx.mode.id, thread: ctx.thread?.id ?? null });
+  }
+  ctx.controller = ctx.input.controller ?? ctx.activity.controller;
+  await next();
+};
+
+export const requesting = (arming) => async (ctx, next) => {
+  const { system, prompt, turns, output, tune, config } = ctx.input;
+  ctx.hallucination = {
+    controller: ctx.controller,
+    policy: {
+      ...config,
+      ...(ctx.intelligent.tune && { tune: ctx.intelligent.tune }),
+      ...(ctx.intelligent.rounds && { rounds: ctx.intelligent.rounds }),
+      ...(tune && { tune }),
+    },
+    ...(ctx.intelligent.effort && { settings: { effort: ctx.intelligent.effort } }),
+    system: typeof system === "string" ? { system } : { ...system },
+    turns: turns ?? (prompt ? [{ role: "user", parts: [{ type: "text", text: prompt }] }] : []),
+    tools: arming(ctx),
+    ...(output && { output: { schema: output } }),
+  };
+  await next();
+};
+
+export const chaining = async (ctx, next) => {
+  ctx.hallucination.turns = await ctx.entities.turn.history({ thread: ctx.input.thread, mode: ctx.mode.id });
+  ctx.turn = await ctx.entities.turn.chain({
+    id: ctx.input.id,
+    role: "user",
+    parts: ctx.input.parts,
+    parent: ctx.hallucination.turns.at(-1) ?? null,
+    thread: ctx.input.thread,
+    mode: ctx.mode.id,
+  });
+  ctx.hallucination.turns.push(ctx.turn);
+  if (ctx.activity) await ctx.entities.activity.updateOne({ id: ctx.activity.id }, { turn: ctx.turn.id });
+  await next();
+};
+
+export const persisting = async (ctx, next) => {
+  await next();
+  if (ctx.output?.[Symbol.asyncIterator]) ctx.output = turns.record(ctx.entities, ctx.turn, ctx.input.thread, ctx.mode.id, ctx.output);
+  else if (ctx.output?.turns) await turns.append(ctx.entities, ctx.turn, ctx.input.thread, ctx.mode.id, ctx.output.turns);
+};
+
+export const summarizing = async (ctx, next) => {
+  if (ctx.thread) {
+    ctx.hallucination.policy.cache = { marks: [...Object.keys(ctx.hallucination.system).slice(-1), "tools"] };
+    ctx.hallucination.system.thread = await summary.thread(ctx.host, ctx.mode, ctx.thread);
+  }
+  await next();
+};
+
+export const lexicon = (cortex) => {
+  const vector = new Vector();
+  for (const type of ["dialogue", "object"]) {
+    vector
+      .branch(type)
+      .open("render", (ctx) => cortex.hallucinate[type].render(ctx.hallucination))
+      .open({ nature: "stream", yields: Packet.Response }, (ctx) => cortex.hallucinate[type].stream(ctx.hallucination));
+  }
+  vector
+    .branch("choice")
+    .open("render", (ctx) =>
+      cortex.hallucinate.choice.render({
+        controller: ctx.controller,
+        policy: ctx.hallucination.policy,
+        primer: ctx.input.primer,
+        questions: ctx.input.questions,
+      }),
+    );
+  return vector;
+};
+#+end_src
+** =systems/runtime/gestalten/belt/turns.js= — new · bodies PROVEN rig 10-08 · plain over data: =record · verdict · append=, first parameter =entities= (=em= for =verdict=)
+#+begin_src javascript
+// systems/runtime/gestalten/belt/turns.js
+import { soma } from "@vivalence/typology";
+import { TurnEntity } from "@vivalence/runtime";
+
+export async function* record(entities, turn, thread, mode, packets) {
+  const em = entities.em.fork();
+  let folded = null;
+  let parent = em.getReference(TurnEntity, turn.id);
+  let persisted = 0;
+  try {
+    for await (const packet of packets) {
+      folded = soma.transcript(folded, packet);
+      for (const row of folded.turns.slice(persisted)) {
+        parent = em.create(TurnEntity, { role: row.role, parts: row.parts, meta: row.meta, parent, thread, mode });
+      }
+      persisted = folded.turns.length;
+      yield packet;
+    }
+    parent = verdict(em, folded, parent, thread, mode);
+    await em.flush();
+  } catch (error) {
+    em.clear();
+    throw error;
+  }
+}
+
+export const verdict = (em, folded, parent, thread, mode) => {
+  const close = folded?.meta;
+  if (!close || close.state === "complete") return parent;
+  const last = folded.turns.at(-1);
+  if (last?.role === "assistant" && last.parts.length) return parent;
+  if (last?.role === "assistant") {
+    parent.meta = { ...last.meta, ...close };
+    return parent;
+  }
+  return em.create(TurnEntity, { role: "assistant", parts: [], meta: close, parent, thread, mode });
+};
+
+export const append = async (entities, turn, thread, mode, rows) => {
+  let parent = turn;
+  for (const row of rows) {
+    parent = await entities.turn.chain({ role: row.role, parts: row.parts, meta: row.meta, parent, thread, mode });
+  }
+};
+#+end_src
+** =systems/runtime/gestalten/belt/summary.js= — new · bodies PROVEN (=gestalten/skills/thread.js:4–39= · =skills/mode.js:3–11=) · =thread(host, mode, thread)=, his /"rework this signature"/: =entities= is =host.entities=, so it is not a parameter · =places= moves here, plain over data
+#+begin_src javascript
+// systems/runtime/gestalten/belt/summary.js @@beef not a belt thing. skill or tool.
+const named = (row) => row.trait?.LABELED?.name ?? "unlabeled";
+
+const shown = (data, width = 320) => {
+  const text = JSON.stringify(data ?? {});
+  return text.length <= width ? text : `${text.slice(0, width)}… keys ${Object.keys(data).join(" ")}`;
+};
+
+const address = (mode) => `${mode.manifest.type}/${mode.manifest.slug}`;
+
+// a mode's places on disk: its source, what it serves (the mountpoint), what it carries (freight) when
+// that is somewhere else. Empty for a mode with none — a scenario mode, a kernel entry without a file.
+export const places = (mode) =>
+  [
+    mode.module?.source?.dirname && `source ${mode.module.source.dirname}`,
+    mode.mountpoint?.absolute && `mountpoint ${mode.mountpoint.absolute}`,
+    mode.freight?.path?.absolute && mode.freight.path.absolute !== mode.mountpoint?.absolute &&
+    `freight ${mode.freight.path.absolute}`,
+  ].filter(Boolean).join(" · ");
+
+const threadline = (thread) =>
+  `[Thread ${thread.id}] · ${named(thread)} · phase ${thread.phase} · buffers minted ${thread.counter} · ` +
+  `traits ${thread.traits.join(" ") || "none"} · user ${thread.user.id}`;
+
+const modeline = (mode) =>
+  [
+    `[Mode ${address(mode)}] ${mode.manifest.name ?? mode.manifest.slug}`,
+    `traits ${(mode.manifest.traits ?? []).join(" ") || "none"}`,
+    places(mode),
+  ].filter(Boolean).join(" · ");
+
+const bufferline = (buffer, modes) =>
+  `${buffer.index} · ${buffer.id} · ${named(buffer)} · ${modes.get(buffer.mode.id)} · ${buffer.status} · ${shown(buffer.data)}` +
+  (buffer.view?.hash ? ` · view ${buffer.view.hash}` : "");
+
+export const thread = async (host, mode, thread) => {
+  const modes = new Map(host.flatmodes().map((peer) => [peer.id, address(peer)]));
+  const buffers = await host.entities.buffer.find({ thread: thread.id }, { orderBy: { index: "asc" } });
+  return [
+    threadline(thread),
+    modeline(mode),
+    `[Buffers on this thread] · ${buffers.length} · rows: index · id · label · mode · status · data · view — ` +
+      `these ids are what buffer_update and buffer_label take, never a document slug; ` +
+      `entity_find { entity: "buffer", where: { thread: "${thread.id}" }, fields: "full" } for whole rows`,
+    ...buffers.map((buffer) => bufferline(buffer, modes)),
+  ].join("\n");
+};
+#+end_src
+** =systems/runtime/gestalten/belt/index.js= — edit · over the pass's barrel · =turns= · =summary= as namespaces
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/belt/index.js:1
+ export * from "./traits.js";
+ export * from "./assemble.js";
++export * as turns from "./turns.js";
++export * as summary from "./summary.js";
+#+END_SRC
+** =systems/runtime/gestalten/shard/index.js= — edit · over the pass's barrel
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/shard/index.js:1
+ export * as cargo from "./cargo.js";
++export * as harness from "./harness.js";
+#+END_SRC
+** =systems/runtime/gestalten/index.js= — edit · over the pass's barrel
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/index.js:1
+ export * as belt from "./belt/index.js";
+ export * as shard from "./shard/index.js";
++export * as tools from "./tools/index.js";
+ export * as skills from "./skills/index.js";
+#+END_SRC
+** =systems/runtime/gestalten/tools/index.js= — edit · FLAT (J) · his =// canonical! new meta! @beef= kept on its line
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/tools/index.js:1
+-export * as entity from "./entity.js"; // canonical! new meta! @beef
+-export * as buffer from "./buffer.js";
+-export * as thread from "./thread.js";
+-export * as mode from "./mode.js";
++export { entity } from "./entity.js"; // canonical! new meta! @beef
++export { buffer } from "./buffer.js";
++export { thread } from "./thread.js";
++export { mode, ADDRESS, located, entered } from "./mode.js";
++export { terminal } from "./terminal.js";
+#+END_SRC
+** =systems/runtime/gestalten/tools/entity.js= — edit · PROVEN — rig 10-08 · =ctx.entities= · four kinds withheld (F7)
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/tools/entity.js:2
+
+ const BUDGET = 10_000;
++const WITHHELD = ["user", "terminal", "daemon", "activity"];
+ const OPERATORS = [
+   "$eq",
+…
+ ];
+
+-const repositories = (daemon) =>
++const repositories = (entities) =>
+   Object.fromEntries(
+-    Object.entries(daemon.entities).filter(
+-      ([, repository]) => typeof repository?.getEntityName === "function",
++    Object.entries(entities).filter(
++      ([type, repository]) => !WITHHELD.includes(type) && typeof repository?.getEntityName === "function",
+     ),
+   );
+…
+ const cardOf = (repository) => repository.card ?? CARD;
+
+-const unknown = (daemon, name) => ({
++const unknown = (entities, name) => ({
+   condition: "ERROR",
+   output: {
+-    message: `unknown entity '${name}' — this daemon has: ${
+-      Object.keys(repositories(daemon)).join(", ")
++    message: `unknown entity '${name}' — you can read: ${
++      Object.keys(repositories(entities)).join(", ")
+     }`,
+   },
+…
+       nature: "/entity/schema",
+       valence:
+-        "Ground yourself before querying. No arguments: every entity on this daemon with row " +
++        "Ground yourself before querying. No arguments: every entity you can read with row " +
+         "counts and card fields — buffer, thread, turn, literal, symbol and whatever else it " +
+         "opened. With entity: its columns, relations, filter operators, repository extensions " +
+…
+     },
+     async (ctx) => {
+-      const repos = repositories(ctx.daemon);
++      const repos = repositories(ctx.entities);
+       if (!ctx.input.entity) {
+         const entities = await Promise.all(
+…
+       }
+       const repository = repos[ctx.input.entity];
+-      if (!repository) return unknown(ctx.daemon, ctx.input.entity);
+-      const metadata = ctx.daemon.entities.em.getMetadata().get(repository.getEntityName());
++      if (!repository) return unknown(ctx.entities, ctx.input.entity);
++      const metadata = ctx.entities.em.getMetadata().get(repository.getEntityName());
+       const columns = {};
+       const relations = {};
+…
+       nature: "/entity/find",
+       valence:
+-        "Query any entity on this daemon — the buffers on a thread, a thread's turns, literals " +
++        "Query any entity you can read — the buffers on a thread, a thread's turns, literals " +
+         "by slug. Rows come back as cards — the lean agent projection; fields full only when a " +
+         "card lacks something you need. Columns, operators and extensions via entity_schema. " +
+…
+     },
+     async (ctx) => {
+-      const repository = repositories(ctx.daemon)[ctx.input.entity];
+-      if (!repository) return unknown(ctx.daemon, ctx.input.entity);
++      const repository = repositories(ctx.entities)[ctx.input.entity];
++      if (!repository) return unknown(ctx.entities, ctx.input.entity);
+       const { where = {}, fields, order, limit, offset } = ctx.input;
+       const card = cardOf(repository);
+…
+     },
+     async (ctx) => {
+-      const repository = repositories(ctx.daemon)[ctx.input.entity];
+-      if (!repository) return unknown(ctx.daemon, ctx.input.entity);
++      const repository = repositories(ctx.entities)[ctx.input.entity];
++      if (!repository) return unknown(ctx.entities, ctx.input.entity);
+       return { output: { count: await repository.count(ctx.input.where ?? {}) } };
+     },
+#+END_SRC
+** =systems/runtime/gestalten/tools/buffer.js= — edit · PROVEN — rig 10-08 · =ctx.entities=
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/tools/buffer.js:23
+     },
+     async (ctx) => {
+-      const row = await ctx.daemon.entities.buffer.findOneOrFail({
++      const row = await ctx.entities.buffer.findOneOrFail({
+         id: ctx.input.id,
+       });
+       row.data = { ...row.data, ...ctx.input.data };
+-      await ctx.daemon.entities.em.flush();
++      await ctx.entities.em.flush();
+       return { message: `updated ${named(row)}`, buffer: [row] };
+     },
+…
+     },
+     async (ctx) => {
+-      const row = await ctx.daemon.entities.buffer.findOneOrFail({ id: ctx.input.id });
++      const row = await ctx.entities.buffer.findOneOrFail({ id: ctx.input.id });
+       row.trait = { ...row.trait, LABELED: ctx.input.label };
+-      await ctx.daemon.entities.em.flush();
++      await ctx.entities.em.flush();
+       return { message: `labeled ${named(row)}`, buffer: [row] };
+     },
+#+END_SRC
+** =systems/runtime/gestalten/tools/thread.js= — edit · PROVEN — rig 10-08 · =ctx.entities= · the card its valence names · the summary lines leave for =belt/summary.js=
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/tools/thread.js:1
+ import { v, Vector } from "@vivalence/typology";
+-import { places } from "./mode.js";
+-
+-const named = (row) => row.trait?.LABELED?.name ?? "unlabeled";
+-
+-const shown = (data, width = 320) => {
+-  const text = JSON.stringify(data ?? {});
+-  return text.length <= width ? text : `${text.slice(0, width)}… keys ${Object.keys(data).join(" ")}`;
+-};
+-
+-const address = (mode) => `${mode.manifest.type}/${mode.manifest.slug}`;
+-
+-const threadline = (thread) =>
+-  `[Thread ${thread.id}] · ${named(thread)} · phase ${thread.phase} · buffers minted ${thread.counter} · ` +
+-  `traits ${thread.traits.join(" ") || "none"} · user ${thread.user.id}`;
+-
+-const modeline = (mode) =>
+-  [
+-    `[Mode ${address(mode)}] ${mode.manifest.name ?? mode.manifest.slug}`,
+-    `traits ${(mode.manifest.traits ?? []).join(" ") || "none"}`,
+-    places(mode),
+-  ].filter(Boolean).join(" · ");
+-
+-const bufferline = (buffer, modes) =>
+-  `${buffer.index} · ${buffer.id} · ${named(buffer)} · ${modes.get(buffer.mode.id)} · ${buffer.status} · ${shown(buffer.data)}` +
+-  (buffer.view?.hash ? ` · view ${buffer.view.hash}` : "");
+-
+-export const summary = async ({ daemon, mode, thread }) => {
+-  const modes = new Map(daemon.flatmodes().map((peer) => [peer.id, address(peer)]));
+-  const buffers = await daemon.entities.buffer.find({ thread: thread.id }, { orderBy: { index: "asc" } });
+-  return [
+-    threadline(thread),
+-    modeline(mode),
+-    `[Buffers on this thread] · ${buffers.length} · rows: index · id · label · mode · status · data · view — ` +
+-      `these ids are what buffer_update and buffer_label take, never a document slug; ` +
+-      `entity_find { entity: "buffer", where: { thread: "${thread.id}" }, fields: "full" } for whole rows`,
+-    ...buffers.map((buffer) => bufferline(buffer, modes)),
+-  ].join("\n");
+-};
+
+ export const thread = new Vector().open(
+…
+   },
+   async (ctx) => {
+-    const row = await ctx.daemon.entities.thread.findOneOrFail({
++    const row = await ctx.entities.thread.findOneOrFail({
+       id: ctx.input.id,
+     });
+     row.trait = { ...row.trait, ...ctx.input.trait };
+-    await ctx.daemon.entities.em.flush();
+-    return { message: `thread ${row.id} updated`, thread: [row] };
++    await ctx.entities.em.flush();
++    const { id, phase, traits, trait, counter, cursor } = row;
++    return { message: `thread ${id} updated`, thread: [{ id, phase, traits, trait, counter, cursor }] };
+   },
+ );
+#+END_SRC
+** =systems/runtime/gestalten/tools/mode.js= — edit · ONE Vector =mode=: =/mode/find= + =/mode/enter= (F5) · =ADDRESS · located · entered= declared before it · =places= from the belt · =mode_find= still reads =ctx.daemon= — QUESTIONED below
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/tools/mode.js:1
+ import { v, Vector } from "@vivalence/typology";
+-
+-// a mode's places on disk: its source, what it serves (the mountpoint), what it carries (freight) when
+-// that is somewhere else. Empty for a mode with none — a scenario mode, a kernel entry without a file.
+-export const places = (mode) =>
+-  [
+-    mode.module?.source?.dirname && `source ${mode.module.source.dirname}`,
+-    mode.mountpoint?.absolute && `mountpoint ${mode.mountpoint.absolute}`,
+-    mode.freight?.path?.absolute && mode.freight.path.absolute !== mode.mountpoint?.absolute &&
+-    `freight ${mode.freight.path.absolute}`,
+-  ].filter(Boolean).join(" · ");
++import { summary } from "../belt/index.js";
+
+ const line = (mode) => {
+-  const placed = places(mode);
++  const placed = summary.places(mode);
+   return `${mode.manifest.type}/${mode.manifest.slug} · ${mode.manifest.name ?? mode.manifest.slug} · ` +
+     `traits ${(mode.manifest.traits ?? []).join(" ") || "none"}${placed ? ` · ${placed}` : ""}`;
++};
++
++export const ADDRESS = v.string().desc(
++  'A mode address — daemon/type/slug, copied from the [Modes] index. Example: "hello/demo/hello-world"',
++);
++
++export const located = async (ctx, address) => {
++  const [slug, type, name] = address.split("/");
++  const daemon = (await ctx.daemons()).find((held) => held.slug === slug);
++  const mode = daemon?.modes[type]?.[name];
++  if (!mode || mode.manifest.type === "domain")
++    throw new Error(`no mode ${address} — copy an address from the [Modes] index, never compose one`);
++  return mode;
++};
++
++export const entered = async (ctx, address) => {
++  if (!ctx.thread) throw new Error("no thread is bound — mode_enter moves the thread you are on");
++  const mode = await located(ctx, address);
++  const row = await ctx.entities.thread.updateOne({ id: ctx.thread }, { mode: mode.id });
++  return { mode, thread: { id: row.id, mode: mode.id } };
+ };
+
+…
+     },
+   }),
++).open(
++  {
++    nature: "/mode/enter",
++    valence:
++      "Move the thread you are on into a mode — the user's next message goes to that mode, and its app opens on " +
++      "their screen. Use it when the user names a place: go to, open, switch to. It ends what you can do on this " +
++      'thread: answer in one sentence after it. Example: { address: "hello/demo/hello-world" }',
++    input: v.object({ address: ADDRESS }),
++  },
++  async (ctx) => {
++    const { mode, thread } = await entered(ctx, ctx.input.address);
++    return {
++      message: `this thread is now in ${ctx.input.address} (${mode.manifest.name ?? mode.manifest.slug}) — the user's next message goes to it`,
++      thread: [thread],
++    };
++  },
+ );
+#+END_SRC
+** =systems/runtime/gestalten/tools/terminal.js= — new · =terminal_find= (J)
+#+begin_src javascript
+// systems/runtime/gestalten/tools/terminal.js
+import { v, Vector } from "@vivalence/typology";
+
+export const terminal = new Vector().open(
+  {
+    nature: "/terminal/find",
+    valence: "The user's terminals — where they are looking. Each row: id, index, the thread it shows, traits. " +
+      'Narrow by thread. Returns { terminal: [rows] }. Example: { thread: "01a09010-13aa-778b-bce7-19c38f835337" }',
+    input: v.object({ thread: v.string().optional().desc('A thread id. Example: "01a09010-13aa-778b-bce7-19c38f835337"') }),
+  },
+  async (ctx) => {
+    const rows = await ctx.entities.terminal.find({ user: ctx.user.id, ...(ctx.input.thread && { thread: ctx.input.thread }) }, { orderBy: { index: "asc" } });
+    return { terminal: rows.map(({ id, index, thread, traits }) => ({ id, index, thread: thread?.id ?? null, traits })) };
+  },
+);
+#+end_src
+** =systems/runtime/gestalten/skills/mode.js= — new · body PROVEN rig 10-08 · =mode_handoff= — nests, never mints · =spoken= reads the home's turns by =ctx.mode.id= (F8 under M0: the home's turns carry its id, never =null=)
+#+begin_src javascript
+// systems/runtime/gestalten/skills/mode.js
+import { soma, v, Vector } from "@vivalence/typology";
+import { ADDRESS, entered, located } from "../tools/index.js";
+
+const spoken = async (ctx) =>
+  (await ctx.entities.turn.history({ thread: ctx.thread, mode: ctx.mode.id })).findLast((turn) => turn.role === "user");
+
+export const mode = new Vector().open(
+  {
+    nature: "/mode/handoff",
+    valence:
+      "Move the thread into a mode AND hand it the user's last message, so the mode answers it now instead of the " +
+      "user repeating themselves. Use it when the user asks for something a mode does — drill, play, build — " +
+      "rather than naming a place. The mode's answer appears on the user's screen; you get one line back. It " +
+      "costs a whole turn of the mode, and only modes marked HARNESSED in the [Modes] index can answer. " +
+      'Example: { address: "hello/demo/hello-world" }',
+    input: v.object({ address: ADDRESS }), // -- //@beef this ought be reference obviously. might be cross runtime tho too innit?  meanign the runtiem hands off to a daemon or daemons amonst themselves or a daemon back to runtime
+  },
+  async (ctx) => {
+    const target = await located(ctx, ctx.input.address);
+    if (!target.implements("HARNESSED"))
+      throw new Error(`${ctx.input.address} has no harness — use mode_enter; the user works it through its app`);
+    const said = await spoken(ctx);
+    const { thread } = await entered(ctx, ctx.input.address);
+    if (!(await ctx.controller.proceed()))
+      return { condition: "ERROR", message: `stopped after entering ${ctx.input.address}, before it answered`, thread: [thread] };
+    let folded = null;
+    for await (const packet of await target.harness.dialogue.stream({
+      thread: ctx.thread,
+      parts: said.parts,
+      controller: ctx.controller.branch(ctx.input.address),
+    })) folded = soma.transcript(folded, packet);
+    if (folded.condition !== "NOMINAL")
+      return {
+        condition: "ERROR",
+        message: `${ctx.input.address} stopped (${folded.meta?.state}) — the thread is in it; say so in one sentence`,
+        thread: [thread],
+      };
+    return { message: `${ctx.input.address} answered on the user's screen`, thread: [thread] };
+  },
+);
+#+end_src
+** =systems/runtime/gestalten/skills/index.js= — new · flat
+#+begin_src javascript
+// systems/runtime/gestalten/skills/index.js
+export { mode } from "./mode.js";
+#+end_src
+** =systems/runtime/lifecycle/mode/traits/harnessed.js= — whole · over M0 · the trait WIRES =runtimeShard.harness.*= and ARMS =tools.*= · =skills.*= flat, nothing else; his =//@beef= lines kept verbatim · leans written in: =ctx.host.{services,domain}= · =daemon= bound only on the daemon rung (H1)
+#+begin_src javascript
+// systems/runtime/lifecycle/mode/traits/harnessed.js
+import { shape, shard, steer, ToolCall, v, Vector } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+import { shard as runtimeShard, skills, tools } from "../../../gestalten/index.js";
+
+const { Verbatim, Audio } = v.primitives.hallucination;
+
+const POLISH = [
+  "You repair the formatting of a machine transcription of dictated speech.",
+  "Fix punctuation and casing; normalize numbers, dates and units the way a careful typist would.",
+  "Preserve every word as spoken, in whatever language it was spoken — never translate, never correct grammar or word choice, never add, remove or reorder content, never answer or comment.",
+  "Output only the corrected transcript.",
+].join(" ");
+
+//@beef i think it might make sense to isolate some of the middlewares into
+//@beef ... shards.hal.["xyz"]() which would become our source of truth for cohesion in turn, hallucination etc implementation. nifty.
+
+const arming = (ctx) => {
+  const armed = new Vector()
+    .graft(tools.entity)
+    .graft(tools.buffer)
+    .graft(tools.thread)
+    .graft(tools.mode)
+    .graft(tools.terminal)
+    .graft(skills.mode)
+    .graft(paladin.skills.fs.fs)
+    .graft(paladin.skills.shell.shell);
+  for (const [slug, service] of Object.entries(ctx.host.services ?? {})) {
+    if (service.tools) {
+      armed.branch(`/service/${slug}`).use(shard.context.bind("service", service)).graft(service.tools);
+    }
+  }
+  if (ctx.host.domain?.tools) armed.branch(ctx.host.domain.manifest.slug, ctx.host.domain.tools);
+  if (ctx.mode.tools) armed.graft(ctx.mode.tools);
+  if (ctx.mode.generator?.tools) armed.branch("/generator", ctx.mode.generator.tools);
+  for (const [name, supplied] of Object.entries(ctx.input.tools ?? {})) {
+    const { execute, ...edge } = typeof supplied === "function" ? { execute: supplied } : supplied;
+    armed.open({ nature: new ToolCall(name).signal.pathname, ...edge }, execute);
+  }
+  armed.use(shard.context.bind("entities", ctx.entities));
+  armed.use(shard.context.bind("host", ctx.host));
+  if (ctx.daemon) armed.use(shard.context.bind("daemon", ctx.daemon));
+  armed.use(shard.context.bind("mode", ctx.mode));
+  if (ctx.user) armed.use(shard.context.bind("user", ctx.user)); //@beef both nonoptional in near future
+  if (ctx.input.thread) armed.use(shard.context.bind("thread", ctx.input.thread));
+  return armed;
+};
+
+export const HARNESSED = (mode, host) => {
+  if (!host.cortex) throw new Error("HARNESSED: host has no cortex");
+
+  //@beef thread and user soon required.
+  const harness = new Vector()
+    .use(shard.context.bind("entities", host.entities))
+    .use(shard.context.bind("host", host))
+    .use(shard.context.bind("mode", mode));
+  if (host.type === "daemon") harness.use(shard.context.bind("daemon", host));
+  harness
+    .use(runtimeShard.harness.normalizing)
+    .use(runtimeShard.harness.claiming)
+    .use(runtimeShard.harness.activating)
+    .use(runtimeShard.harness.requesting(arming));
+
+  harness
+    .branch("/verbatim")
+    .open(
+      { nature: "stream", feeds: Audio.Packet, yields: Verbatim.Any },
+      shard.hal.verbatim({ polish: POLISH, tune: "fast" }),
+    );
+
+  harness.branch("/dialogue").use(runtimeShard.harness.chaining).use(runtimeShard.harness.persisting);
+
+  if (host.domain?.harness) harness.graft(host.domain.harness);
+  if (mode.module.harness) harness.graft(mode.module.harness);
+
+  harness.use(runtimeShard.harness.summarizing);
+  harness.graft(runtimeShard.harness.lexicon(host.cortex));
+
+  return () => {
+    mode.harness = shape.object(harness, steer.strategy.echo);
+    mode.aperture.branch("/harness", harness);
+  };
+};
+#+end_src
+
+QUESTIONED — each one a line in this block or the two above, none guessed:
+
+- =host.type === "daemon"= — M0's sketch reads it (=* design — M0=, =Mode.ensure=), the =HOST= word list has no =type=. H1 names the word.
+- F6 — the home arms =fs= · =shell= through this one armory; the lean (out at home) is one line, =if (ctx.daemon)= around the two grafts, and moves M2's block.
+- =mode_find= reads =ctx.daemon.{manifest,mountpoint,flatmodes}= — on the runtime rung it throws. Lean: =ctx.host=, which has no =manifest= or =mountpoint= today (=HOST=).
+- =located= reads =ctx.daemons()= — the 10-08 home arming bound it; under M0 nobody does. H5 names who lists the daemons for the [Modes] index.
+- the home module (=commons/modes/home/home.viva.js=, H4) — role · =[Modes]= declaration; its 10-08 body (=gestalten/harness/home.js=) is kept at =~/.viva/bak/ikiro/m81-runtime-harness-20261009/m81-runtime-harness.org=, re-tangled when H4 · H5 are ruled.
+
+* tangle — M1 · tests
+
+Moves — before any block of this section.
+
+| from | to |
+|------+----|
+| =systems/runtime/tests/skill.entity.test.js= | =systems/runtime/tests/tools.entity.test.js= |
+| =systems/runtime/tests/skill.mode.test.js= | =systems/runtime/tests/tools.mode.test.js= |
+
+** =systems/runtime/tests/harness.home.test.js= — new · RE-CUT waits on H4 · H5 · the 10-08 body (8 steps, held on the rig) is kept at =~/.viva/bak/ikiro/m81-runtime-harness-20261009/m81-runtime-harness.org=
+It boots the home as a runtime mode over the scenario and calls its =harness=; how the scenario seats a runtime mode is H5's answer. What each of the 8 steps becomes under the pass's shape:
+
+| step | 10-08 | re-cut |
+|------+-------+--------|
+| the armory | =entity_schema entity_find entity_count thread_update mode_enter mode_handoff= | the one armory: + =buffer_update buffer_label mode_find terminal_find= (+ =fs_* shell_run= until F6) |
+| =system.thread= | the threadline alone | =summary.thread= — threadline · modeline · buffers |
+| history | =mode: null= | the home mode's id (F8) |
+| withheld kinds | via the home arming | =new Vector().graft(gestalten.tools.entity)= bound on =entities= |
+| =mode_enter= · its refusal | held | unchanged |
+| =thread_update= card | held | unchanged |
+| =mode_handoff= · its refusal | held | unchanged |
+| the home refuses a moded thread | held | dies — F10 collapses under M0 |
+** =systems/runtime/tests/tools.entity.test.js= — edit · PROVEN — rig 10-08 · bound on =entities= · the flat barrel
+#+BEGIN_SRC diff
+// systems/runtime/tests/tools.entity.test.js:5
+
+ const harness = (entities) =>
+-  new Vector().use(shard.context.bind("daemon", { entities })).graft(gestalten.skills.entity.entity);
++  new Vector().use(shard.context.bind("entities", entities)).graft(gestalten.tools.entity);
+
+ const invoke = (armed, name, input) =>
+   steer.dispatch.invoke(armed, new ToolCall(name).signal, steer.strategy.guarded)(input);
+
+-Deno.test("skill.entity — the generic entity trio", async (t) => {
++Deno.test("tools.entity — the generic entity trio", async (t) => {
+   const { orm, em, repos } = await seed();
+   const entities = { em, ...repos };
+#+END_SRC
+** =systems/runtime/tests/tools.mode.test.js= — edit · =gestalten.tools.mode= flat · =places= from =gestalten.belt.summary=
+#+BEGIN_SRC diff
+// systems/runtime/tests/tools.mode.test.js:26
+ };
+
+-const armed = new Vector().use(shard.context.bind("daemon", daemon)).graft(gestalten.skills.mode.mode);
++const armed = new Vector().use(shard.context.bind("daemon", daemon)).graft(gestalten.tools.mode);
+
+-Deno.test("skill.mode — every mode's places on disk", async (t) => {
++Deno.test("tools.mode — every mode's places on disk", async (t) => {
+   await t.step("places: source, then what a mode serves, then what it carries when that differs", () => {
+     assertEquals(
+-      gestalten.skills.mode.places(vdex),
++      gestalten.belt.summary.places(vdex),
+       "source /registry/vcompany/modes/office/vdex · mountpoint /Users/finn/vivalence/coorporation",
+     );
+     assertEquals(
+-      gestalten.skills.mode.places(francesca),
++      gestalten.belt.summary.places(francesca),
+       "source /registry/education/modes/tutor/francesca · freight /registry/education/modes/tutor/francesca/assets",
+     );
+-    assertEquals(gestalten.skills.mode.places(dewey), "");
++    assertEquals(gestalten.belt.summary.places(dewey), "");
+   });
+
+…
+     const bare = new Vector()
+       .use(shard.context.bind("daemon", { manifest: { slug: "test-daemon" }, flatmodes: () => [dewey] }))
+-      .graft(gestalten.skills.mode.mode);
++      .graft(gestalten.tools.mode);
+     const spoken = await invoke(bare, "mode_find", {});
+     assertEquals(spoken.output.message.split("\n")[0], "[Daemon test-daemon]");
+#+END_SRC
+** =systems/runtime/tests/buffer.labeled.test.js= — edit · PROVEN — rig 10-08 · bound on =entities= · the flat barrel
+#+BEGIN_SRC diff
+// systems/runtime/tests/buffer.labeled.test.js:15
+   fromm.yield(
+     await steer.dispatch.invoke(
+-      new Vector().graft(gestalten.skills.buffer.buffer).use(shard.context.bind("daemon", daemon)),
++      new Vector().graft(gestalten.tools.buffer).use(shard.context.bind("entities", daemon.entities)),
+       new ToolCall(name).signal,
+       steer.strategy.guarded,
+#+END_SRC
+** =systems/runtime/tests/runtime/hello.test.js= — edit · RE-CUT waits on H5 · the 10-08 body asserted =/userspace/harness=, a route that never lands
+The re-cut keeps its three assertions on the home mode's route (=/runtime/mode/home/home/harness/dialogue/render= under H5's seat, R6): 401 without a token · the user turn chained · the empty cortex's =[hallucination] no 'dialogue' faculty resolves a 'render' avenue=. The turn row's =mode= is the home mode's id, never =null= (F8).
+
+* testing assessment
+
+- COVERAGE GAP: SIGTERM mid-handoff — one Activity throughout, the target closing =abort=; the mechanism is the controller tree (=subsystems/typology/prototypes/controller.js:40=), no test drives it.
+- COVERAGE GAP: the route streaming a live provider — =hello.test.js= proves the 401, the chained user turn and the empty-cortex 500 only.
+- COVERAGE GAP: =[Modes]= over two daemons — the scenario holds one.
+- COVERAGE GAP: F8 under the registry's harnesses (francesca · aprende · assembly) — their suites read =~/.viva= and were not run.
+- COVERAGE GAP: the handoff reaches a mode in-process, past the daemon aperture's autoenroll =use= (=systems/runtime/lifecycle/daemon/resolution.js:5=, /"autoenroll. temporary."/) — a user handed into a daemon is not enrolled by it; whether anything downstream reads that membership is unmeasured.
+- COVERAGE GAP (runtime rewrite): a HARNESSED runtime mode — the flatten removed every =ctx.daemon= from =harnessed.js=, so it reads the runtime's words the same way, but no test boots one; the probe mode is EXPOSED · TOOLING only.
+
+* QA
+
+| marker | testimony |
+|--------+-----------|
+| =m84/T-home-answers= | /"I open a thread with no mode, type 'what can I do here', I see an answer naming the modes"/ |
+| =m84/T-go-to-mode= | /"I type 'go to hello world', the thread moves into hello-world and its app opens"/ |
+| =m84/T-handoff= | /"I type 'drill me' at home, the mode answers my words without me repeating them"/ |
+
+#+marker_qa: m84/T-home-answers · pending · a provider key set, =POST /runtime/<slug>/mode/home/home/harness/dialogue/stream= (H5's seat) on a home thread streams an answer
+#+marker_qa: m84/T-go-to-mode · pending · needs M3 (the Dock) or a curl on the route
+#+marker_qa: m84/T-handoff · pending · needs a HARNESSED mode on the instance and a key
+
+* deferred
+
+- the missing tools (J): =terminal_aim= (writes =Terminal.thread=; the AIMED law first) · =daemon_find= (reads =host.processes.daemon=; runtime rung only — F7 withholds =daemon= as an entity) · =instance_manifest= (manifest only; m80's law: no composition, no registry) · =activity_find= · =activity_stop= (=stdin.stop=; blocked on F7 — the in-memory repository ignores the =user= filter, =VirtualEntity.ts:41=) · =note_write= (nothing reads a runtime Note yet) · =intent_find= (trivial, =user= scoped).
+- M3 anima: the Dock on a thread with no mode — the client enters it into the home mode (=Thread.mode= = the home's id) and talks to =/runtime/<slug>/mode/home/home/harness=; =/metadata/modes= lists the runtime's modes beside =/metadata/daemons=.
+- runtime modes beyond the home — TOOLING modes under =runtime.modes= that every daemon's AGENTIC mode could reach (G: /"once per runtime, and then the daemon can extend the set"/); needs a cross-host =flatmodes= and is NOT in M0.
+- a switch armed inside a mode ("take me home") — a client command until asked.
+- =thread_update= claiming =INTELLIGENT= · =VOCAL= — =ThreadTraitsEnum= lists =MASKED AIMED QUEUEING LABELED= (=systems/runtime/entities/Thread.ts:22=); a =:memory:= probe before any enum edit.
+- =note_write= at home — nothing reads a runtime Note yet.
+- =/verbatim= at home — =shard.hal.verbatim= reads =ctx.cortex= after the flatten (=subsystems/typology/gestalten/shard/hal.js:54=); the home harness needs only the runtime's cortex spread.
+- canon after landing (=.ikiro=, mine): codemap =runtime.md= (harness bullets, =gestalten.skills=) · =paladin.md= (belt and skills) · =connoisseur.md= (/skills is a TAKEN noun/) · =reference/harnesses/examples/rig.js= =.slurp= → =.graft= (red today).
+
+* changelog
+
+- 10-10, beef: /"is the m84 harness runtime session the harness half? - yes."/ — scaffolded from m81: the two M1 tangles moved whole (STALE since 10-09), three QA markers, six coverage gaps, eight deferred lines, the M1 handoff lines; the rulings stay in m81, cited by line.
+
+* release
+
+drafted, moved 10-10 from m81's =* release= — the harness half's lines, none landed yet:
+
+- added `POST /runtime/<slug>/mode/home/home/harness/{dialogue,object}/{render,stream}` · `/choice/render` on hello-world — the home mode; a thread with no mode is entered into it · migrate: none ⟨m81 H4⟩
+- added tools `mode_enter` · skill `mode_handoff` on the home — a thread moves into a mode by words · migrate: none ⟨m81⟩
+- renamed `gestalten.skills.{entity,buffer,thread,mode}` → `gestalten.tools.{entity,buffer,thread,mode}` FLAT (`tools.buffer`, not `tools.buffer.buffer`) — the armed names unchanged · migrate: imports ⟨m81 J⟩
+- renamed `gestalten.skills.mode.places` → `gestalten.belt.summary.places` · migrate: imports ⟨m81 M1⟩
+- added tool `terminal_find` on every harness · migrate: none ⟨m81 J⟩
+- changed `entity_schema` · `entity_find` · `entity_count` — never read `user · terminal · daemon · activity` · migrate: none ⟨m81 F7⟩
+- changed a mode harness's history — per (thread, mode) · migrate: none ⟨m81 F8⟩
+- renamed `paladin.skills` → `paladin.tools`, export `@vivalence/paladin/skills` → `@vivalence/paladin/tools` · migrate: `media` · `vdex` apertures ⟨m81 F4⟩
+
+* handoff
+
+- goal: the runtime's harness half — a home any thread with no mode enters, a mode switch by words, the new mode woken on the whole thread, tools a mode imports.
+- next (L): finish the design (R3 · H1–H5 · the =RUNTIME= trait's body: what "receives the runtime in its context" binds); THEN the harness map (/"we do the harness map later."/); THEN the M1 rework — read the transcript =~/.claude/projects/-Users-finn-vivalence-code-vivalence/72f560e3-f959-4fe7-b6b0-53357bcf230f.jsonl= (9.3 MB, 455 beef turns, survives compaction) oldest-first for every ruling, replay each against every M1 block with a grep, paste the greps; a block that only changed its label is not re-tangled.
+- landing M1 (after its rework): its Moves (=skills/= stays and gains =mode.js=; the four tool files =mv= to =tools/=), new files whole with their first =//= path line stripped, then =python3 .ikiro/methods/apply-diffs.py .ikiro/quests/m84-harness-runtime.org "* tangle — M1 · runtime" --write=, =harnessed.js= whole; registry blocks by hand, on go.
+- next: the harness map on m81's rulings (=* rulings= above), then the M1 rework from the transcript =~/.claude/projects/-Users-finn-vivalence-code-vivalence/72f560e3-f959-4fe7-b6b0-53357bcf230f.jsonl=, every ruling replayed against every block with a pasted grep; m83's one tier (=skills= → =tools=, =system= → =primer=) lands first or the tangle is cut on it.
+- never: an instance-record harness slot (E) · the trait arming =gestalten.tools.*= (R2) · =fs= · =shell= at home (F6) · a thread-mode write as the wake trigger (a client remode writes =Thread.mode= too, =systems/anima/src/app/panels/c/cards/threads.js:19=).

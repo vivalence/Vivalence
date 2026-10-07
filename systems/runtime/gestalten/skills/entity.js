@@ -62,7 +62,7 @@ export const entity = new Vector()
       }),
     },
     async (ctx) => {
-      const repos = repositories(ctx.daemon);
+      const repos = repositories(ctx);
       if (!ctx.input.entity) {
         const entities = await Promise.all(
           Object.entries(repos).map(async ([type, repository]) => ({
@@ -74,8 +74,8 @@ export const entity = new Vector()
         return { output: { entities } };
       }
       const repository = repos[ctx.input.entity];
-      if (!repository) return unknown(ctx.daemon, ctx.input.entity);
-      const metadata = ctx.daemon.entities.em.getMetadata().get(repository.getEntityName());
+      if (!repository) return unknown(ctx, ctx.input.entity);
+      const metadata = ctx.entities.em.getMetadata().get(repository.getEntityName());
       const columns = {};
       const relations = {};
       for (const property of Object.values(metadata.properties)) {
@@ -130,8 +130,8 @@ export const entity = new Vector()
       }),
     },
     async (ctx) => {
-      const repository = repositories(ctx.daemon)[ctx.input.entity];
-      if (!repository) return unknown(ctx.daemon, ctx.input.entity);
+      const repository = repositories(ctx)[ctx.input.entity];
+      if (!repository) return unknown(ctx, ctx.input.entity);
       const { where = {}, fields, order, limit, offset } = ctx.input;
       const card = cardOf(repository);
       const rows = await repository.find(where, {
@@ -172,8 +172,8 @@ export const entity = new Vector()
       }),
     },
     async (ctx) => {
-      const repository = repositories(ctx.daemon)[ctx.input.entity];
-      if (!repository) return unknown(ctx.daemon, ctx.input.entity);
+      const repository = repositories(ctx)[ctx.input.entity];
+      if (!repository) return unknown(ctx, ctx.input.entity);
       return { output: { count: await repository.count(ctx.input.where ?? {}) } };
     },
   );

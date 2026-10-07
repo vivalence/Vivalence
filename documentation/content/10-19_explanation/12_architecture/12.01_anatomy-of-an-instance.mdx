@@ -9,6 +9,8 @@ import Example from "../../../src/components/Example.astro"
 import Trace from "../../../src/components/Trace.astro"
 import Tabs from "../../../src/components/Tabs.astro"
 
+> **Superseded.** This page follows the one-file `.viva.js` standalone instance through boot. An instance is now one `instance.viva.json`: the runtime reads it at boot and reconciles its rows against it, writing nothing back; identity is the runtime's own (`/lighthouse/*` on the one remote — no hosted lighthouse service, no announce); a domain brings traits over one fixed schema; one database per runtime, every daemon scoped inside it. Since m81 a mode runs on a *host* — the runtime itself at `/runtime/<slug>` or a daemon at `/daemon/<slug>` — declared under the key `modes` on both (`kernel` is gone); a mode's context carries its host's words flat (`ctx.entities`, `ctx.call`, `ctx.cortex` …, never `ctx.daemon`), and the traits live in `systems/runtime/traits/`. The code blocks quote the files as they are; the narrative stages stay until the page is re-walked on `commons/instances/hello-world/instance.viva.json`.
+
 An instance is one file that declares a whole system — entities, modes, daemons, services, clients, the machine itself. This page follows that file through the machine: from inert declaration to a running system, stage by stage. The specimen is `@commons/instance/standalone`, the one-file flashcard system — [[31.02_instance-from-scratch]] builds it section by section; this page is what the machine does with it. Build there, understand here.
 
 Everything below actually ran. At every build of these docs, the example at the bottom of this page boots the standalone instance headless — real paladin, real runtime, real database — and the captured output is embedded in the page. Nothing here is hypothetical.
@@ -25,8 +27,9 @@ minimum vocabulary required:
 
 - `instance` — the whole recipe: runtime, daemons, services, clients. One module with `manifest.type: "instance"` per instance directory.
 - `mask` — a compiled declaration: config plus module identifiers plus a mountpoint. Paladin mints masks; the runtime wears them.
-- `die` — the bag a process type's boot vector runs over: `{ controller, mask, runtime | daemon | service }`. One per process; a mode's is `{ mask, mode, daemon, traits }`.
-- `mode` — a daemon citizen, built from one kernel entry. Traits on its manifest decide which machinery wakes for it.
+- `die` — the bag a process type's boot vector runs over: `{ controller, mask, runtime | daemon | service }`, the runtime's with `aperture`, the root server. One per process; a mode's is `{ mask, mode, host, traits }`.
+- `host` — what a mode runs on: the runtime (`/runtime/<slug>`) or a daemon (`/daemon/<slug>`), one code path for both.
+- `mode` — a host's citizen, built from one `modes` entry. Traits on its manifest decide which machinery wakes for it.
 - `aperture` — a Vector (the system's one shape for anything callable) wearing HTTP methods; every callable face in the system is one.
 - `mountpoint` — the instance's writable home: databases, migrations, view bundles.
 
@@ -44,7 +47,7 @@ At paladin's own import time, the singleton hands the process environment to `pa
 
 1. **environment** — the instance's own `.env`, at its root and nothing else, folds in through `paladin.claim` at the `instance` stratum. One file at one stratum, so nothing can silently overwrite anything. The key decides secrecy, so a `SECRET_*` reaches the secret store wherever it is written. This is where the runtime, lighthouse and anima addresses arrive.
 2. **resolve** — find the one module under the instance mount whose manifest says `instance`, then *hydrate* it: every deferred `() =>` fires now, at any depth. The thunk above becomes the string it read. Until this moment the declaration was data; after it, values — still untyped.
-3. **kernel identifiers** — a daemon's `kernel` entries stay unhydrated and get resolved as identifiers instead: a bare specifier points into the registry, `./` is relative to the instance file, and an inline object — the standalone's case — mounts as-is, with the instance file as its home.
+3. **mode identifiers** — a host's `modes` entries (a daemon's, or the runtime's own) stay unhydrated and get resolved as identifiers instead: a bare specifier points into the registry, `./` is relative to the instance file, and an inline object — the standalone's case — mounts as-is, with the instance file as its home.
 4. **defaults and seats** — the root `lighthouse`, `datamap` and `hallucinators` are copied into every daemon that declares none of its own (a service takes the datamap), and every daemon and service is seated: `mountpoint/daemon_standalone/` is where its database and migrations will live, and its datamap copy is stamped with that seat and a file named for it, `standalone.viva.db`.
 5. **settle & publish** — the one `v.primitives.instance.Instance` schematic settles what the pinhole fired: a hallucinator with a blank secret goes *dormant* (off the roster, named on the instance), defaults fill the slots the recipe left out, a daemon still owing a lighthouse or a datamap is a fault by its own name, every miss becomes a sentence in `instance.faults` — never a throw, so the doctor can mount a bare recipe — and a clean slot decodes to its prototype: the string above becomes a `Url`. Then every `PUBLIC_*` var is published to the process environment, where clients can reach it. The boot edge refuses on faults (`instance/run`, and the runtime's own `run.js` below); `mount()` itself never does.
 
@@ -55,9 +58,10 @@ The runtime's whole entrypoint:
 ```js title="systems/runtime/run.js — condensed"
 await lifecycle.mount(paladin.instance)
 const die = {
+  aperture: new Aperture(),
   controller: new Controller({ stdout: new Span(`runtime/${paladin.instance.runtime.manifest.slug}`) }),
   mask: paladin.instance.runtime,
-  runtime: new Runtime({ instance: paladin.instance }),
+  runtime: new Runtime({ instance: paladin.instance, slug: paladin.instance.runtime.manifest.slug, reference: new Path(paladin.instance.runtime.reference) }),
 }
 await steer.dispatch.execute(execution, die)
 Deno.exit(die.controller.status.is("STOPPED") ? 0 : 1)
@@ -72,6 +76,11 @@ export const execution = new Vector()
   .use(population.registry)
   .use(population.datamap)
   .use(population.aperture)
+  .use(population.acid)
+  .use(aperture.lighthouse)
+  .use(aperture.userspace)
+  .use(population.modes)
+  .use(resolution.modes(mode))
   .use(population.services)
   .use(population.daemons)
   .use(resolution.services(service))
@@ -79,10 +88,10 @@ export const execution = new Vector()
   .use(resolution.attach)
   .use(resolution.expose)
   .use(resolution.metadata)
+  .use(integration.prune)
   .use(integration.ledger)
   .use(integration.patrol)
   .use(integration.serve)
-  .use(integration.announce)
 
 execution.affect(process.keepalive)
 ```
@@ -105,7 +114,7 @@ Resolution raises the children: each row `execute`s its type's vector and the ru
 - **authority** — the lighthouse provider binds to `entities.user`; the daemon's aperture gets its identity middleware.
 - **acid** — a `Cortex`, with the anthropic hallucinator's faculties registered. The coach's brain, idle until called.
 - **services** — every consumed service's provider, under its consume key.
-- **modes** — a `Mode` per kernel entry, at `/daemon/standalone/mode/playground/flashcard`, with a *stdout*: a branch of the daemon's span. A mode is no process — nothing to kill — but its boot has a voice.
+- **modes** — a `Mode` per `modes` entry (`host.seat`, the same for the runtime's own), at `/daemon/standalone/mode/playground/flashcard`, with a *stdout*: a branch of the host's span. A mode is no process — nothing to kill — but its boot has a voice.
 
 ## traits wake the machinery
 
@@ -113,15 +122,15 @@ Resolution raises the children: each row `execute`s its type's vector and the ru
 
 - `APPLICATION` — the svelte source from the declaration is esbuilt into a bundle, cached under the mountpoint; the runtime serves it at `/attached/bundle/…`.
 - `DATASET` — first boot seeds the declared rows: two symbols, two literals, then a link phase wires `ciao ↔ interjection`, `mondo ↔ noun`. Every later boot skips this — the mode's row says `installed`.
-- `TOOLING` — the deck Vector becomes `mode.tools`, daemon and mode bound in.
+- `TOOLING` — the deck Vector becomes `mode.tools`, the host's words spread flat onto its context and the mode bound in.
 - `HARNESSED` — the harness assembles: `dialogue` and `object` (render · stream) with the armed tool stack layered under them, and `choice` (render) — a probability for each of a closed set of strings, read off the model rather than written by it.
 - `EXPOSED` — the finalizer compiles the mode's callable face:
 
-```js title="systems/runtime/lifecycle/mode/traits/index.js — EXPOSED"
+```js title="systems/runtime/traits/exposed.js — EXPOSED"
 mode.call = shape.proxy(mode.aperture)
 ```
 
-That compiled callable is the daemon-side twin of what the view reaches: `buffer.mode.call.load()` rides the same aperture over the wire. One vector, two backings. Alongside the modes, the daemon opens its aperture family: `/entities/*` for every repository — Retention included — plus `/modes`, `/metadata`, `/cortex`.
+That compiled callable is the daemon-side twin of what the view reaches: `buffer.mode.call.load()` rides the same aperture over the wire. One vector, two backings. Alongside the modes, the daemon opens its aperture family: `/entities/*` for every repository — Retention included — plus `/metadata` and `/cortex/<type>/{render,stream}`.
 
 ## the daemon calls itself like anyone else
 

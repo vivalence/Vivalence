@@ -301,18 +301,18 @@
   ],
   "traces": [
     {
-      "status": "MISTAKE",
-      "signal": {
-        "enum": "MISTAKE"
-      },
-      "literal": "goodbye"
-    },
-    {
-      "status": "SUCCESS",
+      "status": "KNOWN",
       "signal": {
         "enum": "SUCCESS"
       },
       "literal": "hello"
+    },
+    {
+      "status": "LEARNING",
+      "signal": {
+        "enum": "MISTAKE"
+      },
+      "literal": "goodbye"
     }
   ],
   "modes": [
@@ -322,8 +322,7 @@
       "traits": [
         "APPLICATION",
         "INTENTED",
-        "EMITTER",
-        "STANDALONE"
+        "EMITTER"
       ]
     }
   ],

@@ -1,8 +1,8 @@
 import paladin, { lifecycle } from "@vivalence/paladin";
 import { RECIPE } from "@vivalence/paladin/typology";
-import { isAbsolute, resolve } from "@std/path";
+import { isAbsolute, relative, resolve } from "@std/path";
 import * as dotenv from "@std/dotenv";
-import { Path, v, Vector } from "@vivalence/typology";
+import { is, Path, v, Vector } from "@vivalence/typology";
 import { config, envfile, path, recipe as voice } from "../../belt/index.js";
 import { Init } from "./Init.jsx";
 import { Doctor } from "./Doctor.jsx";
@@ -49,17 +49,26 @@ ledger.open(
 
     const root = new Path(choice.mount);
     paladin.scopes([["ledger", () => true, () => root]]);
-    paladin.ledger.declaration = undefined; // re-rooted: whatever recipe was read belongs to the old home
+    Object.assign(paladin.ledger, { declaration: undefined, held: undefined });
     for (const sub of SCAFFOLD) {
       await Deno.mkdir(paladin.scope.ledger.branch(sub).absolute, { recursive: true });
     }
 
-    const instances = paladin.scope.ledger.branch("instances.json");
-    if (!(await paladin.read.json(instances, null))) await paladin.state.json(instances, {});
-
     const recipe = paladin.scope.ledger.branch(RECIPE);
     if (!(await Deno.stat(recipe.absolute).catch(() => null))) await Deno.copyFile(canonical().absolute, recipe.absolute);
+    const authored = Object.values(await paladin.read.json(recipe)).filter((value) => is.string(value) && !value.includes("${") && !isAbsolute(value));
+    for (const part of authored) {
+      const target = resolve(paladin.scope.ledger.absolute, part);
+      const shipped = resolve(canonical().dirname, part);
+      if (!(await Deno.stat(target).catch(() => null)) && (await Deno.stat(shipped).catch(() => null))) await Deno.copyFile(shipped, target);
+    }
     const declaration = await paladin.ledger.recipe();
+    for (const slot of ["instances", "registry"]) {
+      const { path: record, held } = paladin.ledger.record(slot);
+      if (!held && !(await Deno.stat(record.absolute).catch(() => null))) await paladin.state.json(record, {});
+    }
+    const commons = paladin.scope.repository.branch("commons").absolute;
+    await paladin.ledger.registry.tap(commons);
     const environment = declaration?.environment ?? v.environment({});
 
     // the .env is authored FROM the recipe's environment: absent → the whole scaffold; present → only
@@ -86,6 +95,7 @@ ledger.open(
       ...choice,
       ledger: paladin.scope.ledger.absolute,
       scaffolded: SCAFFOLD,
+      commons,
       recipe: recipe.absolute,
       env: env.absolute,
       authored: missing,
@@ -113,7 +123,7 @@ ledger.open(
         ledger: home.absolute,
         store: paladin.scope.registry?.absolute ?? null,
         instances: home.branch("instances").absolute,
-        record: paladin.ledger.registry.path.absolute,
+        record: paladin.ledger.registry.path?.absolute ?? null,
       },
       // the ledger's own declaration: present, its manifest, the slots it speaks for every instance on it
       recipe: {
@@ -144,6 +154,7 @@ ledger.open(
           .filter(([, value]) => !value)
           .map(([key]) => key),
       },
+      records: Object.fromEntries(["instances", "registry"].map((slot) => [slot, label(home, paladin.ledger[slot])])),
       record,
       store: await store(paladin, record.entries.map((entry) => entry.root)),
       instances: await collectInstances(paladin.ledger.instances),
@@ -176,19 +187,25 @@ ledger.open(
 );
 
 async function collectRecord(registry) {
-  const locations = await registry.locations();
+  const record = await registry.tapped();
   const entries = await Promise.all(
-    locations.map(async (location) => {
-      const root = registry.resolve(location);
+    Object.entries(record).map(async ([owner, { mount, remote }]) => {
+      const root = registry.resolve(mount);
       return {
-        location,
+        owner,
+        mount,
         root: root.absolute,
-        pinned: isAbsolute(location),
+        remote: remote ?? null,
+        pinned: isAbsolute(mount),
         present: Boolean(await Deno.stat(root.absolute).catch(() => null)),
       };
     }),
   );
-  return { path: registry.path.absolute, entries };
+  return { path: registry.path?.absolute ?? null, entries };
+}
+
+function label(home, record) {
+  return record.path ? relative(home.absolute, record.path.absolute) : `inline · ${record.from}`;
 }
 
 async function collectSessions(ledger) {
@@ -231,9 +248,8 @@ async function collectLocks(ledger) {
 }
 
 async function collectInstances(instances) {
-  if (!instances?.path?.absolute) return [];
   try {
-    const all = JSON.parse(await Deno.readTextFile(instances.path.absolute));
+    const all = await instances.all();
     const rows = [];
     const mounts = new Set();
     for (const [slug, info] of Object.entries(all)) {

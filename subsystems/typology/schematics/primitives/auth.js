@@ -9,15 +9,16 @@ export const AuthorityToken = v.object(
   { description: "Token pair for session management" },
 );
 
-export const IdentityReference = v.object(
+export const UserReference = v.object(
   {
     id: ID,
     slug: Slug.optional(),
+    traits: v.array(v.string()).optional(),
+    trait: v.record(v.string(), v.unknown()).optional(),
     authentication: v.null().optional(),
   },
   {
-    description: "daemon internal identity reference",
-    // uniform identity locator - uil
+    description: "the user's card: id · slug · traits · trait, never the authentication embed",
   },
 );
 
@@ -47,14 +48,14 @@ export const LogoutRequest = v.object({
 export const AuthResponse = v.object(
   {
     authority: AuthorityToken,
-    identity: IdentityReference,
+    user: UserReference,
   },
   { description: "Login/signup success response" },
 );
 
 export const VerifyResponse = v.object({
   success: v.boolean(),
-  identity: IdentityReference.optional(),
+  user: UserReference.optional(),
 });
 
 export const RefreshResponse = v.object({

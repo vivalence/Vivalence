@@ -51,14 +51,14 @@ export const verbatim = ({ polish, tune } = {}) => async (ctx) => {
   if (!source) throw new Error("[hal.verbatim] no audio source — pass input.source or feed the request body");
   const desire = vocal.tune ?? tune;
   const controller = ctx.controller;
-  const events = await ctx.daemon.cortex.hallucinate.verbatim.stream({
+  const events = await ctx.cortex.hallucinate.verbatim.stream({
     controller: controller.branch("verbatim"),
     source,
     settings: { ...(vocal.language && { language: vocal.language }) },
     policy: { ...(desire && { tune: desire }), ...(vocal.harmonize && { harmonize: vocal.harmonize }) },
   });
   const repair = async (text) => {
-    const rendered = await ctx.daemon.cortex.hallucinate.dialogue.render({
+    const rendered = await ctx.cortex.hallucinate.dialogue.render({
       controller: controller.branch("dialogue"),
       system: { polish },
       turns: [{ role: "user", parts: [{ type: "text", text }] }],
@@ -86,7 +86,7 @@ export const voice = () => async (ctx, next) => {
   if (!ctx.output?.[Symbol.asyncIterator]) return;
 
   const speech = ctx.input.tune?.voice
-    ? ctx.daemon.cortex.findOne({ type: "speech", tune: ctx.input.tune, via: "stream" })
+    ? ctx.cortex.findOne({ type: "speech", tune: ctx.input.tune, via: "stream" })
     : null;
 
   if (!speech) {

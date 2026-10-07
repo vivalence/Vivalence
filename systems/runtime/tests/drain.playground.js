@@ -1,9 +1,9 @@
-import { Vector, shape, shard, sleep } from "@vivalence/typology";
+import { contexts, shape, shard, sleep, Vector } from "@vivalence/typology";
 import { datamap } from "@vivalence/runtime/scenarios";
 import { topography } from "@vivalence/typology/scenarios";
-import { LiteralEntity } from "@vivalence/runtime";
+import { LiteralEntity, traits } from "@vivalence/runtime";
 import { lifecycle } from "@vivalence/runtime";
-const { DATASET, DATASINK } = lifecycle.mode.traits;
+const { DATASET, DATASINK } = traits;
 
 const HOME = "/tmp/m22-playground";
 
@@ -37,19 +37,21 @@ await tree(authored.dirname);
 say("1 · the daemon — in-memory sqlite, real MikroORM");
 const scenario = await datamap.seed();
 const daemon = {
+  slug: scenario.fixtures.daemon.slug,
   entities: scenario.repos,
   datamap: { getMetadata: () => scenario.orm.getMetadata() },
-  twitch: new Vector(),
+  twitch: new Twitch(),
 };
 daemon.entities.em = scenario.em;
-daemon.twitch.branch("/after").use(shard.datamap.detached(scenario));
-scenario.em.getEventManager().registerSubscriber(shape.subscriber(daemon.twitch));
+daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
+daemon.twitch.branch("/after").use(shard.datamap.detached(scenario.datamap));
+scenario.datamap.registerSubscriber(daemon.twitch);
 console.log(`seeded: ${await scenario.repos.literal.count({})} literals, ${await scenario.repos.symbol.count({})} symbols (fixtures)`);
 
 const mode = {
   type: "topography",
   slug: "playground",
-  entity: { installed: false },
+  entity: { installed: "" },
   module: { mount: authored, dataset: topography.dataset(), datasink: topography.datasink() },
 };
 
@@ -82,7 +84,7 @@ console.log(`written: ${second.written}   ← 0 means file = fn(DB)`);
 
 say("8 · arm, then write ONE literal and watch the twitch mark ONLY literal dirty");
 arm();
-const nuovo = scenario.em.create(LiteralEntity, {
+const nuovo = scenario.repos.literal.create({ mode: scenario.fixtures.mode,
   slug: "nuovo.adjective",
   traits: ["TRANSLATED"],
   trait: { TRANSLATED: { known: "new", learning: "nuovo" } },

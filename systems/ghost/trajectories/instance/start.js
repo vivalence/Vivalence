@@ -19,6 +19,7 @@ export async function start(ctx) {
       ...(target ? [target] : []),
       `--instance=${mount}`,
       "--logged",
+      ...(ctx.signal.flags?.prune === true ? ["--prune"] : []),
     ],
     detached: true,
     stdin: "null",

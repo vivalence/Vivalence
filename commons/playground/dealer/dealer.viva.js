@@ -9,7 +9,6 @@ export const manifest = {
   version: "0.1.0",
   traits: [
     "APPLICATION",
-    "STANDALONE",
     "EMITTER",
     "HARNESSED",
     "CONVERSATIONAL",
@@ -43,7 +42,7 @@ export const emitter = new Vector()
       input: v.object({ count: v.integer({ minimum: 1 }).default(2) }),
     },
     async (ctx) => {
-      const card = ctx.daemon.modes.playground.card;
+      const card = ctx.modes.playground.card;
       const start = ctx.thread?.counter ?? 0;
       for (const face of DECK.slice(start, start + ctx.input.count)) {
         ctx.pool.add(card.buffer({ data: { face } }));
@@ -61,7 +60,7 @@ export const emitter = new Vector()
       }),
     },
     async (ctx) => {
-      const card = ctx.daemon.modes.playground.card;
+      const card = ctx.modes.playground.card;
       const context = [
         `Pick ${ctx.input.count} cards for a themed hand from this deck: ${
           DECK.join(" ")

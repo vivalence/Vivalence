@@ -19,8 +19,7 @@ export class App {
 
   fill(desc = {}) {
     desc.data ??= {};
-    this.schema?.fill(desc);
-    return desc.data;
+    return (this.schema?.fill(desc) ?? desc).data;
   }
 }
 

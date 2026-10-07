@@ -33,7 +33,7 @@ Deno.test("create: an unambiguous slug clones to the shelf and writes the record
   await create(ctx);
   assertEquals(ctx.effect.slug, "fixture");
   assertEquals(ctx.effect.target, `${root}/instances/fixture`);
-  assertEquals((await Deno.stat(`${root}/instances/fixture/fixture.viva.js`)).isFile, true);
+  assertEquals((await Deno.stat(`${root}/instances/fixture/instance.viva.json`)).isFile, true);
   const record = JSON.parse(await Deno.readTextFile(`${root}/instances.json`));
   assertEquals(record.fixture.mount, `${root}/instances/fixture`);
   scrub();

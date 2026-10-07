@@ -41,7 +41,7 @@ for (const [slug, viva] of Object.entries(modes)) {
     let scenario;
 
     specimen.beforeAll(async () => {
-      scenario = await mountMode(viva, { entities: domain.entities });
+      scenario = await mountMode(viva, { domain });
     });
 
     specimen.afterAll(async () => {

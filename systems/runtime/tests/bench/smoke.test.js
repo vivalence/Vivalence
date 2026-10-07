@@ -8,12 +8,12 @@ specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources
   let scenario;
 
   specimen.beforeAll(async () => {
-    const kernel = await Promise.all([
+    const modes = await Promise.all([
       accio("@education/domain/language-learning"),
       accio("@education/game/dojo"),
       accio("@education/game/judge"),
     ]);
-    scenario = await bench({ kernel });
+    scenario = await bench({ modes });
   });
 
   specimen.afterAll(async () => {
@@ -52,7 +52,7 @@ specimen.describe("bench (paladin specifiers)", { sanitizeOps: false, sanitizeRe
 
   specimen.beforeAll(async () => {
     scenario = await bench({
-      kernel: [
+      modes: [
         "@education/domain/language-learning",
         "@education/topology/word",
         "@education/topology/sentence",

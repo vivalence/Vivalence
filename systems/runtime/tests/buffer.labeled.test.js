@@ -1,4 +1,4 @@
-import { fromm, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
+import { contexts, fromm, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { BufferEntity } from "@vivalence/runtime";
 import { gestalten } from "@vivalence/runtime";
 import { create } from "./scenarios/cortex.js";
@@ -14,7 +14,7 @@ const reload = (em, id) => em.fork().findOneOrFail(BufferEntity, { id });
 const invoke = async (daemon, name, input) =>
   fromm.yield(
     await steer.dispatch.invoke(
-      new Vector().graft(gestalten.skills.buffer.buffer).use(shard.context.bind("daemon", daemon)),
+      new Vector().graft(gestalten.skills.buffer.buffer).use(shard.context.spread(contexts.host, daemon)),
       new ToolCall(name).signal,
       steer.strategy.guarded,
     )(input),

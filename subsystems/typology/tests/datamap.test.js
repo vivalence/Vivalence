@@ -1,4 +1,4 @@
-import { Datamap, specimen } from "@vivalence/typology";
+import { Datamap, Twitch, sleep, specimen } from "@vivalence/typology";
 import { EntitySchema, MikroORM } from "@mikro-orm/sqlite";
 
 class ProbeEntity {
@@ -18,13 +18,13 @@ const ProbeSchema = new EntitySchema({
   properties: {
     id: { type: "string", primary: true },
     slug: { type: "string" },
-    note: { kind: "embedded", entity: "NoteEmbedEntity", object: true, nullable: true },
+    note: { kind: "embedded", entity: () => NoteEmbedEntity, object: true, nullable: true },
   },
 });
 
 const open = async () => {
   const orm = await MikroORM.init({ dbName: ":memory:", contextName: "probe", entities: [ProbeSchema, NoteEmbedSchema] });
-  await orm.schema.createSchema();
+  await orm.schema.create();
   return new Datamap(orm);
 };
 
@@ -51,15 +51,19 @@ specimen.describe("Datamap — the runtime's face over an ORM", () => {
     await datamap.close();
   });
 
-  specimen.it("registerSubscriber hears the ORM's events", async () => {
+  specimen.it("registerSubscriber takes a Twitch — every ORM event is a signal on it, the kind's name in the path", async () => {
     const datamap = await open();
     const heard = [];
-    datamap.registerSubscriber({ afterCreate: (args) => heard.push(args.entity.slug) });
+    const twitch = new Twitch()
+      .open("/before/probe/create", (ctx) => heard.push(`before:${ctx.input.entity.slug}`))
+      .open("/after/probe/create", (ctx) => heard.push(`after:${ctx.input.entity.slug}`));
+    datamap.registerSubscriber(twitch);
     await datamap.shard.scope(async () => {
       datamap.entities.probe.create({ slug: "two" });
       await datamap.entities.em.flush();
     });
-    specimen.expect(heard).toEqual(["two"]);
+    await sleep.ms(10);
+    specimen.expect(heard).toEqual(["before:two", "after:two"]);
     await datamap.close();
   });
 });

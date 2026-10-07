@@ -79,6 +79,14 @@ export const params = (params) => {
   };
 };
 
+export const modes = (modes) => {
+  return {
+    get flat() {
+      return Object.values(modes).flatMap((type) => Object.values(type));
+    },
+  };
+};
+
 export const slugmap = (slugmap) => {
   return {
     get array() {

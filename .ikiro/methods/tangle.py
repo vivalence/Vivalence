@@ -6,7 +6,7 @@ Default is a dry run: one line per block — `SAME · DIFF · NEW` against the f
 root, or a sandbox such as testament/m76-probe). --write materializes every selected block (mkdir -p).
 --prefix narrows to blocks whose tangle path starts with one of the prefixes (a milestone's set).
 `#+BEGIN_SRC diff` hunks are NOT applied — they are listed under `hunks` for the hand pass (Edit tool).
-The block body is written byte-for-byte; the org IS the source (methods/quest.md, tangle convention).
+The block body is written byte-for-byte; the org IS the source (skill `quest`, the tangle convention).
 """
 import argparse, os, re, sys
 

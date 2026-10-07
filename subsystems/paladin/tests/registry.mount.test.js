@@ -8,7 +8,7 @@ const rootStub = (dir) => ({ absolute: dir });
 // every path; a module whose manifest.type is "package" IS the package module.
 const fakePaladin = (modules) => ({
   read: { viva: async (path) => modules[path.absolute ?? String(path)] },
-  find: { viva: async () => Object.keys(modules).map((absolute) => ({ absolute })) },
+  find: { viva: async () => Object.keys(modules).map((absolute) => ({ absolute })), walk: () => async () => [] },
 });
 
 describe("Registry.mount", () => {

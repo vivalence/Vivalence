@@ -1,5 +1,5 @@
 export { use } from "./use.js";
-export { lighthouse } from "./lighthouse.js";
+export { user } from "./user.js";
 export { create } from "./create.js";
 export { remove as delete } from "./delete.js";
 export { rename } from "./rename.js";
