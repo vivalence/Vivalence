@@ -1,7 +1,7 @@
 import { specimen, Vector, shape, steer, RemoteRepository } from "@vivalence/typology";
-import { Entity } from "../src/typology/prototypes/entity.js";
-import { Mode } from "../src/typology/entities/mode/mode.js";
-import { Dataspace } from "../src/typology/prototypes/dataspace.js";
+import { Entity } from "../src/prototypes/entity.js";
+import { Mode } from "../src/entities/mode/prototype.js";
+import { Dataspace } from "../src/prototypes/dataspace.js";
 
 // ── helpers ────────────────────────────────────────────────────────
 

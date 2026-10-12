@@ -1,5 +1,5 @@
 import { specimen } from "@vivalence/typology";
-import { Bridge, bootLayout, resize } from "../../src/typology/stores/bridge/bridge.js";
+import { Bridge, bootLayout, resize } from "../../src/bridge/prototype.js";
 
 const STORAGE_KEY = "vivalence:bridge";
 

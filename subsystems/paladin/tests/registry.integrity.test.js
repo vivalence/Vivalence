@@ -1,8 +1,8 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path, Span } from "@vivalence/typology";
-import { Paladin } from "../prototypes/paladin.js";
-import { probe, RULES } from "../prototypes/ledger/integrity.js";
+import { Paladin } from "../paladin/prototype.js";
+import { probe, RULES } from "../prototypes/integrity.js";
 
 const span = () => new Span({ nature: "/probe" });
 const said = (held, verb) => held.records.filter((record) => record.verb === verb).map((record) => record.data?.message ?? record.data);

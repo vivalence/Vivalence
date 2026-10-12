@@ -72,6 +72,19 @@ export class Span extends Signature {
     return this.mark("note", data);
   }
 
+  message(data) {
+    return this.mark("message", data);
+  }
+
+  within(record) {
+    return record.path === this.absolute || record.path.startsWith(`${this.absolute}/`);
+  }
+
+  tail(...verbs) {
+    const kept = (record) => this.within(record) && verbs.includes(record.verb);
+    return this.pipe.reactive(this.records.filter(kept), (held, record) => (kept(record) ? [...held, record] : held));
+  }
+
   fault(error) {
     return this.mark("fault", { message: error?.message ?? String(error), code: error?.code ?? null });
   }

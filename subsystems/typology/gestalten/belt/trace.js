@@ -1,8 +1,8 @@
-export const chronicle = (records) => records.reduce(chronicle.step, chronicle.seed());
+export const seed = () => ({ nodes: new Map(), roots: [] });
 
-chronicle.seed = () => ({ nodes: new Map(), roots: [] });
+export const chronicle = (records) => records.reduce(step, seed());
 
-chronicle.step = (story, record) => {
+export const step = (story, record) => {
   const node = story.nodes.get(record.span) ?? sprout(story, record);
   switch (record.verb) {
     case "open":
@@ -53,7 +53,7 @@ export const dictate = (story) => {
   return records;
 };
 
-export const live = (span) => span.pipe.reactive(chronicle(span.records), chronicle.step);
+export const live = (span) => span.pipe.reactive(chronicle(span.records), step);
 
 export const duration = (node) =>
   node.timing?.begun != null && node.timing?.sealed != null ? node.timing.sealed - node.timing.begun : null;

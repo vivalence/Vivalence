@@ -2,7 +2,7 @@
 name: change
 description: >-
   Before, around and after a code edit — pre-flight checks before authoring, the blast · test · change · test ·
-  blast bracket, a test verdict that means something, the critical pass against HEAD in a sandbox.
+  blast bracket, a test verdict that means something, the critical pass on a pre-edit sandbox.
 when_to_use: >-
   "add X to <subsystem>" · "wire up <thing>" · "write a new <primitive>" · "add a test for" · deriving a path
   from a runtime value · before any cross-component dispatch · before acting on a command staged in a quest ·
@@ -22,25 +22,25 @@ when_to_use: >-
 - **grep the surface** — `grep -rn "export " <subsystem>/<dir>/`; an existing primitive WINS, never a hand-rolled walker.
 - **verify imports** — grep the barrel first; `v` is typebox, no zod methods (codemap typology).
 - **ontology before verbs** — contested term → skill `name`. /"stop fucking coding. start designing."/
-- **grep a NAME before typing it** — repo, `subsystems/typology`, `~/.viva/registry`; a word beef refused once is refused everywhere.
-- **read ≥3 entries** before adding to a dataset.
-- **staged commands are NOTES** — a fresh per-op `go`; VCS commands beef runs.
+- **grep a NAME before typing it** — repo, typology, `~/.viva/registry`; a word refused once is refused everywhere.
+- **staged commands are NOTES** — a fresh per-op `go`; VCS commands beef runs. "test this" on a design = a scratchpad probe (REJECTED 10-13).
 - **name the path's frame owner** — operator-typed → cwd · module declaration → declaring repo · record → its registry root. PRINT a runtime value before deriving a path.
 - **the owner decides placement** — `find <owner> -name "*.test.js"` first.
+- **a recorded defect (codemap · known-issues) in a file you touch lands WITH the touch** — never "OWED, unchanged" (REJECTED 10-16: `chrome.js` shipped its recorded repl-die bug → /"chrome not at all"/).
 
-REJECTED: all checks at once over a package — /"ok you;ve overdone it on the inputs"/.
+REJECTED: every check at once over a package.
 
 ## around — blast · test · change · test · blast
 
-/"blast. test. change. test. blast."/ Skip for a leaf with one caller, a doc, a test-only helper.
+/"blast. test. change. test. blast."/ Skip a one-caller leaf · a doc · a test helper.
 
 1. **blast** — list every consumer before touching anything:
    ```bash
    grep -rnI "<symbol>" systems/ subsystems/ commons/ testament/ documentation/ ~/.viva/instances ~/.viva/registry --exclude-dir=node_modules --exclude-dir=bak
    ```
-   No `--include` filters, no `| head` — /"did you cover bruno? testing? json?"/ · /"compose??"/. Rename → also `grep -rn '\.\./.*<old>/'`. Every hit READ before it counts; a repository hides under its holders' names — grep the class too (`ctx.lighthouse.users` is `entities.user`: 10-10 missed `/verify`).
+   No `--include`, no `| head` — /"did you cover bruno? testing? json?"/ Rename → also `grep -rn '\.\./.*<old>/'`. Every hit READ before it counts; a repository hides under its holders' names — grep the class too (`ctx.lighthouse.users` is `entities.user`).
 2. **test** — consumers' suites GREEN first; record baseline reds.
-3. **change** — nothing else in the pass; a file list rides a python script — zsh never word-splits `$FILES`, `set -- $s`, `$F` (10-08 · 10-09 · 10-10 ×2 — hook owed).
+3. **change** — nothing else in the pass; a file list rides a python script (zsh never word-splits `$FILES`).
 4. **test** — green again; a new red is yours. `*.snapshot.test.js` in compare mode + `SNAPSHOT_HOT=1` for wire ones; a rename's residue → skill `name`.
 5. **blast** — re-grep; radius = beat 1.
 
@@ -48,27 +48,27 @@ Escalate before beat 3: suspected bug → throwaway test `current → broken`, p
 
 ## after — a pasted envelope beside a baseline
 
-1. **baseline before blame** — a HEAD copy in the scratchpad: `cp -cR`, then `git show HEAD:<file>` over each file `git hash-object --stdin-paths` says differs.
+1. **baseline before blame** — the pre-edit tree is `@`'s snapshot before my first edit (`jj evolog`), not HEAD (`@-` lacks his uncommitted work): `methods/oldtree.sh <id> <path> <dest>`. REJECTED 10-19 `git archive` (vcs-guard).
 2. **attribute pre-existing reds** — `grep -n '<test file>' .ikiro/known-issues.org` before calling a red found; a hit is its name.
 3. **one file, one verdict** — every `deno task */test` except dapper is `--watch`:
    ```sh
-   deno test --config /Users/finn/vivalence/code/vivalence/deno.jsonc -A --no-check <file-or-dir>
-   cd /Users/finn/vivalence/code/vivalence && deno test --config deno.jsonc -A --no-check ~/.viva/registry/<pkg>/<live-dir>/
+   cd /Users/finn/vivalence/code/vivalence && deno test --config deno.jsonc -A --no-check <file-or-dir>
    ```
+   a registry dir: same line, from the root.
 4. **paste** `ok | N passed (M steps) | F failed (Ns)` from the tool result — never `suite N/M`.
-5. **snapshots** — FROZEN `toEqual` the fixture; `SNAPSHOT_HOT=1` REGENERATES them, never "verification". CAPTURE: `invariants.md`.
-6. an `alive()` skip counts as a pass; a recorded green is not a standing green; **a repo test reads no machine** — census and stub in `world/codemap/invariants.md`; ledger code touched → `md5 -q ~/.viva/*.json` before · after.
+5. **snapshots** — FROZEN `toEqual` the fixture; `SNAPSHOT_HOT=1` REGENERATES them, never "verification" (capture: map).
+6. an `alive()` skip counts as a pass; a recorded green is not a standing green; **a repo test reads no machine** (census: map); ledger code touched → `md5 -q ~/.viva/*.json` before · after, `ps -axo command | grep -- --watch` first.
 7. **seams** — code only the SERVED artifact runs → mount or walk it (skill `debug`).
 8. /"run the coverage. blast change. itterate coverage."/ → per-file before → after.
 
-Pre-DONE: test file + pasted counts + baseline + attributed reds + coverage delta. No counts, no DONE.
+Pre-DONE: test file · pasted counts · baseline · attributed reds · coverage delta.
 
 ## critical pass — true against HEAD, gated tree untouched
 
 /"argue against it, find the weak spots"/.
 
 1. base facts — `git merge-base`, `git diff --stat <claimed> HEAD -- <touched>`; `patch -p1 --dry-run -N`, never `git apply`.
-2. sandbox — the HEAD copy minus `.git .jj`; `VIVA_REPOSITORY_MOUNT=<copy>` outranks `~/.viva/.env` (the REAL checkout); the copy's ledger names ITS commons (`registry.json` is absolute); no root `.env`.
+2. sandbox — pre-edit copy minus `.git .jj`; `VIVA_REPOSITORY_MOUNT=<copy>` outranks `~/.viva/.env` (the REAL checkout); the copy's ledger names ITS commons (`registry.json` is absolute); no root `.env`.
 3. baseline unpatched, then patched, side by side.
 4. grep every absence claim ("no X exists", "Y is dead").
 5. read the CONSUMER side of every new seam.

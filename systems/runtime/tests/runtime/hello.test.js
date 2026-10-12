@@ -1,162 +1,8 @@
 import { specimen } from "@vivalence/typology";
-import { TextLineStream } from "@std/streams";
 import { join } from "@std/path";
-import { DatabaseSync } from "node:sqlite";
+import { hello } from "../scenarios/index.js";
 
 const { describe, it, expect, beforeAll, afterAll } = specimen;
-
-const REPOSITORY = new URL("../../../../", import.meta.url).pathname;
-const SHIPPED = join(REPOSITORY, "commons/instances/hello-world");
-const LEDGER = join(REPOSITORY, "commons/ledger");
-const RUN = new URL("../../run.js", import.meta.url).pathname;
-const READY = /^Status:RUNNING$/;
-const DEADLINE = 90_000;
-const SECRET = "hello-secret-hello-secret-hello-secret";
-const CARRIED = ["PATH", "HOME", "TMPDIR", "TERM", "LANG", "DENO_DIR", "NO_COLOR"];
-
-const RECIPE = {
-  manifest: { type: "instance", slug: "hello-world", version: "0.0.1" },
-  runtime: {
-    manifest: { slug: "house" },
-    statics: { serve: "${VIVA_RUNTIME_SERVE}", remote: "${VIVA_RUNTIME_SERVE}" },
-    secrets: { jwt: "${SECRET_VIVA_JWT}" },
-    modes: ["./probe.viva.js"],
-  },
-  datamap: { module: "@commons/datamap/libsql" },
-  hallucinators: [],
-  clients: [],
-  services: [],
-  daemons: [
-    {
-      manifest: { type: "daemon", slug: "hello", version: "0.0.1" },
-      modes: ["@commons/demo/hello-world"],
-      consume: { reader: { module: "@commons/service/reader" } },
-    },
-  ],
-  environment: {
-    type: "object",
-    required: ["VIVA_RUNTIME_SERVE", "SECRET_VIVA_JWT"],
-    properties: {
-      VIVA_RUNTIME_SERVE: { type: "string", description: "Base URL the runtime serves on." },
-      SECRET_VIVA_JWT: { type: "string", minLength: 24, description: "The runtime's signing secret." },
-    },
-    additionalProperties: false,
-  },
-};
-
-const PROBE = `import { Vector } from "@vivalence/typology";
-export const manifest = { type: "home", slug: "probe", version: "0.0.1", traits: ["RUNTIME", "EXPOSED", "TOOLING", "DATASET"] };
-export const aperture = new Vector().open("/ping", (_, ctx) => ({ reference: ctx.reference.absolute, mode: ctx.mode.manifest.slug, note: "note" in ctx.entities, daemon: ctx.daemon ?? null }));
-export const tools = new Vector();
-export const dataset = {};
-`;
-
-const lines = (stream, into) =>
-  stream
-    .pipeThrough(new TextDecoderStream())
-    .pipeThrough(new TextLineStream())
-    .pipeTo(new WritableStream({ write: (line) => into(line) }));
-
-function free() {
-  const listener = Deno.listen({ port: 0 });
-  const { port } = listener.addr;
-  listener.close();
-  return port;
-}
-
-async function copy(from, to) {
-  await Deno.mkdir(to, { recursive: true });
-  for await (const entry of Deno.readDir(from)) {
-    const source = join(from, entry.name);
-    const target = join(to, entry.name);
-    if (entry.isDirectory) await copy(source, target);
-    else await Deno.copyFile(source, target);
-  }
-}
-
-async function boot({ prefix, recipe, ledger = null, environment = () => ({}) }) {
-  const root = await Deno.makeTempDir({ prefix });
-  await Deno.mkdir(join(root, "ledger"));
-  if (ledger) {
-    await copy(ledger, join(root, "ledger"));
-    await Deno.writeTextFile(join(root, "ledger/instances.json"), "{}\n");
-    await Deno.writeTextFile(join(root, "ledger/registry.json"), `${JSON.stringify({ "@commons": { slug: "commons", mount: join(REPOSITORY, "commons") } })}\n`);
-  }
-  await Deno.mkdir(join(root, "instance/mountpoint"), { recursive: true });
-  await recipe(join(root, "instance"));
-  const origin = `http://localhost:${free()}`;
-  const carried = Object.fromEntries(CARRIED.filter((key) => Deno.env.has(key)).map((key) => [key, Deno.env.get(key)]));
-  const log = [];
-
-  const child = new Deno.Command(Deno.execPath(), {
-    args: ["run", "-A", "--no-check", "--config", join(REPOSITORY, "deno.jsonc"), RUN],
-    cwd: join(root, "instance"),
-    env: {
-      ...carried,
-      VIVA_INSTANCE_MOUNT: join(root, "instance"),
-      VIVA_LEDGER_MOUNT: join(root, "ledger"),
-      VIVA_REPOSITORY_MOUNT: REPOSITORY,
-      VIVA_REGISTRY_MOUNT: join(root, "ledger/registry"),
-      VIVA_RUNTIME_SERVE: `${origin}/`,
-      SECRET_VIVA_JWT: SECRET,
-      ...environment(origin),
-    },
-    clearEnv: true,
-    stdin: "null",
-    stdout: "piped",
-    stderr: "piped",
-  }).spawn();
-
-  let settled = false;
-  let timer;
-  let drained;
-  const tail = () => log.slice(-20).join("\n");
-  const readiness = new Promise((resolve, reject) => {
-    drained = Promise.all([
-      lines(child.stdout, (line) => {
-        log.push(line);
-        if (READY.test(line.trim())) resolve(line.trim());
-      }),
-      lines(child.stderr, (line) => log.push(line)),
-    ]);
-    child.status.then((exit) => !settled && reject(new Error(`runtime exited ${exit.code} before ready\n${tail()}`)));
-    timer = setTimeout(() => reject(new Error(`runtime not ready after ${DEADLINE} ms\n${tail()}`)), DEADLINE);
-  });
-  let ready;
-  try {
-    ready = await readiness;
-  } finally {
-    settled = true;
-    clearTimeout(timer);
-  }
-
-  const post = (path, body, token) =>
-    fetch(`${origin}${path}`, {
-      method: "POST",
-      headers: { "content-type": "application/json", ...(token ? { authorization: `Bearer ${token}` } : {}) },
-      body: JSON.stringify(body ?? {}),
-    });
-  const get = (path, token) => fetch(`${origin}${path}`, { headers: token ? { authorization: `Bearer ${token}` } : {} });
-  const query = (sql) => {
-    const db = new DatabaseSync(join(root, "instance/mountpoint/hello-world.viva.db"), { readOnly: true });
-    try {
-      return db.prepare(sql).all().map((row) => ({ ...row }));
-    } finally {
-      db.close();
-    }
-  };
-  const stop = async () => {
-    try {
-      child.kill("SIGKILL");
-    } catch {
-      // already exited
-    }
-    await child.status;
-    await drained;
-    await Deno.remove(root, { recursive: true });
-  };
-  return { root, origin, ready, log, child, post, get, query, stop };
-}
 
 describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the lighthouse inside", () => {
   let world;
@@ -164,13 +10,7 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
   let thread;
 
   beforeAll(async () => {
-    world = await boot({
-      prefix: "viva-hello-",
-      recipe: async (home) => {
-        await Deno.writeTextFile(join(home, "instance.viva.json"), JSON.stringify(RECIPE, null, 2));
-        await Deno.writeTextFile(join(home, "probe.viva.js"), PROBE);
-      },
-    });
+    world = await hello.boot();
   });
 
   afterAll(() => world.stop());
@@ -203,6 +43,11 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     expect(daemon.status).toBe(401);
     expect((await daemon.json()).error.code).toBe("MISSING_TOKEN");
     expect(world.query("select * from User_daemons")).toEqual([]);
+  });
+
+  it("/lighthouse/metadata is the lighthouse manifest — the recipe says JOINABLE", async () => {
+    const metadata = await (await world.post("/lighthouse/metadata", {})).json();
+    expect(metadata).toEqual({ type: "lighthouse", slug: "lighthouse", traits: ["JOINABLE"] });
   });
 
   it("signup → login over /lighthouse, no handshake", async () => {
@@ -245,9 +90,9 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     const application = await (await world.get("/daemon/hello/mode/demo/hello-world/metadata/application", finn.access)).json();
     const url = new URL(application.url);
     expect(url.pathname).toBe("/attached/bundle/daemon/hello/mode/demo/hello-world");
-    const response = await fetch(`${application.url}${application.view.mount}`);
+    const response = await fetch(`${application.url}${application.bundle.entries[0].mount}`);
     expect(response.status).toBe(200);
-    expect(response.headers.get("content-type")).toBe("application/javascript");
+    expect(response.headers.get("content-type")).toBe("text/javascript");
     await response.body?.cancel();
   });
 
@@ -260,7 +105,7 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     });
   });
 
-  it("the root carries no host's facets — its manifest sits under /metadata, the runtime's modes under /runtime/<slug>", async () => {
+  it("the root carries no runtime's or daemon's facets — its manifest sits under /metadata, the runtime's modes under /runtime/<slug>", async () => {
     for (const path of ["/manifest", "/metadata/modes", "/metadata/instance"]) {
       const response = await world.get(path);
       expect([path, response.status]).toEqual([path, 404]);
@@ -278,13 +123,13 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     expect(world.log.filter((line) => line.includes("[trait] home/probe declares DATASET, which /runtime/house does not offer")).length).toBe(1);
   });
 
-  it("a runtime mode answers with the runtime's host words spread flat and no ctx.daemon", async () => {
+  it("a runtime mode answers with the runtime's words spread flat and no ctx.daemon", async () => {
     const response = await world.post("/runtime/house/mode/home/probe/ping", {}, finn.access);
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ reference: "/runtime/house", mode: "probe", note: true, daemon: null });
   });
 
-  it("the runtime host serves what a daemon serves — status and metadata — behind the token", async () => {
+  it("the runtime serves what a daemon serves — status and metadata — behind the token", async () => {
     const refused = await world.get("/runtime/house/metadata/modes");
     expect(refused.status).toBe(401);
     expect((await refused.json()).error.code).toBe("MISSING_TOKEN");
@@ -343,16 +188,11 @@ describe("runtime boot — the shipped commons/instances/hello-world/instance.vi
   let world;
 
   beforeAll(async () => {
-    world = await boot({
+    world = await hello.launch({
       prefix: "viva-shipped-",
-      recipe: (home) => copy(SHIPPED, home),
-      ledger: LEDGER,
-      environment: (origin) => ({
-        VIVA_RUNTIME_ORIGIN: origin,
-        VIVA_CLIENT_ANIMA_ORIGIN: "http://localhost:1794",
-        VIVA_CLIENT_ANIMA_SERVE: "http://localhost:1794/",
-        PUBLIC_VIVA_RUNTIME_REMOTE: `${origin}/`,
-      }),
+      home: (home) => hello.copy(hello.SHIPPED, home),
+      ledger: hello.LEDGER,
+      environment: hello.ENVIRONMENT,
     });
   });
 

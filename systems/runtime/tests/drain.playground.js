@@ -1,9 +1,9 @@
-import { contexts, shape, shard, sleep, Vector } from "@vivalence/typology";
+import { contexts, shape, shard, sleep, Span, Vector } from "@vivalence/typology";
 import { datamap } from "@vivalence/runtime/scenarios";
 import { topography } from "@vivalence/typology/scenarios";
 import { LiteralEntity, traits } from "@vivalence/runtime";
 import { lifecycle } from "@vivalence/runtime";
-const { DATASET, DATASINK } = traits;
+const { DATASET, DATASINK } = traits.mode;
 
 const HOME = "/tmp/m22-playground";
 
@@ -51,6 +51,7 @@ console.log(`seeded: ${await scenario.repos.literal.count({})} literals, ${await
 const mode = {
   type: "topography",
   slug: "playground",
+  stdout: new Span("mode/topography/playground"),
   entity: { installed: "" },
   module: { mount: authored, dataset: topography.dataset(), datasink: topography.datasink() },
 };

@@ -1,5 +1,5 @@
 import { Path, parse } from "./path.js";
-import { is } from "@vivalence/typology";
+import * as is from "../gestalten/is/scalars.js";
 
 // @beef to be shimied.
 const cwd = () => globalThis.Deno?.cwd?.() ?? "/";

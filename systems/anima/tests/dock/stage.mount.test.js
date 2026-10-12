@@ -3,8 +3,8 @@ import { atom } from "nanostores";
 import { TERMINALS } from "../../src/client.js";
 import { CLIENT, ENTRY, KIT, SRC, build, dom, fire, keys, words } from "./rig.js";
 
-const CHAIN = new URL("typology/gestalten/belt/chain.js", SRC).href;
-const DOCK = new URL("typology/stores/bridge/dock.js", SRC).href;
+const CHAIN = new URL("gestalten/belt/chain.js", SRC).href;
+const DOCK = new URL("bridge/dock.js", SRC).href;
 
 const ANIMA = `export { chain } from "${CHAIN}";\nimport * as bridge from "${DOCK}";\nexport const stores = { bridge };\n`;
 const STUB = `<div class="dock-stub">the dock</div>\n`;

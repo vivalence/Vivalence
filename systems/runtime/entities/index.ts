@@ -4,10 +4,10 @@ export * from "@vivalence/typology/entities";
 
 export * from "./Literal.ts";
 export * from "./Symbol.ts";
-export * from "./Mode.ts";
+export * from "../mode/Mode.ts";
 export * from "./User.ts";
 export * from "./Terminal.ts";
-export * from "./Daemon.ts";
+export * from "../daemon/Daemon.ts";
 export { traits as kernel } from "./traits.js";
 
 export * from "./Intent.ts";
@@ -20,10 +20,10 @@ export * from "./Process.ts";
 
 import literal from "./Literal.ts";
 import symbol from "./Symbol.ts";
-import mode from "./Mode.ts";
+import mode from "../mode/Mode.ts";
 import user, { authenticator } from "./User.ts";
 import terminal from "./Terminal.ts";
-import daemon from "./Daemon.ts";
+import daemon from "../daemon/Daemon.ts";
 
 import intent from "./Intent.ts";
 import thread from "./Thread.ts";
@@ -40,7 +40,7 @@ export { activity };
 export const sets = {
   identity: { user, authenticator, terminal },
   composition: { daemon, mode },
-  kernel: { literal, symbol, note, mode },
+  traits: { literal, symbol, note, mode },
   userspace: { intent, thread, turn, buffer, note },
   transient: { activity },
 };

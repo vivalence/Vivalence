@@ -1,16 +1,16 @@
-import { Paladin } from "./prototypes/paladin.js";
-import * as lifecycle from "./lifecycle/index.js";
-import * as skills from "./skills/index.js";
+import { Paladin } from "./paladin/prototype.js";
+import * as lifecycle from "./paladin/lifecycle.js";
+import * as tools from "./gestalten/tools/index.js";
 
 const paladin = new Paladin();
-paladin.skills = skills;
-await lifecycle.populate.env(paladin);
-await lifecycle.populate.scopes(paladin);
-lifecycle.populate.instance(paladin);
+paladin.tools = tools;
+await lifecycle.env(paladin);
+await lifecycle.scopes(paladin);
+lifecycle.instance(paladin);
 
 if (paladin.is.citizen) {
-  await lifecycle.integrate.statements(paladin);
+  await lifecycle.statements(paladin);
 }
 
 export default paladin;
-export { lifecycle };
+export { factories, lifecycle } from "./typology.js";

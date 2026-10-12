@@ -1,6 +1,6 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
-import source from "../belt/source.js";
+import source from "../gestalten/belt/source.js";
 
 const paladin = {
   scope: { repository: { branch: (segment) => ({ repository: segment }) } },

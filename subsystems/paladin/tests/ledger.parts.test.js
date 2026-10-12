@@ -2,8 +2,8 @@ import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { dirname, join } from "@std/path";
 import { Path } from "@vivalence/typology";
-import { Paladin } from "../prototypes/paladin.js";
-import * as lifecycle from "../lifecycle/index.js";
+import { Paladin } from "../paladin/prototype.js";
+import { factories, lifecycle } from "../typology.js";
 
 const ENVIRONMENT = { type: "object", properties: { VIVA_PROBE_A: { type: "string", description: "a" } } };
 const DATAMAP = { module: "@commons/datamap/libsql" };
@@ -81,7 +81,7 @@ describe("ledger parts — a top-level slot is its content, or a path to it, or 
       "instance/instance.viva.json": { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, daemons: [daemon], environment: "./environment.json" },
       "instance/environment.json": ENVIRONMENT,
     });
-    const instance = await lifecycle.mount(lifecycle.populate.instance(paladin));
+    const instance = await factories.instance(lifecycle.paladin.instance(paladin));
     expect(Object.keys(instance.environment.properties)).toEqual(["VIVA_PROBE_A"]);
     expect(instance.datamap.module).toBe("@commons/datamap/libsql");
     expect(instance.inherited).toEqual(["datamap"]);

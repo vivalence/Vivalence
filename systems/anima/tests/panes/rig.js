@@ -1,7 +1,7 @@
 // systems/anima/tests/panes/rig.js:1
 import { atom } from "nanostores";
 import { random } from "@vivalence/typology";
-import { Terminal, TerminalDossier } from "../../src/typology/entities/terminal.js";
+import { Terminal, TerminalDossier } from "../../src/entities/terminal/prototype.js";
 
 export function repositoryDouble(daemons = []) {
   const $entities = atom([]);

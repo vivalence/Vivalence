@@ -1,6 +1,6 @@
 import { specimen, Vector } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
-const { EMITTER } = traits;
+const { EMITTER } = traits.mode;
 import { emitter } from "../page/index.js";
 
 const SOURCE = `<script>

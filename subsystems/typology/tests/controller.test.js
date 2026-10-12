@@ -1,7 +1,7 @@
 import { specimen, Controller, Span, Vector, belt, v } from "@vivalence/typology";
 import { metronome, until, tick } from "./scenarios/metronome.js";
 
-const { Machine, Reflection, Record, MACHINE } = v.primitives.controller;
+const { Machine, Reflection, Record, Kill, MACHINE } = v.primitives.controller;
 
 const rig = (script, tool) => {
   const clock = metronome(script);
@@ -142,5 +142,11 @@ specimen.describe("controller — one process, driven from stdin", () => {
     const said = running();
     await said.kill("SIGKILL", "user pressed kill");
     specimen.expect((await said.settled).error.message).toBe("user pressed kill");
+  });
+
+  specimen.it("a kill packet is a signal: nature, body, flags", () => {
+    specimen.expect([...Kill.errors({ nature: "SIGTERM", body: ["user pressed stop"], flags: {} })]).toEqual([]);
+    specimen.expect([...Kill.errors({ nature: "SIGTERM", body: [] })]).toEqual([]);
+    specimen.expect([...Kill.errors({ signal: "SIGTERM", input: "user pressed stop" })].length > 0).toBe(true);
   });
 });

@@ -3,7 +3,7 @@ import { RequestContext } from "@mikro-orm/core";
 import { seed, tiers } from "./fixtures.js";
 import { gestalten, traits } from "@vivalence/runtime";
 import { connector, lighthouseOf } from "./daemon.js";
-const { INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING } = traits;
+const { INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING } = traits.mode;
 const { stagger } = gestalten.belt;
 
 function APPLICATION(mode, daemon) {
@@ -13,7 +13,7 @@ function APPLICATION(mode, daemon) {
     const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
       data: mode.application.fill(desc),
-      view: null,
+      bundle: null,
       index: desc.index ?? 0,
     });
     if (desc.thread) {

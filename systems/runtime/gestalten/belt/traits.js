@@ -1,19 +1,6 @@
-import { is, traits as trait } from "@vivalence/typology";
+import { traits as trait } from "@vivalence/typology";
 
-export async function stagger(bearer, context, traits) {
-  const finalizers = [];
-  for (const name of bearer.manifest.traits) {
-    const result = await traits[name]?.(bearer, context);
-    if (is.fn(result)) finalizers.push(result);
-    else if (is.object(result)) {
-      if (is.fn(result.finalize)) finalizers.push(result.finalize);
-      if (is.fn(result.terminate)) {
-        (bearer.terminators ??= []).push(result.terminate);
-      }
-    }
-  }
-  return finalizers;
-}
+export const stagger = trait.stagger;
 
 const named = (name, Class) => Object.defineProperty(Class, "name", { value: name });
 const capitalize = (word) => (word ?? "runtime").charAt(0).toUpperCase() + (word ?? "runtime").slice(1).replace(/-(\w)/g, (_, c) => c.toUpperCase());

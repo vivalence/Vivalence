@@ -38,9 +38,9 @@ const fresh = (schema, value) => {
   if (Type.IsArray(schema)) return Array.isArray(value) ? value.map((item) => fresh(schema.items, item)) : value;
   if (Type.IsIntersect(schema)) return schema.allOf.reduce((held, part) => fresh(part, held), value);
   if (!plain(value) || !(Type.IsObject(schema) || Type.IsRecord(schema))) return value;
-  const seat = (key) =>
+  const schemaOf = (key) =>
     Type.IsRecord(schema) ? Type.RecordValue(schema) : schema.properties[key] ?? (plain(schema.additionalProperties) ? schema.additionalProperties : null);
-  return Object.fromEntries(Object.entries(value).map(([key, held]) => [key, seat(key) ? fresh(seat(key), held) : held]));
+  return Object.fromEntries(Object.entries(value).map(([key, held]) => [key, schemaOf(key) ? fresh(schemaOf(key), held) : held]));
 };
 
 function enhance(schema) {

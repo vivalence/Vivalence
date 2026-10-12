@@ -1,0 +1,2837 @@
+#+title: m86 repl client — stretch five: the client noun-major — one unit per noun, the dossier as mikro's schema
+#+filetags: :ghost:typology:paladin:client:repl:chrome:mode:runtime:structure:
+#+status: DONE 10-16 (moved by beef, /"update. move"/; T-chrome-toggle · T-application still owed his eyes) — LANDED 10-16 on his /"go m86"/ — B1 · B2 · C0 · A1 · A2 · A3 · A4 green (=client.test.js= 4/4 on the DEMO world, =console= · =repl= · paladin · typology schematics green; live on his ledger: boot · terminal · hosts · =/modes= · =/help= · =/hello=); the chrome by EYE is his (T-application · T-chrome-toggle); chess 500 → known-issues. Was: SIXTH PASS (s4-39 … s4-41: =<noun>/traits/= IS the catalog · HOME a STAGGERED client trait · =turn= under =terminal/commands/=; his three marks + /"that whole function is fucked"/) over the FIFTH — the tree INVERTED on his /"i dont like the way the ghost is structured. we have the same types in prototpes/lifecycles/traits... what would that look like when we invert them."/: one directory per NOUN under =systems/ghost/typology/=, each holding its class · its repository · its hydration · its execution · the traits it offers; =lifecycle/= · =traits/= · =entities/= die; =gestalten/= stays verb-major; paladin reads stay at the door (=run.js=), the Client carries =instance=. Every ruling s4-1 … s4-30 of the fourth pass (=.s4.org=, HISTORY) replayed against every block; new rulings s4-31 … s4-38. Nothing landed; next: his go per file, landing order = =* milestones= (paladin first). Headers: =***= system · =****= directory · =*****= file (his).
+# limit: 200000 chars
+
+* intent — beef, verbatim (10-16)
+
+/"we got -somewhere- in the last session. now we need get a few things right. the next level of complexity. we could go in the direction of runtime till harnessed chat and buffer frame rendering. we could go into client side modes and their repling functions. hmm. ok. here is what you should do: back up the quest as s3 / s4? document the current client meta in the quest. and investigate what deliverables we could focus on right now as next steps."/
+
+/"i dont like the way the ghost is structured. we have the same types in prototpes/lifecycles/traits... what would that look like when we invert them. also we have different types of patterning here. dossier and whatever we call the other one. i am sure there is a more natural structure for us. there is probably some distinguising line that deliniates the natures of these. like maybe some are entities some are processes?? i dont know. this is a deep architectural super advanced programming question. how do other functional systems pattern this? can we do without dossier? should we maybe lean into dossier??"/
+
+/"rewrite the quest for this tangle. subheaders per *** [system] **** [dir]."/
+
+* the stretches
+
+| stretch | file | what it holds |
+|---+---+---|
+| one | =m86-repl-loop-clients.s1.org= | die · loop · surfaces · dock — LANDED 10-11 |
+| two | =m86-repl-loop-clients.s2.org= | ghost re-abstracted, one client two vectors, memo as the one fixture — LANDED 10-12 |
+| three | =m86-repl-loop-clients.s3.org= | the 10-15 interview, the ring, the full tangle over bak.3 — DESIGNED, not landed |
+| four | =m86-repl-loop-clients.s4.org= | the ring layer-major (=typology/{prototypes,entities,gestalten}= · =lifecycle/= · =traits/=), rulings s4-1 … s4-30, his 43 marks — DESIGNED 10-16, not landed; HISTORY |
+| five | this file | the same ring, noun-major; the structure question answered on disk |
+
+The s1–s4 files are HISTORY: nothing below cites them for a decision; the law is carried whole in =* the law=, every block written out on the 10-16 tree. A ruling of the fourth pass that still binds is restated in =* the rulings= with its number.
+
+* the law
+
+** the ring — as locked 10-15, unchanged
+
+#+begin_example
+dock signal ──▶ new ReplSignal(signal)                    bare text → { nature: "*", body: [{ type: "text", text }] } · "/x y" → verb
+          ──▶ client.dispatch(signal)                   an active terminal → terminal.dispatch(line); none → the client's own line
+          ──▶ terminal.dispatch(signal)                 shard.repl.dispatch(client, terminal, line)
+          ──▶ shard.repl.execution                    (replDie, next): controller.open · message · resolving
+                controller:    the line's branch — terminal.controller or the client's, at signal.pathname
+                repl:          shard.repl.compose(client, terminal) = new Vector().graft(client.repl, …hosted[*].repl, terminal.repl, …mounted[*].repl SCOPED under /mode/<type>/<slug> AND /mode/<slug>, terminal/turn when terminal.mode is HARNESSED)
+                               built ON EVERY LINE; nothing of the terminal's without a terminal
+                resolving:     steer.dispatch.execute(replDie.repl, replDie, signal) → replDie.output
+                message:       output !== undefined → controller.stdout.message(output)      a throw → the fault on the line's branch, the line settles FAILED
+replDie = { signal · client · runtime · terminal · controller · repl · output }        contexts.Repl, nothing else
+dock  = client.controller.stdout.tail("message", "fault", "turn", "stream")           every terminal's and thread's span sits under the client's; journal order
+dataspace = its own channel: rows arrive by subscription, the frame and the dock render STATE; nothing of it passes the repl
+#+end_example
+
+** the structure — new 10-16 (s4-31 … s4-38)
+
+- **one line, measured: PERSISTED vs RESIDENT — not entity vs process.** typology has exactly two bases (=subsystems/typology/entities/index.ts=): =DataEntity= (a table) and =VirtualEntity= (mikro metadata, no table). The runtime's =ProcessEntity extends VirtualEntity= (=systems/runtime/entities/Process.ts:5=) carries =controller · execution= as =persist: false, hidden: true= columns (=:51-53=) and =execute(execution, context)= (=:26=). A process IS an entity. Resident = row + controller + execution.
+- **one unit per noun.** A noun is a directory =systems/ghost/typology/<noun>/= holding =<noun>.js= (the class; for a row also its =repository(dataspace)= factory and its =hydration= Vector), =execution.js= (the boot under a controller, beats inline, one Vector), =traits/<name>.js= one file per trait it OFFERS (uppercase export) with =traits/index.js= the barrel that IS the trait catalog (=traits.stagger(x, ctx, catalog)= reads =catalog[NAME]=, =belt/traits.js:9=; his /"still i watn a subfolder traits/ for the traits"/), =index.js= (the noun's barrel, re-exporting the catalog). A noun with hydration only and no trait is ONE file at =typology/<noun>.js= (codestyle: one child = a rename, not a directory). Precedent: OTP gen_server (state · init · handle · terminate in one module; the supervisor child spec separate), integrant (=init-key= · =halt-key!= on one key), the Haskell/Rust orphan rule (an instance lives with its type). The runtime already does it twice: =lifecycle/lighthouse/traits/=, =lifecycle/service/traits/=.
+- **two Vectors, two words, one shape.** =hydration= — =(ctx, next)= beats the Dataspace grafts onto a row's seeded boot, run PER MERGE by the em (=ctx = { entity, raw, repository, dataspace, client, runtime }=). =execution= — =(xDie, next)= beats run ONCE under a controller by a factory. A row attended by the client (terminal · thread) has BOTH: it is hydrated as a row and executed as a process while active.
+- **the dossier is mikro's =EntitySchema=.** Anima's ={ name, kind, repository, use }= (=systems/anima/src/typology/entities/thread/dossier.js:7=), the runtime's ={ type, schema, entity, repository }= (=entities/Daemon.ts:49=) and =VirtualSchema({ class, repository, properties })= (=prototypes/daemon.js:31=) are one shape. The word dies; the thing is the noun module's exports: =class · repository · hydration=. =Dataspace= reads exactly those.
+- **one class per noun on the client.** Ghost's =Mode= serves the HOSTED citizen (=new Mode(citizen)=: =module= set, =connection= null) and the REMOTE row (=new Mode()= by the em: =connection= set, =module= null) — the two =Mode= classes of the fourth pass collapse; so do =traits/mode/= and =typology/entities/mode.js=. The runtime's two Daemons (=prototypes/daemon.js= · =entities/Daemon.ts=) are the runtime's, =* deferred=.
+- **verb-major survives where there is no home noun**: =gestalten/belt/= (plain over data) · =gestalten/shard/= (=(ctx, next)= reused by two nouns: =repl= · =host=) · =prototypes/= (classes without a boot: =Argv · ReplSignal · Entity · Cargo · Dataspace=).
+- **a command lives with the noun whose repl it rides**: =client/commands/= (=help · quit=) · =terminal/commands/= (=mode/* · application/*=) · =terminal/commands/turn.js= (the =*=). =/chrome/on|off= names SURFACES (doors) → =app/client/chrome.js=, grafted by the factory.
+- **paladin stays at the door.** =run.js= mounts paladin and hands =instance · mask · register= on the shell die; the Client carries =instance=; every beat reads =clientDie.instance.…= (=instance.paladin.ledger= · =instance.paladin.scope=, measured =subsystems/paladin/prototypes/instance.js:19=). =deno info systems/ghost/typology/index.js | grep -c paladin= → 0 stays the package's census.
+
+** carried, unchanged
+
+- =client = new Client({ controller, mask, register, instance, surface })= IS the client die (s4-2); a child die NAMES it ={ client: clientDie, controller, <noun> }=, never a spread.
+- a mode carries =repl = new Vector()= and =stdout = new Span("mode")= on the prototype (s4-28); traits fill the repl: =HARNESSED= opens =/harness=, =REPLING= grafts =mode.module.repling=; a hosted repl grafts at the ROOT, a remote repl SCOPED (s4-5).
+- a terminal carries =repl= (=/modes · /mode · /application/*=, grafted at its boot) and =dispatch(line)= (s4-17); the bare line is the terminal's =turn=, grafted by =compose= only on a HARNESSED mode — grafted or ABSENT.
+- a signal matching no verb is =NotFound= → a =fault= on the line's branch.
+- =terminal.controller = client.controller.branch(`terminal/<id>`)= where the row is met; =thread.controller= under it when the active terminal's thread is set; the stream marks =stream= on the thread's span (no =$live=, s4-24).
+- a status lives on a controller or a =$status=, never both (s4-23); readiness = =$status= HEALTHY, no =mounted= promise (s4-7).
+- HOME names a HOST mode this stretch; the owner awaited HEALTHY → =thread.create({ mode })= → =terminal.setThread= (s4-26).
+- the runtime is THIS ledger's to start or nobody's: =instance.paladin.ledger.instances.lookup(home)= null → loud throw; else =ledger.boot= + =integrate= (s4-18 · s4-30).
+- the frame opens on =/application/start=, never on a thread set; the Stall is NOT wired. Crown · signin cover · keys · pickers · navigation · anima · thread PHASES: OUT.
+
+* terrain — measured 10-16
+
+** three facts
+
+#+BEGIN_SRC ts
+// subsystems/typology/entities/index.ts
+export * from "./base/DataEntity.ts";
+export * from "./base/VirtualEntity.ts";
+// systems/runtime/entities/Process.ts:5,26,51
+export class ProcessEntity extends VirtualEntity {
+  type = ""; slug = ""; mask = null; controller = null; execution = null;
+  async execute(execution, context = {}) {
+    this.execution = steer.dispatch.execute(execution, { ...context, controller: this.controller, mask: this.mask, [this.type]: this });
+    mask: { type: "any", persist: false, hidden: true, nullable: true },
+    controller: { type: "any", persist: false, hidden: true, nullable: true },
+#+END_SRC
+
+| noun (runtime) | resident class | persisted class |
+|---+---+---|
+| Daemon | =prototypes/daemon.js= | =entities/Daemon.ts= |
+| Mode | typology =prototypes/mode.js= | =entities/Mode.ts= (glued: =lifecycle/mode/population.js:21= =die.mode.entity = pojo=) |
+| Service · Runtime · Lighthouse | =prototypes/*.js= | — |
+| Thread · Turn · Buffer · Terminal · Activity | — | =entities/*.ts= |
+
+Two classes per noun = layering by STORAGE. Process.ts proves one class carries both.
+
+#+BEGIN_SRC js
+// systems/anima/src/typology/entities/thread/dossier.js:7
+export const ThreadDossier = { name: "thread", kind: () => Thread, repository: (schema, dataspace) => …, use: [async (ctx, next) => …] };
+// systems/runtime/entities/Daemon.ts:49
+export default { type: "daemon", schema: DaemonSchema, entity: DaemonEntity, repository: DaemonRepository };
+// systems/runtime/prototypes/daemon.js:31
+export const DaemonSchema = new VirtualSchema({ class: Daemon, extends: ProcessSchema, repository: () => ProcessRepository, properties: {} });
+#+END_SRC
+
+Three spellings, one shape. The runtime's trait catalog: every file in =systems/runtime/traits/= takes =(mode, context)= — all MODE traits; =lifecycle/lighthouse/traits/= and =lifecycle/service/traits/= already sit with their noun.
+
+** precedent
+
+| system | the unit per noun | the order | verdict |
+|---+---+---+---|
+| Erlang/OTP gen_server | state · init · handle_call · terminate, ONE module; behaviour = trait | supervisor child spec | noun-major |
+| Clojure integrant | one key: init-key · halt-key! | dependency graph | noun-major |
+| Haskell · Rust | type + its instances/impls; orphan = smell | — | with the TYPE |
+| Akka actor | Props · receive · preStart/postStop | supervision tree | noun-major |
+| ECS | components = bags · systems = folds | hand-ordered | verb-major = the fourth pass |
+| Datomic | process = entity + status attribute | — | storage is an attribute |
+
+** the client meta, 10-16 (unchanged since the fourth pass)
+
+| die | fields | controller | made by |
+|---+---+---+---|
+| shellDie | controller · signal · output | =/ghost= | =run.js:6= |
+| clientDie | controller · repl · surface · unmount | =/ghost/client= | =app/client/index.js:26= |
+| replDie | signal · client · controller | =/ghost/client/<pathname>= | =app/surface/repl.js:44= · =panes/dock.jsx:60= |
+
+Live: one dispatch · a line = a controller branch · =NotFound= → fault · =*= a stub echo (=commands/turn.js:3= =tally=) · output→message tap COMMENTED (=app/client/index.js:10=, his line; =tests/repl.test.js= 3/5 red on it) · a remount stacks a tap (=repl.js:20=, =Vector.use= has no un-use) · =deno.jsonc:14= =bundle= names a dead path. Absent: =client.runtime= · the mask · terminals · =mode.repl= · the composer · chrome beyond the dock · paladin in ghost (=deno.jsonc= exports typology only). Outside ghost: a runtime on =:2501= · =traits/harnessed.js= serves =/harness/dialogue/stream= · =traits/application.js= compiles the tty bundle.
+
+* the rulings, as built (10-16)
+
+Fourth-pass rulings that bind a block below, restated by number; the full text with his words is =.s4.org=.
+
+| # | binds | built as |
+|---+---+---|
+| s4-2 | the die IS the Client | =client/client.js=; =clientDie.x=, never =clientDie.client.x= |
+| s4-3 | one execution Vector, beats inline | every =execution.js= |
+| s4-5 | hosted repls at the ROOT, remote repls SCOPED, one streamer on =*= | =shard/repl.js compose · scoped= · =mode/traits/harnessed.js /harness= · =terminal/commands/turn.js= |
+| s4-6 | no =host= word; die key = the host's TYPE | =shard/host.js (type) => (die, next)= · =runtime/execution.js= · =daemon/execution.js= |
+| s4-7 | gating by =$status=, never a promise on an entity | =client/traits/home.js HOME= · =shard/host.js mounted= |
+| s4-8 | =new RemoteRepository(kind).connect(…)= one statement | every =repository= factory |
+| s4-9 · s4-23 | the Activity's controller holds its status | =activity.js= |
+| s4-10 | =open(terminal, mode)= beside the trait, called by a verb | =mode/traits/application.js= · =terminal/commands/application/start.js= |
+| s4-16 | ONE flat trait catalog | the noun module IS the catalog (=mode/index.js= · =lighthouse/index.js=) |
+| s4-17 | =Client.dispatch → Terminal.dispatch → shard.repl.dispatch= | =client/client.js= · =terminal/terminal.js= |
+| s4-18 · s4-30 | the ledger decides the boot; =boot= then =integrate= | =client/execution.js runtime= |
+| s4-19 | credentials inline in the lighthouse lifecycle | =lighthouse/execution.js credentials= |
+| s4-20 | one mode store; =get modes()= a slice per host | =runtime/runtime.js= · =daemon/daemon.js= |
+| s4-21 | Lighthouse: no constructor args; =$status= → =stdout= | =lighthouse/lighthouse.js= |
+| s4-22 | =Dataspace.branch(connection, name)= | =prototypes/dataspace.js= · =daemon/daemon.js hydration= |
+| s4-24 · s4-25 | Thread stripped; thread traits cut | =thread/thread.js= |
+| s4-26 | =setThread=, no =seat= | =terminal/terminal.js= · =client/execution.js thread= |
+| s4-27 | no =mask= on the hosted die | =mode/execution.js= |
+| s4-28 | =stdout = new Span("mode")= · =repl = new Vector()= on the prototype | =mode/mode.js= (ghost's one Mode); typology's =Mode= hunk → =* deferred= (no consumer in ghost once ghost stops constructing it) |
+| s4-29 | =ctx.repl= = the composition | =client/commands/help.js= · =contexts.js= HOLY hunk |
+
+New this pass:
+
+| # | his word | built as |
+|---+---+---|
+| s4-31 | /"i dont like the way the ghost is structured. we have the same types in prototpes/lifecycles/traits... what would that look like when we invert them."/ | =typology/<noun>/= per noun: =client · daemon · lighthouse · mode · runtime · terminal · thread= dirs; =activity.js · buffer.js · turn.js= one file each; =lifecycle/ · traits/ · entities/= never created |
+| s4-32 | /"there is probably some distinguising line … some are entities some are processes??"/ | REJECTED by disk: =ProcessEntity extends VirtualEntity= (=Process.ts:5=). The line is PERSISTED vs RESIDENT; a resident row = row + controller + execution; terminal and thread are both while active |
+| s4-33 | /"can we do without dossier? should we maybe lean into dossier??"/ | LEAN IN, as mikro's shape: a row module exports =class · repository · hydration=; the word =dossier= appears in no ghost file (keep-list: anima, =systems/runtime/tests/repository.persist.test.js=, a dashboards doc) |
+| s4-34 | /"different types of patterning here. dossier and whatever we call the other one."/ | the other one = prototype · execution · factory (s4-13); both are the SAME unit seen from two storages: =hydration= runs per merge (row), =execution= runs once under a controller (process). Word =hydration= is mine (0 hits in ghost; =systems/runtime/tests/*.test.js= say "hydrates" ×4, =shape/messenger.js:8= =rehydrate=): STRUCK =integrate= (the em's strategy, =Dataspace= uses it), =use= (anima's), =boot= (the Dataspace's seeded Vector) — his amen owed |
+| s4-35 | /"how do other functional systems pattern this?"/ | =* terrain / precedent=: one unit per noun, order declarative and separate (OTP · integrant · actors); ECS is the layer-major shape the fourth pass had |
+| s4-36 | one class per noun (from s4-32) | ghost =Mode= serves hosted AND remote; the fourth pass's =traits/mode/index.js= · =entities/mode.js= · typology =index.client.js= hunk die; =Daemon= is one class already on the client |
+| s4-37 | paladin at the door (keeps the census the fourth pass set) | =run.js= hands =instance= on the die; =Client.instance=; no beat imports paladin |
+| s4-39 | /"still i watn a subfolder traits/ for the traits."/ · /"also traits subfolder."/ | =<noun>/traits/<name>.js= + =<noun>/traits/index.js= — the barrel IS the catalog; =<noun>/execution.js= imports =./traits/index.js= itself, so NO die carries a =traits= key (the fourth pass's ={ …, traits }= dies) |
+| s4-40 | /"is this a trait?? i dont understand. this is weird."/ · /"why dis client export function? why not just read the reference. no function needed."/ · /"read anima and runtime for how we deal with traits. that whole function is fucked."/ | measured: a trait is STAGGERED on its OWNER and reads its own config STRAIGHT — =lighthouse.trait.AUTOLOGIN.username= (=systems/runtime/lifecycle/lighthouse/traits/autologin.js:7,18=); =claim= / =v.<entity>.trait(row, NAME)= is for ANOTHER row's trait (=traits/harnessed.js:28= on the thread). HOME is declared on the CLIENT (=instance.js:82-89=) and the USER (=schematics/entities/user.js:14=) → =client/traits/home.js= exports =HOME(mask, clientDie)=, staggered by =client/execution.js staggered=; it reads =mask.trait.HOME.reference= straight and the user's by =v.user.trait(user, "HOME")= (vocabulary already on the schematic — no hand =vocabulary=). =terminal/execution.js= is =verbs= only. REJECTED: a lowercase =reference(client)= helper + a hand vocabulary — neither staggered nor a claim, a third thing |
+| s4-41 | /"terminal commands turn"/ | =terminal/commands/turn.js=, exported by =terminal/commands/index.js= beside =mode · application= |
+| s4-42 | measured 10-16 live: the runtime's HOST routes (=/status · /metadata/{statics,cortex,cargo,aperture} · /entities/mode=) sit under =/runtime/<slug>/=; the ROOT serves =/metadata/{manifest,aperture}=, the lighthouse and the userspace | a host carries =aperture= — its OWN branch: =Runtime.aperture = connection.branch(reference)= (set in =client/execution.js dataspace=), =Daemon.aperture = connection= (the branch its hydration already minted). =shard/host.js= and =mode.js hydration= read =.aperture=; =connection= stays what it was (the runtime's ROOT for lighthouse · userspace · the Dataspace) |
+| s4-38 | the codestyle law is verb-major (=(die, next) → lifecycle/= PHASE files · s4-14 "ghost mirrors the runtime") | ghost departs KNOWINGLY; the amendment is a block under =*** .ikiro= — his amen; the runtime's own inversion is =* deferred= |
+
+* design — the tree after
+
+#+begin_example
+commons/fixtures/testing/console/console.viva.js        new    @commons/home/console — the CLIENT's demo mode: REPLING, /hello · /whoami
+commons/ledger/ledger.viva.json                         hunk   clients[ghost] hosts console
+subsystems/paladin/lifecycle/populate.js                m88    clients dressed
+subsystems/paladin/lifecycle/resolve.js                 m88    a client gets its reference, its modes grounded
+subsystems/paladin/prototypes/ledger/integrity.js       m88    REPLING: "repling"
+subsystems/paladin/tests/modes.test.js                  m88    "client modes"
+subsystems/typology/schematics/primitives/contexts.js   HOLY   the repl word · the client word · Repl
+subsystems/typology/schematics/primitives/home.js       m88    the reference's word
+subsystems/typology/schematics/primitives/instance.js   HOLY   Client: mountpoint · reference · modes; the mask
+systems/ghost/
+  deno.jsonc                                            hunk   bundle task → app/surface/chrome/bundle.js
+  run.js                                                hunk   the DOOR: paladin mounts; instance · mask · register ride the shell die
+  app/client/chrome.js                                  mv     ← app/client/commands/chrome.js; /chrome/on|off, grafted by the factory
+  app/client/index.js                                   rewrite  factory(surface)(shellDie) only
+  app/shell/index.js                                    —      no hunk
+  app/surface/repl.js                                   hunk   a tail; dispatch
+  app/surface/chrome/index.js                           hunk   paints panes.chrome
+  app/surface/chrome/panes/chrome.jsx                   new
+  app/surface/chrome/panes/dock.jsx                     hunk   dispatch · stream
+  app/surface/chrome/panes/frame.jsx                    new    (bak.3 origin)
+  app/surface/chrome/panes/index.js                     hunk
+  tests/client.test.js                                  new
+  tests/console.test.js                                 new
+  tests/repl.test.js                                    hunk
+  tests/scenarios/hello.js                              new
+  typology/
+    activity.js                                         new    Activity (controller) · repository · hydration
+    buffer.js                                           new    Buffer · repository · hydration
+    index.js                                            hunk   the nouns · entities · the flat classes
+    turn.js                                             new    Turn · repository · hydration
+    client/client.js                                    new    the Client IS the die; dispatch
+    client/execution.js                                 new    verbs · modes · surface · runtime · connection · authorized · dataspace · rows · hosts · terminals · staggered · thread · active
+    client/traits/home.js                               new    HOME: a terminal with no thread sits in the HOME mode
+    client/traits/index.js                              new    the catalog
+    client/index.js                                     new
+    client/commands/help.js                             mv     ← app/client/commands/help.js, hunk: ctx.repl
+    client/commands/index.js                            new
+    client/commands/quit.js                             mv     ← app/client/commands/quit.js, unchanged
+    daemon/daemon.js                                    new    Daemon · repository · hydration
+    daemon/execution.js                                 new    shard.host.*("daemon")
+    daemon/index.js                                     new
+    gestalten/index.js                                  new
+    gestalten/belt/harness.js                           new    stream(mode, thread, parts)
+    gestalten/belt/index.js                             new
+    gestalten/shard/host.js                             new    status · metadata · cortex · modes · mounted — (type) thunks
+    gestalten/shard/index.js                            new
+    gestalten/shard/repl.js                             new    message · execution · scoped · compose · dispatch
+    lighthouse/traits/autologin.js                      new
+    lighthouse/execution.js                             new    credentials · staggered · authorized
+    lighthouse/index.js                                 new
+    lighthouse/traits/index.js                          new    the catalog
+    lighthouse/traits/invitational.js                   new
+    lighthouse/traits/joinable.js                       new
+    lighthouse/lighthouse.js                            new    authority only; $status → stdout
+    mode/traits/application.js                          new    APPLICATION · open(terminal, mode)
+    mode/execution.js                                   new    the HOSTED mode's boot: stdout · core · staggered
+    mode/traits/exposed.js                              new
+    mode/traits/harnessed.js                            new    /harness on mode.repl
+    mode/traits/index.js                                new    the catalog
+    mode/index.js                                       new
+    mode/mode.js                                        new    ONE Mode: citizen or row · repository · hydration
+    mode/traits/repling.js                              new
+    prototypes/argv.js                                  —
+    prototypes/cargo.js                                 new
+    prototypes/dataspace.js                             new    entities by name; branch(connection, name)
+    prototypes/entity.js                                new
+    prototypes/index.js                                 hunk
+    prototypes/replsignal.js                            —
+    runtime/execution.js                                new    shard.host.*("runtime")
+    runtime/index.js                                    new
+    runtime/runtime.js                                  new    a host
+    terminal/execution.js                               new    verbs
+    terminal/index.js                                   new
+    terminal/terminal.js                                new    Terminal (repl · dispatch · setThread) · repository · hydration
+    terminal/commands/index.js                          new
+    terminal/commands/turn.js                           mv     ← app/client/commands/turn.js, rewrite: the TERMINAL's *
+    terminal/commands/application/{index,start,stop}.js new
+    terminal/commands/mode/{index,list,pick}.js         new
+    thread/execution.js                                 new    activity
+    thread/index.js                                     new
+    thread/thread.js                                    new    Thread (controller · $activity) · repository · hydration
+.ikiro/codestyle.md                                     hunk   the HOME law, amended (his amen)
+~/.viva/ledger.viva.json                                hunk   mine (his 10-16 /"you do ledger"/): bak first, lands with B2
+DEAD: app/client/commands/index.js (two barrels replace it) · the fourth pass's lifecycle/ · traits/ · typology/entities/ · typology/prototypes/{client,runtime,lighthouse}.js · typology Mode HOLY hunk · index.client.js hunk
+#+end_example
+
+** Moves
+
+| from | to | content |
+|---+---+---|
+| =systems/ghost/app/client/commands/chrome.js= | =systems/ghost/app/client/chrome.js= | hunk: the surface import |
+| =systems/ghost/app/client/commands/help.js= | =systems/ghost/typology/client/commands/help.js= | hunk: =ctx.repl= |
+| =systems/ghost/app/client/commands/quit.js= | =systems/ghost/typology/client/commands/quit.js= | unchanged |
+| =systems/ghost/app/client/commands/turn.js= | =systems/ghost/typology/terminal/commands/turn.js= | rewrite |
+
+=mv= first (his, via =!=), then the block on the NEW path.
+
+** the trace — what beef sees after each milestone
+
+#+begin_example
+B1   deno test subsystems/paladin/tests/modes.test.js         "client modes" green
+B2   viva → << /hello                                          «hello from ghost»          (the hosted mode's verb, grafted per line)
+C0   << /help                                                  the tree, as a message in the dock; /chrome/off → one print per record
+A1   viva                                                      «lighthouse http://localhost:2501/ · JOINABLE AUTOLOGIN» · «user localhost» · «runtime /runtime/runtime»
+A2   viva                                                      «terminal #1» · «home /runtime/runtime/mode/harness/runtime · thread #1»;  << /modes · << /mode chess/board
+A3   << ciao                                                   › ciao, then the assistant's turn streams; «✕ …» on an unharnessed thread
+A4   << /application/start                                     the dock narrows, the frame opens on the mode's buffer; << /application/stop closes it
+#+end_example
+
+* tangle — =***= system · =****= directory · =*****= file; =ls= order; every file FINAL as it lands
+
+A header names the file's source: =new= · =hunk= (a diff over the live file, =methods/apply-diffs.py= lands it) · =mv= (his =mv= first, the block on the new path) · =HOLY= (typology or paladin, its own go) · =his= (his file, his edit). A block of the fourth pass carried unchanged says so; only the path and the imports moved.
+
+*** commons
+
+**** fixtures/testing/console/
+
+***** =commons/fixtures/testing/console/console.viva.js= — new (his =console.log= line kept): the CLIENT's demo mode
+
+#+BEGIN_SRC js
+// commons/fixtures/testing/console/console.viva.js
+import { Vector } from "@vivalence/typology";
+
+export const manifest = {
+  type: "home",
+  slug: "console",
+  name: "Console",
+  description: "A mode the client hosts. Its verbs join the repl beside the client's own — proof that REPLING composes.",
+  version: "0.0.1",
+  traits: ["REPLING"],
+};
+
+export const repling = new Vector()
+  .open(
+    { nature: "/hello", valence: "the hosted mode answers from inside the repl's context. Example: /hello" },
+    (ctx) => {console.log("mode/home/console", {ctx});return `hello from ${ctx.client.mask.manifest.slug}` ;},
+  )
+  .open(
+    { nature: "/whoami", valence: "the user, the active terminal and its mode. Example: /whoami" },
+    (ctx) => ({
+      user: ctx.runtime === null ? null : ctx.runtime.lighthouse.user.slug,
+      terminal: ctx.terminal === null ? null : ctx.terminal.id,
+    }),
+  );
+#+END_SRC
+
+The lookup is the MANIFEST's word (codemap commons): =@commons/home/console=, found as =@commons/home/probe= is. A hosted verb reads =ctx.client · ctx.runtime · ctx.terminal= (=contexts.Repl=); =terminal= is =null= until one is active. A save here is a deploy under =runtime/watch= — =lsof -nP -iTCP:2501 -sTCP:LISTEN= first, one write.
+
+**** ledger/
+
+***** =commons/ledger/ledger.viva.json= — hunk: the test world's ghost hosts console
+
+#+BEGIN_SRC diff
+// commons/ledger/ledger.viva.json:16
+-    { "manifest": { "type": "client", "slug": "ghost" } }
++    { "manifest": { "type": "client", "slug": "ghost" }, "modes": ["@commons/home/console"] }
+#+END_SRC
+
+*** subsystems/paladin — m88's half, verbatim (B1)
+
+**** lifecycle/
+
+***** =subsystems/paladin/lifecycle/populate.js= — m88: clients are dressed, like daemons and the runtime
+
+#+BEGIN_SRC diff
+// subsystems/paladin/lifecycle/populate.js:210
+-  instance.clients = (module.clients ?? []).map((declaration) => at(`client[${slug(declaration)}]`)(declaration));
++  instance.clients = (module.clients ?? []).map((declaration) => dressed(`client[${slug(declaration)}]`)(declaration));
+#+END_SRC
+
+***** =subsystems/paladin/lifecycle/resolve.js= — m88: a client gets its reference and grounds its modes
+
+#+BEGIN_SRC diff
+// subsystems/paladin/lifecycle/resolve.js:47
+   const root = (runtime) => {
+     runtime.mountpoint ??= instance.paladin.scope.mountpoint.absolute;
+     runtime.reference ??= `/runtime/${runtime.manifest?.slug}`;
+     if (!reach) return;
+     runtime.url ??= reach.branch(runtime.reference).absolute;
+     runtime.attach ??= reach.branch("/attached").absolute;
+   };
++  const referenced = (client) => {
++    client.reference ??= `/client/${client.manifest?.slug}`;
++  };
+   instance.daemons.forEach(address);
+   instance.daemons.forEach(ground);
++  instance.clients.forEach(mountpoint("client"));
++  instance.clients.forEach(referenced);
++  instance.clients.forEach(ground);
+#+END_SRC
+
+**** prototypes/ledger/
+
+***** =subsystems/paladin/prototypes/ledger/integrity.js= — m88: REPLING travels with =repling=
+
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/ledger/integrity.js:18
+   HARNESSED: null,
++  REPLING: "repling",
+#+END_SRC
+
+**** tests/
+
+***** =subsystems/paladin/tests/modes.test.js= — m88: a client's modes are grounded under =/client/<slug>=
+
+#+BEGIN_SRC diff
+// subsystems/paladin/tests/modes.test.js:95
+   });
+ });
++
++describe("client modes", () => {
++  it("a client is a host: /client/<slug>, <mountpoint>/client_<slug>, every mode grounded under it as /mode/<type>/<slug>", async () => {
++    const instance = await mount({
++      ...module,
++      clients: [{ manifest: { type: "client", slug: "ghost", traits: ["HOME"] }, modes: ["@commons/home/console"], trait: { HOME: { reference: "/runtime/probe/mode/home/probe" } } }],
++    });
++    const [client] = instance.clients;
++    expect(instance.faults).toEqual([]);
++    expect(client.reference.absolute).toBe("/client/ghost");
++    expect(client.mountpoint.absolute).toBe("/mountpoint/client_ghost");
++    expect(client.modes[0].module).toBe("@commons/home/console");
++    expect(client.modes[0].reference.absolute).toBe("/mode/home/console");
++    expect(client.modes[0].mountpoint.absolute).toBe("/mountpoint/client_ghost/mode_home_console");
++  });
++});
+#+END_SRC
+
+(=:95= is the file's last line, measured; =mount · module= are the file's own rig, =:9-36=.) Green when: =deno test --config deno.jsonc -A --no-check subsystems/paladin/tests/modes.test.js= passes the new case; =grep REPLING subsystems/paladin= → 0 before, 1 after.
+
+*** subsystems/typology — HOLY, its own go per file
+
+**** schematics/primitives/
+
+***** =subsystems/typology/schematics/primitives/contexts.js= — the repl's words (s4-29)
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:44
+ export const shell = { shell: v.unknown().desc("The shell Vector this line was invoked on — how the system (unix, macos) reaches viva; ctx.call and the flag check walk it. Example: steer.dispatch.traverse(ctx.shell, new Signal(['instance', 'doctor']))") };
++export const repl = { repl: v.unknown().desc("The repl Vector this line was invoked on — as ctx.shell is to the shell. The COMPOSITION, built per line by shard.repl.compose: client.repl grafted first, then the hosted modes' repls, terminal.repl, every mounted mode's repl under /mode/<type>/<slug> and /mode/<slug>, the turn streamer when the terminal's mode is HARNESSED. Never client.repl alone. Example: shape.strip(ctx.repl)") };
+…
+// subsystems/typology/schematics/primitives/contexts.js:49
+-export const client = { client: v.unknown().desc("The Client: controller · repl · surface · dispatch · mount. Example: ctx.client.dispatch('/help')") };
++export const client = { client: v.unknown().desc("The Client — the client die itself: controller · mask · register · instance · surface · modes · repl · runtime · $active; dispatch(line) is its method. Example: ctx.client.dispatch('/help')") };
+…
+// subsystems/typology/schematics/primitives/contexts.js:71
+-export const Repl = { ...vector, ...client, ...span };
++export const Repl = { ...vector, ...client, ...controller, ...repl, ...optional(runtime), ...optional(terminal) };
+#+END_SRC
+
+=span= leaves: a line marks on =ctx.controller.stdout=. No =mode= word (s4-4): the terminal's mode is =ctx.terminal.mode=. =runtime · terminal= optional: =null= before the connection beat, =null= while no terminal is active.
+
+***** =subsystems/typology/schematics/primitives/home.js= — m88: the reference's word
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/home.js:4
+-  reference: v.string().desc('The mode a thread with none enters — a user\'s HOME over its client\'s; an absolute reference. Example: "/daemon/memo/mode/srs/memo"'),
++  reference: v.string().desc('The mode a terminal with no thread sits in — a user\'s HOME over its client\'s; an absolute reference: a host mode, or a hosted mode under its client. Example: "/runtime/runtime/mode/harness/runtime" · "/client/ghost/mode/home/console"'),
+#+END_SRC
+
+***** =subsystems/typology/schematics/primitives/instance.js= — a client is a host. LANDED 10-16 (his go): a client's =traits= ride =manifest.traits= like a mode's; top-level =traits= + =ClientTraitsEnum= gone (=tests/schematics/instance.test.js:119-127= green, 0 consumers). Remaining hunk = the host fields
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/instance.js:83
+ export const Client = v.object(
+   {
+     manifest: Manifest,
+     module: v.string().optional(),
+     statics: Statics({ serve: Url().optional() }).default({}),
++    mountpoint: Mountpoint.desc('Where the client\'s own modes persist. Declared wins; otherwise <mountpoint scope>/client_<slug>. Example: "/viva/instances/chess/mountpoint/client_ghost"').optional(),
++    reference: Path().desc('The client\'s reference as a host, /client/<slug>; paladin writes it. Example: "/client/ghost"').optional(),
++    modes: Modes.optional(),
+…
+// subsystems/typology/schematics/primitives/instance.js:179
+-    clients: v.array(v.object({ manifest: Manifest, module: v.string().optional(), statics: MaskStatics.optional(), trait: ClientTrait.optional() }, { additionalProperties: false })).optional(),
++    clients: v.array(v.object({ manifest: Manifest, module: v.string().optional(), mountpoint: v.string().optional(), statics: MaskStatics.optional(), modes: v.array(v.union([v.string(), ModeMask])).optional(), trait: ClientTrait.optional() }, { additionalProperties: false })).optional(),
+#+END_SRC
+
+A JSON snapshot that passes =Client= after settle — the ghost row of his ledger as resolve leaves it:
+
+#+BEGIN_SRC json
+{
+  "manifest": { "slug": "ghost", "traits": ["HOME"] },
+  "statics": {},
+  "mountpoint": "/Users/finn/.viva/instances/localhost/mountpoint/client_ghost",
+  "reference": "/client/ghost",
+  "modes": [{ "module": "@commons/home/console", "mountpoint": "/Users/finn/.viva/instances/localhost/mountpoint/client_ghost/mode_home_console", "reference": "/mode/home/console", "bundles": "/Users/finn/.viva/instances/localhost/mountpoint/client_ghost/bundles/home/console" }],
+  "trait": { "HOME": { "reference": "/runtime/runtime/mode/harness/runtime" } }
+}
+#+END_SRC
+
+Green when: =subsystems/typology/tests/bundle/weight.test.js= unchanged; the paladin case above passes. The fourth pass's two other typology hunks (=prototypes/mode.js= · =prototypes/index.client.js=) are OUT: ghost constructs its own =Mode= (s4-36); typology's standard (s4-28) → =* deferred= for the runtime.
+
+*** systems/ghost
+
+**** .
+
+***** =systems/ghost/deno.jsonc= — hunk: the bundle task names the live path (frontier: a dead path)
+
+#+BEGIN_SRC diff
+// systems/ghost/deno.jsonc:14
+-    "bundle": "deno run -A app/chrome/bundle.js",
++    "bundle": "deno run -A app/surface/chrome/bundle.js", 
+#+END_SRC
+
+***** =systems/ghost/run.js= — hunk: the DOOR — paladin mounts here and nowhere else in ghost (s4-37)
+
+#+BEGIN_SRC diff
+// systems/ghost/run.js:1
+ import { Controller, Span, fromm, steer } from "@vivalence/typology";
++import paladin, { lifecycle } from "@vivalence/paladin";
+ import { Argv } from "@vivalence/ghost";
+ import { shell } from "./app/shell/index.js";
+
++const instance = await lifecycle.mount(paladin.instance);
++await paladin.ledger.registry.supply();
++
+ const die = {
+   controller: new Controller({ stdout: new Span("ghost") }),
+   signal: new Argv(Deno.args),
++  instance,
++  mask: instance.clients.find((client) => client.manifest.slug === "ghost"),
+ };
++die.register = await paladin.ledger.registry.wire(die.mask);
+#+END_SRC
+
+The mask is paladin's row after settle (his a3: /"on client only the client[ghost]"/). A ledger without a ghost row → =die.mask= is =undefined= → =wire= throws its own sentence at the door — loud, no guard. =instance= rides the die: every later read of paladin is =clientDie.instance.…= (=instance.paladin= is the paladin object, =subsystems/paladin/prototypes/instance.js:19=; =instance.runtime.statics.remote=, =instance.home=). =registry.supply() · registry.wire(mask)= are =subsystems/paladin/prototypes/ledger/registry.js:169,270=.
+
+**** app/client/
+
+***** =systems/ghost/app/client/chrome.js= — mv ← =app/client/commands/chrome.js=; hunk: the surface import. A door verb: it names SURFACES, so it stays in =app/= and the factory grafts it
+
+#+BEGIN_SRC diff
+// systems/ghost/app/client/chrome.js:2
+-import * as surface from "../../surface/index.js";
++import * as surface from "../surface/index.js";
+#+END_SRC
+
+LANDED 10-16 after his walk (/"chrome not at all. weird artifacts all over"/): the verbs read =ctx.client= — =ctx= is the LINE's die, whose =unmount= is undefined and whose =controller= is =/ghost/client/chrome/on=; so the plain readline + tail kept printing into opentui's screen (the artifacts) and the dock tailed an empty branch. =ctx.client.unmount()= is never undefined: the =surface= beat set it. Each remount =.use=s nothing (the surface tails), so the stacked-tap defect of 10-16 is gone.
+
+***** =systems/ghost/app/client/index.js= — rewrite: the factory only (s4-13); the execution is the client noun's
+
+#+BEGIN_SRC js
+// systems/ghost/app/client/index.js
+import { steer } from "@vivalence/typology";
+import * as ghost from "@vivalence/ghost";
+import { chrome } from "./chrome.js";
+
+export const factory = (surface) => async (shellDie) => {
+  const clientDie = new ghost.Client({ controller: shellDie.controller.branch("client"), mask: shellDie.mask, register: shellDie.register, instance: shellDie.instance, surface });
+  clientDie.repl.graft(chrome);
+  await steer.dispatch.execute(ghost.client.execution, clientDie);
+  if (clientDie.controller.status.is("FAILED")) throw clientDie.controller.status.reflection.error;
+};
+#+END_SRC
+
+The Client born, the door's verb grafted, the execution run, FAILED rethrown to the shell. =app/shell/index.js= keeps calling =clientFactory(surface)(shellDie)= — no hunk. Today's commented output→message tap (=:10=) dies: =shard.repl.message= carries it; today's =:14-21= (the surface mounted) is =client/execution.js surface=, verbatim.
+
+**** app/surface/
+
+***** =systems/ghost/app/surface/repl.js= — hunk: a tail on the surface's lifetime; the line goes through =dispatch=
+
+#+BEGIN_SRC diff
+// systems/ghost/app/surface/repl.js:1
+ import { createInterface } from "node:readline";
+ import process from "node:process";
+-import { shape, steer } from "@vivalence/typology";
+-import { ReplSignal } from "@vivalence/ghost";
++import { shape } from "@vivalence/typology";
+…
+// systems/ghost/app/surface/repl.js:18
+-export const repl = (clientCtx) => {
+-  clientCtx.repl //
+-    .use(async (replDie, next) => {
+-      const untap = replDie.controller.stdout.pipe.tap((record) => {
+-        if (replDie.controller.stdout.within(record) && SHOWN.includes(record.verb))
+-          // here go my dev logging and all the paladin wiring and such.  nice
+-          console.log(line(record));
+-      });
+-      try {
+-        await next();
+-      } finally {
+-        untap();
+-      }
+-    });
+-
+-  console.log(shape.strip(clientCtx.repl));
+-  // .use(async (replDie, next) => {}) await next()
++export const repl = (clientDie) => {
++  const tail = clientDie.controller.stdout.tail(...SHOWN);
++  let seen = 0;
++  const untail = tail.subscribe((records) => {
++    for (const record of records.slice(seen)) console.log(line(record));
++    seen = records.length;
++  });
++  console.log(shape.strip(clientDie.repl));
+…
+// systems/ghost/app/surface/repl.js:42
+-  reader.on("line", (text) => {
+-    const signal = new ReplSignal(text);
+-    const replDie = {
+-      signal,
+-      client: clientCtx,
+-      controller: clientCtx.controller.branch(signal.pathname),
+-    };
+-    steer.dispatch.execute(clientCtx.repl, replDie, signal).finally(() => reader.prompt());
+-  });
++  reader.on("line", (text) => clientDie.dispatch(text).finally(() => reader.prompt()));
+
+   reader.prompt();
+
+-  return () => reader.close();
++  return () => {
++    untail();
++    reader.close();
++  };
+ };
+#+END_SRC
+
+A user turn is NOT printed (his 10-16 walk: readline already echoed the line → =<< whats up= twice; /"fix 1"/): =line()= answers =null= for =role === "user"=, the subscriber skips it. =Span.tail(...verbs)= (=prototypes/span.js:83=) replays the journal on open — =seen= starts at the replay's length so =/chrome/off= prints nothing twice. His =//= lines =:16= stays; =:23= · =:34= sat inside the removed =.use= — his call on the lines.
+
+***** =systems/ghost/app/surface/chrome/index.js= — hunk: paints the chrome (dock ⊕ frame)
+
+#+BEGIN_SRC diff
+// systems/ghost/app/surface/chrome/index.js:1
+ import { tokens } from "@vivalence/dapper";
++import { mime } from "@vivalence/typology";
+…
+// systems/ghost/app/surface/chrome/index.js:23
+-  const erase = paint(renderer.root, renderer, tokens("northsea", "2"), panes.dock, { client });
++  const erase = paint(renderer.root, renderer, tokens("northsea", "2"), panes.chrome, { client, accept: [mime.tty.solid, mime.json] });
+#+END_SRC
+
+=panes= is =./out/panes.mjs= (=:5=), esbuild over =views.js → panes/index.js=: every =.jsx= hunk lands, then =deno run -A systems/ghost/app/surface/chrome/bundle.js= rebuilds it — the served bundle is the evidence (a ZERO IS A CLAIM).
+
+**** app/surface/chrome/panes/
+
+***** =systems/ghost/app/surface/chrome/panes/chrome.jsx= — new: dock ⊕ frame, one row
+
+#+BEGIN_SRC jsx
+// systems/ghost/app/surface/chrome/panes/chrome.jsx
+import { from, Show } from "solid-js";
+import { belt } from "@vivalence/typology";
+import { Dock } from "./dock.jsx";
+import { Frame } from "./frame.jsx";
+
+export function Chrome(props) {
+  const buffer = from(belt.atom.chain(props.client.$active, "$buffer"));
+  return (
+    <box style={{ flexDirection: "row", flexGrow: 1 }}>
+      <Show when={buffer() !== null && buffer() !== undefined}>
+        <box style={{ flexGrow: 1 }}>
+          <Frame client={props.client} accept={props.accept} />
+        </box>
+      </Show>
+      <box style={{ flexGrow: buffer() ? 0 : 1, width: buffer() ? 48 : "auto" }}>
+        <Dock client={props.client} />
+      </box>
+    </box>
+  );
+}
+#+END_SRC
+
+***** =systems/ghost/app/surface/chrome/panes/dock.jsx= — hunk: =send= goes through =dispatch=; the streaming turn below the rows
+
+#+BEGIN_SRC diff
+// systems/ghost/app/surface/chrome/panes/dock.jsx:1
+ import { createSignal, For, from, Show, Switch, Match } from "solid-js";
+-import { steer } from "@vivalence/typology";
+-import { ReplSignal } from "@vivalence/ghost";
+ import { Input } from "../views/Input.jsx";
+…
+// systems/ghost/app/surface/chrome/panes/dock.jsx:57
+ export function Dock(props) {
+   const rows = from(props.client.controller.stdout.tail("message", "fault", "turn"));
++  const streams = from(props.client.controller.stdout.tail("stream"));
++  const live = () => (streams() === undefined || streams().length === 0 ? null : streams().at(-1).data.open);
+   const [draft, setDraft] = createSignal("");
+
+   const send = (line) => {
+     if (line.trim() === "") return;
+     setDraft("");
+-    const signal = new ReplSignal(line);
+-    const replDie = { client: props.client, signal, controller: props.client.controller.branch(signal.pathname) };
+-    steer.dispatch.execute(props.client.repl, replDie, signal);
++    props.client.dispatch(line);
+   };
+…
+// systems/ghost/app/surface/chrome/panes/dock.jsx:80
+         </For>
++        <Show when={live() !== null}>
++          <Turn turn={live()} />
++        </Show>
+       </scrollbox>
+#+END_SRC
+
+=props.client= is the Client; =client.dispatch= hands the line to the active terminal (s4-17). The tail stays on the client's span: every terminal's and thread's span sits under it, so boot messages · answers · turns · =stream= records land in one tail, journal order. A turn hydrated twice (streamed, then flushed) marks twice — the =For= keys on =data.id=, the LAST record wins.
+
+***** =systems/ghost/app/surface/chrome/panes/frame.jsx= — new (bak.3 =chrome/panes/frame.jsx= origin) on =client.$active= and ghost's own views; the door and the hooks are drapes' =Frame.svelte=
+
+#+BEGIN_SRC jsx
+// systems/ghost/app/surface/chrome/panes/frame.jsx
+import { createSignal, from, onCleanup, onMount, Show } from "solid-js";
+import { useRenderer } from "@opentui/solid";
+import { belt, is } from "@vivalence/typology";
+import { JsonTree } from "../views/JsonTree.jsx";
+import { usePalette } from "../palette.js";
+
+const applied = (buffer) => (is.object(buffer.mode) && buffer.mode.implements("APPLICATION") ? from(buffer.mode.$application) : () => null);
+
+const Mounted = (props) => {
+  const palette = usePalette();
+  const renderer = useRenderer();
+  const [fault, setFault] = createSignal(null);
+  let element;
+  let handle = null;
+  onMount(() => {
+    props.buffer.mount();
+    props.bundle
+      .load(props.accept)
+      .then((module) => (handle = module.default(element, { terminal: props.terminal, mode: props.buffer.mode, thread: props.terminal.thread, buffer: props.buffer, renderer, palette, dispatch: props.dispatch })))
+      .catch((error) => setFault(error.message));
+  });
+  onCleanup(() => {
+    if (handle !== null) handle.destroy();
+    props.buffer.unmount();
+  });
+  return (
+    <box style={{ flexDirection: "column", flexGrow: 1 }}>
+      <Show when={fault() !== null}>
+        <text fg={palette.signalNegative}>{`✕ ${fault()}`}</text>
+      </Show>
+      <box ref={element} style={{ flexDirection: "column", flexGrow: 1 }} />
+    </box>
+  );
+};
+
+const Floor = (props) => {
+  const data = from(props.buffer.$data);
+  return <JsonTree data={data()} />;
+};
+
+export function Frame(props) {
+  const palette = usePalette();
+  const terminal = from(props.client.$active);
+  const buffer = from(belt.atom.chain(props.client.$active, "$buffer"));
+  return (
+    <box style={{ flexDirection: "column", flexGrow: 1, paddingLeft: 1, paddingRight: 1 }}>
+      <Show when={buffer()} keyed fallback={<text fg={palette.textMuted}>no buffer</text>}>
+        {(held) => {
+          const bundle = from(held.$bundle);
+          const application = applied(held);
+          const offered = () => (application() === null ? null : bundle() !== null ? bundle().withUrl(application().url) : application().bundle);
+          return (
+            <box style={{ flexDirection: "column", flexGrow: 1 }}>
+              <text fg={palette.textMuted}>{`buffer #${held.id}`}</text>
+              <Show when={offered() !== null && offered().negotiate(props.accept) !== null ? offered() : null} keyed fallback={<Floor buffer={held} />}>
+                {(chosen) => <Mounted terminal={terminal()} buffer={held} bundle={chosen} accept={props.accept} dispatch={(line) => props.client.dispatch(line)} />}
+              </Show>
+            </box>
+          );
+        }}
+      </Show>
+    </box>
+  );
+}
+#+END_SRC
+
+Measured against drapes (=subsystems/drapes/panels/Frame.svelte:64-70=): the mounted module's door is ONE bag =default(target, { terminal, mode, thread, buffer, … })=, =buffer.mount()= before and =unmount()= on teardown, a buffer-drawn bundle gets =withUrl(application.url)=. Ghost adds =renderer · palette · dispatch= (a closure over =client.dispatch=). =commons/fixtures/memo/mode/buffer/memo.jsx:84= follows neither door and is red on =@vivalence/sheets= anyway (BLOCKER, =tests/client.test.js=).
+
+***** =systems/ghost/app/surface/chrome/panes/index.js= — hunk: the chrome and the frame join the bundle's entry
+
+#+BEGIN_SRC diff
+// systems/ghost/app/surface/chrome/panes/index.js:1
+ export { Dock as dock, Message, Turn } from "./dock.jsx";
++export { Chrome as chrome } from "./chrome.jsx";
++export { Frame as frame } from "./frame.jsx";
+#+END_SRC
+
+**** tests/
+
+***** =systems/ghost/tests/client.test.js= — new: the ring against the DEMO world, serial cases on one boot
+
+#+BEGIN_SRC js
+// systems/ghost/tests/client.test.js
+import { Path, mime, specimen, steer } from "@vivalence/typology";
+import * as ghost from "@vivalence/ghost";
+import { boot, DEMO } from "./scenarios/hello.js";
+
+const spoken = (clientDie) => clientDie.controller.stdout.tail("message").get().map((record) => record.data);
+const eventually = async (predicate, ms) => {
+  const deadline = Date.now() + ms;
+  while (!predicate()) {
+    if (Date.now() > deadline) throw new Error(`timed out waiting ${ms}ms`);
+    await new Promise((wake) => setTimeout(wake, 25));
+  }
+};
+
+specimen.describe("the client against a world — attach, sign in, see the runtime, sit on HOME, chat, open the frame", { sanitizeOps: false, sanitizeResources: false }, () => {
+  let world = null;
+  let clientDie = null;
+  specimen.beforeAll(async () => {
+    world = await boot({ recipe: DEMO, prefix: "viva-ring-" });
+    const mask = { ...DEMO.clients[0], reference: new Path("/client/ghost") };
+    clientDie = new ghost.Client({ controller: world.controller.branch("client"), mask, register: await world.registry.wire(mask), instance: world.instance, surface: () => () => {} });
+    steer.dispatch.execute(ghost.client.execution, clientDie);
+  });
+  specimen.afterAll(async () => {
+    await clientDie.dispatch("/quit");
+    await clientDie.controller.settled;
+    await world.stop();
+  });
+
+  specimen.it("boots: lighthouse · signed in · runtime, in order", async () => {
+    await eventually(() => spoken(clientDie).some((data) => data.runtime !== undefined), 30000);
+    specimen.expect(spoken(clientDie).slice(0, 3).map((data) => Object.keys(data)[0])).toEqual(["lighthouse", "user", "runtime"]);
+    specimen.expect(spoken(clientDie)[2]).toEqual({ runtime: "/runtime/house" });
+  });
+
+  specimen.it("a terminal lands on HOME; /modes lists the hosts' modes; /mode srs/memo sets the memo thread; many matches answer the candidates", async () => {
+    await eventually(() => clientDie.active !== null && clientDie.active.thread !== null, 30000);
+    specimen.expect(clientDie.active.mode.reference.absolute).toBe("/runtime/house/mode/home/probe");
+    specimen.expect((await clientDie.dispatch("/modes")).map((row) => row.reference)).toEqual(specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]));
+    specimen.expect(await clientDie.dispatch("/mode srs/memo")).toMatch(/^\/daemon\/memo\/mode\/srs\/memo · thread #/);
+    specimen.expect(await clientDie.dispatch("/mode mode")).toEqual({ which: specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]) });
+  });
+
+  specimen.it("a bare line on a harnessed thread lands two turns on the thread's span; /mode/memo/harness reaches memo by name; on another thread the bare line faults", async () => {
+    await clientDie.dispatch("ciao");
+    await eventually(() => clientDie.controller.stdout.tail("turn").get().length >= 2, 30000);
+    specimen.expect(clientDie.controller.stdout.tail("turn").get().map((record) => record.data.role)).toEqual(["user", "assistant"]);
+    specimen.expect(clientDie.controller.stdout.tail("stream").get().at(-1).data.open).toBe(null);
+    await clientDie.dispatch("/mode/memo/harness ciao");
+    await eventually(() => clientDie.controller.stdout.tail("turn").get().length >= 4, 30000);
+    await clientDie.dispatch("/mode probe");
+    await clientDie.dispatch("ciao").catch(() => {});
+    specimen.expect(clientDie.controller.stdout.tail("fault").get().at(-1).data.code).toBe("NOT_FOUND");
+  });
+
+  specimen.it("/application/start sets the terminal's buffer on the memo thread; /application/stop clears it", async () => {
+    await clientDie.dispatch("/mode srs/memo");
+    specimen.expect(await clientDie.dispatch("/application/start")).toMatch(/^application \/daemon\/memo\/mode\/srs\/memo · buffer #/);
+    specimen.expect(clientDie.active.buffer).not.toBe(null);
+    specimen.expect(clientDie.active.mode.application.bundle.entries.map((entry) => entry.mime)).toContain(mime.tty.solid);
+    specimen.expect(await clientDie.dispatch("/application/stop")).toBe("frame closed");
+    specimen.expect(clientDie.active.buffer).toBe(null);
+  });
+});
+#+END_SRC
+
+=world.registry · world.controller · world.instance= — measured at landing against =systems/runtime/tests/scenarios/hello.js:70-120=; absent → the test mounts paladin on =world.root= by hand. HOME is the probe, HARNESSED nowhere on the DEMO's runtime, so the chat case walks after =/mode memo=. BLOCKER: =commons/fixtures/memo/mode/buffer/memo.jsx:3= imports from =@vivalence/sheets=, mapped NOWHERE — the last case asserts the bundle's MIME, not the mounted view.
+
+***** =systems/ghost/tests/console.test.js= — new: a hosted mode's verbs, no world
+
+#+BEGIN_SRC js
+// systems/ghost/tests/console.test.js
+import { Controller, Path, Span, Vector, shard, specimen, steer } from "@vivalence/typology";
+import { accio } from "@vivalence/runtime/scenarios/registry";
+import * as ghost from "@vivalence/ghost";
+
+const { verbs, modes, surface } = ghost.client;
+const execution = new Vector().use(shard.controller.open).use(verbs).use(modes).use(surface).do(shard.controller.hold);
+
+specimen.describe("a hosted mode lends its verbs to the repl — REPLING composes per line", () => {
+  const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [] };
+  const root = new Controller({ stdout: new Span("ghost") });
+  const clientDie = new ghost.Client({ controller: root.branch("client"), mask, register: null, instance: null, surface: () => () => {} });
+  const tail = clientDie.controller.stdout.tail("message", "fault");
+
+  specimen.it("/hello answers from @commons/home/console; /help lists hello and whoami beside the client's verbs", async () => {
+    clientDie.register = { modes: [await accio({ module: "@commons/home/console", reference: new Path("/mode/home/console") })] };
+    const held = steer.dispatch.execute(execution, clientDie);
+    await clientDie.dispatch("/hello");
+    specimen.expect(tail.get().at(-1).data).toBe("hello from ghost");
+    await clientDie.dispatch("/help");
+    specimen.expect(Object.keys(tail.get().at(-1).data.branches)).toEqual(["help", "quit", "hello", "whoami"]);
+    await clientDie.dispatch("/quit");
+    await held;
+  });
+});
+#+END_SRC
+
+=accio(query)= is the one sanctioned reach into another package (=world/codemap/map.md=). No world: the rig is the client's own beats up to the surface — the same functions =client/execution.js= chains, exported by name. =chrome= is absent: the factory grafts it, not the rig. =register: null · instance: null= — the beats up to =surface= read neither.
+
+***** =systems/ghost/tests/repl.test.js= — hunk: the die's shape; a graft after boot answers on the next line
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/repl.test.js:1
+-import { Controller, Span, Vector, specimen, steer } from "@vivalence/typology";
+-import { ReplSignal } from "@vivalence/ghost";
+-import { execution } from "../app/client/index.js";
++import { Controller, Path, Span, Vector, shard, specimen, steer } from "@vivalence/typology";
++import * as ghost from "@vivalence/ghost";
++
++const { verbs, modes, surface } = ghost.client;
++const execution = new Vector().use(shard.controller.open).use(verbs).use(modes).use(surface).do(shard.controller.hold);
+…
+// systems/ghost/tests/repl.test.js:9
+-  const client = { controller: ghost.branch("client"), repl: new Vector(), surface: () => () => {}, erase: null };
+-  const held = steer.dispatch.execute(execution, client);
+-  const dispatch = (line) => {
+-    const signal = new ReplSignal(line);
+-    return steer.dispatch.execute(client.repl, { client, signal, controller: client.controller.branch(signal.pathname) }, signal);
+-  };
++  const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [] };
++  const client = new ghost.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface: () => () => {} });
++  const held = steer.dispatch.execute(execution, client);
++  const dispatch = (line) => client.dispatch(line);
+…
+// systems/ghost/tests/repl.test.js:8
+-  const ghost = new Controller({ stdout: new Span("ghost") });
++  const root = new Controller({ stdout: new Span("ghost") });
+…
+// systems/ghost/tests/repl.test.js:20
+-    specimen.expect(Object.keys(tail.get()[0].data.branches)).toEqual(["help", "chrome", "quit", "*"]);
+-    specimen.expect(Object.keys(tail.get()[0].data.branches.chrome.branches)).toEqual(["on", "off"]);
++    specimen.expect(Object.keys(tail.get()[0].data.branches)).toEqual(["help", "quit"]);
+…
+// systems/ghost/tests/repl.test.js:26
+-  specimen.it("a bare line lands two turns, user then assistant, and no message", async () => {
+-    await dispatch("ciao");
+-    specimen.expect(verbs(tail)).toEqual(["message", "turn", "turn"]);
+-    specimen.expect(tail.get().slice(1).map((record) => record.data.role)).toEqual(["user", "assistant"]);
+-    specimen.expect(tail.get()[2].data.parts).toEqual([{ type: "text", text: "echo: ciao" }]);
+-  });
++  specimen.it("a bare line with no terminal is NotFound — a fault on the line's branch /*", async () => {
++    await dispatch("ciao");
++    specimen.expect(verbs(tail)).toEqual(["message", "fault"]);
++    specimen.expect(tail.get()[1].path).toBe("/ghost/client/*");
++  });
+…
+// systems/ghost/tests/repl.test.js:35
+-    specimen.expect(verbs(tail)).toEqual(["message", "turn", "turn", "fault"]);
+-    specimen.expect(tail.get()[3].path).toBe("/ghost/client/typo");
++    specimen.expect(verbs(tail)).toEqual(["message", "fault", "fault"]);
++    specimen.expect(tail.get()[2].path).toBe("/ghost/client/typo");
+…
+// systems/ghost/tests/repl.test.js:41
+-    specimen.expect(verbs(client.controller.stdout.tail("fault"))).toEqual(["fault"]);
++    specimen.expect(verbs(client.controller.stdout.tail("fault"))).toEqual(["fault", "fault"]);
+…
+// systems/ghost/tests/repl.test.js:43
++  specimen.it("a vector grafted onto the client's repl after boot answers on the next line — composition is per line", async () => {
++    client.repl.graft(new Vector().open({ nature: "/late", valence: "grafted after boot. Example: /late" }, () => "late"));
++    await dispatch("/late");
++    specimen.expect(tail.get().at(-1).data).toBe("late");
++  });
+#+END_SRC
+
+The test's =verbs= helper (=:5=) and the module namespace =ghost= would collide with the old =const ghost= controller (=:8=) → the controller is =root=. The three reds of 10-16 go green by the message beat; the =chrome= expectation leaves with the door's verb (the rig does not graft it); a bare line with no terminal is a miss on =/ghost/client/*= (=ReplSignal= maps bare text to pathname =/*=, probed 10-16).
+
+**** tests/scenarios/
+
+***** =systems/ghost/tests/scenarios/hello.js= — new: the DEMO holds the console and the memo daemon
+
+#+BEGIN_SRC js
+// systems/ghost/tests/scenarios/hello.js
+import paladin from "@vivalence/paladin";
+import { hello } from "@vivalence/runtime/scenarios";
+
+export const MEMO = await paladin.read.json(paladin.scope.repository.branch("commons/fixtures/memo/instance/instance.viva.json"));
+
+export const RECIPE = {
+  ...hello.RECIPE,
+  hallucinators: [{ module: "@commons/hallucinator/stub" }],
+  daemons: [...hello.RECIPE.daemons, ...MEMO.daemons],
+};
+
+export const DEMO = {
+  ...RECIPE,
+  lighthouse: { ...RECIPE.lighthouse, traits: ["JOINABLE", "AUTOLOGIN"] },
+  clients: [
+    {
+      manifest: { type: "client", slug: "ghost", traits: ["HOME"] },
+      modes: ["@commons/home/console"],
+      trait: { HOME: { reference: "/runtime/house/mode/home/probe" } },
+    },
+  ],
+};
+
+export const boot = (options = {}) => hello.boot({ prefix: "viva-ghost-", recipe: RECIPE, ...options });
+#+END_SRC
+
+**** typology/
+
+***** =systems/ghost/typology/activity.js= — new: one file — Activity (the controller holds the status, s4-9 · s4-23) · repository · hydration
+
+#+BEGIN_SRC js
+// systems/ghost/typology/activity.js
+import { Controller, RemoteRepository, Span, Vector, v } from "@vivalence/typology";
+import { Entity } from "./prototypes/entity.js";
+
+export class Activity extends Entity {
+  user;
+  mode;
+  thread;
+  buffer;
+  turn;
+  type;
+  steps = [];
+  controller = new Controller({ stdout: new Span("activity") });
+
+  get status() {
+    return this.controller.status.reflection.code;
+  }
+  set status(code) {
+    this.controller.status.set(code);
+  }
+  set error(error) {
+    if (error !== null) this.controller.status.set({ error });
+  }
+
+  toJSON() {
+    const { controller, ...base } = super.toJSON();
+    return { ...base, status: this.status };
+  }
+}
+
+export const repository = (dataspace) => new RemoteRepository(Activity).connect(dataspace.runtime.connection.branch("/userspace/entities/activity"));
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  const remote = ctx.runtime.connection.branch(`/userspace/entities/activity/${ctx.entity.id}`);
+  for (const name of Object.keys(v.primitives.controller.MACHINE.signals)) ctx.entity.controller.stdin.open(name, (signalDie) => remote.call(`/stdin/${name}`, signalDie.input));
+});
+#+END_SRC
+
+The server's answer (s4-9): an Activity row OWNS a =Controller= (=systems/runtime/entities/Activity.ts:74-83=); =/:id/stdin/<SIG>= dispatches it on the wire (=lifecycle/runtime/aperture/userspace.js:25-44=). The client mirrors it on the PROTOTYPE: the row's columns arrive by =Object.assign(new kind(), raw)= (=entity-manager.js:98=) before any beat, so =set status · set error= POUR them into =controller.status= (s4-23). The stdin verbs are RE-OPENED onto the remote (=open= replaces the effect, =prototypes/vector.js:42=). =steps= stays a column. The =/stdout= pump is the crown's — =* deferred=. One file: a row with hydration and no trait (the structure law).
+
+***** =systems/ghost/typology/buffer.js= — new: one file — Buffer · repository · hydration (empty)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/buffer.js
+import { atom, computed, deepMap } from "nanostores";
+import { fn, Bundle, RemoteRepository, Vector } from "@vivalence/typology";
+import { Entity } from "./prototypes/entity.js";
+
+export class Buffer extends Entity {
+  $data = atom({});
+  get data() {
+    return this.$data.get();
+  }
+  set data(value) {
+    this.$data.set(value ?? {});
+  }
+
+  $bundle = atom(null);
+  get bundle() {
+    return this.$bundle.get();
+  }
+  set bundle(record) {
+    this.$bundle.set(!record || record instanceof Bundle ? record : new Bundle(record));
+  }
+
+  $traits = atom([]);
+  get traits() {
+    return this.$traits.get();
+  }
+  set traits(value) {
+    this.$traits.set(value ?? []);
+  }
+
+  $trait = deepMap({});
+  get trait() {
+    return this.$trait.get();
+  }
+  set trait(value) {
+    this.$trait.set(value ?? {});
+  }
+
+  $label = computed(this.$trait, (trait) => trait.LABELED ?? null);
+  get label() {
+    return this.$label.get();
+  }
+
+  toJSON() {
+    const { $data, $bundle, $traits, $trait, ...base } = super.toJSON();
+    return { ...base, data: this.data, bundle: this.bundle, traits: this.traits, trait: this.trait };
+  }
+
+  context = null;
+  hooks = { mount: [], unmount: [], release: [] };
+  on = {
+    mount: (callback) => {
+      this.hooks.mount.push(fn.once(callback));
+      return this;
+    },
+    unmount: (callback) => {
+      this.hooks.unmount.push(fn.once(callback));
+      return this;
+    },
+    release: (callback) => {
+      this.hooks.release.push(fn.once(callback));
+      return this;
+    },
+  };
+  mount() {
+    for (const hook of this.hooks.mount) hook(this);
+  }
+  unmount() {
+    for (const hook of this.hooks.unmount) hook(this);
+  }
+  release(...detail) {
+    for (const hook of this.hooks.release) hook(this, ...detail);
+  }
+}
+
+export const repository = (dataspace) => new RemoteRepository(Buffer).connect(dataspace.runtime.connection.branch("/userspace/entities/buffer"));
+
+export const hydration = new Vector();
+#+END_SRC
+
+bak.3 =prototypes/buffer.js= origin, the =??= on the setters are its own over the wire's =null= columns. Fourth pass carried.
+
+***** =systems/ghost/typology/index.js= — hunk: the package — the nouns, the =entities= map the Dataspace reads, the flat classes
+
+#+BEGIN_SRC diff
+// systems/ghost/typology/index.js:1
+ export * from "./prototypes/index.js";
+ export * as prototypes from "./prototypes/index.js";
++export * as gestalten from "./gestalten/index.js";
++export { belt, shard } from "./gestalten/index.js";
++import * as activity from "./activity.js";
++import * as buffer from "./buffer.js";
++import * as client from "./client/index.js";
++import * as daemon from "./daemon/index.js";
++import * as lighthouse from "./lighthouse/index.js";
++import * as mode from "./mode/index.js";
++import * as runtime from "./runtime/index.js";
++import * as terminal from "./terminal/index.js";
++import * as thread from "./thread/index.js";
++import * as turn from "./turn.js";
++export { activity, buffer, client, daemon, lighthouse, mode, runtime, terminal, thread, turn };
++export const entities = { activity, buffer, daemon, mode, terminal, thread, turn };
++export { Client } from "./client/client.js";
++export { Runtime } from "./runtime/runtime.js";
++export { Lighthouse, STANDINGS } from "./lighthouse/lighthouse.js";
+#+END_SRC
+
+=import { entities } from "@vivalence/ghost"= → the seven row modules by the NAME the em registers under; each exports =repository(dataspace)= and =hydration= (one file or a barrel). =ghost.client.execution= · =ghost.client.verbs= — the noun namespaces are the public surface. Every import INSIDE =typology/= is relative (the package never self-imports — m82's 73 self-imports). Census: =deno info systems/ghost/typology/index.js | grep -c paladin= → 0.
+
+***** =systems/ghost/typology/turn.js= — new: one file — Turn · repository · hydration (one beat: a turn on the active terminal's thread marks)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/turn.js
+import { RemoteRepository, Vector } from "@vivalence/typology";
+import { Entity } from "./prototypes/entity.js";
+
+export class Turn extends Entity {
+  role = null;
+  parts = [];
+  meta = null;
+  thread = null;
+  mode = null;
+  parent = null;
+}
+
+export const repository = (dataspace) => new RemoteRepository(Turn).connect(dataspace.runtime.connection.branch("/userspace/entities/turn"));
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  if (ctx.entity.thread.controller !== null) ctx.entity.thread.controller.stdout.mark("turn", ctx.entity);
+});
+#+END_SRC
+
+Runs per merge: a turn of the ACTIVE terminal's thread (=thread.controller= set by =client/execution.js thread=) lands on =/ghost/client/terminal/<id>/thread/<id>= — in the client's tail. =ctx.entity.thread= is the live row: the em resolves the relation before merging (=entity-manager.js:161-166=) and every thread is found before any turn (=client/execution.js rows=, in order).
+
+**** typology/client/
+
+***** =systems/ghost/typology/client/client.js= — new: the Client IS the client die; =dispatch= is its method (s4-2 · s4-17); =instance= rides it (s4-37)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/client/client.js
+import { atom } from "nanostores";
+import { Vector, fromm } from "@vivalence/typology";
+import * as shard from "../gestalten/shard/index.js";
+
+export class Client {
+  controller = null;
+  mask = null;
+  register = null;
+  instance = null;
+  surface = null;
+  unmount = null;
+  booted = null;
+  modes = {};
+  repl = new Vector();
+  runtime = null;
+  $active = atom(null);
+
+  constructor(client) {
+    Object.assign(this, client);
+  }
+
+  get active() {
+    return this.$active.get();
+  }
+
+  dispatch(line) {
+    return shard.repl.dispatch(this, this.active, line);
+  }
+
+  get json() {
+    return { mask: this.mask, modes: fromm.modes(this.modes).flat.map((mode) => mode.reference.absolute), terminal: this.active === null ? null : this.active.id };
+  }
+}
+#+END_SRC
+
+The door's fields (=controller · mask · register · instance · surface · unmount · booted=) and the client's (=modes · repl · runtime · $active=) on ONE object, built as the server's =Runtime= is (=systems/runtime/run.js:15=). =instance= is paladin's settled instance; a beat reads =clientDie.instance.paladin.ledger= · =.scope=, never the paladin module. A child die names it: ={ client: clientDie, controller, <noun> }=.
+
+***** =systems/ghost/typology/client/execution.js= — new: every beat of the client's boot, inline, one Vector (s4-3); the fourth pass's =population · resolution · integration= files folded
+
+#+BEGIN_SRC js
+// systems/ghost/typology/client/execution.js
+import { Connection, Path, Url, belt, fromm, middleware, object, shard, steer, traits } from "@vivalence/typology";
+import { Dataspace } from "../prototypes/dataspace.js";
+import * as commands from "./commands/index.js";
+import * as catalog from "./traits/index.js";
+import * as lighthouse from "../lighthouse/index.js";
+import * as mode from "../mode/index.js";
+import * as runtimeHost from "../runtime/index.js";
+import * as daemonHost from "../daemon/index.js";
+import * as terminalProcess from "../terminal/index.js";
+import * as threadProcess from "../thread/index.js";
+import * as activity from "../activity.js";
+import * as buffer from "../buffer.js";
+import * as turn from "../turn.js";
+import { Runtime } from "../runtime/runtime.js";
+import { Lighthouse } from "../lighthouse/lighthouse.js";
+
+const INHERITED = ["PATH", "HOME", "TMPDIR", "XDG_CONFIG_HOME", "TERM", "LANG", "DENO_DIR", "NO_COLOR"];
+const carried = (key) => INHERITED.includes(key) || (/^(VIVA|PUBLIC_VIVA|SECRET_VIVA)_/.test(key) && key !== "VIVA_PROCESS_ID");
+const HOSTS = { runtime: runtimeHost.execution, daemon: daemonHost.execution };
+
+const specs = (instance) => {
+  const mount = instance.home.absolute;
+  const repository = instance.paladin.scope.repository.absolute;
+  return [
+    {
+      identity: { process: "runtime", mount },
+      serve: instance.runtime.statics.serve.absolute,
+      command: {
+        bin: Deno.execPath(),
+        args: ["run", "-A", "--config", `${repository}/deno.jsonc`, `${repository}/systems/runtime/run.js`],
+        cwd: mount,
+        env: { ...object.filter(Deno.env.toObject(), carried), VIVA_INSTANCE_MOUNT: mount, VIVA_LEDGER_MOUNT: instance.paladin.scope.ledger.absolute, VIVA_REPOSITORY_MOUNT: repository },
+      },
+    },
+  ];
+};
+
+const reached = (remote) => new Connection(remote).call("/status").then(() => true, () => false);
+
+export const verbs = async (clientDie, next) => {
+  clientDie.repl.graft(commands.help, commands.quit);
+  await next();
+};
+
+export const modes = async (clientDie, next) => {
+  for (const citizen of clientDie.register.modes)
+    (clientDie.modes[citizen.manifest.type] ??= {})[citizen.manifest.slug] = Object.assign(new mode.Mode(citizen), { stdout: clientDie.controller.stdout.branch(citizen.reference.absolute) });
+  for (const held of fromm.modes(clientDie.modes).flat)
+    await steer.dispatch.execute(mode.execution, { mode: held, client: clientDie, controller: clientDie.controller });
+  try {
+    await next();
+  } finally {
+    for (const held of fromm.modes(clientDie.modes).flat) held.stdout.close();
+  }
+};
+
+export const surface = async (clientDie, next) => {
+  clientDie.unmount = await clientDie.surface(clientDie);
+  try {
+    await next();
+  } finally {
+    clientDie.unmount();
+  }
+};
+
+export const runtime = async (clientDie, next) => {
+  const remote = new Url(clientDie.instance.runtime.statics.remote);
+  if (!(await reached(remote))) {
+    const held = await clientDie.instance.paladin.ledger.instances.lookup(clientDie.instance.home.absolute);
+    if (held === null) throw new Error(`runtime ${remote.absolute} unreachable, and ${clientDie.instance.home.absolute} is no instance of this ledger — not this machine's to start`);
+    clientDie.controller.stdout.message({ booting: held.slug, log: clientDie.instance.paladin.scope.ledger.branch(`logs/${held.slug}/runtime.out.log`).absolute });
+    clientDie.booted = await clientDie.instance.paladin.ledger.boot(specs(clientDie.instance), { instance: held.slug, attachment: "logged" });
+    await clientDie.booted.integrate();
+  }
+  try {
+    await next();
+  } finally {
+    if (clientDie.booted !== null) await clientDie.booted.disintegrate();
+  }
+};
+
+export const connection = async (clientDie, next) => {
+  clientDie.runtime = new Runtime({ remote: new Url(clientDie.instance.runtime.statics.remote) });
+  clientDie.runtime.lighthouse = Object.assign(new Lighthouse(), { stdout: clientDie.controller.stdout.branch("lighthouse") });
+  const multiplex = shard.transmitter.multiplex({ authority: clientDie.runtime.lighthouse.$authority });
+  clientDie.runtime.connection = new Connection(clientDie.runtime.remote, shard.transmitter.retry(multiplex, { maxRetries: 2 }))
+    .use(shard.track.request())
+    .use(shard.track.fault())
+    .use(shard.connection.authorize(clientDie.runtime.lighthouse.$authority))
+    .use(shard.connection.timeout(8000));
+  clientDie.runtime.lighthouse.connection = clientDie.runtime.connection;
+  clientDie.runtime.lighthouse.manifest = await clientDie.runtime.connection.call("/lighthouse/metadata");
+  clientDie.controller.stdout.message({ lighthouse: clientDie.runtime.remote.absolute, traits: clientDie.runtime.lighthouse.manifest.traits });
+  try {
+    await next();
+  } finally {
+    multiplex.close();
+  }
+};
+
+export const authorized = (clientDie, next) =>
+  middleware.compose(lighthouse.execution.carry)({ client: clientDie, controller: clientDie.controller }, next);
+
+export const dataspace = async (clientDie, next) => {
+  clientDie.runtime.manifest = await clientDie.runtime.connection.call("/metadata/manifest");
+  clientDie.runtime.reference = new Path(`/runtime/${clientDie.runtime.manifest.slug}`);
+  clientDie.runtime.aperture = clientDie.runtime.connection.branch(clientDie.runtime.reference.absolute);
+  clientDie.runtime.entities = new Dataspace({
+    runtime: clientDie.runtime,
+    entities: { activity, buffer, daemon: daemonHost, mode, terminal: terminalProcess, thread: threadProcess, turn },
+    seed: (boot) => boot.use(shard.context.bind("client", clientDie)).use(shard.context.bind("runtime", clientDie.runtime)),
+  });
+  await clientDie.runtime.entities.init();
+  clientDie.controller.stdout.message({ runtime: clientDie.runtime.reference.absolute });
+  await next();
+};
+
+export const rows = async (clientDie, next) => {
+  await clientDie.runtime.entities.daemon.find();
+  await clientDie.runtime.entities.thread.find();
+  await clientDie.runtime.entities.buffer.find();
+  await clientDie.runtime.entities.turn.find();
+  await clientDie.runtime.entities.activity.find();
+  await clientDie.runtime.entities.terminal.find();
+  const offs = [
+    clientDie.runtime.entities.thread.subscribe(),
+    clientDie.runtime.entities.buffer.subscribe(),
+    clientDie.runtime.entities.turn.subscribe(),
+    clientDie.runtime.entities.activity.subscribe(),
+    clientDie.runtime.entities.terminal.subscribe(),
+  ];
+  try {
+    await next();
+  } finally {
+    for (const off of offs) off();
+  }
+};
+
+export const hosts = async (clientDie, next) => {
+  for (const held of [clientDie.runtime, ...clientDie.runtime.entities.daemon.$entities.get()])
+    steer.dispatch.execute(HOSTS[held.type], { client: clientDie, [held.type]: held, controller: clientDie.controller.branch(held.reference.absolute) }).catch((error) => held.$status.set({ code: "ERROR", error }));
+  await next();
+};
+
+export const terminals = async (clientDie, next) => {
+  const held = new Map();
+  const reconcile = (rows) => {
+    for (const row of rows) {
+      if (held.has(row.id)) continue;
+      row.controller = clientDie.controller.branch(`terminal/${row.id}`);
+      held.set(row.id, row.controller);
+      steer.dispatch.execute(terminalProcess.execution, { client: clientDie, controller: row.controller, terminal: row }).catch((error) => row.controller.stdout.fault(error));
+    }
+    for (const [id, controller] of held) {
+      if (rows.some((row) => row.id === id)) continue;
+      controller.abort.abort("removed");
+      held.delete(id);
+    }
+  };
+  const off = clientDie.runtime.entities.terminal.$entities.subscribe(reconcile);
+  try {
+    await next();
+  } finally {
+    off();
+    for (const controller of held.values()) controller.abort.abort("client stopped");
+  }
+};
+
+export const staggered = async (clientDie, next) => {
+  for (const finalize of await traits.stagger(clientDie.mask, clientDie, catalog)) await finalize();
+  try {
+    await next();
+  } finally {
+    if ("terminators" in clientDie.mask) for (const terminate of clientDie.mask.terminators.reverse()) await terminate();
+  }
+};
+
+export const thread = async (clientDie, next) => {
+  let current = null;
+  let release = null;
+  const derive = () => {
+    const active = clientDie.$active.get();
+    const row = active === null ? null : active.thread;
+    if (current === row) return;
+    current = row;
+    if (release !== null) release();
+    release = null;
+    if (row === null) return;
+    row.controller = active.controller.branch(`thread/${row.id}`);
+    release = () => row.controller.abort.abort("thread unset");
+    steer.dispatch.execute(threadProcess.execution, { client: clientDie, controller: row.controller, thread: row }).catch((error) => row.controller.stdout.fault(error));
+  };
+  let bound = null;
+  const rebind = () => {
+    if (bound !== null) bound();
+    const active = clientDie.$active.get();
+    bound = active === null ? null : active.$thread.listen(derive);
+    derive();
+  };
+  const off = clientDie.$active.listen(rebind);
+  rebind();
+  try {
+    await next();
+  } finally {
+    off();
+    if (bound !== null) bound();
+    if (release !== null) release();
+  }
+};
+
+export const active = async (clientDie, next) => {
+  const rows = clientDie.runtime.entities.terminal.$entities.get();
+  clientDie.$active.set(rows.length === 0 ? await clientDie.runtime.entities.terminal.create({}) : rows[0]);
+  await next();
+};
+
+export const execution = new Vector()
+  .use(shard.controller.open)
+  .use(verbs)
+  .use(modes)
+  .use(surface)
+  .use(runtime)
+  .use(connection)
+  .use(authorized)
+  .use(dataspace)
+  .use(rows)
+  .use(hosts)
+  .use(terminals)
+  .use(staggered)
+  .use(thread)
+  .use(active)
+  .do(shard.controller.hold);
+#+END_SRC
+
+One file, the beats exported by name (the rigs chain a prefix of them) and the Vector last — OTP's =init= with its supervisor spec at the bottom. The surface mounts BEFORE the runtime beats: the dock shows «booting …» · «lighthouse …» · «user …» · «runtime …» · «terminal #1» · «home …» as they land. Each beat closes what it opened in its own =finally=.
+
+=verbs=: =help · quit= — the door's =chrome= is grafted by the factory; the terminal's =*= is grafted per line by =shard.repl.compose=. =modes=: the citizens are the door's register; =new mode.Mode(citizen)= is ghost's ONE Mode as a hosted citizen (s4-36); the hosted die is ={ mode, client, controller }= — =mode/execution.js= imports its own catalog (s4-39). =runtime=: THE LEDGER DECIDES (s4-18): =instance.paladin.ledger.instances.lookup(home)= (=instances.js:45=) null → not ours, a loud throw; else =ledger.boot= (=ledger.js:91=, refuses a port another instance holds) then =integrate= (s4-30). No paladin import: =clientDie.instance= carries it (s4-37). =connection=: the multiplex is this beat's closure (s4-20); the Lighthouse's =stdout= is handed by =Object.assign= (s4-21); =authorize= rides the ROOT connection. =authorized=: the lighthouse's execution over its own die ={ client, controller }= — =controller= is the CLIENT's (as the mode beats hand it): a =branch("lighthouse")= nobody opened sits IDLE, =proceed()= answers false and the beat returns SILENT (measured 10-16: the client hung after «lighthouse …»); the lighthouse's =$status= marks ride =lighthouse.stdout= (s4-21), not this controller. =dataspace=: the seven row modules by name, a dir noun by its barrel (=daemonHost= · =mode= · =terminalProcess= · =threadProcess= export =repository · hydration=). =rows=: six finds, five subscriptions, spelled (his /"just write the subscriptions out"/). =hosts=: each host boots under its TYPE as the die key (s4-6), fire-and-forget; a fault → =$status= ERROR, =client/traits/home.js HOME= throws it. =staggered=: the client's OWN traits (=mask.traits=, today =["HOME"]=) over =client/traits/index.js=, after =terminals= so a seated row has its controller; the =terminators= idiom is =lifecycle/service/resolution.js:10=. LANDED 10-16: a client's =traits= ride =manifest.traits= (=instance.js=, his go) — exactly what =stagger= reads (=belt/traits.js:8=); the ledger rows below say so. =terminals · thread=: a row becomes a PROCESS while the client attends it — controller branched where met, its =execution= run, aborted when it leaves (the structure law: resident = row + controller + execution). =active= takes the first terminal (anima remembers, =* deferred=).
+
+***** =systems/ghost/typology/client/traits/home.js= — new: HOME, the CLIENT's trait (s4-40) — a terminal met with no thread sits in the HOME mode
+
+#+BEGIN_SRC js
+// systems/ghost/typology/client/traits/home.js
+import { belt, is, v } from "@vivalence/typology";
+
+const SETTLED = ["HEALTHY", "ERROR"];
+
+export const HOME = (mask, clientDie) => {
+  const seat = async (terminal) => {
+    const user = v.user.trait(clientDie.runtime.lighthouse.user, "HOME");
+    const home = is.string(user.reference) ? user.reference : mask.trait.HOME.reference;
+    const owner = [clientDie.runtime, ...clientDie.runtime.entities.daemon.$entities.get()].find((held) => home.startsWith(`${held.reference.absolute}/`));
+    if (owner === undefined) throw new Error(`${home}: no host of ${clientDie.runtime.reference.absolute} owns it`);
+    const status = await belt.atom.until(owner.$status, (held) => SETTLED.includes(held.code), clientDie.controller.abort.signal);
+    if (status.code === "ERROR") throw status.error;
+    const mode = owner.modes.find((held) => held.reference.absolute === home);
+    if (mode === undefined) throw new Error(`${home}: no such mode on ${owner.reference.absolute}`);
+    const thread = await clientDie.runtime.entities.thread.create({ mode: mode.id });
+    await terminal.setThread(thread);
+    terminal.controller.stdout.message({ home, thread: thread.id });
+  };
+  const seated = new Set();
+  const off = clientDie.runtime.entities.terminal.$entities.subscribe((rows) => {
+    for (const row of rows) {
+      if (row.thread !== null || seated.has(row.id)) continue;
+      seated.add(row.id);
+      seat(row).catch((error) => row.controller.stdout.fault(error));
+    }
+  });
+  return { terminate: off };
+};
+#+END_SRC
+
+The runtime's shape, measured: =AUTOLOGIN = (lighthouse, runtime) => …= reads =lighthouse.trait.AUTOLOGIN= STRAIGHT (=lifecycle/lighthouse/traits/autologin.js:18=) — the stagger already gated it (the function runs only for a declared name, =belt/traits.js:8-9=). So =HOME(mask, clientDie)= reads =mask.trait.HOME.reference= with no claim; the USER's HOME is ANOTHER row's trait → =v.user.trait(user, "HOME")= (=v.js:135=, vocabulary =user.js:14=), the empty ={}= when the user claims none. The trait is REACTIVE: every terminal row that arrives with =thread === null= is seated once (=seated=); the subscription is the trait's =terminate=. Runs after =client/execution.js terminals= (the row's =controller= is set there) — the fault of a seat lands on the terminal's span. HOME this stretch names a HOST mode: on his ledger =/runtime/runtime/mode/harness/runtime= (HARNESSED · AGENTIC, =commons/harnesses/runtime/runtime-harness.viva.js:9=).
+
+***** =systems/ghost/typology/client/traits/index.js= — new: the catalog (s4-39)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/client/traits/index.js
+export { HOME } from "./home.js";
+#+END_SRC
+
+***** =systems/ghost/typology/client/index.js= — new: the barrel
+
+#+BEGIN_SRC js
+// systems/ghost/typology/client/index.js
+export { Client } from "./client.js";
+export * from "./execution.js";
+export * from "./traits/index.js";
+export * as commands from "./commands/index.js";
+#+END_SRC
+
+=ghost.client.execution= · =ghost.client.verbs= · =ghost.client.HOME= · =ghost.client.commands.help=.
+
+**** typology/client/commands/
+
+***** =systems/ghost/typology/client/commands/help.js= — mv ← =app/client/commands/help.js=; hunk: the listing is the vector this line runs on (s4-29)
+
+#+BEGIN_SRC diff
+// systems/ghost/typology/client/commands/help.js:5
+-  (ctx) => shape.strip(ctx.client.repl),
++  (ctx) => shape.strip(ctx.repl),
+#+END_SRC
+
+=ctx.client.repl= is the client's STATIC verbs alone; =/help= must list =hello= beside them (=tests/console.test.js=) and =/mode/memo/harness= on a terminal — =ctx.repl=, the composition.
+
+***** =systems/ghost/typology/client/commands/index.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/client/commands/index.js
+export { help } from "./help.js";
+export { quit } from "./quit.js";
+#+END_SRC
+
+***** =systems/ghost/typology/client/commands/quit.js= — mv ← =app/client/commands/quit.js=, unchanged
+
+#+BEGIN_SRC js
+// systems/ghost/typology/client/commands/quit.js
+import { Vector } from "@vivalence/typology";
+
+export const quit = new Vector().open(
+  { nature: "/quit", valence: "leave — the client stops, the shell exits 0. Example: /quit" },
+  (ctx) => ctx.client.controller.kill("SIGTERM", "quit"),
+);
+#+END_SRC
+
+**** typology/daemon/
+
+***** =systems/ghost/typology/daemon/daemon.js= — new: Daemon (a host) · repository (the roster) · hydration
+
+#+BEGIN_SRC js
+// systems/ghost/typology/daemon/daemon.js
+import { atom } from "nanostores";
+import { Path, RemoteRepository, Vector } from "@vivalence/typology";
+import { Entity } from "../prototypes/entity.js";
+
+export class Daemon extends Entity {
+  type = "daemon";
+  id = null;
+  slug = null;
+  reference = null;
+  manifest = null;
+  statics = null;
+  connection = null;
+  aperture = null;
+  call = null;
+  cortex = null;
+  cargo = null;
+  entities = null;
+  runtime = null;
+  $status = atom({ code: "IDLE" });
+
+  get status() {
+    return this.$status.get();
+  }
+  get modes() {
+    return this.runtime.entities.mode.$entities.get().filter((mode) => mode.daemon === this);
+  }
+
+  toJSON() {
+    return { id: this.id, slug: this.slug, reference: this.reference === null ? null : this.reference.absolute, manifest: this.manifest, status: this.status };
+  }
+}
+
+export const repository = (dataspace) => {
+  const repo = new RemoteRepository(Daemon).connect(dataspace.runtime.connection.branch("/metadata/daemons"));
+  repo.find = async () => {
+    const roster = await dataspace.runtime.connection.call("/metadata/daemons");
+    return repo.epoch(() => Promise.all(roster.map((row) => repo.cast({ id: row.slug, slug: row.slug, reference: row.reference }))));
+  };
+  return repo;
+};
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  ctx.entity.runtime = ctx.runtime;
+  ctx.entity.reference = new Path(ctx.raw.reference);
+  ctx.entity.connection = ctx.runtime.connection.branch(ctx.raw.reference);
+  ctx.entity.aperture = ctx.entity.connection;
+  ctx.entity.entities = { mode: ctx.dataspace.branch(ctx.entity.aperture, "mode") };
+});
+#+END_SRC
+
+ONE Daemon class on the client (the runtime's two are its own, =* deferred=). =type = "daemon"= names the die key the host boots under (=shard.host=). =modes= is this daemon's SLICE of the one =mode= store (s4-20); =entities = { mode }= because a host serves exactly =/entities/mode= (=systems/runtime/gestalten/shard/host.js:70-75=, s4-22). The daemon's connection is a BRANCH of the runtime's — one multiplex (/"we multiplex on runtime"/).
+
+***** =systems/ghost/typology/daemon/execution.js= — new: a daemon host, five thunks under =daemon=
+
+#+BEGIN_SRC js
+// systems/ghost/typology/daemon/execution.js
+import { Vector, shard } from "@vivalence/typology";
+import { host } from "../gestalten/shard/index.js";
+
+export const execution = new Vector().use(host.status("daemon")).use(host.metadata("daemon")).use(host.cortex("daemon")).use(host.modes("daemon")).use(host.mounted("daemon")).do(shard.controller.hold);
+#+END_SRC
+
+Two wrappers (=runtime/execution.js= the other), two literals — the runtime's own shape (=lifecycle/runtime/aperture/host.js:3-15= with =die.runtime=, =lifecycle/daemon/aperture/host.js:3-15= with =die.daemon=).
+
+***** =systems/ghost/typology/daemon/index.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/daemon/index.js
+export { Daemon, repository, hydration } from "./daemon.js";
+export { execution } from "./execution.js";
+#+END_SRC
+
+**** typology/gestalten/
+
+***** =systems/ghost/typology/gestalten/index.js= — new: the barrels
+
+#+BEGIN_SRC js
+// systems/ghost/typology/gestalten/index.js
+export * as belt from "./belt/index.js";
+export * as shard from "./shard/index.js";
+#+END_SRC
+
+**** typology/gestalten/belt/
+
+***** =systems/ghost/typology/gestalten/belt/harness.js= — new: =stream(mode, thread, parts)=, plain over data
+
+#+BEGIN_SRC js
+// systems/ghost/typology/gestalten/belt/harness.js
+import { soma } from "@vivalence/typology";
+
+export const stream = async (mode, thread, parts) => {
+  let transcript = null;
+  try {
+    for await (const packet of mode.harness.dialogue.stream({ thread: thread.id, id: crypto.randomUUID(), parts })) thread.controller.stdout.mark("stream", (transcript = soma.transcript(transcript, packet)));
+  } finally {
+    thread.controller.stdout.mark("stream", { ...transcript, open: null });
+  }
+};
+#+END_SRC
+
+ONE body both callers share (=terminal/commands/turn.js= · =mode/traits/harnessed.js=); no fs, no paladin → =belt=. Every packet folds into the transcript (=soma.transcript=, =gestalten/belt/soma.js:33=) and marks a =stream= record on the THREAD's span; the final mark closes it. The turns themselves arrive by subscription and mark on the same span (=turn.js hydration=).
+
+***** =systems/ghost/typology/gestalten/belt/index.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/gestalten/belt/index.js
+export * as harness from "./harness.js";
+#+END_SRC
+
+**** typology/gestalten/shard/
+
+***** =systems/ghost/typology/gestalten/shard/host.js= — new: the five host beats as =(type) => (die, next)= thunks over =die[type]= (s4-6 · s4-15)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/gestalten/shard/host.js
+import { Cortex, belt, shape, traits } from "@vivalence/typology";
+import { Cargo } from "../../prototypes/cargo.js";
+import * as catalog from "../../mode/traits/index.js";
+
+export const status = (type) => async (die, next) => {
+  die[type].$status.set({ code: "MOUNTING" });
+  die[type].$status.set(await die[type].aperture.call("/status"));
+  const off = die[type].aperture.branch("/status").subscribe(
+    "/subscribe",
+    (reflection) => {
+      if (reflection.code !== "RUNNING") return die[type].$status.set({ code: "UNAVAILABLE" });
+      if (die[type].$status.get().code === "UNAVAILABLE") die[type].$status.set({ code: "HEALTHY" });
+    },
+    { dropped: () => die[type].$status.set({ code: "UNAVAILABLE" }) },
+  );
+  try {
+    await next();
+  } finally {
+    off();
+  }
+};
+
+export const metadata = (type) => async (die, next) => {
+  const [manifest, statics, aperture] = await Promise.all(["/metadata/manifest", "/metadata/statics", "/metadata/aperture"].map((path) => die[type].aperture.call(path)));
+  die[type].manifest = manifest;
+  die[type].statics = statics;
+  die[type].call = shape.connection.wire(die[type].aperture, aperture);
+  die[type].cargo = new Cargo(die[type].aperture);
+  await die[type].cargo.refetch();
+  await next();
+};
+
+export const cortex = (type) => async (die, next) => {
+  die[type].cortex = new Cortex().register(belt.cortex.wire(die[type].aperture.branch("/cortex"), await die[type].aperture.call("/metadata/cortex")));
+  await next();
+};
+
+export const modes = (type) => async (die, next) => {
+  await die[type].entities.mode.find();
+  const borne = new Set(die[type].modes.map((mode) => mode.id));
+  await Promise.all(die.client.runtime.entities.thread.$entities.get().filter((held) => borne.has(held.mode)).map((held) => die.client.runtime.entities.thread.merge({ id: held.id, mode: held.mode })));
+  const off = die[type].entities.mode.subscribe();
+  try {
+    await next();
+  } finally {
+    off();
+  }
+};
+
+export const mounted = (type) => async (die, next) => {
+  const releases = [];
+  for (const mode of die[type].modes) {
+    for (const finalize of await traits.stagger(mode, die[type], catalog)) await finalize();
+    if ("terminators" in mode) releases.push(...mode.terminators);
+  }
+  die[type].$status.set({ code: "HEALTHY" });
+  die.controller.stdout.message({ [type]: die[type].reference.absolute, modes: die[type].modes.map((mode) => mode.reference.absolute) });
+  try {
+    await next();
+  } finally {
+    die[type].$status.set({ code: "RELEASED" });
+    for (const release of releases.reverse()) await release();
+  }
+};
+#+END_SRC
+
+A =(die, next)= beat two nouns share (=runtime= · =daemon=) → =shard= (the structure law). The die key is the host's TYPE (=Process.ts:30= =[this.type]: this=). =catalog= is =mode/traits/index.js= — its uppercase exports =REPLING · EXPOSED · HARNESSED · APPLICATION= are what =stagger= reads; a remote mode never declares =REPLING=. Readiness = =$status= HEALTHY (s4-7) — set by =mounted= ALONE: the =/status= subscription marks UNAVAILABLE on a non-RUNNING reflection and HEALTHY only as RECOVERY from UNAVAILABLE (measured 10-16 on the DEMO world: the server's first RUNNING reflection arrived before =modes.find()=, HOME woke early → «no such mode on /runtime/house»). =modes= merges every thread whose =mode= id this host bears so =thread.mode= hydrates to the live row. A mode ARRIVING by subscription after mount is not staggered — =* deferred=.
+
+***** =systems/ghost/typology/gestalten/shard/index.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/gestalten/shard/index.js
+export * as host from "./host.js";
+export * as repl from "./repl.js";
+#+END_SRC
+
+***** =systems/ghost/typology/gestalten/shard/repl.js= — new: the per-line pipe · the composition · the one factory for a line
+
+#+BEGIN_SRC js
+// systems/ghost/typology/gestalten/shard/repl.js
+import { Vector, fromm, is, shard, steer } from "@vivalence/typology";
+import { ReplSignal } from "../../prototypes/replsignal.js";
+import { turn } from "../../terminal/commands/turn.js";
+
+export const message = async (replDie, next) => {
+  await next();
+  if (replDie.output !== undefined) replDie.controller.stdout.message(replDie.output);
+};
+
+export const execution = new Vector()
+  .use(shard.controller.open)
+  .use(message)
+  .do((replDie) => steer.dispatch.execute(replDie.repl, replDie, replDie.signal));
+
+export const scoped = (mode) => {
+  const vector = new Vector();
+  vector.branch(`/mode/${mode.type}/${mode.slug}`, mode.repl);
+  vector.branch(`/mode/${mode.slug}`, mode.repl);
+  return vector;
+};
+
+const harnessed = (terminal) => is.object(terminal.mode) && terminal.mode.implements("HARNESSED");
+
+export const compose = (client, terminal) =>
+  new Vector().graft(
+    client.repl,
+    ...fromm.modes(client.modes).flat.map((mode) => mode.repl),
+    ...(terminal === null ? [] : [terminal.repl, ...client.runtime.entities.mode.$entities.get().map(scoped), ...(harnessed(terminal) ? [turn] : [])]),
+  );
+
+export const dispatch = (client, terminal, line) => {
+  const signal = new ReplSignal(line);
+  const replDie = {
+    signal,
+    client,
+    runtime: client.runtime,
+    terminal,
+    controller: (terminal === null ? client.controller : terminal.controller).branch(signal.pathname),
+    repl: compose(client, terminal),
+    output: undefined,
+  };
+  return steer.dispatch.execute(execution, replDie).then(() => replDie.output);
+};
+#+END_SRC
+
+Five grafts, statics then dynamics (s4-5 · s4-17 · s4-20): the client's verbs · the hosted repls (root) · the terminal's verbs · every mounted mode's repl SCOPED (one store, every host's rows) · the terminal's =*= when its mode is HARNESSED. Built on every line: a graft on =client.repl= after boot answers on the next line (=tests/repl.test.js=). =scoped= is two statements: =Vector.branch= RETURNS the child (=prototypes/vector.js:37=), so a chained =.branch(a, repl).branch(b, repl)= grafts =repl= into ITSELF — a cycle, =Maximum call stack size exceeded= on the first composed line (measured 10-16 live on his ledger). Probed 10-16 on =Vector.graft=: two =/mode/<slug>= subtrees merge; the =/mode= effect (=pick=) survives beside them; a grafted root =*= REPLACES the receiver's — exactly one streamer. =turn= is the terminal noun's: the fourth pass's "one upward import into =app/=" is gone — the =*= lives with the terminal's commands (s4-41).
+
+**** typology/lighthouse/
+
+***** =systems/ghost/typology/lighthouse/execution.js= — new: credentials inline (s4-19) · the traits staggered · the client holds until authorized
+
+#+BEGIN_SRC js
+// systems/ghost/typology/lighthouse/execution.js
+import { Vector, belt, control, traits } from "@vivalence/typology";
+import * as catalog from "./traits/index.js";
+
+const MODE = 0o600;
+
+const held = (file) => {
+  try {
+    return JSON.parse(Deno.readTextFileSync(file));
+  } catch (error) {
+    if (error instanceof Deno.errors.NotFound) return {};
+    throw error;
+  }
+};
+
+const store = (file, record) => {
+  Deno.writeTextFileSync(file, `${JSON.stringify(record, null, 2)}\n`, { mode: MODE });
+  Deno.chmodSync(file, MODE);
+};
+
+export const credentials = async (lighthouseDie, next) => {
+  const file = lighthouseDie.client.instance.paladin.scope.ledger.branch("credentials.json").absolute;
+  const origin = lighthouseDie.client.runtime.remote.origin;
+  const all = held(file);
+  if (Object.hasOwn(all, origin)) lighthouseDie.client.runtime.lighthouse.restore(all[origin]);
+  await lighthouseDie.client.runtime.lighthouse.verify();
+  const off = lighthouseDie.client.runtime.lighthouse.$authority.listen((authority) => {
+    const { [origin]: stale, ...kept } = held(file);
+    if (!lighthouseDie.client.runtime.lighthouse.isAuthorized) return store(file, kept);
+    store(file, { ...kept, [origin]: { user: lighthouseDie.client.runtime.lighthouse.user, authority, at: new Date().toISOString() } });
+  });
+  try {
+    await next();
+  } finally {
+    off();
+  }
+};
+
+export const staggered = async (lighthouseDie, next) => {
+  for (const finalize of await traits.stagger(lighthouseDie.client.runtime.lighthouse, lighthouseDie, catalog)) await finalize();
+  await next();
+};
+
+export const authorized = async (lighthouseDie, next) => {
+  await Promise.race([belt.atom.until(lighthouseDie.client.runtime.lighthouse.$isAuthorized, Boolean, lighthouseDie.controller.abort.signal), control.hold(lighthouseDie.controller)]);
+  if (!(await lighthouseDie.controller.proceed())) return;
+  lighthouseDie.controller.stdout.message({ user: lighthouseDie.client.runtime.lighthouse.user.slug });
+  await next();
+};
+
+export const execution = new Vector().use(credentials).use(staggered).use(authorized);
+#+END_SRC
+
+=lighthouseDie = { client, controller }=. =credentials=: read · restore · verify · write-on-change · clear-on-logout over =~/.viva/credentials.json= (=instance.paladin.scope.ledger.branch("credentials.json")=, s4-37 — no paladin import), mode =0600=; =restore= validates (=Credential.faults=). =staggered=: the catalog is =./traits/index.js= (s4-39). =authorized=: =belt.atom.until(store, predicate, signal)= (=belt/atom.js:33=, the signal REQUIRED). JOINABLE without AUTOLOGIN = the signin cover — OUT: the client holds here; his ledger carries AUTOLOGIN.
+
+***** =systems/ghost/typology/lighthouse/index.js= — new: the barrel
+
+#+BEGIN_SRC js
+// systems/ghost/typology/lighthouse/index.js
+export { Lighthouse, STANDINGS } from "./lighthouse.js";
+export * from "./execution.js";
+export * from "./traits/index.js";
+#+END_SRC
+
+***** =systems/ghost/typology/lighthouse/lighthouse.js= — new: authority only; no constructor args; =$status= → =stdout= (s4-21)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/lighthouse/lighthouse.js
+import { map, atom, computed } from "nanostores";
+import { Span, v } from "@vivalence/typology";
+
+export const STANDINGS = ["IDLE", "AUTHENTICATING", "AUTHENTICATED", "VERIFYING", "REFRESHING", "REFRESHED", "POPULATING", "VERIFIED", "OFFLINE", "ERROR", "SESSION_EXPIRED", "LOGGED_OUT"];
+
+export class Lighthouse {
+  $authority = map({});
+  $user = map({});
+  $status = atom({ code: "IDLE" });
+  $isAuthorized = computed(this.$authority, (authority) => !!authority?.access && !!authority?.refresh);
+  $isIdentified = computed(this.$user, (user) => !!user?.id);
+
+  manifest = null;
+  connection = null;
+  stdout = new Span("lighthouse");
+
+  constructor() {
+    this.$status.listen((status) => this.stdout.mark("status", status));
+  }
+
+  get authority() {
+    return this.$authority.get();
+  }
+  get user() {
+    return this.$user.get();
+  }
+  get status() {
+    return this.$status.get();
+  }
+  get isAuthorized() {
+    return this.$isAuthorized.get();
+  }
+  get isIdentified() {
+    return this.$isIdentified.get();
+  }
+
+  restore(held) {
+    const faults = v.primitives.credentials.Credential.faults(held);
+    if (faults.length === 0) {
+      this.$authority.set(held.authority);
+      this.$user.set(held.user);
+      return true;
+    }
+    this.stdout.mark("note", { message: "cached credential is not one — discarded", faults });
+    return false;
+  }
+
+  implements(name) {
+    return this.manifest !== null && this.manifest.traits.includes(name);
+  }
+
+  signup(username, password) {
+    return this.access("/lighthouse/signup", { username, password });
+  }
+
+  login(username, password) {
+    return this.access("/lighthouse/login", { username, password });
+  }
+
+  autologin() {
+    return this.access("/lighthouse/autologin", {});
+  }
+
+  async access(route, credentials) {
+    this.$status.set({ code: "AUTHENTICATING" });
+    const response = await this.connection.fetch(route, credentials);
+    if (response.error) {
+      this.$status.set({ code: "ERROR", message: response.error.message, type: response.error.type });
+      return { status: "ERROR", error: response.error };
+    }
+    const { authority, user } = response.body;
+    if (user) this.$user.set(user);
+    if (authority) this.$authority.set(authority);
+    this.$status.set({ code: "AUTHENTICATED" });
+    return { status: "OK", user };
+  }
+
+  async verify() {
+    const authority = this.$authority.get();
+    if (!authority?.access) return { status: "NO_TOKEN" };
+    this.$status.set({ code: "VERIFYING" });
+    const response = await this.connection.fetch("/lighthouse/verify", { access: authority.access });
+    if (response.isNetworkError) {
+      this.$status.set({ code: "OFFLINE", message: "Network unavailable", canRetry: true });
+      return { status: "NETWORK_ERROR", canRetry: true };
+    }
+    if (response.isAuthError) return this.refresh();
+    if (response.error) {
+      this.$status.set({ code: "ERROR", message: response.error.message });
+      return { status: "ERROR", error: response.error };
+    }
+    if (response.body.status === "SUCCESS") {
+      if (response.body.user) this.$user.set(response.body.user);
+      return { status: "OK" };
+    }
+    return { status: "INVALID" };
+  }
+
+  async refresh() {
+    const authority = this.$authority.get();
+    if (!authority?.refresh) return { status: "NO_REFRESH_TOKEN" };
+    this.$status.set({ code: "REFRESHING" });
+    const response = await this.connection.fetch("/lighthouse/refresh", { refresh: authority.refresh });
+    if (response.isNetworkError) {
+      this.$status.set({ code: "OFFLINE", message: "Network unavailable", canRetry: true });
+      return { status: "NETWORK_ERROR", canRetry: true };
+    }
+    if (response.isAuthError) {
+      this.logout();
+      this.$status.set({ code: "SESSION_EXPIRED" });
+      return { status: "SESSION_EXPIRED" };
+    }
+    if (response.error) {
+      this.logout();
+      this.$status.set({ code: "ERROR", message: response.error.message });
+      return { status: "ERROR", error: response.error };
+    }
+    const { access } = response.body;
+    if (access) {
+      this.$authority.set({ ...authority, access });
+      this.$status.set({ code: "REFRESHED" });
+      return { status: "OK" };
+    }
+    this.logout();
+    return { status: "REFRESH_FAILED" };
+  }
+
+  logout() {
+    const authority = this.$authority.get();
+    this.$authority.set(null);
+    this.$user.set(null);
+    this.$status.set({ code: "LOGGED_OUT" });
+    if (authority?.refresh) this.connection.fetch("/lighthouse/logout", { refresh: authority.refresh }).catch(() => {});
+  }
+
+  get json() {
+    return { status: this.$status.get(), isIdentified: this.$isIdentified.get(), isAuthorized: this.$isAuthorized.get(), user: this.$user.get(), authority: this.$authority.get() };
+  }
+
+  toJSON() {
+    return this.json;
+  }
+}
+#+END_SRC
+
+Fourth pass carried whole (bak.3 origin). The constructor does the one thing it must (s4-21): every =$status= change lands on =stdout= as a =status= record. =connection= is the runtime's ROOT connection with =authorize=; the routes carry =/lighthouse/…=. The =?.= on =authority= are over a nullable map (=logout= sets =null=) — the case is the file's own.
+
+**** typology/lighthouse/traits/
+
+***** =systems/ghost/typology/lighthouse/traits/autologin.js= — new (bak.3 origin)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/lighthouse/traits/autologin.js
+export const AUTOLOGIN = (lighthouse) => () => lighthouse.isAuthorized || lighthouse.autologin();
+#+END_SRC
+
+The trait's arguments are =(lighthouse, lighthouseDie)= (=belt/traits.js:9=). =/lighthouse/metadata= answers no =trait= key (measured 10-16: ={"type":"lighthouse","slug":"lighthouse","traits":["JOINABLE","AUTOLOGIN"]}=) — a client-side AUTOLOGIN config waits on the route, =* deferred=.
+
+***** =systems/ghost/typology/lighthouse/traits/index.js= — new: the catalog (s4-39)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/lighthouse/traits/index.js
+export { AUTOLOGIN } from "./autologin.js";
+export { JOINABLE } from "./joinable.js";
+export { INVITATIONAL } from "./invitational.js";
+#+END_SRC
+
+***** =systems/ghost/typology/lighthouse/traits/invitational.js= — new (bak.3 origin)
+#+BEGIN_SRC js
+// systems/ghost/typology/lighthouse/traits/invitational.js
+export const INVITATIONAL = () => {};
+#+END_SRC
+
+***** =systems/ghost/typology/lighthouse/traits/joinable.js= — new (bak.3 origin)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/lighthouse/traits/joinable.js
+export const JOINABLE = () => {};
+#+END_SRC
+
+**** typology/mode/
+
+***** =systems/ghost/typology/mode/execution.js= — new: the HOSTED mode's boot — =systems/runtime/lifecycle/mode/*= one tier down, beats inline
+
+#+BEGIN_SRC js
+// systems/ghost/typology/mode/execution.js
+import { Vector, traits } from "@vivalence/typology";
+import * as catalog from "./traits/index.js";
+
+export const stdout = async (modeDie, next) => {
+  try {
+    await next();
+    modeDie.mode.stdout.open();
+  } catch (error) {
+    modeDie.mode.stdout.fault(error);
+    throw error;
+  }
+};
+
+export const core = async (modeDie, next) => {
+  modeDie.mode.reference = modeDie.client.mask.reference.branch(modeDie.mode.reference.absolute);
+  await next();
+};
+
+export const staggered = async (modeDie) => {
+  for (const finalize of await traits.stagger(modeDie.mode, modeDie.client, catalog)) await finalize();
+};
+
+export const execution = new Vector().use(stdout).use(core).do(staggered);
+#+END_SRC
+
+=systems/runtime/lifecycle/mode/population.js:4-16= is the oracle: =stdout= post-order, =core= the reference, the traits staggered last. The die is ={ mode, client, controller }= — no =mask= (s4-27): the citizen's manifest IS the mode's columns (=mode.js= constructor). The catalog is =./traits/index.js=, imported here (s4-39) — no cycle: =traits/*= never import =execution.js=. The client binds NOTHING on a hosted repl: =graft= COPIES carry onto the composed ROOT, so a =bind("mode")= on one hosted repl would name THAT mode on every line of every mode. A hosted mode declaring =HARNESSED= fails loud at =mode.connection= — the hosted proxy is r12, /"later"/.
+
+***** =systems/ghost/typology/mode/index.js= — new: the barrel
+
+#+BEGIN_SRC js
+// systems/ghost/typology/mode/index.js
+export { Mode, repository, hydration } from "./mode.js";
+export { execution } from "./execution.js";
+export * from "./traits/index.js";
+#+END_SRC
+
+The Dataspace reads =repository · hydration= off this module; the catalog is =traits/index.js= (next block), read by both staggers (hosted: =mode/execution.js=; remote: =shard/host.js mounted=).
+
+***** =systems/ghost/typology/mode/mode.js= — new: ONE Mode — a hosted CITIZEN or a remote ROW (s4-36); =stdout · repl= on the prototype (s4-28)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/mode/mode.js
+import { atom } from "nanostores";
+import { RemoteRepository, Span, Status, Vector } from "@vivalence/typology";
+import { Entity } from "../prototypes/entity.js";
+
+export class Mode extends Entity {
+  type = null;
+  slug = null;
+  name = null;
+  description = null;
+  version = null;
+  traits = [];
+  daemon = null;
+  reference = null;
+  module = null;
+  status = new Status();
+  stdout = new Span("mode");
+  repl = new Vector();
+  metadata = {};
+  runtime = null;
+  connection = null;
+  call = null;
+  harness = null;
+  $application = atom(null);
+
+  constructor(citizen = null) {
+    super();
+    if (citizen !== null) Object.assign(this, citizen.manifest, { module: citizen, reference: citizen.reference });
+  }
+
+  get manifest() {
+    return { type: this.type, slug: this.slug, name: this.name, description: this.description, version: this.version, traits: this.traits };
+  }
+  get application() {
+    return this.$application.get();
+  }
+  set application(value) {
+    this.$application.set(value);
+  }
+
+  implements(trait) {
+    return this.traits.includes(trait.toUpperCase());
+  }
+
+  toJSON() {
+    const { $application, module, metadata, ...base } = super.toJSON();
+    return { ...base, application: this.application };
+  }
+}
+
+export const repository = (dataspace) => new RemoteRepository(Mode).connect(dataspace.runtime.connection.branch(`${dataspace.runtime.reference.absolute}/entities/mode`));
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  ctx.entity.runtime = ctx.runtime;
+  ctx.entity.reference = (ctx.entity.daemon === null ? ctx.runtime : ctx.entity.daemon).reference.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
+  ctx.entity.connection = (ctx.entity.daemon === null ? ctx.runtime : ctx.entity.daemon).aperture.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
+});
+#+END_SRC
+
+Two constructions, one class: HOSTED — =new Mode(citizen)= copies the manifest's columns onto the row, =module= the citizen (=REPLING= reads =mode.module.repling=), =reference= the citizen's =/mode/home/console= (rooted under the client by =execution.js core=); REMOTE — the em does =Object.assign(new Mode(), raw)= (=entity-manager.js:98=), =module= stays =null=, =hydration= gives =runtime · reference · connection=. The manifest is a GETTER on both (a hosted citizen's =manifest= is never assigned as an own prop — the constructor spreads it; =Object.assign= onto a getter-only prop would throw). =stdout · repl= on the prototype (s4-28, his standard, landed on ghost's Mode). =ctx.entity.daemon=, not =ctx.daemon= (fourth pass, REJECTED after measuring: ONE em, ONE hydration per entity NAME, =entity-manager.js:51-56=; the row's =daemon= relation IS the host pointer, =Mode.ts:53=). The fourth pass's two Mode classes (typology's citizen · ghost's row), its =traits/mode/= catalog and the =index.client.js= hunk are gone.
+
+**** typology/mode/traits/
+
+***** =systems/ghost/typology/mode/traits/application.js= — new: APPLICATION · =open(terminal, mode)= beside the trait (s4-10)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/mode/traits/application.js
+import { Bundle } from "@vivalence/typology";
+
+export const APPLICATION = async (mode) => {
+  const record = await mode.connection.call("/metadata/application");
+  mode.application = { url: record.url, schema: record.schema, bundle: new Bundle(record.bundle).withUrl(record.url) };
+};
+
+export const open = async (terminal, mode) => {
+  const thread = terminal.thread;
+  const kept = thread.$buffers
+    .get()
+    .filter((buffer) => buffer.mode === mode)
+    .sort((first, second) => first.index - second.index)
+    .at(-1);
+  const buffer = kept === undefined ? await mode.runtime.entities.buffer.create({ mode: mode.id, thread: thread.id, data: {} }) : kept;
+  if (terminal.thread === thread) terminal.$buffer.set(buffer);
+  return buffer;
+};
+#+END_SRC
+
+The runtime serves it (=systems/runtime/gestalten/shard/host.js:32-40=). =open= is where anima keeps it — a lowercase capability beside the trait (=entities/mode/traits/standalone.js:1-10=), called by =/application/start=, never by a beat. =open= never reads =mode.application=: a buffer row IS the screen; without APPLICATION the frame paints the Floor. The race guard =terminal.thread === thread= is anima's (=standalone.js:9=).
+
+***** =systems/ghost/typology/mode/traits/exposed.js= — new (bak.3 origin)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/mode/traits/exposed.js
+import { shape } from "@vivalence/typology";
+
+export const EXPOSED = async (mode) => {
+  mode.metadata.aperture = await mode.connection.call("/metadata/aperture");
+  mode.call = shape.connection.wire(mode.connection, mode.metadata.aperture);
+};
+#+END_SRC
+
+***** =systems/ghost/typology/mode/traits/harnessed.js= — new: =/harness= opened on =mode.repl= (s4-5)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/mode/traits/harnessed.js
+import { shape, is } from "@vivalence/typology";
+import { stream } from "../../gestalten/belt/harness.js";
+
+export const HARNESSED = async (mode) => {
+  const { repositoryMap } = mode.runtime.entities.em;
+
+  const merge = async (yielded) => {
+    for (const [name, pojos] of Object.entries(yielded.output)) {
+      if (!Array.isArray(pojos) || !Object.hasOwn(repositoryMap, name)) continue;
+      yielded.output[name] = await Promise.all(pojos.map((pojo) => repositoryMap[name].merge(pojo)));
+    }
+  };
+
+  const harness = mode.connection.branch("/harness").use(async (context, next) => {
+    await next();
+    const body = context.response?.body;
+    if (body?.[Symbol.asyncIterator] && !body.getReader) {
+      context.response.body = (async function* () {
+        for await (const packet of body) {
+          if (packet?.event === "/tool/yield" && is.yieldish(packet.result)) await merge(packet.result);
+          yield packet;
+        }
+      })();
+      return;
+    }
+    if (!is.yieldish(body)) return;
+    await merge(body);
+  });
+
+  mode.metadata.harness = await mode.connection.call("/metadata/harness");
+  mode.harness = shape.connection.wire(harness, mode.metadata.harness);
+
+  mode.repl.open(
+    { nature: "/harness", valence: "a turn to THIS mode's harness on the active terminal's thread, named — compose scopes it under /mode/<type>/<slug> and /mode/<slug>. Example: /mode/memo/harness ciao" },
+    (ctx) => stream(mode, ctx.terminal.thread, [{ type: "text", text: ctx.signal.body.map((datum) => String(datum)).join(" ") }]),
+  );
+};
+#+END_SRC
+
+A =*= on EVERY harnessed mode's repl would graft onto the composed ROOT — the last mode mounted would own the bare line (probed: a grafted root =*= REPLACES the receiver's). So the trait opens a NAMED verb and =compose= scopes it; the bare line is the terminal's (=terminal/commands/turn.js=). =(ctx)= — a two-arg effect gets =ctx.input= first (=steer/strategy.js:7-9=) and the repl die carries NO =input= (measured 10-16: the user turn left with =parts: []=); the words are =ctx.signal.body=, the tokens after the verb, as =pick= reads them. The =?.= on =context.response · body · packet= are over the wire's own shapes (a 204 has no body) — kept. Runtime side live: =systems/runtime/traits/harnessed.js:226=.
+
+***** =systems/ghost/typology/mode/traits/index.js= — new: the catalog (s4-39)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/mode/traits/index.js
+export { REPLING } from "./repling.js";
+export { EXPOSED } from "./exposed.js";
+export { HARNESSED } from "./harnessed.js";
+export { APPLICATION, open } from "./application.js";
+#+END_SRC
+
+=traits.stagger(mode, ctx, catalog)= reads =catalog[NAME]= for each declared name (=belt/traits.js:8-9=): the uppercase exports are the traits; =open= is a lowercase capability beside its trait (s4-10), never looked up.
+
+***** =systems/ghost/typology/mode/traits/repling.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/mode/traits/repling.js
+export const REPLING = (mode) => {
+  mode.repl.graft(mode.module.repling);
+};
+#+END_SRC
+
+A remote mode never declares =REPLING= (paladin's =integrity.js= carries it with =repling=); =mode.module= is =null= on a row and the trait is never looked up for it.
+
+**** typology/prototypes/
+
+Classes without a boot and without a noun's traits: =Argv · ReplSignal= (the signals, unchanged) · =Entity= (the base =toJSON=) · =Cargo= · =Dataspace=.
+
+***** =systems/ghost/typology/prototypes/cargo.js= — new (bak.3 origin; =shard.host.metadata= builds one)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/prototypes/cargo.js
+import { fn } from "@vivalence/typology";
+
+export class Cargo {
+  catalog = {};
+  sought = new Set();
+
+  constructor(connection) {
+    this.connection = connection;
+    this.refresh = fn.debounce(() => this.refetch(), 2000);
+  }
+
+  async refetch() {
+    this.catalog = await this.connection.call("/metadata/cargo");
+  }
+
+  resolve(asset) {
+    if (!asset) return null;
+    if (asset.path) {
+      const found = this.catalog[asset.path] ?? null;
+      if (!found && !this.sought.has(asset.path)) {
+        this.sought.add(asset.path);
+        this.refresh();
+      }
+      return found;
+    }
+    if (asset.slug) {
+      const entry = Object.entries(this.catalog).find(([key]) => key.endsWith("/" + asset.slug) || key.startsWith(asset.slug));
+      return entry?.[1] ?? null;
+    }
+    return null;
+  }
+}
+#+END_SRC
+
+***** =systems/ghost/typology/prototypes/dataspace.js= — new: the row modules by name; =branch(connection, name)= (s4-22 · s4-33)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/prototypes/dataspace.js
+import { RemoteEntityManager, RemoteRepository, Vector, shape, shard } from "@vivalence/typology";
+
+function strategy(carry) {
+  return async (entity, raw) => {
+    const ctx = { entity, raw };
+    await carry(ctx, async () => {});
+    return entity;
+  };
+}
+
+export class Dataspace {
+  constructor({ runtime, entities, seed }) {
+    this.runtime = runtime;
+    this.em = new RemoteEntityManager(runtime.connection, {});
+    for (const [name, entity] of Object.entries(entities)) {
+      const repository = entity.repository(this);
+      const boot = new Vector().use(shard.context.bind("repository", repository)).use(shard.context.bind("dataspace", this));
+      seed(boot);
+      boot.graft(entity.hydration).do(async () => {});
+      this.em.register(name, repository, shape.selbstbestimmt(boot, strategy));
+      this[name] = repository;
+    }
+  }
+
+  async init() {
+    this.datamap = await this.runtime.connection.call(`${this.runtime.reference.absolute}/metadata/datamap`);
+    this.em.schema = this.datamap;
+  }
+
+  branch(connection, name) {
+    return new RemoteRepository(this.em.repositoryMap[name].kind).connect(connection.branch(`/entities/${name}`)).manage(this.em, name);
+  }
+
+  fork() {
+    return this.em.fork();
+  }
+}
+#+END_SRC
+
+The dossier as mikro's shape (s4-33): a row module exports its class · =repository(dataspace)= · =hydration=; =entities= is ={ name: module }= — the key IS the name the em registers under; a dir noun hands its barrel. =hydration= is grafted onto the seeded boot (=graft= copies carry, =prototypes/vector.js:68=) and runs PER MERGE (=shape.selbstbestimmt(boot, strategy)=). =branch(connection, name)=: the SAME em and store under another host (=remote-repository.js:16-20= · =entity-manager.js:51-56=) — the Daemon's hydration names =mode= because a host serves exactly =/entities/mode=. Against anima (=systems/anima/src/typology/prototypes/dataspace.js=): one em, not one per daemon; =schemas · populate= die (no reader); =boot.do= is anima's =boot.affect=.
+
+***** =systems/ghost/typology/prototypes/entity.js= — new (bak.3 origin): the base =toJSON=
+
+#+BEGIN_SRC js
+// systems/ghost/typology/prototypes/entity.js
+export class Entity {
+  toJSON() {
+    const props = this.constructor.schema?.properties ?? {};
+    const out = {};
+    for (const [key, value] of Object.entries(this)) {
+      if (typeof value === "function") continue;
+      if (value instanceof Set || value instanceof Map) continue;
+      const spec = props[key];
+      if (spec) {
+        if (spec.kind === "m:1") {
+          out[key] = value?.id ? { id: value.id } : value;
+          continue;
+        }
+        if (spec.kind === "1:m" || spec.kind === "m:n") {
+          out[key] = Array.isArray(value) ? value.map((element) => (element?.id ? { id: element.id } : element)) : value;
+          continue;
+        }
+      }
+      if (value != null && typeof value === "object" && !Array.isArray(value) && value.constructor !== Object) continue;
+      out[key] = value;
+    }
+    return out;
+  }
+}
+#+END_SRC
+
+A =Span · Vector · Status · Controller= field is skipped by the last guard (=value.constructor !== Object=) — the resident handles never travel.
+
+***** =systems/ghost/typology/prototypes/index.js= — hunk
+
+#+BEGIN_SRC diff
+// systems/ghost/typology/prototypes/index.js:1
+ export { Argv } from "./argv.js";
+ export { ReplSignal } from "./replsignal.js";
++export { Entity } from "./entity.js";
++export { Cargo } from "./cargo.js";
++export { Dataspace } from "./dataspace.js";
+#+END_SRC
+
+The fourth pass's =prototypes/{client,runtime,lighthouse}.js= are noun files now (=client/client.js= · =runtime/runtime.js= · =lighthouse/lighthouse.js=), never created here.
+
+**** typology/runtime/
+
+***** =systems/ghost/typology/runtime/execution.js= — new: the runtime host, five thunks under =runtime=
+
+#+BEGIN_SRC js
+// systems/ghost/typology/runtime/execution.js
+import { Vector, shard } from "@vivalence/typology";
+import { host } from "../gestalten/shard/index.js";
+
+export const execution = new Vector().use(host.status("runtime")).use(host.metadata("runtime")).use(host.cortex("runtime")).use(host.modes("runtime")).use(host.mounted("runtime")).do(shard.controller.hold);
+#+END_SRC
+
+***** =systems/ghost/typology/runtime/index.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/runtime/index.js
+export { Runtime } from "./runtime.js";
+export { execution } from "./execution.js";
+#+END_SRC
+
+***** =systems/ghost/typology/runtime/runtime.js= — new: a host (s4-6 · s4-20)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/runtime/runtime.js
+import { atom } from "nanostores";
+
+export class Runtime {
+  type = "runtime";
+  manifest = null;
+  reference = null;
+  remote = null;
+  statics = null;
+  connection = null;
+  aperture = null;
+  call = null;
+  cortex = null;
+  cargo = null;
+  lighthouse = null;
+  entities = null;
+  $status = atom({ code: "IDLE" });
+
+  constructor(fields) {
+    Object.assign(this, fields);
+  }
+
+  get status() {
+    return this.$status.get();
+  }
+  get modes() {
+    return this.entities.mode.$entities.get().filter((mode) => mode.daemon === null);
+  }
+
+  get json() {
+    return { manifest: this.manifest, reference: this.reference === null ? null : this.reference.absolute, remote: this.remote, status: this.status };
+  }
+}
+#+END_SRC
+
+The Runtime IS a host: =shard.host= reads =$status · statics · call · cortex · cargo · entities.mode · reference · aperture · modes= off it as off a =Daemon=, under the die key =runtime= (s4-42: =aperture= is the host's own branch, =connection= the root). =get modes()= is the runtime's SLICE of the one mode store (=daemon === null=). No =multiplex · $modes · daemons · mounted · services= (s4-7 · s4-20). Resident with no repository: one Runtime per client.
+
+**** typology/terminal/
+
+***** =systems/ghost/typology/terminal/execution.js= — new: a terminal as a PROCESS while the client attends it — its verbs
+
+#+BEGIN_SRC js
+// systems/ghost/typology/terminal/execution.js
+import { Vector, shard } from "@vivalence/typology";
+import * as commands from "./commands/index.js";
+
+export const verbs = async (terminalDie, next) => {
+  terminalDie.terminal.repl.graft(commands.mode, commands.application);
+  terminalDie.controller.stdout.message({ terminal: terminalDie.terminal.id });
+  await next();
+};
+
+export const execution = new Vector().use(verbs).do(shard.controller.hold);
+#+END_SRC
+
+=terminalDie = { client, controller, terminal }=, minted by =client/execution.js terminals= where the row is met. =verbs= grafts the terminal's verbs onto =terminal.repl= once; =compose= carries =terminal.repl= only while a terminal is active — grafted or ABSENT. The fifth pass's =home= beat is gone (s4-40): seating a threadless terminal is the CLIENT's HOME trait, =client/traits/home.js=; a terminal has no trait of its own this stretch.
+
+***** =systems/ghost/typology/terminal/index.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/terminal/index.js
+export { Terminal, repository, hydration } from "./terminal.js";
+export * from "./execution.js";
+export * as commands from "./commands/index.js";
+#+END_SRC
+
+***** =systems/ghost/typology/terminal/terminal.js= — new: Terminal (=repl · dispatch · setThread=) · repository · hydration (s4-17 · s4-26)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/terminal/terminal.js
+import { atom } from "nanostores";
+import { RemoteRepository, Vector, is } from "@vivalence/typology";
+import { Entity } from "../prototypes/entity.js";
+import * as shard from "../gestalten/shard/index.js";
+
+export class Terminal extends Entity {
+  id = null;
+  user = null;
+  daemon = null;
+  index = 0;
+  traits = [];
+  trait = {};
+
+  client = null;
+  runtime = null;
+  repository = null;
+  controller = null;
+  repl = new Vector();
+  $thread = atom(null);
+  $buffer = atom(null);
+
+  get thread() {
+    return this.$thread.get();
+  }
+  set thread(value) {
+    this.$thread.set(value);
+  }
+  get label() {
+    return this.trait.LABELED === undefined ? null : this.trait.LABELED.name;
+  }
+  get mode() {
+    return this.thread === null ? null : this.thread.mode;
+  }
+  get buffer() {
+    return this.$buffer.get();
+  }
+
+  toJSON() {
+    const kept = (key) => !key.startsWith("$") && !["client", "repository", "runtime", "daemon", "controller", "repl"].includes(key);
+    const base = Object.fromEntries(Object.entries(super.toJSON()).filter(([key]) => kept(key)));
+    const daemon = this.daemon === null || is.string(this.daemon) ? this.daemon : this.daemon.id;
+    const thread = this.thread === null ? null : this.thread.id;
+    return { ...base, daemon, thread };
+  }
+
+  dispatch(signal) {
+    return shard.repl.dispatch(this.client, this, signal);
+  }
+
+  write(data) {
+    return this.repository.updateOne({ id: this.id }, data);
+  }
+
+  setThread(thread) {
+    if (thread === null) return this.write({ daemon: null, thread: null });
+    if (is.string(thread.mode)) return Promise.reject(new Error(`${thread.id}: its mode ${thread.mode} belongs to a host that is not mounted`));
+    const daemon = thread.mode === null || thread.mode.daemon === null ? null : thread.mode.daemon.id;
+    return this.write({ daemon, thread: thread.id });
+  }
+}
+
+export const repository = (dataspace) => new RemoteRepository(Terminal).connect(dataspace.runtime.connection.branch("/userspace/entities/terminal"));
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  ctx.entity.client = ctx.client;
+  ctx.entity.runtime = ctx.runtime;
+  ctx.entity.repository = ctx.repository;
+});
+#+END_SRC
+
+A row AND a process: hydrated per merge (=client · runtime · repository= bound), executed under its controller while the client attends it (=execution.js=). =dispatch(line)= (s4-17): the terminal is the entry; =client= rides the row so the method needs no argument. =repl= is a plain =Vector= (no =$repl=). =setThread= (s4-26). =stall() · $error · Stall · Blacklist · get mask()= die: the Stall reselects =list[0]= on any change of a non-INERT thread (=prototypes/stall.js:40-51,89-93=) and would undo =/application/stop= — =* deferred=.
+
+**** typology/terminal/commands/
+
+***** =systems/ghost/typology/terminal/commands/index.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/terminal/commands/index.js
+export { mode } from "./mode/index.js";
+export { application } from "./application/index.js";
+export { turn } from "./turn.js";
+#+END_SRC
+
+***** =systems/ghost/typology/terminal/commands/turn.js= — mv ← =app/client/commands/turn.js=; rewrite: the TERMINAL's =*= — the stub and its module-global =tally= die; his =NotFound= line stays
+#+BEGIN_SRC js
+// systems/ghost/typology/terminal/commands/turn.js
+import { NotFound, Vector } from "@vivalence/typology";
+import { stream } from "../../gestalten/belt/harness.js";
+
+export const turn = new Vector().open(
+  { nature: "*", valence: "a bare line — a turn to the active terminal's mode, streamed onto the thread's span. Example: ciao" },
+  (ctx) => {
+    if (ctx.signal.body.length === 0) throw new NotFound(ctx.signal);
+    return stream(ctx.terminal.mode, ctx.terminal.thread, ctx.signal.body);
+  },
+);
+#+END_SRC
+
+=*= catches a miss at ANY depth (=gestalten/steer/dispatch.js:30=, probed 10-16); an empty body is a miss, and the =NotFound= line is his (=commands/turn.js:11= today) — kept verbatim. =compose= grafts it only when =terminal.mode= is HARNESSED: with no terminal, or on another thread, the bare line is =NotFound= by absence (=tests/repl.test.js=: the fault lands on =/ghost/client/*=).
+
+**** typology/terminal/commands/application/
+
+***** =systems/ghost/typology/terminal/commands/application/index.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/terminal/commands/application/index.js
+import { Vector } from "@vivalence/typology";
+import { start } from "./start.js";
+import { stop } from "./stop.js";
+
+export const application = new Vector().graft(start, stop);
+#+END_SRC
+
+***** =systems/ghost/typology/terminal/commands/application/start.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/terminal/commands/application/start.js
+import { Vector } from "@vivalence/typology";
+import { open } from "../../../mode/traits/application.js";
+
+export const start = new Vector().open(
+  { nature: "/application/start", valence: "open the application of the active terminal's mode in the frame — its newest buffer on this thread, or a new one. Example: /application/start" },
+  async (ctx) => {
+    const buffer = await open(ctx.terminal, ctx.terminal.mode);
+    return `application ${ctx.terminal.mode.reference.absolute} · buffer #${buffer.id}`;
+  },
+);
+#+END_SRC
+
+***** =systems/ghost/typology/terminal/commands/application/stop.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/terminal/commands/application/stop.js
+import { Vector } from "@vivalence/typology";
+
+export const stop = new Vector().open(
+  { nature: "/application/stop", valence: "close the frame; the buffer stays on its thread. Example: /application/stop" },
+  (ctx) => {
+    ctx.terminal.$buffer.set(null);
+    return "frame closed";
+  },
+);
+#+END_SRC
+
+**** typology/terminal/commands/mode/
+
+***** =systems/ghost/typology/terminal/commands/mode/index.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/terminal/commands/mode/index.js
+import { Vector } from "@vivalence/typology";
+import { list } from "./list.js";
+import { pick } from "./pick.js";
+
+export const mode = new Vector().graft(list, pick);
+#+END_SRC
+
+***** =systems/ghost/typology/terminal/commands/mode/list.js= — new: one store, no host walk (s4-20)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/terminal/commands/mode/list.js
+import { Vector } from "@vivalence/typology";
+
+export const list = new Vector().open(
+  { nature: "/modes", valence: "every mode across the runtime and its daemons — reference and traits. Example: /modes" },
+  (ctx) => ctx.runtime.entities.mode.$entities.get().map((mode) => ({ reference: mode.reference.absolute, traits: mode.traits })),
+);
+#+END_SRC
+
+***** =systems/ghost/typology/terminal/commands/mode/pick.js= — new: =/mode= sets the active terminal's thread (s4-26)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/terminal/commands/mode/pick.js
+import { Vector } from "@vivalence/typology";
+
+const latest = async (ctx, mode) => {
+  const held = ctx.runtime.entities.thread.$entities.get().filter((thread) => thread.mode !== null && thread.mode.reference.absolute === mode.reference.absolute).sort((left, right) => String(right.id).localeCompare(String(left.id)));
+  return held.length > 0 ? held[0] : await ctx.runtime.entities.thread.create({ mode: mode.id });
+};
+
+export const pick = new Vector().open(
+  { nature: "/mode", valence: "set the active terminal's thread to a mode's newest thread, or a new one; the words narrow, one match sets, else the candidates are the answer. Example: /mode memo" },
+  async (ctx) => {
+    const words = ctx.signal.body.map((datum) => String(datum));
+    const found = ctx.runtime.entities.mode.$entities.get().filter((mode) => words.every((word) => mode.reference.absolute.includes(word)));
+    if (found.length !== 1) return { which: found.map((mode) => mode.reference.absolute) };
+    const thread = await latest(ctx, found[0]);
+    await ctx.terminal.setThread(thread);
+    return `${found[0].reference.absolute} · thread #${thread.id}`;
+  },
+);
+#+END_SRC
+
+=/mode= rides =terminal.repl=: grafted or ABSENT, no check. =pick= survives beside the scoped =/mode/<slug>= subtrees (probed 10-16 on =Vector.graft=).
+
+**** typology/thread/
+
+***** =systems/ghost/typology/thread/execution.js= — new: a thread as a PROCESS while it is the active terminal's — its running activity, derived
+
+#+BEGIN_SRC js
+// systems/ghost/typology/thread/execution.js
+import { Vector, shard } from "@vivalence/typology";
+
+const RUNNING = ["RUNNING", "PAUSED"];
+
+export const activity = async (threadDie, next) => {
+  const derive = (rows) => {
+    const running = rows.find((row) => row.thread === threadDie.thread && RUNNING.includes(row.status)) ?? null;
+    if (threadDie.thread.$activity.get() !== running) threadDie.thread.$activity.set(running);
+  };
+  const off = threadDie.client.runtime.entities.activity.$entities.subscribe(derive);
+  try {
+    await next();
+  } finally {
+    off();
+    threadDie.thread.$activity.set(null);
+  }
+};
+
+export const execution = new Vector().use(activity).do(shard.controller.hold);
+#+END_SRC
+
+=threadDie = { client, controller, thread }=, minted by =client/execution.js thread=. =row.status= is the Activity's controller status (s4-23). The =?? null= on =find= is the Array API's =undefined= → the thread's =null=.
+
+***** =systems/ghost/typology/thread/index.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/typology/thread/index.js
+export { Thread, repository, hydration } from "./thread.js";
+export * from "./execution.js";
+#+END_SRC
+
+***** =systems/ghost/typology/thread/thread.js= — new: Thread (=controller · $activity=) · repository · hydration; PHASES · =$live= · =$errors= · the trait machinery cut (s4-24 · s4-25)
+
+#+BEGIN_SRC js
+// systems/ghost/typology/thread/thread.js
+import { atom, computed } from "nanostores";
+import { RemoteRepository, Vector } from "@vivalence/typology";
+import { Entity } from "../prototypes/entity.js";
+
+export class Thread extends Entity {
+  id = null;
+  user = null;
+  mode = null;
+  phase = "manual";
+  traits = [];
+  trait = {};
+  controller = null;
+  $activity = atom(null);
+
+  get activity() {
+    return this.$activity.get();
+  }
+
+  toJSON() {
+    const kept = Object.entries(super.toJSON()).filter(([key]) => !key.startsWith("$") && key !== "controller");
+    const mode = this.mode === null || typeof this.mode === "string" ? this.mode : this.mode.id;
+    return { ...Object.fromEntries(kept), mode };
+  }
+}
+
+export const repository = (dataspace) => new RemoteRepository(Thread).connect(dataspace.runtime.connection.branch("/userspace/entities/thread"));
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  ctx.entity.$buffers = computed(ctx.runtime.entities.buffer.$entities, (buffers) => buffers.filter((buffer) => buffer.thread === ctx.entity));
+  ctx.entity.$turns = computed(ctx.runtime.entities.turn.$entities, (turns) => turns.filter((turn) => turn.thread === ctx.entity).sort((first, second) => new Date(first.createdAt) - new Date(second.createdAt)));
+});
+#+END_SRC
+
+=phase · traits · trait= are plain columns (=Thread.ts:36-38=); =mode= a relation the em resolves to the live row. =controller= is set where the active terminal's thread is met (=client/execution.js thread=); the stream marks on it. The PHASES text lives in bak.3 =prototypes/thread/thread.js:7-18= for the day it returns.
+
+*** .ikiro — the law amended (s4-38, his amen)
+
+**** .
+
+***** =.ikiro/codestyle.md= — hunk: the HOME law names the noun directory; the lifecycle law stays the runtime's
+
+#+BEGIN_SRC diff
+// .ikiro/codestyle.md
+-**a function's HOME is its first parameter** (/"capture this!"/): `boot(lighthouse)` ✓, `lighthouse.boot()` ✗. `(ctx, next)` → `gestalten/shard/` · `(die, next)` → `lifecycle/` (PHASE files only — /"the lifecycles are not a repotitory of tools!"/) · `new Vector().open(…)` → `commands/` · plain over data → `gestalten/belt/`: no fs, no paladin. A lifecycle closes what it opened in its OWN `finally`.
++**a function's HOME is its first parameter** (/"capture this!"/): `boot(lighthouse)` ✓, `lighthouse.boot()` ✗. **A noun is a directory** (ghost, 10-16: /"we have the same types in prototpes/lifecycles/traits... invert them"/): `<noun>/<noun>.js` (class · `repository` · `hydration`) · `<noun>/execution.js` (its `(xDie, next)` boot, beats inline, the Vector last) · `<noun>/traits/<name>.js` one file per trait it OFFERS, `traits/index.js` the catalog the execution imports itself (no `traits` on a die) · `<noun>/commands/` its verbs. `(ctx, next)` shared by two nouns → `gestalten/shard/` · plain over data → `gestalten/belt/`: no fs, no paladin · a class without a boot → `prototypes/`. The runtime keeps `lifecycle/<process>/` PHASE files (/"the lifecycles are not a repotitory of tools!"/) until its own inversion. An execution closes what it opened in its OWN `finally`.
+#+END_SRC
+
+The =.ikiro= file is mine to write; the LAW is his — the hunk lands on his amen, with the ghost blocks, never before. =world/codemap/ghost.md= re-stamped at the fold.
+
+*** ~/.viva
+
+**** .
+
+***** =~/.viva/ledger.viva.json= — hunk, MINE (his /"you do ledger."/ 10-16): capture to =~/.viva/bak/ledger/ledger-<YYYYMMDD>/= first (skill =readme=), then the three edits; lands with B2. Not watched by =runtime/watch= (commons + registry only) — no deploy
+
+#+BEGIN_SRC diff
+// ~/.viva/ledger.viva.json:29
+   "clients": [
+     {
+-      "manifest": { "slug": "anima" },
++      "manifest": { "slug": "anima", "traits": ["HOME"] },
+       "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" },
+-      "traits": ["HOME"],
+       "trait": {
+-        "HOME": { "reference": "/runtime/runtime/mode/home/home" }
++        "HOME": { "reference": "/runtime/runtime/mode/harness/runtime" }
+       }
++    },
++    {
++      "manifest": { "slug": "ghost", "traits": ["HOME"] },
++      "modes": ["@commons/home/console"],
++      "trait": { "HOME": { "reference": "/runtime/runtime/mode/harness/runtime" } }
+     }
+   ]
+#+END_SRC
+
+(=:29-38= measured 10-16; =manifest.type= is absent on his anima row — =v.primitives.Manifest= on a row without =type=, measured at landing. Until it lands, anima's top-level =traits= passes =Client= silently (=additionalProperties: true=) and is IGNORED — anima's HOME is dead, nothing breaks.)
+
+* milestones
+
+| milestone | files | green when |
+|---+---+---|
+| B1 paladin | m88's six blocks (=*** subsystems/paladin= · =home.js= · =instance.js=) | =modes.test.js= "client modes" · typology weight test unchanged |
+| B2 console | the fixture · =run.js= · =app/client/{index,chrome}.js= · =typology/{index,prototypes/*}= · =client/*= · =mode/{mode,execution,index,repling}.js= · =gestalten/shard/repl.js= (compose without a terminal) · =tests/console.test.js= | =/hello= → «hello from ghost»; =console.test.js= green |
+| C0 the line | =contexts.js= (HOLY) · =shard/repl.js= · =client/commands/help.js= · =app/surface/repl.js= · =panes/dock.jsx= · =tests/repl.test.js= | 6/6; =/chrome/off= prints once; a bare line with no terminal → =✕= |
+| A1 attached | =client/execution.js= (=runtime · connection · authorized · dataspace · rows=) · =lighthouse/*= · =runtime/runtime.js= · =prototypes/{dataspace,cargo,entity}.js= · =activity.js · buffer.js · turn.js= · =daemon/daemon.js= · =scenarios/hello.js= · =tests/client.test.js= | «lighthouse · user · runtime» in order on the DEMO world and on the ledger |
+| A2 terminal | =shard/host.js= · =runtime/execution.js= · =daemon/execution.js= · =terminal/*= · =thread/*= · =client/execution.js= (=hosts · terminals · thread · active=) · =mode/traits/exposed.js= · =client/traits/home.js= · =~/.viva/ledger.viva.json= | «terminal #1 · home … · thread #1»; =/mode memo= sets the memo thread |
+| A3 chat | =belt/harness.js= · =mode/traits/harnessed.js= · =terminal/commands/turn.js= · =turn.js= hydration · =dock.jsx= | two turns on =ciao=; a fault on an unharnessed thread; =/mode/memo/harness ciao= reaches memo by name |
+| A4 frame | =mode/traits/application.js= (+ =open=) · =terminal/commands/application/*= · =panes/{chrome,frame}.jsx= · =panes/index.js= · =chrome/index.js= · =deno.jsonc= | the frame opens and closes; the bundle lists =tty.solid= |
+
+A file touched by several milestones lands ONCE, whole (the tangle is the filesystem). =.ikiro/codestyle.md= lands with B2 on his amen.
+
+* blast table
+
+| symbol | consumers 10-16 | after |
+|---+---+---|
+| =clientDie.repl= | 4 (=app/client/index.js:7= · =app/surface/repl.js:19,33,49= · =dock.jsx:66= · =commands/help.js:5= =ctx.client.repl=) | the FIRST graft of every line's composition; =help.js= reads =ctx.repl= |
+| =steer.dispatch.execute(clientCtx.repl, …)= | 2 (=repl.js:49= · =dock.jsx:66=) | =client.dispatch(line)= → =terminal.dispatch(line)= → =shard.repl.dispatch= |
+| =app/client/index.js execution= | =tests/repl.test.js:3= · =app/client/index.js:31= | =ghost.client.execution= (=typology/client/execution.js=); the factory stays |
+| =app/client/commands/*= | =commands/index.js= · =app/client/index.js:2= | =typology/client/commands/{help,quit}= · =typology/terminal/commands/turn.js= · =app/client/chrome.js=; =commands/index.js= DEAD |
+| =.use= print tap on the repl vector | 1 (=repl.js:20=) | a tail on the surface |
+| =commands.turn= (stub, =tally=) | 2 | =terminal/commands/turn.js=, grafted per line by =compose= on a HARNESSED mode |
+| the fourth pass's =lifecycle/= · =traits/= · =typology/entities/= · =prototypes/{client,runtime,lighthouse}.js= · =traits/mode/index.js= · typology =Mode= hunk · =index.client.js= hunk | never landed | never created; grep at landing for each of the three directory names under =systems/ghost= → 0 outside =bak/= |
+| =dossier= | anima ×9 · =systems/runtime/tests/repository.persist.test.js= · =commons/dashboards/dataspace/design/dataspace-v2-data.md= | the keep-list; 0 in ghost |
+| =hydration= (new word) | 0 | =<noun>.js= exports; =Dataspace= reads =entity.hydration= |
+| =contexts.Repl= | 0 readers | the words above |
+| =ClientTraitsEnum= · =Client= schematic | =instance.js:81-91= · =:179= · paladin =populate.js:210= · =resolve.js= | m88's hunks |
+| typology =Mode= (=prototypes/mode.js=) | runtime =lifecycle/daemon/population.js:62= · =lifecycle/mode/population.js= | UNTOUCHED this quest; the standard (s4-28) lives on ghost's =Mode= |
+| =~/.viva/ledger.viva.json= clients | mine, B2 | =manifest.traits= on both rows; a ghost row; HOME → =harness/runtime= on both |
+| =commons/ledger/ledger.viva.json= clients | =systems/runtime/tests/scenarios/hello.js= (=LEDGER=) | the ghost row gains =modes= |
+| =.ikiro/codestyle.md= HOME law | every session | the noun directory named; the runtime's lifecycle law kept |
+
+* testing assessment
+
+- =subsystems/paladin/tests/modes.test.js= (m88) · =tests/console.test.js= and =tests/repl.test.js= (no world: the client's beats up to the surface, chained from =ghost.client.*= by name) · =tests/client.test.js= against the DEMO world, four serial cases on one boot.
+- the package census: =deno info systems/ghost/typology/index.js | grep -c paladin= → 0 (paladin at the door, s4-37); =grep -rn '@vivalence/ghost' systems/ghost/typology= → 0 (no self-import).
+- COVERAGE GAP: the chrome panes have no test (dock · chrome · frame by eye); the in-process boot (=client/execution.js runtime=) walks by hand on a ledger whose runtime is down, and the no-instance throw wants a case under a temp =HOME=; a WIRE fault on a host has no retry and no test; the frame's mounted view is unprovable until =@vivalence/sheets= resolves; =Activity.set status= pouring into the controller wants a unit case; ghost's one =Mode= wants a unit case for both constructions (=new Mode(citizen).manifest= equals the citizen's; =Object.assign(new Mode(), raw)= leaves =module= null).
+
+* QA — /"I type X, I see Y"/
+
+#+marker_qa: m86/T-hello · walked 10-16 (live: «hello hello from ghost»; console.test green) · =viva= · =<< /hello= → «hello from ghost»; =<< /help= lists =hello= beside =help · quit · chrome=
+#+marker_qa: m86/T-help · walked 10-16 (live: the composed tree — help · chrome · quit · hello · whoami · modes · mode · application · mode/<slug>/harness) · =<< /help= → the verb tree in the dock
+#+marker_qa: m86/T-chrome-toggle · pending (moved to done/ 10-16 by beef) — his eyes AFTER the =chrome.js= fix (his 10-16 walk hit the repl-die bug: artifacts, empty dock); headless =testRender= 90×14 paints dock · frame · Floor · =/chrome/on= · =/chrome/off= · =<< /quit= → one line per record, never two
+#+marker_qa: m86/T-boot · walked 10-16 live: «lighthouse http://localhost:2501/ · JOINABLE AUTOLOGIN» · «user localhost» · «runtime /runtime/runtime» · «terminal #01a135bf…» · «runtime /runtime/runtime · modes [harness/runtime]» · three daemons; «home …» only on a THREADLESS terminal (his #1 already sits on chess board/play) — DEMO world: «home /runtime/house/mode/home/probe · thread #…» · =viva= → «lighthouse http://localhost:2501/ · JOINABLE AUTOLOGIN» · «user localhost» · «runtime /runtime/runtime» · «runtime /runtime/runtime · modes …» · «terminal #1» · «home /runtime/runtime/mode/harness/runtime · thread #1»
+#+marker_qa: m86/T-mode · walked 10-16 live: =/modes= lists italian · chess · droneaid · runtime modes; =/mode chess/board= → ={which: []}= (no such words — the chess modes are domain/chess · topology/game · board/play); DEMO: =/mode srs/memo= sets the memo thread · =<< /modes= → the chess · droneaid · runtime modes; =<< /mode board/play= → «/daemon/chess/mode/board/play · thread #n»
+#+marker_qa: m86/T-turn · walked 10-16 by HIM live: =/mode harness/runtime= → «whats up» → ✦ three real turns streamed; DEMO world on the stub: two turns, stream open→closed; chess board/play → 500 (known-issues) · =<< ciao= on the harness thread → › ciao, the assistant's turn streams, then lands
+#+marker_qa: m86/T-typo · walked 10-16 live: «✕ Not found» · =<< /typo= → =✕ /typo …=
+#+marker_qa: m86/T-application · pending (moved to done/ 10-16 by beef) — his eyes; DEMO: =/application/start= → «application /daemon/memo/mode/srs/memo · buffer #…», bundle lists =tty.solid=, =/application/stop= → «frame closed» (client.test case 4) · =<< /mode board/play= · =<< /application/start= → the dock narrows, the frame shows the buffer (Floor until sheets); =<< /application/stop= closes it
+#+marker_qa: m86/T-quit · walked 10-16 (repl.test: STOPPED; live: exit 0) · =<< /quit= → the shell exits 0
+#+marker_qa: m86/T-census · walked 10-16: paladin 0 · self-import 0 · dossier 0 · the ls as listed + =client/lighthouse/mode/traits/= · =deno info systems/ghost/typology/index.js | grep -c paladin= → =0=; =ls systems/ghost/typology= → =activity.js buffer.js client daemon gestalten index.js lighthouse mode prototypes runtime terminal thread turn.js=; =ls systems/ghost/typology/{client,lighthouse,mode}/traits= → the catalogs
+
+* deferred
+
+- typology's =Mode= gaining =stdout = new Span("mode") · repl = new Vector()= (his standard, s4-28 /"good standard"/) — ghost no longer constructs it; the runtime's own hunk, with the runtime's inversion.
+- the runtime inverted (its two Daemons → one, =lifecycle/= · =traits/= → noun dirs) — the structure law proven on ghost first.
+- the word =hydration= — his amen or his word (STRUCK: =integrate= · =use= · =boot=).
+- carried from stretch three/four: remote REPLING · threadless client-mode terminals · keys as signals · pickers · =viva repl= over pipes · crown · navigation · anima on =@vivalence/ghost= · a Listing for =/help= · the thread PHASES · the Stall · the buffer vigil · a late-arriving mode staggered · the activity =/stdout= pump · a =status= verb in the dock's tail · the client-side AUTOLOGIN config · a remembered active terminal · a thread's mode change persisted · =mode.application.buffer(desc)= · the signin cover · a host's WIRE-fault retry · the hosted proxy for a remote trait on a client mode · =@vivalence/sheets= back on the tree · anima at the m82 snapshot.
+
+* handoff
+
+- goal: the client composes its repl per line from its verbs, its hosted modes and the active terminal's mode; the runtime attached, a terminal on HOME, chat on a harnessed thread, the frame on a verb — on a NOUN-MAJOR tree.
+- done 10-16, fifth + sixth pass: his structure question answered on disk (persisted vs resident, =Process.ts:5,51=; the dossier = mikro's schema; precedent OTP · integrant · orphan rule); the tangle re-cut per =***= system · =****= directory · =*****= file, rulings s4-31 … s4-41 (sixth: =<noun>/traits/= IS the catalog, HOME a STAGGERED client trait reading =mask.trait.HOME= straight, =turn= under =terminal/commands/=); one =Mode= class for both constructions; paladin at the door; LANDED on his go: =instance.js= client =traits= ride =manifest.traits= (=ClientTraitsEnum= gone, =instance.test.js= green). 10-16 /"go m86"/ = write-auth for the quest. LANDED 10-16 on /"go m86"/: B1 → A4, =client.test.js= 4/4 on the DEMO world, 70 suites green; his live walk: boot · hosts · =/modes= · =/help= · =/hello= · =/mode harness/runtime= · chat; then /"fix 1"/ (a user turn not re-printed by the plain repl) and =chrome.js= handing =ctx.client= (the recorded repl-die defect — the chrome painted over readline). 10-16 his walk hit the Floor on =/mode harness/runtime= → =/application/start= → =/chrome/on= (/"buffer sitn rendering my game yet innit. why not?"/): two walls — harness/runtime has no APPLICATION and no registry app shipped a =tty.solid= entry. LANDED on /"b both. a go"/: =/application/start= throws on a non-APPLICATION mode (=terminal/commands/application/start.js:7=, walk 4/4); the frame owns tab-focus and hands the view =focused= in the bag, =views/Input.jsx= yields a =defaultPrevented= key (dock swallowed every printable before — EventEmitter order, =stopPropagation= stops no sibling listener); =chess/modes/board/play/buffer/play.jsx= + =education/modes/games/dojo/buffer/dojo.jsx= tty faces beside the svelte entry, =tests/tty.test.js= + =tests/tty.render.test.js= per mode (opentui =testRender=, frames read back) green; ghost exports =./host= for them; =out/panes.mjs= rebuilt.
+- next: beef restarts runtime 17220 (pre-edit =.viva.js=) → =viva= · =/mode board/play= · =/application/start= · =/chrome/on= · ⇥ toggles frame/dock keys · the chess 500 (known-issues) · the runtime's own inversion (=* deferred=).
+- never: a lowercase helper over `trait.X` (s4-40) · a `traits` key on a die (s4-39) · a repl LIST · a =$repl= atom · a verb that paints · a turn through the repl · a synthetic ghost mask · a =host= key · a =mounted= promise · =clientDie.client= · a =*= on a mode's repl · a hostname test for the boot · =$live= · a =hosted/remote= split · two classes for one noun · a =lifecycle/= or =traits/= directory in ghost · a paladin import under =typology/= · a self-import of =@vivalence/ghost=.
+- owed: =hydration= (his word or amen — landed as written) · =memo.jsx= tty face dead (known-issues =memo-tty-face-on-dead-sheets=) · dojo tty: no AUDIO · CONJUGATE (forms surface) · continuous refill · the ghost =deno.jsonc= =test= task stays =--watch= (run one file from the root) · a late-arriving mode is not staggered · the activity =/stdout= pump.

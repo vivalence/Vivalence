@@ -1,10 +1,10 @@
-import { contexts, Path, shard, sleep, specimen, Twitch } from "@vivalence/typology";
+import { contexts, Path, shard, sleep, Span, specimen, Twitch } from "@vivalence/typology";
 import { datamap } from "@vivalence/runtime/scenarios";
 import { topography } from "@vivalence/typology/scenarios";
 
 import paladin from "@vivalence/paladin";
 import { gestalten, traits } from "@vivalence/runtime";
-const { DATASET, DATASINK } = traits;
+const { DATASET, DATASINK } = traits.mode;
 const { stagger } = gestalten.belt;
 
 let scenario, daemon, mode, arm, first;
@@ -28,6 +28,7 @@ specimen.beforeAll(async () => {
   mode = {
     manifest: { type: "topography", slug: "fixture", traits: [] },
     id: scenario.fixtures.mode.id,
+    stdout: new Span("mode/topography/fixture"),
     entity: { installed: "" },
     module: { source: corpus, dataset: topography.dataset(), datasink: topography.datasink() },
   };

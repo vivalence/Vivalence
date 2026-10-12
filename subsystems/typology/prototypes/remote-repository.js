@@ -1,4 +1,4 @@
-import { object } from "@vivalence/typology";
+import * as object from "../gestalten/belt/object.js";
 
 export class RemoteRepository {
   schema = {};

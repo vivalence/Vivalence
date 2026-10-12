@@ -1,5 +1,5 @@
 import { atom } from "nanostores";
-import { object } from "@vivalence/typology";
+import * as object from "../gestalten/belt/object.js";
 
 export class LocalRepository {
   integrate = null;

@@ -1,4 +1,7 @@
-import { is, fromm, Context, ValidationError } from "@vivalence/typology";
+import * as is from "../is/index.js";
+import * as fromm from "../fromm/index.js";
+import { Context } from "../../prototypes/context.js";
+import { ValidationError } from "../../prototypes/errors/vector.js";
 
 export function fire(effect, context) {
   if (effect.length === 0) return effect();

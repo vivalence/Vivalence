@@ -4,7 +4,7 @@ import { seed } from "./scenarios/datamap.js";
 import { ActivityEntity, ActivityRepository, gestalten, UserEntity } from "@vivalence/runtime";
 
 const harness = (entities) =>
-  new Vector().use(shard.context.spread(contexts.host, { entities })).graft(gestalten.skills.entity.entity);
+  new Vector().use(shard.context.spread(contexts.host, { entities })).graft(gestalten.tools.entity.entity);
 
 const invoke = (armed, name, input) =>
   steer.dispatch.invoke(armed, new ToolCall(name).signal, steer.strategy.guarded)(input);

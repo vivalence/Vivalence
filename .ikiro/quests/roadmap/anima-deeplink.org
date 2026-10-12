@@ -1,0 +1,95 @@
+#+title: anima deep link — a URL that lands in a terminal, a mode, signed in
+#+filetags: :anima:lighthouse:auth:url:sketch:
+#+status: SKETCH 10-19 — sketchboard only, unnumbered (the number is beef's); terrain measured (=reference/m95/auth.md=); two designs drafted; rides on m95's anima; nothing lands
+
+# limit: none (quest content)
+
+* intent
+
+10-19, beef verbatim (voice): /"I want to be able to navigate into Anima with a, with a bunch of params in the URL, so that I can open like localhost slash questionnaire and then a bunch of params. For for example, go to a specific terminal, go to a specific mode, um, maybe with the with a user authentication already baked in to the URL, some token."/ · /"Would we just open with our authentication token in there already, or would we mint a specific token for that that the Lighthouse is supposed to save and that we then exchange, like a temporary exchange token? I don't want to over-engineer this already, but like, would be nice if it's secure."/
+
+* terrain — measured 10-19
+
+| piece | file:line | today |
+|---+---+---|
+| token | =systems/runtime/lighthouse/signer.js:4-53= | HS256 JWT; access 1 d, never revoked; refresh 180 d, must equal the stored copy |
+| session slot | =systems/runtime/lighthouse/apertures/users.js:26-27= | ONE pair per user; a second login logs the first out (=SESSION_EXPIRED=, =anima/src/lighthouse.js:150=) |
+| url token | =signer.js:47= · =transmitter.js:32-34= | =?token= accepted; the =/multiplex= WS already carries access in its query |
+| traits | =subsystems/typology/schematics/primitives/instance.js:59= | JOINABLE · INVITATIONAL (empty fn) · AUTOLOGIN |
+| terminal id | =DataEntity.ts:164= · =Terminal.ts:28-33= | uuid v7, user-filtered — naming one in a URL leaks nothing |
+| mode id | =Mode.ts:77= | unique per (daemon, type, slug) — a URL names all three |
+| landing hook | =systems/anima/src/app/+layout.svelte:74= | =terminals.settle(bridge.layout.terminal)= — the old seat-restore |
+| anima urls | =+layout.svelte:109= | nothing but =/design= |
+
+* precedent
+
+| system | carries | lifetime | exchange |
+|---+---+---+---|
+| Jupyter | =?token== server token | reusable | swapped for a cookie |
+| VS Code serve-web | =?tkn== | reusable | cookie |
+| OAuth auth code + PKCE | =?code== | one use, ≤10 min | POST |
+| magic link | =?token== | one use, minutes | POST, then session |
+| RFC 6750 §5.3 | — | — | never a bearer token in a page URL |
+
+Leak paths: history · Referer · server logs · screenshots. Mitigations: one use · short TTL · POST redeem · =history.replaceState= · after =#= so it never reaches a server.
+
+* the coherent shape — a URL is REPL lines
+
+m95 settles everything through the repl; the demo's "try it" already replays lines (=~/Downloads/vivalence-client-v1/build/src/design.js:236= =lines.forEach((l) => R.dispatch(w, l))=). So the query is lines, the fragment is the credential:
+
+#+begin_src text
+http://localhost:1794/?do=/terminal%20<id>&do=/mode%20<daemon>/<type>/<slug>#code=<one-use>
+#+end_src
+#+begin_src js
+// systems/anima/src/surface/arrival.js (sketch)
+export const arrival = async (client, location) => {
+  const lines = new URL(location).searchParams.getAll("do");
+  const code = new URLSearchParams(location.hash.slice(1)).get("code");
+  history.replaceState(null, "", location.pathname);
+  if (code !== null) await client.dispatch(`/lighthouse/redeem ${code}`);
+  for (const line of lines) await client.dispatch(line);
+};
+#+end_src
+
+* two designs for the credential
+
+A. the refresh token itself in =#refresh==, stripped on read, boot's refresh step mints access.
+#+begin_src js
+const refresh = new URLSearchParams(location.hash.slice(1)).get("refresh");
+history.replaceState(null, "", location.pathname);
+client.lighthouse.authority = { refresh };
+#+end_src
+Cost: zero server code; a reusable 180-day credential sits in history and screenshots — the user's ONLY session.
+
+B. a one-use code: the lighthouse mints, the client redeems.
+#+begin_src ts
+// systems/runtime/entities/User.ts (sketch) — repository verbs, mikro-first
+async admit(user) { const code = crypto.randomUUID(); await this.assign(user, { admission: { code, expires: Date.now() + 120_000 } }); return code; }
+async redeem(code) { const user = await this.findOneOrFail({ admission: { code } }); if (user.admission.expires < Date.now()) throw new Expired(); return this.assign(user, { admission: null }); }
+#+end_src
+#+begin_src sh
+viva /lighthouse/admit --terminal <id> --mode <daemon>/<type>/<slug>   # prints the URL
+#+end_src
+Cost: ~30 server lines + ~10 client; INVITATIONAL's empty function is its natural owner.
+
+Lean B. Catch either way: redeeming writes the one session slot, so the =viva= that minted the link is logged out on its next refresh — three answers: accept it (=/login= does it today) · =/redeem= hands back the existing refresh (shared session) · a session entity (over-engineered now).
+
+* questions for the drill (his, when this strand opens)
+
+1. Q0 — what is this called (a name joins a family: ship · spell · food · animal · machine)?
+2. Does the query carry repl lines (=do==), or named params (=terminal= · =mode==)?
+3. A or B for the credential?
+4. Who mints — =viva= only, or anima too (share a link to this terminal)?
+5. The one-slot catch — accept the logout, share the session, or a session entity?
+
+* deferred
+
+- per-session entity · revocation of access tokens · the WS query token already in logs (a known issue to file if beef wants it)
+
+* handoff
+
+- goal: a URL lands anima in a terminal and a mode, signed in, without a reusable credential in the URL.
+- done: terrain (=reference/m95/auth.md=) · precedent · the shape (query = repl lines, fragment = credential) · designs A · B, lean B.
+- next: beef numbers and opens it; it rides on m95's anima (milestones 7 · 8).
+- never: a bearer token in a page URL (RFC 6750 §5.3).
+- owed: the five questions above.

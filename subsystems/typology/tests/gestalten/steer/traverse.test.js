@@ -71,4 +71,16 @@ specimen.describe("traverse", () => {
     specimen.expect(scopedParams[0]).toBe("any");
     specimen.expect(scopedParams[1]).toBe("path");
   });
+
+  specimen.it("a miss falls back to the nearest ancestor's *, never past a vector that has none", () => {
+    const use = () => "use";
+    const quit = () => "quit";
+    const missing = () => "missing";
+    const shell = new Vector().graft(new Vector().open({ nature: "/instance/use" }, use), new Vector().open({ nature: "/quit" }, quit), new Vector().open({ nature: "*" }, missing));
+    const reach = (path) => steer.dispatch.traverse(shell, new Signal(path))[0];
+    specimen.expect([reach("/bogus"), reach("/instance/bogus"), reach("/instance"), reach("/instance/use/deeper")]).toEqual([missing, missing, missing, missing]);
+    specimen.expect([reach("/instance/use"), reach("/quit")]).toEqual([use, quit]);
+    const bare = new Vector().graft(new Vector().open({ nature: "/instance/use" }, use));
+    specimen.expect(steer.dispatch.traverse(bare, new Signal("/instance/bogus"))[0]).toBe(null);
+  });
 });

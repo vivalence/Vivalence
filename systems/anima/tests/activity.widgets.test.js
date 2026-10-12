@@ -3,7 +3,7 @@ import { compile } from "svelte/compiler";
 import { effect_root, flush, get, set, state, untrack, user_effect } from "svelte/internal/client";
 import { atom } from "nanostores";
 import { flat, project, root, spans } from "../src/app/bones/spine/activity.js";
-import { loudest, owed } from "../src/typology/entities/activity.js";
+import { loudest, owed } from "../src/entities/activity.js";
 
 // the surfaces that read an activity. they carry warnings older than this quest
 // (shoulder's ".population > *"), so the bar here is: it compiles, and nothing it says is ours.

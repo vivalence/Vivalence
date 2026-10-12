@@ -1,6 +1,6 @@
 import { specimen, sleep } from "@vivalence/typology";
 import { atom } from "nanostores";
-import { dictation } from "../src/typology/prototypes/dictation.js";
+import { dictation } from "../src/prototypes/dictation.js";
 
 const pause = (signal, ms) =>
   new Promise((resolve) => {

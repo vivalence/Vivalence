@@ -1,6 +1,13 @@
 import { atom, computed, onMount } from "nanostores";
-import { string, shard, sse, Url, Request, Response, middleware, promise } from "@vivalence/typology";
-import { object } from "@vivalence/typology";
+import * as string from "../gestalten/belt/string.js";
+import * as transmitter from "../gestalten/shard/transmitter.js";
+import * as sse from "../gestalten/belt/sse.js";
+import { Url } from "./url.js";
+import { Request } from "./request.js";
+import { Response } from "./response.js";
+import * as middleware from "../gestalten/belt/middleware.js";
+import * as promise from "../gestalten/belt/promise.js";
+import * as object from "../gestalten/belt/object.js";
 import { Socket } from "./socket.js";
 
 const CONFIG = {
@@ -15,7 +22,7 @@ export class Connection {
   carry = [];
   children = new Map();
 
-  constructor(url, transport = shard.transmitter.fetcher) {
+  constructor(url, transport = transmitter.fetcher) {
     this.url = url instanceof Url ? url : new Url(url);
     this.transport = transport;
   }
@@ -142,15 +149,18 @@ export class Connection {
   }
 
   subscribe(endpoint, callback, options = {}) {
-    const { backoff = CONFIG.backoff, resumed, ...streaming } = options;
+    const { backoff = CONFIG.backoff, resumed, dropped, ...streaming } = options;
     const controller = new AbortController();
     (async () => {
+      let lost = false;
       for (let attempt = 0, round = 0; !controller.signal.aborted; attempt++, round++) {
         const heal = round;
+        let failure;
         try {
           for await (const event of this.stream(endpoint, controller.signal, {
             ...streaming,
             opened: () => {
+              lost = false;
               if (heal > 0) resumed?.();
             },
           })) {
@@ -160,7 +170,10 @@ export class Connection {
           if (controller.signal.aborted) return;
         } catch (error) {
           if (controller.signal.aborted || error.name === "AbortError") return;
+          failure = error;
         }
+        if (!lost) dropped?.(failure);
+        lost = true;
         const gate = promise.waiter();
         const timer = setTimeout(gate.wake, Math.min(backoff * 2 ** attempt, CONFIG.ceiling));
         await gate.wait(controller.signal);
@@ -209,7 +222,7 @@ export class Connection {
 //   $state = atom("UNRESOLVED");
 //   $error = atom(null);
 
-//   constructor(url, transport = shard.transmitter.fetcher) {
+//   constructor(url, transport = transmitter.fetcher) {
 //     this.url = url instanceof Url ? url : new Url(url);
 //     this.transport = transport;
 //     this.use(track(this));

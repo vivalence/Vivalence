@@ -103,3 +103,13 @@ export function slug(thing) {
   if (thing.length < 1 || thing.length > 200) return false;
   return /^[a-z0-9]+(?:[-_.][a-z0-9]+)*$/.test(thing);
 }
+
+export function signature(thing) {
+  return object(thing) && defined(thing.nature);
+}
+
+export function url(thing) {
+  if (string(thing)) return thing.includes("://");
+  if (thing && thing.origin && (thing.pathname || thing.nature)) return true;
+  return false;
+}

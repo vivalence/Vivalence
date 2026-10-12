@@ -3,8 +3,8 @@ import { metronome } from "@vivalence/typology/scenarios";
 import { create as harnessed } from "./cortex.js";
 import { tiers } from "./fixtures.js";
 import { lighthouseOf, SECRET } from "./daemon.js";
-import { signer } from "../../lifecycle/runtime/lighthouse/signer.js";
-import { userspace } from "../../lifecycle/runtime/aperture/userspace.js";
+import { signer } from "../../lighthouse/signer.js";
+import { userspace } from "../../runtime/lifecycle/integration.js";
 
 export const TOOL = { tool: { id: "c1", name: "lookup", input: { query: "x" } } };
 export const OBJECT = {

@@ -1,5 +1,6 @@
 import { Signature } from "./signature.js";
-import { is, hash } from "@vivalence/typology";
+import * as is from "../gestalten/is/scalars.js";
+import * as hash from "../gestalten/belt/hash.js";
 
 export class Action extends Signature {
   static coercions = [

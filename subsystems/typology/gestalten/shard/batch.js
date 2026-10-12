@@ -1,4 +1,8 @@
-import { Signal, Context, fromm, steer, NotFound } from "@vivalence/typology";
+import { Signal } from "../../prototypes/signal.js";
+import { Context } from "../../prototypes/context.js";
+import * as fromm from "../fromm/index.js";
+import * as steer from "../steer/index.js";
+import { NotFound } from "../../prototypes/errors/vector.js";
 
 export function route(aperture) {
   return async (calls, ctx) => {

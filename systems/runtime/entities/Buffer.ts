@@ -21,7 +21,7 @@ export enum BufferTraitsEnum {
 
 export class BufferRepository extends DataRepository {
   // every query first, the mint last: a query auto-flushes a pending row, and a row flushed
-  // before its seat is taken is named for the wrong index.
+  // before its index is taken is named for the wrong one.
   async create({ thread, literals, symbols, ...fields }: any) {
     const bound = thread ? await this.em.findOneOrFail(ThreadEntity, thread) : null;
     const buffer = super.create({
@@ -37,7 +37,7 @@ export class BufferRepository extends DataRepository {
 export class BufferEntity extends DataEntity {
   status: BufferStatusEnum & Opt = BufferStatusEnum.PENDING;
   data: any & Opt = {};
-  view: any & Opt = null;
+  bundle: any & Opt = null;
   index: number & Opt = 0;
   traits: BufferTraitsEnum[] & Opt = [];
   trait: any & Opt = {};
@@ -69,7 +69,7 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
       defaultRaw: `'${BufferStatusEnum.PENDING}'`,
     },
     data: { type: types.json, defaultRaw: `'{}'` },
-    view: { type: types.json, nullable: true },
+    bundle: { type: types.json, nullable: true },
     index: { type: types.integer, default: 0 },
     traits: {
       items: () => BufferTraitsEnum,

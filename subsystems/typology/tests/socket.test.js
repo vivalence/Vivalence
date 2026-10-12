@@ -1,4 +1,4 @@
-import { specimen, sleep, Vector, Aperture, Socket, shard, shape } from "@vivalence/typology";
+import { specimen, sleep, Vector, Aperture, Socket, shard, shape, v } from "@vivalence/typology";
 
 specimen.describe("Socket", () => {
   const PORT = 9883;
@@ -57,6 +57,8 @@ specimen.describe("Socket", () => {
     socket.push("log", { msg: "tick" });
     await sleep.ms(50);
     specimen.expect(logged).toContainEqual({ msg: "tick" });
+    specimen.expect(v.primitives.connection.Packet.check({ nature: "/log", body: [{ msg: "tick" }] })).toBe(true);
+    specimen.expect(v.primitives.connection.Packet.check({ signal: "/log", input: { msg: "tick" } })).toBe(false);
     socket.close();
   });
 

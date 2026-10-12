@@ -1,4 +1,5 @@
-import { Signal, steer } from "@vivalence/typology"
+import { Signal } from "../../prototypes/signal.js"
+import * as steer from "../steer/index.js"
 
 export function subscriber(vector, { scope = (args, task) => task() } = {}) {
   const dispatch = (signal, args) => async () => {

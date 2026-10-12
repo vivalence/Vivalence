@@ -22,10 +22,11 @@ export * from "./filepath.js";
 export * from "./pattern.js";
 export * from "./signature.js";
 export * from "./signal.js";
+export * from "./argv.js";
+export * from "./replsignal.js";
 export * from "./toolcall.js";
 export * from "./app.js";
 export * from "./bundle.js";
-export * from "./view.js";
 
 export * from "./span.js";
 export * from "./pipe.js";
@@ -39,6 +40,8 @@ export * from "./stall.js";
 export * from "./remote-repository.js";
 export * from "./local-repository.js";
 export * from "./entity-manager.js";
+export * from "./entity.js";
+export * from "./dataspace.js";
 
 // export * from "./feature.js";
 // export * from "./mode.js";

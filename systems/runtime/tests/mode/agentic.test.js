@@ -1,7 +1,7 @@
 import { belt, contexts, shard, specimen, steer } from "@vivalence/typology";
 import { Vector, Mode, Aperture, Path, ToolCall } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
-const { AGENTIC } = traits;
+const { AGENTIC } = traits.mode;
 
 function provision(mode, daemon) {
   mode.tools = new Vector();

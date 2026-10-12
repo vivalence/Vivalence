@@ -1,4 +1,6 @@
 // import { boxShadow, dropShadow, border, container, spacing, animation } from "./tokens.js";
+import { flatten } from "./contrast.js";
+import { THEMES } from "../themes/index.js";
 
 export const font = {
   size: {
@@ -110,3 +112,27 @@ const flat = (held, prefix) =>
 
 export const scales = () =>
   `:root {\n${flat(TOKENS, "-").map(([name, value]) => `  ${name}: ${value};`).join("\n")}\n}\n`;
+
+const FLAT = {
+  surface: (zone) => zone.surface,
+  surfaceSunk: (zone) => zone.surfaceSunk,
+  surfaceLift: (zone) => zone.surfaceLift,
+  boundary: (zone) => zone.boundary,
+  textStrong: (zone) => zone.text.strong,
+  textInk: (zone) => zone.text.ink,
+  textMuted: (zone) => zone.text.muted,
+  textLink: (zone) => zone.text.link,
+  signalPrimary: (zone) => zone.signal.primary.fill,
+  signalPositive: (zone) => zone.signal.positive.fill,
+  signalCaution: (zone) => zone.signal.caution.fill,
+  signalNegative: (zone) => zone.signal.negative.fill,
+  inverse: (zone) => zone.inverse,
+  inverseOn: (zone) => zone.inverseOn,
+};
+
+export const tokens = (theme, zone) => {
+  if (!Object.hasOwn(THEMES, theme)) throw new Error(`[tokens] not a theme: ${JSON.stringify(theme)} · ${Object.keys(THEMES).join(" · ")}`);
+  const held = THEMES[theme].zones[zone];
+  if (held === undefined) throw new Error(`[tokens] not a zone: ${JSON.stringify(zone)} · 0 · 1 · 2 · 3`);
+  return Object.fromEntries(Object.entries(FLAT).map(([key, read]) => [key, flatten(read(held), held.surface)]));
+};

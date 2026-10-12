@@ -1,0 +1,20 @@
+--- node_modules/@opentui/core/chunk-node-tfvyz31s.js.orig	2026-10-10 14:07:56.164564673 +0200
++++ node_modules/@opentui/core/chunk-node-tfvyz31s.js	2026-10-10 14:07:56.190787724 +0200
+@@ -239,7 +239,7 @@
+     return createBunBackend(requireModule("bun:ffi"));
+   }
+   try {
+-    const nodeFfi = requireModule("node:ffi");
++    const nodeFfi = globalThis.__opentuiNodeFfi ?? requireModule("node:ffi");
+     return createNodeBackend(nodeFfi.default ?? nodeFfi);
+   } catch (error) {
+     return createUnsupportedBackend(error);
+@@ -11886,7 +11886,7 @@
+     return createBunBackend2(await importModule("bun:ffi"));
+   }
+   try {
+-    return createNodeBackend2(await importModule("node:ffi"));
++    return createNodeBackend2(globalThis.__opentuiNodeFfi ?? await importModule("node:ffi"));
+   } catch (error) {
+     return createUnsupportedBackend2(error);
+   }

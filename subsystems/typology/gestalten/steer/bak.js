@@ -4,7 +4,8 @@
 // spray + harvest moved here.
 // collect (one-level) moved here from navigate.js.
 
-import { Signal, middleware } from "@vivalence/typology"
+import { Signal } from "../../prototypes/signal.js"
+import * as middleware from "../belt/middleware.js"
 import { scope } from "./match.js";
 import { direct } from "./strategy.js";
 

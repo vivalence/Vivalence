@@ -1,7 +1,7 @@
 import { assert, assertEquals } from "@std/assert";
 import { steer, ToolCall, Vector } from "@vivalence/typology";
-import { fs } from "../skills/fs.js";
-import { shell } from "../skills/shell.js";
+import { fs } from "../gestalten/tools/fs.js";
+import { shell } from "../gestalten/tools/shell.js";
 
 const invoke = (armed, name, input) =>
   steer.dispatch.invoke(armed, new ToolCall(name).signal, steer.strategy.guarded)(input);
@@ -18,7 +18,7 @@ const harness = async () => {
   return { root, armed };
 };
 
-Deno.test("paladin skills — fs + shell", async (t) => {
+Deno.test("paladin tools — fs + shell", async (t) => {
   const { root, armed } = await harness();
 
   await t.step("fs_tree lists an absolute directory and skips bak", async () => {

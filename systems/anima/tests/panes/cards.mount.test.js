@@ -2,13 +2,13 @@ import { specimen, Status } from "@vivalence/typology";
 import { compile } from "svelte/compiler";
 import { parseHTML } from "linkedom";
 import { atom } from "nanostores";
-import { Terminals } from "../../src/typology/stores/terminals.js";
-import { Bridge } from "../../src/typology/stores/bridge/bridge.js";
-import * as panes from "../../src/typology/stores/bridge/panes.js";
+import { Terminals } from "../../src/entities/terminal/terminals.js";
+import { Bridge } from "../../src/bridge/prototype.js";
+import * as panes from "../../src/bridge/panes.js";
 import { repositoryDouble } from "./rig.js";
-import { Thread } from "../../src/typology/entities/thread/thread.js";
-import { Mode } from "../../src/typology/entities/mode/mode.js";
-import { Buffer } from "../../src/typology/entities/buffer.js";
+import { Thread } from "../../src/entities/thread/prototype.js";
+import { Mode } from "../../src/entities/mode/prototype.js";
+import { Buffer } from "../../src/entities/buffer.js";
 import { BRIDGE, LIGHTHOUSE, TERMINALS } from "../../src/client.js";
 
 const CLIENT = import.meta.resolve("svelte/internal/client");
@@ -62,12 +62,12 @@ const KIT = [
 ];
 
 const SHIM = `
-export { chain } from "${new URL("typology/gestalten/belt/chain.js", SRC).href}";
-export { TONES, loudest, owed, roster, settled } from "${new URL("typology/entities/activity.js", SRC).href}";
-export * as ThreadTraits from "${new URL("typology/entities/thread/traits/index.js", SRC).href}";
-export * as ModeTraits from "${new URL("typology/entities/mode/traits/index.js", SRC).href}";
-import * as panes from "${new URL("typology/stores/bridge/panes.js", SRC).href}";
-import { railGrain } from "${new URL("typology/stores/bridge/bridge.js", SRC).href}";
+export { chain } from "${new URL("gestalten/belt/chain.js", SRC).href}";
+export { TONES, loudest, owed, roster, settled } from "${new URL("entities/activity.js", SRC).href}";
+export * as ThreadTraits from "${new URL("thread/traits/index.js", SRC).href}";
+export * as ModeTraits from "${new URL("mode/traits/index.js", SRC).href}";
+import * as panes from "${new URL("bridge/panes.js", SRC).href}";
+import { railGrain } from "${new URL("bridge/prototype.js", SRC).href}";
 export const stores = { bridge: { panes, railGrain } };
 `;
 

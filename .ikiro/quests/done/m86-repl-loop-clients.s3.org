@@ -1,0 +1,1808 @@
+#+title: m86 repl client — client.dispatch(signal) composes the repl on every line; the terminal's controller carries the messages the dock shows beside the turns
+#+filetags: :ghost:typology:paladin:client:repl:chrome:mode:
+#+status: DESIGNED 10-15 — the interview below locked the ring; the tangle is proposed, nothing landed; next: his go per file, HOLY diffs first (=contexts.Repl= · =index.client.js=), then paladin (m88's blocks, cited), then ghost. m88's GHOST half is superseded by this file (no repl list, no =terminal.repl(base)=); m88's PALADIN half stands and is cited, not re-tangled.
+# limit: 120000 chars
+
+* intent — beef, verbatim (10-15, the quest as he left it)
+
+ok.
+weve been itterating the client a bit now.
+
+ /Users/finn/vivalence/code/vivalence/systems/ghost/bak
+ has 3 versions. /Users/finn/vivalence/code/vivalence/systems/ghost/bak/bak.bak is where we started a week ago.
+ bak2 is intermediary shit. bak3 is slop shit. bak3 has good filestructure tho.
+
+question is how to get to a good client.
+couple of things. couple of steps.
+
+first, i want to make it easyer for me by not building 3 versions of ghost - shell, repl, chrome - but only 2. shell and chrome.
+repl lives in chrome so it should be easy to move the repl out of chrome if properly abstracted.
+
+second, i want to take a methodical approach to working out how the client should work.
+first method is for you to go over all the traits by entitiy and interview me about their shape and role and function.
+we have traits on system level and mode level and entity level.
+viva is a vehicle for applying traits to various but limited entities and processes.
+
+the client ghost broadly works like the anima client does today. although anima is out of date and dysfunctional since we rebuild the runtime.
+here are the parst that work:
+broadly the lighthouse/runtime/daemon/mode/buffer abstractions and implemenntations of datamaps and frame composition and terminals and such work.
+we boot the client, load the runtime, sign in to the lighthouse (auth flow if not), and then we populate the dataspace with the daemons+modes, terminals+threads+buffers.
+
+the entities have are synced via remote repos and remote entities. all gucci.
+shoudl work.
+
+but we do have new traits on entities that didnt have traits before.
+client has traits now:
+
+#+begin_src json
+  "clients": [
+    {
+      "manifest": { "slug": "anima" },
+      "traits": ["HOME"],
+      "trait": {
+        "HOME": { "reference": "/runtime/runtime/mode/home/home" } // aka what goes on an empty / new terminal in this client. user also has a home trait doing the same thing. user trait takes precedence. interesting question is where we implement this trait. i'd like this trait to be on client traits but wired via our $reactive stores. aka the trait function context must have acess to the clients terminals. i think we can hook into client.$active terminal and when we see it change and the new one has no runtime or daemon adn no mode or thread, we apply the reference. easy. and important for you to study as a pattern. this is the architecture.
+      },
+      "modes": ["@commons/home/client"] // doesnt exist yet. need to figure out where what traits of modes apply. i am thinking of such things as keymaps via traits or a repl vector via repling.
+    }
+#+end_src
+
+lighthouse too:
+#+begin_src json
+  "lighthouse": {
+    "traits": ["JOINABLE", "AUTOLOGIN"]
+  },
+#+end_src
+
+and the architecture is expected to have a few attributes/aspects to it:
+A: ook at teh runtime and typology testing to understand how the vector works. vectors are both a way to setup http apis, provide tools to agents, how we boot and hold and teardown processes, how we react to things and and and and. they are our grammar.
+B: reactivity and functional composition. study the anima client and how we compose entities, contexts, and reactives into a coherent selfcontained client model that has surface rendering attached to it. now we add a new component to this. the repl. the repl is this major clietn building block that was entirely missing so far and weve been struggling to create. m86-repl-loop-clients.s1.org and  m86-repl-loop-clients.s2.org are testimony as well as bak2&3. the repl will become the core of the client architecture. what in anima is the dock will now be our interface with the repl. we have the repl as a filter for repl signal. repl signatures trying to catch  signal flowiging in throught eh dock. repl gets composed by traits. client traits, mode traits, etc etc. very important to get the mapping of functionality and traits right here. f.e. if were on  a harnessed mode aka we can chat, then the root /* match thats normally fall through is judged as turn. another example is the content of the repl is a function of (static base commands for all kinds of administrative functions like auth, terminal, thread and other entity handling as well as management of box features - all of which implemented as command vectors that get the client in their context and use the reactivity and dataspace and other abstractions like box and bridge to accomplish their deeds -, then the repl gets whatever the client.modes[traits.repling] has in terms of vectors, adn teh repl gets features depending on what the terminal.thread.mode has setup- although here the modes are remote and we either need to run a execution pipeline from client to runtime with runtime publishing metadata stripwire and attaching to the aperture and the client pulling metadata and wiring a connection proxy into the repl vector - should work.)
+
+question is and where we keep these.
+i think we need some meta entity prototype or something. i dont like it but probably its needed. aside question, how do f.e. elm or emacs do this? is there some root core client object holding everything together?? const client = {runtime, box, $active, etc}???
+for us we need to adjust what the client offers us. lighthouse is now scoped differently. lighthouse is on the runtiem. maybe next to the runtime? terminals are also per runtime and not inside a daemon. we'd want a controller and we have a mask. controller as the root controller that all others branch off off. repl on client is no longer valid. repl is a property of terminal. no way to access repl outside of terminal. thats the point of integration. the terminal repl vector is a function of the client and the runtime. everything flows through it. we control panels, telemetry, login, debugging, harness, and and and and via repl.
+the terminal repl vector will constantly be rebuild. on all kinds of state changes like terminal mode or trait changes.
+
+very itneresting. altho we now move the client to a common abstract and consider svelte a depracated surface target (with its spot taken by solid to create coherence with opentui's solid).
+so, same tooling and abstractions between clients.
+ghost actually implementeing all teh prototyeps and lifecycles and traits. anima importing from "@vivalence/ghost".
+
+i feel  like i want to get the functional client architecutre right first. but for that you need to already udnerstand the role of $reactiveity, dataspaces and entities, and vector compositions.
+
+** the brief for the tank (10-15, verbatim)
+
+/"I want you to persist everything that we have discussed so far into the quest, and then I want you to go into the tank and run a design process and come up with something that's pretty, that's elegant, that's simple. Let's keep the scope small for this. … I want to have clean contexts, clean composers, clean vectors, clean entities, clean prototypes, clean traits. Well aligned and coherent. I want them only for the shell, and I want proper rendering of the Chrome with the REPL in the middle. We do entirely new Chrome. And I want my REPL to be populated from the mode on the client … I want the home set, so when I create a new terminal, which automatically happens when I open the Chrome, then I have my home resolved, and the REPL populated according to the reference in home. I think each of these steps should have a message, so I get like a nice little inline trace of what happens. … in our scenario, we have three modes, one for the client as a demo, one in the runtime as a demo, one in the daemon as a demo. The home references the runtime, so we start the Chrome terminal is created, runtime mode is mounted, and here we have a harness. We can chat. And then I want some REPL function to change the mode. I want to be able to go to the daemon mode, and if we, and the daemon mode also has a harness and a application. And then I want the ability to start the application for that mode, also via the REPL, so there might be, if we are in a mode, in an application mode, we can just type application, maybe application start, and then it opens a, it splits the view. We have the dock and the frame, and then we render whatever application the buff, the mode has, we generate a buffer and render the application with it. The daemon here should, let's do a flashcard mode, so the application in OpenTUI is some sort of nice flashcard UI. I also, now that I think about it, I want the same, I want the runtime mode also to have an application and then just do runtime things like render what modes and daemons we have and maybe an interface where I can click on that automatically sends me to that mode, and we do that by invoking either functionality on the REPL or setting that stuff manually in the effect. Maybe we can do two effects, one showcasing each."/
+
+* the dialogue — the interview, 10-15; his word per item, verbatim
+
+| # | asked | his ruling |
+|---+---+---|
+| a1 | where the lighthouse sits | /"client.runtime.lighthouse"/ |
+| a2 | the root controller | /"die."/ |
+| a3 | the mask | /"on die we have the whole paladin instance. on client only the client[ghost]."/ |
+| a4 | where =$active= lives | first /"not sure"/; then: /"the terminals exist inside of the runtime entities, so there's one more scope. And active lives directly on the client."/ |
+| b5 | the repl reactive? | /"repl itself isnt reactive. no $repl. … the repl vector composition and execution is a function of the things i listed."/ |
+| b6 | what a repl signal is | =bak.3/prototypes/replsignal.js= — /"there is some valuable stuff in bak3."/ |
+| b8 | precedence | /"we attach them in order and thats that. one vector. first statics then dynamics."/ |
+| b9 | remote mode verbs | same mechanism as =mode.metadata.harness → shape.connection.wire=: /"yes. exactly."/ |
+| 10 | the dock | /"dock is dock. the bones and panels come later."/ |
+| 11 | the seats | /"client · lighthouse · mode(client) · mode(runtime) · terminal · thread · user AND RUNTIME itself!. stagger is one method. not tteh only method."/ |
+| 12 | a trait's arguments | /"traits have (subject, object) and vectors (ctx{...subject,...object}). look at our context creation."/ · later: /"We handle traits not in one unified way dogmatically, but whatever makes sense in context."/ · /"Home is not a fucking watcher. You're just taking this one trait and using it as a guidance for the entire trait space of the client"/ |
+| 15 | =viva repl= | /"no viva repl FOR NOW. first i wnat to get the basics right."/ |
+| r1 | dispatch owner | /"terminal.dispatch."/ then /"actually maybe client.dispatch makes more sense. solves this inherrrrrently. client.dispatch(signal)."/ |
+| r2 | the vector per dispatch | /"lets make it easy for ourselves and compose on dispatch for now."/ |
+| r3 | the context | /"stream no. kill is part of controller. command makes no sense. mode missing."/ |
+| r4 | =ctx.mode= | /"terminal.thread.mode. (might be runtime or daemon). altho i suspect we will have threadless terminals iwth a clietn mode attached at some point."/ |
+| r5 | output vs the dataspace | /"dataspace shit like subs dont go through the fucing repl"/ · /"logging via controller.stdout. effects via dataspcae. ctx.output is used yes. most likely empty on turn createion cause i render turns. … repl renders turns but some repl loops dont interface with turns at all."/ |
+| r6 | the dock's content | /"we can create a new meessage trace on spans. dock renders message spans intertwined with turns."/ |
+| r7 | who writes a message | /"anyone. we can add a middlware that passes ctx.output.message to controller. fine."/ |
+| r8 | whose controller | /"terminal.controller"/ |
+| r9 | the input side | /"keys are their own mechanism. later. just straight dock repl->replsignal"/ |
+| r10 | the bare line | /"harnessed adds the effect"/ |
+| r11 | composition | /"the repl vector is the result of a pipeline. like runtime apertures go through pretty elaborate composition. smae here."/ — a =(ctx, next)= chain over ={ client, terminal, repl: new Vector() }=, run by =client.dispatch= before invoking: /"[yes]"/ |
+| r12 | runtime REPLING | /"daemon and runtime each have their scope for each mode and a repling mode exposes its functionality at that attachment. reference points to the root."/ · the thread/terminal on a proxied call: /"we will implement that later. not super important."/ |
+| 1 | the boot | a Vector of =(die, next)=, =die = { controller, mask, surface, client }=: /"yea"/ |
+| 2 | terminals | A, then corrected: see a4 |
+| 4 | HOME creating the thread | /"Yeah, whatever, we fix later, next question."/ — my call below: the terminal lifecycle's =home= beat |
+| 5 | where trait code lives | /"systems/ghost/traits/<seat>/<name>.js     // one tree, ghost owns, anima imports"/ |
+| 6 | the dock's feeds | /"only those two now"/ (messages ⊕ turns) |
+| 7 | lighthouse traits | /"The Lighthouse config is universal … joinable makes the runtime expose the sign up at all, and then auto login probably on the client runs against an either auto login or sign up."/ |
+| 8 | the runtime in-process | /"if we boot the client and there isn't a runtime, then we boot a runtime."/ |
+
+** notes after the tangle, 10-15 — collected, not reacted to (/"for now collect my notes. dont react"/)
+
+- on =population.hosted= (=Object.assign(new Mode(citizen), { reference, repl, stdout })=): /"this doesnt make sense yet. we either implement a propper mode boot or i dont see the point. runtime/anima style mode boot pipe. yea? meaning whatever we're doing in the old Anima client to boot to instantiate. I suspect that the right way to do this is something akin to the way runtime does it."/
+- on =belt/transcript.js= (=merge(messages, turns)= sorted by =stamped=): /"we can just lean into the span tracks. have it do this wiring."/
+- /"all of the dies are named die. This is very confusing. Let's prepend the specific entity that this die belongs to."/ → =clientDie · terminalDie · threadDie · modeDie · daemonDie · lighthouseDie=, landed across the tangle 10-15.
+
+** his marks on the tangle, 10-15 — each treated in the block it names (=// -- = = treated)
+
+- // -- =commands/application/start.js= /"import { open } from traits/terminal/standalone.js //@beef ??"/ → =open(terminal, mode)= is plain over data: =gestalten/belt/frame.js=; the trait file dies.
+- // -- =commands/runtime/mode/pick.js= /"i dont like these validations. ugly to do inline. we should solve this elsewhere."/ → the composer grafts =commands.seated= only while =ctx.terminal !== null=: the route is grafted or ABSENT, no check.
+- // -- =pick.js= /"is this the rendering that captures the ui?"/ → no: =seating(ctx, mode)= (bak.3 =commands/runtime/mode/seating.js=) finds the newest thread of that mode or creates one, then =terminal.seat(thread)=. Rendering is the frame's, on =/application/start=.
+- // -- =belt/messages.js= /"no this isnt how we solve this. we can update the span trackers to handle this natively."/ · /"what? are you having a stroke???"/ · /"we just pipe out of the controller at the right level with a message filter. easy."/ → =Span.message(data)= · =Span.tail(...verbs)= · =shard.track.message()= (HOLY block); the file dies.
+- // -- =belt/transcript.js= /"what?"/ → dies: a turn is a record on the seated thread's span (=TurnDossier.use=), the dock tails ONE span.
+- // -- =client/population.js= /"you dont fucking use intermediary variables"/ (×6) · /"no. stupid and ugly."/ · /"we dont multiplex per lighthouse?!? we multiplex on runtime"/ · /"what. are you stroking. something is WAAAY off"/ (=runtime.lighthouse.runtime=) · /"reference: runtime.reference //@beef what?"/ · /"just write the subscriptions out. dont hide them behind logic."/ → rewritten whole: =clientDie.client.runtime.…= inline; =Runtime= owns =multiplex= and =connection=; =Runtime= IS a host (no =new Daemon()= stand-in); five subscriptions spelled.
+- // -- =client/population.js= /"i dont like this way of booting modes.."/ → runtime's shape: =population.modes= instantiates, =lifecycle/mode/*= boots, =belt/modes.js= drives.
+- // -- =client/resolution.js= /"what are fucking rows. dont fucking call shit "rows""/ → =terminals=.
+- // -- =terminal/population.js= /"wtf so stupid sooooo complicated. not good code."/ → the controller is branched ONCE where the terminal is met (=resolution.terminals=) and lives on the terminal; the =controller= beat dies. Same for a thread (=resolution.seat=).
+- // -- =traits/mode/harnessed.js= /"wtf is thread echo???? never existed. doesnt exist."/ · /"const { thread } = ctx.terminal; // i hat you"/ → =$echo= dies (bak.3 =prototypes/thread/thread.js:25=, mine); the user turn arrives by subscription like every turn.
+- codestyle 10-15: /"you dont fucking use intermediary variables"/ → =.ikiro/codestyle.md:28=.
+
+Two facts answered on the way, not rulings: Elm = one =Model= + one =update=; Emacs = no root object, =selected-window= is the FRAME's cursor, every "current" derives from it. Our =client.$active= is that cursor; =contexts.js:50= already says =terminal= is /"The ACTIVE terminal"/.
+
+* the law — the ring, as locked
+
+#+begin_example
+dock line ──▶ new ReplSignal(line)                    bare text → { nature: "*", body: [{ type: "text", text }] } · "/x y" → verb
+          ──▶ client.dispatch(signal)                 the client dispatches; the active terminal is CONTEXT
+          ──▶ lifecycle/repl.js execution             a (ctx, next) pipe: track.span · track.fault · track.message · composing · root effect resolving
+                track.span:    ctx.span = ctx.span.branch(signal.pathname)                      one span per line, under the seat's
+                composing:     ctx.repl = new Vector().graft(client.repl, …hosted[*].repl, …seated(terminal, mode))   ON EVERY LINE, later graft shadows
+                resolving:     steer.dispatch.invoke(ctx.repl, ctx.signal, …) → ctx.output
+                track.message: ctx.output !== undefined → ctx.span.message(ctx.output)         track.fault: a throw → ctx.span.fault(error)
+ctx = { signal · input · output · steps · params  ·  client · runtime · terminal · mode · span }        contexts.Repl, nothing else
+      terminal = client.$active.get()  ·  mode = terminal.thread.mode  ·  span = terminal.controller.stdout (a branch of the client's)
+dock  = seat.controller.stdout.tail("message", "fault", "turn")  — ONE span, journal order; a turn is marked on its thread's span as it arrives; $live while one streams
+dataspace = its own channel: rows arrive by subscription, the frame and the dock render STATE; nothing of it passes the repl
+#+end_example
+
+- =client = { mask, controller, runtime, modes, $active, $dock, repl, dispatch }= — =mask= is paladin's =clients[ghost]= row after =wire()=; =runtime = { manifest, reference, remote, connection, lighthouse, entities, daemon, $status }=; terminals are =runtime.entities.terminal= rows; =$active= is the cursor.
+- a mode on the client carries =mode.repl = new Vector()= — REMOTE (a row of a host's =entities.mode=, class =prototypes/mode.js=) and HOSTED (a citizen of the client's own =modes=, typology's =Mode=) alike. Traits fill it: =HARNESSED= opens =*= (a turn), =REPLING= grafts the mode's =repling= export (hosted). The composer reads it; nothing else does. A mode without a filled =repl= contributes an empty graft.
+- a line that matches no verb is =NotFound= → =track.fault= → a =fault= record on the line's span. So a bare line on a mode without =HARNESSED= answers /"no such verb"/ in the dock, by the mechanism, not a check.
+- =terminal.controller = client.controller.branch(`terminal/<id>`)=, branched once where the terminal is met; =thread.controller = terminal.controller.branch(`thread/<id>`)= on seat. Records flow through the ONE root pipe with =path=; =Span.tail(...verbs)= is the filter at a level: the records under THIS span with those verbs, as a store. A message's =data= is what the verb returned — a string (prose) or data; the dock paints a string as a line, a =fault= record as =✕=, a =turn= record as a turn, anything else as a tree. Three HOLY one-liners: =Span.message=, =Span.tail=, =shard.track.message=.
+- boot = a Vector of =(clientDie, next)= over =clientDie = { controller, mask, surface, client, register }=, the runtime's grammar; every beat that changes what beef sees marks a message on the span it owns: lighthouse · signed in · runtime mounted · daemon healthy · terminal · home seated · mode seated · application opened.
+- HOME this stretch names a HOST mode (runtime or daemon). The terminal lifecycle's =home= beat seats it: no thread + a reference → the owning host awaited =mounted= → =thread.create({ mode })= → =terminal.seat(thread)= → a message. A hosted (client) HOME = a threadless terminal with a client mode = DEFERRED (his r4).
+- the shell stays one-shot (=run.js=); its root effect hands an interactive terminal to the chrome, nothing else (=viva repl= · pipes: gone this stretch). The runtime is probed first; none reachable → booted in-process (=belt.instance.boot=, bak.3 kept).
+- the chrome = crown · dock · frame · signin cover, painted into sheets' chassis; the dock is the repl's face (the =<<= composer + the transcript), the frame opens when =terminal.$buffer= is set — by =/application/start=, never by seating.
+- keys · pickers · =ctx.view= · =ctx.flags= · navigation pane · anima: OUT this stretch.
+
+* terrain — measured 10-15
+
+| what | where | today |
+|---+---+---|
+| the tree | =systems/ghost= | =run.js · typology.js · deno.jsonc · ghost.sh · install.sh= + =bak/= — =run.js:2-3= imports =./prototypes/argv.js= · =./lifecycle/shell.js= which DO NOT EXIST: =viva= is broken on this tree |
+| the three baks | =systems/ghost/bak/{bak.bak,bak.2,bak.3}= | bak.3 = the m86 10-13 landing (per-terminal =$repl=, a repl list in m88's design); its file structure is the base below |
+| the repl today (bak.3) | =lifecycle/repl.js:48= | ONE Vector = four =(ctx, next)= + ten grafted verb subjects; =population.repl= grafts it into =client.repl= with bindings; =terminal/population.js:4= copies it into =terminal.$repl= once |
+| the contexts | =subsystems/typology/schematics/primitives/contexts.js:62= | =Repl = Command + client + runtime + terminal + controller + stream? + kill?= |
+| the signal | =bak.3/prototypes/replsignal.js:5= | bare → =*= with =body: parts=; =/x= → verb; =Argv= coercions after |
+| the dock (bak.3) | =chrome/panes/dock.jsx:88= | turns ⊕ =$live= ⊕ =$echo= + =painted($output)= below the composer — output is a surface atom, not a record |
+| a mode's traits, client side | =bak.3/traits/mode/*.js= | =(mode)= — wire =/harness= · =/metadata/application= · =/metadata/aperture= · =/metadata/emitter=; staggered by =lifecycle/mode/execution.js:3= =traits.stagger(mode, daemon, die.traits)= |
+| a client as a host | =subsystems/paladin/lifecycle/populate.js:210= · =resolve.js:47= · =schematics/primitives/instance.js:83= | clients go through =at()= only, get no =reference=, no =modes= (=additionalProperties: false= refuses the key) — m88's blocks fix this, cited below |
+| the Mode citizen | =subsystems/typology/prototypes/index.client.js:43= | commented out of the client barrel — m88's one-line hunk |
+| the runtime's demo home | =commons/fixtures/testing/probe/probe.viva.js= | =@commons/home/probe=, =RUNTIME · EXPOSED · TOOLING · DATASET= — no harness, no application |
+| the flashcards | =commons/fixtures/memo/mode/memo.viva.js= | =@memo/srs/memo=: =APPLICATION · EMITTER · EXPOSED · HARNESSED · CONVERSATIONAL · TOOLING=; =buffer/memo.jsx= is the tty view (tab reveals, 1–4 grades) — the daemon demo EXISTS |
+| a tty view's door | =memo.jsx:85= | =export default (element, terminal, { renderer, palette }) => ({ destroy })= |
+| the scenario | =bak.3/tests/scenarios/hello.js= | =hello.RECIPE= + memo's daemon + the stub hallucinator; =DEMO= adds the ghost client with =HOME → memo= |
+| the pipe's fold | =subsystems/typology/prototypes/pipe.js:17= =reactive(seed, step)= · =run.js:19= uses it | a nanostore over the record stream — the dock's message fold is this |
+| the chassis | =subsystems/sheets/chassis.js:21= | boxes crown · navigation · frame · dock · cover; =place(layout)= hides what =layout.panes= omits |
+
+* design — the tree after, =ls= order; source per file: =cp= (bak.3 verbatim, hunks shown) · =new= · =dead=
+
+#+begin_example
+commons/fixtures/testing/console/console.viva.js      new   @commons/home/console — the CLIENT's demo mode: REPLING, /hello · /whoami
+commons/fixtures/testing/lobby/buffer/lobby.jsx       new   the runtime demo's tty view: hosts · modes · enter → /mode (the repl) · s → seat (the dataspace)
+commons/fixtures/testing/lobby/lobby.viva.js          new   @commons/home/lobby — the RUNTIME's demo mode: HARNESSED · APPLICATION
+subsystems/paladin/…                                  m88   populate.js · resolve.js · integrity.js (REPLING: "repling") · tests/modes.test.js — m88:150-300, verbatim
+subsystems/typology/prototypes/index.client.js        m88   export * from "./mode.js"
+subsystems/typology/prototypes/span.js                hunk  message(data) · tail(...verbs)
+subsystems/typology/gestalten/shard/track.js          hunk  message()
+subsystems/typology/schematics/primitives/contexts.js hunk  Repl = vector + client + runtime + terminal + mode + span
+subsystems/typology/schematics/primitives/instance.js m88   Client: mountpoint · reference · modes
+subsystems/typology/schematics/primitives/home.js     m88   the reference's word
+systems/ghost/chrome/.gitignore · bundle.js · credentials.js · views.js   cp
+systems/ghost/chrome/panes/crown.jsx                  cp    hunk: client.$active · user.slug
+systems/ghost/chrome/panes/dock.jsx                   new   the seat's tail, the << composer
+systems/ghost/chrome/panes/frame.jsx                  cp    hunk: client.$active · dispatch handed to the view
+systems/ghost/chrome/panes/index.js                   new   four panes
+systems/ghost/chrome/panes/signin.jsx                 cp
+systems/ghost/chrome/panes/navigation.jsx · pips.js   dead  (the lobby's view is the navigation)
+systems/ghost/chrome/surface.js                       new   no $output · no emit · no hold; ctrl-c only
+systems/ghost/commands/application/{index,start,stop}.js   new
+systems/ghost/commands/dock/*                         cp
+systems/ghost/commands/entity/{index,terminal/*,thread/*}.js   cp   (buffer/ dead → application/)
+systems/ghost/commands/help.js                        cp    hunk: no view — the listing IS the answer
+systems/ghost/commands/index.js                       cp    hunk
+systems/ghost/commands/paladin/*                      cp
+systems/ghost/commands/runtime/{index,daemon/*,mode/{index,list,seating}}.js   cp
+systems/ghost/commands/runtime/mode/pick.js           cp    hunk: no picker — a query narrows, one seats, else the candidates are the answer
+systems/ghost/commands/{doctor,missing,quit,upgrade}.js   cp
+systems/ghost/commands/{chrome,yap}.js · key/*        dead
+systems/ghost/deno.jsonc · ghost.sh · install.sh      cp
+systems/ghost/gestalten/belt/*                        cp    (line.js dead; view.js keeps plain only)
+systems/ghost/gestalten/belt/frame.js                 new   open(terminal, mode) — was traits/terminal/standalone.js
+systems/ghost/gestalten/belt/modes.js                 new   resolve · release — runtime's gestalten/belt/modes.js, aperture → repl
+systems/ghost/gestalten/belt/index.js                 cp    hunk
+systems/ghost/gestalten/index.js                      cp
+systems/ghost/lifecycle/client/execution.js           new
+systems/ghost/lifecycle/client/integration.js         cp    hunk: four panes · no keys
+systems/ghost/lifecycle/client/population.js          new
+systems/ghost/lifecycle/client/resolution.js          cp    hunk: modes · terminals · seat · active · home gone (→ terminal)
+systems/ghost/lifecycle/daemon/*                      cp    hunk: a message on healthy
+systems/ghost/lifecycle/index.js                      cp
+systems/ghost/lifecycle/lighthouse/*                  cp    hunk: a message on authorized
+systems/ghost/lifecycle/mode/{execution,population,resolution}.js   new   runtime's lifecycle/mode, aperture → repl
+systems/ghost/lifecycle/repl.js                       new   the per-line pipe
+systems/ghost/lifecycle/shell.js                      cp    hunk: register · chrome only
+systems/ghost/lifecycle/terminal/{execution,population}.js   new   stall · home
+systems/ghost/lifecycle/thread/*                      cp    hunk: no auto-buffer
+systems/ghost/prototypes/client.js                    new
+systems/ghost/prototypes/lighthouse.js                cp    hunk: no connection of its own
+systems/ghost/prototypes/mode.js                      cp    hunk: repl = new Vector()
+systems/ghost/prototypes/runtime.js                   cp    hunk: a host — multiplex · connection · $modes · mounted
+systems/ghost/prototypes/terminal.js                  cp    hunk: $repl → controller
+systems/ghost/prototypes/thread/thread.js             cp    hunk: $echo dies · controller
+systems/ghost/prototypes/turn.js                      cp    hunk: a turn marks itself on its thread's span
+systems/ghost/prototypes/terminals.js                 dead
+systems/ghost/prototypes/*                            cp
+systems/ghost/run.js · typology.js                    cp
+systems/ghost/schematics/index.js                     cp
+systems/ghost/tests/client.test.js                    rewrite
+systems/ghost/tests/repl.test.js                      new
+systems/ghost/tests/scenarios/hello.js                cp    hunk: DEMO
+systems/ghost/tests/{demo.snapshot,pipes.wet,line}.test.js   dead (deferred with the pipes repl)
+systems/ghost/traits/client/home.js                   cp
+systems/ghost/traits/mode/harnessed.js                cp    hunk: opens * on mode.repl
+systems/ghost/traits/mode/repling.js                  new
+systems/ghost/traits/mode/index.js                    cp    hunk
+systems/ghost/traits/{lighthouse,thread}/*            cp
+systems/ghost/traits/terminal/                        dead  standalone.open → gestalten/belt/frame.js; traits/index.js hunk
+#+end_example
+
+** the trace — what beef sees, step by step, each with its message
+
+#+begin_example
+viva                                      run.js → shell → .do: ctx.upgrade.chrome()           ← interactive terminal, else "needs a terminal"
+  ground()                                paladin mounts · runtime probed, else booted in-process · register = wire(clients[ghost])
+  client.execution                        clientDie = { controller, mask, surface, client, register }
+    population.lighthouse · connection    ONE multiplex on the runtime; «{ lighthouse: http://localhost:2501, traits }»
+    population.repl                       client.repl = help · quit · doctor · runtime · entity · dock ; client.dispatch (seated: application · pick, grafted per line)
+    population.modes                      client.modes.home.console  (typology Mode + stdout — runtime's daemon/population.modes line)
+    integration.cover                     crown · signin
+    resolution.lighthouse                 AUTOLOGIN → «signed in as localhost»           (JOINABLE: the signin pane offers sign up)
+    population.entities                   the Runtime is the host; «{ runtime: /runtime/house }»
+    population.daemons · roster · userspace   six finds, five subscriptions
+    integration.surface                   panes follow $active · $thread · $buffer
+    resolution.modes(mode)                lifecycle/mode: core → repl bound to client · mode; REPLING grafts /hello · /whoami
+    resolution.runtime · daemons          daemon execution over the Runtime, then each daemon: «{ daemon, modes }» per branch
+    resolution.terminals                  terminal.controller branched here → terminal lifecycle: stall «{ terminal: 1 }» · home «{ home, thread: 1 }»
+    resolution.seat                       thread.controller under the terminal's → thread lifecycle; its turns mark on that span
+    resolution.active                     client.$active = the first row, or one created
+    hold                                  crown · dock
+
+<< /hello                                 «hello from ghost · terminal #1»                          the CLIENT mode's verb
+<< ciao                                   lobby is HARNESSED → * → a turn streams; the dock shows $live, then the turns as they land on the thread's span
+<< /mode memo                             «seated /daemon/memo/mode/srs/memo · thread #2»           the composer now holds memo.repl (HARNESSED *)
+<< /application/start                     «application /daemon/memo/mode/srs/memo · buffer #1»     the frame splits: flashcards (tab · 1–4)
+<< /application/stop                      «frame closed»
+<< /mode lobby  ·  /application/start     the lobby's view: hosts and modes; ⏎ → dispatch("/mode <ref>") (the repl) · s → terminal.seat(thread) (the dataspace)
+<< /typo                                  «✕ /typo: no such verb»                                 NotFound → track.fault → a fault record on the line's span
+<< /quit                                  controller STOPPED → shell exits 0
+#+end_example
+
+* tangle — one =****= per file, =ls= order
+
+**** =commons/fixtures/testing/console/console.viva.js= — new, =@commons/home/console=, the client's demo
+
+#+BEGIN_SRC js
+// commons/fixtures/testing/console/console.viva.js
+import { Vector } from "@vivalence/typology";
+
+export const manifest = {
+  type: "home",
+  slug: "console",
+  name: "Console",
+  description: "A mode the client hosts. Its verbs join every terminal's repl beside the client's own — proof that REPLING composes.",
+  version: "0.0.1",
+  traits: ["REPLING"],
+};
+
+export const repling = new Vector()
+  .open(
+    { nature: "/hello", valence: "the hosted mode answers from inside the repl's context. Example: /hello" },
+    (ctx) => `hello from ${ctx.client.mask.manifest.slug} · terminal #${ctx.terminal.id}`,
+  )
+  .open(
+    { nature: "/whoami", valence: "who is signed in and where this terminal sits. Example: /whoami" },
+    (ctx) => ({
+      user: ctx.runtime.lighthouse.user.slug,
+      terminal: ctx.terminal.id,
+      mode: ctx.mode === null ? null : ctx.mode.reference.absolute,
+    }),
+  );
+#+END_SRC
+
+**** =commons/fixtures/testing/lobby/buffer/lobby.jsx= — new, the runtime demo's tty view
+
+#+BEGIN_SRC jsx
+// commons/fixtures/testing/lobby/buffer/lobby.jsx
+import { createMemo, createSignal, For, from } from "solid-js";
+import { useKeyboard } from "@opentui/solid";
+import { paint, Pip, usePalette } from "@vivalence/sheets";
+
+const ENTERS = ["return", "linefeed", "enter"];
+const PIP = { HEALTHY: "on", MOUNTING: "pending", UNAVAILABLE: "fault", ERROR: "fault" };
+
+export function Lobby(props) {
+  const palette = usePalette();
+  const { terminal, dispatch } = props;
+  const runtime = terminal.runtime;
+  const daemons = from(runtime.entities.daemon.$entities);
+  const modes = from(runtime.entities.mode.$entities);
+  const rows = createMemo(() => {
+    void modes();
+    return [runtime, ...(daemons() === undefined ? [] : daemons())].flatMap((host) => host.modes.map((mode) => ({ host, mode })));
+  });
+  const [cursor, setCursor] = createSignal(0);
+  const at = () => Math.min(cursor(), rows().length - 1);
+
+  const seat = async (mode) => terminal.seat(await runtime.entities.thread.create({ mode: mode.id }));
+
+  useKeyboard((key) => {
+    if (rows().length === 0) return;
+    if (key.name === "down") return setCursor((index) => (index + 1) % rows().length);
+    if (key.name === "up") return setCursor((index) => (index - 1 + rows().length) % rows().length);
+    if (ENTERS.includes(key.name)) {
+      key.stopPropagation();
+      return dispatch(`/mode ${rows()[at()].mode.reference.absolute}`);
+    }
+    if (key.name === "s") {
+      key.stopPropagation();
+      seat(rows()[at()].mode);
+    }
+  });
+
+  return (
+    <box style={{ flexDirection: "column", flexGrow: 1, gap: 1 }}>
+      <text fg={palette.textMuted}>{`${runtime.manifest.slug} · ${rows().length} modes · ⏎ seats through the repl · s seats through the dataspace`}</text>
+      <For each={rows()}>
+        {(row, index) => (
+          <box style={{ flexDirection: "row", gap: 1 }}>
+            <Pip state={Object.hasOwn(PIP, row.host.status.code) ? PIP[row.host.status.code] : "unknown"} />
+            <text fg={index() === at() ? palette.signalPrimary : palette.textInk}>{`${index() === at() ? "▸" : " "} ${row.host.slug} › ${row.mode.type}/${row.mode.slug}`}</text>
+            <text fg={palette.textMuted}>{row.mode.traits.join(" · ")}</text>
+          </box>
+        )}
+      </For>
+    </box>
+  );
+}
+
+export default (element, terminal, { renderer, palette, dispatch }) => ({
+  destroy: paint(element, renderer, palette, Lobby, { terminal, dispatch }),
+});
+#+END_SRC
+
+=runtime.modes= · =daemon.modes= · =mode.reference= · =terminal.seat= · =terminal.runtime= are the prototypes' shapes (=prototypes/{runtime,daemon,mode,terminal}.js=; =runtime= a host after its hunk). The third argument grows =dispatch= — =frame.jsx= below hands it; =memo.jsx= ignores it.
+
+**** =commons/fixtures/testing/lobby/lobby.viva.js= — new, =@commons/home/lobby=, the runtime's demo
+
+#+BEGIN_SRC js
+// commons/fixtures/testing/lobby/lobby.viva.js
+import { App, mime, v, Vector } from "@vivalence/typology";
+
+export const manifest = {
+  type: "home",
+  slug: "lobby",
+  name: "Lobby",
+  description: "Where a terminal lands. Talks (HARNESSED) and shows the runtime's hosts and modes in the frame (APPLICATION); a row seats its mode.",
+  version: "0.0.1",
+  traits: ["RUNTIME", "HARNESSED", "APPLICATION"],
+};
+
+export const harness = new Vector().use(async (ctx, next) => {
+  ctx.hallucination.system.lobby = "You are the lobby of a vivalence runtime. Answer briefly; name the modes a learner can enter.";
+  await next();
+});
+
+export const application = new App([{ mime: mime.tty.solid, mount: "buffer/lobby.jsx" }], v.buffer({ data: {} }));
+#+END_SRC
+
+=RUNTIME= mirrors =probe.viva.js:3= (grepped: =systems/runtime/traits/runtime.js= is a marker). =HARNESSED= on the runtime needs its cortex — the scenario's stub hallucinator (=tests/scenarios/hello.js=).
+
+**** =subsystems/paladin/…= · =subsystems/typology/{prototypes/index.client.js,schematics/primitives/{instance,home}.js}= — m88's blocks, verbatim
+
+=m88-repling.org:150-300=: =lifecycle/populate.js:210= (=dressed= for clients) · =lifecycle/resolve.js:47= (=seat= · =mountpoint("client")= · =ground=) · =prototypes/ledger/integrity.js:18= (=REPLING: "repling"=) · =tests/modes.test.js= · =index.client.js:43= · =instance.js:83,185= · =home.js:4=. HOLY and paladin, each its own go. Not re-tangled here; the recipe row for the demo is in =tests/scenarios/hello.js= below. His ledger row (=~/.viva/ledger.viva.json:29=) gains =modes: ["@commons/home/console"]= when he lands it — =~/.viva= is his.
+
+**** =subsystems/typology/schematics/primitives/contexts.js= — HOLY, its own go: the repl's context as locked
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:50
+-export const terminal = { terminal: v.unknown().desc("The ACTIVE terminal — the single point of contact for a mode: the row (id · user · index · traits · trait) plus mask · runtime · daemon · mode · thread · buffer. Null until one is picked. Example: ctx.terminal.mode.harness.dialogue.stream({ thread: 'th3', parts })") };
+-export const stream = { stream: v.unknown().desc("A verb's request for a stream the repl pumps after next() into the thread's $live. Example: ctx.stream = { packets: mode.harness.dialogue.stream({ thread, id, parts }) }") };
+-export const kill = { kill: v.unknown().desc("A verb's request to stop a running activity after next(). Example: ctx.kill = ctx.terminal.thread.activity") };
++export const terminal = { terminal: v.unknown().desc("The ACTIVE terminal, client.$active — the row (id · user · index · traits · trait) plus runtime · thread · buffer · controller; mode = thread.mode. Null until one exists. Example: ctx.terminal.seat(thread)") };
+…
+// subsystems/typology/schematics/primitives/contexts.js:62
+-export const Repl = { ...Command, ...client, ...runtime, ...terminal, ...controller, ...optional(stream), ...optional(kill) };
++export const Repl = { ...vector, ...client, ...runtime, ...terminal, ...mode, ...span };
+#+END_SRC
+
+=client='s desc (=:49=) loses =terminals · repl · dispatch · $dock= → =mask · controller · runtime · modes · $active · $dock · repl · dispatch=; =mode='s desc (=:27=) gains /"on the client: the seated thread's mode, remote or hosted; null on an unseated terminal"/. =span= is =shard.track.span='s word (=gestalten/shard/track.js:17=, =ctx.span=): on the repl, the active terminal's stdout, else the client's.
+
+**** =systems/ghost/chrome/panes/crown.jsx= — cp, hunk
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/chrome/panes/crown.jsx:8
+-  const terminal = from(client.terminals.$active);
+-  const thread = from(belt.atom.chain(client.terminals.$active, "$thread"));
+-  const live = from(belt.atom.chain(client.terminals.$active, "$thread", "$live"));
++  const terminal = from(client.$active);
++  const thread = from(belt.atom.chain(client.$active, "$thread"));
++  const live = from(belt.atom.chain(client.$active, "$thread", "$live"));
+…
+// systems/ghost/bak/bak.3/chrome/panes/crown.jsx:17
+-      ...(user() === null || user().username === undefined ? [] : [user().username]),
++      ...(user() === null || user().slug === undefined ? [] : [user().slug]),
+#+END_SRC
+
+The lighthouse card is ={ id, slug, traits, trait }= (=systems/runtime/lifecycle/lighthouse/aperture.js:15=) — bak.3 read a =username= that never arrives.
+
+**** =systems/ghost/chrome/panes/dock.jsx= — new: the seat's tail
+
+#+BEGIN_SRC jsx
+// systems/ghost/chrome/panes/dock.jsx
+import { createMemo, createSignal, For, from, Show, Switch, Match } from "solid-js";
+import { belt as typology } from "@vivalence/typology";
+import { Input, JsonTree, Key, Markdown, Spinner, tone, usePalette } from "@vivalence/sheets";
+
+const ROLES = {
+  user: { glyph: "›", tone: "primary" },
+  assistant: { glyph: "✦", tone: "link" },
+  system: { glyph: "·", tone: "muted" },
+};
+
+const role = (name) => {
+  if (!Object.hasOwn(ROLES, name)) throw new Error(`[dock] not a turn role: ${JSON.stringify(name)} · ${Object.keys(ROLES).join(" · ")}`);
+  return ROLES[name];
+};
+
+const tag = (part) => (part.type === "tool_use" ? `[tool_use ${part.name}]` : `[${part.type}]`);
+
+const Part = (props) => {
+  const palette = usePalette();
+  return (
+    <Show when={props.part.type === "text"} fallback={<text fg={palette.textMuted}>{tag(props.part)}</text>}>
+      <Markdown text={props.part.text} />
+    </Show>
+  );
+};
+
+export const Turn = (props) => {
+  const palette = usePalette();
+  return (
+    <box style={{ flexDirection: "row", gap: 1 }}>
+      <text fg={tone(palette, role(props.turn.role).tone)}>{role(props.turn.role).glyph}</text>
+      <box style={{ flexDirection: "column", flexGrow: 1 }}>
+        <For each={props.turn.parts}>{(part) => <Part part={part} />}</For>
+      </box>
+    </box>
+  );
+};
+
+export const Message = (props) => {
+  const palette = usePalette();
+  return (
+    <box style={{ flexDirection: "row", gap: 1 }}>
+      <text fg={palette.textMuted}>{props.record.path.split("/").at(-1)}</text>
+      <Show when={typeof props.record.data === "string"} fallback={<JsonTree data={props.record.data} />}>
+        <text fg={palette.textInk}>{props.record.data}</text>
+      </Show>
+    </box>
+  );
+};
+
+export const Fault = (props) => {
+  const palette = usePalette();
+  return <text fg={palette.signalNegative}>{`✕ ${props.record.data.message}`}</text>;
+};
+
+const unfolded = (live) => [...live.turns, ...(live.open === null ? [] : [live.open])];
+
+const latest = (records) => records.filter((record, index) => record.verb !== "turn" || !records.slice(index + 1).some((later) => later.verb === "turn" && later.data.id === record.data.id));
+
+export function Dock(props) {
+  const client = props.client;
+  const terminal = from(client.$active);
+  const seat = createMemo(() => (terminal() === null || terminal() === undefined ? client.controller : terminal().controller));
+  const tail = createMemo(() => from(seat().stdout.tail("message", "fault", "turn")));
+  const rows = createMemo(() => latest(tail()() === null ? [] : tail()()));
+  const live = from(typology.atom.chain(client.$active, "$thread", "$live"));
+  const [draft, setDraft] = createSignal("");
+
+  const send = (line) => {
+    if (line.trim() === "") return;
+    setDraft("");
+    client.dispatch(line).catch(() => {});
+  };
+
+  return (
+    <box style={{ flexDirection: "column", flexGrow: 1, paddingLeft: 1, paddingRight: 1 }}>
+      <scrollbox style={{ flexGrow: 1 }} stickyScroll stickyStart="bottom">
+        <For each={rows()}>
+          {(record) => (
+            <Switch>
+              <Match when={record.verb === "turn"}><Turn turn={record.data} /></Match>
+              <Match when={record.verb === "fault"}><Fault record={record} /></Match>
+              <Match when={record.verb === "message"}><Message record={record} /></Match>
+            </Switch>
+          )}
+        </For>
+        <Show when={live() !== null && live() !== undefined}>
+          <For each={unfolded(live())}>{(turn) => <Turn turn={turn} />}</For>
+          <Spinner tone="primary" label="streaming" />
+        </Show>
+      </scrollbox>
+      <Input prompt="<<" placeholder="" value={draft()} onInput={setDraft} onSubmit={send} focused />
+      <box style={{ flexDirection: "row", columnGap: 2, flexWrap: "wrap", flexShrink: 0 }}>
+        <Key name="enter" action="send" />
+        <Key name="/" action="verb" />
+        <Key name="ctrl-c" action="quit" />
+      </box>
+    </box>
+  );
+}
+#+END_SRC
+
+ONE source: the seat's =tail= — the active terminal's controller, the client's before one exists. A message's margin is the last segment of its span path (the signal's pathname, from =track.span=). =client.dispatch= rejects on a fault (=track.fault= rethrows) — the record is already in the tail; the =catch= keeps solid quiet. The boot's messages sit on the client's span: visible until the first terminal takes the seat; then the terminal's own (=terminal · home=). The LEFT-OUT: client-level messages after a terminal is active (a daemon going healthy later) are not in the terminal's tail — the cost of one level, as he ruled.
+
+**** =systems/ghost/chrome/panes/frame.jsx= — cp, hunk: the view receives =dispatch=
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/chrome/panes/frame.jsx:17
+-      .then((module) => (handle = module.default(element, props.terminal, { renderer, palette })))
++      .then((module) => (handle = module.default(element, props.terminal, { renderer, palette, dispatch: props.dispatch })))
+…
+// systems/ghost/bak/bak.3/chrome/panes/frame.jsx:39
+-  const terminal = from(props.client.terminals.$active);
+-  const buffer = from(belt.atom.chain(props.client.terminals.$active, "$buffer"));
++  const terminal = from(props.client.$active);
++  const buffer = from(belt.atom.chain(props.client.$active, "$buffer"));
+…
+// systems/ghost/bak/bak.3/chrome/panes/frame.jsx:51
+-                {(chosen) => <Mounted terminal={terminal()} bundle={chosen} accept={props.accept} />}
++                {(chosen) => <Mounted terminal={terminal()} bundle={chosen} accept={props.accept} dispatch={props.client.dispatch} />}
+#+END_SRC
+
+**** =systems/ghost/chrome/panes/index.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/chrome/panes/index.js
+export { Signin as signin } from "./signin.jsx";
+export { Crown as crown } from "./crown.jsx";
+export { Dock as dock, Message, Turn } from "./dock.jsx";
+export { Frame as frame } from "./frame.jsx";
+#+END_SRC
+
+**** =systems/ghost/chrome/surface.js= — new: four panes, ctrl-c, nothing else
+
+#+BEGIN_SRC js
+// systems/ghost/chrome/surface.js
+import { fn, mime } from "@vivalence/typology";
+import { chassis as build, keypresses, paint, SLOTS } from "@vivalence/sheets";
+import { panes } from "./out/panes.mjs";
+
+export const tty = (renderer, { credentials, theme = "northsea" }) => {
+  const accept = [mime.tty.solid, mime.markdown, mime.plain, mime.json];
+  const frame = fn.memo(() => build(renderer, theme));
+  const pane = (name, extra) => (client) => {
+    const slot = SLOTS[name];
+    const erase = paint(frame().slots[slot], renderer, frame().palettes[slot], panes[name], { client, ...extra });
+    return { place: frame().place, destroy: erase };
+  };
+  (async () => {
+    for await (const press of keypresses(renderer).drain()) if (press.key === "ctrl-c") Deno.kill(Deno.pid, "SIGINT");
+  })();
+  return {
+    name: "tty",
+    interactive: true,
+    credentials,
+    accept,
+    viewport: () => ({ width: renderer.width, height: renderer.height }),
+    mount: { signin: pane("signin", {}), crown: pane("crown", {}), dock: pane("dock", {}), frame: pane("frame", { accept }) },
+  };
+};
+#+END_SRC
+
+=$layout= · =$output= · =emit= · =hold= · =keys= are gone: output is a record, keys are later (his r9), a picker has no caller.
+
+**** =systems/ghost/commands/application/index.js= · =start.js= · =stop.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/commands/application/index.js
+import { Vector } from "@vivalence/typology";
+import { start } from "./start.js";
+import { stop } from "./stop.js";
+
+export const application = new Vector().graft(start, stop);
+#+END_SRC
+
+=application= and =/mode= sit in =commands.seated=, which the composer grafts only while a terminal is active — the route is grafted or ABSENT (codestyle: the mechanism IS the guard). A mode without =APPLICATION= has no =application= wired (=traits/mode/application.js=), so =open= throws on =mode.application= being null — the trait's absence, not a check.
+
+#+BEGIN_SRC js
+// systems/ghost/commands/application/start.js
+import { Vector } from "@vivalence/typology";
+import { open } from "../../gestalten/belt/frame.js";
+
+export const start = new Vector().open(
+  { nature: "/application/start", valence: "open the seated mode's application in the frame — its newest buffer on this thread, or a new one. Example: /application/start" },
+  async (ctx) => {
+    const buffer = await open(ctx.terminal, ctx.mode);
+    return `application ${ctx.mode.reference.absolute} · buffer #${buffer.id}`;
+  },
+);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/ghost/commands/application/stop.js
+import { Vector } from "@vivalence/typology";
+
+export const stop = new Vector().open(
+  { nature: "/application/stop", valence: "close the frame; the buffer stays on its thread. Example: /application/stop" },
+  (ctx) => {
+    ctx.terminal.$buffer.set(null);
+    return "frame closed";
+  },
+);
+#+END_SRC
+
+**** =systems/ghost/commands/help.js= — cp, hunk: the listing is the answer
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/commands/help.js:9
+-  async (ctx) => {
+-    const commands = belt.named(belt.census(ctx.repl), ctx.signal.body[0] ?? "");
+-    await ctx.view.emit("listing", belt.listing(commands, ctx.flags));
+-    return { commands, flags: ctx.flags };
+-  },
++  (ctx) => belt.listing(belt.named(belt.census(ctx.repl), ctx.signal.body.length === 0 ? "" : ctx.signal.body[0]), []),
+#+END_SRC
+
+=ctx.repl= is the composed vector of THIS line, so =/help= lists the client's verbs, the hosted modes' and the seated mode's — the census walks what the composer built. The dock paints the listing as a tree this stretch (a =Listing= kind on the message is a later refinement).
+
+**** =systems/ghost/commands/index.js= — cp, hunk
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/commands/index.js:1
+ export { missing } from "./missing.js";
+ export { upgrade } from "./upgrade.js";
+-export { chrome } from "./chrome.js";
+ export { quit } from "./quit.js";
+-export { yap } from "./yap.js";
+ export { help } from "./help.js";
+ export { entity } from "./entity/index.js";
++export { application } from "./application/index.js";
++export { seated } from "./seated.js";
+ export { dock } from "./dock/index.js";
+-export { key } from "./key/index.js";
+ export { runtime } from "./runtime/index.js";
+ export { doctor } from "./doctor.js";
+#+END_SRC
+
+=yap= dies: =HARNESSED= opens =*= on the mode (his r10). =key/= dies: later (r9). =chrome= dies: the shell's root effect is the chrome.
+
+**** =systems/ghost/commands/seated.js= — new: the verbs that need a terminal, one graft
+
+#+BEGIN_SRC js
+// systems/ghost/commands/seated.js
+import { Vector } from "@vivalence/typology";
+import { application } from "./application/index.js";
+import { pick } from "./runtime/mode/pick.js";
+
+export const seated = new Vector().graft(application, pick);
+#+END_SRC
+
+=/help= on an unseated client does not list them: the census walks what the composer grafted.
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/commands/runtime/mode/index.js:3
+ import { list } from "./list.js";
+-import { pick } from "./pick.js";
+
+-export const mode = new Vector().graft(list, pick);
++export const mode = new Vector().graft(list);
+#+END_SRC
+
+**** =systems/ghost/commands/runtime/mode/pick.js= — cp, hunk: no picker
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/commands/runtime/mode/pick.js:8
+-    valence: "pick a mode and seat it on the active terminal — its newest thread, or a new one; a query narrows, one match seats. Example: /mode memo",
+-    schema: v.object({ query: v.string().desc("words of a reference. Example: memo").optional() }),
++    valence: "seat a mode on the active terminal — its newest thread, or a new one; the query must name exactly one, else the candidates are the answer. Example: /mode memo",
++    schema: v.object({ query: v.string().desc("part of a reference. Example: memo") }),
+   },
+   async (ctx) => {
+-    if (ctx.terminal === null) throw new Error("no terminal picked — /terminal/new");
+-    const rows = [ctx.runtime.daemon, ...ctx.runtime.daemons]
+-      .flatMap((host) => host.modes)
+-      .map((mode) => ({ reference: mode.reference.absolute, type: mode.type, slug: mode.slug, daemon: mode.host.slug, mode }));
+-    const lens = { … };
+-    const query = ctx.signal.body.join(" ");
+-    const chosen = await belt.pick(ctx, lens, query);
+-    if (chosen === null) throw new Error(`${query}: no such mode — /modes lists them`);
+-    if (chosen.aborted) return { aborted: true };
+-    const thread = await seating(ctx, chosen.row.mode);
+-    return { terminal: ctx.terminal.id, thread: thread.id, mode: chosen.identifier };
++    const query = ctx.signal.body.join(" ");
++    const candidates = [ctx.runtime, ...ctx.runtime.daemons].flatMap((host) => host.modes).filter((mode) => mode.reference.absolute.includes(query));
++    if (candidates.length === 0) throw new Error(`${query}: no such mode — /modes lists them`);
++    if (candidates.length > 1) return { which: candidates.map((mode) => mode.reference.absolute) };
++    const thread = await seating(ctx, candidates[0]);
++    return `seated ${candidates[0].reference.absolute} · thread #${thread.id}`;
+   },
+#+END_SRC
+
+**** =subsystems/typology/prototypes/span.js= · =gestalten/shard/track.js= — HOLY, its own go: message and tail, native
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/span.js:67
+   note(data) {
+     return this.mark("note", data);
+   }
++
++  message(data) {
++    return this.mark("message", data);
++  }
++
++  within(record) {
++    return record.path === this.absolute || record.path.startsWith(`${this.absolute}/`);
++  }
++
++  tail(...verbs) {
++    const kept = (record) => this.within(record) && verbs.includes(record.verb);
++    return this.pipe.reactive(this.records.filter(kept), (held, record) => (kept(record) ? [...held, record] : held));
++  }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/track.js:36
+ export function subject(schema, id) {
+…
+// subsystems/typology/gestalten/shard/track.js:47
++export function message() {
++  return async (ctx, next) => {
++    await next();
++    if (ctx.span && ctx.output !== undefined) ctx.span.message(ctx.output);
++  };
++}
++
+ export function fault() {
+#+END_SRC
+
+=tail= is a =Pipe.reactive= (=pipe.js:17=) seeded from the journal, filtered to the records UNDER this span: /"pipe out of the controller at the right level with a message filter"/ — =terminal.controller.stdout.tail("message", "fault", "turn")=. =message()= is =subject()='s shape over =ctx.output=. Name =tail=: 0 hits in typology (=follow= is taken, =transmitter.js:155=).
+
+
+
+**** =systems/ghost/gestalten/belt/frame.js= — new: bak.3's =traits/terminal/standalone.js:1=, a plain function over data
+
+#+BEGIN_SRC js
+// systems/ghost/gestalten/belt/frame.js
+export const open = async (terminal, mode) => {
+  const kept = terminal.thread.$buffers
+    .get()
+    .filter((buffer) => buffer.mode === mode)
+    .sort((first, second) => first.index - second.index)
+    .at(-1);
+  const buffer = kept === undefined ? await mode.runtime.entities.buffer.create({ mode: mode.id, thread: terminal.thread.id, data: {} }) : kept;
+  terminal.$buffer.set(buffer);
+  return buffer;
+};
+#+END_SRC
+
+**** =systems/ghost/gestalten/belt/modes.js= — new: =systems/runtime/gestalten/belt/modes.js:3= with =aperture.branch= gone
+
+#+BEGIN_SRC js
+// systems/ghost/gestalten/belt/modes.js
+import { fromm, steer } from "@vivalence/typology";
+
+export const resolve = async (context, execution, traits) => {
+  for (const mode of fromm.modes(context.modes).flat) {
+    await steer.dispatch.execute(execution, { mask: mode.module, mode, context, traits });
+  }
+  for (const finalize of fromm.modes(context.modes).flat.flatMap((mode) => mode.finalizers)) await finalize();
+};
+
+export const release = async (context) => {
+  for (const mode of fromm.modes(context.modes).flat) {
+    for (const terminate of mode.terminators ?? []) await terminate();
+    mode.stdout.close();
+  }
+};
+#+END_SRC
+
+The composer reads =mode.repl= per line, so nothing is branched at resolve. =mode.terminators ?? []= is the runtime's line (=:16=), kept.
+
+**** =systems/ghost/gestalten/belt/index.js= — cp, hunk
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/gestalten/belt/index.js:7
+-export * as line from "./line.js";
++export * as frame from "./frame.js";
++export * as modes from "./modes.js";
+ export * as panes from "./panes.js";
+…
+// systems/ghost/bak/bak.3/gestalten/belt/index.js:12
+ export * as registry from "./registry.js";
+ export { close, open, plain, view } from "./view.js";
+#+END_SRC
+
+**** =systems/ghost/lifecycle/client/execution.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/client/execution.js
+import { Vector, shard } from "@vivalence/typology";
+import * as population from "./population.js";
+import * as resolution from "./resolution.js";
+import * as integration from "./integration.js";
+import { execution as lighthouse } from "../lighthouse/execution.js";
+import { execution as daemon } from "../daemon/execution.js";
+import { execution as mode } from "../mode/execution.js";
+import { execution as terminal } from "../terminal/execution.js";
+import { execution as thread } from "../thread/execution.js";
+
+export const execution = new Vector()
+  .use(shard.controller.settle)
+  .use(population.lighthouse)
+  .use(population.connection)
+  .use(population.repl)
+  .use(population.modes)
+  .use(integration.cover)
+  .use(resolution.lighthouse(lighthouse))
+  .use(population.entities)
+  .use(population.daemons)
+  .use(population.roster)
+  .use(population.userspace)
+  .use(integration.surface)
+  .use(resolution.modes(mode))
+  .use(resolution.runtime(daemon(mode)))
+  .use(resolution.daemons(daemon(mode)))
+  .use(resolution.terminals(terminal))
+  .use(resolution.seat(thread))
+  .use(resolution.active)
+  .do(shard.controller.hold);
+#+END_SRC
+
+**** =systems/ghost/lifecycle/client/population.js= — new (bak.3's beats, re-cut; no intermediaries)
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/client/population.js
+import { computed } from "nanostores";
+import { Connection, Mode, Path, Url, shard, steer } from "@vivalence/typology";
+import { Lighthouse } from "../../prototypes/lighthouse.js";
+import { Dataspace } from "../../prototypes/dataspace.js";
+import { DaemonDossier } from "../../prototypes/daemon.js";
+import { ModeDossier } from "../../prototypes/mode.js";
+import { LiteralDossier } from "../../prototypes/literal.js";
+import { SymbolDossier } from "../../prototypes/symbol.js";
+import { TerminalDossier } from "../../prototypes/terminal.js";
+import { IntentDossier } from "../../prototypes/intent.js";
+import { ThreadDossier } from "../../prototypes/thread/index.js";
+import { BufferDossier } from "../../prototypes/buffer.js";
+import { TurnDossier } from "../../prototypes/turn.js";
+import { ActivityDossier } from "../../prototypes/activity.js";
+import { ReplSignal } from "../../prototypes/replsignal.js";
+import { execution as repl } from "../repl.js";
+import * as commands from "../../commands/index.js";
+
+export const lighthouse = async (clientDie, next) => {
+  clientDie.client.runtime.lighthouse = new Lighthouse({ stdout: clientDie.controller.stdout.branch("lighthouse") });
+  await next();
+};
+
+export const connection = async (clientDie, next) => {
+  clientDie.client.runtime.multiplex = shard.transmitter.multiplex({ authority: clientDie.client.runtime.lighthouse.$authority });
+  clientDie.client.runtime.connection = new Connection(new Url(clientDie.client.runtime.remote), shard.transmitter.retry(clientDie.client.runtime.multiplex, { maxRetries: 2 }))
+    .use(shard.track.span((call) => call.request.url.pathname, clientDie.controller.stdout.pipe))
+    .use(shard.track.request())
+    .use(shard.track.fault())
+    .use(shard.connection.timeout(8000));
+  clientDie.client.runtime.lighthouse.connection = clientDie.client.runtime.connection.branch("/lighthouse").use(shard.connection.authorize(clientDie.client.runtime.lighthouse.$authority));
+  clientDie.client.runtime.lighthouse.manifest = await clientDie.client.runtime.lighthouse.connection.call("/metadata");
+  clientDie.controller.stdout.message({ lighthouse: clientDie.client.runtime.remote, traits: clientDie.client.runtime.lighthouse.manifest.traits });
+  try {
+    await next();
+  } finally {
+    clientDie.client.runtime.multiplex.close();
+  }
+};
+
+export const repl = async (clientDie, next) => {
+  clientDie.client.repl.graft(commands.help, commands.quit, commands.doctor, commands.runtime, commands.entity, commands.dock);
+  clientDie.client.dispatch = (line) => {
+    const signal = new ReplSignal(line);
+    const terminal = clientDie.client.$active.get();
+    const ctx = {
+      client: clientDie.client,
+      runtime: clientDie.client.runtime,
+      terminal,
+      mode: terminal === null ? null : terminal.mode,
+      span: terminal === null ? clientDie.controller.stdout : terminal.controller.stdout,
+      signal,
+      input: signal.body,
+      output: undefined,
+    };
+    return steer.dispatch.execute(repl, ctx).then(() => ctx.output);
+  };
+  await next();
+};
+
+export const modes = async (clientDie, next) => {
+  for (const mask of clientDie.register.modes) {
+    (clientDie.client.modes[mask.manifest.type] ??= {})[mask.manifest.slug] = Object.assign(new Mode(mask), { stdout: clientDie.controller.stdout.branch(mask.reference.absolute) });
+  }
+  await next();
+};
+
+export const entities = async (clientDie, next) => {
+  clientDie.client.runtime.manifest = await clientDie.client.runtime.connection.call("/metadata/manifest");
+  clientDie.client.runtime.reference = new Path(`/runtime/${clientDie.client.runtime.manifest.slug}`);
+  clientDie.client.runtime.entities = new Dataspace({
+    connection: clientDie.client.runtime.connection.branch(clientDie.client.runtime.reference.absolute),
+    runtime: clientDie.client.runtime.connection,
+    entities: [DaemonDossier, ModeDossier, LiteralDossier, SymbolDossier, TerminalDossier, IntentDossier, ThreadDossier, BufferDossier, TurnDossier, ActivityDossier],
+    seed: (boot) => boot.use(shard.context.bind("client", clientDie.client)).use(shard.context.bind("runtime", clientDie.client.runtime)),
+  });
+  await clientDie.client.runtime.entities.init();
+  clientDie.client.runtime.$modes = computed(clientDie.client.runtime.entities.mode.$entities, (modes) => modes.filter((mode) => mode.daemon === null));
+  clientDie.controller.stdout.message({ runtime: clientDie.client.runtime.reference.absolute });
+  await next();
+};
+
+export const daemons = async (clientDie, next) => {
+  await clientDie.client.runtime.entities.daemon.find();
+  await next();
+};
+
+export const roster = async (clientDie, next) => {
+  await Promise.allSettled([clientDie.client.runtime, ...clientDie.client.runtime.daemons].map((host) => host.entities.mode.find()));
+  await next();
+};
+
+export const userspace = async (clientDie, next) => {
+  await clientDie.client.runtime.entities.intent.find();
+  await clientDie.client.runtime.entities.thread.find();
+  await clientDie.client.runtime.entities.buffer.find();
+  await clientDie.client.runtime.entities.turn.find();
+  await clientDie.client.runtime.entities.activity.find();
+  await clientDie.client.runtime.entities.terminal.find();
+  const offs = [
+    clientDie.client.runtime.entities.thread.subscribe(),
+    clientDie.client.runtime.entities.buffer.subscribe(),
+    clientDie.client.runtime.entities.turn.subscribe(),
+    clientDie.client.runtime.entities.activity.subscribe(),
+    clientDie.client.runtime.entities.terminal.subscribe(),
+  ];
+  try {
+    await next();
+  } finally {
+    for (const off of offs) off();
+  }
+};
+#+END_SRC
+
+- =connection= is the runtime's: ONE multiplex per runtime (bak.3 built it inside =Lighthouse=, =prototypes/lighthouse.js:57=); the lighthouse keeps =$authority= and a branch at =/lighthouse= with =authorize= (its =prototypes/lighthouse.js= hunk below). =shard.track.span(name, pipe)= is =track.js:13=, as bak.3's =population.lighthouse= used it.
+- =entities=: the =Runtime= IS the host — =connection · reference · entities · $modes · mounted= live on it (=prototypes/runtime.js= hunk); bak.3's =Object.assign(new Daemon(), …)= stand-in is gone. =[runtime, ...runtime.daemons]= is the host list everywhere (=roster=, =terminal/population.home=, =pick.js=, =lobby.jsx=).
+- =modes= is =systems/runtime/lifecycle/daemon/population.js:62= verbatim, =daemon → client=; the boot is =lifecycle/mode/*= below, driven by =resolution.modes=. The =??==: the runtime's line, cited, not mine.
+- =userspace=: six finds, five subscriptions, spelled. =Dataspace.populate= (bak.3 =:46=) dies with its =repositoryMap= filter.
+- =repl= binds NOTHING on the vector: the ctx is whole at the dispatch; =span= is the seat's stdout, =track.span= branches it per line.
+
+**** =systems/ghost/lifecycle/client/integration.js= — cp, hunk: four panes, no keys
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/lifecycle/client/integration.js:4
+ const shown = (client, terminal) => {
+   if (!client.runtime.lighthouse.isAuthorized) return ["crown", "signin"];
+   if (client.runtime.entities === null) return ["crown"];
+-  if (terminal === null || terminal.thread === null) return ["crown", "navigation", "dock"];
+-  return ["crown", "navigation", "dock", ...(terminal.buffer === null ? [] : ["frame"])];
++  if (terminal === null) return ["crown", "dock"];
++  return ["crown", "dock", ...(terminal.buffer === null ? [] : ["frame"])];
+ };
+…
+// systems/ghost/bak/bak.3/lifecycle/client/integration.js:25
+-    const terminal = client.terminals.active;
++    const terminal = client.$active.get();
+…
+// systems/ghost/bak/bak.3/lifecycle/client/integration.js:51
+-    const terminal = client.terminals.active;
++    const terminal = client.$active.get();
+…
+// systems/ghost/bak/bak.3/lifecycle/client/integration.js:56
+-  const offs = [client.$dock.listen(panes.arrange), client.terminals.$active.listen(rebind)];
++  const offs = [client.$dock.listen(panes.arrange), client.$active.listen(rebind)];
+…
+// systems/ghost/bak/bak.3/lifecycle/client/integration.js:67
+-export const keys = async (die, next) => { … };
+#+END_SRC
+
+**** =systems/ghost/lifecycle/client/resolution.js= — cp, hunk: modes · terminals · seat · active; home moves to the terminal
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/lifecycle/client/resolution.js:1
+-import { atom, control, steer, traits as belt } from "@vivalence/typology";
+-import { mode as traits, client } from "../../traits/index.js";
++import { atom, control, steer, traits as belt } from "@vivalence/typology";
++import { client } from "../../traits/index.js";
++import { REPLING } from "../../traits/mode/repling.js";
++import { modes as hosted } from "../../gestalten/belt/modes.js";
+…
+// systems/ghost/bak/bak.3/lifecycle/client/resolution.js:20
++export const modes = (execution) => async (clientDie, next) => {
++  try {
++    await hosted.resolve(clientDie.client, execution, { REPLING });
++    await next();
++  } finally {
++    await hosted.release(clientDie.client);
++  }
++};
++
+-export const runtime = (execution) => async (die, next) => {
+-  const { runtime } = die.client;
+-  const seat = { ...die, daemon: runtime.daemon, controller: die.controller.branch(runtime.reference.absolute) };
++export const runtime = (execution) => async (clientDie, next) => {
++  const daemonDie = { ...clientDie, daemon: clientDie.client.runtime, controller: clientDie.controller.branch(clientDie.client.runtime.reference.absolute) };
+…
+// systems/ghost/bak/bak.3/lifecycle/client/resolution.js:45
+-export const terminals = (execution) => async (die, next) => {
++export const terminals = (execution) => async (clientDie, next) => {
+   const held = new Map();
+-  const reconcile = (rows) => {
+-    for (const terminal of rows) {
++  const reconcile = (terminals) => {
++    for (const terminal of terminals) {
+       if (held.has(terminal.id)) continue;
+-      const controller = die.controller.branch(`terminal/${terminal.id}`);
+-      held.set(terminal.id, controller);
+-      steer.dispatch.execute(execution, { ...die, controller, terminal }).catch((error) => controller.stdout.fault(error));
++      terminal.controller = clientDie.controller.branch(`terminal/${terminal.id}`);
++      held.set(terminal.id, terminal.controller);
++      steer.dispatch.execute(execution, { ...clientDie, controller: terminal.controller, terminal }).catch((error) => terminal.controller.stdout.fault(error));
+     }
+     for (const [id, controller] of held) {
+-      if (rows.some((terminal) => terminal.id === id)) continue;
++      if (terminals.some((terminal) => terminal.id === id)) continue;
+…
+// systems/ghost/bak/bak.3/lifecycle/client/resolution.js:71
+-export const seat = (execution) => async (die, next) => {
+-  const { terminals } = die.client;
++export const seat = (execution) => async (clientDie, next) => {
+   let seated = null;
+   let release = null;
+   const derive = () => {
+-    const terminal = terminals.active;
++    const terminal = clientDie.client.$active.get();
+     const thread = terminal === null ? null : terminal.thread;
+     if (seated === thread) return;
+     seated = thread;
+     if (release !== null) release();
+     release = null;
+     if (thread === null) return;
+-    const controller = die.controller.branch(`thread/${thread.id}`);
+-    release = () => controller.abort.abort("unseated");
+-    steer.dispatch.execute(execution, { ...die, controller, thread }).catch((error) => controller.stdout.fault(error));
++    thread.controller = terminal.controller.branch(`thread/${thread.id}`);
++    release = () => thread.controller.abort.abort("unseated");
++    steer.dispatch.execute(execution, { ...clientDie, controller: thread.controller, thread }).catch((error) => thread.controller.stdout.fault(error));
+   };
+   let bound = null;
+   const rebind = () => {
+     if (bound !== null) bound();
+-    const terminal = terminals.active;
++    const terminal = clientDie.client.$active.get();
+     bound = terminal === null ? null : terminal.$thread.listen(derive);
+     derive();
+   };
+-  const off = terminals.$active.listen(rebind);
++  const off = clientDie.client.$active.listen(rebind);
+…
+// systems/ghost/bak/bak.3/lifecycle/client/resolution.js:105
+-export const home = async (die, next) => { … };
++export const active = async (clientDie, next) => {
++  const terminals = clientDie.client.runtime.entities.terminal.$entities.get();
++  clientDie.client.$active.set(terminals.length === 0 ? await clientDie.client.runtime.entities.terminal.create({}) : terminals[0]);
++  await next();
++};
+#+END_SRC
+
+- =modes= is =systems/runtime/lifecycle/daemon/resolution.js:25= over the client: the hosted set this stretch is ={ REPLING }=; a hosted mode declaring =HARNESSED= is logged by =mode/resolution.traits=, as the runtime logs an unoffered trait.
+- =terminals= · =seat=: the controller is branched ONCE, where the row is met, and lives on the row (=terminal.controller= · =thread.controller=); the die's =controller= IS it. A thread's span sits under its terminal's: =/client/ghost/terminal/<id>/thread/<id>= — the terminal's =tail= sees the thread's =turn= records.
+- =runtime=: the daemon execution runs over the =Runtime= itself (=daemon: clientDie.client.runtime=): it carries =mounted · $status · entities.mode · modes= (=prototypes/runtime.js= hunk). The bag's word stays =daemon=; renaming the daemon lifecycle's field to =host= is a later pass.
+
+**** =systems/ghost/lifecycle/daemon/resolution.js= — cp, hunk
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/lifecycle/daemon/resolution.js:1
+// systems/ghost/bak/bak.3/lifecycle/daemon/resolution.js:3
+-export const modes = (execution) => async (die, next) => {
+-  const { daemon } = die;
++export const modes = (execution) => async (daemonDie, next) => {
++  const { daemon } = daemonDie;
+   const releases = [];
+   for (const mode of daemon.modes) {
+-    const seat = { ...die, mode };
+-    await steer.dispatch.execute(execution, seat);
+-    releases.push(...seat.releases);
++    const modeDie = { ...daemonDie, mode, context: daemon };
++    await steer.dispatch.execute(execution, modeDie);
++    releases.push(...modeDie.releases);
+…
+// systems/ghost/bak/bak.3/lifecycle/daemon/resolution.js:18
+-export const healthy = async (die, next) => {
+-  const { daemon } = die;
++export const healthy = async (daemonDie, next) => {
++  const { daemon } = daemonDie;
+   daemon.$status.set({ code: "HEALTHY" });
+   daemon.mounted.resolve();
++  daemonDie.controller.stdout.message({ daemon: daemon.reference.absolute, modes: daemon.modes.map((mode) => mode.reference.absolute) });
+#+END_SRC
+
+**** =systems/ghost/lifecycle/lighthouse/resolution.js= — cp, hunk
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/lifecycle/lighthouse/resolution.js:1
+// systems/ghost/bak/bak.3/lifecycle/lighthouse/resolution.js:4
+-export const traits = async (die, next) => {
+-  for (const finalize of await belt.stagger(die.client.runtime.lighthouse, die, catalog)) await finalize();
++export const traits = async (lighthouseDie, next) => {
++  for (const finalize of await belt.stagger(lighthouseDie.client.runtime.lighthouse, lighthouseDie, catalog)) await finalize();
+…
+// systems/ghost/bak/bak.3/lifecycle/lighthouse/resolution.js:9
+-export const authorized = async (die, next) => {
++export const authorized = async (lighthouseDie, next) => {
+…
+// systems/ghost/bak/bak.3/lifecycle/lighthouse/resolution.js:11
+-  await Promise.race([atom.until(die.client.runtime.lighthouse.$isAuthorized, Boolean, die.controller.abort.signal), control.hold(die.controller)]);
++  await Promise.race([atom.until(lighthouseDie.client.runtime.lighthouse.$isAuthorized, Boolean, lighthouseDie.controller.abort.signal), control.hold(lighthouseDie.controller)]);
+-  if (await die.controller.proceed()) await next();
++  if (!(await lighthouseDie.controller.proceed())) return;
++  lighthouseDie.controller.stdout.message({ user: lighthouseDie.client.runtime.lighthouse.user.slug });
++  await next();
+#+END_SRC
+
+**** =systems/ghost/lifecycle/mode/execution.js= · =population.js= · =resolution.js= — new: =systems/runtime/lifecycle/mode/*=, aperture → repl
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/mode/execution.js
+import { Vector } from "@vivalence/typology";
+import * as population from "./population.js";
+import * as resolution from "./resolution.js";
+
+export const execution = new Vector().use(population.stdout).use(population.core);
+
+execution.affect(resolution.traits);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/mode/population.js
+import { Path, shard, Vector } from "@vivalence/typology";
+
+export const stdout = async (modeDie, next) => {
+  try {
+    await next();
+    modeDie.mode.stdout.open();
+  } catch (error) {
+    modeDie.mode.stdout.fault(error);
+    throw error;
+  }
+};
+
+export const core = async (modeDie, next) => {
+  modeDie.mode.reference = new Path(`${modeDie.context.mask.reference}${modeDie.mask.reference.absolute}`);
+  modeDie.mode.repl = new Vector().use(shard.context.bind("client", modeDie.context)).use(shard.context.bind("mode", modeDie.mode));
+  await next();
+};
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/mode/resolution.js
+import { traits as belt } from "@vivalence/typology";
+
+export const traits = async (modeDie) => {
+  modeDie.mode.finalizers = await belt.stagger(modeDie.mode, modeDie.context, modeDie.traits);
+  for (const name of modeDie.mode.manifest.traits.filter((name) => !modeDie.traits[name])) {
+    modeDie.mode.stdout.note({ declares: name, unoffered: modeDie.context.mask.reference });
+  }
+};
+#+END_SRC
+
+=systems/runtime/lifecycle/mode/population.js:15= builds the aperture with =spread(contexts.host, die.context)= + =bind("mode")=; here the repl gets =bind("client")= + =bind("mode")=: a hosted verb sees ITS mode as =ctx.mode=, the seated one stays =ctx.terminal.mode=. =REPLING= (=traits/mode/repling.js=) grafts =mode.module.repling= at stagger, as the runtime's =EXPOSED= grafts =module.aperture=. =modeDie = { mask: mode.module, mode, context: client, traits }= — =belt/modes.js:5=. The REMOTE mode's trait stagger (bak.3 =lifecycle/mode/execution.js=, =HARNESSED · APPLICATION · …= with its host as =context=) stays bak.3's, under =lifecycle/daemon/=.
+
+**** =systems/ghost/lifecycle/repl.js= — new: the per-line pipe, tracks native
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/repl.js
+import { Vector, fromm, shard, steer } from "@vivalence/typology";
+import * as commands from "../commands/index.js";
+
+export const composing = async (ctx, next) => {
+  ctx.repl = new Vector().graft(
+    ctx.client.repl,
+    ...fromm.modes(ctx.client.modes).flat.map((mode) => mode.repl),
+    ...(ctx.terminal === null ? [] : [commands.seated]),
+    ...(ctx.mode === null ? [] : [ctx.mode.repl]),
+  );
+  await next();
+};
+
+export const resolving = (ctx) =>
+  steer.dispatch.invoke(ctx.repl, ctx.signal, (carry, effect, steps) => async () => {
+    Object.assign(ctx, { steps, params: fromm.match(steps).parameters });
+    await carry(ctx, steer.strategy.resolve(effect));
+  })();
+
+export const execution = new Vector()
+  .use(shard.track.span((ctx) => ctx.signal.pathname))
+  .use(shard.track.fault())
+  .use(shard.track.message())
+  .use(composing)
+  .do(resolving);
+#+END_SRC
+
+Two functions of mine, three tracks of typology's. =track.span= (=shard/track.js:13=) branches =ctx.span= per line and closes it after; =track.fault= marks and rethrows — =client.dispatch= rejects, the dock already shows the =fault= record; =track.message= marks =ctx.output=. Four grafts in his b8 order: statics · hosted · seated verbs · the seated mode. A line matching nothing throws =NotFound= inside =invoke= → =track.fault=.
+
+**** =systems/ghost/lifecycle/shell.js= — cp, hunk: the door hands =register=; the chrome is the only escalation
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/lifecycle/shell.js:81
+-const mask = (instance) => {
+-  const row = instance.clients.find((client) => client.manifest.slug === "ghost") ?? { traits: [], trait: {} };
+-  return { manifest: { type: "client", slug: "ghost" }, statics: { remote: instance.runtime.statics.remote }, traits: row.traits, trait: row.trait };
+-};
++const mask = (instance) => {
++  const row = instance.clients.find((client) => client.manifest.slug === "ghost");
++  if (row === undefined) throw new Error("the recipe seats no client ghost — clients: [{ manifest: { type: 'client', slug: 'ghost' } }]");
++  return { ...row, statics: { ...row.statics, remote: instance.runtime.statics.remote } };
++};
+…
+// systems/ghost/bak/bak.3/lifecycle/shell.js:91
+-const lines = (input) => { … };
+-const pipes = (view, credentials, lines) => ({ … });
+-const typed = (view, credentials, lines) => ({ … });
+…
+// systems/ghost/bak/bak.3/lifecycle/shell.js:166
+ export const upgrading = async (ctx, next) => {
+   let runtime = belt.instance.standing;
+   let holder = null;
+   const ground = fn.memo(async () => {
+     if (!ctx.instance) ctx.instance = await lifecycle.mount(paladin.instance);
+     runtime = await belt.instance.boot("logged");
++    await paladin.ledger.registry.supply();
++    return paladin.ledger.registry.wire(mask(ctx.instance));
+   });
+   ctx.upgrade = {
+-    repl: async () => { … },
+     chrome: async () => {
+-      await ground();
++      const register = await ground();
+       const client = new Client(mask(ctx.instance), ctx.controller);
+       try {
+-        if (holder !== null) { … }
+         const sheets = await import("@vivalence/sheets");
+         const { tty } = await import("../chrome/surface.js");
+         const { createCliRenderer } = await sheets.opentui();
+         const renderer = await createCliRenderer({ exitOnCtrlC: false, stdin: ctx.view.stdin });
+-        holder = { controller: client.controller, mask: client.mask, surface: tty(renderer, { credentials: await carrier() }), client };
++        holder = { controller: client.controller, mask: client.mask, surface: tty(renderer, { credentials: await carrier() }), client, register };
+…
+// systems/ghost/bak/bak.3/lifecycle/shell.js:218
+-  .graft(dominion.paladin, commands.upgrade, commands.missing)
+-  .do((ctx) => ctx.upgrade.repl());
++  .graft(dominion.paladin, commands.upgrade, commands.missing)
++  .do((ctx) => {
++    if (!ctx.view.interactive) throw new Error("viva needs a terminal — run it in one, or name a verb: viva --help");
++    return ctx.upgrade.chrome();
++  });
+#+END_SRC
+
+=registry.supply()= · =registry.wire(mask)= are paladin's (=prototypes/ledger/registry.js:270=); the mask carries =modes · reference · mountpoint= once m88's paladin blocks land — the door wires, the lifecycle never enters paladin (=hosted= reads =clientDie.register=).
+
+**** =systems/ghost/lifecycle/terminal/execution.js= · =population.js= — new: stall · home
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/terminal/execution.js
+import { Vector, shard } from "@vivalence/typology";
+import * as population from "./population.js";
+
+export const execution = new Vector().use(population.stall).use(population.home).do(shard.controller.hold);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/terminal/population.js
+import { control } from "@vivalence/typology";
+import * as terminal from "../../prototypes/terminal.js";
+import { reference } from "../../traits/client/home.js";
+
+export const stall = async (terminalDie, next) => {
+  const off = terminal.stall(terminalDie.terminal, terminalDie.client.runtime.entities);
+  terminalDie.controller.stdout.message({ terminal: terminalDie.terminal.id });
+  try {
+    await next();
+  } finally {
+    off();
+  }
+};
+
+export const home = async (terminalDie, next) => {
+  const home = reference(terminalDie.client);
+  if (terminalDie.terminal.thread === null && home !== null) {
+    const host = [terminalDie.client.runtime, ...terminalDie.client.runtime.daemons].find((held) => home.startsWith(`${held.reference.absolute}/`));
+    if (host === undefined) throw new Error(`${home}: no host of ${terminalDie.client.runtime.reference.absolute} owns it`);
+    await Promise.race([host.mounted.promise, control.hold(terminalDie.controller)]);
+    if (!(await terminalDie.controller.proceed())) return;
+    const mode = host.modes.find((held) => held.reference.absolute === home);
+    if (mode === undefined) throw new Error(`${home}: no such mode on ${host.reference.absolute}`);
+    const thread = await terminalDie.client.runtime.entities.thread.create({ mode: mode.id });
+    await terminalDie.terminal.seat(thread);
+    terminalDie.controller.stdout.message({ home, thread: thread.id });
+  }
+  await next();
+};
+#+END_SRC
+
+=terminalDie.controller= IS =terminal.controller= (branched in =resolution.terminals=); nothing is assigned here. =home='s body is bak.3's =resolution.home= (=lifecycle/client/resolution.js:105=) at the seat it acts on: EVERY new terminal (m88's law line, kept). =host.mounted= — bak.3's =Daemon.mounted = Promise.withResolvers()= resolved by =daemon/resolution.healthy=; the =Runtime= carries the same (hunk below).
+
+**** =systems/ghost/lifecycle/thread/population.js= — cp, hunk: the frame opens on a verb, not on a seat
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/lifecycle/thread/population.js:1
+-import { is } from "@vivalence/typology";
+-import { terminal as standalone } from "../../traits/index.js";
+-
+ const RUNNING = ["RUNNING", "PAUSED"];
+-
+-export const buffer = async (die, next) => { … };
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/lifecycle/thread/execution.js:4
+-export const execution = new Vector().use(population.buffer).use(population.activity).do(shard.controller.hold);
++export const execution = new Vector().use(population.activity).do(shard.controller.hold);
+#+END_SRC
+
+**** =systems/ghost/prototypes/client.js= — new
+
+#+BEGIN_SRC js
+// systems/ghost/prototypes/client.js
+import { atom } from "nanostores";
+import { Controller, Span, Vector, fromm } from "@vivalence/typology";
+import { dock } from "../gestalten/belt/index.js";
+import { Runtime } from "./runtime.js";
+
+export class Client {
+  mask;
+  controller;
+  runtime;
+  modes = {};
+  repl = new Vector();
+  dispatch = null;
+  $active = atom(null);
+  $dock = atom(dock.DEFAULT_DOCK);
+
+  constructor(mask, parent = null) {
+    this.mask = mask;
+    this.controller = new Controller({ parent, stdout: new Span(`client/${mask.manifest.slug}`) });
+    this.runtime = new Runtime({ remote: mask.statics.remote });
+  }
+
+  get active() {
+    return this.$active.get();
+  }
+  get dock() {
+    return this.$dock.get();
+  }
+
+  get json() {
+    return {
+      mask: this.mask,
+      runtime: this.runtime.json,
+      modes: fromm.modes(this.modes).flat.map((mode) => mode.reference.absolute),
+      terminal: this.active === null ? null : this.active.id,
+    };
+  }
+}
+#+END_SRC
+
+A state container, no lifecycle: =dispatch= is minted by =population.repl=, =modes= by =population.modes=, booted by =resolution.modes(mode)=, =$active= by =resolution.active=. The controller is a CHILD of the shell's (his a2: the die is the root) — bak.3's =Client(mask, parent)= took a parent and dropped it; this one passes it.
+
+**** =systems/ghost/prototypes/lighthouse.js= — cp, hunk: authority only; the connection is the runtime's
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/prototypes/lighthouse.js:43
+-  constructor(connection, { stdout }) {
++  constructor({ stdout }) {
+     this.stdout = stdout;
+-    this.connection = connection
+-      .use(shard.track.request())
+-      .use(shard.track.fault())
+-      .use(shard.connection.authorize(this.$authority))
+-      .use(shard.connection.timeout())
+-      .use(shard.connection.track(connection));
+-
+-    this.multiplex = shard.transmitter.multiplex({ authority: this.$authority });
+-    this.runtime = new Connection(
+-      connection.url,
+-      shard.transmitter.retry(this.multiplex, { maxRetries: 2 }),
+-    )
+-      .use(shard.track.request())
+-      .use(shard.track.fault())
+-      .use(shard.connection.timeout(8000));
++    this.connection = null;
+   }
+…
+// systems/ghost/bak/bak.3/prototypes/lighthouse.js:190
+-    this.multiplex.close();
+#+END_SRC
+
+=connection= is set by =population.connection= (=runtime.connection.branch("/lighthouse")= + =authorize=); every =this.runtime.call(…)= inside the class becomes =this.connection.call(…)= on the branch — the lighthouse's routes are under =/lighthouse= on the wire (=systems/runtime/lifecycle/lighthouse/=).
+
+**** =systems/ghost/prototypes/runtime.js= — cp, hunk: a host
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/prototypes/runtime.js:1
+ import { atom } from "nanostores";
+…
+// systems/ghost/bak/bak.3/prototypes/runtime.js:8
+   remote = null;
++  multiplex = null;
+   connection = null;
+   lighthouse = null;
+   entities = null;
+-  daemon = null;
+   services = {};
++  mounted = Promise.withResolvers();
++  $modes = null;
+   $status = atom({ code: "IDLE" });
+…
+// systems/ghost/bak/bak.3/prototypes/runtime.js:22
+   get daemons() {
+     return this.entities === null ? [] : this.entities.daemon.$entities.get();
+   }
++  get modes() {
++    return this.$modes.get();
++  }
+#+END_SRC
+
+The daemon lifecycle reads =daemon.mounted · $status · modes · entities.mode · reference · connection · controller= — all on the =Runtime= now; =runtime.daemon= (bak.3's stand-in) has 0 readers left after =population.entities= and =pick.js=.
+
+**** =systems/ghost/prototypes/thread/thread.js= — cp, hunk: =$echo= dies · =controller=
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/prototypes/thread/thread.js:25
+-  $echo = atom(null);
+   $live = atom(null);
+   $activity = atom(null);
++  controller = null;
+…
+// systems/ghost/bak/bak.3/prototypes/thread/thread.js:75
+-  get echo() {
+-    return this.$echo.get();
+-  }
+#+END_SRC
+
+**** =systems/ghost/prototypes/turn.js= — cp, hunk: a turn marks itself on its thread's span
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/prototypes/turn.js:21
+-  use: [],
++  use: [
++    async (ctx, next) => {
++      await next();
++      if (ctx.entity.thread.controller !== null) ctx.entity.thread.controller.stdout.mark("turn", ctx.entity);
++    },
++  ],
+#+END_SRC
+
+The dossier's =use= runs per hydration (bak.3 =prototypes/dataspace.js:23=, anima =entities/mode/mode.js:41=): a turn of a SEATED thread (=thread.controller= set by =resolution.seat=) lands on =/client/ghost/terminal/<id>/thread/<id>= — in the terminal's =tail=. An unseated thread's turns stay in =$turns= only. A turn hydrated twice (streamed, then flushed) marks twice: the dock keeps the LAST record per =data.id=.
+
+**** =systems/ghost/prototypes/mode.js= — cp, hunk
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/prototypes/mode.js:1
+-import { RemoteRepository, Status } from "@vivalence/typology";
++import { RemoteRepository, Status, Vector } from "@vivalence/typology";
+…
+// systems/ghost/bak/bak.3/prototypes/mode.js:7
+   status = new Status();
+   metadata = {};
++  repl = new Vector();
+…
+// systems/ghost/bak/bak.3/prototypes/mode.js:27
+-    const { $application, call, emit, harness, ...base } = super.toJSON();
++    const { $application, call, emit, harness, repl, ...base } = super.toJSON();
+#+END_SRC
+
+**** =systems/ghost/prototypes/terminal.js= — cp, hunk: =$repl= → =controller=
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/prototypes/terminal.js:17
+   runtime = null;
+   repository = null;
++  controller = null;
+   stall = null;
+-  $repl = atom(null);
+   $thread = atom(null);
+…
+// systems/ghost/bak/bak.3/prototypes/terminal.js:23
+-  get repl() {
+-    return this.$repl.get();
+-  }
+…
+// systems/ghost/bak/bak.3/prototypes/terminal.js:45
+-    const kept = (key) => !key.startsWith("$") && !["stall", "repository", "runtime", "daemon"].includes(key);
++    const kept = (key) => !key.startsWith("$") && !["stall", "repository", "runtime", "daemon", "controller"].includes(key);
+#+END_SRC
+
+**** =systems/ghost/tests/client.test.js= — rewrite: the ring over a headless surface, against a real world
+
+#+BEGIN_SRC js
+// systems/ghost/tests/client.test.js
+import { specimen, atom, mime, steer } from "@vivalence/typology";
+import { Client } from "../prototypes/client.js";
+import { execution } from "../lifecycle/client/execution.js";
+import { headless, memory } from "./headless.js";
+import { boot, DEMO } from "./scenarios/hello.js";
+
+const { describe, it, expect, beforeAll, afterAll } = specimen;
+
+const HOME = "/runtime/house/mode/home/lobby";
+const MEMO = "/daemon/memo/mode/srs/memo";
+
+const settle = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const eventually = async (predicate, ms = 15000) => {
+  const deadline = Date.now() + ms;
+  while (!predicate()) {
+    if (Date.now() > deadline) throw new Error(`timed out waiting ${ms}ms`);
+    await settle(25);
+  }
+};
+const spoken = (client) => client.controller.stdout.records.filter((record) => record.verb === "message").map((record) => record.data.body);
+const shown = (surface) => surface.placed.filter((row) => row.panes !== null).at(-1)?.panes ?? [];
+
+describe("the ring — a line in, a message out, the dataspace beside it", { sanitizeOps: false, sanitizeResources: false }, () => {
+  let world = null;
+  beforeAll(async () => {
+    world = await boot({ recipe: DEMO, prefix: "viva-ring-" });
+  });
+  afterAll(async () => {
+    await world.stop();
+  });
+
+  it("boots, autologs in, lands a fresh terminal on HOME, composes the repl from the client, its hosted mode and the seated mode, opens the frame on a verb", async () => {
+    const surface = headless({ credentials: memory() });
+    const mask = { ...DEMO.clients[0], reference: "/client/ghost", statics: { remote: `${world.origin}/` } };
+    const client = new Client(mask);
+    const register = await world.registry.wire(mask);
+    const clientDie = { controller: client.controller, mask, surface, client, register };
+    steer.dispatch.execute(execution, clientDie);
+    const dead = client.controller.settled.then((json) => Promise.reject(new Error(`client ${json.code}`)));
+    const alive = (waiting) => Promise.race([waiting, dead]);
+
+    await alive(eventually(() => client.active !== null && client.active.thread !== null, 30000));
+    expect(client.active.mode.reference.absolute).toBe(HOME);
+    expect(spoken(client)).toEqual(expect.arrayContaining([
+      expect.stringMatching(/^lighthouse /),
+      "signed in as localhost",
+      "runtime house · /runtime/house",
+      `terminal #${client.active.id}`,
+      expect.stringMatching(/^home → \/runtime\/house\/mode\/home\/lobby · thread #/),
+    ]));
+    expect(shown(surface)).toEqual(["crown", "dock"]);
+
+    expect(await client.dispatch("/hello")).toBe(`hello from ghost · terminal #${client.active.id}`);
+    expect(await client.dispatch("/typo")).toEqual({ fault: expect.stringMatching(/typo/) });
+    expect(spoken(client).at(-1)).toEqual({ fault: expect.stringMatching(/typo/) });
+
+    await client.dispatch("ciao");
+    await alive(eventually(() => client.active.thread.$turns.get().length >= 2, 30000));
+    expect(client.active.thread.$turns.get().map((turn) => turn.role)).toEqual(["user", "assistant"]);
+
+    expect(await client.dispatch("/mode memo")).toMatch(/^seated \/daemon\/memo\/mode\/srs\/memo · thread #/);
+    expect(client.active.mode.reference.absolute).toBe(MEMO);
+    expect(client.active.buffer).toBe(null);
+    expect(await client.dispatch("/application/start")).toMatch(/^application \/daemon\/memo\/mode\/srs\/memo · buffer #/);
+    await alive(eventually(() => shown(surface).includes("frame")));
+    expect(client.active.mode.application.bundle.entries.map((entry) => entry.mime)).toContain(mime.tty.solid);
+    expect(await client.dispatch("/application/stop")).toBe("frame closed");
+    await alive(eventually(() => !shown(surface).includes("frame")));
+
+    expect(await client.dispatch("/mode mode")).toEqual({ which: expect.arrayContaining([HOME, MEMO]) });
+
+    await client.dispatch("/quit");
+    expect((await client.controller.settled).code).toBe("STOPPED");
+  });
+});
+#+END_SRC
+
+=world.registry= — the scenario exposes paladin's registry for the test's =wire= (=tests/scenarios/hello.js= hunk below); on =viva= the shell's door does it.
+
+**** =systems/ghost/tests/repl.test.js= — new: the pipe alone, no world
+
+#+BEGIN_SRC js
+// systems/ghost/tests/repl.test.js
+import { specimen, Controller, Span, Vector, steer } from "@vivalence/typology";
+import { execution } from "../lifecycle/repl.js";
+import { ReplSignal } from "../prototypes/replsignal.js";
+
+const { describe, it, expect } = specimen;
+
+const line = (client, terminal, input) => {
+  const signal = new ReplSignal(input);
+  const ctx = {
+    client,
+    runtime: null,
+    terminal,
+    mode: terminal === null ? null : terminal.mode,
+    span: terminal === null ? client.controller.stdout : terminal.controller.stdout,
+    signal,
+    input: signal.body,
+    output: undefined,
+  };
+  return steer.dispatch.execute(execution, ctx).then(() => ctx, () => ctx);
+};
+
+const world = () => {
+  const controller = new Controller({ stdout: new Span("client/test") });
+  const client = { controller, repl: new Vector().open("/who", () => "client"), modes: { home: { console: { repl: new Vector().open("/hello", (ctx) => `hosted #${ctx.terminal.id}`) } } } };
+  const terminal = { id: "t1", controller: controller.branch("terminal/t1"), mode: { repl: new Vector().open("/who", () => "mode").open({ nature: "*" }, (parts) => `turn: ${parts[0].text}`) } };
+  return { client, terminal };
+};
+
+describe("lifecycle/repl — compose on dispatch, tracks after", () => {
+  it("statics, then the hosted modes, then the seated mode; a later graft shadows", async () => {
+    const { client, terminal } = world();
+    expect((await line(client, terminal, "/who")).output).toBe("mode");
+    expect((await line(client, terminal, "/hello")).output).toBe("hosted #t1");
+    expect((await line(client, { ...terminal, mode: null }, "/who")).output).toBe("client");
+  });
+  it("a bare line is * — a turn when the seated mode opens it, a fault when nothing does", async () => {
+    const { client, terminal } = world();
+    expect((await line(client, terminal, "ciao")).output).toBe("turn: ciao");
+    expect((await line(client, { ...terminal, mode: null }, "ciao")).output).toBe(undefined);
+    expect(client.controller.stdout.records.filter((held) => held.verb === "fault").length).toBe(1);
+  });
+  it("every answer is a message on the line's span, under the terminal's, under the client's root", async () => {
+    const { client, terminal } = world();
+    await line(client, terminal, "/who");
+    const [record] = terminal.controller.stdout.tail("message").get();
+    expect(record.path).toBe("/client/test/terminal/t1/who");
+    expect(record.data).toBe("mode");
+    expect(client.controller.stdout.tail("message").get()).toEqual([record]);
+  });
+});
+#+END_SRC
+
+**** =systems/ghost/tests/scenarios/hello.js= — cp, hunk: the DEMO holds the three modes
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/tests/scenarios/hello.js:12
+ export const RECIPE = {
+   ...hello.RECIPE,
++  runtime: { ...hello.RECIPE.runtime, modes: [...hello.RECIPE.runtime.modes, "@commons/home/lobby"] },
+   hallucinators: [{ module: "@commons/hallucinator/stub" }],
+   daemons: [...hello.RECIPE.daemons, ...MEMO.daemons],
+ };
+…
+// systems/ghost/bak/bak.3/tests/scenarios/hello.js:22
+   clients: [
+     {
+       manifest: { type: "client", slug: "ghost" },
++      modes: ["@commons/home/console"],
+       traits: ["HOME"],
+-      trait: { HOME: { reference: "/daemon/memo/mode/srs/memo" } },
++      trait: { HOME: { reference: "/runtime/house/mode/home/lobby" } },
+     },
+   ],
+#+END_SRC
+
+=world.registry= rides the runtime scenario's =launch= result (=systems/runtime/tests/scenarios/hello.js=); if =launch= returns no registry, the test mounts paladin on =world.root= itself — measured at landing, not guessed here.
+
+**** =systems/ghost/traits/mode/harnessed.js= — cp, hunk: the bare line is this mode's
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/traits/mode/harnessed.js:1
+-import { shape, is } from "@vivalence/typology";
++import { shape, is, soma } from "@vivalence/typology";
+…
+// systems/ghost/bak/bak.3/traits/mode/harnessed.js:30
+   mode.metadata.harness = await mode.connection.call("/metadata/harness");
+   mode.harness = shape.connection.wire(harness, mode.metadata.harness);
++
++  mode.repl.open({ nature: "*", valence: "a turn to this mode's harness. Example: ciao" }, async (parts, ctx) => {
++    let live = null;
++    try {
++      for await (const packet of mode.harness.dialogue.stream({ thread: ctx.terminal.thread.id, id: crypto.randomUUID(), parts })) {
++        ctx.terminal.thread.$live.set((live = soma.transcript(live, packet)));
++      }
++    } finally {
++      ctx.terminal.thread.$live.set(null);
++    }
++  });
+ };
+#+END_SRC
+
+The effect returns nothing: the user turn and the assistant's arrive by subscription (his r5) and mark themselves on the thread's span (=prototypes/turn.js= hunk); =$live= holds the streaming transcript until the flushed turn lands. =soma.transcript= is what bak.3's =streaming= middleware folded (=lifecycle/repl.js:24=); the pump moves into the one effect that streams.
+
+**** =systems/ghost/traits/mode/repling.js= — new · =index.js= hunk
+
+#+BEGIN_SRC js
+// systems/ghost/traits/mode/repling.js
+export const REPLING = (mode) => {
+  mode.repl.graft(mode.module.repling);
+};
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/traits/mode/index.js:5
+ export * from "./generative.js";
++export * from "./repling.js";
+#+END_SRC
+
+The hosted seat only this stretch; a REMOTE mode's =REPLING= (wire =/metadata/repling=, graft the proxy) is his r12's later.
+
+**** =systems/ghost/traits/terminal/= — dead: =standalone.js='s =open= is =gestalten/belt/frame.js= (plain over data); the dir held one child
+
+#+BEGIN_SRC diff
+// systems/ghost/bak/bak.3/traits/index.js:4
+-export * as terminal from "./terminal/index.js";
+#+END_SRC
+
+* deliverables
+
+- =viva= in a terminal opens the chrome: crown · dock; signin cover when the lighthouse refuses; AUTOLOGIN enters straight.
+- the dock holds the boot's messages in order, then every answer; turns interleave by time; a bare line streams on a HARNESSED seat and faults otherwise.
+- =/hello= · =/whoami= answer from the client-hosted =console= mode; =/mode memo= reseats; =/application/start= splits the frame with the flashcards; =/application/stop= closes it; the lobby's view reseats by ⏎ (the repl) and by =s= (the dataspace).
+- =tests/repl.test.js= green without a world; =tests/client.test.js= green against the DEMO world.
+
+* milestones
+
+| milestone | files | green when |
+|---+---+---|
+| the context | =contexts.js= (HOLY) | =v.faults(contexts.of(contexts.Repl), ctx)= empty on the ctx =population.repl= builds |
+| the host | m88's paladin blocks + =index.client.js= | =subsystems/paladin/tests/modes.test.js= "client modes" green; =wire(clients[ghost]).modes[0].module === "@commons/home/console"= |
+| the pipe | =lifecycle/repl.js= · =prototypes/span.js= (=tail=) · =shard/track.js= (=message=) · =tests/repl.test.js= | the three cases above |
+| the ring | =prototypes/{client,mode,terminal}.js= · =lifecycle/{client,terminal,thread,mode,lighthouse,daemon}= · =traits/mode/{harnessed,repling}.js= · =commands/= · the three fixtures · =tests/client.test.js= | the client test |
+| the chrome | =chrome/= · =lifecycle/shell.js= | =viva= on his ledger: the trace above, seen |
+
+* blast table
+
+| symbol | consumers after | note |
+|---+---+---|
+| =client.terminals= | 0 | =client.$active= · =runtime.entities.terminal= |
+| =terminal.$repl= · =terminal.repl= | 0 | =mode.repl= · =ctx.repl= |
+| =ctx.view= · =ctx.flags= on the repl | 0 | the shell keeps both (=contexts.Shell=) |
+| =ctx.stream= · =ctx.kill= | 0 | the effect pumps; =ctx.controller.kill= |
+| =belt.line.read= | 0 | =new ReplSignal(line)= |
+| =surface.emit= · =surface.hold= · =$output= | 0 in ghost | =belt.view.plain= keeps =emit= · =hold= for the SHELL's verbs (=commands/paladin/*= pick); =tests/chrome/surface.test.js= re-cut |
+| =navigation= pane · =pips.js= | 0 | the lobby's view |
+| =~/.viva/ledger.viva.json= | his | =clients[anima]= gains nothing; a =ghost= row with =modes= + HOME when he lands it |
+
+* testing assessment
+
+COVERAGE GAP: the chrome's panes have no DOM-less test beyond =tests/chrome/panes.test.js= (bak.3, re-cut to four panes); the lobby's two seatings are walked by hand (QA below). The remote REPLING proxy has no test because it has no code this stretch.
+
+* QA — /"I type X, I see Y"/
+
+#+marker_qa: m86/T-chrome-boot · pending · =viva= → crown shows =ghost · localhost · #1 › lobby=; the dock lists lighthouse · signed in · runtime · daemons · terminal · home in that order
+#+marker_qa: m86/T-hello · pending · =<< /hello= → =hello from ghost · terminal #1=
+#+marker_qa: m86/T-turn · pending · =<< ciao= → =› ciao= echoes, a spinner, then the assistant turn; the echo clears
+#+marker_qa: m86/T-typo · pending · =<< /typo= → =✕ /typo …=
+#+marker_qa: m86/T-mode-memo · pending · =<< /mode memo= → =seated /daemon/memo/mode/srs/memo · thread #2=; crown shows =memo › memo=
+#+marker_qa: m86/T-application · pending · =<< /application/start= → the frame splits: =1/10 · noun · untouched · Latin=, tab reveals, =3= grades; =<< /application/stop= closes it
+#+marker_qa: m86/T-lobby · pending · =<< /mode lobby= · =<< /application/start= → hosts and modes listed; =⏎= on memo → the =seated …= message; =s= on hello-world → the crown changes without a message
+#+marker_qa: m86/T-quit · pending · =<< /quit= → the shell exits 0
+
+* deferred
+
+- a REMOTE mode's REPLING (=/repling= on its aperture, =/metadata/repling=, the client's proxy graft) — his r12 /"later"/.
+- a threadless terminal seated on a CLIENT mode (hosted HOME) — his r4.
+- keys as signals (=/key/<chord>=), pickers (=ctx.view.hold=) on the repl, =viva repl= over pipes and the demo snapshot — his r9 · 15; =tests/{demo.snapshot,pipes.wet,line}.test.js= wait with them.
+- the navigation pane, the dock's bones (his 10) · anima on =@vivalence/ghost= (his intent) · =Span.message()= sugar (HOLY, one line, when the record kind earns a verb).
+- a =Listing= rendering for =/help= in the dock (today: a tree).
+
+* handoff
+
+- goal: =client.dispatch(line)= composes the repl on every line from the client's verbs, its hosted modes and the seated mode; every answer is a message on the terminal's controller; the dock paints messages ⊕ turns; the chrome is crown · dock · frame.
+- done: the interview (every ruling above, his words) · this design · the tangle proposed · 10-16 ghost reshaped: =app/client/index.js= = =execution= + =factory= (lifecycle inlined, population/resolution dead) · =app/surface/{repl.js,chrome/index.js}= · a repl line = =client.controller.branch(signal.pathname)=, ridden by =shard.controller.open= + an output→=stdout.message= use; the repl surface =.use=s a per-line print tap; =fromm.controller= (exit codes) lives in typology; =tests/repl.test.js= 5/5 · 10-16 =world/codemap/ghost.md= rewritten in his nouns (shell · client = boot pipeline to a held process · repl = surfacing part + client part · commands); stale =Client.dispatch= · =lifecycle/repl.js= · =client.mount= · =tests/subprocess.js= gone from the map (quests keep them as history).
+- next: his go per file — =contexts.js= and =index.client.js= first (HOLY), then m88's paladin blocks, then ghost in =ls= order, the three fixtures with it; =SNAPSHOT_HOT=1= once for the chrome panes test.
+- never: a =$repl= atom · a repl LIST · bindings on =client.repl= · a verb that paints · a turn through the repl · =terminal.dispatch=.
+- owed: =/chrome/off= remounts =surface.repl= → a second =.use= on =client.repl= prints twice (=Vector.use= has no un-use) · a controller =message= shard beside =open= · =hold= (now inline in =app/client/index.js=) · =world.registry= on the scenario (measure =launch=) · the =RUNTIME= marker on =lobby= (mirrored from probe, unverified need) · the known issue =autologin-signin-flashes= (lighthouse traits).

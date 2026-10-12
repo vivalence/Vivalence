@@ -1,4 +1,4 @@
-import { NotFound } from "@vivalence/typology";
+import { NotFound } from "../../prototypes/errors/vector.js";
 
 export function feed(matches, signal) {
   if (!matches.length) throw new NotFound(signal);

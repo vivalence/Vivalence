@@ -1,7 +1,7 @@
 import { specimen } from "@vivalence/typology";
 import { FakeTime } from "jsr:@std/testing@1.0/time";
-import { Bridge } from "../../src/typology/stores/bridge/bridge.js";
-import { Gesture } from "../../src/typology/stores/bridge/gesture.js";
+import { Bridge } from "../../src/bridge/prototype.js";
+import { Gesture } from "../../src/bridge/gesture.js";
 
 const { describe, it, expect } = specimen;
 

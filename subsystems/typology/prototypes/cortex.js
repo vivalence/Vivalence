@@ -1,5 +1,11 @@
-import { cast, is, recipe, shape, shard, steer, Vector } from "@vivalence/typology";
-import { v } from "../schematics/v.js";
+import * as cast from "../gestalten/cast/index.js";
+import * as is from "../gestalten/is/index.js";
+import * as recipe from "../gestalten/belt/recipe.js";
+import * as shape from "../gestalten/shape/index.js";
+import * as hallucinate from "../gestalten/shard/hallucinate.js";
+import * as steer from "../gestalten/steer/index.js";
+import { Vector } from "./vector.js";
+import { v } from "../schematics/index.js";
 import { Tier, Tune } from "../schematics/primitives/hallucination.js";
 
 // [intelligence, reasoning, speed, thrift]  (each 0-1, 1 = max)
@@ -39,28 +45,28 @@ export class Cortex {
     for (const avenue of ["dialogue", "object"]) {
       this.#hallucinator
         .branch(avenue)
-        .use(shard.hallucinate.lowering())
-        .open({ nature: "stream", yields: Packet.Response }, shard.hallucinate.streaming(this, avenue))
-        .open("render", shard.hallucinate.rendering(this, avenue));
+        .use(hallucinate.lowering())
+        .open({ nature: "stream", yields: Packet.Response }, hallucinate.streaming(this, avenue))
+        .open("render", hallucinate.rendering(this, avenue));
     }
 
     this.#hallucinator
       .branch("/verbatim")
-      .use(shard.hallucinate.sourcing())
-      .open({ nature: "stream", feeds: Audio.Packet, yields: Verbatim.Any }, shard.hallucinate.transcribing(this, "stream"))
-      .open("render", shard.hallucinate.transcribing(this, "render"));
+      .use(hallucinate.sourcing())
+      .open({ nature: "stream", feeds: Audio.Packet, yields: Verbatim.Any }, hallucinate.transcribing(this, "stream"))
+      .open("render", hallucinate.transcribing(this, "render"));
 
     this.#hallucinator
       .branch("/speech")
-      .use(shard.hallucinate.sourcing())
-      .open({ nature: "stream", yields: Audio.Any }, shard.hallucinate.synthesizing(this))
-      .open("render", shard.hallucinate.vocalizing(this));
+      .use(hallucinate.sourcing())
+      .open({ nature: "stream", yields: Audio.Any }, hallucinate.synthesizing(this))
+      .open("render", hallucinate.vocalizing(this));
 
     this.#hallucinator
       .branch("/choice")
-      .use(shard.hallucinate.tagging())
-      .use(shard.hallucinate.bounding(this))
-      .open("render", shard.hallucinate.choosing(this));
+      .use(hallucinate.tagging())
+      .use(hallucinate.bounding(this))
+      .open("render", hallucinate.choosing(this));
 
     this.hallucinate = compile(this.#hallucinator);
   }
@@ -100,7 +106,7 @@ export class Cortex {
 function compile(hallucinator) {
   const { Hallucination } = v.primitives.hallucination;
   return shape.object(hallucinator, (carry, effect, steps, signal) => {
-    const { avenue } = shard.hallucinate.routing(steps);
+    const { avenue } = hallucinate.routing(steps);
     const schema = Hallucination[avenue];
     const strategy = steer.strategy.resolve(effect);
     return async (input) => {

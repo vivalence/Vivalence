@@ -4,18 +4,20 @@
 // uppercase is a fasho.
 // limit cases like signature evolve.
 
-import { prototypes } from "@vivalence/typology";
+import { Signature as SignaturePrototype } from "../../prototypes/signature.js";
+import { Pattern as PatternPrototype } from "../../prototypes/pattern.js";
+import { Signal as SignalPrototype } from "../../prototypes/signal.js";
+import { Path as PathPrototype } from "../../prototypes/path.js";
+import { FilePath as FilePathPrototype } from "../../prototypes/filepath.js";
+import { Controller as ControllerPrototype } from "../../prototypes/controller.js";
 import * as is from "./scalars.js";
-import { Vector as VP } from "@vivalence/typology";
+import { Vector as VP } from "../../prototypes/vector.js";
 
 export function Signature(thing) {
-  return thing instanceof prototypes.Signature;
-}
-export function signature(thing) {
-  return is.object(thing) && is.defined(thing.nature);
+  return thing instanceof SignaturePrototype;
 }
 export function Pattern(thing) {
-  return thing instanceof prototypes.Pattern;
+  return thing instanceof PatternPrototype;
 }
 
 export const Action = (thing) => thing?.constructor?.name === "Action" || thing instanceof Action;
@@ -27,7 +29,7 @@ export function pattern(thing) {
 }
 
 export function Signal(thing) {
-  return thing instanceof prototypes.Signal;
+  return thing instanceof SignalPrototype;
 }
 
 export function signal(thing) {
@@ -35,12 +37,12 @@ export function signal(thing) {
 }
 
 export function Path(thing) {
-  return thing instanceof prototypes.Path;
+  return thing instanceof PathPrototype;
 }
 export const path = Path; // ! true; but complicated
 
 export function FilePath(thing) {
-  return thing instanceof prototypes.FilePath;
+  return thing instanceof FilePathPrototype;
 }
 export const filepath = FilePath;
 
@@ -61,7 +63,7 @@ export function Vector(thing) {
 }
 
 export function Controller(thing) {
-  return thing instanceof prototypes.Controller;
+  return thing instanceof ControllerPrototype;
 }
 
 export function Aperture(thing) {
@@ -71,10 +73,6 @@ export function Aperture(thing) {
 export function App(thing) {
   return thing.constructor.name === "App";
   // return thing instanceof App;
-}
-
-export function View(thing) {
-  return thing?.constructor?.name === "View";
 }
 
 export function yieldish(thing) {
@@ -87,10 +85,5 @@ export function buffers(thing) {
   return buffer(thing) || (is.array(thing) && thing.every(buffer));
 }
 
-export function url(thing) {
-  if (is.string(thing)) return thing.includes("://");
-  if (thing && thing.origin && (thing.pathname || thing.nature)) return true;
-  return false;
-}
 
 // framling(thing){} utlanning(thing){}

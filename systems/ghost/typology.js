@@ -1,8 +1,20 @@
-// export process from "./belt/process.js";
-export * from "./belt/index.js";
+import { shell } from "./shell/lifecycle.js";
+import * as client from "./client/index.js";
+import * as terminal from "./entities/terminal/index.js";
+import * as thread from "./entities/thread/index.js";
+import * as mode from "./entities/mode/index.js";
+import * as lighthouse from "./entities/lighthouse/index.js";
+import * as daemon from "./entities/daemon/index.js";
+import * as runtime from "./entities/runtime/index.js";
 export * from "./prototypes/index.js";
-// export * from "./prototypes/shellsignal.js";
-// export * from "./prototypes/shellcontext.js";
-
 export * as prototypes from "./prototypes/index.js";
-export * as belt from "./belt/index.js";
+export * as gestalten from "./gestalten/index.js";
+export { belt, shard } from "./gestalten/index.js";
+export * as entities from "./entities/index.js";
+export { Client } from "./client/prototype.js";
+export { Runtime } from "./entities/runtime/prototype.js";
+export { Lighthouse, STANDINGS } from "./entities/lighthouse/prototype.js";
+export const factories = { client: client.factory };
+export const lifecycle = { shell, client: client.lifecycle, terminal: terminal.lifecycle, thread: thread.lifecycle, mode: mode.lifecycle, lighthouse: lighthouse.lifecycle, daemon: daemon.lifecycle, runtime: runtime.lifecycle };
+export const traits = { client: client.traits, mode: mode.traits, lighthouse: lighthouse.traits };
+export const commands = { client: client.commands, terminal: terminal.commands };

@@ -15,7 +15,7 @@ when_to_use: >-
 
 REJECTED 10-07: *door* — /"Stop using the word doors. … We don't have drivers or doors anywhere."/ An aperture OPENS a route. A domain is a trait SOURCE, never a class, layer or table: /"The domain does not play in here. The domain might configure stuff, but so might any other mode."/ REJECTED 10-08 (m80): `entities` on the barrel, a domain table or class, a `resolve` hook over its own routes — the schema is FIXED at the kernel, a daemon is a column and a repository.
 
-Canon: `subsystems/typology/schematics/primitives/kernel.js:7-15` (the `Domain` cast) · `systems/runtime/lifecycle/daemon/{population,resolution}.js` · `systems/runtime/gestalten/belt/traits.js` (`gather · mint · strike`) · m80's `* the law`. Exemplars: `~/.viva/registry/chess/domain/chess.viva.js` · `education/domain/domain.viva.js` (+ `twitch`). vcompany · stucatch still carry pre-m80 `entities`: never copy them.
+Canon: `subsystems/typology/schematics/primitives/kernel.js:7-15` (the `Domain` cast) · `systems/runtime/daemon/lifecycle/{population,resolution}.js` · `systems/runtime/gestalten/belt/traits.js` (`gather · mint · strike`) · m80's `* the law`. Exemplars: `~/.viva/registry/chess/domain/chess.viva.js` · `education/domain/domain.viva.js` (+ `twitch`). vcompany · stucatch still carry pre-m80 `entities`: never copy them.
 
 ## The barrel
 
@@ -71,9 +71,9 @@ Literals, folds, twitches → the domain (`ctx.domain.*`), never a mode. The cli
 `chess/tests/rig.js:18-68`: repositories minted from the domain's traits, the aperture grafted:
 
 ```js
-const traits = Object.fromEntries(Object.keys(sets.kernel).map((kind) => [kind, gather(kernel, domain, [], kind)]));
-const entities = { ...held.entities, ...strike(mint({ slug: DAEMON, kinds: sets.kernel, traits }), em, sets.kernel) };
+const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(kernel, domain, [], kind)]));
+const entities = { ...held.entities, ...strike(mint({ slug: DAEMON, kinds: sets.traits, traits }), em, sets.traits) };
 daemon.aperture.graft(domain.aperture); daemon.call = shape.proxy(domain.aperture, steer.strategy.direct);
 ```
 
-`gather · mint · strike` = `gestalten.belt`; the datamap = `@vivalence/runtime/scenarios`. No runtime test calls `lifecycle.mount`, so unit-green over a hand-built rig is not evidence the daemon boots → skill `change`.
+`gather · mint · strike` = `gestalten.belt`; the datamap = `@vivalence/runtime/scenarios`. No runtime test calls `factories.instance`, so unit-green over a hand-built rig is not evidence the daemon boots → skill `change`.

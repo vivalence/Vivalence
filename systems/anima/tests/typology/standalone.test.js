@@ -1,7 +1,7 @@
 import { specimen } from "@vivalence/typology";
 import { atom } from "nanostores";
-import { Terminal, mountStall } from "../../src/typology/entities/terminal.js";
-import { ModeTraits } from "../../src/typology/entities/mode/index.js";
+import { Terminal, mountStall } from "../../src/entities/terminal/prototype.js";
+import { ModeTraits } from "../../src/entities/mode/index.js";
 
 const { describe, it, expect } = specimen;
 

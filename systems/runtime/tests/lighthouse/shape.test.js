@@ -98,21 +98,21 @@ specimen.describe("lighthouse shape (the runtime aperture, in-process)", () => {
     specimen.assert(history?.length === 1, JSON.stringify(history));
   });
 
-  specimen.it("terminal seat — a daemon and a thread as FKs, the daemon's removal nulls the seat", async () => {
-    const seatedDaemon = await scenario.seedDaemon("brazilian", [finn.user.id]);
-    const seated = await finnConnection.call("/userspace/entities/terminal/updateOne", {
+  specimen.it("terminal — a daemon and a thread as FKs, the daemon's removal nulls the daemon", async () => {
+    const daemon = await scenario.seedDaemon("brazilian", [finn.user.id]);
+    const written = await finnConnection.call("/userspace/entities/terminal/updateOne", {
       where: { id: firstTerminal.id },
-      data: { daemon: seatedDaemon.slug, thread: thread.id },
+      data: { daemon: daemon.slug, thread: thread.id },
     });
     specimen.assert(
-      (seated?.daemon?.slug ?? seated?.daemon) === "brazilian" && (seated?.thread?.id ?? seated?.thread) === thread.id,
-      JSON.stringify({ daemon: seated?.daemon, thread: seated?.thread }),
+      (written?.daemon?.slug ?? written?.daemon) === "brazilian" && (written?.thread?.id ?? written?.thread) === thread.id,
+      JSON.stringify({ daemon: written?.daemon, thread: written?.thread }),
     );
     await scenario.datamap.shard.scope(() => scenario.datamap.entities.daemon.removeOne({ slug: "brazilian" }));
-    const unseated = await finnConnection.call("/userspace/entities/terminal/findOne", { where: { id: firstTerminal.id } });
+    const orphaned = await finnConnection.call("/userspace/entities/terminal/findOne", { where: { id: firstTerminal.id } });
     specimen.assert(
-      (unseated?.daemon ?? null) === null && (unseated?.thread?.id ?? unseated?.thread) === thread.id,
-      JSON.stringify({ daemon: unseated?.daemon, thread: unseated?.thread }),
+      (orphaned?.daemon ?? null) === null && (orphaned?.thread?.id ?? orphaned?.thread) === thread.id,
+      JSON.stringify({ daemon: orphaned?.daemon, thread: orphaned?.thread }),
     );
     const tables = await scenario.datamap.shard.scope(() =>
       scenario.orm.em.getConnection().execute(`select name from sqlite_master where type='table' order by name`),

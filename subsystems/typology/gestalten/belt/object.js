@@ -1,4 +1,4 @@
-import { is } from "@vivalence/typology";
+import * as is from "../is/scalars.js";
 import { where } from "./query.js";
 
 export const place = (obj, path, val) => {
@@ -243,7 +243,7 @@ const deepMergeCore = (current, options, visited, ...sources) => {
 export const merge = (...sources) =>
   deepMergeCore({}, { arrayMergeStrategy: "unique" }, new WeakMap(), ...sources);
 
-merge.withOptions = (options, ...sources) => deepMergeCore({}, options, new WeakMap(), ...sources);
+export const mergeWithOptions = (options, ...sources) => deepMergeCore({}, options, new WeakMap(), ...sources);
 
 export function patch(target, source) {
   return merge(pick(target, Object.keys(source)), source);

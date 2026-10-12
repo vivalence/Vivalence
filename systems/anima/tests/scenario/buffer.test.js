@@ -1,6 +1,6 @@
 import { specimen, View } from "@vivalence/typology";
 import { daemon } from "@vivalence/runtime/scenarios";
-import { Buffer } from "../../src/typology/entities/buffer.js";
+import { Buffer } from "../../src/entities/buffer.js";
 
 specimen.describe("Buffer", () => {
   specimen.it("hydrates from a pojo; data rides the atom accessor", () => {

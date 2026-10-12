@@ -1,15 +1,31 @@
-import { Failure, is, promise, Signal, Span, Status, steer, v, Vector } from "@vivalence/typology";
+import { Failure } from "./errors/controller.js";
+import * as is from "../gestalten/is/index.js";
+import * as promise from "../gestalten/belt/promise.js";
+import { Signal } from "./signal.js";
+import { Span } from "./span.js";
+import { Status } from "./status.js";
+import * as steer from "../gestalten/steer/index.js";
+import { v } from "../schematics/index.js";
+import { Vector } from "./vector.js";
 
 const said = (input) => (is.string(input) && input.length ? input : undefined);
 
 export class Controller {
   children = new Set();
-  status = new Status("IDLE");
+  status = null;
   gate = promise.waiter();
   settled = null;
+  stdout = null;
+  stdin = null;
 
-  constructor({ stdout = new Span("controller"), stdin = new Vector(), abort = new AbortController(), parent = null } = {}) {
-    Object.assign(this, { stdout, stdin, abort, parent });
+  constructor({
+    stdout = new Span("controller"),
+    stdin = new Vector(),
+    status = new Status("IDLE"),
+    abort = new AbortController(),
+    parent = null,
+  } = {}) {
+    Object.assign(this, { stdout, stdin, abort, parent, status });
     const { MACHINE } = v.primitives.controller;
 
     this.settled = new Promise((fulfil) => {
@@ -29,8 +45,13 @@ export class Controller {
       });
     });
 
-    const aborted = () => this.stdout.mark("abort", { ...(said(this.abort.signal.reason) && { reason: this.abort.signal.reason }) });
-    this.abort.signal.aborted ? aborted() : this.abort.signal.addEventListener("abort", aborted, { once: true });
+    const aborted = () =>
+      this.stdout.mark("abort", {
+        ...(said(this.abort.signal.reason) && { reason: this.abort.signal.reason }),
+      });
+    this.abort.signal.aborted
+      ? aborted()
+      : this.abort.signal.addEventListener("abort", aborted, { once: true });
 
     for (const [name, verb] of Object.entries(MACHINE.signals))
       this.stdin.open(name, async (ctx) => {

@@ -1,0 +1,648 @@
+mime types allow us to bundle and serve and coordinate specific viva-specific formats like vectors. allowing the runtime to serve mode bundles. or we could figure out how to have the clients have access to the modes via paladin. for anima that means at build / bundle time.
+
+#+title: m87 buffer view file — a buffer is a working area that loads Files; a View is code a mode ships to present a buffer mime; a File is a file the system holds; the client picks the renderer by mime
+#+filetags: :buffer:view:file:turn:note:runtime:paladin:ghost:anima:typology:mime:
+#+status: RE-CUT 10-20 inside m95's drill (rulings 26–36; renamed from m87-bundled-artifacts 10-20 /"rename the quest […] to buffer view file"/): three entities — Buffer · View · File, a view is code only, one buffer schema per mode, =surface.place=, no relation between View and Buffer — /"I like that it's similar to Emacs. That gives me trust."/ Deliverables re-cut whole; one question open (=* open=). Milestones 5 · 8 live in m95. Nothing tangled, nothing landed.
+
+# limit: none (quest content); the research record is reference/m87/drill-20261020.md
+
+* intent
+
+| # | beef, verbatim | trigger |
+|---+----------------+---------|
+| A | /"can we have a repling trait output / respond / produce solid code that the clients render ad-hoc inline?"/ | =systems/runtime/mode/traits/generative.js:74= hardcodes =mime.dom.svelte= |
+| B | /"Maybe this intermediary type is called artifact. Artifact has bundles, or it has maybe static files or whatever. And so then we have inline artifacts and framed artifacts."/ | =subsystems/typology/prototypes/bundle.js= · =Buffer.ts:40= =bundle: json= |
+| C | /"if we have an artifact entity, then we can just use all of the data map capabilities and remote repository subscriptions and shit that we already have."/ | =subsystems/typology/gestalten/shard/datamap.js:170= |
+| D | /"We could also wire in the whole cargo and freight system. […] I don't like that we called it fraud."/ | =systems/runtime/mode/traits/fraught.js= · =prototypes/freight.js:3= (a second mime table) |
+| E | /"So the turn, the buffer, and the mode have artifacts. That makes sense. Artifacts have a type, MIME type. They have content."/ | =Turn.ts= · =Buffer.ts= · =Mode.ts= |
+| F | /"I want notes to be integrated here too as part of the same work stream. We do want notes on the buffers, we do want notes on the turns."/ | =systems/runtime/entities/Note.ts= |
+| G 10-20 | /"Why do we have this problem now? […] we took the buffer.view that is rendered for the specific mode […] turn that into its own entity. Meaning that now the buffer schema applies to two things."/ | =App(sources, schema)= bound the view and the state space in one value (=subsystems/typology/prototypes/app.js:11=) |
+
+* the law
+
+1. A buffer is a working area: =mime= · =data= (live state in SQL, mirrored) · =files= (m:n, the Files it loads or was parsed from). It is owned by a mode, hangs on a thread, and on the turns that surfaced it (m:n). A File is a file the system holds: =mode · path · mount · mime · hash · integrity · bytes=, one row per =(mode, path)= (ruling 36).
+2. A View is code: =slug · mime · presents · entry=, owned by a mode, one row per =(mode, slug, mime)=; its bytes are its File rows (=file.view=, m:1 nullable), =entry= the one the client imports; a compile is a File mutation inside the View (=upstream · downstream= DEAD, Q38 10-21). It says what it is and which buffer mime it presents.
+3. View and Buffer hold no relation. =view.presents === buffer.mime= is the join. A mode's buffer mime is minted from its REFERENCE (m96 ruling 3, 10-21: =/daemon/chess/mode/board/play= → =application/vnd.vivalence.daemon.chess.mode.board.play+json=); =presents= defaults to it.
+4. A mode declares ONE buffer schema (=export const buffer=) and its views (=export const views=); =mode.buffer(desc)= validates against the one schema.
+5. The client decides by a =[[predicate, Part]]= table walked in order: a view that presents the buffer's mime (compiled on the runtime, fetched by row — the client renders nothing of a mode's and bundles nothing, m96 10-21 /"There is no rendering on the client"/) → a chrome part for the buffer's own mime → the =+json= part → a line. =accept= is derived from the table; the runtime never knows what a client can show.
+6. A code view mounts by =default(target, { terminal, buffer, surface })=; =surface.place ∈ cell · frame=; one component serves both places.
+7. Several runnable views for one buffer: the toggle; =RENDERED: { cell, frame }= pins by slug; default compiled-then-latest.
+8. FILESINK writes: =receive= → a File · =compile= → a view. FILESET reads the declared directory into File rows. RENDERER compiles the declared views and mints the mode's buffer. Paladin moves bytes; repositories record and import no paladin.
+9. The system serves by row: =/attached/view/:id= · =/attached/file/:id=, both with =x-viva-integrity=. =Bundle · App · Freight · Cargo · /attached/bundle · /attached/cargo= die.
+10. Presence is a patrol: a lifecycle beat over views and Files stats each =mount= and sets =MISSING=.
+11. A client mode carries no views.
+12. Notes hang on buffers and turns. Not on threads.
+
+* deliverables
+
+*** subsystems/typology
+
+#+BEGIN_SRC text
+subsystems/typology/
+  schematics/scalars/mime.js          + code(m) predicate (vnd.vivalence.dom.* · tty.* · text/javascript) · routine (the worker's word, deferred)
+  schematics/entities/view.js     NEW  v.view()
+  schematics/entities/buffer.js       − bundle · + mime · files · turns · + traits: { LABELED, RENDERED }
+  schematics/entities/file.js         NEW  path · mount · mime · hash · integrity · bytes · traits: { MISSING }
+  schematics/entities/turn.js         + buffers
+  prototypes/view.js              NEW  load(row, attach) — heir of bundle.js:33-51
+  prototypes/bundle.js · app.js       DEAD
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/entities/view.js
+export const ViewDescriptor = {
+  $id: "View",
+  own: {
+    slug: v.string().desc('The view\'s name inside its mode, one per (mode, slug, mime). Example: "play"'),
+    mime: v.string().desc('What the code is. Example: "application/vnd.vivalence.tty.solid+javascript"'),
+    presents: v.string().desc('The buffer mime it renders. Example: "application/vnd.vivalence.chess.board.play+json"'),
+    entry: v.string().desc('the File the client imports. Example: "board.js"'),
+    traits: v.array(v.string()).optional(), trait: v.record(v.string(), v.unknown()).optional(),
+  },
+  relations: {
+    mode: () => v.rel(v.mode()),
+    files: () => v.array(v.file()).optional(),
+  },
+  spoken: ["id", "slug", "mime", "presents", "mode", "entry"],
+};
+// subsystems/typology/schematics/entities/buffer.js — own · relations · the vocabulary v.buffer.trait reads
+    index, mime, data, mount, hash, integrity, bytes, traits, trait          // bundle: GONE
+// relations: mode · thread · turns · literals · symbols · notes
+const LABELED = v.object({ name: v.string(), description: v.string().optional() });
+const RENDERED = v.object({ cell: v.string().optional(), frame: v.string().optional() }).desc('Which view a place shows, by slug. Example: { cell: "pulse" }');
+const MISSING = v.object({ since: v.string() });
+  traits: { LABELED, RENDERED },
+
+// subsystems/typology/prototypes/view.js — one fetch proven by integrity; load for code, bytes for a File
+const fetched = async (url, integrity, name) => {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`[attached] ${name} ${response.status}`);
+  const text = await response.text();
+  if ((await digest(text)) !== integrity) throw new Error(`[attached] ${name}: integrity sha256 mismatch`);
+  return text;
+};
+const read = new Map();
+export const bytes = (file, attach) =>
+  (read.get(file.integrity) ?? read.set(file.integrity, fetched(attach.branch("/file").branch(`/${file.id}`).absolute, file.integrity, file.id)).get(file.integrity));
+const verified = new Map();
+export async function load(view, attach) {
+  if (verified.has(view.integrity)) return verified.get(view.integrity);
+  const text = await fetched(attach.branch("/view").branch(`/${view.id}`).absolute, view.integrity, view.slug);
+  const url = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
+  try {
+    const module = await import(/* @vite-ignore */ url);
+    verified.set(view.integrity, module);
+    return module;
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+}
+#+END_SRC
+
+*** systems/runtime
+
+#+BEGIN_SRC text
+systems/runtime/
+  entities/View.ts                NEW
+  entities/File.ts                NEW
+  entities/Buffer.ts                  − bundle · + mime · files (owner, "buffer_files") · turns (owner, "buffer_turns") · notes
+  entities/Turn.ts                    + buffers (mappedBy buffer.turns) · notes
+  entities/Note.ts                    + buffer? · turn? (m:1 nullable; the unique index gains both)
+  mode/Mode.ts                        + views (1:m, Cascade.REMOVE) · ModeTraitsEnum + RENDERER FILESET FILESINK − APPLICATION FRAUGHT MOUNTED
+  mode/traits/renderer.js          NEW   heir of application.js
+  mode/traits/filesink.js             NEW   heir of mounted.js + fraught.js:10 (the unnamed write)
+  mode/traits/fileset.js              NEW   heir of fraught.js (the read) — its rows are * open
+  mode/traits/generative.js           the verbs
+  mode/traits/{application,fraught,mounted}.js   DEAD
+  runtime/lifecycle/resolution.js     /attached/view/:id · /attached/file/:id ; /attached/bundle · /attached/cargo DEAD
+  runtime/lifecycle/patrol.js         NEW beat
+  gestalten/shard/host.js:33-41       /metadata/application · /metadata/freight DEAD (rows arrive by datamap)
+subsystems/paladin/ledger/integrity.js   trait → export
+#+END_SRC
+
+#+BEGIN_SRC ts
+// systems/runtime/entities/View.ts — Q38 10-21 (m95 ruling 26): a View owns its Files; entry names the one the client imports; no upstream
+export class ViewRepository extends DataRepository {
+  unique(query) { return { mode: query.mode, slug: query.slug, mime: query.mime }; }
+}
+export class ViewEntity extends DataEntity {
+  slug!: string;  mime!: string;  presents!: string;  entry!: string;
+  traits: string[] & Opt = [];  trait: any & Opt = {};
+  mode!: Rel<ModeEntity>;
+  files = new Collection<FileEntity>(this);        // mappedBy file.view: board.jsx · board.js · board.css
+}
+// systems/runtime/entities/File.ts — + view
+  view?: Rel<ViewEntity>;                           // m:1 nullable — a content File has none
+#+END_SRC
+
+#+BEGIN_SRC ts
+// systems/runtime/entities/File.ts
+import { types, Collection, EntitySchema, EntityRepositoryType, type Opt, type Rel } from "@mikro-orm/core";
+
+import { DataRepository, DataEntity, DataSchema } from "./index.ts";
+import { ModeEntity } from "./index.ts";
+import { BufferEntity } from "./index.ts";
+
+export enum FileTraitsEnum {
+  MISSING = "MISSING",
+}
+
+export class FileRepository extends DataRepository {
+  unique(query) {
+    return { mode: query.mode, path: query.path };
+  }
+}
+
+export class FileEntity extends DataEntity {
+  path!: string;
+  mount!: string;
+  mime!: string;
+  hash!: string;
+  integrity!: string;
+  bytes: number & Opt = 0;
+  traits: FileTraitsEnum[] & Opt = [];
+  trait: any & Opt = {};
+
+  mode!: Rel<ModeEntity>;
+
+  buffers = new Collection<BufferEntity>(this);
+  [EntityRepositoryType]?: FileRepository;
+}
+
+export const FileSchema = new EntitySchema<FileEntity, DataEntity>({
+  class: FileEntity,
+  extends: DataSchema,
+  name: "File",
+  tableName: "File",
+  repository: () => FileRepository,
+  properties: {
+    path: { type: types.string },
+    mount: { type: types.string },
+    mime: { type: types.string },
+    hash: { type: types.string },
+    integrity: { type: types.string },
+    bytes: { type: types.integer, default: 0 },
+    traits: {
+      items: () => FileTraitsEnum,
+      enum: true,
+      array: true,
+      defaultRaw: `'[]'`,
+      type: types.json,
+    },
+    trait: { type: types.json, defaultRaw: `'{}'` },
+
+    mode: {
+      kind: "m:1",
+      entity: () => ModeEntity,
+      fieldName: "mode",
+      updateRule: "cascade",
+      deleteRule: "cascade",
+    },
+
+    buffers: { kind: "m:n", entity: () => BufferEntity, mappedBy: "files" },
+  },
+});
+
+export default {
+  type: "file",
+  traits: FileTraitsEnum,
+  schema: FileSchema,
+  entity: FileEntity,
+  repository: FileRepository,
+};
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/entities/Buffer.ts:18
+ export enum BufferTraitsEnum {
+   LABELED = "LABELED", // for name and description
++  RENDERED = "RENDERED",
+ }
+…
+// systems/runtime/entities/Buffer.ts:25
+   async create({ thread, literals, symbols, ...fields }: any) {
++    thread ??= fields.turns?.[0] ? (await this.em.findOneOrFail(TurnEntity, fields.turns[0])).thread : null;
+…
+// systems/runtime/entities/Buffer.ts:40
+-  bundle: any & Opt = null;
++  mime!: string;
++  files = new Collection<FileEntity>(this);
++  turns = new Collection<TurnEntity>(this);
++  notes = new Collection<NoteEntity>(this);
+…
+// systems/runtime/entities/Buffer.ts:72
+-    bundle: { type: types.json, nullable: true },
++    mime: { type: types.string },
++    files: { kind: "m:n", entity: () => FileEntity, owner: true, pivotTable: "buffer_files", joinColumns: ["buffer_id"], inverseJoinColumns: ["file_id"] },
++    turns: { kind: "m:n", entity: () => TurnEntity, owner: true, pivotTable: "buffer_turns", joinColumns: ["buffer_id"], inverseJoinColumns: ["turn_id"] },
++    notes: { kind: "1:m", entity: () => NoteEntity, mappedBy: "buffer" },
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/integrity.js:15
+-  APPLICATION: "application",
++  RENDERER: "views",
+…
+// subsystems/paladin/prototypes/integrity.js:17
+-  FRAUGHT: "freight",
++  FILESET: "fileset",
+…
+// subsystems/paladin/prototypes/integrity.js:21
+-  MOUNTED: null,
++  FILESINK: null,
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/runtime/entities/Turn.ts:52
+   mode?: Rel<ModeEntity>;
++  buffers = new Collection<BufferEntity>(this);
++  notes = new Collection<NoteEntity>(this);
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/runtime/mode/Mode.ts:64
+   turns = new Collection<TurnEntity>(this);
++  views = new Collection<ViewEntity>(this);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/mode/traits/renderer.js — m96 ruling 3: the mime from the REFERENCE; a declared view compiles into its own File rows
+export const RENDERER = async (mode, context) => {
+  if (!mode.module.buffer) return;
+  mode.mime = mime.vivalence(context.reference.branch(`/mode/${mode.type}/${mode.slug}`));
+  for (const declared of mode.module.views)
+    await mode.files.compile({ slug: declared.slug, mime: declared.mime, presents: declared.presents ?? mode.mime, entry: join(mode.module.source.dirname, declared.mount) });
+  mode.buffer = (desc = {}) =>
+    context.entities.buffer.create({ mode: mode.entity.id, mime: mode.mime, ...desc, data: mode.module.buffer.fill(desc).data });
+};
+
+// systems/runtime/mode/traits/filesink.js — write (ruling 24: the route moves bytes, the repository records). Ruling 38 (10-21): a compile is a FILE MUTATION INSIDE THE VIEW —
+// the View row is upserted by (mode, slug, mime); its bytes are File rows with file.view = view; `entry` names the one File the client imports. No upstream, no downstream.
+export const FILESINK = (mode, context) => {
+  const bundler = paladin.bundler(mode.mountpoint.absolute);
+  mode.files.receive = async ({ path, bytes, mime }) => {
+    const file = await paladin.state.store(join(mode.mountpoint.absolute, path), bytes);
+    return context.entities.file.upsert({ mode: mode.entity.id, path, mime, mount: file.absolute, ...digest(file) });
+  };
+  mode.files.compile = async ({ slug, mime, presents, source, entry }) => {
+    const view = await context.entities.view.upsert({ mode: mode.entity.id, slug, mime, presents });
+    const built = await bundler.bundle(source === undefined ? { mime, entry } : { mime, source });
+    for (const out of built.files)
+      await context.entities.file.upsert({ mode: mode.entity.id, view: view.id, path: out.path, mime: out.mime, mount: out.absolute, ...digest(out) });
+    return context.entities.view.updateOne({ id: view.id }, { entry: built.entry });
+  };
+  mode.aperture.post("/files/receive", (input, ctx) => mode.files.receive(input)).post("/files/compile", (input, ctx) => mode.files.compile(input));
+};
+
+// systems/runtime/mode/traits/generative.js — the model's tools
+buffer_create    { mime, data | source, turn? }   → data: buffer.create · source: /files/receive → a File, buffer.files ∪ {it}; turn given → buffer.turns ∪ {turn}
+buffer_update    { buffer, data | source }        → in place; source: its File rewritten in place, new hash
+view_create  { slug, mime, source, presents? } → /files/compile; presents defaults to the seated mode's mime
+view_update  { slug, source }                 → the same View row; its File rows rewritten by the compile (ruling 38: a file mutation inside the view)
+view_read    { slug }                         → the row + its entry File's bytes
+view_list    { mime? }                        → this mode's rows
+
+// systems/runtime/runtime/lifecycle/resolution.js — serve by row (law 9): a view answers its File list, the client fetches `entry` by file id
+die.aperture.branch("/attached")
+  .open("/view/:id", async (input, ctx) => {
+    const view = await ctx.entities.view.findOneOrFail({ id: ctx.params.id }, { populate: ["files"] });
+    return { id: view.id, slug: view.slug, mime: view.mime, presents: view.presents, entry: view.entry, files: view.files.map((file) => ({ id: file.id, path: file.path, mime: file.mime, integrity: file.integrity })) };
+  })
+  .open("/file/:id", async (input, ctx) => {
+    const file = await ctx.entities.file.findOneOrFail({ id: ctx.params.id });
+    ctx.response.type = file.mime;
+    ctx.response.headers.set("x-viva-integrity", `sha256-${file.integrity}`);
+    return await paladin.read.bytes(file.mount);
+  });
+// subsystems/typology/prototypes/view.js — m87 law 5 · ruling 38: the loader resolves `entry` among the view's Files and imports it by file id
+export const load = async (view, attach) => {
+  const listed = await view.mode.connection.call(`/attached/view/${view.id}`);
+  const entry = listed.files.find((file) => file.path === listed.entry);
+  return attach(await import(`${view.mode.url}/attached/file/${entry.id}`));
+};
+#+END_SRC
+
+*** ~/.viva/registry — three modes at the real cardinality
+
+#+BEGIN_SRC js
+// ~/.viva/registry/chess/modes/board/play/play.viva.js — a game: one buffer, two views
+export const manifest = { type: "board", slug: "play", traits: ["RENDERER", "EXPOSED", "HARNESSED", "TOOLING"] };
+export const buffer = v.buffer({ data: MATCH, literals: v.array(v.rel(v.literal())) });
+export const views = [
+  { slug: "play", mount: "buffer/Play.svelte", mime: mime.dom.svelte },
+  { slug: "play", mount: "buffer/play.jsx",    mime: mime.tty.solid },
+];
+// ~/.viva/registry/chess/modes/board/play/buffer/play.jsx — one component, both places; every write a line (m95 lock 6a)
+export default (target, { terminal, buffer, surface }) => {
+  const dispose = render(() => (surface.place === "cell" ? <Glance buffer={buffer} /> : <Board buffer={buffer} terminal={terminal} />), target);
+  return { destroy: dispose };
+};
+terminal.dispatch(`/mode/board/play/move ${uci}`);
+
+// ~/.viva/registry/education/modes/games/cloze/cloze.viva.js — today's App wrapper opened, nothing else moves
+export const buffer = v.buffer({ data: { recall: v.string({ default: "LEARNING" }), gameplay: v.string({ default: "TYPE" }), blankIndices: v.array(v.number(), { default: [] }) } });
+export const views = [{ slug: "cloze", mount: "buffer/Cloze.svelte", mime: mime.dom.svelte }];
+
+// ~/.viva/registry/office/modes/desk/org/org.viva.js — a reader: no buffer of its own, a view for a content mime
+export const manifest = { type: "desk", slug: "org", traits: ["RENDERER"] };
+export const views = [{ slug: "org", mount: "buffer/Org.svelte", mime: mime.dom.svelte, presents: "text/org" }];
+#+END_SRC
+
+*** systems/ghost — milestone 5, owned by m95
+
+#+BEGIN_SRC js
+// systems/ghost/surface/chrome/renderers.js — the table, walked in order; anima's names drapes and RUNS dom.svelte · dom.solid
+const RUNS = [mime.tty.solid];
+const own = (buffer, client) =>
+  client.modes.flatMap((mode) => mode.views).filter((view) => RUNS.includes(view.mime) && view.presents === buffer.mime);
+export const RENDERERS = [
+  [(buffer, client) => own(buffer, client).length > 0, Mounted],
+  [(buffer) => buffer.mime === mime.markdown,  Markdown],
+  [(buffer) => buffer.mime === mime.json,      JsonTree],
+  [(buffer) => buffer.mime.endsWith("+json"),  JsonTree],
+  [() => true,                                 Line],
+];
+export const renderer = (buffer, client) => RENDERERS.find(([test]) => test(buffer, client))[1];
+const compiled = (view) => view.files.find((file) => file.path === view.entry).mime === mime.javascript;   // ruling 38: no upstream; a compiled view's entry is a bundle (mine)
+const compiledFirstThenLatest = (left, right) => compiled(right) - compiled(left) || right.updatedAt - left.updatedAt;
+export const pick = (buffer, client, surface) => {
+  const held = own(buffer, client).sort(compiledFirstThenLatest);
+  return held.find((view) => view.slug === v.buffer.trait(buffer, "RENDERED")[surface.place]) ?? held[0];
+};
+#+END_SRC
+#+BEGIN_SRC jsx
+// systems/ghost/surface/chrome/panes/dock.jsx — a turn: its parts, then its buffers
+<For each={props.turn.parts}>{(part) => <Part part={part} />}</For>
+<For each={props.turn.buffers}>{(buffer) => <Dynamic component={renderer(buffer, terminal.client)} terminal={terminal} buffer={buffer} surface={{ place: "cell", renderer, tones }} />}</For>
+// Mounted
+onMount(async () => {
+  props.buffer.attach();
+  const module = await view.load(pick(props.buffer, props.terminal.client, props.surface), props.terminal.client.runtime.attach);
+  handle = module.default(element, { terminal: props.terminal, buffer: props.buffer, surface: props.surface });
+});
+// Markdown — /attached/file/:id over the buffer's file, memo by integrity
+const text = createResource(() => props.buffer.files[0].integrity, () => view.bytes(props.buffer.files[0], props.terminal.client.runtime.attach));
+// Line — the last row: a buffer this client cannot show; select frames it
+export const Line = (props) => <text onMouseDown={() => props.terminal.dispatch(`/buffer ${v.buffer.trait(props.buffer, "LABELED").name}`)}>{`▸ ${v.buffer.trait(props.buffer, "LABELED").name} · ${short(props.buffer.mime)}`}</text>;
+#+END_SRC
+#+BEGIN_SRC text
+what ghost paints for flow 1
+▸ agent   Three filings. The VAT return and the payroll report are filed; the annual accounts wait on your review.
+          ◆ runtime #3 · md · 1.4 kB
+          Annual accounts 2026 · draft
+          Revenue for the year is 412k, up 18 % on 2025. …
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/entities/terminal/commands/view.js
+export const views = new Vector()
+  .open({ nature: "/views", valence: "this mode's views — slug · mime · presents. Example: /views", chord: "leader/e/a" },
+    (ctx) => { ctx.output = ctx.terminal.mode.views.map(({ slug, mime, presents }) => ({ slug, mime, presents })); })
+  .open({ nature: "/buffer/view", valence: "pin which view the buffer shows in a place. Example: /buffer/view pulse cell",
+          input: v.object({ slug: v.string(), place: v.enum(["cell", "frame"]).default("frame") }) },
+    (ctx) => ctx.terminal.buffer.updateOne({ trait: { RENDERED: { ...v.buffer.trait(ctx.terminal.buffer, "RENDERED"), [ctx.input.place]: ctx.input.slug } } }));
+// systems/ghost/entities/terminal/commands/attach.js — an upload: the seated mode owns it (ruling 6), the route moves it (ruling 24)
+export const attach = new Vector().open(
+  { nature: "/attach", valence: "a file into the seated mode, surfaced on this thread. Example: /attach ~/maps/range.png", input: v.object({ path: v.string() }) },
+  async (ctx) => { ctx.output = await ctx.terminal.mode.connection.call("/files/receive", { path: basename(ctx.input.path), bytes: await Deno.readFile(ctx.input.path), mime: mime.of(ctx.input.path), thread: ctx.terminal.thread.id }); },
+);
+// systems/ghost/entities/buffer.js · systems/anima/src/entities/buffer.js — the hooks rename: mount · unmount → attach · detach (the column is mount)
+// a client mode, ruling 26 — the register carries what a client mode is, nothing to render
+export const register = { modes: [{ reference: "/client/anima/mode/home/home", manifest, repling, keymap }] };
+#+END_SRC
+
+*** systems/anima — milestone 8, owned by m95
+
+The same four files under =systems/anima/src/surface/=; =RUNS = [mime.dom.svelte, mime.dom.solid]=; the table adds =[(buffer) => buffer.mime.startsWith("image/"), Image]= and =[(buffer) => buffer.mime === mime.html, Html]= (sandboxed) from drapes.
+
+* flows — as code
+
+#+BEGIN_SRC js
+// 1 · the model writes markdown — a File, and a buffer on the thread that loads it
+tool_use  buffer_create { mime: "text/markdown", source: "# Annual accounts 2026 · draft\n\nRevenue …", turn: "t9" }
+file      { id: "f3", mode: "m-harness", path: "t9.md", mount: "…/mountpoint/runtime/mode_harness_runtime/t9.md", mime: "text/markdown", hash: "51f3c0e2", bytes: 1432 }
+row       { id: "b3", mime: "text/markdown", data: {}, files: ["f3"], mode: "m-harness", thread: "th3", turns: ["t9"] }
+ghost     renderer(b3) → Markdown (row 2) → fetch /attached/file/f3, sha256 === f3.integrity → inline under t9
+you       terminal.dispatch("/buffer runtime #3") → the frame, surface.place = "frame", the same Markdown
+tool_use  buffer_update { buffer: "b3", source: "# Annual accounts 2026 · final\n…" } → f3 rewritten in place, hash "9b0e…"; the mirror; one refetch
+
+// 2 · a mode's own JSON buffer, both clients
+mode.mime       → "application/vnd.vivalence.chess.board.play+json"
+mode.views  → [{ id: "a1", slug: "play", mime: dom.svelte, presents: mode.mime }, { id: "a2", slug: "play", mime: tty.solid, presents: mode.mime }]
+b1              = await mode.buffer()      // { mime: mode.mime, data: { moves: [], fen: START, seats, ply: 0 }, files: [] }
+ghost           renderer(b1) → Mounted · pick(b1, client, { place: "frame" }) → a2
+anima           RUNS dom.svelte → a1
+a ply           terminal.dispatch("/mode/board/play/move e2e4") → b1.data mirrors → both repaint; b1.turns ∪ ["t7"] → the dock cell: the same b1, place "cell"
+
+// 3 · a mode shipped only a DOM view — ghost falls through
+own(b1, client)            → []
+b1.mime.endsWith("+json")  → true → <JsonTree data={b1.data} head="play #1 · chess.board.play+json · no tty view" />
+
+// 4 · a plain JSON buffer nobody declared
+tool_use  buffer_create { mime: "application/json", data: { quarter: "q3", filings: [ … ], open: 1 }, turn: "t11" }
+row       { id: "b8", mime: "application/json", data: { … }, files: [] } → JsonTree (row 3); validated against nothing
+
+// 5 · the model writes a view ad hoc — two views, the toggle
+tool_use  view_create { slug: "pulse", mime: "application/vnd.vivalence.tty.solid+javascript", source: "export default (target, { buffer, surface }) => …" }
+row       { id: "a3", slug: "pulse", mime: tty.solid, presents: "…chess.board.play+json", entry: "pulse.jsx", files: [pulse.jsx] }
+ghost     own(b1, client) → [a2 play, a3 pulse] → ▾ play · pulse
+you       terminal.dispatch("/buffer/view pulse cell") → b1.trait.RENDERED = { cell: "pulse" } → the cell paints a3, the frame keeps a2
+
+// 6 · an upload
+you       terminal.dispatch("/attach ~/maps/range.png") → the seated mode's /files/receive (ruling 6)
+file      { id: "f9", path: "maps/range.png", mount: "…/mode_board_play/maps/range.png", mime: "image/png", bytes: 1258291 }
+row       { id: "b9", mime: "image/png", data: {}, files: ["f9"], thread: "th1" }
+anima     Image → <img src=".../attached/file/f9">     ghost  Line → "▸ range.png · png"
+
+// 6b · the repl compiles a view (m87 intent A, from the client; ruling 24: the route, never entity.create)
+you       terminal.dispatch("/mode/board/play/harness draw a tiny eval bar")   → the model, flow 5
+repl      terminal.mode.connection.call("/files/compile", { slug: "pulse", mime: mime.tty.solid, source })   → a3, presents the seated mode's mime
+
+// 7 · a reader mode for a content mime
+tool_use  buffer_create { mime: "text/org", source: "* Q3\n** filings\n…", turn: "t12" }
+anima     own(b12) → [org (presents text/org)] → Mounted Org.svelte     ghost  no tty view → Line
+#+END_SRC
+
+* milestones — each a noun, each green before the next
+
+1. the entities — =View.ts= · the Buffer · Turn · Mode · Note hunks · mikro snapshot (=buffer.bundle= dropped, ruling 20) · =v.view= descriptor + JSON snapshot · wire test on =:memory:=
+2. the file traits — FILESINK (=receive= → File · =compile= → view) · FILESET (the declared directory → File rows) · =integrity.js= · =/attached/view/:id= · =/attached/file/:id= · =/attached/bundle= · =/attached/cargo= gone
+3. RENDERER — =export const buffer= + =export const views= · =mode.mime= · =presents= default · =mode.buffer()= · every registry mode re-declared (=new App(= 52 · =v.buffer(= 17) · APPLICATION · =/metadata/application= gone
+4. the generative verbs — =buffer_create · buffer_update · view_*= · =generator_view_*= gone · the harness surfaces a buffer on its turn
+5. → m95 milestone 6: ghost renderers · dock cells · frame · =view.load= · =attach · detach=
+6. the rename — =Freight · Cargo · FRAUGHT · MOUNTED · mode.freight · .bundle= land pass, zero residue; =freight.js= mime table folded into =scalars/mime.js=
+7. the patrol — a runtime lifecycle beat over views and Files; =MISSING=; a census test
+8. → m95 milestone 8: anima's renderer table · frame · dock
+
+* the dialogue — the rulings, as built
+
+| Q | his ruling, verbatim | built as (10-20) |
+|---+----------------------+------------------|
+| 1 rows or values | /"it's for sure an entity. Yes, it's an entity."/ · /"we can run all kinds of like things like validating that artifacts are still in place"/ | =ViewEntity=; the patrol (law 10) |
+| 2 identity | /"Don't forget about the slug."/ · /"if we work on a markdown file, we don't want to create a new artifact every time"/ | row id is identity; =slug=; =hash= = current bytes; update mutates in place — both entities |
+| 3 history | /"let's not fucking over-engineer that. […] an artifact as it changes still is the single artifact"/ | latest only; the old file pruned |
+| 4 mime per row | /"the artifact does not say something about how it's consumed. It only says what it is. […] one hash per artifact."/ | one row = one mime = one hash; a dom view and a tty view = two rows, one slug |
+| 5 source in the row | /"we don't fucking bloat the database with the raw content. […] artifact is the way that we interface with the disk."/ | bytes on disk by =mount=; a buffer's =data= is state, never a file's bytes |
+| 6 where the file lives | /"per mode."/ · /"the mode that is mounted in the terminal when the asset gets created is the one that owns it"/ | written into =mode.mountpoint=; owner = the terminal's seated mode |
+| 7 relations | /"Mode is the owner, so turn buffer consumers […] Thread doesn't need it."/ | =view.mode= m:1 mandatory; no thread on View |
+| 8 parts | /"artifacts are not parts. They just dangle off the turn. […] the parts are the intermediary steps of the agents"/ | a turn's buffers render after its parts |
+| 9 the model's verbs | /"The tools are the new meta, the artifacts are the new meta. […] update, create, read, delete, list"/ | =view_*= for code · =buffer_create · buffer_update= for state and content |
+| 10 which one shows | /"just render the most recently updated that we can display"/ · /"prefer […] rendered bundled artifacts over plain static ones"/ · /"a rendered trait on buffer makes actually sense"/ | =RENDERED: { cell, frame }= pins; else compiled-then-latest (m95 lock 10) |
+| 11 moving bytes | /"we want the artifact to be independent of the cargo handling. […] the inverse of what freight does"/ | two acts: a trait lands the file; a repository records it |
+| 12 compile | /"the paladin does the actual implementation. And the cargo is a surface and interface layer."/ | =mode.files.compile= = paladin's bundler into the mountpoint |
+| 13 one trait or two | /"let's go really dumb and call it file set and file sync. […] All of this ocean speak freight and shit was funny, but I think it's past its prime."/ | =FILESET= (read) · =FILESINK= (write) |
+| 14 the attached route | /"as soon as a file is imported into the system, it is exposed to the system as an artifact."/ | by row: =/attached/view/:id= · =/attached/buffer/:id= |
+| 15 accept | /"How the fuck should the runtime be able to decide what a client can accept? […] Of course it's the client."/ | a renderer table per client; =accept= derived |
+| 16 the export | /"artifactual is a good solution"/ · /"Actually, we call it mount."/ | =export const views= =[{slug, mount, mime, presents?}]=, trait =RENDERER=; =target · schema= on a row SUPERSEDED by 27 · 28 |
+| 17 the cell's data | /"No, I don't want a dedicated cell entity. That is overkill."/ · /"A buffer is the state space between an artifact and its consumer."/ | no Cell; the buffer is the state; =buffer.views= SUPERSEDED by 27 · 30 |
+| 17b the place | /"we can just display it in either place and we need controls to switch"/ | the client decides; chess inline or framed from one buffer → =surface.place= (28) |
+| 18 target | /"the target is optional and it's more of a constraint"/ | SUPERSEDED by 28 |
+| 19 the surface | /"receive and compile being file sync, but catalog really is file set"/ · /"Generative unchanged"/ | =mode.files.receive · compile= (FILESINK) · FILESET reads |
+| 20 old data | /"we drop everything that we have"/ | the migration drops =buffer.bundle=; no re-mint |
+| 21 turn ↔ buffer (10-17) | /"1 m:n obviously."/ | =buffer.turns= owner =buffer_turns=; chess: every turn adds itself |
+| 22 the file's path (10-17) | /"we want to record the full mountpoint of the artifact. obviously."/ | =mount= absolute on both entities; a re-rooted mountpoint → =MISSING=, re-index |
+| 23 two mimes, one slug (10-17) | /"a model can't revise a compiled artifact. […] Ancestry."/ · /"upstream and downstream is fine."/ | =upstream ⟷ downstream= on View; =view_update= on a source recompiles its downstream |
+| 24 law 9 holds (10-17) | /"the law holds. propose a rework."/ | a repository records; FILESINK moves; =/files/receive · /files/compile= expose; =mime= rides the compile request (closes the =mimeOf(.mjs)= hole) |
+| 25 generated code (10-17) | /"7 permitted."/ | a model-written =vnd.vivalence.*= row runs with =terminal.dispatch=; integrity proves bytes, trust is the mode's |
+| 26 client modes (10-20) | /"no artifacts on client modes. client modes dont render anything today. they have limited functionality like transport keymaps and wire into repling"/ | the client =register= carries =keymap · repling=, never =views= |
+| 27 one buffer per mode (10-20) | /"A modes artifact is always displaying the modes buffer, one buffer per mode. We decide if we process the content based on the mime."/ · /"I don't like that we don't have dedicated types for this. I think it's 1 degree of freedom too much."/ | =export const buffer= once (today's 17 =v.buffer(= declarations, =App= opened); no schema on a row |
+| 28 surface (10-20) | /"the buffer is no longer in the terminal […] place is its own prop. But I don't like it being a top-level prop. […] it's called surface. Surface.place"/ | =default(target, { terminal, buffer, surface })= (m95 lock 11) |
+| 29 content (10-20) | /"Those are still artifacts. Those are just, well, stateless. […] the turn having artifacts does make sense."/ | SUPERSEDED by 31: content is a buffer visiting a file |
+| 30 two entities (10-20) | /"b"/ | no relation between View and Buffer; the views are rows; one loader |
+| 31 the buffer visits a file (10-20) | /"What if we consider markdown content PNGs, JPEGs […] to be buffers instead of artifacts? And the artifacts are really renderers?"/ · /"we're serving one of them from the disk and the other one from SQL"/ · /"I like A better a lot. I like that it's similar to Emacs. That gives me trust."/ | law 1 · 2: =Buffer= = =mime · data · mount=; =View= = code only; REJECTED B: View absorbs state, the word buffer dies |
+| 32 the name (10-20) | /"then artifact is misnamed."/ · /"View entity"/ · /"RENDERER trait"/ | =View= (=v.view= · =export const views= · =mode.views= · =/attached/view/:id= · =view_*= · =/views= · =/buffer/view=); the mode trait =RENDERER=; rows 1–29 and the intent say artifact for today's View |
+| 33 the client's table (10-20) | /"we're gonna continue to call it a renderer, because it's one coherent […] one system. It's a render pipeline. […] we pick renderers for buffers, and what we pick is a view. […] when a mode creates something that renders buffers, then we call that renderers, or renderer."/ · /"Keep renderer."/ | =RENDERERS= · =renderer(buffer, client)= stay; one pipeline: the client picks a renderer for a buffer, what it picks is a View, a mode that ships Views carries =RENDERER= |
+| 34 FILESET stays (10-20) | /"Yeah, right. I don't think we can do without that."/ | a mode declares its data directory; FILESET mounts it as =mode.files=; FILESINK writes; FILESINK is his word (13 · 19 · 34), FILESINK was my transcription |
+| 35 View and Buffer (10-20) | /"a"/ · /"it makes more sense for the relationship between files and views to be mediated by buffers."/ | no relation, ruling 30 holds: =view.presents === buffer.mime=; a View reaches content Files only through =buffer.files= |
+| 36 File (10-20) | /"I don't like the idea of everything becoming a buffer. I think a buffer is more of a working area. […] I would suggest that we create a dedicated entity for this. And I suggest we call them files. But views, files, and buffers."/ · /"Buffers can have files, not one. Multiple files per buffer. Multiple buffers per file."/ · /"Let's bring back the file sync trait too, because one is for reading, one is for writing, has equality with the data."/ · /"Okay, so we are sticking with the file as a new entity ruled"/ | =File= entity; Buffer m:n File (=buffer_files=); FILESET reads · FILESINK writes, the DATASET · DATASINK pair; =mount · hash · integrity · bytes · MISSING= leave Buffer; supersedes 31's visiting buffer |
+| 38 a View's own code (10-21, in m95's drill) | /"b. its nice and coherent and poses a simple and straightforward way to edit and modify views as a function of file mutations. makes working with views under llm supervision very straightforward. no upstream on views. thast dead iwth teh artifact."/ | =view.files= (mappedBy =file.view=), =view.entry=; =mount · hash · integrity · bytes= leave View; =upstream · downstream= DEAD; one patrol (=MISSING=) over every File |
+| F notes | /"notes on the buffers, we do want notes on the turns. […] no node on thread"/ | =note.buffer= · =note.turn= m:1 nullable |
+
+Mine, decided 10-20: =presents= on every code row, defaulted by RENDERER to the mode's mime (row 1 of the table keyed on the mode alone mounted a chessboard on a markdown the chess harness wrote) · the buffer mime is minted from the REFERENCE — REJECTED 10-21 my identifier mint (m96 ruling 3: /"it is the reference"/) · =files= and =data= are orthogonal: a buffer that loads a File may carry consumer state · a mode without =export const buffer= mints no mime and no =mode.buffer= · deleting a visiting buffer prunes its file · the 10-16 View's =literals · symbols · notes= collections move to Buffer, which already holds =literals · symbols= (a picture or a sound is a buffer under 31) · =surface= carries the OpenTUI renderer and the colour tones beside =place= · =compiled= = a view whose =entry= File is a bundle (ruling 38) · the client Buffer hooks =mount · unmount= rename to =attach · detach= (=systems/ghost/entities/buffer.js:48-66= · =systems/anima/src/entities/buffer.js:61-81= · 5 call sites), the column keeps =mount=.
+
+Parked by him 10-20: mode-declared or mode-required buffer traits (/"too much complexity now"/).
+
+REJECTED (his and mine): every file a buffer row (10-20 /"I don't like the idea of everything becoming a buffer."/) · a third entity for the files freight carries (10-20 /"if we now start to differentiate between buffers, art or views, and assets, I am going to shoot myself"/) · a buffer inside a buffer for a card's asset (10-20 /"I don't like that. Not clean."/) · artifact as a value on its owners · lineage rows · =source= column · one host-wide store · a thread relation on Artifact · an artifact part · =static= as the export · a =place= key in =buffer.data= · =Cell= entity · =TurnArtifact= pivot + a =turn.attach= verb · =RENDERERS[mime][target]= · =seat= · =face= · paladin in an entity · =status= for presence · views as a boot bundle beside rows (two loaders) · the schema on every artifact row · a named =buffers= export with a =kind= column · the type as a buffer trait · =place= as a top-level prop · a pointer buffer for content · =turn.artifacts= · Artifact absorbing state · "package" for a mode's directory (/"package doesnt exist. […] call things by their name."/).
+
+* open — his, still designing (10-20, nothing below is locked)
+
+His turns after ruling 34, verbatim:
+- /"I don't see why we need file set and file sync. It's like a complication unless we're adding some sort of capability to it. […] if we read, then we should probably also write. And I don't see why those must be two different traits."/
+- /"Emacs' file versus buffer split is a good orient, but it really just tells us that the view needs to be different from the data […] What it doesn't tell us is if we treat assets inside of the system differently from assets outside of the system, or if we permit assets outside the system into the system at all, or whether we force the ingestion via the buffer."/
+- /"It changes the buffer to be the universal container for all data. […] it would be a little bit more, let's say, coherent if we only have one solution for this problem."/ · /"we don't really care what happens today. We will care about what the optimal solution is, and then we will migrate what is."/
+- /"I don't like the idea of everything becoming a buffer. I think a buffer is more of a working area. I don't like them to be implied, all of the assets, so I would suggest that we create a dedicated entity for this. And I suggest we call them files. But views, files, and buffers. So if we have a file, we can reference it, load it into the buffer, express it as the buffer, like parse it into the buffer. […] A view is a more functional unit, even though in the end it resides as a file."/
+
+=File.ts= moved into the deliverables with ruling 36; the draft's Buffer m:1 File became m:n.
+
+His next turn, verbatim: /"I like the file solution. Let's bring back the file sync trait too, because one is for reading, one is for writing, has equality with the data. I like that."/ · /"Buffers can have files, not one. Multiple files per buffer. Multiple buffers per file. View can have files too. I think there we're a little bit more strict. Do we have one view per buffer or multiple? I'd use the same relationship cadence."/
+
+#+BEGIN_SRC text
+mode traits     FILESET  (reads: walk the declared directory → File rows; patrol → MISSING)   pairs DATASET
+                FILESINK (writes: receive → File · compile → File + View)                       pairs DATASINK
+File traits     MISSING
+Buffer traits   LABELED · RENDERED          (MISSING leaves Buffer: it no longer carries a mount)
+View traits     none                        (its bytes' health is its Files' MISSING)
+
+File   m:1  Mode
+Buffer m:n  File     pivot buffer_files      a review card → hola.mp3 · hola.png ; hola.mp3 → every card that plays it
+View   1:m  File     file.view nullable      board → board.js · board.css ; a File belongs to at most one View
+View   —    Buffer   ruling 35: none, joined by view.presents === buffer.mime; content Files reach a View through buffer.files
+View   1:m  File     RULED 10-21 (ruling 38): file.view nullable; view.entry; no upstream
+#+END_SRC
+
+His turn on Q38, verbatim (designing, not locked): /"What tangles them together is the MIME type system. […] The files that we load into the system are MIME types. The buffers have a MIME type. For now they're by mode. A MIME per mode. And those are the consumable MIMEs. And then we have the consuming MIMEs, which is the views. So a buffer can just be consumed by the view of the mode who produced it, but a file can be consumed by any mode, by any view that has its MIME type. Is that correct? In that case, the view itself is really the thing that decides how files are displayed and if it's one or many. So we do many-to-many relation as a many-to-many can still display many-to-one or one-to-one. So we don't lock ourselves in anywhere."/
+Q38 re-asked: a View's OWN bytes (board.js), not the content it displays (buffer.files, ruling 36).
+
+Drawn, not yet asked: a repl verb's output that is a row — the same table, or JSON as today · the cell's default when a reader view exists for a buffer that also has the client's own renderer.
+* terrain — measured 10-20
+
+| piece | file:line | today |
+|---+---+---|
+| the frame mount, ghost | =systems/ghost/surface/chrome/panes/frame.jsx:26-29= | =buffer.mount()=; =bundle.load(accept)= → =default(element, {terminal, mode, thread, buffer, renderer, palette, dispatch, focused})= |
+| the frame mount, anima | =subsystems/drapes/panels/Frame.svelte:52-71= | =bundle.load(accept)= → =default(target, {terminal, daemon, mode, thread, buffer})= |
+| the loader | =subsystems/typology/prototypes/bundle.js:33-51= | negotiate → fetch → sha256 → blob import, memo by integrity |
+| the serve | =systems/runtime/gestalten/shard/host.js:33-41= | =/metadata/application= → ={url, bundle, schema}=; dev recompiles per call |
+| APPLICATION | =systems/runtime/mode/traits/application.js:5-27= | =new App(sources, schema)=; =mode.application.buffer()= mints with =bundle: null= |
+| the declaration | =~/.viva/registry/chess/modes/board/play/play.viva.js:19-33= | one =App= = two sources + ONE =v.buffer= — the view and the state space in one value |
+| the Buffer row | =systems/runtime/entities/Buffer.ts:37-48= | =data · bundle · index · traits · trait · mode · thread=; no mime, no file |
+| buffer traits | =Buffer.ts:18-20,121-126= · =schematics/entities/buffer.js:9-10= | ONE word, =LABELED=, stamped by a create twitch; typology holds no =traits:= map for Buffer |
+| domain trait vocabularies | =subsystems/typology/gestalten/belt/traits.js:47-78= | per DAEMON; installed on Literal · Note (memo · assembly); never on Buffer |
+| the dock | =systems/ghost/surface/chrome/panes/dock.jsx:32= | parts only; a turn holds no buffers |
+| the word =artifact= in anima | =systems/anima/src/app/panels/a/widgets/Turn.svelte:111-124= | a part's attachment (image · audio · link); dies with the panel |
+| client hooks | =systems/ghost/entities/buffer.js:48-66= · =systems/anima/src/entities/buffer.js:61-81= | =mount() · unmount()= — collide with the =mount= column |
+| the bundler | =subsystems/paladin/gestalten/belt/bundler.js:35= | rows by mime: =dom.svelte= (esbuild+svelte, runtime inlined) · =tty.solid= (babel solid-universal, deps external) · =dom.html=; writes =<mountpoint>/bundles/<type>/<slug>/bundle/<hash16>.<stem>.mjs= |
+| GENERATIVE | =systems/runtime/mode/traits/generative.js:74= | tools =generator_view_render · revise · inspect · list=; writes =buffer.bundle=; the buffer binds to the THREAD only (=emitter.js:58=, =Thread.ts:53=) |
+| freight | =systems/runtime/mode/traits/fraught.js:10,17= · =mounted.js= | both READ (the mode's directory · its mountpoint); =freight.receive(path, bytes)= is the unnamed write; a second ext→mime table =prototypes/freight.js:3= |
+| serve | =systems/runtime/runtime/lifecycle/resolution.js:47-71= | two roots: =/attached/bundle/<host>/<mode>/<name>= (integrity header) · =/attached/cargo/<host>/<path>= |
+| client accept | =systems/ghost/surface/chrome/index.js:24= | a hand list =[mime.tty.solid, mime.json]= |
+| client repl output | =systems/ghost/gestalten/shard/repl.js:6= | =ctx.output → controller.stdout.message=, unpersisted |
+| mime | =subsystems/typology/schematics/scalars/mime.js= | =dom.{svelte,html,react,solid}= · =tty.{react,solid}= · =markdown · plain · html · svg · json= |
+| Note | =systems/runtime/entities/Note.ts= | m:1 =user · daemon · mode · literal · parent=; m:n =symbols=; no =buffer=, no =turn= |
+| a re-rooted mountpoint | =subsystems/paladin/instance/lifecycle/resolution.js:100= | absolute =mount= paths go stale → =MISSING=, re-index (ruling 22) |
+| word census 10-16 | repo | =artifact= 41 (all =bundler.js=) · =static= 82 (paladin =statics=, COLLISION) · =cell= 80 (tty =cellWidth=) · =inline= 226 (css) |
+
+* blast table — measured 10-20 (=grep -rIl=, repo excl. =bak= · =~/.viva/registry=)
+
+| word | repo files | registry files | fate |
+|---+---+---+---|
+| =new App(= | 10 | 52 =.viva.js= | → =buffer= + =views= exports |
+| =v.buffer(= | — | 17 =.viva.js= | → =export const buffer= |
+| =APPLICATION= | 77 | 40 | → =RENDERER= |
+| =mode.application= | 11 | 22 | → =mode.buffer= · =mode.views= |
+| =.bundle= | 19 | 10 | → by row |
+| =Freight= | 5 | 11 | DEAD |
+| =Cargo= | 13 | 0 | DEAD |
+| =FRAUGHT= | 16 | 10 | → =FILESET= |
+| =MOUNTED= | 13 | 7 | → =FILESINK= |
+| =mode.freight= | 7 | 14 | → =mode.files= |
+| =/attached/cargo= | 3 | 6 | → =/attached/file/:id= |
+| =/attached/bundle= | 5 | 0 | → =/attached/view/:id= |
+| =generator_view= | 15 | 0 | → =buffer_* · view_*= |
+| buffer =mount()= hooks | 2 entities · 5 call sites | 0 | → =attach · detach= |
+
+Keep-list before the land pass: =bundler.js= keeps =bundle= for the compile act · =Bundle= in =.ikiro/= history · =bak/= · the client's =unmount= (a different subject).
+
+* testing assessment
+
+- =subsystems/paladin/tests/bundler.test.js= — the directory argument becomes a mode mountpoint; the =bundles/= layout assertions go.
+- =subsystems/typology/tests/bundle.test.js= · =schematics/bundle.test.js= DEAD with =Bundle=; heir =view.test.js= (descriptor snapshot + =load= on a stub fetch, integrity refused).
+- =systems/runtime/tests/mode/generative.test.js= — rewritten over =buffer_create · buffer_update · view_*=.
+- =systems/ghost/tests/client.test.js:75= — asserts =mode.application.bundle.entries=; becomes =mode.views=.
+- COVERAGE GAP: no test for a buffer surfaced by a turn · the renderer table · the patrol · a File's integrity refused by the client.
+- Every =v.view= · =v.buffer= descriptor change ships a passing JSON snapshot.
+
+* QA
+
+#+marker_qa: m87/T-markdown-inline · pending · I ask the runtime harness to summarise the filings; I see the draft inline under the turn on ghost and anima; =/buffer runtime #3= frames it
+#+marker_qa: m87/T-chess-both-places · pending · a ply in the frame; the dock cell under that turn shows the same board
+#+marker_qa: m87/T-fallthrough · pending · a mode with only a DOM view: ghost shows its JSON tree headed "no tty view"
+#+marker_qa: m87/T-toggle · pending · the model writes a second tty view; ▾ appears; =/buffer/view pulse cell= changes the cell only
+#+marker_qa: m87/T-upload · pending · =/attach= a png: anima shows the picture, ghost a line with name · mime · size
+#+marker_qa: m87/P-integrity · pending · bytes changed on disk under a row: the client faults on integrity; the patrol marks =MISSING= or re-indexes
+
+* deferred
+
+- the upload transport (streaming, resumable, a one-off token) — /"implementation detail, I don't really care that much"/
+- =view_create= always present vs GENERATIVE-only — /"specific wiring that we need to figure out later"/
+- mode-declared or mode-required buffer traits — /"too much complexity now"/
+- a buffer read by another mode's view, and an LLM reconciling a buffer that fails a schema — /"it is a nice capability, but I don't like that we have forcing it"/; =presents= is the door
+- a view as a routine applied headless to a buffer — /"artifact as a worker"/; =mime.routine= reserved
+- a Literal's =VOCAL= · a Symbol's image as relations to buffers — their own quest
+- an inline buffer that opens another — a view whose buffer data holds a buffer id; nothing special needed
+
+* release (drafted, lifted at landing)
+
+- added =View= entity — code a mode ships or the model writes: =slug · mime · presents · entry=, its bytes as File rows (=file.view=) · migrate: none ⟨m87⟩
+- added =File= entity — a file the system holds: =mode · path · mount · mime · hash · integrity · bytes=, m:n with Buffer · migrate: none ⟨m87⟩
+- changed =Buffer= entity — gains =mime · files · turns=; loses =bundle= · migrate: the mikro migration drops =buffer.bundle= ⟨m87⟩
+- changed mode export =application = new App(sources, schema)= → =buffer = v.buffer(…)= + =views = [{slug, mount, mime, presents?}]=; trait =APPLICATION= → =RENDERER= · migrate: re-declare each mode ⟨m87⟩
+- added =/attached/view/:id= · =/attached/file/:id=; removed =/attached/bundle= · =/metadata/application= · migrate: clients load by row id ⟨m87⟩
+- changed generative tools =generator_view_*= → =buffer_create · buffer_update · view_create · update · read · list= · migrate: none ⟨m87⟩
+- renamed =FRAUGHT= → =FILESET= · =MOUNTED= → =FILESINK= · =mode.freight= → =mode.files= · migrate: re-declare traits ⟨m87⟩
+- renamed client buffer hooks =mount · unmount= → =attach · detach= · migrate: none outside ghost · anima ⟨m87⟩
+
+* handoff
+
+- goal: three entities — a Buffer is a working area that loads Files, a View is code that presents a buffer mime, a File is a file the system holds; the client picks the renderer by mime.
+- done: 25 rulings 10-16/17; rulings 26–36 10-20 in m95's drill (View · RENDERER · renderer kept · FILESET stays · View–Buffer by mime · File); deliverables · law · flows · milestones · blast · QA re-cut 10-20, Buffer onto File; renamed from bundled-artifacts 10-20.
+- next: =go= on milestone 1 inside m96 wave 0 (the re-cut of FILESINK =compile= · =/attached/view/:id= · =view.load= on ruling 38 landed 10-21 in =* deliverables=; the mime from the reference per m96 ruling 3).
+- never: a relation between View and Buffer · every file a buffer row · =target= on a row · a schema on a view row · views on a client mode · =place= as a top-level prop · a =source= column · a repository importing paladin · a =Cell= entity · a name the tree lacks (REJECTED 10-20 /"call things by their name"/).
+- owed: m95 milestones 6 · 8 consume this quest's 5 · 8 · the mikro schema entries for =View= · =File= · =buffer.files/turns/notes= are js sketches a wave-0 cell turns into =Buffer.ts=-shaped files (the diff hunks replay 9/9 on m96's copy; paladin's =integrity.js= moved to =prototypes/= 10-21).
+- MOVED 10-19 to =m95-depincered-client.org= (lock 7): milestones 5 · 8.
+- reads: this file → =reference/m87/drill-20261020.md= (precedent · every option and version drawn, as code · the demo read · the 10-16 sections verbatim) → =m95-depincered-client.org= =* m87 inside m95=.

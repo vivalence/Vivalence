@@ -1,8 +1,8 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path } from "@vivalence/typology";
-import { Paladin } from "../prototypes/paladin.js";
-import { Registry } from "../prototypes/ledger/registry.js";
+import { Paladin } from "../paladin/prototype.js";
+import { Registry } from "../prototypes/registry.js";
 
 const scaffold = async () => {
   const ledger = await Deno.makeTempDir({ prefix: "registry_test_ledger_" });

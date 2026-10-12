@@ -1,5 +1,5 @@
 import { specimen, fn, sleep } from "@vivalence/typology";
-import { Cargo } from "../src/typology/prototypes/cargo.js";
+import { Cargo } from "../src/prototypes/cargo.js";
 
 specimen.describe("cargo — the client catalog consumer", () => {
   specimen.it("resolves a held path without touching the wire", async () => {

@@ -1,6 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import { contrast, design } from "@vivalence/dapper";
-import { Bridge, THEMES, knownTheme } from "../../src/typology/stores/bridge/bridge.js";
+import { Bridge, THEMES, knownTheme } from "../../src/bridge/prototype.js";
 
 const source = (path) => Deno.readTextFileSync(new URL(`../../src/${path}`, import.meta.url));
 const STORAGE_KEY = "vivalence:bridge";

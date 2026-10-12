@@ -2,7 +2,7 @@
 # family:lifecycle-is-not-a-toolbox ×2 (codemap runtime:8 10-07 "the lifecycles are not a repotitory of tools!",
 # connoisseur:34 10-09 "a LOT of functions here that dont belong into the lifecycle, but gestalten"):
 # a function's home is its first parameter — (die, next) → lifecycle/, (ctx, next) → gestalten/shard/.
-# PreToolUse[Write|Edit] on systems/runtime/lifecycle/** product source: a TOP-LEVEL (column 0) binding whose
+# PreToolUse[Write|Edit] on systems/runtime/<subject>/{lifecycle,traits}/** product source (m91 moved lifecycle/<x>/ there): a TOP-LEVEL (column 0) binding whose
 # value is a (ctx…) arrow, or a curried (…) => (ctx…) arrow, is a shard written into a lifecycle file.
 # IKIRO_GUARD_MODE=warn → log + allow; default → deny.
 input=$(cat)
@@ -12,7 +12,7 @@ log="$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log"
 
 case "$path" in
   *test*|*/bak/*|*.md|*.org|*.json|*.jsonc) exit 0 ;;
-  */systems/runtime/lifecycle/*) ;;
+  */systems/runtime/*/lifecycle/*|*/systems/runtime/*/traits/*) ;;
   *) exit 0 ;;
 esac
 content=$(jq -r '.tool_input.new_string // .tool_input.content // empty' <<<"$input")

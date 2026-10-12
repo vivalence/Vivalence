@@ -1,80 +1,132 @@
 ---
 paths: ["subsystems/typology/**", "systems/runtime/**", "systems/anima/**", "systems/ghost/**"]
 ---
-<!-- writer: agent · kind: persistent · limit: 22000 chars · traps only · paths relative to subsystems/typology unless rooted -->
+<!-- writer: agent · limit: 9100 chars · per item from methods/census.py · code is the map · paths relative to subsystems/typology -->
 # codemap: typology — HOLY; ask before touching core types
+Less is More, Code is Data, Schema is God · `cast` or die · `as` however · `fromm` from inside.
 
-## signature · vector · steer
-- **`branch()` MUTATES the parent; `#hash` is memoized** — only `from()` clears it (`prototypes/signature.js:38`); never reuse a branched Path; coercing a foreign Signature copies `nature` only (`:15`). `Path.absolute` is heritage-only; `new Path|Freight(branchedPath)` keeps only the segment — compose strings across a ctor (`:14`). `project_signature_identity_memo` `project_signature_branch_mutates`
-- **never name a getter `trace` on Span** — `Signature.trace` IS the parent pointer (`prototypes/signature.js:40`) → infinite recursion through `absolute`. `Span.from` is ANON (`prototypes/span.js:24`): a long-lived span never appends to `trace.gauges`; only the ROOT holds `journal` (cap 1000, `:5`). A record is flat `{span, trace, path, verb, at, data?}`; `gather/flow/hold/decant` live in WIRING, never on the Span.
-- **`pattern.nature` has no slash** — the string coercion splits on `/` (`prototypes/pattern.js:36`): `Vector.open("/buildup")` → `"buildup"`; never `.replace(/^\//,"")`/`.slice(1)`, compose with `{ ...pattern, nature }`. Cross-component refs are `{ type, slug, verb }` objects; a tool re-resolves `ctx.modes[type][slug].emit[verb]` per call, never a captured peer (`~/.viva/registry/education/modes/games/dojo/tools/preset.js:39`).
-- **`Signal` puts CLI flags on the LAST segment** (`prototypes/signal.js:59`); `ToolCall` = the same spine joined `_` (`prototypes/toolcall.js:22`). `_` belongs only to tool names; packet events are slash paths.
-- **`branch(p, v)` ATTACHES, `graft(v)` COPIES** — the edge IS `v`, live at every depth (`tests/gestalten/shape/http.mount.test.js`); a graft is frozen at graft time (`prototypes/vector.js:52`). An occupied edge degrades `branch(p, v)` to graft (`:31`). `open()` silently REPLACES an effect (`:41`); `affect()` on an affected node logs `vector already affected` and returns `undefined` — a chained `.affect(f).use(…)` throws (`:46`). "No path is a path": `open("/", fn)` ≡ `affect(fn)` (`:25`). Middleware for a mounted source goes on the SOURCE (`systems/runtime/lifecycle/runtime/resolution.js:26`), not the mount node. `slurp` · `swallow` · `set` are gone; `is.vector` wants `.nature` (`gestalten/is/prototypes.js:47`) — use `is.Vector` (`:59`).
-- **`.root` only when the chain ENDS inside a `.branch()`** (/".root is only needed if we ever branched!!!"/); a flat `.use()/.open()` chain exports the Vector itself. HARNESSED grafts `mode.tools` (`systems/runtime/traits/harnessed.js:74`) — never arm them by hand.
-- **steer has NO segment-type precedence** — declare literals before `:params`. In the dispatch family a node's `use` wraps its DESCENDANTS (`gestalten/steer/dispatch.js:48` `descend`), not its own effect; the tree family (`shape.object`) wraps its own. `fire` dispatches on DECLARED ARITY: `(input) =>` is arity 1 and receives the CONTEXT (`gestalten/steer/strategy.js:5`). Only `guarded` validates edge `input`.
-- **dispatch is ONE shape** — `steer.dispatch.invoke(vector, new ToolCall(name).signal, steer.strategy.guarded)(input)` (`systems/runtime/tests/skill.entity.test.js:9`); never `.resolve()`, string parsing or an inline strategy fn.
-- **every effect returns `{condition, output}`** — `condition` (NOMINAL · EXHAUSTED · ERROR) sits OUTSIDE the bag and never rolls up from tools; `output` = `message?` · `object?` · one SINGULAR key per entity type. A flat bag from a door goes through `gestalten/fromm/yield.js:25`.
+**`entities/`: `base/DataEntity.ts` (DataEntity·DataRepository·DataSchema) · `base/VirtualEntity.ts` (Virtual*) barrelled by `index.ts` → 16 direct (`systems/runtime/entities/Activity.ts` first), reach 48; `base/properties.js` DEAD.** `./entities` is in neither `mod`.
+```js
+// systems/runtime/tests/scenarios/virtual.js:3
+import { VirtualEntity, VirtualRepository, VirtualSchema, ThreadEntity, UserEntity, ModeEntity, DaemonEntity } from "@vivalence/runtime";
+import { provider, descriptors, DAEMON } from "./datamap.js";
 
-- **ctx is FLAT: the host's words, never `ctx.daemon` · `ctx.runtime`** — `schematics/primitives/contexts.js` declares the word sets (`host` = `entities · call · cortex · modes · services · statics · domain · mountpoint · reference · cargo`) and six contexts (`Aperture · Tool · Harness · Emitter · Twitch · Service`); `shard.context.spread(contexts.host, bearer)` copies them onto ctx, `lift` returns them (`gestalten/shard/context.js:22-25`). The same tool runs on a daemon or the runtime.
+export class ProbeEntity extends VirtualEntity {
+```
+**`gestalten/belt/`: 25 members (167 exports) under `index.js`, reach ~366.** `gestalten/index.js:8` spreads belt onto the root, so `control`·`sleep` import bare; `cortex.js` exports `strip`·`wire`, names `shape/` also owns.
+```js
+// subsystems/typology/tests/gestalten/belt/control.test.js:1
+import { control, Controller, sleep, Span, specimen } from "@vivalence/typology";
 
-## shape · connection · wire
-- **TWO strips, TWO ems** — `shape.strip` (Vector → `{effect?, branches}`, duals the Connection) ≠ `shard.datamap.strip` (ORM metadata → FLAT `{name:{properties}}` WITH a cycle, `gestalten/shard/datamap.js:289`, folded by `RemoteEntityManager.cast()`). Server `ctx.entities.em` (MikroORM) ≠ client `RemoteEntityManager` (its persist/flush has no live caller). Dossiers add BEHAVIOR, never TOPOLOGY.
-- **STRIPWIRE** — `shape.object(v)` ⟷ `shape.connection.wire(conn, shape.strip(v))`; `proxy` lives in `gestalten/shape/object.js:16`; `wire` DROPS `*`/`(.*)` with a warn (`gestalten/shape/connection.js:8`) and THROWS on a method-ambiguous leaf. `project_shape_cortex_stripwire`
-- **four verbs** — `call` 1↔1 · `stream` 1→∞ · `publish` ∞→1 · `converse` ∞↔∞ (`prototypes/connection.js:127`). A `feeds` leaf wires to `converse(endpoint, source, { input, signal })`; plain HTTP THROWS on `input` beside an upstream (`gestalten/shard/transmitter.js:266`). `gestalten/belt/sse.js` is the ONE SSE home.
-- **never raw-fetch** — `accept: text/event-stream` leaves `response.body` a raw stream on the transport (`gestalten/shard/transmitter.js:288`), a stream body rides `duplex: "half"` (`:272`); a raw `fetch` skipped auth → SSE 401 in prod. `connection.js` is a memoized tree: a shard at the root covers every descendant; `retry` rides the transport, not `.use()`.
-- **`Socket.feed` decodes TEXT** (`prototypes/socket.js:273`) — binary over the multiplex is impossible; upload through a SECOND `Connection(new Url(daemon.url), shard.transmitter.fetcher)` with a File body.
-- **packet events are opaque strings** — `v.const("/turn/open")` (`schematics/primitives/hallucination.js:245`); `soma.pour` `switch`es on them, no Signal dispatch.
+const mint = () => new Controller({ stdout: new Span("controlled") });
+```
+**`gestalten/bundle/`: `index.js` {svelte}{pure} → `gestalten/index.js:11` only; `svelte.js` imports `importmap.js` (reach 1, no test uses resolveImportMap·resolveModuleSpecifier).**
+```js
+// subsystems/typology/tests/gestalten/bundle.test.js:12
+  specimen.it("a svelte entry bundles with auto-pack", async () => {
+    const entry = join(fixturesPath, "test-component.svelte");
+    const outputFiles = await bundle.svelte(entry, { prod: false });
+```
+**`gestalten/cast/`: `primitives.js` viva·runtime·lookup · `prototypes.js` url · `scalars.js` array, under `index.js` (5 direct, `fromm/index.js` first). `gestalten/fromm/`: `index.js` sink·source·url·match·params·modes·slugmap+{controller}, 9 direct (`belt/hallucinate.js` first); `yield.js` re-exports `reader as yield` (`:97`), no test uses it.**
+```js
+// subsystems/typology/tests/lookup.test.js:4
+  specimen.it("an identifier parses into owner, type, slug and version", () => {
+    specimen.expect(cast.lookup("@vivalence/module/moduleA")).toEqual({
+// subsystems/typology/tests/gestalten/fromm.test.js:3
+specimen.describe("fromm.params", () => {
+  specimen.it("a remainder reassembles into the whole tail", () => {
+    specimen.expect(fromm.params({ 0: "words", 1: "a.adposition.mp3" }).path.absolute) //
+```
+**`gestalten/is/`: `index.js` (16 direct, `entities/base/DataEntity.ts` first, reach 383) over `scalars.js` (14 direct)·`prototypes.js`·`primitives.js`. `gestalten/not/index.js` `not`: 4 direct (`cast/primitives.js` first), no test uses `not`.**
+```js
+// subsystems/typology/tests/signature.test.js:10
+    specimen.expect(is.fn(route.filter)).toBeTruthy();
+    specimen.expect(is.string(route.hash)).toBeTruthy();
+// subsystems/typology/gestalten/not/index.js:23
+export const not = {
+  is: (not, thing, params) => {
+```
+**`gestalten/shape/`: `index.js` (4 direct) over connection `wire`·flat·http·mcp·messenger·object/proxy·selbstbestimmt·strip·subscriber·tree; no test uses `messenger`.**
+```js
+// subsystems/typology/tests/gestalten/shape/strip.test.js:50
+  specimen.it("a custom effect-builder reshapes the node's effect metadata", () => {
+    const vector = new Vector().open({ nature: "x", input: "IN" }, () => {});
+    const tagged = shape.strip(vector, (pattern) => ({ hasInput: pattern?.input !== undefined }));
+```
+**`gestalten/shard/`: 15 members; `index.client.js` drops datamap·ambient·receiver·hal (`index.js:8-10,14`); no test uses caching `catchAndRelease`, receiver `stdio`; `patterns.js` DEAD.**
+```js
+// subsystems/typology/tests/gestalten/shard/cors.test.js:1
+import { specimen, shard } from "@vivalence/typology";
 
-## cortex · hallucination
-- **a hallucination REQUIRES a `controller`** and writes its `stdout`: the harness takes the Activity's root `Span("hallucination")` (`systems/runtime/entities/Activity.ts:18`, picked at `harnessed.js:33`); a nested call joins as `ctx.controller.branch(…)`. `policy` is STRIPPED by `lowering`; a tools Vector never crosses the wire.
-- **tune is POSITIONAL and resolves TWICE** — `axes = ["intelligence","reasoning","speed","thrift"]` (`schematics/primitives/hallucination.js:139`); `register` pads a 3-dim tune with thrift 0.5 (`prototypes/cortex.js:72`); the host's pick wins over the wire. Only `findOne` falls through `DERIVATIONS` (`object → dialogue/render` · `verbatim/render → verbatim/stream`, `:112`); `find({type:"object"})` is ALWAYS empty (`:79`).
-- **`via` has two shapes** — live `find()`/`findOne()` → `{render: fn, stream: fn}`; `belt.cortex.strip` → `["render","stream"]` (`gestalten/belt/cortex.js:11`) — `Object.keys(via)` prints `0 1` on the strip.
-- **`choice` is the sixth faculty** — several questions of ONE `primer`, a distribution per key, never sampled, absence THROWS; `Choice.Verdict` (`schematics/primitives/hallucination.js:240`). `bounding` enforces the faculty's caps `options` · `choices` (floor `26 · 1`) AND the minima BY HAND, because `v.record` drops its options (`schematics/v.js:150`: `minProperties` on a record is nothing). Union members carry `additionalProperties: false` or `noul` swallows an `options` question. The strip carries `options · choices` (`gestalten/shape/cortex.js:7-8`) or the client cortex refuses its own round. `belt.hallucinate.choose` (`gestalten/belt/hallucinate.js:246`) passes `controller.abort.signal`, never `ctx.signal` (the ROUTING Signal).
-- **a round's tool calls run SERIALLY** (`gestalten/belt/hallucinate.js:102` `@beef`) — every call shares ONE em fork (`gestalten/shard/datamap.js:6` scope · `:16` carry) and mikro's `UnitOfWork.commit` strands queued flushes when a `doCommit` throws: `Promise.all` left the Dock stuck. Parallel again = a fork per call AND the model's order kept. Pinned: `tests/gestalten/hallucinate.test.js` "one at a time" · `~/.viva/registry/assembly/modes/editor/guide/tests/guide.test.js:219`.
-- `Hallucination` `turn.append` is GONE — `chain` is the daemon Turn repo's alone. Anything named `drain(` is the CHANNEL family, not telemetry.
+const { wrap } = shard.cors;
+```
+**`gestalten/steer/`: `index.js` *match·*trie·*dispatch·*strategy, 16 direct (`belt/hallucinate.js` first), reach 377; `bak.js` DEAD yet still imports `match.js`·`strategy.js`.**
+```js
+// subsystems/typology/tests/gestalten/steer/survey.test.js:5
+  specimen.it("an identity visitor mirrors the trie", () => {
+    const { vector } = house();
+    const result = steer.trie.survey(vector);
+```
+**client export pipeline: `mod.ts` (333 direct) ⟷ `mod.client.js` (0 direct: `subsystems/paladin/gestalten/belt/bundler.js:29` swaps it in by path) over `prototypes/`·`gestalten/`·`gestalten/shard/` `index.client.js`; `types.d.ts` is 343 comment lines behind `mod.ts:12`.** `prototypes/index.ts` alone exports seek·freight·cargo·dataset·datasink·action·mode·yield·pool·twitch·datamap (`:6,28-31,33,41,45-46,50,55`); `index.client.js` adds none; `gestalten/index.client.js` drops `bundle` (`gestalten/index.js:11`).
+```js
+// subsystems/typology/mod.client.js:1
+export * from "./prototypes/index.client.js";
+export * from "./gestalten/index.client.js";
+export * from "./schematics/index.js";
+```
+**`prototypes/`: 49 rows, `index.ts` → `mod.ts`; no test uses seek·wafer·scope·blacklist·action·yield (`yield.js` is `// moved to pool`); `harness/`·`orm/`·`signatures/` are EMPTY untracked dirs. `prototypes/errors/`: `index.js` BaseError+4 stars, `vector.js` Long·Short·NotFound·ValidationError (10 direct), `production.js` empty.**
+```js
+// subsystems/typology/tests/datamap.test.js:1
+import { Datamap, Twitch, sleep, specimen } from "@vivalence/typology";
+import { EntitySchema, MikroORM } from "@mikro-orm/sqlite";
+// subsystems/typology/tests/gestalten/shape/http.test.js:80
+          const [effect, carry, steps] = steer.dispatch.traverse(target, signal);
+          if (!effect) throw new NotFound(signal);
+```
+**`schematics/entities/`: `index.js` re-exports DataEntitySchema+7 descriptors (2 direct); `base.js` VirtualEntitySchema bypasses it; `turn.js` DEAD.**
+```js
+// subsystems/typology/tests/schematics.test.js:1
+import { specimen, v } from "@vivalence/typology";
+const { DataEntitySchema } = v.entities;
+```
+**`schematics/primitives/`: 14 members under `index.js` (1 direct); `contexts.js` (57 exports) is `contexts.host`'s home; `conversation.js` DEAD; no test uses `manifest.js`.**
+```js
+// systems/runtime/tests/lighthouse/lighthouse.test.js:67
+      specimen.expect(result.status).toBe("SUCCESS");
+      specimen.expect(result.user).matches(v.primitives.auth.UserReference);
+```
+**`schematics/prototypes/`: `index.js` StatusCode·Status·ErrorResponse+{Yield,Condition}{Bundle}{Signature…}; `signatures.js` 3 direct; `scope.js` empty, DEAD.**
+```js
+// subsystems/typology/tests/schematics/bundle.test.js:3
+const Bundle = v.prototypes.Bundle();
 
-## `v` (typebox@1.3)
-- **never spread a schema** — `~kind` is non-enumerable and Convert dispatches on it; `derive` copies descriptors (`schematics/v.js:30`). No zod: `.passthrough/.strict/.transform/.refine/.parse/.partial/.nullable` do not exist — free-form = `v.object({}, {additionalProperties: true})`, nullable = `v.union([s, v.null()])`.
-- **`cast` mauls ORM data** — `cast` = Default+Convert, request INPUT only; `fill` = Default only (Convert mauls mikro Collections); `v.convert` for a bare scalar (`v.cast(v.integer(),"8080")` returns `"8080"`) (`schematics/v.js:164-166`). `.default/.$id/.group/.examples` are the KEYWORD when set, the SETTER when unset (`:41-55`); optionality via `v.isOptional`. `v.rel` = ID ∪ opaque object. No `format: "url"` (TypeBox `url` rejects localhost). `project_typology_v_api`
-- **`.default(x)` alone makes a field REQUIRED on the wire** — the model must pass it; `.default(x).optional()` drops it from `required` and `guarded` still fills.
-- **`Value.Decode` MUTATES and THROWS on a second decode** (`schematics/v.js:162`) — decode ONCE, only at zero `errors()`; `Value.Default` fills `undefined` never `null` and does not descend `v.record` values.
+const Nascent = v.object({ mime: v.mime(), source: v.string({ minLength: 1 }) });
+```
+**`schematics/scalars/`: `index.js` ID·slug·Slug·JWTToken·Timestamp·Username·Password+*mime (8 direct) · `mime.js` · `url.js` PATTERN·url; `schematics/v.js` entityFactory·v (31 direct, reach 397) behind `schematics/index.js` v·{mime}·*contexts (7 direct).**
+```js
+// subsystems/typology/tests/v.test.js:320
+    const templated = v.url().default("${VIVA_RUNTIME_ORIGIN}/");
+    specimen.expect(templated.default).toBe("${VIVA_RUNTIME_ORIGIN}/");
+    specimen.expect(JSON.parse(JSON.stringify(v.url())).pattern).toBe(v.scalars.PATTERN);
+```
+**`specimen/`: `index.js` is+3 stars+{snapshot} · `snapshot.js`; 2 direct, first `subsystems/paladin/gestalten/belt/scribe.js` (product).**
+```js
+// subsystems/typology/tests/mode-entity.snapshot.test.js:11
+  it("captures mode-entity", () => {
+    const { pojo, path } = snapshot(v.mode(), {
+```
 
-## belt
-- **`belt.query`: store the LIFT, never the sugar** — `repo.find("word")` matches nothing (`gestalten/belt/query.js:63` `lift`). A Dataset value is a source-LIST only when EVERY element is a descriptor (`prototypes/dataset.js:36`); a `writer.codec` without a `paladin.find.data` read path is one-way.
-- **`belt.object.place`: the LAST segment is the VALUE; a single segment is a root FLAG** (`gestalten/belt/object.js:6` · `:11`: `word` → `{word: true}`), a facet subtree overwrites it. `Literal.symbol` is built this way (`systems/runtime/entities/Literal.ts:131`), so it is a facet tree, never a type tag: read `literal.ontology` (`:143`), never `literal.symbol.word` (truthy for every conjugation).
-- **`pluck` drops `undefined`** — an "off" in a patch vanishes silently (`gestalten/belt/object.js:51`).
-- **answer checks go through `matches`** — `gestalten/belt/string.js:57` `matches(input, expected, { forgiving = true, contractions, elision })` for every check AND its inline retype; a strict `===` retype fails what the first check passed. Sentence-token retype (Shadow/Write) stays `===`.
-- **`controlled(controller)` REJECTS unless the first state past IDLE is RUNNING** (`gestalten/belt/control.js:1`, `status.error ?? new Error(code)`); `hold` resolves once the controller leaves IDLE · RUNNING · PAUSED (`:11`).
-
-## barrels · bundle · datamap
-- **no eval-time Vector/`v` construction inside typology** — modules import their own barrel → `undefined` (deno hides it, vite crashes SSR — learned twice); the idiom is a memoized thunk (`schematics/prototypes/yield.js:16` `schema ??=`). Host-dependent effects live in `systems/runtime/lifecycle/`. The client pipeline keeps `@mikro-orm/core` (`prototypes/datamap.js`) off the browser: `mod.client.js` → `prototypes/index.client.js` · `gestalten/index.client.js` · `gestalten/shard/index.client.js` are HAND lists, never stars of the server index (/"there is the client export pipeline in typology. thats what its for."/). Buffer-views import ONLY `mod.client.js`. `project_bundle_tree_shaking`
-- **`App` is not `Bundle`** — `App` (`prototypes/app.js`) compiles to a `View` (`prototypes/view.js:14`) that OWNS a `Bundle` (`prototypes/bundle.js`); daemon face `bundle/serve` is `paladin.bundler` — /"app is not bundle. important long term distinction!"/
-- **`gestalten/bundle/svelte.js` lowers TWICE and blanks `:global {}`** — `sveltePreprocess` (`:46`) then esbuild (`:40`), both `esnext`: never lower either to fix a svelte error. The preprocess pass blanks a whole `<style>` holding a `:global { … }` block while `compile()` alone stays green: write `:global(sel)` per selector, `@keyframes -global-name`. Prove on the bundle `paladin.bundler(store).bundle({kind: "svelte", entry})` writes; a served bundle with `__async __privateGet __spreadValues __publicField` was lowered.
-- **`Datamap` is a PROTOTYPE on `@vivalence/typology`** (`prototypes/index.ts:56`), never a `./datamap` sub-path (/"fuck no. what??"/) nor an entities re-export. It keys `entities.<name>` by `className.toLowerCase().replace("entity","")`, skipping abstract · pivot · embeddable (`prototypes/datamap.js:8-9`); words `getMetadata()` · `registerSubscriber` · `close()` · `shard.{scope,bind,carry}`; a test stub is `datamap: { getMetadata: () => orm.getMetadata() }`. `@vivalence/typology/entities` carries `base/{DataEntity,VirtualEntity}` + `lighthouse/{Identity,Daemon,Terminal}` (`entities/index.ts:4`); `gestalten/shard/secure.js` is GONE. CHECK: `rg 'shard\.context\(|\.introspect\(\)|datamap\.subscribe\(|context: \(fn\)' subsystems systems commons ~/.viva/registry` → 0 (the ctx shard `shard.context.bind` is alive and unrelated).
-- **`reactive(repo, twitch, { scope, filter = "user" })` reads the owner off the ORM context** — `getFilterParams(filter)`, THROWS on null (`gestalten/shard/datamap.js:184` · `:200`); `repo`/`twitch` may be resolvers `(ctx) => …`, wired on the first `/subscribe` — a resolver repo mounts `/ensure` unconditionally (`:150`). `scoped()` NARROWS a client `where` under the route's scope (`:52` `narrow` · `:63`), never merges. `gestalten/shard/ambient.js` is dormant (one test caller) — never route an owner through it.
-- `prototypes/mode.js` carries `stdout` (`:10`), lent by its host's controller (`systems/runtime/gestalten/belt/host.js:13`).
-
-## specimen · tests
-- **`fold` collapses Signatures → `nature`, Maps → `{}` and cuts every `seen` ref BY DESIGN** (`specimen/snapshot.js:88`): pass `snapshot(subject, {parse: (x) => x.json})`, never edit `fold`. A wire-vs-instance aperture snapshot DRIFTS (TOOLING mounts at integration) — report drift, never assert equality.
-- **11 of 12 snapshot tests are CAPTURE** (`const DRY = false`, rewrite every run); only `tests/hallucination.snapshot.test.js` reads `SNAPSHOT_HOT` — `typology/test/snapshots` changes nothing else.
-
-<!-- writer: agent · hand-kept, recounted 10-06 -->
 ```jsonc
-// subsystems/typology
-{
- "package": "@vivalence/typology",
- "exports": {".": "./mod.ts", "./prototypes": "./prototypes/index.ts", "./schematics": "./schematics/index.js", "./gestalten": "./gestalten/index.js", "./specimen": "./specimen/index.js", "./scenarios": "./tests/scenarios/index.js", "./entities": "./entities/index.ts"},
- "barrels": {
-  "mod.ts": ["* from ./prototypes/index.ts", "* from ./gestalten/index.js", "* from ./schematics/index.js", "* as schematics", "* as prototypes", "* as gestalten", "* as specimen", "* from ./types.d.ts"],
-  "prototypes/index.ts": ["env", "errors (+ * as errors)", "scope", "seek", "status", "connection", "socket", "conversation", "url", "path", "filepath", "pattern", "signature", "signal", "toolcall", "span", "pipe", "queue", "app", "bundle", "view", "freight", "cargo", "dataset", "datasink", "action", "wafer", "request", "response", "context", "mode", "blacklist", "yield", "pool", "vector", "aperture", "remote-repository", "local-repository", "entity-manager", "datamap", "broadcaster", "cortex", "controller", "stall"],
-  "schematics/index.js": ["v", "* as contexts"],
-  "gestalten/index.js": ["* as is", "* as cast", "not", "* as fromm", "* as shard", "* as belt (… traits · cortex)", "* from ./belt", "* as steer", "* as shape", "* as bundle"],
-  "specimen/index.js": ["* from @std/testing/bdd", "* from @std/assert", "* from @std/expect", "snapshot", "is"],
-  "tests/scenarios/index.js": ["* as cats", "* as topography", "* as metronome"],
-  "entities/index.ts": ["* from ./base/DataEntity.ts", "* from ./base/VirtualEntity.ts"]
- },
- "tasks": {"test/snapshots": "SNAPSHOT_HOT=1 deno test -A --no-check tests/**/*.snapshot.test.js"},
- "--watch test tasks (test + 25 named)": 26,
- "tests": {"tests": 61, "tests/gestalten": 6, "tests/gestalten/belt": 7, "tests/gestalten/shape": 9, "tests/gestalten/shard": 4, "tests/gestalten/steer": 7, "tests/schematics": 3}
-}
+// subsystems/typology — census 10-16
+{ "entities": {"files": 1, "exports": 2, "tests": 0}, "entities/base": {"files": 3, "exports": 9, "tests": 2},
+  "gestalten": {"files": 2, "exports": 19, "tests": 0}, "gestalten/belt": {"files": 26, "exports": 167, "tests": 25},
+  "gestalten/bundle": {"files": 4, "exports": 6, "tests": 2}, "gestalten/cast": {"files": 4, "exports": 11, "tests": 3},
+  "gestalten/fromm": {"files": 3, "exports": 10, "tests": 2}, "gestalten/is": {"files": 4, "exports": 50, "tests": 3},
+  "gestalten/not": {"files": 1, "exports": 1, "tests": 1}, "gestalten/shape": {"files": 11, "exports": 21, "tests": 9},
+  "gestalten/shard": {"files": 18, "exports": 90, "tests": 13}, "gestalten/steer": {"files": 6, "exports": 27, "tests": 4},
+  ".": {"files": 3, "exports": 14, "tests": 0}, "prototypes": {"files": 49, "exports": 142, "tests": 37},
+  "prototypes/errors": {"files": 5, "exports": 11, "tests": 1}, "schematics": {"files": 2, "exports": 5, "tests": 2},
+  "schematics/entities": {"files": 10, "exports": 18, "tests": 1}, "schematics/primitives": {"files": 15, "exports": 193, "tests": 12},
+  "schematics/prototypes": {"files": 5, "exports": 16, "tests": 4}, "schematics/scalars": {"files": 3, "exports": 20, "tests": 3},
+  "specimen": {"files": 2, "exports": 6, "tests": 2} }
 ```

@@ -1,75 +1,108 @@
 ---
-paths: ["subsystems/dapper/**", "subsystems/drapes/**", "subsystems/sheets/**"]
+paths: ["systems/anima/**", "subsystems/dapper/**", "subsystems/drapes/**"]
 ---
-<!-- writer: agent · kind: persistent · limit: 12000 chars · traps only, the code is the map -->
-# codemap: design — dapper (tokens → CSS) · drapes (Svelte components) · sheets (ink TUI kit)
+<!-- writer: agent · limit: 6100 chars · code is the map · anima (browser) · dapper (tokens) · drapes (dom + tty) -->
+# codemap: design — the surfaces
 
-Two surfaces, one vocabulary each: the browser reads dapper tokens through drapes; the terminal reads `sheets/theme.js` color names through ink. The consumer laws (hex literal = defect, the slot surface, FOCUS LAW, `.card-row`) live in `anima.md`; these are the producer's traps.
+## anima `src` — subject-first (m91, 10-19)
+
+- **`client.js` (`LIGHTHOUSE·BRIDGE·TERMINALS·BOX·build`) · `telemetry/` (`*logger·*inspector`) · `typology.js` read direct=0 — vite aliases `$client` (27) · `$telemetry` (20) · `@vivalence/anima` (31), `vite.config.mjs:123`; paladin mounts at `:12`.** RED: the gone `View`, read by `entities/buffer.js:2` and `entities/mode/traits/application.js:1` (build stops; known-issues `anima-imports-view-from-typology`).
+- **subjects in `entities/`: `daemon/` (`Daemon · DaemonDossier`) · `mode/` (`Mode` · `ModeDossier` · `traits/` `APPLICATION·GENERATIVE·EMITTER·EXPOSED·HARNESSED·standalone.open`) · `thread/` (`Thread · ThreadDossier` · `traits/` `aimed·queueing·labeled`; `masked.js` DEAD, `thread/dossier.js:39` writes the string) · `terminal/` (`Terminal·mountSeat·mountStall·TerminalDossier` + `terminals.js` `Terminals`); root: `lighthouse.js` (`STANDINGS·Lighthouse·boot`) · `bridge/` (`prototype·dock·geometry·gesture·panes·start`) · `box/` (`Box`; `device/{microphone,speaker}` + `worklet.js?url`; `drivers/audio`).**
+```js
+// systems/anima/tests/panes/cards.mount.test.js:5
+import { Terminals } from "../../src/entities/terminal/terminals.js";
+import { Bridge } from "../../src/bridge/prototype.js";
+// systems/anima/tests/panes/cards.mount.test.js:9
+import { Thread } from "../../src/entities/thread/prototype.js";
+import { Mode } from "../../src/entities/mode/prototype.js";
+import { Buffer } from "../../src/entities/buffer.js";
+```
+- **`entities/`: `activity·buffer·intent·literal·symbol·turn` (`X·XDossier`); `index.js` re-exports the subjects. `prototypes/`: `Entity` (11 direct) · `Cargo` · `Dataspace` · `conversation` · `dictation`; `index.js` omits `Dataspace`.**
+```js
+// systems/anima/tests/lifecycle-vector.test.js:2
+import { Entity } from "../src/prototypes/entity.js";
+import { Mode } from "../src/entities/mode/prototype.js";
+import { Dataspace } from "../src/prototypes/dataspace.js";
+```
+- **`gestalten/` (`belt/`): `narrow` (no app importer) · `runner` (`applyTraits`) · `chain`.** `typology.js` keeps every flat name (33 imports) and adds `stores` · `traits`.
+```js
+// systems/anima/src/typology.js:14
+export const stores = { lighthouse, terminals, bridge, box };
+export const traits = { mode: ModeTraits, thread: ThreadTraits };
+```
+- **`app/`: 71 files, tested `gate·activity·audit·sheet·dictate·turns`; `bones/widgets/*.bak.svelte` ×2 DEAD.** It becomes anima's `surface/` the day it moves.
+```js
+// systems/anima/tests/gate.test.js:2
+import { gateFor } from "../src/app/gate.js";
+import { STANDINGS } from "../src/lighthouse.js";
+```
+
+## drapes — `.` Svelte · `./dom` Solid
+
+- **`mod.js` (78 direct) re-exports 7 dirs + `*skins`, mostly `.svelte`; named: `SIGNAL·FILL·INK·GLYPH` · `strip.fit` · `float.place` · `parseBlocks`.** `decor/bak.text.svelte` DEAD.
+```js
+// subsystems/drapes/tests/kit.test.js:4
+import { fit } from "../display/strip.js";
+import { place } from "../panels/float.js";
+```
+- **`panels/Frame.svelte` IS the clients' frame contract: one bag, then `next.mount()` (`:71`; bundle-less `:52`); `teardown` unmounts (`:25`).**
+```svelte
+// subsystems/drapes/panels/Frame.svelte:64
+        component = module.default(target, {
+          terminal,
+          daemon: next.mode.daemon,
+          mode: next.mode,
+          thread: next.thread,
+```
+- **`editor/` is in no export (`index.js` direct=[]); `vim.js` DEAD; `languages·sync·org` tested.**
+```js
+// subsystems/drapes/tests/editor.test.js:5
+import { language, formats } from "../editor/languages.js";
+import { diff, NONE, External, originated } from "../editor/sync.js";
+```
+- **`dom/`, 25 files (`dom·credentials·chord·keydowns·accept·sheet·watch`, `*panes`): importer: testament only; RED, `chassis.jsx:3` reads `belt.dock`, absent on ghost's `belt`.**
+```js
+// subsystems/drapes/tests/dom/keys.test.js:2
+import { chord, keydowns } from "../../dom/keys.js";
+import { document, fire, fresh, settle, surface } from "./rig.js";
+```
 
 ## dapper
 
-- dapper is ONE pipe, run at BUILD time: `design()` = `scales()` (a bare `:root`, 56 declarations) then every theme of `THEMES` through `emit`; the postcss plugin prepends that sheet — nothing happens at runtime. `primitives/` holds only `font.css` · `bsp.css`, LIVE through anima aliases (`systems/anima/vite.config.mjs:130`), not package exports. (`lib/system.js:5` · `lifecycle/index.js:8`)
-- the token space is 94 keys in seven groups (shape · size · text · control · signal · brand · font) + 12 ground keys per zone → every zone block emits 106 declarations; `:root[data-theme]` is zone 1 whole. A key outside the schematic faults at import; a theme below the floor (zone surface · `text.ink` · `signal.primary` fill) throws. (`subsystems/typology/schematics/primitives/theme.js:1` · `lib/theme.js:47`)
-- a theme is `theme(definition)` in `themes/<name>/theme.js` — northsea and parchment over their own `gradients.js`, shared with none; dapper takes `v` from `@vivalence/typology`, never the `/schematics` door. (`themes/northsea/theme.js:1`)
-- themes are FOUR — `northsea` (dark) · `parchment` · `porcelain` · `datasette` (light) — and the name lives in THREE places: `THEMES` + `knownTheme` (an unknown name resolves to northsea, `systems/anima/src/typology/stores/bridge/bridge.js:28`), `client.html` (default `:2`, saved-name guard `:8`), and `+page.svelte:63` writes `<html data-theme>`. A theme states no polarity, so a view that flips for a light ground names the light themes by string — the chess kit, FIVE copies of `buffer/kit/Theme.svelte` (`~/.viva/registry/chess/modes/board/play/buffer/kit/Theme.svelte:57`). Adding a theme → grep `data-theme="` across the checkout AND `~/.viva/registry` first (m73 missed it: pieces inverted on porcelain and datasette); `~/.viva/registry/chess/tests/kit.test.js:101` P-theme-reads measures every theme. A style claim owes a walk in every theme.
-- a pair is not a name: porcelain's and datasette's zone 0 set `text.strong` EQUAL to `control.contrast` (`#EDF0F4` · `#F4F4F1`) → `--text-strong` on `--control-contrast` reads 1:1 there. A key's ink is `--control-on`. `--signal-primary-tint` and `--control-selected` are FILLS, not text grounds (1.1–3.9:1 on zone 0 in two themes each); `--surface-sunk` holds every ink ≥ 6.1. Ink-on-ground pairs are pinned per theme per zone in `systems/anima/tests/pincer/theme.test.js` (floors 4.5 text · 3 glyph) — a new pair goes there. (`themes/porcelain/theme.js:18` · `themes/datasette/theme.js:19`)
-- a running `vite dev` holds dapper IN MEMORY: an edit under `subsystems/dapper` reaches the served sheet only after `anima/watch` restarts, while `data-theme` changes at once → a renamed theme renders unstyled, a new key reads empty. Prove a sheet on `anima/bundle`, never the dev server. Restart the watchers yourself (/"you can kill and run processes"/ · /"the two deno ones"/): `anima/watch` stops on SIGTERM; `runtime/watch` must be SIGINTed (SIGTERM ends the script, `--watch` idles, then re-spawns into a taken `:2501`). A watcher started from my shell outlives it → the turn ends with it SIGINTed or restarted in beef's terminal, never listed as owed (an orphan faulted his launch `EADDRINUSE`).
-- a view never names a zone: it sits inside a `data-zone="N"` box and reads `--surface` · `--surface-sunk` · `--surface-lift`. anima's map is 24 declarations in 11 files, pinned EXACTLY by `systems/anima/tests/zones/places.test.js:5` — a new territory (or a deleted panel) edits `PLACES` first.
-- tailwind maps slots and scales only, no safelist: a class name is a LITERAL in the source or the JIT drops it. `systems/anima/tests/zones/slots.test.js` fails on a read of a name the sheet does not emit — a typo'd slot is silent in the browser. (`belt/tailwind-theme.js:3`)
+- **`lib/` `contrast·emit·design·theme·tokens`; `themes/` `THEMES` (datasette·northsea·parchment·porcelain); `lifecycle/` = `./postcss`, `belt/` = `./tailwind`.** `tokens(theme, zone)` THROWS.
+```js
+// subsystems/dapper/lib/tokens.js:133
+export const tokens = (theme, zone) => {
+  if (!Object.hasOwn(THEMES, theme)) throw new Error(`[tokens] not a theme: ${JSON.stringify(theme)} · ${Object.keys(THEMES).join(" · ")}`);
+// subsystems/dapper/tests/emit.test.js:2
+import { theme } from "../lib/theme.js";
+import { declarations, emit } from "../lib/emit.js";
+```
 
-## drapes
-
-- drapes reads slots by name and knows no level: a component paints with `--surface` · `--text-strong` · `--signal-*` and the zone decides the value. Role props keep seven names (`danger` · `warning` · `accent` …) folded onto four signals by `SIGNAL`; the tailwind classes there are LITERALS (`FILL` · `INK` · `GLYPH`), never a template. (`context/signals.js:1`)
-- a drapes class name is reachable by any unscoped consumer rule: `.row` is carried by `display/Row.svelte:12` AND `Key size="row"` (`controls/Key.svelte:106` `.key.row`). Never give a new component a Tailwind-utility or generic class name.
-- `controls/Button.svelte` is DEAD (importers outside `bak/` → 0, re-run 10-06); game modes hand-roll — /"just keep them hand rolled. fix it inline."/
-- live importers of the barrel, anima + registry, `bak/` excluded (10-06): `Key` 26 · `Pip` 13 · `Empty` 12 · `Row` 9 · `Float` 7 · `Input` 7 · `Asset` 7 · `Section` 6 · `Desk` 6 · `drag` 6. A signature change on these is a blast (skill `change`). (`mod.js:1`)
-- `context/preferences.js` is `localStorage` keyed `viva.mode.<slug>` — per BROWSER; only education dojo reads it (`Dojo.svelte:90` · `parts/Builder.svelte:108`); screen state goes to `buffer.data`, never here.
-- `<Icon carbon=…>` (`panels/icon/Icon.svelte`) is app-layer ONLY — inline the SVG in a buffer bundle. · `project_buffer_bundle_typology_only`
-- the editor (`editor/`, ~400 kB) is reached ONLY as the subpath `@vivalence/drapes/editor/index.js`, never the barrel; ONE consumer, outside the repo (`~/.viva/registry/vcompany/modes/office/vdex/buffer/parts/Reader.svelte:3`). A drapes subpath entry is always `.js` (bundled `loader: "js"`). Never push outside text as `{from: 0, to: doc.length, insert}` — the caret collapses to 0 even on identical text; push `diff(held, next)` + `EditorSelection.cursor(...)` tagged `External`. `LRLanguage.define` only for a Lezer LR parser — a `MarkdownParser` there aborts every input transaction (use base `Language` + `defineLanguageFacet`). (`editor/sync.js:3` · `project_drapes_editor`)
-- `skins` rides the barrel as a namespace, never an anima sub-alias. (`mod.js:8`)
-
-## sheets
-
-- sheets = ink@5 + react@18 + `@cliffy/*`, all from ROOT `import_map.json` (`:19` · `:104`); JSX compiles to `React.createElement` → every `.jsx` needs `React` in scope. Consumers import `Box · Text · React · useInput` FROM `@vivalence/sheets`, never bare `ink`: one ink instance. (`deno.jsonc` compilerOptions · `mod.jsx:18`)
-- the TDD surface is `state/*.js` — pure `init` + `reduce`, `tests/*.state.test.js` (10-06: `37 passed | 0 failed`); `components/*.jsx` stay thin views. Form law: one page is `pages.length === 1`; `active === fields.length` IS the actions bar, and `set` there is identity. (`state/form.js:40` · `tests/field-protocol.test.js`)
-- `view` has three surfaces: `scroll.emit` (Static, one frame, fire-and-forget) · `scroll.render` (inline, resolves on `buffer.release(opts)`) · `buffer.render`/`buffer.shell` (alt-screen inside `Chrome`); `hijack(shell)` repaints scroll.* into the shell slot for ghost `--buffer` (`systems/ghost/mod.js:98`). A component that never calls `buffer.release` hangs its verb forever. (`mod.jsx:93` · `:110` · `:125`)
-- `theme.js` holds ink color NAMES (`accent: "cyan"`) — terminals take ANSI, not dapper hexes; 14 literal `color="…"` still bypass it (TextInput · Effect · JsonTree · Banner · Table · Tasks, e.g. `components/TextInput.jsx:44`) — new code reads `theme.*`.
-- ink reports DEL (0x7f, the macOS backspace) as `key.delete`: every edit handler takes `key.backspace || key.delete`. (`components/TextInput.jsx:34`)
-- `bak/` carries a second `deno.jsonc` also named `@vivalence/sheets` (`./mod.js`) — the dead cliffy-only predecessor; `cliffy.js` is its surviving export, as the `cliffy` namespace.
-
-<!-- writer: agent · hand-kept, recounted 10-06 -->
 ```jsonc
-// subsystems/dapper
+// anima src — census 10-19 (files · exports · files a test uses)
+{ ".": [3, 23, 2], "telemetry": [3, 9, 0], "app/.": [5, 3, 1], "app/bones": [13, 12, 1], "app/design": [4, 13, 2], "app/panels": [43, 57, 2], "app/widgets": [6, 11, 0],
+  "box": [11, 9, 0], "bridge": [7, 102, 6], "daemon": [3, 4, 0], "mode": [9, 16, 2], "terminal": [3, 7, 2], "thread": [8, 13, 1],
+  "entities": [7, 26, 3], "gestalten": [5, 17, 2], "prototypes": [6, 9, 4] }
+```
+```jsonc
+// drapes · dapper — census 10-16
 {
- "package": "@vivalence/dapper",
- "exports": {".": "./mod.js", "./contrast": "./lib/contrast.js", "./postcss": "./lifecycle/index.js", "./tailwind": "./belt/tailwind-theme.js"},
- "barrels": {
-  "mod.js": ["design", "theme", "emit", "declarations", "contrast", "TOKENS", "scales", "THEMES", "postcssPlugin", "tailwindClasses"],
-  "lib/contrast.js": ["channels", "hex", "wash", "blend", "flatten", "luminance", "contrast"],
-  "lifecycle/index.js": ["plugin", "default"],
-  "belt/tailwind-theme.js": ["tailwindClasses", "default"]
- },
- "tasks": {"test": "deno test -A --no-check tests/**/*.test.js (one-shot, no --watch)"},
- "tests": {"tests": 3}
-}
-// subsystems/drapes
-{
- "package": "@vivalence/drapes",
- "exports": {".": "./mod.js"},
- "barrels": {
-  "mod.js": ["* from ./context/index.js", "* from ./decor/index.js", "* from ./display/index.js", "* from ./controls/index.js", "* from ./panels/index.js", "* from ./triage/index.js", "* from ./stage/index.js", "* as skins from ./skins/index.js"]
- },
- "tasks": {},
- "tests": {"tests": 5}
-}
-// subsystems/sheets
-{
- "package": "@vivalence/sheets",
- "exports": {".": "./mod.jsx"},
- "barrels": {
-  "mod.jsx": ["Box", "createContext", "Newline", "React", "render", "Spacer", "Static", "Text", "Transform", "useApp", "useContext", "useEffect", "useFocus", "useFocusManager", "useInput", "useRef", "useState", "useStdin", "useStdout", "* from ./components/TextInput.jsx", "* from ./components/PasswordInput.jsx", "* from ./components/Select.jsx", "* from ./components/Search.jsx", "* from ./components/Table.jsx", "* from ./components/MultiSelect.jsx", "* from ./components/Confirm.jsx", "* from ./components/TextArea.jsx", "* from ./components/List.jsx", "* from ./components/Effect.jsx", "* from ./components/Field.jsx", "* from ./components/Actions.jsx", "* from ./components/Form.jsx", "* from ./components/Banner.jsx", "* from ./components/Tasks.jsx", "* from ./components/Logo.jsx", "* from ./components/Background.jsx", "* from ./components/Chrome.jsx", "* from ./components/JsonTree.jsx", "* as search from ./state/search.js", "* as cliffy from ./cliffy.js", "theme", "BufferControl", "view"]
- },
- "tasks": {},
- "tests": {"tests": 7}
+"drapes/context":{"files":3,"exports":7,"tests":1},
+"drapes/controls":{"files":14,"exports":3,"tests":0},
+"drapes/decor":{"files":7,"exports":1,"tests":0},
+"drapes/display":{"files":31,"exports":13,"tests":2},
+"drapes/dom":{"files":25,"exports":80,"tests":2},
+"drapes/editor":{"files":7,"exports":15,"tests":3},
+"drapes/.":{"files":1,"exports":8,"tests":0},
+"drapes/panels":{"files":10,"exports":6,"tests":1},
+"drapes/skins":{"files":9,"exports":8,"tests":0},
+"drapes/stage":{"files":3,"exports":2,"tests":0},
+"drapes/triage":{"files":4,"exports":0,"tests":0},
+"dapper/belt":{"files":1,"exports":2,"tests":1},
+"dapper/lib":{"files":5,"exports":18,"tests":5},
+"dapper/lifecycle":{"files":1,"exports":1,"tests":0},
+"dapper/.":{"files":1,"exports":8,"tests":0},
+"dapper/themes":{"files":7,"exports":17,"tests":3}
 }
 ```

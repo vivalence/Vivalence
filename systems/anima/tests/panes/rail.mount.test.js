@@ -2,9 +2,9 @@ import { specimen, Status } from "@vivalence/typology";
 import { compile } from "svelte/compiler";
 import { parseHTML } from "linkedom";
 import { atom } from "nanostores";
-import { Bridge } from "../../src/typology/stores/bridge/bridge.js";
-import { leaves } from "../../src/typology/stores/bridge/panes.js";
-import { Terminals } from "../../src/typology/stores/terminals.js";
+import { Bridge } from "../../src/bridge/prototype.js";
+import { leaves } from "../../src/bridge/panes.js";
+import { Terminals } from "../../src/entities/terminal/terminals.js";
 import { repositoryDouble } from "./rig.js";
 import { BRIDGE, TERMINALS } from "../../src/client.js";
 
@@ -28,8 +28,8 @@ const WIDGETS = {
 const BODIES = { Terminals: ["terminals", "terminal"], Threads: ["threads", "threads"], Modes: ["modes", "modes"], Thread: ["thread", "thread"], Mode: ["mode", "mode"], Buffers: ["buffers", "buffers"], Buffer: ["buffer", "buffer"], Harness: ["harness", "harness"] };
 
 const SHIM = `
-export { chain } from "${new URL("typology/gestalten/belt/chain.js", SRC).href}";
-import * as panes from "${new URL("typology/stores/bridge/panes.js", SRC).href}";
+export { chain } from "${new URL("gestalten/belt/chain.js", SRC).href}";
+import * as panes from "${new URL("bridge/panes.js", SRC).href}";
 export const stores = { bridge: { panes } };
 `;
 

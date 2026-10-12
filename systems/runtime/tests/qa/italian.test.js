@@ -56,7 +56,7 @@ describe("T-italian — language-learning boots empty beside chess, the dojo's c
     world = await ledger("viva-qa-italian-");
     await copy(join(SOURCE, "education"), join(world.root, "registry/education"), { skip: ["freight", "bak", "node_modules"] });
     await copy(join(SOURCE, "chess"), join(world.root, "registry/chess"), { skip: ["bak", "node_modules"] });
-    await viva(world, ["ledger/init"]);
+    await viva(world, ["ledger/install"]);
     for (const location of [join(world.root, "registry/education"), join(world.root, "registry/chess")]) {
       const { effect, err } = await viva(world, ["registry/tap", location]);
       if (!effect?.location) throw new Error(`registry/tap ${location} failed: ${err}`);
@@ -64,8 +64,8 @@ describe("T-italian — language-learning boots empty beside chess, the dojo's c
     await Deno.mkdir(join(world.root, "recipe"));
     await Deno.writeTextFile(join(world.root, "recipe/instance.viva.json"), JSON.stringify(RECIPE("italian", [ITALIAN, CHESS]), null, 2));
     await Deno.copyFile(PROBE, join(world.root, "recipe/probe.viva.js"));
-    const { effect, err } = await viva(world, ["instance/create", join(world.root, "recipe"), "--slug=italian", "--use", "--init"]);
-    if (!effect?.target) throw new Error(`instance/create failed: ${err}`);
+    const { effect, err } = await viva(world, ["instance/clone", join(world.root, "recipe"), "--slug=italian", "--use", "--install"]);
+    if (!effect?.target) throw new Error(`instance/clone failed: ${err}`);
     shelf = effect.target;
     await pin(shelf, { VIVA_RUNTIME_ORIGIN: world.origin });
     runtime = await boot(world, { shelf, slug: "italian", deadline: 300_000 });

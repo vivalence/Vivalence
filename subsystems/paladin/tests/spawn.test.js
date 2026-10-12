@@ -1,5 +1,5 @@
 import { assert, assertEquals, assertRejects } from "@std/assert";
-import { Paladin, populate } from "@vivalence/paladin/typology";
+import { Paladin, lifecycle } from "@vivalence/paladin/typology";
 
 async function mkPaladin() {
   const root = await Deno.makeTempDir({ prefix: "paladin-spawn-" });
@@ -8,8 +8,8 @@ async function mkPaladin() {
   paladin.env.set("VIVA_SYSTEM_ROLE", "SUDO");
   paladin.env.set("VIVA_LEDGER_MOUNT", root);
   paladin.env.set("VIVA_REPOSITORY_MOUNT", root);
-  await populate.scopes(paladin);
-  populate.instance(paladin);
+  await lifecycle.paladin.scopes(paladin);
+  lifecycle.paladin.instance(paladin);
   return paladin;
 }
 
@@ -23,7 +23,7 @@ const DIES = "Deno.exit(1);";
 const MUTE = "setTimeout(() => Deno.exit(0), 5000);";
 
 Deno.test({
-  name: "ledger.boot: BOOTING lock with every pid; integrate on ALIVE → ALIVE lock; perpetuate folds exits and clears the lock",
+  name: "ledger.boot: SPAWNED lock with every pid; integrate on ALIVE → ALIVE lock; perpetuate folds exits and clears the lock",
   sanitizeOps: false,
   sanitizeResources: false,
   async fn() {
@@ -31,7 +31,7 @@ Deno.test({
     const die = await paladin.ledger.boot([child("alpha", ALIVE), child("beta", ALIVE)], { instance: "spawn", attachment: "piped" });
     assertEquals(die.good.processes.length, 2);
     const booting = await paladin.ledger.lock("spawn").read();
-    assertEquals(booting.status, "BOOTING");
+    assertEquals(booting.status, "SPAWNED");
     assertEquals(booting.pid, Deno.pid);
     assertEquals(booting.processes.map((held) => held.process), ["alpha", "beta"]);
     assert(booting.processes.every((held) => held.pid > 0));
@@ -167,5 +167,85 @@ Deno.test({
     await die.integrate();
     assertEquals(die.lock, null);
     await die.perpetuate();
+  },
+});
+
+Deno.test({
+  name: "the lock carries a row per process — each one's serve and status, re-claimed when one exits while its sibling lives",
+  sanitizeOps: false,
+  sanitizeResources: false,
+  async fn() {
+    const paladin = await mkPaladin();
+    const brief = { ...child("brief", 'console.log("Status:RUNNING"); setTimeout(() => Deno.exit(3), 300);'), serve: "http://localhost:47001/" };
+    const steady = { ...child("steady", 'console.log("Status:RUNNING"); setTimeout(() => {}, 60000);'), serve: "http://localhost:47002/" };
+    const die = await paladin.ledger.boot([brief, steady], { instance: "rows", attachment: "piped" });
+    await die.integrate();
+    const alive = await paladin.ledger.lock("rows").read();
+    assertEquals(alive.processes.map(({ process, serve, status }) => ({ process, serve, status })), [
+      { process: "brief", serve: "http://localhost:47001/", status: "ALIVE" },
+      { process: "steady", serve: "http://localhost:47002/", status: "ALIVE" },
+    ]);
+    await die.good.processes[0].perpetuate();
+    await die.writing;
+    const after = await paladin.ledger.lock("rows").read();
+    assertEquals(after.status, "ALIVE");
+    assertEquals(after.processes.map(({ process, status }) => [process, status]), [["brief", "EXITED"], ["steady", "ALIVE"]]);
+    assertEquals(after.processes[0].exit.code, 3);
+    assertEquals(after.processes[1].exit, null);
+    await die.disintegrate();
+    assertEquals(await paladin.ledger.lock("rows").read(), null);
+  },
+});
+
+Deno.test({
+  name: "ledger.boot refuses a port another instance's lock holds, naming the holder; spawns nothing; the holder's claim survives",
+  sanitizeOps: false,
+  sanitizeResources: false,
+  async fn() {
+    const paladin = await mkPaladin();
+    const holder = await paladin.ledger.boot([{ ...child("runtime", MUTE), serve: "http://localhost:47010/" }], { instance: "first", attachment: "piped" });
+    const claim = await paladin.ledger.lock("first").read();
+    const error = await assertRejects(
+      () => paladin.ledger.boot([{ ...child("runtime", MUTE), serve: "http://0.0.0.0:47010/" }], { instance: "second", attachment: "piped" }),
+      Error,
+      "first holds http://localhost:47010/",
+    );
+    assert(error.message.includes(`under supervisor ${Deno.pid}`));
+    assert(error.message.includes("viva instance/stop --instance=first"));
+    assertEquals(await paladin.ledger.lock("second").read(), null);
+    assertEquals(await paladin.ledger.lock("first").read(), claim);
+    const elsewhere = await paladin.ledger.boot([{ ...child("runtime", MUTE), serve: "http://localhost:47011/" }], { instance: "second", attachment: "piped" });
+    assertEquals((await paladin.ledger.locks()).map((held) => held.instance).sort(), ["first", "second"]);
+    await elsewhere.disintegrate();
+    await holder.disintegrate();
+    assertEquals(await paladin.ledger.locks(), []);
+  },
+});
+
+Deno.test({
+  name: "ledger.locks reaps a dead supervisor's lock and lists nothing on a ledger without locks/",
+  sanitizeOps: false,
+  sanitizeResources: false,
+  async fn() {
+    const paladin = await mkPaladin();
+    assertEquals(await paladin.ledger.locks(), []);
+    await paladin.ledger.lock("gone").write({ pid: 4999999, instance: "gone", processes: [] });
+    assertEquals(await paladin.ledger.locks(), []);
+    assertEquals(await paladin.ledger.lock("gone").read(), null);
+  },
+});
+
+Deno.test({
+  name: "lock.read asks every process pid: a dead one reads EXITED; all dead reaps the lock though its supervisor lives (a --watch restart keeps the pid)",
+  sanitizeOps: false,
+  sanitizeResources: false,
+  async fn() {
+    const paladin = await mkPaladin();
+    const lock = paladin.ledger.lock("watched");
+    await lock.write({ pid: Deno.pid, instance: "watched", status: "ALIVE", processes: [{ process: "runtime", pid: 4999999, status: "ALIVE" }, { process: "anima", pid: Deno.pid, status: "ALIVE" }] });
+    assertEquals((await lock.read()).processes.map(({ process, status }) => [process, status]), [["runtime", "EXITED"], ["anima", "ALIVE"]]);
+    await lock.write({ pid: Deno.pid, instance: "watched", status: "ALIVE", processes: [{ process: "runtime", pid: 4999999, status: "ALIVE" }] });
+    assertEquals(await lock.read(), null);
+    assertEquals(await paladin.read.json(lock.path, null), null);
   },
 });

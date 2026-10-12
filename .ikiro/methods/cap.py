@@ -6,8 +6,8 @@
     python3 .ikiro/methods/cap.py --guard    # PreToolUse[Write|Edit] body: reads the hook JSON on stdin,
                                              # warns on a write whose RESULT would exceed the file's limit
 
-Capped: ikiro.md · self.md · connoisseur.md · manual.md · README.md · known-issues.org · release.md ·
-world/**/*.md · skills/*/SKILL.md. Quests and reference/ are content, never capped.
+Capped: codestyle.md (24000) · README.md · known-issues.org · release.md · quests/frontier.md ·
+world/codemap/*.md (the dir TOTALS <= 52000) · skills/*/SKILL.md (each its own). Quests and reference/ are content, never capped.
 Over cap the write warns and lands (beef: warn, no interrupt); the file is consolidated in the same turn. Nothing is evicted elsewhere.
 """
 import glob, json, os, re, sys
@@ -17,8 +17,8 @@ LIMIT = re.compile(r"limit: (\d+) chars")
 
 
 def capped():
-    files = (glob.glob(f"{ROOT}/*.md") + glob.glob(f"{ROOT}/*.org")
-             + glob.glob(f"{ROOT}/world/**/*.md", recursive=True) + glob.glob(f"{ROOT}/skills/*/SKILL.md"))
+    files = (glob.glob(f"{ROOT}/*.md") + glob.glob(f"{ROOT}/*.org") + [f"{ROOT}/quests/frontier.md"]
+             + glob.glob(f"{ROOT}/world/codemap/*.md") + glob.glob(f"{ROOT}/skills/*/SKILL.md"))
     return sorted(f for f in set(files) if not os.path.islink(f))
 
 
@@ -28,6 +28,14 @@ def is_capped(path):
         path.startswith(os.path.abspath(ROOT) + os.sep)
         and not any(seg in path for seg in ("/quests/", "/reference/", "/hooks/", "/methods/"))
         and path.endswith((".md", ".org")))
+
+
+CODEMAP_TOTAL = 52000
+
+
+def codemap_total():
+    return sum(len(open(f, encoding="utf-8").read())
+               for f in glob.glob(f"{ROOT}/world/codemap/*.md") if not os.path.islink(f))
 
 
 def limit_of(text):
@@ -47,6 +55,11 @@ def measure(show_all):
             print(f"OVER {rel} {n}/{lim}"); bad = 1
         elif show_all:
             print(f"ok {rel} {n}/{lim}")
+    total = codemap_total()
+    if total > CODEMAP_TOTAL:
+        print(f"OVER world/codemap (total) {total}/{CODEMAP_TOTAL}"); bad = 1
+    elif show_all:
+        print(f"ok world/codemap (total) {total}/{CODEMAP_TOTAL}")
     return bad
 
 

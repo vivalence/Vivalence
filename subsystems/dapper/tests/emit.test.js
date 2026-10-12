@@ -281,7 +281,7 @@ specimen.describe("design() — one sheet: the scales, then every theme", () => 
 
   specimen.it("dapper's door exports the one pipe and nothing of the old", async () => {
     const door = await import("../mod.js");
-    specimen.expect(Object.keys(door).sort()).toEqual(["THEMES", "TOKENS", "contrast", "declarations", "design", "emit", "postcssPlugin", "scales", "tailwindClasses", "theme"]);
+    specimen.expect(Object.keys(door).sort()).toEqual(["THEMES", "TOKENS", "contrast", "declarations", "design", "emit", "postcssPlugin", "scales", "tailwindClasses", "theme", "tokens"]);
   });
 
   specimen.it("dapper holds no file of the retired pipeline", () => {

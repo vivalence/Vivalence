@@ -1,5 +1,5 @@
 import { specimen } from "@vivalence/typology";
-import { Paladin, populate } from "@vivalence/paladin/typology";
+import { Paladin, lifecycle } from "@vivalence/paladin/typology";
 
 const { describe, it, beforeAll, expect } = specimen;
 
@@ -10,7 +10,7 @@ async function mkPaladin() {
   paladin.env.set("VIVA_SYSTEM_ROLE", "SUDO");
   paladin.env.set("VIVA_LEDGER_MOUNT", root);
   paladin.env.set("VIVA_REPOSITORY_MOUNT", root);
-  await populate.scopes(paladin);
+  await lifecycle.paladin.scopes(paladin);
   return paladin;
 }
 

@@ -1,5 +1,5 @@
 export const SETS = [
-  { name: "kernel", entities: ["literal", "symbol"] },
+  { name: "traits", entities: ["literal", "symbol"] },
   { name: "daemon", entities: ["mode", "user"] },
   { name: "userspace", entities: ["intent", "thread", "buffer", "turn"] },
   { name: "transient", entities: ["activity"] },

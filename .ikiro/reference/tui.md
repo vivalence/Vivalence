@@ -41,7 +41,7 @@ The house nouns. Use these words exactly; never a synonym ("pane" is not a termi
 - **daemon** — a host inside the runtime at `/daemon/<slug>` that holds modes and their rows (one shared db, scoped by its slug); a row `systems/runtime/entities/Daemon.ts:11`.
 - **mode** — one thing a host serves (a home, a game, a tool) at `<host>/mode/<type>/<slug>`, shaped by its traits; on a daemon or the runtime (`systems/runtime/gestalten/belt/host.js`); `systems/runtime/entities/Mode.ts:12` (`APPLICATION` · `HARNESSED` · `CONVERSATIONAL` …).
 - **trait** — a named capability on a row: a `traits` list plus a `trait` config object; `subsystems/typology/gestalten/belt/traits.js:5` (`define`).
-- **lighthouse** — the runtime's auth at `/lighthouse/…` (m80: no separate server) every client logs in against; `systems/runtime/lifecycle/runtime/aperture/lighthouse.js:4-12`; anima connects through `PUBLIC_VIVA_RUNTIME_REMOTE` (`systems/anima/src/app/+layout.svelte:28-31`).
+- **lighthouse** — the runtime's auth at `/lighthouse/…` (m80: no separate server) every client logs in against; `systems/runtime/lifecycle/lighthouse/` (10-12); anima connects through `PUBLIC_VIVA_RUNTIME_REMOTE` (`systems/anima/src/app/+layout.svelte:28-31`).
 - **identity** — the logged-in user, a runtime row `UserEntity` (`systems/runtime/entities/User.ts:32`) with a free `traits` list; `THEMED · HOMED` no longer exist, `DOCKED` lives on the terminal.
 - **terminal** — a runtime row that seats ONE thread (and its buffer and dock) for a user: `user · daemon · thread · index · traits · trait`, `systems/runtime/entities/Terminal.ts:13-19`; anima's tab, `systems/anima/src/typology/entities/terminal.js:11`.
 - **thread** — a daemon row binding a mode and a trait config, with a render phase `inert · manual · continuous · escort`; `systems/runtime/entities/Thread.ts:13-31`.
@@ -836,6 +836,8 @@ A one-cell padding and a word mark. No status, no input line, no hint row, no bo
 ---
 
 ## 4 · the render ways
+
+STALE since m86 (10-11, ink dead, `mod.jsx` in `sheets/bak/`): the opentui render — component contract, `paint` · `captured` · `cut`, shell · repl · chrome placement — is `reference/tty-render.md`.
 
 ### LIVE — three surfaces of `view` (`subsystems/sheets/mod.jsx:93-195`)
 

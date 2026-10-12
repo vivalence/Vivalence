@@ -38,9 +38,10 @@ if (fault) throw new Error(`[controller] machine ${fault.at}: ${fault.reason}`);
 export const MACHINE = machine;
 
 export const Kill = v.object({
-  signal: Signal,
-  input: v.unknown().optional(),
-}).desc('One stdin packet as it crosses a wire. Example: { "signal": "SIGTERM", "input": "user pressed stop" }');
+  nature: Signal,
+  body: v.array(v.unknown()),
+  flags: v.record(v.string(), v.unknown()).optional(),
+}).desc('One stdin packet as it crosses a wire. Example: { "nature": "SIGTERM", "body": ["user pressed stop"], "flags": {} }');
 
 export const Record = v.object({
   span: v.integer(),

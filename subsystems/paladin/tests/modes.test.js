@@ -1,9 +1,9 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path } from "@vivalence/typology";
-import { Paladin } from "../prototypes/paladin.js";
-import * as lifecycle from "../lifecycle/index.js";
-import { Registry } from "../prototypes/ledger/registry.js";
+import { Paladin } from "../paladin/prototype.js";
+import { factories, lifecycle } from "../typology.js";
+import { Registry } from "../prototypes/registry.js";
 
 const HOME = new Path("/fixtures/probe/instance.viva.json");
 
@@ -31,7 +31,7 @@ const mount = (mod) => {
     ["mountpoint", () => true, () => new Path("/mountpoint")],
   ]);
   paladin.read.json = async () => JSON.parse(JSON.stringify(mod));
-  return lifecycle.mount(lifecycle.populate.instance(paladin));
+  return factories.instance(lifecycle.paladin.instance(paladin));
 };
 
 describe("instance modes identifiers", () => {
@@ -91,5 +91,21 @@ describe("registry.accio — the citizen", () => {
     expect(citizen.module.manifest.slug).toBe("vdex");
     expect(citizen.statics).toEqual({ formats: ["md", "org"], ignore: ["bak"] });
     expect(citizen.identifier).toBe("@vcompany/office/vdex");
+  });
+});
+
+describe("client modes", () => {
+  it("a client is a host: /client/<slug>, <mountpoint>/client_<slug>, every mode grounded under it as /mode/<type>/<slug>", async () => {
+    const instance = await mount({
+      ...module,
+      clients: [{ manifest: { type: "client", slug: "ghost", traits: ["HOME"] }, modes: ["@commons/home/console"], trait: { HOME: { reference: "/runtime/probe/mode/home/probe" } } }],
+    });
+    const [client] = instance.clients;
+    expect(instance.faults).toEqual([]);
+    expect(client.reference.absolute).toBe("/client/ghost");
+    expect(client.mountpoint.absolute).toBe("/mountpoint/client_ghost");
+    expect(client.modes[0].module).toBe("@commons/home/console");
+    expect(client.modes[0].reference.absolute).toBe("/mode/home/console");
+    expect(client.modes[0].mountpoint.absolute).toBe("/mountpoint/client_ghost/mode_home_console");
   });
 });

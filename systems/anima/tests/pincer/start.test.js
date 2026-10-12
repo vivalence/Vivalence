@@ -1,6 +1,6 @@
 import { specimen } from "@vivalence/typology";
-import { HALF, rectsForOrientation } from "../../src/typology/stores/bridge/geometry.js";
-import { SCREENS, screenOf, startFor } from "../../src/typology/stores/bridge/start.js";
+import { HALF, rectsForOrientation } from "../../src/bridge/geometry.js";
+import { SCREENS, screenOf, startFor } from "../../src/bridge/start.js";
 
 const DESK = { width: 1440, height: 900 };
 const TABLET = { width: 834, height: 1194 };

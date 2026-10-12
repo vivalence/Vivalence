@@ -1,7 +1,7 @@
 import { contexts, shape, shard, specimen, v } from "@vivalence/typology";
 import { Vector, Mode, Aperture, Path } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
-const { TOOLING, HARNESSED } = traits;
+const { TOOLING, HARNESSED } = traits.mode;
 import { create } from "../scenarios/cortex.js";
 
 function provision(mode, daemon) {

@@ -1,6 +1,6 @@
 import { atom } from "nanostores";
 import { assertEquals } from "jsr:@std/assert";
-import { Terminal, mountStall } from "../src/typology/entities/terminal.js";
+import { Terminal, mountStall } from "../src/entities/terminal/prototype.js";
 
 // a buffer double with the release hook the stall bridges through.
 const buf = (id) => {

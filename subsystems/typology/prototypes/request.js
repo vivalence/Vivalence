@@ -1,5 +1,5 @@
 import { Url } from "./url.js";
-import { sse } from "@vivalence/typology";
+import * as sse from "../gestalten/belt/sse.js";
 
 export class Request {
   constructor(request = {}) {

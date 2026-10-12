@@ -1,0 +1,467 @@
+#+title: m92 keymap — a Press walks the terminal's keymap vector; a chord on a repl pattern; the leader ctrl-v; the catalog on ctrl-v ctrl-v; KEYMAPPED on ghost, effects are functions
+#+filetags: :ghost:runtime:typology:keymap:repl:chrome:mode:trait:
+#+status: DESIGNED 10-19, code-first 10-21 — thirteen locks; two typology hunks proven by probe; the panes (milestones 3 · 5) live in m95; B (focus-selected bare keys) is the roadmap, A (leader-gated) lands first. No go.
+
+# limit: 32000 chars
+
+* intent
+
+10-19, verbatim: /"we do have this key map problem where we already have control V and double control V as our like the access to the way that the system works, to the REPL. […] I do, of course, as I always want a vector for this. A key map vector"/ · /"Do we have our own ontology and then we build our key maps not by attaching the keys directly to the REPL vectors, but by having our own key vector and then referencing in the effects of those the REPL function that we want called"/ · /"we want the modes individually to be able to supply key maps. […] We might want like entire modes that are only the key maps."/ · /"the REPL is the entire client, basically. Client is a surface against the REPL."/ · /"Maybe modality is a little bit too difficult to grasp for most. And so we would want everything hidden behind control V."/
+
+* terrain — measured 10-19, re-measured 10-21 (every line holds)
+
+| piece | file:line | today |
+|---+---+---|
+| key normalizer | =systems/ghost/surface/chrome/keys.js:9-16= | =KeyEvent= → ={ key: "ctrl-t" \vert "meta-f" \vert "esc" \vert "f" }=, a =[[predicate, tag]]= table; a =Queue= of presses |
+| key consumer | =systems/ghost/surface/chrome/index.js:17-21= | drains the queue; ONE hardcoded key (backtick → console) |
+| repl composition | =systems/ghost/gestalten/shard/repl.js:23-29= | composed PER LINE from client.repl · REPLING modes · terminal.repl · thread-mode scopes · =turn= |
+| repl signal | =subsystems/typology/prototypes/replsignal.js:5= | bare line → =*= (a TURN); =/x= → segments |
+| valence rides | =subsystems/typology/prototypes/pattern.js:30= | extra fields on =.open({nature, …})= land on the last pattern → =chord:= rides for free |
+| chord walk | =subsystems/typology/gestalten/steer/dispatch.js:108= | =walk(vector, more)=: no effect yet → =more(position.patterns)=; 3 consumers, all =tests/gestalten/steer/walk.test.js= |
+| literal effect | =subsystems/typology/gestalten/steer/strategy.js:6= | =fire= assumes a function; =Vector.open= stores anything |
+| remote precedent | =systems/ghost/entities/mode/traits/harnessed.js:30-31= | =call("/metadata/harness")= → =shape.connection.wire= |
+| mode export | =commons/fixtures/testing/console/console.viva.js:12= | =repl= (was =repling=, m96 ruling 7) — the one mode-supplied repl Vector |
+| trait catalog | =systems/ghost/entities/mode/traits/index.js= | REPLING · EXPOSED · HARNESSED · APPLICATION; KEYMAPPED joins, ghost-only |
+| the panes | =m95-depincered-client.org= milestone 5 | the minibuffer (named =Chord= 10-21, m95 ruling 35) · the catalog · the DOM normalizer's home |
+
+Nouns: =ctrl-v= 0 · =keymap= 0 · =repl= 3 things · =chord= 1. Precedent + REJECTED trails: =reference/m92/drill-20261021.md=.
+
+* the dialogue — his words, verbatim; the hunk under =* as code=
+
+| Q | his ruling | hunk |
+|---+---+---|
+| 0 name | /"So chord is not the right unit for us because it assumes that the thing is complete. So it's really a key press. We have a key map and the key press. And then we have the composer that navigates downwards the tree."/ | =press.js= · =navigate= |
+| 0b owners | /"the key map on the terminal is the one that we actually navigate, and the client key map is just mounted into that. […] That allows us on an individual mode to set a key map. And then if that mode is active, we load the key map vector."/ | =compose= |
+| 1 the effect | /"I think it should be possible to return not a function that returns a string, so a thunk, but just return a string. […] =.open("/path", "/target/repl/nature")="/ | =strategy.js= hunk |
+| 1b composition | /"break out control V as one and then m t and the other control V as children of that. […] maybe even one deep branch and a deep open"/ | =client/keymap.js= |
+| 2 the chord | /"a REPL command also declares its key. Absolutely. We might want to call that a chord. […] in the REPL pattern, the key that you have, Control VC, that's the chord."/ | =harvest= · =commands/= diffs |
+| 3 the leader | /"we absolutely for sure want to have B. I'm not yet sure that we want that today. […] It would be easier if we hide the entire system for now behind control V […] I lean temporarily A with option B as the definitive roadmap."/ · /"lock. makes sense to use pipes and drains here"/ | =navigate= gate · =* deferred= |
+| 4 the trait | /"b"/ (KEYMAPPED, its own trait) · /"The key mapped trait is still we export a key map."/ · the strip ⟷ wire half struck 10-21 (ruling 12) | =keymapped.js= |
+| 5 the minibuffer | /"a"/ · /"q5 a"/ | =$chord= · m95 |
+| 8 the DOM leader | /"If it's paste in every browser, for example on Mac it's Command V. So I would want it to be the opposite of Command or Control, depending on what system we're on."/ | =anima/src/surface/keys.js= |
+| 7 double ctrl-v | /"like in SpaceMax when we hit double space, we get the list of all of the commands […] we strip wire the REPL, we type inputs, and it narrows it down. And if the pattern has a schematic attached for the input, then we autocomplete that."/ · 10-21 m95 ruling 13: the list is the =catalog= | =leader/leader= · m95 |
+| 9 mount (10-21) | /"root. So the mode key map is always its own little universe. It is considered to be mounted at root, and then the client mounts it at different places depending on […] where the mode is running, how it's configured, how the client is configured […] each individual key map is relative to itself."/ | =compose= · =console.viva.js= |
+| 10 home (10-21) | /"systems/ghost/gestalten/shard/keymap.js The idea is fine, but the location is wrong. Gestalten is only for abstract things. It's not implementation details. Gestalten is like tooling. It doesn't know anything about business logic."/ | =client/keymap.js= |
+| 11 composition (10-21) | /"We just plain add those to the shared key map vector. […] the terminal's key map vector lives next to the REPL vector. The terminal's key map vector is a function of the mode vectors, the mode key map vectors, the client key map vectors. Which are themselves functions of the client mode key map vectors. […] do we have a stripwire pass over the REPL? […] that is probably the main source of key maps. And the additional mode stuff is just there to customize and pad out and add stuff. […] Duplicates are overwritten, but that's vector default behavior"/ · open: /"either at key dispatch or ahead of time, I don't know which yet"/ | =compose= |
+| 12 the effect of a runtime mode (10-21) | /"we don't want to hard code that mode chess here. Because we don't know where it's going to be mounted. […] we are not calling the harness with new game if we hit GN. That's a deterministic operation […] we would need those functions to be actual functions that operate on […] the mode, where we create a new buffer. And the second would be a function that we call on the buffer itself."/ · /"For sure B, because A is a mindfuck to implement. […] I think we just go with a function, keep it easy for the beginning, work it out, and then at some point we can determine what a plain string means actually."/ · /"a mode key map is only activated if we have the thread mode or the buffer mode. This does not allow the mode to hook in any way globally. […] If we want anything else, we have the client modes."/ | ghost =keymapped.js= · =board.viva.js= |
+
+* the law — each line names its hunk
+
+1. The vector is =keymap=; the signal is one =Press=, one segment; a sequence is never a value, it is a =walk= → =press.js=.
+2. The composer is =steer.dispatch.walk(keymap, more)=; =more(patterns)= returns the next =Press= from a drained =Queue= → =navigate=.
+3. The terminal's keymap = =harvest(repl)= ⊕ =client.keymap= ⊕ the active mode's keymap, plain grafts at the root, later wins; a mode writes full paths → =compose=.
+4. A keymap effect's context is ={ client, dispatch }=; a mode's keymap binds =mode= → =navigate= =ctx= · =keymapped.js=.
+5. An effect's RETURN is the repl line: a string or ={ nature, body, flags }= sits directly as the effect; =fire= passes a literal through → =strategy.js= hunk.
+6. A repl command declares =chord:= on its pattern; =harvest= folds every chord of the composed repl into keymap edges whose effect is the line → =client/keymap.js=.
+7. The root holds =leader= and =esc=; bare keys stay with the focused widget; the gate is =keymap.trie.has(press.key)= → =navigate=. B is roadmap.
+8. =KEYMAPPED= is a ghost trait, as REPLING is; one export =keymap=; a mode's keymap is live only while the mode is the terminal's, a global hook is a client mode's → =keymapped.js=.
+9. A mode's keymap effects are FUNCTIONS over =ctx.mode= · =ctx.client=; a runtime mode ships them in its client-side view module (m87 =view.load=), nothing is served; a plain string there is roadmap → =keymapped.js= · =board.viva.js=.
+10. A held node is painted from =client.$chord=; =esc= drops, an unbound key faults, a bound key fires; no timer → =navigate= catch table.
+11. =ctrl-v ctrl-v= is the =catalog= — the composed repl's strip on =client.$catalog=; the pane is m95's → =client/keymap.js=.
+12. The root segment is the SEMANTIC =leader=; each surface's press table decides the physical key: tty =ctrl-v=; DOM the non-paste modifier → =keys.js= diff · =anima/src/surface/keys.js=.
+
+* as code — the tangle IS the filesystem (=***= system · =****= directory · =*****= file)
+
+*** subsystems/typology
+**** gestalten/steer/
+***** strategy.js — a literal effect IS its output (law 5; probed 10-19)
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/steer/strategy.js:6
+ export function fire(effect, context) {
++  if (!is.fn(effect)) return effect;
+   if (effect.length === 0) return effect();
+#+END_SRC
+***** dispatch.js — a consumed signal is spent (law 2; probed 10-19: before this, every path resolved to =ctrl-v/ctrl-v=)
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/steer/dispatch.js:108
+ export async function walk(vector, more) {
+   let position = vector;
+   let carry = middleware.forward;
+   let steps = [];
+-  let signal;
+
+   while (position.patterns.length) {
+     if (steps.length >= 20) throw new Long();
+-    if (!signal?.nature) signal = await more(position.patterns);
++    const signal = await more(position.patterns);
+     if (!signal.nature) throw new Short(position);
+#+END_SRC
+**** prototypes/
+***** press.js new — the signal (law 1); =index.ts:18= · =index.client.js:26= =+ export * from "./press.js"=
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/press.js
+import * as is from "../gestalten/is/index.js";
+import { Signature } from "./signature.js";
+
+export class Press extends Signature {
+  static coercions = [[(key) => is.string(key), (key) => [{ nature: key }]]];
+}
+#+END_SRC
+***** errors/vector.js — the walk's drop (law 10)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/errors/vector.js:22
++export class Dropped extends Error {
++  code = "DROPPED";
++  constructor(position) {
++    super("Walk dropped");
++    this.position = position;
++  }
++}
++
+ export class ValidationError extends Error {
+#+END_SRC
+**** tests/gestalten/steer/
+***** walk.test.js · fire.test.js
+#+BEGIN_SRC js
+// subsystems/typology/tests/gestalten/steer/walk.test.js
+specimen.it("a two-segment walk asks more() once per node", async () => {
+  const keymap = new Vector();
+  keymap.branch("leader").open("m", "/mode");
+  const asked = [];
+  const [effect] = await steer.dispatch.walk(keymap, (patterns) => { asked.push(patterns.map((pattern) => pattern.nature)); return new Press(asked.length === 1 ? "leader" : "m"); });
+  specimen.expect(effect).toBe("/mode");
+  specimen.expect(asked).toEqual([["leader"], ["m"]]);
+});
+// subsystems/typology/tests/gestalten/steer/fire.test.js
+specimen.it("fire passes a literal through", () => specimen.expect(steer.strategy.fire("/mode", {})).toBe("/mode"));
+#+END_SRC
+
+*** systems/ghost
+**** client/
+***** prototype.js — the fields (law 10 · 11; m95 =:166=)
+#+BEGIN_SRC diff
+// systems/ghost/client/prototype.js:14 — after m88 (aperture)
+   repl = new Vector();
++  keymap = new Vector();
+   aperture = new Vector();
+   runtime = null;
+   $active = atom(null);
++  $chord = atom(null);
++  $catalog = atom(null);
+…
+   get active() {
+     return this.$active.get();
+   }
++  get chord() {
++    return this.$chord.get();
++  }
++  get catalog() {
++    return this.$catalog.get();
++  }
+#+END_SRC
+***** keymap.js new — the client's keymap: the leader broken out (ruling 1b) + =harvest · navigate= (ruling 11; =compose= is the terminal's =$keymap= since m96 ruling 2 — the client's keymap is grafted ONCE at load in the =verbs= beat) (ruling 10: /"Gestalten is only for abstract things"/); verbs with a =chord:= are NOT redeclared here
+#+BEGIN_SRC js
+// systems/ghost/client/keymap.js
+import { Dropped, Press, ReplSignal, Vector, fromm, is, shape, steer } from "@vivalence/typology";
+import * as shard from "../gestalten/shard/index.js";
+
+const leader = new Vector()
+  .open({ nature: "leader", valence: "the catalog — every repl verb, narrowed as you type. Example: ctrl-v ctrl-v" }, (ctx) => {
+    ctx.client.$catalog.set(shape.strip(shard.repl.compose(ctx.client, ctx.client.active)));
+  })
+  .open({ nature: "`", valence: "toggle the renderer console. Example: ctrl-v `" }, (ctx) => ctx.client.surface.console());
+
+export const keymap = new Vector().open({ nature: "esc", valence: "drop the chord and the catalog. Example: esc" }, (ctx) => {
+  ctx.client.$chord.set(null);
+  ctx.client.$catalog.set(null);
+});
+keymap.branch({ nature: "leader", valence: "the leader — ctrl-v on a tty" }, leader);
+
+const line = (steps) => "/" + steps.map((step) => step.nature).join("/");
+
+export const harvest = (composed) =>
+  steer.trie.rollup(composed, (carry, effect, steps) => (is.string(steps.at(-1).chord) ? [steps.at(-1).chord, line(steps)] : null))
+    .filter((entry) => entry.fn !== null)
+    .reduce((keymap, { fn: [chord, target] }) => keymap.open({ nature: chord, valence: target }, target), new Vector());
+
+export const compose = (client, terminal) =>
+  new Vector().graft(
+    harvest(shard.repl.compose(client, terminal)),
+    ...fromm.modes(client.modes).flat.map((mode) => mode.keymap),
+    client.keymap,
+    ...(terminal === null ? [] : [terminal.keymap, ...(is.object(terminal.mode) ? [terminal.mode.keymap] : [])]),
+  );
+
+const FAULTS = [
+  [(error) => error instanceof Dropped, () => undefined],
+  [() => true, (error, client) => client.controller.stdout.fault(error)],
+];
+
+export const navigate = async (terminal, first, more) => {
+  const client = terminal.client;
+  const composed = terminal.keymap;
+  if (!composed.trie.has(first.key)) return false;
+  let pending = first;
+  const next = async (patterns) => {
+    client.$chord.set(patterns.map((pattern) => ({ key: pattern.nature, valence: pattern.valence })));
+    const press = pending ?? (await more());
+    pending = null;
+    if (press.key === "esc" && patterns !== composed.patterns) throw new Dropped(patterns);
+    return new Press(press.key);
+  };
+  const ctx = { client, dispatch: (text) => client.dispatch(text), output: undefined };
+  try {
+    const [effect, carry] = await steer.dispatch.walk(composed, next);
+    await carry(ctx, steer.strategy.resolve(effect));
+    if (ctx.output !== undefined) await client.dispatch(new ReplSignal(ctx.output));
+  } catch (error) {
+    FAULTS.find(([test]) => test(error))[1](error, client);
+  } finally {
+    client.$chord.set(null);
+  }
+  return true;
+};
+#+END_SRC
+=pending= holds the FIRST press, already pulled by the drain, for the root node; later nodes pull =more()=.
+***** lifecycle/index.js — =verbs= grafts it
+#+BEGIN_SRC diff
+// systems/ghost/client/lifecycle/index.js:40
+ export const verbs = async (clientDie, next) => {
+   clientDie.repl.graft(commands.help, commands.quit);
++  clientDie.keymap.graft(keymap);
+   await next();
+#+END_SRC
+***** commands/help.js · quit.js · chrome.js — the chord on the pattern (law 6); m95 adds =/theme= =leader/x/t= · =/dock= =leader/d/d= · =/mode= =leader/m=
+#+BEGIN_SRC diff
+// systems/ghost/client/commands/help.js:4
+-  { nature: "/help", valence: "the repl's verbs as a tree. Example: /help" },
++  { nature: "/help", valence: "the repl's verbs as a tree. Example: /help", chord: "leader/?" },
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/ghost/client/commands/quit.js:4
+-  { nature: "/quit", valence: "leave — the client stops, the shell exits 0. Example: /quit" },
++  { nature: "/quit", valence: "leave — the client stops, the shell exits 0. Example: /quit", chord: "leader/q" },
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/ghost/client/commands/chrome.js:7
+       nature: "/chrome/on",
++      chord: "leader/c",
+#+END_SRC
+**** entities/terminal/
+***** prototype.js — its own keymap (ruling 0b), a =computed= over =$mode= (m96 ruling 2); =toJSON= keeps it off the wire
+#+BEGIN_SRC diff
+// systems/ghost/entities/terminal/prototype.js:17
+   repl = new Vector();
++  $keymap = computed(this.$mode, (mode) => new Vector().graft(this.client.keymap, keymap.harvest(this.repl()), ...(mode === null ? [] : [mode.keymap])));
++  get keymap() { return this.$keymap.get(); }
+…
+// systems/ghost/entities/terminal/prototype.js:38
+-    const kept = (key) => !key.startsWith("$") && !["client", "repository", "runtime", "daemon", "controller", "repl"].includes(key);
++    const kept = (key) => !key.startsWith("$") && !["client", "repository", "runtime", "daemon", "controller", "repl", "keymap"].includes(key);
+#+END_SRC
+**** entities/mode/
+***** prototype.js
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/prototype.js:15
+   repl = new Vector();
++  keymap = new Vector();
+   metadata = {};
+#+END_SRC
+***** traits/keymapped.js new (law 8 · 9; REPLING's shape, =repling.js=); =traits/index.js= =+ export { KEYMAPPED } from "./keymapped.js";=
+#+BEGIN_SRC js
+// systems/ghost/entities/mode/traits/keymapped.js
+import { Vector, shard } from "@vivalence/typology";
+import { view } from "@vivalence/typology";
+
+export const KEYMAPPED = async (mode) => {
+  const module = mode.module !== null ? mode.module : await view.load(mode.view, mode.runtime.attach);
+  mode.keymap.graft(new Vector().use(shard.context.bind("mode", mode)).graft(module.keymap));
+};
+#+END_SRC
+=view.load(view, attach)= is m87 law 9's one loader (=subsystems/typology/prototypes/view.js=, =m87:76-88=); =mode.view= is the mode's client-side View row. A function effect sees =ctx.mode=.
+**** surface/chrome/
+***** keys.js — the leader row FIRST (law 12); =LEADER= beside it for the minibuffer's physical name
+#+BEGIN_SRC diff
+// systems/ghost/surface/chrome/keys.js:9
++export const LEADER = "ctrl-v";
++
+ const CHORDS = [
++  [(event) => event.ctrl && !event.shift && event.name === "v", () => "leader"],
+   [(event) => event.ctrl, (event) => `ctrl-${named(event)}`],
+#+END_SRC
+***** index.js — the drain, pointed at the shard; backtick → =client/keymap.js=
+#+BEGIN_SRC diff
+// systems/ghost/surface/chrome/index.js:17 — + import * as keymap from "../../client/keymap.js"
+-  (async () => {
+-    for await (const press of keypresses(renderer).drain())
+-      if (press.key === "`") renderer.console.toggle();
+-  })();
+-  // no repl wired in yet??!!
+-
+-  // console.log({ renderer });
++  const presses = keypresses(renderer).drain();
++  (async () => {
++    for await (const press of presses) await keymap.navigate(client.active, press, () => presses.next().then(({ value }) => value));
++  })();
+#+END_SRC
+**** tests/
+***** keymap.test.js new — a stub client, no renderer
+#+BEGIN_SRC js
+// systems/ghost/tests/keymap.test.js
+import * as keymap from "../client/keymap.js";
+const stub = () => ({ repl: new Vector().open({ nature: "/mode", valence: "pick", chord: "leader/m" }, () => "picked"), keymap: new Vector(), modes: {}, active: null, $chord: atom(null), dispatched: [], controller: { stdout: { fault: (error) => faults.push(error.code) } }, dispatch(line) { this.dispatched.push(String(line)); } });
+specimen.it("harvest folds a chord: into an edge whose effect is the line", () => {
+  specimen.expect(shape.strip(keymap.harvest(stub().repl)).branches.leader.branches.m.effect).toEqual({ valence: "/mode" });
+});
+specimen.it("compose grafts a hosted mode's keymap at the root; a duplicate edge is overwritten, later wins", () => {
+  const client = stub();
+  client.modes = { home: { console: { keymap: new Vector().open("leader/h", "/hello").open("leader/m", "/modes") } } };
+  client.keymap.open("leader/m", "/mode");
+  const stripped = shape.strip(keymap.compose(client, null)).branches.leader.branches;
+  specimen.expect(Object.keys(stripped)).toEqual(["m", "h"]);
+  specimen.expect(stripped.m.effect).toEqual({ valence: "/mode" });
+});
+specimen.it("navigate: leader m dispatches /mode; esc mid-walk drops without a fault; x faults; q is not ours", async () => {
+  const client = stub();
+  const presses = (keys) => { const queue = [...keys]; return [{ key: queue.shift() }, () => Promise.resolve({ key: queue.shift() })]; };
+  specimen.expect(await keymap.navigate(terminal, ...presses(["leader", "m"]))).toBe(true);
+  specimen.expect(client.dispatched).toEqual(["/mode"]);
+  await keymap.navigate(terminal, ...presses(["leader", "esc"]));
+  await keymap.navigate(terminal, ...presses(["leader", "x"]));
+  specimen.expect(faults).toEqual(["NOT_FOUND"]);
+  specimen.expect(await keymap.navigate(terminal, ...presses(["q"]))).toBe(false);
+  specimen.expect(client.$chord.get()).toBe(null);
+});
+#+END_SRC
+***** console.test.js — =+ it("a KEYMAPPED client mode lends its keys")=: =compose= of the booted client shows =leader/m/h=; =keys.test.js= as is
+
+*** systems/anima
+**** src/surface/
+***** keys.js new — the DOM press table (law 12): the modifier the platform does NOT paste with
+#+BEGIN_SRC js
+// systems/anima/src/surface/keys.js
+import { Queue } from "@vivalence/typology";
+
+const MAC = /Mac|iPhone|iPad/.test(globalThis.navigator.platform);
+export const LEADER = MAC ? "ctrl-v" : "meta-v";
+
+const NAMES = { Escape: "esc", Enter: "enter", ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down" };
+const named = (event) => (Object.hasOwn(NAMES, event.key) ? NAMES[event.key] : event.key.toLowerCase());
+
+const CHORDS = [
+  [(event) => (MAC ? event.ctrlKey : event.metaKey) && !event.shiftKey && event.key === "v", () => "leader"],
+  [(event) => event.ctrlKey, (event) => `ctrl-${named(event)}`],
+  [(event) => event.metaKey, (event) => `meta-${named(event)}`],
+  [() => true, named],
+];
+
+export const press = (event) => ({ key: CHORDS.find(([test]) => test(event))[1](event) });
+
+export const keypresses = (window) => {
+  const queue = new Queue();
+  const listener = (event) => queue.enqueue(press(event));
+  window.addEventListener("keydown", listener);
+  return Object.assign(queue, { close: () => { window.removeEventListener("keydown", listener); Queue.prototype.close.call(queue); } });
+};
+#+END_SRC
+
+*** ~/.viva/registry (a registry mode, outside the repo — the shape, not a tangle block)
+**** chess/modes/board/
+***** board.viva.js — a runtime mode's keymap: functions, no mode name, no line
+#+BEGIN_SRC js
+// ~/.viva/registry/chess/modes/board/board.viva.js — the client-side view module (m87 RENDERER: export const buffer · views); + keymap
+export const keymap = new Vector()
+  .open({ nature: "leader/g/n", valence: "new game. Example: ctrl-v g n" }, (ctx) => ctx.mode.call.emit({ thread: ctx.client.active.thread.id }))
+  .open({ nature: "leader/g/f", valence: "flip the board. Example: ctrl-v g f" }, (ctx) => ctx.mode.call.board.flip({ terminal: ctx.client.active.id }));
+#+END_SRC
+=ctx.mode.call= is EXPOSED's wired aperture (=exposed.js:5=); =/board/flip= is a route the mode's =aperture= export opens.
+
+*** commons
+**** fixtures/testing/console/
+***** console.viva.js — a mode's keymap grafts at the root (ruling 11): it writes the full path
+#+BEGIN_SRC diff
+// commons/fixtures/testing/console/console.viva.js:9 — after m88 (LOOPING); the effect is a FUNCTION (ruling 12)
+-  traits: ["REPLING", "LOOPING"],
++  traits: ["REPLING", "LOOPING", "KEYMAPPED"],
+ };
++
++export const keymap = new Vector().open({ nature: "leader/h", valence: "hello. Example: ctrl-v h" }, (ctx) => ctx.terminal.dispatch("/hello"));
+#+END_SRC
+
+* probes — =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/a2049829-d700-4df4-b0a7-a8f4ec92b5f1/scratchpad/{literal2,compose}.probe.js= (10-19, pasted; the scratchpad is gone)
+
+Composed under test: client leader broken out (=m · t · ctrl-v= children) + a mode's deep opens =ctrl-v/g/n= · =ctrl-v/g/r= + a deep branch =branch("ctrl-v/g").open("f")= + a terminal bare =esc=; =graft= of the three. =shape.strip= shows ONE =ctrl-v= node with =m t ctrl-v g=, =g= holding =n r f=.
+
+#+BEGIN_EXAMPLE
+painted [["ctrl-v"],["m","t","ctrl-v","g"]]          → "/mode"                                                string effect
+painted [["ctrl-v"],["m","t","ctrl-v","g"]]          → {"nature":"/thread/new","body":[],"flags":{}}           object effect
+painted [["ctrl-v"],["m","t","ctrl-v","g"]]          → focused=dock                                           function effect
+painted [["ctrl-v"],[…],["n","r","f"]]               → "/game/new" · "/game/resign" · "/board/flip"           deep
+painted [["ctrl-v"]]                                 → focused=null                                           bare esc
+ctrl-v x · ctrl-v g x · q                            → NotFound                                               fails closed
+#+END_EXAMPLE
+
+* milestones — each a noun, each green before the next; =go= per row
+
+| # | noun | gate |
+|---+---+---|
+| 1 | the typology hunks | =walk.test.js= · =fire.test.js= · =keymap.test.js= green; =grep -rn 'fire(' subsystems/typology= the same 7 consumers |
+| 2 | the press and the shard | =systems/ghost/tests/keymap.test.js= green on the stub client |
+| 3 | the chrome | MOVED to m95 milestone 5 |
+| 4 | the trait | ghost KEYMAPPED; =console.test.js= new =it= green (=leader/h= in the booted client's compose); a runtime mode's =keymap= export reaches =mode.keymap= once m87's =view.load= lands |
+| 5 | the catalog | MOVED to m95 milestone 5 |
+
+* blast table — measured 10-19
+
+| symbol | sites | files |
+|---+---+---|
+| =steer.dispatch.walk= | 3 | =subsystems/typology/tests/gestalten/steer/walk.test.js= |
+| =steer.strategy.fire= | 7 | =socket.js:191= · =aperture.js:29,37= · =twitch.js:5,6= · =shape/http.js:26= · =shard/batch.js:44= |
+| =keypresses(= | 2 | =chrome/index.js:18= · =tests/keys.test.js:35= |
+| =mode/traits/index.js= | 1 catalog | ghost |
+| =console.viva.js= | 1 fixture, 1 test | =console.test.js:20= expects =["help","quit","hello","whoami"]= — unchanged, keys are not verbs |
+| =~/.viva/registry= | 0 | no mode exports =keymap= yet; =lsof -nP -iTCP:2501 -sTCP:LISTEN= before the fixture save under =commons= (watched) |
+
+* testing assessment
+
+| # | suite (root, one-shot) | now 10-19 | invariant after |
+|---+---+---+---|
+| 1 | =deno test -A --no-check subsystems/typology/tests/gestalten/steer/= | measured at go | same + 2 |
+| 2 | =deno test -A --no-check systems/ghost/tests/= | 9 · 26 | 10 · 29 |
+| 2 | =viva --help; echo $?= | 0 | 0 |
+| 4 | =systems/runtime/tests/mode/= | 10 · 60 | 10 · 60, byte-equal |
+| 4 | =systems/runtime/tests/daemon/smoke.test.js= | 1 · 6 | 1 · 6 |
+
+COVERAGE GAP: no test that a runtime mode's view-module =keymap= reaches =mode.keymap= until m87's =view.load= lands; the chrome's headless press test is m95's (=tests/world.js= =screen()= + =mockInput=).
+
+* QA
+
+- /"I run =viva --help=, exit 0; =grep -rn '/key/' systems/ghost= → 0"/ =#+marker_qa: keymap/T-no-key-lines · pending · grep + exit=
+- /"=deno test -A --no-check systems/ghost/tests/keymap.test.js=: leader m → /mode, leader esc → silent, leader x → NOT_FOUND, q → false"/ =#+marker_qa: keymap/T-navigate · pending · one-shot=
+- T-leader · T-unbound · T-palette → m95 =T-catalog= (his eyes, the chrome).
+
+* deferred
+
+- B, focus-selected bare keys — his words: /"we absolutely for sure want to have B"/; closes =frame-keys-leak-into-dock=; after the client works in his hands.
+#+BEGIN_SRC js
+// systems/ghost/client/keymap.js — B: the focused widget's keymap mounts at the ROOT, bare keys walk
+const FOCUSED = [
+  [(client) => client.focus === "frame" && is.object(client.active.mode), (client) => client.active.mode.keymap],
+  [(client) => client.focus === "dock", (client) => dock.keymap],
+  [() => true, () => new Vector()],
+];
+export const compose = (client, terminal) => new Vector().graft(…, FOCUSED.find(([test]) => test(client))[1](client));
+#+END_SRC
+- the demo's =leader/:= (focus the input) — a focus move, B territory.
+- when the terminal's keymap is composed — per press today (as =shard.repl.compose= per line); his: /"either at key dispatch or ahead of time, I don't know which yet"/.
+- a mode mounted elsewhere by config (ruling 9: /"the client mounts it at different places depending on […] how it's configured"/) — today a mode writes full paths, root graft only.
+- what a plain STRING effect means in a runtime mode's keymap — his: /"at some point we can determine what a plain string means actually"/.
+- user rebinding — a =keymap= slot on the mask, read by a client trait, grafted last.
+- cortex-choice completion of a partial catalog input — /"save for later"/.
+- the chord in =/help= — =shape.strip='s =edgeMeta= =+ chord=; one line, lands with milestone 2 if the snapshot suites agree.
+
+* release
+
+- added `ctrl-v <key>` — the client's leader on a tty (`leader` in a keymap; the DOM picks the non-paste modifier); `esc` drops a held chord ⟨m92⟩
+- added `KEYMAPPED` ghost mode trait, export `keymap` — a hosted mode's module or a runtime mode's view module; function effects over `ctx.mode` ⟨m92⟩
+- changed `steer.dispatch.walk` — a consumed signal is spent; `more()` runs once per node (was: re-matched) · migrate: none ⟨m92⟩
+- changed `steer.strategy.fire` — a non-function effect is returned as the output · migrate: none ⟨m92⟩
+
+* handoff
+
+- goal: a keymap vector beside the repl, walked press by press, hidden behind ctrl-v; modes supply keymaps by trait, plain-grafted; the catalog on the double press (m95 paints it).
+- done 10-21: rulings 9 · 10 · 11 · 12 (keymap effects are functions, a runtime mode's ride its view module, nothing served; a mode's keymap plain-grafted at the root beside harvest ⊕ client ⊕ active mode, later wins; the keymap is the CLIENT's, =client/keymap.js=, never a shard); the quest code-first — every law names its hunk, =Press= at =subsystems/typology/prototypes/press.js= (m95), =$catalog=, =Dropped=, the DOM press table; prose at =reference/m92/drill-20261021.md=.
+- done 10-21 (m96): =terminal.$keymap= a =computed= over =$mode= (m96 ruling 2); =navigate(terminal, …)=; the client's keymap grafted once at load; the console keymap effect a function; hunks re-anchored after m88 on the one copy (15/15).
+- next: m96 wave 0 (the typology hunks) · wave 2 (press · =client/keymap.js= · KEYMAPPED · panes) — m96's go, not this quest's.
+- never: client · terminal · mode logic under =gestalten/= · a physical chord as a keymap nature (=leader= only) · keys as repl lines =/key/…= · a timer on a held chord · a placement table or a line prefix over a mode's keymap (ruling 11) · a served keymap, =/metadata/keymap=, a runtime KEYMAPPED (ruling 12) · a mode name in a mode's own keymap.
+- owed: nothing on the tree; a runtime mode's keymap reaches =mode.keymap= only once m87's =view.load= lands (milestone 4's second half).

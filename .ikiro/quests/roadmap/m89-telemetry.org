@@ -1,0 +1,1654 @@
+#+title: m89 telemetry — one abstraction over spans, logs and snapshots: a config schema on the ledger/instance, an integration through the controller, surfaces and pipes for paladin and anima, applied to runtime · ghost · anima
+#+filetags: :telemetry:controller:span:paladin:ledger:anima:ghost:runtime:
+#+status: DESIGNED 10-12 — research (opus) and design-to-tangle (fable) landed; ten forks F1–F10 open; implementation on beef's go. Runs parallel to m86; m86's final depends on it.
+<!-- limit: 120000 chars -->
+@beef a lot of this code is ugly. i expect you to write prettier than this. conniusseur.
+* intent
+
+| # | beef, verbatim | trigger |
+|---+----------------+---------|
+| A | /"probably we need our ontology for logging now. we want more than verbose. we want propper integration into paladin ledger. ledger logging and instance loggin. our typical fallback pattern. logging is its own key on the ledger/isntance. loggin.level logging....?filters?"/ | m86's =--verbose= flag |
+| B | /"thing that we want a coherent abstraction for loggin. telemetry we call it. not logging! wrong name on my end. old anima had telemetry built out very well already. telemetry must also match with our snapshot system. those are two sides of the same coin. now is the time to get it right."/ | |
+| C | /"we need a config schema, a integration and surfaces and pipes for paladin and anima (distinct two consumers but same abstraction and integration), and application into both runtime, ghost and anima. all via controller. big."/ | |
+| D | /"one agent opus for gathering context, and another agent fable for design up to tangle and one scenario tested per system, and another third agent for implementation."/ · /"read this: https://opentelemetry.io/blog/2026/otel-native-by-design/ study our spans."/ | the three agents |
+
+* the law
+
+- the word is TELEMETRY, never logging (intent B).
+- telemetry and snapshots are two sides of one coin: a span record IS what a snapshot folds.
+- config = a =telemetry= key on the ledger recipe, narrowed by an instance (the fallback pattern of =ledger.viva.json= → =instance.viva.json=, =codemap/paladin.md= "the fold").
+- everything flows through the =Controller= (=subsystems/typology/prototypes/controller.js=): its =stdout= Span is the one emitter; surfaces and pipes subscribe to it.
+- two consumers, one abstraction: paladin (ledger files · =spans.jsonl= · a process's stderr) and anima (the browser's inspector · console); runtime · ghost · anima apply it.
+
+* research — the opus agent's index
+
+Read 10-12 against the working tree (jj @ over =c54010528=). Every claim carries =path:line=. "zero" claims were grepped over =systems/ subsystems/ commons/= minus =bak/ node_modules .svelte-kit build bundle=.
+
+** 1. the old anima telemetry (=systems/anima/bak/src/telemetry/=)
+
+The whole module is 3 files, 147 lines. It is NOT a second abstraction: it is typology's =Span= + =Pipe= + =trace= fold, plus one nanostore and one projection.
+
+| file | lines | holds |
+|------+-------+-------|
+| =index.js= | 2 | =export * as logger= · =export * as inspector= |
+| =logger.js= | 25 | one root =Span("client")=, one =Pipe= channel, the =$story= store (=trace.step= fold, 200-root cap), =$selected=, =entry(nature)= |
+| =inspector.js= | 120 | a =computed= projection of live STATE (lighthouse · daemons · terminals · bridge · thread) into =row/table= signatures; reads no span |
+
+#+BEGIN_SRC js
+// systems/anima/bak/src/telemetry/logger.js
+import { atom } from "nanostores";
+import { Pipe, Span, trace } from "@vivalence/typology";
+
+export const $selected = atom(null);
+
+export const $story = atom(trace.seed());
+
+const trim = (story) => {
+  while (story.roots.length > 200) {
+    const stale = story.roots.shift();
+    const drop = (node) => {
+      story.nodes.delete(node.id);
+      node.children.forEach(drop);
+    };
+    drop(stale);
+  }
+  return story;
+};
+
+export const channel = new Pipe();
+channel.tap((record) => $story.set(trim(trace.step($story.get(), record))));
+
+export const logbook = new Span("client").to(channel);
+
+export const entry = (nature) => logbook.branch(nature);
+#+END_SRC
+
+- API = =logger.entry(nature)= → a branched Span; callers chain =.open()= · =.note({message,…})= · =.fault(error)=. No =close()= on most (one-shot fault/note entries). No levels, no filters, no config: the only switch was =import.meta.env.DEV= gating a console tap (=bak/src/app/+layout.svelte:50-59=).
+- configured by a vite alias only: =$telemetry → ./src/telemetry/index.js= (=systems/anima/bak/vite.config.mjs:124=).
+- the channel was fed by THREE emitters, all landing in one Pipe:
+  - =logger.entry(...)= (the logbook root),
+  - every HTTP call: =connection.use(shard.track.span((call) => call.request.url.pathname, logger.channel))= (=+layout.svelte:32=) — a fresh ROOT span per call, NOT under the logbook,
+  - the lighthouse: =new Lighthouse(connection, { channel: logger.channel })= (=+layout.svelte:33=), carried to daemons via =shard.context.attach("channel", …)= (=bak/src/typology/stores/lighthouse.js:242=).
+
+Consumers (=grep -rn "logger\.\|\$telemetry" bak/src=, 26 call sites):
+
+| consumer | path | reads | does |
+|----------+------+-------+------|
+| dev console | =app/+layout.svelte:50-59= | =channel.tap= | =console.debug([at] path verb data)= |
+| G panel "telemetry" | =app/panels/g/g.svelte:12-29= | =$story=, =$selected= | faults · slow (>500ms) · recent buckets; detail view: timing · entries · fault · children; duration classes 200/500/1000ms |
+| Boot widget | =app/widgets/Boot.svelte:46-55= | =trace.dictate($story)= replayed from the last =/authority= open, then =channel.tap= live | a boot log: wire rows (method path elapsed) + milestone rows (=data.message=), 500-row cap |
+| H inspector | =app/panels/h/Inspector.svelte:8= | =inspector.project(lighthouse, terminals, bridge)= | the live-state tree (not spans) |
+| fault sinks | =Threads.svelte:48,63,73,89,103= · =Buffers.svelte:92,106= · =Modes.svelte:44= · =Mode.svelte:39= · =Harness.svelte:53= · =Terminals.svelte:42= · =Buffer.svelte:35= · =LighthouseSection.svelte:31= · =bones/widgets/Terminals.svelte:47= · =+layout.svelte:62,95,101,105= · =typology/stores/terminals.js:42= · =typology/entities/terminal.js:48,153= | — | =.catch((error) => logger.entry(<path>).fault(error))= — every swallowed promise |
+| milestones | =typology/stores/lighthouse.js:204= (=authority= open) · =:268= (=daemons= open) · =app/focus.js:9= · =+layout.svelte:69= (=gate → value= note) · =entities/terminal.js:107= · =stores/box/drivers/audio/audio.js:12= | — | =open()= / =note({message})= |
+
+The shape that made it "built out very well": ONE pipe, a live =trace.step= fold into a reactive tree, and TWO views over it (the G tree, the Boot stream) plus a state inspector beside it. Paths are the semantic convention (=threads/<daemon>/<mode>=, =buffers/<id>/clear=).
+
+Ghost's bak (=systems/ghost/bak/=): zero Span/telemetry (=grep -rln "Span\|telemetry\|logger"= = 0 files). =bak/typology/output.js:30-44= is a PRINTER, not telemetry: =create(isAgent)= → ={ print, json, table, text, error, ok }=, agent mode = json on stdout.
+
+** 2. typology today — Span · Controller · Pipe · Status · trace · shard.track
+
+*** Span (=subsystems/typology/prototypes/span.js=, 78 lines)
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/span.js
+const CONFIG = {
+  journal: 1000,
+};
+
+export class Span extends Signature {
+  static tally = 0;
+
+  constructor(signature = null, trace = null) {
+    super(signature, trace);
+    this.id ??= Span.tally++;
+    if (!this.trace) {
+      this.journal ??= [];
+      this.channel ??= new Pipe();
+    }
+  }
+  from(trace) { return super.from(trace, true); }
+  get records() { return this.root.journal; }
+  get pipe() { return this.root.channel; }
+  to(...sinks) { this.pipe.to(...sinks); return this; }
+
+  mark(verb, data) {
+    const record = { span: this.id, trace: this.trace?.id ?? null, path: this.absolute, verb, at: performance.now() };
+    if (data !== undefined) record.data = data;
+    const journal = this.records;
+    journal.push(record);
+    if (journal.length > CONFIG.journal) journal.splice(0, journal.length - CONFIG.journal);
+    this.pipe.send(record);
+    return this;
+  }
+  open() / close() / note(data) → mark("open"|"close"|"note", data)
+  fault(error) → mark("fault", { message: error?.message ?? String(error), code: error?.code ?? null })
+}
+#+END_SRC
+
+- record = flat ={span, trace, path, verb, at, data?}= (=:48-55=); schema =v.primitives.controller.Record= (=schematics/primitives/controller.js:45-52=): =verb= is OPEN (any string), the controller folds only its 7 verbs.
+- =branch(name)= is inherited: =new this.constructor(signature, this)= (=prototypes/signature.js:66-68=). =from= is ANON (=span.js:24-26= → =signature.js:40-43=): a child never pushes into =trace.gauges=, so a long-lived root does not grow; the tree exists only in the records (=trace= = parent id).
+- ONLY the root owns =journal= + =channel= (=span.js:14-17=); every branch writes into its root's journal and pipe (=:28-34=). Cap 1000 is a module constant, not config (=:4-6=).
+- =at= = =performance.now()= — process-relative ms, no wall clock, no run identity; =id= = =Span.tally++= — a process-local counter (=:9,13=).
+- =absolute= = ="/" + natures.join("/")= over the heritage (=:36-40=); codemap law: never a getter named =trace= on Span (=.ikiro/world/codemap/typology.md:9=).
+- no level, no attribute bag beyond =data=, no sampling, no flush.
+
+*** trace fold (=subsystems/typology/gestalten/belt/trace.js=, 96 lines; exported as =trace= at =gestalten/belt/index.js:22=)
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/trace.js
+export const seed = () => ({ nodes: new Map(), roots: [] });
+export const chronicle = (records) => records.reduce(step, seed());
+export const step = (story, record) => {
+  const node = story.nodes.get(record.span) ?? sprout(story, record);
+  switch (record.verb) {
+    case "open":  node.timing = { ...node.timing, begun: record.at }; break;
+    case "close": node.timing = { ...node.timing, sealed: record.at }; break;
+    case "fault": node.fault = { at: record.at, ...record.data }; break;
+    default: node.entries.push({ verb: record.verb, at: record.at, data: record.data });
+  }
+  return { ...story };
+};
+export const dictate = (story) => /* tree → records, the inverse */;
+export const live = (span) => span.pipe.reactive(chronicle(span.records), step);
+export const duration = (node) => /* sealed - begun | null */;
+export const timing = (story) => /* Server-Timing header string */;
+export const sealed = (record) => !record.trace && record.verb === "close";
+export const faulty = (story) => …; export const slower = (threshold) => …;
+export const gather = (until, drain) => …;   // buffer until a predicate, then drain
+export const flow = (sink) => sink;
+export const hold = (sink, until = sealed) => gather(until, (records) => records.forEach(sink));
+export const decant = (sink, keep, until = sealed) => gather(until, (records) => keep(chronicle(records)) && records.forEach(sink));
+#+END_SRC
+
+- =chronicle= (records → story tree) and =dictate= (story → records) are the two directions: the ana/cata pair the snapshot system lacks (§4).
+- =flow · hold · decant= ARE the filter/processor tier (OTel's processors + tail sampling): =decant(sink, trace.faulty)= = "only write traces that faulted"; =decant(sink, trace.slower(500))= = "only slow ones". Zero production callers today (grep =trace\.(hold|decant|gather)= outside typology tests = 0). Codemap: they "live in WIRING, never on the Span" (=codemap/typology.md:9=).
+- node shape: ={id, nature, path, timing:{begun,sealed}|null, fault|null, entries:[{verb,at,data}], children}= (=:23-37=). Nodes merge by =record.span= — keyed on the process-local tally.
+
+*** Controller (=subsystems/typology/prototypes/controller.js=, 78 lines)
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/controller.js
+constructor({ stdout = new Span("controller"), stdin = new Vector(), abort = new AbortController(), parent = null } = {}) {
+  Object.assign(this, { stdout, stdin, abort, parent });
+  const { MACHINE } = v.primitives.controller;
+  this.settled = new Promise((fulfil) => {
+    const untap = this.stdout.pipe.tap((record) => {
+      if (record.span !== this.stdout.id) return;
+      const from = this.status.reflection.code;
+      const code = MACHINE.transitions[record.verb]?.[from] ?? from;
+      if (code === from) return;
+      const { error } = MACHINE.verbs[record.verb];
+      this.status.set({ code, ...(error && { error: new Failure(error, record) }) });
+      this.gate.wake();
+      if (!MACHINE.states[code].settled) return;
+      untap();
+      this.parent?.children.delete(this);
+      for (const child of this.children) child.abort.abort(`parent ${code}`);
+      fulfil(this.toJSON());
+    });
+  });
+  const aborted = () => this.stdout.mark("abort", { ...(said(this.abort.signal.reason) && { reason: this.abort.signal.reason }) });
+  …
+}
+branch(name) { return new Controller({ parent: this, stdout: this.stdout.branch(name) }); }
+#+END_SRC
+
+- =stdout= is a Span (telemetry OUT), =stdin= a Vector of signals SIGTERM/SIGSTOP/SIGCONT/SIGKILL (control IN, =:43-49=), =abort= an AbortController, =status= a =Status= atom (=prototypes/status.js:9-52=, ={timestamp, code, error}=).
+- the STATUS IS A FOLD OF ITS OWN SPAN: the controller taps its root pipe and folds its own records through =MACHINE.transitions= (=schematics/primitives/controller.js:3-23=). The state machine is telemetry-driven already — a record IS a state event.
+- =branch= gives a child controller whose stdout is =this.stdout.branch(name)= → same root journal + pipe. One root pipe per controller tree = the natural one emitter.
+- =toJSON()= = =Reflection= ={path, span, code, timestamp, error?, children}= (=:66-73=, schema =schematics/primitives/controller.js:54-61=) — the controller tree's snapshot.
+- every controller tap is O(records on the root pipe): each child filters =record.span !== this.stdout.id= (=:25=).
+
+*** Pipe (=subsystems/typology/prototypes/pipe.js=, 75 lines)
+
+=send · tap → untap · reactive(seed, step) → nanostore · to(...sinks) via =fromm.sink= · from(...sources) · stream(signal) · replay(backlog, signal) · Symbol.asyncIterator= (=:8-74=). Synchronous fan-out, no buffering on =send=, no backpressure. =replay([...span.records], signal)= is the "backlog then live" read (used at =systems/runtime/entities/Activity.ts:90=). =reactive(chronicle(records), step)= is exactly =trace.live= — the anima G-panel store in one line.
+
+*** shard.track (=subsystems/typology/gestalten/shard/track.js=, 55 lines)
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/track.js
+export function span(name, pipe) {
+  return async (ctx, next) => {
+    const nature = typeof name === "function" ? name(ctx) : name;
+    const parent = ctx.span;
+    ctx.span = parent ? parent.branch(nature) : new Span(nature).to(pipe);
+    ctx.span.open();
+    try {
+      await next();
+    } finally {
+      ctx.span.close();
+      ctx.span = parent ?? ctx.span;
+    }
+  };
+}
+#+END_SRC
+- also =request()= (marks =request=/=response= with ={method, path, status}=, =:27-33=), =subject(schema, id)= (=:35-44=), =fault()= (=:46-55=).
+- NOTE: =new Span(nature).to(pipe)= makes a NEW ROOT with its own journal and then forwards its pipe into =pipe= — a root-to-pipe bridge, not a branch. When =pipe= is a controller's =stdout.pipe= (=systems/ghost/lifecycle/client/population.js:67=), the call's records reach the controller's pipe but NOT its journal, and carry =trace: null= — orphan roots in that stream.
+
+** 3. where spans are emitted and consumed today
+
+Counts (=grep -rnF=, production + tests, bak excluded):
+
+| pattern | runtime | ghost | anima | typology | paladin | drapes | commons |
+|---------+---------+-------+-------+----------+---------+--------+---------|
+| =new Span(= | 5 | 6 | 0 | 44 | 2 | 0 | 9 |
+| =.stdout.= | 19 | 16 | 0 | 41 | 0 | 0 | 4 |
+| =.to(= | 4 | 3 | 0 | 13 | 2 | 0 | 0 |
+| =pipe.tap(= | 2 | 2 | 0 | 8 | 0 | 1 | 3 |
+
+(typology's counts are mostly =tests/=; ghost's =.stdout.= includes 2 =Deno.stdout=.)
+
+Every SINK in production code (the exhaustive list — this is the whole "telemetry consumer" surface today):
+
+| # | sink | path | what |
+|---+------+------+------|
+| 1 | console | =systems/runtime/run.js:16= | =die.controller.stdout.to((record) => console.log(`[${record.path}] ${record.verb}`, record.data ?? record.message ?? ""))= — every record of the runtime tree, unfiltered |
+| 2 | console | =systems/runtime/run.js:17= | prints =die.controller.status= on the root's =open= — the =Status:RUNNING= readiness line (=codemap= map.md) RIDES TELEMETRY |
+| 3 | file | =systems/runtime/lifecycle/runtime/integration.js:10-14= | =integration.ledger=: =paladin.ledger.log(slug)= then =stdout.to((record) => log.append({ json: record }))= |
+| 4 | heartbeat | =systems/runtime/lifecycle/runtime/integration.js:16-26= | =patrol=: =stdout.note({service: census, daemon: census})= every 60s — a METRIC riding a note |
+| 5 | console | =systems/runtime/entities/Activity.ts:34-36= | the default activity controller =new Span("hallucination").to((record) => console.log(`[hal …]`))= — a second root, own console tap |
+| 6 | db | =systems/runtime/entities/Activity.ts:43-49= | =stdout.pipe.tap= → =steps= ring of 12 (=:10=) written to the Activity row with =status/error= |
+| 7 | wire | =systems/runtime/entities/Activity.ts:84-94= | =stdout(signal)= = =pipe.replay([...records])= until settled — the activity stdout served to clients |
+| 8 | index | =subsystems/paladin/prototypes/ledger/registry.js:29-31= | =new Span({nature:"/registry"})=, faults folded into =this.integrity= Map for the doctor — a span used as an error index |
+| 9 | console | =commons/playground/chaosmonkey/oracle/buffer/Oracle.svelte:18,30= | console + =localStorage= (500) |
+
+Emitters with NO sink (records go nowhere but the 1000-ring):
+
+| emitter | path | note |
+|---------+------+------|
+| ghost invocation root | =systems/ghost/run.js:27-39= | =ctx.span = new Span("ghost")= open · subject · fault · close; the =.to(paladin.instance.logs)= is commented (=:28=, =:43=) |
+| ghost/anima client controller | =systems/ghost/lifecycle/client/construction.js:7= | =new Controller({ stdout: new Span(`client/${surface.name}`) })=; children: =lighthouse= (=population.js:68=), per-runtime/daemon (=:102=), =terminal/<id>= (=resolution.js:48=), =thread/<id>= (=:83=); HTTP calls via =shard.track.span(..., die.controller.stdout.pipe)= (=population.js:67=). Only =systems/ghost/tests/drain.test.js:70= taps it. |
+| anima | =systems/anima/src/client.js:6-11= | =construct(mask(__VIVA_CLIENT__), surface)= — anima IS ghost's die over the DOM surface; its only controller use is =abort.abort("unload")= on =pagehide=. The bak G panel / Boot / dev console have no successor. |
+| socket | =subsystems/typology/prototypes/socket.js:39,93-149= | =span = new Span("socket")= field initializer — own root, drop notes (=parse · malformed · orphan-frame · empty · bad-signal · no-route=) never tapped |
+| hal | =subsystems/typology/gestalten/shard/hal.js:74-81= · =gestalten/belt/hallucinate.js:88-99= | tool calls as =controller.branch(call.name)= open/close/fault — reaches whichever controller the activity carries |
+| modes | =systems/runtime/gestalten/belt/host.js:13,31= · =lifecycle/mode/population.js:7-9= | =mode.stdout = bearer.controller.stdout.branch(reference)= |
+| lifecycle bracket | =systems/runtime/lifecycle/process.js:3-16= · =systems/ghost/lifecycle/process.js:3-39= | =settle= (fault/close) and =keepalive= (open + =control.hold=) — the open/close that drive the controller machine |
+
+The paladin file sink today:
+
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/ledger/log.js
+export class Log {
+  constructor(paladin, instance) {
+    this.paladin = paladin;
+    this.base = paladin.scope.ledger.branch(`/logs/${instance}`);
+  }
+
+  append(span) {
+    return this.paladin.state.jsonl(this.base.branch("spans.jsonl"), span.json);
+  }
+
+  open(process, stream) {
+    return this.paladin.state.open(this.base.branch(`${process}.${stream}.log`));
+  }
+}
+#+END_SRC
+- =Ledger.log(instance)= → =new Log(...)= (=prototypes/ledger/ledger.js:56-57=); =state.jsonl= = one =Deno.writeTextFile(..., {append:true})= per record, no batching (=belt/state.js:38-42=).
+- =append(span)= reads =span.json=, so the runtime wraps each record as ={ json: record }= (=integration.js:12=) — a shape seam.
+- =open(process, stream)= serves the =logged= attachment: a child process's stdout+stderr lines into =<process>.out.log= (=prototypes/ledger/process.js:27,40-42=) — raw text, not records.
+- on disk (=~/.viva/logs/=, 10-12): 9 instance dirs; =chess/spans.jsonl= 1672 lines / 212K, holding 60 runtime boots (=grep -c '"span":0,"trace":null,"path":"/runtime/runtime","verb":"open"'=); droneaid 17, hello-world 15. Verbs across all files: note 1678 · close 1421 · stop 376 · open 112. Because =span= ids restart at 0 every boot and =at= restarts at ~0, =trace.chronicle(file)= MERGES 60 boots into one tree — the file is not foldable as written.
+
+** 4. the snapshot system (=subsystems/typology/specimen/snapshot.js=, 129 lines)
+
+#+BEGIN_SRC js
+// subsystems/typology/specimen/snapshot.js
+export function snapshot(subject, options = {}) {
+  const { parse, locate, meta = {}, depth = 2, pick, omit, base, write = true, dry = false } = options;
+
+  const selected = parse
+    ? parse(subject)
+    : pick
+      ? Object.fromEntries(pick.map((key) => [key, fold(subject[key], depth)]))
+      : fold(subject, depth);
+
+  const pojo = omit
+    ? Object.fromEntries(Object.entries(selected).filter(([key]) => !omit.includes(key)))
+    : selected;
+
+  const located = typeof locate === "function" ? locate(meta, pojo) : locate;
+  const path =
+    typeof located === "string" && located && base && !isAbsolute(located)
+      ? join(base, located)
+      : located;
+
+  if (write && !dry) {
+    if (typeof path !== "string" || !path) throw new Error("snapshot: locate must resolve to a path");
+    Deno.writeTextFileSync(path, JSON.stringify(pojo, null, 2));
+  }
+  return { pojo, path };
+}
+#+END_SRC
+- pipeline: =write ∘ locate ∘ JSON.stringify ∘ fold= (=:31=); "The cata half only — the ana half (build/read) is deferred" (=:3-5=). =fold= (=:82-103=): Date→ISO, BigInt→string, MikroORM Collection→ids, Path→nature, Vector→=shape.strip=, cycles cut, =$*=/functions/=em=/=daemon= keys shed (=:70-71=), depth floor → =id=.
+- codemap: never edit =fold=; pass =parse= (=codemap/typology.md:58=). 11 of 12 typology snapshot tests are CAPTURE (=const DRY = false=, rewrite every run); only =tests/hallucination.snapshot.test.js:5,9= reads =SNAPSHOT_HOT= (=codemap/typology.md:59=).
+- Deno-only (=Deno.writeTextFileSync=, =:126=); exported from =specimen/index.js:4= beside the bdd/expect re-exports — a TEST module, not a runtime one.
+- the family (29 files): typology 12 (=cortex · hallucination · request · url · signal · aperture · vector · connection · mode-entity · mode-instance · path · trace=), runtime 6 (=span-tracked · cortex-contract · aperture · fixtures/corpus · topography/symbol · topography/literal=), paladin 1 (=instance=), commons 6 (=anthropic/openrouter translate · hello-world draw/research/catalog/harness · reader-page=). Convention: =<semantic>.snapshot.test.js= → =tests/snapshots/<semantic>.snapshot.json= (=snapshot.js:38-44=).
+
+How spans ALREADY fold into it — two tests prove the coin. =subsystems/typology/tests/trace.snapshot.test.js:8-21= hand-writes six records (=render= → =provider= note/close, =tool= fault) and snapshots =trace.chronicle(records).roots= with =parse: (roots) => roots=. The live one:
+
+#+BEGIN_SRC js
+// systems/runtime/tests/span-tracked.snapshot.test.js
+const stable = (node) => {
+  const out = { path: node.path, nature: node.nature };
+  if (node.timing) out.timing = { measured: node.timing.begun != null && node.timing.sealed != null };
+  if (node.entries.length) out.entries = node.entries.map((entry) => ({ verb: entry.verb, data: entry.data }));
+  if (node.children.length) out.children = node.children.map(stable);
+  return out;
+};
+…
+const story = trace.chronicle(records);
+const capture = specimen.snapshot(story.roots, { base, dry: DRY, locate: "span-tracked.snapshot.json", parse: (roots) => roots.map(stable) });
+#+END_SRC
+- =span-tracked:6-12= is the missing piece in hand-written form: a STABLE projection (ids and =at= stripped, timing → =measured=) so a trace snapshot does not churn. That projection lives in a test, not in typology.
+- the two sides as they stand: telemetry = a stream of records (=Span.mark=) → =trace.chronicle= → a story tree; snapshot = a live value → =fold= → POJO → file. The bridge today is =parse: (roots) => roots.map(stable)=. The inverse (=trace.dictate=, story → records) exists; the snapshot's ana half (file → value) does not.
+- =Controller.toJSON()= (=controller.js:66-73=) is a third, hand-rolled snapshot of the same tree (status-only).
+
+** 5. the config pattern (ledger → instance)
+
+*** the recipe schema (=subsystems/typology/schematics/primitives/instance.js=)
+
+| shape | lines | =additionalProperties= | a =telemetry= key today |
+|-------+-------+------------------------+-------------------------|
+| =Instance= (folded, cast) | =:120-133= | true | passes, unread |
+| =InstanceMask= (=instance.viva.json= as authored) | =:172-188= | FALSE (=:187=) | THROWS at mount: =populate.js:164-165= =InstanceMask.faults(own)= |
+| =Ledger= (=ledger.viva.json=) | =:194-206= | true | passes; is it a SLOT? only once named in =properties= |
+| =Runtime= | =:41-56= | true | — |
+| =Client= | =:82-90= | — | (a per-client =telemetry= would sit here; anima's mask crosses into the bundle via =__VIVA_CLIENT__=) |
+
+*** the fold (=subsystems/paladin/lifecycle/populate.js=)
+
+#+BEGIN_SRC js
+// subsystems/paladin/lifecycle/populate.js
+const SLOTS = Object.keys(v.primitives.instance.Ledger.properties).filter(
+  (slot) => !["manifest", "environment"].includes(slot),
+);
+…
+  const ledger = await paladin.ledger.recipe();
+  const module = { ...own, source: file };
+  instance.inherited = SLOTS.filter((slot) => inherit(module, ledger, slot));
+  const environment = v.interface([v.environment(optional(ledger?.environment))], v.environment(optional(declared)).properties, { additionalProperties: false });
+  const retyped = Object.keys(environment.properties).filter((key) => v.isNever(environment.properties[key]));
+  if (retyped.length)
+    throw new Error(`instance.mount: ${file.absolute} environment ${retyped.join(" ")} retypes the ledger's key — an instance narrows a key, restating its type`);
+#+END_SRC
+(=:141-143= · =:172-178=.)
+
+- =inherit(below, above, slot)= = below takes above's slot only when its own is =undefined= (=lifecycle/resolve.js:6-10=).
+- two fold modes exist: (a) WHOLE-slot fall-through for every =Ledger.properties= key but =manifest/environment= (=populate.js:141-143,174=) — adding =telemetry= to =Ledger= makes it inherit with ZERO paladin code; an instance's =telemetry= replaces the ledger's wholesale. (b) KEY-wise narrowing, only for =environment=: =v.interface([ledger], own)=, a retype → =never= → mount throws (=:175-178=; =codemap/paladin.md:26=). beef's "our typical fallback pattern" + "logging.level … filters?" needs (b) if an instance should override =level= but keep the ledger's =sinks=.
+- a second, per-entry fall-through: =resolve.defaults= copies =datamap= instance → daemon/service (=resolve.js:12-18=) — the model for telemetry instance → runtime/daemon/client.
+- every slot value may be a path or =${KEY}=, expanded before parse (=codemap/paladin.md:22=; =populate.js:162=), and =paladin.expand(declaration, record, label)= (=:181=) records the env keys a slot requires → =VIVA_TELEMETRY_*= can ride the env strata (=os · .env · VIVA_ENV_FILE · session · ledger .env · instance .env · flag=, =populate.js:7-22,85-94,120-126=; ghost's =--flag= pins via =paladin.env.set(key, value, "flag")=, =systems/ghost/run.js:135=).
+- =InstanceMask= must learn the key (=:172-188=) or the instance tier cannot speak it; =Ledger= must name it in =properties= (=:194-206=) to be a SLOT.
+
+*** the ledger recipe (=commons/ledger/ledger.viva.json=, 19 lines)
+
+#+BEGIN_SRC js
+// commons/ledger/ledger.viva.json
+{
+  "environment": "./environment.json",
+  "runtime": { "statics": { "serve": "${VIVA_RUNTIME_SERVE}", "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}" }, "modes": ["@commons/home/home"] },
+  "datamap": { "module": "@commons/datamap/libsql" },
+  "clients": [{ "manifest": { "type": "client", "slug": "anima" }, … }, { "manifest": { "type": "client", "slug": "ghost" }, … }]
+}
+#+END_SRC
+- a =telemetry= slot sits beside =datamap= (=:10=); it may be a path (="./telemetry.json"=) like =environment= (=:4=).
+- anima's client mask reaches the browser ONLY through =define: { __VIVA_CLIENT__: JSON.stringify({ remote, home }) }= (=systems/anima/vite.config.mjs:44=) → =mask()= (=systems/anima/src/client.js:4=) — a client telemetry config must be added to that define or fetched.
+- the ghost flag that started this: =verbose: v.boolean().desc("the stack behind a failure, not just its one line")= (=systems/ghost/lifecycle/client/trajectories/index.js:13=), read at =systems/ghost/run.js:104= (=signal.flags.verbose ? error : `ghost: ${error.message}`=). m86 marks the shell's =shard.tracking= and the repl's =shard.track.span= as "@beef propper telemetry" (=.ikiro/quests/done/m86-repl-loop-clients.org:384,417=), and the Client's "we need a controller and its telemetry (loop can end client via stdin and log via stdout)" (=:207=).
+
+** 6. the OTel article (https://opentelemetry.io/blog/2026/otel-native-by-design/)
+
+Thesis (fetched 10-12):
+- a product that emits telemetry should emit it through OTel SDKs over OTLP, never a bespoke dashboard, vendor integration or polling API; the user picks the backend. Shorthand: "default to push, stay vendor-neutral, and document the contract."
+- signals: logs · traces · metrics (profiles in alpha, set aside), all over one protocol.
+- context must survive export: timestamps, metadata, and correlation — "log records linked to trace IDs".
+- semantic conventions keep attributes interpretable anywhere; custom ones are registered (Weaver).
+- two contexts: self-hosted (customer sets an endpoint by env var/flag, e.g. Keycloak, Kuma) vs platform (the platform drains on the customer's behalf, e.g. Cloudflare, Heroku).
+- push beats polling (polling pushes pagination/retry/backfill onto the user).
+- configuration is standard env: =OTEL_EXPORTER_OTLP_ENDPOINT=, optional per-signal endpoints (=OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=), per-signal toggles (Heroku =--signals=), sampling rate in config (Cloudflare =wrangler.toml=).
+- multi-tenancy: one collector per tenant, or one shared collector routing by a tenant resource attribute.
+
+| OTel concept | here | path | fit |
+|--------------+------+------+-----|
+| trace / span | =Span= root + =branch= | =prototypes/span.js:8-78= | same; but ids are a process counter, not globally unique |
+| span event / log record correlated to a trace | =mark(verb, data)= / =note= — every mark already carries =span= + =trace= + =path= | =span.js:47-61= | stronger than OTel: there is no log outside a span |
+| span status (ok/error) | =fault= record; controller =status= | =span.js:75-77= · =controller.js:30= | same |
+| metrics | none; =patrol= census as a =note= every 60s | =integration.js:16-26= | gap (rides as an event) |
+| context propagation | =ctx.span= in a middleware chain; =Controller.branch=; =shard.context.attach("channel")= in bak anima | =track.js:15-22= · =controller.js:53-55= | in-process only; no trace id crosses the wire (client call and server span are two unrelated roots) |
+| resource (service.name, instance) | the root nature (=runtime/<slug>=, =client/<surface>=, =ghost=) + the jsonl dir =/logs/<instance>= | =run.js:11= · =construction.js:7= · =log.js:4= | implicit; not in the record |
+| semantic conventions | path natures + verbs =open·close·note·fault·request·response·subject·stop·pause·resume·abort= | =track.js:27-44= · =schematics/primitives/controller.js:9-22= | closed set for control verbs, open for the rest; no registry |
+| processor | =trace.flow · hold · gather · decant= | =gestalten/belt/trace.js:78-96= | exists, unused |
+| tail sampling | =decant(sink, trace.faulty)= / =trace.slower(ms)= | =trace.js:74-76,95= | exists, unused |
+| head sampling / level | none | — | gap |
+| exporter | =Pipe.to(sink)= — console (=run.js:16=), jsonl (=integration.js:12=), db ring (=Activity.ts:43=), wire replay (=Activity.ts:90=) | =pipe.js:23-26= | ad hoc per call site, not configured |
+| endpoint config via env/flag | =${KEY}= in recipe slots + =VIVA_*= strata + ghost =--flag= pins | =populate.js:162,175= · =ghost/run.js:129-135= | the machinery exists; no telemetry key uses it |
+| per-signal toggles | none | — | gap |
+| collector / multi-tenant routing | one =spans.jsonl= per instance under the ledger | =log.js:4= | instance = tenant already |
+| push vs poll | push: =Pipe.send= synchronous fan-out; poll: =Activity.stdout= replay | =pipe.js:8-10= · =Activity.ts:84-94= | both present |
+
+** 7. mismatches and gaps — what exists vs what beef asks
+
+| ask (intent C) | exists | where | gap |
+|----------------+--------+-------+-----|
+| the word TELEMETRY | bak anima's =$telemetry= alias + G-panel label | =bak/vite.config.mjs:124= · =g.svelte:166= | nothing in live code is named telemetry; paladin's sink is =Log= / =spans.jsonl= / =logs/= (=prototypes/ledger/log.js=) |
+| config schema on ledger/instance | none | =instance.js:172-206= | no =telemetry= key; =InstanceMask= rejects one (=:187=); journal cap hard-coded (=span.js:5=); no level/filter/sink vocabulary |
+| fallback ledger → instance | whole-slot (=inherit=) and key-wise (=environment= interface) | =populate.js:141-178= · =resolve.js:6-18= | pick one per key; =level= wants key-wise, sinks may want whole |
+| integration via controller | every lifecycle die carries =controller.stdout=; status already folds from it | =controller.js:19-38= · =runtime/run.js:11= · =ghost/.../construction.js:7= | ghost's invocation span (=ghost/run.js:27=), the socket span (=socket.js:39=) and the default activity span (=Activity.ts:35=) are separate roots outside any controller; =track.span(name, pipe)= makes bridged roots, not branches (=track.js:16=) |
+| pipes (filters/processors) | =trace.flow/hold/gather/decant/faulty/slower= | =trace.js:72-96= | zero production callers; no level verb |
+| surfaces | bak anima: G tree, Boot stream, dev console; runtime: two =console.log= taps | =g.svelte= · =Boot.svelte= · =run.js:16-17= | live anima has none; ghost has none (its tty =view= is for DATA kinds, =systems/ghost/belt/view.js=); runtime console is unfiltered |
+| paladin consumer | =Ledger.log(instance)= → =spans.jsonl= + =<process>.out.log= | =log.js:1-14= · =ledger.js:56= · =process.js:27= | =append(span)= wants =.json= (the ={ json: record }= wrap, =integration.js:12=); one write per record; no run identity → 60 boots merge on =chronicle= (=~/.viva/logs/chess/spans.jsonl=); no reader (nothing folds the file back); no rotation |
+| anima consumer | the bak inspector + logger | =systems/anima/bak/src/telemetry/= | the live anima (=src/client.js=, 11 lines) taps nothing; its die is ghost's =construct= — so anima's surface rides the SAME controller as ghost's client, distinct only by surface (dom vs tty) |
+| applied to runtime | yes (console + jsonl + patrol) | =run.js:16-17= · =integration.js:10-26= | readiness =Status:RUNNING= rides a telemetry tap (=run.js:17=) — a filter must never drop it |
+| applied to ghost | invocation span with no sink; client controller with no sink | =ghost/run.js:27-39= · =construction.js:7= | =--verbose= is the only knob (=trajectories/index.js:13=, =run.js:104=) |
+| applied to anima | only =abort("unload")= | =anima/src/client.js:9= | everything |
+| snapshot ↔ telemetry coin | =trace.chronicle/dictate= + =specimen.snapshot(…, {parse})=; =span-tracked= =stable= projection | =trace.js:3,39= · =snapshot.js:105= · =span-tracked.snapshot.test.js:6-12= | the stable projection lives in a test; =snapshot= is Deno + test-only; no ana half; record =at/id= non-deterministic → a trace snapshot needs the projection by law; =Controller.toJSON= is a parallel hand-rolled tree |
+| wire correlation | none | — | a client call's span and the runtime's handling span share no id; =Activity.stdout= replays server records to the client as data, not as joined trace |
+| caps, scattered | journal 1000 · bak story 200 roots · Boot 500 rows · Activity ring 12 · playground localStorage 500 | =span.js:5= · =logger.js:9= · =Boot.svelte:19= · =Activity.ts:10= · =Oracle.svelte:30= | five numbers, no config |
+
+Assess:
+- the abstraction is mostly BUILT: Span records + one root pipe per controller + =trace= fold + =trace= processors + =Pipe.reactive=. What is missing is config, run identity in the record, a stable projection in typology, and the sinks wired per system.
+- risks: =Span.tally= · =performance.now()= (non-unique across boots) · =track.span(name, pipe)= orphan roots · readiness riding =run.js:17=.
+
+* design — the fable agent's tangle
+
+Written 10-12 against jj @ over =c54010528=, every path re-read; research §1–§7 is the ground. =Span= records + the controller's one root pipe + =trace.step= + =trace.flow/decant= ARE the abstraction; this adds config · run identity · the stable projection in typology · sinks wired per system, and the surfaces that died with the old anima.
+
+** the ontology
+
+| noun | here | otel | house home |
+|------+------+------+------------|
+| record | one flat fact ={run, span, trace, path, verb, at, data?}= — =run= NEW, =at= epoch ms | log record / span event | =span.js:47= · =primitives/controller.js:45= |
+| span | a cursor on a Signature tree; only the ROOT holds =journal= · =channel= · =run= · =cap= | span | =prototypes/span.js= |
+| run | one root span's life — minted once per root (=belt/id.js= =timedId()=), on every record; two boots never share one | trace id | =span.js:14= (NEW) |
+| resource | =logs/<instance>/= the tenant dir, the root nature (=runtime/<slug>= · =client/<surface>=) the service | resource | =log.js:4= · =run.js:11= · =construction.js:7= — implicit |
+| trace | the parent pointer (=record.trace=; =Signature.trace=), never a Span getter | parent span id | =codemap/typology.md:9= |
+| story | =trace.step= over records: ={nodes: Map<run/span, node>, roots}=, keyed by =run/span= since ids restart per boot | the trace tree | =belt/trace.js:5= |
+| level | =fault= ⊂ =control= (the machine verbs) ⊂ =note= (note · subject) ⊂ =wire= (request · response); undeclared = =note=; =off= admits nothing | severity | =primitives/telemetry.js= =RANK= · =LEVEL= |
+| filters | path prefixes a surface admits; empty = all | head sampling | =belt/telemetry.js= =admits= |
+| pipe · sieve | =Pipe= (=tap= · =to= · =reactive= · =replay=); a sieve is a tap admitting by level + filters, writing through =trace.flow= or =trace.decant= (tail: a faulty or slow run once the root seals) | processor chain + tail sampler | =prototypes/pipe.js= · =belt/telemetry.js= =sieve= over =trace.js:91-96= |
+| surface | ONE consumer of a controller's stdout: =console= · =ledger= · =inspector= | exporter | the =telemetry= beat of each system |
+| beacon | the stdout line =Status:RUNNING= on the root's =open= — never a record, no floor touches it | health endpoint | =run.js:17= (unchanged) |
+| snapshot | a projected story: =telemetry.stable(node)= (ids and clocks stripped, timing → =measured=), from =span-tracked.snapshot.test.js:6-12= | — | =belt/telemetry.js= =stable= · =project= |
+
+The coin: records → =trace.chronicle= → story → =telemetry.project= → POJO → file; =trace.dictate= is the inverse. =Controller.toJSON= stays the status-only sibling (gains =run=).
+
+** the config schema
+
+A =telemetry= key on the ledger recipe, inherited WHOLE by an instance that omits it (named in =Ledger.properties= it IS a slot — =populate.js:141= needs no code). Every leaf is =.default(x).optional()=: a mask says any subset, =Instance.cast= (=integrate.js:107=) fills the rest; a =${VIVA_…}= in =level= rides =at("telemetry")= like every slot.
+
+#+BEGIN_SRC js :tangle subsystems/typology/schematics/primitives/telemetry.js
+import { v } from "../v.js";
+
+export const RANK = ["off", "fault", "control", "note", "wire"];
+
+export const LEVEL = {
+  fault: "fault",
+  open: "control", close: "control", stop: "control", pause: "control", resume: "control", abort: "control",
+  note: "note", subject: "note",
+  request: "wire", response: "wire",
+};
+
+export const Level = v.enum(RANK).desc('A floor over the record verbs: off admits nothing, fault only faults, control adds the machine verbs, note adds note and subject, wire adds request and response. Example: "control"');
+
+export const Filters = v.array(v.string({ pattern: "^/" })).desc('Path prefixes a surface admits; empty admits every path. Example: ["/runtime/runtime/daemon/chess"]');
+
+export const Tail = v.object(
+  {
+    keep: v.enum(["faulty", "slower"]).desc('Tail sampling once the root seals: faulty writes a run only when a node faulted, slower only past threshold. Example: "faulty"'),
+    threshold: v.number({ minimum: 0 }).default(500).optional().desc("Milliseconds a root must exceed for slower. Example: 500"),
+  },
+  { additionalProperties: false },
+);
+
+export const Surface = v.object(
+  { level: Level.optional(), filters: Filters.optional(), tail: Tail.optional() },
+  { additionalProperties: false },
+).desc('One consumer of a controller stdout, narrowing the telemetry word key by key. Example: { "level": "fault" }');
+
+export const Surfaces = v.object(
+  {
+    console: Surface.default({ level: "fault" }).optional().desc('A process stderr or the browser console. Example: { "level": "control" }'),
+    ledger: Surface.default({}).optional().desc('<ledger>/logs/<instance>/spans.jsonl. Example: { "level": "control" }'),
+    inspector: Surface.default({ level: "off" }).optional().desc('The story pane on a client surface. Example: { "level": "note" }'),
+  },
+  { additionalProperties: false },
+);
+
+export const Caps = v.object(
+  {
+    journal: v.integer({ minimum: 1 }).default(1000).optional().desc("Records a root span keeps in memory. Example: 1000"),
+    story: v.integer({ minimum: 1 }).default(200).optional().desc("Children a root keeps in an inspector story, and roots it keeps. Example: 200"),
+  },
+  { additionalProperties: false },
+);
+
+export const Telemetry = v.object(
+  { level: Level.default("note").optional(), filters: Filters.default([]).optional(), caps: Caps.default({}).optional(), surfaces: Surfaces.default({}).optional() },
+  { additionalProperties: false },
+).desc('The telemetry word of a ledger or an instance: a floor, prefixes, caps, three surfaces narrowing them. Example: { "level": "note", "surfaces": { "console": { "level": "control" } } }');
+#+END_SRC
+
+The snapshot beside it — passes =Telemetry.faults= with =[]=, and is what =Telemetry.cast= returns for the shipped recipe plus a tail on the ledger surface:
+
+#+BEGIN_SRC json
+// subsystems/typology/tests/snapshots/telemetry.snapshot.json
+{
+  "level": "note",
+  "filters": [],
+  "caps": { "journal": 1000, "story": 200 },
+  "surfaces": {
+    "console": { "level": "control" },
+    "ledger": { "level": "control", "filters": ["/runtime"], "tail": { "keep": "faulty", "threshold": 500 } },
+    "inspector": { "level": "note" }
+  }
+}
+#+END_SRC
+
+Laws: a surface INHERITS =level= · =filters= from the top when it says none (=narrow=, by =Object.hasOwn=); =console= defaults =fault= (the shipped recipe says =control=), =inspector= =off= · =tail= buffers until the ROOT seals (=trace.sealed=): a runtime's seals at exit, so tail is for a client run · the fold is WHOLE-slot (=inherit=, =resolve.js:6=), fork F3 · the mask tier widens =level= to =${VIVA_…}=.
+
+Reception: runtime — =die.runtime.instance.telemetry= (cast at mount). ghost — the door's =mask= (=trajectories/client.js:7=) carries =instance.telemetry=; =construct= casts =mask.telemetry=, absent in every test mask (=ghost/tests/client.test.js:31= · =drain.test.js:7= · =client.json.test.js:46=, so =Object.hasOwn= seats the absent case there). anima — =vite.config.mjs= bakes it into =__VIVA_CLIENT__=; =src/client.js= =mask= passes it through.
+
+** the integration
+
+Everything flows through the controller's stdout; a =telemetry= beat is the FIRST beat of each execution vector (before =process.settle=): the fault that ends a boot is heard and the beat's =finally= runs after settle's =close= — today a boot that faults before =integration.ledger= writes no line (=world/ledger.md=, =integration.js:10=).
+
+| system | beat | reads | taps on =die.controller.stdout.pipe= |
+|--------+------+-------+--------------------------------------|
+| runtime | =lifecycle/runtime/integration.js= =telemetry= (replaces =ledger=) | =die.runtime.instance.telemetry= | =sieve(narrow(console)) → print= · =sieve(narrow(ledger)) → log.append=; finally =await log.writing= |
+| ghost | =lifecycle/client/integration.js= =telemetry= | =die.telemetry= | =sieve(narrow(console)) → print= · =story(held, client.$story)= |
+| anima | the same ghost beat — anima IS the die over the dom | =__VIVA_CLIENT__.telemetry= | same |
+
+Run identity: a =Span= root mints =run= in its constructor, every =mark= stamps =root.run=; =at= becomes =performance.timeOrigin + performance.now()= (fork F1). =trace.step= keys nodes =run/span=: =chronicle= over a =spans.jsonl= of 60 boots yields 60 roots. The journal cap moves from =CONFIG.journal= (=span.js:5=) to =root.cap= (default =Span.CAP=), sized by the beat from =caps.journal=.
+
+Children not orphans: =shard.track.span(name, parent)= takes a Span — =ctx.span ?? parent= branches, a fresh root only when neither exists (=span-tracked.snapshot.test.js:27= =chain({}, …)=). Ghost's connection (=population.js:67=) passes =die.controller.stdout=, so every HTTP call is a child of the client root, and gains =shard.track.request()= for the wire rows.
+
+A refused form must not FAIL the client: =process.drain= faults =stdout.branch(signal.pathname)= — today =die.controller.stdout.fault(error)= (=ghost/lifecycle/process.js:32=) is the ROOT's record and the machine folds =fault: { RUNNING: "FAILED" }= (=controller.js:27=) — fork F5.
+
+The beacon stays: =run.js:17= prints =Status:RUNNING= on the root's open to stdout; records go to stderr (=print=); =hello.js:133= and =Process.out= (=process.js:43=) read both.
+
+** the surfaces and pipes
+
+One abstraction (=belt/telemetry.js=), a consumer is a sink handed to =sieve=.
+
+| consumer | surface | sink | where |
+|----------+---------+------+-------|
+| paladin | =ledger= | =Log.append(record)= → =state.jsonl=, serialized on =log.writing=, no ={ json }= wrap | =<ledger>/logs/<instance>/spans.jsonl= |
+| paladin | =console= | =telemetry.print= → =console.error= =[path] verb data= | the runtime's stderr; =--logged= → =<process>.out.log= |
+| anima | =inspector= | =telemetry.story= → =client.$story= (=trace.step= under the floor, =trace.trim= by =caps.story=) → =dom/panes/inspector.jsx= | an aside: faults first, then every root with children, wire rows, durations, fault messages |
+| anima | =console= | =telemetry.print= → the devtools console | off unless the word says so |
+| ghost tty | =inspector= | the same =$story= → =tty/panes/inspector.jsx= | a 40-column rail; the door mutes =console= (the screen is the renderer's) |
+| ghost =--json= | =console= | =telemetry.print= → stderr; stdout stays the effect | =viva client --json= |
+
+The G panel's buckets and tree (=g.svelte:18-26=) and the Boot widget's wire rows (=Boot.svelte:20-43=) are ONE story in one pane; the waterfall is deferred.
+
+** the tangle
+
+*** subsystems/typology/schematics/primitives/index.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/index.js:11
+ export * as theme from "./theme.js";
++export * as telemetry from "./telemetry.js";
+#+END_SRC
+
+*** subsystems/typology/gestalten/belt/telemetry.js — new
+
+#+BEGIN_SRC js :tangle subsystems/typology/gestalten/belt/telemetry.js
+import * as trace from "./trace.js";
+import { LEVEL, RANK } from "../../schematics/primitives/telemetry.js";
+
+export const level = (record) => (Object.hasOwn(LEVEL, record.verb) ? LEVEL[record.verb] : "note");
+
+export const narrow = (telemetry, surface) => ({
+  level: Object.hasOwn(surface, "level") ? surface.level : telemetry.level,
+  filters: Object.hasOwn(surface, "filters") ? surface.filters : telemetry.filters,
+  ...(Object.hasOwn(surface, "tail") && { tail: surface.tail }),
+});
+
+export const admits = ({ level: floor, filters }) => (record) =>
+  RANK.indexOf(level(record)) <= RANK.indexOf(floor) && (filters.length === 0 || filters.some((prefix) => record.path.startsWith(prefix)));
+
+const KEEP = {
+  faulty: () => trace.faulty,
+  slower: (tail) => trace.slower(tail.threshold),
+};
+
+export const sieve = (surface, sink) => {
+  const admit = admits(surface);
+  const write = Object.hasOwn(surface, "tail") ? trace.decant(sink, KEEP[surface.tail.keep](surface.tail)) : trace.flow(sink);
+  return (record) => {
+    if (admit(record)) write(record);
+  };
+};
+
+export const line = (record) => `[${record.path}] ${record.verb}${Object.hasOwn(record, "data") ? ` ${JSON.stringify(record.data)}` : ""}`;
+
+export const print = (record) => console.error(line(record));
+
+export const story = (telemetry, store) => {
+  const admit = admits(narrow(telemetry, telemetry.surfaces.inspector));
+  return (record) => {
+    if (admit(record)) store.set(trace.trim(trace.step(store.get(), record), telemetry.caps.story));
+  };
+};
+
+export const stable = (node) => {
+  const out = { path: node.path, nature: node.nature };
+  if (node.timing) out.timing = { measured: node.timing.begun != null && node.timing.sealed != null };
+  if (node.fault) out.fault = { message: node.fault.message, code: node.fault.code };
+  if (node.entries.length) out.entries = node.entries.map((entry) => ({ verb: entry.verb, data: entry.data }));
+  if (node.children.length) out.children = node.children.map(stable);
+  return out;
+};
+
+export const project = (story) => story.roots.map(stable);
+#+END_SRC
+
+*** subsystems/typology/gestalten/belt/index.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/belt/index.js:22
+ export * as trace from "./trace.js";
++export * as telemetry from "./telemetry.js";
+#+END_SRC
+
+*** subsystems/typology/gestalten/belt/trace.js — nodes keyed by run, =trim=
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/belt/trace.js:1
+ export const seed = () => ({ nodes: new Map(), roots: [] });
+
++const key = (record) => `${record.run}/${record.span}`;
++
+ export const chronicle = (records) => records.reduce(step, seed());
+
+ export const step = (story, record) => {
+-  const node = story.nodes.get(record.span) ?? sprout(story, record);
++  const node = story.nodes.get(key(record)) ?? sprout(story, record);
+…
+// subsystems/typology/gestalten/belt/trace.js:23
+ const sprout = (story, record) => {
+   const node = {
+     id: record.span,
++    run: record.run,
+     nature: record.path.split("/").filter(Boolean).at(-1) ?? null,
+…
+// subsystems/typology/gestalten/belt/trace.js:33
+-  story.nodes.set(record.span, node);
+-  const parent = story.nodes.get(record.trace);
++  story.nodes.set(key(record), node);
++  const parent = story.nodes.get(`${record.run}/${record.trace}`);
+…
+// subsystems/typology/gestalten/belt/trace.js:42
+-    const base = { span: node.id, trace: parent?.id ?? null, path: node.path };
++    const base = { run: node.run, span: node.id, trace: parent?.id ?? null, path: node.path };
+…
+// subsystems/typology/gestalten/belt/trace.js:56
+ export const live = (span) => span.pipe.reactive(chronicle(span.records), step);
+
++export const trim = (story, cap) => {
++  const drop = (node) => {
++    story.nodes.delete(`${node.run}/${node.id}`);
++    node.children.forEach(drop);
++  };
++  for (const root of story.roots) while (root.children.length > cap) drop(root.children.shift());
++  while (story.roots.length > cap) drop(story.roots.shift());
++  return story;
++};
++
+ export const duration = (node) =>
+#+END_SRC
+
+*** subsystems/typology/prototypes/span.js — run · cap · epoch clock
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/span.js:1
+ import { Signature } from "./signature.js";
+ import { Pipe } from "./pipe.js";
+-
+-const CONFIG = {
+-  journal: 1000,
+-};
++import { timedId } from "../gestalten/belt/id.js";
+
+ export class Span extends Signature {
+   static tally = 0;
++  static CAP = 1000;
+
+   constructor(signature = null, trace = null) {
+     super(signature, trace);
+     this.id ??= Span.tally++;
+     if (!this.trace) {
++      this.run ??= timedId();
++      this.cap ??= Span.CAP;
+       this.journal ??= [];
+       this.channel ??= new Pipe();
+     }
+   }
+…
+// subsystems/typology/prototypes/span.js:47
+   mark(verb, data) {
++    const root = this.root;
+     const record = {
++      run: root.run,
+       span: this.id,
+       trace: this.trace?.id ?? null,
+       path: this.absolute,
+       verb,
+-      at: performance.now(),
++      at: performance.timeOrigin + performance.now(),
+     };
+     if (data !== undefined) record.data = data;
+     const journal = this.records;
+     journal.push(record);
+-    if (journal.length > CONFIG.journal) journal.splice(0, journal.length - CONFIG.journal);
++    if (journal.length > root.cap) journal.splice(0, journal.length - root.cap);
+     this.pipe.send(record);
+     return this;
+   }
+#+END_SRC
+
+*** subsystems/typology/schematics/primitives/controller.js — the record carries its run
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/controller.js:45
+ export const Record = v.object({
++  run: v.string({ minLength: 1 }).desc('The root span\'s run, minted once per root; two boots never share one. Example: "mgp3k2ab1x9z"'),
+   span: v.integer(),
+   trace: v.union([v.integer(), v.null()]),
+   path: v.string(),
+   verb: v.string(),
+-  at: v.number(),
++  at: v.number().desc("Epoch milliseconds, performance.timeOrigin + performance.now(). Example: 1760300000123.456"),
+   data: v.unknown().optional(),
+-}).desc('One stdout mark as it crosses a wire; verb is open, Verb is the folding subset. Example: { "span": 7, "trace": 3, "path": "/hallucination", "verb": "open", "at": 12.5 }');
++}).desc('One stdout mark as it crosses a wire; verb is open, Verb is the folding subset. Example: { "run": "mgp3k2ab1x9z", "span": 7, "trace": 3, "path": "/hallucination", "verb": "open", "at": 1760300000123.4 }');
+
+ export const Reflection = v.object({
+   path: v.string(),
++  run: v.string(),
+   span: v.integer(),
+#+END_SRC
+
+*** subsystems/typology/prototypes/controller.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/controller.js:66
+   toJSON() {
+     return {
+       path: this.stdout.absolute,
++      run: this.stdout.root.run,
+       span: this.stdout.id,
+#+END_SRC
+
+*** subsystems/typology/gestalten/shard/track.js — a child, never an orphan root
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/track.js:12
+-export function span(name, pipe) {
++export function span(name, parent = null) {
+   return async (ctx, next) => {
+     const nature = typeof name === "function" ? name(ctx) : name;
+-    const parent = ctx.span;
+-    ctx.span = parent ? parent.branch(nature) : new Span(nature).to(pipe);
++    const held = ctx.span ?? parent;
++    ctx.span = held === null ? new Span(nature) : held.branch(nature);
+     ctx.span.open();
+     try {
+       await next();
+     } finally {
+       ctx.span.close();
+-      ctx.span = parent ?? ctx.span;
++      ctx.span = ctx.span.trace === held ? held : ctx.span;
+     }
+   };
+ }
+#+END_SRC
+
+*** subsystems/typology/schematics/primitives/instance.js — the slot on three tiers
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/instance.js:1
+ import { v } from "../v.js";
+ import { Slug } from "../scalars/index.js";
+ import { Manifest } from "./manifest.js";
+ import { Path, Url } from "../prototypes/signatures.js";
++import * as telemetry from "./telemetry.js";
+…
+// subsystems/typology/schematics/primitives/instance.js:127
+     datamap: Datamap.optional(),
+     hallucinators: v.array(Mask).optional(),
+     services: v.array(Service).default([]),
+     daemons: v.array(Daemon).default([]),
++    telemetry: telemetry.Telemetry.default({}).optional(),
+   },
+   { additionalProperties: true },
+ );
+
+ const Reference = (prefix) => v.string({ pattern: `^\\$\\{${prefix}[A-Z0-9_]+\\}$`, title: `a "\${${prefix}…}" reference to an env key` });
++const LevelMask = v.union([telemetry.Level, Reference("VIVA_")]);
++const SurfaceMask = v.object({ level: LevelMask.optional(), filters: telemetry.Filters.optional(), tail: telemetry.Tail.optional() }, { additionalProperties: false });
++const TelemetryMask = v.object(
++  {
++    level: LevelMask.optional(),
++    filters: telemetry.Filters.optional(),
++    caps: telemetry.Caps.optional(),
++    surfaces: v.object({ console: SurfaceMask.optional(), ledger: SurfaceMask.optional(), inspector: SurfaceMask.optional() }, { additionalProperties: false }).optional(),
++  },
++  { additionalProperties: false },
++);
+…
+// subsystems/typology/schematics/primitives/instance.js:184
+     services: v.array(v.object({ manifest: Manifest, module: v.string(), mountpoint: v.string().optional(), statics: MaskStatics.optional(), secrets: MaskSecrets.optional(), datamap: MaskOf.optional() }, { additionalProperties: false })).optional(),
+     daemons: v.array(DaemonMask).optional(),
++    telemetry: TelemetryMask.optional(),
+   },
+   { additionalProperties: false },
+ );
+…
+// subsystems/typology/schematics/primitives/instance.js:202
+     clients: v.array(Client).optional(),
+     services: v.array(Service).optional(),
++    telemetry: telemetry.Telemetry.optional(),
+   },
+   { additionalProperties: true },
+ );
+#+END_SRC
+
+*** subsystems/typology/schematics/primitives/contexts.js — the client word
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:56
+ export const kill = { kill: v.unknown().desc("A handler's request to stop a running activity after next(). Example: ctx.kill = ctx.seat.get().activity") };
++export const story = { story: v.unknown().desc("Atom of the inspector story: the controller's stdout folded by trace.step under the inspector surface's floor. Example: ctx.story.get().roots[0].children.length") };
+…
+// subsystems/typology/schematics/primitives/contexts.js:71
+-export const client = { lighthouse: v.unknown().desc("The client's Lighthouse: $authority · $user · $status over STANDINGS, manifest. Example: ctx.lighthouse.access('/lighthouse/login', { username, password })"), ...runtime, ...daemons, ...userspace, ...terminals, ...dispatch, ...seat, ...live, ...echo, ...slot, ...chord, ...standing };
++export const client = { lighthouse: v.unknown().desc("The client's Lighthouse: $authority · $user · $status over STANDINGS, manifest. Example: ctx.lighthouse.access('/lighthouse/login', { username, password })"), ...runtime, ...daemons, ...userspace, ...terminals, ...dispatch, ...seat, ...live, ...echo, ...slot, ...chord, ...standing, ...story };
+#+END_SRC
+
+*** subsystems/paladin/lifecycle/populate.js · prototypes/instance.js · prototypes/ledger/log.js
+
+#+BEGIN_SRC diff
+// subsystems/paladin/lifecycle/populate.js:208
+   instance.datamap = at("datamap")(module.datamap);
++  instance.telemetry = at("telemetry")(module.telemetry);
+   instance.hallucinators = at("hallucinators")(module.hallucinators);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/instance.js:11
+   services = [];
+   daemons = [];
++  telemetry;
+   requirements = [];
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/ledger/log.js:1
+ export class Log {
++  writing = Promise.resolve();
++
+   constructor(paladin, instance) {
+     this.paladin = paladin;
+     this.base = paladin.scope.ledger.branch(`/logs/${instance}`);
+   }
+
+-  append(span) {
+-    return this.paladin.state.jsonl(this.base.branch("spans.jsonl"), span.json);
++  append(record) {
++    this.writing = this.writing.then(() => this.paladin.state.jsonl(this.base.branch("spans.jsonl"), record));
++    return this.writing;
+   }
+#+END_SRC
+
+*** commons/ledger/ledger.viva.json — the shipped word
+
+#+BEGIN_SRC diff
+// commons/ledger/ledger.viva.json:10
+   "datamap": { "module": "@commons/datamap/libsql" },
++  "telemetry": { "surfaces": { "console": { "level": "control" }, "inspector": { "level": "note" } } },
+   "hallucinators": [
+#+END_SRC
+
+*** systems/runtime/run.js · lifecycle/runtime/execution.js · integration.js
+
+#+BEGIN_SRC diff
+// systems/runtime/run.js:16
+-  die.controller.stdout.to((record) => console.log(`[${record.path}] ${record.verb}`, record.data ?? record.message ?? ""));
+   die.controller.stdout.to((record) => record.verb === "open" && record.span === die.controller.stdout.id && console.log(die.controller.status));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/lifecycle/runtime/execution.js:13
+ export const execution = new Vector()
++  .use(integration.telemetry)
+   .use(process.settle)
+…
+// systems/runtime/lifecycle/runtime/execution.js:36
+   .use(integration.prune)
+-  .use(integration.ledger)
+   .use(integration.patrol)
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/lifecycle/runtime/integration.js:1
+ import paladin from "@vivalence/paladin";
+-import { shard, shape } from "@vivalence/typology";
++import { belt, shard, shape } from "@vivalence/typology";
+…
+// systems/runtime/lifecycle/runtime/integration.js:10
+-export const ledger = async (die, next) => {
+-  const log = paladin.ledger.log(die.runtime.instance.manifest.slug);
+-  die.controller.stdout.to((record) => log.append({ json: record }));
+-  await next();
++export const telemetry = async (die, next) => {
++  const held = die.runtime.instance.telemetry;
++  const log = paladin.ledger.log(die.runtime.instance.manifest.slug);
++  die.controller.stdout.cap = held.caps.journal;
++  const offs = [
++    die.controller.stdout.pipe.tap(belt.telemetry.sieve(belt.telemetry.narrow(held, held.surfaces.console), belt.telemetry.print)),
++    die.controller.stdout.pipe.tap(belt.telemetry.sieve(belt.telemetry.narrow(held, held.surfaces.ledger), (record) => log.append(record))),
++  ];
++  try {
++    await next();
++  } finally {
++    for (const off of offs) off();
++    await log.writing;
++  }
+ };
+#+END_SRC
+
+*** systems/ghost/lifecycle/client/construction.js · execution.js · integration.js · population.js · process.js
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/client/construction.js:1
+-import { Controller, Queue, Span, Vector, steer } from "@vivalence/typology";
++import { Controller, Queue, Span, Vector, steer, v } from "@vivalence/typology";
+ import { Client } from "../../prototypes/client.js";
+ import { execution } from "./execution.js";
+
++const { Telemetry } = v.primitives.telemetry;
++
+ export const construct = (mask, surface) => {
+   const die = {
+     controller: new Controller({ stdout: new Span(`client/${surface.name}`) }),
+     mask,
+     surface,
++    telemetry: Telemetry.cast(Object.hasOwn(mask, "telemetry") ? mask.telemetry : {}),
+     client: new Client({ mask }),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/client/execution.js:13
+ export const execution = new Vector()
++  .use(integration.telemetry)
+   .use(process.settle)
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/client/integration.js:1
++import { belt } from "@vivalence/typology";
+ import { dock } from "../../gestalten/belt/index.js";
+
+-const shown = (client, seat, buffer) => {
++const chrome = (client, seat, buffer) => {
+   if (!client.lighthouse || !client.lighthouse.isAuthorized) return ["crown", "signin"];
+   if (!seat) return ["crown", "navigation", "boot"];
+   return ["crown", "navigation", "dock", ...(buffer ? ["frame"] : [])];
+ };
+
++const shown = (client, seat, buffer, inspected) => (inspected ? [...chrome(client, seat, buffer), "inspector"] : chrome(client, seat, buffer));
++
++export const telemetry = async (die, next) => {
++  const { client, controller, telemetry: held } = die;
++  controller.stdout.cap = held.caps.journal;
++  const offs = [
++    controller.stdout.pipe.tap(belt.telemetry.sieve(belt.telemetry.narrow(held, held.surfaces.console), belt.telemetry.print)),
++    controller.stdout.pipe.tap(belt.telemetry.story(held, client.$story)),
++  ];
++  try {
++    await next();
++  } finally {
++    for (const off of offs) off();
++  }
++};
++
+ export const surface = async (die, next) => {
+   const { client, surface } = die;
++  const inspected = die.telemetry.surfaces.inspector.level !== "off";
+…
+// systems/ghost/lifecycle/client/integration.js:29
+-    const panes = shown(client, seat, buffer);
++    const panes = shown(client, seat, buffer, inspected);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/client/population.js:67
+-  const connection = new Connection(url, shard.transmitter.retry(shard.transmitter.fetcher, { maxRetries: 2 })).use(shard.track.span((call) => call.request.url.pathname, die.controller.stdout.pipe));
++  const connection = new Connection(url, shard.transmitter.retry(shard.transmitter.fetcher, { maxRetries: 2 }))
++    .use(shard.track.span((call) => call.request.url.pathname, die.controller.stdout))
++    .use(shard.track.request());
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/process.js:31
+     } catch (error) {
+-      die.controller.stdout.fault(error);
++      die.controller.stdout.branch(signal.pathname).fault(error);
+       die.client.$slot.set({ refused: signal.pathname, fault: error.message });
+#+END_SRC
+
+*** systems/ghost/prototypes/client.js · gestalten/belt/headless.js · lifecycle/client/trajectories/client.js
+
+#+BEGIN_SRC diff
+// systems/ghost/prototypes/client.js:2
+-import { fromm } from "@vivalence/typology";
++import { fromm, trace } from "@vivalence/typology";
+
+ const WORDS = ["lighthouse", "runtime", "daemons", "userspace", "terminals", "dispatch"];
+-const ATOMS = ["seat", "live", "echo", "slot", "chord", "standing"];
++const ATOMS = ["seat", "live", "echo", "slot", "chord", "standing", "story"];
+…
+// systems/ghost/prototypes/client.js:23
+   $standing = atom({ code: "IDLE" });
++  $story = atom(trace.seed());
+   $terminal = atom(null);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/belt/headless.js:3
+-const PANES = ["boot", "signin", "crown", "dock", "frame", "navigation"];
++const PANES = ["boot", "signin", "crown", "dock", "frame", "navigation", "inspector"];
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/client/trajectories/client.js:7
+ const mask = (instance, slug) => {
+   const declared = instance.clients.find((client) => client.manifest.slug === slug);
+   const home = declared ? declared.home : null;
+-  return { manifest: { type: "client", slug }, statics: { remote: instance.runtime.statics.remote }, home };
++  return { manifest: { type: "client", slug }, statics: { remote: instance.runtime.statics.remote }, home, telemetry: instance.telemetry };
+ };
++
++const muted = (telemetry) => ({ ...telemetry, surfaces: { ...telemetry.surfaces, console: { level: "off" } } });
+…
+// systems/ghost/lifecycle/client/trajectories/client.js:59
+   const surface = tty(renderer, { credentials: credentials(file), trajectory });
+-  const die = construct(mask(instance, "ghost"), surface);
++  const held = mask(instance, "ghost");
++  const die = construct({ ...held, telemetry: muted(held.telemetry) }, surface);
+#+END_SRC
+
+*** systems/anima/vite.config.mjs · src/client.js
+
+#+BEGIN_SRC diff
+// systems/anima/vite.config.mjs:17
+-  return { remote: paladin.instance.runtime.statics.remote, anima };
++  return { remote: paladin.instance.runtime.statics.remote, anima, telemetry: paladin.instance.telemetry };
+…
+// systems/anima/vite.config.mjs:44
+-    define: { __VIVA_CLIENT__: JSON.stringify({ remote: held.remote.absolute, home: held.anima.home }) },
++    define: { __VIVA_CLIENT__: JSON.stringify({ remote: held.remote.absolute, home: held.anima.home, telemetry: held.telemetry }) },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/anima/src/client.js:4
+-export const mask = ({ remote, home }) => ({ manifest: { type: "client", slug: "anima" }, statics: { remote }, home });
++export const mask = ({ remote, home, telemetry }) => ({ manifest: { type: "client", slug: "anima" }, statics: { remote }, home, telemetry });
+#+END_SRC
+
+*** subsystems/drapes/dom/panes/inspector.jsx — new
+
+#+BEGIN_SRC jsx :tangle subsystems/drapes/dom/panes/inspector.jsx
+import { For, Show } from "solid-js";
+import { trace } from "@vivalence/typology";
+import { Pip } from "../Pip.jsx";
+import { watch } from "../watch.js";
+
+const faulted = (node) => node.fault !== null || node.children.some(faulted);
+
+const wire = (node) => {
+  const response = node.entries.find((entry) => entry.verb === "response");
+  if (response !== undefined) return response.data;
+  const request = node.entries.find((entry) => entry.verb === "request");
+  return request === undefined ? null : request.data;
+};
+
+const elapsed = (node) => {
+  const held = trace.duration(node);
+  return held === null ? "" : `${held.toFixed(0)}ms`;
+};
+
+const TONES = [
+  [faulted, "danger"],
+  [(node) => trace.duration(node) > 500, "warning"],
+  [() => true, "success"],
+];
+
+const tone = (node) => TONES.find(([test]) => test(node))[1];
+
+const Node = (props) => (
+  <>
+    <div class="inspector-row" classList={{ "inspector-fault": props.node.fault !== null }} style={{ "padding-left": `${8 + props.depth * 12}px` }}>
+      <Pip size={6} tone={tone(props.node)} />
+      <span class="inspector-nature">{props.node.nature}</span>
+      <Show when={wire(props.node)}>{(held) => <span class="inspector-wire">{held().method} {held().path} {held().status}</span>}</Show>
+      <Show when={props.node.fault !== null}>
+        <span class="inspector-message">{props.node.fault.message}</span>
+      </Show>
+      <span class="inspector-elapsed">{elapsed(props.node)}</span>
+    </div>
+    <For each={props.node.children}>{(child) => <Node node={child} depth={props.depth + 1} />}</For>
+  </>
+);
+
+export const Inspector = (props) => {
+  const story = watch(props.client.$story);
+  const roots = () => [...story().roots].reverse();
+  const faults = () => roots().filter(faulted);
+  return (
+    <div class="inspector-pane">
+      <div class="inspector-head">
+        <span class="inspector-title">telemetry</span>
+        <Show when={faults().length > 0}><span class="inspector-faults">{faults().length}</span></Show>
+        <span class="inspector-count">{story().roots.length}</span>
+      </div>
+      <Show when={faults().length > 0}>
+        <div class="inspector-section">faults</div>
+        <For each={faults()}>{(node) => <Node node={node} depth={0} />}</For>
+      </Show>
+      <div class="inspector-section">recent</div>
+      <For each={roots()}>{(node) => <Node node={node} depth={0} />}</For>
+      <Show when={story().roots.length === 0}><div class="inspector-empty">no records</div></Show>
+    </div>
+  );
+};
+
+export const style = `
+.inspector-pane { display: flex; flex-direction: column; width: min(380px, 40vw); min-height: 0; overflow-y: auto; font-family: var(--font-family-code); font-size: var(--size-type-2xs); color: var(--text-ink); background: var(--surface-sunk); }
+.inspector-head { display: flex; align-items: center; gap: 8px; height: var(--size-key); padding: 0 14px; box-shadow: 0 var(--size-ring) 0 var(--boundary); }
+.inspector-title, .inspector-section { color: var(--text-strong); letter-spacing: var(--shape-label-track); text-transform: var(--shape-label-case); }
+.inspector-section { padding: 6px 14px 3px; color: var(--text-muted); }
+.inspector-faults { color: var(--signal-negative-ink); font-weight: 600; }
+.inspector-count, .inspector-elapsed { margin-left: auto; color: var(--text-muted); }
+.inspector-row { display: flex; align-items: center; gap: 6px; min-width: 0; height: var(--size-row); padding-right: 8px; white-space: nowrap; }
+.inspector-row.inspector-fault { background: color-mix(in srgb, var(--signal-negative) 8%, transparent); }
+.inspector-nature { color: var(--text-strong); font-weight: 600; }
+.inspector-wire, .inspector-message { overflow: hidden; text-overflow: ellipsis; color: var(--text-light); }
+.inspector-fault .inspector-message { color: var(--signal-negative-ink); }
+.inspector-empty { padding: 24px 14px; color: var(--text-muted); text-align: center; }
+`;
+#+END_SRC
+
+*** subsystems/drapes/dom/chassis.jsx · panes/index.js · sheet.js · surface.js
+
+#+BEGIN_SRC diff
+// subsystems/drapes/dom/chassis.jsx:14
+   return {
+     crown: held("crown"),
+     navigation: held("navigation"),
+     boot: held("boot"),
+     signin: held("signin"),
++    inspector: held("inspector"),
+     frame,
+…
+// subsystems/drapes/dom/chassis.jsx:96
+         </main>
++        <aside
++          class="chassis-region chassis-inspector"
++          data-zone="0"
++          data-pane="inspector"
++          hidden={!shown().inspector}
++          ref={props.regions.inspector}
++        />
+       </div>
+…
+// subsystems/drapes/dom/chassis.jsx:108
+-  const refs = Object.fromEntries(["crown", "navigation", "boot", "signin", "frame", "dock"].map((name) => [name, bind(name)]));
++  const refs = Object.fromEntries(["crown", "navigation", "boot", "signin", "frame", "dock", "inspector"].map((name) => [name, bind(name)]));
+…
+// subsystems/drapes/dom/chassis.jsx:169
+ }
++.chassis-inspector {
++  flex: none;
++  display: flex;
++  min-height: 0;
++  background: var(--surface-sunk);
++  box-shadow: calc(-1 * var(--size-ring)) 0 0 var(--boundary);
++}
+ .chassis-stage {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/drapes/dom/panes/index.js:5
+ export { Navigation } from "./navigation.jsx";
+ export { Signin } from "./signin.jsx";
++export { Inspector } from "./inspector.jsx";
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/drapes/dom/sheet.js:17
+ import { style as signin } from "./panes/signin.jsx";
++import { style as inspector } from "./panes/inspector.jsx";
+
+ const KIT = [button, empty, field, jsonTree, logo, markdown, pip, row, spinner, strip];
+-const PANES = [boot, crown, dock, frame, navigation, signin];
++const PANES = [boot, crown, dock, frame, navigation, signin, inspector];
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/drapes/dom/surface.js:35
+       navigation: pane("navigation", panes.Navigation),
++      inspector: pane("inspector", panes.Inspector),
+     },
+#+END_SRC
+
+*** subsystems/drapes/tty/panes/inspector.jsx — new (bundled by =deno run -A subsystems/drapes/tty/bundle.js=)
+
+#+BEGIN_SRC jsx :tangle subsystems/drapes/tty/panes/inspector.jsx
+import { For, from, Show } from "solid-js";
+import { trace } from "@vivalence/typology";
+import { Row } from "../Row.jsx";
+import { usePalette } from "../palette.js";
+
+const faulted = (node) => node.fault !== null || node.children.some(faulted);
+const STATES = [[faulted, "fault"], [(node) => trace.duration(node) === null, "pending"], [() => true, "on"]];
+const state = (node) => STATES.find(([test]) => test(node))[1];
+const value = (node) => {
+  if (node.fault !== null) return node.fault.message;
+  const held = trace.duration(node);
+  return held === null ? "" : `${held.toFixed(0)}ms`;
+};
+const flatten = (node, depth) => [{ node, depth }, ...node.children.flatMap((child) => flatten(child, depth + 1))];
+
+export function Inspector(props) {
+  const palette = usePalette();
+  const story = from(props.client.$story);
+  const rows = () => [...story().roots].reverse().flatMap((root) => flatten(root, 0));
+  return (
+    <box style={{ flexDirection: "column", flexGrow: 1, backgroundColor: palette.surface }}>
+      <Row state="on" tone="ink" label="telemetry" value={String(story().roots.length)} />
+      <For each={rows()}>{({ node, depth }) => <Row state={state(node)} tone="ink" label={`${"  ".repeat(depth)}${node.nature}`} value={value(node)} />}</For>
+      <Show when={story().roots.length === 0}><Row state="off" tone="ink" label="no records" value="" /></Show>
+    </box>
+  );
+}
+#+END_SRC
+
+*** subsystems/drapes/tty/chassis.js · panes/index.js · surface.js
+
+#+BEGIN_SRC diff
+// subsystems/drapes/tty/chassis.js:3
+-export const TERRITORY = { crown: "0", navigation: "0", dock: "2", frame: "1", cover: "1" };
++export const TERRITORY = { crown: "0", navigation: "0", dock: "2", frame: "1", cover: "1", inspector: "0" };
+
+-export const SLOTS = { crown: "crown", navigation: "navigation", dock: "dock", frame: "frame", signin: "cover", boot: "cover" };
++export const SLOTS = { crown: "crown", navigation: "navigation", dock: "dock", frame: "frame", signin: "cover", boot: "cover", inspector: "inspector" };
+
+ export const RAIL = 24;
++
++export const WING = 40;
+…
+// subsystems/drapes/tty/chassis.js:30
+     cover: box("cover", { flexGrow: 1, backgroundColor: palettes.cover.surface }),
++    inspector: box("inspector", { width: WING, flexShrink: 0, backgroundColor: palettes.inspector.surface, border: ["left"], borderColor: palettes.inspector.boundary }),
+   };
+   stage.add(slots.frame);
+   stage.add(slots.dock);
+   stage.add(slots.cover);
+   body.add(slots.navigation);
+   body.add(stage);
++  body.add(slots.inspector);
+…
+// subsystems/drapes/tty/chassis.js:49
+     slots.navigation.visible = shown("navigation");
++    slots.inspector.visible = shown("inspector");
+     slots.cover.visible = covered;
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/drapes/tty/panes/index.js:6
+ export { Navigation as navigation } from "./navigation.jsx";
++export { Inspector as inspector } from "./inspector.jsx";
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/drapes/tty/surface.js:37
+       navigation: pane("navigation", {}),
++      inspector: pane("inspector", {}),
+     },
+#+END_SRC
+
+*** systems/runtime/tests/span-tracked.snapshot.test.js — the projection comes from typology, the parent is a Span
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/span-tracked.snapshot.test.js:1
+-import { specimen, Pipe, middleware, shard, trace } from "@vivalence/typology";
++import { specimen, Pipe, Span, middleware, shard, telemetry, trace } from "@vivalence/typology";
+
+ const base = new URL("./snapshots", import.meta.url).pathname;
+ const DRY = false;
+-
+-const stable = (node) => {
+-  const out = { path: node.path, nature: node.nature };
+-  if (node.timing) out.timing = { measured: node.timing.begun != null && node.timing.sealed != null };
+-  if (node.entries.length) out.entries = node.entries.map((entry) => ({ verb: entry.verb, data: entry.data }));
+-  if (node.children.length) out.children = node.children.map(stable);
+-  return out;
+-};
+…
+// systems/runtime/tests/span-tracked.snapshot.test.js:17
+     const pipe = new Pipe();
+     pipe.tap((record) => records.push(record));
++    const rig = new Span("rig").to(pipe);
+
+     const chain = middleware.compose([
+-      shard.track.span("render", pipe),
++      shard.track.span("render", rig),
+…
+// systems/runtime/tests/span-tracked.snapshot.test.js:37
+-    const capture = specimen.snapshot(story.roots, {
+-      base,
+-      dry: DRY,
+-      locate: "span-tracked.snapshot.json",
+-      parse: (roots) => roots.map(stable),
+-    });
++    const capture = specimen.snapshot(story, { base, dry: DRY, locate: "span-tracked.snapshot.json", parse: telemetry.project });
+#+END_SRC
+
+(=rig= never marks, so =render= stays =story.roots[0]=, =trace.js:34-35=; the capture rewrites.)
+
+** the scenarios
+
+One per system, =@vivalence/typology/specimen=, every world a temp dir over =hello= (=@vivalence/runtime/scenarios=, as =ghost/tests/client.test.js:24=); green with =HOME=<empty dir>=.
+
+*** systems/runtime/tests/runtime/telemetry.test.js
+
+#+BEGIN_SRC js :tangle systems/runtime/tests/runtime/telemetry.test.js
+import { specimen, telemetry, trace, v } from "@vivalence/typology";
+import { join } from "@std/path";
+import { hello } from "../scenarios/index.js";
+
+const { describe, it, expect, beforeAll, afterAll } = specimen;
+const { Record } = v.primitives.controller;
+const { Telemetry, RANK } = v.primitives.telemetry;
+
+const TELEMETRY = { level: "note", surfaces: { console: { level: "note" }, ledger: { level: "control" } } };
+
+const NOISY = `import { Vector } from "@vivalence/typology";
+export const manifest = { type: "home", slug: "noisy", version: "0.0.1", traits: ["RUNTIME", "EXPOSED", "TOOLING"] };
+export const aperture = new Vector()
+  .open("/note", (_, ctx) => {
+    ctx.mode.stdout.note({ ping: true });
+    return { noted: true };
+  })
+  .open("/fault", (_, ctx) => {
+    ctx.mode.stdout.fault(new Error("noisy fault"));
+    return { faulted: true };
+  });
+export const tools = new Vector();
+`;
+
+const RECIPE = { ...hello.RECIPE, runtime: { ...hello.RECIPE.runtime, modes: ["./probe.viva.js", "./noisy.viva.js"] }, telemetry: TELEMETRY };
+
+const settle = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const eventually = async (predicate, ms = 15000) => {
+  const deadline = Date.now() + ms;
+  while (!predicate()) {
+    if (Date.now() > deadline) throw new Error(`timed out waiting ${ms}ms`);
+    await settle(25);
+  }
+};
+
+describe("runtime telemetry — one run, two surfaces, each at its own floor", () => {
+  let world = null;
+  let spans = null;
+  let token = null;
+
+  beforeAll(async () => {
+    world = await hello.launch({
+      prefix: "viva-telemetry-",
+      home: async (home) => {
+        await Deno.writeTextFile(join(home, "instance.viva.json"), JSON.stringify(RECIPE, null, 2));
+        await Deno.writeTextFile(join(home, "probe.viva.js"), hello.PROBE);
+        await Deno.writeTextFile(join(home, "noisy.viva.js"), NOISY);
+      },
+    });
+    spans = join(world.root, "ledger/logs/hello-world/spans.jsonl");
+  });
+
+  afterAll(() => world.stop());
+
+  const read = async () => (await Deno.readTextFile(spans)).split("\n").filter(Boolean).map((line) => JSON.parse(line));
+
+  it("the recipe's telemetry word passes the schematic and fills its defaults", () => {
+    expect(Telemetry.faults(TELEMETRY)).toEqual([]);
+    const filled = Telemetry.cast(TELEMETRY);
+    expect(filled.caps).toEqual({ journal: 1000, story: 200 });
+    expect(filled.surfaces.inspector).toEqual({ level: "off" });
+  });
+
+  it("the beacon still prints on stdout; the boot's open is the first line of spans.jsonl, every line one Record, one run", async () => {
+    expect(world.ready).toBe("Status:RUNNING");
+    const records = await read();
+    expect(records.length).toBeGreaterThan(0);
+    for (const record of records) expect(Record.faults(record)).toEqual([]);
+    expect(new Set(records.map((record) => record.run)).size).toBe(1);
+    expect(records[0]).toMatchObject({ path: "/runtime/house", verb: "open", trace: null });
+  });
+
+  it("a note stays off the ledger (control) and reaches stderr (note); a fault reaches both", async () => {
+    const signup = await (await world.post("/lighthouse/signup", { username: "finn", password: "hunter22" })).json();
+    token = signup.authority.access;
+    expect((await world.post("/runtime/house/mode/home/noisy/note", {}, token)).status).toBe(200);
+    expect((await world.post("/runtime/house/mode/home/noisy/fault", {}, token)).status).toBe(200);
+    await eventually(() => world.log.some((line) => line.startsWith("[/runtime/house/mode/home/noisy] fault")));
+    expect(world.log.includes('[/runtime/house/mode/home/noisy] note {"ping":true}')).toBe(true);
+    const records = await read();
+    expect(records.filter((record) => record.path === "/runtime/house/mode/home/noisy").map((record) => record.verb)).toEqual(["open", "fault"]);
+    expect(records.every((record) => RANK.indexOf(telemetry.level(record)) <= RANK.indexOf("control"))).toBe(true);
+  });
+
+  it("the file folds into one story: one root under the runtime's reference, the mode a faulted child — the snapshot is its projection", async () => {
+    const story = trace.chronicle(await read());
+    expect(story.roots.length).toBe(1);
+    expect(story.roots[0].path).toBe("/runtime/house");
+    const noisy = story.roots[0].children.find((node) => node.path === "/runtime/house/mode/home/noisy");
+    expect(noisy.fault).toMatchObject({ message: "noisy fault", code: null });
+    const [projected] = telemetry.project(story);
+    expect(projected.timing).toEqual({ measured: false });
+    expect(projected.children.find((node) => node.nature === "noisy").fault).toEqual({ message: "noisy fault", code: null });
+  });
+
+  it("SIGTERM seals the run: stop then close are the last two lines, exit 0", async () => {
+    world.child.kill("SIGTERM");
+    expect((await world.child.status).code).toBe(0);
+    const records = await read();
+    expect(records.slice(-2).map((record) => record.verb)).toEqual(["stop", "close"]);
+    expect(records.at(-1)).toMatchObject({ path: "/runtime/house", run: records[0].run });
+  });
+});
+#+END_SRC
+
+*** systems/ghost/tests/rig.js — =client.json.test.js:12-26= lifted verbatim (=HOME= · =settle= · =until= · =eventually= · =signedIn= · =lines=), each =export=; =client.test.js= · =client.json.test.js= import from it.
+
+*** systems/ghost/tests/telemetry.test.js
+
+#+BEGIN_SRC js :tangle systems/ghost/tests/telemetry.test.js
+import { join } from "@std/path";
+import paladin from "@vivalence/paladin";
+import { Vector, specimen } from "@vivalence/typology";
+import { hello } from "@vivalence/runtime/scenarios";
+import { credentials } from "@vivalence/drapes/tty/credentials";
+import { construct } from "../lifecycle/client/construction.js";
+import { headless } from "../gestalten/belt/headless.js";
+import { client } from "../lifecycle/client/trajectories/client.js";
+import { HOME, eventually, lines, signedIn, until } from "./rig.js";
+
+const { describe, it, expect, beforeAll, afterAll } = specimen;
+
+const TELEMETRY = { surfaces: { console: { level: "fault" } } };
+
+const heard = async (run) => {
+  const held = console.error;
+  const captured = [];
+  console.error = (...parts) => captured.push(parts.join(" "));
+  try {
+    await run();
+  } finally {
+    console.error = held;
+  }
+  return captured.filter((line) => line.startsWith("[/client/"));
+};
+
+describe("viva client --json under a telemetry word: faults reach stderr, nothing below the floor", () => {
+  let runtime = null;
+  let root = null;
+
+  beforeAll(async () => {
+    runtime = await hello.boot({ prefix: "viva-telemetry-ghost-" });
+    root = await Deno.makeTempDir({ prefix: "viva-telemetry-ghost-ledger-" });
+    paladin.env.set("VIVA_LEDGER_MOUNT", root);
+  });
+
+  afterAll(async () => {
+    paladin.env.delete("VIVA_LEDGER_MOUNT");
+    if (runtime) await runtime.stop();
+    if (root) await Deno.remove(root, { recursive: true });
+  });
+
+  it("the mask's word is cast on the die; a refused command is one stderr line on the form's branch, nothing below the floor prints", async () => {
+    const carrier = credentials(join(root, "credentials.json"));
+    const mask = { manifest: { type: "client", slug: "ghost" }, statics: { remote: runtime.url }, home: HOME, telemetry: TELEMETRY };
+    const surface = headless({ credentials: carrier });
+    const first = construct(mask, surface);
+    expect(first.telemetry.surfaces).toEqual({ console: { level: "fault" }, ledger: {}, inspector: { level: "off" } });
+    await eventually(() => signedIn(surface));
+    first.client.dispatch({ signal: "/lighthouse/access", input: { route: "/lighthouse/signup", username: `telemetry-${Date.now()}`, password: "walk-the-walk" } });
+    await until(first.client.lighthouse.$isAuthorized, Boolean, first.controller.abort.signal);
+    await until(first.client.$seat, (seat) => seat !== null && seat.thread !== null, first.controller.abort.signal, 30000);
+    const calls = first.controller.stdout.records.filter((record) => record.verb === "request");
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls.every((record) => record.trace === first.controller.stdout.id && record.run === first.controller.stdout.run)).toBe(true);
+    expect(surface.placed.every((row) => row.panes === null || !row.panes.includes("inspector"))).toBe(true);
+    first.controller.abort.abort("carrier written");
+    await first.execution;
+
+    const instance = { clients: [{ manifest: { slug: "ghost" }, home: HOME }], runtime: { statics: { remote: runtime.url } }, telemetry: TELEMETRY };
+    const ctx = { instance, signal: { flags: { json: true }, params: [] }, trajectory: new Vector(), interactive: false, stdin: lines("/nobody\n") };
+    let effect = null;
+    const printed = await heard(async () => {
+      effect = await client(ctx);
+    });
+    expect(effect.slot.refused).toBe("/command/nobody");
+    expect(printed.length).toBe(1);
+    expect(printed[0]).toMatch(/^\[\/client\/headless\/command\/nobody\] fault \{/);
+  });
+});
+#+END_SRC
+
+*** systems/anima/tests/rig.js — =client.test.js:10-94= lifted verbatim (=ENTRY= · =DOM= · =NODE_MODULES= · =HOME= · =storage= · =install= · =compile= · =page= · =settle= · =until= · =eventually= · =shown=), each =const= prefixed =export=; =client.test.js= then imports ={ HOME, install, page, until, eventually, shown }= from it. Two files, one rig.
+
+*** systems/anima/tests/telemetry.test.js
+
+#+BEGIN_SRC js :tangle systems/anima/tests/telemetry.test.js
+import { specimen } from "@vivalence/typology";
+import { hello } from "@vivalence/runtime/scenarios";
+import { HOME, eventually, install, page, shown, until } from "./rig.js";
+
+const { describe, it, expect, beforeAll, afterAll } = specimen;
+
+const TELEMETRY = { surfaces: { console: { level: "off" }, inspector: { level: "note" } } };
+
+describe("anima surfaces the client die's story on the dom inspector pane", () => {
+  let runtime = null;
+
+  beforeAll(async () => {
+    runtime = await hello.boot({ prefix: "viva-anima-telemetry-" });
+  });
+
+  afterAll(async () => {
+    if (runtime) await runtime.stop();
+  });
+
+  it("the inspector mounts under the baked word; a refused form shows as a fault row under the client root", async () => {
+    const window = install();
+    const { anima } = await page({ remote: runtime.url, home: HOME, telemetry: TELEMETRY });
+    const die = anima(window);
+    const { client, controller } = die;
+    const signal = controller.abort.signal;
+    expect(die.telemetry.surfaces.inspector).toEqual({ level: "note" });
+
+    await eventually(() => shown(window.document, "signin"));
+    expect(shown(window.document, "inspector")).toBe(true);
+
+    client.dispatch({ signal: "/lighthouse/access", input: { route: "/lighthouse/signup", username: `anima-${crypto.randomUUID().slice(0, 8)}`, password: "walk-the-walk" } });
+    await until(client.lighthouse.$isAuthorized, Boolean, signal);
+    await until(client.$seat, (seat) => seat !== null && seat.thread !== null && seat.mode !== null, signal, 30000);
+    await eventually(() => shown(window.document, "dock") && shown(window.document, "inspector"));
+
+    client.dispatch({ signal: "/nobody/home" });
+    await until(client.$slot, (slot) => slot !== null && slot.refused === "/nobody/home", signal);
+    await eventually(() => window.document.querySelector("[data-pane=inspector] .inspector-fault") !== null);
+    const row = window.document.querySelector("[data-pane=inspector] .inspector-fault");
+    expect(row.querySelector(".inspector-nature").textContent).toBe("home");
+    expect(row.querySelector(".inspector-message").textContent.length).toBeGreaterThan(0);
+
+    const story = client.$story.get();
+    expect(story.roots.map((node) => node.path)).toEqual(["/client/dom"]);
+    expect(story.roots[0].children.some((node) => node.path === "/client/dom/nobody/home" && node.fault !== null)).toBe(true);
+
+    window.dispatchEvent(new window.Event("pagehide"));
+    await die.execution;
+    expect(signal.reason).toBe("unload");
+  });
+});
+#+END_SRC
+
+** blast table
+
+| file | change | sites |
+|------+--------+-------|
+| =subsystems/typology/schematics/primitives/telemetry.js= · =primitives/index.js= | NEW schematic · the export | 2 |
+| =subsystems/typology/schematics/primitives/controller.js= | =Record.run= · =Record.at= desc · =Reflection.run= | 3 |
+| =subsystems/typology/schematics/primitives/instance.js= | =Instance= · =InstanceMask= (=TelemetryMask=) · =Ledger= | 3 |
+| =subsystems/typology/schematics/primitives/contexts.js= | =story= on =client= | 2 |
+| =subsystems/typology/prototypes/span.js= · =controller.js= | =run= · =cap= · =Span.CAP= · epoch =at=, =CONFIG= gone · =toJSON.run= | 2 |
+| =subsystems/typology/gestalten/belt/trace.js= · =belt/telemetry.js= · =belt/index.js= · =shard/track.js= | =key= · =sprout.run= · =dictate.run= · =trim= · NEW belt · the export · =span(name, parent)= | 7 |
+| =subsystems/typology/tests/{trace.snapshot,trace,schematics/contexts,controller}.test.js= | hand records gain =run= (6 · 2) · the client word list · a =toJSON= equality | ≤ 10 |
+| =subsystems/paladin/lifecycle/populate.js= · =prototypes/instance.js= · =prototypes/ledger/log.js= · =tests/instance.snapshot.test.js= | =at("telemetry")= · the field · =append(record)= serialized, the ={ json }= seam gone · =inherited= gains =telemetry= once beef's ledger carries the slot | 4 |
+| =commons/ledger/ledger.viva.json= · =README.md:201= | the slot · the fence | 2 |
+| =systems/runtime/run.js= · =lifecycle/runtime/execution.js= · =integration.js= | the unfiltered tap gone (beacon stays) · =telemetry= first, =ledger= gone · the beat | 4 |
+| =systems/runtime/tests/span-tracked.snapshot.test.js= · =tests/runtime/telemetry.test.js= | =telemetry.project= · a Span parent · NEW scenario | 4 |
+| =systems/ghost/lifecycle/client/{construction,execution,integration,population}.js= · =lifecycle/process.js= | =die.telemetry= · the beat first · =chrome=/=shown(…, inspected)= · parent Span + =track.request()= · the refused form faults a BRANCH | 7 |
+| =systems/ghost/prototypes/client.js= · =gestalten/belt/headless.js= · =lifecycle/client/trajectories/client.js= | =$story= · the pane · the mask carries =telemetry=, the tty door mutes =console= | 5 |
+| =systems/ghost/tests/client.json.test.js:57= · =client.test.js= · =rig.js= · =telemetry.test.js= | the hand =instance= gains =telemetry: {}= · helpers lifted · NEW scenario | 4 |
+| =systems/anima/vite.config.mjs= · =src/client.js= · =tests/client.test.js= · =tests/rig.js= · =tests/telemetry.test.js= | =telemetry= in =__VIVA_CLIENT__= · =mask= · the rig lifted · NEW scenario | 6 |
+| =subsystems/drapes/dom/{chassis.jsx,panes/inspector.jsx,panes/index.js,sheet.js,surface.js}= | arrangement · aside · refs · style · NEW pane · export · style · mount | 8 |
+| =subsystems/drapes/tty/{chassis.js,panes/inspector.jsx,panes/index.js,surface.js}= | =TERRITORY= · =SLOTS= · =WING= · slot · =place= · NEW pane · export · mount; then =deno run -A subsystems/drapes/tty/bundle.js= | 8 |
+| =.ikiro/world/codemap/{typology,ledger,runtime,ghost,design}.md= | the record shape · the first-beat law · 7 panes | 5 |
+| =~/.viva/ledger.viva.json= · =~/.viva/logs/*/spans.jsonl= | beef adds the slot (like =:12= =JOINABLE=) · 9 files of run-less lines, fork F8 | 10 |
+
+Untouched: =Activity.ts:35= (F7) · =socket.js:39= · =registry.js:29= · =ghost/run.js:27= · =chaosmonkey= · =shape/http.js:63= · =--verbose=.
+
+** forks @beef
+
+| # | decision | options | lean | why |
+|---+----------+---------+------+-----|
+| F1 | the clock | a: =at= stays =performance.now()= · b: =performance.timeOrigin + performance.now()= · c: a + an =origin= ISO on the root's open | b | one field, unique across boots, =trace.duration= unchanged |
+| F2 | what =run= names | a: per ROOT span (a trace id) · b: per PROCESS (a resource id) | a | =logs/<instance>/= IS the resource; one controller root per boot splits the file |
+| F3 | the fold | a: WHOLE-slot (=inherit=, zero paladin code) · b: key-wise like =environment= (=v.interface=) | a | every other slot's pattern; say "narrow a key" and =populate.js:175= gets a sibling |
+| F4 | console default | a: =fault=, the recipe says =control= · b: =control= for all (=--json= prints open/close per form) · c: a per-process key | a | one word per instance; doors narrow; c is a taxonomy |
+| F5 | a refused form | a: fault on the ROOT (today: FAILED, =controller.js:27=) · b: on =stdout.branch(signal.pathname)= | b | a refusal is the form's, not the process's |
+| F6 | paladin's noun | a: =Log= · =Ledger.log()= · =~/.viva/logs/= stay · b: rename to =telemetry= | a | the raw child =<process>.out.log= streams ARE logs |
+| F7 | the second roots | a: leave =Activity.ts:35= · =socket.js:39= · =registry.js:29= · b: branch the Activity's controller from =ctx.mode.stdout= | a this quest | b moves =harnessed.js:33='s pick |
+| F8 | the nine =spans.jsonl= | a: leave (run-less lines merge as today) · b: capture to =~/.viva/bak/logs-20261012/= | b | a reader meets one shape |
+| F9 | showing the inspector | a: by the word · b: a chord (=/key/ctrl-g=) | a now | b is a loop form on top of a |
+| F10 | =caps.story= | a: children a root keeps + roots kept (=trace.trim=) · b: a record budget | a | every form is a child of the one client root; a roots-only cap (bak =logger.js:9=) never fires |
+
+Deviations: the beat is FIRST, not beside =integration.ledger=; Boot stream and G tree are ONE pane. Probe first: =Telemetry.cast({})= yields the nested defaults (TypeBox =Value.Default= descending a defaulted object).
+
+* handoff
+
+- goal: one telemetry abstraction over spans · logs · snapshots, configured on the ledger/instance, integrated through the controller, surfaced for paladin and anima, applied to runtime · ghost · anima.
+- done 10-12: =* research= (7 sections) · =* design= (ontology · config schema · integration · surfaces · the tangle: 7 new files + 34 hunks · three scenarios · blast · forks).
+- next: beef rules F1–F10 → the implementation agent lands the tangle, runs the three scenarios → m86's final.
+- never: the word =logging= for the abstraction · a second emitter beside the controller's span · a surface reading a span directly instead of a pipe.

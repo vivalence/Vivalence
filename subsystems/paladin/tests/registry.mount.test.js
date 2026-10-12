@@ -1,6 +1,7 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
-import { Registry } from "../prototypes/ledger/registry.js";
+import { Path } from "@vivalence/typology";
+import { Registry } from "../prototypes/registry.js";
 
 const rootStub = (dir) => ({ absolute: dir });
 
@@ -8,7 +9,7 @@ const rootStub = (dir) => ({ absolute: dir });
 // every path; a module whose manifest.type is "package" IS the package module.
 const fakePaladin = (modules) => ({
   read: { viva: async (path) => modules[path.absolute ?? String(path)] },
-  find: { viva: async () => Object.keys(modules).map((absolute) => ({ absolute })), walk: () => async () => [] },
+  find: { viva: async () => Object.keys(modules).map((absolute) => new Path(absolute)), walk: () => async () => [] },
 });
 
 describe("Registry.mount", () => {
@@ -53,6 +54,21 @@ describe("Registry.mount", () => {
     expect(locked).toBeTruthy();
     const notUnderSimulation = await registry.pensieve.revelio({ owner: "@simulation", type: "fixture", slug: "lock-demo" });
     expect(notUnderSimulation).toBeNull();
+  });
+
+  it("a package nested under the mount is its own: the walk stops at its declaration, its modules stay out", async () => {
+    const paladin = fakePaladin({
+      "/checkout/commons/fixtures/memo/package.viva.js": { manifest: { type: "package", slug: "memo", version: "0.1.0", owner: "@memo" } },
+      "/checkout/commons/fixtures/memo/mode/memo.viva.js": { manifest: { type: "srs", slug: "memo", version: "0.1.0" } },
+      "/checkout/commons/package.viva.js": { manifest: { type: "package", slug: "commons", version: "0.0.1", owner: "@commons" } },
+      "/checkout/commons/demo/hello/hello.viva.js": { manifest: { type: "demo", slug: "hello", version: "0.0.1" } },
+    });
+    const registry = new Registry(paladin);
+    await registry.mount(rootStub("/checkout/commons"), { owner: "@commons", slug: "commons" });
+
+    expect(await registry.pensieve.revelio({ owner: "@commons", type: "demo", slug: "hello" })).toBeTruthy();
+    expect(await registry.pensieve.revelio({ owner: "@commons", type: "srs", slug: "memo" })).toBeNull();
+    expect(registry.pensieve.has("@memo")).toBe(false);
   });
 
   it("demand outrunning supply throws 'not supplied' — distinct from Module 404 (fork 8)", async () => {

@@ -4,10 +4,10 @@ import { BOX, BRIDGE, TERMINALS } from "../../src/client.js";
 import { CLIENT, ENTRY, KIT, SRC, build, dom, fire, keys, words } from "./rig.js";
 
 const ANIMA = [
-  `export { chain } from "${new URL("typology/gestalten/belt/chain.js", SRC).href}";`,
-  `export { dictation } from "${new URL("typology/prototypes/dictation.js", SRC).href}";`,
-  `export { TONES, loudest, owed, roster } from "${new URL("typology/entities/activity.js", SRC).href}";`,
-  `import * as bridge from "${new URL("typology/stores/bridge/dock.js", SRC).href}";`,
+  `export { chain } from "${new URL("gestalten/belt/chain.js", SRC).href}";`,
+  `export { dictation } from "${new URL("prototypes/dictation.js", SRC).href}";`,
+  `export { TONES, loudest, owed, roster } from "${new URL("entities/activity.js", SRC).href}";`,
+  `import * as bridge from "${new URL("bridge/dock.js", SRC).href}";`,
   "export const stores = { bridge };",
 ].join("\n");
 

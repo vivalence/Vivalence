@@ -1,6 +1,5 @@
 {
   "imports": {
-    "$telemetry": "./systems/anima/src/telemetry/index.js",
     "@std/testing": "jsr:@std/testing@1.0",
     "@std/testing/bdd": "jsr:@std/testing@1.0/bdd",
     "@std/expect": "jsr:@std/expect@1.0",
@@ -53,6 +52,7 @@
 
     "@deno/vite-plugin": "npm:@deno/vite-plugin@1.0",
     "vite": "npm:vite@6.3.3",
+    "vite-plugin-solid": "npm:vite-plugin-solid@2.11.10",
 
     "astro": "npm:astro@7",
     "astro/": "npm:astro@7/",
@@ -88,6 +88,7 @@
     "esbuild-svelte": "npm:esbuild-svelte@0.9",
     "esbuild": "npm:esbuild@latest",
     "esbuild-plugin-cache": "npm:esbuild-plugin-cache",
+    "linkedom": "npm:linkedom@0.18.5",
     "eslint-plugin-svelte": "npm:eslint-plugin-svelte@^2.35.0",
     "eslint": "npm:eslint@^8.55.0",
     "postcss-cli": "npm:postcss-cli@^11.0.1",
@@ -101,8 +102,11 @@
     "carbon-icons-svelte": "npm:carbon-icons-svelte@^13.3",
     "$bits-ui": "npm:bits-ui@^1.4",
 
-    "react": "npm:react@18",
-    "ink": "npm:ink@5",
+    "solid-js": "npm:solid-js@1.9.12/dist/solid.js",
+    "@opentui/core": "npm:@opentui/core@0.5.17",
+    "@opentui/solid": "npm:@opentui/solid@0.5.17",
+    "babel-preset-solid": "npm:babel-preset-solid@1.9.12",
+    "@babel/core": "npm:@babel/core@7.29.7",
 
     "@oak/oak": "jsr:@oak/oak@^17.1",
     "@oak/oak/application": "jsr:@oak/oak@^17.1/application",

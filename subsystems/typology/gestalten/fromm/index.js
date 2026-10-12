@@ -1,4 +1,7 @@
-import { not, cast, is, prototypes } from "@vivalence/typology";
+import { not } from "../not/index.js";
+import * as cast from "../cast/index.js";
+import * as is from "../is/index.js";
+import { Path } from "../../prototypes/path.js";
 
 export * from "./yield.js";
 
@@ -40,8 +43,8 @@ export const url = (thing) => {
         .split("/")
         .reverse();
 
-      return new prototypes.Path(file) //
-        .from(new prototypes.Path(dir.reverse().join("/")));
+      return new Path(file) //
+        .from(new Path(dir.reverse().join("/")));
     },
   };
 };
@@ -56,24 +59,13 @@ export const match = (steps) => {
   };
 };
 
-export const signal = (signal) => {
-  return {
-    get flags() {
-      return signal.array.reduce(
-        (acc, node) => (node.flags ? { ...acc, ...node.flags } : acc),
-        {},
-      );
-    },
-  };
-};
-
 export const params = (params) => {
   return {
     get path() {
       const segments = [];
       while (params[segments.length] !== undefined) segments.push(params[segments.length]);
-      if (!segments.length) return new prototypes.Path("/");
-      const path = new prototypes.Path(segments);
+      if (!segments.length) return new Path("/");
+      const path = new Path(segments);
       return path.fin ?? path;
     },
   };
@@ -95,3 +87,4 @@ export const slugmap = (slugmap) => {
     },
   };
 };
+export { controller } from "./controller.js";

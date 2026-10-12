@@ -1,5 +1,5 @@
 import { specimen } from "@vivalence/typology";
-import { Paladin, populate } from "@vivalence/paladin/typology";
+import { Paladin, lifecycle } from "@vivalence/paladin/typology";
 
 const { describe, it, expect } = specimen;
 
@@ -43,7 +43,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
       },
       async () => {
         const paladin = new Paladin();
-        await populate.env(paladin);
+        await lifecycle.paladin.env(paladin);
         expect(paladin.env.provenance("VIVA_PROBE_OS")).toBe("os");
         expect(paladin.env.provenance("PUBLIC_VIVA_PROBE_OS")).toBe("os");
         expect(paladin.secret.provenance("SECRET_VIVA_PROBE_OS")).toBe("os");
@@ -62,7 +62,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     );
     await scrubbed({ INIT_CWD: dir, VIVA_ENV_FILE: null }, async () => {
       const paladin = new Paladin();
-      await populate.env(paladin);
+      await lifecycle.paladin.env(paladin);
       expect(paladin.env.get("VIVA_PROBE_SCAN")).toBe("hit");
       expect(paladin.env.provenance("VIVA_PROBE_SCAN")).toBe(".env");
       expect(paladin.secret.provenance("SECRET_VIVA_PROBE_SCAN")).toBe(".env");
@@ -70,7 +70,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     });
     const bare = await Deno.makeTempDir();
     await scrubbed({ INIT_CWD: bare, VIVA_ENV_FILE: null }, async () => {
-      await populate.env(new Paladin());
+      await lifecycle.paladin.env(new Paladin());
     });
   });
 
@@ -81,13 +81,13 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     await Deno.writeTextFile(`${dir}/dark.env`, "SECRET_VIVA_PROBE_FILE=shh\n");
     await scrubbed({ INIT_CWD: dir, VIVA_ENV_FILE: `${dir}/knowledge.env` }, async () => {
       const paladin = new Paladin();
-      await populate.env(paladin);
+      await lifecycle.paladin.env(paladin);
       expect(paladin.env.provenance("VIVA_PROBE_FILE")).toBe(".env");
     });
     await scrubbed({ INIT_CWD: dir, VIVA_ENV_FILE: `${dir}/hollow.env` }, async () => {
       let thrown = null;
       try {
-        await populate.env(new Paladin());
+        await lifecycle.paladin.env(new Paladin());
       } catch (error) {
         thrown = error;
       }
@@ -95,7 +95,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     });
     await scrubbed({ INIT_CWD: dir, VIVA_ENV_FILE: `${dir}/dark.env` }, async () => {
       const paladin = new Paladin();
-      await populate.env(paladin);
+      await lifecycle.paladin.env(paladin);
       expect(paladin.secret.provenance("SECRET_VIVA_PROBE_FILE")).toBe(".env");
     });
   });
@@ -111,14 +111,14 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     await Deno.writeTextFile(`${home}/.env`, "VIVA_PROBE_LEDGER=machine\n");
     await scrubbed({ VIVA_PROCESS_ID: "424242" }, async () => {
       const paladin = mkScoped(home);
-      await populate.scopes(paladin);
+      await lifecycle.paladin.scopes(paladin);
       expect(paladin.env.get("VIVA_PROBE_SESSION")).toBe("shell");
       expect(paladin.env.provenance("VIVA_PROBE_SESSION")).toBe("session");
       expect(paladin.env.provenance("VIVA_PROBE_LEDGER")).toBe("ledger");
     });
     await scrubbed({ VIVA_PROCESS_ID: null }, async () => {
       const paladin = mkScoped(home);
-      await populate.scopes(paladin);
+      await lifecycle.paladin.scopes(paladin);
       expect(paladin.env.has("VIVA_PROBE_SESSION")).toBe(false);
       expect(paladin.env.provenance("VIVA_PROBE_LEDGER")).toBe("ledger");
     });
@@ -135,7 +135,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     );
     await scrubbed({ VIVA_PROCESS_ID: "424243" }, async () => {
       const paladin = mkScoped(home);
-      await populate.scopes(paladin);
+      await lifecycle.paladin.scopes(paladin);
       expect(paladin.env.get("VIVA_PROBE_OPEN")).toBe("public");
       expect(paladin.env.has("SECRET_VIVA_PROBE_DARK")).toBe(false);
       expect(paladin.secret.get("SECRET_VIVA_PROBE_DARK")).toBe("shh");
@@ -158,10 +158,10 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     );
     await scrubbed({ INIT_CWD: home, VIVA_PROCESS_ID: "424244" }, async () => {
       const paladin = mkScoped(home);
-      await populate.env(paladin);
+      await lifecycle.paladin.env(paladin);
       // the ambient reading is there, and on its own it would win
       expect(paladin.env.provenance("VIVA_INSTANCE_MOUNT")).toBe(".env");
-      await populate.scopes(paladin);
+      await lifecycle.paladin.scopes(paladin);
       expect(paladin.env.provenance("VIVA_INSTANCE_MOUNT")).toBe("session");
       expect(paladin.env.get("VIVA_INSTANCE_MOUNT")).toBe("/instances/from-session");
       // and the file contributes exactly once, at the stratum that owns it
@@ -180,7 +180,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     await scrubbed({ VIVA_MOUNTPOINT_MOUNT: null }, async () => {
       const paladin = mkScoped(home);
       paladin.env.set("VIVA_MOUNTPOINT_MOUNT", `${home}/custom-mountpoint`, "flag");
-      await populate.scopes(paladin);
+      await lifecycle.paladin.scopes(paladin);
       expect(paladin.scope.mountpoint.absolute).toBe(`${home}/custom-mountpoint`);
     });
   });
@@ -191,7 +191,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     const keys = Object.keys(paladin.mounts.properties);
     const flag = (key) => key.slice("VIVA_".length, -"_MOUNT".length).toLowerCase();
     for (const key of keys) paladin.env.set(key, `${home}/${flag(key)}`, "flag");
-    await populate.scopes(paladin);
+    await lifecycle.paladin.scopes(paladin);
     expect(Object.keys(paladin.scope).sort()).toEqual(keys.map(flag).sort());
     for (const key of keys) {
       const record = [];

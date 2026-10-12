@@ -1,4 +1,5 @@
 import { v } from "../v.js";
+import { Bundle } from "../prototypes/bundle.js";
 
 export const BufferDescriptor = {
   $id: "Buffer",
@@ -7,6 +8,7 @@ export const BufferDescriptor = {
     data: v.record(v.string(), v.unknown()).optional(),
     traits: v.array(v.string()).optional(),
     trait: v.record(v.string(), v.unknown()).optional(),
+    bundle: v.union([Bundle(), v.null()]).optional(),
   },
   relations: {
     mode: () => v.rel(v.mode()).optional(),
@@ -15,5 +17,5 @@ export const BufferDescriptor = {
     symbols: () => v.array(v.symbol()).optional(),
   },
   narrowable: ["data", "trait"],
-  spoken: ["id", "index", "mode", "thread", "traits", "trait", "view.hash"],
+  spoken: ["id", "index", "mode", "thread", "traits", "trait", "bundle.entries"],
 };

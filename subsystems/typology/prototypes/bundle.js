@@ -8,13 +8,14 @@ export class Bundle {
 
   constructor(record = {}) {
     if (record instanceof Bundle) return record;
-    if (Array.isArray(record)) record = { entries: record };
     this.entries = record.entries ?? [];
     this.url = record.url ?? null;
   }
 
-  entry(mount) {
-    return this.entries.find((candidate) => candidate.mount === mount);
+  static merge(...bundles) {
+    const entries = new Map();
+    for (const bundle of bundles) for (const entry of new Bundle(bundle).entries) entries.set(entry.mime, entry);
+    return new Bundle({ entries: [...entries.values()] });
   }
 
   withUrl(url) {
@@ -22,22 +23,28 @@ export class Bundle {
     return this;
   }
 
-  async load(mount) {
-    const entry = this.entry(mount) ?? this.entries[0];
-    if (!entry) throw new Error("bundle has no entries");
-    if (entry.integrity && verified.has(entry.integrity)) return verified.get(entry.integrity);
+  entry(type) {
+    return this.entries.find((candidate) => candidate.mime === type);
+  }
+
+  negotiate(accept) {
+    return accept.map((type) => this.entry(type)).find(Boolean) ?? null;
+  }
+
+  async load(accept) {
+    const entry = this.negotiate(accept);
+    if (!entry) throw new Error(`bundle offers none of ${accept.join(" · ")}: ${this.entries.map((held) => held.mime).join(" · ")}`);
+    if (verified.has(entry.integrity)) return verified.get(entry.integrity);
     const response = await fetch(this.url + entry.mount);
     if (!response.ok) throw new Error(`bundle fetch ${response.status}`);
     const text = await response.text();
-    if (entry.integrity) {
-      const digested = await digest(text);
-      if (digested !== entry.integrity)
-        throw new Error(`integrity sha256 ${digested.slice(0, 12)} is not ${entry.integrity.slice(0, 12)}`);
-    }
+    const digested = await digest(text);
+    if (digested !== entry.integrity)
+      throw new Error(`integrity sha256 ${digested.slice(0, 12)} is not ${entry.integrity.slice(0, 12)}`);
     const url = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
     try {
       const module = await import(/* @vite-ignore */ url);
-      if (entry.integrity) verified.set(entry.integrity, module);
+      verified.set(entry.integrity, module);
       return module;
     } finally {
       URL.revokeObjectURL(url);

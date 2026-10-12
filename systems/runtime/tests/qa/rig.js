@@ -4,7 +4,7 @@ import { DatabaseSync } from "node:sqlite";
 
 export const REPOSITORY = new URL("../../../../", import.meta.url).pathname.replace(/\/$/, "");
 const RUN = new URL("../../run.js", import.meta.url).pathname;
-const GHOST = join(REPOSITORY, "systems/ghost/mod.js");
+const GHOST = join(REPOSITORY, "systems/ghost/run.js");
 const CONFIG = join(REPOSITORY, "deno.jsonc");
 const READY = /^Status:RUNNING$/;
 const CARRIED = ["PATH", "TMPDIR", "TERM", "LANG", "DENO_DIR", "NO_COLOR"];
@@ -119,6 +119,7 @@ export async function boot(world, { shelf, slug, extra = {}, deadline = 120_000 
   });
   settled = true;
   clearTimeout(timer);
+  if (outcome.code === "DEADLINE") child.kill("SIGKILL");
   if (outcome.code !== null) await drained;
 
   const { origin } = world;
@@ -199,6 +200,10 @@ export const RECIPE = (slug, daemons, { hallucinators = [], clients = [] } = {})
     manifest: { slug: "runtime" },
     statics: { serve: "${VIVA_RUNTIME_SERVE}", remote: "${PUBLIC_VIVA_RUNTIME_REMOTE}" },
     secrets: { jwt: "${SECRET_VIVA_JWT}" },
+  },
+  lighthouse: {
+    secrets: { jwt: "${SECRET_VIVA_JWT}" },
+    traits: ["JOINABLE"],
   },
   datamap: { module: "@commons/datamap/libsql" },
   hallucinators,

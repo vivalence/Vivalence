@@ -1,0 +1,879 @@
+#+title: m93 tangle — the diff, file by file, in =ls= order
+#+status: TANGLED 10-19, anchors replayed on a copy (=* replay=); not landed. Rulings: =m93-kleisli-remonadization.org= =* the dialogue=.
+
+# limit: 40000 chars
+
+* departures — what the code forced past the rulings
+
+| # | where | what | why |
+|---+---+---+---|
+| 1 | =ghost/shell/lifecycle.js= | a local =client(clientSurface)= drops the die | Q3 meets Q6: a route effect's return becomes =ctx.output=, which =shell/lifecycle.js:9= prints; the die is a =Client= |
+| 2 | =runtime/entities/Process.ts:45-46= | =kill= awaits =settled= only of the processes it signalled | =stop= has no IDLE transition (=schematics/primitives/controller.js:17=); a daemon mid-boot in the parallel fan never settles |
+| 3 | ghost host · terminal · thread | ready = STARTED (=shard.controller.open= opens first) | runtime opens at the END (=process.keepalive=); both as today |
+| 4 | =ghost/gestalten/shard/host.js:5= | =status= catches, sets =$status= ERROR, rethrows | the =.catch= at =client/lifecycle/index.js:140= set it; the vector owns it now (Q7) |
+| 5 | =runtime/gestalten/belt/modes.js:3= | =resolve(context, factory, traits)= | the mode boots through its factory; =modes.test.js:36= · =bench.js:123= follow |
+| 6 | =ghost/client/lifecycle/index.js:146= | no =() => null= on a removed terminal's promise | a rejection there is a bug, loud (law 10) |
+| 8 | =belt/monad.js= | =kleisli= runs plain-value arrows in the caller's tick; =then= only past the first Promise | =ghost/tests/console.test.js:16-17= dispatches =/hello= unawaited: today the mode's =REPLING= graft lands inside =execute='s tick; =Promise.resolve(value).then(…)= deferred it → =NOT_FOUND= (census 10-19) |
+| 7 | every new =factory.js= | =export function factory(input)=, never =export const= | =runtime/typology.js:16= reads =runtime.factory= inside an import cycle; a =const= threw =Cannot access 'factory' before initialization= on the copy (10-19) |
+
+* the tangle
+
+** subsystems/typology
+
+*** gestalten/belt
+
+**** index.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/belt/index.js:24
+ export * as control from "./control.js";
++export * as monad from "./monad.js";
+ export * as cortex from "./cortex.js";
+#+END_SRC
+
+**** monad.js — new
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/monad.js
+export const kleisli = (arrows) => (value) => {
+  try {
+    return Promise.resolve(arrows.reduce((carried, arrow) => (carried instanceof Promise ? carried.then(arrow) : arrow(carried)), value));
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+
+export const traverse = (inputs, arrow) => Promise.all(inputs.map(arrow));
+#+END_SRC
+
+*** gestalten/shape
+
+**** factory.js — new
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shape/factory.js
+import * as steer from "../steer/index.js";
+import * as control from "../belt/control.js";
+
+export const idle = (die) => {
+  if (!die.controller.status.is("IDLE")) throw new Error(`${die.controller.stdout.absolute} is ${die.controller.status.reflection.code}, booted once already`);
+  return die;
+};
+
+export const dispatch = (execution) => (die) => {
+  steer.dispatch.execute(execution, die);
+  return die;
+};
+
+export const controlled = async (die) => {
+  await control.controlled(die.controller);
+  return die;
+};
+
+export const execute = (execution) => async (die) => {
+  await steer.dispatch.execute(execution, die);
+  return die;
+};
+
+export const ready = (execution) => [idle, dispatch(execution), controlled];
+#+END_SRC
+
+**** index.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shape/index.js:1
+ export * as connection from "./connection.js";
++export * as factory from "./factory.js";
+ export * from "./subscriber.js";
+#+END_SRC
+
+*** tests/gestalten
+
+**** belt/monad.test.js — new
+
+#+BEGIN_SRC js
+// subsystems/typology/tests/gestalten/belt/monad.test.js
+import { monad, specimen } from "@vivalence/typology";
+
+specimen.describe("monad — kleisli composes value → Promise<value> arrows", () => {
+  specimen.it("runs the arrows in order, each on what the last returned", async () => {
+    specimen.expect(await monad.kleisli([(n) => n + 1, async (n) => n * 10, (n) => n - 3])(1)).toBe(17);
+  });
+
+  specimen.it("arrows that hand back plain values run in the caller's tick — a boot starts before the caller's next line", () => {
+    const seen = [];
+    monad.kleisli([(n) => (seen.push(n), n + 1), (n) => seen.push(n)])(1);
+    specimen.expect(seen).toEqual([1, 2]);
+  });
+
+  specimen.it("a throwing arrow rejects the whole; the arrows after it never run", async () => {
+    const seen = [];
+    const arrows = [() => { throw new Error("refused"); }, (n) => seen.push(n)];
+    await specimen.expect(monad.kleisli(arrows)(1)).rejects.toThrow("refused");
+    specimen.expect(seen).toEqual([]);
+  });
+
+  specimen.it("traverse runs one arrow over every input at once; one rejection rejects the fan", async () => {
+    specimen.expect(await monad.traverse([1, 2, 3], async (n) => n * 2)).toEqual([2, 4, 6]);
+    await specimen.expect(monad.traverse([1, 2], async (n) => { if (n === 2) throw new Error("two"); return n; })).rejects.toThrow("two");
+  });
+});
+#+END_SRC
+
+**** shape/factory.test.js — new
+
+#+BEGIN_SRC js
+// subsystems/typology/tests/gestalten/shape/factory.test.js
+import { Controller, Vector, monad, shape, shard, sleep, specimen } from "@vivalence/typology";
+
+const held = () => new Vector().use(shard.controller.open).do(shard.controller.hold);
+const failing = () => new Vector().do((die) => die.controller.stdout.fault(new Error("refused")));
+
+specimen.describe("shape.factory — a die built, dispatched, handed back", () => {
+  specimen.it("ready resolves at RUNNING and hands back the same die", async () => {
+    const die = { controller: new Controller() };
+    specimen.expect(await monad.kleisli(shape.factory.ready(held()))(die)).toBe(die);
+    specimen.expect(die.controller.status.is("RUNNING")).toBe(true);
+    die.controller.abort.abort("test over");
+    await die.controller.settled;
+  });
+
+  specimen.it("a die through ready twice throws — a finished car at the entrance", async () => {
+    const die = { controller: new Controller() };
+    const boot = monad.kleisli(shape.factory.ready(held()));
+    await boot(die);
+    await specimen.expect(boot(die)).rejects.toThrow("booted once already");
+    die.controller.abort.abort("test over");
+    await die.controller.settled;
+  });
+
+  specimen.it("a failure before ready rejects the factory", async () => {
+    await specimen.expect(monad.kleisli(shape.factory.ready(failing()))({ controller: new Controller() })).rejects.toThrow();
+  });
+
+  specimen.it("execute waits for the run's end", async () => {
+    const seen = [];
+    const finishing = new Vector().do(async () => {
+      await sleep.ms(5);
+      seen.push("ran");
+    });
+    await monad.kleisli([shape.factory.execute(finishing)])({});
+    specimen.expect(seen).toEqual(["ran"]);
+  });
+});
+#+END_SRC
+
+** systems/ghost
+
+*** client
+
+**** factory.js
+
+#+BEGIN_SRC diff
+// systems/ghost/client/factory.js:1
+-import { steer } from "@vivalence/typology";
++import { monad, shape } from "@vivalence/typology";
+ import { Client } from "./prototype.js";
+ import { execution } from "./lifecycle/index.js";
+ import { chrome } from "./commands/chrome.js";
+
+-export const factory = (surface) => async (shellDie) => {
+-  const clientDie = new Client({ controller: shellDie.controller.branch("client"), mask: shellDie.mask, register: shellDie.register, instance: shellDie.instance, surface });
+-  clientDie.repl.graft(chrome);
+-  await steer.dispatch.execute(execution, clientDie);
+-  if (clientDie.controller.status.is("FAILED")) throw clientDie.controller.status.reflection.error;
+-};
++export const factory = (surface) =>
++  monad.kleisli([
++    (shellDie) => new Client({ controller: shellDie.controller.branch("client"), mask: shellDie.mask, register: shellDie.register, instance: shellDie.instance, surface }),
++    (clientDie) => {
++      clientDie.repl.graft(chrome);
++      return clientDie;
++    },
++    shape.factory.execute(execution),
++    (clientDie) => {
++      if (clientDie.controller.status.is("FAILED")) throw clientDie.controller.status.reflection.error;
++      return clientDie;
++    },
++  ]);
+#+END_SRC
+
+**** lifecycle/index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/client/lifecycle/index.js:1
+-import { Connection, Dataspace, Path, Url, Vector, belt, fromm, middleware, object, shard, steer, traits } from "@vivalence/typology";
++import { Connection, Dataspace, Path, Url, Vector, belt, fromm, middleware, monad, object, shard, traits } from "@vivalence/typology";
+…
+// systems/ghost/client/lifecycle/index.js:18
+-const HOSTS = { runtime: runtimeHost.lifecycle.execution, daemon: daemonHost.lifecycle.execution };
++const HOSTS = { runtime: runtimeHost.factory, daemon: daemonHost.factory };
+…
+// systems/ghost/client/lifecycle/index.js:47
+   for (const held of fromm.modes(clientDie.modes).flat)
+-    await steer.dispatch.execute(mode.lifecycle.execution, { mode: held, client: clientDie, controller: clientDie.controller });
++    await mode.factory(held)(clientDie);
+…
+// systems/ghost/client/lifecycle/index.js:138
+ export const hosts = async (clientDie, next) => {
+-  for (const held of [clientDie.runtime, ...clientDie.runtime.entities.daemon.$entities.get()])
+-    steer.dispatch.execute(HOSTS[held.type], { client: clientDie, [held.type]: held, controller: clientDie.controller.branch(held.reference.absolute) }).catch((error) => held.$status.set({ code: "ERROR", error }));
++  await monad.traverse([clientDie.runtime, ...clientDie.runtime.entities.daemon.$entities.get()], (held) => HOSTS[held.type](held)(clientDie));
+   await next();
+…
+// systems/ghost/client/lifecycle/index.js:146
+-  const reconcile = (rows) => {
+-    for (const row of rows) {
+-      if (held.has(row.id)) continue;
+-      row.controller = clientDie.controller.branch(`terminal/${row.id}`);
+-      held.set(row.id, row.controller);
+-      steer.dispatch.execute(terminalProcess.lifecycle.execution, { client: clientDie, controller: row.controller, terminal: row }).catch((error) => row.controller.stdout.fault(error));
+-    }
+-    for (const [id, controller] of held) {
+-      if (rows.some((row) => row.id === id)) continue;
+-      controller.abort.abort("removed");
+-      held.delete(id);
+-    }
+-  };
++  const reconcile = (terminals) => {
++    for (const terminal of terminals) {
++      if (held.has(terminal.id)) continue;
++      held.set(terminal.id, terminalProcess.factory(terminal)(clientDie));
++    }
++    for (const [id, booting] of held) {
++      if (terminals.some((terminal) => terminal.id === id)) continue;
++      booting.then((terminalDie) => terminalDie.controller.abort.abort("removed"));
++      held.delete(id);
++    }
++  };
+…
+// systems/ghost/client/lifecycle/index.js:164
+-    for (const controller of held.values()) controller.abort.abort("client stopped");
++    for (const booting of held.values()) booting.then((terminalDie) => terminalDie.controller.abort.abort("client stopped"));
+…
+// systems/ghost/client/lifecycle/index.js:188
+-    row.controller = active.controller.branch(`thread/${row.id}`);
+-    release = () => row.controller.abort.abort("thread unset");
+-    steer.dispatch.execute(threadProcess.lifecycle.execution, { client: clientDie, controller: row.controller, thread: row }).catch((error) => row.controller.stdout.fault(error));
++    const booting = threadProcess.factory(row)({ client: clientDie, controller: active.controller, terminal: active });
++    release = () => booting.then((threadDie) => threadDie.controller.abort.abort("thread unset"));
+#+END_SRC
+
+*** entities/daemon
+
+**** factory.js — new
+
+#+BEGIN_SRC js
+// systems/ghost/entities/daemon/factory.js
+import { monad, shape } from "@vivalence/typology";
+import { execution } from "./lifecycle/index.js";
+
+export function factory(daemon) {
+  return monad.kleisli([
+    (clientDie) => ({ client: clientDie, daemon, controller: clientDie.controller.branch(daemon.reference.absolute) }),
+    ...shape.factory.ready(execution),
+  ]);
+}
+#+END_SRC
+
+**** index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/daemon/index.js:1
+ export { Daemon, repository, hydration } from "./prototype.js";
++export { factory } from "./factory.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+
+**** lifecycle/index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/daemon/lifecycle/index.js:4
+-export const execution = new Vector().use(host.status("daemon")).use(host.metadata("daemon")).use(host.cortex("daemon")).use(host.modes("daemon")).use(host.mounted("daemon")).do(shard.controller.hold);
++export const execution = new Vector().use(shard.controller.open).use(host.status("daemon")).use(host.metadata("daemon")).use(host.cortex("daemon")).use(host.modes("daemon")).use(host.mounted("daemon")).do(shard.controller.hold);
+#+END_SRC
+
+*** entities/mode
+
+**** factory.js — new
+
+#+BEGIN_SRC js
+// systems/ghost/entities/mode/factory.js
+import { monad, shape } from "@vivalence/typology";
+import { execution } from "./lifecycle/index.js";
+
+export function factory(mode) {
+  return monad.kleisli([
+    (clientDie) => ({ mode, client: clientDie, controller: clientDie.controller }),
+    shape.factory.execute(execution),
+  ]);
+}
+#+END_SRC
+
+**** index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/index.js:1
+ export { Mode, repository, hydration } from "./prototype.js";
++export { factory } from "./factory.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+
+*** entities/runtime
+
+**** factory.js — new
+
+#+BEGIN_SRC js
+// systems/ghost/entities/runtime/factory.js
+import { monad, shape } from "@vivalence/typology";
+import { execution } from "./lifecycle/index.js";
+
+export function factory(runtime) {
+  return monad.kleisli([
+    (clientDie) => ({ client: clientDie, runtime, controller: clientDie.controller.branch(runtime.reference.absolute) }),
+    ...shape.factory.ready(execution),
+  ]);
+}
+#+END_SRC
+
+**** index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/runtime/index.js:1
+ export { Runtime } from "./prototype.js";
++export { factory } from "./factory.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+
+**** lifecycle/index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/runtime/lifecycle/index.js:4
+-export const execution = new Vector().use(host.status("runtime")).use(host.metadata("runtime")).use(host.cortex("runtime")).use(host.modes("runtime")).use(host.mounted("runtime")).do(shard.controller.hold);
++export const execution = new Vector().use(shard.controller.open).use(host.status("runtime")).use(host.metadata("runtime")).use(host.cortex("runtime")).use(host.modes("runtime")).use(host.mounted("runtime")).do(shard.controller.hold);
+#+END_SRC
+
+*** entities/terminal
+
+**** factory.js — new
+
+#+BEGIN_SRC js
+// systems/ghost/entities/terminal/factory.js
+import { monad, shape } from "@vivalence/typology";
+import { execution } from "./lifecycle/index.js";
+
+export function factory(terminal) {
+  return monad.kleisli([
+    (clientDie) => {
+      terminal.controller = clientDie.controller.branch(`terminal/${terminal.id}`);
+      return { client: clientDie, controller: terminal.controller, terminal };
+    },
+    ...shape.factory.ready(execution),
+  ]);
+}
+#+END_SRC
+
+**** index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/terminal/index.js:1
+ export { Terminal, repository, hydration } from "./prototype.js";
++export { factory } from "./factory.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+
+**** lifecycle/index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/terminal/lifecycle/index.js:10
+-export const execution = new Vector().use(verbs).do(shard.controller.hold);
++export const execution = new Vector().use(shard.controller.open).use(verbs).do(shard.controller.hold);
+#+END_SRC
+
+*** entities/thread
+
+**** factory.js — new
+
+#+BEGIN_SRC js
+// systems/ghost/entities/thread/factory.js
+import { monad, shape } from "@vivalence/typology";
+import { execution } from "./lifecycle/index.js";
+
+export function factory(thread) {
+  return monad.kleisli([
+    (terminalDie) => {
+      thread.controller = terminalDie.controller.branch(`thread/${thread.id}`);
+      return { client: terminalDie.client, controller: thread.controller, thread };
+    },
+    ...shape.factory.ready(execution),
+  ]);
+}
+#+END_SRC
+
+**** index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/thread/index.js:1
+ export { Thread, repository, hydration } from "./prototype.js";
++export { factory } from "./factory.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+
+**** lifecycle/index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/thread/lifecycle/index.js:19
+-export const execution = new Vector().use(activity).do(shard.controller.hold);
++export const execution = new Vector().use(shard.controller.open).use(activity).do(shard.controller.hold);
+#+END_SRC
+
+*** gestalten/shard
+
+**** host.js
+
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/shard/host.js:5
+ export const status = (type) => async (die, next) => {
+   die[type].$status.set({ code: "MOUNTING" });
+-  die[type].$status.set(await die[type].aperture.call("/status"));
+-  const off = die[type].aperture.branch("/status").subscribe(
+-    "/subscribe",
+-    (reflection) => {
+-      if (reflection.code !== "RUNNING") return die[type].$status.set({ code: "UNAVAILABLE" });
+-      if (die[type].$status.get().code === "UNAVAILABLE") die[type].$status.set({ code: "HEALTHY" });
+-    },
+-    { dropped: () => die[type].$status.set({ code: "UNAVAILABLE" }) },
+-  );
+-  try {
+-    await next();
+-  } finally {
+-    off();
++  try {
++    die[type].$status.set(await die[type].aperture.call("/status"));
++    const off = die[type].aperture.branch("/status").subscribe(
++      "/subscribe",
++      (reflection) => {
++        if (reflection.code !== "RUNNING") return die[type].$status.set({ code: "UNAVAILABLE" });
++        if (die[type].$status.get().code === "UNAVAILABLE") die[type].$status.set({ code: "HEALTHY" });
++      },
++      { dropped: () => die[type].$status.set({ code: "UNAVAILABLE" }) },
++    );
++    try {
++      await next();
++    } finally {
++      off();
++    }
++  } catch (error) {
++    die[type].$status.set({ code: "ERROR", error });
++    throw error;
+   }
+ };
+#+END_SRC
+
+*** shell
+
+**** lifecycle.js
+
+#+BEGIN_SRC diff
+// systems/ghost/shell/lifecycle.js:3
+ import * as surface from "../surface/index.js";
+
++const client = (clientSurface) => async (shellDie) => {
++  await clientFactory(clientSurface)(shellDie);
++};
++
+ export const shell = new Vector()
+…
+// systems/ghost/shell/lifecycle.js:20
+-    clientFactory(surface.repl),
++    client(surface.repl),
+…
+// systems/ghost/shell/lifecycle.js:27
+-    clientFactory(surface.chrome),
++    client(surface.chrome),
+…
+// systems/ghost/shell/lifecycle.js:29
+-  .do(clientFactory(surface.repl));
++  .do(client(surface.repl));
+#+END_SRC
+
+*** typology.js
+
+#+BEGIN_SRC diff
+// systems/ghost/typology.js:17
+-export const factories = { client: client.factory };
++export const factories = { client: client.factory, terminal: terminal.factory, thread: thread.factory, mode: mode.factory, daemon: daemon.factory, runtime: runtime.factory };
+#+END_SRC
+
+** systems/runtime
+
+*** daemon
+
+**** factory.js — new
+
+#+BEGIN_SRC js
+// systems/runtime/daemon/factory.js
+import { monad, shape } from "@vivalence/typology";
+import { execution } from "./lifecycle/index.js";
+
+export function factory(daemon) {
+  return monad.kleisli([
+    (runtimeDie) => ({ runtime: runtimeDie.runtime, controller: daemon.controller, mask: daemon.mask, daemon }),
+    ...shape.factory.ready(execution),
+  ]);
+}
+#+END_SRC
+
+**** index.js
+
+#+BEGIN_SRC diff
+// systems/runtime/daemon/index.js:1
+ export { Daemon } from "./prototype.js";
++export { factory } from "./factory.js";
+ export * from "./Daemon.ts";
+#+END_SRC
+
+**** lifecycle/index.js
+
+#+BEGIN_SRC diff
+// systems/runtime/daemon/lifecycle/index.js:6
+-import { execution as mode } from "../../mode/lifecycle/index.js";
++import { factory as mode } from "../../mode/factory.js";
+#+END_SRC
+
+**** lifecycle/resolution.js
+
+#+BEGIN_SRC diff
+// systems/runtime/daemon/lifecycle/resolution.js:25
+-export const modes = (execution) => async (die, next) => {
++export const modes = (factory) => async (die, next) => {
+   try {
+-    await belt.modes.resolve(die.daemon, execution, die.traits);
++    await belt.modes.resolve(die.daemon, factory, die.traits);
+#+END_SRC
+
+*** entities
+
+**** Process.ts
+
+#+BEGIN_SRC diff
+// systems/runtime/entities/Process.ts:2
+-import { control, steer, v } from "@vivalence/typology";
++import { v } from "@vivalence/typology";
+…
+// systems/runtime/entities/Process.ts:9
+   controller = null;
+-  execution = null;
+
+…
+// systems/runtime/entities/Process.ts:25
+     return this.controller?.status.reflection.code ?? null;
+   }
+-
+-  async execute(execution, context = {}) {
+-    if (this.execution) throw new Error(`${this.type} ${this.slug} is executed`);
+-    this.execution = steer.dispatch.execute(execution, { ...context, controller: this.controller, mask: this.mask, [this.type]: this });
+-    await control.controlled(this.controller);
+-    return this;
+-  }
+ }
+…
+// systems/runtime/entities/Process.ts:45
+-    await Promise.all(processes.filter((process) => transitions[signals[signal]][process.status]).map((process) => process.controller.kill(signal)));
+-    if (["stop", "abort"].includes(signals[signal])) await Promise.all(processes.map((process) => process.execution));
++    const signalled = processes.filter((process) => transitions[signals[signal]][process.status]);
++    await Promise.all(signalled.map((process) => process.controller.kill(signal)));
++    if (["stop", "abort"].includes(signals[signal])) await Promise.all(signalled.map((process) => process.controller.settled));
+…
+// systems/runtime/entities/Process.ts:68
+-    execution: { type: "any", persist: false, hidden: true, nullable: true },
+#+END_SRC
+
+*** gestalten/belt
+
+**** modes.js
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/belt/modes.js:1
+-import { fromm, steer } from "@vivalence/typology";
++import { fromm } from "@vivalence/typology";
+
+-export const resolve = async (context, execution, traits) => {
++export const resolve = async (context, factory, traits) => {
+   for (const mode of fromm.modes(context.modes).flat) {
+-    await steer.dispatch.execute(execution, { mask: mode.module, mode, context, traits });
++    await factory(mode)({ context, traits });
+   }
+#+END_SRC
+
+*** lighthouse
+
+**** factory.js — new
+
+#+BEGIN_SRC js
+// systems/runtime/lighthouse/factory.js
+import { monad, shape } from "@vivalence/typology";
+import { execution } from "./lifecycle/index.js";
+
+export function factory(lighthouse) {
+  return monad.kleisli([
+    (runtimeDie) => ({ lighthouse, runtime: runtimeDie.runtime, aperture: runtimeDie.aperture, controller: runtimeDie.controller }),
+    shape.factory.execute(execution),
+  ]);
+}
+#+END_SRC
+
+**** index.js
+
+#+BEGIN_SRC diff
+// systems/runtime/lighthouse/index.js:1
+ export { Lighthouse } from "./prototype.js";
++export { factory } from "./factory.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+
+*** mode
+
+**** factory.js — new
+
+#+BEGIN_SRC js
+// systems/runtime/mode/factory.js
+import { monad, shape } from "@vivalence/typology";
+import { execution } from "./lifecycle/index.js";
+
+export function factory(mode) {
+  return monad.kleisli([
+    (parentDie) => ({ mask: mode.module, mode, context: parentDie.context, traits: parentDie.traits }),
+    shape.factory.execute(execution),
+  ]);
+}
+#+END_SRC
+
+**** index.js
+
+#+BEGIN_SRC diff
+// systems/runtime/mode/index.js:1
+ export * from "./Mode.ts";
++export { factory } from "./factory.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+
+*** run.js
+
+#+BEGIN_SRC diff
+// systems/runtime/run.js:1
+ import paladin, { factories } from "@vivalence/paladin";
+-import { Aperture, Controller, Path, Span, steer } from "@vivalence/typology";
+-import { Runtime } from "./runtime/prototype.js";
+-import { execution } from "./runtime/lifecycle/index.js";
++import { Controller, Span } from "@vivalence/typology";
++import { factory } from "./runtime/factory.js";
+
+ if (import.meta.main) {
+   await factories.instance(paladin.instance);
+
+-  const die = {
+-    mask: paladin.instance.runtime,
+-    aperture: new Aperture(),
+-    controller: new Controller({
+-      stdout: new Span(`runtime/${paladin.instance.runtime.manifest.slug}`),
+-    }),
+-    runtime: new Runtime({
+-      instance: paladin.instance,
+-      slug: paladin.instance.runtime.manifest.slug,
+-      reference: new Path(paladin.instance.runtime.reference),
+-    }),
+-  };
++  const controller = new Controller({
++    stdout: new Span(`runtime/${paladin.instance.runtime.manifest.slug}`),
++  });
+
+-  die.controller.stdout.to((record) =>
++  controller.stdout.to((record) =>
+     console.log(`[${record.path}] ${record.verb}`, record.data ?? record.message ?? ""),
+   );
+-  die.controller.stdout.to(
++  controller.stdout.to(
+     (record) =>
+       record.verb === "open" &&
+-      record.span === die.controller.stdout.id &&
+-      console.log(die.controller.status),
++      record.span === controller.stdout.id &&
++      console.log(controller.status),
+   );
+   for (const signal of ["SIGTERM", "SIGINT", "SIGQUIT"])
+-    Deno.addSignalListener(signal, () => die.controller.kill("SIGTERM", signal));
++    Deno.addSignalListener(signal, () => controller.kill("SIGTERM", signal));
+
+-  await steer.dispatch.execute(execution, die);
+-  Deno.exit(die.controller.status.is("STOPPED") ? 0 : 1);
++  await factory(paladin.instance)({ controller });
++  Deno.exit(controller.status.is("STOPPED") ? 0 : 1);
+ }
+#+END_SRC
+
+*** runtime
+
+**** factory.js — new
+
+#+BEGIN_SRC js
+// systems/runtime/runtime/factory.js
+import { Aperture, Path, monad, shape } from "@vivalence/typology";
+import { Runtime } from "./prototype.js";
+import { execution } from "./lifecycle/index.js";
+
+export function factory(instance) {
+  return monad.kleisli([
+    (processDie) => ({
+      mask: instance.runtime,
+      aperture: new Aperture(),
+      controller: processDie.controller,
+      runtime: new Runtime({ instance, slug: instance.runtime.manifest.slug, reference: new Path(instance.runtime.reference) }),
+    }),
+    shape.factory.execute(execution),
+  ]);
+}
+#+END_SRC
+
+**** index.js
+
+#+BEGIN_SRC diff
+// systems/runtime/runtime/index.js:1
+ export { Runtime } from "./prototype.js";
++export { factory } from "./factory.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+
+**** lifecycle/index.js
+
+#+BEGIN_SRC diff
+// systems/runtime/runtime/lifecycle/index.js:6
+-import { execution as lighthouse } from "../../lighthouse/lifecycle/index.js";
+-import { execution as daemon } from "../../daemon/lifecycle/index.js";
+-import { execution as service } from "../../service/lifecycle/index.js";
+-import { execution as mode } from "../../mode/lifecycle/index.js";
++import { factory as lighthouse } from "../../lighthouse/factory.js";
++import { factory as daemon } from "../../daemon/factory.js";
++import { factory as service } from "../../service/factory.js";
++import { factory as mode } from "../../mode/factory.js";
+#+END_SRC
+
+**** lifecycle/resolution.js
+
+#+BEGIN_SRC diff
+// systems/runtime/runtime/lifecycle/resolution.js:2
+-import { Cargo, contexts, fromm, shape, shard, steer } from "@vivalence/typology";
++import { Cargo, contexts, fromm, monad, shape, shard } from "@vivalence/typology";
+…
+// systems/runtime/runtime/lifecycle/resolution.js:6
+-export const lighthouse = (execution) => async (die, next) => {
+-  await steer.dispatch.execute(execution, { lighthouse: die.runtime.lighthouse, runtime: die.runtime, aperture: die.aperture, controller: die.controller });
++export const lighthouse = (factory) => async (die, next) => {
++  await factory(die.runtime.lighthouse)(die);
+   await next();
+ };
+
+-export const services = (execution) => async (die, next) => {
++export const services = (factory) => async (die, next) => {
+   try {
+-    for (const service of await die.runtime.processes.service.find()) await service.execute(execution);
++    await monad.traverse(await die.runtime.processes.service.find(), (service) => factory(service)(die));
+     await next();
+…
+// systems/runtime/runtime/lifecycle/resolution.js:20
+-export const daemons = (execution) => async (die, next) => {
++export const daemons = (factory) => async (die, next) => {
+   try {
+-    for (const daemon of await die.runtime.processes.daemon.find()) await daemon.execute(execution, { runtime: die.runtime });
++    await monad.traverse(await die.runtime.processes.daemon.find(), (daemon) => factory(daemon)(die));
+     await next();
+…
+// systems/runtime/runtime/lifecycle/resolution.js:29
+-export const modes = (execution) => async (die, next) => {
++export const modes = (factory) => async (die, next) => {
+…
+// systems/runtime/runtime/lifecycle/resolution.js:32
+-    await belt.modes.resolve(die.runtime, execution, die.traits);
++    await belt.modes.resolve(die.runtime, factory, die.traits);
+#+END_SRC
+
+*** service
+
+**** factory.js — new
+
+#+BEGIN_SRC js
+// systems/runtime/service/factory.js
+import { monad, shape } from "@vivalence/typology";
+import { execution } from "./lifecycle/index.js";
+
+export function factory(service) {
+  return monad.kleisli([
+    () => ({ controller: service.controller, mask: service.mask, service }),
+    ...shape.factory.ready(execution),
+  ]);
+}
+#+END_SRC
+
+**** index.js
+
+#+BEGIN_SRC diff
+// systems/runtime/service/index.js:1
+ export { Service } from "./prototype.js";
++export { factory } from "./factory.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+
+*** tests
+
+**** modes.test.js
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/modes.test.js:1
+-import { Aperture, Controller, fromm, Mode, Path, specimen, Vector } from "@vivalence/typology";
++import { Aperture, Controller, fromm, Mode, monad, Path, shape, specimen, Vector } from "@vivalence/typology";
+…
+// systems/runtime/tests/modes.test.js:24
+   });
+
++const factory = (seen) => (mode) =>
++  monad.kleisli([
++    (parentDie) => ({ mask: mode.module, mode, context: parentDie.context, traits: parentDie.traits }),
++    shape.factory.execute(execution(seen)),
++  ]);
++
+ specimen.describe("gestalten.belt.modes — one way to run modes on either rung", () => {
+…
+// systems/runtime/tests/modes.test.js:36
+-      await modes.resolve(context, execution(seen), {});
++      await modes.resolve(context, factory(seen), {});
+#+END_SRC
+
+**** scenarios/bench.js
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/bench.js:3
+-import { Daemon, lifecycle, sets, kernel, gestalten, ActivityEntity, ActivityRepository, UserEntity, DaemonEntity, BufferEntity, traits as catalog } from "@vivalence/runtime";
++import { Daemon, factories, lifecycle, sets, kernel, gestalten, ActivityEntity, ActivityRepository, UserEntity, DaemonEntity, BufferEntity, traits as catalog } from "@vivalence/runtime";
+…
+// systems/runtime/tests/scenarios/bench.js:123
+-    lifecycle.daemon.resolution.modes(lifecycle.mode.execution),
++    lifecycle.daemon.resolution.modes(factories.mode),
+#+END_SRC
+
+*** typology.js
+
+#+BEGIN_SRC diff
+// systems/runtime/typology.js:15
+ export const lifecycle = { runtime: runtime.lifecycle, lighthouse: lighthouse.lifecycle, daemon: daemon.lifecycle, service: service.lifecycle, mode: mode.lifecycle };
++export const factories = { runtime: runtime.factory, lighthouse: lighthouse.factory, daemon: daemon.factory, service: service.factory, mode: mode.factory };
+#+END_SRC
+
+* replay
+
+10-19, on a copy of the touched files: =python3 .ikiro/methods/apply-diffs.py .ikiro/quests/m93-kleisli-remonadization.tangle.org "* the tangle" --root <copy>=
+
+#+BEGIN_EXAMPLE
+files 31 · hunks landed 51 · missed 0 · dry
+#+END_EXAMPLE
+
+Census on a full tangled copy versus an untouched one: =m93-kleisli-remonadization.org= =* testing assessment=.

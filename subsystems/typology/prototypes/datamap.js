@@ -1,5 +1,5 @@
 import { RequestContext } from "@mikro-orm/core";
-import { shape } from "@vivalence/typology";
+import * as shape from "../gestalten/shape/index.js";
 
 export class Datamap {
   constructor(orm) {

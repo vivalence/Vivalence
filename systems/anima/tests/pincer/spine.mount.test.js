@@ -3,8 +3,8 @@ import { atom } from "nanostores";
 import { LIGHTHOUSE } from "../../src/client.js";
 import { CLIENT, DRAPES, ENTRY, KIT, SRC, build, dom, fire, send, words } from "../dock/rig.js";
 
-const ACTIVITY = new URL("typology/entities/activity.js", SRC).href;
-const GEOMETRY = new URL("typology/stores/bridge/geometry.js", SRC).href;
+const ACTIVITY = new URL("entities/activity.js", SRC).href;
+const GEOMETRY = new URL("bridge/geometry.js", SRC).href;
 const PROJECT = new URL("app/bones/spine/activity.js", SRC).href;
 const PLACE = new URL("panels/float.js", DRAPES).href;
 

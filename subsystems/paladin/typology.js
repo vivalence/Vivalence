@@ -1,6 +1,11 @@
-export * from "./prototypes/index.js";
-export * from "./lifecycle/index.js";
-
-export * as prototypes from "./prototypes/index.js";
-export * as lifecycle from "./lifecycle/index.js";
-export * as belt from "./belt/index.js";
+import * as paladinLifecycle from "./paladin/lifecycle.js";
+import { factory as instance } from "./instance/factory.js";
+import * as instanceLifecycle from "./instance/lifecycle/index.js";
+export { Paladin } from "./paladin/prototype.js";
+export { Pensieve } from "./prototypes/pensieve.js";
+export { Manifest } from "./prototypes/manifest.js";
+export { Instance } from "./instance/prototype.js";
+export * from "./ledger/index.js";
+export * as gestalten from "./gestalten/index.js";
+export const factories = { instance };
+export const lifecycle = { paladin: paladinLifecycle, instance: instanceLifecycle };

@@ -499,7 +499,7 @@ The sheet above carries the first option of each.
 | who sets zone 2 | the mode declares itself an island · the host decides |
 | a key's rest shadow · the mark's variant | composed in the view · `shape.key` · `shape.mark` |
 | the text floor | five steps, `muted` for labels only · four steps |
-| fonts | outside the tree · a sixth group `font` |
+| fonts | RULED 09-28 inside the theme (`quests/done/m73-anima-and-design-system-comps.org:219`): six names kept, per theme file · live table `reference/client-design-briefing-ii.md` §1 |
 | who reads `--size-*` | tailwind remapped · drapes' size maps rewritten |
 | a key's fill against its ground (parchment's is 1.00:1 on two grounds) | told by ring and drop · the fill clears every ground |
 | a floor for `boundary-strong` (northsea's is under 3:1 on 8 of 12 grounds) | none · 3:1 on every depth step |

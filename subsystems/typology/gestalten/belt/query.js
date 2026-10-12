@@ -1,4 +1,4 @@
-import * as is from "../is/index.js";
+import * as is from "../is/scalars.js";
 
 const like = (pattern) => {
   const source = String(pattern)

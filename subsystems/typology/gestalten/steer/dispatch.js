@@ -1,4 +1,7 @@
-import { Signal, Signature, Long, Short, middleware, NotFound } from "@vivalence/typology";
+import { Signal } from "../../prototypes/signal.js";
+import { Signature } from "../../prototypes/signature.js";
+import { Long, Short, NotFound } from "../../prototypes/errors/vector.js";
+import * as middleware from "../belt/middleware.js";
 import { scope, feed } from "./match.js";
 import { request, resolve } from "./strategy.js";
 import { descend } from "./trie.js";
@@ -15,18 +18,27 @@ export function traverse(vector, signals) {
   let carry = middleware.forward;
   let steps = [];
   let remainder = 0;
+  let missing = null;
+
+  const miss = () => {
+    if (missing === null) return [null, carry, steps, position];
+    const match = missing.edge.pattern.apply(signals.array[missing.depth]);
+    return [missing.edge.trajectory.effect, descend(missing.carry, missing.position), [...steps.slice(0, missing.depth), match], missing.edge.trajectory];
+  };
 
   for (const signal of signals.array) {
+    if (position.trie.has("*")) missing = { edge: position.trie.get("*"), carry, position, depth: steps.length };
+
     if (signal.nature == null) {
-      carry = descend(carry, position);
-      return [position.effect ?? null, carry, steps, position];
+      if (position.effect) return [position.effect, descend(carry, position), steps, position];
+      return miss();
     }
 
     let match, trajectory, effect;
     try {
       [match, trajectory, effect] = feed(scope(position, signal), signal);
     } catch (error) {
-      if (error instanceof NotFound) return [null, carry, steps, position];
+      if (error instanceof NotFound) return miss();
       throw error;
     }
 
@@ -55,7 +67,8 @@ export function traverse(vector, signals) {
     if (trajectory) position = trajectory;
   }
 
-  return [position.effect ?? null, carry, steps, position];
+  if (position.effect) return [position.effect, carry, steps, position];
+  return miss();
 }
 
 export function invoke(vector, signal, execute = request) {

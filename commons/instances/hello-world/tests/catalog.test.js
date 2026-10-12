@@ -1,6 +1,6 @@
 import { contexts, Controller, fromm, Path, shard, Span, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
-const { GENERATIVE } = traits;
+const { GENERATIVE } = traits.mode;
 import { generator, tools } from "../mode.viva.js";
 
 // the mode's report() reads paladin directly, so the fake daemon supplies only what it walks;

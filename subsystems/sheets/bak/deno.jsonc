@@ -1,8 +1,8 @@
 {
   "name": "@vivalence/sheets",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "exports": {
-    ".": "./mod.js",
-    // "./shell": "./mod.js",
-  },
+    ".": "./index.js",
+    "./host": "./host/index.js"
+  }
 }

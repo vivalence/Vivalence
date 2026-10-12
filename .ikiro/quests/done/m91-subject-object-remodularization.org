@@ -1,0 +1,671 @@
+#+title: m91 subject-object remodularization — a SUBJECT runs and owns a directory (prototype · factory · lifecycle · traits · commands · apertures); its PREDICATES are factory · lifecycle · traits · commands · apertures; the predicate directories (entities · prototypes · gestalten · schematics) hold what no subject owns; the typology export is predicative
+#+filetags: :runtime:ghost:anima:paladin:typology:structure:
+#+status: DONE 10-19 — milestones 1-4 · 6 landed and re-verified 10-19 (grep rows 0; paladin 54·228 · runtime 52·330 · mode 10·60 · daemon 7·65 · ghost 9·26 · smoke 1·6); milestone 5 (the vocabulary) handed to =m94-trait-rejiggle.org= (beef 10-19: /"m94 takes care of [5]. so done"/); 4 QA markers held.
+
+# limit: 40000 chars
+
+* intent
+
+10-17, verbatim, on `systems/runtime/traits/mounted.js:3`: /"it doesn't actually make sense that we have traits just inside of the runtime at all. They traits are still per entity. […] all of the traits there are, I think, for the modes, so scope them in modes"/ — then, after the move landed under =lifecycle/mode/traits/=: /"I'm not sure that that is the right location for this. […] we need the name for that. It's not an entity because entity is ORM, mikro ORM specific. […] It's a subject. Let's call it subject. Subjects and objects."/
+
+/"if we go subject first, that would be that we have on the top level the mode and the runtime, and then in there we have the traits, the lifecycle, the prototypes, and such. Going object first would be that we have the lifecycles and prototypes and traits at the top level, and then the subjects in there. […] I know that for the typology, absolutely it makes sense to be objective in the structure, but I always run into problems with systems on the systems level when we structure by object. It just gets hard to reason."/
+
+/"the client and runtime are kind of pairs […] seen through vectors. It's just executions of vectors that result that either create something that's kept alive or something, or where we react to an event and do something against the stuff that's alive."/
+
+/"the terms that we have settled are entities, traits, commands, prototypes, apertures, gestalten. Executions I don't like. Life cycle makes sense as a grouping, but I don't like it as an export. […] the lifecycle exports factories. […] it does make sense to export the life cycles for testing. But in use we never ever import lifecycles. We just use the factories. That also applies to the paladin."/
+
+/"we supersede whatever m83 said"/ (on =gestalten/tools/<subject>.js= where "subject" meant the entity acted on).
+
+* terrain — measured 10-17
+
+| system | axis today | subjects | predicate dirs |
+|---+---+---+---|
+| =systems/runtime= | object; subject inside ONE object | runtime lighthouse daemon service mode | entities prototypes lifecycle schematics gestalten | =lifecycle/<x>/{execution,population,resolution,integration}.js=; traits at =lifecycle/{mode,lighthouse,service}/traits/= (mode moved 10-17 from =traits/=) | |
+| =systems/ghost= | subject under =typology/=, =app/= beside it | client terminal thread mode lighthouse daemon runtime (+ shell in =app/=) | prototypes gestalten | =typology/<x>/{<x>.js,execution.js,traits/,commands/}=; =app/client/index.js:5= already exports =factory= | |
+| =systems/anima/src= | subject under the word =entities/=, plus a =stores/= root | daemon mode thread; =stores/= holds lighthouse terminals box bridge | prototypes gestalten | =typology/entities/<x>/=; no mikro there | |
+| =subsystems/paladin= | object, pure | instance (=lifecycle.mount=) ledger paladin | belt prototypes lifecycle skills | =lifecycle/index.js:9= =mount= composes =populate → resolve → integrate= — a factory already | |
+| =subsystems/typology= | predicative, pure — STAYS | — | prototypes schematics gestalten entities | his word: /"for the typology, absolutely objective"/ | |
+
+Mode today: seven homes in four packages (=entities/Mode.ts= · =lifecycle/mode/*= · =lifecycle/mode/traits/= · =gestalten/belt/modes.js= · typology prototype + schematic · =paladin/lifecycle/resolve.js:68=).
+
+Subjects by nature (entity · process · prototype · lifecycle · traits per subject): =world/codemap/runtime.md=.
+
+** owners — measured: none ownerless. Commands: ghost client (help · quit) · terminal (turn · mode/{list,pick} · application/{start,stop}). Tools: runtime =gestalten/tools/{entity,buffer,thread,mode}= grafted by the mode harness; paladin =tools/{fs,shell}= by the runtime harness + 3 registry apertures. Beats: =userspace= (runtime) · =datamap · freight= (daemon) · =host.{entities,metadata,cortex}= (runtime AND daemon, each on its own die). The one Vector: =lighthouse/aperture.js:21= (users). One owner → the subject's directory; two → =gestalten/shard/=.
+
+* the dialogue — the rulings, as built
+
+| Q | his ruling, verbatim | built as |
+|---+----------------------+----------|
+| 0 the name | /"It's a subject. Let's call it subject. Subjects and objects."/ · /"process doesn't really cut it"/ · /"stop calling it rows, it's entities. So we have entity, process, prototype, lifecycle, and trait."/ | law 1 |
+| 1 the axis | /"a for sure."/ · /"rename that prototype.js. So we have prototype.js, factory.js, lifecycle.js."/ · /"Executions I don't like."/ · /"the lifecycle exports factories […] in use we never ever import lifecycles"/ · /"paladin has belt directly under paladin. There it should be wrapped into gestalten."/ | law 2 · 6; the tree below |
+| 1b owners | /"Is there only ever one subject of a command? […] be clever about the way that we have tools, commands, and apertures."/ · /"we supersede whatever m83 said"/ | law 4 |
+| 2 the export | /"I expect the typology export to be structured objectively."/ · /"q2 b."/ | law 5; each =typology.js= below |
+| 3 the vocabulary | /"b"/ (schematic over catalog) | law 7; =subsystems/typology= below |
+| G the grammar | /"does it make sense to structure each system as subject object verb and its exports and interfaces as predicates?"/ · /"interesting conceptually. maybe on a narrative level. but we stay on the ruling."/ | law 8 — a reading, never a layout. REJECTED: =subject/ object/ verb/ adjective/= as directories |
+| 4 the factory | /"a. for sure. combinatorical factories. i am sure there is some functional algebra for this. this is a massive rework. independent deliverable."/ · /"we do the reordering of the filesystem independent and before we do q3."/ | law 9; =m93-kleisli-remonadization.org= |
+| 5 the surface | /"chrome stays largely as is."/ · /"move chrome up one level as sibling of client"/ (10-19) | =surface/= whole, beside =client/=; two owners (shell · client) → never inside one; the factory's one argument; not a subject |
+| 6 an entity that grows behaviour | /"entity stays entity. b."/ · /"processes and terminals are kinda both things we execute. f.e. a terminal is a persistent and displayed function of thread."/ | law 10 |
+| 2b the pair | /"predicate. object objective. predicate …?"/ → predicative | law 3 · 5; =object= = what a tool ACTS ON (=tools/buffer.js=) |
+
+REJECTED along the way: =process= as the name · object-first for systems · =app/= beside =typology/= · =executions/= · =skills= · exporting lifecycles in use · three trees side by side.
+
+* the law — so far
+
+1. A subject runs and owns a directory. An entity that does not run is a file under =entities/=.
+2. =<subject>/= holds =prototype.js= (the class) or =<Subject>.ts= (the mikro entity, or both when it is both) · =factory.js= (THE export: =(input, environment) → the live subject=, composing the lifecycle) · =lifecycle/{population,resolution,integration}.js= (phases; one phase = =lifecycle.js=, a file) · =traits/<NAME>.js= + =index.js= · =commands/= · =apertures/=.
+3. Predicate directories hold what no subject owns: =entities/= · =prototypes/= · =gestalten/{belt,shard,tools}= · =schematics/=. =subsystems/typology= is predicative all the way.
+4. Write at the owner; two owners → =gestalten/shard/=. A tool file is named by its object.
+5. The typology export is predicative: a consumer asks for a KIND (=factories.mode= · =traits.mode.DATASET= · =entities.Mode=), never for a subject.
+6. A lifecycle is exported for tests and never imported in use; use imports the factory.
+7. A subject's trait vocabulary is declared once, in typology's schematic for that subject; a system's catalog implements a subset; a name with no schematic entry is not a trait.
+8. The grammar is the lint, not the layout: every file has ONE role — subject · verb · adjective · object; the export is the predicates.
+9. A factory is =(parentDie, …) → childDie=; a subject is made by its factory and by nothing else; the three deliverables land in order: the move, the factories, the vocabulary.
+10. An entity stays an entity. A trait with a body on an entity lives at =entities/<entity>/<name>.js=; the beat that runs it belongs to the subject whose process it is. Subjecthood is per system: a terminal is an entity in the runtime and a subject in ghost.
+
+* deliverables — the tangle IS the filesystem (=***= system · =****= directory · =*****= file ← source; =ls= order; measured 10-19)
+
+=← path= a =mv= · =← path:lines= a split · =as is= · =new= · a diff under a file is its hunk, old lines exact. A =lifecycle/index.js= holds the Vector as =execution= (law 6); every multi-file subject keeps its =index.js= barrel. Against the 10-17 draft: the runtime's =lifecycle/<x>/aperture/*.js= are =(die, next)= BEATS mounting a route (=userspace.js:6= · =datamap.js:3= · =freight.js:1= · =host.js:3,8,13=), not Vectors → =<subject>/lifecycle/integration.js=; only =lifecycle/lighthouse/aperture.js:21= is a Vector; ghost's shell is one Vector, no prototype, no =commands/= → one file (law 2); the surface moves WHOLE as =surface/=, a sibling of =client/= (/"chrome stays largely as is"/ · /"move chrome up one level as sibling of client"/ 10-19 — shell AND client import it, law 4). The factories are kleisli's (=m93-kleisli-remonadization.org=): =factory.js= only where a function makes the subject TODAY (paladin =mount= · ghost client); every other caller keeps =steer.dispatch.execute(<subject>.lifecycle.execution, die)=.
+
+*** subsystems/paladin
+**** .
+***** mod.js
+#+BEGIN_SRC diff
+// subsystems/paladin/mod.js:1
+-import { Paladin } from "./prototypes/paladin.js";
+-import * as lifecycle from "./lifecycle/index.js";
+-import * as skills from "./skills/index.js";
++import { Paladin } from "./paladin/prototype.js";
++import * as lifecycle from "./paladin/lifecycle.js";
++import * as tools from "./gestalten/tools/index.js";
+…
+-paladin.skills = skills;
+-await lifecycle.populate.env(paladin);
+-await lifecycle.populate.scopes(paladin);
+-lifecycle.populate.instance(paladin);
++paladin.tools = tools;
++await lifecycle.env(paladin);
++await lifecycle.scopes(paladin);
++lifecycle.instance(paladin);
+…
+-  await lifecycle.integrate.statements(paladin);
++  await lifecycle.statements(paladin);
+…
+-export { lifecycle };
++export { factories, lifecycle } from "./typology.js";
+#+END_SRC
+***** typology.js — rewritten whole, predicative
+#+BEGIN_SRC js
+// subsystems/paladin/typology.js
+import * as paladinLifecycle from "./paladin/lifecycle.js";
+import { factory as instance } from "./instance/factory.js";
+import * as instanceLifecycle from "./instance/lifecycle/index.js";
+export { Paladin } from "./paladin/prototype.js";
+export { Pensieve } from "./paladin/pensieve.js";
+export { Manifest } from "./paladin/manifest.js";
+export { Instance } from "./instance/prototype.js";
+export * from "./ledger/index.js";
+export * as gestalten from "./gestalten/index.js";
+export const factories = { instance };
+export const lifecycle = { paladin: paladinLifecycle, instance: instanceLifecycle };
+#+END_SRC
+***** deno.jsonc as is
+**** paladin/
+***** index.js new — =export { Paladin } · { Pensieve } · { Manifest } · * as lifecycle=
+***** prototype.js ← prototypes/paladin.js
+#+BEGIN_SRC diff
+// subsystems/paladin/paladin/prototype.js:2
+-import belt from "../belt/index.js";
+-import { Ledger } from "./ledger/index.js";
++import belt from "../gestalten/belt/index.js";
++import { Ledger } from "../ledger/index.js";
+#+END_SRC
+***** lifecycle.js ← lifecycle/populate.js:7,24,115 (=env · scopes · instance=) + lifecycle/integrate.js:3,32 (=statements · secure=); its =../prototypes/instance.js= → =../instance/prototype.js=, =./resolve.js= → =../instance/lifecycle/resolution.js=, =populate.js:71= =../../../= → =../../../= (same depth)
+***** pensieve.js manifest.js readme.org ← prototypes/
+**** instance/
+***** index.js new — =export { Instance } · { factory } · * as lifecycle=
+***** prototype.js ← prototypes/instance.js
+***** factory.js ← lifecycle/index.js:8-20
+#+BEGIN_SRC js
+// subsystems/paladin/instance/factory.js
+import { fn } from "@vivalence/typology";
+import * as population from "./lifecycle/population.js";
+import * as resolution from "./lifecycle/resolution.js";
+import * as integration from "./lifecycle/integration.js";
+
+export const factory = fn.memo(
+  async (instance) => {
+    await population.environment(instance);
+    await population.recipe(instance);
+    resolution.defaults(instance);
+    resolution.mountpoints(instance);
+    integration.settle(instance);
+    instance.paladin.publish();
+    return instance;
+  },
+  ([instance]) => instance,
+);
+#+END_SRC
+***** lifecycle/index.js new — =export * as population · resolution · integration=
+***** lifecycle/population.js ← lifecycle/populate.js:120,153 (=environment · recipe=); =./resolve.js= → =./resolution.js=
+***** lifecycle/resolution.js ← lifecycle/resolve.js (=inherit · defaults · mountpoints=)
+***** lifecycle/integration.js ← lifecycle/integrate.js:84 (=settle=)
+**** ledger/
+***** index.js prototype.js ← prototypes/ledger/{index,ledger}.js (=index.js:= =./ledger.js= → =./prototype.js=)
+***** die.js instances.js integrity.js lock.js log.js process.js registry.js ← prototypes/ledger/
+**** gestalten/
+***** index.js new — =export { default as belt } from "./belt/index.js"; export * as tools from "./tools/index.js";=
+***** belt/ ← belt/ (15 files, as is)
+***** tools/index.js ← skills/index.js
+***** tools/fs.js ← skills/fs.js
+(=../belt/ignore.js= same text, one level less; =tools/shell.js= imports =./fs.js=, as is)
+**** tests/
+***** boot.test.js:33 expand.test.js:59 instance.snapshot.test.js:24 ledger.parts.test.js:84 ledger.recipe.test.js:26,121,122 modes.test.js:34 settle.test.js:20 — =lifecycle.mount(lifecycle.populate.instance(paladin))= → =factories.instance(lifecycle.paladin.instance(paladin))=
+***** ledger.parts.test.js:5-6 ledger.recipe.test.js:4-5 modes.test.js:4-6 registry.integrity.test.js:4 registry.tap.test.js:4 registry.test.js:4-5 registry.wire.test.js:4 settle.test.js:4-5 registry.mount.test.js:4 — =../prototypes/paladin.js= → =../paladin/prototype.js= · =../lifecycle/index.js= → =../typology.js= · =../prototypes/ledger/registry.js= → =../ledger/registry.js=
+***** skills.test.js:3-4 — =../skills/{fs,shell}.js= → =../gestalten/tools/{fs,shell}.js= · source.test.js:3 =../belt/source.js= → =../gestalten/belt/source.js=
+**** rm
+***** prototypes/ lifecycle/ skills/ belt/ (dirs)
+
+*** systems/runtime
+**** .
+***** run.js
+#+BEGIN_SRC diff
+// systems/runtime/run.js:1
+-import paladin, { lifecycle } from "@vivalence/paladin";
++import paladin, { factories } from "@vivalence/paladin";
+ import { Aperture, Controller, Path, Span, steer } from "@vivalence/typology";
+-import { Runtime } from "./prototypes/index.js";
+-import { execution } from "./lifecycle/runtime/execution.js";
++import { Runtime } from "./runtime/prototype.js";
++import { execution } from "./runtime/lifecycle/index.js";
+#+END_SRC
+(=lifecycle.mount(= → =factories.instance(= at :7)
+***** typology.js — rewritten whole, predicative
+#+BEGIN_SRC js
+// systems/runtime/typology.js
+import * as runtime from "./runtime/index.js";
+import * as lighthouse from "./lighthouse/index.js";
+import * as daemon from "./daemon/index.js";
+import * as service from "./service/index.js";
+import * as mode from "./mode/index.js";
+export * from "./entities/index.ts";
+export * as entities from "./entities/index.ts";
+export * as schematics from "./schematics/index.js";
+export * as gestalten from "./gestalten/index.js";
+export const prototypes = { Runtime: runtime.Runtime, Lighthouse: lighthouse.Lighthouse, Daemon: daemon.Daemon, Service: service.Service };
+export const lifecycle = { runtime: runtime.lifecycle, lighthouse: lighthouse.lifecycle, daemon: daemon.lifecycle, service: service.lifecycle, mode: mode.lifecycle };
+export const traits = { mode: mode.traits, lighthouse: lighthouse.traits, service: service.traits };
+export const apertures = { lighthouse: lighthouse.apertures };
+#+END_SRC
+***** deno.jsonc Dockerfile as is
+**** runtime/
+***** index.js ← lifecycle/runtime/index.js — =export { Runtime } from "./prototype.js"; export * as lifecycle from "./lifecycle/index.js";=
+***** prototype.js ← prototypes/runtime.js
+***** lifecycle/index.js ← lifecycle/runtime/execution.js
+#+BEGIN_SRC diff
+// systems/runtime/runtime/lifecycle/index.js:6
+-import * as aperture from "./aperture/index.js";
+-import { execution as lighthouse } from "../lighthouse/execution.js";
+-import { execution as daemon } from "../daemon/execution.js";
+-import { execution as service } from "../service/execution.js";
+-import { execution as mode } from "../mode/execution.js";
++import { execution as lighthouse } from "../../lighthouse/lifecycle/index.js";
++import { execution as daemon } from "../../daemon/lifecycle/index.js";
++import { execution as service } from "../../service/lifecycle/index.js";
++import { execution as mode } from "../../mode/lifecycle/index.js";
++export { population, resolution, integration };
+…
+-  .use(aperture.userspace)
++  .use(integration.userspace)
+…
+-  .use(aperture.host.entities)
+-  .use(aperture.host.metadata)
+-  .use(aperture.host.cortex)
++  .use(integration.entities)
++  .use(integration.metadata)
++  .use(integration.cortex)
+#+END_SRC
+***** lifecycle/population.js ← lifecycle/runtime/population.js
+#+BEGIN_SRC diff
+// systems/runtime/runtime/lifecycle/population.js:3
+-import { Daemon, DaemonSchema } from "../../prototypes/daemon.js";
+-import { Service, ServiceSchema } from "../../prototypes/service.js";
+-import { Lighthouse } from "../../prototypes/lighthouse.js";
++import { Daemon, DaemonSchema } from "../../daemon/prototype.js";
++import { Service, ServiceSchema } from "../../service/prototype.js";
++import { Lighthouse } from "../../lighthouse/prototype.js";
+…
+-import * as traits from "../mode/traits/index.js";
++import * as traits from "../../mode/traits/index.js";
+#+END_SRC
+***** lifecycle/resolution.js ← lifecycle/runtime/resolution.js (=../../gestalten= same depth, as is)
+***** lifecycle/integration.js ← lifecycle/runtime/integration.js + lifecycle/runtime/aperture/userspace.js:6 (=userspace=) + lifecycle/runtime/aperture/host.js:3,8,13 (=entities · metadata · cortex= on =die.runtime=; their =../../../gestalten/shard= → =../../gestalten/shard=)
+**** lighthouse/
+***** index.js ← lifecycle/lighthouse/index.js — =+ export { Lighthouse } from "./prototype.js"; export * as apertures from "./apertures/index.js";=
+***** prototype.js ← prototypes/lighthouse.js
+***** signer.js ← lifecycle/lighthouse/signer.js
+***** lifecycle/index.js ← lifecycle/lighthouse/execution.js (=+ export { population, resolution }=)
+***** lifecycle/population.js ← lifecycle/lighthouse/population.js
+#+BEGIN_SRC diff
+// systems/runtime/lighthouse/lifecycle/population.js:2
+-import { authenticate } from "./signer.js";
+-import { aperture } from "./aperture.js";
++import { authenticate } from "../signer.js";
++import { aperture } from "../apertures/users.js";
+#+END_SRC
+***** lifecycle/resolution.js ← lifecycle/lighthouse/resolution.js (=./traits/index.js= → =../traits/index.js=)
+***** apertures/index.js new — =export { aperture as users } from "./users.js";=
+***** apertures/users.js ← lifecycle/lighthouse/aperture.js (=./signer.js= → =../signer.js=)
+***** traits/index.js autologin.js invitational.js joinable.js ← lifecycle/lighthouse/traits/ (as is)
+**** daemon/
+***** index.js ← lifecycle/daemon/index.js — =+ export { Daemon } from "./prototype.js"=
+***** Daemon.ts ← entities/Daemon.ts (=./index.ts= → =../entities/index.ts=)
+***** prototype.js ← prototypes/daemon.js
+***** lifecycle/index.js ← lifecycle/daemon/execution.js
+#+BEGIN_SRC diff
+// systems/runtime/daemon/lifecycle/index.js:6
+-import * as aperture from "./aperture/index.js";
+-import { execution as mode } from "../mode/execution.js";
++import { execution as mode } from "../../mode/lifecycle/index.js";
++export { population, resolution, integration };
+…
+-  .use(aperture.datamap)
+-  .use(aperture.freight)
+-  .use(aperture.host.entities)
+-  .use(aperture.host.metadata)
+-  .use(aperture.host.cortex)
++  .use(integration.datamap)
++  .use(integration.freight)
++  .use(integration.entities)
++  .use(integration.metadata)
++  .use(integration.cortex)
+#+END_SRC
+***** lifecycle/population.js ← lifecycle/daemon/population.js (=../mode/traits/index.js= → =../../mode/traits/index.js=)
+***** lifecycle/resolution.js ← lifecycle/daemon/resolution.js (as is)
+***** lifecycle/integration.js ← lifecycle/daemon/integration.js + lifecycle/daemon/aperture/datamap.js:3 + freight.js:1 + host.js:3,8,13 (on =die.daemon=)
+**** service/
+***** index.js ← lifecycle/service/index.js — =+ export { Service } from "./prototype.js"=
+***** prototype.js ← prototypes/service.js
+***** lifecycle/index.js ← lifecycle/service/execution.js (=+ export { resolution }=)
+***** lifecycle/resolution.js ← lifecycle/service/resolution.js (=./traits/index.js= → =../traits/index.js=)
+***** traits/index.js attached.js ← lifecycle/service/traits/
+**** mode/
+***** index.js ← lifecycle/mode/index.js — =+ export * from "./Mode.ts"=
+***** Mode.ts ← entities/Mode.ts (=./index.ts= → =../entities/index.ts=)
+#+BEGIN_SRC diff
+// systems/runtime/mode/Mode.ts:12   (the vocabulary; lands LAST)
+-export enum ModeTraitsEnum {
++import { ModeTraits } from "@vivalence/typology/schematics";
+…
+-  traits: ModeTraitsEnum[] & Opt = [];
++  traits: (typeof ModeTraits.values)[number][] & Opt = [];
+…
+-      items: () => ModeTraitsEnum,
++      items: () => ModeTraits.values,
+#+END_SRC
+***** lifecycle/index.js ← lifecycle/mode/execution.js (=+ export { population, resolution }=)
+***** lifecycle/population.js ← lifecycle/mode/population.js (as is)
+***** lifecycle/resolution.js ← lifecycle/mode/resolution.js (=./traits/dataset.js= → =../traits/dataset.js=)
+***** traits/ ← lifecycle/mode/traits/ (17 files; only =harnessed.js= changes)
+(:4 =../../../gestalten/skills/index.js= → =../../gestalten/tools/index.js= as =tools=; :60-67 six =.graft(skills.x.x)= → =.graft(tools.x.x)=, =paladin.skills.{fs,shell}= → =paladin.tools.{fs,shell}=)
+**** entities/
+***** index.ts
+(:7 =./Mode.ts= → =../mode/Mode.ts= · =./Daemon.ts= → =../daemon/Daemon.ts=, export and import lines, four hunks)
+***** the other 13 =*.ts= · traits.js · todo/ as is
+**** gestalten/
+***** index.js — =export * as skills from "./skills/index.js"= → =export * as tools from "./tools/index.js"=
+***** belt/ shard/ as is
+***** tools/index.js buffer.js entity.js mode.js thread.js ← gestalten/skills/
+**** schematics/index.js as is
+**** tests/
+***** runtime/composition.test.js:7 scenarios/activity.js:6 scenarios/daemon.js:5 lighthouse/auth.test.js:3 multiplex.filter.test.js:5 — =lifecycle/lighthouse/signer.js= → =lighthouse/signer.js=
+***** scenarios/activity.js:7 scenarios/lighthouse.js:9 scenarios/daemon.js:6 — =lifecycle/runtime/aperture/userspace.js= → =runtime/lifecycle/integration.js=
+***** scenarios/daemon.js:93 scenarios/bench.js:124-126 topography/harness.js:75 — =lifecycle.daemon.aperture.{datamap,freight,host.entities}= → =lifecycle.daemon.integration.{datamap,freight,entities}=
+**** rm
+***** prototypes/ lifecycle/ gestalten/skills/ (dirs)
+
+*** systems/ghost
+**** .
+***** run.js
+#+BEGIN_SRC diff
+// systems/ghost/run.js:2
+-import paladin, { lifecycle } from "@vivalence/paladin";
++import paladin, { factories } from "@vivalence/paladin";
+ import { Argv } from "@vivalence/ghost";
+-import { shell } from "./app/shell/index.js";
++import { shell } from "./shell/lifecycle.js";
+…
+-const instance = await lifecycle.mount(paladin.instance);
++const instance = await factories.instance(paladin.instance);
+#+END_SRC
+***** typology.js ← typology/index.js, rewritten whole
+#+BEGIN_SRC js
+// systems/ghost/typology.js
+import { shell } from "./shell/lifecycle.js";
+import * as client from "./client/index.js";
+import * as terminal from "./terminal/index.js";
+import * as thread from "./thread/index.js";
+import * as mode from "./mode/index.js";
+import * as lighthouse from "./lighthouse/index.js";
+import * as daemon from "./daemon/index.js";
+import * as runtime from "./runtime/index.js";
+export * from "./prototypes/index.js";
+export * as prototypes from "./prototypes/index.js";
+export * as gestalten from "./gestalten/index.js";
+export { belt, shard } from "./gestalten/index.js";
+export * as entities from "./entities/index.js";
+export { Client } from "./client/prototype.js";
+export { Runtime } from "./runtime/prototype.js";
+export { Lighthouse, STANDINGS } from "./lighthouse/prototype.js";
+export const factories = { client: client.factory };
+export const lifecycle = { shell, client: client.lifecycle, terminal: terminal.lifecycle, thread: thread.lifecycle, mode: mode.lifecycle, lighthouse: lighthouse.lifecycle, daemon: daemon.lifecycle, runtime: runtime.lifecycle };
+export const traits = { client: client.traits, mode: mode.traits, lighthouse: lighthouse.traits };
+export const commands = { client: client.commands, terminal: terminal.commands };
+#+END_SRC
+***** deno.jsonc — ="exports": "./typology/index.js"= → ="./typology.js"= · ghost.sh install.sh as is (=grep app/= → 0, verify)
+**** shell/
+***** lifecycle.js ← app/shell/index.js
+#+BEGIN_SRC diff
+// systems/ghost/shell/lifecycle.js:2
+-import { factory as clientFactory } from "../client/index.js";
++import { factory as clientFactory } from "../client/factory.js";
+ import * as surface from "../surface/index.js";
+#+END_SRC
+**** client/
+***** index.js ← typology/client/index.js — =./client.js= → =./prototype.js= · =./execution.js= → =* as lifecycle from "./lifecycle/index.js"= · =+ export { factory } from "./factory.js"=
+***** prototype.js ← typology/client/client.js
+***** factory.js ← app/client/index.js
+#+BEGIN_SRC diff
+// systems/ghost/client/factory.js:2
+-import * as ghost from "@vivalence/ghost";
++import { Client } from "./prototype.js";
++import { execution } from "./lifecycle/index.js";
+ import { chrome } from "./chrome.js";
+…
+-  const clientDie = new ghost.Client({ controller: shellDie.controller.branch("client"), mask: shellDie.mask, register: shellDie.register, instance: shellDie.instance, surface });
++  const clientDie = new Client({ controller: shellDie.controller.branch("client"), mask: shellDie.mask, register: shellDie.register, instance: shellDie.instance, surface });
+…
+-  await steer.dispatch.execute(ghost.client.execution, clientDie);
++  await steer.dispatch.execute(execution, clientDie);
+#+END_SRC
+***** chrome.js ← app/client/chrome.js (=../surface/index.js= same depth, as is)
+***** lifecycle/index.js ← typology/client/execution.js
+(:2-15 every =../x= → =../../x=; =./commands= · =./traits= → =../commands= · =../traits=; =../{activity,buffer,turn}.js= → =../../entities/=; =../runtime/runtime.js= → =../../runtime/prototype.js=; =../lighthouse/lighthouse.js= → =../../lighthouse/prototype.js=)
+(=<subject>.execution= at :19,49,102,152,191 → =<subject>.lifecycle.execution=)
+***** traits/index.js home.js ← typology/client/traits/ (as is)
+***** commands/index.js help.js quit.js ← typology/client/commands/ (as is)
+**** surface/ — sibling of =client/= (ruling 5, 10-19); imported by =shell/lifecycle.js= AND =client/chrome.js=
+***** index.js repl.js ← app/surface/ (as is)
+***** chrome/ ← app/surface/chrome/ WHOLE (20 files incl. =host/= · =out/= · =panes/= · =views/= · =.gitignore=), untouched
+**** entities/
+***** index.js new — =export * as activity · buffer · turn=
+***** activity.js buffer.js turn.js ← typology/
+***** terminal/ thread/ mode/ lighthouse/ daemon/ runtime/ — one pattern each
+****** index.js ← typology/<subject>/index.js — =./<subject>.js= → =./prototype.js= · =./execution.js= → =* as lifecycle from "./lifecycle/index.js"=
+****** prototype.js ← typology/<subject>/<subject>.js
+****** lifecycle/index.js ← typology/<subject>/execution.js — its =../prototypes/entity.js= → =../../prototypes/entity.js= · =../gestalten/shard= → =../../gestalten/shard= · =./<subject>.js= → =../prototype.js= · =./traits/index.js= → =../traits/index.js=
+****** terminal/commands/{index,turn}.js commands/application/{index,start,stop}.js commands/mode/{index,list,pick}.js ← typology/terminal/commands/ (=start.js:2= =../../../mode/traits/application.js= same depth, as is)
+****** mode/traits/{index,application,exposed,harnessed,repling}.js lighthouse/traits/{index,autologin,invitational,joinable}.js ← typology/<subject>/traits/ (=../../gestalten/belt/harness.js= same depth, as is)
+**** prototypes/ gestalten/ ← typology/prototypes/ typology/gestalten/ (as is)
+**** tests/
+***** client.test.js:2,10,33 — =lifecycle, populate= → =factories, lifecycle=; =lifecycle.mount(populate.instance(paladin))= → =factories.instance(lifecycle.paladin.instance(paladin))=; =ghost.client.execution= → =ghost.lifecycle.client.execution=
+***** repl.test.js:4 console.test.js:5 — =ghost.client= → =ghost.lifecycle.client= (=verbs · modes · surface= are its exports; verify at tangle)
+***** keys.test.js:2 text.test.js:2 — =../app/surface/chrome/= → =../surface/chrome/=
+**** rm
+***** typology/ app/ (dirs)
+
+*** systems/anima/src — LANDED 10-19 (forks ruled: A1 dir ✓ · A2 split ✓ · A3 keep =stores= · A4 no rename)
+**** daemon/ mode/ thread/ ← typology/entities/<x>/ · box/ bridge/ ← stores/{box,bridge}/ (subjects) · lighthouse.js terminal.js ← stores/{lighthouse,terminals}.js · app/ as is (= anima's =surface/= on the day it moves)
+Measured 10-19: =typology/= 59 files; no lifecycle, no =execution.js= — anima's subjects are nanostore singletons and entity classes, so law 2 shrinks to =prototype.js= · =dossier.js= · =traits/=. One consumer surface: the =@vivalence/anima= alias (=vite.config.mjs:125= → =src/typology/mod.js=), 33 imports, all flat (=stores= ×17 · =chain= ×16 · =loudest= · =roster= · =ThreadTraits= · =TONES= · =ModeTraits= · =owed= · =settled= · =dictation=); reads =stores.bridge= ×65 · =stores.lighthouse= ×6 · =stores.box= · =stores.terminals= · =entities.thread= ×17. No relative import from =app/= into =typology/=; nothing outside anima imports it.
+**** .
+***** typology.js ← typology/mod.js — flat re-exports kept (33 consumers, zero edits) + the predicative namespaces
+#+BEGIN_SRC js
+// systems/anima/src/typology.js
+export * from "./gestalten/index.js";
+export * from "./prototypes/index.js";
+export * from "./entities/index.js";
+export * as entities from "./entities/index.js";
+export * as gestalten from "./gestalten/index.js";
+export * as prototypes from "./prototypes/index.js";
+export * as lighthouse from "./lighthouse.js";
+export * as terminals from "./terminal/terminals.js";
+export * as bridge from "./bridge/index.js";
+export * as box from "./box/index.js";
+export const stores = { lighthouse: …, terminals: …, bridge: …, box: … };
+export const traits = { mode: ModeTraits, thread: ThreadTraits };
+#+END_SRC
+***** ../vite.config.mjs:125 — ="@vivalence/anima": "./src/typology/mod.js"= → ="./src/typology.js"=
+***** app/ telemetry/ client.{js,css,html} as is
+**** daemon/
+***** index.js ← typology/entities/daemon/index.js (as is)
+***** prototype.js ← entities/daemon/daemon.js
+***** dossier.js ← entities/daemon/dossier.js — =../../prototypes/= → =../prototypes/= · =../mode/index.js= · =../thread/index.js= same text one level up · =../{intent,buffer,turn,activity,literal,symbol}.js= → =../entities/=
+**** mode/
+***** index.js ← entities/mode/index.js (=./mode.js= → =./prototype.js=)
+***** prototype.js ← entities/mode/mode.js — holds =ModeDossier= today (=index.js:1=); split to =dossier.js= like daemon · thread, or leave (fork A2)
+***** traits/{index,application,emitter,exposed,harnessed,standalone}.js ← entities/mode/traits/ (as is)
+**** thread/
+***** index.js ← entities/thread/index.js (=./thread.js= → =./prototype.js=)
+***** prototype.js dossier.js ← entities/thread/{thread,dossier}.js (=../../prototypes/entity.js= → =../prototypes/entity.js=)
+***** traits/{index,aimed,labeled,masked,queueing}.js ← entities/thread/traits/ (as is)
+**** terminal/ — two files, so a directory (fork A1)
+***** prototype.js ← entities/terminal.js (=Terminal · TerminalDossier=; =../stores/bridge/dock.js= → =../bridge/dock.js=)
+***** terminals.js ← stores/terminals.js (=Terminals=, the =$active= store over the repository)
+***** index.js new — =export { Terminal, TerminalDossier } · { Terminals }=
+**** lighthouse.js ← stores/lighthouse.js — one file, one subject (=Lighthouse · STANDINGS=); =../prototypes/= → =./prototypes/= · =../entities/daemon/index.js= → =./daemon/index.js= · =../entities/terminal.js= → =./terminal/index.js=
+**** bridge/
+***** index.js ← stores/bridge/index.js (=./bridge.js= → =./prototype.js=)
+***** prototype.js ← stores/bridge/bridge.js
+***** dock.js geometry.js gesture.js panes.js start.js ← stores/bridge/ (as is)
+**** box/
+***** index.js ← stores/box/index.js (=./box.js= → =./prototype.js=)
+***** prototype.js ← stores/box/box.js
+***** device/ drivers/ ← stores/box/ WHOLE (as is)
+**** entities/ — what no subject owns
+***** index.js ← entities/index.js — =./daemon/= =./mode/= =./thread/= =./terminal.js= → =../daemon/= =../mode/= =../thread/= =../terminal/index.js=
+***** activity.js buffer.js intent.js literal.js symbol.js turn.js (as is; =../prototypes/entity.js= same depth)
+**** prototypes/ gestalten/ ← typology/{prototypes,gestalten}/ (=gestalten/belt/runner.js= =applyTraits= read by =mode/prototype.js= as =../gestalten/belt/index.js=)
+**** rm
+***** typology/ (dir) · the word =stores/= as a directory
+**** forks — beef's
+- A1 terminal: the ruling says =terminal.js= ← =stores/terminals.js=, but =entities/terminal.js= (the entity + dossier) is the same subject → two files → =terminal/{prototype,terminals}.js=. Alternative: =terminal.js= = the store only, the entity stays in =entities/=. Recommend the directory (law 4: one owner).
+- A2 =ModeDossier= lives inside =mode/mode.js=; daemon · thread split it to =dossier.js=. Recommend the split (one file one role, law 8).
+- A3 =stores= survives only as an export namespace (17 imports, 73 reads); it names a KIND (nanostore singletons), so it is predicative. Recommend keep. Alternative: =stores.bridge= → =bridge= across =app/= (73 edits).
+- A4 =dossier= is anima's word for ghost's =repository · hydration= (=ghost/thread/prototype.js= exports both). Recommend no rename in m91; a =name= session if wanted.
+- =prototypes/{conversation,dictation}.js= stay: =dictation= is read by =app/panels/a/widgets/{Dictaphone,Composer,Dock}.svelte= only, no subject owns it.
+
+*** subsystems/typology — the vocabulary (lands last)
+***** schematics/entities/mode.js — =+ export const ModeTraits = v.enum([...16 names, REPLING joins; CHAOSMONKEY · BUFFERED · TOOLED · STANDALONE · SELFEVIDENT · TOPOLOGICAL leave with m87's migration])= · =thread.js:8,44= =+ INTELLIGENT · VOCAL= · =LighthouseTraits= at =instance.js:59= as is · =+ ServiceTraits = v.enum(["ATTACHED", "SERVICE", "PROVIDER"])=; =paladin/ledger/integrity.js:7-24= keys checked against the schematic at =settle=
+
+*** ~/.viva/registry — a save here IS a deploy: =lsof -nP -iTCP:2501 -sTCP:LISTEN= first
+***** vcompany/modes/office/vdex/tests/boot.test.js:14 tools.test.js:14 vdex.snapshot.test.js:58 — =runtime.traits.DATASET(= → =runtime.traits.mode.DATASET(=
+***** vcompany/modes/office/vdex/aperture/index.js:11 media/modes/editor/media/aperture/index.js:12,103 — =paladin.skills.fs.= → =paladin.tools.fs.=
+
+* milestones — each a noun, each green before the next; `go` per row, the tree above is its tangle, the table below its gate
+
+| # | noun | gate |
+|---+---+---|
+| 1 | the paladin | rows 1 below; 2 registry apertures (=lsof= first) |
+| 2 | the runtime | rows 2; 3 vdex tests (=lsof= first) |
+| 3 | the ghost | rows 3 |
+| 4 | the anima | waits on its build |
+| 5 | the vocabulary | rows 5; every =ModeTraitsEnum= import (grep at tangle) |
+| 6 | the codemap | =methods/census.py= rewrites =world/codemap/{runtime,paladin,ghost,design}.md=; =codestyle.md= "A noun is a directory" → the subject law; m83 · m87 path refs; =cap.py= clean |
+
+* blast table — measured 10-17: =execution.js= 21 · =lifecycle.mount= 10 · =paladin.skills= 6+3 · paladin =belt= 30+1 · ghost =app/= 4 · =runtime.traits.X= 0+3 · =lifecycle/<x>/aperture= 5 · =@vivalence/runtime= 67+35 · =paladin= 42+30 · =ghost= 6+2 (repo + registry). The grep rows in the table below are the live denominators, each to 0.
+
+* testing assessment — the blast per milestone: green NOW (measured 10-19, one-shot, =HOME=$(mktemp -d)= on paladin) must be green AFTER at the SAME count; a red before is a red after, attributed, never chased in m91. A module-not-found aborts a suite — that abort IS the census of a missed path. Counts are pasted into =* changelog= per milestone before =#+status= moves.
+
+| # | suite (from the root, one-shot) | now | invariant after |
+|---+---+---+---|
+| 1 | =deno test -A --no-check subsystems/paladin/tests/= | 54 passed · 228 steps · 0 failed | 54 · 228; =boot.test.js:33= memo holds on =factories.instance=; =instance.snapshot= byte-equal (2 files in =tests/snapshots/=) |
+| 1 | =viva --help; echo $?= | 0 | 0 |
+| 1 | =systems/runtime/tests/daemon/smoke.test.js= | 1 · 6 | 1 · 6 — =Status:RUNNING= through the renamed mount |
+| 1 | =systems/ghost/tests/= | 9 · 26 | 9 · 26 — =client.test.js:10= the one ghost caller |
+| 1 | =subsystems/typology/tests/freight.test.js= | 1 · 7 | 1 · 7 — a =@vivalence/paladin= consumer |
+| 1 | =--config deno.jsonc ~/.viva/registry/media/modes/editor/media/tests/{aperture,boot}.test.js= | 2 · 12 | 2 · 12 — =paladin.tools.fs.resolve · absolute= (registry save = deploy, =lsof= first) |
+| 1 | =grep -rln -e 'lifecycle.mount' -e 'paladin.skills' -e 'prototypes/paladin' -e 'paladin/belt/' systems subsystems ~/.viva/registry --include=*.js --include=*.mjs= | 20 files (minus =bak/=) | 0 |
+| 2 | =systems/runtime/tests/*.test.js= (44 files) | 52 · 330 | 52 · 330; =aperture.snapshot= · =cortex-contract.snapshot= · =span-tracked.snapshot= byte-equal (36 files, no =SNAPSHOT_HOT=) |
+| 2 | =systems/runtime/tests/daemon/= | 7 · 65 | 7 · 65 — =integration.{datamap,freight,entities}= on =die.daemon= |
+| 2 | =systems/runtime/tests/mode/= | 10 · 60 | 10 · 60 — =traits.mode.*= |
+| 2 | =systems/runtime/tests/lighthouse/= | 4 · 38 | 4 · 38 — =lighthouse/signer.js= · =apertures/users.js= |
+| 2 | =systems/runtime/tests/runtime/= | 4 · 35 | 4 · 35 — composition through =runtime/lifecycle/index.js= |
+| 2 | =systems/runtime/tests/modes.test.js= · =tests/bench/= | 1 · 2 and 2 · 7 | same — =bench.js:124= the integration beats |
+| 2 | =systems/ghost/tests/= | 9 · 26 | 9 · 26 — a =@vivalence/runtime= consumer |
+| 2 | =--config deno.jsonc ~/.viva/registry/vcompany/modes/office/vdex/tests/{boot,tools,vdex.snapshot}.test.js= | 0 · 3 FAILED — =mode/traits/dataset.js:64= =Cannot read properties of null (reading 'branch')=, pre-m91 | 3 FAILED at the SAME line, now =mode/traits/dataset.js:64=; the =traits.mode.DATASET= rename lands, the red stays (known issue, not m91's) |
+| 2 | =systems/runtime/tests/qa/= (the rig spawns =ghost/run.js=) | 0 · 3 FAILED · 1 ignored — =reading 'call'= · =reading 'stop'= · =instance: nothing selected=, pre-m91 (m86 rebuilt the client) | same three reds; a NEW red here is m91's |
+| 2 | =grep -rln -e 'lifecycle/mode/traits' -e 'gestalten/skills' -e 'runtime/prototypes' -e '/execution.js' systems subsystems ~/.viva/registry= | 18 files (minus =bak/=) | 0 |
+| 3 | =systems/ghost/tests/= | 9 · 26 | 9 · 26 — =keys= · =text= · =client= · =repl= · =console= |
+| 3 | =viva help= · =viva --help; echo $?= | strip shows =help · repl · chrome=; 0 | the same strip, byte-equal; 0 |
+| 3 | =systems/runtime/tests/{daemon,mode,lighthouse,runtime}/= + root | as row 2 | unchanged — the runtime never imports ghost |
+| 3 | =grep -rln -e 'app/' -e 'typology/index.js' systems/ghost= | 5 files | 0 (=ghost.sh= · =install.sh= verified) |
+| 5 | runtime root + =tests/mode/= + vdex snapshot | 52 · 330 / 10 · 60 / red | same; =grep -rn ModeTraitsEnum= → 0; the m87 migration drops the six dead names |
+| 6 | =python3 -I .ikiro/methods/cap.py= · =methods/census.py= | clean | clean; every codemap path resolves (=ls= each) |
+
+Method per milestone: (1) paste the NOW row from this table, re-run it the same morning if the tree moved; (2) =mv= + hunks on a copy (=--root=), suites there first; (3) land, run the rows in the order listed, paste counts into =* changelog= with any red attributed to its line; (4) the grep row to 0 is the structural proof, the count rows the behavioural one; (5) never =--watch= (every container =test= task is =--watch=); never =SNAPSHOT_HOT=1= during a milestone — a snapshot diff is a finding.
+
+COVERAGE GAP: no test asserts the predicative surface (=Object.keys= of each =typology.js= namespace — one snapshot test per system, lands with milestone 1 for paladin and grows); no test that =integration.{entities,metadata,cortex}= ran on the right die once the host beats fold (runtime/daemon) — =cortex-contract.snapshot= covers the daemon side only; anima has no runnable suite (does not build); the vdex three and the qa rig are red before m91 and cannot witness it.
+
+* changelog
+
+** 10-19 milestones 1-3 landed — one script each (=$CLAUDE_JOB_DIR/tmp/m91-{paladin,runtime,ghost}.py=), run in place, no =--watch= alive (=lsof= :2501 :1794 empty, no =--watch= in =ps=)
+
+| # | suite | before | after |
+|---+---+---+---|
+| 1 | =subsystems/paladin/tests/= (=HOME= tmp) | 54 · 228 | 54 · 228 — snapshots byte-equal (compare mode) |
+| 1 | =viva --help; echo $?= | 0 | 0 |
+| 1 | =runtime/tests/daemon/smoke.test.js= | 1 · 6 | 1 · 6 |
+| 1 | =typology/tests/freight.test.js= | 1 · 7 | 1 · 7 |
+| 1 | registry =media/…/tests/{aperture,boot}= | 2 · 12 | 2 · 12 |
+| 1 | =commons/instances/hello-world/tests/= | — | 19 · 64 |
+| 1 | grep row (=lifecycle.mount= · =paladin.skills= · =prototypes/paladin= · =paladin/belt/=) | 20 | 0 (=systems/anima/vite.config.mjs:12= left — anima excluded) |
+| 2 | =runtime/tests/*.test.js= | 52 · 330 | 52 · 330 — three snapshots byte-equal |
+| 2 | =tests/daemon/= · =mode/= · =lighthouse/= · =runtime/= | 7·65 · 10·60 · 4·38 · 4·35 | same |
+| 2 | =modes.test.js= + =bench/= · =topography/= | 3 · 9 · 2 · 6 | same |
+| 2 | registry vdex three | 3 FAILED =dataset.js:64= | 3 FAILED, now =mode/traits/dataset.js:64= (pre-m91) |
+| 2 | registry =chess/domain/tests/daemons= + =education/…/datasink= | — | 2 · 7 |
+| 2 | qa rig | 0 · 3 failed (17 steps) · 1 ignored | identical; the =serde_v8 … got: undefined= ×2 is =rig.js:102= spawning with =shelf= undefined after =instance/clone … nothing selected= (=fresh.test.js:37=) — the cascade of the known red, not a new one |
+| 2 | grep row (=lifecycle/mode/traits= · =gestalten/skills= · =runtime/prototypes= · =/execution.js=) | 18 | 0 |
+| 3 | =systems/ghost/tests/= | 9 · 26 | 9 · 26 |
+| 3 | =viva help= strip | help · repl · chrome | byte-equal; exit 0 |
+| 3 | registry =chess/…/play/tests/tty.render= + =education/…/dojo/tests/tty.render= (=@vivalence/ghost/host=) | — | 2 · 2 |
+| 3 | grep row (=app/= · =typology/index.js= in ghost) | 5 | 0 (only =bak/=) |
+
+Departures from the tangle, each measured at the blast:
+- =traits= blast was 15 files, not 3: every =const { X } = traits;= over =@vivalence/runtime= (runtime tests ×9, hello-world ×5, registry education · vcompany · droneaid) → =traits.mode=; =tests/mode/traits.test.js:221= dynamic =(await import(…)).traits= likewise.
+- =systems/runtime/typology.js= also exports =Runtime · Lighthouse · Daemon · Service= flat (=tests/lighthouse/datamap.test.js:2= · =scenarios/bench.js:3= import =Daemon= flat) beside =prototypes=.
+- =lighthouse/traits/{autologin,joinable}.js= import =../aperture.js= → =../apertures/users.js= (the tangle said as-is; it was not).
+- =runtime/lifecycle/integration.js= imports the runtime's own =host= shard by name (=import { host } from "../../gestalten/shard/index.js"=) — the old =aperture/host.js= aliased the whole shard as =shard=, which collides with typology's =shard= already in the file.
+- paladin =deno.jsonc= export =./skills= → =./tools= (=./gestalten/tools/index.js=); no consumer imported it.
+- ghost =deno.jsonc= =./host= → =./surface/chrome/host/index.js=; =bundle= task path; =install.sh:14,17= paths. =ghost.sh= clean.
+- ghost's old =entities= map (seven subjects) is gone; =entities/= holds activity · buffer · turn only (law 1). No consumer read it.
+- =tests/*.test.js= titles "paladin skills" → "paladin tools" (grep hygiene).
+- =testament/= untouched (frozen probes); =systems/anima= untouched (excluded by ruling).
+
+** 10-19 milestone 4 landed — =m91-anima.py=: 60 files moved by a resolver (every relative import re-derived from old target → new target), =ModeDossier= split to =mode/dossier.js=, =terminal/index.js= new, =src/typology.js= whole, 16 =new URL("typology/…", SRC)= in tests remapped
+
+| suite | before | after |
+|---+---+---|
+| =systems/anima/tests/**= one file at a time (42 files; the dir run aborts on =$telemetry=) | 31 green · 11 red (=$telemetry= ×6 · =View= ×3 · snapshot dir ENOENT · one assertion) | 33 green · 9 red — the same 9 at the same errors, paths renamed; =lifecycle-vector= and =scenario/daemon= turned GREEN: importing =Mode= no longer pulls =traits/application.js= (the dead =View=) since A2 split the dossier out |
+| =vite build= | fails, =entities/mode/traits/application.js:1:9= ="View" is not exported= | same, at =mode/traits/application.js:1:9= |
+| =vite dev= | — | reaches the ledger: =instance: nothing selected= (no instance in the shell; environment, not m91) |
+| grep =lifecycle.mount= · =paladin.skills= over the tree | 1 (=vite.config.mjs:12=) | 0 — =factories.instance(paladin.instance)= |
+
+Departures: none from the ruled tree. =traits= gained in the export (=traits.mode= · =traits.thread=) beside the flat =ModeTraits= · =ThreadTraits=; nothing reads it yet.
+
+** 10-19 milestone 6 landed — the codemap; and the milestone-3 regression it surfaced
+
+| target | before | after |
+|---+---+---|
+| =world/codemap/{runtime,paladin,ghost,design}.md= | object-first paths, 47 stale citations | rewritten subject-first from =methods/census.py=; every fence RENDERED from the live file (=<<path:a-b>>=), all EXACT |
+| =world/codemap/{map,commons,testing,typology}.md= | 5 stale paths + the 10-16 state line | repathed, line re-located by text; map 3998/4000 unchanged |
+| =codestyle.md= | "A noun is a directory" · 17 moved fences | the SUBJECT law in its place; 17 fences re-cut; 23969/24000 |
+| skills =mode · domain · package · topography · ops= | 16 moved citations | repathed; 6 pre-m91 drifts fixed in the touched lines (=Mode.ts:28→:12= · =resolution.js:29→:30= · =population.js:18→:27= · =:7→:8= · =:73→:123= · =registry.json= is an object, not an array) |
+| =hooks/lifecycle-guard.sh= | gated =*/systems/runtime/lifecycle/*= — DEAD since milestone 2 | =*/systems/runtime/*/lifecycle/*= · =*/systems/runtime/*/traits/*=; =exercise.sh= 55 → 56 PASS (one m91-path case), a live probe on =mode/traits/harnessed.js= denies |
+| m83 · m87 · m88 · m93 | old paths | repathed; m83 rebased: dry replay 38 land · 2 miss, both pre-m91 (pre-m91 it was 35 · 6); m88 stretch three 18/18 before AND after |
+| =known-issues.org= | ~45 moved citations | repathed; four entries CUT as resolved (text at =~/.viva/bak/ikiro/codemap-m91-20261019/known-issues.cut.org=): =settle-holds-lifecycle-business-in-a-prototype= (=instance/prototype.js= is 26 lines of fields) · =chrome-off-hands-the-repl-die-to-the-surface= (=client/chrome.js:22-23= hands =ctx.client=) · =ghost-bundle-task-names-a-dead-path= (the task names =surface/chrome/bundle.js=, it resolves) · =repl-output-never-printed= (=repl.test.js= 1 · 6 green) |
+| =python3 -I .ikiro/methods/cap.py= | clean | clean; codemap total 50660/52000 |
+
+The regression: milestone 3's =typology.js= dropped ghost's flat =export { belt, shard }= (old =typology/index.js:4=). Its one importer, =subsystems/drapes/dom/chassis.jsx:3=, turned four drapes =dom= suites from runtime-red/green into load-time =SyntaxError=: =keys= 1 · 18 · =panes= 7 · 46 · =sheet= 1 · 7 went RED. Restored the line (=systems/ghost/typology.js:12=, the tangle above carries it): the drapes suite is IDENTICAL to a run against the pre-m91 ghost (10 files), =chassis= red at its old =TypeError=; ghost 9 · 26; qa rig the same 3 failed · 1 ignored; registry =tty= 2 · 2; smoke 1 · 6; =viva help= strip unchanged. Cause: the milestone-3 consumer grep ran =--include=*.js= — =.jsx= never seen (skill =change=: "No =--include="). The full re-blast (every old name, every file type, repo · registry · shelves) reads 0; 1021 relative specifiers resolve, the 26 unresolved are template-generated (=./${name}.js=) or =bak=.
+
+Found, not changed (code):
+- =subsystems/paladin/{paladin,instance}/index.js= — the barrels the tangle mandated have NO importer; =typology.js= reads the files.
+- =@vivalence/ghost= now pulls =surface/chrome= (opentui ×12 · solid-js ×6 modules, 0 before) through =lifecycle.shell=; still paladin-free.
+- the host beats =entities · metadata · cortex= exist once per die (=runtime/= · =daemon/= =integration.js=); only the daemon's is tested.
+- 7 codestyle fences are hand-condensed excerpts of typology code (same tokens, folded lines) — pre-m91, left as written.
+
+* QA
+
+- /"I type =viva --help=, I see the usage and exit 0"/ — after milestone 3 =#+marker_qa: m91/T-ghost-help · held · exit code=
+- /"I run the smoke test one-shot, I see =1 passed=, the trait import path is =lifecycle/mode/traits= nowhere"/ =#+marker_qa: m91/T-runtime-smoke · held · grep + exit=
+- /"I open =systems/runtime/=, I see five subject directories and =entities/ gestalten/ schematics/= beside =run.js typology.js deno.jsonc Dockerfile tests/= (and my =bak.belt/=)"/ =#+marker_qa: m91/T-runtime-ls · held · ls=
+- /"I =grep -rn execution.js systems subsystems --exclude-dir=bak= and see zero"/ =#+marker_qa: m91/T-execution-zero · held · grep=
+
+* release
+
+- renamed `runtime.traits.<NAME>` — `runtime.traits.mode.<NAME>` · migrate: rename the read ⟨m91⟩
+- renamed `paladin.lifecycle.mount(instance)` — `paladin.factories.instance(paladinDie)` · migrate: rename the call ⟨m91⟩
+- renamed `paladin.skills.*` — `paladin.tools.*` on the booted paladin, `gestalten.tools` in `@vivalence/paladin/typology` (m83's word, landed here) · migrate: rename the read ⟨m91⟩
+- renamed `@vivalence/paladin/skills` — `@vivalence/paladin/tools` (`deno.jsonc` export) · migrate: rename the specifier ⟨m91⟩
+- removed `mount · populate · resolve · integrate · belt · prototypes` (`@vivalence/paladin/typology`) — `factories.instance` · `lifecycle.{paladin,instance}.*` · `gestalten.belt` · the classes flat · migrate: rename the import ⟨m91⟩
+- renamed `gestalten.skills.*` (`@vivalence/runtime`) — `gestalten.tools.*` (m83's line, landed here) · migrate: rename the read ⟨m91⟩
+- renamed `ghost.<subject>.*` (`@vivalence/ghost`: `client · terminal · thread · mode · lighthouse · daemon · runtime`) — `ghost.lifecycle.<subject>.*` · `traits.<subject>` · `commands.<subject>` · `factories.client`; `activity · buffer · turn` under `entities` · migrate: rename the read ⟨m91⟩
+- renamed `<system>.lifecycle.<subject>.aperture.*` — `lifecycle.<subject>.integration.*` · migrate: rename the read ⟨m91⟩
+
+LIFTED 10-19 into =release.md= =### api=; the =ModeTraitsEnum= line handed to =m94-trait-rejiggle.org= =* release= with milestone 5.
+
+* deferred
+
+- anima — waits on its build (=frontier.md=)
+- the algebra (=>=>= · =traverse= · suspend · =inflight=) → =m93-kleisli-remonadization.org=, after milestone 5
+- the vdex three and the qa rig: red before m91, a known issue each once filed
+- the public page =documentation/content/10-19_explanation/12_architecture/12.01_anatomy-of-an-instance.mdx= still teaches =lifecycle.mount= and =lifecycle/<type>/execution.js= (its execution listing drifted before m91 too); the m91 delta, dry-applied clean (=patch -p1 --dry-run=), waits on go:
+#+BEGIN_SRC diff
+--- a/documentation/content/10-19_explanation/12_architecture/12.01_anatomy-of-an-instance.mdx
++++ b/documentation/content/10-19_explanation/12_architecture/12.01_anatomy-of-an-instance.mdx
+@@ -49,14 +49,14 @@
+ 2. **resolve** — find the one module under the instance mount whose manifest says `instance`, then *hydrate* it: every deferred `() =>` fires now, at any depth. The thunk above becomes the string it read. Until this moment the declaration was data; after it, values — still untyped.
+ 3. **mode identifiers** — a host's `modes` entries (a daemon's, or the runtime's own) stay unhydrated and get resolved as identifiers instead: a bare specifier points into the registry, `./` is relative to the instance file, and an inline object — the standalone's case — mounts as-is, with the instance file as its home.
+ 4. **defaults and seats** — the root `lighthouse`, `datamap` and `hallucinators` are copied into every daemon that declares none of its own (a service takes the datamap), and every daemon and service is seated: `mountpoint/daemon_standalone/` is where its database and migrations will live, and its datamap copy is stamped with that seat and a file named for it, `standalone.viva.db`.
+-5. **settle & publish** — the one `v.primitives.instance.Instance` schematic settles what the pinhole fired: a hallucinator with a blank secret goes *dormant* (off the roster, named on the instance), defaults fill the slots the recipe left out, a daemon still owing a lighthouse or a datamap is a fault by its own name, every miss becomes a sentence in `instance.faults` — never a throw, so the doctor can mount a bare recipe — and a clean slot decodes to its prototype: the string above becomes a `Url`. Then every `PUBLIC_*` var is published to the process environment, where clients can reach it. The boot edge refuses on faults (`instance/run`, and the runtime's own `run.js` below); `mount()` itself never does.
++5. **settle & publish** — the one `v.primitives.instance.Instance` schematic settles what the pinhole fired: a hallucinator with a blank secret goes *dormant* (off the roster, named on the instance), defaults fill the slots the recipe left out, a daemon still owing a lighthouse or a datamap is a fault by its own name, every miss becomes a sentence in `instance.faults` — never a throw, so the doctor can mount a bare recipe — and a clean slot decodes to its prototype: the string above becomes a `Url`. Then every `PUBLIC_*` var is published to the process environment, where clients can reach it. The boot edge refuses on faults (`instance/run`, and the runtime's own `run.js` below); `factories.instance()` itself never does.
+ 
+ ## a vector per process
+ 
+ The runtime's whole entrypoint:
+ 
+ ```js title="systems/runtime/run.js — condensed"
+-await lifecycle.mount(paladin.instance)
++await factories.instance(paladin.instance)
+ const die = {
+   aperture: new Aperture(),
+   controller: new Controller({ stdout: new Span(`runtime/${paladin.instance.runtime.manifest.slug}`) }),
+@@ -67,9 +67,9 @@
+ Deno.exit(die.controller.status.is("STOPPED") ? 0 : 1)
+ ```
+ 
+-A *die* is a bag, not a class: the controller (a span with a status machine and a stdin of signals), the mask paladin compiled, and the process it carries — `die.runtime` here, `die.daemon` and `die.service` for the children, `die.mode` for a mode. The *execution* is one Vector per process type, `lifecycle/<type>/execution.js`: every beat is a middleware `(die, next)`, and what a beat opens before `await next()` it closes in its own `finally` after it. The effect at the end is `keepalive`: open the controller's span — the readiness line `Status:RUNNING` — and hold until a signal settles it. Stop is the chain unwinding in reverse: the server shut, the children signalled, the datamap closed, the span closed.
++A *die* is a bag, not a class: the controller (a span with a status machine and a stdin of signals), the mask paladin compiled, and the process it carries — `die.runtime` here, `die.daemon` and `die.service` for the children, `die.mode` for a mode. The *execution* is one Vector per process type, `<type>/lifecycle/index.js`: every beat is a middleware `(die, next)`, and what a beat opens before `await next()` it closes in its own `finally` after it. The effect at the end is `keepalive`: open the controller's span — the readiness line `Status:RUNNING` — and hold until a signal settles it. Stop is the chain unwinding in reverse: the server shut, the children signalled, the datamap closed, the span closed.
+ 
+-```js title="systems/runtime/lifecycle/runtime/execution.js"
++```js title="systems/runtime/runtime/lifecycle/index.js"
+ export const execution = new Vector()
+   .use(process.settle)
+   .use(population.validate)
+@@ -107,7 +107,7 @@
+ 
+ ## the daemon assembles its body
+ 
+-`lifecycle/daemon/execution.js` runs the same way over `{ controller, mask, daemon }`, and population is where declaration becomes anatomy:
++`daemon/lifecycle/index.js` runs the same way over `{ controller, mask, daemon }`, and population is where declaration becomes anatomy:
+ 
+ - **core** — `registry.wire(mask)` resolves the mask's register through the pensieve: lighthouse, datamap, hallucinators, kernel. The kernel entry typed `domain` is singled out — the standalone's `recall` domain, carrying the Retention entity. Then the system's tiers *assemble*: `[kernel, userspace, transient, domain]`, later tiers overriding by type, subscribers accumulating. Retention joins Buffer, Thread, Turn, Mode, User and the rest as a first-class entity.
+ - **datamap** — the libsql provider boots the ORM over the assembled schemas and automigrates. The database file did not exist a moment before; now `standalone.viva.db` is on disk with every table. This beat's `finally` closes it, after the activity rows are cleared.
+#+END_SRC
+
+* handoff
+
+- goal: every system subject-first, the lexicon (=entities · prototypes · gestalten · schematics=) beside, the export predicative.
+- done: rulings + law (10-17 → 10-19); milestones 1–4 and 6 landed on the tree, uncommitted (=* changelog=); the milestone-3 regression (ghost's flat =belt · shard=) fixed.
+- next: `go` on milestone 5 (the vocabulary), re-cut over =m94-trait-rejiggle.org= (the set per entity, ruled 10-19 — every trait-bearing entity, not Mode alone); =ModeTraitsEnum= read once, =systems/runtime/mode/Mode.ts:12=.
+- never: object-first systems · =executions/= · =app/= beside =typology/= · a lifecycle imported in use · a dropped export without a blast of every file type (10-19: ghost's flat =belt · shard=, =chassis.jsx=).
+- owed: the docs page delta (=* deferred=) · the four QA markers, his walk · whether =paladin/index.js= · =instance/index.js= stay with no importer · whether =@vivalence/ghost= should carry the chrome stack (=lifecycle.shell=) · =hooks/blast-guard.sh= drafted, warn-only, his wiring.

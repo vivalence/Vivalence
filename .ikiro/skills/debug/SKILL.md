@@ -32,6 +32,7 @@ when_to_use: >-
 - `curl` `/status` · `/metadata/aperture`.
 - foreground boot `deno run -A systems/runtime/run.js` — a bad import dies SILENTLY under the task runner.
 - `git show HEAD:<file>` into a scratch copy.
+- a walk or probe tears down in a `finally`: SIGTERM its own pid, never SIGKILL (a killed `viva` orphans its runtime) nor `ps | grep`. REJECTED 10-13: orphan worlds ×2.
 
 ## shapes that recur
 

@@ -1,4 +1,4 @@
-import { steer } from "@vivalence/typology";
+import * as steer from "../steer/index.js";
 
 export function tree(vector, execute) {
   const root = steer.trie.survey(vector, (node) => {

@@ -13,7 +13,7 @@ when_to_use: >-
 <!-- limit: 6000 chars -->
 # package — "new package" · "tap it": the registry package as paladin reads it
 
-Canon: `subsystems/paladin/belt/find.js` · `subsystems/paladin/prototypes/ledger/registry.js` · `world/codemap/commons.md`. Live: assembly · chess · droneaid · media · stucatch · education · vcompany · young-ladys-primer. Read `world/ledger.md` first — nothing auto-loads under `~/.viva`. Inside it → skills `mode` · `domain` · `topography`.
+Canon: `subsystems/paladin/gestalten/belt/find.js` · `subsystems/paladin/ledger/registry.js` · `world/codemap/commons.md`. Live: assembly · chess · droneaid · media · stucatch · education · vcompany · young-ladys-primer. Read `world/codemap/paladin.md` first — nothing auto-loads under `~/.viva`. Inside it → skills `mode` · `domain` · `topography`.
 
 ## The recipe — content, never a filename
 
@@ -38,7 +38,7 @@ Canon: `subsystems/paladin/belt/find.js` · `subsystems/paladin/prototypes/ledge
 ```
 
 - the declaration — `{ type:"package", slug, owner:"@<slug>", version, traits:[] }`.
-- `modes/` — the convention is CODE: `paladin/lifecycle/resolve.js:76-80`.
+- `modes/` — the convention is CODE: `paladin/instance/lifecycle/resolution.js:76-80`.
 - `services/` — a provider, not a mode (`chess/services/stockfish`).
 - `instances/<slug>/` — the template `instance/create` COPIES to `~/.viva/instances/<slug>/`.
 - `tests/` — package-root fixtures; the domain reaches modes at runtime, never by path.
@@ -61,9 +61,9 @@ The MODULE's manifest is authored and immutable. The MOUNTING's is minted by pal
 ## Mount path — read it before touching it
 
 ```
-systems/runtime/lifecycle/runtime/population.js:18  paladin.ledger.registry.supply() → reconcile(record) → mount(root) → pensieve.register
-systems/runtime/lifecycle/daemon/population.js:7    die.register = registry.wire(die.mask) → accio() per slot; domain = Domain.cast(modes.find(type==="domain")); the runtime wires its own record the same way (runtime/population.js:73)
-~/.viva/registry.json                               flat array of references, store-relative or absolute
+systems/runtime/runtime/lifecycle/population.js:27  paladin.ledger.registry.supply() → reconcile(record) → mount(root) → pensieve.register
+systems/runtime/daemon/lifecycle/population.js:8    die.register = registry.wire(die.mask) → accio() per slot; domain = Domain.cast(modes.find(type==="domain")); the runtime wires its own record the same way (runtime/lifecycle/population.js:123)
+~/.viva/registry.json                               { "@<slug>": { slug, mount } }, mount store-relative or absolute
 ```
 
 Land: `viva registry/tap <path>` → `viva instance/create @<pkg>/instance/<slug> --use --init` → walk it (skill `debug` or `readme`). `viva ledger/doctor` shows `untapped`; `viva instance/doctor --json` the seats.

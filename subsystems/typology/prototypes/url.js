@@ -1,5 +1,8 @@
 import { Signature } from "./signature.js";
-import { string, hash, is } from "@vivalence/typology";
+import { Signal } from "./signal.js";
+import * as string from "../gestalten/belt/string.js";
+import * as hash from "../gestalten/belt/hash.js";
+import * as is from "../gestalten/is/scalars.js";
 
 // import { join } from "@std/path"; // URLs always use posix-style paths
 
@@ -52,7 +55,7 @@ export class Url extends Signature {
         query: u.query ?? (u.searchParams ? Object.fromEntries(u.searchParams) : {}),
       }),
     ],
-    [(u) => is.Signal(u), (u) => ({ nature: u.pathname })],
+    [(u) => u instanceof Signal, (u) => ({ nature: u.pathname })],
     [(u) => is.string(u), (s) => ({ nature: normalize(s) })],
   ];
 

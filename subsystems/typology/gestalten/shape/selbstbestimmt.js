@@ -1,4 +1,5 @@
-import { middleware, steer } from "@vivalence/typology";
+import * as middleware from "../belt/middleware.js";
+import * as steer from "../steer/index.js";
 
 export function selbstbestimmt(vector, strategy = steer.strategy.bare) {
   const walk = (node) => {

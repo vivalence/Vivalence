@@ -1,4 +1,5 @@
-import { Aperture, Broadcaster } from "@vivalence/typology";
+import { Aperture } from "../../prototypes/aperture.js";
+import { Broadcaster } from "../../prototypes/broadcaster.js";
 
 export function atom(store) {
   const aperture = new Aperture();

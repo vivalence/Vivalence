@@ -2,7 +2,7 @@ import { join } from "@std/path";
 import { belt, specimen, steer, Vector } from "@vivalence/typology";
 import paladin from "@vivalence/paladin";
 import { traits } from "@vivalence/runtime";
-const { GENERATIVE } = traits;
+const { GENERATIVE } = traits.mode;
 import { generator, tools } from "../mode.viva.js";
 
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
@@ -52,8 +52,8 @@ const catalog = () => {
 const armory = () =>
   declarations(
     new Vector()
-      .graft(paladin.skills.fs.fs)
-      .graft(paladin.skills.shell.shell)
+      .graft(paladin.tools.fs.fs)
+      .graft(paladin.tools.shell.shell)
       .graft(catalog()),
   ).map(({ name }) => name);
 
@@ -83,7 +83,7 @@ specimen.describe(
     );
 
     specimen.it(
-      "S1: the FULL armory as names only — a paladin skills change is a one-line diff",
+      "S1: the FULL armory as names only — a paladin tools change is a one-line diff",
       () => {
         pin(armory(), "hello-world-armory.snapshot.json");
       },

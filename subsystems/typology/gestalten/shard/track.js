@@ -1,4 +1,4 @@
-import { Span } from "@vivalence/typology";
+import { Span } from "../../prototypes/span.js";
 
 const wire = (message) => {
   const shape = {};
@@ -40,6 +40,13 @@ export function subject(schema, id) {
         id: typeof id === "function" ? id(ctx) : id,
       });
     await next();
+  };
+}
+
+export function message() {
+  return async (ctx, next) => {
+    await next();
+    if (ctx.span && ctx.output !== undefined) ctx.span.message(ctx.output);
   };
 }
 

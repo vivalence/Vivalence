@@ -1,4 +1,4 @@
-import { is } from "@vivalence/typology";
+import * as is from "../gestalten/is/index.js";
 
 export class Blacklist {
   constructor(input = {}) {

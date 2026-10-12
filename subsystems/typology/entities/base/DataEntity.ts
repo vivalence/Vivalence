@@ -1,5 +1,5 @@
 import { types, EntitySchema, EntityRepository, BaseEntity, raw, type Opt } from "@mikro-orm/core";
-import { is } from "@vivalence/typology";
+import * as is from "../../gestalten/is/index.js";
 import { v7 } from "uuid";
 
 export class DataEntity extends BaseEntity {

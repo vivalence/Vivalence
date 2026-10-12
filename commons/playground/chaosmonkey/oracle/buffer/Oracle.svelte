@@ -21,8 +21,8 @@
   let clientStory = $state.raw(logger.get());
   logger.subscribe((story) => (clientStory = story));
 
-  let serverStory = $state.raw(trace.chronicle.seed());
-  const serverStep = (record) => (serverStory = trace.chronicle.step(serverStory, record));
+  let serverStory = $state.raw(trace.seed());
+  const serverStep = (record) => (serverStory = trace.step(serverStory, record));
 
   const stream = new Span("stream");
   stream.pipe.tap(serverStep);

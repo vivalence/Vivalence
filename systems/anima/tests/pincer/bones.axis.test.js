@@ -5,7 +5,7 @@ import {
   axisFor,
   bonesForOrientation,
   rectsForOrientation,
-} from "../../src/typology/stores/bridge/geometry.js";
+} from "../../src/bridge/geometry.js";
 
 const ORIENTATIONS = [0, 90, 180, 270];
 const VIEWPORT = { width: 1200, height: 800 };

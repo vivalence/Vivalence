@@ -1,6 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import { metronome } from "@vivalence/typology/scenarios";
-import provider from "../../../commons/fixtures/hal/stub/provider/index.js";
+import provider from "../../../commons/fixtures/testing/hal/stub/provider/index.js";
 import { create } from "./scenarios/cortex.js";
 
 const { ledger, until } = metronome;

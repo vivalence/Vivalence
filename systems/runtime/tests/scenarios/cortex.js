@@ -2,7 +2,7 @@ import { Aperture, contexts, Cortex, Mode, Path, shard, Twitch, Vector } from "@
 import { seed, tiers, faculties } from "./fixtures.js";
 
 import { traits } from "@vivalence/runtime";
-const { HARNESSED } = traits;
+const { HARNESSED } = traits.mode;
 
 export async function create({ harness } = {}) {
   const { orm, em, datamap, entities, runtime, twitch, fixtures, held } = await seed();

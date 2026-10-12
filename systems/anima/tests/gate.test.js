@@ -1,6 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import { gateFor } from "../src/app/gate.js";
-import { STANDINGS } from "../src/typology/stores/lighthouse.js";
+import { STANDINGS } from "../src/lighthouse.js";
 
 const WITNESSES = [
   { authorized: false, status: { code: "VERIFIED" }, gate: "signin" },

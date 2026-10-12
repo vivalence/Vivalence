@@ -1,6 +1,6 @@
 import { shard, shape, Connection, sleep } from "@vivalence/typology";
-import { Dataspace } from "../../../src/typology/prototypes/dataspace.js";
-import { ActivityDossier } from "../../../src/typology/entities/activity.js";
+import { Dataspace } from "../../../src/prototypes/dataspace.js";
+import { ActivityDossier } from "../../../src/entities/activity.js";
 
 export const stamp = () => new Date().toISOString().slice(11, 23);
 export const idOf = (ref) => (ref && typeof ref === "object" ? ref.id : ref) ?? null;

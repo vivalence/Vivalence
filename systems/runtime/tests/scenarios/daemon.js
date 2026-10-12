@@ -2,10 +2,10 @@ import { Aperture, App, Connection, contexts, middleware, Mode, Path, shape, sha
 import { RequestContext } from "@mikro-orm/core";
 import { seed, tiers } from "./fixtures.js";
 import { gestalten, lifecycle, traits } from "@vivalence/runtime";
-import { authenticate, signer } from "../../lifecycle/runtime/lighthouse/signer.js";
-import { userspace as userspaceBeat } from "../../lifecycle/runtime/aperture/userspace.js";
+import { authenticate, signer } from "../../lighthouse/signer.js";
+import { userspace as userspaceBeat } from "../../runtime/lifecycle/integration.js";
 
-const { INTENTED, EMITTER } = traits;
+const { INTENTED, EMITTER } = traits.mode;
 const { stagger } = gestalten.belt;
 
 export const SECRET = "scenario-secret-scenario-secret-scenario";
@@ -17,7 +17,7 @@ const APPLICATION = (mode, daemon) => {
     const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
       data: mode.application.fill(desc),
-      view: null,
+      bundle: null,
       index: desc.index ?? 0,
     });
     if (desc.literals) buffer.literals.add(desc.literals.map((l) => em.getReference(tiers.literal.entity, l?.id ?? l)));
@@ -90,7 +90,7 @@ export async function create({ domain = {} } = {}) {
   daemon.aperture.branch(mode.reference.absolute, mode.aperture);
 
   const die = { daemon };
-  await middleware.compose([lifecycle.daemon.aperture.datamap, lifecycle.daemon.aperture.freight])(die);
+  await middleware.compose([lifecycle.daemon.integration.datamap, lifecycle.daemon.integration.entities, lifecycle.daemon.integration.freight])(die);
 
   const handler = shape.http(daemon.aperture);
   const connect = connector(handler);

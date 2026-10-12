@@ -1,0 +1,1271 @@
+#+title: m83 tangle — the drill (Q0–Q11) as a diff, file by file, in =ls= order
+#+status: TANGLED 10-19 on a copy of the live tree (post-m91), replayed 57 + 7 hunks · 8 new · missed 0, ≡ the built copy; not landed. Rulings: =m83-tools-and-primer.org= =* the dialogue=.
+
+# limit: 60000 chars
+
+* departures — what the code forced past the locks
+
+| # | where | what | why |
+|---+-------+------+-----|
+| 1 | =subsystems/typology/prototypes/path.js:31= | =..= collapses inside =absolute=; =branch= stays pure | a =branch("..")= override broke =filepath.test.js:12=; his note =prototypes/filepath.js:16=: /"branch("..") as navigation … breaks branch's contract"/ — =..= is data, collapsed at read |
+| 2 | memo · harvest · francesca | the mode's =primer= IS the directory Primer (nature =magister= · =archivist= · =francesca=), not =.open("francesca", …)= | the section key stays what it is today |
+| 3 | =francesca/primer/francesca.md:1= | frontmatter =name= · =description= → =valence=, no =load= | the sniff makes =description= lazy; the persona rides eager today. The model no longer reads the frontmatter it used to |
+| 4 | =commons/fixtures/memo= | the mode primer now precedes the domain's =srs= | Q6: =requesting= grafts =mode.primer= before the harnesses run; order was =srs · magister · language · today=, now =magister · srs · language · today= |
+| 5 | =systems/runtime/mode/traits/primer.js:4= | PRIMER without a =primer= export throws at boot | law 10, loud |
+| 6 | =harnessed.js:42= | AGENTIC siblings skip =type: "domain"= | the domain hangs once, under its slug (Q10), as =agentic.js:5= skips it for tools |
+| 7 | =commons/instances/hello-world/tests/rig.js:117= | the hand rig's mode gains =implements: () => false= | =requesting= asks =ctx.mode.implements("AGENTIC")=; the rig's mode is a bare object |
+| 8 | =import_map.json:14= | =@std/front-matter/yaml= · =@std/front-matter/test=, exact entries, =jsr:…@1.0= | no frontmatter parser in the tree; =deno.lock= regenerates at the land (+ =@std/yaml= 1.2.0) |
+| 9 | 2 hello-world snapshots | not hunks: =SNAPSHOT_HOT=1= on =commons/instances/hello-world/tests/= after the land | proven: regenerated on the replay copy ≡ the built copy, byte for byte |
+
+* holes — a lock could not say
+
+- =requesting= opens =ctx.input.system= onto the request's primer on EVERY branch; a choice round's =system= is the thing judged — a string opens one node per character, unused (pre-drill, unchanged).
+- the cache mark (=summarizing=) reads =shape.primer.keys= statically: an eager function effect that returns a Primer names a key the loaded record does not hold.
+- =primer_read= is armed by static lazy nodes only; lazy nodes inside an eager function's Primer show in the index with no tool.
+- =SKILL.md= under =paladin.prime.directory= is nature =<dir>/SKILL= (Q5: per file, no layout).
+- =paladin.find.walk='s default ignore skips =bak/= · =template/= directories inside a primer directory.
+
+* Moves — =mv= first, then the blocks
+
+| from | to |
+|------+----|
+| =commons/fixtures/memo/mode/hal/memo.md= | =commons/fixtures/memo/mode/primer/magister.md= |
+| =~/.viva/registry/education/modes/tactics/harvest/hal/archivist.md= | =~/.viva/registry/education/modes/tactics/harvest/primer/archivist.md= |
+| =~/.viva/registry/education/modes/teacher/francesca/francesca.md= | =~/.viva/registry/education/modes/teacher/francesca/primer/francesca.md= |
+
+Both =hal/= directories are empty after the move; =rmdir= them.
+
+* the tangle
+
+New files: =python3 .ikiro/methods/tangle.py <this> --write --root <root>= (=:tangle= blocks). Hunks: =apply-diffs.py <this> "<the ** heading>" --write --root <root>=.
+
+** repo — replayed with =--root= the repo (or a copy)
+
+*** commons
+
+**** commons/fixtures/memo/domain
+
+***** harness.js — =commons/fixtures/memo/domain/harness.js:10=
+
+#+BEGIN_SRC diff
+// commons/fixtures/memo/domain/harness.js:10
+
+ export const harness = new Vector().use(async (ctx, next) => {
+-  ctx.hallucination.system.srs = GLOSSARY;
++  ctx.hallucination.primer.open("srs", GLOSSARY);
+   await next();
+ });
+#+END_SRC
+
+**** commons/fixtures/memo/mode
+
+***** harness.js — =commons/fixtures/memo/mode/harness.js:1=
+
+#+BEGIN_SRC diff
+// commons/fixtures/memo/mode/harness.js:1
+-import { Vector } from "@vivalence/typology";
+-import magister from "./hal/memo.md" with { type: "text" };
++import { Path, Vector } from "@vivalence/typology";
++import paladin from "@vivalence/paladin";
+ import { briefing, progress } from "./progress.js";
++
++export const primer = await paladin.prime.directory(new Path(import.meta.resolve("./primer")));
+
+ export const harness = new Vector().use(async (ctx, next) => {
+   ctx.hallucination.policy.tune ??= "fast";
+-  ctx.hallucination.system.magister = magister;
+-  ctx.hallucination.system.language = `Known: ${ctx.statics.language.known}. Learning: ${ctx.statics.language.learning}.`;
++  ctx.hallucination.primer.open("language", `Known: ${ctx.statics.language.known}. Learning: ${ctx.statics.language.learning}.`);
+   await next();
+ });
+
+ harness.branch("/dialogue").use(async (ctx, next) => {
+-  ctx.hallucination.system.today = briefing(await progress(ctx));
++  ctx.hallucination.primer.open("today", briefing(await progress(ctx)));
+   await next();
+ });
+#+END_SRC
+
+***** memo.viva.js — =commons/fixtures/memo/mode/memo.viva.js:1= + 1 more
+
+#+BEGIN_SRC diff
+// commons/fixtures/memo/mode/memo.viva.js:1
+ import { App, mime, v } from "@vivalence/typology";
+
+-export { harness } from "./harness.js";
++export { harness, primer } from "./harness.js";
+ export { tools } from "./tools/index.js";
+ export { aperture } from "./aperture.js";
+…
+// commons/fixtures/memo/mode/memo.viva.js:12
+   description: "Spaced-repetition flashcards on SM-2: drill in the frame (tab reveals, 1 again · 2 hard · 3 good · 4 easy) or in conversation with the Magister; both grade one schedule.",
+   version: "0.1.0",
+-  traits: ["APPLICATION", "EMITTER", "EXPOSED", "HARNESSED", "CONVERSATIONAL", "TOOLING"],
++  traits: ["APPLICATION", "EMITTER", "EXPOSED", "HARNESSED", "CONVERSATIONAL", "TOOLING", "PRIMER"],
+ };
+
+#+END_SRC
+
+**** commons/hallucinators/openrouter/provider
+
+***** translate.js — =commons/hallucinators/openrouter/provider/translate.js:256=
+
+#+BEGIN_SRC diff
+// commons/hallucinators/openrouter/provider/translate.js:256
+ const criteria = (question) => (question.options ? { criteria: question.options } : question.levels ? { criteria: question.levels } : {});
+
+-export function translateChoice(model, { primer, questions }) {
++export function translateChoice(model, { system, questions }) {
+   return {
+     model: model.id,
+-    state: primer,
++    state: system,
+     questions: Object.fromEntries(
+       Object.entries(questions).map(([key, question]) => [key, { type: question.type, instructions: question.ask, ...criteria(question) }]),
+#+END_SRC
+
+**** commons/hallucinators/openrouter/tests
+
+***** provider.test.js — =commons/hallucinators/openrouter/tests/provider.test.js:592=
+
+#+BEGIN_SRC diff
+// commons/hallucinators/openrouter/tests/provider.test.js:592
+     );
+
+-    specimen.it("translateChoice is the decisions dialect — primer to state, the tag to type, options and levels to criteria; readChoice folds the answers back in the caller's order (live body 09-24)", () => {
++    specimen.it("translateChoice is the decisions dialect — system to state, the tag to type, options and levels to criteria; readChoice folds the answers back in the caller's order (live body 09-24)", () => {
+       const round = {
+-        primer: { expected: "Vado al mercato.", answer: "Io vado al mercato domani." },
++        system: { expected: "Vado al mercato.", answer: "Io vado al mercato domani." },
+         questions: {
+           same: { type: "choice", ask: "Does `answer` mean `expected`?", options: { yes: null, partly: "extra or missing detail", no: null } },
+#+END_SRC
+
+**** commons/instances/hello-world
+
+***** harness.js — =commons/instances/hello-world/harness.js:1= + 2 more
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/harness.js:1
+-import { Vector } from "@vivalence/typology";
++import { Primer, Vector } from "@vivalence/typology";
+ import { machine, standing } from "./tools/index.js";
+ import { RENDER } from "./page/style.js";
+…
+// commons/instances/hello-world/harness.js:12
+   "1. LOOK. What this machine IS you already have below. For anything deeper — a variable, another instance, a registered module, a dormant slot — pull the whole record with viva_doctor, ONCE. For a fact about the world, web_search ONCE, then web_read the one article that is the subject if you mean to quote it. That is the whole lookup: at most two calls.",
+   "2. DECIDE. No tool. Is this an answer, a page, or research? An answer is prose. A page is one draw. Research is when the operator wants something looked into AND kept — read up on X, write me a page about Y.",
+-  "3. ACT, one call. Answer in prose. Or draw ONCE with generator_view_render — the HOUSE RULES below are the whole contract for what it may contain; do not draw unasked. Or hand research to the research tool in ONE call with the whole brief: it searches, reads and draws by itself and returns what it learned, so answer from that. One research call per subject, never one per question, never in a loop.",
++  "3. ACT, one call. Answer in prose. Or draw ONCE with generator_view_render — first primer_read guides/render, whose HOUSE RULES are the whole contract for what it may contain; do not draw unasked. Or hand research to the research tool in ONE call with the whole brief: it searches, reads and draws by itself and returns what it learned, so answer from that. One research call per subject, never one per question, never in a loop.",
+   "4. CHANGE, only when asked. A page the operator wants changed — more detail, a section, a fix — is ONE generator_view_revise on the same page, never a second draw; generator_view_inspect gives you its source back, generator_view_list the pages on this thread.",
+   "",
+…
+// commons/instances/hello-world/harness.js:25
+ ].join("\n");
+
++export const primer = new Primer()
++  .open("hello", HELLO)
++  .open("machine", (ctx) => machine(standing(ctx)))
++  .open({ nature: "guides/render", valence: "How to draw a page — component rules, buffer.data, styling. Read before generator_view_render.", load: "lazy" }, RENDER);
++
+ export const harness = new Vector();
+
+-harness.use(async (ctx, next) => {
+-  ctx.hallucination.system.hello = HELLO;
+-  ctx.hallucination.system.machine = machine(standing(ctx));
+-  ctx.hallucination.system.render = RENDER;
++// the dock is the only reader of prose — an object or verbatim call has no markdown to render.
++harness.branch("/dialogue").use(async (ctx, next) => {
++  ctx.hallucination.primer.open("format", FORMAT);
+   await next();
+ });
+
+-// the dock is the only reader of prose — an object or verbatim call has no markdown to render.
+-harness.branch("/dialogue").use(async (ctx, next) => {
+-  ctx.hallucination.system.format = FORMAT;
+-  await next();
+-});
+-
+#+END_SRC
+
+***** mode.viva.js — =commons/instances/hello-world/mode.viva.js:2= + 1 more
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/mode.viva.js:2
+ import { doctor, doors, persona, research, web } from "./tools/index.js";
+ import { harness as voice } from "./harness.js";
++export { primer } from "./harness.js";
+
+ export const manifest = {
+…
+// commons/instances/hello-world/mode.viva.js:10
+     "CONVERSATIONAL", // mode can be chatted with
+     "TOOLING",         // mode provides agentic tools
++    "PRIMER",
+
+     "EMITTER",        // mode renders ad-hoc buffers
+#+END_SRC
+
+**** commons/instances/hello-world/tests
+
+***** draw.snapshot.test.js — =commons/instances/hello-world/tests/draw.snapshot.test.js:1= + 4 more
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/tests/draw.snapshot.test.js:1
+-import { specimen, steer, Vector } from "@vivalence/typology";
++import { Primer, shape, specimen, steer, Vector } from "@vivalence/typology";
+ import { traits } from "@vivalence/runtime";
+ const { EMITTER } = traits.mode;
+ import { machine } from "../tools/doctor.js";
+-import { harness } from "../harness.js";
++import { harness, primer } from "../harness.js";
++import { RENDER } from "../page/style.js";
+ import { emitter } from "../page/index.js";
+ import { pin } from "./harness.snapshot.test.js";
+…
+// commons/instances/hello-world/tests/draw.snapshot.test.js:32
+   const run = new Vector();
+   run.use(async (ctx, next) => {
+-    ctx.hallucination = { system: {} };
++    ctx.hallucination = { primer: new Primer().graft(primer) };
+     Object.assign(ctx, { mountpoint: null, entities: {}, modes: {} });
+     await next();
+   });
+   run.graft(harness);
+-  run.branch("/dialogue").open("/render", (ctx) => ctx.hallucination.system);
+-  run.open("/render", (ctx) => ctx.hallucination.system);
++  run.branch("/dialogue").open("/render", (ctx) => shape.primer.load(ctx.hallucination.primer, ctx));
++  run.open("/render", (ctx) => shape.primer.load(ctx.hallucination.primer, ctx));
+
+   const system = await steer.dispatch.invoke(
+…
+// commons/instances/hello-world/tests/draw.snapshot.test.js:67
+             tokens: [
+               ...new Set(
+-                [...dialogue.render.matchAll(/--[a-z0-9-]+/g)].map(([token]) =>
++                [...RENDER.matchAll(/--[a-z0-9-]+/g)].map(([token]) =>
+                   token
+                 ),
+…
+// commons/instances/hello-world/tests/draw.snapshot.test.js:85
+           "hello",
+           "machine",
+-          "render",
++          "primer",
+         ]);
+         const dialogue = await assemble("/dialogue/render");
+…
+// commons/instances/hello-world/tests/draw.snapshot.test.js:92
+           "hello",
+           "machine",
+-          "render",
++          "primer",
+         ]);
+       },
+#+END_SRC
+
+***** rig.js — =commons/instances/hello-world/tests/rig.js:117=
+
+#+BEGIN_SRC diff
+// commons/instances/hello-world/tests/rig.js:117
+     entity: { id: "mode-1" },
+     tools: new Vector().graft(web),
++    implements: () => false,
+   };
+   daemon.modes = { [mode.manifest.type]: { [mode.manifest.slug]: mode } };
+#+END_SRC
+
+**** commons/playground/chaosmonkey/oracle
+
+***** harness.js — =commons/playground/chaosmonkey/oracle/harness.js:3=
+
+#+BEGIN_SRC diff
+// commons/playground/chaosmonkey/oracle/harness.js:3
+ export const harness = new Vector();
+ harness.use(async (ctx, next) => {
+-  ctx.hallucination.system.oracle = [
++  ctx.hallucination.primer.open("oracle", [
+     "You are the Oracle, a presence living inside vivalence's chaosmonkey harness testbed.",
+     "Speak in short, cryptic, faintly amused lines — two or three sentences at most.",
+     "You know exactly what you are: a demo proving the dialogue and object faculties work. Wink at that if asked directly, otherwise stay in character.",
+     "No markdown, no lists, no headings, no asterisks. Plain prose only.",
+-  ].join("\n");
++  ].join("\n"));
+   await next();
+ });
+#+END_SRC
+
+**** commons/playground/chaosmonkey/reader
+
+***** harness.js — =commons/playground/chaosmonkey/reader/harness.js:15=
+
+#+BEGIN_SRC diff
+// commons/playground/chaosmonkey/reader/harness.js:15
+
+ export const harness = new Vector().use(async (ctx, next) => {
+-  ctx.hallucination.system.reader = [identity, workflow].join("\n\n");
++  ctx.hallucination.primer.open("reader", [identity, workflow].join("\n\n"));
+   await next();
+ });
+#+END_SRC
+
+**** commons/playground/dealer
+
+***** dealer.viva.js — =commons/playground/dealer/dealer.viva.js:25=
+
+#+BEGIN_SRC diff
+// commons/playground/dealer/dealer.viva.js:25
+ export const harness = new Vector();
+ harness.use(async (ctx, next) => {
+-  ctx.hallucination.system.dealer = [
++  ctx.hallucination.primer.open("dealer", [
+     "You are the Dealer in a card-game playground inside vivalence.",
+     "You deal cards (render buffers) onto the table (the moat) for the player.",
+     "Keep replies short and plain — two or three sentences, no markdown.",
+-  ].join("\n");
++  ].join("\n"));
+   await next();
+ });
+#+END_SRC
+
+*** (root)
+
+**** (root)
+
+***** deno.jsonc — =deno.jsonc:3=
+
+#+BEGIN_SRC diff
+// deno.jsonc:3
+   "importMap": "./import_map.json",
+   "exclude": ["./testament", "./docs"],
+-  "unstable": ["raw-imports"],
+   "compilerOptions": {
+     "jsx": "react",
+#+END_SRC
+
+***** import_map.json — =import_map.json:12=
+
+#+BEGIN_SRC diff
+// import_map.json:12
+     "@std/crypto": "jsr:@std/crypto@1.0",
+     "@std/jsonc": "jsr:@std/jsonc@1.0",
++    "@std/front-matter/yaml": "jsr:@std/front-matter@1.0/yaml",
++    "@std/front-matter/test": "jsr:@std/front-matter@1.0/test",
+     "@std/async": "jsr:@std/async@1.0",
+     "@std/io": "jsr:@std/io",
+#+END_SRC
+
+*** subsystems
+
+**** subsystems/paladin/gestalten/belt
+
+***** index.js — =subsystems/paladin/gestalten/belt/index.js:1= + 1 more
+
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/index.js:1
+ import find from "./find.js";
+ import read from "./read.js";
++import prime from "./prime.js";
+ import check from "./check.js";
+ import state from "./state.js";
+…
+// subsystems/paladin/gestalten/belt/index.js:15
+   find,
+   read,
++  prime,
+   check,
+   state,
+#+END_SRC
+
+***** prime.js — new
+
+#+BEGIN_SRC js :tangle subsystems/paladin/gestalten/belt/prime.js
+import { is, Primer } from "@vivalence/typology";
+
+const DIALECTS = [
+  [(attrs) => is.string(attrs.description), (attrs) => ({ valence: attrs.description, load: "lazy" })],
+  [() => true, (attrs) => attrs],
+];
+
+const sniff = (attrs) => DIALECTS.find(([test]) => test(attrs))[1](attrs);
+
+export default function prime(paladin) {
+  const directory = async (path) => {
+    const primer = new Primer();
+    const files = (await paladin.find.walk(/\.md$/)(path)).sort((a, b) => (a.absolute < b.absolute ? -1 : 1));
+    for (const file of files) {
+      const { attrs } = await paladin.read.frontmatter(file);
+      const nature = file.absolute.slice(path.absolute.length + 1).replace(/\.md$/, "");
+      primer.open({ ...sniff(attrs), nature }, async () => (await paladin.read.frontmatter(file)).body);
+    }
+    return primer;
+  };
+
+  paladin.prime = { directory };
+}
+#+END_SRC
+
+***** read.js — =subsystems/paladin/gestalten/belt/read.js:2= + 2 more
+
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/read.js:2
+ import { dirname, isAbsolute, resolve as absolute } from "@std/path";
+ import * as jsonc from "@std/jsonc";
++import { extract } from "@std/front-matter/yaml";
++import { test as fronted } from "@std/front-matter/test";
+
+ const CONTENT = /^\s*[[{]/;
+…
+// subsystems/paladin/gestalten/belt/read.js:38
+
+     viva: async (path) => cast.viva(await readers.module(path)),
++
++    frontmatter: async (path) => {
++      const text = await Deno.readTextFile(resolve(path));
++      if (!fronted(text)) return { attrs: {}, body: text };
++      const { attrs, body } = extract(text);
++      return { attrs, body };
++    },
+   };
+
+…
+// subsystems/paladin/gestalten/belt/read.js:76
+     module: readers.module,
+     data: readers.data,
++    frontmatter: readers.frontmatter,
+     locate,
+     part,
+#+END_SRC
+
+**** subsystems/paladin/paladin
+
+***** prototype.js — =subsystems/paladin/paladin/prototype.js:80=
+
+#+BEGIN_SRC diff
+// subsystems/paladin/paladin/prototype.js:80
+     belt.read(this);
+     belt.find(this);
++    belt.prime(this);
+     belt.check(this);
+     belt.state(this);
+#+END_SRC
+
+**** subsystems/paladin/tests
+
+***** prime.test.js — new
+
+#+BEGIN_SRC js :tangle subsystems/paladin/tests/prime.test.js
+import { assertEquals } from "@std/assert";
+import { Path, shape } from "@vivalence/typology";
+import paladin from "@vivalence/paladin";
+
+Deno.test("paladin prime — a directory is a Primer, the frontmatter sniffed per file", async (t) => {
+  const root = await Deno.makeTempDir();
+  await Deno.mkdir(`${root}/guides`);
+  await Deno.mkdir(`${root}/skills/render`, { recursive: true });
+  await Deno.writeTextFile(`${root}/format.md`, "The dock renders markdown.");
+  await Deno.writeTextFile(`${root}/guides/draw.md`, "---\nvalence: How to draw a page\nload: lazy\n---\nHOUSE RULES");
+  await Deno.writeTextFile(`${root}/skills/render/SKILL.md`, "---\nname: render\ndescription: >-\n  Render a page,\n  folded\nlicense: MIT\n---\nSKILL BODY");
+  await Deno.writeTextFile(`${root}/notes.txt`, "not a primer file");
+
+  const primer = await paladin.prime.directory(new Path(root));
+
+  await t.step("no frontmatter is eager text; ours is the pattern; the standard's description is the valence, lazy", async () => {
+    assertEquals(await shape.primer.load(primer), {
+      format: "The dock renders markdown.",
+      primer: "Read on demand with primer_read { nature }:\nguides/draw — How to draw a page\nskills/render/SKILL — Render a page, folded",
+    });
+  });
+
+  await t.step("a body is read per call — an edit shows on the next read, no restart", async () => {
+    assertEquals(await shape.primer.read(primer, "guides/draw"), "HOUSE RULES");
+    await Deno.writeTextFile(`${root}/guides/draw.md`, "---\nvalence: How to draw a page\nload: lazy\n---\nHOUSE RULES, revised");
+    assertEquals(await shape.primer.read(primer, "guides/draw"), "HOUSE RULES, revised");
+    assertEquals(await shape.primer.read(primer, "skills/render/SKILL"), "SKILL BODY");
+  });
+
+  await t.step("read.frontmatter splits a file; a file without frontmatter is all body", async () => {
+    assertEquals(await paladin.read.frontmatter(`${root}/format.md`), { attrs: {}, body: "The dock renders markdown." });
+    assertEquals((await paladin.read.frontmatter(`${root}/skills/render/SKILL.md`)).attrs.name, "render");
+  });
+
+  await Deno.remove(root, { recursive: true });
+});
+#+END_SRC
+
+**** subsystems/typology/gestalten/shape
+
+***** index.js — =subsystems/typology/gestalten/shape/index.js:1=
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shape/index.js:1
+ export * as connection from "./connection.js";
++export * as primer from "./primer.js";
+#+END_SRC
+
+***** primer.js — new
+
+#+BEGIN_SRC js :tangle subsystems/typology/gestalten/shape/primer.js
+import * as is from "../is/scalars.js";
+import * as steer from "../steer/index.js";
+import { fire } from "../steer/strategy.js";
+import { Primer } from "../../prototypes/primer.js";
+
+const joined = (prefix, steps) => [prefix, ...steps.map((step) => step.nature)].filter(Boolean).join("/");
+
+const loading = (steps, inherited) => steps.findLast((step) => step.load)?.load ?? inherited;
+
+const nodes = (primer, prefix = "", inherited = "eager") =>
+  steer.trie.rollup(primer, (carry, effect) => effect).map(({ pattern, steps, fn }) => ({
+    nature: joined(prefix, steps),
+    valence: pattern.valence,
+    load: loading(steps, inherited),
+    effect: fn,
+  }));
+
+const BODIES = [
+  [(value) => value === null, "absent"],
+  [(value) => is.string(value), "text"],
+  [(value) => value instanceof Primer, "primer"],
+];
+
+const body = async (node, ctx) => {
+  const value = is.fn(node.effect) ? await fire(node.effect, ctx) : node.effect;
+  const found = BODIES.find(([test]) => test(value));
+  if (!found) throw new Error(`[primer] '${node.nature}' gave ${typeof value}; an effect gives a string, null or a Primer`);
+  return { kind: found[1], value };
+};
+
+const listing = (lazy) => lazy.map((node) => `${node.nature}${node.valence ? ` — ${node.valence}` : ""}`).join("\n");
+
+export const lazy = (primer) => nodes(primer).filter((node) => node.load === "lazy");
+
+export const keys = (primer) => nodes(primer).filter((node) => node.load === "eager").map((node) => node.nature);
+
+const LOADS = {
+  absent: () => {},
+  text: (node, value, ctx, record) => {
+    record.sections[node.nature] = value;
+  },
+  primer: (node, value, ctx, record) => gather(value, ctx, node.nature, node.load, record),
+};
+
+const gather = async (primer, ctx, prefix, inherited, record) => {
+  for (const node of nodes(primer, prefix, inherited)) {
+    if (node.load === "lazy") {
+      if (!record.lazy.length) record.sections.primer = null;
+      record.lazy.push(node);
+      continue;
+    }
+    const { kind, value } = await body(node, ctx);
+    await LOADS[kind](node, value, ctx, record);
+  }
+};
+
+export async function load(primer, ctx = {}) {
+  const record = { sections: {}, lazy: [] };
+  await gather(primer, ctx, "", "eager", record);
+  if (record.lazy.length) record.sections.primer = `Read on demand with primer_read { nature }:\n${listing(record.lazy)}`;
+  return record.sections;
+}
+
+const absent = (nature) => {
+  throw new Error(`[primer] no node at '${nature}'`);
+};
+
+const READS = {
+  absent: (wanted) => absent(wanted),
+  text: (wanted, node, value, rest) => (rest ? absent(wanted) : value),
+  primer: (wanted, node, value, rest, ctx) => (rest ? read(value, rest, ctx) : listing(nodes(value, node.nature))),
+};
+
+export async function read(primer, nature, ctx = {}) {
+  const wanted = nature.replace(/^\/+/, "");
+  const all = nodes(primer);
+  const node = all.find((node) => node.nature === wanted) ?? all.find((node) => wanted.startsWith(`${node.nature}/`));
+  if (!node) absent(wanted);
+  const { kind, value } = await body(node, ctx);
+  return await READS[kind](wanted, node, value, wanted.slice(node.nature.length + 1), ctx);
+}
+#+END_SRC
+
+**** subsystems/typology/prototypes
+
+***** index.ts — =subsystems/typology/prototypes/index.ts:51=
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/index.ts:51
+ export * from "./vector.js";
+ export * from "./twitch.js";
++export * from "./primer.js";
+ export * from "./aperture.js";
+ export * from "./remote-repository.js";
+#+END_SRC
+
+***** path.js — =subsystems/typology/prototypes/path.js:13= + 1 more
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/path.js:13
+ // path.resolve("./relative/path");
+
++const normalize = (path) => ("/" + path).replace(/\/+/g, "/").replace(/\/$/, "") || "/";
++
++const collapse = (path) =>
++  path.split("/").reduce((parts, part) => (part !== ".." ? [...parts, part] : parts.length > 1 ? parts.slice(0, -1) : parts), []).join("/");
++
+ export class Path extends Signature {
+   static coercions = [
+-    [
+-      (s) => is.string(s),
+-      (s) => {
+-        const normalized = ("/" + s).replace(/\/+/g, "/").replace(/\/$/, "") || "/";
+-        return { nature: normalized };
+-      },
+-    ],
++    [(s) => is.string(s) && s.startsWith("file://"), (s) => ({ nature: normalize(decodeURIComponent(s.slice("file://".length))) })],
++    [(s) => is.string(s), (s) => ({ nature: normalize(s) })],
+   ];
+
+…
+// subsystems/typology/prototypes/path.js:32
+     let nature = "";
+     for (let position = this; position; position = position.trace) nature = position.nature + nature;
+-    return nature || "/";
++    return collapse(nature) || "/";
+   }
+   get filename() {
+#+END_SRC
+
+***** primer.js — new
+
+#+BEGIN_SRC js :tangle subsystems/typology/prototypes/primer.js
+import { Vector } from "./vector.js";
+
+export class Primer extends Vector {
+  open(pattern, effect = null) {
+    const branch = this.branch(pattern);
+    if (effect instanceof Primer) branch.graft(effect);
+    else branch.effect = effect;
+    return this;
+  }
+}
+#+END_SRC
+
+**** subsystems/typology/schematics/primitives
+
+***** hallucination.js — =subsystems/typology/schematics/primitives/hallucination.js:234=
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/hallucination.js:234
+ ]).desc("Tagged by kind; shard.hallucinate.tagging fills an absent tag from the shape before the faculty sees it");
+ Choice.Round = v.object({
+-  primer: v.unknown().desc('What is under judgment. Example: { expected: "Vado al mercato.", answer: "Io vado al mercato domani." }'),
++  system: v.unknown().desc('What is under judgment. Example: { expected: "Vado al mercato.", answer: "Io vado al mercato domani." }'),
+   questions: v.record(v.string(), Choice.Question).desc('One or more, keyed by the caller; every answer returns under its key. Example: { same: { type: "choice", ask: "Does `answer` mean `expected`?", options: { yes: null, no: null } } }'),
+ });
+#+END_SRC
+
+**** subsystems/typology/tests
+
+***** cortex.test.js — =subsystems/typology/tests/cortex.test.js:165= + 3 more
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/cortex.test.js:165
+   });
+
+-  specimen.it("the choice avenue: several questions of one primer, tagged by shape, bounded by the faculty, a distribution per key in the question's own shape", async () => {
++  specimen.it("the choice avenue: several questions of one system, tagged by shape, bounded by the faculty, a distribution per key in the question's own shape", async () => {
+     const seen = [];
+     const answered = (question) =>
+…
+// subsystems/typology/tests/cortex.test.js:181
+     const cortex = new Cortex().register([chooser]);
+     specimen.expect(cortex.findOne({ type: "choice", via: "stream" })).toBe(undefined);
+-    const primer = { expected: "Vado al mercato.", answer: "Io vado al mercato domani." };
+-    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), primer, questions: {} })).rejects.toThrow(/a choice asks at least one question/);
+-    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), primer, questions: { one: { ask: "?", options: { only: null } } } })).rejects.toThrow(/"one" carries 1 option\(s\); a set is two or more/);
+-    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), primer, questions: { one: { type: "score", ask: "?", options: { a: null, b: null } } } })).rejects.toThrow(/invalid choice hallucination \/questions\/one/);
++    const system = { expected: "Vado al mercato.", answer: "Io vado al mercato domani." };
++    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: {} })).rejects.toThrow(/a choice asks at least one question/);
++    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { one: { ask: "?", options: { only: null } } } })).rejects.toThrow(/"one" carries 1 option\(s\); a set is two or more/);
++    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { one: { type: "score", ask: "?", options: { a: null, b: null } } } })).rejects.toThrow(/invalid choice hallucination \/questions\/one/);
+
+     const heard = new Controller({ stdout: new Span("choice") });
+     const verdict = await cortex.hallucinate.choice.render({
+       controller: heard,
+-      primer,
++      system,
+       questions: {
+         same: { type: "choice", ask: "Does `answer` mean `expected`?", options: { yes: null, partly: "extra or missing detail", no: null } },
+…
+// subsystems/typology/tests/cortex.test.js:197
+     });
+     specimen.expect(Object.entries(seen[0].questions).map(([key, question]) => [key, question.type])).toEqual([["same", "choice"], ["grade", "score"], ["ok", "noul"]]);
+-    specimen.expect(seen[0].primer).toEqual(primer);
++    specimen.expect(seen[0].system).toEqual(system);
+     specimen.expect(verdict.same).toEqual({ yes: 0.9, partly: 0.05, no: 0.05 });
+     specimen.expect(verdict.grade).toEqual([0.05, 0.9, 0.05]);
+…
+// subsystems/typology/tests/cortex.test.js:207
+
+     const four = { a: null, b: null, c: null, d: null };
+-    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), primer, questions: { wide: { ask: "?", options: four } } })).rejects.toThrow(/'bench\/chooser' holds 3 options; "wide" carries 4/);
+-    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), primer, questions: { a: { ask: "?" }, b: { ask: "?" }, c: { ask: "?" }, d: { ask: "?" } } })).rejects.toThrow(/'bench\/chooser' renders 3 question\(s\) at once; 4 asked/);
++    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { wide: { ask: "?", options: four } } })).rejects.toThrow(/'bench\/chooser' holds 3 options; "wide" carries 4/);
++    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { a: { ask: "?" }, b: { ask: "?" }, c: { ask: "?" }, d: { ask: "?" } } })).rejects.toThrow(/'bench\/chooser' renders 3 question\(s\) at once; 4 asked/);
+
+-    await specimen.expect(new Cortex().hallucinate.choice.render({ controller: new Controller(), primer, questions: { ok: { ask: "?" } } })).rejects.toThrow(/no 'choice' faculty resolves a 'render' avenue/);
++    await specimen.expect(new Cortex().hallucinate.choice.render({ controller: new Controller(), system, questions: { ok: { ask: "?" } } })).rejects.toThrow(/no 'choice' faculty resolves a 'render' avenue/);
+   });
+ });
+#+END_SRC
+
+***** path.test.js — =subsystems/typology/tests/path.test.js:84=
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/path.test.js:84
+     specimen.expect(new Path("/abs/dir" + "/freight/audio").absolute).toBe("/abs/dir/freight/audio");
+   });
++
++  specimen.it("a file url is a path — import.meta.resolve and a branch up from import.meta.url name the same sibling", () => {
++    const here = new Path(import.meta.url);
++    specimen.expect(here.absolute.endsWith("/tests/path.test.js")).toBe(true);
++    specimen.expect(new Path(import.meta.resolve("./guides")).absolute).toBe(`${here.dirname}/guides`);
++    specimen.expect(here.branch("../guides").absolute).toBe(`${here.dirname}/guides`);
++    specimen.expect(here.branch("../../guides").absolute).toBe(`${new Path(here.dirname).dirname}/guides`);
++    specimen.expect(new Path("file:///a%20b/c.md/").absolute).toBe("/a b/c.md");
++  });
+ });
+
+#+END_SRC
+
+***** primer.test.js — new
+
+#+BEGIN_SRC js :tangle subsystems/typology/tests/primer.test.js
+import { is, Primer, shape, specimen } from "@vivalence/typology";
+
+const guides = () =>
+  new Primer()
+    .open({ nature: "render", valence: "How to draw" }, "RENDER")
+    .open({ nature: "style", load: "eager" }, async () => "STYLE");
+
+const nested = () =>
+  new Primer()
+    .open("hello", "HELLO")
+    .open("machine", (ctx) => `machine ${ctx.slug}`)
+    .open({ nature: "guides", load: "lazy" }, guides());
+
+specimen.describe("Primer — a Vector of text effects", () => {
+  specimen.it("P0: a Primer is a Vector; an effect is a string, a function, or a Primer grafted at its nature", async () => {
+    const primer = nested();
+    specimen.expect(is.Vector(primer)).toBe(true);
+    specimen.expect(await shape.primer.load(primer, { slug: "demo" })).toEqual({
+      hello: "HELLO",
+      machine: "machine demo",
+      primer: "Read on demand with primer_read { nature }:\nguides/render — How to draw",
+      "guides/style": "STYLE",
+    });
+  });
+
+  specimen.it("P1: load defaults eager; lazy on a branch reaches every effect under it; the nearest declared wins", () => {
+    specimen.expect(shape.primer.keys(nested())).toEqual(["hello", "machine", "guides/style"]);
+    specimen.expect(shape.primer.lazy(nested()).map((node) => node.nature)).toEqual(["guides/render"]);
+  });
+
+  specimen.it("P2: a lazy effect reads on demand, with the reader's context; an unknown nature throws", async () => {
+    const primer = nested();
+    specimen.expect(await shape.primer.read(primer, "guides/render", {})).toBe("RENDER");
+    specimen.expect(await shape.primer.read(primer, "/machine", { slug: "late" })).toBe("machine late");
+    await specimen.expect(shape.primer.read(primer, "guides/nope", {})).rejects.toThrow("[primer] no node at 'guides/nope'");
+  });
+
+  specimen.it("P3: an effect giving null is absent; anything but a string, null or a Primer throws; no lazy node, no index", async () => {
+    specimen.expect(await shape.primer.load(new Primer().open("a", "A").open("b", () => null))).toEqual({ a: "A" });
+    await specimen.expect(shape.primer.load(new Primer().open("c", () => 7))).rejects.toThrow("[primer] 'c' gave number");
+  });
+
+  specimen.it("P4: a graft keeps the grafted pattern — a mode's lazy branch stays lazy on the hallucination's primer", async () => {
+    const primer = new Primer().open("system", "SYSTEM").graft(nested());
+    primer.open("thread", "THREAD");
+    specimen.expect(Object.keys(await shape.primer.load(primer, { slug: "x" }))).toEqual([
+      "system", "hello", "machine", "primer", "guides/style", "thread",
+    ]);
+  });
+
+  specimen.it("P5: a Primer handed to open is copied in — opening under it never writes the source", async () => {
+    const source = guides();
+    const primer = new Primer().open("guides", source);
+    primer.open("guides/extra", "EXTRA");
+    specimen.expect(shape.primer.keys(primer)).toEqual(["guides/render", "guides/style", "guides/extra"]);
+    specimen.expect(shape.primer.keys(source)).toEqual(["render", "style"]);
+  });
+
+  specimen.it("P6: a function giving a Primer expands at load under its nature; read lists it, then reads into it", async () => {
+    const primer = new Primer()
+      .open("persona", () => guides())
+      .open({ nature: "archivist", load: "lazy", valence: "the harvest persona" }, () => new Primer().open("ladder", "LADDER"));
+    specimen.expect(await shape.primer.load(primer)).toEqual({
+      "persona/render": "RENDER",
+      "persona/style": "STYLE",
+      primer: "Read on demand with primer_read { nature }:\narchivist — the harvest persona",
+    });
+    specimen.expect(await shape.primer.read(primer, "archivist")).toBe("archivist/ladder");
+    specimen.expect(await shape.primer.read(primer, "archivist/ladder")).toBe("LADDER");
+  });
+});
+#+END_SRC
+
+*** systems
+
+**** systems/runtime/gestalten/tools
+
+***** index.js — =systems/runtime/gestalten/tools/index.js:3=
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/tools/index.js:3
+ export * as thread from "./thread.js";
+ export * as mode from "./mode.js";
++export * as primer from "./primer.js";
+
+#+END_SRC
+
+***** primer.js — new
+
+#+BEGIN_SRC js :tangle systems/runtime/gestalten/tools/primer.js
+import { shape, v, Vector } from "@vivalence/typology";
+
+export const primer = new Vector().open(
+  {
+    nature: "/primer/read",
+    valence: "Reads one deferred section of your primer by its nature, as listed under [primer]. " +
+      'Returns { message }. Example: { nature: "guides/render" }',
+    input: v.object({ nature: v.string().desc('A nature from the primer index. Example: "guides/render"') }),
+  },
+  async (ctx) => ({ output: { message: await shape.primer.read(ctx.primer, ctx.input.nature, ctx) } }),
+);
+#+END_SRC
+
+**** systems/runtime/mode
+
+***** Mode.ts — =systems/runtime/mode/Mode.ts:26=
+
+#+BEGIN_SRC diff
+// systems/runtime/mode/Mode.ts:26
+   AGENTIC = "AGENTIC",
+   TOOLING = "TOOLING",
++  PRIMER = "PRIMER",
+
+   EMITTER = "EMITTER",
+#+END_SRC
+
+**** systems/runtime/mode/traits
+
+***** harnessed.js — =systems/runtime/mode/traits/harnessed.js:1= + 8 more
+
+#+BEGIN_SRC diff
+// systems/runtime/mode/traits/harnessed.js:1
+-import { contexts, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
++import { contexts, fromm, Primer, shape, shard, soma, steer, ToolCall, v, Vector } from "@vivalence/typology";
+ import paladin from "@vivalence/paladin";
+ import { TurnEntity } from "@vivalence/runtime";
+…
+// systems/runtime/mode/traits/harnessed.js:39
+ };
+
++const siblings = (ctx) =>
++  fromm.modes(ctx.modes).flat.filter((sibling) => sibling !== ctx.mode && sibling.manifest.type !== "domain" && sibling.primer);
++
++const priming = (ctx) => {
++  const primer = new Primer();
++  if (ctx.mode.primer) primer.graft(ctx.mode.primer);
++  if (ctx.domain?.primer) primer.open(ctx.domain.manifest.slug, ctx.domain.primer);
++  if (ctx.mode.implements("AGENTIC"))
++    for (const sibling of siblings(ctx)) primer.open({ nature: sibling.manifest.slug, load: "lazy" }, sibling.primer);
++  if (ctx.input.system) for (const [nature, effect] of Object.entries(ctx.input.system)) primer.open(nature, effect);
++  return primer;
++};
++
+ const requesting = async (ctx, next) => {
+-  const { system, prompt, turns, output, tune, config } = ctx.input;
++  const { prompt, turns, output, tune, config } = ctx.input;
++  const primer = priming(ctx);
+   ctx.hallucination = {
+     controller: ctx.controller,
+…
+// systems/runtime/mode/traits/harnessed.js:50
+     },
+     ...(ctx.intelligent.effort && { settings: { effort: ctx.intelligent.effort } }),
+-    system: typeof system === "string" ? { system } : { ...system },
++    primer,
+     turns: turns ?? (prompt ? [{ role: "user", parts: [{ type: "text", text: prompt }] }] : []),
+-    tools: arming(ctx),
++    tools: arming(ctx, primer),
+     ...(output && { output: { schema: output } }),
+   };
+…
+// systems/runtime/mode/traits/harnessed.js:58
+ };
+
+-const arming = (ctx) => {
++const arming = (ctx, primer) => {
+   const armed = new Vector()
+     .graft(tools.entity.entity)
+…
+// systems/runtime/mode/traits/harnessed.js:74
+   if (ctx.mode.tools) armed.graft(ctx.mode.tools);
+   if (ctx.mode.generator?.tools) armed.branch("/generator", ctx.mode.generator.tools);
++  if (shape.primer.lazy(primer).length) armed.graft(tools.primer.primer);
+   for (const [name, supplied] of Object.entries(ctx.input.tools ?? {})) {
+     const { execute, ...edge } = typeof supplied === "function" ? { execute: supplied } : supplied;
+…
+// systems/runtime/mode/traits/harnessed.js:80
+   armed.use(shard.context.spread(contexts.host, ctx));
+   armed.use(shard.context.bind("mode", ctx.mode));
++  armed.use(shard.context.bind("primer", primer));
+   if (ctx.user) armed.use(shard.context.bind("user", ctx.user)); //@beef both nonoptional in near future
+   if (ctx.input.thread) armed.use(shard.context.bind("thread", ctx.input.thread));
+…
+// systems/runtime/mode/traits/harnessed.js:170
+ const summarizing = async (ctx, next) => {
+   if (ctx.thread) {
+-    ctx.hallucination.policy.cache = { marks: [...Object.keys(ctx.hallucination.system).slice(-1), "tools"] };
+-    ctx.hallucination.system.thread = await tools.thread.summary(ctx);
++    ctx.hallucination.policy.cache = { marks: [...shape.primer.keys(ctx.hallucination.primer).slice(-1), "tools"] };
++    ctx.hallucination.primer.open("thread", await tools.thread.summary(ctx));
+   }
+   await next();
++};
++
++const primed = async (ctx) => {
++  const { primer, ...hallucination } = ctx.hallucination;
++  return { ...hallucination, system: await shape.primer.load(primer, ctx) };
+ };
+
+…
+// systems/runtime/mode/traits/harnessed.js:205
+     harness
+       .branch(type)
+-      .open("render", (ctx) => ctx.cortex.hallucinate[type].render(ctx.hallucination))
+-      .open({ nature: "stream", yields: Packet.Response }, (ctx) =>
+-        ctx.cortex.hallucinate[type].stream(ctx.hallucination),
++      .open("render", async (ctx) => ctx.cortex.hallucinate[type].render(await primed(ctx)))
++      .open({ nature: "stream", yields: Packet.Response }, async (ctx) =>
++        ctx.cortex.hallucinate[type].stream(await primed(ctx)),
+       );
+   }
+…
+// systems/runtime/mode/traits/harnessed.js:217
+         controller: ctx.controller,
+         policy: ctx.hallucination.policy,
+-        primer: ctx.input.primer,
++        system: ctx.input.system,
+         questions: ctx.input.questions,
+       }),
+#+END_SRC
+
+***** index.js — =systems/runtime/mode/traits/index.js:8=
+
+#+BEGIN_SRC diff
+// systems/runtime/mode/traits/index.js:8
+ export * from "./harnessed.js";
+ export * from "./tooling.js";
++export * from "./primer.js";
+ export * from "./agentic.js";
+ export * from "./selfevident.js";
+#+END_SRC
+
+***** primer.js — new
+
+#+BEGIN_SRC js :tangle systems/runtime/mode/traits/primer.js
+import { Primer } from "@vivalence/typology";
+
+export const PRIMER = (mode) => {
+  if (!mode.module.primer) throw new Error(`PRIMER: ${mode.manifest.slug} declares the trait and exports no primer`);
+  mode.primer = new Primer().graft(mode.module.primer);
+};
+#+END_SRC
+
+**** systems/runtime/tests
+
+***** cortex.stripwire.test.js — =systems/runtime/tests/cortex.stripwire.test.js:44=
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/cortex.stripwire.test.js:44
+   });
+
+-  specimen.it("a choice round crosses the wire: primer and questions out, a distribution per key back in the question's own shape", async () => {
++  specimen.it("a choice round crosses the wire: system and questions out, a distribution per key back in the question's own shape", async () => {
+     const verdict = await remote.hallucinate.choice.render({
+       controller: new Controller(),
+-      primer: "Payroll asks for your password on a non-company sign-in page.",
++      system: "Payroll asks for your password on a non-company sign-in page.",
+       questions: {
+         kind: { type: "choice", ask: "What is this email?", options: { legitimate: null, spam: null, phishing: "asks for a credential off-domain" } },
+#+END_SRC
+
+***** dictation.integration.test.js — =systems/runtime/tests/dictation.integration.test.js:39=
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/dictation.integration.test.js:39
+     const persona = new Vector().use(async (ctx, next) => {
+       ctx.hallucination.policy.tune ??= "fast";
+-      ctx.hallucination.system.persona = "You are Dewey.";
++      ctx.hallucination.primer.open("persona", "You are Dewey.");
+       await next();
+     });
+#+END_SRC
+
+***** harness.primer.test.js — new
+
+#+BEGIN_SRC js :tangle systems/runtime/tests/harness.primer.test.js
+import { Mode, Primer, shape, specimen, Vector } from "@vivalence/typology";
+import { traits } from "@vivalence/runtime";
+import { create } from "./scenarios/cortex.js";
+const { PRIMER } = traits.mode;
+
+let scenario;
+let captured;
+
+const ask = async () => {
+  const thread = await scenario.createThread();
+  await scenario.dewey.harness.dialogue.render({ thread: thread.id, parts: [{ type: "text", text: "what do you know?" }] });
+  return await shape.primer.load(captured.primer);
+};
+
+specimen.describe("harness — the request's primer", () => {
+  specimen.beforeAll(async () => {
+    const harness = new Vector().use(async (ctx, next) => {
+      captured = ctx.hallucination;
+      await next();
+    });
+    scenario = await create({ harness });
+    const { daemon, dewey } = scenario;
+    dewey.module.primer = new Primer().open("dewey", "You are Dewey.");
+    PRIMER(dewey);
+    const harvest = new Mode({ manifest: { type: "tactics", slug: "harvest", traits: ["PRIMER"] } });
+    harvest.module.primer = new Primer().open({ nature: "archivist", valence: "the harvest persona" }, "ARCHIVIST");
+    PRIMER(harvest);
+    daemon.modes.tactics = { harvest };
+  });
+  specimen.afterAll(async () => {
+    await scenario.orm.close();
+  });
+
+  specimen.it("PRIMER mints the mode's own primer; a mode without AGENTIC reads no sibling", async () => {
+    const system = await ask();
+    specimen.expect(Object.keys(system)).toEqual(["dewey", "thread"]);
+    specimen.expect(captured.tools.trie.has("primer")).toBe(false);
+  });
+
+  specimen.it("an AGENTIC mode lists every sibling's primer lazily, reads one with primer_read, and writes no mode", async () => {
+    const { dewey, daemon } = scenario;
+    dewey.manifest.traits.push("AGENTIC");
+    const system = await ask();
+    specimen.expect(Object.keys(system)).toEqual(["dewey", "primer", "thread"]);
+    specimen.expect(system.primer).toBe("Read on demand with primer_read { nature }:\nharvest/archivist — the harvest persona");
+    specimen.expect(await shape.primer.read(captured.primer, "harvest/archivist")).toBe("ARCHIVIST");
+    specimen.expect(captured.tools.trie.has("primer")).toBe(true);
+    specimen.expect(shape.primer.keys(dewey.primer)).toEqual(["dewey"]);
+    specimen.expect(shape.primer.keys(daemon.modes.tactics.harvest.primer)).toEqual(["archivist"]);
+    dewey.manifest.traits.pop();
+  });
+
+  specimen.it("a domain's primer hangs under the domain's slug on every request", async () => {
+    const { daemon } = scenario;
+    daemon.domain = { manifest: { type: "domain", slug: "memo" }, primer: new Primer().open("srs", "GLOSSARY") };
+    const system = await ask();
+    specimen.expect(Object.keys(system)).toEqual(["dewey", "memo/srs", "thread"]);
+    specimen.expect(system["memo/srs"]).toBe("GLOSSARY");
+    delete daemon.domain;
+  });
+
+  specimen.it("PRIMER on a mode that exports no primer is loud", () => {
+    const bare = new Mode({ manifest: { type: "tactics", slug: "bare", traits: ["PRIMER"] } });
+    specimen.expect(() => PRIMER(bare)).toThrow("PRIMER: bare declares the trait and exports no primer");
+  });
+});
+#+END_SRC
+
+***** harness.thread.test.js — =systems/runtime/tests/harness.thread.test.js:1= + 3 more
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/harness.thread.test.js:1
+-import { specimen, Vector } from "@vivalence/typology";
++import { shape, specimen, Vector } from "@vivalence/typology";
+ import { create } from "./scenarios/cortex.js";
+
+…
+// systems/runtime/tests/harness.thread.test.js:8
+   specimen.beforeAll(async () => {
+     const harness = new Vector().use(async (ctx, next) => {
+-      ctx.hallucination.system.dewey = "You are Dewey.";
++      ctx.hallucination.primer.open("dewey", "You are Dewey.");
+       await next();
+       captured = ctx.hallucination;
+…
+// systems/runtime/tests/harness.thread.test.js:18
+   });
+
+-  specimen.it("harness.choice.render reaches the cortex with the caller's primer and questions", async () => {
++  specimen.it("harness.choice.render reaches the cortex with the caller's system and questions", async () => {
+     const { dewey } = scenario;
+     const verdict = await dewey.harness.choice.render({
+-      primer: { expected: "sono andato", answer: "ho andato" },
++      system: { expected: "sono andato", answer: "ho andato" },
+       questions: { same: { ask: "Does `answer` mean `expected`?", options: { yes: null, no: null } } },
+     });
+…
+// systems/runtime/tests/harness.thread.test.js:40
+     await dewey.harness.dialogue.render({ thread: thread.id, parts: [{ type: "text", text: "what is on this thread?" }] });
+
+-    specimen.expect(Object.keys(captured.system)).toEqual(["dewey", "thread"]);
+-    const rows = captured.system.thread.split("\n");
++    const system = await shape.primer.load(captured.primer);
++    specimen.expect(Object.keys(system)).toEqual(["dewey", "thread"]);
++    const rows = system.thread.split("\n");
+     specimen.expect(rows[0]).toBe(
+       `[Thread ${thread.id}] · unlabeled · phase manual · buffers minted 2 · traits none · user ${fixtures.user.id}`,
+#+END_SRC
+
+**** systems/runtime/tests/scenarios
+
+***** cortex.js — =systems/runtime/tests/scenarios/cortex.js:30=
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/scenarios/cortex.js:30
+   if (!harness) {
+     dewey.module.harness.branch("/dialogue").use(async (ctx, next) => {
+-      ctx.hallucination.system.dewey = "You are Dewey, a patient language tutor.";
++      ctx.hallucination.primer.open("dewey", "You are Dewey, a patient language tutor.");
+       await next();
+     });
+#+END_SRC
+
+** ~/.viva — replayed with =--root= =~/.viva= (or a copy)
+
+*** ~/.viva/registry
+
+**** ~/.viva/registry/education/modes/tactics/harvest
+
+***** harness.js — =registry/education/modes/tactics/harvest/harness.js:1=
+
+#+BEGIN_SRC diff
+// registry/education/modes/tactics/harvest/harness.js:1
+-import { Vector } from "@vivalence/typology";
+-import archivist from "./hal/archivist.md" with { type: "text" };
++import { Path, Vector } from "@vivalence/typology";
++import paladin from "@vivalence/paladin";
++
++export const primer = await paladin.prime.directory(new Path(import.meta.resolve("./primer")));
+
+ export const harness = new Vector().use(async (ctx, next) => {
+   ctx.hallucination.policy.tune ??= "capable";
+-  ctx.hallucination.system.archivist = archivist;
+   await next();
+ });
+#+END_SRC
+
+***** harvest.viva.js — =registry/education/modes/tactics/harvest/harvest.viva.js:1= + 1 more
+
+#+BEGIN_SRC diff
+// registry/education/modes/tactics/harvest/harvest.viva.js:1
+ export { tools } from "./tools/index.js";
+-export { harness } from "./harness.js";
++export { harness, primer } from "./harness.js";
+
+ export const manifest = {
+…
+// registry/education/modes/tactics/harvest/harvest.viva.js:11
+     "from web sources or synthesize via TTS, receive them into the topography's freight, stamp " +
+     "VOCALIZED with attribution, and let the datasink write the mode content back to disk.",
+-  traits: ["CONVERSATIONAL", "HARNESSED", "TOOLING"],
++  traits: ["CONVERSATIONAL", "HARNESSED", "TOOLING", "PRIMER"],
+ };
+
+#+END_SRC
+
+**** ~/.viva/registry/education/modes/teacher/francesca
+
+***** francesca.viva.js — =registry/education/modes/teacher/francesca/francesca.viva.js:1= + 1 more
+
+#+BEGIN_SRC diff
+// registry/education/modes/teacher/francesca/francesca.viva.js:1
+-export { harness } from "./harness.js";
++export { harness, primer } from "./harness.js";
+ export { tools } from "./tools/index.js";
+
+…
+// registry/education/modes/teacher/francesca/francesca.viva.js:7
+   name: "Francesca",
+   description: "Italian conversation tutor.",
+-  traits: ["CONVERSATIONAL", "HARNESSED", "TOOLING", "AGENTIC"],
++  traits: ["CONVERSATIONAL", "HARNESSED", "TOOLING", "AGENTIC", "PRIMER"],
+ };
+
+#+END_SRC
+
+***** harness.js — =registry/education/modes/teacher/francesca/harness.js:1=
+
+#+BEGIN_SRC diff
+// registry/education/modes/teacher/francesca/harness.js:1
+-import { Vector, v } from "@vivalence/typology";
+-import francesca from "./francesca.md" with { type: "text" };
++import { Path, Vector, v } from "@vivalence/typology";
++import paladin from "@vivalence/paladin";
++
++export const primer = await paladin.prime.directory(new Path(import.meta.resolve("./primer")));
+
+ export const harness = new Vector().use(async (ctx, next) => {
+   ctx.hallucination.policy.tune ??= "fast";
+-  ctx.hallucination.system.francesca = francesca;
+   await next();
+ });
+#+END_SRC
+
+**** ~/.viva/registry/education/modes/teacher/francesca/primer
+
+***** francesca.md — moved from =registry/education/modes/teacher/francesca/francesca.md=, then edited
+
+#+BEGIN_SRC diff
+// registry/education/modes/teacher/francesca/primer/francesca.md:1
+ ---
+-name: francesca
+-description: Drill-based Italian tutoring. Use whenever the user asks to continue Italian, run a lesson, be tested, ambushed, drilled, or says "go", "next", "sentences", "test me", or names a lesson number. Call the progress and queue tools before the first prompt of any session. This methodology was built by trial and error over many sessions — follow it exactly rather than reverting to generic tutoring habits.
++valence: Drill-based Italian tutoring. Use whenever the user asks to continue Italian, run a lesson, be tested, ambushed, drilled, or says "go", "next", "sentences", "test me", or names a lesson number. Call the progress and queue tools before the first prompt of any session. This methodology was built by trial and error over many sessions — follow it exactly rather than reverting to generic tutoring habits.
+ ---
+
+#+END_SRC
+
+* the work
+
+| piece | files | lines |
+|-------+-------+-------|
+| the type =Primer= | =typology/prototypes/primer.js= new · =index.ts= | +10 · +1 |
+| the shape =shape.primer= | =typology/gestalten/shape/primer.js= new · =index.js= | +81 · +1 |
+| =Path= reads =file://=, collapses =..= | =typology/prototypes/path.js= | +8 −8 |
+| =paladin.read.frontmatter= · =paladin.prime.directory= | =paladin/gestalten/belt/read.js= · =prime.js= new · =index.js= · =paladin/prototype.js= · =import_map.json= | +10 · +23 · +2 · +1 · +2 |
+| the trait PRIMER mints | =runtime/mode/traits/primer.js= new · =index.js= · =Mode.ts= | +6 · +1 · +1 |
+| the tool =primer_read= | =runtime/gestalten/tools/primer.js= new · =index.js= | +11 · +1 |
+| the request's primer: own · domain · siblings · =input.system= | =runtime/mode/traits/harnessed.js= | +32 −11 |
+| the choice record is =system= | =hallucination.js= · =openrouter/provider/translate.js= · 4 tests | +9 −9 |
+| the blast: =hallucination.system= writers → =primer.open= | dealer · oracle · reader · memo domain · memo mode · =scenarios/cortex.js= · =dictation= · =harness.thread= | 8 files |
+| the 3 raw imports → =paladin.prime.directory= + PRIMER | memo (repo) · harvest · francesca (=~/.viva=) · =deno.jsonc= flag gone | +20 −16 · −1 |
+| the demo | =hello-world/harness.js= flat lazy =guides/render= · =mode.viva.js= | +8 −10 · +2 |
+| tests | =primer.test.js= P0–P6 · =path.test.js= +1 · =prime.test.js= new · =harness.primer.test.js= new | +71 · +9 · +36 · +66 |
+
+* census — serial, =NO_COLOR=1=, =HOME= an empty temp dir, rig (the live tree, copied 10-19) → base (rig + this tangle)
+
+| suite | rig | base |
+|-------+-----+------|
+| typology | 142 passed (626 steps) | 143 passed (634 steps) |
+| paladin | 54 passed (228 steps) | 55 passed (231 steps) |
+| runtime | 74 passed (516 steps) · 9 failed (17 steps) · 1 ignored | 75 passed (520 steps) · 9 failed (17 steps) · 1 ignored |
+| hello-world | 19 passed (64 steps) | 19 passed (64 steps) |
+| hallucinators | 7 passed (92 steps) · 1 failed | 7 passed (92 steps) · 1 failed |
+| memo (4 of 6 files) | 3 passed (21 steps) · 1 failed (2 steps) | 3 passed (21 steps) · 1 failed (2 steps) |
+
+Reds, every one on rig too, same test names (diffed): runtime =qa/reconcile= · T-demo ×8 · T-fresh ×9 · aprende ×2 · =bench (paladin specifiers)= · =bench (raw imports)= (a bench of modes accio'd from the registry, not the flag) · =repository.populate= global — a ledger the empty =HOME= does not hold. hallucinators =bak/hal/tests/hallucinator.test.js= (=Agent= export gone). memo =tablet.snapshot.test.js=; =memo.test.js= · =memo.snapshot.test.js= abort on =@vivalence/sheets/host= (sheets DEAD), so they are outside the count. =~/.viva= suites (harvest · francesca) not run: their three primers were imported and loaded on the copy — =magister= 2217 · =archivist= 1730 · =francesca= 16404 chars, eager, 0 lazy.
+
+* replay
+
+A fresh copy of rig · the Moves · =tangle.py --write= (8 new, SAME 8) · =apply-diffs.py --write= repo 31 files · 57 hunks · missed 0 · =~/.viva= 5 files · 7 hunks · missed 0 → =diff -rq= against the built copies: equal (=deno.lock= · =tests/snapshots/= excluded — the lock regenerates; paladin's snapshots carry the temp =HOME=). hello-world =SNAPSHOT_HOT=1= on the replay: 19 passed, the 2 snapshots ≡ base.

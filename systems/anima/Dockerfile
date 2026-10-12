@@ -21,7 +21,6 @@ COPY subsystems/typology/deno.jsonc ./subsystems/typology/deno.jsonc
 COPY subsystems/paladin/deno.jsonc ./subsystems/paladin/deno.jsonc
 COPY subsystems/dapper/deno.jsonc ./subsystems/dapper/deno.jsonc
 COPY subsystems/drapes/deno.jsonc ./subsystems/drapes/deno.jsonc
-COPY subsystems/sheets/deno.jsonc ./subsystems/sheets/deno.jsonc
 COPY documentation/deno.jsonc ./documentation/deno.jsonc
 
 RUN deno install

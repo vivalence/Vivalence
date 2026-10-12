@@ -1,73 +1,133 @@
 ---
-paths: ["commons/**"]
+paths: ["commons/**", "**/registry/**"]
 ---
-<!-- writer: agent · kind: persistent · limit: 19800 chars · traps only, the code is the map -->
-# codemap: commons — the checkout's ONE package; "registry" means the marketplace only
+<!-- writer: agent · limit: 5500 chars · code is the map · commons = the checkout's package; registry = ~/.viva/registry -->
+# codemap: commons · registry packages
 
-## finding and declaring
+A `*.viva.js` = a package entry at `@commons/<type>/<slug>`; svelte/jsx mount by string.
 
-- a module's lookup is `@commons/<manifest.type>/<manifest.slug>` — the MANIFEST's words, never the directory: `services/nlp/` is `service/nlp-stanza`, `instances/hello-world/mode.viva.js` is `demo/hello-world`. Grep the slug, not the path. (`services/nlp/service.viva.js:9` · `instances/hello-world/mode.viva.js:6`)
-- `manifest` is METADATA only; new behaviour = a sibling export. `SELFEVIDENT` · `CONVERSATIONAL` are empty marker traits — they do nothing on their own (`systems/runtime/traits/selfevident.js:1` · `conversational.js:1`). `STANDALONE` is dead (m81 10-10): every mode is an entrypoint; the enum keeps it deprecated (`systems/runtime/entities/Mode.ts:44`).
-- discovery skips `bak archive slp node_modules .git`: anything under `instances/bak/` or `hallucinators/bak/` is unreachable — moving a module there unregisters it. (`subsystems/paladin/belt/ignore.js:4`)
-- a consumed TOOLING service mounts under its CONSUME KEY, not its `manifest.slug` → `ctx.services.<key>`. (`systems/runtime/lifecycle/daemon/population.js:54`)
+**dashboards/dataspace** (manifest · application) ← `Dashboard.svelte` ← `schema.js`; `*.bak.svelte` DEAD; no test.
+```js
+// commons/dashboards/dataspace/dataspace.viva.js:15
+const application = new App("Dashboard.svelte");
 
-## hello-world
+```
+**datamaps/libsql** = config · manifest · provider (:37).
+```js
+// commons/datamaps/libsql/libsql.viva.js:15
+    dbName: seat ?? ":memory:",
+    loadStrategy: "balanced",
+```
+**fixtures/memo** = `package.viva.js` + 3 entries: `dataset/latin.viva.js` (manifest · freight · dataset) ← `entities/*`.
+```js
+// commons/fixtures/memo/tests/dataset.test.js:2
+import { entities } from "../dataset/entities/index.js";
 
-- the root `README.md` "Hello, Instance!" shows TWO files since 10-09: hello-world's `instance.viva.json` (manifest + daemons, nothing else) and `ledger/ledger.viva.json` (every slot it inherits) — an edit to either moves the README. `~/.viva/instances/hello-world/` is the copy the runtime bundles; a MOVE deletes there too. (`README.md:166` · `README.md:201`)
-- the armed catalog is exactly EIGHT names; adding a tool reds `P-catalog`. (`instances/hello-world/tests/catalog.test.js:57`)
-- `/hello/research` declares `yields: Packet.Response` → served as SSE, which is what exempts it from the request timeout; the `research` TOOL folds the same stream (a tool result cannot stream) into NOMINAL/ERROR — an ERROR carrying a buffer means the page IS on screen. (`instances/hello-world/tools/doors.js:21` · `tools/research.js:45`)
-- `research.js` `ROUNDS = 30` is the researcher's budget, NOT the thread's `INTELLIGENT.rounds` — dialing the thread down must not starve research. (`instances/hello-world/tools/research.js:7`)
-- `/hello/search` calls the same `query()` as `web_search` (TOOLING is in-process only); `wikipedia.js` `TIMEOUT = 6000` must stay UNDER the caller's request timeout (default 30000, `subsystems/typology/prototypes/request.js:15`) or the caller gets an empty envelope, no status. (`instances/hello-world/tools/wikipedia.js:10`)
-- `page/index.js` `emitter` is THE MINT and passes NO thread to `buffer.create` — the EMITTER drain binds; passing one double-advances `thread.counter` (`P-nodoublebind`). `generator` arms NOTHING. `refuse()` rejects `https?:` imports because esbuild leaves them EXTERNAL, past the hash. (`instances/hello-world/page/index.js:33` · `:54`)
-- `/hello/doctor` reports names and whether they resolve, never values. (`instances/hello-world/tools/doctor.js:17`)
+```
+**`domain/domain.viva.js`** (traits · aperture · tools · harness · `*`types) ← card · retention/* · traits/{literal,note}/*; `types.js` has 10 importers.
+```js
+// commons/fixtures/memo/tests/memo.snapshot.test.js:10
+import { card } from "../domain/card.js";
 
-## datamaps and hallucinators
+```
+**`mode/memo.viva.js`** (application · harness · tools · aperture · emitter) ← deal · progress; no `used`.
+```js
+// commons/fixtures/memo/mode/memo.viva.js:19
+    { mime: mime.tty.solid, mount: "buffer/memo.jsx" },
+    { mime: mime.dom.svelte, mount: "buffer/Memo.svelte" },
+```
+**fixtures/testing** — `data/index.js` (seed · tiers · faculties · live) ← `systems/runtime/tests/scenarios/fixtures.js`; `probe/probe.viva.js`; no `used`.
+```js
+// commons/fixtures/testing/data/index.js:1
+export { seed, DAEMON } from "./seed.js";
+export { instance, stack, tiers } from "./tiers.js";
+```
+**`hal/stub/service.viva.js`** ← provider/{index,script}.
+```js
+// commons/fixtures/testing/hal/stub/tests/stub.test.js:16
+  specimen.it("reads flags out of prose and leaves the prose alone", () => {
+    const held = plan({ turns: [said("tell me about flamingos --deltas 6 --stall 3s")] });
+```
+**hallucinators/*** — `service.viva.js` (provider · manifest · docs) ← `provider/index`, + `translate.js` in anthropic · openrouter; elevenlabs no `used`.
+```js
+// commons/hallucinators/openrouter/tests/provider.test.js:10
+  translateTurns,
+} from "../provider/translate.js";
+```
+**harnesses/runtime** (manifest · harness), no test; `daemon/` empty.
+```js
+// commons/harnesses/runtime/runtime-harness.viva.js:12
+export const harness = new Vector();
 
-- libsql `provider(mask, options)` → `new Datamap(orm)` (typology's face; `shard.carry` re-ENTERS the live `RequestContext` — `RequestContext.create` forks an identity map and strands the turn, `subsystems/typology/prototypes/datamap.js:17`). `config`: seat = `mask.mountpoint.branch(statics.db.file)`; no mountpoint → `:memory:` + `createSchema`, a seat → the Migrator (`transactional: false`); `options` spreads LAST (carries `entities` + CONSTRUCTED `subscribers`); `loadStrategy: "balanced"`, never `joined`. A test with no mask: `config({}, { entities })`. (`datamaps/libsql/libsql.viva.js:11` · `:26`)
-- a tool schema on the wire carries NO `$id`: `translateTools` runs `plain()` (openrouter + anthropic). A NESTED `$id` made gpt-5.1 via OpenRouter answer `finish_reason: length` with zero output and no usage — not a 400. Bisect a dead provider answer by tools, one at a time, off a captured params body. (`hallucinators/openrouter/provider/translate.js:135` · `hallucinators/anthropic/provider/translate.js:130`)
-- openrouter: the model table is overridable (`statics.models`), the reasoning switch is not (explicit `reasoning`); `cache_control` lands on the LAST system section only. `provider()` → Faculty[]; `object` is DERIVED, no provider declares it. (`hallucinators/openrouter/provider/translate.js:112` · `:118`)
-- openrouter `choice` is NOT a chat completion and has no logprobs path (`buildChoiceParams` grep → 0): `makeChoice` is a plain `fetch` to `https://openrouter.ai/api/alpha/decisions` (jev, `typesafe/jev-1.13`, same key; `choosers` row `options: 255 · choices: null`, `statics.choosers` overrides). `translateChoice` sends our `primer` as jev's `state`, our tag as its `type` verbatim (`choice · score · noul`); `readChoice` folds `answers` back in the CALLER's option order — jev keys `probabilities` in its own order and score levels as `"0","1"` strings. jev's 422 (e.g. an 11-level score) comes back through `fault`. Anthropic cannot serve `choice`. (`hallucinators/openrouter/provider/index.js:13` · `:50` · `:104` · `translate.js:258` · `:274`)
-- `@commons/hallucinator/stub` (`fixtures/hal/stub/`): the script is a PURE fn of the request — `--deltas 40 --pace 120ms --stall 4s --tool lookup --rounds 2 --fault retryable --timeout --object '{…}' --close length`, parsed by `Signal`; `--close <state>` seals a turn with NO parts; the round is READ off `tool_result` turns, never counted. Mount it ALONE (a neighbouring tune shadows it on `nearest`, `subsystems/typology/prototypes/cortex.js:15`); a scenario calls `world.cortex.faculties.clear()` first. (`fixtures/hal/stub/provider/script.js:17` · `:70` · `systems/runtime/tests/stub.activity.test.js:16`)
+```
+**instances/hello-world/mode.viva.js** ← harness (← page/style) · page/{index,draw}; `localhost/` empty.
+```js
+// commons/instances/hello-world/tests/catalog.snapshot.test.js:37
+  manifest: { slug: "hello-world", type: "demo" },
+  module: { generator },
+```
+**hello-world/tools/index.js** `*`×5; doors ← doctor · research · wikipedia.
+```js
+// commons/instances/hello-world/tests/research.test.js:2
+import { research, ROUNDS } from "../tools/research.js";
+import { calling, rig, saying, SOURCE } from "./rig.js";
+```
+**ledger/** (json) names modules by type/slug; root `package.viva.js` = package/commons.
+```json
+// commons/ledger/ledger.viva.json:9
+  "datamap": { "module": "@commons/datamap/libsql" },
+  "hallucinators": [
+```
+**playground** — 9 entries; oracle `{Helpdesk,Paragraph}.svelte` DEAD; no `used`.
+```js
+// commons/playground/chaosmonkey/oracle/oracle.viva.js:23
+};
 
-## services
+export const application = new App("buffer/Oracle.svelte", v.buffer({ data: {} }));
+```
+**services** — `nlp/service.viva.js` (:84 control · manifest · provider · tools); `reader/service.viva.js` ← extract · hop (← guard) · skeleton.
+```js
+// commons/services/nlp/tests/classify.test.js:3
+import { tools } from "../tools/index.js";
 
-- reader: `guard` refuses before the request leaves; `hop` re-guards EVERY redirect. `drink()` consumes the stream — what it returns is the ONLY copy. Reached as `ctx.services.reader`, never kernelled. (`services/reader/hop.js:21` · `:42` · `instances/hello-world/tools/web.js:72`)
+```
 
-## fixtures and tests
+## registry packages
 
-- `fixtures/data/` is NOT a module — ONE consumer, re-exported by relative path (grep `fixtures/data` → 1 hit). (`systems/runtime/tests/scenarios/fixtures.js:1`)
-- `fixtures/data/live.js` owns liveness: probes `/metadata/daemons`, picks the slug, logs in → `{ base, connection, daemons, up, slug, reference, identity, authority, modes, mounts }`, or `up: false` + a reason. A test never pins `const DAEMON = "brazilian"` (grep → 0); guard per mode with `mounts("game/pick")`; every skip prints `SKIP: <why>`. beef: /"fixtures is yours. you run that shit. just like /tests"/ — no per-item go. (`fixtures/data/live.js:79`)
-- NO commons task and no `deno.json*` under `commons/` — run a file by name with the root config (`deno test -A --no-check <file>`).
-- `*.snapshot.json` is gitignored: a fresh checkout's snapshot test throws on the missing file until a run with `SNAPSHOT_HOT=1`. (`hallucinators/openrouter/tests/translate.snapshot.test.js:11` · `instances/hello-world/tests/harness.snapshot.test.js:18`)
-- `services/nlp/tests/service.test.js` needs a LIVE python+stanza process and has no skip (only `tokenize.test.js` skips) → it reds on a machine without stanza.
-- the lighthouse is the runtime's since m80 (`commons/lighthouses/` is gone): `systems/runtime/tests/lighthouse/{shape,auth,lighthouse,datamap}` ride ONE in-process rig — `create()` → `{ conn, connect(token), signup, seedDaemon, close, … }` over the fixture seed; never spawn a process for them. (`systems/runtime/tests/scenarios/lighthouse.js:13`)
+**Barrel**; `resolve` is a hook (`systems/runtime/daemon/lifecycle/resolution.js:21`).
+```js
+// ~/.viva/registry/assembly/domain/assembly/assembly.viva.js:1
+export * as traits from "./traits/index.js";
+export * as schematics from "./schematics.js";
+export { aperture } from "./aperture/index.js";
+export { tools } from "./tools/index.js";
+```
+**Topography** `DATASET · FRAUGHT · DATASINK`.
+```js
+// ~/.viva/registry/droneaid/topographies/models/models.viva.js:25
+  symbol: [[{ slug: { $like: "family.%" } }, project.omit("literals"), "dataset/symbols/families.js"]],
+  literal: [
+    ["part", lean, "dataset/literals/parts.js"],
+```
+**Tests from the repo root.**
+```js
+// ~/.viva/registry/chess/services/stockfish/tests/provider.test.js:6
+const FAKE = new URL("./fake-uci.js", import.meta.url).pathname;
+// suites run from the repo root (README) — the fake engine needs the same config the suite got
+const CONFIG = `${Deno.cwd()}/deno.jsonc`;
+```
+**Deps by URL**, nothing in `import_map.json`.
+```js
+// ~/.viva/registry/chess/topographies/openings/harvest.js:8
+import { Chess } from "https://esm.sh/chessops@0.14.2/chess";
+import { makeFen } from "https://esm.sh/chessops@0.14.2/fen";
+import { parseSan } from "https://esm.sh/chessops@0.14.2/san";
+```
 
-<!-- writer: agent · hand-kept, recounted 10-06 (entries per dir, bak/ excluded) -->
 ```jsonc
-// commons
-{
- "manifest": "package.viva.js",
- "folders": {
-  "dashboards": {"dataspace": 5},
-  "datamaps": {"libsql": 1},
-  "fixtures": {"data": 8, "hal": 1, "instance": 1, "language-learning": 2},
-  "hallucinators": {"anthropic": 3, "deepgram": 3, "elevenlabs": 3, "openrouter": 3},
-  "instances": {"hello-world": 8, "localhost": 0, "multiplayer": 3, "playground": 1},
-  "ledger": ["ledger.viva.json", "environment.json"],
-  "lighthouses": {"multiplayer": 5},
-  "playground": {"automaton": 2, "card": 2, "chaosmonkey": 3, "dealer": 2, "spawned": 2, "spawner": 2, "switchboard": 2},
-  "services": {"nlp": 5, "reader": 8}
- },
- "tests": {
-  "fixtures/hal/stub/tests": 1,
-  "hallucinators/anthropic/tests": 2,
-  "hallucinators/deepgram/tests": 2,
-  "hallucinators/elevenlabs/tests": 1,
-  "hallucinators/openrouter/tests": 2,
-  "instances/hello-world/tests": 11,
-  "lighthouses/multiplayer/tests": 4,
-  "services/nlp/tests": 3,
-  "services/reader/tests": 6
- }
-}
+// commons — census 10-16
+{".":{"files":1,"exports":1,"tests":0},"dashboards":{"files":4,"exports":7,"tests":0},
+"datamaps":{"files":1,"exports":0,"tests":0},"fixtures":{"files":39,"exports":121,"tests":9},"hallucinators":{"files":10,"exports":31,"tests":3},
+"harnesses":{"files":1,"exports":2,"tests":0},"instances":{"files":14,"exports":37,"tests":9},
+"playground":{"files":28,"exports":39,"tests":0},"services":{"files":9,"exports":9,"tests":6}}
 ```

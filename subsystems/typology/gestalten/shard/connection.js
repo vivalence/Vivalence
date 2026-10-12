@@ -1,4 +1,4 @@
-import { Url } from "@vivalence/typology";
+import { Url } from "../../prototypes/url.js";
 
 export const authorize = ($authority) => async (ctx, next) => {
   const auth = $authority.get();

@@ -1,6 +1,6 @@
 import { specimen, steer, Vector } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
-const { EMITTER } = traits;
+const { EMITTER } = traits.mode;
 import { machine } from "../tools/doctor.js";
 import { harness } from "../harness.js";
 import { emitter } from "../page/index.js";
@@ -113,7 +113,7 @@ specimen.describe(
         entity: { id: "mode-1" },
         generator: {
           // a stub bundler, because the real integrity hash moves with esbuild — the oracle-ask
-          // timing collapse is the precedent. `view` is pinned as { entries, type } for the same
+          // timing collapse is the precedent. `bundle` is pinned as { entries, type } for the same
           // reason it would have to be collapsed against the real one.
           bundle: async () => ({
             json: { entries: ["index.js"], type: "svelte" },
@@ -146,9 +146,9 @@ specimen.describe(
       pin(
         {
           condition: yielded.condition,
-          buffer: yielded.output.buffer.map(({ data, view, index }) => ({
+          buffer: yielded.output.buffer.map(({ data, bundle, index }) => ({
             data,
-            view,
+            bundle,
             index,
           })),
           counter: row.counter,

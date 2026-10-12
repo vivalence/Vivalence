@@ -1,57 +1,49 @@
 ---
 paths: ["systems/ghost/**"]
 ---
-<!-- writer: agent · kind: persistent · limit: 13200 chars · traps only; ~/.viva anatomy is world/ledger.md -->
-# codemap: ghost — the operator (`viva`): argv in, one effect out
+<!-- writer: agent · limit: 5600 chars · code is the map · @vivalence/ghost = typology.js, paladin-free (deno info typology.js | grep -c paladin → 0); m91: lifecycle.shell pulls surface/chrome in (opentui ×12 · solid-js ×6) -->
+# codemap: ghost — the door · the client subject-first · the surfaces (m86 10-16 · m91 10-19)
 
-## the door
-
-- `ghost.sh` sources `${XDG_CONFIG_HOME:-~/.config}/viva/env` FIRST — it OUTRANKS the caller's exported `VIVA_REPOSITORY_MOUNT`; `VIVA_PROCESS_ID` defaults to `$PPID`, the shell that typed `viva`, so a selection written under it survives the next call. (`ghost.sh:3` · `:8`)
-- root `deno.jsonc` declares `"ghost/watch"` TWICE — `:43` with `--watch`, `:45` without; JSONC keeps the LAST → `deno task ghost/watch` does NOT watch. Run `deno task --cwd systems/ghost watch`, or fix the duplicate with beef's go. (`deno.jsonc:43` · `:45`)
-- `--help` is rewritten at the door into `help <nature>`. (`mod.js:129` · `:137`)
-- `fail()` is the ONE exit: `NOT_FOUND` → 127, anything else → 1. (`mod.js:144` · `:153`)
-- middleware order is law: span → catch → `ctx.call` → cwd mount → render; catch sits INSIDE span, mount INSIDE catch — reorder and a mount throw escapes the span. (`mod.js:23` · `:42` · `:49` · `:73` · `:85`)
-- spans are in-memory only (`.to(paladin.ledger.pipe)` commented out) — there is no ghost span on disk to read. (`mod.js:41`)
-
-## parsing and rendering
-
-- `ShellSignal`: params + flags hang on segment ZERO and nothing validates — an undeclared flag parses fine and `help` never shows it. (`prototypes/shellsignal.js:31`)
-- a handler sets `ctx.effect` or returns it, NEVER prints. Live exceptions: `instance/start` · `stop` · `run` still `console.log` a status line (`trajectories/instance/start.js:43` · `stop.js:25` · `run.js:22`). `ctx.call(argv)` re-enters the same combinator with `rendered` pre-marked, so a chain prints once. (`mod.js:67`)
-- `ctx.interactive` is set ONCE — `!flags.json && stdin.isTerminal() && stdout.isTerminal()`; pickers and wizards READ it, never re-derive TTY. `view.scroll.emit` runs everywhere, `render` only on a TTY, `--json` skips both. (`mod.js:90`)
-- non-interactive `render` THROWS naming the nature; `pick` with N matches in a pipe THROWS listing candidates — a picker in a pipe would be a hang. (`mod.js:107` · `belt/pick.js:23`)
-
-## lens and paths
-
-- lens fuzz keys include `mount` → a one-letter slug matches every path. A `key:value` facet narrows only when the lens declares it (registry `facets: ["owner", "type"]`, ledger `["slug"]`). `use` searches the LEDGER, `create` the REGISTRY. (`belt/lens.js:22` · `:40`)
-- `pick` turns `/` into spaces so `@owner/type/slug` resolves headlessly; a filesystem path → `null`. (`belt/pick.js:11`)
-- path law: operator-typed → `INIT_CWD ?? PWD ?? Deno.cwd()` (`deno task` rewrites cwd); `pin()` refuses `://` and `@`, and `source()` asks `clone.remote` first so `git@host:path` stays remote. An instance TOKEN (a slug or a path, /"token until matched"/) never pins — `instances.resolve(token)` answers a `mount` (disk). A lens row's `identifier` is `@owner/type/slug`; registry record rows are `location`s. (`belt/path.js:4` · `:6` · `:14` · `mod.js:175`)
-
-## verbs
-
-- `registry/bootstrap`: the destination dir NAMES the package (`basename(target)`); its `package.viva.js` is REPLACED whole, never patched. (`trajectories/registry/bootstrap.js:25` · `:60`)
-- `instance/user <signup|login|password>` IS the auth verb (m80 10-08: `instance/lighthouse` died) — there is no `viva auth`; `password` signs a 2-minute operator JWT from `SECRET_VIVA_JWT`. (`trajectories/instance/user.js:5` · `:20`)
-- `instance/init` scaffolds `.env` FROM the schema, re-mounts (`lifecycle.mount(lifecycle.populate.instance(paladin))`), then asks only blank/INVALID keys. (`trajectories/instance/init.js:76` · `:87`)
-- env schema: `.optional()` is the ONLY "not owed"; `.default` is raw, never validated; a `.default(fn)` fires only while AUTHORING — at scaffold and as the wizard's preset for an owed key — through `fallback(held)`, after which the `.env` holds the value. Groups: addresses · keys · services (free-form: `homes` · `mounts` · `engine` · `office` ride too); the ungrouped wizard section is `unset` (/"not other but unset"/). (`belt/envfile.js:5` · `trajectories/instance/init.js:36`)
-- `instance/start` detaches the SUPERVISOR: `new Deno.Command(cmd, { detached: true, stdio "null" }).spawn()` + `unref()` → own pgid, outlives the parent (`unref()` alone never detached); then waits 60 s for lock `ALIVE` or throws naming the logs. Paladin `Process` never detaches; `Deno.kill(-pgid, "SIGTERM")` takes a whole group. (`trajectories/instance/start.js:23` · `:41`)
-- a child env is an ALLOWLIST + `VIVA_*`/`PUBLIC_VIVA_*`/`SECRET_VIVA_*` minus `VIVA_PROCESS_ID`. (`trajectories/instance/target.js:12`)
-- `instance/cleanup` · `ledger/cleanup` prune view bundles through `paladin.bundler(dir).prune()`: an artifact with its source beside it (`<hash>.svelte`) is a GENERATED page a `buffer.view` names → kept; of the source-less (application compiles) only the newest mtime stays. `ledger/cleanup` walks each recorded `mount`, not each `VIVA_MOUNTPOINT_MOUNT` — a mountpoint re-rooted off the instance dir is missed. Headless needs `--force`. (`subsystems/paladin/belt/bundler.js` `prune` · `under` · `trajectories/instance/cleanup.js` `sweep`)
-- `run` decodes exit `128+n` back to a signal name — `deno task` launders signals into codes. (`trajectories/instance/run.js:4` · `:31`)
-
-## tests
-
-- every `test*` task is `--watch` and never exits — one-shot `deno test -A --no-check tests/<file>`. `*.wet.test.js` spawn the real `mod.js` as a subprocess (`tests/help.wet.test.js:7`). (`deno.jsonc:14`)
-
-<!-- writer: agent · hand-kept, recounted 10-06 -->
-```jsonc
-// systems/ghost
-{
- "package": "@vivalence/ghost",
- "exports": {".": "./mod.js", "./typology": "./typology.js"},
- "barrels": {
-  "mod.js": [],
-  "typology.js": ["* from ./belt/index.js", "* from ./prototypes/index.js", "* as prototypes from ./prototypes/index.js", "* as belt from ./belt/index.js"]
- },
- "tasks": {"run": "deno run -A mod.js", "watch": "deno run -A --watch mod.js", "test": "--watch tests/**/*.test.js", "test/shellsignal": "--watch tests/shellsignal.test.js"},
- "tests": {"tests": 13}
-}
+- **`run.js` is the DOOR**: paladin mounts here and nowhere else; `instance · mask · register` ride the shell die; `shell/lifecycle.js` `shell` (one Vector) → `clientFactory(surface.repl|chrome)`; `client/factory.js` `factory` births the `Client`, grafts `commands/chrome.js` (`/chrome/on|off`), runs `client/lifecycle/index.js` `execution`.
+```js
+// systems/ghost/run.js:5
+const instance = await factories.instance(paladin.instance);
+// systems/ghost/run.js:12
+  mask: instance.clients.find((client) => client.manifest.slug === "ghost"),
+};
+die.register = await paladin.ledger.registry.wire(die.mask);
 ```
+- **`<subject>/`** = `prototype.js` (class · `repository(dataspace)` · `hydration`) · `lifecycle/index.js` (beats by name, the Vector `execution` last) · `traits/<NAME>.js` + `traits/index.js` (the catalog the lifecycle imports ITSELF; no `traits` key on a die) · `commands/`. Subjects: `client`; `entities/`: `daemon · lighthouse · mode · runtime · terminal · thread` + `activity · buffer · turn`; `shell/` · `surface/` (sibling of `client/`) beside; `prototypes/` · `gestalten/` the rest. `typology.js` is predicative (`belt · shard` also flat: drapes `./dom` reads `belt`); the em's names: `client/lifecycle/index.js:109`.
+```js
+// systems/ghost/typology.js:17
+export const factories = { client: client.factory };
+// systems/ghost/typology.js:19
+export const traits = { client: client.traits, mode: mode.traits, lighthouse: lighthouse.traits };
+export const commands = { client: client.commands, terminal: terminal.commands };
+```
+- **the ring**: `Client.dispatch(line)` → `shard.repl.dispatch(client, active, line)` builds `compose(client, terminal)` ON EVERY LINE: `client.repl` · hosted repls at the ROOT · `terminal.repl` · every mounted mode's repl `scoped` under `/mode/<type>/<slug>` + `/mode/<slug>` · `entities/terminal/commands/turn.js` (`*`) only when `terminal.mode` is HARNESSED. `message` beat: output → `controller.stdout.message`. A verb reads words from `ctx.signal.body` — `ctx.input` is NOT set on a repl die.
+```js
+// systems/ghost/gestalten/shard/repl.js:14
+export const scoped = (mode) => {
+  const vector = new Vector();
+  vector.branch(`/mode/${mode.type}/${mode.slug}`, mode.repl);
+  vector.branch(`/mode/${mode.slug}`, mode.repl);
+  return vector;
+};
+```
+`Vector.branch` RETURNS the child — a chained `.branch(a, repl).branch(b, repl)` grafts `repl` into itself (stack overflow, 10-16).
+- **a trait is STAGGERED on its owner and reads its config straight**: `client/traits/home.js` `HOME(mask, clientDie)` seats every threadless terminal in `mask.trait.HOME.reference` (the user's via `v.user.trait`); staggered by `client/lifecycle/index.js` `staggered` over `mask.manifest.traits` (a client's traits ride the MANIFEST, `instance.js`).
+- **hosts**: `Runtime` · `Daemon` boot under `gestalten/shard/host.js` (`status · metadata · cortex · modes · mounted`, thunks over `die[type]`); each carries `aperture` = its OWN branch (`/runtime/<slug>` · `/daemon/<slug>`): the runtime ROOT serves only `/metadata/{manifest,aperture}`, the lighthouse, the userspace. Readiness = `$status` HEALTHY set by `mounted` ALONE; the `/status` subscription marks loss/recovery only.
+```js
+// systems/ghost/client/lifecycle/index.js:106
+  clientDie.runtime.aperture = clientDie.runtime.connection.branch(clientDie.runtime.reference.absolute);
+```
+- **resident rows**: a terminal and a thread are hydrated per merge AND executed under a controller while the client attends them (`terminals` · `thread` beats; `entities/terminal/lifecycle/` grafts `/modes · /mode · /application/*`; `entities/thread/lifecycle/` derives `$activity`). `Dataspace` (`@vivalence/typology`) registers each row module's `repository` + `hydration` on ONE em; `branch(connection, name)` serves a daemon's `/entities/mode`.
+- **surfaces**: `surface/repl.js` tails `message · fault · turn` (prints once, `seen`); `surface/chrome/` paints `panes.chrome` (dock ⊕ frame) from the BUILT `out/panes.mjs` — every `.jsx` edit → `deno task ghost/bundle`. The frame mounts a mode's `tty.solid` bundle as `module.default(element, bag)` → `{ destroy }`, bag = `terminal · mode · thread · buffer · renderer · palette · dispatch · focused`, else the Floor (`JsonTree` of `buffer.data`). Keys: `panes/frame.jsx` owns ⇥ (`prependListener`), a view claims a key by `preventDefault` while `focused()`, `views/Input.jsx` yields a `defaultPrevented` key — `stopPropagation` stops no sibling listener. memo's view → Floor (known-issues).
+- **tests** (one file, from the root, `HOME=$(mktemp -d)`): `tests/repl.test.js` (no world, 6) · `tests/console.test.js` (`@commons/home/console` via `accio`, 1) · `tests/client.test.js` (the DEMO world from `tests/scenarios/hello.js`: boot · HOME · `/mode srs/memo` · chat on the stub · `/application/start|stop`, 4). `deno.jsonc` `test` is `--watch`.
+```js
+// systems/ghost/tests/client.test.js:9
+  await lifecycle.paladin.scopes(paladin);
+  const instance = await factories.instance(lifecycle.paladin.instance(paladin));
+```
+- **`surface/chrome/host/`** `opentui` ← `preload.js` ← `deno-ffi.js` (`@vivalence/ghost/host`); `keys.js` `press` · `keypresses`; `text.js` ← `views/Input.jsx` (`tests/keys.test.js` · `text.test.js`).

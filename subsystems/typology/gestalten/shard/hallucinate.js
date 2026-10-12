@@ -1,4 +1,7 @@
-import { Vector, belt, is, steer } from "@vivalence/typology";
+import { Vector } from "../../prototypes/vector.js";
+import * as hallucinate from "../belt/hallucinate.js";
+import * as is from "../is/index.js";
+import * as steer from "../steer/index.js";
 
 export const routing = (steps) => {
   const [avenue, via] = steps.slice(-2).map((step) => step.nature);
@@ -7,7 +10,7 @@ export const routing = (steps) => {
 
 export const declarations = (tools) =>
   steer.trie.rollup(tools, () => null).map(({ pattern, steps }) => ({
-    name: belt.hallucinate.nameOf(steps),
+    name: hallucinate.nameOf(steps),
     ...(pattern.valence && { valence: pattern.valence }),
     ...(pattern.input && { input: pattern.input }),
   }));
@@ -48,24 +51,24 @@ export const sourcing = () => async (ctx, next) => {
 };
 
 export const rendering = (cortex, type) => async (ctx) => {
-  ctx.output = await belt.hallucinate.render(faculty(cortex, type, "render", ctx.policy.tune), ctx.input, policyOf(ctx));
+  ctx.output = await hallucinate.render(faculty(cortex, type, "render", ctx.policy.tune), ctx.input, policyOf(ctx));
 };
 
 export const streaming = (cortex, type) => (ctx) => {
-  ctx.output = belt.hallucinate.respond(faculty(cortex, type, "stream", ctx.policy.tune), "stream", ctx.input, policyOf(ctx));
+  ctx.output = hallucinate.respond(faculty(cortex, type, "stream", ctx.policy.tune), "stream", ctx.input, policyOf(ctx));
 };
 
 export const transcribing = (cortex, via = "stream") => (ctx) => {
   const verb = via === "render" ? "transcript" : "transcribe";
-  ctx.output = belt.hallucinate[verb](faculty(cortex, "verbatim", via, ctx.policy.tune), ctx.input, policyOf(ctx));
+  ctx.output = hallucinate[verb](faculty(cortex, "verbatim", via, ctx.policy.tune), ctx.input, policyOf(ctx));
 };
 
 export const synthesizing = (cortex) => (ctx) => {
-  ctx.output = belt.hallucinate.synthesize(faculty(cortex, "speech", "stream", ctx.policy.tune), ctx.input, policyOf(ctx));
+  ctx.output = hallucinate.synthesize(faculty(cortex, "speech", "stream", ctx.policy.tune), ctx.input, policyOf(ctx));
 };
 
 export const vocalizing = (cortex) => async (ctx) => {
-  ctx.output = await belt.hallucinate.vocalize(faculty(cortex, "speech", "render", ctx.policy.tune), ctx.input, policyOf(ctx));
+  ctx.output = await hallucinate.vocalize(faculty(cortex, "speech", "render", ctx.policy.tune), ctx.input, policyOf(ctx));
 };
 
 const questionmap = [
@@ -98,5 +101,5 @@ export const bounding = (cortex) => async (ctx, next) => {
 };
 
 export const choosing = (cortex) => async (ctx) => {
-  ctx.output = await belt.hallucinate.choose(faculty(cortex, "choice", "render", ctx.policy.tune), ctx.input, policyOf(ctx));
+  ctx.output = await hallucinate.choose(faculty(cortex, "choice", "render", ctx.policy.tune), ctx.input, policyOf(ctx));
 };

@@ -4,7 +4,7 @@ import { atom } from "nanostores";
 
 const CLIENT = import.meta.resolve("svelte/internal/client");
 const ENTRY = new URL("../../index-client.js", CLIENT).href;
-const ACTIVITY = new URL("../src/typology/entities/activity.js", import.meta.url).href;
+const ACTIVITY = new URL("../src/entities/activity.js", import.meta.url).href;
 const SOURCE = new URL("../src/app/panels/a/widgets/stop.svelte.js", import.meta.url);
 
 const HOLD = 300;

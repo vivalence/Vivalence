@@ -8,8 +8,8 @@ const __repo = join(__dirname, "../../");
 const __ss = join(__repo, "./subsystems");
 
 async function serverConfig() {
-  const { default: paladin, lifecycle } = await import("@vivalence/paladin");
-  await lifecycle.mount(paladin.instance);
+  const { default: paladin, factories } = await import("@vivalence/paladin");
+  await factories.instance(paladin.instance);
   paladin.check.instance(paladin.instance).throw();
   const client = paladin.instance.clients.find((held) => held.manifest.slug === "anima");
   // console.log("paladin.env", paladin.env);
@@ -122,7 +122,7 @@ export default async ({ command }) => ({
       // STABLE
       $telemetry: join(__dirname, "./src/telemetry/index.js"),
       $client: join(__dirname, "./src/client.js"),
-      "@vivalence/anima": join(__dirname, "./src/typology/mod.js"),
+      "@vivalence/anima": join(__dirname, "./src/typology.js"),
 
       "@vivalence/typology": join(__ss, "./typology/mod.client.js"),
       "@vivalence/typology/schematics": join(__ss, "./typology/schematics/index.js"),

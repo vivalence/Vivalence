@@ -29,8 +29,8 @@ import {
   tap,
   under,
   zone,
-} from "../../src/typology/stores/bridge/panes.js";
-import { Bridge } from "../../src/typology/stores/bridge/bridge.js";
+} from "../../src/bridge/panes.js";
+import { Bridge } from "../../src/bridge/prototype.js";
 
 const STORAGE_KEY = "vivalence:bridge";
 const WHOLE = { x: 0, y: 0, w: 100, h: 100 };

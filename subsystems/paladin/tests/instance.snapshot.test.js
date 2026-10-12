@@ -1,4 +1,4 @@
-import paladin, { lifecycle } from "@vivalence/paladin";
+import paladin, { factories } from "@vivalence/paladin";
 import { specimen } from "@vivalence/typology";
 
 const { describe, it, expect, snapshot } = specimen;
@@ -21,7 +21,7 @@ const redact = (node) =>
 describe("snapshot demo: paladin", () => {
   it("instance — the resolved deployment, secrets redacted, the paladin spine cut", async () => {
     paladin.env.set("VIVA_INSTANCE_MOUNT", paladin.scope.repository.branch(FIXTURE).absolute, "flag");
-    await lifecycle.mount(paladin.instance);
+    await factories.instance(paladin.instance);
     const folded = snapshot(paladin.instance, { base, depth: 6, omit: ["paladin"], write: false }).pojo;
     const { pojo, path } = snapshot(redact(folded), { base, dry: DRY, parse: (held) => held, locate: "paladin-instance.snapshot.json" });
     console.log(`\n===BEGIN paladin.instance → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);

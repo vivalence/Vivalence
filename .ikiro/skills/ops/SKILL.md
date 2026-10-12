@@ -50,7 +50,7 @@ jq 'length' /m/service_multiplayer/tokens.json
 ```
 
 - `_mikro_migrations`, not `mikro_orm_migrations`; tables Capitalised (`Mode` `Buffer` `Turn` `User` `Identity` `Daemon`).
-- daemon dbs carry the `db.file` their creating recipe pinned (prod: `test-language*.viva.db`), NOT the default `<slug>.viva.db` (`paladin/lifecycle/resolve.js:29`); a mismatch mints an empty db beside the old. Rename the file, keep the dir.
+- daemon dbs carry the `db.file` their creating recipe pinned (prod: `test-language*.viva.db`), NOT the default `<slug>.viva.db` (`paladin/instance/lifecycle/resolution.js:30`); a mismatch mints an empty db beside the old. Rename the file, keep the dir.
 - PROD only; local since m80 = ONE `<instance>.viva.db` (`runtime/population.js:31`).
 - `$D=$(ls -d /m/daemon_*)` over several daemons expands to several paths — loop, never assign.
 - `-readonly` on `:ro` is safe live; "disk I/O error" = wrong path, not a lock.

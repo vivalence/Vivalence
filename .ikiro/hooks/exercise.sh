@@ -43,9 +43,9 @@ expect deny  vcs-guard.sh "$(bash_json 'git commit -m x')"                      
 expect deny  vcs-guard.sh "$(bash_json 'jj rebase -s @ -d trunk')"                            "jj rebase"
 
 # comment-guard — Write|Edit denies; the Bash route is WARN (allow + log), so assert allow but check the log grows
-expect deny  comment-guard.sh "$(edit_json /r/subsystems/paladin/belt/check.js '  // verdict = max(declared, observed)
+expect deny  comment-guard.sh "$(edit_json /r/subsystems/paladin/gestalten/belt/check.js '  // verdict = max(declared, observed)
   const x = 1;')" "authored // in product source"
-expect allow comment-guard.sh "$(edit_json /r/subsystems/paladin/belt/check.js '  const x = 1; // @beef keep')" "beef annotation"
+expect allow comment-guard.sh "$(edit_json /r/subsystems/paladin/gestalten/belt/check.js '  const x = 1; // @beef keep')" "beef annotation"
 before=$(wc -l < "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null || echo 0)
 expect warn comment-guard.sh "$(bash_json 'cat > /r/systems/runtime/daemon/x.js <<EOF
 // the mint — one place
@@ -68,14 +68,22 @@ if grep -q '"deny"' <<<"$out"; then echo "FAIL agent-guard.sh warn mode denied";
 rm -f "$count_file"
 
 # lifecycle-guard — the 10-08 shape: seven (ctx, next) middlewares written as consts into a trait file
-expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/mode/traits/harnessed.js 'const claiming = async (ctx, next) => { await next(); };')" "shard const in a trait"
-expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/mode/traits/harnessed.js 'const chaining = (mode) => async (ctx, next) => { await next(); };')" "curried shard"
-expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/host/aperture/cortex.js 'const round = (via) => async (ctx) => { ctx.output = 1; };')" "effect factory in a beat file"
-expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/daemon/population.js 'export const modes = async (die, next) => { await next(); };')" "a beat"
-expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/daemon/resolution.js '  die.daemon.aperture.use(async (ctx, next) => { await next(); });')" "inline use inside a beat"
-expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/lifecycle/mode/traits/tooling.js 'export const TOOLING = (mode, host) => { mode.tools.graft(mode.module.tools); };')" "a trait"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/mode/traits/harnessed.js 'const claiming = async (ctx, next) => { await next(); };')" "shard const in a trait"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/mode/traits/harnessed.js 'const chaining = (mode) => async (ctx, next) => { await next(); };')" "curried shard"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/daemon/lifecycle/integration.js 'const round = (via) => async (ctx) => { ctx.output = 1; };')" "effect factory in a beat file"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/daemon/lifecycle/population.js 'export const modes = async (die, next) => { await next(); };')" "a beat"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/daemon/lifecycle/resolution.js '  die.daemon.aperture.use(async (ctx, next) => { await next(); });')" "inline use inside a beat"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/mode/traits/tooling.js 'export const TOOLING = (mode, host) => { mode.tools.graft(mode.module.tools); };')" "a trait"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/lighthouse/traits/joinable.js 'const gate = async (ctx, next) => { await next(); };')" "shard const in a lighthouse trait (m91 path)"
 expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/gestalten/shard/harness.js 'export const claiming = (mode) => async (ctx, next) => {};')" "the shard home"
 expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/tests/x.test.js 'const f = async (ctx, next) => {};')" "test file"
+
+# blast-guard — the 10-19 shape: a consumer grep filtered by --include missed chassis.jsx (WARN only)
+expect warn  blast-guard.sh "$(bash_json 'grep -rln "@vivalence/ghost" systems subsystems --include=*.js')" "blast with --include"
+expect warn  blast-guard.sh "$(bash_json 'grep -rn paladin.skills subsystems | head')" "blast piped to head"
+expect allow blast-guard.sh "$(bash_json 'grep -rnI "@vivalence/ghost" systems subsystems --exclude-dir=node_modules --exclude-dir=bak')" "every text type"
+expect allow blast-guard.sh "$(bash_json 'grep -rn "lifecycle/" .ikiro/quests --include=*.org')" "a doc grep over .ikiro"
+expect allow blast-guard.sh "$(bash_json 'grep -n include deno.jsonc')" "not recursive"
 
 # watch-guard — the 09-23 shapes: buffer/cli.js then buffer/fold.js of one mode under a live watcher
 rm -f "${TMPDIR:-/tmp}/ikiro-watch-exercise"
@@ -88,12 +96,12 @@ IKIRO_WATCH_LIVE=1 expect allow watch-guard.sh "$(edit_json /Users/finn/.viva/re
 IKIRO_WATCH_LIVE=1 expect allow watch-guard.sh "$(edit_json /r/systems/anima/src/app/x.svelte 'x')"              "outside the watched trees"
 rm -f "${TMPDIR:-/tmp}/ikiro-watch-exercise"
 
-# compact-gate — first /compact of a session refused; the retry passes once world/frontier.md is newer than the stamp
+# compact-gate — first /compact of a session refused; the retry passes once quests/frontier.md is newer than the stamp
 gate_case() { # gate_case <want exit> <touch-frontier 0|1> <label>
-  project=$(mktemp -d); mkdir -p "$project/.ikiro/methods" "$project/.ikiro/world"
+  project=$(mktemp -d); mkdir -p "$project/.ikiro/methods" "$project/.ikiro/quests"
   cp ../methods/cap.py "$project/.ikiro/methods/cap.py"
   session="exercise-compact-$2"; mkdir -p "${TMPDIR:-/tmp}/ikiro-compact-gate"; : > "${TMPDIR:-/tmp}/ikiro-compact-gate/$session"
-  [ "$2" = 1 ] && { sleep 1; echo "# frontier" > "$project/.ikiro/world/frontier.md"; } || { echo "# frontier" > "$project/.ikiro/world/frontier.md"; touch -t 202001010000 "$project/.ikiro/world/frontier.md"; }
+  [ "$2" = 1 ] && { sleep 1; echo "# frontier" > "$project/.ikiro/quests/frontier.md"; } || { echo "# frontier" > "$project/.ikiro/quests/frontier.md"; touch -t 202001010000 "$project/.ikiro/quests/frontier.md"; }
   jq -cn --arg s "$session" '{session_id:$s,compaction_trigger:"manual"}' | CLAUDE_PROJECT_DIR="$project" bash compact-gate.sh >/dev/null 2>&1
   got=$?
   if [ "$got" = "$1" ]; then echo "PASS compact-gate.sh exit $1  $3"; else echo "FAIL compact-gate.sh want exit $1 got $got  $3"; fail=1; fi
@@ -108,7 +116,7 @@ expect deny  kernel-guard.sh "$(edit_session /r/docs/superpowers/plans/2026-09-2
 expect allow kernel-guard.sh "$(edit_session /r/.ikiro/quests/m69-ikiro-ikiro.org '* intent')"                 "a quest in its place"
 expect deny  kernel-guard.sh "$(edit_session /r/documentation/src/content/docs/index.mdx 'vivalence is open-source')" "public copy says open-source"
 expect allow kernel-guard.sh "$(edit_session /r/documentation/src/content/docs/index.mdx 'fair-source, source-available')" "public copy says fair-source"
-expect allow kernel-guard.sh "$(edit_session /r/.ikiro/ikiro.md 'never "open-source"')"                         "the kernel quoting the rule"
+expect allow kernel-guard.sh "$(edit_session /r/.ikiro/codestyle.md 'never "open-source"')"                         "the kernel quoting the rule"
 
 # cap-guard — a write past `limit: N chars` is refused; a capped file without a limit is refused; quests are never capped
 cap_case() { # cap_case <want> <json> <label>

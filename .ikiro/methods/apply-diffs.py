@@ -5,7 +5,7 @@
 `--root` lands on a COPY (the replay law: a fresh copy, never the repo); without it the root is the repo.
 REJECTED 10-08: a hard-coded root — a replay run from a copy with --write landed 11 ghost files in the repo.
 
-A block's first line is `// <path>:<line> …`; `…` lines split sub-hunks; `-`/`+`/` ` prefixes are old/new/context,
+A block's first line is `// <path>:<line> …`; `…` lines split sub-hunks (a sub-hunk may repeat the `// <path>:<line>` head, skipped); `-`/`+`/` ` prefixes are old/new/context,
 an empty line is empty context. Per file: every anchor must match exactly once BEFORE anything is written
 (apply-diffs law). Misses are listed by file and hunk head.
 """
@@ -43,6 +43,8 @@ def hunks(block):
     out = []
     for part in parts:
         old, new = [], []
+        sub = head
+        if part and re.match(r"^// \S+:\d+", part[0]): sub, part = part[0], part[1:]
         for line in part:
             if line == "": old.append(""); new.append("")
             elif line[0] == "-": old.append(line[1:])
@@ -50,7 +52,7 @@ def hunks(block):
             elif line[0] == " ": old.append(line[1:]); new.append(line[1:])
             else: old.append(line); new.append(line)
         while old and new and old[-1] == "" and new[-1] == "": old.pop(); new.pop()
-        if old != new: out.append(("\n".join(old), "\n".join(new), head))
+        if old != new: out.append(("\n".join(old), "\n".join(new), sub))
     return path, out
 
 per_file = {}

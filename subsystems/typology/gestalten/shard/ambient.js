@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { object } from "@vivalence/typology";
+import * as object from "../belt/object.js";
 
 const ambient = new AsyncLocalStorage();
 

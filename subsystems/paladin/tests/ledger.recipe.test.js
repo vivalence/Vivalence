@@ -1,8 +1,8 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path, v } from "@vivalence/typology";
-import { Paladin } from "../prototypes/paladin.js";
-import * as lifecycle from "../lifecycle/index.js";
+import { Paladin } from "../paladin/prototype.js";
+import { factories, lifecycle } from "../typology.js";
 
 const HOME = new Path("/fixtures/probe");
 const LEDGER = new Path("/fixtures/ledger");
@@ -23,7 +23,7 @@ const mount = ({ ledger = () => null, instance }, pairs = {}) => {
   for (const [key, value] of Object.entries(pairs)) paladin.env.set(key, value, "flag");
   paladin.secret.set("SECRET_VIVA_LEDGER_JWT", "a-signing-secret-of-twenty-four-or-more", "flag");
   paladin.read.json = files(module, { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, ...instance });
-  return lifecycle.mount(lifecycle.populate.instance(paladin));
+  return factories.instance(lifecycle.paladin.instance(paladin));
 };
 
 // no manifest export — the file at the root is the declaration; type and slug derive
@@ -118,8 +118,8 @@ describe("ledger recipe — ledger → instance falls through by SLOT, environme
     let asked = 0;
     const read = files(ledger(paladin), { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, daemons: [daemon] });
     paladin.read.json = async (path, fallback) => (String(path.absolute).endsWith("/ledger.viva.json") && (asked += 1), read(path, fallback));
-    const first = await lifecycle.mount(lifecycle.populate.instance(paladin));
-    const second = await lifecycle.mount(lifecycle.populate.instance(paladin));
+    const first = await factories.instance(lifecycle.paladin.instance(paladin));
+    const second = await factories.instance(lifecycle.paladin.instance(paladin));
     expect(asked).toBe(1);
     expect(second.inherited).toEqual(first.inherited);
     expect(second.clients[0]).not.toBe(first.clients[0]); // hydrate walks a copy each mount — the memo holds the raw module, never a fired value

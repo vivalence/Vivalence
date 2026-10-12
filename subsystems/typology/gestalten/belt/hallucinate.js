@@ -1,4 +1,10 @@
-import { NotFound, ToolCall, Vector, fromm, soma, steer, verbatim } from "@vivalence/typology";
+import { NotFound } from "../../prototypes/errors/vector.js";
+import { ToolCall } from "../../prototypes/toolcall.js";
+import { Vector } from "../../prototypes/vector.js";
+import * as fromm from "../fromm/index.js";
+import * as soma from "./soma.js";
+import * as steer from "../steer/index.js";
+import * as verbatim from "./verbatim.js";
 import * as entities from "../../schematics/entities/index.js";
 
 export const signalOf = (name) => new ToolCall(name).signal;
@@ -8,9 +14,9 @@ export const nameOf = (steps) => new ToolCall(steps).name;
 // receives, spoken as data. a descriptor's `spoken` names the paths a row speaks — the bulk a
 // tool can fetch on demand (a view's bundle, a buffer's payload) stays off the wire. a related
 // row speaks as its id.
-const descriptors = Object.values(entities).filter((entry) => entry?.own && typeof entry.$id === "string");
+let descriptors;
 const spoken = (key) =>
-  descriptors.find((entry) => entry.$id.toLowerCase() === key)?.spoken ?? null;
+  (descriptors ??= Object.values(entities).filter((entry) => entry?.own && typeof entry.$id === "string")).find((entry) => entry.$id.toLowerCase() === key)?.spoken ?? null;
 const at = (row, path) =>
   path.split(".").reduce((value, step) => (value == null ? value : value[step]), row);
 const card = (row, paths) => {

@@ -3,13 +3,16 @@
   "registry": "./registry.json",
   "environment": "./environment.json",
   "runtime": {
-    "statics": { "serve": "${VIVA_RUNTIME_SERVE}", "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}" },
-    "secrets": { "jwt": "${SECRET_VIVA_JWT}" }
+    "statics": { "serve": "${VIVA_RUNTIME_SERVE}", "remote": "${PUBLIC_VIVA_RUNTIME_REMOTE}" }
   },
+  "lighthouse": { "secrets": { "jwt": "${SECRET_VIVA_JWT}" }, "traits": ["JOINABLE", "AUTOLOGIN"] },
   "datamap": { "module": "@commons/datamap/libsql" },
   "hallucinators": [
     { "module": "@commons/hallucinator/anthropic", "secrets": { "key": "${SECRET_VIVA_ANTHROPIC_API_KEY}" } },
     { "module": "@commons/hallucinator/openrouter", "secrets": { "key": "${SECRET_VIVA_OPENROUTER_API_KEY}" } }
   ],
-  "clients": [{ "manifest": { "type": "client", "slug": "anima" }, "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" } }]
+  "clients": [
+    { "manifest": { "type": "client", "slug": "anima" }, "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" } },
+    { "manifest": { "type": "client", "slug": "ghost" }, "modes": ["@commons/home/console"] }
+  ]
 }

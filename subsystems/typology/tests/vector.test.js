@@ -130,6 +130,20 @@ specimen.describe("Vector", () => {
     specimen.expect(vector.descendants[0].effect()).toBe("self");
   });
 
+  specimen.it("graft(...vectors) · use(...middlewares) are variadic, in order; do() sets the effect, affect() is its alias — sources untouched", () => {
+    const first = new Vector().open({ nature: "/a", valence: "a" }, () => "a");
+    const second = new Vector().open({ nature: "/b", valence: "b" }, () => "b").do(() => "root");
+    const one = () => {};
+    const two = () => {};
+    const armed = new Vector().use(one, two).graft(first, second);
+    specimen.expect([...armed.trie.keys()]).toEqual(["a", "b"]);
+    specimen.expect(armed.effect()).toBe("root");
+    specimen.expect(armed.carry).toEqual([one, two]);
+    specimen.expect(new Vector().affect(() => "x").effect()).toBe("x");
+    specimen.expect(first.trie.size).toBe(1);
+    specimen.expect(second.trie.size).toBe(1);
+  });
+
   specimen.it("the trie keys by nature: one edge per sibling nature, declaration order immovable — a collision holds its slot", () => {
     const vector = new Vector();
     vector.branch("first");

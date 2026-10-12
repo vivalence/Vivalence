@@ -1,4 +1,4 @@
-import { v, Vector } from "@vivalence/typology";
+import { v, Vector, mime } from "@vivalence/typology";
 
 const AUTHOR = [
   "Author a COMPLETE Svelte 5 component (runes; props {buffer, terminal}; self-contained;",
@@ -18,13 +18,13 @@ export const emitter = new Vector().open(
         parts: [{ type: "text", text: ctx.input.brief }],
       }],
     });
-    const view = await ctx.mode.generator.bundle({
-      kind: "svelte",
+    const bundle = await ctx.mode.generator.bundle({
+      mime: mime.dom.svelte,
       source: response.output.message,
     });
     const buffer = await ctx.entities.buffer.create({
       mode: ctx.mode.entity.id,
-      view: view.json,
+      bundle: bundle.json,
     });
     return { condition: "NOMINAL", output: { buffer: [buffer] } };
   },

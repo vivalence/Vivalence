@@ -1,8 +1,8 @@
-import { specimen, Vector, Datasink, project } from "@vivalence/typology";
+import { specimen, Span, Vector, Datasink, project } from "@vivalence/typology";
 import { datamap } from "@vivalence/runtime/scenarios";
 import { topography } from "@vivalence/typology/scenarios";
 import { traits } from "@vivalence/runtime";
-const { DATASET, DATASINK } = traits;
+const { DATASET, DATASINK } = traits.mode;
 
 const GENERATIONS = [
   { from: "dataset", into: "gen1", extension: "json" },
@@ -49,6 +49,7 @@ const cycle = async ({ from, into, extension }) => {
   const mode = {
     manifest: { type: "topography", slug: `gen-${into}`, traits: [] },
     id: scenario.fixtures.mode.id,
+    stdout: new Span(`mode/topography/gen-${into}`),
     entity: { installed: "" },
     module: { source: { dirname: mount }, dataset: shape.dataset, datasink: shape.datasink },
   };
@@ -141,6 +142,7 @@ specimen.describe("the composite — cata ∘ ana is idempotent", () => {
     const mode = {
       manifest: { type: "topography", slug: "gen-refix", traits: [] },
       id: scenario.fixtures.mode.id,
+      stdout: new Span("mode/topography/gen-refix"),
       entity: { installed: "" },
       module: { source: { dirname: mount }, dataset: shape.dataset, datasink: shape.datasink },
     };

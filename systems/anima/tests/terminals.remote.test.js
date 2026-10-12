@@ -2,10 +2,10 @@ import { atom, map } from "nanostores";
 import { assertEquals, assert } from "jsr:@std/assert";
 import { RemoteRepository, shard } from "@vivalence/typology";
 import { lighthouse } from "@vivalence/runtime/scenarios";
-import { Dataspace } from "../src/typology/prototypes/dataspace.js";
-import { Terminal, TerminalDossier } from "../src/typology/entities/terminal.js";
-import { Terminals } from "../src/typology/stores/terminals.js";
-import { setDockSide } from "../src/typology/stores/bridge/dock.js";
+import { Dataspace } from "../src/prototypes/dataspace.js";
+import { Terminal, TerminalDossier } from "../src/entities/terminal/prototype.js";
+import { Terminals } from "../src/entities/terminal/terminals.js";
+import { setDockSide } from "../src/bridge/dock.js";
 
 class DaemonDouble {
   status = { code: "mounting", is: (code) => this.status.code === code, $transient: atom(0) };
