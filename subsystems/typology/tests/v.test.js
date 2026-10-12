@@ -387,7 +387,7 @@ specimen.describe("v", () => {
     const secrets = { jwt: "a-signing-secret-of-twenty-four-or-more" };
     specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "NaN" }, secrets })][0].instancePath).toBe("/statics/serve");
     specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "http://localhost:2501/", extra: 1 }, secrets })].length).toBe(0);
-    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "http://localhost:2501/" } })][0].message).toContain("secrets");
+    specimen.expect([...Runtime.errors({ manifest: runtime, statics: { serve: "http://localhost:2501/" } })]).toEqual([]);
     specimen.expect([...Client.errors({ manifest: { type: "client", slug: "ghost" }, statics: {} })].length).toBe(0);
     specimen.expect([...Service.errors(Service.cast({ manifest: { type: "service", slug: "svc" }, module: "m", mountpoint: "/m/service_svc", datamap: { module: "m" } }))].length).toBe(0);
     const daemon = {

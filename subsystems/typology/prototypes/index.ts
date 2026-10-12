@@ -24,8 +24,6 @@ export * from "./app.js";
 export { App } from "./app.js";
 export * from "./bundle.js";
 export { Bundle } from "./bundle.js";
-export * from "./view.js";
-export { View } from "./view.js";
 
 export * from "./freight.js";
 export * from "./cargo.js";

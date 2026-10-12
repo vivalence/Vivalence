@@ -1,6 +1,6 @@
 #+title: m83 tools and primer — one executable tier; the hallucination's text is a primer, loaded in two levels
 #+filetags: :typology:runtime:paladin:hallucination:tools:skills:primer:harness:cortex:
-#+status: CUT 10-10 on =scratchpad/m83/base= (the post-LAND =rig8=), not landed: =Primer= · =shape.primer= · the =PRIMER= trait · the harness wiring · =primer_read= · the hello-world demo (render lazy) · the split (H: =primer= the Vector, =system= the loaded record) · the repo blast (19 edits, 5 new, 2 snapshots) — suites equal to baseline (typology 137/597 · runtime 78/518 + the 2 bench reds · hello-world 19/64); the tangle (=* tangle=, 29 files · 47 hunks · 5 new) replayed on a fresh =rig8= copy, missed 0, replay ≡ base. Awaiting beef's go per file; =~/.viva= (31 files) and one docs page owed. Lands AFTER m81's LAND, which is mid-deploy.
+#+status: CUT, not landed, rebased 10-11 onto the repo after m82 landed (=scratchpad/m83/base= = that tree + m83; =rig9= = that tree alone): =Primer= · =shape.primer= · the =PRIMER= trait · the harness wiring · =primer_read= · the hello-world demo (render lazy) · the split (H: =primer= the Vector, =system= the loaded record) · the repo blast (24 edits, 5 new). Tangle 47/47 hunks, missed 0, on the post-m82 repo; one fix the rebase took: =gestalten/shape/primer.js= imports =is= · =steer= from their owners (m82 cut typology's self-imports). Census =rig9= → base: typology 137/601 → 138/606 · runtime 82/547 + 2 bench reds both · hello-world 16/61 + 3 reds both, failure diffs byte-equal (m82 landed its =view= → =bundle= rename without regenerating =hello-world-catalog= · =-draw= · =-research= snapshots) · hallucinators 7/92 + 1 red both. Awaiting beef's go per file; =~/.viva= (23 files · 45 lines + riddler =aperture.js:37=) lands WITH the repo; one docs page owed.
 
 * intent
 
@@ -75,17 +75,17 @@ Q1 died under F. Opened by the cut 10-10; two ruled the same day (=* decisions=,
 - the harness input =primer= — /"whats ctx.input.primer - never seen that. doesnt exist? there is mode.primer and hallucination.primer no input?!"/ =ctx.input= is the argument of =mode.harness.<faculty>.<verb>(input)= (=harnessed.js:19=). =input.primer= on dialogue/object was =input.system= before m83 (=rig8= =harnessed.js:42=); callers: =hello-world/tools/research.js:16= (=BRIEF=, live) · =chaosmonkey/oracle/buffer/Oracle.svelte:47= · =:121= (dead: =oracle/harness.js:5= opens the same nature after =requesting=). On choice it is the thing judged (=harnessed.js:225=, pre-m83); callers: =runtime/tests/harness.thread.test.js:22= only. RULED 10-10: keep — /"ah. right. keep of course."/
 - the choice primer under H — RULED 10-10 (I): =system=.
 
-* the code it builds on — read 10-10 on =scratchpad/m83/base=
+* the code it builds on — re-read 10-11 on =rig9= (post-m82)
 
 | fact | where |
 |------+-------|
-| =Vector= — =effect · trie (Map nature → { pattern, trajectory }) · carry=; =branch(signature, vector)= builds =new this.signature(signature)= and walks =heir= | =subsystems/typology/prototypes/vector.js:22= |
-| =open(signature, effect)= sets the branch's =effect=; =graft(vector)= merges tries, the grafted edge's =pattern= wins, =carry= appended | =vector.js:41= · =:52= |
+| =Vector= — =effect · trie (Map nature → { pattern, trajectory }) · carry=; =branch(signature, vector)= builds =new this.signature(signature)= and walks =heir= | =subsystems/typology/prototypes/vector.js:23= |
+| =open(signature, effect)= sets the branch's =effect=; =graft(vector)= merges tries, the grafted edge's =pattern= wins, =carry= appended | =vector.js:42= · =:53= |
 | =Twitch extends Vector= overrides only =open= and =graft= (a second effect SEQUENCES) — the precedent for a Vector type | =subsystems/typology/prototypes/twitch.js:10= · =:16= |
-| =Pattern= coerces ={ nature, ...rest }=: the rest lands on the LAST segment — =branch({ nature: "/rules", load: "lazy" })= stores =load= on that edge's pattern | =subsystems/typology/prototypes/pattern.js:19= · =:28= |
-| =steer.trie.fold= hands every node =steps= (the patterns from the root) and its composed =carry= — a leaf can read its ancestors' =load= | =subsystems/typology/gestalten/steer/trie.js:8= |
-| the barrel exports both types | =subsystems/typology/prototypes/index.ts:51= · =:52= |
-| the harness today: =requesting= builds =system=, =summarizing= appends =thread= last and marks the cache | =systems/runtime/traits/harnessed.js:41= · =:52= · =:170–173= |
+| =Pattern= coerces ={ nature, ...rest }=: the rest lands on the LAST segment — =branch({ nature: "/rules", load: "lazy" })= stores =load= on that edge's pattern | =subsystems/typology/prototypes/pattern.js:19= · =:21= |
+| =steer.trie.fold= hands every node =steps= (the patterns from the root) and its composed =carry= — a leaf can read its ancestors' =load= | =subsystems/typology/gestalten/steer/trie.js:9= |
+| the barrel exports both types | =subsystems/typology/prototypes/index.ts:49= · =:50= |
+| the harness today: =requesting= builds =system=, =summarizing= appends =thread= last and marks the cache | =systems/runtime/traits/harnessed.js:41= · =:52= · =:170–172= |
 
 The work, in beef's order (F): the vector and the shape · the trait and its wiring · a demo case.
 
@@ -144,7 +144,7 @@ What the model sees:
 /render — How to draw a page: component rules, buffer.data, styling. Read before generator_view_render.
 #+END_SRC
 
-* the work — cut 10-10 on =scratchpad/m83/base=, diff at =scratchpad/m83/m83.diff= (563 lines)
+* the work — cut 10-10 on =scratchpad/m83/base=, diff at =scratchpad/m83/m83.diff= (695 lines, re-cut 10-11 against =rig9=)
 
 | piece | file | lines |
 |-------+------+-------|
@@ -176,7 +176,7 @@ Decisions mine, in the cut (beef may veto):
 - =lowering='s default cache mark stays =["context"]= — I changed it to the last key, saw it move =cache= on the wire, reverted: the gate is byte-equal provider params.
 - a mode's lazy node arms =primer_read= (=arming= grafts =skills.primer.primer= only then); the tool reads =ctx.primer=, bound in =arming=.
 - =summarizing= opens =thread= on the primer; its mark is the last EAGER key before it (=shape.primer.keys=).
-- the choice path (=harnessed.js:220=) reads =ctx.input.primer= as before; =requesting= also opens that record onto the hallucination primer — harmless, F2 says same thing.
+- the choice path (=harnessed.js:228= on base) reads =ctx.input.system= (I); =requesting= also opens that record onto the hallucination primer — harmless, F2 says same thing.
 
 The demo, the wire change it makes (=hello-world-draw.snapshot.json=): =render= 6129 chars on every request → =primer= index 154 chars; the house rules read once, on demand.
 
@@ -187,9 +187,9 @@ primer.branch({ nature: "/guides", load: "lazy" }, new Primer()
   .open({ nature: "render", valence: "How to draw a page — component rules, buffer.data, styling. Read before generator_view_render." }, RENDER));
 #+END_SRC
 
-Census, pasted (base vs =rig8=, same commands): typology =ok | 137 passed (597 steps)= vs =136 (592)= (+ P0–P4) · runtime =78 passed (518 steps) | 2 failed= both trees (=bench= ×2, pre-existing) · hello-world =ok | 19 passed (64 steps)= both · hallucinators =7 passed | 1 failed= both (=bak/= import). Residue =hallucination.system|system: {= on base: 3 keep-list (=hallucination.js:190= the lowered Request · =translate.js:87= · =openrouter/tests/provider.test.js:559=, provider side) + 1 owed: =documentation/content/30-39_guides/31_guides/31.02_instance-from-scratch.mdx:259=. =~/.viva=: 31 files · 63 lines, untouched.
+Census, pasted 10-11 (=rig9= → base, =NO_COLOR=1=, serial): typology =ok | 137 passed (601 steps)= → =ok | 138 passed (606 steps)= (+ P0–P4) · runtime =82 passed (547 steps) | 2 failed | 1 ignored= both (=bench/smoke.test.js:7= · =:50=) · hello-world =16 passed (61 steps) | 3 failed= both, failure diffs byte-equal (S1 catalog · S3 draw · S4 research: m82's stale snapshots, =view= where the code says =bundle=) · hallucinators =7 passed (92 steps) | 1 failed= both (=bak/= import). Residue on base: 3 keep-list (provider side) + 1 owed: =documentation/content/30-39_guides/31_guides/31.02_instance-from-scratch.mdx:259=. =~/.viva= 10-11: =hallucination.system= 45 lines · 23 files, plus =registry/education/modes/games/riddler/aperture.js:37= =primer: {…}= → =system:=, untouched.
 
-* tangle — the diff of =scratchpad/m83/base= against =rig8=, replayed by =methods/apply-diffs.py "* tangle" --root=
+* tangle — the diff of =scratchpad/m83/base= against =rig9= (the repo after m82 landed), replayed by =methods/apply-diffs.py "* tangle" --root=
 
 New files whole (landed by =cp=, not by the hunks); edits as hunks; the two regenerated snapshots are =SNAPSHOT_HOT=1= on =commons/instances/hello-world/tests/= after the land, never hand-edited.
 
@@ -440,7 +440,7 @@ New files whole (landed by =cp=, not by the hunks); edits as hunks; the two rege
 #+END_SRC
 
 #+BEGIN_SRC diff
-// commons/playground/dealer/dealer.viva.js:25
+// commons/playground/dealer/dealer.viva.js:24
  // ── harness · the dealer's persona — powers /oracle AND the conversation ─────────
  export const harness = new Vector();
  harness.use(async (ctx, next) => {
@@ -467,7 +467,8 @@ New files whole (landed by =cp=, not by the hunks); edits as hunks; the two rege
 
 #+BEGIN_SRC js
 // subsystems/typology/gestalten/shape/primer.js
-import { is, steer } from "@vivalence/typology";
+import * as is from "../is/scalars.js";
+import * as steer from "../steer/index.js";
 import { fire } from "../steer/strategy.js";
 
 const key = (steps) => steps.map((step) => step.nature).join("/");
@@ -513,7 +514,7 @@ export async function read(primer, nature, ctx = {}) {
 #+END_SRC
 
 #+BEGIN_SRC diff
-// subsystems/typology/prototypes/index.ts:50
+// subsystems/typology/prototypes/index.ts:48
 
  export * from "./vector.js";
  export * from "./twitch.js";
@@ -654,7 +655,7 @@ specimen.describe("Primer — a Vector of text leaves", () => {
 #+END_SRC
 
 #+BEGIN_SRC diff
-// systems/runtime/entities/Mode.ts:26
+// systems/runtime/entities/Mode.ts:25
    CONVERSATIONAL = "CONVERSATIONAL",
    AGENTIC = "AGENTIC",
    TOOLING = "TOOLING",
@@ -919,12 +920,12 @@ export const PRIMER = (mode) => {
 
 | d | deliverable | lands in | state |
 |---+-------------+----------+-------|
-| 1 | =shape.primer= | =subsystems/typology/gestalten/shape/primer.js= | designed |
+| 1 | =shape.primer= | =subsystems/typology/gestalten/shape/primer.js= | cut |
 | 2 | the node signature =load=; =Request= · =Hallucination.*= keep =system= (H) | =subsystems/typology/gestalten/shape/primer.js= | cut |
 | 3 | =shape.primer.load=: sections · index; =primer_read= | =shape/primer.js= · =systems/runtime/gestalten/skills/primer.js= | cut |
 | 4 | providers read =request.system=, unchanged (H) | =commons/hallucinators/{anthropic,openrouter}/provider/translate.js= | dropped |
-| 5 | the harness primes: =priming(ctx)= beside =arming(ctx)= | =systems/runtime/traits/harnessed.js= (post-LAND) | designed |
-| 6 | the trait =PRIMER= | =systems/runtime/traits/primer.js= (post-LAND) | designed |
+| 5 | the harness primes: =primed(ctx)= beside =arming(ctx)= | =systems/runtime/traits/harnessed.js= | cut |
+| 6 | the trait =PRIMER= | =systems/runtime/traits/primer.js= | cut |
 | 7 | one tier: m81's =gestalten/skills/= → =gestalten/tools/=; =paladin.tools= is m81 F4's | =systems/runtime/gestalten/= | designed |
 | 8 | every =hallucination.system= writer → =primer.open=; record callers keep =system= (H) | repo · =~/.viva= (blast table) | repo cut |
 | 9 | the choice round's record is =system= (I) | =hallucination.js:236= · =openrouter/provider/translate.js:258= · =harnessed.js:228= | cut |
@@ -1004,20 +1005,22 @@ Keep-list: =young-ladys-primer= (package) and its mode =primer/= · 14 compiled 
 - 10-10 G on the base copy (reversed by H): =Request.primer= (schematic · =lowering= · both providers · 3 wire snapshots, key only) · the string and =is.Vector= cases dropped from =requesting= · both hand rigs seat =mode.primer= (=hello-world/tests/rig.js= · =runtime/tests/scenarios/cortex.js=) · blast misses found: =Oracle.svelte= ×2 · =research.test.js:98= · =research.snapshot.test.js:46= · =cortex.integration.test.js:179=. Census = baseline: typology =137 (597)= · runtime =78 (518) | 2 failed= bench · hello-world =19 (64)= · hallucinators =7 | 1 failed= =bak/=. Tangle re-cut: 45 files · 62 hunks · 5 new, replay missed 0, ≡ base.
 - 10-10 renamed =shape.primer.lower= → =shape.primer.load= (beef); the private =load(steps)= → =loading(steps)=.
 - 10-10 the cut on the base copy: every piece above, suites equal to baseline, =m83.diff= captured; the docs page and =~/.viva= owed; beef's go owed per file.
+- 10-11 m82 LANDED (=vrkoppuwsypu=, 145 files, 1 shared: =prototypes/index.ts=): base rebased onto the repo as it stands (old base kept at =scratchpad/m83/base-rig8=, old diff =m83.diff.rig8=); tangle replayed 47/47 missed 0; =shape/primer.js= barrel self-import → owner paths; =m83.diff= + =* tangle= re-cut against =rig9=; cites in =* the code it builds on= re-grepped; census above; release drafts re-cut to H · I.
 - 10-10 staging, mine: m83 takes m81's tools moves (its harness milestone's Moves =m84-harness-runtime.org:40=, the M1 tangle's Moves, moved there 10-10 · its =paladin.tools= milestone =:6046=) so one tier lands once; m81's harness milestone is re-cut over m83 with =mode_handoff= a tool. Not vetoed.
 
 * release
 
 Drafts, lifted on landing:
 
-- renamed `hallucinate.*({ system })` → `primer` — a record of strings, or a Vector whose leaves return them · migrate: rename the key; `ctx.hallucination.system.<k>` → `ctx.hallucination.primer.<k>` ⟨m83⟩
+- changed `ctx.hallucination.system` → `ctx.hallucination.primer`, a `Primer` Vector; the request still carries `system`, the loaded record · migrate: `ctx.hallucination.system.<k> = s` → `ctx.hallucination.primer.open("<k>", s)` ⟨m83⟩
+- renamed the choice round's `primer` → `system` (`hallucinate.choice({ system, questions })`) · migrate: rename the key ⟨m83⟩
 - renamed `gestalten.skills.*` → `gestalten.tools.*` · migrate: rename the import ⟨m83⟩
 - added `PRIMER` · `primer_read` — a mode's `primer/*.md` served lazily: the index always, the body on read · migrate: none ⟨m83⟩
 
 * handoff
 
 - goal: one executable tier (tools); the hallucination's text is a =Primer= — a Vector type beside =Twitch=, string or function leaves, nested, eager by default, a lazy branch read on demand through =primer_read=.
-- done: rulings B–F; terrain; the cut on =scratchpad/m83/base= (=* the work=): type · shape · trait · wiring · tool · demo · repo blast · tests, suites equal to baseline; the tangle in =* tangle= (29 files · 46 hunks · 5 new), replayed on =scratchpad/m83/replay= missed 0, replay ≡ base.
-- next: beef reads =* the work= and =* tangle=, vetoes or go per file (land: =apply-diffs.py --write= on the repo AS IT STANDS after m81's LAND, drift → =diff3 -m=; the 5 new files by =cp= from the base copy; then =SNAPSHOT_HOT=1= on hello-world); then the docs page =31.02_instance-from-scratch.mdx:259=; then =~/.viva= (31 files · 63 lines, capture first); then the tools tier (deliverables 1–5, m81's moves). Lands AFTER m81's LAND, which was mid-deploy 10-10.
+- done: rulings B–I; terrain; the cut, rebased 10-11 onto the post-m82 repo (=scratchpad/m83/base=, =* the work=); the tangle in =* tangle= (29 files · 47 hunks · 5 new) replayed on a post-m82 clone, missed 0; census equal to =rig9=.
+- next: beef reads =* the work= and =* tangle=, go per file; the =~/.viva= re-cut built in a scratch copy (capture first) and landed in ONE pass with the repo half (=apply-diffs.py --write= on the repo as it stands, drift → =diff3 -m=; 5 new files by =cp= from base; =SNAPSHOT_HOT=1= on hello-world — that also regenerates m82's 3 stale snapshots, name it in the land); then the docs page =31.02_instance-from-scratch.mdx:259=; then the tools tier (deliverable 7, m81 landed).
 - never: a SKILL tier · two strings on a leaf · a lazy load into the primer · lazy by an absent field · =() => TEXT= wrappers at every site · a lazy node in a choice primer · a changed default cache mark.
-- owed: the go; the docs page; =~/.viva=; the =primer/*.md= reading (F named the export, the files are not cut); the tools tier.
+- owed: the go; the docs page; =~/.viva= (23 files · 45 lines + riddler =:37=); the =primer/*.md= reading (F named the export, the files are not cut); the tools tier.

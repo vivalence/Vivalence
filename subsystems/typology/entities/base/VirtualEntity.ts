@@ -1,5 +1,6 @@
 import { BaseEntity, EntitySchema, EntityRepository, EventType, Utils, types, type EntityManager, type EntityMetadata, type EntityName, type EntitySchemaMetadata } from "@mikro-orm/core";
-import { object, NotFound } from "@vivalence/typology";
+import * as object from "../../gestalten/belt/object.js";
+import { NotFound } from "../../prototypes/errors/vector.js";
 import { atom, type WritableAtom } from "nanostores";
 import { v7 } from "uuid";
 

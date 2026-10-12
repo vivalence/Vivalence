@@ -141,6 +141,19 @@ describe("Registry.tap — materialize + record, never mount", () => {
     expect(await paladin.ledger.registry.tapped()).toEqual({});
   });
 
+  it("tap of a directory whose root declares a package takes that one — a package nested under it is its own", async () => {
+    const { boot, store } = await scaffold();
+    const paladin = boot();
+    await author(`${store}/outer`, { "package.viva.js": { owner: "@outer", type: "package", slug: "outer", version: "0.0.1" } });
+    await author(`${store}/outer/fixtures/inner`, { "package.viva.js": { owner: "@inner", type: "package", slug: "inner", version: "0.0.1" } });
+    await paladin.ledger.registry.tap("outer");
+    await paladin.ledger.registry.tap("outer/fixtures/inner");
+    expect(await paladin.ledger.registry.tapped()).toEqual({
+      "@outer": { slug: "outer", mount: "./registry/outer" },
+      "@inner": { slug: "inner", mount: "./registry/outer/fixtures/inner" },
+    });
+  });
+
   it("a second checkout of a tapped owner throws — one owner, one mount", async () => {
     const { boot } = await scaffold();
     const paladin = boot();

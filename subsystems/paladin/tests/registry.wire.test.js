@@ -29,19 +29,19 @@ describe("registry.accio — mask ⊕ module, once", () => {
     expect(module.identifier).toBeUndefined();
   });
 
-  it("a mask folds manifest and statics by key, mask winning; secrets and the seat are the mask's; module and identifier ride along", async () => {
+  it("a mask folds manifest and statics by key, mask winning; secrets and the mountpoint are the mask's; module and identifier ride along", async () => {
     const registry = boot(MODULES);
     const citizen = await registry.accio({
       module: "@probe/game/board",
       manifest: { slug: "board-2" },
       statics: { size: 8 },
       secrets: { key: "k" },
-      mountpoint: new Path("/seat"),
+      mountpoint: new Path("/mountpoint"),
     });
     expect(citizen.manifest).toMatchObject({ owner: "@probe", type: "game", slug: "board-2", traits: ["EXPOSED"] });
     expect(citizen.statics).toEqual({ theme: "wood", size: 8 });
     expect(citizen.secrets).toEqual({ key: "k" });
-    expect(citizen.mountpoint.absolute).toBe("/seat");
+    expect(citizen.mountpoint.absolute).toBe("/mountpoint");
     expect(citizen.identifier).toBe("@probe/game/board");
     expect(citizen.module.manifest.slug).toBe("board");
     expect(typeof citizen.aperture).toBe("function");
@@ -89,9 +89,9 @@ describe("registry.wire — a daemon mask to its bag", () => {
     expect(bag.domain.traits).toEqual({ literal: [], symbol: [], note: [], mode: [] });
   });
 
-  it("an entry that arrives unseated is seated in wire from the folded manifest; a seated one is left alone", async () => {
-    const seated = { ...mask, reference: new Path("/daemon/d"), url: new Url("http://x/daemon/d"), mountpoint: new Path("/m/d") };
-    const bag = await boot(MODULES).wire({ ...seated, modes: [mask.modes[1], { ...mask.modes[0], reference: new Path("/held") }] });
+  it("an entry that arrives unplaced is placed in wire from the folded manifest; a placed one is left alone", async () => {
+    const placed = { ...mask, reference: new Path("/daemon/d"), url: new Url("http://x/daemon/d"), mountpoint: new Path("/m/d") };
+    const bag = await boot(MODULES).wire({ ...placed, modes: [mask.modes[1], { ...mask.modes[0], reference: new Path("/held") }] });
     expect(bag.modes[0].reference.absolute).toBe("/mode/game/board");
     expect(bag.modes[0].url.absolute).toBe("http://x/daemon/d/mode/game/board");
     expect(bag.modes[0].bundles.absolute).toBe("/m/d/bundles/game/board");

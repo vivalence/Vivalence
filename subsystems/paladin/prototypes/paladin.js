@@ -81,6 +81,7 @@ export class Paladin {
     belt.find(this);
     belt.check(this);
     belt.state(this);
+    belt.envfile(this);
     // resolution
     belt.is(this);
     belt.scope(this);

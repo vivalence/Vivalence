@@ -1,4 +1,4 @@
-import { steer } from "@vivalence/typology";
+import * as steer from "../steer/index.js";
 
 export function flat(vector, execute) {
   const result = [];

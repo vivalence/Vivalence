@@ -1,4 +1,6 @@
-import { object, promise, sleep } from "@vivalence/typology"
+import * as object from "../gestalten/belt/object.js"
+import * as promise from "../gestalten/belt/promise.js"
+import * as sleep from "../gestalten/belt/sleep.js"
 
 export class Broadcaster {
   _subscribers = new Set()

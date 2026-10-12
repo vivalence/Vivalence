@@ -13,7 +13,7 @@ function APPLICATION(mode, daemon) {
     const buffer = em.create(tiers.buffer.entity, {
       mode: mode.entity.id,
       data: mode.application.fill(desc),
-      view: null,
+      bundle: null,
       index: desc.index ?? 0,
     });
     if (desc.thread) {

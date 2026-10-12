@@ -42,9 +42,7 @@ export const stamp = async (mode) => {
     .reduce((folded, [path, text]) => hash.string(folded + path + text), hash.string(await installer));
 };
 const DATASPACE = new Set(["symbol", "literal"]);
-const seconds = (since) => `${((Date.now() - since) / 1000).toFixed(1)}s`;
-const log = (phase, since) => (done, total) =>
-  console.log(`[DATASET:install] ${phase} ${done}/${total} ${seconds(since)}`);
+const progress = (phase) => fn.every(5, (done, total) => phase.note({ done, total }));
 
 const unique = (rows) => {
   const bySlug = new Map();
@@ -60,14 +58,25 @@ const pull = (source, mode) => {
 };
 
 
-export const DATASET = async (mode, host) => {
+export const DATASET = async (mode, context) => {
   if (mode.entity.installed) return;
 
-  const began = Date.now();
+  const installing = mode.stdout.branch("install").open();
+  try {
+    await install(mode, context, installing);
+  } catch (error) {
+    installing.fault(error);
+    throw error;
+  } finally {
+    installing.close();
+  }
+};
+
+async function install(mode, context, installing) {
   const dataset = new Dataset(mode.module.dataset ?? {});
-  const meta = shard.datamap.strip(host.datamap.getMetadata());
-  const repo = (type) => host.entities[type];
-  const em = host.entities.em;
+  const meta = shard.datamap.strip(context.datamap.getMetadata());
+  const repo = (type) => context.entities[type];
+  const em = context.entities.em;
   const flush = async () => {
     await em.flush();
     em.clear();
@@ -76,10 +85,8 @@ export const DATASET = async (mode, host) => {
 
   for (const type of dataset.types) {
     guard(mode, meta, type);
-    if (!host.entities[type]) {
-      console.warn(
-        `[DATASET] ${mode.manifest.type}/${mode.manifest.slug} declares unknown entity "${type}"`,
-      );
+    if (!context.entities[type]) {
+      installing.note({ skipped: type, reason: "unknown entity" });
       continue;
     }
     const relations = Object.keys(meta[type]?.properties ?? {});
@@ -89,16 +96,10 @@ export const DATASET = async (mode, host) => {
     for (const source of dataset.sources[type]) loaded.push(await pull(source, mode));
     const read = loaded.flat();
     staged[type] = unique(read);
-    if (staged[type].length !== read.length) {
-      console.log(
-        `[DATASET:install] ${type} ${
-          read.length - staged[type].length
-        } duplicate slugs folded — a row split across facets is authored once per facet`,
-      );
-    }
+    const phase = installing.branch(type).open();
+    if (staged[type].length !== read.length) phase.note({ folded: read.length - staged[type].length });
     const store = repo(type);
-    const started = Date.now();
-    const emit = fn.every(5, log(`upsert:${type}`, started));
+    const emit = progress(phase);
     let done = 0;
     for (const rows of array.chunk(staged[type], CHUNK)) {
       await promise.retry(async () => {
@@ -117,34 +118,15 @@ export const DATASET = async (mode, host) => {
       })();
       emit(done += rows.length, staged[type].length);
     }
-    console.log(
-      `[DATASET:install] upsert:${type} ${staged[type].length} rows in ${
-        seconds(started)
-      }`,
-    );
+    phase.close();
   }
 
   for (const type of dataset.types) {
-    for (
-      const [prop, relation] of Object.entries(meta[type]?.properties ?? {})
-    ) {
-      await linkPhase(
-        { repo, host, flush, mode },
-        meta,
-        type,
-        prop,
-        relation,
-        staged[type] ?? [],
-      );
+    for (const [prop, relation] of Object.entries(meta[type]?.properties ?? {})) {
+      await linkPhase({ repo, context, flush, mode, installing }, meta, type, prop, relation, staged[type] ?? []);
     }
   }
-
-  console.log(
-    `[DATASET:install] ${mode.manifest.type}/${mode.manifest.slug} total ${
-      seconds(began)
-    }`,
-  );
-};
+}
 
 function guard(mode, meta, type) {
   const scoped = Object.values(meta[type]?.properties ?? {}).some((relation) =>
@@ -158,28 +140,28 @@ function guard(mode, meta, type) {
 }
 
 async function linkPhase(
-  { repo, host, flush, mode },
+  { repo, context, flush, mode, installing },
   meta,
   fromType,
   prop,
   relation,
   rows,
 ) {
-  const started = Date.now();
   const toType = relation.target;
-  if (!toType || !host.entities[toType]) return;
+  if (!toType || !context.entities[toType]) return;
 
   const refs = rows.filter((row) => row[prop]?.length);
   if (!refs.length) return;
 
-  const pmeta = host.datamap.getMetadata().get(repo(fromType).getEntityName())
+  const pmeta = context.datamap.getMetadata().get(repo(fromType).getEntityName())
     .properties[prop];
   if (pmeta?.kind !== "m:n") {
-    console.warn(`[DATASET] link:${fromType}.${prop} is not m:n — skipped`);
+    installing.note({ skipped: `${fromType}.${prop}`, reason: "not m:n" });
     return;
   }
 
-  const emit = fn.every(5, log(`link:${fromType}.${prop}`, started));
+  const phase = installing.branch(`${fromType}.${prop}`).open();
+  const emit = progress(phase);
   let done = 0;
   for (const chunk of array.chunk(refs, CHUNK)) {
     await promise.retry(async () => {
@@ -220,11 +202,7 @@ async function linkPhase(
     })();
     emit(done += chunk.length, refs.length);
   }
-  console.log(
-    `[DATASET:install] link:${fromType}.${prop} ${refs.length} entities linked in ${
-      seconds(started)
-    }`,
-  );
+  phase.close();
 }
 
 // import { is, object, promise, fn } from "@vivalence/typology";

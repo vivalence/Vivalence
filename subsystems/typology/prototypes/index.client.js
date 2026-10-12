@@ -25,7 +25,6 @@ export * from "./signal.js";
 export * from "./toolcall.js";
 export * from "./app.js";
 export * from "./bundle.js";
-export * from "./view.js";
 
 export * from "./span.js";
 export * from "./pipe.js";

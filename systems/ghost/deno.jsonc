@@ -2,16 +2,16 @@
   "name": "@vivalence/ghost",
   "version": "0.0.1",
   "exports": {
-    ".": "./mod.js",
-    "./typology": "./typology.js",
+    ".": "./typology.js",
+    "./run": "./run.js",
   },
   "publish": {
     "exclude": ["tests/"],
   },
   "tasks": {
-    "run": "deno run -A mod.js",
-    "watch": "deno run -A --watch mod.js",
+    "run": "deno run -A run.js",
+    "watch": "deno run -A --watch run.js",
+    "bundle": "deno run -A chrome/bundle.js",
     "test": "deno test -A --no-check --watch tests/**/*.test.js",
-    "test/shellsignal": "deno test -A --no-check --watch tests/shellsignal.test.js",
   },
 }

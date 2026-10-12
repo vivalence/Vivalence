@@ -18,15 +18,15 @@ when_to_use: >-
 <!-- limit: 5000 chars -->
 # fold — "fold" · "retard" · "i dont understand X": land the session where it belongs
 
-/"one thing thats annoying about the compact ritual is that it has a recency bias. work in a methodology that forces the agent to go message by message and section by section"/ — walk the transcript under `~/.claude/projects/`, never recall.
+/"one thing thats annoying about the compact ritual is that it has a recency bias. work in a methodology that forces the agent to go message by message and section by section"/ — walk the transcript, never recall.
 
 ## the fold — one todo each
 
 1. **walk** — every beef turn oldest-first: what he asked (verbatim when it decides) · landed · died · owed.
 2. **corrections** — every `retard` · `i dont understand X` · guard fire · self-caught repeat in the walk → the correction procedure below, one each.
 3. **quest handoffs** — per live quest touched, rewrite its `* handoff`: `goal` · `done` · `next` · `never` · `owed`. Outlives the quest → known issues (skill `quest`).
-4. **frontier** — rewrite `world/frontier.md` WHOLE, ≤2000 chars, one line per live quest: `` - `<quest>` — next: <step>; owed: <items> ``. Re-read it first; it POINTS, the quest holds detail.
-5. **zero the moved names** — every name deleted, moved or renamed this session: `grep -rn '<old>' . ~/.viva --exclude-dir=node_modules --exclude-dir=bak` → zero outside the keep-list; the hit count is the denominator.
+4. **frontier** — rewrite `quests/frontier.md` WHOLE, ≤2000 chars, one line per live quest: `` - `<quest>` — next: <step>; owed: <items> ``. Re-read it first; it POINTS, the quest holds detail.
+5. **zero the moved names** — every name deleted, moved or renamed this session, one pass: `grep -rEn 'a|b|c' . --include='*.js' …` (text types, no `node_modules` · `bak`) → zero bar the keep-list; `~/.viva` only if the name reached a shelf. REJECTED 10-12: nine passes over `~/.viva` for names born and retired that day (/"are they needed??"/)
 6. **caps** — `python3 .ikiro/methods/cap.py`; paste its output.
 
 No compact file is written.
@@ -34,8 +34,8 @@ No compact file is written.
 ## a correction — mid-session or at the fold
 
 1. **which skill should have fired?** — its trigger matched and it did not load, or it loaded and its body lacked the rule.
-2. **land ≤2 lines there** — in that skill, or `self.md` when no skill owns it. A rule carries its rejection: `REJECTED: x — why`. A missing trigger → the description, not the body.
-3. **already written?** — `grep -rn '<the rule>' .ikiro/skills .ikiro/self.md`. A hit = the rule failed twice → propose a hook to beef (he wires it, warn → deny).
+2. **land ≤2 lines there** — in that skill, or `codestyle.md` when no skill owns it. A rule carries its rejection: `REJECTED: x — why`. A missing trigger → the description, not the body.
+3. **already written?** — `grep -rn '<the rule>' .ikiro/skills .ikiro/codestyle.md`. A hit = the rule failed twice → propose a hook to beef (he wires it, warn → deny).
 4. **execute it now** — redo the failed act under the new line. For `i dont understand X`: name what was missing (context · code before · code after · the choice · what he sees vs my internals), then re-explain in that shape.
 
 /"the same goes for i dont understand xyz. mark where you shit explained by my feedback. learn and improve your approach adn formatting of explanations"/
@@ -45,7 +45,7 @@ Retracted (/"ok. then i retract the retard."/) → nothing lands. Not correction
 ## siblings — another session is live
 
 - **re-read before write** — `Write` on a file read minutes ago overwrites a sibling. /"Owner flipped, README changed three times, the quest index grew — all under me, all kept, all built on."/ Concurrent edits are canonical.
-- **shortest clause** on shared capped files (`world/frontier.md`, `MEMORY.md`, `quests/index.md`, codemap shards); never trim a sibling's line to make room.
+- **shortest clause** on shared capped files (`quests/frontier.md`, `MEMORY.md`, `quests/index.md`, codemap shards); never trim a sibling's line to make room.
 - **check the sibling's rulings** — a quest may already rule against what you land.
 - **the shelf** — a sibling may have written the repo and left `~/.viva/instances/<slug>/` stale (skill `debug`).
 - **near a live watcher** — `ps aux | grep deno` before any `rm -rf` or schema rename under `--watch`; that is a deployment.

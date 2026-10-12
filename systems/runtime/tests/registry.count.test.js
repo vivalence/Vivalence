@@ -1,6 +1,7 @@
-import { describe, it } from "@std/testing/bdd";
+import { beforeAll, describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import paladin from "@vivalence/paladin";
+import { Path } from "@vivalence/typology";
 import { lifecycle } from "@vivalence/runtime";
 
 // A CENSUS, not a count. The old assertion pinned a literal (BASELINE + 8), so ordinary
@@ -18,6 +19,11 @@ const leaves = (pensieve) => {
 };
 
 describe("registry ingest", () => {
+  beforeAll(async () => {
+    const ledger = await Deno.makeTempDir({ prefix: "runtime-registry-ledger-" });
+    paladin.scopes([["ledger", () => true, () => new Path(ledger)]]);
+  });
+
   it("lands every module under a stamped owner — nothing ownerless, nothing versionless", async () => {
     await lifecycle.runtime.population.registry({}, async () => {});
     const ingested = leaves(paladin.ledger.registry.pensieve);

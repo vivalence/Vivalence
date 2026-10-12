@@ -17,8 +17,8 @@ describe("snapshot demo: signal", () => {
     });
     console.log(`\n===BEGIN signal → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);
     expect(pojo).toEqual({
-      signal: "/play/cat/dog",
-      parts: ["play", "cat", "dog"],
+      nature: "/play/cat/dog",
+      body: undefined,
       flags: { gameplay: "PLAIN" },
     });
   });

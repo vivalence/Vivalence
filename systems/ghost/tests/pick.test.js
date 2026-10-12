@@ -1,5 +1,6 @@
 import { assertEquals } from "@std/assert";
-import { pick } from "../belt/pick.js";
+import { pick } from "../gestalten/belt/pick.js";
+import { surface } from "./verb.js";
 
 const rows = [
   { owner: "@viva", type: "instance", slug: "localhost" },
@@ -17,20 +18,8 @@ const lens = {
 };
 
 function fake({ interactive = true, chosen, flags = {} } = {}) {
-  const rendered = [];
-  const ctx = {
-    interactive,
-    signal: { flags },
-    view: {
-      scroll: {
-        render: (data) => {
-          rendered.push(data);
-          return Promise.resolve(chosen);
-        },
-      },
-    },
-  };
-  return { ctx, rendered };
+  const view = surface({ interactive, answers: [chosen] });
+  return { ctx: { signal: { flags }, view }, rendered: view.held };
 }
 
 Deno.test("pick: an unambiguous preset resolves without a picker", async () => {
@@ -43,6 +32,7 @@ Deno.test("pick: an unambiguous preset resolves without a picker", async () => {
 Deno.test("pick: an ambiguous preset opens the picker with the query preset", async () => {
   const { ctx, rendered } = fake({ chosen: rows[1] });
   const result = await pick(ctx, lens, "@viva");
+  assertEquals(rendered[0].kind, "picker");
   assertEquals(rendered[0].query, "@viva");
   assertEquals(rendered[0].rows.length, 3);
   assertEquals(result.identifier, "@viva/instance/multiplayer");

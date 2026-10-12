@@ -30,7 +30,7 @@
 
     "paladin/test": "deno task --cwd ./subsystems/paladin test",
     "typology/test": "deno task --cwd ./subsystems/typology test",
-    "typology/test/snapshots": "deno task --cwd ./subsystems/typology test/snapshots",
+    "typology/test/snapshots": "deno task --watch --cwd ./subsystems/typology test/snapshots",
     "runtime/test": "deno task --cwd ./systems/runtime test",
     "runtime/test/snapshots": "deno task --cwd ./systems/runtime test/snapshots",
     "anima/test": "deno task --cwd ./systems/anima test",
@@ -39,11 +39,12 @@
     "runtime/run": "deno task --cwd ./systems/runtime run",
     "runtime/watch": "deno task --cwd ./systems/runtime watch",
 
-    "ghost/run": "deno run -A ./systems/ghost/mod.js",
-    "ghost/watch": "deno run -A --watch ./systems/ghost/mod.js",
-    // "ghost/run": "deno run -A  ./systems/ghost/mod.js",
-    "ghost/watch": "deno run -A   ./systems/ghost/mod.js",
+    "ghost/run": "deno run -A ./systems/ghost/run.js",
+    "ghost/watch": "deno run -A --watch ./systems/ghost/run.js",
     "ghost/install": "sh systems/ghost/install.sh \"$(pwd)\"",
+    "ghost/bundle": "deno task --cwd ./systems/ghost bundle",
+    "ghost/scenario": "deno run -A --watch systems/ghost/tests/scenarios/hello.js",
+    "sheets/bundle": "deno run -A subsystems/sheets/bundle.js",
 
     "anima/run": "deno task --cwd ./systems/anima run",
     "anima/watch": "deno task --cwd ./systems/anima watch",

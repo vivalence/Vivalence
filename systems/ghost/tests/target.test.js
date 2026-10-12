@@ -1,6 +1,6 @@
 import { assertEquals, assertThrows } from "@std/assert";
 import paladin from "@vivalence/paladin";
-import { locate, register, specs } from "../trajectories/instance/target.js";
+import { locate, register, specs } from "../gestalten/belt/instance.js";
 
 // specs() reads the MOUNTED instance. this file used to inherit one from whatever ran before it,
 // so a sibling suite scrubbing VIVA_INSTANCE_MOUNT turned these red. each test mounts its own.
@@ -32,6 +32,12 @@ mounted("specs: 'anima' → anima only", () => {
   assertEquals(result[0].identity.process, "anima");
 });
 
+mounted("specs: the runtime runs its run.js itself — the pid in the lock is the runtime's, no deno task between", () => {
+  const repository = paladin.scope.repository.absolute;
+  const [runtime] = specs("runtime");
+  assertEquals(runtime.command.args, ["run", "-A", "--config", `${repository}/deno.jsonc`, `${repository}/systems/runtime/run.js`]);
+});
+
 mounted("specs: unknown target throws", () => {
   assertThrows(() => specs("nonsense"), Error, "unknown target");
 });
@@ -48,7 +54,7 @@ mounted("specs: every command carries the mount, the ledger, the repository — 
       assertEquals(spec.command.env.VIVA_PROCESS_ID, undefined);
       assertEquals(typeof spec.command.env.PATH, "string");
       assertEquals(spec.command.bin, Deno.execPath());
-      assertEquals(spec.command.args[0], "task");
+      assertEquals(spec.command.args.includes(`${paladin.scope.repository.absolute}/deno.jsonc`), true);
     }
   } finally {
     Deno.env.delete("VIVA_PROCESS_ID");
@@ -60,7 +66,7 @@ Deno.test("specs: with no instance mounted at all, it throws", () => {
   assertThrows(() => specs("all"), Error, "nothing selected");
 });
 
-Deno.test("register: an unrecorded mount throws the tap line and writes nothing", async () => {
+Deno.test("register: an unrecorded mount throws the clone line and writes nothing", async () => {
   const root = await Deno.makeTempDir({ prefix: "register-test-" });
   const mount = await Deno.makeTempDir({ suffix: "-italian" });
   paladin.env.set("VIVA_LEDGER_MOUNT", root);
@@ -72,7 +78,7 @@ Deno.test("register: an unrecorded mount throws the tap line and writes nothing"
     } catch (error) {
       thrown = error;
     }
-    assertEquals(String(thrown).includes("instances/tap"), true);
+    assertEquals(String(thrown).includes("instance/clone"), true);
     assertEquals(await Deno.readTextFile(`${root}/instances.json`).catch(() => null), null);
   } finally {
     paladin.env.delete("VIVA_LEDGER_MOUNT");

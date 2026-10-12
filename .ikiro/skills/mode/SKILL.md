@@ -26,7 +26,7 @@ Canon: `subsystems/paladin/lifecycle/resolve.js:68-104` · `systems/runtime/trai
 
 | export | read at | trait |
 |---|---|---|
-| `manifest` | `registry.js:253` folded with the modes entry; `gestalten/belt/host.js:13` `new Mode(mask)` | — |
+| `manifest` | `registry.js:253` folded over its entry; `systems/runtime/lifecycle/daemon/population.js:64` `new Mode(mask)` | — |
 | `aperture` | `lifecycle/mode/population.js:20` slurped | EXPOSED |
 | `application` | `traits/application.js:6` | APPLICATION |
 | `harness` | `traits/harnessed.js:200` | HARNESSED |

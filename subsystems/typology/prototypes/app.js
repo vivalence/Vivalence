@@ -1,20 +1,19 @@
-import { Path } from "./path.js";
+import * as mime from "../schematics/scalars/mime.js";
+
+const EXTENSION = { svelte: mime.dom.svelte, html: mime.dom.html };
+
+const declared = (mount) => ({ mime: EXTENSION[String(mount).split(".").pop()], mount: String(mount) });
 
 export class App {
-  mount = null;
-  source = null;
+  sources = [];
   schema = null;
 
-  constructor(mount, schema = null) {
-    if (mount instanceof App) return mount;
-    if (typeof mount === "object" && !(mount instanceof Path)) {
-      schema = mount.schema ?? schema;
-      this.source = mount.source ?? null;
-      mount = mount.mount;
-    }
+  constructor(sources, schema = null) {
+    if (sources instanceof App) return sources;
+    this.sources = Array.isArray(sources) ? sources : [declared(sources)];
     this.schema = schema;
-    this.mount = mount ?? null;
-    if (!this.mount && !this.source) throw new Error("App: mount or source required");
+    const unnamed = this.sources.filter((source) => !source.mime || !(source.mount || source.source));
+    if (!this.sources.length || unnamed.length) throw new Error(`App: every source names a mime and a mount or source: ${JSON.stringify(unnamed)}`);
   }
 
   fill(desc = {}) {
@@ -24,5 +23,6 @@ export class App {
 }
 
 export const svelte = (strings, ...values) => ({
+  mime: mime.dom.svelte,
   source: String.raw({ raw: strings }, ...values),
 });

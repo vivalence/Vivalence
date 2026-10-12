@@ -4,7 +4,7 @@ import { lifecycle, sets } from "@vivalence/runtime";
 import { assemble } from "../../gestalten/belt/assemble.js";
 import { provider } from "../../../../commons/datamaps/libsql/libsql.viva.js";
 import { create, SECRET } from "../scenarios/daemon.js";
-import { signer } from "../../lifecycle/runtime/lighthouse/signer.js";
+import { signer } from "../../lifecycle/lighthouse/signer.js";
 
 specimen.describe("runtime composition", () => {
   let scenario;
@@ -91,7 +91,7 @@ specimen.describe("reconcile at boot — population.daemons reads the file again
     reference: new Path(`/daemon/${entry.manifest.slug}`),
     consume: Object.fromEntries(Object.entries(entry.consume ?? {}).map(([slug, query]) => [slug, { ...query, statics: { remote: "http://localhost:9090" } }])),
   });
-  const schemas = assemble([sets.identity, sets.composition, sets.kernel, sets.userspace, sets.transient]).entities.map((descriptor) => descriptor.schema);
+  const schemas = assemble([sets.identity, sets.composition, sets.traits, sets.userspace, sets.transient]).entities.map((descriptor) => descriptor.schema);
   let home;
 
   const boot = async (slugs, { prune = false } = {}) => {

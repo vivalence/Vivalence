@@ -1,10 +1,10 @@
 {
   "name": "@vivalence/sheets",
   "version": "0.1.0",
-  "exports": "./mod.jsx",
-  "compilerOptions": {
-    "jsx": "react",
-    "jsxFactory": "React.createElement",
-    "jsxFragmentFactory": "React.Fragment"
+  "exports": {
+    ".": "./index.js",
+    "./host": "./host/index.js",
+    "./state": "./state/index.js",
+    "./plain": "./plain.js"
   }
 }

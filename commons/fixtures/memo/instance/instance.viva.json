@@ -1,0 +1,10 @@
+{
+  "manifest": { "type": "instance", "slug": "memo", "version": "0.1.0" },
+  "daemons": [
+    {
+      "manifest": { "type": "daemon", "slug": "memo", "version": "0.1.0" },
+      "statics": { "language": { "known": "English", "learning": "Latin" } },
+      "modes": ["@memo/domain/srs", "@memo/topography/latin", "@memo/srs/memo"]
+    }
+  ]
+}

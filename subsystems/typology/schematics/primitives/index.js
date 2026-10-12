@@ -1,9 +1,11 @@
 export * as auth from "./auth.js";
 export * as connection from "./connection.js";
+export * as credentials from "./credentials.js";
 export * as controller from "./controller.js";
 export * as hallucination from "./hallucination.js";
 export * from "./manifest.js";
 export * from "./label.js";
+export * from "./home.js";
 export { environment, KEY as ENVIRONMENT_KEY } from "./environment.js";
 export * as kernel from "./kernel.js";
 export * as instance from "./instance.js";

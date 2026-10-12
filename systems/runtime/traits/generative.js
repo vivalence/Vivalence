@@ -1,14 +1,14 @@
 import paladin from "@vivalence/paladin";
-import { v, Vector } from "@vivalence/typology";
+import { v, Vector, mime } from "@vivalence/typology";
 
-export const GENERATIVE = async (mode, host) => {
+export const GENERATIVE = async (mode, context) => {
   const bundler = paladin.bundler(mode.bundles.absolute);
 
   mode.generator = {
     bundle: bundler.bundle,
     inspect: bundler.inspect,
     serve: bundler.serve,
-    tools: tools(host),
+    tools: tools(context),
   };
 
   if (mode.module.generator) mode.generator.tools.graft(mode.module.generator);
@@ -52,7 +52,7 @@ const failed = (verb, error) => ({
     `${verb} failed: ${error.message}. Not the source — the runtime could not ${verb} this buffer. Say so to the operator; do not retry.`,
 });
 
-const tools = (host) => {
+const tools = (context) => {
   const root = new Vector();
   const view = root.branch("/view");
 
@@ -62,31 +62,31 @@ const tools = (host) => {
       valence:
         "Draw a page: the component is compiled, content-addressed and mounted on the operator's " +
         "screen, and appears in the chat as a line they can click open. Returns the buffer row — " +
-        "its id and its view.hash: generator_view_revise iterates the SAME buffer by id, " +
-        "generator_view_inspect reads the source back by hash. Identical source is the same view; " +
+        "its id and its bundle.entries, each with a hash: generator_view_revise iterates the SAME buffer by id, " +
+        "generator_view_inspect reads the source back by hash. Identical source is the same entry; " +
         "it costs nothing to redraw.",
       input: v.object({ source: SOURCE, label: LABEL, data: DATA }),
     },
     async (ctx) => {
-      let view;
+      let bundle;
       try {
-        view = await ctx.mode.generator.bundle({
-          kind: "svelte",
+        bundle = await ctx.mode.generator.bundle({
+          mime: mime.dom.svelte,
           source: ctx.input.source,
         });
       } catch (error) {
         return refused("render", error);
       }
       try {
-        const buffer = await host.entities.buffer.create({
+        const buffer = await context.entities.buffer.create({
           mode: ctx.mode.entity.id,
-          view: view.json,
+          bundle: bundle.json,
           data: ctx.input.data ?? {},
           traits: ["LABELED"],
           trait: { LABELED: ctx.input.label },
           thread: ctx.thread ?? null,
         });
-        await host.entities.em.flush();
+        await context.entities.em.flush();
         return { message: `drew ${named(buffer)}`, buffer: [buffer] };
       } catch (error) {
         return failed("render", error);
@@ -130,20 +130,20 @@ const tools = (host) => {
             "revise needs a new source, a new label, new data, or some of each — nothing to change.",
         };
       }
-      let view;
+      let bundle;
       try {
-        view = source === undefined
+        bundle = source === undefined
           ? undefined
-          : await ctx.mode.generator.bundle({ kind: "svelte", source });
+          : await ctx.mode.generator.bundle({ mime: mime.dom.svelte, source });
       } catch (error) {
         return refused("revise", error);
       }
       try {
-        const row = await host.entities.buffer.findOneOrFail({ id });
-        if (view !== undefined) row.view = view.json;
+        const row = await context.entities.buffer.findOneOrFail({ id });
+        if (bundle !== undefined) row.bundle = bundle.json;
         if (label !== undefined) row.trait = { ...row.trait, LABELED: label };
         if (data !== undefined) row.data = { ...row.data, ...data };
-        await host.entities.em.flush();
+        await context.entities.em.flush();
         return { message: `revised ${named(row)}`, buffer: [row] };
       } catch (error) {
         return failed("revise", error);
@@ -161,7 +161,7 @@ const tools = (host) => {
         hash: v
           .string()
           .desc(
-            "The view hash generator_view_render, generator_view_revise or generator_view_list " +
+            "The bundle entry hash generator_view_render, generator_view_revise or generator_view_list " +
               "reported; the 16-character " +
               'prefix is enough. Example: "d812d293b81efa7e"',
           ),
@@ -172,7 +172,7 @@ const tools = (host) => {
         return await ctx.mode.generator.inspect(ctx.input.hash);
       } catch (error) {
         const compiled = await ctx.mode.generator.serve(
-          `/${ctx.input.hash.slice(0, 16)}.svelte.mjs`,
+          `/${ctx.input.hash.slice(0, 16)}.dom.svelte.mjs`,
         );
         return {
           condition: "ERROR",
@@ -193,7 +193,7 @@ const tools = (host) => {
     {
       nature: "/list",
       valence:
-        "The pages on this thread, in order — each row with its id, index, view.hash and label. " +
+        "The pages on this thread, in order — each row with its id, index, bundle.entries and label. " +
         "Use it to find the buffer to revise or the hash to inspect when you no longer have them.",
       input: v.object({}),
     },
@@ -201,7 +201,7 @@ const tools = (host) => {
       const where = ctx.thread
         ? { thread: ctx.thread }
         : { mode: ctx.mode.entity.id };
-      const rows = await host.entities.buffer.find(where, {
+      const rows = await context.entities.buffer.find(where, {
         orderBy: { index: "asc" },
       });
       if (!rows.length) return { message: "no pages drawn yet." };

@@ -159,10 +159,10 @@ const LEDGERED = [
 const FLAGS = { VIVA_RUNTIME_SERVE: "http://localhost:2501/", PUBLIC_VIVA_RUNTIME_REMOTE: "${VIVA_RUNTIME_SERVE}" };
 const SECRETS = { SECRET_VIVA_ANTHROPIC_API_KEY: "sk-probe" };
 const DYING = /^(lighthouse|service\[multiplayer\])\./;
-const MOVED = (row) => (row.at === "service[multiplayer].secrets.jwt" ? { ...row, at: "runtime.secrets.jwt" } : row);
+const MOVED = (row) => (row.at === "service[multiplayer].secrets.jwt" ? { ...row, at: "lighthouse.secrets.jwt" } : row);
 
 describe("doctor parity — hello-world's thunk record against its instance.viva.json", () => {
-  it("the requirements rows are today's, less the lighthouse slot, the jwt moved from the lighthouse service to the runtime", async () => {
+  it("the requirements rows are today's, less the lighthouse service, the jwt moved from it to the lighthouse slot", async () => {
     const instance = await mount(mk(FLAGS, SECRETS), HELLO, SHIPPED);
     const kept = THUNKED.filter((row) => !DYING.test(row.at));
     const jwt = MOVED(THUNKED.find((row) => row.at === "service[multiplayer].secrets.jwt"));

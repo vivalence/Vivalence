@@ -1,4 +1,5 @@
-import { Queue, soma } from "@vivalence/typology";
+import { Queue } from "../../prototypes/queue.js";
+import * as soma from "../belt/soma.js";
 
 async function* polishing(events, repair) {
   const polishes = new Queue();

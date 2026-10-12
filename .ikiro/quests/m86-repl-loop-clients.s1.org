@@ -1,0 +1,877 @@
+#+title: m86 repl loop — the client is a die with two Vectors: a BOOT vector that opens and closes resources, a LOOP vector that handles inputs, drained as the boot vector's root effect; one client typology at the paladin-free root of @vivalence/ghost; anima and ghost differ in die.surface only
+#+filetags: :ghost:anima:typology:client:loop:repl:dock:
+#+status: RULED 10-11 — /"the approach is exactly it."/ · /"we now build only dock i think. where only one buffer is max open at a time. spit view. as on anima today."/ · /"the term host doesnt exist in the codebase … not as an amalgam of runtime and daemon."/ · /"surface. not target."/ · Q1 /"amen"/ · Q2 /"what is sessoin?! never heard of that. be coherent in variable naming and style."/ · Q3 /"yes"/. Populated: the dialogue (his yap, my answers beside) · the design · the codemap · deliverables · milestones · the tangle framework. Nothing tangled yet.
+<!-- limit: 160000 chars -->
+// -- @beef i still want my view modes. bsp, notebook, repl/chat, frame/fullscreen — 10-11: dock this cut; the three named under =* deferred=
+// -- @beef: its tiling, notebook, canvas, dock we now build only dock i think. where only one buffer is max open at a time. spit view. as on anima today. — 10-11: =** the dock=
+// -- @beef this is way too smalll / incoherent. the views are underdeveloped rn. we stick to just dock. — 10-11: the views section is gone; =** the dock= holds what is built
+// -- @beef misnamed (Host) · @@beef (lifecycle/host) · "the term host doesnt exist … not as an amalgam of runtime and daemon" — 10-11: =Runtime= · =Daemon=, =lifecycle/{runtime,daemon}/=
+// -- @beef maybe host exists as the term for the system referencing its host machine target render engine — 10-11: =subsystems/sheets/host/= kept in that sense
+// -- @beef what is sessoin?! — 10-11: one =contexts.client= set, no second word
+// -- @beef amen (Q1) · yes (Q3) — 10-11: =* decisions=
+
+* intent
+
+| # | beef, verbatim | trigger |
+|---+----------------+---------|
+| A | /"I'm thinking of the clients a little bit like a REPL … not as a chat interface, but as a REPL that has chat built in. So like Emacs is a client built into the Lisp REPL."/ | the three attempts (=m82:1034=) |
+| B | /"the client is still created as a die and the loop vector is a property on that die … exactly the same structure as we have in the runtime. And then we have … the loop as the execution loop."/ · /"I really like the REPL paradigm. Fuck yes."/ | the first Loop prototype (=m82:1073=) |
+| C | /"custom signal. replsignal."/ | the reader's name (10-10) |
+| D | /"We don't ever, ever, ever want Paladin inside of typology. Never, ever, ever."/ | =@vivalence/ghost='s root re-exporting =belt/= (=codemap/ghost.md=) |
+| E | /"land hte bundle. then we do the loop. loop will be new quest m86-repl-loop"/ | the bundle landed (m82 changelog 10-10) |
+| F | /"we have a boot vector that constructs a loop and the loop is populated with another vector, a kind of signal handler where we can attach more vectors to extend the functionality. These vectors have a specific context, the client context … all the interactions that the clients do, they go through this loop … kind of like a reducer pattern attached to a REPL facilitated with typology prototypes. The context is the same on both clients."/ · /"the approach is exactly it."/ | 10-11, the design floor |
+| G | /"we need to make sure though that we don't lose the entire client every time there's an issue with the connection to the lighthouse … as independent as possible while being extremely reactive."/ · /"if I open the same terminal or the same thread in two terminals on different clients, then I expect them to represent each other and to react to each other's changes."/ | 10-11 |
+| H | /"its tiling, notebook, canvas, dock we now build only dock i think. where only one buffer is max open at a time. spit view. as on anima today."/ · /"this is way too smalll / incoherent. the views are underdeveloped rn. we stick to just dock."/ | 10-11, the views |
+| I | /"systems/ghost/gestalten/views.js - surface"/ · /"targets/tty/ … -- surface. not target."/ | the surface is the noun for what differs |
+| J | /"not a cheap prototype. I want real like the design should be good, use vivalence as themes and stuff, and the logo, the fonts, and then actual interactions … so that I can at least chat and view a buffer. Meaning, I also need to log in … the first thing that I see is the text input … I can see the daemons that are booted and navigate through all of that."/ | 10-10 19:13, the demo (m82 strand Y), absorbed here |
+| K | /"the ring architecture is not something that i want in code actually that is a narrative layer for us"/ | 10-10 18:51 |
+| L | /"lifecycle/{client,host,mode}/ client, runtime, daemon, lighthouse, mode, xxx. the term host doesnt exist in teh codebase … but not as an amalgam of runtime and daemon.!"/ | 10-11, the codemap |
+| M | /"what is sessoin?! never heard of that. be coherent in variable naming and style."/ | Q2 |
+
+* decisions — locked
+
+| # | decision | his word | where it lands |
+|---+----------+----------+----------------|
+| 1 | m82's demo (its milestones 3–6) is this quest's milestones 4–6; m82 stays sunset | /"amen"/ (Q1) | =* milestones= |
+| 2 | =stagger= moves to typology =gestalten/belt/traits.js=; runtime and ghost import it from there | /"yes"/ (Q3) | milestone 1, deliverable d |
+| 3 | no =host= on the client: =Runtime= · =Daemon= prototypes, =lifecycle/{runtime,daemon}/=; the runtime-side word (=systems/runtime/gestalten/belt/host.js:5= · =lifecycle/host/=, 42 sites, m81) is untouched by this quest | intent L | =* codemap= |
+| 4 | the bag that differs is =die.surface=, under =surface/{tty,dom}/= | intent I | =* the design= |
+| 5 | one context word set, =contexts.client=; no =session= | intent M | =** the context= |
+| 6 | dock only: =terminal.$buffer= · =terminal.$dock= are the pane words (anima's own, =stores/bridge/dock.js:7=); no =view= word | intent H | =** the dock= |
+| 7 | the attachment levels are =cut · captured · chrome= — the vocabulary now and after m86; anima is always =chrome= | /"cut captured and chrome. thast teh new meta and teh expected meta after 86. anima of course is always chrome."/ (10-11) | =** the three ways= |
+| 8 | no =surface.signin=: the signin pane is a pane like any other, shown while =standing= is unauthorized; it dispatches =/lighthouse/enter= into the loop; the loop is live from the first beat | /"this intermediary makes little sense?! we have the loop. why the double abstracotin."/ | =** the gate= |
+| 9 | =contexts.client= lands in typology as listed | /"q2 sure."/ | milestone 1 |
+| 10 | lifecycles = client · lighthouse · runtime · daemon · mode · terminal · thread — our entities, no surface lifecycle | /"q4 no just our entites no sufrace. thread, terminal yes."/ | =* codemap= |
+| 11 | anima from scratch: old =src/= → =systems/anima/bak/src/=; anima = =import { … } from "@vivalence/ghost"= + the dom surface from =@vivalence/drapes/dom=; the surfaces LIVE IN DRAPES | /"old to systems/anima/bak/src/. anima from scratch. import {...typology} from @vivalence/ghost and {...dom surface} from @drapes"/ | =* codemap= |
+| 12 | one holistic rebuild: ink dies in the same move as the chrome lands; no milestone keeps ink alive beside the new client | /"no. erbuild. ink dies. one move. one coherent move. dont split by milestones here. makes no sense. holistic rebuild."/ | =* milestones= |
+| 13 | React rows deferred; Solid is the client, Svelte stays the mode render target | /"defer react. keep solid and svelte."/ | =* deferred= |
+| 14 | the probe is milestone 0, its own subagent | /"probe is baseline milestone 0. probably its own subagent."/ | milestone 0 |
+
+* the dialogue — beef verbatim, ikiro's answer beside
+
+** 10-10 18:41 — the forcing function
+beef: /"For our next trick, we will build a coherent abstraction for the clients that corresponds to the new runtime. I think we have a much simpler and more straightforward setup. We launch into our client, and if the home is set, we load that. We go straight into the chat. And or into the doc, into the chat most likely, so in both cases both clients should implement the same layout logic. We might do away with a pincer, I'm not yet sure."/
+
+ikiro: loaded the runtime lifecycle, typology, anima's =src/typology=, ghost's =mod.js=; the friction list by area (=m82:74-161=), twelve items, each with OWNER · ADDRESS · CALL · STATUS · KEY · ROSTER · LINK · DISPLAY as its axis.
+
+** 10-10 18:51 — the three rings, the shared library, the three attempts
+beef: /"We kind of we did ourselves a disservice by building the client anima on Svelte … I have more of a functional programming style. And the way that we will conceptualize our client should be the same way that we have in the, in the runtime. This, I like the idea of boot vectors … All the abstractions are there. It's just a matter of putting them together correctly, abstracting them correctly."/
+
+/"The way that I think about the software is in three rings. We have the data ring where all of the entities live and they form their circles. Then we have the the concrete ring where … all of the code on disk, the runtimes that we load and execute … also in the concrete ring is for example the clients … and then the third ring is the event or functional ring, where we execute our vectors, where events are triggered, where signals are being sent … the execution space basically."/
+
+/"I think it should be possible for us to create building blocks for the client, just as we have building blocks on the runtime that are shared for both the daemons and the runtimes and the services and the processes … ghost it gets imported by Anima and Ghost exports a typology at vivalence slash ghost and that has all of the building blocks that you need to build a client for the data space and for the authorization the lighthouse integration and all the, the how to construct the modes and the buffers how the how the traits are wired … I like the idea this this vector structure, middleware based routers, I love that."/
+
+/"We might at the end of this process decide that now is the right time to rewrite Anima in solid, which would be fine … they're basically the same client from different perspectives we probably have different paneling and such maybe we still have the pincer in anima and no pincer in a more of a standard chatbot coding agent management framework on the TTY side … give me different attempts maybe three something like super functional Lispy Haskell … the optimal solution if we didn't constrain ourselves … and the third one is the vivalence way … the ring architecture is not something that i want in code actually that is a narrative layer for us so yeah have fun"/
+
+ikiro: three attempts (=m82:626-1030=). Their kernels, verbatim:
+
+#+BEGIN_SRC js
+// attempt 1 — the event ring: re-frame in 30 lines (m82:641-663)
+export const ring = () => {
+  let db = {};
+  const handlers = new Map(), effects = new Map(), listeners = new Set();
+  const dispatch = async ([name, ...args]) => {
+    const handler = handlers.get(name);
+    if (!handler) throw new Error(`no event ${name}`);
+    const ctx = { coeffects: { db, event: [name, ...args] }, effects: {} };
+    await handler.chain(ctx, async () => { ctx.effects = (await handler.body(ctx.coeffects, ...args)) ?? {}; });
+    for (const [key, value] of Object.entries(ctx.effects)) await effects.get(key)(value, dispatch);
+  };
+  effects.set("db", (next) => { db = next; for (const fn of listeners) fn(db); });
+  effects.set("dispatch", (event, dispatch) => dispatch(event));
+  const chain = (interceptors) => interceptors.reduceRight((next, step) => (ctx, done) => step(ctx, () => next(ctx, done)), (ctx, done) => done());
+  return { dispatch, event: (name, body, interceptors = []) => handlers.set(name, { body, chain: chain(interceptors) }), fx: (name, run) => effects.set(name, run), sub: (deps, compute) => () => compute(...deps.map((dep) => dep())), watch: (fn) => (listeners.add(fn), () => listeners.delete(fn)), read: () => db };
+};
+#+END_SRC
+
+#+BEGIN_SRC js
+// attempt 2 — the demand graph: a resource per ADDRESS, demand-counted (m82:739-762)
+export const graph = () => {
+  const held = new Map();
+  const resource = (key, open) => {
+    if (held.has(key)) return held.get(key);
+    const node = { key, status: "pending", value: undefined, error: null, demand: 0, readers: new Set(), close: null };
+    const notify = () => { for (const fn of node.readers) fn(node); };
+    node.set = (value) => { node.value = value; node.status = "ready"; notify(); };
+    node.fail = (error) => { node.error = error; node.status = "error"; notify(); };
+    node.read = (fn) => {
+      node.readers.add(fn);
+      if (node.demand++ === 0) node.close = open(node);
+      return () => { node.readers.delete(fn); if (--node.demand === 0) { node.close?.(); held.delete(key); } };
+    };
+    held.set(key, node);
+    return node;
+  };
+  const derive = (key, deps, compute) => resource(key, (node) => { const settle = () => deps.every((dep) => dep.status === "ready") && node.set(compute(...deps.map((dep) => dep.value))); const offs = deps.map((dep) => dep.read(settle)); return () => offs.forEach((off) => off()); });
+  return { resource, derive };
+};
+#+END_SRC
+
+#+BEGIN_SRC js
+// attempt 3 — the process: a client is a die on a boot vector, the runtime's shape verbatim (m82:825-836)
+export const execution = (target) =>
+  new Vector()
+    .use(process.settle)
+    .use(population.connection)
+    .use(population.lighthouse)
+    .use(population.userspace)
+    .use(population.hosts)
+    .use(resolution.hosts(host.execution(mode)))
+    .use(population.terminals)
+    .use(resolution.home)
+    .use(integration.surface(target))
+    .affect(process.keepalive);
+#+END_SRC
+
+| axis | 1 event ring | 2 demand graph | 3 process |
+|------+--------------+----------------+-----------|
+| boot | a chain of events | demand on the root | a Vector of lifecycles |
+| state | one db, normalized tables | a resource per address | prototypes with =$= atoms, one Dataspace |
+| liveness | =subscribe= fx → events | subscribed while demanded | opened in a body, closed in =finally= |
+| gate | a subscription | the root's status | the vector's position; a throw = signin |
+| typology reuse | middleware only | none | Vector · Signal · steer · shape · shard · Controller · Dataspace · stagger |
+| cost | rewrite the data layer | rewrite everything | move + rename anima's =typology/= into ghost |
+
+Assess (=m82:1030=): 3 is the house; from 2 one law — a subscription lives exactly as long as its demand, read as "opens in a lifecycle's body, closes in its finally"; from 1 nothing new.
+
+** 10-10 19:13 — the demo
+beef: /"How difficult would it be for you to get from where we are now to having a simple prototype up for both a GUI and a [TUI] built from scratch? But not the, not a cheap prototype. I want real like the design should be good, use vivalence as themes and stuff, and the logo, the fonts, and then actual interactions. I mean, we do have a lot of the code already. Um, so that I can at least chat and view a buffer. Meaning, I also need to log in, of course. Probably I also want the ability to sign in or sign up rather maybe that's something that we can hide behind a trait … if we have Lighthouse as a dedicated key on our instance, or on the ledger probably, ledger with a fallback or an override on instance, then we can set a trait of a Lighthouse … on Ghost, we want the credentials stored … this is like a real credential management system … on the anima and dom, we store it in the local storage or wherever."/
+
+/"on Ghost … we still have this staggered interaction layer where some stuff is inline and some of that is full screen with Chrome … there's going to be like two, I guess, perpendicular vectors on the on Ghost, where we have the trajectory, and then maybe something like commands … the first thing that I see is the text input. And of course I … can see the daemons that are booted and navigate through all of that. All of the modes and stuff … just one coherent abstraction … give me an assessment for how long you think that will take and what it will look like … we create a branch for that, a dev branch, and we start working in there so that we can actually replace Anima and Ghost where they sit right now."/
+
+/"Dapper is always the theming and the, the logic behind it. It's our design system … sheets is for the [TUI]. And the drapes is for Anima … if we have multiple targets like solid, react, and svelte. Maybe if we ditch svelte. Well, we can't because we still have the, the render target for the modes … We have the package as add vivalence slash drapes slash render target. That would actually be very coherent … some stuff that is shared. And some stuff that is for the clients themselves and some that is for the render targets as in for the for the mode applications."/
+
+ikiro: the demo section (=m82:1303-1507=) — the five screens on both targets (now =** what beef sees=), the lighthouse slot (LANDED 10-10), the credentials record (LANDED) with two carriers, ghost's three ways (cut · captured · chrome) and the sigil, =@vivalence/drapes/{dom,tty,svelte,state}= keyed by TARGET, the burn — six milestones, ~16½ sessions, the first thing seen around session 9:
+
+#+BEGIN_SRC js
+// systems/ghost/surface/tty/composer.jsx — the sigil (m79 F16, ruled m82:1425): bare text is a turn; a leading / is the trajectory, painting into the slot
+const submit = async (line) => {
+  if (!line.startsWith("/")) return send(seat(), [{ type: "text", text: line }]);
+  const effect = await surface.trajectory(line.slice(1).split(/\s+/));
+  slot.set(effect);
+};
+#+END_SRC
+
+| way | held by | screen | example |
+|-----+---------+--------+---------|
+| cut | the trajectory | inline, one-off | =viva instance/doctor= |
+| captured | the client over the tty surface, inline | the dock in scrollback | =viva home hello= |
+| chrome | the client over the tty surface, fullscreen (=?1049h=) | crown · spine · stage | =viva= bare · =ctrl-f= from captured |
+
+** 10-10 19:17 — modes attach their own events
+beef: /"Then we would have modes be able to attach their own events. Which is basically the Emacs equivalent of... What is it? Control G? Or double space in Spacemax? Not the worst pattern."/
+
+ikiro: the Emacs table (=m82:1052-1064=): the C core = the die + lifecycles; the command loop = =die.loop=; =define-key= in a major mode = a mode's doors grafted under =/command/<slug>= from the strip, its keys under =/key/<slug>=; =C-g= = =/abort=; =M-x= completion = the trie's census in the slot; the minibuffer = =$slot=; the mode line = the crown.
+
+** 10-10 19:26 — the ring is a Vector
+ikiro, before (10-10 19:20), the first cut he answered:
+
+#+BEGIN_SRC js
+// REJECTED — systems/ghost/prototypes/ring.js: a Ring class with db · on · fx (the first cut)
+export class Ring {
+  db = atom({});
+  loop = new Vector();
+  effects = {};
+  constructor(client) {
+    this.loop.use(shard.context.spread(contexts.client, client)).use(async (ctx, next) => { ctx.db = this.db.get(); await next(); });
+  }
+  on(name, handler) { this.loop.open(name, handler); return this; }
+  fx(name, run) { this.effects[name] = run; return () => delete this.effects[name]; }
+  async dispatch(name, input) {
+    const produced = await steer.dispatch.invoke(this.loop, new Signal(name), steer.strategy.direct)(input);
+    for (const [key, value] of Object.entries(produced ?? {})) await this.effects[key](value, this);
+  }
+}
+#+END_SRC
+
+beef: /"vivalence/ghost/typology ! no. its {...typology} from @vivalence/ghost"/ · /"I like the idea of the ring. It's not bad, not bad at all. Question would be the DB … we already have entities. We already have entity maps. We have the repository, remote repository … we don't need to recreate something … I don't like ring … I don't like effects where you place it because effects is a taken name … Let's say we conceptualize the what you'd call ring here as a vector itself. And then the ring is a bunch of tooling around it … db … it's kind of like a die it's a property of the die … as part of the execution of the ring we … construct our context … we have to be clever about the way that we differentiate the vector, the composer, aka what creates the contexts and the signal and executes them and how we traverse, that's the composer. Um, and then what the nature of the context is, we now have in schematics … the tooling around contexts."/
+
+ikiro: the synthesis (=m82:1034-1074=): three things, each in the house — the VECTOR (=die.loop=, a plain =Vector=), the COMPOSER (the die's root effect draining a queue, one =steer.dispatch.invoke= per form), the CONTEXT (=contexts= word sets spread onto ctx). No =db=: entities stay the Dataspace's; no =fx=: a handler writes ctx words, middlewares composed before it act after =next()=.
+
+** 10-10 19:52 — the Loop is not a class
+ikiro, before (10-10 19:46), the second cut:
+
+#+BEGIN_SRC js
+// REJECTED — systems/ghost/prototypes/loop.js: a Loop class with its own #queue (Queue exists: subsystems/typology/prototypes/queue.js)
+export class Loop extends Vector {
+  #queue = [];
+  #draining = false;
+  dispatch(name, input) { this.#queue.push({ name, input }); if (!this.#draining) this.#drain(); }
+  async #drain() {
+    this.#draining = true;
+    while (this.#queue.length) { const { name, input } = this.#queue.shift(); await steer.dispatch.invoke(this, new Signal(name), this.strategy)(input); }
+    this.#draining = false;
+  }
+}
+#+END_SRC
+
+beef: /"we do already have some prototypes in typology for queuing and such. We might not have to roll our own here … the client is still created as a die and the loop vector is a property on that die. I think that makes sense. Populating that's very elegant actually. And then we have still our … data map that we populate … as part of the boot vector, as part of the life cycle of the client, exactly the same structure as we have in the runtime. And then we have … the loop as the execution loop. Okay, so we have some commands on there and we have a handler for just like the fall through handler. The signal processing, I don't think we can use the standard signal here … what we get is the REPL input … might be just text, in which case it's sent to the mode. It might be commands … And buttons … might also invoke the loop. So the signal here needs to be very well designed … I really like the REPL paradigm. Fuck yes, fuck yes. Yeah, I like reactivity still. That's why we have nano stores."/ · (19:57) =pipe.js= · =queue.js= · =span.js= pointed at.
+
+ikiro: the REPL table and the three channels (=m82:1075-1083=):
+
+| REPL | the Loop | from |
+|------+----------+------|
+| Read | the reader: =new ReplSignal(x)=, coercion rows over a line · an argv · an event · a key | =Signature.coercions= (=prototypes/signature.js:31=) |
+| Eval | =steer.dispatch.invoke(die.loop, form, evaluate)= | =gestalten/steer/dispatch.js:64= |
+| Print | the client's atoms; a stream's packets fold into =live= | =Pipe.reactive(seed, step)= (=prototypes/pipe.js:17=) |
+| Loop | =for await (const input of die.queue.drain(die.controller.abort.signal))= | =Queue.drain(signal)= (=prototypes/queue.js:25=) |
+| the trace | a span per form off =die.controller.stdout= | =Span= (=prototypes/span.js=) |
+
+=Queue= holds what comes IN, =Pipe= what flows THROUGH, =Span= what HAPPENED. Atoms for the queue — no: an atom holds ONE value; two dispatches in one tick are one value to a late reader (=m82:1174=).
+
+** 10-11 08:30 — the basics, the gate, the twins, the views
+beef: /"if we are really going to rebuild the clients and have a unified architecture and shared tooling that gets imported from Ghost to Anima, then that's a pretty significant rebuild and I think we need to get the basics right … we have a boot vector that constructs a loop and the loop is populated with another vector, a kind of signal handler where we can attach more vectors to extend the functionality. These vectors have a specific context, the client context, and that contains the entities, contains the modes … Terminals. And all the interactions that the clients do, they go through this loop … kind of like a reducer pattern attached to a REPL facilitated with typology prototypes. The context is the same on both clients. So I think we … should get the composition, the composer right. What is on the context? How is that executed? … I think we just have the normal, just the basic strategies we had that settled already."/
+
+/"the boot process sets up a connection with the runtime. There's probably some sort of … how do we facilitate the gates? Is that some sort of state machine on Lighthouse level? Probably. We need to make sure though that we don't lose the entire client every time there's an issue with the connection to the lighthouse. In the end we will want to go for those two to be as independent as possible while being extremely reactive. So … since the runtime is shared and we do have a bunch of subscription, if I open the same terminal or the same thread in two terminals on different clients, then I expect them to represent each other and to react to each other's changes. Since change in one triggers the update twitch and that triggers the subscription to the other client."/
+
+/"The parts that are different is of course the render engine, the surface that we write to … right now we only have one buffer and it's very big. Um, full screen or half screen … we used to call them phases. I think what I call a phase needs to be reappropriated. So we have this REPL phase where we just have a, like a REPL or a chat interface … Then we have some sort of notebook view, Jupyter … we have our thread and the turns on them, and we can build a Jupyter notebook from this turns and thread structure … rearrange the messages … trim and prune … agent pipelines … We have inline buffers … another view that we might have is something like the binary space partition, this free grid mode … it's just the same thread, two perspectives on the same thread … In the ghost, I don't think we have space partition or like a free drag and drop that might be over extending ourselves right now. So there … the default view is the chat or a REPL view, the REPL chat … And when we type there, the message gets thrown into our loop. We execute whatever vector is matched by the signal."/
+
+ikiro: the screen (=* the design= below is its placement) — one sentence: a client is two Vectors on one die; the gate is no new machine (=Lighthouse.$status= with =STANDINGS= IS it, consulted once at boot, an atom after); the twins mirror by construction (one userspace store per client, every kind over SSE, the twitch fans out); the surface is what differs.
+
+| shared — the =@vivalence/ghost= root, paladin-free | differs — =die.surface= |
+|---+---|
+| =lifecycle/{client,lighthouse,runtime,daemon,mode}/= | =name= · =root= (a DOM node / a =CliRenderer=) · =viewport()= |
+| =traits/{harnessed,exposed,application}.js= =(mode, host)= | =credentials= ={ read, write, clear }= |
+| =prototypes/{client,runtime,daemon,lighthouse,replsignal,dataspace,terminal}.js= | =signin(door)= → ={ route, credentials }= |
+| =gestalten/{repl,surface}.js= · =belt/{panes,dock}.js= | =mount.{crown,dock,frame,navigation}= → ={ place, destroy }= |
+| =contexts.client · contexts.Loop= (typology) | =accept= (mimes) · =keys= (a Pipe =.to(die.queue)=) · =trajectory= |
+
+** 10-11 08:38 — the rulings
+beef: /"tiling (bsp), notebook, canvas, dock (chat/repl). the approach is exactly it."/ · /"its tiling, notebook, canvas, dock we now build only dock i think. where only one buffer is max open at a time. spit view. as on anima today."/ · /"systems/ghost/gestalten/views.js - surface"/ · /"update me on [the stack]"/
+
+ikiro: =* the stack= below, on disk vs owed; =steer.trie.at= as the first typology diff, two shapes, A picked:
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/steer/trie.js — A: a literal walk, one Map.get per segment; null when an edge is absent (vector.js:28 — absence IS the not-found case)
+export const at = (vector, path) =>
+  path.reduce((position, nature) => position && (position.trie.get(nature)?.trajectory ?? null), vector);
+#+END_SRC
+
+B (a matched walk through =scope()=, =:param= edges included) REJECTED: drags =Signal= into =trie.js= for one row; a chord IS literal segments.
+
+** 10-11, the marks on the populated quest
+beef: /"lifecycle/{client,host,mode}/ client, runtime, daemon, lighthouse, mode, xxx. the term host doesnt exist in teh codebase."/ · /"targets/tty/ … -- surface. not target."/ · /"host.js … @@beef misnamed."/ · /"subsystems/sheets/host/ … maybe host exists as the term for the system referencing its host machine target render engine... but not as an amalgam of runtime and daemon.!"/ · /"i dont think it makes sense that you just record MY yap without also including the key sections (mostly code / data snippets) of your responses. extend."/
+
+ikiro: =* decisions= 3–6; this section.
+
+* the ground — ruled in m82, read there
+
+| piece | where |
+|-------+-------|
+| the three attempts · the synthesis (die · vector · composer · context) | =done/m82-runtime-clients.org:602-1074= |
+| REPL table, the three channels | =m82:1075-1175= |
+| the reader =ReplSignal=, five coercion rows | =m82:1176-1210= |
+| =gestalten/repl.js=, modes' seams (EXPOSED strip · APPLICATION keys), the leader | =m82:1211-1283= |
+| the queue against re-frame, the pump | =m82:1284-1302= |
+| the demo: five screens · lighthouse slot (LANDED) · credentials (record LANDED, ghost carrier owed) · ghost's three ways · drapes per target · the burn | =m82:1303-1507= |
+| the bundle: three axes · media types · =Bundle= · the bundler rows · opentui under Deno · Solid on both hosts | =m82:163-600= |
+| the source, verbatim | =.ikiro/reference/m82-clients-compendium.md= (temporary) |
+
+* the law
+
+#+BEGIN_EXAMPLE
+A client is two Vectors on one die: the BOOT vector opens resources and closes them (lifecycles, (die, next)); the LOOP vector handles inputs (handlers, (input, ctx)); the boot vector's root effect drains the loop; the surface is a bag the die carries, mounted by one beat. Nothing else.
+Same die shape on anima and ghost; what differs is die.surface.
+Read = new ReplSignal(input) · Eval = steer.dispatch.invoke(die.loop, signal, evaluate) · Print = the client's atoms · Loop = die.queue.drain(die.controller.abort.signal).
+Every beat after the lighthouse vector opens, marks and never throws on a wire fault; the die dies only on controller.kill.
+Entities are the Dataspace's, one per client; the client's words are atoms; the loop reads atoms and writes atoms; the surface subscribes and dispatches, owns nothing.
+The runtime and a daemon are two prototypes with one metadata sequence; "host" is not a client word.
+One buffer open at most, split beside the dock: terminal.$buffer · terminal.$dock, as anima today.
+Three attachment levels, now and after m86: cut (one frame into scrollback) · captured (inline, live until release) · chrome (the alt-screen, held). Anima is always chrome; ghost's trajectory is cut, a held component captured, viva bare chrome.
+The rings (data · concrete · event) are narrative, never code.
+No paladin in any barrel named typology: the @vivalence/ghost root reaches no file that imports @vivalence/paladin; paladin's knowledge reaches a client lifecycle as data on its mask and surface.
+#+END_EXAMPLE
+
+* the design — the approach, placed
+
+** the die
+
+#+BEGIN_SRC js
+// systems/ghost/client.js — the die; anima and ghost build the same bag, only surface differs
+export const boot = (mask, surface) =>
+  steer.dispatch.execute(execution, {
+    controller: new Controller({ stdout: new Span(`client/${surface.name}`) }),
+    mask,
+    surface,
+    client: new Client({ mask }),
+    loop: new Vector(),
+    queue: new Queue(),
+  });
+#+END_SRC
+
+Composer: =steer.dispatch.execute(execution, die)= — exists (=subsystems/typology/gestalten/steer/dispatch.js:9=), the runtime's at =systems/runtime/run.js:20=. Nothing to build.
+
+** the boot vector — the runtime's =execution.js:12-37= shape, five lifecycles
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/client/execution.js
+import { execution as lighthouse } from "../lighthouse/execution.js";
+import { execution as runtime } from "../runtime/execution.js";
+import { execution as daemon } from "../daemon/execution.js";
+import { execution as mode } from "../mode/execution.js";
+
+export const execution = new Vector()
+  .use(process.settle)
+  .use(population.loop)
+  .use(integration.surface)
+  .use(resolution.lighthouse(lighthouse))
+  .use(population.userspace)
+  .use(population.runtime)
+  .use(population.daemons)
+  .use(resolution.runtime(runtime(mode)))
+  .use(resolution.daemons(daemon(mode)))
+  .use(resolution.terminals(terminal(thread)))
+  .use(resolution.home)
+  .use(integration.ledger);
+
+execution.affect(process.repl);
+#+END_SRC
+
+The loop and the surface come FIRST (decision 8): the drain starts in =population.loop= un-awaited (=die.repl=), the surface mounts on the atoms, and the lighthouse's signin is a pane dispatching into a live loop. The root effect awaits that drain — the REPL is still what the die lives for.
+
+| beat | opens | closes | from |
+|------+-------+--------+------|
+| =process.settle= | =controller.stdout.open()=, the boot's span | =close()= | the runtime's =lifecycle/process.js= |
+| =population.loop= | the loop's middleware, the REPL edges, the leader, the surface commands, the trajectory at =/command=, =client.dispatch=; =die.repl = process.drain(die)= started | =queue.close()= | =** the loop vector= |
+| =integration.surface= | =client.surface= Vector over =surface.mount=; =arrange()= on =standing= · =seat= · =terminal.$buffer= · =$dock= | every mounted pane's =destroy= | =** the dock= |
+| =resolution.lighthouse= | runs =lifecycle/lighthouse/execution=: connection · credentials · authorized · standing (=** the gate=) | =multiplex.close()= | the runtime's =resolution.daemons= shape |
+| =population.userspace= | ONE =Dataspace= on =/userspace/entities=, five kinds subscribed | every subscription | =m82:865= |
+| =population.runtime= | =client.runtime = new Runtime({ reference: /runtime/<slug>, connection })= from =/metadata/manifest= | — | =m82:876= |
+| =population.daemons= | =client.daemons[reference] = new Daemon({ … })= from =/metadata/daemons= | — | =m82:876= |
+| =resolution.runtime= · =resolution.daemons= | each bearer's own vector, un-awaited (=bearer.mounting=): status · metadata · cortex · entities · modes · the mode vector per mode | =release= | =m82:942= · =dossier.js:93-163= |
+| =resolution.terminals= | each of the user's terminals runs =lifecycle/terminal/execution= (seat · stall · dock), a thread it seats runs =lifecycle/thread/execution= (turns · buffers · phase · activity) | per terminal, per thread | today's =mountSeat= · =mountStall= (=entities/terminal.js:67-150=) |
+| =resolution.home= | =user.trait.HOME.reference= › =mask.home= → a terminal seated on a thread of the home mode | — | =m82:947= |
+| =integration.ledger= | =controller.stdout.to(log.append)= on ghost; anima's telemetry | — | =systems/runtime/lifecycle/runtime/integration.js:10= |
+| =process.repl= | =await die.repl= — the drain is the root effect | ends when the controller aborts | =** the loop vector= |
+
+The runtime and a daemon answer ONE metadata sequence (=/status= · =/metadata/{manifest,statics,cortex,aperture,modes}=, =lifecycle/host/aperture/metadata.js:14-23= runtime-side) — so =lifecycle/daemon/population.js= holds the beats and =lifecycle/runtime/execution.js= composes them plus the runtime's own (=/metadata/daemons=); two prototypes, =Runtime= and =Daemon=, one belt of beats, no third noun.
+
+** the loop vector — populated by one beat, so it lives exactly as long as the client
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/client/population.js
+export const loop = async (die, next) => {
+  die.loop
+    .use(shard.context.spread(contexts.client, die.client))
+    .use(shard.track.span((ctx) => ctx.signal.pathname))
+    .use(capturing)
+    .use(streaming(die))
+    .use(killing);
+  gestalten.repl(die.loop);
+  gestalten.leader(die.loop);
+  gestalten.surface(die.loop);
+  die.loop.branch("/command", die.surface.trajectory);
+  die.client.dispatch = fromm.sink(die.queue).write;
+  await next();
+};
+#+END_SRC
+
+=capturing= · =streaming= · =killing= verbatim from =m82:1146-1169=. Composer: the drain, the boot vector's root effect; =invoke= exists (=dispatch.js:64=); =evaluate= is the client's strategy, the twin of ghost's =mod.js:12=:
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/client/process.js
+export const repl = async (die) => {
+  die.controller.stdout.open();
+  for await (const input of die.queue.drain(die.controller.abort.signal))
+    await steer.dispatch.invoke(die.loop, new ReplSignal(input), evaluate)(die);
+};
+
+const evaluate = (carry, effect, steps, signal) => (die) =>
+  carry(
+    { signal, steps, params: fromm.match(steps).parameters, input: (signal.fin ?? signal).input, span: die.controller.stdout },
+    (ctx) => steer.strategy.fire(effect, ctx),
+  );
+#+END_SRC
+
+Ways in, all =die.client.dispatch(x)= → the queue → one =ReplSignal= (=m82:1180=): a bare line (the root's effect, a turn) · a sigil line =/…= (=/command=) · an argv (=/command=, m79's row) · an event ={ signal, input }= (a button, the pump's =/turn/done=, a mode key) · a key ={ key }= (=/key/<chord>=). A surface's key =Pipe= writes =.to(die.queue)=; a mounted pane gets =dispatch= in its props.
+
+** the context — what a handler sees
+
+Flat, the house law (=schematics/primitives/contexts.js:47-55= · =shard.context.spread=). ONE new word set, the client's — every word a property of =die.client=, the atoms among them; a typology diff, its own go (Q2 answered: no second noun):
+
+| word | what | shape |
+|------+------+-------|
+| =lighthouse= | the =Lighthouse= prototype: =$authority · $user · $status= | prototype |
+| =runtime= | the runtime as a bearer: =reference · connection · call · cortex · modes · entities · $status= | =Runtime= |
+| =daemons= | the daemons by reference, the same words each | record → =Daemon= |
+| =userspace= | the ONE =Dataspace=: =terminal · thread · buffer · turn · activity= | prototype |
+| =terminals= | =userspace.terminal=, the client's own terminals | repository |
+| =dispatch= | =fromm.sink(die.queue).write= | function |
+| =seat= | ={ terminal, thread, mode }= — the seated terminal, its thread, the thread's mode | atom |
+| =live= | the transcript under construction, =soma.transcript='s fold | atom |
+| =echo= | the user turn just sent, before the row lands | atom |
+| =slot= | what the last command painted | atom |
+| =chord= | a held leader path | atom |
+| =standing= | the lighthouse's last =STANDINGS= code | atom |
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/contexts.js — beside Aperture · Tool · Harness · Emitter · Twitch · Service
+export const client = { ...lighthouse, ...runtime, ...daemons, ...userspace, ...terminals, ...dispatch, ...seat, ...live, ...echo, ...slot, ...chord, ...standing };
+export const Loop = { ...vector, ...client, ...optional(stream), ...optional(kill) };
+#+END_SRC
+
+A handler reads entities through =ctx.userspace.thread=, calls a bearer through =ctx.runtime.call= or =ctx.daemons[reference].call=, writes the client's atoms, asks for IO by writing a ctx word (=ctx.stream = …=) that a middleware composed before it executes after =next()=. Same =(input, ctx)= arity law as every tool (=steer/strategy.js:5=). =modes= is not a client word: a mode is reached through its bearer (=ctx.runtime.modes.<type>.<slug>=), the runtime's own shape (=contexts.js:16=).
+
+** the gate — the lighthouse lifecycle, no new machine
+
+=Lighthouse.$status= with =STANDINGS= (=systems/anima/src/typology/stores/lighthouse.js:10=, twelve codes) IS the state machine. Its own lifecycle vector, run once from the client's boot. No =surface.signin= (decision 8): the signin is a PANE the surface shows while =standing= is unauthorized; the pane dispatches =/lighthouse/enter= into the loop; the lifecycle waits on the atom, then never throws — it marks.
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/lighthouse/execution.js
+export const execution = new Vector()
+  .use(population.connection)
+  .use(population.credentials)
+  .use(resolution.authorized)
+  .use(integration.credentials)
+  .use(integration.standing);
+
+// systems/ghost/lifecycle/lighthouse/population.js
+export const connection = async (die, next) => {
+  die.lighthouse = new Lighthouse(new Url(die.mask.statics.remote), { stdout: die.controller.stdout });
+  die.client.lighthouse = die.lighthouse;
+  die.client.root = die.lighthouse.runtime;
+  die.lighthouse.door = await die.client.root.call("/lighthouse/metadata");
+  try { await next(); } finally { die.lighthouse.multiplex.close(); }
+};
+
+export const credentials = async (die, next) => {
+  const held = die.surface.credentials.read(die.client.root.url.origin);
+  if (held) die.lighthouse.restore(held);
+  await verify(die.lighthouse);
+  await next();
+};
+
+// systems/ghost/lifecycle/lighthouse/resolution.js — wait on the atom; the pane and the loop do the entering
+export const authorized = async (die, next) => {
+  await atom.until(die.lighthouse.$isAuthorized, Boolean, die.controller.abort.signal);
+  await next();
+};
+
+// systems/ghost/lifecycle/lighthouse/integration.js — persist on every authorization; the standing rides the loop
+export const credentials = async (die, next) => {
+  const off = die.lighthouse.$authority.listen(() => die.lighthouse.isAuthorized && die.surface.credentials.write(die.client.root.url.origin, { user: die.lighthouse.user, authority: die.lighthouse.authority, at: new Date().toISOString() }));
+  try { await next(); } finally { off(); }
+};
+
+export const standing = async (die, next) => {
+  const off = die.lighthouse.$status.listen((status) => die.client.dispatch({ signal: "/lighthouse/standing", input: status }));
+  try { await next(); } finally { off(); }
+};
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/ghost/gestalten/repl.js — the lighthouse's edges on the loop: the pane dispatches, the handler enters
+.open("/lighthouse/enter", ({ route, username, password }, ctx) => ctx.lighthouse.enter(route, { username, password }))
+.open("/lighthouse/logout", (_, ctx) => ctx.lighthouse.logout())
+.open("/lighthouse/standing", (status, ctx) => ctx.standing.set(status))
+#+END_SRC
+
+The surface's =arrange()= lists =signin= among the panes while =standing= is one of =IDLE · ERROR · SESSION_EXPIRED · LOGGED_OUT=; the pane reads =ctx.lighthouse.door.traits= for the =sign up= button and =ctx.standing= for the message. On ghost it is captured under the line, on anima a pane — chrome. =atom.until= is one belt function over a nanostores atom (=gestalten/belt/atom.js=, beside =chain=), a typology diff in milestone 1.
+
+Independence (intent G): the multiplex already reconnects (=shard.transmitter.retry=, =lighthouse.js:49=); a daemon mount already backs off (=entities/daemon/dossier.js:80-86=); =/status/subscribe= already flips a bearer healthy/unavailable (=:152-156=). =SESSION_EXPIRED= → the signin pane returns (no teardown), =OFFLINE= → the crown; the queue keeps draining. Teardown only on =controller.kill=.
+
+** two clients, one thread — by construction
+
+Userspace is one store per client, every kind over SSE (=systems/runtime/lifecycle/runtime/aperture/userspace.js:11-22=). A turn chained on the runtime hits its twitch → both clients' =RemoteRepository= merge the row → both =thread.$turns= move. The loop owns none of it. The live stream is the sender's alone: client B sees the persisted turn on the twitch, its =live= stays null — correct. Tokens on B = a daemon-side broadcast off =Activity.stdout= (=dossier.js:140-144= reads it today) — deferred.
+
+** the dock — one buffer, split view, as anima today
+
+The pane words are anima's own: =terminal.$buffer= (the one open buffer, =entities/terminal.js:22=) and =terminal.$dock= (={ side, share, collapsed, full }=, =stores/bridge/dock.js:7=, persisted as the =DOCKED= trait). No buffer → the dock alone; a buffer → the frame beside it at =dock.share=; =full= → the frame alone. The loop's surface commands write those two atoms; the surface lifecycle reads them and mounts.
+
+#+BEGIN_SRC js
+// systems/ghost/gestalten/surface.js — the surface's commands on the loop; a handler writes the seated terminal's atoms, the lifecycle re-arranges
+export const surface = (loop) =>
+  loop
+    .open("/buffer/open", (buffer, ctx) => ctx.seat.get().terminal.$buffer.set(buffer))
+    .open("/buffer/close", (_, ctx) => ctx.seat.get().terminal.$buffer.set(null))
+    .open("/dock/side", (side, ctx) => ctx.seat.get().terminal.$dock.set({ ...ctx.seat.get().terminal.dock, side: dock.normalizeSide(side) }))
+    .open("/dock/full", (full, ctx) => ctx.seat.get().terminal.$dock.set({ ...ctx.seat.get().terminal.dock, full }))
+    .open("/dock/collapse", (collapsed, ctx) => ctx.seat.get().terminal.$dock.set({ ...ctx.seat.get().terminal.dock, collapsed }));
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/ghost/lifecycle/client/integration.js — the surface lifecycle: a pane's name is a Signal, its effect the surface's mount
+export const surface = async (die, next) => {
+  const { client, surface } = die;
+  client.surface = new Vector().use(shard.context.spread(contexts.client, client));
+  for (const [pane, mount] of Object.entries(surface.mount)) client.surface.open(`/${pane}`, mount);
+  const mounted = new Map();
+  const place = (panes, rects) => {
+    for (const pane of panes) {
+      if (mounted.has(pane)) mounted.get(pane).place(rects);
+      else mounted.set(pane, steer.dispatch.invoke(client.surface, new Signal(`/${pane}`), steer.strategy.direct)({ rects, root: surface.root, dispatch: client.dispatch }));
+    }
+    for (const [pane, held] of mounted) if (!panes.includes(pane)) { held.destroy(); mounted.delete(pane); }
+  };
+  const arrange = () => {
+    if (!client.lighthouse.isAuthorized) return place(["signin"], dock.resolve(dock.DEFAULT_DOCK, surface.viewport()));
+    const { terminal } = client.seat.get();
+    place(["crown", "navigation", "dock", ...(terminal && terminal.buffer ? ["frame"] : [])], dock.resolve(terminal ? terminal.dock : dock.DEFAULT_DOCK, surface.viewport()));
+  };
+  const offs = [client.lighthouse.$isAuthorized.listen(arrange), client.seat.listen(arrange), client.$buffer.listen(arrange), client.$dock.listen(arrange)];
+  arrange();
+  try { await next(); } finally { offs.forEach((off) => off()); for (const held of mounted.values()) held.destroy(); }
+};
+#+END_SRC
+
+=panes.js= (the tree · folds · split) stays on disk for the deferred views; this cut reads =dock.js= only.
+
+** the three ways — cut · captured · chrome
+
+Today in sheets (=subsystems/sheets/mod.jsx:94-192=), picked per invocation by ghost (=systems/ghost/mod.js:97-109=):
+
+| level | today | behaviour | after m86 |
+|-------+-------+-----------+-----------|
+| =cut= | =view.scroll.emit= | one frame into scrollback, fire-and-forget | the trajectory's default print: =viva instance/doctor= |
+| =captured= | =view.scroll.render= | inline, live until =buffer.release(opts)=, the last frame stays in scrollback | a held component under the line: =Init= · =Confirm= · the inline signin · =viva home hello= |
+| =chrome= | =view.buffer.shell()= + =view.hijack(shell)= (=--buffer=) | the alt-screen (=?1049h=), a Chrome with a slot, held until esc | the client's die over the tty surface: =viva= bare · =ctrl-f= from captured; ANIMA IS ALWAYS CHROME |
+
+The level is the SURFACE's, never a flag: the tty surface carries all three (=mount= paints into the chrome's slot, =emit= cuts, =hold= captures); the dom surface carries chrome alone. Ghost's trajectory on the argv stays cut; a trajectory that elevates (=viva= bare, =viva <reference>=) runs the client die, and inside the chrome =/help= · =/instance/doctor= paint into =slot= through the same trajectory grafted at =/command= (m82:1404-1438).
+
+#+BEGIN_SRC js
+// subsystems/drapes/tty/surface.js — the surface bag (decision 11: the surfaces live in drapes); the three ways are verbs on it; signin is a pane
+export const tty = (renderer, { credentials, trajectory }) => ({
+  name: "tty",
+  root: renderer.root,
+  viewport: () => ({ width: renderer.width, height: renderer.height }),
+  credentials,
+  trajectory,
+  accept: [mime.tty.solid, mime.markdown, mime.plain, mime.json],
+  keys: new Pipe().from(keypresses(renderer)),
+  emit: (props, Component) => cut(renderer, props, Component),
+  hold: (props, Component) => captured(renderer, props, Component),
+  mount: { signin, crown, dock, frame, navigation },
+});
+#+END_SRC
+
+#+BEGIN_SRC js
+// subsystems/drapes/dom/surface.js — chrome only: no emit, no hold; every pane dispatches into the loop
+export const dom = (root, { credentials }) => ({
+  name: "dom",
+  root,
+  viewport: () => ({ width: root.clientWidth, height: root.clientHeight }),
+  credentials,
+  trajectory: new Vector(),
+  accept: [mime.dom.solid, mime.dom.svelte, mime.dom.html, mime.markdown, mime.plain, mime.json],
+  keys: new Pipe().from(keydowns(root)),
+  mount: { signin, crown, dock, frame, navigation },
+});
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/anima/src/client.js — anima, whole (decision 11): the die over drapes' dom surface
+import { boot } from "@vivalence/ghost";
+import { dom, credentials } from "@vivalence/drapes/dom";
+
+await boot(
+  { manifest: { type: "client", slug: "anima" }, statics: { remote: import.meta.env.PUBLIC_VIVA_RUNTIME_REMOTE }, home: import.meta.env.PUBLIC_VIVA_CLIENT_HOME },
+  dom(document.body, { credentials: credentials(localStorage) }),
+);
+#+END_SRC
+
+** what beef sees — the same screens on both surfaces (=m82:1309=)
+
+| screen | dom (anima) | tty (ghost) | source of every datum |
+|--------+-------------+-------------+-----------------------|
+| boot | logo mark + word, step rows =instance · lighthouse · runtime · daemons · terminal= with =● ◐ ○ ✕= | the same rows inline, collapsing to one dim line once the chrome takes over | the boot vector's position: each beat marks its row on =die.controller.stdout= |
+| signin | username · password · =sign in=; =sign up= only when the lighthouse is OPEN | the same form, held inline under the command line | =/lighthouse/metadata= → =traits= |
+| dock | crown =✦ <instance> · <user> · <bearer> › <mode> · ● streaming=; transcript · live turn · composer; the spine (terminals → modes → threads) as a left rail | crown as the inverse top row; spine 24 cols left of =│=; transcript · =› draft ▌= · hints | =seat= · =thread.$turns= · =live= · =echo= · =slot= |
+| frame | beside the dock, the buffer's entry mounted from =bundle.load(surface.accept)= | =buffer.data= through the =mime.json= floor until a =tty= entry exists | =terminal.$buffer= |
+| navigation | the runtime first, daemons with status dots › modes by trait › threads; terminals as tabs | the spine's three steps; =ctrl-t= terminal · =ctrl-o= mode | =client.runtime= · =client.daemons= · =userspace.thread= · =userspace.terminal= |
+
+Themes: dapper's four verbatim on both surfaces (a tty reads the same token values as a flat object); K2D on dom; the mark + word on boot (=m82:1321=).
+
+* the stack — ruled in m82, where it stands 10-11
+
+| piece | ruling | on disk | owed |
+|-------+--------+---------+------|
+| the client chrome | Solid on BOTH surfaces (=m82:1459=): one component model, SvelteKit out, plain vite | — | =vite-plugin-solid= under Deno NOT probed (=m82:1496=) — milestone 5's first hour |
+| =tty= | OpenTUI 0.5.17 + =@opentui/solid= under Deno: =deno-ffi.js= · =preload.js= · the two-line core patch via =install.sh= (Q12) | rig =testament/prototypes/opentui/= 16/16 | =subsystems/sheets/host/= (the Deno host, the machine sense) · =import_map.json= rows · the patch step |
+| =dom= | the browser DOM; Solid via =babel-preset-solid= in the bundler (probed), =vite-plugin-solid= for the app (unprobed) | — | the vendor chunks |
+| kits | =@vivalence/drapes/{dom,tty,svelte,state}= keyed by render target; sheets retires into =drapes/tty=; =dapper.tokens(theme, zone)= for the tty | — | milestones 4–5 |
+| media types | =application/vnd.vivalence.<target>.<framework>+javascript= + =text/markdown= · =text/plain= · =application/json= floor | =schematics/scalars/mime.js= (all six rows) | — |
+| =Bundle= | one prototype, =View= dead; =merge · entry · negotiate · load(accept)= | =prototypes/bundle.js= | — |
+| bundler rows | one row per mime, =wrap= over =#entry= | =mime.dom.svelte= · =mime.dom.html= (=paladin/belt/bundler.js:18,24=) | stage 1b (thin svelte) · 2 =tty.solid= · 3 =tty.react= · 4 =dom.solid= · =dom.react= · 5 =markdown= (=m82:2829=) |
+| a buffer's face | =buffer.bundle.load(surface.accept)= → =module.default(surface.root, props)=; the =mime.json= floor | =Buffer.bundle= · anima's =Frame= | the tty floor |
+| a mode's face | =App([{ mime, mount }])=, one source per render target | =prototypes/app.js= | hello-world's =tty.solid= source |
+
+* codemap — the tree after, by container
+
+#+BEGIN_EXAMPLE
+subsystems/typology/                                                                                       M1
+  gestalten/steer/trie.js                 + at(vector, path)                                               EDIT
+  prototypes/signal.js                    + the argv coercion row, flags · params · argv on the fin (m79 M1)   EDIT
+  schematics/primitives/contexts.js       + client · Loop                                                   EDIT
+  gestalten/belt/traits.js                + stagger (← systems/runtime/gestalten/belt/traits.js:3; the runtime imports it back)   EDIT
+  gestalten/belt/atom.js                  + until(atom, predicate, signal)                                   EDIT
+  tests/gestalten/steer/at.test.js · tests/signal.test.js (argv) · tests/schematics/contexts.test.js · tests/gestalten/belt/atom.test.js   NEW
+
+systems/ghost/                            @vivalence/ghost — "." = typology.js (paladin-free); mod.js = the CLI door (paladin)   M2
+  typology.js                             export * from prototypes · lifecycle · gestalten · traits · client.js   EDIT
+  client.js                               boot(mask, surface) — the die                                      NEW
+  prototypes/
+    client.js                             Client: mask · lighthouse · root · runtime · daemons · userspace · terminals · dispatch · $seat $live $echo $slot $chord $standing   NEW
+    runtime.js                            Runtime: reference · connection · call · cortex · modes · entities · $status · daemons (listed)   NEW
+    daemon.js                             Daemon: the same words minus daemons (← anima entities/daemon/daemon.js)   MOVE
+    lighthouse.js                         Lighthouse: $authority · $user · $status · STANDINGS · door (← anima stores/lighthouse.js, Dataspace cut out)   MOVE
+    dataspace.js                          (← anima prototypes/dataspace.js)                                   MOVE
+    terminal.js                           Terminal: $thread · $buffer · $dock (← anima entities/terminal.js)   MOVE
+    thread.js                             Thread: $turns · $buffers · $phase · $activity (← anima entities/thread/)   MOVE
+    replsignal.js                         the reader, five rows                                               NEW
+    index.js                                                                                                  EDIT
+  lifecycle/                              seven: client · lighthouse · runtime · daemon · mode · terminal · thread (decision 10)
+    client/execution.js · process.js · population.js · resolution.js · integration.js                         NEW
+    lighthouse/execution.js · population.js · resolution.js · integration.js                                  NEW
+    runtime/execution.js                  daemon's beats + /metadata/daemons                                  NEW
+    daemon/execution.js · population.js · resolution.js   (← anima entities/daemon/dossier.js mount() cut into beats)   NEW
+    mode/execution.js                     stagger the client traits (mode, bearer)                            NEW
+    terminal/execution.js · population.js · resolution.js   seat · stall · dock (← entities/terminal.js mountSeat · mountStall)   NEW
+    thread/execution.js · population.js   turns · buffers · phase · activity (← entities/thread/traits/{aimed,queueing}.js)   NEW
+    index.js                                                                                                  NEW
+  traits/harnessed.js · exposed.js · application.js · index.js   (← anima entities/mode/traits/*)              MOVE
+  gestalten/
+    repl.js                               repl · leader · the lighthouse edges                                 NEW
+    surface.js                            surface — /buffer/open · /buffer/close · /dock/*                     NEW
+    belt/dock.js                          (← anima stores/bridge/dock.js)                                      MOVE
+    belt/panes.js                         (← anima stores/bridge/panes.js, kept for the deferred views)        MOVE
+    index.js                                                                                                  NEW
+  trajectories/client.js                  viva bare · viva <reference> → the die over drapes' tty surface; --json headless   NEW   M4
+  trajectories/**                         every ink screen → a drapes/tty component; ctx.view.* → surface.emit · hold (decision 12, one move)   EDIT  M4
+  mod.js                                  Signal (M1); the trajectory grafted at /command when elevated         EDIT  M1 · M4
+  tests/client.test.js · replsignal.test.js · lifecycle/*.test.js   on @vivalence/runtime/scenarios bench       NEW   M2
+
+subsystems/drapes/                        exports ./dom · ./tty · ./svelte · ./state — the surfaces live here (decision 11)   M3
+  dom/surface.js                          dom(root, { credentials }) → the bag; credentials(localStorage)      NEW
+  dom/panes/{signin,crown,dock,frame,navigation}.jsx   Solid, each (props) with dispatch                        NEW
+  dom/* (16 components + Logo · Markdown · Strip · Frame)                                                      NEW
+  tty/surface.js                          tty(renderer, { credentials, trajectory }) → the bag; emit · hold; credentials(file)   NEW
+  tty/panes/{signin,crown,dock,frame,navigation}.jsx   Solid over <box> · <text> · <input> · <select>          NEW
+  tty/* (the same names + Logo · Chrome · Slot · Init · Doctor · Help · Search · Confirm — sheets' screens)     NEW
+  state/ (← sheets/state/*.js)                                                                                 MOVE
+  svelte/ (today's drapes, the mode render target; untouched)                                                  —
+subsystems/sheets/host/deno-ffi.js · preload.js   the Deno host of opentui (the machine sense of host)          NEW   M3
+subsystems/sheets/{mod.jsx,components,theme.js,cliffy.js}   → sheets/bak/ (ink dies in the one move)            MOVE  M4
+subsystems/dapper/                        + tokens(theme, zone) → { surface, textStrong, … }                   EDIT  M3
+subsystems/paladin/belt/bundler.js        + mime.tty.solid · mime.dom.solid rows                               EDIT  M3
+subsystems/paladin                        + FILES beside MOUNTS for VIVA_CLIENT_GHOST_CREDENTIALS_FILE         EDIT  M2
+import_map.json                           solid-js · @opentui/{core,solid} · babel-preset-solid · vite-plugin-solid   EDIT  M3
+
+systems/anima/                                                                                               M4
+  src/client.js                           anima whole: boot(mask, dom(document.body, { credentials }))         NEW
+  index.html · vite.config.mjs            plain vite + vite-plugin-solid; SvelteKit out                        NEW
+  bak/src/                                ← today's src/ (app · lib · typology)                                MOVE
+commons/modes/home/home.viva.js           + a tty.solid source beside the svelte one (optional)                EDIT  M4
+#+END_EXAMPLE
+
+* deliverables
+
+| # | deliverable | container | milestone |
+|---+-------------+-----------+-----------|
+| a | the baseline probes: =vite-plugin-solid= under Deno (a subagent, =testament/prototypes/solid-vite/=); opentui's Deno host re-run at the pinned version | testament | 0 |
+| b | =steer.trie.at= · the argv row on =Signal= (=ShellSignal= · =ShellContext= dead) · =contexts.client= · =contexts.Loop= · =stagger= moved · =atom.until= | typology · runtime · ghost | 1 |
+| c | the paladin-free =@vivalence/ghost= root: =boot= · prototypes · seven lifecycles · traits · gestalten; =ReplSignal= · =repl= · =surface= · the drain; the file credentials carrier (=FILES= in paladin) | ghost · paladin | 2 |
+| d | the client headless on =bench=: signin · runtime · daemons · home · a turn · teardown | ghost tests | 2 |
+| e | the two surfaces in drapes: =dom/surface.js= + panes, =tty/surface.js= + panes, the kits, =dapper.tokens=, opentui's Deno host, the =mime.{tty,dom}.solid= bundler rows | drapes · sheets · dapper · paladin | 3 |
+| f | the clients, one move: =viva= bare → chrome, every ink screen on =drapes/tty=, =--buffer= dead, sheets' ink to =bak/=; anima from scratch on =@vivalence/ghost= + =@vivalence/drapes/dom=, old =src/= to =bak/= | ghost · anima · sheets | 4 |
+| g | the census and the walks: every suite from the repo root; the tty walk (headless renderer + one real terminal); the dom walk (playwright, five screens × four themes); the docker image boots | all | 5 |
+
+* milestones
+
+| # | milestone | proof |
+|---+-----------+-------|
+| 0 | baseline: =vite-plugin-solid= under Deno — PASS 10-11 (subagent, =testament/prototypes/solid-vite/README.md=: build+serve 3/3, dev 3/3, 0 errors, 8.34 kB / 3.49 kB gz; vite 6.3.3 · vite-plugin-solid 2.11.10 · solid-js 1.9.12; no =--conditions=, no solid-js remap — vite resolves with its own conditions; =nodeModulesDir: "auto"=; in the real anima the two packages need EXACT =import_map.json= entries) · opentui under Deno at =0.5.17= re-run OWED | two READMEs in =testament/prototypes/= with pass tables |
+| 1 | typology + runtime: =steer.trie.at= · argv on =Signal= · =contexts.client= · =Loop= · =stagger= · =atom.until=; ghost's =mod.js= on =Signal= | typology suite equal + the new cases; runtime · ghost suites equal; =grep -rn "ShellSignal\|ShellContext" systems subsystems commons= → 0 |
+| 2 | the =@vivalence/ghost= root, headless: =boot= · prototypes · the seven lifecycles · traits · =repl= · =surface= · the drain; =viva client --json= boots, signs in from the file carrier, seats home, sends one turn, prints the transcript, exits 0 | =deno info --json systems/ghost/typology.js \vert grep -c subsystems/paladin= → 0; =client.test.js= on =bench=; every subscription closed |
+| 3 | drapes: =dom/surface.js= · =tty/surface.js= · the panes · the kits · =dapper.tokens= · =sheets/host/= · the bundler rows; each pane mounted in isolation | =drapes/tests/=: the panes × 2 surfaces, four themes; =opentui= test-utils for tty, linkedom for dom |
+| 4 | the clients, one holistic move (decision 12): ghost =viva= bare → chrome (signin held · dock · frame · spine · =/= commands → slot · esc), every trajectory screen on =drapes/tty=, ink gone; anima from scratch: boot → signin → dock → a turn → hello-world's buffer in the frame → navigation | the tty walk (headless renderer + one real terminal); the dom walk (playwright); =viva instance/doctor= still cut |
+| 5 | the census: every suite from the repo root; =deno task anima/bundle= · =anima/test= · =ghost/test=; docs · ledger · deploy unchanged; the docker image boots | the four suites green or attributed; the image boot line |
+
+* blast table
+
+| path | change | milestone |
+|------+--------+-----------|
+| =subsystems/typology/gestalten/steer/trie.js= · =prototypes/signal.js= · =schematics/primitives/contexts.js= · =gestalten/belt/traits.js= | EDIT | 1 |
+| =systems/runtime/gestalten/belt/traits.js= · its importers (=lifecycle/mode/resolution.js=) | =stagger= imported from typology | 1 |
+| =systems/ghost/mod.js= · =tests/{registry,ledger}.test.js= | =ShellSignal= → =Signal= | 1 |
+| =systems/ghost/typology.js= · =deno.jsonc= ="."= | the root flips to the paladin-free barrel | 2 |
+| =systems/anima/src/typology/**= (~1 500 lines) | MOVE into ghost | 2 · 6 |
+| =systems/anima/src/app/**= · =+layout.svelte= · SvelteKit config | → =bak/= | 6 |
+| =subsystems/sheets/**= | =state/= → =drapes/state=; =host/= NEW; the rest retires | 4 · 6 |
+| =subsystems/drapes/deno.jsonc= exports | =./dom= · =./tty= · =./svelte= · =./state= | 4 · 5 |
+| =subsystems/paladin/belt/bundler.js= · =import_map.json= | the Solid rows, the opentui rows | 4 · 5 |
+| =~/.viva/ledger/credentials.json= | NEW file, 0600 | 3 |
+| =~/.viva/instances/*/mountpoint= | unchanged | — |
+
+* testing assessment
+
+- every lifecycle test on =@vivalence/runtime/scenarios= =bench= (a stub runtime, no =~/.viva=); the five =ReplSignal= rows as a table test; the drain with an enqueued list and an aborted controller; the lighthouse vector with a stub surface whose =signin= answers a fixture.
+- dom mounts under linkedom; tty under =@opentui/solid= test-utils (=testRender=).
+- COVERAGE GAP: two live clients on one thread (T-twin) — two dies on one bench runtime, milestone 3.
+- COVERAGE GAP: =vite-plugin-solid= under Deno — a probe before milestone 5's first block.
+
+* tangle — the framework
+
+Rules (skill =quest=): new files whole, SRC headed by =// <path>= on line 1; edits as =#+BEGIN_SRC diff= hunks, first line =// <path>:<line>=, old lines exact, =…= between sub-hunks; a MOVE = =mv= first, its block on the NEW path. An EXAMPLE block below is a SLOT — the file's path and its contract, unfilled; it becomes a SRC block on its milestone's go and only then does =methods/apply-diffs.py= see it. Blocks already drafted in =* the design= are referenced, not repeated.
+
+** milestone 1 — typology
+
+#+BEGIN_EXAMPLE
+// subsystems/typology/gestalten/steer/trie.js — at(vector, path): shape A in the dialogue, 10-11 08:38
+// subsystems/typology/tests/gestalten/steer/at.test.js — on house(): root → hunt → stalk has an effect · an absent edge → null · [] → the vector itself
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// subsystems/typology/prototypes/signal.js — the argv row (m79 M1 verbatim, m79-terminal-ghost.org:576-682): every(is.string) array → segments; params AND flags on the fin; `--` terminates; getters flags · params · argv on the root answer for the fin; rebase overridden; Signal.tokens(line)
+// subsystems/typology/tests/signal.test.js — the witness: the same Signal as a string and as argv
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// subsystems/typology/schematics/primitives/contexts.js — client · Loop, each word with a .desc() carrying an Example (connoisseur); the table in ** the context is the spec
+// subsystems/typology/tests/schematics/contexts.test.js — contexts.of(contexts.Loop) accepts a stub client ctx, refuses one missing dispatch
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// subsystems/typology/gestalten/belt/traits.js — + stagger(bearer, context, traits) (← systems/runtime/gestalten/belt/traits.js:3-16 verbatim)
+// systems/runtime/gestalten/belt/traits.js:3 — stagger removed, re-exported from typology for its importers
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// systems/ghost/mod.js:6 · :64-69 · :131-139 — ShellSignal · ShellContext → Signal + a plain context; ctx.signal.argv at the span subject (:31) and the NotFound line (:145)
+#+END_EXAMPLE
+
+** milestone 2 — the ghost root
+
+#+BEGIN_EXAMPLE
+// systems/ghost/typology.js — export * from "./prototypes/index.js" · "./lifecycle/index.js" · "./gestalten/index.js" · "./traits/index.js"; NO belt/ (paladin lives there)
+// systems/ghost/client.js — boot(mask, surface): the die, as drafted
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// systems/ghost/prototypes/client.js — class Client { mask; lighthouse; root; runtime; daemons = {}; userspace; terminals; dispatch; $seat $live $echo $slot $chord $standing } — nanostores atoms, a plain getter beside each (connoisseur)
+// systems/ghost/prototypes/runtime.js — class Runtime { reference; connection; call; cortex; modes = {}; entities; statics; cargo; $status; daemons } — the runtime as a bearer
+// systems/ghost/prototypes/daemon.js — class Daemon { the same words, no daemons } (← anima entities/daemon/daemon.js, lighthouse-free)
+// systems/ghost/prototypes/lighthouse.js — Lighthouse: $authority · $user · $status · STANDINGS · restore(held) · verify · enter(route, credentials) · refresh · logout; the Dataspace constructor arg removed (← anima stores/lighthouse.js:12-120)
+// systems/ghost/prototypes/dataspace.js — (← anima prototypes/dataspace.js, the comment at :11 gone, same shape)
+// systems/ghost/prototypes/terminal.js — Terminal: $thread · $buffer · $dock; seat(thread) · write(data); mountSeat · mountStall become lifecycle/client/resolution.js beats
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// systems/ghost/lifecycle/client/execution.js — as drafted
+// systems/ghost/lifecycle/client/population.js — userspace · runtime · daemons · loop (loop lands in milestone 3)
+// systems/ghost/lifecycle/client/resolution.js — lighthouse(execution) · runtime(execution) · daemons(execution) · home · seat (today's mountSeat as a beat) · stall (today's mountStall as a beat)
+// systems/ghost/lifecycle/client/integration.js — surface (milestone 3) · ledger
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// systems/ghost/lifecycle/lighthouse/execution.js · population.js · resolution.js · integration.js — as drafted in ** the gate
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// systems/ghost/lifecycle/daemon/execution.js — status · metadata · cortex · entities · modes · resolution.modes(mode): dossier.js:93-163 cut into beats
+// systems/ghost/lifecycle/daemon/population.js · resolution.js
+// systems/ghost/lifecycle/runtime/execution.js — daemon's population beats + listing /metadata/daemons onto runtime.daemons
+// systems/ghost/lifecycle/mode/execution.js — stagger(mode, bearer, traits) through typology's belt/traits.js (decision 2)
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+// systems/ghost/traits/harnessed.js · exposed.js · application.js — (mode, bearer) as m82:927-951 and :1233-1252
+// systems/ghost/gestalten/belt/dock.js · panes.js — (← anima stores/bridge/{dock,panes}.js verbatim)
+// systems/ghost/tests/client.test.js — bench: boot a die over a stub surface { credentials: memory, signin: () => fixture, mount: {}, trajectory: new Vector() }; signin · runtime · daemons listed · home seated · kill → every finally ran
+#+END_EXAMPLE
+
+** milestone 3 — the Loop
+
+#+BEGIN_EXAMPLE
+// systems/ghost/prototypes/replsignal.js — m82:1190-1206 verbatim over the landed argv row
+// systems/ghost/gestalten/repl.js — repl · leader (m82:1213-1226 · :1271-1279, steer.trie.at landed; ctx.seat.get().mode)
+// systems/ghost/gestalten/surface.js — as drafted in ** the dock
+// systems/ghost/lifecycle/client/process.js — settle · repl + evaluate, as drafted
+// systems/ghost/lifecycle/client/population.js — + loop, as drafted, with capturing · streaming · killing (m82:1146-1169)
+// systems/ghost/lifecycle/client/integration.js — + surface, as drafted
+// systems/ghost/surface/tty/credentials.js — credentials(file): read · write · clear over <ledger>/credentials.json, 0600, rows pass v.primitives.credentials.Credential
+// subsystems/paladin — FILES beside MOUNTS for VIVA_CLIENT_GHOST_CREDENTIALS_FILE (m79 F2)
+// systems/ghost/trajectories/client.js — viva client --json: boot the die over a headless surface, one turn from --say, print the transcript, exit
+// systems/ghost/tests/replsignal.test.js — the five rows as a table
+#+END_EXAMPLE
+
+** milestone 4 — the tty surface
+
+#+BEGIN_EXAMPLE
+// subsystems/sheets/host/deno-ffi.js · preload.js — testament/prototypes/opentui/deno-{ffi,preload}.js verbatim
+// systems/ghost/install.sh — the @opentui/core patch step (Q12, pinned 0.5.17)
+// import_map.json — react@19.2.0 · solid-js (dist/solid.js) · @opentui/{core,solid}@0.5.17 · babel-preset-solid
+// subsystems/paladin/belt/bundler.js — the mime.tty.solid row: babel-preset-solid generate universal, wrap over #entry (m82:341-343)
+// subsystems/dapper — tokens(theme, zone)
+// subsystems/drapes/tty/* — Logo · Chrome · Slot · Row · Key · Pip · Empty · Input · Markdown · Strip · Frame · Spinner over <box> · <text>
+// subsystems/drapes/state/* — (← sheets/state/*.js)
+// systems/ghost/surface/tty/index.js — tty(renderer, { credentials, trajectory }) → the surface bag
+// systems/ghost/surface/tty/signin.jsx · composer.jsx · mount/{crown,dock,frame,navigation}.jsx
+// systems/ghost/trajectories/client.js — + the chrome: viva bare → ?1049h, esc kills the controller (m82:1408-1420); the sigil (m82:1425-1429)
+#+END_EXAMPLE
+
+** milestone 5 — the dom surface
+
+#+BEGIN_EXAMPLE
+// systems/anima/vite.config.mjs — vite-plugin-solid, index.html, SvelteKit out (PROBE FIRST under Deno)
+// systems/anima/src/client.js — the die over surface/dom(document.body, { credentials: credentials(localStorage) })
+// systems/anima/src/surface/dom/index.js · credentials.js · signin.jsx · mount/{crown,dock,frame,navigation}.jsx
+// subsystems/drapes/dom/* — the 16 Solid components + Logo · Markdown · Strip · Frame, dapper's four themes
+// subsystems/paladin/belt/bundler.js — mime.dom.solid · mime.dom.react rows (stage 4); anima's vendor chunks
+#+END_EXAMPLE
+
+** milestone 6 — the swap
+
+#+BEGIN_EXAMPLE
+// Moves: systems/anima/src/{app,lib,typology} → systems/anima/bak/; subsystems/sheets → subsystems/sheets/bak (state/ and host/ kept)
+// deno.jsonc — anima tasks on vite; sheets off the workspace or an empty member
+// docs · ledger · deploy — unchanged, proven by the docker image boot
+#+END_EXAMPLE
+
+* QUESTIONED
+
+- Q5 one go per milestone on this commit (/"yours to mangle"/), the typology diffs still shown as separate hunks — assumed; his word if he wants a go per hunk.
+
+* deferred
+
+- =notebook= · =tiling= · =canvas= — named, not designed; =panes.js= kept on disk for them; notebook's reorder/prune verbs on =Turn=.
+- React rows =mime.tty.react= · =mime.dom.react= (decision 13) — the bundler rows and vendor chunks wait.
+- tokens on the twin client (a daemon broadcast off =Activity.stdout=).
+- the pincer on dom (m82 strand S: /"might do away with a pincer"/) — =/dock/*= rides keys and a strip.
+
+* QA
+
+| marker | testimony |
+|--------+-----------|
+| =m86/T-home= | /"I open anima, I land at home, I type, the home mode answers — no daemon picked"/ (moved from m82 10-10) |
+| =m86/T-twin= | /"I open the same thread in ghost and in anima, I type in one, the other shows the turn"/ (intent G) |
+| =m86/T-offline= | /"I stop the runtime under a live client; the crown says offline; I start it; the client is back without a reload"/ (intent G) |
+| =m86/T-sigil= | /"in the ghost chrome I type a line, it is a turn; I type /help, the slot lists the commands"/ (m82 F16) |
+
+#+marker_qa: m86/T-home · pending · the client vector seats home
+#+marker_qa: m86/T-twin · pending · two clients on one thread mirror each other
+#+marker_qa: m86/T-offline · pending · the die survives the wire
+#+marker_qa: m86/T-sigil · pending · bare text is a turn, / is a command
+
+* changelog
+
+- 10-10 — SCAFFOLDED on beef's /"loop will be new quest m86-repl-loop"/, right after m82's bundle landed.
+- 10-11 — RULED: the approach; dock only; =gestalten/surface.js=. POPULATED: the dialogue · the design · codemap · deliverables · milestones · the tangle framework. Then his marks: =host= dead client-side (=Runtime= · =Daemon=, =lifecycle/{runtime,daemon}/=), =surface= not =target=, =session= dead (one =contexts.client=), the views section cut to =** the dock= on =terminal.$buffer · $dock=, Q1 amen, Q3 yes (=stagger= → typology), the dialogue extended with my answers' code beside his yap (the ring · the graph · attempt 3 · the rejected =Ring= and =Loop= classes · the REPL table · the shared/different table · =trie.at= A). Then /"cut captured and chrome. thast teh new meta and teh expected meta after 86. anima of course is always chrome."/ → decision 7, =** the three ways=, the two surface bags. Then /"prep the build … ask questions"/ → seven asked, six answered → decisions 8–14: no =surface.signin= (the pane dispatches into a live loop, the loop and surface are the first beats, the lighthouse waits on =atom.until=), seven lifecycles (+ terminal · thread), the surfaces live in drapes, anima from scratch, one holistic move (ink dies with it), React deferred; milestone 0 probe PASS; milestones re-cut 0–5, deliverables a–g.
+- 10-11 — BUILT on /"go. implement. both clients at once. have fun."/ · /"use subagents for non-design work."/ · /"test heavy"/. Milestone 1 landed: =steer.trie.at= · the argv row on =Signal= (=flags=/=params= answer for the fin, =Signal.tokens=, =rebase=) · =contexts.client= (12 words) + =contexts.Loop= · =traits.stagger= in typology (runtime re-exports) · =atom.until= — typology =ok | 142 passed (625 steps)=; ghost's =mod.js= on =Signal=, =ShellSignal= · =ShellContext= to =systems/ghost/bak/=. Milestone 2 landed: =client.js= =boot(mask, surface)= · =prototypes/{client,replsignal}.js= · the seven lifecycles · =gestalten/{repl,surface,command}.js= · =gestalten/belt/headless.js=; the anima typology ported by a subagent into =prototypes/**= · =traits/**= · =gestalten/belt/{dock,panes,repository}.js= (=ok | 31 passed (144 steps)=); the =/client= trajectory (=--json= headless, bare chrome); =deno info= paladin count 0. Milestone 3 landed by two subagents: =subsystems/drapes/tty/= (opentui 0.5.17 + Solid, =sheets/host/= Deno FFI host + the two-line core patch, =dapper.tokens(theme, zone)=) and =subsystems/drapes/dom/= (Solid, linkedom tests) — =ok | 65 passed (737 steps)= with dapper. The walk: =systems/ghost/tests/client.test.js= on a REAL runtime (=hello.boot()= scenario, new: =systems/runtime/tests/scenarios/hello.js=) — signup through the loop, both bearers healthy, home seated on =/runtime/house/mode/home/probe=, a turn refused =HARNESSED=, =/dock/full=, a chord refused, logout clears the carrier, teardown destroys every pane; twin dies share the thread — =ok | 1 passed (2 steps)=. Runtime after the move: =ok | 84 passed (554 steps) | 1 ignored=.
+- 10-11 — DEVIATIONS from the design, each a one-line truth: (1) no =integration.ledger= beat in the client root — paladin-free means the ledger is read at the door (=trajectories/client.js=), the die gets a =mask=. (2) the runtime host did not serve its minted modes: =/runtime/<slug>/entities/mode= 404 — =systems/runtime/lifecycle/host/aperture/entities.js= mounts =/entities/mode= on BOTH rungs over =die.host= (the daemon's =aperture/datamap.js= keeps literal · symbol); =lifecycle/runtime/execution.js= in ghost stays the daemon's re-export. (3) the lighthouse connection beat moved from =lifecycle/lighthouse/population.js= to the client's =population.lighthouse=, BEFORE =integration.surface=: the signin pane reads =lighthouse.door= at mount; the gate's vector is now =credentials · standing · credentials · authorized=. (4) =Lighthouse.enter= sets =$user= before =$authority= — the carrier is written on the authority emit and carried an empty user (=/user must have required properties id=). (5) =thread.mode= is the resolved =Mode= (=$modeId= holds the wire id; subagent); =Mode.manifest= is a getter over the flat row so typology's =stagger= reads it; a mode's releases ride the seat bag (=steer.dispatch.execute= returns the first middleware's value, never the effect's). (6) terminal =seat()= listens on =userspace.terminal.$entities=, not =terminal.repository= — the row emits before its dossier integrator runs. (7) bare =viva= in a pipe without =--json= refuses naming =--json= (=help.wet.test.js= rewritten: the listing is =viva help=). (8) the =bench= scenario's die lacked =controller= and =traits= since m81 — red before this session, green now. (9) =client.panes= Vector dropped: =integration.surface= calls =surface.mount[pane](props)= directly. (10) the dead comment block with beef's marks in =mod.js= deleted with =ctx.call='s rewrite. (11) ghost's client row added to =commons/ledger/ledger.viva.json= =clients=. RED, unattributed: =strata.wet.test.js= /two shells select two instances in parallel/ — the second shell's selection unseen even sequentially; the door changes never touch sessions; left for the fold.
+- 10-11 — ANIMA from scratch (subagent): =systems/anima/{src,tests,svelte.config.js,tailwind.config.js,postcss.config.js,vite.config.mjs,client.viva.js}= → =bak/=; new =src/client.js= (=anima(window)= → =boot(mask(__VIVA_CLIENT__), dom(document.body, { credentials: credentials(localStorage) }))=, =pagehide= aborts the die), =index.html=, =vite.config.mjs= (vite-plugin-solid, paladin =check.instance= at build, the mask baked by =define=, dapper's postcss theme sheet, =mod.client.js= alias), =deno.jsonc= one-shot test; =Dockerfile= copies =systems/ghost/=. Proof: prod build =355.50 kB / 109.34 kB gz=; =systems/anima/tests/client.test.js= boots the page under linkedom against =hello.boot()= → signup → seat → dock in the document, user in the crown → =ok | 1 passed=; paladin in the page 0. Found: the dom boot/navigation panes read =client.runtime= before =population.runtime= → they now follow =client.$modes= (=subsystems/drapes/dom/panes/{boot,navigation}.jsx=, two tests). RULED here: bearer status codes UPPERCASE like the controller machine and STANDINGS — =MOUNTING · HEALTHY · UNAVAILABLE · ERROR · RELEASED= (=lifecycle/daemon/{population,resolution}.js= · =client/resolution.js=); the tty pips follow (handed to the ink-port subagent with the same null-runtime fix for =tty/panes/boot.jsx=). Owed: =import_map.json:3= =$telemetry= points into =bak/= (0 importers); the docker image is unverified; the deployed remote is baked at build time (=_app/env.js= written, read by nothing).
+- 10-11 — INK DEAD in one move (subagent, decision 12): ghost screens are DATA over generic tty atoms — =systems/ghost/belt/view.js= =ctx.view.emit(kind, props)= · =hold(kind, props)=, kinds =report · listing · confirm · form · picker · pending= (=subsystems/drapes/tty/{Table,Report,Listing,Confirm,Form,Picker,Pending}.jsx=, pure =table.js= · =outline.js= · =plain.js=); one renderer per process, lazy, destroyed before every exit; a pipe renders through =@vivalence/drapes/tty/plain= (no bundle); =--buffer= dead; the five ink =.jsx= → =systems/ghost/bak/screens/=, =belt/shape.js= → =bak/belt/=; =subsystems/sheets/{mod.jsx,components,theme.js,cliffy.js}= → =sheets/bak/=, exports =./host= · =./state=. =instance/init= is a sequence of forms and pendings; =ledger/init= one form. The two tty pane fixes landed with it (uppercase codes in =pips.js=, boot/navigation follow =$modes=). Then =./tty/credentials= exported so =viva client --json= needs no bundle. Counts: ghost + tty + sheets =181 passed (318 steps) | 1 failed= (strata); tty alone =26 passed (127 steps)=; =viva /help= alive without =out/views.mjs=. CENSUS from the root: typology · paladin · ghost · drapes · dapper · sheets · anima =424 passed (1827 steps) | 1 failed= (the strata red), runtime =84 passed (554 steps) | 1 ignored=. Zero-greps: =ShellSignal\vert{}ShellContext= outside =bak/= 0; paladin under =systems/ghost/typology.js= 0, under =systems/anima/src/client.js= 0; =.jsx= in =systems/ghost= 0; =svelte= · =tailwind= in =systems/anima= outside =bak/= 0 (one =.gitignore= row). Docker daemon down on this machine — the image boot is beef's. Nobody has pressed a key in a real terminal: the =viva= bare walk and the browser walk are his.
+- 10-11 — DOUBLE CHECK on /"all done?? double check"/, every count re-run fresh: =viva /help= alive · paladin 0 · 0 · front =424 passed (1827 steps) | 1 failed= (strata, the known issue) · runtime =tests/= =84 passed (554 steps) | 0 failed | 1 ignored= (the =**= glob under =sh= had counted 32) · =deno task anima/bundle= builds (355 kB js · 69 kB css, mask baked) · caps clean · two orphan test runtimes from a hung =P-reconcile= run SIGTERMed. T-offline had pane tests only → =systems/ghost/tests/offline.test.js= (subagent) on a real runtime: both bearers HEALTHY → SIGTERM → runtime bearer =UNAVAILABLE= (the controller announces =STOPPING= on =/status/subscribe=) → =hello.revive(world)= on the SAME root and port (new sibling in =systems/runtime/tests/scenarios/hello.js=, =boot= untouched) → runtime then daemon back to =HEALTHY=, still signed in, same seated thread, no reboot — =ok | 2 passed (3 steps)= with =client.test.js=. GAP, known issue =client-status-stays-healthy-on-a-silent-drop=: a crash or lost wire never calls the subscribe callback (=subsystems/typology/prototypes/connection.js:163=), the crown stays HEALTHY until the runtime returns. The four =marker_qa= stay =pending=: they are testimony, held only when beef types.
+- 10-11 — BEEF'S FIRST WALK (the controller suite): root =/status= open, the host rungs =/runtime/runtime/status= · =/daemon/droneaid/status= answer =MISSING_TOKEN= to a bare curl (behind the lighthouse, as designed — the client's bearer calls them authenticated). THREE DEFECTS, fixed same turn: (1) =viva ledger/doctor= · =instance/doctor= printed twice and leaked opentui's capability probes into his shell — =belt/view.js= =emit= now always writes plain at the terminal width, the renderer opens on =hold= only (proven under =script= pty: probes 0, one print). (2) =--say hello= refused with =try: viva client --say=undefined= — =say= carries =.examples("hello")= (=trajectories/index.js:25=). (3) =viva client --json= on a dead remote hung into =Top-level await promise never resolved= — =trajectories/client.js:30= races the seat wait against =die.execution=; =tests/client.dead.test.js= pins it (fails within 20 s naming the remote). =ok | 10 passed (3 steps)= over dead · client · help.wet · offline. Deviation: =ledger/doctor= was run on HIS ledger under the pty (a lock read is a lock write; his shell session was alive, nothing reaped).
+- 10-11 — /"whta teh fuck is --say supposed to be. makes no fucking sense"/ → =--say= DEAD: it was my probe knob, a second door to the queue. =viva client --json= now feeds every stdin line to the loop (=mod.js= sets =ctx.stdin = Deno.stdin.readable= beside =ctx.interactive=; the trajectory reads =ctx.stdin= through =TextLineStream=), a line counts as answered when =$echo= cycles OR =$slot= repaints (a refused turn throws before =$echo= — the old flag would have hung on a non-HARNESSED home), the effect gains =slot=; the seat wait demands =mode= too (the loop's =seated()= does). =tests/client.json.test.js=: a first die signs up onto the file carrier, then the trajectory with =stdin: "\nciao\n"= → =slot= names HARNESSED. /"viva help renders like shit"/ → =drapes/tty/plain.js= =wrap= + hanging indent under the note column, =listing= takes =width=; =help.js= flag labels =--name=<example>= (was the description, 70 chars wide); =view.js= =width()= reads 80 when a pty reports 0 columns. Tests: plain wrap case, report.test listing passes width.
+- 10-11 — /"just go dont ask"/: =import_map.json= loses =$telemetry= (pointed at a file under =bak/=), =react= and =ink= (importers outside =bak/= · =node_modules=: 0, grepped); =viva /help= alive, =anima/bundle= builds, tty kit green after. Docker daemon still down. The silent-drop known issue CLOSED (subagent): typology's =subscribe= gains the sibling option =dropped(error?)= beside =resumed= — fires once per loss before the backoff, a =lost= flag silences repeated failed reconnects (=subsystems/typology/prototypes/connection.js:152=); the status beat passes =dropped: () => bearer.$status.set({ code: "UNAVAILABLE" })= (=lifecycle/daemon/population.js:12=); =tests/connection.test.js= (a stub SSE server: event · close · 503 · event → =[seq 1, dropped, resumed, seq 3]=) and =offline.test.js='s SIGKILL step (UNAVAILABLE inside 15 s, control run without the hook times out); typology =143 passed (626 steps)=; the known-issue entry cut.
+
+* handoff
+
+- goal: the Loop on both surfaces, the same die, =die.surface= the only difference; the dock over one seat; one holistic move for the clients.
+- done 10-11: milestones 1 · 2 · 3 landed and proven (see the changelog's counts); the headless client walk green on a real runtime; the runtime serves =/entities/mode= on both rungs; opentui 0.5.17 runs under Deno through =subsystems/sheets/host/= (the second half of milestone 0, by the tty subagent).
+- done 10-11, later: milestone 4 landed (ink dead · anima from scratch), milestone 5's census from the root (424 + 84 green, one pre-existing red), the shards rewritten (ghost · anima · design's surfaces section · runtime · typology · map · frontier); the double check (every count fresh, anima builds, =offline.test.js= green, the silent-drop gap ledgered).
+- done 10-11, beef's first walk: the controller suite (his paste: root =/status= open, host =/status= behind the lighthouse) → three defects fixed (doctor render leak · =--say= hint · =--json= hang on a dead remote) · =--say= dead, stdin the door (=echo ciao | viva client --json=) · =viva help= wraps under its note column · the silent drop reads UNAVAILABLE (typology =subscribe= =dropped=) · =import_map.json= dead rows cut. Census ghost+drapes =172 passed | 1 failed= (strata), typology =143=, runtime =84=.
+- done 10-12, beef's ghost cleanup (/"generally i want the client file removed and mod is run.js"/ · /"there are 4 lifecycles. construct populate resolve and integrate."/): =mod.js= → =run.js= (=./mod= export and the duplicate root =ghost/watch= cut) · =client.js= + =boot= → =lifecycle/client/construction.js= =construct(mask, surface)= · =trajectories/= → =lifecycle/client/trajectories/= · traits their own kind, by subject: =traits/{mode,thread,lighthouse,terminal}/= (from =traits/*.js= · =prototypes/thread/traits/= · =lifecycle/lighthouse/traits/=), barrel namespaced, =ThreadTraits= dead · the pipe refusal fires before the instance mount. Census ghost =121 passed | 1 failed= (strata), drapes =51=, anima =1=.
+- next: beef's walks — =viva= bare in a real terminal (signin · dock · a line · =/help= in the slot · esc · ctrl-c), =echo ciao | viva client --json= on his runtime, anima in a browser (=deno task anima/run=, five screens × four themes); the docker image boot (daemon down 10-11); then the fold → =done/=. QUESTIONED 10-12 (his /"run the runtime and clients without an instance?"/): the client die needs none (a =remote= + =home= mask); a =--remote= door on =viva client= and anima would cut the paladin read — on his go.
+- never: a =Loop= class · a =Ring= · =db= · =fx= · rings in code · =host= as a client noun · =session= · =target= for the surface · a =view= word · =surface.signin= (the pane dispatches) · a surface lifecycle · ink kept beside the new chrome · React in this quest · paladin in the ghost root · a gate state machine beside =Lighthouse.$status= · a throw after signin on a wire fault · the precedence edit in =match.feed= · a =views.js= · a =--say= flag (stdin is the door) · opentui for a one-shot report (its probes leak into the shell) · =boot= · =mod.js= · traits under a prototype or a lifecycle.
+- owed: Q5 · the deferred list · beef's branch (=jj bookmark create clients -r @=) · the four =marker_qa= testimonies · strata red (known issue) · =traits/terminal/standalone.js= has no live caller (cut or wire) · QUESTIONED: the runtime's die built inline at =systems/runtime/run.js:9-14= — a =lifecycle/runtime/construction.js= sibling, on his go.

@@ -1,6 +1,7 @@
 import { v } from "../v.js";
 
 export * from "./url.js";
+export * as mime from "./mime.js";
 
 export const ID = v.string({ minLength: 1 }).desc("Unique identifier (UUID)");
 

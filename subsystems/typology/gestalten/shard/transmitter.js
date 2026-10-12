@@ -1,5 +1,9 @@
 import { atom } from "nanostores";
-import { ConnectionError, Response, Socket, Url, Vector } from "@vivalence/typology";
+import { ConnectionError } from "../../prototypes/errors/connection.js";
+import { Response } from "../../prototypes/response.js";
+import { Socket } from "../../prototypes/socket.js";
+import { Url } from "../../prototypes/url.js";
+import { Vector } from "../../prototypes/vector.js";
 
 const stamp = () => new Date().toISOString().slice(11, 23);
 

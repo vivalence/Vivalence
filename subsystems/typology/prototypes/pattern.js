@@ -1,4 +1,6 @@
-import { object, is, hash } from "@vivalence/typology";
+import * as object from "../gestalten/belt/object.js";
+import * as is from "../gestalten/is/scalars.js";
+import * as hash from "../gestalten/belt/hash.js";
 
 import { Signature } from "./signature.js";
 

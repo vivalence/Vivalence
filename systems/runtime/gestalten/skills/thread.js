@@ -21,20 +21,20 @@ const modeline = (mode) =>
     places(mode),
   ].filter(Boolean).join(" · ");
 
-const bufferline = (buffer, modes) =>
-  `${buffer.index} · ${buffer.id} · ${named(buffer)} · ${modes.get(buffer.mode.id)} · ${buffer.status} · ${shown(buffer.data)}` +
-  (buffer.view?.hash ? ` · view ${buffer.view.hash}` : "");
+const bufferline = (buffer, addresses) =>
+  `${buffer.index} · ${buffer.id} · ${named(buffer)} · ${addresses.get(buffer.mode.id)} · ${buffer.status} · ${shown(buffer.data)}` +
+  (buffer.bundle ? ` · bundle ${buffer.bundle.entries.map((entry) => `${entry.mime} ${entry.hash.slice(0, 16)}`).join(" · ")}` : "");
 
-export const summary = async ({ modes: seated, entities, mode, thread }) => {
-  const modes = new Map(fromm.modes(seated).flat.map((peer) => [peer.id, address(peer)]));
+export const summary = async ({ modes, entities, mode, thread }) => {
+  const addresses = new Map(fromm.modes(modes).flat.map((peer) => [peer.id, address(peer)]));
   const buffers = await entities.buffer.find({ thread: thread.id }, { orderBy: { index: "asc" } });
   return [
     threadline(thread),
     modeline(mode),
-    `[Buffers on this thread] · ${buffers.length} · rows: index · id · label · mode · status · data · view — ` +
+    `[Buffers on this thread] · ${buffers.length} · rows: index · id · label · mode · status · data · bundle — ` +
       `these ids are what buffer_update and buffer_label take, never a document slug; ` +
       `entity_find { entity: "buffer", where: { thread: "${thread.id}" }, fields: "full" } for whole rows`,
-    ...buffers.map((buffer) => bufferline(buffer, modes)),
+    ...buffers.map((buffer) => bufferline(buffer, addresses)),
   ].join("\n");
 };
 

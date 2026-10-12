@@ -1,4 +1,5 @@
-import { is, cast } from "@vivalence/typology";
+import * as is from "../gestalten/is/index.js";
+import * as cast from "../gestalten/cast/index.js";
 import { atom } from "nanostores";
 
 // status has allways {code}.

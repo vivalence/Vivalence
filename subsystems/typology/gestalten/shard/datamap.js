@@ -1,4 +1,7 @@
-import { Vector, Aperture, Broadcaster, object } from "@vivalence/typology";
+import { Vector } from "../../prototypes/vector.js";
+import { Aperture } from "../../prototypes/aperture.js";
+import { Broadcaster } from "../../prototypes/broadcaster.js";
+import * as object from "../belt/object.js";
 import { serialize } from "@mikro-orm/core";
 
 export function inject(datamap) {

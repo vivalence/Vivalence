@@ -1,26 +1,9 @@
 import paladin from "@vivalence/paladin";
-import { Path, specimen, steer, Vector } from "@vivalence/typology";
-import { ShellContext, ShellSignal } from "../typology.js";
-import trajectories from "../trajectories/index.js";
-import { path } from "../belt/index.js";
+import { Path, specimen } from "@vivalence/typology";
+import { path } from "../gestalten/belt/index.js";
+import { drive } from "./verb.js";
 
 const { describe, it, beforeAll, expect } = specimen;
-
-const strategy = (carry, effect) => async (context) => {
-  await carry(context, async (ctx) => {
-    const result = await effect(ctx);
-    ctx.effect ??= result;
-  });
-  return context.effect;
-};
-
-const trajectory = new Vector();
-trajectories(trajectory);
-
-const drive = (args) => {
-  const signal = new ShellSignal(args);
-  return steer.dispatch.invoke(trajectory, signal, strategy)(new ShellContext({ signal }));
-};
 
 async function author(root, slug, owner) {
   await Deno.mkdir(`${root}/${slug}`, { recursive: true });
@@ -30,15 +13,13 @@ async function author(root, slug, owner) {
   );
 }
 
-describe("viva registry/{tap,untap,bootstrap}", () => {
+describe("viva registry/{tap,untap,doctor}", () => {
   let ledger;
   let store;
-  let made;
 
   beforeAll(async () => {
     ledger = await Deno.makeTempDir({ prefix: "ghost-registry-ledger-" });
     store = await Deno.makeTempDir({ prefix: "ghost-registry-store-" });
-    made = await Deno.makeTempDir({ prefix: "ghost-registry-made-" });
     paladin.env.delete("VIVA_INSTANCE_MOUNT");
     paladin.scopes([
       ["ledger", () => true, () => new Path(ledger)],
@@ -57,7 +38,7 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     const tapped = await drive(["registry/tap", "alpha"]);
     expect(tapped.record).toEqual({ "@alpha": { slug: "alpha", mount: `${store}/alpha` }, "@beta": { slug: "beta", mount: `${store}/beta` } });
     await expect(drive(["registry/untap", "never-tapped"])).rejects.toThrow("no tapped package 'never-tapped'");
-    expect(await drive(["registry/list"]).then((effect) => effect.packages.map((row) => row.mount))).toEqual([
+    expect(await drive(["registry/doctor"]).then((output) => output.record.entries.map((entry) => entry.root))).toEqual([
       `${store}/alpha`,
       `${store}/beta`,
     ]);
@@ -74,25 +55,25 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
 
   it("doctor reads the record against the store — tapped roots, an untapped resident, the census by owner", async () => {
     await author(store, "gamma", "@gamma");
-    const effect = await drive(["registry/doctor"]);
-    expect(effect.record.tapped).toBe(Object.keys(await paladin.ledger.registry.tapped()).length);
-    expect(effect.record.stale).toEqual([]);
-    expect(effect.store.path).toBe(new Path(store).absolute);
-    expect(effect.store.untapped).toEqual([`${store}/gamma`]);
-    const alpha = effect.packages.find((held) => held.owner === "@alpha");
+    const output = await drive(["registry/doctor"]);
+    expect(output.record.tapped).toBe(Object.keys(await paladin.ledger.registry.tapped()).length);
+    expect(output.record.stale).toEqual([]);
+    expect(output.store.path).toBe(new Path(store).absolute);
+    expect(output.store.untapped).toEqual([`${store}/gamma`]);
+    const alpha = output.packages.find((held) => held.owner === "@alpha");
     expect(alpha.mount).toBe(`${store}/alpha`);
     expect(alpha.root).toBe(`${store}/alpha`);
     expect(alpha.types.package).toEqual(["alpha"]);
     expect(alpha.modes).toBe(1);
-    expect(effect.pensieve.owners >= 2).toBe(true);
-    expect(effect.pensieve.modes >= effect.pensieve.owners).toBe(true);
+    expect(output.pensieve.owners >= 2).toBe(true);
+    expect(output.pensieve.modes >= output.pensieve.owners).toBe(true);
     await Deno.remove(`${store}/gamma`, { recursive: true });
   });
 
   it("doctor: integrity lists a faulted module with the schematic's sentence", async () => {
     await Deno.writeTextFile(`${store}/alpha/bare.viva.js`, `export const manifest = { type: "game", slug: "bare", version: "0.0.1", traits: ["BOOTED"] };`);
-    const effect = await drive(["registry/doctor"]);
-    const row = effect.integrity.find((held) => held.path.endsWith("/alpha/bare.viva.js"));
+    const output = await drive(["registry/doctor"]);
+    const row = output.integrity.find((held) => held.path.endsWith("/alpha/bare.viva.js"));
     expect(row.faults).toEqual(["BOOTED: no boot export"]);
     await Deno.remove(`${store}/alpha/bare.viva.js`);
   });
@@ -101,10 +82,10 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     await Deno.mkdir(`${store}/wrap`, { recursive: true });
     await author(`${store}/wrap`, "deep", "@deep");
     await drive(["registry/tap", "wrap"]);
-    const effect = await drive(["registry/doctor"]);
-    expect(effect.store.resident.includes(`${store}/wrap/deep`)).toBe(true);
-    expect(effect.store.untapped).toEqual([]);
-    expect(effect.packages.find((held) => held.owner === "@deep").mount).toBe(`${store}/wrap/deep`);
+    const output = await drive(["registry/doctor"]);
+    expect(output.store.resident.includes(`${store}/wrap/deep`)).toBe(true);
+    expect(output.store.untapped).toEqual([]);
+    expect(output.packages.find((held) => held.owner === "@deep").mount).toBe(`${store}/wrap/deep`);
     await drive(["registry/untap", "@deep"]);
     await Deno.remove(`${store}/wrap`, { recursive: true });
   });
@@ -113,68 +94,11 @@ describe("viva registry/{tap,untap,bootstrap}", () => {
     await author(store, "rot", "@rot");
     await drive(["registry/tap", "rot"]);
     await Deno.remove(`${store}/rot`, { recursive: true });
-    const effect = await drive(["registry/doctor"]);
-    expect(effect.record.stale).toEqual(["@rot"]);
+    const output = await drive(["registry/doctor"]);
+    expect(output.record.stale).toEqual(["@rot"]);
     expect(await paladin.ledger.registry.has("@rot")).toBe(true);
-    expect(effect.packages.find((held) => held.owner === "@rot")).toBe(undefined);
+    expect(output.packages.find((held) => held.owner === "@rot")).toBe(undefined);
     await drive(["registry/untap", "rot"]);
-  });
-
-  it("bootstrap with no source writes one package file, owner and slug from the destination", async () => {
-    const target = `${made}/mine`;
-    const effect = await drive(["registry/bootstrap", target]);
-    expect(effect.slug).toBe("mine");
-    expect(effect.owner).toBe("@mine");
-    expect(effect.package).toBe("@mine/package/mine");
-    expect(effect.from).toBe(null);
-    const written = await Deno.readTextFile(`${target}/package.viva.js`);
-    expect(written).toContain('owner: "@mine"');
-    expect(written).toContain('type: "package"');
-    expect(written).toContain('slug: "mine"');
-    const files = [];
-    for await (const entry of Deno.readDir(target)) files.push(entry.name);
-    expect(files).toEqual(["package.viva.js"]);
-  });
-
-  it("bootstrap records the package it just authored", async () => {
-    const record = await paladin.ledger.registry.tapped();
-    expect(record["@mine"]).toEqual({ slug: "mine", mount: `${made}/mine` });
-  });
-
-  it("bootstrap from a source clones the tree and renames the declaration", async () => {
-    const target = `${made}/borrowed`;
-    const effect = await drive(["registry/bootstrap", target, "alpha"]);
-    expect(effect.from).toBe(`${store}/alpha`);
-    expect(effect.package).toBe("@borrowed/package/borrowed");
-
-    const written = await Deno.readTextFile(`${target}/package.viva.js`);
-    expect(written).toContain('owner: "@borrowed"');
-    expect(written).toContain('slug: "borrowed"');
-    // the source's version survives the rewrite; its name does not
-    expect(written).toContain('version: "0.4.2"');
-    expect(await Deno.stat(`${target}/alpha.viva.js`).catch(() => null)).toBe(null);
-
-    // every other file rides along untouched
-    expect(await Deno.readTextFile(`${target}/extra.js`)).toBe("export const kept = true;\n");
-    expect(await Deno.readTextFile(`${target}/nested/deep.js`)).toBe("export const deep = true;\n");
-  });
-
-  it("bootstrap onto a directory that already declares a package throws", async () => {
-    const error = await drive(["registry/bootstrap", `${made}/mine`])
-      .then(() => null, (thrown) => thrown);
-    expect(String(error).includes("already declares a package")).toBe(true);
-  });
-
-  it("bootstrap without a destination names the usage", async () => {
-    const effect = await drive(["registry/bootstrap"]);
-    expect(String(effect.error).includes("usage")).toBe(true);
-  });
-
-  it("an ambiguous source in a pipe names the candidates instead of prompting", async () => {
-    const error = await drive(["registry/bootstrap", `${made}/ambiguous`, "a"])
-      .then(() => null, (thrown) => thrown);
-    expect(String(error).includes("@beta/package/beta")).toBe(true);
-    expect(await Deno.stat(`${made}/ambiguous`).catch(() => null)).toBe(null);
   });
 
   it("a remote source survives the cwd frame verbatim", () => {

@@ -1,0 +1,19 @@
+import { RemoteRepository } from "@vivalence/typology";
+import { Entity } from "./entity.js";
+
+export class Intent extends Entity {
+  implements(trait) {
+    return this.traits.includes(trait.toUpperCase());
+  }
+}
+
+export const IntentDossier = {
+  name: "intent",
+  kind: () => Intent,
+  repository: (schema, dataspace) => {
+    const repo = new RemoteRepository(schema.kind());
+    repo.connect(dataspace.runtime.branch("/userspace/entities/intent"));
+    return repo;
+  },
+  use: [],
+};

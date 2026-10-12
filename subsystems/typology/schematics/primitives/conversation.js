@@ -1,4 +1,4 @@
-import { v } from "@vivalence/typology";
+import { v } from "../v.js";
 
 export const Channel = v.union([
   v.const("handshake"),

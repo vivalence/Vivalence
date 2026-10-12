@@ -1,5 +1,5 @@
 import { Cargo, contexts, fromm, shape, shard, steer } from "@vivalence/typology";
-import { host } from "../../gestalten/belt/index.js";
+import * as belt from "../../gestalten/belt/index.js";
 
 export const domain = async (die, next) => {
   die.daemon.aperture.use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
@@ -24,10 +24,10 @@ export const domain = async (die, next) => {
 
 export const modes = (execution) => async (die, next) => {
   try {
-    await host.resolve(die.host, execution, die.traits);
+    await belt.modes.resolve(die.daemon, execution, die.traits);
     await next();
   } finally {
-    await host.release(die.host);
+    await belt.modes.release(die.daemon);
   }
 };
 

@@ -9,6 +9,7 @@
 |---+--------|
 | A | m81's strands A–P are this quest's ground (=m81-runtime-harness.org:5-27=): A /"i need a harness for the runtime"/ · B the mode-less turn · D tools and skills, all vectors · E no external harness · H a mode that runs straight in the runtime · L /"launch an entirely empty runtime harness … how we allow users to overwrite them"/ · N · P the fork walk 10-10 |
 | B | 10-10: /"is the m84 harness runtime session the harness half? - yes."/ |
+| C | 10-10, session =32a4e1f4=: /"m81 and m83 are coming. lets thing about the default primer and tools for the runtime. on a semantic level. tools and primer. look at the references for harnesses and work out how we harenss the runtime."/ → =* design — the harness map= |
 
 * rulings — in m81, by line
 
@@ -32,6 +33,87 @@
 3. the switch tool: resolves an absolute reference to its =Mode= row (=ctx.entities.mode.findOneOrFail({ daemon, type, slug })=, =daemon null= on the runtime) and writes =thread.mode=; it is the one tool the home must arm for F9 (QUESTIONED against F6's "home doesnt arm yet").
 4. the woken run: a twitch on =/after/turn/create= for the turn recording the switch — =owned()= passes every turn to every host (=subsystems/typology/gestalten/shard/datamap.js:298=), so the host whose modes hold the target id claims it; it answers on history alone (=chaining= always writes a user turn, =harnessed.js:89=); it binds the thread's user (precedent =traits/intented.js:5=; an unbound user-scoped write throws, =shard/datamap.js:207=); the client sees it as the thread's Activity.
 5. other modes' turns shown to the model with their mode, their tool calls as text — whole-thread history otherwise hands a mode tool names it cannot call (codemap runtime, "every tool name in history must be CALLABLE").
+
+* design — the harness map (C, 10-11) — proposed, nothing ruled
+
+Read: =.ikiro/reference/harnesses/harness.md= §0–§5 · §10.2 · §11.1 · m83 =* decisions= (H: =primer= the Vector, =system= the loaded record) · =* the work= (=Primer.open(signature, leaf)=, =summarizing= opens =thread= on the primer) · m81 =* decisions= =:112–123= (F6 · F7 · F8 · R5 · F9 · STANDALONE). Reconciled against them the same session: an earlier draft armed the home, nested =mode_handoff= and asked for a =hosts= word — F6 · F9 · R5 killed all three.
+
+The map: every OWNER contributes on two FACES, layered in one order, outermost wins. Today the trait hardcodes both (=systems/runtime/traits/harnessed.js:61= arms the stack, =:173= appends =thread=); after, the runtime's own pieces are IMPORTED by a mode (R2), never placed by the trait.
+
+| owner | tools | primer |
+|-------+-------+--------|
+| runtime | =gestalten.tools.{entity,buffer,thread,mode,terminal}= | =gestalten.primer.{host,modes,entity}= |
+| host | =services[].tools= · =domain.tools= | =domain.primer= |
+| mode | =mode.tools= · =generator.tools= · AGENTIC peers | =mode.primer= · peers' under slug (m83) |
+| caller | =input.tools= | =input.primer= (m83 Q, kept) |
+| trait | — | =thread= LAST, volatile |
+
+The law splitting the faces: a PRIMER says what IS, a VALENCE says what to DO. A shared primer names no tool outside its own subject — it cannot know the importing mode's armory (R2), and every name in context must resolve (harness.md §4.1 f). Subjects pair across the two barrels: =tools.entity= ↔ =primer.entity=, =tools.mode= ↔ =primer.modes=.
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/modes.js — sketch; R5: one datamap, the Mode rows ARE the roster, no hosts word
+import { Primer } from "@vivalence/typology";
+
+export const modes = new Primer().open("modes", async (ctx) => [
+  "[Modes] reference · name · traits",
+  ...(await ctx.entities.mode.find({}, { populate: ["daemon"] })).map((row) =>
+    `${row.reference} · ${row.name ?? row.slug} · ${row.traits.join(" ")}`),
+].join("\n"));
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/gestalten/primer/entity.js — sketch; lazy: the index line always, the page on primer_read
+export const entity = new Primer().open(
+  { nature: "entities", load: "lazy", valence: "Every entity you can read — columns, relations, operators, card fields. Read before an entity_find you have not shaped." },
+  async (ctx) => schema(ctx.entities),
+);
+#+END_SRC
+
+The thread summary is a primer, which answers beef's mark on =belt/summary.js= (=* tangle — M1 · runtime=, /"not a belt thing. skill or tool."/): =gestalten/primer/thread.js=, opened by =summarizing=. Under R2 its tool names are unarmed in any mode that did not import them:
+
+#+BEGIN_SRC diff
+// systems/runtime/gestalten/skills/thread.js:31
+-    `[Buffers on this thread] · ${buffers.length} · rows: index · id · label · mode · status · data · view — ` +
+-      `these ids are what buffer_update and buffer_label take, never a document slug; ` +
+-      `entity_find { entity: "buffer", where: { thread: "${thread.id}" }, fields: "full" } for whole rows`,
++    `[Buffers on this thread] · ${buffers.length} · rows: index · id · label · mode · status · data`,
+#+END_SRC
+
+The home under F6 arms nothing; its primer is the whole of it today — any mode the pointer names (=user.trait.HOME= › =instance.clients[].home=):
+
+#+BEGIN_SRC js
+// commons/modes/home/home.viva.js — sketch
+import { Primer } from "@vivalence/typology";
+import { gestalten } from "@vivalence/runtime";
+
+export const manifest = { type: "home", slug: "home", traits: ["HARNESSED", "PRIMER", "CONVERSATIONAL", "RUNTIME"] };
+export const primer = new Primer()
+  .graft(gestalten.primer.modes)
+  .open("home", ROLE)
+  .graft(gestalten.primer.entity);
+#+END_SRC
+
+What the model sees, hello-world, a fresh home thread:
+
+#+BEGIN_SRC text
+[modes]   [Modes] reference · name · traits
+          /runtime/runtime/mode/home/home · Home · HARNESSED PRIMER CONVERSATIONAL RUNTIME
+          /daemon/hello/mode/demo/hello-world · Hello World · HARNESSED APPLICATION GENERATIVE TOOLING
+[home]    You are the home of this vivalence instance … two or three plain sentences.
+[primer]  entities — Every entity you can read … Read before an entity_find you have not shaped.
+[thread]  [Thread 01a0…] · unlabeled · phase OPEN · buffers minted 0 · traits none
+          [Buffers on this thread] · 0 · rows: index · id · label · mode · status · data
+#+END_SRC
+
+The cache mark lands on the =primer= index (m83: last eager key before =thread=), =thread= past it — G1 (harness.md §10.2) closes by construction. Overwrite (L) is the existing mask fold: a =runtime.modes[]= entry ={ "module": "@commons/mode/home", "primer": … }=, =accio= mask-wins by key (=subsystems/paladin/prototypes/ledger/registry.js:207=); no new seam.
+
+Forks, QUESTIONED:
+- D1 =gestalten/primer/<subject>.js= beside =tools/= — a =Primer= is a Vector type, so the home rule (=new Vector().open(…)= → =gestalten/{tools,…}/<subject>.js=, =connoisseur.md=) extends to it. Lean: yes.
+- D2 =Mode.reference= — the index wants the absolute reference off the ROW; today it is computed on the live mode (=host.reference + mode.reference=). A row getter (=daemon= NULL → the runtime's) or the live map. Lean: the row, R5's spirit.
+- D3 =entity_schema= with no argument lists what =primer.entity= lists (=gestalten/skills/entity.js:50=). Lean: the no-arg form dies, =entity= required.
+- D4 =mode_find= lists source · mountpoint · freight (=gestalten/skills/mode.js:22=) — operator-grade; stays hello-world's import, never a default.
+- D5 hello-world's =machine(standing(ctx))= (=commons/instances/hello-world/tools/doctor.js:46=) → =primer.modes= grafted; =viva_doctor= stays the deep page.
+- D6 the switch tool (build list 3) vs F6 — unchanged by this map; the home's =primer= names no tool until it is ruled.
 
 * tangle — M1 · runtime
 
@@ -790,6 +872,7 @@ The re-cut keeps its three assertions on the home mode's route (=/runtime/mode/h
 
 * changelog
 
+- 10-11 (session =32a4e1f4=, strand C): the harness map designed from =reference/harnesses/harness.md= — owners × faces, the primer/valence law, =gestalten.primer.{modes,entity,thread}=, the home as a primer under F6; reconciled against m81's 10-10 rulings and m83's split (my draft's armed home · nested handoff · =hosts= word dropped); forks D1–D6. Nothing tangled.
 - 10-10, beef: /"is the m84 harness runtime session the harness half? - yes."/ — scaffolded from m81: the two M1 tangles moved whole (STALE since 10-09), three QA markers, six coverage gaps, eight deferred lines, the M1 handoff lines; the rulings stay in m81, cited by line.
 
 * release
@@ -810,5 +893,7 @@ drafted, moved 10-10 from m81's =* release= — the harness half's lines, none l
 - goal: the runtime's harness half — a home any thread with no mode enters, a mode switch by words, the new mode woken on the whole thread, tools a mode imports.
 - next (L): finish the design (R3 · H1–H5 · the =RUNTIME= trait's body: what "receives the runtime in its context" binds); THEN the harness map (/"we do the harness map later."/); THEN the M1 rework — read the transcript =~/.claude/projects/-Users-finn-vivalence-code-vivalence/72f560e3-f959-4fe7-b6b0-53357bcf230f.jsonl= (9.3 MB, 455 beef turns, survives compaction) oldest-first for every ruling, replay each against every M1 block with a grep, paste the greps; a block that only changed its label is not re-tangled.
 - landing M1 (after its rework): its Moves (=skills/= stays and gains =mode.js=; the four tool files =mv= to =tools/=), new files whole with their first =//= path line stripped, then =python3 .ikiro/methods/apply-diffs.py .ikiro/quests/m84-harness-runtime.org "* tangle — M1 · runtime" --write=, =harnessed.js= whole; registry blocks by hand, on go.
-- next: the harness map on m81's rulings (=* rulings= above), then the M1 rework from the transcript =~/.claude/projects/-Users-finn-vivalence-code-vivalence/72f560e3-f959-4fe7-b6b0-53357bcf230f.jsonl=, every ruling replayed against every block with a pasted grep; m83's one tier (=skills= → =tools=, =system= → =primer=) lands first or the tangle is cut on it.
+- done 10-11: the harness map, proposed (=* design — the harness map=), forks D1–D6 QUESTIONED.
+- next: beef rules D1–D6, then the M1 rework from the transcript =~/.claude/projects/-Users-finn-vivalence-code-vivalence/72f560e3-f959-4fe7-b6b0-53357bcf230f.jsonl=, every ruling replayed against every block with a pasted grep; m83's one tier (=skills= → =tools=, =system= → =primer=) lands first or the tangle is cut on it.
+- 10-12 (from m86, his /"cut home home."/): =commons/modes/home/= went to the macOS Trash 21:59 and =@commons/home/home= left =commons/ledger/ledger.viva.json= (=runtime.modes= and both clients' =home=) — the home this map sketches (=* design — the harness map=) has no file and no seat in the shipped ledger now; m86's milestone two asks his M3 (the chat mode) beside D1–D6.
 - never: an instance-record harness slot (E) · the trait arming =gestalten.tools.*= (R2) · =fs= · =shell= at home (F6) · a thread-mode write as the wake trigger (a client remode writes =Thread.mode= too, =systems/anima/src/app/panels/c/cards/threads.js:19=).

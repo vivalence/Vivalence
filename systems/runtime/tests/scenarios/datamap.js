@@ -8,7 +8,7 @@ import { mint, strike } from "../../gestalten/belt/traits.js"
 
 export const DAEMON = "test-daemon"
 
-export const stack = [sets.identity, sets.composition, sets.kernel, sets.userspace, sets.transient]
+export const stack = [sets.identity, sets.composition, sets.traits, sets.userspace, sets.transient]
 
 const assembled = assemble(stack)
 
@@ -44,7 +44,7 @@ export async function provider(instance) {
 }
 
 // the daemon's own repositories: every kernel kind scoped to DAEMON through mikro's filter, the kernel's traits
-export const struck = (em, traits = kernel) => strike(mint({ slug: DAEMON, kinds: sets.kernel, traits }), em, sets.kernel)
+export const struck = (em, traits = kernel) => strike(mint({ slug: DAEMON, kinds: sets.traits, traits }), em, sets.traits)
 
 export async function seed() {
   const datamap = await provider(descriptors)

@@ -1,7 +1,12 @@
 import paladin from "@vivalence/paladin";
-import { Cargo, contexts, fromm, shape, shard } from "@vivalence/typology";
-import { host } from "../../gestalten/belt/index.js";
+import { Cargo, contexts, fromm, shape, shard, steer } from "@vivalence/typology";
+import * as belt from "../../gestalten/belt/index.js";
 import { cargo } from "../../gestalten/shard/index.js";
+
+export const lighthouse = (execution) => async (die, next) => {
+  await steer.dispatch.execute(execution, { lighthouse: die.runtime.lighthouse, runtime: die.runtime, aperture: die.aperture, controller: die.controller });
+  await next();
+};
 
 export const services = (execution) => async (die, next) => {
   try {
@@ -24,28 +29,26 @@ export const daemons = (execution) => async (die, next) => {
 export const modes = (execution) => async (die, next) => {
   die.runtime.aperture.use(die.runtime.lighthouse.authenticate).use(die.runtime.lighthouse.bind);
   try {
-    await host.resolve(die.host, execution, die.traits);
+    await belt.modes.resolve(die.runtime, execution, die.traits);
     die.runtime.cargo = new Cargo(() => fromm.modes(die.runtime.modes).flat.filter((mode) => mode.implements("FRAUGHT") || mode.implements("MOUNTED")).map((mode) => mode.freight));
     await next();
   } finally {
-    await host.release(die.host);
+    await belt.modes.release(die.runtime);
   }
 };
-
-const hosts = async (die) => [...(await die.runtime.processes.daemon.find()), die.host];
 
 export const attach = async (die, next) => {
   for (const service of await die.runtime.processes.service.find()) {
     die.aperture.branch(service.reference.absolute, service.attachment);
   }
 
-  for (const bearer of await hosts(die)) {
-    for (const mode of fromm.modes(bearer.modes).flat) {
+  for (const context of [...(await die.runtime.processes.daemon.find()), die.runtime]) {
+    for (const mode of fromm.modes(context.modes).flat) {
       if (!mode.implements("APPLICATION") && !mode.implements("GENERATIVE")) continue;
       const bundler = paladin.bundler(mode.bundles.absolute);
       die.aperture
         .branch("/attached/bundle")
-        .branch(bearer.reference.absolute)
+        .branch(context.reference.absolute)
         .branch(mode.reference.absolute)
         .open("/(.*)", async (input, ctx) => {
           const served = await bundler.serve(fromm.params(ctx.params).path.absolute);
@@ -59,12 +62,12 @@ export const attach = async (die, next) => {
         });
     }
 
-    const fraught = fromm.modes(bearer.modes).flat.filter((mode) => mode.implements("FRAUGHT") || mode.implements("MOUNTED"));
+    const fraught = fromm.modes(context.modes).flat.filter((mode) => mode.implements("FRAUGHT") || mode.implements("MOUNTED"));
     if (!fraught.length) continue;
     die.aperture
       .branch("/attached/cargo")
-      .branch(bearer.reference.nature)
-      .use(shard.context.spread(contexts.host, bearer))
+      .branch(context.reference.nature)
+      .use(shard.context.spread(contexts.host, context))
       .open("/(.*)", cargo.serve(() => fraught));
   }
 

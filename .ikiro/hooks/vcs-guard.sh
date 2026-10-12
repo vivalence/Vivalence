@@ -43,11 +43,14 @@ done < <(grep -oE '(^|[;&|(`[:space:]])git[[:space:]]+[[:alnum:]_-]+([[:space:]]
 # jj: allow only the read-only surface — log, st(atus), show, diff, config get, op log.
 while read -r sub rest; do
   case "$sub" in
-    log|st|status|show|diff) ;;
-    config) grep -qE '^get' <<<"$rest" || deny "jj config: only 'jj config get' is read-only. Propose; beef runs.";;
+    log|st|status|show|diff|evolog|obslog|interdiff|root|help|version|cat|files) ;;
+    file)      grep -qE '^(list|show|annotate)' <<<"$rest" || deny "jj file $rest: only list/show/annotate read. Propose; beef runs.";;
+    bookmark|branch|tag) grep -qE '^(list|l)' <<<"$rest" || deny "jj $sub $rest: ref mutation. Propose; beef runs.";;
+    workspace) grep -qE '^(list|root)' <<<"$rest" || deny "jj workspace $rest: mutation. Propose; beef runs.";;
+    config) grep -qE '^(get|list)' <<<"$rest" || deny "jj config: only get/list read. Propose; beef runs.";;
     op)     grep -qE '^log' <<<"$rest" || deny "jj op $rest: only 'jj op log' is read-only. Recovery is a graph mod. Propose; beef runs.";;
     *)      deny "jj $sub: graph mutation. VCS IS READ-ONLY — propose the exact command; beef runs it via !";;
   esac
-done < <(grep -oE '(^|[;&|(`[:space:]])jj[[:space:]]+[[:alnum:]-]+([[:space:]]+[[:alnum:]-]+)?' <<<"$command" | sed -E 's/^[^j]*jj[[:space:]]+//')
+done < <(sed -E 's/jj[[:space:]]+((--no-pager|--ignore-working-copy|-R[[:space:]]+[^[:space:]]+|--repository[[:space:]]+[^[:space:]]+)[[:space:]]+)+/jj /g' <<<"$command" | grep -oE '(^|[;&|(`[:space:]])jj[[:space:]]+[[:alnum:]-]+([[:space:]]+[[:alnum:]-]+)?' | sed -E 's/^[^j]*jj[[:space:]]+//')
 
 exit 0

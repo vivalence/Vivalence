@@ -71,8 +71,8 @@ Literals, folds, twitches → the domain (`ctx.domain.*`), never a mode. The cli
 `chess/tests/rig.js:18-68`: repositories minted from the domain's traits, the aperture grafted:
 
 ```js
-const traits = Object.fromEntries(Object.keys(sets.kernel).map((kind) => [kind, gather(kernel, domain, [], kind)]));
-const entities = { ...held.entities, ...strike(mint({ slug: DAEMON, kinds: sets.kernel, traits }), em, sets.kernel) };
+const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(kernel, domain, [], kind)]));
+const entities = { ...held.entities, ...strike(mint({ slug: DAEMON, kinds: sets.traits, traits }), em, sets.traits) };
 daemon.aperture.graft(domain.aperture); daemon.call = shape.proxy(domain.aperture, steer.strategy.direct);
 ```
 

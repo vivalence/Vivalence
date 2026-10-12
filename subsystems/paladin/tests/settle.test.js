@@ -114,7 +114,7 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     expect(instance.faults).toEqual([]);
   });
 
-  it("the root datamap is a service's default: a COPY, seated in the service's directory, its file named for it — a daemon opens none of its own", async () => {
+  it("the root datamap is a service's default: a COPY, placed in the service's directory, its file named for it — a daemon opens none of its own", async () => {
     const instance = await mount(
       (paladin) => ({ datamap: libsql, daemons: [daemon()], services: [nlp(paladin)], environment }),
       SET,
@@ -134,7 +134,7 @@ describe("settle — the schematic fills, mints and judges what the pinhole fire
     );
   });
 
-  it("a mounting's own mountpoint wins over the seat, thunk fired, and its datamap follows it", async () => {
+  it("a mounting's own mountpoint wins over the derived one, thunk fired, and its datamap follows it", async () => {
     const instance = await mount(
       (paladin) => ({
         datamap: libsql,
@@ -306,7 +306,7 @@ const relativeInstance = (paladin) => ({
 });
 
 describe("settle — a modes entry in object form fires at the pinhole like any mask", () => {
-  it("the mountpoint thunk fires and lands as a Path; the entry keeps its module and statics; the string entry beside it is seated under the daemon", async () => {
+  it("the mountpoint thunk fires and lands as a Path; the entry keeps its module and statics; the string entry beside it is placed under the daemon", async () => {
     const instance = await mount(officeInstance, { ...SET, VIVA_PROBE_VDEX: "/jdex" });
     const [domain, entry] = instance.daemons[0].modes;
     expect(domain.module).toBe("@vcompany/domain/voffice");
@@ -324,7 +324,7 @@ describe("settle — a modes entry in object form fires at the pinhole like any 
     expect(instance.daemons[0].modes[1].mountpoint).toBeNull();
   });
 
-  it("an entry without a mountpoint is seated under its daemon — mode_<type>_<slug>; a declared one, blank or not, is never seated over", async () => {
+  it("an entry without a mountpoint is placed under its daemon — mode_<type>_<slug>; a declared one, blank or not, is never placed over", async () => {
     const instance = await mount(officeInstance, { ...SET, VIVA_PROBE_VDEX: "/jdex" });
     expect(instance.daemons[0].modes[2].mountpoint).toBeInstanceOf(Path);
     expect(instance.daemons[0].modes[2].mountpoint.absolute).toBe("/mountpoint/daemon_probe/mode_office_email");
@@ -338,7 +338,7 @@ describe("settle — a modes entry in object form fires at the pinhole like any 
     );
   });
 
-  it("the daemon's own seat is unchanged by the entries under it", async () => {
+  it("the daemon's own mountpoint is unchanged by the entries under it", async () => {
     const instance = await mount(officeInstance, { ...SET, VIVA_PROBE_VDEX: "/jdex" });
     expect(instance.daemons[0].mountpoint.absolute).toBe("/mountpoint/daemon_probe");
   });
@@ -362,7 +362,7 @@ describe("settle — a modes entry in object form fires at the pinhole like any 
     expect(instance.faults).toEqual([]);
   });
 
-  it("a runtime naming no manifest seats at /runtime/runtime — its slug is the schematic's default before its reference is written", async () => {
+  it("a runtime naming no manifest lands at /runtime/runtime — its slug is the schematic's default before its reference is written", async () => {
     const { manifest, ...bare } = reaching();
     const instance = await mount(() => ({ runtime: bare, datamap: libsql, environment }), SET);
     expect(instance.runtime.manifest.slug).toBe("runtime");
@@ -371,7 +371,7 @@ describe("settle — a modes entry in object form fires at the pinhole like any 
     expect(instance.faults).toEqual([]);
   });
 
-  it("no remote → no url, no attach; the reference still seats; a path entry without a type carries only its mountpoint", async () => {
+  it("no remote → no url, no attach; the reference still lands; a path entry without a type carries only its mountpoint", async () => {
     const instance = await mount(
       (paladin) => ({
         runtime: runtime(paladin), datamap: libsql, environment,
@@ -379,7 +379,7 @@ describe("settle — a modes entry in object form fires at the pinhole like any 
       }),
       SET,
     );
-    // daemons without a remote is settle's fault, so nothing decodes: the seats are strings here
+    // daemons without a remote is settle's fault, so nothing decodes: the mountpoints are strings here
     const [held] = instance.daemons;
     expect(String(held.reference)).toBe("/daemon/probe");
     expect(held.url).toBeUndefined();
@@ -389,7 +389,7 @@ describe("settle — a modes entry in object form fires at the pinhole like any 
     expect(held.modes[1].reference).toBeUndefined();
   });
 
-  it("a service attaches at /attached/process/service/<type>/<slug>; no lighthouse slot exists to declare", async () => {
+  it("a service attaches at /attached/process/service/<type>/<slug>; the lighthouse slot folds from the runtime's secret when the recipe says none", async () => {
     const instance = await mount(
       (paladin) => ({
         runtime: reaching(paladin), datamap: libsql, environment,
@@ -400,14 +400,14 @@ describe("settle — a modes entry in object form fires at the pinhole like any 
       { SECRET_VIVA_PROBE_A: "a" },
     );
     expect(instance.services[0].reference.absolute).toBe("/attached/process/service/service/nlp");
-    expect(instance.lighthouse).toBeUndefined();
+    expect(instance.lighthouse).toEqual({ secrets: { jwt: instance.runtime.secrets.jwt }, traits: [], trait: { AUTOLOGIN: { username: "localhost" } } });
     expect(instance.daemons[0].lighthouse).toBeUndefined();
     expect(instance.faults).toEqual([]);
   });
 
   it("a migrated shelf that still says lighthouse is refused at mount, the key named", async () => {
     await expect(mount((paladin) => ({ runtime: runtime(paladin), lighthouse: { module: "@commons/lighthouse/multiplayer" }, environment }), SET)).rejects.toThrow(
-      "/ must not have additional properties",
+      "/lighthouse must not have additional properties",
     );
   });
 });

@@ -1,4 +1,9 @@
-import { Signal, Context, fromm, steer, trace, NotFound } from "@vivalence/typology";
+import { Signal } from "../../prototypes/signal.js";
+import { Context } from "../../prototypes/context.js";
+import * as fromm from "../fromm/index.js";
+import * as steer from "../steer/index.js";
+import * as trace from "../belt/trace.js";
+import { NotFound } from "../../prototypes/errors/vector.js";
 
 export function http(vector) {
   return async (req) => {
@@ -9,7 +14,7 @@ export function http(vector) {
     });
 
     try {
-      const signal = new Signal(new URL(req.url).pathname);
+      const signal = new Signal(new URL(req.url));
       const [effect, carry, steps] = steer.dispatch.traverse(vector, signal);
       if (!effect) return respond(ctx, 404);
 

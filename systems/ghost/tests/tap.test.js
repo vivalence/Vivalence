@@ -1,62 +1,41 @@
-import { assertEquals } from "@std/assert";
 import paladin from "@vivalence/paladin";
-import { tap } from "../trajectories/instances/tap.js";
+import { Path, specimen } from "@vivalence/typology";
+import { drive } from "./verb.js";
 
-function fake(params, flags = {}) {
-  return { ctx: { signal: { params, flags } } };
-}
+const { describe, it, beforeEach, expect } = specimen;
 
-async function home() {
-  const root = await Deno.makeTempDir({ prefix: "tap-test-" });
-  paladin.env.set("VIVA_LEDGER_MOUNT", root);
-  return root;
-}
+describe("viva instance/tap — a hand-placed instance dir into the record", () => {
+  let ledger;
 
-function scrub() {
-  paladin.env.delete("VIVA_LEDGER_MOUNT");
-}
+  beforeEach(async () => {
+    ledger = await Deno.makeTempDir({ prefix: "ghost-tap-ledger-" });
+    paladin.env.delete("VIVA_INSTANCE_MOUNT");
+    paladin.scopes([["ledger", () => true, () => new Path(ledger)]]);
+  });
 
-Deno.test("tap: path and --slug are both required", async () => {
-  await home();
-  const { ctx } = fake(["/somewhere"]);
-  await tap(ctx);
-  assertEquals(String(ctx.effect.error).includes("usage"), true);
-  scrub();
-});
+  it("path and --slug are both required", async () => {
+    await expect(drive(["instance/tap", "/somewhere"])).rejects.toThrow("usage: viva instance/tap <path> --slug=<slug>");
+  });
 
-Deno.test("tap: a bare token is refused — a tap takes a PATH", async () => {
-  await home();
-  const { ctx } = fake(["somedir"], { slug: "x" });
-  await tap(ctx);
-  assertEquals(String(ctx.effect.error).includes("./somedir"), true);
-  scrub();
-});
+  it("a bare token is refused — a tap takes a PATH", async () => {
+    await expect(drive(["instance/tap", "somedir", "--slug=x"])).rejects.toThrow("try ./somedir");
+  });
 
-Deno.test("tap: a real dir lands in the record under the given slug", async () => {
-  const root = await home();
-  const mount = await Deno.makeTempDir({ suffix: "-adopted" });
-  const { ctx } = fake([mount], { slug: "adopted" });
-  await tap(ctx);
-  assertEquals(ctx.effect.tapped, "adopted");
-  const record = JSON.parse(await Deno.readTextFile(`${root}/instances.json`));
-  assertEquals(record.adopted.mount, mount);
-  scrub();
-});
+  it("a real dir lands in the record under the given slug", async () => {
+    const mount = await Deno.makeTempDir({ suffix: "-adopted" });
+    expect(await drive(["instance/tap", mount, "--slug=adopted"])).toEqual({ tapped: "adopted", mount });
+    const record = JSON.parse(await Deno.readTextFile(`${ledger}/instances.json`));
+    expect(record.adopted.mount).toBe(mount);
+  });
 
-Deno.test("tap: an existing slug is a hard error", async () => {
-  const root = await home();
-  await Deno.writeTextFile(`${root}/instances.json`, JSON.stringify({ adopted: { mount: "/held" } }));
-  const mount = await Deno.makeTempDir({ suffix: "-second" });
-  const { ctx } = fake([mount], { slug: "adopted" });
-  await tap(ctx);
-  assertEquals(String(ctx.effect.error).includes("exists"), true);
-  scrub();
-});
+  it("an existing slug is a hard error and the record keeps its row", async () => {
+    await Deno.writeTextFile(`${ledger}/instances.json`, JSON.stringify({ adopted: { mount: "/held" } }));
+    const mount = await Deno.makeTempDir({ suffix: "-second" });
+    await expect(drive(["instance/tap", mount, "--slug=adopted"])).rejects.toThrow("instance 'adopted' exists");
+    expect(JSON.parse(await Deno.readTextFile(`${ledger}/instances.json`)).adopted.mount).toBe("/held");
+  });
 
-Deno.test("tap: nothing at the path is an honest error", async () => {
-  await home();
-  const { ctx } = fake(["/no/such/dir"], { slug: "ghost" });
-  await tap(ctx);
-  assertEquals(String(ctx.effect.error).includes("no directory"), true);
-  scrub();
+  it("nothing at the path is an honest error", async () => {
+    await expect(drive(["instance/tap", "/no/such/dir", "--slug=ghost"])).rejects.toThrow("no directory at /no/such/dir");
+  });
 });

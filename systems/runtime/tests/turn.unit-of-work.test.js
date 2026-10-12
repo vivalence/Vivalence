@@ -1,6 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import { TurnEntity } from "@vivalence/runtime";
-import stub from "../../../commons/fixtures/hal/stub/provider/index.js";
+import stub from "../../../commons/fixtures/testing/hal/stub/provider/index.js";
 import { create } from "./scenarios/cortex.js";
 
 // a response is ONE unit of work. harnessed.js persists its turns on a forked em and flushes

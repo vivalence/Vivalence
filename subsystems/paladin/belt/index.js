@@ -9,6 +9,7 @@ import source from "./source.js";
 import clone from "./clone.js";
 import bundler from "./bundler.js";
 import expand from "./expand.js";
+import envfile from "./envfile.js";
 
 export default {
   find,
@@ -22,4 +23,5 @@ export default {
   clone,
   bundler,
   expand,
+  envfile,
 };

@@ -21,6 +21,39 @@ specimen.describe("Lighthouse", () => {
     });
   });
 
+  specimen.describe("manifest", () => {
+    specimen.it("/lighthouse/metadata is the lighthouse manifest", async () => {
+      const result = await scenario.conn.call("/lighthouse/metadata", {});
+      specimen.expect(result).toEqual({ type: "lighthouse", slug: "lighthouse", traits: ["JOINABLE"] });
+    });
+
+    specimen.it("a lighthouse without JOINABLE grafts no /signup", async () => {
+      const closed = await lighthouse.create({ traits: [] });
+      try {
+        specimen.expect(await closed.conn.call("/lighthouse/metadata", {})).toEqual({ type: "lighthouse", slug: "lighthouse", traits: [] });
+        await specimen.expect(closed.conn.call("/lighthouse/signup", { username: "stranger", password: "knock-knock" })).rejects.toThrow();
+      } finally {
+        await closed.close();
+      }
+    });
+
+    specimen.it("AUTOLOGIN mints trait.AUTOLOGIN.username on boot and /autologin signs every visitor in as it", async () => {
+      const open = await lighthouse.create({ traits: ["AUTOLOGIN"] });
+      try {
+        const entered = await open.conn.call("/lighthouse/autologin", {});
+        specimen.expect(entered.status).toBe("SUCCESS");
+        specimen.expect(entered.user.slug).toBe("localhost");
+        const verified = await open.conn.call("/lighthouse/verify", { access: entered.authority.access });
+        specimen.expect(verified.user.id).toBe(entered.user.id);
+        const again = await open.conn.call("/lighthouse/autologin", {});
+        specimen.expect(again.user.id).toBe(entered.user.id);
+        await specimen.expect(open.conn.call("/lighthouse/signup", { username: "stranger", password: "knock-knock" })).rejects.toThrow();
+      } finally {
+        await open.close();
+      }
+    });
+  });
+
   specimen.describe("auth", () => {
     specimen.it("login", async () => {
       const result = await scenario.conn.call("/lighthouse/login", { username: "finn", password: "biggusdickus" });

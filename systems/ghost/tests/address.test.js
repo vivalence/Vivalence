@@ -16,7 +16,7 @@
 //     candidates :: string[]        natures a prefix-of-a-segment points at (ambiguous)
 //     envelope   :: { performative, receiver, content }           FIPA-ACL view of the same thing
 
-import { assertEquals } from "jsr:@std/assert";
+import { assertEquals } from "@std/assert";
 
 const node = () => ({ edges: new Map(), open: false });
 
@@ -104,7 +104,7 @@ export function resolve(routes, argv) {
 // ── the cases ────────────────────────────────────────────────────────────────────────────────────────────────────
 
 const ROUTES = {
-  natures: ["instance/use", "instance/run", "language/othermode", "language/dojo", "flashcards", "flashlight", "home"],
+  natures: ["instance/use", "instance/up", "language/othermode", "language/dojo", "flashcards", "flashlight", "home"],
   home: "home",
 };
 

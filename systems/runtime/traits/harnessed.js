@@ -175,12 +175,12 @@ const summarizing = async (ctx, next) => {
   await next();
 };
 
-export const HARNESSED = (mode, host) => {
-  if (!host.cortex) throw new Error("HARNESSED: host has no cortex");
+export const HARNESSED = (mode, context) => {
+  if (!context.cortex) throw new Error(`HARNESSED: ${context.reference.absolute} has no cortex`);
 
   //@beef thread and user soon required.
   const harness = new Vector()
-    .use(shard.context.spread(contexts.host, host))
+    .use(shard.context.spread(contexts.host, context))
     .use(shard.context.bind("mode", mode))
     .use(normalizing)
     .use(claiming)
@@ -196,7 +196,7 @@ export const HARNESSED = (mode, host) => {
 
   harness.branch("/dialogue").use(chaining).use(persisting);
 
-  if (host.domain?.harness) harness.graft(host.domain.harness);
+  if (context.domain?.harness) harness.graft(context.domain.harness);
   if (mode.module.harness) harness.graft(mode.module.harness);
 
   harness.use(summarizing);

@@ -1,4 +1,5 @@
-import { steer, Signal } from "@vivalence/typology";
+import * as steer from "../steer/index.js";
+import { Signal } from "../../prototypes/signal.js";
 
 const route = (steps) => new Signal(steps.map((s) => s.nature).join("/"));
 

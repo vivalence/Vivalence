@@ -1,4 +1,5 @@
-import { steer, Vector } from "@vivalence/typology";
+import * as steer from "../steer/index.js";
+import { Vector } from "../../prototypes/vector.js";
 
 const edgeMeta = (pattern, effect) => {
   const meta = {};

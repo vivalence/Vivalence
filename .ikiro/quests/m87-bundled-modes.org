@@ -1,0 +1,1 @@
+mime types allow us to bundle and serve and coordinate specific viva-specific formats like vectors. allowing the runtime to serve mode bundles. or we could figure out how to have the clients have access to the modes via paladin. for anima that means at build / bundle time.

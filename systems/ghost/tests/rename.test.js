@@ -1,10 +1,6 @@
 import { assertEquals } from "@std/assert";
 import paladin from "@vivalence/paladin";
-import { rename } from "../trajectories/instance/rename.js";
-
-function fake(params) {
-  return { ctx: { signal: { params, flags: {} }, interactive: false } };
-}
+import { drive } from "./verb.js";
 
 async function home() {
   const root = await Deno.makeTempDir({ prefix: "rename-test-" });
@@ -40,13 +36,12 @@ Deno.test("rename: shelf dir follows the slug — record mount, dead lock, logs,
   await Deno.writeTextFile(`${root}/sessions/111.json`, JSON.stringify({ VIVA_INSTANCE_MOUNT: mount }));
   await Deno.writeTextFile(`${root}/sessions/222.json`, JSON.stringify({ VIVA_INSTANCE_MOUNT: "/anchor" }));
 
-  const { ctx } = fake(["old", "new"]);
-  await rename(ctx);
+  const output = await drive(["instance/rename", "old", "new"]);
 
   const target = `${root}/instances/new`;
-  assertEquals(ctx.effect.renamed, { old: "new" });
-  assertEquals(ctx.effect.dir, target);
-  assertEquals(ctx.effect.logs, true);
+  assertEquals(output.renamed, { old: "new" });
+  assertEquals(output.dir, target);
+  assertEquals(output.logs, true);
   assertEquals(await paladin.ledger.instances.read("old"), null);
   assertEquals((await paladin.ledger.instances.read("new")).mount, target);
   assertEquals(await present(mount), false);
@@ -66,11 +61,10 @@ Deno.test("rename: one param renames the mounted instance; a tapped dir stays wh
   await paladin.ledger.instances.write("tapped", { mount });
   paladin.env.set("VIVA_INSTANCE_MOUNT", mount, "flag");
 
-  const { ctx } = fake(["moved"]);
-  await rename(ctx);
+  const output = await drive(["instance/rename", "moved"]);
 
-  assertEquals(ctx.effect.renamed, { tapped: "moved" });
-  assertEquals(ctx.effect.dir, "kept — off-shelf (tapped)");
+  assertEquals(output.renamed, { tapped: "moved" });
+  assertEquals(output.dir, "kept — off-shelf (tapped)");
   assertEquals(await present(mount), true);
   assertEquals((await paladin.ledger.instances.read("moved")).mount, mount);
   assertEquals(await paladin.ledger.instances.read("tapped"), null);
@@ -81,9 +75,8 @@ Deno.test("rename: refuses while a lock is alive — a running instance keeps it
   const root = await home();
   const mount = await shelve(root, "busy");
   await Deno.writeTextFile(`${root}/locks/busy.lock`, JSON.stringify({ pid: Deno.pid, processes: [] }));
-  const { ctx } = fake(["busy", "idle"]);
-  await rename(ctx);
-  assertEquals(String(ctx.effect.error).includes("running"), true);
+  const output = await drive(["instance/rename", "busy", "idle"]);
+  assertEquals(String(output.error).includes("running"), true);
   assertEquals((await paladin.ledger.instances.read("busy")).mount, mount);
   assertEquals(await present(mount), true);
   scrub();
@@ -91,14 +84,12 @@ Deno.test("rename: refuses while a lock is alive — a running instance keeps it
 
 Deno.test("rename: no record and collisions are honest errors", async () => {
   const root = await home();
-  const { ctx } = fake(["absent", "x"]);
-  await rename(ctx);
-  assertEquals(String(ctx.effect.error).includes("no instance"), true);
+  const output = await drive(["instance/rename", "absent", "x"]);
+  assertEquals(String(output.error).includes("no instance"), true);
   await shelve(root, "left");
   await shelve(root, "right");
-  const second = fake(["left", "right"]).ctx;
-  await rename(second);
-  assertEquals(String(second.effect.error).includes("already held"), true);
+  const second = await drive(["instance/rename", "left", "right"]);
+  assertEquals(String(second.error).includes("already held"), true);
   assertEquals(await present(`${root}/instances/left`), true);
   scrub();
 });

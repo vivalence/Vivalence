@@ -40,7 +40,7 @@ export { activity };
 export const sets = {
   identity: { user, authenticator, terminal },
   composition: { daemon, mode },
-  kernel: { literal, symbol, note, mode },
+  traits: { literal, symbol, note, mode },
   userspace: { intent, thread, turn, buffer, note },
   transient: { activity },
 };

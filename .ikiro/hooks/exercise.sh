@@ -88,12 +88,12 @@ IKIRO_WATCH_LIVE=1 expect allow watch-guard.sh "$(edit_json /Users/finn/.viva/re
 IKIRO_WATCH_LIVE=1 expect allow watch-guard.sh "$(edit_json /r/systems/anima/src/app/x.svelte 'x')"              "outside the watched trees"
 rm -f "${TMPDIR:-/tmp}/ikiro-watch-exercise"
 
-# compact-gate — first /compact of a session refused; the retry passes once world/frontier.md is newer than the stamp
+# compact-gate — first /compact of a session refused; the retry passes once quests/frontier.md is newer than the stamp
 gate_case() { # gate_case <want exit> <touch-frontier 0|1> <label>
-  project=$(mktemp -d); mkdir -p "$project/.ikiro/methods" "$project/.ikiro/world"
+  project=$(mktemp -d); mkdir -p "$project/.ikiro/methods" "$project/.ikiro/quests"
   cp ../methods/cap.py "$project/.ikiro/methods/cap.py"
   session="exercise-compact-$2"; mkdir -p "${TMPDIR:-/tmp}/ikiro-compact-gate"; : > "${TMPDIR:-/tmp}/ikiro-compact-gate/$session"
-  [ "$2" = 1 ] && { sleep 1; echo "# frontier" > "$project/.ikiro/world/frontier.md"; } || { echo "# frontier" > "$project/.ikiro/world/frontier.md"; touch -t 202001010000 "$project/.ikiro/world/frontier.md"; }
+  [ "$2" = 1 ] && { sleep 1; echo "# frontier" > "$project/.ikiro/quests/frontier.md"; } || { echo "# frontier" > "$project/.ikiro/quests/frontier.md"; touch -t 202001010000 "$project/.ikiro/quests/frontier.md"; }
   jq -cn --arg s "$session" '{session_id:$s,compaction_trigger:"manual"}' | CLAUDE_PROJECT_DIR="$project" bash compact-gate.sh >/dev/null 2>&1
   got=$?
   if [ "$got" = "$1" ]; then echo "PASS compact-gate.sh exit $1  $3"; else echo "FAIL compact-gate.sh want exit $1 got $got  $3"; fail=1; fi
@@ -108,7 +108,7 @@ expect deny  kernel-guard.sh "$(edit_session /r/docs/superpowers/plans/2026-09-2
 expect allow kernel-guard.sh "$(edit_session /r/.ikiro/quests/m69-ikiro-ikiro.org '* intent')"                 "a quest in its place"
 expect deny  kernel-guard.sh "$(edit_session /r/documentation/src/content/docs/index.mdx 'vivalence is open-source')" "public copy says open-source"
 expect allow kernel-guard.sh "$(edit_session /r/documentation/src/content/docs/index.mdx 'fair-source, source-available')" "public copy says fair-source"
-expect allow kernel-guard.sh "$(edit_session /r/.ikiro/ikiro.md 'never "open-source"')"                         "the kernel quoting the rule"
+expect allow kernel-guard.sh "$(edit_session /r/.ikiro/codestyle.md 'never "open-source"')"                         "the kernel quoting the rule"
 
 # cap-guard — a write past `limit: N chars` is refused; a capped file without a limit is refused; quests are never capped
 cap_case() { # cap_case <want> <json> <label>

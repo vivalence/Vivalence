@@ -1,4 +1,12 @@
-import { Failure, is, promise, Signal, Span, Status, steer, v, Vector } from "@vivalence/typology";
+import { Failure } from "./errors/controller.js";
+import * as is from "../gestalten/is/index.js";
+import * as promise from "../gestalten/belt/promise.js";
+import { Signal } from "./signal.js";
+import { Span } from "./span.js";
+import { Status } from "./status.js";
+import * as steer from "../gestalten/steer/index.js";
+import { v } from "../schematics/index.js";
+import { Vector } from "./vector.js";
 
 const said = (input) => (is.string(input) && input.length ? input : undefined);
 

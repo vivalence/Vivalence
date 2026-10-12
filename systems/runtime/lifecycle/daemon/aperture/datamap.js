@@ -13,10 +13,5 @@ export const datamap = async (die, next) => {
     .graft(shard.datamap.repository(die.daemon.entities.symbol))
     .graft(shard.datamap.reactive(die.daemon.entities.symbol, die.daemon.twitch));
 
-  die.daemon.aperture
-    .branch("/entities/mode")
-    .graft(shard.datamap.repository(die.daemon.entities.mode))
-    .graft(shard.datamap.reactive(die.daemon.entities.mode, die.daemon.twitch));
-
   await next();
 };

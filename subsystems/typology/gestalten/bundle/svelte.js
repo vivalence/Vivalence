@@ -4,6 +4,7 @@ import esbuild from "esbuild";
 import sveltePlugin from "esbuild-svelte";
 import { sveltePreprocess } from "svelte-preprocess";
 import { resolveImportMap, resolveModuleSpecifier } from "./importmap.js";
+import { pure } from "./pure.js";
 
 function mapimports(imports = {}, baseUrl) {
   const resolvedImportmap = resolveImportMap({ imports }, baseUrl);
@@ -42,6 +43,7 @@ export async function svelte(entry, opts = {}) {
     outdir: dirname(entry),
     plugins: [
       mapimports(imports, baseUrl),
+      pure,
       sveltePlugin({
         preprocess: sveltePreprocess({ typescript: { compilerOptions: { target: "esnext", verbatimModuleSyntax: true } } }),
         filterWarnings: (warning) => {

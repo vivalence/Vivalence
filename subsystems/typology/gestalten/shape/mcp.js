@@ -1,4 +1,4 @@
-import { steer } from "@vivalence/typology"
+import * as steer from "../steer/index.js"
 
 function respond(id, result) { return { jsonrpc: "2.0", id, result } }
 function fail(id, code, text) { return { jsonrpc: "2.0", id, error: { code, message: text } } }

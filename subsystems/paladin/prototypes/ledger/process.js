@@ -14,6 +14,11 @@ export class Process extends Wafer {
     return { type: "process", slug: this.identity.process };
   }
 
+  get json() {
+    const { code, exit } = this.status.reflection;
+    return { process: this.slug, pid: this.child?.pid ?? null, serve: this.serve ?? null, status: code, exit: exit ?? null };
+  }
+
   async populate() {
     if (!STDIO[this.attachment]) {
       throw new Error(`process ${this.slug}: unknown attachment '${this.attachment}' — inherit | piped | logged`);

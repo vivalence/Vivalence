@@ -1,4 +1,4 @@
-import { Status } from "@vivalence/typology";
+import { Status } from "./status.js";
 
 export class Wafer {
   mask = null;

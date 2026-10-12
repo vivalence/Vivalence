@@ -1,4 +1,4 @@
-import { is } from "@vivalence/typology";
+import * as is from "../is/index.js";
 
 // every yield across every seam is the same envelope: condition (how production
 // ended) · output (the payload — ONE bag whose keys are payload words, message

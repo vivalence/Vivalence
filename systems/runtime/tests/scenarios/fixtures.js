@@ -1,1 +1,1 @@
-export * from "../../../../commons/fixtures/data/index.js";
+export * from "../../../../commons/fixtures/testing/data/index.js";

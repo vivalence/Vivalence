@@ -5,11 +5,11 @@ import { stamp } from "./dataset.js";
 const DATASPACE = new Set(["symbol", "literal"]);
 const DEBOUNCE = 1500;
 
-export const DATASINK = (mode, host) => {
+export const DATASINK = (mode, context) => {
   const datasink = new Datasink(mode.module.datasink ?? {});
   mode.datasink = datasink;
 
-  const meta = shard.datamap.strip(host.datamap.getMetadata());
+  const meta = shard.datamap.strip(context.datamap.getMetadata());
   for (const type of datasink.types) {
     const scoped = Object.values(meta[type]?.properties ?? {}).some((
       relation,
@@ -19,7 +19,7 @@ export const DATASINK = (mode, host) => {
         `[DATASINK] ${mode.manifest.type}/${mode.manifest.slug} declares non-dataspace entity "${type}"`,
       );
     }
-    if (!host.entities[type]) {
+    if (!context.entities[type]) {
       console.warn(
         `[DATASINK] ${mode.manifest.type}/${mode.manifest.slug} declares unknown entity "${type}"`,
       );
@@ -40,7 +40,7 @@ export const DATASINK = (mode, host) => {
         !chosen || chosen.includes(sink)
       );
       if (!sinks.length) continue;
-      const repo = host.entities[type];
+      const repo = context.entities[type];
       if (!repo) continue;
 
       const relations = Object.entries(meta[type]?.properties ?? {})
@@ -57,7 +57,7 @@ export const DATASINK = (mode, host) => {
         });
         const rows = found
           .map(project.row(relations, [...columns, ...relations]))
-          .filter((row) => sink.match?.(row, { ...shard.context.lift(contexts.host, host), mode }) ?? true)
+          .filter((row) => sink.match?.(row, { ...shard.context.lift(contexts.host, context), mode }) ?? true)
           .map(sink.shape ?? project.lean(relations))
           .filter((row) => row != null);
 
@@ -80,9 +80,9 @@ export const DATASINK = (mode, host) => {
       report.drained.push(type);
     }
 
-    if (report.written && mode.entity?.id && host.entities.mode) {
+    if (report.written && mode.entity?.id && context.entities.mode) {
       mode.entity.installed = await stamp(mode);
-      await host.entities.mode.nativeUpdate({ id: mode.entity.id }, {
+      await context.entities.mode.nativeUpdate({ id: mode.entity.id }, {
         installed: mode.entity.installed,
       });
     }
@@ -99,13 +99,13 @@ export const DATASINK = (mode, host) => {
 
   for (const type of datasink.types) {
     for (const op of ["create", "update", "delete"]) {
-      host.twitch.open(`/after/${type}/${op}`, (ctx) => {
+      context.twitch.open(`/after/${type}/${op}`, (ctx) => {
         if (!armed) return;
         const entity = ctx?.input?.entity;
         const sinks = datasink.of(type);
         const claimed = entity
           ? sinks.filter((sink) =>
-            sink.match?.(entity, { ...shard.context.lift(contexts.host, host), mode }) === true
+            sink.match?.(entity, { ...shard.context.lift(contexts.host, context), mode }) === true
           )
           : [];
         for (const sink of claimed.length ? claimed : sinks) dirty.add(sink);

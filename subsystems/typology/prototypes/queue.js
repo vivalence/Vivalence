@@ -1,4 +1,5 @@
-import { fromm, promise } from "@vivalence/typology";
+import * as fromm from "../gestalten/fromm/index.js";
+import * as promise from "../gestalten/belt/promise.js";
 
 export class Queue {
   backlog = [];

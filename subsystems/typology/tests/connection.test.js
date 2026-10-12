@@ -285,3 +285,36 @@ specimen.describe("Connection", () => {
     socket.close();
   });
 });
+
+specimen.describe("Connection.subscribe across a drop", () => {
+  specimen.it("dropped fires once per loss and resumed fires when the server answers again", async () => {
+    const encoder = new TextEncoder();
+    const streams = [];
+    let requests = 0;
+    const server = Deno.serve({ port: 0, onListen() {} }, () => {
+      requests++;
+      if (requests === 2) return new globalThis.Response("down", { status: 503 });
+      const body = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode(`data: {"seq":${requests}}\n\n`));
+          if (requests === 1) controller.close();
+          else streams.push(controller);
+        },
+      });
+      return new globalThis.Response(body, { headers: { "content-type": "text/event-stream", "cache-control": "no-cache" } });
+    });
+    const connection = new Connection(new Url(`http://localhost:${server.addr.port}`));
+    const seen = [];
+    const unsubscribe = connection.subscribe("/status", (event) => seen.push(event), {
+      backoff: 20,
+      dropped: (error) => seen.push(["dropped", error]),
+      resumed: () => seen.push("resumed"),
+    });
+    while (!seen.includes("resumed") || seen.length < 4) await sleep.ms(10);
+    unsubscribe();
+    for (const controller of streams) controller.close();
+    await server.shutdown();
+    specimen.expect(requests).toBe(3);
+    specimen.expect(seen).toEqual([{ seq: 1 }, ["dropped", undefined], "resumed", { seq: 3 }]);
+  });
+});

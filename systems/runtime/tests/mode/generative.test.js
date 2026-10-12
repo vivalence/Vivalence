@@ -1,4 +1,4 @@
-import { Aperture, belt, contexts, fromm, Mode, Path, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
+import { Aperture, belt, Bundle, contexts, fromm, Mode, Path, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
 const { GENERATIVE } = traits;
 
@@ -57,18 +57,15 @@ function buildDaemon(directory) {
 
 // a bundler that never touches esbuild: the hash is the source length.
 const stub = (mode) => {
-  mode.generator.bundle = async ({ source }) => {
+  mode.generator.bundle = async ({ mime: type, source }) => {
     if (!source.trim()) throw new Error("bundle: source is empty");
     const hash = `h${source.length.toString(16).padStart(63, "0")}`;
-    return {
-      hash,
-      json: { kind: "svelte", hash, mount: `/${hash.slice(0, 16)}.svelte.mjs` },
-    };
+    return new Bundle({ entries: [{ mime: type, hash, mount: `/${hash.slice(0, 16)}.dom.svelte.mjs`, integrity: hash, bytes: source.length }] });
   };
   mode.generator.inspect = async (hash) =>
     hash.startsWith("h")
       ? { hash, source: SOURCE }
-      : Promise.reject(new Error(`bundler.inspect: unknown view: ${hash}`));
+      : Promise.reject(new Error(`bundler.inspect: no source kept for ${hash}`));
   mode.generator.serve = async () => null;
 };
 
@@ -161,7 +158,7 @@ specimen.describe("GENERATIVE — the capability and its tools", {
       specimen.expect(output.message).toBe('drew "Spawned"');
       specimen.expect(belt.hallucinate.speak(output)).toBe(
         'drew "Spawned"\n' + JSON.stringify({
-          buffer: [{ id: row.id, index: 0, mode: "mode-1", thread: "thread-1", traits: ["LABELED"], trait: { LABELED: { name: "Spawned", description: "a test page" } }, view: { hash: row.view.hash } }],
+          buffer: [{ id: row.id, index: 0, mode: "mode-1", thread: "thread-1", traits: ["LABELED"], trait: { LABELED: { name: "Spawned", description: "a test page" } }, bundle: { entries: row.bundle.entries } }],
         }),
       );
     },
@@ -182,7 +179,7 @@ specimen.describe("GENERATIVE — the capability and its tools", {
         data: { title: "v1" },
       });
       const [row] = drawn.output.buffer;
-      const before = row.view.hash;
+      const before = row.bundle.entries[0].hash;
 
       const revised = await invoke(vector, "generator_view_revise", {
         buffer: row.id,
@@ -194,7 +191,7 @@ specimen.describe("GENERATIVE — the capability and its tools", {
       specimen.expect(revised.output.buffer[0]).toBe(row);
       specimen.expect(row.index).toBe(0);
       specimen.expect(daemon.thread.counter).toBe(1);
-      specimen.expect(row.view.hash).not.toBe(before);
+      specimen.expect(row.bundle.entries[0].hash).not.toBe(before);
       specimen.expect(row.data).toEqual({ title: "v2" });
       specimen.expect(row.trait.LABELED).toEqual({ name: "v2" });
       specimen.expect(revised.output.message).toContain('"v2"');
@@ -217,9 +214,9 @@ specimen.describe("GENERATIVE — the capability and its tools", {
         label: { name: "v1" },
         data: { title: "v1", n: 1 },
       })).output.buffer;
-      const hash = row.view.hash;
+      const hash = row.bundle.entries[0].hash;
       await invoke(vector, "generator_view_revise", { buffer: row.id, data: { n: 2 } });
-      specimen.expect(row.view.hash).toBe(hash);
+      specimen.expect(row.bundle.entries[0].hash).toBe(hash);
       specimen.expect(row.data).toEqual({ title: "v1", n: 2 });
 
       const empty = await invoke(vector, "generator_view_revise", { buffer: row.id });
@@ -237,7 +234,7 @@ specimen.describe("GENERATIVE — the capability and its tools", {
   );
 
   specimen.it(
-    "list speaks every seat on the thread; inspect reads a source back or says why not",
+    "list speaks every buffer on the thread; inspect reads a source back or says why not",
     async () => {
       const mode = buildMode({ slug: "list" });
       const daemon = buildDaemon(directory);
@@ -260,7 +257,7 @@ specimen.describe("GENERATIVE — the capability and its tools", {
       specimen.expect(listed.buffer.map((row) => [row.index, row.trait.LABELED.name])).toEqual([[0, "one"], [1, "two"]]);
 
       const read = await invoke(vector, "generator_view_inspect", {
-        hash: daemon.rows[0].view.hash,
+        hash: daemon.rows[0].bundle.entries[0].hash,
       });
       specimen.expect(read.output.object.source).toBe(SOURCE);
 
@@ -268,7 +265,7 @@ specimen.describe("GENERATIVE — the capability and its tools", {
         hash: "f".repeat(64),
       });
       specimen.expect(unknown.condition).toBe("ERROR");
-      specimen.expect(unknown.output.message).toContain("unknown view");
+      specimen.expect(unknown.output.message).toContain("no source kept");
     },
   );
 

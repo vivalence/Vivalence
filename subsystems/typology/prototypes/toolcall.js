@@ -1,6 +1,7 @@
 import { Signature } from "./signature.js";
 import { Signal } from "./signal.js";
-import { hash, is } from "@vivalence/typology";
+import * as hash from "../gestalten/belt/hash.js";
+import * as is from "../gestalten/is/index.js";
 
 export class ToolCall extends Signature {
   static coercions = [

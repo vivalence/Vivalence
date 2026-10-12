@@ -145,13 +145,17 @@ export class Registry {
         span.fault(error); // unfit to register: the file's path carries it, the walk continues
       }
     }
-    const declaration = modules.find((module) => module.manifest?.type === "package");
+    const nested = modules
+      .filter((module) => module.manifest?.type === "package" && dirname(module.source.absolute) !== root.absolute)
+      .map((module) => `${dirname(module.source.absolute)}/`);
+    const own = modules.filter((module) => !nested.some((boundary) => module.source.absolute.startsWith(boundary)));
+    const declaration = own.find((module) => module.manifest?.type === "package");
     const owner = declaration?.manifest?.owner;
-    if (modules.length && !owner)
+    if (own.length && !owner)
       throw new Error(`[registry] mount ${root.absolute}: package declares no owner — author manifest.owner (e.g. "@commons")`);
     if (claim && (owner !== claim.owner || declaration?.manifest?.slug !== claim.slug))
       throw new Error(`[registry] mount ${root.absolute}: the record names ${claim.owner}/package/${claim.slug}, the package declares ${owner}/package/${declaration?.manifest?.slug} — re-tap it`);
-    for (const module of modules) {
+    for (const module of own) {
       // a copy: read.viva returns the live namespace. the mount's owner stamps; the module's own locks.
       this.pensieve.register({
         ...module,
@@ -194,7 +198,9 @@ export class Registry {
     if (!stat)
       throw new Error(`[registry] tap ${source}: nothing at ${root.absolute} — pass a path, a remote, or a location already in the store`);
     const home = stat.isFile ? new Path(dirname(root.absolute)) : root;
-    const declarations = await this.paladin.find.type(home, "package");
+    const found = await this.paladin.find.type(home, "package");
+    const rooted = found.filter((module) => dirname(module.source.absolute) === home.absolute);
+    const declarations = rooted.length ? rooted : found;
     if (!declarations.length)
       throw new Error(`[registry] tap ${source}: no package declaration (manifest.type "package") under ${home.absolute}`);
     if (declarations.length > 1)
@@ -237,9 +243,9 @@ export class Registry {
   }
 
   // mask ⊕ module, ONCE. a string is the module; an inline module (manifest, no identifier) is its own
-  // citizen; a mask folds over what it names — its word whole (a service's datamap, a seated entry's
-  // seats), manifest and statics by key (mask wins) — traits ACCUMULATE, a mask adds and never strips
-  // (settle fills traits: [] on every mask manifest) — secrets and the seat the mask's alone.
+  // citizen; a mask folds over what it names — its word whole (a service's datamap, a placed entry's
+  // reference · url · mountpoint), manifest and statics by key (mask wins) — traits ACCUMULATE, a mask adds and never strips
+  // (settle fills traits: [] on every mask manifest) — secrets and the mountpoint the mask's alone.
   // module is the object, identifier the string.
   async accio(query) {
     if (is.string(query)) return this.module(query);
@@ -260,17 +266,17 @@ export class Registry {
     return this.assert(entry, probe(RULES)(citizen, this.span.branch(entry)));
   }
 
-  // a bearer's mask → its bag: every slot a citizen, the domain picked from its modes
+  // a runtime's or a daemon's mask → its bag: every slot a citizen, the domain picked from its modes
   async wire(mask) {
     const many = (queries) => Promise.all(queries.map((query) => this.accio(query)));
-    // an entry whose identifier named no type is seated here, by the folded manifest — same rule, later moment
-    const seated = (citizen) => {
+    // an entry whose identifier named no type is placed here, by the folded manifest — same rule, later moment
+    const placed = (citizen) => {
       if (citizen.reference || !mask.reference) return citizen;
       const { type, slug } = citizen.manifest;
       const reference = new Path(`/mode/${type}/${slug}`);
       return { ...citizen, reference, url: mask.url?.branch(reference.absolute), bundles: new Path(`${mask.mountpoint.absolute}/bundles/${type}/${slug}`) };
     };
-    const modes = (await many(mask.modes ?? [])).map(seated);
+    const modes = (await many(mask.modes ?? [])).map(placed);
     return {
       ...(mask.datamap && { datamap: await this.accio(mask.datamap) }),
       hallucinators: await many(mask.hallucinators ?? []),

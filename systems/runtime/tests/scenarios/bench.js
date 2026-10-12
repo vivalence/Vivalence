@@ -12,7 +12,7 @@ const BENCH_APPLICATION = async (mode, daemon) => {
     const buffer = daemon.entities.em.create(BufferEntity, {
       mode: mode.entity.id,
       data: mode.application.fill(desc),
-      view: null,
+      bundle: null,
       index: desc.index ?? 0,
     });
     if (desc.literals) buffer.literals.add(await daemon.entities.literal.findByIdentifiers(desc.literals));
@@ -77,9 +77,9 @@ export async function bench(spec = {}) {
       attach: new Url("http://bench/attached"),
     },
   });
-  const traits = Object.fromEntries(Object.keys(sets.kernel).map((kind) => [kind, gather(kernel, domain, modules, kind)]));
-  daemon.minted = mint({ slug: "bench", kinds: sets.kernel, traits });
-  daemon.entities = { ...datamapInstance.entities, ...strike(daemon.minted, em, sets.kernel), activity: new ActivityRepository(em, ActivityEntity) };
+  const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(kernel, domain, modules, kind)]));
+  daemon.minted = mint({ slug: "bench", kinds: sets.traits, traits });
+  daemon.entities = { ...datamapInstance.entities, ...strike(daemon.minted, em, sets.traits), activity: new ActivityRepository(em, ActivityEntity) };
   daemon.datamap = datamapInstance;
   daemon.twitch = new Twitch().use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
   daemon.twitch.branch("/after").use(shard.datamap.detached(datamapInstance));
@@ -95,9 +95,12 @@ export async function bench(spec = {}) {
     controller: new Controller({ stdout: new Span("bench") }),
     daemon,
     mask: { manifest: daemon.manifest },
+    traits: instanceTraits,
     instance: { traits: instanceTraits, services: {} },
     register: { modes: modules },
   };
+
+  daemon.controller = die.controller;
 
   const services = spec.services || {};
   if (services.hallucinator) daemon.hallucinator = services.hallucinator;
@@ -119,6 +122,7 @@ export async function bench(spec = {}) {
     lifecycle.daemon.population.modes,
     lifecycle.daemon.resolution.modes(lifecycle.mode.execution),
     lifecycle.daemon.aperture.datamap,
+    lifecycle.daemon.aperture.host.entities,
     lifecycle.daemon.aperture.freight,
   ])(die, () => {
     ready.resolve();

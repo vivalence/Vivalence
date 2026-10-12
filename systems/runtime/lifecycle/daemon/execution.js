@@ -1,10 +1,9 @@
 import { Vector } from "@vivalence/typology";
-import * as process from "../process.js";
+import { process } from "../../gestalten/shard/index.js";
 import * as population from "./population.js";
 import * as resolution from "./resolution.js";
 import * as integration from "./integration.js";
 import * as aperture from "./aperture/index.js";
-import * as host from "../host/index.js";
 import { execution as mode } from "../mode/execution.js";
 
 export const execution = new Vector()
@@ -20,8 +19,9 @@ export const execution = new Vector()
   .use(resolution.freight)
   .use(aperture.datamap)
   .use(aperture.freight)
-  .use(host.aperture.metadata)
-  .use(host.aperture.cortex)
+  .use(aperture.host.entities)
+  .use(aperture.host.metadata)
+  .use(aperture.host.cortex)
   .use(integration.call)
   .use(integration.prune);
 

@@ -30,19 +30,19 @@ Order: I propose a mechanism → beef refuses in one line → the ontology gets 
 9. **the lock** — beef writes the call or says `amen`, PER ITEM. Then land it (below).
 
 Rejections to anticipate:
-- a union by absent fields — /"sell me the ontology of node by the absence of component or assembly?? … not clean schema design."/ → name the discriminator `kind: "component" | "assembly"`.
-- object-with-severity config — /"I want a functional solution. I want an array of arrays where each array contains two functions."/
+- a name I CARRY into a sketch is mine — rename a bad existing word in the same diff. REJECTED 10-12: `enter()` (/"ENTER??? rename to access"/) · `door` (third time → hook owed).
+- a union by absent fields (/"not clean schema design"/) → name the discriminator `kind: "component" | "assembly"`.
+- object-with-severity config → /"an array of arrays where each array contains two functions"/.
 - too flat — /"there should be a ancestor key. schematics."/
-- /"events are not fucking symbols stupid. they are concrete - literal."/ Abstract = symbol, concrete = literal.
 
-Design mode — /"ignore the forks. were doing high level design now."/ · /"You are going too fast into implementation. I'm still on design."/ No forks, no code; end on the sharpest open tension.
+Design mode (/"ignore the forks. were doing high level design now."/): no forks, no code; end on the sharpest open tension.
 
 ## land — the rename pass
 
 /"entirely. no dual read. replace with instance."/ · /"no fallback window. i manage installations. you everything on this sysem!"/ · /"rename files, content and references."/
 
 1. **keep-list** — every place the word SURVIVES meaning something else (`font-variant-numeric`, `.ikiro/` history, a `.bak`). Written BEFORE the grep: it is the residue oracle.
-2. **term census** — identifiers · `manifest.type` strings · scope keys · `VIVA_*` env vars · route nouns · file and directory names · fixtures · snapshots · docs · bruno · docker/compose · `.mjs`. `grep -rI` with NO include filters — /"did you cover bruno? testing? json?"/ · /"svelte"/ · /"docker?"/ · /"compose??"/
+2. **term census** — identifiers · `manifest.type` strings · scope keys · `VIVA_*` env vars · route nouns · file and directory names · fixtures · snapshots · docs · bruno · docker/compose · `.mjs`. `/usr/bin/grep -rI` with NO include filters — /"did you cover bruno? testing? json?"/ · /"svelte"/ · /"docker?"/ · /"compose??"/; REJECTED 10-13: the shell's `grep` honors `.gitignore`, skipped every snapshot.
 3. **radius = the whole machine** — repo + `~/.viva/instances/*` + `~/.viva/registry/*`. A tapped package reported "owed" is not landed. `~/.viva` has no VCS → capture first (skill `readme`).
 4. **relative imports** — `grep -rn '\.\./.*<old>/'`.
 5. **new names exact** — `grep -rn '<new>'` before writing.

@@ -27,9 +27,9 @@ describe("P-reconcile — a daemon added to instance.viva.json installs at boot;
 
   beforeAll(async () => {
     world = await ledger("viva-qa-reconcile-");
-    await viva(world, ["ledger/init"]);
-    const { effect, err } = await viva(world, ["instance/create", "hello-world", "--use", "--init"]);
-    if (!effect?.target) throw new Error(`instance/create failed: ${err}`);
+    await viva(world, ["ledger/install"]);
+    const { effect, err } = await viva(world, ["instance/clone", "hello-world", "--use", "--install"]);
+    if (!effect?.target) throw new Error(`instance/clone failed: ${err}`);
     shelf = effect.target;
     await pin(shelf, { VIVA_RUNTIME_ORIGIN: world.origin });
   });

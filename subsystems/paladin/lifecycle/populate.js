@@ -186,7 +186,7 @@ export async function recipe(instance) {
       throw new Error(`instance.mount: ${label}.mountpoint must be absolute — ${declared}`);
     return entry;
   };
-  const bearer = (label) => ({ modes = [], ...declaration }) => ({
+  const dressed = (label) => ({ modes = [], ...declaration }) => ({
     ...at(label)(declaration),
     modes: modes
       .map(anchor(module.source))
@@ -199,11 +199,16 @@ export async function recipe(instance) {
 
   instance.manifest = module.manifest;
   instance.environment = environment;
-  instance.runtime = is.object(module.runtime) ? bearer("runtime")(module.runtime) : at("runtime")(module.runtime);
+  instance.runtime = is.object(module.runtime) ? dressed("runtime")(module.runtime) : at("runtime")(module.runtime);
+  instance.lighthouse = is.object(module.lighthouse)
+    ? at("lighthouse")(module.lighthouse)
+    : is.object(instance.runtime) && is.object(instance.runtime.secrets)
+    ? v.primitives.instance.Lighthouse.cast({ secrets: { jwt: instance.runtime.secrets.jwt }, traits: [] })
+    : undefined;
   instance.datamap = at("datamap")(module.datamap);
   instance.hallucinators = at("hallucinators")(module.hallucinators);
   instance.clients = (module.clients ?? []).map((declaration) => at(`client[${slug(declaration)}]`)(declaration));
   instance.services = (module.services ?? []).map((declaration) => at(`service[${slug(declaration)}]`)(declaration));
-  instance.daemons = (module.daemons ?? []).map((declaration) => bearer(`daemon[${slug(declaration)}]`)(declaration));
+  instance.daemons = (module.daemons ?? []).map((declaration) => dressed(`daemon[${slug(declaration)}]`)(declaration));
   instance.requirements = record;
 }

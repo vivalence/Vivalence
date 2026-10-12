@@ -1,10 +1,27 @@
 import { dirname } from "@std/path";
-import { View, bundle as compiler, crypto } from "@vivalence/typology";
+import * as esbuild from "esbuild";
+import { Bundle, bundle as compiler, crypto, mime } from "@vivalence/typology";
 
-const ARTIFACT = /^\/?[0-9a-f]{16}\.(svelte|html)\.mjs$/;
+const stem = (type) => type.replace(/^application\/vnd\.vivalence\./, "").replace(/\+javascript$/, "");
 const missing = (error) => {
   if (error instanceof Deno.errors.NotFound) return null;
   throw error;
+};
+
+const universal = {
+  name: "solid-universal",
+  setup(build) {
+    build.onLoad({ filter: /\.jsx$/ }, async (file) => {
+      const [{ transformAsync }, { default: solid }] = await Promise.all([import("@babel/core"), import("babel-preset-solid")]);
+      const transformed = await transformAsync(await Deno.readTextFile(file.path), {
+        filename: file.path,
+        configFile: false,
+        babelrc: false,
+        presets: [[solid, { generate: "universal", moduleName: "@opentui/solid" }]],
+      });
+      return { contents: transformed.code, loader: "js" };
+    });
+  },
 };
 
 export default function bundler(paladin) {
@@ -14,53 +31,48 @@ export default function bundler(paladin) {
     "@vivalence/drapes/": `${paladin.scope.repository.branch("subsystems/drapes").absolute}/`,
   });
 
-  const kinds = {
-    svelte: {
-      ext: "svelte",
-      compile: async (entry) =>
-        (await compiler.svelte(entry, {
-          prod: paladin.is.prod,
-          imports: imports(),
-          nodePaths: [paladin.scope.repository.branch("node_modules").absolute],
-        })).find((output) => output.path === entry).text,
-    },
-    html: {
-      ext: "html",
-      compile: async (entry) => {
-        const html = await paladin.read.text(entry);
-        return `const html = ${JSON.stringify(html)};\nexport default (target) => { target.innerHTML = html; return { destroy: () => { target.innerHTML = ""; } }; };`;
-      },
+  const rows = {
+    [mime.dom.svelte]: async (entry) =>
+      (await compiler.svelte(entry, {
+        prod: paladin.is.prod,
+        imports: imports(),
+        nodePaths: [paladin.scope.repository.branch("node_modules").absolute],
+      })).find((output) => output.path === entry).text,
+    [mime.tty.solid]: async (entry) =>
+      (await esbuild.build({ entryPoints: [entry], bundle: true, format: "esm", platform: "neutral", packages: "external", write: false, plugins: [universal], logLevel: "silent" })).outputFiles[0].text,
+    [mime.dom.html]: async (entry) => {
+      const html = await paladin.read.text(entry);
+      return `const html = ${JSON.stringify(html)};\nexport default (target) => { target.innerHTML = html; return { destroy: () => { target.innerHTML = ""; } }; };`;
     },
   };
+  const stems = Object.keys(rows).map(stem);
+  const ARTIFACT = new RegExp(`^/?[0-9a-f]{16}\\.(${stems.map((held) => held.replaceAll(".", "\\.")).join("|")})\\.mjs$`);
 
   paladin.bundler = (directory) => {
     const at = (name) => `${directory}/bundle/${name}`;
 
-    const bundle = async ({ kind = "svelte", source = null, entry = null }) => {
-      if (!kinds[kind]) throw new Error(`bundle: unknown kind "${kind}" — one of ${Object.keys(kinds)}`);
+    const bundle = async ({ mime: type, source = null, entry = null }) => {
+      if (!rows[type]) throw new Error(`bundle: no row for "${type}" — one of ${Object.keys(rows).join(" · ")}`);
       if (source === null && entry === null) throw new Error("bundle: source or entry required");
+      const name = stem(type);
       let hash = null;
       let text = null;
       if (source !== null) {
         if (!source.trim()) throw new Error("bundle: source is empty");
         hash = await crypto.digest(source);
-        text = await paladin.read.text(at(`${hash.slice(0, 16)}.${kind}.mjs`)).catch(missing);
+        text = await paladin.read.text(at(`${hash.slice(0, 16)}.${name}.mjs`)).catch(missing);
         if (text === null) {
-          entry = at(`${hash.slice(0, 16)}.${kinds[kind].ext}`);
+          entry = at(`${hash.slice(0, 16)}.${name}`);
           await paladin.state.text(entry, source);
         }
       }
       if (text === null) {
-        text = await kinds[kind].compile(entry);
+        text = await rows[type](entry);
         hash ??= await crypto.digest(text);
-        await paladin.state.text(at(`${hash.slice(0, 16)}.${kind}.mjs`), text);
+        await paladin.state.text(at(`${hash.slice(0, 16)}.${name}.mjs`), text);
       }
-      const mount = `/${hash.slice(0, 16)}.${kind}.mjs`;
-      return new View({
-        kind,
-        hash,
-        mount,
-        bundle: { entries: [{ type: "js", mount, integrity: await crypto.digest(text), bytes: text.length }] },
+      return new Bundle({
+        entries: [{ mime: type, hash, mount: `/${hash.slice(0, 16)}.${name}.mjs`, integrity: await crypto.digest(text), bytes: text.length }],
       });
     };
 
@@ -68,15 +80,15 @@ export default function bundler(paladin) {
       const stem = name.replace(/^\//, "");
       if (!ARTIFACT.test(stem)) return null;
       const text = await paladin.read.text(at(stem)).catch(missing);
-      return text === null ? null : { text, type: "application/javascript", integrity: await crypto.digest(text) };
+      return text === null ? null : { text, type: "text/javascript", integrity: await crypto.digest(text) };
     };
 
     const inspect = async (hash) => {
-      for (const { ext } of Object.values(kinds)) {
-        const text = await paladin.read.text(at(`${hash.slice(0, 16)}.${ext}`)).catch(missing);
+      for (const name of stems) {
+        const text = await paladin.read.text(at(`${hash.slice(0, 16)}.${name}`)).catch(missing);
         if (text !== null) return { hash: await crypto.digest(text), source: text };
       }
-      throw new Error(`bundler.inspect: unknown view: ${hash}`);
+      throw new Error(`bundler.inspect: no source kept for ${hash}`);
     };
 
     const prune = async ({ dry = false } = {}) => {

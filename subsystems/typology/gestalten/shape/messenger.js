@@ -1,4 +1,4 @@
-import { Vector } from "@vivalence/typology";
+import { Vector } from "../../prototypes/vector.js";
 import { object } from "./object.js";
 
 export function messenger(stripped, { socket }) {

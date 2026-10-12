@@ -1,15 +1,9 @@
 import { assertEquals } from "@std/assert";
 import paladin from "@vivalence/paladin";
-import { create } from "../trajectories/instance/create.js";
-
-function fake(params, flags = {}) {
-  const calls = [];
-  const call = async (args) => (calls.push(args), { chained: args[0] });
-  return { ctx: { signal: { params, flags }, call }, calls };
-}
+import { drive, recorder } from "./verb.js";
 
 async function home() {
-  const root = await Deno.makeTempDir({ prefix: "create-test-" });
+  const root = await Deno.makeTempDir({ prefix: "clone-test-" });
   paladin.env.set("VIVA_LEDGER_MOUNT", root);
   return root;
 }
@@ -19,84 +13,79 @@ function scrub() {
   paladin.env.delete("VIVA_INSTANCE_MOUNT");
 }
 
-Deno.test("create: a bare slug matching no instance module errors honestly, never stats", async () => {
+Deno.test("clone: a bare slug matching no instance module errors honestly, never stats", async () => {
   await home();
-  const { ctx } = fake(["zzz-absent"]);
-  await create(ctx);
-  assertEquals(String(ctx.effect.error).includes("zzz-absent"), true);
+  const output = await drive(["instance/clone", "zzz-absent"]);
+  assertEquals(String(output.error).includes("zzz-absent"), true);
   scrub();
 });
 
-Deno.test("create: an unambiguous slug clones to the shelf and writes the record", async () => {
+Deno.test("clone: an unambiguous slug clones to the shelf and writes the record", async () => {
   const root = await home();
-  const { ctx } = fake(["fixture"]);
-  await create(ctx);
-  assertEquals(ctx.effect.slug, "fixture");
-  assertEquals(ctx.effect.target, `${root}/instances/fixture`);
+  const output = await drive(["instance/clone", "fixture"]);
+  assertEquals(output.slug, "fixture");
+  assertEquals(output.target, `${root}/instances/fixture`);
   assertEquals((await Deno.stat(`${root}/instances/fixture/instance.viva.json`)).isFile, true);
   const record = JSON.parse(await Deno.readTextFile(`${root}/instances.json`));
   assertEquals(record.fixture.mount, `${root}/instances/fixture`);
   scrub();
 });
 
-Deno.test("create: a full triple resolves headlessly through the same fold", async () => {
+Deno.test("clone: a full triple resolves headlessly through the same fold", async () => {
   const root = await home();
-  const { ctx } = fake(["@commons/instance/fixture"]);
-  await create(ctx);
-  assertEquals(ctx.effect.target, `${root}/instances/fixture`);
+  const output = await drive(["instance/clone", "@commons/instance/fixture"]);
+  assertEquals(output.target, `${root}/instances/fixture`);
   scrub();
 });
 
-Deno.test("create: --slug names the record and the shelf, recipe stays the source", async () => {
+Deno.test("clone: --slug names the record and the shelf, recipe stays the source", async () => {
   const root = await home();
-  const { ctx } = fake(["fixture"], { slug: "scratch" });
-  await create(ctx);
-  assertEquals(ctx.effect.slug, "scratch");
-  assertEquals(ctx.effect.target, `${root}/instances/scratch`);
+  const output = await drive(["instance/clone", "fixture", "--slug=scratch"]);
+  assertEquals(output.slug, "scratch");
+  assertEquals(output.target, `${root}/instances/scratch`);
   const record = JSON.parse(await Deno.readTextFile(`${root}/instances.json`));
   assertEquals(record.scratch.mount, `${root}/instances/scratch`);
   assertEquals(record.fixture, undefined);
   scrub();
 });
 
-Deno.test("create: an existing slug is a hard error — no heuristic, no suffixing", async () => {
+Deno.test("clone: an existing slug is a hard error — no heuristic, no suffixing", async () => {
   const root = await home();
   await Deno.writeTextFile(`${root}/instances.json`, JSON.stringify({ fixture: { mount: "/held" } }));
-  const { ctx } = fake(["fixture"]);
-  await create(ctx);
-  assertEquals(String(ctx.effect.error).includes("exists"), true);
+  const output = await drive(["instance/clone", "fixture"]);
+  assertEquals(String(output.error).includes("exists"), true);
   assertEquals(await Deno.stat(`${root}/instances/fixture`).catch(() => null), null);
   scrub();
 });
 
-Deno.test("create: --init pins the new mount at the flag stratum, then chains instance/init", async () => {
+Deno.test("clone: --install pins the new mount at the flag stratum, then chains instance/install", async () => {
   const root = await home();
-  const { ctx, calls } = fake(["fixture"], { init: true });
-  await create(ctx);
+  const { calls, call } = recorder();
+  const output = await drive(["instance/clone", "fixture", "--install"], { call });
   assertEquals(paladin.env.get("VIVA_INSTANCE_MOUNT"), `${root}/instances/fixture`);
   assertEquals(paladin.env.provenance("VIVA_INSTANCE_MOUNT"), "flag");
-  assertEquals(calls, [["instance/init"]]);
-  assertEquals(ctx.effect.initialized, { chained: "instance/init" });
+  assertEquals(calls, [["instance/install"]]);
+  assertEquals(output.installed, { chained: "instance/install" });
   scrub();
 });
 
-Deno.test("create: --use alone chains instance/use and pins nothing itself", async () => {
+Deno.test("clone: --use alone chains instance/use and pins nothing itself", async () => {
   const root = await home();
-  const { ctx, calls } = fake(["fixture"], { use: true });
-  await create(ctx);
+  const { calls, call } = recorder();
+  const output = await drive(["instance/clone", "fixture", "--use"], { call });
   assertEquals(calls, [["instance/use", `${root}/instances/fixture`]]);
-  assertEquals(ctx.effect.selected, { chained: "instance/use" });
-  assertEquals(ctx.effect.initialized, undefined);
+  assertEquals(output.selected, { chained: "instance/use" });
+  assertEquals(output.installed, undefined);
   assertEquals(paladin.env.provenance("VIVA_INSTANCE_MOUNT"), null);
   scrub();
 });
 
-Deno.test("create: --use --init chain use first, then init", async () => {
+Deno.test("clone: --use --install chain use first, then install", async () => {
   const root = await home();
-  const { ctx, calls } = fake(["fixture"], { use: true, init: true });
-  await create(ctx);
-  assertEquals(calls, [["instance/use", `${root}/instances/fixture`], ["instance/init"]]);
-  assertEquals(ctx.effect.selected, { chained: "instance/use" });
-  assertEquals(ctx.effect.initialized, { chained: "instance/init" });
+  const { calls, call } = recorder();
+  const output = await drive(["instance/clone", "fixture", "--use", "--install"], { call });
+  assertEquals(calls, [["instance/use", `${root}/instances/fixture`], ["instance/install"]]);
+  assertEquals(output.selected, { chained: "instance/use" });
+  assertEquals(output.installed, { chained: "instance/install" });
   scrub();
 });

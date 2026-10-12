@@ -1,5 +1,5 @@
 import { ConnectionError } from "./errors/index.js";
-import { sse } from "@vivalence/typology";
+import * as sse from "../gestalten/belt/sse.js";
 
 const encoder = new TextEncoder();
 

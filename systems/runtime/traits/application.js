@@ -1,34 +1,27 @@
 import paladin from "@vivalence/paladin";
 import { resolve } from "@std/path";
-import { App, Path } from "@vivalence/typology";
+import { App, Bundle } from "@vivalence/typology";
 
-export const APPLICATION = async (mode, host) => {
+export const APPLICATION = async (mode, context) => {
   const declared = mode.module.application;
-  const entry = declared.source
-    ? null
-    : new Path(resolve(mode.module.source.dirname, String(declared.mount)));
-  mode.application = declared.source
-    ? new App({ source: declared.source, schema: declared.schema })
-    : new App(entry, declared.schema);
+  const bundler = paladin.bundler(mode.bundles.absolute);
+  mode.application = new App(declared.sources, declared.schema);
 
   mode.application.buffer = (desc = {}) =>
-    host.entities.buffer.create({
+    context.entities.buffer.create({
       mode: mode.entity.id,
-      view: null,
+      bundle: null,
       ...desc,
       data: mode.application.fill(desc),
     });
 
   let compiling = null;
   mode.application.compile = () => {
-    compiling ??= (async () => {
-      mode.application.view = await paladin.bundler(mode.bundles.absolute).bundle(
-        mode.application.source
-          ? { kind: "svelte", source: mode.application.source }
-          : { kind: "svelte", entry: entry.absolute },
-      );
-      return mode.application.view;
-    })().finally(() => (compiling = null));
+    compiling ??= Promise.all(
+      mode.application.sources.map(({ mime, mount, source }) =>
+        bundler.bundle(source ? { mime, source } : { mime, entry: resolve(mode.module.source.dirname, mount) })),
+    ).then((bundles) => (mode.application.bundle = Bundle.merge(...bundles)))
+      .finally(() => (compiling = null));
     return compiling;
   };
 

@@ -1,5 +1,5 @@
 import { Vector } from "@vivalence/typology";
-import * as process from "../process.js";
+import { process } from "../../gestalten/shard/index.js";
 import * as resolution from "./resolution.js";
 
 export const execution = new Vector().use(process.settle).use(resolution.traits);

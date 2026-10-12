@@ -1,4 +1,4 @@
-import { Span } from "@vivalence/typology";
+import { Span } from "../../prototypes/span.js";
 
 const wire = (message) => {
   const shape = {};

@@ -19,17 +19,20 @@ describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON r
     await world.remove();
   });
 
-  it("ledger/init scaffolds the ledger home: ledger.viva.json, instances.json, registry — commons tapped", async () => {
-    const { code, effect, err } = await viva(world, ["ledger/init"]);
+  it("ledger/install scaffolds the ledger home: ledger.viva.json, instances.json, registry — commons and the memo nested in it tapped", async () => {
+    const { code, effect, err } = await viva(world, ["ledger/install"]);
     expect([code, effect?.error ?? null]).toEqual([0, null]);
     for (const file of ["ledger.viva.json", "instances.json"]) expect([file, await exists(join(world.root, "ledger", file))]).toEqual([file, true]);
-    expect(JSON.parse(await Deno.readTextFile(join(world.root, "ledger/registry.json")))).toEqual({ "@commons": { slug: "commons", mount: effect.commons } });
+    expect(JSON.parse(await Deno.readTextFile(join(world.root, "ledger/registry.json")))).toEqual({
+      "@commons": { slug: "commons", mount: effect.commons },
+      "@memo": { slug: "memo", mount: join(effect.commons, "fixtures/memo") },
+    });
     expect(effect.commons.endsWith("/commons")).toBe(true);
     expect(err).not.toContain("Error");
   });
 
-  it("instance/create hello-world --use --init clones the JSON recipe to the shelf, selects it, mints the jwt", async () => {
-    const { effect, err } = await viva(world, ["instance/create", "hello-world", "--use", "--init"]);
+  it("instance/clone hello-world --use --install clones the JSON recipe to the shelf, selects it, mints the jwt", async () => {
+    const { effect, err } = await viva(world, ["instance/clone", "hello-world", "--use", "--install"]);
     expect(effect?.slug ?? err).toBe("hello-world");
     shelf = effect.target;
     expect(JSON.parse(await Deno.readTextFile(join(shelf, "instance.viva.json"))).manifest.slug).toBe("hello-world");
@@ -40,7 +43,7 @@ describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON r
     const environment = await Deno.readTextFile(join(shelf, ".env"));
     const jwt = environment.split("\n").find((line) => line.startsWith("SECRET_VIVA_JWT="));
     expect(jwt !== undefined && jwt.length >= "SECRET_VIVA_JWT=".length + 24).toBe(true);
-    expect(effect.initialized.env).toBe("present");
+    expect(effect.installed.env).toBe("present");
     await pin(shelf, { VIVA_RUNTIME_ORIGIN: world.origin });
   });
 

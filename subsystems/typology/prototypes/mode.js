@@ -1,4 +1,5 @@
-import { Status, Path } from "@vivalence/typology";
+import { Status } from "./status.js";
+import { Path } from "./path.js";
 
 
 // live citizen constructed from a registry module (read.viva result).

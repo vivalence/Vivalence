@@ -58,7 +58,7 @@
     "SECRET_VIVA_JWT": {
       "type": "string",
       "minLength": 24,
-      "description": "Signing secret. Minted by viva instance/init when blank, never by ledger/init; rotate with: openssl rand -base64 24",
+      "description": "Signing secret. Minted by viva instance/install when blank, never by ledger/install; rotate with: openssl rand -base64 24",
       "group": "keys"
     },
     "SECRET_VIVA_ANTHROPIC_API_KEY": {

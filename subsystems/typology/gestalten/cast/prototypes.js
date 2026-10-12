@@ -1,5 +1,5 @@
-import { prototypes } from "@vivalence/typology";
+import { Url } from "../../prototypes/url.js";
 
 export function url(thing) {
-  return new prototypes.Url(thing);
+  return new Url(thing);
 }

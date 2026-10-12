@@ -1,4 +1,4 @@
-import { specimen, Twitch, Dataset } from "@vivalence/typology";
+import { specimen, Span, trace, Twitch, Dataset } from "@vivalence/typology";
 import { datamap } from "@vivalence/runtime/scenarios";
 import { topography } from "@vivalence/typology/scenarios";
 import { traits } from "@vivalence/runtime";
@@ -19,6 +19,7 @@ specimen.beforeAll(async () => {
   mode = {
     manifest: { type: "topography", slug: "fixture", traits: [] },
     id: scenario.fixtures.mode.id,
+    stdout: new Span("mode/topography/fixture"),
     entity: { installed: "" },
     module: { source: corpus, dataset: topography.dataset() },
   };
@@ -73,6 +74,17 @@ specimen.describe("what install put in the database", () => {
   });
 });
 
+specimen.describe("what install wrote on the mode's stdout", () => {
+  specimen.it("one sealed install span, one sealed child per phase, each phase's last note its { done, total }", () => {
+    const [install] = trace.chronicle(mode.stdout.records).roots;
+    specimen.expect(install.path).toBe("/mode/topography/fixture/install");
+    specimen.expect(trace.duration(install)).not.toBe(null);
+    specimen.expect(install.children.map((phase) => phase.nature)).toEqual(["symbol", "literal", "literal.symbols"]);
+    specimen.expect(install.children.every((phase) => trace.duration(phase) !== null)).toBe(true);
+    specimen.expect(install.children.every((phase) => phase.entries.at(-1).data.done === phase.entries.at(-1).data.total)).toBe(true);
+  });
+});
+
 specimen.describe("what install refuses", () => {
   specimen.it("is inert on an already-installed mode", async () => {
     const before = await scenario.repos.symbol.count({});
@@ -91,6 +103,7 @@ specimen.describe("what install refuses", () => {
     };
     await specimen.expect(DATASET(userspace, daemon)).rejects.toThrow(/non-dataspace/);
     specimen.expect(await scenario.repos.thread.count({})).toBe(0);
+    specimen.expect(trace.chronicle(userspace.stdout.records).roots.at(-1).fault.message).toMatch(/non-dataspace/);
   });
 });
 

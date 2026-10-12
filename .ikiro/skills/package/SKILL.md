@@ -13,7 +13,7 @@ when_to_use: >-
 <!-- limit: 6000 chars -->
 # package — "new package" · "tap it": the registry package as paladin reads it
 
-Canon: `subsystems/paladin/belt/find.js` · `subsystems/paladin/prototypes/ledger/registry.js` · `world/codemap/commons.md`. Live: assembly · chess · droneaid · media · stucatch · education · vcompany · young-ladys-primer. Read `world/ledger.md` first — nothing auto-loads under `~/.viva`. Inside it → skills `mode` · `domain` · `topography`.
+Canon: `subsystems/paladin/belt/find.js` · `subsystems/paladin/prototypes/ledger/registry.js` · `world/codemap/commons.md`. Live: assembly · chess · droneaid · media · stucatch · education · vcompany · young-ladys-primer. Read `world/codemap/paladin.md` first — nothing auto-loads under `~/.viva`. Inside it → skills `mode` · `domain` · `topography`.
 
 ## The recipe — content, never a filename
 

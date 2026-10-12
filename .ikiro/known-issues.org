@@ -5,6 +5,94 @@
 Issues we know about and have NOT fixed. Each entry: symptom, root cause hypothesis,
 evidence, attempts, why not fixed now, fallback workaround.
 
+* deno-watch-swallows-the-first-line — OPEN (found 10-13)
+
+** Symptom
+
+Under =deno run --watch= the first stdin line typed after an in-process restart never reaches the new isolate; every later line does. Hits =deno task ghost/watch= and =deno task ghost/scenario= (the client runs =systems/ghost/run.js --watch=, =systems/ghost/tests/scenarios/hello.js= main block).
+
+** Evidence
+
+Deno 2.9.7, ghost-free probe (=scratchpad/probe/echo.js=: a =TextLineStream= over =Deno.stdin.readable= under =--watch=): =alpha= echoed · restart · =beta= lost · =gamma= echoed. Same in the scenario's repl: =/thread= after a =systems/ghost/commands/help.js= save answered nothing, the next line answered. The stopped isolate's pending stdin read outlives the restart.
+
+** Why not fixed now
+
+Deno's watcher, not ghost. Fix on beef's go: the scenario respawns the client PROCESS on a save (=Deno.watchFs= over =systems/ghost= · =subsystems=, kill + spawn) instead of =--watch= — a dead process takes its pending read with it.
+
+* verbose-shows-the-controllers-stack — OPEN (found 10-13)
+
+** Symptom
+
+=viva --verbose= on a client fault prints =subsystems/typology/prototypes/controller.js:30= · =pipe.js:9= · =span.js:76= — never the throw's own frames. =Span.fault= keeps =message · code= only (=subsystems/typology/prototypes/span.js:76=) and the controller mints a =Failure= from that record (=controller.js:30=), so the origin's =stack= is gone before =systems/ghost/run.js:37= reads it.
+
+** Evidence
+
+10-13 the chrome's =Cannot read properties of null (reading 'bundle')=: the origin (=systems/ghost/chrome/panes/frame.jsx= =offered=) surfaced only through a temporary =writeTextFileSync(error.stack)= tap under the client's =settle=.
+
+** Why not fixed now
+
+typology core (=Span= · =Controller=) — beef's call: carry =stack= on the =fault= record, or keep spans stack-free and let =--verbose= tap the throw.
+
+* anima-child-behind-deno-task — OPEN (found 10-13)
+
+** Symptom
+
+=systems/ghost/gestalten/belt/instance.js= =CHILDREN.anima= still spawns =deno task … anima/watch= → =deno task --cwd ./systems/anima watch= → vite. The lock row's pid is the outer task's; a SIGKILL of it (a =ghost/watch= restart, =Process.disintegrate='s grace) leaves vite listening on =:1794= with ppid 1 — the same orphan the runtime showed before it was spawned as =deno run … systems/runtime/run.js= (10-13).
+
+** Why not fixed now
+
+anima is not rebuilt (frontier: vite reds on =View=); its direct argv waits for that.
+
+* boot-plugs-any-status-answer — OPEN (found 10-13)
+
+** Symptom
+
+=systems/ghost/gestalten/belt/instance.js= =boot= plugs into whatever answers =/status= at =runtime.statics.remote=. A second instance recorded on the same port, or an unlocked =deno task runtime/watch= of another instance, is used silently; =Ledger.boot='s port refusal only guards a spawn.
+
+** Why not fixed now
+
+No wire word says which instance a runtime serves (=/metadata/manifest= is the runtime's own slug, not the instance's). Candidate: refuse when =Ledger.locks()= names another instance on the remote's port.
+
+* ghost-does-paladins-work — OPEN (found 10-13, beef: /"that deno stuff is all paladin domain"/)
+
+** Symptom
+
+Ghost reads env, cwd and ledger files by hand; paladin owns each and has (or should have) the verb. Ten sites:
+
+1. =systems/ghost/lifecycle/shell/population.js:15-21= — cwd =instance.viva.json= detection sets =VIVA_INSTANCE_MOUNT= at stratum =cwd=; paladin reserves that stratum (=subsystems/paladin/prototypes/paladin.js:5=) but only ghost writes it. Belongs in =subsystems/paladin/lifecycle/populate.js= =scopes= (instance scope).
+2. =systems/ghost/lifecycle/shell/population.js:38-45= — =--env= duplicates =VIVA_ENV_FILE= (=subsystems/paladin/lifecycle/populate.js:16-22=): hand prefix filter, skips =split='s blank, =env.assign= + =secret.assign= instead of =claim=. One paladin verb, both callers.
+3. =systems/ghost/lifecycle/shell/resolution.js:17-20= =carrier= + =systems/ghost/chrome/credentials.js= — =credentials.json= is ledger state; a sibling of =lock= · =log= (=subsystems/paladin/prototypes/ledger/ledger.js:52-58=).
+4. sessions — paladin reads =sessions/<pid>.json= (=subsystems/paladin/lifecycle/populate.js:88-92=), ghost writes and walks it: =systems/ghost/commands/paladin/instance/use.js:30-46= · =systems/ghost/commands/paladin/ledger/doctor.js:110-130= · =systems/ghost/commands/paladin/instance/delete.js:29-35= · =systems/ghost/commands/paladin/instance/rename.js:41-50=. A record on =Ledger= like =Instances=.
+5. logs dir rebuilt by hand — =systems/ghost/commands/paladin/instance/start.js:32= · =delete.js:26= · =rename.js:31= (same dir); =ledger.log(slug).base= holds it (=subsystems/paladin/prototypes/ledger/log.js:4=).
+7. ledger install — =systems/ghost/commands/paladin/ledger/install.js:76-115= scaffolds dirs, recipe, records, commons taps, =.env=, and resets paladin's private memo: =Object.assign(paladin.ledger, { declaration: undefined, held: undefined })= (=:78=). Scaffold → =Ledger=; prompts stay ghost.
+8. =systems/ghost/gestalten/belt/path.js:4= =cwd= duplicates =subsystems/paladin/lifecycle/populate.js:8=.
+9. =systems/ghost/gestalten/belt/instance.js:11-13,47-52= — child env: own prefix regex beside paladin's =SECRET= · =PUBLIC= (=subsystems/paladin/prototypes/paladin.js:15-16=), hand-lists 3 of the 5 =*_MOUNT= keys =paladin.mounts= declares.
+10. =systems/ghost/commands/paladin/instance/up.js:10= =Deno.env.set("VIVA_RUNTIME_PRUNE", "1")= bypasses =paladin.env=; works only because 9 copies =Deno.env= whole. Lands with 9.
+
+Stays ghost: =systems/ghost/gestalten/belt/config.js= =writeShellConfig= (=~/.config/viva/env=, read by =systems/ghost/ghost.sh=) · =systems/ghost/gestalten/belt/clone.js= · =systems/ghost/chrome/bundle.js=.
+
+** Why not fixed now
+
+beef parked it 10-13 (/"mark as known issues"/). New paladin API: 1 · 2 · 4 · 7 · 9; move or reuse: 3 · 5 · 8 · 10 (6, the locks walk, landed 10-13 as =Ledger.locks()=).
+
+* autologin-signin-flashes — OPEN (lighthouse traits, 10-12)
+
+** Symptom
+
+A client on a lighthouse with =AUTOLOGIN= and no cached credential mounts the signin pane for one frame, then drops it once =/lighthouse/autologin= answers.
+
+** Root cause
+
+=systems/ghost/lifecycle/client/execution.js= runs =integration.surface= BEFORE =resolution.lighthouse(lighthouse)=; =integration.js:4= shows =signin= while =!client.lighthouse.isAuthorized=; the AUTOLOGIN finalizer (=systems/ghost/lifecycle/lighthouse/traits/autologin.js=) authorizes only inside the lighthouse lifecycle.
+
+** Evidence
+
+=systems/ghost/tests/client.test.js= AUTOLOGIN step: =surface.placed= holds a =signin= row before the last placement drops it (the first draft asserted =signedIn(surface) === false= and went red).
+
+** Why not fixed now
+
+Two shapes, beef's call: the surface hides =signin= while =lighthouse.implements("AUTOLOGIN")=, or the lighthouse lifecycle runs before the surface beat. Cosmetic.
+
 * connection-aim-dedupes-arrays — OPEN (found on the assembly editor walk, typology is holy)
 
 ** Symptom
@@ -1627,7 +1715,7 @@ behind conditional spreads. What each surface actually carries:
 `systems/runtime/daemon/lifecycle/population.js:113` (`{...faculty, provider: service.manifest.slug}`),
 emitted by the strip, rendered by the client. No fixture on either test path declares it:
 `contractFaculty()` (`cortex-contract.snapshot.test.js:19`) and the shared
-`commons/fixtures/data/faculties.js:65-117` both omit it. The conditional spread therefore
+`commons/fixtures/testing/data/faculties.js:65-117` both omit it. The conditional spread therefore
 never fires in any test, and the key is absent from both pinned JSONs.
 
 *** HOLE 2 — `config` is never exercised anywhere.*** Same two fixtures, same omission.
@@ -1645,7 +1733,7 @@ is a single-element array, single avenue `["render"]`. Multi-faculty ORDER acros
 `[...cortex.faculties.values()].flat()` is asserted in `cortex.stripwire.test.js` but never
 frozen in a snapshot, so a reordering is caught only by that test's own expectations.
 
-*** HOLE 4 — object-form `channels` never reaches a snapshot.*** `commons/fixtures/data/faculties.js:126,148`
+*** HOLE 4 — object-form `channels` never reaches a snapshot.*** `commons/fixtures/testing/data/faculties.js:126,148`
 declare `channels: { in: [{ type: "audio", codec: "pcm_16000" }] }` for verbatim/speech.
 Only flat-string dialogue channels are pinned. The strip copies `channels` by reference, so
 the two shapes are untested against each other.
@@ -1954,7 +2042,7 @@ Met again by m78's pin bracket (one-file runs, before and after, identical): edu
 10-10, after m81's land, the registry census per file: education green; vcompany still red in 5 files (=modes/dummy/{calendar,mail}= · =modes/office/vdex/{boot,tools,vdex.snapshot}=), each =TypeError: Cannot read properties of undefined (reading 'dirname')= — the same =source.dirname= read, unchanged by the land.
 10-05, session test-suite — every package run from the repo root on a scratch copy of the registry. education aborts at collection. File by file, four causes:
 - =domain/tests/scenarios/domain.js:11= calls =shard.secure.authorize()=; m76 deleted =subsystems/typology/gestalten/shard/secure.js= and its M4 residue grep stopped at the repo root. That is the =authorize= TypeError.
-- =systems/runtime/tests/scenarios/daemon.js:25= =create()= seeds no domain, and dojo calls =mountMode(dojo)= bare, while =commons/fixtures/data/seed.js:6-8= says a mode calling domain repository methods must mount its domain. That is the missing =retentions= · =byLastSignal= · =feed= · =novel= · =review= · =due=.
+- =systems/runtime/tests/scenarios/daemon.js:25= =create()= seeds no domain, and dojo calls =mountMode(dojo)= bare, while =commons/fixtures/testing/data/seed.js:6-8= says a mode calling domain repository methods must mount its domain. That is the missing =retentions= · =byLastSignal= · =feed= · =novel= · =review= · =due=.
 - =kernel/literal.test.js:2= · =userspace/scoping.test.js:3-4= import =../../../../fixtures/data/= from the =commons/= era.
 - vcompany =FAILED | 16 passed (65 steps) | 11 failed (30 steps)=: its own rig writes =mode.module.mount= (=~/.viva/registry/vcompany/tests/scenarios.js:28,54=), DATASET reads =mode.module.source.dirname= (=systems/runtime/traits/dataset.js:58=).
 Patch set, proven on the copies — education =ok | 39 passed (187 steps)=, vcompany =FAILED | 25 passed (113 steps) | 2 failed (4 steps)=, runtime with the rig change =ok | 76 passed (429 steps)=:
@@ -1987,7 +2075,7 @@ Patch set, proven on the copies — education =ok | 39 passed (187 steps)=, vcom
 -  scenario.mode.module.mount = new Path(
 +  scenario.mode.module.source = new Path(
 #+END_SRC
-=create(options)= mirrors =mountMode(viva, options)= (=systems/runtime/tests/scenarios/mode.js:120=); =fixtures= on the scenarios barrel keeps =commons/fixtures/data/= at its one consumer, =systems/runtime/tests/scenarios/fixtures.js=.
+=create(options)= mirrors =mountMode(viva, options)= (=systems/runtime/tests/scenarios/mode.js:120=); =fixtures= on the scenarios barrel keeps =commons/fixtures/testing/data/= at its one consumer, =systems/runtime/tests/scenarios/fixtures.js=.
 ** Ruling
 none yet. Owed with the patch: the vdex ordering — the 2 left in vcompany. =vcompany/modes/office/vdex/aperture/index.js:39-40= throws /"is one document already"/ (the id is taken) before =:42= throws /"exists"/ (the path is taken); =vdex/tests/tools.test.js:80= re-files =22.07 Payroll= and expects "exists", =vdex.snapshot.test.js:150= is the same family. Which refusal wins a same-id re-file: the id check (the test changes) or the path check (=:39= lets its own path through).
 ** Why not fixed
@@ -2691,3 +2779,45 @@ Package code, outside the walk; the fix is the rubric as a user turn, or the Ant
 
 ** Workaround
 None live: =balanced= resolves to Anthropic on language-learning.
+
+* ghost strata.wet — two shells in parallel flips — OPEN
+** Symptom
+=systems/ghost/tests/strata.wet.test.js:93= /"two shells select two instances in parallel"/: the second =ledger/doctor= reads =VIVA_INSTANCE_MOUNT= as =null=; 1 pass / 2 fails on three back-to-back runs, 10-10.
+** Root cause
+Not bisected. Two =viva instance/use= then two =ledger/doctor= run concurrently over one temp ledger's =sessions/<pid>.json=.
+** Evidence
+The whole ghost suite: 105/0 on one run, 103/2 on the next, the slot untouched between them.
+** Ruling
+None yet.
+** Why not fixed
+Found while landing m82's lighthouse slot; a race in a test rig, not product.
+** Workaround
+Rerun the file.
+
+* dataset-stamp-hashes-absolute-paths — OPEN (found 10-13, setting up his =localhost= instance)
+** Symptom
+His first =viva instance/up runtime= on =~/.viva/instances/localhost= printed =[DATASET] <type>/<slug> dataset files differ from the installed stamp — reinstalling= for every DATASET mode of chess · droneaid · italian and reinstalled them all; his second boot printed none.
+** Root cause
+=stamp= (=systems/runtime/traits/dataset.js:16=) hashes each source file's ABSOLUTE PATH with its text (=:33= =file.absolute= · =:36= =at=). My scratch-ledger walk reached =~/.viva/registry= through a symlink, so the stamps it wrote into the REAL instance db named =/private/tmp/…/ledger-localhost/registry/chess/…=; his boot read the same bytes at =/Users/finn/.viva/registry/chess/…=.
+** Evidence
+After the reinstall, read-only on =localhost.viva.db=: =Literal= chess 4810/4810 · droneaid 188/188 · italian 6583/6583, =Symbol= 622/622 · 72/72 · 2593/2593 — rows equal distinct slugs, no duplicates.
+** Ruling
+QUESTIONED his: stamp on the path relative to the module — =relative(mount.dirname, file.absolute)= at =:33=, =source.read= at =:36=. The edit to =dataset.js= is itself in every stamp: every DATASET mode on every instance reinstalls once.
+** Why not fixed
+Awaiting his go.
+** Workaround
+Never point a scratch ledger at a real instance mount — walk a copy of the instance dir; a moved checkout or registry costs one full reinstall.
+
+* ghost-ctx-call-keeps-the-callers-signal — OPEN (found 10-13 in his paste)
+** Symptom
+=viva instance/use localhost up anima= → =viva /instance/use: instance: unknown target 'localhost' — expected all | runtime | anima=.
+** Root cause
+=ctx.call(argv)= (=systems/ghost/lifecycle/shell/integration.js:18=) builds =inner = { ...ctx, steps, params, … }= and never rebinds =signal= to =argv=, so the called verb reads the CALLER's =ctx.signal.params=: =instance/use= chains =ctx.call(["instance/up", "anima"])= (=systems/ghost/commands/paladin/instance/use.js:60=), =up= reads =specs(ctx.signal.params[0])= (=systems/ghost/commands/paladin/instance/up.js:11=) → =localhost=.
+** Evidence
+His paste 10-13. By reading, unrun: =instance/clone --install= (=systems/ghost/commands/paladin/instance/clone.js:56=) hands =install= clone's =[source, target]= as =<username> <password>=; =--use= (=:52=) hands =use= the source token, not =destination=.
+** Ruling
+None yet — m86's shell; the fix is one key, =signal: new Signal(argv)= on =inner=.
+** Why not fixed
+Found at the 10-13 fold; code waits on go.
+** Workaround
+One verb per line: =viva instance/use localhost=, then =viva instance/up anima=.

@@ -1,4 +1,5 @@
-import { Pattern, Signature } from "@vivalence/typology";
+import { Pattern } from "./pattern.js";
+import { Signature } from "./signature.js";
 
 export class Vector {
   constructor(ancestor, signature = Pattern) {
@@ -14,8 +15,8 @@ export class Vector {
     return this;
   }
 
-  use(middleware) {
-    this.carry.push(middleware);
+  use(...middlewares) {
+    this.carry.push(...middlewares);
     return this;
   }
 
@@ -43,26 +44,29 @@ export class Vector {
     return this;
   }
 
-  affect(effect) {
+  do(effect) {
     if (this.effect) return console.log("vector already affected");
     this.effect = effect;
     return this;
   }
 
-  graft(vector) {
-    if (vector === this) return this;
-    if (vector.effect) this.effect = vector.effect;
+  affect(effect) {
+    return this.do(effect);
+  }
 
-    for (const [nature, edge] of vector.trie) {
-      const existing = this.trie.get(nature);
-      const branch = existing?.trajectory ?? new this.constructor(this, this.signature);
-      branch.graft(edge.trajectory);
-      if (existing) existing.pattern = edge.pattern;
-      else this.trie.set(nature, { pattern: edge.pattern, trajectory: branch });
+  graft(...vectors) {
+    for (const vector of vectors) {
+      if (vector === this) continue;
+      if (vector.effect) this.effect = vector.effect;
+      for (const [nature, edge] of vector.trie) {
+        const existing = this.trie.get(nature);
+        const branch = existing?.trajectory ?? new this.constructor(this, this.signature);
+        branch.graft(edge.trajectory);
+        if (existing) existing.pattern = edge.pattern;
+        else this.trie.set(nature, { pattern: edge.pattern, trajectory: branch });
+      }
+      this.carry.push(...vector.carry);
     }
-
-    this.carry.push(...vector.carry);
-
     return this;
   }
 

@@ -1,5 +1,5 @@
 import { Url, Connection, shard, shape } from "@vivalence/typology";
-import { host } from "../../gestalten/belt/index.js";
+import * as belt from "../../gestalten/belt/index.js";
 
 export const call = async (die, next) => {
   die.connection = new Connection(new Url("http://internal"), shard.transmitter.inline(shape.http(die.daemon.aperture)));
@@ -7,6 +7,6 @@ export const call = async (die, next) => {
 };
 
 export const prune = async (die, next) => {
-  await host.prune(die.host);
+  await belt.modes.prune(die.daemon);
   await next();
 };

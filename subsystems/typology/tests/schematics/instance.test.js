@@ -1,8 +1,8 @@
 import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
-import { Path, Url, v } from "@vivalence/typology";
+import { Path, Url, traits, v } from "@vivalence/typology";
 
-const { Instance, InstanceMask, Mountpoint, Modes, Daemon, Runtime } = v.primitives.instance;
+const { Instance, InstanceMask, Mountpoint, Modes, Daemon, Runtime, Lighthouse, Client } = v.primitives.instance;
 
 const JWT = "a-signing-secret-of-twenty-four-or-more";
 const runtime = (held = {}) => ({ manifest: { slug: "runtime" }, statics: { serve: "http://localhost:2501/" }, secrets: { jwt: JWT }, ...held });
@@ -62,7 +62,16 @@ describe("v.primitives.instance — one schematic for the settled unit", () => {
     expect(Runtime.cast(unnamed).manifest).toEqual({ slug: "runtime" });
     expect(InstanceMask.faults({ manifest: { type: "instance", slug: "probe" }, runtime: { statics: { serve: "${VIVA_RUNTIME_SERVE}" } } })).toEqual([]);
     expect(Runtime.faults(Runtime.cast(runtime({ secrets: { jwt: "short" } }))).map(({ at }) => at)).toEqual(["/secrets/jwt"]);
-    expect(Runtime.faults(Runtime.cast({ manifest: { slug: "runtime" }, statics: { serve: "http://localhost:2501/" } })).map(({ at }) => at)).toEqual(["/"]);
+    expect(Runtime.faults(Runtime.cast({ manifest: { slug: "runtime" }, statics: { serve: "http://localhost:2501/" } }))).toEqual([]);
+  });
+
+  it("the lighthouse is its own slot — a 24+ secret, traits default to none, trait.AUTOLOGIN defaults to localhost, the mask takes a reference and the trait words only", () => {
+    expect(Lighthouse.cast({ secrets: { jwt: JWT } })).toEqual({ secrets: { jwt: JWT }, traits: [], trait: { AUTOLOGIN: { username: "localhost" } } });
+    expect(Lighthouse.faults(Lighthouse.cast({ secrets: { jwt: "short" }, traits: ["JOINABLE"] })).map(({ at }) => at)).toEqual(["/secrets/jwt"]);
+    expect([...new Set(Lighthouse.faults({ secrets: { jwt: JWT }, traits: ["AJAR"] }).map(({ at }) => at))]).toEqual(["/traits/0"]);
+    expect(Instance.cast(recipe({ runtime: runtime(), lighthouse: { secrets: { jwt: JWT }, traits: ["JOINABLE"] } })).lighthouse.traits).toEqual(["JOINABLE"]);
+    expect(InstanceMask.faults({ manifest: { type: "instance", slug: "probe" }, lighthouse: { secrets: { jwt: "${SECRET_VIVA_JWT}" }, traits: ["JOINABLE"] } })).toEqual([]);
+    expect(InstanceMask.faults({ manifest: { type: "instance", slug: "probe" }, lighthouse: { secrets: { jwt: "literal" } } }).map(({ at }) => at)).toEqual(["/lighthouse/secrets/jwt"]);
   });
 
   it("the schematic knows every mountpoint — collect walks daemons, datamaps, services and modes modes, skipping null", () => {
@@ -72,14 +81,14 @@ describe("v.primitives.instance — one schematic for the settled unit", () => {
         daemons: [daemon({ modes: [{ module: "@vcompany/office/vdex", mountpoint: "/jdex" }, { module: "@vcompany/office/chat", mountpoint: null }] })],
       }),
     );
-    const seats = v.collect(Instance, held, Mountpoint);
-    expect(seats.map(({ at }) => at)).toEqual([
+    const mountpoints = v.collect(Instance, held, Mountpoint);
+    expect(mountpoints.map(({ at }) => at)).toEqual([
       "/services/0/mountpoint",
       "/services/0/datamap/mountpoint",
       "/daemons/0/mountpoint",
       "/daemons/0/modes/0/mountpoint",
     ]);
-    expect(seats.map(({ value }) => value)).toEqual(["/m/service_nlp", "/m/service_nlp", "/m/daemon_hello", "/jdex"]);
+    expect(mountpoints.map(({ value }) => value)).toEqual(["/m/service_nlp", "/m/service_nlp", "/m/daemon_hello", "/jdex"]);
     expect(Instance.collect(Instance.decode(held), Mountpoint).every(({ value }) => value instanceof Path)).toBe(true);
   });
 
@@ -90,7 +99,7 @@ describe("v.primitives.instance — one schematic for the settled unit", () => {
   });
 });
 
-describe("v.primitives.instance.InstanceMask — the file as authored: references, no seats, every key named", () => {
+describe("v.primitives.instance.InstanceMask — the file as authored: references, no derived mountpoints, every key named", () => {
   const mask = (held = {}) => ({
     manifest: { type: "instance", slug: "hello-world", version: "0.0.1" },
     runtime: { manifest: { slug: "runtime" }, statics: { serve: "${VIVA_RUNTIME_SERVE}", remote: "${PUBLIC_VIVA_RUNTIME_REMOTE}" }, secrets: { jwt: "${SECRET_VIVA_JWT}" } },
@@ -107,13 +116,20 @@ describe("v.primitives.instance.InstanceMask — the file as authored: reference
     expect(faults(mask())).toEqual([]);
   });
 
-  it("a client names its home — an absolute mode reference; any other key is refused", () => {
-    expect(faults(mask({ clients: [{ manifest: { type: "client", slug: "anima" }, home: "/runtime/runtime/mode/home/home" }] }))).toEqual([]);
-    expect(faults(mask({ clients: [{ manifest: { type: "client", slug: "anima" }, harness: "/runtime/runtime/mode/home/home" }] }))).toEqual(["/clients/0 must not have additional properties"]);
+  it("a client carries HOME — trait.HOME.reference, an absolute mode reference; a bare home or any other key is refused", () => {
+    expect(faults(mask({ clients: [{ manifest: { type: "client", slug: "ghost" }, traits: ["HOME"], trait: { HOME: { reference: "/daemon/memo/mode/srs/memo" } } }] }))).toEqual([]);
+    expect(faults(mask({ clients: [{ manifest: { type: "client", slug: "ghost" }, home: "/daemon/memo/mode/srs/memo" }] }))).toEqual(["/clients/0 must not have additional properties"]);
+    expect(faults(mask({ clients: [{ manifest: { type: "client", slug: "ghost" }, traits: ["HOMED"] }] }))).toEqual(["/clients/0/traits/0 must be equal to constant", "/clients/0/traits/0 must match a schema in anyOf"]);
+  });
+
+  it("a client's traits default to none; HOME reads through the same claim a user's does", () => {
+    expect(Client.cast({ manifest: { type: "client", slug: "ghost" } })).toEqual({ manifest: { type: "client", slug: "ghost", traits: [] }, statics: {}, traits: [], trait: {} });
+    const homed = { traits: ["HOME"], trait: { HOME: { reference: "/daemon/memo/mode/srs/memo" } } };
+    expect(traits.claim(homed, "HOME", { HOME: v.primitives.Home })).toEqual(v.user.trait(homed, "HOME"));
   });
 
   it("a migrated shelf that still says lighthouse is refused with the key named", () => {
-    expect(faults(mask({ lighthouse: { module: "@commons/lighthouse/multiplayer" } }))).toEqual(["/ must not have additional properties"]);
+    expect(faults(mask({ lighthouse: { module: "@commons/lighthouse/multiplayer" } }))).toEqual(["/lighthouse must have required properties secrets", "/lighthouse must not have additional properties"]);
     expect(faults(mask({ daemons: [{ manifest: { type: "daemon", slug: "x" }, lighthouse: {} }] }))).toEqual(["/daemons/0 must not have additional properties"]);
   });
 

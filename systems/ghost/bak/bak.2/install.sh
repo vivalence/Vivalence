@@ -1,0 +1,10 @@
+#!/bin/sh
+REPO="${1:-$(pwd)}"
+CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/viva"
+ENV="$CONFIG/env"
+mkdir -p "$CONFIG"
+{ grep -v '^export VIVA_REPOSITORY_MOUNT=' "$ENV" 2>/dev/null; echo "export VIVA_REPOSITORY_MOUNT=\"$REPO\""; } > "$ENV.tmp" && mv "$ENV.tmp" "$ENV"
+chmod +x "$REPO/systems/ghost/ghost.sh"
+ln -sf "$REPO/systems/ghost/ghost.sh" "$HOME/.deno/bin/viva"
+"${SHELL:-sh}" -lic 'command -v viva' >/dev/null 2>&1 || echo "viva: a fresh shell does not find viva — add to your rc: export PATH=\"\$HOME/.deno/bin:\$PATH\""
+echo "viva → $REPO  ·  config: $ENV"

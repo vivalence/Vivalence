@@ -53,9 +53,9 @@ specimen.describe(
             outer: {
               condition: spoken.condition,
               keys: Object.keys(spoken.output).sort(),
-              buffer: spoken.output.buffer.map(({ data, view, index }) => ({
+              buffer: spoken.output.buffer.map(({ data, bundle, index }) => ({
                 data,
-                view,
+                bundle,
                 index,
               })),
             },

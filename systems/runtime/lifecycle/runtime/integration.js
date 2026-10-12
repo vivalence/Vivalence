@@ -1,9 +1,9 @@
 import paladin from "@vivalence/paladin";
 import { shard, shape } from "@vivalence/typology";
-import { host } from "../../gestalten/belt/index.js";
+import * as belt from "../../gestalten/belt/index.js";
 
 export const prune = async (die, next) => {
-  await host.prune(die.host);
+  await belt.modes.prune(die.runtime);
   await next();
 };
 

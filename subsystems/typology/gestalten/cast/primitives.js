@@ -1,5 +1,6 @@
 // Assertive conversion - throws on failure
-import { is, not, prototypes } from "@vivalence/typology";
+import * as is from "../is/index.js";
+import { not } from "../not/index.js";
 
 export function viva(thing) {
   let viva;

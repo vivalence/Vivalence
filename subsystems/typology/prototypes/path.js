@@ -1,5 +1,6 @@
 import { Signature } from "./signature.js";
-import { hash, is } from "@vivalence/typology";
+import * as hash from "../gestalten/belt/hash.js";
+import * as is from "../gestalten/is/scalars.js";
 
 // console.log("{ Signature, is, hash }", Signature, is, hash);
 // import { join, normalize } from "@std/path";

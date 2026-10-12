@@ -1,4 +1,4 @@
-import { v } from "@vivalence/typology";
+import { Url, v } from "@vivalence/typology";
 import * as jsonc from "@std/jsonc";
 import { Lock } from "./lock.js";
 import { Log } from "./log.js";
@@ -53,6 +53,14 @@ export class Ledger {
     return new Lock(this.paladin, this.paladin.scope.ledger.branch(`/locks/${instance}.lock`));
   }
 
+  async locks() {
+    const home = this.paladin.scope.ledger.branch("locks").absolute;
+    if (!(await Deno.stat(home).catch(() => null))) return [];
+    const files = (await Array.fromAsync(Deno.readDir(home))).filter((entry) => entry.name.endsWith(".lock"));
+    const held = await Promise.all(files.map((entry) => this.lock(entry.name.slice(0, -".lock".length)).read()));
+    return held.filter(Boolean);
+  }
+
   log(instance) {
     return new Log(this.paladin, instance);
   }
@@ -82,6 +90,16 @@ export class Ledger {
 
   async boot(specs, { instance = null, attachment = "inherit" } = {}) {
     this.paladin.check.instance(this.paladin.instance).throw();
+    const port = (serve) => new Url(serve).port;
+    const wanted = specs.filter((spec) => spec.serve).map((spec) => port(spec.serve));
+    for (const held of await this.locks()) {
+      if (held.instance === instance) continue;
+      const taken = held.processes.filter((process) => process.serve && process.status !== "EXITED" && wanted.includes(port(process.serve)));
+      if (taken.length)
+        throw new Error(
+          `${held.instance} holds ${taken.map((process) => `${process.serve} (${process.process}=${process.pid} ${process.status})`).join(" · ")} under supervisor ${held.pid} — viva instance/stop --instance=${held.instance}`,
+        );
+    }
     this.paladin.publish();
     const die = new Die({ ledger: this, specs, instance, attachment });
     await die.populate();

@@ -1,9 +1,25 @@
-import { Wafer } from "@vivalence/typology";
+import { fn, Wafer } from "@vivalence/typology";
 import { Process } from "./process.js";
 
+const rows = (processes) => processes.map((held) => `${held.process}=${held.pid} ${held.status}`).join(", ");
+
 export class Die extends Wafer {
+  writing = Promise.resolve();
+  vigil = () => {};
+
   get manifest() {
     return { type: "instance", slug: this.instance };
+  }
+
+  get json() {
+    return {
+      pid: Deno.pid,
+      token: this.token,
+      instance: this.instance,
+      status: this.status.reflection.code,
+      processes: this.good.processes.map((process) => process.json),
+      started: this.started,
+    };
   }
 
   async populate() {
@@ -22,20 +38,15 @@ export class Die extends Wafer {
     this.status.set("populated");
   }
 
-  claim(code) {
+  claim() {
     if (!this.lock) return Promise.resolve();
-    return this.lock.write({
-      pid: Deno.pid,
-      token: this.token,
-      instance: this.instance,
-      status: code,
-      processes: this.good.processes.map((process) => ({ process: process.slug, pid: process.child.pid })),
-      started: this.started,
-    });
+    return (this.writing = this.writing.then(() => this.lock.write(this.json)));
   }
 
   async release() {
     if (!this.lock) return;
+    this.vigil();
+    await this.writing;
     const held = await this.lock.read();
     if (held?.token === this.token) await this.lock.remove();
   }
@@ -43,13 +54,15 @@ export class Die extends Wafer {
   async resolve() {
     const held = await this.lock?.read();
     if (held) {
-      throw new Error(`${this.instance} already running (supervisor ${held.pid}) — viva instance/stop`);
+      throw new Error(`${this.instance} already running (supervisor ${held.pid}: ${rows(held.processes)}) — viva instance/stop`);
     }
     this.token = crypto.randomUUID();
     this.started = new Date().toISOString();
+    const offs = this.good.processes.map((process) => process.status.$transient.listen(() => this.claim()));
+    this.vigil = fn.once(() => offs.forEach((off) => off()));
     for (const process of this.good.processes) await process.resolve();
-    await this.claim("BOOTING");
     this.status.set({ code: "SPAWNED", pid: Deno.pid });
+    await this.claim();
   }
 
   async integrate() {
@@ -59,8 +72,8 @@ export class Die extends Wafer {
       await this.disintegrate();
       throw error;
     }
-    await this.claim("ALIVE");
     this.status.set("alive");
+    await this.claim();
   }
 
   async perpetuate() {
@@ -76,6 +89,7 @@ export class Die extends Wafer {
   async disintegrate(signal = null) {
     if (this.status.is(["STOPPING", "STOPPED", "EXITED"])) return;
     this.signal = signal;
+    this.vigil();
     this.status.set("stopping");
     await Promise.all(this.good.processes.map((process) => process.disintegrate()));
     await this.release();

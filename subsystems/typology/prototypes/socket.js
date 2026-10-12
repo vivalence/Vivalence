@@ -1,5 +1,13 @@
 import { atom } from "nanostores";
-import { Span, Context, Url, Queue, ConnectionError, NotFound, steer, fromm, v } from "@vivalence/typology";
+import { Span } from "./span.js";
+import { Context } from "./context.js";
+import { Url } from "./url.js";
+import { Queue } from "./queue.js";
+import { ConnectionError } from "./errors/connection.js";
+import { NotFound } from "./errors/vector.js";
+import * as steer from "../gestalten/steer/index.js";
+import * as fromm from "../gestalten/fromm/index.js";
+import { v } from "../schematics/index.js";
 
 const encoder = new TextEncoder();
 
@@ -114,21 +122,22 @@ export class Socket {
       return;
     }
 
-    if (!packet.signal) return void this.span.note({ drop: "empty" });
+    if (!packet.nature) return void this.span.note({ drop: "empty" });
 
     let signal;
-    try { signal = v.decode(signalCodec(), packet.signal); }
+    try { signal = v.decode(signalCodec(), packet.nature); }
     catch {
-      console.warn(`[multiplex] rejected bad signal "${packet.signal}"`);
-      return void this.span.note({ drop: "bad-signal", signal: packet.signal });
+      console.warn(`[multiplex] rejected bad signal "${packet.nature}"`);
+      return void this.span.note({ drop: "bad-signal", signal: packet.nature });
     }
+    Object.assign(signal, { body: packet.body, ...(packet.flags && { flags: packet.flags }) });
     const [effect, carry, steps] = steer.dispatch.traverse(this.vector, signal);
     if (!effect) {
-      console.warn(`[multiplex] no route for push "${packet.signal}"`);
-      return void this.span.note({ drop: "no-route", signal: packet.signal });
+      console.warn(`[multiplex] no route for push "${packet.nature}"`);
+      return void this.span.note({ drop: "no-route", signal: packet.nature });
     }
 
-    const ctx = new Context({ request: { url: `http://socket${signal.pathname}`, body: packet.input } });
+    const ctx = new Context({ request: { url: `http://socket${signal.pathname}`, body: signal.body[0] } });
     ctx.socket = this;
     ctx.signal = signal;
     ctx.steps = steps;
@@ -223,7 +232,7 @@ export class Socket {
 
   push(signal, input) {
     this.#ready
-      .then(() => this.ws.send(JSON.stringify({ signal: this.#wire(signal), input })))
+      .then(() => this.ws.send(JSON.stringify({ nature: this.#wire(signal), body: [input] })))
       .catch(() => {});
   }
 

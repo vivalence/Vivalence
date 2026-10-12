@@ -2,11 +2,11 @@
   import { onDestroy } from "svelte";
   import Empty from "../display/Empty.svelte";
 
-  let { terminal, view = null, children } = $props();
+  let { terminal, bundle = null, accept = [], children } = $props();
 
   const buffer = $derived(terminal.$buffer);
   const bufferId = $derived($buffer?.id);
-  const address = $derived(view ? `${view.bundle?.url ?? ""}${view.mount?.nature ?? ""}` : "");
+  const address = $derived(bundle ? `${bundle.url ?? ""}${bundle.negotiate(accept)?.mount ?? ""}` : "");
   let component = $state(null);
   let dom = $state(null);
   let fault = $state(null);
@@ -16,7 +16,7 @@
 
   function identity(record) {
     if (!record) return null;
-    return record.hash ?? record.bundle.url + record.mount.nature;
+    return `${record.url}${record.negotiate(accept)?.mount ?? ""}`;
   }
 
   let standing = $state(null);
@@ -34,7 +34,7 @@
 
   $effect(() => {
     const next = $buffer;
-    const key = identity(view);
+    const key = identity(bundle);
     const target = dom;
     if (next === live && key === shown && terminal === seated) return;
     teardown();
@@ -45,7 +45,7 @@
       standing = "resolving";
       return;
     }
-    if (!view) {
+    if (!bundle) {
       live = next;
       shown = key;
       seated = terminal;
@@ -59,7 +59,7 @@
     seated = terminal;
     (async () => {
       try {
-        const module = await view.load();
+        const module = await bundle.load(accept);
         if (live !== next || shown !== key) return;
         component = module.default(target, {
           terminal,
@@ -71,7 +71,7 @@
         next.mount();
         standing = "ready";
       } catch (error) {
-        console.error(`[Frame] view refused for buffer ${next.id}`, error);
+        console.error(`[Frame] bundle refused for buffer ${next.id}`, error);
         if (live === next) {
           fault = error.message;
           standing = null;
@@ -87,14 +87,14 @@
   <div class="viewport">
     {#if fault}
       <div class="fault">
-        <Empty tone="negative" verb="view refused" trace={fault} />
-        {#if view}<span class="fault-trace">{address}</span>{/if}
+        <Empty tone="negative" verb="bundle refused" trace={fault} />
+        {#if bundle}<span class="fault-trace">{address}</span>{/if}
       </div>
-    {:else if view}
+    {:else if bundle}
       <div class="stage" bind:this={dom}></div>
       {#if standing === "loading"}
         <div class="standing">
-          <Empty spinner verb="loading view" trace={address} />
+          <Empty spinner verb="loading bundle" trace={address} />
         </div>
       {/if}
     {:else if standing === "resolving"}

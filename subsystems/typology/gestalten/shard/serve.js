@@ -1,4 +1,4 @@
-import { Socket } from "@vivalence/typology";
+import { Socket } from "../../prototypes/socket.js";
 
 const MIME = {
   html: "text/html", css: "text/css", js: "application/javascript", mjs: "application/javascript",

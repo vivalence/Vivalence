@@ -1,4 +1,4 @@
-import { specimen, is, fromm, Pattern, Signal } from "@vivalence/typology";
+import { specimen, is, Pattern, Signal } from "@vivalence/typology";
 
 specimen.describe("Signal", () => {
   specimen.it("a command line becomes a tree", () => {
@@ -35,20 +35,20 @@ specimen.describe("Signal", () => {
     ];
     for (const [wire, flags] of dialects) {
       const signal = new Signal(wire);
-      specimen.expect((signal.fin ?? signal).flags).toEqual(flags);
+      specimen.expect(signal.flags).toEqual(flags);
     }
 
     specimen.expect(new Signal("--verbose --dry-run").nature).toBe(null);
 
     const terminated = new Signal("run --verbose -- --not-a-flag positional");
     specimen.expect(terminated.absolute).toEqual(["run", "--not-a-flag", "positional"]);
-    specimen.expect(terminated.fin.flags).toEqual({ verbose: true });
+    specimen.expect(terminated.flags).toEqual({ verbose: true });
 
     specimen.expect(new Signal("cat -").absolute).toEqual(["cat", "-"]);
 
     specimen.expect(new Signal("lighthouse connect --url http://localhost:3000 --verbose").json).toEqual({
-      signal: "/lighthouse/connect",
-      parts: ["lighthouse", "connect"],
+      nature: "/lighthouse/connect",
+      body: undefined,
       flags: { url: "http://localhost:3000", verbose: true },
     });
   });
@@ -60,12 +60,38 @@ specimen.describe("Signal", () => {
     const route = new Pattern("/lighthouse/connect");
     const spoken = new Signal("lighthouse connect --url http://localhost:3000");
     specimen.expect(route.apply(spoken)).toBeTruthy();
-    specimen.expect(spoken.gauges[0].flags).toEqual({ url: "http://localhost:3000" });
+    specimen.expect(spoken.flags).toEqual({ url: "http://localhost:3000" });
     specimen.expect(route.gauges[0].apply(spoken.gauges[0])).toBeTruthy();
+  });
 
-    specimen.expect(fromm.signal(spoken).flags).toEqual({ url: "http://localhost:3000" });
-    specimen.expect(fromm.signal(new Signal("deploy --env production --verbose")).flags).toEqual({ env: "production", verbose: true });
-    specimen.expect(fromm.signal(new Signal("users/123/profile")).flags).toEqual({});
-    specimen.expect(fromm.signal(new Signal("--verbose --dry-run")).flags).toEqual({ verbose: true, "dry-run": true });
+  specimen.it("flags are the root's own, and only when one was typed", () => {
+    const spoken = new Signal("deploy/now --env production");
+    specimen.expect(Object.hasOwn(spoken, "flags")).toBe(true);
+    specimen.expect(spoken.gauges[0].flags).toBe(undefined);
+    specimen.expect(Object.hasOwn(new Signal("users/123/profile"), "flags")).toBe(false);
+    specimen.expect(new Signal("--verbose --dry-run").flags).toEqual({ verbose: true, "dry-run": true });
+  });
+
+  specimen.it("a URL is its pathname, its query the flags", () => {
+    specimen.expect(new Signal(new URL("http://localhost/entities/mode?limit=5&q=a")).json).toEqual({ nature: "/entities/mode", body: undefined, flags: { limit: "5", q: "a" } });
+    specimen.expect(new Signal(new URL("http://localhost/?limit=5")).json).toEqual({ nature: "/", body: undefined, flags: { limit: "5" } });
+    specimen.expect(new Signal(new URL("http://localhost/entities?limit=1&limit=2")).flags).toEqual({ limit: "2" });
+    specimen.expect(() => new Signal(new URL("http://localhost/a?0=x"))).toThrow("--0: numbered flags are refused");
+  });
+
+  specimen.it("a numbered flag is refused", () => {
+    specimen.expect(() => new Signal("x --0")).toThrow("--0: numbered flags are refused");
+    specimen.expect(() => new Signal("x -1")).toThrow("--1: numbered flags are refused");
+  });
+
+  specimen.it("rebase re-roots and carries only what the signal owns", () => {
+    const flagged = new Signal("instance/use --ledger").rebase("command");
+    specimen.expect([flagged.pathname, flagged.flags]).toEqual(["/command/instance/use", { ledger: true }]);
+    const bare = new Signal("instance/use").rebase("command");
+    specimen.expect([bare.pathname, Object.hasOwn(bare, "flags"), Object.hasOwn(bare, "body")]).toEqual(["/command/instance/use", false, false]);
+  });
+
+  specimen.it("Signal.tokens splits a typed line quote-aware without the string row's --k=v split", () => {
+    specimen.expect(Signal.tokens('instance/create --slug=italian "my words" x')).toEqual(["instance/create", "--slug=italian", "my words", "x"]);
   });
 });

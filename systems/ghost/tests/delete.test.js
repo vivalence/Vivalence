@@ -1,10 +1,6 @@
 import { assertEquals, assertRejects } from "@std/assert";
 import paladin from "@vivalence/paladin";
-import { remove } from "../trajectories/instance/delete.js";
-
-function fake(params, flags = {}) {
-  return { ctx: { signal: { params, flags }, interactive: false } };
-}
+import { drive } from "./verb.js";
 
 async function home() {
   const root = await Deno.makeTempDir({ prefix: "delete-test-" });
@@ -40,13 +36,12 @@ Deno.test("delete --force: shelf dir, record, dead lock, logs, and the sessions 
   await Deno.writeTextFile(`${root}/sessions/111.json`, JSON.stringify({ VIVA_INSTANCE_MOUNT: mount }));
   await Deno.writeTextFile(`${root}/sessions/222.json`, JSON.stringify({ VIVA_INSTANCE_MOUNT: "/anchor" }));
 
-  const { ctx } = fake(["gone"], { force: true });
-  await remove(ctx);
+  const output = await drive(["instance/delete", "gone", "--force"]);
 
-  assertEquals(ctx.effect.deleted, "gone");
-  assertEquals(ctx.effect.files, "removed");
-  assertEquals(ctx.effect.logs, true);
-  assertEquals(ctx.effect.sessions, [111]);
+  assertEquals(output.deleted, "gone");
+  assertEquals(output.files, "removed");
+  assertEquals(output.logs, true);
+  assertEquals(output.sessions, [111]);
   assertEquals(await present(mount), false);
   assertEquals(await present(`${root}/locks/gone.lock`), false);
   assertEquals(await present(`${root}/logs/gone`), false);
@@ -62,10 +57,9 @@ Deno.test("delete: refuses while a lock is alive — nothing touched", async () 
   const mount = await shelve(root, "busy");
   await Deno.writeTextFile(`${root}/locks/busy.lock`, JSON.stringify({ pid: Deno.pid, processes: [{ process: "runtime", pid: Deno.pid }] }));
 
-  const { ctx } = fake(["busy"], { force: true });
-  await remove(ctx);
+  const output = await drive(["instance/delete", "busy", "--force"]);
 
-  assertEquals(String(ctx.effect.error).includes("running"), true);
+  assertEquals(String(output.error).includes("running"), true);
   assertEquals(await present(mount), true);
   assertEquals((await paladin.ledger.instances.read("busy")).mount, mount);
   scrub();
@@ -77,11 +71,10 @@ Deno.test("delete: an off-shelf (tapped) dir is unrecorded, its files stay", asy
   await Deno.writeTextFile(`${mount}/instance.viva.js`, "export const manifest = {};\n");
   await paladin.ledger.instances.write("tapped", { mount });
 
-  const { ctx } = fake([mount], { force: true });
-  await remove(ctx);
+  const output = await drive(["instance/delete", mount, "--force"]);
 
-  assertEquals(ctx.effect.deleted, "tapped");
-  assertEquals(ctx.effect.files.startsWith("kept"), true);
+  assertEquals(output.deleted, "tapped");
+  assertEquals(output.files.startsWith("kept"), true);
   assertEquals(await present(`${mount}/instance.viva.js`), true);
   assertEquals(await paladin.ledger.instances.read("tapped"), null);
   scrub();
@@ -91,8 +84,7 @@ Deno.test("delete: without --force in a pipe it throws and touches nothing", asy
   const root = await home();
   const mount = await shelve(root, "asked");
 
-  const { ctx } = fake(["asked"]);
-  await assertRejects(() => remove(ctx), Error, "--force");
+  await assertRejects(() => drive(["instance/delete", "asked"]), Error, "--force");
 
   assertEquals(await present(mount), true);
   assertEquals((await paladin.ledger.instances.read("asked")).mount, mount);
@@ -104,10 +96,9 @@ Deno.test("delete: an unrecorded mount is an honest error", async () => {
   const stray = `${root}/instances/stray`;
   await Deno.mkdir(stray, { recursive: true });
 
-  const { ctx } = fake([stray], { force: true });
-  await remove(ctx);
+  const output = await drive(["instance/delete", stray, "--force"]);
 
-  assertEquals(String(ctx.effect.error).includes("not recorded"), true);
+  assertEquals(String(output.error).includes("not recorded"), true);
   assertEquals(await present(stray), true);
   scrub();
 });
@@ -115,9 +106,8 @@ Deno.test("delete: an unrecorded mount is an honest error", async () => {
 Deno.test("delete: a slug prefix resolves through the instances lens, like use", async () => {
   const root = await home();
   const mount = await shelve(root, "hello-world");
-  const { ctx } = fake(["hello"], { force: true });
-  await remove(ctx);
-  assertEquals(ctx.effect.deleted, "hello-world");
+  const output = await drive(["instance/delete", "hello", "--force"]);
+  assertEquals(output.deleted, "hello-world");
   assertEquals(await present(mount), false);
   scrub();
 });

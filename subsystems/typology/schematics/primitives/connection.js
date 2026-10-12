@@ -26,5 +26,5 @@ export const Packet = v.union([
   v.object({ frame: ID, open: v.const(true) }), // attach ACK
   v.object({ frame: ID, output: v.unknown() }), // reply / stream item
   v.object({ frame: ID, error: Fault }), // failure
-  v.object({ signal: Signal(), input: v.unknown() }), // push (frame-less)
+  v.object({ nature: Signal(), body: v.array(v.unknown()), flags: v.record(v.string(), v.unknown()).optional() }), // push (frame-less)
 ]);

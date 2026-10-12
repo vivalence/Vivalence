@@ -1,7 +1,15 @@
-import { Signal, middleware } from "@vivalence/typology";
+import { Signal } from "../../prototypes/signal.js";
+import * as middleware from "../belt/middleware.js";
 import { request } from "./strategy.js";
 
 export const descend = (carry, vector) => middleware.chain(carry, middleware.compose(vector.carry));
+
+export const at = (vector, path) =>
+  path.reduce((position, nature) => {
+    if (!position) return null;
+    const edge = position.trie.get(nature);
+    return edge ? edge.trajectory : null;
+  }, vector);
 
 const route = (steps) => new Signal(steps.map((s) => s.nature).join("/"));
 

@@ -1,3 +1,3 @@
 import { carry } from "./fraught.js";
 
-export const MOUNTED = (mode, host) => carry(mode, host, mode.mountpoint.absolute);
+export const MOUNTED = (mode, context) => carry(mode, context, mode.mountpoint.absolute);

@@ -1,4 +1,6 @@
-import { array, hash, is, cast } from "@vivalence/typology";
+import * as array from "../gestalten/belt/array.js";
+import * as hash from "../gestalten/belt/hash.js";
+import * as is from "../gestalten/is/scalars.js";
 
 export class Signature {
   // nature = null; trace = null; gauges = [];

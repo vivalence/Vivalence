@@ -1,4 +1,4 @@
-import { v, Vector, Yield } from "@vivalence/typology";
+import { v, Vector, Yield, mime } from "@vivalence/typology";
 import { refuse } from "./draw.js";
 
 const SOURCE = v
@@ -49,13 +49,13 @@ export const emitter = new Vector().open(
     // unchanged and turns.js:35 folds it into the m26 bag the client reads as entities.buffer.
   },
   async (ctx) => {
-    const view = await ctx.mode.generator.bundle({
-      kind: "svelte",
+    const bundle = await ctx.mode.generator.bundle({
+      mime: mime.dom.svelte,
       source: refuse(ctx.input.source),
     });
     const buffer = await ctx.entities.buffer.create({
       mode: ctx.mode.entity.id,
-      view: view.json,
+      bundle: bundle.json,
       data: ctx.input.data ?? {},
       traits: ["LABELED"],
       trait: { LABELED: ctx.input.label },
@@ -94,7 +94,7 @@ generator
       "line they can click open. The HOUSE RULES in your context are binding — a component " +
       "that invents its own styling renders wrong, and one that imports from a URL is refused " +
       "outright. The `label` is what the operator sees on the line — the subject, named " +
-      "plainly. Returns the buffer id and the view hash — keep both: generator_view_revise iterates the " +
+      "plainly. Returns the buffer id and its bundle entry hash — keep both: generator_view_revise iterates the " +
       "SAME buffer, generator_view_inspect reads the source back by hash.",
     input: v.object({ source: SOURCE, label: LABEL, data: DATA }),
   })

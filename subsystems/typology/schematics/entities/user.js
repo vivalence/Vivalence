@@ -1,8 +1,5 @@
 import { v } from "../v.js";
-
-const HOME = v.object({
-  reference: v.string().desc('The mode a thread with none enters for this user, over its client\'s home — an absolute reference. Example: "/daemon/italian/mode/teacher/francesca"'),
-});
+import { Home } from "../primitives/home.js";
 
 export const UserDescriptor = {
   $id: "User",
@@ -14,6 +11,6 @@ export const UserDescriptor = {
   relations: {
     threads: () => v.array(v.thread()).optional(),
   },
-  traits: { HOME },
+  traits: { HOME: Home },
   narrowable: ["trait"],
 };

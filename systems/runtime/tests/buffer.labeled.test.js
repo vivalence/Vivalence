@@ -4,7 +4,7 @@ import { gestalten } from "@vivalence/runtime";
 import { create } from "./scenarios/cortex.js";
 
 // every buffer is LABELED: a row that claims the trait is left alone; one that does not is named
-// structurally — the mode's slug and the seat number — and claims it. the subscriber never reads
+// structurally — the mode's slug and the buffer's index — and claims it. the subscriber never reads
 // data: what a payload calls its title is the interface's business, not the row's.
 
 let scenario;
@@ -63,7 +63,7 @@ specimen.describe("buffer — LABELED at create", () => {
     specimen.expect(stored.trait.LABELED).toEqual({ name: "dewey #0" });
   });
 
-  specimen.it("the repository's create is the ONE mint: a thread id binds and takes the next seat", async () => {
+  specimen.it("the repository's create is the ONE mint: a thread id binds and takes the next index", async () => {
     const { em, daemon, fixtures, createThread } = scenario;
     const thread = await createThread();
     const first = await daemon.entities.buffer.create({ mode: fixtures.dewey.id, thread: thread.id });

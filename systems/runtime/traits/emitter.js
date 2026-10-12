@@ -1,6 +1,6 @@
 import { Blacklist, contexts, is, Pool, shape, shard, Vector } from "@vivalence/typology";
 
-export const EMITTER = async (mode, host) => {
+export const EMITTER = async (mode, context) => {
   if (!mode.module.emitter) return;
 
   // trait habit: middleware rides a live Vector we own; the read-only module declaration
@@ -17,7 +17,7 @@ export const EMITTER = async (mode, host) => {
   });
 
   emitter.use(async (ctx, next) => {
-    Object.assign(ctx, shard.context.lift(contexts.host, host));
+    Object.assign(ctx, shard.context.lift(contexts.host, context));
     ctx.mode = mode;
     // ctx.thread
 
@@ -26,7 +26,7 @@ export const EMITTER = async (mode, host) => {
     // thread is OPTIONAL — turn-free / standalone modes (riddler) emit without one.
     // emitter requires thread.
     if (ctx.input.thread) {
-      ctx.thread = await host.entities.thread.findOne(ctx.input.thread);
+      ctx.thread = await context.entities.thread.findOne(ctx.input.thread);
     }
 
     ctx.input.blacklist = new Blacklist(ctx.input.blacklist);
@@ -58,7 +58,7 @@ export const EMITTER = async (mode, host) => {
       for (const buffer of result.output.buffer) ctx.thread.bindBuffer(buffer);
     }
 
-    await host.entities.em.flush();
+    await context.entities.em.flush();
 
     ctx.output = result;
   });

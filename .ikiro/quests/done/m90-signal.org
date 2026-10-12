@@ -1,0 +1,2159 @@
+#+title: m90 signal — every signal is { nature, body, flags }; every derivative is only a way to build one
+#+filetags: :signal:typology:ghost:shell:repl:aperture:socket:controller:
+#+status: LANDED 10-13 on beef's go — 7 whole · 52 files / 84 hunks · 2 deletes · demo golden regenerated; gate on the live tree = the proven counts (typology 142/626 · ghost 137/293 · stub 3/16 · runtime 85/564 · drapes 25/200, 0 failed); zero-grep 0; =viva bogus= · =viva instance/bogus= · =viva help= exit 127; ~/.viva md5 unchanged. Owed: eight QA markers.
+
+* intent
+
+| # | beef, verbatim | trigger |
+|---+----------------+---------|
+| A | /"I don't like our signal. Our signal here is shit. I don't like that we have argv as something that we pre-compute and then the way that help is implemented is shit. And the traversal not finding anything I think should be part of the invocation. So something on the shell vector that tells us that."/ | =systems/ghost/run.js:6-14= |
+| B | /"we also want a REPL signal […] so those are two different signals."/ | =systems/ghost/prototypes/replsignal.js= |
+| C | /"I assume that what we call on the signal params and what we call on the shell flags are actually the same thing."/ | =subsystems/typology/prototypes/signal.js:20-31= |
+| D | /"this is the same thing three times it looks like. should be one."/ | =subsystems/typology/prototypes/signal.js:113-136= |
+| E | /"instance/use - nature · ledger:true - param · italian - ... shit this needs a name. […] italian would be the body?! yeah body makes sense. […] nature body flag. yeah."/ | the argv-vs-params question |
+| F | /"argv being a format makes sense. so maybe our signal type for shell is argv. but does it make sense to standarize into nature body and flags? across all vectors? as the standard for signal root. across aperture http request response twitches and all. good thing: i expect that body will be all kinds of types. strings, objects, json, whatever."/ | |
+| G | /"so, every signal derivative becomes a way to build {nature, body, flags}"/ | |
+| H | /"argv is type of signal (extends) in ghost that parses unix input into signal"/ | his edit to * the law, 10-13 |
+| I | /"argv ["instance/use", "{json:'possible'}"] => nature instance/use and body.json === 'possible'"/ · /"this is also important"/ | his edit under the law's block, 10-13 |
+| J | /"(b) Always make the body an array when there are several arguments, and never parse a lone argument that starts with [."/ → /"make body an array"/ · /"just an array. period."/ · /"if it its {} then parsed as [{}]"/ | F9, 10-13 |
+| K | /"you never resolve forks do you.... cut whats open. everythign else should be worked into the tangle"/ | the quest, 10-13 |
+| L | /"ctx.input is now the packet's body arry[0]!!!! we can read objects from signal....??!?!"/ → picked =ctx.input = body[0]= | a socket push receiver, 10-13 |
+
+* the law
+
+- a Signal is three things: =nature= (the path, as the Signature chain) · =body= (anything — a string, an array, an object, json) · =flags= (a record of named options).
+- every Signal derivative is ONLY a set of coercions that builds those three from its input form. A derivative adds no state and no getter (intent G).
+- =body= and =flags= belong to the signal as a whole — the ROOT carries them as plain own properties; a segment carries only its =nature=. No getter that walks to the last segment (intent D). A signal requires neither (ruled 10-13: /"why would a signal REQUIRE flags?!?!?! stupid."/).
+- argv is type of signal (extends) in ghost that parses unix input into signal
+- =ctx.params= stays what it is — the captures a Pattern matched off the path (=subsystems/typology/schematics/primitives/contexts.js:9=). =signal.params= dies.
+- no numbered flags: =--0= is refused by every parser (ruled 10-13: /"agreed, no numbered flags."/).
+- an argv body is ALWAYS an array — one positional, many or none (=[]=); a positional opening ={= or =[= is parsed in place: ={…}= → =[{…}]= (ruled 10-13, intent J). =ReplSignal= inherits it; its event row wraps =input= the same way.
+
+#+BEGIN_SRC
+argv    ["instance/use", "italian", "--ledger", "--instance=slug"]
+          │               │          │
+          ▼               ▼          ▼
+signal  nature /instance/use · body ["italian"] · flags { ledger: true, instance:"slug" }
+
+line    "/dock/side left --json"      → nature /dock/side   · body ["left"]                     · flags { json: true }
+line    "ciao come stai"              → nature /*           · body [{ type: "text", text: … }]  · flags {}
+http    GET /entities/mode?limit=5    → nature /entities/mode · flags { limit: "5" }   (the request body stays ctx.input)
+socket  push("/polo", { pong: true }) → { nature: "/polo", body: [{ pong: true }] }   (the receiver's ctx.input = body[0])
+kill    Kill                          → { nature: "SIGTERM", body: ["user pressed stop"], flags: {} }
+#+END_SRC
+
+argv    ["instance/use", "{json:'possible'}"] => nature instance/use and body.json === 'possible'
+
+Superseded by intent J (10-13): the body is =[{…}]=, so his line reads =body[0].json === 'possible'=.
+
+* the dialogue
+
+** 1. beef's pasted =systems/ghost/run.js= — what he keeps, what he refuses
+
+/"the die is fine. The listeners are fine. The exit is fine. And then the invoke is fine. Just the signal."/
+
+#+BEGIN_SRC js
+// systems/ghost/run.js:6
+const argv = Deno.args.includes("--help")
+  ? ["help", ...Deno.args.filter((token) => token !== "--help")]
+  : Deno.args;
+const signal = new Signal(argv);
+
+if (!steer.dispatch.traverse(shell, signal)[0]) {
+  console.error(`viva ${signal.pathname}: no such verb — viva help`);
+  Deno.exit(127);
+}
+#+END_SRC
+
+Refused: the argv precompute (=:6-8=), the token-level =--help= rewrite (=:6=), the miss checked outside the vector (=:11-14=).
+
+** 3. the "three times" beef saw — superseded by the law
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/signal.js:113
+  get flags() {
+    const fin = this.fin;
+    return fin ? fin.flags : {};
+  }
+
+  set flags(held) {
+    Object.defineProperty(this, "flags", { value: held, writable: true, enumerable: true, configurable: true });
+  }
+
+  get params() {
+    const fin = this.fin;
+    return fin ? fin.params : [];
+  }
+
+  set params(held) {
+    Object.defineProperty(this, "params", { value: held, writable: true, enumerable: true, configurable: true });
+  }
+
+  get argv() {
+#+END_SRC
+
+My first answer merged positionals and flags into one =params= record =({ 0: "italian", ledger: true })=. SUPERSEDED by intent E: positionals are the BODY, named options are FLAGS, two fields. The fin-walking getters die with the law "the root carries them".
+
+* terrain — measured 10-13
+
+** what is young and what is old
+
+=git diff HEAD -- subsystems/typology/prototypes/signal.js= = +76 −4, uncommitted (HEAD =0b14b1356=, 10-12).
+
+| surface | HEAD | working tree |
+|---------+------+--------------|
+| string parser | ✓ | ✓ |
+| argv parser | — | ✓ |
+| =signal.params= | — | array, on the fin |
+| =signal.flags= getter | — | object, on the fin |
+| =signal.argv= getter | — | ✓ |
+| =Signal.tokens= · =rebase= | — | ✓ |
+| =json.flags= | ✓ | ✓ |
+
+Every file under =systems/ghost/commands/**=, =systems/ghost/prototypes/replsignal.js=, =systems/ghost/gestalten/belt/line.js=, =subsystems/typology/tests/signal.argv.test.js=, =systems/ghost/tests/argv.test.js= is =A= in =git status= — the m86 rebuild. The only consumers older than this week read =json.flags=: =commons/fixtures/testing/hal/stub/provider/script.js:37= and =subsystems/typology/tests/snapshots/signal.snapshot.json=.
+
+** the three things, under many names today
+
+| wire | nature | body | flags | where |
+|------+--------+------+-------+-------|
+| argv | head token | positionals | =--x= | =subsystems/typology/prototypes/signal.js:7-41= |
+| string | words | — | =--x v= · =-x= | =subsystems/typology/prototypes/signal.js:42-106= |
+| repl line | sigil path | bare line as =input= | =--x= | =systems/ghost/prototypes/replsignal.js:7-23= |
+| http | pathname | =request.body= | query dropped | =subsystems/typology/gestalten/shape/http.js:11-19= |
+| socket | =packet.signal= | =packet.input= | — | =subsystems/typology/prototypes/socket.js:128-139= |
+| controller | =Kill.signal= | =Kill.input= | — | =subsystems/typology/schematics/primitives/controller.js:40-43= |
+| batch | =call.path= | =call.body= | — | =subsystems/typology/gestalten/shard/batch.js:17-31= |
+| tool call | =name= split on =_= | =call.input= | — | =subsystems/typology/gestalten/belt/hallucinate.js:92= |
+| context | =ctx.signal= | =ctx.input= = =request.body= | — | =subsystems/typology/prototypes/context.js:13= |
+
+** probes run 10-13
+
+| probe | result |
+|-------+--------|
+| =new ReplSignal({ signal: "/dock/full", input: true }).input= | =undefined= (fin holds =true=) |
+| =traverse(repl, "/bogus")= | effect (=*= yap) |
+| =traverse(repl, "/dock/bogus")= | =null= |
+
+The second and third: a =*= only catches a miss at its own level; =systems/ghost/lifecycle/client/population.js:63= still try/catches =invoke=.
+
+** counts
+
+| surface | files | lines |
+|---------+-------+-------|
+| =new Signal(= | 28 | 105 |
+| =ctx.input= | 73 | 257 |
+| =request.body= | 10 | 22 |
+| =controller.kill(= | 18 | 33 |
+| =signal.input= | 5 | 5 |
+| =v.prototypes.Signal(= codec | 1 | 1 |
+| =new Twitch(= | 14 | 16 |
+| ghost =signal.flags= reads, plain | 7 | 7 |
+| ghost =signal.flags?.= reads, silent | 9 | 9 |
+| ghost =signal.params= array reads | 21 | 23 |
+| live =signal.argv= getter readers | 0 | 0 |
+
+The 9 silent reads (=?.=) read =undefined= without a throw once =flags= moves — the grep is their only gate:
+
+#+BEGIN_SRC
+systems/ghost/commands/paladin/instance/up.js:10       flags?.prune
+systems/ghost/commands/paladin/instance/up.js:11       flags?.logged
+systems/ghost/commands/paladin/instance/use.js:31      flags?.ledger
+systems/ghost/commands/paladin/instance/cleanup.js:13  flags?.force
+systems/ghost/commands/paladin/instance/delete.js:47   flags?.force
+systems/ghost/commands/paladin/instance/start.js:23    flags?.prune
+systems/ghost/commands/paladin/instance/clone.js:34    flags?.slug
+systems/ghost/commands/paladin/instance/clone.js:51    flags?.use
+systems/ghost/commands/paladin/instance/clone.js:52    flags?.install
+#+END_SRC
+
+The worst silent break: =systems/ghost/gestalten/belt/line.js:26= =verb.params.length <= positional(…)= — on a non-array it reads =undefined <= n= = false, and every bare verb line becomes a yap turn.
+
+** breaking — scouted 10-13 against * tangle — signals
+
+rg over =systems subsystems commons documentation= + =~/.viva/registry=, =testament/= and =bak/= out. Registry: 0 hits.
+
+| # | reader | today | after the tangle | lands in |
+|---+--------+-------+------------------+----------|
+| B1 | =commons/fixtures/testing/hal/stub/provider/script.js:40= =prose= | =.json.parts.join(" ")= | =parts= gone → =TypeError= on every stub turn | 1 |
+| B2 | =commons/fixtures/testing/hal/stub/provider/script.js:37= =flags= → =:44= =held.run= | =json.flags= always a record | =undefined= on a flagless prompt → =TypeError= | 1 |
+| B3 | =systems/ghost/prototypes/replsignal.js:3= | =Signal.coercions[0][1]= = the argv row | = the string row; tokens fed to =tokenize= as a string — silent garbage | 1 (tangle replaces) |
+| B4 | =systems/ghost/run.js:9= · =systems/ghost/lifecycle/shell.js:74= · =systems/ghost/tests/verb.js:34= · =systems/ghost/tests/call.test.js:14= | =new Signal(argv)= | typology =Signal= has no argv row: =["install","--json"]= → head =install=, heir =--json= a null-nature segment — no throw | 1, not 2 |
+| B5 | =systems/ghost/lifecycle/client/population.js:56= · =systems/ghost/run.js:20= | =signal.input= | yap row seats =body=; =input= =undefined= → the harness gets an empty turn | 1 (3 in the plan) |
+| B6 | =systems/ghost/gestalten/belt/line.js:26= | =verb.params.length= | =undefined <= n= false → every verb line yaps | 1 (3 in the plan) |
+| B7 | 23 =ctx.signal.params= reads in 21 files under =systems/ghost/commands/**= (* counts said 12 — undercount) | array | =undefined= → =TypeError= or silent =?? []= | 4 |
+| B8 | 9 =flags?.= reads (list under * counts) | record | still a record under =Argv=; under a repl =/line= also =Argv= — safe | — |
+| B9 | tests: =subsystems/typology/tests/signal.argv.test.js= (whole) · =signal.test.js:38,45,63-69= · golden · =systems/ghost/tests/{argv,replsignal,line,call}.test.js= | | rewrite | 1–3 |
+
+Not broken: the socket wire encodes through =path= (=subsystems/typology/schematics/prototypes/signatures.js:19=, =pathname=) · =systems/ghost/lifecycle/shell.js:32,38= and =integration.js:6= read =flags= off an =Argv= — always a record · =fromm.signal= has no reader outside tests · =rebase= has one reader (the test).
+
+Consequence: B3–B6 make milestones 1–3 ONE landing — typology alone leaves ghost dead or silent. B1 · B2 ride milestone 1.
+
+** two traps for whoever writes the core
+
+- a derived class's FIELD declaration (=body;= or =#body=) initializes AFTER =super()= returns, so it overwrites — or, private, refuses — what =Signature='s constructor set during coercion (=subsystems/typology/prototypes/signature.js:13=, =:19=). The core declares no field.
+- =Signature='s constructor RETURNS a new root when a coercion yields an array (=subsystems/typology/prototypes/signature.js:20-25=); =this.x = …= inside such a coercion lands on the discarded instance. A coercion puts =body= and =flags= on the HEAD segment object (=is.signature= = an object with a =nature=, =subsystems/typology/gestalten/is/scalars.js:107=), and =Object.assign= seats them on the root. Only the no-segment case (=["--json"]=) writes =this=.
+
+* baseline — 10-13, before any change
+
+| suite | result |
+|-------+--------|
+| =subsystems/typology/tests= | =ok \vert 143 passed (630 steps) \vert 0 failed (40s)= |
+| =systems/ghost/tests= | =ok \vert 137 passed (290 steps) \vert 0 failed (2m5s)= |
+| =commons/fixtures/testing/hal/stub/tests= | =ok \vert 3 passed (16 steps) \vert 0 failed (829ms)= |
+| =systems/runtime/tests/stub.activity.test.js= | =ok \vert 1 passed (6 steps) \vert 0 failed (1s)= |
+| =systems/runtime/tests/turn.unit-of-work.test.js= | =ok \vert 2 passed (5 steps) \vert 0 failed (288ms)= |
+
+No =--watch= process running; =md5 -q ~/.viva/*.json= equal before and after.
+
+* tangle — signals
+
+Proven 10-13 on a scratchpad copy of the live tree (taken after the lifecycle flatten to =systems/ghost/lifecycle/{shell,repl}.js=). Paths in the =:tangle= headers are relative to =.ikiro/quests/=. The tangle IS the filesystem: one =****= per file under ** files, =ls= order; whole files tangle, hunks land through =.ikiro/methods/apply-diffs.py=.
+
+** the rulings, as built
+
+- a Signal is ={ nature, body, flags }=; =body= and =flags= are the ROOT's own properties, neither required — /"why would a signal REQUIRE flags?!?!?! stupid."/ The string row seats =flags= only when it read one.
+- =json= is ={ nature, body, flags }= — /"signal dont exist here. its nature. parts is what??"/
+- no numbered flags — =Signal.flag(key)= refuses =--0= in every row (/"agreed, no numbered flags."/).
+- =Argv extends Signal=, in ghost — /"argv is type of signal (extends) in ghost that parses unix input into signal"/. It keeps =Signal='s string row after its own, so =rebase= and =new this.constructor(pathname)= still split a path.
+- the body of an =Argv= is always an array — /"just an array. period."/ · /"if it its {} then parsed as [{}]"/; a positional opening ={= or =[= is =JSON.parse=d in place, a failed parse stays the string (/"stay string on invalid json."/). =[1,2]= → =[[1,2]]=, =1 2= → =["1","2"]=, none → =[]=.
+- the =argv= getter lives on =Argv=, never =Signal= — /"no argv getter on signal. thats for the prototype argv. obviously."/
+- =ReplSignal extends Argv= and keeps its name — /"inherit if ti makes sense."/ · /"new ReplSignal("/dock/side left")   // today"/. The event and key rows are cut — /"The repl's event and key row arent real. cut key. cut event. mark as dead. note."/ Their two live callers dispatch LINES instead (the ruled migrate, "dispatch a line, never an object"): the browser dock's drag and snap (=subsystems/drapes/dom/chassis.jsx:45-54=, =/dock/share 0.32= · =/dock/collapse true=) and the TUI keypresses (=systems/ghost/chrome/surface.js:32=, =/key/ctrl-b=). =dock/full= · =dock/collapse= read =String(body[0]) === "true"=: a typed line and the chassis both send the word.
+- =ctx.input= stays; the dispatcher seats =signal.body= into it — /"(b) keep ctx.input, seat body into it"/. A socket push is the one exception, picked 10-13: the socket seats =body[0]= (intent L), so a receiver reads its object as before.
+- the wire packets are signals — =Kill= and the socket push carry ={ nature, body, flags }=; =push(signal, payload)= sends =body: [payload]=.
+- query params are flags — /"query params become flags. absolutely. ?limit=5 is flags.limit=5 thast the core idea."/ =Signal= gains a =URL= row; =subsystems/typology/gestalten/shape/http.js= hands it the URL whole.
+- a miss is a verb — /"1 yes. call missing."/ =traverse= falls back to the nearest ancestor's =*= on a miss, on a walk that ends without an effect, and on an empty signal at a vector with no root effect (=subsystems/typology/gestalten/steer/dispatch.js=); a vector with no =*= still answers =null=. =missing= is grafted LAST on the shell: a =*= declared before a literal shadows it (probed: =/quit= reached =*=). The repl's =*= is =yap=; =yap= refuses any signal whose nature is not =*= (the body is always an array now, so =parts === undefined= no longer tells a miss from a line). =client.dispatch= drops its try/catch: the repl's =*= catches every line, an empty one included.
+- =--help= is a flag read by a root middleware on each vector that prints and short-circuits — /"flag help is read in a middleware at close to vector root and prints the help via stripping the vectors client.repl & import execution from shell. after print, it returns ie intererrupts middleware chain. shortcircuit"/ · /"help verb dies. yes."/ =helping= sits beside each =execution=; it also sets =ctx.output = { commands, flags }=, the old help verb's output, so =--help --json= prints the listing as JSON. =belt.help.named=: an exact nature wins over its prefix; an empty nature (=viva --help=) names every command.
+
+| typed | after |
+|-------+-------|
+| =viva --help= | every row, exit 0 |
+| =viva instance --help= | the =instance/*= rows |
+| =viva instance/use --help --json= | the =instance/use= detail as JSON |
+| =viva instance/delete italian --help= | help; the delete never runs |
+| =viva bogus= · =viva instance/bogus= · =viva help= | =viva /…: no such verb — viva --help=, exit 127 |
+| repl =/--help= · =/dock --help= | every row · the dock's rows |
+| repl =/typo= · =/dock/bogus= | refused, =no such verb — /--help= |
+
+** files — 61, =ls= order: 5 whole over the tree, 2 new, 52 as hunks, 2 deleted
+
+*** commons/fixtures/testing
+
+**** =commons/fixtures/testing/hal/stub/provider/script.js=
+
+#+BEGIN_SRC diff
+// commons/fixtures/testing/hal/stub/provider/script.js:34
+   }
+ };
+
+-export const flags = (source) => new Signal(String(source ?? "")).json.flags;
++export const flags = (source) => {
++  const { flags = {} } = new Signal(String(source ?? ""));
++  return flags;
++};
+
+ // the prose, with every flag taken out of it — what the stub echoes back when nothing says --say.
+-export const prose = (source) => new Signal(String(source ?? "")).json.parts.join(" ");
++export const prose = (source) => new Signal(String(source ?? "")).absolute.join(" ");
+
+ // one flag bag → one plan. --run expands first, so a written flag always beats the script it ran.
+ export function read(source, scripts = {}, depth = 0) {
+#+END_SRC
+
+*** subsystems/drapes
+
+**** =subsystems/drapes/dom/chassis.jsx=
+
+#+BEGIN_SRC diff
+// subsystems/drapes/dom/chassis.jsx:42
+     const deltaPx = vertical() ? event.clientX - last.x : event.clientY - last.y;
+     last = { x: event.clientX, y: event.clientY };
+     dragged = dock.shareAfterDrag({ side: props.layout().dock.side, share: dragged, rect: rect(), deltaPx });
+-    props.dispatch({ signal: "/dock/share", input: dragged });
++    props.dispatch(`/dock/share ${dragged}`);
+   };
+   const up = (event) => {
+     if (last === null) return;
+     event.currentTarget.releasePointerCapture(event.pointerId);
+     last = null;
+     const snapped = dock.snapAfterDrop({ side: props.layout().dock.side, share: dragged, rect: rect() });
+-    props.dispatch({ signal: "/dock/share", input: snapped.share });
+-    if (snapped.collapsed === true) props.dispatch({ signal: "/dock/collapse", input: true });
+-    if (snapped.full === true) props.dispatch({ signal: "/dock/full", input: true });
++    props.dispatch(`/dock/share ${snapped.share}`);
++    if (snapped.collapsed === true) props.dispatch("/dock/collapse true");
++    if (snapped.full === true) props.dispatch("/dock/full true");
+   };
+
+   return (
+#+END_SRC
+
+**** =subsystems/drapes/tests/dom/chassis.test.js=
+
+#+BEGIN_SRC diff
+// subsystems/drapes/tests/dom/chassis.test.js:104
+     fire(handle, "pointermove", { pointerId: 1, clientX: 650, clientY: 400 });
+     fire(handle, "pointermove", { pointerId: 1, clientX: 600, clientY: 400 });
+     fire(handle, "pointerup", { pointerId: 1, clientX: 600, clientY: 400 });
+-    specimen.expect(sent.map((event) => [event.signal, Math.round(event.input * 100) / 100])).toEqual([
++    specimen.expect(sent.map((line) => line.split(" ")).map(([nature, share]) => [nature, Math.round(Number(share) * 100) / 100])).toEqual([
+       ["/dock/share", 0.37],
+       ["/dock/share", 0.42],
+       ["/dock/share", 0.42],
+…
+// subsystems/drapes/tests/dom/chassis.test.js:119
+     fire(floor.handle, "pointermove", { pointerId: 1, clientX: 900, clientY: 0 });
+     fire(floor.handle, "pointerup", { pointerId: 1, clientX: 900, clientY: 0 });
+     specimen.expect(floor.sent.slice(-2)).toEqual([
+-      { signal: "/dock/share", input: 0.32 },
+-      { signal: "/dock/collapse", input: true },
++      "/dock/share 0.32",
++      "/dock/collapse true",
+     ]);
+
+     const ceiling = await assembled();
+…
+// subsystems/drapes/tests/dom/chassis.test.js:130
+     fire(ceiling.handle, "pointermove", { pointerId: 1, clientX: 50, clientY: 0 });
+     fire(ceiling.handle, "pointerup", { pointerId: 1, clientX: 50, clientY: 0 });
+     specimen.expect(ceiling.sent.slice(-2)).toEqual([
+-      { signal: "/dock/share", input: 0.32 },
+-      { signal: "/dock/full", input: true },
++      "/dock/share 0.32",
++      "/dock/full true",
+     ]);
+   });
+
+#+END_SRC
+
+**** =subsystems/drapes/tests/dom/panes.test.js=
+
+#+BEGIN_SRC diff
+// subsystems/drapes/tests/dom/panes.test.js:274
+     const module = {
+       default: (element, props) => {
+         element.textContent = `view of ${props.buffer.id}`;
+-        props.dispatch({ signal: "/buffer/ready", input: props.buffer.id });
++        props.dispatch(`/buffer/ready ${props.buffer.id}`);
+         log.push(`mount ${props.buffer.id}`);
+         return { destroy: () => log.push(`destroy ${props.buffer.id}`) };
+       },
+…
+// subsystems/drapes/tests/dom/panes.test.js:284
+     specimen.expect(words(region.querySelector(".frame-body"))).toBe("loading bundle buffer buffer-3");
+     await settle();
+     specimen.expect(words(region.querySelector(".frame-stage"))).toBe("view of buffer-3");
+-    specimen.expect(sent).toEqual([{ signal: "/buffer/ready", input: "buffer-3" }]);
++    specimen.expect(sent).toEqual(["/buffer/ready buffer-3"]);
+     held.terminal.$buffer.set(null);
+     specimen.expect(log).toEqual(["mount buffer-3", "destroy buffer-3"]);
+     specimen.expect(words(region.querySelector(".frame-body"))).toBe("no buffer open one from a thread");
+#+END_SRC
+
+*** subsystems/typology
+
+**** =subsystems/typology/gestalten/fromm/index.js=
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/fromm/index.js:59
+   };
+ };
+
+-export const signal = (signal) => {
+-  return {
+-    get flags() {
+-      return signal.array.reduce(
+-        (acc, node) => (node.flags ? { ...acc, ...node.flags } : acc),
+-        {},
+-      );
+-    },
+-  };
+-};
+-
+ export const params = (params) => {
+   return {
+     get path() {
+#+END_SRC
+
+**** =subsystems/typology/gestalten/shape/http.js=
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shape/http.js:14
+     });
+
+     try {
+-      const signal = new Signal(new URL(req.url).pathname);
++      const signal = new Signal(new URL(req.url));
+       const [effect, carry, steps] = steer.dispatch.traverse(vector, signal);
+       if (!effect) return respond(ctx, 404);
+
+#+END_SRC
+
+**** =subsystems/typology/gestalten/steer/dispatch.js=
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/steer/dispatch.js:18
+   let carry = middleware.forward;
+   let steps = [];
+   let remainder = 0;
++  let missing = null;
++
++  const miss = () => {
++    if (missing === null) return [null, carry, steps, position];
++    const match = missing.edge.pattern.apply(signals.array[missing.depth]);
++    return [missing.edge.trajectory.effect, descend(missing.carry, missing.position), [...steps.slice(0, missing.depth), match], missing.edge.trajectory];
++  };
+
+   for (const signal of signals.array) {
++    if (position.trie.has("*")) missing = { edge: position.trie.get("*"), carry, position, depth: steps.length };
++
+     if (signal.nature == null) {
+-      carry = descend(carry, position);
+-      return [position.effect ?? null, carry, steps, position];
++      if (position.effect) return [position.effect, descend(carry, position), steps, position];
++      return miss();
+     }
+
+     let match, trajectory, effect;
+     try {
+       [match, trajectory, effect] = feed(scope(position, signal), signal);
+     } catch (error) {
+-      if (error instanceof NotFound) return [null, carry, steps, position];
++      if (error instanceof NotFound) return miss();
+       throw error;
+     }
+
+…
+// subsystems/typology/gestalten/steer/dispatch.js:58
+     if (trajectory) position = trajectory;
+   }
+
+-  return [position.effect ?? null, carry, steps, position];
++  if (position.effect) return [position.effect, carry, steps, position];
++  return miss();
+ }
+
+ export function invoke(vector, signal, execute = request) {
+#+END_SRC
+
+**** =subsystems/typology/prototypes/signal.js=
+
+whole, over the tree — the URL row (query → flags), the string row, =Signal.flag=, =rebase= carrying only what the signal owns, =json= ={ nature, body, flags }=; no argv row, no getter.
+
+#+BEGIN_SRC js :tangle ../../subsystems/typology/prototypes/signal.js
+import { Signature } from "./signature.js";
+import * as hash from "../gestalten/belt/hash.js";
+import * as is from "../gestalten/is/scalars.js";
+
+export class Signal extends Signature {
+  static coercions = [
+    [
+      (url) => url instanceof URL,
+      function (url) {
+        const segments = url.pathname.split("/").filter((part) => part.length > 0).map((nature) => ({ nature }));
+        const flags = {};
+        for (const [key, value] of url.searchParams) flags[Signal.flag(key)] = value;
+        if (!segments.length) {
+          this.nature = null;
+          this.flags = flags;
+          return null;
+        }
+        segments[0].flags = flags;
+        return segments;
+      },
+    ],
+    [
+      (s) => is.string(s),
+      function (s) {
+        const tokens = tokenize(s);
+        const segments = [];
+        const flags = {};
+        let terminated = false;
+
+        for (let i = 0; i < tokens.length; i++) {
+          const token = tokens[i];
+
+          if (terminated || token === "-") {
+            const parts = token.split("/").filter((part) => part.length > 0);
+            for (const part of parts) segments.push({ nature: part });
+            continue;
+          }
+
+          if (token === "--") {
+            terminated = true;
+            continue;
+          }
+
+          if (token.startsWith("--")) {
+            const key = Signal.flag(token.slice(2));
+            const next = tokens[i + 1];
+            if (next && next !== "--" && !next.startsWith("-")) {
+              flags[key] = next;
+              i++;
+            } else {
+              flags[key] = true;
+            }
+          } else if (token.startsWith("-") && token.length === 2) {
+            const key = Signal.flag(token.slice(1));
+            const next = tokens[i + 1];
+            if (next && next !== "--" && !next.startsWith("-")) {
+              flags[key] = next;
+              i++;
+            } else {
+              flags[key] = true;
+            }
+          } else if (token.startsWith("-") && token.length > 2) {
+            for (const character of token.slice(1)) {
+              flags[Signal.flag(character)] = true;
+            }
+          } else {
+            const parts = token.split("/").filter((part) => part.length > 0);
+            for (const part of parts) segments.push({ nature: part });
+          }
+        }
+
+        const hasFlags = Object.keys(flags).length > 0;
+
+        if (!segments.length && hasFlags) {
+          this.nature = null;
+          this.flags = flags;
+          return null;
+        }
+
+        if (hasFlags) segments[0].flags = flags;
+        return segments;
+      },
+    ],
+  ];
+
+  static flag(key) {
+    if (/^\d+$/.test(key)) throw new TypeError(`--${key}: numbered flags are refused`);
+    return key;
+  }
+
+  static tokens(line) {
+    return words(line);
+  }
+
+  hasher() {
+    return hash.array([this.index, this.nature]);
+  }
+
+  rebase(signature) {
+    const rebased = new this.constructor(this.pathname, new this.constructor(signature));
+    for (const key of ["body", "flags"]) if (Object.hasOwn(this, key)) rebased[key] = this[key];
+    return rebased;
+  }
+
+  get pathname() {
+    return "/" + this.absolute.join("/");
+  }
+
+  get json() {
+    return {
+      nature: this.pathname,
+      body: this.body,
+      flags: this.flags,
+    };
+  }
+}
+
+function words(input) {
+  const tokens = [];
+  let current = "";
+  let quote = null;
+
+  for (const character of input) {
+    if (quote) {
+      if (character === quote) {
+        quote = null;
+        continue;
+      }
+      current += character;
+    } else if (character === '"' || character === "'") {
+      quote = character;
+    } else if (character === " " || character === "\t") {
+      if (current.length) {
+        tokens.push(current);
+        current = "";
+      }
+    } else {
+      current += character;
+    }
+  }
+
+  if (current.length) tokens.push(current);
+  return tokens;
+}
+
+function tokenize(input) {
+  return words(input).flatMap((token) => {
+    if (token === "-" || token === "--") return [token];
+    if (token.startsWith("--") && token.includes("=")) {
+      const eq = token.indexOf("=", 2);
+      return [token.slice(0, eq), token.slice(eq + 1)];
+    }
+    if (token.startsWith("-") && !token.startsWith("--") && token.includes("=")) {
+      const eq = token.indexOf("=");
+      return [token.slice(0, eq), token.slice(eq + 1)];
+    }
+    return [token];
+  });
+}
+#+END_SRC
+
+**** =subsystems/typology/prototypes/socket.js=
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/socket.js:122
+       return;
+     }
+
+-    if (!packet.signal) return void this.span.note({ drop: "empty" });
++    if (!packet.nature) return void this.span.note({ drop: "empty" });
+
+     let signal;
+-    try { signal = v.decode(signalCodec(), packet.signal); }
++    try { signal = v.decode(signalCodec(), packet.nature); }
+     catch {
+-      console.warn(`[multiplex] rejected bad signal "${packet.signal}"`);
+-      return void this.span.note({ drop: "bad-signal", signal: packet.signal });
++      console.warn(`[multiplex] rejected bad signal "${packet.nature}"`);
++      return void this.span.note({ drop: "bad-signal", signal: packet.nature });
+     }
++    Object.assign(signal, { body: packet.body, ...(packet.flags && { flags: packet.flags }) });
+     const [effect, carry, steps] = steer.dispatch.traverse(this.vector, signal);
+     if (!effect) {
+-      console.warn(`[multiplex] no route for push "${packet.signal}"`);
+-      return void this.span.note({ drop: "no-route", signal: packet.signal });
++      console.warn(`[multiplex] no route for push "${packet.nature}"`);
++      return void this.span.note({ drop: "no-route", signal: packet.nature });
+     }
+
+-    const ctx = new Context({ request: { url: `http://socket${signal.pathname}`, body: packet.input } });
++    const ctx = new Context({ request: { url: `http://socket${signal.pathname}`, body: signal.body[0] } });
+     ctx.socket = this;
+     ctx.signal = signal;
+     ctx.steps = steps;
+…
+// subsystems/typology/prototypes/socket.js:231
+
+   push(signal, input) {
+     this.#ready
+-      .then(() => this.ws.send(JSON.stringify({ signal: this.#wire(signal), input })))
++      .then(() => this.ws.send(JSON.stringify({ nature: this.#wire(signal), body: [input] })))
+       .catch(() => {});
+   }
+
+#+END_SRC
+
+**** =subsystems/typology/schematics/primitives/connection.js=
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/connection.js:26
+   v.object({ frame: ID, open: v.const(true) }), // attach ACK
+   v.object({ frame: ID, output: v.unknown() }), // reply / stream item
+   v.object({ frame: ID, error: Fault }), // failure
+-  v.object({ signal: Signal(), input: v.unknown() }), // push (frame-less)
++  v.object({ nature: Signal(), body: v.array(v.unknown()), flags: v.record(v.string(), v.unknown()).optional() }), // push (frame-less)
+ ]);
+#+END_SRC
+
+**** =subsystems/typology/schematics/primitives/controller.js=
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/controller.js:38
+ export const MACHINE = machine;
+
+ export const Kill = v.object({
+-  signal: Signal,
+-  input: v.unknown().optional(),
+-}).desc('One stdin packet as it crosses a wire. Example: { "signal": "SIGTERM", "input": "user pressed stop" }');
++  nature: Signal,
++  body: v.array(v.unknown()),
++  flags: v.record(v.string(), v.unknown()).optional(),
++}).desc('One stdin packet as it crosses a wire. Example: { "nature": "SIGTERM", "body": ["user pressed stop"], "flags": {} }');
+
+ export const Record = v.object({
+   span: v.integer(),
+#+END_SRC
+
+**** =subsystems/typology/tests/controller.test.js=
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/controller.test.js:1
+ import { specimen, Controller, Span, Vector, belt, v } from "@vivalence/typology";
+ import { metronome, until, tick } from "./scenarios/metronome.js";
+
+-const { Machine, Reflection, Record, MACHINE } = v.primitives.controller;
++const { Machine, Reflection, Record, Kill, MACHINE } = v.primitives.controller;
+
+ const rig = (script, tool) => {
+   const clock = metronome(script);
+…
+// subsystems/typology/tests/controller.test.js:143
+     await said.kill("SIGKILL", "user pressed kill");
+     specimen.expect((await said.settled).error.message).toBe("user pressed kill");
+   });
++
++  specimen.it("a kill packet is a signal: nature, body, flags", () => {
++    specimen.expect([...Kill.errors({ nature: "SIGTERM", body: ["user pressed stop"], flags: {} })]).toEqual([]);
++    specimen.expect([...Kill.errors({ nature: "SIGTERM", body: [] })]).toEqual([]);
++    specimen.expect([...Kill.errors({ signal: "SIGTERM", input: "user pressed stop" })].length > 0).toBe(true);
++  });
+ });
+#+END_SRC
+
+**** =subsystems/typology/tests/gestalten/steer/traverse.test.js=
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/gestalten/steer/traverse.test.js:71
+     specimen.expect(scopedParams[0]).toBe("any");
+     specimen.expect(scopedParams[1]).toBe("path");
+   });
++
++  specimen.it("a miss falls back to the nearest ancestor's *, never past a vector that has none", () => {
++    const use = () => "use";
++    const quit = () => "quit";
++    const missing = () => "missing";
++    const shell = new Vector().graft(new Vector().open({ nature: "/instance/use" }, use), new Vector().open({ nature: "/quit" }, quit), new Vector().open({ nature: "*" }, missing));
++    const reach = (path) => steer.dispatch.traverse(shell, new Signal(path))[0];
++    specimen.expect([reach("/bogus"), reach("/instance/bogus"), reach("/instance"), reach("/instance/use/deeper")]).toEqual([missing, missing, missing, missing]);
++    specimen.expect([reach("/instance/use"), reach("/quit")]).toEqual([use, quit]);
++    const bare = new Vector().graft(new Vector().open({ nature: "/instance/use" }, use));
++    specimen.expect(steer.dispatch.traverse(bare, new Signal("/instance/bogus"))[0]).toBe(null);
++  });
+ });
+#+END_SRC
+
+**** =subsystems/typology/tests/signal.argv.test.js=
+
+deleted — the argv row left typology; its tests are =systems/ghost/tests/argv.test.js=.
+
+**** =subsystems/typology/tests/signal.snapshot.test.js=
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/signal.snapshot.test.js:17
+     });
+     console.log(`\n===BEGIN signal → ${path}===\n${JSON.stringify(pojo, null, 2)}\n===END===\n`);
+     expect(pojo).toEqual({
+-      signal: "/play/cat/dog",
+-      parts: ["play", "cat", "dog"],
++      nature: "/play/cat/dog",
++      body: undefined,
+       flags: { gameplay: "PLAIN" },
+     });
+   });
+#+END_SRC
+
+**** =subsystems/typology/tests/signal.test.js=
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/signal.test.js:1
+-import { specimen, is, fromm, Pattern, Signal } from "@vivalence/typology";
++import { specimen, is, Pattern, Signal } from "@vivalence/typology";
+
+ specimen.describe("Signal", () => {
+   specimen.it("a command line becomes a tree", () => {
+…
+// subsystems/typology/tests/signal.test.js:35
+     ];
+     for (const [wire, flags] of dialects) {
+       const signal = new Signal(wire);
+-      specimen.expect((signal.fin ?? signal).flags).toEqual(flags);
++      specimen.expect(signal.flags).toEqual(flags);
+     }
+
+     specimen.expect(new Signal("--verbose --dry-run").nature).toBe(null);
+
+     const terminated = new Signal("run --verbose -- --not-a-flag positional");
+     specimen.expect(terminated.absolute).toEqual(["run", "--not-a-flag", "positional"]);
+-    specimen.expect(terminated.fin.flags).toEqual({ verbose: true });
++    specimen.expect(terminated.flags).toEqual({ verbose: true });
+
+     specimen.expect(new Signal("cat -").absolute).toEqual(["cat", "-"]);
+
+     specimen.expect(new Signal("lighthouse connect --url http://localhost:3000 --verbose").json).toEqual({
+-      signal: "/lighthouse/connect",
+-      parts: ["lighthouse", "connect"],
++      nature: "/lighthouse/connect",
++      body: undefined,
+       flags: { url: "http://localhost:3000", verbose: true },
+     });
+   });
+…
+// subsystems/typology/tests/signal.test.js:60
+     const route = new Pattern("/lighthouse/connect");
+     const spoken = new Signal("lighthouse connect --url http://localhost:3000");
+     specimen.expect(route.apply(spoken)).toBeTruthy();
+-    specimen.expect(spoken.gauges[0].flags).toEqual({ url: "http://localhost:3000" });
++    specimen.expect(spoken.flags).toEqual({ url: "http://localhost:3000" });
+     specimen.expect(route.gauges[0].apply(spoken.gauges[0])).toBeTruthy();
++  });
++
++  specimen.it("flags are the root's own, and only when one was typed", () => {
++    const spoken = new Signal("deploy/now --env production");
++    specimen.expect(Object.hasOwn(spoken, "flags")).toBe(true);
++    specimen.expect(spoken.gauges[0].flags).toBe(undefined);
++    specimen.expect(Object.hasOwn(new Signal("users/123/profile"), "flags")).toBe(false);
++    specimen.expect(new Signal("--verbose --dry-run").flags).toEqual({ verbose: true, "dry-run": true });
++  });
++
++  specimen.it("a URL is its pathname, its query the flags", () => {
++    specimen.expect(new Signal(new URL("http://localhost/entities/mode?limit=5&q=a")).json).toEqual({ nature: "/entities/mode", body: undefined, flags: { limit: "5", q: "a" } });
++    specimen.expect(new Signal(new URL("http://localhost/?limit=5")).json).toEqual({ nature: "/", body: undefined, flags: { limit: "5" } });
++    specimen.expect(new Signal(new URL("http://localhost/entities?limit=1&limit=2")).flags).toEqual({ limit: "2" });
++    specimen.expect(() => new Signal(new URL("http://localhost/a?0=x"))).toThrow("--0: numbered flags are refused");
++  });
++
++  specimen.it("a numbered flag is refused", () => {
++    specimen.expect(() => new Signal("x --0")).toThrow("--0: numbered flags are refused");
++    specimen.expect(() => new Signal("x -1")).toThrow("--1: numbered flags are refused");
++  });
++
++  specimen.it("rebase re-roots and carries only what the signal owns", () => {
++    const flagged = new Signal("instance/use --ledger").rebase("command");
++    specimen.expect([flagged.pathname, flagged.flags]).toEqual(["/command/instance/use", { ledger: true }]);
++    const bare = new Signal("instance/use").rebase("command");
++    specimen.expect([bare.pathname, Object.hasOwn(bare, "flags"), Object.hasOwn(bare, "body")]).toEqual(["/command/instance/use", false, false]);
++  });
+
+-    specimen.expect(fromm.signal(spoken).flags).toEqual({ url: "http://localhost:3000" });
+-    specimen.expect(fromm.signal(new Signal("deploy --env production --verbose")).flags).toEqual({ env: "production", verbose: true });
+-    specimen.expect(fromm.signal(new Signal("users/123/profile")).flags).toEqual({});
+-    specimen.expect(fromm.signal(new Signal("--verbose --dry-run")).flags).toEqual({ verbose: true, "dry-run": true });
++  specimen.it("Signal.tokens splits a typed line quote-aware without the string row's --k=v split", () => {
++    specimen.expect(Signal.tokens('instance/create --slug=italian "my words" x')).toEqual(["instance/create", "--slug=italian", "my words", "x"]);
+   });
+ });
+#+END_SRC
+
+**** =subsystems/typology/tests/socket.test.js=
+
+#+BEGIN_SRC diff
+// subsystems/typology/tests/socket.test.js:1
+-import { specimen, sleep, Vector, Aperture, Socket, shard, shape } from "@vivalence/typology";
++import { specimen, sleep, Vector, Aperture, Socket, shard, shape, v } from "@vivalence/typology";
+
+ specimen.describe("Socket", () => {
+   const PORT = 9883;
+…
+// subsystems/typology/tests/socket.test.js:57
+     socket.push("log", { msg: "tick" });
+     await sleep.ms(50);
+     specimen.expect(logged).toContainEqual({ msg: "tick" });
++    specimen.expect(v.primitives.connection.Packet.check({ nature: "/log", body: [{ msg: "tick" }] })).toBe(true);
++    specimen.expect(v.primitives.connection.Packet.check({ signal: "/log", input: { msg: "tick" } })).toBe(false);
+     socket.close();
+   });
+
+#+END_SRC
+
+*** systems/ghost
+
+**** =systems/ghost/chrome/surface.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/chrome/surface.js:29
+     keys: (async function* () {
+       for await (const press of keypresses(renderer).drain()) {
+         if (press.key === "ctrl-c") Deno.kill(Deno.pid, "SIGINT");
+-        else yield press;
++        else yield `/key/${press.key}`;
+       }
+     })(),
+     emit: (kind, props) => $output.set({ kind, props }),
+#+END_SRC
+
+**** =systems/ghost/commands/dock/collapse.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/dock/collapse.js:8
+   },
+   (ctx) => {
+     const held = ctx.client.dock;
+-    const collapsed = ctx.signal.params[0] === undefined ? !held.collapsed : ctx.signal.params[0] === "true";
++    const collapsed = ctx.signal.body[0] === undefined ? !held.collapsed : String(ctx.signal.body[0]) === "true";
+     ctx.client.$dock.set({ ...held, collapsed });
+     return ctx.client.dock;
+   },
+#+END_SRC
+
+**** =systems/ghost/commands/dock/full.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/dock/full.js:8
+   },
+   (ctx) => {
+     const held = ctx.client.dock;
+-    const full = ctx.signal.params[0] === undefined ? !held.full : ctx.signal.params[0] === "true";
++    const full = ctx.signal.body[0] === undefined ? !held.full : String(ctx.signal.body[0]) === "true";
+     ctx.client.$dock.set({ ...held, full });
+     return ctx.client.dock;
+   },
+#+END_SRC
+
+**** =systems/ghost/commands/dock/share.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/dock/share.js:8
+     schema: v.object({ share: v.number().desc("the share. Example: 0.4") }),
+   },
+   (ctx) => {
+-    ctx.client.$dock.set({ ...ctx.client.dock, share: dock.clampShare(Number(ctx.signal.params[0])) });
++    ctx.client.$dock.set({ ...ctx.client.dock, share: dock.clampShare(Number(ctx.signal.body[0])) });
+     return ctx.client.dock;
+   },
+ );
+#+END_SRC
+
+**** =systems/ghost/commands/dock/side.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/dock/side.js:8
+     schema: v.object({ side: v.string().desc("top · right · bottom · left. Example: left") }),
+   },
+   (ctx) => {
+-    ctx.client.$dock.set({ ...ctx.client.dock, side: dock.normalizeSide(ctx.signal.params[0]) });
++    ctx.client.$dock.set({ ...ctx.client.dock, side: dock.normalizeSide(ctx.signal.body[0]) });
+     return ctx.client.dock;
+   },
+ );
+#+END_SRC
+
+**** =systems/ghost/commands/entity/terminal/seat.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/entity/terminal/seat.js:7
+     schema: v.object({ id: v.string().desc("the terminal id. Example: t9"), thread: v.string().desc("the thread id. Example: th3") }),
+   },
+   async (ctx) => {
+-    const thread = ctx.runtime.entities.thread.findOneLocal({ id: ctx.signal.params[0] });
+-    if (thread === null) throw new Error(`${ctx.signal.params[0]}: no such thread`);
++    const thread = ctx.runtime.entities.thread.findOneLocal({ id: ctx.signal.body[0] });
++    if (thread === null) throw new Error(`${ctx.signal.body[0]}: no such thread`);
+     const terminal = ctx.client.terminals.activate(ctx.params.id);
+     await terminal.seat(thread);
+     return { terminal: terminal.id, thread: thread.id };
+#+END_SRC
+
+**** =systems/ghost/commands/entity/thread/create.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/entity/thread/create.js:8
+   },
+   async (ctx) => {
+     if (ctx.terminal === null) throw new Error("no terminal picked — /terminal/new");
+-    const held = ctx.signal.params[0];
++    const held = ctx.signal.body[0];
+     const mode = ctx.runtime.entities.mode.$entities.get().find((row) => row.reference.absolute === held || String(row.id) === held);
+     if (mode === undefined) throw new Error(`${held}: no such mode — /mode lists them`);
+     const thread = await ctx.runtime.entities.thread.create({ mode: mode.id });
+#+END_SRC
+
+**** =systems/ghost/commands/help.js=
+
+deleted — the help verb.
+
+**** =systems/ghost/commands/index.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/index.js:1
+-export { help } from "./help.js";
++export { missing } from "./missing.js";
+ export { upgrade } from "./upgrade.js";
+ export { chrome } from "./chrome.js";
+ export { quit } from "./quit.js";
+#+END_SRC
+
+**** =systems/ghost/commands/missing.js=
+
+new — the shell's =*= — prints the miss, throws =NotFound=.
+
+#+BEGIN_SRC js :tangle ../../systems/ghost/commands/missing.js
+import { Vector, NotFound } from "@vivalence/typology";
+
+export const missing = new Vector().open({ nature: "*", valence: "a verb the shell does not know. Example: viva bogus" }, (ctx) => {
+  console.error(`viva ${ctx.signal.pathname}: no such verb — viva --help`);
+  throw new NotFound(ctx.signal);
+});
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/instance/cleanup.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/instance/cleanup.js:10
+   const tally = { roots, files, bytes };
+   if (!files) return tally;
+
+-  if (ctx.signal.flags?.force !== true) {
++  if (ctx.signal.flags.force !== true) {
+     if (!ctx.view.interactive) throw new Error(`${scope}/cleanup: needs a terminal to confirm, or --force`);
+     const label = `remove ${files} stale view bundles (${(bytes / 1e6).toFixed(0)} MB) under ${roots.join(", ")}?`;
+     const choice = await ctx.view.hold("confirm", { label, initial: false });
+…
+// systems/ghost/commands/paladin/instance/cleanup.js:22
+ };
+
+ async function effect(ctx) {
+-  const [target] = ctx.signal.params ?? [];
++  const [target] = ctx.signal.body;
+   if (target) {
+     const found = await locate(ctx, target);
+     if (!found.mount) return found;
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/instance/clone.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/instance/clone.js:4
+ import { clone as tree, lens, path, pick } from "../../../gestalten/belt/index.js";
+
+ async function effect(ctx) {
+-  const [input, target] = ctx.signal.params ?? [];
++  const [input, target] = ctx.signal.body;
+
+   let source = input;
+   const local = input && !input.startsWith("@") && (input.includes("/") || input.startsWith("."));
+…
+// systems/ghost/commands/paladin/instance/clone.js:31
+   }
+
+   const recipe = source.startsWith("@") ? cast.lookup(source).slug : basename(mount);
+-  const slug = ctx.signal.flags?.slug ?? recipe;
++  const slug = ctx.signal.flags.slug ?? recipe;
+   if (await paladin.ledger.instances.read(slug)) {
+     return { error: `instance '${slug}' exists — pass --slug=<other>` };
+   }
+…
+// systems/ghost/commands/paladin/instance/clone.js:48
+     env: `VIVA_INSTANCE_MOUNT=${destination}`,
+   };
+
+-  if (ctx.signal.flags?.use) created.selected = await ctx.call(["instance/use", destination]);
+-  if (ctx.signal.flags?.install) {
++  if (ctx.signal.flags.use) created.selected = await ctx.call(["instance/use", destination]);
++  if (ctx.signal.flags.install) {
+     paladin.env.set("VIVA_INSTANCE_MOUNT", destination, "flag");
+     created.installed = await ctx.call(["instance/install"]);
+   }
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/instance/delete.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/instance/delete.js:5
+ // the shelf is the ledger's own ground — a dir there dies with its record. a tapped dir is the
+ // operator's — delete unrecords it and leaves the files where they were.
+ async function effect(ctx) {
+-  const [target] = ctx.signal.params ?? [];
++  const [target] = ctx.signal.body;
+   if (target) {
+     const found = await locate(ctx, target);
+     if (!found.mount) return found;
+…
+// systems/ghost/commands/paladin/instance/delete.js:44
+     sessions: sessions.map((name) => Number(name.slice(0, -".json".length))),
+   };
+
+-  if (ctx.signal.flags?.force !== true) {
++  if (ctx.signal.flags.force !== true) {
+     if (!ctx.view.interactive) {
+       throw new Error(`instance/delete ${slug}: needs a terminal to confirm, or --force`);
+     }
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/instance/doctor.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/instance/doctor.js:24
+ // `doctor <target> <filter>` is unambiguous; `doctor <one>` is not. one param names the instance
+ // only if the record resolves it — otherwise it narrows the instance you are on.
+ const split = async (ctx) => {
+-  const [first, second] = ctx.signal.params ?? [];
++  const [first, second] = ctx.signal.body;
+   if (first === undefined) return {};
+   if (second !== undefined) {
+     const found = await locate(ctx, first);
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/instance/install.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/instance/install.js:130
+     return { env: "written", filled: Object.keys(values) };
+   };
+
+-  const [username, password] = ctx.signal.params ?? [];
++  const [username, password] = ctx.signal.body;
+   if (username && password) {
+     if (fill.length) return incomplete("incomplete");
+     const alive = await reached(paladin.instance.runtime.statics.remote);
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/instance/rename.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/instance/rename.js:5
+ // the shelf is the ledger's own ground — a dir there follows its slug. a tapped dir is the
+ // operator's — rename moves the record key and leaves the files where they were.
+ async function effect(ctx) {
+-  const params = ctx.signal.params ?? [];
+-  const [target, next] = params.length === 1 ? [null, params[0]] : params;
++  const body = ctx.signal.body;
++  const [target, next] = body.length === 1 ? [null, body[0]] : body;
+   if (!next) return { error: "usage: /instance/rename [target] <next>" };
+
+   if (target) {
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/instance/start.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/instance/start.js:7
+   const held = await paladin.ledger.lock(instance).read();
+   if (held) throw new Error(`${instance} already running (supervisor ${held.pid}) — viva instance/stop`);
+
+-  const target = ctx.signal.params[0];
++  const target = ctx.signal.body[0];
+   const mount = paladin.instance.home.absolute;
+   const supervisor = new Deno.Command(Deno.execPath(), {
+     args: [
+…
+// systems/ghost/commands/paladin/instance/start.js:20
+       ...(target ? [target] : []),
+       `--instance=${mount}`,
+       "--logged",
+-      ...(ctx.signal.flags?.prune === true ? ["--prune"] : []),
++      ...(ctx.signal.flags.prune === true ? ["--prune"] : []),
+     ],
+     detached: true,
+     stdin: "null",
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/instance/tap.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/instance/tap.js:9
+     schema: v.object({ mount: v.string().desc("the instance dir, a path. Example: ./chess") }),
+   },
+   async (ctx) => {
+-    const [token] = ctx.signal.params;
++    const [token] = ctx.signal.body;
+     const { slug } = ctx.signal.flags;
+     if (token === undefined || slug === undefined) throw new Error("usage: viva instance/tap <path> --slug=<slug>");
+     if (!token.includes("/") && !token.startsWith(".")) throw new Error(`'${token}' is a slug-shaped token — a tap takes a PATH; try ./${token}`);
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/instance/up.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/instance/up.js:7
+ async function effect(ctx) {
+   const instance = await register();
+   await lifecycle.mount(paladin.instance);
+-  if (ctx.signal.flags?.prune === true) Deno.env.set("VIVA_RUNTIME_PRUNE", "1");
+-  const attachment = ctx.signal.flags?.logged === true ? "logged" : "inherit";
+-  const die = await paladin.ledger.boot(specs(ctx.signal.params[0]), { instance, attachment });
++  if (ctx.signal.flags.prune === true) Deno.env.set("VIVA_RUNTIME_PRUNE", "1");
++  const attachment = ctx.signal.flags.logged === true ? "logged" : "inherit";
++  const die = await paladin.ledger.boot(specs(ctx.signal.body[0]), { instance, attachment });
+
+   for (const process of die.good.processes) {
+     const branch = ctx.span?.branch(`run/${process.slug}`).open();
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/instance/use.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/instance/use.js:4
+ import { locate, register } from "../../../gestalten/belt/instance.js";
+
+ async function effect(ctx) {
+-  const token = ctx.signal.params?.[0];
++  const token = ctx.signal.body[0];
+
+   const report = () => ({
+     instance: paladin.env.get("VIVA_INSTANCE_MOUNT"),
+…
+// systems/ghost/commands/paladin/instance/use.js:28
+   }
+
+   const shell = Deno.env.get("VIVA_PROCESS_ID");
+-  const ledger = ctx.signal.flags?.ledger === true;
++  const ledger = ctx.signal.flags.ledger === true;
+   if (!ledger && !shell) {
+     throw new Error(
+       "session selection needs VIVA_PROCESS_ID — run viva ledger/install (writes the shell line) or pass --ledger",
+…
+// systems/ghost/commands/paladin/instance/use.js:56
+     }
+   }
+
+-  const rest = ctx.signal.params.slice(1);
++  const rest = ctx.signal.body.slice(1);
+   if (rest.length) return ctx.call([`instance/${rest[0]}`, ...rest.slice(1)]);
+
+   return {
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/instance/user.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/instance/user.js:12
+     .sign(new TextEncoder().encode(secret));
+
+ async function effect(ctx) {
+-  const [action, username, password] = ctx.signal.params ?? [];
++  const [action, username, password] = ctx.signal.body;
+   if (!ACTIONS.includes(action) || !username || !password) {
+     return { error: "usage: /instance/user <signup|login|password> <username> <password>" };
+   }
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/ledger/install.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/ledger/install.js:43
+     schema: v.object({ path: v.string().desc("the ledger home, skips the wizard. Example: ~/.viva").optional() }),
+   },
+   async (ctx) => {
+-    const target = ctx.signal.params?.[0];
++    const target = ctx.signal.body[0];
+     const home = paladin.scope.ledger.absolute;
+     let choice;
+     if (target) {
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/registry/tap.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/registry/tap.js:13
+     }),
+   },
+   async (ctx) => {
+-    let [source, target] = ctx.signal.params ?? [];
++    let [source, target] = ctx.signal.body;
+     if (!source) throw new Error("usage: viva registry/tap <path | git url> [target]");
+     source = path.source(source);
+     if (target) target = resolve(path.cwd(), target);
+#+END_SRC
+
+**** =systems/ghost/commands/paladin/registry/untap.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/paladin/registry/untap.js:9
+     schema: v.object({ package: v.string().desc("owner, slug, identifier or mount. Example: @chess") }),
+   },
+   async (ctx) => {
+-    const name = ctx.signal.params?.[0];
++    const name = ctx.signal.body[0];
+     if (!name) throw new Error("usage: viva registry/untap <owner | slug | mount>");
+     const held = await tapped(name);
+     if (!held) throw new Error(`registry/untap: no tapped package '${name}' — viva registry/doctor`);
+#+END_SRC
+
+**** =systems/ghost/commands/yap.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/commands/yap.js:1
+ import { Vector } from "@vivalence/typology";
+
+ export const yap = new Vector().open({ nature: "*", valence: "a line that names no verb — a turn to the active terminal's harness. Example: ciao" }, (parts, ctx) => {
+-  if (parts === undefined) throw new Error(`${ctx.signal.pathname}: no such verb — /help`);
++  if (ctx.signal.nature !== "*") throw new Error(`${ctx.signal.pathname}: no such verb — /--help`);
+   if (ctx.terminal === null) throw new Error("no terminal picked — /terminal/new");
+   const { thread, mode } = ctx.terminal;
+   if (thread === null || mode === null) throw new Error("no thread seated — pick a thread or a mode first");
+#+END_SRC
+
+**** =systems/ghost/gestalten/belt/help.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/belt/help.js:1
+ import { steer } from "@vivalence/typology";
+
++export function named(commands, nature) {
++  if (nature === "") return commands;
++  const exact = commands.filter((command) => command.nature === nature);
++  return exact.length ? exact : commands.filter((command) => command.nature.startsWith(nature));
++}
++
+ export function census(trajectory) {
+   return steer.trie.fold(trajectory, {
+     node: (frame) => {
+…
+// systems/ghost/gestalten/belt/help.js:64
+     notes: [
+       ...(commands.length === 0 ? ["nothing matches"] : []),
+       `flags  ${flags.join("  ")}`,
+-      "viva help <prefix> narrows; an exact nature shows its params",
++      "viva <prefix> --help narrows; an exact nature shows its params",
+     ],
+   };
+ }
+#+END_SRC
+
+**** =systems/ghost/gestalten/belt/line.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/belt/line.js:23
+   }
+   if (walked === 0 || edge.trajectory.effect === null) return new ReplSignal(input);
+   const verb = new ReplSignal([said.slice(0, walked).join("/"), ...said.slice(walked)]);
+-  return verb.params.length <= positional(edge.pattern) ? verb : new ReplSignal(input);
++  return verb.body.length <= positional(edge.pattern) ? verb : new ReplSignal(input);
+ }
+#+END_SRC
+
+**** =systems/ghost/lifecycle/client/population.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/client/population.js:47
+
+   client.dispatch = (input) => {
+     const signal = line.read(client.repl, input);
+-    try {
+-      return steer.dispatch.invoke(client.repl, signal, (carry, effect, steps) => async () => {
+-        const ctx = {
+-          signal,
+-          steps,
+-          params: fromm.match(steps).parameters,
+-          input: signal.input,
+-          output: undefined,
+-        };
+-        await carry(ctx, steer.strategy.resolve(effect));
+-        return ctx.output;
+-      })();
+-    } catch (error) {
+-      die.surface.emit("output", { refused: signal.pathname, fault: error.message });
+-      return Promise.resolve(undefined);
+-    }
++    return steer.dispatch.invoke(client.repl, signal, (carry, effect, steps) => async () => {
++      const ctx = {
++        signal,
++        steps,
++        params: fromm.match(steps).parameters,
++        input: signal.body,
++        output: undefined,
++      };
++      await carry(ctx, steer.strategy.resolve(effect));
++      return ctx.output;
++    })();
+   };
+   await next();
+ };
+#+END_SRC
+
+**** =systems/ghost/lifecycle/repl.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/repl.js:1
+ import { Vector, soma } from "@vivalence/typology";
+-import { view } from "../gestalten/belt/index.js";
+-import { dock, entity, help, key, quit, runtime, yap } from "../commands/index.js";
++import { help, view } from "../gestalten/belt/index.js";
++import { dock, entity, key, quit, runtime, yap } from "../commands/index.js";
+
+ export const capturing = async (ctx, next) => {
+   try {
+…
+// systems/ghost/lifecycle/repl.js:44
+   if (ctx.kill !== undefined) await ctx.kill.stdin.SIGTERM();
+ };
+
++export const helping = async (ctx, next) => {
++  if (ctx.signal.flags.help !== true) return next();
++  const commands = help.named(help.census(ctx.client.repl), ctx.signal.pathname.slice(1));
++  await ctx.view.emit("listing", help.listing(commands, ctx.flags));
++  ctx.output = { commands, flags: ctx.flags };
++};
++
+ export const execution = new Vector()
+   .use(capturing)
++  .use(helping)
+   .use(seated)
+   .use(streaming)
+   .use(killing)
+-  .graft(help.repl, runtime, entity, dock, key, quit, yap);
++  .graft(runtime, entity, dock, key, quit, yap);
+#+END_SRC
+
+**** =systems/ghost/lifecycle/shell.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/shell.js:1
+ import paladin, { lifecycle } from "@vivalence/paladin";
+ import { createInterface } from "node:readline";
+-import { Path, Queue, Signal, Vector, fn, fromm, is, object, shard, steer, v } from "@vivalence/typology";
++import { Path, Queue, Vector, fn, fromm, is, object, shard, steer, v } from "@vivalence/typology";
+ import { outline } from "@vivalence/sheets/plain";
+ import * as dotenv from "@std/dotenv";
+ import { resolve } from "@std/path";
+…
+// systems/ghost/lifecycle/shell.js:71
+
+ export const call = async (ctx, next) => {
+   ctx.call = (argv) => {
+-    const signal = new Signal(argv);
++    const signal = new ctx.signal.constructor(argv);
+     return steer.dispatch.invoke(ctx.shell, signal, (carry, effect, steps) => async () => {
+       const inner = { ...ctx, signal, steps, params: fromm.match(steps).parameters, output: undefined, view: { ...ctx.view, painted: true } };
+       await carry(inner, steer.strategy.resolve(effect));
+…
+// systems/ghost/lifecycle/shell.js:176
+   }
+ };
+
++export const helping = async (ctx, next) => {
++  if (ctx.signal.flags.help !== true) return next();
++  const commands = belt.help.named(belt.help.census(execution), ctx.signal.pathname.slice(1));
++  await ctx.view.emit("listing", belt.help.listing(commands, ctx.flags));
++  ctx.output = { commands, flags: ctx.flags };
++};
++
+ export const execution = new Vector()
+   .use(shard.controller.settle)
+   .use(instance)
+   .use(flags)
+   .use(view)
++  .use(helping)
+   .use(call)
+   .use(upgrading)
+-  .graft(commands.help.shell, dominion.paladin, commands.upgrade)
++  .graft(dominion.paladin, commands.upgrade, commands.missing)
+   .do((ctx) => (ctx.view.interactive ? ctx.upgrade.chrome() : ctx.upgrade.repl()));
+#+END_SRC
+
+**** =systems/ghost/prototypes/argv.js=
+
+new — unix argv → ={ nature, body, flags }=, body always an array, a ={…}= · =[…]= positional parsed in place, the =argv= getter its inverse.
+
+#+BEGIN_SRC js :tangle ../../systems/ghost/prototypes/argv.js
+import { Signal, is } from "@vivalence/typology";
+
+export class Argv extends Signal {
+  static coercions = [
+    [
+      (argv) => is.array(argv) && argv.every(is.string),
+      function (argv) {
+        const terminator = argv.indexOf("--");
+        const options = terminator < 0 ? argv : argv.slice(0, terminator);
+        const operands = terminator < 0 ? [] : argv.slice(terminator + 1);
+        const at = options.findIndex((token) => !token.startsWith("--"));
+        const head = at < 0 ? "" : options[at];
+        const rest = at < 0 ? options : [...options.slice(0, at), ...options.slice(at + 1)];
+        const segments = head
+          .split("/")
+          .filter((part) => part.length > 0)
+          .map((nature) => ({ nature }));
+        const positionals = [];
+        const flags = {};
+        for (const token of rest) {
+          if (!token.startsWith("--")) {
+            positionals.push(token);
+            continue;
+          }
+          const equals = token.indexOf("=");
+          if (equals > 2) flags[Signal.flag(token.slice(2, equals))] = token.slice(equals + 1);
+          else flags[Signal.flag(token.slice(2))] = true;
+        }
+        const body = [...positionals, ...operands].map(datum);
+        if (!segments.length) {
+          if (argv.length) this.nature = null;
+          this.body = body;
+          this.flags = flags;
+          return null;
+        }
+        Object.assign(segments[0], { body, flags });
+        return segments;
+      },
+    ],
+    ...Signal.coercions,
+  ];
+
+  get argv() {
+    const nature = this.absolute.filter(Boolean).join("/");
+    const flags = Object.entries(this.flags).map(([key, value]) => (value === true ? `--${key}` : `--${key}=${value}`));
+    const operands = this.body.map((datum) => (is.string(datum) ? datum : JSON.stringify(datum)));
+    const dashed = operands.some((operand) => operand.startsWith("-"));
+    return [...(nature.length ? [nature] : []), ...flags, ...(dashed ? ["--", ...operands] : operands)];
+  }
+}
+
+function datum(token) {
+  if (!token.startsWith("{") && !token.startsWith("[")) return token;
+  try {
+    return JSON.parse(token);
+  } catch {
+    return token;
+  }
+}
+#+END_SRC
+
+**** =systems/ghost/prototypes/index.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/prototypes/index.js:15
+ export { Literal, LiteralDossier } from "./literal.js";
+ export { Symbol, SymbolDossier } from "./symbol.js";
+ export { Client } from "./client.js";
++export { Argv } from "./argv.js";
+ export { ReplSignal } from "./replsignal.js";
+#+END_SRC
+
+**** =systems/ghost/prototypes/replsignal.js=
+
+whole, over the tree — a bare line → =/*= with its text parts and =flags: {}=; a =/line= → the inherited argv row; no event row, no key row.
+
+#+BEGIN_SRC js :tangle ../../systems/ghost/prototypes/replsignal.js
+import { is } from "@vivalence/typology";
+import { Argv } from "./argv.js";
+
+export class ReplSignal extends Argv {
+  static coercions = [
+    [(line) => is.string(line) && !line.startsWith("/"), (line) => [{ nature: "*", body: [{ type: "text", text: line }], flags: {} }]],
+    [
+      (line) => is.string(line),
+      function (line) {
+        return this.coerce(ReplSignal.tokens(line.slice(1)));
+      },
+    ],
+    ...Argv.coercions,
+  ];
+}
+#+END_SRC
+
+**** =systems/ghost/run.js=
+
+whole, over the tree — =new Argv(Deno.args)=, no =--help= rewrite, no traverse pre-check; a =FAILED= status whose fault code is =NOT_FOUND= exits 127.
+
+#+BEGIN_SRC js :tangle ../../systems/ghost/run.js
+import { Controller, Span, fromm, steer } from "@vivalence/typology";
+import { Argv } from "./prototypes/argv.js";
+import { execution as shell } from "./lifecycle/shell.js";
+
+const NUMBERS = { SIGINT: 2, SIGQUIT: 3, SIGTERM: 15 };
+
+const signal = new Argv(Deno.args);
+
+const die = {
+  controller: new Controller({ stdout: new Span("shell") }),
+  shell,
+  signal,
+  input: signal.body,
+  output: undefined,
+};
+
+for (const name of Object.keys(NUMBERS))
+  Deno.addSignalListener(name, () => die.controller.kill("SIGTERM", name));
+
+const $stopped = die.controller.stdout.pipe.reactive(null, (held, record) =>
+  record.span === die.controller.stdout.id && record.verb === "stop" ? record.data.reason : held,
+);
+
+const exit = (status) => {
+  if (status.is("DONE")) return 0;
+  if (status.is("STOPPED"))
+    return Object.hasOwn(NUMBERS, $stopped.get()) ? 128 + NUMBERS[$stopped.get()] : 0;
+  if (status.is("FAILED") && status.reflection.error.record.data.code === "NOT_FOUND") return 127;
+  const { error } = status.reflection;
+  console.error(
+    `viva ${signal.pathname}: ${error === undefined || error === null ? status.code : signal.flags.verbose === true ? error.stack : error.message}`,
+  );
+  return 1;
+};
+
+Deno.exit(
+  await steer.dispatch.invoke(shell, signal, (carry, effect, steps) => async () => {
+    Object.assign(die, { steps, params: fromm.match(steps).parameters });
+    await carry(die, steer.strategy.resolve(effect));
+    return exit(die.controller.status);
+  })(),
+);
+#+END_SRC
+
+**** =systems/ghost/tests/argv.test.js=
+
+whole, over the tree — the argv row's tests, moved from typology, the =argv= round trip with them.
+
+#+BEGIN_SRC js :tangle ../../systems/ghost/tests/argv.test.js
+import { specimen, is } from "@vivalence/typology";
+import { Argv } from "../prototypes/argv.js";
+
+const { describe, it, expect } = specimen;
+
+describe("Argv — every line viva is handed reads as one Signal", () => {
+  it("an argv is a signature; the command path is its nature chain", () => {
+    const signal = new Argv(["instance/clone", "@from", "./to", "--flag"]);
+    expect(is.signature(signal)).toBeTruthy();
+    expect([signal.nature, signal.fin.nature, signal.array.length]).toEqual(["instance", "clone", 2]);
+  });
+
+  it("a single segment has no fin", () => {
+    const signal = new Argv(["install"]);
+    expect([signal.nature, signal.fin]).toEqual(["install", null]);
+  });
+
+  it("the body is always an array; a boolean flag and a --key=value flag", () => {
+    expect(new Argv(["instance/use", "italian"]).body).toEqual(["italian"]);
+    expect(new Argv(["instance/clone", "@from", "./to"]).body).toEqual(["@from", "./to"]);
+    expect(new Argv(["status"]).body).toEqual([]);
+    expect(new Argv(["cmd", "--flag"]).flags.flag).toBe(true);
+    expect(new Argv(["cmd", "--name=viva"]).flags.name).toBe("viva");
+  });
+
+  it("a positional opening { or [ is parsed in place; one that fails stays the string", () => {
+    expect(new Argv(["instance/use", '{"json":"possible"}']).body).toEqual([{ json: "possible" }]);
+    expect(new Argv(["instance/use", "[1,2]"]).body).toEqual([[1, 2]]);
+    expect(new Argv(["instance/use", "1", "2"]).body).toEqual(["1", "2"]);
+    expect(new Argv(["x", "{oops"]).body).toEqual(["{oops"]);
+    expect(new Argv(["instance/use", "7"]).body).toEqual(["7"]);
+  });
+
+  it("body and flags are the root's own; no segment carries them", () => {
+    const signal = new Argv(["instance/stop", "target", "--force"]);
+    expect([Object.hasOwn(signal, "body"), Object.hasOwn(signal, "flags"), Object.hasOwn(signal.fin, "flags")]).toEqual([true, true, false]);
+    expect(signal.json).toEqual({ nature: "/instance/stop", body: ["target"], flags: { force: true } });
+  });
+
+  it("install instance localhost ~/test: one segment, three positionals, the tilde untouched", () => {
+    const signal = new Argv(["install", "instance", "localhost", "~/test"]);
+    expect([signal.nature, signal.body, signal.flags]).toEqual(["install", ["instance", "localhost", "~/test"], {}]);
+  });
+
+  it("a deep path is four segments", () => {
+    const signal = new Argv(["paladin/scope/registry/mount", "/path/to/instance"]);
+    expect([signal.nature, signal.array.length, signal.body]).toEqual(["paladin", 4, ["/path/to/instance"]]);
+  });
+
+  it("an @owner/slug positional stays one element; mixed value and boolean flags", () => {
+    const run = new Argv(["run", "target", "@vivalence/foo", "--mode=fast", "--detached", "--port=3000"]);
+    expect([run.body, run.flags]).toEqual([["target", "@vivalence/foo"], { mode: "fast", detached: true, port: "3000" }]);
+  });
+
+  it("a leading flag precedes the path; viva --json instance/use x reads as instance/use x --json", () => {
+    const leading = new Argv(["--json", "instance/use", "x"]);
+    expect([leading.absolute, leading.body, leading.flags]).toEqual([["instance", "use"], ["x"], { json: true }]);
+  });
+
+  it("a bare -- ends the flags; every token after it is an element of the body", () => {
+    const dashed = new Argv(["ledger/run", "--verbose", "--", "--not-a-flag", "x"]);
+    expect([dashed.body, dashed.flags]).toEqual([["--not-a-flag", "x"], { verbose: true }]);
+  });
+
+  it("flags alone carry no nature; an empty argv has none either", () => {
+    const flagged = new Argv(["--help", "--verbose"]);
+    expect([flagged.nature, flagged.body, flagged.flags]).toEqual([null, [], { help: true, verbose: true }]);
+    expect([new Argv([]).nature, new Argv([]).body]).toEqual([undefined, []]);
+  });
+
+  it("a leading slash on the command path reads the same as none", () => {
+    expect(new Argv(["/instance/run", "target"]).pathname).toBe(new Argv(["instance/run", "target"]).pathname);
+  });
+
+  it("a path string still splits, and rebase carries body and flags", () => {
+    expect(new Argv("/a/b").absolute).toEqual(["a", "b"]);
+    const rebased = new Argv(["instance/use", "x", "--ledger"]).rebase("command");
+    expect([rebased.absolute, rebased.body, rebased.flags]).toEqual([["command", "instance", "use"], ["x"], { ledger: true }]);
+  });
+
+  it("a numbered flag is refused", () => {
+    expect(() => new Argv(["x", "--0"])).toThrow("--0: numbered flags are refused");
+  });
+});
+#+END_SRC
+
+**** =systems/ghost/tests/call.test.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/call.test.js:1
+-import { Signal, Vector, fromm, specimen, steer, v } from "@vivalence/typology";
++import { Vector, fromm, specimen, steer, v } from "@vivalence/typology";
++import { Argv } from "../prototypes/argv.js";
+ import { call } from "../lifecycle/shell.js";
+
+ const { describe, it, expect } = specimen;
+…
+// systems/ghost/tests/call.test.js:7
+   .use(call)
+   .graft(
+     new Vector().open({ nature: "/outer", schema: v.object({ token: v.string().optional() }) }, (ctx) => ctx.call(["inner", "anima", "--logged"])),
+-    new Vector().open({ nature: "/inner", schema: v.object({ process: v.string().optional() }) }, (ctx) => ({ params: ctx.signal.params, flags: ctx.signal.flags })),
++    new Vector().open({ nature: "/inner", schema: v.object({ process: v.string().optional() }) }, (ctx) => ({ body: ctx.signal.body, flags: ctx.signal.flags })),
+   );
+
+ const invoke = (argv) => {
+-  const signal = new Signal(argv);
++  const signal = new Argv(argv);
+   const ctx = { shell, signal, view: { painted: false }, output: undefined };
+   return steer.dispatch.invoke(shell, signal, (carry, effect, steps) => async () => {
+     Object.assign(ctx, { steps, params: fromm.match(steps).parameters });
+…
+// systems/ghost/tests/call.test.js:22
+
+ describe("ctx.call — a chained verb reads its own line, never its caller's", () => {
+   it("instance/use localhost up anima: the inner verb sees anima, not localhost", async () => {
+-    expect(await invoke(["outer", "localhost", "up", "anima"])).toEqual({ params: ["anima"], flags: { logged: true } });
++    expect(await invoke(["outer", "localhost", "up", "anima"])).toEqual({ body: ["anima"], flags: { logged: true } });
+   });
+ });
+#+END_SRC
+
+**** =systems/ghost/tests/chrome/surface.test.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/chrome/surface.test.js:161
+   });
+ });
+
+-specimen.describe("keys — an async iterable of { key } presses", () => {
++specimen.describe("keys — an async iterable of /key lines", () => {
+   specimen.it("yields printable · named · ctrl presses in order", async () => {
+     const setup = await screen();
+     const surface = kit.tty(setup.renderer, { credentials: null });
+…
+// systems/ghost/tests/chrome/surface.test.js:172
+     setup.mockInput.pressKey("t", { ctrl: true });
+     const presses = [(await first).value];
+     for (let index = 0; index < 3; index++) presses.push((await surface.keys.next()).value);
+-    specimen.expect(presses).toEqual([{ key: "a" }, { key: "down" }, { key: "enter" }, { key: "ctrl-t" }]);
++    specimen.expect(presses).toEqual(["/key/a", "/key/down", "/key/enter", "/key/ctrl-t"]);
+     setup.renderer.destroy();
+     specimen.expect((await surface.keys.next()).done).toBe(true);
+   });
+#+END_SRC
+
+**** =systems/ghost/tests/client.test.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/client.test.js:78
+     expect(surface.emitted.at(-1)).toEqual({ output: answered });
+
+     expect(client.dock.full).toBe(false);
+-    await client.dispatch({ signal: "/dock/full" });
++    await client.dispatch("/dock/full");
+     expect(client.dock.full).toBe(true);
+
+     await client.dispatch("/typo");
+#+END_SRC
+
+**** =systems/ghost/tests/demo.snapshot.test.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/demo.snapshot.test.js:40
+ };
+
+ const SCRIPT = [
+-  "/help",
++  "/--help",
+   "/modes",
+   "/terminal",
+-  "help",
++  "/dock --help",
+   "salve --tool session",
+   "salve --tool progress",
+   "salve --tool explain",
+…
+// systems/ghost/tests/demo.snapshot.test.js:51
+   "/thread/new /daemon/hello/mode/demo/hello-world",
+   "/terminal",
+   "/typo",
+-  "viva help instance",
++  "/thread --help",
+   "modes",
+   "thread new /daemon/memo/mode/srs/memo",
+   "terminal",
+#+END_SRC
+
+**** =systems/ghost/tests/help.wet.test.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/help.wet.test.js:27
+   return JSON.parse(lines.slice(start).join("\n"));
+ }
+
+-Deno.test("help --json lists every nature with edge metadata", async () => {
++Deno.test("--help --json lists every nature with edge metadata", async () => {
+   const home = await mkHome();
+-  const { code, out } = await viva(["help", "--json"], { HOME: home });
++  const { code, out } = await viva(["--help", "--json"], { HOME: home });
+   assertEquals(code, 0);
+   const held = listing(out);
+   const natures = held.commands.map((command) => command.nature);
+   assert(natures.includes("instance/clone"));
+   assert(natures.includes("registry/tap"));
+-  assert(natures.includes("help"));
++  assert(!natures.includes("help"));
+   const clone = held.commands.find((command) => command.nature === "instance/clone");
+   assertEquals(clone.params.map((param) => param.name), ["source", "target", "use", "install", "slug"]);
+   // a flag is declared, never inferred — the value-carrying --slug is one, the positionals are not.
+…
+// systems/ghost/tests/help.wet.test.js:49
+
+ Deno.test("help prefix narrows to one noun", async () => {
+   const home = await mkHome();
+-  const { out } = await viva(["help", "instance", "--json"], { HOME: home });
++  const { out } = await viva(["instance", "--help", "--json"], { HOME: home });
+   const held = listing(out);
+   assert(held.commands.length > 1);
+   for (const command of held.commands) assert(command.nature.startsWith("instance"));
+…
+// systems/ghost/tests/help.wet.test.js:57
+
+ Deno.test("exact nature details params with descriptions", async () => {
+   const home = await mkHome();
+-  const { out } = await viva(["help", "instance/clone", "--json"], { HOME: home });
++  const { out } = await viva(["instance/clone", "--help", "--json"], { HOME: home });
+   const held = listing(out);
+   assertEquals(held.commands.length, 1);
+   const [clone] = held.commands;
+   assert(clone.params.every((param) => param.description.length > 0));
+ });
+
+-Deno.test("--help on a nature rewrites into filtered help", async () => {
++Deno.test("--help on a nature runs nothing; an exact nature wins over its prefix", async () => {
+   const home = await mkHome();
+-  const { out } = await viva(["instance/clone", "--help", "--json"], { HOME: home });
++  const { code, out } = await viva(["instance/use", "--help", "--json"], { HOME: home });
++  assertEquals(code, 0);
+   const held = listing(out);
+-  assertEquals(held.commands.length, 1);
+-  assertEquals(held.commands[0].nature, "instance/clone");
++  assertEquals(held.commands.map((command) => command.nature), ["instance/use"]);
+ });
+
+ Deno.test("bare viva is the client; in a pipe with no instance selected it refuses and names instance/use", async () => {
+…
+// systems/ghost/tests/help.wet.test.js:79
+   assert(err.includes("viva instance/use"));
+ });
+
+-Deno.test("viva help renders the listing", async () => {
++Deno.test("viva --help renders the listing", async () => {
+   const home = await mkHome();
+-  const { code, out } = await viva(["help"], { HOME: home });
++  const { code, out } = await viva(["--help"], { HOME: home });
+   assertEquals(code, 0);
+   assert(out.includes("registry/tap"));
+   assert(out.includes("instance/clone"));
+ });
+
+-Deno.test("unknown nature hints at help", async () => {
++Deno.test("unknown nature hints at --help, nested ones too, and help itself is no verb", async () => {
+   const home = await mkHome();
+-  const { code, err } = await viva(["bogus"], { HOME: home });
+-  assertEquals(code, 127);
+-  assert(err.includes("no such verb — viva help"));
++  for (const argv of [["bogus"], ["instance/bogus"], ["help"]]) {
++    const { code, err } = await viva(argv, { HOME: home });
++    assertEquals(code, 127);
++    assert(err.includes("no such verb — viva --help"));
++  }
+ });
+#+END_SRC
+
+**** =systems/ghost/tests/line.test.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/line.test.js:6
+
+ specimen.describe("line.read — a sigil line is strict; a bare line is the verb its words name when that verb takes every word left, else a turn", () => {
+   const rows = [
+-    ["a verb word", "help", "/help", []],
+-    ["the shell's name in front", "viva help", "/help", []],
+-    ["a verb and the param it takes", "help instance", "/help", ["instance"]],
++    ["a verb word", "quit", "/quit", []],
++    ["the shell's name in front", "viva quit", "/quit", []],
++    ["a verb and the param it takes", "dock share 0.5", "/dock/share", ["0.5"]],
+     ["words for the slashes", "thread new /daemon/memo/mode/srs/memo", "/thread/new", ["/daemon/memo/mode/srs/memo"]],
+     ["a slashed path without the sigil", "thread/new /daemon/memo/mode/srs/memo", "/thread/new", ["/daemon/memo/mode/srs/memo"]],
+-    ["a verb with a flag", "help --json", "/help", []],
++    ["a verb with a flag", "quit --json", "/quit", []],
+     ["a listing", "modes", "/modes", []],
+     ["a deeper literal and its param", "dock side left", "/dock/side", ["left"]],
+     ["a key chord by name", "key esc", "/key/esc", []],
+…
+// systems/ghost/tests/line.test.js:19
+     ["a sigil line nothing knows stays strict", "/typo", "/typo", []],
+   ];
+
+-  for (const [name, line, pathname, params] of rows) {
++  for (const [name, line, pathname, body] of rows) {
+     specimen.it(`${name}: ${line}`, () => {
+       const signal = read(execution, line);
+-      specimen.expect([signal.pathname, signal.params]).toEqual([pathname, params]);
++      specimen.expect([signal.pathname, signal.body]).toEqual([pathname, body]);
+     });
+   }
+
+…
+// systems/ghost/tests/line.test.js:40
+   for (const [name, line] of turns) {
+     specimen.it(`${name} is a turn: ${line}`, () => {
+       const signal = read(execution, line);
+-      specimen.expect([signal.pathname, signal.input]).toEqual(["/*", TEXT(line)]);
++      specimen.expect([signal.pathname, signal.body]).toEqual(["/*", TEXT(line)]);
+     });
+   }
+
+-  specimen.it("an event and a key pass through their own rows", () => {
+-    specimen.expect(read(execution, { signal: "/dock/full", input: true }).pathname).toBe("/dock/full");
+-    specimen.expect(read(execution, { key: "ctrl-f" }).pathname).toBe("/key/ctrl-f");
++  specimen.it("a key arrives as its /key line", () => {
++    specimen.expect(read(execution, "/key/ctrl-f").pathname).toBe("/key/ctrl-f");
+   });
+ });
+#+END_SRC
+
+**** =systems/ghost/tests/pipes.wet.test.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/pipes.wet.test.js:15
+     await world.stop();
+   });
+
+-  it("viva help lists every shell nature, exit 0", async () => {
+-    const held = await viva(world, ["help"]);
++  it("viva --help lists every shell nature, exit 0", async () => {
++    const held = await viva(world, ["--help"]);
+     expect(held.code).toBe(0);
+     for (const nature of ["ledger/install", "ledger/doctor", "instance/clone", "instance/up", "instance/down", "registry/tap", "client/repl", "client/chrome"]) expect(held.out).toContain(nature);
+   });
+…
+// systems/ghost/tests/pipes.wet.test.js:33
+     expect(Object.keys(JSON.parse(held.out))).toContain("homes");
+   });
+
+-  it("a pipe into bare viva is the repl: /help answers a listing line, /quit stops the client, exit 0", async () => {
+-    const held = await viva(world, [], { stdin: "/help\n/quit\n" });
++  it("a pipe into bare viva is the repl: /--help answers a listing line, /quit stops the client, exit 0", async () => {
++    const held = await viva(world, [], { stdin: "/--help\n/quit\n" });
+     expect(held.code).toBe(0);
+     expect(held.lines.length).toBe(1);
+     const [listing] = held.json;
+…
+// systems/ghost/tests/pipes.wet.test.js:47
+     expect(held.code).toBe(0);
+     expect(held.json).toEqual([
+       { output: { refused: "/*", fault: "no terminal picked — /terminal/new" } },
+-      { output: { refused: "/typo", fault: "/typo: no such verb — /help" } },
++      { output: { refused: "/typo", fault: "/typo: no such verb — /--help" } },
+       { output: { side: "right", share: 0.32, collapsed: true, full: true } },
+     ]);
+   });
+#+END_SRC
+
+**** =systems/ghost/tests/replsignal.test.js=
+
+whole, over the tree — the three rows.
+
+#+BEGIN_SRC js :tangle ../../systems/ghost/tests/replsignal.test.js
+import { specimen } from "@vivalence/typology";
+import { ReplSignal } from "../prototypes/replsignal.js";
+
+specimen.describe("ReplSignal — a bare line, a sigil line, an argv", () => {
+  const rows = [
+    ["a bare line is a yap at *", "ciao", ["*"], [{ type: "text", text: "ciao" }], {}],
+    ["a sigil line is its path", "/terminal/new", ["terminal", "new"], [], {}],
+    ["a sigil line carries its body and flags", "/dock/side left --json", ["dock", "side"], ["left"], { json: true }],
+    ["an argv is its path with body and flags", ["instance/use", "italian", "--ledger"], ["instance", "use"], ["italian"], { ledger: true }],
+    ["a key is a chord under /key", "/key/ctrl-f", ["key", "ctrl-f"], [], {}],
+    ["--help is a flag on the nature it names", "/dock --help", ["dock"], [], { help: true }],
+  ];
+
+  for (const [name, input, natures, body, flags] of rows) {
+    specimen.it(name, () => {
+      const signal = new ReplSignal(input);
+      specimen.expect({ natures: signal.absolute, body: signal.body, flags: signal.flags }).toEqual({ natures, body, flags });
+    });
+  }
+
+  specimen.it("a bare line keeps its whole text as one part, never tokenized", () => {
+    const signal = new ReplSignal("ciao come stai");
+    specimen.expect(signal.pathname).toBe("/*");
+    specimen.expect(signal.body).toEqual([{ type: "text", text: "ciao come stai" }]);
+  });
+
+  specimen.it("a quoted sigil line keeps its words together as one element", () => {
+    const signal = new ReplSignal('/thread/new "my words"');
+    specimen.expect([signal.pathname, signal.body]).toEqual(["/thread/new", ["my words"]]);
+  });
+});
+#+END_SRC
+
+**** =systems/ghost/tests/verb.js=
+
+#+BEGIN_SRC diff
+// systems/ghost/tests/verb.js:1
+-import { Controller, Signal, Span, fromm, steer } from "@vivalence/typology";
++import { Controller, Span, fromm, steer } from "@vivalence/typology";
++import { Argv } from "../prototypes/argv.js";
+ import { paladin } from "../commands/paladin/index.js";
+
+ export const surface = ({ interactive = false, answers = [] } = {}) => ({
+…
+// systems/ghost/tests/verb.js:31
+ };
+
+ export async function drive(argv, { view = surface(), call = recorder().call } = {}) {
+-  const signal = new Signal(argv);
++  const signal = new Argv(argv);
+   const ctx = {
+     controller: new Controller({ stdout: new Span("shell") }),
+     root: paladin,
+     signal,
+-    input: signal.input,
++    input: signal.body,
+     output: undefined,
+     view,
+     flags: [],
+#+END_SRC
+
+** two goldens regenerate after the patch
+
+- =SNAPSHOT_HOT=1 deno test --config deno.jsonc -A --no-check systems/ghost/tests/demo.snapshot.test.js= — four steps change, the rest stay byte-equal (diffed 10-13): =/--help= · =/dock --help= · =/thread --help= list without a help row; =/typo='s fault names =/--help=.
+- =subsystems/typology/tests/snapshots/signal.snapshot.json= rewrites itself (a CAPTURE test): ={ nature, flags }=.
+
+* landing
+
+One change, on beef's go, from the repo root, in this order:
+
+1. tangle the seven whole files under ** files.
+2. land the hunks — a dry run first, every anchor matched once before anything is written:
+
+#+BEGIN_SRC sh
+python3 .ikiro/methods/apply-diffs.py .ikiro/quests/m90-signal.org "* tangle — signals" && python3 .ikiro/methods/apply-diffs.py .ikiro/quests/m90-signal.org "* tangle — signals" --write
+#+END_SRC
+
+3. delete the two files marked deleted under ** files.
+4. regenerate the demo golden (** two goldens regenerate after the patch).
+
+The gate — proven 10-13 on the scratchpad copy, =VIVA_REPOSITORY_MOUNT= pointed at it, no =--watch= running, =md5 -q ~/.viva/*.json= equal before and after:
+
+| suite | result |
+|-------+--------|
+| =subsystems/typology/tests= | =ok \vert 142 passed (626 steps) \vert 0 failed (33s)= |
+| =systems/ghost/tests= | =ok \vert 137 passed (293 steps) \vert 0 failed (1m48s)= |
+| =commons/fixtures/testing/hal/stub/tests= | =ok \vert 3 passed (16 steps) \vert 0 failed (799ms)= |
+| =systems/runtime/tests= | =ok \vert 85 passed (564 steps) \vert 0 failed \vert 1 ignored (1m24s)= |
+| =subsystems/drapes/tests= | =ok \vert 25 passed (200 steps) \vert 0 failed (3s)= |
+
+=subsystems/typology/tests= counts one file fewer than the baseline (=signal.argv.test.js= deleted); its steps grew by the URL · fallback · =Kill= · rebase tests. Zero-grep after the patch, outside =bak/= and =testament/=: =signal.params= · =signal.input= · =fromm.signal= · =json.parts= · =json.signal= · =flags?.= · =.fin.flags= · =commands.help= · =dispatch({ signal= → 0.
+
+* blast table
+
+| path | kind |
+|------+------|
+| =subsystems/typology/prototypes/signal.js= | whole |
+| =systems/ghost/prototypes/argv.js= | whole |
+| =systems/ghost/prototypes/replsignal.js= | whole |
+| =systems/ghost/commands/missing.js= | whole |
+| =systems/ghost/run.js= | whole |
+| =systems/ghost/tests/argv.test.js= | whole |
+| =systems/ghost/tests/replsignal.test.js= | whole |
+| =systems/ghost/chrome/surface.js= | diff |
+| =systems/ghost/commands/dock/collapse.js= | diff |
+| =systems/ghost/commands/dock/full.js= | diff |
+| =systems/ghost/commands/dock/share.js= | diff |
+| =systems/ghost/commands/dock/side.js= | diff |
+| =systems/ghost/commands/entity/terminal/seat.js= | diff |
+| =systems/ghost/commands/entity/thread/create.js= | diff |
+| =systems/ghost/commands/index.js= | diff |
+| =systems/ghost/commands/paladin/instance/cleanup.js= | diff |
+| =systems/ghost/commands/paladin/instance/clone.js= | diff |
+| =systems/ghost/commands/paladin/instance/delete.js= | diff |
+| =systems/ghost/commands/paladin/instance/doctor.js= | diff |
+| =systems/ghost/commands/paladin/instance/install.js= | diff |
+| =systems/ghost/commands/paladin/instance/rename.js= | diff |
+| =systems/ghost/commands/paladin/instance/start.js= | diff |
+| =systems/ghost/commands/paladin/instance/tap.js= | diff |
+| =systems/ghost/commands/paladin/instance/up.js= | diff |
+| =systems/ghost/commands/paladin/instance/use.js= | diff |
+| =systems/ghost/commands/paladin/instance/user.js= | diff |
+| =systems/ghost/commands/paladin/ledger/install.js= | diff |
+| =systems/ghost/commands/paladin/registry/tap.js= | diff |
+| =systems/ghost/commands/paladin/registry/untap.js= | diff |
+| =systems/ghost/commands/yap.js= | diff |
+| =systems/ghost/gestalten/belt/help.js= | diff |
+| =systems/ghost/gestalten/belt/line.js= | diff |
+| =systems/ghost/lifecycle/client/population.js= | diff |
+| =systems/ghost/lifecycle/repl.js= | diff |
+| =systems/ghost/lifecycle/shell.js= | diff |
+| =systems/ghost/prototypes/index.js= | diff |
+| =systems/ghost/tests/call.test.js= | diff |
+| =systems/ghost/tests/chrome/surface.test.js= | diff |
+| =systems/ghost/tests/client.test.js= | diff |
+| =systems/ghost/tests/demo.snapshot.test.js= | diff |
+| =systems/ghost/tests/help.wet.test.js= | diff |
+| =systems/ghost/tests/line.test.js= | diff |
+| =systems/ghost/tests/pipes.wet.test.js= | diff |
+| =systems/ghost/tests/verb.js= | diff |
+| =subsystems/drapes/dom/chassis.jsx= | diff |
+| =subsystems/drapes/tests/dom/chassis.test.js= | diff |
+| =subsystems/drapes/tests/dom/panes.test.js= | diff |
+| =subsystems/typology/gestalten/fromm/index.js= | diff |
+| =subsystems/typology/gestalten/shape/http.js= | diff |
+| =subsystems/typology/gestalten/steer/dispatch.js= | diff |
+| =subsystems/typology/prototypes/socket.js= | diff |
+| =subsystems/typology/schematics/primitives/connection.js= | diff |
+| =subsystems/typology/schematics/primitives/controller.js= | diff |
+| =subsystems/typology/tests/controller.test.js= | diff |
+| =subsystems/typology/tests/gestalten/steer/traverse.test.js= | diff |
+| =subsystems/typology/tests/signal.snapshot.test.js= | diff |
+| =subsystems/typology/tests/signal.test.js= | diff |
+| =subsystems/typology/tests/socket.test.js= | diff |
+| =commons/fixtures/testing/hal/stub/provider/script.js= | diff |
+| =systems/ghost/commands/help.js= · =subsystems/typology/tests/signal.argv.test.js= | delete |
+| =~/.viva/registry= · =~/.viva/instances= | 0 hits for =signal.(params,flags,argv,input)= · =dispatch({= 10-13 |
+| =testament/**= | archive, out of radius |
+
+* QA
+
+#+marker_qa: m90/T-help · pending · I type =viva instance/use --help=, I see the detail of =instance/use=; =viva instance/delete italian --help= deletes nothing
+#+marker_qa: m90/T-miss · pending · I type =viva bogus=, I see =viva /bogus: no such verb — viva --help= and =$?= is 127
+#+marker_qa: m90/T-nested-miss · pending · I type =viva instance/bogus=, I see the same line, never a stack, =$?= 127
+#+marker_qa: m90/T-body · pending · I type =viva instance/use italian --ledger=, the machine default moves to italian
+#+marker_qa: m90/T-repl-verb · pending · in the repl I type =dock side left=, the dock moves left — never a turn to the harness
+#+marker_qa: m90/T-repl-yap · pending · in the repl I type =ciao come stai=, a turn goes to the harness with the whole line
+#+marker_qa: m90/T-dock-drag · pending · in the browser I drag the dock handle and drop it at the floor, the dock collapses
+#+marker_qa: m90/T-chord · pending · in the TUI I press a dock chord (=systems/ghost/commands/key/=), the dock answers as before
+
+* deferred
+
+- =ctx.input= → =ctx.body= across 73 files — its own quest.
+- a miss runs the shell's root middleware before =missing=: =viva bogus= mounts the cwd's instance first (=systems/ghost/lifecycle/shell.js= =instance=); =viva bogus --instance= (a bare mount flag) throws in =declared= before reaching =missing=. Cut 10-13 with the open items.
+- the frame =Open= packet keeps =signal= · =query= · =input= (=subsystems/typology/schematics/primitives/connection.js:10=): only the frame-less push was ruled.
+- =controller.kill(name, input)= keeps its call shape; =Kill= has no wire reader today, so only the schema moved.
+
+* changelog
+
+- 10-13 — designed; terrain measured; baseline pasted above; law ruled (intent E · F · G, numbered flags 10-13).
+- 10-13 — beef's edits absorbed: F1 shell half ruled =Argv= in ghost (intent H); F2 reopened, F8 added (intent I, probe pasted).
+- 10-13 — F8 (c) ruled, F2 with it; =Argv= confirmed beside =systems/ghost/prototypes/replsignal.js=.
+- 10-13 — =json= ruled ={ nature, body, flags }=; flags optional; =ReplSignal extends Argv=; invalid JSON stays a string. * tangle — signals written; 17 shapes probed on a scratchpad copy of typology, all as the law (=Argv instance/use italian --ledger --instance=slug= → =body "italian"= · =flags {ledger, instance}=; =ReplSignal({ signal, input: true })= → =body true=; =--0= refused by both parsers).
+
+- 10-13 — breaking changes scouted (terrain * breaking, B1–B9): the HAL stub reads =json.parts= too (=commons/fixtures/testing/hal/stub/provider/script.js:40=) — my earlier "only =.json.flags=" was wrong; =params= reads are 23 in 21 files, not 12; milestones 1–3 become one landing. =rebase= carries only what the signal owns; consumer hunks written (* consumers); F9 opened. beef: /"ok. update the quest. persist all this to the quest."/
+- 10-13 — F9 ruled (c): the body is always an array — /"(b) Always make the body an array when there are several arguments, and never parse a lone argument that starts with [."/ → /"make body an array"/ · /"just an array. period."/ · /"if it its {} then parsed as [{}]"/. F2 re-ruled (a), F8 (c) kept; =ReplSignal='s event row wraps =input=; =line.js= counts =verb.body.length=; tangle re-probed (13 shapes).
+- 10-13 — =run.js= ruled on the plan: F7 (a), the miss verb =missing=, =ctx.call= on the caller's constructor; =--help= is a flag, help itself leaves for beef's own quest (T-help marker and its release line cut). * tangle — the shell vector written.
+- 10-13 — help pulled back in: =--help= read by a root middleware on both vectors that prints and short-circuits; the help verb dies; the repl's event and key rows cut, their callers noted dead (* dead rows); the bare-line row seats =flags: {}=; T-help marker back.
+- 10-13 — every fork ruled: =ReplSignal= stays · F3 (b) · F4 (a), =Kill= written with its snapshot · F5 (a), a =URL= row on =Signal= · F6: the =argv= getter moves to =Argv=. The tree moved under the quest — =systems/ghost/lifecycle/{shell,repl}/= became =systems/ghost/lifecycle/{shell,repl}.js=, middlewares beside each =execution=; every path re-pointed; =helping= written beside each =execution= with =belt.help.named=, =systems/ghost/lifecycle/help.js= and its import cycle gone.
+- 10-13 — /"you never resolve forks do you.... cut whats open. everythign else should be worked into the tangle"/: every ruling built into one landing on a scratchpad copy of the live tree, the forks section folded into * tangle — signals. Found while building: =yap= could no longer tell a miss (body always an array) → it reads the nature; =viva typo= exited 1 (the controller folds a fault into =Failure("FAILED")=, the thrown code lives at =error.record.data.code=); =--help --json= printed nothing → =helping= sets =ctx.output=; =viva --help= listed one row → an empty nature names all; the repl's empty =/--help= threw with the catch gone → the fallback covers an empty signal; the event row had two live callers (browser dock, TUI keys) → both dispatch lines. Socket push: beef picked =ctx.input = body[0]= (intent L). Gate pasted under * landing.
+
+* release
+
+- removed =viva help= — =--help= on any nature lists it, in the shell and the repl · migrate: =viva help <prefix>= → =viva <prefix> --help= ⟨m90⟩
+- changed =viva <verb>= — a verb the shell does not know exits 127 through the =missing= verb, nested ones too (=viva instance/bogus=) · migrate: none ⟨m90⟩
+- changed api =Signal= — =params= and the =flags= getter removed; =body= and =flags= are own properties of the root; =json= is ={ nature, body, flags }=; a =URL= row puts the query into =flags= · migrate: =signal.params= → =signal.body= (an =Argv= body is always an array, =[]= when none; a ={…}= · =[…]= positional arrives parsed), =signal.json.signal= → =signal.json.nature=, =signal.json.parts= gone, =signal.flags= absent when the string row read none ⟨m90⟩
+- changed api =Signal= — the argv-array coercion leaves typology for ghost's =Argv= (=systems/ghost/prototypes/argv.js=), the =argv= getter with it · migrate: =new Signal(Deno.args)= → =new Argv(Deno.args)= ⟨m90⟩
+- changed api =ReplSignal= — =extends Argv=; a bare line seats =body= = its text parts and =flags= = ={}=; the ={ signal, input }= and ={ key }= rows are gone · migrate: =signal.input= → =signal.body=; dispatch a line, never an object (=/dock/share 0.32=, =/key/ctrl-b=) ⟨m90⟩
+- changed wire — the frame-less socket push is ={ nature, body, flags }=, =push(signal, payload)= sends =body: [payload]= and the receiver's =ctx.input= is =body[0]=; =Kill= is ={ nature, body, flags }= · migrate: a peer speaking ={ signal, input }= pushes is refused as malformed ⟨m90⟩
+- changed =steer.dispatch.traverse= — a miss, an effect-less end and an effect-less empty signal fall back to the nearest ancestor's =*= · migrate: none — only ghost's vectors declare =*= ⟨m90⟩
+
+* handoff
+
+- goal: one Signal shape ={ nature, body, flags }= across every vector; each derivative only builds it.
+- done: every ruling, built and proven as one landing (* landing); the forks folded into * tangle — signals; the tangle replayed 10-13 on a fresh copy (7 whole files tangled, =.ikiro/methods/apply-diffs.py --root= 52 files · 84 hunks · 0 missed, 2 deletes) = the proven tree, byte for byte.
+- verified 10-13 (second session, fresh on the live tree): typology 142/626 · ghost 137/293 · stub 3/16 · runtime stub.activity 1/6 · turn.unit-of-work 2/5, 0 failed; =viva bogus= · =viva instance/bogus= · =viva help= → 127 =no such verb — viva --help=; =viva instance/use --help= prints its detail; =~/.viva/*.json= md5 equal.
+- next: beef walks the eight QA markers; all =held= → lift * release into =.ikiro/release.md=, =mv= to =quests/done/=.
+- never: a class field on =Signal= · =this.body= inside a segment-returning coercion · a getter walking to the fin · any git/jj write · =deno fmt=.
+- owed: eight QA markers, all =pending= · after landing, =.ikiro/world/codemap/typology.md= ("=Signal= puts CLI flags on the LAST segment") and =.ikiro/world/codemap/ghost.md= (=run.js= on typology's =Signal=, the =ReplSignal= event and key rows) rewritten to the tree.
