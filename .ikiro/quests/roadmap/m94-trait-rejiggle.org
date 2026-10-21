@@ -1,6 +1,6 @@
 #+title: m94 trait rejiggle — every trait-bearing entity's vocabulary, ruled per name; the trims remembered; each kept trait's wiring (shape · declared · payload · written · read · role) measured
 #+filetags: :typology:trait:mode:thread:buffer:terminal:user:lighthouse:client:service:symbol:literal:note:
-#+status: RULED 10-19 per entity in one pass; the wiring measured the same day (three opus sweeps, read-only). Open sets: /"all of these sets should stay open. That's one of the one of the key tenets of our architecture is that by adding traits you can manipulate how the systems work."/ Owns m91's milestone 5 (the vocabulary) since m91 closed 10-19. The symbol rotation is IN scope (/"include 2. symbols in the quest."/). No code, no go.
+#+status: FORMAT landed via m96 10-21 (=subsystems/typology/schematics/traits/index.js=, the enums dead); the rotation stays roadmap. History: RULED 10-19 per entity in one pass; the wiring measured the same day (three opus sweeps, read-only). Open sets: /"all of these sets should stay open. That's one of the one of the key tenets of our architecture is that by adding traits you can manipulate how the systems work."/ Owns m91's milestone 5 (the vocabulary) since m91 closed 10-19. The symbol rotation is IN scope (/"include 2. symbols in the quest."/). No code, no go.
 
 # limit: 40000 chars
 
@@ -68,39 +68,19 @@ Legend: ✓ live · ⊕ owed by a quest (not on the tree) · ↻ live now, super
 | Literal | — | /"there's not the universal literal traits. Okay, very good."/ |
 | Note | — | /"note is also defined by. Domain, although I know there's going to be nodes that we'd need on a system level. Just like symbols are an open set with some presets. But nodes, like a scratchpad node, for example, I suspect."/ |
 
-** REJECTED — the trims (remembered, never re-proposed)
+** the FORMAT — ruled 10-21 (m96 retro Q11, his words): every trait's schema lives at =v.traits.<entity>.<NAME>=
 
-| entity | name | why |
-|---+---+---|
-| Mode | INTENTED | /"Intented is, I think, deprecated for now."/ |
-| Mode | CONVERSATIONAL | /"conversational might be implied, duplicate with a harness, we might not need that actually"/ — today an empty catalog entry (accepted, does nothing) in 9 manifests |
-| Mode | RUNTIME | /"Not sure that exists actually."/ — empty catalog entry, one test |
-| Mode | CLIENT | /"No, I don't think we need even a client mode."/ |
-| Mode | CHAOSMONKEY BUFFERED TOOLED | /"Chaos monkey, I think, is deprecated as well as buffered and tooled."/ |
-| Mode | STANDALONE | /"Standalone is also deprecated."/ |
-| Mode | SELFEVIDENT | /"Self-evident is uh, deprecated"/ |
-| Thread | SELFEVIDENT | /"self-evident, I don't think"/ |
-| Thread | INERT MANUAL CONTINUOUS ESCORT STREAM | /"Those are not um, traits at all."/ |
-| Buffer | PENDING ACTIVE DONE ERROR STALE | /"those are status, not traits"/ |
-| Buffer | FILE (m54) | /"Buffer we might have superseded file. […] no, that's old as fuck."/ |
-| Symbol | CATEGORICAL LEARNABLE FREE | /"Categorical, learnable, free might be old."/ — only in =topography.bak/= |
+/"doc is not a primitive. It's v.traits.<entity>.docked"/ · /"upprecase.. Okay. The rejiggle, the traits rejiggle, I think that is the format that I want all the traits to be in."/ — m94 had ruled NAMES per entity, never the HOME of a schema (four styles measured: TS enum · typology schematic · plain array · nothing). Now one: =subsystems/typology/schematics/traits/= — one file per schema, =index.js= one table per carrier, keys the UPPERCASE claim names the manifests spell; a carrier needs no typology entity. The runtime presets and every entity descriptor READ the table. The =Docked= · =Themed= · =user= · =client= · =terminal= hunks: =m96-client-mothership.org= =* as code= typology =schematics/traits/=.
+
+The hunk is m96's (drained 10-22 whole to =reference/m94/format-hunk.org=); LANDED 10-21 as =subsystems/typology/schematics/traits/index.js:13= (=export const mode = {= the fifteen) and the per-carrier tables after it.
+
+Payload schemas still opaque are =* deferred= rows; a ruled payload replaces its =opaque= in place. The enums DIE (m96 Q13 10-21 /"a"/): =ModeTraitsEnum= · =ThreadTraitsEnum= go, the column is =string[]= json as Terminal's; deferred 8 (Thread enum lacks INTELLIGENT VOCAL) closes with them.
+
+** REJECTED — the trims
+Drained 10-22 whole to =reference/m94/rejected-trims.org= (his words per name; remembered, never re-proposed).
 
 * adjacent — not traits (unruled ones only)
-
-| what | where | why not |
-|---+---+---|
-| MASKED AIMED QUEUEING on a MODE manifest | =commons/playground/dealer/dealer.viva.js= | Thread's names on the wrong entity |
-| TOOLING on a SERVICE manifest | =commons/services/nlp/service.viva.js:11= | a mode trait; read by =systems/runtime/daemon/lifecycle/population.js:55= for services |
-| daemon =$status= HEALTHY ERROR | =systems/ghost/client/traits/home.js:3= | status |
-| =STANDINGS= | =systems/anima/src/lighthouse.js= | status |
-| =sets.traits= | =systems/runtime/entities/index.ts:43= | which entities carry a composed vocabulary |
-| =narrowable= | =subsystems/typology/schematics/entities/{thread,user,literal}.js= | schema metadata |
-| $contains $overlap $none | =subsystems/typology/entities/base/DataEntity.ts:36= | query grammar over traits |
-| =buffer.target= | m87 | a constraint |
-| =trait.HALLUCINATED= without the name | =~/.viva/registry/stucatch/vivaware/domain/fold.js:37= | a payload with no claim |
-| the module export a trait consumes | =module.application= · =.harness= · =.tools= · =.emitter= · =.dataset= · =.datasink= · =.freight= · =.boot= · =.generator= · =.repl= (was =.repling=) | the trait's input; the trait is the name that wires it |
-| =provider= | =subsystems/paladin/ledger/integrity.js:9= | a service EXPORT, consumed with no trait gate |
-| test-only names TAGGED STAMPED POKED SSE NET PICKED CLASHING SCHEDULED RATED SHADOW | =systems/runtime/tests/*= · chess test | fixtures |
+Drained 10-22 whole to =reference/m94/adjacent.org= (unruled names that are not traits).
 
 * the rotation — symbol ONTOLOGICAL · TOPOLOGICAL · TOPOGRAPHICAL (09-23, never landed)
 
@@ -116,7 +96,7 @@ What it rewrites — measured 10-19:
 | symbol trait | ONTOLOGICAL (=systems/runtime/entities/traits.js:10=) | TOPOLOGICAL |
 | symbol trait | TOPOGRAPHICAL (=traits.js:12=), the literal's ONE root symbol | open (/"not sure yet"/) |
 | mode type | =type: "topology"= · =type: "topography"= (nothing branches on them; only ="domain"= does) | traits TOPOLOGICAL · TOPOGRAPHICAL that LOAD the data (/"we load topography and topology data via trait"/) |
-| mode trait | TOPOGRAPHICAL TOPOLOGICAL: enum only (=systems/runtime/mode/Mode.ts:18-19=), 0 catalog, 0 manifests | the two loaders above |
+| mode trait | TOPOGRAPHICAL TOPOLOGICAL: enum only (=systems/runtime/subjects/mode/Mode.ts:18-19=), 0 catalog, 0 manifests | the two loaders above |
 | mode type | — | =ontology= maybe, like =corpus= (/"ontology maybe continues to live as a mode type"/) |
 
 The ruling it would undo (=~/.viva/bak/ikiro/memory-20260923/project_module_type_taxonomy.md:10-14=): /"copus -> topography. ontology -> topology. obviously"/ · /"the trait for topological data remains ontology"/. Mixed usage already on the tree: =quests/done/m61-chess-domain.org:23= "TOPOLOGICAL symbols — one per literal, carried as the TOPOGRAPHICAL trait". Today's /"Topographical and topological makes sense"/ on Mode reads as the rotation's mode-trait half.
@@ -143,199 +123,11 @@ The ruling it would undo (=~/.viva/bak/ikiro/memory-20260923/project_module_type
 
 - =literal.ontology= is a mikro column (=systems/runtime/entities/Literal.ts:67,91=) and a repository verb (=:143-161=): the rename is a snapshot migration, never a hand one.
 - ONTOLOGICAL ↔ TOPOLOGICAL is a SWAP over 560 hits, 43 registry files deep (=dataset/symbols/=): an enum migration with a stamp change per topography, not a sed; a registry save IS a deploy (=lsof -nP -iTCP:2501 -sTCP:LISTEN= first).
-- mode types → traits: 31 manifests move =type= → =traits=; nothing branches on the type today, so the catalog entries (=systems/runtime/mode/traits/{topological,topographical}.js=) are new and take DATASET's load.
+- mode types → traits: 31 manifests move =type= → =traits=; nothing branches on the type today, so the catalog entries (=systems/runtime/subjects/mode/traits/{topological,topographical}.js=) are new and take DATASET's load.
 - COVERAGE GAP: no test asserts =literal.ontology= across a reinstall; the rename needs one before it moves.
 
 * the wiring — measured 10-19
-
-Shape words: *catalog* = a function in =<system>/<subject>/traits/<name>.js= that =belt.traits.stagger= (=subsystems/typology/gestalten/belt/traits.js:6=) runs once per manifest name · *empty catalog* = that function exists and does nothing · *enum* = a TS enum member feeding a mikro column · *schematic* = a typed payload in typology's =traits: {NAME: schema}=, claimed by =v.<entity>.trait(entity, NAME)= · *define* = =traits.define("NAME", {schematic})= in a registry domain, composed per daemon · *manifest* = a string in a =*.viva.js= =traits: [...]= · *payload* = the =trait.NAME= JSON on the entity.
-
-Global facts:
-- a name with no catalog entry is skipped silently by =stagger= (=traits.js:9=); =systems/runtime/mode/lifecycle/resolution.js:15= only warns. The manifest schematic is =v.array(v.string())= (=subsystems/typology/schematics/primitives/manifest.js:13=); openness was ruled in =quests/done/m68-paladin-pipeline.org:1673=.
-- the only cross-check is =subsystems/paladin/ledger/integrity.js:6-25= (trait → required export) + =:43-44= (SERVICE · PROVIDER).
-- NO mode trait carries a payload: =mode.trait= appears nowhere; a mode trait's input is a module export.
-- catalogs per host: daemon = full runtime catalog (=systems/runtime/daemon/lifecycle/population.js:10=); runtime's own modes = minus DATASET DATASINK (=systems/runtime/runtime/lifecycle/population.js:131=); ghost =systems/ghost/entities/mode/lifecycle/index.js:20=; anima =systems/anima/src/entities/mode/dossier.js:32= (anima does not build).
-- finalizers run at =systems/runtime/gestalten/belt/modes.js:7=, terminators at =:15=.
-- kernel vocabularies (literal · symbol · note): =systems/runtime/entities/traits.js:4-15= presets → =gather(kernel, domain, modes, kind)= (=systems/runtime/gestalten/belt/traits.js:8-13=, first wins) → =mint= one repository per daemon·kind with =claim= bound (=:15-45=). =traits.define= returns ={name, schematic, repository, entity}= (=subsystems/typology/gestalten/belt/traits.js:21-23=), registers nothing. The runtime's own mint covers note + mode, kernel only (=runtime/lifecycle/population.js:73-77=).
-
-** Mode
-
-| name | shape | declared | export consumed | manifests | readers |
-|---+---+---+---+---+---|
-| APPLICATION | catalog ×3 · enum · manifest | runtime =mode/traits/application.js:5= · ghost =:3= · anima =:3= · =Mode.ts:16= | =module.application= (=App=, =subsystems/typology/prototypes/app.js:7=) | 36 | 14 |
-| EXPOSED | catalog ×3 · enum · manifest | =exposed.js:3= ×3 · =Mode.ts:32= | =mode.aperture= | 29 | 1 + stagger |
-| HARNESSED | catalog ×3 · enum · manifest | runtime =harnessed.js:178= · ghost =:4= · anima =:3= · =Mode.ts:24= | =module.harness= (Vector) | 22 | 11 |
-| TOOLING | catalog runtime · enum · manifest | =tooling.js:1= · =Mode.ts:27= | =module.tools= (Vector) | 23 | 2 |
-| EMITTER | catalog runtime + anima · enum · manifest | =emitter.js:3= ×2 · =Mode.ts:29= | =module.emitter= (Vector) | 21 | 9 |
-| DATASET | catalog runtime · enum · manifest | =dataset.js:61= (=stamp= =:16=) · =Mode.ts:21= | =module.dataset= (=prototypes/dataset.js:27=) | 28 | 3 |
-| DATASINK | catalog runtime · enum · manifest | =datasink.js:8= · =Mode.ts:22= | =module.datasink= (=prototypes/datasink.js:109=) | 5 | 1 warn |
-| FRAUGHT | catalog runtime · enum · manifest | =fraught.js:17= (=carry= =:5=) · =Mode.ts:35= | =module.freight= (=prototypes/freight.js:50=) | 7 | 5 |
-| BOOTED | catalog runtime · enum · manifest | =booted.js:5= · =Mode.ts:13= | =module.boot= (function) | 5 | stagger |
-| MOUNTED | catalog runtime · enum · manifest | =mounted.js:3= · =Mode.ts:36= | =mode.mountpoint= (=subsystems/paladin/ledger/registry.js:262=) | 3 | 4 (FRAUGHT's) |
-| AGENTIC | catalog runtime · enum · manifest | =agentic.js:2= · =Mode.ts:26= | — | 3 | stagger |
-| GENERATIVE | catalog runtime · empty catalog anima · enum · manifest | =generative.js:4= · anima =application.js:12= · =Mode.ts:30= | =module.generator= (Vector) | 2 | 3 |
-| REPLING | catalog ghost · manifest; NOT in the enum | =systems/ghost/entities/mode/traits/repling.js:1= | =module.repl= (Vector) | 1 | 2 |
-
-Paths without a system are =systems/runtime/mode/traits/=. None of the consumed exports has a typology schematic.
-
-- APPLICATION — compiles and serves the mode's UI bundle (=mode.application.buffer= · =.compile=, =application.js:10,19=); clients open a buffer of it. Read: =systems/runtime/gestalten/shard/host.js:32= (=/metadata/application=) · =runtime/lifecycle/resolution.js:47= · ghost =terminal/commands/application/start.js:7= · ghost =surface/chrome/panes/frame.jsx:7= · anima =Modes.svelte:42= · anima =thread/dossier.js:38=.
-- EXPOSED — =mode.call= becomes a proxy over the mode's aperture; remote side wired from =/metadata/aperture=. Read: =mode/lifecycle/resolution.js:19= (warns on an aperture without EXPOSED).
-- HARNESSED — the mode gets an LLM pipeline at =/harness=; throws without a cortex (=harnessed.js:179=); grafts =module.harness= at =:200=. Read: =gestalten/shard/host.js:46= · ghost =gestalten/shard/repl.js:22= · anima =panels/a/a.svelte:35= · =Harness.svelte:29= · =Thread.svelte:43= · =Dock.svelte:24=.
-- TOOLING — grafts the mode's tools into =mode.tools=. Read: =agentic.js:6= · =daemon/lifecycle/population.js:55= (services).
-- EMITTER — an =/emit= route that runs the emitter and binds the produced buffers to the thread. Read: =gestalten/shard/host.js:42= (=/metadata/emitter=) + 8 =mode.emit= consumers.
-- DATASET — installs the mode's symbols · literals · intents into the daemon db on first boot or a changed stamp. Read: =mode/lifecycle/resolution.js:7= (=stamp= on every mode) · =gestalten/belt/modes.js:37= (=module.dataset?.intent=).
-- DATASINK — after boot, writes matching dataspace changes back into the package's files. Read: only the warning at =resolution.js:22=; nothing reads =mode.datasink=.
-- FRAUGHT — catalogues the package's freight dir, serves it at =/attached/cargo/...=, accepts uploads via =freight.receive=. Read: =host.js:44= · =runtime/lifecycle/resolution.js:33,65= · =daemon/lifecycle/resolution.js:37= · =commons/fixtures/memo/mode/deal.js:5=.
-- BOOTED — after every mode's traits are wired, the runtime calls the mode's own =boot(daemon, mode)= (e.g. =~/.viva/registry/vcompany/modes/office/vdex/boot.js:62=: prune stale literals, start a disk watcher). What =boot= returns is kept and called at daemon shutdown. Carriers: vcompany calendar · email · vdex, stucatch watch, media.
-- MOUNTED — FRAUGHT over the instance's own mountpoint (=~/.viva/instances/<slug>/mountpoint/...=) instead of the package: a writable file store served as cargo; uploads land on the instance, never the registry. Carriers: assembly import · media · vdex.
-- AGENTIC — after boot, every other non-domain TOOLING mode's tools are branched into this mode's =mode.tools= under their slug. Carriers: francesca · chess play · =commons/harnesses/runtime=.
-- GENERATIVE — =mode.generator= (bundle · inspect · serve + tools for model-written Svelte); the bundle route serves without APPLICATION. Read: =runtime/lifecycle/resolution.js:47= · =commons/playground/chaosmonkey/reader/emitter.js:21= · =commons/instances/hello-world/page/index.js:52=.
-- REPLING — the mode's repl commands are grafted into =mode.repl= and mounted under =/mode/<type>/<slug>= in the client's command line. Read: ghost =gestalten/shard/repl.js:17,27=.
-- TOPOGRAPHICAL TOPOLOGICAL (mode) — enum only (=Mode.ts:18-19=); 0 catalog, 0 manifests, 0 readers. See * the rotation.
-
-Owed by a quest:
-
-| name | designed at | shape |
-|---+---+---|
-| RENDERER | =m87-buffer-view-file.org= rulings 32 · 33 | compiles each =module.views= entry; mints the mode's buffer mime and =mode.buffer()=; succeeds APPLICATION |
-| FILESET | =m87-buffer-view-file.org= rulings 34 · 36 | reads the declared directory into File rows; succeeds FRAUGHT |
-| FILESINK | =m87-buffer-view-file.org= ruling 36 | =mode.files.receive= → a File · =compile= → a View; succeeds MOUNTED |
-| KEYMAPPED | =m92-keymap.org= law 8 · 9 (10-21) | export =keymap=, function effects; ghost-only — a runtime mode's rides its view module, nothing served |
-| PRIMER | =m83-tools-and-primer.org:726= | =PRIMER = (mode) => mode.primer.graft(mode.module.primer)=; CUT, not landed (=:3,786=) |
-| LOOPING | =m88-repling.org:1021,1109= | runtime =mode.looping(ctx)= grows tools from the terminal's =/metadata/repl=; ghost grafts =/terminal/:terminal= onto =client.aperture= once |
-
-** Thread
-
-Typing gap: =ThreadTraitsEnum= (=systems/runtime/entities/Thread.ts:22-29=) holds MASKED AIMED QUEUEING LABELED but NOT INTELLIGENT VOCAL (column =enum: true= at =:120-125=); the typology vocabulary (=subsystems/typology/schematics/entities/thread.js:44=) holds INTELLIGENT VOCAL but NOT LABELED — =v.thread.trait(x, "LABELED")= throws (=subsystems/typology/tests/v.test.js:289=). A thread copies =traits= + =trait= from its intent on create (=Thread.ts:77-82=); =IntentTraitsEnum= (=Intent.ts:6-10=) is the same four.
-
-| name | shape | payload | writers | readers |
-|---+---+---+---+---|
-| LABELED | enum · payload | ={name, description, flags}= untyped (=systems/anima/src/entities/thread/traits/labeled.js:4-11=) | anima =cards/threads.js:28,42= · =Labeled.svelte:30= · =thread/dossier.js:33= · runtime =gestalten/tools/thread.js:45-57= · 3 intents | 4 |
-| MASKED | enum · empty catalog anima (not exported) · payload | ={where, limit}= untyped | anima =dossier.js:39-42= · =Masked.svelte:31,37= · 11 intents | 4, anima only |
-| AIMED | enum · anima helpers · payload | ={mount}= untyped | =Aimed.svelte:32= · 10 intents | 9 |
-| QUEUEING | enum · anima helpers · payload | ={depth}= untyped, default 1 | =Queueing.svelte:22= · 10 intents | 5 |
-| INTELLIGENT | schematic | ={tune, effort, rounds, thinking}= (=thread.js:8-13=) | anima =widgets/intelligent.js:37-40= | 9 |
-| VOCAL | schematic | ={language, tune, harmonize, polish}= (=thread.js:15=) | none in production (test =dictation.integration.test.js:83-84=) | 2 |
-
-- LABELED — the thread's display name in anima and in tool output. Read: =gestalten/tools/thread.js:4= · =labeled.js:25= · =Thread.svelte:14,19=.
-- MASKED — merged into every AIMED pull, so it decides which entities the emitter returns. Read: anima =thread/traits/aimed.js:11= · =Buffers.svelte:10= · =Masked.svelte:25= · =Thread.svelte:53=; the runtime reads none.
-- AIMED — points the thread's buffer pulls at one emitter route. Read: =aimed.js:10,20= · =Buffers.svelte:5,56= · =traits/form/schema.js:82-83= · =Thread.svelte:51-63= · =~/.viva/registry/education/modes/tactics/impara/aperture/index.js:25,30=.
-- QUEUEING — how many buffers anima keeps pre-pulled. Read: =queueing.js:10= · =Buffers.svelte:57= · =bones/widgets/Phase.svelte:50= · =Thread.svelte:52=.
-- INTELLIGENT — the harness's tune · rounds · effort for that thread. Read: claimed =systems/runtime/mode/traits/harnessed.js:28=, used =:47,48,51=; anima =panels/a/widgets/Dock.svelte:33,36,382= · =Harness.svelte:40= · =widgets/Tune.svelte:14=.
-- VOCAL — language · tune · harmonize · polish of the dictation pipeline. Read: =harnessed.js:29= → =ctx.vocal= in =subsystems/typology/gestalten/shard/hal.js:50-70=. CONFLICT: =subsystems/typology/schematics/primitives/contexts.js:37= types =ctx.vocal= as a boolean.
-
-** Buffer
-
-| name | shape | payload | writers | readers |
-|---+---+---+---+---|
-| LABELED | enum · payload | ={name, description}= untyped; typology =entities/buffer.js:9-20= has no =traits= map | create twitch =systems/runtime/entities/Buffer.ts:121-126= (fallback ="<mode> #<index>"=) · =mode/traits/generative.js:85-86,144= · =gestalten/tools/buffer.js:50= | 5 |
-
-- LABELED — every buffer gets a display name at create. Read: =gestalten/tools/buffer.js:3= · =generative.js:41= · =systems/anima/src/entities/buffer.js:46= · =systems/ghost/entities/buffer.js:37= · anima =panels/a/widgets/turns.js:125=.
-
-** Terminal
-
-Runtime =systems/runtime/entities/Terminal.ts:18-19,39-40=: untyped =traits= + =trait=; no enum, no schematic, no catalog.
-
-| name | shape | payload | writers | readers |
-|---+---+---+---+---|
-| LABELED | payload | ={name}= untyped | test only (=systems/runtime/tests/lighthouse/shape.test.js:65=) | anima =terminal/prototype.js:31= · ghost =terminal/prototype.js:29= |
-| DOCKED | payload | ={side, share, collapsed, full}= untyped (ruled =quests/done/m76-terminals-close-the-dataring.org:179=) | anima =terminal/prototype.js:55-63= (debounced =updateOne= → the runtime row) | anima =prototype.js:59,82= |
-
-- LABELED — the terminal's name, or null.
-- DOCKED — where the dock sits and how large, per terminal; terminal wins over user (=prototype.js:82= =terminal.trait.DOCKED ?? user?.trait?.DOCKED=; m76: "identity's is the default, terminal's the instance"). The runtime stores it, never reads it. The test title =systems/anima/tests/terminals.remote.test.js:112= says the opposite ("the user's trait, else the row's").
-
-** User
-
-=systems/runtime/entities/User.ts:35-36,61-62= untyped; typology vocabulary =subsystems/typology/schematics/entities/user.js:14= = HOME only.
-
-| name | shape | payload | writers | readers |
-|---+---+---+---+---|
-| HOME | schematic | ={reference}= (=schematics/primitives/home.js:3-5=) | none in production (test =v.test.js:293=) | ghost =client/traits/home.js:7= |
-| THEMED | payload | ={theme}= untyped (ruled m76 =:178=) | none anywhere | anima =app/+page.svelte:76= via =?.= |
-| DOCKED | payload | as Terminal | tests only | anima =terminal/prototype.js:82= via =?.= |
-
-- HOME — the mode a new threadless terminal is seated in; beats the client's HOME.
-- THEMED — the user's saved anima theme over the local bridge theme.
-- DOCKED — the default dock for terminals without their own.
-
-** Lighthouse
-
-Schematic enum =subsystems/typology/schematics/primitives/instance.js:59=; payload schematic =LighthouseTrait= (=:60-71=) types AUTOLOGIN only. Declared in =commons/ledger/ledger.viva.json:8= · =~/.viva/ledger.viva.json:23-24= (JOINABLE AUTOLOGIN). Run by =systems/runtime/lighthouse/lifecycle/resolution.js:5= · =systems/ghost/entities/lighthouse/lifecycle/index.js:39=.
-
-| name | shape | payload | role |
-|---+---+---+---|
-| JOINABLE | schematic enum · catalog runtime (=lighthouse/traits/joinable.js:21-23=) · empty catalog ghost | — | grafts =/signup=: public sign-up |
-| INVITATIONAL | schematic enum · empty catalog runtime + ghost | — | none today; =instance.js:75= says "/signup takes an invite token"; no ledger declares it |
-| AUTOLOGIN | schematic enum + payload · catalog runtime (=autologin.js:14-24=) · catalog ghost (=autologin.js:1=) | ={username, password}= (=instance.js:62-68=) | grafts =/autologin=, a finalizer creates the user at boot; every visitor is that user |
-
-** Client (ghost)
-
-| name | shape | payload | writers | role |
-|---+---+---+---+---|
-| HOME | catalog (=systems/ghost/client/traits/home.js:5-28=) run by =client/lifecycle/index.js:169-170= | =ClientTrait= → =Home= (=instance.js:81,90=, =additionalProperties: false=) | =~/.viva/ledger.viva.json:50,57,67,74= · fixtures | seats each new threadless terminal on a thread in the HOME mode; the user's HOME wins |
-
-Owed: DOCKED · THEMED — ghost has no analogue today: chrome paints a hardcoded =tokens("northsea", "2")= (=systems/ghost/surface/chrome/index.js:24=); the dock is a =/chrome= toggle (=systems/ghost/client/commands/chrome.js:8=), never persisted. =ClientTrait= admits nothing but HOME.
-
-** Service
-
-Catalog =systems/runtime/service/traits/index.js=; =stagger= at =service/lifecycle/resolution.js:5= — but ONLY for ATTACHED services; any other goes =dormant= "not ATTACHED — consumed only" (=systems/runtime/runtime/lifecycle/population.js:146-152=).
-
-| name | shape | declared by | readers |
-|---+---+---+---|
-| ATTACHED | catalog (=attached.js:3-10=) · manifest · integrity (needs export =attachment=, =integrity.js:8=) | tests only | =population.js:146= · =integrity.js:43= |
-| SERVER DOCKER COMPOSE | manifest only | =commons/services/nlp/service.viva.js:11= | none |
-| MONK | manifest only | =commons/hallucinators/{deepgram,elevenlabs}/service.viva.js:8= (=type: "hallucinator"=, never staggered) | none |
-| SERVICE PROVIDER | empty catalog (=index.js:3-4=) · integrity | no manifest | =integrity.js:9,43,44= only |
-
-- ATTACHED — the only trait that lets a service process start; opens =/status= =/manifest= and grafts =mask.attachment=.
-- SERVER DOCKER COMPOSE — no effect; nlp is dormant (no ATTACHED); what runs is its =control= export + TOOLING.
-- MONK — no effect; no stated purpose anywhere (=.ikiro=, =~/.viva/bak/ikiro=, git); =quests/done/m68-paladin-pipeline.org:1673= lists it only as a name that faulted the dropped unknown-trait rule.
-- SERVICE PROVIDER — the answer to /"is that actually used anywhere?"/: as TRAITS, no. =provider= is a module EXPORT (=integrity.js:44= "a provider is what a service exports"): exported by the four hallucinators · =commons/fixtures/testing/hal/stub= · nlp · reader · =~/.viva/registry/chess/services/stockfish/stockfish.viva.js:1=; consumed with no trait gate at =runtime/lifecycle/population.js:35,54,109= · =daemon/lifecycle/population.js:41,54=.
-
-** Symbol — open; kernel presets =systems/runtime/entities/traits.js:8-13=
-
-| name | shape | payload | writers | readers |
-|---+---+---+---+---|
-| ONTOLOGICAL | kernel preset · payload | open object, always ={}= | 16 of 19 =dataset/symbols/= files + media · vcompany · droneaid inline | 0 runtime; dojo =types.js:271= · =aperture/index.js:54= · =tools/symbols.js:18= · =Builder.svelte:55= · =commons/dashboards/dataspace/schema.js:23= |
-| TOPOGRAPHICAL | kernel preset · payload | open object, ={}= | 10 files, one root each + =education/topologies/conjugation/conjugation.viva.js:15= | =systems/runtime/entities/Literal.ts:147= (run =:159-161=) · dojo · dataspace |
-| STRUCTURAL | kernel preset · payload | open object, ={}= | 3 =english-to-*/dataset/symbols/structural.js= + vdex =jd.js:16= | dojo only |
-| LABELED | kernel preset · schematic =v.primitives.Label= | ={name, description}= | 19 of 19 | memo =tools/index.js:44-45= · primer =atlas/graph.js:39,55-57= |
-
-- ONTOLOGICAL — marks a symbol as a subject-matter dimension of the vocabulary (the removed enum's comment, =quests/done/m80-lighthouseless.org:2600-2605=: "subject matter attribute").
-- TOPOGRAPHICAL — the literal's ONE root symbol: its slug becomes =literal.ontology=; the runtime throws on two.
-- STRUCTURAL — groups literals into sets or categories.
-- LABELED — display name and description.
-
-** Literal — open; kernel preset LABELED only (=traits.js:7=); =LiteralDescriptor= has no =traits= key, so =v.literal.trait= without a vocabulary throws "vocabulary of nothing" (=systems/runtime/tests/mint.test.js:233=); production claims go through the repository's =this.claim=.
-
-| domain | defines | file |
-|---+---+---|
-| education | RETAINED ANNOTATED RANKED TRANSLATED EXEMPLIFIED VOCALIZED CONJUGATED | =~/.viva/registry/education/domain/traits/index.js:8= |
-| chess | PLACED EVALUATED LADDERED RECORDED CATALOGUED ANALYSED POSED OPENED CLOCKED TERMINATED SOURCED SEATED BOOKED TABLEBASED | =~/.viva/registry/chess/domain/traits/index.js:11= |
-| assembly | PLACED COUNTED ASSEMBLED SEQUENCED SOURCED MODELED PARAMETRIC JOINED INSTRUCTED ANNOTATED STAGED | =~/.viva/registry/assembly/domain/assembly/traits/index.js:7= |
-| memo | RETAINED TRANSLATED EXEMPLIFIED RANKED VOCALIZED DEPICTED | =commons/fixtures/memo/domain/traits/index.js:7= |
-
-Read but never =define=d (0 =traits.define= in each package):
-
-| package | names | first reader |
-|---+---+---|
-| vcompany | MESSAGE MAIL EVENT DOCUMENT | =vcompany/domain/voffice/entities/kernel/Literal.ts:20= |
-| media | MEDIA COMPOSITION ANNOTATION | =media/modes/editor/media/boot.js:98= |
-| stucatch | SENSED INGESTED DERIVED SIZED LOCATED OCCURRED MOVED ADJUSTED EMITTED HALLUCINATED RECEIVED REPORTED | =stucatch/vivaware/domain/fold.js:37-321= |
-| young-ladys-primer | REQUIRES | =young-ladys-primer/modes/home/atlas/graph.js:9= |
-
-** Note — open; kernel preset LABELED only (=traits.js:14=); no typology =entities/note.js=, no =v.note=
-
-| name | shape | payload | writers | readers |
-|---+---+---+---+---|
-| TRACED | define ×3 | memo ={signal, status, snapshot, mode, thread}= · education ={signal, snapshot}= · chess ={kind, signal, status, snapshot}= | memo + education =literal/retained.js= · =chess/domain/aperture/index.js:449= | 4 |
-| RETAINED | define ×2 + repository verbs (=retention= · =evolve=) | ={driver, status, type, lastSignal, lastAt, nextIn, due, state}= | its own =evolve= | 16 |
-| SUSPENDED | define (memo) + verbs =suspend= =resume= | ={at, reason}= | =commons/fixtures/memo/domain/traits/note/suspended.js:12= | 1 |
-
-- TRACED — one record per grade or attempt, a child of the retention note.
-- RETAINED — the spaced-repetition state per user·literal.
-- SUSPENDED — takes a card out of every deal.
-- system presets owed: the 10-07 /"a node entity that can keep state, that can hold memory, that can hold like additional context, all kinds of stuff, like a scratch pad, notepad, node."/ → m80 /"it's note with a T"/ (=quests/done/m80-lighthouseless.org:14,107,175=); open at =quests/roadmap/m84-harness-runtime.org:864,869= ("nothing reads a runtime Note yet"). No scratchpad trait exists.
+Drained 10-22 whole to =reference/m94/the-wiring-10-19.org= — it describes the dead enums (=entities/traits.js= · the =Mode.ts= / =Thread.ts= enums) the m96 FORMAT removed.
 
 * deferred — asked, unruled
 
@@ -346,16 +138,19 @@ Read but never =define=d (0 =traits.define= in each package):
 5. Service SERVICE · PROVIDER as traits — dead (no manifest, empty catalog); the =provider= export lives without them.
 6. The rotation (deliverable 2) — /"not sure yet"/: where =ontology= lives after (mode type like =corpus=? symbol trait? literal property?); what TOPOGRAPHICAL means on a symbol once ONTOLOGICAL is TOPOLOGICAL; do the topology/topography loaders REPLACE DATASET on those modes or sit beside it.
 7. Note system presets — which (scratchpad?), and does the runtime mint grow past kernel-only.
+Rows 3–7 and whether APPLICATION · DATASINK join =v.traits.mode= → m96 =* open= #17.
+
 8. Defects measured, not ruled (→ known issues when ruled): Thread enum lacks INTELLIGENT VOCAL; Thread vocabulary lacks LABELED; =ctx.vocal= typed boolean (=contexts.js:37=); DOCKED test title contradicts the code; THEMED has no writer; 20 literal names read without a =define=.
 
-* release
+* release (lifted 10-22 into =.ikiro/release.md=)
 
-- removed `ModeTraitsEnum` (`Mode.ts`) — `v.mode` schematic enum in typology · migrate: import from `@vivalence/typology/schematics` ⟨m94⟩
+- removed `ModeTraitsEnum` (`Mode.ts`) · `ThreadTraitsEnum` — a `traits` column is `string[]` json; a mode's vocabulary is the table `v.traits.mode` (`subsystems/typology/schematics/traits/index.js:13`; APPLICATION · DATASINK membership owed → m96 open #17) · migrate: read `v.traits.<entity>` ⟨m94⟩
 
 * handoff
 
-- goal: one vocabulary per trait-bearing entity, open sets with system presets, every kept name's wiring known; owns m91's milestone 5 (m91 DONE 10-19).
-- done: the set ruled per entity (10-19), the trims remembered (REJECTED), the wiring measured, the 09-23 rotation recovered from the private diary.
-- next: deferred 1 · 2 RULED in m96 (ruling 6: BOOTED · DATASET · DATASINK · FILESET · FILESINK stay, MOUNTED goes); the Mode enum lands in m96 wave 1; beef rules * deferred 3–7; milestone 5's vocabulary lands here over deliverable 1 (=ModeTraitsEnum= 3 hits, =systems/runtime/mode/Mode.ts:12,56,89=); deliverable 2 designed on deferred 6.
-- never: re-propose a REJECTED name; close a set (/"all of these sets should stay open"/).
-- owed: the rotation's design (deferred 6), then its milestones here; from m91: the docs delta (=done/m91…org= =* deferred=), =ModeTraitsEnum= in =~/.viva/registry/education/README.md:1405=.
+- goal: every trait a declared schema at =v.traits.<entity>.<NAME>=, the enums dead, the table validating at the claim.
+- done 10-21 (session 7, m96 LANDED): ** the FORMAT — =subsystems/typology/schematics/traits/= (docked · themed · intelligent · vocal · index; one table per carrier) · =v.traits= · =ClientTrait= from the client table · the enums DEAD on Mode · Thread · Buffer · Intent · File (=traits: string[]= json) · =entities/traits.js= DELETED (presets ARE =v.traits=; =gather(domain, modes, kind)= — departure from :88) · the registry copy's manifests on plain strings, =ModeTraitsEnum= gone from =education/README.md=.
+- next: the rotation (deferred 6) its own milestones · =v.traits.file= (MISSING inline on =file.js=) · =opaque= payloads ruled one by one.
+- never: a trait read by =row.trait?.NAME= · a vocabulary outside its carrier's table.
+- owed: deferred 3–7 + APPLICATION · DATASINK in =v.traits.mode= → m96 =* open= #17.
+

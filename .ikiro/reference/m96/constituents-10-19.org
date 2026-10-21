@@ -1,0 +1,17 @@
+# drained 10-22 whole from .ikiro/quests/m96-client-mothership.org (quest tidy); nothing reworded · limit: none (reference content)
+
+The m95 table as it stood 10-19 (moved whole):
+
+
+| quest | state | m95 takes |
+|---+---+---|
+| =done/m86-repl-loop-clients= | DONE 10-16 | T-chrome-toggle · T-application · =memo.jsx= off sheets |
+| =m92-keymap= | DESIGNED 10-19 | milestones 3 · 5 · the DOM normalizer; the list is the =catalog= (13) |
+| =m87-buffer-view-file= | RE-CUT 10-20 · Q38 10-21 | milestones 5 · 8 |
+| =m88-repling= | S1 LANDED · S3 DESIGNED · S2 DEAD 10-21 | anima's door · the dock retarget (=m88:1123=) |
+| =m83-tools-and-primer= | TANGLED 10-19 | FORMAT primer assumes the dock renders markdown (=m83:73,221=) |
+| =m93-kleisli-remonadization= | TANGLED 10-19 | ghost factories only (12); runtime factories stay m93's |
+| =m94-trait-rejiggle= | RULED 10-19 | DOCKED · THEMED · KEYMAPPED rows |
+| =roadmap/m89-telemetry= · =roadmap/m84-harness-runtime= | open | after the chrome · T-go-to-mode |
+| =benched/m85-tauri-clients= · =done/m73= · =pincer.quest= · =m56= | out · history | the pincer dies (=done/m73:30= /"dont drop that"/ overturned by the name) |
+

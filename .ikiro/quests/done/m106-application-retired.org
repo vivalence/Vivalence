@@ -1,0 +1,215 @@
+#+title: m106 application retired — APPLICATION dies on runtime · ghost · commons; a buffer without pins shows its mode's View rows (m87 law 3 on the client); the vendor tree becomes =vnd.viva=
+#+filetags: :application:view:viewable:mime:ghost:runtime:commons:typology:paladin:
+#+status: DONE 10-24 by /"go on the quest. commit. land. move to done"/ — milestone 2 the vendor tree LANDED 10-24 (census below; localhost trash = his =!=); milestone 1 the retirement LANDED 10-24 on /"fix. go. ignore anima."/ (uncommitted, beef snaps); show-me 10-24 S1–S8 amen (/"rest amen"/), S1 drilled → Q40–Q44 LOCKED as SKETCH (/"amen"/), probed green in a sandbox copy; milestone 2 the vendor tree waits for his go; split out of =done/m87-buffer-view-file.org= 10-24 on /"why are we in m87?? what quest is this in?"/ · /"ok. send a subagent to finish this."/
+# limit: none (quest content)
+
+* intent
+
+| # | beef, verbatim | trigger |
+|---+----------------+---------|
+| A | /"fix. go. ignore anima."/ | the 10-24 study of "application views": m87 law 3 · Q10′ (=done/m87-buffer-view-file.org:66=, /"still buffer.mode.views as default but buffer.views overwrite"/) never wired on the client — ghost's =candidates= fallback read =mode.application=, so every VIEWABLE buffer without pins got zero views |
+| B | /"why are we in m87?? what quest is this in?"/ · /"ok. send a subagent to finish this."/ | the show-me review + the S1 drill had been parked inside the DONE m87 |
+
+* terrain — measured 10-24
+
+- before: =systems/ghost/gestalten/belt/view.js= =candidates= = the pins, else =declared()= over =mode.application.bundle.entries=; the commons modes declared =APPLICATION= + =new App(=; no VIEWABLE mode reached a client view without a pin.
+- after (tree): =systems/ghost/gestalten/belt/view.js:11-15= — =buffer.views= pins, else =buffer.mode.runtime.entities.view.find({ mode: buffer.mode.id })=, each fetched by row.
+
+* the dialogue — the rulings, as built
+
+| Q | his ruling, verbatim | built as |
+|---+----------------------+----------|
+| 0 the retirement (10-24) | /"fix. go. ignore anima."/ | LANDED 10-24 (uncommitted): milestone 1 |
+| 40 the vendor tree (10-24, show-me S1 drill) | /"one chnage. vnd.vivalence to vnd.viva."/ | LANDED 10-24 · =mime.js:14-21= · =:30= =CODE= · =:33= mint read =vnd.viva= |
+| 41 the mint's name (10-24, show-me S1 drill) | /"viva"/ | LANDED 10-24 · =mime.vivalence= → =mime.viva= — =viewable.js:16= + 3 registry rigs + =mime.test.js:14= |
+| 42 the stored =vnd.vivalence= rows (10-24, show-me S1 drill) | /"trash localhost."/ | his =!= at landing: no migration; at landing localhost's =mountpoint/= is captured to =~/.viva/bak/= then dropped, =.env= + =instance.viva.json= kept; the next boot mints =vnd.viva= rows fresh; prod: none (Q43) |
+| 43 prod's stored rows (10-24, show-me S1 drill) | /"none on prod"/ | no prod action at deploy |
+| 44 one spelling of the tree (10-24, show-me S1 drill; the probe found =bundler.js:5= · =sections.js:15= · =mime.js:30= spelling it) | /"b"/ | LANDED 10-24 · =mime.VENDOR= in =mime.js=; =dom= · =tty= · =CODE= · =viva= build from it; paladin =stem= · ghost =short= strip =`${mime.VENDOR}.`= |
+
+* the law
+
+1. m87's laws stand (=done/m87-buffer-view-file.org= =* the law=); law 3 now holds on the client: =buffer.views= is the selection, empty → the mode's View rows.
+2. APPLICATION is dead on runtime · ghost · commons: a mode exports =buffer= + =views= and declares VIEWABLE; =/metadata/application= is a 404; =/application/start= · =/application/stop= are gone (m105 Q6J).
+3. Anima is out of scope (/"ignore anima."/).
+
+* milestones — each a noun, each green before the next
+
+1. the retirement — LANDED 10-24, uncommitted (files + census below).
+2. the vendor tree =vnd.viva= — Q40 · Q41 · Q43 · Q44 LANDED 10-24 on /"go on the quest"/; Q42's localhost trash by beef via =!= (block below).
+
+** milestone 1 — the retirement, as landed
+
+- ghost: NEW =systems/ghost/entities/view/{index,prototype,repository,hydration}.js= (RemoteRepository over =/userspace/entities/view=), registered in =systems/ghost/entities/index.js= + =systems/ghost/subjects/client/lifecycle/index.js= (Dataspace =view=); =systems/ghost/gestalten/belt/view.js= =candidates= = pins, else =buffer.mode.runtime.entities.view.find({ mode })= fetched by row (=declared= deleted); ghost Mode lost =$application=; =systems/ghost/entities/mode/traits/application.js= DELETED; =systems/ghost/gestalten/shard/host.js= catalog drops APPLICATION; =systems/ghost/subjects/terminal/commands/application/= (=/application/start= · =/application/stop=) DELETED (m105 Q6J). Tests: =systems/ghost/tests/gestalten/belt/view.test.js= · =systems/ghost/tests/subjects/client/client.test.js= (new live case: memo buffer with no pin → memo's View rows, tty picked, bytes verified) · =systems/ghost/tests/subjects/terminal/{commands,repl}.test.js=.
+- runtime: =systems/runtime/subjects/mode/traits/application.js= DELETED + its index export; =systems/runtime/gestalten/shard/host.js= =/metadata/application= route gone (404). Scaffolds =systems/runtime/tests/scenarios/{daemon,mode,bench}.js= run the real VIEWABLE; rewritten =systems/runtime/tests/mode/traits.test.js= · =systems/runtime/tests/mode/filetraits.coverage.test.js= · =systems/runtime/tests/runtime/beats.coverage.test.js= · =systems/runtime/tests/runtime/hello.test.js=.
+- commons: 12 modes APPLICATION → VIEWABLE (=export const buffer = v.buffer(…)= + =export const views = [{ slug, mount, mime }]=): playground spawned · card · dealer · spawner · automaton · switchboard · chaosmonkey reader · oracle · vision, =dashboards/dataspace=, =fixtures/memo=, =instances/hello-world=; memo + oracle emitters call =mode.buffer(…)=; dead =App= imports dropped in oracle ={emitter,aperture,harness}.js=; =commons/dashboards/dataspace/schema.js= enum drops APPLICATION; =commons/fixtures/testing/data/seed.js= dojo trait → VIEWABLE.
+- canon: =.ikiro/world/codemap/map.md:38= · =.ikiro/world/codemap/commons.md= · =.claude/skills/mode/SKILL.md= · the m105 owed line.
+
+* blast table — milestone 2, the vendor tree (measured 10-24; mechanical, at go; grep =-F 'vnd\.vivalence'= too — escaped spellings exist)
+
+| where | what | BREAKS |
+|-------+------+--------|
+| =subsystems/typology/schematics/scalars/mime.js:13-33= | =VENDOR= · =dom= · =tty= · =CODE= · =viva= (Q40 · Q41 · Q44) | at land |
+| =systems/runtime/subjects/mode/traits/viewable.js:16= | =mime.vivalence= → =mime.viva= | at land |
+| =subsystems/paladin/gestalten/belt/bundler.js:5= | =stem= strips =`${mime.VENDOR}.`= | at land (bundle file names gain a =/= otherwise) |
+| =systems/ghost/surfaces/chrome/sections.js:15= | =short= strips =`${mime.VENDOR}.`=; + =mime= import | at land |
+| =subsystems/typology/schematics/entities/buffer.js:9= · =view.js:8= | schema examples | snapshots |
+| typology snapshots =file-entity= · =view-entity= · =mode-entity= | 3 | at land |
+| =subsystems/typology/tests/view-entity.snapshot.test.js:18,25= · =schematics/bundle.test.js:25= · =schematics/mime.test.js= | expects | at land |
+| =systems/runtime/tests/entities/view.test.js:71= · =systems/runtime/tests/mode/filetraits.coverage.test.js:122= | expects | at land |
+| =commons/instances/hello-world/tests/catalog.test.js:115= + its snapshot | expects | at land |
+| =~/.viva/registry/education/modes/games/dojo/tests/viewable.js:18= · =vcompany/tests/scenarios.js:34= · =media/modes/editor/media/tests/scenarios.js:20= | rigs call =mime.vivalence= | at land |
+| =~/.viva/registry/chess/tests/boot.test.js:179= | expect | at land |
+| =~/.viva/instances/localhost/mountpoint/= | stored =vnd.vivalence= rows (Q42) | trashed at land, beef via =!= |
+| =systems/anima/tests/chrome.test.js:136= | — | ignored (/"ignore anima."/) |
+
+* testing assessment
+
+- milestone 1: census below. COVERAGE GAP: anima (ignored) still imports =belt.view.candidates=; its Mode may lack =runtime.entities.view=.
+- milestone 2: census below, on the landing tree. COVERAGE GAP: anima (ignored) still spells =vnd.vivalence= (=systems/anima/src/surface/sections.js:13= · =tests/chrome.test.js:136=).
+
+* changelog — milestone 1 census 10-24 (serial, empty HOME, =DENO_DIR= carried)
+
+- 43 of 46 touched/related suites ok + 16 ghost chrome/shell ok; =viva --help= rc 0.
+- reds, all pre-existing: =systems/runtime/tests/mode/emitters.test.js= (=known-issues.org:2917=) · hello-world =research.test.js= · =research.snapshot.test.js= (=known-issues.org:3034=); ghost =shell/lifecycle.test.js= red only without =DENO_DIR= (Download lines on stderr), green with it.
+
+* changelog — milestone 2 census 10-24 (serial, empty HOME, =DENO_DIR= carried; 26 suites, =scratchpad/m2.{before,after}.tsv=)
+
+- landed: =mime.js= (=VENDOR= · =dom= · =tty= · =CODE= · =viva=) · =viewable.js:16= · paladin =bundler.js:5= =stem= · ghost =sections.js:1,15= =short= · typology =entities/{buffer,view}.js= examples · tests =mime.test.js= (4 steps) · =bundle.test.js:25= · =view-entity.snapshot.test.js:18,25= · runtime =entities/view.test.js:71= · =filetraits.coverage.test.js:122= · hello-world =catalog.test.js:115= · registry rigs dojo =viewable.js:18= · vcompany =scenarios.js:34= · media =scenarios.js:20= · chess =boot.test.js:179=.
+- before → after: 16 repo suites ok → ok; =catalog.snapshot.test.js= red after (frozen =vnd.vivalence= ×2 in the =view_create= valence) → =SNAPSHOT_HOT=1= → ok, diff = those 2 lines only; typology entity snapshots regenerated, 0 =vnd.vivalence=; chess =boot= · media =boot= · =aperture= · dojo =aperture= ok → ok; =viva --help= rc 0.
+- reds, all pre-existing, same steps before and after: dojo =tools= · =emitter=, vcompany =calendar= · =mail= · =vdex/boot= · =vdex/tools= → =known-issues.org= =registry-dojo-vcompany-suites-red=.
+- residue 10-24 on /"fix and investigae"/: anima =systems/anima/src/surface/sections.js:1,13= =short= strips =`${mime.VENDOR}.`= (probe: anima ≡ ghost on 4 kinds) · =tests/chrome.test.js:136= =vnd.viva=, ok | 2 passed (8 steps); =undefined/bundle/*.mjs= (10-22, the APPLICATION scaffold bundling into =new Path(undefined)=) moved to =~/.viva/bak/repo/undefined-bundle-20261024/= → =known-issues.org= =path-of-undefined-is-the-word-undefined=; localhost =mountpoint/= → =~/.viva/bak/instances/localhost-20261024/= (Q42 done).
+
+* deferred — owed, unruled (his call)
+
+1. typology still exports =App= (=subsystems/typology/prototypes/app.js=; tests =tests/bundle.test.js= · =tests/buffer.test.js=); =subsystems/typology/schematics/primitives/contexts.js:25= desc says =ctx.mode.application.buffer=.
+2. =systems/runtime/subjects/mode/traits/generative.js:132= valence says a view shows "when it is the mode's only view" — now every mode view is a candidate; changing it moves tool snapshots.
+3. docs teach APPLICATION: =documentation/content/30-39_guides/31_guides/31.02_instance-from-scratch.mdx:37,173,246= · =documentation/content/10-19_explanation/12_architecture/12.01_anatomy-of-an-instance.mdx:123= (needs =astro build= + =astro preview= proof).
+4. anima (ignored): still imports =belt.view.candidates=; its Mode may lack =runtime.entities.view=.
+5. trait-name fixtures ="APPLICATION"= in generic runtime tests (entity-manager*, datamap, repository.persist), drapes tests, hello-world test manifests — left as arbitrary strings.
+6. residue grep 10-24, outside the keep-list: root =README.md:52,55,128= teaches APPLICATION · =commons/fixtures/memo/README.md:23= · =commons/dashboards/dataspace/design/dataspace-v2-data.md= (a captured dump) · =subsystems/typology/tests/schematics/bundle.test.js:40= (=AppMetadata= local to the test) · 18 =systems/runtime/tests/snapshots/*-aperture.snapshot.json= (no suite names them) · =systems/runtime/tests/fixtures/corpus.snapshot.json:323= · =systems/runtime/tests/scenarios/datamap.js:65= · =~/.viva/registry/education/README.md= · =vcompany/modes/office/vdex/tests/snapshots/vdex-{hallucination,tools}.snapshot.json=.
+
+* as code
+
+*** the vendor tree — milestone 2 (moved verbatim from =done/m87-buffer-view-file.org= 10-24)
+
+**** Q40 — the vendor tree is =vnd.viva= (LOCKED 10-24, LANDED 10-24; spelled once as =VENDOR= by Q44)
+#+BEGIN_SRC js
+// subsystems/typology/schematics/scalars/mime.js:13
+export const dom = {
+  svelte: "application/vnd.viva.dom.svelte+javascript",
+  html: "application/vnd.viva.dom.html+javascript",
+  react: "application/vnd.viva.dom.react+javascript",
+  solid: "application/vnd.viva.dom.solid+javascript",
+};
+export const tty = {
+  react: "application/vnd.viva.tty.react+javascript",
+  solid: "application/vnd.viva.tty.solid+javascript",
+};
+…
+const CODE = new RegExp(`^application/vnd\\.viva\\.(?:dom|tty)\\.${RESTRICTED}$`);
+…
+export const vivalence = (reference) => `application/vnd.viva.${reference.absolute.slice(1).replaceAll("/", ".")}+json`;
+#+END_SRC
+
+**** Q41 — the mint is =mime.viva= (LOCKED 10-24, LANDED 10-24)
+#+BEGIN_SRC js
+// subsystems/typology/schematics/scalars/mime.js:33
+export const viva = (reference) => `application/vnd.viva.${reference.absolute.slice(1).replaceAll("/", ".")}+json`;
+
+// systems/runtime/subjects/mode/traits/viewable.js:16 — VIEWABLE, at mode boot
+      { mime: mime.viva(context.reference.branch(`/mode/${mode.manifest.type}/${mode.manifest.slug}`)) },
+#+END_SRC
+
+**** Q44 — =mime.VENDOR= spells the tree once (LOCKED 10-24 /"b"/, LANDED 10-24)
+#+BEGIN_SRC js
+// subsystems/typology/schematics/scalars/mime.js:13
+export const VENDOR = "application/vnd.viva";
+
+export const dom = {
+  svelte: `${VENDOR}.dom.svelte+javascript`,
+  html: `${VENDOR}.dom.html+javascript`,
+  react: `${VENDOR}.dom.react+javascript`,
+  solid: `${VENDOR}.dom.solid+javascript`,
+};
+export const tty = {
+  react: `${VENDOR}.tty.react+javascript`,
+  solid: `${VENDOR}.tty.solid+javascript`,
+};
+…
+const CODE = new RegExp(`^${VENDOR.replaceAll(".", "\\.")}\\.(?:dom|tty)\\.${RESTRICTED}$`);
+…
+export const viva = (reference) => `${VENDOR}.${reference.absolute.slice(1).replaceAll("/", ".")}+json`;
+
+// subsystems/paladin/gestalten/belt/bundler.js:5 — names every bundled file
+const stem = (type) => type.replace(`${mime.VENDOR}.`, "").replace(/\+javascript$/, "");
+
+// systems/ghost/surfaces/chrome/sections.js:15 — the buffer's sub-label; + mime in its typology import
+export const short = (type) => type.replace(`${mime.VENDOR}.`, "").split("/").at(-1).replace(/\+.*$/, "");
+#+END_SRC
+
+**** Q40 · Q41 · Q44 — the tests read the tree (LANDED 10-24; green on the tree — =mime.test.js= ok | 1 passed (4 steps) · =filetraits.coverage.test.js= ok | 1 passed (7 steps))
+#+BEGIN_SRC js
+// subsystems/typology/tests/schematics/mime.test.js:13
+  specimen.it("viva: a mode's reference mints its buffer kind", () => {
+    specimen.expect(mime.viva(new Path("/daemon/chess").branch("/mode/board/play"))).toBe("application/vnd.viva.daemon.chess.mode.board.play+json");
+    specimen.expect(mime.type().check(mime.viva(new Path("/runtime/local/mode/srs/memo")))).toBe(true);
+  });
+
+  specimen.it("VENDOR: every dom.* and tty.* entry and every minted kind sit under the one tree", () => {
+    specimen.expect(mime.VENDOR).toBe("application/vnd.viva");
+    for (const type of [...Object.values(mime.dom), ...Object.values(mime.tty), mime.viva(new Path("/runtime/local/mode/srs/memo"))]) specimen.expect(type.startsWith(`${mime.VENDOR}.`)).toBe(true);
+  });
+
+// systems/runtime/tests/mode/filetraits.coverage.test.js:121
+    await VIEWABLE(mode, context());
+    specimen.expect(mode.buffer.mime).toBe("application/vnd.viva.daemon.test.mode.test.viewable+json");
+#+END_SRC
+
+**** Q42 — localhost is trashed, never migrated (LOCKED 10-24 /"trash localhost."/, runs at landing, by beef via !)
+#+BEGIN_SRC sh
+# instance stopped (lsof -nP -iTCP:2501 -sTCP:LISTEN empty) · captured first (skill readme) · .env + instance.viva.json stay
+mkdir -p ~/.viva/bak/instances/localhost-20261024
+mv ~/.viva/instances/localhost/mountpoint ~/.viva/bak/instances/localhost-20261024/mountpoint
+# next boot on the vnd.viva tree: paladin seats a fresh mountpoint, VIEWABLE mints every View row as vnd.viva
+#+END_SRC
+
+* release (not lifted)
+
+- removed trait =APPLICATION= (runtime · ghost) and mode export =application= — a mode exports =buffer= + =views= and declares =VIEWABLE= · migrate: re-declare each mode ⟨m106⟩
+- removed =/application/start= · =/application/stop= — a buffer shows its mode's views without a start · migrate: none ⟨m106⟩
+- fixed client views — a buffer without =buffer.views= pins shows its mode's View rows (was none) · migrate: none ⟨m106⟩
+- renamed buffer kinds + view mimes =application/vnd.vivalence.*= → =application/vnd.viva.*=; =mime.vivalence= → =mime.viva= · migrate: localhost's =mountpoint/= trashed, none on prod (Q42 · Q43) — AT milestone 2 ⟨m106⟩
+
+* review — 10-24 (APPLICATION retired, law 3 on the client — /"fix. go. ignore anima."/)
+| S | stop | rides | verdict | his words |
+|---|------|-------|---------|-----------|
+| 1 | a mode declares =buffer= + =views=; VIEWABLE mints and bundles | law 4 · 8 | drilled → Q40 · Q41 · Q42 · Q43 · Q44 → amen | /"one chnage. vnd.vivalence to vnd.viva."/ · /"amen"/ |
+| 2 | the runtime's APPLICATION trait and =/metadata/application= die | release :565-566 | amen | /"rest amen"/ |
+| 3 | emitters mint through =mode.buffer= | law 8 | amen | /"rest amen"/ |
+| 4 | ghost holds a =view= repository over =/userspace/entities/view= | law 5 | amen | /"rest amen"/ |
+| 5 | =candidates=: the pins, else =buffer.mode='s View rows | law 3 · Q10′ | amen | /"rest amen"/ |
+| 6 | ghost's Mode sheds =application=; =/application/start= · =/application/stop= die | m105 Q6J | amen | /"rest amen"/ |
+| 7 | the test scaffolds run the real VIEWABLE | law 8 | amen | /"rest amen"/ |
+| 8 | the mechanical rest — 12 commons modes · imports · enum · seed · tests · docs | — | amen | /"rest amen"/ |
+
+* review — 10-24, walk 2 (/show-me m106: both milestones, the flow typology → runtime → ghost)
+| S | stop | rides | verdict | his words |
+|---|------|-------|---------|-----------|
+| 1 | =mime.VENDOR= spells the tree once | Q40 · Q44 | amen | /"go"/ |
+| 2 | a mode declares =buffer= + =views=; VIEWABLE mints with =mime.viva= | law 2 · Q41 | amen | /"ok. stop."/ |
+| 3 | the runtime's APPLICATION and =/metadata/application= die | law 2 | stopped | /"ok. stop."/ |
+| 4 | ghost holds a =view= repository over =/userspace/entities/view= | law 1 | stopped | /"ok. stop."/ |
+| 5 | =candidates=: the pins, else the mode's View rows | law 1 | stopped | /"ok. stop."/ |
+| 6 | ghost's Mode sheds =application=; =/application/start= · =/application/stop= die | law 2 · m105 Q6J | stopped | /"ok. stop."/ |
+| 7 | =stem= · =short= strip =`${mime.VENDOR}.`= | Q44 | stopped | /"ok. stop."/ |
+| 8 | localhost is trashed, never migrated | Q42 · Q43 | stopped | /"ok. stop."/ |
+| 9 | the mechanical rest — 12 commons modes · scaffolds · tests · canon | — | stopped | /"ok. stop."/ |
+
+* handoff — 10-24
+
+- goal: APPLICATION gone everywhere but anima; the client shows a mode's View rows by default (m87 law 3); the vendor tree spelled once, =vnd.viva=.
+- done: milestone 1 + milestone 2 LANDED 10-24 (uncommitted); show-me walk 1 S1–S8 amen; walk 2 S1–S2 amen, stopped at S3; DONE 10-24.
+- next: lift =* release= into =.ikiro/release.md=.
+- never: a migration of stored =vnd.vivalence= rows (Q42) · a prod action (Q43) · a second spelling of the tree (Q44) · anima in this quest.
+- owed: =* deferred= 1–6 — typology =App= + =contexts.js:25= · =generative.js:132= valence · docs mdx ×2 · anima · trait-name fixtures · the residue (README ×2 · orphan snapshots).
+- reads: this file → =done/m87-buffer-view-file.org= (=* the law=) → =m105= Q6J (=done/m105-telemetry-client.org=).

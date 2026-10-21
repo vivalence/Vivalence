@@ -2,7 +2,7 @@ import { MikroORM } from "@mikro-orm/core";
 import paladin from "@vivalence/paladin";
 
 import { Aperture, Connection, contexts, Datamap, middleware, RemoteEntityManager, RemoteRepository, shape, shard, specimen, Twitch, Url } from "@vivalence/typology";
-import { gestalten, kernel, lifecycle, sets } from "@vivalence/runtime";
+import { gestalten, lifecycle, sets } from "@vivalence/runtime";
 import { instance } from "../scenarios/fixtures.js";
 import { accio } from "../scenarios/registry.js";
 
@@ -12,7 +12,7 @@ const DAEMON = "brazilian";
 class LiteralKind {}
 class SymbolKind {}
 
-// the DB rides the MOUNTED instance, never a repo-relative walk — the dev instance moved out of
+// the DB rides the mounted instance, never a repo-relative walk — the dev instance moved out of
 // testament/ and a hardcoded path here does not fail, it makes `missing()` skip the whole suite.
 export const DB = paladin.scope.mountpoint
   ? paladin.scope.mountpoint.branch("daemon_brazilian/test-language.viva.db").absolute
@@ -65,14 +65,14 @@ export async function topography() {
     allowGlobalContext: true,
   });
   const datamap = new Datamap(orm);
-  const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(kernel, domain, [], kind)]));
+  const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(domain, [], kind)]));
   const entities = { ...datamap.entities, ...strike(mint({ slug: DAEMON, kinds: sets.traits, traits }), orm.em, sets.traits) };
 
   const daemon = { slug: DAEMON, aperture: new Aperture(), entities, twitch: new Twitch(), datamap };
   daemon.twitch.use(shard.context.spread(contexts.host, daemon)).use(shard.datamap.owned());
   daemon.twitch.branch("/after").use(shard.datamap.detached(datamap));
   datamap.registerSubscriber(daemon.twitch);
-  await middleware.compose([lifecycle.daemon.integration.datamap, lifecycle.daemon.integration.entities])({ daemon });
+  await middleware.compose([lifecycle.daemon.integration.datamap])({ daemon });
 
   const handler = shape.http(daemon.aperture);
   const conn = new Connection(new Url("http://test"), shard.transmitter.inline(handler));

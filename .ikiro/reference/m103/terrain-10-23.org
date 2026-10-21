@@ -1,0 +1,97 @@
+# m103 — terrain measured 10-23, MOVED whole from the quest at the fold · limit: 12000 chars
+
+* terrain — measured 10-23 (@ over 34b60f23f, uncommitted tree)
+
+| what | path | lines | files |
+|---+---+---+---|
+| ghost chrome (minus =out/=) | =systems/ghost/chrome/= | 3064 | 30 |
+| ghost bundle (gitignored) | =systems/ghost/chrome/out/panes.mjs= | 2679 | 1 |
+| anima chrome | =systems/anima/src/surface/= | 2239 | 25 |
+| Svelte app (orphaned) | =systems/anima/src/app/= | ≈8000 | 61 |
+| DOM parts | =subsystems/drapes/*.jsx= via =parts.js= | — | 37 |
+| tty parts | =subsystems/sheets/*.jsx= | — | 18 |
+| dead DOM twin | =subsystems/drapes/dom/= (0 importers outside drapes) | — | 23 |
+| Svelte parts | =subsystems/drapes/{controls,decor,display,panels,triage,stage,editor,skins}/= (importers: =src/app/= + 4 anima tests) | — | ≈70 |
+
+** 1 · the old Svelte anatomy — what "panels A–H" were
+
+Read at =0b14b1356~1:systems/anima/src/app= (the agent's report, paths checked). There never was a D, E or F: the letters went A B C G H.
+
+| letter | root | what it was | its widgets dir |
+|---+---+---+---|
+| A | =panels/a/a.svelte= (deleted, =git status= D) | stage (buffer =Frame=) + conversation dock | =panels/a/widgets/= Dock · DockHead · Turn · LiveTurn · Composer · Dictaphone |
+| B | =panels/b/b.svelte= | settings rail | =panels/b/widgets/= Bridge · Lighthouse · Box · Dock =Section= |
+| C | =panels/c/c.svelte= | card catalog, split tree of panes | =panels/c/cards/= 12 cards + =traits/= + =traits/form/= |
+| G | =panels/g/g.svelte= | telemetry overlay | none |
+| H | =panels/h/h.svelte= | inspector drawer | =Inspector.svelte= |
+| bones | =bones/{spine,pincer}/= + =bones/widgets/= | edge strips between panels; widgets flowed by name (=bones/flow.js:1=) | Terminals · Phase · Harness · Dock |
+| app widgets | =widgets/= | used across panels | Boot · Login · Tune · Faculty · Glyph |
+| layout | =+layout.svelte= | the ONLY =setContext=: =LIGHTHOUSE · BRIDGE · TERMINALS · BOX= (:28-44); =gate.js= picks ready · signin · boot | — |
+
+What made it work:
+- *Locality*: a widget lives under the panel that uses it. A widget used by two panels moves up one level, to =bones/widgets/= or =widgets/=.
+- *Context set once*: the layout called =setContext=, every widget called =getContext= itself (=+layout.svelte:28-44=), and panels passed only geometry (=rect=).
+- *A panel owns a region*: each panel had a =rect= from =bridge/geometry.js:60= and its own fold state (=bridge.panels.b.$tree=).
+
+** 2 · anima today — the DOM
+
+#+BEGIN_SRC text
+// systems/anima/src/surface/panes/chrome.jsx:49 · regions.jsx:45-83 — the served tree
+div.client(.phone)                         Chrome              panes/chrome.jsx:22
+├ nav.tabs [zone 0]                        Tabs                panes/tabs.jsx:24
+├ div.body                                 Seated              panes/regions.jsx:68
+│ ├ aside.sidebar [zone 0]                 Sidebar             panes/sidebar.jsx:69  → parts.Section × n · parts.Srow
+│ ├ div.sbseam                             Sbseam              panes/regions.jsx:14
+│ └ div.split                              Split               panes/split.jsx:20    → parts.Split
+│   ├ section.pane.frame                   Frame               panes/frame.jsx:73    fhead (Head · Asel) · fbody (View | Empty)
+│   ├ div.seam                             parts.Seam
+│   └ section.pane.dock [zone 1]           Dock                panes/dock.jsx:84     dhead · strip · journal · composer
+├ section.panel [zone 0]                   Panel               panes/regions.jsx:34  Chord + Catalog in ONE section
+├ nav.modebar                              Bar                 panes/bar.jsx:78      → parts.Bar
+├ [data-r=wid] · [data-r=pop]              Wid · Pop           panes/bar.jsx:126 · :140
+├ [data-r=tele]                            Tele                panes/tele.jsx:239    → parts.Tele (Logger | Inspector)
+└ [data-r=island]                          Booting | Signin    panes/booting.jsx · signin.jsx
+#+END_SRC
+
+| smell | where |
+|---+---|
+| 17 pane files flat, one barrel re-exporting 74 names | =panes/index.js:1-17= |
+| =client= prop-drilled into every pane and part wrapper | =regions.jsx:76-83= · every =props.client= |
+| a second router beside the repl | =panes/sidebar.jsx:12 SURFACE= (=/sidebar · /sidebar/width · /sidebar/show · /filter/daemon · /telemetry=) + =:20 FNS= + =:32 ACTS= |
+| the Panel region holds two panels | =regions.jsx:34-43= |
+| surface state = one flat bag, 15 atoms | =surface/screen.js:13-28= |
+
+** 3 · ghost today — the TTY
+
+#+BEGIN_SRC text
+// systems/ghost/chrome/panes/chrome.jsx:605-737 · regions.js:836-900
+Chrome → Island | Regions → Cells                         ONE <box renderAfter={draw}>: every cell setCell'd per frame (chrome.jsx:611-618)
+  render(world, cols, rows, P)                            regions.js:836 — the layout is hand arithmetic
+    paintTabs · paintSidebar · paintFrame | paintJournal  split math :871-893 · messenger :802
+    paintPanel · paintBar · paintWid · paintTele          (world, S, P, x, y, w, h) — immediate-mode painters
+  clicks: cell.hit = { line } | { fn, arg }               acts.js:88 ACTS → :24 FNS (35 entries, 11 = unbound(…))
+  keys:   typing.js:247 STEPS (13 rows) over world
+  world:  world.js:414 gathered() — a 40-field bag rebuilt per paint
+  mode view: S.mounts[0] → an absolute <box> laid over the grid (chrome.jsx:633-639)
+#+END_SRC
+
+| smell | where |
+|---+---|
+| the tty part library exists and the chrome never uses it | =subsystems/sheets/= 18 parts (Bar Segment Dot Meter Tab Mark Panel Row Choice Field Turn Consent Split Chord Catalog Markdown JsonTree Line) — importers: =ghost/tests/world.js= · =anima/tests/interactive/activity/sheet.jsx= |
+| clicks are strings into a table | =acts.js:24-83= (=dockmin · telefold · press2 …=) |
+| the 40-field =world= bag (trigger 18: the bag is the missing contract) | =world.js:420-459= |
+| a mode's view lives outside the painter it sits in | =frame.js:309= pushes a mount, =chrome.jsx:633= places it |
+| a static import of a gitignored file | =chrome/index.js:6= =import { panes } from "./out/panes.mjs"= |
+
+** 4 · twins between the two clients
+
+| twin | ghost | anima | drift |
+|---+---+---+---|
+| row model | =chrome/sections.js= 294 | =surface/sections.js= 316 | =title= fields · =hold= · =views/aligns= · empty buffers row |
+| surface atoms | =chrome/screen.js:200= 14 | =surface/screen.js:13= 15 | ghost-only =$sel $signin $clock=; anima-only =$narrow $width $height $pop= |
+| surface router | =chrome/acts.js:15 SURFACE= | =panes/sidebar.jsx:12 SURFACE= | anima adds =/telemetry= |
+| telemetry views | =panes/tele.js= 363 | =panes/tele.jsx= 322 | both regrow the tree from records |
+| one part, two prop contracts | =sheets/Tab.jsx:9= =current · signal · shared · palette · onPick= | =drapes Tab= (via =tabs.jsx:12=) =current · dot · mirrored · title · line · onPick= | same name, different words |
+
+The twin row model is ruled: m95 lock 1 REJECTED one fold shared ACROSS clients (=reference/m95/design-architecture.md:163=). This proposal keeps both copies and only changes where each one lives.
+

@@ -4,7 +4,7 @@ paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/ghost/**", "**/.
 <!-- writer: agent · limit: 6200 chars · per item from methods/census.py · code is the map · the composition compiler + the ledger ~/.viva -->
 # codemap: paladin · ledger — two subjects, the ledger, the lexicon (m91, 10-19)
 
-- **`gestalten/belt/` — 12 `default` closures over `paladin` (`find read check state is scope publish source clone bundler expand envfile`), one importer `index.js` → `paladin/prototype.js` + `gestalten/index.js`, reach 51; `ignore.js` ← `find.js` + `gestalten/tools/fs.js`; `scribe.js` DEAD (`state.js:44`).**
+- **`gestalten/belt/` — 13 `default` closures over `paladin` (`find read check state is scope publish source clone bundler expand envfile control`), one importer `index.js` → `paladin/prototype.js` + `gestalten/index.js`, reach 51; `ignore.js` `IGNORE` (`bak archive slp node_modules .git .DS_Store *.bak .#* #*#`) — ONE list, `skip` takes it WHOLE, a mount under `bak/` is Module 404 — ← `find.js` + `gestalten/tools/fs.js`; `scribe.js` DEAD (`state.js:44`).**
 ```js
 // subsystems/paladin/tests/expand.test.js:75
     const held = paladin.expand(
@@ -12,13 +12,13 @@ paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/ghost/**", "**/.
       record,
       "runtime",
 ```
-- **`gestalten/tools/` (was `skills/`) — `fs.js` (`resolve absolute fs`, also ← `shell.js`) · `shell.js` (`shell`); `index.js` (`*fs *shell`) ← `mod.js` → `paladin.tools`, and `deno.jsonc` `./tools`.** The only Vectors in paladin.
+- **`gestalten/tools/` (was `skills/`) — `fs.js` (`resolve absolute fs`, also ← `shell.js`) · `shell.js` (`shell`); `index.js` (`*fs *shell`) ← `mod.js` → `paladin.tools`, and `deno.jsonc` `./tools`.** + `commands/` (m110).
 ```js
 // commons/instances/hello-world/tests/catalog.snapshot.test.js:55
       .graft(paladin.tools.fs.fs)
       .graft(paladin.tools.shell.shell)
 ```
-- **`instance/` — `prototype.js` `Instance` (← `paladin/lifecycle.js` `instance`); `factory.js` `factory` = `fn.memo` keyed on the instance (`:6`): `population` `environment · recipe` → `resolution` `defaults · mountpoints` → `integration` `settle` → `publish`; `resolution` also holds `inherit` (← `population.js`).** Read as `factories.instance(paladin.instance)` (was `lifecycle.mount`).
+- **`instance/` — `prototype.js` `Instance` (← `paladin/lifecycle.js` `instance`); `factory.js` `factory` (was `lifecycle.mount`) = `fn.memo` keyed on the instance (`:6`): `population` `environment · recipe` → `resolution` `defaults · mountpoints` → `integration` `settle` → `publish`; `resolution` also holds `inherit` (← `population.js`).**
 ```js
 // subsystems/paladin/tests/boot.test.js:35
     const first = factories.instance(lifecycle.paladin.instance(fresh));
@@ -34,7 +34,7 @@ paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/ghost/**", "**/.
     expect(fresh.ledger.registry).toBeInstanceOf(Registry);
     expect(fresh.ledger.registry).toBe(fresh.ledger.registry);
 ```
-- **`ledger/` untested — `die.js` · `lock.js` · `log.js` ← `prototype.js`; `process.js` ← `die.js`; `instances.js` (`NOTHING Instances`) ← `prototype.js` + `instance/prototype.js`; reach 1–2.** A lock read DELETES a dead lock.
+- **`ledger/` untested — `die.js` · `lock.js` · `log.js` ← `prototype.js`; `process.js` ← `die.js`; `instances.js` (`NOTHING Instances`) ← `prototype.js` + `instance/prototype.js`; reach 1–2.** A lock read DELETES a dead lock. `instances.json` `{slug: {mount}}` IS identity, a MAP, a collision throws; `manifest.slug` names the recipe (/"amen!"/).
 ```js
 // subsystems/paladin/ledger/lock.js:23
     if (!alive(lock.pid) || (lock.processes.length > 0 && lock.processes.every(gone))) {
@@ -43,7 +43,7 @@ paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/ghost/**", "**/.
     }
 ```
 - **paladin varies by DECLARATION in `paladin/lifecycle.js` (`scopes([[name, condition, resolver]])`, resolved at use), never by a constructor argument; IMPORTED by a system or a lifecycle beat, never on a die (`instance` crosses); every path it knows is a `*_MOUNT` · `*_FILE` env var with a default.** REJECTED 10-21: `new Paladin([...belts])` · a `vault` on the die · a hardcoded `credentials.json` branch.
-- **`mod.js` (`default` = the booted paladin) — 46 direct (runtime · ghost · anima · commons · testament), reach 47; runs `paladin/lifecycle.js` `env · scopes · instance` (+ `statements` for a citizen) at import, then re-exports `factories · lifecycle` from `typology.js`.** Its LOCAL `lifecycle` is paladin's phases; its EXPORTED one is `{ paladin, instance }`.
+- **`mod.js` (`default` = the booted paladin) — 46 direct (runtime · ghost · anima · commons · testament), reach 47; boots at import, re-exports `typology.js`'s `factories · lifecycle`.** Its LOCAL `lifecycle` is paladin's phases; its EXPORTED one is `{ paladin, instance }`.
 ```js
 // subsystems/paladin/mod.js:5
 const paladin = new Paladin();
@@ -66,7 +66,7 @@ export { factories, lifecycle } from "./typology.js";
     pensieve.register(module("@education", "game", "write"));
     const found = await pensieve.revelio({ owner: "@education", type: "game", slug: "write" });
 ```
-- **`typology.js` — predicative: `Paladin Pensieve Manifest Instance` + `*ledger` + `*gestalten` + `factories { instance }` + `lifecycle { paladin, instance }`; ← `mod.js` + 2 `testament/m82-clients-20261012` files; tests read it as `@vivalence/paladin/typology`, boots nothing.** `paladin/index.js` · `instance/index.js` have NO importer — `typology.js` reads the files.
+- **`typology.js` — predicative: `Paladin Pensieve Manifest Instance` + `*ledger` + `*gestalten` + `factories { instance }` + `lifecycle { paladin, instance }`; ← `mod.js` + 2 `testament/m82-clients-20261012` files, boots nothing.** `paladin/index.js` · `instance/index.js` have NO importer — `typology.js` reads the files.
 ```js
 // subsystems/paladin/typology.js:10
 export const factories = { instance };
@@ -86,11 +86,8 @@ import { Paladin, Ledger, Instance, Registry, factories, lifecycle } from "@viva
  "dirs": ["bak", "instances", "locks", "logs", "registry", "sessions"],
  "files": [".env", "credentials.json", "environment.json", "instances.json", "ledger.viva.json", "registry.json"],
  "instances.json": ["localhost"],
- "registry": {
-  "assembly": "tapped · git", "chess": "tapped · git", "droneaid": "tapped · git", "education": "tapped · git",
-  "media": "untapped · NO-VCS", "stucatch": "untapped · NO-VCS", "vcompany": "untapped · NO-VCS",
-  "young-ladys-primer": "untapped · git"
- },
+ "registry": { "tapped · git": ["assembly", "chess", "droneaid", "education"], "untapped · git": ["young-ladys-primer"],
+  "untapped · NO-VCS": ["media", "stucatch", "vcompany"] },
  "off-registry taps": { "@commons": "<checkout>/commons", "@memo": "<checkout>/commons/fixtures/memo" }
 }
 ```

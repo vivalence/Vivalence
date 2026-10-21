@@ -1,4 +1,5 @@
 import { v } from "../v.js";
+import { mode } from "../traits/index.js";
 
 export const ModeDescriptor = {
   $id: "Mode",
@@ -17,5 +18,6 @@ export const ModeDescriptor = {
     literals: () => v.array(v.literal()).optional(),
     symbols: () => v.array(v.symbol()).optional(),
   },
+  traits: mode,
   narrowable: ["traits"],
 };

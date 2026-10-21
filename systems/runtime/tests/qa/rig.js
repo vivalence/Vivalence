@@ -1,12 +1,12 @@
 import { TextLineStream } from "@std/streams";
 import { join } from "@std/path";
 import { DatabaseSync } from "node:sqlite";
+import { READY } from "../scenarios/hello.js";
 
 export const REPOSITORY = new URL("../../../../", import.meta.url).pathname.replace(/\/$/, "");
 const RUN = new URL("../../run.js", import.meta.url).pathname;
 const GHOST = join(REPOSITORY, "systems/ghost/run.js");
 const CONFIG = join(REPOSITORY, "deno.jsonc");
-const READY = /^Status:RUNNING$/;
 const CARRIED = ["PATH", "TMPDIR", "TERM", "LANG", "DENO_DIR", "NO_COLOR"];
 
 const carried = () => Object.fromEntries(CARRIED.filter((key) => Deno.env.has(key)).map((key) => [key, Deno.env.get(key)]));
@@ -61,6 +61,7 @@ export async function ledger(prefix) {
     VIVA_REPOSITORY_MOUNT: REPOSITORY,
     VIVA_REGISTRY_MOUNT: join(root, "ledger/registry"),
     VIVA_RUNTIME_ORIGIN: origin,
+    VIVA_PROCESS_ID: String(Deno.pid),
     ...extra,
   });
   return { root, origin, environment, remove: () => Deno.remove(root, { recursive: true }).catch(() => {}) };

@@ -1,5 +1,6 @@
 import find from "./find.js";
 import read from "./read.js";
+import prime from "./prime.js";
 import check from "./check.js";
 import state from "./state.js";
 import is from "./is.js";
@@ -10,10 +11,18 @@ import clone from "./clone.js";
 import bundler from "./bundler.js";
 import expand from "./expand.js";
 import envfile from "./envfile.js";
+import vault from "./vault.js";
+import stamp from "./stamp.js";
+import control from "./control.js";
+
+export const FULL = [read, find, prime, check, state, envfile, is, scope, publish, source, clone, bundler, expand, vault, stamp, control];
 
 export default {
+  vault,
+  stamp,
   find,
   read,
+  prime,
   check,
   state,
   is,
@@ -24,4 +33,5 @@ export default {
   bundler,
   expand,
   envfile,
+  control,
 };

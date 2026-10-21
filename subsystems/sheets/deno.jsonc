@@ -1,0 +1,14 @@
+{
+  "name": "@vivalence/sheets",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./index.js",
+    "./scenarios": "./tests/scenarios/index.js",
+  },
+  "publish": {
+    "exclude": ["tests/", "bak/"],
+  },
+  "tasks": {
+    "test": "deno test -A --no-check --watch tests/*.test.js",
+  },
+}

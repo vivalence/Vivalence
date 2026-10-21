@@ -1,0 +1,13 @@
+# m111 Q0 option B — struck 10-27 (his /"a."/) · limit: 2000 chars
+
+Every view renders in either place: the View rows stay as they are, =RENDERED.cell= names a slug among the same candidates, the mount tells the view where it sits.
+
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/panels/dock/cell.jsx — the journal mounts the buffer's cell inside its turn
+module.default(element, { terminal, buffer: props.buffer, renderer, palette: props.palette, focused: () => false, rendered: "cell" });
+// ~/.viva/registry/chess/modes/board/play/buffer/play.jsx — the view branches on where it sits
+const SIZES = [
+  [(props) => props.rendered === "cell", "glance"],
+  [() => true, "board"],
+];
+#+END_SRC

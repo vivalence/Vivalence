@@ -1,0 +1,192 @@
+# drained 10-22 whole from .ikiro/quests/m96-client-mothership.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* coverage — how much of the change is CODE (measured 10-21, seven read-only audits, one per constituent; `file:line` per row in each auditor's table, rolled up here)
+
+Classes: TANGLE = a diff hunk with anchors or a complete new file, replayable · SNIPPET = a code block with a path header, partial — an agent authors the file around it · SKETCH = a block marked drawn/mine or using undefined helpers · YAP = prose only, no code block names the file.
+
+** the mechanical measure — lines inside =#+begin_src= over all lines; =paths= = distinct files named by a fence header
+
+| quest | lines | code lines | code % | blocks | paths | diff blocks |
+|---+---+---+---+---+---+---|
+| m96 | 600 | 293 | 49 | 28 | 34 | chromes |
+| m95 | 690 | 344 | 50 | 35 | 39 | hosts |
+| m87 | 648 | 379 | 58 | 17 | 22 | registry |
+| m88 | 1287 | 760 | 59 | 53 | 47 | 42 |
+| m92 | 467 | 240 | 51 | 21 | 21 | 13 |
+| m83 | 261 | 15 | 6 | 3 | 2 | floor |
+| m83.tangle | 1271 | 913 | 72 | 44 | 29 | 36 |
+| m93 | 158 | 15 | 9 | 1 | 2 | floor |
+| m93.tangle | 879 | 581 | 66 | 45 | 45 | 31 |
+| m94 | 361 | 0 | 0 | 0 | 0 | floor |
+
+** per constituent — rows the auditor classified (m96's scope only); distinct target paths in brackets
+
+| quest · scope | TANGLE | SNIPPET | SKETCH | YAP | the YAP that weighs |
+|---+---+---+---+---+---|
+| m93 · 1 · 2 · 4 | 31 [25] | 0 | 0 | 3 [0] | the reconcile boot-then-remove test · T-host-faults-alone · departure 1's replacement (=shell/lifecycle.js=, m93:158) |
+| m83 · 2 · 3 · 4 repo | 41 [40] | 0 | 0 | 14 [~12] | holes 1 · 2 ship AS CUT (T:884 · T:933, no fix hunk) · the cached-prefix gate test · =style.js:5= leaves the grep gate at 1 · =nlp/service.viva.js:15= |
+| m83 · =~/.viva= | 6 [6] | 1 [1] | 0 | 9 [~29] | 18 registry files still write =hallucination.system=, no hunk (milestone =registry=) |
+| m88 · stretch three | 22 [19] | 0 | 1 [1] | 8 [6] | 57 harness callers: 0 hunks, no list, census not run · =looping.test.js= drawn with undefined imports · ghost =console.test.js= · =client.test.js= · =turn.js= · =dock.mount.test.js:198= |
+| m92 · 1 · 2 · 4 | 11 [11] | 5 [5] | 5 [5] | 2 [2] | =strip.js= edgeMeta+chord · =console.test.js= it-block · typology barrels and the walk/fire tests have no imports or anchors |
+| m87 · 1 · 2 · 3 · 4 · 6 · 7 | 6 [5] (2 verbatim: =File.ts= · =integrity.js=) | 8 [8] | 3 [3] | 25 [14 + 33 rename + ~49 registry] | milestone 6 the rename: 33 of 34 files no hunk · milestone 7 =patrol.js= + census test nothing · FILESET nothing (=m87:114= "its rows are * open") · =Note.ts= · =v.file= · =turn.js= schematic · mikro snapshot · wire test · =generator_view_*= removal (15 files) |
+| m95 · 2–9 | 4 [4] (3 of them DRAWN) | 26 [30] | 3 [3] | 33 [≥86 + 28 registry + ~25 part tests] | milestone =floor=: 20 of 26 parts and all 7 renderers no code, both design pages, 24 of 26 part tests · milestone 4: 28 of 33 command files no code, no barrels, no =/dock/share= · milestone 8: 9 of 10 anima panes, every PORT, the DROP list · milestone 9: 28 of 29 registry components |
+| m96 · the wiring + as code | 3 [3] (paladin modes.test · resolution · registry) | 34 [31] | 0 | 11 [13] | =client/lifecycle/index.js=: 14 beats as comments, bodies of verbs · surface · connection · authorized absent, the =runtime= beat's removal unshown · =shell/lifecycle.js= one line, =boot= undefined · paladin =belt/{index,scope,state}.js= · =FULL= · =vault.test.js= · the anima activity PORT (3 files, =stop.svelte.js= path wrong) · the no-Deno-guard test · =chrome/index.js:6= =out/= import |
+| m94 · the rows | 2 (PRIMER · LOOPING) | 5 (DOCKED · THEMED · RENDERER · MOUNTED · KEYMAPPED) | 1 (FILESINK) | 1 (FILESET) | no constituent carries a =Mode.ts= enum DIFF; m96:321 is the whole enum, no migration, and collides with m83 T:852 (PRIMER on the same line) |
+| *sum* | *126* | *79* | *13* | *106 rows* | by FILES the yap outweighs: m95 ≥114 paths · m87 ≥96 · m83 ~29 · m88 57 callers unlisted |
+
+** per milestone — what an agent receives
+
+| milestone | agent | receives | verdict |
+|---+---+---+---|
+| floor | floor-monad · floor-primer · floor-request | TANGLE | replayable |
+| floor | floor-walk | 4 TANGLE + 4 SNIPPET (barrels · walk/fire tests without imports) | near |
+| floor | floor-entities | 2 verbatim + 3 partial TANGLE · 3 SNIPPET · 6 YAP (=Note.ts= · =v.file= · =turn.js= · =mime.code= · snapshot · wire test) | half |
+| floor | floor-sheets · floor-drapes | 6 of 26 parts as SNIPPET, 0 renderers, tokens 14→27 as before/after, 27 zone values =…= | PROSE — the floor's biggest hole |
+| hosts | hosts-runtime-m87 | FILESINK · RENDERER · generative SKETCH; FILESET · patrol · rename · =/attached/*= removal YAP | PROSE |
+| hosts | hosts-runtime-m83 | TANGLE (holes 1 · 2 as cut; the enum collision) | replayable, two defects ride |
+| hosts | hosts-ghost | 15 SNIPPET · 2 m93 TANGLE superseded (=client/factory.js= · =shell/lifecycle.js=) | fragments |
+| hosts | hosts-paladin | 3 TANGLE · 4 whole-body SNIPPET (=vault.js= · =mod.client.js= · =lifecycle.js= with =FULL= undefined) | near |
+| repl | repl-keymap | 5 SKETCH (=terminal.$mode= does not exist · =compose= still exported · =keymap.test.js= tests compose) · panes YAP | fragments |
+| repl | repl-commands | 5 of 33 command files SNIPPET · LOOPING TANGLE with a payload mismatch (=m88:1171= reads =line=, =m88:1065= sends ={nature, body, flags}=) | PROSE + one defect |
+| repl | repl-anima-door | =client.js= TANGLE · =surface/index.js= two shapes that do not fit · =vite.config.mjs= SNIPPET | near |
+| chromes | chromes-ghost-chrome | fragments on 5 panes · 6 panes YAP · =renderers.js= SNIPPET | fragments |
+| chromes | chromes-anima-chrome | 9 of 10 panes YAP · PORT · DROP YAP | PROSE |
+| registry | registry-registry | 28 of 29 components · 18 =hallucination.system= writers · ~49 =v.buffer(= modes: no hunk; 3 modes drawn | PROSE |
+
+** seams — where m96 contradicts a constituent or the tree (each a lookup or a lock before the go; none is open design)
+
+1. CLOSED by ruling 10 — one =DEFAULT_DOCK=, four optional fields, field-wise merge.
+2. =m96:387= =looping.js= returns a Yield; =m88:1047-1066= (TANGLE) has no such return and reads =ctx.terminal.id=. =m96:393= ghost =repling.js= is superseded by =m88:1141= (async, hosted|remote). =m96:398= =/hello= returns ={ terminal }=; m88's test expects "hello from ghost".
+3. =m96:103= =client/factory.js=: =export function=, no chrome graft, no FAILED rethrow, =doorDie= — m93 T:171-197 says =export const= · graft · rethrow · =shellDie=. =m96:96= =shell/lifecycle.js=: =boot= undefined; m93 T:477-498 keeps the =client()= wrapper that ruling 4 kills. — EVIDENCE 10-21 (baseline census): on m93's tree the die IS the Client (=client/factory.js= mints it, =lifecycle/index.js:86= reads =clientDie.runtime=); the only =clientDie.client= in ghost was m88's =looping.js:5= (re-cut). The shell beat (=boot=) is still his lookup. — PROBED 10-21 (session 6, his =go=; =scratchpad/probe-seam3.js= on the replayed copy, the client execution AWAITED, the span journal dumped): the world test swallowed TWO faults, each a tangle defect re-cut in its quest — ① m88:1135 =client/lifecycle/index.js:86= read =clientDie.client.aperture= (the multiplex beat; the journal: console open · console close · fault /"Cannot read properties of undefined (reading 'aperture')"/) → =clientDie.aperture=, as =looping.js= already read it; ② m92:301 =terminal/prototype.js= =$keymap=: =computed= · =harvest= unimported, =this.$mode= a store that does not exist, =this.repl()= a call on a field, declared before =$thread= (/"computed is not defined"/ at the first Terminal row) → imports + =$thread= + after =$buffer=; the m96 sketch (:745) had been corrected, the m92 DIFF that lands had not. After both the client reports RUNNING; the world test: steps 1 · 2 GREEN (boot order · HOME · /modes · /mode srs/memo · candidates), steps 3 · 4 red for other owners (=** replay=, session 6). CLOSED.
+4. CLOSED by lookup 10-21: the enum is a diff after m83's PRIMER; the five names are KEPT.
+5. CLOSED by rulings 12 · 13 (=viewable.js= replaces both renderer.js drafts; =presents= gone; =mode.buffer.mime=). =m87:76-99= and =m87:314-319= are two =view.load= versions, the first keyed on =view.integrity= which ruling 38 removed. =m87:238= =mappedBy: "buffer"= on Note — nothing defines it. =m87:73= lists MISSING on the buffer schematic though it left (=m87:539=). — 10-21: =Note.buffer= m:1 landed (m87 re-cut), =RENDERED= struck; the two =view.load= versions and the =view.integrity= key stay for re-cut ④.
+6. m92: =m92:177= exports =compose(client, terminal)= — ruling 2 made it =terminal.$keymap=; =m92:221= grafts the bare =keymap= vs =m96:356=; =m92:242= =this.$mode= → =this.$thread= (CLOSED by lookup, m96 hunk re-cut; session 6: the m92 DIFF at :301 re-cut too — seam 3 ②); =m92:299= =keymap.test.js= tests =compose=; =m92:378= console effect calls =ctx.terminal.dispatch= but =navigate='s ctx is ={ client, dispatch, output }= (=m92:202=).
+7. m88: payload CLOSED by ruling 11 (m88 Q5); the 57 callers claim rests on an unrun census, =stub.activity.test.js:106= still sends =id=; "18/18" counts diff sub-hunks only after m83 is replayed, "21/21" (=m96:3=) matches neither 18 nor 18+6.
+8. m83: T:1229 =francesca.md= hunk contradicts =m96:406=; holes 1 · 2 (=input.system= on every branch · the static cache mark) ship as cut; departure table has 9 rows, status says 8.
+9. m95: =m95:240= =palette(…)= vs =m95:142= =tokens.camel(…)=; =m95:539= =drapes/dom/Mark.jsx= vs root =drapes/= (=m95:423=); =m95:348= =drapes/panes/regions.jsx= vs =m95:382= =src/surface/panes/=; =m95:260= dispatches =/dock/share= — no such effect; =m95:151= vs =m95:344= two =/dock= shapes.
+10. m96 wiring (seam 10 RULED 10-21 → =v.traits.<entity>.<NAME>=, =* open= 16): =FILES= · =FULL= undefined (=m96:183,191=); =m96:286= =app/panels/a/stop.svelte.js= — the file is =app/panels/a/widgets/stop.svelte.js=; =ClientTrait= admits HOME only (=m94:277=).
+
+** replay — 10-21, the seven on ONE fresh copy (order m93 → m83 → m87 → m88 s3 → m92 → m96 → m95); =methods/materialize.py= + =apply-diffs.py=, the driver =scratchpad/replay.sh=
+
+- session 7 (10-21, Q12 REVERSED mid-floor): the move step retired from =replay.sh=; =replay-m96.py --reverse= undid it on the floor copy (19 files · 0 missed, View.ts · File.ts carried); 32 heads + the two m93 barrel hunks + m96 =Mode.ts:12= context re-cut on the runtime paths; a fresh copy (=scratchpad/verify/=) replayed WITHOUT the move: 36 files · 195 hunks · 0 missed. The session-6 bullet below describes the moved state — history.
+
+| quest · section | new files | hunks | missed | not replayable (collage · sketch · shelf · exists) |
+|---+---+---+---+---|
+| m93 =* the tangle= | 14 | 51 | 0 | 0 |
+| m83 =** repo= (+ the memo =mv=) | 7 + 1 mv | 54 | 0 | 0 (=~/.viva= half → milestone =registry=; the Mode.ts:26 PRIMER hunk → text, superseded by Q13) |
+| m87 =* deliverables= | 2 (=File.ts= · =surface/chrome/renderers.js=; the join fragment had materialized a second =surface/renderers.js= — re-headed as a sketch) | 15 | 0 | 4 collages (=View.ts= + the three m:n · =view.js= · =renderer.js= · =commands/view.js=) · =buffer.js= exists · 1 shelf |
+| m88 =** tangle= stretch three | 6 | 24 | 0 | 1 collage · 1 exists (stretch one landed via m86; two is pre-m86 — out) |
+| m92 =* as code= | 5 | 19 | 0 | 2 collages (=walk.test.js=) · =board.viva.js= shelf |
+| m96 =* the wiring= | 2 (=mod.client.js= · =vault.js=) | 9 | 0 | 3 collages (=run.js= · =factory.js= · =dock.js=) · 3 sketches (=lifecycle/index.js= · =prototype.js=) · 2 exists (=deno.jsonc= · =typology.js=) |
+| m96 =* as code= | 0 | 23 | 0 | 8 collages · 3 sketches · 1 exists (the loop block is text now); Q13 drawn as two DIFFS + =mint.test.js:198= 10-21 (Mode.ts · Thread.ts) |
+| m95 =* as code= | 0 | 0 | 0 | 5 collages · 4 sketches · 3 exists · 1 shelf |
+| *sum* | *36* | *195* | *0* | collages = the SNIPPET rows above; an agent authors the file around them — session 6 10-21, after the Q12 move (=replay-m96.py --before=, the move FIRST) |
+
+- materialize fixed: =:tangle= on the BEGIN line wins · a =****= that carries its system is not prefixed (m83 landed under =subsystems/subsystems/=) · =(root)= · heads =:1,21= · =~/= paths are the shelf · a block with two =// path= heads is a COLLAGE, never a file · =--spill= · =--replace=.
+- ruling 11's block was four files in one =diff= fence (apply-diffs reads one path per block) → split into four; the hunks forgot =v= in two imports → two sub-hunks added. A ZERO IS A CLAIM: a third fresh copy replays identical (=diff -rq=: only =.ikiro= differs).
+- the census, 10-21 — rig = an untouched copy · base = a fresh copy after the replay; serial, =NO_COLOR=1=, =HOME= an empty temp dir per suite (=methods/census-suites.sh=); =documentation/= must be in the copy (a workspace member). Two ORDER deferrals applied on the base copy, both noted at their hunks: the enum removals (APPLICATION · FRAUGHT · MOUNTED, 47 readers) and the =registry.js:277= =bundles= line (3 readers) ride =hosts=. hello-world: =SNAPSHOT_HOT=1= once (m83's primer sections).
+
+| suite | rig | base | the base reds, by owner |
+|---+---+---+---|
+| typology | 142 · 0 | 145 · 0 | — |
+| paladin | 54 · 0 | 55 · 0 | — |
+| runtime | 74 · 9 · 1 ign | 67 · 19 · 1 ign | rig 9 (=bench= ×2 · =aprende= ×2 · T-fresh · T-demo · P-reconcile · =repository.populate=) · m87: =BufferEntity.mime= required — =buffer.labeled= · =daemon/smoke= · =mode/traits= EMITTER · EXPOSED · =userspace= · =harness.thread= · =bundle.spawn= · datamap globals (ruling 13: =create()= takes it from =mode.buffer.mime=, hunk owed) · m88: =stub.activity= (=:106= sends =id=) · =mode/looping.test.js= drawn |
+| ghost | 9 · 0 | 8 · 2 | seam 3: the world test (=client.test.js=), 4 steps — the client never reports booted; the test swallows the fault, cause owed (probe: boot the world on the copy, read the client span) · m92: =keymap.test.js= drawn |
+| dapper | 26 · 0 | 26 · 0 | — |
+| drapes | 24 · 1 | 24 · 1 | rig: dom chassis (=map.md=) |
+| hello-world | 19 · 0 | 19 · 0 | — |
+| hallucinators | 7 · 1 | 7 · 1 | rig: =bak/hal= |
+| memo (4 files) | 4 · 0 | 4 · 0 | — |
+| stub | 3 · 0 | 3 · 0 | — |
+
+- session 6 (10-21, his =go= on seam 3): the replay re-run after the Q12 move reds 14 anchors + 2 dangling barrels, each re-cut IN ITS QUEST — =replay.sh= gains =replay-m96.py= (=--before=: 13 classes + =Mode.ts= · =Daemon.ts= · the barrel · =traits.js= → =subsystems/typology/entities/=, 14 re-points; =--after=: the =registry.js:277= =bundles= deferral only — the enum deferral is MOOT under Q13) · m83 =Mode.ts:26= PRIMER → text (superseded) · m83 =traits/index.js:8= the trait's barrel line restored (a =#= line had replaced it; PRIMER was skipped silently) · m87 =Buffer.ts:41/:73= + =Mode.ts:64= =views= → the View.ts collage (=ViewEntity= unborn: a named import kills the barrel at link; apply-diffs anchors on the ORIGINAL text, so a hunk on another hunk's =+= line is a miss) · m87 RENDERED hunk dropped (anchored on nothing) · m93 runtime =mode/index.js= · =daemon/index.js= re-cut on the moved barrel text · m93 =shape/index.js= named =factory.js= (the file is =monad.js=: Module not found at every typology import) + =factory.test.js= → =monad.test.js= · m96 Q13 drawn as two diffs (was a sketch counted as a miss) · ruling 6's enum diff → text · =buffer.js:11= · =yield.test.js:3= split out of their blocks (a second path under one head lands on the first) · =bundler.test.js= one line thrice → three sub-hunks with context · m88:1135 =clientDie.client.aperture= · m92:301 =$keymap= (seam 3). Two fresh copies replay identical.
+** census — session 6, 10-21: four OPUS verifiers (one per suite group) on the replayed copy, =HOME= empty · =DENO_DIR= the cache · one-shot; then the re-cuts, rerun one-shot on a fresh replay
+
+| suite | rig | base (before the re-cuts) | after | the reds, by owner |
+|---+---+---+---+---|
+| typology | 142 · 0 | 144 · 1 | 145 · 0 | =primer.test.js= 5 steps — m83 =shape/primer.js= (Q9 re-cut) listed a static Vector effect as ONE lazy node and lost the prefix in =read='s error; P5 chained =branch().graft()= (the branch, not the root) → =nodes= descends a Vector effect, =read= carries a prefix, the test opens on the root. GREEN |
+| paladin | 54 · 0 | 55 · 0 | 55 · 0 | — |
+| runtime | 74 · 9 · 1 ign | 66 · 20 · 1 ign | 66 · 19 | rig 9 (bench ×2 · aprende ×2 · =mode/emitters= — the unnamed ninth, =@education= · T-fresh · T-demo · P-reconcile · repository.populate) · m87 =mime= NOT NULL 8 files (/"Value for BufferEntity.mime is required"/: buffer.labeled · bundle.spawn · daemon/smoke · datamap.scoped · harness.thread · mint userspace · mode/traits ×3) — ruling 13's owed hunk, floor-entities · m88 =looping.test.js= (import fixed; then /"TerminalEntity not found { id: 't1' }"/ — the test seats no terminal row, hosts-runtime-m83) · m88 =stub.activity:110= timeout (the =id= site) · m96 =mint.test.js:198= the enum-array list (Q13) → re-cut, GREEN |
+| ghost | 9 · 0 | 8 · 2 | 8 · 2 | world test 3/4 after seam 3 + =turn.js= (step 4 = m87 =mime=, /"400 @ /userspace/entities/buffer/create"/) · =keymap.test.js= imports fixed, then 2 steps on =compose= · =navigate(terminal…)= (ruling 2 superseded them; repl-keymap re-cuts the test) |
+| dapper | 26 · 0 | 26 · 0 | — | — |
+| drapes | 24 · 1 | 24 · 1 | — | rig: dom chassis =shareAfterDrag= |
+| hello-world | 19 · 0 | 19 · 0 | — | — (=SNAPSHOT_HOT=1= once) |
+| hallucinators | 7 · 1 | 7 · 1 | — | rig: =bak/hal= =Agent= |
+| memo | 4 · 0 | 4 · 0 | — | — |
+| stub | 3 · 0 | 3 · 0 | — | — |
+
+- the probes, in order (=scratchpad/probe-seam3.js=, three runs): ① =clientDie.client.aperture= → ② =computed is not defined= → ③ RUNNING; steps 3 · 4 by hand: step 3 on HOME faults NOT_FOUND (correct — the test runs it on memo), on memo /"reading 'controller'"/ (=turn.js= passed the thread, m88's blast row without a hunk) → re-cut, GREEN; step 4 the 400 at buffer/create (m87).
+- eight tangle defects the census exposed, each re-cut IN ITS QUEST (the fix sits where the hole was): m88 =harness.js= =v= from =../v.js= (a barrel cycle; 106 typology tests red) · m88 =integrity.js= REPLING → =repl= on the live path · m88 ghost =looping.js= =clientDie.aperture= (the die IS the Client) · m88 =client.aperture= an =Aperture= (=.post=) · m87 =Buffer.ts= imports + =index.ts= File + =Note.buffer= (68 runtime tests red) · m87 =mint.test.js= + File · m92 =KeySignal= exported + =keymap= imported (5 repl tests red) · m96 =resolution.js= =place= · =mount= + two =registry.wire= assertions. Three fresh copies replay identical (=diff -rq=).
+
+** census — floor (session 7, 10-21): seven FABLE agents on =scratchpad/floor/= (a fresh replay, 36 files · 195 hunks · 0 missed), one OPUS verifier on the copy, one on the landed tree
+
+| suite | before (session 6) | after floor | reds (all owned) |
+|---+---+---+---|
+| typology | 145 · 0 | 149 · 0 (655 steps) | — |
+| dapper | 26 · 0 | 27 · 0 (533 steps) | — |
+| sheets | — (dead) | 18 · 0 (52 steps) | — |
+| drapes | 24 · 1 | 39 · 1 (273 steps) | chassis rig (=chassis.jsx:3= =belt.dock=, chromes) |
+| ghost | 8 · 2 | 10 · 2 (26 steps) | =keymap.test.js= ×2 (ruling 2, repl); =client.test.js= 4/4 GREEN |
+| runtime | 66 · 19 | 75 · 12 · 1 ign | 9 rig (bench ×2 · aprende ×2 · emitters · qa ×3 · populate) · m88 looping · stub.activity (+ twin) |
+| paladin | 55 · 0 | 55 · 0 | — |
+| hello-world | 19 · 0 | 19 · 0 | — |
+| view.test.js (NEW, :memory:) | — | 1 · 0 (8 steps) | — |
+
+- the agents, by (milestone, container): floor-typology (m93.1 · m92.1 · m83.2 · m88.s3 merged — all four were TANGLE, verify-only; walk/fire imports, =harness.snapshot.test.js=, =yield.js= comment block cut) · floor-entities (m87.1: =View.ts= · =File.ts= born in =systems/runtime/entities/=, =Buffer.ts= =mime= default ON THE COLUMN (=mime.json=; three reds minted through =em.create= — a =create()= line would not reach them), =buffer.views= owner =buffer_views=, =view.files= · =mode.views=, =note.turn=, Buffer · Intent · File enums DIE, =v.view= · =v.file= · =v.turn= + JSON snapshots, =mime.code()= · =mime.vivalence()=; NO mikro =.snapshot-*.json= exists — the schema is born from metadata at boot, =libsql.viva.js:20=) · floor-dapper (m95 ruling 36: =tokens.camel= · =tokens.kebab=, FLAT dies, 27 per zone as a PROJECTION of the completed zone; =./assets/= prefix export REJECTED BY DENO → six exact entries; viket moved) · floor-sheets (15 parts + Markdown · JsonTree · Line, =tests/scenarios/= rig over =testRender= after the =@vivalence/ghost/host= ffi preload, =design/= headless page + frame snapshot; tests call parts as functions — root =jsxFactory= is React) · floor-drapes (13 parts + Image · Html, Markdown · JsonTree moved up from =dom/=, =parts.css=, =./parts= barrel (=.= stays =mod.js=, 38 Svelte importers), =tests/scenarios/= over linkedom + esbuild/babel, =design/= page: =build.js= → =design/out=, served by =python3 -m http.server=, proved in Chrome: 17 sections × 5 worlds, theme · zone switch, no console errors).
+- the door: =viva --help= on the LANDED tree prints help · repl · chrome (law 11). Under =HOME= empty the door crashes (=registry.js:279= =mask.modes=, no instance) — pre-existing on HEAD, not floor's; law 9's gate is on his machine.
+- landed 10-21 (session 7): =scratchpad/land-floor.sh --write= — 261 files (116 M · 94 new · 7 D) + the two moves (=hal/memo.md= → =primer/magister.md=; =pictogram_viket= → =dapper/assets/viket=); =git status= was clean outside =.ikiro/= before, no drift; no =:2501= listener. The landed tree re-verified by a second OPUS agent (counts in =* the suite=, below the floor lines). beef snaps.
+- OWED by floor to the next milestones: hosts — =ViewRepository.bundle= (=entry= NOT NULL: upsert whole or nullable — lookup) · FILESINK · FILESET · VIEWABLE · =mode.buffer= with =mime.vivalence(reference)= · =/attached/*= · the patrol · the rename (32 files still name Freight|Cargo|FRAUGHT|MOUNTED, incl. =ghost/prototypes/cargo.js= + 4 readers) · =looping.test.js= terminal row · =stub.activity:110= · =schematics/traits/= barrel (LABELED inline on =buffer.js= until then) · =NoteDescriptor= · =~/.viva/registry/education/README.md:1405= ModeTraitsEnum; repl — =keymap.test.js= on ruling 2 · Choice key binding; chromes — ghost chrome =text.js= · views · palette twins retire for sheets' (ghost =bundle.js= must babel =@vivalence/sheets= .jsx) · drapes phone variants · dom tests onto the scenarios rig with the chassis rewrite · six token names outside the 27 (control-contrast/-on/-focus/-field-placeholder · text-disabled · brand-filter) · root =import_map= =solid-js/web= entry · dapper datasette =divider= = =text-ink=, porcelain zone 0 fills < 3:1.
+
+** census — hosts (session 7, 10-21): four FABLE agents on =scratchpad/hosts/= (a copy of the floor-landed tree), one OPUS verifier on the copy, one on the landed tree
+
+| suite | after floor | after hosts | reds (all owned) |
+|---+---+---+---|
+| typology | 149 · 0 | 150 · 0 (657 steps) | — |
+| paladin | 55 · 0 | 57 · 0 (236 steps) | — (vault.test.js + the browser twin) |
+| runtime | 75 · 12 | 78 · 9 · 1 ign (535 steps) | the 9 rig ONLY — looping · stub.activity GREEN |
+| ghost | 10 · 2 | 11 · 2 (29 steps) | =keymap.test.js= ×2 (repl); world 4/4 |
+| hello-world · memo | 19 · 0 | 19 · 0 · memo dataset+tablet 2 · 0 | =memo.test= · =memo.snapshot= abort =@vivalence/sheets= =./host= (pre-existing: the reborn sheets exports =.= · =./scenarios= — chromes) |
+| dapper · sheets · drapes | 27 · 18 · 39·1 | same | chassis rig |
+
+Gates: =hallucination.system= 0 · =with { type: "text" }= 0 · =raw-imports= 0 · Freight|Cargo|FRAUGHT|MOUNTED 0 files · =Deno.= in ghost client+entities 0 · =bundles.absolute= 0, the =registry.js= =bundles:= mint GONE (ruling 8 · 14 complete) · =viva --help= = help · repl · chrome.
+
+- hosts-runtime-m87 (m87 2 · 3 · 4 · 6 · 7): =ViewRepository.bundle(data, { bundler })= (bundler first, =ensure= whole — =entry= stays NOT NULL) · =viewable.js= · =filesink.js= · =fileset.js= · =fraught.js= · =mounted.js= DEAD · =application.js= a THIN HEIR kept beside VIEWABLE (law 11 =/application/start|stop= + =client.test.js= read =/metadata/application=; m95 5 · 6 not in this swarm) — HIS RULING OWED · =generative.js= tools =buffer_create · view_create/update/read/list= (=buffer_create= + =label?= · =views?: [slug]= the ruling-39 pin; =buffer_update= gains =source?= at its owner =tools/buffer.js=) · =/attached/view/:id= · =/attached/file/:id= (=x-viva-integrity=), =/attached/bundle= · =/attached/cargo= gone · the patrol =runtime/lifecycle/patrol.js= (=sweep= · =files= beat, census test) · the rename pass: typology =freight.js= · =cargo.js= DEAD, runtime =shard/cargo.js= DEAD, ghost =prototypes/cargo.js= + 4 readers (his /"cargo-gone?!"/ — gone), anima =cargo.js= + test, memo =dataset/freight/= → =files/= + FILESET (=export const fileset = { path: "files" }=), hello-world rig two calls. =mode.mountpoint= on a citizen is a STRING → =filesink.mounted(mode)= casts.
+- hosts-runtime-m83 (m83 2 · 3 · 4 + m88 s3 runtime + m94 FORMAT): every m83 hunk verified landed; holes 1 · 2 closed; =schematics/traits/= barrel (docked · themed · intelligent · vocal · index, one table per carrier; =v.traits.<entity>.<NAME>=; LABELED off =buffer.js=); =shape/repl.js= =wire(node, leaf)= + leaf tables (m88 lock); =Signal= seats a ={nature, body, flags}= packet (ruling 11); =entities/traits.js= DELETED, =kernel= out of the barrel, presets derived from =v.traits= in =gestalten/belt/traits.js= (m94:88 departure); =looping.js= 3 lines; =looping.test.js= rewritten at the armed vector; =harness.primer.test.js= + cached prefix; =stub.activity:106= =turn: id=; 57-caller census: repo 58 + registry 10, no =id= sender.
+- hosts-ghost (m93 2 · 4 + the wiring): SEAM 3 RESOLVED by the later rulings — =shell/lifecycle.js= holds the =boot= beat, two door Vectors =new Vector().use(boot).do(clientFactory(surface))= branched =/repl= · =/chrome=, =/help= the strip, bare =viva= → the repl door; the =client()= wrapper DIES (m93 T:477-498); =client/factory.js= =export const= kleisli of three, the FAILED rethrow KEPT (=controller.open= faults without rethrowing) — HIS EYES (m96:96 · :103); =verbs= → =commands=; =lighthouse= credentials over =paladin.vault=; =terminal.dock= · =belt/dock.js= DEFAULT_DOCK over =v.traits.terminal.DOCKED=; =Deno.= 0.
+- hosts-paladin (the wiring): =FILES= beside =MOUNTS=; =belt(paladin, installs)= a phase returning paladin; =FULL= (fourteen: + =prime= · =vault=) in =gestalten/belt/index.js= (in =lifecycle.js= it drags esbuild into the browser twin); =mod.client.js= =belt([vault])= + =paladin:baked= (default ={env, instance, wired}=, named =modes=); =vault.js= one slot, a total third row; =read.bytes= on the read table; =vault.store= creates the parent; the =bundles= mint gone from =registry.js= · =resolution.js:105=.
+- landed 10-21 (session 7): =scratchpad/land.sh hosts --write= — 165 files + 30 deletions (git: 197 M · 107 new · 37 D, uncommitted; beef snaps); the landed tree re-verified (OPUS).
+- OWED to repl · chromes · registry: repl — =keymap.test.js= on ruling 2 · =shard/repl.js= re-cut (=terminal.repl()= is a field, =lines= undefined) · the terminal lifecycle =commands= beat grafts only =turn= · Choice key binding; chromes — ghost =surface/chrome= twins retire for sheets' (ghost =bundle.js= must babel =@vivalence/sheets= .jsx; =client/commands/chrome.js= imports the OpenTUI host) · =memo.test= =./host= import · =renderers.js= · =view.load= by row · drapes chassis rewrite + phone variants · six token names outside the 27 · root =import_map= =solid-js/web=; registry — FRAUGHT/MOUNTED/=new App(= in chess · cloze · org, 18 =hallucination.system= writers, =education/README.md:1405= ModeTraitsEnum; typology — =Request.parts= required vs 10 =turns=-only callers · =path.*.test.js= =freight= var names · =hallucination.js= Tune desc; docs — =31.02_instance-from-scratch.mdx:258=.
+
+** census — repl (session 7, 10-21): three FABLE agents on =scratchpad/repl/= (a copy of the hosts-landed tree), one OPUS verifier on the copy, one on the landed tree
+
+| suite | after hosts | after repl | reds |
+|---+---+---+---|
+| ghost | 11 · 2 | 18 · 0 (46 steps) | — (=keymap.test.js= 6 its · =commands.test.js= 15 steps NEW · console 2/2 · repl 7 · world 4/4) |
+| anima | does not build | BUILDS (=deno task anima/bundle= exit 0, 1110 modules, =build/client.html= + =assets/client-*.js= 440 kB); tests per file 26 green · 12 red (the old Svelte chrome's — chromes) | =$telemetry= · =View= · spine/dock/stage mount (Svelte context Symbols from the old =client.js=) |
+| typology · paladin · runtime · dapper · sheets · drapes · hello-world | 150 · 57 · 78·9 · 27 · 18 · 39·1 · 19 | same | the rig · chassis |
+
+Gates: =metadata/keymap|shape.keymap|shard.keymap= 0 · =Deno.= in ghost client+entities 0 · the door strip help · repl · chrome · LAW 11: the strip with a seated terminal lists the nine frozen verbs (=/help /quit /chrome/on /chrome/off /modes /mode /application/start /application/stop *=) beside 23 new ones.
+
+- repl-keymap (m92 2 · 4 · m95 5): =client/keymap.js= =harvest= · =catalog= (=rollup= rows ={nature, chord}=) · =keymap= (=esc= + =leader=, =leader/leader= = the catalog) · =navigate(terminal, drain)= over a =Queue= + =dispatch.walk= → true/false (false = the drain closed; no =Closed= error in typology — HOLY, owed) · =$chord= ={crumbs, node}= (sheets =Chord=); =compose= GONE (ruling 2: =terminal.$keymap=); =client.presses= ONE Queue every surface feeds; lifecycle beats =keymap= (after =modes=) · =pressing= (after =active=); KEYMAPPED binds =mode= per LEAF (a root =graft= would share carry across hosted modes); =shard/repl.js= ruling 4 (the =message= middleware gone — the value is the caller's); panes =chord.jsx= · =catalog.jsx= over =@vivalence/sheets= (ghost =bundle.js= =onResolve= babels sheets' .jsx into =out/panes.mjs=); the console fixture exports =keymap= (=() => "/hello"=).
+- repl-commands (m95 4 · m88 s3 ghost): 4 client commands (terminal · runtime · lighthouse · shell) + 8 terminal commands (thread · buffer · pause/resume/stop/abort · activity · intelligent (=/tune /effort /rounds=) · dock (=/dock /dock/lens /split=)); =belt/input.js= =cast(schema, signal)= (positionals + =--flags= → the pattern's =input=, =ValidationError= loud) · =belt/traits.js= =claimed(row, NAME, value)=; =help.js= journals the strip itself; =chrome.js= reaches the tty surface by a dynamic =import()= in the effect (the barrel is browser-clean; anima's =tty.js= stub + =surface()= resolver can go — chromes); the terminal lifecycle =commands= beat grafts all; =turn.js= NotFound unless HARNESSED; =thread.$activities= in hydration (=$activity= dead); =activity.js= =loudest= · =owed(signal, …)= · =send=. NOT written (owed): =/theme= (no client/user repository on the wire) · =/sidebar= · =/go= · =/mic /speaker /voice /dictate /paste= (the box is anima's) · =/attach= · =/artifacts /artifact= · =/context /tools= · =/dock/view=. Ruling 33's client half cannot land alone (the runtime's =recording= mints ids at =em.create=).
+- repl-anima-door (m95 7): =vite.config.mjs= re-cut (sveltekit + =@deno/vite-plugin= OUT; =solid()= · =jsr()= (=deno info --json= → the cached =.ts=) · =bake()= (=paladin:baked=: env EXPANDED via =paladin.env.get=, the Instance stringified minus its =paladin=) · =beacon()=; aliases paladin → =mod.client.js=, ghost → =typology.js=); =src/client.js= the door (=run.js:5-13= line for line, =pagehide= → =controller.kill=); =src/surface/index.js= =dom= (facts ={ kind: "dom", places, dark, $narrow, $shown, $shell, palette getter }= — =palette= a getter: the =surface= beat runs before =connection=); =client.html= a vite entry with the solid-js pins in =<head>=. Owed: dapper =mod.client.js= (postcss ~100 kB rides the bundle); the =connection= beat neither faults nor settles with no runtime up.
+- landed 10-21 (session 7): =scratchpad/land.sh repl --write=; the landed tree re-verified (OPUS); beef snaps.
+
+** census — chromes (session 7, 10-21): two agents on =scratchpad/chromes/= (chromes-ghost-chrome FABLE · chromes-anima-chrome OPUS, copying the pane table), one OPUS verifier on the copy, one on the landed tree
+
+| suite | after repl | after chromes | reds |
+|---+---+---+---|
+| ghost | 18 · 0 | 16 · 0 (50 steps) | — (=chrome.test.js= NEW; four text tests MOVED to sheets; world 4/4) |
+| sheets | 18 · 0 | 22 · 0 (52 steps) | — (=text.test.js= moved in; =./host= export NEW) |
+| anima | builds; 28 · 9 files | builds (1155 modules, js 512 kB, css 23 kB, the viket svg); =chrome.test.js= 13 steps; tests 28 green · 9 red files | the old Svelte chrome's (=$telemetry= ×5 · spine.mount (=solid-js/web= root map entry owed) · interactive/activity · oracle.snapshot · scenario/buffer) |
+| memo | 2 · 0 (+2 aborts) | 9 · 0 (22 steps) — =memo.test= · =memo.snapshot= IMPORT and PASS again | — |
+| drapes · dapper · typology · paladin · runtime · hello-world | 39·1 · 27 · 150 · 57 · 78·9 · 19 | same | chassis rig · the 9 rig |
+
+Gates: the door strip help · repl · chrome · the eight + =*= in the strip · =viva chrome= pty one-shot (=tests/scenarios/chrome.js=): ={"code":0,"marks":["ISLAND","REGIONS","EXITED"]}= — island → regions (a tab · =repl= lens · the terminal beat's row · =›= composer · =● ghost= bar) → =ctrl-v q= exits 0, no process left · the anima build served static, page + bundle + css 200, server down.
+
+- chromes-ghost-chrome (m95 6 · m87 5): =panes/chrome.jsx= the ONE =[[predicate, pane]]= table (no runtime → Booting · manifest null → Booting · unauthorized & settled → Signin (=IDLE= Booting only under AUTOLOGIN) · unseated → Booting · else Regions; re-checked on =$runtime= · =$active= · lighthouse =$status= · =$isAuthorized= · the journal tail) · =booting.jsx= (Island ◆ + a Meter over the boot beats) · =signin.jsx= · =regions.jsx= (tabs · sidebar · the =VIEWS= table docked/full/closed/messenger over =sheets.Split= · Panel · Chord · Catalog (capped 12) · Bar) · =painters.jsx= (=Mounted= via =belt.view.load= → =module.default(element, { terminal, buffer, surface: { place, renderer, palette } })= with =attach/detach=; Markdown over =/attached/file/:id=; JsonTree; Line) · =view.jsx= · =sections.js= the ONE fold · =belt/view.js= (=row= · =declared= · =candidates= ruling 39 · =bytes= sha256 vs header AND row · =load= · =pick=) · =renderers.js= =(buffer, views)= · =dock.jsx= two streams (=thread.$turns= + the TERMINAL span's tail by LENS; Consent on a PAUSED activity) · =index.js= the mount (=dark()= over OSC 11; the surface facts) · =tests/world.js= over =@vivalence/sheets/scenarios= · =client.$runtime= atom · =runtime.attach= · Buffer =views= · =files= declared; ghost =text.js= · =palette.js= · =views/*= DEAD (sheets'). Departures: =IDLE= rule · =.status.code= · dock sort =timeOrigin + at= · =renderer(buffer, views)= (no view repository on the client) · the table in =panes/chrome.jsx= not =index.js= · Consent = the PAUSED wait (no consent route). Memo fixture re-cut to the =Mounted= contract (no =usePalette=; a palette is a PROP).
+- chromes-anima-chrome (m95 8 · m87 8): the same table over =@vivalence/drapes/parts= — =src/surface/panes/{chrome,booting,signin,regions,tabs,sidebar,split,frame,view,dock,chord,catalog,bar,painters}.jsx= · =sections.js= · =renderers.js= (+ Image · Html) · =view.js= · =send.js= · =chrome.css=; =surface/index.js= mounts =Chrome= (the door lines kept; dapper tokens =<style>=; =$sidebar=; keypresses → =client.presses=); =vite.config.mjs= =resolving()= (an =import.meta.resolve= of a dapper asset → an emitted asset) + three aliases, the =surface()= · =tty.js= stubs GONE (ghost's =chrome.js= imports the tty surface dynamically); drapes =.phone= rules; =a.svelte= · =Dock.svelte= DROPPED (copies in =scratchpad/chromes-anima/dropped/=), their two mount tests with them; =tests/chrome.test.js= + =tests/world.js=. Departures: =regions.jsx= in anima (law 8) · drags dispatch =/split <share>= · Booting until =$active= · messages in the =trace= register · the lens a three-way Choice.
+- FOUND by the anima twin (fixed in ghost): Signin read =lighthouse.manifest.traits= on first paint while =manifest= was null.
+- landed 10-21 (session 7): =scratchpad/land.sh chromes --write= (62 files + 11 deletions); the landed tree re-verified (OPUS); beef snaps.
+- OWED (his or later): the buffer row carries no =turns= on the wire (cells paint once it does) · =/sidebar= · =/lighthouse/signup= verbs · =harness.context= 0 on the wire · the typed line not echoed as a =cmd= row · =Docked.share= 0.1–0.9 vs sheets =SHARE= 20–80 (HOLY) · runtime unreachable → a blank screen (the lifecycle unwinds =surface= before =run.js= prints the fault — hosts-ghost's beat order) · a registry/fixture VIEW cannot import sheets .jsx through paladin's bundler (=bundler.js:42= =packages: "external"=, React jsxFactory) — the ghost chrome inlines sheets via =bundle.js= =onResolve=; paladin's bundler needs the same row · dapper =mod.client.js= (postcss rides the browser bundle) · anima =+page.svelte= imports the dropped =a.svelte= (the dead SvelteKit shell) · =client.html= pre-paints the theme from the old localStorage key · root =import_map= =solid-js/web= entry.
+

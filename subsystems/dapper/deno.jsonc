@@ -5,7 +5,13 @@
     ".": "./mod.js",
     "./contrast": "./lib/contrast.js",
     "./postcss": "./lifecycle/index.js",
-    "./tailwind": "./belt/tailwind-theme.js"
+    "./tailwind": "./belt/tailwind-theme.js",
+    "./assets/viket/pic-vinca-viket_white.svg": "./assets/viket/pic-vinca-viket_white.svg",
+    "./assets/viket/pic-vinca-viket_black.svg": "./assets/viket/pic-vinca-viket_black.svg",
+    "./assets/viket/pic-vinca-viket_white.png": "./assets/viket/pic-vinca-viket_white.png",
+    "./assets/viket/pic-vinca-viket_black.png": "./assets/viket/pic-vinca-viket_black.png",
+    "./assets/viket/pic-vinca-viket_aqua.png": "./assets/viket/pic-vinca-viket_aqua.png",
+    "./assets/viket/pic-vinca-viket_glitch-dark.png": "./assets/viket/pic-vinca-viket_glitch-dark.png"
     // "./bsp.css": "./primitives/bsp.css",
     // "./fonts.css": "./primitives/font.css",
   },

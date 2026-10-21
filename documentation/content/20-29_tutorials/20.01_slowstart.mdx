@@ -258,7 +258,7 @@ it inside would be circular. Location is the ledger's knowledge.
 ```sh
 viva instance/use <slug> [--ledger]
 viva instance/init [username password]
-viva instance/user <signup|login|password> <username> <password>
+viva instance/lighthouse/<signup|signin|password> <username> <password>
 ```
 
 `use` selects one instance out of the set for this shell. `init` completes one boot
@@ -383,7 +383,7 @@ For `hello-world` that is two processes:
 The runtime hosts everything as one path tree under one origin: itself under
 `/runtime/<slug>` (`/runtime/runtime` by default), daemons under `/daemon/<slug>`, each
 host's modes under `<host>/mode/<type>/<slug>`, attached services like `nlp-stanza` under
-`/attached/process/…`, mode bundles under `/attached/bundle/…`, identity under `/lighthouse/…`.
+`/attached/process/…`, views and files by row under `/attached/view/:id` · `/attached/file/:id`, identity under `/lighthouse/…`.
 
 Open **http://localhost:1794**, log in with the account from step 4, and you are inside:
 the client attaches to the daemons and renders their modes.

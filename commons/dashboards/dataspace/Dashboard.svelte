@@ -1,9 +1,10 @@
 <script>
   import { untrack } from "svelte";
-  import { SETS, CHECKS, ENUMS, ONTOLOGIES, TRAIT_SCHEMA, OPS, ALL_VERBS } from "./schema.js";
+  import { CHECKS, ENUMS, ONTOLOGIES, TRAIT_SCHEMA, OPS, ALL_VERBS } from "./schema.js";
 
   const { terminal } = $props();
-  const daemon = terminal.daemon;
+  const host = terminal.mode.host;
+  const runtime = terminal.client.runtime;
 
   const ROW_H = 26;
   const PAGE_SIZES = [100, 250, 500, 1000];
@@ -99,48 +100,41 @@
   }
 
   function repoFor(name) {
-    const repo = daemon?.entities?.[name];
-    return repo && typeof repo.findAndCount === "function" ? repo : null;
+    return doors[name]?.repository ?? null;
   }
   function doorOf(name) { return doors[name] ?? null; }
   function mountOf(name) { return doors[name]?.mount ?? `/entities/${name}`; }
-  function scopedNote(name) {
-    const door = doorOf(name);
-    if (!door) return "";
-    if (!door.scoped) return "unscoped · every user sees every row";
-    const shape = name === "buffer" || name === "turn" ? "{thread:{user}}" : "{user}";
-    return `scoped · where ⊕ ${shape} at the door`;
-  }
 
-  function readDoors(node) {
+  function readDoors(leaves, mount, entities) {
     const out = {};
-    const harvest = (branch, prefix) => {
-      const entities = branch?.branches?.entities?.branches;
-      if (!entities) return;
-      for (const [name, leaf] of Object.entries(entities)) {
-        const keys = Object.keys(leaf?.branches ?? {});
-        const verbs = keys.filter((k) => ALL_VERBS.includes(k));
-        if (!verbs.length) continue;
-        out[name] = {
-          mount: `${prefix}/entities/${name}`,
-          verbs,
-          extra: keys.filter((k) => !ALL_VERBS.includes(k)),
-          scoped: prefix.startsWith("/userspace"),
-        };
-      }
-    };
-    harvest(node, "");
-    harvest(node?.branches?.userspace, "/userspace");
+    for (const [name, leaf] of Object.entries(leaves)) {
+      if (!entities[name]) continue;
+      const keys = Object.keys(leaf.branches);
+      out[name] = {
+        mount: `${mount}/${name}`,
+        repository: entities[name],
+        verbs: keys.filter((k) => ALL_VERBS.includes(k)),
+        extra: keys.filter((k) => !ALL_VERBS.includes(k)),
+      };
+    }
     return out;
   }
 
   async function boot() {
     try {
-      datamap = daemon?.entities?.datamap ?? await daemon.connection.call("/datamap");
-      log("POST", "/datamap", "");
-      const aperture = await daemon.connection.call("/metadata/aperture");
+      datamap = await host.aperture.call("/metadata/datamap");
+      log("POST", "/metadata/datamap", "");
+      const aperture = await host.aperture.call("/metadata/aperture");
       log("POST", "/metadata/aperture", "");
-      doors = readDoors(aperture);
+      const root = await runtime.connection.call("/metadata/aperture");
+      log("POST", "/metadata/aperture", "");
+      const house = await runtime.aperture.call("/metadata/aperture");
+      log("POST", `${runtime.reference.absolute}/metadata/aperture`, "");
+      doors = {
+        ...readDoors(root.branches.userspace.branches.entities.branches, "/userspace/entities", runtime.entities),
+        ...readDoors(house.branches.entities.branches, `${runtime.reference.absolute}/entities`, runtime.entities),
+        ...readDoors(aperture.branches.entities.branches, `${host.reference.absolute}/entities`, host.entities),
+      };
       booted = true;
       await refreshCounts();
       await load();
@@ -150,7 +144,7 @@
   }
 
   async function refreshCounts() {
-    const names = Object.keys(doors).filter((name) => repoFor(name));
+    const names = Object.keys(doors);
     log("POST", "<door>/count", `${names.length} entities`);
     const pairs = await Promise.all(names.map(async (name) => {
       try { return [name, await repoFor(name).count({})]; } catch { return [name, null]; }
@@ -811,7 +805,7 @@
 
   function pickEntity(event) {
     const name = event.currentTarget.dataset.entity;
-    if (!doorOf(name) || !repoFor(name)) return;
+    if (!doorOf(name)) return;
     goEntity(name, [], { crumbs: [], screen: "grid", erSel: null });
   }
   function pickFacet(event) {
@@ -948,41 +942,35 @@
 
   const catalog = $derived.by(() => {
     if (!datamap) return [];
-    return SETS.map((set) => {
-      const entities = set.entities.filter((name) => datamap[name]).map((name) => {
-        const entry = doorOf(name);
-        const active = name === entity;
-        const writes = !!entry?.verbs.includes("create");
-        const facets = name === "literal"
-          ? Object.keys(ONTOLOGIES).map((ontology) => ({
-              label: ontology, field: "ontology", op: "$eq", value: ontology, count: "",
-              indent: 0, leaf: true, caret: "", foldKey: "",
-              on: active && clauses.some((c) => c.field === "ontology" && c.value === ontology),
-            }))
-          : name === "mode" && entity === "mode"
-          ? [...new Set(request.rows.map((row) => read(row, "type")))].map((type) => ({
-              label: type, field: "type", op: "$eq", value: type, count: "",
-              indent: 0, leaf: true, caret: "", foldKey: "",
-              on: clauses.some((c) => c.field === "type" && c.value === type),
-            }))
-          : name === "symbol" && entity === "symbol"
-          ? symbolTree(request.rows, true)
-          : [];
-        const foldKey = `ent:${name}`;
-        const folded = !isOpen(foldKey, false);
-        return {
-          name, noDoor: !entry, count: entry ? String(counts[name] ?? "—") : "via thread",
-          facets, showFacets: facets.length > 0 && !folded,
-          foldKey, caret: facets.length ? (folded ? "▸" : "▾") : "", hasFacets: facets.length > 0,
-          active, writes,
-          doorTitle: !entry ? "no door on this daemon"
-            : writes ? `${entry.verbs.length} doors · read/write/subscribe`
-            : "read-only · find…count + subscribe",
-        };
-      });
-      const key = `set:${set.name}`;
-      return { name: set.name, key, open: isOpen(key), caret: isOpen(key) ? "▾" : "▸", entities };
-    }).filter((set) => set.entities.length);
+    return Object.keys(doors).map((name) => {
+      const entry = doorOf(name);
+      const active = name === entity;
+      const writes = entry.verbs.includes("create");
+      const facets = name === "literal"
+        ? Object.keys(ONTOLOGIES).map((ontology) => ({
+            label: ontology, field: "ontology", op: "$eq", value: ontology, count: "",
+            indent: 0, leaf: true, caret: "", foldKey: "",
+            on: active && clauses.some((c) => c.field === "ontology" && c.value === ontology),
+          }))
+        : name === "mode" && entity === "mode"
+        ? [...new Set(request.rows.map((row) => read(row, "type")))].map((type) => ({
+            label: type, field: "type", op: "$eq", value: type, count: "",
+            indent: 0, leaf: true, caret: "", foldKey: "",
+            on: clauses.some((c) => c.field === "type" && c.value === type),
+          }))
+        : name === "symbol" && entity === "symbol"
+        ? symbolTree(request.rows, true)
+        : [];
+      const foldKey = `ent:${name}`;
+      const folded = !isOpen(foldKey, false);
+      return {
+        name, count: String(counts[name] ?? "—"),
+        facets, showFacets: facets.length > 0 && !folded,
+        foldKey, caret: facets.length ? (folded ? "▸" : "▾") : "", hasFacets: facets.length > 0,
+        active, writes,
+        doorTitle: writes ? `${entry.verbs.length} doors · read/write/subscribe` : "read-only · find…count + subscribe",
+      };
+    });
   });
 
   const schemaColumns = $derived(
@@ -1004,7 +992,7 @@
       const id = typeof value === "object" ? value.id : value;
       const label = typeof value === "object" ? identify(col.target, value) : short(id);
       if (!doorOf(col.target) || !repoFor(col.target))
-        return { ...base, text: label, muted: true, title: `${col.target} · no door on this daemon · ${id}` };
+        return { ...base, text: label, muted: true, title: `${col.target} · no door on this host · ${id}` };
       return { kind: "rel", relEntity: col.target, relId: id, relField: "", text: label, title: `${col.target} ${id}`, muted: false, italic: false };
     }
     if (col.type === "1:m" || col.type === "m:n") {
@@ -1127,9 +1115,7 @@
         kind: "table", title: name, target: entry ? name : "",
         sections: [
           { name: "table", rows: [
-            { k: "rows", v: entry ? String(counts[name] ?? "—") : "no door · via thread.user" },
-            { k: "set", v: SETS.find((set) => set.entities.includes(name))?.name ?? "—" },
-            { k: "scope", v: entry ? scopedNote(name) : "—", warn: !!entry?.scoped },
+            { k: "rows", v: entry ? String(counts[name] ?? "—") : "no door" },
             { k: "mount", v: entry ? entry.mount : "—" },
             { k: "doors", v: entry ? `${entry.verbs.length} · ${entry.verbs.includes("create") ? "read/write" : "read-only"}` : "—" },
             { k: "kind", v: name === "activity" ? "VirtualEntity · no table" : "DataEntity" },
@@ -1278,7 +1264,7 @@
 <div class="dataspace">
   <div class="bar">
     <span class="brand">dataspace</span>
-    <span class="origin">{daemon?.manifest?.slug ?? "daemon"} · {daemon?.reference?.absolute ?? ""}</span>
+    <span class="origin">{host.slug} · {host.reference.absolute}</span>
     <div class="crumbs">
       {#each crumbs as crumb, index}
         <button class="crumb" data-index={index} onclick={jumpCrumb}>{crumb.label}</button>
@@ -1308,42 +1294,31 @@
     {#if catalogOpen}
       <div class="catalog" style="flex:0 0 {sizes.catalog}px">
         <div class="catalog-scroll">
-          {#each catalog as set}
-            <div class="set-head">
-              <button class="set-btn" data-key={set.key} data-open={set.open} onclick={toggleFold}>
-                <span class="caret-slot"><span class="caret">{set.caret}</span></span>
-                <span class="set-name">{set.name}</span>
-                <span class="rule"></span>
+          {#each catalog as row}
+            <div class="ent-line">
+              <button class="caret-btn" data-key={row.foldKey} data-open={!row.showFacets ? "false" : "true"} onclick={toggleFold} disabled={!row.hasFacets}>
+                <span class="caret" class:hide={!row.hasFacets}>{row.caret}</span>
+              </button>
+              <button class="ent" class:active={row.active} data-entity={row.name} onclick={pickEntity}>
+                <span class="pip" class:writes={row.writes} class:reads={!row.writes} title={row.doorTitle}></span>
+                <span class="ent-name">{row.name}</span>
+                <span class="ent-count">{row.count}</span>
               </button>
             </div>
-            {#if set.open}
-              {#each set.entities as row}
-                <div class="ent-line">
-                  <button class="caret-btn" data-key={row.foldKey} data-open={!row.showFacets ? "false" : "true"} onclick={toggleFold} disabled={!row.hasFacets}>
-                    <span class="caret" class:hide={!row.hasFacets}>{row.caret}</span>
-                  </button>
-                  <button class="ent" class:active={row.active} class:nodoor={row.noDoor} data-entity={row.name} onclick={pickEntity}>
-                    <span class="pip" class:writes={row.writes} class:reads={!row.writes && !row.noDoor} title={row.doorTitle}></span>
-                    <span class="ent-name">{row.name}</span>
-                    <span class="ent-count">{row.count}</span>
-                  </button>
-                </div>
-                {#if row.showFacets}
-                  <div class="facets">
-                    {#each row.facets as facet}
-                      <div class="facet" style="padding-left:{facet.indent}px">
-                        <button class="caret-btn small" data-key={facet.foldKey} data-open={facet.open} onclick={toggleFold} disabled={facet.leaf}>
-                          <span class="caret" class:hide={facet.leaf}>{facet.caret}</span>
-                        </button>
-                        <button class="facet-btn" class:on={facet.on} data-entity={row.name} data-field={facet.field} data-op={facet.op} data-value={facet.value} onclick={pickFacet}>
-                          <span class="facet-label">{facet.label}</span>
-                          <span class="facet-count">{facet.count}</span>
-                        </button>
-                      </div>
-                    {/each}
+            {#if row.showFacets}
+              <div class="facets">
+                {#each row.facets as facet}
+                  <div class="facet" style="padding-left:{facet.indent}px">
+                    <button class="caret-btn small" data-key={facet.foldKey} data-open={facet.open} onclick={toggleFold} disabled={facet.leaf}>
+                      <span class="caret" class:hide={facet.leaf}>{facet.caret}</span>
+                    </button>
+                    <button class="facet-btn" class:on={facet.on} data-entity={row.name} data-field={facet.field} data-op={facet.op} data-value={facet.value} onclick={pickFacet}>
+                      <span class="facet-label">{facet.label}</span>
+                      <span class="facet-count">{facet.count}</span>
+                    </button>
                   </div>
-                {/if}
-              {/each}
+                {/each}
+              </div>
             {/if}
           {/each}
         </div>
@@ -1441,7 +1416,6 @@
                 {/each}
               </span>
               <span class="spacer"></span>
-              <span class="scope">{scopedNote(entity)}</span>
             </div>
           {/if}
 
@@ -1464,7 +1438,7 @@
               <textarea bind:value={rawText} spellcheck="false"></textarea>
               <div class="raw-side">
                 <button class="run" onclick={runRaw}>▶ run</button>
-                <span class="faint">daemon.entities.{entity}.find(body)</span>
+                <span class="faint">host.entities.{entity}.find(body)</span>
                 {#if rawError}<span class="err">{rawError}</span>{/if}
               </div>
             </div>
@@ -1481,7 +1455,7 @@
               <span class="empty-head">{request.total === 0 && !clauses.length ? `no ${entity} rows` : "no rows match"}</span>
               <span class="empty-line">
                 {request.total === 0 && !clauses.length
-                  ? (door?.verbs.includes("create") ? `POST ${door.mount}/create to mint one — or + ${entity} above` : `${entity} is read-only on this daemon`)
+                  ? (door?.verbs.includes("create") ? `POST ${door.mount}/create to mint one — or + ${entity} above` : `${entity} is read-only on this host`)
                   : `where ${JSON.stringify(buildWhere())} · reset to widen`}
               </span>
             </div>
@@ -1925,9 +1899,6 @@
 
   .catalog { display: flex; flex-direction: column; min-height: 0; background: var(--s1); }
   .catalog-scroll { flex: 1; min-height: 0; overflow: auto; padding: 10px 8px; }
-  .set-head { display: flex; align-items: center; gap: 2px; padding: 10px 0 4px; color: var(--support); }
-  .set-btn { flex: 1; display: flex; align-items: center; gap: 8px; border: none; background: transparent; cursor: pointer; text-align: left; color: var(--support); padding: 0; }
-  .caret-slot { width: 22px; display: grid; place-items: center; flex: none; }
   .caret {
     width: 18px;
     height: 18px;
@@ -1961,7 +1932,6 @@
     text-align: left;
   }
   .ent.active { border-color: var(--primary); background: var(--s3); color: var(--primary); }
-  .ent.nodoor { color: var(--support); cursor: default; }
   .pip { width: 7px; height: 7px; border-radius: 50%; background: transparent; flex: none; }
   .pip.writes { background: var(--success); box-shadow: 0 0 4px var(--success); }
   .pip.reads { background: var(--warning); box-shadow: 0 0 4px var(--warning); }

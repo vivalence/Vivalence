@@ -64,7 +64,7 @@ export function Sheet({ title, repository, signal, close }) {
         <Box marginTop={1} flexDirection="column">
           <Text color={theme.accent ?? "cyan"}>steps · {short(row.id)} · {row.status}{row.error ? ` · ${row.error.code} ${row.error.message}` : ""}</Text>
           {row.steps?.length
-            ? <Table rows={row.steps.map((step) => ({ at: Number(step.at).toFixed(0), path: step.path, verb: step.verb }))} columns={["at", "path", "verb"]} />
+            ? <Table rows={row.steps.map((step) => ({ at: Number(step.at).toFixed(0), path: step.path.join(" › "), track: step.track }))} columns={["at", "path", "track"]} />
             : <Text color="gray">no steps yet</Text>}
         </Box>
       )}

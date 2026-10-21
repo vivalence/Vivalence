@@ -4,7 +4,7 @@ import { lifecycle, sets } from "@vivalence/runtime";
 import { assemble } from "../../gestalten/belt/assemble.js";
 import { provider } from "../../../../commons/datamaps/libsql/libsql.viva.js";
 import { create, SECRET } from "../scenarios/daemon.js";
-import { signer } from "../../lighthouse/signer.js";
+import { signer } from "../../subjects/lighthouse/signer.js";
 
 specimen.describe("runtime composition", () => {
   let scenario;
@@ -56,11 +56,6 @@ specimen.describe("runtime composition", () => {
     specimen.expect(result.code).toBe("RUNNING");
   });
 
-  specimen.it("daemon cargo via runtime path", async () => {
-    const result = await runtimeConn.call("/daemon/test-daemon/cargo");
-    specimen.expect(result.test).toBe(true);
-  });
-
   specimen.it("daemon datamap via runtime path", async () => {
     const result = await runtimeConn.call(
       "/daemon/test-daemon/entities/literal/find",
@@ -94,23 +89,20 @@ specimen.describe("reconcile at boot — population.daemons reads the file again
   const schemas = assemble([sets.identity, sets.composition, sets.traits, sets.userspace, sets.transient]).entities.map((descriptor) => descriptor.schema);
   let home;
 
-  const boot = async (slugs, { prune = false } = {}) => {
-    if (prune) paladin.env.set("VIVA_RUNTIME_PRUNE", "1");
-    else paladin.env.delete("VIVA_RUNTIME_PRUNE");
+  const boot = async (slugs) => {
     const datamap = await provider({ mountpoint: new Path(home), statics: { db: { file: FILE } } }, { entities: schemas });
-    const created = [];
     const die = {
       controller: { branch: () => null },
       runtime: {
         datamap,
         entities: datamap.entities,
         instance: { daemons: slugs.map((slug) => expanded(raw[slug])), raw: { daemons: slugs.map((slug) => raw[slug]) } },
-        processes: { datamap: { shard: { scope: (task) => task() } }, daemon: { create: async (data) => created.push(data.slug), remove: async () => {} } },
+        daemons: {},
       },
     };
     try {
       await lifecycle.runtime.population.daemons(die, async () => {});
-      return { datamap, created };
+      return { datamap, created: Object.keys(die.runtime.daemons) };
     } catch (error) {
       await datamap.close();
       throw error;
@@ -136,7 +128,6 @@ specimen.describe("reconcile at boot — population.daemons reads the file again
   });
 
   specimen.afterAll(async () => {
-    paladin.env.delete("VIVA_RUNTIME_PRUNE");
     await Deno.remove(home, { recursive: true });
   });
 
@@ -179,15 +170,8 @@ specimen.describe("reconcile at boot — population.daemons reads the file again
     await datamap.close();
   });
 
-  specimen.it("a daemon dropped from the file → the boot refuses and names the row; nothing is touched", async () => {
-    await specimen.expect(boot(["hello"])).rejects.toThrow(/extra held in the datamap but absent/);
-    const datamap = await provider({ mountpoint: new Path(home), statics: { db: { file: FILE } } }, { entities: schemas });
-    specimen.expect((await census(datamap)).daemon).toEqual(["extra", "hello"]);
-    await datamap.close();
-  });
-
-  specimen.it("VIVA_RUNTIME_PRUNE=1 drops the row and its cascade — modes · literals · symbols · notes · User_daemons", async () => {
-    const { datamap, created } = await boot(["hello"], { prune: true });
+  specimen.it("a daemon dropped from the file → the next boot drops its row and its cascade — modes · literals · symbols · notes · User_daemons", async () => {
+    const { datamap, created } = await boot(["hello"]);
     specimen.expect(created).toEqual(["hello"]);
     specimen.expect(await census(datamap)).toEqual({
       daemon: ["hello"],

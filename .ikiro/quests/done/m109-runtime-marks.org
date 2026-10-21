@@ -1,0 +1,640 @@
+#+title: m109 runtime marks — beef's 10-26 =@beef= marks in =systems/runtime=, drilled to hunks; the daemon re-housed into =runtime.entities=
+#+status: DONE 10-26 — every lock LANDED: Q1D · Q7A · Q7B · Q3A, then Q5 · Q6 · the =entities/= move · the daemon =id= (his /"ok lets try the getter fix"/ · /"Q6 … go. Q5 … go."/ · /"go finish up. move quests to done."/); IGNORED Q2 · Q4A; OPEN Q3 · Q4B → owed. Before: PARTLY LANDED 10-26 — Q1D · Q7A · Q7B · Q3A on disk, green; Q5 + the =entities/= move LOCKED, not landed; IGNORED Q2 · Q4A; OPEN Q3 · Q4B · Q6
+
+# limit: 24000 chars
+
+* intent
+
+/"i marked some @beef comments in runtime. find them. propose fixes."/ · from m107 Q33F: /"yes daemon belongs in the database."/ · /"what about making the slug the primary key on the daemon? also, we'd re-house the daemon from runtime.processes to runtime.entities"/ · /"m109"/
+
+* the marks — new since =HEAD=, verbatim
+
+#+BEGIN_SRC js
+// systems/runtime/run.js:5
+if (import.meta.main) {
+  await factories.instance(paladin.instance); //@beef still ugly
+  const controller = new Controller({
+    stdout: new Span(`runtime/${paladin.instance.runtime.manifest.slug}`),
+  });
+  …
+  await runtimeFactory(paladin.instance)({ controller }); // @beef confusing
+  Deno.exit(controller.status.is("STOPPED") ? 0 : 1);
+}
+// systems/ghost/subjects/shell/lifecycle/seat.js:4   — ghost mounts paladin as a beat
+#+END_SRC
+
+#+BEGIN_SRC ts
+// systems/runtime/subjects/mode/Mode.ts:13
+// @beef belongs into fucking ENTITIES obviously.
+export class ModeRepository extends DataRepository {
+// systems/runtime/subjects/daemon/Daemon.ts:17   — the row; slug IS the primary (:39)
+// @beef belongs into fucking ENTITIES obviously.
+export class DaemonEntity extends BaseEntity {
+  slug!: string;
+  mask: any & Opt = {};
+// systems/runtime/subjects/daemon/prototype.js:5   — the process: a VirtualEntity in the processes datamap
+export class Daemon extends ProcessEntity {
+  type = "daemon";
+  aperture = new Aperture().use(shard.context.spread(contexts.host, this));
+  …
+// systems/runtime/subjects/daemon/prototype.js:35   — a second DaemonSchema; two `export *` of one name drop it (probe scratchpad star/)
+// @beef belongs into fucking ENTITIES obviously.
+export const DaemonSchema = new VirtualSchema({
+  class: Daemon,
+  extends: ProcessSchema,
+  repository: () => ProcessRepository,
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/lifecycle/resolution.js:20   — ×4: :13 stamp · :23 · :30 · :36
+    for (const name of die.mode.manifest.traits.filter((name) => !die.traits[name])) {
+      // @beef should be done in paladin.
+      console.warn(
+        `[trait] ${die.mode.manifest.type}/${die.mode.manifest.slug} declares ${name}, which ${die.context.reference.absolute} does not offer`,
+      );
+    }
+    if (die.mode.module.aperture && !die.mode.implements("EXPOSED")) {
+      // @beef should be done in paladin.
+// subsystems/paladin/prototypes/integrity.js:40   — paladin holds the converse already: a TRAIT → its export
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/filesink.js:5   — 6 exports: mounted · record · receive · rewrite · Received · FILESINK
+// @beef why does this file export ANYTHING but the trait function??
+export const mounted = (mode) => new Path(mode.mountpoint).absolute;
+export const record =
+  (context) =>
+  async ({ mode, path, mount, mime: type, bytes }) => {
+// systems/runtime/subjects/runtime/lifecycle/patrol.js:1   — a 4th phase file; integration.patrol (integration.js:17) a second 60 s beat
+//@beef there is no PATROL lifecycle!
+const BEAT = 60000;
+#+END_SRC
+
+defect (rides Q3): =run.js= prints no bare =Status:RUNNING= (m100's tap gone with m101's =open=) → =tests/runtime/hello.test.js= RED =runtime not ready after 90000 ms=; the removed line is in =git diff HEAD=: his kill or a slip, asked, never re-added.
+
+* the daemon — two records today
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/lifecycle/population.js:179   — the row, ensured per declared daemon
+      await repository.ensure({
+        slug,
+        mask: die.runtime.instance.raw.daemons.find((entry) => entry.manifest.slug === slug),
+        traits: mask.manifest.traits ?? [],
+      });
+// systems/runtime/subjects/runtime/lifecycle/population.js:190   — the process, beside it
+        die.runtime.processes.daemon.create({
+          slug: mask.manifest.slug,
+          mask,
+          controller: die.controller.branch(mask.reference.absolute),
+        }),
+// systems/runtime/subjects/daemon/lifecycle/population.js:11   — the process hangs the row on itself
+  die.daemon.entity = await die.runtime.datamap.shard.scope(async () =>
+    wrap(await die.runtime.entities.daemon.findOneOrFail({ slug: die.daemon.slug })).toPOJO(),
+  );
+#+END_SRC
+
+| reads =runtime.processes.daemon= | lines |
+|---|---|
+| =subjects/runtime/lifecycle/population.js= | 42 · 190 · 201 |
+| =subjects/runtime/lifecycle/resolution.js= | 21 · 24 · 68 · 84 |
+| =subjects/runtime/lifecycle/integration.js= | 19 · 96 |
+
+From m107 (lands first): =/runtime/<slug>/entities/daemon= (=integration.entities=) and =DaemonEntity='s =id= getter (=persist: false=) for the client's identity map (=subsystems/typology/prototypes/entity-manager.js:71=) — this quest rules the getter's fate. The uuid way probed RED 10-26 (=reference/m107/pruned-10-25.org= =* Q33F=): slug stays the primary.
+
+* questions
+
+1. the entities home — =Mode.ts= · =Daemon.ts= → =entities/= (his mark, a lookup); A a file per noun · B a file per store. REFRAMED 10-26: /"both are weird. why is processentity wrapping daemon? not sure this makes sense"/.
+1A. does =Daemon= stay a =ProcessEntity=? A the process store holds a plain =Daemon= · B no process store, =die.runtime.daemons=. REFRAMED 10-26 by his m107 words (=* intent=) → 1B.
+1B. his: the row RUNS — one =DaemonEntity= under =runtime.entities.daemon=, slug the primary, the die's fields on it unpersisted; =runtime.processes.daemon= dies. Unprobed; the fork to ask: =kill · census= on =DaemonRepository= or on the controller.
+
+#+BEGIN_SRC ts
+// systems/runtime/entities/Daemon.ts   — SKETCH 1B: schema-declared fields persist, the class's others ride in memory
+export class DaemonEntity extends BaseEntity {
+  slug!: string;
+  mask: any & Opt = {};
+  traits: string[] & Opt = [];
+  trait: any & Opt = {};
+  controller = null;
+  aperture = new Aperture().use(shard.context.spread(contexts.host, this));
+  datamap = null;
+  entities = {};
+  twitch = null;
+  modes = {};
+}
+// systems/runtime/subjects/runtime/lifecycle/resolution.js:19   — SKETCH 1B: the factory runs each row
+export const daemons = (factory) => async (die, next) => {
+  try {
+    await monad.traverse(await die.runtime.entities.daemon.findAll(), (daemon) => factory(daemon)(die));
+    await next();
+  } finally {
+    await die.runtime.entities.daemon.kill({}, "SIGTERM");
+  }
+};
+#+END_SRC
+
+1B probed 10-26 on =:memory:= (=testament/prototypes/daemon-row/run.js= · =scoped.js=, mikro 7.2.3):
+- unpersisted fields: no column, not in =toPOJO= (=["slug","mask"]=) ✓; same em → same instance, =controller= kept ✓
+- =shard.scope= IS =RequestContext.create= (=subsystems/typology/prototypes/datamap.js:13=) → a fork per scope; two scopes → two instances, scope b =controller= ABSENT ✗
+- class initializers: =forceEntityConstructor: false= (ours) → absent on hydrate; =true= → a NEW =aperture= per hydrate, and 5 minted for 1 create (discovery constructs) ✗ — a live field is never a class initializer
+- an =onLoad= hook grafting from a slug-keyed map: every scope's row gets the SAME =aperture= · =controller=; flush writes only =slug · mask= ✓
+1C. where does the daemon's live half live, the row being per-scope? ASKED 10-26. REFRAMED 10-26: /"how does the mode doit? mode prototype has mode.entity. same way?"/
+1D. Lookup: the mode = a plain prototype (=subsystems/typology/prototypes/mode.js:6=) in its host's map (=subjects/runtime/lifecycle/population.js:133= =die.runtime.modes[type][slug] = new Mode(mask)=), its row ensured in ONE scope and kept as a POJO (=subjects/mode/lifecycle/population.js:25-29= =die.mode.entity = wrap(entity).toPOJO()=). The daemon does the second half already (=subjects/daemon/lifecycle/population.js:11=). A the mode's way (=die.runtime.daemons[slug]=, =ProcessEntity= off) · B 1C's =onLoad= graft. LOCKED A 10-26.
+7. =Service= the mode's way too (=subjects/service/prototype.js:5= the same shape; =processes.service= · =ServiceSchema= · the processes datamap die with it) — ASKED 10-26, lean A. Measured: =die.runtime.services= is TAKEN — =contexts.host= =services= = /"Live services on the host by slug. Example: ctx.services.nlp"/ (=subsystems/typology/schematics/primitives/contexts.js:17=), the PROVIDERS (=subjects/daemon/lifecycle/population.js:54=), read by =subjects/mode/traits/harnessed.js:84=. A a plain map at the path that exists, =die.runtime.processes.service[slug]= (the processes datamap · =ProcessEntity= · =ProcessRepository= · =Process.ts= · =ServiceSchema= die) · B =Service= stays a =ProcessEntity=, the processes datamap holds one kind. REFRAMED 10-26: /"do we have processes anywhere?"/ → lookup: an OS process (pid) only in paladin (=subsystems/paladin/ledger/die.js:37-94= · =prototypes/lock.js:22=); the runtime's =processes= are controller children, no pid — the word is wrong there.
+7A. the Service map's key, =processes= dying: A =die.runtime.services[slug]= (the trait word, =subsystems/paladin/prototypes/integrity.js:8= =ATTACHED: "attachment"=; only ATTACHED masks run, =population.js:145=) · B the host field =services= → =providers= (=PROVIDER= trait), freeing =die.runtime.services= for the Service; blast 9 files, 4 in =~/.viva/registry=. LOCKED A 10-26.
+
+2. the runtime factory (m96 open #1) — A keep, subject-first like =service/factory.js:6=: =run.js= mints the =Runtime= (its =controller= on it), =factory(runtime)()= · B cut to ghost's root (=systems/ghost/run.js:14= =steer.dispatch.execute(execution, die)=), =factory.js= deleted. IGNORED 10-26 (/"ignore. next up: the mode traits"/) — m96 open #1 stays owed.
+3. the paladin mount + =Status:RUNNING= — a =seat= beat (ghost's) vs =run.js=.
+4. the four warnings → paladin. Probed 10-26 (=testament/prototypes/integrity-converse/run.js=, 86 modules in =~/.viva/registry= + commons): today's two converse warns (=aperture= w/o EXPOSED · =datasink= w/o DATASINK) hit 0; generalized over every =TRAITS= export, 15 (11 =provider= w/o PROVIDER — datamap · hallucinators · services; 4 =dataset= w/o DATASET — playground · game); a trait the runtime does not offer: 4 (=home/console: KEYMAPPED= · =service/nlp-stanza: SERVER DOCKER COMPOSE=); paladin =TRAITS= lacks =LOOPING PRIMER RUNTIME KEYMAPPED MONK SERVER DOCKER COMPOSE=. A RULE's fault is FATAL (=registry.js:233= =assert= throws at =accio=). 4A the three trait warns: A paladin faults (=RULES=, fatal: =home/console= stops booting) · B paladin LOGS them on the registry span (=span.log=, the module still mounts). IGNORED 10-26 (/"ignore. ok. cut the loop. whats settled?"/). 4B the =stamp= (=resolution.js:13=) — after 4A.
+5. =filesink.js= down to =FILESINK=. Measured 10-26: =receive= ← =generative.js:141= — and BOTH GENERATIVE modes declare no FILESINK (=commons/playground/chaosmonkey/reader/reader.viva.js= · =commons/instances/hello-world/mode.viva.js=); =mode.files.receive= read only by the route (=filesink.js:56=) + =tests/mode/filetraits.coverage.test.js:58-83=; =rewrite= ← =gestalten/tools/buffer.js:40= (=file.mount= absolute, no mode needed); =mounted= ← viewable · generative; =record= ← fileset; =dataset.js= carries the same disease (=stamp=, ← =mode/lifecycle/resolution.js:2=, rides Q4). A mikro-first: =FileRepository.record · rewrite= (hash via typology =crypto=, flush), the disk write at each caller (=paladin.state.store=), =receive= · =mode.files.receive= die, =mounted= inline · B the trait seats =mode.files = { receive, rewrite }=, every consumer calls it — GENERATIVE then needs FILESINK declared (2 manifests). LOCKED A 10-26.
+6. =patrol.js= dies into =integration.js=.
+
+* the dialogue
+
+- Q1D LOCKED A 10-26 — /"yes same way. a"/: the daemon is held the mode's way — a plain =Daemon= in =die.runtime.daemons[slug]=, its row a POJO on =daemon.entity=; =ProcessEntity= off the daemon, =processes.daemon= + the virtual =DaemonSchema= die (the collision with it). Struck: 1C A (=onLoad= graft) · 1C B (one long fork) · 1A A · 1 A/B.
+
+- Q7A LOCKED A 10-26 — /"a"/: the Service is held the mode's way at =die.runtime.attached[slug]= — RELABELED 10-26 /"call it die.runtime.services[slug] instead of attached."/ → =die.runtime.services[slug]= (the field =subjects/runtime/prototype.js:23= already holds, today ={}=); =processes= dies whole — the processes datamap · =ProcessEntity= · =ProcessRepository= · =entities/Process.ts= · =ServiceSchema=. Struck: 7A B (=services= → =providers=) · 7 B (one-kind processes datamap).
+
+- Q5 LOCKED A 10-26 — /"a"/: =filesink.js= exports =FILESINK= alone; =FileRepository.record · rewrite= own the row (hash · integrity · bytes, flush); the disk write at each caller; =receive= · =mounted= · =record= · =rewrite= · =Received= · =mode.files.receive= die. Struck: B (=mode.files= closures, FILESINK on GENERATIVE).
+
+- Q7B LOCKED A 10-26 — /"ok. we split services and providers. providers being the interface for services. fine"/: the host word =services= → =providers= (=contexts.js:17,61,67=; =daemon.providers= written by the daemon's =population.providers= beat; =ctx.providers= read at =harnessed.js:84= · =hello-world/tools/web.js:72= · =~/.viva/registry/{education/domain/tools/lookup.js:6, chess/modes/board/play/seats.js:23, chess/domain/aperture/index.js:10}=); =services= = the Service subjects alone. LANDED 10-26 on disk + rigs (runtime =lighthouse.js= · =bench.js= · =commons/fixtures/testing/data/seed.js= · hello-world =rig.js= · =catalog.test.js= · registry assembly + chess rigs · 5 registry tests); residue 0; green: runtime beats.coverage · daemon/smoke · mint · multiplex · cortex-contract · lighthouse/datamap · hello-world catalog + snapshot · typology schematics · v · chess domain · match · analysis · riddles · education tools. =bench/smoke= RED before and after: empty HOME =@education not supplied=; real HOME =[Path] nothing to build from= at =viewable.js:20= (=mode.mountpoint= null) — not this change. Kept: the tool route =/service/<slug>= and =bind("service", provider)= (tool names on the wire), unruled.
+
+- Q3A LOCKED B 10-26 — /"we might want to add a track to the span when the api server is live"/ → /"b"/: =onListen= writes the existing =log= track ={ listen: { hostname, port } }=; no ninth STANDARD track, typology untouched. The rig's readiness keys on that record (/"tests/scenarios/hello.js:9 waits for a line run.js actually prints."/). LANDED 10-26; =tests/runtime/hello.test.js= RED 90 s → green 4 s (2 passed, 24 steps). Struck: A (a =listen= track + =Listen= schema in =track.js=). Owed: =tests/qa/rig.js:9= still waits on =Status:RUNNING= (120 s deadline, 7 assertions), unruled.
+
+* as code
+
+** systems/runtime
+*** subjects/daemon/prototype.js — Q1D: plain, the four =ProcessEntity= getters it read written out
+#+BEGIN_SRC js
+// systems/runtime/subjects/daemon/prototype.js — minted by the runtime's daemons beat, once per instance daemon
+import { Aperture, contexts, shard } from "@vivalence/typology";
+
+export class Daemon {
+  type = "daemon";
+  aperture = new Aperture().use(shard.context.spread(contexts.host, this));
+  slug = null;
+  mask = null;
+  controller = null;
+  entity = null;
+  connection = null;
+  call = null;
+  statics = null;
+  mountpoint = null;
+  cortex = null;
+  datamap = null;
+  domain = null;
+  entities = {};
+  twitch = null;
+  minted = {};
+  modes = {};
+  services = {};
+
+  constructor(fields) {
+    Object.assign(this, fields);
+  }
+
+  get manifest() {
+    return this.mask.manifest;
+  }
+
+  get reference() {
+    return this.mask.reference;
+  }
+
+  get url() {
+    return this.mask.url;
+  }
+
+  get attach() {
+    return this.mask.attach;
+  }
+
+  get traits() {
+    return this.manifest.traits || [];
+  }
+
+  get $status() {
+    return this.controller.status.$transient;
+  }
+}
+#+END_SRC
+*** subjects/runtime/prototype.js — Q1D
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/prototype.js:21
+   processes = {};
++  daemons = {};
+   modes = {};
+#+END_SRC
+*** subjects/runtime/lifecycle/population.js — Q1D: the daemons beat mints, the processes datamap loses the daemon
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/population.js:3
+-import { Daemon, DaemonSchema } from "../../daemon/prototype.js";
++import { Daemon } from "../../daemon/prototype.js";
+// :36
+-    { entities: [ProcessSchema, ServiceSchema, DaemonSchema] },
++    { entities: [ProcessSchema, ServiceSchema] },
+// :42-45
+-  die.runtime.processes.daemon = new ProcessRepository(
+-    die.runtime.processes.datamap.orm.em,
+-    Daemon,
+-  );
+// :187-202
+-  await die.runtime.processes.datamap.shard.scope(() =>
+-    Promise.all(
+-      die.runtime.instance.daemons.map((mask) =>
+-        die.runtime.processes.daemon.create({
+-          slug: mask.manifest.slug,
+-          mask,
+-          controller: die.controller.branch(mask.reference.absolute),
+-        }),
+-      ),
+-    ),
+-  );
+-  try {
+-    await next();
+-  } finally {
+-    await die.runtime.processes.daemon.remove();
+-  }
++  for (const mask of die.runtime.instance.daemons)
++    die.runtime.daemons[mask.manifest.slug] = new Daemon({
++      slug: mask.manifest.slug,
++      mask,
++      controller: die.controller.branch(mask.reference.absolute),
++    });
++  await next();
+#+END_SRC
+*** subjects/runtime/lifecycle/resolution.js — Q1D: four reads off the map
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/resolution.js:19
+ export const daemons = (factory) => async (die, next) => {
+   try {
+-    await monad.traverse(await die.runtime.processes.daemon.find(), (daemon) => factory(daemon)(die));
++    await monad.traverse(Object.values(die.runtime.daemons), (daemon) => factory(daemon)(die));
+     await next();
+   } finally {
+-    await die.runtime.processes.daemon.kill({}, "SIGTERM");
++    await Promise.all(Object.values(die.runtime.daemons).map((daemon) => daemon.controller.kill("SIGTERM")));
+   }
+ };
+// :68
+-  for (const daemon of await die.runtime.processes.daemon.find()) {
++  for (const daemon of Object.values(die.runtime.daemons)) {
+// :84
+-    (await die.runtime.processes.daemon.find()).map((daemon) => ({
++    Object.values(die.runtime.daemons).map((daemon) => ({
+#+END_SRC
+*** tests — Q1D blast: =processes.daemon= read by 2 test files, 0 registry hits
+#+BEGIN_SRC diff
+// systems/runtime/tests/runtime/beats.coverage.test.js:114 · :128 (:147 the same with { slug: "memo" })
+-    die.runtime.processes.daemon = processes([daemon]);
++    die.runtime.daemons = { [daemon.slug]: daemon };
+// systems/runtime/tests/lighthouse/datamap.test.js:28
+-    scenario.runtime.processes.daemon.find = async () => [daemon];
++    scenario.runtime.daemons = { [SLUG]: daemon };
+#+END_SRC
+*** subjects/runtime/lifecycle/integration.js — Q1D
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/integration.js:19
+-    () => die.controller.stdout.log({ service: die.runtime.processes.service.census(), daemon: die.runtime.processes.daemon.census() }),
++    () =>
++      die.controller.stdout.log({
++        service: die.runtime.processes.service.census(),
++        daemon: Object.fromEntries(Object.values(die.runtime.daemons).map((daemon) => [daemon.slug, daemon.controller.status.reflection.code])),
++      }),
+// :96
+-  for (const host of [die.runtime, ...(await die.runtime.processes.daemon.find())]) {
++  for (const host of [die.runtime, ...Object.values(die.runtime.daemons)]) {
+#+END_SRC
+
+*** subjects/service/prototype.js — Q7A: plain, the getters it read written out
+#+BEGIN_SRC js
+// systems/runtime/subjects/service/prototype.js — minted by the runtime's services beat, once per ATTACHED mask
+import { Vector } from "@vivalence/typology";
+
+export class Service {
+  type = "service";
+  attachment = new Vector();
+  slug = null;
+  mask = null;
+  controller = null;
+
+  constructor(fields) {
+    Object.assign(this, fields);
+  }
+
+  get manifest() {
+    return this.mask.manifest;
+  }
+
+  get reference() {
+    return this.mask.reference;
+  }
+}
+#+END_SRC
+*** subjects/runtime/prototype.js — Q7A (supersedes Q1D's hunk: =processes= dies)
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/prototype.js:21
+-  processes = {};
++  daemons = {};
+   modes = {};
+   services = {};
+#+END_SRC
+*** subjects/runtime/lifecycle/population.js — Q7A: no processes datamap; the services beat mints
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/population.js:3-12
+ import { Daemon } from "../../daemon/prototype.js";
+-import { Service, ServiceSchema } from "../../service/prototype.js";
++import { Service } from "../../service/prototype.js";
+ import { Lighthouse } from "../../lighthouse/prototype.js";
+-import {
+-  ActivityEntity,
+-  ActivityRepository,
+-  ProcessRepository,
+-  ProcessSchema,
+-  sets,
+-} from "../../../entities/index.ts";
++import { ActivityEntity, ActivityRepository, sets } from "../../../entities/index.ts";
+// :34-45
+-  die.runtime.processes.datamap = await datamapMode.provider(
+-    { statics: { context: { name: `runtime/${die.mask.manifest.slug}/processes` } } },
+-    { entities: [ProcessSchema, ServiceSchema, DaemonSchema] },
+-  );
+-  die.runtime.processes.service = new ProcessRepository(
+-    die.runtime.processes.datamap.orm.em,
+-    Service,
+-  );
+-  die.runtime.processes.daemon = new ProcessRepository(
+-    die.runtime.processes.datamap.orm.em,
+-    Daemon,
+-  );
+// :87
+-    await die.runtime.processes.datamap.close();
+// :142-165 — services beat
+-  await die.runtime.processes.datamap.shard.scope(() =>
+-    Promise.all(
+-      masks.map((mask) => {
+-        if (!mask.manifest.traits.includes("ATTACHED")) {
+-          return die.runtime.instance.dormant.push({ … });
+-        }
+-        return die.runtime.processes.service.create({ … });
+-      }),
+-    ),
+-  );
+-  try {
+-    await next();
+-  } finally {
+-    await die.runtime.processes.service.remove();
+-  }
++  for (const mask of masks) {
++    if (!mask.manifest.traits.includes("ATTACHED")) {
++      die.runtime.instance.dormant.push({
++        at: `service[${mask.manifest.slug}]`,
++        module: mask.identifier,
++        empty: [],
++        why: "not ATTACHED — consumed only",
++      });
++      continue;
++    }
++    die.runtime.services[mask.manifest.slug] = new Service({
++      slug: mask.manifest.slug,
++      mask,
++      controller: die.controller.branch(mask.reference.absolute),
++    });
++  }
++  await next();
+#+END_SRC
+*** subjects/runtime/lifecycle/resolution.js — Q7A
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/resolution.js:10-16
+ export const services = (factory) => async (die, next) => {
+   try {
+-    await monad.traverse(await die.runtime.processes.service.find(), (service) => factory(service)(die));
++    await monad.traverse(Object.values(die.runtime.services), (service) => factory(service)(die));
+     await next();
+   } finally {
+-    await die.runtime.processes.service.kill({}, "SIGTERM");
++    await Promise.all(Object.values(die.runtime.services).map((service) => service.controller.kill("SIGTERM")));
+   }
+ };
+// :39
+-  for (const service of await die.runtime.processes.service.find()) {
++  for (const service of Object.values(die.runtime.services)) {
+// :93
+-    (await die.runtime.processes.service.find()).map((service) => ({
++    Object.values(die.runtime.services).map((service) => ({
+#+END_SRC
+*** subjects/runtime/lifecycle/integration.js — Q7A (supersedes Q1D's =:19=)
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/integration.js:19
+-    () => die.controller.stdout.log({ service: die.runtime.processes.service.census(), daemon: die.runtime.processes.daemon.census() }),
++    () =>
++      die.controller.stdout.log({
++        service: Object.fromEntries(Object.values(die.runtime.services).map((service) => [service.slug, service.controller.status.reflection.code])),
++        daemon: Object.fromEntries(Object.values(die.runtime.daemons).map((daemon) => [daemon.slug, daemon.controller.status.reflection.code])),
++      }),
+#+END_SRC
+*** entities/ — Q7A: =Process.ts= deleted; =index.ts= drops =export * from "./Process.ts";= (=:20=)
+*** tests — Q7A blast
+#+BEGIN_SRC diff
+// systems/runtime/tests/runtime/beats.coverage.test.js:93 · :129 (:146 the same with { slug: "tts" })
+-    die.runtime.processes.service = processes([service]);
++    die.runtime.services = { [service.slug]: service };
+#+END_SRC
+
+*** entities/Mode.ts · entities/Daemon.ts — his mark (a lookup): moved from =subjects/mode/= · =subjects/daemon/=
+#+BEGIN_SRC diff
+// systems/runtime/entities/index.ts:7 · :10 · :24 · :27
+-export * from "../subjects/mode/Mode.ts";
++export * from "./Mode.ts";
+-export * from "../subjects/daemon/Daemon.ts";
++export * from "./Daemon.ts";
+-import mode from "../subjects/mode/Mode.ts";
++import mode from "./Mode.ts";
+-import daemon from "../subjects/daemon/Daemon.ts";
++import daemon from "./Daemon.ts";
+// systems/runtime/entities/Mode.ts:3-11 · entities/Daemon.ts:3-9 — every "../../entities/index.ts" → "./index.ts"
+-import { DataRepository, DataEntity, DataSchema } from "../../entities/index.ts";
++import { DataRepository, DataEntity, DataSchema } from "./index.ts";
+// systems/runtime/subjects/mode/index.js:1 · subjects/daemon/index.js:3 — the subject barrels stop re-exporting the table
+-export * from "./Mode.ts";
+-export * from "./Daemon.ts";
+// systems/runtime/subjects/mode/Mode.ts:13 · Daemon.ts:17 · daemon/prototype.js:35 — the three marks go with their lines
+#+END_SRC
+codestyle: /"=<Subject>.ts= when mikro"/ struck from the subject's dir (=.ikiro/codestyle.md= SUBJECT line), REJECTED 10-26 his mark /"belongs into fucking ENTITIES obviously."/ — lands at the tangle.
+
+*** entities/File.ts — Q5: the row's two verbs
+#+BEGIN_SRC diff
+// systems/runtime/entities/File.ts:1-12 — called by FILESINK's /files/receive, FILESET at boot, GENERATIVE's buffer_create, the buffer_update tool
+ import { types, Collection, EntitySchema, EntityRepositoryType, type Opt, type Rel } from "@mikro-orm/core";
++import { crypto } from "@vivalence/typology";
+ …
+ export class FileRepository extends DataRepository {
+   unique(query) {
+     return { mode: query.mode, path: query.path };
+   }
++
++  async record({ bytes, ...data }) {
++    const hash = await crypto.digestBytes(bytes);
++    const file = await this.ensure({ ...data, hash, integrity: `sha256-${hash}`, bytes: bytes.length });
++    await this.em.flush();
++    return file;
++  }
++
++  async rewrite(file, bytes) {
++    const hash = await crypto.digestBytes(bytes);
++    file.assign({ hash, integrity: `sha256-${hash}`, bytes: bytes.length });
++    await this.em.flush();
++    return file;
++  }
+ }
+#+END_SRC
+*** subjects/mode/traits/filesink.js — Q5: the whole file
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/filesink.js — a FILESINK mode's aperture takes bytes over the wire
+import { join } from "@std/path";
+import paladin from "@vivalence/paladin";
+import { mime, Path, v } from "@vivalence/typology";
+
+export const FILESINK = (mode, context) => {
+  mode.aperture.open(
+    {
+      nature: "/files/receive",
+      input: v.object({
+        path: v.string().desc('The file\'s path inside the mode, one row per (mode, path). Example: "maps/range.png"'),
+        bytes: v.unknown().desc("The bytes, a Uint8Array. Example: new TextEncoder().encode('# Q3')"),
+        mime: mime.type().optional().desc('What the bytes are; read off the extension when left out. Example: "image/png"'),
+      }),
+    },
+    async (ctx) => {
+      const mount = join(new Path(mode.mountpoint).absolute, ctx.input.path);
+      await paladin.state.store(mount, ctx.input.bytes);
+      return context.entities.file.record({
+        mode: mode.entity.id,
+        path: ctx.input.path,
+        mount,
+        mime: ctx.input.mime ?? mime.of(ctx.input.path),
+        bytes: ctx.input.bytes,
+      });
+    },
+  );
+};
+#+END_SRC
+*** subjects/mode/traits/{fileset,generative,viewable}.js · gestalten/tools/buffer.js — Q5 callers
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/fileset.js:4 · :10
+-import { record } from "./filesink.js";
+-    await record(context)({
++    await context.entities.file.record({
+// systems/runtime/subjects/mode/traits/generative.js:1-6
++import { join } from "@std/path";
+ import paladin from "@vivalence/paladin";
+-import { mime, v, Vector } from "@vivalence/typology";
+-import { mounted, receive } from "./filesink.js";
++import { mime, Path, v, Vector } from "@vivalence/typology";
+-  const bundler = paladin.bundler(mounted(mode));
++  const bundler = paladin.bundler(new Path(mode.mountpoint).absolute);
+// :139-150 — buffer_create, a source given
+         if (ctx.input.source !== undefined) {
+-          buffer.files.add(
+-            await receive(
+-              mode,
+-              context,
+-            )({
+-              path: `${buffer.id}.${mime.extension(ctx.input.mime)}`,
+-              bytes: new TextEncoder().encode(ctx.input.source),
+-              mime: ctx.input.mime,
+-            }),
+-          );
++          const path = `${buffer.id}.${mime.extension(ctx.input.mime)}`;
++          const mount = join(new Path(mode.mountpoint).absolute, path);
++          const bytes = new TextEncoder().encode(ctx.input.source);
++          await paladin.state.store(mount, bytes);
++          buffer.files.add(await context.entities.file.record({ mode: mode.entity.id, path, mount, mime: ctx.input.mime, bytes }));
+         }
+// systems/runtime/subjects/mode/traits/viewable.js:3-4 · :20
+-import { mime } from "@vivalence/typology";
+-import { mounted } from "./filesink.js";
++import { mime, Path } from "@vivalence/typology";
+-  const bundler = paladin.bundler(mounted(mode));
++  const bundler = paladin.bundler(new Path(mode.mountpoint).absolute);
+// systems/runtime/gestalten/tools/buffer.js:2 · :40 — buffer_update, a source given
+-import { rewrite } from "../../subjects/mode/traits/filesink.js";
++import paladin from "@vivalence/paladin";
+-        await rewrite(ctx)(file, new TextEncoder().encode(ctx.input.source));
++        const bytes = new TextEncoder().encode(ctx.input.source);
++        await paladin.state.store(file.mount, bytes);
++        await ctx.entities.file.rewrite(file, bytes);
+#+END_SRC
+*** tests/mode/filetraits.coverage.test.js — Q5: =:5= imports die; =:43= · =:80= read =entities.file.record · rewrite=; =:55-65= · =:83= call the route (=steer.dispatch= over =mode.aperture=, =/files/receive=) instead of =mode.files.receive=
+
+*** Q7B — LANDED 10-26: the host word =services= → =providers= (verbatim from disk)
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/contexts.js:17 · :61 · :67
+export const providers = { providers: v.record(v.string(), v.unknown()).desc("Live providers on the host by slug — a service's interface. Example: ctx.providers.nlp") };
+export const host = { ...entities, ...call, ...cortex, ...modes, ...providers, ...statics, ...domain, ...mountpoint, ...reference, ...attach };
+// systems/runtime/subjects/daemon/lifecycle/population.js:52 — the daemon's beat, renamed (daemon/lifecycle/index.js:16 =.use(population.providers)=)
+export const providers = async (die, next) => {
+  for (const [slug, citizen] of Object.entries(die.register.consume)) {
+    die.daemon.providers[slug] = await citizen.provider(citizen); //@beef pass cortex or something??? maybe service provider should be a vector?
+    if (citizen.manifest.traits.includes("TOOLING") && citizen.tools) {
+      die.daemon.providers[slug].tools = citizen.tools;
+    }
+  }
+  await next();
+};
+// systems/runtime/subjects/mode/traits/harnessed.js:84
+  for (const [slug, provider] of Object.entries(ctx.providers ?? {})) {
+    if (provider.tools) {
+      armed.branch(`/service/${slug}`).use(shard.context.bind("service", provider)).graft(provider.tools);
+// ~/.viva/registry/chess/modes/board/play/seats.js:23
+    const service = ctx.providers?.[seat.service ?? "engine"];
+#+END_SRC
+
+*** Q3A — LANDED 10-26: the server's live moment is a =log= record
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/lifecycle/integration.js:36
+  const server = Deno.serve(
+    { port: Number(url.port), hostname: url.hostname, signal: die.controller.abort.signal, onListen: ({ hostname, port }) => die.controller.stdout.log({ listen: { hostname, port } }) },
+    shard.cors.wrap(shape.http(die.aperture)),
+  );
+// systems/runtime/tests/scenarios/hello.js:9
+export const READY = /^\[runtime\/[^/\]]+\] log \{ listen/;
+// systems/runtime/tests/runtime/hello.test.js:19 · :208
+    expect(world.ready).toMatch(hello.READY);
+#+END_SRC
+
+*** Q6 — LANDED 10-26 on his /"Q6 … go."/: =patrol.js= dies, the file census is the row's verb (verbatim from disk)
+#+BEGIN_SRC js
+// systems/runtime/entities/File.ts:38
+  async sweep(now = () => new Date().toISOString()) {
+    const report = { missing: [], returned: [] };
+    for (const file of await this.find({})) {
+      const mounted = await present(file.mount);
+      if (mounted === !file.traits.includes("MISSING")) continue;
+      …
+    }
+    await this.em.flush();
+    return report;
+  }
+// systems/runtime/subjects/runtime/lifecycle/integration.js:20
+      die.controller.stdout.log({
+        service: Object.fromEntries(Object.values(die.runtime.services).map((service) => [service.slug, service.controller.status.reflection.code])),
+        daemon: Object.fromEntries(Object.values(die.runtime.daemons).map((daemon) => [daemon.slug, daemon.controller.status.reflection.code])),
+        files: await die.runtime.datamap.shard.scope(() => die.runtime.entities.file.sweep()),
+      }),
+#+END_SRC
+
+* land 10-26 — Q5 · Q6 · the entities move · the daemon id
+
+- Q5 as =* as code= (=entities/File.ts= =record · rewrite=; =filesink.js= the trait alone; callers fileset · generative · viewable · =tools/buffer.js=); rigs =tests/mode/generative.test.js= · =traits.receive.test.js= stub =record: FileRepository.prototype.record= over their =ensure=; =filetraits.coverage= calls the route.
+- Q6, written that turn (no hunk before his go): =patrol.js= deleted; its file census is =FileRepository.sweep(now)= (mikro-first, beside Q5's verbs), run by the ONE =integration.patrol= interval, logged =files= beside =service · daemon=; =tests/runtime/patrol.test.js= reads =repos.file.sweep=; docs =12.01_anatomy-of-an-instance.mdx:106=.
+- the move as =* as code=; codestyle SUBJECT line: =<Subject>.ts= → =entities/<Subject>.ts=, REJECTED in its dir.
+- the daemon =id=: =m107-ambient-chrome.org= =* land 10-26 — the daemon id=.
+- census: baseline 8/8 ok; after, runtime 79/83 (4 reds pre-existing, sandbox-proven), ghost 20/20.
+
+* handoff
+
+- goal: every new =@beef= mark in =systems/runtime= answered by a hunk; the daemon one record under =runtime.entities=.
+- done 10-26 (on disk): Q1D daemon + Q7A service held the mode's way (=die.runtime.daemons= · =die.runtime.services=), =processes= · =entities/Process.ts= gone · Q7B =services= / =providers= split, registry included; docs (=12.01_anatomy-of-an-instance.mdx=) · codestyle example · codemap · =commons/services/reader/README.md= re-worded; probes =testament/prototypes/{daemon-row,integrity-converse}/=. Q7A blast missed 3 rigs (=tests/runtime/composition.test.js= · =tests/runtime/userspace.bundle.test.js= · =tests/view.bundle.route.test.js= still built =processes=) → =daemons: {}= 10-26; full runtime census =85 passed · 12 failed=, every red pre-existing.
+- next: land Q5 (filesink → =FileRepository.record · rewrite=) + the =entities/= move on his word; then =tests/qa/rig.js:9= readiness (Q3A's pattern, unruled) · Q3's paladin mount · Q4B (=stamp=) · Q6 (=patrol.js=).
+- never: a uuid for the daemon · two =DaemonSchema= · =attached= for the Service map · =ctx.services= for providers · =commit= read as VCS.
+- owed: Q3 the paladin mount + =Status:RUNNING= · Q4B the =stamp= · marks =subjects/daemon/lifecycle/population.js:54= (provider a vector?) · =resolution.js:6= (autoenroll, temporary) · Q2 runtime factory (m96 open #1, ignored) · Q4A trait warns (ignored) · the tool route =/service/<slug>= + =bind("service", provider)= unruled · =bench/smoke= RED at =viewable.js:20= (=mode.mountpoint= null, pre-existing) · 2 orphan =run.js= (pids 11123 · 11626, a 10-24 =viva-ring= rig).

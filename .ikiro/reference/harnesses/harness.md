@@ -2387,3 +2387,5 @@ entities.md          → §5
 mechanisms.md        → §2.5–2.6 + §6
 client.md            → §7
 ```
+
+## 9.6 re-measured 2026-11-03 → `reference/harnesses/2026-11-03.md` (the molt sweep: 102 confirmed findings, the delta table, the self-improvement loops seen in the field)

@@ -1,0 +1,27 @@
+# drained 10-22 whole from .ikiro/quests/m95-depincered-client.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* terrain — measured 10-19 (the full map: =m95-depincered-client.codemap.org=)
+
+| piece | file:line | today |
+|---+---+---|
+| ghost ring | =systems/ghost/gestalten/shard/repl.js:22-44= | composed per line; 5/5 test files green |
+| ghost chrome | =systems/ghost/surface/chrome/index.js:8-32= | one dock ‖ one frame; "no repl wired in yet??!!" |
+| ghost boot | =systems/ghost/client/lifecycle/index.js:216= | surface at beat 4; no sign-in pane |
+| ghost fresh-tree trap | =systems/ghost/surface/chrome/index.js:6= | gitignored =out/panes.mjs= statically imported |
+| anima build | =systems/anima/src/entities/buffer.js:2= · =mode/traits/application.js:1= | red on =View= |
+| anima activity | =systems/anima/src/entities/activity.js:31-65= · =app/bones/spine/activity.js= | framework-free folds |
+| drapes dom · tty | =subsystems/drapes/dom/= · — | 2.3k LOC Solid kit, red on =belt.dock= · absent |
+| runtime activity | =systems/runtime/entities/Activity.ts:32= | controller mirror, 12-record ring |
+| sessions | =systems/runtime/lighthouse/apertures/users.js:26-27= | ONE token slot per user |
+
+#+begin_src text
+systems/anima/src/                       survives the rewrite (framework-free), ported into ghost or kept
+  entities/activity.js:31-65     PORT → ghost entities/activity.js     roster · loudest · TONES · settled · owed
+  app/bones/spine/activity.js    PORT                                  ring → span bars, elapsed
+  app/panels/a/stop.svelte.js    PORT                                  press SIGTERM, hold 2 s SIGKILL, reaches rows born mid-stop
+  app/panels/a/Dock.svelte:118,156   PORT                              the live word: thinking · streaming · calling X
+  app/turns.js (+64 tests)       KEEP                                  pure turn algebra
+  app/gate.js · prototypes/dictation · box/   KEEP                     sign-in gate · mic · speaker · worklet
+  panels/c/cards/traits/form/{schema,picker}.js   PORT (untested)      schema → form
+#+end_src
+

@@ -1,6 +1,7 @@
-import { App, Vector, shard } from "@vivalence/typology";
+import { mime, Vector } from "@vivalence/typology";
 import { doctor, doors, persona, research, web } from "./tools/index.js";
 import { harness as voice } from "./harness.js";
+export { primer } from "./harness.js";
 
 export const manifest = {
   type: "demo",
@@ -9,9 +10,10 @@ export const manifest = {
     "HARNESSED",      // mode has access to the daemon's harness
     "CONVERSATIONAL", // mode can be chatted with
     "TOOLING",         // mode provides agentic tools
+    "PRIMER",
 
     "EMITTER",        // mode renders ad-hoc buffers
-    "APPLICATION",    // buffers from static svelte
+    "VIEWABLE",       // buffers from static svelte
     "GENERATIVE",     // buffers hallucinated at runtime
 
     "EXPOSED",        // mode serves http endpoints
@@ -23,7 +25,7 @@ export const tools = new Vector()
   .graft(web)
   .graft(research);
 
-export const application = new App("./app/App.svelte");
+export const views = [{ slug: "hello-world", mount: "app/App.svelte", mime: mime.dom.svelte }];
 
 export const aperture = new Vector()
   .use(async (ctx, next) => {
@@ -35,6 +37,5 @@ export const aperture = new Vector()
   .graft(doors);
 
 export const harness = new Vector()
-  .use(shard.hal.defaults({ policy: { tune: "capable", rounds: 10 }, settings: { effort: "low" } }))
   .graft(voice);
 export { emitter, generator } from "./page/index.js";

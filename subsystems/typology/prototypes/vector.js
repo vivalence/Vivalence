@@ -62,7 +62,7 @@ export class Vector {
         const existing = this.trie.get(nature);
         const branch = existing?.trajectory ?? new this.constructor(this, this.signature);
         branch.graft(edge.trajectory);
-        if (existing) existing.pattern = edge.pattern;
+        if (existing) existing.pattern = new this.signature({ ...existing.pattern, ...edge.pattern });
         else this.trie.set(nature, { pattern: edge.pattern, trajectory: branch });
       }
       this.carry.push(...vector.carry);

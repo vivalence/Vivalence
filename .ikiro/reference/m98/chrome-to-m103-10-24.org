@@ -1,0 +1,737 @@
+# struck 10-24 from .ikiro/quests/m98-ghost-barrels.org by beef's m98 → m103 split /"this must be aligned with 103. lets move the parts of 98 into 103 that fit there and drop them here entirely. We don't want double work. So if there's anything, maybe write a compendium to 103 detailing the stuff that we have from 98 that applies there. like all of the rulings and such."/ — the chrome blocks m103 milestone 4 rewrites (Q8 · Q9's helpers · Q43), as tangled 10-23 on m98's tree; the five chrome test blocks as tangled before their 10-24 re-cut (m98 keeps their path lines); m99's context lines as cut before the re-cut; nothing reworded · limit: none (reference content)
+
+** =**** surfaces/chrome= — struck whole 10-24 → m103 compendium
+***** grid.js — Q9 · Q43
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/grid.js:1
+-import { tokens } from "@vivalence/dapper";
++import { contrast, tokens } from "@vivalence/dapper";
+
+…
+// systems/ghost/surfaces/chrome/grid.js:105
+
++export const TICK = 90;
++
++export const spinning = (client) =>
++  client.runtime !== null &&
++  client.runtime.entities.activity.$entities
++    .get()
++    .some((activity) => activity.status === "RUNNING");
++
++export const ticking = (client) =>
++  setInterval(() => {
++    if (spinning(client))
++      client.surface.$clock.set((client.surface.clock + TICK) % (TICK * SPINNER.length));
++  }, TICK);
++
++export const OSC = { timeout: 1200 };
++
++export const dark = (renderer) =>
++  renderer
++    .getPalette(OSC)
++    .then((colors) => colors.defaultBackground === null || contrast(colors.defaultBackground, "#FFFFFF") > contrast(colors.defaultBackground, "#000000"))
++    .catch(() => true);
++
+ export const bar = (pct, n) => {
+#+END_SRC
+
+** =**** surfaces/chrome= — struck whole 10-24 → m103 compendium
+***** index.js — Q9 · Q43
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/index.js:3
+ import { paint } from "./paint.js";
+-import { screen } from "./screen.js";
+-import { SPINNER } from "./grid.js";
++import { PLACES, screen } from "./screen.js";
++import { dark, ticking } from "./grid.js";
+ import { panes } from "./out/panes.mjs";
+-
+-export const PLACES = ["cell", "frame"];
+-
+-export const OSC = { timeout: 1200 };
+-
+-export const TICK = 90;
+-
+-const channel = (hex, at) => parseInt(hex.slice(at, at + 2), 16) / 255;
+-
+-export const rgb = (color) =>
+-  typeof color === "string"
+-    ? { r: channel(color, 1), g: channel(color, 3), b: channel(color, 5) }
+-    : color;
+-
+-export const luminance = (color) =>
+-  rgb(color).r * 0.2126 + rgb(color).g * 0.7152 + rgb(color).b * 0.0722;
+-
+-export const dark = (renderer) =>
+-  renderer
+-    .getPalette(OSC)
+-    .then(
+-      (colors) => colors.defaultBackground === null || luminance(colors.defaultBackground) < 0.5,
+-    )
+-    .catch(() => true);
+-
+-export const spinning = (client) =>
+-  client.runtime !== null &&
+-  client.runtime.entities.activity.$entities
+-    .get()
+-    .some((activity) => activity.status === "RUNNING");
+-
+-export const ticking = (client) =>
+-  setInterval(() => {
+-    if (spinning(client))
+-      client.surface.$clock.set((client.surface.clock + TICK) % (TICK * SPINNER.length));
+-  }, TICK);
+
+…
+// systems/ghost/surfaces/chrome/index.js:55
+   const tick = ticking(client);
+-  const erase = paint(renderer.root, renderer, panes.chrome, { client });
++  const erase = paint(renderer.root, renderer, panes.chrome.Chrome, { client });
+   return () => {
+#+END_SRC
+
+** =**** surfaces/chrome= — struck whole 10-24 → m103 compendium
+***** screen.js — Q9
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/screen.js:3
+ export const FOCUS = ["sidebar", "frame", "journal", "composer"];
++
++export const PLACES = ["cell", "frame"];
+
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** bar.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/bar.js:38
+
+-export const paintBar = (world, S, P, y) => {
++export const paint = (world, S, P, y) => {
+   const z = P[0];
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** frame.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/frame.js:34
+
+-export const paintFrame = (world, S, P, x0, y0, wd, ht) => {
++export const paint = (world, S, P, x0, y0, wd, ht) => {
+   const z = P[1];
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** index.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/index.js:1
+-export { Chrome as chrome, Cells, Island as island, PANES, Regions as regions, SETTLING, SOURCES, pane } from "./chrome.jsx";
+-export { Mounted, BODY } from "./painters.jsx";
+-export { paintTabs, ANIMA, LIVE, live } from "./tabs.js";
+-export { paintBar, chordText, GLYPHS, HINT, MIC, PROCESS, SEGS, SPOKEN, SYSTEM, tone, ttyGlyph } from "./bar.js";
+-export { paintSection, sectionLines, hitOf } from "./section.js";
+-export { paintWid, WIDTH } from "./wid.js";
+-export { paintPanel, completions, edgeLabel, edgesOf, HIDDEN, HINTS, KCOL, match, NAMED, panelHeight, SUBJECTS } from "./panel.js";
+-export { paintFrame, BODIES, EMPTY } from "./frame.js";
+-export { paintSidebar } from "./sidebar.js";
+-export { paintJournal, journalLines, jrows, recMeta, CONSENT, KEYS, LENS, PLACEHOLDER, ROLES, cells, clock, prose, streamed, thought, tools } from "./journal.js";
+-export { paintTele, detail, enacted, FILTERS, inspectView, kind, story, TABS, teleView, TRACKS, writable } from "./tele.js";
+-export { paintIsland, BEATS, BRAND, LOGO, logo } from "./island.js";
+-export { render, FOCUSED, MESSENGER, NARROW, SCROLLBACK } from "./regions.js";
++export * as bar from "./bar.js";
++export * as chrome from "./chrome.jsx";
++export * as frame from "./frame.js";
++export * as island from "./island.js";
++export * as journal from "./journal.js";
++export * as painters from "./painters.jsx";
++export * as panel from "./panel.js";
++export * as regions from "./regions.js";
++export * as section from "./section.js";
++export * as sidebar from "./sidebar.js";
++export * as tabs from "./tabs.js";
++export * as tele from "./tele.js";
++export * as wid from "./wid.js";
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** island.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/island.js:22
+
+-export const paintIsland = (world, S, P) => {
++export const paint = (world, S, P) => {
+   const z = P[2];
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** journal.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/journal.js:442
+
+-export const paintJournal = (world, S, P, x0, y0, wd, ht, footer) => {
++export const paint = (world, S, P, x0, y0, wd, ht, footer) => {
+   const z = P[1];
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** panel.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/panel.js:113
+
+-export const paintPanel = (world, S, P, y, h) => {
++export const paint = (world, S, P, y, h) => {
+   const z = P[0];
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** regions.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/regions.js:3
+ import { SIDEBAR } from "../screen.js";
+-import { paintTabs } from "./tabs.js";
+-import { paintBar } from "./bar.js";
+-import { paintWid } from "./wid.js";
+-import { panelHeight, paintPanel } from "./panel.js";
+-import { paintFrame } from "./frame.js";
+-import { paintSidebar } from "./sidebar.js";
+-import { paintJournal } from "./journal.js";
+-import { paintTele } from "./tele.js";
+-import { paintIsland } from "./island.js";
++import * as bar from "./bar.js";
++import * as frame from "./frame.js";
++import * as island from "./island.js";
++import * as journal from "./journal.js";
++import * as panel from "./panel.js";
++import * as sidebar from "./sidebar.js";
++import * as tabs from "./tabs.js";
++import * as tele from "./tele.js";
++import * as wid from "./wid.js";
+
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:38
+   if (!d.min) {
+-    paintJournal(world, S, P, dx, dy, dw, dh, false);
++    journal.paint(world, S, P, dx, dy, dw, dh, false);
+     put(S, dx + dw, dy + dh, "◢", { fg: z1["text-muted"], bg: z1.boundary, hit: { fn: "dockresize" } });
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:48
+   const jy = 3;
+-  paintJournal(world, S, P, 0, jy, cols, bodyH - jy - 1, true);
++  journal.paint(world, S, P, 0, jy, cols, bodyH - jy - 1, true);
+   put(S, 0, panelY - 1, "─".repeat(cols), { fg: z.divider });
+-  if (panelOpen) paintPanel(world, S, P, panelY, panelH);
+-  paintBar(world, S, P, barY);
+-  paintWid(world, S, P, barY);
+-  paintTele(world, S, P);
++  if (panelOpen) panel.paint(world, S, P, panelY, panelH);
++  bar.paint(world, S, P, barY);
++  wid.paint(world, S, P, barY);
++  tele.paint(world, S, P);
+   return S;
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:60
+   if (world.island) {
+-    paintIsland(world, S, P);
++    island.paint(world, S, P);
+     return S;
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:65
+   const narrow = cols < NARROW;
+-  const panelH = panelHeight(world, cols, rows);
++  const panelH = panel.panelHeight(world, cols, rows);
+   const panelOpen = panelH > 0;
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:73
+   if (!cockpit) return footer(world, S, P, cols, panelOpen, panelY, panelH, barY, bodyH);
+-  paintTabs(world, S, P, 0);
++  tabs.paint(world, S, P, 0);
+   let x = 0;
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:77
+   if (sbW) {
+-    paintSidebar(world, S, P, 0, bodyY, sbW, bodyH);
++    sidebar.paint(world, S, P, 0, bodyY, sbW, bodyH);
+     x = sbW;
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:86
+     if (showFrame) {
+-      paintFrame(world, S, P, x, bodyY, bw, bodyH);
++      frame.paint(world, S, P, x, bodyY, bw, bodyH);
+       put(S, cols - 14, bodyY, "⇥ journal", { fg: P[1]["text-muted"], hit: { fn: "pane", arg: "dock" } });
+     } else {
+-      paintJournal(world, S, P, x, bodyY, bw, bodyH, false);
++      journal.paint(world, S, P, x, bodyY, bw, bodyH, false);
+       if (hasFrame) put(S, x + bw - 12, bodyY, "⇥ frame", { fg: P[1]["signal-primary-ink"], hit: { fn: "pane", arg: "frame" } });
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:99
+       const dx = dock.align === "right" ? x + fw + 1 : x;
+-      paintFrame(world, S, P, fx, bodyY, fw, bodyH);
++      frame.paint(world, S, P, fx, bodyY, fw, bodyH);
+       for (let yy = bodyY; yy < bodyY + bodyH; yy += 1) put(S, dock.align === "right" ? x + fw : x + dw, yy, "│", { fg: P[1].boundary, hit: { line: RESET } });
+-      paintJournal(world, S, P, dx, bodyY, dw, bodyH, false);
++      journal.paint(world, S, P, dx, bodyY, dw, bodyH, false);
+     } else {
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:107
+       const dy = dock.align === "bottom" ? bodyY + fh + 1 : bodyY;
+-      paintFrame(world, S, P, x, fy, bw, fh);
++      frame.paint(world, S, P, x, fy, bw, fh);
+       put(S, x, dock.align === "bottom" ? bodyY + fh : bodyY + dh, "─".repeat(bw), { fg: P[1].boundary });
+-      paintJournal(world, S, P, x, dy, bw, dh, false);
++      journal.paint(world, S, P, x, dy, bw, dh, false);
+     }
+   } else if (hasFrame && (!dockShown || dock.view === "messenger")) {
+-    paintFrame(world, S, P, x, bodyY, bw, bodyH);
++    frame.paint(world, S, P, x, bodyY, bw, bodyH);
+     if (dock.view === "messenger") messenger(world, S, P, x, bodyY, bw, bodyH);
+-  } else paintJournal(world, S, P, x, bodyY, bw, bodyH, false);
+-  if (panelOpen) paintPanel(world, S, P, panelY, panelH);
+-  paintBar(world, S, P, barY);
+-  paintWid(world, S, P, barY);
++  } else journal.paint(world, S, P, x, bodyY, bw, bodyH, false);
++  if (panelOpen) panel.paint(world, S, P, panelY, panelH);
++  bar.paint(world, S, P, barY);
++  wid.paint(world, S, P, barY);
+   if (world.focus === "frame" && hasFrame) put(S, cols - 20, bodyY, FOCUSED, { fg: P[1]["text-muted"] });
+-  paintTele(world, S, P);
++  tele.paint(world, S, P);
+   return S;
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** section.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/section.js:140
+
+-export const paintSection = (world, S, P, sec, x0, y0, wd, maxH, zone) => {
++export const paint = (world, S, P, sec, x0, y0, wd, maxH, zone) => {
+   const z = P[zone];
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** sidebar.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/sidebar.js:2
+ import { sideTags, sideView, UNCLAIMED } from "../sections.js";
+-import { paintSection, sectionLines } from "./section.js";
++import * as section from "./section.js";
+
+-export const paintSidebar = (world, S, P, x0, y0, wd, ht) => {
++export const paint = (world, S, P, x0, y0, wd, ht) => {
+   const z = P[0];
+…
+// systems/ghost/surfaces/chrome/panes/sidebar.js:13
+     if (row >= end - 1) return;
+-    row += paintSection(world, S, P, sec, x0 + 1, row, wd - 2, end - row, 0) + 1;
++    row += section.paint(world, S, P, sec, x0 + 1, row, wd - 2, end - row, 0) + 1;
+   });
+-  sectionLines(world, P, { rows: [sideTags(world)] }, wd - 2, 0).forEach((ln) => {
++  section.sectionLines(world, P, { rows: [sideTags(world)] }, wd - 2, 0).forEach((ln) => {
+     if (row >= end) return;
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** tabs.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/tabs.js:14
+
+-export const paintTabs = (world, S, P, y) => {
++export const paint = (world, S, P, y) => {
+   const z = P[0];
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** tele.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/tele.js:337
+
+-export const paintTele = (world, S, P) => {
++export const paint = (world, S, P) => {
+   const T = world.tele;
+#+END_SRC
+
+** =**** surfaces/chrome/panes= — struck whole 10-24 → m103 compendium
+***** wid.js — Q8
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/wid.js:2
+ import { sections } from "../sections.js";
+-import { paintSection, sectionLines } from "./section.js";
++import * as section from "./section.js";
+
+…
+// systems/ghost/surfaces/chrome/panes/wid.js:6
+
+-export const paintWid = (world, S, P, barY) => {
++export const paint = (world, S, P, barY) => {
+   if (world.wid === null) return;
+…
+// systems/ghost/surfaces/chrome/panes/wid.js:13
+   const x0 = Math.max(1, Math.min(S.seg[sec.id] || 1, S.cols - wd - 2));
+-  const lines = sectionLines(world, P, sec, wd, 0).length + 1;
++  const lines = section.sectionLines(world, P, sec, wd, 0).length + 1;
+   const h = Math.min(lines, barY - 3);
+…
+// systems/ghost/surfaces/chrome/panes/wid.js:17
+   fill(S, x0 - 1, y0 - 1, wd + 2, h + 2, { bg: z.boundary, clear: true });
+-  paintSection(world, S, P, sec, x0, y0, wd, h, 0);
++  section.paint(world, S, P, sec, x0, y0, wd, h, 0);
+ };
+#+END_SRC
+
+** =**** tests/surfaces/chrome= — as tangled 10-23, re-cut 10-24 to its path lines
+***** bundle.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:1
+-import { screen, settle } from "./world.js";
++import { screen, settle } from "../../scenarios/world.js";
+ import { specimen } from "@vivalence/typology";
+-import { catalog } from "../subjects/client/keymap.js";
+-import { panes } from "../chrome/out/panes.mjs";
+-import { DESIGN, world } from "./scenarios/look.js";
++import { panes } from "../../../surfaces/chrome/out/panes.mjs";
++import { DESIGN, world } from "../../scenarios/look.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:13
+     const held = world({ authorized: false });
+-    specimen.expect(panes.PANES.map(([, name]) => name)).toEqual(["booting", "booting", "signin", "booting", "regions"]);
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.PANES.map(([, name]) => name)).toEqual(["booting", "booting", "signin", "booting", "regions"]);
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.client.runtime = held.runtime;
+     held.lighthouse.manifest = null;
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.lighthouse.manifest = { traits: [] };
+-    specimen.expect(panes.pane(held.client)).toBe("signin");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("signin");
+     held.lighthouse.$authority.set({ access: "a", refresh: "r" });
+     held.client.$active.set(null);
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.client.$active.set(held.terminal);
+-    specimen.expect(panes.pane(held.client)).toBe("regions");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("regions");
+   });
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:30
+     held.client.controller.stdout.log({ lighthouse: "verified" });
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:53
+     const held = world();
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:64
+     held.client.$chord.set(null);
+-    held.client.$catalog.set(catalog(held.client.active.repl.commands));
++    held.client.$catalog.set(ghost.client.keymap.catalog(held.client.active.repl.commands));
+     held.client.surface.$draft.set("/dock");
+#+END_SRC
+
+** =**** tests/surfaces/chrome= — as tangled 10-23, re-cut 10-24 to its path lines
+***** index.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/index.test.js:1
+-// m92 · m95 the tty chrome's facts: a palette colour's luminance decides dark, the dapper palette is memoized per theme (grid.js), flattened per zone, no terminal → no chrome
++// m92 · m95 the tty chrome's facts: dapper's contrast decides dark, the dapper palette is memoized per theme (grid.js), flattened per zone, no terminal → no chrome
+ import { specimen } from "@vivalence/typology";
+ import { tokens } from "@vivalence/dapper";
+-import * as chrome from "../chrome/index.js";
+-import * as grid from "../chrome/grid.js";
++import * as chrome from "../../../surfaces/chrome/index.js";
++import * as grid from "../../../surfaces/chrome/grid.js";
+ import { atom } from "nanostores";
+-import { screen } from "../chrome/screen.js";
++import { PLACES, screen } from "../../../surfaces/chrome/screen.js";
+
+…
+// systems/ghost/tests/surfaces/chrome/index.test.js:11
+ specimen.describe("the tty chrome's facts", () => {
+-  specimen.it("rgb reads a hex into unit channels and passes a channel object through", () => {
+-    specimen.expect(chrome.rgb("#ff0000")).toEqual({ r: 1, g: 0, b: 0 });
+-    specimen.expect(chrome.rgb("#000000")).toEqual({ r: 0, g: 0, b: 0 });
+-    specimen.expect(chrome.rgb({ r: 0.5, g: 0.5, b: 0.5 })).toEqual({ r: 0.5, g: 0.5, b: 0.5 });
+-  });
+-
+-  specimen.it("luminance weighs the channels by Rec. 709 — white 1, black 0, green the heaviest", () => {
+-    specimen.expect(chrome.luminance("#ffffff")).toBeCloseTo(1);
+-    specimen.expect(chrome.luminance("#000000")).toBe(0);
+-    specimen.expect(chrome.luminance("#00ff00")).toBeCloseTo(0.7152);
+-    specimen.expect(chrome.luminance("#ff0000")).toBeCloseTo(0.2126);
+-  });
+-
+-  specimen.it("dark: a background under half luminance is dark; no background or a refused OSC query is dark; a light background is not", async () => {
+-    specimen.expect(await chrome.dark(renderer("#101010"))).toBe(true);
+-    specimen.expect(await chrome.dark(renderer("#fafafa"))).toBe(false);
+-    specimen.expect(await chrome.dark(renderer(null))).toBe(true);
+-    specimen.expect(await chrome.dark({ getPalette: () => Promise.reject(new Error("no OSC")) })).toBe(true);
++  specimen.it("dark: a background that contrasts more with white than with black is dark; no background or a refused OSC query is dark; a light background is not", async () => {
++    specimen.expect(await grid.dark(renderer("#101010"))).toBe(true);
++    specimen.expect(await grid.dark(renderer("#fafafa"))).toBe(false);
++    specimen.expect(await grid.dark(renderer(null))).toBe(true);
++    specimen.expect(await grid.dark({ getPalette: () => Promise.reject(new Error("no OSC")) })).toBe(true);
+   });
+…
+// systems/ghost/tests/surfaces/chrome/index.test.js:52
+     specimen.expect(grid.ZONES).toEqual(["0", "1", "2", "3"]);
+-    specimen.expect(chrome.PLACES).toEqual(["cell", "frame"]);
+-    specimen.expect(chrome.OSC).toEqual({ timeout: 1200 });
++    specimen.expect(PLACES).toEqual(["cell", "frame"]);
++    specimen.expect(grid.OSC).toEqual({ timeout: 1200 });
+   });
+…
+// systems/ghost/tests/surfaces/chrome/index.test.js:58
+     const $entities = atom([{ status: "RUNNING" }]);
+-    const client = { runtime: { entities: { activity: { $entities } } }, surface: screen({ kind: "tty", places: chrome.PLACES, dark: true }) };
+-    client.surface.$clock.set(chrome.TICK * (grid.SPINNER.length - 1));
+-    const tick = chrome.ticking(client);
+-    await new Promise((resolve) => setTimeout(resolve, chrome.TICK * 1.5));
++    const client = { runtime: { entities: { activity: { $entities } } }, surface: screen({ kind: "tty", places: PLACES, dark: true }) };
++    client.surface.$clock.set(grid.TICK * (grid.SPINNER.length - 1));
++    const tick = grid.ticking(client);
++    await new Promise((resolve) => setTimeout(resolve, grid.TICK * 1.5));
+     specimen.expect(client.surface.clock).toBe(0);
+     $entities.set([{ status: "PAUSED" }]);
+-    await new Promise((resolve) => setTimeout(resolve, chrome.TICK * 2));
+-    specimen.expect(client.surface.clock % chrome.TICK).toBe(0);
++    await new Promise((resolve) => setTimeout(resolve, grid.TICK * 2));
++    specimen.expect(client.surface.clock % grid.TICK).toBe(0);
+     const held = client.surface.clock;
+-    await new Promise((resolve) => setTimeout(resolve, chrome.TICK * 2));
++    await new Promise((resolve) => setTimeout(resolve, grid.TICK * 2));
+     specimen.expect(client.surface.clock).toBe(held);
+     client.runtime = null;
+-    specimen.expect(chrome.spinning(client)).toBe(false);
+-    await new Promise((resolve) => setTimeout(resolve, chrome.TICK * 2));
++    specimen.expect(grid.spinning(client)).toBe(false);
++    await new Promise((resolve) => setTimeout(resolve, grid.TICK * 2));
+     clearInterval(tick);
+#+END_SRC
+
+** =**** tests/surfaces/chrome= — as tangled 10-23, re-cut 10-24 to its path lines
+***** paint.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/paint.test.js:1
+-import { chrome, screen, settle } from "./world.js";
++import { chrome, screen, settle } from "../../scenarios/world.js";
+ import { specimen } from "@vivalence/typology";
+-import { paint } from "../chrome/paint.js";
+-import { DESIGN, world } from "./scenarios/look.js";
++import { paint } from "../../../surfaces/chrome/paint.js";
++import { DESIGN, world } from "../../scenarios/look.js";
+
+…
+// systems/ghost/tests/surfaces/chrome/paint.test.js:16
+     const before = slot.getChildren().length;
+-    const erase = paint(slot, setup.renderer, panes.chrome, { client: held.client });
++    const erase = paint(slot, setup.renderer, panes.chrome.Chrome, { client: held.client });
+     await settle(setup);
+#+END_SRC
+
+** =**** tests/surfaces/chrome/panes= — as tangled 10-23, re-cut 10-24 to its path lines
+***** chrome.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:1
+ import { specimen } from "@vivalence/typology";
+-import { navigating } from "../subjects/client/keymap.js";
+-import { keypresses } from "../chrome/keys.js";
+-import { chrome, screen, settle } from "./world.js";
+-import { DESIGN, world } from "./scenarios/look.js";
++import { keypresses } from "../../../../surfaces/chrome/keys.js";
++import { chrome, screen, settle } from "../../../scenarios/world.js";
++import { DESIGN, world } from "../../../scenarios/look.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:14
+     const held = world({ authorized: false });
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.client.runtime = held.runtime;
+     held.lighthouse.manifest = null;
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.lighthouse.manifest = { traits: ["AUTOLOGIN"] };
+     held.lighthouse.$status.set({ code: "VERIFYING" });
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.lighthouse.$status.set({ code: "IDLE" });
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.lighthouse.$status.set({ code: "ERROR", message: "INVALID_CREDENTIALS" });
+-    specimen.expect(panes.pane(held.client)).toBe("signin");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("signin");
+     held.lighthouse.manifest = { traits: [] };
+     held.lighthouse.$status.set({ code: "IDLE" });
+-    specimen.expect(panes.pane(held.client)).toBe("signin");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("signin");
+     held.lighthouse.$authority.set({ access: "a", refresh: "r" });
+     held.client.$active.set(null);
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.client.$active.set(held.terminal);
+-    specimen.expect(panes.pane(held.client)).toBe("regions");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("regions");
+   });
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:41
+     held.client.controller.stdout.log({ lighthouse: "verified" });
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:67
+     };
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:83
+     const held = world();
+-    const setup = await screen(() => panes.chrome({ client: held.client }), { width: 100, height: 24 });
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), { width: 100, height: 24 });
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:104
+     const held = world();
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     keypresses(setup.renderer).to(held.client.presses);
+-    const walking = navigating(held.client, held.client.presses.drain(held.client.controller.abort.signal));
++    const walking = ghost.client.keymap.navigating(held.client, held.client.presses.drain(held.client.controller.abort.signal));
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:130
+     const held = world();
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     await settle(setup);
+#+END_SRC
+
+** =**** tests/surfaces/chrome/panes= — as tangled 10-23, re-cut 10-24 to its path lines
+***** regions.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:1
+ import { specimen } from "@vivalence/typology";
+-import { catalog } from "../subjects/client/keymap.js";
+-import { lines } from "../chrome/grid.js";
+-import { render } from "../chrome/panes/regions.js";
+-import { gathered, island } from "../chrome/world.js";
+-import { journalLines } from "../chrome/panes/journal.js";
+-import { Turn } from "../entities/turn.js";
+-import { DESIGN, framed, lists, local, runs, symbolic, world } from "./scenarios/look.js";
++import { lines } from "../../../../surfaces/chrome/grid.js";
++import { render } from "../../../../surfaces/chrome/panes/regions.js";
++import { gathered, island } from "../../../../surfaces/chrome/world.js";
++import { journalLines } from "../../../../surfaces/chrome/panes/journal.js";
++import { DESIGN, framed, lists, local, runs, symbolic, world } from "../../../scenarios/look.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:22
+ const turned = (held, id, createdAt, parts) =>
+-  held.thread.$turns.set([...held.thread.$turns.get(), Object.assign(new Turn(), { id, role: "assistant", thread: held.thread, createdAt, parts })]);
++  held.thread.$turns.set([...held.thread.$turns.get(), Object.assign(new ghost.entities.turn.Turn(), { id, role: "assistant", thread: held.thread, createdAt, parts })]);
+
+ specimen.describe("the look — every paint* paints the design's cells (Tty.* rendered for the same state is the oracle)", () => {
+-  specimen.it("paintTabs · paintJournal · paintBar: the docked journal over a running thread, 80×24", () => {
++  specimen.it("tabs.paint · journal.paint · bar.paint: the docked journal over a running thread, 80×24", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:30
+
+-  specimen.it("paintSidebar · paintSection · paintFrame (markdown) · the docked split: sidebar open over a framed buffer, 120×40", () => {
++  specimen.it("sidebar.paint · section.paint · frame.paint (markdown) · the docked split: sidebar open over a framed buffer, 120×40", () => {
+     const held = world({ buffered: true });
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:36
+
+-  specimen.it("paintFrame · the split seam · the journal's artifact cell: a framed buffer, 120×40", () => {
++  specimen.it("frame.paint · the split seam · the journal's artifact cell: a framed buffer, 120×40", () => {
+     const held = world({ buffered: true });
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:41
+
+-  specimen.it("paintPanel (the leader): ctrl-v lists the keymap's edges in KCOL columns, the bar's << lit", () => {
++  specimen.it("panel.paint (the leader): ctrl-v lists the keymap's edges in KCOL columns, the bar's << lit", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:47
+
+-  specimen.it("paintPanel (the palette): the catalog narrowed by the draft, the match lit, the chord at the right", () => {
++  specimen.it("panel.paint (the palette): the catalog narrowed by the draft, the match lit, the chord at the right", () => {
+     const held = world();
+-    held.client.$catalog.set(catalog(held.client.active.repl.commands));
++    held.client.$catalog.set(ghost.client.keymap.catalog(held.client.active.repl.commands));
+     held.client.surface.$draft.set("/dock");
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:54
+
+-  specimen.it("paintWid: the harness segment's section above the bar, framed by the boundary", () => {
++  specimen.it("wid.paint: the harness segment's section above the bar, framed by the boundary", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:60
+
+-  specimen.it("paintTele (logger): spans and the activity as rows, the filters counted, a fault red", () => {
++  specimen.it("tele.paint (logger): spans and the activity as rows, the filters counted, a fault red", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:66
+
+-  specimen.it("paintTele (inspector): the client's tables, enum · bool · num · set rows that write /set", () => {
++  specimen.it("tele.paint (inspector): the client's tables, enum · bool · num · set rows that write /set", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:72
+
+-  specimen.it("paintIsland (booting): the brand line, the bar a third full after the lighthouse beat", () => {
++  specimen.it("island.paint (booting): the brand line, the bar a third full after the lighthouse beat", () => {
+     const held = world({ authorized: false });
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:78
+
+-  specimen.it("paintIsland (signin): user · password · sign in · autologin, the lighthouse's fault under them", () => {
++  specimen.it("island.paint (signin): user · password · sign in · autologin, the lighthouse's fault under them", () => {
+     const held = world({ authorized: false });
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:105
+
+-  specimen.it("paintJournal (tools): an agent turn's tool calls — a result ok ✓, an ERROR result ✕, no result under a running activity ⠋ … — counted in the head", () => {
++  specimen.it("journal.paint (tools): an agent turn's tool calls — a result ok ✓, an ERROR result ✕, no result under a running activity ⠋ … — counted in the head", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:118
+
+-  specimen.it("paintJournal (think): a landed turn's thinking folds to one ✓ row ▸ above its text", () => {
++  specimen.it("journal.paint (think): a landed turn's thinking folds to one ✓ row ▸ above its text", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:128
+
+-  specimen.it("paintJournal (streaming): a turn without createdAt is live — head …, its thinking open ▾ under the spinner, no text row yet", () => {
++  specimen.it("journal.paint (streaming): a turn without createdAt is live — head …, its thinking open ▾ under the spinner, no text row yet", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:134
+
+-  specimen.it("paintJournal (fault): a fault record is a ! row in the negative ink; selected under journal focus it offers c copy", () => {
++  specimen.it("journal.paint (fault): a fault record is a ! row in the negative ink; selected under journal focus it offers c copy", () => {
+     const held = world();
+#+END_SRC
+
+
+** m99 — the context lines as cut on m98's 10-23 tree (=m99-keys.org= line · text), re-cut 10-24 onto the split m98
+#+BEGIN_SRC text
+1240:  import { dark, ticking } from "./grid.js";
+1855:      specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+1858:      specimen.expect(panes.chrome.pane(held.client)).toBe("regions");
+1959:      specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+1962:      specimen.expect(panes.chrome.pane(held.client)).toBe("regions");
+1965:      const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+#+END_SRC

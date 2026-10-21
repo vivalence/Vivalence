@@ -1028,7 +1028,7 @@ joint.pressed          ONTOLOGICAL,LABELED
   "installed": "9387dc5e",
   "version": "0.1.0",
   "traits": [
-   "MOUNTED",
+   "FILESINK",
    "APPLICATION",
    "STANDALONE",
    "EXPOSED"
@@ -1045,7 +1045,7 @@ joint.pressed          ONTOLOGICAL,LABELED
   "version": "0.0.0",
   "traits": [
    "DATASET",
-   "FRAUGHT"
+   "FILESET"
   ]
  },
  {
@@ -1522,7 +1522,7 @@ export const SOURCED = v.object({
 }).desc('Where a part\'s geometry came from — the back-pointer for the Blender round trip. Example: { file: "model.blend", object: "Frame_Bottom", scale: 0.05 }');
 
 export const MODELED = v.object({
-  file: v.string().desc('Freight path of the GLB, metres, Y-up. Example: "parts/bottom_plate.glb"'),
+  file: v.string().desc('File path of the GLB, metres, Y-up. Example: "parts/bottom_plate.glb"'),
   tris: v.integer().optional().desc("Triangle count. Example: 2160"),
   bbox: VEC3.optional().desc("Size of the bounding box in metres, x y z. Example: [0.2823, 0.002, 0.097]"),
 }).desc('A part\'s own geometry as a file on the freight. A part that has only an interior carries none. Example: { file: "parts/arm.glb", tris: 80, bbox: [0.1263, 0.0075, 0.1729] }');
@@ -1557,7 +1557,7 @@ export const JOINED = v.object({
 export const INSTRUCTED = v.object({
   text: v.array(v.string()).desc('The instruction, one sentence per entry. Example: ["Place one arm at the appropriate position on top."]'),
   warn: v.array(v.string()).optional().desc('Warnings, said before the instruction. Example: ["Don\'t tighten it yet! Leave it loose."]'),
-  images: v.array(v.string()).optional().desc('Freight paths. Example: ["manual/cf5a470bc835.webp"]'),
+  images: v.array(v.string()).optional().desc('File paths. Example: ["manual/cf5a470bc835.webp"]'),
 }).desc('What a step tells the builder. Example: { text: ["Thread the 16mm bolt."], warn: ["Leave it loose."] }');
 
 export const PREPARED = v.object({
@@ -1567,7 +1567,7 @@ export const PREPARED = v.object({
 
 ```
 
-Mode traits enum (`runtime/daemon/entities/daemon/Mode.ts`): `BOOTED APPLICATION STANDALONE TOPOGRAPHICAL TOPOLOGICAL DATASET DATASINK HARNESSED CONVERSATIONAL AGENTIC TOOLING EMITTER GENERATIVE EXPOSED INTENTED FRAUGHT MOUNTED` + deprecated `CHAOSMONKEY BUFFERED SELFEVIDENT TOOLED`. Thread: `MASKED AIMED QUEUEING LABELED` (+ `INTELLIGENT`/`VOCAL` shapes above, claim-gated). Thread phase CHECK: `inert manual continuous escort stream`. Buffer status CHECK: `PENDING ACTIVE DONE ERROR STALE` (a lowercase `pending` fails the CHECK with a 500; `READY` fails validation with a 400).
+Mode traits enum (`runtime/daemon/entities/daemon/Mode.ts`): `BOOTED APPLICATION STANDALONE TOPOGRAPHICAL TOPOLOGICAL DATASET DATASINK HARNESSED CONVERSATIONAL AGENTIC TOOLING EMITTER GENERATIVE EXPOSED INTENTED FILESET FILESINK` + deprecated `CHAOSMONKEY BUFFERED SELFEVIDENT TOOLED`. Thread: `MASKED AIMED QUEUEING LABELED` (+ `INTELLIGENT`/`VOCAL` shapes above, claim-gated). Thread phase CHECK: `inert manual continuous escort stream`. Buffer status CHECK: `PENDING ACTIVE DONE ERROR STALE` (a lowercase `pending` fails the CHECK with a 500; `READY` fails validation with a 400).
 
 ## 6. `/subscribe` SSE trace
 
@@ -1666,7 +1666,7 @@ export const manifest = {
   "name": "DroneAid model",
   "traits": [
    "DATASET",
-   "FRAUGHT"
+   "FILESET"
   ],
   "metadata": "/daemon/droneaid/mode/topography/model/metadata"
  },
@@ -1675,7 +1675,7 @@ export const manifest = {
   "slug": "import",
   "name": "Import",
   "traits": [
-   "MOUNTED",
+   "FILESINK",
    "APPLICATION",
    "STANDALONE",
    "EXPOSED"

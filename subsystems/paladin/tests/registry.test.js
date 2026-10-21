@@ -2,12 +2,14 @@ import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path } from "@vivalence/typology";
 import { Paladin } from "../paladin/prototype.js";
+import { FULL } from "../gestalten/belt/index.js";
+import { belt } from "../paladin/lifecycle.js";
 import { Registry } from "../prototypes/registry.js";
 
 const scaffold = async () => {
   const ledger = await Deno.makeTempDir({ prefix: "registry_test_ledger_" });
   const store = await Deno.makeTempDir({ prefix: "registry_test_store_" });
-  const paladin = new Paladin();
+  const paladin = belt(new Paladin(), FULL);
   paladin.scopes([
     ["ledger", () => true, () => new Path(ledger)],
     ["registry", () => true, () => new Path(store)],
@@ -63,7 +65,7 @@ describe("Registry — the record, owner → { slug, mount, remote? }", () => {
 
   it("a tap location without a store scope throws", async () => {
     const ledger = await Deno.makeTempDir({ prefix: "registry_test_ledger_" });
-    const paladin = new Paladin();
+    const paladin = belt(new Paladin(), FULL);
     paladin.scopes([["ledger", () => true, () => new Path(ledger)]]);
     const registry = new Registry(paladin, new Path(`${ledger}/registry.json`));
     expect(registry.stored("/external/checkout").absolute).toBe("/external/checkout");

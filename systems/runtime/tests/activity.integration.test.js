@@ -1,4 +1,4 @@
-import { specimen } from "@vivalence/typology";
+import { specimen, trace } from "@vivalence/typology";
 import { metronome } from "@vivalence/typology/scenarios";
 import { create, TOOL, OBJECT } from "./scenarios/activity.js";
 
@@ -39,13 +39,13 @@ specimen.describe("activity — the row follows the controller", () => {
     const [born] = roster.rows;
     const row = await daemon.entities.activity.findOneOrFail({ id: born.id });
     specimen.expect([row.user.id, row.mode.id, row.thread.id, row.type]).toEqual([fixtures.user.id, dewey.id, thread.id, "HALLUCINATION"]);
-    specimen.expect(row.controller.stdout.absolute).toBe("/hallucination");
+    specimen.expect(row.controller.stdout.absolute).toEqual(["hallucination"]);
     const stamped = row.updatedAt;
 
     clock.release(2);
     await until(() => events.includes("/tool/yield"));
-    specimen.expect(row.steps.some((step) => step.path === "/hallucination/lookup/object" && step.verb === "close")).toBe(true);
-    specimen.expect(row.steps.map((step) => step.path)).toContain("/hallucination/lookup");
+    specimen.expect(row.steps.some((step) => trace.key(step.path) === trace.key(["hallucination", "lookup/c1", "object"]) && step.track === "stop")).toBe(true);
+    specimen.expect(row.steps.map((step) => step.path)).toContainEqual(["hallucination", "lookup/c1"]);
     specimen.expect(row.updatedAt > stamped).toBe(true);
     specimen.expect(row.controller.toJSON().children).toEqual([]);
     clock.release(2);
@@ -63,20 +63,25 @@ specimen.describe("activity — the row follows the controller", () => {
     specimen.expect(deltas()).toBe(2);
     await activity.call(`/${row.id}/stdin/SIGCONT`);
     await until(() => deltas() === 4);
-    await activity.call(`/${row.id}/stdin/SIGTERM`, "user pressed stop");
+    await activity.call(`/${row.id}/stdin/SIGTERM`, { reason: "user pressed stop" });
     clock.release(1);
     await streaming;
     await until(() => !held().some((entry) => entry.id === row.id));
 
     specimen.expect(roster.walk(row.id)).toEqual(["create", "RUNNING", "PAUSED", "RUNNING", "STOPPING", "STOPPED", "delete"]);
-    specimen.expect(roster.rows.findLast((frame) => frame.id === row.id && frame.op === "update").error).toBe("STOPPED");
-    specimen.expect(row.error.message).toBe("user pressed stop");
+    specimen.expect(roster.rows.findLast((frame) => frame.id === row.id && frame.op === "update").error).toBe(null);
+    specimen.expect(row.controller.status.reflection.reason).toBe("user pressed stop");
     specimen.expect(events.at(-1)).toBe("/response/close");
     await reading;
-    specimen.expect(stdout[0]).toMatchObject({ path: "/hallucination", verb: "note", data: { activity: row.id, user: fixtures.user.id, mode: dewey.id, thread: thread.id } });
-    specimen.expect(stdout.map((record) => record.verb).slice(1, 3)).toEqual(["open", "note"]);
-    specimen.expect(stdout.slice(-3).map((record) => `${record.path} ${record.verb}`)).toEqual(["/hallucination resume", "/hallucination stop", "/hallucination close"]);
-    specimen.expect(stdout.map((record) => `${record.span}:${record.at}`)).toEqual([...new Set(stdout.map((record) => `${record.span}:${record.at}`))]);
+    specimen.expect(stdout[0]).toMatchObject({ path: ["hallucination"], track: "log", data: { activity: row.id, user: fixtures.user.id, mode: dewey.id, thread: thread.id } });
+    specimen.expect(stdout.map((record) => record.track).slice(1, 4)).toEqual(["status", "start", "log"]);
+    specimen.expect(stdout.slice(-4)).toMatchObject([
+      { path: ["hallucination"], track: "status", data: { code: "RUNNING" } },
+      { path: ["hallucination"], track: "status", data: { code: "STOPPING" } },
+      { path: ["hallucination"], track: "stop" },
+      { path: ["hallucination"], track: "status", data: { code: "STOPPED" } },
+    ]);
+    specimen.expect(stdout.map((record) => JSON.stringify(record))).toEqual([...new Set(stdout.map((record) => JSON.stringify(record)))]);
     await specimen.expect(activity.call(`/${row.id}/stdout`)).rejects.toThrow();
     specimen.expect((await mine.call("/userspace/entities/activity/find", { where: {} })).length).toBe(0);
 
@@ -91,8 +96,8 @@ specimen.describe("activity — the row follows the controller", () => {
     await specimen.expect(daemon.entities.activity.create({ id: other.id, user: fixtures.user.id, mode: dewey.id })).rejects.toThrow(/is held/);
     await daemon.entities.activity.updateOne({ id: other.id }, { id: "forged", status: "DONE" });
     specimen.expect(held().find((entry) => entry.id === other.id).status).toBe("DONE");
-    other.controller.stdout.open();
-    other.controller.stdout.close();
+    other.controller.start();
+    other.controller.stop();
     await until(() => !held().some((entry) => entry.id === other.id));
     specimen.expect(roster.walk(other.id)).toEqual(["create", "DONE", "RUNNING", "DONE", "delete"]);
     roster.off();
@@ -108,7 +113,7 @@ specimen.describe("activity — the row follows the controller", () => {
     await until(() => roster.rows.length);
     const [born] = roster.rows;
     const row = await daemon.entities.activity.findOneOrFail({ id: born.id });
-    specimen.expect(row.controller.stdout.absolute).toBe("/hallucination");
+    specimen.expect(row.controller.stdout.absolute).toEqual(["hallucination"]);
     spoken.release(4);
     const events = await streaming;
     specimen.expect(events).toContain("/verbatim/final");
@@ -116,10 +121,10 @@ specimen.describe("activity — the row follows the controller", () => {
     await until(() => !held().some((entry) => entry.id === row.id));
 
     specimen.expect(roster.walk(row.id)).toEqual(["create", "RUNNING", "DONE", "delete"]);
-    const paths = row.steps.map((step) => `${step.path} ${step.verb}`);
-    specimen.expect(paths).toContain("/hallucination/verbatim close");
-    specimen.expect(paths).toContain("/hallucination/dialogue close");
-    specimen.expect(paths.at(-1)).toBe("/hallucination close");
+    const paths = row.steps.map((step) => `${step.path.join(" › ")} ${step.track}`);
+    specimen.expect(paths).toContain("hallucination › verbatim stop");
+    specimen.expect(paths).toContain("hallucination › dialogue stop");
+    specimen.expect(paths.slice(-2)).toEqual(["hallucination stop", "hallucination status"]);
     specimen.expect(row.controller.toJSON().children).toEqual([]);
     roster.off();
   });

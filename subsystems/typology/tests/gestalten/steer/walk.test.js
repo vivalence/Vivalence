@@ -1,4 +1,4 @@
-import { specimen, steer, Signal, Vector } from "@vivalence/typology";
+import { specimen, steer, KeySignal, Signal, Vector } from "@vivalence/typology";
 
 const signals = (...paths) => {
   let cursor = 0;
@@ -32,5 +32,14 @@ specimen.describe("walk", () => {
     const [, carry] = await steer.dispatch.walk(vector, signals("/api/test"));
     await carry({}, async () => trace.push("terminal"));
     specimen.expect(trace).toEqual(["mw", "terminal"]);
+  });
+
+  specimen.it("a two-segment walk asks more() once per node", async () => {
+    const keymap = new Vector();
+    keymap.branch("leader").open("m", "/mode");
+    const asked = [];
+    const [effect] = await steer.dispatch.walk(keymap, (patterns) => { asked.push(patterns.map((pattern) => pattern.nature)); return new KeySignal(asked.length === 1 ? "leader" : "m"); });
+    specimen.expect(effect).toBe("/mode");
+    specimen.expect(asked).toEqual([["leader"], ["m"]]);
   });
 });

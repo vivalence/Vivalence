@@ -15,7 +15,7 @@ export const tools = new Vector().open(
   },
   async (ctx) => {
     const held = ctx.input.hold ?? 1500;
-    ctx.controller?.stdout.note({ lookup: ctx.input.query, hold: held });
+    ctx.controller?.stdout.log({ lookup: ctx.input.query, hold: held });
     await belt.sleep.ms(held);
     return { message: `the index says: ${ctx.input.query} (${held}ms)` };
   },

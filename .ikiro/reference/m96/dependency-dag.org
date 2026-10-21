@@ -1,0 +1,33 @@
+# drained 10-22 whole from .ikiro/quests/m96-client-mothership.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* the dependency DAG — what needs what (quest.milestone); the five m96 milestones in caps
+
+#+begin_src text
+FLOOR (milestone 0) — independent, parallel, HOLY
+  m93.1  belt/monad.js · shape/monad.js                      subsystems/typology
+  m92.1  steer/dispatch.js walk · strategy.js fire · prototypes/keysignal.js · errors/vector.js Dropped
+  m87.1  View.ts · File.ts · Buffer · Turn · Mode · Note · v.view · v.file · the mikro snapshot    systems/runtime/entities + typology
+  m83.2  prototypes/primer.js · shape/primer.js · Path (file:// · ..)
+  m88.s3 schematics/primitives/harness.js Request (id → turn · terminal)
+  m95.2  subsystems/sheets — thirteen OpenTUI parts            needs dapper tokens 14 → 27
+  m95.3  subsystems/drapes/dom — thirteen Solid parts
+HOSTS (milestone 1) — three containers in parallel, each over the floor
+  runtime   m87.2 FILESET · FILESINK · /attached/view/:id · /attached/file/:id  →  m87.3 RENDERER · mode.mime · presents  →  m87.4 buffer_* · view_*  →  m87.6 the rename (Freight · Cargo · FRAUGHT · MOUNTED gone)  →  m87.7 the patrol
+            m83.3 paladin.prime · m83.4 PRIMER · requesting · primer_read   (ONE change with m83.2; ~/.viva half beside)
+            m88.s3 runtime LOOPING · harnessed.js pulls /terminal/<id>/metadata/repl
+            m94 rows: Mode.ts enum RENDERER FILESET FILESINK PRIMER LOOPING; APPLICATION · FRAUGHT · MOUNTED · KEYMAPPED gone
+  ghost     m93.2 settle · m93.4 ghost factories · run.js · typology.js barrel browser-clean · client/lifecycle no Deno · terminal.dock layers · lighthouse credentials beat   (= * the wiring)
+  paladin   FILES · belt phase · baked · mod.client.js · belt/vault.js
+REPL (milestone 2) — ghost over its wiring ‖ anima's door
+  m92.2 KeySignal · client/keymap.js (harvest ⊕ modes ⊕ client ⊕ terminal ⊕ active)  →  m92.4 ghost KEYMAPPED  →  m95.5 the panes ($chord narrows per press · $catalog)
+  m95.4 the 31 commands · chord: on each
+  m88.s3 ghost LOOPING (client.aperture /terminal/:id/metadata/repl · /repl)
+  m95.7 anima door (src/client.js · vite.config.mjs · paladin:baked · solid-js pin)
+CHROMES (milestone 3)
+  m95.6 ghost chrome + m87.5 renderers.js · view.load · attach · detach · dock cells · frame    needs m87.2 · m87.3 · m95.2 · m95.4 · m95.5
+  m95.8 anima chrome + m87.8 (anima renderers · frame · dock)                                 needs m95.3 · m95.7 · the ghost chrome's pane table as the pattern
+REGISTRY (milestone 4)
+  m95.9 + m87.3's registry pass — ONE walk over ~/.viva/registry: new App( 52 · v.buffer( 17 · terminal.* readers 27 + 2 → { terminal, buffer, surface }
+  the QA walks: m95 T-* · m92 T-leader · T-unbound · T-catalog · m87 · m88 T-home-* · m86 T-chrome-toggle
+#+end_src
+

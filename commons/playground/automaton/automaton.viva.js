@@ -1,4 +1,4 @@
-import { App, v, Vector } from "@vivalence/typology";
+import { mime, v, Vector } from "@vivalence/typology";
 
 export const manifest = {
   type: "playground",
@@ -7,11 +7,13 @@ export const manifest = {
   description:
     "Intent-driven: open one of its intents and the thread self-configures + self-manages.",
   version: "0.1.0",
-  traits: ["APPLICATION", "EMITTER"],
+  traits: ["VIEWABLE", "EMITTER"],
 };
 
 // the hub renders a self-description of how its intent configured the thread.
-export const application = new App("buffer/Automaton.svelte", v.buffer({ data: {} }));
+export const buffer = v.buffer({ data: {} });
+
+export const views = [{ slug: "automaton", mount: "buffer/Automaton.svelte", mime: mime.dom.svelte }];
 
 // AIMED intents pull `card` buffers (reuse the Group-2 target) — cross-mode again.
 export const emitter = new Vector().open(

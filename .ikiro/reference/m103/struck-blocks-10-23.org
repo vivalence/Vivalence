@@ -1,0 +1,58 @@
+# m103 — =* as code= blocks superseded or struck during the 10-23 drill, MOVED whole · limit: 12000 chars
+
+*** systems/anima
+**** src/surfaces/chrome/context.js — Q3 (SKETCH)
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/context.js   ← +layout.svelte:28-44 (setContext once) · today props.client in every pane
+import { createContext, useContext } from "solid-js";
+
+export const ClientContext = createContext();
+
+export const useClient = () => {
+  const client = useContext(ClientContext);
+  if (client === undefined) throw new Error("[chrome] useClient outside the app: no ClientContext above this widget");
+  return client;
+};
+#+END_SRC
+
+*** systems/anima
+**** src/surfaces/chrome/surface.js — SUPERSEDED by Q6′ (slices of atoms → one value in state.js)
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/surface.js   ← surface/screen.js:13 (one bag of 15) → one slice per panel
+import * as root from "./state.js";
+import * as panels from "./panels/index.js";
+
+export const surface = (held) => ({
+  kind: held.kind,
+  places: held.places,
+  root: root.state(held),
+  sidebar: panels.sidebar.state(),
+  dock: panels.dock.state(),
+  modeline: panels.modeline.state(),
+  telemetry: panels.telemetry.state(),
+  island: panels.island.state(),
+});
+// a reader: client.surface.sidebar.width · a writer: client.surface.sidebar.$width.set(…)   (today client.surface.$sidebarWidth)
+#+END_SRC
+
+*** systems/ghost
+**** surfaces/chrome/panels/sidebar/commands.js — STRUCK (lookup m95 ruling 37: the verb lives in ghost subjects/client/commands/)
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/panels/sidebar/commands.js   ← acts.js:15 SURFACE · anima sidebar.jsx:12 SURFACE (a router beside the repl)
+import { Vector } from "@vivalence/typology";
+
+export const commands = new Vector().open(
+  { nature: "/sidebar", chord: "leader/e/b", valence: "show or hide the sidebar. Example: /sidebar" },
+  (ctx) => ctx.client.surface.sidebar.$open.set(!ctx.client.surface.sidebar.open),
+);
+// STRUCK by lookup m95 ruling 37: surface verbs live in systems/ghost/subjects/client/commands/, imported by anima
+#+END_SRC
+
+*** systems/ghost
+**** surfaces/chrome/widgets/sections.js — Locked Q3, SUPERSEDED by Q4 (no row model: the file dies in both chromes)
+#+BEGIN_SRC text
+// systems/ghost/surfaces/chrome/widgets/sections.js        ← Locked Q3: /"b"/ — chrome/sections.js (294), ghost's own (m95 lock 1 stands)
+// systems/anima/src/surfaces/chrome/widgets/sections.js    ← surface/sections.js (316), anima's own; no import across
+// (whether a row model exists at all: Q4, m95 ruling 34)
+#+END_SRC
+

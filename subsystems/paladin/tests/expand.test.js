@@ -1,5 +1,6 @@
 import { Path, specimen } from "@vivalence/typology";
 import { factories, lifecycle, Paladin } from "@vivalence/paladin/typology";
+import { FULL } from "../gestalten/belt/index.js";
 
 const { describe, it, expect } = specimen;
 
@@ -42,7 +43,7 @@ const RECIPE = {
 };
 
 const mk = (pairs = {}, secrets = {}) => {
-  const paladin = new Paladin();
+  const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
   for (const [key, value] of Object.entries(pairs)) paladin.env.set(key, value, "flag");
   for (const [key, value] of Object.entries(secrets)) paladin.secret.set(key, value, "flag");
   return paladin;

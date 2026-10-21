@@ -1,0 +1,23 @@
+# m103 — the drill's question list as it closed 10-23, MOVED whole (every row ruled; =* rulings= holds the words) · limit: 5000 chars
+
+* the drill — questions (DONE: Q0–Q12 locked · Q8 · Q13 · Q14 lookups)
+
+0. LOCKED — the root, flat.
+1. LOCKED — tty retained over =sheets=; folders shared, implementation per chrome.
+2. LOCKED — the shared library is ghost =gestalten/belt/=.
+3. LOCKED — the row model stays twinned (lock 1).
+4. LOCKED — no row model; seven section widgets.
+5. LOCKED — the seven sections in =widgets/=; law 3.
+6. LOCKED — Q6′ one central value, panels own branch schemas.
+7. LOCKED — ambient (Q7′) · observed (Q7″) · Provider · consume · Consumer (Q7‴) · home ghost (Q7⁗).
+8. LOOKUP — two panels: m95 ruling 35 /"two parts, not one with levels; Panel · minibuffer dead"/; the root places =legend= and =catalog= in the slot above the modeline, each showing itself.
+9. LOCKED — the modeline owns its two floats.
+10. LOCKED — =Popover= · =DockPicker=.
+11. LOCKED B — discrete clicks are surface verbs (LOOKUP Q6′ · ruling 25 · 37); asked: a gesture in flight (drag · keystroke · popover anchor) — a verb per event, or a widget-local signal that commits one verb at its end.
+12. LOCKED B — the island: one panel =island= picking booting | signin, or two panels =booting= · =signin= as rows of the cover table (m95 ruling 22).
+13. LOOKUP — telemetry is a panel the root places in its top layer (Q9's pattern); its window is the =Telemetry= branch of =Surface= (Q6′). The inspector's hand-built rows (=tele.js:145=) ride m89 (m96 open #14).
+14. LOOKUP — =src/surfaces/chrome/=: Q1 /"sharing a folder structure"/ mirrors ghost's m98 Q6.
+(old 12 · part parity — struck by Q1: implementation per chrome)
+
+- (old F1–F6 MOVED whole to =reference/m103/forks-10-23.org=)
+

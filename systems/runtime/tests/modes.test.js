@@ -1,4 +1,4 @@
-import { Aperture, Controller, fromm, Mode, Path, specimen, Vector } from "@vivalence/typology";
+import { Aperture, Controller, fromm, Mode, monad, Path, shape, specimen, Vector } from "@vivalence/typology";
 import { gestalten } from "@vivalence/runtime";
 
 const { modes } = gestalten.belt;
@@ -23,6 +23,12 @@ const execution = (seen) =>
     die.mode.terminators = [() => seen.push(["terminated", die.mode.manifest.slug])];
   });
 
+const factory = (seen) => (mode) =>
+  monad.kleisli([
+    (parentDie) => ({ mask: mode.module, mode, context: parentDie.context, traits: parentDie.traits }),
+    shape.monad.execute(execution(seen)),
+  ]);
+
 specimen.describe("gestalten.belt.modes — one way to run modes on either rung", () => {
   for (const type of ["daemon", "runtime"]) {
     specimen.it(`${type}: resolve → release — the same calls, the mode read through die.context`, async () => {
@@ -33,7 +39,7 @@ specimen.describe("gestalten.belt.modes — one way to run modes on either rung"
       specimen.expect(fromm.modes(context.modes).flat.map((mode) => mode.manifest.slug)).toEqual(["board", "lobby"]);
 
       const seen = [];
-      await modes.resolve(context, execution(seen), {});
+      await modes.resolve(context, factory(seen), {});
       specimen.expect(seen).toEqual([[type, "board"], [type, "lobby"], ["finalized", "board"], ["finalized", "lobby"]]);
       specimen.expect(context.aperture.branch("/mode/game/board/ping").effect?.()).toBe("board");
 

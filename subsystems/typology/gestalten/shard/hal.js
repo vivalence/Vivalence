@@ -71,14 +71,14 @@ export const verbatim = ({ polish, tune } = {}) => async (ctx) => {
 };
 
 async function* controlled(controller, output) {
-  controller.stdout.open();
+  controller.start();
   try {
     yield* output;
   } catch (fault) {
-    controller.stdout.fault(fault);
+    controller.fault(fault);
     throw fault;
   } finally {
-    controller.stdout.close();
+    controller.stop();
   }
 }
 

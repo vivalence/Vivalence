@@ -1,4 +1,4 @@
-import { specimen, Pipe } from "@vivalence/typology";
+import { specimen, Pipe, Queue } from "@vivalence/typology";
 
 specimen.describe("Pipe", () => {
   specimen.it("a send fans out to every tap", () => {
@@ -16,9 +16,9 @@ specimen.describe("Pipe", () => {
 
     const aliased = new Pipe();
     const seen = [];
-    const unsubscribe = aliased.subscribe((value) => seen.push(value));
+    const untapAliased = aliased.tap((value) => seen.push(value));
     aliased.send("v");
-    unsubscribe();
+    untapAliased();
     aliased.send("dropped");
     specimen.expect(seen).toEqual(["v"]);
 
@@ -29,7 +29,7 @@ specimen.describe("Pipe", () => {
 
   specimen.it("an observer rides the async bridge", async () => {
     const pipe = new Pipe();
-    const stream = pipe.observe();
+    const stream = pipe.drain(new AbortController().signal);
     const pending = stream.next();
     await Promise.resolve();
     pipe.send("a");
@@ -41,11 +41,12 @@ specimen.describe("Pipe", () => {
     await stream.return();
 
     const aborted = new Pipe();
-    const observer = aborted.observe();
+    const cut = new AbortController();
+    const observer = aborted.drain(cut.signal);
     const pull = observer.next();
     await Promise.resolve();
     specimen.expect(aborted.listeners.size).toBe(1);
-    observer.unsubscribe();
+    cut.abort();
     await pull;
     specimen.expect(aborted.listeners.size).toBe(0);
   });
@@ -61,11 +62,11 @@ specimen.describe("Pipe", () => {
     });
 
     const seen = [];
-    const stream = pipe.observe();
+    const cut = new AbortController();
     const consumer = (async () => {
-      for await (const value of stream) {
+      for await (const value of pipe.drain(cut.signal)) {
         seen.push(value);
-        if (seen.length === 3) stream.unsubscribe();
+        if (seen.length === 3) cut.abort();
       }
     })();
     await Promise.resolve();
@@ -78,14 +79,19 @@ specimen.describe("Pipe", () => {
     specimen.expect(log).toEqual(["a", "b", "c"]);
     specimen.expect(ring).toEqual(["b", "c"]);
     specimen.expect(seen).toEqual(["a", "b", "c"]);
+    specimen.expect(pipe.listeners.size).toBe(2);
   });
 
   specimen.it("a replay yields the backlog, then everything sent after — no gap, no repeat", async () => {
     const pipe = new Pipe();
     const cut = new AbortController();
     const seen = [];
+    const queue = new Queue();
+    for (const value of ["a", "b"]) queue.enqueue(value);
+    const untap = pipe.tap(queue);
     const reading = (async () => {
-      for await (const value of pipe.replay(["a", "b"], cut.signal)) seen.push(value);
+      for await (const value of queue.drain(cut.signal)) seen.push(value);
+      untap();
     })();
     pipe.send("c");
     await Promise.resolve();
@@ -97,10 +103,10 @@ specimen.describe("Pipe", () => {
     specimen.expect(pipe.listeners.size).toBe(0);
   });
 
-  specimen.it("a reactive holds the latest and folds the history", () => {
+  specimen.it("a fold holds the latest and folds the history", () => {
     const pipe = new Pipe();
-    const latest = pipe.reactive();
-    const history = pipe.reactive([], (list, value) => [...list, value]);
+    const latest = pipe.fold(null, (_, value) => value);
+    const history = pipe.fold([], (list, value) => [...list, value]);
 
     const seen = [];
     latest.subscribe((value) => seen.push(value));

@@ -1,0 +1,2161 @@
+#+title: m99 keys — a press becomes a KeySignal; the Legend queues it and walks the active terminal's keymap; keymaps are harvested from the repl's =chord:=
+#+filetags: :ghost:keys:keymap:legend:typology:anima:drapes:sheets:
+#+status: SUPERSEDED 10-24 by m104 (/"rework them into one 104 and superseed 99 and 102"/ · /"recut 104, lift everything that we need, and then we can sunset 99 and 102"/): never landed; every hunk replayed into =m104-legend-repl.org= =* as code=, its rulings carried there verbatim (five superseded by m104 Q0–Q2 · Q4), its QA markers moved there as =m104/…= — was: TANGLED 10-23 — Q18″–Q40 + r1 locked; =* as code= cut on m98's tree, replays on a fresh copy of the repo after m98 (=methods/replay-quest.py=: 4 moves · 8 new · 148 hunks (2 struck 10-24: their old side left the tree, =reference/m99/drift-struck-10-24.org=; 150 after the m103 split, 149 before 10-24) · 0 missed on 10-23; re-cut 10-24 after m98's chrome blocks moved to m103: 4 hunks re-contexted · 1 new =surfaces/chrome/panes/index.js= (Q24); replay 10-24 143 landed · 2 missed — =client.test.js:33= · =lifecycle.test.js:91=, the repo's =/quit= → =controller.kill= drift, the same before the split); census serial on the landing tree = the repo's on every suite; 6 typology hunks HOLY, each its own go; Q46 (a held group's header) is his; lands after m98; no go
+# limit: none (quest content)
+
+* intent
+
+10-23, beef verbatim (born inside m98 Q18):
+
+/"So we're not gonna create a file per key that we could hit, that makes no sense. So the key map inside of our entities and subjects, those are declarations of functions and operations that can be applied on top of whatever the entity or subject or whatever is. All of the tooling that is used to navigate and attach and blah blah blah, the key maps, those go into Gestalten. Kind of the same way that the aperture is handled on the runtime. You declare a bunch of apertures and then we graph them onto the key map vectors and then we compose the key map vectors. The tooling lives in Gestalten and the actual executive functions live in key maps. Or kind of like commands work."/
+
+/"this is a little bit bigger than I thought it would be, but it needs to be done right, and now is the moment … re-architect the system under my new instructions."/
+
+/"this quest originally started with the idea of rebarreling our typology, and now we've went deeply into the key signal processing methodology, and I would like to acknowledge that … I assume we can treat those as two different quests, key map and index barreling."/ · /"number them, go"/
+
+* rulings
+
+| Q | ruling | his words |
+|---|--------|-----------|
+| 18″ | =harvest= and =catalog= move to gestalten; harvest is =shard.keymap.fromRepl= (repl Vector in, keymap Vector out) | /"both harvest and catalog move to gestalten. That's fixed. … I want harvest under shard.keymap.fromRepl."/ |
+| 18‴ | presses queue on the CLIENT; the queue drains into the keymap of the terminal; the walk runs where the queue is read — always on a terminal, by the dispatch pattern | /"the keys that we are hitting go to the client, where we have a queue. That queue is drained into the key map. If we are on the terminal, it goes in there. We're always on the terminal."/ |
+| 19 | no =subjects/keymap/=, no keymap die, no =terminal.navigate=; the client dispatches to the terminal | /"there is no subject key map, doesn't exist. And never will. There's no key map die."/ · /"I do like the idea the client dispatching to the terminal"/ |
+| 20 | =Legend= is the client's key object — the press queue · =$chord= (the held position) · its dispatch · =this.client= — and the part that paints it (sibling of =Catalog=); m95's =Chord= part dies; =chord:= on a pattern keeps its name | /"legend. legend is great. legend and $chord"/ · /"its the legend???? what?"/ |
+| 21 | =Legend= is an unowned primitive: =systems/ghost/prototypes/legend.js=, a new top dir, barrelled flat and as =prototypes= (Q13) | /"b"/ |
+| r1 | =client.active= → =client.activeTerminal=, =client.$active= → =client.$activeTerminal= (22 files, ghost + anima surface; keep: anima's own =terminals.$active= =src/entities/terminal/terminals.js:5= · =dictation.js:5= =$active=) | /"let's rename client.active to client.active terminal, camel cased"/ |
+| 22 | keys: =legend.dispatch(press)= only enqueues; the Legend's constructor listens on =presses.$backlog= and traverses the held keys ONCE per change: an effect → =execute= (flush, then the press's own =carry=, output → =activeTerminal.dispatch=) · nothing fits → =flush= · a prefix → =$chord = shape.strip(node)=; =flush= empties the presses, the listener nulls =$chord=; surfaces call =legend.dispatch= straight (their own Queue dies); =pressing= · =navigate= · =navigating= die; rides =Queue.$backlog= (typology) | /"lock. rename abort to flush."/ |
+| 23 | =$chord= stays =shape.strip(node)=; =shape.strip= carries a group edge's pattern metadata as =meta= (only when it has any); the Legend labels a key from =effect.valence= · =meta.valence= · the key | /"it's a strip wire, for sure"/ · /"a"/ |
+| 24 | the group keys under =leader= (=e a h d x s c g m=) are declared in the client's keymap with their valence; the Legend paints them via =meta= (Q23); =SUBJECTS= · =NAMED= in =chrome/panes/panel.js= die | /"a"/ |
+| 25 | =graft= merges two patterns for one key into a fresh one of the vector's signature, =new this.signature({ ...existing.pattern, ...edge.pattern })=; later wins per field, a bare segment keeps the earlier valence | /"So in spirit, A is the right solution."/ · /"Yes, I loc this"/ |
+| 26 | =catalog= lives beside =fromRepl=: =shard.keymap.catalog(repl)=, in =gestalten/shard/keymap.js= | /"a"/ |
+| 27 | the terminal's keymap is a plain getter: =client.keymap= + =shard.keymap.fromRepl(this.repl)=, then the mode's keymap when =is.object(this.mode)=; =$keymap= dies | /"a. but cleaner"/ · /"1"/ |
+| 28 | =legend.dispatch= mints a =KeySignal= per press (Q7′); the queue holds signals; =traverse= joins their natures | /"b."/ |
+| 29 | a modifier lives IN the key's nature, fixed order =ctrl option shift meta= (=ctrl-shift-s=); no flags, no =KeyPattern=, the trie stays keyed by nature | /"Let's just have the nature of a key signal be all-encompassing, we ignore the modifier flags. We just go via nature encodes the modifiers into the nature. Simpler more obvious"/ |
+| 30 | the surface forwards the raw event; =KeySignal= spells the nature — an arm per shape (opentui =ParsedKey= · DOM =KeyboardEvent=) + the string arm; both surfaces' =press= · =CHORDS= · =NAMES= die | /"b"/ |
+| 31 | the modifiers are the W3C names =ctrl alt shift meta= (meta = command); the tty arm reads its =meta= as alt, =super= as meta; a printable spells its character (=S= · =?=) | /"b"/ |
+| 32 | the leader is translated the Emacs way: the Legend's =translation= (a Vector, Emacs =key-translation-map=) is dispatched on EVERY press; a surface grafts its platform's leader keys (no valence), an edge's effect enqueues =leader=, the =*= edge enqueues =ctx.signal=; the keymap only says =leader=, the palette is =leader/leader= | /"we follow leader and we call the map not the leader map but the translation map"/ |
+| 32′ | the Legend's Vector is =translation= (=translation = new Vector()=; surface leaves =translation.js=) · =scope= never asks a =*= edge: =if (pattern.type === "wildcard") continue;= (=gestalten/steer/match.js:21=, HOLY), =miss()= is its only door (relabelled Q34: the =*= is asked when no literal matched) | /"just translation = new Vector()"/ · /"yes lock"/ |
+| 32″ | a translation edge opens on a bare string, no wrapping object: =.open("*", …)= · =.open("ctrl-v", …)= (Pattern's string arm, =prototypes/pattern.js:35=) | /"turn both open nature wildcard and open nature control V into just strings. We don't need the wrapping object."/ |
+| 34 | =scope= asks the literals first and the =*= only when none matched — one place for its three askers (=traverse= · =steer/dispatch.js:89= · =shape.proxy=); a =*= mid-path is walked through | /"b"/ |
+| 37 | the client keymap declares only groups that have keys under them: =e a h d s m=; =c= · =x= · =g= drop (no comment-out) until a command claims them | /"Yeah, why do we have these on the leader in that case? Why are we adding them? Just drop them or comment them out, and if we need to add them we do that"/ |
+| 38 | the top =ctrl-v= grid labels a key with no " · " by its line (=? /help= · =q /quit=, alike the group rows =d /dock=); =fromRepl= data unchanged; anima's painter follows | /"b"/ |
+| 47′ | the leader translation takes the Repl's shape (m102 =subjects/terminal/repl.js:3= =execution= beside =class Repl=): =prototypes/legend.js= exports =translation= — the =*= edge and =ctrl-v= → =leader= — and the Legend grafts it onto its own bound Vector; the Legend stays on the client (Q18‴ · Q21); =surfaces/chrome/translation.js= dies, the chrome only forwards (show-me S6) | /"Translation is not part of the Chrome that lives on REPL."/ · /"I think in 102 we have the REPL object that we instantiate on the terminal."/ · /"a"/ |
+| 40 | a pattern never writes on the signal it is asked about: the wildcard · remainder · parameter filters return =new signal.constructor({ ...signal, … })=; closes =pattern-filter-mutates-the-callers-signal= | /"a"/ |
+
+* as code
+
+Tangled 10-23 from a scratchpad copy's diff, cut on m98's tree (m98 lands first; m102 landed 10-23). On a copy: =python3 .ikiro/methods/replay-quest.py .ikiro/quests/m99-keys.org "* as code" --root <copy> --write=. The drill's snippets moved whole to =reference/m99/drill-10-23.org=; every ruling rides its block's heading. =systems/ghost/surfaces/chrome/out/panes.mjs= is built: =deno task ghost/bundle= after landing.
+
+Moves (=mv= first, each block on the NEW path):
+
+| from | to | rides |
+|------|----|-------|
+| =subsystems/sheets/Chord.jsx= | =subsystems/sheets/Legend.jsx= | Q20 · Q23 |
+| =subsystems/sheets/tests/chord.test.js= | =subsystems/sheets/tests/legend.test.js= | Q20 · Q23 |
+| =subsystems/drapes/Chord.jsx= | =subsystems/drapes/Legend.jsx= | Q20 |
+| =subsystems/drapes/tests/parts/chord.test.js= | =subsystems/drapes/tests/parts/legend.test.js= | Q20 |
+
+Deletes:
+
+| path | rides |
+|------|-------|
+
+*** subsystems/drapes
+**** (root)
+***** Legend.jsx — Q20
+#+BEGIN_SRC diff
+// subsystems/drapes/Legend.jsx:4
+
+-export const Chord = (props) => {
++export const Legend = (props) => {
+   const held = mergeProps({ edges: [], selected: -1 }, props);
+#+END_SRC
+***** parts.js — Q20
+#+BEGIN_SRC diff
+// subsystems/drapes/parts.js:9
+ export { Choice } from "./Choice.jsx";
+-export { Chord, titled } from "./Chord.jsx";
++export { Legend, titled } from "./Legend.jsx";
+ export { Catalog, Chooser, chosen, lit } from "./Catalog.jsx";
+#+END_SRC
+**** tests/parts
+***** legend.test.js — Q20
+#+BEGIN_SRC diff
+// subsystems/drapes/tests/parts/legend.test.js:4
+
+-specimen.describe("Chord — dom.js:129: .keys.kcols of edges + the leader button", () => {
++specimen.describe("Legend — dom.js:129: .keys.kcols of edges + the leader button", () => {
+   specimen.it("the design's tree and titles; a press sends the key, the last button the leader", () => {
+     const pressed = [];
+-    const rig = screen(() => parts.Chord({ edges: [{ key: "e", label: "entity", desc: "where am I" }, { key: "q", label: "quit", desc: "" }], selected: 0, onPress: (key) => pressed.push(key) }));
++    const rig = screen(() => parts.Legend({ edges: [{ key: "e", label: "entity", desc: "where am I" }, { key: "q", label: "quit", desc: "" }], selected: 0, onPress: (key) => pressed.push(key) }));
+     specimen.expect(shaped(rig.target)).toBe(oracle(`<div class="keys kcols"><button class="sel" data-fn="press" data-arg="e" title="e · entity · where am I"><b>e</b><span class="kl">entity</span><i>where am I</i></button><button class="" data-fn="press" data-arg="q" title="q · quit"><b>q</b><span class="kl">quit</span><i></i></button><button data-fn="press" data-arg="leader"><b>ctrl-v</b><span class="kl">palette</span><i></i></button></div>`));
+#+END_SRC
+*** subsystems/sheets
+**** (root)
+***** Legend.jsx — Q20 · Q23
+#+BEGIN_SRC diff
+// subsystems/sheets/Legend.jsx:3
+
+-export const keys = (node) => [...node.trie.entries()].map(([nature, edge]) => ({ key: nature, label: edge.pattern.valence ?? nature }));
++const LABELS = [
++  [(node) => node.effect !== undefined && node.effect.valence !== undefined, (node) => node.effect.valence],
++  [(node) => node.meta !== undefined, (node) => node.meta.valence],
++  [() => true, (node, key) => key],
++];
+
+-export const chooser = (node) =>
+-  node.effect && node.signature.input?.enum ? node.signature.input.enum.map((value) => ({ key: value, label: value })) : null;
++const label = (node, key) => LABELS.find(([test]) => test(node))[1](node, key);
+
+-export const Chord = (props) => (
++export const Legend = (props) => (
+   <box style={{ flexDirection: "column", backgroundColor: props.palette.surfaceLift }}>
+-    <text fg={props.palette.signalPrimaryInk}>{props.chord.crumbs.join(" ")}</text>
++    <text fg={props.palette.signalPrimaryInk}>{props.legend.presses.backlog.map((signal) => signal.nature).join(" ")}</text>
+     <box style={{ flexDirection: "row", gap: 1 }}>
+-      <For each={chooser(props.chord.node) ?? keys(props.chord.node)}>
+-        {(entry) => (
++      <For each={Object.entries(props.legend.chord.branches)}>
++        {([key, node]) => (
+           <Segment palette={props.palette}>
+             <text fg={props.palette.signalPrimaryInk}>
+-              <b>{` ${entry.key}`}</b>
++              <b>{` ${key}`}</b>
+             </text>
+-            <text fg={props.palette.textStrong}>{` ${entry.label} `}</text>
++            <text fg={props.palette.textStrong}>{` ${label(node, key)} `}</text>
+           </Segment>
+#+END_SRC
+***** index.js — Q20 · Q23
+#+BEGIN_SRC diff
+// subsystems/sheets/index.js:14
+ export { Split, ALIGNS, SHARE, align, share } from "./Split.jsx";
+-export { Chord, keys, chooser } from "./Chord.jsx";
++export { Legend } from "./Legend.jsx";
+ export { Catalog, narrow } from "./Catalog.jsx";
+#+END_SRC
+**** tests
+***** legend.test.js — Q20 · Q23
+#+BEGIN_SRC diff
+// subsystems/sheets/tests/legend.test.js:1
+-import { Vector, specimen } from "@vivalence/typology";
++import { KeySignal, Vector, shape, specimen } from "@vivalence/typology";
+ import { frame, palette, parts } from "./scenarios/index.js";
+
+-specimen.describe("Chord — where in the keymap we are", () => {
+-  specimen.it("the crumbs, then one segment per edge of the held node, its valence as the label", async () => {
+-    const { Chord } = await parts;
++specimen.describe("Legend — where in the keymap we are", () => {
++  specimen.it("the held keys, then one segment per branch of the held node, its valence as the label", async () => {
++    const { Legend } = await parts;
+     const keymap = new Vector().open({ nature: "/h", valence: "harness" }, () => {}).open({ nature: "/e", valence: "entity" }, () => {});
+-    const lines = (await frame(() => Chord({ palette: palette(), chord: { crumbs: ["ctrl-v"], node: keymap } }), { width: 40, height: 2 })).split("\n");
+-    specimen.expect(lines[0]).toMatch(/^ctrl-v/);
++    const legend = { presses: { backlog: [new KeySignal("leader")] }, chord: shape.strip(keymap) };
++    const lines = (await frame(() => Legend({ palette: palette(), legend }), { width: 40, height: 2 })).split("\n");
++    specimen.expect(lines[0]).toMatch(/^leader/);
+     specimen.expect(lines[1]).toMatch(/^ h harness   e entity /);
+#+END_SRC
+*** subsystems/typology
+**** gestalten/shape
+***** strip.js — Q23 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shape/strip.js:19
+       const node = { branches };
++      if (f.signature && f.effect === undefined && Object.keys(pluck(f.signature)).length > 0) node.meta = pluck(f.signature);
+       if (f.effect !== undefined) node.effect = pluck(f.signature, f.effect);
+#+END_SRC
+**** gestalten/steer
+***** match.js — Q32′ · Q34 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/steer/match.js:20
+
+   for (const { pattern, trajectory } of vector.trie.values()) {
++    if (pattern.type === "wildcard") continue;
+     const match = pattern.apply(signal);
+     if (match) scope.push([match, trajectory, trajectory.effect ?? null]);
+…
+// subsystems/typology/gestalten/steer/match.js:25
+
+-  return scope;
++  if (scope.length > 0 || !vector.trie.has("*")) return scope;
++
++  const { pattern, trajectory } = vector.trie.get("*");
++  return [[pattern.apply(signal), trajectory, trajectory.effect ?? null]];
+ }
+#+END_SRC
+**** prototypes
+***** keysignal.js — Q30 · Q31 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/keysignal.js:3
+
++const MODIFIERS = ["ctrl", "alt", "shift", "meta"];
++
++const NAMES = { escape: "esc", return: "enter", linefeed: "enter", arrowleft: "left", arrowright: "right", arrowup: "up", arrowdown: "down", " ": "space" };
++
++const PRINTABLE = /^[^\p{C}\s]+$/u;
++
++const spell = (down, character, name) => {
++  const held = MODIFIERS.filter((modifier) => down[modifier]);
++
++  if (!down.ctrl && !down.alt && !down.meta && PRINTABLE.test(character)) return [{ nature: character }];
++
++  const named = Object.hasOwn(NAMES, name) ? NAMES[name] : name;
++  return [{ nature: [...held, named].join("-") }];
++};
++
+ export class KeySignal extends Signature {
+-  static coercions = [[(key) => is.string(key), (key) => [{ nature: key }]]];
++  static coercions = [
++    [
++      (event) => is.object(event) && is.string(event.sequence),
++      (event) => spell({ ctrl: event.ctrl, alt: event.meta || event.option, shift: event.shift, meta: event.super === true }, event.sequence, event.name),
++    ],
++    [
++      (event) => is.object(event) && is.string(event.key),
++      (event) => spell({ ctrl: event.ctrlKey, alt: event.altKey, shift: event.shiftKey, meta: event.metaKey }, [...event.key].length === 1 ? event.key : "", event.key.toLowerCase()),
++    ],
++    [(key) => is.string(key), (key) => [{ nature: key }]],
++  ];
+ }
+#+END_SRC
+***** pattern.js — Q40 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/pattern.js:1
+-import * as object from "../gestalten/belt/object.js";
+ import * as is from "../gestalten/is/scalars.js";
+…
+// subsystems/typology/prototypes/pattern.js:68
+     (signature) => signature === "*",
+-    (signal) => object.assign(signal, { type: "wildcard" }),
++    (signal) => new signal.constructor({ ...signal, type: "wildcard" }),
+   ],
+…
+// subsystems/typology/prototypes/pattern.js:73
+     (signature) => signature === "(.*)",
+-    (signal) => object.assign(signal, { type: "remainder" }),
++    (signal) => new signal.constructor({ ...signal, type: "remainder" }),
+   ],
+…
+// subsystems/typology/prototypes/pattern.js:80
+       const parameter = pattern.nature.slice(1);
+-      return object.assign(signal, {
+-        parameter,
+-        parameters: { [parameter]: signal.nature },
+-      });
++      return new signal.constructor({ ...signal, parameter, parameters: { [parameter]: signal.nature } });
+     },
+#+END_SRC
+***** queue.js — Q22 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/queue.js:1
++import { atom } from "nanostores";
+ import * as fromm from "../gestalten/fromm/index.js";
+…
+// subsystems/typology/prototypes/queue.js:4
+ export class Queue {
+-  backlog = [];
++  $backlog = atom([]);
+   closed = false;
+…
+// subsystems/typology/prototypes/queue.js:8
+
++  get backlog() {
++    return this.$backlog.get();
++  }
++
+   enqueue(value) {
+-    this.backlog.push(value);
++    this.$backlog.set([...this.backlog, value]);
+     this.gate.wake();
+…
+// subsystems/typology/prototypes/queue.js:15
+   flush() {
+-    this.backlog.length = 0;
++    this.$backlog.set([]);
+     return this;
+…
+// subsystems/typology/prototypes/queue.js:27
+       if (this.backlog.length) {
+-        yield this.backlog.shift();
++        const [head, ...rest] = this.backlog;
++        this.$backlog.set(rest);
++        yield head;
+         continue;
+#+END_SRC
+***** vector.js — Q25 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/vector.js:64
+         branch.graft(edge.trajectory);
+-        if (existing) existing.pattern = edge.pattern;
++        if (existing) existing.pattern = new this.signature({ ...existing.pattern, ...edge.pattern });
+         else this.trie.set(nature, { pattern: edge.pattern, trajectory: branch });
+#+END_SRC
+**** tests
+***** keysignal.test.js — Q22 · Q23 · Q25 · Q30 · Q34 · Q40 (HOLY) (new)
+#+BEGIN_SRC js
+// subsystems/typology/tests/keysignal.test.js
+import { KeySignal, specimen } from "@vivalence/typology";
+
+const tty = (sequence, name, held = {}) => ({ sequence, name, ctrl: false, meta: false, shift: false, option: false, super: false, ...held });
+const dom = (key, held = {}) => ({ key, ctrlKey: false, altKey: false, shiftKey: false, metaKey: false, ...held });
+
+specimen.describe("KeySignal — a press spells its nature once: W3C ctrl alt shift meta in that order, a printable its character", () => {
+  specimen.it("the tty arm reads opentui's ParsedKey: its meta is alt, its super is meta", () => {
+    specimen.expect(new KeySignal(tty("S", "s", { shift: true })).nature).toBe("S");
+    specimen.expect(new KeySignal(tty("?", "?")).nature).toBe("?");
+    specimen.expect(new KeySignal(tty("\x1b[Z", "tab", { shift: true })).nature).toBe("shift-tab");
+    specimen.expect(new KeySignal(tty("\x16", "v", { ctrl: true })).nature).toBe("ctrl-v");
+    specimen.expect(new KeySignal(tty("\x1bs", "s", { meta: true })).nature).toBe("alt-s");
+    specimen.expect(new KeySignal(tty("\x1b", "escape")).nature).toBe("esc");
+    specimen.expect(new KeySignal(tty("s", "s", { ctrl: true, shift: true, super: true })).nature).toBe("ctrl-shift-meta-s");
+  });
+
+  specimen.it("the DOM arm reads a KeyboardEvent: alt is option, meta is command", () => {
+    specimen.expect(new KeySignal(dom("?", { shiftKey: true })).nature).toBe("?");
+    specimen.expect(new KeySignal(dom("s", { altKey: true })).nature).toBe("alt-s");
+    specimen.expect(new KeySignal(dom("s", { metaKey: true })).nature).toBe("meta-s");
+    specimen.expect(new KeySignal(dom("Escape")).nature).toBe("esc");
+    specimen.expect(new KeySignal(dom("ArrowUp")).nature).toBe("up");
+    specimen.expect(new KeySignal(dom(" ")).nature).toBe("space");
+  });
+
+  specimen.it("a string is its nature; an array of strings is a held sequence", () => {
+    specimen.expect(new KeySignal("leader").nature).toBe("leader");
+    specimen.expect(new KeySignal(["leader", "d", "d"]).array.map((signal) => signal.nature)).toEqual(["leader", "d", "d"]);
+  });
+});
+#+END_SRC
+***** queue.test.js — Q22 · Q23 · Q25 · Q30 · Q34 · Q40 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/queue.test.js:79
+   });
++
++  specimen.it("$backlog is a store: enqueue · flush · drain each set a fresh array a listener sees", async () => {
++    const queue = new Queue();
++    const seen = [];
++    queue.$backlog.listen((backlog) => seen.push([...backlog]));
++    queue.enqueue("a").enqueue("b");
++    const held = queue.backlog;
++    queue.flush();
++    queue.enqueue("c").close();
++    for await (const value of queue) seen.push(value);
++    specimen.expect(seen).toEqual([["a"], ["a", "b"], [], ["c"], [], "c"]);
++    specimen.expect(held).toEqual(["a", "b"]);
++  });
+ });
+#+END_SRC
+***** signal.test.js — Q22 · Q23 · Q25 · Q30 · Q34 · Q40 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/signal.test.js:109
+   });
++
++  specimen.it("a pattern never writes on the signal it is asked about: wildcard · remainder · parameter answer a copy", () => {
++    const signal = new Signal("/dock");
++    const wild = new Pattern("*").apply(signal);
++    const rest = new Pattern("(.*)").apply(signal);
++    const param = new Pattern(":slug").apply(signal);
++    specimen.expect([wild.type, rest.type, param.parameters]).toEqual(["wildcard", "remainder", { slug: "dock" }]);
++    specimen.expect([signal.type, signal.parameters, wild === signal, param === signal]).toEqual([undefined, undefined, false, false]);
++  });
+ });
+#+END_SRC
+***** vector.test.js — Q22 · Q23 · Q25 · Q30 · Q34 · Q40 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/vector.test.js:1
+-import { specimen, v, Vector } from "@vivalence/typology";
++import { specimen, steer, v, Signal, Vector } from "@vivalence/typology";
+
+…
+// subsystems/typology/tests/vector.test.js:265
+   });
++
++  specimen.it("graft merges two patterns for one key field by field — later wins, a bare segment keeps the earlier valence; the sources are not mutated", () => {
++    const declared = new Vector();
++    declared.branch({ nature: "leader", valence: "the leader" }).branch({ nature: "d", valence: "display" });
++    const derived = new Vector().open({ nature: "leader/d/d", valence: "/dock", input: v.object({}) }, "/dock");
++    const reworded = new Vector().open({ nature: "leader/d/d", valence: "the dock" }, "/dock");
++    const merged = new Vector().graft(declared, derived, reworded);
++    const d = merged.trie.get("leader").trajectory.trie.get("d");
++    specimen.expect([merged.trie.get("leader").pattern.valence, d.pattern.valence]).toEqual(["the leader", "display"]);
++    specimen.expect([d.trajectory.trie.get("d").pattern.valence, d.trajectory.trie.get("d").pattern.input !== undefined]).toEqual(["the dock", true]);
++    specimen.expect(derived.trie.get("leader").trajectory.trie.get("d").trajectory.trie.get("d").pattern.valence).toBe("/dock");
++  });
++
++  specimen.it("scope asks the literals first and the * only when none matched; a * mid-path is walked through", () => {
++    const vector = new Vector().open("*", () => "any").open("ctrl-v", () => "leader").open("proxy/*/status", () => "status");
++    specimen.expect(steer.match.scope(vector, new Signal("ctrl-v")).map(([match]) => match.nature)).toEqual(["ctrl-v"]);
++    specimen.expect(steer.match.scope(vector, new Signal("d")).map(([match]) => match.type)).toEqual(["wildcard"]);
++    specimen.expect(steer.dispatch.traverse(vector, new Signal("/proxy/anything/status"))[0]).not.toBe(null);
++  });
+ });
+#+END_SRC
+**** tests/gestalten/shape
+***** strip.test.js — Q22 · Q23 · Q25 · Q30 · Q34 · Q40 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/gestalten/shape/strip.test.js:53
+     specimen.expect(tagged).toEqual({ branches: { x: { effect: { hasInput: true }, branches: {} } } });
+   });
++
++  specimen.it("a group edge's pattern metadata rides as meta; a bare segment stays { branches }", () => {
++    const vector = new Vector();
++    vector.branch({ nature: "leader", valence: "the leader" }).branch({ nature: "d", valence: "display · how do I see it" });
++    vector.open({ nature: "leader/d/d", valence: "/dock" }, () => {});
++    vector.open("bare/x", () => {});
++    const stripped = shape.strip(vector).branches;
++    specimen.expect(stripped.leader.meta).toEqual({ valence: "the leader" });
++    specimen.expect(stripped.leader.branches.d.meta).toEqual({ valence: "display · how do I see it" });
++    specimen.expect(stripped.leader.branches.d.branches.d).toEqual({ effect: { valence: "/dock" }, branches: {} });
++    specimen.expect(stripped.bare).toEqual({ branches: { x: { effect: {}, branches: {} } } });
++  });
+ });
+#+END_SRC
+*** systems/anima
+**** src/surface
+***** index.js — Q22 · r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/index.js:4
+ import { keypresses } from "./keys.js";
++import { translation } from "./translation.js";
+ import { Chrome } from "./panes/index.js";
+…
+// systems/anima/src/surface/index.js:42
+   const style = dressed(globalThis.document);
+-  const presses = keypresses(globalThis);
+-  presses.to(client.presses);
++  client.legend.translation.graft(translation);
++  const unpress = keypresses(globalThis, client.legend);
+   const erase = painted(globalThis.document, client);
+…
+// systems/anima/src/surface/index.js:47
+     erase();
+-    presses.close();
++    unpress();
+     style.remove();
+#+END_SRC
+***** keys.js — Q22 · Q30
+#+BEGIN_SRC diff
+// systems/anima/src/surface/keys.js:1
+-import { Queue } from "@vivalence/typology";
+-
+-const MAC = /Mac|iPhone|iPad/.test(globalThis.navigator.platform);
+-export const LEADER = MAC ? "ctrl-v" : "meta-v";
+-export const LEADER_KEY = "leader";
+-
+-const NAMES = { Escape: "esc", Enter: "enter", ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down" };
+-const named = (event) => (Object.hasOwn(NAMES, event.key) ? NAMES[event.key] : event.key.toLowerCase());
+-
+-const CHORDS = [
+-  [(event) => (MAC ? event.ctrlKey : event.metaKey) && !event.shiftKey && event.key === "v", () => "leader"],
+-  [(event) => event.ctrlKey, (event) => `ctrl-${named(event)}`],
+-  [(event) => event.metaKey, (event) => `meta-${named(event)}`],
+-  [() => true, named],
+-];
+-
+-export const press = (event) => ({ key: CHORDS.find(([test]) => test(event))[1](event) });
+-
+-export const keypresses = (window) => {
+-  const queue = new Queue();
+-  const listener = (event) => {
+-    const pressed = press(event);
+-    if (pressed.key === LEADER_KEY) event.preventDefault();
+-    queue.enqueue(pressed);
+-  };
++export const keypresses = (window, legend) => {
++  const listener = (event) => legend.dispatch(event);
+   window.addEventListener("keydown", listener);
+-  return Object.assign(queue, { close: () => { window.removeEventListener("keydown", listener); Queue.prototype.close.call(queue); } });
++  return () => window.removeEventListener("keydown", listener);
+ };
+#+END_SRC
+***** sections.js — Q22 · r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/sections.js:297
+   const screen = client.surface.sections;
+-  const terminal = client.active;
++  const terminal = client.activeTerminal;
+   return {
+#+END_SRC
+***** send.js — Q22 · r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/send.js:1
+-export const send = (client, line) => client.active.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
++export const send = (client, line) => client.activeTerminal.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
+#+END_SRC
+***** translation.js — Q32 (new)
+#+BEGIN_SRC js
+// systems/anima/src/surface/translation.js
+import { KeySignal, Vector } from "@vivalence/typology";
+
+const MAC = /Mac|iPhone|iPad/.test(globalThis.navigator.platform);
+
+export const translation = new Vector().open(MAC ? "ctrl-v" : "meta-v", (ctx) => {
+  ctx.input.preventDefault();
+  ctx.legend.presses.enqueue(new KeySignal("leader"));
+});
+#+END_SRC
+**** src/surface/panes
+***** bar.jsx — Q22 · r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/bar.jsx:10
+
+-const ESC = { key: "esc" };
+-const LEADER = { key: "leader" };
+-
+ export const marked = (client) => {
+…
+// systems/anima/src/surface/panes/bar.jsx:17
+   const sided = () => (client.surface.narrow ? client.surface.phonePane === "sidebar" : client.surface.sidebar);
+-  const opened = () => client.chord !== null || client.catalog !== null || client.surface.wid !== null || client.surface.pop !== null || sided();
++  const opened = () => client.legend.chord !== null || client.catalog !== null || client.surface.wid !== null || client.surface.pop !== null || sided();
+   const drop = () => {
+-    if (client.chord !== null || client.catalog !== null) client.presses.enqueue(ESC);
++    if (client.legend.chord !== null || client.catalog !== null) client.legend.dispatch("esc");
+   };
+   const palette = () => {
+-    if (client.catalog !== null) client.presses.enqueue(ESC);
++    if (client.catalog !== null) client.legend.dispatch("esc");
+     else {
+-      client.presses.enqueue(LEADER);
+-      client.presses.enqueue(LEADER);
++      client.legend.dispatch("leader");
++      client.legend.dispatch("leader");
+     }
+…
+// systems/anima/src/surface/panes/bar.jsx:50
+         tap = null;
+-        client.presses.enqueue(LEADER);
++        client.legend.dispatch("leader");
+       }, TAP);
+…
+// systems/anima/src/surface/panes/bar.jsx:80
+   const world = watched(client);
+-  const chord = from(client.$chord);
++  const chord = from(client.legend.$chord);
++  const crumbs = () => (chord() === null ? [] : client.legend.presses.backlog.map((signal) => signal.nature));
+   const catalog = from(client.$catalog);
+…
+// systems/anima/src/surface/panes/bar.jsx:87
+   const mark = marked(client);
+-  const chorded = () => (chord() !== null && chord().crumbs.length > 1 ? parts.SUBJECTS.find((subject) => subject.k === chord().crumbs[1]) : undefined);
++  const chorded = () => (crumbs().length > 1 ? parts.SUBJECTS.find((subject) => subject.k === crumbs()[1]) : undefined);
+   const open = () => (wid() !== null ? wid().id : chorded() === undefined ? null : chorded().id);
+-  const keys = () => (chord() !== null && chord().crumbs.length === 1) || catalog() !== null || (narrow() ? pane() === "sidebar" : sidebar());
++  const keys = () => crumbs().length === 1 || catalog() !== null || (narrow() ? pane() === "sidebar" : sidebar());
+   const pick = (subject, event) => {
+…
+// systems/anima/src/surface/panes/bar.jsx:93
+     client.surface.$pop.set(null);
+-    if (chord() !== null) client.presses.enqueue(ESC);
++    if (chord() !== null) client.legend.dispatch("esc");
+     client.surface.$wid.set({ id: subject, ...placed(event, client.surface) });
+…
+// systems/anima/src/surface/panes/bar.jsx:98
+     client.surface.$wid.set(null);
+-    if (chord() !== null) client.presses.enqueue(ESC);
++    if (chord() !== null) client.legend.dispatch("esc");
+     client.surface.$pop.set({ x: event.clientX, y: event.clientY });
+#+END_SRC
+***** chord.jsx — Q20 · Q23 · Q38
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/chord.jsx:7
+
+-const subjectOf = (key) => parts.SUBJECTS.find((subject) => subject.k === key);
++const VALENCES = [
++  [(node) => node.effect !== undefined && node.effect.valence !== undefined, (node) => node.effect.valence],
++  [(node) => node.meta !== undefined && node.meta.valence !== undefined, (node) => node.meta.valence],
++  [() => true, () => ""],
++];
++
++export const valenceOf = (node) => VALENCES.find(([test]) => test(node))[1](node);
+
+…
+// systems/anima/src/surface/panes/chord.jsx:11
+   [(key, valence) => valence.includes(" · "), (key, valence) => [valence.split(" · ")[0], valence.split(" · ").slice(1).join(" · ")]],
+-  [(key) => subjectOf(key) !== undefined, (key) => [subjectOf(key).id, subjectOf(key).valence]],
+-  [() => true, (key, valence) => [key, valence]],
++  [() => true, (key, valence) => [valence, ""]],
+ ];
+
+-export const valenceOf = (edge) => (edge.pattern.valence === undefined ? "" : edge.pattern.valence);
+-
+ export const keys = (node) =>
+-  [...node.trie.entries()].map(([nature, edge]) => {
+-    const [label, desc] = LABELS.find(([test]) => test(nature, valenceOf(edge)))[1](nature, valenceOf(edge));
+-    return { key: nature, label, desc };
++  Object.entries(node.branches).map(([key, child]) => {
++    const [label, desc] = LABELS.find(([test]) => test(key, valenceOf(child)))[1](key, valenceOf(child));
++    return { key, label, desc };
+   });
+
+-export const walked = (node) => [...node.trie.entries()].map(([nature, edge]) => ({ key: nature, label: valenceOf(edge), desc: "" }));
++export const walked = (node) => Object.entries(node.branches).map(([key, child]) => ({ key, label: valenceOf(child), desc: "" }));
+
+-const press = (client) => (key) => client.presses.enqueue({ key });
++const press = (client) => (key) => client.legend.dispatch(key);
++
++const crumbs = (client) => client.legend.presses.backlog.map((signal) => signal.nature);
+
+…
+// systems/anima/src/surface/panes/chord.jsx:29
+   <parts.Panel tag="ctrl-v" crumb="once = keys · twice = the palette" hint="esc drops">
+-    <parts.Chord edges={keys(props.held.node).filter((edge) => !HIDDEN.includes(edge.key))} onPress={press(props.client)} />
++    <parts.Legend edges={keys(props.node).filter((edge) => !HIDDEN.includes(edge.key))} onPress={press(props.client)} />
+   </parts.Panel>
+…
+// systems/anima/src/surface/panes/chord.jsx:34
+ const Walked = (props) => {
+-  const subject = () => subjectOf(props.held.crumbs[1]);
++  const label = () => LABELS.find(([test]) => test(crumbs(props.client).at(-1), valenceOf(props.node)))[1](crumbs(props.client).at(-1), valenceOf(props.node));
+   return (
+-    <parts.Panel tag={subject() === undefined ? props.held.crumbs.at(-1) : subject().id} crumb={chordText(props.held.crumbs)} hint={subject() === undefined ? "" : subject().valence}>
++    <parts.Panel tag={label()[0] === "" ? crumbs(props.client).at(-1) : label()[0]} crumb={chordText(crumbs(props.client))} hint={label()[1]}>
+       <div class="pb">
+-        <For each={walked(props.held.node)}>{(edge) => <parts.Row key={edge.key} name={edge.label} value={edge.desc} onPick={() => press(props.client)(edge.key)} />}</For>
++        <For each={walked(props.node)}>{(edge) => <parts.Row key={edge.key} name={edge.label} value={edge.desc} onPick={() => press(props.client)(edge.key)} />}</For>
+       </div>
+…
+// systems/anima/src/surface/panes/chord.jsx:45
+ export function Chord(props) {
+-  const chord = from(props.client.$chord);
++  const chord = from(props.client.legend.$chord);
+   return (
+     <Show when={chord()} keyed>
+-      {(held) => (
+-        <Show when={held.crumbs.length === 1} fallback={<Walked client={props.client} held={held} />}>
+-          <Leader client={props.client} held={held} />
++      {(node) => (
++        <Show when={crumbs(props.client).length === 1} fallback={<Walked client={props.client} node={node} />}>
++          <Leader client={props.client} node={node} />
+         </Show>
+#+END_SRC
+***** chrome.jsx — Q22 · r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/chrome.jsx:16
+   [(client) => !client.runtime.lighthouse.isAuthorized && settled(client.runtime.lighthouse), Signin],
+-  [(client) => !client.runtime.lighthouse.isAuthorized || client.active === null, Booting],
++  [(client) => !client.runtime.lighthouse.isAuthorized || client.activeTerminal === null, Booting],
+   [() => true, Regions],
+…
+// systems/anima/src/surface/panes/chrome.jsx:24
+   const runtime = from(props.client.$runtime);
+-  const active = from(props.client.$active);
++  const active = from(props.client.$activeTerminal);
+   const status = from(belt.atom.chain(props.client.$runtime, "lighthouse", "$status"));
+#+END_SRC
+***** composer.jsx — Q22 · r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/composer.jsx:2
+ import * as parts from "@vivalence/drapes/parts";
+-import * as ghost from "@vivalence/ghost";
+ import { send } from "../send.js";
+…
+// systems/anima/src/surface/panes/composer.jsx:66
+     client.surface.$draft.set(text);
+-    if (text === "/") ghost.client.keymap.palette(client, "/");
++    if (text === "/") {
++      client.legend.dispatch("leader");
++      client.legend.dispatch("leader");
++    }
+     if (!text.startsWith("/")) client.$catalog.set(null);
+#+END_SRC
+***** regions.jsx — Q22 · r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/regions.jsx:34
+ export const Panel = (props) => {
+-  const chord = from(props.client.$chord);
++  const chord = from(props.client.legend.$chord);
+   const catalog = from(props.client.$catalog);
+…
+// systems/anima/src/surface/panes/regions.jsx:86
+ export function Regions(props) {
+-  const active = from(props.client.$active);
++  const active = from(props.client.$activeTerminal);
+   return (
+#+END_SRC
+***** sidebar.jsx — Q22 · r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/sidebar.jsx:3
+ import { belt } from "@vivalence/typology";
+-import * as ghost from "@vivalence/ghost";
+ import { SIDEBAR } from "../screen.js";
+…
+// systems/anima/src/surface/panes/sidebar.jsx:20
+ export const FNS = {
+-  palette: (client, prefill) => ghost.client.keymap.palette(client, prefill),
++  palette: (client, prefill) => {
++    client.surface.$draft.set(prefill);
++    client.legend.dispatch("leader");
++    client.legend.dispatch("leader");
++  },
+   expand: (client, kind) => patched(client, { expand: kind in client.surface.sections.expand ? Object.fromEntries(Object.entries(client.surface.sections.expand).filter(([held]) => held !== kind)) : { ...client.surface.sections.expand, [kind]: true } }),
+…
+// systems/anima/src/surface/panes/sidebar.jsx:43
+   const signals = [
+-    from(client.$active),
+-    from(belt.atom.chain(client.$active, "$thread")),
+-    from(belt.atom.chain(client.$active, "$buffer")),
+-    from(belt.atom.chain(client.$active, "$thread", "$buffers")),
++    from(client.$activeTerminal),
++    from(belt.atom.chain(client.$activeTerminal, "$thread")),
++    from(belt.atom.chain(client.$activeTerminal, "$buffer")),
++    from(belt.atom.chain(client.$activeTerminal, "$thread", "$buffers")),
+     from(client.runtime.entities.terminal.$entities),
+#+END_SRC
+***** tabs.jsx — Q22 · r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/tabs.jsx:27
+   const activities = from(client.runtime.entities.activity.$entities);
+-  const active = from(client.$active);
++  const active = from(client.$activeTerminal);
+   const threads = () => terminals().map((held) => held.thread);
+#+END_SRC
+***** tele.jsx — Q22 · r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/tele.jsx:241
+   const terminals = from(client.runtime.entities.terminal.$entities);
+-  const active = from(client.$active);
++  const active = from(client.$activeTerminal);
+   const status = from(client.runtime.$status);
+…
+// systems/anima/src/surface/panes/tele.jsx:245
+   const standing = from(client.runtime.lighthouse.$status);
+-  const turns = from(typology.atom.chain(client.$active, "$thread", "$turns"));
+-  const buffers = from(typology.atom.chain(client.$active, "$thread", "$buffers"));
++  const turns = from(typology.atom.chain(client.$activeTerminal, "$thread", "$turns"));
++  const buffers = from(typology.atom.chain(client.$activeTerminal, "$thread", "$buffers"));
+   const width = from(client.surface.$width);
+#+END_SRC
+**** tests
+***** bar.test.js — Q22 (rigs)
+#+BEGIN_SRC diff
+// systems/anima/tests/bar.test.js:2
+ import * as ghost from "@vivalence/ghost";
+-import { harvest, keymap as bound, navigating } from "../../ghost/subjects/client/keymap.js";
+ import { fire, paint, settle, surface, world } from "./world.js";
+…
+// systems/anima/tests/bar.test.js:15
+
+-const KEYS = `<div class="ph"><span class="tag">ctrl-v</span><span class="crumb">once = keys · twice = the palette</span><span class="hint">esc drops</span></div><div class="keys kcols"><button class=""><b>d</b><span class="kl">display</span><i>how do I see it</i></button><button class=""><b>h</b><span class="kl">harness</span><i>what is it given</i></button><button data-fn="press" data-arg="leader"><b>ctrl-v</b><span class="kl">palette</span><i></i></button></div>`;
++const KEYS = `<div class="ph"><span class="tag">ctrl-v</span><span class="crumb">once = keys · twice = the palette</span><span class="hint">esc drops</span></div><div class="keys kcols"><button class=""><b>e</b><span class="kl">entity</span><i>where am I</i></button><button class=""><b>a</b><span class="kl">activity</span><i>is it working</i></button><button class=""><b>h</b><span class="kl">harness</span><i>what is it given</i></button><button class=""><b>d</b><span class="kl">display</span><i>how do I see it</i></button><button class=""><b>s</b><span class="kl">system</span><i>what does it run on</i></button><button data-fn="press" data-arg="leader"><b>ctrl-v</b><span class="kl">palette</span><i></i></button></div>`;
+
+…
+// systems/anima/tests/bar.test.js:27
+   held.terminal.repl.commands = new Vector().graft(ghost.terminal.commands.dock, ghost.terminal.commands.intelligent);
+-  held.client.keymap = new Vector().graft(bound);
+-  held.terminal.keymap = new Vector().graft(held.client.keymap, harvest(held.terminal.repl.commands));
+-  const navigated = navigating(held.client, held.client.presses.drain());
++  held.client.keymap = new Vector().graft(ghost.client.keymap);
++  held.terminal.keymap = new Vector().graft(held.client.keymap, ghost.shard.keymap.fromRepl(held.terminal.repl.commands));
+   const rig = paint(() => [surface.Bar({ client: held.client }), surface.Panel({ client: held.client }), surface.Wid({ client: held.client }), surface.Pop({ client: held.client })]);
+   await settle();
+-  const close = () => {
+-    rig.close();
+-    held.client.presses.close();
+-    return navigated;
+-  };
++  const close = () => rig.close();
+   return { ...held, rig, close };
+…
+// systems/anima/tests/bar.test.js:111
+     await wait(surface.TAP + 40);
+-    specimen.expect(client.chord.crumbs).toEqual(["leader"]);
++    specimen.expect(client.legend.presses.backlog.map((signal) => signal.nature)).toEqual(["leader"]);
+     specimen.expect(mark().className).toBe("mark open");
+…
+// systems/anima/tests/bar.test.js:117
+     await settle();
+-    specimen.expect(client.chord).toBe(null);
++    specimen.expect(client.legend.chord).toBe(null);
+     specimen.expect(rig.target.querySelector("section.panel").hasAttribute("hidden")).toBe(true);
+…
+// systems/anima/tests/bar.test.js:137
+     specimen.expect(client.surface.sidebar).toBe(true);
+-    specimen.expect(client.chord).toBe(null);
++    specimen.expect(client.legend.chord).toBe(null);
+     await close();
+#+END_SRC
+***** panel.test.js — Q22 (rigs)
+#+BEGIN_SRC diff
+// systems/anima/tests/panel.test.js:2
+ import * as ghost from "@vivalence/ghost";
+-import { catalog, harvest, keymap as bound, navigating } from "../../ghost/subjects/client/keymap.js";
+ import { fire, paint, settle, surface, world } from "./world.js";
+…
+// systems/anima/tests/panel.test.js:6
+
+-const WALKED = `<div class="ph"><span class="tag">display</span><span class="crumb">ctrl-v d</span><span class="hint">how do I see it</span></div><div class="pb">
++const WALKED = `<div class="ph"><span class="tag">d</span><span class="crumb">ctrl-v d</span><span class="hint"></span></div><div class="pb">
+ <button class="krow  " data-fn="entry"><span class="key">j</span><span class="nm">/dock/lens</span><span class="val"></span></button>
+…
+// systems/anima/tests/panel.test.js:25
+   held.terminal.repl.commands = new Vector().graft(ghost.terminal.commands.dock);
+-  held.terminal.keymap = new Vector().graft(bound, harvest(held.terminal.repl.commands));
+-  const navigated = navigating(held.client, held.client.presses.drain());
++  held.terminal.keymap = new Vector().graft(ghost.client.keymap, ghost.shard.keymap.fromRepl(held.terminal.repl.commands));
+   const rig = paint(() => surface.Panel({ client: held.client }));
+   await settle();
+-  const close = () => {
+-    rig.close();
+-    held.client.presses.close();
+-    return navigated;
+-  };
++  const close = () => rig.close();
+   return { ...held, rig, close };
+…
+// systems/anima/tests/panel.test.js:38
+ const pressed = async (client, ...keys) => {
+-  for (const key of keys) client.presses.enqueue({ key });
++  for (const key of keys) client.legend.dispatch(key);
+   await settle();
+…
+// systems/anima/tests/panel.test.js:52
+     await settle();
+-    specimen.expect(client.chord).toBe(null);
+-    specimen.expect(sent.map((signal) => signal.pathname)).toEqual(["/split"]);
++    specimen.expect(client.legend.chord).toBe(null);
++    specimen.expect(sent).toEqual(["/split"]);
+     await close();
+…
+// systems/anima/tests/panel.test.js:83
+     const { rig, client, sent, terminal, close } = await seated();
+-    client.$catalog.set(catalog(terminal.repl.commands));
++    client.$catalog.set(ghost.shard.keymap.catalog(terminal.repl.commands));
+     client.surface.$draft.set("/dock ");
+…
+// systems/anima/tests/panel.test.js:93
+     specimen.expect([client.surface.draft, client.catalog, client.surface.focus]).toEqual(["/dock closed", null, "composer"]);
+-    client.$catalog.set(catalog(terminal.repl.commands));
++    client.$catalog.set(ghost.shard.keymap.catalog(terminal.repl.commands));
+     await settle();
+…
+// systems/anima/tests/panel.test.js:99
+     specimen.expect(client.surface.draft).toBe("");
+-    client.$catalog.set(catalog(terminal.repl.commands));
++    client.$catalog.set(ghost.shard.keymap.catalog(terminal.repl.commands));
+     surface.enter(client, client.catalog, "/spl");
+#+END_SRC
+***** world.js — Q22 (rigs)
+#+BEGIN_SRC diff
+// systems/anima/tests/world.js:119
+   };
+-  const activate = () => client.$active.set(terminal);
++  const activate = () => client.$activeTerminal.set(terminal);
+   return { client, controller, lighthouse, thread, terminal, spare, entities, sent, seat, authorize, activate };
+#+END_SRC
+*** systems/ghost
+**** (root)
+***** typology.js — Q21 · Q13
+#+BEGIN_SRC diff
+// systems/ghost/typology.js:1
+ export * from "./gestalten/index.js";
++export * from "./prototypes/index.js";
+ export * from "./subjects/index.js";
+…
+// systems/ghost/typology.js:4
+ export * as gestalten from "./gestalten/index.js";
++export * as prototypes from "./prototypes/index.js";
+ export * as subjects from "./subjects/index.js";
+#+END_SRC
+**** gestalten/shard
+***** index.js — Q18″ · Q26
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/shard/index.js:1
+ export * as host from "./host.js";
++export * as keymap from "./keymap.js";
+#+END_SRC
+***** keymap.js — Q18″ · Q26 (new)
+#+BEGIN_SRC js
+// systems/ghost/gestalten/shard/keymap.js
+import { Vector, is, steer } from "@vivalence/typology";
+
+const line = (steps) => "/" + steps.map((step) => step.nature).join("/");
+
+const chord = (steps) => (is.string(steps.at(-1).chord) ? steps.at(-1).chord : null);
+
+export const fromRepl = (repl) =>
+  steer.trie.rollup(repl, (carry, effect, steps) => chord(steps))
+    .filter((entry) => entry.fn !== null)
+    .reduce((keymap, { steps, fn }) => keymap.open({ nature: fn, valence: line(steps) }, line(steps)), new Vector());
+
+const OPTIONS = [
+  [(input) => input === undefined, () => []],
+  [(input) => Object.values(input.properties).length === 0, () => []],
+  [(input) => Object.values(input.properties)[0].anyOf === undefined, () => []],
+  [() => true, (input) => Object.values(input.properties)[0].anyOf.filter((member) => Object.hasOwn(member, "const")).map((member) => member.const)],
+];
+
+const options = (input) => OPTIONS.find(([test]) => test(input))[1](input);
+
+const ARGS = [
+  [(input) => input === undefined, () => false],
+  [(input) => !Array.isArray(input.required), () => false],
+  [() => true, (input) => input.required.length > 0],
+];
+
+const args = (input) => ARGS.find(([test]) => test(input))[1](input);
+
+export const catalog = (repl) =>
+  steer.trie.rollup(repl, (carry, effect, steps) => ({ nature: line(steps), valence: steps.at(-1).valence, chord: chord(steps) === null ? "" : chord(steps), options: options(steps.at(-1).input), args: args(steps.at(-1).input) })).map((entry) => entry.fn);
+#+END_SRC
+**** prototypes
+***** index.js — Q20 · Q21 · Q22 · Q28 · Q32 · Q32″ · Q39 (new)
+#+BEGIN_SRC js
+// systems/ghost/prototypes/index.js
+export * from "./legend.js";
+#+END_SRC
+***** legend.js — Q20 · Q21 · Q22 · Q28 · Q32 · Q32″ · Q39 · Q47′ (new)
+#+BEGIN_SRC js
+// systems/ghost/prototypes/legend.js
+import { atom } from "nanostores";
+import { KeySignal, Queue, Vector, shape, shard, steer } from "@vivalence/typology";
+
+export const translation = new Vector()
+  .open("*", (ctx) => ctx.legend.presses.enqueue(ctx.signal))
+  .open("ctrl-v", (ctx) => ctx.legend.presses.enqueue(new KeySignal("leader")));
+
+export class Legend {
+  presses = new Queue();
+  $chord = atom(null);
+  translation = new Vector().use(shard.context.bind("legend", this)).graft(translation);
+
+  constructor(client) {
+    this.client = client;
+    this.presses.$backlog.listen((presses) => this.traverse(presses));
+  }
+
+  get chord() {
+    return this.$chord.get();
+  }
+
+  dispatch(event) {
+    steer.dispatch.invoke(this.translation, new KeySignal(event), steer.strategy.echo)(event);
+  }
+
+  traverse(presses) {
+    if (presses.length === 0) return this.$chord.set(null);
+    const keys = presses.map((signal) => signal.nature);
+    const [effect, carry, steps, node] = steer.dispatch.traverse(this.client.activeTerminal.keymap, new KeySignal(keys));
+    if (effect !== null) return this.execute(effect, carry).catch((error) => this.client.controller.stdout.fault(error));
+    if (steps.length < keys.length) return this.flush();
+    this.$chord.set(shape.strip(node));
+  }
+
+  async execute(effect, carry) {
+    this.flush();
+    const ctx = { client: this.client, output: undefined };
+    await carry(ctx, steer.strategy.resolve(effect));
+    if (ctx.output !== undefined) await this.client.activeTerminal.repl.dispatch(ctx.output);
+  }
+
+  flush() {
+    this.presses.flush();
+  }
+}
+#+END_SRC
+**** subjects/client
+***** index.js — Q1 (keymap.js holds one export)
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/index.js:1
+ export * from "./factory.js";
++export * from "./keymap.js";
+ export * from "./prototype.js";
+ export * as commands from "./commands/index.js";
+-export * as keymap from "./keymap.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+***** keymap.js — Q18″ · Q24 · Q37 · Q22
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/keymap.js:1
+-import { Dropped, KeySignal, NotFound, ReplSignal, Vector, is, steer } from "@vivalence/typology";
++import { Vector } from "@vivalence/typology";
++import * as shard from "../../gestalten/shard/index.js";
+
+-const line = (steps) => "/" + steps.map((step) => step.nature).join("/");
+-
+-const chord = (steps) => (is.string(steps.at(-1).chord) ? steps.at(-1).chord : null);
+-
+-export const harvest = (repl) =>
+-  steer.trie.rollup(repl, (carry, effect, steps) => chord(steps))
+-    .filter((entry) => entry.fn !== null)
+-    .reduce((keymap, { steps, fn }) => keymap.open({ nature: fn, valence: line(steps) }, line(steps)), new Vector());
+-
+-const OPTIONS = [
+-  [(input) => input === undefined, () => []],
+-  [(input) => Object.values(input.properties).length === 0, () => []],
+-  [(input) => Object.values(input.properties)[0].anyOf === undefined, () => []],
+-  [() => true, (input) => Object.values(input.properties)[0].anyOf.filter((member) => Object.hasOwn(member, "const")).map((member) => member.const)],
+-];
+-
+-export const options = (input) => OPTIONS.find(([test]) => test(input))[1](input);
+-
+-const ARGS = [
+-  [(input) => input === undefined, () => false],
+-  [(input) => !Array.isArray(input.required), () => false],
+-  [() => true, (input) => input.required.length > 0],
+-];
+-
+-export const args = (input) => ARGS.find(([test]) => test(input))[1](input);
+-
+-export const catalog = (repl) =>
+-  steer.trie.rollup(repl, (carry, effect, steps) => ({ nature: line(steps), valence: steps.at(-1).valence, chord: chord(steps) === null ? "" : chord(steps), options: options(steps.at(-1).input), args: args(steps.at(-1).input) })).map((entry) => entry.fn);
+-
+-export const listing = (client) => catalog(client.active.repl.commands);
+-
+-export const palette = (client, prefill) => {
+-  client.$chord.set(null);
+-  client.$catalog.set(listing(client));
++const palette = (client, prefill) => {
++  client.$catalog.set(shard.keymap.catalog(client.activeTerminal.repl.commands));
+   client.surface.$draft.set(prefill);
+…
+// systems/ghost/subjects/client/keymap.js:41
+ const leader = new Vector().open(
+-  { nature: "leader", valence: "the catalog — every repl verb, narrowed as you type. Example: ctrl-v ctrl-v" },
++  { nature: "leader", valence: "palette · the catalog — every repl command, narrowed as you type. Example: ctrl-v ctrl-v" },
+   (ctx) => palette(ctx.client, ctx.client.surface.draft.startsWith("/") ? ctx.client.surface.draft : "/"),
+ );
++leader.branch({ nature: "e", valence: "entity · where am I" });
++leader.branch({ nature: "a", valence: "activity · is it working" });
++leader.branch({ nature: "h", valence: "harness · what is it given" });
++leader.branch({ nature: "d", valence: "display · how do I see it" });
++leader.branch({ nature: "s", valence: "system · what does it run on" });
+
+-export const keymap = new Vector().open({ nature: "esc", valence: "drop the chord and the catalog. Example: esc" }, (ctx) => {
+-  ctx.client.$chord.set(null);
+-  ctx.client.$catalog.set(null);
+-});
++export const keymap = new Vector().open({ nature: "esc", valence: "drop the catalog. Example: esc" }, (ctx) => ctx.client.$catalog.set(null));
+ keymap.branch({ nature: "leader", valence: "the leader — ctrl-v on a tty" }, leader);
+-
+-const FAULTS = [
+-  [(error) => error instanceof Dropped, () => undefined],
+-  [(error, client) => error instanceof NotFound && client.$chord.get() === null, () => undefined],
+-  [() => true, (error, client) => client.controller.stdout.fault(error)],
+-];
+-
+-const held = (composed, crumbs) => crumbs.reduce((node, key) => node.trie.get(key).trajectory, composed);
+-
+-export const navigate = async (terminal, drain) => {
+-  const client = terminal.client;
+-  const composed = terminal.keymap;
+-  const crumbs = [];
+-  let open = true;
+-  const more = async (patterns) => {
+-    if (crumbs.length > 0) client.$catalog.set(null);
+-    client.$chord.set(crumbs.length === 0 ? null : { crumbs: [...crumbs], node: held(composed, crumbs) });
+-    const { value: press, done } = await drain.next();
+-    if (done) {
+-      open = false;
+-      throw new Dropped(patterns);
+-    }
+-    if (press.key === "esc" && crumbs.length > 0) throw new Dropped(patterns);
+-    crumbs.push(press.key);
+-    return new KeySignal(press.key);
+-  };
+-  const ctx = { client, dispatch: (text) => terminal.repl.dispatch(text), output: undefined };
+-  try {
+-    const [effect, carry] = await steer.dispatch.walk(composed, more);
+-    await carry(ctx, steer.strategy.resolve(effect));
+-    if (ctx.output !== undefined) await terminal.repl.dispatch(new ReplSignal(ctx.output));
+-  } catch (error) {
+-    FAULTS.find(([test]) => test(error, client))[1](error, client);
+-  } finally {
+-    client.$chord.set(null);
+-  }
+-  return open;
+-};
+-
+-export const navigating = async (clientDie, drain) => {
+-  while (await navigate(clientDie.active, drain));
+-};
+#+END_SRC
+***** prototype.js — Q20 · Q22 · r1
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/prototype.js:1
+ import { atom } from "nanostores";
+-import { Aperture, NotFound, Queue, ReplSignal, Vector, belt, fromm, is, shape, v } from "@vivalence/typology";
++import { Aperture, NotFound, ReplSignal, Vector, belt, fromm, is, shape, v } from "@vivalence/typology";
++import { Legend } from "../../prototypes/legend.js";
+
+…
+// systems/ghost/subjects/client/prototype.js:26
+   keymap = new Vector();
+-  presses = new Queue();
+   aperture = new Aperture();
+   looping = belt.fn.once(loop);
++  legend = new Legend(this);
+   $runtime = atom(null);
+-  $active = atom(null);
+-  $chord = atom(null);
++  $activeTerminal = atom(null);
+   $catalog = atom(null);
+…
+// systems/ghost/subjects/client/prototype.js:44
+   }
+-  get active() {
+-    return this.$active.get();
+-  }
+-  get chord() {
+-    return this.$chord.get();
++  get activeTerminal() {
++    return this.$activeTerminal.get();
+   }
+…
+// systems/ghost/subjects/client/prototype.js:62
+   get json() {
+-    return { mask: this.mask, modes: fromm.modes(this.modes).flat.map((mode) => mode.reference.absolute), terminal: this.active === null ? null : this.active.id };
++    return { mask: this.mask, modes: fromm.modes(this.modes).flat.map((mode) => mode.reference.absolute), terminal: this.activeTerminal === null ? null : this.activeTerminal.id };
+   }
+#+END_SRC
+**** subjects/client/commands
+***** terminal.js — r1
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/commands/terminal.js:6
+ const seated = (client, terminal) => {
+-  client.$active.set(terminal);
++  client.$activeTerminal.set(terminal);
+   return `terminal #${terminal.index}`;
+…
+// systems/ghost/subjects/client/commands/terminal.js:28
+     async (ctx) => {
+-      const closed = ctx.client.active;
++      const closed = ctx.client.activeTerminal;
+       await ctx.client.runtime.entities.terminal.removeOne({ id: closed.id });
+       const rows = ctx.client.runtime.entities.terminal.$entities.get();
+-      ctx.client.$active.set(rows.length === 0 ? null : rows[0]);
++      ctx.client.$activeTerminal.set(rows.length === 0 ? null : rows[0]);
+       return `terminal #${closed.index} closed`;
+#+END_SRC
+**** subjects/client/lifecycle
+***** index.js — Q22 (pressing dies) · r1
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/lifecycle/index.js:2
+ import { Connection, Dataspace, Path, Url, Vector, fromm, middleware, monad, shard, traits } from "@vivalence/typology";
+-import { keymap as bound, navigating } from "../keymap.js";
++import { keymap as bound } from "../keymap.js";
+ import * as catalog from "../traits/index.js";
+…
+// systems/ghost/subjects/client/lifecycle/index.js:35
+   clientDie.keymap.graft(bound, ...fromm.modes(clientDie.modes).flat.map((held) => held.keymap));
+-  await next();
+-};
+-
+-export const pressing = async (clientDie, next) => {
+-  navigating(clientDie, clientDie.presses.drain(clientDie.controller.abort.signal)).catch((error) => clientDie.controller.stdout.fault(error));
+   await next();
+…
+// systems/ghost/subjects/client/lifecycle/index.js:167
+   const derive = () => {
+-    const active = clientDie.$active.get();
++    const active = clientDie.$activeTerminal.get();
+     const row = active === null ? null : active.thread;
+…
+// systems/ghost/subjects/client/lifecycle/index.js:180
+     if (bound !== null) bound();
+-    const active = clientDie.$active.get();
++    const active = clientDie.$activeTerminal.get();
+     bound = active === null ? null : active.$thread.listen(derive);
+…
+// systems/ghost/subjects/client/lifecycle/index.js:184
+   };
+-  const off = clientDie.$active.listen(rebind);
++  const off = clientDie.$activeTerminal.listen(rebind);
+   rebind();
+…
+// systems/ghost/subjects/client/lifecycle/index.js:197
+   const rows = clientDie.runtime.entities.terminal.$entities.get();
+-  clientDie.$active.set(rows.length === 0 ? await clientDie.runtime.entities.terminal.create({}) : rows[0]);
++  clientDie.$activeTerminal.set(rows.length === 0 ? await clientDie.runtime.entities.terminal.create({}) : rows[0]);
+   await next();
+…
+// systems/ghost/subjects/client/lifecycle/index.js:217
+   .use(active)
+-  .use(pressing)
+   .do(shard.controller.hold);
+#+END_SRC
+**** subjects/terminal
+***** prototype.js — Q27 · m102 order
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/prototype.js:1
+-import { atom, computed } from "nanostores";
++import { atom } from "nanostores";
+ import { Entity, Vector, is } from "@vivalence/typology";
+-import { harvest } from "../client/keymap.js";
++import * as shard from "../../gestalten/shard/index.js";
+ import * as belt from "../../gestalten/belt/index.js";
+…
+// systems/ghost/subjects/terminal/prototype.js:21
+   $buffer = atom(null);
+-  $keymap = computed(this.$thread, (thread) => new Vector().graft(harvest(this.repl.commands), this.client.keymap, ...(thread !== null && is.object(thread.mode) ? [thread.mode.keymap] : [])));
+   get keymap() {
+-    return this.$keymap.get();
++    const keymap = new Vector().graft(shard.keymap.fromRepl(this.repl.commands), this.client.keymap);
++    if (is.object(this.mode)) keymap.graft(this.mode.keymap);
++    return keymap;
+   }
+#+END_SRC
+**** surfaces/chrome
+***** acts.js — Q22 · Q28 · r1
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/acts.js:3
+
+-export const send = (client, line) => client.active.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
++export const send = (client, line) => client.activeTerminal.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
+
+…
+// systems/ghost/surfaces/chrome/acts.js:24
+   mark: (client) => {
+-    if (client.chord !== null || client.catalog !== null) return client.presses.enqueue({ key: "esc" });
++    if (client.legend.chord !== null || client.catalog !== null) return client.legend.dispatch("esc");
+     if (client.surface.wid !== null) return client.surface.$wid.set(null);
+-    client.presses.enqueue({ key: "leader" });
++    client.legend.dispatch("leader");
+   },
+   wid: (client, id) => client.surface.$wid.set(client.surface.wid !== null && client.surface.wid.id === id ? null : { id }),
+-  press: (client, key) => client.presses.enqueue({ key }),
++  press: (client, key) => client.legend.dispatch(key),
+   press2: (client, key) => {
+-    client.presses.enqueue({ key: "leader" });
+-    client.presses.enqueue({ key });
++    client.legend.dispatch("leader");
++    client.legend.dispatch(key);
+   },
+…
+// systems/ghost/surfaces/chrome/acts.js:42
+     if (client.catalog === null) {
+-      client.presses.enqueue({ key: "leader" });
+-      client.presses.enqueue({ key: "leader" });
++      client.legend.dispatch("leader");
++      client.legend.dispatch("leader");
+     }
+…
+// systems/ghost/surfaces/chrome/acts.js:66
+   dockmin: (client) => {
+-    const id = client.active.id;
++    const id = client.activeTerminal.id;
+     const held = client.surface.float[id];
+#+END_SRC
+***** index.js — Q22 · Q47′
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/index.js:17
+   client.surface = screen({ kind: "tty", places: PLACES, dark: await dark(renderer) });
+-  keypresses(renderer).to(client.presses);
++  keypresses(renderer, client.legend);
+   const tick = ticking(client);
+#+END_SRC
+***** keys.js — Q22 · Q30
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/keys.js:1
+-import { Queue } from "@vivalence/typology";
+-
+-const NAMES = { escape: "esc", return: "enter", linefeed: "enter" };
+-
+-const named = (event) => (Object.hasOwn(NAMES, event.name) ? NAMES[event.name] : event.name);
+-
+-const PRINTABLE = /^[^\p{C}\s]+$/u;
+-
+-export const LEADER = "ctrl-v";
+-
+-const CHORDS = [
+-  [(event) => event.ctrl && !event.shift && event.name === "v", () => "leader"],
+-  [(event) => event.ctrl, (event) => `ctrl-${named(event)}`],
+-  [(event) => event.meta, (event) => `meta-${named(event)}`],
+-  [(event) => PRINTABLE.test(event.sequence), (event) => event.sequence],
+-  [() => true, named],
+-];
+-
+-export const press = (event) => ({ key: CHORDS.find(([test]) => test(event))[1](event) });
+-
+-export const keypresses = (renderer) => {
+-  const queue = new Queue();
+-  const listener = (event) => queue.enqueue(press(event));
++export const keypresses = (renderer, legend) => {
++  const listener = (event) => legend.dispatch(event);
+   renderer.keyInput.on("keypress", listener);
+-  renderer.once("destroy", () => {
+-    renderer.keyInput.off("keypress", listener);
+-    queue.close();
+-  });
+-  return queue;
++  renderer.once("destroy", () => renderer.keyInput.off("keypress", listener));
+ };
+#+END_SRC
+***** world.js — Q20 (tty legend split unruled) · r1
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/world.js:23
+   const surface = client.surface;
+-  const terminal = client.active;
++  const terminal = client.activeTerminal;
+   const thread = terminal.thread;
+…
+// systems/ghost/surfaces/chrome/world.js:59
+     clock: surface.clock,
+-    chord: client.chord,
++    chord: client.legend.chord === null ? null : { crumbs: client.legend.presses.backlog.map((signal) => signal.nature), node: client.legend.chord },
+     catalog: client.catalog,
+#+END_SRC
+**** surfaces/chrome/panes
+***** chrome.jsx — Q30 · Q20 · r1
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:4
+ import { RGBA, TextAttributes } from "@opentui/core";
+-import { belt, mime } from "@vivalence/typology";
++import { KeySignal, belt, mime } from "@vivalence/typology";
+ import * as view from "../../../gestalten/belt/view.js";
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:8
+ import { act, prefill } from "../acts.js";
+-import { press } from "../keys.js";
+ import { type } from "../typing.js";
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:24
+   [(client) => !client.runtime.lighthouse.isAuthorized && settled(client.runtime.lighthouse), "signin"],
+-  [(client) => !client.runtime.lighthouse.isAuthorized || client.active === null, "booting"],
++  [(client) => !client.runtime.lighthouse.isAuthorized || client.activeTerminal === null, "booting"],
+   [() => true, "regions"],
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:68
+     if (key.defaultPrevented || key.ctrl || key.meta) return;
+-    type(client, props.world(), press(key));
++    type(client, props.world(), { key: new KeySignal(key).nature });
+   });
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:79
+           <box style={{ position: "absolute", left: held.x, top: held.y, width: held.w, height: held.h, flexDirection: "column" }}>
+-            <Mounted terminal={client.active} buffer={held.buffer} views={held.views} place="frame" client={client} />
++            <Mounted terminal={client.activeTerminal} buffer={held.buffer} views={held.views} place="frame" client={client} />
+           </box>
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:109
+     client.runtime.entities.activity.$entities,
+-    client.$active,
+-    belt.atom.chain(client.$active, "$thread"),
+-    belt.atom.chain(client.$active, "$thread", "$turns"),
++    client.$activeTerminal,
++    belt.atom.chain(client.$activeTerminal, "$thread"),
++    belt.atom.chain(client.$activeTerminal, "$thread", "$turns"),
+     client.runtime.$status,
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:115
+     client.runtime.lighthouse.$user,
+-    client.$chord,
++    client.legend.$chord,
+     client.$catalog,
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:119
+   ].map((store) => from(store));
+-  const buffer = from(belt.atom.chain(client.$active, "$buffer"));
+-  const buffers = from(belt.atom.chain(client.$active, "$thread", "$buffers"));
+-  const records = from(belt.atom.chain(client.$active, (held) => (held === null ? null : computed(held.controller.stdout.$history, (history) => history.filter((record) => ["log", "fault"].includes(record.track))))));
++  const buffer = from(belt.atom.chain(client.$activeTerminal, "$buffer"));
++  const buffers = from(belt.atom.chain(client.$activeTerminal, "$thread", "$buffers"));
++  const records = from(belt.atom.chain(client.$activeTerminal, (held) => (held === null ? null : computed(held.controller.stdout.$history, (history) => history.filter((record) => ["log", "fault"].includes(record.track))))));
+   const traced = from(computed(client.controller.stdout.$history, (held) => held.filter((record) => TRACKS.includes(record.track))));
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:157
+   const runtime = from(props.client.$runtime);
+-  const active = from(props.client.$active);
++  const active = from(props.client.$activeTerminal);
+   const status = from(belt.atom.chain(props.client.$runtime, "lighthouse", "$status"));
+#+END_SRC
+***** index.js — Q24 (re-cut 10-24: m98 keeps the named barrel, the m103 split)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/index.js:7
+-export { paintPanel, completions, edgeLabel, edgesOf, HIDDEN, HINTS, KCOL, match, NAMED, panelHeight, SUBJECTS } from "./panel.js";
++export { paintPanel, completions, edgeLabel, edgesOf, HIDDEN, HINTS, KCOL, match, panelHeight } from "./panel.js";
+#+END_SRC
+***** panel.js — Q24 · Q38
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/panel.js:5
+
+-export const SUBJECTS = [
+-  { k: "e", id: "entity", valence: "where am I" },
+-  { k: "a", id: "activity", valence: "is it working" },
+-  { k: "h", id: "harness", valence: "what is it given" },
+-  { k: "d", id: "display", valence: "how do I see it" },
+-  { k: "x", id: "box", valence: "mic · speaker · theme" },
+-  { k: "s", id: "system", valence: "what does it run on" },
+-  { k: "c", id: "control", valence: "how do I say it" },
+-  { k: "g", id: "go", valence: "focus a region" },
+-  { k: "m", id: "mode", valence: "the seated mode’s keys" },
+-];
+-
+-export const NAMED = { "?": "help", q: "quit", ":": "repl", leader: "palette" };
+-
+ export const HIDDEN = ["leader", ":"];
+…
+// systems/ghost/surfaces/chrome/panes/panel.js:23
+
+-const subjectOf = (key) => SUBJECTS.find((subject) => subject.k === key);
++const VALENCES = [
++  [(node) => node.effect !== undefined && node.effect.valence !== undefined, (node) => node.effect.valence],
++  [(node) => node.meta !== undefined && node.meta.valence !== undefined, (node) => node.meta.valence],
++  [() => true, () => ""],
++];
+
+-const valenceOf = (edge) => (edge.pattern.valence === undefined ? "" : edge.pattern.valence);
++const valenceOf = (node) => VALENCES.find(([test]) => test(node))[1](node);
+
+…
+// systems/ghost/surfaces/chrome/panes/panel.js:29
+   [(key, valence) => valence.includes(" · "), (key, valence) => [valence.split(" · ")[0], valence.split(" · ").slice(1).join(" · ")]],
+-  [(key, valence, leaf) => !leaf && subjectOf(key) !== undefined, (key) => [subjectOf(key).id, subjectOf(key).valence]],
+-  [(key) => Object.hasOwn(NAMED, key), (key, valence) => [NAMED[key], valence]],
+-  [() => true, (key, valence) => [key, valence]],
++  [() => true, (key, valence) => [valence, ""]],
+ ];
+
+-export const edgesOf = (node) => [...node.trie.entries()].map(([key, edge]) => ({ key, valence: valenceOf(edge), leaf: edge.trajectory.trie.size === 0 }));
++export const edgesOf = (node) => Object.entries(node.branches).map(([key, child]) => ({ key, valence: valenceOf(child) }));
+
+-export const edgeLabel = (edge) => LABELS.find(([test]) => test(edge.key, edge.valence, edge.leaf))[1](edge.key, edge.valence);
++export const edgeLabel = (edge) => LABELS.find(([test]) => test(edge.key, edge.valence))[1](edge.key, edge.valence);
+
+…
+// systems/ghost/surfaces/chrome/panes/panel.js:144
+     }
+-    const subject = crumbs.length === 2 ? subjectOf(crumbs[1]) : undefined;
+-    head(subject === undefined ? crumbs.at(-1) : subject.id, chordText(crumbs), subject === undefined ? "" : `${subject.id} · ${subject.valence}`);
++    const [tag] = edgeLabel({ key: crumbs.at(-1), valence: valenceOf(n) });
++    head(tag === "" ? crumbs.at(-1) : tag, chordText(crumbs), valenceOf(n));
+     edgesOf(n).forEach((r) => {
+#+END_SRC
+**** tests/gestalten/shard
+***** keymap.test.js — Q18″ · Q26 (new)
+#+BEGIN_SRC js
+// systems/ghost/tests/gestalten/shard/keymap.test.js
+import { Vector, shape, specimen, v } from "@vivalence/typology";
+import * as ghost from "@vivalence/ghost";
+
+const commands = () => new Vector().open({ nature: "/mode", valence: "pick", chord: "leader/m" }, () => "picked").open({ nature: "/quit", valence: "leave" }, () => "left");
+
+specimen.it("fromRepl folds a chord: into an edge whose effect is the line; a command without one is left out", () => {
+  const stripped = shape.strip(ghost.shard.keymap.fromRepl(commands())).branches;
+  specimen.expect(Object.keys(stripped)).toEqual(["leader"]);
+  specimen.expect(stripped.leader.branches.m.effect).toEqual({ valence: "/mode" });
+});
+
+specimen.it("catalog rolls the repl up into rows — nature and chord, an empty chord for an unbound command", () => {
+  specimen.expect(ghost.shard.keymap.catalog(commands())).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
+});
+
+specimen.it("catalog lists a command's options: the words of its first input's enum, none for a free word or no input", () => {
+  const repl = new Vector()
+    .open({ nature: "/dock", valence: "the dock", input: v.object({ word: v.enum(["left", "closed"]).desc('A word. Example: "closed"') }) }, () => "docked")
+    .open({ nature: "/split", valence: "the share", input: v.object({ share: v.number().desc("A share. Example: 0.5") }) }, () => "split");
+  specimen.expect(ghost.shard.keymap.catalog(repl).map((entry) => [entry.nature, entry.options])).toEqual([["/dock", ["left", "closed"]], ["/split", []]]);
+});
+#+END_SRC
+**** tests/prototypes
+***** legend.test.js — Q20 · Q22 · Q32 · Q39 · Q47′ (new)
+#+BEGIN_SRC js
+// systems/ghost/tests/prototypes/legend.test.js
+import { Vector, specimen } from "@vivalence/typology";
+import { atom } from "nanostores";
+import * as ghost from "@vivalence/ghost";
+
+const settled = () => new Promise((wake) => setTimeout(wake, 0));
+
+const seat = () => {
+  const client = {
+    keymap: new Vector().graft(ghost.client.keymap),
+    $catalog: atom(null),
+    surface: { $draft: atom(""), $focus: atom("journal"), get draft() { return this.$draft.get(); } },
+    dispatched: [],
+    faults: [],
+    controller: { stdout: { fault: (error) => client.faults.push(error.message) } },
+  };
+  const terminal = Object.assign(new ghost.terminal.Terminal(), { client });
+  terminal.repl.commands = new Vector()
+    .open({ nature: "/dock", valence: "the dock", chord: "leader/d/d" }, () => "docked")
+    .open({ nature: "/boom", valence: "throws", chord: "leader/a/b" }, () => "boomed");
+  terminal.repl.dispatch = (line) => {
+    client.dispatched.push(line);
+    return line === "/boom" ? Promise.reject(new Error("boom")) : Promise.resolve();
+  };
+  client.activeTerminal = terminal;
+  client.legend = new ghost.Legend(client);
+  return client;
+};
+
+const held = (client) => client.legend.presses.backlog.map((signal) => signal.nature);
+
+specimen.describe("the Legend — a press goes through translation into the queue; the queue walks the active terminal's keymap", () => {
+  specimen.it("ctrl-v holds the leader: the queue holds leader, $chord is its stripped node", () => {
+    const client = seat();
+    client.legend.dispatch("ctrl-v");
+    specimen.expect(held(client)).toEqual(["leader"]);
+    specimen.expect(Object.keys(client.legend.chord.branches)).toEqual(["d", "a", "leader", "e", "h", "s"]);
+    specimen.expect(client.legend.chord.branches.e.meta).toEqual({ valence: "entity · where am I" });
+  });
+
+  specimen.it("ctrl-v d d runs /dock on the active terminal; the queue flushes, $chord is null", async () => {
+    const client = seat();
+    for (const key of ["ctrl-v", "d", "d"]) client.legend.dispatch(key);
+    await settled();
+    specimen.expect(client.dispatched).toEqual(["/dock"]);
+    specimen.expect([held(client), client.legend.chord]).toEqual([[], null]);
+  });
+
+  specimen.it("ctrl-v ctrl-v opens the palette with / prefilled", async () => {
+    const client = seat();
+    for (const key of ["ctrl-v", "ctrl-v"]) client.legend.dispatch(key);
+    await settled();
+    specimen.expect(client.$catalog.get().map((entry) => entry.nature)).toEqual(["/dock", "/boom"]);
+    specimen.expect([client.surface.$draft.get(), client.surface.$focus.get(), client.legend.chord]).toEqual(["/", "composer", null]);
+  });
+
+  specimen.it("ctrl-v esc is a dead end: flushed, nothing runs; esc at the root drops the catalog", async () => {
+    const client = seat();
+    for (const key of ["ctrl-v", "esc"]) client.legend.dispatch(key);
+    await settled();
+    specimen.expect([held(client), client.legend.chord, client.dispatched]).toEqual([[], null, []]);
+    client.$catalog.set([]);
+    client.legend.dispatch("esc");
+    await settled();
+    specimen.expect(client.$catalog.get()).toBe(null);
+  });
+
+  specimen.it("d at the root is a dead end, then ctrl-v holds a fresh leader", () => {
+    const client = seat();
+    client.legend.dispatch("d");
+    specimen.expect(held(client)).toEqual([]);
+    client.legend.dispatch("ctrl-v");
+    specimen.expect(held(client)).toEqual(["leader"]);
+  });
+
+  specimen.it("a key effect that throws lands on the client's stdout as a fault", async () => {
+    const client = seat();
+    for (const key of ["ctrl-v", "a", "b"]) client.legend.dispatch(key);
+    await settled();
+    specimen.expect(client.faults).toEqual(["boom"]);
+  });
+});
+#+END_SRC
+**** tests/scenarios
+***** look.js — Q38 · r1 (the leader grid's ? q m)
+#+BEGIN_SRC diff
+// systems/ghost/tests/scenarios/look.js:76
+   if (buffered) terminal.$buffer.set(accounts);
+-  client.$active.set(terminal);
++  client.$activeTerminal.set(terminal);
+   terminal.repl.commands.graft(...Object.values(ghost.client.commands), ...Object.values(ghost.terminal.commands));
+-  client.keymap.graft(ghost.client.keymap.keymap);
++  client.keymap.graft(ghost.client.keymap);
+   if (authorized) {
+…
+// systems/ghost/tests/scenarios/look.js:203
+       " ctrl-v  once = keys · twice = the palette                            esc drops ",
+-      "  ?   help      /help                    s   system    what does it run on      ",
+-      "  q   quit      /quit                    d   display   how do I see it          ",
++      "  ?   /help                              s   system    what does it run on      ",
++      "  q   /quit                              d   display   how do I see it          ",
+       "  e   entity    where am I               a   activity  is it working            ",
+-      "  h   harness   what is it given         m   m         /mode                    ",
++      "  h   harness   what is it given         m   /mode                              ",
+       "                                                                                ",
+…
+// systems/ghost/tests/scenarios/look.js:212
+     tones: {
+-      17: ["0+1 0:text-ink 0:surface-lift", "1+5 0:signal-primary-ink 0:surface-lift b", "6+10 0:text-ink 0:surface-lift", "16+5 0:text-muted 0:surface-lift", "21+19 0:text-ink 0:surface-lift", "40+5 0:signal-primary-ink 0:surface-lift b", "45+10 0:text-ink 0:surface-lift", "55+19 0:text-muted 0:surface-lift", "74+6 0:text-ink 0:surface-lift"],
+-      18: ["0+1 0:text-ink 0:surface-lift", "1+5 0:signal-primary-ink 0:surface-lift b", "6+10 0:text-ink 0:surface-lift", "16+5 0:text-muted 0:surface-lift", "21+19 0:text-ink 0:surface-lift", "40+5 0:signal-primary-ink 0:surface-lift b", "45+10 0:text-ink 0:surface-lift", "55+15 0:text-muted 0:surface-lift", "70+10 0:text-ink 0:surface-lift"],
++      17: ["0+1 0:text-ink 0:surface-lift", "1+5 0:signal-primary-ink 0:surface-lift b", "6+34 0:text-ink 0:surface-lift", "40+5 0:signal-primary-ink 0:surface-lift b", "45+10 0:text-ink 0:surface-lift", "55+19 0:text-muted 0:surface-lift", "74+6 0:text-ink 0:surface-lift"],
++      18: ["0+1 0:text-ink 0:surface-lift", "1+5 0:signal-primary-ink 0:surface-lift b", "6+34 0:text-ink 0:surface-lift", "40+5 0:signal-primary-ink 0:surface-lift b", "45+10 0:text-ink 0:surface-lift", "55+15 0:text-muted 0:surface-lift", "70+10 0:text-ink 0:surface-lift"],
+     },
+#+END_SRC
+**** tests/subjects/client
+***** client.test.js — Q22 · r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/client.test.js:45
+   specimen.it("a terminal lands on HOME; /modes lists the hosts' modes; /mode srs/memo sets the memo thread; many matches answer the candidates", async () => {
+-    await eventually(() => clientDie.active !== null && clientDie.active.thread !== null, 30000);
+-    specimen.expect(clientDie.active.mode.reference.absolute).toBe("/runtime/house/mode/home/probe");
+-    specimen.expect((await clientDie.active.repl.dispatch("/modes")).map((row) => row.reference)).toEqual(specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]));
+-    specimen.expect(await clientDie.active.repl.dispatch("/mode srs/memo")).toMatch(/^\/daemon\/memo\/mode\/srs\/memo · thread #/);
+-    specimen.expect(await clientDie.active.repl.dispatch("/mode mode")).toEqual({ which: specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]) });
++    await eventually(() => clientDie.activeTerminal !== null && clientDie.activeTerminal.thread !== null, 30000);
++    specimen.expect(clientDie.activeTerminal.mode.reference.absolute).toBe("/runtime/house/mode/home/probe");
++    specimen.expect((await clientDie.activeTerminal.repl.dispatch("/modes")).map((row) => row.reference)).toEqual(specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]));
++    specimen.expect(await clientDie.activeTerminal.repl.dispatch("/mode srs/memo")).toMatch(/^\/daemon\/memo\/mode\/srs\/memo · thread #/);
++    specimen.expect(await clientDie.activeTerminal.repl.dispatch("/mode mode")).toEqual({ which: specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]) });
+   });
+…
+// systems/ghost/tests/subjects/client/client.test.js:53
+   specimen.it("a bare line on a harnessed thread lands two turns in the thread's $turns — the reply merged as it streams, the persisted row landing under the same id; /mode/memo/harness reaches memo by name; on another thread the bare line faults", async () => {
+-    const thread = clientDie.active.thread;
++    const thread = clientDie.activeTerminal.thread;
+     const landed = () => thread.$turns.get().filter((turn) => turn.createdAt !== undefined);
+-    await clientDie.active.repl.dispatch("ciao");
++    await clientDie.activeTerminal.repl.dispatch("ciao");
+     await eventually(() => landed().length >= 2, 30000);
+…
+// systems/ghost/tests/subjects/client/client.test.js:59
+     specimen.expect(clientDie.controller.stdout.history.filter((record) => ["turn", "stream"].includes(record.track))).toEqual([]);
+-    await clientDie.active.repl.dispatch("/mode/memo/harness ciao");
++    await clientDie.activeTerminal.repl.dispatch("/mode/memo/harness ciao");
+     await eventually(() => landed().length >= 4, 30000);
+     specimen.expect(thread.$turns.get().map((turn) => turn.role)).toEqual(["user", "assistant", "user", "assistant"]);
+-    await clientDie.active.repl.dispatch("/mode probe");
+-    await clientDie.active.repl.dispatch("ciao").catch(() => {});
++    await clientDie.activeTerminal.repl.dispatch("/mode probe");
++    await clientDie.activeTerminal.repl.dispatch("ciao").catch(() => {});
+     specimen.expect(clientDie.controller.stdout.history.filter((record) => ["fault"].includes(record.track)).at(-1).data.code).toBe("NOT_FOUND");
+…
+// systems/ghost/tests/subjects/client/client.test.js:68
+   specimen.it("/application/start on a mode without APPLICATION faults loud, mints nothing; on memo it sets the terminal's buffer; /application/stop clears it", async () => {
+-    await clientDie.active.repl.dispatch("/mode probe");
+-    await clientDie.active.repl.dispatch("/application/start");
++    await clientDie.activeTerminal.repl.dispatch("/mode probe");
++    await clientDie.activeTerminal.repl.dispatch("/application/start");
+     specimen.expect(clientDie.controller.stdout.history.filter((record) => ["fault"].includes(record.track)).at(-1).data.message).toMatch(/not an APPLICATION — its traits: RUNTIME · EXPOSED · TOOLING · DATASET/);
+-    specimen.expect(clientDie.active.buffer).toBe(null);
+-    await clientDie.active.repl.dispatch("/mode srs/memo");
+-    specimen.expect(await clientDie.active.repl.dispatch("/application/start")).toMatch(/^application \/daemon\/memo\/mode\/srs\/memo · buffer #/);
+-    specimen.expect(clientDie.active.buffer).not.toBe(null);
+-    specimen.expect(clientDie.active.mode.application.bundle.entries.map((entry) => entry.mime)).toContain(mime.tty.solid);
+-    specimen.expect(await clientDie.active.repl.dispatch("/application/stop")).toBe("frame closed");
+-    specimen.expect(clientDie.active.buffer).toBe(null);
++    specimen.expect(clientDie.activeTerminal.buffer).toBe(null);
++    await clientDie.activeTerminal.repl.dispatch("/mode srs/memo");
++    specimen.expect(await clientDie.activeTerminal.repl.dispatch("/application/start")).toMatch(/^application \/daemon\/memo\/mode\/srs\/memo · buffer #/);
++    specimen.expect(clientDie.activeTerminal.buffer).not.toBe(null);
++    specimen.expect(clientDie.activeTerminal.mode.application.bundle.entries.map((entry) => entry.mime)).toContain(mime.tty.solid);
++    specimen.expect(await clientDie.activeTerminal.repl.dispatch("/application/stop")).toBe("frame closed");
++    specimen.expect(clientDie.activeTerminal.buffer).toBe(null);
+   });
+#+END_SRC
+***** console.test.js — Q22 · r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/console.test.js:1
+ import { atom, computed } from "nanostores";
+-import { Controller, Path, Queue, Span, Vector, shape, shard, specimen, steer } from "@vivalence/typology";
++import { Controller, Path, Span, Vector, shape, shard, specimen, steer } from "@vivalence/typology";
+ import { accio } from "@vivalence/runtime/scenarios";
+…
+// systems/ghost/tests/subjects/client/console.test.js:55
+     specimen.expect(leader.h.effect).toEqual({ valence: "hello. Example: ctrl-v h" });
+-    const queue = new Queue().enqueue({ key: "leader" }).enqueue({ key: "h" });
+-    await ghost.client.keymap.navigate(terminal, queue.drain());
++    clientDie.$activeTerminal.set(terminal);
++    clientDie.legend.dispatch("leader");
++    clientDie.legend.dispatch("h");
++    await new Promise((wake) => setTimeout(wake, 50));
+     specimen.expect(clientDie.controller.stdout.history.filter((record) => ["stop"].includes(record.track)).map((record) => record.path)).toContainEqual(["ghost", "client", "terminal/t1", "/hello"]);
+#+END_SRC
+***** keymap.test.js — Q22 · r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/keymap.test.js:1
+-import { Queue, Vector, is, shape, specimen, v } from "@vivalence/typology";
++import { Vector, shape, specimen } from "@vivalence/typology";
+ import { atom } from "nanostores";
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:4
+
+-const faults = [];
+-const stub = () => ({
+-  commands: new Vector().open({ nature: "/mode", valence: "pick", chord: "leader/m" }, () => "picked").open({ nature: "/quit", valence: "leave" }, () => "left"),
+-  keymap: new Vector(),
+-  modes: {},
+-  active: null,
+-  $chord: atom(null),
+-  $catalog: atom(null),
+-  surface: { $draft: atom(""), $focus: atom("composer"), get draft() { return this.$draft.get(); } },
+-  dispatched: [],
+-  controller: { stdout: { fault: (error) => faults.push(error.code) } },
+-  record(line) {
+-    this.dispatched.push(is.string(line) ? line : line.pathname);
+-    return Promise.resolve();
+-  },
+-});
+-const presses = (...keys) => keys.reduce((queue, key) => queue.enqueue({ key }), new Queue());
++const settled = () => new Promise((wake) => setTimeout(wake, 0));
++
++const stub = () => {
++  const client = {
++    commands: new Vector().open({ nature: "/mode", valence: "pick", chord: "leader/m" }, () => "picked").open({ nature: "/quit", valence: "leave" }, () => "left"),
++    keymap: new Vector(),
++    modes: {},
++    activeTerminal: null,
++    $catalog: atom(null),
++    surface: { $draft: atom(""), $focus: atom("composer"), get draft() { return this.$draft.get(); } },
++    dispatched: [],
++    faults: [],
++    controller: { stdout: { fault: (error) => client.faults.push(error.message) } },
++  };
++  client.legend = new ghost.Legend(client);
++  return client;
++};
+ const seat = (client) => {
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:24
+   terminal.repl.commands = client.commands;
+-  terminal.repl.dispatch = (line) => client.record(line);
+-  client.active = terminal;
++  terminal.repl.dispatch = (line) => {
++    client.dispatched.push(line);
++    return Promise.resolve();
++  };
++  client.activeTerminal = terminal;
+   return terminal;
+ };
++const press = (client, ...keys) => {
++  for (const key of keys) client.legend.dispatch(key);
++  return settled();
++};
+
+-specimen.it("harvest folds a chord: into an edge whose effect is the line; a verb without one is left out", () => {
+-  const stripped = shape.strip(ghost.client.keymap.harvest(stub().commands)).branches;
+-  specimen.expect(Object.keys(stripped)).toEqual(["leader"]);
+-  specimen.expect(stripped.leader.branches.m.effect).toEqual({ valence: "/mode" });
+-});
+-
+-specimen.it("catalog rolls the repl up into rows — nature and chord, an empty chord for an unbound verb", () => {
+-  specimen.expect(ghost.client.keymap.catalog(stub().commands)).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
+-});
+-
+-specimen.it("catalog lists a verb's options: the words of its first input's enum, none for a free word or no input", () => {
+-  const repl = new Vector()
+-    .open({ nature: "/dock", valence: "the dock", input: v.object({ word: v.enum(["left", "closed"]).desc('A word. Example: "closed"') }) }, () => "docked")
+-    .open({ nature: "/split", valence: "the share", input: v.object({ share: v.number().desc("A share. Example: 0.5") }) }, () => "split");
+-  specimen.expect(ghost.client.keymap.catalog(repl).map((entry) => [entry.nature, entry.options])).toEqual([["/dock", ["left", "closed"]], ["/split", []]]);
+-});
+-
+-specimen.it("the terminal's $keymap: the repl's chords, the client's keymap, then the thread mode's keymap at the root — later wins; it follows $thread", () => {
++specimen.it("the terminal's keymap: the repl's chords, the client's keymap, then the thread mode's keymap at the root — later wins; read at every call", () => {
+   const client = stub();
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:60
+
+-specimen.it("navigate: leader m dispatches /mode; leader esc drops silently; leader x faults; q at the root is the widget's; a closed drain ends the walk", async () => {
+-  const client = stub();
+-  client.keymap.graft(ghost.client.keymap.harvest(client.commands), ghost.client.keymap.keymap);
+-  const terminal = seat(client);
+-  const queue = presses("leader", "m", "leader", "esc", "leader", "x", "q");
+-  const drain = queue.drain();
+-  specimen.expect(await ghost.client.keymap.navigate(terminal, drain)).toBe(true);
+-  specimen.expect(client.dispatched).toEqual(["/mode"]);
+-  await ghost.client.keymap.navigate(terminal, drain);
+-  specimen.expect(faults).toEqual([]);
+-  await ghost.client.keymap.navigate(terminal, drain);
+-  specimen.expect(faults).toEqual(["NOT_FOUND"]);
+-  await ghost.client.keymap.navigate(terminal, drain);
+-  specimen.expect(faults).toEqual(["NOT_FOUND"]);
+-  specimen.expect(client.$chord.get()).toBe(null);
+-  queue.close();
+-  specimen.expect(await ghost.client.keymap.navigate(terminal, drain)).toBe(false);
+-  specimen.expect(client.dispatched).toEqual(["/mode"]);
++specimen.it("the client's keymap declares its groups under leader with a valence, the palette at leader leader, esc at the root", () => {
++  const leader = shape.strip(ghost.client.keymap).branches.leader;
++  specimen.expect(leader.meta).toEqual({ valence: "the leader — ctrl-v on a tty" });
++  specimen.expect(Object.keys(leader.branches)).toEqual(["leader", "e", "a", "h", "d", "s"]);
++  specimen.expect(leader.branches.d.meta).toEqual({ valence: "display · how do I see it" });
++  specimen.expect(Object.keys(shape.strip(ghost.client.keymap).branches)).toEqual(["esc", "leader"]);
+ });
+
+-specimen.it("a held node is painted on $chord — crumbs and the node — and cleared when the walk ends; leader leader sets the catalog on $catalog", async () => {
++specimen.it("leader m dispatches /mode; leader esc · leader x · q at the root drop silently", async () => {
+   const client = stub();
+-  client.keymap.graft(ghost.client.keymap.harvest(client.commands), ghost.client.keymap.keymap);
+-  const terminal = seat(client);
+-  const queue = presses("leader");
+-  const walking = ghost.client.keymap.navigate(terminal, queue.drain());
+-  await new Promise((wake) => setTimeout(wake, 0));
+-  specimen.expect(client.$chord.get().crumbs).toEqual(["leader"]);
+-  specimen.expect([...client.$chord.get().node.trie.keys()]).toEqual(["m", "leader"]);
+-  queue.enqueue({ key: "leader" });
+-  await walking;
+-  specimen.expect(client.$chord.get()).toBe(null);
++  client.keymap.graft(ghost.client.keymap);
++  seat(client);
++  await press(client, "leader", "m");
++  specimen.expect(client.dispatched).toEqual(["/mode"]);
++  await press(client, "leader", "esc", "leader", "x", "q");
++  specimen.expect([client.dispatched, client.faults, client.legend.chord]).toEqual([["/mode"], [], null]);
++});
++
++specimen.it("a held node is painted on the legend's $chord — the stripped node — and cleared when the walk ends; leader leader sets the catalog on $catalog", async () => {
++  const client = stub();
++  client.keymap.graft(ghost.client.keymap);
++  seat(client);
++  client.legend.dispatch("leader");
++  specimen.expect(client.legend.presses.backlog.map((signal) => signal.nature)).toEqual(["leader"]);
++  specimen.expect(Object.keys(client.legend.chord.branches)).toEqual(["m", "leader", "e", "a", "h", "d", "s"]);
++  await press(client, "leader");
++  specimen.expect(client.legend.chord).toBe(null);
+   specimen.expect(client.$catalog.get()).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:98
+   const client = stub();
+-  client.keymap.graft(ghost.client.keymap.keymap);
++  client.keymap.graft(ghost.client.keymap);
+   const mode = { slug: "board", module: { keymap: new Vector().open({ nature: "leader/g/n", valence: "new game" }, (ctx) => (ctx.mode === mode ? "/game/new" : "/unbound")) }, keymap: new Vector() };
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:103
+   terminal.thread = { mode };
+-  await ghost.client.keymap.navigate(terminal, presses("leader", "g", "n").drain());
+-  specimen.expect(client.dispatched).toEqual(["/game/new"]);
+-  specimen.expect(faults).toEqual(["NOT_FOUND"]);
++  await press(client, "leader", "g", "n");
++  specimen.expect([client.dispatched, client.faults]).toEqual([["/game/new"], []]);
+ });
+#+END_SRC
+**** tests/subjects/shell
+***** lifecycle.test.js — Q22 · r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/shell/lifecycle.test.js:79
+     specimen.expect(clientDie).toBeInstanceOf(ghost.client.Client);
+-    await eventually(() => clientDie.active !== null, 30000);
++    await eventually(() => clientDie.activeTerminal !== null, 30000);
+
+#+END_SRC
+**** tests/subjects/terminal
+***** commands.test.js — Q22 · r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/terminal/commands.test.js:99
+   thread.controller = terminal.controller.branch("thread/th1");
+-  client.$active.set(terminal);
++  client.$activeTerminal.set(terminal);
+
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:119
+     specimen.expect(await run("/terminal/new")).toBe("terminal #1");
+-    specimen.expect(client.active.id).toBe("t2");
++    specimen.expect(client.activeTerminal.id).toBe("t2");
+     specimen.expect(await run("/terminal/close")).toBe("terminal #1 closed");
+-    specimen.expect(client.active).toBe(terminal);
++    specimen.expect(client.activeTerminal).toBe(terminal);
+   });
+#+END_SRC
+**** tests/surfaces/chrome
+***** bundle.test.js — Q22 · r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:21
+     held.lighthouse.$authority.set({ access: "a", refresh: "r" });
+-    held.client.$active.set(null);
++    held.client.$activeTerminal.set(null);
+     specimen.expect(panes.pane(held.client)).toBe("booting");
+-    held.client.$active.set(held.terminal);
++    held.client.$activeTerminal.set(held.terminal);
+     specimen.expect(panes.pane(held.client)).toBe("regions");
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:40
+
+-    held.client.$active.set(null);
++    held.client.$activeTerminal.set(null);
+     held.lighthouse.$authority.set({ access: "a", refresh: "r" });
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:45
+
+-    held.client.$active.set(held.terminal);
++    held.client.$activeTerminal.set(held.terminal);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:60
+     held.client.surface.$wid.set(null);
+-    held.client.$chord.set({ crumbs: ["leader"], node: held.terminal.keymap.trie.get("leader").trajectory });
++    held.client.legend.dispatch("leader");
+     await settle(setup);
+     specimen.expect(rows(setup)).toEqual(DESIGN["chord-80x24"].lines);
+-    held.client.$chord.set(null);
+-    held.client.$catalog.set(ghost.client.keymap.catalog(held.client.active.repl.commands));
++    held.client.legend.flush();
++    held.client.$catalog.set(ghost.shard.keymap.catalog(held.client.activeTerminal.repl.commands));
+     held.client.surface.$draft.set("/dock");
+#+END_SRC
+***** keys.test.js — Q30 · Q31
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/keys.test.js:3
+ import { parseKeypress } from "@opentui/core";
+-import { Pipe, specimen } from "@vivalence/typology";
++import { KeySignal, specimen } from "@vivalence/typology";
+ import { screen, settle } from "../../scenarios/world.js";
+…
+// systems/ghost/tests/surfaces/chrome/keys.test.js:10
+   ["\x06", "ctrl-f"],
++  ["\x16", "ctrl-v"],
+   ["\x1b", "esc"],
+…
+// systems/ghost/tests/surfaces/chrome/keys.test.js:16
+   ["/", "/"],
++  ["?", "?"],
+   [" ", "space"],
+   ["\t", "tab"],
++  ["\x1b[Z", "shift-tab"],
+   ["\x7f", "backspace"],
+   ["\x1b[A", "up"],
+-  ["\x1bf", "meta-f"],
++  ["\x1bf", "alt-f"],
+ ];
+
+-specimen.describe("press(event) — a keypress becomes { key }", () => {
+-  for (const [sequence, key] of ROWS) {
+-    specimen.it(`${JSON.stringify(sequence)} → ${key}`, () => {
+-      specimen.expect(kit.press(parseKeypress(sequence))).toEqual({ key });
++specimen.describe("KeySignal(ParsedKey) — a tty keypress spells its nature: W3C ctrl alt shift meta, a printable its character", () => {
++  for (const [sequence, nature] of ROWS) {
++    specimen.it(`${JSON.stringify(sequence)} → ${nature}`, () => {
++      specimen.expect(new KeySignal(parseKeypress(sequence)).nature).toBe(nature);
+     });
+…
+// systems/ghost/tests/surfaces/chrome/keys.test.js:31
+
+-specimen.describe("keypresses(renderer) — the renderer's keys as a source a Pipe drains", () => {
+-  specimen.it("ctrl-t · esc · enter · plain chars arrive in order, and the source closes with the renderer", async () => {
++specimen.describe("keypresses(renderer, legend) — the renderer's raw keys go to the legend as they come", () => {
++  specimen.it("ctrl-t · esc · enter · plain chars reach legend.dispatch in order; the listener leaves with the renderer", async () => {
+     const setup = await screen();
+-    const source = kit.keypresses(setup.renderer);
+-    const pipe = new Pipe().from(source);
+     const seen = [];
+-    pipe.tap((value) => seen.push(value));
++    const before = setup.renderer.keyInput.listenerCount("keypress");
++    kit.keypresses(setup.renderer, { dispatch: (event) => seen.push(new KeySignal(event).nature) });
+     setup.mockInput.pressKey("t", { ctrl: true });
+…
+// systems/ghost/tests/surfaces/chrome/keys.test.js:44
+     await settle(setup);
+-    specimen.expect(seen).toEqual([{ key: "ctrl-t" }, { key: "esc" }, { key: "enter" }, { key: "f" }, { key: "a" }]);
+-    specimen.expect(source.closed).toBe(false);
++    specimen.expect(seen).toEqual(["ctrl-t", "esc", "enter", "f", "a"]);
++    specimen.expect(setup.renderer.keyInput.listenerCount("keypress")).toBe(before + 1);
+     setup.renderer.destroy();
+-    specimen.expect(source.closed).toBe(true);
++    specimen.expect(setup.renderer.keyInput.listenerCount("keypress")).toBe(before);
+   });
+-
+ });
+#+END_SRC
+**** tests/surfaces/chrome/panes
+***** chrome.test.js — Q22 · r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:2
+ import { keypresses } from "../../../../surfaces/chrome/keys.js";
++import { translation } from "../../../../surfaces/chrome/translation.js";
+ import { chrome, screen, settle } from "../../../scenarios/world.js";
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:29
+     held.lighthouse.$authority.set({ access: "a", refresh: "r" });
+-    held.client.$active.set(null);
++    held.client.$activeTerminal.set(null);
+     specimen.expect(panes.pane(held.client)).toBe("booting");
+-    held.client.$active.set(held.terminal);
++    held.client.$activeTerminal.set(held.terminal);
+     specimen.expect(panes.pane(held.client)).toBe("regions");
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:105
+     const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
+-    keypresses(setup.renderer).to(held.client.presses);
+-    const walking = ghost.client.keymap.navigating(held.client, held.client.presses.drain(held.client.controller.abort.signal));
++    held.client.legend.translation.graft(translation);
++    keypresses(setup.renderer, held.client.legend);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:122
+     specimen.expect(setup.captureCharFrame()).not.toContain("tab completes");
+-    held.client.presses.close();
+-    await walking;
+     setup.renderer.destroy();
+#+END_SRC
+***** regions.test.js — Q22 · r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:42
+     const held = world();
+-    held.client.$chord.set({ crumbs: ["leader"], node: held.terminal.keymap.trie.get("leader").trajectory });
++    held.client.legend.dispatch("leader");
+     oracle(painted(regions(held), "chord-80x24"), "chord-80x24");
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:48
+     const held = world();
+-    held.client.$catalog.set(ghost.client.keymap.catalog(held.client.active.repl.commands));
++    held.client.$catalog.set(ghost.shard.keymap.catalog(held.client.activeTerminal.repl.commands));
+     held.client.surface.$draft.set("/dock");
+#+END_SRC
+*** systems/runtime
+**** tests/mode
+***** generative.test.js — Q35 (follows Q25)
+#+BEGIN_SRC diff
+// systems/runtime/tests/mode/generative.test.js:323
+       specimen.expect(create.pattern.valence).toContain("HOUSE RULES");
+-      specimen.expect(create.pattern.input).toBe(undefined);
++      specimen.expect(Object.keys(create.pattern.input.properties)).toEqual(["slug", "mime", "source"]);
+
+#+END_SRC
+
+* the law
+
+1. a surface forwards the raw event; =KeySignal= spells the nature once — W3C =ctrl alt shift meta= in that order, a printable its character; the DOM arm takes =event.key= as a character only when it is one grapheme.
+2. =legend.dispatch(event)= runs the event through =legend.translation= (Emacs =key-translation-map=) on every press; its =*= edge enqueues the press, a surface's leader edge enqueues =leader=.
+3. the Legend's constructor listens on =presses.$backlog= and walks the held keys over =client.activeTerminal.keymap= once per change: an effect → flush, then run it (its line → =activeTerminal.repl.dispatch=, a fault → =stdout.fault=); a dead end → flush; a prefix → =$chord = shape.strip(node)=.
+4. the terminal's keymap is read at every call: =shard.keymap.fromRepl(repl.commands)=, then =client.keymap=, then the mode's — later wins, field by field (=graft= merges patterns).
+5. =client.keymap= declares the leader's groups that have keys under them (=e a h d s=), each with its valence; a key is labelled from =effect.valence= · =meta.valence=; a valence without " · " is the label itself.
+6. =scope= asks the literals first, the =*= only when none matched; a pattern never writes on the signal it is asked about.
+
+* milestones
+
+| milestone | blocks | green when |
+|-----------|--------|------------|
+| the typology key primitives (HOLY, each its own go) | =prototypes/queue.js= (Q22) · =gestalten/shape/strip.js= (Q23) · =prototypes/vector.js= (Q25) · =prototypes/keysignal.js= (Q30 · Q31) · =gestalten/steer/match.js= (Q32′ · Q34) · =prototypes/pattern.js= (Q40) · their tests | typology 153 ok — 10-23 copy |
+| the Legend | =systems/ghost/prototypes/{legend,index}.js= · =typology.js= · =subjects/client/{prototype,keymap,index}.js= · =lifecycle/index.js= · =subjects/terminal/prototype.js= · =gestalten/shard/{keymap,index}.js= | =tests/prototypes/legend.test.js= 6 · =tests/gestalten/shard/keymap.test.js= 3 · =tests/subjects/client/keymap.test.js= 5 — 10-23 green |
+| the tty surface | =surfaces/chrome/{keys,translation,index,acts,world}.js= · =panes/panel.js= · =panes/chrome.jsx= | =surfaces/chrome/keys.test.js= · =panes/{chrome,regions}.test.js= · =bundle.test.js= — 10-23 green |
+| anima's surface | =src/surface/{keys,translation,index}.js= · =panes/{chord,bar,regions,composer,sidebar}.jsx= | anima 38 files ok, = m98's file by file — 10-23 |
+| the parts | =subsystems/sheets/Legend.jsx= · =subsystems/drapes/Legend.jsx= · their tests | sheets 23 ok · drapes 48 · 1 baseline red — 10-23 |
+| r1 | 23 files, ghost + anima's surface | ghost 32 · 1 baseline red — 10-23 |
+| the generator's schema survives | =systems/runtime/tests/mode/generative.test.js:324= (Q35) | runtime 86 · 11, the same names as m98's — 10-23 |
+
+* blast table
+
+Every file the tangle touches is a block under =* as code= (64 · 4 moves); the rows below are what it leaves alone.
+
+| site | today | after | rides |
+|------|-------|-------|-------|
+| keep — the bar's own segments | =subsystems/drapes/Bar.jsx:8= =SUBJECTS= (read by =systems/anima/src/surface/panes/bar.jsx:88=) | unchanged — a second copy, unruled | Q24 |
+| keep — anima's own =$active= | =systems/anima/src/entities/terminal/terminals.js:5= · =dictation.js:5= | unchanged | r1 |
+| keep — a key's own name in typing | =systems/ghost/surfaces/chrome/typing.js:25= =k === "tab"= | shift-tab now reaches it as =shift-tab= (W3C nature), the sign-in field no longer toggles on it | Q29 · Q31 |
+| known issue cut at landing | =known-issues.org= =pattern-filter-mutates-the-callers-signal= | resolved by Q40 → CUT the turn it lands | Q40 |
+| superseded blocks | =done/m92-keymap.org:76,141= =harvest= · =navigate= | relabel when m92 is next touched | Q18″ · Q22 |
+| BREAKS — =~/.viva= chess keys | =~/.viva/registry/chess/modes/board/play/play.viva.js:39,41= =ctx.client.active.thread= · =.buffer= (a KEYMAPPED binding) | =ctx.client.active= is =undefined= → the binding throws; the same line with =activeTerminal= lands with m99, in his registry (a tangle never writes the shelf) | r1 |
+| =~/.viva= otherwise | =navigating= · =client.presses= · =$chord= · =harvest(= of the keymap: 0 hits (grep 10-23; =education/modes/tactics/harvest= is a mode's own name) | none | — |
+
+* testing assessment
+
+- new: =tests/prototypes/legend.test.js= (ctrl-v holds · ctrl-v d d runs · ctrl-v ctrl-v palette · ctrl-v esc dead · d then ctrl-v · a throwing effect faults) · =tests/gestalten/shard/keymap.test.js= (fromRepl · catalog · options, moved from the client's) · typology =tests/keysignal.test.js= · =queue.test.js= +1 · =vector.test.js= +2 (graft merge, sources untouched · scope order) · =signal.test.js= +1 (a pattern answers a copy) · =gestalten/shape/strip.test.js= +1.
+- rigs changed (mine): the leader grid =chord-80x24= (=tests/scenarios/look.js:204,205,207= · tones 17 · 18) now paints =? /help= · =q /quit= · =m /mode= (Q38); anima =bar.test.js= =KEYS= lists the declared groups =e a h d s= (Q24); anima =panel.test.js= =WALKED= heads with =d= (Q46).
+- COVERAGE GAP: a Mac browser's option-s gives =key: "ß"= (=alt-ß= on the web vs =alt-s= on a tty) — unruled (Q31 caveat).
+- COVERAGE GAP: the leader on a live tty and in a live browser — QA =T-leader-tty= · =P-leader-anima=.
+
+* QA
+
+- /"I press ctrl-v in viva, I see the leader grid: ? /help · q /quit · e entity · a activity · h harness · d display · s system · m /mode."/
+#+marker_qa: m99/T-leader-tty · revised · moved 10-24 to m104 as m104/T-leader-tty (pending there) · the tty translation edge + the declared groups
+- /"I press ctrl-v d d, the dock toggles; ctrl-v ctrl-v, I see the palette with / typed."/
+#+marker_qa: m99/T-chord-run · revised · moved 10-24 to m104 as m104/T-chord-run (pending there) · legend.test.js green on the replayed copy 10-23
+- /"I press ctrl-v d, I see the display group's words over its keys."/
+#+marker_qa: m99/T-chord-head · revised · moved 10-24 to m104 as m104/T-chord-head (broken there) · the head shows d and no hint — Q46
+- /"In anima on a Mac I press ctrl-v, off a Mac meta-v, I see the leader and the browser pastes nothing."/
+#+marker_qa: m99/P-leader-anima · revised · moved 10-24 to m104 as m104/P-leader-anima (pending there) · anima's translation edge preventDefaults in the event
+
+* open
+
+- S7 10-24 — two key holders on the client: =client.keymap= (=systems/ghost/subjects/client/prototype.js:26= =keymap = new Vector()=, filled at =subjects/client/lifecycle/index.js:35= with =bound= (=esc= · =leader= + its groups) and every client mode's =keymap=) beside =client.legend= (=presses= · =$chord= · =translation=, Q20 · Q47′); the Legend walks neither — it walks =client.activeTerminal.keymap= (=fromRepl= + =client.keymap= + the mode's, Q27). Beef: /"Why is there a key map on the client prototype and the legend? The legend is... Ah. Ah. Okay, yeah, no, something is unclear here. mark this as open"/. Unruled.
+
+* deferred
+
+- Q46, asked 10-23 at the finish: built as =$chord = shape.strip(node)= (Q22 · Q23) until he rules.
+- the tty Legend split (=panes/panel.js= chord half → its own pane) — =m103-chrome-panels.org= decides it (its panel =legend=).
+- an open catalog no longer closes when a chord starts (=navigate= did =client.$catalog.set(null)= when the crumbs grew; Q22's Legend has no such line) — unruled.
+- Mac browser option-s → =ß= (Q31 caveat) · =chordText= reads =ctrl-v= for =leader= on every surface (=surfaces/chrome/panes/bar.js:10=) · =graft= never un-grafts a surface's translation (one surface per client today).
+
+* changelog
+
+** re-cut 10-24 — m98's chrome blocks moved to =m103-chrome-panels.org= (beef: /"We don't want double work."/)
+
+- m98 keeps =panes/index.js='s named exports and =index.js='s own helpers: =surfaces/chrome/index.js:5= context =import { SPINNER } from "./grid.js";= · =bundle.test.js:21= · =panes/chrome.test.js:29= =panes.pane(= · =panes/chrome.test.js:105= =panes.chrome(=; new =panes/index.js:7= drops =NAMED= · =SUBJECTS= (Q24; the bundle failed on them). Old lines: =reference/m98/chrome-to-m103-10-24.org=.
+- hunks here on files m103 milestone 4 rewrites or kills (beef's question, not moved): =surfaces/chrome/{acts,index,world}.js= · =panes/{chrome.jsx,index.js,panel.js}= · =tests/surfaces/chrome/bundle.test.js= · =panes/{chrome,regions}.test.js=.
+
+** testing pass 10-23 — m98 then m99 hand-landed on a scratchpad copy (session-bound, gone with it)
+
+=methods/replay.sh= lands neither: both =* as code= are drill collages — m98 new 4 · collage 12 · diffs 0/1; m99 exists 2 · collage 7 · diffs 0/5 (MISS: =typology.js= ×2 · =strip.js:15= · =vector.js:63= · =match.js:18=). Every locked row landed by hand; copies =rig= (untouched) · =m98= · =base= (m98+m99); census serial, =HOME= empty per suite.
+
+| suite | rig | m98 | m98+m99 |
+|---|---|---|---|
+| typology | 151/0 | 151/0 | 149/2 |
+| paladin | 58/0 | 58/0 | 58/0 |
+| runtime | 86/12 | 86/12 | 85/13 |
+| ghost | 30/2 | 27/5 | 30/5 |
+| dapper | 28/0 | 28/0 | 28/0 |
+| drapes | 48/1 | 48/1 | 48/1 |
+| hello-world | 17/2 | 17/2 | 17/2 |
+| hallucinators | 7/1 | 7/1 | 7/1 |
+| memo · stub | 4/0 · 3/0 | same | same |
+| anima (suite) | aborts | aborts | aborts |
+| anima (per file) | 38 ok · 3 red · 6 no-load | — | 37 ok · 4 red · 6 no-load |
+
+anima aborts on the BASE tree: =anima/src/entities/terminal/terminals.js:2= imports =$telemetry= (not in the import map).
+
+Reds the tangle owns:
+- typology =tests/gestalten/shape/http.test.js= (=proxy/*/status=) · =object.test.js= (=shape.proxy(open("*")).anything=) — Q32′: =scope= skips =*=, =miss()= only backtracks to a dead end, never walks THROUGH a =*= mid-path. Bisected: skip off 6/0, on 4/2.
+- runtime =tests/mode/generative.test.js:324= =create.pattern.input= → =undefined= — Q25: a mode's reword no longer replaces the trait's pattern whole; the trait's =input= survives. Bisected: Q25 off 1/0, on 0/1.
+- ghost ×3 leader-grid frames (=chord-80x24=) · anima =bar.test.js:110= (=KEYS=): =c /chrome/on= → =c control= (m98 Q7 + Q24) · =x box= · =g go= appear (Q24 declares empty groups) · =? ? /help= · =q q /quit= (Q24 kills =NAMED=: a repl chord's key loses its name).
+Hunk defects found by landing:
+- =prototypes/legend.js= imports =atom= from =@vivalence/typology= — there it is the =belt.atom= namespace (=chain=); every Legend threw =atom is not a function= (37×). Lands as =import { atom } from "nanostores"=.
+- =Legend.execute= runs from the =$backlog= listener and nobody holds its promise: a throwing key effect is an unhandled rejection (test runner: /"This error was not caught from a test"/). =navigate='s =FAULTS= (→ =stdout.fault=) died with Q22 and nothing replaced it.
+Probes (=base/probes/leader.test.js=, the carried =everywhere.js=): =ctrl-v= hold leader · =ctrl-v d d= =/dock= · =ctrl-v ctrl-v= palette, draft =/= · =ctrl-v esc= dead · =esc= fires · =d ctrl-v= dead, then hold — 6/6. Mutation still live: an =x= press enqueues the CALLER's KeySignal, now =type: "wildcard"=.
+Departures (unruled, mine, copy only): tty =world.chord= = ={ crumbs: legend.presses.backlog natures, node: legend.chord }= so =panel.js= · =bar.js= keep painting; =panel.js= =edgesOf= reads strip =branches=, the sub-chord head is the last key (no =SUBJECTS=) · anima =composer.jsx:67= · =sidebar.jsx:21= open the palette by =legend.dispatch("leader")= ×2 (=palette= is a keymap local, Q24) · =sheets/Legend.jsx= keeps =props.palette= (hunk: =props.surface.palette=) · anima =regions.jsx:35= reads =legend.$chord=. Tests rewritten onto the Legend: =tests/prototypes/legend.test.js= (new) · =tests/gestalten/shard/keymap.test.js= (new) · =tests/subjects/client/{keymap,console}.test.js= · =tests/surfaces/chrome/{keys,chrome,panes,look}.test.js= · anima =tests/{bar,panel}.test.js= · anima =tests/world.js= (terminal =dispatch= mints =ReplSignal=).
+
+** finish 10-23 — the tangle on m98's tree (skill =quest=, beef: /"go"/)
+
+Built on the m98 copy (itself m102 replayed on today's tree); =* as code= generated from that copy's diff; tests rewritten there (mine: the rigs). The 29 files m100 · m101 moved are cut on today's paths.
+
+- replay 10-23: a fresh copy of the 10-23 tree → m102 → m98 → this quest (=replay-quest.py=) → =diff -rq= against the worked copy: empty; again on a fresh copy of the repo after m102 landed → m98 → this quest: 0 missed, ≡ bar m102's held =contexts.js=.
+- census 10-23, serial, empty HOME per suite, base = m99 against m98's census:
+
+#+BEGIN_SRC text
+m98  typology  ok 152 · 0       m99  typology  ok 153 · 0   (+ keysignal.test.js; queue · vector · signal · strip gain its)
+m98  paladin   ok  58           m99  paladin   ok  58
+m98  runtime   86 · 11 failed   m99  runtime   86 · 11 failed   same names; generative.test.js:324 flipped (Q35), green
+m98  ghost     30 ·  1 failed   m99  ghost     32 ·  1 failed   + legend.test.js · shard/keymap.test.js; the one red is ghost-help-test-reads-a-groups-effect
+m98  dapper    ok  28           m99  dapper    ok  28
+m98  drapes    48 ·  1 failed   m99  drapes    48 ·  1 failed   dock.shareAfterDrag; chord.test → legend.test
+m98  hello-world 17 · 2         m99            17 · 2           same names
+m98  hallucinators ok 7 · memo ok 4 · stub ok 3                 same
+sheets (not in the census)      m99  ok 23 (chord.test → legend.test)
+anima (47 files one by one)     m98 ≡ m99: 38 ok · 3 red · 6 load nothing, the same files
+#+END_SRC
+
+- census on the landing tree 10-23 (rig = a copy of the repo after m102 landed · base = it + m98 + m99, =out/panes.mjs= rebuilt on both): typology 150 → 153 · ghost 30 · 1 → 32 · 1 · runtime 86 · 11 · drapes 48 · 1 · hello-world 17 · 2, the same failing names; paladin · dapper · hallucinators · memo · stub ok on both; anima 47 files ≡ file by file.
+- the testing pass's typology reds (=http.test.js= =proxy/*/status= · =object.test.js= =shape.proxy(open("*")).anything=) are green: Q34 asks the =*= when no literal matched, mid-path included.
+- hunk defects found by landing, fixed in the tangle:
+  - =prototypes/keysignal.js= DOM arm (Q30): =event.key= went in as the character, and ="Escape"= · ="ArrowUp"= · ="Enter"= are printable words → natures =Escape= · =ArrowUp=; the arm now passes the key as a character only when it is one grapheme (=tests/keysignal.test.js=).
+  - Q37 counted =m 4= under the leader; the hits were =chord: "leader/m"= itself — =/mode= (=subjects/terminal/commands/mode/pick.js:9=) and tests; =leader/m/*=: 0 hits in systems · commons · registry. Under his rule (/"if we need to add them we do that"/) =m= is no group: the client keymap declares =e a h d s=, =m= paints =/mode=.
+- departures, mine, reported:
+  - the terminal keymap keeps m102's order — =fromRepl= first, then =client.keymap=, then the mode's (m102: a hosted KEYMAPPED binding beats a derived chord, =console.test.js= caught the reverse); Q27's snippet had the client first.
+  - the tty =world.chord= stays ={ crumbs, node }=: =crumbs= from =legend.presses.backlog=, =node= = =legend.chord=, so =panes/panel.js= · =bar.js= keep painting (the split is m103's).
+  - anima's composer · sidebar open the palette by =legend.dispatch("leader")= twice (=palette= is a keymap local, Q24); the sidebar sets the draft first.
+  - =subsystems/sheets/Legend.jsx= keeps =props.palette= and today's =Segment= markup (the snippet had =props.surface.palette= and a one-line =Segment=); =chooser= dies with =Chord= (the snippet drops it).
+  - =subsystems/drapes/Legend.jsx=: the rename alone, its =edges= props as today.
+  - =Legend.execute= dispatches the line string; =repl.dispatch= mints the =ReplSignal= (=navigate= minted it).
+- found, asked: a held group's header — =ctrl-v d= heads =d= with no hint (was =display · how do I see it=): =shape.strip(node)= has no signature at its root, the group's valence sits on its parent's edge → Q46.
+- critical pass 10-23 (read only): no comment and no new =?.= in product lines; =~/.viva= grepped: the chess =play.viva.js:39,41= binding reads =ctx.client.active= (=* blast table=).
+
+* release
+
+### api
+- renamed `client.active` → `client.activeTerminal` · `client.$active` → `client.$activeTerminal` · migrate: the same read, the new name (chess `play.viva.js:39,41`) ⟨m99⟩
+- moved `client.presses` · `client.$chord` · `client.chord` → `client.legend.presses` · `client.legend.$chord` · `client.legend.chord`; `chord` is the held node's `shape.strip` (was `{ crumbs, node }`) · migrate: the held keys are `legend.presses.backlog.map((signal) => signal.nature)` ⟨m99⟩
+- added `Legend` (`@vivalence/ghost` flat and `prototypes.Legend`) — `dispatch(event)` · `translation` · `presses` · `$chord` · `flush()` · migrate: a surface calls `client.legend.dispatch(event)` with the raw event ⟨m99⟩
+- moved the client keymap's `harvest` · `catalog` → `shard.keymap.fromRepl` · `shard.keymap.catalog`; removed `navigate` · `navigating` · `listing` · `palette` (a keymap local) · migrate: the palette is `legend.dispatch("leader")` twice ⟨m99⟩
+- changed `terminal.keymap` — a plain getter read at every call; `$keymap` removed · migrate: read `terminal.keymap` ⟨m99⟩
+- changed `KeySignal` — takes an opentui `ParsedKey` or a DOM `KeyboardEvent`; the nature carries the modifiers, W3C `ctrl alt shift meta` in that order, a printable its character · migrate: `new KeySignal(event).nature` replaces `press(event).key` ⟨m99⟩
+- removed ghost chrome `press` · `LEADER`; `keypresses(renderer, legend)` · anima `press` · `LEADER` · `LEADER_KEY`; `keypresses(window, legend)` returns its remover · migrate: graft the surface's `translation` onto `client.legend.translation` ⟨m99⟩
+- changed typology: `Queue.backlog` a getter over `$backlog` · `shape.strip` gives a group edge `meta` · `Vector.graft` merges two patterns for one key · `steer.match.scope` asks `*` last · a pattern filter answers a copy · migrate: none ⟨m99⟩
+- renamed sheets `Chord` → `Legend` (props `legend` · `palette`) · drapes `Chord` → `Legend` · migrate: `parts.Legend` ⟨m99⟩
+
+### other
+- changed the leader grid — `? /help` · `q /quit` · `m /mode`; the declared groups `e a h d s` carry their words · migrate: none ⟨m99⟩
+
+* review — 10-24
+| S | stop | rides | verdict | his words |
+|------|------|-------|---------|-----------|
+| S1 | =KeySignal= spells the nature once, modifiers inside it | Q29 · Q30 · Q31 | amen | /"amen on s1."/ |
+| S2 | =Queue.$backlog= is a store | Q22 | amen | /"amen s2"/ |
+| S3 | =scope= asks =*= last; a pattern answers a copy | Q32′ · Q34 · Q40 | amen | /"amen"/ |
+| S4 | =graft= merges two patterns for one key | Q25 | amen | /"amen s4"/ |
+| S5 | =shape.strip= carries a group edge's =meta= | Q23 | amen | /"amen"/ |
+| S6 | a surface forwards the raw event; its leader rides =translation= | Q30 · Q32 · Q32″ | drilled → Q47′ · amen | /"Translation is not part of the Chrome that lives on REPL."/ · /"amen"/ |
+| S7 | the =Legend= — queue · =$chord= · dispatch · traverse | Q20 · Q21 · Q22 · Q28 | open | /"keymap = new Vector(); ????????????? Why is there a key map on the client prototype and the legend? … something is unclear here. mark this as open"/ |
+| S8 | the terminal's keymap — =fromRepl= · =client.keymap= · the mode's | Q18″ · Q26 · Q27 | — | |
+| S9 | the client keymap declares the leader's groups =e a h d s= | Q24 · Q37 | — | |
+| S10 | painters label a key from =effect= · =meta= | Q23 · Q24 · Q38 | — | |
+| S11 | mechanical — r1 · moves · barrels · deaths | r1 · Q1 · Q13 · Q21 | — | |
+
+* handoff
+
+- goal: the client's key handling re-cut. A surface forwards the raw event → =KeySignal= spells the nature once (W3C =ctrl alt shift meta=, a printable its character) → =legend.dispatch= runs it through =legend.translation= (a surface grafts its leader key) → the queue → the Legend's listener walks the held presses over =client.activeTerminal.keymap= once per change. Keymaps: =shard.keymap.fromRepl= harvests =chord:= · the client keymap declares the leader's groups · the terminal's keymap is a plain getter.
+- done: Q18″–Q40 + r1 (=* rulings=); TANGLED 10-23 on m98's tree; re-cut 10-24 onto m98 after Q44–Q48 and the m103 split: 4 hunks re-contexted · 1 new (=panes/index.js:7=) · 2 struck (their old side left the tree, =reference/m99/drift-struck-10-24.org=) → 57 files · 148 hunks · 0 missed after m98. Snippets · probes: =reference/m99/drill-10-23.org=.
+- next: his Q46 (a held group's header); his ruling on the m99 hunks in files m103 rewrites (=surfaces/chrome/{acts,index,world}.js= · =panes/{chrome.jsx,index.js,panel.js}= + their tests, =* changelog= 10-24); then go per milestone after m98's; at landing his chess =play.viva.js:39,41= → =activeTerminal=.
+- lands after: =m98-ghost-barrels= (its paths); m103 rides on both.
+- typology hunks (HOLY — each its own go): =Queue.$backlog= (Q22) · =shape.strip= group =meta= (Q23) · =graft= pattern merge (Q25) · =KeySignal= arms (Q30 · Q31) · =scope= asks =*= last (Q32′ · Q34) · filters copy on match (Q40).
+- never: write code before his go; re-ask a locked row; the words =verb= · =lines=; =subjects/keymap= · a keymap die · =terminal.navigate= (Q19); flags on a KeySignal · a =KeyPattern= · a hash-keyed trie (Q29).
+- owed: at landing =deno task ghost/bundle= and CUT =pattern-filter-mutates-the-callers-signal=; =done/m92-keymap.org:76,141= relabel; the deferred four (=* deferred=).

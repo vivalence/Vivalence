@@ -1,0 +1,15 @@
+# drained 10-22 whole from .ikiro/quests/m92-keymap.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* probes — =/private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/a2049829-d700-4df4-b0a7-a8f4ec92b5f1/scratchpad/{literal2,compose}.probe.js= (10-19, pasted; the scratchpad is gone)
+
+Composed under test: client leader broken out (=m · t · ctrl-v= children) + a mode's deep opens =ctrl-v/g/n= · =ctrl-v/g/r= + a deep branch =branch("ctrl-v/g").open("f")= + a terminal bare =esc=; =graft= of the three. =shape.strip= shows ONE =ctrl-v= node with =m t ctrl-v g=, =g= holding =n r f=.
+
+#+BEGIN_EXAMPLE
+painted [["ctrl-v"],["m","t","ctrl-v","g"]]          → "/mode"                                                string effect
+painted [["ctrl-v"],["m","t","ctrl-v","g"]]          → {"nature":"/thread/new","body":[],"flags":{}}           object effect
+painted [["ctrl-v"],["m","t","ctrl-v","g"]]          → focused=dock                                           function effect
+painted [["ctrl-v"],[…],["n","r","f"]]               → "/game/new" · "/game/resign" · "/board/flip"           deep
+painted [["ctrl-v"]]                                 → focused=null                                           bare esc
+ctrl-v x · ctrl-v g x · q                            → NotFound                                               fails closed
+#+END_EXAMPLE
+

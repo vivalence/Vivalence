@@ -11,7 +11,7 @@ export const RECIPE = "ledger.viva.json";
 export const RECORDS = ["instances", "registry"];
 
 // the ledger's word by its place: type and slug from the file; the file's own manifest overwrites it
-export const derive = (module, source) => ({ type: "ledger", slug: source.filename.replace(/\.viva\.(?:[jt]s|json)$/, ""), ...(module.manifest ?? {}) });
+export const derive = (module, source) => ({ type: "ledger", slug: source.filename.replace(/\.viva\.(?:[jt]s|jsonc?)$/, ""), ...(module.manifest ?? {}) });
 
 export class Ledger {
   constructor(paladin) {

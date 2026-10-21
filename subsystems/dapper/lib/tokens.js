@@ -1,4 +1,3 @@
-// import { boxShadow, dropShadow, border, container, spacing, animation } from "./tokens.js";
 import { flatten } from "./contrast.js";
 import { THEMES } from "../themes/index.js";
 
@@ -103,36 +102,45 @@ export const TOKENS = {
   animation,
 };
 
-const flat = (held, prefix) =>
-  Object.entries(held).flatMap(([key, value]) =>
-    value !== null && typeof value === "object" && !Array.isArray(value)
-      ? flat(value, `${prefix}-${key}`)
-      : [[`${prefix}-${key}`.toLowerCase(), Array.isArray(value) ? value.join(", ") : value]],
-  );
+const kebab = (prefix, key) => `${prefix === "" ? "" : `${prefix}-`}${key.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase()}`;
+const camel = (prefix, key) => (prefix === "" ? key : `${prefix}${key[0].toUpperCase()}${key.slice(1)}`);
+
+export const fold = (held, join, prefix = "") =>
+  Object.entries(held).flatMap(([key, value]) => {
+    const name = key === "fill" ? prefix : join(prefix, key);
+    return value !== null && typeof value === "object" && !Array.isArray(value)
+      ? fold(value, join, name)
+      : [[name, Array.isArray(value) ? value.join(", ") : value]];
+  });
 
 export const scales = () =>
-  `:root {\n${flat(TOKENS, "-").map(([name, value]) => `  ${name}: ${value};`).join("\n")}\n}\n`;
+  `:root {\n${fold(TOKENS, kebab, "-").map(([name, value]) => `  ${name}: ${value};`).join("\n")}\n}\n`;
 
-const FLAT = {
-  surface: (zone) => zone.surface,
-  surfaceSunk: (zone) => zone.surfaceSunk,
-  surfaceLift: (zone) => zone.surfaceLift,
-  boundary: (zone) => zone.boundary,
-  textStrong: (zone) => zone.text.strong,
-  textInk: (zone) => zone.text.ink,
-  textMuted: (zone) => zone.text.muted,
-  textLink: (zone) => zone.text.link,
-  signalPrimary: (zone) => zone.signal.primary.fill,
-  signalPositive: (zone) => zone.signal.positive.fill,
-  signalCaution: (zone) => zone.signal.caution.fill,
-  signalNegative: (zone) => zone.signal.negative.fill,
-  inverse: (zone) => zone.inverse,
-  inverseOn: (zone) => zone.inverseOn,
+export const PALETTE = {
+  surface: true, surfaceSunk: true, surfaceLift: true, boundary: true, boundaryStrong: true, divider: true,
+  text: { strong: true, ink: true, light: true, muted: true, link: true },
+  signal: {
+    primary: { fill: true, ink: true, tint: true },
+    positive: { fill: true, ink: true },
+    caution: { fill: true, ink: true, tint: true },
+    negative: { fill: true, ink: true, tint: true },
+  },
+  control: { selected: true, field: true, fieldCaret: true },
+  inverse: true, inverseOn: true,
 };
 
-export const tokens = (theme, zone) => {
+const palette = (held, surface, shape = PALETTE) =>
+  Object.fromEntries(Object.entries(shape).map(([key, sub]) => [key, sub === true ? flatten(held[key], surface) : palette(held[key], surface, sub)]));
+
+const zone = (theme, name) => {
   if (!Object.hasOwn(THEMES, theme)) throw new Error(`[tokens] not a theme: ${JSON.stringify(theme)} · ${Object.keys(THEMES).join(" · ")}`);
-  const held = THEMES[theme].zones[zone];
-  if (held === undefined) throw new Error(`[tokens] not a zone: ${JSON.stringify(zone)} · 0 · 1 · 2 · 3`);
-  return Object.fromEntries(Object.entries(FLAT).map(([key, read]) => [key, flatten(read(held), held.surface)]));
+  if (THEMES[theme].zones[name] === undefined) throw new Error(`[tokens] not a zone: ${JSON.stringify(name)} · 0 · 1 · 2 · 3`);
+  return THEMES[theme].zones[name];
 };
+
+const flat = (join) => (theme, name) => {
+  const held = zone(theme, name);
+  return Object.fromEntries(fold(palette(held, held.surface), join));
+};
+
+export const tokens = { camel: flat(camel), kebab: flat(kebab) };

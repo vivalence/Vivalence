@@ -1,19 +1,24 @@
+import { atom } from "nanostores";
 import * as fromm from "../gestalten/fromm/index.js";
 import * as promise from "../gestalten/belt/promise.js";
 
 export class Queue {
-  backlog = [];
+  $backlog = atom([]);
   closed = false;
   gate = promise.waiter();
 
+  get backlog() {
+    return this.$backlog.get();
+  }
+
   enqueue(value) {
-    this.backlog.push(value);
+    this.$backlog.set([...this.backlog, value]);
     this.gate.wake();
     return this;
   }
 
   flush() {
-    this.backlog.length = 0;
+    this.$backlog.set([]);
     return this;
   }
 
@@ -25,7 +30,9 @@ export class Queue {
   async *drain(signal) {
     while (!signal?.aborted) {
       if (this.backlog.length) {
-        yield this.backlog.shift();
+        const [head, ...rest] = this.backlog;
+        this.$backlog.set(rest);
+        yield head;
         continue;
       }
       if (this.closed) return;

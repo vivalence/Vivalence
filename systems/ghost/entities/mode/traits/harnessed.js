@@ -1,8 +1,8 @@
 import { shape, is } from "@vivalence/typology";
 import { stream } from "../../../gestalten/belt/harness.js";
 
-export const HARNESSED = async (mode) => {
-  const { repositoryMap } = mode.runtime.entities.em;
+export const HARNESSED = async (mode, die) => {
+  const { repositoryMap } = die.client.runtime.entities.em;
 
   const merge = async (yielded) => {
     for (const [name, pojos] of Object.entries(yielded.output)) {
@@ -31,7 +31,7 @@ export const HARNESSED = async (mode) => {
   mode.harness = shape.connection.wire(harness, mode.metadata.harness);
 
   mode.repl.open(
-    { nature: "/harness", valence: "a turn to THIS mode's harness on the active terminal's thread, named — compose scopes it under /mode/<type>/<slug> and /mode/<slug>. Example: /mode/memo/harness ciao" },
-    (ctx) => stream(mode, ctx.terminal.thread, [{ type: "text", text: ctx.signal.body.map((datum) => String(datum)).join(" ") }]),
+    { nature: "/harness", valence: "a turn to the attached mode's harness on the terminal's thread. Example: /harness ciao" },
+    (ctx) => stream(mode, ctx.terminal, [{ type: "text", text: ctx.signal.body.map((datum) => String(datum)).join(" ") }]),
   );
 };

@@ -1,0 +1,907 @@
+#+title: m107 reference — pruned 10-25 at his /"prune, cut away from the quest 107 the stuff that is outdated"/: moved whole (skill quest 3)
+
+* the inline filetrees (anima @-- · ghost @ · his proposed) — from =* precedent · inventory=
+** filetree anima @--
+anima client =systems/anima/= at =@--= — uzqmrktw =0b14b1356= "snap" · 4301 tracked files
+*** .claude/
+**** settings.local.json
+*** src/
+**** app/
+***** bones/
+****** crown/
+******* crown.svelte
+****** pincer/
+******* pincer.svelte
+****** shoulder/
+******* shoulder.svelte
+****** spine/
+******* activity.js
+******* spine.svelte
+****** widgets/
+******* Activity.bak.svelte
+******* ConversationalWidget.bak.svelte
+******* Dock.svelte
+******* Harness.svelte
+******* Phase.svelte
+******* Terminals.svelte
+****** Widgets.svelte
+****** flow.js
+***** panels/
+****** a/
+******* widgets/
+******** Composer.svelte
+******** Dictaphone.svelte
+******** Dock.svelte
+******** DockHead.svelte
+******** LiveTurn.svelte
+******** Turn.svelte
+******** dictate.js
+******** stop.svelte.js
+******** turns.js
+******* a.svelte
+****** b/
+******* widgets/
+******** BoxSection.svelte
+******** BridgeSection.svelte
+******** DockSection.svelte
+******** LighthouseSection.svelte
+******* b.svelte
+****** c/
+******* cards/
+******** traits/
+********* form/
+********** EntityField.svelte
+********** EntityRow.svelte
+********** EntitySetField.svelte
+********** FormFromSchema.svelte
+********** SymbolFacets.svelte
+********** picker.js
+********** schema.js
+********* Aimed.svelte
+********* Labeled.svelte
+********* Masked.svelte
+********* Queueing.svelte
+******** Buffer.svelte
+******** Buffers.svelte
+******** Card.svelte
+******** Harness.svelte
+******** Link.svelte
+******** Mode.svelte
+******** Modes.svelte
+******** Row.svelte
+******** Terminals.svelte
+******** Thread.svelte
+******** Threads.svelte
+******** buffers.js
+******** threads.js
+******* c.svelte
+****** g/
+******* g.svelte
+****** h/
+******* Inspector.svelte
+******* h.svelte
+***** widgets/
+****** Boot.svelte
+****** Faculty.svelte
+****** Glyph.svelte
+****** Login.svelte
+****** Tune.svelte
+****** intelligent.js
+***** +layout.js
+***** +layout.svelte
+***** +page.svelte
+***** focus.js
+***** gate.js
+**** telemetry/
+***** index.js
+***** inspector.js
+***** logger.js
+**** typology/
+***** entities/
+****** daemon/
+******* daemon.js
+******* dossier.js
+******* index.js
+****** mode/
+******* traits/
+******** application.js
+******** emitter.js
+******** exposed.js
+******** harnessed.js
+******** index.js
+******** standalone.js
+******* index.js
+******* mode.js
+****** thread/
+******* traits/
+******** aimed.js
+******** index.js
+******** labeled.js
+******** masked.js
+******** queueing.js
+******* dossier.js
+******* index.js
+******* thread.js
+****** activity.js
+****** buffer.js
+****** index.js
+****** intent.js
+****** literal.js
+****** symbol.js
+****** terminal.js
+****** turn.js
+***** gestalten/
+****** belt/
+******* chain.js
+******* index.js
+******* narrow.js
+******* runner.js
+****** index.js
+***** prototypes/
+****** todo/
+******* bell/
+******** bell.js
+****** cargo.js
+****** conversation.js
+****** dataspace.js
+****** dictation.js
+****** entity.js
+****** index.js
+***** stores/
+****** box/
+******* device/
+******** microphone/
+********* index.js
+********* microphone.js
+********* worklet.js
+******** speaker/
+********* index.js
+********* speaker.js
+********* worklet.js
+******* drivers/
+******** audio/
+********* audio.js
+********* index.js
+******** index.js
+******* box.js
+******* index.js
+****** bridge/
+******* bridge.js
+******* dock.js
+******* geometry.js
+******* gesture.js
+******* index.js
+******* panes.js
+******* start.js
+****** index.js
+****** lighthouse.js
+****** terminals.js
+***** mod.js
+**** client.css
+**** client.html
+**** client.js
+*** tests/
+**** belt/
+***** narrow.test.js
+**** design/
+***** audit.test.js
+**** dock/
+***** composer.mount.test.js
+***** dock.mount.test.js
+***** rig.js
+***** stage.mount.test.js
+***** turns.mount.test.js
+***** turns.usage.test.js
+**** interactive/
+***** activity/
+****** client.js
+****** panel.jsx
+****** sheet.jsx
+****** sheet.state.js
+***** activity.test.js
+***** sheet.state.test.js
+**** panes/
+***** cards.mount.test.js
+***** rail.mount.test.js
+***** rig.js
+***** tree.test.js
+**** pincer/
+***** bones.axis.test.js
+***** dock.geometry.test.js
+***** gesture.test.js
+***** spine.mount.test.js
+***** start.test.js
+***** theme.test.js
+***** viewport.test.js
+**** scenario/
+***** buffer.test.js
+***** daemon.test.js
+**** typology/
+***** standalone.test.js
+***** trait-runner.test.js
+**** zones/
+***** places.test.js
+***** slots.test.js
+**** activity.stop.test.js
+**** activity.widgets.test.js
+**** bridge.view.test.js
+**** cargo.test.js
+**** dictate.splice.test.js
+**** dictation.store.test.js
+**** dock-turns.test.js
+**** gate.test.js
+**** harness-wire.test.js
+**** lifecycle-vector.test.js
+**** oracle-dialogue.test.js
+**** oracle.snapshot.test.js
+**** terminal.stall.test.js
+**** terminals.remote.test.js
+*** .gitignore
+*** .npmrc
+*** Dockerfile
+*** README.org
+*** client.viva.js
+*** deno.jsonc
+*** postcss.config.js
+*** svelte.config.js
+*** tailwind.config.js
+*** vite.config.mjs
+
+** filetree ghost @
+ghost client die =systems/ghost/= at =@= — ntzuzkmy =585a9d8c3= "snap" · 464 tracked files
+*** bak/
+**** bak.2/ … 62 files
+**** bak.3/ … 205 files
+*** entities/
+**** activity/
+***** hydration.js
+***** index.js
+***** prototype.js
+***** repository.js
+**** buffer/
+***** hydration.js
+***** index.js
+***** prototype.js
+***** repository.js
+**** daemon/
+***** lifecycle/
+****** index.js
+***** factory.js
+***** hydration.js
+***** index.js
+***** prototype.js
+***** repository.js
+**** lighthouse/
+***** lifecycle/
+****** index.js
+***** traits/
+****** autologin.js
+****** index.js
+****** invitational.
+****** joinable.js
+***** index.js
+***** prototype.js
+***** standings.js
+**** mode/
+***** lifecycle/
+****** index.js
+***** traits/
+****** exposed.js
+****** harnessed.js
+****** index.js
+****** keymapped.js
+****** looping.js
+****** repling.js
+***** factory.js
+***** hydration.js
+***** index.js
+***** prototype.js
+***** repository.js
+**** runtime/
+***** lifecycle/
+****** index.js
+***** factory.js
+***** index.js
+***** prototype.js
+**** thread/
+***** lifecycle/
+****** index.js
+***** factory.js
+***** hydration.js
+***** index.js
+***** prototype.js
+***** repository.js
+**** turn/
+***** hydration.js
+***** index.js
+***** prototype.js
+***** repository.js
+**** view/
+***** hydration.js
+***** index.js
+***** prototype.js
+***** repository.js
+**** index.js
+*** gestalten/
+**** belt/
+***** activity.js
+***** dock.js
+***** harness.js
+***** index.js
+***** input.js
+***** intelligent.js
+***** view.js
+**** shard/
+***** host.js
+***** index.js
+***** keymap.js
+**** index.js
+*** subjects/
+**** client/
+***** commands/
+****** help.js
+****** index.js
+****** lighthouse.js
+****** quit.js
+****** runtime.js
+****** shell.js
+****** sidebar.js
+****** terminal.js
+***** lifecycle/
+****** index.js
+***** traits/
+****** home.js
+****** index.js
+***** factory.js
+***** index.js
+***** keymap.js
+***** prototype.js
+***** telemetry.js
+**** shell/
+***** commands/
+****** chrome.js
+****** index.js
+****** tail.js
+***** lifecycle/
+****** boot.js
+****** index.js
+****** ledger.js
+****** seat.js
+***** index.js
+**** terminal/
+***** commands/
+****** mode/
+******* index.js
+******* list.js
+******* pick.js
+****** abort.js
+****** activity.js
+****** artifact.js
+****** attach.js
+****** buffer.js
+****** close.js
+****** detach.js
+****** dictate.js
+****** dock.js
+****** full.js
+****** index.js
+****** intelligent.j
+****** pause.js
+****** resume.js
+****** set.js
+****** stop.js
+****** telemetry.js
+****** thread.js
+****** turn.js
+***** lifecycle/
+****** index.js
+****** stall.js
+***** factory.js
+***** hydration.js
+***** index.js
+***** legend.js
+***** prototype.js
+***** repl.js
+***** repository.js
+***** stall.js
+**** index.js
+*** surfaces/
+**** chrome/
+***** panels/
+****** booting.jsx
+****** dock.jsx
+****** frame.jsx
+****** headline.jsx
+****** index.js
+****** legend.jsx
+****** modeline.jsx
+****** repl.jsx
+****** sidebar.jsx
+****** signin.jsx
+****** telemetry.jsx
+***** panes/
+****** bar.js
+****** chrome.jsx
+****** frame.js
+****** index.js
+****** island.js
+****** journal.js
+****** painters.jsx
+****** panel.js
+****** regions.js
+****** section.js
+****** sidebar.js
+****** tabs.js
+****** tele.js
+****** wid.js
+***** widgets/
+****** swatch.jsx
+***** .gitignore
+***** acts.js
+***** bundle.js
+***** cover.jsx
+***** grid.js
+***** index.js
+***** keys.js
+***** paint.js
+***** regions.jsx
+***** renderers.js
+***** screen.js
+***** sections.js
+***** typing.js
+***** views.js
+***** world.js
+**** index.js
+*** tests/
+**** entities/
+***** mode/
+****** traits/
+******* looping.test.js
+******* repling.test
+**** gestalten/
+***** belt/
+****** view.test.js
+***** shard/
+****** host.test.js
+****** keymap.test.j
+**** scenarios/
+***** chrome.js
+***** hello.js
+***** index.js
+***** look.js
+***** world.js
+**** subjects/
+***** client/
+****** client.test.js
+****** console.test.
+****** factory.test.js
+****** keymap.test.j
+****** rows.test.js
+***** shell/
+****** lifecycle.test.js
+***** terminal/
+****** commands.test.js
+****** legend.test.j
+****** prototype.test.js
+****** repl.test.js
+****** stall.test.js
+**** surfaces/
+***** chrome/
+****** panes/
+******* chrome.test.js
+******* regions.test
+****** bundle.test.js
+****** index.test.js
+****** keys.test.js
+****** paint.test.js
+****** renderers.test.js
+*** deno.jsonc
+*** ghost.sh
+*** host.js
+*** install.sh
+*** run.js
+*** typology.js
+
+** filetree ghost proposed
+*** systems/ghost/surfaces/
+**** index.js
+**** chrome/
+***** mount.jsx
+***** layout.jsx
+***** bundle.js
+***** bundle/
+****** app.mjs
+***** ambient/
+***** panels/
+****** index.js
+****** booting/
+******* booting.jsx
+******* steps.js
+****** authentication/
+******* signin.jsx
+****** headline/
+******* headline.jsx
+****** sidebar/
+******* sidebar.jsx
+****** frame/
+******* frame.jsx
+****** dock/
+******* dock.jsx
+****** legend/
+******* legend.jsx
+****** repl/
+******* repl.jsx
+****** modeline/
+******* modeline.jsx
+****** telemetry/
+******* telemetry.jsx
+***** widgets/
+****** index.js
+
+
+
+* rework — 10-25 (his /"rework this"/ over his pasted tree; v4 + the locks seated in it) — the outline; the code is =* as code — tangle 10-25=
+#+BEGIN_SRC org
+** systems/ghost/subjects/
+*** app/                            NEW · v4 Q20
+**** index.js                       barrel: App · prototypes · lifecycle
+**** prototype.js                   App: client · surface · controller · box · bridge (S1)
+**** prototypes/                    Q20 · Q26 · box · bridge placeholders until anima @-- (Q20′)
+***** box.js
+***** bridge.js
+***** telemetry.js                 Q26 ← subjects/client/telemetry.js (m105)
+**** commands/                      Q26 · Q28
+***** index.js · shell.js · sidebar.js · telemetry.js   ← client/commands/{shell,sidebar}.js · terminal/commands/telemetry.js
+***** terminal.js                  Q28 ← subjects/client/commands/terminal.js
+**** lifecycle/
+***** index.js                      execution: open · client · bundle · mount · hold (S2 · S3)
+***** client.js                     22A: client settled → app aborted · app ended → client aborted
+***** seat.js                       Q28: follows $entities → bridge.terminal
+***** bundle.js                     S2
+***** mount.js                      S3: unmount in its finally
+*** client/
+**** factory.js                     23′: shape.monad.ready, no surface
+**** prototype.js                   − surface · unmount · $terminal · terminal  + app
+**** lifecycle/index.js             − the surface beat (:46 · :220) · seat · active (:205-213) · rows' seat call (:127)
+**** commands/terminal.js           − → subjects/app/commands/ (Q28)
+**** commands/sidebar.js · shell.js · keymap.js palette   − → subjects/app/commands/ (Q31)
+*** subjects/terminal/
+**** factory.js · lifecycle/        Q30 − cut
+**** hydration.js                   Q30 + controller
+**** stall.js                       Q30 + watch()
+**** commands/set.js · telemetry.js − → subjects/app/commands/ (Q27 · Q31)
+*** entities/thread/                Q29 − factory.js · lifecycle/ · controller
+*** shell/commands/chrome.js        Q21: mints client · app, executes the app
+** systems/ghost/gestalten/ambient.js   Q26 tooling: the Solid ambient unit (m103 Q7)
+** systems/ghost/schematics/app/       Q26 ← Q10's schematics/ambients/: box · bridge · telemetry
+** systems/ghost/surfaces/
+*** index.js                        S4: chrome = { bundle, mount } — the literal
+*** chrome/
+**** mount.jsx                      S4: the bundle's entry · renderer · paint (← paint.js) · ambient.app.Provider · the cover: booting → signin → layout (← cover.jsx COVERS, his intent: /"Mounting … also where we have our authentication waiting screen"/)
+**** layout.jsx                     ← regions.jsx · v3 App: the bridge names the terminal, ambient.terminal.Provider around the panels
+**** bundle.js                      S2: entry mount.jsx → bundle/app.mjs, outfile exported
+**** bundle/
+***** app.mjs                       ← out/panes.mjs (gitignored)
+**** ambient/
+***** index.js                      the Provider slots over gestalten.ambient: app (S4) · terminal (Q11A); buffer deferred (v3 S4)
+**** panels/
+***** index.js
+***** booting/
+****** booting.jsx                  ← panels/booting.jsx
+****** steps.js                     ← panes/island.js:3 BEATS
+***** authentication/
+****** signin.jsx                   ← panels/signin.jsx
+***** headline/headline.jsx         ← panels/headline.jsx
+***** sidebar/sidebar.jsx           ← panels/sidebar.jsx
+***** frame/frame.jsx               ← panels/frame.jsx · v3 S4: provides ambient.buffer
+***** dock/dock.jsx                 ← panels/dock.jsx
+***** legend/legend.jsx             ← panels/legend.jsx
+***** repl/repl.jsx                 ← panels/repl.jsx
+***** modeline/modeline.jsx         ← panels/modeline.jsx
+***** telemetry/telemetry.jsx       ← panels/telemetry.jsx
+**** widgets/
+***** index.js
+***** buffer/renderers.js           Q25 ← renderers.js (chosen); buffer.jsx deferred (v3 S4 unwalked)
+***** swatch/swatch.jsx             ← widgets/swatch.jsx (every panel's placeholder)
+** systems/ghost/tests/
+*** subjects/app/lifecycle.test.js  NEW (S2 · S3)
+*** surfaces/chrome/
+**** bundle.test.js                 out/panes.mjs → bundle/app.mjs
+**** mount.test.js                  ← paint.test.js (S4)
+#+END_SRC
+
+Locked Q25 A — these DIE (=renderers.js= → =widgets/buffer/=). No seat in his tree (live =systems/ghost/surfaces/chrome/=, lines): =index.js= 69 (=dark · luminance · rgb= → the box device, Q20′; =ticking= the clock) · =keys.js= 5 (Q15) · =views.js= 8 · =cover.jsx= 45 · =regions.jsx= 29 · =paint.js= 17 · =out/= · =panes/= 14 files 2016 · =grid.js= 113 · =screen.js= 100 · =sections.js= 294 · =typing.js= 168 · =acts.js= 110 · =world.js= 90 · =renderers.js= 28; tests =index · keys · renderers · panes/{chrome,regions}.test.js=, =scenarios/look.js=.
+
+
+* questions — kept; one per turn
+
+24. LOOKUP: =layout.jsx= (his tree; =app= is the subject)
+27. LOCKED A: =ctx.client.app=; app commands present only with an app; Q14 · v3 S5 answered
+28. LOCKED A: the app owns which terminal (bridge) + the =/terminal= commands; the client keeps the dataspace
+29. LOCKED B: cut the thread beat + process
+30. LOCKED A: terminal = data; controller at hydration; =Stall.watch()= per row in =terminals=; cut =terminal/factory.js= · =terminal/lifecycle/=
+31. LOOKUP: the surface-writing client commands → =subjects/app/commands/=
+33. OPEN (found crystallizing): the app runs WHILE the client boots (mount before =authorized=, his order) — =seat= reads =client.runtime.entities.terminal.=, =null= until the client's =dataspace= beat, and empty until =rows= has read; seated before then it creates a terminal a returning user already has. How the app learns the client has read its terminals
+33A. REFRAMED by him (/"maybe change the way the dataspace is instantiated. its a prototype, right?"/): the typology =Dataspace= (=subsystems/typology/prototypes/dataspace.js:15=) is minted with the Runtime in =connection= (=lifecycle/index.js:56=), never =null=, and OWNS its read — =read()= · =flush()= ← ghost's =read= · =flushed= (=:98-116=), =$status= IDLE → READING → READ; =seat= follows it. OPEN: the read state on the Dataspace (one status, the whole read) · or on each =RemoteRepository= (=$found=, set by =find()=, mikro-first) — typology is HOLY
+32. LOCKED → m108 (=m108-anima-app.org=); m107 lands ghost; anima breaks until m108. was: anima — =systems/anima/src/client.js:19= =ghost.client.factory(dom)(die)= and =src/surface/index.js:34= =client.surface = screen(…)= break on 23′ · Q21: A anima ports in m107 (mints its own App with =dom= as the surface) · B m107 lands ghost only, anima's port is m103's reconcile, one flag day
+30-was. the terminal is not held (his S3, known-issues =terminal-lifecycle-holds=) — its one work is the stall's refill wiring (=terminal/lifecycle/stall.js=); A =controller= cast at hydration, the client's =terminals= beat holds each row's =terminal.stall.watch()= · B the app watches the SHOWN terminal's stall only
+29-was. the =thread= beat (=lifecycle/index.js:173-203=) reads =client.$terminal= and boots =entities/thread= =factory= (open · hold, nothing else) — A moves to the app, following =bridge.terminal= · B dies: =entities/= does not run (codestyle), the thread hold joins known-issues =terminal-lifecycle-holds=
+28-was. =client.$terminal= dies — its writers (=seat= =lifecycle/index.js:205-213= · =client/commands/terminal.js:7,32=) → =app.bridge=: A the app owns both (beat =seat= + =app/commands/terminal.js=) · B the client keeps "at least one terminal exists" (data), the app picks which is shown
+27-was. how a command reaches the App — =ctx.client.app= (the repl die as =repl.js:32= mints it) · the app binds itself onto every terminal's repl (=ctx.app=)
+25. LOCKED A: the seatless files die; =renderers.js= → =widgets/buffer/=
+26. LOCKED A (no =ambients/=; tooling only, m103 Q7's =gestalten/ambient.js=). was: ghost's top-level =ambients/= (Q2 · Q9 · Q10) after Q20 moved box · bridge into =subjects/app/prototypes/= — A never born, the app subject holds every prototype + its commands · B born for what is shared with anima only
+
+0. the family: A · B · C
+1. LOOKUP by Q0: an atom per ambient (C's snippet); m103 Q6′ relabelled SUPERSEDED
+2. LOCKED A — ghost =ambients/=. the home of a shared ambient: ghost =ambients/= (m103 Q7⁗: ghost) · typology (his 10-25 suspicion; HOLY) · =surfaces/chrome/ambient/= (his tree)
+3. LOCKED B (telemetry its own ambient). the set: client · bridge · box · draft · telemetry — signin widget-local?
+4. LOOKUP by Q0's snippet (=bridge= · =box=). the names: =bridge= · =box= kept from old anima?
+5. LOOKUP by Q0 (the device writes its own atom). a device writes its atom directly, or through a signal?
+6. LOOKUP by Q0 (=client.bridge=). where the value hangs: =client.bridge= (commands reach it) or only inside the tree
+7. lookup: =layout.jsx= → =app.jsx= (/"let's call it app"/) — his tree (=private/logs/2026.10.25.org=) still says =layout.jsx=
+8. LOCKED: =mount.jsx= — the Providers are JSX
+9. LOCKED B + his addition (a full unit: schematics · snapshots · tests). an ambient's VALUE: one generic seed (closure-object) or a prototype per ambient (m105's =Telemetry= class, moved) — =client.telemetry= is already m105 Q0′'s =Telemetry= (=subjects/client/telemetry.js=, 7 =$logger= reads)
+
+10. LOCKED B (ghost =schematics/ambients/=). the HOME of an ambient's schematics: inside =ambients/<name>/= (co-varies) or ghost =schematics/ambients/<name>.js= by kind (m103 Q6″ precedent)
+11. NEITHER — his reframe (=
+* the dialogue — superseded rows (Q0 · Q2 · Q3 · Q9 · Q10 by Q20 · Q26; Q14 by v4 · Q27; Q22 by 22A; Q23 by 23′; the v4 reframe by Q20)
+
+| Q | ruling | his words |
+|---|---|---|
+| 0 | design C: each ambient = a =v.object= schema + a =Vector= of its commands + its own atom, hung on the client; the repl is the only write path; a device (box) has no commands and writes its own atom | /"c."/ |
+| 2 | a shared ambient (schema · commands · seed) lives in ghost's new top-level =ambients/<name>/=, exported on ghost's root barrel; each chrome's =surfaces/chrome/ambient/= declares the Provider slots over it; anima overrides units via =v.interface= | /"a"/ |
+| 3 | telemetry is its own ambient (window + reading: open · window · view · filter · selection · since); =/telemetry= · =/telemetry/clear= move from =subjects/terminal/commands/telemetry.js= into =ambients/telemetry/=; bridge keeps the app's regions only (focus · sidebar · split · dock) | /"b"/ |
+| 9 | an ambient's value is a PROTOTYPE per ambient: =ambients/<name>/prototype.js=, its =$state= atom cast by its schema, one =computed= + one plain getter per branch, written out; m105's =Telemetry= moves into =ambients/telemetry/prototype.js= keeping =$logger=; AND each ambient is a full unit — schematics · commands · snapshots · tests | /"b"/ · /"I don't only want the prototype, I want the whole schematics and all of the jazz. snapshots, tests, shit like that."/ |
+| 10 | an ambient's schemas sort by kind (m103 Q6″, as typology): ghost =schematics/ambients/{index,bridge,box,telemetry}.js=; =ambients/<name>/= holds =index.js · prototype.js · commands/=; tests =tests/ambients.snapshot.test.js= + =tests/ambients/<name>/commands.test.js= | /"b"/ |
+| — | REFRAMED v4 (a sketch, not a lock): a subject =root= — the trunk; one ambient to the chrome, holding client · box · bridge · surface · controller; the client has no =$terminal=; the execution's effect mounts the surface in the root die; bundling is a beat of its lifecycle | /"What if we create a new subject, root? … Root is the one context that we provide to our Chrome. It holds the client. And that's it. The client does not have $terminal … the effect of that execution is going to be the mounting of whatever surface we put into the root die"/ |
+| 22 | A in SPIRIT (the app wraps the client, mount a beat); the hand-written =await middleware.compose(appProcess.lifecycle.execution.carry)(client.app, () => steer.dispatch.execute(…))= REJECTED (/"very stupid and ugly implementation. we can be more elegant. lots of ways."/) → Q22A: the app's execution ENDS on the client (=.do= dispatches the client's vector over =appDie.client=, one dispatch) · a typology shard =shard.context.within(vector, pick)= that also rewrites =authorized= (=:76=) · was: how the app's execution runs, in character (=appProcess.lifecycle.execution= in a client beat REJECTED: /"out of charcter"/): A the app's carry WRAPS the client's run as =authorized= wraps the lighthouse's (=lifecycle/index.js:76= =middleware.compose(execution.carry)(die, next)=), mount a beat that paints · =next()= · erases · B the shell's effect runs both: the app's execution held unawaited, the client's awaited, the app aborted in its finally | |
+| 23 | LOCKED: =subjects/client/factory.js= is CUT (the shell mints the die and runs the vector itself), no =app/factory.js= is born; with it =tests/subjects/client/factory.test.js= and =shell/lifecycle.test.js:74= rewrite onto the command | /"then we can cut them."/ |
+| 14 | REJECTED the die from the invocation site; his direction: the ambients exist BEFORE mount, mount runs inside them; =client.$terminal= goes (/"The client does not have a terminal anymore"/); reading an ambient inside the terminal prototype = /"still not right"/ | /"Is it maybe possible for us to create the ambience already before we actually run mounted? … Keep all of the state outside the surface?"/ |
+
+* Q33B option B — struck 10-25 (his /"a"/)
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/lifecycle/index.js:93   — the client's beat walks the declaration; the Dataspace untouched
+export const subscribed = async (clientDie, next) => {
+  for (const repository of Object.values(clientDie.runtime.entities.em.repositoryMap)) await repository.find();
+  const offs = Object.values(clientDie.runtime.entities.em.repositoryMap).map((repository) => repository.subscribe());
+  try {
+    await next();
+  } finally {
+    for (const off of offs) off();
+  }
+};
+#+END_SRC
+
+* Q33C — both struck 10-25 (/"neither. bad solution all round"/)
+
+The seat waited on a readiness signal the client raised: A a =$subscribed= atom on the Client (=prototype.js:38=), set by the =subscribed= beat; B a =subscribing= promise the beat resolves once. Probe =testament/prototypes/dataspace-keep/seat.js=: =A {"first":"t-beef-1","afterSwitch":"t-lena-1","created":[]}= · =B {"first":"t-beef-1","afterSwitch":"new-1","created":["new-1"]}=.
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/lifecycle/seat.js:1   — option A
+  let off = null;
+  const unsubscribed = appDie.client.$subscribed.subscribe((subscribed) => {
+    if (off !== null) off();
+    off = subscribed ? appDie.client.runtime.entities.terminal.$entities.subscribe(reseat) : null;
+  });
+// systems/ghost/subjects/app/lifecycle/seat.js:1   — option B
+  await appDie.client.subscribing.promise;
+  const off = appDie.client.runtime.entities.terminal.$entities.subscribe(reseat);
+#+END_SRC
+
+* Q33D — the struck option B (10-26, his /"a."/ took A): the client keeps "a user has a terminal"
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/lifecycle/index.js:93   — the client's beat, after dataspace
+export const subscribed = async (clientDie, next) => {
+  const off = await clientDie.runtime.entities.subscribe();
+  if (clientDie.runtime.entities.terminal.$entities.get().length === 0) await clientDie.runtime.entities.terminal.create({});
+  try {
+    await next();
+  } finally {
+    off();
+  }
+};
+
+// systems/ghost/subjects/app/commands/terminal.js:29   — /terminal/close
+      await ctx.client.runtime.entities.terminal.removeOne({ id: closed.id });
+      if (ctx.client.runtime.entities.terminal.$entities.get().length === 0) await ctx.client.runtime.entities.terminal.create({});
+#+END_SRC
+
+** the app's =seat= beat — MOVED whole from =* as code= (died by 33D; the shown terminal is the Layout's derivation)
+*** lifecycle/seat.js — Q28; GAP Q33: the app runs while the client still boots, =runtime.entities= is =null= until the client's =dataspace= beat
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/lifecycle/seat.js:1   — SKETCH until Q33
+export const seat = async (appDie, next) => {
+  const reseat = async (terminals) => {
+    if (terminals.some((terminal) => terminal.id === appDie.bridge.terminal)) return;
+    const terminal = terminals.length === 0 ? await appDie.client.runtime.entities.terminal.create({}) : terminals[0];
+    appDie.bridge.$state.set({ ...appDie.bridge.state, terminal: terminal.id });
+  };
+  const off = …the terminal store, once the client has read it (Q33)….subscribe(reseat);
+  try {
+    await next();
+  } finally {
+    off();
+  }
+};
+#+END_SRC
+
+* Q33E — both options REFRAMED 10-26 (/"why dont we open daemons as one of our entities in the runtime dataspace and wire up that way?"/)
+#+BEGIN_SRC js
+// systems/ghost/entities/daemon/repository.js:5   — option A: the roster declares no stream
+  repo.subscribe = () => () => {};
+
+// systems/runtime/subjects/runtime/lifecycle/resolution.js:90   — option B: an empty roster stream; its reconnect re-reads (probe roster.js: seen [["hello"],["hello","chess"]])
+  const daemons = new Broadcaster();
+  die.aperture.branch("/metadata/daemons").get("/subscribe", (ctx) => {
+    const { iterable, unsubscribe } = daemons.subscribe();
+    ctx.request.raw?.signal?.addEventListener("abort", unsubscribe);
+    ctx.response.body = iterable;
+  });
+#+END_SRC
+
+* Q33F — the struck option B (10-26, his /"m109"/ took A until m109)
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/datamap.js:331   — B: strip ships the primary key, the client's identity map keys on it (HOLY, 25 .id sites)
+    schema[normalized] = { primary: meta.primaryKeys[0], properties, columns };
+// subsystems/typology/prototypes/entity-manager.js:71
+    const primary = this.schema[name].primary;
+    if (!raw?.[primary]) return raw;
+    const mapKey = this.key(name, raw[primary]);
+#+END_SRC
+** the mode way, probed RED 10-26 (=DaemonEntity extends DataEntity=, =uniques: [slug]=): mint 5/6 FAILED · smoke · beats.coverage · shape · composition =ForeignKeyConstraintViolationException= — the slug written as the relation (=gestalten/belt/traits.js:28,39-41=), the trait gate on =row.daemon?.slug= (=typology/gestalten/belt/traits.js:61=), =Note.ts:41= =daemon_slug=; superseded by his slug-primary reframe → m109
+
+* Q33F — the =id= getter, MOVED out 10-26 on his /"assume 109 to be done. assume daemon is in entities. keep on 107."/ (the daemon's identity is m109's)
+** subjects/daemon/
+*** Daemon.ts — 33F: the row serializes =id= = its =slug= for the client's identity map (=subsystems/typology/prototypes/entity-manager.js:71=); m109 re-houses the daemon and removes this
+#+BEGIN_SRC diff
+// systems/runtime/subjects/daemon/Daemon.ts:18
+ export class DaemonEntity extends BaseEntity {
+   slug!: string;
++  get id(): string {
++    return this.slug;
++  }
+   mask: any & Opt = {};
+…
+// systems/runtime/subjects/daemon/Daemon.ts:39
+     slug: { type: types.string, primary: true },
++    id: { type: types.string, persist: false, getter: true },
+     mask: { type: types.json, defaultRaw: `'{}'` },
+#+END_SRC
+
+* Q34 — option A, the boot beat beside the Terminal twitch (struck 10-26, his /"this shouldbe embedded like the other entities"/ · /"we dont care about a user never logged in. fine. go"/)
+
+**** index.js — 33D: the =terminals= beat right after =datamap=
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/index.js:18
+   .use(population.registry)
+   .use(population.datamap)
++  .use(population.terminals)
+   .use(population.aperture)
+   .use(population.acid)
+#+END_SRC
+** population.js — 33D: every user already stored holds a terminal (INTENTED's backfill, =subjects/mode/traits/intented.js:30=, at the runtime's boot)
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/population.js:9
+   ProcessRepository,
+   ProcessSchema,
++  TerminalEntity,
++  UserEntity,
+   sets,
+ } from "../../../entities/index.ts";
+…
+// systems/runtime/subjects/runtime/lifecycle/population.js:89
+ };
+
++export const terminals = async (die, next) => {
++  for (const user of await die.runtime.datamap.entities.em.fork().find(UserEntity, {}, { filters: false })) {
++    const em = die.runtime.datamap.entities.em.fork();
++    em.setFilterParams("user", { user: user.id });
++    await em.getRepository(TerminalEntity).ensure({ user: user.id });
++    await em.flush();
++  }
++  await next();
++};
++
+ export const lighthouse = async (die, next) => {
+   die.runtime.lighthouse = new Lighthouse(die.runtime.instance.lighthouse);
+#+END_SRC
+** runtime/beats.coverage.test.js — 33D: the =terminals= beat, twice, over a store whose terminals were deleted under the ORM · 33F: =/runtime/house/entities/daemon/find= answers the row with its =id=; green on =replay5/= (1 passed, 11 steps)
+#+BEGIN_SRC diff
+// systems/runtime/tests/runtime/beats.coverage.test.js:2
+ import { atom } from "nanostores";
+ import { Aperture, Connection, crypto, mime, Mode, Path, shape, shard, specimen, Url, Vector } from "@vivalence/typology";
+-import { lifecycle, ViewEntity } from "@vivalence/runtime";
++import { lifecycle, TerminalEntity, ViewEntity } from "@vivalence/runtime";
+ import { seed } from "../scenarios/datamap.js";
+ import { connector, lighthouseOf } from "../scenarios/daemon.js";
+…
+// systems/runtime/tests/runtime/beats.coverage.test.js:9
+ // x-viva-integrity), the host metadata the beats open, the userspace routes, the patrol interval, Deno.serve on a free port
+
+-const { resolution, integration, patrol } = lifecycle.runtime;
++const { population, resolution, integration, patrol } = lifecycle.runtime;
+
+ let scenario;
+…
+// systems/runtime/tests/runtime/beats.coverage.test.js:81
+   });
+
++  specimen.it("population.terminals: a user the store holds without a terminal holds terminal 0 after the beat; a second run adds none", async () => {
++    await scenario.orm.em.getConnection().execute("delete from Terminal");
++    const held = async () =>
++      (await scenario.orm.em.fork().find(TerminalEntity, {}, { filters: false, populate: ["user"] })).map((terminal) => `${terminal.user.slug}:${terminal.index}`);
++    specimen.expect(await held()).toEqual([]);
++    await run(population.terminals, buildDie());
++    await run(population.terminals, buildDie());
++    specimen.expect(await held()).toEqual(["beef:0"]);
++  });
++
+   specimen.it("resolution.attach: /attached/view/:id answers the row with its files; /attached/file/:id serves the bytes under the file's mime with x-viva-integrity", async () => {
+     const die = buildDie();
+…
+// systems/runtime/tests/runtime/beats.coverage.test.js:258
+     specimen.expect(await read("/runtime/house/entities/mode/find", { where: { slug: "test" } })).toHaveLength(1);
++    specimen.expect((await read("/runtime/house/entities/daemon/find", { where: {} })).map((daemon) => [daemon.id, daemon.slug])).toEqual([["test-daemon", "test-daemon"]]);
+     specimen.expect(await read("/runtime/house/cortex/dialogue/render", { tune: "warm", prompt: "hi" })).toEqual({ echoed: { prompt: "hi" } });
+#+END_SRC
+
+* Q35 — option A, the theme literal in the App's getter (struck 10-26, his /"b"/)
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/app/prototype.js:18
+   get theme() {
+     const themed = [
+       this.client.mask.trait.THEMED,
+       "trait" in this.client.user ? this.client.user.trait.THEMED : undefined,
+     ].find(is.string);
+-    return themed === undefined ? THEMES[this.box.state.dark !== false] : themed;
++    return themed === undefined ? "northsea" : themed;
+   }
+#+END_SRC
+
+* Q36 — the =/shell= move onto the App (struck 10-26, his /"cut."/)
+
+** commands/shell.js — Q31 ← =subjects/client/commands/shell.js=
+#+BEGIN_SRC diff
+// systems/ghost/subjects/app/commands/shell.js:8
+   (ctx) => {
+     const { shell } = belt.input.cast(Shell, ctx.signal);
+-    ctx.client.surface.$shell.set(shell);
++    ctx.client.app.bridge.$state.set({ ...ctx.client.app.bridge.state, shell });
+     return `shell ${shell}`;
+   },
+#+END_SRC
+
+* Q33G — option B, each host re-reads its own modes (struck 10-26, his /"a"/)
+
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/shard/host.js:42
+ export const modes = (type) => async (die, next) => {
+   await die[type].entities.mode.find();
+-  const borne = new Set(die[type].modes.map((mode) => mode.id));
+-  await Promise.all(die.client.runtime.entities.thread.$entities.get().filter((held) => borne.has(held.mode)).map((held) => die.client.runtime.entities.thread.merge({ id: held.id, mode: held.mode })));
+   const off = die[type].entities.mode.subscribe();
+#+END_SRC
+
+* Q33H — option B, a new Dataspace per user (struck 10-26, his /"a"/; a reader bound at boot keeps the old user's rows)
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/lifecycle/index.js   — inside the subscribed listener
+    reader = user.slug;
+    off();
+    clientDie.runtime.entities = new Dataspace({ runtime: clientDie.runtime, entities: { daemon: daemonHost, mode, thread: threadProcess, buffer, turn, activity, terminal: terminalProcess, view }, seed: … });
+    await clientDie.runtime.entities.init();
+    off = await clientDie.runtime.entities.subscribe();
+#+END_SRC
+
+* Q33I — option B, the Runtime holds the Dataspace in an atom (struck 10-26, his /"a"/)
+
+#+BEGIN_SRC js
+// systems/ghost/entities/runtime/prototype.js
+  $entities = atom(null);
+  get entities() { return this.$entities.get(); }
+  set entities(value) { this.$entities.set(value); }
+// systems/ghost/surfaces/chrome/mount.jsx:21
+  [(app) => !app.client.runtime.lighthouse.isAuthorized || app.client.runtime.entities === null || app.client.runtime.entities.terminal.$entities.get().length === 0, panels.booting.Booting],
+#+END_SRC

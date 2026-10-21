@@ -1,91 +1,59 @@
+import { onSet } from "nanostores";
 import { Signature } from "./signature.js";
 import { Pipe } from "./pipe.js";
+import { Vector } from "./vector.js";
+import * as steer from "../gestalten/steer/index.js";
+import { Start, Stop, Request, Response, Fault, Log, Entity, Status } from "../schematics/primitives/track.js";
 
-const CONFIG = {
-  journal: 1000,
-};
+export const faulted = (error) => ({ type: error?.name ?? "Error", message: error?.message ?? String(error), code: error?.code, stack: error?.stack });
+
+const record = (schema) => (data, ctx) =>
+  ctx.span.pipe.send({ at: performance.timeOrigin + performance.now(), path: ctx.span.absolute, track: ctx.track, data: schema.cast(data) });
+
+const STANDARD = new Vector()
+  .open("start", record(Start))
+  .open("stop", record(Stop))
+  .open("request", record(Request))
+  .open("response", record(Response))
+  .open("fault", record(Fault))
+  .open("log", record(Log))
+  .open("entity", record(Entity))
+  .open("status", record(Status));
 
 export class Span extends Signature {
-  static tally = 0;
+  static limit = 1000;
 
   constructor(signature = null, trace = null) {
+    if (signature instanceof new.target) return signature;
     super(signature, trace);
-    this.id ??= Span.tally++;
-    if (!this.trace) {
-      this.journal ??= [];
-      this.channel ??= new Pipe();
-    }
-  }
-
-  hasher() {
-    return this.id;
+    this.pipe = new Pipe();
+    this.$history = this.pipe.fold([], (held, record) => [...held, record]);
+    if (this.trace) this.pipe.tap(this.trace.pipe);
+    onSet(this.$history, ({ newValue }) => newValue.splice(0, newValue.length - Span.limit));
+    this.tracked = new Vector();
+    this.tracks(this.trace ? this.trace.tracked : STANDARD);
   }
 
   from(trace) {
     return super.from(trace, true);
   }
 
-  get records() {
-    return this.root.journal;
+  get history() {
+    return this.$history.get();
   }
 
-  get pipe() {
-    return this.root.channel;
-  }
-
-  get absolute() {
-    const natures = [];
-    for (const node of this.heritage()) if (node.nature) natures.unshift(node.nature);
-    return ("/" + natures.join("/")).replace(/\/{2,}/g, "/");
-  }
-
-  to(...sinks) {
-    this.pipe.to(...sinks);
+  tracks(vector) {
+    this.tracked.graft(vector);
+    for (const nature of vector.trie.keys()) this[nature] ??= (data) => this.track(nature, data);
     return this;
   }
 
-  mark(verb, data) {
-    const record = {
-      span: this.id,
-      trace: this.trace?.id ?? null,
-      path: this.absolute,
-      verb,
-      at: performance.now(),
-    };
-    if (data !== undefined) record.data = data;
-    const journal = this.records;
-    journal.push(record);
-    if (journal.length > CONFIG.journal) journal.splice(0, journal.length - CONFIG.journal);
-    this.pipe.send(record);
+  track(name, data) {
+    steer.dispatch.execute(this.tracked, { span: this, track: name, input: data }, name);
     return this;
-  }
-
-  open() {
-    return this.mark("open");
-  }
-
-  close() {
-    return this.mark("close");
-  }
-
-  note(data) {
-    return this.mark("note", data);
-  }
-
-  message(data) {
-    return this.mark("message", data);
-  }
-
-  within(record) {
-    return record.path === this.absolute || record.path.startsWith(`${this.absolute}/`);
-  }
-
-  tail(...verbs) {
-    const kept = (record) => this.within(record) && verbs.includes(record.verb);
-    return this.pipe.reactive(this.records.filter(kept), (held, record) => (kept(record) ? [...held, record] : held));
   }
 
   fault(error) {
-    return this.mark("fault", { message: error?.message ?? String(error), code: error?.code ?? null });
+    return this.track("fault", faulted(error));
   }
 }

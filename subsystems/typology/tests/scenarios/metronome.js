@@ -69,7 +69,7 @@ export function ledger(repository) {
     id: row.id,
     status: row.status,
     error: row.error?.code ?? null,
-    last: row.steps?.at(-1) ? `${row.steps.at(-1).path} ${row.steps.at(-1).verb}` : null,
+    last: row.steps?.at(-1) ? `${row.steps.at(-1).path.join(" › ")} ${row.steps.at(-1).track}` : null,
   });
   const off = repository.$entities.subscribe((held) => {
     for (const row of held) {

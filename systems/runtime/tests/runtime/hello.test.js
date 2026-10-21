@@ -1,4 +1,4 @@
-import { specimen } from "@vivalence/typology";
+import { mime, specimen } from "@vivalence/typology";
 import { join } from "@std/path";
 import { hello } from "../scenarios/index.js";
 
@@ -16,7 +16,7 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
   afterAll(() => world.stop());
 
   it("prints the readiness line", () => {
-    expect(world.ready).toBe("Status:RUNNING");
+    expect(world.ready).toMatch(hello.READY);
   });
 
   it("ONE datamap on disk at the instance mountpoint — no per-daemon db", async () => {
@@ -86,13 +86,19 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     expect(world.query("select user_entity_id as user, daemon_entity_slug as daemon from User_daemons")).toEqual([{ user: finn.user.id, daemon: "hello" }]);
   });
 
-  it("/attached/bundle/* answers with no token", async () => {
-    const application = await (await world.get("/daemon/hello/mode/demo/hello-world/metadata/application", finn.access)).json();
-    const url = new URL(application.url);
-    expect(url.pathname).toBe("/attached/bundle/daemon/hello/mode/demo/hello-world");
-    const response = await fetch(`${application.url}${application.bundle.entries[0].mount}`);
+  it("/attached/view/:id · /attached/file/:id answer with no token — hello-world's declared view is a View row whose entry is a served File", async () => {
+    const retired = await world.get("/daemon/hello/mode/demo/hello-world/metadata/application", finn.access);
+    expect(retired.status).toBe(404);
+    await retired.body?.cancel();
+    const rows = await (await world.post("/userspace/entities/view/find", { where: { slug: "hello-world" } }, finn.access)).json();
+    expect(rows.map((row) => row.mime)).toEqual([mime.dom.svelte]);
+    const view = await (await fetch(`${world.origin}/attached/view/${rows[0].id}`)).json();
+    expect(view.files.map((file) => file.path)).toContain(view.entry);
+    const entry = view.files.find((file) => file.path === view.entry);
+    const response = await fetch(`${world.origin}/attached/file/${entry.id}`);
     expect(response.status).toBe(200);
     expect(response.headers.get("content-type")).toBe("text/javascript");
+    expect(response.headers.get("x-viva-integrity")).toBe(entry.integrity);
     await response.body?.cancel();
   });
 
@@ -133,7 +139,7 @@ describe("runtime boot — the rig's run.js on a temp ledger: one datamap, the l
     const refused = await world.get("/runtime/house/metadata/modes");
     expect(refused.status).toBe(401);
     expect((await refused.json()).error.code).toBe("MISSING_TOKEN");
-    for (const path of ["/status", "/metadata/manifest", "/metadata/statics", "/metadata/cargo", "/metadata/datamap", "/metadata/aperture", "/metadata/cortex"]) {
+    for (const path of ["/status", "/metadata/manifest", "/metadata/statics", "/metadata/datamap", "/metadata/aperture", "/metadata/cortex"]) {
       const response = await world.get(`/runtime/house${path}`, finn.access);
       expect([path, response.status]).toEqual([path, 200]);
       await response.body?.cancel();
@@ -199,7 +205,7 @@ describe("runtime boot — the shipped commons/instances/hello-world/instance.vi
   afterAll(() => world.stop());
 
   it("boots the shipped recipe as authored — the relative modes, both hallucinators dormant on blank keys", async () => {
-    expect(world.ready).toBe("Status:RUNNING");
+    expect(world.ready).toMatch(hello.READY);
     expect(world.query("select slug from Daemon")).toEqual([{ slug: "hello" }]);
     expect(world.log.filter((line) => /\[instance\] hallucinators\[\d\] filtered/.test(line)).length).toBe(2);
     const daemons = await (await world.get("/metadata/daemons")).json();

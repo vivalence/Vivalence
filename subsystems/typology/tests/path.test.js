@@ -83,4 +83,13 @@ specimen.describe("Path.absolute is heritage-only — a filesystem path is root�
     specimen.expect(new Path(rebased).absolute).toBe("/freight/audio");
     specimen.expect(new Path("/abs/dir" + "/freight/audio").absolute).toBe("/abs/dir/freight/audio");
   });
+
+  specimen.it("a file url is a path — import.meta.resolve and a branch up from import.meta.url name the same sibling", () => {
+    const here = new Path(import.meta.url);
+    specimen.expect(here.absolute.endsWith("/tests/path.test.js")).toBe(true);
+    specimen.expect(new Path(import.meta.resolve("./guides")).absolute).toBe(`${here.dirname}/guides`);
+    specimen.expect(here.branch("../guides").absolute).toBe(`${here.dirname}/guides`);
+    specimen.expect(here.branch("../../guides").absolute).toBe(`${new Path(here.dirname).dirname}/guides`);
+    specimen.expect(new Path("file:///a%20b/c.md/").absolute).toBe("/a b/c.md");
+  });
 });

@@ -37,21 +37,17 @@ specimen.describe("Thread", () => {
     });
     await em.flush();
 
-    specimen.expect(stamped.traits).toEqual(["MASKED", "AIMED", "QUEUEING"]);
+    specimen.expect(stamped.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "INTELLIGENT", "VOCAL"]);
     specimen.expect(stamped.trait.AIMED.mount).toBe("/emit/feed");
     specimen.expect(stamped.trait.QUEUEING.depth).toBe(1);
     specimen.expect(stamped.trait.MASKED.limit).toBe(4);
 
-    const orphan = em.create(ThreadEntity, {
-      user: fixtures.user,
-      mode: fixtures.mode,
-      traits: ["SELFEVIDENT"],
-      trait: { SELFEVIDENT: { static: true } },
-    });
+    const orphan = em.create(ThreadEntity, { user: fixtures.user, mode: fixtures.mode });
     await em.flush();
 
-    specimen.expect(orphan.traits).toEqual(["SELFEVIDENT"]);
-    specimen.expect(orphan.trait.SELFEVIDENT.static).toBe(true);
+    specimen.expect(orphan.traits).toEqual(["INTELLIGENT", "VOCAL"]);
+    specimen.expect(orphan.trait.INTELLIGENT).toEqual({ tune: "capable", effort: "low", rounds: 12 });
+    specimen.expect(orphan.trait.QUEUEING).toEqual({ depth: 1 });
     specimen.expect(orphan.intent).toBeFalsy();
   });
 
@@ -78,7 +74,7 @@ specimen.describe("Thread", () => {
     });
     await em.flush();
 
-    specimen.expect(overriding.traits).toEqual(["MASKED", "AIMED", "QUEUEING"]);
+    specimen.expect(overriding.traits).toEqual(["MASKED", "AIMED", "QUEUEING", "INTELLIGENT", "VOCAL"]);
     specimen.expect(overriding.trait.AIMED.mount).toBe("/emit/feed");
     specimen.expect(overriding.trait.QUEUEING.depth).toBe(1);
     specimen.expect(overriding.trait.MASKED.limit).toBe(10);
@@ -107,5 +103,21 @@ specimen.describe("Thread", () => {
 
     specimen.expect(immutable.trait.MASKED.limit).toBe(4);
     specimen.expect(diverging.trait.MASKED.limit).toBe(99);
+  });
+
+  specimen.it("a write casts the trait: an undeclared name is refused on create, an invalid claimed value on update", async () => {
+    const refusing = em.fork();
+    refusing.create(ThreadEntity, { user: fixtures.user.id, mode: fixtures.mode.id, traits: ["SELFEVIDENT"], trait: { SELFEVIDENT: { static: true } } });
+    const refused = await refusing.flush().then(() => null, (error) => error.message);
+    specimen.expect(refused).toContain("no trait SELFEVIDENT");
+
+    const updating = em.fork();
+    const queued = updating.create(ThreadEntity, { user: fixtures.user.id, mode: fixtures.mode.id, traits: ["QUEUEING"], trait: { QUEUEING: { depth: 3 } } });
+    await updating.flush();
+    specimen.expect(queued.trait.QUEUEING).toEqual({ depth: 3 });
+
+    queued.trait = { ...queued.trait, QUEUEING: { depth: 0 } };
+    const invalid = await updating.flush().then(() => null, (error) => error.message);
+    specimen.expect(invalid).toContain("/QUEUEING/depth");
   });
 });

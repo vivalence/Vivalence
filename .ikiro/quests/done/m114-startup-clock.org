@@ -1,0 +1,423 @@
+#+title: m114 startup clock — the runtime binds first, installs once, bundles from a graph key, supplies in parallel; the ghost narrates the boot
+#+filetags: :runtime:paladin:ghost:boot:stamp:bundler:registry:
+#+status: DONE 10-28 /"go. and move to done"/ — milestones 1 · 2 · 3 · 5 LANDED (bind-first =serve=, ALIVE on =start=, =boot.js= waits then narrates, =paladin.stamp= content stamps; localhost boot 16.3 s → 4.7 s); 4 · 6 LOCKED hunks left under =* as code=.
+# limit: 40000 chars
+
+* intent
+
+10-28, beef verbatim, in order:
+
+/"when i run the client, i expected the runtime to run. i think it is, but there is no information to this respect, nothing abouthte process, and i think some event fires too early or timeout clears or or."/ · /"same for ghost. when i start ghost i get a good 15 seconds of nothing before the client starts"/ · /"run a timed assessment of the startup of runtimes in various scenarios … if there's any strong, obvious issues … especially in the areas where we are losing a lot of time."/ · /"suggest fixes. /drill-me"/ · /"a but tell me where installed is set? what do we do on modes with no data but files?"/ · /"q0 a go and move stamp. maybe paladin should stamp. that seems cleanest"/ · /"q1a"/ · /"we tap rarely. under what cicumstance would we have the content before a tap? take a high level first principles view of this"/ · /"a. and break up the options more"/ · /"b"/ · /"b"/
+
+* the dialogue
+
+** the morning — a second runtime on his port
+
+His paste: =ghost/watch chrome= → =[probe 10:55:40] fetch failed http://localhost:2501/status … Connection refused= → =[runtime] starting localhost= → =viva /chrome: runtime exited 1=.
+
+#+BEGIN_SRC sh
+# ps at 11:5x
+749  deno task runtime/watch                  started 11:55:35   (his, ppid 1)
+752    deno run -A --watch=… run.js           bound :2501 — at beat 27 of 27
+# ghost probed at 11:55:40, five seconds in: refused ⇒ "no runtime" ⇒ spawned a twin
+# ~/.viva/logs/localhost/runtime.out.log:6279  timestamp "2026-10-28T10:55:57.442Z" FAILED AddrInUse
+#+END_SRC
+
+Landed on =1 go. 2 go. 3go=:
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/index.js:16
+   .use(integration.ledger)
++  .use(population.aperture)
++  .use(integration.serve)
+   .use(population.registry)
+   .use(population.datamap)
+-  .use(population.aperture)
+…
+   .use(integration.prune)
+-  .use(integration.patrol)
+-  .use(integration.serve);
++  .use(integration.patrol);
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/process.js:6
+-const ALIVE = /^\[[^/\]]+\/[^/\]]+\] log \{ listen/;
++const ALIVE = /^\[[^/\]]+\/[^/\]]+\] start\s*$/;
+// systems/runtime/tests/scenarios/hello.js:9  (qa/rig.js:4 imports it)
+-export const READY = /^\[runtime\/[^/\]]+\] log \{ listen/;
++export const READY = /^\[runtime\/[^/\]]+\] start\s*$/;
+// subsystems/paladin/tests/spawn.test.js:22 · :123 · :180 · :181 — stubs print "[runtime/test] start"
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/lifecycle/boot.js:25
+const status = (remote) => new Connection(remote).call("/status").then((held) => held, () => null);
+
+const reached = async (remote) => {
+  let held = await status(remote);
+  while (held !== null && held.code === "IDLE") {
+    console.warn(`[runtime] ${remote.absolute} ${held.code} — booting, waiting`);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    held = await status(remote);
+  }
+  if (held === null) return false;
+  if (held.code !== "RUNNING") throw new Error(`runtime ${remote.absolute} is ${held.code} — not this client's to start`);
+  return true;
+};
+#+END_SRC
+
+Live after: =:2501/status= → ={"code":"IDLE"}= at 11:03:33Z, ={"code":"RUNNING"}= at 11:03:50Z. Suites: =spawn= 13 · ghost =shell/lifecycle= 2 (10 steps) · =qa/reconcile= 1 (5) · =runtime/hello= 2 (24) · =daemon/smoke= 1 (6).
+
+** the clock — =scratchpad/timed.js= wraps every lifecycle carry (runtime · daemon · mode · trait), a clonefile of =~/.viva/instances/localhost= on a free port, empty HOME
+
+#+BEGIN_SRC text
+run 2 (warm, installed, before Q0)          own ms   of 16303
+runtime · registry                            1482   serial, first
+runtime · daemons()                          14711   = max(daemon): daemons PARALLEL (monad.traverse)
+  daemon/italian · modes()                   14698   modes inside a daemon SERIAL (belt/modes.js:4)
+    english-to-italian · trait FILESET       13298
+    game/dojo · trait VIEWABLE                 948
+  daemon/droneaid · modes()                   2741
+  daemon/chess · modes()                      1539
+trait totals: FILESET 13884 · VIEWABLE 4821 · DATASET 0
+hello-world: 878 (registry 485 · VIEWABLE 284)
+
+run 4 (after Q0)                              4697   FILESET 0 · VIEWABLE 7553 (parallel) · registry 1440
+run 3 (the stamp changed → every mode reinstalls once)  24251   35 × "[DATASET] … reinstalling"
+#+END_SRC
+
+#+BEGIN_SRC text
+freight cost split (hashcost.js, english-to-italian, 2182 files)
+stat index   59 ms · read all 49 MB  320 ms · read + sha256  177 ms
+the 13.3 s was 2183 × findOne + 2183 × flush (File.ts:24-27), never the hashing
+registry.supply split (supply2.js, commons): walk 6 ms · import serial 479 ms over 32 viva files
+#+END_SRC
+
+** Q0 — /"a but tell me where installed is set? what do we do on modes with no data but files?"/
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/lifecycle/resolution.js:4 — for EVERY mode, dataset or not
+    const installed = await stamp(die.mode);                                   // :6
+    if (… die.mode.entity.installed !== installed) { …; die.mode.entity.installed = ""; }   // :13-17 clears
+    die.mode.finalizers = await stagger(die.mode, die.context, die.traits);     // :20 the traits run
+    die.mode.entity.installed = installed;                                     // :42 set after
+// systems/runtime/subjects/mode/traits/datasink.js:84 — once more after a drain
+      mode.entity.installed = await stamp(mode);
+#+END_SRC
+
+A fileset-only mode: =stamp()= folded only the installer's own text — a constant — so FILESET under an =installed= gate would skip forever. The stamp hunk is half the lock.
+
+** Q2A — /"under what cicumstance would we have the content before a tap?"/
+
+Only in the instance's db. New mtime + same content on: a re-tap · a =jj=/=git= checkout of the registry · =instance/clone= · a docker =COPY= (prod). Same mtime + different content: no flow of ours. A stamp answers /are the rows derived from what is on disk now?/ — rows derive from content; mtime is the filesystem's cache of it, justified only when the identity is too expensive. It is 0.2 s.
+
+* terrain — measured 10-28
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/fileset.js:8 — before Q0: every boot
+  for (const file of await paladin.find.walk(/./)(directory)) {
+    await context.entities.file.record({ …, bytes: await paladin.read.bytes(file.absolute) });
+// systems/runtime/entities/File.ts:24
+  async record({ bytes, ...data }) {
+    const hash = await crypto.digestBytes(bytes);
+    const file = await this.ensure({ ...data, hash, integrity: `sha256-${hash}`, bytes: bytes.length });
+    await this.em.flush();
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/bundler.js:58 — a source caches, an entry never does
+      if (source !== null) {
+        hash = await crypto.digest(source);
+        text = await paladin.read.text(at(`${hash.slice(0, 16)}.${name}.mjs`)).catch(missing);
+      }
+      if (text === null) {
+        text = await rows[type](entry);
+// systems/runtime/subjects/mode/traits/viewable.js:24 — every view is an entry
+      await context.entities.view.bundle({ …, entry: join(mode.module.source.dirname, declared.mount) }, { bundler }),
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/registry.js:177 — packages serial
+    for (const [owner, { slug, mount }] of Object.entries(record)) await this.mount(this.resolve(mount), { owner, slug });
+// subsystems/paladin/prototypes/registry.js:134 — files serial
+    const paths = await this.paladin.find.viva(root);
+    for (const path of paths) { … await this.paladin.read.viva(path) … }
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/paladin/paladin/lifecycle.js:13 — the probe's first three runs bound :2501: $cwd/.env wins over the process env
+  const cwd = Deno.env.get("INIT_CWD") ?? Deno.env.get("PWD") ?? Deno.cwd();
+  const local = `${cwd}/.env`;
+#+END_SRC
+
+* rulings
+
+| Q | ruling | his words | as code (=m114-startup-clock.org:LINE=) |
+|---|--------|-----------|------|
+| 0 | the fileset joins the mode's =installed= stamp; FILESET returns when set; stamping is paladin's (=paladin.stamp.fold= · =tree=) | /"q0 a go and move stamp. maybe paladin should stamp. that seems cleanest"/ | as code · paladin/belt/stamp.js · mode/traits/dataset.js · fileset.js |
+| 1 | an entry bundle's key is its import graph (=metafile.inputs=), kept beside the artifact as =<entry16>.<stem>.graph= | /"q1a"/ | as code · paladin/belt/bundler.js |
+| 2A | content everywhere — =stamp.tree= digests each file; datasets stamp through it; paths relative to the root | /"a. and break up the options more"/ | as code · stamp.js · dataset.js |
+| 3 | the ghost taps the child's out and prints each subject's =start · stop · fault= with elapsed seconds | /"b"/ | as code · ghost/shell/lifecycle/boot.js |
+| 4 | packages and their modules evaluate in parallel; =probe(RULES)= stays at boot | /"b"/ | as code · paladin/prototypes/registry.js |
+
+* the law
+
+- the runtime BINDS at its fourth beat; =/status= answers =IDLE= through the boot, =RUNNING= after =keepalive=; a twin dies at bind, before any db
+- readiness = the =start= track of a two-segment path (=[runtime/<slug>] start=); =listen= is liveness
+- a client that finds =IDLE= waits; =null= spawns; any other code is not its to start
+- one stamp, one notion: the CONTENT of every source a mode installs — dataset files, the fileset, the installer — folded by =paladin.stamp.fold= over =[path, digest]= pairs, paths relative to their root; =installed= is set for every mode after its traits
+- a trait that installs rows gates on =mode.entity.installed= (DATASET · FILESET); a changed source changes the stamp, the lifecycle clears =installed=, the trait re-records
+- a bundle's identity is its import graph; a compiled artifact is found by the graph's stamp before any compile
+- =registry.supply= evaluates in parallel; a malformed package still faults at boot
+
+* as code
+
+*** subsystems/paladin
+**** gestalten/belt
+***** index.js — Locked Q0 (landed)
+
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/index.js:14
+ import vault from "./vault.js";
++import stamp from "./stamp.js";
+
+-export const FULL = [read, find, prime, check, state, envfile, is, scope, publish, source, clone, bundler, expand, vault];
++export const FULL = [read, find, prime, check, state, envfile, is, scope, publish, source, clone, bundler, expand, vault, stamp];
+
+ export default {
+   vault,
++  stamp,
+#+END_SRC
+
+***** stamp.js — Locked Q0 (landed) · Q2A (landed 10-28)
+
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/belt/stamp.js — landed
+import { hash } from "@vivalence/typology";
+
+export default function stamp(paladin) {
+  const fold = (marks) =>
+    marks
+      .toSorted(([a], [b]) => (a < b ? -1 : 1))
+      .reduce((folded, [path, mark]) => hash.string(folded + path + mark), hash.string(""));
+
+  const tree = async (root) => (await paladin.find.index(root)).map((file) => [file.path, `${file.bytes}:${file.mtime}`]);
+
+  paladin.stamp = { fold, tree };
+}
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/stamp.js:9 — Q2A landed
+-import { hash } from "@vivalence/typology";
++import { crypto, hash } from "@vivalence/typology";
+…
+-  const tree = async (root) => (await paladin.find.index(root)).map((file) => [file.path, `${file.bytes}:${file.mtime}`]);
++  const tree = async (root) =>
++    await Promise.all((await paladin.find.index(root)).map(async (file) => [file.path, await crypto.digestBytes(await Deno.readFile(`${root}/${file.path}`))]));
+#+END_SRC
+
+***** bundler.js — Locked Q1 (SKETCH)
+
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/bundler.js:35 — rows return the graph too
+     [mime.dom.svelte]: async (entry) =>
+-      (await compiler.svelte(entry, { … })).find((output) => output.path === entry).text,
++      ({ text: (await compiler.svelte(entry, { … })).find((output) => output.path === entry).text, inputs: … }),
+     [mime.tty.solid]: async (entry) =>
+-      (await esbuild.build({ entryPoints: [entry], bundle: true, format: "esm", platform: "neutral", packages: "external", write: false, plugins: [universal], logLevel: "silent" })).outputFiles[0].text,
++      (({ outputFiles, metafile }) => ({ text: outputFiles[0].text, inputs: Object.keys(metafile.inputs) }))(await esbuild.build({ entryPoints: [entry], bundle: true, format: "esm", platform: "neutral", packages: "external", write: false, metafile: true, plugins: [universal], logLevel: "silent" })),
+…
+// subsystems/paladin/gestalten/belt/bundler.js:54
+     const bundle = async ({ mime: type, source = null, entry = null }) => {
+       …
++      if (source === null) {
++        const graph = await paladin.read.json(at(`${(await crypto.digest(entry)).slice(0, 16)}.${name}.graph`), null);
++        if (graph !== null && paladin.stamp.fold(await marks(graph.inputs)) === graph.stamp) return new Bundle({ entries: [graph.entry] });
++      }
+       if (text === null) {
+-        text = await rows[type](entry);
++        const { text: built, inputs } = await rows[type](entry);
++        text = built;
+         hash ??= await crypto.digest(text);
+         await paladin.state.text(at(`${hash.slice(0, 16)}.${name}.mjs`), text);
++        if (source === null) await paladin.state.json(at(`${(await crypto.digest(entry)).slice(0, 16)}.${name}.graph`), { stamp: paladin.stamp.fold(await marks(inputs)), inputs, entry: compiled });
+       }
+#+END_SRC
+
+=marks(inputs)= = =[[path, digest]]= over the graph's files, the same shape =stamp.tree= yields; the svelte row's =inputs= is open: =compiler.svelte= returns the outputs list — its inputs come from the esbuild step inside =typology/gestalten/bundle/svelte.js= (metafile there too).
+
+**** prototypes
+***** registry.js — Locked Q4 (SKETCH)
+
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/registry.js:134
+   async mount(root, claim = null) {
+     const paths = await this.paladin.find.viva(root);
+-    const modules = [];
+-    for (const path of paths) {
+-      const source = new Path(path);
+-      const span = this.span.branch(source.absolute);
+-      try {
+-        const module = basename(dirname(source.absolute)) === "ledger"
+-          ? await this.paladin.read.module(path).then((namespace) => ({ ...namespace, manifest: derive(namespace, source) }))
+-          : await this.paladin.read.viva(path);
+-        modules.push(probe(RULES)({ ...module, source }, span));
+-      } catch (error) {
+-        span.fault(error); // unfit to register: the file's path carries it, the walk continues
+-      }
+-    }
++    const modules = (await Promise.all(paths.map(async (path) => {
++      const source = new Path(path);
++      const span = this.span.branch(source.absolute);
++      try {
++        const module = basename(dirname(source.absolute)) === "ledger"
++          ? await this.paladin.read.module(path).then((namespace) => ({ ...namespace, manifest: derive(namespace, source) }))
++          : await this.paladin.read.viva(path);
++        return probe(RULES)({ ...module, source }, span);
++      } catch (error) {
++        span.fault(error);
++        return null;
++      }
++    }))).filter(Boolean);
+…
+// subsystems/paladin/prototypes/registry.js:177
+-    for (const [owner, { slug, mount }] of Object.entries(record)) await this.mount(this.resolve(mount), { owner, slug });
++    await Promise.all(Object.entries(record).map(([owner, { slug, mount }]) => this.mount(this.resolve(mount), { owner, slug })));
+#+END_SRC
+
+***** process.js — landed (the morning)
+
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/process.js:6
+-const ALIVE = /^\[[^/\]]+\/[^/\]]+\] log \{ listen/;
++const ALIVE = /^\[[^/\]]+\/[^/\]]+\] start\s*$/;
+#+END_SRC
+
+**** tests
+***** spawn.test.js — landed: four stubs print =[runtime/test] start=
+
+*** systems/ghost
+**** subjects/shell/lifecycle
+***** boot.js — landed (wait on =/status=) · Locked Q3 (landed 10-28)
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/shell/lifecycle/boot.js:46 — Q3 landed; =since= taken before the spawn, so the elapsed counts it
++    const since = performance.now();
++    const elapsed = () => `${((performance.now() - since) / 1000).toFixed(1)}s`;
+     booted = await paladin.ledger.boot(specs(shellDie.instance), { instance: held.slug, attachment: "logged" });
++    booted.good.processes[0].out.tap((record) => {
++      const subject = record.match(/^\[runtime\/[^/\]]+((?:\/[^/\]]+){0,2})\] (start|stop|fault)\b/);
++      if (subject) console.warn(`[runtime] ${elapsed()} ${subject[1] || "/runtime"} ${subject[2]}`);
++    });
+     await booted.integrate();
+#+END_SRC
+
+*** systems/runtime
+**** subjects/mode/traits
+***** dataset.js — Locked Q0 (landed) · Q2A (landed 10-28)
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/dataset.js:16 — landed
+ export const stamp = async (mode) => {
+   const dataset = new Dataset(mode.module.dataset ?? {});
+   const mount = mode.module.source;
+-  const files = [];
++  const files = [["installer", await installer]];
++  if (mode.module.fileset) files.push(...(await paladin.stamp.tree(`${mount.dirname}/${mode.module.fileset.path}`)));
+…
+-  return files
+-    .sort(([a], [b]) => (a < b ? -1 : 1))
+-    .reduce((folded, [path, text]) => hash.string(folded + path + text), hash.string(await installer));
++  return paladin.stamp.fold(files);
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/dataset.js:31 — Q2A landed; =crypto= joins the typology import
+       const at = `${mount.dirname}/${source.walk ?? source.read}`;
+-      if (source.walk) {
+-        for (const file of await paladin.find.walk(/./)(at)) {
+-          files.push([file.absolute, await Deno.readTextFile(file.absolute).catch(() => "")]);
+-        }
+-      } else {
+-        files.push([at, await Deno.readTextFile(at).catch(() => "")]);
+-      }
++      if (source.walk) files.push(...(await paladin.stamp.tree(at)));
++      else files.push([source.read, await crypto.digestBytes(await Deno.readFile(at).catch(() => new Uint8Array()))]);
+#+END_SRC
+
+***** fileset.js — Locked Q0 (landed)
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/fileset.js:7
+   mode.files = { ...mode.files, directory };
++  if (mode.entity.installed) return;
+   for (const file of await paladin.find.walk(/./)(directory)) {
+#+END_SRC
+
+**** subjects/runtime/lifecycle
+***** index.js — landed (bind at beat 4; see =* the dialogue=)
+
+**** tests/scenarios
+***** hello.js — landed (=READY= on =start=)
+
+* milestones
+
+| # | milestone | state |
+|---|---|---|
+| 1 | the runtime binds first; a twin dies at bind; the ghost waits on =/status= | LANDED 10-28, 5 suites green, live =:2501= IDLE → RUNNING |
+| 2 | the fileset in the installed stamp; =paladin.stamp= | LANDED 10-28, clone 16.3 s → 4.7 s, 3 suites green |
+| 3 | content stamps everywhere (Q2A) | LANDED 10-28, clone run 5 reinstall 24.9 s → run 6 steady 4.67 s, 0 reinstalls; 4 suites green |
+| 4 | entry bundles keyed by their import graph (Q1) | LOCKED — leftover at DONE 10-28, hunk under =* as code= =bundler.js= |
+| 5 | the ghost narrates the child's boot (Q3) | LANDED 10-28, shell/lifecycle suite 2 passed, =[runtime] 1.3s /daemon/memo start … /runtime start= seen |
+| 6 | registry.supply in parallel (Q4) | LOCKED — leftover at DONE 10-28, hunk under =* as code= =registry.js= |
+
+* blast table
+
+| change | consumers | BREAKS |
+|---|---|---|
+| =serve= at beat 4 | every reader of =log { listen= as readiness: =process.js:6= · =scenarios/hello.js:9= · =qa/rig.js:4= · =spawn.test.js= ×4 | at land — moved to =start= |
+| stamp shape (Q0 · Q2A) | every =installed= row in every instance db | one reinstall per mode on the next boot (localhost: 24 s once) |
+| =paladin.stamp= | =FULL= belt list; =dataset.js= · =datasink.js:84= via =stamp= | — |
+| =.graph= beside artifacts (Q1) | =bundler.prune= (=bundler.js:95=, =ARTIFACT= regex) must keep or sweep them | at land |
+| parallel =mount= (Q4) | =pensieve.register= order; =integrity= faults still per span | — |
+
+* testing assessment
+
+- Q0: =dataset.install= · =datasink.roundtrip= · paladin =find= — 3 passed (29 steps). COVERAGE GAP: no suite boots a fileset mode twice and asserts the second boot records nothing — a step in =dataset.install.test.js= over a temp =freight/= dir.
+- morning: =spawn= 13 · ghost =shell/lifecycle= 2 · =qa/reconcile= 1 · =runtime/hello= 2 · =daemon/smoke= 1. COVERAGE GAP: the =IDLE → RUNNING= wait in =boot.js= — a stub held at IDLE then flipped.
+- Q1 · Q4: none yet; =bundle.test.js= gains "a second bundle of an unchanged entry compiles nothing"; =registry= gains "two packages mount concurrently, a faulting one still faults".
+
+* QA
+
+#+marker_qa: m114/P-twin · held · =runtime/watch= up, =ghost/watch chrome= within 5 s: no =AddrInUse=, the ghost prints =IDLE — booting, waiting= then connects
+#+marker_qa: m114/P-fileset · pending · his =:2501= after the stamp change: one boot with =[DATASET] … reinstalling= ×N (held 12:48 — 84 install spans, =start= 12:49:08), the next under 5 s to =start= (his next restart; the clone: 4.67 s)
+#+marker_qa: m114/P-narrate · held · =viva chrome= with no runtime: =[runtime] 1.3s /daemon/memo start= · =/daemon/hello start= · =/runtime start= before =started= (shell/lifecycle suite 10-28)
+
+* deferred
+
+- modes inside a daemon run serially (=belt/modes.js:4=) — after Q1 the per-mode cost is ms; revisit if a daemon with many views stays visible
+- =paladin/lifecycle.js:13= reads =$cwd/.env= over the process env — a probe launched from the repo root is his localhost; a rig sets =cwd: instance= — unruled whether an explicit =VIVA_*= should win
+
+* changelog
+
+- 10-28 morning: 3 hunks landed + 2 test markers moved; 5 suites green on the landing tree
+- 10-28 Q0: =stamp.js= new, =index.js= · =dataset.js= · =fileset.js= edited; 3 suites green; clone run 4 = 4697 ms
+- 10-28 Q2A: =stamp.js= =tree= digests bytes, =dataset.js= walk → =paladin.stamp.tree=, read → =digestBytes= on the relative path; clone run 5 = 24895 ms (35 reinstalls, once), run 6 = 4671 ms (0); dataset.install · datasink.roundtrip · mint · daemon/smoke green
+- 10-28 Q3: =boot.js= taps the child's =out= for =start · stop · fault= with elapsed; shell/lifecycle 2 passed (10 steps)
+- DONE 10-28 on /"go. and move to done"/ — milestones 4 · 6 LOCKED, left as hunks; P-fileset pending on his next restart
+
+* release
+
+- fixed `viva chrome` — a booting runtime is waited for (`/status` IDLE), never spawned twice · migrate: none ⟨m114⟩
+- added `viva chrome` narration — a spawned runtime's `start · stop · fault` tracks print as `[runtime] <elapsed> /daemon/<slug> start` · migrate: none ⟨m114⟩
+- changed `paladin.stamp.tree` — a mark is the file's SHA-256, was `bytes:mtime`; the dataset stamp walks through it, paths relative to the source · migrate: every DATASET mode reinstalls once ⟨m114⟩
+- changed route `/status` — answers from the runtime's 4th beat (`IDLE` while booting; was: refused until every daemon stood) · migrate: a reader that took "port open" as ready reads `code === "RUNNING"` ⟨m114⟩
+- changed `paladin.ledger.boot` readiness — the `[runtime/<slug>] start` track, was `log { listen }` · migrate: a stub runtime prints `start` ⟨m114⟩
+- added `paladin.stamp` — `fold([[path, mark]])` · `tree(root)` · migrate: none ⟨m114⟩
+- changed a mode's `installed` stamp — covers `fileset.path`; FILESET skips when installed · migrate: every mode reinstalls once on the next boot ⟨m114⟩
+
+* handoff
+
+- goal: a boot you can watch — bind first, install once, bundle from a key, supply in parallel, the ghost narrating
+- done: milestones 1 · 2 · 3 · 5 (see =* milestones=); =map.md:29= readiness line updated at the fold
+- next: none here — DONE; 6 (parallel supply, 1.3 s) · 4 (bundle key, VIEWABLE 7.9 s = the wall) are hunks a later quest lifts
+- never: a lock file as the twin guard (the port IS the guard) · =mtime= as a dataset's identity (Q2A) · a ghost that spawns on a single refused probe
+- owed: =subsystems/paladin/gestalten/commands/belt/instance.js:74= — the same single-probe =reached= as the old =boot.js:25=, read by =instance/install.js:123 · :145=; a booting runtime now answers IDLE and reads as reached (m110's sibling owns =commands/=) · P-fileset pending (his next restart) · 2 COVERAGE GAPs · the twin recurred twice after landing, cause unread → known issue =ghost-spawns-twin-beside-live-runtime=
+- the word-guard caught =line= in the Q3 hunk at Stop (10-28) — the rule lives in codestyle AND drill-me; failed twice ⇒ proposed to beef: word-guard on =Write= · =Edit= of =.ikiro/quests/*.org= fences, not only at Stop
+
+Live: his =runtime/watch= paid the content-stamp reinstall at 12:48 (=start= 12:49:08). The probe lives at =scratchpad/timed.js= (session-local) with =hashcost.js= · =supply.js= · =supply2.js=; the clone world at =scratchpad/local/= · =scratchpad/hello/=. Leftovers: 6 (two hunks), 4 (needs the svelte row's inputs — read =typology/gestalten/bundle/svelte.js= first).

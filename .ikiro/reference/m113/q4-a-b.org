@@ -1,0 +1,21 @@
+#+title: m113 Q4 options A and B — struck 10-27, /"neither are good. find c and d"/; A then LOCKED, /"fuck it. download them all up front"/
+# limit: 2500 chars
+
+Q4 asked when the client loads File rows. A: all at boot (locked; its hunk lives in the quest). B: a view's daemon on mount (struck).
+
+#+BEGIN_SRC js
+// A — systems/ghost/subjects/client/factory.js:36 — file rides the Dataspace like the rest: 2300 rows · 1.23 MB at boot
+    entities: { daemon: daemonHost, mode, thread: threadProcess, buffer, turn, activity, terminal: terminalProcess, view, file },
+#+END_SRC
+#+BEGIN_SRC js
+// B — ~/.viva/registry/assembly/modes/player/guide/buffer/Guide.svelte — the same in 8 more views; boot's find() skips file (typology Dataspace)
+  onMount(() => {
+    const where = { mode: { $in: buffer.mode.daemon.modes.map((mode) => mode.id) } };
+    terminal.client.runtime.entities.file.find(where);
+    return terminal.client.runtime.entities.file.subscribe(where);
+  });
+#+END_SRC
+#+BEGIN_SRC json
+// B's probe, hello DEMO copy — memo: 22 found, 22 by Q3's filter; hello: 1 and 1
+{"daemon.slug":"memo","found.length":22,"found.every((raw) => where.mode.$in.includes(raw.mode))":true}
+#+END_SRC

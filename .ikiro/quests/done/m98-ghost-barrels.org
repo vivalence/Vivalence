@@ -1,0 +1,2669 @@
+#+title: m98 ghost barrels — the ghost tree barrels up leaf → root the way typology does; the root export mirrors ls
+#+filetags: :ghost:barrels:typology:tests:scenarios:
+#+status: LANDED whole 10-24 /"go on m98. to disk"/ · /"go"/ (the 3 HOLY hunks): 64 written · 29 paths removed (moves' old sides + 2 deletes), pre-land at =~/.viva/bak/m98-land-20261024/=; repo ≡ the replayed copy; census serial on the repo = the replayed base on every suite; DONE 10-24 by his /"move to done"/, 3 QA markers pending — was: TANGLED 10-23 — Q0–Q47′ locked; =* as code= cut on today's tree (m102 landed 10-23 bar its =contexts.js= hunk), replays on a fresh copy of the repo (=methods/replay-quest.py=: 26 moves · 2 deletes · 32 new · 178 hunks · 0 missed (re-replayed 10-24 after Q48 and the m103 split: Q8 · Q9's helpers · Q43 → =m103-chrome-panels.org= =* from m98 — compendium (10-24)=; was 232 hunks after Q47, 31 moves · 233 hunks after Q44 · Q45′)); census serial on the landing tree (the repo + m98 + m99) = the repo's on every suite; 3 typology hunks HOLY, each its own go; Q44 LOCKED 10-24 /"b."/ (the server replaces; =traits.patch= merges the whole trait); Q45′ LOCKED 10-24 /"a"/ (=shell= off the root barrel; Q45 b unlocked by anima's build); Q47 LOCKED 10-24 (daemon · lighthouse · mode · runtime · thread stay =entities/=; struck blocks in =reference/m98/q47-struck-10-24.org=); Q47′ LOCKED 10-24 /"subjects/shell is good. yes"/; lands before m99; no go
+# limit: none (quest content)
+
+* intent
+
+10-23, beef verbatim:
+
+/"So on our ghost client, the index files are complete and utter horseshit. They are not clean at all. What I want you to do is I want you to go over the subsystem typology. That's clean. That's what I want that to look like. And then I want you to go over ghost, all of the index files, and rejiggle all the barrels."/ · /"For the record, this includes testing and testing scenarios, so you might also want to look at the runtime."/
+
+/"the way that the typology is created is that we barrel up, we create this tree, we start with the outermost leaf, and then we barrel up, barrel up, barrel up. And I would like to order the client the same way."/
+
+* rulings
+
+| Q | ruling | his words |
+|---|--------|-----------|
+| 0 | the root export MIRRORS ls; no transpose maps (unlocks m91 law 5 for ghost) | /"b."/ |
+| 0′ | the tree barrels up bottom-first: leaf → its dir's index.js → parent's index.js → typology.js | /"we start with the outermost leaf, and then we barrel up, barrel up, barrel up"/ |
+| 1 | a one-thing leaf barrels by star (=export * from=), one line per file in ls order; a function-family leaf by =export * as <file>= | /"a"/ |
+| 2 | one leaf, one export; every extra moves to its owner, the leaf imports it back | /"One export, all of the extra exports are huge code smell. I don't like it at all."/ |
+| 3 | a directory of Vector leaves IS one Vector: its index.js grafts them (=commands.mode=); an index.js is a list OR the directory's value | /"b."/ |
+| 4 | no exception for prototype.js: =repository= · =hydration= are their own leaves, the barrel IS the Dataspace module; single-file entities become directories | /"Otherwise, definitely A."/ |
+| 5 | the per-row hook keeps its name: =hydration.js= exports =hydration= | /"a."/ |
+| 6 | =surfaces/= is a top predicate dir; ONE surface, =surfaces/chrome/=; =lines= and =viva repl= die | /"I don't want the lines at all. We either use shell or Chrome. For now, no Viva REPL. And definitely option A. surfaces/chrome"/ |
+| 7 | bare =viva= opens chrome; =/chrome/on= dies with =/chrome/off= (=chrome/commands.js= whole); =index.js:44= loses "or: viva repl" | /"a."/ |
+| 7′ | a subject's =dispatch= takes ANY signal-like (string · argv array · ={nature, body, flags}= · an instance), MINTS the subject's own Signal kind, applies it to the subject; bare =viva= = =shellDie.dispatch("/chrome")= | /"definitely B … dispatch takes … and mints a shell signal or whatever signal we take here … That's what all dispatch functions do. They instantiate the signal and then they apply it to whatever is the subject."/ |
+| 8 | a pane file is a FAMILY: =export * as <pane>=, every export stays, the =paint= prefix drops (=panes.bar.paint=) /(MOVED 10-24 to m103 — compendium)/ | /"a"/ |
+| 9 | =surfaces/chrome/index.js= IS the surface (Q3 value); its 8 helpers → owners (=rgb= ≡ =grid.js:16 toRgb= — FALSE, relabelled Q43: =rgb= · =luminance= die, dapper's =contrast=); parent star-exports it: =surfaces.chrome= /(MOVED 10-24 to m103 — compendium: the 8 helpers → owners; =surfaces/chrome/index.js= IS the surface and =surfaces.chrome= stay here)/ | /"a"/ |
+| 10 | tests MIRROR the source tree: a test sits at its subject's path under =tests/= | /"a"/ |
+| 11 | a test imports ONLY through =@vivalence/ghost= (the Q0 mirror barrel); a relative import is a barrel gap | /"I would prefer B, if that's possible."/ (possible: typology 118 pkg / 3 rel, runtime rel only at barrel gaps) |
+| 11′ | a VALUE directory's children are reached only through the value (=commands.mode= · =commands.application= by dispatch); EXCEPTION: chrome's tests import chrome's internals relatively | /"So what I want is option A, and for the Chrome we will do an exception and allow the tests to import relatively."/ |
+| 12 | scenarios: =tests/scenarios/index.js= barrel + ="./scenarios"= export; =tests/world.js= moves in; tests import =@vivalence/ghost/scenarios= | /"a"/ |
+| 13 | the root double-exports like typology =mod.ts=: flat =export * from= subjects · gestalten + =export * as= every top dir | /"b"/ |
+| 14 | a test is named after the leaf it tests; a suffix only where a task globs it (=.snapshot=); =.coverage= dies | /"a"/ |
+| 15′ | a trait change is ONE repository method on both sides, =updateOneTrait(where, data)=, data keyed by trait name; =claim= · =belt.traits.claimed= die; the 7 hand-rolled sites collapse to one call | /"I prefer A, but I don't like the plain either updatetrait or update one trait or something like that. Just, well, we do call it, it's always called one, so update one trait."/ |
+| 16 | repository only: no entity shortcut; =Terminal.write= (=terminal/prototype.js:58=) dies | /"aa."/ |
+| 17′ | ONE function in typology =belt/traits.js=: =traits.patch(entity, data)= — =object.patch= semantics (pure; the change to send); callers send it through the existing =updateOne= /(Q44 10-24: =object.merge=, the whole trait)/; ghost =belt.traits.claimed= + its file die; Q15′ =updateOneTrait= SUPERSEDED | /"a"/ |
+| 33 | the server merges: =DataEntity.updateOne= assigns with =mergeObjectProperties: true=; =traits.patch= keeps =object.patch= (sends only the touched trait) /(UNLOCKED 10-24 by Q44: the server replaces, the merge is =traits.patch='s)/ | /"b"/ |
+| 41 | =Signal='s string arm always sets the root's =flags= (={}= when none typed); his condition: on =Argv= a string and its argv array mint the same signal (→ Q41′) (SUPERSEDED by Q41⁵ 10-23 — not landed; a Signal keeps flags only when typed, =signal.test.js:67=) | /"a.  but dispatch("/x --json y") and dispatch(["/x", "--json", "y"]) should really yield the same signal signature on argv."/ |
+| 41″ | the command's input schema decides where the word after =--k= goes: a declared boolean takes nothing, any other declared flag takes the next word (getopt · GNU · parseArgs) (PARKED 10-23 — the two-stage signal; UNLOCKED on =tokens= 10-23: /"what are tokens. unlock on tokens, not my style. revisit"/ — the law stands, WHERE the typed words wait is re-asked → Q41⁗) | /"b"/ |
+| 41‴ | the shell declares its own flags (=ShellInput=: =help= · =verbose=); the readers before any route (=shell/lifecycle.js:110= · =run.js:21=) go through =belt.input.cast= — one way a flag is read (PARKED 10-23 with Q41″, the two-stage signal) | /"a"/ |
+| 41⁵ | today's argv rule stays (=--k= → true · =--k=v= → value · other words → body · =--= ends options); =Argv= gets its own string arm: =Argv.tokens(line)= → the array arm — a string and its argv array mint the same signal | /"a"/ |
+| 42 | any Signal kind mints from any other kind: =new this.constructor(other.pathname)= + its =body= + =flags= (=prototypes/signal.js=, the first arm) | /"b."/ |
+| 43 | dapper owns colour math: =dark= = =contrast(bg, "#FFFFFF") > contrast(bg, "#000000")= via =import { contrast } from "@vivalence/dapper"= (the barrel, never the =/contrast= subpath); chrome's =rgb= · =luminance= die /(MOVED 10-24 to m103 — compendium)/ | /"b but no /contrast export. import {contrast}"/ |
+| 44 | the server replaces: =DataEntity.updateOne= stays =entity.assign(data)=; =traits.patch= merges the whole trait (=object.merge=) and sends it; chess's =data.dests = {}= clears as today | /"b."/ |
+| 45 | =shell= rides the root barrel (=subjects/index.js= =export * as shell=); =/chrome= loads =surfaces/= on its run, a dynamic import, so anima's graph holds no opentui /(UNLOCKED 10-24 by Q45′: anima's vite build follows the dynamic import into =@vivalence/sheets=)/ | /"teb."/ (b) |
+| 45′ | =shell= stays off the root barrel (Q45 a); =viva= reaches it through =run.js=; =/chrome= imports =surfaces/= statically | /"a"/ |
+| 47 | client and terminal are ghost's subjects; daemon · lighthouse · mode · runtime · thread stay entities (=entities/<x>/=, =ghost.entities.<x>=) | /"?????????????? only client and terminal are subjects. the rest are entiteis"/ |
+| 47′ | =subjects/shell= stays a subject (beside client · terminal) | /"subjects/shell is good. yes"/ |
+| 48 | =belt/dock.js= holds no function over a ctx (=belt.dock.docked= dies); every trait write is spelled at its command: =repository.updateOne(where, traits.patch(entity, { NAME: patch }))= (Q15′ =updateOneTrait= stays superseded) | /"no. belt/dock doesnt have any functions that take the whole fucking ctx. thats bullshit."/ · /"b"/ |
+
+* lookups (ruled elsewhere, not asked)
+
+- Q2 extras with ≤1 consumer become that consumer's LOCAL (unexported): =WRITABLE= (=set.js:15=, 0 importers) · =open= (=mode/traits/application.js:8= → local of =commands/application/start.js=) · =loop= (=mode/traits/looping.js:4= → local of =subjects/client/prototype.js:20=). =EFFORTS= (=intelligent.js:5= ≡ =chrome/sections.js:42=) — the schematic already owns it: typology =schematics/traits/intelligent.js:6= =effort: v.enum([…])= (trigger 17).
+
+- (STRUCK 10-24 by Q47) m91 law 1 · law 10: running things are subjects in ghost → =entities/{terminal,thread,mode,lighthouse,daemon,runtime}/= → =subjects/<same>/=; =entities/{activity,buffer,turn}.js= stay.
+- m91 law 1 · law 2: =subjects/shell/= runs (=seat · ledger · boot= beats, =lifecycle.js:108= the Vector) → =shell/lifecycle/index.js= + =shell/commands/shell.js=; =subjects/repl/dispatch.js= runs per line (a die with its own controller branch, =dispatch.js:38-46=) → subject shape once =lines.js= leaves (Q6).
+- codestyle =lifecycle/index.js (the Vector execution last + PHASE files)= + runtime precedent (=systems/runtime/subjects/runtime/lifecycle/index.js:3-12=): the client's 16 beats (=subjects/client/lifecycle/index.js:20-207=) move to phase files, barrelled =export * as population= …; index.js keeps =execution= only.
+- Q1 + Q3 → a directory child barrels as =export * as <dir>= unless its index.js IS a value (then =export *=): subject index = =export * from= prototype · repository · hydration · factory, =export * as= lifecycle · traits · commands.
+
+* as code
+
+Tangled 10-23 from a scratchpad copy's diff, cut on today's tree — m102 landed 10-23 (its HOLY =contexts.js:49-50= hunk held; no block here touches it). On a copy: =python3 .ikiro/methods/replay-quest.py .ikiro/quests/m98-ghost-barrels.org "* as code" --root <copy> --write=. The drill's snippets moved whole to =reference/m98/drill-10-23.org=; the chrome blocks m103 rewrites (Q8 · Q9's helpers · Q43) moved 10-24 to m103's compendium, struck copies in =reference/m98/chrome-to-m103-10-24.org=; every ruling rides its block's heading. =systems/ghost/surfaces/chrome/out/panes.mjs= is built, not tangled (gitignored): =deno task ghost/bundle= after landing.
+Moves (=mv= first, each block on the NEW path):
+
+| from | to | rides |
+|------|----|-------|
+| =systems/ghost/entities/terminal= | =systems/ghost/subjects/terminal= | m91 law 1 · Q0 · Q1 · Q4 |
+| =systems/ghost/entities/activity.js= | =systems/ghost/entities/activity/prototype.js= | Q4 · Q2 (loudest · owed · send → belt.activity) |
+| =systems/ghost/entities/buffer.js= | =systems/ghost/entities/buffer/prototype.js= | Q4 · Q5 · Q1 |
+| =systems/ghost/entities/turn.js= | =systems/ghost/entities/turn/prototype.js= | Q4 · Q5 · Q1 |
+| =systems/ghost/subjects/shell/lifecycle.js= | =systems/ghost/subjects/shell/lifecycle/index.js= | Q7 · Q7′ · Q3 |
+| =systems/ghost/chrome= | =systems/ghost/surfaces/chrome= | Q6 · Q9 |
+| =systems/ghost/tests/chrome.surface.coverage.test.js= | =systems/ghost/tests/surfaces/chrome/index.test.js= | Q10 · Q11′ · Q14 |
+| =systems/ghost/tests/chrome.test.js= | =systems/ghost/tests/surfaces/chrome/panes/chrome.test.js= | Q10 · Q11′ · Q14 |
+| =systems/ghost/tests/client.test.js= | =systems/ghost/tests/subjects/client/client.test.js= | Q10 · Q11 · Q14 |
+| =systems/ghost/tests/commands.test.js= | =systems/ghost/tests/subjects/terminal/commands.test.js= | Q10 · Q11 · Q17′ |
+| =systems/ghost/tests/console.test.js= | =systems/ghost/tests/subjects/client/console.test.js= | Q10 · Q11 · Q14 |
+| =systems/ghost/tests/door.coverage.test.js= | =systems/ghost/tests/subjects/shell/lifecycle.test.js= | Q10 · Q11 · Q14 |
+| =systems/ghost/tests/factory.coverage.test.js= | =systems/ghost/tests/subjects/client/factory.test.js= | Q10 · Q11 · Q14 |
+| =systems/ghost/tests/host.coverage.test.js= | =systems/ghost/tests/gestalten/shard/host.test.js= | Q10 · Q11 · Q14 |
+| =systems/ghost/tests/keymap.test.js= | =systems/ghost/tests/subjects/client/keymap.test.js= | Q10 · Q11 · Q14 |
+| =systems/ghost/tests/keys.test.js= | =systems/ghost/tests/surfaces/chrome/keys.test.js= | Q10 · Q11′ · Q14 |
+| =systems/ghost/tests/layers.test.js= | =systems/ghost/tests/subjects/terminal/prototype.test.js= | Q10 · Q11 · Q14 |
+| =systems/ghost/tests/look.test.js= | =systems/ghost/tests/surfaces/chrome/panes/regions.test.js= | Q10 · Q11′ · Q14 |
+| =systems/ghost/tests/looping.test.js= | =systems/ghost/tests/entities/mode/traits/looping.test.js= | Q10 · Q11 · Q14 · Q47 |
+| =systems/ghost/tests/paint.coverage.test.js= | =systems/ghost/tests/surfaces/chrome/paint.test.js= | Q10 · Q11′ · Q14 |
+| =systems/ghost/tests/panes.out.coverage.test.js= | =systems/ghost/tests/surfaces/chrome/bundle.test.js= | Q10 · Q11′ · Q14 |
+| =systems/ghost/tests/renderers.coverage.test.js= | =systems/ghost/tests/surfaces/chrome/renderers.test.js= | Q10 · Q11′ · Q14 |
+| =systems/ghost/tests/repl.test.js= | =systems/ghost/tests/subjects/terminal/repl.test.js= | Q10 · Q11 · Q14 |
+| =systems/ghost/tests/repling.coverage.test.js= | =systems/ghost/tests/entities/mode/traits/repling.test.js= | Q10 · Q11 · Q14 · Q47 |
+| =systems/ghost/tests/rows.test.js= | =systems/ghost/tests/subjects/client/rows.test.js= | Q10 · Q11 · Q14 (m102's, landed 10-24, re-cut at landing) |
+| =systems/ghost/tests/view.coverage.test.js= | =systems/ghost/tests/gestalten/belt/view.test.js= | Q10 · Q11 · Q14 |
+| =systems/ghost/tests/world.js= | =systems/ghost/tests/scenarios/world.js= | Q12 · Q11 |
+
+Deletes:
+
+| path | rides |
+|------|-------|
+| =systems/ghost/gestalten/belt/traits.js= | Q1 · Q2 |
+| =systems/ghost/tests/shell.test.js= | Q10 · Q11 · Q14 |
+
+*** subsystems/typology
+**** gestalten/belt
+***** traits.js — Q17′ · Q44 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/belt/traits.js:2
+ import * as is from "../is/scalars.js";
++import * as object from "./object.js";
+
+…
+// subsystems/typology/gestalten/belt/traits.js:34
+   return [...schema.errors(filled)][0] ? {} : filled;
+ }
++
++export const patch = (entity, data) => ({
++  traits: [...new Set([...entity.traits, ...Object.keys(data)])],
++  trait: object.merge(entity.trait, data),
++});
+
+ export function repository(Repository, traits) {
+#+END_SRC
+**** prototypes
+***** argv.js — Q41⁵ (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/argv.js:5
+   static coercions = [
++    [
++      (line) => is.string(line),
++      function (line) {
++        return this.coerce(Argv.tokens(line));
++      },
++    ],
+     [
+#+END_SRC
+***** signal.js — Q42 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/signal.js:6
+   static coercions = [
++    [
++      function (other) {
++        return other instanceof Signal && !(other instanceof this.constructor);
++      },
++      function (other) {
++        return Object.assign(new this.constructor(other.pathname), { body: other.body, flags: other.flags });
++      },
++    ],
+     [
+#+END_SRC
+**** tests
+***** data-entity.test.js — Q44 (HOLY) (new)
+#+BEGIN_SRC js
+// subsystems/typology/tests/data-entity.test.js
+import { EntitySchema, MikroORM } from "@mikro-orm/sqlite";
+import { specimen } from "@vivalence/typology";
+import { DataEntity, DataRepository } from "@vivalence/typology/entities";
+
+class Held extends DataEntity {
+  id = "";
+  trait = {};
+}
+
+const HeldSchema = new EntitySchema({ class: Held, tableName: "Held", repository: () => DataRepository, properties: { id: { type: "string", primary: true }, trait: { type: "json" } } });
+
+specimen.describe("DataRepository.updateOne — a JSON column it names is replaced whole", () => {
+  specimen.it("a column sent with one trait drops the others; an empty map clears it", async () => {
+    const orm = await MikroORM.init({ dbName: ":memory:", contextName: "held", entities: [HeldSchema] });
+    await orm.schema.create();
+    const em = orm.em.fork();
+    em.persist(Object.assign(new Held(), { id: "th1", trait: { LABELED: { name: "hi" }, INTELLIGENT: { tune: "slow", effort: "low" } } }));
+    await em.flush();
+    const updated = await em.getRepository(Held).updateOne({ id: "th1" }, { trait: { INTELLIGENT: { tune: "fast" } } });
+    specimen.expect(updated.trait).toEqual({ INTELLIGENT: { tune: "fast" } });
+
+    const cleared = await em.getRepository(Held).updateOne({ id: "th1" }, { trait: {} });
+    specimen.expect(cleared.trait).toEqual({});
+
+    const read = await orm.em.fork().findOneOrFail(Held, { id: "th1" });
+    specimen.expect(read.trait).toEqual({});
+    await orm.close();
+  });
+});
+#+END_SRC
+***** signal.test.js — Q17′ · Q41⁵ · Q42 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/signal.test.js:1
+-import { specimen, is, Pattern, Signal } from "@vivalence/typology";
++import { specimen, is, Argv, Pattern, ReplSignal, Signal } from "@vivalence/typology";
+
+…
+// subsystems/typology/tests/signal.test.js:96
+   });
++
++  specimen.it("Argv reads a line as its words: a string and its argv array mint the same signal", () => {
++    for (const line of ["/chrome", "/x --json y", "/x --json", "/x -- --raw"]) specimen.expect(new Argv(line).json).toEqual(new Argv(Signal.tokens(line)).json);
++    specimen.expect([new Argv("/chrome").flags, new Argv("/chrome").body]).toEqual([{}, []]);
++  });
++
++  specimen.it("a Signal kind mints from another kind: the path, then its body and flags; its own kind passes through", () => {
++    const argv = new Argv(["/terminal/open", "--json", "x"]);
++    const repl = new ReplSignal(argv);
++    specimen.expect([repl instanceof ReplSignal, repl.pathname, repl.flags, repl.body]).toEqual([true, "/terminal/open", { json: true }, ["x"]]);
++    specimen.expect(new ReplSignal(new Signal(new URL("http://localhost/terminal/open?json=1"))).flags).toEqual({ json: "1" });
++    specimen.expect(new Argv(argv)).toBe(argv);
++  });
+ });
+#+END_SRC
+**** tests/gestalten/belt
+***** traits.patch.test.js — Q17′ · Q44 (HOLY) (new)
+#+BEGIN_SRC js
+// subsystems/typology/tests/gestalten/belt/traits.patch.test.js
+import { specimen, traits } from "@vivalence/typology";
+
+specimen.describe("traits.patch — the change to send for one trait write: the claimed names, the whole trait, the touched one deep-merged", () => {
+  specimen.it("claims the new name once, sends every held trait with the touched one merged over its held fields; the entity is not mutated", () => {
+    const thread = { traits: ["LABELED", "INTELLIGENT"], trait: { LABELED: { name: "flamingo" }, INTELLIGENT: { tune: "slow", effort: "low" } } };
+    specimen.expect(traits.patch(thread, { INTELLIGENT: { tune: "fast" } })).toEqual({ traits: ["LABELED", "INTELLIGENT"], trait: { LABELED: { name: "flamingo" }, INTELLIGENT: { tune: "fast", effort: "low" } } });
+    specimen.expect(traits.patch(thread, { DOCKED: { view: "closed" } })).toEqual({ traits: ["LABELED", "INTELLIGENT", "DOCKED"], trait: { LABELED: { name: "flamingo" }, INTELLIGENT: { tune: "slow", effort: "low" }, DOCKED: { view: "closed" } } });
+    specimen.expect(thread.trait.INTELLIGENT).toEqual({ tune: "slow", effort: "low" });
+  });
+});
+#+END_SRC
+*** systems/anima
+**** src
+***** client.js — Q0 · Q13 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/src/client.js:18
+ try {
+-  await ghost.factories.client(dom)(die);
++  await ghost.client.factory(dom)(die);
+ } catch (error) {
+#+END_SRC
+**** src/surface
+***** sections.js — Q0 · Q13 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/src/surface/sections.js:1
+ import { is, v } from "@vivalence/typology";
+-import { entities } from "@vivalence/ghost";
++import { belt } from "@vivalence/ghost";
+
+…
+// systems/anima/src/surface/sections.js:22
+
+-export const loudness = (activities) => lookup(LOUDNESS, entities.activity.loudest(activities), "loudness");
++export const loudness = (activities) => lookup(LOUDNESS, belt.activity.loudest(activities), "loudness");
+
+#+END_SRC
+**** src/surface/panes
+***** composer.jsx — Q0 · Q13 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/composer.jsx:2
+ import * as parts from "@vivalence/drapes/parts";
+-import { keymap } from "@vivalence/ghost";
++import * as ghost from "@vivalence/ghost";
+ import { send } from "../send.js";
+…
+// systems/anima/src/surface/panes/composer.jsx:66
+     client.surface.$draft.set(text);
+-    if (text === "/") keymap.palette(client, "/");
++    if (text === "/") ghost.client.keymap.palette(client, "/");
+     if (!text.startsWith("/")) client.$catalog.set(null);
+#+END_SRC
+***** sidebar.jsx — Q0 · Q13 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/sidebar.jsx:3
+ import { belt } from "@vivalence/typology";
+-import { keymap } from "@vivalence/ghost";
++import * as ghost from "@vivalence/ghost";
+ import { SIDEBAR } from "../screen.js";
+…
+// systems/anima/src/surface/panes/sidebar.jsx:20
+ export const FNS = {
+-  palette: (client, prefill) => keymap.palette(client, prefill),
++  palette: (client, prefill) => ghost.client.keymap.palette(client, prefill),
+   expand: (client, kind) => patched(client, { expand: kind in client.surface.sections.expand ? Object.fromEntries(Object.entries(client.surface.sections.expand).filter(([held]) => held !== kind)) : { ...client.surface.sections.expand, [kind]: true } }),
+#+END_SRC
+**** tests
+***** bar.test.js — Q0 · Q13 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/tests/bar.test.js:1
+ import { specimen, Vector } from "@vivalence/typology";
+-import { commands } from "@vivalence/ghost";
++import * as ghost from "@vivalence/ghost";
+ import { harvest, keymap as bound, navigating } from "../../ghost/subjects/client/keymap.js";
+…
+// systems/anima/tests/bar.test.js:26
+   held.entities.mode.$entities.get()[0].daemon = null;
+-  held.terminal.repl.commands = new Vector().graft(commands.terminal.dock, commands.terminal.intelligent);
++  held.terminal.repl.commands = new Vector().graft(ghost.terminal.commands.dock, ghost.terminal.commands.intelligent);
+   held.client.keymap = new Vector().graft(bound);
+#+END_SRC
+***** gate.test.js — Q0 · Q13 · Q47 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/tests/gate.test.js:2
+ import { gateFor } from "../src/app/gate.js";
+-import { STANDINGS } from "@vivalence/ghost";
++import { entities } from "@vivalence/ghost";
+
+…
+// systems/anima/tests/gate.test.js:12
+
+-const CODES = [...STANDINGS].sort();
++const CODES = [...entities.lighthouse.STANDINGS].sort();
+
+#+END_SRC
+***** panel.test.js — Q0 · Q13 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/tests/panel.test.js:1
+ import { specimen, Vector } from "@vivalence/typology";
+-import { commands } from "@vivalence/ghost";
++import * as ghost from "@vivalence/ghost";
+ import { catalog, harvest, keymap as bound, navigating } from "../../ghost/subjects/client/keymap.js";
+…
+// systems/anima/tests/panel.test.js:24
+   held.activate();
+-  held.terminal.repl.commands = new Vector().graft(commands.terminal.dock);
++  held.terminal.repl.commands = new Vector().graft(ghost.terminal.commands.dock);
+   held.terminal.keymap = new Vector().graft(bound, harvest(held.terminal.repl.commands));
+#+END_SRC
+***** sidebar.test.js — Q0 · Q13 · Q47 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/tests/sidebar.test.js:2
+ import { atom } from "nanostores";
+-import { Thread } from "@vivalence/ghost";
++import * as ghost from "@vivalence/ghost";
+ import { fire, paint, settle, surface, world } from "./world.js";
+…
+// systems/anima/tests/sidebar.test.js:89
+     const { rig, entities, thread } = await seated();
+-    const more = Array.from({ length: 7 }, (_, index) => Object.assign(new Thread(), { ...thread, id: `thread-${index + 2}`, trait: { ...thread.trait, LABELED: { name: `thread ${index + 2}` } }, $buffers: atom([]) }));
++    const more = Array.from({ length: 7 }, (_, index) => Object.assign(new ghost.entities.thread.Thread(), { ...thread, id: `thread-${index + 2}`, trait: { ...thread.trait, LABELED: { name: `thread ${index + 2}` } }, $buffers: atom([]) }));
+     entities.thread.$entities.set([thread, ...more]);
+#+END_SRC
+***** world.js — Q0 · Q13 · Q47 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/tests/world.js:5
+ import { Controller, Span, Vector } from "@vivalence/typology";
+-import { Client, Lighthouse, Thread, belt } from "@vivalence/ghost";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/anima/tests/world.js:48
+   const controller = new Controller({ stdout: new Span("anima") });
+-  const client = new Client({
++  const client = new ghost.client.Client({
+     controller,
+…
+// systems/anima/tests/world.js:54
+   client.surface.$sidebar.set(true);
+-  const lighthouse = Object.assign(new Lighthouse(), { stdout: controller.stdout.branch("lighthouse"), manifest: { type: "lighthouse", slug: "lighthouse", traits: ["AUTOLOGIN"] } });
++  const lighthouse = Object.assign(new ghost.entities.lighthouse.Lighthouse(), { stdout: controller.stdout.branch("lighthouse"), manifest: { type: "lighthouse", slug: "lighthouse", traits: ["AUTOLOGIN"] } });
+   const chat = { type: "chat", slug: "chat", traits: ["HARNESSED"] };
+-  const thread = Object.assign(new Thread(), {
++  const thread = Object.assign(new ghost.entities.thread.Thread(), {
+     id: "thread-1",
+…
+// systems/anima/tests/world.js:83
+     },
+-    dock: { ...belt.dock.DEFAULT_DOCK },
++    dock: { ...ghost.belt.dock.DEFAULT_DOCK },
+     $thread: atom(held),
+#+END_SRC
+*** systems/ghost
+**** (root)
+***** deno.jsonc — Q6 · Q12
+#+BEGIN_SRC diff
+// systems/ghost/deno.jsonc:6
+     "./run": "./run.js",
++    "./scenarios": "./tests/scenarios/index.js",
+   },
+…
+// systems/ghost/deno.jsonc:13
+     "watch": "deno run -A --watch run.js",
+-    "bundle": "deno run -A chrome/bundle.js",
++    "bundle": "deno run -A surfaces/chrome/bundle.js",
+     "test": "deno test -A --no-check --watch tests/**/*.test.js",
+#+END_SRC
+***** run.js — Q7′
+#+BEGIN_SRC diff
+// systems/ghost/run.js:1
+ import { Argv, Controller, Span, fromm, steer } from "@vivalence/typology";
+-import { shell } from "./subjects/shell/lifecycle.js";
++import * as shell from "./subjects/shell/index.js";
+
+…
+// systems/ghost/run.js:13
+ try {
+-  await steer.dispatch.execute(shell, die, die.signal);
++  await steer.dispatch.execute(shell.lifecycle.execution, die, die.signal);
+ } catch (error) {
+#+END_SRC
+***** typology.js — Q0 · Q0′ · Q13 · m102 Q11 (no surfaces)
+#+BEGIN_SRC diff
+// systems/ghost/typology.js:1
+-import * as client from "./subjects/client/index.js";
+-import * as terminal from "./entities/terminal/index.js";
+-import * as thread from "./entities/thread/index.js";
+-import * as mode from "./entities/mode/index.js";
+-import * as lighthouse from "./entities/lighthouse/index.js";
+-import * as daemon from "./entities/daemon/index.js";
+-import * as runtime from "./entities/runtime/index.js";
++export * from "./gestalten/index.js";
++export * from "./subjects/index.js";
++export * as entities from "./entities/index.js";
+ export * as gestalten from "./gestalten/index.js";
+-export { belt, shard } from "./gestalten/index.js";
+-export * as entities from "./entities/index.js";
+-export { Client } from "./subjects/client/prototype.js";
+-export * as keymap from "./subjects/client/keymap.js";
+-export { Runtime } from "./entities/runtime/prototype.js";
+-export { Thread } from "./entities/thread/prototype.js";
+-export { Lighthouse, STANDINGS } from "./entities/lighthouse/prototype.js";
+-export const factories = { client: client.factory, terminal: terminal.factory, thread: thread.factory, mode: mode.factory, daemon: daemon.factory, runtime: runtime.factory };
+-export const lifecycle = { client: client.lifecycle, terminal: terminal.lifecycle, thread: thread.lifecycle, mode: mode.lifecycle, lighthouse: lighthouse.lifecycle, daemon: daemon.lifecycle, runtime: runtime.lifecycle };
+-export const traits = { client: client.traits, mode: mode.traits, lighthouse: lighthouse.traits };
+-export const commands = { client: client.commands, terminal: terminal.commands };
++export * as subjects from "./subjects/index.js";
+#+END_SRC
+**** entities
+***** index.js — Q4 · Q5 · Q1 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/index.js:1
+-export * as activity from "./activity.js";
+-export * as buffer from "./buffer.js";
+-export * as turn from "./turn.js";
++export * as activity from "./activity/index.js";
++export * as buffer from "./buffer/index.js";
++export * as daemon from "./daemon/index.js";
++export * as lighthouse from "./lighthouse/index.js";
++export * as mode from "./mode/index.js";
++export * as runtime from "./runtime/index.js";
++export * as thread from "./thread/index.js";
++export * as turn from "./turn/index.js";
+#+END_SRC
+**** entities/activity
+***** hydration.js — Q4 · Q2 (loudest · owed · send → belt.activity) (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/activity/hydration.js
+import { Vector, v } from "@vivalence/typology";
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  const remote = ctx.runtime.connection.branch(`/userspace/entities/activity/${ctx.entity.id}`);
+  for (const name of v.primitives.controller.SIGNALS) ctx.entity.controller.stdin.open(name, (signalDie) => remote.call(`/stdin/${name}`, { reason: signalDie.input }));
+});
+#+END_SRC
+***** index.js — Q4 · Q2 (loudest · owed · send → belt.activity) (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/activity/index.js
+export * from "./hydration.js";
+export * from "./prototype.js";
+export * from "./repository.js";
+#+END_SRC
+***** prototype.js — Q4 · Q2 (loudest · owed · send → belt.activity)
+#+BEGIN_SRC diff
+// systems/ghost/entities/activity/prototype.js:1
+-import { Controller, Entity, RemoteRepository, Span, Vector, v } from "@vivalence/typology";
++import { Controller, Entity, Span } from "@vivalence/typology";
+
+…
+// systems/ghost/entities/activity/prototype.js:27
+ }
+-
+-const RANK = ["RUNNING", "STOPPING", "PAUSED", "IDLE"];
+-
+-export const loudest = (activities) => RANK.find((code) => activities.some((activity) => activity.status === code)) ?? "NONE";
+-
+-export const owed = (signal, activities) => {
+-  const { MACHINE } = v.primitives.controller;
+-  return activities.filter((activity) => MACHINE.states[activity.status].settled !== true);
+-};
+-
+-export const send = async (signal, activities, reason) => {
+-  const held = owed(signal, activities);
+-  await Promise.all(held.map((activity) => activity.controller.kill(signal, reason)));
+-  return { [signal]: held.map((activity) => activity.id) };
+-};
+-
+-export const repository = (dataspace) => new RemoteRepository(Activity).connect(dataspace.runtime.connection.branch("/userspace/entities/activity"));
+-
+-export const hydration = new Vector().use(async (ctx, next) => {
+-  await next();
+-  const remote = ctx.runtime.connection.branch(`/userspace/entities/activity/${ctx.entity.id}`);
+-  for (const name of v.primitives.controller.SIGNALS) ctx.entity.controller.stdin.open(name, (signalDie) => remote.call(`/stdin/${name}`, { reason: signalDie.input }));
+-});
+#+END_SRC
+***** repository.js — Q4 · Q2 (loudest · owed · send → belt.activity) (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/activity/repository.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Activity } from "./prototype.js";
+
+export const repository = (dataspace) => new RemoteRepository(Activity).connect(dataspace.runtime.connection.branch("/userspace/entities/activity"));
+#+END_SRC
+**** entities/buffer
+***** hydration.js — Q4 · Q5 · Q1 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/buffer/hydration.js
+import { Vector } from "@vivalence/typology";
+
+export const hydration = new Vector();
+#+END_SRC
+***** index.js — Q4 · Q5 · Q1 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/buffer/index.js
+export * from "./hydration.js";
+export * from "./prototype.js";
+export * from "./repository.js";
+#+END_SRC
+***** prototype.js — Q4 · Q5 · Q1
+#+BEGIN_SRC diff
+// systems/ghost/entities/buffer/prototype.js:1
+ import { atom, computed, deepMap } from "nanostores";
+-import { fn, Bundle, Entity, RemoteRepository, Vector } from "@vivalence/typology";
++import { Entity, Bundle, fn } from "@vivalence/typology";
+
+…
+// systems/ghost/entities/buffer/prototype.js:80
+ }
+-
+-export const repository = (dataspace) =>
+-  new RemoteRepository(Buffer).connect(
+-    dataspace.runtime.connection.branch("/userspace/entities/buffer"),
+-  );
+-
+-export const hydration = new Vector();
+#+END_SRC
+***** repository.js — Q4 · Q5 · Q1 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/buffer/repository.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Buffer } from "./prototype.js";
+
+export const repository = (dataspace) =>
+  new RemoteRepository(Buffer).connect(
+    dataspace.runtime.connection.branch("/userspace/entities/buffer"),
+  );
+#+END_SRC
+**** entities/daemon
+***** hydration.js — m91 law 1 · Q0 · Q1 · Q4 · Q47 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/daemon/hydration.js
+import { Path, Vector } from "@vivalence/typology";
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  ctx.entity.runtime = ctx.runtime;
+  ctx.entity.reference = new Path(ctx.raw.reference);
+  ctx.entity.connection = ctx.runtime.connection.branch(ctx.raw.reference);
+  ctx.entity.aperture = ctx.entity.connection;
+  ctx.entity.entities = { mode: ctx.dataspace.branch(ctx.entity.aperture, "mode") };
+});
+#+END_SRC
+***** index.js — m91 law 1 · Q0 · Q1 · Q4 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/daemon/index.js:1
+-export { Daemon, repository, hydration } from "./prototype.js";
+-export { factory } from "./factory.js";
++export * from "./factory.js";
++export * from "./hydration.js";
++export * from "./prototype.js";
++export * from "./repository.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+***** prototype.js — m91 law 1 · Q0 · Q1 · Q4 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/daemon/prototype.js:1
+ import { atom } from "nanostores";
+-import { Entity, Path, RemoteRepository, Vector } from "@vivalence/typology";
++import { Entity } from "@vivalence/typology";
+
+…
+// systems/ghost/entities/daemon/prototype.js:29
+ }
+-
+-export const repository = (dataspace) => {
+-  const repo = new RemoteRepository(Daemon).connect(dataspace.runtime.connection.branch("/metadata/daemons"));
+-  repo.find = async () => {
+-    const roster = await dataspace.runtime.connection.call("/metadata/daemons");
+-    return repo.epoch(() => Promise.all(roster.map((row) => repo.cast({ id: row.slug, slug: row.slug, reference: row.reference }))));
+-  };
+-  return repo;
+-};
+-
+-export const hydration = new Vector().use(async (ctx, next) => {
+-  await next();
+-  ctx.entity.runtime = ctx.runtime;
+-  ctx.entity.reference = new Path(ctx.raw.reference);
+-  ctx.entity.connection = ctx.runtime.connection.branch(ctx.raw.reference);
+-  ctx.entity.aperture = ctx.entity.connection;
+-  ctx.entity.entities = { mode: ctx.dataspace.branch(ctx.entity.aperture, "mode") };
+-});
+#+END_SRC
+***** repository.js — m91 law 1 · Q0 · Q1 · Q4 · Q47 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/daemon/repository.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Daemon } from "./prototype.js";
+
+export const repository = (dataspace) => {
+  const repo = new RemoteRepository(Daemon).connect(dataspace.runtime.connection.branch("/metadata/daemons"));
+  repo.find = async () => {
+    const roster = await dataspace.runtime.connection.call("/metadata/daemons");
+    return repo.epoch(() => Promise.all(roster.map((row) => repo.cast({ id: row.slug, slug: row.slug, reference: row.reference }))));
+  };
+  return repo;
+};
+#+END_SRC
+**** entities/lighthouse
+***** index.js — m91 law 1 · Q0 · Q1 · Q4 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/lighthouse/index.js:1
+-export { Lighthouse, STANDINGS } from "./prototype.js";
++export * from "./prototype.js";
++export * from "./standings.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+***** prototype.js — m91 law 1 · Q0 · Q1 · Q4 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/lighthouse/prototype.js:2
+ import { Span, v } from "@vivalence/typology";
+-
+-export const STANDINGS = ["IDLE", "AUTHENTICATING", "AUTHENTICATED", "VERIFYING", "REFRESHING", "REFRESHED", "POPULATING", "VERIFIED", "OFFLINE", "ERROR", "SESSION_EXPIRED", "LOGGED_OUT"];
+
+#+END_SRC
+***** standings.js — Q2 · Q47 (STANDINGS) (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/lighthouse/standings.js
+export const STANDINGS = ["IDLE", "AUTHENTICATING", "AUTHENTICATED", "VERIFYING", "REFRESHING", "REFRESHED", "POPULATING", "VERIFIED", "OFFLINE", "ERROR", "SESSION_EXPIRED", "LOGGED_OUT"];
+#+END_SRC
+**** entities/lighthouse/traits
+***** index.js — m91 law 1 · Q0 · Q1 · Q4 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/lighthouse/traits/index.js:1
+-export { AUTOLOGIN } from "./autologin.js";
+-export { JOINABLE } from "./joinable.js";
+-export { INVITATIONAL } from "./invitational.js";
++export * from "./autologin.js";
++export * from "./invitational.js";
++export * from "./joinable.js";
+#+END_SRC
+**** entities/mode
+***** hydration.js — m91 law 1 · Q0 · Q1 · Q4 · Q47 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/mode/hydration.js
+import { Vector } from "@vivalence/typology";
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  ctx.entity.runtime = ctx.runtime;
+  ctx.entity.reference = (ctx.entity.daemon === null ? ctx.runtime : ctx.entity.daemon).reference.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
+  ctx.entity.connection = (ctx.entity.daemon === null ? ctx.runtime : ctx.entity.daemon).aperture.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
+});
+#+END_SRC
+***** index.js — m91 law 1 · Q0 · Q1 · Q4 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/index.js:1
+-export { Mode, repository, hydration } from "./prototype.js";
+-export { factory } from "./factory.js";
++export * from "./factory.js";
++export * from "./hydration.js";
++export * from "./prototype.js";
++export * from "./repository.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+***** prototype.js — m91 law 1 · Q0 · Q1 · Q4 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/prototype.js:1
+ import { atom } from "nanostores";
+-import { Entity, RemoteRepository, Span, Status, Vector } from "@vivalence/typology";
++import { Entity, Span, Status, Vector } from "@vivalence/typology";
+
+…
+// systems/ghost/entities/mode/prototype.js:48
+ }
+-
+-export const repository = (dataspace) => new RemoteRepository(Mode).connect(dataspace.runtime.connection.branch(`${dataspace.runtime.reference.absolute}/entities/mode`));
+-
+-export const hydration = new Vector().use(async (ctx, next) => {
+-  await next();
+-  ctx.entity.runtime = ctx.runtime;
+-  ctx.entity.reference = (ctx.entity.daemon === null ? ctx.runtime : ctx.entity.daemon).reference.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
+-  ctx.entity.connection = (ctx.entity.daemon === null ? ctx.runtime : ctx.entity.daemon).aperture.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
+-});
+#+END_SRC
+***** repository.js — m91 law 1 · Q0 · Q1 · Q4 · Q47 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/mode/repository.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Mode } from "./prototype.js";
+
+export const repository = (dataspace) => new RemoteRepository(Mode).connect(dataspace.runtime.connection.branch(`${dataspace.runtime.reference.absolute}/entities/mode`));
+#+END_SRC
+**** entities/mode/traits
+***** application.js — Q1 · Q2 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/traits/application.js:6
+ };
+-
+-export const open = async (terminal, mode) => {
+-  const thread = terminal.thread;
+-  const kept = thread.$buffers
+-    .get()
+-    .filter((buffer) => buffer.mode === mode)
+-    .sort((first, second) => first.index - second.index)
+-    .at(-1);
+-  const buffer = kept === undefined ? await mode.runtime.entities.buffer.create({ mode: mode.id, thread: thread.id, data: {} }) : kept;
+-  if (terminal.thread === thread) terminal.$buffer.set(buffer);
+-  return buffer;
+-};
+#+END_SRC
+***** index.js — Q1 · Q2 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/traits/index.js:1
+-export { REPLING } from "./repling.js";
+-export { KEYMAPPED } from "./keymapped.js";
+-export { EXPOSED } from "./exposed.js";
+-export { HARNESSED } from "./harnessed.js";
+-export { LOOPING } from "./looping.js";
+-export { APPLICATION, open } from "./application.js";
++export * from "./application.js";
++export * from "./exposed.js";
++export * from "./harnessed.js";
++export * from "./keymapped.js";
++export * from "./looping.js";
++export * from "./repling.js";
+#+END_SRC
+***** looping.js — Q1 · Q2 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/traits/looping.js:1
+-import { NotFound, ReplSignal, shape, v } from "@vivalence/typology";
+-
+-export const loop = (clientDie) => {
+-  clientDie.aperture
+-    .branch("/terminal/:terminal")
+-    .use(async (ctx, next) => {
+-      ctx.terminal = clientDie.runtime.entities.terminal.$entities.get().find((held) => held.id === ctx.params.terminal);
+-      if (ctx.terminal === undefined) throw new NotFound(ctx.signal);
+-      await next();
+-    })
+-    .open("/metadata/repl", (ctx) => shape.strip(ctx.terminal.repl.commands))
+-    .post({ nature: "/repl", input: v.primitives.harness.Signal }, (ctx) => ctx.terminal.repl.dispatch(new ReplSignal(ctx.input)));
+-};
+-
+ export const LOOPING = (mode, clientDie) => clientDie.looping(clientDie);
+#+END_SRC
+**** entities/runtime
+***** index.js — m91 law 1 · Q0 · Q1 · Q4 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/runtime/index.js:1
+-export { Runtime } from "./prototype.js";
+-export { factory } from "./factory.js";
++export * from "./factory.js";
++export * from "./prototype.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+**** entities/thread
+***** hydration.js — m91 law 1 · Q0 · Q1 · Q4 · Q47 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/thread/hydration.js
+import { computed } from "nanostores";
+import { Vector } from "@vivalence/typology";
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  ctx.entity.$buffers = computed(ctx.runtime.entities.buffer.$entities, (buffers) => buffers.filter((buffer) => buffer.thread === ctx.entity));
+  ctx.entity.$turns = computed(ctx.runtime.entities.turn.$entities, (turns) => turns.filter((turn) => turn.thread === ctx.entity).sort((first, second) => new Date(first.createdAt) - new Date(second.createdAt)));
+  ctx.entity.$activities = computed(ctx.runtime.entities.activity.$entities, (activities) => activities.filter((activity) => activity.thread === ctx.entity));
+});
+#+END_SRC
+***** index.js — m91 law 1 · Q0 · Q1 · Q4 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/thread/index.js:1
+-export { Thread, repository, hydration } from "./prototype.js";
+-export { factory } from "./factory.js";
++export * from "./factory.js";
++export * from "./hydration.js";
++export * from "./prototype.js";
++export * from "./repository.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+***** prototype.js — m91 law 1 · Q0 · Q1 · Q4 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/entities/thread/prototype.js:1
+-import { computed } from "nanostores";
+-import { Entity, RemoteRepository, Vector, is, v } from "@vivalence/typology";
++import { Entity, is, v } from "@vivalence/typology";
+
+…
+// systems/ghost/entities/thread/prototype.js:32
+ }
+-
+-export const repository = (dataspace) => new RemoteRepository(Thread).connect(dataspace.runtime.connection.branch("/userspace/entities/thread"));
+-
+-export const hydration = new Vector().use(async (ctx, next) => {
+-  await next();
+-  ctx.entity.$buffers = computed(ctx.runtime.entities.buffer.$entities, (buffers) => buffers.filter((buffer) => buffer.thread === ctx.entity));
+-  ctx.entity.$turns = computed(ctx.runtime.entities.turn.$entities, (turns) => turns.filter((turn) => turn.thread === ctx.entity).sort((first, second) => new Date(first.createdAt) - new Date(second.createdAt)));
+-  ctx.entity.$activities = computed(ctx.runtime.entities.activity.$entities, (activities) => activities.filter((activity) => activity.thread === ctx.entity));
+-});
+#+END_SRC
+***** repository.js — m91 law 1 · Q0 · Q1 · Q4 · Q47 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/thread/repository.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Thread } from "./prototype.js";
+
+export const repository = (dataspace) => new RemoteRepository(Thread).connect(dataspace.runtime.connection.branch("/userspace/entities/thread"));
+#+END_SRC
+**** entities/turn
+***** hydration.js — Q4 · Q5 · Q1 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/turn/hydration.js
+import { Vector } from "@vivalence/typology";
+
+export const hydration = new Vector();
+#+END_SRC
+***** index.js — Q4 · Q5 · Q1 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/turn/index.js
+export * from "./hydration.js";
+export * from "./prototype.js";
+export * from "./repository.js";
+#+END_SRC
+***** prototype.js — Q4 · Q5 · Q1
+#+BEGIN_SRC diff
+// systems/ghost/entities/turn/prototype.js:1
+-import { Entity, RemoteRepository, Vector } from "@vivalence/typology";
++import { Entity } from "@vivalence/typology";
+
+…
+// systems/ghost/entities/turn/prototype.js:10
+ }
+-
+-export const repository = (dataspace) => new RemoteRepository(Turn).connect(dataspace.runtime.connection.branch("/userspace/entities/turn"));
+-
+-export const hydration = new Vector();
+#+END_SRC
+***** repository.js — Q4 · Q5 · Q1 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/turn/repository.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Turn } from "./prototype.js";
+
+export const repository = (dataspace) => new RemoteRepository(Turn).connect(dataspace.runtime.connection.branch("/userspace/entities/turn"));
+#+END_SRC
+**** gestalten/belt
+***** activity.js — Q2 (new)
+#+BEGIN_SRC js
+// systems/ghost/gestalten/belt/activity.js
+import { v } from "@vivalence/typology";
+
+const RANK = ["RUNNING", "STOPPING", "PAUSED", "IDLE"];
+
+export const loudest = (activities) => RANK.find((code) => activities.some((activity) => activity.status === code)) ?? "NONE";
+
+export const owed = (signal, activities) => {
+  const { MACHINE } = v.primitives.controller;
+  return activities.filter((activity) => MACHINE.states[activity.status].settled !== true);
+};
+
+export const send = async (signal, activities, reason) => {
+  const held = owed(signal, activities);
+  await Promise.all(held.map((activity) => activity.controller.kill(signal, reason)));
+  return { [signal]: held.map((activity) => activity.id) };
+};
+#+END_SRC
+***** dock.js — Q2 · Q16 · Q17′ · Q48
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/belt/dock.js:1
+ import { v } from "@vivalence/typology";
+
+ export const DEFAULT_DOCK = v.traits.terminal.DOCKED.cast({ align: "right", share: 0.38, view: "docked", lens: "repl" });
++
++export const SIDES = ["left", "right"];
++
++export const VIEWS = ["docked", "full", "closed", "messenger"];
++
++export const LENSES = ["chat", "repl", "trace"];
+#+END_SRC
+***** index.js — Q1 · Q2
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/belt/index.js:1
++export * as activity from "./activity.js";
+ export * as dock from "./dock.js";
+…
+// systems/ghost/gestalten/belt/index.js:3
+ export * as input from "./input.js";
+-export * as traits from "./traits.js";
++export * as intelligent from "./intelligent.js";
+ export * as view from "./view.js";
+#+END_SRC
+***** intelligent.js — Q2 (EFFORTS) (new)
+#+BEGIN_SRC js
+// systems/ghost/gestalten/belt/intelligent.js
+export const EFFORTS = ["none", "low", "medium", "high"];
+#+END_SRC
+**** subjects
+***** index.js — Q0 · Q1 · Q47 (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/index.js
+export * as client from "./client/index.js";
+export * as terminal from "./terminal/index.js";
+#+END_SRC
+**** subjects/client
+***** index.js — m91 law 1 · Q0 · Q1 · Q4
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/index.js:1
+-export { Client } from "./prototype.js";
+-export { factory } from "./factory.js";
++export * from "./factory.js";
++export * from "./prototype.js";
++export * as commands from "./commands/index.js";
++export * as keymap from "./keymap.js";
+ export * as lifecycle from "./lifecycle/index.js";
+ export * as traits from "./traits/index.js";
+-export * as commands from "./commands/index.js";
+#+END_SRC
+***** prototype.js — Q2 (loop)
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/prototype.js:1
+ import { atom } from "nanostores";
+-import { Aperture, Queue, Vector, belt, fromm, is } from "@vivalence/typology";
+-import { loop } from "../../entities/mode/traits/looping.js";
++import { Aperture, NotFound, Queue, ReplSignal, Vector, belt, fromm, is, shape, v } from "@vivalence/typology";
+
+ const THEMES = { true: "northsea", false: "porcelain" };
++
++const loop = (clientDie) => {
++  clientDie.aperture
++    .branch("/terminal/:terminal")
++    .use(async (ctx, next) => {
++      ctx.terminal = clientDie.runtime.entities.terminal.$entities.get().find((held) => held.id === ctx.params.terminal);
++      if (ctx.terminal === undefined) throw new NotFound(ctx.signal);
++      await next();
++    })
++    .open("/metadata/repl", (ctx) => shape.strip(ctx.terminal.repl.commands))
++    .post({ nature: "/repl", input: v.primitives.harness.Signal }, (ctx) => ctx.terminal.repl.dispatch(new ReplSignal(ctx.input)));
++};
+
+#+END_SRC
+**** subjects/client/commands
+***** index.js — m91 law 1 · Q0 · Q1 · Q4
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/commands/index.js:1
+-export { help } from "./help.js";
+-export { quit } from "./quit.js";
+-export { lighthouse } from "./lighthouse.js";
+-export { runtime } from "./runtime.js";
+-export { terminal } from "./terminal.js";
+-export { shell } from "./shell.js";
++export * from "./help.js";
++export * from "./lighthouse.js";
++export * from "./quit.js";
++export * from "./runtime.js";
++export * from "./shell.js";
++export * from "./terminal.js";
+#+END_SRC
+**** subjects/client/lifecycle
+***** index.js — m91 law 1 · Q0 · Q1 · Q4 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/lifecycle/index.js:8
+ import * as daemonHost from "../../../entities/daemon/index.js";
+-import * as terminalProcess from "../../../entities/terminal/index.js";
++import * as terminalProcess from "../../terminal/index.js";
+ import * as threadProcess from "../../../entities/thread/index.js";
+-import * as activity from "../../../entities/activity.js";
+-import * as buffer from "../../../entities/buffer.js";
+-import * as turn from "../../../entities/turn.js";
++import * as activity from "../../../entities/activity/index.js";
++import * as buffer from "../../../entities/buffer/index.js";
++import * as turn from "../../../entities/turn/index.js";
+ import { Runtime } from "../../../entities/runtime/prototype.js";
+#+END_SRC
+**** subjects/client/traits
+***** index.js — m91 law 1 · Q0 · Q1 · Q4
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/traits/index.js:1
+-export { HOME } from "./home.js";
++export * from "./home.js";
+#+END_SRC
+**** subjects/shell
+***** index.js — Q7 · Q7′ · Q3 (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/index.js
+export * from "./commands/index.js";
+export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+**** subjects/shell/commands
+***** chrome.js — Q7 · Q7′ · Q3 · Q45′ (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/commands/chrome.js
+import { Vector, steer } from "@vivalence/typology";
+import * as surfaces from "../../../surfaces/index.js";
+import * as client from "../../client/index.js";
+import { boot } from "../lifecycle/boot.js";
+import { ledger } from "../lifecycle/ledger.js";
+import { seat } from "../lifecycle/seat.js";
+
+const door = new Vector().use(seat).use(ledger).use(boot).do(client.factory(surfaces.chrome));
+
+export const chrome = new Vector().open(
+  { nature: "/chrome", valence: "the repl under the chrome — the dock paints. Example: viva chrome" },
+  (shellDie) => steer.dispatch.execute(door, shellDie),
+);
+#+END_SRC
+***** index.js — Q7 · Q7′ · Q3 (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/commands/index.js
+import { Vector } from "@vivalence/typology";
+import { chrome } from "./chrome.js";
+import { tail } from "./tail.js";
+
+export const commands = new Vector().graft(chrome, tail);
+#+END_SRC
+***** tail.js — Q7 · Q7′ · Q3 (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/commands/tail.js
+import paladin, { factories } from "@vivalence/paladin";
+import { Vector, control } from "@vivalence/typology";
+
+const decoder = new TextDecoder();
+
+const said = (record) => `${record.path.join(" › ")} ${record.track}${"data" in record ? ` ${JSON.stringify(record.data)}` : ""}`;
+
+const follow = (process) => async (shellDie) => {
+  const instance = await factories.instance(paladin.instance);
+  const log = paladin.ledger.log(instance.manifest.slug);
+  (await log.open(process, "spans")).close();
+  const path = log.base.branch(`${process}.spans.log`).absolute;
+  const reader = await Deno.open(path, { read: true });
+  await reader.seek(0, Deno.SeekMode.End);
+  const watcher = Deno.watchFs(path);
+  control.hold(shellDie.controller).then(() => watcher.close());
+  shellDie.controller.stdout.log({ tail: path });
+  console.log(`tail ${path}`);
+  const chunk = new Uint8Array(65536);
+  let pending = "";
+  try {
+    for await (const _ of watcher) {
+      for (let read = reader.readSync(chunk); read !== null && read > 0; read = reader.readSync(chunk)) {
+        const lines = (pending + decoder.decode(chunk.subarray(0, read), { stream: true })).split("\n");
+        pending = lines.pop();
+        for (const line of lines) console.log(said(JSON.parse(line)));
+      }
+    }
+  } finally {
+    reader.close();
+  }
+};
+
+export const tail = new Vector()
+  .open({ nature: "/instance/tail", valence: "follow a running ghost's spans from another terminal. Example: viva instance/tail" }, follow("ghost"))
+  .open({ nature: "/instance/tail/ghost", valence: "follow a running ghost's spans, every branch. Example: viva instance/tail/ghost" }, follow("ghost"))
+  .open({ nature: "/instance/tail/client", valence: "follow a running ghost's client spans only. Example: viva instance/tail/client" }, follow("client"));
+#+END_SRC
+**** subjects/shell/lifecycle
+***** boot.js — Q7 · Q7′ · Q3 (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/lifecycle/boot.js
+import paladin from "@vivalence/paladin";
+import { Connection, Url, object } from "@vivalence/typology";
+
+const INHERITED = ["PATH", "HOME", "TMPDIR", "XDG_CONFIG_HOME", "TERM", "LANG", "DENO_DIR", "NO_COLOR"];
+const carried = (key) => INHERITED.includes(key) || (/^(VIVA|PUBLIC_VIVA|SECRET_VIVA)_/.test(key) && key !== "VIVA_PROCESS_ID");
+
+const specs = (instance) => {
+  const mount = instance.home.absolute;
+  const repository = paladin.scope.repository.absolute;
+  return [
+    {
+      identity: { process: "runtime", mount },
+      serve: instance.runtime.statics.serve.absolute,
+      command: {
+        bin: Deno.execPath(),
+        args: ["run", "-A", "--config", `${repository}/deno.jsonc`, `${repository}/systems/runtime/run.js`],
+        cwd: mount,
+        env: { ...object.filter(Deno.env.toObject(), carried), VIVA_INSTANCE_MOUNT: mount, VIVA_LEDGER_MOUNT: paladin.scope.ledger.absolute, VIVA_REPOSITORY_MOUNT: repository },
+      },
+    },
+  ];
+};
+
+const reached = (remote) => new Connection(remote).call("/status").then(() => true, () => false);
+
+export const boot = async (shellDie, next) => {
+  const remote = new Url(shellDie.instance.runtime.statics.remote);
+  let booted = null;
+  if (!(await reached(remote))) {
+    const held = await paladin.ledger.instances.lookup(shellDie.instance.home.absolute);
+    if (held === null) throw new Error(`runtime ${remote.absolute} unreachable, and ${shellDie.instance.home.absolute} is no instance of this ledger — not this machine's to start`);
+    shellDie.controller.stdout.log({ booting: held.slug, log: paladin.scope.ledger.branch(`logs/${held.slug}/runtime.out.log`).absolute });
+    booted = await paladin.ledger.boot(specs(shellDie.instance), { instance: held.slug, attachment: "logged" });
+    await booted.integrate();
+  }
+  try {
+    await next();
+  } finally {
+    if (booted !== null) await booted.disintegrate();
+  }
+};
+#+END_SRC
+***** index.js — Q7 · Q7′ · Q3
+#+BEGIN_SRC diff
+// systems/ghost/subjects/shell/lifecycle/index.js:1
+-import paladin, { factories } from "@vivalence/paladin";
+-import { Connection, Url, Vector, control, object, shape, shard, steer } from "@vivalence/typology";
+-import { factory as clientFactory } from "../client/factory.js";
+-import { chrome as cells } from "../../chrome/index.js";
++import { Argv, Vector, shape, shard, steer } from "@vivalence/typology";
++import { commands } from "../commands/index.js";
+
+-const INHERITED = ["PATH", "HOME", "TMPDIR", "XDG_CONFIG_HOME", "TERM", "LANG", "DENO_DIR", "NO_COLOR"];
+-const carried = (key) => INHERITED.includes(key) || (/^(VIVA|PUBLIC_VIVA|SECRET_VIVA)_/.test(key) && key !== "VIVA_PROCESS_ID");
++const strip = () => console.log(JSON.stringify(shape.strip(execution), null, 2));
+
+-const specs = (instance) => {
+-  const mount = instance.home.absolute;
+-  const repository = paladin.scope.repository.absolute;
+-  return [
+-    {
+-      identity: { process: "runtime", mount },
+-      serve: instance.runtime.statics.serve.absolute,
+-      command: {
+-        bin: Deno.execPath(),
+-        args: ["run", "-A", "--config", `${repository}/deno.jsonc`, `${repository}/systems/runtime/run.js`],
+-        cwd: mount,
+-        env: { ...object.filter(Deno.env.toObject(), carried), VIVA_INSTANCE_MOUNT: mount, VIVA_LEDGER_MOUNT: paladin.scope.ledger.absolute, VIVA_REPOSITORY_MOUNT: repository },
+-      },
+-    },
+-  ];
+-};
+-
+-export const seat = async (shellDie, next) => {
+-  shellDie.instance = await factories.instance(paladin.instance);
+-  await paladin.ledger.registry.supply();
+-  shellDie.mask = shellDie.instance.clients.find((client) => client.manifest.slug === "ghost");
+-  if (!shellDie.mask)
+-    throw new Error(`instance ${shellDie.instance.home.absolute} masks no ghost client — ${shellDie.instance.clients.map((client) => client.manifest.slug).join(" · ") || "no client at all"}`);
+-  shellDie.register = await paladin.ledger.registry.wire(shellDie.mask);
+-  await next();
+-};
+-
+-const encoder = new TextEncoder();
+-
+-export const ledger = async (shellDie, next) => {
+-  const file = await paladin.ledger.log(shellDie.instance.manifest.slug).open("ghost", "spans");
+-  const untap = shellDie.controller.stdout.pipe.tap((record) => file.writeSync(encoder.encode(`${JSON.stringify(record)}\n`)));
+-  try {
+-    await next();
+-  } finally {
+-    untap();
+-    file.close();
+-  }
+-};
+-
+-const reached = (remote) => new Connection(remote).call("/status").then(() => true, () => false);
+-
+-export const boot = async (shellDie, next) => {
+-  const remote = new Url(shellDie.instance.runtime.statics.remote);
+-  let booted = null;
+-  if (!(await reached(remote))) {
+-    const held = await paladin.ledger.instances.lookup(shellDie.instance.home.absolute);
+-    if (held === null) throw new Error(`runtime ${remote.absolute} unreachable, and ${shellDie.instance.home.absolute} is no instance of this ledger — not this machine's to start`);
+-    shellDie.controller.stdout.log({ booting: held.slug, log: paladin.scope.ledger.branch(`logs/${held.slug}/runtime.out.log`).absolute });
+-    booted = await paladin.ledger.boot(specs(shellDie.instance), { instance: held.slug, attachment: "logged" });
+-    await booted.integrate();
+-  }
+-  try {
+-    await next();
+-  } finally {
+-    if (booted !== null) await booted.disintegrate();
+-  }
+-};
+-
+-const decoder = new TextDecoder();
+-
+-const said = (record) => `${record.path.join(" › ")} ${record.track}${"data" in record ? ` ${JSON.stringify(record.data)}` : ""}`;
+-
+-const follow = (process) => async (shellDie) => {
+-  const instance = await factories.instance(paladin.instance);
+-  const log = paladin.ledger.log(instance.manifest.slug);
+-  (await log.open(process, "spans")).close();
+-  const path = log.base.branch(`${process}.spans.log`).absolute;
+-  const reader = await Deno.open(path, { read: true });
+-  await reader.seek(0, Deno.SeekMode.End);
+-  const watcher = Deno.watchFs(path);
+-  control.hold(shellDie.controller).then(() => watcher.close());
+-  shellDie.controller.stdout.log({ tail: path });
+-  console.log(`tail ${path}`);
+-  const chunk = new Uint8Array(65536);
+-  let pending = "";
+-  try {
+-    for await (const _ of watcher) {
+-      for (let read = reader.readSync(chunk); read !== null && read > 0; read = reader.readSync(chunk)) {
+-        const lines = (pending + decoder.decode(chunk.subarray(0, read), { stream: true })).split("\n");
+-        pending = lines.pop();
+-        for (const line of lines) console.log(said(JSON.parse(line)));
+-      }
+-    }
+-  } finally {
+-    reader.close();
+-  }
+-};
+-
+-const door = (surface) =>
+-  new Vector().use(seat).use(ledger).use(boot).do(clientFactory(surface));
+-const chrome = door(cells);
+-
+-const strip = () => console.log(JSON.stringify(shape.strip(shell), null, 2));
+-
+-export const shell = new Vector()
++export const execution = new Vector()
+   .use(shard.controller.open)
+   .use((shellDie, next) => (shellDie.signal.flags.help === true ? strip() : next()))
++  .use((shellDie, next) => {
++    shellDie.dispatch = (signal) => steer.dispatch.execute(commands, shellDie, new Argv(signal));
++    return next();
++  })
+   .open({ nature: "/help", valence: "the shell's verbs. Example: viva help" }, strip)
+-  .open({ nature: "/chrome", valence: "the repl under the chrome — the dock paints. Example: viva chrome" }, (shellDie) => steer.dispatch.execute(chrome, shellDie))
+-  .open({ nature: "/instance/tail", valence: "follow a running ghost's spans from another terminal. Example: viva instance/tail" }, follow("ghost"))
+-  .open({ nature: "/instance/tail/ghost", valence: "follow a running ghost's spans, every branch. Example: viva instance/tail/ghost" }, follow("ghost"))
+-  .open({ nature: "/instance/tail/client", valence: "follow a running ghost's client spans only. Example: viva instance/tail/client" }, follow("client"))
+-  .do((shellDie) => steer.dispatch.execute(chrome, shellDie));
++  .graft(commands)
++  .do((shellDie) => shellDie.dispatch("/chrome"));
+#+END_SRC
+***** ledger.js — Q7 · Q7′ · Q3 (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/lifecycle/ledger.js
+import paladin from "@vivalence/paladin";
+
+const encoder = new TextEncoder();
+
+export const ledger = async (shellDie, next) => {
+  const file = await paladin.ledger.log(shellDie.instance.manifest.slug).open("ghost", "spans");
+  const untap = shellDie.controller.stdout.pipe.tap((record) => file.writeSync(encoder.encode(`${JSON.stringify(record)}\n`)));
+  try {
+    await next();
+  } finally {
+    untap();
+    file.close();
+  }
+};
+#+END_SRC
+***** seat.js — Q7 · Q7′ · Q3 (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/lifecycle/seat.js
+import paladin, { factories } from "@vivalence/paladin";
+
+export const seat = async (shellDie, next) => {
+  shellDie.instance = await factories.instance(paladin.instance);
+  await paladin.ledger.registry.supply();
+  shellDie.mask = shellDie.instance.clients.find((client) => client.manifest.slug === "ghost");
+  if (!shellDie.mask)
+    throw new Error(`instance ${shellDie.instance.home.absolute} masks no ghost client — ${shellDie.instance.clients.map((client) => client.manifest.slug).join(" · ") || "no client at all"}`);
+  shellDie.register = await paladin.ledger.registry.wire(shellDie.mask);
+  await next();
+};
+#+END_SRC
+**** subjects/terminal
+***** hydration.js — m91 law 1 · Q0 · Q1 · Q4 (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/hydration.js
+import { Vector } from "@vivalence/typology";
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  ctx.entity.client = ctx.client;
+  ctx.entity.runtime = ctx.runtime;
+  ctx.entity.repository = ctx.repository;
+});
+#+END_SRC
+***** index.js — m91 law 1 · Q0 · Q1 · Q4
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/index.js:1
+-export { Terminal, repository, hydration } from "./prototype.js";
+-export { factory } from "./factory.js";
++export * from "./factory.js";
++export * from "./hydration.js";
++export * from "./prototype.js";
++export * from "./repl.js";
++export * from "./repository.js";
++export * as commands from "./commands/index.js";
+ export * as lifecycle from "./lifecycle/index.js";
+-export * as commands from "./commands/index.js";
+#+END_SRC
+***** prototype.js — Q4 · Q16
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/prototype.js:1
+ import { atom, computed } from "nanostores";
+-import { Entity, RemoteRepository, Vector, is } from "@vivalence/typology";
+-import { harvest } from "../../subjects/client/keymap.js";
++import { Entity, Vector, is } from "@vivalence/typology";
++import { harvest } from "../client/keymap.js";
+ import * as belt from "../../gestalten/belt/index.js";
+…
+// systems/ghost/subjects/terminal/prototype.js:53
+
+-  write(data) {
+-    return this.repository.updateOne({ id: this.id }, data);
+-  }
+-
+   setThread(thread) {
+-    if (thread === null) return this.write({ daemon: null, thread: null });
++    if (thread === null) return this.repository.updateOne({ id: this.id }, { daemon: null, thread: null });
+     if (is.string(thread.mode)) return Promise.reject(new Error(`${thread.id}: its mode ${thread.mode} belongs to a host that is not mounted`));
+     const daemon = thread.mode === null || thread.mode.daemon === null ? null : thread.mode.daemon.id;
+-    return this.write({ daemon, thread: thread.id });
++    return this.repository.updateOne({ id: this.id }, { daemon, thread: thread.id });
+   }
+ }
+-
+-export const repository = (dataspace) => new RemoteRepository(Terminal).connect(dataspace.runtime.connection.branch("/userspace/entities/terminal"));
+-
+-export const hydration = new Vector().use(async (ctx, next) => {
+-  await next();
+-  ctx.entity.client = ctx.client;
+-  ctx.entity.runtime = ctx.runtime;
+-  ctx.entity.repository = ctx.repository;
+-});
+#+END_SRC
+***** repository.js — m91 law 1 · Q0 · Q1 · Q4 (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/repository.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Terminal } from "./prototype.js";
+
+export const repository = (dataspace) => new RemoteRepository(Terminal).connect(dataspace.runtime.connection.branch("/userspace/entities/terminal"));
+#+END_SRC
+**** subjects/terminal/commands
+***** abort.js — Q1 · Q2 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/abort.js:1
+ import { Vector } from "@vivalence/typology";
+-import { send } from "../../activity.js";
++import * as belt from "../../../gestalten/belt/index.js";
+
+…
+// systems/ghost/subjects/terminal/commands/abort.js:5
+   { nature: "/abort", valence: "SIGKILL · abort every live activity on the thread. Example: /abort", chord: "leader/a/k" },
+-  (ctx) => send("SIGKILL", ctx.terminal.thread.activities, "/abort"),
++  (ctx) => belt.activity.send("SIGKILL", ctx.terminal.thread.activities, "/abort"),
+ );
+#+END_SRC
+***** close.js — Q1 · Q2 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/close.js:1
+-import { Vector, traits, v } from "@vivalence/typology";
+-import * as belt from "../../../gestalten/belt/index.js";
++import { Vector, traits } from "@vivalence/typology";
+ import { buffer } from "./buffer.js";
+…
+// systems/ghost/subjects/terminal/commands/close.js:6
+   [(view) => view === "closed", async (ctx) => {
+-    const DOCKED = { ...traits.claim(ctx.terminal, "DOCKED", v.traits.terminal), view: "docked" };
+-    await ctx.terminal.write(belt.traits.claimed(ctx.terminal, "DOCKED", DOCKED));
++    const DOCKED = { view: "docked" };
++    await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED }));
+   }],
+#+END_SRC
+***** dock.js — Q1 · Q2 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/dock.js:1
+ import { Vector, traits, v } from "@vivalence/typology";
+ import * as belt from "../../../gestalten/belt/index.js";
+
+-export const SIDES = ["left", "right"];
+-export const VIEWS = ["docked", "full", "closed", "messenger"];
+-export const LENSES = ["chat", "repl", "trace"];
+-const Docking = v.object({ word: v.enum([...SIDES, ...VIEWS]).desc('A side the dock sits, or how it shows. Example: "closed"') });
+-const Lensed = v.object({ lens: v.enum(LENSES).desc('Which stream the dock paints. Example: "trace"') });
++const Docking = v.object({ word: v.enum([...belt.dock.SIDES, ...belt.dock.VIEWS]).desc('A side the dock sits, or how it shows. Example: "closed"') });
++const Lensed = v.object({ lens: v.enum(belt.dock.LENSES).desc('Which stream the dock paints. Example: "trace"') });
+ const Shared = v.object({ share: v.number({ minimum: 0.1, maximum: 0.9 }).desc("The dock's width as a share of the chrome. Example: 0.38") });
+…
+// systems/ghost/subjects/terminal/commands/dock.js:11
+ const FIELDS = [
+-  [(word) => SIDES.includes(word), "align"],
+-  [(word) => VIEWS.includes(word), "view"],
++  [(word) => belt.dock.SIDES.includes(word), "align"],
++  [(word) => belt.dock.VIEWS.includes(word), "view"],
+ ];
+…
+// systems/ghost/subjects/terminal/commands/dock.js:16
+ const field = (word) => FIELDS.find(([test]) => test(word))[1];
+-
+-export const docked = async (ctx, patch) => {
+-  const DOCKED = { ...traits.claim(ctx.terminal, "DOCKED", v.traits.terminal), ...patch };
+-  await ctx.terminal.write(belt.traits.claimed(ctx.terminal, "DOCKED", DOCKED));
+-  return { DOCKED };
+-};
+
+…
+// systems/ghost/subjects/terminal/commands/dock.js:27
+-    (ctx) => {
++    async (ctx) => {
+       const { word } = belt.input.cast(Docking, ctx.signal);
+-      return docked(ctx, { [field(word)]: word });
++      const DOCKED = { [field(word)]: word };
++      await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED }));
++      return { DOCKED };
+     },
+…
+// systems/ghost/subjects/terminal/commands/dock.js:33
+     { nature: "/dock/lens", valence: "what the dock lists: chat is turns, trace is records, repl is both. Example: /dock/lens trace", input: Lensed, chord: "leader/d/j" },
+-    (ctx) => docked(ctx, belt.input.cast(Lensed, ctx.signal)),
++    async (ctx) => {
++      const DOCKED = belt.input.cast(Lensed, ctx.signal);
++      await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED }));
++      return { DOCKED };
++    },
+   )
+…
+// systems/ghost/subjects/terminal/commands/dock.js:37
+     { nature: "/split", valence: "the divider — the dock's share of the chrome. Example: /split 0.5", input: Shared, chord: "leader/d/s" },
+-    (ctx) => docked(ctx, belt.input.cast(Shared, ctx.signal)),
++    async (ctx) => {
++      const DOCKED = belt.input.cast(Shared, ctx.signal);
++      await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED }));
++      return { DOCKED };
++    },
+   );
+#+END_SRC
+***** full.js — Q1 · Q2 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/full.js:29
+     ctx.terminal.$buffer.set(found);
+-    const DOCKED = { ...traits.claim(ctx.terminal, "DOCKED", v.traits.terminal), view };
+-    await ctx.terminal.write(belt.traits.claimed(ctx.terminal, "DOCKED", DOCKED));
++    const DOCKED = { view };
++    await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED }));
+     return { DOCKED };
+#+END_SRC
+***** index.js — Q1 · Q2 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/index.js:1
+-export { mode } from "./mode/index.js";
+-export { application } from "./application/index.js";
+-export { thread } from "./thread.js";
+-export { buffer } from "./buffer.js";
+-export { pause } from "./pause.js";
+-export { resume } from "./resume.js";
+-export { stop } from "./stop.js";
+-export { abort } from "./abort.js";
+-export { activity } from "./activity.js";
+-export { intelligent } from "./intelligent.js";
+-export { dock } from "./dock.js";
+-export { turn } from "./turn.js";
+-export { telemetry } from "./telemetry.js";
+-export { full } from "./full.js";
+-export { artifact } from "./artifact.js";
+-export { close } from "./close.js";
+-export { dictate } from "./dictate.js";
+-export { attach } from "./attach.js";
+-export { detach } from "./detach.js";
+-export { set } from "./set.js";
++export * from "./abort.js";
++export * from "./activity.js";
++export * from "./application/index.js";
++export * from "./artifact.js";
++export * from "./attach.js";
++export * from "./buffer.js";
++export * from "./close.js";
++export * from "./detach.js";
++export * from "./dictate.js";
++export * from "./dock.js";
++export * from "./full.js";
++export * from "./intelligent.js";
++export * from "./mode/index.js";
++export * from "./pause.js";
++export * from "./resume.js";
++export * from "./set.js";
++export * from "./stop.js";
++export * from "./telemetry.js";
++export * from "./thread.js";
++export * from "./turn.js";
+#+END_SRC
+***** intelligent.js — Q1 · Q2 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/intelligent.js:1
+-import { Vector, v } from "@vivalence/typology";
++import { Vector, traits, v } from "@vivalence/typology";
+ import * as belt from "../../../gestalten/belt/index.js";
+…
+// systems/ghost/subjects/terminal/commands/intelligent.js:4
+ const Tuned = v.object({ tune: v.primitives.hallucination.Tier.desc('A tier. Example: "fast"') });
+-export const EFFORTS = ["none", "low", "medium", "high"];
+-
+-const Effortful = v.object({ effort: v.enum(EFFORTS).desc('Reasoning effort. Example: "high"') });
++const Effortful = v.object({ effort: v.enum(belt.intelligent.EFFORTS).desc('Reasoning effort. Example: "high"') });
+ const Rounded = v.object({ rounds: v.integer({ minimum: 1, maximum: 50 }).desc("The round budget. Example: 12") });
+-
+-export const claim = async (ctx, patch) => {
+-  const INTELLIGENT = { ...v.thread.trait(ctx.terminal.thread, "INTELLIGENT"), ...patch };
+-  await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, belt.traits.claimed(ctx.terminal.thread, "INTELLIGENT", INTELLIGENT));
+-  return { INTELLIGENT };
+-};
+
+…
+// systems/ghost/subjects/terminal/commands/intelligent.js:18
+     { nature: "/tune", valence: "the seated thread's model tier — INTELLIGENT.tune. Example: /tune fast", input: Tuned, chord: "leader/h/t" },
+-    (ctx) => claim(ctx, belt.input.cast(Tuned, ctx.signal)),
++    async (ctx) => {
++      const INTELLIGENT = belt.input.cast(Tuned, ctx.signal);
++      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT }));
++      return { INTELLIGENT };
++    },
+   )
+…
+// systems/ghost/subjects/terminal/commands/intelligent.js:22
+     { nature: "/effort", valence: "the seated thread's reasoning effort — INTELLIGENT.effort. Example: /effort high", input: Effortful, chord: "leader/h/e" },
+-    (ctx) => claim(ctx, belt.input.cast(Effortful, ctx.signal)),
++    async (ctx) => {
++      const INTELLIGENT = belt.input.cast(Effortful, ctx.signal);
++      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT }));
++      return { INTELLIGENT };
++    },
+   )
+…
+// systems/ghost/subjects/terminal/commands/intelligent.js:26
+     { nature: "/rounds", valence: "the seated thread's round budget — INTELLIGENT.rounds. Example: /rounds 12", input: Rounded, chord: "leader/h/r" },
+-    (ctx) => claim(ctx, belt.input.cast(Rounded, ctx.signal)),
++    async (ctx) => {
++      const INTELLIGENT = belt.input.cast(Rounded, ctx.signal);
++      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT }));
++      return { INTELLIGENT };
++    },
+   );
+#+END_SRC
+***** pause.js — Q1 · Q2 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/pause.js:1
+ import { Vector } from "@vivalence/typology";
+-import { send } from "../../activity.js";
++import * as belt from "../../../gestalten/belt/index.js";
+
+…
+// systems/ghost/subjects/terminal/commands/pause.js:5
+   { nature: "/pause", valence: "SIGSTOP · hold every running activity on the thread. Example: /pause", chord: "leader/a/p" },
+-  (ctx) => send("SIGSTOP", ctx.terminal.thread.activities, "/pause"),
++  (ctx) => belt.activity.send("SIGSTOP", ctx.terminal.thread.activities, "/pause"),
+ );
+#+END_SRC
+***** resume.js — Q1 · Q2 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/resume.js:1
+ import { Vector } from "@vivalence/typology";
+-import { send } from "../../activity.js";
++import * as belt from "../../../gestalten/belt/index.js";
+
+…
+// systems/ghost/subjects/terminal/commands/resume.js:5
+   { nature: "/resume", valence: "SIGCONT · resume every paused activity on the thread. Example: /resume", chord: "leader/a/c" },
+-  (ctx) => send("SIGCONT", ctx.terminal.thread.activities, "/resume"),
++  (ctx) => belt.activity.send("SIGCONT", ctx.terminal.thread.activities, "/resume"),
+ );
+#+END_SRC
+***** set.js — Q1 · Q2 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/set.js:1
+-import { Vector, v } from "@vivalence/typology";
++import { Vector, traits, v } from "@vivalence/typology";
+ import * as belt from "../../../gestalten/belt/index.js";
+-import { docked, LENSES, SIDES, VIEWS } from "./dock.js";
+-import { claim, EFFORTS } from "./intelligent.js";
+
+…
+// systems/ghost/subjects/terminal/commands/set.js:14
+
+-export const WRITABLE = [
+-  at("terminal.dock.view", v.enum(VIEWS).desc('How the dock shows. Example: "closed"'), (ctx, view) => docked(ctx, { view })),
+-  at("terminal.dock.align", v.enum(SIDES).desc('The side the dock sits. Example: "left"'), (ctx, align) => docked(ctx, { align })),
+-  at("terminal.dock.lens", v.enum(LENSES).desc('Which stream the dock paints. Example: "trace"'), (ctx, lens) => docked(ctx, { lens })),
+-  at("terminal.dock.share", v.number({ minimum: 0.1, maximum: 0.9 }).desc("The dock's share of the chrome. Example: 0.38"), (ctx, share) => docked(ctx, { share })),
++const WRITABLE = [
++  at("terminal.dock.view", v.enum(belt.dock.VIEWS).desc('How the dock shows. Example: "closed"'), async (ctx, view) => {
++    await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED: { view } }));
++    return { DOCKED: { view } };
++  }),
++  at("terminal.dock.align", v.enum(belt.dock.SIDES).desc('The side the dock sits. Example: "left"'), async (ctx, align) => {
++    await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED: { align } }));
++    return { DOCKED: { align } };
++  }),
++  at("terminal.dock.lens", v.enum(belt.dock.LENSES).desc('Which stream the dock paints. Example: "trace"'), async (ctx, lens) => {
++    await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED: { lens } }));
++    return { DOCKED: { lens } };
++  }),
++  at("terminal.dock.share", v.number({ minimum: 0.1, maximum: 0.9 }).desc("The dock's share of the chrome. Example: 0.38"), async (ctx, share) => {
++    await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED: { share } }));
++    return { DOCKED: { share } };
++  }),
+   at("thread.label", v.string().desc('The label the seated thread shows. Example: "flamingo — six species"'), async (ctx, name) => {
+-    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, belt.traits.claimed(ctx.terminal.thread, "LABELED", { name }));
++    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { LABELED: { name } }));
+     return { LABELED: { name } };
+   }),
+-  at("thread.tune", v.primitives.hallucination.Tier.desc('A tier. Example: "fast"'), (ctx, tune) => claim(ctx, { tune })),
+-  at("thread.effort", v.enum(EFFORTS).desc('Reasoning effort. Example: "high"'), (ctx, effort) => claim(ctx, { effort })),
+-  at("thread.rounds", v.integer({ minimum: 1, maximum: 50 }).desc("The round budget. Example: 12"), (ctx, rounds) => claim(ctx, { rounds })),
++  at("thread.tune", v.primitives.hallucination.Tier.desc('A tier. Example: "fast"'), async (ctx, tune) => {
++    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { tune } }));
++    return { INTELLIGENT: { tune } };
++  }),
++  at("thread.effort", v.enum(belt.intelligent.EFFORTS).desc('Reasoning effort. Example: "high"'), async (ctx, effort) => {
++    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { effort } }));
++    return { INTELLIGENT: { effort } };
++  }),
++  at("thread.rounds", v.integer({ minimum: 1, maximum: 50 }).desc("The round budget. Example: 12"), async (ctx, rounds) => {
++    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { rounds } }));
++    return { INTELLIGENT: { rounds } };
++  }),
+   at("surface.sidebar", v.boolean().desc("The sidebar shown or not. Example: true"), (ctx, shown) => {
+#+END_SRC
+***** stop.js — Q1 · Q2 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/stop.js:1
+ import { Vector } from "@vivalence/typology";
+-import { send } from "../../activity.js";
++import * as belt from "../../../gestalten/belt/index.js";
+
+…
+// systems/ghost/subjects/terminal/commands/stop.js:5
+   { nature: "/stop", valence: "SIGTERM · stop every live activity on the thread. Example: /stop", chord: "leader/a/s" },
+-  (ctx) => send("SIGTERM", ctx.terminal.thread.activities, "/stop"),
++  (ctx) => belt.activity.send("SIGTERM", ctx.terminal.thread.activities, "/stop"),
+ );
+#+END_SRC
+***** thread.js — Q1 · Q2 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/thread.js:1
+-import { Vector, v } from "@vivalence/typology";
++import { Vector, traits, v } from "@vivalence/typology";
+ import * as belt from "../../../gestalten/belt/index.js";
+…
+// systems/ghost/subjects/terminal/commands/thread.js:30
+       const { name } = belt.input.cast(Named, ctx.signal);
+-      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, belt.traits.claimed(ctx.terminal.thread, "LABELED", { name }));
++      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { LABELED: { name } }));
+       return `thread #${ctx.terminal.thread.id} · ${name}`;
+#+END_SRC
+**** subjects/terminal/commands/application
+***** start.js — Q2 (open)
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/application/start.js:1
+ import { Vector } from "@vivalence/typology";
+-import { open } from "../../../mode/traits/application.js";
++
++const open = async (terminal, mode) => {
++  const thread = terminal.thread;
++  const kept = thread.$buffers
++    .get()
++    .filter((buffer) => buffer.mode === mode)
++    .sort((first, second) => first.index - second.index)
++    .at(-1);
++  const buffer = kept === undefined ? await mode.runtime.entities.buffer.create({ mode: mode.id, thread: thread.id, data: {} }) : kept;
++  if (terminal.thread === thread) terminal.$buffer.set(buffer);
++  return buffer;
++};
+
+#+END_SRC
+**** subjects/terminal/lifecycle
+***** index.js — m91 law 1 · Q0 · Q1 · Q4
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/lifecycle/index.js:3
+ import * as command from "../commands/index.js";
+-import * as clientCommand from "../../../subjects/client/commands/index.js";
++import * as clientCommand from "../../client/commands/index.js";
+
+#+END_SRC
+**** surfaces
+***** index.js — Q6 · Q9 (new)
+#+BEGIN_SRC js
+// systems/ghost/surfaces/index.js
+export * from "./chrome/index.js";
+#+END_SRC
+**** surfaces/chrome
+***** bundle.js — Q6
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/bundle.js:6
+ const outfile = new URL("./out/panes.mjs", import.meta.url);
+-const sheets = new URL("../../../subsystems/sheets/index.js", import.meta.url);
++const sheets = new URL("../../../../subsystems/sheets/index.js", import.meta.url);
+
+#+END_SRC
+***** renderers.js — Q6
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/renderers.js:1
+ import { mime } from "@vivalence/typology";
+-import { own, pick, RUNS } from "../gestalten/belt/view.js";
++import { own, pick, RUNS } from "../../gestalten/belt/view.js";
+ import { named } from "./sections.js";
+
+-export { RUNS, own, pick } from "../gestalten/belt/view.js";
++export { RUNS, own, pick } from "../../gestalten/belt/view.js";
+
+#+END_SRC
+***** sections.js — Q2 (belt.activity)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/sections.js:1
+ import { is, v } from "@vivalence/typology";
+-import { loudest } from "../entities/activity.js";
+-import { DEFAULT_DOCK } from "../gestalten/belt/dock.js";
++import * as belt from "../../gestalten/belt/index.js";
++import { DEFAULT_DOCK } from "../../gestalten/belt/dock.js";
+ import { SIDEBAR } from "./screen.js";
+…
+// systems/ghost/surfaces/chrome/sections.js:24
+
+-export const loudness = (activities) => lookup(LOUDNESS, loudest(activities), "loudness");
++export const loudness = (activities) => lookup(LOUDNESS, belt.activity.loudest(activities), "loudness");
+
+#+END_SRC
+**** surfaces/chrome/panes
+***** chrome.jsx — Q6
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:5
+ import { belt, mime } from "@vivalence/typology";
+-import * as view from "../../gestalten/belt/view.js";
++import * as view from "../../../gestalten/belt/view.js";
+ import { hitAt, palette } from "../grid.js";
+#+END_SRC
+***** painters.jsx — Q6
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/painters.jsx:3
+ import { tokens } from "@vivalence/dapper";
+-import * as view from "../../gestalten/belt/view.js";
++import * as view from "../../../gestalten/belt/view.js";
+ import { chosen } from "../renderers.js";
+#+END_SRC
+**** tests/entities/mode/traits
+***** looping.test.js — Q10 · Q11 · Q14 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/tests/entities/mode/traits/looping.test.js:4
+ import * as ghost from "@vivalence/ghost";
+-import { Terminal } from "../entities/terminal/prototype.js";
+
+-const { modes, surface } = ghost.lifecycle.client;
++const { modes, surface } = ghost.client.lifecycle;
+ const execution = new Vector().use(shard.controller.open).use(modes).use(surface).do(shard.controller.hold);
+…
+// systems/ghost/tests/entities/mode/traits/looping.test.js:13
+   const register = { modes: [await accio({ module: "@commons/home/console", reference: new Path("/mode/home/console") })] };
+-  const client = new ghost.Client({ controller: root.branch("client"), mask, register, instance: null, surface: () => () => {} });
++  const client = new ghost.client.Client({ controller: root.branch("client"), mask, register, instance: null, surface: () => () => {} });
+   const held = steer.dispatch.execute(execution, client);
+-  const terminal = Object.assign(new Terminal(), { id, index: 0, client });
++  const terminal = Object.assign(new ghost.terminal.Terminal(), { id, index: 0, client });
+   client.runtime = { entities: { mode: { $entities: atom([]) }, terminal: { $entities: atom([terminal]) } } };
+   terminal.runtime = client.runtime;
+-  await ghost.factories.terminal(terminal)(client);
++  await ghost.terminal.factory(terminal)(client);
+   return { client, terminal, held };
+#+END_SRC
+***** repling.test.js — Q10 · Q11 · Q14 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/tests/entities/mode/traits/repling.test.js:3
+ import * as ghost from "@vivalence/ghost";
+-import { Mode } from "../entities/mode/prototype.js";
+
+-const { REPLING } = ghost.traits.mode;
++const { REPLING } = ghost.entities.mode.traits;
+
+…
+// systems/ghost/tests/entities/mode/traits/repling.test.js:15
+   const kept = structuredClone(declared);
+-  const remote = Object.assign(new Mode(), { type: "home", slug: "console", traits: ["REPLING"], reference: new Path("/runtime/house/mode/home/console") });
++  const remote = Object.assign(new ghost.entities.mode.Mode(), { type: "home", slug: "console", traits: ["REPLING"], reference: new Path("/runtime/house/mode/home/console") });
+   remote.connection = {
+#+END_SRC
+**** tests/gestalten/belt
+***** view.test.js — Q10 · Q11 · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/gestalten/belt/view.test.js:1
+ import { crypto, mime, specimen, Url } from "@vivalence/typology";
+-import { bytes, candidates, declared, entry, identity, load, own, pick, row, RUNS } from "../gestalten/belt/view.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/gestalten/belt/view.test.js:38
+   specimen.it("identity reads an id or a row; row fetches /attached/view/:id by either", async () => {
+-    specimen.expect(identity("v-play")).toBe("v-play");
+-    specimen.expect(identity({ id: "v-play" })).toBe("v-play");
+-    specimen.expect((await row("v-play", attach)).slug).toBe("play");
+-    specimen.expect((await row({ id: "v-play" }, attach)).entry).toBe("board.js");
++    specimen.expect(ghost.belt.view.identity("v-play")).toBe("v-play");
++    specimen.expect(ghost.belt.view.identity({ id: "v-play" })).toBe("v-play");
++    specimen.expect((await ghost.belt.view.row("v-play", attach)).slug).toBe("play");
++    specimen.expect((await ghost.belt.view.row({ id: "v-play" }, attach)).entry).toBe("board.js");
+   });
+…
+// systems/ghost/tests/gestalten/belt/view.test.js:45
+   specimen.it("declared: a mode without an application declares nothing; with one, every bundle entry is a view whose one file is the compile", () => {
+-    specimen.expect(declared({ slug: "probe", application: null })).toEqual([]);
+-    const [held] = declared({ slug: "memo", application: { bundle: { entries: [{ mime: mime.tty.solid, mount: "/file/abc", integrity: "deadbeef" }] } } });
++    specimen.expect(ghost.belt.view.declared({ slug: "probe", application: null })).toEqual([]);
++    const [held] = ghost.belt.view.declared({ slug: "memo", application: { bundle: { entries: [{ mime: mime.tty.solid, mount: "/file/abc", integrity: "deadbeef" }] } } });
+     specimen.expect(held).toEqual({ id: null, slug: "memo", mime: mime.tty.solid, entry: "/file/abc", files: [{ id: "abc", path: "/file/abc", mime: mime.javascript, integrity: "sha256-deadbeef" }] });
+…
+// systems/ghost/tests/gestalten/belt/view.test.js:51
+   specimen.it("candidates: the pin wins (fetched by row); empty, the buffer's own mode's declared views; no mode object, none", async () => {
+-    specimen.expect((await candidates({ views: ["v-play"], mode: "m1" }, attach)).map((held) => held.slug)).toEqual(["play"]);
+-    specimen.expect(await candidates({ views: [], mode: { slug: "probe", application: null } }, attach)).toEqual([]);
+-    specimen.expect((await candidates({ views: [], mode: { slug: "memo", application: { bundle: { entries: [{ mime: mime.tty.solid, mount: "/file/x", integrity: "0" }] } } } }, attach)).map((held) => held.slug)).toEqual(["memo"]);
+-    specimen.expect(await candidates({ views: [], mode: "m1" }, attach)).toEqual([]);
++    specimen.expect((await ghost.belt.view.candidates({ views: ["v-play"], mode: "m1" }, attach)).map((held) => held.slug)).toEqual(["play"]);
++    specimen.expect(await ghost.belt.view.candidates({ views: [], mode: { slug: "probe", application: null } }, attach)).toEqual([]);
++    specimen.expect((await ghost.belt.view.candidates({ views: [], mode: { slug: "memo", application: { bundle: { entries: [{ mime: mime.tty.solid, mount: "/file/x", integrity: "0" }] } } } }, attach)).map((held) => held.slug)).toEqual(["memo"]);
++    specimen.expect(await ghost.belt.view.candidates({ views: [], mode: "m1" }, attach)).toEqual([]);
+   });
+…
+// systems/ghost/tests/gestalten/belt/view.test.js:58
+   specimen.it("own keeps the views this client RUNS; pick takes a compiled entry over a source, the first of equals; entry fails loud without its file", () => {
+-    specimen.expect(RUNS).toEqual([mime.tty.solid]);
++    specimen.expect(ghost.belt.view.RUNS).toEqual([mime.tty.solid]);
+     const dom = view("dom", mime.dom.svelte, "a.mjs", [file("1", "a.mjs", mime.javascript, "x")]);
+…
+// systems/ghost/tests/gestalten/belt/view.test.js:62
+     const built = view("built", mime.tty.solid, "a.mjs", [file("3", "a.mjs", mime.javascript, "x")]);
+-    specimen.expect(own([dom, source, built]).map((held) => held.slug)).toEqual(["source", "built"]);
+-    specimen.expect(pick([dom, source, built]).slug).toBe("built");
+-    specimen.expect(pick([dom])).toBe(undefined);
+-    specimen.expect(entry(built).id).toBe("3");
+-    specimen.expect(() => entry(view("lost", mime.tty.solid, "gone.js", [file("4", "a.js", mime.javascript, "x")]))).toThrow(/lost: no file at its entry gone\.js — its files: a\.js/);
+-    specimen.expect(() => entry(view("bare", mime.tty.solid, "gone.js", []))).toThrow(/its files: none/);
++    specimen.expect(ghost.belt.view.own([dom, source, built]).map((held) => held.slug)).toEqual(["source", "built"]);
++    specimen.expect(ghost.belt.view.pick([dom, source, built]).slug).toBe("built");
++    specimen.expect(ghost.belt.view.pick([dom])).toBe(undefined);
++    specimen.expect(ghost.belt.view.entry(built).id).toBe("3");
++    specimen.expect(() => ghost.belt.view.entry(view("lost", mime.tty.solid, "gone.js", [file("4", "a.js", mime.javascript, "x")]))).toThrow(/lost: no file at its entry gone\.js — its files: a\.js/);
++    specimen.expect(() => ghost.belt.view.entry(view("bare", mime.tty.solid, "gone.js", []))).toThrow(/its files: none/);
+   });
+…
+// systems/ghost/tests/gestalten/belt/view.test.js:71
+   specimen.it("bytes: the text is served when its sha256 is the header's AND the row's; a row without integrity trusts the header; a lying header, tampered bytes or a 404 fault", async () => {
+-    specimen.expect(await bytes(file("f-play", "board.js", mime.javascript, integrity), attach)).toBe(MODULE);
+-    specimen.expect(await bytes({ id: "f-play" }, attach)).toBe(MODULE);
+-    await specimen.expect(bytes(file("f-lying", "board.js", mime.javascript, integrity), attach)).rejects.toThrow(/is not the header's/);
+-    await specimen.expect(bytes(file("f-play", "board.js", mime.javascript, "sha256-0000000000000"), attach)).rejects.toThrow(/the row's 000000000000/);
+-    await specimen.expect(bytes(file("f-tampered", "board.js", mime.javascript, integrity), attach)).rejects.toThrow(/sha256/);
+-    await specimen.expect(bytes({ id: "f-missing" }, attach)).rejects.toThrow(/\/attached\/file\/f-missing: 404/);
++    specimen.expect(await ghost.belt.view.bytes(file("f-play", "board.js", mime.javascript, integrity), attach)).toBe(MODULE);
++    specimen.expect(await ghost.belt.view.bytes({ id: "f-play" }, attach)).toBe(MODULE);
++    await specimen.expect(ghost.belt.view.bytes(file("f-lying", "board.js", mime.javascript, integrity), attach)).rejects.toThrow(/is not the header's/);
++    await specimen.expect(ghost.belt.view.bytes(file("f-play", "board.js", mime.javascript, "sha256-0000000000000"), attach)).rejects.toThrow(/the row's 000000000000/);
++    await specimen.expect(ghost.belt.view.bytes(file("f-tampered", "board.js", mime.javascript, integrity), attach)).rejects.toThrow(/sha256/);
++    await specimen.expect(ghost.belt.view.bytes({ id: "f-missing" }, attach)).rejects.toThrow(/\/attached\/file\/f-missing: 404/);
+   });
+…
+// systems/ghost/tests/gestalten/belt/view.test.js:81
+     const play = view("play", mime.tty.solid, "board.js", [file("f-play", "board.js", mime.javascript, integrity)]);
+-    const module = await load(play, attach);
++    const module = await ghost.belt.view.load(play, attach);
+     specimen.expect(module.default("cell")).toBe("mounted cell");
+-    specimen.expect(await load({ ...play, id: "v-other", files: [file("f-missing", "board.js", mime.javascript, integrity)] }, attach)).toBe(module);
+-    await specimen.expect(load(view("bad", mime.tty.solid, "board.js", [file("f-tampered", "board.js", mime.javascript, lying)]), attach)).rejects.toThrow(/sha256/);
++    specimen.expect(await ghost.belt.view.load({ ...play, id: "v-other", files: [file("f-missing", "board.js", mime.javascript, integrity)] }, attach)).toBe(module);
++    await specimen.expect(ghost.belt.view.load(view("bad", mime.tty.solid, "board.js", [file("f-tampered", "board.js", mime.javascript, lying)]), attach)).rejects.toThrow(/sha256/);
+   });
+#+END_SRC
+**** tests/scenarios
+***** index.js — Q12 · Q11 (new)
+#+BEGIN_SRC js
+// systems/ghost/tests/scenarios/index.js
+export * as chrome from "./chrome.js";
+export * as hello from "./hello.js";
+export * as look from "./look.js";
+export * as world from "./world.js";
+#+END_SRC
+***** look.js — Q12 · Q11 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/tests/scenarios/look.js:1
+ import { atom } from "nanostores";
+ import { Controller, Path, Span, Url } from "@vivalence/typology";
+ import * as ghost from "@vivalence/ghost";
+-import { keymap } from "../../subjects/client/keymap.js";
+-import { Terminal } from "../../entities/terminal/prototype.js";
+-import { Thread } from "../../entities/thread/prototype.js";
+-import { Mode } from "../../entities/mode/prototype.js";
+-import { Turn } from "../../entities/turn.js";
+-import { Activity } from "../../entities/activity.js";
+-import { Lighthouse } from "../../entities/lighthouse/prototype.js";
+-import { screen } from "../../chrome/screen.js";
+-import { KEYS } from "../../chrome/grid.js";
++import { screen } from "../../surfaces/chrome/screen.js";
++import { KEYS } from "../../surfaces/chrome/grid.js";
+
+…
+// systems/ghost/tests/scenarios/look.js:47
+   const surface = screen({ kind: "tty", places: ["cell", "frame"], dark: true });
+-  const client = new ghost.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface });
+-  const lighthouse = Object.assign(new Lighthouse(), { manifest: { traits: ["AUTOLOGIN"] } });
++  const client = new ghost.client.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface });
++  const lighthouse = Object.assign(new ghost.entities.lighthouse.Lighthouse(), { manifest: { traits: ["AUTOLOGIN"] } });
+   lighthouse.$user.set({ slug: "beef", trait: {} });
+-  const memo = Object.assign(new Mode(), { id: "m1", type: "srs", slug: "memo", traits: ["HARNESSED"], daemon: null, reference: new Path("/runtime/house/mode/srs/memo") });
+-  const probe = Object.assign(new Mode(), { id: "m2", type: "home", slug: "probe", traits: ["EXPOSED"], daemon: null, reference: new Path("/runtime/house/mode/home/probe") });
+-  const thread = Object.assign(new Thread(), { id: "th1", mode: memo, traits: ["LABELED"], trait: { LABELED: { name: "flamingo" } } });
+-  const other = Object.assign(new Thread(), { id: "th2", mode: probe });
+-  const turn = Object.assign(new Turn(), { id: "u1", role: "user", thread, createdAt: local(9, 14, 0), parts: [{ type: "text", text: "what does the king's pawn do?" }] });
+-  const reply = Object.assign(new Turn(), { id: "a1", role: "assistant", thread, createdAt: local(9, 14, 3), parts: [{ type: "text", text: "It claims the centre." }] });
+-  const running = Object.assign(new Activity(), { id: "act1", type: "HALLUCINATION", thread, steps: [] });
++  const memo = Object.assign(new ghost.entities.mode.Mode(), { id: "m1", type: "srs", slug: "memo", traits: ["HARNESSED"], daemon: null, reference: new Path("/runtime/house/mode/srs/memo") });
++  const probe = Object.assign(new ghost.entities.mode.Mode(), { id: "m2", type: "home", slug: "probe", traits: ["EXPOSED"], daemon: null, reference: new Path("/runtime/house/mode/home/probe") });
++  const thread = Object.assign(new ghost.entities.thread.Thread(), { id: "th1", mode: memo, traits: ["LABELED"], trait: { LABELED: { name: "flamingo" } } });
++  const other = Object.assign(new ghost.entities.thread.Thread(), { id: "th2", mode: probe });
++  const turn = Object.assign(new ghost.entities.turn.Turn(), { id: "u1", role: "user", thread, createdAt: local(9, 14, 0), parts: [{ type: "text", text: "what does the king's pawn do?" }] });
++  const reply = Object.assign(new ghost.entities.turn.Turn(), { id: "a1", role: "assistant", thread, createdAt: local(9, 14, 3), parts: [{ type: "text", text: "It claims the centre." }] });
++  const running = Object.assign(new ghost.entities.activity.Activity(), { id: "act1", type: "HALLUCINATION", thread, steps: [] });
+   running.status = "RUNNING";
+…
+// systems/ghost/tests/scenarios/look.js:64
+   }
+-  const runtime = new ghost.Runtime({ reference: new Path("/runtime/house"), remote: new Url("http://127.0.0.1:9"), lighthouse });
++  const runtime = new ghost.entities.runtime.Runtime({ reference: new Path("/runtime/house"), remote: new Url("http://127.0.0.1:9"), lighthouse });
+   runtime.$status.set({ code: "RUNNING" });
+…
+// systems/ghost/tests/scenarios/look.js:68
+   runtime.entities = { terminal: terminals, thread: repository([thread, other]), mode: repository([memo, probe]), daemon: repository([]), activity: repository([running]) };
+-  const terminal = Object.assign(new Terminal(), { id: "t1", index: 1, client, runtime, repository: terminals, controller: client.controller.branch("terminal/t1") });
+-  terminal.write = (data) => {
+-    Object.assign(terminal, data);
++  const terminal = Object.assign(new ghost.terminal.Terminal(), { id: "t1", index: 1, client, runtime, repository: terminals, controller: client.controller.branch("terminal/t1") });
++  terminals.updateOne = (where, data) => {
++    Object.assign(terminal, data);
+     terminals.$entities.set([...terminals.$entities.get()]);
+…
+// systems/ghost/tests/scenarios/look.js:84
+   client.$active.set(terminal);
+-  terminal.repl.commands.graft(...Object.values(ghost.commands.client), ...Object.values(ghost.commands.terminal));
+-  client.keymap.graft(keymap);
++  terminal.repl.commands.graft(...Object.values(ghost.client.commands), ...Object.values(ghost.terminal.commands));
++  client.keymap.graft(ghost.client.keymap.keymap);
+   if (authorized) {
+#+END_SRC
+***** world.js — Q12 · Q11
+#+BEGIN_SRC diff
+// systems/ghost/tests/scenarios/world.js:1
+ import { parts } from "@vivalence/sheets/scenarios";
+-import { bundle } from "../chrome/bundle.js";
++import { bundle } from "../../surfaces/chrome/bundle.js";
+
+#+END_SRC
+**** tests/subjects/client
+***** client.test.js — Q10 · Q11 · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/client.test.js:3
+ import * as ghost from "@vivalence/ghost";
+-import { boot, DEMO } from "./scenarios/hello.js";
++import { hello } from "@vivalence/ghost/scenarios";
+
+…
+// systems/ghost/tests/subjects/client/client.test.js:25
+   specimen.beforeAll(async () => {
+-    world = await boot({ recipe: DEMO, prefix: "viva-ring-" });
++    world = await hello.boot({ recipe: hello.DEMO, prefix: "viva-ring-" });
+     const { paladin, instance } = await mounted(world);
+…
+// systems/ghost/tests/subjects/client/client.test.js:29
+     const root = new Controller({ stdout: new Span("ghost") });
+-    clientDie = new ghost.Client({ controller: root.branch("client"), mask, register: await paladin.ledger.registry.wire(mask), instance, surface: () => () => {} });
+-    steer.dispatch.execute(ghost.lifecycle.client.execution, clientDie);
++    clientDie = new ghost.client.Client({ controller: root.branch("client"), mask, register: await paladin.ledger.registry.wire(mask), instance, surface: () => () => {} });
++    steer.dispatch.execute(ghost.client.lifecycle.execution, clientDie);
+   });
+#+END_SRC
+***** console.test.js — Q10 · Q11 · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/console.test.js:4
+ import * as ghost from "@vivalence/ghost";
+-import { navigate } from "../subjects/client/keymap.js";
+-import { Terminal } from "../entities/terminal/prototype.js";
+
+-const { modes, keymap, surface } = ghost.lifecycle.client;
++const { modes, keymap, surface } = ghost.client.lifecycle;
+ const execution = new Vector().use(shard.controller.open).use(modes).use(surface).do(shard.controller.hold);
+…
+// systems/ghost/tests/subjects/client/console.test.js:15
+   try {
+-    const terminal = Object.assign(new Terminal(), { id: "t1", index: 0, client: clientDie, runtime: clientDie.runtime });
+-    await ghost.factories.terminal(terminal)(clientDie);
++    const terminal = Object.assign(new ghost.terminal.Terminal(), { id: "t1", index: 0, client: clientDie, runtime: clientDie.runtime });
++    await ghost.terminal.factory(terminal)(clientDie);
+     return terminal;
+…
+// systems/ghost/tests/subjects/client/console.test.js:26
+   const root = new Controller({ stdout: new Span("ghost") });
+-  const clientDie = new ghost.Client({ controller: root.branch("client"), mask, register: null, instance: null, surface: () => () => {} });
++  const clientDie = new ghost.client.Client({ controller: root.branch("client"), mask, register: null, instance: null, surface: () => () => {} });
+   const tail = computed(clientDie.controller.stdout.$history, (held) => held.filter((record) => ["log", "fault"].includes(record.track)));
+…
+// systems/ghost/tests/subjects/client/console.test.js:46
+   const mounted = Promise.withResolvers();
+-  const clientDie = new ghost.Client({ controller: root.branch("client"), mask, register: null, instance: null, surface: () => { mounted.resolve(); return () => {}; } });
++  const clientDie = new ghost.client.Client({ controller: root.branch("client"), mask, register: null, instance: null, surface: () => { mounted.resolve(); return () => {}; } });
+   const keyed = new Vector().use(shard.controller.open).use(modes).use(keymap).use(surface).do(shard.controller.hold);
+…
+// systems/ghost/tests/subjects/client/console.test.js:58
+     const queue = new Queue().enqueue({ key: "leader" }).enqueue({ key: "h" });
+-    await navigate(terminal, queue.drain());
++    await ghost.client.keymap.navigate(terminal, queue.drain());
+     specimen.expect(clientDie.controller.stdout.history.filter((record) => ["stop"].includes(record.track)).map((record) => record.path)).toContainEqual(["ghost", "client", "terminal/t1", "/hello"]);
+#+END_SRC
+***** factory.test.js — Q10 · Q11 · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/factory.test.js:4
+ import * as ghost from "@vivalence/ghost";
+-import { Terminal } from "../entities/terminal/prototype.js";
+
+…
+// systems/ghost/tests/subjects/client/factory.test.js:16
+     };
+-    const rejection = await ghost.factories.client(surface)({ controller: root, mask: mask(), register: { modes: [] }, instance: null }).then(() => null, (error) => error);
++    const rejection = await ghost.client.factory(surface)({ controller: root, mask: mask(), register: { modes: [] }, instance: null }).then(() => null, (error) => error);
+     specimen.expect(rejection).toBeInstanceOf(Error);
+…
+// systems/ghost/tests/subjects/client/factory.test.js:27
+     const root = new Controller({ stdout: new Span("ghost") });
+-    await ghost.factories.client(() => () => {})({ controller: root, mask: mask(), register: { modes: [] }, instance: null }).catch(() => null);
++    await ghost.client.factory(() => () => {})({ controller: root, mask: mask(), register: { modes: [] }, instance: null }).catch(() => null);
+     specimen.expect(root.stdout.history.filter((record) => ["status"].includes(record.track)).map((record) => record.path).at(-1)).toEqual(["ghost", "client"]);
+…
+// systems/ghost/tests/subjects/client/factory.test.js:36
+     const root = new Controller({ stdout: new Span("ghost") });
+-    const clientDie = new ghost.Client({ controller: root.branch("client"), mask: mask(), register: { modes: [] }, instance: null, surface: () => () => {} });
++    const clientDie = new ghost.client.Client({ controller: root.branch("client"), mask: mask(), register: { modes: [] }, instance: null, surface: () => () => {} });
+     const $entities = atom([]);
+     clientDie.runtime = { entities: { terminal: { $entities }, mode: { $entities: atom([]) } } };
+-    const row = (id, index) => Object.assign(new Terminal(), { id, index, client: clientDie, runtime: clientDie.runtime });
++    const row = (id, index) => Object.assign(new ghost.terminal.Terminal(), { id, index, client: clientDie, runtime: clientDie.runtime });
+     const first = row("t1", 0);
+…
+// systems/ghost/tests/subjects/client/factory.test.js:43
+     const stopping = Promise.withResolvers();
+-    const beat = ghost.lifecycle.client.terminals(clientDie, () => stopping.promise);
++    const beat = ghost.client.lifecycle.terminals(clientDie, () => stopping.promise);
+
+#+END_SRC
+***** keymap.test.js — Q10 · Q11 · Q14 · Q47
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/keymap.test.js:2
+ import { atom } from "nanostores";
+-import * as keymap from "../subjects/client/keymap.js";
+-import { KEYMAPPED } from "../entities/mode/traits/keymapped.js";
+-import { Terminal } from "../entities/terminal/prototype.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:24
+ const seat = (client) => {
+-  const terminal = Object.assign(new Terminal(), { client });
++  const terminal = Object.assign(new ghost.terminal.Terminal(), { client });
+   terminal.repl.commands = client.commands;
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:32
+ specimen.it("harvest folds a chord: into an edge whose effect is the line; a verb without one is left out", () => {
+-  const stripped = shape.strip(keymap.harvest(stub().commands)).branches;
++  const stripped = shape.strip(ghost.client.keymap.harvest(stub().commands)).branches;
+   specimen.expect(Object.keys(stripped)).toEqual(["leader"]);
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:38
+ specimen.it("catalog rolls the repl up into rows — nature and chord, an empty chord for an unbound verb", () => {
+-  specimen.expect(keymap.catalog(stub().commands)).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
++  specimen.expect(ghost.client.keymap.catalog(stub().commands)).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
+ });
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:45
+     .open({ nature: "/split", valence: "the share", input: v.object({ share: v.number().desc("A share. Example: 0.5") }) }, () => "split");
+-  specimen.expect(keymap.catalog(repl).map((entry) => [entry.nature, entry.options])).toEqual([["/dock", ["left", "closed"]], ["/split", []]]);
++  specimen.expect(ghost.client.keymap.catalog(repl).map((entry) => [entry.nature, entry.options])).toEqual([["/dock", ["left", "closed"]], ["/split", []]]);
+ });
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:63
+ specimen.it("navigate: leader m dispatches /mode; leader esc drops silently; leader x faults; q at the root is the widget's; a closed drain ends the walk", async () => {
+   const client = stub();
+-  client.keymap.graft(keymap.harvest(client.commands), keymap.keymap);
++  client.keymap.graft(ghost.client.keymap.harvest(client.commands), ghost.client.keymap.keymap);
+   const terminal = seat(client);
+   const queue = presses("leader", "m", "leader", "esc", "leader", "x", "q");
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:68
+   const drain = queue.drain();
+-  specimen.expect(await keymap.navigate(terminal, drain)).toBe(true);
++  specimen.expect(await ghost.client.keymap.navigate(terminal, drain)).toBe(true);
+   specimen.expect(client.dispatched).toEqual(["/mode"]);
+-  await keymap.navigate(terminal, drain);
++  await ghost.client.keymap.navigate(terminal, drain);
+   specimen.expect(faults).toEqual([]);
+-  await keymap.navigate(terminal, drain);
++  await ghost.client.keymap.navigate(terminal, drain);
+   specimen.expect(faults).toEqual(["NOT_FOUND"]);
+-  await keymap.navigate(terminal, drain);
++  await ghost.client.keymap.navigate(terminal, drain);
+   specimen.expect(faults).toEqual(["NOT_FOUND"]);
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:78
+   queue.close();
+-  specimen.expect(await keymap.navigate(terminal, drain)).toBe(false);
++  specimen.expect(await ghost.client.keymap.navigate(terminal, drain)).toBe(false);
+   specimen.expect(client.dispatched).toEqual(["/mode"]);
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:84
+   const client = stub();
+-  client.keymap.graft(keymap.harvest(client.commands), keymap.keymap);
++  client.keymap.graft(ghost.client.keymap.harvest(client.commands), ghost.client.keymap.keymap);
+   const terminal = seat(client);
+   const queue = presses("leader");
+-  const walking = keymap.navigate(terminal, queue.drain());
++  const walking = ghost.client.keymap.navigate(terminal, queue.drain());
+   await new Promise((wake) => setTimeout(wake, 0));
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:100
+   const client = stub();
+-  client.keymap.graft(keymap.keymap);
++  client.keymap.graft(ghost.client.keymap.keymap);
+   const mode = { slug: "board", module: { keymap: new Vector().open({ nature: "leader/g/n", valence: "new game" }, (ctx) => (ctx.mode === mode ? "/game/new" : "/unbound")) }, keymap: new Vector() };
+-  KEYMAPPED(mode);
++  ghost.entities.mode.traits.KEYMAPPED(mode);
+   const terminal = seat(client);
+   terminal.thread = { mode };
+-  await keymap.navigate(terminal, presses("leader", "g", "n").drain());
++  await ghost.client.keymap.navigate(terminal, presses("leader", "g", "n").drain());
+   specimen.expect(client.dispatched).toEqual(["/game/new"]);
+#+END_SRC
+***** rows.test.js — Q10 · Q11 · Q14 (m102's, re-cut 10-24 at landing)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/rows.test.js:5
+-const { rows } = ghost.lifecycle.client;
++const { rows } = ghost.client.lifecycle;
+#+END_SRC
+**** tests/subjects/shell
+***** lifecycle.test.js — Q10 · Q11 · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/shell/lifecycle.test.js:1
+ // m93 Q6 · law 3 (execute) + m96 ruling 4: against a world, factories.client hands back its Client at the run's end; the door's boot beat passes a reachable runtime and refuses a stranger; /help strips the shell.
++// m96 law 9: `viva --help` exits 0 under an empty HOME — the shell answers help before the door's `seat` beat resolves an instance; repl · chrome stay loud naming what is missing.
++import { join } from "@std/path";
+ import { Connection, Controller, Path, Span, Url, Vector, specimen, steer } from "@vivalence/typology";
+…
+// systems/ghost/tests/subjects/shell/lifecycle.test.js:4
+ import * as ghost from "@vivalence/ghost";
+-import { boot, DEMO } from "./scenarios/hello.js";
+-import { boot as door, shell } from "../subjects/shell/lifecycle.js";
++import { hello } from "@vivalence/ghost/scenarios";
++import { boot as door } from "../../../subjects/shell/lifecycle/boot.js";
++import * as shell from "../../../subjects/shell/index.js";
+
+…
+// systems/ghost/tests/subjects/shell/lifecycle.test.js:33
+   specimen.beforeAll(async () => {
+-    world = await boot({ recipe: DEMO, prefix: "viva-door-" });
++    world = await hello.boot({ recipe: hello.DEMO, prefix: "viva-door-" });
+     paladin.assign(world.env, "flag");
+…
+// systems/ghost/tests/subjects/shell/lifecycle.test.js:61
+   specimen.it("/help strips the shell: help · chrome under the root; --help strips before any door opens", async () => {
+-    const routed = await logged(() => steer.dispatch.execute(shell, { controller: new Controller({ stdout: new Span("ghost") }), signal: { flags: {} }, instance, mask, register }, "/help"));
++    const routed = await logged(() => steer.dispatch.execute(shell.lifecycle.execution, { controller: new Controller({ stdout: new Span("ghost") }), signal: { flags: {} }, instance, mask, register }, "/help"));
+     specimen.expect(Object.keys(JSON.parse(routed[0]).branches)).toEqual(["help", "chrome", "instance"]);
+-    const flagged = await logged(() => steer.dispatch.execute(shell, { controller: new Controller({ stdout: new Span("ghost") }), signal: { flags: { help: true } }, instance, mask, register }, "/help"));
++    const flagged = await logged(() => steer.dispatch.execute(shell.lifecycle.execution, { controller: new Controller({ stdout: new Span("ghost") }), signal: { flags: { help: true } }, instance, mask, register }, "/help"));
+     specimen.expect(flagged).toEqual(routed);
+…
+// systems/ghost/tests/subjects/shell/lifecycle.test.js:70
+     const handed = Promise.withResolvers();
+-    const booting = ghost.factories.client((clientDie) => {
++    const booting = ghost.client.factory((clientDie) => {
+       handed.resolve(clientDie);
+…
+// systems/ghost/tests/subjects/shell/lifecycle.test.js:75
+     const clientDie = await handed.promise;
+-    specimen.expect(clientDie).toBeInstanceOf(ghost.Client);
++    specimen.expect(clientDie).toBeInstanceOf(ghost.client.Client);
+     await eventually(() => clientDie.active !== null, 30000);
+…
+// systems/ghost/tests/subjects/shell/lifecycle.test.js:115
+   });
+ });
++
++const REPOSITORY = new URL("../../../../../", import.meta.url).pathname;
++const RUN = new URL("../../../run.js", import.meta.url).pathname;
++const CARRIED = ["PATH", "TMPDIR", "TERM", "LANG", "DENO_DIR", "NO_COLOR"];
++
++const viva = async (home, args, env = {}) => {
++  const carried = Object.fromEntries(CARRIED.filter((key) => Deno.env.has(key)).map((key) => [key, Deno.env.get(key)]));
++  const output = await new Deno.Command(Deno.execPath(), {
++    args: ["run", "-A", "--no-check", "--config", join(REPOSITORY, "deno.jsonc"), RUN, ...args],
++    cwd: home,
++    env: { ...carried, HOME: home, NO_COLOR: "1", ...env },
++    clearEnv: true,
++    stdin: "null",
++    stdout: "piped",
++    stderr: "piped",
++  }).output();
++  const decoder = new TextDecoder();
++  return { code: output.code, stdout: decoder.decode(output.stdout), stderr: decoder.decode(output.stderr) };
++};
++
++const VERBS = { help: "the shell's verbs. Example: viva help", chrome: "the repl under the chrome — the dock paints. Example: viva chrome" };
++const valences = (stdout) => Object.fromEntries(Object.entries(JSON.parse(stdout).branches).map(([verb, node]) => [verb, node.effect.valence]));
++
++specimen.describe("the shell under an empty HOME — help answers without an instance; a door names what is missing", () => {
++  let home = null;
++  specimen.beforeEach(async () => {
++    home = await Deno.makeTempDir({ prefix: "viva-shell-" });
++  });
++  specimen.afterEach(async () => {
++    await Deno.remove(home, { recursive: true });
++  });
++
++  specimen.it("--help exits 0 and strips the shell's verbs; nothing is written under HOME", async () => {
++    const ran = await viva(home, ["--help"]);
++    specimen.expect(ran.stderr).toBe("");
++    specimen.expect(ran.code).toBe(0);
++    specimen.expect(valences(ran.stdout)).toEqual(VERBS);
++    specimen.expect([...Deno.readDirSync(home)]).toEqual([]);
++  });
++
++  specimen.it("help exits 0 with the same strip as --help", async () => {
++    const ran = await viva(home, ["help"]);
++    specimen.expect(ran.code).toBe(0);
++    specimen.expect(valences(ran.stdout)).toEqual(VERBS);
++  });
++
++  specimen.it("chrome exits 1 naming the missing instance", async () => {
++    const ran = await viva(home, ["chrome"]);
++    specimen.expect(ran.code).toBe(1);
++    specimen.expect(ran.stderr).toContain("viva /chrome: instance: nothing selected");
++  });
++
++  specimen.it("chrome against an instance that masks no ghost client exits 1 naming the absent mask", async () => {
++    const mount = join(home, "bare");
++    await Deno.mkdir(mount);
++    await Deno.writeTextFile(join(mount, "instance.viva.json"), JSON.stringify({ manifest: { type: "instance", slug: "bare" } }));
++    const ran = await viva(home, ["chrome"], { VIVA_INSTANCE_MOUNT: mount });
++    specimen.expect(ran.code).toBe(1);
++    specimen.expect(ran.stderr).toContain(`viva /chrome: instance ${mount} masks no ghost client — no client at all`);
++  });
++});
+#+END_SRC
+**** tests/subjects/terminal
+***** commands.test.js — Q10 · Q11 · Q17′ · Q47
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/terminal/commands.test.js:3
+ import * as ghost from "@vivalence/ghost";
+-import { Terminal } from "../entities/terminal/prototype.js";
+-import { Thread } from "../entities/thread/prototype.js";
+-import { Mode } from "../entities/mode/prototype.js";
+-import { Buffer } from "../entities/buffer.js";
+-import { Turn } from "../entities/turn.js";
+-import { Activity, loudest, owed } from "../entities/activity.js";
+-import { Lighthouse } from "../entities/lighthouse/prototype.js";
+
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:33
+ const activity = (id, status) => {
+-  const held = Object.assign(new Activity(), { id, type: "HALLUCINATION", steps: [] });
++  const held = Object.assign(new ghost.entities.activity.Activity(), { id, type: "HALLUCINATION", steps: [] });
+   held.status = status;
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:41
+   const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [], trait: {} };
+-  const client = new ghost.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface: { $shell: atom("cockpit"), $tele: atom({ open: false, view: "logger", sel: "7", since: 0 }), $sidebar: atom(false), $sections: atom({ hidden: ["modes"] }) } });
++  const client = new ghost.client.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface: { $shell: atom("cockpit"), $tele: atom({ open: false, view: "logger", sel: "7", since: 0 }), $sidebar: atom(false), $sections: atom({ hidden: ["modes"] }) } });
+
+-  const lighthouse = Object.assign(new Lighthouse(), { manifest: { traits: ["AUTOLOGIN"] } });
++  const lighthouse = Object.assign(new ghost.entities.lighthouse.Lighthouse(), { manifest: { traits: ["AUTOLOGIN"] } });
+   lighthouse.connection = { fetch: async (route, body) => ({ body: { user: { slug: body.username, trait: {} }, authority: { access: "a", refresh: "r" } } }) };
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:48
+
+-  const memo = Object.assign(new Mode(), { id: "m1", type: "srs", slug: "memo", traits: ["HARNESSED"], daemon: null, reference: new Path("/runtime/house/mode/srs/memo") });
+-  const probe = Object.assign(new Mode(), { id: "m2", type: "home", slug: "probe", traits: ["EXPOSED"], daemon: null, reference: new Path("/runtime/house/mode/home/probe") });
++  const memo = Object.assign(new ghost.entities.mode.Mode(), { id: "m1", type: "srs", slug: "memo", traits: ["HARNESSED"], daemon: null, reference: new Path("/runtime/house/mode/srs/memo") });
++  const probe = Object.assign(new ghost.entities.mode.Mode(), { id: "m2", type: "home", slug: "probe", traits: ["EXPOSED"], daemon: null, reference: new Path("/runtime/house/mode/home/probe") });
+   const REPLY = [
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:69
+
+-  const thread = Object.assign(new Thread(), { id: "th1", mode: memo, traits: ["LABELED"], trait: { LABELED: { name: "flamingo" } } });
+-  const other = Object.assign(new Thread(), { id: "th2", mode: probe });
+-  const buffer = Object.assign(new Buffer(), { id: "b1", thread, traits: ["LABELED"], trait: { LABELED: { name: "memo #1" } } });
+-  const board = Object.assign(new Buffer(), { id: "b2", thread, mode: { slug: "play", application: { bundle: { entries: [{ mime: "text/html+svelte", mount: "cells/Board.js", integrity: "e7f3" }, { mime: "text/html+solid", mount: "cells/Glance.js", integrity: "5d2a" }] } } }, traits: ["LABELED"], trait: { LABELED: { name: "board one" } }, data: { fen: "8/8" } });
++  const thread = Object.assign(new ghost.entities.thread.Thread(), { id: "th1", mode: memo, traits: ["LABELED"], trait: { LABELED: { name: "flamingo" } } });
++  const other = Object.assign(new ghost.entities.thread.Thread(), { id: "th2", mode: probe });
++  const buffer = Object.assign(new ghost.entities.buffer.Buffer(), { id: "b1", thread, traits: ["LABELED"], trait: { LABELED: { name: "memo #1" } } });
++  const board = Object.assign(new ghost.entities.buffer.Buffer(), { id: "b2", thread, mode: { slug: "play", application: { bundle: { entries: [{ mime: "text/html+svelte", mount: "cells/Board.js", integrity: "e7f3" }, { mime: "text/html+solid", mount: "cells/Glance.js", integrity: "5d2a" }] } } }, traits: ["LABELED"], trait: { LABELED: { name: "board one" } }, data: { fen: "8/8" } });
+   thread.$buffers = atom([buffer, board]);
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:78
+
+-  client.runtime = new ghost.Runtime({ reference: new Path("/runtime/house"), remote: new Url("http://127.0.0.1:9"), lighthouse, connection: { branch: (path) => ({ path }) } });
++  client.runtime = new ghost.entities.runtime.Runtime({ reference: new Path("/runtime/house"), remote: new Url("http://127.0.0.1:9"), lighthouse, connection: { branch: (path) => ({ path }) } });
+   client.runtime.$status.set({ code: "RUNNING" });
+-  const terminals = repository([], (data, count) => Object.assign(new Terminal(), { id: `t${count + 1}`, index: count, client, runtime: client.runtime, repository: terminals, ...data }));
+-  const buffers = repository([buffer, board], (data, count) => Object.assign(new Buffer(), { id: `b${count + 1}`, ...data }));
+-  const threads = repository([thread, other], (data, count) => Object.assign(new Thread(), { id: `th${count + 1}`, ...data, mode: memo }));
++  const terminals = repository([], (data, count) => Object.assign(new ghost.terminal.Terminal(), { id: `t${count + 1}`, index: count, client, runtime: client.runtime, repository: terminals, ...data }));
++  const buffers = repository([buffer, board], (data, count) => Object.assign(new ghost.entities.buffer.Buffer(), { id: `b${count + 1}`, ...data }));
++  const threads = repository([thread, other], (data, count) => Object.assign(new ghost.entities.thread.Thread(), { id: `th${count + 1}`, ...data, mode: memo }));
+   client.runtime.entities = {
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:95
+         this.merges.push(structuredClone(raw));
+-        const held = this.$entities.get().find((turn) => turn.id === raw.id) ?? Object.assign(new Turn(), { id: raw.id });
++        const held = this.$entities.get().find((turn) => turn.id === raw.id) ?? Object.assign(new ghost.entities.turn.Turn(), { id: raw.id });
+         Object.assign(held, raw);
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:102
+   };
+-  const terminal = Object.assign(new Terminal(), { id: "t1", index: 0, client, runtime: client.runtime, repository: terminals, controller: client.controller.branch("terminal/t1") });
++  const terminal = Object.assign(new ghost.terminal.Terminal(), { id: "t1", index: 0, client, runtime: client.runtime, repository: terminals, controller: client.controller.branch("terminal/t1") });
+   terminals.$entities.set([terminal]);
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:108
+
+-  const repl = new Vector().graft(...Object.values(ghost.commands.client), ...Object.values(ghost.commands.terminal));
++  const repl = new Vector().graft(...Object.values(ghost.client.commands), ...Object.values(ghost.terminal.commands));
+   const run = async (line) => {
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:244
+     const done = activity("a0", "DONE");
+-    specimen.expect(owed("SIGCONT", [paused, running, done])).toEqual([paused, running]);
+-    specimen.expect(owed("SIGSTOP", [paused, running, done])).toEqual([paused, running]);
+-    specimen.expect(owed("SIGTERM", [paused, running, done])).toEqual([paused, running]);
+-    specimen.expect(loudest([paused, running])).toBe("RUNNING");
+-    specimen.expect(loudest([])).toBe("NONE");
++    specimen.expect(ghost.belt.activity.owed("SIGCONT", [paused, running, done])).toEqual([paused, running]);
++    specimen.expect(ghost.belt.activity.owed("SIGSTOP", [paused, running, done])).toEqual([paused, running]);
++    specimen.expect(ghost.belt.activity.owed("SIGTERM", [paused, running, done])).toEqual([paused, running]);
++    specimen.expect(ghost.belt.activity.loudest([paused, running])).toBe("RUNNING");
++    specimen.expect(ghost.belt.activity.loudest([])).toBe("NONE");
+   });
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:279
+
+-  specimen.it("/dock · /dock/lens · /split claim DOCKED on the terminal, field-wise — /dock routes a side to align, a view to view — through the terminal's write; a bad word is VALIDATION", async () => {
++  specimen.it("/dock · /dock/lens · /split claim DOCKED on the terminal, field-wise — /dock routes a side to align, a view to view — through the terminal's updateOne; a bad word is VALIDATION", async () => {
+     specimen.expect(await run("/dock left")).toEqual({ DOCKED: { align: "left" } });
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:292
+
+-  specimen.it("/set <path> <value> writes one inspector path — DOCKED through the terminal's write, INTELLIGENT · LABELED through the thread's updateOne, a screen atom in place; a set toggles; an unknown path or a value outside its schema is loud", async () => {
++  specimen.it("/set <path> <value> writes one inspector path — DOCKED through the terminal's updateOne, INTELLIGENT · LABELED through the thread's updateOne, a screen atom in place; a set toggles; an unknown path or a value outside its schema is loud", async () => {
+     specimen.expect(await run("/set terminal.dock.view closed")).toEqual({ DOCKED: { view: "closed" } });
+#+END_SRC
+***** prototype.test.js — Q10 · Q11 · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/terminal/prototype.test.js:2
+ import * as ghost from "@vivalence/ghost";
+-import { Terminal } from "../entities/terminal/index.js";
+
+…
+// systems/ghost/tests/subjects/terminal/prototype.test.js:10
+     specimen.expect(ghost.belt.dock.DEFAULT_DOCK).toEqual({ align: "right", share: 0.38, view: "docked", lens: "repl" });
+-    const terminal = Object.assign(new Terminal(), {
++    const terminal = Object.assign(new ghost.terminal.Terminal(), {
+       trait: { DOCKED: { lens: "chat" } },
+…
+// systems/ghost/tests/subjects/terminal/prototype.test.js:19
+   specimen.it("a terminal with no layer over it is the default", () => {
+-    const terminal = Object.assign(new Terminal(), { client: { ...mask({}), ...user({}) } });
++    const terminal = Object.assign(new ghost.terminal.Terminal(), { client: { ...mask({}), ...user({}) } });
+     specimen.expect(terminal.dock).toEqual(ghost.belt.dock.DEFAULT_DOCK);
+…
+// systems/ghost/tests/subjects/terminal/prototype.test.js:25
+     const surface = () => () => {};
+-    specimen.expect(new ghost.Client({ ...mask({ THEMED: "northsea" }), ...user({ THEMED: "porcelain" }), surface }).theme).toBe("northsea");
+-    specimen.expect(new ghost.Client({ ...mask({}), ...user({ THEMED: "northsea" }), surface }).theme).toBe("northsea");
+-    specimen.expect(new ghost.Client({ ...mask({}), ...user({}), surface }).theme).toBe("porcelain");
+-    specimen.expect(new ghost.Client({ ...mask({}), ...user({}), surface: Object.assign(() => () => {}, { dark: true }) }).theme).toBe("northsea");
++    specimen.expect(new ghost.client.Client({ ...mask({ THEMED: "northsea" }), ...user({ THEMED: "porcelain" }), surface }).theme).toBe("northsea");
++    specimen.expect(new ghost.client.Client({ ...mask({}), ...user({ THEMED: "northsea" }), surface }).theme).toBe("northsea");
++    specimen.expect(new ghost.client.Client({ ...mask({}), ...user({}), surface }).theme).toBe("porcelain");
++    specimen.expect(new ghost.client.Client({ ...mask({}), ...user({}), surface: Object.assign(() => () => {}, { dark: true }) }).theme).toBe("northsea");
+   });
+#+END_SRC
+***** repl.test.js — Q10 · Q11 · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/terminal/repl.test.js:3
+ import * as ghost from "@vivalence/ghost";
+-import { Terminal } from "../entities/terminal/prototype.js";
+
+-const { modes, surface } = ghost.lifecycle.client;
++const { modes, surface } = ghost.client.lifecycle;
+ const execution = new Vector().use(shard.controller.open).use(modes).use(surface).do(shard.controller.hold);
+…
+// systems/ghost/tests/subjects/terminal/repl.test.js:21
+   try {
+-    const terminal = Object.assign(new Terminal(), { id, index: 0, client, runtime: client.runtime });
+-    await ghost.factories.terminal(terminal)(client);
++    const terminal = Object.assign(new ghost.terminal.Terminal(), { id, index: 0, client, runtime: client.runtime });
++    await ghost.terminal.factory(terminal)(client);
+     return terminal;
+…
+// systems/ghost/tests/subjects/terminal/repl.test.js:32
+   const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [] };
+-  const client = new ghost.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface: () => () => {} });
++  const client = new ghost.client.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface: () => () => {} });
+   const held = steer.dispatch.execute(execution, client);
+#+END_SRC
+**** tests/surfaces/chrome
+***** bundle.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:1
+-import { screen, settle } from "./world.js";
++import { screen, settle } from "../../scenarios/world.js";
+ import { specimen } from "@vivalence/typology";
+-import { catalog } from "../subjects/client/keymap.js";
+-import { panes } from "../chrome/out/panes.mjs";
+-import { DESIGN, world } from "./scenarios/look.js";
++import { panes } from "../../../surfaces/chrome/out/panes.mjs";
++import { DESIGN, world } from "../../scenarios/look.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:64
+     held.client.$chord.set(null);
+-    held.client.$catalog.set(catalog(held.client.active.repl.commands));
++    held.client.$catalog.set(ghost.client.keymap.catalog(held.client.active.repl.commands));
+     held.client.surface.$draft.set("/dock");
+#+END_SRC
+***** index.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/index.test.js:2
+ import { specimen } from "@vivalence/typology";
+ import { tokens } from "@vivalence/dapper";
+-import * as chrome from "../chrome/index.js";
+-import * as grid from "../chrome/grid.js";
++import * as chrome from "../../../surfaces/chrome/index.js";
++import * as grid from "../../../surfaces/chrome/grid.js";
+ import { atom } from "nanostores";
+-import { screen } from "../chrome/screen.js";
++import { screen } from "../../../surfaces/chrome/screen.js";
+#+END_SRC
+***** keys.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/keys.test.js:1
+ import "@vivalence/sheets";
+-import * as kit from "../chrome/keys.js";
++import * as kit from "../../../surfaces/chrome/keys.js";
+ import { parseKeypress } from "@opentui/core";
+ import { Pipe, specimen } from "@vivalence/typology";
+-import { screen, settle } from "./world.js";
++import { screen, settle } from "../../scenarios/world.js";
+
+#+END_SRC
+***** paint.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/paint.test.js:1
+-import { chrome, screen, settle } from "./world.js";
++import { chrome, screen, settle } from "../../scenarios/world.js";
+ import { specimen } from "@vivalence/typology";
+-import { paint } from "../chrome/paint.js";
+-import { DESIGN, world } from "./scenarios/look.js";
++import { paint } from "../../../surfaces/chrome/paint.js";
++import { DESIGN, world } from "../../scenarios/look.js";
+
+#+END_SRC
+***** renderers.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/renderers.test.js:1
+ import { mime, specimen } from "@vivalence/typology";
+-import { BODIES, body, chosen, picks } from "../chrome/renderers.js";
++import { BODIES, body, chosen, picks } from "../../../surfaces/chrome/renderers.js";
+
+#+END_SRC
+**** tests/surfaces/chrome/panes
+***** chrome.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:1
+ import { specimen } from "@vivalence/typology";
+-import { navigating } from "../subjects/client/keymap.js";
+-import { keypresses } from "../chrome/keys.js";
+-import { chrome, screen, settle } from "./world.js";
+-import { DESIGN, world } from "./scenarios/look.js";
++import { keypresses } from "../../../../surfaces/chrome/keys.js";
++import { chrome, screen, settle } from "../../../scenarios/world.js";
++import { DESIGN, world } from "../../../scenarios/look.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:104
+     keypresses(setup.renderer).to(held.client.presses);
+-    const walking = navigating(held.client, held.client.presses.drain(held.client.controller.abort.signal));
++    const walking = ghost.client.keymap.navigating(held.client, held.client.presses.drain(held.client.controller.abort.signal));
+     await settle(setup);
+#+END_SRC
+***** regions.test.js — Q10 · Q11′ · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:1
+ import { specimen } from "@vivalence/typology";
+-import { catalog } from "../subjects/client/keymap.js";
+-import { lines } from "../chrome/grid.js";
+-import { render } from "../chrome/panes/regions.js";
+-import { gathered, island } from "../chrome/world.js";
+-import { journalLines } from "../chrome/panes/journal.js";
+-import { Turn } from "../entities/turn.js";
+-import { DESIGN, framed, lists, local, runs, symbolic, world } from "./scenarios/look.js";
++import { lines } from "../../../../surfaces/chrome/grid.js";
++import { render } from "../../../../surfaces/chrome/panes/regions.js";
++import { gathered, island } from "../../../../surfaces/chrome/world.js";
++import { journalLines } from "../../../../surfaces/chrome/panes/journal.js";
++import { DESIGN, framed, lists, local, runs, symbolic, world } from "../../../scenarios/look.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:22
+ const turned = (held, id, createdAt, parts) =>
+-  held.thread.$turns.set([...held.thread.$turns.get(), Object.assign(new Turn(), { id, role: "assistant", thread: held.thread, createdAt, parts })]);
++  held.thread.$turns.set([...held.thread.$turns.get(), Object.assign(new ghost.entities.turn.Turn(), { id, role: "assistant", thread: held.thread, createdAt, parts })]);
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:49
+     const held = world();
+-    held.client.$catalog.set(catalog(held.client.active.repl.commands));
++    held.client.$catalog.set(ghost.client.keymap.catalog(held.client.active.repl.commands));
+     held.client.surface.$draft.set("/dock");
+#+END_SRC
+* the law
+
+1. ghost's tree barrels up: a leaf → its directory's =index.js= → the parent's → =typology.js=. An =index.js= is a list (=export *= per one-thing leaf, =export * as= per function family or directory) or the directory's value (=terminal/commands/mode= · =application= · =shell/commands=).
+2. =typology.js= mirrors ls: flat =export *= of =gestalten= · =subjects=, then =export * as= every top directory but =surfaces/= (m102 law 7: ghost exports no surface).
+3. ghost's subjects are =client= · =shell= · =terminal= (Q47 · Q47′); a subject's directory: =prototype.js= (the class) · =repository.js= · =hydration.js= · =factory.js= · =lifecycle/= · =traits/= · =commands/=; an entity (=activity= · =buffer= · =daemon= · =lighthouse= · =mode= · =runtime= · =thread= · =turn=) lives under =entities/<x>/= (=prototype= · =repository= · =hydration=, plus =factory= · =lifecycle/= · =traits/= where it has them), reached as =ghost.entities.<x>= (Q47).
+4. one leaf, one export; a vocabulary list or a write over a ctx moves to =belt= (=belt.dock= · =belt.intelligent= · =belt.activity=); a one-consumer extra becomes that consumer's local. /(Q48 10-24: a write over a ctx stays at its command — =belt= holds vocabulary, never a function of the whole ctx)/
+5. =shellDie.dispatch(signal)= mints an =Argv= and runs it over the shell's =commands=; bare =viva= is =shellDie.dispatch("/chrome")=.
+6. a trait write is =repository.updateOne(where, traits.patch(entity, { NAME: patch }))=; =traits.patch= carries the whole trait, the server replaces a JSON column (Q44).
+7. tests mirror the source tree and reach it through =@vivalence/ghost= · =@vivalence/ghost/scenarios=; chrome's tests reach chrome relatively (Q11′), and so does the shell's door test while =shell= stays off the barrel (Q45′).
+
+* milestones
+
+| milestone | blocks | green when |
+|-----------|--------|------------|
+| the typology hunks (HOLY, each its own go; shown 10-24, /"amen"/) | =gestalten/belt/traits.js= (Q17′ · Q44) · =prototypes/argv.js= (Q41⁵) · =prototypes/signal.js= (Q42) · =tests/{data-entity,signal}.test.js= · =tests/gestalten/belt/traits.patch.test.js= | typology 152 ok — 10-23 copy; =data-entity.test.js= red on m102's tree, green after |
+| the subjects (shown 10-24, /"amen"/) | =entities/terminal/= → =subjects/terminal/= (Q47: =daemon= · =lighthouse= · =mode= · =runtime= · =thread= stay =entities/=) · every =prototype.js= split · every =index.js= · =typology.js= · =gestalten/belt/{activity,intelligent}.js= | ghost 30 ok / 1 baseline red — 10-23 copy |
+| the shell door (shown 10-24, /"amen."/) | =subjects/shell/**= · =run.js= | =viva --help= rc 0 under an empty HOME, the strip printed — 10-23 copy |
+| the surface (the move only; Q8 · Q9's helpers · Q43 → m103 compendium 10-24) | =chrome/= → =surfaces/chrome/= · =surfaces/index.js= · =bundle.js= · =renderers.js= · =sections.js= · =panes/{chrome,painters}.jsx= · =deno.jsonc= | =surfaces/chrome/{index,bundle,paint,keys,renderers}.test.js= · =panes/{chrome,regions}.test.js= — 10-24 green on the split copy |
+| the trait write | =gestalten/belt/dock.js= · =subjects/terminal/commands/{dock,set,intelligent,close,full,thread}.js= · =subjects/terminal/prototype.js= | =tests/subjects/terminal/commands.test.js= — 10-23 green |
+| the tests tree | 20 test moves (chrome's 7 carry their path lines only, 10-24) · =tests/scenarios/index.js= · =./scenarios= export | ghost suite = m102's (30 · 1 red) |
+| anima | =src/client.js= · =src/surface/sections.js= · =panes/{composer,sidebar}.jsx= · =tests/{world,gate,sidebar,panel,bar}= | anima 38 files ok, = m102's file by file — 10-23 |
+
+* blast table
+
+Every file the tangle touches is a block under =* as code= (113 · 26 moves · 2 deletes, after the m103 split 10-24); the rows below are what it leaves alone or breaks.
+
+| site | today | after | rides |
+|------|-------|-------|-------|
+| kept by Q44 /"b."/ — chess clears its legal moves | =~/.viva/registry/chess/modes/board/play/aperture/index.js:27-30= · =coach/practice/tools/index.js:19-22= write =data.dests = {}= | the old =dests= survive the write — probe 10-23 (mikro 7.2.3, =:memory:=): ={dests:{e2:[e4]}}= + ={dests:{}}= → ={dests:{e2:[e4]}}= under Q33's merge; the server replaces | Q44 |
+| replaced, as today (Q44) | =commons/fixtures/memo/mode/tools/index.js:106= =updateOne({ id }, { data })= · =systems/ghost/subjects/terminal/commands/artifact.js:28= | keys it never drops survive; arrays replace (probe: =deck [1,2,3]= + =[9]= → =[9]=) | Q33 |
+| keep — anima's SvelteKit shell | =systems/anima/src/app/panels/c/cards/threads.js:28,42= · =src/entities/terminal/prototype.js:61= spread-write a trait | unchanged — on his retire list (=reference/m95/shell-retire-20261022.md:56,101=) | Q17′ |
+| keep — =EFFORTS= copies | =systems/ghost/surfaces/chrome/sections.js:42= · =systems/anima/src/surface/sections.js:40= | unchanged (m103 recasts both chromes) | Q2 |
+| keep — the shell door test reaches the shell relatively | =systems/ghost/tests/subjects/shell/lifecycle.test.js:8-9= | relative while =shell= is off the barrel | Q45′ |
+| canon at landing | =.ikiro/codestyle.md= the subject line (=prototype.js (class · repository · hydration)=) · =.ikiro/world/codemap/ghost.md= paths (=entities/= · =chrome/=) | rewritten the turn the code lands, never before | Q4 · Q6 |
+| =~/.viva= | no recipe or shelf names a ghost path (grep 10-23: 0) | none | — |
+
+* testing assessment
+
+- new: =tests/data-entity.test.js= (a JSON column replaced whole, an empty map clears — Q44, rewritten 10-24) · =tests/gestalten/belt/traits.patch.test.js= · =tests/signal.test.js= +2 (Argv string ≡ array 4/4 · a kind minted from another).
+- moved and re-pointed: 20 ghost tests (Q10 · Q14), package imports only (Q11); =shell.test.js= merged into =subjects/shell/lifecycle.test.js=.
+- rigs changed (mine): =tests/scenarios/look.js= stubs =terminals.updateOne= with the server's replace (=Terminal.write= died, Q16; Q44).
+- COVERAGE GAP: bare =viva= on a tty opening the chrome — a live walk (QA =T-viva-bare=).
+- COVERAGE GAP: anima's served bundle under the new root — the static walk from =typology.js= reaches no =surfaces/= and no =subjects/shell/= (10-23), no bundle probe (QA =P-anima-root=).
+- baseline red kept: =ghost-help-test-reads-a-groups-effect= (known issue) — =lifecycle.test.js= shell half, same on m102.
+
+* QA
+
+- /"I type =viva= in a terminal, I see the chrome paint."/
+#+marker_qa: m98/T-viva-bare · pending · Q7′ — the root dispatches /chrome through shellDie.dispatch
+- /"I type =viva --help= with no instance, I see the shell's verbs and rc 0."/
+#+marker_qa: m98/T-help-empty · held · rc 0 under an empty HOME on the replayed copy 10-23
+- /"I type =/tune fast= on a labelled thread, the label stays."/
+#+marker_qa: m98/T-trait-merge · pending · Q17′ + Q44 — =/tune fast= on a labelled thread keeps its label; chess's board shows no legal moves once a game ends
+- /"I open anima, the page loads and shows no opentui."/
+#+marker_qa: m98/P-anima-root · pending · the root barrel exports no surface and no shell
+
+* deferred
+
+- Q44 · Q45, asked 10-23 at the finish (=* handoff= next): built as ruled (Q33 B · =shell= off the barrel, law 2) until he rules. Q44 LOCKED 10-24 /"b."/: the server replaces, =traits.patch= merges the whole trait. Q45 LOCKED 10-24 /"teb."/ (b), then UNLOCKED by Q45′ /"a"/: anima's vite build follows the dynamic import (=Rollup failed to resolve import "@vivalence/sheets"=); =shell= stays off the barrel.
+- the two-stage signal (a signal completed where a pattern matches it) — its own quest when he revives it; Q41″ · Q41‴ ride it (=reference/m98/drill-10-23.org=).
+- a per-barrel =Object.keys= snapshot (Q1 caveat: two star leaves exporting one name collide silently).
+- =toRgb= (=surfaces/chrome/grid.js:16=) ≡ dapper =channels= — unasked. /(MOVED 10-24 to m103 — compendium)/
+
+* changelog
+
+** the m103 split 10-24 — beef: /"this must be aligned with 103. lets move the parts of 98 into 103 that fit there and drop them here entirely. We don't want double work."/
+
+- moved to =m103-chrome-panels.org= =* from m98 — compendium (10-24)= (rows + blocks verbatim; struck copies =reference/m98/chrome-to-m103-10-24.org=): Q8 (12 =panes/*.js= blocks) · Q9's helpers + Q43 (=grid.js= · =index.js= · =screen.js=) · the Q8 · Q43 lines of 5 chrome tests (=bundle= · =index= · =paint= · =panes/chrome= · =panes/regions=, re-cut to their path lines). Kept: the 26 moves (the =chrome/= move · its 7 test moves) · =surfaces/index.js= · 5 path fixes (=bundle.js= · =renderers.js= · =sections.js= · =panes/{chrome,painters}.jsx=).
+- replay 10-24 on a fresh copy: this quest 26 moves · 2 deletes · 32 new · 178 hunks · 0 missed (was 232); =m99-keys.org= after it 143 landed · 2 missed (=client.test.js:33= · =lifecycle.test.js:91=, the repo's =/quit= → =controller.kill= drift, the same on the unsplit base).
+- census 10-24, serial, empty HOME, base = the unsplit m98 + m99, =out/panes.mjs= rebuilt on both: ghost 30 passed · 4 failed (6 steps) on both, the same names (=the client against a world= ×3 · =the door against a world= ×1 · =the shell under an empty HOME= ×2: the two m99 files the drift skips + the =valence= baseline); typology 153 ok on both; =run.js --help= rc 0 under an empty HOME; anima =deno task bundle= built.
+
+** testing pass 10-23 — with m99, on a scratchpad copy (counts + method: =m99-keys.org= =* changelog=)
+
+m98 alone vs rig: typology · paladin · runtime · drapes · hello-world · hallucinators · memo · stub unchanged; ghost 30/2 → 27/5. Reds:
+- 2 baseline (=lifecycle.test.js=, was =shell.test.js=: =valences= reads =node.effect.valence= on the effectless =instance= group).
+- =tests/subjects/terminal/commands.test.js:265= — Q17′: =traits.patch= sends only the touched trait, =DataEntity.updateOne= (=entities/base/DataEntity.ts:56=) calls =entity.assign(data)= with mikro's default =mergeObjectProperties: false= (=@mikro-orm/core Configuration.js:60=), so the server REPLACES =trait=. Probe (mikro, runtime =datamap.seed()=): sent ={"traits":["LABELED","INTELLIGENT"],"trait":{"INTELLIGENT":{"tune":"fast"}}}= → read back the same; =LABELED= gone, =traits= still claims it. =/tune fast= on a labelled thread erases its label. Q44 10-24: =traits.patch= sends the whole trait, the label rides along.
+- 3 leader-grid frames: the dead =c /chrome/on= cell (Q7).
+Departures (copy only, mine): =claim= · =EFFORTS= → =gestalten/belt/intelligent.js= (Q1's star barrel handed them to =Object.values(commands)=: =vector.trie is not iterable=; the lookup's schematic route not taken) · shell =lifecycle/{boot,ledger,seat}.js= phase files (=commands/chrome.js= ↔ =lifecycle/index.js= TDZ cycle: /"Cannot access 'chrome' before initialization"/) · =subjects/repl/index.js= stays =export * from "./dispatch.js"= · client lifecycle phase split not done · chrome tests reach =scenarios/= relatively · Q9's /"rgb ≡ grid.js:16 toRgb"/ is false (unit channels vs 0–255): =rgb= · =luminance= moved to =grid.js= beside it · =new Argv("/chrome").flags= is =undefined= (Q7′ arms, still open).
+
+** finish 10-23 — the tangle on m102's tree (skill =quest=, beef: /"go"/)
+
+Built on a scratchpad copy of today's tree with m102 replayed (=replay-m102.sh=: 144 hunks · 0 missed); =* as code= generated from that copy's diff; tests rewritten there (mine: the rigs).
+
+- replay 10-23: a fresh copy of the 10-23 tree → m102 → this quest (=replay-quest.py=) → m99 → =diff -rq= against the worked copy: empty (=systems/ghost/surfaces/chrome/out/= and =tests/snapshots/= excluded, both gitignored). m102 landed in the repo meanwhile (20:20): again on a fresh copy of the repo → this quest → m99: 0 missed, ≡ the worked copy bar =subsystems/typology/schematics/primitives/contexts.js= (m102's held hunk).
+- census 10-23, serial, empty HOME per suite (=census-suites.sh=), rig = the m102 copy (its =out/panes.mjs= rebuilt) · base = m98:
+
+#+BEGIN_SRC text
+rig  typology  ok 150 · 0       base  typology  ok 150 · 0   (152 ok with this quest's three new tests)
+rig  paladin   ok  58 · 0       base  paladin   ok  58 · 0
+rig  runtime   86 · 11 failed   base  runtime   86 · 11 failed   same names
+rig  ghost     30 ·  1 failed   base  ghost     30 ·  1 failed   ghost-help-test-reads-a-groups-effect on both
+rig  dapper    ok  28           base  dapper    ok  28
+rig  drapes    48 ·  1 failed   base  drapes    48 ·  1 failed   dock.shareAfterDrag on both
+rig  hello-world 17 · 2         base            17 · 2           same
+rig  hallucinators ok 7         base            ok 7
+rig  memo  ok 4 · stub ok 3     base  same
+anima (47 files one by one)     m102 ≡ m98: 38 ok · 3 red · 6 load nothing, the same files
+#+END_SRC
+
+- census on the landing tree 10-23 (rig = a copy of the repo after m102 landed · base = it + m98 + m99, =out/panes.mjs= rebuilt on both): typology 150 → 153 · ghost 30 · 1 → 32 · 1 · runtime 86 · 11 · drapes 48 · 1 · hello-world 17 · 2, the same failing names; paladin · dapper · hallucinators · memo · stub ok on both; anima 47 files ≡ file by file.
+- the m102 copy's 2 =panes.out= reds (10-23 census) were a stale =out/panes.mjs= rsynced in: rebuilt, green on both.
+- departures, mine, reported:
+  - =subjects/index.js= lists every subject but =shell= — on the barrel the shell's =/chrome= pulls =surfaces/chrome/= (opentui, =@vivalence/sheets= host) into anima's graph, which m102 law 7 forbids → Q45.
+  - =EFFORTS= → =gestalten/belt/intelligent.js=, not the schematic (the lookup): =v.traits.thread.INTELLIGENT.properties.effort= carries the schematic's =optional=; probe 10-23 =v.object({ effort }).errors({})= → 0 errors, =/effort= with no word would pass.
+  - =set.js= · =intelligent.js= keep today's answer ={ INTELLIGENT: patch }= after the write (Q17′'s snippet returned the row).
+  - =Terminal.setThread= calls =this.repository.updateOne= itself (Q16 killed =write=, its one other caller).
+  - anima imports =* as ghost=: the drill's =import { client, thread, lighthouse }= collides with =world.js='s own =client= · =lighthouse= · =thread= (=tests/world.js:49,55,57=).
+  - the shell's phases are files (=lifecycle/{seat,ledger,boot}.js=); =commands/chrome.js= imports them, never =lifecycle/index.js= (the TDZ cycle of the testing pass).
+  - chrome's =index.js= helpers: =PLACES= → =screen.js=; =OSC= · =TICK= · =dark= · =spinning= · =ticking= → =grid.js=; =rgb= · =luminance= die (Q43).
+  - test homes: =chrome.surface.coverage= → =surfaces/chrome/index.test.js= · =look= → =surfaces/chrome/panes/regions.test.js= · =panes.out.coverage= → =surfaces/chrome/bundle.test.js= · =layers= → =subjects/terminal/prototype.test.js= · =console= → =subjects/client/console.test.js=.
+- critical pass 10-23 (read only): no comment and no new =?.= in product lines; Q33's =updateOne= callers measured (grep 10-23: 19 call sites in the tree, 8 registry files; =* blast table=): the chess pair breaks → Q44.
+
+- 10-24 /"go on m98. to disk"/ — pre-land on a fresh copy of today's tree: =new 32 · files 82 · hunks landed 179 · missed 0 · moves 27 · deletes 2= (m102's =rows.test.js=, landed 10-24 after the cut, re-cut: move to =tests/subjects/client/= + =ghost.client.lifecycle=). Census serial, rig = the repo · base = replayed (+ =ghost/bundle=): typology 150 → 152 ok · paladin 58 = · runtime 86/11 red = (same names) · ghost 30/2 → 31/1 (panes.out green after the bundle; shell =valence= known) · dapper 28 = · drapes 48/1 = · hello-world 17/2 = · hallucinators 7/1 = · memo 4 = · stub 3 =; anima vite =✓ built in 5.36s= (its suite won't load on either: =$telemetry=, known); =run.js --help= rc 0. Held: the 3 HOLY hunks, each its own go; the rest needs =traits.patch= (=commands/{dock,set}.js=), so nothing lands before them.
+- 10-24 /"go"/ (the 3 HOLY hunks) — LANDED: fresh replay =179 · missed 0=, drift 0 against the repo; 38 changed · 26 new · 29 removed; =~/.viva/bak/m98-land-20261024/=; =diff -rq= repo ≡ copy (=systems/ghost= · =subsystems/typology= · =systems/anima/src=); =deno task ghost/bundle= rc 0. Census on the repo: typology 152 ok · paladin 58 ok · runtime 86/11 red · ghost 31/1 (shell =valence=, known) · dapper 28 · drapes 48/1 · hello-world 17/2 · hallucinators 7/1 · memo 4 · stub 3 — each = the replayed base; anima vite =✓ built in 4.59s=; =run.js --help= rc 0.
+* release (lifted 10-24 into =.ikiro/release.md=)
+
+### api
+- renamed `@vivalence/ghost` root — `Client` · `Thread` · `Runtime` · `Lighthouse` · `STANDINGS` · `factories.*` · `lifecycle.*` · `traits.*` · `commands.*` · `keymap` → per subject or entity (Q47): `client.Client` · `entities.thread.Thread` · `entities.runtime.Runtime` · `entities.lighthouse.Lighthouse` · `entities.lighthouse.STANDINGS` · `<subject>.factory` · `<subject>.lifecycle` · `<subject>.traits` · `<subject>.commands` · `client.keymap` · migrate: `import * as ghost from "@vivalence/ghost"`, then `ghost.client.Client` ⟨m98⟩
+- added `@vivalence/ghost/scenarios` — `hello` · `look` · `chrome` · `world` · migrate: none ⟨m98⟩
+- moved `entities.activity.loudest` · `owed` · `send` → `belt.activity.*` · migrate: `ghost.belt.activity.loudest(activities)` ⟨m98⟩
+- added `traits.patch(entity, data)` (typology) — the change for one trait write: the claimed names, the whole trait with the touched one deep-merged · migrate: none ⟨m98⟩
+- changed `new Argv("<line>")` — a line reads as its words, the same signal as its argv array; `flags` `{}` when none typed · migrate: none ⟨m98⟩
+- changed `new <Kind>(signalOfAnotherKind)` — the path, `body` and `flags` carry over (was the head's nature only) · migrate: none ⟨m98⟩
+- removed `Terminal.write` — `terminal.repository.updateOne({ id }, data)` · migrate: the same call ⟨m98⟩
+
+### entity
+
+### other
+- moved ghost `chrome/` → `surfaces/chrome/`; `deno task ghost/bundle` writes `surfaces/chrome/out/panes.mjs` · migrate: rebuild after pulling ⟨m98⟩
+
+* review — 10-24
+| step | stop | rides | verdict | his words |
+|------|------|-------|---------|-----------|
+| 1 | the typology hunks | Q17′ · Q41⁵ · Q42 · Q44 | amen | /"amen"/ |
+| 2 | the subjects | Q0 · Q1 · Q4 · Q47 · Q47′ | amen | /"amen"/ |
+| 3 | the shell door | Q7 · Q7′ · Q3 · Q45′ | amen | /"amen."/ |
+| 4 | the surface | Q6 · Q8 · Q9 · Q43 | drilled → MOVED to m103 (compendium) | /"this must be aligned with 103. lets move the parts of 98 into 103 that fit there and drop them here entirely."/ |
+| 5 | the trait write | Q16 · Q17′ · Q44 | drilled → Q48 | /"no. belt/dock doesnt have any functions that take the whole fucking ctx. thats bullshit."/ · /"b"/ |
+| 6 | the tests tree | Q10 · Q11 · Q11′ · Q12 · Q14 | amen | /"I am fine with the scenarios bundle. That's very good. I like the barrel import on tests."/ |
+| 7 | anima | Q0 · Q13 · Q47 | amen | /"amen"/ |
+
+* handoff
+
+- goal: ghost's tree barrels up leaf → root like typology; =typology.js= mirrors ls (Q0); tests mirror the source and reach it only through the package (Q10 · Q11). The keys (Q18–Q32 + r1) are =m99-keys.org=, which lands on this quest's paths.
+- done: LANDED whole 10-24 (bundle rebuilt, census = base); the drill Q0–Q48 (=* rulings=; 10-24: Q44 the server replaces · Q45′ =shell= off the barrel · Q47 · Q47′ subjects =client · shell · terminal= · Q48 trait writes at the command); =* review= 10-24: 7 stops · 5 amen · 2 drilled; the chrome overlap (Q8 · Q9's helpers · Q43) MOVED to =m103-chrome-panels.org= =* from m98 — compendium (10-24)=. Replay 10-24 on a fresh copy: 81 files · 178 hunks · 26 moves · 0 missed; ghost 32 ok · 2 failed (the =valence= baseline) · typology 153 ok · anima builds · =--help= rc 0. Struck: =reference/m98/{q44,q45,q47,q48}-struck-10-24.org= · =chrome-to-m103-10-24.org=.
+- next: QA walks (=* QA= markers); then m99 re-replays on the landed tree
+- typology hunks (HOLY — each its own go): =traits.patch= (Q17′ · Q44) · =Argv='s string arm (Q41⁵) · the foreign-kind arm in =Signal= (Q42).
+- never: write code before his go; re-ask a locked row; the words =verb= · =lines= · =signal.tokens=; =updateOneTrait= (Q17′ · Q48); a =belt= function over a ctx (Q48); =Terminal.write= (Q16); =subjects/{daemon,lighthouse,mode,runtime,thread}= (Q47); =shell= on the root barrel or a dynamic =surfaces/= import (Q45′); landing Q41 · Q41″ · Q41‴.
+- owed: at landing =deno task ghost/bundle=, then canon (=codestyle.md= subject line · codemap =ghost.md= paths); a per-barrel snapshot (Q1); the two-stage signal's quest; =toRgb= ≡ =channels= (unasked, MOVED 10-24 to m103 — compendium).

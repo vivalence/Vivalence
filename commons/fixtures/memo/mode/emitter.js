@@ -16,6 +16,6 @@ export const emitter = new Vector().open(
     const deck = await deal(ctx, ctx.input);
     if (!deck.length) return;
     const literals = await ctx.entities.literal.find({ slug: { $in: deck.map((held) => held.slug) } });
-    ctx.pool.add(await ctx.mode.application.buffer({ data: { deck, language: ctx.statics.language, dealt: new Date().toISOString() }, literals }));
+    ctx.pool.add(await ctx.mode.buffer({ data: { deck, language: ctx.statics.language, dealt: new Date().toISOString() }, literals }));
   },
 );

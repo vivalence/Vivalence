@@ -1,4 +1,5 @@
 import { specimen } from "@vivalence/typology";
+import { READY } from "../scenarios/hello.js";
 import { join } from "@std/path";
 import { boot, exists, ledger, pin, viva } from "./rig.js";
 
@@ -54,7 +55,7 @@ describe("T-demo — a clean ledger, ghost's verbs, the memo demo instance: the 
 
   it("run.js on the shelf installs the Latin core — 269 literals, 242 symbols, every literal a word or a sentence", async () => {
     runtime = await boot(world, { shelf, slug: "memo" });
-    expect(runtime.ready ?? runtime.tail()).toBe("Status:RUNNING");
+    expect(runtime.ready ?? runtime.tail()).toMatch(READY);
     expect(await exists(join(shelf, "mountpoint/memo.viva.db"))).toBe(true);
     expect(runtime.query("select slug from Daemon")).toEqual([{ slug: "memo" }]);
     expect(runtime.query("select ontology, count(*) as n from Literal group by ontology order by ontology")).toEqual([
@@ -65,7 +66,7 @@ describe("T-demo — a clean ledger, ghost's verbs, the memo demo instance: the 
   });
 
   it("a learner signs up through ghost, is dealt deus first, grades it GOOD, and the next deal skips it", async () => {
-    const signup = await viva(world, ["instance/user", "signup", "discipulus", "memo"]);
+    const signup = await viva(world, ["instance/lighthouse/signup", "discipulus", "memo"]);
     expect(signup.effect?.status ?? signup.err).toBe("SUCCESS");
     learner = signup.effect.authority.access;
     const dealt = await runtime.call(`${MODE}/deck`, { limit: 3 }, learner);
@@ -94,10 +95,10 @@ describe("T-demo — a clean ledger, ghost's verbs, the memo demo instance: the 
     expect([stats.touched, stats.byStatus.UNKNOWN, stats.leeches.map((leech) => leech.slug), stats.suspended]).toEqual([2, 1, [], 0]);
   });
 
-  it("the topography's freight rides the deck: a depicted card carries its picture's cargo url, and the url serves the png", async () => {
+  it("the topography's files ride the deck: a depicted card carries its picture's file url, and the url serves the png", async () => {
     const { cards } = await runtime.call(`${MODE}/deck`, { limit: 50, symbols: ["topic.bellum"] }, learner);
     const gladius = cards.find((card) => card.slug === "gladius.noun");
-    expect(gladius.picture.endsWith("/attached/cargo/daemon/memo/images/gladius.noun.png")).toBe(true);
+    expect(gladius.picture).toMatch(/\/attached\/file\/[0-9a-f-]{36}$/);
     const served = await fetch(gladius.picture, { headers: { authorization: `Bearer ${learner}` } });
     expect([served.status, served.headers.get("content-type")]).toEqual([200, "image/png"]);
     await served.body?.cancel();

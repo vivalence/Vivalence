@@ -1,4 +1,4 @@
-import { specimen, is, Pattern, Signal } from "@vivalence/typology";
+import { specimen, is, Argv, Pattern, ReplSignal, Signal } from "@vivalence/typology";
 
 specimen.describe("Signal", () => {
   specimen.it("a command line becomes a tree", () => {
@@ -93,5 +93,27 @@ specimen.describe("Signal", () => {
 
   specimen.it("Signal.tokens splits a typed line quote-aware without the string row's --k=v split", () => {
     specimen.expect(Signal.tokens('instance/create --slug=italian "my words" x')).toEqual(["instance/create", "--slug=italian", "my words", "x"]);
+  });
+
+  specimen.it("Argv reads a line as its words: a string and its argv array mint the same signal", () => {
+    for (const line of ["/chrome", "/x --json y", "/x --json", "/x -- --raw"]) specimen.expect(new Argv(line).json).toEqual(new Argv(Signal.tokens(line)).json);
+    specimen.expect([new Argv("/chrome").flags, new Argv("/chrome").body]).toEqual([{}, []]);
+  });
+
+  specimen.it("a Signal kind mints from another kind: the path, then its body and flags; its own kind passes through", () => {
+    const argv = new Argv(["/terminal/open", "--json", "x"]);
+    const repl = new ReplSignal(argv);
+    specimen.expect([repl instanceof ReplSignal, repl.pathname, repl.flags, repl.body]).toEqual([true, "/terminal/open", { json: true }, ["x"]]);
+    specimen.expect(new ReplSignal(new Signal(new URL("http://localhost/terminal/open?json=1"))).flags).toEqual({ json: "1" });
+    specimen.expect(new Argv(argv)).toBe(argv);
+  });
+
+  specimen.it("a pattern never writes on the signal it is asked about: wildcard · remainder · parameter answer a copy", () => {
+    const signal = new Signal("/dock");
+    const wild = new Pattern("*").apply(signal);
+    const rest = new Pattern("(.*)").apply(signal);
+    const param = new Pattern(":slug").apply(signal);
+    specimen.expect([wild.type, rest.type, param.parameters]).toEqual(["wildcard", "remainder", { slug: "dock" }]);
+    specimen.expect([signal.type, signal.parameters, wild === signal, param === signal]).toEqual([undefined, undefined, false, false]);
   });
 });

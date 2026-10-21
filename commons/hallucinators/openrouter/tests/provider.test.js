@@ -591,9 +591,9 @@ specimen.describe("openrouter provider", () => {
       },
     );
 
-    specimen.it("translateChoice is the decisions dialect — primer to state, the tag to type, options and levels to criteria; readChoice folds the answers back in the caller's order (live body 09-24)", () => {
+    specimen.it("translateChoice is the decisions dialect — system to state, the tag to type, options and levels to criteria; readChoice folds the answers back in the caller's order (live body 09-24)", () => {
       const round = {
-        primer: { expected: "Vado al mercato.", answer: "Io vado al mercato domani." },
+        system: { expected: "Vado al mercato.", answer: "Io vado al mercato domani." },
         questions: {
           same: { type: "choice", ask: "Does `answer` mean `expected`?", options: { yes: null, partly: "extra or missing detail", no: null } },
           grade: { type: "score", ask: "How close is `answer` to `expected`?", levels: ["wrong", "close", "exact"] },

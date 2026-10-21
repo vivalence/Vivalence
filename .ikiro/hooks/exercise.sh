@@ -22,11 +22,11 @@ expect allow cwd-guard.sh "$(bash_json 'cd ~/.viva && ls')"                     
 expect allow cwd-guard.sh "$(bash_json 'echo cd systems/ghost')"                             "cd as an argument"
 
 # log-guard — the mask print that leaked a key
-expect deny  log-guard.sh "$(edit_json /r/systems/runtime/daemon/populate.js 'console.log({ mask, service, faculties });')" "mask logged whole"
+expect deny  log-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/populate.js 'console.log({ mask, service, faculties });')" "mask logged whole"
 expect deny  log-guard.sh "$(edit_json /r/commons/hallucinators/x/provider/index.js "console.log('boot', die)")"       "die logged"
-expect allow log-guard.sh "$(edit_json /r/systems/runtime/daemon/populate.js 'console.log(`daemon[${slug}].hallucinators[${i}] ${module}`)')" "slot label"
+expect allow log-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/populate.js 'console.log(`daemon[${slug}].hallucinators[${i}] ${module}`)')" "slot label"
 expect allow log-guard.sh "$(edit_json /r/systems/runtime/tests/x.test.js 'console.log(mask)')"                          "test file"
-expect allow log-guard.sh "$(edit_json /r/systems/runtime/daemon/x.js 'const service = ctx.daemon.services.reader;')"    "no log"
+expect allow log-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/x.js 'const service = ctx.daemon.services.reader;')"    "no log"
 
 # import-guard — "no leaving the mode"
 expect deny  import-guard.sh "$(edit_json /r/commons/modes/vdex/tools/index.js "import { TEXT } from '../../../domain/voffice/index.js';")" "climbs past the mode"
@@ -41,13 +41,19 @@ expect allow vcs-guard.sh "$(bash_json 'git log --all --oneline -- systems/')"  
 expect allow vcs-guard.sh "$(bash_json 'git merge-base HEAD master')"                         "merge-base read"
 expect deny  vcs-guard.sh "$(bash_json 'git commit -m x')"                                    "commit"
 expect deny  vcs-guard.sh "$(bash_json 'jj rebase -s @ -d trunk')"                            "jj rebase"
+# 11-03 molt: echo/printf arguments are prose — 24 false denies in two weeks on `echo "== git holds =="`
+expect allow vcs-guard.sh "$(bash_json 'echo "== git holds compacts? ==" && ls')"              "git inside an echo string"
+expect allow vcs-guard.sh "$(bash_json "printf 'jj rebase is his\n'; ls")"                     "jj inside a printf string"
+expect deny  vcs-guard.sh "$(bash_json 'echo "x" && git commit -m y')"                         "echo then a real commit"
+expect deny  vcs-guard.sh "$(bash_json 'echo "$(git push)"')"                                  "a push inside an echo substitution"
+expect deny  vcs-guard.sh "$(bash_json 'echo x | git apply')"                                  "echo piped into git apply"
 
 # comment-guard — Write|Edit denies; the Bash route is WARN (allow + log), so assert allow but check the log grows
 expect deny  comment-guard.sh "$(edit_json /r/subsystems/paladin/gestalten/belt/check.js '  // verdict = max(declared, observed)
   const x = 1;')" "authored // in product source"
 expect allow comment-guard.sh "$(edit_json /r/subsystems/paladin/gestalten/belt/check.js '  const x = 1; // @beef keep')" "beef annotation"
 before=$(wc -l < "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null || echo 0)
-expect warn comment-guard.sh "$(bash_json 'cat > /r/systems/runtime/daemon/x.js <<EOF
+expect warn comment-guard.sh "$(bash_json 'cat > /r/systems/runtime/subjects/daemon/x.js <<EOF
 // the mint — one place
 export const x = 1;
 EOF')" "Bash heredoc route (warn)"
@@ -68,13 +74,13 @@ if grep -q '"deny"' <<<"$out"; then echo "FAIL agent-guard.sh warn mode denied";
 rm -f "$count_file"
 
 # lifecycle-guard — the 10-08 shape: seven (ctx, next) middlewares written as consts into a trait file
-expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/mode/traits/harnessed.js 'const claiming = async (ctx, next) => { await next(); };')" "shard const in a trait"
-expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/mode/traits/harnessed.js 'const chaining = (mode) => async (ctx, next) => { await next(); };')" "curried shard"
-expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/daemon/lifecycle/integration.js 'const round = (via) => async (ctx) => { ctx.output = 1; };')" "effect factory in a beat file"
-expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/daemon/lifecycle/population.js 'export const modes = async (die, next) => { await next(); };')" "a beat"
-expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/daemon/lifecycle/resolution.js '  die.daemon.aperture.use(async (ctx, next) => { await next(); });')" "inline use inside a beat"
-expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/mode/traits/tooling.js 'export const TOOLING = (mode, host) => { mode.tools.graft(mode.module.tools); };')" "a trait"
-expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/lighthouse/traits/joinable.js 'const gate = async (ctx, next) => { await next(); };')" "shard const in a lighthouse trait (m91 path)"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/mode/traits/harnessed.js 'const claiming = async (ctx, next) => { await next(); };')" "shard const in a trait"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/mode/traits/harnessed.js 'const chaining = (mode) => async (ctx, next) => { await next(); };')" "curried shard"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/lifecycle/3-integration.js 'const round = (via) => async (ctx) => { ctx.output = 1; };')" "effect factory in a beat file"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/lifecycle/1-population.js 'export const modes = async (die, next) => { await next(); };')" "a beat"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/lifecycle/2-resolution.js '  die.daemon.aperture.use(async (ctx, next) => { await next(); });')" "inline use inside a beat"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/mode/traits/tooling.js 'export const TOOLING = (mode, host) => { mode.tools.graft(mode.module.tools); };')" "a trait"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/lighthouse/traits/joinable.js 'const gate = async (ctx, next) => { await next(); };')" "shard const in a lighthouse trait (m91 path)"
 expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/gestalten/shard/harness.js 'export const claiming = (mode) => async (ctx, next) => {};')" "the shard home"
 expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/tests/x.test.js 'const f = async (ctx, next) => {};')" "test file"
 
@@ -134,5 +140,12 @@ cap_case allow "$(jq -cn --arg p "$capdir/.ikiro/world/small.md" --arg o "yyyy" 
 cap_case deny  "$(jq -cn --arg p "$capdir/.ikiro/world/nolimit.md" --arg c "# no header" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "a capped file born without a limit"
 cap_case allow "$(jq -cn --arg p "$capdir/.ikiro/quests/big.org" --arg c "$(printf 'q%.0s' $(seq 1 5000))" '{tool_name:"Write",session_id:"exercise",tool_input:{file_path:$p,content:$c}}')" "a quest is never capped"
 unset CLAUDE_PROJECT_DIR; rm -rf "$capdir"
+
+# loaded — the InstructionsLoaded instrument: observe only, one row per rule load, never a decision
+before=$(wc -l < "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null || echo 0)
+expect allow loaded.sh "$(jq -cn '{hook_event_name:"InstructionsLoaded",session_id:"exercise",file_path:"/r/.claude/rules/runtime.md",memory_type:"Project",load_reason:"path_glob_match"}')" "a shard load is silent"
+after=$(wc -l < "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null || echo 0)
+if [ "$after" -gt "$before" ] && tail -1 "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" | grep -q ' loaded path_glob_match exercise '; then echo "PASS loaded.sh logged  one row: loaded <reason> <session> <path>"; else echo "FAIL loaded.sh wrote no load row"; fail=1; fi
+expect allow loaded.sh "$(jq -cn '{hook_event_name:"PreToolUse",session_id:"exercise",tool_name:"Read",tool_input:{}}')" "another event is ignored"
 
 exit $fail

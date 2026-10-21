@@ -43,10 +43,10 @@ specimen.describe("cortex stripwire — remote Cortex over a Connection", () => 
     specimen.expect(Object.keys(remote.findOne({ type: "choice" }).via)).toEqual(["render"]);
   });
 
-  specimen.it("a choice round crosses the wire: primer and questions out, a distribution per key back in the question's own shape", async () => {
+  specimen.it("a choice round crosses the wire: system and questions out, a distribution per key back in the question's own shape", async () => {
     const verdict = await remote.hallucinate.choice.render({
       controller: new Controller(),
-      primer: "Payroll asks for your password on a non-company sign-in page.",
+      system: "Payroll asks for your password on a non-company sign-in page.",
       questions: {
         kind: { type: "choice", ask: "What is this email?", options: { legitimate: null, spam: null, phishing: "asks for a credential off-domain" } },
         risk: { ask: "How dangerous is it?", levels: ["harmless", "suspicious", "hostile"] },

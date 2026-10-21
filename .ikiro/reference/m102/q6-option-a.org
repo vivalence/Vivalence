@@ -1,0 +1,11 @@
+#+title: m102 Q6 · Q6′ — struck options, 10-23
+# limit: none (reference)
+
+Q6 (beef answered /"ctx.repl.commands"/): A carried both =ctx.repl= and =ctx.commands=; B carried =ctx.commands= only.
+
+Q6′ option A (struck, beef /"b"/): =repl.commands= the boot set only; =dispatch= builds a per-line vector with the runtime's modes and =/turn=.
+
+#+BEGIN_SRC js
+    const commands = new Vector().graft(this.commands, ...this.terminal.client.runtime.entities.mode.$entities.get().map(scoped), turn);
+    const execution = new Vector().use(shard.controller.open).do((die) => steer.dispatch.execute(commands, die, die.signal));
+#+END_SRC

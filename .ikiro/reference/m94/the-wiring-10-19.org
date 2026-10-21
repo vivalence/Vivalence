@@ -1,0 +1,193 @@
+# drained 10-22 whole from .ikiro/quests/roadmap/m94-trait-rejiggle.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* the wiring — measured 10-19
+
+Shape words: *catalog* = a function in =<system>/<subject>/traits/<name>.js= that =belt.traits.stagger= (=subsystems/typology/gestalten/belt/traits.js:6=) runs once per manifest name · *empty catalog* = that function exists and does nothing · *enum* = a TS enum member feeding a mikro column · *schematic* = a typed payload in typology's =traits: {NAME: schema}=, claimed by =v.<entity>.trait(entity, NAME)= · *define* = =traits.define("NAME", {schematic})= in a registry domain, composed per daemon · *manifest* = a string in a =*.viva.js= =traits: [...]= · *payload* = the =trait.NAME= JSON on the entity.
+
+Global facts:
+- a name with no catalog entry is skipped silently by =stagger= (=traits.js:9=); =systems/runtime/mode/lifecycle/resolution.js:15= only warns. The manifest schematic is =v.array(v.string())= (=subsystems/typology/schematics/primitives/manifest.js:13=); openness was ruled in =quests/done/m68-paladin-pipeline.org:1673=.
+- the only cross-check is =subsystems/paladin/ledger/integrity.js:6-25= (trait → required export) + =:43-44= (SERVICE · PROVIDER).
+- NO mode trait carries a payload: =mode.trait= appears nowhere; a mode trait's input is a module export.
+- catalogs per host: daemon = full runtime catalog (=systems/runtime/daemon/lifecycle/population.js:10=); runtime's own modes = minus DATASET DATASINK (=systems/runtime/runtime/lifecycle/population.js:131=); ghost =systems/ghost/entities/mode/lifecycle/index.js:20=; anima =systems/anima/src/entities/mode/dossier.js:32= (anima does not build).
+- finalizers run at =systems/runtime/gestalten/belt/modes.js:7=, terminators at =:15=.
+- kernel vocabularies (literal · symbol · note): =systems/runtime/entities/traits.js:4-15= presets → =gather(kernel, domain, modes, kind)= (=systems/runtime/gestalten/belt/traits.js:8-13=, first wins) → =mint= one repository per daemon·kind with =claim= bound (=:15-45=). =traits.define= returns ={name, schematic, repository, entity}= (=subsystems/typology/gestalten/belt/traits.js:21-23=), registers nothing. The runtime's own mint covers note + mode, kernel only (=runtime/lifecycle/population.js:73-77=).
+
+** Mode
+
+| name | shape | declared | export consumed | manifests | readers |
+|---+---+---+---+---+---|
+| APPLICATION | catalog ×3 · enum · manifest | runtime =mode/traits/application.js:5= · ghost =:3= · anima =:3= · =Mode.ts:16= | =module.application= (=App=, =subsystems/typology/prototypes/app.js:7=) | 36 | 14 |
+| EXPOSED | catalog ×3 · enum · manifest | =exposed.js:3= ×3 · =Mode.ts:32= | =mode.aperture= | 29 | 1 + stagger |
+| HARNESSED | catalog ×3 · enum · manifest | runtime =harnessed.js:178= · ghost =:4= · anima =:3= · =Mode.ts:24= | =module.harness= (Vector) | 22 | 11 |
+| TOOLING | catalog runtime · enum · manifest | =tooling.js:1= · =Mode.ts:27= | =module.tools= (Vector) | 23 | 2 |
+| EMITTER | catalog runtime + anima · enum · manifest | =emitter.js:3= ×2 · =Mode.ts:29= | =module.emitter= (Vector) | 21 | 9 |
+| DATASET | catalog runtime · enum · manifest | =dataset.js:61= (=stamp= =:16=) · =Mode.ts:21= | =module.dataset= (=prototypes/dataset.js:27=) | 28 | 3 |
+| DATASINK | catalog runtime · enum · manifest | =datasink.js:8= · =Mode.ts:22= | =module.datasink= (=prototypes/datasink.js:109=) | 5 | 1 warn |
+| FRAUGHT | catalog runtime · enum · manifest | =fraught.js:17= (=carry= =:5=) · =Mode.ts:35= | =module.freight= (=prototypes/freight.js:50=) | 7 | 5 |
+| BOOTED | catalog runtime · enum · manifest | =booted.js:5= · =Mode.ts:13= | =module.boot= (function) | 5 | stagger |
+| MOUNTED | catalog runtime · enum · manifest | =mounted.js:3= · =Mode.ts:36= | =mode.mountpoint= (=subsystems/paladin/ledger/registry.js:262=) | 3 | 4 (FRAUGHT's) |
+| AGENTIC | catalog runtime · enum · manifest | =agentic.js:2= · =Mode.ts:26= | — | 3 | stagger |
+| GENERATIVE | catalog runtime · empty catalog anima · enum · manifest | =generative.js:4= · anima =application.js:12= · =Mode.ts:30= | =module.generator= (Vector) | 2 | 3 |
+| REPLING | catalog ghost · manifest; NOT in the enum | =systems/ghost/entities/mode/traits/repling.js:1= | =module.repl= (Vector) | 1 | 2 |
+
+Paths without a system are =systems/runtime/mode/traits/=. None of the consumed exports has a typology schematic.
+
+- APPLICATION — compiles and serves the mode's UI bundle (=mode.application.buffer= · =.compile=, =application.js:10,19=); clients open a buffer of it. Read: =systems/runtime/gestalten/shard/host.js:32= (=/metadata/application=) · =runtime/lifecycle/resolution.js:47= · ghost =terminal/commands/application/start.js:7= · ghost =surface/chrome/panes/frame.jsx:7= · anima =Modes.svelte:42= · anima =thread/dossier.js:38=.
+- EXPOSED — =mode.call= becomes a proxy over the mode's aperture; remote side wired from =/metadata/aperture=. Read: =mode/lifecycle/resolution.js:19= (warns on an aperture without EXPOSED).
+- HARNESSED — the mode gets an LLM pipeline at =/harness=; throws without a cortex (=harnessed.js:179=); grafts =module.harness= at =:200=. Read: =gestalten/shard/host.js:46= · ghost =gestalten/shard/repl.js:22= · anima =panels/a/a.svelte:35= · =Harness.svelte:29= · =Thread.svelte:43= · =Dock.svelte:24=.
+- TOOLING — grafts the mode's tools into =mode.tools=. Read: =agentic.js:6= · =daemon/lifecycle/population.js:55= (services).
+- EMITTER — an =/emit= route that runs the emitter and binds the produced buffers to the thread. Read: =gestalten/shard/host.js:42= (=/metadata/emitter=) + 8 =mode.emit= consumers.
+- DATASET — installs the mode's symbols · literals · intents into the daemon db on first boot or a changed stamp. Read: =mode/lifecycle/resolution.js:7= (=stamp= on every mode) · =gestalten/belt/modes.js:37= (=module.dataset?.intent=).
+- DATASINK — after boot, writes matching dataspace changes back into the package's files. Read: only the warning at =resolution.js:22=; nothing reads =mode.datasink=.
+- FRAUGHT — catalogues the package's freight dir, serves it at =/attached/cargo/...=, accepts uploads via =freight.receive=. Read: =host.js:44= · =runtime/lifecycle/resolution.js:33,65= · =daemon/lifecycle/resolution.js:37= · =commons/fixtures/memo/mode/deal.js:5=.
+- BOOTED — after every mode's traits are wired, the runtime calls the mode's own =boot(daemon, mode)= (e.g. =~/.viva/registry/vcompany/modes/office/vdex/boot.js:62=: prune stale literals, start a disk watcher). What =boot= returns is kept and called at daemon shutdown. Carriers: vcompany calendar · email · vdex, stucatch watch, media.
+- MOUNTED — FRAUGHT over the instance's own mountpoint (=~/.viva/instances/<slug>/mountpoint/...=) instead of the package: a writable file store served as cargo; uploads land on the instance, never the registry. Carriers: assembly import · media · vdex.
+- AGENTIC — after boot, every other non-domain TOOLING mode's tools are branched into this mode's =mode.tools= under their slug. Carriers: francesca · chess play · =commons/harnesses/runtime=.
+- GENERATIVE — =mode.generator= (bundle · inspect · serve + tools for model-written Svelte); the bundle route serves without APPLICATION. Read: =runtime/lifecycle/resolution.js:47= · =commons/playground/chaosmonkey/reader/emitter.js:21= · =commons/instances/hello-world/page/index.js:52=.
+- REPLING — the mode's repl commands are grafted into =mode.repl= and mounted under =/mode/<type>/<slug>= in the client's command line. Read: ghost =gestalten/shard/repl.js:17,27=.
+- TOPOGRAPHICAL TOPOLOGICAL (mode) — enum only (=Mode.ts:18-19=); 0 catalog, 0 manifests, 0 readers. See * the rotation.
+
+Owed by a quest:
+
+| name | designed at | shape |
+|---+---+---|
+| RENDERER | =m87-buffer-view-file.org= rulings 32 · 33 | compiles each =module.views= entry; mints the mode's buffer mime and =mode.buffer()=; succeeds APPLICATION |
+| FILESET | =m87-buffer-view-file.org= rulings 34 · 36 | reads the declared directory into File rows; succeeds FRAUGHT |
+| FILESINK | =m87-buffer-view-file.org= ruling 36 | =mode.files.receive= → a File · =compile= → a View; succeeds MOUNTED |
+| KEYMAPPED | =m92-keymap.org= law 8 · 9 (10-21) | export =keymap=, function effects; ghost-only — a runtime mode's rides its view module, nothing served |
+| PRIMER | =m83-tools-and-primer.org:726= | =PRIMER = (mode) => mode.primer.graft(mode.module.primer)=; CUT, not landed (=:3,786=) |
+| LOOPING | =m88-repling.org:1021,1109= | runtime =mode.looping(ctx)= grows tools from the terminal's =/metadata/repl=; ghost grafts =/terminal/:terminal= onto =client.aperture= once |
+
+** Thread
+
+Typing gap: =ThreadTraitsEnum= (=systems/runtime/entities/Thread.ts:22-29=) holds MASKED AIMED QUEUEING LABELED but NOT INTELLIGENT VOCAL (column =enum: true= at =:120-125=); the typology vocabulary (=subsystems/typology/schematics/entities/thread.js:44=) holds INTELLIGENT VOCAL but NOT LABELED — =v.thread.trait(x, "LABELED")= throws (=subsystems/typology/tests/v.test.js:289=). A thread copies =traits= + =trait= from its intent on create (=Thread.ts:77-82=); =IntentTraitsEnum= (=Intent.ts:6-10=) is the same four.
+
+| name | shape | payload | writers | readers |
+|---+---+---+---+---|
+| LABELED | enum · payload | ={name, description, flags}= untyped (=systems/anima/src/entities/thread/traits/labeled.js:4-11=) | anima =cards/threads.js:28,42= · =Labeled.svelte:30= · =thread/dossier.js:33= · runtime =gestalten/tools/thread.js:45-57= · 3 intents | 4 |
+| MASKED | enum · empty catalog anima (not exported) · payload | ={where, limit}= untyped | anima =dossier.js:39-42= · =Masked.svelte:31,37= · 11 intents | 4, anima only |
+| AIMED | enum · anima helpers · payload | ={mount}= untyped | =Aimed.svelte:32= · 10 intents | 9 |
+| QUEUEING | enum · anima helpers · payload | ={depth}= untyped, default 1 | =Queueing.svelte:22= · 10 intents | 5 |
+| INTELLIGENT | schematic | ={tune, effort, rounds, thinking}= (=thread.js:8-13=) | anima =widgets/intelligent.js:37-40= | 9 |
+| VOCAL | schematic | ={language, tune, harmonize, polish}= (=thread.js:15=) | none in production (test =dictation.integration.test.js:83-84=) | 2 |
+
+- LABELED — the thread's display name in anima and in tool output. Read: =gestalten/tools/thread.js:4= · =labeled.js:25= · =Thread.svelte:14,19=.
+- MASKED — merged into every AIMED pull, so it decides which entities the emitter returns. Read: anima =thread/traits/aimed.js:11= · =Buffers.svelte:10= · =Masked.svelte:25= · =Thread.svelte:53=; the runtime reads none.
+- AIMED — points the thread's buffer pulls at one emitter route. Read: =aimed.js:10,20= · =Buffers.svelte:5,56= · =traits/form/schema.js:82-83= · =Thread.svelte:51-63= · =~/.viva/registry/education/modes/tactics/impara/aperture/index.js:25,30=.
+- QUEUEING — how many buffers anima keeps pre-pulled. Read: =queueing.js:10= · =Buffers.svelte:57= · =bones/widgets/Phase.svelte:50= · =Thread.svelte:52=.
+- INTELLIGENT — the harness's tune · rounds · effort for that thread. Read: claimed =systems/runtime/mode/traits/harnessed.js:28=, used =:47,48,51=; anima =panels/a/widgets/Dock.svelte:33,36,382= · =Harness.svelte:40= · =widgets/Tune.svelte:14=.
+- VOCAL — language · tune · harmonize · polish of the dictation pipeline. Read: =harnessed.js:29= → =ctx.vocal= in =subsystems/typology/gestalten/shard/hal.js:50-70=. CONFLICT: =subsystems/typology/schematics/primitives/contexts.js:37= types =ctx.vocal= as a boolean.
+
+** Buffer
+
+| name | shape | payload | writers | readers |
+|---+---+---+---+---|
+| LABELED | enum · payload | ={name, description}= untyped; typology =entities/buffer.js:9-20= has no =traits= map | create twitch =systems/runtime/entities/Buffer.ts:121-126= (fallback ="<mode> #<index>"=) · =mode/traits/generative.js:85-86,144= · =gestalten/tools/buffer.js:50= | 5 |
+
+- LABELED — every buffer gets a display name at create. Read: =gestalten/tools/buffer.js:3= · =generative.js:41= · =systems/anima/src/entities/buffer.js:46= · =systems/ghost/entities/buffer.js:37= · anima =panels/a/widgets/turns.js:125=.
+
+** Terminal
+
+Runtime =systems/runtime/entities/Terminal.ts:18-19,39-40=: untyped =traits= + =trait=; no enum, no schematic, no catalog.
+
+| name | shape | payload | writers | readers |
+|---+---+---+---+---|
+| LABELED | payload | ={name}= untyped | test only (=systems/runtime/tests/lighthouse/shape.test.js:65=) | anima =terminal/prototype.js:31= · ghost =terminal/prototype.js:29= |
+| DOCKED | payload | ={side, share, collapsed, full}= untyped (ruled =quests/done/m76-terminals-close-the-dataring.org:179=) | anima =terminal/prototype.js:55-63= (debounced =updateOne= → the runtime row) | anima =prototype.js:59,82= |
+
+- LABELED — the terminal's name, or null.
+- DOCKED — where the dock sits and how large, per terminal; terminal wins over user (=prototype.js:82= =terminal.trait.DOCKED ?? user?.trait?.DOCKED=; m76: "identity's is the default, terminal's the instance"). The runtime stores it, never reads it. The test title =systems/anima/tests/terminals.remote.test.js:112= says the opposite ("the user's trait, else the row's").
+
+** User
+
+=systems/runtime/entities/User.ts:35-36,61-62= untyped; typology vocabulary =subsystems/typology/schematics/entities/user.js:14= = HOME only.
+
+| name | shape | payload | writers | readers |
+|---+---+---+---+---|
+| HOME | schematic | ={reference}= (=schematics/primitives/home.js:3-5=) | none in production (test =v.test.js:293=) | ghost =client/traits/home.js:7= |
+| THEMED | payload | ={theme}= untyped (ruled m76 =:178=) | none anywhere | anima =app/+page.svelte:76= via =?.= |
+| DOCKED | payload | as Terminal | tests only | anima =terminal/prototype.js:82= via =?.= |
+
+- HOME — the mode a new threadless terminal is seated in; beats the client's HOME.
+- THEMED — the user's saved anima theme over the local bridge theme.
+- DOCKED — the default dock for terminals without their own.
+
+** Lighthouse
+
+Schematic enum =subsystems/typology/schematics/primitives/instance.js:59=; payload schematic =LighthouseTrait= (=:60-71=) types AUTOLOGIN only. Declared in =commons/ledger/ledger.viva.json:8= · =~/.viva/ledger.viva.json:23-24= (JOINABLE AUTOLOGIN). Run by =systems/runtime/lighthouse/lifecycle/resolution.js:5= · =systems/ghost/entities/lighthouse/lifecycle/index.js:39=.
+
+| name | shape | payload | role |
+|---+---+---+---|
+| JOINABLE | schematic enum · catalog runtime (=lighthouse/traits/joinable.js:21-23=) · empty catalog ghost | — | grafts =/signup=: public sign-up |
+| INVITATIONAL | schematic enum · empty catalog runtime + ghost | — | none today; =instance.js:75= says "/signup takes an invite token"; no ledger declares it |
+| AUTOLOGIN | schematic enum + payload · catalog runtime (=autologin.js:14-24=) · catalog ghost (=autologin.js:1=) | ={username, password}= (=instance.js:62-68=) | grafts =/autologin=, a finalizer creates the user at boot; every visitor is that user |
+
+** Client (ghost)
+
+| name | shape | payload | writers | role |
+|---+---+---+---+---|
+| HOME | catalog (=systems/ghost/client/traits/home.js:5-28=) run by =client/lifecycle/index.js:169-170= | =ClientTrait= → =Home= (=instance.js:81,90=, =additionalProperties: false=) | =~/.viva/ledger.viva.json:50,57,67,74= · fixtures | seats each new threadless terminal on a thread in the HOME mode; the user's HOME wins |
+
+Owed: DOCKED · THEMED — ghost has no analogue today: chrome paints a hardcoded =tokens("northsea", "2")= (=systems/ghost/surface/chrome/index.js:24=); the dock is a =/chrome= toggle (=systems/ghost/client/commands/chrome.js:8=), never persisted. =ClientTrait= admits nothing but HOME.
+
+** Service
+
+Catalog =systems/runtime/service/traits/index.js=; =stagger= at =service/lifecycle/resolution.js:5= — but ONLY for ATTACHED services; any other goes =dormant= "not ATTACHED — consumed only" (=systems/runtime/runtime/lifecycle/population.js:146-152=).
+
+| name | shape | declared by | readers |
+|---+---+---+---|
+| ATTACHED | catalog (=attached.js:3-10=) · manifest · integrity (needs export =attachment=, =integrity.js:8=) | tests only | =population.js:146= · =integrity.js:43= |
+| SERVER DOCKER COMPOSE | manifest only | =commons/services/nlp/service.viva.js:11= | none |
+| MONK | manifest only | =commons/hallucinators/{deepgram,elevenlabs}/service.viva.js:8= (=type: "hallucinator"=, never staggered) | none |
+| SERVICE PROVIDER | empty catalog (=index.js:3-4=) · integrity | no manifest | =integrity.js:9,43,44= only |
+
+- ATTACHED — the only trait that lets a service process start; opens =/status= =/manifest= and grafts =mask.attachment=.
+- SERVER DOCKER COMPOSE — no effect; nlp is dormant (no ATTACHED); what runs is its =control= export + TOOLING.
+- MONK — no effect; no stated purpose anywhere (=.ikiro=, =~/.viva/bak/ikiro=, git); =quests/done/m68-paladin-pipeline.org:1673= lists it only as a name that faulted the dropped unknown-trait rule.
+- SERVICE PROVIDER — the answer to /"is that actually used anywhere?"/: as TRAITS, no. =provider= is a module EXPORT (=integrity.js:44= "a provider is what a service exports"): exported by the four hallucinators · =commons/fixtures/testing/hal/stub= · nlp · reader · =~/.viva/registry/chess/services/stockfish/stockfish.viva.js:1=; consumed with no trait gate at =runtime/lifecycle/population.js:35,54,109= · =daemon/lifecycle/population.js:41,54=.
+
+** Symbol — open; kernel presets =systems/runtime/entities/traits.js:8-13=
+
+| name | shape | payload | writers | readers |
+|---+---+---+---+---|
+| ONTOLOGICAL | kernel preset · payload | open object, always ={}= | 16 of 19 =dataset/symbols/= files + media · vcompany · droneaid inline | 0 runtime; dojo =types.js:271= · =aperture/index.js:54= · =tools/symbols.js:18= · =Builder.svelte:55= · =commons/dashboards/dataspace/schema.js:23= |
+| TOPOGRAPHICAL | kernel preset · payload | open object, ={}= | 10 files, one root each + =education/topologies/conjugation/conjugation.viva.js:15= | =systems/runtime/entities/Literal.ts:147= (run =:159-161=) · dojo · dataspace |
+| STRUCTURAL | kernel preset · payload | open object, ={}= | 3 =english-to-*/dataset/symbols/structural.js= + vdex =jd.js:16= | dojo only |
+| LABELED | kernel preset · schematic =v.primitives.Label= | ={name, description}= | 19 of 19 | memo =tools/index.js:44-45= · primer =atlas/graph.js:39,55-57= |
+
+- ONTOLOGICAL — marks a symbol as a subject-matter dimension of the vocabulary (the removed enum's comment, =quests/done/m80-lighthouseless.org:2600-2605=: "subject matter attribute").
+- TOPOGRAPHICAL — the literal's ONE root symbol: its slug becomes =literal.ontology=; the runtime throws on two.
+- STRUCTURAL — groups literals into sets or categories.
+- LABELED — display name and description.
+
+** Literal — open; kernel preset LABELED only (=traits.js:7=); =LiteralDescriptor= has no =traits= key, so =v.literal.trait= without a vocabulary throws "vocabulary of nothing" (=systems/runtime/tests/mint.test.js:233=); production claims go through the repository's =this.claim=.
+
+| domain | defines | file |
+|---+---+---|
+| education | RETAINED ANNOTATED RANKED TRANSLATED EXEMPLIFIED VOCALIZED CONJUGATED | =~/.viva/registry/education/domain/traits/index.js:8= |
+| chess | PLACED EVALUATED LADDERED RECORDED CATALOGUED ANALYSED POSED OPENED CLOCKED TERMINATED SOURCED SEATED BOOKED TABLEBASED | =~/.viva/registry/chess/domain/traits/index.js:11= |
+| assembly | PLACED COUNTED ASSEMBLED SEQUENCED SOURCED MODELED PARAMETRIC JOINED INSTRUCTED ANNOTATED STAGED | =~/.viva/registry/assembly/domain/assembly/traits/index.js:7= |
+| memo | RETAINED TRANSLATED EXEMPLIFIED RANKED VOCALIZED DEPICTED | =commons/fixtures/memo/domain/traits/index.js:7= |
+
+Read but never =define=d (0 =traits.define= in each package):
+
+| package | names | first reader |
+|---+---+---|
+| vcompany | MESSAGE MAIL EVENT DOCUMENT | =vcompany/domain/voffice/entities/kernel/Literal.ts:20= |
+| media | MEDIA COMPOSITION ANNOTATION | =media/modes/editor/media/boot.js:98= |
+| stucatch | SENSED INGESTED DERIVED SIZED LOCATED OCCURRED MOVED ADJUSTED EMITTED HALLUCINATED RECEIVED REPORTED | =stucatch/vivaware/domain/fold.js:37-321= |
+| young-ladys-primer | REQUIRES | =young-ladys-primer/modes/home/atlas/graph.js:9= |
+
+** Note — open; kernel preset LABELED only (=traits.js:14=); no typology =entities/note.js=, no =v.note=
+
+| name | shape | payload | writers | readers |
+|---+---+---+---+---|
+| TRACED | define ×3 | memo ={signal, status, snapshot, mode, thread}= · education ={signal, snapshot}= · chess ={kind, signal, status, snapshot}= | memo + education =literal/retained.js= · =chess/domain/aperture/index.js:449= | 4 |
+| RETAINED | define ×2 + repository verbs (=retention= · =evolve=) | ={driver, status, type, lastSignal, lastAt, nextIn, due, state}= | its own =evolve= | 16 |
+| SUSPENDED | define (memo) + verbs =suspend= =resume= | ={at, reason}= | =commons/fixtures/memo/domain/traits/note/suspended.js:12= | 1 |
+
+- TRACED — one record per grade or attempt, a child of the retention note.
+- RETAINED — the spaced-repetition state per user·literal.
+- SUSPENDED — takes a card out of every deal.
+- system presets owed: the 10-07 /"a node entity that can keep state, that can hold memory, that can hold like additional context, all kinds of stuff, like a scratch pad, notepad, node."/ → m80 /"it's note with a T"/ (=quests/done/m80-lighthouseless.org:14,107,175=); open at =quests/roadmap/m84-harness-runtime.org:864,869= ("nothing reads a runtime Note yet"). No scratchpad trait exists.
+

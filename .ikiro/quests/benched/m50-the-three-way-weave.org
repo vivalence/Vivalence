@@ -17,7 +17,7 @@ signature, signals, and now the requirement of some SIGKILL control standard. th
 weave. maybe dedicated quest is warranted. go build that. take your time. then sunset the old quest."/
 
 And the verdict that opened it (=~/vivalence/private/logs/2026.05.25.org:137-150=): /"the wafer has to go.
-maybe in favor of dossier? maybe just flat inline. brutalism."/ · =systems/runtime/daemon/die.js:6-8=:
+maybe in favor of dossier? maybe just flat inline. brutalism."/ · =systems/runtime/subjects/daemon/die.js:6-8=:
 /"TODO migrate to dossier pattern. TODO2 rename dossier pattern do die pattern. aka keep name, change
 pattern."/
 

@@ -1,12 +1,6 @@
+import { persistentAtom } from "@nanostores/persistent";
+
 export function preferences(mode) {
-  const key = `viva.mode.${mode}`;
-  const read = () => {
-    try {
-      return JSON.parse(localStorage.getItem(key)) ?? {};
-    } catch {
-      return {};
-    }
-  };
-  const write = (patch) => localStorage.setItem(key, JSON.stringify({ ...read(), ...patch }));
-  return { read, write };
+  const $held = persistentAtom(`viva.mode.${mode}`, {}, { encode: JSON.stringify, decode: JSON.parse });
+  return { read: () => $held.get(), write: (patch) => $held.set({ ...$held.get(), ...patch }) };
 }

@@ -1,0 +1,371 @@
+#+title: m99 — the drill's =* as code= snippets and =* open= (probes · his reframes · struck options), moved whole 10-23 at the finish
+# limit: none (reference)
+
+* as code — the drill's snippets (superseded by the tangle in the quest)
+
+*** systems/ghost
+**** typology.js — Q21 (on top of m98's hunk)
+#+BEGIN_SRC diff
+// systems/ghost/typology.js:1
+ export * from "./gestalten/index.js";
++export * from "./prototypes/index.js";
+ export * from "./subjects/index.js";
+…
+ export * as gestalten from "./gestalten/index.js";
++export * as prototypes from "./prototypes/index.js";
+ export * as subjects from "./subjects/index.js";
+#+END_SRC
+**** chrome/panes/panel.js — Q38 (tree moved: =systems/ghost/chrome/=, was =surfaces/chrome/=)
+#+BEGIN_SRC js
+// systems/ghost/chrome/panes/panel.js:28   ← Locked Q38: /"b"/ — SUBJECTS · NAMED arms gone (Q24); a valence without " · " is the label itself
+const LABELS = [
+  [(key, valence) => valence.includes(" · "), (key, valence) => [valence.split(" · ")[0], valence.split(" · ").slice(1).join(" · ")]],
+  [() => true, (key, valence) => [valence, ""]],
+];
+// the top grid: ? /help · q /quit · e entity where am I; anima's chord painter (tests/bar.test.js:110 KEYS) the same rule
+#+END_SRC
+**** gestalten/shard/keymap.js
+#+BEGIN_SRC js
+// systems/ghost/gestalten/shard/keymap.js   ← Locked Q18″: /"I want harvest under shard.keymap.fromRepl"/ — body of subjects/client/keymap.js:4-11
+// in:  a repl Vector — .open({ nature: "/dock", chord: "leader/d/d", … }, effect)
+// out: a keymap Vector — .open({ nature: "leader/d/d", valence: "/dock" }, "/dock")
+const line = (steps) => "/" + steps.map((step) => step.nature).join("/");
+const chord = (steps) => (is.string(steps.at(-1).chord) ? steps.at(-1).chord : null);
+export const fromRepl = (repl) =>
+  steer.trie.rollup(repl, (carry, effect, steps) => chord(steps))
+    .filter((entry) => entry.fn !== null)
+    .reduce((keymap, { steps, fn }) => keymap.open({ nature: fn, valence: line(steps) }, line(steps)), new Vector());
+// ← Locked Q26: /"a"/ — catalog lives beside fromRepl; options · args · line · chord stay locals (subjects/client/keymap.js:13-31)
+export const catalog = (repl) =>
+  steer.trie.rollup(repl, (carry, effect, steps) => ({ nature: line(steps), valence: steps.at(-1).valence, chord: chord(steps) === null ? "" : chord(steps), options: options(steps.at(-1).input), args: args(steps.at(-1).input) })).map((entry) => entry.fn);
+// systems/ghost/subjects/client/keymap.js   the palette (leader/leader's local; departure: the option placed it in prototypes/legend.js)
+client.$catalog.set(shard.keymap.catalog(repl.compose(client, client.activeTerminal)));
+#+END_SRC
+**** prototypes/legend.js · prototypes/index.js · typology.js
+#+BEGIN_SRC js
+// systems/ghost/prototypes/legend.js   ← Locked Q20: /"its the legend???? what?"/ (object + part) · Q21 home /"b"/ · Q22 C⁗: /"lock. rename abort to flush."/ · Q28 the queue holds KeySignals: /"b."/
+import { KeySignal, Queue, shape, steer } from "@vivalence/typology";
+import { atom } from "nanostores";   // ← LOOKUP 10-23: typology's =atom= is the =belt.atom= namespace (37× /"atom is not a function"/); tree style subjects/client/prototype.js:1
+
+export class Legend {
+  presses = new Queue();
+  $chord = atom(null);
+  constructor(client) {
+    this.client = client;
+    this.presses.$backlog.listen((presses) => this.traverse(presses));
+  }
+  get chord() {
+    return this.$chord.get();
+  }
+  dispatch(event) {
+    this.presses.enqueue(new KeySignal(event));   // ← Q30: the raw event, KeySignal spells it
+  }
+  traverse(presses) {
+    if (presses.length === 0) return this.$chord.set(null);
+    const keys = presses.map((signal) => signal.nature);
+    const [effect, carry, steps, node] = steer.dispatch.traverse(this.client.activeTerminal.keymap, new KeySignal(keys));
+    if (effect !== null) return this.execute(effect, carry).catch((error) => this.client.controller.stdout.fault(error));   // ← Q39 LOOKUP: the tree's dropped-promise style (chrome/acts.js:4 · client/traits/home.js:24 · client/lifecycle/index.js:46); FAULTS' Dropped · NotFound arms have no case here (no drain; a dead end flushes)
+    if (steps.length < keys.length) return this.flush();
+    this.$chord.set(shape.strip(node));
+  }
+  async execute(effect, carry) {
+    this.flush();
+    const ctx = { client: this.client, output: undefined };
+    await carry(ctx, steer.strategy.resolve(effect));
+    if (ctx.output !== undefined) await this.client.activeTerminal.dispatch(ctx.output);
+  }
+  flush() {
+    this.presses.flush();
+  }
+}
+// systems/ghost/subjects/client/prototype.js:17-23   ← Q20 · Q22: presses · $chord · keymap-walk leave the client
+legend = new Legend(this);
+// systems/ghost/subjects/client/lifecycle/index.js:47   ← Q22: the =pressing= beat dies; subjects/client/keymap.js =navigate= · =navigating= · =FAULTS= die
+// systems/ghost/surfaces/chrome/keys.js:21   ← Q22: the surface's own Queue dies · Q30: =press= · =CHORDS= · =NAMES= · =PRINTABLE= die, the raw event goes through
+export const keypresses = (renderer, legend) => {
+  const listener = (event) => legend.dispatch(event);
+  renderer.keyInput.on("keypress", listener);
+  renderer.once("destroy", () => renderer.keyInput.off("keypress", listener));
+};
+// systems/ghost/surfaces/chrome/index.js:54
+keypresses(renderer, client.legend);
+// systems/anima/src/surface/keys.js:19 · src/surface/index.js:46   the same shape over window keydown
+// systems/ghost/surfaces/chrome/acts.js:25-44   client.presses.enqueue({ key: "leader" }) → client.legend.dispatch("leader")   ← Q30: KeySignal's string arm
+// tests: keys.test.js:32-35 (keypresses as a drained source) · chrome.test.js:106 (.to(held.client.presses)) rewrite
+// systems/ghost/subjects/client/lifecycle/index.js:42   the =keymap= beat (Q18″ rename): clientDie.keymap.graft(shard.keymap.fromRepl(clientDie.repl), keymap, ...fromm.modes(clientDie.modes).flat.map((held) => held.keymap))
+// systems/ghost/subjects/terminal/prototype.js:3   =import { harvest }= dies (Q27 getter uses shard.keymap.fromRepl)
+// the chord's readers move to the legend: surfaces/chrome/acts.js:25 =client.chord= → =client.legend.chord= · world.js:59 =chord: client.legend.chord= · panes/chrome.jsx:115 =client.legend.$chord= · anima src/surface/panes/{chord,bar,regions}.jsx
+// =$chord= changes shape: ={ crumbs, node }= → =shape.strip(node)= (Q23); the held keys come from =legend.presses.backlog= — panel.js =panelHeight= · =paintPanel= (crumbs.length === 1 → the leader grid) follow; SKETCH with the tty Legend split
+// systems/ghost/prototypes/index.js   ← Locked Q21
+export * from "./legend.js";
+// systems/ghost/typology.js   ← Locked Q21 (Q13: classes flat + the dir as a namespace)
+export * from "./prototypes/index.js";
+export * as prototypes from "./prototypes/index.js";
+#+END_SRC
+**** (beyond ghost) subsystems/typology/prototypes/queue.js — rides Q22 (HOLY: its own go)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/queue.js   ← Q22 C⁗ needs the presses observable
++import { atom } from "nanostores";
+ export class Queue {
+-  backlog = [];
++  $backlog = atom([]);
++  get backlog() {
++    return this.$backlog.get();
++  }
+   enqueue(value) {
+-    this.backlog.push(value);
++    this.$backlog.set([...this.backlog, value]);
+   flush() {
+-    this.backlog.length = 0;
++    this.$backlog.set([]);
+   async *drain(signal) {
+-        yield this.backlog.shift();
++        const [head, ...rest] = this.backlog;
++        this.$backlog.set(rest);
++        yield head;
+#+END_SRC
+**** (beyond ghost) subsystems/typology/gestalten/shape/strip.js — Q23 (HOLY: its own go)
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shape/strip.js:15   ← Locked Q23: /"it's a strip wire, for sure"/ · /"a"/ — a group edge's pattern metadata rides as =meta=; a bare segment stays ={ branches }=
+ export const strip = (vector = new Vector(), pluck = edgeMeta) =>
+   steer.trie.fold(vector, {
+     node: (f) => {
+       const branches = Object.fromEntries(f.trajectories.map((c) => [c.key, c.node]));
+       const node = { branches };
++      if (f.signature && f.effect === undefined && Object.keys(pluck(f.signature)).length > 0) node.meta = pluck(f.signature);
+       if (f.effect !== undefined) node.effect = pluck(f.signature, f.effect);
+       return f.signature ? { key: f.signature.nature, node } : node;
+     },
+   });
+// subsystems/typology/tests/gestalten/shape/strip.test.js   + "a group edge's pattern metadata rides as meta; a bare segment stays { branches }"
+// blast: runtime gestalten/shard/host.js:19,27,41,44 · subjects/mode/traits/repling.js:5 · ghost client/commands/help.js:6 · shell/lifecycle.js:106 · entities/mode/traits/looping.js:12 · typology specimen/snapshot.js:92 → SNAPSHOT_HOT=1 once; shape.connection.wire ignores meta
+#+END_SRC
+**** (beyond ghost) subsystems/typology/prototypes/vector.js — Q25 (HOLY: its own go)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/vector.js:63   ← Locked Q25″: /"Yes, I loc this"/ — graft merges a key's patterns field by field, later wins; a bare segment keeps the earlier valence; sources untouched
+-        if (existing) existing.pattern = edge.pattern;
++        if (existing) existing.pattern = new this.signature({ ...existing.pattern, ...edge.pattern });
+// probe 10-23: trie patterns carry =trace: null=; a deep open's =gauges= holds its construction heir (=leader.gauges = [q]=) but the trie walks =vector.trie=, never =gauges= — each edge's pattern is independent
+#+END_SRC
+**** (beyond ghost) systems/runtime/tests/mode/generative.test.js — Q35 LOOKUP (follows Q25, not asked)
+#+BEGIN_SRC js
+// systems/runtime/tests/mode/generative.test.js:324   Q25 /"later wins per field"/: a mode's generator rewords =/view/create= (valence only), the trait's =input= survives — today it is dropped and =view_create= ships with no schema
+specimen.expect(Object.keys(create.pattern.input.properties)).toEqual(["slug", "mime", "source"]);
+// precedent tests/mode/looping.test.js:62 (=Object.keys(whoami.pattern.input.properties)=); unprobed — the m98+m99 copy is gone
+#+END_SRC
+**** (beyond ghost) subsystems/typology/prototypes/pattern.js — Q40 (HOLY: its own go)
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/pattern.js:65   ← Locked Q40: /"a"/ — copy on match; the caller's signal is never touched (known issue pattern-filter-mutates-the-callers-signal)
+  [
+    "wildcard",
+    (signature) => signature === "*",
+    (signal) => new signal.constructor({ ...signal, type: "wildcard" }),
+  ],
+  [
+    "remainder",
+    (signature) => signature === "(.*)",
+    (signal) => new signal.constructor({ ...signal, type: "remainder" }),
+  ],
+  [
+    "parameter",
+    (signature) => signature.startsWith(":"),
+    (signal, pattern) => {
+      const parameter = pattern.nature.slice(1);
+      return new signal.constructor({ ...signal, parameter, parameters: { [parameter]: signal.nature } });
+    },
+  ],
+// probe drill/ws/fresh (with Q34): /activity/find → params {} · /activity/7/stdout → { id: "7" } · an x press keeps type undefined; typology 149 / 1 red (bundle weight). Owed: Q30's KeySignal arms must read a spread signal (an object with nature) as a signal, never as an event — unprobed
+#+END_SRC
+**** (beyond ghost) subsystems/typology/prototypes/keysignal.js — Q30 (HOLY: its own go)
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/keysignal.js   ← Locked Q30: /"b"/ — the surface forwards the raw event; KeySignal spells the nature once (Q29 order) · Q31 names: /"b"/ (W3C) · a printable spells its character (lookup, chrome/keys.js:15)
+const MODIFIERS = ["ctrl", "alt", "shift", "meta"];
+const NAMES = { escape: "esc", return: "enter", linefeed: "enter", arrowleft: "left", arrowright: "right", arrowup: "up", arrowdown: "down", " ": "space" };
+const PRINTABLE = /^[^\p{C}\s]+$/u;
+
+const spell = (down, character, name) => {
+  const held = MODIFIERS.filter((modifier) => down[modifier]);
+
+  if (!down.ctrl && !down.alt && !down.meta && PRINTABLE.test(character)) return [{ nature: character }];
+
+  const named = Object.hasOwn(NAMES, name) ? NAMES[name] : name;
+  return [{ nature: [...held, named].join("-") }];
+};
+
+export class KeySignal extends Signature {
+  static coercions = [
+    [
+      (event) => is.object(event) && is.string(event.sequence),
+      (event) => spell({ ctrl: event.ctrl, alt: event.meta || event.option, shift: event.shift, meta: event.super === true }, event.sequence, event.name),
+    ],
+    [
+      (event) => is.object(event) && is.string(event.key),
+      (event) => spell({ ctrl: event.ctrlKey, alt: event.altKey, shift: event.shiftKey, meta: event.metaKey }, event.key, event.key.toLowerCase()),
+    ],
+    [(key) => is.string(key), (key) => [{ nature: key }]],
+  ];
+}
+// the first arm reads opentui's ParsedKey (tty: its =meta= is alt, its =super= is command), the second the DOM KeyboardEvent (fields minus =Key=), the third the string form Legend.traverse chains
+// S → "S" · ? → "?" · shift-tab → "shift-tab" · ctrl-c → "ctrl-c" · option-s → "alt-s" · command-s → "meta-s" (web; a terminal never sees command bar kitty)
+// anima src/surface/keys.js: press · CHORDS · NAMES · LEADER · LEADER_KEY die likewise; keypresses forwards the KeyboardEvent (preventDefault rides the translation map's edge, Q32)
+#+END_SRC
+**** prototypes/legend.js · surfaces/chrome/translation.js — Q32
+#+BEGIN_SRC js
+// systems/ghost/prototypes/legend.js   ← Locked Q32: /"we follow leader and we call the map not the leader map but the translation map"/ — on top of the Q22 class; probe scratchpad leader/everywhere.js
+translation = new Vector()
+  .use(shard.context.bind("legend", this))
+  .open("*", (ctx) => ctx.legend.presses.enqueue(ctx.signal));
+dispatch(event) {
+  steer.dispatch.invoke(this.translation, new KeySignal(event), steer.strategy.echo)(event);
+}
+// systems/ghost/surfaces/chrome/translation.js   the tty's leader key; chrome/keys.js:9 LEADER · :12 the leader arm of CHORDS die
+export const translation = new Vector()
+  .open("ctrl-v", (ctx) => ctx.legend.presses.enqueue(new KeySignal("leader")));
+// systems/ghost/surfaces/chrome/index.js:54   at mount
+client.legend.translation.graft(translation);
+// systems/anima/src/surface/translation.js   the web's; anima src/surface/keys.js:3-5 MAC · LEADER · LEADER_KEY die
+export const translation = new Vector()
+  .open(MAC ? "ctrl-v" : "meta-v", (ctx) => {
+    ctx.input.preventDefault();
+    ctx.legend.presses.enqueue(new KeySignal("leader"));
+  });
+// systems/ghost/subjects/client/keymap.js   the palette stays leader/leader (keymap.js:42-45 as today)
+// owed: chrome/panes/bar.js:10 chordText (leader → "ctrl-v") reads the surface's own key · graft never un-grafts (one surface per client today)
+#+END_SRC
+**** (beyond ghost) subsystems/typology/gestalten/steer/match.js — Locked Q32′: /"yes lock"/ · relabelled by Q34: /"b"/ (HOLY: its own go)
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/steer/match.js:18   ← Locked Q34: /"b"/ — the literals are asked first; the =*= only when none matched (Q32′'s skip line stays, miss() is no longer its only door)
+export function scope(vector, signal) {
+  const scope = [];
+
+  for (const { pattern, trajectory } of vector.trie.values()) {
+    if (pattern.type === "wildcard") continue;
+    const match = pattern.apply(signal);
+    if (match) scope.push([match, trajectory, trajectory.effect ?? null]);
+  }
+
+  if (scope.length > 0 || !vector.trie.has("*")) return scope;
+
+  const { pattern, trajectory } = vector.trie.get("*");
+  return [[pattern.apply(signal), trajectory, trajectory.effect ?? null]];
+}
+// probe drill/ws/rank (a workspace on the patched copy): http.test + object.test 6/0 · typology 149 passed / 1 red (bundle weight); ghost · runtime · anima unprobed; repl twin entities/terminal/commands/turn.js:5
+#+END_SRC
+**** (beyond ghost) subsystems/sheets/Legend.jsx · subsystems/drapes/Legend.jsx
+#+BEGIN_SRC jsx
+// subsystems/sheets/Legend.jsx   ← Locked Q20: /"legend. legend is great."/ — was Chord.jsx (m95 ruling 35); the same props over DOM in subsystems/drapes/Legend.jsx · body Locked Q23: /"a"/
+const LABELS = [
+  [(node) => node.effect !== undefined && node.effect.valence !== undefined, (node) => node.effect.valence],
+  [(node) => node.meta !== undefined, (node) => node.meta.valence],
+  [() => true, (node, key) => key],
+];
+const label = (node, key) => LABELS.find(([test]) => test(node))[1](node, key);
+export const Legend = (props) => (
+  <box style={{ flexDirection: "column", backgroundColor: props.surface.palette.surfaceLift }}>
+    <text>{props.legend.presses.backlog.map((signal) => signal.nature).join(" ")}</text>
+    <For each={Object.entries(props.legend.chord.branches)}>{([key, node]) => <Segment key={key} label={label(node, key)} />}</For>
+  </box>
+);
+// systems/ghost/surfaces/chrome/panes/legend.js   ← SKETCH (unruled: splitting panel.js) the tty half: the chord arm of panes/panel.js (panelHeight · paintPanel, world.chord !== null); the catalog arm stays Catalog's
+#+END_SRC
+**** subjects/client/prototype.js — rename r1
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/prototype.js:22   ← Locked r1: /"rename client.active to client.active terminal, camel cased"/
+$activeTerminal = atom(null);
+get activeTerminal() {
+  return this.$activeTerminal.get();
+}
+// every consumer: client.active → client.activeTerminal · client.$active → client.$activeTerminal (census 10-23: ghost subjects/client/{prototype,keymap,lifecycle/index,commands/terminal}.js · chrome/{acts,world,panes/chrome.jsx} · 8 tests + scenarios/look.js · anima src/surface/{sections.js,panes/{chrome,regions,sidebar,tabs,tele}.jsx} · tests/world.js)
+#+END_SRC
+**** subjects/client/keymap.js — Q24
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/keymap.js   ← Locked Q24: /"a"/ — the group keys under leader are DECLARED here with their valence; =SUBJECTS= · =NAMED= (chrome/panes/panel.js:6,18) die
+// (departure from the option: Vector has no =.parent= — =branch(signature)= with no vector mints the empty group and returns it, prototypes/vector.js:30)
+const palette = (client, prefill) => {
+  client.$catalog.set(shard.keymap.catalog(repl.compose(client, client.activeTerminal)));
+  client.surface.$draft.set(prefill);
+  client.surface.$focus.set("composer");
+};
+export const keymap = new Vector().open({ nature: "esc", valence: "drop the catalog. Example: esc" }, (ctx) => ctx.client.$catalog.set(null));
+// (Q22: =execute= flushes before any effect → =legend.$chord= is already null; esc and palette lose their =client.$chord.set(null)=, keymap.js:36,48; =listing= inlines, its only caller)
+const leader = new Vector().open(
+  { nature: "leader", valence: "palette · the catalog — every repl verb, narrowed as you type. Example: ctrl-v ctrl-v" },
+  (ctx) => palette(ctx.client, ctx.client.surface.draft.startsWith("/") ? ctx.client.surface.draft : "/"),
+);
+leader.branch({ nature: "e", valence: "entity · where am I" });
+leader.branch({ nature: "a", valence: "activity · is it working" });
+leader.branch({ nature: "h", valence: "harness · what is it given" });
+leader.branch({ nature: "d", valence: "display · how do I see it" });
+leader.branch({ nature: "s", valence: "system · what does it run on" });
+leader.branch({ nature: "m", valence: "mode · the seated mode’s keys" });
+// ← Locked Q37: /"Just drop them … if we need to add them we do that"/ — c · x · g leave (0 chords under them once Q7 lands); a group is declared when a command claims it
+keymap.branch({ nature: "leader", valence: "the leader — ctrl-v on a tty" }, leader);
+// subsystems/drapes/Bar.jsx:8 SUBJECTS stays (the bar's own segments) — a second copy, unruled
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/keymap.js   ← Locked Q29: /"Let's just have the nature of a key signal be all-encompassing, we ignore the modifier flags … nature encodes the modifiers into the nature. Simpler more obvious"/
+const MODIFIERS = ["ctrl", "alt", "shift", "meta"];   // relabelled Q31 (was ctrl option shift meta)
+
+keymap.open(
+  { nature: "ctrl-shift-s", valence: "save. Example: ctrl-shift-s" },
+  save,
+);
+// a press of ctrl-shift-s → a KeySignal of nature "ctrl-shift-s"; Pattern's literal arm (prototypes/pattern.js:89-91) matches it.
+// no flags · no KeyPattern · no hash · typology's Vector untouched. Where the raw event is spelled → Q30.
+#+END_SRC
+**** subjects/terminal/prototype.js — Q27
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/prototype.js:22   ← Locked Q27: /"a. but cleaner"/ · form /"1"/ — a plain getter, no store (0 subscribers); the terminal's own command chords stay (fromRepl(this.repl))
+get keymap() {
+  const keymap = new Vector().graft(this.client.keymap, shard.keymap.fromRepl(this.repl));
+  if (is.object(this.mode)) keymap.graft(this.mode.keymap);
+  return keymap;
+}
+#+END_SRC
+
+* open
+
+- drill 10-23 over the testing pass's findings — queued: Q34 LOCKED · Q35 LOOKUP (Q25 answers it: the test flips, hunk under =* as code=) · Q36 LOOKUP (m98 Q7 kills =/chrome/on=, the only =leader/c= chord, =chrome/commands.js:9=; =c control= on the grid is right) → folds into Q37 · Q37 LOCKED (drop =c x g=; why they were there: Q24 copied =SUBJECTS= whole, all nine) — chords per group today (=grep chord: "leader/<k>"=, ghost · runtime · commons · registry): e 6 · a 5 · d 4 · h 4 · m 4 · s 4 · c 1 (dies with Q7) · x 0 · g 0 · Q38 LOCKED (the line is the label) · Q39 LOOKUP (=.catch(… stdout.fault)= at the drop, hunk relabelled) · Q40 LOCKED (copy on match) · [every copy's 1 red, =bundle weight — atom through the barrel=, is the copy's PATH: esbuild /"Could not resolve …/drill/ws/subsystems/typology/mod.client.js"/ — not code] · Q41 =Argv= string arm · Q42 =ReplSignal= foreign arm · Q43 =rgb= vs =toRgb=. Lookups: =atom= → =import { atom } from "nanostores"= (tree style, =systems/ghost/subjects/client/prototype.js:1=) · neither quest replays → skill =quest= finish (real hunks on today's tree). Tree moved since the pass: chrome lives at =systems/ghost/chrome/= (=panes/panel.js:6,18= =SUBJECTS= · =NAMED=; =chrome/commands.js:9= =chord: "leader/c"=).
+- Q34 probe 10-23 (scratchpad =drill/ws/{skip,rank}=, a workspace whose =typology= is the patched copy — a copy under the ROOT config resolves =@vivalence/typology= to the real tree, proves nothing): =traverse(proxy/*/status, "/proxy/anything/status")= → skip: effect =null= · rank: found. =http.test.js= + =object.test.js=: skip 4/2 · rank 6/0. rank full typology: 149 passed / 1 red (=bundle weight — atom through the barrel=, esbuild + vite; an unpatched copy not run in this workspace). Third copy =walk= (skip + =traverse='s NotFound arm descends the =*= edge, =steer/dispatch.js:41=): 148 passed / 2 red — =object.test.js:156= =shape.proxy(...).anything is not a function= (=shape/object.js:27= asks =steer.match.scope= itself) + bundle weight. =scope='s three askers: =steer/dispatch.js:39= (=traverse=) · =:89= · =shape/object.js:27=.
+- Q35 measured: =systems/runtime/subjects/mode/traits/generative.js:126-134= opens =/view/create= with =input: v.object({ slug: SLUG, mime: VIEW_MIME, source: SOURCE })=; a mode's =generator= rewording it (=tests/mode/generative.test.js:303-306=, valence only) drops that schema TODAY → =view_create= ships with no input and =guarded= validates nothing. Q25 keeps it; the test pins =create.pattern.input= =undefined= (=:324=).
+
+- Q32 his: /"How does Emacs handle this? Because what you described with meta V and control V is a real problem."/ → probe 10-23 =leader/emacs.el= (GNU Emacs 30.2 batch, =key-translation-map= =C-v → <f13>=): =C-v d d= → =<f13> d d= · =C-v C-v= → =<f13> <f13>= — Emacs translates EVERY press, any position (=input-decode-map= doc: /"replaces any subsequence"/ · /"applies its rebinding regardless of the presence of an ordinary binding"/ · a function binding returns the key sequence · /"The events that come from bindings … are not themselves looked up"/); the platform lives one layer lower, =mac-command-modifier= (/"Each SYMBOL is 'control', 'meta', 'alt', 'super', 'hyper' or 'none'"/) — bindings never see the OS. Doom (search): a second leader =M-SPC= exists because =SPC= must insert whitespace in insert state. → =leader/everywhere.js= (skip-line copy, no first-press branch, palette =leader/leader=): all six sequences right. First-press-only (C″) and a platform-free keymap exclude each other.
+
+- Q32 C″ his (/"I suspect"/ — sketch, no lock): /"two ways … Either in the traversal or in the vector creation. Just traversal would keep looking for matches if the match it found was a wildcard … Another way is the one that you've shown, where we match wildcard latest, which is also fine … attach … the wildcard last, although that's not feasible."/ · /"our leader keys don't need valences"/ · /"I only want the leader substitution to happen on the first press. So we wouldn't have leader, but leader control V. Yeah, for sure."/ · /"I don't understand the second issue of the mutation … I would rather use context.signal over context.steps.at.nature."/ → probe 10-23 =leader/first.js= over =ws/typology= with ONE line in =scope= (=if (pattern.type === "wildcard") continue;=, =gestalten/steer/match.js:21=): a =*= is never asked beside the literals; =traverse='s existing =miss()= (=steer/dispatch.js:23-30=) already falls back to the deepest =*= → =ctrl-v= · =ctrl-v d d= · =ctrl-v ctrl-v= → =leader/ctrl-v= PALETTE · =esc= · =d ctrl-v= (dead, then a fresh leader) all right; the =*= edge enqueues =ctx.signal=; typology 147 passed / the same 3 baseline reds. First-press-only: =legend.dispatch= enqueues straight when presses are held, else dispatches =leaders=. =leader/mutation.js= (base tree): a filter writes onto the CALLER's signal and the literal filter returns that same object → (1) a press reads =type: "wildcard"= after dispatch, the step IS the press · (2) a literal =/dock= beside =:slug= runs with =params: { slug: "dock" }= · (3) a literal =/dock= beside =(.*)= records step type =remainder=. Gap: anima off a Mac leads with =meta-v= → its palette is =leader/meta-v=, the keymap declares =leader/ctrl-v=. Unprobed: ghost · runtime · anima suites under the =scope= line.
+
+- Q32 C′ his (direction, no lock): /"does the legend have a dedicated key map? … it's not part of the key map vector, so the legend would need its leader vector. Which would be nice because we could implement multiple leader keys."/ → probe 10-23 scratchpad =leader/leaders.js=: =legend.leaders= = a Vector the Legend mints (=.use(shard.context.bind("legend", this))= + a =*= edge that enqueues the key as itself); each surface grafts its own leader edges (=ctrl-v → enqueue leader= · =ctrl-g → enqueue leader, g=); =legend.dispatch(event)= = =invoke(leaders, new KeySignal(event), echo)(event)=, not awaited — the effects enqueue synchronously (order kept, =preventDefault= in-event). TRAP 1: =scope= (=gestalten/steer/match.js:18-27=) asks edges in trie insertion order and =feed= takes the first with an effect → the Legend's =*= (inserted in the constructor, before any graft) SWALLOWS =ctrl-v= → every press dead. TRAP 2: the =*= filter mutates the signal (=prototypes/pattern.js:69=) and the literal filter returns the same object → every match of one signal reads =type: "wildcard"= → ranking in =feed= by =match.type= cannot work. =ws/typology= copy: =scope= asks non-wildcard edges first (by =edge.pattern.type=) → all six sequences right (=ctrl-v ctrl-v= → palette, =ctrl-g n= → =/focus next=); typology suite 147 passed / 3 failed, the same 3 as an unpatched copy (bundle weight ×2 · svelte bundle). Latent twin today: ghost =entities/terminal/commands/turn.js:5= =*= (the bare line) wins over a literal command if it is grafted first. Unprobed: ghost · runtime · anima suites under the ranking.
+
+- Q32 his (third option, design, no lock): /"everything is in leader- format, except the leader key, which we have on our key map vector as the leader key in its original format, and then the effect itself changes the its own format and applies again a dispatch. So like the leader key is a double dispatch."/ → probe 10-23 scratchpad =leader/probe.js= (m99 Legend over a keymap with a root =ctrl-v= edge whose effect calls =legend.dispatch("leader")=): =ctrl-v= → hold =leader= ✓ · =ctrl-v d d= → =/dock= ✓ · =ctrl-v ctrl-v= → DEAD (=[leader, ctrl-v]=, the raw edge lives at the root only; =traverse= walks the whole held sequence from the root, =steer/dispatch.js:29=) → the palette (=leader/leader=) is unreachable. A root =*= does not save it: =miss()= (=dispatch.js:23-27=) backtracks to the root's =*= at depth 0, dropping the held prefix. → C′ =leader/spelling.js=: the raw edge in its OWN Vector, dispatched per press BEFORE the enqueue (=invoke(spelling, new KeySignal(event), steer.strategy.echo)(event)=; =ctrl-v → "leader"= · =* → ctx.steps.at(-1).nature=) → all four sequences right, palette included. =leader/sync.js=: the edge's effect runs synchronously inside the event (=ctx.input.preventDefault()= lands before any await) → the surface's own spelling vector can preventDefault. Costs: =legend.dispatch= turns async (two presses in flight keep order by equal microtask depth, unprobed under load); the =*= filter MUTATES the signal (=prototypes/pattern.js:69= =object.assign(signal, {type: "wildcard"})=, probe: =type: "wildcard"= after the match).
+
+- Q31 lock /"b"/ → caveat, unprobed: on a Mac browser option-s gives =key: "ß"= (the layout's character), so =alt-ß= on the web vs =alt-s= on a tty with option-as-meta; =event.code= (=KeyS=) would fix it — not ruled.
+- Q31 his: /"what is the most standard way of doing this?"/ → the one written standard is W3C UI Events (every browser): =Control Alt Shift Meta=, Meta = command on a Mac (=KeyboardEvent.ctrlKey altKey shiftKey metaKey=, =getModifierState=); editors and web key libraries spell it lowercase =ctrl alt shift meta=; the kitty keyboard protocol agrees on =alt= and names command =super=; the outlier is the LEGACY terminal, where =meta= means alt (ESC prefix) — our tty arm today. Apple's order Control · Option · Shift · Command = Q29's order. → Q31 re-asked: A =ctrl option shift command= · B the W3C names =ctrl alt shift meta=; lean B.
+- Q30 lock /"b"/ → probe scratchpad =shift.js= (opentui =parseKeypress=, legacy mode): =S= → name =s= shift true · =?= → name =?= shift FALSE · ctrl-s → =s= ctrl · esc → =escape= · shift-tab → =tab= shift · option-s (ESC prefix) → =s= META true, option false. DOM: =?= → key =?= shiftKey TRUE · option → altKey · command → metaKey. So (1) a printable's shift diverges (tty =?= vs web =shift-?=) unless a printable spells its CHARACTER — today's tty rule (=chrome/keys.js:15= PRINTABLE arm) → a LOOKUP, both arms keep it; (2) the tty's =meta= IS option/alt, the web's =metaKey= is command: one word, two keys → Q31 names the modifiers. The Q30 hunk's arms read =event[modifier]= — relabel after Q31.
+- Q29″ his (direction, not a lock — hunk SKETCH): /"It feels like hash would be the more natural solution. It feels like the vector should manage its pattern by hash. And I don't see a wildcard match by hash to be an issue. But this is a very profound and far-reaching change that needs to be thoroughly tested. Keep the thorough testing campaign for the actual implementation and for now do a reasoning and probing pass."/ → probe pass 10-23 (scratchpad =ws/= = a patched typology copy · =hash-invariant.js= · =hash-origin.js= · =ws/typology/strip-collide.js=): (1) BLOCKER =subsystems/paladin/prototypes/pensieve.js:82-84= =own()= hands every registry export back as an =Object.create= + =Reflect.ownKeys= copy → a private =#hash= is not copied → =pattern.hash= THROWS on registry modes' patterns (ghost =looping.test.js=: =@commons/home/console= =hello= · =whoami=); invisible today, nothing reads a trie pattern's hash. (2) =shape.strip= keys =branches= by nature (=gestalten/shape/strip.js:19-20=) → =s= · =ctrl-s= strip to ONE branch, last wins (Legend loses one); =connection.wire= needs nature keys as URL segments. (3) patched copy: typology 147 passed, the 3 new red steps all read the Map by nature (=tests/vector.test.js= ×2 · =tests/repl.test.js:40=); key-as-label readers =anima/src/surface/panes/chord.jsx:19,24= · =ghost/chrome/panes/panel.js:35= · =sheets/Chord.jsx:4= (Q20 kills them). (4) stable: trie patterns carry =trace: null= (=branch= → =from(null)=) so =Pattern= hash ≡ type + nature; invariant probe over typology + ghost suites: 0 traced · 0 drift · 0 cross-nature collisions. (5) =belt/hash.js:3= is 32-bit fnv1a → a collision MERGES two siblings silently. Unprobed: runtime · anima suites → the implementation campaign.
+- Q29′ his (rejects A's =Pattern.key=): /"why are we now adding a key to the raw pattern? That makes no sense."/ → A put =get key()= on the base =Pattern= only so =Vector= could read one property off every pattern; the raw Pattern gains a word only keys need — struck. Census of Map reads BY NATURE in product code: =prototypes/vector.js:28,62= · =prototypes/twitch.js:20= · =gestalten/steer/trie.js:10= · =gestalten/steer/dispatch.js:30= (="*"=) · =gestalten/shard/datamap.js:189= · =ghost/subjects/client/keymap.js:59=. → Q29″.
+- Q29′ his (a question, not a lock): /"I see this potential issue for overlap if we define the same key with different modifiers. Is that a real issue? So I guess I'm asking if our patterns are unique by hash or unique by nature."/ → measured: unique by NATURE — the trie Map key (=prototypes/vector.js:28,31,62,66=); =hash= (=prototypes/pattern.js:50= index · type · nature · trace, no flags) only dedupes =gauges= (=prototypes/signature.js:190,196=). Probe scratchpad =unique.js=: two =open= on =s= with =ctrl: false= · =ctrl: true= → ONE branch, the first pattern kept, the second effect wins → plain =s= runs ctrl's effect (real today). Probe =unique-a.js=: two edges stored under =s= · =ctrl-s=, both nature =s=, a flags-exact =apply= → =s= → plain, =ctrl-s= → ctrl; traverse untouched (=match.js:18= asks every edge).
+- Q29 his (reframe, not a lock): /"two problems here. We have the key pattern and the key signal. And I kind of want those two syntaxes to be interchangeable … if we define them as part of nature and then the key map the signature that we are using, parses that into the object form … So the object form is the true form, and then we have syntactic sugar on top of the nature for the pattern. And for the signal side, I would prefer if the Chrome doesn't do the too much of the processing. The key signal should do that. But we do need some standard format … the question is one of coherence. That needs to be looked at holistically."/ → measured: dispatch MATCHES by asking every edge =pattern.apply(signal)= (=gestalten/steer/match.js:18-25=, literal arm =prototypes/pattern.js:89-91= compares nature only) — a key pattern that compares flags needs NO dispatch change; the trie STORES by =pattern.nature= (=prototypes/vector.js:28,31,62,66=) and =shape.strip= labels by it (=gestalten/shape/strip.js:20=) → if the true form's nature is the bare =s=, =s= · =ctrl-s= share one edge and one label. =Signal= already parses sugar into object form (="/shell --json"= → nature =shell=, =flags: {json: true}=, =prototypes/signal.js:51-57=). opentui =ParsedKey= =name ctrl meta shift option sequence eventType super hyper= (=lib/parse.keypress.d.ts:5=). → Q29′.
+- Q28 his (with the lock): /"make sure that we also have our like the meta keys shift control command option, that all of those are captured as well. Is that in press.key or is that in press. Or any other stuff? And then of course we also need that in the encoding of our natures. I think those are flags."/ → measured: modifiers live IN the key string today (=chrome/keys.js:11-17= =ctrl-x= · =meta-x=; =anima/src/surface/keys.js:10-15=); dropped: option/alt (both), shift (DOM =named= lowercases; tty keeps it only via a printable =sequence=), super · hyper, ctrl+meta together (first arm wins), =eventType= / =repeated=. opentui =ParsedKey= carries =ctrl meta shift option super hyper eventType repeated= (=@opentui/core lib/parse.keypress.d.ts:5=); DOM =ctrlKey metaKey shiftKey altKey repeat=. =KeySignal extends Signature= (no flags); =Pattern.apply= matches the nature only (=prototypes/pattern.js:53=) → Q29.
+
+- Q25′ both struck, his: /"I don't like to have a dedicated method for this. I just don't like this line. … It's too long and complicated. Too much recursion happening. It's just ugly, stylistically ugly."/ → Q25″: the merge inline as the vector's own signature over two spreads, =new this.signature({ ...existing.pattern, ...edge.pattern })=. Probe scratchpad =spread.js=: a Pattern, valence kept, sources untouched, =traverse= dispatches; an Aperture's signature is =Pattern= too.
+
+- Q25 his: /"So in spirit, A is the right solution. But I don't like the implementation."/ (A = =graft= merges group patterns; the struck implementation: =Object.assign(Object.create(Object.getPrototypeOf(existing.pattern)), existing.pattern, edge.pattern)=) → Q25′: two implementations of A. Probe scratchpad =merge.js=: a pure =Signature.merge(signature)= (=new this.constructor({ ...this, ...signature })=) → a Pattern, filter kept, sources untouched, later fields win, =traverse= still dispatches. Found: =Signature.clone()= (=prototypes/signature.js:62=) returns the SAME instance (=:16= =instanceof → signature.from(trace)=).
+
+- Q23 his: /"I actually like the idea of using the vector on the chord. … nah, actually no, it's just the strip wire. Yeah, it's a strip wire, for sure. Show me the change that you're gonna do in more detail."/ → A shown in detail. Probe scratchpad =strip.js=: a group node gets =meta= only when its pattern carries metadata (an aperture's bare segments: output unchanged); =leader= gets ={ valence: "the leader — ctrl-v on a tty" }=. Found: a later graft OVERWRITES a group's pattern (=prototypes/vector.js:63= =existing.pattern = edge.pattern=) — =terminal.$keymap= grafts =fromRepl(terminal.repl)= AFTER =client.keymap= (=entities/terminal/prototype.js:22=), so =leader='s valence is lost there; the subject groups (=e a h d x s c g m=) carry NO valence anywhere — their labels are =chrome/panes/panel.js:6= =SUBJECTS= (domain words in the chrome).
+
+- Q22 C‴ his: /"I don't see why we are wiring up the legend traversal in a lifecycle. Why don't we do that in the constructor? And then why do we do it twice?"/ → C⁗: the listener in the constructor (lives and dies with the Legend, one per client); "twice" read as the TWO queues — the surface's own =Queue= (=chrome/keys.js:22= · =anima/src/surface/keys.js:20=) drained into =legend.presses= → the surface calls =client.legend.dispatch(press(event))= straight, its Queue dies.
+
+- Q22 C″ struck, his: /"I think dispatch is two things at once. You haven't cleanly separated the flows. So dispatch builds up the presses. And then on top of presses we have an effect that builds up chords and runs the execution."/ → C‴: =dispatch= ONLY enqueues; a listener on the presses' store (opened + closed by a client lifecycle beat) traverses, executes or sets =$chord=; =abort= only flushes — the listener nulls =$chord=. Needs the =Queue.$backlog= store (typology, HOLY — its own go).
+
+- Q22 C′ struck, his: /"I don't like this solution either. … there's one dimension too much, one variable too much. Maybe we do it like we originally did. … What if we build up a chord? We build up our presses. And every time we add a press, we traverse, and then depending on if we have an effect, we either dispatch or we strip wire that into our chords. And then we have exit, abort probably as its own method that cleans the presses, which should clean the chord."/ → C″ shown: one traverse per press, =carry= reused (no second traverse), =$chord = shape.strip(node)= SET, =abort()= flushes + nulls; the Queue store change is NOT needed. Gap: =shape.strip= plucks meta only where an effect sits (=shape/strip.js:20=) → a group edge's valence (=leader= "the leader — ctrl-v on a tty") is lost.
+
+- Q22 C revised, his: /"crumbs would either be keys or chords. I think keys is better here. Or actually chord, since it's a map of the backlog keys. Can we pull matches into the class itself and express it differently? Because this function is really hard to parse. I don't think it should be possible to switch a terminal while a port is held. … I see this problem that we're running it twice. I don't want that. It makes sense that if we have a match that then we run it double, but before that I don't like the double."/ · fire → =execute= (his). → C′: =$chord= = the backlog's keys (computed) · ONE =traverse= per press in a second computed · =matched= / =missed= getters · on a match =steer.dispatch.execute(keymap, ctx, new KeySignal(chord))= (the accepted second traverse). Probe scratchpad =chord.js=: =traverse(keymap, KeySignal([]))= → no throw, steps 0, root node; =[leader, esc]= / =[x]= → steps < keys; =execute= over =[leader, d, d]= → output ="/dock"=. Terminal switch: the only =$active= writes are =/terminal= (=subjects/client/commands/terminal.js:7,32=), reached by a chord only after =execute= flushes.
+
+- Q22 his third option (design, no lock — /"Show me C."/): /"we always keep the whole sequence of keys in our queue and only clear that once we have matched something or aborted the process. And so that would make the chords an effect on top of the queue and the key map vector."/ → C shown 10-23: =legend.dispatch(press)= enqueues, =traverse(keymap, new KeySignal(backlog keys))= the WHOLE held sequence each press (=Signature= array arm, =prototypes/signature.js:20=), a =[[predicate, tag]]= table: matched → flush + fire · nothing matches (=steps < keys=, esc mid-chord included) → flush · a prefix → hold; =$chord= derived from =(backlog, position)=. Gap: =Queue= (typology, HOLY) has no store → =$chord= is SET by dispatch, not =computed=.
+
+- Q20 REFRAMED → naming (skill =name=), his: /"We have cored already on the signature of our signals, or of our patterns rather, and to have the same as a panel confuses the fuck out of me. So we need a new name for the sibling. catalog that it specifically for the display of keys available in our key map vector at given node."/ · /"I don't think that we need a key presses which derives from Q. … more like a schematic, like an object that has … a Q of our key presses … some state of this is the nodes … a way to add to the key presses, although we can just go via the queue, and then it has a some sort of dispatch routine … if we have on this new object a this.client, then we can just pass the client like that. But it's definitely not keypresses extends queue. So we need some naming."/ → two names: the PART (m95 =Chord= struck for the part; =chord:= on a pattern stays) · the OBJECT (queue · held node · add · dispatch · =this.client=). Census 10-23: =Legend= 0 code hits · =Keyboard= taken (=subsystems/drapes/controls/index.js=) · =Keyer= 0.
+
+- Q19 REFRAMED (both options carried =terminal.navigate=), his SKETCH (/"I suspect"/, no lock): /"termina.keymap = f(client.keymap, mode.keymap) · client.keypresses = new Queue(). client.keypress(rawevent) -> queue.push(new KeyEvent(event)). lifecycle: client.keypresses.$store.subscribe(walk(terminal.keymap), display). … we do need to track what the keymap vector at our current chord displays. And then we need to display that in our client Chrome. … do we create a custom object or primitive on the client that handles all of the key handling facilities that we need, including the current state? But for that I would need to know how the Chrome decides that now it's time to show the panel of key presses available, and to describe that I need the name."/ · /"The key map on terminal isn't reactive. Yeah, you don't have it yet."/ → lookup: the name is =Chord= (m95 ruling 35, /"it displays where in the key map we're at"/); the tty paints it in =chrome/panes/panel.js:106= =panelHeight= off =world.chord= (=chrome/world.js:59= ← =client.$chord=, subscribed =chrome/panes/chrome.jsx:115=). Gaps vs tree: =KeyEvent= vs typology =KeySignal= (=prototypes/keysignal.js:4=) · =Queue= has no =$store= and =steer.dispatch.walk= PULLS (=dispatch.js:115=) · =terminal.$keymap= IS =computed= today (=entities/terminal/prototype.js:22=) · his f omits =fromRepl(terminal.repl)=. → Q20.
+
+- Q18′ his: /"I am leaning B, but I don't yet understand it. A harvest and catalog don't make sense to me. Yeah, what is it that this lifecycle function does? How do we navigate? How do we keep the queue? Where does shit live?"/ → the press pipeline end to end (renderer → =chrome/keys.js:21= Queue → =.to(client.presses)= =chrome/index.js:54= → =pressing= beat → =navigate= over =terminal.$keymap= → =ReplSignal(line)=); Q18′ re-asked after it.
+
+- Q18 REFRAMED, both options struck (one family file · =keymap/{esc,leader}.js= + =navigation.js=), his: /"So we're not gonna create a file per key that we could hit, that makes no sense. So the key map inside of our entities and subjects, those are declarations of functions and operations that can be applied on top of whatever the entity or subject or whatever is. All of the tooling that is used to navigate and attach and blah blah blah, the key maps, those go into Gestalten. Kind of the same way that the aperture is handled on the runtime. You declare a bunch of apertures and then we graph them onto the key map vectors and then we compose the key map vectors. The tooling lives in Gestalten and the actual executive functions live in key maps. Or kind of like commands work."/ → lookup: runtime =subjects/lighthouse/apertures/users.js:21= (one Vector per OBJECT, many =.open=) · composed in the beat =lifecycle/population.js:9-12= (=new Aperture().use(shard.context.bind(…)).open(…).graft(aperture)=) · served by typology tooling. Ghost today: declaration =subjects/client/keymap.js:42-51= · composition =client/lifecycle/index.js:43= + =entities/terminal/prototype.js:22= =$keymap= · tooling =harvest catalog options args= (blind) + =navigate navigating= (client-aware: =$chord · $catalog · stdout.fault · dispatch=) — codestyle: gestalten blind to client · terminal · mode → Q18′.

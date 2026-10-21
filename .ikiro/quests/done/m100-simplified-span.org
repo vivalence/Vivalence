@@ -1,0 +1,691 @@
+#+title: m100 simplified span — a span is a place records go into; they climb to the root; the span keeps its history
+#+filetags: :span:controller:trace:telemetry:typology:
+#+status: DONE 10-24 (/"end with the two quests in DONE"/) — LANDED 10-23 with =m101-track.org= (/"go. apply. blast change. tested"/) — A · Q0–Q11; QA 4 held; Q14 deferred
+<!-- limit: 60000 chars -->
+* intent
+
+| # | beef, verbatim | trigger |
+|---+----------------+---------|
+| A | /"why do we have all these fucking sets here? this is messy aas fuck."/ · /"the following terms dont belong into span: verb, records or jounral"/ · /"the duplicte of id, trace id, path/absolute."/ | =subsystems/typology/prototypes/span.js= pasted |
+| B | /"spans are a place i put traces into. span.branch('/xy').track('x',{}) … i am sure there is a fold somewhere to simplify this structure tremendously"/ | |
+| C | /"probably yes: the nature carries its instance (hallucination/${call.id})"/ | the path-as-id loss |
+| D | /"drill me about usage first, then internals. 6-8 questions"/ | |
+| E | /"make sure that you have enough code in the simplified span quest to make it reasonable and self-coherent. And then we continue the drill […] We can keep this an unnumbered quest. I want you for sure to create documentation."/ | the finish read as done |
+
+* terrain — measured 10-23 (@ over 34b60f23f)
+
+| what | where | is |
+|---+---+---|
+| tree | =prototypes/signature.js:98 heritage() · :131 root · :49 absolute= | parent links; Span re-derives =absolute= as a string |
+| record | =span.js:48-55= | ={span, trace, path, verb, at, data?}= — the tree thrice |
+| stores | =span.js:11-14= root =journal= (ring 1000) + root =channel= (Pipe); =:24-30= two getters forward both | |
+| marks | =span.js:62-78 open · close · note · message · fault= + =mark(verb,data)= | 12 verb literals in the tree, =tele.jsx:8= hand-lists 14 |
+| readers of ids | =controller.js:33= (=record.span === stdout.id=) · =fromm/controller.js:4= · =runtime/run.js:18= · =belt/trace.js:5,24,34= · =tele.{jsx,js}:29-34= · =world.js:86= | |
+| tree regrown from records | =belt/trace.js:23 sprout= · =anima tele.jsx:30= · =ghost tele.js:29= · =journal.jsx:88= | ×4 |
+| history readers | =trace.live:56= · =shape/http.js:63= · =Activity.ts:114= · =ghost client/lifecycle/index.js:27= · =span.tail= | |
+| roots | 13 =new Span(…)= — controllers ×5 · entity stdouts ×4 · loggers ×4 | children only via =shard/track.js:16 parent.branch(nature)= and =controller.js:68 branch= |
+| tests | =tests/span.test.js= (53 lines) · =tests/trace.test.js= (181) · =tests/controller.test.js= | |
+
+Noun collisions: =trace= = Signature's parent link (=signature.js=) AND m95's dock lens (=/dock/lens trace=); =journal= = the dock pane (ghost · anima) AND =sheets/design/worlds.js= turn list; =track= = =shard/track.js= middleware only.
+
+* precedent — per system, what it tracks and reads
+
+| system | mints | tracks | reads |
+|---+---+---+---|
+| typology | =Controller.stdout= =Span("controller")= | =abort stop pause resume= (MACHINE) | =settled= taps own-span records → status |
+| runtime | =run.js:9= =Span("runtime/<slug>")= · =Activity.ts:51= =Span("hallucination")= | =note({patrol})= · hallucinate =note/fault= | console sink; =Activity.stdout()= replays records over the socket |
+| ghost | =run.js:5= · entities =mode · lighthouse · activity= | =message · fault · status= | jsonl file (=within= + replay); chrome =tail("message","fault")= · =tail(...VERBS)= |
+| anima | =client.js:10= · =logger.js:23= · =dossier.js:129= | =note · fault · message=; =activity.mark(event.op)= | panes =tail(...)= ×5; console =SHOWN= |
+| paladin | =registry.js:29= =Span({nature:"/registry"})= | =fault= per unfit module | =to((record) => record.verb === "fault" && integrity.set(record.path, …))= |
+
+* the dialogue — his words verbatim, the hunk under =* as code=
+
+| # | ruling | beef |
+|---+---+---|
+| A | approach A: Span stays a Signature; one Pipe at the root; the record carries =path= only (answers Q7 too) | /"approach a."/ |
+| 0 | the thing is a RECORD, the act is TRACK; =trace= stays Signature's parent link | /"q0 b"/ |
+| 1 | RELABELED 10-23 by =m101-track.org= Q9 (every track also a method: =span.note(…)=) — =track(name, data)= is the one call; =fault(error)= stays — the one record whose data is derived from an Error | /"q1 b"/ |
+| 2 | the caller writes the instance into the nature; =branch= stays dumb — ids live in the signature, a reader gets them back by =/:id= (=fromm.match= → =ctx.params=) | /"I didn't say that IDs are gone. IDs are fine. […] as part of our signature, there can be IDs. /branch/:id still exists."/ · /"q2 a. for sure."/ |
+| 3 | =span.pipe= IS the attachment point; every span owns its pipe; =track= sends up the heritage, leaf to root, never down; =within= dies — a branch's pipe carries its subtree by construction | /"I definitely think that span… dot pipe is the attachment point. That's why we have our type system to make it coherent."/ · /"the within method is also code smell. […] The span doesn't, it just passes on. If I track something […] that goes up the span. They never go down, they always go up. They go towards the root, like a proper tree."/ |
+| 4 | Pipe = =send · tap(sink) · from(source)=, ONE mechanism; on top two one-line shapes, =fold(seed, step)= (a tap into an atom) and =for await= (a tap into a =Queue=); =to · subscribe · reactive · stream · replay · observe= die. Documented: codemap for sure, and a documentation reference page | /"I do like B, but I do want this to be well documented. This needs to be articulated in the code map […] I think in that might go actually into the documentations. […] a references. […] Which doesn't yet exist."/ · /"but for sure in the code map."/ |
+| 5 | the SPAN keeps its history (not the pipe, not the controller); a Queue is not history — it drains, one reader; length NOT hard-coded; shape (atom via =fold=, compaction = the step) → Q6. Bench 10-23 per record: array 0.025 µs · atom keep 1000 1.7 µs · atom keep 100 0.2 µs; ×depth | /"we want to attach to a span and read its history"/ · /"a. But I don't like that we hard code the history length in here. How expensive would it be to make the history a reactive atom? […] a compaction function directly onto the history object itself."/ |
+| 6 | the history is a NANOSTORE: =$history = this.pipe.fold([], step)=, =history= its plain getter; panes =computed= over =$history=, =tail= dies; where the compaction lives → Q7 | /"nanostore atom"/ (on a re-paste of his Q5 turn: /"a compaction function directly onto the history object itself"/) |
+| 7 | no compaction function on Span — history only grows; any context reacts to =$history= (=onSet=) and trims where it wants; the constructor sets the FIRST reaction, a static 1000 | /"a.a. But I don't understand the compaction function. That's kind of stupid. We don't want a dedicated compaction function. […] we would just react to the history changing and do the compaction in whatever context we want. […] in the constructor, we set up the first of those history reactions and cut it down to 1,000 […] keep that for now as a static in the code."/ |
+| 8 | a child's pipe joins its parent's at BIRTH, in the constructor; a re-parent keeps its first parent (no re-parenting site today, grepped 10-23) | /"q8: a."/ |
+| 9 | the path is the ARRAY of natures Signature already computes (=signature.js:49=); Span's string =absolute= dies; parent = path minus its last nature, label = its last nature; equality and map keys go through =trace.key(path)= | /"b"/ |
+| 10 | pulling has a NAMED method that takes an abort signal, one tap into a Queue; =for await (pipe)= is it without a signal; the name → Q11, coherent across Pipe · Queue · the primitives | /"Definitely B. […] how do we call it stream? I'm not opposed to the name, I just want that to be coherent across pipe and queue and all of the other primitives of this scope."/ |
+| 11 | the pull is =drain(signal)= — Pipe takes Queue's verb; =stream= stays the wire's word (Connection · Response · a provider) | /"a"/ |
+| 12 | UNLOCKED 10-23 → =m101-track.org=: =verbs= · =Verb= die (stands); the table's new key is the track quest's | /"a"/ — then /"I think track doesn't belong onto the controller. […] The controller doesn't hold what was being tracked. The controller uses the span for that."/ |
+
+* the law
+
+1. a span is a Signature; the record is ={ at, path, track, data }=, =path= the ARRAY of natures — the address; an instance rides in the nature, a =/= inside a nature is no boundary (Q0 · Q2 · Q9).
+2. =track(name, data)= is the one way in; =fault(error)= the one shaping (Q1).
+3. every span owns a Pipe; a child's pipe taps its parent's at birth; a record climbs leaf → root, never down (Q3).
+4. Pipe = =send · tap(sink) → untap · from(source)=; =fold= · =for await= are one-line taps into a nanostore · a Queue (Q4).
+5. the span keeps =$history= (nanostore, =pipe.fold=); the constructor's =onSet= trims at =Span.limit=; any owner adds its own reaction (Q5–Q7).
+6. a reader attaches at =span.pipe= or derives from =span.$history=; a span never filters (Q3 · Q6).
+
+* as code — assembled from the locks, =ls= order; per-lock hunks verbatim in =reference/m100/drill-hunks-10-23.org=; a file marked SKETCH waits on a drill question
+
+*** documentation
+**** content/40-49_reference/42_primitives/ — written 10-23 on his /"I want you for sure to create documentation"/; the page itself, not copied here (law 3)
+
+*** subsystems/paladin
+**** prototypes/process.js
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/process.js:48
+      this.in.tap(this.child.stdin);
+#+END_SRC
+**** prototypes/registry.js
+#+BEGIN_SRC js
+// subsystems/paladin/prototypes/registry.js:29-31 — Q9: the module's source is the span's last nature
+    this.span = new Span({ nature: "/registry" });
+    this.integrity = new Map();
+    this.span.pipe.tap((record) => record.track === "fault" && (this.integrity.get(record.path.at(-1)) ?? this.integrity.set(record.path.at(-1), new Set()).get(record.path.at(-1))).add(record.data.message));
+// subsystems/paladin/prototypes/registry.js:233
+    const faults = this.integrity.get(path);
+#+END_SRC
+
+*** subsystems/typology
+**** gestalten/belt/hallucinate.js — Q1 · Q2
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/hallucinate.js:83
+  const child = controller.branch(`${call.name}/${call.id}`);
+// subsystems/typology/gestalten/belt/hallucinate.js:88
+  child.stdout.track("open", { input: call.input });
+// subsystems/typology/gestalten/belt/hallucinate.js:96
+    child.stdout.track("close", { condition: spoken.condition });
+// subsystems/typology/gestalten/belt/hallucinate.js:76 · :124 · :153 · :207 · :227 · :241 · :255 · :258 — every note
+      span.track("note", { retry: retried, delay, message: fault.message });
+#+END_SRC
+**** gestalten/belt/trace.js — Q9: keyed by the path array; the parent is the path minus its last nature; RELABELED by =m101-track.org= Q11 (re-walk step 4): =MARKS= =open · close= → =start · stop=; R10: the drain policies die
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/trace.js   ← whole file
+export const seed = () => ({ nodes: new Map(), roots: [] });
+
+export const chronicle = (records) => records.reduce(step, seed());
+
+export const key = (path) => JSON.stringify(path);
+
+const sprout = (story, record) => {
+  const node = { path: record.path, nature: record.path.at(-1), timing: null, fault: null, entries: [], children: [] };
+  story.nodes.set(key(record.path), node);
+  (story.nodes.get(key(record.path.slice(0, -1)))?.children ?? story.roots).push(node);
+  return node;
+};
+
+const MARKS = [
+  [(record) => record.track === "open", (node, record) => (node.timing = { ...node.timing, begun: record.at })],
+  [(record) => record.track === "close", (node, record) => (node.timing = { ...node.timing, sealed: record.at })],
+  [(record) => record.track === "fault", (node, record) => (node.fault = { at: record.at, ...record.data })],
+  [() => true, (node, record) => node.entries.push({ track: record.track, at: record.at, data: record.data })],
+];
+
+export const step = (story, record) => {
+  const node = story.nodes.get(key(record.path)) ?? sprout(story, record);
+  MARKS.find(([test]) => test(record))[1](node, record);
+  return { ...story };
+};
+
+export const dictate = (story) => {
+  const records = [];
+  const walk = (node) => {
+    if (node.timing?.begun != null) records.push({ at: node.timing.begun, path: node.path, track: "open" });
+    for (const entry of node.entries) records.push({ at: entry.at, path: node.path, track: entry.track, data: entry.data });
+    if (node.fault) {
+      const { at, ...data } = node.fault;
+      records.push({ at, path: node.path, track: "fault", data });
+    }
+    node.children.forEach(walk);
+    if (node.timing?.sealed != null) records.push({ at: node.timing.sealed, path: node.path, track: "close" });
+  };
+  story.roots.forEach(walk);
+  return records;
+};
+
+export const live = (span) => span.pipe.fold(chronicle(span.history), step);
+
+export const duration = (node) =>
+  node.timing?.begun != null && node.timing?.sealed != null ? node.timing.sealed - node.timing.begun : null;
+
+export const timing = (story) => {
+  const entries = [];
+  const walk = (node) => {
+    const elapsed = duration(node);
+    if (elapsed != null) entries.push(`${node.nature};dur=${elapsed.toFixed(1)}`);
+    node.children.forEach(walk);
+  };
+  story.roots.forEach(walk);
+  return entries.join(", ");
+};
+
+// R10 (m101-track.org /"b"/): closes · faulty · slower · gather · hold · decant DIE — no product caller; their drain-policy tests in tests/trace.test.js die with them
+#+END_SRC
+**** gestalten/fromm/controller.js
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/fromm/controller.js:1
+import * as trace from "../belt/trace.js";
+// subsystems/typology/gestalten/fromm/controller.js:4
+  const stopped = controller.stdout.history.find((record) => trace.key(record.path) === trace.key(controller.stdout.absolute) && record.track === "stop");
+#+END_SRC
+**** gestalten/shape/http.js
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shape/http.js:63
+    const header = trace.timing(trace.chronicle(ctx.span.history));
+#+END_SRC
+**** gestalten/shard/track.js — Q1; RELABELED by =m101-track.org= Q9 · Q10 · Q11 · Q12: =track("open")= → =.start()=, =track("close")= → =.stop()=, =track("request", …)= → =.request(…)=, =subject= → =entity=, =message= → =log=
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/track.js:12-24
+export function span(name, pipe) {
+  return async (ctx, next) => {
+    const nature = typeof name === "function" ? name(ctx) : name;
+    const parent = ctx.span;
+    ctx.span = parent ? parent.branch(nature) : new Span(nature);
+    if (!parent) ctx.span.pipe.tap(pipe);
+    ctx.span.track("open");
+    try {
+      await next();
+    } finally {
+      ctx.span.track("close");
+      ctx.span = parent ?? ctx.span;
+    }
+  };
+}
+// subsystems/typology/gestalten/shard/track.js:29 · :31 · :38 · :49
+    if (ctx.span && ctx.request) ctx.span.track("request", wire(ctx.request));
+    if (ctx.span && ctx.response) ctx.span.track("response", wire(ctx.response));
+      ctx.span.track("subject", { … });
+    if (ctx.span && ctx.output !== undefined) ctx.span.track("message", ctx.output);
+#+END_SRC
+**** prototypes/controller.js — SUPERSEDED by =m101-track.org= Q5 · Q7 (handlers, no table) — was: the machine reads its OWN records by path (Q3 · Q9); =MACHINE.tracks= is SKETCH until =m101-track.org= keys the table
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/controller.js:4
+import * as trace from "../gestalten/belt/trace.js";
+// subsystems/typology/prototypes/controller.js:32-37
+      const untap = this.stdout.pipe.tap((record) => {
+        if (trace.key(record.path) !== trace.key(this.stdout.absolute)) return;
+        const from = this.status.reflection.code;
+        const code = MACHINE.transitions[record.track]?.[from] ?? from;
+        if (code === from) return;
+        const { error } = MACHINE.tracks[record.track];
+// subsystems/typology/prototypes/controller.js:49 · :60
+      this.stdout.track("abort", { … });
+          : this.stdout.track(verb, { signal: name, ...(said(ctx.input) && { reason: ctx.input }) });
+#+END_SRC
+**** schematics/primitives/controller.js — SUPERSEDED by =m101-track.org= Q7 (the statuses only) — was SKETCH: Q12 unlocked, the key is =m101-track.org='s; =verbs= dies either way
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/controller.js:9-12
+  tracks: {
+    open: {}, pause: {}, resume: {}, close: {},
+    stop: { error: "STOPPED" }, fault: { error: "FAILED" }, abort: { error: "ABORTED" },
+  },
+// subsystems/typology/schematics/primitives/controller.js:26
+export const Track = v.enum(Object.keys(machine.tracks)).desc('A track the controller moves on, read off its own span. Example: "stop"');
+// subsystems/typology/schematics/primitives/controller.js:31-33
+  tracks: v.record(Track, v.object({ error: State.optional() })),
+  transitions: v.record(Track, v.record(v.string(), State)),
+  signals: v.record(Signal, Track),
+// subsystems/typology/tests/controller.test.js:29
+    for (const track of Object.values(MACHINE.signals)) specimen.expect(MACHINE.tracks[track]).toBeDefined();
+#+END_SRC
+**** prototypes/pipe.js — Q4 · Q10 · Q11
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/pipe.js   ← whole file
+import * as fromm from "../gestalten/fromm/index.js";
+import { atom } from "nanostores";
+import { Queue } from "./queue.js";
+
+export class Pipe {
+  listeners = new Set();
+
+  send(value) {
+    for (const listener of this.listeners) listener(value);
+  }
+
+  tap(target) {
+    const listener = fromm.sink(target).write;
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+
+  from(...sources) {
+    for (const origin of sources)
+      (async () => {
+        for await (const value of fromm.source(origin).read) this.send(value);
+      })();
+    return this;
+  }
+
+  fold(seed, step) {
+    const store = atom(seed);
+    this.tap((value) => store.set(step(store.get(), value)));
+    return store;
+  }
+
+  async *drain(signal) {
+    const queue = new Queue();
+    const untap = this.tap(queue);
+    try {
+      yield* queue.drain(signal);
+    } finally {
+      untap();
+    }
+  }
+
+  [Symbol.asyncIterator]() {
+    return this.drain();
+  }
+}
+#+END_SRC
+**** prototypes/socket.js — Q2
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/socket.js:93 · :96 · :113 · :125 · :131 · :137
+    try { packet = JSON.parse(event.data); } catch { this.span.track("note", { drop: "parse" }); return; }
+// subsystems/typology/prototypes/socket.js:150
+    const trace = this.span.branch(`${packet.signal}/${packet.frame}`);
+// subsystems/typology/prototypes/socket.js:161 · :198
+        trace.track("error", { status: 404 });
+#+END_SRC
+**** prototypes/span.js — SUPERSEDED whole by =m101-track.org= =span.js= (re-walk 10-23, R1: the tracks a Vector · a method per track · =at= epoch · =fault= shape) — was A · Q0–Q9; =absolute= is Signature's array
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/span.js   ← whole file
+import { onSet } from "nanostores";
+import { Signature } from "./signature.js";
+import { Pipe } from "./pipe.js";
+
+export class Span extends Signature {
+  static limit = 1000;
+
+  constructor(signature = null, trace = null) {
+    super(signature, trace);
+    if (this.pipe) return this;
+    this.pipe = new Pipe();
+    this.$history = this.pipe.fold([], (held, record) => [...held, record]);
+    if (this.trace) this.pipe.tap(this.trace.pipe);
+    onSet(this.$history, ({ newValue }) => newValue.splice(0, newValue.length - Span.limit));
+  }
+
+  from(trace) {
+    return super.from(trace, true);
+  }
+
+  get history() {
+    return this.$history.get();
+  }
+
+  track(name, data) {
+    this.pipe.send({ at: performance.now(), path: this.absolute, track: name, data });
+    return this;
+  }
+
+  fault(error) {
+    return this.track("fault", { message: error?.message ?? String(error), code: error?.code ?? null });
+  }
+}
+#+END_SRC
+**** tests/span.test.js — whole; answers his =// @beef IMPORTANT TODO: test shards.track and belt.trace= (=span.test.js:3=)
+#+BEGIN_SRC js
+// subsystems/typology/tests/span.test.js   ← whole file
+import { computed } from "nanostores";
+import { specimen, Span, Pipe, Queue, Vector, shard, steer, trace } from "@vivalence/typology";
+
+specimen.describe("Span: a place records go into", () => {
+  specimen.it("a record is { at, path, track, data } — the path is the address", () => {
+    const span = new Span("boot");
+    span.track("note", { ready: true });
+    specimen.expect(Object.keys(span.history[0]).sort()).toEqual(["at", "data", "path", "track"]);
+    specimen.expect(span.history[0].path).toEqual(["boot"]);
+  });
+
+  specimen.it("a record climbs leaf to root; a branch's pipe carries its subtree, never its parent's", () => {
+    const root = new Span("client");
+    const terminal = root.branch("terminal/abc");
+    const thread = terminal.branch("thread/xyz");
+    thread.track("message", "hi");
+    terminal.track("note", 1);
+    root.track("note", 2);
+    specimen.expect(root.history.map((record) => record.path)).toEqual([["client", "terminal/abc", "thread/xyz"], ["client", "terminal/abc"], ["client"]]);
+    specimen.expect(terminal.history.map((record) => record.path)).toEqual([["client", "terminal/abc", "thread/xyz"], ["client", "terminal/abc"]]);
+    specimen.expect(thread.history.length).toBe(1);
+  });
+
+  specimen.it("history trims at Span.limit; an owner adds its own reaction", () => {
+    const span = new Span("busy");
+    for (let i = 0; i < Span.limit + 5; i++) span.track("note", i);
+    specimen.expect(span.history.length).toBe(Span.limit);
+    specimen.expect(span.history[0].data).toBe(5);
+  });
+
+  specimen.it("a late reader reads history, then taps — no seam", () => {
+    const span = new Span("late");
+    span.track("note", "before");
+    const heard = [...span.history];
+    span.pipe.tap((record) => heard.push(record));
+    span.track("note", "after");
+    specimen.expect(heard.map((record) => record.data)).toEqual(["before", "after"]);
+  });
+
+  specimen.it("a pane derives from $history", () => {
+    const span = new Span("pane");
+    const faults = computed(span.$history, (held) => held.filter((record) => record.track === "fault"));
+    span.track("note", 1).fault(new Error("empty"));
+    specimen.expect(faults.get().map((record) => record.data)).toEqual([{ message: "empty", code: null }]);
+  });
+
+  specimen.it("a child joins its parent at birth only — a re-parent keeps its first parent (Q8)", () => {
+    const first = new Span("first");
+    const second = new Span("second");
+    const child = first.branch("child");
+    new Span(child, second);
+    child.track("note", 1);
+    specimen.expect(first.history.length).toBe(1);
+    specimen.expect(second.history.length).toBe(0);
+  });
+
+  specimen.it("new Span(existing) returns it, history kept", () => {
+    const span = new Span("kept");
+    span.track("note", 1);
+    specimen.expect(new Span(span)).toBe(span);
+    specimen.expect(span.history.length).toBe(1);
+  });
+});
+
+specimen.describe("Pipe: one mechanism, tap a sink", () => {
+  specimen.it("tap takes a function, a pipe, a queue, an atom — and returns the untap", () => {
+    const pipe = new Pipe();
+    const other = new Pipe();
+    const queue = new Queue();
+    const heard = [];
+    other.tap((value) => heard.push(value));
+    const untap = pipe.tap(other);
+    pipe.tap(queue);
+    pipe.send(1);
+    untap();
+    pipe.send(2);
+    specimen.expect(heard).toEqual([1]);
+    specimen.expect(queue.depth).toBe(2);
+  });
+
+  specimen.it("drain(signal) stops on abort and untaps (Q10 · Q11)", async () => {
+    const pipe = new Pipe();
+    const controller = new AbortController();
+    const pulled = [];
+    const loop = (async () => { try { for await (const value of pipe.drain(controller.signal)) pulled.push(value); } catch { } })();
+    await Promise.resolve();
+    pipe.send(1);
+    await Promise.resolve();
+    controller.abort();
+    await loop;
+    specimen.expect(pulled).toEqual([1]);
+    specimen.expect(pipe.listeners.size).toBe(0);
+  });
+
+  specimen.it("for await taps a Queue and untaps when the loop ends", async () => {
+    const pipe = new Pipe();
+    const pulled = (async () => { for await (const value of pipe) return value; })();
+    await Promise.resolve();
+    pipe.send("x");
+    specimen.expect(await pulled).toBe("x");
+    specimen.expect(pipe.listeners.size).toBe(0);
+  });
+});
+
+specimen.describe("shard.track · belt.trace", () => {
+  specimen.it("a tracked vector opens and closes a span per call; the story regrows from paths", async () => {
+    const root = new Span("server");
+    const vector = new Vector().use(async (ctx, next) => { ctx.span = root; await next(); }).use(shard.track.span("request")).open("/hello", () => "hi");
+    await steer.dispatch.invoke(vector, "/hello", steer.strategy.echo)();
+    const story = trace.chronicle(root.history);
+    specimen.expect(story.roots[0].path).toEqual(["server", "request"]);
+    specimen.expect(story.roots[0].nature).toBe("request");
+    specimen.expect(trace.duration(story.roots[0])).not.toBe(null);
+  });
+});
+#+END_SRC
+
+*** systems/anima
+**** src/prototypes/dictation.js — Q10
+#+BEGIN_SRC js
+// systems/anima/src/prototypes/dictation.js:18
+    for await (const samples of box.device.microphone.in.drain(signal)) {
+#+END_SRC
+**** src/surface/index.js
+#+BEGIN_SRC js
+// systems/anima/src/surface/index.js:30-34
+  const shown = computed(client.controller.stdout.$history, (held) => held.filter((record) => SHOWN.includes(record.track)));
+  let seen = 0;
+  const untail = shown.subscribe((records) => {
+    for (const record of records.slice(seen)) console[record.track === "fault" ? "error" : "log"](record.path.join(" › "), record.track, record.data);
+#+END_SRC
+**** src/surface/panes/booting.jsx · chrome.jsx · journal.jsx · tele.jsx — Q6
+#+BEGIN_SRC js
+// systems/anima/src/surface/panes/booting.jsx:25-26
+  const messages = from(computed(props.client.controller.stdout.$history, (held) => held.filter((record) => record.track === "message")));
+  const faults = from(computed(props.client.controller.stdout.$history, (held) => held.filter((record) => record.track === "fault")));
+// systems/anima/src/surface/panes/journal.jsx:85
+  [(record) => record.track === "fault", (record) => ({ kind: "fault", text: record.data.message, blocks: [] })],
+// systems/anima/src/surface/panes/journal.jsx:88 · :92 — Q9
+    (record) => ({ kind: "trace", ts: clock(wall(record)), path: record.path.join(" › "), text: `${record.path.at(-1)} ${record.data}`, blocks: [] }),
+// systems/anima/src/surface/panes/journal.jsx:122
+  const records = from(computed(props.terminal.controller.stdout.$history, (held) => held.filter((record) => record.track === "message" || record.track === "fault")));
+// systems/anima/src/surface/panes/tele.jsx:242
+  const records = from(computed(client.controller.stdout.$history, (held) => held.filter((record) => TRACKS.includes(record.track))));
+// systems/anima/src/surface/panes/tele.jsx:294
+        spans: new Set(shown().map((record) => trace.key(record.path))).size,
+#+END_SRC
+**** src/telemetry/logger.js
+#+BEGIN_SRC js
+// systems/anima/src/telemetry/logger.js:8-24
+const trim = (story) => {
+  while (story.roots.length > 200) {
+    const stale = story.roots.shift();
+    const drop = (node) => {
+      story.nodes.delete(trace.key(node.path));
+      node.children.forEach(drop);
+    };
+    drop(stale);
+  }
+  return story;
+};
+
+export const channel = new Pipe();
+channel.tap((record) => $story.set(trim(trace.chronicle.step($story.get(), record))));
+
+export const logbook = new Span("client");
+logbook.pipe.tap(channel);
+#+END_SRC
+**** src/entities/daemon/dossier.js — Q2
+#+BEGIN_SRC js
+// systems/anima/src/entities/daemon/dossier.js:129-134
+    const activity = new Span(`daemon/${manifest.slug}/activity`);
+    activity.pipe.tap(logger.channel);
+      activity.branch(id).track(event.op, { status: row?.status, step: row?.steps.at(-1) });
+        for await (const record of await row.stdout()) activity.branch(id).track("stdout", record);
+#+END_SRC
+
+*** systems/ghost
+**** chrome/panes/chrome.jsx — Q6
+#+BEGIN_SRC js
+// systems/ghost/chrome/panes/chrome.jsx:89
+  const messages = from(computed(client.controller.stdout.$history, (held) => held.filter((record) => record.track === "message")));
+// systems/ghost/chrome/panes/chrome.jsx:121-122
+  const records = from(belt.atom.chain(client.$active, (held) => (held === null ? null : held.controller.stdout.$history)));
+  const traced = from(client.controller.stdout.$history);
+// systems/ghost/chrome/panes/chrome.jsx:160
+  const beats = from(computed(props.client.controller.stdout.$history, (held) => held.filter((record) => record.track === "message")));
+#+END_SRC
+**** chrome/panes/journal.js · tele.js · world.js
+#+BEGIN_SRC js
+// systems/ghost/chrome/panes/journal.js:117-118 · :130-131 — Q9: the label is the last nature, the shown path joined
+      path: record.path.join(" › "),
+      text: `${record.path.at(-1)} ${record.data}`,
+// systems/ghost/chrome/panes/journal.js:152-153
+    ...world.records
+      .filter((record) => lens.records.includes(record.track))
+// systems/ghost/chrome/panes/tele.js:15 · :46 — Q12; anima/src/surface/panes/tele.jsx:18 · :47 the same
+const moved = (code, track) => (Object.hasOwn(MACHINE.transitions, track) && Object.hasOwn(MACHINE.transitions[track], code) ? MACHINE.transitions[track][code] : code);
+  [(node) => node.tracks.some((track) => NET.includes(track)), "net"],
+// systems/ghost/chrome/panes/tele.js:5
+export const TRACKS = ["open", "close", "fault", "abort", "stop", "pause", "resume", "note", "message", "status", "subject", "request", "response", "error"];
+// systems/ghost/chrome/panes/tele.js:25-38 — Q9: the story keyed by the path array, the parent the path minus its last nature (as belt/trace.js); anima/src/surface/panes/tele.jsx:26-39 the same
+  for (const record of records) {
+    const id = `${prefix}${trace.key(record.path)}`;
+    if (!nodes.has(id)) {
+      const node = { id, nature: record.path.at(-1), path: record.path, begun: null, sealed: null, fault: null, opened: null, entries: [], tracks: [], children: [], clock };
+      nodes.set(id, node);
+      const parent = nodes.get(`${prefix}${trace.key(record.path.slice(0, -1))}`);
+      (parent === undefined ? roots : parent.children).push(node);
+    }
+    const node = nodes.get(id);
+    MARKS.find(([test]) => test(record))[1](node, record);
+    node.tracks.push(record.track);
+  }
+  for (const node of nodes.values()) node.code = node.tracks.reduce(moved, "IDLE");
+// systems/ghost/chrome/world.js:86
+      spans: new Set(shown.map((record) => trace.key(record.path))).size,
+#+END_SRC
+**** subjects/client/lifecycle/index.js — Q3 · Q5
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/lifecycle/index.js:22-28
+export const ledger = async (clientDie, next) => {
+  const file = await paladin.ledger.log(clientDie.instance.manifest.slug).open("client", "spans");
+  const write = (record) => file.writeSync(encoder.encode(`${JSON.stringify(record)}\n`));
+  for (const record of clientDie.controller.stdout.history) write(record);
+  const untap = clientDie.controller.stdout.pipe.tap(write);
+#+END_SRC
+**** subjects/shell/lifecycle.js — Q9
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/lifecycle.js:73
+const said = (record) => `${record.path.join(" › ")} ${record.track}${"data" in record ? ` ${JSON.stringify(record.data)}` : ""}`;
+#+END_SRC
+**** subjects/repl/lines.js
+#+BEGIN_SRC js
+// systems/ghost/subjects/repl/lines.js:12-13
+  const tail = computed(clientDie.controller.stdout.$history, (held) => held.filter((record) => SHOWN.includes(record.track)));
+  let seen = 0;
+#+END_SRC
+
+*** systems/runtime
+**** entities/Activity.ts — Q5: a settled activity hands its history; a live one hands history, then live, no seam
+#+BEGIN_SRC js
+// systems/runtime/entities/Activity.ts:50-58
+    controller = new Controller({ stdout: new Span("hallucination") }),
+  ): Promise<ActivityEntity> {
+    controller.stdout.pipe.tap((record) => console.log(`[hal ${record.path.join(" › ")}] ${record.track}`, record.data ?? ""));
+    const activity = await this.create(data);
+    activity.controller = controller;
+    controller.stdout.track("note", { activity: activity.id, ...data });
+// systems/runtime/entities/Activity.ts:110-119
+  stdout(signal?: AbortSignal) {
+    const { stdout, status } = this.#controller;
+    const settled = () => v.primitives.controller.MACHINE.states[status.reflection.code].settled;
+    const queue = new Queue();
+    const untap = stdout.pipe.tap(queue);
+    const history = stdout.history;
+    return (async function* () {
+      try {
+        yield* history;
+        if (settled()) return;
+        for await (const record of queue.drain(signal)) {
+          yield record;
+          if (settled()) return;
+        }
+      } finally {
+        untap();
+      }
+    })();
+  }
+#+END_SRC
+**** run.js
+#+BEGIN_SRC js
+// systems/runtime/run.js:8-20
+  const controller = new Controller({
+    stdout: new Span(`runtime/${paladin.instance.runtime.manifest.slug}`),
+  });
+
+  controller.stdout.pipe.tap((record) => console.log(`[${record.path.join(" › ")}] ${record.track}`, record.data ?? ""));
+  controller.stdout.pipe.tap((record) => record.track === "open" && trace.key(record.path) === trace.key(controller.stdout.absolute) && console.log(controller.status));
+#+END_SRC
+**** subjects/runtime/lifecycle/patrol.js · integration.js · mode/traits/dataset.js
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/lifecycle/patrol.js:38
+    () => sweep(die.runtime).then((report) => die.controller.stdout.track("note", { patrol: report })),
+// systems/runtime/subjects/runtime/lifecycle/integration.js:13
+  die.controller.stdout.pipe.tap((record) => log.append({ json: record }));
+// systems/runtime/subjects/mode/traits/dataset.js:64
+  const installing = mode.stdout.branch("install").track("open");
+#+END_SRC
+
+* deliverables — milestones are nouns, each green
+
+1. *the pipe* — =pipe.js= whole; =to · subscribe · reactive · stream · replay · observe= callers moved; =tests/pipe= green.
+2. *the span* — =span.js= whole; =tests/span.test.js= rewritten on =track · $history · pipe=.
+3. *the trackers* — =mark · note · message · open · close= → =track=; =new Span(…).to(x)= → =span.pipe.tap(x)=; repeat natures carry their instance.
+4. *the readers* — =tail= → =computed($history)=; =records= → =history=; =record.verb= → =record.track=; =record.span · record.trace · stdout.id= → =record.path=; =belt/trace.js= keyed by path.
+5. *the reference* — codemap + documentation page (=* release=).
+
+* blast table — measured 10-23, =grep -rnE= over =subsystems systems commons= minus =bak node_modules out=
+
+| surface | prod | test | becomes |
+|---+---+---+---|
+| =new Span(= | 19 | 68 | unchanged; =.to(x)= tail → =.pipe.tap(x)= |
+| =.mark(= | 14 | 1 | =.track(= |
+| =.note(= | 42 | 17 | =.track("note", …)= |
+| =.message(= | 11 | 12 | =.track("message", …)= |
+| =.fault(= | 41 | 15 | stays |
+| =.tail(= | 11 | 28 | =computed($history, …)= |
+| =.within(= | 1 | 0 | dies |
+| =stdout.records · span.records= | 10 | 18 | =history= |
+| span =.to(= | 10 | 11 | =.pipe.tap(= |
+| =pipe.reactive · replay · stream · observe · subscribe= | 2 | 5 | =fold= · =for await= |
+| =record.verb= | 27 | 18 | =record.track= |
+| =record.span · record.trace= | 16 | 2 | =record.path= (an array, Q9) |
+| =record.path= read as a string (=.split("/")= · template · =startsWith=) | 16 | 18 | =.at(-1)= label · =.join(" › ")= shown · =trace.key= compared |
+| =stdout.id= | 4 | 2 | =record.path === stdout.absolute= |
+| non-span Pipe: =paladin/prototypes/process.js:48 in.to= · =anima/src/prototypes/dictation.js:18 in.stream= | 2 | — | =tap= · =for await= |
+| =~/.viva= | 0 | — | jsonl logs carry the old record shape until rotated |
+
+* testing assessment
+
+- PROVEN 10-23 on a copy (=scratchpad/copy/typology=, the quest's =pipe.js= · =span.js= · =belt/trace.js= whole + the =controller.js= · =shard/track.js= hunks): =tests/span.test.js= (the quest's) =ok | 3 passed (9 steps)=; a Controller probe — open → RUNNING, a child's close leaves the parent RUNNING, SIGTERM + close → STOPPED — =ok | 1 passed=.
+- the probe caught =new Span(existing)= wiping history under class fields (0 of 3 kept); the ctor guard keeps 3 of 3 — pinned in the test.
+- ruled Q8: a re-parented span keeps feeding its first parent — no site today; a test pins birth-only wiring.
+- COVERAGE GAP: =hasher()= dies with =id= → =hash.array([nature])=; safe once repeat natures carry their instance (Q2).
+- NOT RUN: =tests/trace.test.js= · =controller.test.js= · ghost · anima · runtime suites — they assert the old API by design; each milestone rewrites its own.
+- depth cost: bench 1.7 µs/record at keep 1000, × depth.
+
+* QA
+
+- I type =viva chrome=, I see the boot messages in the dock (history replays to a late pane). #+marker_qa: m100/T-boot-dock · held 10-24 · the dock painted =· 12:26:39 terminal/01a16282…= — a record written before the pane mounted
+- I type =/help=, I see the help strip as a message. #+marker_qa: m100/T-help · held 10-24 · =· 12:26:53 /help= + the tree as a message
+- I open the client log file, I see the boot records above the live ones. #+marker_qa: m100/T-log-replay · held 10-24 · =client.spans.log=: 30 boot records 12:26:39–:40, then the live =/help= at :53
+- a tool called twice in one round shows two rows in tele. #+marker_qa: m100/T-twin-tool · held 10-24 (re-walk) · tele open before the run: =▾ ● hallucination= › =● chess_puzzle/call_BImHX4…= · =● chess_puzzle/call_Nww4F…=; a settled activity leaves tele (=Activity.ts:72= removes it) — the first walk opened tele after the run
+
+* deferred
+
+- =Pool.drain()= (=prototypes/pool.js:93=) means "await all settled", not "pull out" — the one =drain= off the Q11 sense.
+
+- =Controller.settled= (=controller.js:32-45=) taps =stdout.pipe= and gates on its OWN records: =record.span === this.stdout.id= → path equality; a reader-side predicate, not a span method (Q3).
+- =belt/trace.js= =chronicle · sprout · dictate= and the two =tele= story builders regrow the tree from ids; keyed by path they collapse to a group-by (sketched 10-23, not drilled).
+- =Queue.to(...sinks)= (=queue.js:41=) is a second fan-out; same fold as Pipe's =to=.
+- =anima/src/entities/thread/traits/queueing.js:27-57= comment corpse on the 04-13 Span API.
+
+* release — documentation
+
+- WRITTEN 10-23: =documentation/content/40-49_reference/42_primitives/42.00_primitives.mdx= (category) · =42.01_pipe-queue-span.mdx= (the page) — built =astro build --outDir scratchpad= rc 0, 11 pages, sections Three primitives · Pipe · Queue · Span · Rebuilding the tree. Opens with a status line: the shape lands with this quest.
+- WRITTEN 10-23: =world/codemap/typology.md= flow-algebra entry, marked DESIGNED not landed; the 10-16 census block TRASHED to make room (backup =~/.viva/bak/ikiro/codemap-typology-20261023/=).
+- LANDED 10-23: the page's status line and the codemap's NOT-landed clause dropped.
+
+* open — the drill's next questions (re-derived 10-23)
+
+- Q13 → =m101-track.org= (the trackable kinds, their machinery, the controller table's key, OTEL).
+- Q14 → =* deferred= at the close 10-24 (=Queue.to= already listed there).
+
+* handoff
+
+- goal: Span = Signature + own Pipe + =$history=; Pipe = =send · tap · from= + =fold · drain · for await=.
+- done: drill A · Q0–Q11; LANDED 10-23 with m101 (=m101-track.org= =* landed=); docs =42_primitives= + codemap flow entry landed.
+- next: none — DONE 10-24; QA walked on the restarted :2501 (=* QA=).
+- never: =verb= · =Verb= · =records= · =journal= · =id= tally · =within= · a compaction function on Span.
+- owed: drill Q14 (=Queue.to= — paladin =process.js:48= rides it); =fromm/index.js:29= =origin.observe()= dead since the landing.

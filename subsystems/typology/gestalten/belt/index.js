@@ -22,6 +22,7 @@ export * as traits from "./traits.js";
 export * as trace from "./trace.js";
 export * as hallucinate from "./hallucinate.js";
 export * as control from "./control.js";
+export * as monad from "./monad.js";
 export * as cortex from "./cortex.js";
 
 export * as strings from "./string.js"; // depracated

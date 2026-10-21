@@ -3,7 +3,11 @@ import { TextLineStream } from "@std/streams";
 
 const lines = (stream) => stream.pipeThrough(new TextDecoderStream()).pipeThrough(new TextLineStream());
 const STDIO = { inherit: "inherit", piped: "piped", logged: "piped" };
-const ALIVE = /^Status:RUNNING$/;
+const answers = (serve, every = 200) =>
+  new Promise((resolve) => {
+    const probe = () => fetch(serve, { method: "HEAD" }).then(resolve, () => setTimeout(probe, every));
+    probe();
+  });
 const encoder = new TextEncoder();
 
 export class Process extends Wafer {
@@ -54,9 +58,7 @@ export class Process extends Wafer {
 
   async integrate() {
     const deadline = this.command.deadline ?? 60_000;
-    const alive = this.attachment === "inherit"
-      ? Promise.resolve()
-      : new Promise((resolve) => this.out.tap((line) => ALIVE.test(line.trim()) && resolve()));
+    const alive = this.serve ? answers(this.serve) : Promise.resolve();
     const exited = this.child.status.then((exit) => {
       throw Object.assign(new Error(`${this.slug} exited ${exit.code}`), { exit });
     });

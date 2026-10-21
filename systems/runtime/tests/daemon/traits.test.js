@@ -8,7 +8,7 @@ const RETAINED = traits.define("RETAINED", {
   schematic: v.object({ due: v.string() }),
   repository: {
     held(note) {
-      return v.literal.trait(note, "RETAINED", this.schematics);
+      return traits.claim(note, "RETAINED", this.schematics);
     },
   },
 });

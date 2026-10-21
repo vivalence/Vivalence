@@ -4,6 +4,12 @@ import * as is from "../gestalten/is/index.js";
 export class Argv extends Signal {
   static coercions = [
     [
+      (line) => is.string(line),
+      function (line) {
+        return this.coerce(Argv.tokens(line));
+      },
+    ],
+    [
       (argv) => is.array(argv) && argv.every(is.string),
       function (argv) {
         const terminator = argv.indexOf("--");

@@ -1,0 +1,16 @@
+# drained 10-22 whole from .ikiro/quests/m95-depincered-client.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* m87 inside m95 — the three entities the frame and the dock show (re-cut 10-20 · Q38 10-21)
+
+#+begin_src text
+Buffer     a working area     mime · data (state, SQL, mirrored) · files m:n · mode · thread · turns m:n · traits LABELED · views m:n (m87 ruling 39)
+File       a file it holds    mode · path · mount · mime · hash · integrity · bytes · view? — FILESET reads, FILESINK writes; MISSING
+View       code that presents slug · mime · presents · entry · mode · files (mappedBy file.view) — no upstream (ruling 26)
+           View–Buffer: no relation, view.presents === buffer.mime
+#+end_src
+#+begin_src js
+// systems/ghost/entities/buffer.js:48-66 · systems/anima — hooks mount · unmount → attach · detach (mount is a File's column)
+// subsystems/typology/prototypes/view.js — one loader over /attached/view/:id (Bundle · App die; ghost frame.jsx:27 · anima Frame.svelte:63 lose theirs)
+export const load = async (view, attach) => attach(await import(`${view.mode.url}/attached/view/${view.id}/${view.entry}`));
+#+end_src
+

@@ -1,0 +1,10 @@
+# drained 10-22 whole from .ikiro/quests/m93-kleisli-remonadization.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* handoff
+
+- goal: every subject built by its factory, one algebra in =belt.monad= + =shape.monad=.
+- done 10-21 (session 7, m96 LANDED): 1 the algebra (=belt/monad.js= · =shape/monad.js= + tests byte-equal to the tangle) · 2 the settle step · 4 the ghost factories on =kleisli= (=client/factory.js= =export const=, three arrows, the FAILED rethrow KEPT — =controller.open= faults without rethrowing: his eyes on m96:103); seam 3 resolved by hosts-ghost (=shell/lifecycle.js= holds =boot=, two door Vectors; the =client()= wrapper T:477-498 DIES — his eyes); the two runtime barrel hunks back on =export * from "./Mode.ts"= · =./Daemon.ts= (Q12 REVERSED). The drill's 14 locks and the retro rename (=shape.monad=) stand in =* the law= · =* the dialogue=.
+- next: HIS RULING — milestone 3 (the runtime factories: =systems/runtime/{runtime,lighthouse,daemon,service,mode}/factory.js=, =resolution.js:5-34= over =monad.traverse=) LANDED with the m96 replay (=replay.sh= replays the whole tangle; m96 law 4 said its own go) — the suites are green on it (runtime 78 · 9 rig); keep, or cut back to milestones 1 · 2 · 4. Validator: 40 landed · 11 superseded · 0 LOST; coverage ≥ 98 on the ghost factories (three coverage tests under =scratchpad/validate/systems/ghost/tests/=). =Process.ts= =kill= on =settled= stays.
+- never: a recovery arrow in a factory; =execution= on a die or an entity; moving his =fn.reduce=.
+- owed: departure 1 DIED under m96 ruling 4 (the value returns to =run.js=); departure 2 (=kill= on the signalled only) is milestone 3's.
+

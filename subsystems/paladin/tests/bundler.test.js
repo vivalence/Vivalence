@@ -49,7 +49,7 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
         { mime: mime.dom.svelte, hash, mount: `/${stem}.dom.svelte.mjs`, integrity: await crypto.digest(artifact), bytes: artifact.length },
       ],
     });
-    expect(v.bundle().check(bundle.json)).toBe(true);
+    expect(v.bundle.check(bundle.json)).toBe(true);
 
     const stat = await Deno.stat(`${directory}/bundle/${stem}.dom.svelte.mjs`);
     const again = await bundler.bundle({ mime: mime.dom.svelte, source: SOURCE });
@@ -70,7 +70,7 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
     const bundle = await bundler.bundle({ mime: mime.dom.svelte, entry });
 
     expect(bundle.entries[0].mime).toBe(mime.dom.svelte);
-    expect(v.bundle().check(bundle.json)).toBe(true);
+    expect(v.bundle.check(bundle.json)).toBe(true);
     const served = await bundler.serve(bundle.entries[0].mount);
     expect(served.integrity).toBe(bundle.entries[0].integrity);
     expect(served.text).toContain("as default");
@@ -79,7 +79,7 @@ describe("paladin.bundler", { sanitizeResources: false, sanitizeOps: false }, ()
   it("an html source wraps into a module", async () => {
     const bundle = await bundler.bundle({ mime: mime.dom.html, source: "<h1>plain</h1>" });
     expect(bundle.entries[0].mount).toMatch(/\.dom\.html\.mjs$/);
-    expect(v.bundle().check(bundle.json)).toBe(true);
+    expect(v.bundle.check(bundle.json)).toBe(true);
     const served = await bundler.serve(bundle.entries[0].mount);
     expect(served.text).toContain("innerHTML");
   });

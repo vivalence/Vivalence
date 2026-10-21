@@ -1,0 +1,23 @@
+# drained 10-22 whole from .ikiro/quests/m95-depincered-client.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* blast table — measured 10-19
+
+| surface | count | fate |
+|---+---+---|
+| =systems/anima/src= files | 139 | rewrite; keep the pure folds |
+| anima =.svelte= | 53 | die |
+| anima bones · bridge · panels files | 63 | die |
+| anima test files | 39 | pure ones kept, mounts die |
+| ghost chrome source files | 15 | rewrite |
+| =subsystems/drapes/dom= files | 25 | parts reborn, kit read as prior art |
+| =subsystems/sheets= live files | 0 | born |
+| registry buffer components =.svelte= · =.jsx= | 135 · 2 | mount unchanged; 27 + 2 read =terminal.*= |
+| drapes Svelte importers | 38 | untouched |
+| =module.default(= call sites | 5 | ={ terminal, buffer, surface }= |
+| =belt.dock= reads | 1 | =DEFAULT_DOCK= |
+| =.dispatch(= sites in ghost | 22 | through =terminal.dispatch= |
+| =DOCKED= · =THEMED= reads | 9 · 1 | the layers |
+| =tokens(= callers | 14 | the tty set |
+| =paladin= importers in ghost · anima | 4 · 1 | + the lighthouse beat · =mod.client.js= |
+| =~/.viva= | =credentials.json= | read by =paladin.vault= only |
+

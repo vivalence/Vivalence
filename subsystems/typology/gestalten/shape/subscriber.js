@@ -1,9 +1,12 @@
 import { Signal } from "../../prototypes/signal.js"
 import * as steer from "../steer/index.js"
 
-export function subscriber(vector, { scope = (args, task) => task() } = {}) {
+export function subscriber(vector, { scope = (args, task) => task(), fork = (em) => em } = {}) {
   const dispatch = (signal, args) => async () => {
-    for (const handler of steer.dispatch.shotgun(vector, signal)) await handler(args)
+    const handlers = steer.dispatch.shotgun(vector, signal)
+    if (handlers.length === 0) return
+    const forked = { ...args, em: fork(args.em) }
+    for (const handler of handlers) await handler(forked)
   }
   async function emit(phase, op, args) {
     const name = args.meta?.className?.toLowerCase()?.replace("entity", "")

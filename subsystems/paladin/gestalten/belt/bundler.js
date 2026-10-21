@@ -2,7 +2,7 @@ import { dirname } from "@std/path";
 import * as esbuild from "esbuild";
 import { Bundle, bundle as compiler, crypto, mime } from "@vivalence/typology";
 
-const stem = (type) => type.replace(/^application\/vnd\.vivalence\./, "").replace(/\+javascript$/, "");
+const stem = (type) => type.replace(`${mime.VENDOR}.`, "").replace(/\+javascript$/, "");
 const missing = (error) => {
   if (error instanceof Deno.errors.NotFound) return null;
   throw error;

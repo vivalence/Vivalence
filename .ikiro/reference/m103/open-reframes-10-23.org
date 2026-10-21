@@ -1,0 +1,7 @@
+# m103 — =* open= as it closed 10-23: two reframes, both since LOCKED (Q6′ · Q6″), MOVED whole · limit: 3000 chars
+
+* open
+
+- Q6 reframe 10-23, beef verbatim: /"i like the idea of slicing it up into little state spaces. But I don't want those at the very out or at the very in? Because I was thinking of maybe centralizing it, but dedicated central. Question is, what's more functional? What is more coherent with the way we do things? What works better for shit like persisting state, transporting state, being able to set state or the at the outset with, for example, URL params? … How do other functional frameworks do it, like Elm, Elixir, what would be the Haskell solution, what is the Lisp style?"/ → Q6′ re-asked with "dedicated central" in both options; LOCKED A.
+- Q6′ placement reframe 10-23 (Q7 parked, unanswered), beef verbatim: /"Okay, so it does make sense that each client has its own state space. I suspect that, so for sure we want it in schematics. So not in panel sidebar state, but in source schematics. Panels, whatever. Primitives? Probably primitives. Primitives, panel, whatever. And then some of them, or I think all of them, start in ghost and then get imported or not imported and overwritten. So the other clients can kind of make their own, but draw from what there already is. And that includes the seed function. Now the seed function is interesting. I suspect that that should be in gestalten/state/**"/ → Q6″ (the schemas' home) asked; =gestalten/state/= a SKETCH (/"i suspect"/ = sketch).
+

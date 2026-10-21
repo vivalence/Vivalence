@@ -6,12 +6,12 @@ const DRY = false;
 specimen.describe("trace snapshot: a hand-authored story, chronicled to disk", () => {
   specimen.it("explicit records fold into the committed tree", () => {
     const records = [
-      { span: "render", trace: null, path: "/render", verb: "open", at: 0 },
-      { span: "provider", trace: "render", path: "/render/provider", verb: "open", at: 1 },
-      { span: "provider", trace: "render", path: "/render/provider", verb: "note", at: 2, data: { model: "opus" } },
-      { span: "provider", trace: "render", path: "/render/provider", verb: "close", at: 6 },
-      { span: "tool", trace: "render", path: "/render/tool", verb: "fault", at: 7, data: { message: "boom", code: null } },
-      { span: "render", trace: null, path: "/render", verb: "close", at: 9 },
+      { at: 0, path: ["render"], track: "start" },
+      { at: 1, path: ["render", "provider"], track: "start" },
+      { at: 2, path: ["render", "provider"], track: "log", data: { model: "opus" } },
+      { at: 6, path: ["render", "provider"], track: "stop" },
+      { at: 7, path: ["render", "tool"], track: "fault", data: { type: "Error", message: "boom" } },
+      { at: 9, path: ["render"], track: "stop" },
     ];
     const capture = specimen.snapshot(trace.chronicle(records).roots, {
       base,
@@ -22,6 +22,6 @@ specimen.describe("trace snapshot: a hand-authored story, chronicled to disk", (
     console.log(`\n===BEGIN trace → ${capture.path}===\n${JSON.stringify(capture.pojo, null, 2)}\n===END===\n`);
     specimen.expect(capture.pojo[0].timing).toEqual({ begun: 0, sealed: 9 });
     specimen.expect(capture.pojo[0].children[0].entries[0].data.model).toBe("opus");
-    specimen.expect(capture.pojo[0].children[1].fault).toEqual({ at: 7, message: "boom", code: null });
+    specimen.expect(capture.pojo[0].children[1].fault).toEqual({ at: 7, type: "Error", message: "boom" });
   });
 });

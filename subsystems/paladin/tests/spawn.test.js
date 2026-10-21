@@ -1,9 +1,10 @@
 import { assert, assertEquals, assertRejects } from "@std/assert";
 import { Paladin, lifecycle } from "@vivalence/paladin/typology";
+import { FULL } from "../gestalten/belt/index.js";
 
 async function mkPaladin() {
   const root = await Deno.makeTempDir({ prefix: "paladin-spawn-" });
-  const paladin = new Paladin();
+  const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
   paladin.env.set("VIVA_SYSTEM_MODE", "DEVELOPMENT");
   paladin.env.set("VIVA_SYSTEM_ROLE", "SUDO");
   paladin.env.set("VIVA_LEDGER_MOUNT", root);
@@ -18,17 +19,28 @@ const child = (process, script, extra = {}) => ({
   identity: { process, mount: "/tmp" },
   command: { bin: Deno.execPath(), args: ["eval", script], env: ENV, ...extra },
 });
-const ALIVE = 'console.log("Status:RUNNING"); setTimeout(() => Deno.exit(0), 400);';
 const DIES = "Deno.exit(1);";
 const MUTE = "setTimeout(() => Deno.exit(0), 5000);";
+const SERVES = (port, then) => `Deno.serve({ port: ${port}, onListen() {} }, () => new Response("ok")); ${then}`;
+const free = () => {
+  const listener = Deno.listen({ port: 0 });
+  const { port } = listener.addr;
+  listener.close();
+  return port;
+};
+const served = (process, then, extra = {}) => {
+  const port = free();
+  return { ...child(process, SERVES(port, then), extra), serve: `http://127.0.0.1:${port}/` };
+};
+const unanswered = (process, script, extra = {}) => ({ ...child(process, script, extra), serve: `http://127.0.0.1:${free()}/` });
 
 Deno.test({
-  name: "ledger.boot: SPAWNED lock with every pid; integrate on ALIVE → ALIVE lock; perpetuate folds exits and clears the lock",
+  name: "ledger.boot: SPAWNED lock with every pid; integrate once every served child answers → ALIVE lock; perpetuate folds exits and clears the lock",
   sanitizeOps: false,
   sanitizeResources: false,
   async fn() {
     const paladin = await mkPaladin();
-    const die = await paladin.ledger.boot([child("alpha", ALIVE), child("beta", ALIVE)], { instance: "spawn", attachment: "piped" });
+    const die = await paladin.ledger.boot([served("alpha", "setTimeout(() => Deno.exit(0), 400);"), served("beta", "setTimeout(() => Deno.exit(0), 400);")], { instance: "spawn", attachment: "piped" });
     assertEquals(die.good.processes.length, 2);
     const booting = await paladin.ledger.lock("spawn").read();
     assertEquals(booting.status, "SPAWNED");
@@ -50,12 +62,12 @@ Deno.test({
 });
 
 Deno.test({
-  name: "ledger.boot: a child that exits before ALIVE makes integrate reject, the sibling is disintegrated, the lock is gone",
+  name: "ledger.boot: a served child that exits before answering makes integrate reject, the sibling is disintegrated, the lock is gone",
   sanitizeOps: false,
   sanitizeResources: false,
   async fn() {
     const paladin = await mkPaladin();
-    const die = await paladin.ledger.boot([child("dies", DIES), child("mute", MUTE)], { instance: "half", attachment: "piped" });
+    const die = await paladin.ledger.boot([unanswered("dies", DIES), child("mute", MUTE)], { instance: "half", attachment: "piped" });
     await assertRejects(() => die.integrate(), Error, "dies exited 1");
     assert(die.status.is("stopped"));
     const mute = die.good.processes[1];
@@ -65,12 +77,12 @@ Deno.test({
 });
 
 Deno.test({
-  name: "ledger.boot: no ALIVE line within the deadline rejects and tears down",
+  name: "ledger.boot: a served child that never answers within the deadline rejects and tears down",
   sanitizeOps: false,
   sanitizeResources: false,
   async fn() {
     const paladin = await mkPaladin();
-    const die = await paladin.ledger.boot([child("late", MUTE, { deadline: 300 })], { instance: "late", attachment: "piped" });
+    const die = await paladin.ledger.boot([unanswered("late", MUTE, { deadline: 300 })], { instance: "late", attachment: "piped" });
     await assertRejects(() => die.integrate(), Error, "late not ready after 300 ms");
     assert(die.status.is("stopped"));
     assertEquals(await paladin.ledger.lock("late").read(), null);
@@ -95,7 +107,7 @@ Deno.test({
 });
 
 Deno.test({
-  name: "attachment inherit: integrate resolves without a readiness line",
+  name: "a child without serve is alive at spawn — integrate resolves without waiting",
   sanitizeOps: false,
   sanitizeResources: false,
   async fn() {
@@ -114,12 +126,11 @@ Deno.test({
   sanitizeResources: false,
   async fn() {
     const paladin = await mkPaladin();
-    const die = await paladin.ledger.boot([child("writer", 'console.log("hello from writer"); ' + ALIVE)], { instance: "logged", attachment: "logged" });
+    const die = await paladin.ledger.boot([served("writer", 'console.log("hello from writer"); setTimeout(() => Deno.exit(0), 400);')], { instance: "logged", attachment: "logged" });
     await die.integrate();
     await die.perpetuate();
     const text = await paladin.read.text(paladin.scope.ledger.branch("/logs/logged/writer.out.log"));
     assert(text.includes("hello from writer"));
-    assert(text.includes("Status:RUNNING"));
   },
 });
 
@@ -163,7 +174,7 @@ Deno.test({
   sanitizeResources: false,
   async fn() {
     const paladin = await mkPaladin();
-    const die = await paladin.ledger.boot([child("free", ALIVE)], { attachment: "piped" });
+    const die = await paladin.ledger.boot([child("free", "setTimeout(() => Deno.exit(0), 400);")], { attachment: "piped" });
     await die.integrate();
     assertEquals(die.lock, null);
     await die.perpetuate();
@@ -176,14 +187,14 @@ Deno.test({
   sanitizeResources: false,
   async fn() {
     const paladin = await mkPaladin();
-    const brief = { ...child("brief", 'console.log("Status:RUNNING"); setTimeout(() => Deno.exit(3), 300);'), serve: "http://localhost:47001/" };
-    const steady = { ...child("steady", 'console.log("Status:RUNNING"); setTimeout(() => {}, 60000);'), serve: "http://localhost:47002/" };
+    const brief = served("brief", "setTimeout(() => Deno.exit(3), 300);");
+    const steady = served("steady", "setTimeout(() => {}, 60000);");
     const die = await paladin.ledger.boot([brief, steady], { instance: "rows", attachment: "piped" });
     await die.integrate();
     const alive = await paladin.ledger.lock("rows").read();
     assertEquals(alive.processes.map(({ process, serve, status }) => ({ process, serve, status })), [
-      { process: "brief", serve: "http://localhost:47001/", status: "ALIVE" },
-      { process: "steady", serve: "http://localhost:47002/", status: "ALIVE" },
+      { process: "brief", serve: brief.serve, status: "ALIVE" },
+      { process: "steady", serve: steady.serve, status: "ALIVE" },
     ]);
     await die.good.processes[0].perpetuate();
     await die.writing;

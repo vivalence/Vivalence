@@ -2,6 +2,7 @@ import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path, v } from "@vivalence/typology";
 import { Paladin } from "../paladin/prototype.js";
+import { FULL } from "../gestalten/belt/index.js";
 import { factories, lifecycle } from "../typology.js";
 
 const HOME = new Path("/fixtures/probe");
@@ -13,7 +14,7 @@ const files = (ledger, instance) => async (path, fallback) =>
 // ledger is a factory over the mount's paladin — its thunks must read the SAME bags the fold hydrates.
 // any .viva.js at the root is the declaration: find.viva names it, read.module reads it
 const mount = ({ ledger = () => null, instance }, pairs = {}) => {
-  const paladin = new Paladin();
+  const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
   const module = ledger(paladin);
   paladin.scopes([
     ["ledger", () => true, () => LEDGER],
@@ -22,6 +23,7 @@ const mount = ({ ledger = () => null, instance }, pairs = {}) => {
   ]);
   for (const [key, value] of Object.entries(pairs)) paladin.env.set(key, value, "flag");
   paladin.secret.set("SECRET_VIVA_LEDGER_JWT", "a-signing-secret-of-twenty-four-or-more", "flag");
+  paladin.find.recipe = (home) => home.branch("instance.viva.json");
   paladin.read.json = files(module, { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, ...instance });
   return factories.instance(lifecycle.paladin.instance(paladin));
 };
@@ -109,7 +111,7 @@ describe("ledger recipe — ledger → instance falls through by SLOT, environme
   });
 
   it("the ledger is read ONCE per paladin — a second mount folds from the memo, find is not asked again", async () => {
-    const paladin = new Paladin();
+    const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
     paladin.scopes([
       ["ledger", () => true, () => LEDGER],
       ["instance", () => true, () => HOME],
@@ -117,6 +119,7 @@ describe("ledger recipe — ledger → instance falls through by SLOT, environme
     ]);
     let asked = 0;
     const read = files(ledger(paladin), { manifest: { type: "instance", slug: "probe", version: "0.0.1" }, daemons: [daemon] });
+    paladin.find.recipe = (home) => home.branch("instance.viva.json");
     paladin.read.json = async (path, fallback) => (String(path.absolute).endsWith("/ledger.viva.json") && (asked += 1), read(path, fallback));
     const first = await factories.instance(lifecycle.paladin.instance(paladin));
     const second = await factories.instance(lifecycle.paladin.instance(paladin));
@@ -126,24 +129,24 @@ describe("ledger recipe — ledger → instance falls through by SLOT, environme
   });
 
   it("the manifest derives from the file's place — type ledger, slug from the stem — and an exported manifest LOCKS a field", async () => {
-    const paladin = new Paladin();
+    const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
     paladin.scopes([["ledger", () => true, () => LEDGER]]);
     paladin.read.json = files(ledger(paladin));
     const derived = await paladin.ledger.recipe();
     expect(derived.manifest).toEqual({ type: "ledger", slug: "ledger" });
     expect(derived.source.absolute).toBe("/fixtures/ledger/ledger.viva.json");
-    const locked = new Paladin();
+    const locked = lifecycle.paladin.belt(new Paladin(), FULL);
     locked.scopes([["ledger", () => true, () => LEDGER]]);
     locked.read.json = files(ledger(locked, { manifest: { slug: "finns-other" } }));
     expect((await locked.ledger.recipe()).manifest).toEqual({ type: "ledger", slug: "finns-other" });
   });
 
   it("a manifest that says it is something else throws naming the file; a bad slug throws through the schematic", async () => {
-    const paladin = new Paladin();
+    const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
     paladin.scopes([["ledger", () => true, () => LEDGER]]);
     paladin.read.json = files(ledger(paladin, { manifest: { type: "instance" } }));
     await expect(paladin.ledger.recipe()).rejects.toThrow(/ledger\.viva\.json declares manifest\.type "instance"/);
-    const bad = new Paladin();
+    const bad = lifecycle.paladin.belt(new Paladin(), FULL);
     bad.scopes([["ledger", () => true, () => LEDGER]]);
     bad.read.json = files(ledger(bad, { manifest: { slug: "Not A Slug" } }));
     await expect(bad.ledger.recipe()).rejects.toThrow(/ledger\.viva\.json manifest/);

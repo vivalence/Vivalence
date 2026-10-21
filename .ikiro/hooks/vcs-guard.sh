@@ -22,7 +22,10 @@ deny() {
 # beef 2026-08-14: "i want you to read jj/git vcs !!! i use that all the time. just no write!"
 # READING IS THE POINT. Both VCSs get the same shape: allowlist the read-only surface,
 # deny every mutation. An over-broad block taught the assistant that reading was forbidden.
-normalized=$(sed -E 's/git[[:space:]]+((-C[[:space:]]+[^[:space:]]+|--no-pager|--paginate|-P|-c[[:space:]]+[^[:space:]]+)[[:space:]]+)+/git /g' <<<"$command")
+# 11-03 (molt): the arguments of echo/printf are prose, not a command — `echo "== git holds =="` fired 24 denies in two
+# weeks. Stripped up to the next ; & | ` or $, so `echo "$(git push)"` and `echo x | git apply` still reach the match.
+spoken=$(sed -E 's/(^|[;&|(`[:space:]])(echo|printf)([[:space:]]+[^;&|`$]*)?/\1\2 /g' <<<"$command")
+normalized=$(sed -E 's/git[[:space:]]+((-C[[:space:]]+[^[:space:]]+|--no-pager|--paginate|-P|-c[[:space:]]+[^[:space:]]+)[[:space:]]+)+/git /g' <<<"$spoken")
 
 while read -r sub rest; do
   case "$sub" in
@@ -51,6 +54,6 @@ while read -r sub rest; do
     op)     grep -qE '^log' <<<"$rest" || deny "jj op $rest: only 'jj op log' is read-only. Recovery is a graph mod. Propose; beef runs.";;
     *)      deny "jj $sub: graph mutation. VCS IS READ-ONLY — propose the exact command; beef runs it via !";;
   esac
-done < <(sed -E 's/jj[[:space:]]+((--no-pager|--ignore-working-copy|-R[[:space:]]+[^[:space:]]+|--repository[[:space:]]+[^[:space:]]+)[[:space:]]+)+/jj /g' <<<"$command" | grep -oE '(^|[;&|(`[:space:]])jj[[:space:]]+[[:alnum:]-]+([[:space:]]+[[:alnum:]-]+)?' | sed -E 's/^[^j]*jj[[:space:]]+//')
+done < <(sed -E 's/jj[[:space:]]+((--no-pager|--ignore-working-copy|-R[[:space:]]+[^[:space:]]+|--repository[[:space:]]+[^[:space:]]+)[[:space:]]+)+/jj /g' <<<"$spoken" | grep -oE '(^|[;&|(`[:space:]])jj[[:space:]]+[[:alnum:]-]+([[:space:]]+[[:alnum:]-]+)?' | sed -E 's/^[^j]*jj[[:space:]]+//')
 
 exit 0

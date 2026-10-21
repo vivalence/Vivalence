@@ -43,6 +43,7 @@ export function wrap(serve) {
     const res = await serve(req);
     const merged = new Headers(res.headers);
     for (const [k, v] of Object.entries(headers(origin))) merged.set(k, v);
+    merged.set("access-control-expose-headers", [...res.headers.keys()].join(", "));
 
     return new Response(res.body, {
       status: res.status,

@@ -1,18 +1,18 @@
 # frontier — the live edge
 <!-- writer: agent, rewritten whole at every fold · limit: 2000 chars -->
 
-- anima red (vite: `View`); old clients `testament/m82-clients-20261012/` (`vrkoppuw`)
-- TREE 10-21: paladin `ledger/{registry,integrity}.js` → `prototypes/` in his working copy; uncommitted, beef snaps; a sibling session drills m95 (rulings 27–39)
+- SHELL 11-04: lifecycles numbered; env · mask · spawn → paladin; owed: `ghost-run-error-prefix-vs-shell-test` · his look at `2-resolution.js`
+- TREE 10-29: :2501 HIS `runtime/watch` + a tty ghost under `ghost/watch` — TWO clients; a client guard over server state races
+- GHOST STDERR 11-04: `ghost.sh` `deno run -q`; owed his tty look
+- GHOST BOOT 10-26: owed `chain` + `verify` tests · `credential-cache-freezes-trait-defaults`
+- PERSIST 11-06: a setting = `persistentAtom("viva.<subject>.<field>")`; → `m116-find-is-a-sync.org` (Q0 B, next: go milestone 1); owed `ghost-help-list-lacks-delete-verbs`
+- HIS: off-deno soon · `subpath-imports` · 3 poisoned Turn rows · `harness-input-unvalidated` · `done/m96 * open` #1–22 · wire `land-guard.sh` · zsh `$VAR` hooks · word-guard on quest fences
 
-- `m96-client-mothership` — DRILLED 10-21, 8 rulings as hunks; open 3 · 10 · 12 drawn; 167 hunks replay in order on a copy; QUEST LEVEL ONLY (/"we dont execute yet"/); next: his word — materialize (fix `materialize.py` chain path) + census, then wave 0
-- `m95-depincered-client` — m96's DOM · TTY client v1 (milestones 2–9), settle rows drawn; next: m96 wave 0; open: the `Docked` fields
-- `m92-keymap` — `terminal.$keymap` computed (m96 ruling 2), 15/15 replay; next: m96 waves 0 · 2
-- `m87-buffer-view-file` — FILESINK compile · `/attached/view/:id` · `view.load` re-cut on ruling 38, mime from the reference; next: m96 waves 0 · 1 · 3 · 4; owed: the entity sketches as files (a cell)
-- `m88-repling` — the wire drawn (runtime REPLING · `shape.repl.wire` · LOOPING on `terminal.repl`), looping test drawn, 21/21 replay; next: m96 waves 0 · 1 · 2
-- `m83-tools-and-primer` — departures ruled (registry aligned in wave 4), 64/64 replay; next: m96 waves 0 · 1; next for code-first (15 ‖ 189)
-- `m93-kleisli-remonadization` — 1 · 2 · 4 in m96 (ghost · anima only), 51/51 replay; 3 its own go after
-- `m94-trait-rejiggle` — rows land in m96 wave 1 (BOOTED · DATASET · DATASINK · FILESET · FILESINK, no MOUNTED); next: deferred 3–7; owed: docs delta
-- `m89-telemetry` — DESIGNED 10-12; re-cut onto m86's tree first
-- `m84-harness-runtime` — next: beef rules D1–D6
-- lighthouse — `autologin-signin-flashes` closes with m95 ruling 22
-- standing: fresh tree `SNAPSHOT_HOT=1` once · stale tests: pensieve lookup→revelio, paladin hal257 · runtime 9 red on a clean copy 10-19 · 17 known issues · his runtime restarts for typology/paladin edits
+- `dataspace-rework` LANDED 11-06 (`done/daemon-entities-both-sides`) — next: his look at the catalog; owed: Dataspace `intent` · count-before-find · dead words
+- `m115-mando` — spanish corpus LANDED 11-06 — next: `reset`/`keep` his 80 notes; owed: stale db row · orphan mp3 · audio pick
+- `m108-anima-app` — next: go on `Thread.ts` `/after/thread/create`; then milestone 4 (`tests/world.js:10`); owed: 45 threads × buffer pair · per-row ✕ · 5 QA · `$popover` two shapes · `sidebar-chip-signal-drift`
+- `m110-paladin-commands` — LANDED; owed: Q5 docs · doctor cards
+- `m113-file-rows` — LANDED 10-28, 6/8 QA; next: his look → `done/`
+- `m103-command-pass` — next: he picks the route over `* the map` (93); rule C3 · C4; anima `sidebar.jsx` SURFACE mirrors ghost `/filter/*`
+- roadmap: m93 (#1 #3 #4) · m94 (#17) · m89 (#18) · m84 (D1–D6)
+- standing: walk rig = pty + pyte, free port · reds: hello `research` ×2 · chassis `shareAfterDrag` · anima `pincer/spine.mount` · `oracle.snapshot` · anima sidebar rig · ghost `repl.test` `/help` · `console.test` · `prototype.test` (`ghost-base-tree-reds-11-06`)

@@ -11,6 +11,12 @@ const SOURCE = v
       "in your context for the frame and the tokens.",
   );
 
+const SLUG = v
+  .string()
+  .desc('The page\'s name inside this mode — the subject, kebab-cased; the same slug again rewrites the page. Example: "flamingo"');
+
+const MIME = mime.type().desc(`What the code is — always ${mime.dom.svelte} here. Example: "${mime.dom.svelte}"`);
+
 const DATA = v
   .any()
   .desc(
@@ -26,48 +32,35 @@ const LABEL = v.primitives.Label.desc(
     'Example: { name: "Flamingo", description: "The six species, the pink, and the one-legged stance." }',
 );
 
-// THE MINT — the one place this mode mints a buffer by hand. Not in mode.tools, so no model
-// reaches it; mounted at aperture /emit + mode.emit by emitter.js. No thread passed to
-// buffer.create: the EMITTER trait binds every buffer it drains, and the repository binds
-// whenever handed one, so doing both advances thread.counter twice — P-nodoublebind.
+const slugged = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+
 export const emitter = new Vector().open(
   {
     nature: "/article",
     input: v.object({
       source: SOURCE,
-      label: LABEL,
+      label: LABEL.optional(),
       data: DATA,
-      thread: v
-        .string()
-        .desc(
-          "The thread the page belongs to, so it appears under the right turn. Omitted for a standalone draw.",
-        )
-        .optional(),
+      thread: v.string().desc('The thread the page belongs to, so it appears under the right turn. Example: "th3"'),
     }),
-    // yields Yield.NOMINAL([buffer]) — { kind: "emission", condition, output: { buffer: [row] } }.
-    // fromm/yield.js:36 reads the kind, so the drained envelope survives to the tool_result
-    // unchanged and turns.js:35 folds it into the m26 bag the client reads as entities.buffer.
   },
   async (ctx) => {
-    const bundle = await ctx.mode.generator.bundle({
+    const view = await ctx.mode.generator.bundle({
+      slug: ctx.input.label === undefined ? "article" : slugged(ctx.input.label.name),
       mime: mime.dom.svelte,
       source: refuse(ctx.input.source),
     });
     const buffer = await ctx.entities.buffer.create({
       mode: ctx.mode.entity.id,
-      bundle: bundle.json,
-      data: ctx.input.data ?? {},
-      traits: ["LABELED"],
-      trait: { LABELED: ctx.input.label },
+      mime: mime.json,
+      ...(ctx.input.data !== undefined && { data: ctx.input.data }),
+      ...(ctx.input.label !== undefined && { traits: ["LABELED"], trait: { LABELED: ctx.input.label } }),
+      views: [view.id],
     });
     return Yield.NOMINAL([buffer]);
   },
 );
 
-// THE STEERING — GENERATIVE owns the tools (generator_view_render · generator_view_revise · generator_view_inspect · generator_view_list)
-// and slurps this vector onto them AFTER: its middleware runs on every draw and revise, and a node
-// opened here WITHOUT an effect rewords the trait's while the trait's effect stays (vector.js:59-80).
-// Nothing here mints: the mint is the emitter above.
 export const generator = new Vector();
 
 generator.branch("/view").use(async (ctx, next) => {
@@ -87,40 +80,22 @@ generator.branch("/view").use(async (ctx, next) => {
 generator
   .branch("/view")
   .open({
-    nature: "/render",
+    nature: "/create",
     valence:
       "Draw a page. Submit a COMPLETE Svelte 5 component as `source`; it is compiled, " +
-      "content-addressed and mounted on the operator's screen, and appears in the chat as a " +
+      "content-addressed and stored as a View of this mode. Then buffer_create with " +
+      "`views: [slug]` and the page's `data` and `label` puts it on the operator's screen as a " +
       "line they can click open. The HOUSE RULES in your context are binding — a component " +
       "that invents its own styling renders wrong, and one that imports from a URL is refused " +
-      "outright. The `label` is what the operator sees on the line — the subject, named " +
-      "plainly. Returns the buffer id and its bundle entry hash — keep both: generator_view_revise iterates the " +
-      "SAME buffer, generator_view_inspect reads the source back by hash.",
-    input: v.object({ source: SOURCE, label: LABEL, data: DATA }),
+      "outright. The same slug again rewrites the page in place; view_update does the same.",
+    input: v.object({ slug: SLUG, mime: MIME, source: SOURCE }),
   })
   .open({
-    nature: "/revise",
+    nature: "/update",
     valence:
-      "Iterate a page you already drew: the SAME buffer, on the same clickable line, gets new " +
-      "source, label and/or data and re-mounts in place. Pass the buffer id from generator_view_render or " +
-      "generator_view_list — not the hash. The HOUSE RULES still bind; a URL import is still refused. " +
-      "Use generator_view_inspect first if you no longer have the source; revise from it rather than " +
-      "rewriting.",
-    input: v.object({
-      buffer: v
-        .string()
-        .desc(
-          "The buffer id generator_view_render or generator_view_list reported. " +
-            'Example: "01a0856f-425f-72b8-b36f-decc1bb2050e"',
-        ),
-      source: SOURCE.optional(),
-      label: LABEL.optional(),
-      data: v
-        .any()
-        .desc(
-          "Data keys to merge over buffer.data; keys you omit stay. " +
-            'Example: { summary: "Six species on four continents." }',
-        )
-        .optional(),
-    }),
+      "Iterate a page you already drew: the SAME view, by slug, gets new source and every " +
+      "buffer showing it re-mounts in place; the buffer's data changes through buffer_update, " +
+      "its line through buffer_label. The HOUSE RULES still bind; a URL import is still refused. " +
+      "Use view_read first if you no longer have the source; revise from it rather than rewriting.",
+    input: v.object({ slug: SLUG, mime: MIME.optional(), source: SOURCE }),
   });

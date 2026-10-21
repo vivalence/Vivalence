@@ -1,0 +1,27 @@
+# struck 10-24 from .ikiro/quests/m98-ghost-barrels.org by Q45 /"teb."/ (b); nothing reworded · limit: none (reference content)
+
+** chrome.js door as tangled 10-23 (a static surfaces import), struck by Q45 /"teb."/ 10-24
+import { Vector, steer } from "@vivalence/typology";
+import * as surfaces from "../../../surfaces/index.js";
+import * as client from "../../client/index.js";
+import { boot } from "../lifecycle/boot.js";
+import { ledger } from "../lifecycle/ledger.js";
+import { seat } from "../lifecycle/seat.js";
+
+const door = new Vector().use(seat).use(ledger).use(boot).do(client.factory(surfaces.chrome));
+
+** chrome.js door under Q45 b (a dynamic import), struck by Q45′ /"a"/ 10-24 — vite: Rollup failed to resolve import "@vivalence/sheets" from systems/ghost/surfaces/chrome/index.js
+import { Vector, steer } from "@vivalence/typology";
+import * as client from "../../client/index.js";
+import { boot } from "../lifecycle/boot.js";
+import { ledger } from "../lifecycle/ledger.js";
+import { seat } from "../lifecycle/seat.js";
+
+const door = new Vector()
+  .use(seat)
+  .use(ledger)
+  .use(boot)
+  .do(async (shellDie) => client.factory((await import("../../../surfaces/index.js")).chrome)(shellDie));
+
+** subjects/index.js line under Q45 b, struck by Q45′ /"a"/ 10-24
+export * as shell from "./shell/index.js";

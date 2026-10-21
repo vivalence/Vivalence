@@ -36,7 +36,6 @@ export class Socket {
   state = {};
   frames = new Map();
   lines = new Map();
-  span = new Span("socket");
 
   // Resolves when the WebSocket is open (immediately if already open — server side).
   // Browser WebSockets start in CONNECTING state; push/open must wait for this.
@@ -45,6 +44,7 @@ export class Socket {
   constructor(ws, vector, options = {}) {
     this.ws = ws;
     this.vector = vector;
+    this.span = new Span("socket", options.trace);
     this.bearer = options.bearer ?? null;
     if (ws.readyState === 1 /* OPEN */) {
       this.#ready = Promise.resolve();
@@ -90,10 +90,10 @@ export class Socket {
 
   async #onmessage(event) {
     let packet;
-    try { packet = JSON.parse(event.data); } catch { this.span.note({ drop: "parse" }); return; }
+    try { packet = JSON.parse(event.data); } catch { this.span.log({ drop: "parse" }); return; }
     if (!v.primitives.connection.Packet.check(packet)) {
       console.warn(`[multiplex] rejected malformed packet`, packet);
-      return void this.span.note({ drop: "malformed", packet });
+      return void this.span.log({ drop: "malformed", packet });
     }
 
     if (packet.frame !== undefined) {
@@ -110,7 +110,7 @@ export class Socket {
       }
 
       const line = this.lines.get(packet.frame);
-      if (!line) return void this.span.note({ drop: "orphan-frame", frame: packet.frame });
+      if (!line) return void this.span.log({ drop: "orphan-frame", frame: packet.frame });
       if (packet.input !== undefined) line.upstream?.enqueue(encoder.encode(packet.input));
       else if (packet.done) {
         line.upstream?.close();
@@ -122,19 +122,19 @@ export class Socket {
       return;
     }
 
-    if (!packet.nature) return void this.span.note({ drop: "empty" });
+    if (!packet.nature) return void this.span.log({ drop: "empty" });
 
     let signal;
     try { signal = v.decode(signalCodec(), packet.nature); }
     catch {
       console.warn(`[multiplex] rejected bad signal "${packet.nature}"`);
-      return void this.span.note({ drop: "bad-signal", signal: packet.nature });
+      return void this.span.log({ drop: "bad-signal", signal: packet.nature });
     }
     Object.assign(signal, { body: packet.body, ...(packet.flags && { flags: packet.flags }) });
     const [effect, carry, steps] = steer.dispatch.traverse(this.vector, signal);
     if (!effect) {
       console.warn(`[multiplex] no route for push "${packet.nature}"`);
-      return void this.span.note({ drop: "no-route", signal: packet.nature });
+      return void this.span.log({ drop: "no-route", signal: packet.nature });
     }
 
     const ctx = new Context({ request: { url: `http://socket${signal.pathname}`, body: signal.body[0] } });
@@ -147,19 +147,21 @@ export class Socket {
 
   async #answer(packet) {
     const id = packet.frame;
-    const trace = this.span.branch(packet.signal);
-    trace.open();
+    const trace = this.span.branch(`${packet.signal}/${packet.frame}`);
     const controller = new AbortController();
     const line = { controller, upstream: null };
+    let status;
     this.lines.set(id, line);
+    trace.start();
 
     try {
       const signal = v.decode(signalCodec(), packet.signal);
+      trace.request({ method: packet.verb ?? "POST", path: signal.pathname });
       const [effect, carry, steps] = steer.dispatch.traverse(this.vector, signal);
       if (!effect) {
         console.warn(`[multiplex] no route for "${signal.pathname}"`);
-        trace.mark("error", { status: 404 });
-        return this.#send({ frame: id, error: { status: 404, message: `not found ${signal.pathname}` } });
+        status = 404;
+        return this.#send({ frame: id, error: { status, message: `not found ${signal.pathname}` } });
       }
 
       const destination = new Url(`http://socket${signal.pathname}${packet.query ?? ""}`);
@@ -194,8 +196,7 @@ export class Socket {
 
       const body = ctx.response.body;
       if (ctx.response.error || ctx.response.status >= 400) {
-        const status = ctx.response.status || 500;
-        trace.mark("error", { status });
+        status = ctx.response.status || 500;
         this.#send({
           frame: id,
           error: { status, message: body?.error?.message ?? "request failed" },
@@ -207,26 +208,29 @@ export class Socket {
       ) {
         this.#send({ frame: id, open: true });
         for await (const item of body) {
-          if (controller.signal.aborted) return void trace.note({ aborted: true });
+          if (controller.signal.aborted) return void trace.log({ aborted: true });
           this.#send({ frame: id, output: item });
         }
         this.#send({ frame: id, close: true });
-        trace.close();
+        status = 200;
       } else {
         this.#send({ frame: id, output: body ?? null });
         this.#send({ frame: id, close: true });
-        trace.close();
+        status = 200;
       }
     } catch (error) {
-      trace.fault(error);
+      if (controller.signal.aborted) return void trace.log({ aborted: true });
       if (error instanceof NotFound || error?.code === "NOT_FOUND") {
-        this.#send({ frame: id, error: { status: 404, message: error.message } });
-      } else if (!controller.signal.aborted) {
-        console.error(`[multiplex] "${packet.signal}" failed`, error);
-        this.#send({ frame: id, error: { status: 500, message: error.message } });
+        status = 404;
+        return this.#send({ frame: id, error: { status, message: error.message } });
       }
+      trace.fault(error);
+      status = 500;
+      console.error(`[multiplex] "${packet.signal}" failed`, error);
+      this.#send({ frame: id, error: { status, message: error.message } });
     } finally {
       this.lines.delete(id);
+      trace.response({ status }).stop();
     }
   }
 

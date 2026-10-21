@@ -9,6 +9,6 @@ const GLOSSARY = [
 ].join(" ");
 
 export const harness = new Vector().use(async (ctx, next) => {
-  ctx.hallucination.system.srs = GLOSSARY;
+  ctx.hallucination.primer.open("srs", GLOSSARY);
   await next();
 });

@@ -2,12 +2,13 @@ import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path, Url, v } from "@vivalence/typology";
 import { Paladin } from "../paladin/prototype.js";
+import { FULL } from "../gestalten/belt/index.js";
 import { factories, lifecycle } from "../typology.js";
 
 const JWT = "a-signing-secret-of-twenty-four-or-more";
 
 const mount = (declare, pairs = {}, secrets = {}) => {
-  const paladin = new Paladin();
+  const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
   paladin.scopes([
     ["instance", () => true, () => new Path("/fixtures/probe")],
     ["mountpoint", () => true, () => new Path("/mountpoint")],
@@ -16,6 +17,7 @@ const mount = (declare, pairs = {}, secrets = {}) => {
   for (const [key, value] of Object.entries(secrets)) paladin.secret.set(key, value, "flag");
   paladin.secret.set("SECRET_VIVA_PROBE_JWT", JWT, "flag");
   const module = JSON.parse(JSON.stringify({ manifest: { type: "instance", slug: "probe", version: "0.0.1" }, ...declare(paladin) }));
+  paladin.find.recipe = (home) => home.branch("instance.viva.json");
   paladin.read.json = async () => module;
   return factories.instance(lifecycle.paladin.instance(paladin));
 };
@@ -358,7 +360,7 @@ describe("settle — a modes entry in object form fires at the pinhole like any 
     const [entry] = held.modes;
     expect(entry.reference.absolute).toBe("/mode/domain/voffice");
     expect(entry.url.absolute).toBe("http://localhost:2501/lighthouse/daemon/probe/mode/domain/voffice");
-    expect(entry.bundles.absolute).toBe("/mountpoint/daemon_probe/bundles/domain/voffice");
+    expect("bundles" in entry).toBe(false);
     expect(instance.faults).toEqual([]);
   });
 

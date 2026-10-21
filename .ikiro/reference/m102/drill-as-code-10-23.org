@@ -1,0 +1,351 @@
+#+title: m102 — the drill's * as code and * open, superseded by the tangle 10-23
+# limit: none (reference)
+
+The drill's hunks were cut on m98's paths and kept /chrome/on · /chrome/off · lines; the tangle (=m102-repl.org= =* as code=) is cut from the scratchpad copy's diff on today's tree. * open held Q9's settled asides.
+
+** as code
+
+Moves (=mv= first, each block on the NEW path; ghost paths below are today's, re-cut onto m98's tree at landing):
+
+| from | to | why |
+|------|----|-----|
+| =systems/ghost/subjects/repl/dispatch.js= =execution= · =scoped= | =systems/ghost/subjects/terminal/repl.js= | Q9 |
+| =systems/ghost/subjects/repl/dispatch.js= =compose= · =dispatch= | dies | Q2 · Q6′ |
+| =systems/ghost/subjects/repl/index.js= | dies | Q9 |
+| =systems/ghost/subjects/shell/commands.js= | =systems/ghost/subjects/client/commands/shell.js= | Q10 |
+| =systems/ghost/chrome/host/= =deno-ffi.js= · =index.js= · =opentui-core.patch= · =preload.js= | =subsystems/sheets/host/= | Q12 |
+| =systems/ghost/tests/chrome.host.coverage.test.js= | =subsystems/sheets/tests/host.test.js= (relabels m98 =:128=) | Q12 |
+| =subsystems/sheets/host.js= | dies — =./host= points at =host/index.js= | Q12 |
+| =systems/ghost/subjects/repl/lines.js= | dies at m98 Q6 (=m98-ghost-barrels.org:34=) | lookup |
+| =systems/ghost/chrome/commands.js= | dies at m98 Q7 (=m98-ghost-barrels.org:35=) | lookup |
+
+**** subsystems/drapes
+***** dom/surface.js
+#+BEGIN_SRC diff
+// subsystems/drapes/dom/surface.js:21   ← Locked Q2 — mine: the chassis memoizes ONE dispatch, so it reads the active terminal at the call
+-  const pane = (name, Pane) => (client) => chassis(client.dispatch).mount(name, Pane, { client, dispatch: client.dispatch, $output });
++  const pane = (name, Pane) => (client) => {
++    const dispatch = (line) => client.activeTerminal.repl.dispatch(line);
++    return chassis(dispatch).mount(name, Pane, { client, dispatch, $output });
++  };
+#+END_SRC
+
+**** subsystems/paladin
+***** gestalten/belt/is.js
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/is.js:29   ← Locked Q4″
+     get citizen() {
+…
++    get tty() {
++      return [Runtime.Deno].includes(CurrentRuntime) && Deno.stdin.isTerminal();
++    },
+     get veryimportant() {
+#+END_SRC
+
+**** subsystems/sheets
+***** deno.jsonc
+#+BEGIN_SRC diff
+// subsystems/sheets/deno.jsonc:7   ← Locked Q12: /"a."/ — the toolkit that needs the host owns it
+-    "./host": "./host.js",
++    "./host": "./host/index.js",
+#+END_SRC
+***** host/index.js
+#+BEGIN_SRC js
+// subsystems/sheets/host/index.js   ← Locked Q12 — moved whole from systems/ghost/chrome/host/index.js (with deno-ffi.js · opentui-core.patch · preload.js, unchanged)
+import "./preload.js";
+
+export async function opentui() {
+  const core = await import("@opentui/core");
+  return { createCliRenderer: core.createCliRenderer };
+}
+#+END_SRC
+***** tests/host.test.js
+#+BEGIN_SRC diff
+// subsystems/sheets/tests/host.test.js:1   ← Locked Q12 — moved from systems/ghost/tests/chrome.host.coverage.test.js; the two imports re-path
+-import { opentui } from "../chrome/host/index.js";
++import { opentui } from "../host/index.js";
+…
+// subsystems/sheets/tests/host.test.js:4
+-import ffi, { dlopen, getRawPointer, suffix, toArrayBuffer } from "../chrome/host/deno-ffi.js";
++import ffi, { dlopen, getRawPointer, suffix, toArrayBuffer } from "../host/deno-ffi.js";
+#+END_SRC
+***** tests/scenarios/index.js
+#+BEGIN_SRC diff
+// subsystems/sheets/tests/scenarios/index.js:1   ← Locked Q12
+-import "@vivalence/ghost/host";
++import "../../host/index.js";
+#+END_SRC
+
+**** subsystems/typology
+***** schematics/primitives/contexts.js
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:49   ← Locked Q6 — HOLY, its own go at landing; =tests/schematics/contexts.test.js:20= keys unchanged
+-export const repl = { repl: v.unknown().desc("The repl Vector this line was invoked on — …") };
++export const repl = { repl: v.unknown().desc("The terminal's Repl this line was dispatched on; its commands are ctx.repl.commands. Example: shape.strip(ctx.repl.commands)") };
+#+END_SRC
+
+**** systems/anima
+***** src/client.js
+#+BEGIN_SRC diff
+// systems/anima/src/client.js:2   ← Locked Q4 — no door hands commands over
+-import { Controller, Span, Vector } from "@vivalence/typology";
++import { Controller, Span } from "@vivalence/typology";
+…
+// systems/anima/src/client.js:11
+-  repl: new Vector(),
+#+END_SRC
+***** src/surface/send.js
+#+BEGIN_SRC diff
+// systems/anima/src/surface/send.js:1   ← Locked Q2
+-export const send = (client, line) => client.dispatch(line).catch((error) => client.controller.stdout.fault(error));
++export const send = (client, line) => client.activeTerminal.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
+#+END_SRC
+
+**** systems/ghost
+***** chrome/acts.js
+#+BEGIN_SRC diff
+// systems/ghost/chrome/acts.js:4   ← Locked Q2 · m98 moves it to surfaces/chrome/acts.js
+-export const send = (client, line) => client.dispatch(line).catch((error) => client.controller.stdout.fault(error));
++export const send = (client, line) => client.activeTerminal.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
+#+END_SRC
+***** deno.jsonc
+#+BEGIN_SRC diff
+// systems/ghost/deno.jsonc   ← Locked Q11: /"no surface export. surfaces are whats unique by design."/ — on m98's line (=m98-ghost-barrels.org:155=); Q12 rules who hands sheets its host
+-"exports": { ".": "./typology.js", "./run": "./run.js", "./host": "./surfaces/chrome/host/index.js", "./scenarios": "./tests/scenarios/index.js" },
++"exports": { ".": "./typology.js", "./run": "./run.js", "./scenarios": "./tests/scenarios/index.js" },
+#+END_SRC
+***** entities/mode/traits/looping.js
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/traits/looping.js:12   ← Q7 lookup
+-    .open("/metadata/repl", (ctx) => shape.strip(repl.compose(clientDie, ctx.terminal)))
++    .open("/metadata/repl", (ctx) => shape.strip(ctx.terminal.repl.commands))
+…
+// systems/ghost/entities/mode/traits/looping.js:13   ← Locked Q2
+-    .post({ nature: "/repl", input: v.primitives.harness.Signal }, (ctx) => ctx.terminal.dispatch(new ReplSignal(ctx.input)));
++    .post({ nature: "/repl", input: v.primitives.harness.Signal }, (ctx) => ctx.terminal.repl.dispatch(new ReplSignal(ctx.input)));
+#+END_SRC
+***** entities/terminal/lifecycle/index.js
+#+BEGIN_SRC diff
+// systems/ghost/entities/terminal/lifecycle/index.js:1   ← Locked Q3 · Q4 · Q4′ · Q4″ · Q6′
+-import { Vector, shard } from "@vivalence/typology";
++import paladin from "@vivalence/paladin";
++import { Vector, fromm, shard } from "@vivalence/typology";
+ import * as command from "../commands/index.js";
++import * as clientCommand from "../../../subjects/client/commands/index.js";
++import { turn } from "../commands/turn.js";
++import { scoped } from "../repl.js";
+ 
+ export const commands = async (terminalDie, next) => {
+-  terminalDie.terminal.repl.graft(...Object.values(command));
++  const { shell, ...everywhere } = clientCommand;
++  const off = terminalDie.client.runtime.entities.mode.$entities.subscribe((modes) => {
++    terminalDie.terminal.repl.commands = new Vector().graft(
++      ...Object.values(everywhere),
++      ...(paladin.is.tty ? [shell] : []),
++      ...fromm.modes(terminalDie.client.modes).flat.map((mode) => mode.repl),
++      ...Object.values(command),
++      ...modes.map(scoped),
++      turn,
++    );
++  });
+   terminalDie.controller.stdout.log({ terminal: terminalDie.terminal.id });
+-  await next();
++  try {
++    await next();
++  } finally {
++    off();
++  }
+ };
+#+END_SRC
+***** entities/terminal/prototype.js
+#+BEGIN_SRC diff
+// systems/ghost/entities/terminal/prototype.js:5   ← Locked Q1 · Q2 · m98 moves it to subjects/terminal/prototype.js
+-import * as repl from "../../subjects/repl/index.js";
++import { Repl } from "./repl.js";
+…
+// systems/ghost/entities/terminal/prototype.js:19
+-  repl = new Vector();
++  repl = new Repl(this);
+…
+// systems/ghost/entities/terminal/prototype.js:22   ← Q8 lookup — m99 Q27 makes it a getter: shard.keymap.fromRepl(this.repl.commands)
+-  $keymap = computed(this.$thread, (thread) => new Vector().graft(this.client.keymap, harvest(this.repl), ...(thread !== null && is.object(thread.mode) ? [thread.mode.keymap] : [])));
++  $keymap = computed(this.$thread, (thread) => new Vector().graft(this.client.keymap, harvest(this.repl.commands), ...(thread !== null && is.object(thread.mode) ? [thread.mode.keymap] : [])));
+…
+// systems/ghost/entities/terminal/prototype.js:54
+-  dispatch(signal) {
+-    return repl.dispatch(this.client, this, signal);
+-  }
+-
+#+END_SRC
+***** install.sh
+#+BEGIN_SRC diff
+// systems/ghost/install.sh:14   ← Locked Q12
+-deno cache systems/ghost/chrome/host/index.js
++deno cache subsystems/sheets/host/index.js
+…
+// systems/ghost/install.sh:17
+-grep -q "__opentuiNodeFfi" "$target" || patch "$target" < systems/ghost/chrome/host/opentui-core.patch
++grep -q "__opentuiNodeFfi" "$target" || patch "$target" < subsystems/sheets/host/opentui-core.patch
+#+END_SRC
+***** subjects/client/commands/help.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/commands/help.js:6   ← Locked Q6
+-    ctx.controller.stdout.log(shape.strip(ctx.repl));
++    ctx.controller.stdout.log(shape.strip(ctx.repl.commands));
+#+END_SRC
+***** subjects/client/commands/index.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/commands/index.js:5   ← Locked Q4
+ export { terminal } from "./terminal.js";
++export { shell } from "./shell.js";
+#+END_SRC
+***** subjects/client/commands/shell.js
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/commands/shell.js   ← Locked Q10: /"a"/ — moved whole from subjects/shell/commands.js; only the belt import re-paths
+import { Vector, v } from "@vivalence/typology";
+import * as belt from "../../../gestalten/belt/index.js";
+
+const Shell = v.object({ shell: v.enum(["cockpit", "footer"]).desc('Example: "footer"') });
+
+export const shell = new Vector().open(
+  { nature: "/shell", valence: "cockpit: alternate screen · footer: under real scrollback. Example: /shell footer", input: Shell, chord: "leader/d/h" },
+  (ctx) => {
+    const { shell } = belt.input.cast(Shell, ctx.signal);
+    ctx.client.surface.$shell.set(shell);
+    return `shell ${shell}`;
+  },
+);
+#+END_SRC
+***** subjects/client/factory.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/factory.js:1   ← Locked Q4
+-import { Vector, monad, shape } from "@vivalence/typology";
++import { monad, shape } from "@vivalence/typology";
+…
+// systems/ghost/subjects/client/factory.js:7
+-    (doorDie) => new Client({ controller: doorDie.controller.branch("client"), mask: doorDie.mask, register: doorDie.register, instance: doorDie.instance, surface, repl: new Vector().graft(doorDie.repl) }),
++    (doorDie) => new Client({ controller: doorDie.controller.branch("client"), mask: doorDie.mask, register: doorDie.register, instance: doorDie.instance, surface }),
+#+END_SRC
+***** subjects/client/keymap.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/keymap.js:2   ← Q7 lookup — m99 Q26 moves =catalog= to =shard.keymap.catalog(client.activeTerminal.repl.commands)= (=m99-keys.org:80=)
+-import * as repl from "../repl/index.js";
+…
+// systems/ghost/subjects/client/keymap.js:33
+-export const listing = (client) => catalog(repl.compose(client, client.active));
++export const listing = (client) => catalog(client.activeTerminal.repl.commands);
+…
+// systems/ghost/subjects/client/keymap.js:78   ← Locked Q2 — m99 Q22 rewrites this function into the Legend (=m99-keys.org:112=); this hunk holds only if m102 lands first
+-  const ctx = { client, dispatch: (text) => client.dispatch(text), output: undefined };
++  const ctx = { client, dispatch: (text) => client.activeTerminal.repl.dispatch(text), output: undefined };
+…
+// systems/ghost/subjects/client/keymap.js:82
+-    if (ctx.output !== undefined) await client.dispatch(new ReplSignal(ctx.output));
++    if (ctx.output !== undefined) await client.activeTerminal.repl.dispatch(new ReplSignal(ctx.output));
+#+END_SRC
+***** subjects/client/lifecycle/index.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/lifecycle/index.js:41   ← Q8 lookup — the client's commands ride terminal.repl.commands, harvested there
+-  clientDie.keymap.graft(harvest(clientDie.repl), bound, ...fromm.modes(clientDie.modes).flat.map((held) => held.keymap));
++  clientDie.keymap.graft(bound, ...fromm.modes(clientDie.modes).flat.map((held) => held.keymap));
+…
+// systems/ghost/subjects/client/lifecycle/index.js:212   ← Locked Q5
+   .use(keymap)
+-  .use(surface)
+   .use(connection)
+…
+// systems/ghost/subjects/client/lifecycle/index.js:224
+   .use(active)
++  .use(surface)
+   .use(pressing)
+#+END_SRC
+***** subjects/client/prototype.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/prototype.js:3   ← Locked Q1 · Q2
+-import * as repl from "../repl/index.js";
+…
+// systems/ghost/subjects/client/prototype.js:16
+-  repl = new Vector();
+…
+// systems/ghost/subjects/client/prototype.js:53
+-  dispatch(line) {
+-    return repl.dispatch(this, this.active, line);
+-  }
+-
+#+END_SRC
+***** subjects/shell/lifecycle.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/shell/lifecycle.js:6   ← Locked Q4
+-import { chrome as chromeCommand } from "../../chrome/commands.js";
+-import { shell as shellCommand } from "./commands.js";
+…
+// systems/ghost/subjects/shell/lifecycle.js:102
+-  new Vector().use(seat).use(ledger).use(boot).use(shard.context.bind("repl", new Vector().graft(chromeCommand, shellCommand))).do(clientFactory(surface));
++  new Vector().use(seat).use(ledger).use(boot).do(clientFactory(surface));
+#+END_SRC
+***** subjects/terminal/repl.js   (Q9 — tangled at its m98 path)
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/repl.js   ← Locked Q0 · Q1 · Q2 · Q6 · Q6′ · Q9 — new file in the terminal subject (m98 moves entities/terminal → subjects/terminal); =execution= · =scoped= join it from subjects/repl/dispatch.js
+import { ReplSignal, Vector, shard, steer } from "@vivalence/typology";
+
+export const execution = new Vector()
+  .use(shard.controller.open)
+  .do((replDie) => steer.dispatch.execute(replDie.repl.commands, replDie, replDie.signal));
+
+export const scoped = (mode) => {
+  const vector = new Vector();
+  vector.branch(`/mode/${mode.type}/${mode.slug}`, mode.repl);
+  vector.branch(`/mode/${mode.slug}`, mode.repl);
+  return vector;
+};
+
+export class Repl {
+  commands = new Vector();
+
+  constructor(terminal) {
+    this.terminal = terminal;
+  }
+
+  dispatch(line) {
+    const signal = new ReplSignal(line);
+    const replDie = {
+      signal,
+      client: this.terminal.client,
+      runtime: this.terminal.client.runtime,
+      terminal: this.terminal,
+      controller: this.terminal.controller.branch(signal.pathname),
+      repl: this,
+      output: undefined,
+    };
+    return steer.dispatch.execute(execution, replDie).then(() => replDie.output);
+  }
+}
+#+END_SRC
+***** surfaces/chrome/index.js
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/index.js:1   ← Locked Q12 — on m98's path (today =chrome/index.js:1=)
+-import { opentui } from "./host/index.js";
++import { opentui } from "@vivalence/sheets/host";
+#+END_SRC
+***** tests/keys.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/keys.test.js:1   ← Locked Q12 — m98 moves it to tests/surfaces/chrome/keys.test.js
+-import "../chrome/host/index.js";
++import "@vivalence/sheets/host";
+#+END_SRC
+***** typology.js
+#+BEGIN_SRC diff
+// systems/ghost/typology.js   ← Locked Q11 — on m98's root (=m98-ghost-barrels.org:211=); =surfaces/= is reached only from inside ghost, relatively (=subjects/shell/commands/chrome.js=)
+ export * as subjects from "./subjects/index.js";
+-export * as surfaces from "./surfaces/index.js";
+#+END_SRC
+
+m99's Legend hunk changes with Q2: =.ikiro/quests/m99-keys.org:112= =this.client.activeTerminal.dispatch(ctx.output)= → =this.client.activeTerminal.repl.dispatch(ctx.output)=.
+
+
+** open
+
+- Q9 his (after the lock): /"but is terminal actually subject or entity?"/ → lookup, precedent =systems/runtime/subjects/mode/Mode.ts=: an Entity class that runs is a subject; the runtime's =entities/Terminal.ts= does not run, ghost's terminal does. → his: /"Okay, I agree that the terminal is a subject. And then the REPL lives on top of the terminal directly. Yeah, yeah, yeah, no, that's very good."/
+- Q9 his (design, no lock): /"no lines. there exists no lines. your term. not mine."/ · /"might the terminal maybe be a subject? kinda no. kinda yes. hmmm."/ → lookup: m98 already moves every running entity to =subjects/= (=m98-ghost-barrels.org:206= /"running entities → subjects/ · shell + repl take subject shape"/); Q9 re-asked as the Repl's home inside or beside =subjects/terminal/=.
+- probe 10-23 (static chain, read only), behind Q4's dynamic import: =systems/ghost/chrome/commands.js:3= imports =./index.js= → =chrome/paint.js= =@opentui/solid= · =chrome/out/panes.mjs= =@opentui/core= · =chrome/host/preload.js= =./deno-ffi.js=; =:2= imports =subjects/repl/lines.js= → =node:readline=; anima's graph reaches it through =systems/anima/src/client.js:3=.
+

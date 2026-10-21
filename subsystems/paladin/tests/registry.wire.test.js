@@ -2,10 +2,12 @@ import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path, Url } from "@vivalence/typology";
 import { Paladin } from "../paladin/prototype.js";
+import { FULL } from "../gestalten/belt/index.js";
+import { belt } from "../paladin/lifecycle.js";
 
 // an in-memory pensieve: modules under @probe, no disk. accio and wire fold over what revelio hands back.
 const boot = (modules) => {
-  const paladin = new Paladin();
+  const paladin = belt(new Paladin(), FULL);
   paladin.scopes([["ledger", () => true, () => new Path("/fixtures/wire")]]);
   const registry = paladin.ledger.registry;
   for (const module of modules) registry.pensieve.register({ ...module, source: new Path(`/fixtures/wire/${module.manifest.slug}.viva.js`) });
@@ -52,7 +54,7 @@ describe("registry.accio — mask ⊕ module, once", () => {
     const citizen = await registry.accio({ module: "@probe/domain/chess" });
     expect(citizen.statics).toEqual({ depth: 3, seed: 1 });
     expect(citizen.secrets).toEqual({});
-    expect(citizen.mountpoint).toBe(null);
+    expect("mountpoint" in citizen).toBe(false);
   });
 
   it("an inline module is its own citizen", async () => {
@@ -94,7 +96,7 @@ describe("registry.wire — a daemon mask to its bag", () => {
     const bag = await boot(MODULES).wire({ ...placed, modes: [mask.modes[1], { ...mask.modes[0], reference: new Path("/held") }] });
     expect(bag.modes[0].reference.absolute).toBe("/mode/game/board");
     expect(bag.modes[0].url.absolute).toBe("http://x/daemon/d/mode/game/board");
-    expect(bag.modes[0].bundles.absolute).toBe("/m/d/bundles/game/board");
+
     expect(bag.modes[1].reference.absolute).toBe("/held");
   });
 

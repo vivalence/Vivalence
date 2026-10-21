@@ -124,8 +124,8 @@ describe("v.primitives.instance.InstanceMask — the file as authored: reference
 
   it("a client's traits default to none on the manifest; HOME reads through the same claim a user's does", () => {
     expect(Client.cast({ manifest: { type: "client", slug: "ghost" } })).toEqual({ manifest: { type: "client", slug: "ghost", traits: [] }, statics: {}, trait: {} });
-    const homed = { traits: ["HOME"], trait: { HOME: { reference: "/daemon/memo/mode/srs/memo" } } };
-    expect(traits.claim(homed, "HOME", { HOME: v.primitives.Home })).toEqual(v.user.trait(homed, "HOME"));
+    const homed = { id: "u-1", traits: ["HOME"], trait: { HOME: { reference: "/daemon/memo/mode/srs/memo" } } };
+    expect(traits.claim(homed, "HOME", { HOME: v.primitives.Home })).toEqual(traits.cast(homed, v.user.traits).HOME);
   });
 
   it("a migrated shelf that still says lighthouse is refused with the key named", () => {
