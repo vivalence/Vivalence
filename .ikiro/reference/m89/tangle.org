@@ -1,0 +1,780 @@
+# drained 10-22 whole from .ikiro/quests/roadmap/m89-telemetry.org (quest tidy); nothing reworded · limit: none (reference content)
+
+** the tangle
+
+*** subsystems/typology/schematics/primitives/index.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/index.js:11
+ export * as theme from "./theme.js";
++export * as telemetry from "./telemetry.js";
+#+END_SRC
+
+*** subsystems/typology/gestalten/belt/telemetry.js — new
+
+#+BEGIN_SRC js :tangle subsystems/typology/gestalten/belt/telemetry.js
+import * as trace from "./trace.js";
+import { LEVEL, RANK } from "../../schematics/primitives/telemetry.js";
+
+export const level = (record) => (Object.hasOwn(LEVEL, record.verb) ? LEVEL[record.verb] : "note");
+
+export const narrow = (telemetry, surface) => ({
+  level: Object.hasOwn(surface, "level") ? surface.level : telemetry.level,
+  filters: Object.hasOwn(surface, "filters") ? surface.filters : telemetry.filters,
+  ...(Object.hasOwn(surface, "tail") && { tail: surface.tail }),
+});
+
+export const admits = ({ level: floor, filters }) => (record) =>
+  RANK.indexOf(level(record)) <= RANK.indexOf(floor) && (filters.length === 0 || filters.some((prefix) => record.path.startsWith(prefix)));
+
+const KEEP = {
+  faulty: () => trace.faulty,
+  slower: (tail) => trace.slower(tail.threshold),
+};
+
+export const sieve = (surface, sink) => {
+  const admit = admits(surface);
+  const write = Object.hasOwn(surface, "tail") ? trace.decant(sink, KEEP[surface.tail.keep](surface.tail)) : trace.flow(sink);
+  return (record) => {
+    if (admit(record)) write(record);
+  };
+};
+
+export const line = (record) => `[${record.path}] ${record.verb}${Object.hasOwn(record, "data") ? ` ${JSON.stringify(record.data)}` : ""}`;
+
+export const print = (record) => console.error(line(record));
+
+export const story = (telemetry, store) => {
+  const admit = admits(narrow(telemetry, telemetry.surfaces.inspector));
+  return (record) => {
+    if (admit(record)) store.set(trace.trim(trace.step(store.get(), record), telemetry.caps.story));
+  };
+};
+
+export const stable = (node) => {
+  const out = { path: node.path, nature: node.nature };
+  if (node.timing) out.timing = { measured: node.timing.begun != null && node.timing.sealed != null };
+  if (node.fault) out.fault = { message: node.fault.message, code: node.fault.code };
+  if (node.entries.length) out.entries = node.entries.map((entry) => ({ verb: entry.verb, data: entry.data }));
+  if (node.children.length) out.children = node.children.map(stable);
+  return out;
+};
+
+export const project = (story) => story.roots.map(stable);
+#+END_SRC
+
+*** subsystems/typology/gestalten/belt/index.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/belt/index.js:22
+ export * as trace from "./trace.js";
++export * as telemetry from "./telemetry.js";
+#+END_SRC
+
+*** subsystems/typology/gestalten/belt/trace.js — nodes keyed by run, =trim=
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/belt/trace.js:1
+ export const seed = () => ({ nodes: new Map(), roots: [] });
+
++const key = (record) => `${record.run}/${record.span}`;
++
+ export const chronicle = (records) => records.reduce(step, seed());
+
+ export const step = (story, record) => {
+-  const node = story.nodes.get(record.span) ?? sprout(story, record);
++  const node = story.nodes.get(key(record)) ?? sprout(story, record);
+…
+// subsystems/typology/gestalten/belt/trace.js:23
+ const sprout = (story, record) => {
+   const node = {
+     id: record.span,
++    run: record.run,
+     nature: record.path.split("/").filter(Boolean).at(-1) ?? null,
+…
+// subsystems/typology/gestalten/belt/trace.js:33
+-  story.nodes.set(record.span, node);
+-  const parent = story.nodes.get(record.trace);
++  story.nodes.set(key(record), node);
++  const parent = story.nodes.get(`${record.run}/${record.trace}`);
+…
+// subsystems/typology/gestalten/belt/trace.js:42
+-    const base = { span: node.id, trace: parent?.id ?? null, path: node.path };
++    const base = { run: node.run, span: node.id, trace: parent?.id ?? null, path: node.path };
+…
+// subsystems/typology/gestalten/belt/trace.js:56
+ export const live = (span) => span.pipe.reactive(chronicle(span.records), step);
+
++export const trim = (story, cap) => {
++  const drop = (node) => {
++    story.nodes.delete(`${node.run}/${node.id}`);
++    node.children.forEach(drop);
++  };
++  for (const root of story.roots) while (root.children.length > cap) drop(root.children.shift());
++  while (story.roots.length > cap) drop(story.roots.shift());
++  return story;
++};
++
+ export const duration = (node) =>
+#+END_SRC
+
+*** subsystems/typology/prototypes/span.js — run · cap · epoch clock
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/span.js:1
+ import { Signature } from "./signature.js";
+ import { Pipe } from "./pipe.js";
+-
+-const CONFIG = {
+-  journal: 1000,
+-};
++import { timedId } from "../gestalten/belt/id.js";
+
+ export class Span extends Signature {
+   static tally = 0;
++  static CAP = 1000;
+
+   constructor(signature = null, trace = null) {
+     super(signature, trace);
+     this.id ??= Span.tally++;
+     if (!this.trace) {
++      this.run ??= timedId();
++      this.cap ??= Span.CAP;
+       this.journal ??= [];
+       this.channel ??= new Pipe();
+     }
+   }
+…
+// subsystems/typology/prototypes/span.js:47
+   mark(verb, data) {
++    const root = this.root;
+     const record = {
++      run: root.run,
+       span: this.id,
+       trace: this.trace?.id ?? null,
+       path: this.absolute,
+       verb,
+-      at: performance.now(),
++      at: performance.timeOrigin + performance.now(),
+     };
+     if (data !== undefined) record.data = data;
+     const journal = this.records;
+     journal.push(record);
+-    if (journal.length > CONFIG.journal) journal.splice(0, journal.length - CONFIG.journal);
++    if (journal.length > root.cap) journal.splice(0, journal.length - root.cap);
+     this.pipe.send(record);
+     return this;
+   }
+#+END_SRC
+
+*** subsystems/typology/schematics/primitives/controller.js — the record carries its run
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/controller.js:45
+ export const Record = v.object({
++  run: v.string({ minLength: 1 }).desc('The root span\'s run, minted once per root; two boots never share one. Example: "mgp3k2ab1x9z"'),
+   span: v.integer(),
+   trace: v.union([v.integer(), v.null()]),
+   path: v.string(),
+   verb: v.string(),
+-  at: v.number(),
++  at: v.number().desc("Epoch milliseconds, performance.timeOrigin + performance.now(). Example: 1760300000123.456"),
+   data: v.unknown().optional(),
+-}).desc('One stdout mark as it crosses a wire; verb is open, Verb is the folding subset. Example: { "span": 7, "trace": 3, "path": "/hallucination", "verb": "open", "at": 12.5 }');
++}).desc('One stdout mark as it crosses a wire; verb is open, Verb is the folding subset. Example: { "run": "mgp3k2ab1x9z", "span": 7, "trace": 3, "path": "/hallucination", "verb": "open", "at": 1760300000123.4 }');
+
+ export const Reflection = v.object({
+   path: v.string(),
++  run: v.string(),
+   span: v.integer(),
+#+END_SRC
+
+*** subsystems/typology/prototypes/controller.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/controller.js:66
+   toJSON() {
+     return {
+       path: this.stdout.absolute,
++      run: this.stdout.root.run,
+       span: this.stdout.id,
+#+END_SRC
+
+*** subsystems/typology/gestalten/shard/track.js — a child, never an orphan root
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shard/track.js:12
+-export function span(name, pipe) {
++export function span(name, parent = null) {
+   return async (ctx, next) => {
+     const nature = typeof name === "function" ? name(ctx) : name;
+-    const parent = ctx.span;
+-    ctx.span = parent ? parent.branch(nature) : new Span(nature).to(pipe);
++    const held = ctx.span ?? parent;
++    ctx.span = held === null ? new Span(nature) : held.branch(nature);
+     ctx.span.open();
+     try {
+       await next();
+     } finally {
+       ctx.span.close();
+-      ctx.span = parent ?? ctx.span;
++      ctx.span = ctx.span.trace === held ? held : ctx.span;
+     }
+   };
+ }
+#+END_SRC
+
+*** subsystems/typology/schematics/primitives/instance.js — the slot on three tiers
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/instance.js:1
+ import { v } from "../v.js";
+ import { Slug } from "../scalars/index.js";
+ import { Manifest } from "./manifest.js";
+ import { Path, Url } from "../prototypes/signatures.js";
++import * as telemetry from "./telemetry.js";
+…
+// subsystems/typology/schematics/primitives/instance.js:127
+     datamap: Datamap.optional(),
+     hallucinators: v.array(Mask).optional(),
+     services: v.array(Service).default([]),
+     daemons: v.array(Daemon).default([]),
++    telemetry: telemetry.Telemetry.default({}).optional(),
+   },
+   { additionalProperties: true },
+ );
+
+ const Reference = (prefix) => v.string({ pattern: `^\\$\\{${prefix}[A-Z0-9_]+\\}$`, title: `a "\${${prefix}…}" reference to an env key` });
++const LevelMask = v.union([telemetry.Level, Reference("VIVA_")]);
++const SurfaceMask = v.object({ level: LevelMask.optional(), filters: telemetry.Filters.optional(), tail: telemetry.Tail.optional() }, { additionalProperties: false });
++const TelemetryMask = v.object(
++  {
++    level: LevelMask.optional(),
++    filters: telemetry.Filters.optional(),
++    caps: telemetry.Caps.optional(),
++    surfaces: v.object({ console: SurfaceMask.optional(), ledger: SurfaceMask.optional(), inspector: SurfaceMask.optional() }, { additionalProperties: false }).optional(),
++  },
++  { additionalProperties: false },
++);
+…
+// subsystems/typology/schematics/primitives/instance.js:184
+     services: v.array(v.object({ manifest: Manifest, module: v.string(), mountpoint: v.string().optional(), statics: MaskStatics.optional(), secrets: MaskSecrets.optional(), datamap: MaskOf.optional() }, { additionalProperties: false })).optional(),
+     daemons: v.array(DaemonMask).optional(),
++    telemetry: TelemetryMask.optional(),
+   },
+   { additionalProperties: false },
+ );
+…
+// subsystems/typology/schematics/primitives/instance.js:202
+     clients: v.array(Client).optional(),
+     services: v.array(Service).optional(),
++    telemetry: telemetry.Telemetry.optional(),
+   },
+   { additionalProperties: true },
+ );
+#+END_SRC
+
+*** subsystems/typology/schematics/primitives/contexts.js — the client word
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:56
+ export const kill = { kill: v.unknown().desc("A handler's request to stop a running activity after next(). Example: ctx.kill = ctx.seat.get().activity") };
++export const story = { story: v.unknown().desc("Atom of the inspector story: the controller's stdout folded by trace.step under the inspector surface's floor. Example: ctx.story.get().roots[0].children.length") };
+…
+// subsystems/typology/schematics/primitives/contexts.js:71
+-export const client = { lighthouse: v.unknown().desc("The client's Lighthouse: $authority · $user · $status over STANDINGS, manifest. Example: ctx.lighthouse.access('/lighthouse/login', { username, password })"), ...runtime, ...daemons, ...userspace, ...terminals, ...dispatch, ...seat, ...live, ...echo, ...slot, ...chord, ...standing };
++export const client = { lighthouse: v.unknown().desc("The client's Lighthouse: $authority · $user · $status over STANDINGS, manifest. Example: ctx.lighthouse.access('/lighthouse/login', { username, password })"), ...runtime, ...daemons, ...userspace, ...terminals, ...dispatch, ...seat, ...live, ...echo, ...slot, ...chord, ...standing, ...story };
+#+END_SRC
+
+*** subsystems/paladin/lifecycle/populate.js · prototypes/instance.js · prototypes/ledger/log.js
+
+#+BEGIN_SRC diff
+// subsystems/paladin/lifecycle/populate.js:208
+   instance.datamap = at("datamap")(module.datamap);
++  instance.telemetry = at("telemetry")(module.telemetry);
+   instance.hallucinators = at("hallucinators")(module.hallucinators);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/instance.js:11
+   services = [];
+   daemons = [];
++  telemetry;
+   requirements = [];
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/ledger/log.js:1
+ export class Log {
++  writing = Promise.resolve();
++
+   constructor(paladin, instance) {
+     this.paladin = paladin;
+     this.base = paladin.scope.ledger.branch(`/logs/${instance}`);
+   }
+
+-  append(span) {
+-    return this.paladin.state.jsonl(this.base.branch("spans.jsonl"), span.json);
++  append(record) {
++    this.writing = this.writing.then(() => this.paladin.state.jsonl(this.base.branch("spans.jsonl"), record));
++    return this.writing;
+   }
+#+END_SRC
+
+*** commons/ledger/ledger.viva.json — the shipped word
+
+#+BEGIN_SRC diff
+// commons/ledger/ledger.viva.json:10
+   "datamap": { "module": "@commons/datamap/libsql" },
++  "telemetry": { "surfaces": { "console": { "level": "control" }, "inspector": { "level": "note" } } },
+   "hallucinators": [
+#+END_SRC
+
+*** systems/runtime/run.js · lifecycle/runtime/execution.js · integration.js
+
+#+BEGIN_SRC diff
+// systems/runtime/run.js:16
+-  die.controller.stdout.to((record) => console.log(`[${record.path}] ${record.verb}`, record.data ?? record.message ?? ""));
+   die.controller.stdout.to((record) => record.verb === "open" && record.span === die.controller.stdout.id && console.log(die.controller.status));
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/lifecycle/runtime/execution.js:13
+ export const execution = new Vector()
++  .use(integration.telemetry)
+   .use(process.settle)
+…
+// systems/runtime/lifecycle/runtime/execution.js:36
+   .use(integration.prune)
+-  .use(integration.ledger)
+   .use(integration.patrol)
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/runtime/lifecycle/runtime/integration.js:1
+ import paladin from "@vivalence/paladin";
+-import { shard, shape } from "@vivalence/typology";
++import { belt, shard, shape } from "@vivalence/typology";
+…
+// systems/runtime/lifecycle/runtime/integration.js:10
+-export const ledger = async (die, next) => {
+-  const log = paladin.ledger.log(die.runtime.instance.manifest.slug);
+-  die.controller.stdout.to((record) => log.append({ json: record }));
+-  await next();
++export const telemetry = async (die, next) => {
++  const held = die.runtime.instance.telemetry;
++  const log = paladin.ledger.log(die.runtime.instance.manifest.slug);
++  die.controller.stdout.cap = held.caps.journal;
++  const offs = [
++    die.controller.stdout.pipe.tap(belt.telemetry.sieve(belt.telemetry.narrow(held, held.surfaces.console), belt.telemetry.print)),
++    die.controller.stdout.pipe.tap(belt.telemetry.sieve(belt.telemetry.narrow(held, held.surfaces.ledger), (record) => log.append(record))),
++  ];
++  try {
++    await next();
++  } finally {
++    for (const off of offs) off();
++    await log.writing;
++  }
+ };
+#+END_SRC
+
+*** systems/ghost/lifecycle/client/construction.js · execution.js · integration.js · population.js · process.js
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/client/construction.js:1
+-import { Controller, Queue, Span, Vector, steer } from "@vivalence/typology";
++import { Controller, Queue, Span, Vector, steer, v } from "@vivalence/typology";
+ import { Client } from "../../prototypes/client.js";
+ import { execution } from "./execution.js";
+
++const { Telemetry } = v.primitives.telemetry;
++
+ export const construct = (mask, surface) => {
+   const die = {
+     controller: new Controller({ stdout: new Span(`client/${surface.name}`) }),
+     mask,
+     surface,
++    telemetry: Telemetry.cast(Object.hasOwn(mask, "telemetry") ? mask.telemetry : {}),
+     client: new Client({ mask }),
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/client/execution.js:13
+ export const execution = new Vector()
++  .use(integration.telemetry)
+   .use(process.settle)
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/client/integration.js:1
++import { belt } from "@vivalence/typology";
+ import { dock } from "../../gestalten/belt/index.js";
+
+-const shown = (client, seat, buffer) => {
++const chrome = (client, seat, buffer) => {
+   if (!client.lighthouse || !client.lighthouse.isAuthorized) return ["crown", "signin"];
+   if (!seat) return ["crown", "navigation", "boot"];
+   return ["crown", "navigation", "dock", ...(buffer ? ["frame"] : [])];
+ };
+
++const shown = (client, seat, buffer, inspected) => (inspected ? [...chrome(client, seat, buffer), "inspector"] : chrome(client, seat, buffer));
++
++export const telemetry = async (die, next) => {
++  const { client, controller, telemetry: held } = die;
++  controller.stdout.cap = held.caps.journal;
++  const offs = [
++    controller.stdout.pipe.tap(belt.telemetry.sieve(belt.telemetry.narrow(held, held.surfaces.console), belt.telemetry.print)),
++    controller.stdout.pipe.tap(belt.telemetry.story(held, client.$story)),
++  ];
++  try {
++    await next();
++  } finally {
++    for (const off of offs) off();
++  }
++};
++
+ export const surface = async (die, next) => {
+   const { client, surface } = die;
++  const inspected = die.telemetry.surfaces.inspector.level !== "off";
+…
+// systems/ghost/lifecycle/client/integration.js:29
+-    const panes = shown(client, seat, buffer);
++    const panes = shown(client, seat, buffer, inspected);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/client/population.js:67
+-  const connection = new Connection(url, shard.transmitter.retry(shard.transmitter.fetcher, { maxRetries: 2 })).use(shard.track.span((call) => call.request.url.pathname, die.controller.stdout.pipe));
++  const connection = new Connection(url, shard.transmitter.retry(shard.transmitter.fetcher, { maxRetries: 2 }))
++    .use(shard.track.span((call) => call.request.url.pathname, die.controller.stdout))
++    .use(shard.track.request());
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/process.js:31
+     } catch (error) {
+-      die.controller.stdout.fault(error);
++      die.controller.stdout.branch(signal.pathname).fault(error);
+       die.client.$slot.set({ refused: signal.pathname, fault: error.message });
+#+END_SRC
+
+*** systems/ghost/prototypes/client.js · gestalten/belt/headless.js · lifecycle/client/trajectories/client.js
+
+#+BEGIN_SRC diff
+// systems/ghost/prototypes/client.js:2
+-import { fromm } from "@vivalence/typology";
++import { fromm, trace } from "@vivalence/typology";
+
+ const WORDS = ["lighthouse", "runtime", "daemons", "userspace", "terminals", "dispatch"];
+-const ATOMS = ["seat", "live", "echo", "slot", "chord", "standing"];
++const ATOMS = ["seat", "live", "echo", "slot", "chord", "standing", "story"];
+…
+// systems/ghost/prototypes/client.js:23
+   $standing = atom({ code: "IDLE" });
++  $story = atom(trace.seed());
+   $terminal = atom(null);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/belt/headless.js:3
+-const PANES = ["boot", "signin", "crown", "dock", "frame", "navigation"];
++const PANES = ["boot", "signin", "crown", "dock", "frame", "navigation", "inspector"];
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/lifecycle/client/trajectories/client.js:7
+ const mask = (instance, slug) => {
+   const declared = instance.clients.find((client) => client.manifest.slug === slug);
+   const home = declared ? declared.home : null;
+-  return { manifest: { type: "client", slug }, statics: { remote: instance.runtime.statics.remote }, home };
++  return { manifest: { type: "client", slug }, statics: { remote: instance.runtime.statics.remote }, home, telemetry: instance.telemetry };
+ };
++
++const muted = (telemetry) => ({ ...telemetry, surfaces: { ...telemetry.surfaces, console: { level: "off" } } });
+…
+// systems/ghost/lifecycle/client/trajectories/client.js:59
+   const surface = tty(renderer, { credentials: credentials(file), trajectory });
+-  const die = construct(mask(instance, "ghost"), surface);
++  const held = mask(instance, "ghost");
++  const die = construct({ ...held, telemetry: muted(held.telemetry) }, surface);
+#+END_SRC
+
+*** systems/anima/vite.config.mjs · src/client.js
+
+#+BEGIN_SRC diff
+// systems/anima/vite.config.mjs:17
+-  return { remote: paladin.instance.runtime.statics.remote, anima };
++  return { remote: paladin.instance.runtime.statics.remote, anima, telemetry: paladin.instance.telemetry };
+…
+// systems/anima/vite.config.mjs:44
+-    define: { __VIVA_CLIENT__: JSON.stringify({ remote: held.remote.absolute, home: held.anima.home }) },
++    define: { __VIVA_CLIENT__: JSON.stringify({ remote: held.remote.absolute, home: held.anima.home, telemetry: held.telemetry }) },
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/anima/src/client.js:4
+-export const mask = ({ remote, home }) => ({ manifest: { type: "client", slug: "anima" }, statics: { remote }, home });
++export const mask = ({ remote, home, telemetry }) => ({ manifest: { type: "client", slug: "anima" }, statics: { remote }, home, telemetry });
+#+END_SRC
+
+*** subsystems/drapes/dom/panes/inspector.jsx — new
+
+#+BEGIN_SRC jsx :tangle subsystems/drapes/dom/panes/inspector.jsx
+import { For, Show } from "solid-js";
+import { trace } from "@vivalence/typology";
+import { Pip } from "../Pip.jsx";
+import { watch } from "../watch.js";
+
+const faulted = (node) => node.fault !== null || node.children.some(faulted);
+
+const wire = (node) => {
+  const response = node.entries.find((entry) => entry.verb === "response");
+  if (response !== undefined) return response.data;
+  const request = node.entries.find((entry) => entry.verb === "request");
+  return request === undefined ? null : request.data;
+};
+
+const elapsed = (node) => {
+  const held = trace.duration(node);
+  return held === null ? "" : `${held.toFixed(0)}ms`;
+};
+
+const TONES = [
+  [faulted, "danger"],
+  [(node) => trace.duration(node) > 500, "warning"],
+  [() => true, "success"],
+];
+
+const tone = (node) => TONES.find(([test]) => test(node))[1];
+
+const Node = (props) => (
+  <>
+    <div class="inspector-row" classList={{ "inspector-fault": props.node.fault !== null }} style={{ "padding-left": `${8 + props.depth * 12}px` }}>
+      <Pip size={6} tone={tone(props.node)} />
+      <span class="inspector-nature">{props.node.nature}</span>
+      <Show when={wire(props.node)}>{(held) => <span class="inspector-wire">{held().method} {held().path} {held().status}</span>}</Show>
+      <Show when={props.node.fault !== null}>
+        <span class="inspector-message">{props.node.fault.message}</span>
+      </Show>
+      <span class="inspector-elapsed">{elapsed(props.node)}</span>
+    </div>
+    <For each={props.node.children}>{(child) => <Node node={child} depth={props.depth + 1} />}</For>
+  </>
+);
+
+export const Inspector = (props) => {
+  const story = watch(props.client.$story);
+  const roots = () => [...story().roots].reverse();
+  const faults = () => roots().filter(faulted);
+  return (
+    <div class="inspector-pane">
+      <div class="inspector-head">
+        <span class="inspector-title">telemetry</span>
+        <Show when={faults().length > 0}><span class="inspector-faults">{faults().length}</span></Show>
+        <span class="inspector-count">{story().roots.length}</span>
+      </div>
+      <Show when={faults().length > 0}>
+        <div class="inspector-section">faults</div>
+        <For each={faults()}>{(node) => <Node node={node} depth={0} />}</For>
+      </Show>
+      <div class="inspector-section">recent</div>
+      <For each={roots()}>{(node) => <Node node={node} depth={0} />}</For>
+      <Show when={story().roots.length === 0}><div class="inspector-empty">no records</div></Show>
+    </div>
+  );
+};
+
+export const style = `
+.inspector-pane { display: flex; flex-direction: column; width: min(380px, 40vw); min-height: 0; overflow-y: auto; font-family: var(--font-family-code); font-size: var(--size-type-2xs); color: var(--text-ink); background: var(--surface-sunk); }
+.inspector-head { display: flex; align-items: center; gap: 8px; height: var(--size-key); padding: 0 14px; box-shadow: 0 var(--size-ring) 0 var(--boundary); }
+.inspector-title, .inspector-section { color: var(--text-strong); letter-spacing: var(--shape-label-track); text-transform: var(--shape-label-case); }
+.inspector-section { padding: 6px 14px 3px; color: var(--text-muted); }
+.inspector-faults { color: var(--signal-negative-ink); font-weight: 600; }
+.inspector-count, .inspector-elapsed { margin-left: auto; color: var(--text-muted); }
+.inspector-row { display: flex; align-items: center; gap: 6px; min-width: 0; height: var(--size-row); padding-right: 8px; white-space: nowrap; }
+.inspector-row.inspector-fault { background: color-mix(in srgb, var(--signal-negative) 8%, transparent); }
+.inspector-nature { color: var(--text-strong); font-weight: 600; }
+.inspector-wire, .inspector-message { overflow: hidden; text-overflow: ellipsis; color: var(--text-light); }
+.inspector-fault .inspector-message { color: var(--signal-negative-ink); }
+.inspector-empty { padding: 24px 14px; color: var(--text-muted); text-align: center; }
+`;
+#+END_SRC
+
+*** subsystems/drapes/dom/chassis.jsx · panes/index.js · sheet.js · surface.js
+
+#+BEGIN_SRC diff
+// subsystems/drapes/dom/chassis.jsx:14
+   return {
+     crown: held("crown"),
+     navigation: held("navigation"),
+     boot: held("boot"),
+     signin: held("signin"),
++    inspector: held("inspector"),
+     frame,
+…
+// subsystems/drapes/dom/chassis.jsx:96
+         </main>
++        <aside
++          class="chassis-region chassis-inspector"
++          data-zone="0"
++          data-pane="inspector"
++          hidden={!shown().inspector}
++          ref={props.regions.inspector}
++        />
+       </div>
+…
+// subsystems/drapes/dom/chassis.jsx:108
+-  const refs = Object.fromEntries(["crown", "navigation", "boot", "signin", "frame", "dock"].map((name) => [name, bind(name)]));
++  const refs = Object.fromEntries(["crown", "navigation", "boot", "signin", "frame", "dock", "inspector"].map((name) => [name, bind(name)]));
+…
+// subsystems/drapes/dom/chassis.jsx:169
+ }
++.chassis-inspector {
++  flex: none;
++  display: flex;
++  min-height: 0;
++  background: var(--surface-sunk);
++  box-shadow: calc(-1 * var(--size-ring)) 0 0 var(--boundary);
++}
+ .chassis-stage {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/drapes/dom/panes/index.js:5
+ export { Navigation } from "./navigation.jsx";
+ export { Signin } from "./signin.jsx";
++export { Inspector } from "./inspector.jsx";
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/drapes/dom/sheet.js:17
+ import { style as signin } from "./panes/signin.jsx";
++import { style as inspector } from "./panes/inspector.jsx";
+
+ const KIT = [button, empty, field, jsonTree, logo, markdown, pip, row, spinner, strip];
+-const PANES = [boot, crown, dock, frame, navigation, signin];
++const PANES = [boot, crown, dock, frame, navigation, signin, inspector];
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/drapes/dom/surface.js:35
+       navigation: pane("navigation", panes.Navigation),
++      inspector: pane("inspector", panes.Inspector),
+     },
+#+END_SRC
+
+*** subsystems/drapes/tty/panes/inspector.jsx — new (bundled by =deno run -A subsystems/drapes/tty/bundle.js=)
+
+#+BEGIN_SRC jsx :tangle subsystems/drapes/tty/panes/inspector.jsx
+import { For, from, Show } from "solid-js";
+import { trace } from "@vivalence/typology";
+import { Row } from "../Row.jsx";
+import { usePalette } from "../palette.js";
+
+const faulted = (node) => node.fault !== null || node.children.some(faulted);
+const STATES = [[faulted, "fault"], [(node) => trace.duration(node) === null, "pending"], [() => true, "on"]];
+const state = (node) => STATES.find(([test]) => test(node))[1];
+const value = (node) => {
+  if (node.fault !== null) return node.fault.message;
+  const held = trace.duration(node);
+  return held === null ? "" : `${held.toFixed(0)}ms`;
+};
+const flatten = (node, depth) => [{ node, depth }, ...node.children.flatMap((child) => flatten(child, depth + 1))];
+
+export function Inspector(props) {
+  const palette = usePalette();
+  const story = from(props.client.$story);
+  const rows = () => [...story().roots].reverse().flatMap((root) => flatten(root, 0));
+  return (
+    <box style={{ flexDirection: "column", flexGrow: 1, backgroundColor: palette.surface }}>
+      <Row state="on" tone="ink" label="telemetry" value={String(story().roots.length)} />
+      <For each={rows()}>{({ node, depth }) => <Row state={state(node)} tone="ink" label={`${"  ".repeat(depth)}${node.nature}`} value={value(node)} />}</For>
+      <Show when={story().roots.length === 0}><Row state="off" tone="ink" label="no records" value="" /></Show>
+    </box>
+  );
+}
+#+END_SRC
+
+*** subsystems/drapes/tty/chassis.js · panes/index.js · surface.js
+
+#+BEGIN_SRC diff
+// subsystems/drapes/tty/chassis.js:3
+-export const TERRITORY = { crown: "0", navigation: "0", dock: "2", frame: "1", cover: "1" };
++export const TERRITORY = { crown: "0", navigation: "0", dock: "2", frame: "1", cover: "1", inspector: "0" };
+
+-export const SLOTS = { crown: "crown", navigation: "navigation", dock: "dock", frame: "frame", signin: "cover", boot: "cover" };
++export const SLOTS = { crown: "crown", navigation: "navigation", dock: "dock", frame: "frame", signin: "cover", boot: "cover", inspector: "inspector" };
+
+ export const RAIL = 24;
++
++export const WING = 40;
+…
+// subsystems/drapes/tty/chassis.js:30
+     cover: box("cover", { flexGrow: 1, backgroundColor: palettes.cover.surface }),
++    inspector: box("inspector", { width: WING, flexShrink: 0, backgroundColor: palettes.inspector.surface, border: ["left"], borderColor: palettes.inspector.boundary }),
+   };
+   stage.add(slots.frame);
+   stage.add(slots.dock);
+   stage.add(slots.cover);
+   body.add(slots.navigation);
+   body.add(stage);
++  body.add(slots.inspector);
+…
+// subsystems/drapes/tty/chassis.js:49
+     slots.navigation.visible = shown("navigation");
++    slots.inspector.visible = shown("inspector");
+     slots.cover.visible = covered;
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/drapes/tty/panes/index.js:6
+ export { Navigation as navigation } from "./navigation.jsx";
++export { Inspector as inspector } from "./inspector.jsx";
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/drapes/tty/surface.js:37
+       navigation: pane("navigation", {}),
++      inspector: pane("inspector", {}),
+     },
+#+END_SRC
+
+*** systems/runtime/tests/span-tracked.snapshot.test.js — the projection comes from typology, the parent is a Span
+
+#+BEGIN_SRC diff
+// systems/runtime/tests/span-tracked.snapshot.test.js:1
+-import { specimen, Pipe, middleware, shard, trace } from "@vivalence/typology";
++import { specimen, Pipe, Span, middleware, shard, telemetry, trace } from "@vivalence/typology";
+
+ const base = new URL("./snapshots", import.meta.url).pathname;
+ const DRY = false;
+-
+-const stable = (node) => {
+-  const out = { path: node.path, nature: node.nature };
+-  if (node.timing) out.timing = { measured: node.timing.begun != null && node.timing.sealed != null };
+-  if (node.entries.length) out.entries = node.entries.map((entry) => ({ verb: entry.verb, data: entry.data }));
+-  if (node.children.length) out.children = node.children.map(stable);
+-  return out;
+-};
+…
+// systems/runtime/tests/span-tracked.snapshot.test.js:17
+     const pipe = new Pipe();
+     pipe.tap((record) => records.push(record));
++    const rig = new Span("rig").to(pipe);
+
+     const chain = middleware.compose([
+-      shard.track.span("render", pipe),
++      shard.track.span("render", rig),
+…
+// systems/runtime/tests/span-tracked.snapshot.test.js:37
+-    const capture = specimen.snapshot(story.roots, {
+-      base,
+-      dry: DRY,
+-      locate: "span-tracked.snapshot.json",
+-      parse: (roots) => roots.map(stable),
+-    });
++    const capture = specimen.snapshot(story, { base, dry: DRY, locate: "span-tracked.snapshot.json", parse: telemetry.project });
+#+END_SRC
+
+(=rig= never marks, so =render= stays =story.roots[0]=, =trace.js:34-35=; the capture rewrites.)
+

@@ -73,19 +73,19 @@ export async function* deliver(pump, backoff, span, signal) {
       const delay = backoff[retried];
       if (flowing || !fault.retryable || delay === undefined || signal?.aborted) throw fault;
       retried += 1;
-      span.note({ retry: retried, delay, message: fault.message });
+      span.log({ retry: retried, delay, message: fault.message });
       await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 }
 
 async function settle({ tools, controller }, call) {
-  const child = controller.branch(call.name);
+  const child = controller.branch(`${call.name}/${call.id}`);
   const armed = new Vector().use(async (ctx, next) => { ctx.controller = child; await next(); }).graft(tools);
   const cut = new Promise((_, reject) =>
     child.abort.signal.addEventListener("abort", () => reject(child.status.reflection.error ?? new Error(String(child.abort.signal.reason))), { once: true }),
   );
-  child.stdout.mark("open", { input: call.input });
+  child.start().stdout.log({ input: call.input });
   try {
     const spoken = fromm.yield(
       await Promise.race([
@@ -93,10 +93,11 @@ async function settle({ tools, controller }, call) {
         cut,
       ]),
     );
-    child.stdout.mark("close", { condition: spoken.condition });
+    child.stdout.log({ condition: spoken.condition });
+    child.stop();
     return { call, result: { condition: spoken.condition, output: spoken.output } };
   } catch (fault) {
-    child.stdout.fault(fault);
+    child.fault(fault);
     const message =
       fault instanceof NotFound
         ? `unknown tool: ${call.name} — armed: ${armory(tools) || "(none)"}`
@@ -120,8 +121,8 @@ const pump = {
 export async function* respond(faculty, streamOrRender, request, policy) {
   const { controller } = policy;
   const span = controller.stdout;
-  span.open();
-  span.note({ streamOrRender, faculty: faculty.type });
+  policy.controller.start();
+  span.log({ streamOrRender, faculty: faculty.type });
   let turns = request.turns;
   let rounds = 0;
   try {
@@ -150,7 +151,7 @@ export async function* respond(faculty, streamOrRender, request, policy) {
         return;
       }
       const closed = turn ? state(turn) : "error";
-      span.note({ round: rounds, state: closed, usage: turn?.meta?.usage });
+      span.log({ round: rounds, state: closed, usage: turn?.meta?.usage });
       if (closed !== "tools") {
         yield { event: "/response/close", meta: { ...turn?.meta, state: closed, rounds } };
         return;
@@ -172,7 +173,7 @@ export async function* respond(faculty, streamOrRender, request, policy) {
       yield { event: "/response/close", meta: { state: "abort", rounds } };
       return;
     }
-    span.fault(fault);
+    policy.controller.fault(fault);
     yield {
       event: "/response/close",
       meta: {
@@ -185,7 +186,7 @@ export async function* respond(faculty, streamOrRender, request, policy) {
       },
     };
   } finally {
-    span.close();
+    policy.controller.stop();
   }
 }
 
@@ -203,15 +204,15 @@ export async function render(faculty, request, policy) {
 
 export async function* transcribe(faculty, { source, settings }, policy) {
   const span = policy.controller.stdout;
-  span.open();
-  span.note({ faculty: faculty.type, harmonize: policy.harmonize });
+  policy.controller.start();
+  span.log({ faculty: faculty.type, harmonize: policy.harmonize });
   try {
     yield* verbatim.harmonize(faculty.via.stream(source, settings), policy.harmonize);
   } catch (fault) {
-    span.fault(fault);
+    policy.controller.fault(fault);
     throw fault;
   } finally {
-    span.close();
+    policy.controller.stop();
   }
 }
 
@@ -223,44 +224,44 @@ export async function transcript(faculty, input, policy) {
 
 export async function* synthesize(faculty, { source, settings }, policy) {
   const span = policy.controller.stdout;
-  span.open();
-  span.note({ faculty: faculty.type });
+  policy.controller.start();
+  span.log({ faculty: faculty.type });
   try {
     yield* faculty.via.stream(source, settings);
   } catch (fault) {
-    span.fault(fault);
+    policy.controller.fault(fault);
     throw fault;
   } finally {
-    span.close();
+    policy.controller.stop();
   }
 }
 
 export async function vocalize(faculty, { source, settings }, policy) {
   const span = policy.controller.stdout;
-  span.open();
-  span.note({ faculty: faculty.type });
+  policy.controller.start();
+  span.log({ faculty: faculty.type });
   try {
     return await faculty.via.render(source, settings);
   } catch (fault) {
-    span.fault(fault);
+    policy.controller.fault(fault);
     throw fault;
   } finally {
-    span.close();
+    policy.controller.stop();
   }
 }
 
 export async function choose(faculty, round, policy) {
   const span = policy.controller.stdout;
-  span.open();
-  span.note({ faculty: faculty.type, model: faculty.config?.model, questions: Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, question.type])) });
+  policy.controller.start();
+  span.log({ faculty: faculty.type, model: faculty.config?.model, questions: Object.fromEntries(Object.entries(round.questions).map(([key, question]) => [key, question.type])) });
   try {
     const verdict = await faculty.via.render(round, { signal: policy.controller.abort.signal });
-    span.note({ verdict });
+    span.log({ verdict });
     return verdict;
   } catch (fault) {
-    span.fault(fault);
+    policy.controller.fault(fault);
     throw fault;
   } finally {
-    span.close();
+    policy.controller.stop();
   }
 }

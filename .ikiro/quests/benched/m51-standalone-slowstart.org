@@ -34,7 +34,7 @@ The middle = everything =commons/= can carry, nothing that needs a tap or a cont
 
 ** what commons can showcase (research sweeps, every claim cited in the tractus below)
 
-- mode traits with a runtime behind them: =DATASET DATASINK INTENTED EMITTER APPLICATION BOOTED GENERATIVE HARNESSED TOOLED AGENTIC EXPOSED FRAUGHT= (=systems/runtime/daemon/traits/=); markers only: =STANDALONE SELFEVIDENT=; client-only marker: =CONVERSATIONAL= (sidebar filter =panels/d/d.svelte:210=).
+- mode traits with a runtime behind them: =DATASET DATASINK INTENTED EMITTER APPLICATION BOOTED GENERATIVE HARNESSED TOOLED AGENTIC EXPOSED FRAUGHT= (=systems/runtime/subjects/daemon/traits/=); markers only: =STANDALONE SELFEVIDENT=; client-only marker: =CONVERSATIONAL= (sidebar filter =panels/d/d.svelte:210=).
 - the armed tool stack: 10 tools for any HARNESSED mode with no domain (=entity_schema entity_find entity_count buffer_update thread_update fs_tree fs_find fs_read fs_write shell_run=), then =<domainslug>_*=, then the mode's own, then AGENTIC's =<peerslug>_*= (=harnessed.js:39-69=, =agentic.js:7=).
 - voice IN ships: HARNESSED mode + a deepgram hallucinator on the daemon → the dock grows a mic, nothing declared on the mode (=Dock.svelte:47-48=). Voice OUT to the dock is NOT built (=harnessed.js:96= tee commented, no =/harness/speech= leaf). Voice OUT to an ASSET is production: =ctx.daemon.cortex.hallucinate.speech.render({source})= → bytes → =mode.freight.receive(path, bytes)= → URL under =/attached/cargo/= (harvest is the reference; =traits/index.js:43-53=, =lifecycle/resolve.js:45-62=).
 - structured output: =ctx.mode.harness.object.render({turns, output: v.object(…)})= (oracle, dealer). Generative views: reader's =generator= + =mode.generator.bundle= (m19 LIVE; renamed from =mode.gen= in m57).
@@ -942,7 +942,7 @@ Provider tests → thunk keys (M0). =pensieve.test.js:35= path string (M4). Froz
 | =commons/hallucinators/*/tests/provider.test.js= ×4          | thunk keys + no-key case                | M0 | S       |
 | =commons/instances/hello-world/instance.viva.js= + README paste | plain hallucinators                  | M0 | S       |
 | =commons/playground/{spawner,dealer,automaton,switchboard}/*.viva.js= | =.app.buffer= ×5               | M1 | S       |
-| =systems/runtime/daemon/entities/userspace/Thread.ts=        | enum += INTELLIGENT VOCAL (F8, conditional) | M1 | S   |
+| =systems/runtime/subjects/daemon/entities/userspace/Thread.ts=        | enum += INTELLIGENT VOCAL (F8, conditional) | M1 | S   |
 | =commons/instances/standalone/= (10 files)                   | NEW                                     | M2 | L       |
 | =documentation/content/50-59_practice/50.01_slowstart.mdx= + example | RECAST                          | M3 | L       |
 | =documentation/content/50-59_practice/51_guides/51.02_*.mdx= + example | re-point                      | M3 | M       |

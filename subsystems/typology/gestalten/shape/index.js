@@ -1,4 +1,7 @@
 export * as connection from "./connection.js";
+export * as repl from "./repl.js";
+export * as primer from "./primer.js";
+export * as monad from "./monad.js";
 export * from "./subscriber.js";
 export * from "./object.js";
 export * from "./tree.js";

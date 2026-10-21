@@ -1,0 +1,247 @@
+#+title: track — inside research 10-23
+<!-- limit: 20000 chars -->
+Measured on @ over 34b60f23f; =grep -rIEn= over =subsystems systems commons= minus =node_modules bak out tests=, comment lines dropped. Counts are call sites. "name" = the record's =verb= field today.
+
+* 1 · producers — 18 distinct names written
+
+| name | typology | paladin | runtime | anima | ghost | commons | data shapes seen |
+|---+---+---+---+---+---+---+---|
+| =open= | 10 | 0 | 5 | 4 | 1 | 2 | none · ={input}= =hallucinate.js:88= |
+| =close= | 11 | 0 | 5 | 6 | 0 | 2 | none · ={condition}= =hallucinate.js:96= |
+| =note= | 18 | 0 | 7 | 11 | 1 | 22 | ={drop,…}= · ={retry,delay,message}= · ={round,state,usage}= · ={faculty,…}= · ={verdict}= · ={message,origin}= · ={patrol}= · ={service,daemon}= · ={done,total}= · ={skipped,reason}= · ={activity,…}= · ={aborted}= · any |
+| =message= | 1 | 0 | 0 | 0 | 9 | 1 | ={home,thread}= · ={booting,log}= · ={tail}= · ={lighthouse,traits}= · ={runtime}= · strip tree · ={user}= · ={terminal}= · ctx.output |
+| =fault= | 10 | 3 | 3 | 27 | 9 | 7 | ={message, code}= always (=span.js:91=) |
+| =error= | 2 | 0 | 0 | 0 | 0 | 0 | ={status}= |
+| =request= | 1 | 0 | 0 | 0 | 0 | 0 | ={method?, path?}= |
+| =response= | 1 | 0 | 0 | 0 | 0 | 0 | ={method?, path?, status?}= |
+| =subject= | 1 | 0 | 0 | 0 | 0 | 0 | ={schema, id}= — 0 live callers |
+| =status= | 0 | 0 | 0 | 0 | 1 | 0 | ={code,timestamp,error?}= |
+| =abort= | 1 | 0 | 0 | 0 | 0 | 0 | ={reason?}= |
+| =stop · pause · resume= | 1 | 0 | 0 | 0 | 0 | 0 | ={signal, reason?}= |
+| =create · update · remove= | 0 | 0 | 0 | 1 | 0 | 0 | ={id,status,step}= |
+| =stdout= | 0 | 0 | 0 | 1 | 0 | 0 | ={id, ...record}= — a record inside a record |
+
+| shard (middleware producer) | live =.use= sites |
+|---+---|
+| =shard.track.span= → =open=/=close= | =anima +layout.svelte:32= · =anima dossier.js:64= |
+| =shard.track.request= → =request=/=response= | =anima lighthouse.js:44 · :52= · =dossier.js:65= · =ghost client/lifecycle/index.js:80= |
+| =shard.track.fault= → =fault= | =anima lighthouse.js:45 · :53= · =dossier.js:66= · =ghost client/lifecycle/index.js:81= |
+| =shard.track.subject= | 0 (=anima thread/traits/queueing.js:29= comment) |
+| =shard.track.message= | 0 |
+| =shard.controller.open= → =open · fault · close= | every lifecycle Vector |
+
+Ghost's connection carries =request()= + =fault()= but no =span()=: =ctx.span= is unset, so both are inert (=track.js:29 · :58= guard on =ctx.span=).
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/socket.js:161 · :198 · :221
+        trace.mark("error", { status: 404 });
+        trace.mark("error", { status });
+      trace.fault(error);
+// subsystems/typology/gestalten/shard/track.js:29-31 · :38
+    if (ctx.span && ctx.request) ctx.span.mark("request", wire(ctx.request));
+    if (ctx.span && ctx.response) ctx.span.mark("response", wire(ctx.response));
+      ctx.span.mark("subject", {
+// systems/ghost/entities/lighthouse/prototype.js:18 · :44
+    this.$status.listen((status) => this.stdout.mark("status", status));
+    this.stdout.mark("note", { message: "cached credential is not one — discarded", faults });
+// systems/anima/src/entities/daemon/dossier.js:132 · :134
+      activity.mark(event.op, { id, status: row?.status, step: row?.steps.at(-1) });
+        for await (const record of await row.stdout()) activity.mark("stdout", { id, ...record });
+// subsystems/typology/schematics/primitives/contexts.js:51  — a doc example naming a 19th, never produced
+… Example: ctx.span.mark('turn', turn)
+#+END_SRC
+
+* 2 · consumers — what each does per name
+
+| consumer | reads | does |
+|---+---+---|
+| =prototypes/controller.js:35-37= | =open close fault pause resume stop abort= own-span only | transition · =Failure= on error states |
+| =fromm/controller.js:4= | =stop= | exit code from =data.reason= |
+| =errors/controller.js:3= | any | message from =data.message · reason · signal=, else the name |
+| =belt/trace.js:7-18= | =open close fault= | timing · fault slot; rest → =entries= |
+| =belt/trace.js:72= =sealed= | =close= | flush gate (0 prod callers) |
+| =ghost tele.js:5= · =anima tele.jsx:8= | 14 hand-listed | =tail(...VERBS)= input filter |
+| =ghost tele.js:19-22= · =anima tele.jsx:20-23= | =open close fault= | node slots; rest → entries |
+| =ghost tele.js:15 · :40= · =anima tele.jsx:16 · :41= | MACHINE names | node =code= = fold of names over =MACHINE.transitions= from =IDLE= |
+| =ghost tele.js:6 · :46= · =anima tele.jsx:9 · :47= | =request response error= | node kind =net= |
+| =ghost tele.js:104 · :222 · :252= | fault slot | filter =faults= · negative tone · =! code · message= |
+| =ghost tele.js:265= · =drapes Logger.jsx:111= | entry name | printed text |
+| =ghost journal.js:8-9 · :102 · :153= · =anima journal.jsx:10-11 · :85 · :139= | =message fault= | =fault= → kind fault row; else trace row |
+| =ghost chrome.jsx:89 · :121 · :160= · =anima chrome.jsx:28= · =anima booting.jsx:25-26= | =message= · =fault= | boot beats (=Object.keys(data)[0]=) · fault lines |
+| =ghost repl/lines.js:6= | =message fault= | =console.log(record)= |
+| =anima surface/index.js:8 · :33= | =message fault= | =console.error= on =fault=, else =log= |
+| =anima +layout.svelte:50-58= | all | =console.debug= |
+| =anima Boot.svelte:21-41= | =open request response close fault= | wire row · =failed= flag |
+| =anima g/g.svelte:25-26= · =commons Trace.svelte:11-16= | =response request= (· =subject note=) | wire detail |
+| =anima bones/spine/activity.js:15= | =close fault abort= | bar end |
+| =paladin registry.js:31= | =fault= | =integrity= index by path |
+| =runtime run.js:13 · :17= | all · =open= | console · readiness =Status:RUNNING= on own-span =open= |
+| =runtime Activity.ts:52 · :61-67= | all | console · ring of 12 into the db row =steps= |
+| =runtime integration.js:13= | all | =spans.jsonl= via =log.append({json})= |
+| =ghost shell/lifecycle.js:42 · :73= · =client/lifecycle/index.js:22-27= | all | =ghost.spans.log= · =client.spans.log= jsonl, whole record; =follow= prints =path name data= |
+
+* 3 · the Controller machine
+
+| name | role | writer |
+|---+---+---|
+| =open= | =IDLE→RUNNING= | =shard/controller.js:8= · =hal.js:74= · =hallucinate.js:88 · :123…= · =runtime shard/process.js:14= · lifecycles |
+| =close= | =RUNNING/PAUSED→DONE= · =STOPPING→STOPPED= | same, in =finally= |
+| =fault= | any live → =FAILED= | any caller's =stdout.fault= |
+| =stop · pause · resume= | =SIGTERM · SIGSTOP · SIGCONT= | the machine itself =controller.js:60= |
+| =abort= | any live → =ABORTED= | the machine itself =controller.js:49= on =abort.signal= |
+
+The machine READS 7 names and WRITES 4 itself (=abort stop pause resume=); =open close fault= come from outside. It reads =record.span === this.stdout.id= only, so a branch's records never move its parent.
+
+| reader of =status= | reads |
+|---+---|
+| =controller.js:75-76= =proceed= | =PAUSED · RUNNING= |
+| =belt/control.js:4 · :13= · =shape/monad.js:5= | =IDLE · RUNNING · PAUSED= |
+| =fromm/controller.js:6-8= · =ghost run.js:19= · =runtime run.js:25= | =DONE STOPPED FAILED= → exit code; =error.record.data.code === "NOT_FOUND"= → 127 |
+| =ghost client/factory.js:10= · =hallucinate.js:86= | =reflection.error= thrown |
+| =runtime Activity.ts:61 · :79 · :112= · =Process.ts:24 · :48= | code → db =status · error=; =MACHINE.states[code].settled= |
+| =ghost entities/activity.js:14= · =bar.js:23= · =anima bar.jsx:66= | =FAILED= → tone |
+
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/controller.js:9-22
+  verbs: {
+    open: {}, pause: {}, resume: {}, close: {},
+    stop: { error: "STOPPED" }, fault: { error: "FAILED" }, abort: { error: "ABORTED" },
+  },
+  transitions: {
+    open:   { IDLE: "RUNNING" },
+    …
+  signals: { SIGTERM: "stop", SIGSTOP: "pause", SIGCONT: "resume", SIGKILL: "abort" },
+// subsystems/typology/prototypes/controller.js:32-38
+      const untap = this.stdout.pipe.tap((record) => {
+        if (record.span !== this.stdout.id) return;
+        const from = this.status.reflection.code;
+        const code = MACHINE.transitions[record.verb]?.[from] ?? from;
+        if (code === from) return;
+        const { error } = MACHINE.verbs[record.verb];
+        this.status.set({ code, ...(error && { error: new Failure(error, record) }) });
+// subsystems/typology/prototypes/controller.js:56-60
+    for (const [name, verb] of Object.entries(MACHINE.signals))
+      this.stdin.open(name, async (ctx) => {
+        verb === "abort"
+          ? this.abort.abort(said(ctx.input) ?? name)
+          : this.stdout.mark(verb, { signal: name, ...(said(ctx.input) && { reason: ctx.input }) });
+#+END_SRC
+
+Kill callers: =runtime run.js:22= · =ghost run.js:9-11= · =quit.js:5= · =anima client.js:17= · =Process.ts:38 · :48= · =ghost entities/activity.js:41= · =integration.js:84-87= (=/activity/:id/stdin/SIG*= over the wire).
+
+* 4 · overlapping status vocabularies
+
+| vocabulary | members | where | failure surfaces as |
+|---+---+---+---|
+| controller =State= | 8 | =primitives/controller.js:4-8= | =FAILED= + =reflection.error= (=Failure=) |
+| =Condition= | =NOMINAL EXHAUSTED ERROR= | =pool.js:4-8= · =schematics/prototypes/yield.js:3= | returned, no throw, no record |
+| =fromm.yield= kinds | =response emission turn result utterance spoken opaque= | =fromm/yield.js:28-75= | turn =meta.state ∈ error abort filter= → =ERROR= |
+| socket state | =CONNECTING OPEN CLOSING CLOSED ERROR= | =socket.js:17-23= | =$state= atom |
+| =ConnectionError.type= | =NETWORK TIMEOUT SERVER AUTH CLIENT= | =errors/connection.js:11-29= | thrown; =type=, no =code= |
+| error =code= | =LONG SHORT NOT_FOUND DROPPED VALIDATION= | =errors/vector.js:2-32= | thrown |
+| lighthouse / host =$status= | =HEALTHY UNAVAILABLE …= | =ghost shard/host.js:13= · =lighthouse/prototype.js:18= | =status= record |
+| =Status= class | free string, upper-cased | =prototypes/status.js:9-33= | =code + error= |
+| hallucinate close =state= | =complete tools length abort error …= | =hallucinate.js:153 · :176= | =/response/close meta.fault {kind, message}= |
+| HTTP | =404 500 s= | =shape/http.js:19 · :28 · :58= | =Response= status; no record |
+| paladin =Die= | =EXITED STOPPING STOPPED= | =paladin ledger/die.js:85-90= | status code |
+
+** trace A — a failing socket request (anima → runtime, route throws)
+
+| side | span | records in order |
+|---+---+---|
+| client | =logger.channel= root =<pathname>= (=dossier.js:64=) | =open= · =request {method,path}= · =note {message:"multiplex …"}= (cold) · =note {message:"retry n/2 after SERVER", delay}= ×≤2 · =response {status}= · =close= |
+| client caller | =logger.entry(x)= | =fault {message:"Server error: 500 — … @ /path", code: null}= |
+| server | =Socket.span= root ="socket"= → =branch(signal)= | =open= · =fault {message, code}= — no =close= |
+| server, ≥400 answered | same | =open= · =error {status}= — no =close= |
+| server, no route | same | =open= · =error {status:404}= — no =close= |
+
+The transmitter catches the frame error into =response.error= (=transmitter.js:127-140=); =shard.track.fault= never sees a throw; =Connection.call= throws after the vector returns (=connection.js:100-102=). =ConnectionError= carries =type=, so the client =fault= has =code: null= and loses =status=. The server's =Span("socket")= (=socket.js:39=) has no sink: its records live only in its journal.
+
+** trace B — a failing tool call (=hallucinate.js:82-104=)
+
+| case | child =stdout= records | child state | returned |
+|---+---+---+---|
+| tool throws | =open {input}= · =fault {message,code}= | =FAILED= | =result {condition:"ERROR", output:{message}}= |
+| unknown tool / bad input | =open= · =fault {code:"NOT_FOUND" / "VALIDATION"}= | =FAILED= | =ERROR= + =unknown tool: …= |
+| tool returns =condition:"ERROR"= | =open= · =close {condition:"ERROR"}= | =DONE= | =ERROR= |
+| aborted (=SIGKILL=) | =open= · =abort {reason}= · =fault= (no transition, untapped) | =ABORTED= | =ERROR= |
+
+Then =respond= yields =/tool/yield= and a =tool_result= part with =condition= (=:162-166=); the parent's span gets =note {round,state,usage}=; a thrown provider failure → parent =fault= + =/response/close meta.state:"error"= (=:175-186=).
+
+| divergence | fault | error |
+|---+---+---|
+| written by | any caller via =fault(error)= · =shard.track.fault= | =socket.js= only |
+| data | ={message, code}= | ={status}= |
+| moves controller | → =FAILED= | no (not in =MACHINE=) |
+| own slot in folds | =trace.js:14= · =tele *:21-22= · =journal= | entries; kind =net= |
+| =SHOWN= / journal lens | yes | no |
+
+* 5 · kind-minting machinery
+
+| # | structure | where | extension by | casts | enforced |
+|---+---+---+---+---+---|
+| 1 | =static coercions [[test, transform]]= | =signature.js:7 · :31-37= | subclass redeclares; =ReplSignal= spreads =...Argv.coercions= (=replsignal.js:13=) | yes, first match | no fallthrough error |
+| 2 | =Yield= factory table | =pool.js:10-14= | central edit | builds | =Object.freeze= |
+| 3 | =Condition= =v.enum= | =schematics/prototypes/yield.js:3= | central edit | =v= | yes |
+| 4 | =fromm.yield= =yieldmap [[kind, sniff, fill]]= + declared =kind= override | =fromm/yield.js:28-80= | central edit | sniff → fill | =opaque= catch-all |
+| 5 | trait vocabulary + =claim= | =belt/traits.js:25-35= · =v.js:133-135= | caller passes =vocabulary=, merged =({...factory.traits, ...vocabulary})= | =schema.fill= | throws on unknown name |
+| 6 | trait catalog =traits/index.js= | =runtime subjects/mode/traits/index.js= · =schematics/traits/index.js:13-20= | one file per name, barrel export | — | =stagger= =traits[name]?.()= silent |
+| 7 | =Part.*= tagged union + =Part.Alien {dialect, block}= | =primitives/hallucination.js:24-102= | =Alien= = open escape, tag =type= | =v= | yes |
+| 8 | =MACHINE= + =Machine.faults(machine)= at import | =primitives/controller.js:28-36= | central edit | — | throws at load |
+| 9 | =Record= =v.object= (name =v.string()=) | =primitives/controller.js:45-52= | open | =v= | shape only |
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/traits.js:25-29
+export function claim(row, name, vocabulary) {
+  const schema = vocabulary[name];
+  if (!schema)
+    throw new Error(
+      `[traits] no trait ${name} in a vocabulary of ${Object.keys(vocabulary).join(" · ") || "nothing"}`,
+// subsystems/typology/schematics/v.js:134-135
+  factory.traits = descriptor.traits ?? {};
+  factory.trait = (row, name, vocabulary = factory.traits) => claim(row, name, { ...factory.traits, ...vocabulary });
+// subsystems/typology/schematics/primitives/hallucination.js:85-89
+Part.Alien = v.object({
+  type: v.const("alien"),
+  dialect: v.string(),
+  block: v.unknown(),
+});
+// subsystems/typology/gestalten/fromm/yield.js:77-79
+const probe = (thing) =>
+  yieldmap.find(([kind]) => kind === thing?.kind) ??
+  yieldmap.find(([, sniff]) => sniff(thing));
+// subsystems/typology/prototypes/replsignal.js:5 · :13
+  static coercions = [
+    ...Argv.coercions,
+#+END_SRC
+
+Note: =static coercions= casts the CONSTRUCTOR input (the address), not a record; =Span= inherits Signature's empty list.
+
+* 6 · record schema and wire formats
+
+| what | where | shape |
+|---+---+---|
+| =Record= schema | =primitives/controller.js:45-52= | ={span:int, trace:int/null, path:string, verb:string, at:number, data?}= |
+| over the socket | =integration.js:81-83= =/activity/:id/stdout= =yields: Record= | stream of records (=Activity.ts:110-119=) |
+| in the db | =Activity.ts:10 · :67 · :141= | =steps= json, ring 12; =error= = =Failure.toJSON {code,message,record}= |
+| jsonl runtime | =integration.js:13= → =paladin log.js:7-9= | =spans.jsonl=, one record per line |
+| jsonl ghost | =shell/lifecycle.js:42-43= · =client/lifecycle/index.js:22-27= | =ghost.spans.log= · =client.spans.log=, =JSON.stringify(record)= |
+| stdin wire | =primitives/controller.js:38-42= =Kill= | ={nature: Signal, body, flags?}= |
+
+* 7 · =entity= / =subject= collisions
+
+| word | meanings in tree | counts / sites |
+|---+---+---|
+| =entity= | mikro entity class/row · =schematics/entities/= · =v.<entity>= · =ctx.entity= (a resolved row, e.g. the daemon =dossier.js:59=) · broadcaster ={op, entity}= (=shard/datamap.js:216=) · =mode.entity.id= · UI section key (=anima sections.js:50=, =drapes worlds.js:20=) · =traits.js:84= half | word =entity=: typology 242 · runtime 446 · anima 163 · ghost 87 · commons 106; =ctx.entity= 44; =.entity.id= 19 |
+| =subject= | m91 directory =subjects/= · =Status(initial, subject)= (=status.js:10=, =wafer.js:6=, =mode.js:9=) · =Constraint.subject= (=runtime Constraint.ts:22-41=) · =specimen.snapshot(subject)= · =track.subject= record | word =subject=: typology 14 · runtime 12 · anima 12 · ghost 10 · commons 40 |
+
+The one =subject= record's data ={schema, id}= is what =datamap= already calls an entity type + id.
+
+* fits — which mechanism could host a standard, extensible set of kinds
+
+- 5 trait vocabulary + =claim=: a name looked up in a merged map, throw on unknown, =schema.fill= the data — closest precedent; cost: a vocabulary object per scope + one lookup per =track=.
+- 7 =Part= tagged union + =Alien=: the standard set as =v.const= tags, one open member — cost: a central union; the open member is typed only as =unknown=.
+- 1 =static coercions=: per-subclass, inherited, casting — cost: casts the address, not the record; would need a second static on Span.
+- 4 =fromm.yield= =[[kind, sniff, fill]]= with a declared =kind= override: cost: central table, silent =opaque= fallback (not loud).
+- 8 =MACHINE= self-validated at import: cost: closed by construction; fits only the subset the machine reads (7 names).
+- 9 =Record= schema: already on the wire; cost: the name is =v.string()=, nothing enforced.

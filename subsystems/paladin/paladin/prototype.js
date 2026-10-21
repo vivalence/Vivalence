@@ -1,5 +1,4 @@
 import { Env, v } from "@vivalence/typology";
-import belt from "../gestalten/belt/index.js";
 import { Ledger } from "../ledger/index.js";
 
 const STRATA = ["flag", "cwd", "instance", ".env", "os", "session", "ledger"];
@@ -14,12 +13,17 @@ const MOUNTS = v.environment({
   VIVA_MOUNTPOINT_MOUNT: v.string().desc("the instance's served tree — dbs, bundles, tokens").examples("~/.viva/instances/hello-world/mountpoint").optional(),
 });
 
+const FILES = v.environment({
+  VIVA_CLIENT_GHOST_CREDENTIALS_FILE: v.string().desc("lighthouse authority — one row per lighthouse origin, mode 0600").examples("~/.viva/credentials.json").optional(),
+});
+
 const SECRET = (key) => key.startsWith("SECRET_");
 const PUBLIC = (key) => key.startsWith("VIVA_") || key.startsWith("PUBLIC_VIVA_");
 
 export class Paladin {
   traits = [];
   mounts = MOUNTS;
+  files = FILES;
   env = new Env(STRATA);
   secret = new Env(STRATA);
 
@@ -74,23 +78,6 @@ export class Paladin {
   }
 
   constructor() {
-    // deprecated
-    // belt.join(this);
-    // belt
-    belt.read(this);
-    belt.find(this);
-    belt.check(this);
-    belt.state(this);
-    belt.envfile(this);
-    // resolution
-    belt.is(this);
-    belt.scope(this);
-    belt.publish(this);
-    belt.source(this);
-    belt.clone(this);
-    belt.bundler(this);
-    belt.expand(this);
-    // the ledger owns its state: instances, registry (record + pensieve), locks, logs
     this.ledger = new Ledger(this);
   }
 

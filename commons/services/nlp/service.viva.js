@@ -11,10 +11,7 @@ const manifest = {
   traits: ["SERVER", "DOCKER", "COMPOSE", "TOOLING"],
 };
 
-// const path = as.path.url(import.meta.url);
-const path = new Path().from(new Path(import.meta.url));
-
-const dir = path.trace.branch("/server");
+const dir = new Path(import.meta.url).branch("/server");
 
 const compose = dir.branch("/docker-compose.yml");
 const env = dir.branch("/.env");

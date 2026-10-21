@@ -1,0 +1,13 @@
+# drained 10-22 whole from .ikiro/quests/m93-kleisli-remonadization.org (quest tidy); nothing reworded · limit: none (reference content)
+
+REJECTED 10-19:
+- =gestalten/gestaltenbild/= — his: /"gestlatenbild makes no sense"/
+- direct-style =then(f, g)= as the beat shape — cannot release after downstream (mine)
+- =shape.kleisli= over vectors — 0 consumers under one vector per lifecycle (mine)
+- =shape.monad.faulted= · =monad.recover= — his: /"this whole error recovery thing is a bit stupid"/
+- =traverse= as =allSettled= — every parent checks by hand (mine)
+- =execution= on die or entity · the copy arrow — his: /"I don't see why we need A at all"/
+- the Process entity as the daemon's die — 58 sites, an undeclared =runtime= field (mine)
+- the factory returning the subject — Q5 made global again (mine)
+- =shape.monad.reconcile= — one consumer (mine)
+- a paladin guard on =instance.raw= — an undeclared key as a hidden rule (mine)

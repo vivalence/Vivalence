@@ -1,6 +1,6 @@
 import { specimen, v } from "@vivalence/typology";
 
-const Yield = v.prototypes.Yield();
+const Yield = v.prototypes.Yield;
 
 specimen.describe("Yield schema", () => {
   specimen.it("a yield declares its condition", () => {

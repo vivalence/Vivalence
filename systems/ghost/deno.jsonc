@@ -4,7 +4,7 @@
   "exports": {
     ".": "./typology.js",
     "./run": "./run.js",
-    "./host": "./surface/chrome/host/index.js",
+    "./scenarios": "./tests/scenarios/index.js",
   },
   "publish": {
     "exclude": ["tests/"],
@@ -12,7 +12,7 @@
   "tasks": {
     "run": "deno run -A run.js",
     "watch": "deno run -A --watch run.js",
-    "bundle": "deno run -A surface/chrome/bundle.js",
+    "bundle": "deno run -A surfaces/chrome/bundle.js",
     "test": "deno test -A --no-check --watch tests/**/*.test.js",
   },
 }

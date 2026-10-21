@@ -1,0 +1,9 @@
+# drained 10-22 whole from .ikiro/quests/m88-repling.org (quest tidy); nothing reworded · limit: none (reference content)
+
+#+title: m88 repling — a client hosts modes the way a runtime does; HOME names the hosted mode a terminal sits in; REPLING grafts that mode's vector onto the terminal's repl
+#+filetags: :ghost:paladin:typology:client:mode:repl:
+#+status: DESIGNING 10-14 — stretch one (client modes · HOME · REPLING) LANDED via m86; stretch two (the hosted twin) a milestone; stretch three (LOOPING, the loop closed) DESIGNED 10-16 — nine rulings in =* the dialogue=, tangle under =* stretch three=, no go asked 10-19 m91: stretch three repathed onto the subject-first tree, dry replay 18/18 on the live tree; stretches one and two cite the pre-m86 ghost (=lifecycle/= · =prototypes/= · =traits/=), as written.
+# SUPERSEDED 10-16 (m86 s4-40, landed on his go): a client's traits ride =manifest.traits=; =ClientTraitsEnum= and the top-level =traits= are GONE from =instance.js= — the hunks below that name them are history, m86's =*** subsystems/paladin= carries the live ones.
+
+# limit: 60000 chars
+

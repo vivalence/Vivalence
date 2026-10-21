@@ -62,7 +62,7 @@ specimen.describe("stub · the controller machine over a scripted run", () => {
 
     await until(() => roster.rows.length);
     const walked = roster.rows.map((frame) => frame.last).filter(Boolean);
-    specimen.expect(walked.some((last) => last.startsWith("/hallucination/entity_find"))).toBe(true);
+    specimen.expect(walked.some((last) => last.startsWith("hallucination › entity_find/"))).toBe(true);
     specimen.expect(events).toContain("/tool/yield");
     specimen.expect(events.at(-1)).toBe("/response/close");
     roster.off();
@@ -78,13 +78,14 @@ specimen.describe("stub · the controller machine over a scripted run", () => {
       parts: [{ type: "text", text: "--fault retryable" }],
       config: { backoff: [10, 20] },
     });
-    await until(() => roster.rows.length);
-    const row = await world.daemon.entities.activity.findOneOrFail({ id: roster.rows[0].id });
+    const rows = () => world.daemon.entities.activity.$entities.get();
+    await until(() => rows().some((held) => (held.thread?.id ?? held.thread) === thread.id));
+    const row = rows().find((held) => (held.thread?.id ?? held.thread) === thread.id);
     await (async () => {
       for await (const packet of packets) held.push(packet.event);
     })().catch(() => {});
 
-    const notes = row.steps.filter((step) => step.verb === "note" && step.data?.retry);
+    const notes = row.steps.filter((step) => step.track === "log" && step.data?.retry);
     specimen.expect(notes.map((note) => note.data.retry)).toEqual([1, 2]);
     specimen.expect(notes.at(-1).data.message).toContain("scripted retryable fault");
     specimen.expect(roster.walk(row.id)).toContain("FAILED");
@@ -103,12 +104,13 @@ specimen.describe("stub · the dock's stop is the row's", () => {
     const drainInto = async (key, packets) => {
       for await (const packet of await packets) events[key].push(packet.event);
     };
-    const mine = drainInto("mine", world.dewey.harness.dialogue.stream({ thread: thread.id, id, parts: [{ type: "text", text: "--run stalled --pace 40ms" }] }));
+    const mine = drainInto("mine", world.dewey.harness.dialogue.stream({ thread: thread.id, turn: id, parts: [{ type: "text", text: "--run stalled --pace 40ms" }] }));
     const sibling = drainInto("sibling", world.dewey.harness.dialogue.stream({ thread: thread.id, parts: [{ type: "text", text: "--deltas 4 --stall 600ms" }] }));
 
     // the dock's match: the row whose turn is the client id the send minted
     await until(() => rows().some((row) => (row.turn?.id ?? row.turn) === id));
     const row = rows().find((held) => (held.turn?.id ?? held.turn) === id);
+    const other = rows().find((held) => (held.thread?.id ?? held.thread) === thread.id && held.id !== row.id);
     specimen.expect(rows().filter((held) => (held.thread?.id ?? held.thread) === thread.id).length).toBe(2);
 
     await row.stdin.SIGTERM("user pressed stop");
@@ -116,7 +118,7 @@ specimen.describe("stub · the dock's stop is the row's", () => {
     await sibling;
     specimen.expect(events.mine.at(-1)).toBe("/response/close");
     specimen.expect(roster.walk(row.id).slice(-3)).toEqual(["STOPPING", "STOPPED", "delete"]);
-    const other = roster.rows.find((frame) => frame.op === "create" && frame.id !== row.id);
+    await until(() => !rows().some((held) => held.id === other.id));
     specimen.expect(roster.walk(other.id)).toEqual(["create", "RUNNING", "DONE", "delete"]);
     specimen.expect(events.sibling.filter((event) => event === "/part/delta").length).toBe(4);
     roster.off();

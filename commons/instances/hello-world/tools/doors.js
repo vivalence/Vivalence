@@ -29,6 +29,7 @@ export async function persona(ctx) {
   }
 
   const { output } = await ctx.mode.harness.object.render({
+    thread: ctx.input.thread,
     turns: [{
       role: "user",
       parts: [{ type: "text", text: ctx.input.user }],

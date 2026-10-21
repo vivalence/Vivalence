@@ -1,0 +1,46 @@
+#+title: m107 reference — precedent · presentation precedent · the 14-atom inventory (drained 10-25 from the quest)
+<!-- limit: 6000 chars -->
+
+* precedent
+
+| system | holds | how a widget reads | how state changes |
+|---|---|---|---|
+| old anima (=testament/m82-clients-20261012/systems/anima/bak/src/=) | four stores, four contexts: =LIGHTHOUSE= (auth+dataspace) · =BRIDGE= (layout: pincer · orientation · viewport · view) · =TERMINALS= (collection + active) · =BOX= (=drivers.audio= · =device.microphone= · =device.speaker=); =client.js:1-4= symbols, =+layout.svelte= =setContext= ×4 | =getContext(BRIDGE)= (11 reads), =TERMINALS= (16) | methods on the store (=terminals.activate(id)=), atoms set directly |
+| React / Solid docs · Zustand · VS Code services | one store per concern, a Provider per store, =useX()= | hook | methods |
+| Elm (TEA) | one =Model=; =Msg= union; =update : Msg → Model → (Model, Cmd)=; =subscriptions= (=Time.every= · =onResize=) | =view model= — passed, no context | only =update= |
+| re-frame (Clojure) | one =app-db=; =reg-event-db= handlers; =reg-sub= layered subscriptions; *coeffects* = the ambient inputs (time · storage) injected into a handler | =subscribe [:sidebar]= | =dispatch [:sidebar/toggle]= |
+| Brick (Haskell TUI) · Reflex (FRP) | Brick: one app-state record, =EventM= handler; Reflex: =Dynamic= values from =Event= folds (=foldDyn=) | the record / the Dynamic | a fold over events |
+| m103 (live) | Q6′ ONE =Surface= atom (Elm Model · re-frame app-db) · Q7 =ambient(key, schema)= → =Provider · consume · Consumer= in ghost =gestalten/ambient.js= · Q8 =ambient.draft= · m95 25 every write through the repl | =ambient.client.consume()= | a surface command (=/sidebar=) |
+
+* precedent — presentation vs content (10-25, Q11)
+
+| system | content | presentation | nesting |
+|---|---|---|---|
+| Emacs | buffer (text, its modes) | window: =window-point= · =window-start= per window; two windows on one buffer keep two points | the window tree; =selected-window= has the keys; =with-selected-window= = a dynamic binding (an ambient) |
+| SwiftUI | the model | =@Environment= values, a View's =@State= per place | environment values inherit down, a child overrides |
+| React | props/data | context per subtree; nearest Provider wins | a Provider inside a Provider shadows it |
+| ghost today | =Terminal= (=subjects/terminal/prototype.js=) also carries =$buffer= (which buffer it shows) and =dock= (=DOCKED= trait merge) | =client.$terminal= = the seated one (=subjects/client/commands/terminal.js:6= =seated=) | none; 48 =ctx.terminal= reads in subjects |
+
+* the inventory — what the 14 atoms ARE
+
+| atom | is | old anima home |
+|---|---|---|
+| $sidebar $sidebarWidth $phonePane $focus $shell | layout: which region shows, its size, which has the keys | BRIDGE |
+| $tele (x y w h) | layout: the telemetry window | BRIDGE |
+| $tele (view filter sel folds tables since) | the inspector's own reading | (h panel local) |
+| $wid $float | layout: the popover · the dock float | BRIDGE (=view=) |
+| $sections | the sidebar's own reading (hidden · filter · expand) | (b panel local) |
+| $jsel $sel | selection in the journal · sidebar | (local) |
+| $draft | the composer in flight | m103 Q8 =ambient.draft= |
+| $signin | a form in flight | =widgets/Login.svelte= local |
+| $clock | the spinner tick — time | (none) |
+| dark (=screen({dark})=) | the device: the terminal's background | BOX-ish |
+
+
+* terrain — measured 10-25
+
+- the chrome mounts BEFORE auth: =systems/ghost/subjects/client/lifecycle/index.js:220= =.use(surface)= precedes =.use(authorized)= · =dataspace= · =daemons= · … · =active= (=:211= seats the terminal). The cover table (=surfaces/chrome/cover.jsx:15= COVERS) shows booting/signin while the lifecycle runs on.
+- the state today: =surfaces/chrome/screen.js:22= =screen()= — 14 atoms on =client.surface=, set at =index.js:58=. Writers outside chrome: =subjects/client/commands/sidebar.js= ($sidebar) · =shell.js= ($shell) · =keymap.js= ($focus $draft) · =subjects/terminal/commands/telemetry.js= ($tele) · =set.js= reads =surface.hidden= (no such atom).
+- the domain is already on the client: =client.runtime.lighthouse= (=entities/lighthouse/prototype.js:4=) · =client.runtime.entities.terminal= + =client.$terminal= · =client.telemetry.$logger= (=subjects/client/telemetry.js=). No device object in ghost.
+- no Solid context anywhere in =systems/ghost= (=grep createContext= = 0); panels get =client= · =palette= as props (m103 handoff departure).
+

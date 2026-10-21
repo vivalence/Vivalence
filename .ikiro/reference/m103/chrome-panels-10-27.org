@@ -1,0 +1,1293 @@
+#+title: m103 chrome panels — both chromes recast as app → panels → widgets → parts; one tree, two part libraries
+#+filetags: :chrome:anima:ghost:drapes:sheets:panels:widgets:
+#+status: BUILDING 10-27 — chess board/play under a from-scratch rebuild (agent, phased); ghost panels live: headline · sidebar · legend · repl · dock · modeline + popover + frame (telemetry · activity · harness still swatches); Q15 unruled
+<!-- limit: 40000 chars -->
+
+* intent
+
+10-23, beef verbatim:
+
+/"I want to restructure our Ghost Chrome and our Anima Chrome. We did have a pretty nice structure with in the previous version with, what was it, bones and panels. What we used to have as A, B, C, D, E, F, G panels, I would like to re-implement now with names."/
+
+/"So panels like doc, a frame panel, a sidebar panel, the chord panel, the catalog, and the telemetry, yeah, our panels. The panels are integrated whole units and they are made up of a lot of subcomponents. Some of them are our second folder inside of Chrome, the widgets."/
+
+/"for example the sidebar and the mode line being another panel in and of itself. So we recreate integrated units with widgets, and then we have, what do we call them, yeah, components like the inputs and text areas and blah blah blah. … maybe components is the wrong word."/
+
+/"What used to be, when we were still on Svelte, what used to be the layout.js and layout.svelte components, where we create all of the contexts and stuff. That was basically app."/
+
+/"the Chrome as it currently stands is slop … Go through the current implementation, go through the previous Anima implementation, look at it from the DOM and TTY perspective, and create a proposal for a coherent abstraction and a coherent layout in the file system."/
+
+* terrain — MOVED whole to =reference/m103/terrain-10-23.org= (the Svelte A–H anatomy · anima's DOM tree · ghost's cell grid · the twins)
+
+* the shape — four levels
+
+| level | is | knows =client= | lives |
+|---+---+---+---|
+| root | the =+layout= of old: the =Surface= atom (Q6′), =ambient.client.Provider= (Q7), the cover table (Q12), places the panels | provides it | =<chrome>/= flat (Q0) |
+| panel | an integrated unit that OWNS a region the app places, its state slice, its client-local commands | yes | =<chrome>/panels/<name>= |
+| widget | a sub-unit that binds parts to the client: reads atoms, dispatches signals to =client.active= | yes | inside its panel; =<chrome>/widgets/= once ≥2 panels use it |
+| part | props in, events out, no client, no signal, no entity | no | =drapes= (DOM) · =sheets= (tty), the SAME name in both |
+
+The law, one per level:
+1. *a part never sees =client=*. Grep gate: =grep -n 'client' subsystems/{drapes,sheets}/*.jsx= = 0.
+2. *a widget is placed by a panel, a panel is placed by the root*. Nothing places itself (today =Wid= and =Pop= place themselves from =S.seg= · =placed(event)=).
+3. *a widget used by one panel lives in that panel*. With two consumers it moves to =widgets/= (the old =bones/widgets/= rule). LOCKED Q5.
+4. (STRUCK by Q1 — implementation per chrome; part parity is not a law)
+5. *both chromes have the same FOLDER tree; the implementation is each chrome's own* (Q1). What both can use goes into ghost =gestalten/belt/= (Q2); no row model at all (Q4).
+
+** the panels — named, the letters retired
+
+| panel | was (Svelte) | today anima | today ghost | region |
+|---+---+---+---|
+| =tabs= | — | =panes/tabs.jsx= | =panes/tabs.js= | top row |
+| =sidebar= | B | =panes/sidebar.jsx= + =regions.jsx:14 Sbseam= | =panes/sidebar.js= | body left |
+| =frame= | A (stage) | =panes/frame.jsx= + =view.jsx= | =panes/frame.js= | split, buffer side |
+| =dock= | A (dock) | =panes/dock.jsx= + =journal.jsx= + =composer.jsx= | =panes/journal.js= + =regions.js:802 messenger= | split, conversation side |
+| =legend= (his "chord", F2) | — | =panes/chord.jsx= | =panes/panel.js= (chord half) | above the modeline |
+| =catalog= | C (by name only) | =panes/catalog.jsx= | =panes/panel.js= (catalog half) | above the modeline |
+| =modeline= | bones/spine | =panes/bar.jsx= (Bar · Wid · Pop) | =panes/bar.js= + =wid.js= | bottom rows |
+| =telemetry= | G + H | =panes/tele.jsx= | =panes/tele.js= | overlay |
+| =booting= · =signin= (Q12) | =widgets/Boot= · =Login= | =panes/booting.jsx= · =signin.jsx= | =panes/island.js= | the whole screen, a cover row |
+
+** the dock — pane lines (10-26, design =tty.js:342 journalLines · :421 paintJournal=)
+
+- head: =▕▯= (=▯▏= left) → =/dock closed= · the lens at the right → =/dock/lens <next>= · a divider — from =terminal.dock=
+- journal: rows by time, from =thread.$turns= (chat · repl) + =terminal.controller.stdout.$history= =log · fault= (repl · trace); a turn = a head (=<<= you · =>>= agent, clock · calls · artifact) + prose + tool rows (=tool_use= ⟷ =tool_result=) + thinking + its buffers' artifact cards (=⤢= → =/buffer/full=); a record = =· clock text= (trace adds its path) · =!= a fault
+- composer: =›= + =bridge.draft= + the placeholder; a bare line → =terminal.repl.dispatch=; a leading =/= → =/repl=; keys =■ stop= while an activity runs (=/stop=)
+- consent: a PAUSED activity of the thread swaps the composer for =? approve= · =y /resume= · =n /stop= · =e /abort=
+- lacks (system): journal selection + copy · retry · fold; the thinking toggle; =+ attach= · =◉ dictate= as lines; a spinner clock; tool durations
+
+** the tree — the first proposal's sketch MOVED to =reference/m103/proposal-tree-10-23.org=; the locked tree is =* as code= (Q0 root · Q5 widgets · Q14 path)
+
+* as code — the locked hunks, =ls= order per system (SKETCH = unlocked, rides its lock)
+
+*** systems/anima
+**** src/surfaces/chrome/ — Locked Q14
+#+BEGIN_SRC text
+// systems/anima/src/surfaces/chrome/   ≡ systems/ghost/surfaces/chrome/   ← Locked Q14: /"a"/ — src/surface/ (25 files) moves here
+ambients.js · cover.jsx · index.js · keys.js · regions.jsx · state.js · panels/ · widgets/
+// systems/anima/src/client.js:  import { dom } from "./surfaces/chrome/index.js";
+// ghost's root also carries m99 Q32 translation.js (the tty leader key)
+#+END_SRC
+**** src/surfaces/chrome/cover.jsx · widgets/island.jsx — Locked Q12
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/cover.jsx   ← Locked Q12: /"b"/ — chrome.jsx:12 PANES, its rows as they are (m95 ruling 22)
+const COVERS = [
+  [(client) => client.runtime === null, panels.booting.Booting],
+  [(client) => client.runtime.lighthouse === null || client.runtime.lighthouse.manifest === null, panels.booting.Booting],
+  [(client) => !client.runtime.lighthouse.isAuthorized && settled(client.runtime.lighthouse), panels.signin.Signin],
+  [(client) => !client.runtime.lighthouse.isAuthorized || client.terminal === null, panels.booting.Booting],
+  [() => true, Regions],
+];
+// systems/anima/src/surfaces/chrome/widgets/island.jsx — the centred card + Brandline (booting.jsx:8-22); ghost panes/island.js:528 paintIsland splits into panels/booting · panels/signin
+#+END_SRC
+**** src/surfaces/chrome/panels/catalog.jsx · regions.jsx — Locked Q8
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/regions.jsx   ← Locked Q8: /"a"/ — the draft in flight crosses panels as an ambient (Q7), never the tree (Q11)
+const [draft, setDraft] = createSignal("");
+<ambient.draft.Provider value={{ draft, setDraft }}>
+  <panels.dock.Dock />
+  <panels.legend.Legend />
+  <panels.catalog.Catalog />
+  <panels.modeline.Modeline />
+</ambient.draft.Provider>
+// systems/anima/src/surfaces/chrome/panels/catalog.jsx   ← catalog.jsx:47,53,72 (client.surface.$draft) → the ambient
+const client = ambient.client.consume();
+const typed = ambient.draft.consume();
+const catalog = from(client.$catalog);
+<Show when={catalog() !== null}><parts.Catalog rows={narrow(catalog(), typed.draft())} onPick={(signal) => typed.setDraft(signal)} /></Show>
+// systems/ghost/schematics/primitives/ambients.js
+export const draft = { draft: v.unknown().desc("The composer's draft in flight, a signal pair. Example: ambient.draft.consume().draft()") };
+// dies: regions.jsx:34 <section class="panel"> · ghost panes/panel.js → panels/legend.jsx + panels/catalog.jsx (m99's unruled split, decided here)
+#+END_SRC
+**** src/surfaces/chrome/panels/modeline/ — Locked Q10 · Q10′
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/panels/modeline/   ← Locked Q10 /"popover."/ · Q10′ /"a"/
+// index.jsx · popover.jsx · dock-picker.jsx
+// systems/anima/src/surfaces/chrome/panels/modeline/index.jsx — the one renderer
+<parts.Popover anchor={modeline().popover.anchor}>
+  <Dynamic component={modeline().popover.held === "dock" ? DockPicker : widgets[modeline().popover.held]} terminal={terminal()} />
+</parts.Popover>
+// subsystems/drapes/Wid.jsx + Pop.jsx → Popover.jsx (one placed(at, viewport)); Dset → DockPicker; Surface.modeline = { popover: { held, anchor } | null }
+// openers: the display segment · panels/frame/head.jsx (frame.jsx:54) · panels/dock/head.jsx (dock.jsx:44) — each dispatches a surface command (Q6′), never $state.set; the anchor rides Q11
+#+END_SRC
+**** src/surfaces/chrome/panels/modeline/index.jsx — Locked Q9
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/panels/modeline/index.jsx   ← Locked Q9: /"a"/ — named by Q10 (Popover · DockPicker)
+export function Modeline() {
+  const client = ambient.client.consume();
+  const modeline = from(client.surface.$modeline);
+  return (
+    <nav class="modebar" data-zone="0">
+      <Segments />
+      <Show when={modeline().popover !== null}><Popover /></Show>
+    </nav>
+  );
+}
+// regions.jsx:76-83's root-level float siblings die; ghost regions.js:896 paintWid · S.seg die (Q1)
+// PROBE owed before tangle: systems/ghost — an absolute <box zIndex> inside the modeline paints above the body
+#+END_SRC
+**** src/surfaces/chrome/panels/tabs.jsx — the DOM half of one panel
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/panels/tabs.jsx   ← surface/panes/tabs.jsx:24 — the client from context, the part unchanged
+import { For, from } from "solid-js";
+import * as parts from "@vivalence/drapes/parts";
+import * as ambient from "../ambients.js";
+
+export function Tabs() {
+  const client = ambient.client.consume();
+  const terminals = from(client.runtime.entities.terminal.$entities);
+  const active = from(client.$terminal);
+  return (
+    <nav class="tabs" data-zone="0" aria-label="terminals">
+      <For each={terminals()}>{(terminal) => <Tab terminal={terminal} current={terminal === active()} />}</For>
+      <button class="plus" aria-label="new terminal" onClick={() => client.active.repl.dispatch("/terminal/new")}>
+        <parts.Icon name="plus" />
+      </button>
+    </nav>
+  );
+}
+#+END_SRC
+**** src/surfaces/chrome/panels/telemetry/inspector/ — Locked Q13
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/panels/telemetry/inspector/client.jsx   ← Locked Q13: /"b"/ — individual placements, as Q4; tele.jsx:171 inspect(14-field bag) · :152 ROWS · writable die
+export function Client() {
+  const client = ambient.client.consume();
+  return (
+    <section class="sec" data-sec="client">
+      <parts.Row label="slug" value={client.mask.manifest.slug} />
+      <parts.Row label="theme" value={client.theme} />
+      <parts.Row label="sidebar" value={client.surface.sidebar.open ? "open" : "closed"} onPick={() => client.active.repl.dispatch("/sidebar")} />
+    </section>
+  );
+}
+// panels/telemetry/{index,logger}.jsx · panels/telemetry/inspector/{client,lighthouse,runtime,terminal,thread}.jsx (one consumer each: law 3)
+// departure (mine): the asked snippet's Choice over Sidebar.properties was nonsense — a Row with onPick → /sidebar here
+#+END_SRC
+**** src/surfaces/chrome/regions.jsx · panels/dock/composer.jsx · panels/frame/head.jsx — Locked Q11
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/regions.jsx — the seam   ← Locked Q11: /"b"/ — =layout.jsx= =Split= (split.jsx folded 10-27)
+const [dragging, setDragging] = createSignal(null);
+<parts.Seam onDrag={setDragging} onShare={(share) => { setDragging(null); client.active.repl.dispatch(`/split ${share.toFixed(2)}`); }} />
+// systems/anima/src/surfaces/chrome/panels/dock/composer.jsx — keystrokes stay local (m95 ruling 8); Enter dispatches the draft
+const [draft, setDraft] = createSignal(dock().draft);
+<parts.Field value={draft()} onInput={(event) => setDraft(event.currentTarget.value)} onEnter={() => client.active.repl.dispatch(draft())} />
+// systems/anima/src/surfaces/chrome/panels/frame/head.jsx — measured, then one command
+<button onPointerDown={(event) => client.active.repl.dispatch(`/popover dock ${anchored(event)}`)} />
+// owed: dock.draft persists only on send (a command on blur, if a reload must keep a half-typed draft) · ghost acts.js FNS · ACTS · typing.js STEPS die into widget handlers + commands
+#+END_SRC
+**** src/surfaces/chrome/state.js · panels/*/state.js — Locked Q6′ (the schema HOMES moved by Q6″ to ghost schematics/primitives/)
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/panels/sidebar/state.js   ← Locked Q6′: /"a"/ — a panel owns its branch's SHAPE, never an atom
+export const Sidebar = v.object({
+  open: v.boolean().default(false).desc("Is the sidebar shown. Example: true"),
+  width: v.number({ minimum: 220, maximum: 480 }).default(272).desc("Its width in px. Example: 272"),
+});
+// systems/anima/src/surfaces/chrome/state.js   ← Locked Q6′ — the dedicated centre: one atom, one tree (Elm Model · re-frame app-db); surface/screen.js:13 (15 atoms) dies
+export const Surface = v.object({ shell: Shell, sidebar: panels.sidebar.Sidebar, dock: panels.dock.Dock, modeline: panels.modeline.Modeline, telemetry: panels.telemetry.Telemetry, island: panels.island.Island });
+export const surface = (seed) => {
+  const $state = atom(Surface.cast(seed));
+  const $sidebar = computed($state, (state) => state.sidebar);
+  return {
+    $state,
+    $sidebar,
+    get state() {
+      return $state.get();
+    },
+    get sidebar() {
+      return $sidebar.get();
+    },
+  };
+};
+// systems/ghost/subjects/client/commands/sidebar.js   — the event (m95 ruling 37), one command, both chromes
+(ctx) => ctx.client.surface.$state.set({ ...ctx.client.surface.state, sidebar: { ...ctx.client.surface.sidebar, open: !ctx.client.surface.sidebar.open } })
+// persist: JSON.stringify(client.surface.state) · seed: Surface.cast(saved) · URL: replay the query's signals over Surface.cast({}) (roadmap/anima-deeplink.org:38)
+// departure (mine): Q0's root surface.js folds into state.js — one file holds the centre
+// owed with it: a JSON snapshot of Surface (codestyle: every v.object ships one); ghost: the same keys, its own state.js (Q1)
+#+END_SRC
+**** src/surfaces/chrome/widgets/ — Locked Q5
+#+BEGIN_SRC text
+// systems/anima/src/surfaces/chrome/   ← Locked Q5: /"b"/ — law 3: two consumers → widgets/ (the old bones/widgets/)   (ghost: the same files, its own code)
+panels/sidebar/    index.jsx · seam.jsx
+panels/modeline/   index.jsx · wid.jsx · pop.jsx
+widgets/           activity.jsx · box.jsx · control.jsx · display.jsx · entity.jsx · harness.jsx · index.js · system.jsx · view.jsx
+// panels/sidebar/index.jsx · panels/modeline/wid.jsx
+import * as widgets from "../../widgets/index.js";
+<Dynamic component={widgets[client.surface.modeline.popover.held]} terminal={terminal()} />
+#+END_SRC
+**** src/surfaces/chrome/widgets/harness.jsx — Locked Q4 (path moved by Q5: panels/sidebar/ → widgets/)
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/widgets/harness.jsx   ← Locked Q4 · home Q5: /"b"/ — surface/sections.js:187 intelligent(world) · m95 ruling 34 /"individual placements. No row model."/
+export function Harness(props) {
+  const client = ambient.client.consume();
+  const thread = from(props.terminal.$thread);
+  const held = () => v.thread.trait(thread(), "INTELLIGENT");
+  return (
+    <section class="sec" data-sec="harness">
+      <parts.Choice options={TUNES} value={held().tune} signal={(tune) => `/tune ${tune}`} onPick={(tune) => client.active.repl.dispatch(`/tune ${tune}`)} />
+      <parts.Choice options={EFFORTS} value={held().effort} signal={(effort) => `/effort ${effort}`} onPick={(effort) => client.active.repl.dispatch(`/effort ${effort}`)} />
+      <parts.Meter pct={held().context} />
+    </section>
+  );
+}
+// widgets/{activity,box,control,display,entity,harness,system}.jsx (Q5) · the modeline's Popover mounts <Harness terminal={…} />
+// dies: surface/sections.js · drapes Section/Srow (Srow.jsx) · ghost chrome/sections.js · panes/section.js
+#+END_SRC
+*** systems/ghost
+**** gestalten/ambient.js · schematics/primitives/ambients.js — Locked Q7′ · Q7‴ · Q7⁗
+#+BEGIN_SRC jsx
+// systems/ghost/gestalten/ambient.js   ← Locked Q7′ /"ambient."/ · Q7‴ /"both"/ · Q7⁗ /"a"/ — the unit + its three organs
+export const ambient = (key, schema) => {
+  const slot = createContext();
+  const consume = () => {
+    const value = useContext(slot);
+    if (value === undefined) throw new Error(`[ambient] ${key}: consumed outside its Provider`);
+    return value;
+  };
+  return { key, schema, Provider: slot.Provider, consume, Consumer: (props) => props.children(consume()) };
+};
+// systems/ghost/schematics/primitives/ambients.js   ← Locked Q7⁗
+export const client = { client: v.unknown().desc("The live Client the chrome paints. Example: ambient.client.consume().active.repl.dispatch('/sidebar')") };
+// systems/anima/src/surfaces/chrome/ambients.js · systems/ghost/surfaces/chrome/ambients.js   (a root file, Q0 flat)
+import { gestalten, schematics } from "@vivalence/ghost";
+export const client = gestalten.ambient("client", schematics.primitives.ambients.client);
+// systems/anima/src/surfaces/chrome/regions.jsx
+<ambient.client.Provider value={client}><panels.sidebar.Sidebar /> … </ambient.client.Provider>
+// systems/anima/src/surfaces/chrome/widgets/harness.jsx
+const client = ambient.client.consume();
+// systems/anima/src/surfaces/chrome/panels/sidebar/index.jsx
+<ambient.client.Consumer>{(client) => <widgets.Harness client={client} terminal={terminal()} />}</ambient.client.Consumer>
+// subsystems/typology/prototypes/env.js:9   ← Locked Q7″ /"3 yes."/ — this.ambient → this.observed (HOLY: typology, its own go)
+#+END_SRC
+**** gestalten/belt/journal.js — Locked Q2
+#+BEGIN_SRC js
+// systems/ghost/gestalten/belt/journal.js   ← Locked Q2: /"a"/ — the bodies identical in ghost panes/journal.js:26-35,78-85 ≡ anima panes/journal.jsx:18-24,57-65
+const SPOKEN = ["text"];
+const UNSPOKEN = ["tool_use", "tool_result", "thinking"];
+
+export const wall = (record) => performance.timeOrigin + record.at;
+
+export const prose = (parts) =>
+  parts
+    .filter((part) => !UNSPOKEN.includes(part.type))
+    .map((part) => (SPOKEN.includes(part.type) ? part.text : `[${part.type}]`))
+    .join("\n");
+
+export const cells = (turn, buffers) =>
+  buffers.filter((buffer) => "turns" in buffer && buffer.turns.some((reference) => (is.string(reference) ? reference : reference.id) === turn.id));
+
+export const streamed = (turn) => turn.createdAt === undefined;
+// systems/ghost/gestalten/belt/index.js   + export * as journal from "./journal.js";
+// systems/anima/src/surfaces/chrome/panels/dock/journal.jsx · systems/ghost/surfaces/chrome/panels/dock/journal.jsx
+//   import { belt } from "@vivalence/ghost";   belt.journal.prose(turn.parts)
+// NOT shared (the twins drift): clock (ghost :24 slice 8 = seconds · anima :16 slice 5) · tools (ghost loop/open · anima yield) · thought (ghost { open, nodes } · anima nodes)
+#+END_SRC
+**** schematics/primitives/sidebar.js · surface.js · gestalten/state/seed.js — Locked Q6″
+#+BEGIN_SRC js
+// systems/ghost/schematics/primitives/sidebar.js   ← Locked Q6″: /"q6 a"/ — sorted by kind like typology schematics/primitives/
+export const Sidebar = v.object({
+  open: v.boolean().default(false).desc("Is the sidebar shown. Example: true"),
+  width: v.number({ minimum: 38, maximum: 56 }).default(39).desc("Its width in cells. Example: 39"),
+});
+// systems/ghost/schematics/primitives/surface.js
+export const Surface = v.object({ shell: Shell, sidebar: Sidebar, dock: Dock, modeline: Modeline, telemetry: Telemetry, island: Island });
+// systems/anima/src/schematics/primitives/sidebar.js   — draws from ghost, overrides the unit (precedent: systems/runtime/schematics/index.js:1-5)
+import { schematics } from "@vivalence/ghost";
+export const Sidebar = v.interface([schematics.primitives.Sidebar], { width: v.number({ minimum: 220, maximum: 480 }).default(272).desc("Its width in px. Example: 272") });
+// systems/ghost/gestalten/state/seed.js   (SKETCH, /"i suspect"/)
+export const seed = (schema, ...layers) => layers.reduce((held, layer) => v.cast(schema, { ...held, ...layer }), v.cast(schema, {}));
+// systems/anima/src/surfaces/chrome/state.js
+const $state = atom(gestalten.state.seed(schematics.primitives.Surface, saved, fromUrl));
+// SUPERSEDES Q6′'s panels/*/state.js homes: a panel exports no schema; the chrome's state.js imports schematics
+#+END_SRC
+**** surfaces/chrome/ — the root, flat
+#+BEGIN_SRC text
+// systems/ghost/surfaces/chrome/   ← Locked Q0: /"c flat"/ — the +layout job sits at the chrome root, no app/ · layout/ dir (anima: the same files)
+ambients.js      cover.jsx      index.js      keys.js      regions.jsx      state.js   (context.js → ambients.js, Q7)        (surface.js folded into state.js by Q6′)
+panels/         widgets/
+#+END_SRC
+**** surfaces/chrome/panels/frame/index.jsx — Locked Q1
+#+BEGIN_SRC jsx
+// systems/ghost/surfaces/chrome/panels/frame/index.jsx   ← Locked Q1: option A /"B is so incredibly ugly"/ — retained <box> over sheets; regions.js · grid.js · world.js · acts.js · S.mounts die
+export function Frame(props) {
+  const client = ambient.client.consume();
+  const palette = tokens.camel(client.theme, "1");
+  const buffer = from(props.terminal.$buffer);
+  return (
+    <box style={{ flexDirection: "column", flexGrow: 1 }}>
+      <Head terminal={props.terminal} />
+      <box style={{ height: 1, border: ["bottom"], borderColor: palette.divider }} />
+      <Show when={buffer()} keyed fallback={<Empty />}>{(held) => <widgets.View terminal={props.terminal} buffer={held} place="frame" />}</Show>
+    </box>
+  );
+}
+// Head = frame/head.jsx "◆ artifact · mode   artifact 1 ▾  ✕" · ✕ is <text onMouseUp={() => client.active.repl.dispatch("/buffer/close")}>
+#+END_SRC
+**** surfaces/chrome/panels/tabs.jsx — the TTY half (SKETCH, rides Q1)
+#+BEGIN_SRC jsx
+// systems/ghost/surfaces/chrome/panels/tabs.jsx   ← panes/tabs.js:380 paintTabs (cells + hit strings) → retained <box> + sheets
+import { For, from } from "solid-js";
+import * as parts from "@vivalence/sheets";
+import * as ambient from "../ambients.js";
+
+export function Tabs() {
+  const client = ambient.client.consume();
+  const terminals = from(client.runtime.entities.terminal.$entities);
+  const active = from(client.$terminal);
+  return (
+    <box style={{ flexDirection: "row", height: 1 }}>
+      <For each={terminals()}>{(terminal) => <Tab terminal={terminal} current={terminal === active()} />}</For>
+      <text onMouseUp={() => client.active.repl.dispatch("/terminal/new")}> + </text>
+    </box>
+  );
+}
+#+END_SRC
+**** surfaces/chrome/regions.jsx — the layout becomes flex, regions.js:836-900 dies (SKETCH, rides Q1)
+#+BEGIN_SRC jsx
+// systems/ghost/surfaces/chrome/regions.jsx   ← regions.js:852-898 (x/y/w/h arithmetic) · the anima twin is regions.jsx:45-83
+<box style={{ flexDirection: "column", width: "100%", height: "100%" }}>
+  <panels.tabs.Tabs />
+  <box style={{ flexDirection: "row", flexGrow: 1 }}>
+    <Show when={sided()}><panels.sidebar.Sidebar /></Show>
+    <parts.Split direction={direction()} share={dock().share}>
+      <Show when={shape().frame}><panels.frame.Frame /></Show>
+      <Show when={shape().dock}><panels.dock.Dock /></Show>
+    </parts.Split>
+  </box>
+  <panels.legend.Legend />
+  <panels.catalog.Catalog />
+  <panels.modeline.Modeline />
+  <panels.telemetry.Telemetry />
+</box>
+// frame's mode view: module.default(box, …) into the frame body's own <box>; S.mounts · chrome.jsx:633 die
+#+END_SRC
+**** subsystems/sheets/pointer.js · Segment.jsx · ghost surfaces/chrome/mount.jsx — /"go. implement"/ 10-26 (hover cursor, app-wide)
+#+BEGIN_SRC js
+// subsystems/sheets/pointer.js — the element declares cursor="<MousePointerStyle>" (CSS-like); ONE root resolver; over/out bubble (core :1454)
+export const nearest = (renderable) => (renderable === null ? "default" : renderable.cursor ?? nearest(renderable.parent));
+
+export const pointer = (renderer) => {
+  renderer.root.onMouseOut = () => renderer.setMousePointer("default");
+  renderer.root.onMouseOver = (event) => renderer.setMousePointer(nearest(event.target));
+};
+// subsystems/sheets/Segment.jsx:16   <box cursor="pointer" … onMouseUp={() => held.onPick()}>
+// systems/ghost/surfaces/chrome/mount.jsx:53   pointer(renderer);   — after createCliRenderer
+#+END_SRC
+**** surfaces/chrome/panels/modeline/modeline.jsx — 10-26 /"leader · leader×2 · sidebar"/ · hold /"change … to /sidebar/toggle"/ (LANDED)
+#+BEGIN_SRC js
+// a gesture is classified at the part (subsystems/sheets/gesture.js: TAP 260 · HOLD 420); the modeline dispatches a repl line
+export const GESTURES = {
+  click: "/leader",
+  double: "/leader/leader",
+  hold: "/sidebar/toggle",
+};
+        onMark={(gesture) => terminal.repl.dispatch(GESTURES[gesture]).catch(faulted)}
+        onPick={(segment, column) => terminal.repl.dispatch(`/popover ${segment} ${column}`).catch(faulted)}
+#+END_SRC
+**** subjects/app/commands/repl.js · keymap.js — 10-26 /"go on the changes above"/: a key's effect is a repl line (LANDED)
+#+BEGIN_SRC js
+// esc · ctrl-v ctrl-v · ctrl-v esc are the commands' chords (fromRepl harvests them); the keymap writes no state
+export const repl = new Vector()
+  .open({ nature: "/repl", valence: "…", chord: "leader/leader" }, (ctx) => { /* $catalog = shard.keymap.catalog(commands); draft "/" unless a line; focus composer */ })
+  .open({ nature: "/repl/close", valence: "…", chord: "esc" }, (ctx) => { ctx.terminal.repl.$catalog.set(null); return "repl closed"; });
+// subjects/terminal/commands/leader.js
+  .open({ nature: "/legend/close", valence: "…", chord: "leader/esc" }, (ctx) => { ctx.terminal.legend.flush(); return "legend closed"; });
+// subjects/app/keymap.js — grafted only while the repl is open (legend.js keymap): the leader cycles legend · repl · closed
+export const closing = new Vector().open({ nature: "leader", valence: "/repl/close" }, "/repl/close");
+#+END_SRC
+**** surfaces/chrome/panels/repl/repl.jsx — 10-26 /"yes works"/: the composer (LANDED)
+#+BEGIN_SRC js
+// typing writes bridge.draft; a click fills (a trailing space when it takes an argument) or runs; enter runs, then /repl/close
+const submitted = (line) => {
+  drafted("");
+  return terminal.repl.dispatch(line).then(() => terminal.repl.dispatch("/repl/close")).catch(faulted);
+};
+const fill = (line) => (line.endsWith(" ") ? drafted(line) : submitted(line));
+// a clicked row preventDefaults mouse-down: OpenTUI's autofocus would hand the keys to the scrollbox
+#+END_SRC
+**** surfaces/chrome/panels/headline/headline.jsx — 10-26 /"show full slug+index always"/ · /"circle around"/ → /"cool"/ (LANDED)
+#+BEGIN_SRC js
+export const TABS = [
+  [(held) => held.thread === null, (held) => `${held.index} no thread`],
+  [() => true, (held) => `${held.index} ${held.thread.word}`],
+];
+export const circled = (each, at) => each[(at + each.length) % each.length];
+// overflowing: < and > seat the previous · next terminal (/terminal <n>), circling; the strip keeps the seated tab in view (windowed)
+<Arrow palette={props.palette} glyph="< " target={circled(terminals(), seated() - 1)} onSeat={seat} />
+#+END_SRC
+**** subjects/app/commands/widget.js — 10-26 /"toggle sidebar works"/ (LANDED; entity · display · system re-cut to /popover after /"popover widgets!"/, unseen)
+#+BEGIN_SRC js
+  .open(
+    { nature: "/widget/toggle/sidebar", valence: "the sidebar shown or hidden — the same flip as /sidebar/toggle. Example: /widget/toggle/sidebar", chord: "leader/w/b" },
+    (ctx) => ctx.terminal.repl.dispatch("/sidebar/toggle"),
+  )
+#+END_SRC
+**** surfaces/chrome/layout.jsx — Seam + Guarded (/"and like sidebar has, make the border line between frame and dock a dragable thing."/ · /"go and go"/)
+#+BEGIN_SRC jsx
+// systems/ghost/surfaces/chrome/layout.jsx
+export const SPANS = {
+  right: (event, body) => (body.x + body.width - event.x) / body.width,
+  left: (event, body) => (event.x - body.x + 1) / body.width,
+  bottom: (event, body) => (body.y + body.height - event.y) / body.height,
+  top: (event, body) => (event.y - body.y + 1) / body.height,
+};
+
+export const shared = (event, body, align) => Math.round(Math.min(0.9, Math.max(0.1, SPANS[align](event, body))) * 100) / 100;
+// Seam onMouseDown: renderer.root.onMouseDrag = (event) => { const share = shared(event, props.body(), props.dock.align); if (share !== props.dock.share) terminal.repl.dispatch(`/split ${share}`) }
+// Guarded: <ErrorBoundary fallback={(thrown, reset) => { terminal.controller.stdout.fault(errored(thrown)); return <text …>{`✕ ${props.panel}: ${error.message} · click retries`}</text> }}>
+#+END_SRC
+
+**** surfaces/chrome/mount.jsx — Cover paints the renderer's background (/"go 123"/)
+#+BEGIN_SRC jsx
+// systems/ghost/surfaces/chrome/mount.jsx — Cover
+  const renderer = useRenderer();
+  createEffect(() => renderer.setBackgroundColor(palettes().body.surface));
+// a coloured span in OpenTUI — @opentui/solid 0.5.17 drops a bare fg prop on text nodes (index.js:657)
+          <span style={{ fg: active ? palette.signalPrimary : palette.textMuted }}>{active ? "● " : "○ "}</span>
+#+END_SRC
+* rulings
+
+| Q | ruling | his words |
+|---|--------|-----------|
+| 0 | the root level has no directory and no name: its files sit flat at =<chrome>/= beside =panels/= · =widgets/=; =index.js= mounts | /"c flat"/ |
+| 1 | the tty paints retained OpenTUI elements over =sheets= (option A); the two chromes share the FOLDER tree, never the implementation — components and layouts differ per chrome; what both can use goes into a library | /"I am cool with the Anima client and the Chrome client, the Ghost client, sharing a folder structure but not implementation. And the things that are shareable, they go into some library."/ · on B: /"B is so incredibly ugly. That I don't permit that. That's too ugly. The code is horrible"/ |
+| 2 | the shared library is ghost's =gestalten/belt/=, one family file per subject; anima imports it as it imports =belt.view= | /"a"/ |
+| 3 | m95 lock 1 stands: the row model is NOT shared; each chrome keeps its own =sections.js= in its own =widgets/= | /"b"/ |
+| 4 | no row model (m95 ruling 34): each of the seven sidebar sections is its own widget that places its parts; =sections.js= · its 11 row types · =parts.Section= · =paintSection= die; the modeline's =Wid= mounts the same widget | /"b"/ |
+| 5 | the seven section widgets live in =widgets/=; sidebar and the modeline's =Wid= both import them; law 3 (one consumer → its panel, two → =widgets/=) locked with it | /"b"/ |
+| 6′ | SUPERSEDED 10-25 by m107 Q0 (an atom per ambient) — ONE central value: the chrome root's =state.js= holds a single atom typed by one =v.object= =Surface=; each panel exports only its branch's schema; a write is a surface command (ruling 37) setting the tree; reads are one =computed= per branch; persist · transport · seed = =JSON.stringify= / =Surface.cast=; URL = the query's signals replayed | /"a"/ (after /"slicing it up into little state spaces … centralizing it, but dedicated central"/) |
+| 6″ | the state schemas live in ghost =schematics/primitives/<branch>.js= (sorted by kind, as typology); anima draws from ghost and overrides through =v.interface=; the seed in ghost =gestalten/state/= (SKETCH) | /"q6 a"/ · /"all of them, start in ghost and then get imported or not imported and overwritten"/ |
+| 7 | the client reaches widgets through a provider at the root and a consumer in each widget; the declaration is SHARED (not in a chrome), built in ghost, in schematics; NOT named "context" | /"q7 a. I love that we have contexts. I love context providers, context consumers. This is my style."/ · /"I don't want them to be just in Chrome … we don't share surfaces amongst the clients … All of Anima will be a function of what we build in Ghost"/ · /"I don't like the idea of using the name context because that's super overused already."/ |
+| 7′ | the unit is *ambient*: one declared slot (a key + its schema) provided around a subtree, read without passing — the word typology already uses for the act (=shard.ambient=); =ClientContext= · =useClient= DEAD | /"ambient."/ |
+| 7″ | typology =prototypes/env.js:9= =this.ambient= (an env reading no role has claimed) → =observed= | /"3 yes."/ |
+| 7‴ | an ambient has three organs: =Provider= (component, gives) · =consume()= (call, reads inside a widget) · =Consumer= (component, hands the value to its children as an argument), =Consumer= built over =consume= | /"both"/ (after /"Provider and consumer/consume?"/) |
+| 7⁗ | the ambient lives in ghost: declarations in =schematics/primitives/ambients.js=, the mechanism =ambient(key, schema)= in =gestalten/ambient.js=; typology stays Solid-free; anima imports both from =@vivalence/ghost= | /"a"/ |
+| 8 | =legend= and =catalog= are two panels above the modeline, full width as the design draws them (m95 ruling 35); the composer's draft in flight is an ambient (=ambient.draft=) the root provides — the composer writes it, the catalog reads and fills it, Enter dispatches one signal (Q11) | /"a"/ (after /"do 8 13 14"/) |
+| 9 | the modeline owns and renders its two floats inside its own subtree; the root knows only =<Modeline />= (probe owed: an OpenTUI child painting outside its parent's box, =position: "absolute"= + =zIndex=; a fail forces B) | /"a"/ · on the names: /"wid and pop aer both shit names. stop abbreviating."/ |
+| 10 | the anchored float is a =Popover=; =Wid= · =Pop= · =$wid= · =$pop= DEAD; drapes =Wid.jsx= + =Pop.jsx= → one =Popover.jsx= | /"popover."/ |
+| 10′ | the popover's hold content is =DockPicker= (named by what it sets; the path gives the level, no =Widget= suffix); it lives in =panels/modeline/= — three openers (modeline display segment · =frame.jsx:54= · =dock.jsx:44=) only write state, the modeline is its one renderer | /"a"/ |
+| 11 | a gesture in flight (drag · keystroke · the popover's anchor) lives in the widget's own signal and ends in ONE surface command carrying its result; discrete clicks are commands (Q6′ · m95 25 · 37); =acts.js:24= FNS · ACTS die | /"b"/ |
+| 12 | two panels =booting= · =signin=, each a row of the ONE cover table (m95 ruling 22, today's rows unchanged); the centred card + =Brandline= is the widget =widgets/island.jsx= both wrap | /"b"/ |
+| 13 | the telemetry inspector is individual placements (as Q4): one hand-written widget per table, placing its parts; =inspect= · =ROWS= · =writable= (=tele.jsx:152-171= · ghost =tele.js:129-145=) die; telemetry is a panel the root places in its top layer, its window the =Telemetry= branch | /"b"/ |
+| 14 | anima's chrome lives at =src/surfaces/chrome/=, the same path as ghost's (m98 Q6); a file in one chrome has its twin at the same relative path | /"a"/ |
+| 10-25a | panel =catalog= → =repl=; panel =tabs= → =headline= (=panels/repl.jsx= =Repl= · =panels/headline.jsx= =Headline=); the data =$catalog= not yet renamed | /"rename "catalog" to "repl""/ · /"renaem "tabs" to "headline""/ |
+| 10-25b | =legend= and =repl= share ONE slot above the modeline, never both: the legend while a chord is held, else the repl when open (=regions.jsx:20=) | /"i can reach this state where catalog and legend are open. not good. dont want."/ · /"make legend and catalog mutually exclusive"/ |
+| 10-25c | =/sidebar= a client command, toggle, chord =leader/d/b= (=subjects/client/commands/sidebar.js=) | /"gimme the sidebar."/ |
+| 10-25d | the client is built section by section in the real ghost tree: every panel a dapper-token swatch first, the old painters unmounted (not commented: comment-guard) | /"lets go into the actual ghost chrome surface … comment out hte other stuff. we build client section by section."/ · colours /"take the colors from my theme."/ |
+| 10-24 | a widget dispatches a signal to the client's active terminal, =client.active.repl.dispatch(signal)=, as a press does; =acts.js= =send= · =ACTS= · =SURFACE= · =FNS= and anima's twins die; signin alone calls the lighthouse — no terminal exists before sign-in (=systems/ghost/subjects/client/lifecycle/index.js:209= =authorized= runs before =:214= =terminals=) | /"were too complicated on send. to chrome has ambient access to the client. the chrome should take the clients active terminal and dispatch to that. thats it. thats the entire mechanism. like keys."/ · /"signin bypasses."/ · on the tabs.js:33 · tabs.jsx:33 snippet: /"yes."/ |
+| 10-27d | chess pieces: images when the environment is adequate, cell glyphs as the fallback; the choice rides buffer.data (auto · image · glyph), set by a mode repl command and a key | /"construct it as a fallback, on buffer level … and if not, then we fall back"/ |
+| 10-27e | a coherent focus system where the keymap follows focus: dock → typing is text, buffer → its keymap; keys that move focus — its own quest, not the chess rebuild | /"If, for example, we are in the doc, I expect all typing to end up as text input. If I am in my buffer, then I expect the key maps to take that."/ · /"this is a bigger task"/ |
+| 10-27f | board orientation lives in buffer.data; cursor · selection · a typed move stay in the view | /"the orientation is definitely something that needs to go on the board"/ |
+| 10-27g | a buffer exports a keymap, live while it is mounted; bare keys run the effect with the buffer on ctx; no cursor keys; a move is typed behind =m= | /"maybe we had M and then we type out our move. Yeah, that should be doable in the key map."/ |
+| 10-27h | a second, cell-level chess view playable inside the dock (the journal mounts a buffer's inline view in place of its JSON preview) | /"I want a cell level view as well … so that I can play from within my chat window, from within the dock"/ |
+| 10-27i | 10-27g deferred whole: no buffer keymap, no move by key, no ghost change; the board plays by mouse, its panel buttons call the session; the render toggle a button | /"I don't think it makes sense to implement key map or move by key yet. We do that later."/ · /"go to the chess agent"/ |
+
+* lookups (ruled elsewhere, not asked)
+
+- level three is the *part*: m95 ruling 3 /"a"/ (=drapes= ∥ =sheets=, the same thirteen) · 2a /"components like the ones that you listed, like the nice little isolated ones"/ → the word that lock chose is =part=. Old F5 struck.
+- the chord panel is the *legend*: m95 ruling 35 named the part =Chord= /"chord"/; m99 Q20 (later) /"legend. legend is great. legend and $chord"/ — =Legend= paints, =$chord= is what it paints. Old F2 struck.
+- *panel* is free: m95 ruling 35 /"Panel · minibuffer dead"/ killed the chord+catalog box's name; still in code at =anima regions.jsx:34= · =ghost panes/panel.js= · =drapes/Panel.jsx= — those leave under this quest.
+- surface commands live in ghost: m95 ruling 37 /"I do want the ghost to implement the client commands and the terminal commands … exported and imported by Anima"/ + /"a surface verb writes the surface"/ → =/sidebar …= into =systems/ghost/subjects/client/commands/=; both =SURFACE= tables (=acts.js:15= · =sidebar.jsx:12=) die. Old F4 struck.
+- every action through the repl: m95 ruling 25 /"everything through the repl."/ · 6a.
+- the phone: m95 ruling 39 =$narrow= + =$shown= (code: =$phonePane=).
+- the cover: m95 ruling 22 — one =[[predicate, pane]]= table.
+- MEASURED AGAINST A LOCK (not a fork): the 10-22 tty look ported the design's =Tty.paint*= 1:1 onto a cell grid and killed 8 retained panes (=m95-depincered-client.org= "LANDED 10-22 — the tty look on ghost"); =sections.js= (11 row types) landed with the look against m95 ruling 34 /"No row model … not now"/. Both go to Q1 · Q7.
+
+* from m98 — compendium (10-24)
+
+10-24, beef verbatim: /"this must be aligned with 103. lets move the parts of 98 into 103 that fit there and drop them here entirely. We don't want double work. So if there's anything, maybe write a compendium to 103 detailing the stuff that we have from 98 that applies there. like all of the rulings and such."/
+
+m98 keeps the move =systems/ghost/chrome= → =systems/ghost/surfaces/chrome= (m98 Q6), =surfaces/index.js= (=surfaces.chrome=, the shell's =/chrome= imports it), the import-path fixes the moved files need (=bundle.js= · =renderers.js= · =sections.js= · =panes/{chrome,painters}.jsx=) and the chrome test moves with their path lines only (m98 Q10 · Q11′ · Q14). What follows left m98's tangle whole: the rows verbatim, the blocks verbatim (struck copies also in =reference/m98/chrome-to-m103-10-24.org=).
+
+| Q | ruling | his words |
+|---|--------|-----------|
+| 8 | a pane file is a FAMILY: =export * as <pane>=, every export stays, the =paint= prefix drops (=panes.bar.paint=) | /"a"/ |
+| 9 | =surfaces/chrome/index.js= IS the surface (Q3 value); its 8 helpers → owners (=rgb= ≡ =grid.js:16 toRgb= — FALSE, relabelled Q43: =rgb= · =luminance= die, dapper's =contrast=); parent star-exports it: =surfaces.chrome= | /"a"/ |
+| 43 | dapper owns colour math: =dark= = =contrast(bg, "#FFFFFF") > contrast(bg, "#000000")= via =import { contrast } from "@vivalence/dapper"= (the barrel, never the =/contrast= subpath); chrome's =rgb= · =luminance= die | /"b but no /contrast export. import {contrast}"/ |
+
+- Q8 the pane family — SUPERSEDED for its files: every =panes/*.js= painter and every =paint*= dies (milestone 4); ABSORBED as a shape: a panel file is reached as its namespace, =panels.<name>.<Name>= (Q0 · Q1, =regions.jsx= above)
+- Q9 the 8 helpers → owners — SUPERSEDED: =grid.js= (the helpers' owner) dies (milestone 4); =PLACES= · =OSC= · =TICK= · =dark= · =spinning= · =ticking= still need a home in the new root, unnamed in =* as code= — owed at the tangle. m98 keeps Q9's surface half: =surfaces/chrome/index.js= IS the surface, =surfaces.chrome=
+- Q43 dark via dapper =contrast= — STILL NEEDED: the tty root still reads the terminal's background for =dark=; =rgb= · =luminance= die wherever =dark= lands; =import { contrast } from "@vivalence/dapper"=, never the =/contrast= subpath
+- m98 deferred =toRgb= ≡ dapper =channels= — SUPERSEDED: =grid.js= dies
+- the chrome tests' Q8 · Q43 lines — SUPERSEDED: the frame-capture oracle over the retained tree (=* testing assessment=) replaces =index= · =bundle= · =paint= · =chrome= · =regions= tests' assertions; m98 keeps their moves and imports
+
+m98's deferred row, verbatim: =toRgb= (=surfaces/chrome/grid.js:16=) ≡ dapper =channels= — unasked.
+
+** Q8 — the pane files as families
+*** =systems/ghost/surfaces/chrome/panes/bar.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/bar.js:38
+
+-export const paintBar = (world, S, P, y) => {
++export const paint = (world, S, P, y) => {
+   const z = P[0];
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/panes/frame.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/frame.js:34
+
+-export const paintFrame = (world, S, P, x0, y0, wd, ht) => {
++export const paint = (world, S, P, x0, y0, wd, ht) => {
+   const z = P[1];
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/panes/index.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/index.js:1
+-export { Chrome as chrome, Cells, Island as island, PANES, Regions as regions, SETTLING, SOURCES, pane } from "./chrome.jsx";
+-export { Mounted, BODY } from "./painters.jsx";
+-export { paintTabs, ANIMA, LIVE, live } from "./tabs.js";
+-export { paintBar, chordText, GLYPHS, HINT, MIC, PROCESS, SEGS, SPOKEN, SYSTEM, tone, ttyGlyph } from "./bar.js";
+-export { paintSection, sectionLines, hitOf } from "./section.js";
+-export { paintWid, WIDTH } from "./wid.js";
+-export { paintPanel, completions, edgeLabel, edgesOf, HIDDEN, HINTS, KCOL, match, NAMED, panelHeight, SUBJECTS } from "./panel.js";
+-export { paintFrame, BODIES, EMPTY } from "./frame.js";
+-export { paintSidebar } from "./sidebar.js";
+-export { paintJournal, journalLines, jrows, recMeta, CONSENT, KEYS, LENS, PLACEHOLDER, ROLES, cells, clock, prose, streamed, thought, tools } from "./journal.js";
+-export { paintTele, detail, enacted, FILTERS, inspectView, kind, story, TABS, teleView, TRACKS, writable } from "./tele.js";
+-export { paintIsland, BEATS, BRAND, LOGO, logo } from "./island.js";
+-export { render, FOCUSED, MESSENGER, NARROW, SCROLLBACK } from "./regions.js";
++export * as bar from "./bar.js";
++export * as chrome from "./chrome.jsx";
++export * as frame from "./frame.js";
++export * as island from "./island.js";
++export * as journal from "./journal.js";
++export * as painters from "./painters.jsx";
++export * as panel from "./panel.js";
++export * as regions from "./regions.js";
++export * as section from "./section.js";
++export * as sidebar from "./sidebar.js";
++export * as tabs from "./tabs.js";
++export * as tele from "./tele.js";
++export * as wid from "./wid.js";
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/panes/island.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/island.js:22
+
+-export const paintIsland = (world, S, P) => {
++export const paint = (world, S, P) => {
+   const z = P[2];
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/panes/journal.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/journal.js:442
+
+-export const paintJournal = (world, S, P, x0, y0, wd, ht, footer) => {
++export const paint = (world, S, P, x0, y0, wd, ht, footer) => {
+   const z = P[1];
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/panes/panel.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/panel.js:113
+
+-export const paintPanel = (world, S, P, y, h) => {
++export const paint = (world, S, P, y, h) => {
+   const z = P[0];
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/panes/regions.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/regions.js:3
+ import { SIDEBAR } from "../screen.js";
+-import { paintTabs } from "./tabs.js";
+-import { paintBar } from "./bar.js";
+-import { paintWid } from "./wid.js";
+-import { panelHeight, paintPanel } from "./panel.js";
+-import { paintFrame } from "./frame.js";
+-import { paintSidebar } from "./sidebar.js";
+-import { paintJournal } from "./journal.js";
+-import { paintTele } from "./tele.js";
+-import { paintIsland } from "./island.js";
++import * as bar from "./bar.js";
++import * as frame from "./frame.js";
++import * as island from "./island.js";
++import * as journal from "./journal.js";
++import * as panel from "./panel.js";
++import * as sidebar from "./sidebar.js";
++import * as tabs from "./tabs.js";
++import * as tele from "./tele.js";
++import * as wid from "./wid.js";
+
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:38
+   if (!d.min) {
+-    paintJournal(world, S, P, dx, dy, dw, dh, false);
++    journal.paint(world, S, P, dx, dy, dw, dh, false);
+     put(S, dx + dw, dy + dh, "◢", { fg: z1["text-muted"], bg: z1.boundary, hit: { fn: "dockresize" } });
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:48
+   const jy = 3;
+-  paintJournal(world, S, P, 0, jy, cols, bodyH - jy - 1, true);
++  journal.paint(world, S, P, 0, jy, cols, bodyH - jy - 1, true);
+   put(S, 0, panelY - 1, "─".repeat(cols), { fg: z.divider });
+-  if (panelOpen) paintPanel(world, S, P, panelY, panelH);
+-  paintBar(world, S, P, barY);
+-  paintWid(world, S, P, barY);
+-  paintTele(world, S, P);
++  if (panelOpen) panel.paint(world, S, P, panelY, panelH);
++  bar.paint(world, S, P, barY);
++  wid.paint(world, S, P, barY);
++  tele.paint(world, S, P);
+   return S;
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:60
+   if (world.island) {
+-    paintIsland(world, S, P);
++    island.paint(world, S, P);
+     return S;
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:65
+   const narrow = cols < NARROW;
+-  const panelH = panelHeight(world, cols, rows);
++  const panelH = panel.panelHeight(world, cols, rows);
+   const panelOpen = panelH > 0;
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:73
+   if (!cockpit) return footer(world, S, P, cols, panelOpen, panelY, panelH, barY, bodyH);
+-  paintTabs(world, S, P, 0);
++  tabs.paint(world, S, P, 0);
+   let x = 0;
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:77
+   if (sbW) {
+-    paintSidebar(world, S, P, 0, bodyY, sbW, bodyH);
++    sidebar.paint(world, S, P, 0, bodyY, sbW, bodyH);
+     x = sbW;
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:86
+     if (showFrame) {
+-      paintFrame(world, S, P, x, bodyY, bw, bodyH);
++      frame.paint(world, S, P, x, bodyY, bw, bodyH);
+       put(S, cols - 14, bodyY, "⇥ journal", { fg: P[1]["text-muted"], hit: { fn: "pane", arg: "dock" } });
+     } else {
+-      paintJournal(world, S, P, x, bodyY, bw, bodyH, false);
++      journal.paint(world, S, P, x, bodyY, bw, bodyH, false);
+       if (hasFrame) put(S, x + bw - 12, bodyY, "⇥ frame", { fg: P[1]["signal-primary-ink"], hit: { fn: "pane", arg: "frame" } });
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:99
+       const dx = dock.align === "right" ? x + fw + 1 : x;
+-      paintFrame(world, S, P, fx, bodyY, fw, bodyH);
++      frame.paint(world, S, P, fx, bodyY, fw, bodyH);
+       for (let yy = bodyY; yy < bodyY + bodyH; yy += 1) put(S, dock.align === "right" ? x + fw : x + dw, yy, "│", { fg: P[1].boundary, hit: { line: RESET } });
+-      paintJournal(world, S, P, dx, bodyY, dw, bodyH, false);
++      journal.paint(world, S, P, dx, bodyY, dw, bodyH, false);
+     } else {
+…
+// systems/ghost/surfaces/chrome/panes/regions.js:107
+       const dy = dock.align === "bottom" ? bodyY + fh + 1 : bodyY;
+-      paintFrame(world, S, P, x, fy, bw, fh);
++      frame.paint(world, S, P, x, fy, bw, fh);
+       put(S, x, dock.align === "bottom" ? bodyY + fh : bodyY + dh, "─".repeat(bw), { fg: P[1].boundary });
+-      paintJournal(world, S, P, x, dy, bw, dh, false);
++      journal.paint(world, S, P, x, dy, bw, dh, false);
+     }
+   } else if (hasFrame && (!dockShown || dock.view === "messenger")) {
+-    paintFrame(world, S, P, x, bodyY, bw, bodyH);
++    frame.paint(world, S, P, x, bodyY, bw, bodyH);
+     if (dock.view === "messenger") messenger(world, S, P, x, bodyY, bw, bodyH);
+-  } else paintJournal(world, S, P, x, bodyY, bw, bodyH, false);
+-  if (panelOpen) paintPanel(world, S, P, panelY, panelH);
+-  paintBar(world, S, P, barY);
+-  paintWid(world, S, P, barY);
++  } else journal.paint(world, S, P, x, bodyY, bw, bodyH, false);
++  if (panelOpen) panel.paint(world, S, P, panelY, panelH);
++  bar.paint(world, S, P, barY);
++  wid.paint(world, S, P, barY);
+   if (world.focus === "frame" && hasFrame) put(S, cols - 20, bodyY, FOCUSED, { fg: P[1]["text-muted"] });
+-  paintTele(world, S, P);
++  tele.paint(world, S, P);
+   return S;
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/panes/section.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/section.js:140
+
+-export const paintSection = (world, S, P, sec, x0, y0, wd, maxH, zone) => {
++export const paint = (world, S, P, sec, x0, y0, wd, maxH, zone) => {
+   const z = P[zone];
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/panes/sidebar.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/sidebar.js:2
+ import { sideTags, sideView, UNCLAIMED } from "../sections.js";
+-import { paintSection, sectionLines } from "./section.js";
++import * as section from "./section.js";
+
+-export const paintSidebar = (world, S, P, x0, y0, wd, ht) => {
++export const paint = (world, S, P, x0, y0, wd, ht) => {
+   const z = P[0];
+…
+// systems/ghost/surfaces/chrome/panes/sidebar.js:13
+     if (row >= end - 1) return;
+-    row += paintSection(world, S, P, sec, x0 + 1, row, wd - 2, end - row, 0) + 1;
++    row += section.paint(world, S, P, sec, x0 + 1, row, wd - 2, end - row, 0) + 1;
+   });
+-  sectionLines(world, P, { rows: [sideTags(world)] }, wd - 2, 0).forEach((ln) => {
++  section.sectionLines(world, P, { rows: [sideTags(world)] }, wd - 2, 0).forEach((ln) => {
+     if (row >= end) return;
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/panes/tabs.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/tabs.js:14
+
+-export const paintTabs = (world, S, P, y) => {
++export const paint = (world, S, P, y) => {
+   const z = P[0];
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/panes/tele.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/tele.js:337
+
+-export const paintTele = (world, S, P) => {
++export const paint = (world, S, P) => {
+   const T = world.tele;
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/panes/wid.js — Q8= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/wid.js:2
+ import { sections } from "../sections.js";
+-import { paintSection, sectionLines } from "./section.js";
++import * as section from "./section.js";
+
+…
+// systems/ghost/surfaces/chrome/panes/wid.js:6
+
+-export const paintWid = (world, S, P, barY) => {
++export const paint = (world, S, P, barY) => {
+   if (world.wid === null) return;
+…
+// systems/ghost/surfaces/chrome/panes/wid.js:13
+   const x0 = Math.max(1, Math.min(S.seg[sec.id] || 1, S.cols - wd - 2));
+-  const lines = sectionLines(world, P, sec, wd, 0).length + 1;
++  const lines = section.sectionLines(world, P, sec, wd, 0).length + 1;
+   const h = Math.min(lines, barY - 3);
+…
+// systems/ghost/surfaces/chrome/panes/wid.js:17
+   fill(S, x0 - 1, y0 - 1, wd + 2, h + 2, { bg: z.boundary, clear: true });
+-  paintSection(world, S, P, sec, x0, y0, wd, h, 0);
++  section.paint(world, S, P, sec, x0, y0, wd, h, 0);
+ };
+#+END_SRC
+** Q9 · Q43 — the helpers to their owners, dark through dapper
+*** =systems/ghost/surfaces/chrome/grid.js — Q9 · Q43= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/grid.js:1
+-import { tokens } from "@vivalence/dapper";
++import { contrast, tokens } from "@vivalence/dapper";
+
+…
+// systems/ghost/surfaces/chrome/grid.js:105
+
++export const TICK = 90;
++
++export const spinning = (client) =>
++  client.runtime !== null &&
++  client.runtime.entities.activity.$entities
++    .get()
++    .some((activity) => activity.status === "RUNNING");
++
++export const ticking = (client) =>
++  setInterval(() => {
++    if (spinning(client))
++      client.surface.$clock.set((client.surface.clock + TICK) % (TICK * SPINNER.length));
++  }, TICK);
++
++export const OSC = { timeout: 1200 };
++
++export const dark = (renderer) =>
++  renderer
++    .getPalette(OSC)
++    .then((colors) => colors.defaultBackground === null || contrast(colors.defaultBackground, "#FFFFFF") > contrast(colors.defaultBackground, "#000000"))
++    .catch(() => true);
++
+ export const bar = (pct, n) => {
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/index.js — Q9 · Q43= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/index.js:3
+ import { paint } from "./paint.js";
+-import { screen } from "./screen.js";
+-import { SPINNER } from "./grid.js";
++import { PLACES, screen } from "./screen.js";
++import { dark, ticking } from "./grid.js";
+ import { panes } from "./out/panes.mjs";
+-
+-export const PLACES = ["cell", "frame"];
+-
+-export const OSC = { timeout: 1200 };
+-
+-export const TICK = 90;
+-
+-const channel = (hex, at) => parseInt(hex.slice(at, at + 2), 16) / 255;
+-
+-export const rgb = (color) =>
+-  typeof color === "string"
+-    ? { r: channel(color, 1), g: channel(color, 3), b: channel(color, 5) }
+-    : color;
+-
+-export const luminance = (color) =>
+-  rgb(color).r * 0.2126 + rgb(color).g * 0.7152 + rgb(color).b * 0.0722;
+-
+-export const dark = (renderer) =>
+-  renderer
+-    .getPalette(OSC)
+-    .then(
+-      (colors) => colors.defaultBackground === null || luminance(colors.defaultBackground) < 0.5,
+-    )
+-    .catch(() => true);
+-
+-export const spinning = (client) =>
+-  client.runtime !== null &&
+-  client.runtime.entities.activity.$entities
+-    .get()
+-    .some((activity) => activity.status === "RUNNING");
+-
+-export const ticking = (client) =>
+-  setInterval(() => {
+-    if (spinning(client))
+-      client.surface.$clock.set((client.surface.clock + TICK) % (TICK * SPINNER.length));
+-  }, TICK);
+
+…
+// systems/ghost/surfaces/chrome/index.js:55
+   const tick = ticking(client);
+-  const erase = paint(renderer.root, renderer, panes.chrome, { client });
++  const erase = paint(renderer.root, renderer, panes.chrome.Chrome, { client });
+   return () => {
+#+END_SRC
+*** =systems/ghost/surfaces/chrome/screen.js — Q9= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/screen.js:3
+ export const FOCUS = ["sidebar", "frame", "journal", "composer"];
++
++export const PLACES = ["cell", "frame"];
+
+#+END_SRC
+** the chrome tests — as tangled before m98's 10-24 re-cut (m98 keeps the path lines; the rest rides Q8 · Q9 · Q43)
+*** =systems/ghost/tests/surfaces/chrome/bundle.test.js — Q10 · Q11′ · Q14= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:1
+-import { screen, settle } from "./world.js";
++import { screen, settle } from "../../scenarios/world.js";
+ import { specimen } from "@vivalence/typology";
+-import { catalog } from "../subjects/client/keymap.js";
+-import { panes } from "../chrome/out/panes.mjs";
+-import { DESIGN, world } from "./scenarios/look.js";
++import { panes } from "../../../surfaces/chrome/out/panes.mjs";
++import { DESIGN, world } from "../../scenarios/look.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:13
+     const held = world({ authorized: false });
+-    specimen.expect(panes.PANES.map(([, name]) => name)).toEqual(["booting", "booting", "signin", "booting", "regions"]);
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.PANES.map(([, name]) => name)).toEqual(["booting", "booting", "signin", "booting", "regions"]);
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.client.runtime = held.runtime;
+     held.lighthouse.manifest = null;
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.lighthouse.manifest = { traits: [] };
+-    specimen.expect(panes.pane(held.client)).toBe("signin");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("signin");
+     held.lighthouse.$authority.set({ access: "a", refresh: "r" });
+     held.client.$active.set(null);
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.client.$active.set(held.terminal);
+-    specimen.expect(panes.pane(held.client)).toBe("regions");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("regions");
+   });
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:30
+     held.client.controller.stdout.log({ lighthouse: "verified" });
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:53
+     const held = world();
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:64
+     held.client.$chord.set(null);
+-    held.client.$catalog.set(catalog(held.client.active.repl.commands));
++    held.client.$catalog.set(ghost.client.keymap.catalog(held.client.active.repl.commands));
+     held.client.surface.$draft.set("/dock");
+#+END_SRC
+*** =systems/ghost/tests/surfaces/chrome/index.test.js — Q10 · Q11′ · Q14= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/index.test.js:1
+-// m92 · m95 the tty chrome's facts: a palette colour's luminance decides dark, the dapper palette is memoized per theme (grid.js), flattened per zone, no terminal → no chrome
++// m92 · m95 the tty chrome's facts: dapper's contrast decides dark, the dapper palette is memoized per theme (grid.js), flattened per zone, no terminal → no chrome
+ import { specimen } from "@vivalence/typology";
+ import { tokens } from "@vivalence/dapper";
+-import * as chrome from "../chrome/index.js";
+-import * as grid from "../chrome/grid.js";
++import * as chrome from "../../../surfaces/chrome/index.js";
++import * as grid from "../../../surfaces/chrome/grid.js";
+ import { atom } from "nanostores";
+-import { screen } from "../chrome/screen.js";
++import { PLACES, screen } from "../../../surfaces/chrome/screen.js";
+
+…
+// systems/ghost/tests/surfaces/chrome/index.test.js:11
+ specimen.describe("the tty chrome's facts", () => {
+-  specimen.it("rgb reads a hex into unit channels and passes a channel object through", () => {
+-    specimen.expect(chrome.rgb("#ff0000")).toEqual({ r: 1, g: 0, b: 0 });
+-    specimen.expect(chrome.rgb("#000000")).toEqual({ r: 0, g: 0, b: 0 });
+-    specimen.expect(chrome.rgb({ r: 0.5, g: 0.5, b: 0.5 })).toEqual({ r: 0.5, g: 0.5, b: 0.5 });
+-  });
+-
+-  specimen.it("luminance weighs the channels by Rec. 709 — white 1, black 0, green the heaviest", () => {
+-    specimen.expect(chrome.luminance("#ffffff")).toBeCloseTo(1);
+-    specimen.expect(chrome.luminance("#000000")).toBe(0);
+-    specimen.expect(chrome.luminance("#00ff00")).toBeCloseTo(0.7152);
+-    specimen.expect(chrome.luminance("#ff0000")).toBeCloseTo(0.2126);
+-  });
+-
+-  specimen.it("dark: a background under half luminance is dark; no background or a refused OSC query is dark; a light background is not", async () => {
+-    specimen.expect(await chrome.dark(renderer("#101010"))).toBe(true);
+-    specimen.expect(await chrome.dark(renderer("#fafafa"))).toBe(false);
+-    specimen.expect(await chrome.dark(renderer(null))).toBe(true);
+-    specimen.expect(await chrome.dark({ getPalette: () => Promise.reject(new Error("no OSC")) })).toBe(true);
++  specimen.it("dark: a background that contrasts more with white than with black is dark; no background or a refused OSC query is dark; a light background is not", async () => {
++    specimen.expect(await grid.dark(renderer("#101010"))).toBe(true);
++    specimen.expect(await grid.dark(renderer("#fafafa"))).toBe(false);
++    specimen.expect(await grid.dark(renderer(null))).toBe(true);
++    specimen.expect(await grid.dark({ getPalette: () => Promise.reject(new Error("no OSC")) })).toBe(true);
+   });
+…
+// systems/ghost/tests/surfaces/chrome/index.test.js:52
+     specimen.expect(grid.ZONES).toEqual(["0", "1", "2", "3"]);
+-    specimen.expect(chrome.PLACES).toEqual(["cell", "frame"]);
+-    specimen.expect(chrome.OSC).toEqual({ timeout: 1200 });
++    specimen.expect(PLACES).toEqual(["cell", "frame"]);
++    specimen.expect(grid.OSC).toEqual({ timeout: 1200 });
+   });
+…
+// systems/ghost/tests/surfaces/chrome/index.test.js:58
+     const $entities = atom([{ status: "RUNNING" }]);
+-    const client = { runtime: { entities: { activity: { $entities } } }, surface: screen({ kind: "tty", places: chrome.PLACES, dark: true }) };
+-    client.surface.$clock.set(chrome.TICK * (grid.SPINNER.length - 1));
+-    const tick = chrome.ticking(client);
+-    await new Promise((resolve) => setTimeout(resolve, chrome.TICK * 1.5));
++    const client = { runtime: { entities: { activity: { $entities } } }, surface: screen({ kind: "tty", places: PLACES, dark: true }) };
++    client.surface.$clock.set(grid.TICK * (grid.SPINNER.length - 1));
++    const tick = grid.ticking(client);
++    await new Promise((resolve) => setTimeout(resolve, grid.TICK * 1.5));
+     specimen.expect(client.surface.clock).toBe(0);
+     $entities.set([{ status: "PAUSED" }]);
+-    await new Promise((resolve) => setTimeout(resolve, chrome.TICK * 2));
+-    specimen.expect(client.surface.clock % chrome.TICK).toBe(0);
++    await new Promise((resolve) => setTimeout(resolve, grid.TICK * 2));
++    specimen.expect(client.surface.clock % grid.TICK).toBe(0);
+     const held = client.surface.clock;
+-    await new Promise((resolve) => setTimeout(resolve, chrome.TICK * 2));
++    await new Promise((resolve) => setTimeout(resolve, grid.TICK * 2));
+     specimen.expect(client.surface.clock).toBe(held);
+     client.runtime = null;
+-    specimen.expect(chrome.spinning(client)).toBe(false);
+-    await new Promise((resolve) => setTimeout(resolve, chrome.TICK * 2));
++    specimen.expect(grid.spinning(client)).toBe(false);
++    await new Promise((resolve) => setTimeout(resolve, grid.TICK * 2));
+     clearInterval(tick);
+#+END_SRC
+*** =systems/ghost/tests/surfaces/chrome/paint.test.js — Q10 · Q11′ · Q14= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/paint.test.js:1
+-import { chrome, screen, settle } from "./world.js";
++import { chrome, screen, settle } from "../../scenarios/world.js";
+ import { specimen } from "@vivalence/typology";
+-import { paint } from "../chrome/paint.js";
+-import { DESIGN, world } from "./scenarios/look.js";
++import { paint } from "../../../surfaces/chrome/paint.js";
++import { DESIGN, world } from "../../scenarios/look.js";
+
+…
+// systems/ghost/tests/surfaces/chrome/paint.test.js:16
+     const before = slot.getChildren().length;
+-    const erase = paint(slot, setup.renderer, panes.chrome, { client: held.client });
++    const erase = paint(slot, setup.renderer, panes.chrome.Chrome, { client: held.client });
+     await settle(setup);
+#+END_SRC
+*** =systems/ghost/tests/surfaces/chrome/panes/chrome.test.js — Q10 · Q11′ · Q14= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:1
+ import { specimen } from "@vivalence/typology";
+-import { navigating } from "../subjects/client/keymap.js";
+-import { keypresses } from "../chrome/keys.js";
+-import { chrome, screen, settle } from "./world.js";
+-import { DESIGN, world } from "./scenarios/look.js";
++import { keypresses } from "../../../../surfaces/chrome/keys.js";
++import { chrome, screen, settle } from "../../../scenarios/world.js";
++import { DESIGN, world } from "../../../scenarios/look.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:14
+     const held = world({ authorized: false });
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.client.runtime = held.runtime;
+     held.lighthouse.manifest = null;
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.lighthouse.manifest = { traits: ["AUTOLOGIN"] };
+     held.lighthouse.$status.set({ code: "VERIFYING" });
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.lighthouse.$status.set({ code: "IDLE" });
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.lighthouse.$status.set({ code: "ERROR", message: "INVALID_CREDENTIALS" });
+-    specimen.expect(panes.pane(held.client)).toBe("signin");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("signin");
+     held.lighthouse.manifest = { traits: [] };
+     held.lighthouse.$status.set({ code: "IDLE" });
+-    specimen.expect(panes.pane(held.client)).toBe("signin");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("signin");
+     held.lighthouse.$authority.set({ access: "a", refresh: "r" });
+     held.client.$active.set(null);
+-    specimen.expect(panes.pane(held.client)).toBe("booting");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("booting");
+     held.client.$active.set(held.terminal);
+-    specimen.expect(panes.pane(held.client)).toBe("regions");
++    specimen.expect(panes.chrome.pane(held.client)).toBe("regions");
+   });
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:41
+     held.client.controller.stdout.log({ lighthouse: "verified" });
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:67
+     };
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:83
+     const held = world();
+-    const setup = await screen(() => panes.chrome({ client: held.client }), { width: 100, height: 24 });
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), { width: 100, height: 24 });
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:104
+     const held = world();
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     keypresses(setup.renderer).to(held.client.presses);
+-    const walking = navigating(held.client, held.client.presses.drain(held.client.controller.abort.signal));
++    const walking = ghost.client.keymap.navigating(held.client, held.client.presses.drain(held.client.controller.abort.signal));
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:130
+     const held = world();
+-    const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
++    const setup = await screen(() => panes.chrome.Chrome({ client: held.client }), SIZE);
+     await settle(setup);
+#+END_SRC
+*** =systems/ghost/tests/surfaces/chrome/panes/regions.test.js — Q10 · Q11′ · Q14= (from m98, cut on m98's 10-23 tree — re-cut at m103's tangle)
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:1
+ import { specimen } from "@vivalence/typology";
+-import { catalog } from "../subjects/client/keymap.js";
+-import { lines } from "../chrome/grid.js";
+-import { render } from "../chrome/panes/regions.js";
+-import { gathered, island } from "../chrome/world.js";
+-import { journalLines } from "../chrome/panes/journal.js";
+-import { Turn } from "../entities/turn.js";
+-import { DESIGN, framed, lists, local, runs, symbolic, world } from "./scenarios/look.js";
++import { lines } from "../../../../surfaces/chrome/grid.js";
++import { render } from "../../../../surfaces/chrome/panes/regions.js";
++import { gathered, island } from "../../../../surfaces/chrome/world.js";
++import { journalLines } from "../../../../surfaces/chrome/panes/journal.js";
++import { DESIGN, framed, lists, local, runs, symbolic, world } from "../../../scenarios/look.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:22
+ const turned = (held, id, createdAt, parts) =>
+-  held.thread.$turns.set([...held.thread.$turns.get(), Object.assign(new Turn(), { id, role: "assistant", thread: held.thread, createdAt, parts })]);
++  held.thread.$turns.set([...held.thread.$turns.get(), Object.assign(new ghost.entities.turn.Turn(), { id, role: "assistant", thread: held.thread, createdAt, parts })]);
+
+ specimen.describe("the look — every paint* paints the design's cells (Tty.* rendered for the same state is the oracle)", () => {
+-  specimen.it("paintTabs · paintJournal · paintBar: the docked journal over a running thread, 80×24", () => {
++  specimen.it("tabs.paint · journal.paint · bar.paint: the docked journal over a running thread, 80×24", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:30
+
+-  specimen.it("paintSidebar · paintSection · paintFrame (markdown) · the docked split: sidebar open over a framed buffer, 120×40", () => {
++  specimen.it("sidebar.paint · section.paint · frame.paint (markdown) · the docked split: sidebar open over a framed buffer, 120×40", () => {
+     const held = world({ buffered: true });
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:36
+
+-  specimen.it("paintFrame · the split seam · the journal's artifact cell: a framed buffer, 120×40", () => {
++  specimen.it("frame.paint · the split seam · the journal's artifact cell: a framed buffer, 120×40", () => {
+     const held = world({ buffered: true });
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:41
+
+-  specimen.it("paintPanel (the leader): ctrl-v lists the keymap's edges in KCOL columns, the bar's << lit", () => {
++  specimen.it("panel.paint (the leader): ctrl-v lists the keymap's edges in KCOL columns, the bar's << lit", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:47
+
+-  specimen.it("paintPanel (the palette): the catalog narrowed by the draft, the match lit, the chord at the right", () => {
++  specimen.it("panel.paint (the palette): the catalog narrowed by the draft, the match lit, the chord at the right", () => {
+     const held = world();
+-    held.client.$catalog.set(catalog(held.client.active.repl.commands));
++    held.client.$catalog.set(ghost.client.keymap.catalog(held.client.active.repl.commands));
+     held.client.surface.$draft.set("/dock");
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:54
+
+-  specimen.it("paintWid: the harness segment's section above the bar, framed by the boundary", () => {
++  specimen.it("wid.paint: the harness segment's section above the bar, framed by the boundary", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:60
+
+-  specimen.it("paintTele (logger): spans and the activity as rows, the filters counted, a fault red", () => {
++  specimen.it("tele.paint (logger): spans and the activity as rows, the filters counted, a fault red", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:66
+
+-  specimen.it("paintTele (inspector): the client's tables, enum · bool · num · set rows that write /set", () => {
++  specimen.it("tele.paint (inspector): the client's tables, enum · bool · num · set rows that write /set", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:72
+
+-  specimen.it("paintIsland (booting): the brand line, the bar a third full after the lighthouse beat", () => {
++  specimen.it("island.paint (booting): the brand line, the bar a third full after the lighthouse beat", () => {
+     const held = world({ authorized: false });
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:78
+
+-  specimen.it("paintIsland (signin): user · password · sign in · autologin, the lighthouse's fault under them", () => {
++  specimen.it("island.paint (signin): user · password · sign in · autologin, the lighthouse's fault under them", () => {
+     const held = world({ authorized: false });
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:105
+
+-  specimen.it("paintJournal (tools): an agent turn's tool calls — a result ok ✓, an ERROR result ✕, no result under a running activity ⠋ … — counted in the head", () => {
++  specimen.it("journal.paint (tools): an agent turn's tool calls — a result ok ✓, an ERROR result ✕, no result under a running activity ⠋ … — counted in the head", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:118
+
+-  specimen.it("paintJournal (think): a landed turn's thinking folds to one ✓ row ▸ above its text", () => {
++  specimen.it("journal.paint (think): a landed turn's thinking folds to one ✓ row ▸ above its text", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:128
+
+-  specimen.it("paintJournal (streaming): a turn without createdAt is live — head …, its thinking open ▾ under the spinner, no text row yet", () => {
++  specimen.it("journal.paint (streaming): a turn without createdAt is live — head …, its thinking open ▾ under the spinner, no text row yet", () => {
+     const held = world();
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:134
+
+-  specimen.it("paintJournal (fault): a fault record is a ! row in the negative ink; selected under journal focus it offers c copy", () => {
++  specimen.it("journal.paint (fault): a fault record is a ! row in the negative ink; selected under journal focus it offers c copy", () => {
+     const held = world();
+#+END_SRC
+
+* the drill — DONE 10-23: Q0–Q14 locked; the list MOVED to =reference/m103/question-list-10-23.org=
+
+* milestones
+
+1. *the float probe* — PROVEN 10-23 on a copy (=* changelog=): an absolute child paints outside its parent's box; =zIndex= orders SIBLINGS only — the modeline paints after the body in tree order, or carries its own =zIndex=. Q9 A holds.
+2. *ghost's shared pieces* — =schematics/primitives/{surface,sidebar,dock,modeline,telemetry,booting,signin,ambients}.js= (Q6″ · Q7⁗) · =gestalten/ambient.js= (Q7) · =gestalten/state/seed.js= (SKETCH Q6″) · =gestalten/belt/journal.js= (Q2) · =ambients.js= =client= + =draft= (Q7 · Q8) · the surface commands in =subjects/client/commands/= (m95 37: =/sidebar= =/telemetry= =/popover= =/dock/minimize= …) · every =v.object= its JSON snapshot.
+3. *anima's chrome* — =src/surface/= → =src/surfaces/chrome/= (Q14): root flat (Q0) · nine panels (tabs sidebar frame dock legend catalog modeline telemetry booting signin) · =widgets/= the seven sections + view + island (Q4 · Q5 · Q12) · =panels/telemetry/inspector/= five tables by hand (Q13) · =legend.jsx= + =catalog.jsx= over =ambient.draft= (Q8) · drapes =Wid.jsx= + =Pop.jsx= → =Popover.jsx= (Q10) · =Srow.jsx= (Section) · =Panel.jsx= die (Q4 · m95 35).
+4. *ghost's chrome* — =chrome/= → =surfaces/chrome/= (m98 Q6): retained =<box>= over =sheets= (Q1); =grid.js · world.js · acts.js · typing.js · regions.js · renderers.js · out/= and every =paint*= die; the look RE-PROVEN against =Client · v1.0.html=, region by region (codestyle: a design is the spec).
+5. *typology's rename* — =prototypes/env.js:9= =ambient= → =observed= (Q7″, HOLY: its own go).
+
+* blast table
+
+| what | count | fate |
+|---|---|---|
+| =systems/ghost/chrome/= | 30 files · 3064 lines | replaced (milestone 4) |
+| =systems/ghost/chrome/out/panes.mjs= | 1 · 2679 | dies (no cell painters to bundle; the JSX bundle stays) |
+| =systems/anima/src/surface/= | 25 files · 2239 lines | moved + recast (milestone 3) |
+| drapes parts dying | 4 (=Wid · Pop · Srow · Panel=) + 4 tests (=tests/parts/{wid,pop,srow,panel}.test.js=) | → =Popover.jsx= · gone |
+| sheets parts | 18 | first consumer (Q1); quality per m95 2a /"Sheets is utter garbage"/ |
+| repo tests importing chrome internals | 6 files | re-cut (m98 Q10 · Q11′) |
+| =~/.viva/registry= importing =@vivalence/drapes= | 96 imports (Svelte buffers: education · young-ladys-primer) | UNTOUCHED — the Svelte drapes dirs stay |
+| =~/.viva/registry= reading =client.surface= | 0 | none |
+| mode view contract =surface: { place, renderer, palette }= (=painters.jsx:760=) | — | unchanged |
+
+* testing assessment
+
+- COVERAGE GAP: no test proves both chromes' =Surface= keys agree — one ghost command writes both (m95 37); owed: a snapshot of =Surface.cast({})= per chrome against ghost's schema.
+- COVERAGE GAP: ghost's tty look today proves through =look.test.js= oracles over the cell grid; milestone 4 needs a frame-capture oracle over the retained tree (=chrome.test.js= renders the real opentui frame).
+- =ambient.consume()= outside its =Provider= throws — one test per organ (=Provider · consume · Consumer=).
+
+* QA
+
+#+marker_qa: m103/T-sidebar · pending · I type =/sidebar= in =viva= and in anima: the sidebar opens in both; =/sidebar= again closes it
+#+marker_qa: m103/T-popover · pending · I click the harness segment: its section floats above it; I hold the display segment, the frame's dock opener, the dock head: the dock picker floats above the one I held
+#+marker_qa: m103/T-seam · pending · I drag the split seam: the frame and dock resize live; on release ONE =/split 0.NN= lands in the journal's trace
+#+marker_qa: m103/T-cover · pending · signed out I see the sign-in card under the brand line; signed in, the booting bar, then the regions
+#+marker_qa: m103/T-tty-look · pending · =viva= beside =Client · v1.0.html= tty, region by region: tabs · sidebar · frame · dock · legend · catalog · modeline · telemetry · booting · signin SAME
+
+* deferred
+
+- the telemetry inspector's hand-built rows (=tele.js:145 inspectView= · =tele.jsx:171 inspect=) — a second row model; with Q6′ the =Surface= tree is one value an inspector can walk by schema; rides m89 (m96 open #14).
+- dead weight with the shell retire (=reference/m95/shell-retire-20261022.md=): =drapes/dom/= (0 importers) · =anima/src/app/= · =anima/src/bridge/= (=typology.js:3= · =entities/terminal/prototype.js:7= still import it). CORRECTED 10-23: the Svelte dirs of drapes are NOT dead — 96 imports from =~/.viva/registry= mode buffers.
+- tests: ghost =tests/{chrome,keys,look,paint.coverage,panes.out.coverage,renderers.coverage}.test.js= and anima =tests/{panel,bar}.test.js= import pane internals. They re-cut under m98 Q10 (mirror the tree) and Q11′ (chrome tests may import relatively).
+
+* changelog
+
+- 10-23 float probe (milestone 1), =scratchpad/float-probe/{parts.jsx,probe.js}=, =testRender= 32×12, =HOME= empty, no port: the modeline (=height: 2=) holds =<box position="absolute" top={-5} zIndex={10} border>POPOVER</box>=.
+#+BEGIN_SRC text
+=== AfterBody (modeline after the body in tree order)      === BeforeBody (column-reverse: modeline first)      === BeforeBodyLifted (the modeline zIndex 10)
+BODY┌──────────────┐BODY                                    BODY BODY BODY BODY BODY                                BODY┌──────────────┐BODY
+BODY│POPOVER       │BODY                                    BODY BODY BODY BODY BODY                                BODY│POPOVER       │BODY
+    └──────────────┘                                        (the popover is painted over)                            └──────────────┘
+MODELINE segment segment                                    MODELINE segment segment                                MODELINE segment segment
+#+END_SRC
+
+* release
+
+- changed `client.surface` — fifteen atoms (=$sidebarWidth= · =$tele= · =$wid= …) → one =$state= typed by ghost =schematics.primitives.Surface=, a =computed= per branch (=surface.sidebar.width=) · migrate: read =client.surface.<branch>.<field>=, write through a surface command ⟨m103⟩
+- added `/popover <held> <anchor>` — opens the modeline's popover (a section widget or the dock picker) · migrate: none ⟨m103⟩
+- changed `/sidebar` — from two chrome-local tables (ghost =chrome/acts.js:15= · anima =panes/sidebar.jsx:13=) to one ghost =subjects/client/commands/= surface command, the same signal in both clients · migrate: none ⟨m103⟩ (CORRECTED 10-23: =/telemetry= is already a terminal command, =entities/terminal/commands/telemetry.js:21=)
+- added `@vivalence/ghost` `gestalten.ambient(key, schema)` → `{ Provider, consume, Consumer }` · `schematics.primitives.*` · `gestalten.belt.journal` · migrate: none ⟨m103⟩
+- renamed `Env.ambient` → `Env.observed` (typology) · migrate: rename reads ⟨m103⟩
+- changed span paths in logs · =viva instance/tail= · anima journal + telemetry — =ghost › client › /runtime/runtime= → =ghost/client/runtime/runtime= via typology =trace.pathname(path)= · migrate: a log grep on =›= reads =/= ⟨m103⟩
+
+* handoff
+
+- goal: ghost =surfaces/chrome/= and anima =src/surfaces/chrome/= share ONE folder tree (flat root · =panels/= · =widgets/=), never the implementation (Q1); shared pieces from ghost (=gestalten/belt/= Q2 · =schematics/primitives/= Q6″ · =gestalten/ambient.js= Q7⁗); panels: headline · sidebar · frame · dock · legend · repl · modeline · telemetry · booting · signin (10-25a).
+- done 10-25 (ghost, LIVE on disk, 10-25d): =cover.jsx= (COVERS · =Chrome=, palette =tokens.camel(client.theme, "2")=) · =regions.jsx= (flex; legend ⟂ repl, 10-25b) · =panels/{booting,dock,frame,headline,legend,modeline,repl,sidebar,signin,telemetry}.jsx= + =index.js= · =widgets/swatch.jsx= (scaffold) · =index.js= mounts =cover.Chrome= · =views.js= exports =cover= · =subjects/client/commands/sidebar.js= (10-25c). Old =panes/= · =acts= · =typing= · =grid= · =world= untouched, still bundled — chrome/bundle/index tests green (3 · 1 · 1). Probe =testament/prototypes/panels/{panels.jsx,run.js,ghost.js}= (=ghost.js= renders cover.Chrome over the scenario client, 80×24).
+- 10-25: the chrome's STATE moved to m107 (ambients: =bridge= · =box= · =telemetry= · =terminal= · =thread= + the window's reading — m107 Q11C =window=; m107 still DESIGNING, this quest's panels wait on its control flow); Q6′ SUPERSEDED; his tree =~/vivalence/private/logs/2026.10.25.org= (=mount.jsx= · =panels/authentication/= · =booting/steps.js=).
+- done 10-26 (keys, /"b"/ ×2 · /"d. log every key on ctx. and c."/ · /"change syntax … to all /"/): tty keys = snap =f2f3462df= version B, at the focused terminal — =layout.jsx= =useKeyboard((event) => terminal.legend.dispatch(event))= (A = =CHORDS → client.presses=, dead); =app/keymap.js:32= tap = =ctx.terminal.controller.stdout.log({ keys: Object.keys(ctx) })= + =console.log= (=ctx= is circular → the spans ledger's =JSON.stringify= threw); =trace.pathname(path)= (=belt/trace.js:7=) joins every span path with =/=, no =//=, 9 sites. =legend.test.js= 7/7; NOT walked live.
+- done 10-26 (modeline → widgets, /"go"/ ×4 · /"veyr good"/ on entity): Bar = mark · entity (=thread.word=) · harness · activity · display =[right]= (=terminal.dock=, words, /"with [right] around"/) · system ●; mic CUT (/"cut mic indicator"/); display RIGHT. =<<= click/double/hold → =GESTURES= (as code); ctrl-v ×3 closes. =/popover <segment> <column>= (=Bridge.$state.popover=) floats =panels/modeline/popover.jsx= at the segment's start, height = content; =/sidebar open|closed= + =/sidebar/toggle= (=leader/d/b=). Widgets: =entity= (terminals · threads · modes · buffers, cap 6 + more) · =display= (view · side · split · lens, word chips, one line each) · =system= (runtime hosts · lighthouse · client; agent) — in popover AND sidebar (=✕= on lift, a =divider= rule above each heading). =DEFAULT_DOCK.view= = =full=; =layout.jsx= =SHARES= by view. Proof: scratchpad render probes (entity · display · system · sidebar-full, a state change) + gesture/bar/commands/repl/legend/keymap suites; his tty saw entity · display · sidebar.
+- done 10-26b (/"go on the changes above"/ · /"yes works"/): sidebar — no left pad, a rule BELOW each section, =/sidebar/width <24..96>= + a 1-col grip on its border (root =onMouseDrag=, a shield box while held); display chips float right; legend + repl panels live (=panels/legend/legend.jsx= · =panels/repl/repl.jsx=, straight columns, no header yap); esc · ctrl-v ctrl-v · ctrl-v esc → =/repl/close= · =/repl= · =/legend/close= (as code); the repl composer (as code). UNSEEN by him: the selection — =bridge.selected=, =/repl/next= · =/repl/previous= · =/repl/complete= on up · down · tab (=app.selecting=, open-only), =>= + =controlSelected=, scroll-into-view, enter by =ENTERS=; =shard.keymap.catalog= now a preorder fold (=/popover= above =/popover/close=); =gestalten/belt/completions.js= = match · completions · filled. Proof: scratchpad probes (sidebar-full · panel-probe run–run4) + legend 9 · app/keymap 5 · shard/keymap 4 · commands 26 · repl 8 · mount 1.
+- done 10-26c (/"unblock the headline"/ · /"show full slug+index always"/ · /"circle around"/ · /"unblock dock"/ · /"add side top bottom"/ · /"label only"/ · /"widget/toggle/x … leader/w"/): =panels/headline/headline.jsx= — a tab per terminal =index word= (full), =+= → =/terminal/new=; overflowing, =< >= seat prev · next, circling (=circled= · =windowed=); popover =✕= → =/popover/close=, its right column =boundary=, no bottom pad; side =left right top bottom= (typology =traits/docked.js:5= + =belt.dock.SIDES=, =layout.jsx DIRECTIONS=); views =full docked messenger closed=, =docked= READS =split= (=display.jsx SAID=), the row label =dock=; =panels/dock/{dock,journal,composer}.jsx= + =index.js= — the pane lines above; =gestalten/belt/journal.js= (Q2 minus =wall=: =record.at= is already epoch); =/widget/toggle/{sidebar,entity,display,system,dock}= on =leader/w/{b,e,d,s,j}= over =bridge.hidden= (=app/commands/widget.js=; sidebar = =/sidebar/toggle=). Proof: scratchpad =head-probe= · =dock-probe= + keymap 5 · legend 9 · commands 27 · repl 8 · mount 1.
+- done 10-26d (/"remove the placeholder … cursor"/ · /"remove the top row"/ · /"everything is one color … check the design"/ · /"start … on chat"/ · /"/theme/set + keymap"/): composer = =›= + input (caret =controlFieldCaret=) + =⏎= | =■ stop=; dock head + rule CUT; journal scrollbar hidden; palettes per design zone (=mount.jsx ZONES=: chrome 0 = headline · sidebar · legend · repl · modeline + popover · body 1 = frame · dock · island 2 · telemetry 3); =DEFAULT_DOCK.lens= = =chat=; =/theme/set [theme]= (bare = next) on =leader/d/t= → =bridge.theme=, =App.theme= reads it first (session only, not persisted). Proof: dock-probe cells (surface =#EDF0F4= · field =#FFFFFF=) + commands 28 · repl 8 · prototype 2 · mount 1.
+- done 10-26e (/"remove the timestamp … thinking inline … the mode behind >>"/ · /"hide the thinking by default"/ · /"keys … shouldnt fall through into the input"/): a turn head = =<< slug= | =>> type/slug · calls · artifacts …… ✓ thinking · N steps ▸=, no clock (trace rows keep theirs), thought nodes never drawn; =subjects/terminal/legend.js= =HELD=: a key pressed while the backlog holds a chord =preventDefault()=s (a gesture string has none) — OpenTUI runs global key listeners first, the focused input skips a prevented key (=chunk-node-kc1sqq2a.js:534=; key-probe: =ab ctrl-v ed= → ="ab"=). Proof: legend 10 · keymap 5 · console 2 · mount 1.
+- done 10-26f (/"on widgets give me a all. at ctrlv/w/a and /widgets/close"/): =/widget/toggle/all= (=leader/w/a=: all closed → all shown, else all closed) · =/widgets/close= (sidebar shut + entity · display · system hidden; dock + frame untouched, /"close all excludes dock … frame too"/; other =hidden= groups kept); a commands module exports Vectors ONLY (=HIDDEN= exported → the barrel grafted an array: =vector.trie is not iterable=). /"/widget/t/enttity doesnt work"/: the repl resolves =/widget/t/entity= → =/widget/toggle/entity=, the sidebar drops entity on =hidden= (sidebar-full run5) — his miss = the sidebar shut: /"entity still doestn open anything"/ · /"display works neither"/ → =seen=: a sidebar widget you do not see is SHOWN with the sidebar opened; seen, it hides (=SEEN= table).
+- done 10-26g (/"entity display system should not toggle wats open inside the sidebar!!! it should contorl literally what popover widgets are open/closed!"/ · /"widget/toggle 'all' should be 'close' 'c'"/): =/widget/toggle/{entity,display,system}= = =/popover <widget>= (open · same again closes); a key-opened popover (no anchor) sits above its segment — =Segment id= =segment-<name>= (sheets), =popover.jsx ANCHORS= finds its =x=; =/widget/toggle/close= (=leader/w/c=) = =/widgets/close= = sidebar shut + popover dropped, dock · frame untouched; the sidebar's =hidden= wrappers CUT. REJECTED: =bridge.hidden= per sidebar widget + =SEEN= — /"should not toggle wats open inside the sidebar!!!"/ (I read "widget" as the sidebar's after he said "modeline widgets"; a widget = its popover). Proof: sidebar-full run7 (entity x 5 · display x 89 → right edge · system x 97) + commands 29 · repl 8 · keymap 5 · legend 10 · sheets bar 4 · segment 2 · mount 1.
+- done 10-26h (/"unblock \"frame\""/ · /"make the border line between frame and dock a dragable thing"/ · /"make the widget \"entity\" scrollable too"/ · /"there is supposed to be \"search\" here"/ · /"go and go"/): =panels/frame/frame.jsx= = design =tty.js:299 paintFrame= — empty =◇  no buffer in the frame= + =/buffer <first>=; head =◆ artifact · type/slug  ⇥ keys to …  artifact n ▾  ✕= (▾ = =/buffer/artifact n+1=, ✕ = =/buffer/close=); a tty.solid view mounts =module.default(element, { terminal, buffer, renderer, palette, focused })= — =surface= DROPPED (no view reads it; the dojo test still passes it); else =buffer.data= as JSON · =/focus [composer|frame]= (=leader/d/f=, bare flips) · =layout.jsx Seam= — the split's border drags =/split <share>= (=SPANS= per side, 0.1..0.9, dispatched only on change) · popover widgets scroll (=scrollbox contentOptions={{ minHeight: 0 }}= — without it the scrollbox grows to its =maxHeight=) · entity search = design =ring.js:1016=: =/ filter <kind>s  n ◈= over a list past 6, =◈= the host chips, =/filter <thread|mode> [query]= · =/filter/close= (esc: query, then the keys) · =/filter/expand= · =/filter/pick= · =/filter/daemon <host>= on vivalence-ce's =bridge.$sections=. Proof: filter-probe (ital → 3 / 8 · esc ×2 · italian off → 5 / 8 · enter → =/thread th5=) · scroll-probe · frame-probe (drag 10 cols → 0.38 → 0.51) + commands 31 · repl 8 · legend 10 · keymap 5 · mount 1 · renderers 1 · bundle 171910.
+- done 10-26i (/"buffer isnt running properly"/ · /"weird rendering artifacts as soon as i render a buffer"/ · /"a proper chessboard that I can play on within the confines of my terminal tty … incl drag n drop"/): the shredding = a mode view TALLER than its box squeezing the frame (agent's shred probe at 40×14; NOT glyph width — OpenTUI measures =♜︎= 1 under all three width methods) · ghost: =frame.jsx= root · =Mounted= · its element =minHeight: 0, overflow: "hidden"=, =Floor= a scrollbox · chess =board/play/buffer/play.jsx= rebuilt by an agent: pinned + clipped to the element, squares 6×3 · 4×2 · 2×1 by size, click · drag · promotion · flip · check · last move · captures; =tty.render.test.js= 11 steps (T-fit 100×34 → 24×8). The study/analysis screenshot = board leftovers; analysis has only a DOM view, so the frame shows its data. REJECTED: that board — /"no. thats shit. … build a REAL chess mode. not some tiny inline single cell shit. real board. responsive. use the full power of our modern tty tui engine! we can have glyphs and images and svgs"/ (ref =github.com/thomas-mauran/chess-tui=); re-briefed: pieces as =<image>= (OpenTUI kitty · sixel · blocks), multi-row sprites as the fallback, the board sized to the frame.
+- done 10-26j (/"i am errors in ghost that arent reachign the tail"/ · /"when i am in the repl and hit esc i want it closed! also if i have something typed"/): =layout.jsx Guarded= — a Solid =ErrorBoundary= per panel (headline · sidebar · frame · dock · repl · legend · modeline · telemetry) faults into =terminal.controller.stdout= and paints =✕ <panel>: <message> · click retries=; =mount.jsx relayed= chains over OpenTUI's own =console.error=/=warn= capture → =client.controller.stdout= fault · log; =/repl/close= also empties the draft (a leftover =/…= draft made =composer.jsx DRAFTS= reopen the catalog). Proof: guard-probe + commands 31 · repl 8 · legend 10 · mount 1 · bundle 176474.
+- done 10-27a (/"the chess board doesnt look right at all. fix."/): agent pass 2 on =board/play/buffer/play.jsx= — each piece an opaque =f=24= image painted on its square's tone, aspect re-sensed per frame until =renderer.resolution= lands, white/black inks + square shades by luminance (porcelain flipped them), rank · file labels on the border; =tty.render.test.js= 16 steps.
+- done 10-27b (/"weird rendering artiifacts at the modeline. aka its gone"/ · /"the chess board is fucked after the move. the modeline is fucked before the move"/ · /"go 123"/): his terminal is iTerm2 3.6.9 (kitty via OpenTUI), NOT Ghostty; a window resize brought the modeline back → the terminal dropped cells OpenTUI thinks drawn (known issue). (1) chess empty squares are =ground-<square>= images too, so iTerm2's ~3 pt image offset moves the whole board; (2) =mount.jsx Cover= sets the renderer background to the body surface (unwritten cells were =0,0,0=); (3) =@opentui/solid= 0.5.17 drops =<span fg>= → =style={{ fg }}= ×23 (chess 7 · =Field= 5 · dojo 3 · =JsonTree= 2 · =Consent= 2 · =Meter= 2 · =Mark= 1 · =composer= 1). Proof: chess tty.render 16 steps · sheets 22 files · mount; Cover probe =237,240,244= → =6,16,29= on a theme switch.
+- done 10-27c — REJECTED the agent's board: /"thats the tui ui. i cant control shit here. also it doesnt look playable at all. way to small. makes no sense. and the squares arent fucking sqaure. … i want to be able to play. also none of the keys work. rework from scratch"/ — on his iTerm2 the view sat on its glyph path (2×1 squares: capabilities and resolution land ~2.5 s after mount), keys died (=legend.js:48= never reads =defaultPrevented=; the view gates on =focus === "frame"=), the modeline row printed =:14:26:37m= (a split SGR). /"set the agent up right"/ · /"have him report throughout with you reviewing"/ → a from-scratch agent in three phases (study → build → prove in a real iTerm2), stopping after each for my review.
+- next: the chess rebuild agent's Phase 1 report (causes + design sketch) → my review → his ruling, then Phase 2 build · Phase 3 iTerm2 proof; his eyes on frame · seam · search · repl esc · the panel guards; activity + harness widgets; esc · leader close the popover (design =tty.js:673=).
+- dev loop: a =.jsx= save reaches =ghost/watch= only through =out/panes.mjs= — second terminal =deno run -A --watch=systems/ghost/surfaces/chrome --watch-exclude='**/out/**' systems/ghost/surfaces/chrome/bundle.js=; offered root task =ghost/bundle:watch=, unruled.
+- lost live until rebuilt: typing (composer) · mouse acts · the frame's mode view (=Mounted=) · the signin form.
+- departures (mine): panels get =client= · =palette= as props, not =ambient= (milestone 2) · panels single files until widgets arrive · =cover.jsx= copies =SETTLING= · =settled= from =panes/chrome.jsx:15-18=.
+- never: a row model (Q4 · Q13) · a part sees =client= · =context= for an ambient · =Wid= · =Pop= · abbreviations · a hex in a view · code before go.
+- owed: =$catalog= → repl data rename + this file's 38 =catalog=/=tabs= mentions · m98 compendium (Q9 · Q43) · =Surface= snapshots · tty look re-proven (milestone 4) · =SIGNIN.pass= widget-local · this file over its 40000 cap (82k) · codemap =ghost.md= still draws the cell grid · probes → repo tests (=tests/surfaces/chrome/widgets/=) · modeline ● hardcodes =VERIFIED= (=modeline.jsx:31=, read =lighthouse.$isAuthorized=) · =thread.word= throws on unlabeled + null mode (=entities/thread/prototype.js:6=) · hover pointer on iTerm2 unproven (OSC 22) · entity: artifacts · =label…= · dots · other terminals' rows not reactive · display: =/shell cockpit|footer= missing · sidebar grip: the shield exists only after a frame renders (the airtight fix is OpenTUI's private =setCapturedRenderable=) · width bounds 24/96 twice (=sidebar.jsx= =NARROWEST/WIDEST= + the =Wide= schema) · repl: tab only via =/repl/complete= (input may eat it, unproven live) · the scrollbar eats the chord's space · every arrow is a journaled dispatch · draft written straight to the bridge (unruled) · =`= toggles the console (=mount.jsx:56=) · legend: a group key (=e a h d s=) has no repl line → no click (=/press <key>= unruled) · a deep chord's own valence dropped by the strip (hint reads =esc drops=) · system: latency · session expiry · =/face= · =/design= · =/keymap= missing · messenger drawn as docked · a double-click while the repl is open lands on the legend. · headline: =open in anima ↗= (no repl line) · the busy =●= (activity status not reactive) · dock: journal selection · copy · retry · fold · the thinking toggle · =+ attach= · =◉ dictate= no lines · no spinner clock · tool durations · artifact =pick ▾= · anima has no =top= · =bottom= (=layout.jsx DIRECTIONS= · =OPENERS= · =CLOSERS= throw on it) · =/widget/toggle/sidebar= ≡ =/sidebar/toggle= · =/widget/toggle/close= ≡ =/widgets/close= (two names each, unruled) · no key for activity · harness popovers · a key-opened popover reads its segment's =x= once (a resize does not move it). · =<<= shows =user.slug= (his reads =localhost=), not the username (=authentication.credentials.username=, runtime-side) · a thinking toggle (shown only as the head's summary) · a root key bound by a mode still also types into the input · frame: no live walk of a mounted mode view (probe stubs non-tty views) · tab does not move focus (=/focus= only) · =buffer.attach()= · =detach()= never called · every seam drag step is a remote =terminal.updateOne= · entity rendered twice (sidebar + popover) = two focused search inputs.

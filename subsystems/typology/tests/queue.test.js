@@ -77,4 +77,17 @@ specimen.describe("Queue", () => {
     specimen.expect(stops).toBe(1);
     specimen.expect(played).toEqual(["hello", "wait", "go", "ahead"]);
   });
+
+  specimen.it("$backlog is a store: enqueue · flush · drain each set a fresh array a listener sees", async () => {
+    const queue = new Queue();
+    const seen = [];
+    queue.$backlog.listen((backlog) => seen.push([...backlog]));
+    queue.enqueue("a").enqueue("b");
+    const held = queue.backlog;
+    queue.flush();
+    queue.enqueue("c").close();
+    for await (const value of queue) seen.push(value);
+    specimen.expect(seen).toEqual([["a"], ["a", "b"], [], ["c"], [], "c"]);
+    specimen.expect(held).toEqual(["a", "b"]);
+  });
 });

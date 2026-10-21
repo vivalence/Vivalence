@@ -1,0 +1,49 @@
+# drained 10-22 whole from .ikiro/quests/m96-client-mothership.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* the suite — between milestones. DRAWN 10-21; a line whose file is not born yet runs when its agent lands. The lines that run today, run 10-21 on this tree (the baseline the milestones move):
+
+#+begin_src text
+grep -rn 'fire(' subsystems/typology | wc -l                                   13   (m92:115 says 7 consumers — recount at milestone =floor=)
+grep -rn 'hallucination.system' systems subsystems commons | grep -v bak | wc -l   19   → 0 after milestone =hosts= (m83)
+grep -rn 'with { type: "text" }' --include='*.js' systems commons | grep -v bak | wc -l   1   → 0 (m83)
+grep -rlE 'Freight|Cargo|FRAUGHT|MOUNTED' systems subsystems commons | grep -v bak | wc -l   34   → 0 after m87 milestone 6
+grep -rn 'Deno\.' systems/ghost/client systems/ghost/entities | wc -l             6   → 0 after milestone =hosts= (the wiring)
+grep -rn 'metadata/keymap\|shape.keymap\|shard.keymap' systems subsystems | wc -l   0   holds (m92 ruling 12)
+grep -rlE 'daemon|mode|thread|terminal' ~/.viva/registry/*/modes/*/*/buffer | wc -l   71   → 0 after milestone =registry= (m95:641 counted 27 + 2; the regex is wider — narrow it at milestone =registry=)
+viva --help; echo $?                                                            0
+systems/ghost/tests/client.test.js      ok | 1 passed (4 steps)
+subsystems/dapper/tests                 ok | 26 passed (449 steps)
+subsystems/drapes/tests/dom             RED — dom chassis: 2 failed steps (map.md: `chassis.jsx:3` `belt.dock`; milestone =floor= drapes reborn closes it)
+systems/runtime/tests/daemon/smoke.test.js   ok | 1 passed (6 steps)
+#+end_src
+
+
+#+begin_src sh
+# floor — the floor (HOME empty, one file, one-shot; the suite names are the quests': m93:97 · m92:115 · m87:438 · m83:24 · m95:668)
+HOME=$(mktemp -d) deno test -A --no-check subsystems/typology/tests/gestalten/belt/monad.test.js subsystems/typology/tests/gestalten/shape/monad.test.js   # the paths m93 tangles (re-pointed 10-21)
+HOME=$(mktemp -d) deno test -A --no-check subsystems/typology/tests/gestalten/steer/walk.test.js subsystems/typology/tests/gestalten/steer/fire.test.js   # the paths m92 tangles
+grep -rn 'fire(' subsystems/typology | wc -l                      # the same 7 consumers (m92:115)
+HOME=$(mktemp -d) deno test -A --no-check systems/runtime/tests/entities/view.test.js   # wire test on :memory: (m87:440) — not drawn in any tangle: floor-entities writes it with View.ts
+HOME=$(mktemp -d) deno test -A --no-check subsystems/typology/tests/primer.test.js
+HOME=$(mktemp -d) deno test -A --no-check subsystems/dapper/tests                        # 125 (m95:578)
+HOME=$(mktemp -d) deno test -A --no-check subsystems/sheets/tests subsystems/drapes/tests/dom
+# hosts — the hosts
+HOME=$(mktemp -d) deno test -A --no-check systems/runtime/tests/daemon/smoke.test.js
+HOME=$(mktemp -d) deno test -A --no-check systems/runtime/tests/mode/looping.test.js   # m88:823
+grep -rn 'hallucination.system' systems subsystems commons | wc -l   # 0 (m83:24)
+grep -rn 'with { type: "text" }' --include='*.js' systems commons | grep -v bak | wc -l   # 0 (m83:25)
+grep -rln 'Freight\|Cargo\|FRAUGHT\|MOUNTED' systems subsystems commons | grep -v bak | wc -l   # 0 (m87 milestone 6)
+grep -rn 'Deno\.' systems/ghost/client systems/ghost/entities | wc -l   # 0 (m95 milestone 1 gate)
+HOME=$(mktemp -d) deno test -A --no-check systems/ghost/tests/client.test.js subsystems/paladin/tests/vault.test.js
+viva --help; echo $?
+# repl — the repl
+HOME=$(mktemp -d) deno test -A --no-check systems/ghost/tests/keymap.test.js systems/ghost/tests/console.test.js systems/ghost/tests/repl.test.js
+grep -rn 'metadata/keymap\|shape.keymap\|shard.keymap' systems subsystems | wc -l   # 0 (m92 ruling 12)
+# chromes — the chromes
+HOME=$(mktemp -d) deno test -A --no-check systems/ghost/tests/chrome.test.js           # tests/world.js screen() + mockInput: ctrl-v, the panel
+deno task anima/bundle; echo $?                                                        # 0 (m95 T-anima-regions)
+# registry — the registry, every package once
+for p in ~/.viva/registry/*/; do (cd "$p" && HOME=$(mktemp -d) SNAPSHOT_HOT=1 deno test -A --no-check tests); done
+grep -rlE 'daemon|mode|thread|terminal' ~/.viva/registry/*/modes/*/*/buffer | wc -l   # 0 readers of terminal.* (m95:641)
+#+end_src
+

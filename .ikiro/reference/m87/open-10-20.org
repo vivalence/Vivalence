@@ -1,0 +1,36 @@
+# drained 10-22 whole from .ikiro/quests/m87-buffer-view-file.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* open — his, still designing (10-20, nothing below is locked)
+
+His turns after ruling 34, verbatim:
+- /"I don't see why we need file set and file sync. It's like a complication unless we're adding some sort of capability to it. […] if we read, then we should probably also write. And I don't see why those must be two different traits."/
+- /"Emacs' file versus buffer split is a good orient, but it really just tells us that the view needs to be different from the data […] What it doesn't tell us is if we treat assets inside of the system differently from assets outside of the system, or if we permit assets outside the system into the system at all, or whether we force the ingestion via the buffer."/
+- /"It changes the buffer to be the universal container for all data. […] it would be a little bit more, let's say, coherent if we only have one solution for this problem."/ · /"we don't really care what happens today. We will care about what the optimal solution is, and then we will migrate what is."/
+- /"I don't like the idea of everything becoming a buffer. I think a buffer is more of a working area. I don't like them to be implied, all of the assets, so I would suggest that we create a dedicated entity for this. And I suggest we call them files. But views, files, and buffers. So if we have a file, we can reference it, load it into the buffer, express it as the buffer, like parse it into the buffer. […] A view is a more functional unit, even though in the end it resides as a file."/
+
+=File.ts= moved into the deliverables with ruling 36; the draft's Buffer m:1 File became m:n.
+
+His turn 10-21 (m96 retro drill, after Q10 was asked), verbatim — a REFRAME of rulings 30 · 35 and m96 ruling 12, SKETCH until his lock:
+- /"why no buffer.views relation?? dont we need that for rendering? how'd that work? mint a buffer, renders mode.views. generates views, ....? might aswell attach views directly to the buffer. still buffer.mode.views as default but buffer.views overwrite in case of either selection of selection in the frontend of a specific view or generation of a view. i THIIINK (check my logic) this does away with the requirement for buffer.mime?!"/
+- checked: =buffer.views= (m:n, owner buffer) replaces the RENDERED trait (slugs) and the =own()= mime join — the relation IS the selection; =buffer.mime= stays as what the buffer IS (his Q4): the fallback renderers (markdown · json) and =mode.buffer(desc)= validation key on it, and a modeless buffer has no views to tell. Q10 =b= (the owner writes mime) stands under it.
+
+His next turn, verbatim: /"I like the file solution. Let's bring back the file sync trait too, because one is for reading, one is for writing, has equality with the data. I like that."/ · /"Buffers can have files, not one. Multiple files per buffer. Multiple buffers per file. View can have files too. I think there we're a little bit more strict. Do we have one view per buffer or multiple? I'd use the same relationship cadence."/
+
+#+BEGIN_SRC text
+mode traits     FILESET  (reads: walk the declared directory → File rows; patrol → MISSING)   pairs DATASET
+                FILESINK (writes: receive → File · compile → File + View)                       pairs DATASINK
+File traits     MISSING
+Buffer traits   LABELED (RENDERED died 10-21, ruling 39)          (MISSING leaves Buffer: it no longer carries a mount)
+View traits     none                        (its bytes' health is its Files' MISSING)
+
+File   m:1  Mode
+Buffer m:n  File     pivot buffer_files      a review card → hola.mp3 · hola.png ; hola.mp3 → every card that plays it
+View   1:m  File     file.view nullable      board → board.js · board.css ; a File belongs to at most one View
+View   m:n  Buffer   ruling 39: buffer.views the pin (any mode's view); else buffer.mode.views; presents GONE (m96 13)
+View   1:m  File     RULED 10-21 (ruling 38): file.view nullable; view.entry; no upstream
+#+END_SRC
+
+His turn on Q38, verbatim (designing, not locked): /"What tangles them together is the MIME type system. […] The files that we load into the system are MIME types. The buffers have a MIME type. For now they're by mode. A MIME per mode. And those are the consumable MIMEs. And then we have the consuming MIMEs, which is the views. So a buffer can just be consumed by the view of the mode who produced it, but a file can be consumed by any mode, by any view that has its MIME type. Is that correct? In that case, the view itself is really the thing that decides how files are displayed and if it's one or many. So we do many-to-many relation as a many-to-many can still display many-to-one or one-to-one. So we don't lock ourselves in anywhere."/
+Q38 re-asked: a View's OWN bytes (board.js), not the content it displays (buffer.files, ruling 36).
+
+Drawn, not yet asked: a repl verb's output that is a row — the same table, or JSON as today · the cell's default when a reader view exists for a buffer that also has the client's own renderer.

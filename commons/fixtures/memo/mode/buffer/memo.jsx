@@ -1,6 +1,5 @@
 import { createEffect, createSignal, from, on, Show } from "solid-js";
-import { useKeyboard } from "@opentui/solid";
-import { Empty, paint, usePalette } from "@vivalence/sheets";
+import { _render, createComponent, RendererContext, useKeyboard } from "@opentui/solid";
 
 const LIMIT = 10;
 const GRADES = { 1: "AGAIN", 2: "HARD", 3: "GOOD", 4: "EASY" };
@@ -12,9 +11,9 @@ const horizon = (hours) => {
 };
 
 export function Memo(props) {
-  const palette = usePalette();
-  const { mode, thread, buffer } = props.terminal;
-  const data = from(buffer.$data);
+  const palette = props.surface.palette;
+  const { mode, thread } = props.terminal;
+  const data = from(props.buffer.$data);
   const [deck, setDeck] = createSignal(null);
   const [at, setAt] = createSignal(0);
   const [revealed, setRevealed] = createSignal(false);
@@ -36,7 +35,7 @@ export function Memo(props) {
     return mode.connection.call("/grade", { card: held.slug, signal, thread: thread.id }).catch((error) => setFault(error.message));
   };
   const grades = () => Object.entries(GRADES).map(([key, signal]) => `${key} ${signal.toLowerCase()} ${horizon(card().preview[signal])}`).join(" · ");
-  const freight = () => [card().voice === null ? null : "♪ voice", card().picture === null ? null : "▣ picture"].filter((held) => held !== null).join(" · ");
+  const attachments = () => [card().voice === null ? null : "♪ voice", card().picture === null ? null : "▣ picture"].filter((held) => held !== null).join(" · ");
 
   createEffect(on(data, (held) => (held.deck === undefined ? deal() : hold({ language: held.language, cards: held.deck }))));
 
@@ -60,8 +59,8 @@ export function Memo(props) {
       <Show when={fault() !== null}>
         <text fg={palette.signalNegative}>{`✕ ${fault()}`}</text>
       </Show>
-      <Show when={deck() !== null} fallback={<Empty>dealing…</Empty>}>
-        <Show when={card() !== null} fallback={<Empty>{`sessio peracta · ${graded()} graded — tab deals again`}</Empty>}>
+      <Show when={deck() !== null} fallback={<text fg={palette.textMuted}>dealing…</text>}>
+        <Show when={card() !== null} fallback={<text fg={palette.textMuted}>{`sessio peracta · ${graded()} graded — tab deals again`}</text>}>
           <text fg={palette.textMuted}>{`${at() + 1}/${deck().cards.length} · ${card().ontology} · ${card().status.toLowerCase()} · ${deck().language.learning}`}</text>
           <text fg={palette.textStrong}>{card().learning}</text>
           <Show when={revealed()} fallback={<text fg={palette.textMuted}>tab reveals</text>}>
@@ -70,8 +69,8 @@ export function Memo(props) {
             <Show when={card().example !== null}>
               <text fg={palette.textMuted}>{`${card().example.learning} — ${card().example.known}`}</text>
             </Show>
-            <Show when={freight() !== ""}>
-              <text fg={palette.textMuted}>{freight()}</text>
+            <Show when={attachments() !== ""}>
+              <text fg={palette.textMuted}>{attachments()}</text>
             </Show>
             <text fg={palette.textMuted}>{grades()}</text>
           </Show>
@@ -81,4 +80,20 @@ export function Memo(props) {
   );
 }
 
-export default (element, terminal, { renderer, palette }) => ({ destroy: paint(element, renderer, palette, Memo, { terminal }) });
+const provide = (surface, props) => () =>
+  createComponent(RendererContext.Provider, {
+    value: surface.renderer,
+    get children() {
+      return createComponent(Memo, props);
+    },
+  });
+
+export default (element, { terminal, buffer, surface }) => {
+  const dispose = _render(provide(surface, { terminal, buffer, surface }), element);
+  return {
+    destroy: () => {
+      dispose();
+      for (const child of element.getChildren()) child.destroyRecursively();
+    },
+  };
+};

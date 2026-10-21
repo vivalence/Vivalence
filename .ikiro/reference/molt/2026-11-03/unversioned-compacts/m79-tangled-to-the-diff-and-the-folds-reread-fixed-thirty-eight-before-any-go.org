@@ -1,0 +1,94 @@
+#+title: m79 tangled to the diff, and the fold's reread fixed thirty-eight before any go
+#+index: 253
+#+session: session da11b0ef, second fold — turns 21–29 (N = 9 of the session's 29; raw 37, 8 queue duplicates collapsed). Opens on the harness's continuation after #252, closes on /"ikiro compact"/ and beef's mid-fold line /"…/m79-terminal-ghost.org renamed it"/.
+
+* one breath
+
+beef ordered the whole ghost rebuild as a tangle — /"get it right. make no mistkas"/ — and, mid-read, widened the read to /"typology, runtime, anima, and paladin"/. The four containers were read whole with their shards: three design claims fell (the inline transmitter exists, =Lock= has no =claim=, the runtime barrel already exports =Runtime= and =lifecycle=) and one latent typology fault surfaced (=Pattern.apply= stamps the shared signal node — F13). One Write of the whole quest hit the output cap; the resume landed it by anchored edits — fourteen milestones re-sorted (render ways before references, host before credentials), every deliverable to the diff or the file, eight new test files. The status said TANGLED with no critical pass behind it. beef switched to Opus 5.5 at max and asked for the fold; the fold found the quest renamed m79 (his, said mid-fold), re-read the tangle block by block against the tree and fixed thirty-eight findings in it. None of it has run.
+
+* rows
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 21 | =/compact= behind #252's walk | the harness compacted; its summary re-seeded the session | — |
+| 22 | — the harness's continuation summary, not beef's words | — | — |
+| 23 | /"ok. now. i watn you to work out the whole ghost rebuild as a tangle. this will take, i assume, a lot of time. get it right. make no mistkas"/ | the quest re-read whole; =pre-flight= fired; ghost · typology (signal · signature · pattern · vector · steer) · sheets · paladin (ledger · lock · die) · runtime (=run.js= · lifecycles) · anima (stores · dossier · Dock) · commons read — 45 Bash, 4 Read | — |
+| 24 | MID-TURN, beef's tail: /"youll want to have a thorough look at the codebase before you do anything. typology, runtime, anima, and paladin"/ — the head (/"Fresh read turned up three corrections needed …"/ · summary) is the harness's progress summary of my own turn | the four containers read whole with their shards (invariants · typology · runtime · anima · design · commons · schematics); the three corrections confirmed on disk; "Writing the quest now: full tangle" — one Write | the one-Write plan, cut by the output cap |
+| 25 | — the harness: /"Output token limit hit … Break remaining work into smaller pieces."/ | the tangle by anchored edits into =ghost-modes.org=: header · terrain corrections · F13 · F14 · deliverables · milestones re-sorted · a 14-marker skeleton filled one milestone per edit · blast · testing · QA · release · changelog — 29 Edits, 2 scratch splices, 2697 lines, 64/64 fences | — |
+| 26 | /"ikiro compact"/, after =/model opus= (Opus 5.5, saved as default) and =/effort max= (this session) | =compact-walk= fired; the quest gone from its path; =sibling-reconcile= fired; the critical pass by reading — 38 findings fixed in the tangle; =known-issues= fired — one filed, one met; the quest index made true | the TANGLED status without a pass; hello-world as localhost's mode; M7's signal design |
+| 27 | MID-TURN =/compact=, queued behind the walk | — runs after this fold | — |
+| 28 | — the harness's skill-reload notice for the walk | — | — |
+| 29 | MID-TURN /"/Users/finn/vivalence/code/vivalence/.ikiro/quests/m79-terminal-ghost.org renamed it"/ — queued, never shown inside the turn; the spine surfaced it | the rename is beef's: the quest's status, changelog and F1 say so — m79 for the file as written, a split still his | the fold's first reading, "renamed outside this session" |
+
+coverage: 21–29, each in one row — 9 of 9; no mid-turn message is missing from the transcript (29 is in it, unseen until the spine read it).
+balance: thirds of the fold's N = 9 — 21–23 · 24–26 · 27–29 — cited in arc and failures 2 · 13 · 1 (state cites no row). The middle third carries thirteen of sixteen because the write (24–25) and the pass (26) both happened there — where the work was, not where the fold's memory is freshest; the last third is the queue and the rename.
+
+* arc
+
+- Two reads before a write, the second wider by beef's word (23 → 24): the read is what corrected the design's three claims and found F13.
+- The write failed by size (24) and landed by structure (25): a skeleton, then one milestone per edit.
+- The status ran ahead of the evidence (25): TANGLED, with no pass — what =quest-authoring= rule 9 forbids, under /"make no mistkas"/ (23).
+- The fold did the pass (26): every block against the files read this session and three dependencies on disk (=ink/5.2.1= · =nanostores/1.0.1= · the schematics' codecs). Thirty-eight findings across M1 · M3–M12 · QA, each fixed in the tangle; M2 read clean.
+- Two facts arrived from beside the main line: the rename (29, beef's) and an OPEN known issue that made the localhost recipe's only mode unusable (26).
+
+* failures
+
+- *The status said TANGLED without the critical pass* (25). The fold's reread found thirty-eight: a leading =--flag= read as a path; =Signal.tokens= splitting =--k=v=; no =ctx.view.shell= for the session to open; ink's default =exitOnCtrlC=; a pre-mount that breaks every re-targeting verb; a hydrate effect that writes empty rows at once; an abort design the typology cannot carry; a BOOTING lock overwritten; a =null= channel that throws on the first daemon request; a shell that never lets ghost exit — and twenty-eight more, listed in the quest's =* critical pass=. =critical-pass= MISSED → ledger.
+- *One Write of a 2700-line quest* (24) hit the output cap; the resume (25) split it — a quest that size lands as a skeleton and per-milestone edits, never one call.
+- *Prose rode Bash heredocs at the fold* (26) — the python splices carried the status line, the changelog, the deferred bullets, release lines and testimony; the ikiro gate says Write tool. Caught mid-fold; from there, prose went Write → a JSON swap file → a runner that carries none.
+- *The localhost recipe seated a module with an OPEN known issue* (25) — =hello-world-mode-hook-reads-ctx-user-before-authorize= sat in the ledger the whole time; =pre-flight= has no beat that sends a design's seated modules through =known-issues.org= → GAP.
+- *The first edits at the fold went to =ghost-modes.org= after it was gone* (26) — four, nothing written; the report's =sessions= column was not read before the first paste.
+- *The tangling turn's summary said nine test files* (25); there are eight new ones and four existing ones amended.
+
+* state at fold
+
+- =m79-terminal-ghost.org=: TANGLED, PASSED BY READING — 2932 lines, 73/73 fences, 33 =:tangle= blocks (8 new test files among them), 15 markers =m79/= all pending, 14 release lines =⟨m79⟩=, report =design · 0/29=. The tree is untouched by this session; the sandbox pass is owed before any go.
+- =known-issues.org=: 94 entries — =connection-stream-drops-the-callers-signal= filed (a typology =Request= drops a caller's =signal=, read not run); =hello-world-mode-hook-reads-ctx-user-before-authorize= met, one line appended.
+- =quests/index.md=: m79 listed live; =vector-attach-graft='s line moved to done/, where its file already sat.
+- =world/frontier.md=: derived below; ABOVE on #211–#244 as before.
+
+* live siblings at fold
+
+=11950be0= — m60 · m71 · m76 · m77 · m78, ~30 m · =ce9dbc11= — m78, now · =36f616e1= — new, now. The last two mark m79 "live" in the report through their own report runs; no tool call of either names the file (checked in both transcripts).
+
+* skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| pre-flight | 23 | GAP | carried the reads that corrected three design claims; no beat sends the modules a design seats through =known-issues.org= — the localhost recipe seated a demo with an OPEN issue |
+| compact-walk | 27 | HELD | the spine with the id surfaced beef's unseen mid-turn line (29); the settlement step drove the critical pass |
+| sibling-reconcile | 29 | HELD | fired on the vanished path; re-read before paste; the m79 "live" marks were report noise — no sibling tool call names the file |
+| known-issues | 29 | HELD | grep first; a new entry for the dropped signal, a line on the existing hello-world issue instead of a duplicate |
+| critical-pass | 25 | MISSED | the status said TANGLED with no pass; the fold's reread found thirty-eight |
+
+* settlement
+
+- markers: =## OPEN= empty at the fold's start; nothing deferred to it.
+- the critical pass: thirty-eight fixes in the quest, the organ =* critical pass= added, the status stepped back to "passed by reading"; M7 redesigned (=Response.stream= learns =cancel=); =conversation.js= moved from M14 to M6.
+- known issues: one filed, one met (above).
+- numbering: title =m79 terminal ghost=, marker prefixes =ghost-modes/= → =m79/=, release tags → =⟨m79⟩=, F1 noted as numbered by the rename.
+- index: made true (above).
+- codeword scan of beef's turns (23 · 24 · 26 · 29): none — no callout.
+- memory: nothing; all of it lives in ikiro.
+- shards: no structural landing — no codemap re-stamp; the quest's M14 owes the ghost · typology · design · anima · paladin · ledger stamps.
+- budgets: =world/frontier.md= 2414/5000 ABOVE on handoffs #211–#244, beef's settles; not mine to drain.
+- ledger: =pre-flight= GAP and =critical-pass= MISSED appended to =skills/LEDGER.md=.
+
+* handoff
+- quest :: m79-terminal-ghost
+- goal :: /"when i $viva home yap yap yap yap yap. then i want the effect triggering interactive, full shell chrome, runtime started if instance not already live …, logged in with credentials from VIVA_CLIENT_GHOST_CREDENTIALS_FILE, lighthouse connected, terminals and daemons loaded, mode harness connected."/ — ghost becomes anima over two transports
+- done :: TANGLED and passed by reading: every deliverable a–p to the diff or the file over fourteen milestones (grammar → term → chat); the fold's critical pass fixed thirty-eight findings in the tangle; numbered m79 by beef (/"…renamed it"/); nothing built, nothing run
+- next :: the sandbox critical pass — the tangle applied to a copy of the tree, its eight new test files and four amended ones run, counts pasted against the ladder; then beef's go milestone by milestone, M1 first (the argv row on typology =Signal=, =ShellSignal= deleted, ghost 48 held)
+- never :: a status that says TANGLED before a pass ran; one Write of a quest that size; prose through a heredoc; a recipe that seats a module with an OPEN known issue; a client that composes a route; =mode.harness= called by object from a client; "alt-screen" without the escape pair; a claim about the tree without the report's =sessions= column
+- owed :: beef — F7 · F10 · F12 · F13 · F14 · the F2 stratum · F3 · F5 · F6 · F8 · F11 · the two =@beef= marks in =mod.js:50-63= that M1 deletes · when the localhost recipe takes the hello-world demo (the known issue's ruling)
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                            | progress   | status   | next                                                                                  | sessions   |
+|----------------------------------+------------+----------+---------------------------------------------------------------------------------------+------------|
+| m60-lighthouse-security          |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone | 2 (1 live) |
+| m71-droneaid-guide               |   0% 0/16  | design   | go                                                                                    | 1 (1 live) |
+| m76-terminals-close-the-dataring |  89% 17/19 | wip      | control                                                                               | 4 (1 live) |
+| m77-droneaid-homecoming          | —          | open     | survey                                                                                | 3 (1 live) |
+| m78-mikro-7                      |   0% 0/13  | design   | go                                                                                    | 3 (3 live) |
+| m79-terminal-ghost               |   0% 0/29  | design   | go                                                                                    | 2 (2 live) |

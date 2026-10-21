@@ -28,7 +28,7 @@ export class Registry {
     // path, said once however often it is probed (the journal is capped, the map is not)
     this.span = new Span({ nature: "/registry" });
     this.integrity = new Map();
-    this.span.to((record) => record.verb === "fault" && (this.integrity.get(record.path) ?? this.integrity.set(record.path, new Set()).get(record.path)).add(record.data.message));
+    this.span.pipe.tap((record) => record.track === "fault" && (this.integrity.get(record.path.at(-1)) ?? this.integrity.set(record.path.at(-1), new Set()).get(record.path.at(-1))).add(record.data.message));
   }
 
   async read() {
@@ -230,7 +230,7 @@ export class Registry {
 
   // throws what the fold recorded under path; the consumer that names a faulted module pays, the registry never does
   assert(path, module) {
-    const faults = this.integrity.get(`${this.span.absolute}${path}`);
+    const faults = this.integrity.get(path);
     if (faults) throw new Error(`[registry] ${path}: ${[...faults].join(" · ")}`);
     return module;
   }
@@ -259,7 +259,6 @@ export class Registry {
       manifest: v.primitives.Manifest.cast({ ...module.manifest, ...query.manifest, traits: [...new Set([...traits(module.manifest), ...traits(query.manifest)])] }),
       statics: { ...module.statics, ...query.statics },
       secrets: query.secrets ?? {},
-      mountpoint: query.mountpoint ?? null,
     };
     // a mask can add traits or break the manifest: the folded citizen is probed on the entry's own branch
     const entry = `${module.source.absolute}/entry/${citizen.manifest.type}/${citizen.manifest.slug}`;
@@ -274,7 +273,7 @@ export class Registry {
       if (citizen.reference || !mask.reference) return citizen;
       const { type, slug } = citizen.manifest;
       const reference = new Path(`/mode/${type}/${slug}`);
-      return { ...citizen, reference, url: mask.url?.branch(reference.absolute), bundles: new Path(`${mask.mountpoint.absolute}/bundles/${type}/${slug}`) };
+      return { ...citizen, reference, url: mask.url?.branch(reference.absolute) };
     };
     const modes = (await many(mask.modes ?? [])).map(placed);
     return {

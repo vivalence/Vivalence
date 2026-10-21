@@ -2,10 +2,12 @@ import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path, Span } from "@vivalence/typology";
 import { Paladin } from "../paladin/prototype.js";
+import { FULL } from "../gestalten/belt/index.js";
+import { belt } from "../paladin/lifecycle.js";
 import { probe, RULES } from "../prototypes/integrity.js";
 
 const span = () => new Span({ nature: "/probe" });
-const said = (held, verb) => held.records.filter((record) => record.verb === verb).map((record) => record.data?.message ?? record.data);
+const said = (held, track) => held.history.filter((record) => record.track === track).map((record) => record.data?.message ?? record.data);
 
 describe("integrity — the fold over pairs", () => {
   it("a domain validates against Domain; its trait lists default, so a bare domain passes (the sentence arrives with typology's line)", () => {
@@ -40,11 +42,11 @@ describe("integrity — the fold over pairs", () => {
   it("order is authored order: a rule that rewrites the module is read by the rule after it", () => {
     const held = span();
     const rules = [
-      [() => true, (module, s) => (s.note("first"), { ...module, manifest: { ...module.manifest, traits: ["EXPOSED"] } })],
-      [(module) => module.manifest.traits.includes("EXPOSED"), (module, s) => (s.note("second"), module)],
+      [() => true, (module, s) => (s.log("first"), { ...module, manifest: { ...module.manifest, traits: ["EXPOSED"] } })],
+      [(module) => module.manifest.traits.includes("EXPOSED"), (module, s) => (s.log("second"), module)],
     ];
     probe(rules)({ manifest: { type: "game", slug: "g", traits: [] } }, held);
-    expect(said(held, "note")).toEqual(["first", "second"]);
+    expect(said(held, "log")).toEqual(["first", "second"]);
   });
 });
 
@@ -56,7 +58,7 @@ const author = async (dir, files) => {
 };
 
 const boot = (store) => {
-  const paladin = new Paladin();
+  const paladin = belt(new Paladin(), FULL);
   paladin.scopes([
     ["ledger", () => true, () => new Path(store)],
     ["registry", () => true, () => new Path(store)],
@@ -129,6 +131,6 @@ describe("registry — integrity at mount and at accio", () => {
     const registry = boot(store);
     await registry.mount(new Path(`${store}/pack`));
     expect(registry.integrity.size).toBe(1200);
-    expect(registry.span.records.length).toBeLessThan(registry.integrity.size);
+    expect(registry.span.history.length).toBeLessThan(registry.integrity.size);
   });
 });

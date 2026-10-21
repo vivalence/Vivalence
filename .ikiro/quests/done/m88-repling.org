@@ -1,0 +1,558 @@
+#+title: m88 repling — a client hosts modes the way a runtime does; HOME names the hosted mode a terminal sits in; REPLING grafts that mode's vector onto the terminal's repl; LOOPING closes the loop
+#+filetags: :ghost:paladin:typology:client:mode:repl:
+#+status: LANDED — milestone client modes via m86 (10-16); milestone the loop closed via m96 =hosts= · =repl= (10-21), its three defects F1 · F2 · F3 fixed and LANDED 10-22 (uncommitted); milestone the hosted twin DEAD 10-21 (m95 ruling 24). Owed: =** tests= rows 2 · 3. The 10-14 status lines + the m86 SUPERSEDED note → =reference/m88/status-10-14.org=; the loop closed, formerly =* stretch three=, promoted 10-22 to the top-level organs.
+
+# limit: 60000 chars
+
+* intent
+
+his strand, this file as he left it (10-13): /"REPLING trait on clients on mode to serve the repl as a mcp to the runtime/mode and the wiring to close the tool loop."/
+
+10-14, verbatim, the three recipe pastes (=runtime= · =lighthouse= · =daemons[]=) then: /"all of these have modes. time to setup client modes and traits."/
+
+#+begin_src json
+  "clients": [
+    {
+      "manifest": { "type": "client", "slug": "anima" },
+      "statics": { "serve": "${VIVA_CLIENT_ANIMA_SERVE}" },
+    }
+  ]
+#+end_src
+
+/"lets start with two. one trait HOME and one mode "home". home mode has any trait, call it foo/bar. it has a trait "REPLING" new trait. repling is a export const repl = new Vector(); when a mode trait repling is in client, it gets its vector attached to terminal.repl. this means we need to update paladins schematics and lifecycle to manage client modes and traits. it means adjusting the ghost client to load home from HOME trait. HOME.reference. it means loading the terminal repl in coherence with mode. this is quite tricky and involves you understanding paladin and the boot pipeline of the old anima clietn. work this out. design this to be prettier than the ghost clietn rn. conoisseur levle"/
+
+** the loop closed (10-16)
+
+/"one thing that cannot happen right now is that the harness calls anything on the REPL. That doesn't exist yet. The client can call the harness, but the harness knows nothing about the REPL. … The REPL needs to be strip wired on the client, sent to the runtime, injected into the harness, where all of the tools lead back to the tool call being passed to the client, executed on the REPL, and then the result of that passed back as the tool call result. Almost like the client is serving itself as an MCP. Just that we facilitate it via the connection that already exists, probably the multiplex, but we want to be implementation independent."/
+
+* the dialogue — the rulings, as built (10-16, stretch three: the loop closed)
+
+| # | ruling | his words |
+|---|--------|-----------|
+| Q0 | the trait is =LOOPING= — the harness is looped through the client's repl | /"looping"/ |
+| Q2 | the client has ONE aperture, handed to =shard.transmitter.multiplex({ vector })= at =client/lifecycle/index.js:85=; =/terminal/:terminal/…= resolves the terminal in a middleware and binds =ctx.terminal=; handlers close over it | /"client has the aperture … resolve the terminal on the request in the middleware, just like you would in Express"/ |
+| Q1 | the runtime PULLS the strip over =ctx.socket= on every harness call; no socket state, no hash, no change ping; every repl verb becomes a tool under =/repl= (=repl_mode_console_hello=) carrying valence + input schema | /"pulling it is still better … long-running agents and when the call to the harness changes the harness … all of the tools prepended with a REPL … C'est la vie."/ · measured: 1561 bytes · 11 verbs for client+terminal+console |
+| Q3 | =mode.looping(ctx)= is ONE slot the tools beat reads beside =ctx.mode.tools= and =generator.tools=; a standalone runtime trait =traits/looping.js=, never a beat on the aperture's =/harness= | /"for sure we want a runtime trait … not attach this to the aperture harness … better if we do the looping standalone"/ |
+| Q4 | the harness request keeps =thread=; a terminal ALWAYS sends =terminal= beside it; the runtime binds =ctx.terminal= and is loud when thread and terminal disagree | /"for sure we want the terminal ID on the dialog request"/ |
+| Q5 | a looped tool call IS a Signal — =nature · body · flags=, the universal shape (=schematics/primitives/controller.js:41-43=), never the verb's =input=; the strip carries the DECLARATION (nature · input · output · valence), the call carries body and flags | /"nature body and flags is not something that is unique to the REPL signal. It is the basis for all signal. Input is something that's very specific."/ |
+| Q6 | the tool result is the verb's =output=, nothing beside it | /"output. not span"/ |
+| Q7 | ghost gets a =LOOPING= trait too; its body IS the two routes, grafted onto =client.aperture= ONCE, the first time a looping mode mounts | /"as soon as there's a mode looping, we attach that. Yeah, actually, I think I like B."/ |
+| Q8 | client-mode harness DEFERRED; no resident/persisted split | /"I don't like this distinction into resident and persistent … a very small constraint that is kind of irrelevant and something that we can fix in the future"/ |
+| Q9 | the harness request is a schematic in typology (=schematics/primitives/harness.js= =Request=) beside the cortex's =hallucination.Request=; =id= → =turn=; =input= stays =input= for now | /"Absolutely, we want a schematic here … that is something that should be in the schematics"/ · /"ID to turn"/ · /"input to body … that is a pretty big change … call that input for now"/ |
+
+The REJECTED trails of Q0 · Q2 · Q3 · Q4 · Q7 struck 10-22; the table as it stood → =reference/m88/dialogue-rejected-trails.org=.
+
+* terrain — measured 10-16 (the loop closed; client modes' 10-14 terrain → =reference/m88/stretch-one-terrain-10-14.org=)
+
+| # | link | file:line |
+|---|------|-----------|
+| 1 | client line → ring | =systems/ghost/gestalten/shard/repl.js= =compose= · =dispatch= |
+| 2 | =/harness= repl verb → stream | =systems/ghost/entities/mode/traits/harnessed.js:33= → =gestalten/belt/harness.js:3= |
+| 3 | client multiplex, =vector= slot EMPTY | =systems/ghost/subjects/client/lifecycle/index.js:84= |
+| 4 | runtime multiplex on =die.aperture= | =systems/runtime/subjects/runtime/lifecycle/integration.js:31= |
+| 5 | Socket symmetric: =ctx.socket= on every answered frame | =subsystems/typology/prototypes/socket.js:141,175= |
+| 6 | the tools beat (=arming=) builds =ctx.hallucination.tools= once per harness call | =systems/runtime/subjects/mode/traits/harnessed.js:63-80= |
+| 7 | tool name ⟷ path already a pair | =subsystems/typology/prototypes/toolcall.js:22-28= |
+| 8 | runtime serves a strip the client wires — the mirror | =systems/runtime/gestalten/shard/host.js:47= ⟷ =ghost/entities/mode/traits/harnessed.js:30= |
+| 9 | the model's tool list = =rollup= of the trie, carries never add leaves | =subsystems/typology/gestalten/shard/hallucinate.js:12= |
+| 10 | provider cache keyed on a stable tool list | =systems/runtime/subjects/mode/traits/harnessed.js:172= |
+
+| measure | value |
+|---------|-------|
+| composed repl, client + terminal + console, strip bytes | 1561 |
+| verbs in it | 11 |
+| harness callers passing =thread= | 57 |
+| of those with a terminal | 1 |
+| =id= on a harness request, sites | 6 |
+
+* the law — the loop closed (client modes' law, landed via m86 → =reference/m88/stretch-one-law.org=)
+
+1. The runtime PULLS; the client never pushes its repl. Every harness call from a terminal pulls =/terminal/<id>/metadata/repl= over the socket the call arrived on. No socket state, no hash, no change ping.
+2. The strip is the declaration, the Signal is the call. A looped tool's input schema is =Call = { body, flags }=; its name is the route under =/repl= (=repl_mode_console_hello=); its valence is the verb's.
+3. A capability is a trait on the MODE, on both catalogs. Runtime =LOOPING= mints =mode.looping(ctx)=, ONE slot the tools beat reads beside =ctx.mode.tools=. Ghost =LOOPING= grafts the two routes onto =client.aperture= once.
+4. The client has ONE aperture, handed to its multiplex. What the runtime may call on the client is a route on it, as what the client may call on the runtime is a route on =die.aperture=.
+5. The harness request is a schematic: =v.primitives.harness.Request= — =thread · terminal · turn · parts · tune · config · system · output · tools=. A terminal ALWAYS sends =terminal=.
+6. The tool result is the verb's =output=.
+
+* as code — one =****= per directory, =*****= per file, =ls= order (the loop closed; client modes' tangle → =reference/m88/stretch-one-tangle.org=, its paths died: =populate.js= · =ghost/lifecycle/client/*= · =belt/help.js=; the trace → =reference/m88/stretch-one-design.org=)
+
+*** subsystems/typology
+
+**** schematics/primitives
+
+***** harness.js (NEW) — static, no thunk: m96 retro drill Q1 10-21 /"So inside typology, we build static not thunks"/
+
+#+BEGIN_SRC js
+import { v } from "../v.js";
+import * as hallucination from "./hallucination.js";
+
+export const Call = v.object({
+  body: v.array(v.unknown()).desc('The words after the verb, as a Signal carries them. Example: ["ciao"]'),
+  flags: v.record(v.string(), v.unknown()).desc('The --flags, as a Signal carries them. Example: { "pace": "40ms" }'),
+});
+
+export const Request = v.object({
+  thread: v.string().optional().desc('The thread the turn appends to. Example: "th3"'),
+  terminal: v.string().optional().desc('The calling terminal, whenever a terminal calls. Example: "t1"'),
+  turn: v.string().optional().desc('The id the user turn is minted under; the caller picks it to find the turn again. Example: "6f1c0d2e"'),
+  parts: v.array(hallucination.Part.Any).desc('The user turn\'s parts. Example: [{ "type": "text", "text": "ciao" }]'),
+  tune: hallucination.Tune.optional(),
+  config: v.record(v.string(), v.unknown()).optional().desc('Policy overrides. Example: { "rounds": 2 }'),
+  system: v.record(v.string(), v.unknown()).optional().desc('Named primer sections, each a string or a Primer. Example: { "system": "You are memo." }'),
+  output: v.record(v.string(), v.unknown()).optional().desc('A schema the answer must fit. Example: { "type": "object" }'),
+  tools: v.record(v.string(), v.unknown()).optional().desc('In-process tools a caller supplies. Example: { "echo": { "execute": fn } }'),
+});
+#+END_SRC
+
+***** index.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/index.js:5
+ export * as hallucination from "./hallucination.js";
++export * as harness from "./harness.js";
+#+END_SRC
+
+***** contexts.js
+
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:54
+-export const stream = { stream: v.unknown().desc("A verb's request for a stream the repl pumps after next() into the thread's $live. Example: ctx.stream = { packets: mode.harness.dialogue.stream({ thread, id, parts }) }") };
++export const stream = { stream: v.unknown().desc("A verb's request for a stream the repl pumps after next() into the thread's $live. Example: ctx.stream = { packets: mode.harness.dialogue.stream({ thread, terminal, turn, parts }) }") };
+#+END_SRC
+
+*** subsystems/typology (continued) — the wire, m96 10-21
+
+**** gestalten/shape
+
+***** index.js
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shape/index.js:1
+ export * as connection from "./connection.js";
++export * as repl from "./repl.js";
+#+END_SRC
+
+***** repl.js (NEW) — =strip ⟷ wire= for a repl (the pair m92 struck for the keymap, ruling 12, lives for the repl): every stripped node becomes a pattern whose effect SENDS the line
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shape/repl.js
+import { Vector } from "../../prototypes/vector.js";
+
+export const wire = (node, send, repl = new Vector()) => {
+  for (const [key, child] of Object.entries(node.branches)) {
+    const branch = repl.branch({ nature: key, valence: child.effect?.valence, chord: child.effect?.chord, input: child.effect?.input }, new Vector());
+    if (child.effect !== undefined) branch.effect = (ctx) => send(ctx.signal);
+    wire(child, send, branch);
+  }
+  return repl;
+};
+#+END_SRC
+
+*** subsystems/paladin
+**** prototypes
+***** integrity.js — REPLING travels with =repl= (m96 ruling 7; the console fixture exports =repl=, the check read =repling= — baseline census 10-21: /"REPLING: no repling export"/ on every hosted mode)
+#+BEGIN_SRC diff
+// subsystems/paladin/prototypes/integrity.js:19
+-  REPLING: "repling",
++  REPLING: "repl",
+#+END_SRC
+
+*** systems/runtime
+
+**** mode/traits
+
+***** harnessed.js
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/harnessed.js:23
+ const claiming = async (ctx, next) => {
+   ctx.thread = ctx.input.thread
+     ? await ctx.entities.thread.findOneOrFail({ id: ctx.input.thread })
+     : null;
++  ctx.terminal = ctx.input.terminal
++    ? await ctx.entities.terminal.findOneOrFail({ id: ctx.input.terminal, thread: ctx.thread })
++    : null;
+   ctx.user ??= ctx.thread?.user ?? null;
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:74 — on m83's text (arming takes the primer)
+-const arming = (ctx, primer) => {
++const arming = async (ctx, primer) => {
+   const armed = new Vector()
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:89
+   if (ctx.mode.generator?.tools) armed.branch("/generator", ctx.mode.generator.tools);
++  if (ctx.mode.looping) armed.branch("/repl").graft(await ctx.mode.looping(ctx));
+   if (shape.primer.lazy(primer).length) armed.graft(tools.primer.primer);
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:68
+-    tools: arming(ctx, primer),
++    tools: await arming(ctx, primer),
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:90
+-    id: ctx.input.id,
++    id: ctx.input.turn,
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:196
+-  harness.branch("/dialogue").use(chaining).use(persisting);
++  harness.branch("/dialogue").use(chaining).use(persisting);
++  harness.branch("/dialogue").open({ nature: "render", input: v.primitives.harness.Request }, async (ctx) => ctx.cortex.hallucinate.dialogue.render(await primed(ctx)));
++  harness.branch("/dialogue").open({ nature: "stream", input: v.primitives.harness.Request, yields: Packet.Response }, async (ctx) => ctx.cortex.hallucinate.dialogue.stream(await primed(ctx)));
++  harness.branch("/object").open({ nature: "render", input: v.primitives.harness.Request }, async (ctx) => ctx.cortex.hallucinate.object.render(await primed(ctx)));
++  harness.branch("/object").open({ nature: "stream", input: v.primitives.harness.Request, yields: Packet.Response }, async (ctx) => ctx.cortex.hallucinate.object.stream(await primed(ctx)));
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:225 — m83's loop (primed)
+-  for (const type of ["dialogue", "object"]) {
+-    harness
+-      .branch(type)
+-      .open("render", async (ctx) => ctx.cortex.hallucinate[type].render(await primed(ctx)))
+-      .open({ nature: "stream", yields: Packet.Response }, async (ctx) =>
+-        ctx.cortex.hallucinate[type].stream(await primed(ctx)),
+-      );
+-  }
+#+END_SRC
+
+The =for (const type of …)= loop dies: two branches are two blocks (/"A mechanism is SHOWN, never wrapped"/), and each now names its =input=.
+
+***** index.js
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/index.js:10 — after m83's primer line (the one-copy order: m93 → m83 → m87 → m88 → m92 → m96 → m95)
+ export * from "./primer.js";
++export * from "./looping.js";
++export * from "./repling.js";
+#+END_SRC
+
+***** repling.js (NEW) — the wire, m96 10-21 (ruling 7): a RUNTIME mode mints =mode.repl= from =module.repl=, serves its strip, dispatches a line; the stripwire routine's runtime half
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/repling.js
+import { ReplSignal, contexts, shape, shard, steer } from "@vivalence/typology";
+
+export const REPLING = (mode, context) => {
+  mode.repl.use(shard.context.spread(contexts.host, context)).use(shard.context.bind("mode", mode)).graft(mode.module.repl);
+  mode.aperture.get("/metadata/repl", () => shape.strip(mode.repl));
+  mode.aperture.post("/repl", (input, ctx) => steer.dispatch.execute(mode.repl, { ...ctx, signal: new ReplSignal(input.line), output: undefined }, new ReplSignal(input.line)));
+};
+#+END_SRC
+
+***** looping.js (NEW) — the =grow= block below is SUPERSEDED by the lock under it (=shape.repl.wire= + the tool leaf)
+
+#+BEGIN_SRC js
+import { v, Vector } from "@vivalence/typology";
+
+const grow = (tools, node, steps, call) => {
+  if (node.effect !== undefined) {
+    const nature = `/${steps.join("/")}`;
+    tools.open({ nature, input: v.primitives.harness.Call, valence: node.effect.valence }, (input) => call({ nature, ...input }));
+  }
+  for (const [key, child] of Object.entries(node.branches)) grow(tools, child, [...steps, key], call);
+  return tools;
+};
+
+export const LOOPING = (mode) => {
+  mode.looping = async (ctx) => {
+    if (ctx.terminal === null) return new Vector();
+    const strip = await ctx.socket.call(`/terminal/${ctx.terminal.id}/metadata/repl`);
+    return grow(new Vector(), strip, [], (signal) => ctx.socket.call(`/terminal/${ctx.terminal.id}/repl`, signal));
+  };
+};
+#+END_SRC
+
+=grow= is the ana of =shape.strip= over a strip POJO: =strip= folds a Vector to =branches/effect=, =grow= pours it back as tools. A caller with no terminal (a mode's own aperture, a test) gets an empty Vector — the live value, not a flag. A call over plain HTTP has no =ctx.socket= and throws at =.call= — loud, the real domain is the multiplex.
+
+LOCKED 10-21 (his: /"1 2 lock."/; the sketch was his: /"If grow is the ANA to shapestrips kata, then I suggest we express it as a probably a tool shard wire. That might require a little bit of a rejiggle in terms of how the function is expressed."/) — ONE ana, =shape.repl.wire(node, leaf)=, parametrized by what a LEAF becomes (as =shape.strip(vector, pluck)= is by what a leaf yields); the repl and the tools are two =leaf= tables. (His word =shard=; the tree's strip ⟷ wire pairs live in =shape/= — =connection.js= · =repl.js=; =shard/= is =(ctx, next)= of two subjects.)
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shape/repl.js — the ana of strip: one fold, the leaf decides pattern + effect
+import { Vector } from "../../prototypes/vector.js";
+
+export const wire = (node, leaf, vector = new Vector(), steps = []) => {
+  for (const [key, child] of Object.entries(node.branches)) {
+    const path = [...steps, key];
+    const [pattern, effect] = child.effect === undefined ? [{ nature: key }, undefined] : leaf(path, child.effect);
+    const branch = vector.branch(pattern, new Vector());
+    if (effect) branch.effect = effect;
+    wire(child, leaf, branch, path);
+  }
+  return vector;
+};
+
+// the repl leaf (m88 stretch three, as before): a stripped node becomes the pattern it was; its effect SENDS the line
+export const repl = (send) => (path, declared) => [{ nature: path.at(-1), valence: declared.valence, chord: declared.chord, input: declared.input }, (ctx) => send(ctx.signal)];
+// the tool leaf (was grow): the same node as a TOOL — input is the universal Call, the effect sends a Signal built from the path
+export const tool = (call) => (path, declared) => [{ nature: path.at(-1), valence: declared.valence, input: v.primitives.harness.Call }, (input) => call({ nature: `/${path.join("/")}`, ...input })];
+#+END_SRC
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/looping.js — grow dies; LOOPING is three lines
+export const LOOPING = (mode) => {
+  mode.looping = async (ctx) => {
+    if (ctx.terminal === null) return new Vector();
+    const strip = await ctx.socket.call(`/terminal/${ctx.terminal.id}/metadata/repl`);
+    return shape.repl.wire(strip, shape.repl.tool((signal) => ctx.socket.call(`/terminal/${ctx.terminal.id}/repl`, signal)));
+  };
+};
+// systems/ghost — the client side keeps its one call: shape.repl.wire(strip, shape.repl.repl(send))
+#+END_SRC
+
+*** systems/ghost
+
+**** client
+
+***** prototype.js
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/prototype.js:2 — re-cut 10-21 (baseline census): LOOPING routes with =.post=, which =Aperture extends Vector= has (=prototypes/aperture.js:6=) and a bare Vector does not (/".post is not a function"/)
+-import { Vector, fromm } from "@vivalence/typology";
++import { Aperture, Vector, fromm } from "@vivalence/typology";
+…
+// systems/ghost/subjects/client/prototype.js:14
+   repl = new Vector();
++  aperture = new Aperture();
+   runtime = null;
+#+END_SRC
+
+***** lifecycle/index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/lifecycle/index.js:84 — re-cut 10-21 (m96 seam 3 probe): the die IS the Client, as looping.js already reads it; `clientDie.client.aperture` was the fault the world test swallowed (/"Cannot read properties of undefined (reading 'aperture')"/ in the client span, right after the console mode's close — the modes beat done, the connection beat dead)
+-  const multiplex = shard.transmitter.multiplex({ authority: clientDie.runtime.lighthouse.$authority });
++  const multiplex = shard.transmitter.multiplex({ authority: clientDie.runtime.lighthouse.$authority, vector: clientDie.aperture });
+#+END_SRC
+
+**** gestalten/belt
+
+***** turn.js — =entities/terminal/commands/turn.js=, the SECOND caller of =stream= (the blast table below named it, :1307; no hunk until 10-21 — m96 seam 3 probe3: a bare line on the memo thread faulted /"Cannot read properties of undefined (reading 'controller')"/ because the thread rode in the terminal's seat; =/mode/memo/harness ciao= through =harnessed.js:36= landed its two turns)
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/terminal/commands/turn.js:8
+-    return stream(ctx.terminal.mode, ctx.terminal.thread, ctx.signal.body);
++    return stream(ctx.terminal.mode, ctx.terminal, ctx.signal.body);
+#+END_SRC
+
+***** harness.js
+
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/belt/harness.js:3
+-export const stream = async (mode, thread, parts) => {
++export const stream = async (mode, terminal, parts) => {
+   let transcript = null;
+   try {
+-    for await (const packet of mode.harness.dialogue.stream({ thread: thread.id, id: crypto.randomUUID(), parts })) thread.controller.stdout.mark("stream", (transcript = soma.transcript(transcript, packet)));
++    for await (const packet of mode.harness.dialogue.stream({ thread: terminal.thread.id, terminal: terminal.id, turn: crypto.randomUUID(), parts })) terminal.thread.controller.stdout.mark("stream", (transcript = soma.transcript(transcript, packet)));
+   } finally {
+-    thread.controller.stdout.mark("stream", { ...transcript, open: null });
++    terminal.thread.controller.stdout.mark("stream", { ...transcript, open: null });
+   }
+ };
+#+END_SRC
+
+**** gestalten/shard
+
+***** host.js
+
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/shard/host.js:53
+-    for (const finalize of await traits.stagger(mode, die[type], catalog)) await finalize();
++    for (const finalize of await traits.stagger(mode, die, catalog)) await finalize();
+#+END_SRC
+
+No ghost trait reads its second parameter today (=application · exposed · harnessed · repling= are =(mode)=); the client die is the context a client trait needs.
+
+**** entities/mode/traits
+
+***** harnessed.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/traits/harnessed.js:35
+-    (ctx) => stream(mode, ctx.terminal.thread, [{ type: "text", text: ctx.signal.body.map((datum) => String(datum)).join(" ") }]),
++    (ctx) => stream(mode, ctx.terminal, [{ type: "text", text: ctx.signal.body.map((datum) => String(datum)).join(" ") }]),
+#+END_SRC
+
+***** index.js
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/traits/index.js:3
+ export { HARNESSED } from "./harnessed.js";
++export { LOOPING } from "./looping.js";
+#+END_SRC
+
+***** repling.js — the wire, m96 10-21 (ruling 7): ONE trait, two seats — a hosted mode grafts its module; a remote mode pulls the strip and wires every line back to =/repl=
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/traits/repling.js:1
+-export const REPLING = (mode) => {
+-  mode.repl.graft(mode.module.repling);
++import { shape } from "@vivalence/typology";
++
++export const REPLING = async (mode) => {
++  if (mode.module !== null) return mode.repl.graft(mode.module.repl);
++  mode.metadata.repl = await mode.connection.call("/metadata/repl");
++  mode.repl.graft(shape.repl.wire(mode.metadata.repl, (signal) => mode.connection.call("/repl", { line: signal.line })));
+ };
+#+END_SRC
+
+***** looping.js (NEW) — the =grow= block below is SUPERSEDED by the lock under it (=shape.repl.wire= + the tool leaf)
+
+#+BEGIN_SRC js
+import { NotFound, ReplSignal, belt, shape } from "@vivalence/typology";
+import * as shard from "../../../gestalten/shard/index.js";
+
+export const LOOPING = belt.fn.once((mode, clientDie) => {
+  clientDie.aperture
+    .branch("/terminal/:terminal")
+    .use(async (ctx, next) => {
+      ctx.terminal = clientDie.runtime.entities.terminal.$entities.get().find((held) => held.id === ctx.params.terminal);
+      if (ctx.terminal === undefined) throw new NotFound(ctx.signal);
+      await next();
+    })
+    .open("/metadata/repl", (ctx) => shape.strip(ctx.terminal.repl))
+    .post("/repl", (ctx) => ctx.terminal.dispatch(ctx.input.line));
+});
+#+END_SRC
+
+*** systems/ghost/entities/terminal/commands — a terminal's turn verb (=turn.js=) calls =stream(mode, terminal, parts)= with the terminal it has; same one-argument shift as =harnessed.js:35=.
+
+*** systems/anima
+
+**** src/app/panels/a/widgets
+
+***** Dock.svelte
+
+#+BEGIN_SRC diff
+// systems/anima/src/app/panels/a/widgets/Dock.svelte:172
+-        thread.mode.harness.dialogue.stream({ thread: thread.id, id, parts }),
++        thread.mode.harness.dialogue.stream({ thread: thread.id, turn: id, parts }),
+#+END_SRC
+
+**** tests/dock — =dock.mount.test.js:198= destructures =turn= instead of =id=.
+
+*** commons
+
+**** fixtures/testing/console
+
+***** console.viva.js
+
+#+BEGIN_SRC diff
+// commons/fixtures/testing/console/console.viva.js:9
+-  traits: ["REPLING"],
++  traits: ["REPLING", "LOOPING"],
+…
+// commons/fixtures/testing/console/console.viva.js:12 — m96 ruling 7: the export is `repl`
+-export const repling = new Vector()
++export const repl = new Vector()
+#+END_SRC
+
+*** tests — mine, decided here
+
+| file | proves |
+|------|--------|
+| =systems/runtime/tests/mode/looping.test.js= (NEW) | =LOOPING= on a probe mode: a fake =ctx.socket= answers the console strip; =mode.looping(ctx)= rolls up =repl_hello · repl_whoami= with =Call= input; invoking =repl_hello= with ={ body: [], flags: {} }= hits the socket with ={ nature: "/hello", body: [], flags: {} }=; =ctx.terminal === null= yields an empty Vector |
+| =systems/ghost/tests/console.test.js= | after a =LOOPING= mode mounts, =client.aperture= answers =/terminal/<id>/metadata/repl= with branches =help · quit · hello · whoami=, and =/terminal/<id>/repl= with ={ nature: "/hello", body: [], flags: {} }= answers ="hello from ghost"=; an unknown terminal id is =NotFound= |
+| =systems/ghost/tests/client.test.js= | the harness request from a seated terminal carries =terminal= and =turn= (the runtime's =Turn= row id equals the =turn= sent) |
+| =systems/runtime/tests/stub.activity.test.js:106= · =sse= · =multiplex= integration | unchanged callers pass =Request= validation — the census proves the schema fits all 57 |
+
+CLOSED 10-21 by lookup: the stub cortex emits =tool_use= and folds the =tool_result= — =systems/runtime/tests/cortex.integration.test.js:237= (/"tool_use → tool_result → final turn: two provider rounds + a folded tool turn"/) over =commons/fixtures/testing/data/faculties.js:87=. The round trip, drawn:
+#+BEGIN_SRC js
+// systems/runtime/tests/mode/looping.test.js — the terminal is a fake socket: it answers the strip and executes the line; the stub model calls the tool
+import { ReplSignal, Vector, shape, specimen, steer } from "@vivalence/typology";
+import { create } from "../scenarios/cortex.js";
+const console_ = new Vector().open({ nature: "/mode/console/whoami", valence: "the terminal's id. Example: /mode/console/whoami" }, (ctx) => ({ terminal: ctx.terminal }));
+specimen.it("a looped repl effect is called by the model and answers with the terminal's own id", async () => {
+  const { dewey, createThread } = await create({ traits: ["EXPOSED", "HARNESSED", "LOOPING"] });
+  const thread = await createThread();
+  const socket = { call: async (route, body) => route.endsWith("/metadata/repl") ? shape.strip(console_) : steer.dispatch.execute(console_, { terminal: "t1", signal: new ReplSignal(body.line) }, new ReplSignal(body.line)) };
+  const stream = await dewey.harness.dialogue.stream({ parts: [{ type: "text", text: "who am i" }], thread, terminal: "t1", tune: "unleashed", socket });
+  const { packets } = await collectStream(stream);
+  const result = packets.find((packet) => packet.part?.type === "tool_result");
+  specimen.expect(result.part.output).toEqual({ terminal: "t1" });
+});
+#+END_SRC
+
+* flows
+
+#+BEGIN_SRC
+/mode/console/harness ciao                      — the terminal's line
+  → ghost HARNESSED verb → belt/harness.stream(mode, terminal, parts)
+  → /harness/dialogue/stream { thread, terminal, turn, parts }   over the multiplex
+  → runtime claiming: ctx.thread · ctx.terminal (loud if they disagree)
+  → requesting → arming → mode.looping(ctx)
+      → ctx.socket.call("/terminal/t1/metadata/repl")             back down the SAME socket
+      ← strip { branches: { help, quit, mode: { console: { hello, whoami } } } }
+      → grow → tools under /repl: repl_help · repl_quit · repl_mode_console_hello · …
+  → cortex: tool_use repl_mode_console_whoami { body: [], flags: {} }
+  → settle → ctx.socket.call("/terminal/t1/repl", { nature: "/mode/console/whoami", body: [], flags: {} })
+      → ghost LOOPING route → shard.repl.dispatch(client, terminal, ReplSignal) → the verb → replDie.output
+      ← { user: "finn", terminal: "t1" }
+  → tool_result { condition: "OK", output: { user: "finn", terminal: "t1" } } → the model answers
+#+END_SRC
+
+* blast table — the loop closed (client modes' table, 5 of 9 sites gone → =reference/m88/stretch-one-blast-table.org=)
+
+| site | count | change |
+|------|-------|--------|
+| =systems/runtime/subjects/mode/traits/harnessed.js= | 1 | claiming + arming + chaining + four opens |
+| =systems/runtime/subjects/mode/traits/looping.js= | 1 | NEW |
+| =systems/runtime/subjects/mode/traits/index.js= | 1 | +1 line |
+| =subsystems/typology/schematics/primitives/harness.js= | 1 | NEW |
+| =subsystems/typology/schematics/primitives/index.js= · =contexts.js= | 2 | +1 line · desc |
+| =systems/ghost/subjects/client/prototype.js= · =lifecycle/index.js= | 2 | +1 field · =vector:= |
+| =systems/ghost/gestalten/belt/harness.js= · =shard/host.js= | 2 | terminal in · =die= |
+| =systems/ghost/entities/mode/traits/harnessed.js= · =index.js= · =looping.js= | 3 | 1 line · +1 line · NEW |
+| =systems/ghost/entities/terminal/commands/turn.js= | 1 | =stream(mode, terminal, parts)= |
+| =systems/anima= =Dock.svelte= · =dock.mount.test.js= | 2 | =id= → =turn= |
+| =commons/fixtures/testing/console/console.viva.js= | 1 | +LOOPING |
+| harness callers passing =thread= only | 57 | none — =Request= admits them |
+| =~/.viva= | 0 | none |
+
+* milestones
+
+1. *client modes on ghost* — the tangle above: =deno test -A --no-check subsystems/paladin/tests/modes.test.js= green; =systems/ghost/tests/client.test.js= walks home as a hosted mode, =/hello= answers, =help= lists it, a seated thread hides it; on his ledger bare =viva= prints =/hello='s answer.
+2. *the hosted twin* — DEAD 10-21 (m95 ruling 24: /"no such thing exists as shared modes. client, runtime, and daemon modes are wholy independent."/) — a mode listed under a daemon AND the client (=@chess/board/play= in both) lends its =repl= (was =repling=, m96 ruling 7) while its thread is seated: =build(mode)= in =lifecycle/terminal/population.js= looks up =client.modes= by =@owner/type/slug= of =thread.mode=; the remote =Mode= entity needs =owner= on the wire (=systems/runtime/entities/Mode.ts= carries =type · slug= only) — the one runtime diff of this quest.
+3. *the loop closed* — =LOOPING= on both catalogs (=* as code=, formerly =* stretch three=): =deno test -A --no-check systems/runtime/tests/mode/looping.test.js= and =systems/ghost/tests/console.test.js= green; on his ledger =/mode/console/harness whoami= answers with the terminal's own id. Needs stretch two for a hosted mode to be looped at all.
+
+* QA
+
+- /"I type =viva= in =~/.viva/instances/localhost=, I see the repl; I type =/hello=, I see ={ greeting: "home", terminal: <id>, mode: "/client/ghost/mode/home/home" }=; I type =help=, I see =hello= under its own noun"/ — =#+marker_qa: m88/T-home-hello · pending · bare viva on his ledger=
+- /"I type =/mode memo= then =/hello=, I see =/hello= refused; =/thread/close= (or a new terminal) and =/hello= answers again"/ — =#+marker_qa: m88/T-home-hides · pending · the verb list follows the seat=
+- /(10-22: the hosted mode the two markers above name is =/client/ghost/mode/home/console= today — =commons/ledger/ledger.viva.json:16= =@commons/home/console=; read =/home/home= as =/home/console=)/
+
+The loop closed (formerly =** QA= under stretch three):
+
+
+- I type =/mode/console/harness whoami= on a terminal seated on the console twin; I see the assistant answer with my user slug and terminal id, and on the runtime stdout a =metadata/repl= frame followed by a =repl= frame on the same socket.
+- I type =/help=; I see =hello · whoami= beside =help · quit= — the same four the model's =repl_= tools name.
+- =#+marker_qa: m88/T-looping-whoami · pending · the model answers /mode/console/harness whoami with the terminal's own id=
+- =#+marker_qa: m88/P-request-schema · pending · a harness call with thread "nope" fails at validation, not in claiming=
+
+* deferred
+
+- anima's door: =vite.config.mjs= wires =clients[anima]= and emits =register= as a virtual module (m87's strand) — anima's quest.
+
+- =ctx.input= → =ctx.signal.body= across the dispatch — his: /"input to body … that is a pretty big change … call that input for now"/.
+- client-mode harness — his: /"a very small constraint that is kind of irrelevant and something that we can fix in the future"/. Note: a client mode always has a runtime and a terminal; once the terminal's HOME harness mode is =LOOPING=, the client mode's verbs reach a model through it with no harness of its own.
+- a =Vector.prune= — he allowed it (/"might be a reasonable prune"/); nothing here needs it after Q2.
+- streaming verbs as tools (=/harness= inside the loop) — the result is =output= only (Q6); a transcript return is the verb's own later answer.
+- m89 telemetry: the two socket frames per harness call are the first thing the telemetry Span should show.
+
+* changelog — pasted 10-22 (=reference/m96/coverage.org= census + the F1 · F2 · F3 landing)
+
+#+begin_src text
+census — session 6: m88 =looping.test.js= (import fixed; then /"TerminalEntity not found { id: 't1' }"/ — the test seats no terminal row, hosts-runtime-m83) · m88 =stub.activity:110= timeout (the =id= site)
+census — hosts
+| runtime | 75 · 12 | 78 · 9 · 1 ign (535 steps) | the 9 rig ONLY — looping · stub.activity GREEN |
+census — repl
+| ghost | 11 · 2 | 18 · 0 (46 steps) | — (=keymap.test.js= 6 its · =commands.test.js= 15 steps NEW · console 2/2 · repl 7 · world 4/4) |
+10-22 F1 · F2 · F3 landed on the repo (10 files)
+systems/ghost/tests/                                         ok | 17 passed (55 steps) | 0 failed (7s)
+systems/runtime/tests/mode/ + view.bundle.route.test.js      FAILED | 10 passed (53 steps) | 3 failed
+#+end_src
+
+Attributed reds: the 3 = =@education not supplied= (aprende, reads this machine; the baseline rig). New tests 10-22: =systems/runtime/tests/mode/traits.receive.test.js= · =systems/runtime/tests/view.bundle.route.test.js= · =systems/runtime/tests/mode/repling.route.test.js= · =systems/ghost/tests/looping.test.js= (a real Socket over =Deno.serve=; help · quit · hello · whoami · terminal in the strip; a second mount leaves one tap).
+
+* release (lifted 10-24 into =.ikiro/release.md=)
+
+- added `LOOPING` (mode trait, runtime + ghost) — a terminal's whole repl becomes the harness's tools under `repl_…`, called back over the terminal's own socket · migrate: none ⟨m88⟩
+- changed `/harness/dialogue/*` · `/harness/object/*` request — validated by `v.primitives.harness.Request`; `id` renamed `turn`; `terminal` optional beside `thread` · migrate: rename `id` → `turn` at the three callers that sent one ⟨m88⟩
+- added client aperture — a ghost client serves `/terminal/<id>/metadata/repl` and `/terminal/<id>/repl` on its multiplex once a `LOOPING` mode mounts · migrate: none ⟨m88⟩
+* handoff — rewritten 10-22 (the 10-21 handoff whole → =reference/m88/handoff-10-21.org=)
+
+- goal: the harness calls the terminal's repl — /"the client is serving itself as an MCP"/ over the multiplex it already has.
+- done: 10-21 (m96 LANDED) the loop closed — typology =schematics/primitives/harness.js= STATIC (=Request = { thread, terminal, turn, parts }=, the /repl wire Signal) · =shape/repl.js= =wire(node, leaf)= · runtime =repling.js= · =looping.js= · ghost REPLING hosted|remote · the =commands= beat. 10-22 F1 · F2 · F3 LANDED (uncommitted): F2 both =/repl= routes take the Signal input — =systems/runtime/subjects/mode/traits/repling.js:6-9= (and answer the repl die's =output=; a second defect found: the route answered null) · =systems/ghost/entities/mode/traits/looping.js:12-13=; F1 the strip is the composed ring — =looping.js:12= =shape.strip(shard.repl.compose(clientDie, ctx.terminal))=; F3 once per client — =systems/ghost/subjects/client/prototype.js:20= =looping = belt.fn.once(loop)=, =looping.js:16= =LOOPING = (mode, clientDie) => clientDie.looping(clientDie)=. Counts under =* changelog=.
+- next: nothing in flight — 10-22 the =** tests= rows LANDED (=systems/ghost/tests/looping.test.js= the request rides =terminal · thread · turn= over a real Socket; =systems/runtime/tests/mode/looping.test.js= the user Turn minted under the client's =turn= id; the strip over a real socket was already its own step) · =host.js:1= the host catalog is a literal of five traits (REPLING KEYMAPPED EXPOSED HARNESSED APPLICATION) — LOOPING is the client's alone (=host.coverage.test.js=: a remote mode declaring LOOPING mounts, no route, RELEASED); suites =systems/ghost/tests/= + runtime =looping.test.js= =ok | 28 passed (106 steps) | 0 failed=. His call: a remote LOOPING mode gets no =/terminal/:id/repl= unless a hosted mode declares it (alternative: a host-catalog =LOOPING = (mode, die) => die.client.looping(die.client)=). Then =Request.parts= (m96 open #11).
+- never: a pushed strip · socket state · a hash ping · =REINED= · =POSSESSED= · =ARMED= · a =client/aperture.js= · a resident/persisted split in the harness · a =line= field on the wire.
+- owed: =Request.parts= required vs 10 =turns=-only callers → m96 =* open= #11 · ruling 33's client half (the reply a Turn in the em) → m95 =* handoff= next · the m88:1109 tool leaf arity (an arity-1 effect receives the CTX — departure recorded) · client-mode harness · =ctx.input → ctx.signal.body= (=* deferred=). Dropped 10-22: the hosted twin's =lifecycle/terminal/population.js= re-cut (milestone DEAD).

@@ -1,0 +1,39 @@
+#+title: m113 terrain 10-27 — moved whole from the quest's * terrain
+# limit: 3000 chars
+
+** the mechanism already computes it
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/dataspace.js:34 — every repository of the client's Dataspace: find at boot, then live
+  async subscribe() {
+    for (const repository of Object.values(this.em.repositoryMap)) await repository.find();
+    const offs = Object.values(this.em.repositoryMap).map((repository) => repository.subscribe());
+// systems/runtime/entities/File.ts:20 — no user · daemon filter on the row; /userspace/entities/file/* is mounted on :2501
+export class FileRepository extends DataRepository {
+  unique(query) {
+    return { mode: query.mode, path: query.path };
+// subsystems/drapes/display/Asset.svelte:7 — reads a Cargo entry's `type`; a File row carries `mime`
+  const kind = $derived(asset?.type?.split("/")[0]);
+#+END_SRC
+
+** probes — scratchpad, 10-27
+
+#+BEGIN_SRC sh
+# object.match (findOneLocal's predicate): an absent asset must never match
+path undefined: null
+empty where: { path: "a.mp3" }        # findOneLocal(undefined) → the FIRST file — never call it bare
+path hit: { path: "b.mp3" }
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/transmitter.js:93 — multiplex frames url · input · method · token; no request headers
+      const frame = await socket.open(request.url, {
+        query: request.url.search || undefined,
+        input: request.body,
+        …
+        token: authority?.get()?.access,
+        stream: upstream ? true : undefined,
+      });
+// ~/.viva/registry/assembly/modes/editor/import/aperture/index.js:37 — the upload names its file in a header
+  const header = ctx.request?.headers?.get?.("x-viva-name");
+#+END_SRC
+

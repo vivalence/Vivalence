@@ -1,5 +1,5 @@
 import { v } from "../v.js";
-import { Home } from "../primitives/home.js";
+import { user } from "../traits/index.js";
 
 export const UserDescriptor = {
   $id: "User",
@@ -11,6 +11,6 @@ export const UserDescriptor = {
   relations: {
     threads: () => v.array(v.thread()).optional(),
   },
-  traits: { HOME: Home },
+  traits: user,
   narrowable: ["trait"],
 };

@@ -1,0 +1,54 @@
+# struck 10-24 from .ikiro/quests/m98-ghost-barrels.org by Q44 /"b."/ (the server replaces; traits.patch merges the whole trait); nothing reworded · limit: none (reference content)
+
+** DataEntity.ts — Q33, struck by Q44 /"b."/ 10-24
+**** entities/base
+***** DataEntity.ts — Q33 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/entities/base/DataEntity.ts:55
+     const entity = await this.findOneOrFail(where);
+-    entity.assign(data);
++    entity.assign(data, { mergeObjectProperties: true });
+     await this.em.flush();
+#+END_SRC
+
+** data-entity.test.js as tangled 10-23 (Q33's merge), struck by Q44 /"b."/ 10-24
+***** data-entity.test.js — Q17′ · Q33 · Q41⁵ · Q42 (HOLY) (new)
+#+BEGIN_SRC js
+// subsystems/typology/tests/data-entity.test.js
+import { EntitySchema, MikroORM } from "@mikro-orm/sqlite";
+import { specimen } from "@vivalence/typology";
+import { DataEntity, DataRepository } from "@vivalence/typology/entities";
+
+class Held extends DataEntity {
+  id = "";
+  trait = {};
+}
+
+const HeldSchema = new EntitySchema({ class: Held, tableName: "Held", repository: () => DataRepository, properties: { id: { type: "string", primary: true }, trait: { type: "json" } } });
+
+specimen.describe("DataRepository.updateOne — a JSON column is merged, never replaced", () => {
+  specimen.it("an update that names one trait keeps the others and the untouched fields of its own", async () => {
+    const orm = await MikroORM.init({ dbName: ":memory:", contextName: "held", entities: [HeldSchema] });
+    await orm.schema.create();
+    const em = orm.em.fork();
+    em.persist(Object.assign(new Held(), { id: "th1", trait: { LABELED: { name: "hi" }, INTELLIGENT: { tune: "slow", effort: "low" } } }));
+    await em.flush();
+    const updated = await em.getRepository(Held).updateOne({ id: "th1" }, { trait: { INTELLIGENT: { tune: "fast" } } });
+    specimen.expect(updated.trait).toEqual({ LABELED: { name: "hi" }, INTELLIGENT: { tune: "fast", effort: "low" } });
+    const read = await orm.em.fork().findOneOrFail(Held, { id: "th1" });
+    specimen.expect(read.trait).toEqual({ LABELED: { name: "hi" }, INTELLIGENT: { tune: "fast", effort: "low" } });
+    await orm.close();
+  });
+});
+#+END_SRC
+
+** commands.test.js:272 — the touched-trait-only expectation, struck by Q44 /"b."/ 10-24 (the tree's whole-trait line stands)
+// systems/ghost/tests/subjects/terminal/commands.test.js:272
+     specimen.expect(await run("/tune fast")).toEqual({ INTELLIGENT: { tune: "fast" } });
+-    specimen.expect(threads.writes.at(-1)).toEqual({ where: { id: "th1" }, data: { traits: ["LABELED", "INTELLIGENT"], trait: { LABELED: { name: "flamingo" }, INTELLIGENT: { tune: "fast" } } } });
++    specimen.expect(threads.writes.at(-1)).toEqual({ where: { id: "th1" }, data: { traits: ["LABELED", "INTELLIGENT"], trait: { INTELLIGENT: { tune: "fast" } } } });
+     specimen.expect(await run("/effort high")).toEqual({ INTELLIGENT: { effort: "high" } });
+…
+
+** release line, struck by Q44 /"b."/ 10-24
+- changed `DataRepository.updateOne` — merges a JSON column (`mergeObjectProperties`), was a replace · migrate: a write that clears a nested map sends `null`, never `{}` ⟨m98⟩

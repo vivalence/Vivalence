@@ -1,0 +1,19 @@
+# drained 10-22 whole from .ikiro/quests/roadmap/m94-trait-rejiggle.org (quest tidy); nothing reworded · limit: none (reference content)
+
+** REJECTED — the trims (remembered, never re-proposed)
+
+| entity | name | why |
+|---+---+---|
+| Mode | INTENTED | /"Intented is, I think, deprecated for now."/ |
+| Mode | CONVERSATIONAL | /"conversational might be implied, duplicate with a harness, we might not need that actually"/ — today an empty catalog entry (accepted, does nothing) in 9 manifests |
+| Mode | RUNTIME | /"Not sure that exists actually."/ — empty catalog entry, one test |
+| Mode | CLIENT | /"No, I don't think we need even a client mode."/ |
+| Mode | CHAOSMONKEY BUFFERED TOOLED | /"Chaos monkey, I think, is deprecated as well as buffered and tooled."/ |
+| Mode | STANDALONE | /"Standalone is also deprecated."/ |
+| Mode | SELFEVIDENT | /"Self-evident is uh, deprecated"/ |
+| Thread | SELFEVIDENT | /"self-evident, I don't think"/ |
+| Thread | INERT MANUAL CONTINUOUS ESCORT STREAM | /"Those are not um, traits at all."/ |
+| Buffer | PENDING ACTIVE DONE ERROR STALE | /"those are status, not traits"/ |
+| Buffer | FILE (m54) | /"Buffer we might have superseded file. […] no, that's old as fuck."/ |
+| Symbol | CATEGORICAL LEARNABLE FREE | /"Categorical, learnable, free might be old."/ — only in =topography.bak/= |
+

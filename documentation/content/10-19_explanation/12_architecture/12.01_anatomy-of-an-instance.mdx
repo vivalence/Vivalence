@@ -100,10 +100,10 @@ Population fills the runtime's body:
 
 - **validate** — the record is checked (`paladin.check.instance`), then the runtime's own door: the one slot paladin leaves optional.
 - **registry** — `supply()` walks the package store into the *pensieve*, a nested map `owner → type → slug → version`. This is how the string `"@commons/datamap/libsql"` later becomes a module.
-- **datamap** — the runtime's own, in memory: its processes are rows of *virtual entities*, one repository per type — `die.runtime.processes.service` and `.daemon`.
-- **services · daemons** — a row per `ATTACHED` service and per daemon mask: `{ slug, mask, controller }`, the controller a branch of the runtime's under the row's reference — `/daemon/standalone`. The row IS the daemon: `manifest`, `reference` and `url` read the mask; `status` reads the controller.
+- **datamap** — the runtime's own: the instance's rows, `die.runtime.entities`, one repository per type.
+- **services · daemons** — a plain `Service` per `ATTACHED` service mask and a plain `Daemon` per daemon mask, held by slug in `die.runtime.services` and `die.runtime.daemons`: `{ slug, mask, controller }`, the controller a branch of the runtime's under the mask's reference — `/daemon/standalone`. `manifest`, `reference` and `url` read the mask; `$status` reads the controller. A daemon's row stays in `die.runtime.entities.daemon`, a copy on `daemon.entity`, the way a mode keeps `mode.entity`.
 
-Resolution raises the children: each row `execute`s its type's vector and the runtime waits for it to reach `RUNNING` before the next — births in order. Then `attach` (services and mode bundles under `/attached/…`), `expose` (each daemon's aperture slurped under its reference, `/status` off the row's atom) and `metadata`. Integration taps the root span into the ledger's `spans.jsonl`, starts the patrol beat (a census of every process's status, once a minute), serves the aperture and announces every daemon to the lighthouse.
+Resolution raises the children: each row `execute`s its type's vector and the runtime waits for it to reach `RUNNING` before the next — births in order. Then `attach` (services and mode bundles under `/attached/…`), `expose` (each daemon's aperture slurped under its reference, `/status` off the row's atom) and `metadata`. Integration taps the root span into the ledger's `spans.jsonl`, starts the patrol beat (once a minute: a census of every process's status, and every File row whose mount is gone claims `MISSING`), serves the aperture and announces every daemon to the lighthouse.
 
 ## the daemon assembles its body
 
@@ -154,7 +154,7 @@ The lighthouse *remote* points into the runtime's own path tree. The whole syste
 - `GET /daemon/standalone/metadata/modes` → `401 MISSING_TOKEN` — mounted, routing, locked. Identity comes from the lighthouse; in the booted system the client logs in and this returns the mode list.
 - `POST /attached/process/service/lighthouse/multiplayer/daemons/announce` → `200` — *announce*: each daemon's `Lighthouse` pushes `{ slug, remote, reported }` whenever its status moves, and the runtime beat after `serve` announces once more so a refused lighthouse surfaces at boot. The system describes itself in its own vocabulary.
 
-Then `keepalive`: the span opens, `Status:RUNNING` prints, and the runtime holds until a signal. UP.
+Then `keepalive`: the span opens, and once the server binds its port the runtime logs `{ listen: { hostname, port } }` — the line a supervisor waits for — and holds until a signal. UP.
 
 ## a process, held
 

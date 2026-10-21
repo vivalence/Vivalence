@@ -1,0 +1,37 @@
+# m103 — the first proposal's forks F1–F6 (10-23), superseded by the drill's lookups + question list · limit: 6000 chars
+
+* forks — asked, one question each
+
+- *F1 · the tty paints how?* Today =Cells= (=chrome.jsx:605=) repaints every cell from a 40-field =world=. Clicks are strings into =acts.js FNS=, and the layout is hand arithmetic (=regions.js:836=). Choose:
+  - *A*: panels become retained OpenTUI elements over =sheets= parts, the same tree as anima. Layout uses flexbox and handlers sit on the element. In ghost this kills =grid.js · world.js · acts.js · typing.js · regions.js · renderers.js · out/= and every =paint*=.
+  - *B*: keep the cell grid and recast only the folders. Each panel exports =paint(world, S, P, rect)=, and =sheets= dies.
+  - Lean A. m95 already mapped the tty to "OpenTUI, sheets parts" (=reference/m95/design-architecture.md:10=), and its header rules the demo as "spec for behaviour · regions · verbs · look, never for folders" (:3). The demo's cell grid is how it painted, not the look.
+- *F2 · the chord panel's name.* m98 Q20 locked =Legend= as the client's key object AND /"the part that paints it (sibling of =Catalog=)"/. You said "the chord panel" today. Choose:
+  - *A*: =panels/legend.jsx=, painting =client.legend.$chord=.
+  - *B*: =panels/chord.jsx=, which reopens Q20's painter half.
+  - Lean A.
+- *F3 · how a widget reaches the client.* Choose:
+  - *A*: =app/context.js= provides it once and widgets call =useClient()=. This is the =+layout.svelte= =setContext= of old (:28-44).
+  - *B*: keep =props.client= down every level, as every pane does today.
+  - Lean A. Note that =paint.js:168= already provides =RendererContext= the same way.
+- *F4 · client-local commands.* =/sidebar · /sidebar/width · /sidebar/show · /filter/daemon · /telemetry= are caught by a =SURFACE= table before =client.dispatch= (=acts.js:15= · =sidebar.jsx:12=). m95 lists four of them as "dead" (=reference/m95/design-architecture.md:95=), yet they are live in both clients. Choose:
+  - *A*: each panel ships a =commands= Vector grafted into =client.repl=, so chords, help and the catalog see them.
+  - *B*: they die, per m95's list, and the panel's controls set atoms directly.
+- *F5 · the third level's name.* You doubted "components". The tree already says *parts* (=drapes/parts.js= · m95 "the thirteen parts" =design-architecture.md:218=), so keeping it costs nothing. The fabric family (drapes · sheets · dapper) offers *notions*: the haberdasher's word for buttons, zips and pins. Choose:
+  - *A*: =parts=.
+  - *B*: =notions=.
+  - Lean A.
+- *F6 · the anima path.* Choose:
+  - *A*: =src/surfaces/chrome/=, mirroring ghost's m98 Q6.
+  - *B*: =src/chrome/=, since anima has one surface.
+
+* Q1 option B — STRUCK 10-23 /"B is so incredibly ugly … The code is horrible"/
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/panels/frame.js
+export const paint = (world, S, P, x0, y0, wd, ht) => {
+  put(S, x0 + 1, y0, "◆ artifact", { fg: P[1]["text-strong"], b: 1 });
+  put(S, x0 + wd - 2, y0, "✕", { fg: P[1]["text-muted"], hit: { line: "/buffer/close" } });
+  put(S, x0, y0 + 1, "─".repeat(wd), { fg: P[1].divider });
+  S.mounts.push({ buffer: world.framed.buffer, views: world.framed.views, x: x0, y: y0 + 2, w: wd, h: ht - 2 });
+};
+#+END_SRC

@@ -1,0 +1,63 @@
+# drained 10-22 whole from .ikiro/quests/roadmap/m89-telemetry.org (quest tidy); nothing reworded · limit: none (reference content)
+
+** 1. the old anima telemetry (=systems/anima/bak/src/telemetry/=)
+
+The whole module is 3 files, 147 lines. It is NOT a second abstraction: it is typology's =Span= + =Pipe= + =trace= fold, plus one nanostore and one projection.
+
+| file | lines | holds |
+|------+-------+-------|
+| =index.js= | 2 | =export * as logger= · =export * as inspector= |
+| =logger.js= | 25 | one root =Span("client")=, one =Pipe= channel, the =$story= store (=trace.step= fold, 200-root cap), =$selected=, =entry(nature)= |
+| =inspector.js= | 120 | a =computed= projection of live STATE (lighthouse · daemons · terminals · bridge · thread) into =row/table= signatures; reads no span |
+
+#+BEGIN_SRC js
+// systems/anima/bak/src/telemetry/logger.js
+import { atom } from "nanostores";
+import { Pipe, Span, trace } from "@vivalence/typology";
+
+export const $selected = atom(null);
+
+export const $story = atom(trace.seed());
+
+const trim = (story) => {
+  while (story.roots.length > 200) {
+    const stale = story.roots.shift();
+    const drop = (node) => {
+      story.nodes.delete(node.id);
+      node.children.forEach(drop);
+    };
+    drop(stale);
+  }
+  return story;
+};
+
+export const channel = new Pipe();
+channel.tap((record) => $story.set(trim(trace.step($story.get(), record))));
+
+export const logbook = new Span("client").to(channel);
+
+export const entry = (nature) => logbook.branch(nature);
+#+END_SRC
+
+- API = =logger.entry(nature)= → a branched Span; callers chain =.open()= · =.note({message,…})= · =.fault(error)=. No =close()= on most (one-shot fault/note entries). No levels, no filters, no config: the only switch was =import.meta.env.DEV= gating a console tap (=bak/src/app/+layout.svelte:50-59=).
+- configured by a vite alias only: =$telemetry → ./src/telemetry/index.js= (=systems/anima/bak/vite.config.mjs:124=).
+- the channel was fed by THREE emitters, all landing in one Pipe:
+  - =logger.entry(...)= (the logbook root),
+  - every HTTP call: =connection.use(shard.track.span((call) => call.request.url.pathname, logger.channel))= (=+layout.svelte:32=) — a fresh ROOT span per call, NOT under the logbook,
+  - the lighthouse: =new Lighthouse(connection, { channel: logger.channel })= (=+layout.svelte:33=), carried to daemons via =shard.context.attach("channel", …)= (=bak/src/typology/stores/lighthouse.js:242=).
+
+Consumers (=grep -rn "logger\.\|\$telemetry" bak/src=, 26 call sites):
+
+| consumer | path | reads | does |
+|----------+------+-------+------|
+| dev console | =app/+layout.svelte:50-59= | =channel.tap= | =console.debug([at] path verb data)= |
+| G panel "telemetry" | =app/panels/g/g.svelte:12-29= | =$story=, =$selected= | faults · slow (>500ms) · recent buckets; detail view: timing · entries · fault · children; duration classes 200/500/1000ms |
+| Boot widget | =app/widgets/Boot.svelte:46-55= | =trace.dictate($story)= replayed from the last =/authority= open, then =channel.tap= live | a boot log: wire rows (method path elapsed) + milestone rows (=data.message=), 500-row cap |
+| H inspector | =app/panels/h/Inspector.svelte:8= | =inspector.project(lighthouse, terminals, bridge)= | the live-state tree (not spans) |
+| fault sinks | =Threads.svelte:48,63,73,89,103= · =Buffers.svelte:92,106= · =Modes.svelte:44= · =Mode.svelte:39= · =Harness.svelte:53= · =Terminals.svelte:42= · =Buffer.svelte:35= · =LighthouseSection.svelte:31= · =bones/widgets/Terminals.svelte:47= · =+layout.svelte:62,95,101,105= · =typology/stores/terminals.js:42= · =typology/entities/terminal.js:48,153= | — | =.catch((error) => logger.entry(<path>).fault(error))= — every swallowed promise |
+| milestones | =typology/stores/lighthouse.js:204= (=authority= open) · =:268= (=daemons= open) · =app/focus.js:9= · =+layout.svelte:69= (=gate → value= note) · =entities/terminal.js:107= · =stores/box/drivers/audio/audio.js:12= | — | =open()= / =note({message})= |
+
+The shape that made it "built out very well": ONE pipe, a live =trace.step= fold into a reactive tree, and TWO views over it (the G tree, the Boot stream) plus a state inspector beside it. Paths are the semantic convention (=threads/<daemon>/<mode>=, =buffers/<id>/clear=).
+
+Ghost's bak (=systems/ghost/bak/=): zero Span/telemetry (=grep -rln "Span\|telemetry\|logger"= = 0 files). =bak/typology/output.js:30-44= is a PRINTER, not telemetry: =create(isAgent)= → ={ print, json, table, text, error, ok }=, agent mode = json on stdout.
+

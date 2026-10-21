@@ -1,0 +1,27 @@
+# drained 10-22 whole from .ikiro/quests/m96-client-mothership.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* open — before the go; EMPTY before =floor= (law 6). owner · the question · where its answer lands
+
+| # | quest | owner | the question | lands |
+|---+---+---+---+---|
+| hosts | REFRAMED 10-21 → m95 | the fields of =DOCKED= are m95's to populate; m96 holds ONE shape on four carriers (=* as code= traits.js) | m95 =* open= |
+| repl | RULED 10-21 (ruling 2) | — | m92 =* as code= terminal/prototype.js · client/keymap.js |
+| chromes | me, then his eyes | FILESINK =compile= re-cut as a File mutation inside the View; =/attached/view/:id= lists its Files | m87 milestone 2 hunks |
+| registry | RULED 10-21 (ruling 3) | — | m87 law 3 · =traits/renderer.js= |
+| 5 | m87 | RULED 10-21 (ruling 4) | — | m96 =* as code= shard/repl.js · dock.jsx |
+| 6 | m87 | CLOSED 10-21 — faulty premise | /"The client cannot have a renderer. There is no rendering on the client. There's no bundler under the client."/ — a view (compiled on the runtime, =/attached/view/:id=) paints a buffer that has one; a chrome PART by mime paints one that has none; =RENDERED= pins among views. No competition exists | m87 law 5 reads "part", not "the client's renderer" |
+| 7 | m93 | CLOSED 10-21 by lookup | departure 1 dies under ruling 4 (the factory's die returns to =run.js=; =shell/lifecycle.js:9= prints nothing); departure 2 is =Process.ts= =kill= — m93 milestone 3, out of m96 (law 4) | — |
+| 8 | m83 | RULED 10-21 (ruling 5) | departures 1 · 5–9 mine (reported); 2 · 4 follow m83 Q6 · Q10; holes 1 · 2 are tangle defects fixed by its agent; 3 is the persona file | m83 tangle =* Moves= + the file |
+| 9 | m94 | RULED 10-21 (ruling 6) | deferred 7 (Note presets) touches nothing m96 lands — stays m94's | m94 =* the set= · =Mode.ts= hunk |
+| 10 | m95 | the rig RULED (18) · viket RULED (19); the solid-js pin (7) drawn, his eyes | =settle= row 7 | m95 milestone 7 |
+| 11 | m88 | RULED 10-21 (ruling 7); the hosted mode's =mountpoint= in a browser is row 12b | — | m88 law · =repling.js= |
+| 12 | m88 | CLOSED 10-21 by lookup | the stub cortex already emits =tool_use= and folds the =tool_result= — =systems/runtime/tests/cortex.integration.test.js:237=; the round trip is drawn at =m88-repling.org:1216= | m88 testing |
+| 12b | m88 | RULED 10-21 (ruling 8) | — | =paladin/instance/lifecycle/resolution.js= hunk |
+| 13 | m92 | DEFERRED by his word (/"at some point we can determine what a plain string means"/) — not open | — | m92 =* deferred= |
+| 14 | m96 | RULED 10-21 (retro drill Q2: /"b"/) | — | =* as code= typology =yield.js= hunk |
+| 15 | m87 | RULED 10-21 (retro drill Q10′ /"a"/): =buffer.views= m:n supersedes ruling 12's =view.mode === buffer.mode= join; RENDERED dies | — | m87 law 3 · =Buffer.ts:41= hunk · =renderers.js= |
+| 16 | m96 | RULED 10-21 (retro Q11): /"doc is not a primitive. It's v.traits.<entity>.docked"/ — my lookup (a primitive, as HOME · Label) STRUCK | seam 10: =schematics/traits/= a fourth barrel: =docked.js= · =themed.js= · =index.js= one table per carrier (=terminal= · =user= · =client=), =v.traits.<entity>.<NAME>=; the descriptor and =ClientTrait= take their table by path | =* as code= typology =schematics/traits/= block |
+| 17 | m96 | RULED 10-21 (Q12 /"a"/), REVERSED 10-21 at floor (/"entities continue to live inside runtime."/): every mikro class STAYS in =systems/runtime/entities/<Name>.ts= | — | =* as code= typology =entities/= block (history) |
+
+Closed already (a lookup, never re-asked): the hosted twin (m95 ruling 24) · consent · retry (m95 30 · 31) · the keymap served (m92 ruling 12) · a View–Buffer relation (m87 ruling 35) · a =Cell= entity (m87 never) · the thread's span (m95 28).
+

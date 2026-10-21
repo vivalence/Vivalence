@@ -1,0 +1,99 @@
+#+title: the lighthouse hid every daemon from an unenrolled identity, and the beacon waits for the server
+#+index: 251
+#+session: session 11950be0, seventh fold — turns 124–136 (fold N = 13; turns 1–16 are #245, 17–73 are #246, 74–86 are #247, 87–112 are #248, 113–118 are #249, 119–123 are #250). Opens on the continuation after #250, closes on /"ikiro compact"/
+
+* one breath
+
+beef booted his populated droneaid on the m76 tree, logged in, and anima said /"0 daemons found"/ while the runtime log printed a refused =announce=. /"is there an obvious issue? otherwise lets sweep this methodically."/ The refused line was noise — the constructor's beacon six lifecycle steps before =serve= — and the announce had landed: the =Daemon= row read =RUNNING=. The fault was the wall m76 put on =/entities/daemon/find=: scoped to the identity's pivot rows, and the pivot's only writer (=/auth/enroll=, through a daemon's handshake) needs a daemon the client already found. No first writer. The 10-03 testimony had passed only because =boot-gates.sh= curl-handshaked the identity before any tab; kiro's =0 daemons= was booked as a wall. beef ruled /"a."/ — bearer-walled, not pivot-walled — one line out. Then /"still?!?!?"/ on the boot line → =Lighthouse.listen()= after =serve=; then two pastes of anima's dev log → the =url → remote= residue in anima's =Daemon= and five registry buffers, /"fix"/. Mid-turn, the direction for the open announce route: /"we will add a machine user and attach that to our instance/per daemon/per runtime. … ikiro mark."/
+
+* rows
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 124 | continuation prompt (#250's summary) | the #250 fold report | — |
+| 125 | two pastes (anima console · =runtime/watch= log) — /"there seems to be an issue with connection right at the interface where we worked."/ · /"i can log into the lighthouse, but no daemon connects. is there an obvious issue? otherwise lets sweep this methodically. … first, assess and identify the issue"/ | =debugging= fired; read-only sqlite on droneaid's lighthouse db: =Daemon= row =droneaid · RUNNING= stamped at the boot minute, =Identity_daemons= 0 rows, =Migration20261005115734= created the pivot empty; the chain find → scope → 0 → no dossier → no handshake → no enroll → ⟲; the 10-03 false hold found in =boot-gates.sh:26=; three read shapes (a · c · today) | the "connection fault" theory; the refused =[probe]= line as the cause |
+| 126 | /"does a mean that only identities can read daemons so you need to be signed up? or is itthat anyone from the outside can read /daemons then?"/ | the answer: (a) keeps =authenticate()=, drops only the scope; (c) is the open =/daemons= branch; a three-row table | — |
+| 127 | /"a."/ | baseline shape 6 · datamap 10 · lighthouse 10 steps; =attachment/entities.js= one =.use(scope)= line out; =shape.test.js= "daemon pivot" → kiro sees what finn sees, anonymous gets =MISSING_TOKEN=; same envelopes after; quest: T-identity-walls → =revised=, changelog 10-05 | the pivot-shaped assertions |
+| 128 | MID-TURN /"Today /daemons/announce already unauthenticated — known issue announce-without-a-bearer. for the future: we will add a machine user and attach that to our instance/per daemon/per runtime. that machine user can make lighthouse requests. ikiro mark."/ | known issue =announce-without-a-bearer= =** Why not fixed= carries the ruling; m76 =* deferred= (lighthouse-facilitated access) carries it; =MARKERS.md ## OPEN= one entry | — |
+| 129 | MID-TURN paste: watcher restart on my test save, boot clean to =Status:RUNNING=, two refused beacons AFTER every =close= on ^C, =instance/doctor= clean | known issue =stopped-beacon-lands-after-the-server-closes= (the =STOPPED= beacon fires after =serve='s =finally=) | — |
+| 130 | MID-TURN /"[probe 12:15:21.933] fetch failed …/daemons/announce … still?!?!?"/ | the explanation (F19 construction-announce runs before =serve=) and the proposal: =listen()= called from =integration.announce= | — |
+| 131 | /"go"/ | baseline runtime =lighthouse.test= 11 · =multiplex.filter= 5 steps; =prototypes/lighthouse.js= constructor no longer subscribes, =listen()= subscribes and returns =announced=; =integration.js= calls =listen()=; three beacon tests re-anchored; first cut hung (=listen= beaconed twice: subscribe emits the current value) → =return this.announced=; 11 · 5 steps · 6 steps green | the "construction announces" test name; the serialize test's silent hang |
+| 132 | MID-TURN paste: boot with no =[probe]= line, =Deno.serve: request.signal aborts on successful responses (legacy behavior)= — /"whats this?"/ | answer: Deno's own deprecation notice, printed once a handler reads =request.signal=; harmless; =--unstable-no-legacy-abort= is a separate item | — |
+| 133 | MID-TURN paste: =anima/watch= log — svelte a11y warnings, =[404] POST /undefined/mode/editor/assembly/tree= … — /"and whats these errors in svelte?"/ | warnings = pre-existing drapes lint (=Table.svelte:20= the one that bites); the 404 traced to =daemon.url= in the assembly buffers — m76's =url → remote= rename never left the repo; whole-machine grep: anima =daemon.js:7= dead field + 5 registry files; keep-list the Die's =die.daemon.url= | — |
+| 134 | /"fix"/ | anima =Daemon= =remote = null · reported = null=; five registry buffers =daemon.remote=; residue 0 on repo and registry; anima =terminals.remote= · =interactive/activity= did not finish in 90 s one-file (not attributed); changelog third go | =url = null= |
+| 135 | /"ikiro compact"/ | this fold | — |
+| 136 | the =compact-walk= re-invocation | the walk | — |
+
+coverage: 124–136, 13 rows, every n once. Mid-turn turns 128 · 129 · 130 · 132 · 133 are =MID-TURN= in the spine, five of thirteen.
+
+* arc
+
+The paste decided it in the first turn, as the skill says it does: the refused announce had a timestamp before =Status:RUNNING=, the anima console had =daemon/find → 200= with 0 rows, and the sqlite read put the two together — the row was there, the pivot was not. From there the fault was a design hole with a date: F18 ruled auto-enroll through the daemon, the quest's own line 525 named the identity-scoped find as breaking the announce, and the tangle fixed the announce and left discovery. The 10-03 testimony could not have seen it: the gate rig enrolled the browser's identity by curl before the first tab, and the second identity's empty roster read as the wall it was meant to test. beef's question at 126 was the right one — who reads =/daemons= — and the three-row table made (a) a one-line change with a test flip. The boot-line complaint at 130 was a second, older design (F19 "construction announces") colliding with the lifecycle order; moving the subscription behind =serve= cost one hung test to learn that the atom emits on subscribe. The anima pastes at 132–133 were two more things wearing the same look: a Deno notice and a rename residue the M4 grep radius never reached — =~/.viva/registry= is outside the repo, and =rename-pass= says the radius is the whole machine.
+
+* failures
+
+- the 10-03 testimony booked a defect as a held wall: kiro's =0 daemons= was the pivot-scoped find with no writer, masked by =boot-gates.sh:26= enrolling =m76= first. A gate that mutates the state the testimony later reads is not a gate — it is setup, and the testimony must run on an identity the gate never touched.
+- M4's residue grep stopped at the repo: =daemon.url= lived on in five registry buffers and anima's own entity. The rename-pass radius (repo + =~/.viva/registry= + instances) was known and not run for =url → remote=.
+- =listen()= first cut called =beacon()= after subscribing — the atom emits the current value on subscribe, so the beacon doubled and the serialize test hung on a =release= that never came; caught by the 120 s timeout, not by me.
+- two anima suites were started one-file and did not finish in 90 s; reported as not attributed rather than chased — correct, but the dossier field rename shipped without a green beside it.
+- no =known-issues= skill fired for =stopped-beacon-lands-after-the-server-closes=; no =rename-pass= for the residue; =debugging= fired once and carried the fold.
+
+* state at fold
+
+m76: tree +4 files since #250 (=commons/lighthouses/multiplayer/attachment/entities.js= · =tests/shape.test.js= · =systems/runtime/prototypes/lighthouse.js= · =lifecycle/runtime/integration.js= · =tests/prototypes/lighthouse.test.js= · =systems/anima/src/typology/entities/daemon/daemon.js=) and 5 registry files (no VCS: assembly ×4, media ×1), nothing committed. Suites: shape =1 passed (6 steps)= · datamap =1 passed (10 steps)= · multiplayer lighthouse =1 passed (10 steps)= · runtime =prototypes/lighthouse= =11 passed= · =multiplex.filter= =1 passed (5 steps)=; anima =terminals.remote= · =interactive/activity= unfinished. Quest: T-identity-walls =revised=, changelog three 10-05 lines, =* deferred= carries the machine-user ruling. Known issues: =announce-without-a-bearer= (direction added) · =stopped-beacon-lands-after-the-server-closes= (new). =MARKERS.md ## OPEN= one entry, settled below. beef's droneaid runs populated on the m76 tree — the m78 law was his to break; the migration applied clean. Sibling =ghost-modes= in =da11b0ef= untouched.
+
+* skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| debugging | 125 | HELD | paste first · reproduce by read-only sqlite · pin (which process, which db, which migration) · isolate the chain · the 10-03 false hold found · report opened with the runnable command |
+| compact-walk | 135 | HELD | markers · spine · skills · rows · coverage · balance · index · stamp · handoff |
+| known-issues | 129 | MISSED | =stopped-beacon-lands-after-the-server-closes= written in the skill's shape without the skill |
+| rename-pass | 133 | MISSED | the =url → remote= residue is a rename radius question; the skill's step 3 (whole machine) and 8 (residue against a keep-list) were run by hand |
+| testing | 134 | MISSED | two anima suites started one-file, unfinished at 90 s, shipped as "not attributed" — the skill's law 1 (baseline before blame) and 4 (the envelope) had no firing to hold them |
+
+balance: thirds of 13 — 124–128 · 129–132 · 133–136. Rulings at 127 (/"a."/), 128 (the mark), 131 (/"go"/), 134 (/"fix"/): one in the first third, one in the second, two in the last. The weight sits where beef ruled from his own pastes; no third carries more than half.
+
+* settlement
+
+- markers: =MARKERS.md ## OPEN= had one entry (128, the machine user) — settled: the ruling sits in =known-issues.org= =announce-without-a-bearer= and m76 =* deferred=; the m60 handoff below carries it as =owed=. Struck.
+- callout: no codeword in 124–136 (/"still?!?!?"/ is a paste, not a strike); no self-caught RULE FAILURE this fold.
+- known issues: one new, one amended; both outlive the quest.
+- memory: nothing private learned.
+- shards: =world/codemap/runtime.md= should name =Lighthouse.listen()= beside =beacon()= — re-stamped this fold with the CHECK named (a grep for =listen()= in =integration.js=).
+- ledger: three MISSED rows appended to =skills/LEDGER.md=.
+- quest: marker · changelog · deferred, all in m76.
+- budgets: =world/frontier.md= above on #211–#244 (beef's settles), unchanged by this fold.
+
+* handoff
+
+- quest :: m76-terminals-close-the-dataring
+- goal :: /"this closes the dataring."/ — Terminal to the lighthouse beside Identity; the client rides the lighthouse's subscription; the daemon's =Lighthouse= announces its own =reported= status
+- done :: M1 · M2 · M3 on the tree, M4 residue at 0 in the repo (#249); the browser testimony (#250); the daemon read is bearer-walled, not pivot-walled (ruling (a), #251); the beacon subscribes after =serve= (=Lighthouse.listen()=, #251); =url → remote= residue 0 on the whole machine (#251)
+- next :: beef's commit of the tree and =.ikiro=; beef reloads anima against droneaid and sees the daemon mount; the seat-race shape (=second-browser-unseats-a-fresh-seat=); then sunset (=quest-lifecycle=)
+- never :: =deno fmt=; a runtime-level lighthouse; prune; "door"; a seat proven off the acting tab's DOM; a testimony identity the gate rig has touched; a rename residue grep that stops at the repo
+- owed :: beef — the commit · the seat-race shape · the sign-out teardown shape · whether =$active= rides a trait · the IdentityDossier · the ctx-class word · panel A's status strip · the shutdown =STOPPED= beacon (=stopped-beacon-lands-after-the-server-closes=: stop beacon before shutdown, or rows stale by =updatedAt=) · a green beside the anima =Daemon= field rename (=terminals.remote= · =interactive/activity=)
+- quest :: m60-lighthouse-security
+- goal :: the lighthouse's auth surface — f-name (=secure.claim=) and f-default (=invite=) ruled, then go per milestone
+- done :: DESIGNED (as #245)
+- next :: beef rules f-name and f-default
+- never :: a second ad-hoc secret for service-to-service calls
+- owed :: beef — the machine user: /"we will add a machine user and attach that to our instance/per daemon/per runtime. that machine user can make lighthouse requests."/ — closes =announce-without-a-bearer= through =authenticate()=, the same wall the entity routes use
+- quest :: m78-mikro-7
+- goal :: cross 20 live sqlite dbs to 7.2.3 without the glued pragma
+- done :: as #245 — DESIGNED, 8 forks QUESTIONED, =reference/mikro-7/=
+- next :: beef rules F1 (driver) and F2 (pivot pin); droneaid already crossed m76's entity edit on 6.6.7 (=Migration20261005115734= applied clean: pivot · Terminal · =reported= · =url → remote=)
+- never :: assume the other populated instances migrate as clean as droneaid did without reading the migrator's output
+- owed :: beef — the eight forks; F7 (does the Turn delta ride m78)
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                            | progress   | status   | next                                                                                                                 | sessions   |
+|----------------------------------+------------+----------+----------------------------------------------------------------------------------------------------------------------+------------|
+| ghost-modes                      |   0% 0/27  | design   | go                                                                                                                   | 1 (1 live) |
+| m60-lighthouse-security          |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                | 1          |
+| m71-droneaid-guide               |   0% 0/16  | design   | go                                                                                                                   | 0          |
+| m76-terminals-close-the-dataring |  89% 17/19 | wip      | control                                                                                                              | 3          |
+| m77-droneaid-homecoming          | —          | open     | survey                                                                                                               | 2          |
+| m78-mikro-7                      |   0% 0/13  | design   | go                                                                                                                   | 0          |
+| vector-attach-graft              |  33% 1/3   | landing  | beef eyeballs m2 (auth + attach middleware now ride the source apertures; arming deep-copies); then m3 the live walk | 1          |

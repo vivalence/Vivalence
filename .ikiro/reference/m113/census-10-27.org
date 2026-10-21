@@ -1,0 +1,41 @@
+#+title: m113 census 10-27 — moved whole from the quest's * changelog
+# limit: 6000 chars
+
+10-27 — census, serial, empty =HOME= + =DENO_DIR=, from the repo root's =deno.jsonc=; a fresh copy of =~/.viva/registry/{assembly,education}= before, the replayed blocks + =SNAPSHOT_HOT=1= ×2 after:
+
+| suite | before | after |
+|---|---|---|
+| =~/.viva/registry/assembly/domain/assembly/tests/aperture.test.js= | ok · 1 passed (7 steps) · 0 failed | ok · 1 passed (7 steps) · 0 failed |
+| =~/.viva/registry/assembly/domain/assembly/tests/domain.test.js= | ok · 1 passed (9 steps) · 0 failed | ok · 1 passed (9 steps) · 0 failed |
+| =~/.viva/registry/assembly/domain/assembly/tests/generators.test.js= | ok · 1 passed (5 steps) · 0 failed | ok · 1 passed (5 steps) · 0 failed |
+| =~/.viva/registry/assembly/domain/assembly/tests/literal.test.js= | ok · 3 passed (19 steps) · 0 failed | ok · 3 passed (19 steps) · 0 failed |
+| =~/.viva/registry/assembly/domain/assembly/tests/resolve.test.js= | ok · 1 passed (10 steps) · 0 failed | ok · 1 passed (10 steps) · 0 failed |
+| =~/.viva/registry/assembly/domain/assembly/tests/tools.test.js= | ok · 1 passed (4 steps) · 0 failed | ok · 1 passed (4 steps) · 0 failed |
+| =~/.viva/registry/assembly/modes/editor/assembly/tests/assembly.test.js= | ok · 5 passed (21 steps) · 0 failed | ok · 5 passed (21 steps) · 0 failed |
+| =~/.viva/registry/assembly/modes/editor/assembly/tests/harness.test.js= | FAILED · 0 passed (5 steps) · 1 failed (3 steps) | ok · 1 passed (8 steps) · 0 failed |
+| =~/.viva/registry/assembly/modes/editor/guide/tests/guide.test.js= | FAILED · 1 passed (8 steps) · 1 failed (2 steps) | ok · 2 passed (10 steps) · 0 failed |
+| =~/.viva/registry/assembly/modes/editor/import/tests/import.test.js= | ok · 3 passed (14 steps) · 0 failed | ok · 3 passed (14 steps) · 0 failed |
+| =~/.viva/registry/assembly/modes/player/guide/tests/guide.test.js= | FAILED · 1 passed (9 steps) · 1 failed (1 step) | ok · 2 passed (10 steps) · 0 failed |
+| =~/.viva/registry/assembly/tests/kit.test.js= | ok · 1 passed (2 steps) · 0 failed | ok · 1 passed (2 steps) · 0 failed |
+| =~/.viva/registry/education/modes/games/dojo/tests/machine.test.js= | ok · 9 passed (33 steps) · 0 failed | ok · 9 passed (33 steps) · 0 failed |
+| =~/.viva/registry/education/modes/games/dojo/tests/tty.test.js= | ok · 1 passed (1 step) · 0 failed | ok · 1 passed (1 step) · 0 failed |
+| =~/.viva/registry/education/modes/games/dojo/tests/tty.render.test.js= | ok · 1 passed (1 step) · 0 failed | ok · 1 passed (1 step) · 0 failed |
+| =~/.viva/registry/education/modes/games/dojo/tests/aperture.test.js= | ok · 1 passed (8 steps) · 0 failed | ok · 1 passed (8 steps) · 0 failed |
+| =~/.viva/registry/education/modes/games/dojo/tests/tools.test.js= | FAILED · 0 passed (1 step) · 1 failed (7 steps) | FAILED · 0 passed (1 step) · 1 failed (7 steps) |
+| =~/.viva/registry/education/modes/games/dojo/tests/emitter.test.js= | FAILED · 0 passed (3 steps) · 1 failed (12 steps) | FAILED · 0 passed (3 steps) · 1 failed (12 steps) |
+
+- the 3 assembly reds are m105 Q14 pinned the other way; the snapshot drift is the =settings= key alone (=editor/assembly= =effort: low= · =editor/guide= =effort: medium=)
+- dojo =tools= · =emitter=: red before and after, =ThreadEntity not found ({ id: null })= — =known-issues.org= =registry-dojo-vcompany-suites-red= (evidence appended 10-27)
+- ghost on a repo copy, milestone 1 applied: =subjects/client/{factory,client,subscribed}.test.js= ok before and after (2·1·1 passed)
+- =systems/ghost/tests/entities/file/file.test.js= on the repo copy (hello DEMO, a free port): ok · 1 passed (1 step); the probe before it: 23 File rows at boot, the first =audio/alea-iacta-est.wav= =url= → 200 · 12844 bytes = =row.bytes= · =x-viva-integrity= = =row.integrity=; control without =file= in =factory.js=: FAILED · 1 failed (1 step)
+- replay: =replay-quest.py "* as code" --root <rig copy>= → new 5 · files 21 · hunks 72 · missed 0; =diff -r= replay vs worked copy: equal
+- 9 =.svelte= (8 views + =Asset=) compile, client and server — a compile is no render; =* QA=
+
+* changelog 10-27 — moved whole from the quest 10-28 (the quest at its cap)
+
+10-27 — the 18-suite census, before → after, moved whole to =.ikiro/reference/m113/census-10-27.org=: 3 assembly reds (m105 Q14) → green; dojo =tools= · =emitter= red before and after (=registry-dojo-vcompany-suites-red=); =file.test.js= ok, its control without =file= in =factory.js= red
+
+10-27 Q3 — re-cut; replay equal (new 5 · files 21 · hunks 72 · missed 0); the 18 suites unchanged (16 ok, =tools= · =emitter= red); =file.test.js= with the Q3 lines ok · 1 passed (1 step) (1m52s); 8 views compile; =Dojo.svelte= =state_referenced_locally= 7 → 8: =files= at =:59=, beside =carriers= · =axes=
+
+10-27 Q5 — re-cut, 5 dojo parts new to the rig; replay equal (new 5 · files 26 · hunks 94 · missed 0); dojo 4 ok, =tools= · =emitter= red as before; 10 files compile, warnings = the rig's
+

@@ -48,20 +48,23 @@ specimen.describe("mode traits", () => {
     });
   });
 
-  specimen.describe("APPLICATION", () => {
-    specimen.it("mode.application.buffer() returns entity with data and literals", async () => {
-      const result = await scenario.mode.application.buffer({
+  specimen.describe("VIEWABLE", () => {
+    specimen.it("mode.buffer() returns entity with data and literals, its mime minted from the mode's reference", async () => {
+      const result = await scenario.mode.buffer({
         data: { recall: "KNOWN" },
         literals: [scenario.fixtures.hello.id],
+        thread: scenario.fixtures.thread.id,
       });
       specimen.expect(result).toBeInstanceOf(BufferEntity);
       specimen.expect(result.data.recall).toBe("KNOWN");
       specimen.expect(result.literals.getItems()).toHaveLength(1);
+      specimen.expect(result.mime).toBe(scenario.mode.buffer.mime);
     });
 
-    specimen.it("mode.application.buffer() fills defaults from schema", async () => {
-      const result = await scenario.mode.application.buffer({
+    specimen.it("mode.buffer() fills defaults from schema", async () => {
+      const result = await scenario.mode.buffer({
         literals: [scenario.fixtures.hello.id],
+        thread: scenario.fixtures.thread.id,
       });
       specimen.expect(result.data.recall).toBe("LEARNING");
     });
@@ -79,6 +82,7 @@ specimen.describe("mode traits", () => {
     specimen.it("mode.call.emit.literal works (same as mode.emit)", async () => {
       const result = await scenario.mode.call.emit.literal({
         literal: { id: scenario.fixtures.hello.id },
+        thread: scenario.fixtures.thread.id,
       });
       specimen.expect(result.condition).toBe("NOMINAL");
       specimen.expect(result.output.buffer[0].data.recall).toBe("LEARNING");
@@ -134,6 +138,7 @@ specimen.describe("mode traits", () => {
       await scenario.scoped(async () => {
         const result = await scenario.mode.emit.literal({
           literal: { id: scenario.fixtures.hello.id },
+          thread: scenario.fixtures.thread.id,
         });
         specimen.expect(result.condition).toBe("NOMINAL");
         specimen.expect(result.output.buffer).toHaveLength(1);
@@ -145,7 +150,7 @@ specimen.describe("mode traits", () => {
 
     specimen.it("single return wrapped in yield envelope", async () => {
       await scenario.scoped(async () => {
-        const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id } });
+        const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id }, thread: scenario.fixtures.thread.id });
         specimen.expect(result.condition).toBe("NOMINAL");
         specimen.expect(result.output.buffer).toHaveLength(1);
       });
@@ -154,7 +159,7 @@ specimen.describe("mode traits", () => {
     specimen.it("/emit/literal HTTP route responds with Yield", async () => {
       const result = await scenario.conn.call(
         "/mode/game/flashcard/emit/literal",
-        { literal: { id: scenario.fixtures.hello.id } },
+        { literal: { id: scenario.fixtures.hello.id }, thread: scenario.fixtures.thread.id },
       );
       specimen.expect(result.condition).toBe("NOMINAL");
       specimen.expect(result.output.buffer[0].data).toBeTruthy();
@@ -190,12 +195,11 @@ specimen.describe("mode traits", () => {
       });
     });
 
-    specimen.it("buffer without thread has null thread", async () => {
+    specimen.it("an emit without a thread is refused before any buffer is minted", async () => {
       await scenario.scoped(async (em) => {
-        const result = await scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id } });
-        const found = await em.findOne(BufferEntity, { id: result.output.buffer[0].id }, { filters: false });
-        specimen.expect(found).toBeTruthy();
-        specimen.expect(found.thread).toBeNull();
+        const before = await em.count(BufferEntity, {}, { filters: false });
+        await specimen.expect(scenario.mode.emit.literal({ literal: { id: scenario.fixtures.goodbye.id } })).rejects.toThrow("ThreadEntity not found");
+        specimen.expect(await em.count(BufferEntity, {}, { filters: false })).toBe(before);
       });
     });
 
@@ -208,7 +212,7 @@ specimen.describe("mode traits", () => {
         emptyMode.module.emitter = new Vector().open("/nothing", async () => []);
         const { gestalten, lifecycle } = await import("@vivalence/runtime");
         for (const finalize of await gestalten.belt.stagger(emptyMode, scenario.daemon, traits.mode)) await finalize();
-        const result = await emptyMode.emit.nothing({});
+        const result = await emptyMode.emit.nothing({ thread: scenario.fixtures.thread.id });
         specimen.expect(result.condition).toBe("EXHAUSTED");
         specimen.expect(result.output.buffer).toEqual([]);
       });

@@ -1,0 +1,76 @@
+#+title: track — moved whole from the quest 10-23
+<!-- limit: 16000 chars -->
+* research — kind-minting structures in the prototypes (Explore agent, low effort, 10-23; condensed, code verbatim)
+
+Not opened by the agent: =gestalten/fromm= (=fromm.yield=), =status.js= past :40, =schematics/primitives/harness.js=. =prototypes/yield.js= is =// moved to pool=.
+
+| # | structure | where | open to a new kind | casts |
+|---+---+---+---+---|
+| 1 | =Yield= — a frozen table, one factory per kind | =prototypes/pool.js:4-14= | ✗ (a key in a central object) | ✗ |
+| 2 | =Yield= · =Condition= schema | =schematics/prototypes/yield.js:3-12= | ✗ (=v.enum=) | ✓ |
+| 3 | =static coercions= =[[test, transform]]= on Signature | =prototypes/signature.js:7 · :31-37= | ✓ a subclass declares its own | ✓ first match wins |
+| 4 | =Signal.coercions= — a concrete 3 | =prototypes/signal.js:6-12= | ✓ append a pair | ✓ the predicate |
+| 5 | =SHAPES= classify table | =prototypes/pool.js:19-27= | ✓ but module-private | classifies, mints nothing |
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/pool.js:9-12 — 1, one function per kind
+export const Yield = Object.freeze({
+  NOMINAL: (buffers, meta) => ({ kind: "emission", condition: Condition.NOMINAL, output: { buffer: buffers }, ...meta }),
+  EXHAUSTED: (meta) => ({ kind: "emission", condition: Condition.EXHAUSTED, output: { buffer: [] }, ...meta }),
+  ERROR: (error, meta) => ({ kind: "emission", condition: Condition.ERROR, output: { buffer: [] }, error, ...meta }),
+// subsystems/typology/prototypes/signature.js:7 · :31-37 — 3
+  static coercions = [];
+  coerce(signature) {
+    for (const [test, transform] of this.constructor.coercions) {
+      if (test.call(this, signature)) return transform.call(this, signature);
+    }
+    return signature;
+  }
+#+END_SRC
+
+Callers of 3: =signal.js:6= · =keysignal.js:5= · =replsignal.js:5= · =toolcall.js:7= · =action.js:6= · =argv.js:5=. Of 1: =pool.js:96= · =commons/instances/hello-world/page/index.js:65=.
+
+The agent's best fit: 3 — the only one open without a central edit, and it casts. Mine, added: Span IS a Signature (=m100-simplified-span.org= lock A), so =static coercions= is already inherited by Span; and 1's shape (a function per kind returning a tagged object) is what =fault(error)= is today.
+
+* approaches — the machinery as code
+
+A · a loud registry on Span, extended by subclass (trait =claim= shape)
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/span.js
+static tracks = { open: Open, close: Close, fault: Fault, state: State, note: Note };
+track(name, data) {
+  const schema = this.constructor.tracks[name];
+  if (!schema) throw new Error(`[span] no track ${name} in ${Object.keys(this.constructor.tracks).join(" · ")}`);
+  this.pipe.send({ at: performance.timeOrigin + performance.now(), path: this.absolute, track: name, data: schema.cast(data) });
+  return this;
+}
+// subsystems/typology/prototypes/socket.js — an environment adds its own
+class WireSpan extends Span { static tracks = { ...Span.tracks, request: Request, response: Response }; }
+#+END_SRC
+cost: a new name = a subclass; a branch inherits its root's class (=branch= is =new this.constructor=).
+
+B · the standard set casts, any other name passes untouched (=Part.Alien= shape)
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/span.js
+static tracks = { open: Open, close: Close, fault: Fault, state: State, note: Note };
+track(name, data) {
+  const schema = this.constructor.tracks[name];
+  this.pipe.send({ at: performance.now(), path: this.absolute, track: name, data: schema ? schema.cast(data) : data });
+  return this;
+}
+#+END_SRC
+cost: a typo'd name ships silently; no list of what can be tracked is ever complete.
+
+Questions owed, re-derived 10-23 from both reports:
+
+- Q3 =fault= ≡ =error=: one =fault= ={type, message, code, stack}=; a SENT 4xx is =close {status}=, no fault.
+- Q4 state changes: one =state {code}= written by the controller AFTER a transition vs a name per transition.
+- Q5 the controller: reads =open close fault= off its span, signals move it directly; =MACHINE= keyed by state (m100 Q12).
+- Q6 =note= ≡ =message=: one open kind, any JSON or string.
+- Q7 =subject=: a kind, or the span's data; =entity= collides (OTEL resource · =ctx.entity= ×44).
+- Q8 the dossier's =create update remove= + =stdout= wrapped in a record.
+- Q9 severity: per kind in the registry, or derived at export.
+- Q10 time: =at= epoch (=performance.timeOrigin + now=) or converted at export.
+- Q11 export: one tap at the root into the OTEL SDK; ids from =path=; =traceparent= on the wire.
+- Q12 the readers: the two =tele= hand lists read the registry.
+

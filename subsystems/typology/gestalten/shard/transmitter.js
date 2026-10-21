@@ -73,7 +73,7 @@ export function multiplex({ authority, mount = "/multiplex", vector, connect } =
       const cold = !(keep.socket && keep.socket.ws.readyState === 1);
       const opened = cold ? Date.now() : 0;
       if (cold)
-        ctx.span?.note({
+        ctx.span?.log({
           message: `multiplex ${keep.opening ? "joining" : "establishing"}`,
           origin,
         });
@@ -87,7 +87,7 @@ export function multiplex({ authority, mount = "/multiplex", vector, connect } =
           else request.signal.addEventListener("abort", deny, { once: true });
         }),
       ]).finally(() => request.signal.removeEventListener("abort", deny));
-      if (cold) ctx.span?.note({ message: "multiplex connected", origin, ms: Date.now() - opened });
+      if (cold) ctx.span?.log({ message: "multiplex connected", origin, ms: Date.now() - opened });
       const upstream = request.stream();
 
       const frame = await socket.open(request.url, {
@@ -203,7 +203,7 @@ export const retry = (transport, options = {}) => {
       if (!ctx.response.error || ctx.request.aborted || attempt >= maxRetries || !shouldRetry(ctx))
         return;
       const delay = Math.round(Math.min(baseDelay * 2 ** attempt + Math.random() * 500, maxDelay));
-      ctx.span?.note({
+      ctx.span?.log({
         message: `retry ${attempt + 1}/${maxRetries} after ${ctx.response.error.type}`,
         delay,
       });

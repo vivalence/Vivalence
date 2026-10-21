@@ -1,0 +1,16 @@
+#+title: m102 Q5 — option B, struck 10-23 (beef: /"a"/)
+# limit: none (reference)
+
+Option B. The surface still mounts early; each surface holds its input until the first active terminal exists.
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/repl/lines.js:36
+  const reader = createInterface({ input: process.stdin, output: process.stdout, prompt: GLYPHS.user });
+  reader.on("line", (text) => clientDie.activeTerminal.repl.dispatch(text).finally(() => reader.prompt()));
+  reader.pause();
+  const unactive = clientDie.$activeTerminal.subscribe((terminal) => {
+    if (terminal === null) return;
+    reader.resume();
+    reader.prompt();
+  });
+#+END_SRC

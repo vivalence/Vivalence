@@ -1,0 +1,165 @@
+#+title: track — outside research 10-23 (OTEL + precedent)
+<!-- limit: 20000 chars -->
+Fetched 10-23. Every claim carries its URL and the spec's own sentence. Corrects =roadmap/m89-telemetry.org:369-381= and =reference/m89/research-6-otel.org:18-20= where noted (⚠).
+
+* 1 · trace data model — https://opentelemetry.io/docs/specs/otel/trace/api/
+
+| concept | OTEL | normative |
+|---+---+---|
+| start | span field, not an event | "The start time is recorded when the Span is created." |
+| end | =End()= | "Signals that the operation described by this span has now (or at the time optionally specified) ended." · "Implementations SHOULD ignore all subsequent calls to =End= and any other Span methods" · "=End= MUST NOT have any effects on child spans." |
+| event | =AddEvent(name, attrs?, ts?)= | "This API takes the name of the event, optional =Attributes= and an optional =Timestamp=" |
+| status | =Unset · Ok · Error= | "These values form a total order: =Ok > Error > Unset=." · "=Description= MUST only be used with the =Error= =StatusCode= value." |
+| Ok | app/operator only | "Generally, Instrumentation Libraries SHOULD NOT set the status code to =Ok=, unless explicitly configured to do so." · "When span status is set to =Ok= it SHOULD be considered final" |
+| Error | semconv-ruled | "The status code should only be set to =Error= according to the rules defined within the semantic conventions." |
+| RecordException | event variant | "This is a specialized variant of =AddEvent=" — the API page does NOT say it sets status |
+| kind | =SERVER CLIENT PRODUCER CONSUMER INTERNAL= | "=INTERNAL= Default value." |
+| links | to other SpanContexts | "adding links at span creation is preferred" |
+
+⚠ open/close are the span's LIFETIME, never events: OTEL has no "open" record — =startSpan= stamps the start, =end()= stamps the end, once. A record =open= is a translation cue, not a telemetry item.
+
+** errors — https://opentelemetry.io/docs/specs/semconv/general/recording-errors/
+- "An operation SHOULD be considered as failed if any of the following is true: an exception is thrown by the instrumented operation … the instrumented operation returns an error in another way, for example, via an error code"
+- status "MUST be left unset if the instrumented operation has ended without any errors." · on error: "SHOULD set the span status code to =Error=" and =error.type=.
+- "Operations that complete successfully SHOULD NOT include the =error.type= attribute"
+- "instrumentation SHOULD record this exception as a log record" · "It's NOT RECOMMENDED to record the same exception more than once." · "It's NOT RECOMMENDED to record exceptions that are handled by the instrumented library."
+- "Errors that were retried or handled (allowing an operation to complete gracefully) SHOULD NOT be recorded on spans or metrics that describe this operation."
+
+** exception — https://opentelemetry.io/docs/specs/semconv/exceptions/exceptions-spans/ · …/exceptions-logs/
+| attr | level |
+|---+---|
+| =exception.type= | cond. required (if no message) |
+| =exception.message= | cond. required (if no type) |
+| =exception.stacktrace= | recommended |
+| =exception.escaped= | DEPRECATED — "It's no longer recommended to record exceptions that are handled and do not escape the scope of a span." |
+- span-event page status: "Deprecated." → "Use Semantic conventions for exceptions in logs instead."
+- logs: "It is RECOMMENDED to provide an event name that describes the instrumented operation with a =.exception= suffix." · global handlers "SHOULD use the =exception= event name." · "The severity reflects the expected impact of the exception, not just its presence." (FATAL 21 shutdown · ERROR 17 unhandled · WARN 13 expected-handled · DEBUG 5 no issue)
+- log exceptions "MUST be associated with the corresponding span context."
+
+⚠ m89's "fault = span STATUS" is half: OTEL splits it in TWO acts — the exception as a log/event (=exception.*=), AND, only if the operation failed, =status=Error= + =error.type= at the span's end. Our =fault= ={message, code}= = =exception.message= + =error.type= (code); =exception.type= would be =error.name=; stacktrace is missing today.
+
+* 2 · events are becoming logs — https://opentelemetry.io/blog/2026/deprecating-span-events/ · OTEP 4430
+- "The tracing specification will deprecate APIs such as =Span.AddEvent= and =Span.RecordException=" · "New code should write events as logs that are correlated with the current span." · "events are logs with names"
+- "Deprecation here does not mean removing span events." · "The SDK will offer you a way transform log-based events back onto span events."
+- OTEP 4430 (https://github.com/open-telemetry/opentelemetry-specification/blob/main/oteps/4430-span-event-api-deprecation-plan.md): "Mark Span AddEvent as Deprecated, recommending instead that events are recorded using the Logs API." · "An SDK-based log processor that converts exception and Event records to Span Events and attaches them to the current span" · "emitting exceptions via the Logs API is already stable" · no dates.
+- JS today (https://github.com/open-telemetry/opentelemetry-js experimental/CHANGELOG.md): 0.202.0 "feat(logs): add eventName to emit" · 0.203.0 "feat!: Removed =api-events= and =sdk-events=". =api/src/trace/span.ts= on main: =addEvent= / =recordException= carry NO =@deprecated= yet.
+
+⚠ m89 "record = log record / span event": the forward home is ONE — a LogRecord with =eventName=, correlated by context. Span events are the compat view.
+
+* 3 · logs data model — https://opentelemetry.io/docs/specs/otel/logs/data-model/
+Fields: =Timestamp ObservedTimestamp TraceId SpanId TraceFlags SeverityText SeverityNumber Body Resource InstrumentationScope Attributes EventName=.
+- EventName: "Name that identifies the class / type of the Event." · "A log record with a non-empty event name is an Event." · "Events are OpenTelemetry's standardized format for LogRecords."
+- Body: "Body MUST support AnyValue" — "arrays and maps of other values".
+- SpanId: "If SpanId is present TraceId SHOULD be also present."
+- severity: =1-4 TRACE · 5-8 DEBUG · 9-12 INFO · 13-16 WARN · 17-20 ERROR · 21-24 FATAL=; ERROR: "the log record represents an erroneous situation."
+- semconv events (https://opentelemetry.io/docs/specs/semconv/general/events/, Development): "An event MUST have an event name that uniquely identifies the event structure." · "Event names MUST NOT include dynamic values." · "Semantic conventions MUST NOT define a value for body except to represent a string display message of the event." · "Include =error.type= when defining an event that represents a failure"
+
+| record field | LogRecord field |
+|---+---|
+| =at= | =Timestamp= (=performance.timeOrigin + at= → epoch; =performance.now()= alone is not one) |
+| =path= | =TraceId/SpanId= via the open span (=path.slice(0,-k)= = ancestors); root nature → =Resource service.name= |
+| =track= | =EventName= (none for a plain =note=) |
+| =data= object | =Attributes= (a NAMED event's details live in attrs, body ≤ display string) |
+| =data= string / free JSON (=note=) | =Body= (AnyValue) |
+| — | =SeverityNumber= missing; fault → 17, note → 9 |
+
+* 4 · HTTP status — https://opentelemetry.io/docs/specs/semconv/http/http-spans/
+| range | SERVER | CLIENT |
+|---+---+---|
+| 1xx–3xx | Unset | Unset |
+| 4xx | Unset (MUST) | Error (SHOULD) |
+| 5xx | Error | Error |
+| cancelled by caller | — | Unset, no =error.type= |
+- "For HTTP status codes in the 4xx range span status MUST be left unset in case of =SpanKind.SERVER= and SHOULD be set to =Error= in case of =SpanKind.CLIENT=."
+- "If the HTTP client instrumentation can detect that the request was cancelled intentionally by the caller (e.g., via context cancellation or an abort signal), the cancellation SHOULD NOT be treated as an error"
+- =http.response.status_code=: "Conditionally Required If and only if one was received/sent." · "Don't set the span status description if the reason can be inferred from =http.response.status_code=."
+
+⇒ =socket.js:198='s =error {status}= on a 404 the socket SENT is no fault and no OTEL error: an attribute on the server span. A 5xx sent = status Error. The same 404 seen by a CLIENT (ghost, anima) = Error on THAT side.
+
+* 5 · OTEL "entity" — https://opentelemetry.io/docs/specs/otel/entities/ (Development)
+- "Entity represents an object of interest associated with produced telemetry: traces, metrics, logs, profiles etc."
+- data model: Type "MUST not change during the lifetime of the entity." · ID "Attributes that identify the entity." · Description "Descriptive (non-identifying) attributes" · "Entities can be defined in the =resource= section of a telemetry signal."
+- events (…/entity-events/): =entity.state= "Emitted when an entity is created, when its descriptive attributes change" · =entity.delete= "indicates that a particular entity is gone."
+
+⚠ collision: OTEL's entity is a PRODUCER of telemetry (service, host, process, pod) — resource-level, a =Resource= attribute family. Our =subject= is a domain row the code TOUCHED (a thread, a turn). Naming the kind =entity= puts a domain row under a word OTEL reserves for the resource; on export it must ride a house namespace (=viva.entity.*=), never =entity.*=. Note the dossier ops =create · update · remove= (=dossier.js:132=) match =entity.state= / =entity.delete= in SHAPE.
+
+* 6 · state changes — no semconv for pause / resume / abort
+| precedent | event name | state carried as | values |
+|---+---+---+---|
+| mobile (https://opentelemetry.io/docs/specs/semconv/mobile/mobile-events/) | =device.app.lifecycle= | attribute =android.app.state= / =ios.app.state= | =created foreground background= / =active inactive foreground background terminate= |
+| session (https://opentelemetry.io/docs/specs/semconv/general/session/) | =session.start= · =session.end= | =session.id= · =session.previous_id= | — |
+| entity | =entity.state= · =entity.delete= | attrs | — |
+- "This event represents an occurrence of a lifecycle transition on Android or iOS platform." · "The event name MUST be =device.app.lifecycle=."
+- all three Development. Pattern: ONE event name per lifecycle, the state is an attribute VALUE — not one event name per transition. Closest fit for beef's lean B (/"an event being tracked or like a state change"/).
+
+* 7 · precedent — a standard set, open to extension
+| system | standard set | open part | enforcement | lifecycle · event · error split |
+|---+---+---+---+---|
+| Node =TracingChannel= | =start end asyncStart asyncEnd error= | channel name =tracing:${name}:${event}= | the class mints exactly five channels | yes · none · =error= |
+| Elixir =:telemetry.span/3= | =[…, start] [… stop] [… exception]= | the =EventPrefix= list | =span/3= emits only these | start/stop · =execute/3= free · =exception= |
+| Rust =tracing= | Subscriber =new_span enter exit try_close event= + =Level= | target · field names | the trait's methods | span callbacks · =event= · error = an event at =ERROR= |
+| OTEL semconv | registry namespaces | reverse-domain prefix | Weaver (schema check, codegen) | span lifetime · event/log · status |
+| CloudEvents =type= | none | free string | none ("SHOULD be prefixed with a reverse-DNS name") | no |
+| Sentry breadcrumb =type= | =default debug error navigation http info query transaction ui user= | =category= dotted string | renderer; unknown → =default= | no · type · =error= type |
+| Go =slog= | =Debug -4 · Info 0 · Warn 4 · Error 8= | any int between | =Level= is an int | levels only |
+
+Quotes:
+- Node (https://nodejs.org/api/diagnostics_channel.html, "Stability: 2 - Stable" since v26.8.0): "a collection of TracingChannel Channels which together express a single traceable action." · error: "any error produced by the traceable function either synchronously or asynchronously." · "Channel names should generally include the module name to avoid collisions with data from other modules."
+- Elixir (https://telemetry.hexdocs.pm/telemetry.html): stop metadata "An optional error field if the stop event is the result of an error"; exception metadata =kind => throw | error | exit=, =reason=, =stacktrace=.
+- Rust (https://docs.rs/tracing-core/latest/tracing_core/subscriber/trait.Subscriber.html): new_span "Visit the construction of a new span" · event "Records that an Event has occurred." · try_close "Notifies the subscriber that a span ID has been dropped" · https://docs.rs/tracing/latest/tracing/: "An Event represents a moment in time."
+- OTEL naming (https://opentelemetry.io/docs/specs/semconv/general/naming/): "prefix the new name by your company's reverse domain name" · "It is not recommended to use existing OpenTelemetry semantic convention namespace as a prefix" · "Attribute names that start with =otel.= are reserved" · applies "to attribute names … as well as Metric and Event names."
+- CloudEvents (https://github.com/cloudevents/spec/blob/main/cloudevents/spec.md): "The prefixed domain dictates the organization which defines the semantics of this event type." · "Extension attributes have no defined meaning in this specification"
+- Sentry (https://develop.sentry.dev/sdk/data-model/event-payloads/breadcrumbs/): "By default, all breadcrumbs are recorded as =default=" · category: "A dotted string indicating what the crumb is or from where it comes."
+- slog (https://pkg.go.dev/log/slog): "we wanted some room between levels to accommodate schemes with named levels between ours." · "Our gap of 4 matches OpenTelemetry's mapping."
+
+Best match for D (/"machinery … enforce some standard set"/ yet not /"a limited list of strings"/): OTEL semconv + Weaver — a REGISTRY of declared names each with its attribute schema, checked, extended by namespace. In-process analogue: Node's TracingChannel (a fixed lifecycle closed in the class, the name open) + Elixir's suffixes. Every precedent that separates the three keeps the LIFECYCLE closed (start/end), the ERROR one name, and EVENTS open.
+
+* otel-native by design — https://opentelemetry.io/blog/2026/otel-native-by-design/
+The article never defines "OTel-native" and never weighs own-abstraction-plus-bridge vs direct API; it is about EXPORT:
+- "supporting export to any OpenTelemetry (OTel)-compatible backend is a vendor-neutral, future-proof practice"
+- "use the OpenTelemetry SDK directly within your services to emit data" or "run an internal OTel Collector that gathers your system's telemetry and re-exports it to the user's endpoint"
+- "Adherence to the Semantic Conventions ensures that telemetry data remains standardized and is easily interpretable by any compatible backend." · Weaver "lets you define your own attribute names and schemas"
+- "Exported data should include metadata, timestamps, and trace/span correlation where available" · "everything should connect end-to-end to tell the complete story."
+- "Push-based export using OTel/OTLP is the preferred and practical pattern." · "Sticking to standard OpenTelemetry environment variables" · "let users explicitly toggle which signals they want to export"
+- "default to push, stay vendor-neutral, and document the contract"
+
+For the vivalence Span: the article permits our own record as the INSIDE, provided the boundary is an OTEL SDK (a Pipe tap → tracer/logger) or a collector. It obliges three things the record lacks: (1) semconv names on export (=exception.*=, =http.*=, =error.type=; house names under a =viva.= prefix, registered — Weaver is the enforcement); (2) correlation — =path= must yield trace/span ids, and a wire call must carry =traceparent= (none today, m89 §7); (3) epoch timestamps. "document the contract" = the registry of kinds IS the contract.
+
+* JS — what each kind becomes
+#+BEGIN_SRC js
+// open / close · request / response → the span's own lifetime
+const span = tracer.startSpan(nature, { kind: SpanKind.SERVER, startTime }, parentContext);
+span.setAttribute("http.response.status_code", 404);
+span.end(endTime);
+#+END_SRC
+#+BEGIN_SRC js
+// fault → exception as a log event + status Error (only if the operation failed)
+logger.emit({ eventName: "exception", severityNumber: SeverityNumber.ERROR, context: trace.setSpan(context.active(), span),
+  attributes: { "exception.type": error.name, "exception.message": error.message, "exception.stacktrace": error.stack } });
+span.setAttribute("error.type", error.code ?? error.name);
+span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+#+END_SRC
+#+BEGIN_SRC js
+// note → plain log, body is any JSON
+logger.emit({ severityNumber: SeverityNumber.INFO, body: data, context: trace.setSpan(context.active(), span) });
+// status / pause / resume / abort → ONE named state event, the state an attribute (device.app.lifecycle shape)
+logger.emit({ eventName: "viva.controller.state", attributes: { "viva.controller.state": "paused" }, context: trace.setSpan(context.active(), span) });
+#+END_SRC
+
+* mapping candidates
+| tracked today | OTEL home |
+|---+---|
+| =open= | span lifetime (=startSpan=) |
+| =close= | span lifetime (=end=) |
+| =note= | log record, no event.name, =Body= = data |
+| =message= | log record =Body= string — one kind with =note= |
+| =fault= | log record event.name =exception= + span status =Error= + =error.type= |
+| =error= | attribute (=http.response.status_code=); status Error only CLIENT 4xx · any 5xx; sent 4xx → none |
+| =request= | span lifetime (=SpanKind.SERVER/CLIENT=) + =http.request.*= attributes |
+| =response= | attribute (=http.response.status_code=) at span end |
+| =subject= | attribute (=viva.entity.*=); OTEL =entity= = resource, not this |
+| =status= | log record event.name =viva.controller.state=, state as attribute |
+| =pause= | log record event.name (state event), value =paused= |
+| =resume= | log record event.name (state event), value =running= |
+| =stop= | span lifetime (=end=), status Unset |
+| =abort= | span lifetime (=end=), status Unset, no =error.type= (cancellation) + state event |

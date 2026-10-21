@@ -2,58 +2,51 @@ export const seed = () => ({ nodes: new Map(), roots: [] });
 
 export const chronicle = (records) => records.reduce(step, seed());
 
-export const step = (story, record) => {
-  const node = story.nodes.get(record.span) ?? sprout(story, record);
-  switch (record.verb) {
-    case "open":
-      node.timing = { ...node.timing, begun: record.at };
-      break;
-    case "close":
-      node.timing = { ...node.timing, sealed: record.at };
-      break;
-    case "fault":
-      node.fault = { at: record.at, ...record.data };
-      break;
-    default:
-      node.entries.push({ verb: record.verb, at: record.at, data: record.data });
-  }
-  return { ...story };
-};
+export const key = (path) => JSON.stringify(path);
+
+export const pathname = (path) =>
+  path
+    .flatMap((nature) => nature.split("/"))
+    .filter((segment) => segment !== "")
+    .join("/");
 
 const sprout = (story, record) => {
-  const node = {
-    id: record.span,
-    nature: record.path.split("/").filter(Boolean).at(-1) ?? null,
-    path: record.path,
-    timing: null,
-    fault: null,
-    entries: [],
-    children: [],
-  };
-  story.nodes.set(record.span, node);
-  const parent = story.nodes.get(record.trace);
-  (parent?.children ?? story.roots).push(node);
+  const node = { path: record.path, nature: record.path.at(-1), timing: null, fault: null, entries: [], children: [] };
+  story.nodes.set(key(record.path), node);
+  (story.nodes.get(key(record.path.slice(0, -1)))?.children ?? story.roots).push(node);
   return node;
+};
+
+const MARKS = [
+  [(record) => record.track === "start", (node, record) => (node.timing = { ...node.timing, begun: record.at })],
+  [(record) => record.track === "stop", (node, record) => (node.timing = { ...node.timing, sealed: record.at })],
+  [(record) => record.track === "fault", (node, record) => (node.fault = { at: record.at, ...record.data })],
+  [() => true, (node, record) => node.entries.push({ track: record.track, at: record.at, data: record.data })],
+];
+
+export const step = (story, record) => {
+  const node = story.nodes.get(key(record.path)) ?? sprout(story, record);
+  MARKS.find(([test]) => test(record))[1](node, record);
+  return { ...story };
 };
 
 export const dictate = (story) => {
   const records = [];
-  const walk = (node, parent) => {
-    const base = { span: node.id, trace: parent?.id ?? null, path: node.path };
-    if (node.timing?.begun != null) records.push({ ...base, verb: "open", at: node.timing.begun });
-    for (const entry of node.entries) records.push({ ...base, verb: entry.verb, at: entry.at, data: entry.data });
+  const walk = (node) => {
+    if (node.timing?.begun != null) records.push({ at: node.timing.begun, path: node.path, track: "start" });
+    for (const entry of node.entries) records.push({ at: entry.at, path: node.path, track: entry.track, data: entry.data });
     if (node.fault) {
       const { at, ...data } = node.fault;
-      records.push({ ...base, verb: "fault", at, data });
+      records.push({ at, path: node.path, track: "fault", data });
     }
-    for (const child of node.children) walk(child, node);
-    if (node.timing?.sealed != null) records.push({ ...base, verb: "close", at: node.timing.sealed });
+    node.children.forEach(walk);
+    if (node.timing?.sealed != null) records.push({ at: node.timing.sealed, path: node.path, track: "stop" });
   };
-  for (const root of story.roots) walk(root, null);
+  story.roots.forEach(walk);
   return records;
 };
 
-export const live = (span) => span.pipe.reactive(chronicle(span.records), step);
+export const live = (span) => span.pipe.fold(chronicle(span.history), step);
 
 export const duration = (node) =>
   node.timing?.begun != null && node.timing?.sealed != null ? node.timing.sealed - node.timing.begun : null;
@@ -68,29 +61,3 @@ export const timing = (story) => {
   story.roots.forEach(walk);
   return entries.join(", ");
 };
-
-export const sealed = (record) => !record.trace && record.verb === "close";
-
-export const faulty = (story) => [...story.nodes.values()].some((node) => node.fault);
-
-export const slower = (threshold) => (story) => story.roots.some((root) => duration(root) > threshold);
-
-export const gather = (until, drain) => {
-  let records = [];
-  const write = (record) => {
-    records.push(record);
-    if (until(record, records)) write.flush();
-  };
-  write.flush = () => {
-    if (records.length) drain(records);
-    records = [];
-  };
-  return write;
-};
-
-export const flow = (sink) => sink;
-
-export const hold = (sink, until = sealed) => gather(until, (records) => records.forEach(sink));
-
-export const decant = (sink, keep, until = sealed) =>
-  gather(until, (records) => keep(chronicle(records)) && records.forEach(sink));

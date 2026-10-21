@@ -29,12 +29,12 @@ export async function create({ harness } = {}) {
   dewey.module.harness = harness ?? new Vector();
   if (!harness) {
     dewey.module.harness.branch("/dialogue").use(async (ctx, next) => {
-      ctx.hallucination.system.dewey = "You are Dewey, a patient language tutor.";
+      ctx.hallucination.primer.open("dewey", "You are Dewey, a patient language tutor.");
       await next();
     });
   }
 
-  const daemon = Object.assign(held, { type: "daemon", aperture: new Aperture(), modes: { teacher: { dewey } }, cortex, cargo: { version: "0.0.1", test: true } });
+  const daemon = Object.assign(held, { type: "daemon", aperture: new Aperture(), modes: { teacher: { dewey } }, cortex });
 
   daemon.aperture.use(shard.context.spread(contexts.host, daemon));
 

@@ -1,0 +1,13 @@
+#+title: m116 struck — Q0 option A, 11-06
+
+* Q0 A — cut whole: rows live in memory only, come from the wire at connected; a socket gap heals by the /subscribe resumption alone.
+
+#+begin_src js
+// subsystems/typology/prototypes/remote-repository.js
+  async find(where = {}, options = {}) {
+    const results = await this.connection.call("/find", { where, options });
+    return this.epoch(() => Promise.all(results.map((raw) => this.cast(raw))));
+  }
+#+end_src
+
+Struck: a cold find never drops; a row the daemon deleted during a socket gap stays forever; the where defect would survive only as a dead arm.

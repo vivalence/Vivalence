@@ -1,10 +1,3 @@
-export const SETS = [
-  { name: "traits", entities: ["literal", "symbol"] },
-  { name: "daemon", entities: ["mode", "user"] },
-  { name: "userspace", entities: ["intent", "thread", "buffer", "turn"] },
-  { name: "transient", entities: ["activity"] },
-];
-
 export const CHECKS = {
   "thread.phase": ["inert", "manual", "continuous", "escort", "stream"],
   "buffer.status": ["PENDING", "ACTIVE", "DONE", "ERROR", "STALE"],
@@ -13,9 +6,9 @@ export const CHECKS = {
 
 export const ENUMS = {
   mode: [
-    "BOOTED", "APPLICATION", "TOPOGRAPHICAL", "TOPOLOGICAL",
+    "BOOTED", "TOPOGRAPHICAL", "TOPOLOGICAL",
     "DATASET", "DATASINK", "HARNESSED", "CONVERSATIONAL", "AGENTIC", "TOOLING",
-    "EMITTER", "GENERATIVE", "EXPOSED", "INTENTED", "FRAUGHT", "MOUNTED",
+    "EMITTER", "GENERATIVE", "EXPOSED", "INTENTED", "FILESET", "FILESINK", "VIEWABLE",
   ],
   thread: ["MASKED", "AIMED", "QUEUEING", "LABELED", "INTELLIGENT", "VOCAL"],
   buffer: ["LABELED"],

@@ -1,0 +1,31 @@
+#+title: m102 — hunks killed by m98 Q6 · Q7, moved 10-23
+# limit: none (reference)
+
+m98 Q6 /"I don't want the lines at all. We either use shell or Chrome. For now, no Viva REPL."/ · Q7 /"a."/ (=chrome/commands.js= whole dies). m102 lands after m98, so these two hunks have no file to land on.
+
+**** chrome/commands.js
+#+BEGIN_SRC diff
+// systems/ghost/chrome/commands.js:1   ← Locked Q4 — mine: the surface loads on the call, so anima's graph stays free of opentui · node:readline (=* open= probe)
+ import { Vector } from "@vivalence/typology";
+-import { lines } from "../subjects/repl/index.js";
+-import * as surface from "./index.js";
+…
+// systems/ghost/chrome/commands.js:12
+     async (ctx) => {
++      const surface = await import("./index.js");
+       ctx.client.unmount();
+       ctx.client.unmount = await surface.chrome(ctx.client);
+…
+// systems/ghost/chrome/commands.js:23
+     async (ctx) => {
++      const { lines } = await import("../subjects/repl/lines.js");
+       ctx.client.unmount();
+       ctx.client.unmount = await lines(ctx.client);
+#+END_SRC
+
+**** subjects/repl/lines.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/repl/lines.js:42   ← Locked Q2
+-  reader.on("line", (text) => clientDie.dispatch(text).finally(() => reader.prompt()));
++  reader.on("line", (text) => clientDie.activeTerminal.repl.dispatch(text).finally(() => reader.prompt()));
+#+END_SRC

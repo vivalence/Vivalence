@@ -1,0 +1,607 @@
+#+title: daemon entities on both sides — the client daemon mirrors the runtime daemon: a static set on both sides, `Dataspace.branch(connection, kinds)` into `daemon.entities`, no `runtime` on an entity
+#+filetags: :ghost:runtime:typology:dataspace:daemon:literal:symbol:note:dashboard:
+#+status: LANDED 11-06 — 5/5 milestones, 36 files, every touched suite green or red-by-name as before; QA markers held on his `:1794`. Trigger: the dataspace dashboard dead on every click, /"no client repository for "literal""/.
+#+phase: landed
+#+progress: 5/5
+#+next: none — done 11-06; `note` joined the traits set (`commons/dashboards/dataspace/schema.js:2`)
+<!-- limit: 40000 chars -->
+
+* intent
+
+| # | beef, verbatim | trigger |
+|---+----------------+---------|
+| 1 | /"i am trying to navigate the dataspace and nothing happens when i click anything"/ | screenshot, `no client repository for "literal"` |
+| 2 | /"on runtime daemon, we still have entities scoped to the daemon right?"/ | the report |
+| 3 | /"from one daemon, can I access the data of another daemon?"/ | the probe |
+| 4 | /"how do we do it on the client side? … I would want to have the same entities on the client daemon that I have on the runtime daemon."/ | the design |
+| 5 | /"cool. good approach."/ · /"fuck quest. no quest"/ → /"write up the quest."/ | this file |
+| 6 | /"wait. why is there a runtime on my entiteis????? amkes no sense."/ · /"we dont want runtime on entities"/ | Q5 |
+
+* the dialogue
+
+| Q | his turn | lock |
+|---+----------+------|
+| Q0 | /"b"/ | `Dataspace.branch(connection, aperture)` — kinds from the served aperture |
+| Q1 | /"a. but not shape. … we keep a metadata key that matches the aperture we pulled by key"/ · /"daemon.manifest.slug — manifest is special case. we move that."/ | `host.manifest` stays · `host.metadata.{statics,aperture}` |
+| Q2 | /"q2 b"/ · /"why is there a runtime on my entiteis"/ | row + cast traits, nothing hung |
+| Q3 | /"c. wire it up. all entities should be wired on both sides"/ | runtime mounts `sets.traits` whole · client registers the same · unknown kind throws |
+| Q4 | — (lookup, see `* terrain`) | note on the daemon route is user-scoped by mikro already |
+| Q5 | /"grep. we dont watn runtime on entities"/ | writers 4 · readers 2 · all cut |
+| Q6 | /"stupid way of doing this. utter retardation. complete nonsense. just hardcode the set inline"/ | the four kinds a literal in the beat |
+| Q7 | /"I don't understand. Wasn't this already decided? And why not both A and B?"/ | `cast` honours `open`; Q2′ stands |
+| Q8 | /"manifest ALSO here. first here then pulled down."/ | `metadata = { manifest, statics, aperture }` |
+| Q10 | /"why do we need aperture for entity branchign??"/ · /"the set of things we serve is static. no more dynamic entities per domain"/ | `branch(connection, kinds)`, Q0 superseded |
+
+* terrain — measured 11-06
+
+** the symptom
+
+#+BEGIN_SRC js
+// commons/dashboards/dataspace/Dashboard.svelte:101
+  function repoFor(name) {
+    const repo = daemon?.entities?.[name];
+    return repo && typeof repo.findAndCount === "function" ? repo : null;
+  }
+// commons/dashboards/dataspace/Dashboard.svelte:812
+  function pickEntity(event) {
+    const name = event.currentTarget.dataset.entity;
+    if (!doorOf(name) || !repoFor(name)) return;
+#+END_SRC
+
+Ghost's daemon carries no `entities` — the dashboard was written against `bak.3`, where `daemon.entities = ctx.dataspace.rung(daemon.connection)` (`systems/ghost/bak/bak.3/prototypes/daemon.js:51`). Today:
+
+#+BEGIN_SRC js
+// systems/ghost/entities/daemon/hydration.js:3
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  ctx.entity.runtime = ctx.runtime;
+  ctx.entity.reference = new Path(`/daemon/${ctx.entity.slug}`);
+  ctx.entity.connection = ctx.runtime.connection.branch(ctx.entity.reference.absolute);
+  ctx.entity.aperture = ctx.entity.connection;
+});
+#+END_SRC
+
+** the runtime daemon — one datamap, per-daemon repository classes
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/daemon/lifecycle/1-population.js:28
+  die.daemon.entities = { ...datamap.entities, ...strike(die.daemon.minted, datamap.entities.em, sets.traits), activity: die.runtime.entities.activity };
+// systems/runtime/entities/index.ts:45
+  traits: { literal, symbol, note, mode },
+// systems/runtime/gestalten/belt/traits.js:24
+        class extends descriptor.repository {
+          scope(options = {}) {
+            return { ...options, filters: { ...(options.filters ?? {}), daemon: { daemon: slug } } };
+          }
+          find(where, options) { return super.find(where, this.scope(options)); }
+          create(data, options) { return super.create({ ...data, daemon: slug }, options); }
+#+END_SRC
+
+Mounted today — literal · symbol by hand, mode via `host.entities`, note NOT mounted:
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/daemon/lifecycle/3-integration.js:15
+export const datamap = async (die, next) => {
+  die.daemon.aperture.open("/datamap", () => shard.datamap.strip(die.daemon.datamap.getMetadata()));
+  die.daemon.aperture
+    .branch("/entities/literal")
+    .graft(shard.datamap.repository(die.daemon.entities.literal))
+    .graft(shard.datamap.reactive(die.daemon.entities.literal, die.daemon.twitch));
+  die.daemon.aperture
+    .branch("/entities/symbol")
+    .graft(shard.datamap.repository(die.daemon.entities.symbol))
+    .graft(shard.datamap.reactive(die.daemon.entities.symbol, die.daemon.twitch));
+  await next();
+};
+export const entities = async (die, next) => {
+  host.entities(die.daemon);
+  await next();
+};
+// systems/runtime/gestalten/shard/host.js:56
+export const entities = (context) => {
+  context.aperture
+    .branch("/entities/mode")
+    .graft(shard.datamap.repository(context.entities.mode))
+    .graft(shard.datamap.reactive(context.entities.mode, context.twitch));
+};
+#+END_SRC
+
+** the probe — can a daemon read another's rows? no.
+
+Token minted from `SECRET_VIVA_JWT` (10 min, `type: "access"`, signature-only verify, `lighthouse/signer.js:48`), read-only verbs on his live `:2501`.
+
+#+BEGIN_SRC sh
+# /private/tmp/claude-501/-Users-finn-vivalence-code-vivalence/0166ee1c-8d6e-49e7-b459-a1d2a4da8d69/scratchpad/mint.js
+T=$(deno run -A --no-check --import-map=import_map.json mint.js)
+curl -s -X POST localhost:2501/daemon/spanish/entities/literal/count -H "Authorization: Bearer $T" -H 'content-type: application/json' -d '{"where":{"daemon":"chess"}}'
+#+END_SRC
+
+| route · where | count |
+|---+---|
+| spanish/literal `{}` | 1742 |
+| chess/literal `{}` | 4831 |
+| droneaid/literal `{}` | 188 |
+| spanish/literal `{daemon:"chess"}` | 0 |
+| spanish/literal `{daemon:{$ne:"spanish"}}` | 0 |
+| spanish/literal `$or[chess, spanish]` | 1742 |
+| spanish/literal `options.filters:false` | 1742 |
+| spanish/literal `options.filters.daemon=chess` | 1742 |
+| spanish/mode `{daemon:null}` | 0 |
+| spanish/symbol populate literals | every row `daemon:"spanish"` |
+
+Two walls: `sanitize` drops `filters` off the wire (`subsystems/typology/gestalten/shard/datamap.js:30`); the minted `scope()` spreads its own daemon LAST. `where` ANDs with the filter. Live aperture (11-06): `daemon.{chess,droneaid,spanish}.entities = literal,symbol,mode`; `runtime.entities` empty; `userspace.entities = terminal,intent,thread,buffer,turn,note,view,file,activity` — user-scoped, daemon-blind by design.
+
+** the client — the mechanism exists, zero consumers
+
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/dataspace.js:41
+  branch(connection, name) {
+    return new RemoteRepository(this.em.repositoryMap[name].kind).connect(connection.branch(`/entities/${name}`)).manage(this.em, name);
+  }
+// systems/ghost/subjects/client/factory.js:34
+  runtime.entities = new Dataspace({
+    runtime,
+    entities: { daemon: daemonHost, mode, thread: threadProcess, buffer, turn, activity, terminal: terminalProcess, view, file },
+    seed: (boot) => boot.use(shard.context.bind("client", clientDie)).use(shard.context.bind("runtime", runtime)),
+  });
+// systems/ghost/gestalten/shard/host.js:31
+export const metadata = (type) => async (die, next) => {
+  const [manifest, statics, aperture] = await Promise.all(["/metadata/manifest", "/metadata/statics", "/metadata/aperture"].map((path) => die[type].aperture.call(path)));
+  die[type].manifest = manifest;
+  die[type].statics = statics;
+  die[type].call = shape.connection.wire(die[type].aperture, aperture);
+  await next();
+};
+#+END_SRC
+
+No `systems/ghost/entities/{literal,symbol,note}/`. Trait tables exist: `v.traits.literal` · `symbol` · `note` (`subsystems/typology/schematics/traits/index.js:50-52`).
+
+** Q4 lookup — note on the daemon route
+
+The daemon aperture authenticates and binds the user (`systems/runtime/subjects/daemon/lifecycle/2-resolution.js:5`); Note's `user` filter is `default: true` (`systems/runtime/entities/Note.ts:45`, `$or user | null`). A daemon-mounted note is user-scoped by mikro AND daemon-scoped by the minted class. No hunk.
+
+** `runtime` on entities — writers 4 · readers 2
+
+| writer | reader | after |
+|---+---+---|
+| `entities/daemon/hydration.js:5` · `prototype.js:15` | `daemon/prototype.js:22` `get modes()` | `this.entities.mode` |
+| `entities/mode/hydration.js:5` · `prototype.js:19` | `mode/traits/harnessed.js:5` | `die.client.runtime.entities.em` |
+| `subjects/terminal/hydration.js:7` · `prototype.js:17` | none | cut |
+
+`mode.host` stays (`frame.jsx:131` · `sections.js:78` · `:132` · `:188`). `client.runtime` stays — a subject.
+
+* rulings
+
+| Q | ruling | his words |
+|---+--------+-----------|
+| Q0 | `Dataspace.branch(connection, aperture)` folds the served aperture; kinds are the wire's | /"b"/ |
+| Q1′ | `host.manifest` stays; `host.metadata = { statics, aperture }` keyed by the route pulled; the daemon's own beat folds `entities` | /"not shape … a metadata key that matches the aperture we pulled by key"/ · /"manifest is special case"/ |
+| Q2′ | a client Literal · Symbol · Note = its row + traits CAST at hydration; nothing hung from the client | /"q2 b"/ · /"why is there a runtime on my entiteis"/ |
+| Q3 | every minted kind rides the wire on both sides: runtime mounts `sets.traits` whole, client registers the same; an unknown served kind THROWS | /"c. wire it up. all entities should be wired on both sides"/ |
+| Q5 | no `runtime` on an entity; a reader reaches through what it owns | /"we dont want runtime on entities"/ |
+| Q7 | `belt.traits.cast` honours an OPEN vocabulary: undeclared names pass as data, declared ones fill + validate; Q2′ stands | /"Wasn't this already decided? And why not both A and B?"/ |
+| Q8 | `metadata` holds EVERY pulled route — `{ manifest, statics, aperture }`; `manifest` is then pulled down to the host as well | /"manifest ALSO here. first here then pulled down."/ |
+| Q9 | a kind registered without a connection is a KIND, not a stream: `Dataspace.subscribe` reads the connected repositories only | miswire traced at S4 — `subscribe()` on a template throws `Cannot read properties of undefined (reading 'call')` |
+| Q10 | supersedes Q0: the served set is STATIC — `branch(connection, kinds)`, the client names the same four as a literal; no aperture read for entities | /"the set of things we serve is static. no more dynamic entities per domain"/ |
+| Q6 | the mounted set is a LITERAL in the beat — no `sets` import, no `Object.keys` | /"stupid way of doing this … just hardcode the set inline"/ |
+
+* the law
+
+1. the daemon's entity set is STATIC — `literal · symbol · note · mode`, a literal on both sides (Q6 · Q10).
+2. a host carries `manifest` (special) and `metadata.<route>` for every other `/metadata/*` it pulled.
+3. an entity owns its row and its cast traits; a reader climbs its relations (`literal.daemon`), never a hung `runtime`.
+4. a kind the client names but the daemon lacks answers 404 at first call — loud, never an undefined at a reader.
+
+* as code
+
+*** subsystems/typology
+**** prototypes
+***** dataspace.js — Q10 · Q9
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/dataspace.js:35
+   async subscribe() {
+-    for (const repository of Object.values(this.em.repositoryMap)) await repository.find();
+-    const offs = Object.values(this.em.repositoryMap).map((repository) => repository.subscribe());
++    const connected = Object.values(this.em.repositoryMap).filter((repository) => repository.connection);
++    for (const repository of connected) await repository.find();
++    const offs = connected.map((repository) => repository.subscribe());
+     return () => {
+#+END_SRC
+
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/dataspace.js:41
+-  branch(connection, name) {
+-    return new RemoteRepository(this.em.repositoryMap[name].kind).connect(connection.branch(`/entities/${name}`)).manage(this.em, name);
+-  }
++  branch(connection, kinds) {
++    return Object.fromEntries(kinds.map((name) => [name, new RemoteRepository(this.em.repositoryMap[name].kind).connect(connection.branch(`/entities/${name}`)).manage(this.em, name)]));
++  }
+#+END_SRC
+
+**** gestalten/belt
+***** traits.js — Q7 (the miswire: `open` ignored)
+
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/belt/traits.js:27
+-  const undeclared = entity.traits.filter((name) => !Object.hasOwn(vocabulary.properties, name));
++  const undeclared = vocabulary.additionalProperties ? [] : entity.traits.filter((name) => !Object.hasOwn(vocabulary.properties, name));
+#+END_SRC
+
+*** systems/runtime
+**** subjects/daemon/lifecycle
+***** 3-integration.js — Q3 · Q6
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/daemon/lifecycle/3-integration.js:15
+ export const datamap = async (die, next) => {
+   die.daemon.aperture.open("/datamap", () => shard.datamap.strip(die.daemon.datamap.getMetadata()));
+-
+-  die.daemon.aperture
+-    .branch("/entities/literal")
+-    .graft(shard.datamap.repository(die.daemon.entities.literal))
+-    .graft(shard.datamap.reactive(die.daemon.entities.literal, die.daemon.twitch));
+-
+-  die.daemon.aperture
+-    .branch("/entities/symbol")
+-    .graft(shard.datamap.repository(die.daemon.entities.symbol))
+-    .graft(shard.datamap.reactive(die.daemon.entities.symbol, die.daemon.twitch));
+-
++  for (const kind of ["literal", "symbol", "note", "mode"]) {
++    die.daemon.aperture
++      .branch(`/entities/${kind}`)
++      .graft(shard.datamap.repository(die.daemon.entities[kind]))
++      .graft(shard.datamap.reactive(die.daemon.entities[kind], die.daemon.twitch));
++  }
+   await next();
+ };
+-
+-export const entities = async (die, next) => {
+-  host.entities(die.daemon);
+-  await next();
+-};
+#+END_SRC
+
+***** index.js — Q3
+
+#+BEGIN_SRC diff
+// systems/runtime/subjects/daemon/lifecycle/index.js:21
+-  .use(integration.entities)
+#+END_SRC
+
+*** systems/ghost
+**** gestalten/shard
+***** host.js — Q1′ · Q8
+
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/shard/host.js:33
+-  die[type].manifest = manifest;
+-  die[type].statics = statics;
++  die[type].metadata = { manifest, statics, aperture };
++  die[type].manifest = die[type].metadata.manifest;
+   die[type].call = shape.connection.wire(die[type].aperture, aperture);
+#+END_SRC
+
+**** entities/daemon
+***** prototype.js — Q1′ · Q5
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/daemon/prototype.js:9
+   manifest = null;
+-  statics = null;
++  metadata = { manifest: null, statics: null, aperture: null };
++  entities = null;
+   connection = null;
+   aperture = null;
+   call = null;
+   cortex = null;
+-  runtime = null;
+   $status = atom({ code: "IDLE" });
+…
+// systems/ghost/entities/daemon/prototype.js:21
+   get modes() {
+-    return this.runtime.entities.mode.$entities.get().filter((mode) => mode.daemon === this);
++    return this.entities.mode.$entities.get().filter((mode) => mode.daemon === this);
+   }
+#+END_SRC
+
+***** hydration.js — Q5
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/daemon/hydration.js:5
+-  ctx.entity.runtime = ctx.runtime;
+   ctx.entity.reference = new Path(`/daemon/${ctx.entity.slug}`);
+#+END_SRC
+
+***** lifecycle/index.js — Q1′
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/daemon/lifecycle/index.js:4
+-export const execution = new Vector().use(shard.controller.open).use(host.status("daemon")).use(host.metadata("daemon")).use(host.cortex("daemon")).use(host.mounted("daemon")).do(shard.controller.hold);
++export const entities = async (die, next) => {
++  die.daemon.entities = die.client.runtime.entities.branch(die.daemon.connection, ["literal", "symbol", "note", "mode"]);
++  await next();
++};
++
++export const execution = new Vector().use(shard.controller.open).use(host.status("daemon")).use(host.metadata("daemon")).use(entities).use(host.cortex("daemon")).use(host.mounted("daemon")).do(shard.controller.hold);
+#+END_SRC
+
+**** entities/runtime
+***** prototype.js — Q1′
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/runtime/prototype.js:8
+-  statics = null;
++  metadata = { statics: null, aperture: null };
+#+END_SRC
+
+**** entities/mode
+***** prototype.js · hydration.js — Q5
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/prototype.js:19
+-  runtime = null;
+…
+// systems/ghost/entities/mode/hydration.js:5
+-  ctx.entity.runtime = ctx.runtime;
+#+END_SRC
+
+***** traits/harnessed.js — Q5
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/traits/harnessed.js:4
+-export const HARNESSED = async (mode) => {
+-  const { repositoryMap } = mode.runtime.entities.em;
++export const HARNESSED = async (mode, die) => {
++  const { repositoryMap } = die.client.runtime.entities.em;
+#+END_SRC
+
+**** entities/literal — Q2′ (new)
+***** prototype.js
+
+#+BEGIN_SRC js
+// systems/ghost/entities/literal/prototype.js
+import { Entity } from "@vivalence/typology";
+
+export class Literal extends Entity {
+  type = "literal";
+  id = null;
+  slug = null;
+  daemon = null;
+  symbol = null;
+  ontology = null;
+  traits = [];
+  trait = {};
+}
+#+END_SRC
+
+***** repository.js
+
+#+BEGIN_SRC js
+// systems/ghost/entities/literal/repository.js
+import { RemoteRepository } from "@vivalence/typology";
+import { Literal } from "./prototype.js";
+
+export const repository = () => new RemoteRepository(Literal);
+#+END_SRC
+
+***** hydration.js
+
+#+BEGIN_SRC js
+// systems/ghost/entities/literal/hydration.js
+import { Vector, belt, v } from "@vivalence/typology";
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  ctx.entity.trait = belt.traits.cast(ctx.entity, v.traits.literal);
+});
+#+END_SRC
+
+***** index.js
+
+#+BEGIN_SRC js
+// systems/ghost/entities/literal/index.js
+export * from "./prototype.js";
+export * from "./repository.js";
+export * from "./hydration.js";
+#+END_SRC
+
+**** entities/symbol — Q2′ (new, the four files of literal over Symbol)
+***** prototype.js
+
+#+BEGIN_SRC js
+// systems/ghost/entities/symbol/prototype.js
+import { Entity } from "@vivalence/typology";
+
+export class Symbol extends Entity {
+  type = "symbol";
+  id = null;
+  slug = null;
+  daemon = null;
+  mode = null;
+  literals = [];
+  traits = [];
+  trait = {};
+}
+#+END_SRC
+
+`repository.js` · `index.js` as literal's; `hydration.js` casts `v.traits.symbol`.
+
+**** entities/note — Q2′ · Q3 (new, the four files over Note)
+***** prototype.js
+
+#+BEGIN_SRC js
+// systems/ghost/entities/note/prototype.js
+import { Entity } from "@vivalence/typology";
+
+export class Note extends Entity {
+  type = "note";
+  id = null;
+  slug = null;
+  user = null;
+  daemon = null;
+  mode = null;
+  literal = null;
+  buffer = null;
+  turn = null;
+  parent = null;
+  traits = [];
+  trait = {};
+}
+#+END_SRC
+
+`repository.js` · `index.js` as literal's; `hydration.js` casts `v.traits.note`.
+
+**** entities/index.js — Q2′
+
+#+BEGIN_SRC diff
+// systems/ghost/entities/index.js:6
+ export * as lighthouse from "./lighthouse/index.js";
++export * as literal from "./literal/index.js";
+ export * as mode from "./mode/index.js";
++export * as note from "./note/index.js";
+ export * as runtime from "./runtime/index.js";
++export * as symbol from "./symbol/index.js";
+ export * as thread from "./thread/index.js";
+#+END_SRC
+
+**** subjects/client
+***** factory.js — Q2′ · Q3
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/factory.js:12
+ import * as file from "../../entities/file/index.js";
++import * as literal from "../../entities/literal/index.js";
++import * as symbol from "../../entities/symbol/index.js";
++import * as note from "../../entities/note/index.js";
+…
+// systems/ghost/subjects/client/factory.js:36
+-    entities: { daemon: daemonHost, mode, thread: threadProcess, buffer, turn, activity, terminal: terminalProcess, view, file },
++    entities: { daemon: daemonHost, mode, thread: threadProcess, buffer, turn, activity, terminal: terminalProcess, view, file, literal, symbol, note },
+#+END_SRC
+
+**** subjects/terminal
+***** prototype.js · hydration.js — Q5
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/prototype.js:17
+-  runtime = null;
+…
+// systems/ghost/subjects/terminal/hydration.js:7
+-  ctx.entity.runtime = ctx.runtime;
+#+END_SRC
+
+*** commons
+**** dashboards/dataspace
+***** Dashboard.svelte — the symptom closes; absence is the signal
+
+#+BEGIN_SRC diff
+// commons/dashboards/dataspace/Dashboard.svelte:101
+   function repoFor(name) {
+-    const repo = daemon?.entities?.[name];
+-    return repo && typeof repo.findAndCount === "function" ? repo : null;
++    return daemon.entities[name] ?? null;
+   }
+…
+// commons/dashboards/dataspace/Dashboard.svelte:138
+-      datamap = daemon?.entities?.datamap ?? await daemon.connection.call("/datamap");
++      datamap = await daemon.connection.call("/datamap");
+#+END_SRC
+
+* deliverables
+
+#+BEGIN_SRC
+subsystems/typology/prototypes/dataspace.js            branch(connection, aperture)
+subsystems/typology/tests/dataspace.test.js            branch connects the named kinds under the route · subscribe skips a kind without a connection
+subsystems/typology/gestalten/belt/traits.js           cast honours open
+subsystems/typology/tests/traits.cast.test.js          an open vocabulary passes undeclared; a closed one throws
+systems/runtime/subjects/daemon/lifecycle/3-integration.js   sets.traits fold
+systems/runtime/subjects/daemon/lifecycle/index.js     integration.entities cut
+systems/runtime/tests/daemon/entities.test.js          /daemon/<slug>/entities/{literal,symbol,note,mode} served
+systems/ghost/gestalten/shard/host.js                  metadata = { statics, aperture }
+systems/ghost/entities/daemon/{prototype,hydration}.js · lifecycle/index.js
+systems/ghost/entities/runtime/prototype.js
+systems/ghost/entities/mode/{prototype,hydration}.js · traits/harnessed.js
+systems/ghost/entities/literal/{prototype,repository,hydration,index}.js
+systems/ghost/entities/symbol/{prototype,repository,hydration,index}.js
+systems/ghost/entities/note/{prototype,repository,hydration,index}.js
+systems/ghost/entities/index.js
+systems/ghost/subjects/client/factory.js
+systems/ghost/subjects/terminal/{prototype,hydration}.js
+systems/ghost/tests/subjects/client/factory.test.js    literal · symbol · note registered
+commons/dashboards/dataspace/Dashboard.svelte
+#+END_SRC
+
+* milestones
+
+| # | milestone | capability | proof |
+|---+-----------+------------+-------|
+| 1 | the runtime daemon serves its whole set | `/daemon/<slug>/entities/note/count` answers | DONE 11-06 — live `:2501` spanish: literal 1742 · symbol 691 · note 80 · mode 12; `/metadata/aperture` entities = `literal mode note symbol`; `entities.test.js` ok 1 passed (2 steps) |
+| 2 | the client kinds | `runtime.entities.literal · symbol · note` registered, traits cast | DONE 11-06 — `factory.test.js` ok 3 passed (4 steps); `traits.test.js` ok 2 passed (11 steps) |
+| 3 | the client daemon connects its set | `daemon.entities.literal.findAndCount({})` → `[rows, 1742]` on spanish | DONE 11-06 — `dataspace.test.js` ok 2 passed (5 steps); his `:1794` wire log `POST /entities/literal/findAndCount` 1–250 / 1742 |
+| 4 | no `runtime` on an entity | `grep -rn "entity.runtime\|runtime = null" systems/ghost/entities systems/ghost/subjects/terminal` → 0 | DONE 11-06 — the grep: rc=1, zero rows |
+| 5 | the dashboard clicks | `literal` → rows; `thread` → rows; LIVE → SSE row | DONE 11-06 — literal · symbol → rows; LIVE → `GET /entities/symbol/subscribe` row; `thread` stays door-less (deferred, userspace) |
+
+* blast table
+
+| symbol | consumers | BREAKS |
+|---+---+---|
+| `Dataspace.branch(connection, name)` | 0 | none |
+| `host.statics` (ghost) | 0 readers | none |
+| `daemon.runtime` · `mode.runtime` · `terminal.runtime` | 2 readers (terrain) | at land, both moved in the same go |
+| `integration.entities` (runtime daemon) | `lifecycle/index.js:21` + 3 rigs the quest's blast missed: `tests/scenarios/daemon.js:77` · `tests/scenarios/bench.js:113` · `tests/topography/harness.js:75` | cut in the same go; each rig composes `integration.datamap` alone |
+| `/daemon/<slug>/entities/mode` | anima sidebar via `runtime.entities.mode` (`/runtime/<slug>/entities/mode`) — untouched | none |
+| `HARNESSED(mode)` arity | `traits.stagger` already passes `(module, context)` | none |
+| `~/.viva` | none — no recipe, no env | none |
+
+* testing assessment
+
+- `subsystems/typology/tests/dataspace.test.js` — extend: `branch(connection, ["literal"])` → one repository on `connection.branch("/entities/literal")`, sharing `em.stores.literal`; `subscribe()` skips a kind without a connection.
+- `systems/runtime/tests/daemon/entities.test.js` — NEW over `scenarios/hello.js`: `/metadata/aperture` of `/daemon/<slug>` lists `literal · symbol · note · mode`; `note/count` 200.
+- `systems/ghost/tests/subjects/client/factory.test.js` — extend: `repositoryMap` has `literal · symbol · note`.
+- COVERAGE GAP: the daemon beat `entities` end-to-end (a live `:2501`) — QA, not a rig.
+
+* QA
+
+#+marker_qa: daemon-entities-both-sides/P-dashboard-literal · held 11-06 · clicked `literal` then `symbol` on his `:1794`: rows 1–250 / 1742 and 1–250 / 691, `POST /entities/literal/findAndCount` · `POST /entities/symbol/findAndCount` in the wire log
+#+marker_qa: daemon-entities-both-sides/P-dashboard-live · held 11-06 · LIVE on `symbol`: `GET /entities/symbol/subscribe` row; toggled off, tab closed
+#+marker_qa: daemon-entities-both-sides/P-note-route · held 11-06 · `curl …/daemon/spanish/entities/note/count` → 80
+
+* deferred
+
+
+- `doors` · `doorOf` · `verbs` in `Dashboard.svelte` are dead words (word-guard 11-06) — a rename pass, separate go.
+- the dashboard's `harvest(node?.branches?.userspace, "/userspace")` reads the DAEMON aperture, which has no `userspace` — userspace rows (`thread` · `buffer` …) stay door-less in the catalog. Where the userspace kinds belong in a daemon's dataspace: unruled.
+
+* changelog
+
+- 11-06 after land, on the catalog screenshot: /"what is this 'traits' category?? makes no sense."/ · /"and via thread?? just fucking show the entiteis."/ · /"cna i have the mode on runtim level? as a runtme mode."/ — `note` in the traits set (`schema.js:2`, on /"add note"/) superseded the same hour; a fable agent reworks the catalog: no `SETS`, no "via thread", the host's served kinds only, host-agnostic (`mode.host`), the runtime-mode recipe hunk reported not applied.
+- 11-06 LANDED, one go, milestones 1→5. Departures: `Runtime.metadata` carries `manifest` too (Q8 shape, the pre-Q8 hunk said `{ statics, aperture }`); `Terminal.toJSON`'s kept-list drops the dead `"runtime"` word; three runtime rigs compose `integration.datamap` alone. Base-tree reds filed in `known-issues.org` (`base-tree-reds-11-06`): anima `Build failed with 5 errors` ×11, ghost `console.test` · `prototype.test`, a `lifecycle.test` 10 s flake; identical with the pre-edit product files restored (snapshot `33b41ac0`). Each new test failed once with its mechanism reverted.
+
+- 11-06 drilled: Q0 · Q1 · Q1′ · Q2 · Q2′ · Q3 · Q5; Q4 a lookup. Nothing landed.
+- 11-06 show-me S1: Q6 — the set inline, the `sets` import cut. S2: Q7 — `cast` ignored `open`; the lock stands. S3: Q8 — manifest in `metadata` too, then pulled down. S4: Q9 — subscribe reads the connected; Q10 — static set, Q0 superseded.
+
+* review — 11-06
+
+| S | stop | rides | verdict | his words |
+|---+---+---+---+---|
+| 1 | the runtime daemon mounts its set whole | Q3 · Q6 | amen | /"just hardcode the set inline"/ |
+| 2 | a client Literal · Symbol · Note: its row + cast traits | Q2′ · Q7 | amen | /"why not both A and B?"/ |
+| 3 | a host carries `metadata.<route>`, manifest pulled down too | Q1′ · Q8 | amen | /"manifest ALSO here. first here then pulled down."/ |
+| 4 | `Dataspace.branch(connection, kinds)` connects the static set | Q10 · Q9 | amen | /"the set of things we serve is static"/ |
+| 5 | the client daemon's beat connects `entities` | Q1′ · Q10 | amen | |
+| 6 | no `runtime` on an entity | Q5 | amen | |
+| 7 | the dashboard: absence is the signal | — | amen | |
+
+* handoff
+
+- goal: the client daemon carries `entities.{literal,symbol,note,mode}`, the dashboard clicks.
+- done: LANDED 11-06, 5/5; his `:2501` serves the four; the fable agent's catalog rework LANDED 15:10 (`Dashboard.svelte:5` `host = terminal.mode.host` · `:106` `readDoors` folds `aperture.branches.entities` only · `schema.js` `SETS` cut, grep rc=1; walked on his `:1794`: `literal 1742 · symbol 891 · note 80 · mode 12`, no headers, no "via thread").
+- next: beef snaps; beef applies the runtime-mode hunk — `~/.viva/ledger.viva.json` runtime `"modes": ["@commons/harness/runtime", "@commons/dashboard/dataspace"]` then restarts `:2501` (the watcher ignores the ledger). TRAP: `inherit(module, ledger, "runtime")` is slot-WHOLE (`paladin/subjects/instance/lifecycle/1-population.js:58`) — an instance `runtime` key REPLACES the ledger's and drops the harness mode. Wiring proven: `mask.modes` → `registry.wire` (`paladin/prototypes/registry.js:277`) → `register.modes` (`runtime/lifecycle/1-population.js:103`) → served `/runtime/<slug>/mode/<type>/<slug>`; ghost `entities/mode/hydration.js:5` seats `host = ctx.runtime` when no daemon → the catalog shows `mode · daemon`.
+- never: an aperture read for the entity set (Q10) · a `sets` import in a beat (Q6) · a revert offered for a breaking hunk (Q7).
+- owed: dashboard dead words (`doors` · `doorOf` · `verbs`) · ER canvas still draws unserved datamap kinds dashed (`Dashboard.svelte:1048` `noDoor`, unruled) · `dataspace.viva.js` + `design/dataspace-v2-data.md` dirty before the agent, not its. Probe token recipe in `* terrain`.
+
+** 11-06 fold — catalog across hosts (beef: "the datamap mode should show all of thease … not only those 4" → B, "b")
+- `Dashboard.svelte:103` `repoFor` reads `doors[name].repository`; `:108` `readDoors(leaves, mount, entities)`; `:128` doors = runtime `/userspace/entities/*` ∪ runtime-host `/entities/*` ∪ mode-host `/entities/*`, host last wins. Seen on `:1794`: 12 doors, `note 80` via `/daemon/spanish`.
+- `:1267` `{host.slug}` replaces `{host.manifest.slug}` (manifest lands in the daemon `metadata` beat, after hydration — beef: "can't access property "slug", host.manifest is null").
+- owed: `intent` row (ghost `client/factory.js:39` Dataspace lacks `intent`) · `count({})` before a first find reads the managed set (note `10` → `80`) · the `user` row has no door.

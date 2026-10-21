@@ -48,4 +48,6 @@ specimen.describe("fire", () => {
     specimen.expect(picked.input).toEqual({ limit: 5 });
     specimen.expect(picked.daemon).toBe("test-daemon");
   });
+
+  specimen.it("fire passes a literal through", () => specimen.expect(steer.strategy.fire("/mode", {})).toBe("/mode"));
 });

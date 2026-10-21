@@ -1,0 +1,19 @@
+# drained 10-22 whole from .ikiro/quests/roadmap/m94-trait-rejiggle.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* adjacent — not traits (unruled ones only)
+
+| what | where | why not |
+|---+---+---|
+| MASKED AIMED QUEUEING on a MODE manifest | =commons/playground/dealer/dealer.viva.js= | Thread's names on the wrong entity |
+| TOOLING on a SERVICE manifest | =commons/services/nlp/service.viva.js:11= | a mode trait; read by =systems/runtime/daemon/lifecycle/population.js:55= for services |
+| daemon =$status= HEALTHY ERROR | =systems/ghost/client/traits/home.js:3= | status |
+| =STANDINGS= | =systems/anima/src/lighthouse.js= | status |
+| =sets.traits= | =systems/runtime/entities/index.ts:43= | which entities carry a composed vocabulary |
+| =narrowable= | =subsystems/typology/schematics/entities/{thread,user,literal}.js= | schema metadata |
+| $contains $overlap $none | =subsystems/typology/entities/base/DataEntity.ts:36= | query grammar over traits |
+| =buffer.target= | m87 | a constraint |
+| =trait.HALLUCINATED= without the name | =~/.viva/registry/stucatch/vivaware/domain/fold.js:37= | a payload with no claim |
+| the module export a trait consumes | =module.application= · =.harness= · =.tools= · =.emitter= · =.dataset= · =.datasink= · =.freight= · =.boot= · =.generator= · =.repl= (was =.repling=) | the trait's input; the trait is the name that wires it |
+| =provider= | =subsystems/paladin/ledger/integrity.js:9= | a service EXPORT, consumed with no trait gate |
+| test-only names TAGGED STAMPED POKED SSE NET PICKED CLASHING SCHEDULED RATED SHADOW | =systems/runtime/tests/*= · chess test | fixtures |
+

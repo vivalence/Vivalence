@@ -38,7 +38,7 @@ specimen.describe("dictation integration — duplex verbatim over one socket, th
   specimen.beforeAll(async () => {
     const persona = new Vector().use(async (ctx, next) => {
       ctx.hallucination.policy.tune ??= "fast";
-      ctx.hallucination.system.persona = "You are Dewey.";
+      ctx.hallucination.primer.open("persona", "You are Dewey.");
       await next();
     });
     scenario = await create({ harness: persona });

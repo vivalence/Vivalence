@@ -1,8 +1,4 @@
 [
-  "/attached/bundle/daemon/chess/mode/board/play/(.*)",
-  "/attached/bundle/daemon/chess/mode/coach/practice/(.*)",
-  "/attached/bundle/daemon/chess/mode/riddle/puzzles/(.*)",
-  "/attached/bundle/daemon/chess/mode/study/analysis/(.*)",
   "/attached/process/service/lighthouse/multiplayer/auth/enroll",
   "/attached/process/service/lighthouse/multiplayer/auth/login",
   "/attached/process/service/lighthouse/multiplayer/auth/logout",
@@ -85,7 +81,6 @@
   "/daemon/chess/game/list",
   "/daemon/chess/manifest",
   "/daemon/chess/metadata/aperture",
-  "/daemon/chess/metadata/cargo",
   "/daemon/chess/metadata/cortex",
   "/daemon/chess/metadata/datamap",
   "/daemon/chess/metadata/manifest",

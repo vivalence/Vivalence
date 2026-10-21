@@ -1,7 +1,6 @@
 import { IsOptional, Type } from "typebox";
 import { Pointer, Value } from "typebox/value";
 import { Compile } from "typebox/compile";
-import { claim } from "../gestalten/belt/traits.js";
 
 const faults = (schema, value) =>
   [...Value.Errors(schema, value)].map((error) => {
@@ -132,7 +131,6 @@ export function entityFactory(descriptor, base) {
   factory.$id = descriptor.$id;
   factory.descriptor = descriptor;
   factory.traits = descriptor.traits ?? {};
-  factory.trait = (row, name, vocabulary = factory.traits) => claim(row, name, { ...factory.traits, ...vocabulary });
   return factory;
 }
 

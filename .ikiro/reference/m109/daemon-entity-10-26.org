@@ -1,0 +1,58 @@
+#+title: m109 daemon entity — the daemon re-housed from =runtime.processes= to =runtime.entities=: one daemon, its mikro row keyed by its slug, its running fields on it
+#+filetags: :runtime:daemon:entity:
+#+status: OPEN 10-26 — born from m107 Q33F (his /"m109"/); m107 lands the =id= getter meanwhile; no ruling of its own yet
+
+* intent
+
+10-26, beef verbatim (m107 Q33F):
+
+/"why dont we open daemons as one of our entities in the runtime dataspace and wire up that way?"/ · /"yes daemon belongs in the database."/ · /"what about making the slug the primary key on the daemon? also, we'd re-house the daemon from runtime.processes to runtime.entities"/ · /"m109"/
+
+His marks on both homes: =systems/runtime/subjects/daemon/Daemon.ts:17= · =systems/runtime/subjects/daemon/prototype.js:35= — /"belongs into fucking ENTITIES obviously."/
+
+* terrain — measured 10-26
+
+Two daemons today: the row and the running process.
+
+#+BEGIN_SRC ts
+// systems/runtime/subjects/daemon/Daemon.ts:18   — the row, in the runtime datamap; slug IS the primary (:39)
+export class DaemonEntity extends BaseEntity {
+  slug!: string;
+  mask: any & Opt = {};
+  …
+// systems/runtime/entities/Process.ts:5   — the process, a VirtualEntity in the processes datamap (subjects/runtime/lifecycle/population.js:34)
+export class ProcessEntity extends VirtualEntity {
+  type = "";
+  slug = "";
+  mask = null;
+  controller = null;
+  …
+// systems/runtime/subjects/daemon/prototype.js:5   — the die's fields on the process
+export class Daemon extends ProcessEntity {
+  type = "daemon";
+  aperture = new Aperture().use(shard.context.spread(contexts.host, this));
+  …
+#+END_SRC
+
+| reads =runtime.processes.daemon= | lines |
+|---|---|
+| =subjects/runtime/lifecycle/population.js= | 42 · 190 · 201 |
+| =subjects/runtime/lifecycle/resolution.js= | 21 · 24 · 68 · 84 |
+| =subjects/runtime/lifecycle/integration.js= | 19 · 96 |
+| tests: =runtime/beats.coverage.test.js= · =lighthouse/datamap.test.js= | 114 · 128 · 147 · 28 |
+
+=ProcessRepository= (=Process.ts:28=) carries =create · kill · census · removeOne=; the service stays a process (no row).
+
+* constraints carried from m107
+
+- slug stays the primary: no uuid, no migration of the six relations (Mode · Note · Symbol · Terminal · Literal · User m:n). The uuid way probed RED 10-26 (=reference/m107/pruned-10-25.org= =* Q33F=).
+- m107 lands =DaemonEntity='s =id= getter (=persist: false=) for the client's identity map (=subsystems/typology/prototypes/entity-manager.js:71=); this quest removes it or rules what replaces it.
+- m107 lands =/runtime/<slug>/entities/daemon= (=integration.entities=); ghost's Dataspace reads daemons there.
+
+* handoff
+
+- goal: one daemon under =runtime.entities.daemon= — the mikro row (slug primary) holds the running fields; =runtime.processes.daemon= dies.
+- done 10-26: born, terrain measured; no ruling.
+- next: Q0 — the shape of a row that runs (which fields persist, where =kill · census= live); after m107 lands.
+- never: a uuid for the daemon · a second daemon beside the row · the struck words.
+- owed: the getter's fate (m107 Q33F).

@@ -164,7 +164,7 @@ specimen.describe("Cortex", () => {
     specimen.expect(shard.hallucinate.routing([{ nature: "verbatim" }, { nature: "render" }])).toEqual({ avenue: "verbatim", via: "render" });
   });
 
-  specimen.it("the choice avenue: several questions of one primer, tagged by shape, bounded by the faculty, a distribution per key in the question's own shape", async () => {
+  specimen.it("the choice avenue: several questions of one system, tagged by shape, bounded by the faculty, a distribution per key in the question's own shape", async () => {
     const seen = [];
     const answered = (question) =>
       question.options
@@ -180,15 +180,15 @@ specimen.describe("Cortex", () => {
     };
     const cortex = new Cortex().register([chooser]);
     specimen.expect(cortex.findOne({ type: "choice", via: "stream" })).toBe(undefined);
-    const primer = { expected: "Vado al mercato.", answer: "Io vado al mercato domani." };
-    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), primer, questions: {} })).rejects.toThrow(/a choice asks at least one question/);
-    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), primer, questions: { one: { ask: "?", options: { only: null } } } })).rejects.toThrow(/"one" carries 1 option\(s\); a set is two or more/);
-    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), primer, questions: { one: { type: "score", ask: "?", options: { a: null, b: null } } } })).rejects.toThrow(/invalid choice hallucination \/questions\/one/);
+    const system = { expected: "Vado al mercato.", answer: "Io vado al mercato domani." };
+    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: {} })).rejects.toThrow(/a choice asks at least one question/);
+    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { one: { ask: "?", options: { only: null } } } })).rejects.toThrow(/"one" carries 1 option\(s\); a set is two or more/);
+    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { one: { type: "score", ask: "?", options: { a: null, b: null } } } })).rejects.toThrow(/invalid choice hallucination \/questions\/one/);
 
     const heard = new Controller({ stdout: new Span("choice") });
     const verdict = await cortex.hallucinate.choice.render({
       controller: heard,
-      primer,
+      system,
       questions: {
         same: { type: "choice", ask: "Does `answer` mean `expected`?", options: { yes: null, partly: "extra or missing detail", no: null } },
         grade: { ask: "How close is `answer` to `expected`?", levels: ["wrong", "close", "exact"] },
@@ -196,19 +196,21 @@ specimen.describe("Cortex", () => {
       },
     });
     specimen.expect(Object.entries(seen[0].questions).map(([key, question]) => [key, question.type])).toEqual([["same", "choice"], ["grade", "score"], ["ok", "noul"]]);
-    specimen.expect(seen[0].primer).toEqual(primer);
+    specimen.expect(seen[0].system).toEqual(system);
     specimen.expect(verdict.same).toEqual({ yes: 0.9, partly: 0.05, no: 0.05 });
     specimen.expect(verdict.grade).toEqual([0.05, 0.9, 0.05]);
     specimen.expect(verdict.ok).toBe(0.9);
     specimen.expect([...v.primitives.hallucination.Choice.Verdict.errors(verdict)]).toEqual([]);
-    specimen.expect(heard.stdout.records.map((record) => record.verb)).toEqual(["open", "note", "note", "close"]);
-    specimen.expect(heard.stdout.records[1].data).toEqual({ faculty: "choice", model: "bench/chooser", questions: { same: "choice", grade: "score", ok: "noul" } });
-    specimen.expect(heard.stdout.records[2].data.verdict).toEqual(verdict);
+    const tracks = heard.stdout.history.filter((record) => record.track !== "status");
+    specimen.expect(tracks.map((record) => record.track)).toEqual(["start", "log", "log", "stop"]);
+    specimen.expect(tracks[1].data).toEqual({ faculty: "choice", model: "bench/chooser", questions: { same: "choice", grade: "score", ok: "noul" } });
+    specimen.expect(tracks[2].data.verdict).toEqual(verdict);
+    specimen.expect(heard.stdout.history.filter((record) => record.track === "status").map((record) => record.data.code)).toEqual(["RUNNING", "DONE"]);
 
     const four = { a: null, b: null, c: null, d: null };
-    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), primer, questions: { wide: { ask: "?", options: four } } })).rejects.toThrow(/'bench\/chooser' holds 3 options; "wide" carries 4/);
-    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), primer, questions: { a: { ask: "?" }, b: { ask: "?" }, c: { ask: "?" }, d: { ask: "?" } } })).rejects.toThrow(/'bench\/chooser' renders 3 question\(s\) at once; 4 asked/);
+    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { wide: { ask: "?", options: four } } })).rejects.toThrow(/'bench\/chooser' holds 3 options; "wide" carries 4/);
+    await specimen.expect(cortex.hallucinate.choice.render({ controller: new Controller(), system, questions: { a: { ask: "?" }, b: { ask: "?" }, c: { ask: "?" }, d: { ask: "?" } } })).rejects.toThrow(/'bench\/chooser' renders 3 question\(s\) at once; 4 asked/);
 
-    await specimen.expect(new Cortex().hallucinate.choice.render({ controller: new Controller(), primer, questions: { ok: { ask: "?" } } })).rejects.toThrow(/no 'choice' faculty resolves a 'render' avenue/);
+    await specimen.expect(new Cortex().hallucinate.choice.render({ controller: new Controller(), system, questions: { ok: { ask: "?" } } })).rejects.toThrow(/no 'choice' faculty resolves a 'render' avenue/);
   });
 });

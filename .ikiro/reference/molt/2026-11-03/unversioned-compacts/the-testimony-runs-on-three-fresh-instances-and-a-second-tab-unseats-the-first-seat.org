@@ -1,0 +1,84 @@
+#+title: the testimony runs on three fresh instances, and a second tab unseats the first seat
+#+index: 250
+#+session: session 11950be0, sixth fold — turns 119–123 (fold N = 5; turns 1–16 are #245, 17–73 are #246, 74–86 are #247, 87–112 are #248, 113–118 are #249). Opens on the continuation after #249, closes on /"ikiro compact"/
+
+* one breath
+
+beef asked for the browser, /"run the runtime on a few different instancs. run anima. use chrome."/ — the M3 testimony #249 had skipped. Three files-only copies (chess · hello-world · media) booted through =run.js= with their own anima on free ports, the wire gates green on all three, then four Chrome tabs asserting on the DOM and =window.__viva=. Roster, dock, re-derive, unseat and the identity walls held on chess. Three things did not: a second tab of the same identity unseated a fresh seat (m76's, the race the probe's double could not produce), a same-tab sign-out kept the old identity's roster, and hello-world's mode hook reads =ctx.user= before =authorize= (pre-existing). All three went to known-issues; the quest's markers moved from pending to held, plus one =broken=.
+
+* rows
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 119 | continuation prompt | the fold report (#249 landed) | — |
+| 120 | /"run the runtime on a few different instancs. run anima. use chrome."/ | =reference/m76/boot-pair.sh= (fresh copy · runtime · anima, ports pinned in the copy's =.env=); chess =:27611/:17941= · hello-world =:27612/:17942= · media =:27613/:17943=, =boot-gates.sh= 13/13 each; Chrome: sign in, roster 3 rows, create reaches the second tab live, PLAY seats, reload re-derives the first buffer, =$dock= side → row =DOCKED=, thread =removeOne= → row =null · null=, =kiro= walls on wire and fresh tab; media EDITOR seats; quest =** testimony — run 10-03= + markers; three known issues; one callout (heredoc); processes, temp copies and tabs cleaned | the "NOT RUN" changelog line; the first two seats (unseated by tab 2) |
+| 121 | /"ikiro compact"/ | this fold | — |
+| 122 | =/compact= | the walk fired | — |
+| 123 | the =compact-walk= re-invocation | the walk | — |
+
+coverage: 119–123, 5 rows, every n once. One working turn (120).
+
+* arc
+
+The rig came first: =boot-fresh.sh= booted only a runtime, so =boot-pair.sh= added anima's vite from the repo against the copy's =.env=, both pinned through =VIVA_RUNTIME_ORIGIN= · =VIVA_CLIENT_ANIMA_ORIGIN=. Three boots answered every wire gate before any tab opened. Chess carried the walk. The first PLAY looked mounted in tab 1 while the wire said =null=; a wrapped =connection.call= proved tab 1 sent the right =updateOne= and the server stored it — tab 2's console held =terminal/unseat= at the same second. The diagnosis moved from server to client to ordering in four probes: replay by curl (server fine), the call wrapper (client fine), tab 2's log (the unseat), and a re-seat once both thread stores held the id (it stuck). hello-world never reached a seat: its demo hook reads =ctx.user.id= in the mode's own =use=, grafted ahead of the runtime's =authorize= — the same order before m76. Media seated EDITOR on the first try. The identity walls held on the wire and on a fresh load; the in-tab sign-out did not drop the dataspace.
+
+* failures
+
+- the first PLAY read as "seated" off tab 1's DOM while the row on the wire was =null=: the DOM of the tab that acted is not the row. The rule: a seat is proven by the wire row AND every other reader's store, read after a beat.
+- the probe's =DaemonDouble= defaulted to =mounting= to pin the empty-store hazard, and so could never produce the healthy-daemon-late-event race. A double that removes a hazard also removes its inverse; the browser was the only reader with two independent streams.
+- the three known-issue entries rode a Bash heredoc — the kernel law lost to the bypass-mode notice again; logged as a RULE FAILURE (=harness-friction=).
+- one zsh =set -- $pair= without =${=pair}= sent both words as one argument; the gates ran empty on hello-world and media once, re-run split.
+
+* state at fold
+
+m76: tree unchanged since #249 (80 paths outside =.ikiro=, nothing committed). Quest: =** testimony — run 10-03= (table per instance, the seat race, the unrestored =$active=), markers T-roster · T-dock · T-stall · T-unseat · T-walls =held=, =T-seat-race broken=, changelog "RUN 10-03". =reference/m76/boot-pair.sh= promoted. Known issues: =second-browser-unseats-a-fresh-seat= (m76) · =sign-out-keeps-the-roster= · =hello-world-mode-hook-reads-ctx-user-before-authorize= (pre-existing). Callout: heredoc, =harness-friction=. beef's strata run on =:2501/:1794= untouched; no populated instance booted. Sibling: =ghost-modes= (DESIGNED, unnumbered) is live in session =da11b0ef= — the quest report stamped only its =(derived)= header lines; nothing of this fold touches it.
+
+* skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| live-validation | 120 | HELD | DOM and =window.__viva= read through =javascript_tool=, own tabs, closed after, never beef's session |
+| compact-walk | 122 | HELD | markers · spine · skills · rows · coverage · balance · index · stamp · handoff |
+| debugging | 120 | MISSED | the seat race: reproduce → pin (curl replay, call wrapper, tab 2's log) → control (re-seat once both stores held the id), no firing |
+| known-issues | 120 | MISSED | three entries appended in the skill's shape without the skill — and through a heredoc |
+| callout | 120 | MISSED | the heredoc RULE FAILURE written without the recurrence audit the skill runs first |
+
+balance: thirds of 5 — 119–120 · 121–122 · 123. The weight sits in 120 because beef spoke once and the walk ran. No ruling in this fold.
+
+* settlement
+
+- callout: no codeword in 119–123; one self-caught entry written (heredoc).
+- known issues: three written, all outlive the quest.
+- markers: =MARKERS.md ## OPEN= empty before and after.
+- memory: nothing private learned.
+- shards: none touched — the walk changed no product code.
+- ledger: three MISSED rows appended to =skills/LEDGER.md=.
+- quest: testimony section, markers, changelog line.
+- budgets: =world/frontier.md= above on #211–#244 (beef's settles), unchanged by this fold.
+
+* handoff
+
+- quest :: m76-terminals-close-the-dataring
+- goal :: /"this closes the dataring."/ — Terminal to the lighthouse beside Identity; the client rides the lighthouse's subscription; the daemon's =Lighthouse= announces its own =reported= status
+- done :: M1 · M2 · M3 on the tree, M4 residue at 0 (#249); the M3 browser testimony on three fresh instances (#250): roster · dock · re-derive · unseat · walls held, the seat race broken; =reference/m76/boot-pair.sh= is the rig
+- next :: beef's commit of the tree and =.ikiro=; beef rules the seat-race shape (=second-browser-unseats-a-fresh-seat=: confirm ABSENT against the daemon before a null write, or only the seating reader unseats); then sunset (=quest-lifecycle=)
+- never :: boot a populated =~/.viva/instances/*= until m78; =deno fmt=; a runtime-level lighthouse; prune; "door"; a double shaped to itself instead of the house prototype; a seat proven off the acting tab's DOM
+- owed :: beef — the commit · the seat-race shape · the sign-out teardown shape (=sign-out-keeps-the-roster=) · whether =$active= rides a trait · the IdentityDossier · the ctx-class word · panel A's status strip
+- quest :: m78-mikro-7
+- goal :: cross 20 live sqlite dbs to 7.2.3 without the glued pragma
+- done :: as #245 — DESIGNED, 8 forks QUESTIONED, =reference/mikro-7/=
+- next :: beef rules F1 (driver) and F2 (pivot pin); m76's entity edit (Terminal · Identity_daemons · Daemon.remote/reported) waits on it for every populated instance
+- never :: boot a populated instance on 6.6.7 after an entity edit
+- owed :: beef — the eight forks; F7 (does the Turn delta ride m78)
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                            | progress   | status   | next                                                                                                                 | sessions   |
+|----------------------------------+------------+----------+----------------------------------------------------------------------------------------------------------------------+------------|
+| ghost-modes                      |   0% 0/27  | design   | go                                                                                                                   | 1 (1 live) |
+| m60-lighthouse-security          |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                | 1          |
+| m71-droneaid-guide               |   0% 0/16  | design   | go                                                                                                                   | 0          |
+| m76-terminals-close-the-dataring |  89% 17/19 | wip      | control                                                                                                              | 3          |
+| m77-droneaid-homecoming          | —          | open     | survey                                                                                                               | 2          |
+| m78-mikro-7                      |   0% 0/13  | design   | go                                                                                                                   | 0          |
+| vector-attach-graft              |  33% 1/3   | landing  | beef eyeballs m2 (auth + attach middleware now ride the source apertures; arming deep-copies); then m3 the live walk | 1          |

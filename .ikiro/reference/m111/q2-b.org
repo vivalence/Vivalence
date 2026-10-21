@@ -1,0 +1,10 @@
+# m111 Q2 option B — struck 10-27 (his /"a"/) · limit: 1000 chars
+
+RENDERED holds a View id: one row, one mime — a pick made in ghost matches nothing in anima.
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/commands/cell.js — /buffer/cell 17 play #1 writes it
+await ctx.client.runtime.entities.buffer.updateOne({ id: found.id }, { trait: { ...found.trait, RENDERED: { ...found.trait.RENDERED, cell: 17 } } });
+// systems/ghost/surfaces/chrome/widgets/buffer/renderers.js — the journal reads it
+export const cell = (buffer, views) => views.find((view) => view.id === buffer.trait.RENDERED.cell);
+#+END_SRC

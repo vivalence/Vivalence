@@ -45,7 +45,12 @@ export default function find(config) {
 
   const readMany = (reader) => (paths) => Promise.all(paths.map(reader)); //map cast path
 
-  const viva = walk(/\.(viva.js|viva.ts|viva.md|viva.org|viva.json)$/);
+  const viva = walk(/\.(viva.js|viva.ts|viva.md|viva.org|viva.jsonc?)$/);
+
+  const recipe = (home) => {
+    const found = ["instance.viva.jsonc", "instance.viva.json"].map((name) => join(home.absolute, name)).find(fs.existsSync);
+    return found ? new Path(found) : null;
+  };
 
   const DATA = /\.(jsonc?|jsonl|js|ts|mjs)$/;
 
@@ -76,6 +81,7 @@ export default function find(config) {
 
   config.find = {
     viva,
+    recipe,
     walk,
     data,
     describe,

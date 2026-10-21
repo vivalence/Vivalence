@@ -1,0 +1,23 @@
+#+title: m99 Q47 — the struck options (show-me S6, 10-24)
+# limit: none (reference)
+
+Q47 — both struck: /"no, none of those are right … in 102 we have the REPL object that we instantiate on the terminal."/
+
+#+BEGIN_SRC js
+// A — systems/ghost/surfaces/chrome/translation.js (the tangle as cut 10-23)
+export const translation = new Vector().open("ctrl-v", (ctx) => ctx.legend.presses.enqueue(new KeySignal("leader")));
+// systems/ghost/surfaces/chrome/index.js:17
+  client.legend.translation.graft(translation);
+  keypresses(renderer, client.legend);
+#+END_SRC
+
+#+BEGIN_SRC js
+// B — systems/ghost/subjects/client/translation.js, grafted at systems/ghost/subjects/client/lifecycle/index.js:34
+export const keymap = async (clientDie, next) => {
+  clientDie.keymap.graft(bound, ...fromm.modes(clientDie.modes).flat.map((held) => held.keymap));
+  clientDie.legend.translation.graft(translation);
+  await next();
+};
+#+END_SRC
+
+Q47′ B — struck by /"a"/: the Legend on the terminal like the Repl (=subjects/terminal/legend.js=, =legend = new Legend(this)= beside =repl=), unlocking Q18‴ · Q21.

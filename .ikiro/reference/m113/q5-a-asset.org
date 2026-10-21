@@ -1,0 +1,14 @@
+#+title: m113 Q5 option A — <Asset asset> keeps its prop name (struck 10-27, /"b"/)
+# limit: 1500 chars
+
+Asked in the drill 10-27; he locked B (=file=). A as asked: nothing renamed, =asset= names both the literal's ={ path }= and the File row.
+
+#+BEGIN_SRC svelte
+<!-- ~/.viva/registry/education/modes/games/dojo/buffer/parts/Table.svelte:62 -->
+{#if assetOf(token.asset)}<Asset asset={assetOf(token.asset)} variant="inline" autoplay={true} />{/if}
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/drapes/display/Asset.svelte:6 — the tangle before Q5
+  let { asset, autoplay = false, preload = "auto", variant = "inline", onended = null } = $props();
+  const kind = $derived(asset?.mime?.split("/")[0]);
+#+END_SRC

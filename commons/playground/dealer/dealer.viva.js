@@ -1,4 +1,4 @@
-import { App, v, Vector } from "@vivalence/typology";
+import { mime, v, Vector } from "@vivalence/typology";
 
 export const manifest = {
   type: "playground",
@@ -8,7 +8,7 @@ export const manifest = {
     "Driver hub: deals card buffers, drives the thread phase, talks.",
   version: "0.1.0",
   traits: [
-    "APPLICATION",
+    "VIEWABLE",
     "EMITTER",
     "HARNESSED",
     "CONVERSATIONAL",
@@ -16,7 +16,9 @@ export const manifest = {
 };
 
 // the hub is a control surface — its buffer carries nothing.
-export const application = new App("buffer/Dealer.svelte", v.buffer({ data: {} }));
+export const buffer = v.buffer({ data: {} });
+
+export const views = [{ slug: "dealer", mount: "buffer/Dealer.svelte", mime: mime.dom.svelte }];
 
 // the finite deck the dealer deals from. running off the end = EXHAUSTED.
 const DECK = ["A♠", "K♥", "Q♦", "J♣", "10♠", "9♥", "8♦", "7♣"];
@@ -24,11 +26,11 @@ const DECK = ["A♠", "K♥", "Q♦", "J♣", "10♠", "9♥", "8♦", "7♣"];
 // ── harness · the dealer's persona — powers /oracle AND the conversation ─────────
 export const harness = new Vector();
 harness.use(async (ctx, next) => {
-  ctx.hallucination.system.dealer = [
+  ctx.hallucination.primer.open("dealer", [
     "You are the Dealer in a card-game playground inside vivalence.",
     "You deal cards (render buffers) onto the table (the moat) for the player.",
     "Keep replies short and plain — two or three sentences, no markdown.",
-  ].join("\n");
+  ].join("\n"));
   await next();
 });
 
@@ -56,7 +58,7 @@ export const emitter = new Vector()
       input: v.object({
         count: v.integer({ minimum: 1 }).default(3),
         focus: v.string().optional(),
-        thread: v.string().optional(),
+        thread: v.string(),
       }),
     },
     async (ctx) => {
@@ -71,6 +73,7 @@ export const emitter = new Vector()
         .filter(Boolean)
         .join("\n");
       const { output } = await ctx.mode.harness.object.render({
+        thread: ctx.input.thread,
         turns: [
           { role: "system", parts: [{ type: "text", text: context }] },
           { role: "user", parts: [{ type: "text", text: "Deal the hand." }] },

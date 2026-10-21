@@ -1,13 +1,14 @@
 import { specimen } from "@vivalence/typology";
 import { Path } from "@vivalence/typology";
 import { Paladin, Ledger, Instance, Registry, factories, lifecycle } from "@vivalence/paladin/typology";
+import { FULL } from "../gestalten/belt/index.js";
 import paladin from "@vivalence/paladin";
 
 const { describe, it, expect } = specimen;
 
 describe("paladin boot: constructed mountables, no ikiro", () => {
   it("constructor wires the ledger; the registry is the ledger's, held once — the lifecycle populates the instance", () => {
-    const fresh = new Paladin();
+    const fresh = lifecycle.paladin.belt(new Paladin(), FULL);
     expect(fresh.ledger).toBeInstanceOf(Ledger);
     fresh.scopes([["ledger", () => true, () => new Path("/tmp/boot")]]);
     expect(fresh.ledger.registry).toBeInstanceOf(Registry);
@@ -18,7 +19,7 @@ describe("paladin boot: constructed mountables, no ikiro", () => {
   });
 
   it("a fresh paladin carries no ikiro promise", () => {
-    expect(new Paladin().ikiro).toBe(undefined);
+    expect(lifecycle.paladin.belt(new Paladin(), FULL).ikiro).toBe(undefined);
   });
 
   it("the booted default export carries no ikiro promise", () => {
@@ -31,7 +32,7 @@ describe("paladin boot: constructed mountables, no ikiro", () => {
   });
 
   it("factories.instance is memoized per instance — the same promise twice, a fresh instance mounts anew", async () => {
-    const fresh = new Paladin();
+    const fresh = lifecycle.paladin.belt(new Paladin(), FULL);
     const first = factories.instance(lifecycle.paladin.instance(fresh));
     await first.catch(() => null);
     expect(factories.instance(fresh.instance)).toBe(first);

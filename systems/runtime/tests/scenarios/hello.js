@@ -6,7 +6,7 @@ export const REPOSITORY = new URL("../../../../", import.meta.url).pathname;
 export const SHIPPED = join(REPOSITORY, "commons/instances/hello-world");
 export const LEDGER = join(REPOSITORY, "commons/ledger");
 const RUN = new URL("../../run.js", import.meta.url).pathname;
-const READY = /^Status:RUNNING$/;
+export const READY = /^\[runtime\/[^/\]]+\] start\s*$/;
 const WATCH = [`--watch=${join(REPOSITORY, "commons")}`, "--watch-exclude=**/dataset/**"];
 const DEADLINE = 90_000;
 export const SECRET = "hello-secret-hello-secret-hello-secret";

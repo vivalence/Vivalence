@@ -54,7 +54,7 @@ The law splitting the faces: a PRIMER says what IS, a VALENCE says what to DO. A
 // systems/runtime/gestalten/primer/modes.js — sketch; R5: one datamap, the Mode rows ARE the roster, no hosts word
 import { Primer } from "@vivalence/typology";
 
-export const modes = new Primer().open("modes", async (ctx) => [
+export const modes = new Vector().open("modes", async (ctx) => [
   "[Modes] reference · name · traits",
   ...(await ctx.entities.mode.find({}, { populate: ["daemon"] })).map((row) =>
     `${row.reference} · ${row.name ?? row.slug} · ${row.traits.join(" ")}`),
@@ -63,7 +63,7 @@ export const modes = new Primer().open("modes", async (ctx) => [
 
 #+BEGIN_SRC js
 // systems/runtime/gestalten/primer/entity.js — sketch; lazy: the index line always, the page on primer_read
-export const entity = new Primer().open(
+export const entity = new Vector().open(
   { nature: "entities", load: "lazy", valence: "Every entity you can read — columns, relations, operators, card fields. Read before an entity_find you have not shaped." },
   async (ctx) => schema(ctx.entities),
 );
@@ -87,7 +87,7 @@ import { Primer } from "@vivalence/typology";
 import { gestalten } from "@vivalence/runtime";
 
 export const manifest = { type: "home", slug: "home", traits: ["HARNESSED", "PRIMER", "CONVERSATIONAL", "RUNTIME"] };
-export const primer = new Primer()
+export const primer = new Vector()
   .graft(gestalten.primer.modes)
   .open("home", ROLE)
   .graft(gestalten.primer.entity);

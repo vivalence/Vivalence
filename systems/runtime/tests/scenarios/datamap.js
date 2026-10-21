@@ -2,9 +2,9 @@ import { MikroORM, RequestContext } from "@mikro-orm/core"
 import * as typology from "@vivalence/typology"
 import { Datamap, Twitch } from "@vivalence/typology"
 import { config } from "../../../../commons/datamaps/libsql/libsql.viva.js"
-import { kernel, sets, DaemonEntity, UserEntity } from "@vivalence/runtime"
+import { sets, DaemonEntity, UserEntity } from "@vivalence/runtime"
 import { assemble } from "../../gestalten/belt/assemble.js"
-import { mint, strike } from "../../gestalten/belt/traits.js"
+import { mint, presets, strike } from "../../gestalten/belt/traits.js"
 
 export const DAEMON = "test-daemon"
 
@@ -44,7 +44,7 @@ export async function provider(instance) {
 }
 
 // the daemon's own repositories: every kernel kind scoped to DAEMON through mikro's filter, the kernel's traits
-export const struck = (em, traits = kernel) => strike(mint({ slug: DAEMON, kinds: sets.traits, traits }), em, sets.traits)
+export const struck = (em, traits = presets) => strike(mint({ slug: DAEMON, kinds: sets.traits, traits }), em, sets.traits)
 
 export async function seed() {
   const datamap = await provider(descriptors)

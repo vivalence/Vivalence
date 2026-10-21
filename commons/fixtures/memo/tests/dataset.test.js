@@ -37,10 +37,10 @@ describe("the Latin core — the rows DATASET installs", () => {
     expect(groupings.filter((row) => !row.traits.includes("STRUCTURAL"))).toEqual([]);
   });
 
-  it("ten sentences are VOCALIZED, ten nouns DEPICTED, every asset on disk under freight/", async () => {
+  it("ten sentences are VOCALIZED, ten nouns DEPICTED, every asset on disk under files/", async () => {
     const carried = literal.flatMap((row) => ["VOCALIZED", "DEPICTED"].filter((trait) => row.traits.includes(trait)).map((trait) => [trait, row.trait[trait].asset.path]));
     expect([carried.filter(([trait]) => trait === "VOCALIZED").length, carried.filter(([trait]) => trait === "DEPICTED").length]).toEqual([10, 10]);
-    for (const [, path] of carried) expect([path, (await Deno.stat(new URL(`../dataset/freight/${path}`, import.meta.url))).isFile]).toEqual([path, true]);
+    for (const [, path] of carried) expect([path, (await Deno.stat(new URL(`../dataset/files/${path}`, import.meta.url))).isFile]).toEqual([path, true]);
   });
 
   it("every literal is TRANSLATED and RANKED, ranks unique — the deck deals untouched cards by rank", () => {

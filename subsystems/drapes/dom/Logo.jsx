@@ -1,6 +1,7 @@
 import { mergeProps, Show } from "solid-js";
+import { VIKET } from "../Mark.jsx";
 
-export const MARK = "/images/pictogram_viket/pic-vinca-viket_white.svg";
+export const MARK = VIKET;
 
 export const Logo = (props) => {
   const held = mergeProps({ size: 48, word: true, mark: MARK }, props);

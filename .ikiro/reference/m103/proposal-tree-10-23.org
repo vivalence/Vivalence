@@ -1,0 +1,62 @@
+# m103 — the first proposal's tree + atom table (10-23), MOVED whole at the Q14 close; =* as code= holds the locked shape · limit: 8000 chars
+
+** the tree — one per chrome, mirrored
+
+#+BEGIN_SRC text
+// systems/anima/src/surfaces/chrome/              ← ghost: systems/ghost/surfaces/chrome/ (m98 Q6 /"surfaces/chrome"/)
+index.js                 the surface value (m98 Q9): dom(client) | tty(client) → mount, return erase   ← Locked Q0: /"c flat"/ — the root IS the +layout, no app/ dir
+ambients.js              ambient.client = gestalten.ambient(…)                ← +layout.svelte setContext (Q7 · Q7⁗)
+cover.jsx                PANES [[predicate, Island | Regions]]               ← panes/chrome.jsx:12 (both)
+keys.js                  press normalizer → client.legend.dispatch            ← keys.js (both) · m99 Q22
+regions.jsx              places the panels: tabs · body(sidebar · split(frame · seam · dock)) · legend · catalog · modeline · overlays
+state.js                 Surface = v.object(…) + surface(seed): the one atom   (Q6′)
+panels/
+  index.js               export * as tabs … — one line per panel, ls order
+  tabs.jsx               one file: no dir (codestyle: one child = a rename)
+  sidebar/
+    index.jsx            the panel: head · sections · tags foot
+    seam.jsx             ← regions.jsx:14 Sbseam
+    state.js             Sidebar = v.object({ open, width })   (Q6′)
+    commands.js          Vector: /sidebar …                                   ← SURFACE (F4)
+  frame/
+    index.jsx            head · body
+    head.jsx             ◆ artifact · mode · artifact select · close          ← frame.jsx:20-63
+    empty.jsx            ← frame.jsx:65
+  dock/
+    index.jsx            head · strip · journal · composer; docked | messenger
+    head.jsx             ← dock.jsx:38
+    strip.jsx            ← dock.jsx:76
+    journal.jsx          ← panes/journal.jsx (anima) · panes/journal.js (ghost)
+    composer.jsx         ← panes/composer.jsx
+    state.js             Dock = v.object({ float, jsel, draft, sel })   (Q6′)
+  legend.jsx             the held chord (m99 Q20 Legend's painter)
+  catalog.jsx            the palette list; reads dock's $draft
+  modeline/
+    index.jsx            the segments
+    wid.jsx              one section floated over its segment               ← bar.jsx:126 · wid.js
+    pop.jsx              ← bar.jsx:140
+    state.js             Modeline = v.object({ wid, pop })   (Q6′)
+  telemetry/
+    index.jsx            the window: tabs logger | inspector
+    logger.jsx · inspector.jsx · story.js       ← tele.jsx:26-239 · tele.js:25-333
+    state.js             Telemetry = v.object({ open, view, x, y, w, h, sel, folds, tables, filter, since })   (Q6′)
+    commands.js          Vector: /telemetry                                   (F4)
+  booting.jsx            a cover row (Q12)
+  signin.jsx             a cover row (Q12); ghost's fields → schematics/primitives/signin.js
+widgets/                 ≥2 panels
+  index.js
+  activity.jsx · box.jsx · control.jsx · display.jsx · entity.jsx · harness.jsx · system.jsx   the seven sections (Q4 · Q5); section.jsx · sections.js DEAD
+  view.jsx               frame body + dock's journal cell                     ← view.jsx · painters.jsx · renderers.js
+// parts: import * as parts from "@vivalence/drapes/parts"   (tty: "@vivalence/sheets")
+#+END_SRC
+
+| atom today | ghost =screen.js= | anima =screen.js= | → owner |
+|---+---+---+---|
+| =$shell $focus $phonePane $clock= | ✓ | ✓ (no =$clock=) | the root =state.js= |
+| =$narrow $width $height= | — | ✓ | the root =state.js= |
+| =$sidebar $sidebarWidth $sections= | ✓ | ✓ | =sidebar= |
+| =$float $jsel $draft $sel= | ✓ | ✓ (no =$sel=) | =dock= |
+| =$wid $pop= | ✓ (no =$pop=) | ✓ | =modeline= |
+| =$tele= | ✓ | ✓ | =telemetry= |
+| =$signin= | ✓ | — | =island= |
+

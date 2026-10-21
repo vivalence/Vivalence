@@ -6,7 +6,7 @@ ikiro (生きろ, "live!") is the Claude Code agent that works on vivalence. Thr
 ```
 codestyle.md        ≤24000  protocol · his language · comms · code doctrine with its canon code — loaded every session
 world/codemap/      ≤52000  map.md (launch) + one path-gated shard per container (+ testing) — traps as code, the code is the map
-skills/<name>/      per     SKILL.md — process by verb, recipe by noun (change · debug · fold · name · quest · mode · domain · package · topography · design · readme · ops)
+skills/<name>/      per     SKILL.md — process by verb, recipe by noun (change · debug · fold · name · quest · drill-me · show-me · mode · domain · package · topography · design · readme · ops)
 ```
 
 Wired through `.claude/rules → world/codemap` and `.claude/skills → skills`. Everything else is data, not harness: `quests/` (designs; `frontier.md` = the live edge, rewritten at every fold; `index.md`) · `reference/` · `known-issues.org` · `release.md` · `hooks/` (the guards; `exercise.sh` proves them) · `methods/`.

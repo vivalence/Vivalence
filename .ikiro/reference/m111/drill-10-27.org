@@ -1,0 +1,264 @@
+#+title: m111 cell views — a buffer a tool returns renders inline, as a cell, in its dock turn; the full view opens in the frame on a user act
+#+filetags: :ghost:anima:chrome:views:
+#+status: RESEARCHED 10-27 — RENDERED as the spine (sketch below), 5 questions to him, no code; /"I want you to send a second agent for this"/
+# limit: 24000 chars
+
+* intent
+
+10-27, beef verbatim, on the chess rebuild (m103 10-27h):
+
+/"I want a cell level view as well. So something that I can, so that I can play from within my chat window, from within the dock"/
+
+/"Okay, that is weird. I thought we already had this cell system. Oh, we only have a designed. So look in the design file. /Users/finn/Downloads/vivalence-client-v1 And I want you to send a second agent for this. … The second agent should look up what we had written about this system, cell versus frame. And then I think we might want to have a quest for this. … Have that agent figure out how we, how we implement this. How we implement cells. It's something, when we return a buffer, when an agent in a tool returns a buffer, and that buffer has a view that it can be rendered as a cell, that I want that buffer that is attached to a turn in the doc rendered as a cell in line. And the other view with the, we link to the full view, that is the result of user action"/
+
+* terrain — measured
+
+The dock shows a turn's buffer as a card: label, a =/buffer/full= button, four comma-chunks of its data.
+#+BEGIN_SRC jsx
+// systems/ghost/surfaces/chrome/panels/dock/journal.jsx:100
+      <Show when={Object.keys(props.buffer.data).length > 0}>
+        <For each={JSON.stringify(props.buffer.data).split(",").slice(0, 4)}>
+#+END_SRC
+
+Only the frame mounts a view; the pick cannot tell a cell from a frame view. Each chrome filters by what it RUNS (LANDED 10-27); belt stays unfiltered.
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/widgets/buffer/renderers.js — anima's twin: surfaces/chrome/widgets/buffer/view.js, RUNS = [mime.dom.svelte, mime.dom.solid]
+export const RUNS = [mime.tty.solid];
+export const runs = (view) => RUNS.includes(view.mime);
+export const candidates = async (buffer, attach) => (await belt.view.candidates(buffer, attach)).filter(runs);
+export const chosen = (buffer, views) =>
+  buffer.data.artifact === undefined ? belt.view.pick(views) : views[buffer.data.artifact - 1];
+// systems/ghost/surfaces/index.js · systems/anima/src/surfaces/index.js — the surface declares it: chrome = { bundle, runs, mount }
+// systems/ghost/subjects/terminal/commands/artifact.js:26
+    const views = (await belt.view.candidates(found, ctx.client.runtime.attach)).filter(ctx.client.app.surface.runs);
+#+END_SRC
+
+The design already picks per placement — a buffer carries a =cell= pick beside its frame pick.
+#+BEGIN_SRC js
+// /Users/finn/Downloads/vivalence-client-v1/build/src/tty.js:405
+        const cps = R.artPicks(w, b, "cell"), cci = Math.max(0, cps.findIndex((p) => p.cur)), cnx = cps[(cci + 1) % cps.length];
+// /Users/finn/Downloads/vivalence-client-v1/build/src/tty.js:410
+        const cell = R.cellOf(w, b);
+#+END_SRC
+
+** the design — a view declares its target, a buffer keeps two picks
+#+BEGIN_SRC js
+// /Users/finn/Downloads/vivalence-client-v1/build/src/ring.js:65-74 (excerpt)
+a1: { id: "a1", slug: "play",   mime: MIME.dom, target: "frame", mode: "/daemon/chess/mode/board/play", mount: "buffer/Play.svelte", … },
+c4: { id: "c4", slug: "board",  mime: MIME.tty, target: "cell",  mode: "/daemon/chess/mode/board/play", mount: "cells/board.jsx", … },
+// /Users/finn/Downloads/vivalence-client-v1/build/src/ring.js:993
+const pickOf = (w, b, target = "frame") => { const s = slugsOf(w, b, target), k = target === "cell" ? b.cellPick : b.pick; return s.includes(k) ? k : s[0]; };
+// /Users/finn/Downloads/vivalence-client-v1/build/src/ring.js:427 · :434 — two effects: /buffer/artifact (frame pick) · /buffer/cell (cell pick)
+// /Users/finn/Downloads/vivalence-client-v1/build/src/ring.js:441 — /buffer/full: seat in the frame, close the dock; again → the dock back
+#+END_SRC
+
+** the design's cell, read whole 10-27 (his /"take a look at the design … this holds info about how cells work"/)
+#+BEGIN_SRC js
+// /Users/finn/Downloads/vivalence-client-v1/build/src/ring.js:992 — the FRAME list: frame views first, then every other (cells too); the CELL list: cells only
+const slugsOf = (w, b, target) => { … const of = target === "frame" ? arts.filter((a) => tg(a) === "frame").concat(arts.filter((a) => tg(a) !== "frame")) : target ? arts.filter((a) => tg(a) === target) : arts; … };
+// ring.js:993 — a stored pick not in the list falls back to the first
+const pickOf = (w, b, target = "frame") => { const s = slugsOf(w, b, target), k = target === "cell" ? b.cellPick : b.pick; return s.includes(k) ? k : s[0]; };
+// ring.js:994 — the cell: a markdown or json FILE of the buffer first, then the cell pick in this face's mime, then any cell in this face's mime, else null
+const cellOf = (w, b) => { … return arts.find((a) => a.mime === MIME.md || a.mime === MIME.json) || arts.find((a) => a.target === "cell" && a.slug === p && a.mime === fm) || arts.find((a) => a.target === "cell" && a.mime === fm) || null; };
+// dom.js:155 — a cell view picked into the FRAME paints inside .cellframe
+    if (b.kind === "chess" && R.pickOf(w, b) === "glance") return `<div class="cellframe">${cellBody(w, b, "glance")}</div>`;
+// dom.js:216 — the cell's head: ◆ artifact · mode · the cell picks ▾ · ⤢ /buffer/full; .inframe when the buffer is framed
+    return `<div class="artcard ${inF ? "inframe" : ""}"><div class="ah"><span class="sign">◆</span><span class="al">artifact</span><span>${esc(R.short(b.mode))}</span>${asel(w, b, "cell")}<button class="iconbtn full" …>${icon("expand")}</button></div>${body}</div>`;
+// dom.js:224 — the chess "board" cell: a 40 px board + a meta row: /ply -1 · the moves · /ply +1 · the side to move
+// dom.js:226 — no cell: the label in .sub
+#+END_SRC
+
+** past rulings — RENDERED born, then struck
+| where | his words |
+|-------|-----------|
+| =reference/m87/rulings-1-34.md:14= | /"a rendered trait on buffer makes actually sense"/ → =RENDERED: { cell, frame }= |
+| =done/m87-buffer-view-file.org:14= | /"And so then we have inline artifacts and framed artifacts."/ |
+| =reference/m87/open-10-20.org:15= (ruling 39, the strike) | /"buffer.views overwrite in case of either selection of selection in the frontend of a specific view or generation of a view"/ |
+| =done/m96-client-mothership.org:66= (m96 9) | /"renndered trait on buffer is state. we render frame or cell."/ |
+| =done/m87-buffer-view-file.org:581= (never) | =target= on a row · =place= on a row |
+| 10-27 | /"tell the cell agent to think off of RENDERED trait."/ |
+
+** today
+- ghost mounts no cell; the pick is =buffer.data.artifact=, an index shared by every rendering (=widgets/buffer/renderers.js:5-6= · =commands/artifact.js:28=)
+- anima mounts cells inline (=panels/frame/view.jsx:49-52=) on the frame's pick and command
+- the two chromes hand a view different props: ghost ={terminal, buffer, renderer, palette, focused}= · anima ={terminal, buffer, surface}=
+- runtime =Buffer.ts= casts no trait (=Thread.ts:78-83= does) and =entity-manager.js:76-89= merges a re-sighted row's trait raw → =buffer.trait.RENDERED.cell= throws on an uncast row
+
+* the sketch — SKETCH, research agent 10-27, unruled
+#+BEGIN_SRC js
+// subsystems/typology/schematics/traits/rendered.js (new)
+export const Rendered = v.object(
+  {
+    cell: v.string().optional().desc('The slug of the view the buffer shows inline under its turns in the dock; absent, the dock paints its data. Example: "glance"'),
+    frame: v.string().optional().desc('The slug of the view the buffer shows in the frame; absent, the compiled view first, then the latest. Example: "play"'),
+  },
+  { additionalProperties: false },
+);
+// systems/ghost/gestalten/belt/view.js
+export const rendered = (buffer, views, rendering) =>
+  RENDERINGS.find(([test]) => test(buffer.trait.RENDERED[rendering], views, rendering))[1](buffer.trait.RENDERED[rendering], views);
+#+END_SRC
+- =buffer.views= stays the candidate SET (pins · generation); =trait.RENDERED= is the pick STATE; =data.artifact= dies
+- =/buffer/artifact <slug>= writes =.frame= · new =/buffer/cell <slug> <label>= writes =.cell= · =/buffer/full= unchanged
+- ghost =panels/dock/cell.jsx= mounts =.cell= in the journal, JSON preview as fallback; =focused: () => false=, clicks only
+- a mode's =views= entry seeds the default (=rendered: "cell"=); VIEWABLE writes it at mint; =Buffer.ts= gains the cast hooks
+
+* rulings
+
+| Q | ruling | his words |
+|---|--------|-----------|
+| 10-27 data | =buffer.data= is the buffer's internals; =data.artifact= dies (6 sites: =commands/artifact.js:28= · both =chosen= · ghost =frame.jsx:16 picked= · 2 tests) | /"buffer data artifact is completely wrong. … the buffer does not declare what artifact is being used. The buffer data is for buffer internals entirely. That is a horrible mix-up."/ |
+| 10-27 filter | first filter to what the environment runs, then navigate within that list; the default too — LANDED | /"we want the artifacts that are available and selectable and that are available as the default also to be filtered by the environment that we are in"/ |
+| 10-27 home | the filter is the chrome's =RUNS=, never gestalten; no paladin | /"gestalten dont import [paladin]. move to insdie teh app/chrome."/ |
+| Q0 | a view DECLARES it can be a cell: a trait on the mode's =views= entry, VIEWABLE writes it on the View row, the journal's cell candidates are the views carrying it (B, every view in either rendering → =reference/m111/q0-b.org=) | /"a."/ |
+| Q1 | two View traits, =CELL= · =FRAME=; no traits = =FRAME=; both = both; =CELL= alone = cell only | /"it makes more sense to just to have a default of frame, and then if it's frame and cell, we mark that, and if it's just cell, we mark that"/ · /"cell and frame are traits on a view. … That's actually right."/ |
+| Q2 | =buffer.trait.RENDERED.cell= · =.frame= hold a view SLUG; each chrome filters by what it runs, then finds the slug (B, a View id → struck) | /"a"/ |
+| Q3A | the act starts at the PLACE: =/frame/set <slug>= writes the framed buffer's =RENDERED.frame=, =/cell/set <slug> <name>= a named buffer's =RENDERED.cell=; =/buffer/artifact= dies (B, =/set buffer.rendered.*= → struck; Q3 two =/buffer/*= commands → his reframe) | /"I think you have the orientation wrong … Maybe it makes more sense to have /frame set"/ · /"a"/ |
+| Q4 | an empty =RENDERED.cell= is decided at READ: the first =CELL= view the chrome runs, in declaration order; none → today's JSON card; nothing written until a click (B, VIEWABLE writes it at mint → struck) | /"a"/ |
+| Q5 | a cell takes CLICKS only: mounted with =focused: () => false=, keys stay with the composer; keys = ⤢ =/buffer/full= into the frame (B, =/focus cell <name>= → struck) | /"a"/ |
+| Q6 | a view is told NOTHING about where it shows; two looks = two entries, both traits = the same in both; =surface.place= · =places= · =PLACES= die (B, =rendered: "cell"= on the mount → struck) | /"a. why would it?"/ |
+| Q7 | a =CELL=-only view never enters the frame's list; Q1's =framed= stands (B, the design's =ring.js:992= frame-first-then-the-rest + =.cellframe= → struck) | /"a"/ |
+| Q8A | no =CELL= view: the cell is a CARD, its head alone, no JSON; a click on it dispatches =/buffer/full <name>= through the repl (Q4's "none → JSON card" relabeled) | /"I don't want a JSON card, really. I want a card. … if we don't have a view for the cell, then we display some standard buffer view that all it does really is when we click it, then it mounts the buffer into the frame and displays its view there."/ · /"b Yeah, we don't bypass the REPL."/ |
+
+* as code
+
+** Q0 — a view declares it can be a cell (LOCKED 10-27 /"a."/)
+#+BEGIN_SRC js
+// ~/.viva/registry/chess/modes/board/play/play.viva.js:32 — the mode declares; VIEWABLE bundles each entry at mode boot
+export const views = [
+  { slug: "play", mount: "buffer/Play.svelte", mime: mime.dom.svelte },
+  { slug: "play", mount: "buffer/play.jsx", mime: mime.tty.solid },
+  { slug: "board", mount: "buffer/board.jsx", mime: mime.tty.solid, traits: ["CELL"] },
+];
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/widgets/buffer/renderers.js — the journal asks this for each buffer of a turn
+export const cells = async (buffer, attach) =>
+  (await candidates(buffer, attach)).filter((view) => view.traits.includes("CELL"));
+#+END_SRC
+SKETCH, the plumbing A needs (=DataEntity.ts:45-49= =ensure= ASSIGNS the query on a re-sighted row, so a trait dropped from the entry leaves the row at the next boot; an entry with no traits is a frame view (Q1) — every registry entry today):
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/viewable.js:22
+      await context.entities.view.bundle(
+        { mode: mode.entity.id, slug: declared.slug, mime: declared.mime, traits: declared.traits ?? ["FRAME"], entry: join(mode.module.source.dirname, declared.mount) },
+        { bundler },
+      ),
+// systems/runtime/entities/View.ts:28
+    const view = await this.ensure({ mode: data.mode, slug: data.slug, mime: data.mime, traits: data.traits, entry: `bundle/${stem}` });
+#+END_SRC
+
+** Q1 — two View traits, CELL · FRAME; no traits is FRAME (LOCKED 10-27)
+#+BEGIN_SRC js
+// subsystems/typology/schematics/traits/index.js:50 — hydration casts a View row's trait against this
+export const view = v.object({ FRAME: opaque.default({}).optional(), CELL: opaque.default({}).optional() });
+// ~/.viva/registry/chess/modes/board/play/play.viva.js:32 — three entries: two frame-only (no traits), one cell-only
+export const views = [
+  { slug: "play", mount: "buffer/Play.svelte", mime: mime.dom.svelte },
+  { slug: "play", mount: "buffer/play.jsx", mime: mime.tty.solid },
+  { slug: "board", mount: "buffer/board.jsx", mime: mime.tty.solid, traits: ["CELL"] },
+];
+// systems/ghost/surfaces/chrome/widgets/buffer/renderers.js — the frame asks framed, the journal asks cells
+export const framed = async (buffer, attach) => (await candidates(buffer, attach)).filter((view) => view.traits.includes("FRAME"));
+export const cells = async (buffer, attach) => (await candidates(buffer, attach)).filter((view) => view.traits.includes("CELL"));
+#+END_SRC
+
+** Q2 — RENDERED holds a view SLUG (LOCKED 10-27 /"a"/)
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/commands/cell.js — /buffer/cell board play #1 writes it
+await ctx.client.runtime.entities.buffer.updateOne({ id: found.id }, { trait: { ...found.trait, RENDERED: { ...found.trait.RENDERED, cell: "board" } } });
+// systems/ghost/surfaces/chrome/widgets/buffer/renderers.js — the journal reads it
+export const cell = (buffer, views) => views.find((view) => view.slug === buffer.trait.RENDERED.cell);
+#+END_SRC
+
+** Q3A — the act starts at the place (LOCKED 10-27 /"a"/)
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/commands/frame.js — a click on a view in the frame's head (replaces /buffer/artifact, its chord with it)
+const Framing = v.object({ slug: v.string().desc('The view the framed buffer shows. Example: "play"') });
+
+export const frame = new Vector().open(
+  { nature: "/frame/set", valence: "which view the framed buffer shows. Example: /frame/set play", input: Framing, chord: "leader/e/a" },
+  async (ctx) => {
+    const { slug } = belt.input.cast(Framing, ctx.signal);
+    await ctx.client.runtime.entities.buffer.updateOne({ id: ctx.terminal.buffer.id }, traits.patch(ctx.terminal.buffer, { RENDERED: { frame: slug } }));
+    return `${ctx.terminal.buffer.trait.LABELED.name} · frame ${slug}`;
+  },
+);
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/commands/cell.js — a click on a view in a cell's head; the cell names its buffer
+const Celled = v.object({
+  slug: v.string().desc('The view the buffer shows as its cell. Example: "board"'),
+  name: v.string().desc('The buffer\'s label, the signal\'s remaining words. Example: "play #1"'),
+});
+
+  { nature: "/cell/set", valence: "which view a buffer shows as its cell in the journal. Example: /cell/set board play #1", input: Celled },
+#+END_SRC
+SKETCH, owed by Q3A: =RENDERED= joins the buffer's trait schematic (=subsystems/typology/schematics/traits/index.js:44= =buffer=), and =Buffer.ts= casts it (LOOKUP, =Thread.ts:78-83=).
+
+** Q4 — an empty RENDERED.cell is decided at read (LOCKED 10-27 /"a"/)
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/widgets/buffer/renderers.js — the journal asks this for each buffer of a turn
+const CELLED = [
+  [(buffer) => buffer.trait.RENDERED.cell === undefined, (buffer, views) => views[0]],
+  [() => true, (buffer, views) => views.find((view) => view.slug === buffer.trait.RENDERED.cell)],
+];
+
+export const cell = (buffer, views) => CELLED.find(([test]) => test(buffer))[1](buffer, views);
+// systems/ghost/surfaces/chrome/panels/dock/journal.jsx:79 — no cell view → today's card
+<Show when={cell(props.buffer, cells())} keyed fallback={<Card palette={props.palette} buffer={props.buffer} />}>
+#+END_SRC
+
+** Q5 — a cell takes clicks only (LOCKED 10-27 /"a"/)
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/panels/dock/cell.jsx — the journal mounts a buffer's cell view under its turn
+const mounted = belt.view
+  .load(props.view, terminal.client.runtime.attach)
+  .then((module) => module.default(element, { terminal, buffer: props.buffer, renderer, palette: props.palette, focused: () => false }));
+#+END_SRC
+
+** Q6 — a view is told nothing about where it shows (LOCKED 10-27 /"a. why would it?"/)
+#+BEGIN_SRC js
+// ~/.viva/registry/chess/modes/board/play/play.viva.js:32 — two looks are two entries
+export const views = [
+  { slug: "play", mount: "buffer/play.jsx", mime: mime.tty.solid },
+  { slug: "board", mount: "buffer/board.jsx", mime: mime.tty.solid, traits: ["CELL"] },
+];
+// systems/anima/src/surfaces/chrome/widgets/buffer/renderers.js:15-27 — PLACES · surfaced(app, place) die; painters.jsx:28 data-place dies
+#+END_SRC
+
+* drill — 10-27, the question list (mine, kept; asked one per turn)
+
+| Q | fork | kind |
+|---|------|------|
+| 0 | how a view says it can be a cell: a View trait written by VIEWABLE from the mode's =views= entry · or every view renders in either, the mount hands it =rendered= | LOCKED A |
+| 1 | the View trait's NAME → his reframe: two traits =CELL= · =FRAME=, no traits = =FRAME= | LOCKED |
+| 1b | =RENDERED.cell= · =.frame= hold a view SLUG · or a View id | LOCKED A (as Q2) |
+| 1c | a cell-only view in the frame's candidates? | ANSWERED by Q1: the frame lists =FRAME= views |
+| 2′ | LOCKED Q3A (place-first) — was: the commands: =/buffer/artifact <slug>= writes =.frame= + new =/buffer/cell <slug> <name>= (design =ring.js:427-434=) · or one command with the rendering as its first word | open |
+| 3 | LOCKED Q4 A — absent =RENDERED.cell=: the first cell view that RUNS, else the JSON card (=journal.jsx:100=) · or VIEWABLE writes it at mint from the mode | open |
+| 4 | LOCKED Q5 A — a cell's keys: clicks only, =focused: () => false= · or a focus target =/focus cell <name>= beside =/focus frame= (=frame.jsx:10-13=) | open |
+| 6 | a view marked both learns where it shows? | LOCKED Q6 A — no; /"why would it?"/ = a fork the Q0 lock answered (a LOOKUP) |
+| 7 | a CELL-only view in the frame's list? design =ring.js:992= lists it after the frame views, painted in =.cellframe= (=dom.js:155=); Q1's hunk lists =FRAME= views only | LOCKED A |
+| 8 | no =CELL= view: paint by mime · or the JSON card (Q4) → his reframe: a CARD, no JSON; a click seats the buffer in the frame | REFRAMED → Q8A |
+| 8A | the card's click | LOCKED B =/buffer/full= |
+| 9 | his tag-on 10-27: markdown in the journal pretty · plain, a setting | ASKED |
+| — | a stale pick falls back to the first (=ring.js:993=) | LOOKUP |
+| — | the cell's head = =dom.js:216= (◆ artifact · mode · picks ▾ · ⤢, =.inframe=) | LOOKUP |
+| — | =Buffer.ts= casts =trait= at hydration (=Thread.ts:78-83= precedent, m105 Q4′) | LOOKUP |
+| — | =data.artifact= dies, 6 sites (ruling 10-27 data) | LOOKUP |
+| — | the full view on a user act = =/buffer/full <name>= (=journal.jsx:94=, unchanged) | LOOKUP |
+
+* open
+
+- 10-27 Q8 reframe (design, not yet a lock; relabels Q4's "none → JSON card"): /"Yeah, I don't want a JSON card, really. I want a card. I don't think that that it should display any JSON. So I don't, if we don't have a view for the cell, then we display some standard buffer view that all it does really is when we click it, then it mounts the buffer into the frame and displays its view there."/
+- 10-27 Q3 (two commands vs one), NOT a lock: /"Not sure that this framing is right. I think you have the orientation wrong. But it really doesn't matter that much. This is something that most likely will more will manage via clicking. Maybe it makes more sense to have /frame set. I don't even know if we need, if we have this rule that we go through the REPL with everything. I'm not happy with this at all. This is kind of wrong. So something is off"/ — the rule he questions: =codestyle.md:343= /"A gesture · key dispatches a repl line"/ (his, 10-26); =/set= (=commands/set.js:8-64=) already writes trait paths of terminal · thread, framed-buffer only by shape (path + value, no buffer name).
+
+* deferred
+
+* handoff
+
+- goal: a buffer attached to a turn renders inline in the dock as its cell view, when it has one; the frame view opens on a user act
+- done: quest opened, research agent briefed · 10-27 the env filter (rulings filter · home): ghost view 5 · renderers 2 · commands 31 · client 4 green; anima :1794 + ghost =bundle/app.mjs= serve it
+- next: his rulings on the 5 questions → the agent tangles → my review
+- never: a chess-only flag; the chess frame rebuild (m103 10-27c) owns the board, this quest owns the cell mechanism
+- owed: everything · =/buffer/artifact= with no app throws on =ctx.client.app.surface= (=app= null, terminal commands ride without it, =subjects/terminal/repl.js:26=) · UNRULED vs ruling data: =codestyle.md= /"selection · cursor · draft → =buffer.data="/

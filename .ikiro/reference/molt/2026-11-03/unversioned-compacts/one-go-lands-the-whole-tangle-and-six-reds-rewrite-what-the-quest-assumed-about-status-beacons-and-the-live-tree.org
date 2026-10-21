@@ -1,0 +1,89 @@
+#+title: one go lands the whole tangle, and six reds rewrite what the quest assumed about Status, beacons and the live tree
+#+index: 249
+#+session: session 11950be0, fifth fold — turns 113–118 (fold N = 6; turns 1–16 are #245, 17–73 are #246, 74–86 are #247, 87–112 are #248). Opens on the gate's =/compact= after #248, closes on /"ikiro compact"
+
+* one breath
+
+beef pasted the quest's whole =* tangle= under one word, /"go"/, and the ladder ran M1 → M4 on the tree in one turn: 28 blocks, 148 hunks, 9 deletions, a fresh chess boot answering every wire gate, 186 runtime · typology · paladin · multiplayer suites green. Six times the tree refused the quest's text and the red named a truth the sandbox had hidden — =Status= has no =code=, a beacon before =serve= kills the child, two beacons race one row, =assemble= wants descriptors not a namespace, the live =datamap.js= never had the resolver, =/ensure= for a resolver is unconditional. Each fix landed with its test, then the quest followed the tree (=tangle.py --absorb=, the hunk blocks, the changelog). Not done: the browser testimony the M3 ladder asked for.
+
+* rows
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 113 | =/compact= (the gate after #248) | the harness compacted | — |
+| 114 | continuation prompt | the fold report (#248 landed) | — |
+| 115 | /"go"/ + the whole =* tangle= pasted (157 583 chars — the paste is the address: the go covers M1–M4) | M1: 6 blocks, 14 specs, =rm secure.js=; M2: 18 blocks, 8 specs, =rm service/population.js= · =server/=; M3: 4 blocks, 128 hunks (=apply-diffs.py= over every =diff= block of =** client=), =rm app/terminals.js= · =tests/terminals.test.js=; M4: greps 0, five shards re-stamped, two known issues, =release.md= +19, the doc line. Gates: 186 green · 0 red (runtime · typology · paladin · multiplayer), anima 38/39, =boot.test= 7 steps, =chess.routes.json= 343 under HOT, bundle ✔, a fresh chess boot through the wire gates. Six deviations proven by a red each (=* failures=); the quest absorbed the tree. | =shard.secure= · =multiplayer/server/= · =service/population.js= · =app/terminals.js= · the localStorage roster · the stale =auth.test.js= envelope · the =url= column |
+| 116 | /"ikiro compact"/ | this fold | — |
+| 117 | =/compact= | the gate | — |
+| 118 | the =compact-walk= re-invocation | the walk | — |
+
+coverage: 113–118, 6 rows, every n once. The fold is one working turn (115); its beats are the arc.
+
+* arc
+
+One go, four milestones, in the ladder's order, each gated before the next. M1 landed its blocks and hunks and went green on twelve suites only after three reds: the scenario doubles seated by the quest had no =url=, the multiplex suite seated an old-shape provider, the seed still wrote =url=. The M1 boot gate could not run — the live provider still returned the old handle — so M2 followed first. M2's service trait fed =assemble= the whole typology namespace (=reading 'meta'=); then the child died on the first beacon (refused before =serve=, unhandled); then two beacons inserted one slug. Three shapes of the =Lighthouse= in one hour, the last one the truth: a serialized chain, =beacon()= returned to the runtime beat after serve, a refusal that resolves instead of throwing. The route census grew by one =trace/ensure= and said the resolver had made =/ensure= unconditional. M3 was the surface flag day through a script that applied the org's own =diff= blocks as exact text; the replace-all for the four one-liners the suite repeats starved three multi-line hunks, landed by hand. Four anima reds: three predate m76 (panel A's status strip left with the anima rework; the steps stayed), one was the quest's =beef= colliding with the seed's. M4 was greps at 0 and canon. Then the quest followed the tree.
+
+* failures
+
+- =this.status.code= in the tangled prototype and =code= on every double — =Status= (=subsystems/typology/prototypes/status.js=) carries =reflection.code= and =$transient=; the sandbox doubles shaped the prototype to themselves. The rule: a double of a house prototype IS the prototype (=new Status("RUNNING")=), never a literal of its shape.
+- a beacon at construction when the lighthouse is the same process: refused before =serve=, and an unhandled rejection is a dead child. The rule: a side effect subscribed in a constructor is best-effort by construction (=announced= resolves to the refusal); the boot-time guarantee lives in the beat that can give it (after serve).
+- the RUNNING beacon and the post-serve announce in flight together → two inserts, =UNIQUE constraint failed: Daemon.slug=. The rule: one announcer per daemon means one chain — =beacon()= queues behind =announced=.
+- the DATAMAP trait: =assemble([mask.entities ?? lighthouse])= with =lighthouse= the typology namespace (classes, enums, schemas) — =shape.test= had replaced DATAMAP with a stub, so the probe never ran it. The rule the shards already carry: descriptors come from =sets.<tier>=.
+- the quest's claim that the repository resolver sat at HEAD (=datamap.js:85=) was false on the live tree; the reference file carried it. The rule: a "already at HEAD" claim is a grep at reply time, never recalled from a sandbox.
+- the replace-all that landed four repeated one-liners starved three multi-line hunks that contained them; the all-or-nothing check ran on the original text. Fixed in =methods/apply-diffs.py=? NO — the script still checks before, applies sequentially; the three were landed by hand and the gap is named here.
+- the M3 ladder's browser testimony (T-roster · T-dock · T-stall · T-unseat · T-walls against the fresh instance) was not run; the report said "M4 residue 0" without saying so. Owed, named in the handoff and the quest.
+
+* state at fold
+
+m76: =#+status: LANDED 10-03 …= (the old status kept as =(was)=); quest-report =67% 12/18 · wip=. Tree: 80 paths outside =.ikiro= changed, 9 deleted, 10 new; nothing committed (beef's). Every =:tangle= block byte-equal to the tree. =.ikiro/methods/apply-diffs.py= (new: a quest section's =diff= blocks as exact-text hunks, =--write= · =--replace-all= · =--skip=), =tangle.py --absorb= (new: the tree back into the blocks), =reference/m76/{boot-fresh,boot-gates,census}.sh=. Known issues: =announce-without-a-bearer= · =panel-a-status-strip-tests-outlive-the-strip=. The guard: =vcs-guard= denies =jj file show= as well as a =git … HEAD:= read — no committed-content baseline this fold; the stage attribution rests on =git diff= (one line) and a grep of the committed markup.
+
+* skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| compact-walk | 117 | HELD | the walk ran: markers · spine · skills · rows · coverage · balance · index · stamp · handoff |
+| testing | 115 | MISSED | ~60 one-file runs, every envelope pasted, a 186-suite census, a HOT regeneration judged by its diff — no firing |
+| blast-bracket | 115 | MISSED | four milestones bracketed baseline → change → suites, no firing |
+| debugging | 115 | MISSED | six reproduce → pin → fix cycles (Status.code · the refused beacon · the beacon race · =meta= · =/ensure= · the starved hunks), no firing |
+| known-issues | 115 | MISSED | two entries appended in the skill's shape without the skill |
+| release | 115 | MISSED | =release.md= fed from =* release= (19 lines, =…= → backticks) without the skill |
+| live-validation | 115 | MISSED | the M3 testimony gate — the skill that would have run it never fired and the gate was skipped silently |
+
+balance: thirds of 6 — 113–114 · 115–116 · 117–118. The fold is one turn; the weight sits in 115 because beef spoke once (/"go"/) and the ladder ran. No ruling in this fold; every decision was mine under the quest's text and surfaces under =* failures=.
+
+* settlement
+
+- callout: no codeword in 113–118; nothing to log.
+- known issues: two written (above), both outlive the quest.
+- markers: =MARKERS.md ## OPEN= empty before and after.
+- memory: nothing private learned.
+- shards: =runtime · anima · typology · paladin · commons= re-stamped in the turn with CHECKs named (anima: =rg 'terminal\.(thread|buffer) =|\.thread\?\.id' systems/anima/src= → 0; typology's datamap line; paladin's two SERVICE rules).
+- ledger: six MISSED rows appended to =skills/LEDGER.md=.
+- quest: =* changelog= gains the testimony line; =methods/apply-diffs.py= promoted from the scratchpad.
+- budgets: =world/frontier.md= above on #211–#244 (beef's settles), unchanged by this fold.
+
+* handoff
+
+- quest :: m76-terminals-close-the-dataring
+- goal :: /"this closes the dataring."/ — Terminal to the lighthouse beside Identity; the client rides the lighthouse's subscription; the daemon's =Lighthouse= announces its own =reported= status
+- done :: M1 · M2 · M3 on the tree, M4 residue at 0 (#249): 28 blocks byte-equal, 148 hunks, 9 files gone; 186 suites green, anima 38/39 (the one red predates m76), a fresh chess boot through every wire gate; canon re-stamped, two known issues, =release.md= fed; six deviations in =* changelog=
+- next :: beef's commit of the tree and =.ikiro=; the M3 browser testimony (T-roster · T-dock · T-stall · T-unseat · T-walls) on a fresh instance — =viva instance/create <pkg> m76= then =instance/use m76 run=, anima against it; then sunset (=quest-lifecycle=) or beef's call on =stage.mount='s three steps (known-issue)
+- never :: boot a populated =~/.viva/instances/*= until m78; =deno fmt=; a runtime-level lighthouse; prune; "door"; a double shaped to itself instead of the house prototype
+- owed :: beef — the commit · the IdentityDossier (THEMED · DOCKED · HOMED live, or the login JSON) · the ctx-class word · panel A's status strip (restore or cut the steps)
+- quest :: m78-mikro-7
+- goal :: cross 20 live sqlite dbs to 7.2.3 without the glued pragma
+- done :: as #245 — DESIGNED, 8 forks QUESTIONED, =reference/mikro-7/=
+- next :: beef rules F1 (driver) and F2 (pivot pin); m76's entity edit (Terminal · Identity_daemons · Daemon.remote/reported) now waits on it for every populated instance
+- never :: boot a populated instance on 6.6.7 after an entity edit
+- owed :: beef — the eight forks; F7 (does the Turn delta ride m78)
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                            | progress   | status   | next                                                                                                                 | sessions |
+|----------------------------------+------------+----------+----------------------------------------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security          |   0% 0/24  | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                | 1        |
+| m71-droneaid-guide               |   0% 0/16  | design   | go                                                                                                                   | 0        |
+| m76-terminals-close-the-dataring |  67% 12/18 | wip      | control                                                                                                              | 3        |
+| m77-droneaid-homecoming          | —          | open     | survey                                                                                                               | 2        |
+| m78-mikro-7                      |   0% 0/13  | design   | go                                                                                                                   | 0        |
+| vector-attach-graft              |  33% 1/3   | landing  | beef eyeballs m2 (auth + attach middleware now ride the source apertures; arming deep-copies); then m3 the live walk | 1        |

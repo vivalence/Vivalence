@@ -6,13 +6,19 @@ export const manifest = {
   name: "Console",
   description: "A mode the client hosts. Its verbs join the repl beside the client's own — proof that REPLING composes.",
   version: "0.0.1",
-  traits: ["REPLING"],
+  traits: ["REPLING", "LOOPING", "KEYMAPPED"],
 };
 
-export const repling = new Vector()
+export const keymap = new Vector().open({ nature: "leader/h", valence: "hello. Example: ctrl-v h" }, () => "/hello");
+
+export const repl = new Vector()
   .open(
     { nature: "/hello", valence: "the hosted mode answers from inside the repl's context. Example: /hello" },
-    (ctx) => {console.log("mode/home/console", {ctx});return `hello from ${ctx.client.mask.manifest.slug}` ;},
+    (ctx) => {
+      const greeting = `hello from ${ctx.client.mask.manifest.slug}`;
+      ctx.controller.stdout.log(greeting);
+      return greeting;
+    },
   )
   .open(
     { nature: "/whoami", valence: "the user, the active terminal and its mode. Example: /whoami" },

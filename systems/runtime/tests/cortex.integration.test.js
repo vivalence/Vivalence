@@ -291,6 +291,41 @@ specimen.describe("cortex integration — HARNESSED harness", () => {
       specimen.expect(turns.length).toBeGreaterThanOrEqual(4);
       specimen.expect(turns[0].role).toBe("user");
     });
+
+    specimen.it("/turn/open carries the row's id; the packets after it pour into that turn; the persisted rows answer to the same ids, byte-identical", async () => {
+      const { dewey, createThread, em } = scenario;
+      const thread = await createThread();
+
+      const stream = await dewey.harness.dialogue.stream({
+        parts:   [{ type: "text", text: "what is casa" }],
+        thread,
+        tune:    "unleashed",
+        tools:   { lookup: { execute: async (ctx) => ({ definition: `${ctx.input.query} means house` }) } },
+      });
+      const { packets } = await collectStream(stream);
+
+      const ids = packets.filter((packet) => ["/turn/open", "/turn/full"].includes(packet.event)).map((packet) => packet.turn.id);
+      specimen.expect(ids).toHaveLength(3);
+      specimen.expect(new Set(ids).size).toBe(3);
+      for (const id of ids) specimen.expect(typeof id).toBe("string");
+
+      const poured = [];
+      let turn = null;
+      for (const packet of packets) {
+        if (packet.event === "/turn/open") turn = null;
+        turn = soma.pour(turn, packet);
+        if (["/turn/close", "/turn/full"].includes(packet.event)) poured.push(turn);
+      }
+      specimen.expect(poured.map((held) => held.id)).toEqual(ids);
+
+      const rows = await em.find(TurnEntity, { id: { $in: ids } });
+      const byId = Object.fromEntries(rows.map((row) => [row.id, row]));
+      specimen.expect(Object.keys(byId).sort()).toEqual([...ids].sort());
+      for (const held of poured) {
+        specimen.expect(byId[held.id].role).toBe(held.role);
+        specimen.expect(JSON.parse(JSON.stringify(byId[held.id].parts))).toEqual(JSON.parse(JSON.stringify(held.parts)));
+      }
+    });
   });
 
   // ─────────────────────────────────────────────

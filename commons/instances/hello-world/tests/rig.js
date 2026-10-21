@@ -1,4 +1,4 @@
-import { Controller, Cortex, Path, Span, soma, Vector } from "@vivalence/typology";
+import { Controller, Cortex, Path, Span, soma, Vector, mime } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
 const { EMITTER, GENERATIVE, HARNESSED } = traits.mode;
 import { emitter, generator } from "../page/index.js";
@@ -31,6 +31,11 @@ export const saying = (text) => ({
   meta: { state: "complete" },
 });
 
+// a draw is two calls: the view, then the buffer pinned to it
+export const DRAW = calling("view_create", { slug: "flamingo", mime: mime.dom.svelte, source: SOURCE });
+export const PAGE = calling("buffer_create", { mime: mime.json, label: { name: "Flamingo" }, data: { title: "Flamingo" }, views: ["flamingo"] });
+export const PEEK = calling("view_read", { slug: "flamingo" });
+
 // a faculty that plays a script: turn N of the script answers round N. `seen` keeps every
 // request the faculty was handed — the inner catalog and system bag are read off it.
 export const faculty = (script) => {
@@ -52,18 +57,28 @@ export const faculty = (script) => {
   };
 };
 
-// the bundler without esbuild; the trait's tools read ctx.mode.generator at call time, so the
-// real tools ride these stubs. the mint is the daemon's buffer repository, stubbed below with
-// the bind INCLUDED — see emitter.test.js for why.
-const capability = () => ({
-  bundle: async ({ kind, source }) => ({
-    kind,
-    hash: `h${source.length.toString(16).padStart(15, "0")}`,
-    json: { entries: ["index.js"], type: "svelte" },
-  }),
-  inspect: async (hash) => ({ hash, source: SOURCE }),
-  serve: async () => null,
-});
+// the View rows without esbuild: the trait's bundle verb is replaced by an upsert into a plain
+// list, and the view repository reads that same list. the mint is the daemon's buffer repository,
+// stubbed below with the bind INCLUDED — see emitter.test.js for why.
+export const views = () => {
+  const rows = [];
+  const row = (slug, type) => ({ id: `view-${slug}`, slug, mime: type, entry: "bundle/stub.mjs", files: { getItems: () => [], loadItems: async () => [] } });
+  return {
+    rows,
+    bundle: async ({ slug, mime: type, source }) => {
+      if (!source.trim()) throw new Error("bundle: source is empty");
+      const held = rows.find((view) => view.slug === slug && view.mime === type) ?? (rows.push(row(slug, type)), rows.at(-1));
+      held.source = source;
+      return held;
+    },
+    find: async ({ slug }) => rows.filter((view) => slug === undefined || slug.$in.includes(view.slug)),
+    findOneOrFail: async ({ slug }) => {
+      const held = rows.find((view) => view.slug === slug);
+      if (!held) throw new Error(`View not found (${slug})`);
+      return held;
+    },
+  };
+};
 
 export const rig = async (script) => {
   const row = {
@@ -81,6 +96,7 @@ export const rig = async (script) => {
   };
   const threads = { findOne: async () => row, findOneOrFail: async () => row };
   const scripted = faculty(script);
+  const held = views();
   const daemon = {
     type: "daemon",
     cortex: new Cortex().register([scripted.faculty]),
@@ -96,31 +112,33 @@ export const rig = async (script) => {
         chain: async (turn) => ({ id: "turn-1", ...turn }),
       },
       em: { flush: async () => {}, fork: () => ({ create: () => null, flush: async () => {}, clear: () => {}, getReference: () => null }) },
+      view: held,
       buffer: {
         find: async () => [],
         create: async ({ thread: bind, ...fields }) => {
-          const buffer = { ...fields, thread: null, index: 0 };
+          const buffer = { ...fields, thread: null, index: 0, files: { add() {} } };
           if (bind) (await threads.findOne(bind)).bindBuffer(buffer);
           return buffer;
         },
       },
     },
-    services: {},
+    providers: {},
     mountpoint: { absolute: "/nonexistent/rig" },
     reference: new Path("/daemon/hello"),
   };
   const mode = {
     manifest: { slug: "hello-world", type: "demo" },
     module: { emitter, generator },
-    bundles: { absolute: "/nonexistent/rig" },
+    mountpoint: "/nonexistent/rig",
     aperture: new Vector(),
     entity: { id: "mode-1" },
     tools: new Vector().graft(web),
+    implements: () => false,
   };
   daemon.modes = { [mode.manifest.type]: { [mode.manifest.slug]: mode } };
   (await EMITTER(mode, daemon))();
   await GENERATIVE(mode, daemon);
-  Object.assign(mode.generator, capability());
+  mode.generator.bundle = held.bundle;
   (await HARNESSED(mode, daemon))();
-  return { row, daemon, mode, seen: scripted.seen };
+  return { row, daemon, mode, seen: scripted.seen, views: held.rows };
 };

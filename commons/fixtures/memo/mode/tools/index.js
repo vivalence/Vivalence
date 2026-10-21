@@ -1,6 +1,6 @@
 import { string, v, Vector } from "@vivalence/typology";
 import { SIGNAL } from "../../domain/types.js";
-import { deal, freighted, grade, locate } from "../deal.js";
+import { deal, filed, grade, locate } from "../deal.js";
 import { progress as report } from "../progress.js";
 import { SESSION } from "../emitter.js";
 
@@ -50,7 +50,7 @@ export const add = new Vector().open(
   },
   async (ctx) => {
     const held = string.fold(ctx.input.learning.replace(/-/g, " ")).replace(/\s+/g, "-");
-    if ((await ctx.entities.literal.findOne({ slug: held })) !== null) return { added: false, card: freighted(ctx, [await locate(ctx, held)])[0] };
+    if ((await ctx.entities.literal.findOne({ slug: held })) !== null) return { added: false, card: (await filed(ctx, [await locate(ctx, held)]))[0] };
     const symbols = await ctx.entities.symbol.find({ slug: { $in: [ctx.input.ontology, ...ctx.input.symbols] } });
     const literal = ctx.entities.literal.create({
       slug: held,
@@ -60,7 +60,7 @@ export const add = new Vector().open(
     });
     literal.symbols.add(symbols);
     await ctx.entities.em.flush();
-    return { added: true, card: freighted(ctx, [await locate(ctx, held)])[0] };
+    return { added: true, card: (await filed(ctx, [await locate(ctx, held)]))[0] };
   },
 );
 
@@ -80,9 +80,9 @@ export const explain = new Vector().open(
       ? []
       : await ctx.entities.literal.find({ symbols: [lemma.slug], ontology: "sentence" }, { limit: 3, populate: ["notes"] });
     return {
-      card: freighted(ctx, [literal])[0],
+      card: (await filed(ctx, [literal]))[0],
       facets,
-      sentences: freighted(ctx, sentences).map(({ slug: held, learning, known }) => ({ slug: held, learning, known })),
+      sentences: (await filed(ctx, sentences)).map(({ slug: held, learning, known }) => ({ slug: held, learning, known })),
       history: await ctx.entities.literal.history(literal),
     };
   },

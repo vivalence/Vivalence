@@ -1,0 +1,25 @@
+# drained 10-22 whole from .ikiro/quests/m88-repling.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* design — the trace, ghost
+
+#+begin_example
+viva                                   systems/ghost/run.js
+└ shell.execution                      lifecycle/shell.js
+  └ upgrading.ground()                 mount · boot runtime · registry.supply() · register = wire(clients[ghost])     ← the door, paladin here
+    └ client.execution                 lifecycle/client/execution.js
+      ├ population.repl                client.repl (the verbs every terminal shares)
+      ├ population.hosted              client.modes = register.modes → new Mode(citizen), reference /client/ghost ⊕ /mode/home/home   ← NEW
+      ├ resolution.hosted(mode)        stagger { REPLING } per hosted mode: mode.repl = Vector ⊕ module.repl   ← NEW
+      ├ … lighthouse · entities · daemons (remote modes, five traits) · userspace · surface …
+      ├ resolution.terminals(terminal) per row, new rows included: lifecycle/terminal
+      │   ├ population.mode            terminal.$mode ← thread.mode | client.home                                   ← NEW
+      │   ├ population.controller      terminal.controller ← this terminal's branch                                  ← NEW
+      │   │                            (no repl beat: terminal.repl(base) is a FUNCTION — [mode.repl, base] | [base])
+      │   ├ population.home            no thread + client.home a HOST mode → thread.create({ mode }) + seat          ← NEW (was resolution.home's body)
+      │   └ population.stall
+      ├ resolution.seat(thread)
+      └ resolution.home                client.$home ← HOME.reference under /client/<slug>/ → client.modes; else the owning host, awaited mounted, its modes   ← REWRITTEN
+#+end_example
+
+The same shape on anima: =vite.config.mjs= mounts paladin, wires =clients[anima]= and emits the citizens as a virtual module the browser die reads as =die.register= — m87's strand (/"for anima that means at build / bundle time"/), built in anima's quest, not here.
+

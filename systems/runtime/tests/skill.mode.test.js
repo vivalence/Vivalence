@@ -5,17 +5,17 @@ import { gestalten } from "@vivalence/runtime";
 const invoke = (armed, name, input) =>
   steer.dispatch.invoke(armed, new ToolCall(name).signal, steer.strategy.guarded)(input);
 
-// three modes, three shapes: one that serves a mountpoint, one that carries freight, one with neither
+// three modes, three shapes: one that writes its mountpoint, one that reads a files directory, one with neither
 const vdex = {
-  manifest: { type: "office", slug: "vdex", name: "VDex", traits: ["MOUNTED", "HARNESSED"] },
+  manifest: { type: "office", slug: "vdex", name: "VDex", traits: ["FILESINK", "HARNESSED"] },
   module: { source: new Path("/registry/vcompany/modes/office/vdex/vdex.viva.js") },
   mountpoint: new Path("/Users/finn/vivalence/coorporation"),
-  freight: { path: new Path("/Users/finn/vivalence/coorporation") },
+  files: { directory: "/Users/finn/vivalence/coorporation" },
 };
 const francesca = {
-  manifest: { type: "tutor", slug: "francesca", traits: ["FRAUGHT", "HARNESSED"] },
+  manifest: { type: "tutor", slug: "francesca", traits: ["FILESET", "HARNESSED"] },
   module: { source: new Path("/registry/education/modes/tutor/francesca/francesca.viva.js") },
-  freight: { path: new Path("/registry/education/modes/tutor/francesca/assets") },
+  files: { directory: "/registry/education/modes/tutor/francesca/assets" },
 };
 const dewey = { manifest: { type: "teacher", slug: "dewey", traits: ["EXPOSED", "HARNESSED"] }, module: {} };
 
@@ -29,14 +29,14 @@ const daemon = {
 const armed = new Vector().use(shard.context.spread(contexts.host, daemon)).graft(gestalten.tools.mode.mode);
 
 Deno.test("skill.mode — every mode's places on disk", async (t) => {
-  await t.step("places: source, then what a mode serves, then what it carries when that differs", () => {
+  await t.step("places: source, then what a mode serves, then what it reads when that differs", () => {
     assertEquals(
       gestalten.tools.mode.places(vdex),
       "source /registry/vcompany/modes/office/vdex · mountpoint /Users/finn/vivalence/coorporation",
     );
     assertEquals(
       gestalten.tools.mode.places(francesca),
-      "source /registry/education/modes/tutor/francesca · freight /registry/education/modes/tutor/francesca/assets",
+      "source /registry/education/modes/tutor/francesca · files /registry/education/modes/tutor/francesca/assets",
     );
     assertEquals(gestalten.tools.mode.places(dewey), "");
   });
@@ -47,7 +47,7 @@ Deno.test("skill.mode — every mode's places on disk", async (t) => {
     assertEquals(rows[0], "[Host /daemon/vcompany] · mountpoint /Users/finn/.viva/instances/vivalence/mountpoint/daemon_vcompany");
     assertEquals(
       rows[1],
-      "office/vdex · VDex · traits MOUNTED HARNESSED · source /registry/vcompany/modes/office/vdex · " +
+      "office/vdex · VDex · traits FILESINK HARNESSED · source /registry/vcompany/modes/office/vdex · " +
         "mountpoint /Users/finn/vivalence/coorporation",
     );
     assertEquals(rows[3], "teacher/dewey · dewey · traits EXPOSED HARNESSED");

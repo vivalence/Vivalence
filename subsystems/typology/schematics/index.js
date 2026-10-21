@@ -3,6 +3,7 @@ import * as scalars from "./scalars/index.js";
 import * as primitives from "./primitives/index.js";
 import * as entities from "./entities/index.js";
 import * as prototypes from "./prototypes/index.js";
+import * as traits from "./traits/index.js";
 
 export const v = Object.assign(base, {
   scalars,
@@ -13,6 +14,7 @@ export const v = Object.assign(base, {
   environment: primitives.environment,
   entities,
   prototypes,
+  traits,
 
   // A relation is referenced by IDENTITY, not embedded by value. The non-id arm is
   // a structurally-opaque object (additionalProperties, no declared body), so cast()'s
@@ -26,6 +28,9 @@ export const v = Object.assign(base, {
   mode: entityFactory(entities.ModeDescriptor, entities.DataEntitySchema),
   intent: entityFactory(entities.IntentDescriptor, entities.DataEntitySchema),
   thread: entityFactory(entities.ThreadDescriptor, entities.DataEntitySchema),
+  turn: entityFactory(entities.TurnDescriptor, entities.DataEntitySchema),
+  view: entityFactory(entities.ViewDescriptor, entities.DataEntitySchema),
+  file: entityFactory(entities.FileDescriptor, entities.DataEntitySchema),
   user: entityFactory(entities.UserDescriptor, entities.DataEntitySchema),
 });
 export { mime } from "./scalars/index.js";

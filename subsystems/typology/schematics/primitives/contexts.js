@@ -14,13 +14,13 @@ export const entities = { entities: v.record(v.string(), v.unknown()).desc("The 
 export const call = { call: v.unknown().optional().desc("The host's aperture as a callable object, shape.object(aperture). Example: ctx.call.rules.position({ fen })") };
 export const cortex = { cortex: v.unknown().optional().desc("The host's Cortex, a Pool of faculties. Example: ctx.cortex.findOne({ type: 'dialogue', tune: 'fast', via: 'stream' })") };
 export const modes = { modes: v.record(v.string(), v.record(v.string(), v.unknown())).desc("Sibling modes on the host, modes.<type>.<slug>. Example: ctx.modes.game.dojo") };
-export const services = { services: v.record(v.string(), v.unknown()).desc("Live services on the host by slug. Example: ctx.services.nlp") };
+export const providers = { providers: v.record(v.string(), v.unknown()).desc("Live providers on the host by slug — a service's interface. Example: ctx.providers.nlp") };
 export const statics = { statics: v.unknown().optional().desc("The host's declared statics. Example: { language: 'it' }") };
 export const domain = { domain: v.unknown().optional().desc("The host's domain module, if any") };
-export const controller = { controller: v.unknown().desc("is.Controller — the die's: stdin (a Vector of the MACHINE signals), stdout (the Span), abort, status, children. Example: await ctx.controller.kill('SIGTERM', 'bye')") };
+export const controller = { controller: v.unknown().desc("is.Controller — the die's: stdin (a Vector of the four SIGNALS), stdout (the Span), abort, status, children. Example: await ctx.controller.kill('SIGTERM', 'bye')") };
 export const mountpoint = { mountpoint: Mountpoint.desc("The host's data directory on disk. Example: '/viva/instances/chess/mountpoint/daemon_chess' · '/viva/instances/chess/mountpoint' on the runtime") };
 export const reference = { reference: v.unknown().desc("is.Path — the host's computed reference, /<type>/<slug>. Example: new Path('/daemon/chess') · new Path('/runtime/runtime') on the runtime") };
-export const cargo = { cargo: v.unknown().desc("The host's Cargo — every fraught mode's catalog by slug. Example: ctx.cargo['sentences/ho-fame.mp3']") };
+export const attach = { attach: v.unknown().desc("is.Url — where the runtime serves views and files by row, remote + /attached; a mode mints a File's url off it. Example: ctx.attach.branch('/file/01a0856f-425f-72b8-b36f-decc1bb2050e').absolute") };
 
 export const mode = { mode: v.unknown().desc("The live Mode the step runs in. Example: ctx.mode.id · ctx.mode.application.buffer") };
 export const user = { user: v.unknown().desc("The authenticated user, lighthouse-signed. Example: { id: 'u1', roles: ['player'] }") };
@@ -46,25 +46,25 @@ export const upgrade = { upgrade: v.unknown().desc("The shell's escalations, eac
 export const instance = { instance: v.unknown().optional().desc("The mounted paladin instance when the cwd's instance.viva.json, --instance or this shell's session names one; absent otherwise — a verb that needs one mounts it itself. Example: ctx.instance.runtime.statics.remote → 'http://localhost:2501'") };
 export const flags = { flags: v.array(v.string()).desc("The flag labels of the vector this line ran on, listed by help: the shell's own on the shell, none on the repl. Example: ['--json', '--env=./environment/.env', '--instance=<slug|path>']") };
 export const view = { view: v.unknown().desc("The box over this ctx's surface, view(surface): { interactive, stdin, json, width(), painted, emit(kind, props), hold(kind, props) } — a verb names a KIND and data, the surface picks the component and the box; plain writes at the terminal's width (json under --json), pipes writes a json line and refuses a hold, tty paints the dock and holds over the cover. Example: await ctx.view.emit('report', { blocks })") };
-export const repl = { repl: v.unknown().desc("The repl Vector this line was invoked on — as ctx.shell is to the shell. The COMPOSITION, built per line by shard.repl.compose: client.repl grafted first, then the hosted modes' repls, terminal.repl, every mounted mode's repl under /mode/<type>/<slug> and /mode/<slug>, the turn streamer when the terminal's mode is HARNESSED. Never client.repl alone. Example: shape.strip(ctx.repl)") };
-export const client = { client: v.unknown().desc("The Client — the client die itself: controller · mask · register · instance · surface · modes · repl · runtime · $active; dispatch(line) is its method. Example: ctx.client.dispatch('/help')") };
-export const span = { span: v.unknown().desc("The Span this step marks on — on the repl, the line's branch of the client controller's stdout; message · fault · turn land here and the surface tails them. Example: ctx.span.mark('turn', turn)") };
-export const runtime = { runtime: v.unknown().desc("The client's Runtime, ONE shape with the server's: manifest · slug · reference · remote · connection · call · cortex · cargo · lighthouse · entities · services · $status · daemon (the runtime as its own host); daemons derived. Example: await ctx.runtime.entities.thread.create({ mode: ctx.runtime.daemon.modes[0].id })") };
+export const repl = { repl: v.unknown().desc("The terminal's Repl this line was dispatched on — as ctx.shell is to the shell. Its commands hold the client's, the hosted modes', the terminal's, every mounted mode's under /mode/<type>/<slug> and /mode/<slug>, and the turn streamer; rebuilt whole on every change of the runtime's mode list. Example: shape.strip(ctx.repl.commands)") };
+export const client = { client: v.unknown().desc("The Client — the client die itself: controller · mask · register · instance · surface · modes · runtime · $active; a line runs on its active terminal's repl. Example: ctx.client.active.repl.dispatch('/help')") };
+export const span = { span: v.unknown().desc("The Span this step tracks on — on the repl, the line's branch of the client controller's stdout; log · fault land here and the surface derives from its $history. Example: ctx.span.log('seated on probe')") };
+export const runtime = { runtime: v.unknown().desc("The client's Runtime, ONE shape with the server's: manifest · slug · reference · remote · connection · call · cortex · lighthouse · entities · services · $status · daemon (the runtime as its own host); daemons derived. Example: await ctx.runtime.entities.thread.create({ mode: ctx.runtime.daemon.modes[0].id })") };
 export const terminal = { terminal: v.unknown().desc("The ACTIVE terminal — the single point of contact for a mode: the row (id · user · index · traits · trait) plus mask · runtime · daemon · mode · thread · buffer. Null until one is picked. Example: ctx.terminal.mode.harness.dialogue.stream({ thread: 'th3', parts })") };
-export const stream = { stream: v.unknown().desc("A verb's request for a stream the repl pumps after next() into the thread's $live. Example: ctx.stream = { packets: mode.harness.dialogue.stream({ thread, id, parts }) }") };
+export const stream = { stream: v.unknown().desc("A verb's request for a stream the repl pumps after next() into the thread's $live. Example: ctx.stream = { packets: mode.harness.dialogue.stream({ thread, terminal, turn, parts }) }") };
 export const kill = { kill: v.unknown().desc("A verb's request to stop a running activity after next(). Example: ctx.kill = ctx.terminal.thread.activity") };
 
 export const optional = (set) => Object.fromEntries(Object.entries(set).map(([key, schema]) => [key, schema.optional()]));
 export const of = (...sets) => v.object(Object.assign({}, ...sets));
 
 export const vector = { ...input, ...output, ...request, ...response, ...params, ...steps, ...signal };
-export const host = { ...entities, ...call, ...cortex, ...modes, ...services, ...statics, ...domain, ...mountpoint, ...reference, ...cargo };
+export const host = { ...entities, ...call, ...cortex, ...modes, ...providers, ...statics, ...domain, ...mountpoint, ...reference, ...attach };
 
 export const Aperture = { ...vector, ...host, ...mode, ...optional(user) };
 export const Tool = { ...vector, ...host, ...mode, ...user, ...optional(thread), ...optional(service) };
-export const Harness = { ...vector, ...host, ...mode, ...user, ...optional(thread), ...optional(turn), ...hallucination, ...tools, ...controller, ...intelligent, ...vocal, ...optional(activity), ...optional(screen) };
-export const Emitter = { ...vector, ...host, ...mode, ...pool, ...optional(thread), ...optional(user) };
-export const Twitch = { ...vector, ...entities, ...call, ...cortex, ...services, ...statics, ...domain, ...mountpoint, ...reference, ...optional(scope), ...optional(mode) };
+export const Harness = { ...vector, ...host, ...mode, ...user, ...thread, ...optional(turn), ...hallucination, ...tools, ...controller, ...intelligent, ...vocal, ...optional(activity), ...optional(screen) };
+export const Emitter = { ...vector, ...host, ...mode, ...pool, ...thread, ...optional(user) };
+export const Twitch = { ...vector, ...entities, ...call, ...cortex, ...providers, ...statics, ...domain, ...mountpoint, ...reference, ...optional(scope), ...optional(mode) };
 export const Service = { ...vector, ...service, ...mask, ...tools };
 
 export const Command = { ...vector, ...view, ...flags };

@@ -69,7 +69,7 @@ export const web = new Vector()
       }),
     },
     async (ctx) => {
-      const reader = ctx.services?.reader;
+      const reader = ctx.providers?.reader;
       // the daemon may not consume a reader yet. say what to do instead, not just what is wrong —
       // web_search's own valence sends the model here before it quotes anything.
       if (!reader) {

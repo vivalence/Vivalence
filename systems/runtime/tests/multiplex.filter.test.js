@@ -2,7 +2,7 @@ import { specimen, sleep, shape, shard, Url, Connection } from "@vivalence/typol
 import { RequestContext } from "@mikro-orm/core";
 import { bench } from "./scenarios/bench.js";
 import { SECRET } from "./scenarios/daemon.js";
-import { signer } from "../lighthouse/signer.js";
+import { signer } from "../subjects/lighthouse/signer.js";
 
 specimen.describe("multiplex filter context", { sanitizeOps: false, sanitizeResources: false }, () => {
   let scenario;

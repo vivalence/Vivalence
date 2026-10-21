@@ -27,18 +27,20 @@ const rig = () => {
       return buffer;
     },
   };
-  const threads = { findOne: async () => row };
+  const threads = {
+    findOne: async () => row,
+    findOneOrFail: async (where) => {
+      if (where.id !== row.id) throw new Error(`ThreadEntity not found (${JSON.stringify(where)})`);
+      return row;
+    },
+  };
   const mode = {
     manifest: { slug: "hello-world", type: "demo" },
     module: { emitter },
     aperture: new Vector(),
     entity: { id: "mode-1" },
     generator: {
-      bundle: async ({ kind, source }) => ({
-        kind,
-        hash: `h${source.length.toString(16).padStart(15, "0")}`,
-        json: { entries: ["index.js"], type: "svelte" },
-      }),
+      bundle: async ({ slug, mime }) => ({ id: `view-${slug}`, slug, mime, entry: "bundle/stub.mjs" }),
     },
   };
   const daemon = {
@@ -83,7 +85,7 @@ specimen.describe(
       const [buffer] = yielded.output.buffer;
       specimen.expect(buffer.thread).toBe(rigged.row);
       specimen.expect(buffer.index).toBe(0);
-      // THE assertion. Two lines bind — generative.js:39-40 and emitter.js:80-81 — and this
+      // THE assertion. Two lines bind — the repository's create and emitter.js:57-58 — and this
       // mode declares both traits. The emitter mints thread-free so only one of them fires.
       specimen.expect(rigged.row.counter).toBe(1);
     });
@@ -104,19 +106,23 @@ specimen.describe(
     });
 
     specimen.it(
-      "a standalone draw binds nothing and leaves the counter alone",
+      "a draw without a thread is refused and leaves the counter alone",
       async () => {
         const rigged = rig();
         const emit = await arm(rigged);
 
-        const yielded = await emit.article({
-          source: SOURCE,
-          label: { name: "loose" },
-          data: { title: "loose" },
-        });
-        const [buffer] = yielded.output.buffer;
+        let message = "";
+        try {
+          await emit.article({
+            source: SOURCE,
+            label: { name: "loose" },
+            data: { title: "loose" },
+          });
+        } catch (error) {
+          message = error.message;
+        }
 
-        specimen.expect(buffer.thread).toBe(null);
+        specimen.expect(message).toContain("ThreadEntity not found");
         specimen.expect(rigged.row.counter).toBe(0);
       },
     );

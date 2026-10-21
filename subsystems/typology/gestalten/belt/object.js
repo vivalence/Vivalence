@@ -241,7 +241,7 @@ const deepMergeCore = (current, options, visited, ...sources) => {
 // export const merge = (...sources) => deepMergeCore({}, {}, new WeakMap(), ...sources);
 
 export const merge = (...sources) =>
-  deepMergeCore({}, { arrayMergeStrategy: "unique" }, new WeakMap(), ...sources);
+  deepMergeCore({}, { arrayMergeStrategy: "replace" }, new WeakMap(), ...sources);
 
 export const mergeWithOptions = (options, ...sources) => deepMergeCore({}, options, new WeakMap(), ...sources);
 

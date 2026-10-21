@@ -1,0 +1,784 @@
+#+title: m111 cell views — a buffer a tool returns renders inline, as a cell, in its dock turn; the full view opens in the frame on a user act
+#+filetags: :ghost:anima:chrome:views:
+#+status: DONE 10-27 (his /"held"/; release lifted) · LANDED 10-27 (census typology 157/0 · ghost 31/0 · runtime mode 14/0; QA walk owed) · TANGLED 10-27 — Q0–Q9 locked; critical pass + replay on a copy (54+ hunks, 0 missed; replay == patched); census typology 157/0 · ghost 31/0 · runtime mode subset 14/0; anima unrunnable on base too (m108 ms 4); trail → =reference/m111/drill-10-27.org=
+# limit: 46000 chars
+
+* intent
+
+10-27, beef verbatim (m103 10-27h):
+
+/"I want a cell level view as well. So something that I can, so that I can play from within my chat window, from within the dock"/
+
+/"… when an agent in a tool returns a buffer, and that buffer has a view that it can be rendered as a cell, that I want that buffer that is attached to a turn in the doc rendered as a cell in line. And the other view with the, we link to the full view, that is the result of user action"/
+
+/"Right now, the models tend to respond in Markdown, and right now the Markdown in the doc is rendered as plain Markdown. I would like it to be pretty rendered … Do we render Markdown pretty or plain?"/
+
+* terrain — measured (whole: =reference/m111/drill-10-27.org= =* terrain= · =** the design's cell=)
+
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/widgets/buffer/renderers.js:10 — today: the frame's pick is an index in buffer.data
+export const chosen = (buffer, views) =>
+  buffer.data.artifact === undefined ? belt.view.pick(views) : views[buffer.data.artifact - 1];
+// systems/ghost/surfaces/chrome/panels/dock/journal.jsx:100 — today: a turn's buffer is a card + four comma-chunks of its data
+        <For each={JSON.stringify(props.buffer.data).split(",").slice(0, 4)}>
+// systems/runtime/entities/View.ts:41-43 — a View row: slug · mime · entry · traits (unused) · trait
+// systems/ghost/subjects/terminal/prototype.js:41 — the dock's settings merge client mask → user → terminal
+    return { ...belt.dock.DEFAULT_DOCK, ...this.client.mask.trait.DOCKED, ...this.client.runtime.lighthouse.user.trait.DOCKED, ...this.trait.DOCKED };
+// node_modules/.deno/@opentui+core@0.5.17/…/renderables/Markdown.d.ts:69-91 — <markdown content syntaxStyle conceal streaming>; unused in the tree
+#+END_SRC
+
+* rulings
+
+| Q | his words |
+|---|-----------|
+| 10-27 data | /"buffer data artifact is completely wrong. … The buffer data is for buffer internals entirely. That is a horrible mix-up."/ |
+| 10-27 filter | /"we want the artifacts that are available and selectable and that are available as the default also to be filtered by the environment that we are in"/ (LANDED) |
+| 10-27 home | /"gestalten dont import [paladin]. move to insdie teh app/chrome."/ (LANDED) |
+| Q0 | /"a."/ |
+| Q1 | /"it makes more sense to just to have a default of frame, and then if it's frame and cell, we mark that, and if it's just cell, we mark that"/ · /"cell and frame are traits on a view. … That's actually right."/ |
+| Q2 | /"a"/ |
+| Q3A | /"I think you have the orientation wrong … Maybe it makes more sense to have /frame set"/ · /"a"/ |
+| Q4 | /"a"/ |
+| Q5 | /"a"/ |
+| Q6 | /"a. why would it?"/ |
+| Q7 | /"a"/ |
+| Q8A | /"I don't want a JSON card, really. I want a card. … if we don't have a view for the cell, then we display some standard buffer view that all it does really is when we click it, then it mounts the buffer into the frame and displays its view there."/ · /"b Yeah, we don't bypass the REPL."/ |
+| Q9 | /"Of course, not on the buffer. So A makes sense. … Fuck it, we keep it per terminal, it's fine."/ |
+
+* the law
+
+1. A view DECLARES where it shows: View traits =FRAME= · =CELL=; no traits is =FRAME= (Q0 · Q1).
+2. A buffer PICKS a view per place: =trait.RENDERED.frame= · =.cell=, a slug; =data= is the buffer's internals only (data · Q2).
+3. A chrome lists what it RUNS, then what the place allows: =framed= · =cells=; a =CELL=-only view never enters the frame (filter · Q7).
+4. An empty or stale pick reads as the first listed (Q4; design =ring.js:993=); nothing is written until a click.
+5. The act starts at the place: =/frame/set <slug>= · =/cell/set <slug> <name>= (Q3A); a gesture dispatches through the repl (Q8A).
+6. A cell takes clicks only, =focused: () => false= (Q5); a view is told nothing about where it shows (Q6).
+7. No cell view → the card: its head alone; a click is =/buffer/full <name>= (Q8A).
+8. Markdown in the journal is a dock setting, =DOCKED.markdown= =pretty= · =plain=, per terminal, default =pretty= (Q9).
+
+* as code
+
+Moves:
+| from | to |
+|------|----|
+| =systems/ghost/subjects/terminal/commands/artifact.js= | =systems/ghost/subjects/terminal/commands/frame.js= |
+
+Departures from the locked snippets (mine, reported): the frame's =Mounted= is shared by the cell (=focused= a prop) instead of a new =panels/dock/cell.jsx= (Q5) · =frame= · =cell= fall back to the first on a STALE slug too (law 4) · plain markdown is today's =<text>=, pretty is =<markdown conceal>= (Q9) · the Q2 · Q3A writes go through =traits.patch= like =set.js=.
+
+*** subsystems/typology
+**** schematics/entities
+***** view.js
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/entities/view.js:1
+ import { v } from "../v.js";
+ import * as mime from "../scalars/mime.js";
++import { view } from "../traits/index.js";
+…
+-    traits: v.array(v.string()).optional(),
++    traits: v.array(v.enum(Object.keys(view.properties))).optional(),
+…
++  traits: view,
+   spoken: ["id", "slug", "mime", "mode", "entry"],
+#+END_SRC
+**** schematics/traits
+***** docked.js
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/traits/docked.js:9
+     lens: v.enum(["chat", "repl", "trace"]).optional().desc('Which stream the dock paints. Example: "repl"'),
++    markdown: v.enum(["pretty", "plain"]).optional().desc('How the journal paints a reply\'s markdown. Example: "pretty"'),
+#+END_SRC
+***** index.js
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/traits/index.js:10
+ import { Queueing } from "./queueing.js";
++import { Rendered } from "./rendered.js";
+
+-export { Docked, Themed, Intelligent, Vocal, Aimed, Masked, Queueing };
++export { Docked, Themed, Intelligent, Vocal, Aimed, Masked, Queueing, Rendered };
+…
+-export const buffer = v.object({ LABELED: Label.default({}).optional() });
++export const buffer = v.object({ LABELED: Label.default({}).optional(), RENDERED: Rendered.default({}).optional() });
++export const view = v.object({ FRAME: opaque.default({}).optional(), CELL: opaque.default({}).optional() });
+#+END_SRC
+***** rendered.js (new)
+#+BEGIN_SRC js
+import { v } from "../v.js";
+
+export const Rendered = v.object(
+  {
+    frame: v.string().optional().desc('The slug of the view the buffer shows in the frame; absent, the compiled view first. Example: "play"'),
+    cell: v.string().optional().desc('The slug of the view the buffer shows as its cell in the journal; absent, the first CELL view the chrome runs. Example: "board"'),
+  },
+  { additionalProperties: false },
+);
+#+END_SRC
+
+**** tests
+***** traits.snapshot.test.js — codestyle: every =v.object= ships with a passing JSON snapshot (=Rendered= · the =view= vocabulary)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/traits.snapshot.test.js:25
+     expect(pojo.properties.INTELLIGENT.properties.rounds.default).toBe(12);
+   });
+ });
++
++describe("snapshot: buffer · view traits", () => {
++  it("captures Rendered — frame · cell, two optional slugs, closed", () => {
++    const { pojo } = snapshot(v.traits.Rendered, { base, locate: "trait-rendered.snapshot.json", parse: (schema) => schema });
++    expect(Object.keys(pojo.properties)).toEqual(["frame", "cell"]);
++    expect(pojo.additionalProperties).toBe(false);
++    expect(pojo.required).toBe(undefined);
++  });
++
++  it("captures the view vocabulary — FRAME · CELL", () => {
++    const { pojo } = snapshot(v.traits.view, { base, locate: "trait-view.snapshot.json", parse: (schema) => schema });
++    expect(Object.keys(pojo.properties)).toEqual(["FRAME", "CELL"]);
++  });
++});
+#+END_SRC
+***** traits.test.js
+#+BEGIN_SRC diff
+// subsystems/typology/tests/traits.test.js:22
+-    specimen.expect(Object.keys(v.traits.buffer.properties)).toEqual(["LABELED"]);
++    specimen.expect(Object.keys(v.traits.buffer.properties)).toEqual(["LABELED", "RENDERED"]);
++    specimen.expect(Object.keys(v.traits.view.properties)).toEqual(["FRAME", "CELL"]);
+#+END_SRC
+
+*** systems/runtime
+**** entities
+***** View.ts — the default at the one funnel: VIEWABLE · GENERATIVE (=generative.js:9=) · =/attached= (=integration.js:73=) all bundle here
+#+BEGIN_SRC diff
+// systems/runtime/entities/View.ts:32
+-    const view = await this.ensure({ mode: data.mode, slug: data.slug, mime: data.mime, entry: `bundle/${stem}` });
++    const view = await this.ensure({ mode: data.mode, slug: data.slug, mime: data.mime, traits: data.traits ?? ["FRAME"], entry: `bundle/${stem}` });
+#+END_SRC
+**** subjects/mode/traits
+***** viewable.js
+#+BEGIN_SRC diff
+// systems/runtime/subjects/mode/traits/viewable.js:24
+-        { mode: mode.entity.id, slug: declared.slug, mime: declared.mime, entry: join(mode.module.source.dirname, declared.mount) },
++        { mode: mode.entity.id, slug: declared.slug, mime: declared.mime, traits: declared.traits, entry: join(mode.module.source.dirname, declared.mount) },
+#+END_SRC
+
+**** subjects/runtime/lifecycle
+***** resolution.js — the one wire a chrome reads a View through (critical pass 10-27: it served no =traits=)
+#+BEGIN_SRC diff
+// systems/runtime/subjects/runtime/lifecycle/resolution.js:50
+       entry: view.entry,
++      traits: view.traits,
+       files: view.files.getItems().map((file) => ({ id: file.id, path: file.path, mime: file.mime, integrity: file.integrity })),
+#+END_SRC
+
+*** systems/ghost
+**** entities/buffer
+***** prototype.js — critical pass 10-27: =entity-manager.js:76-89= assigns a re-sighted row's =trait= RAW through this setter, past the hydration cast; a pre-m111 row carries no =RENDERED= → =buffer.trait.RENDERED.cell= throws in the journal. The setter is the one seam both paths cross; =fill= adds the defaults, hydration still casts loud
+#+BEGIN_SRC diff
+// systems/ghost/entities/buffer/prototype.js:2
+-import { Entity, Bundle, fn } from "@vivalence/typology";
++import { Entity, Bundle, fn, v } from "@vivalence/typology";
+…
+   set trait(value) {
+-    this.$trait.set(value ?? {});
++    this.$trait.set(v.buffer.traits.fill(value ?? {}));
+   }
+#+END_SRC
+**** gestalten/belt
+***** dock.js
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/belt/dock.js:3
+-export const DEFAULT_DOCK = v.traits.terminal.properties.DOCKED.cast({ align: "right", share: 0.38, view: "full", lens: "chat" });
++export const DEFAULT_DOCK = v.traits.terminal.properties.DOCKED.cast({ align: "right", share: 0.38, view: "full", lens: "chat", markdown: "pretty" });
+…
+ export const LENSES = ["chat", "repl", "trace"];
++
++export const MARKDOWNS = ["pretty", "plain"];
+#+END_SRC
+**** subjects/terminal/commands
+***** cell.js (new)
+#+BEGIN_SRC js
+import { Vector, traits, v } from "@vivalence/typology";
+import * as belt from "../../../gestalten/belt/index.js";
+
+const Celled = v.object({
+  slug: v.string().desc('The view the buffer shows as its cell. Example: "board"'),
+  name: v.string().desc('The buffer\'s label, the signal\'s remaining words. Example: "play #1"'),
+});
+
+const labeled = (signal) => ({ ...signal, body: signal.body.length < 2 ? signal.body : [signal.body[0], signal.body.slice(1).join(" ")] });
+
+const named = (buffer) => buffer.trait.LABELED.name;
+
+export const cell = new Vector().open(
+  { nature: "/cell/set", valence: "which view a buffer shows as its cell in the journal. Example: /cell/set board play #1", input: Celled },
+  async (ctx) => {
+    const { slug, name } = belt.input.cast(Celled, labeled(ctx.signal));
+    const found = ctx.terminal.thread.$buffers.get().find((candidate) => named(candidate) === name);
+    if (found === undefined) throw new Error(`no buffer ${name} on thread #${ctx.terminal.thread.id} — its buffers: ${ctx.terminal.thread.$buffers.get().map(named).join(" · ") || "none"}`);
+    const slugs = (await belt.view.candidates(found, ctx.client.runtime.attach)).filter((view) => view.traits.includes("CELL")).map((view) => view.slug);
+    if (!slugs.includes(slug)) throw new Error(`${name} cells ${slugs.join(" · ") || "none"}`);
+    await ctx.client.runtime.entities.buffer.updateOne({ id: found.id }, traits.patch(found, { RENDERED: { cell: slug } }));
+    return `${name} · cell ${slug}`;
+  },
+);
+#+END_SRC
+***** frame.js (moved from artifact.js, whole) — the slug check rides =belt.view.candidates=, so the no-app crash (=ctx.client.app.surface=) dies with it
+#+BEGIN_SRC js
+import { Vector, traits, v } from "@vivalence/typology";
+import * as belt from "../../../gestalten/belt/index.js";
+
+const Framing = v.object({ slug: v.string().desc('The view the framed buffer shows. Example: "play"') });
+
+export const frame = new Vector().open(
+  { nature: "/frame/set", valence: "which view the framed buffer shows. Example: /frame/set play", input: Framing, chord: "leader/e/a" },
+  async (ctx) => {
+    const { slug } = belt.input.cast(Framing, ctx.signal);
+    if (ctx.terminal.buffer === null) throw new Error("no frame open");
+    const slugs = (await belt.view.candidates(ctx.terminal.buffer, ctx.client.runtime.attach)).filter((view) => view.traits.includes("FRAME")).map((view) => view.slug);
+    if (!slugs.includes(slug)) throw new Error(`${ctx.terminal.buffer.trait.LABELED.name} frames ${slugs.join(" · ") || "none"}`);
+    await ctx.client.runtime.entities.buffer.updateOne({ id: ctx.terminal.buffer.id }, traits.patch(ctx.terminal.buffer, { RENDERED: { frame: slug } }));
+    return `${ctx.terminal.buffer.trait.LABELED.name} · frame ${slug}`;
+  },
+);
+#+END_SRC
+***** index.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/index.js:3
+-export * from "./artifact.js";
+ export * from "./attach.js";
+ export * from "./buffer.js";
++export * from "./cell.js";
+ export * from "./close.js";
+…
+ export * from "./dock.js";
++export * from "./frame.js";
+ export * from "./full.js";
+#+END_SRC
+***** set.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/commands/set.js:21
+   at("terminal.dock.share", v.number({ minimum: 0.1, maximum: 0.9 }).desc("The dock's share of the chrome. Example: 0.38"), async (ctx, share) => {
+…
++  at("terminal.dock.markdown", v.enum(belt.dock.MARKDOWNS).desc('How the journal paints a reply\'s markdown. Example: "plain"'), async (ctx, markdown) => {
++    await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED: { markdown } }));
++    return { DOCKED: { markdown } };
++  }),
+   at("thread.label", v.string().desc('The label the seated thread shows. Example: "flamingo — six species"'), async (ctx, name) => {
+#+END_SRC
+**** surfaces/chrome/panels/dock
+***** dock.jsx
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panels/dock/dock.jsx:19
+-            <Journal palette={props.palette} thread={seated} lens={dock().lens} />
++            <Journal palette={props.palette} thread={seated} lens={dock().lens} markdown={dock().markdown} />
+#+END_SRC
+***** journal.jsx
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panels/dock/journal.jsx:1
+-import { For, from, Show } from "solid-js";
++import { createResource, For, from, Show } from "solid-js";
+ import { Dynamic } from "@opentui/solid";
++import { SyntaxStyle } from "@opentui/core";
+ import { is } from "@vivalence/typology";
+ import * as ambient from "../../ambient/index.js";
+ import * as widgets from "../../widgets/index.js";
+ import { cells, prose, streamed } from "../../../../gestalten/belt/journal.js";
++import { Mounted } from "../frame/frame.jsx";
+…
+ function Artifact(props) {
+   const terminal = ambient.terminal.consume();
+   const framed = from(terminal.$buffer);
++  const trait = from(props.buffer.$trait);
++  const [views] = createResource(() => props.buffer, (buffer) => widgets.buffer.cells(buffer, terminal.client.runtime.attach));
++  const listed = () => (views.state === "ready" ? views() : []);
++  const view = () => {
++    trait();
++    return widgets.buffer.cell(props.buffer, listed());
++  };
+   const current = () => framed() === props.buffer;
++  const faulted = (error) => terminal.controller.stdout.fault(error);
+   return (
+     <box style={{ flexDirection: "column", paddingLeft: 2 }}>
+-      <box style={{ flexDirection: "row", height: 1, backgroundColor: props.palette.surfaceSunk }}>
++      <box cursor="pointer" style={{ flexDirection: "row", height: 1, backgroundColor: props.palette.surfaceSunk }} onMouseUp={() => terminal.repl.dispatch(`/buffer/full ${named(props.buffer)}`).catch(faulted)}>
+…
+         <text wrapMode="none" truncate fg={props.palette.textMuted} style={{ flexGrow: 1, flexShrink: 1, minWidth: 0 }}>{named(props.buffer)}</text>
+-        <text
+-          cursor="pointer"
+-          style={{ flexShrink: 0 }}
+-          fg={current() ? props.palette.inverseOn : props.palette.signalPrimaryInk}
+-          bg={current() ? props.palette.inverse : props.palette.surfaceSunk}
+-          onMouseUp={() => terminal.repl.dispatch(`/buffer/full ${named(props.buffer)}`).catch((error) => terminal.controller.stdout.fault(error))}
+-        >
+-          {" ⤢ "}
+-        </text>
++        <Show when={listed().length > 1}>
++          <text
++            cursor="pointer"
++            fg={props.palette.textInk}
++            style={{ flexShrink: 0 }}
++            onMouseUp={(event) => {
++              event.stopPropagation();
++              terminal.repl.dispatch(`/cell/set ${widgets.buffer.following(view(), listed())} ${named(props.buffer)}`).catch(faulted);
++            }}
++          >
++            {` ${view().slug} ▾ `}
++          </text>
++        </Show>
++        <text style={{ flexShrink: 0 }} fg={current() ? props.palette.inverseOn : props.palette.signalPrimaryInk} bg={current() ? props.palette.inverse : props.palette.surfaceSunk}>
++          {" ⤢ "}
++        </text>
+       </box>
+-      <Show when={Object.keys(props.buffer.data).length > 0}>
+-        <For each={JSON.stringify(props.buffer.data).split(",").slice(0, 4)}>
+-          {(chunk) => (
+-            <box style={{ height: 1, paddingLeft: 1, backgroundColor: props.palette.surfaceSunk }}>
+-              <text wrapMode="none" truncate fg={props.palette.textInk}>{chunk}</text>
+-            </box>
+-          )}
+-        </For>
+-      </Show>
++      <Show when={view()} keyed>
++        {(held) => <Mounted palette={props.palette} buffer={props.buffer} view={held} focused={() => false} />}
++      </Show>
+     </box>
+   );
+ }
++
++export const syntax = (palette) =>
++  SyntaxStyle.fromStyles({
++    "markup.heading": { fg: palette.textStrong, bold: true },
++    "markup.strong": { bold: true },
++    "markup.italic": { italic: true },
++    "markup.raw": { fg: palette.textLink },
++    "markup.link": { fg: palette.signalPrimaryInk },
++  });
++
++function Plain(props) {
++  return <text fg={props.palette[props.body]}>{props.turn.role === "user" ? <b>{props.text}</b> : props.text}</text>;
++}
++
++function Pretty(props) {
++  return <markdown content={prose(props.turn.parts)} syntaxStyle={syntax(props.palette)} conceal streaming={streamed(props.turn)} fg={props.palette[props.body]} />;
++}
++
++export const PROSE = [
++  [(turn, markdown) => turn.role === "assistant" && markdown === "pretty", Pretty],
++  [() => true, Plain],
++];
+…
+         <Show when={prose(props.row.turn.parts) !== "" || props.row.turn.role === "user"}>
+           <box style={{ paddingLeft: 1 }}>
+-            <text fg={props.palette[register().body]}>{props.row.turn.role === "user" ? <b>{text()}</b> : text()}</text>
++            <Dynamic component={PROSE.find(([test]) => test(props.row.turn, props.markdown))[1]} palette={props.palette} turn={props.row.turn} body={register().body} text={text()} />
+           </box>
+         </Show>
+…
+-        {(row) => <Dynamic component={ROWS.find(([test]) => test(row))[1]} palette={props.palette} row={row} lens={props.lens} buffers={buffers()} waiting={waiting()} />}
++        {(row) => <Dynamic component={ROWS.find(([test]) => test(row))[1]} palette={props.palette} row={row} lens={props.lens} markdown={props.markdown} buffers={buffers()} waiting={waiting()} />}
+#+END_SRC
+**** surfaces/chrome/panels/frame
+***** frame.jsx
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panels/frame/frame.jsx:16
+-export const picked = (buffer, views) => (buffer.data.artifact === undefined ? views.indexOf(widgets.buffer.chosen(buffer, views)) + 1 : buffer.data.artifact);
+-
+-export const stepped = (current, views) => (current % views.length) + 1;
+-
+…
+ function Head(props) {
+   const app = ambient.app.consume();
+   const terminal = ambient.terminal.consume();
+   const focus = from(app.bridge.$focus);
+-  const data = from(props.buffer.$data);
++  const trait = from(props.buffer.$trait);
+   const faulted = (error) => terminal.controller.stdout.fault(error);
+   const current = () => {
+-    data();
+-    return picked(props.buffer, props.views);
++    trait();
++    return widgets.buffer.frame(props.buffer, props.views);
+   };
+…
+-          onMouseUp={() => terminal.repl.dispatch(`/buffer/artifact ${stepped(current(), props.views)}`).catch(faulted)}
++          onMouseUp={() => terminal.repl.dispatch(`/frame/set ${widgets.buffer.following(current(), props.views)}`).catch(faulted)}
+         >
+-          {` artifact ${current()} ▾ `}
++          {` ${current().slug} ▾ `}
+…
+-function Mounted(props) {
+-  const app = ambient.app.consume();
++export function Mounted(props) {
+   const terminal = ambient.terminal.consume();
+   const renderer = useRenderer();
+-  const focus = from(app.bridge.$focus);
+   const [fault, setFault] = createSignal(null);
+…
+-      .then((module) => module.default(element, { terminal, buffer: props.buffer, renderer, palette: props.palette, focused: () => focus() === "frame" }));
++      .then((module) => module.default(element, { terminal, buffer: props.buffer, renderer, palette: props.palette, focused: props.focused }));
+…
+ function Framed(props) {
++  const app = ambient.app.consume();
+   const terminal = ambient.terminal.consume();
+-  const data = from(props.buffer.$data);
+-  const [views] = createResource(() => props.buffer, (buffer) => widgets.buffer.candidates(buffer, terminal.client.runtime.attach));
++  const focus = from(app.bridge.$focus);
++  const trait = from(props.buffer.$trait);
++  const [views] = createResource(() => props.buffer, (buffer) => widgets.buffer.framed(buffer, terminal.client.runtime.attach));
+   const listed = () => (views.state === "ready" ? views() : []);
+   const view = () => {
+-    data();
+-    return listed().length === 0 ? undefined : widgets.buffer.chosen(props.buffer, listed());
++    trait();
++    return widgets.buffer.frame(props.buffer, listed());
+   };
+…
+-        {(held) => <Mounted palette={props.palette} buffer={props.buffer} view={held} />}
++        {(held) => <Mounted palette={props.palette} buffer={props.buffer} view={held} focused={() => focus() === "frame"} />}
+#+END_SRC
+**** surfaces/chrome/widgets/buffer
+***** renderers.js
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/widgets/buffer/renderers.js:8
+ export const candidates = async (buffer, attach) => (await belt.view.candidates(buffer, attach)).filter(runs);
+
+-export const chosen = (buffer, views) =>
+-  buffer.data.artifact === undefined ? belt.view.pick(views) : views[buffer.data.artifact - 1];
++export const framed = async (buffer, attach) => (await candidates(buffer, attach)).filter((view) => view.traits.includes("FRAME"));
++
++export const cells = async (buffer, attach) => (await candidates(buffer, attach)).filter((view) => view.traits.includes("CELL"));
++
++const FRAMING = [
++  [(buffer, views) => views.some((view) => view.slug === buffer.trait.RENDERED.frame), (buffer, views) => views.find((view) => view.slug === buffer.trait.RENDERED.frame)],
++  [() => true, (buffer, views) => belt.view.pick(views)],
++];
++
++export const frame = (buffer, views) => FRAMING.find(([test]) => test(buffer, views))[1](buffer, views);
++
++const CELLED = [
++  [(buffer, views) => views.some((view) => view.slug === buffer.trait.RENDERED.cell), (buffer, views) => views.find((view) => view.slug === buffer.trait.RENDERED.cell)],
++  [() => true, (buffer, views) => views[0]],
++];
++
++export const cell = (buffer, views) => CELLED.find(([test]) => test(buffer, views))[1](buffer, views);
++
++export const following = (view, views) => views[(views.indexOf(view) + 1) % views.length].slug;
+#+END_SRC
+**** tests/subjects/terminal
+***** commands.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/terminal/commands.test.js:73
+-    "/view/v-board": { id: "v-board", slug: "play", mime: mime.tty.solid, entry: "cells/Board.js", files: [{ id: "f-board", path: "cells/Board.js", integrity: "sha256-e7f3" }] },
+-    "/view/v-glance": { id: "v-glance", slug: "play", mime: mime.tty.solid, entry: "cells/Glance.js", files: [{ id: "f-glance", path: "cells/Glance.js", integrity: "sha256-5d2a" }] },
++    "/view/v-board": { id: "v-board", slug: "play", mime: mime.tty.solid, traits: ["FRAME"], entry: "cells/Board.js", files: [{ id: "f-board", path: "cells/Board.js", integrity: "sha256-e7f3" }] },
++    "/view/v-glance": { id: "v-glance", slug: "glance", mime: mime.tty.solid, traits: ["CELL"], entry: "cells/Glance.js", files: [{ id: "f-glance", path: "cells/Glance.js", integrity: "sha256-5d2a" }] },
+…
+-  specimen.it("/buffer/artifact <n> <label> writes the pick into buffer.data through the buffer's updateOne, beside its data; no label is the framed buffer; past the last artifact faults; a word is VALIDATION", async () => {
+-    specimen.expect(await run("/buffer/artifact 2 board one")).toBe("board one · artifact 2");
+-    specimen.expect(buffers.writes.at(-1)).toEqual({ where: { id: "b2" }, data: { data: { fen: "8/8", artifact: 2 } } });
+-    specimen.expect(board.data).toEqual({ fen: "8/8" });
+-    terminal.$buffer.set(board);
+-    specimen.expect(await run("/buffer/artifact 1")).toBe("board one · artifact 1");
+-    terminal.$buffer.set(buffer);
+-    specimen.expect(await fault("/buffer/artifact 3 board one")).toBe(undefined);
+-    specimen.expect(await fault("/buffer/artifact 1 memo #1")).toBe(undefined);
+-    specimen.expect(await fault("/buffer/artifact 1 nope")).toBe(undefined);
+-    specimen.expect(await fault("/buffer/artifact two board one")).toBe("VALIDATION");
+-    specimen.expect(await fault("/buffer/artifact 0 board one")).toBe("VALIDATION");
+-  });
++  specimen.it("/frame/set <slug> writes RENDERED.frame of the framed buffer, /cell/set <slug> <label> RENDERED.cell of the named one, through its updateOne; data stays; a slug the place does not list, no frame or an unknown label faults; no label is VALIDATION", async () => {
++    terminal.$buffer.set(board);
++    specimen.expect(await run("/frame/set play")).toBe("board one · frame play");
++    specimen.expect(buffers.writes.at(-1).where).toEqual({ id: "b2" });
++    specimen.expect(buffers.writes.at(-1).data.trait.RENDERED.frame).toBe("play");
++    specimen.expect(buffers.writes.at(-1).data.data).toBe(undefined);
++    specimen.expect(await fault("/frame/set glance")).toBe(undefined);
++    specimen.expect(await run("/cell/set glance board one")).toBe("board one · cell glance");
++    specimen.expect(buffers.writes.at(-1).data.trait.RENDERED.cell).toBe("glance");
++    specimen.expect(await fault("/cell/set play board one")).toBe(undefined);
++    specimen.expect(await fault("/cell/set glance nope")).toBe(undefined);
++    specimen.expect(await fault("/cell/set glance")).toBe("VALIDATION");
++    terminal.$buffer.set(null);
++    specimen.expect(await fault("/frame/set play")).toBe(undefined);
++    terminal.$buffer.set(buffer);
++  });
+…
+-      "leader/e/a": "artifact",
++      "leader/e/a": "set",
+#+END_SRC
+***** prototype.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/terminal/prototype.test.js:8
+   specimen.it("DEFAULT_DOCK carries every field; a layer states only what it overrides; the terminal wins", () => {
+-    specimen.expect(ghost.belt.dock.DEFAULT_DOCK).toEqual({ align: "right", share: 0.38, view: "full", lens: "chat" });
++    specimen.expect(ghost.belt.dock.DEFAULT_DOCK).toEqual({ align: "right", share: 0.38, view: "full", lens: "chat", markdown: "pretty" });
+…
+-    specimen.expect(terminal.dock).toEqual({ align: "right", share: 0.5, view: "full", lens: "trace" });
+-    specimen.expect(ghost.belt.dock.DEFAULT_DOCK).toEqual({ align: "right", share: 0.38, view: "full", lens: "chat" });
++    specimen.expect(terminal.dock).toEqual({ align: "right", share: 0.5, view: "full", lens: "trace", markdown: "pretty" });
++    specimen.expect(ghost.belt.dock.DEFAULT_DOCK).toEqual({ align: "right", share: 0.38, view: "full", lens: "chat", markdown: "pretty" });
+#+END_SRC
+***** repl.test.js — the order is the barrel's graft order: =artifact.js= grafted =/buffer= ahead of =/attach=, =cell.js= · =frame.js= land by name
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/terminal/repl.test.js:56
+       "/activity",
++      "/attach",
+       "/buffer",
+-      "/buffer/artifact",
+       "/buffer/close",
+       "/buffer/full",
+-      "/attach",
++      "/cell/set",
+       "/detach",
+…
+       "/split",
++      "/frame/set",
+       "/tune",
+#+END_SRC
+**** tests/surfaces/chrome/widgets/buffer
+***** renderers.test.js (whole, replaces)
+#+BEGIN_SRC js
+import { mime, specimen } from "@vivalence/typology";
+import { cell, following, frame, runs } from "../../../../../surfaces/chrome/widgets/buffer/renderers.js";
+
+const buffer = (RENDERED) => ({ id: "b1", mime: mime.json, data: {}, traits: ["LABELED"], trait: { LABELED: { name: "accounts" }, RENDERED } });
+
+const view = (slug, viewMime = mime.tty.solid, entryMime = mime.javascript) => ({ id: null, slug, mime: viewMime, traits: ["FRAME"], entry: "cells/Glance.js", files: [{ path: "cells/Glance.js", mime: entryMime }] });
+
+specimen.describe("renderers — runs keeps what the tty chrome mounts; frame · cell pick among those by RENDERED's slug", () => {
+  specimen.it("runs: a tty solid view runs, a dom one does not", () => {
+    specimen.expect(runs(view("memo"))).toBe(true);
+    specimen.expect(runs(view("memo", mime.dom.svelte))).toBe(false);
+  });
+
+  specimen.it("frame: RENDERED.frame names the slug; empty or stale, the compiled view; none, undefined", () => {
+    const source = view("source", mime.tty.solid, "text/jsx");
+    const compiled = view("compiled");
+    specimen.expect(frame(buffer({ frame: "source" }), [source, compiled])).toBe(source);
+    specimen.expect(frame(buffer({}), [source, compiled])).toBe(compiled);
+    specimen.expect(frame(buffer({ frame: "gone" }), [source, compiled])).toBe(compiled);
+    specimen.expect(frame(buffer({}), [])).toBe(undefined);
+  });
+
+  specimen.it("cell: RENDERED.cell names the slug; empty or stale, the first; none, undefined; following steps round", () => {
+    const board = view("board");
+    const glance = view("glance");
+    specimen.expect(cell(buffer({ cell: "glance" }), [board, glance])).toBe(glance);
+    specimen.expect(cell(buffer({}), [board, glance])).toBe(board);
+    specimen.expect(cell(buffer({ cell: "gone" }), [board, glance])).toBe(board);
+    specimen.expect(cell(buffer({}), [])).toBe(undefined);
+    specimen.expect(following(glance, [board, glance])).toBe("board");
+  });
+});
+#+END_SRC
+
+*** systems/anima/src/surfaces/chrome
+**** panels/frame
+***** frame.jsx
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/frame/frame.jsx:6
+-import { candidates, chosen } from "../../widgets/buffer/view.js";
++import { frame, framed } from "../../widgets/buffer/view.js";
+…
+ export const picks = (buffer, views) =>
+-  views.map((view, index) => ({
+-    label: `artifact ${index + 1}`,
+-    current: view === chosen(buffer, views),
+-    signal: `/buffer/artifact ${index + 1} ${named(buffer)}`,
+-    title: `artifact ${index + 1} · frame · ${short(view.mime)}`,
++  views.map((view) => ({
++    label: view.slug,
++    current: view === frame(buffer, views),
++    signal: `/frame/set ${view.slug}`,
++    title: `${view.slug} · frame · ${short(view.mime)}`,
+   }));
+…
+-    (buffer) => candidates(buffer, app.client.runtime.attach),
++    (buffer) => framed(buffer, app.client.runtime.attach),
+   );
+-  const data = from(props.buffer.$data);
++  const trait = from(props.buffer.$trait);
+   const listed = () => {
+-    data();
++    trait();
+…
+-          {(held) => <View buffer={held} place="frame" />}
++          {(held) => <View buffer={held} listed={framed} picked={frame} />}
+#+END_SRC
+***** view.jsx
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/panels/frame/view.jsx:5
+-import { candidates, chosen, Fault, renderer, surfaced } from "../../widgets/buffer/index.js";
++import { cell, cells, Fault, renderer, surfaced } from "../../widgets/buffer/index.js";
+…
+ export const View = (props) => {
+   const app = ambient.app.consume();
+   const terminal = ambient.terminal.consume();
+   const [views] = createResource(
+     () => props.buffer,
+-    (buffer) => candidates(buffer, app.client.runtime.attach),
++    (buffer) => props.listed(buffer, app.client.runtime.attach),
+…
+-          {(rows) => <Dynamic component={renderer(props.buffer, rows)} terminal={terminal} buffer={props.buffer} views={rows} surface={surfaced(app, props.place)} />}
++          {(rows) => <Dynamic component={renderer(props.buffer, rows)} terminal={terminal} buffer={props.buffer} views={rows} picked={props.picked} surface={surfaced(app)} />}
+…
+ export const cellPicks = (buffer, views) =>
+-  views.map((view, index) => ({
+-    label: `artifact ${index + 1}`,
+-    current: view === chosen(buffer, views),
+-    signal: `/buffer/artifact ${index + 1} ${named(buffer)}`,
+-    title: `artifact ${index + 1} · cell · ${short(view.mime)}`,
++  views.map((view) => ({
++    label: view.slug,
++    current: view === cell(buffer, views),
++    signal: `/cell/set ${view.slug} ${named(buffer)}`,
++    title: `${view.slug} · cell · ${short(view.mime)}`,
+   }));
+…
+   const framed = from(terminal.$buffer);
+   const [views] = createResource(
+     () => props.buffer,
+-    (buffer) => candidates(buffer, app.client.runtime.attach),
++    (buffer) => cells(buffer, app.client.runtime.attach),
+…
+-      <View buffer={props.buffer} place="cell" />
++      <View buffer={props.buffer} listed={cells} picked={cell} />
+#+END_SRC
+**** widgets/buffer
+***** painters.jsx
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/widgets/buffer/painters.jsx:3
+-import { bytes, chosen, href, load } from "./view.js";
++import { bytes, href, load } from "./view.js";
+…
+-    <div class="mounted" data-place={props.surface.place}>
++    <div class="mounted">
+…
+ export const Mounted = (props) => {
+-  const data = from(props.buffer.$data);
++  const trait = from(props.buffer.$trait);
+   const view = () => {
+-    data();
+-    return chosen(props.buffer, props.views);
++    trait();
++    return props.picked(props.buffer, props.views);
+   };
+#+END_SRC
+***** renderers.js
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/widgets/buffer/renderers.js:17
+-export const PLACES = ["cell", "frame"];
+-
+ export const DARK = globalThis.matchMedia("(prefers-color-scheme: dark)").matches;
+
+-export const surfaced = (app, place) => ({
++export const surfaced = (app) => ({
+   kind: "dom",
+-  place,
+-  places: PLACES,
+   dark: DARK,
+#+END_SRC
+***** view.js
+#+BEGIN_SRC diff
+// systems/anima/src/surfaces/chrome/widgets/buffer/view.js:8
+ export const candidates = async (buffer, attach) => (await belt.view.candidates(buffer, attach)).filter(runs);
++
++export const framed = async (buffer, attach) => (await candidates(buffer, attach)).filter((view) => view.traits.includes("FRAME"));
++
++export const cells = async (buffer, attach) => (await candidates(buffer, attach)).filter((view) => view.traits.includes("CELL"));
+…
+-export const chosen = (buffer, views) =>
+-  buffer.data.artifact === undefined ? pick(views) : views[buffer.data.artifact - 1];
++export const frame = (buffer, views) => views.find((view) => view.slug === buffer.trait.RENDERED.frame) ?? pick(views);
++
++export const cell = (buffer, views) => views.find((view) => view.slug === buffer.trait.RENDERED.cell) ?? views[0];
+#+END_SRC
+
+* critical pass — 10-27, sandbox =base= (pre-edit copy of the tree as it stands) vs =patched= (this tangle), serial, HOME empty
+
+| suite | base | patched |
+|-------|------|---------|
+| typology | ok 156 passed (682 steps) 0 failed | ok 157 passed (684 steps) 0 failed |
+| ghost | FAILED 30 passed (103 steps) 1 failed | ok 31 passed (105 steps) 0 failed |
+| runtime =tests/mode= + =bundle.spawn= + =buffer.labeled= | ok 14 passed (73 steps) | ok 14 passed (73 steps) |
+| anima =tests/= | import error =solid-js/web= | the same |
+
+- FOUND, landed in the tangle: =/view/:id= (=runtime/lifecycle/resolution.js:46-52=) served no =traits= → every =view.traits.includes= threw in both chromes
+- FOUND, landed: a re-sighted buffer's =trait= is assigned RAW by =entity-manager.js:76-89= through the ghost =Buffer= setter → a pre-m111 row had no =RENDERED= → =buffer.trait.RENDERED.cell= threw; the setter fills (=v.buffer.traits.fill=); =entity-manager.js= (typology) untouched
+- FOUND, landed: the expected reds — =traits.test.js= (=RENDERED= · =view=) · =prototype.test.js= (=markdown=) · =commands.test.js= (=/frame/set= · =/cell/set=, the chord's leaf is =set=) · =repl.test.js= (graft order) · =renderers.test.js= (whole) · + =traits.snapshot.test.js= (codestyle: every =v.object= ships a snapshot)
+- base ghost red = =client.factory … STOPPED= (=the door against a world=), green on patched — the standing ghost flake (frontier), not this quest
+- replay: a fresh copy of =base= + this section alone == =patched=, but three snapshot captures the census wrote (=view-entity= · =mode-entity= · =file-entity=, capture-mode, gitignored)
+- NOT proven: the whole runtime census (subset only) · anima (its suite is m108's) · every seam only a SERVED screen runs (=<markdown>= · a mounted cell · =stopPropagation=) → the QA walk
+- pre-m111 GENERATIVE · =/attached= View rows keep =traits: []= until re-bundled → in neither list; registry modes re-bundle at every boot (VIEWABLE)
+
+* milestones
+
+1. the View traits — typology =view= traits · =Rendered= · runtime =View.ts= default · VIEWABLE; green: runtime census, a booted chess mode's View rows carry =["FRAME"]=
+2. the picks — ghost + anima =framed= · =cells= · =frame= · =cell= · =following=; =data.artifact= at 0 sites; green: ghost =renderers.test.js=
+3. the place commands — =/frame/set= · =/cell/set=; =/buffer/artifact= at 0; green: ghost =commands.test.js= · =repl.test.js=
+4. the cell — journal card + mounted cell, anima =View= =listed= · =picked=; =PLACES= at 0; green: ghost =chrome.test.js= frame capture
+5. the markdown setting — =DOCKED.markdown=, =<markdown>= in the journal; green: a pretty reply probe at 100×34
+
+* blast table
+
+| site | count | breaks |
+|------|-------|--------|
+| =data.artifact= | 6 | at land |
+| =/buffer/artifact= | 9 + drapes fixture 2 | at land; drapes =journal.test.js:28,85= fixture strings stay |
+| =chosen(= the buffer pick | 7 | at land |
+| =/view/:id= route | 1 (=resolution.js:50=) | none, a field added |
+| =PLACES= · =surface.place= | anima 3 · registry fixtures 3 | fixtures pass a dead prop, nothing reads it |
+| View rows | every =~/.viva/registry= mode re-bundles at boot | none |
+| the journal reply =<text>= | 1 | the look; dock-probe re-shot |
+
+=data.artifact= sites: =commands/artifact.js:28= · ghost =renderers.js:11= · ghost =frame.jsx:16= · anima =view.js:17= · 2 tests. =surface.place= fixtures: =chess/tests/render.js:56= · =assembly/tests/render.js:60= · dojo =tty.render.test.js:56=.
+
+* testing assessment
+
+- COVERAGE GAP: no test mounts a cell; milestone 4 extends =chrome.test.js= (frame capture over the journal)
+- COVERAGE GAP: =SyntaxStyle.fromStyles= scope names (=markup.*=) unprobed against OpenTUI 0.5.17's markdown parser; a blunt =testament/prototypes/markdown/run.js= first
+- COVERAGE GAP: =event.stopPropagation()= on =onMouseUp= (=renderer.d.ts:177=) unprobed inside a clickable row
+- COVERAGE GAP: the frame's =Mounted= (=flexGrow: 1=) inside the journal's scrollbox — a cell's height unprobed
+- a re-sighted buffer's =trait= merges raw (=entity-manager.js:76-89=) — =RENDERED= after a =/cell/set= must survive the merge; probe in milestone 2
+
+* QA
+
+- I run the chess play tool in the dock, I see its board cell under the turn, I click a square, the move lands
+#+marker_qa: m111/P-cell-mounts · revised → =m103/P-cell-mounts= (the chess CELL view is deferred there) · a CELL view mounts in the journal and takes clicks
+- I click a card with no cell view, the dock closes and the buffer fills the frame
+#+marker_qa: m111/P-card-full · held 10-27 (his /"held"/) · /buffer/full from the card
+- I click the cell's =board ▾=, it steps to the next cell view; the frame's pick does not move
+#+marker_qa: m111/P-cell-step · revised → =m103/P-cell-step= · /cell/set writes RENDERED.cell only
+- I type =/set terminal.dock.markdown plain=, the reply shows its =**= again
+#+marker_qa: m111/P-markdown-plain · held 10-27 (his /"held"/) · DOCKED.markdown per terminal
+
+* deferred
+
+- the chess cell view =buffer/board.jsx= + its =traits: ["CELL"]= entry → =m103-command-pass= (carries the chess board; the design's board cell =dom.js:224=); P-cell-mounts waits on it
+- a model-written view (=view_create=, GENERATIVE) declaring =CELL= — its tool input gains =traits=
+- =DOCKED.markdown= above the terminal: the user · client =DOCKED= already merge (=terminal/prototype.js:41=); no writer for them
+
+* open
+
+- =cells= names two things: =gestalten/belt/journal.js= =cells(turn, buffers)= (a turn's BUFFERS) · =widgets.buffer.cells= (CELL VIEWS), both read in =journal.jsx= — unruled
+- his doubt 10-27: /"I don't even know if we need, if we have this rule that we go through the REPL with everything"/ — for this quest Q8A /"we don't bypass the REPL"/
+
+* release
+
+** api
+- added View traits =FRAME= · =CELL= — a mode's =views= entry may carry =traits=; none is =FRAME= · migrate: none ⟨m111⟩
+- added buffer trait =RENDERED { frame, cell }= — the per-place view slug · migrate: none ⟨m111⟩
+- removed =buffer.data.artifact= — the pick moves to =trait.RENDERED.frame= · migrate: none ⟨m111⟩
+** cli
+- renamed =/buffer/artifact <n> [name]= → =/frame/set <slug>=, chord =leader/e/a= kept · migrate: a slug, not an index ⟨m111⟩
+- added =/cell/set <slug> <name>= ⟨m111⟩
+- added =/set terminal.dock.markdown pretty|plain= ⟨m111⟩
+** other
+- changed the journal's buffer card: no JSON; a cell view mounts under it; a click is =/buffer/full= ⟨m111⟩
+- removed anima =surface.place= · =surface.places= ⟨m111⟩
+
+* handoff
+
+- goal: a buffer attached to a turn renders inline in the dock as its cell view, a card when it has none; the frame view opens on a click; replies render pretty markdown
+- done: drill Q0–Q9 locked 10-27; as code ls-wise; critical pass + replay 10-27 (=* critical pass=); env filter LANDED; LANDED on the repo 10-27 (/"quest 111. land. blast change. go."/): 24 files · 55 hunks · 4 whole files, 0 drift; census before → after, HOME empty: typology =ok | 156 passed (682 steps)= → =ok | 157 passed (684 steps) | 0 failed= · ghost =ok | 31 passed (105 steps)= → =ok | 31 passed (106 steps) | 0 failed= · runtime mode subset =14 passed (73 steps)= both; removed names grep zero; =viva --help= rc 0; after the land, on his ask: anima display popover row =markdown= (=sections.js:213=, =/set terminal.dock.markdown=) + anima journal pretty through drapes =Turn= =markdown= prop (=Turn.jsx= · =parts.css= =.entry .text .md= · =journal.jsx=), drapes =ok | 3 passed (26 steps)=; ghost display popover row =markdown= (=display.jsx:84=), ghost =ok | 31 passed (106 steps)=
+- next: the QA walk (pty + pyte, free port); anima unproven (suite unrunnable, m108 milestone 4); the served seams (=<markdown>= style names · =stopPropagation= · cell height)
+- never: a chess-only flag; =target= · =place= on a row; JSON in a card
+- reads: this file → =reference/m111/drill-10-27.org= (terrain, the design read, every option struck)

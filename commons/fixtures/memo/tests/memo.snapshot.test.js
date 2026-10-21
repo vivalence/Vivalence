@@ -1,4 +1,4 @@
-import "@vivalence/sheets/host";
+import "@vivalence/sheets";
 import paladin from "@vivalence/paladin";
 import { specimen, mime } from "@vivalence/typology";
 import { tokens } from "@vivalence/dapper";
@@ -148,7 +148,7 @@ describe("memo · the tty view, frame by frame", { sanitizeOps: false, sanitizeR
       },
     };
     const setup = await testRender(() => [], { width: 80, height: 16 });
-    const handle = module.default(setup.renderer.root, terminal, { renderer: setup.renderer, palette: tokens("northsea", "1") });
+    const handle = module.default(setup.renderer.root, { terminal, buffer: terminal.buffer, surface: { place: "frame", renderer: setup.renderer, palette: tokens.camel("northsea", "1") } });
     const frame = async () => {
       for (let pass = 0; pass < 4; pass++) {
         await setup.renderOnce();

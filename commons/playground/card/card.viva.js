@@ -1,4 +1,4 @@
-import { App, v } from "@vivalence/typology";
+import { mime, v } from "@vivalence/typology";
 
 export const manifest = {
   type: "playground",
@@ -7,10 +7,9 @@ export const manifest = {
   description:
     "A render target — a dealt card; reports done via buffer.release().",
   version: "0.1.0",
-  traits: ["APPLICATION"],
+  traits: ["VIEWABLE"],
 };
 
-export const application = new App(
-  "buffer/Card.svelte",
-  v.buffer({ data: { face: v.string() } }),
-);
+export const buffer = v.buffer({ data: { face: v.string() } });
+
+export const views = [{ slug: "card", mount: "buffer/Card.svelte", mime: mime.dom.svelte }];

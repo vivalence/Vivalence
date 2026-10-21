@@ -9,7 +9,7 @@ const daemon = {
   type: "daemon",
   mountpoint: null,
   entities: {},
-  services: {},
+  providers: {},
   cortex: { faculties: new Map() },
   reference: new Path("/daemon/hello"),
   modes: {},
@@ -23,13 +23,12 @@ const cortexless = { ...daemon, cortex: null };
 const generative = {
   manifest: { slug: "hello-world", type: "demo" },
   module: { generator },
-  bundles: { absolute: "/nonexistent/catalog" },
+  mountpoint: "/nonexistent/catalog",
+  entity: { id: "mode-1" },
 };
-await GENERATIVE(generative, {
-  mountpoint: { absolute: "/nonexistent/catalog" },
-});
+await GENERATIVE(generative, { entities: {} });
 const armed = new Vector().graft(tools);
-armed.branch("/generator", generative.generator.tools);
+armed.graft(generative.generator.tools);
 armed.use(shard.context.spread(contexts.host, daemon));
 
 const names = () =>
@@ -47,16 +46,17 @@ const invoke = async (name, input) =>
   );
 
 specimen.describe("hello-world tools — the catalog", () => {
-  specimen.it("P-catalog: the armed catalog is exactly eight names", () => {
+  specimen.it("P-catalog: the armed catalog is exactly nine names", () => {
     specimen.expect(names()).toEqual([
       "viva_doctor",
       "web_search",
       "web_read",
       "research",
-      "generator_view_render",
-      "generator_view_revise",
-      "generator_view_inspect",
-      "generator_view_list",
+      "buffer_create",
+      "view_create",
+      "view_update",
+      "view_read",
+      "view_list",
     ]);
   });
 
@@ -74,7 +74,7 @@ specimen.describe("hello-world tools — the catalog", () => {
         "research",
       ]);
       // the generator arms NOTHING by itself: rollup lists callable nodes and it has none —
-      // two rewords the trait's tools absorb, plus the refuse middleware. the four names
+      // two rewords the trait's tools absorb, plus the refuse middleware. the five names
       // come from GENERATIVE.
       specimen.expect(named(generator)).toEqual([]);
     },
@@ -92,7 +92,7 @@ specimen.describe("hello-world tools — the catalog", () => {
   );
 
   specimen.it("P-provenance: the assembly slurps, it does not rewrite", () => {
-    const [doctor, search, read, research, render, revise, inspect, list] =
+    const [doctor, search, read, research, open, create, update, peek, list] =
       nodes();
     specimen.expect(doctor.pattern.valence).toContain("viva instance/doctor");
     specimen.expect(search.pattern.valence).toContain("Wikipedia");
@@ -100,18 +100,20 @@ specimen.describe("hello-world tools — the catalog", () => {
     specimen.expect(research.pattern.valence).toContain(
       "one call per subject",
     );
-    specimen.expect(render.pattern.valence).toContain("HOUSE RULES");
-    specimen.expect(revise.pattern.valence).toContain("HOUSE RULES");
-    specimen.expect(inspect.pattern.valence).toContain("by its hash");
-    specimen.expect(list.pattern.valence).toContain("on this thread");
+    specimen.expect(open.pattern.valence).toContain("working area");
+    specimen.expect(create.pattern.valence).toContain("HOUSE RULES");
+    specimen.expect(update.pattern.valence).toContain("HOUSE RULES");
+    specimen.expect(peek.pattern.valence).toContain("by slug");
+    specimen.expect(list.pattern.valence).toContain("this mode holds");
   });
 
   specimen.it(
     "P-noexternal: the refusal rides the trait's door as middleware — a URL import never reaches the bundler",
     async () => {
-      const { condition, output } = await invoke("generator_view_render", {
+      const { condition, output } = await invoke("view_create", {
+        slug: "external",
+        mime: "application/vnd.viva.dom.svelte+javascript",
         source: '<script>import x from "https://esm.sh/x";</script><p/>',
-        label: { name: "external" },
       });
       specimen.expect(condition).toBe("ERROR");
       specimen.expect(output.message).toContain("may not import from a URL");
@@ -232,7 +234,7 @@ const PAGE = {
 const opened = [];
 const lit = {
   ...daemon,
-  services: {
+  providers: {
     reader: { open: (url) => (opened.push(url), Promise.resolve(PAGE)) },
   },
   cortex: {
@@ -300,7 +302,7 @@ specimen.describe("web_read — lit, once a reader is consumed", () => {
     async () => {
       const angry = {
         ...lit,
-        services: {
+        providers: {
           reader: {
             open: () =>
               Promise.reject(new Error("refused: not a public address")),

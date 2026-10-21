@@ -1,0 +1,105 @@
+#+title: auto-enroll writes the pivot, the quest reaches full resolution, and the Lighthouse prototype announces its daemon's reported status
+#+index: 248
+#+session: session 11950be0, fourth fold — turns 87–112 (fold N = 26; turns 1–16 are #245, 17–73 are #246, 74–86 are #247). Opens on the gate's second =/compact= after #247, closes on /"ikiro compact"/ + =/compact=.
+
+* one breath
+
+beef ruled F18 (auto-enroll writes the pivot; the lighthouse facilitating access comes later) and struck the word "door"; the quest went to full resolution — every blast row a hunk, two opus readers writing the anima surface (23 files · 117 hunks) and the M1 · M2 suites (18 files, green through an overlay), eleven defects the probes could not see fixed in the tangle; then the provider became a =Lighthouse= prototype in the runtime, walked line by line in his words — no runtime instance, no =withdraw=, announce as the effect of a status change, =remote= not =url=, =daemon= not =slug=, no pruning (/"very unsafe"/), the row's status column =reported= after it collided with anima's =Daemon.status=; F17 ruled =PROVIDER=. The quest stamps =deliverables designed 6 | milestones ready 4=, 28 tangle blocks, 148 hunks, probes 47 · 9 · 1 (12 steps) at 0 failed. Nothing in the tree.
+
+* rows
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 87 | =/compact= (the gate's retry after #247) | the continuation | — |
+| 88 | continuation prompt | the fold report (#247 landed, frontier above on #211–#244) | — |
+| 89 | /"5 — on enroll. … top level design question. runtime-anima-lighthouse-daemon-idenitty integration. very high level"/ | the ring in English: five actors, two trust flows that carry no identity, the pivot without a writer, the announce the tangle breaks; two decisions owed | — |
+| 90 | /"for that enrollment has to be auto, which is the only way at the moment, but I assume that the lighthouse is going to develop to also be able to facilitate other modes … That comes later. Stop using the word door. I have no idea what that is supposed to be."/ | F18 RULED; =* deferred= gains lighthouse-facilitated access; M1 =ready=; 29 "door" → route; callout (explanation: a skill-internal noun leaked into prose) | the word door, in the quest and in my mouth |
+| 91 | /"update the quest to reflect this."/ | already in flight; reported | — |
+| 92 | /"yes go. finish up. next step is applying the full quest"/ | F18 tangled: =attachment/daemons.js= (announce · prune), =/auth/enroll=, provider forwards, =population.js:41= hands the slug; =probe.js= 40 · 0; M2 =ready= | — |
+| 93 | /"work out the entire quest in full resolution."/ | two opus readers: the anima surface (23 files · 117 hunks, a residue census) and the M1 · M2 suites (18 files, run green through an overlay map, the rig rebuilt as =runtime/tests/scenarios/lighthouse.js=); =methods/tangle.py= (materialize or dry-diff the =:tangle= blocks, list the hunks); =* apply= ladder; =* release= 17 lines; =* changelog= skeleton; M4 resolved to grep gates + canon + the known issue; =* critical pass= table — eleven defects fixed in the tangle (paladin's =ATTACHED: "aperture"= rule, the service barrel importing the deleted file, =traits= declared twice, the enroll race on the pivot, dock drags never reaching the row, a seat onto an inert thread keeping the old buffer, …); =terminals.remote.test.js= as anima's suite; three stray =*= headings and seven doors cleaned out of the splice | =setDock*= on the Terminal class (the bridge mutators are the one algebra; the terminal listens on its own =$dock=) |
+| 94 | /"i think i want to pass more of the daemon than the slug … why doesnt the provider offer a solution for sync of daemons into the lighthouse … this function is not authority but provider … hte provider of datamap has an arity of 2 … maybe the whole middleware auth stuff should live in a lighthouse provider prototype? … what capabilities should live on the authority adn identity provider in vivalence?"/ | a =Lighthouse= prototype proposed with its capabilities table (verify · authenticate · shard · announce · prune · grant/revoke later · subscribe later) | — |
+| 95 | /"there is no lighthouse on the runtime?!??! … unless the lighthouse is going to be reused on the client, i think the ligthhouse should live in runtime."/ · =connection= ok · =daemon= · =origin= /"no sure"/ · =shard= /"great"/ | withdrawn: the runtime-level instance; the prototype moves to =systems/runtime/prototypes/=; a daemon-side =announce()= · =withdraw()= sketched | the typology home; =daemon= · =origin= as fields |
+| 96 | /"no. just because a daemon isnt active, not mean its not there. ok. for now announce and prune (if we prune? do we?) via Litghthouse().connection.call(announce) rest later."/ | =withdraw= struck; announce stays the runtime beat through the provider's connection | =withdraw()= |
+| 97 | /"show me the full prototyep and its use again"/ | the prototype rewritten clean (=identify= · =admit= as methods, =shard= two arrows) and shown with every use site | the reassigned-=authorize= wrapper |
+| 98 | /"we can just use the lighthhouse instance from the daemon... ok. apply on quest levle"/ | F19 written: the prototype block, provider arity 2, =shard/auth.js= gone (F8 superseded), the daemon hunks on =die.daemon.lighthouse.shard.*=, the scenario doubles as the real class over a connection double, =enroll.test= · =lighthouse.test= on the new signature; probes 40 · 8 · 13 | =gestalten/shard/auth.js= · the typology auth suite |
+| 99 | /"how does the ligthhouse identify which daemons to delete vs which not?"/ | answered: by the row's =url= prefix alone — no bearer, no lineage column; the sound shape if prune stays (an =origin= column) | — |
+| 100 | /"soooo difffffffernent meta on lighthouse daemon pruning for now. i think what makes sense is if we start tracking aliveness on lighthouse per daemon … whats the best solution here?"/ | push over pull: the daemon's =Lighthouse= listens on its own =status.$transient= and re-announces; the row carries =status=, =updatedAt= is the age; the handshake variant named as the same wire under a second name | the lighthouse pulling SSE from every daemon |
+| 101 | /"id want this to receive the status, and all the other config we need. such that announce is a sideeffect of status change inside the lighthouse. what about this design?"/ | yes: =constructor(connection, { users, status, slug, url })=, =subscribe= in the constructor, =announced= the last beacon's promise, the runtime beat only awaits | =ctx.daemon= inside the prototype |
+| 102 | /"i dont like URL here. wrong name. we have this a few times in our env vars. url . used 3 different types. what was it? remote, serve, and ??"/ | measured =instance.viva.js:61-66=: ORIGIN · SERVE · REMOTE (+ MOUNT on disk); the daemon tells the lighthouse its remote | =url= |
+| 103 | /"remote instead of url. and no pruning. unsafe this way. very unsafe. ok. into the quest with all of this"/ | sandbox: =Daemon.ts= =remote= · =status=; =/daemons/prune= cut; the prototype rewritten | =/daemons/prune= and the integration prune block |
+| 104 | /"this.slug = slug; no! fuck. … we dont internally in the lighthouse keep slug as slug?!?! call it daemon"/ | =this.daemon=; the wire already said =daemon= (=/auth/enroll { daemon }=) | =this.slug= |
+| 105 | /"ikiro compact at the end."/ (mid-turn, not acknowledged in a reply — the order is this fold) | — | — |
+| 106 | /"service trait got renamed to "PROVIDER" serivice is still a marker. but now provider function is tied to "PROVIDER" and PROVIDER is tied to SERVICE. SERVICE would expect a control vector export if it didnt have the "ATTACHED" trait and export. important for the schematics/v/paladin validation. work this into the quest."/ | F17 RULED: paladin =TRAITS.PROVIDER = "provider"=, =ATTACHED = "attachment"=, two rules (SERVICE wants =control= unless ATTACHED; PROVIDER wants SERVICE); the manifest =SERVICE · PROVIDER · DATAMAP · ATTACHED=; six integrity checks in =probe.js=; the collision surfaced: the row's =status= string overwrote anima's =Daemon.status= object (=probe.client= red) | — |
+| 107 | /"Row column renamed — reported"/ | =reported= on the row and the wire; probes 47 · 9 · 13 at 0 failed | the =status= column |
+| 108 | /"finish up."/ | the F17/F19 fold into the quest, by script: F19 and F17 sections, the integration and population hunks, seven blocks resynced, the prune steps cut from four suites, =url= → =remote= across them, the scenario doubles with the four facts, the anima =daemon.remote= hunks, tables, release, deferred (stale daemons) | — |
+| 109 | /"all the dangling stuff"/ | the reference archive refreshed (14 files), the hunk count corrected to 148 | — |
+| 110 | /"ikiro compact"/ | this fold | — |
+| 111 | =/compact= | the gate | — |
+| 112 | the =compact-walk= re-invocation | the walk | — |
+
+coverage: 87–112, 26 rows, every n once. Turn 105 is in the transcript as a mid-turn order no reply acknowledged; it is honored here.
+
+* arc
+
+From a ruling (F18, turn 90) through a widening (full resolution, 93: the quest grew from one tangle to 28 blocks and 148 hunks with every test file written) to a narrowing walked line by line (F19, 94–107: the provider became a prototype and lost, in order, its typology home, its runtime instance, =withdraw=, =ctx.daemon=, =url=, =slug=, prune, and the word =status= on the row). The widening was mine on his one-line order; the narrowing was his, one correction per turn, each the shape of the lexicon: a noun the env already owned (REMOTE), a noun the wire already used (=daemon=), a safety he would not trade (prune). F17 landed in one turn at the end because its answer was already measured (paladin's rule table, the manifest schematic's open array).
+
+* failures
+
+- the word "door" — a =domain-development= noun carried into beef's prose and 29 times into the quest; he had never used it for a lighthouse route. Callout (explanation), the rule: name a thing by the word the code or beef uses.
+- a runtime-level =Lighthouse= instance invented for announce (turn 95: /"there is no lighthouse on the runtime?!??!"/). The runtime has masks and processes; the instance belongs to the process that has users.
+- =url= on the prototype after the env had three URL words for three meanings (turn 102). Measured only after the strike.
+- =this.slug= inside the lighthouse (turn 104) when the wire already said =daemon=.
+- a row column named =status= that overwrote anima's =Daemon.status= object on hydration — found by the client probe, not by me (turn 106).
+- the two readers' defects: eleven in my tangle the probes could not reach (paladin never crossed, the runtime barrel never loaded, no dock dragged from a surface). The sandbox proves the shape it runs; the tree's seams need the tree's suites.
+
+* state at fold
+
+m76: =#+status: FULL RESOLUTION 10-03 …= · =#+states: deliverables designed 6 | milestones ready 4=. F1–F19 ruled; open: the IdentityDossier, the ctx-class word. Tangle 28 blocks (22 byte-equal to =testament/m76-probe/=, 6 new suites and the rig), 148 hunks each with its =path:line=. Probes =probe.js= 47 · 0, =probe.auth= 9 · 0, =probe.client= 1 (12 steps) · 0; the readers' overlay runs green on 12 suites. =methods/tangle.py= new. Reference: =.ikiro/reference/m76/= 14 files. m78 untouched. Tree: nothing of mine; beef's @ as at #247.
+
+* skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| compact-walk | 111 | HELD | this fold: markers · spine · skills · rows 87–112 · balance · index · report · ledger · handoff |
+| callout | 90 | MISSED | /"Stop using the word door. I have no idea what that is supposed to be."/ — logged by hand in the reply, no firing |
+| quest-authoring | 90 · 92 · 93 · 98 · 103 · 106 | MISSED | six quest rewrites (F18 · F19 · F17, the ladder, release, the readers' splice), no firing |
+| critical-pass | 93 | MISSED | the two readers WERE the adversarial pass (eleven defects) and the skill never fired; the fold before marked it the same way |
+| testing | 92 · 98 · 103 · 107 | MISSED | nine probe runs, envelopes pasted, no firing |
+
+balance: thirds of 26 — 87–95 · 96–104 · 105–112. Rulings cited: 5 · 7 · 3. The middle third carries the weight because that is where the =Lighthouse= was walked one field per turn; the last third is F17 and the fold.
+
+* settlement
+
+- callout: turn 90 → =zettelkasten.md= (explanation, "door"), written in-turn; no codeword in 91–112.
+- known issues: none new in the tree; =announce-without-a-bearer= is M4's landing item and lives in the quest's ladder until a row exists to ledger.
+- markers: =MARKERS.md ## OPEN= empty before and after; turn 105's deferred order is this fold.
+- memory: nothing private learned.
+- shards: nothing landed structurally; the codemap re-stamps are M4's.
+- ledger: four MISSED rows appended to =skills/LEDGER.md=.
+- budgets: =world/frontier.md= above on #211–#244 (beef's settles), unchanged by this fold.
+
+* handoff
+
+- quest :: m76-terminals-close-the-dataring
+- goal :: /"this closes the dataring."/ — Terminal to the lighthouse beside Identity; the client rides the lighthouse's subscription; the daemon's =Lighthouse= announces its own =reported= status
+- done :: F1–F19 ruled (=#+states: deliverables designed 6 | milestones ready 4=); full resolution — 28 tangle blocks, 148 hunks with =path:line=, every test file written, =* apply= ladder, =* release=; a critical pass by two readers fixed eleven defects; probes 47 · 9 · 1 (12 steps) at 0 failed; =methods/tangle.py= materializes the blocks
+- next :: beef's =go= on M1 (the lighthouse set + the =Lighthouse= prototype + the daemon's =ctx.lighthouse=) — =python3 .ikiro/methods/tangle.py <quest> --prefix subsystems/typology --write= + the hunks per =* apply=; an entity edit → m78 law, a FRESH instance only
+- never :: a tree edit at quest level; =deno fmt=; a runtime-level lighthouse; prune; "door"
+- owed :: beef — the IdentityDossier (THEMED · DOCKED · HOMED live, or the login JSON) · the ctx-class word · the commit of =.ikiro=
+- quest :: m78-mikro-7
+- goal :: cross 20 live sqlite dbs to 7.2.3 without the glued pragma
+- done :: as #245 — DESIGNED, 8 forks QUESTIONED, =reference/mikro-7/=
+- next :: beef rules F1 (driver) and F2 (pivot pin)
+- never :: boot a populated instance on 6.6.7 after an entity edit
+- owed :: beef — the eight forks; F7 (does the Turn delta ride m78)
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                            | progress  | status   | next                                                                                                                 | sessions |
+|----------------------------------+-----------+----------+----------------------------------------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security          |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                | 1        |
+| m71-droneaid-guide               |   0% 0/16 | design   | go                                                                                                                   | 0        |
+| m76-terminals-close-the-dataring |  50% 9/18 | open     | survey                                                                                                               | 3        |
+| m77-droneaid-homecoming          | —         | open     | survey                                                                                                               | 2        |
+| m78-mikro-7                      |   0% 0/13 | design   | go                                                                                                                   | 0        |
+| vector-attach-graft              |  33% 1/3  | landing  | beef eyeballs m2 (auth + attach middleware now ride the source apertures; arming deep-copies); then m3 the live walk | 1        |

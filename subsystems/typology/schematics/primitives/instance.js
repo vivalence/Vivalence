@@ -2,6 +2,7 @@ import { v } from "../v.js";
 import { Slug } from "../scalars/index.js";
 import { Manifest } from "./manifest.js";
 import { Home } from "./home.js";
+import { Docked, Themed } from "../traits/index.js";
 import { Path, Url } from "../prototypes/signatures.js";
 
 const Statics = (known = {}) => v.object(known, { additionalProperties: true });
@@ -50,7 +51,7 @@ export const Runtime = v.object(
     mountpoint: Mountpoint.desc('Where the runtime\'s own modes persist. Declared wins; otherwise the scope mountpoint. Example: "/viva/instances/chess/mountpoint"').optional(),
     reference: Path().desc('The runtime\'s reference as a host, /runtime/<slug>; paladin writes it. Example: "/runtime/runtime"').optional(),
     url: Url().desc("Where a consumer reaches the runtime host: statics.remote + reference. Example: https://runtime.vivalence.com/runtime/runtime").optional(),
-    attach: Url().desc("Where the runtime serves its own bundles and cargo: remote + /attached. Example: https://runtime.vivalence.com/attached").optional(),
+    attach: Url().desc("Where the runtime serves views and files by row: remote + /attached. Example: https://runtime.vivalence.com/attached").optional(),
     modes: Modes.optional(),
   },
   { additionalProperties: true },
@@ -78,7 +79,7 @@ export const Lighthouse = v.object(
   { additionalProperties: false },
 );
 
-export const ClientTrait = v.object({ HOME: Home.optional() }, { additionalProperties: false });
+export const ClientTrait = v.object({ HOME: Home.optional(), DOCKED: Docked.optional(), THEMED: Themed.optional() }, { additionalProperties: false });
 export const Client = v.object(
   {
     manifest: Manifest,
@@ -112,7 +113,7 @@ export const Daemon = v.object(
     statics: Statics().default({}),
     reference: Path().desc('The daemon\'s path under the runtime. Declared wins; otherwise /daemon/<slug>. Example: "/daemon/chess"').optional(),
     url: Url().desc("Where a consumer reaches the daemon: runtime.statics.remote + reference. Example: https://runtime.vivalence.com/daemon/chess").optional(),
-    attach: Url().desc("Where the runtime serves this daemon's bundles and cargo: remote + /attached. Example: https://runtime.vivalence.com/attached").optional(),
+    attach: Url().desc("Where the runtime serves this daemon's views and files by row: remote + /attached. Example: https://runtime.vivalence.com/attached").optional(),
     modes: Modes.default([]),
     consume: v.record(v.string(), Mask).default({}),
     hallucinators: v.array(Mask).default([]),

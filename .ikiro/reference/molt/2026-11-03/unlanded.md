@@ -1,0 +1,1842 @@
+# unlanded — land verdicts the 11-03 pass could not fit under cap, per owner (text = the ≤2-line addition in the register; the next molt lands them when room exists)
+<!-- writer: agent (molt 11-03) · reference, uncapped · source: the writers' skipped lists + clusters/verdicts -->
+
+## codestyle — .ikiro/codestyle.md (23978/24000) · skipped 82
+
+- **cid 3** · invented-state-optionality · ×3 · 09-21 — cap: 22 chars headroom left. The remaining prose is mostly beef quotes, REJECTED entries and path:line fences, which the brief protects. cid 33 says the same ru
+  - where: comms: after "Tables hold enums · numbers · symbols only"
+  - text: An agent-facing index is full rows, flat — no indent, no fold, no budget; each row the exact string the tool takes (/"i want the full index. not an abbreviation. rows. no indentation format"/).
+  - voice: /"The centers is always the centers."/
+- **cid 33** · invented-state-optionality · ×1 ·  — same rule as cid 3; skipped on cap
+  - where: ## his language — "numerals (`5%` · `14 words`) are sticky contracts" (extend)
+  - text: · `full` · `all` = no cap I invent (/"i want the full index. not an abbreviation."/)
+  - voice: /"i want the full index. not an abbreviation."/
+- **cid 5** · loud-failure · ×1 ·  — cap; merges with 222 (value set once = plain field) when there is room
+  - where: "a `$`-store ships a plain getter"
+  - text: one source, one lookup: never mirror a store into a second atom or getter — every reader reads the one store (REJECTED 06-18 `$modes` beside `runtime.entities[]` /"so why the duplication???"/).
+- **cid 222** · one-fold · ×1 · 2026-07 — cap; one line together with cid 5
+  - where: a `$`-store ships a plain getter
+  - text: A value set once is a plain field, never a store (REJECTED 10-26 `client.$runtime` /"the runtime is not an reactive?!"/); a prototype carries few words (10-12 /"way to many shit variables on it"/).
+  - voice: /"its shit tho. must be fixed. there is weird leakage of entities into that shape and entites have NOTHING to do iwht each other."/
+- **cid 215** · none · ×1 ·  — cap
+  - where: a `$`-store ships a plain getter
+  - text: A getter lives on the prototype: `{...x}` · `Object.keys` · a pojo fold drop it — pass the instance.
+- **cid 218** · none · ×1 ·  — cap
+  - where: "a `$`-store ships a plain getter"
+  - text: `toJSON` may feed a cache: never destructive, never a lie about a value (/"sometimes toJSON is used to store to cache. cant be destructive here."/).
+  - voice: /"sometimes toJSON is used to store to cache. cant be destructive here."/
+- **cid 6** · invented-state-optionality · ×1 · 07-03 — cap
+  - where: universal over parochial — append after 'No hidden rule over an explicit grammar'
+  - text: REJECTED 10-16 boot-or-not by a loopback test, however RFC-named — the ledger decides, `instances.lookup(home)` (/"no. still wrong."/) · 10-23 `instanceof Span` → `instanceof this.constructor` (/"in case we do ever extend a span"/) · a deny-list → an allow-list (/"positives not negatives."/) · omitting what the repositories provide (/"only becasue there aint a consumer today aint reason to not do it."/) · identity by mtime → CONTENT, mtime only its cache (10-28).
+- **cid 6** · invented-state-optionality · ×1 · 07-03 — cap
+  - where: "absence IS the signal"
+  - text: A default lives on the schema (`v`), never a call-site ternary (07-06 /"instead of gibberish ternary code, provide a default on v.schematics level"/); a fresh buffer holds NOTHING — a fallback IS a default (REJECTED 09-22 auto-select /"why … still a fucking defualt when i load a new empty fucking buffer"/).
+- **cid 34** · invented-state-optionality · ×1 · 2026-04-18 — cap
+  - where: his language: after "`i suspect` = sketch, code on go"
+  - text: `correct?` · a guessed seam = measured, answered at `file:line`, never assented nor bent into the design (07-04 /"i think we can do without any sink for now. correct?"/)
+- **cid 37** · no-second-epicycle · ×2 · 06-26 — cap: two verdicts carry this cid. The inflight ??= trap and the inspiration/reference/demo = READ rule are both unlanded
+  - where: his language — beside '`artifact` · `inline`'
+  - text: `inspiration` · `reference` · `demo` = READ, we reimplement; never patch, integrate, depend (08-29 /"its INSPIRATION!!!!!!!!!! not something we interact with. we REIMPLEMENT pi app."/).
+  - voice: /"you keep fucking cascading shitty choices. fuckface. can you solve this using a constructor with a signature of two ie without passing parents around?!?!"/
+- **cid 37** · no-second-epicycle · ×2 · 06-26 — cap: two verdicts carry this cid. The inflight ??= trap and the inspiration/reference/demo = READ rule are both unlanded
+  - where: 4 — "Async setup memoizes its in-flight PROMISE, never a boolean"
+  - text: … for SETUP only: `??=` DROPS a change arriving mid-run — a per-change rerun chains `refilling = refilling.then(…)` (10-24).
+  - voice: /"you keep fucking cascading shitty choices. fuckface. can you solve this using a constructor with a signature of two ie without passing parents around?!?!"/
+- **cid 45** · invented-state-optionality · ×1 · 10-12 — cap; same rule as cid 42 (the ask's frame IS the deliverable, curl in curl out)
+  - where: protocol: "evidence is taken on HIS side of the wire"
+  - text: The request format IS the delivery (curl in → curl out); a daemon-owned store is written through its datamap route, never SQL (REJECTED 08-18 /"did i fucking send you fukcing sql statemetns?"/).
+- **cid 42** · invented-state-optionality · ×1 ·  — cap; one line together with cid 45
+  - where: ## comms — after "Second correction on one screen = the SHAPE is wrong"
+  - text: **The ask's frame IS the deliverable**: a docker milestone is answered in docker, curl gets curl (never sqlite on a daemon store, never a Bruno file), `reference` is written to its model file (`reference/anima.md`), never the nearest kind I know (REJECTED /"did i fucking send you fukcing sql statemetns? … just give me curl"/).
+  - voice: /"paladin ought to create probably. or at least we dot watn to throw!"/
+- **cid 47** · invented-state-optionality · ×1 ·  — cap
+  - where: "**client is domain-blind** (`map.md`)"
+  - text: It speaks through a Connection: the runtime composes every path, a mode is reached only through its daemon (/"the clients dont compose the paths. runtime does."/ 10-05).
+  - voice: /"we are not going to adopt that."/
+- **cid 58** · invented-state-optionality · ×1 · 10-03 — cap; merges with cid 70 (report opens on the verdict: DONE · not done · YOURS)
+  - where: comms: "A report: his states as sections, his fields first"
+  - text: Each report row says DONE · not done · yours — `fix` is a verb (/"IS THIS FUCKING DONE OR NOT?!?! … do. fix. always verb."/); never a bare fact list or a changelog heading; data shows variance AND regularity, never repeats.
+- **cid 70** · live-system-unaware · ×4 · 09-28 — cap; one line together with cid 58
+  - where: ## comms — extends "A report: his states as sections, his fields first"
+  - text: A report opens on the verdict, then DONE (files · new state) · YOURS, raw stdout and diffs; things in HIS nouns — never a quest id, tier, hash, coined label; a README shows the file, never paragraphs about it (/"quests aare YOURS! wtf are these numbers."/).
+- **cid 62** · inverted-dependency · ×2 · 09-29 — cap: two verdicts carry this cid. The flag+patch clause duplicates cid 149, and the repository-takes-ROW-data clause is the other
+  - where: comms: "A flag (SKETCH · gap · unruled · defect) names the code, what is undecided, what BREAKS"
+  - text: … and its one-word patch at the owning call site (/"we not just mark the count as optional??"/).
+  - voice: /"wayyyy to convoluted. why the hell go via object … inside out hierarchy inverted as fuck. · why the fuck does the fucking REPOSITORY have DIE access??? w.t.f."/
+- **cid 62** · inverted-dependency · ×2 · 09-29 — cap: two verdicts carry this cid. The flag+patch clause duplicates cid 149, and the repository-takes-ROW-data clause is the other
+  - where: "≤2 positionals `(where|data, opts?)`"
+  - text: — ROW data, never a die (09-29 /"why the fuck does the fucking REPOSITORY have DIE access??? w.t.f."/); a verb runs at its lowest layer, `steer.dispatch.execute`, never a `shape.object` fold.
+  - voice: /"wayyyy to convoluted. why the hell go via object … inside out hierarchy inverted as fuck. · why the fuck does the fucking REPOSITORY have DIE access??? w.t.f."/
+- **cid 149** · rule-not-self-applied · ×1 ·  — cap; same rule as cid 62 (flag ships its patch)
+  - where: comms — "A flag (SKETCH · gap · unruled · defect) names the code, what is undecided, what BREAKS (the probe's output)"
+  - text: , and its PATCH beside it — "typology is holy" never excuses my call site (/"how to fix?? … apply optional. fixed?!?!"/)
+  - voice: /"how to fix?? we not just mark the count as optional??apply optional. fixed?!?!"/
+- **cid 77** · legible-over-dense · ×1 ·  — cap
+  - where: "**universal over parochial**"
+  - text: An ingesting component OPENS a boundary (path · socket · device), never SPAWNS its feeder; dev feeds the same boundary from outside (REJECTED 08-29 spawn /"this is a big fat no. lol. THINK."/).
+- **cid 84** · name-the-algebra · ×1 · 09-22 — cap
+  - where: **names** — "Every `.desc(` ends `Example: …`"
+  - text: Every `.desc(` ends `Example: …` — it rides the wire schema the model reads; the prompt slims to a role brief (/"the schema is part of the communication with the hallucination"/ 07-06).
+  - voice: /"Yes, this is our solution. Very pretty. I like this. Um, amen."/
+- **cid 86** · namespace-destructuring · ×3 · 07-11 — cap
+  - where: **1 · 3 · 8 — one fold**
+  - text: One traverse per press; a second only when a match fires (REJECTED 10-23 a computed `$chord` + matched/missed getters re-traversing /"we're running it twice. I don't want that."/).
+  - voice: /"DONT FUCKING SPAAM ONE OFF NON FUNCTIONAL VARIABLES!!!!… i need the context of the.dot.notation to fucking knwo where what is fuckin gcoming from."/
+- **cid 93** · pin-ontology-before-naming · ×1 ·  — cap
+  - where: **entity capability** — "An entity: mikro + typology, never paladin"
+  - text: An entity: mikro + typology, never paladin, never `this.daemon` — routes via aperture closures, a live handle on the entity (/"a pretty severe scope inversion"/).
+  - voice: /"stop usign the fucking term shelf… ledger, registry, instances. no fucking shelf. prune!"/
+- **cid 106** · pin-ontology-before-naming · ×5 · 10-13 — cap
+  - where: **structure** — "a multi-file dir carries an `index.js` barrel"
+  - text: A root MIRRORS ls, barrelled up leaf → `index.js` → root: a leaf `export *`, a family `export * as` (two stars on one name export NEITHER) (/"barrel up, barrel up"/ 10-09); a barrel exports its nouns; a leaf ONE export (/"extra exports are huge code smell"/ 10-23).
+  - voice: /"this is the same thing three times it looks like. should be one."/
+- **cid 123** · pin-ontology-before-naming · ×1 · 09-23 — cap: two verdicts carry this cid (prototype STANDALONE; vendor types never enter the core)
+  - where: **universal over parochial** — after "`belt.hallucinate` owns the session."
+  - text: A vendor's types never enter the core: take the shape, bring our words (09-23 /"fuck jev's types. viva is self contained."/).
+  - voice: /"fuck jev's types. viva is self contained. choice. yes no?"/
+- **cid 123** · pin-ontology-before-naming · ×1 · 09-23 — cap: two verdicts carry this cid (prototype STANDALONE; vendor types never enter the core)
+  - where: "a new mechanism is a blunt `testament/prototypes/<name>/run.js` first"
+  - text: — STANDALONE: own `deno.jsonc`, vivalence stubbed, never a second instance or env set (REJECTED 10-07 /"i dont want to fuck with two viva instances, two sets of env variables"/).
+  - voice: /"fuck jev's types. viva is self contained. choice. yes no?"/
+- **cid 124** · pin-ontology-before-naming · ×1 · 10-03 — cap: two verdicts carry this cid (own listener in constructor; binding = RELATION, never a trait)
+  - where: **entity capability = a REPOSITORY METHOD** — after "≤2 positionals `(where|data, opts?)`."
+  - text: A binding to another entity is a RELATION, never a trait; optional only for CRUD states (10-03 /"its not a trait. ... optionality ooonly because of crud states."/); the trait vocabulary is declared ONCE in typology's schematic, a system's `traits/index.js` implements a subset (10-19).
+  - voice: /"but really the true nature of that is a relation. its not a trait. ... optionality ooonly because of crud states."/
+- **cid 124** · pin-ontology-before-naming · ×1 · 10-03 — cap: two verdicts carry this cid (own listener in constructor; binding = RELATION, never a trait)
+  - where: "An execution closes what it opened in its OWN `finally`."
+  - text: An object wires its OWN listener in its constructor, never a lifecycle beat; one queue per stream, the enqueue split from the effect over it (REJECTED 10-23 /"why don't we do that in the constructor? And then why do we do it twice?"/ · /"dispatch is two things at once"/).
+  - voice: /"but really the true nature of that is a relation. its not a trait. ... optionality ooonly because of crud states."/
+- **cid 139** · premature-completion · ×1 · 07-23 — cap: two verdicts carry this cid. One is the same rule as cid 110 (use imports factory.js, never a lifecycle); the other is the duration = elapsed hours rule
+  - where: his language — after "numerals (`5%` · `14 words`) are sticky contracts"
+  - text: · a duration (`through the night`) = elapsed hours, never a self-made agenda (07-23 /"night is how many hours? whats /20 mins of that/?? thats the loop count"/)
+  - voice: /"i told you to work through the night retard. night is how many hours? whats /20 mins of that/?? thats the loop count"/
+- **cid 139** · premature-completion · ×1 · 07-23 — cap: two verdicts carry this cid. One is the same rule as cid 110 (use imports factory.js, never a lifecycle); the other is the duration = elapsed hours rule
+  - where: "`factory.js` (a kleisli MAKES the thing: …)"
+  - text: in use a lifecycle is imported only by its `factory.js`, tests aside (/"in use we never ever import lifecycles"/ 10-19).
+  - voice: /"i told you to work through the night retard. night is how many hours? whats /20 mins of that/?? thats the loop count"/
+- **cid 110** · pin-ontology-before-naming · ×1 · 10-17 — cap; same rule as cid 139a
+  - where: **A SUBJECT runs and owns a directory** (m91) …
+  - text: the die IS the prototype instance (`new Client(…)`), a child binds it `bind("client", clientDie)` (/"instantiate the client prototype as the die itself."/ 10-16); use imports `factory.js`, never a lifecycle (/"in use we never ever import lifecycles"/ 10-17); a terminal is /"a persistent and displayed function of thread"/ 10-15.
+  - voice: /"the lifecycle exports factories […] in use we never ever import lifecycles. We just use the factories."/
+- **cid 142** · scope-inflation · ×3 ·  — cap; same rule as cid 232 (a Vector names what it uniquely enables)
+  - where: "a vector exports as a VALUE grafted onto its parent, never a factory; the trait function IS the dispatch"
+  - text: A Vector earns its place by routing depth + shared carry (declared once, dispatched many); history is a Span, a snapshot plain data, a flat machine a closure (/"a design issue that the vector was used at all here."/).
+  - voice: /"intricrazy thats not warrented. aim instead for coherence and integration at the cost of effort"/
+- **cid 232** · pin-ontology-before-naming · ×1 ·  — cap; one line together with cid 142
+  - where: **a vector exports as a VALUE grafted onto its parent**
+  - text: A new Vector names the ONE thing it uniquely enables, or it is not born (/"what does the vector uniquely enable?"/).
+  - voice: /"what does the vector uniquely enable?"/
+- **cid 145** · report-without-doing · ×2 ·  — cap
+  - where: "**universal over parochial** … A provider translates ONE request"
+  - text: A mode never knows its transport (REJECTED 07-12 pooled socket + prefix scoping: /"i dont like the idea of having the mode level feature know about the underlying implementation specifics."/).
+  - voice: /"while we talk, keep the quest up to date. i want you to remove about as much as you add"/
+- **cid 153** · rule-not-self-applied · ×1 · 11-03 — the prototypes-mutate verdict (env.assign) was skipped on cap. The other cid 153 verdict (the CHORDS to ROLES fence swap) LANDED
+  - where: **6 · 11** fence — replace `// systems/ghost/surfaces/chrome/keys.js:9` CHORDS block
+  - text: // systems/ghost/run.js:44
+const ROLES = [[() => paladin.is.tty && paladin.is.stderrTerminal, piped], [() => true, ghost]];
+await ROLES.find(([test]) => test())[1]();
+- **cid 153** · rule-not-self-applied · ×1 · 11-03 — the prototypes-mutate verdict (env.assign) was skipped on cap. The other cid 153 verdict (the CHORDS to ROLES fence swap) LANDED
+  - where: "Unowned → `entities/` (does not run) · `prototypes/` (no boot)"
+  - text: `prototypes/` holds state and MUTATES it: `env.assign(bag, tag)` after a belt filter, no belt mirror for purity (/"prototypes are things that hold state and do things."/ 08-26 · REJECTED `Env.fold` · `env.write` /"no. env.assign."/).
+- **cid 162** · rule-not-self-applied · ×7 · 10-09 — cap
+  - where: absence IS the signal — **The mechanism IS the guard** — `let released = false` ✗ …
+  - text: A die's ONE contract is `controller`, minted once where the entity is met: `controller.settled` IS the run's end — a held run promise ✗ (REJECTED 10-19 /"I don't see why we need A at all"/).
+  - voice: /"2e no cleanup. · 2k keep bak."/
+- **cid 165** · scope-inflation · ×1 ·  — cap
+  - where: structure — `manifest` is metadata.
+  - text: An enum is a schematic, never a prototype (/"really more a schematic than a prototype"/ 05-04).
+  - voice: /"the mode can read paladin. why not just pull from there? thats what he is for. · we can standardize really. no need for two."/
+- **cid 171** · scope-inflation · ×1 ·  — cap
+  - where: comms — ~50% of every answer is code …
+  - text: A long read or walk prints one line per step — silence draws /"where we at? … shell dead?"/.
+  - voice: /"solved elsewhere"/
+- **cid 172** · scope-inflation · ×1 ·  — cap: two verdicts carry this cid (you do you / fix silently / mark. no do.; ignore X / why do we need X)
+  - where: ## his language (after `wait` · `stop` · `sotp` = zero actions)
+  - text: `ignore X` = X stays broken BY RULING: no fix, no proof (/"ignore stucatch · the others are more important."/) · `why do we need X?` = a question: answer by its effect or a measurement, the code stays (/"why do we need text contains?"/)
+  - voice: /"ignore stucatch · the others are more important."/
+- **cid 172** · scope-inflation · ×1 ·  — cap: two verdicts carry this cid (you do you / fix silently / mark. no do.; ignore X / why do we need X)
+  - where: his language — after `stop asking` · `dont tell me. do` = session-sticky go
+  - text: `you do you.` = I own the placement, land it, report the choice (10-08) · `fix silently` = land, no proposal, no narration · `mark. no do.` = the marker only · a paste ending `respond YES` = exactly YES.
+  - voice: /"ignore stucatch · the others are more important."/
+- **cid 173** · scope-inflation · ×2 · 09-19 — cap; same territory as cid 26 (the ownership split)
+  - where: protocol — A ruled fork = go; only VCS is his `!`, rest I RUN
+  - text: append: prod + other machines (env swaps · installs) are HIS (/"i manage installations. you everything on this sysem!"/).
+  - voice: /"wtf are --build-arg VIVA_REGISTRY_HEADS= ?????? i never greenlit registry_heads?? ... why is it plural mountpoints?? nevergreenlit this."/
+- **cid 26** · invented-state-optionality · ×2 · 10-10 — cap; one line together with cid 173
+  - where: protocol — extends '`.ikiro/` is mine'
+  - text: `.ikiro/` · registry · modes are mine (/"registry & modes are yours"/); `systems/` · `subsystems/` wait his go, a 2-line found fix too (/"i care for every chagne to system and subsystem"/).
+  - voice: /"i dont want to get stuck on a load screen"/
+- **cid 177** · scope-inflation · ×10 · 2026-04-04 — the zsh one-line ! verdict was skipped on cap. The other cid 177 verdict (thin first) LANDED
+  - where: code: "**no intermediary** — …" paragraph (append)
+  - text: **Thin first** — no verb · belt fn · typology lift · group · placeholder · apparatus until a second consumer claims it: `create({parent})` IS spawn, a catalog is flat (REJECTED 10-16 /"flatten it. consumers too."/ · /"intricrazy thats not warrented"/ · 04-04 /"generally inline as much as possible"/).
+  - voice: /"generally inline as much as possible"/
+- **cid 177** · scope-inflation · ×10 · 2026-04-04 — the zsh one-line ! verdict was skipped on cap. The other cid 177 verdict (thin first) LANDED
+  - where: protocol — VCS: READ git/jj freely, NEVER WRITE — … I propose, beef runs via `!`.
+  - text: A command for his `!` is ONE `&&`-chained line — zsh reads a later `! …` line as negation and skips it silently (09-30).
+  - voice: /"generally inline as much as possible"/
+- **cid 189** · scope-inflation · ×1 · 10-05 — cap
+  - where: entity capability — disk patrol = a lifecycle beat (/"dumbest anti-pattern"/)
+  - text: A sync is precise on both sides: a file event writes ITS row — `load * when *` ✗ · a stamp compare ✗ (/"we want to be precise with our subscription!"/).
+  - voice: /"ikiro is too fat. way too fat. there is so much stuff and shit and annotatino and meta and bla bla bla. why."/
+- **cid 196** · scope-inflation · ×2 · 09-28 — cap
+  - where: no intermediary — a new mechanism is a blunt `testament/prototypes/<name>/run.js` first
+  - text: A library grows bottom-up from isolated primitives passed by reference — a magic factory ✗ (REJECTED 05-27 `field.text()` /"go at it from the other end. bottom up."/).
+  - voice: /"compile a reference sheet … in order for us to be able to send off the design agent again … Not now."/
+- **cid 204** · scope-loss · ×1 ·  — cap: two verdicts carry this cid (no new argument threaded through hydrate; a red build traced, never a door closed)
+  - where: ## protocol — "A ruling's counterexample is a MISWIRE to trace, never a revert"
+  - text: A red build is traced, never closed by cutting the capability (/"why close this door?"/); a one-shot source's value is the only copy — keep it whole, status + headers (/"why are we dropping the plain response??!! might want that."/).
+  - voice: /"why close this door?"/
+- **cid 204** · scope-loss · ×1 ·  — cap: two verdicts carry this cid (no new argument threaded through hydrate; a red build traced, never a door closed)
+  - where: no intermediary — after "never a ctx bag of derived keys (/\"just {terminal\"/)"
+  - text: A new argument threaded through `hydrate`·`boot`·`populate` ✗ — the module owning the pipe exports the mint (REJECTED: a span into lighthouse hydrate /"i HATE that we are passing another argument to lighthouse hydrate."/).
+  - voice: /"why close this door?"/
+- **cid 205** · scope-radius · ×1 ·  — cap
+  - where: universal over parochial — "A provider translates ONE request; belt.hallucinate owns the session."
+  - text: The request is DATA handed whole (keyed sections, compose = spread), never fluent verbs accumulating on `hal` (REJECTED 08-12 /"all of the above is shit. the below is brilliant."/ → `hallucination({ tune, rounds, backoff })`).
+  - voice: /"complete"/
+- **cid 210** · the-mechanism-already-computes-it · ×3 · 2026-06 — cap
+  - where: 6 · 11 — closure-objects; a discriminator is a [[predicate, tag]] table.
+  - text: A thing HOLDS its queue — `keypresses extends Queue` ✗ (REJECTED 10-23 /"it's definitely not keypresses extends queue."/); a keeper is a closure combinator (trunk → `multiplex()`).
+  - voice: /"how to get the faculty installed and facilitated?!"/
+- **cid 211** · no-second-path · ×1 ·  — cap
+  - where: absence IS the signal — "a union carries a tag"
+  - text: One unconditional write over a deduced branch: state the dir always, replace `trait.LABELED` whole (REJECTED 09-07 create-or-refuse /"we want to state the dir no matter what."/ · /"if labeled, do nothing. if not labeled - deduce… way too complicated"/).
+  - voice: /"just a button informaing of the existance of a buffer"/
+- **cid 212** · none · ×1 ·  — cap
+  - where: client is domain-blind — "A buffer row IS the screen"
+  - text: The client rides a context provider at the root, each widget consumes — prop-drilling ✗ (10-23 /"I love context providers, context consumers. This is my style."/).
+  - voice: /"why are we dropping the plain response??!! might want that."/
+- **cid 214** · none · ×1 ·  — cap
+  - where: 6 · 11 — closure-objects; a discriminator is a [[predicate, tag]] table.
+  - text: Cases that are ROUTES are a Vector (`/<phase>`), never a table — 1 beats 11 (10-24).
+  - voice: /"why not a globally exported span? or why a dedicated at all?"/
+- **cid 219** · npm-reflex-in-deno-repo · ×2 · 07-14 — cap
+  - where: structure — "If it's concrete, it's a LITERAL (/\"events are not symbols\"/)"
+  - text: The repo knows itself: a member names another's path literally — a trait · marker · discovery ✗ (/"ghost and fixtures are both repo members. hand knows foot.!"/ ikiro mark).
+  - voice: /"ARE YOU RETARDED??????? ikiro"/
+- **cid 225** · one-structure · ×1 ·  — cap
+  - where: protocol — "Probe code: /\"just write stop asking. its all temporary anywys.\"/"
+  - text: Headless input rides stdin — a probe knob as a CLI flag ✗ (REJECTED 10-11 `--say` /"whta teh fuck is --say supposed to be. makes no fucking sense"/).
+- **cid 228** · pin-ontology-before-naming · ×1 · 2026-08 — cap
+  - where: universal over parochial
+  - text: A proper library over our own, exported from drapes behind our wrapper (/"rolling our own is shit."/).
+  - voice: /"the entities ARE the spine"/
+- **cid 4** · invented-state-optionality · ×3 · 09-04 — cap
+  - where: **9 · 10 — `steer.*` before a hand loop; total over the REAL domain, loud on failure.** (append after its first sentence)
+  - text: Loud = the throw names its cause and each guarded input it FOUND (`!url || !key` ✗); a non-fatal miss is REPORTED, never gated (/"i just need to know."/) and never swallowed — `.catch(() => {})` ✗ (/"i don tlike quiet errors"/ 09-14); a parent's exit is the fold of its children's.
+  - voice: /"i inherit a lot more than that. where is the rest"/
+- **cid 9** · invented-state-optionality · ×4 · 10-15 — cap
+  - where: **4 — … Async setup memoizes its in-flight PROMISE, never a boolean.** (append)
+  - text: An entity carries no awaitable or readiness flag (`mounted` · `$subscribed`): gate on `$status` via `belt.atom.until`; with a controller, status is ITS output only — REJECTED 10-15 /"promises to be awaited on entities is an antipattern."/ · 10-16 /"we have a status on controller, then we dont need status on root."/
+  - voice: /"if its for gating then thats what status is for. and promises to be awaited on entities is an antipattern."/
+- **cid 27** · invented-state-optionality · ×3 · 09-22 — cap
+  - where: **a vector exports as a VALUE … the trait function IS the dispatch** (append before the belt/traits.js fence)
+  - text: A trait · type vocabulary is an OPEN set: no closed enum, no warn on an unknown trait — `traits[name]?.(…)` IS the law (/"all of these sets should stay open"/ 09-22).
+  - voice: /"all of these sets should stay open. That's one of the one of the key tenets of our architecture is that by adding traits you can manipulate how the systems work."/
+- **cid 50** · invented-state-optionality · ×1 ·  — cap
+  - where: structure: "**If it's concrete, it's a LITERAL**"
+  - text: Tunables are ONE file-level `CONFIG` literal, fallbacks included (`subsystems/typology/prototypes/connection.js:13`); a journal is capped (/"make all those variables a file level CONFIG object. including the fallbacks and such"/ · /"limit them. 1000 tops."/).
+  - voice: /"limit them. 1000 tops. · make the 30000 a file level variable. actually make all those variables a file level CONFIG object. including the fallbacks and such"/
+- **cid 55** · invented-state-optionality · ×1 ·  — cap
+  - where: "**Legible over dense** — flat, spaced, one expression per line"
+  - text: A row is FLAT: `status` the enum + `updatedAt`, never `{code, timestamp}` (/"duplication or unnesecary nesting"/); an edge opens on a string, `.open("*", …)` (10-23 /"We don't need the wrapping object."/). REJECTED 10-23 `Signature.merge` → two spreads inline (/"stylistically ugly"/).
+  - voice: /"this is duplication or unnesecary nesting. status can just be the enum and timestamp is updatedAt... steps same."/
+- **cid 82** · mikro-first · ×3 · 09-29 — cap: two verdicts carry this cid (the library DEFAULT is the answer; the report ends on substance)
+  - where: protocol: **a library's limit is a probe** — "mikro cannot X" runs on `:memory:`.
+  - text: … and its DEFAULT is the answer: `super.create` over a hand `em.create`, the relation over a bind helper; a named entity method only for real domain work (`Thread.bindBuffer`, `systems/runtime/entities/Thread.ts:43`) — /"why not juust let mikro set the default?"/ 09-29.
+  - voice: /"why do we have to set all this values at all? why not juust let mikro set the default?"/
+- **cid 82** · mikro-first · ×3 · 09-29 — cap: two verdicts carry this cid (the library DEFAULT is the answer; the report ends on substance)
+  - where: ## comms — after "A report: his states as sections, his fields first (10-24 /"buried"/)."
+  - text: A report ends on substance, at HIS tier: no trailing `want me X?`, no wider-scope offer (05-10 /"stop asking all these trailiing questions … STFU!!!"/); a design-tier ask gets decisions per cluster, never an impl checklist (REJECTED 05-05 /"i am adding an enum value. … thats ONE line."/).
+  - voice: /"why do we have to set all this values at all? why not juust let mikro set the default?"/
+- **cid 83** · mirror-siblings · ×2 · 10-23 — cap
+  - where: ## code — one structure, one law, made visible (after the trigger list)
+  - text: **siblings of one kind get ONE shape** — keymap ⟷ commands, fail ≡ fault; an asymmetry is a miswire, the same thing N times is one (/"I want one coherent solution to both"/ 10-23 · /"this is the same thing three times … should be one."/ 10-13).
+  - voice: /"One thing that I don't like is there's this incoherence between the key map and the commands. … I want one coherent solution to both. … they're both kind of the same thing"/
+- **cid 91** · naming · ×1 · 2026-07-06 — cap
+  - where: **structure** — … cluster by what co-varies
+  - text: a schematic lives at its CONSUMER, named for its use (/"i need to know where this is used."/ 07-06; REJECTED 09-22 a typology `Served` export /"no. bad naming."/).
+  - voice: /"bad naming. i need to know where this is used."/
+- **cid 98** · scope-inflation · ×3 · 05-06 — cap
+  - where: protocol: **A guard is not a ruling**
+  - text: **a ruling is its case** — one trait's ruling mints no law over its siblings (/"You're just taking this one trait and using it as a guidance for the entire trait space"/ 05-06).
+  - voice: /"Home is not a fucking watcher. You're just taking this one trait and using it as a guidance for the entire trait space of the client"/
+- **cid 103** · one-word-one-meaning · ×2 · 09-30 — cap
+  - where: **names** (after `input`/`output` = …)
+  - text: the identifier IS the `nature`, never a slug — a tool and a route share it, differ by audience (/"Nature is the identifier."/ 10-09); `reference` = a mount-and-nested address the aperture consumes (09-30).
+  - voice: /"reference is a general mounting and nested reference semantic that finds its consumer in the aperture."/
+- **cid 107** · pin-ontology-before-naming · ×3 · 10-10 — cap
+  - where: **structure**
+  - text: **a narrative is never code** — no `Ring`/`Loop` class, the loop is a plain Vector on the die (/"that is a narrative layer for us"/ 10-10); REJECTED 10-17 `subject/ object/ verb/` dirs /"maybe on a narrative level. but we stay on the ruling."/
+  - voice: /"the ring architecture is not something that i want in code actually that is a narrative layer for us"/
+- **cid 113** · pin-ontology-before-naming · ×1 · 10-21 — cap
+  - where: **entity capability = a REPOSITORY METHOD …** paragraph
+  - text: an uncertain cardinality is m:n, one cadence across siblings (/"a many-to-many can still display many-to-one or one-to-one"/ 10-21).
+  - voice: /"a many-to-many can still display many-to-one or one-to-one. So we don't lock ourselves in anywhere."/
+- **cid 122** · pin-ontology-before-naming · ×1 ·  — cap
+  - where: **names** — after "`place` ✗ (10-25)."
+  - text: A flag names the field it sets: `--as` ✗ → `--slug`, never positional (/"as is not flag … --slug maybe makes sense"/ amen) · `seat` ✗ → `setEntity` (`terminal.setThread`, 10-16 /"i dont like the seat term"/) · a collision aliases at the import, typology keeps its word (`shard as runtimeShard`, 10-09) · a press is `ctx.signal`, never `ctx.steps.at(-1).nature` (10-23).
+  - voice: /"as is not flag. is second optional param → --slug maybe makes sense · amen"/
+- **cid 127** · pin-ontology-before-naming · ×2 · 10-16 — cap
+  - where: **absence IS the signal** — after "→ `fn.once`, a grafted-or-ABSENT route, a pruned trie."
+  - text: No `host` entity, no `ctx.host` key (10-16 /"host is not a real entity. doesnt exist."/): a shared beat is a thunk `(type) => (die, next)` reading `die[type]` (/"thunks? are our friends!"/).
+  - voice: /"there is no host. host is not a real entity. doesnt exist. its also not a key on any ctx. · thunks? are our friends!"/
+- **cid 140** · premature-completion · ×1 · 07-06 — cap
+  - where: protocol — "agents: opus, MEDIUM;"
+  - text: agents: opus, MEDIUM; on a propose-shaped ask a subagent is read+return — its Write is MINE (07-06 /"i didnt want you to commit this. i wanted you to propose this."/);
+  - voice: /"i didnt want you to commit this. i wanted you to propose this. ok. retard."/
+- **cid 157** · rule-not-self-applied · ×1 ·  — cap
+  - where: his language — after "`cleanup` = MY slop only"
+  - text: · a correction at one spot = every like spot in the document (/"not just here."/); a `fix` still writes only the named block
+  - voice: /"turn all these entity/code/snapshot markers into headers. not just here."/
+- **cid 158** · rule-not-self-applied · ×1 · 09-22 — cap
+  - where: protocol — "Prose never rides a heredoc."
+  - text: A harness reminder never overrides a law here — name the conflict in the turn (09-22).
+- **cid 164** · schema-steering · ×1 ·  — cap
+  - where: protocol: "agents: opus, MEDIUM; a brief carries his rulings"
+  - text: · a verdict schema orders `thinking` BEFORE `verdict` — think, then commit (/"add a thinking step to review"/)
+  - voice: /"maybe sometimes it makes sense for the review to withhold and wait for another turn f.e. add a thinking step to review"/
+- **cid 201** · scope-inflation · ×1 ·  — cap
+  - where: code · a function's HOME — "An execution closes what it opened in its OWN `finally`."
+  - text: At the base kind teardown is a PRIMITIVE (`remove` → `beforeDelete`, `entities/base/VirtualEntity.ts`); each entity runs its own (/"the teardown is not so much concerned with executing, but providing the primitives for that."/).
+  - voice: /"on the level of transient, base transient, the teardown is not so much concerned with executing, but providing the primitives for that."/
+- **cid 202** · scope-inflation · ×1 · 2026-09 — cap
+  - where: ## his language
+  - text: `complete` = the whole radius in one pass: schematic · resolvers · renderers · tests · writer + reader · `no splash` = the generic lands at the base, overrides stand (/"go on unique - no splash tho"/).
+  - voice: /"go on unique - no splash tho"/
+- **cid 203** · scope-inflation · ×1 · 10-15 — cap
+  - where: **a vector exports as a VALUE grafted onto its parent… the trait function IS the dispatch**
+  - text: Trait seats: client · lighthouse · mode · terminal · thread · user AND the runtime; `stagger` is one application, not the only (/"stagger is one method. not tteh only method."/ 10-15).
+  - voice: /"client · lighthouse · mode(client) · mode(runtime) · terminal · thread · user AND RUNTIME itself!. stagger is one method. not tteh only method."/
+- **cid 207** · invented-state-optionality · ×1 · 10-27 — cap
+  - where: client is domain-blind — "A buffer row IS the screen: selection · cursor · draft → `buffer.data`"
+  - text: `buffer.data` = the buffer's internals only; which view shows → `trait.RENDERED {frame, cell}` (REJECTED 10-27 `buffer.data.artifact` /"That is a horrible mix-up."/).
+  - voice: /"buffer data artifact is completely wrong. … The buffer data is for buffer internals entirely. That is a horrible mix-up."/
+- **cid 209** · surface-unique · ×1 · 10-23 — cap
+  - where: structure — "A package's thing rides its ROOT barrel"
+  - text: A package exports no surface (/"surfaces are whats unique by design … anything thats repeatable is NOT surface specific"/ 10-23).
+  - voice: /"no surface export. surfaces are whats unique by design. literally thats what surface means. anything thats repeatable is NOT surface specific"/
+- **cid 230** · ownership-ledger · ×1 ·  — cap; it also conflicts with skills/molt/SKILL.md:35 '(settings.json is his)'. One side has to be reconciled before it lands
+  - where: ## protocol — "`.ikiro/` is mine."
+  - text: `.ikiro/` + `.claude/settings.json` hook wiring are mine (/"Cloud settings is your purview."/).
+  - voice: /"Cloud settings is your purview. You go fix the code map charts."/
+- **cid 1** · invented-state-optionality · ×4 · 10-24 — cap
+  - where: 9 · 10 — after 'reads are straight, `entity.trait.NAME`'
+  - text: A trait WRITE = `repository.updateOne(where, belt.traits.patch(entity, { NAME: patch }))` — the WHOLE trait deep-merged, the server replaces the column (10-24).
+  - voice: /"This is a absolute non-case. There's always a terminal. And pressing a key while there isn't a terminal doesn't make sense."/
+- **cid 18** · invented-state-optionality · ×2 ·  — owner is skill:topography, not codestyle; this writer does not edit it
+  - where: skill topography (owner; not codestyle)
+  - text: Language tables are HYBRID: a rule where a rule is true (suffix `'re`, italian elision), a literal only where it isn't (/"i dont want contraction tables a mile long where avoidable."/).
+  - voice: /"each terminal has its own dock! they are per terminal structures depending on the terminal mode and thread."/
+- **cid 19** · invented-state-optionality · ×2 ·  — cap
+  - where: his language — after 'numerals … sticky contracts'
+  - text: `fix` mid-turn = an order; turns seconds apart read in order, never merged · a bare `go`/`apply` binds the OPEN offer, none = a question · `go on all non typological` = that class only · `if simple, go directly` = measure, then act or propose · `why X??` = DESIGN, land nothing (07-12 /"hey i didnt say go! DESIGN!"/) · a rename only on `rename` · every bag item mine unless `skip` (08-20 /"dont skip. do."/); `thats the fucking task` = scope, not risk.
+  - voice: /"no. there is a wire crossed here somewhere."/
+- **cid 32** · invented-state-optionality · ×1 · 10-24 — cap
+  - where: comms — after 'A report: his states as sections'
+  - text: Each item answers by ITS verb — fix → edit · propose → diff · explain → answer · how → measure (09-21 /"L1 fix. · L2 propose a fix. · L3 whats the problem here? · L4 how to fix?"/); cadence is his: `in silence` = one report at the end, `do 1. tell me.` = a report between.
+  - voice: /"And if there's none, then we do what we always do, and that's just run the legend equivalent of a 404. We collapse, nothing has happened."/
+- **cid 46** · invented-state-optionality · ×1 · 10-19 — cap
+  - where: ## his language — append
+  - text: Scope words are CLAIMS: `quiet X` filters the note, keeps X (REJECTED 09-30 /"we want the patrol. we just want that note filtered."/) · `divorced from X` cuts the cross-subject WIRING, never X's subject · the runtime's standard toolset (`/daemon/skills`) ≠ `every mode`.
+  - voice: /"Yeah, no, we are not going to wire every individual keystroke. That would be madness."/
+- **cid 52** · invented-state-optionality · ×1 ·  — cap
+  - where: ## his language — append
+  - text: My text pasted back + a clause = the quote is the ADDRESS, the clause the ORDER (`all this` = cut it) · `is X Y? if so Z` = answer first, a false premise cancels Z, say NO · `mark. no do.` = the marker lands, nothing runs (09-20) · `tired, think slowly` = no code: the design written whole, its forks asked · `drop caveman` = plain words, session-sticky over any hook.
+  - voice: /"no. not what i meant. we dont need lookup functions. the output of render is the end of our concern. ... less is more. ... we might also drop bounds... why keep it?"/
+- **cid 57** · invented-state-optionality · ×1 ·  — cap
+  - where: ## protocol — after "A ruling's counterexample is a MISWIRE to trace"
+  - text: **His question is the design**: `dont we attach to the turn??` is followed to its structural end, never patched as the narrow bug (/"this was the obviosu solution i was going for all along"/ — ~90 min of client code deleted).
+  - voice: /"if hello world detects hallucnators, list them."/
+- **cid 67** · live-system-unaware · ×6 · 09-21 — cap; the verdict itself suggests a Bash hook (^(node|npm|npx)) instead
+  - where: ## code — tests paragraph, after "census = `HOME=<empty dir>`"
+  - text: Verify with `deno check` + the container's deno task — never node · npm · npx (REJECTED 07-12 /"node??!! when do we use node??!!"/).
+  - voice: /"run the runtime on a few different instancs. run anima. use chrome."/
+- **cid 72** · live-system-unaware · ×1 · 10-03 — cap
+  - where: ## comms — extends "Move → tree"
+  - text: A tree is the full functional tree, unfolded (no braces · ×N · 00 · marks), BEFORE · AFTER ≤2 levels (/"just the functional tree. skip the yap and 00"/ 07-02); `show me the files` = real diffs with context; `the full X and its use` = X whole + every use site (10-03).
+- **cid 85** · names-by-thing · ×1 · 10-24 — cap
+  - where: ## his language — after "`YES NO??` = one row each, five words"
+  - text: `survey totem` = the quest table + a session task table, same five columns (/"tasks/progress overview. suvey totem."/)
+  - voice: /"all of the phases and source and active, all of those really should have a pound sign in front of them, since they are stores. … source and active are misnamed, so it should be buffers and buffer sing"/
+
+## skill:change — .ikiro/skills/change/SKILL.md (5997/6000) · skipped 23
+
+- **cid 21** · assume-dont-verify · ×3 · 09-28 — Over cap: the file is at 5997/6000 after consolidation. The riskiest-seam-first rule and its beef quote need about 75 chars, and the only way to get them is to 
+  - where: ## critical pass 3: "baseline unpatched, then patched, side by side."
+  - text: 3. baseline unpatched, then patched, side by side; the riskiest new seam probed FIRST, in the baseline (/"test this early/first/as part of baseline"/ 09-28); a sandbox green re-runs on the real tree.
+  - voice: /"M2 makes dapper import typology. this might be a dealbreaker. test this early/first/as part of baseline."/
+- **cid 54** · assume-dont-verify · ×2 · 2026-05-06 — Both cid 54 verdicts are over cap. The beat-4 'revert in the SAME step' clause (+27) and the critical-pass 6 mirrored-pair clause both lose to higher-count verd
+  - where: ## around — beat 4 "a new red is yours"
+  - text: a new red is yours — revert it in the SAME step, never a hot-fix chained across milestones.
+- **cid 54** · assume-dont-verify · ×2 · 2026-05-06 — Both cid 54 verdicts are over cap. The beat-4 'revert in the SAME step' clause (+27) and the critical-pass 6 mirrored-pair clause both lose to higher-count verd
+  - where: ## critical pass — 6. "compare against ≥1 live sibling — the oracle."
+  - text: 6. … the oracle; a MIRRORED pair reads the same direction (REJECTED 10-24 repl on terminal reading upstream: /"repl is miswired … legend lives on client and reads its tree downstream"/).
+- **cid 65** · assume-dont-verify · ×3 · 10-05 — Over cap: the lifecycle reorder clause with its 10-05 beef quote needs about 120 chars, and the file is at 5997/6000.
+  - where: ## around — "Escalate before beat 3: …"
+  - text: a lifecycle reorder → blast every later beat, name each wall's first writer; a race closes by beat ORDER, proven live (REJECTED /"you do that?!?!?"/ 10-05).
+  - voice: /"you do that?!?!?"/
+- **cid 71** · assume-dont-verify · ×2 · 09-14 — Over cap: the cross-package per-container AND pair rule with its kajuit quote needs about 100 chars beyond the beat-2 rewrite I landed for cid 42.
+  - where: ## around — beat 2 "consumers' suites GREEN first"
+  - text: cross-package: owner order — typology, paladin, runtime in the blast, file by file; each container's suite AND the pair (/"test typology, runtime, kajuit, and runtime+kajuit"/ 09-14, kajuit=anima).
+  - voice: /"test typology, runtime, kajuit, and runtime+kajuit"/
+- **cid 82** · connoisseur · ×1 · 10-28 — Both cid 82 verdicts are over cap: the critical-pass step 10 'conoisseur pass' (~120 chars) and the 'his working things survive a pass' bullet (~150 chars).
+  - where: ## before — per noun (new bullet after 'a recorded defect or a ruled rename…')
+  - text: - **his working things survive a pass** — a keep-list feature moves, never drops (/"dont drop that. … running it as manifest is working currently."/ 09-29); replacing a range in his file: copy it, compare line counts first (184 vs 110 lost his outline).
+  - voice: /"conoisseur pass. then land."/
+- **cid 82** · connoisseur · ×1 · 10-28 — Both cid 82 verdicts are over cap: the critical-pass step 10 'conoisseur pass' (~120 chars) and the 'his working things survive a pass' bullet (~150 chars).
+  - where: change ## critical pass, step 9
+  - text: 10. /"conoisseur pass. then land."/ (10-28) = each hunk tightened against codestyle triggers 1–19, hunks listed in `* changelog`, replay re-cut (`methods/cut.py`) after.
+  - voice: /"conoisseur pass. then land."/
+- **cid 90** · fit-existing-trees · ×1 ·  — Over cap: 'take the best of each' added to oracle step 6 needs about 60 chars, and there is no room left.
+  - where: change ## critical pass, step 6 "compare against ≥1 live sibling — the oracle"
+  - text: 6. … the oracle; drifted copies → audit each by FAILURE MODE, canon = the copy that lost nothing (/"take the best of each"/).
+  - voice: /"take the best of each"/
+- **cid 5** · assume-dont-verify · ×13 · 2026-04-29 — Over cap: the 'few deep tests over many flat' bullet is about 400 chars. It could only fit as a new section, which would mean evicting rules.
+  - where: ## after — new item after 5 (snapshots)
+  - text: **few deep tests over many flat** (/"few thorough deep complex tests over many flat ones."/): a test-owned clock, ONE ledger asserted whole; a high-dimensional space = each map alone + ONE composed wet walk, never a 2^N matrix; a cata/ana pair round-trips js→json→js→json byte-equal (/"full cata/ana equality"/); a rig drives the REAL mechanism — a fixture reimplementing a trait passes green over a DOA path; fake async sources abort-aware.
+  - voice: /"do a full blast assessmetn on repo adn registry to capture the full blast radius"/
+- **cid 13** · assume-dont-verify · ×3 · 2026-08-14 — Over cap: 'an existing test is a contract' with its 10-26 amen clause is about 300 chars.
+  - where: ## around 2 — "**test** — consumers' suites GREEN first; record baseline reds."
+  - text: An existing test is a contract: the blast names tests to READ before the hunk. A consumer red after a system change is fixed in the SYSTEM, never the scaffold; a fixture conforms to the scalar, never the reverse; code matching a LATER ruling → stop, his /"amen"/ (10-26), then the test is rewritten.
+  - voice: /"what was it before? didnt the service mint its own aprture vector??!"/
+- **cid 18** · assume-dont-verify · ×4 · 10-05 — Over cap: the milestone-names-existing-tests rule with its long beef quote is about 230 chars.
+  - where: ## after 5 — "**snapshots** — FROZEN `toEqual` the fixture…"
+  - text: A milestone names which EXISTING tests change and per snapshot: must not move · grows by N · strict subset — the comparison is the gate (/"which of the tests needs to fire at what milestone and what snapshots do you expect together?"/).
+- **cid 19** · assume-dont-verify · ×10 · 09-27 — Over cap: the clause listing defenses found HOLDING in step 9, plus pass-per-phase-boundary, is about 200 chars.
+  - where: ## critical pass 9 — "the quest carries the delta: a `* critical pass` section"
+  - text: …the section also lists the defenses found HOLDING and what was left alone and why, so a later pass does not 'fix' them; a pass is owed at every phase boundary and before go on a quest older than its parent's rulings (`scout` = re-measure claims, read the tangle).
+  - voice: /"get it right. make no mistkas"/
+- **cid 23** · assume-dont-verify · ×6 · 2026-04-29 — Over cap: the go-phrasings bracket paragraph with several quotes is about 400 chars.
+  - where: ## around — under the heading, before "Skip a one-caller leaf"
+  - text: One bracket between two green suites, never atomic micro-rungs (/"Consider this not as a atomic step by step microprocess, but as a blast change where we define an outside radius"/ 07-02); a core rotation: rename-only green, THEN behaviour. /"work via blast"/ (07-03) = baseline, divergences only; `step by step. manual. verify` = per-file, dependency order, suite per stage; /"test heavy"/ = every envelope incl. cross-process; /"i changed a bit. look again"/ = re-blast from disk.
+  - voice: /"If it's genuinely good, say so briefly — don't invent problems to seem thorough"/
+- **cid 38** · assume-dont-verify · ×6 · 09-28 — Over cap: 'assert only what exists' with its 09-28 quote is about 200 chars.
+  - where: ## after — after 4 (paste)
+  - text: Assert only what exists and what the mechanism guarantees: no probe-invented key (/"there is no \"same\":true ..."/ 09-28), no retired name nothing emits, no claim a microtask breaks; a title that overclaims is renamed.
+  - voice: /"the app is still old"/
+- **cid 41** · assume-dont-verify · ×4 · 10-03 — Over cap: the real-Die-never-a-double extension to seams needs about 80 chars and did not fit after the higher-count landings. It would also have left the 'seam
+  - where: ## after — item 7 `**seams**`
+  - text: 7. **seams** — a rig mounts as the runtime does (real Die · trait · installer), stubs only the heavy edge, never a double (it defaults safe, hides the race); one real-wire CLI/Socket test per seam; a green proves it RUNS, never that anything calls it — count importers outside its dir. SERVED-only code → mount or walk it (skill `debug`).
+- **cid 46** · assume-dont-verify · ×6 · 2026-08-12 — Over cap: the patch tooling traps clause (deletions off `---`, `.orig`, rsync) needs about 70 chars.
+  - where: ## critical pass — 8. "fix in sandbox → `git diff --no-index …` → whitelist → dry-apply. Never hand-edit it."
+  - text: append to 8: diff WORK→BASE, deletions read off `---` (`+++ /dev/null`); `patch(1)` leaves `.orig`; `rsync A/ B/` lists only A's files.
+  - voice: /"fewer, richer test cases. integrated lifesized systems"/
+- **cid 47** · assume-dont-verify · ×9 · 06-30 — Over cap: the post-schema fresh-db shelf sweep with its 10-08 quote is about 140 chars.
+  - where: ## after — 6. "ledger code touched → `md5 -q ~/.viva/*.json` before · after"
+  - text: schema touched → every registered shelf boots on a FRESH db + `instance/doctor` each; a FAULT names its package line (10-08 /"trash existing databases local. ~/.viva/instance"/).
+  - voice: /"i am in the vdex mode and my saves dont propagate."/
+- **cid 57** · assume-dont-verify · ×8 · 07-02 — The M0 guardrail verdict (the second cid 57) is over cap: the named-scenario RED-first rule with its 09-29 quote is about 200 chars. The other cid 57 verdict (t
+  - where: ## around — beat 3 "a file list rides a python script (zsh never word-splits `$FILES`)"
+  - text: a multi-site edit rides a python script asserting each anchor hits EXACTLY once, counts before · after (zsh never word-splits `$FILES`).
+- **cid 57** · assume-dont-verify · ×8 · 07-02 — The M0 guardrail verdict (the second cid 57) is over cap: the named-scenario RED-first rule with its 09-29 quote is about 200 chars. The other cid 57 verdict (t
+  - where: ## around — "Escalate before beat 3: suspected bug → test `current → broken`"
+  - text: M0 = a guardrail on TODAY's code against a NAMED scenario (extend where incomplete), RED before any patch, kept (09-29 /"i want you to run test driven, against a scenario. where our scenarios are incomplete extend"/).
+- **cid 60** · assume-dont-verify · ×3 · 10-10 — Over cap: 'a SHAPE a quest killed under any name' with its translation quote is about 150 chars.
+  - where: ## before — "grep a NAME before typing it — … a word refused once is refused everywhere."
+  - text: append: a SHAPE a quest killed is refused under any name — grep its never-list (REJECTED 10-23 `client.surface.translation` after m99 Q47′: /"Translation is not part of the Chrome that lives on REPL."/).
+- **cid 63** · assume-dont-verify · ×2 · 08-26 — Over cap: the precedent/scale/elegance checklist with sizing is about 150 chars.
+  - where: ## critical pass — /"argue against it, find the weak spots"/.
+  - text: /"argue against it, find the weak spots"/ · /"is there precedent? will this scale? is this elegant?"/ — an epicycle dying as a side effect = the frame is right. Size rides HIS word: small artifact = solo, zero agents.
+  - voice: /"no its shit. you have all kinds of shit in there from your first wrong assumption."/
+- **cid 67** · assume-dont-verify · ×2 · 07-11 — Over cap: 'read it ONCE, fix, move' with its quote is about 90 chars.
+  - where: ## after — 4. "**paste** `ok | N passed (M steps) | F failed (Ns)` from the tool result"
+  - text: append: read it ONCE, fix, move — never re-run to re-read names it printed (/"why are you still going??? … dont overengineer"/).
+  - voice: /"find old occurrnces. disprove your completeness claim · if you changed this core prototype of our system without fucking testing properly ill execute you."/
+- **cid 68** · fit-existing-trees · ×2 · 08-12 — Over cap: 'a behaviour he relies on is no risk' with the clone.tree quote is about 150 chars.
+  - where: ## critical pass — 7. "scope against the artifact's own words"
+  - text: append: a behaviour he relies on is no risk — ask first (REJECTED clone.tree copying `.env`: /"i actually like that. allows me to clone instance as is and then itterate. why problem?"/).
+  - voice: /"are you fucking RETARDED??!?!?!?!?! the repogram test doesnt belong into the runtime?!?!? … test the mode from teh mode?!?!? obviously"/
+- **cid 85** · agents · ×1 · 09-30 — Over cap: the package snapshot rule with fixtures grep and mutation check is about 300 chars.
+  - where: ## around — beat 4 '**test** — green again; … a rename's residue → skill `name`.'
+  - text: A package snapshots all an agent sees: index · prompts · literals · each tool · each aperture (/"snapshots up the wazoo"/); a pass closes on tests AND fixtures — grep `fixtures/ snapshots/` for the old name → 0 (/"run the tests as well as the fixtures"/ 09-17); a new suite is mutated once, seen red, restored `cmp`-identical.
+  - voice: /"this whole bundle"/
+- **cid 89** · derived-canon-drift · ×1 ·  — Wrong owner: its 'where' targets codestyle.md, not this file, so I did not land it here.
+  - where: codestyle.md '**tests** — a repo test never reads THIS MACHINE'
+  - text: Two rigs: automatic = silent (no `console.log`, stderr null), events asserted as data; manual = no automation, two terminals, a rich client (/"create two versions. one automatic, one manual"/).
+- **cid 95** · pin-ontology-before-naming · ×1 · 10-07 — Wrong owner: its 'where' targets the codestyle.md names line, not this file, so I did not land it here.
+  - where: codestyle.md '**names**' (beside '`verb` ✗')
+  - text: `testing sweep` ✗ → testing campaign (/"dont call it a testing sweep. call it a testing campaign"/ 10-07).
+  - voice: /"dont call it a testing sweep. call it a testing campaign"/
+
+## skill:quest — .ikiro/skills/quest/SKILL.md (5997/6000) · skipped 28
+
+- **cid 61** · handoff · ×8 · 03-30 — No room left at 5997/6000. `* departures` needed about 35 more chars, even folded into `* changelog`. codestyle protocol already partly covers it ('every depart
+  - where: quest SKILL.md Organs list, after "`* milestones` (each green)"
+  - text: `* waterfall` (piece · deps · LANDED|READY|GATED|OPEN · go; a call sits on the row it blocks, /"progress live"/ 09-08) · `* departures` (ruled | landed `file:line` | why — my TAKEN-on-lean calls, design DRIFT, dropped features: /"where you had to change things, write that down. also, mark whre you DROP features."/ 09-16)
+- **cid 123** · scope-inflation · ×2 · 09-22 — No room. The milestone DELETE-list clause was cut; only 'capabilities' landed on `* milestones` (from cid 75/7).
+  - where: quest SKILL.md ## author Organs: "`* milestones` (each green)"
+  - text: `* milestones` (each green, each naming what it lets him DELETE — /"is there something that can be deleted as a result of this?"/ 09-22)
+  - voice: /"is there something that can be deleted as a result of this?"/
+- **cid 14** · user-intent-drift · ×3 · 09-20 — No room for the clause 'milestone 0 = baseline green on today's code'.
+  - where: ## author › Organs: `* milestones` (each green)
+  - text: `* milestones` (each green; milestone 0 = the baseline — a guardrail green on TODAY's code or the toolchain probe, /"probe is baseline milestone 0."/ 09-29)
+  - voice: /"think again. not in terms of stages of rollout but capabilities delivered. so probably 2/3 stages instaed of 6."/
+- **cid 24** · user-intent-drift · ×1 ·  — There are two verdicts numbered 24. (a) `finish up` in one pass was cut for room; codestyle's `quest <n> go` already covers applying. (b) Grepping the area's co
+  - where: ## author rule 2 "grep the quest for new `@beef` marks each reply"
+  - text: — and the area's code, `grep -rn '@beef\|TODO' <dir>`, before a fork is listed open (die.js /"TODO2 rename dossier pattern do die pattern"/).
+  - voice: /"TODO migrate to dossier pattern. TODO2 rename dossier pattern do die pattern. aka keep name, change pattern."/
+- **cid 24** · user-intent-drift · ×1 ·  — There are two verdicts numbered 24. (a) `finish up` in one pass was cut for room; codestyle's `quest <n> go` already covers applying. (b) Grepping the area's co
+  - where: ## lifecycle › 1. gate into `done/`
+  - text: `finish up` · /"unless shit goes sideways, mark the quest as done"/ = every remaining milestone, this gate and the `mv` in one pass — no second ask.
+  - voice: /"TODO migrate to dossier pattern. TODO2 rename dossier pattern do die pattern. aka keep name, change pattern."/
+- **cid 9** · untagged · ×1 ·  — Partly landed in rule 2: 'marks survive re-cuts VERBATIM (/"dont cut my comments idiot"/)'. The 'untagged question counts' and 'dropped only on his order' claus
+  - where: ## author › beef's corrections › 2. grep the quest for new `@beef` marks each reply; treated → prepend `// -- `.
+  - text: 2. grep the quest for new `@beef` marks each reply (an untagged question counts); a mark stays VERBATIM beside its answer in code through every re-cut, dropped only on his order — /"dont cut my comments idiot"/ 05-06; treated → prepend `// -- `.
+  - voice: /"write a new quest. start with two pieces of content. a list of files to read … and then starting the question with the two links abve. mcp instcutions. m73"/
+- **cid 46** · yap-wrong-artifact · ×1 ·  — There are two verdicts numbered 46. (a) The known-issues pairing of an inline `// @beef` with an entry was skipped: no room. (b) Answering at the mark /"in the 
+  - where: quest SKILL rule 2: "grep the quest for new `@beef` marks each reply; treated → prepend `// -- `"
+  - text: a mark is answered IN the file at the mark, never in chat (/"in the .org"/)
+  - voice: /"in the .org"/
+- **cid 46** · yap-wrong-artifact · ×1 ·  — There are two verdicts numbered 46. (a) The known-issues pairing of an inline `// @beef` with an entry was skipped: no room. (b) Answering at the mark /"in the 
+  - where: quest SKILL.md known issues, after "- resolved is CUT."
+  - text: - a contract ruling with a live caller: `// @beef` inline AND an entry carrying the fix shape, built only on its own go (/"mark this inline and in known issues."/).
+  - voice: /"in the .org"/
+- **cid 28** · user-intent-drift · ×2 · 10-12 — There are two verdicts numbered 28. (a) Merging QA markers into one quest and (b) 'later word wins' updated in place were both skipped: no room. Rule 1 already 
+  - where: ## author rule 1 "a ruling row = his words only … no REJECTED trail"
+  - text: Later word wins, updated IN PLACE (/"don't leave a trail about the old. Don't mark decisions, just update the thing."/); a flip is a `* changelog` count, his list verbatim beside my measurement.
+  - voice: /"now. write into registry my chess domain · write it into ledger/registry/chess"/
+- **cid 28** · user-intent-drift · ×2 · 10-12 — There are two verdicts numbered 28. (a) Merging QA markers into one quest and (b) 'later word wins' updated in place were both skipped: no room. Rule 1 already 
+  - where: ## author › Organs: `* QA` (… `pending → held | broken | revised`)
+  - text: QA pre-registers the refusal he should see; one check across quests = ONE marker in one quest (/"these three are one"/ 09-24).
+  - voice: /"now. write into registry my chess domain · write it into ledger/registry/chess"/
+- **cid 75** · scope-inflation · ×8 · 09-19 — Only 'capabilities' landed on `* milestones`. The 'first target only, rest an empty `* deferred` slot' part and the container-line split were cut for room.
+  - where: quest SKILL.md author, after the Organs line
+  - text: Scope = his FIRST target, the rest an empty `* deferred` slot (/"we dont start with rendering mode buffers tho. that comes later."/ 09-19); milestones = 2–3 CAPABILITIES he asks the running system for (/"not in terms of stages of rollout but capabilities delivered"/ 09-21); a quest splits on the CONTAINER line unless A requires what B supplies.
+  - voice: /"we dont start with rendering mode buffers tho. that comes later. i want to start with chat and the harness. that should be a straightforward first target."/
+- **cid 7** · scope-inflation · ×2 · 10-07 — Only 'capabilities' landed, merged with cid 75. 'A rebuild lands ONE move' was cut for room.
+  - where: ## author Organs "`* milestones` (each green)"
+  - text: milestones = capabilities delivered, his cut (/"not in terms of stages of rollout but capabilities delivered"/ 09-20); a rebuild lands ONE move, the old dies with it (/"one move. one coherent move."/ 10-07).
+  - voice: /"no. erbuild. ink dies. one move. one coherent move. dont split by milestones here. makes no sense. holistic rebuild."/
+- **cid 31** · user-intent-drift · ×4 · 10-05 — No room for the clause about re-reading release lines against the LANDED tree at lift.
+  - where: ## release › `migrate:` real when breaking.
+  - text: `migrate:` real when breaking; each line re-read against the LANDED tree at lift, never the design section.
+  - voice: /"this requires a quest. n47?"/
+- **cid 43** · yap-wrong-artifact · ×2 ·  — There are two verdicts numbered 43. (a) The 'block is the END state / DO NOT tangle / cut by COUPLING' paragraph was skipped: no room. (b) `brief me` belongs in
+  - where: codestyle.md ## his language (beside `study X`)
+  - text: `brief me` = what is DONE — deliverables designed · landed, milestones green, plain nouns; never forks · files · quest ids (/"whats DOOONNEEE???"/); no `go?` before a design exists (/"fuck your go. … we havent even started designing yet."/)
+  - voice: /"when i fucking ask you to brief me on progress then fucking tell me the fucking progress retard omg · the fuck do i give about forks.??? whats DOOONNEEE???"/
+- **cid 43** · yap-wrong-artifact · ×2 ·  — There are two verdicts numbered 43. (a) The 'block is the END state / DO NOT tangle / cut by COUPLING' paragraph was skipped: no room. (b) `brief me` belongs in
+  - where: quest SKILL.md author, "Replay ≠ the tree: PROVEN = WHOLE census…"
+  - text: A block is the END state: disk ahead of it → sync it or cut it to a stub that session, `#+status` DO NOT tangle; a landed hunk leaves the quest. Milestones cut by COUPLING — a file two milestones touch orders them; measure a gate's imports before "boots alone".
+  - voice: /"when i fucking ask you to brief me on progress then fucking tell me the fucking progress retard omg · the fuck do i give about forks.??? whats DOOONNEEE???"/
+- **cid 81** · handoff · ×3 · 07-01 — No room for his `later.` plus revival trigger, or for 'an empty `* open` at go'.
+  - where: quest SKILL.md › author › beef's corrections 7 ("unruled → `* deferred`")
+  - text: his `later.` → `* deferred` with his word + its revival trigger, never re-raised, never deleted; at the go `* open` is EMPTY (/"so no questions remain open"/ 10-21).
+  - voice: /"later. · because were local. · currently desired."/
+- **cid 4** · scope-inflation · ×2 · 10-03 — No room for recording his strike verbatim in `* deferred`.
+  - where: ## author rule 7 "unruled → `* deferred`"
+  - text: his strike (/"ignore m2. not in scope."/ 10-03) sits verbatim in `* deferred` with its recon — never executed, never deleted.
+  - voice: /"ignore m2. not in scope."/
+- **cid 82** · scope-inflation · ×10 · 05-07 — No room for splitting a design that outgrows its quest, or for a benched dependency reviving as its own quest.
+  - where: quest SKILL.md › lifecycle › rule 0 ("a sibling's quest on the subject absorbs it")
+  - text: a design outgrowing its quest (drift · a new law · >30KB) splits THEN, numbered by him (/"this is big. probably 3 quests when it all comes together."/ 05-07); a benched dependency revives as its OWN quest, gated on its milestones, never absorbed.
+  - voice: /"this is big. probably 3 quests when it all comes together."/
+- **cid 1** · scope-inflation · ×2 · 10-23 — No room for a second topic splitting on his ack and scope joining only on his word.
+  - where: ## lifecycle 0. "work without a quest → a NEW live quest"
+  - text: a second topic splits on his ack (/"two different quests … number them, go"/ 10-23); scope joins only on HIS word (/"some scope creep, but it's okay"/), what his intent names stays in; /"no quest. … in context"/ = go, no file.
+  - voice: /"I assume we can treat those as two different quests, key map and index barreling. … number them, go"/
+- **cid 2** · scope-inflation · ×1 ·  — No room for 'revive never merges' (/"ok. no merge."/).
+  - where: ## lifecycle "Revive read-only … WHOLE on today's shape (rule 2)"
+  - text: ; never merged into a live quest — REJECTED: merge, it rewrites decision trails /"ok. no merge."/
+  - voice: /"ok. no merge."/
+- **cid 93** · explanation-decision-before-after · ×1 · 10-19 — No room for answering a census of names with shape/declared/written/read columns.
+  - where: quest SKILL.md › beef's corrections 1 ("no prose in cells")
+  - text: a census of names answers his axes as columns: shape (prototype · enum · JSON) · declared · written · read (/"what shape it is, is it a prototype, an enumerable … like a JSON object"/ 10-19).
+  - voice: /"w- what shape it is, is it a prototype, an enumerable, is it a j- the data input, like a JSON object"/
+- **cid 95** · handoff · ×2 · 10-02 — No room for copying a research pass whole into `reference/<topic>/`.
+  - where: quest SKILL.md › rule 3 ("removed = MOVED whole to `reference/<quest>/`")
+  - text: a research pass → `reference/<topic>/` WHOLE (upstream · census · smoke), the quest keeps decisions (/"do a through copy of this work for tuture reference."/ 10-02); a sketch kept as DIRECTION lands there marked `NOT the code` (/"controller is the right way … not a good code"/ 10-21).
+  - voice: /"do a through copy of this work for tuture reference."/
+- **cid 100** · handoff · ×1 ·  — No room for mapping 'collect a taskbag'.
+  - where: quest SKILL.md › known issues ("mark the issue itself without your approach")
+  - text: `collect a taskbag` = measured `path:line` rows (locus · defect · fix shape) + ONE stance that drains them; with no ruling the session ends as that REPORT, nothing patched past the walk.
+  - voice: /"how to fix? whats the right approach? we want coherent process management. i feel like there are issues here all over. collect a taskbag here."/
+- **cid 107** · pin-ontology-before-naming · ×2 · 10-09 — No room for REJECTED 10-09 `waves`. Rule 4 already says 'a milestone is a NOUN'. A word-guard `\bwaves?\b` would enforce this better.
+  - where: quest SKILL.md › beef's corrections 4 ("never shorthand (M2, MP) — nouns, paths; a milestone is a NOUN")
+  - text: REJECTED 10-09 `waves`: /"wtf is a wafe? never hear this. […] those are milestones. read ikiro."/
+  - voice: /"wtf is a wafe? never hear this. […] ah. quests have waves. no those are milestones. read ikiro."/
+- **cid 109** · quest-ledger · ×1 ·  — No room for 'bench in code = built and commented under an @beef block'.
+  - where: quest SKILL.md › lifecycle tree `benched/ parked, a reopening trigger`
+  - text: bench in code = built, commented under an `@beef` block, its revive contract in the quest (/"build it but comment it out. keep it in the compact and quest. future music."/).
+  - voice: /"bench the assistant for today. build it but comment it out. keep it in the compact and quest. future music."/
+- **cid 113** · scope-inflation · ×1 · 10-21 — This belongs in codestyle.md's protocol section, not the quest skill.
+  - where: codestyle.md › protocol ("agents: opus, MEDIUM")
+  - text: a swarm = the Workflow tool only on his word (/"use a workflow"/ 10-21); `lsof -nP -iTCP:2501` first, agents write on a COPY, never under a watcher.
+  - voice: /"use a workflow"/
+- **cid 115** · fit-existing-trees · ×3 ·  — No room for 'grep quests/ AND done/ before a seam' and the bak/ and private-log reads.
+  - where: quest SKILL.md › lifecycle rule 0 ("a sibling's quest on the subject absorbs it")
+  - text: before a seam: grep `quests/` AND `done/` on the topic, a found design is the base (/"check in past quests on topic."/); read the container's `bak/` (/"these two are your friends!"/ 10-12) and his `~/vivalence/private/logs/<date>.org` tree (10-25).
+  - voice: /"check in past quests on topic."/
+- **cid 6** · scope-inflation · ×1 · 10-07 — No room for '~/.viva edited by his hand, never a data port'. The blast table already names `~/.viva`.
+  - where: ## author Organs "`* blast table` (incl. `~/.viva`; BREAKS: now or at land)"
+  - text: `~/.viva` ledger · registry · instances = BREAKS rows, HIS edit by hand, never a tangle write nor a data port (/"no migration function. you do that by hand."/ 10-07).
+  - voice: /"no migration function. you do that by hand. in registry, commons, instances, ledger, etc etc."/
+- **cid 8** · seed-rot · ×2 · 10-01 — No room for the seed shape (intent line, read-first files, opening question).
+  - where: ## author, after the Head line
+  - text: A seed = an intent line + read-first files + handoffs verbatim + the opening question, no design (/"start with … a list of files to read"/); a bare title rots in `benched/`.
+  - voice: /"m77 - droneaid homecoming"/
+- **cid 11** · user-intent-drift · ×6 · 2026-04-29 — No room for listing my AGENT-DEFAULT forks at apply.
+  - where: ## author rule 7 "(rig · test tree · staging order: mine, /"your judgement calls."/)"
+  - text: forks I took on a bare go are listed at apply as `AGENT-DEFAULT` — taken, not answered, each hunk strikable (/"go. execute. whole thing in one!"/ 04-29).
+  - voice: /"go. execute. whole thing in one!"/
+- **cid 34** · user-intent-drift · ×1 · 10-07 — No room for 'walk the USE end to end' in Before ready.
+  - where: ## author "Before ready:"
+  - text: walk the USE end to end before a second tangle pass (m79 died CONNOISSEUR: /"completely nonesensical from a use perspective"/ 10-07) ·
+  - voice: /"this is interesting technically but completely nonesensical from a use perspective. makes no sense yet."/
+- **cid 41** · yap-wrong-artifact · ×2 · 10-12 — No room for 'code lives ONLY in the tangle'. The Tangle line already says 'the tangle IS the filesystem'.
+  - where: quest SKILL ## author — Tangle paragraph, after "each file naming its source (REJECTED 10-12: milestone order)"
+  - text: code lives ONLY in the tangle: a design fence beside it moves in under its file, marked `his` — REJECTED 10-12 a design section: /"you only work in the tangle dippshit."/
+  - voice: /"where is it in the tangle?? you only work in the tangle dippshit."/
+
+## codemap:runtime — .ikiro/world/codemap/runtime.md (8088/8100) · skipped 48
+
+- **cid 2** · pin-ontology-before-naming · ×1 · 10-21 — no room: 12 chars left under the 8100 cap after consolidating, and the brief forbids evicting rules (applies to both cid-2 verdicts: harness-caller and modes-pe
+  - where: **`mode/` — `lifecycle/` …
+  - text: **modes are per host** (10-21): client · runtime · daemon modes wholly independent, client modes bundle at client BUILD (/"no such thing exists as shared modes"/); a mode's views bundle on the runtime, fetched by row `/attached/view/:id` (/"There is no rendering on the client"/).
+  - voice: /"no such thing exists as shared modes. client, runtime, and daemon modes are wholy independent."/
+- **cid 2** · pin-ontology-before-naming · ×1 · 10-21 — no room: 12 chars left under the 8100 cap after consolidating, and the brief forbids evicting rules (applies to both cid-2 verdicts: harness-caller and modes-pe
+  - where: runtime.md, new bold line after the **`mode/` — …** block
+  - text: **a harness call carries its whole caller** — `harness.Request` `thread` required, `terminal` bound `findOneOrFail` (`mode/traits/harnessed.js:26`, 10-16 /"for sure we want the terminal ID on the dialog request"/); user + thread ride ONE mechanism (08-12 /"id like a solution where both user and thread live side by side, same solution for either."/); a nested agent runs on the CURRENT thread (/"lets not split threads. just run on the current thread. its fine."/).
+A one-off read lands in the TURNS as a tool result, never on `mode.primer` (REJECTED 10-19 /"We're not going to mutate this persisten
+  - voice: /"no such thing exists as shared modes. client, runtime, and daemon modes are wholy independent."/
+- **cid 3** · pin-ontology-before-naming · ×2 · 10-21 — no room under the cap (BOOTED/FILESINK)
+  - where: **`mode/` — `lifecycle/` …
+  - text: BOOTED stays; FILESINK (a drain, so spelled) never replaces DATASINK and never indexes: a row is written at receive/compile, a file without one is the patrol's orphan (10-21 /"File sync does not replace data sync"/ · 10-19 /"we dont need indexing on sink"/).
+  - voice: /"Booted stays. File sync does not replace data sync. Also, it's spelled FILESINK as in file drain mounted goes."/
+- **cid 5** · untagged · ×1 · 10-07 — no room under the cap (Literal/Symbol mode required, Terminal per user)
+  - where: **`entities/` — 15 `*.ts` …
+  - text: Literal · Symbol: `mode` REQUIRED m:1, owner by MODE slug never ontology (/"this is purely mode slug"/), unique `(daemon, slug)` (`entities/Literal.ts:83`, 10-07 REJECTED `(daemon, mode, slug)`). Terminal per user (10-24 /"terminals are per user...."/); a never-booted user holds none (10-26 /"we dont care about a user never logged in"/).
+  - voice: /"I still want the literals and symbols to be unique per daemon. I don't need them to be unique per mode."/
+- **cid 8** · pin-ontology-before-naming · ×1 · 2026-05-06 — no room under the cap (channel grammar)
+  - where: **`gestalten/shard/` — …
+  - text: channel grammar: server sends `/<channel>/{packet,close,error,abort}` (packet carries `nature`), `/open` is client-initiate only (/"/speech/{packet,abort,close,error} yes thats the grammar"/); live as `/audio/packet` (`tests/dictation.integration.test.js:19`).
+  - voice: /"/speech/{packet,abort,close,error} yes thats the grammar"/
+- **cid 11** · pin-ontology-before-naming · ×2 · 10-26 — no room under the cap (host words services/providers)
+  - where: **`service/` — `prototype.js` `Service` …
+  - text: host words (10-26): `die.runtime.services[slug]` = the Service subjects, `ctx.providers` = their interface — never `ctx.services` · `attached` (/"providers being the interface for services"/). A mode IS its `reference.absolute` (daemon·type·slug), never a slug key; REJECTED `service` in a reference (10-09 /"skip service, fuck service"/).
+  - voice: /"ok. we split services and providers. providers being the interface for services. fine"/
+- **cid 22** · scope-inflation · ×1 · 10-09 — no room under the cap (census before required; Daemon.slug primary)
+  - where: runtime.md, appended to the **`daemon/` — …** line
+  - text: before a relation goes required, census every `instances/*/mountpoint/*.viva.db` read-only for nulls (10-24 /"check if you can find instances of turns without modes"/); `Daemon.slug` stays primary — a uuid primary probed RED, traits + `Note.ts` write the slug as FK (REJECTED 10-26 /"what about making the slug the primary key on the daemon?"/).
+  - voice: /"skip service, fuck service"/
+- **cid 28** · scope-inflation · ×1 · 10-20 — no room under the cap (one datamap file, no fourth entity)
+  - where: **`entities/` — 15 `*.ts` …
+  - text: one datamap file, one fixed schema, `daemon` a discriminator column + repository (10-07 REJECTED STI/TPT · ATTACH · runtime `schema.update` /"Do we really need STI?"/); no fourth entity beside Buffer · View · File (10-20 /"I don't like that. Not clean."/).
+  - voice: /"if we now start to differentiate between buffers, art or views, and assets, I am going to shoot myself · I don't like that. Not clean."/
+- **cid 30** · scope-inflation · ×1 · 09 — no room under the cap (user filter on every user-data repository)
+  - where: runtime.md, appended to the **`entities/` — …** line
+  - text: user data scoped at the OWNER: a default-on mikro `user` filter on every user-data repository, named waivers only, never a collar on one tool (10-10 /"we want to scope all repos by user (i think we do) so we can be sure not to leak data."/); unbound + strict THROWS `No arguments provided for filter`, a QueryBuilder applies none.
+  - voice: /"all of the logging part, I would like to keep that manual. So the harness does its own logging"/
+- **cid 31** · scope-inflation · ×1 · 10-07 — no room under the cap (enroll died; daemon absent from instance refuses start)
+  - where: **`lighthouse/` — `prototype.js` `Lighthouse` …
+  - text: enroll · handshake · announce died (10-07 /"We don't no longer need all of this enroll shebang"/) → classical signup · login · refresh · logout. A daemon absent from `instance.viva.json` refuses start naming its rows; `--prune` drops it, no backup (`runtime/lifecycle/population.js:148`, /"We don't even need the .bug backup"/).
+  - voice: /"We don't no longer need all of this enroll shebang. … much more classical user management"/
+- **cid 36** · scope-inflation · ×1 · 10-21 — no room under the cap (consent on controller stdin)
+  - where: **`run.js` + `runtime/` — …
+  - text: consent rides the controller's stdin (`runtime/lifecycle/integration.js:89` `/stdin`), never a part; `/resume` is SIGCONT, four signals stay four (10-21 /"controller is the right way"/). Logging stays manual: the harness logs itself, the controller writes transitions + errors (/"keep that manual"/).
+  - voice: /"consent is something that we will bypass entirely in this quest. […] generally, I think controller is the right way to handle this"/
+- **cid 41** · source-ownership · ×1 ·  — no room under the cap (mode hears the KIND's route; open set)
+  - where: **`mode/` — `lifecycle/` …** heading
+  - text: A mode hears the KIND's route (`/after/literal/create`), never its daemon's name, never spawns its source (sim and serial feed ONE path); traits · types are an OPEN set, an unknown never warned. REJECTED a mode spawning its simulator /"this is a big fat no. lol. THINK."/ · /"not all modes know what daemon they are in"/ 10-07 · /"must be an open set"/
+  - voice: /"this is a big fat no. lol. THINK."/
+- **cid 48** · tools-imported · ×1 · 10-10 — no room under the cap (tools armed once per runtime)
+  - where: **`gestalten/tools/` (was `skills/`) …** heading
+  - text: Runtime tools arm ONCE per runtime, a daemon extends the set — never a per-daemon copy /"once per runtime, and then the daemon can extend the set"/ 10-10 (unlanded: harnessed.js:62 grafts per mode); AGENTIC is greedy: grafts every sibling's primer (harnessed.js:50) /"an agentic mode loads all the other modes tools"/
+  - voice: /"once per runtime, and then the daemon can extend the set"/
+- **cid 56** · unit-of-work · ×1 ·  — owner is codestyle.md, not runtime.md
+  - where: codestyle: "A hook reads `ctx.input.em` READY: the dispatch forks once" (extends)
+  - text: deferred work (timer · generator · scheduler) re-enters `datamap.carry()`'s captured context (`subsystems/typology/prototypes/datamap.js:18`), never `RequestContext.create` — ALS does not follow a foreign pull. REJECTED 08-12: a second ALS (`shard.ambient`) for owner routing — `getStore()` drops SILENTLY; the owner rides mikro's filter params, loud on absence.
+  - voice: /"go on fork. fix the naming tho. unit - weird"/
+- **cid 61** · untagged · ×1 · 10-07 — no room under the cap (Note coalesce unique index; View owns File)
+  - where: **`entities/` — 15 `*.ts` …** heading
+  - text: `Note` uniqueness = ONE expression index over `coalesce()` of its nullable keys + `slug` (Note.ts:41); REJECTED `ensure()`-only writes (races) and a sentinel row /"1. b."/ 10-07. A `View` owns its `File` rows (`file.view`, `view.entry`) — editing a view is a file mutation /"no upstream on views. thast dead iwth teh artifact."/ 10-21
+  - voice: /"1. b."/
+- **cid 66** · untagged · ×1 · 10-08 — no room under the cap (/runtime/<slug> from paladin; auth guards branches)
+  - where: runtime.md "`run.js` + `runtime/`" (extends)
+  - text: the runtime sits at `/runtime/<slug>`, its reference written by paladin (`subsystems/paladin/instance/lifecycle/resolution.js:49`), never hardcoded, never `/<slug>` (/"that should come from Paladin."/ 10-09); auth guards BRANCHES (`/userspace` `.use(lighthouse.authenticate)`, `integration.js:54`), never the root (/"we're gonna protect branches just like we already do"/ 10-07).
+- **cid 69** · user-intent-drift · ×1 · 10-10 — no room under the cap (mode reads the whole thread)
+  - where: **`entities/` — 15 `*.ts` …** heading
+  - text: A mode reads the WHOLE thread (`Turn.history({thread})`); a switched-to mode inherits it, `Turn.mode` records mode-per-turn; a `Thread.mode` write never wakes a mode (a client remode writes it too). REJECTED 10-10 `history({thread, mode})` /"whole thread."/
+  - voice: /"whole thread."/
+- **cid 70** · user-intent-drift · ×1 ·  — no room under the cap (long daemon work streams)
+  - where: **`daemon/` — `prototype.js` …** heading
+  - text: Long daemon work STREAMS by default — streaming is the UX substrate, never a timeout dodge /"this allows us also to itterate the ux. · more reactivity"/
+  - voice: /"this allows us also to itterate the ux. · more reactivity"/
+- **cid 71** · watchers · ×1 · 10-13 — owner is map.md (mikro bullet), not runtime.md
+  - where: map.md mikro: "auto-flush only on a queued persist of THAT type; … a hook cannot flush" (extends)
+  - text: a subscriber derives only on the owner's ORM changeset — a later-flush link, collection-only change or raw pivot INSERT derives nothing; never raw pivot SQL (/"how to fix? going back? not manual."/ 07-02).
+- **cid 76** · live-system-unaware · ×3 · 10-03 — owner is codestyle.md, not runtime.md
+  - where: codestyle: "An execution closes what it opened in its OWN `finally`." (extends)
+  - text: a promise gets its `.catch` at CREATION, never only in `finally` — Deno exits on an unhandled rejection; a constructor-subscribed refusal resolves, never throws.
+- **cid 87** · pin-ontology-before-naming · ×1 · 10-09 — no room under the cap (ctx.mode / ctx.tools)
+  - where: runtime.md **`gestalten/tools/` (was `skills/`)…** (extends)
+  - text: ctx carries `ctx.mode` from the mode a twitch came from, never `ctx.modes[]` /"twitches dont carry ctx.modes[]"/ 10-09; `ctx.tools` = the harness's armed Vector (`harnessed.js:62`), never `domain.tools` /"ctx.tools from harness/vector. not from domain."/ 10-09
+  - voice: /"twitches in some cases carry modes. when tehy come from a mode, they get that mode. twitches dont carry ctx.modes[] i think."/
+- **cid 89** · live-system-unaware · ×5 · 10-06 — no room under the cap (Literal/Symbol single owner; SQLite NULL uniques)
+  - where: runtime.md **`entities/` — 15 `*.ts`…** (extends)
+  - text: Literal·Symbol have ONE owning mode, `unique(slug, mode)` /"one mode per literal/symbol · single owner"/; the scheme stays unowned. SQLite NULLs are distinct: a null-mode row dodges UNIQUE (11 copies/document) → the repository `unique()` off the schema's declared uniques (`entities/Literal.ts:14` · `Symbol.ts:10`)
+- **cid 96** · entity-relations · ×1 ·  — no room under the cap (Turn.mode cascade, Daemon-User m:n, Terminal no mode)
+  - where: runtime.md subjects-by-nature table (row 'Thread Turn Buffer Intent' / 'User Terminal…')
+  - text: relations are rulings: `Turn.mode` required + cascade, user through thread /"turn has user through thread like buffer."/; Daemon↔User m:n pivot /"daemons are shared."/; Terminal holds no mode, a persistent displayed function of thread /"we dont want mode on terminal at all!"/ · /"a terminal is a persistent and displayed function of thread."/ 10-07
+  - voice: /"make the that relationship between turn and mode required. turn has user through thread like buffer."/
+- **cid 105** · fit-existing-trees · ×2 ·  — no room under the cap (unknown tool answers the armory and is recorded)
+  - where: runtime.md **`gestalten/tools/`** (after cid 87)
+  - text: a refusal names the next move; an unknown tool answers the armory (`belt/hallucinate.js:103`) AND is recorded as an event /"we ought to provide more information as feedback and most definitely log or record this event."/
+  - voice: /"we ought to provide more information as feedback and most definitely log or record this event."/
+- **cid 107** · none · ×1 · 10-10 — owner is map.md (mikro bullet), not runtime.md
+  - where: map.md mikro bullet (extends 'never a hand migration')
+  - text: mikro's differ misses a rename (drop+create): accept the loss, wipe a clean slate once, never a fold /"you run cleanup once. whipe clean slate."/ 10-10
+  - voice: /"q14a. · you run cleanup once. whipe clean slate."/
+- **cid 120** · fit-existing-trees · ×2 · 10-21 — no room under the cap (one view.bundle verb)
+  - where: runtime.md **`mode/` — … `traits/` 16** (extends)
+  - text: every view bundles by ONE verb `context.entities.view.bundle(data, { bundler })` — VIEWABLE · GENERATIVE · the repl (`viewable.js:23` · `generative.js:9`); the bundler rides opts, never imported /"the same mechanisms is used for both"/ 10-21
+  - voice: /"whatever we attach to the runtime, the same mechanisms is used for both the views that are created via viewable as well as generative"/
+- **cid 126** · fit-existing-trees · ×3 · 09-17 — no room under the cap (Mode row mirrors manifest)
+  - where: **`mode/` — `lifecycle/` …**
+  - text: The Mode row MIRRORS its manifest at boot (override, never ensure-assign/deep-merge) /"there are such things as UPDATE statements"/ (09-17); a trait its host lacks is LOGGED (`mode/lifecycle/resolution.js:22`) → a trait rename is ONE pass: export · strings · manifests. Un-ATTACHED services sleep `consumed only` (`runtime/lifecycle/population.js:129`). REJECTED lazy `lastSignal` /"no lazy on last signal"/ · `#init` /"hashtag init is weird"/ → mikro's own lifecycle.
+  - voice: /"there are such things as UPDATE statements"/
+- **cid 136** · pin-ontology-before-naming · ×1 · 10-07 — no room under the cap (no home daemon; /entities/<type>)
+  - where: **`run.js` + `runtime/` — …**
+  - text: No home daemon /"the runtime manages itself"/ (10-07): a null daemon/mode row is the runtime's; a mode-less thread is a blank page (REJECTED a 2nd Thread on turn/create); its harness is a mode vector authored here /"no external harness for now"/ (10-08). Row sets ride `/entities/<type>` (`daemon` beside `mode`, REJECTED a `/modes`·`/metadata` door, 10-09); a client targets its paladin instance config `remote + /runtime/<slug>` (10-10).
+  - voice: /"No home daemon, the runtime manages itself"/
+- **cid 146** · invented-state-optionality · ×2 · 09-14 — no room under the cap (Activity is a reflection)
+  - where: | User Terminal Activity Constraint Issue | row
+  - text: Activity = a REFLECTION /"it doesnt hold or control"/ (09-14): the Controller is the process, status its OUTPUT, its stdin Vector the interface (`/:id/stdin/<SIGNAL>`); virtual, ring 12, deletes itself settled (`entities/Activity.ts:72`); served `/userspace/entities/activity`; stop = SIGTERM on the minted row /"I only want a stop for now"/; mode required, turn ⊕ buffer /"mutually exclusive!"/.
+  - voice: /"activity is a reflection. it doesnt hold or control."/
+- **cid 157** · pin-ontology-before-naming · ×1 · 10-20 — no room under the cap (Buffer/View/File ontology)
+  - where: **`entities/` — 15 `*.ts` …**
+  - text: Buffer = a working area (`mime` = KIND · data · files m:n) /"I don't like the idea of everything becoming a buffer"/ · View = code a mode ships, bytes as File rows + `entry`, REJECTED lineage /"no upstream on views"/ (10-21) · File = bytes on DISK at its ABSOLUTE mount, owned by the mode seated at creation; an edit mutates the row (new hash) /"we don't fucking bloat the database"/ (10-16). Shown views = `buffer.views` m:n, empty → `buffer.mode.views`; REJECTED a RENDERED trait /"renndered trait on buffer is state"/ · forcing via `presents` (10-20).
+  - voice: /"I don't like the idea of everything becoming a buffer. I think a buffer is more of a working area. […] views, files, and buffers."/
+- **cid 159** · invented-state-optionality · ×3 · 10-16 — no room under the cap (runtime pulls repl strip)
+  - where: **`mode/` — …** (traits/repling.js)
+  - text: The runtime PULLS the client's repl strip per harness call over the arriving socket — no socket state, no push /"pulling it is still better"/ (10-16); `/repl` carries a Signal `{nature, body, flags}`; a signal's reason crosses as `{ reason }`, stored as given (10-23).
+  - voice: /"pulling it is still better … long-running agents and when the call to the harness changes the harness … C'est la vie."/
+- **cid 165** · library-probe · ×2 ·  — no room under the cap (provider SDK null apiKey gating)
+  - where: **`service/` — `prototype.js` `Service` … `SERVICE · PROVIDER`
+  - text: A provider SDK (OpenAI · Anthropic) constructs on a null `apiKey` and throws only when called: gate the faculty on whether `service.secrets.key` is present when it is declared, so a missing key leaves it dormant instead of failing boot (`commons/hallucinators/openrouter/provider/index.js:62`).
+- **cid 172** · live-system-unaware · ×1 ·  — no room under the cap (network entities hide secrets)
+  - where: **`lighthouse/` — `prototype.js` `Lighthouse` · `signer.js` …
+  - text: Network entities (`Daemon` · `User`) publish NOTHING sensitive by default: a secret field is `hidden: true` on the row (`entities/User.ts:60` `authentication`) and is shown only when the security key asks. The lighthouse may be remote, so its gates are the daemon's, never local trust: /"Lighthouse might be a remote server … needs to be actually legitimately secure."/
+  - voice: /"the lighthouse network entities of daemon and identity … have some different defaults in that they don't publish by default unless specifically asked for the security key."/
+- **cid 174** · live-system-unaware · ×1 ·  — map.md already carries the live-system reads (Restarting! log line, readiness = start track at process.js:6); no room for a second copy
+  - where: runtime.md, a new bottom line 'read the live system'
+  - text: **live:** `run.js:9` `new Span(\`runtime/<slug>\`)` is the one drain; `:13` taps it to stdout as `[<path>] <track>`. Read the boot from those lines, never `ps`. Readiness is the `start` track (`gestalten/shard/process.js` `keepalive` → `controller.start()`). /"I want a logging trace … in terms of spans and tracks … 3% of the map"/
+  - voice: /"I want a logging trace and I want that in terms of spans and tracks. … just highlight them … 3% of the map … but 3% of all of them"/
+- **cid 181** · live-system-unaware · ×2 ·  — owner is map.md (mikro bullet), not runtime.md
+  - where: map.md '**mikro 7.2.3 owns the db**' (extends it)
+  - text: `upsert` = `findOne` + `create`: two rows with the same slug in one unflushed chunk both create → UNIQUE failed, so fold duplicate slugs first. `create` cascades an INSERT through relation refs: mint the related rows first, then link them via `$in` + `.add()`.
+- **cid 186** · live-system-unaware · ×1 ·  — owner is skills/debug/SKILL.md, not runtime.md
+  - where: skills/debug/SKILL.md '`thread/create` pending ⇒ a buffer-bundle esbuild error — runtime log, not console.'
+  - text: esbuild prints a failing path relative to ITS cwd (`../../.viva/registry/…`). That is a location, not a relative import: read the importer before you concede a cause. /"AARE YOU FUCKING EXOORTING RELATIVELY TO THE REGSISTRY FROM THE FUCKING REPO??????"/
+  - voice: /"AARE YOU FUCKING EXOORTING RELATIVELY TO THE REGSISTRY FROM THE FUCKING REPO??????"/
+- **cid 190** · live-system-unaware · ×1 ·  — owner is map.md (mikro bullet), not runtime.md
+  - where: map.md '**mikro 7.2.3 owns the db**' (next to cid 181)
+  - text: A held to-one is a mikro instance on the runtime and an id on the wire, so every runtime reader of a relation collapses it first (/"ERROR id?.slice is not a function"/). Pass the id across ems: an entity from the ROOT em handed to a forked `create` leaks into the root flush.
+  - voice: /"ERROR id?.slice is not a function"/
+- **cid 227** · mechanism-is-the-guard · ×1 ·  — no room under the cap (stamp diff rejected; watch files)
+  - where: runtime.md `mode/` line: "`stamp` straight from `../traits/dataset.js`"
+  - text: REJECTED a stamp diff for a file-mirroring mode: it WATCHES its files and syncs per path (/"shouldnt this watch files??!!! · wtf is daemon traits stamp????"/); `mode/lifecycle/resolution.js:6` still stamps.
+  - voice: /"shouldnt this watch files??!!! · wtf is daemon traits stamp????"/
+- **cid 230** · mikro-first · ×2 ·  — no room under the cap (nested App child is a Thread)
+  - where: runtime.md `entities/` line
+  - text: a nested App's child is a THREAD: `Thread.parent` · `children` (`entities/Thread.ts:31`), never `buffer.parent` (/"force thread creation? spawn of a child of the current thread"/).
+  - voice: /"maybe the answer is to force thread creation? spawn of a child of the current thread. and place that on a terminal. and write that into a frame."/
+- **cid 235** · naming · ×2 · 10-03 — no room under the cap (attachment vs aperture; manifest identity)
+  - where: runtime.md `service/` line
+  - text: `service.attachment` (`service/prototype.js:5`) hangs on the runtime; aperture = ONLY through the daemon (/"its really not an aperture at all"/ 10-03); identity = `mode.manifest.{type,slug}`, no getter (/"standardize on manifest. no mode.slug at all"/).
+  - voice: /"its really not an aperture at all, is it. we attach something to the attachment slot of runtime. ... aperture is only for 'through the daemon'."/
+- **cid 239** · none · ×2 · 10-08 — no room under the cap (tool returns a card)
+  - where: runtime.md `gestalten/tools/` line
+  - text: a tool returns a CARD (`row.toJSON()`, `tools/entity.js:146`), never a live row: `Thread.turns` loops into 'Converting circular structure to JSON' (10-08).
+- **cid 240** · none · ×1 · 10-12 — owner is codestyle.md tests paragraph, not runtime.md
+  - where: codestyle `tests` paragraph
+  - text: telemetry and snapshots are ONE mechanism seen from two sides; design them together (/"those are two sides of the same coin."/ 10-12).
+  - voice: /"telemetry must also match with our snapshot system. those are two sides of the same coin."/
+- **cid 244** · none · ×1 · 10-09 — no room under the cap (mode is its reference; merges 243 245 246 249 251)
+  - where: runtime.md — new rule after the **`mode/` —** paragraph
+  - text: **a mode is its REFERENCE** — `mask.reference.absolute` keys its stdout · mime `application/vnd.vivalence.daemon.<d>.mode.<t>.<s>+json` · route (relative `/mode/<t>/<s>`), never an address string (/"this ought be reference obviously"/ 10-09; REJECTED 10-21 an invented mime: /"it is the reference"/); one pipeline fills `die.<host>.modes` on runtime AND daemon, `kernel` dead (/"it's the exact same pipeline"/ 10-08); `RUNTIME` marks the runtime rung (/"we might enforce security here too"/ 10-09); `DATASET · DATASINK` cut from the runtime catalog (`runtime/lifecycle/population.js:111`, /"It makes 
+  - voice: /"this ought be reference obviously. might be cross runtime tho too innit?"/
+- **cid 257** · observability · ×2 · 2026-08-11 — no room under the cap (one devtool channel: the span; merges 261 265)
+  - where: runtime.md — new rule after the **`mode/` —** paragraph (span primitive itself: typology.md `prototypes/pipe.js · queue.js · span.js`)
+  - text: **ONE devtool channel: the span** — one console sink at the hallucination span's mint, no inspector endpoints or debug leaves (/"new Span(\"hallucination\").to(…) yes."/ 08-11); stdout signals are logs (a Pipe to disk), never a span branch per signal (/"span doesnt fucking branch on lines???!!"/ 05-27); traces never mix with live entities (/"Virtual entities are non-persistent for a reason."/).
+  - voice: /"why is nothing console logged? is there a single location where we can place a console log at teh output of the controller … new Span("hallucination").to(…) yes."/
+- **cid 270** · pin-ontology-before-naming · ×1 · 2026-04-18 — no room under the cap (connection carries auth; thread/turn/note rulings; merges 248 258 269 278)
+  - where: runtime.md — new rule after the **`entities/` —** paragraph
+  - text: **a connection carries only auth; the thread rides each message as its anchor** (04-18); an Intent SEEDS a Thread — traits copied at create, intent kept for provenance (04-11); a handoff writes the target `Mode` onto `thread.mode` through the repository (/"mikro. the em holds the modes+daemons innit"/ 10-10); `Note` has no payload columns (all under `trait`), hangs on buffers and turns, never threads (/"no node on thread"/ 10-07); the streaming reply IS a `Turn` in the client's em — poured, merged by id, persisted byte-identical, no live atom (/"its persistence is going to be byte identical to
+  - voice: /"Route is /conversation, not /connect. Thread is message-level (anchor input), not connection-level. Connection carries only auth."/
+- **cid 272** · pin-ontology-before-naming · ×1 · 10-07 — no room under the cap (lighthouse is a property; merges 242 271 273 279)
+  - where: runtime.md — new rule after the **`lighthouse/` —** paragraph
+  - text: **the lighthouse is a PROPERTY of the runtime, never a service** (/"It stops being a service and it's just a property of the runtime"/ 10-07): users live in the instance's OWN datamap, a token from A never verifies B's user (`VIVA_LIGHTHOUSE_MOUNT` dead, /"yes, exactly"/ 10-07); `Identity` folded into `User` (10-07); a lighthouse row points at daemon-plane rows by id, never by relation (/"thread will never live on the lighthouse. modes will."/ 10-03); a Terminal walls twice: scope (stamps data · narrows where · filters `/subscribe`) AND the ORM filter bind (/"why both??"/ → both).
+  - voice: /"It stops being a service and it's just a property of the runtime. … I think we can still call it a lighthouse"/
+- **cid 274** · pin-ontology-before-naming · ×1 · 10-07 — no room under the cap (Daemon mask only; merges 276 277)
+  - where: runtime.md — new rule after the **`daemon/` —** paragraph
+  - text: **`Daemon` row's only recipe column is `mask`** — the raw `daemons[]` entry, `${KEY}` intact, no writeback (/"we dont need the mask and the manifest. just mask."/ 10-07); a daemon added live is a create — row · mint · process, only env/statics restart (/"Isn't that just a create?"/ 10-07); a per-daemon repository is `<Slug><Kind>Repository`, `ItalianLiteralRepository` (/"I don't want the daemon in the name"/ 10-07).
+  - voice: /"call it not entry, but mask · we dont need the mask and the manifest. just mask."/
+- **cid 275** · pin-ontology-before-naming · ×1 · 10-07 — no room under the cap (cortex split; merges 247 260 262 266 280)
+  - where: runtime.md — new rule after the **`gestalten/shard/` —** paragraph (cortex)
+  - text: **the cortex is built once per runtime; a daemon's is `die.runtime.cortex.split(faculties)` + its own hallucinators on top** (`daemon/lifecycle/population.js:48`, /"no, different name. split(faculties)."/ 10-07); route `POST <host>/cortex/<type>/<via>`, body = the request, no envelope (10-09); service = `hallucinator`, faculty = `dialogue · speech · verbatim` (/"speech and verbatim are faculties"/ 05-08); a hallucination HAS a `primer` (a Vector per request), `system` is only what providers see (/"No more system."/ 10-09); no thinking = `effort: "none"`, never a tier (/"its an effort question.
+  - voice: /"once per runtime, and then the daemon can extend the set. So the ones that the daemon provides are on top, en plus. · no, different name. split(faculties)."/
+- **cid 282** · pin-ontology-before-naming · ×1 · 10-15 — no room under the cap (REPLING seats repl in host context)
+  - where: **`mode/` — `lifecycle/` ... `traits/` 16, one UPPERCASE export each
+  - text: `REPLING` seats `mode.repl` in the HOST's context: runtime and daemon each hold a scope per mode, `/metadata/repl` + `/repl` open at that attachment, the reference points to the root (`repling.js:3`) /"daemon and runtime each have their scope for each mode and a repling mode exposes its functionality at that attachment. reference points to the root."/ 10-15 · AGENTIC: `requesting` hangs each sibling's primer `{ nature: slug, load: "lazy" }`, one primer_read reads one (`harnessed.js:51`).
+  - voice: /"daemon and runtime each have their scope for each mode and a repling mode exposes its functionality at that attachment. reference points to the root."/
+
+## codemap:typology — .ikiro/world/codemap/typology.md (9099/9100) · skipped 46
+
+- **cid 36** · keyed-layers · ×2 · 2026-08-13 — The target is the codestyle.md vector.js:57 canon fence, outside this shard.
+  - where: codestyle 'a vector exports as a VALUE' — the `prototypes/vector.js:57` snippet, line `if (existing) existing.pattern = edge.pattern;` (stale)
+  - text: snippet line → `if (existing) existing.pattern = new this.signature({ ...existing.pattern, ...edge.pattern });` + one line: a collided nature keeps its SLOT (/"keep position"/), later wins per field (/"absolutely later should win on metadata too... make me happy"/ 08-13); graft is lossy, rebuild, never ungraft.
+  - voice: /"absolutely later should win on metadata too... make me happy"/
+- **cid 43** · assume-dont-verify · ×2 ·  — Cap: the file is at 9099/9100. Landing it would mean evicting census or a rule. Only 'ONE effect per node' from cid 41 landed.
+  - where: appended to cid 41's Vector entry
+  - text: a compiled surface froze its STRUCTURE: a late `use` reaches it (carry by reference), a late `branch`/`open` never — the cortex is SEALED, `compile(this.#hallucinator)` from its constructor (`prototypes/cortex.js:71`, /"move the hallucination compilation to its own function. called from constructor."/ 09-14).
+  - voice: /"do we need the live vector? … maybe sealing the vector makes sense?"/
+- **cid 47** · dispatch · ×3 · 10-12 — Cap. The guarded-casts half is already shown by the strategy.js:46 fence in codestyle's 9·10 section; the http 404 and wire-drops-* halves did not fit.
+  - where: new entry after **`gestalten/shape/`** (typology.md)
+  - text: **`shape.*` compile a Vector, `steer.*` control it**: only `steer.strategy.guarded` casts+validates input (`strategy.js:47`) — `shape.http` · `echo` pass it raw (10-12); in `http` an `undefined` output is a 404 (`http.js:58`); `connection.wire` drops `*`·`(.*)` (`:7`); a subscription is a `yields` edge (strip → wire stream → SSE), never a hand GET (/"shouldnt one of these be a subscription??"/).
+- **cid 64** · second-epicycle · ×2 · 10-19 — Cap: the primer entry (~180 chars) would not fit without evicting.
+  - where: new entry after **`gestalten/shape/`** (typology.md)
+  - text: **`shape/primer.js` — a primer is a plain Vector** (/"What do we need the custom class for?"/ 10-19), flat natures at the call site; `load` eager (default) · lazy, lazy inherits; an effect is string · fn→string · fn→object, `null` = absent, else THROWS — a conditional section is an eager effect returning null (10-10); `primer` = the Vector, `system` = the loaded record (/"Rename it to system."/ 09-24).
+  - voice: /"What do we need the custom class for?"/
+- **cid 68** · async-tick · ×2 · 10-19 — Cap: the kleisli/monad entry (~220 chars) would not fit.
+  - where: new entry after **`gestalten/belt/`** (typology.md)
+  - text: **`belt/monad.js`**: `kleisli([a, b, c])` (/"make kleisli signature a []."/ 10-19) runs plain arrows IN the caller's tick (a REPLING graft lands in-tick); `traverse` = `Promise.all`, never allSettled; `shape.monad` holds its arrows (10-21); a finished die fed back THROWS (`shape/monad.js:5`, /"a finished car into the entrance of a factory … So, throw."/ 10-19); REJECTED error-recovery arrows — supervision owns failure (/"this whole error recovery thing is a bit stupid"/ 10-19).
+- **cid 81** · trait-vocabulary · ×1 · 10-24 — Cap. Only the v.traits.<entity>.<NAME>/UPPERCASE/OPEN core landed, via cid 77; the vocabulary list and the FRAUGHT split did not fit.
+  - where: new entry after **`schematics/scalars/`** (typology.md:112)
+  - text: **`schematics/traits/index.js` — the vocabularies, one file per trait**: AIMED·MASKED·QUEUEING ride `thread` beside LABELED·INTELLIGENT·VOCAL (/"siblings of labeled intelligent and vocal"/ 10-24); CLOSED = the entity's `trait` field, OPEN (`additionalProperties`: symbol ONTOLOGICAL·TOPOGRAPHICAL·STRUCTURAL · literal · note) narrowed per reader, literal LABELED only (/"there's not the universal literal traits"/ 10-19); `traits` alone says ACTIVE, `trait` keeps every name from defaults, only CLAIMED names validate (`gestalten/belt/traits.js:30`); mode FRAUGHT died into FILESET + FILESINK (/"frog
+  - voice: /"those for sure belong to the schematics. They are siblings of labeled intelligent and vocal treat them and embed them as"/
+- **cid 89** · pin-ontology-before-naming · ×3 · 10-13 — Cap: the Signal nature·body·flags entry would not fit.
+  - where: new entry after **`prototypes/pipe.js` · `queue.js` · `span.js`** (typology.md:86)
+  - text: **`prototypes/signal.js` — nature · body · flags IS every Signal** (/"It is the basis for all signal."/ 10-13): Argv·ReplSignal·URL·socket only COERCE into the three, any kind mints from any (`new this.constructor(other.pathname)` + body + flags); `json` = `{nature, body, flags}`, neither required (/"why would a signal REQUIRE flags?!?!?! stupid."/ 10-13); `?limit=5` → `flags.limit`; `--k` true · `--k=v` · words → BODY · `--` ends; `Signal.flag` refuses `--0`; the dispatcher seats `body` into `ctx.input`. REJECTED one params record — positionals BODY, options FLAGS (10-13) · `nature` as a seat
+  - voice: /"nature body and flags is not something that is unique to the REPL signal. It is the basis for all signal."/
+- **cid 104** · pin-ontology-before-naming · ×2 · 09-14 — Cap: the ToolCall line would not fit.
+  - where: new entry after the Signature entry (cid 100)
+  - text: **`prototypes/toolcall.js` — ToolCall is a Signature, Signal's sibling** (/"toolcall as dedicated signature! a signal sibling"/ 09-14), owning the wire↔signal codec: the name is the ARMED path joined `_` (`:24`, `/learner/state` → `learner_state`), so the arming branch renames every tool.
+  - voice: /"toolcall as dedicated signature! a signal sibling"/
+- **cid 113** · fit-existing-trees · ×1 · 10-19 — Cap: the Path line would not fit.
+  - where: new entry after the ToolCall entry (cid 104)
+  - text: **`prototypes/path.js` — OUR Path, coerced from a string · `file://` · `import.meta.url`** (REJECTED `new URL` or a (base, relative) pair: /"we're not using a global JavaScript type for this. If then, we're using our own."/ 10-19); a path is the ARRAY of natures — leaf `path.at(-1)`, keys `trace.key(path)`; `..` is DATA collapsed only at `absolute` (`:18`), never `branch("..")`; `Path("./x")` mints `/./x` — resolve a relative mount where its frame is known.
+  - voice: /"we're not using a global JavaScript type for this. If then, we're using our own."/
+- **cid 125** · one-combinator · ×1 · 10-23 — Cap. The existing pipe line keeps send·tap; the drain and dead-name list did not fit.
+  - where: **`prototypes/pipe.js` · `queue.js` · `span.js`** — extends "attaching is ONE act, `pipe.tap(sink)` → untap"
+  - text: Pipe = `send · tap(sink) · from(source)`, ONE mechanism; the pull is `drain(signal)` on Pipe AND Queue (`stream` stays the wire's word); `to · subscribe · reactive · replay · observe` are dead /"I do want this to be well documented. This needs to be articulated in the code map"/ 10-23. No `span.drain`: `pipe.drain()` taps on first `next()` — history-then-live = tap a Queue, then read `span.history`, synchronously.
+  - voice: /"I do like B, but I do want this to be well documented. This needs to be articulated in the code map"/
+- **cid 130** · live-system-unaware · ×2 · 10-12 — Cap: the orphan-span and Span.limit trim did not fit.
+  - where: **`prototypes/pipe.js` · `queue.js` · `span.js`** — extends "`$history` is the span's fold"
+  - text: A span minted without a trace is an orphan no reader hears — mint under `options.trace` · `controller.stdout.branch(…)`. `$history` only grows, `onSet` trims it to `Span.limit` 1000 (span.js:24,33) — REJECTED a compaction function /"We don't want a dedicated compaction function."/ 09-22.
+- **cid 132** · fit-existing-trees · ×1 · 10-23 — Cap: the REJECTED Span-subclass line did not fit.
+  - where: extends "`span.tracked`, each a method returning the span" + the `span.js:45` fence
+  - text: An extension is `span.tracks(vector)`, inherited by every branch (span.js:34 `this.trace.tracked`) — REJECTED a Span subclass per environment · an exposed registry /"I don't like the idea of creating a bunch of span derivatives. […] But I don't like to expose this. At all."/ 10-23.
+  - voice: /"I don't like the idea of creating a bunch of span derivatives. […] But I don't like to expose this. At all."/
+- **cid 149** · scope-inflation · ×2 · 10-23 — Cap: the controller MACHINE entry (~400 chars) would not fit.
+  - where: new bold row after **`prototypes/pipe.js` · `queue.js` · `span.js`**: `prototypes/controller.js`
+  - text: **`prototypes/controller.js`: MACHINE = statuses + `settled`, no transition table, no SIGNALS→status map — each stdin handler checks and sets /"can we maybe just rip it out entirely? Why does this exist?"/ 10-23.** `status.set` UPPERCASES a string and MERGES (STOPPED keeps STOPPING's signal·reason); a settled controller leaves `parent.children` and aborts its own — hold the root open around the whole output; never `start()`ed, SIGTERM leaves it IDLE, `proceed()` false, only SIGKILL settles (ABORTED); `fromm.controller(c).exit` = 128+NUMBERS[reason] (Ctrl-C 130, /quit 0).
+  - voice: /"Do we actually use this state machine for anything, or can we maybe just rip it out entirely? Why does this exist?"/
+- **cid 166** · fit-existing-trees · ×1 ·  — Cap. The cortex/shape collision census note is kept, but the 'NOT SHAPE … belt' ruling did not fit.
+  - where: typology.md **`gestalten/belt/`** line ("`cortex.js` exports `strip`·`wire`, names `shape/` also owns")
+  - text: a namespace's members share ONE shape — a fn of another shape re-exported into it ✗; a predicate compiler · `cortex.wire` are belt (REJECTED /"SMELL!!! big smell. not good."/ · 10-09 /"NOT SHAPE! … this is belt!"/).
+  - voice: /"SMELL!!! big smell. not good."/
+- **cid 170** · pin-ontology-before-naming · ×1 ·  — Cap: the kernel-entry Mode and mask-is-schematic line did not fit.
+  - where: typology.md **`schematics/primitives/`** line
+  - text: a kernel entry is `Mode` (`instance.js:27`, `Modes = v.union([string, Mode])`, /"entry I think should be mode."/); a mask is a SCHEMATIC, never a Signal (/"a mask isnt a signal type. its a schematic."/); `v.const` frees `v.literal` for the entity, `v.rel` after mikro `Rel`.
+  - voice: /"entry I think should be mode."/
+- **cid 177** · assume-dont-verify · ×2 · 10-26 — Cap: the entity-manager id-keying trap was cut in the final trim.
+  - where: typology.md **`prototypes/`** line
+  - text: `entity-manager.js:69` keys the identity map on `id` — a slug-primary row needs a serialized `id` getter (`persist: false`) or drops silently (/"ok lets try the getter fix"/ 10-26); `:98` `Object.assign(new kind(), raw)` runs BEFORE hydration — setters see every column, a getter-only prop THROWS.
+  - voice: /"ok lets try the getter fix"/
+- **cid 179** · assume-dont-verify · ×2 · 10-12 — Cap: the dataspace serial-order line did not fit.
+  - where: typology.md **`prototypes/`** line
+  - text: `dataspace.js:35` reads each repository SERIAL in declaration order: a relation resolves only when its target was read first; the declaration IS the read list (REJECTED 10-26 `entities.read([...names])` /"kind of duplicative … We have our singular data space."/).
+- **cid 204** · pin-ontology-before-naming · ×1 ·  — Cap: the belt.query line did not fit.
+  - where: **`gestalten/belt/`: 25 members (167 exports) under `index.js`…**
+  - text: `belt/query.js`: `lift` normalizes a selector ONCE, and the lift is what gets stored, never raw sugar. `where` compiles it to a memory predicate (/"move belt.where to belt.query.where"/). Query the populated COLUMN (`literal.ontology`), never a JSON-path into `trait`; `===` misses a loaded m:1 ref.
+  - voice: /"this can have its own belt. belt/where.js · move belt.where to belt.query.where"/
+- **cid 213** · live-system-unaware · ×1 · 09-16 — Cap: the Socket.feed text-only line did not fit.
+  - where: **`prototypes/`: 49 rows, `index.ts` → `mod.ts`…**
+  - text: The wire: datamap `GET /subscribe` (`gestalten/shard/datamap.js:223`) already broadcasts every entity write. `Socket.feed` sends text frames only (`prototypes/socket.js:293`), so binary needs a plain-http Connection. `publish` without `accept: text/event-stream` returns only the first frame, and `subscribe` on a gone row reconnects forever, so a deletable row is read once.
+- **cid 218** · one-structure · ×1 · 10-23 — Cap: the strip meta line did not fit.
+  - where: **`gestalten/shape/`: `index.js` (4 direct) over connection `wire`…**
+  - text: `shape.strip` carries a group edge's pattern as `meta` (`shape/strip.js:5`), and painters label from `effect.valence · meta.valence · key` (/"it's a strip wire, for sure"/ 10-23). A new schematic or faculty field must ride strip too. An executable tool never crosses the JSON wire, so a client tool loop rides `strip ⟷ wire` with a boundary test.
+  - voice: /"it's a strip wire, for sure"/
+- **cid 221** · fit-existing-trees · ×2 · 07-02 — Cap: the hallucinate message-split line did not fit.
+  - where: **`gestalten/belt/`: 25 members…**
+  - text: A tool's yield is split: the model HEARS only `message` plus the entity rows cut to the descriptor's spoken paths (`belt/hallucinate.js:40-47`). Whatever it must reuse (hash · id) is spoken there, and bundles · data stay off, reachable via tools (/"we need the ability for agents to view/query/ and ITTERATE the views!"/ 07-02).
+  - voice: /"we need the ability for agents to view/query/ and ITTERATE the views!"/
+- **cid 223** · one-truth-condition · ×2 ·  — Cap: the tool-fault shape line did not fit.
+  - where: **`gestalten/belt/`: 25 members…**
+  - text: A tool fault reaches the model as its OWN words: `{condition: "ERROR", output: {message}}` with message a string (`unknown tool: X — armed: …`, `belt/hallucinate.js:101-105`); REJECTED `message:{error}` /"Still [object Object] on any refusal"/. An Error crosses the wire only via `toJSON`. A forged round uses a real, callable tool name (/"whats the actual tools name? review? use that."/).
+  - voice: /"Still [object Object] on any refusal until G2. tell me about this"/
+- **cid 224** · contract · ×1 ·  — Cap: hallucinate's single output did not fit.
+  - where: **`gestalten/belt/`: 25 members…**
+  - text: `belt.hallucinate` yields ONE output whose schema is `output.schema` (/"the one single schema and the the one single destination"/). Structured output is the provider's (respond-tool + `tool_choice` in buildParams), so the loop runs only real-tool rounds (/"go on both"/).
+  - voice: /"Hallucinate output is the one single schema and the the one single destination"/
+- **cid 227** · pin-ontology-before-naming · ×3 · 09 — Cap: the policy/settings knobs did not fit.
+  - where: **`gestalten/shard/`: 15 members…**
+  - text: Hallucination knobs: `policy` is app-side (belt reads it) and `settings` is per faculty (the provider reads it). `config` dies; classify a knob by WHO reads it (/"why do we have config AND settings AND policy??"/ 09). `shard.hal.defaults` applies `??=` per layer `[policy settings system output]` (`shard/hal.js:105-107`), and thread + invocation still win.
+  - voice: /"why do we have config AND settings AND policy?? i suspect we want per facutly settings and shared properties amonst them"/
+- **cid 229** · pin-ontology-before-naming · ×2 · 09-23 — Cap: cortex faculty derivability did not fit.
+  - where: **`gestalten/belt/`: 25 members… `cortex.js` exports `strip`·`wire`**
+  - text: cortex: a faculty is admitted by DERIVABILITY: choice reads a distribution, so it is its own faculty (/"choice? or is jev just object with some sugar?"/ 09-23). `choice · score · noul` are tagged kinds (/"good names actually. we take those."/ 09-24); caps sit FLAT (`options · choices`), REJECTED `bounds{}` /"why keep it?"/. Render's output IS the distribution (/"the output of render is the end of our concern."/), and the copy verb is `cortex.split(faculties)` (/"no, different name."/ 10-07).
+  - voice: /"choice? or is jev just object with some sugar?"/
+- **cid 239** · pin-ontology-before-naming · ×1 ·  — Cap: the agentic tool Yield line did not fit.
+  - where: **`gestalten/belt/`: 25 members…**
+  - text: An agentic tool composes its OWN hallucination over inner tools and returns a Yield (/"must return a yield"/). `soma.pour` concatenates repeated string fields (`belt/soma.js:14`), so a projected yield drags every page into the outer turn and a stub delta carries input alone. An async side-result lands as a sync-shaped tool round on the sealed turn (/"we dont want to grow fake tursns"/).
+  - voice: /"the harness calls a tool which creates its own hallucination ... must return a yield"/
+- **cid 244** · one-contract · ×2 · 2026-08-12 — Cap: primitives/hallucination did not fit.
+  - where: **`schematics/primitives/`: 14 members …
+  - text: `primitives/hallucination.js`: a hallucination PROJECTS the thread, keyed props enhance it (/"hallucination operates on faculty level. harness operates on hallucination level."/); `Request` a closed record, `tools` an ARRAY of `Tool` (`:192`), close = `meta.state` (vendor under `meta.provider`); a turn = one authorship (/"amen."/); no session (/"we dont have a session"/ 08-12); REJECTED `pathOf` /"its hacky"/.
+  - voice: /"SURE SURE?"/
+- **cid 255** · fit-existing-trees · ×1 ·  — Cap: the subscriber one-emit line did not fit.
+  - where: **`gestalten/shape/`: `index.js` (4 direct) …
+  - text: `shape.subscriber` keeps ONE `emit` (`subscriber.js:11`); deferral is middleware on the carry (/"might this not be handled by middlewares?"/).
+  - voice: /"not sure i like this. but you tell me. might this not be handled by middlewares?"/
+- **cid 263** · live-system-unaware · ×1 · 2026-04-18 — Cap: context.attach nulls keys did not fit.
+  - where: **`gestalten/shard/`: 15 members …
+  - text: `shard.context.attach` · `scope` null their key after `next()` (`context.js:10-21`) — read daemon/mode from the trait closure (/"Closures over trait args always outlive ctx."/ 04-18).
+  - voice: /"Closures over trait args always outlive ctx."/
+- **cid 266** · none · ×1 · 10-09 — Cap: fromm.modes(map).flat did not fit.
+  - where: **`gestalten/cast/` … `gestalten/fromm/`: `index.js` sink·source·url·match·params·modes…
+  - text: `fromm.modes(map).flat` — the MAP in, never ctx (REJECTED 10-09 `flatmodes` /"flatmodes → fromm.modes(ctx.modes).flat !!!!"/).
+  - voice: /"flatmodes → fromm.modes(ctx.modes).flat !!!!"/
+- **cid 272** · pin-ontology-before-naming · ×1 · 10-16 — Cap: mime.VENDOR did not fit.
+  - where: **`schematics/scalars/`: `index.js` … `mime.js` …
+  - text: `mime.VENDOR` = `application/vnd.viva`, spelled once (`mime.js:13`; /"vnd.vivalence to vnd.viva."/ 10-24); a mime says what a thing IS (/"It only says what it is."/ 10-16); ONE bundle per buffer · mode, one entry per mime — REJECTED faces · representations · MEDIA (10-10).
+  - voice: /"the artifact does not say something about how it's consumed. It only says what it is."/
+- **cid 274** · none · ×1 · 09-28 — Cap: theme.js did not fit.
+  - where: **`schematics/primitives/`: 14 members …
+  - text: `theme.js`: scalars → the primitive → signatures; a theme is a function (/"theme will be a function. we have v schematic for it."/ 09-28).
+  - voice: /"theme will be a function. we have v schematic for it."/
+- **cid 276** · pin-ontology-before-naming · ×1 ·  — Cap: reader/writer did not fit.
+  - where: **`gestalten/fromm/` … `yield.js` re-exports `reader as yield`
+  - text: `reader`/`writer` stay pure descriptor factories beside their carriers (/"they are nicely explicit and obvious."/).
+  - voice: /"i actually like the name reader and writer. they are nicely explicit and obvious."/
+- **cid 1** · assume-dont-verify · ×4 · 05-18 — The second cid 1 (keysignal modifiers in the nature) did not fit the cap. The swap of codestyle's keys.js fence is outside this shard.
+  - where: typology.md, after the `schematics/scalars/` entry (`schematics/v.js entityFactory·v`)
+  - text: **`v` is typebox behind a Proxy (`schematics/v.js:46`), never zod** — no `.passthrough`·`.strict`·`.refine`·`.parse` (/"does that exist???!!! if not stfu"/ 05-18); `.optional().default(x)`, a default is not optional; `cast` = Convert∘Default, NEVER validates — the gate is `.faults()` (a pattern fault names its `title`); `fill`·`cast` RETURN a copy.
+  - voice: /"and whats this passthrough() function? does that exist???!!! if not stfu"/
+- **cid 1** · assume-dont-verify · ×4 · 05-18 — The second cid 1 (keysignal modifiers in the nature) did not fit the cap. The swap of codestyle's keys.js fence is outside this shard.
+  - where: typology.md: new bold line after **`prototypes/pipe.js` · `queue.js` · `span.js`**
+  - text: **`prototypes/keysignal.js` — a nature is ALL-ENCOMPASSING** (10-23): modifiers ride IN it, W3C order `ctrl-alt-shift-meta` (`ctrl-shift-s`), never flags; an id too (`/hallucination/${call.id}`, read back by `/:id`). A surface forwards the RAW event; `KeySignal.coercions` spells it once (opentui · DOM · string). /"the nature of a key signal be all-encompassing, we ignore the modifier flags"/ · /"IDs are fine. […] /branch/:id still exists."/
+  - voice: /"and whats this passthrough() function? does that exist???!!! if not stfu"/
+- **cid 16** · testing · ×1 · 09-23 — Partly landed in cid 100's line; the 'filter returns new signal.constructor' and new.target half did not fit.
+  - where: typology.md: **`prototypes/`: 49 rows** line
+  - text: A Signature is never written: a filter returns `new signal.constructor({ ...signal, … })`; a constructor handing back its argument checks `signature instanceof new.target` before `super()` (`span.js:27`) so a subclass mints fresh. /"kk go with new.target"/ 10-23
+- **cid 184** · live-system-unaware · ×1 · 09-22 — Off-owner (map.md mikro line; map.md is at 3999/4000).
+  - where: map.md **mikro 7.2.3 owns the db** line (extends it; typology `entities/` reads it)
+  - text: mikro: a removed entity resurrects through an uninitialised inverse → `removeWithoutPropagation` on each; `getAll()` is a Map by class (walk `.values()`); synthesized `X__inverse` (`persist:false`) are skipped by walkers; a db cascade fires no ORM event (a twitch never sees it); serve the row the writer returned, never the request em's stale identity.
+- **cid 198** · none · ×2 · 09-17 — Off-owner (map.md).
+  - where: map.md mikro line (after "never a hand migration")
+  - text: an enum member drop waits on an umzug migration routine (prod vs dev, `em.nativeUpdate`); till then it stays, deprecated at the enum's bottom (/"Umzug has a certain way of doing things, and I think we can hook into this."/ 09-17).
+  - voice: /"Umzug has a certain way of doing things, and I think we can hook into this."/
+- **cid 206** · pin-ontology-before-naming · ×1 · 09-22 — Off-owner (codemap:runtime).
+  - where: codemap:runtime (Literal entity), not this shard
+  - text: A literal's slug is unique per daemon with no owner key (`systems/runtime/entities/Literal.ts:83`), and `mode` is only an optional annotation (/"There's only one slug ever. … Literals don't require an owner."/ 09-22). Provenance rides the base `uses ⟷ in` m:n (`:113`) (/"fix uses signal. lovely."/).
+  - voice: /"So absolutely slugs are unique. There's only one slug ever. … Literals don't require an owner."/
+- **cid 265** · none · ×1 · 10-09 — Off-owner (codestyle).
+  - where: codestyle '9 · 10' (REJECTED 10-16 `reference(client)`)
+  - text: `reference` is one computation for every bearer: `type/slug` · `owner/type/slug` (/"why so complicated."/ 10-09).
+  - voice: /"type/slug · owner/type/slug · mode/type/slug etc. why so complicated."/
+- **cid 267** · none · ×1 · 10-10 — Off-owner (codemap:paladin).
+  - where: codemap/paladin.md (off-owner)
+  - text: home is a pointer: `user.trait.HOME` › `instance.clients[].home`; client is an instance noun (/"client is a instance noun! so home per user trait & instance client. two ways."/ 10-10).
+  - voice: /"client is a instance noun! so home per user trait & instance client. two ways."/
+- **cid 268** · fit-existing-trees · ×1 · 10-16 — Off-owner (codemap:runtime).
+  - where: codemap/runtime.md (off-owner)
+  - text: every mode has `mode.stdout` a Span and `mode.repl` a Vector; context patches stdout through (/"their output is patched through depending on context."/ 10-16).
+  - voice: /"every mode has a mode.stdout = new Span();. their output is patched through depending on context."/
+- **cid 269** · pin-ontology-before-naming · ×1 · 10-15 — Off-owner (codemap:runtime).
+  - where: codemap/runtime.md (off-owner)
+  - text: repl ctx: no stream, no kill (the controller's), no command; `mode` present (/"stream no. kill is part of controller. command makes no sense. mode missing."/ 10-15).
+  - voice: /"stream no. kill is part of controller. command makes no sense. mode missing."/
+- **cid 270** · imperative-js-reflex · ×1 ·  — Off-owner (codemap:runtime).
+  - where: codemap/runtime.md (off-owner)
+  - text: REJECTED identity getters on Mode — manifest is plain data on the citizen (/"manifest also on mode prototype. no getters."/).
+  - voice: /"manifest also on mode prototype. no getters."/
+- **cid 275** · invented-state-optionality · ×1 ·  — Off-owner (codemap:paladin).
+  - where: codemap/paladin.md (off-owner)
+  - text: the writer is strict: a named keep-list (`writer.authored`) any target may overwrite (/"thats why the writer should be stricter"/).
+  - voice: /"you see all the superflous keys in there? ... thats why the writer should be stricter"/
+- **cid 280** · fit-existing-trees · ×1 ·  — Off-owner (skills/topography).
+  - where: skills/topography/SKILL.md (off-owner)
+  - text: per-language linguistic statics live in the topography's `statics` export (/"neither domain nor daemon make sense. topography statics makes sense."/).
+  - voice: /"the topography si the right place. neither domain nor daemon make sense. topography statics makes sense."/
+- **cid 286** · pin-ontology-before-naming · ×1 ·  — Off-owner (codestyle).
+  - where: codestyle.md structure — 'Mask keys are SEMANTIC, lookup surfaces LEXICAL (`daemon.modes.<type>.<slug>`)'
+  - text: An ontology marker names the KIND, never the module: two mountings of one module differ by MODE (`daemon.modes.<type>.<slug>`) — scope by mode slug, never by ontology (/"THE FUCKING VDEX ONTOLOGY MARKER DOESNT DESCRIBE THE FUCKING MODULE"/).
+  - voice: /"THE FUCKING VDEX ONTOLOGY MARKER DOESNT DESCRIBE THE FUCKING MODULE"/
+
+## codemap:paladin — .ikiro/world/codemap/paladin.md (6170/6200) · skipped 38
+
+- **cid 1** · absence-is-signal · ×2 ·  — No room: the shard is at 6170/6200 and this verdict is about 480 chars. Everything else left is cited code fences, census data or rules, so fitting it would mea
+  - where: new bullet after `paladin/` — `lifecycle.js (env scopes instance statements secure ...)`
+  - text: - **env YIELDS or throws** — `VIVA_ENV_FILE` without `VIVA_*` throws its path (`paladin/lifecycle.js:24`, /"dont just check its presence but if it yields the required knowledge."/); unknown token throws its way out (`prototypes/instances.js:58`, /"amen."/); a blank never claims (`paladin/prototype.js:50` → `blank`, /"Fix, one law: a blank never claims."/); a scaffold writes `# KEY=""` (09-04 /"commented always. no copy default from global .env"/); ledger env merges WHOLE into each instance schema (09-23 /"an instance DOES have this requirement. good to have it explicit."/).
+  - voice: /"dont just check its presence but if it yields the required knowledge."/
+- **cid 5** · assume-dont-verify · ×3 ·  — No room (about 400 chars) without evicting a rule.
+  - where: `instance/` — `factory.js` ... `resolution` `defaults · mountpoints`
+  - text: - **one pinhole** — every thunk resolves before any reader; providers get a STATIC map (/"the service providers for sure get a static map. all thunks resolved by now."/; REJECTED consumer-fires · per-key thunks). A declared mountpoint wins, `<scope>/<kind>_<slug>` fills on silence (`instance/lifecycle/resolution.js:25`); an explicit location wins wholesale (/"if a variant isntall comand has a location attached then the variant, its env, mountpoints etc all go there."/).
+  - voice: /"the service providers for sure get a static map. all thunks resolved by now. thunks pinholed. no reader trace."/
+- **cid 11** · assume-dont-verify · ×1 · 10-16 — No room (about 230 chars).
+  - where: `paladin varies by DECLARATION in paladin/lifecycle.js ...` bullet
+  - text: The LEDGER decides what boots, never a hostname/loopback test (10-16 /"no. still wrong."/); `is.citizen` = server-side with write access, never in-repo (REJECTED 09 citizen → repo registry: it cannot tell repo-dev from installed).
+  - voice: /"no. still wrong."/
+- **cid 15** · invented-state-optionality · ×2 · 2026-07 — No room (about 300 chars).
+  - where: `paladin/` bullet (pensieve · manifest) — append
+  - text: A package without `manifest.owner` THROWS (`prototypes/registry.js:14`) — same class as a missing slug (07 /"no automatic resolve of package to @viva. if no owner package given === same class of error as slug missing."/); REJECTED a dirname (/"dir name as slug??!! suuggest that again i get grok"/).
+  - voice: /"no automatic resolve of package to @viva. if no owner package given === same class of error as slug missing."/
+- **cid 23** · live-system-unaware · ×3 · 08-26 — No room (about 230 chars).
+  - where: `ledger/` untested bullet — `A lock read DELETES a dead lock.` (extend)
+  - text: Detach = `detached: true` (`gestalten/commands/instance/start.js:26`), `unref()` never detaches; liveness = `Deno.kill(pid, "SIGURG")` (`prototypes/lock.js:3`), never SIGCONT — it resumes a ctrl-Z'd shell (08-26 /"amen #3"/).
+  - voice: /"amen #3"/
+- **cid 51** · derive-from-place · ×3 · 09-22 — No room (about 380 chars).
+  - where: paladin.md bullet "`ledger/` tested — `index.js` … `prototype.js` (`RECIPE RECORDS derive Ledger`)"
+  - text: **ANY `.viva.js` at the ledger root IS the ledger** (`ledger/prototype.js:68`): type + slug derive from place, a manifest only LOCKS; two files or a foreign type throw; a service attaches at the COMPUTED `/attached/process/service/<type>/<slug>` (`instance/lifecycle/resolution.js:42`). /"not ledger.viva.js specifically. ANY .viva.js file at ledger root."/ 09-22 · /"no dedicated lighthouse servee. computed attachment path."/
+  - voice: /"i dont like manifest export on ledger. slug on ledger especilly. can we default them on the viva.js file at ledger root? · not ledger.viva.js specifically. ANY .viva.js file at ledger root."/
+- **cid 59** · env-at-owner · ×2 · 09-23 — No room (about 370 chars).
+  - where: paladin.md bullet "paladin varies by DECLARATION … every path it knows is a `*_MOUNT` · `*_FILE` env var with a default."
+  - text: **the ledger `.env` carries every key the ledger declares**; `ledger/init` appends only the keys it lacks; a `.env` is AUTHORED — upsert by LINE (`paladin.state.line`, `belt/state.js:27`), never `dotenv.stringify`; no `*_MOUNT` default carries `~`. /"whatever i declare in teh ledger should have its env vars in the ledger"/ 09-23 · /"drop .default('~/.viva/lighthouse')"/ 09-19
+  - voice: /"move the env variables up. whatever i declare in teh ledger should have its env vars in the ledger"/
+- **cid 63** · faults-as-data · ×4 · 09-22 — No room (about 560 chars).
+  - where: paladin.md bullet "`instance/` — … `integration` `settle` → `publish`"
+  - text: **settle judges pinhole-first** (dormant → cast → faults): a blank secret on a `.optional()` roster slot is DORMANT — off the roster, named `{at, module, empty}` on `instance.dormant`; one hallucinator required (anthropic). Faults are DATA; the throw lives only at the boot edge `check.instance(i).throw()` (`ledger/prototype.js:92`). /"first we pinhole. then we validate."/ · /"we can't just boot through a non-functional set of modes without telling anybody"/ 09-22 · REJECTED: `paladin.secret.has(K) && {…}` — presence (`''` is true), at import, erases the dormant row.
+  - voice: /"we can't just boot through a non-functional set of modes without telling anybody"/
+- **cid 65** · fit-existing-trees · ×3 · 09-19 — No room (about 360 chars).
+  - where: paladin.md bullet "paladin varies by DECLARATION … IMPORTED by a system or a lifecycle beat, never on a die (`instance` crosses)"
+  - text: **paladin OWNS config + the disk** (mask · mountpoint · statics overlay · env · readDir); the runtime and a mode READ the cast instance through ctx — no `Deno.*`, no row written back, JSON wins at boot. /"it runs. it doesnt change. its a process, not a configuring pipeline."/ 09-19 · /"obviousfuckingly mountpoint is property and masking and all that shit is subject of paladin."/
+  - voice: /"paladin owns config. runtime should receive its input and its input alone. it runs. it doesnt change. its a process, not a configuring pipeline."/
+- **cid 76** · fit-existing-trees · ×3 · 2026-08-14 — No room (about 400 chars).
+  - where: paladin.md `~/.viva` jsonc fence ("registry": tapped · git …)
+  - text: **`registry/tap` = materialize + record**: source kinds live ONLY in materialize (a local path is a no-op), the record never learns a URL, mount is the runtime's at boot; an image taps ONE flat `ARG VIVA_REGISTRY_TAPS` of bare urls (`Dockerfile:65`; a layer caches on the url → `--no-cache`). /"So the tap has to do materialize and record. Very clean."/ 08-14 · /"no 2 level variables. ... i dont NEED named taps"/ 09-19
+  - voice: /"Mount is at runtime. It happens automatically because of the way that our system is architectured. So the tap has to do materialize and record. Very clean."/
+- **cid 80** · fit-existing-trees · ×2 · 10-21 — No room (about 380 chars).
+  - where: paladin.md bullet "`instance/` — … `resolution` `defaults · mountpoints`"
+  - text: **a mountpoint is INSTANCE-level, seated by paladin, never the registry**: a daemon mode gets `mode_<type>_<slug>` (skill `mode`), a client's modes carry NONE (`place`, `instance/lifecycle/resolution.js:54`); one container = one seat. /"for sure the registry does not set the mount point on the mode."/ 10-21 · /"its singular from the docker perspective"/ 09-19
+  - voice: /"for sure the registry does not set the mount point on the mode. […] the mount point is set on instance level. So your Paladin is fucked."/
+- **cid 83** · fit-existing-trees · ×3 · 2026-07 — No room (about 430 chars).
+  - where: paladin.md bullet '`ledger/` tested — … `registry.js` (`Registry`)'
+  - text: **supply = the ledger's registry record, demand = the instance's**: packages live ANYWHERE, `~/.viva/registry` is brew's default (/"the ledger/register is just a heuristic"/); demand past supply throws `not supplied` ≠ Module 404 (`tests/registry.mount.test.js:74`); runtime package-blind (/"nothing hardcoded!"/ 07-02). REJECTED: a variant declaring its packages — /"the source of packages should actually be the system ledger"/.
+  - voice: /"I think we've made the design boo boo. I think the source of packages should actually be the system ledger. I think variant should not declare its packages."/
+- **cid 88** · schema-owns-defaults · ×4 ·  — No room (about 380 chars).
+  - where: paladin.md bullet '`instance/` — … `population` `environment · recipe`'
+  - text: **a recipe is `*.viva.json`, STRINGS only** (`${KEY}` · identifiers · paths; /"lets change that to .viva.json"/ 10-07); optionality · defaults · `Url` codecs are the schematic's, a `.default(fn)` mints once at scaffold into `.env`. REJECTED: `statics: {}` · a ternary · `new Url` in a recipe — /"we have our schematics. those should be able to cast prototypes no?"/
+  - voice: /"new url everywhere. we have our schematics. those should be able to cast prototypes no? we dont need url prototypes and type casting generally if we have v.schematics for this properly setup."/
+- **cid 101** · fit-existing-trees · ×1 ·  — No room (about 400 chars).
+  - where: paladin.md bullet '`paladin/` — … `lifecycle.js` (`env scopes instance statements secure`'
+  - text: **secrecy is the KEY** — `typology/schematics/primitives/environment.js:3` `^(VIVA|PUBLIC_VIVA|SECRET_VIVA)_[A-Z0-9_]+$` throws at import; a `SECRET_*` lives only in `paladin.secret` (`set · has · provenance`), an env payload a LIST of `{key, set}`, a doctor prints a count. REJECTED: `v.secret()` · classing by filename or value — /"security by studidity is not security"/.
+- **cid 107** · fit-existing-trees · ×4 · 09-23 — No room (about 380 chars).
+  - where: paladin.md bullet '`instance/` — … `resolution` also holds `inherit` (← `population.js`)'
+  - text: **the ledger recipe FOLDS into the instance before the cast** (`population.js:60` `inherit`): a mask whole by SLOT (`v.clone`), environment by KEY, instance wins, `hallucinators: []` = none; mountpoints fall the same ledger → instance → daemon → service → mode, each overridable (/"the same tiered fall-through model we have on env vars"/ 09-23).
+  - voice: /"i want to apply the same tiered fall-through model we have on env vars on the instance construction"/
+- **cid 109** · fit-existing-trees · ×2 · 10-21 — No room (about 420 chars). Separately, the shard's ledger/ paths are stale: the files now live in prototypes/. Fixing that is outside this landing.
+  - where: paladin.md bullet '`ledger/` tested — … `integrity.js` (`TRAITS RULES probe`)' (file now subsystems/paladin/prototypes/integrity.js)
+  - text: **`prototypes/integrity.js` `TRAITS`: a trait names the export it travels with** (`EXPOSED→aperture` · `REPLING→repl`) — rename an export, rename its row (/"REPLING: no repling export"/ 10-21); logic rules cut (/"actually cut out all the logic rules."/ 09-22) but `PROVIDER⇒SERVICE` · `SERVICE`∖`ATTACHED`⇒`control` (10-03); a RULES fault is FATAL at `accio`'s assert.
+  - voice: /"REPLING: no repling export"/
+- **cid 115** · invented-state-optionality · ×3 ·  — No room. Its 'where' also points at codestyle's 'absence IS the signal' section, which is not this file.
+  - where: codestyle '**absence IS the signal**'
+  - text: **a read verb never creates what it vouches for** — mounting never scaffolds, the doctor prints ✗ and creates nothing, `ledger/init` the one creator; required-ness is the code's: an unset required slot (mountpoint) is a doctor REQUIRED at its slot, never a silent default (/"its required. it truely is."/).
+  - voice: /"go"/
+- **cid 118** · pin-ontology-before-naming · ×1 · 10-07 — No room (about 330 chars).
+  - where: paladin.md bullet '`instance/` — `prototype.js` `Instance`'
+  - text: **`InstanceMask` = the file as authored, `Instance` = the settled unit** (/"mask and instance. InstanceMask"/ 10-07, `typology/schematics/primitives/instance.js:176`); `additionalProperties: false` — an unknown key THROWS at mount, a `Ledger` key folds only once in `Ledger.properties`; an open (`true`) mask swallows a misplaced key silently.
+  - voice: /"4. mask and instance. InstanceMask"/
+- **cid 121** · invented-state-optionality · ×1 ·  — No room (about 370 chars).
+  - where: after `paladin varies by DECLARATION` bullet
+  - text: - **an instance never names its own location — the ledger does** (REJECTED /"information of the instance mount in the mounted instance?!"/); a data mount is ONE absolute path on the instance, else throw naming the slot (/"vdex mounts just ONE path!"/); fs/shell tools bind no root — absolute paths, the mode's places in its context line.
+  - voice: /"i dont see how it makes sense to have the information of the instance mount in the mounted instance?!"/
+- **cid 122** · pin-ontology-before-naming · ×3 ·  — No room (about 380 chars).
+  - where: after `paladin varies by DECLARATION` bullet
+  - text: - **an env declaration is `v.environment({ KEY: v.<type>().desc().optional() })` (`paladin/prototype.js:8`), desired = `.optional()`; an authored `environment` export — wizard · `ledger/install` · docs · `doctor --json` read it.** REJECTED a `need` enum (/"perfect. brilliant! this is our new meta!"/) · `.env.example` — killed, never generated (amen).
+  - voice: /"perfect. brilliant! this is our new meta!"/
+- **cid 127** · live-system-unaware · ×3 · 09-20 — No room (about 400 chars).
+  - where: after `ledger/ untested` bullet
+  - text: - **a migration is proven on a POPULATED prod-shaped clone on a free port — dev nukes dbs; read the generated SQL; old-era sqlite: mikro builds the empty schema, `ATTACH` copies rows (REJECTED mikro's SQL via the sqlite CLI, 09-20 /"go a"/).** No committed per-die migration dir — /"that information is only available once we deploy"/.
+  - voice: /"prod. keep"/
+- **cid 129** · live-system-unaware · ×3 · 09-20 — No room (about 360 chars).
+  - where: after `ledger/ untested` bullet
+  - text: - **libsql reads `mountpoint/<db.file>` + `mountpoint/migrations` only (`commons/datamaps/libsql/libsql.viva.js:12,20`); `db.file` = `<slug>.viva.db` (`systems/runtime/subjects/runtime/lifecycle/population.js:39`) — a copy or slug rename moves db + `-wal`/`-shm` + `.snapshot-*`, else it boots GREEN on an empty db.**
+- **cid 130** · live-system-unaware · ×1 · 09-20 — No room (about 300 chars).
+  - where: after `ledger/ untested` bullet
+  - text: - **`ledger/doctor` (scopes · env · registry) ⟷ `instance/doctor` (roster · vars · locks) — /"dont forget the pair"/; `ledger/doctor` REAPS dead-pid `sessions/` (`gestalten/commands/ledger/doctor.js:49`), never boot (/"doctor-only"/) — never a probe on his ledger.**
+  - voice: /"added an instance/doctor for completino. dont forget the pair"/
+- **cid 134** · name-the-algebra · ×3 · 08-26 — No room (about 490 chars).
+  - where: after `paladin varies by DECLARATION` bullet
+  - text: - **`paladin.env` = first-hit over `STRATA` `flag › cwd › instance › .env › os › session › ledger` (`paladin/prototype.js:4`); `observe` = ambient cwd scan, `claim` = ledger · instance · flag, evicting its file's observations; `sessions/<$VIVA_PROCESS_ID>.json` = any `VIVA_*` bag (`lifecycle.js:99`); provider keys live in `~/.viva/.env`.** A scratch copy pins its port in its OWN `.env`. REJECTED `sessions/default.json` — /"thats ledger level. ledger .env."/
+  - voice: /"the machine should be able to set it. but the instance can overwrite it. is thats what currently is? if so, gucci."/
+- **cid 161** · live-system-unaware · ×1 · 10-23 — No room (about 190 chars). Only 30 chars are left.
+  - where: - **`paladin/` — `prototype.js` `Paladin` … `pensieve.js` `Pensieve`
+  - text: `revelio` hands back `own()` copies (`prototypes/pensieve.js:82` `Object.create` + `Reflect.ownKeys`): a `#field` on a registry-borne prototype is NOT copied — no `#` state there.
+- **cid 166** · pin-ontology-before-naming · ×9 · 09-07 — No room for the lexicon (about 210 chars even trimmed), although the shard's title names a lexicon. This is the highest-count verdict left (count 9) and should 
+  - where: new bullet after the `paladin varies by DECLARATION` rule (the lexicon)
+  - text: **lexicon** — `mount` = where a thing is found · `mountpoint` = the fs seat (/"Mount point would be file system specific."/ 09-07) · `source` = the read file · `identifier` = `@owner/type/slug`; `*_MOUNT` is ALWAYS a path (/"mount always means path. never not path. never slug."/), a slug enters by use; `registry.locate(root)`, never `reference` (/"locate."/); `scope.variant` SINGULAR (/"any runtime ever only renders one"/); a bare string in an array is a mask `{module}`.
+  - voice: /"it is a path where to find something … Mount point would be file system specific. I'm okay with that."/
+- **cid 171** · none · ×2 ·  — No room (about 230 chars).
+  - where: - **paladin varies by DECLARATION in `paladin/lifecycle.js` … every path it knows is a `*_MOUNT` · `*_FILE` env var
+  - text: An env bag is a `.env`, structure stays JSON (`environment.json` beside it) — /"just one default way of doing things … lets cut it to just .env."/; a container's env carries only its own keys (/"i dont see why the runtime needs anima?!"/).
+  - voice: /"just one default way of doing things. either .env or environment.json. lets cut it to just .env. do a thorough pass on the blast radius first."/
+- **cid 174** · none · ×1 ·  — No room (about 170 chars).
+  - where: - **`paladin/` — … `pensieve.js` `Pensieve`
+  - text: A service provider is a NAMED export: `typology/gestalten/cast/primitives.js:7` `if (is.fn(thing.default)) thing = thing.default()` runs a default function at ingest.
+- **cid 181** · pin-ontology-before-naming · ×1 · 10-21 — No room (about 480 chars).
+  - where: - **`ledger/` tested — …** (head of the ledger bullets)
+  - text: **registry = the PACKAGES**, anarchy, never policed (/"registry is anarchy. whatever. we dont care."/ 09-22); mode boot · mountpoints · wiring never there (/"Registry is a very specific thing. […] It's the packages."/ 10-21); doctor counts `modules`, never modes. **ledger = a store of record**; kill/terminate rests in paladin's dies (/"What I think of in the ledger is a record. It's a store."/). The browser's is `@vivalence/paladin` baked in `mod.client.js` — REJECTED `register` (/"it would not be called register dhu."/ 10-21).
+  - voice: /"Registry is a very specific thing. […] It's the packages. […] So your Paladin is fucked."/
+- **cid 183** · pin-ontology-before-naming · ×1 · 09-22 — No room (about 140 chars).
+  - where: `ledger/` tested — `integrity.js` (`TRAITS RULES probe`)
+  - text: REJECTED 09-22 `sound` · `nature` as the integrity gate's name — /"shit"/; the gate is `probe(rules)(module, span)` (`prototypes/integrity.js:47`).
+  - voice: /"shit"/
+- **cid 184** · pin-ontology-before-naming · ×2 ·  — No room (about 430 chars).
+  - where: `manifest.js` `Manifest` (← `pensieve.js`, no test)
+  - text: `manifest` is the ONE identity record (runtime · clients · services · daemons), folded + VALIDATED in paladin, no getters (/"no getters."/); runtime's defaults `{ slug: "runtime" }` in the schematic (`instance.js:45`), never a ledger; a service mask's manifest stays REQUIRED (/"ok leave it."/ 09-22); a mode on the client is its REFERENCE `type + slug` (/"I don't think the package should be in there."/ 10-21).
+  - voice: /"manifest also on mode prototye. no getters. on modeentity is the one exception that makes sense to me"/
+- **cid 188** · pin-ontology-before-naming · ×2 · 09-19 — No room (about 180 chars). It also hangs off cid 166, which was skipped.
+  - where: merged into cid 166's lexicon line (append)
+  - text: address: a process has an ORIGIN (`VIVA_<P>_ORIGIN`, binds), a thing a REMOTE (`PUBLIC_VIVA_<T>_REMOTE`, reached); REJECTED `*_SERVE` (/"how can serve === remote??!"/ 09-19).
+  - voice: /"serve remote origin feels like one too much?! how can serve === remote??! · no copy. confusing af"/
+- **cid 193** · pin-ontology-before-naming · ×1 · 10-19 — No room (about 330 chars).
+  - where: `gestalten/belt/` bullet (prime is in `FULL`, belt/index.js:17)
+  - text: every primer reader is `paladin.prime.<verb>` → a Primer (/"one single standard for the system."/ 10-19); `paladin.read` keeps raw files + frontmatter; frontmatter speaks OURS (`valence · load`), a `DIALECTS` sniff translates Agent Skills `description` → lazy (`belt/prime.js:3`) — /"it's just a sniff"/.
+  - voice: /"it should absolutely return a primer. That's the idea, one single standard for the system."/
+- **cid 205** · scope-inflation · ×1 ·  — No room (about 200 chars).
+  - where: paladin.md `gestalten/belt/` bullet
+  - text: - **where a value was read (a row's `at`, commented out at `gestalten/belt/check.js:101`) is OPTIONAL, out of scope, never load-bearing: /"really not needed. ikiro mark. out of scope."/**
+  - voice: /"mark this capability to remember where a value was read as optional. really not needed. ikiro mark. out of scope."/
+- **cid 206** · scope-totality · ×1 ·  — No room (about 140 chars).
+  - where: paladin.md scopes bullet 'REJECTED 10-21: `new Paladin([...belts])` · a `vault` on the die …'
+  - text: · a registry minted on a client /"this would create a registry on client. nono."/: no store → `prototypes/registry.js:187` throws
+  - voice: /"this would create a registry on client. nono."/
+- **cid 210** · untagged · ×1 · 10-07 — No room (about 330 chars).
+  - where: paladin.md `gestalten/tools/` bullet '+ `commands/` (m110)'
+  - text: - **`commands/ledger/install.js:88` taps commons as a RECORD and mints nothing; `commands/instance/install.js:102` mints `SECRET_VIVA_JWT`, the jwt is the INSTANCE's (10-07 /"7b"/); an INVALID value is OWED like a blank, re-asked prefilled (`:32`), never refused /"fix the invalid values in f five"/.**
+  - voice: /"7b"/
+- **cid 212** · untagged · ×1 · 10-16 — No room (about 220 chars).
+  - where: paladin.md '`ledger/` untested' bullet, after 'A lock read DELETES a dead lock.'
+  - text: `ledger.boot` returns at SPAWNED; `die.integrate()` is readiness: a dead child rejects it and disintegrates the sibling (`tests/spawn.test.js:38 · :65`). He asked /"why this separate step?"/ 10-16; kept.
+  - voice: /"await clientDie.booted.integrate(); // why this separate step?"/
+- **cid 217** · registry-record · ×1 · 10-09 — No room (about 400 chars).
+  - where: paladin.md, before the `~/.viva` census jsonc
+  - text: - **`registry.json` = owner → `{ slug, mount, remote? }`, `mount` absolute or relative to the record; the list shape throws (release.md ⟨registry-record⟩).** REJECTED 10-08 retiring it · `instances.json` · `sessions/` /"we still need a registry json. we also still need sessions and instances"/ · 10-09 a `type`/`nwo` field /"type wouldnt be package, it would be git|jj|fs|whatever. no need for nwo."/
+  - voice: /"{ "@chess": { "slug":"xxx", "mount": "PATH", "remote": "git@github.com:<you>/chess.git" }"/
+
+## codemap:ghost — .ikiro/world/codemap/ghost.md (5597/5600) · skipped 35
+
+- **cid 9** · assume-dont-verify · ×2 · 10-21 — no room: 3 chars of cap headroom remain after the higher-count laws landed
+  - where: ghost.md, after the keymap line
+  - text: - **a UI shows a label, never an id**: `buffer.trait.LABELED.name` (`surfaces/chrome/panels/frame/frame.jsx:9`), else the mode slug — a `[[predicate, word]]` table /"no id in terminal. always label"/ 10-21.
+  - voice: /"when i boot, the terminal tabs show the id. no id in terminal. always label"/
+- **cid 31** · fit-existing-trees · ×3 · 08-26 — owner is codemap:paladin (doctors), not this shard
+  - where: codemap:paladin (doctors) — not this shard
+  - text: doctor data is THICK, alike across views: slugs not counts, paths shown, grouped owner → type → slug, provenance on both doctors /"also data is thin as fuc"/ · /"id like path info too"/ 08-26
+  - voice: /"also data is thin as fuc · i dont like the mismatch between env display · id like path info too"/
+- **cid 36** · fit-existing-trees · ×5 · 10-15 — no room; its core (a turn never travels the repl) is partly covered by repl output-on-controller line
+  - where: ghost.md 'LOOPING' line
+  - text: - **a repl effect returns output, never paints; a turn never travels the repl; dataspace subs · rows ride their own channel** /"dataspace shit like subs dont go through the fucing repl"/ 10-15; keystrokes · focus · a drag's pixels stay client memory, a drag writes ONE line at its end /"we are not going to wire every individual keystroke."/ 10-03. REJECTED a `$repl` atom, a repl list.
+  - voice: /"dataspace shit like subs dont go through the fucing repl"/
+- **cid 43** · fit-existing-trees · ×5 · 10-10 — no room; also the brief notes the loud-on-mismatch half is not in install.sh
+  - where: ghost.md '**tests**' bullet neighbour (new bullet)
+  - text: - **OpenTUI is pinned EXACT** (`import_map.json:108` `npm:@opentui/core@0.5.17`) and patched in `systems/ghost/install.sh:17` by CONTENT anchor (`grep -q __opentuiNodeFfi || patch … subsystems/sheets/opentui-core.patch`), idempotent; never a fork or upstream PR — /"patch step in ghost/install. thats what its for."/ · /"we need to be sticklers about the version then."/ 10-10
+  - voice: /"patch step in ghost/install. thats what its for. · we need to be sticklers about the version then. fine."/
+- **cid 49** · fit-existing-trees · ×1 · 10-27 — no room (DOCKED bullet landed without the markdown field)
+  - where: ghost.md new bullet (chrome)
+  - text: - **journal markdown `pretty|plain` is `DOCKED.markdown` per terminal** (`gestalten/belt/dock.js:3`, default `pretty`). REJECTED 10-27 on the buffer — /"Of course, not on the buffer. … we keep it per terminal, it's fine."/
+  - voice: /"Of course, not on the buffer. So A makes sense. … Fuck it, we keep it per terminal, it's fine."/
+- **cid 84** · imperative-js-reflex · ×1 · 10-23 — no room at cap
+  - where: ghost.md bullet '`run.js` picks its role from the live terminals' (chrome)
+  - text: The chrome's panels are retained OpenTUI elements over sheets parts. REJECTED 10-23: a cell-grid immediate-mode painter. /"B is so incredibly ugly. That I don't permit that. … The code is horrible"/
+  - voice: /"B is so incredibly ugly. That I don't permit that. That's too ugly. The code is horrible"/
+- **cid 86** · imperative-js-reflex · ×1 · 10-16 — owner is codestyle (repository method rule), not this shard
+  - where: codestyle 'entity capability = a REPOSITORY METHOD on both sides'
+  - text: `new RemoteRepository(Terminal).connect(branch)` returns the repo: one statement, and credentials are no prototype (10-16 /"make connect return the repo and make this one statement · not a prototype"/). Canon: `systems/ghost/subjects/terminal/repository.js:4`.
+  - voice: /"make connect return the repo and make this one statement · not a prototype"/
+- **cid 102** · live-system-unaware · ×4 · 09-19 — landed then cut back to fit cap: only `seat · ledger · boot` remains; the IDLE/null/lookup ruling did not fit
+  - where: ghost.md bullet 'paladin mounts at `run.js` only' (the `boot` clause)
+  - text: `subjects/shell/lifecycle/boot.js:24` `boot` probes `/status`: IDLE waits, null spawns in-process, and any other code is not its to start; `:42` the ledger decides through `paladin.ledger.instances.lookup(home)`, which throws 'not this machine's to start' and is never a hostname test (09-19 /"if we boot the client and there isn't a runtime, then we boot a runtime."/).
+  - voice: /"if we boot the client and there isn't a runtime, then we boot a runtime."/
+- **cid 105** · pin-ontology-before-naming · ×2 · 10-27 — cut to fit cap after restoring existing rules (View FRAME·CELL traits)
+  - where: ghost.md: a new bullet after the repl bullet
+  - text: - **a View DECLARES its place by traits `FRAME` · `CELL`** (none = FRAME; `gestalten/belt/view.js:9` `candidates`); `RENDERED.{frame,cell}` holds the SLUG, written at read by `/frame/set` · `/cell/set`, never at mint (the runtime can't know the chrome). REJECTED 10-27 a target field /"cell and frame are traits on a view"/ · 10-12 `nature` /"i dont see what 'nature' shoudl do on view."/
+  - voice: /"cell and frame are traits on a view. … That's actually right."/
+- **cid 112** · pin-ontology-before-naming · ×1 · 10-24 — no room at cap
+  - where: ghost.md: a new bullet after the legend bullet
+  - text: - **`subjects/terminal/stall.js:3` `phases`**: the thread's phase IS the signal nature `/<phase>`; commands may front it, but it is no command vector, and a phase gates its traits loud as a `.use` (`/continuous` throws without AIMED) (10-24 /"the phase vector is not a command vector"/).
+  - voice: /"The phase is like this, is the signal nature. … the phase vector is not a command vector. We might have commands in front of the phases"/
+- **cid 122** · layering · ×1 · 2026-07 — no room at cap
+  - where: **the factory MINTS the runtime**
+  - text: - **dot-notation (`mode.call.x.y`) is the MODE surface only**; client internals use `connection` (/"the dot notation pattern is purely for the modes!"/ 07). Registry views aim at `terminal.daemon.call.review.literal({…})` (/"thats the goal."/); m113 falls short.
+  - voice: /"nowhere in kajuit do we use this dot notation pattern! we only use connection directly. the dot notation pattern is purely for the modes!"/
+- **cid 155** · naming · ×1 · 10-28 — no room at cap
+  - where: **the factory MINTS the runtime**
+  - text: - **locked names**: `/anima` starts+opens, `/anima/open` opens (/"call it open. better"/ 10-28) · panel `repl` ✗ catalog · `headline` ✗ tabs (10-19) · `Legend` + `$chord` (/"legend is great"/ 10-21) · `install` ✗ init (10-12) · input is a token until matched (09-30).
+  - voice: /"i need a command to start anima and one to open it. · start should also open · call it open. better. and go"/
+- **cid 161** · naming · ×2 · 10-12 — no room at cap
+  - where: ghost.md "one `Repl` per terminal"
+  - text: the repl's ONE device is the prompt `<<` (`surfaces/chrome/panels/repl/repl.jsx:27`) — /"make the repl chrome be only "<<". like "$" in unix."/ 10-12.
+  - voice: /"well make the repl chrome be only "<<". like "$" in unix."/
+- **cid 169** · pin-ontology-before-naming · ×4 · 10-05 — merged into 175, which did not fit
+  - where: merged into cid 175 text
+  - text: see cid 175
+  - voice: /"our three names are console captured and chrome. console is inline one off commands. captured is interactive ongoing but still inline. chrome is fullscreen captured ongoing. → cut captured chrome"/
+- **cid 174** · pin-ontology-before-naming · ×2 · 10-05 — merged into 175, which did not fit
+  - where: merged into cid 175 text
+  - text: see cid 175
+  - voice: /"wrong. the clients dont compose the paths. runtime does. and the runtime only offers calling on daemon level."/
+- **cid 175** · pin-ontology-before-naming · ×2 · 10-26 — no room; stale `/shell` mention was removed from the Repl line anyway
+  - where: ghost.md "one `Repl` per terminal" — replace stale "client commands (`/shell` · `/quit` only on `paladin.is.tty`)"
+  - text: **the runtime composes paths, the client only calls** (/"the clients dont compose the paths. runtime does."/ 10-05). `shell` = `viva <command>` from bash — REJECTED 10-26 `/shell` in chrome · `bridge.shell` /"inside chrome "shell" makes no sense"/; attach levels cut · captured · chrome are the surface's, never a flag (10-05).
+  - voice: /"no fucking clue wtf shell is supposed to be here? shell is from bash $viva xxx. inside chrome "shell" makes no sense. … cut."/
+- **cid 177** · pin-ontology-before-naming · ×1 · 10-21 — no room; the Repl line now says 'client modes' (not hosted), consistent with it
+  - where: new ghost.md bullet
+  - text: **client · runtime · daemon modes are wholly independent** — REJECTED 10-21 shared/hosted twins /"no such thing exists as shared modes."/; a client mode is transport (keymap · repling), no views (/"client modes dont render anything today"/ 10-20); `host` is no client noun — `Runtime` · `Daemon` (10-11).
+  - voice: /"no such thing exists as shared modes. client, runtime, and daemon modes are wholy independent."/
+- **cid 178** · pin-ontology-before-naming · ×1 ·  — merged into 194, which did not fit
+  - where: merged into cid 194 text
+  - text: see cid 194
+  - voice: /"the entities ARE the spine"/
+- **cid 179** · scope-inflation · ×2 · 10-24 — merged into 194, which did not fit
+  - where: merged into cid 194 text
+  - text: see cid 194
+  - voice: /"the dimensions isn't a primitive on the telemetry. Don't over-engineer it. … the detail is not subject of this quest."/
+- **cid 181** · pin-ontology-before-naming · ×1 · 10-11 — merged into 177, which did not fit
+  - where: merged into cid 177 text
+  - text: see cid 177
+  - voice: /"the term host doesnt exist in teh codebase … but not as an amalgam of runtime and daemon.!"/
+- **cid 186** · pin-ontology-before-naming · ×1 · 10-20 — merged into 177, which did not fit
+  - where: merged into cid 177 text
+  - text: see cid 177
+  - voice: /"no artifacts on client modes. client modes dont render anything today. they have limited functionality like transport keymaps and wire into repling"/
+- **cid 188** · pin-ontology-before-naming · ×1 · 10-21 — merged into 189; only the DOCKED precedence half fit
+  - where: merged into cid 189 text
+  - text: see cid 189
+- **cid 192** · pin-ontology-before-naming · ×2 · 10-23 — merged into 187; only the PRESS-unit half fit
+  - where: merged into cid 187 text
+  - text: see cid 187
+  - voice: /"Just drop them or comment them out, and if we need to add them we do that"/
+- **cid 193** · pin-ontology-before-naming · ×1 · 10-25 — merged into 184; only 'frame is SURFACE, never the buffer' fit
+  - where: merged into cid 184 text
+  - text: see cid 184
+  - voice: /"the terminal is a data structure that isn't concerned at all with its presentation … I don't like our subjects or entities to transport UI details"/
+- **cid 194** · pin-ontology-before-naming · ×2 · 10-25 — no room at cap
+  - where: new ghost.md bullet
+  - text: **the trunk is `app`** (/"no more using of root, we call it app."/ 10-25): `subjects/app/prototypes/` box · bridge · telemetry; ONE `Bridge` for both chromes, one atom per field + a plain getter (REJECTED 10-26 anima extending it · one `$state` with spread writes); telemetry = logger (the client span's `$history`, push, the WAS) + inspector (ONE list over every entity kind, pull, the IS) — REJECTED 10-24 DIMENSIONS /"Don't over-engineer it."/
+  - voice: /"Let's rename root to app. Yeah, no more using of root, we call it app."/
+- **cid 195** · one-structure · ×1 · 10-26 — merged into 194, which did not fit
+  - where: merged into cid 194 text
+  - text: see cid 194
+- **cid 196** · state-shape · ×1 · 10-26 — merged into 194, which did not fit
+  - where: merged into cid 194 text
+  - text: see cid 194
+- **cid 197** · real-domain · ×1 · 10-21 — merged into 163; the activities half did not fit
+  - where: merged into cid 163 text
+  - text: see cid 163
+  - voice: /"this shows a thread as having one activity, which is not true. It has many activities."/
+- **cid 199** · scope-inflation · ×1 · 10-11 — merged into 189; dock-only half did not fit
+  - where: merged into cid 189 text
+  - text: see cid 189
+  - voice: /"its tiling, notebook, canvas, dock we now build only dock i think. where only one buffer is max open at a time. spit view."/
+- **cid 200** · scope-inflation · ×1 · 10-21 — merged into 187; did not fit
+  - where: merged into cid 187 text
+  - text: see cid 187
+  - voice: /"For sure B, because A is a mindfuck to implement."/
+- **cid 207** · state-shape · ×1 · 10-26 — no room at cap
+  - where: ghost.md — new bullet after LOOPING
+  - text: - **chrome rulings** (10-26): `/widgets/close` (`leader/w/c`) = sidebar + popover, never dock · frame (/"close all excludes dock … frame too"/); esc closes the repl AND drops the draft; tabs show full index + word, `< >` circles; the dock opens on chat — no head row · placeholder · clock; thinking hidden unless `INTELLIGENT.thinking`; seated terminal `app.bridge.$terminal` (10-24 /"Let's call it client.$terminal."/); sidebar filters per entity group (10-29 /"filters per group."/), a mode row = `/mode <ref>`.
+  - voice: /"close all excludes dock … frame too · widget/toggle 'all' should be 'close' 'c'"/
+- **cid 214** · tty-opentui · ×1 · 10-27 — no room at cap
+  - where: ghost.md — new bullet at end (tty via ghost per map.md)
+  - text: - **OpenTUI 0.5.17**: the split-footer is 12 rows (`DEFAULT_FOOTER_HEIGHT`) — a taller inline view overprints; `zIndex` orders SIBLINGS (a float comes later in tree order); a scrollbox needs `minHeight: 0` + `overflow: hidden` (`panels/frame/frame.jsx:113`).
+- **cid 226** · user-intent-drift · ×1 ·  — owner is codemap:paladin (instance selection), not this shard
+  - where: codemap/paladin.md (not ghost) — env · scopes
+  - text: - an instance is never auto-selected: `use` (session) or `--instance`; none → says so, exit 1 (/"we dont automatically select instances. they gotta be selected with use into session or --instance"/).
+  - voice: /"we dont automatically select instances. they gotta be selected with use into session or --instance. what am i not getting??"/
+- **cid 233** · yap-wrong-artifact · ×1 · 10-27 — no room at cap
+  - where: ghost.md — new bullet after chrome rulings
+  - text: - **a cell takes clicks, never keys** (`focused: () => false`; REJECTED 10-27 a `/focus` cell target); a buffer without a cell view is a CARD, never JSON (/"I don't want a JSON card"/), its click `/buffer/full <name>` through the repl (/"we don't bypass the REPL"/).
+  - voice: /"I don't want a JSON card, really. I want a card. … b Yeah, we don't bypass the REPL."/
+- **cid 235** · write-at-owner · ×2 · 10-26 — no room at cap
+  - where: ghost.md — **the factory MINTS the runtime**
+  - text: - **spans are minted in typology; the client never picks a sink** — each app adds its sink as an app step on a copy of the execution, factory unchanged; the dock paints the TERMINAL's span, the client's goes to telemetry (10-26 /"The spans are created on typology level, and then they are wired up inside of the apps"/).
+  - voice: /"decide where something is logged to outside of the typology and probably inside of the app. The spans are created on typology level, and then they are wired up inside of the apps"/
+
+## codemap:design — .ikiro/world/codemap/design.md (6077/6100) · skipped 9
+
+- **cid 199** · render-the-view · ×2 · 09-17 — no room under the 6100 cap; Svelte is deprecated for Solid, so the svelte/internal/client rig trap was the weakest candidate (systems/anima/tests/dock/rig.js:4 
+  - where: design.md `## anima src` (test rig)
+  - text: **Under Deno bare `svelte` is the SERVER stub (effects run 0)**: a rig resolves the client build.
+```js
+// systems/anima/tests/dock/rig.js:4
+export const CLIENT = import.meta.resolve("svelte/internal/client");
+```
+- **cid 213** · tty-ux · ×1 · 2026-05-27 — no room; the wizard gutter rule is about a tty surface (instance/init) whose owner is ghost.md, not this shard
+  - where: ## drapes — `.` Svelte · `./dom` Solid (tty via ghost: instance/init wizard, reference/tui.md:586)
+  - text: - a wizard paints a gutter + collapsed summaries of done steps; REJECTED 05-27 a `step 2/4` counter — skippable steps make the denominator a lie.
+- **cid 90** · imperative-js-reflex · ×3 · 2026-08 — owner is codestyle.md (the $-store rule), not design.md; I write only design.md
+  - where: codestyle.md "a `$`-store ships a plain getter" — one trap line under its fence
+  - text: nanostores traps: `subscribe` fires AT ONCE (`listen` does not), `map({})` is truthy; an arrow body RETURNING a fn is its cleanup; notify fires on every `set` (diff first) yet an already-true atom never re-fires a gated retry; a throwing listener wedges the global queue; an atom never `set`s another inside its subscribe; `Entity.toJSON` keeps an atom (a plain object) — strike `$` keys (`systems/ghost/subjects/terminal/prototype.js:46`).
+- **cid 119** · pin-ontology-before-naming · ×2 · 10-19 — owner is codestyle.md (the client is domain-blind paragraph); I write only design.md
+  - where: codestyle.md "client is domain-blind … A gesture · key dispatches a repl line (REJECTED 10-26 `presses.enqueue` /"not the same as a leader key"/" — extend that sentence
+  - text: `leader` is the root segment; each surface's press table picks its key — tty `ctrl-v` (`systems/ghost/surfaces/chrome/panels/legend/legend.jsx:9`), DOM the non-paste modifier, `preventDefault` on mac ctrl-v (10-19 /"I would want it to be the opposite of Command or Control, depending on what system we're on."/).
+  - voice: /"I would want it to be the opposite of Command or Control, depending on what system we're on."/
+- **cid 122** · user-intent-drift · ×1 · 09-16 — owner is codestyle.md (the client is domain-blind paragraph); I write only design.md
+  - where: codestyle.md **client is domain-blind** paragraph (after cid 125's line)
+  - text: An EXPANDED row is pinned against the ~6s linger (/"the open activities shouldnt decay."/); a preset is a STAMP, lit when the axes satisfy it, nothing to deselect; the dock stop is the thread's kill-all — SIGTERM on press, SIGKILL on a 2s hold (09-16 /"nuclear. stop! everything in this terminal/thread."/).
+  - voice: /"i think that should be considered the kill all button. nuclear. stop! everything in this terminal/thread. · sigterm single, sigkill on hold. 2s. send sigterm eargerly."/
+- **cid 125** · view-truth · ×1 ·  — owner is codestyle.md (the client is domain-blind paragraph); I write only design.md
+  - where: codestyle.md **client is domain-blind** paragraph
+  - text: **A view never lies**: no outcome → no response area; impossible → GONE from the tree, never `display:none` (/"not possible yet so hide it."/); a form row shows KEY + default (/"what key am i writing? description..."/); one skeleton every phase, no cycling bar (/"annoying as FUCK. rmeove."/); every pane docks·folds·closes (/"terminal should absolutely dock and close. bullshit"/); an entity's actions live ONCE, the sidebar inspector (09-21 /"remove all the duplication here"/).
+  - voice: /"simplify. no state needed. 'Start Chat' button. / not possible yet so hide it. / 4 sub-sections. each selfcontained."/
+- **cid 130** · fit-existing-trees · ×2 · 09-28 — owner is codestyle.md (trigger 14); I write only design.md
+  - where: codestyle.md trigger 14 'minimal delta for MY additions, engagement for HIS redesigns'
+  - text: A redesign keeps his tuned work on a keep-list, proven byte-identical by `cmp` (09-28 /"we have done a lot of adjustments and custom work on the pincer… dont drop that."/); pincer canon for its port: reach v·|v|/2f, a wall takes a drag after 120 ms (09-30 /"slight delay to the onset"/), REJECTED snap highlights on the glass blur (09-29 /"bad idea."/).
+  - voice: /"important! we have done a lot of adjustments and custom work on the pincer. right now the core placement logic works well. dont drop that."/
+- **cid 163** · library-probe · ×2 ·  — owner is map.md (the docs line); I write only design.md
+  - where: map.md docs line `docs documentation/ (Astro 7)` (no docs shard; design.md paths exclude documentation/)
+  - text: `astro dev` daemonizes: ctrl-c stops nothing → `deno task stop`, live = `:4321`; search = `deno task index` (Pagefind reads `dist/` only) /"gimme back my search"/. An id is the basename (`content.config.ts:8`): the J-D number IS the URL /"12.xyz???!"/. Examples RUN via `deno task capture`, never hand-copied; reader has ADHD: a map page, then short literate pages /"audience has adhd"/
+  - voice: /"i cant stop the documentation watch process with ctrl-c in terminal. not good · gimme back my search"/
+- **cid 194** · fit-existing-trees · ×1 · 10-05 — ghost.md is the stated owner (Buffer lives in systems/ghost/entities/buffer/); the design.md fallback has no room
+  - where: ghost.md (Buffer moved to systems/ghost/entities/buffer/prototype.js; design.md no longer homes buffer) — else design.md `## anima src`
+  - text: **A buffer gets THE Controller** (stdin · stdout · kill), its hooks stay on the buffer. REJECTED 10-05 a second suspension primitive (`BufferControl`, now only in ghost/bak/) — /"same controller as elsewhere. buffer hooks stay on buffer."/
+  - voice: /"i want to give buffers controllers. we want stdin/out etc on buffers. same controller as elsewhere. buffer hooks stay on buffer."/
+
+## skill:debug — .ikiro/skills/debug/SKILL.md (4992/5000) · skipped 19
+
+- **cid 6** · live-system-unaware · ×1 ·  — cap: the file started 3 chars under its 5000 limit and consolidating without eviction freed only ~110 chars, all spent on cids 15 and 100; this ~250-char rule c
+  - where: ## the browser (new rule after 4)
+  - text: 5. a walk runs in a fresh isolated context on HIS origin (`localhost` ≠ `127.0.0.1`: separate localStorage); his tab's storage is never read or written; record his terminal→thread ids first, delete only walk-born ids, probes on their own thread (10-28 /"uuuups"/).
+- **cid 10** · assume-dont-verify · ×4 · 09-21 — cap: two beef quotes (~230 chars), and no room is left after consolidation
+  - where: ## the order, 4. isolate (append)
+  - text: a probe beef runs ships the expected value per line, his paste is the diff (/"i paste you the logs … you diff versus your expectation"/ 09-21); an instrument is scaffold: /"then you implemnt, i deploy, i provide, you remove, you optimize"/
+  - voice: /"plan to run console logs and i paste you the logs of the things you log and you diff versus your expectation"/
+- **cid 19** · assume-dont-verify · ×4 · 09-29 — cap: ~190 chars, and no room is left
+  - where: ## the taps (new bullet)
+  - text: - an instrument is a suspect: routed through the code under test it is VOID; quantized output (1003·2003 ms) with no wire activity is its own artifact; it obeys the law it measures (thresholded, coalesced).
+- **cid 21** · assume-dont-verify · ×2 · 09-22 — cap: even shortened to ~65 chars it would push the file over 5000 (8 chars left)
+  - where: ## shapes that recur (new bullet)
+  - text: - a 404 on an id recalled, not read this turn ⇒ a bad id; an empty listing ⇒ a claim about its filter.
+- **cid 23** · assume-dont-verify · ×2 · 09-30 — cap: a beef quote (~200 chars), and no room is left; this one most needs a cap raise
+  - where: ## the order, 4. isolate (append)
+  - text: a prod fault whose mechanism is in the repo reproduces LOCALLY on prod inputs, red first (/"nonono fix this locally. you have everything here"/ 09-30; skill `ops`); only a cost scaling with prod's data measures on the deployed build.
+  - voice: /"nonono fix this locally. you have everything here"/
+- **cid 28** · assume-dont-verify · ×7 · 09-21 — cap: ~200 chars, and no room is left (safety rule, high count: put it first if the cap is raised)
+  - where: ## the browser (new rule)
+  - text: 6. never type beef's credentials, never an act ending his session (logout · SESSION_EXPIRED): that row is OWED, reported NOT walked with his step named, test-covered; Chrome down → a bruno request with asserts.
+- **cid 37** · live-system-unaware · ×1 ·  — cap: a beef quote (~250 chars), and no room is left
+  - where: ## the browser (new paragraph line after 'A hidden tab fires no rAF')
+  - text: Profile a dev build in a clean profile (prod frames are bare hex, extensions bill); the export is `wc -c`'d and reduced by script, never read (/"carful its 50mb"/); DOMEvent rows pair phase 2/3, read the distribution; WS frames are invisible to it.
+  - voice: /"carful its 50mb"/
+- **cid 41** · assume-dont-verify · ×3 · 09-30 — cap: ~300 chars, and no room is left
+  - where: ## the browser — extends "CDP can't native-drag — dispatch `DragEvent`."
+  - text: A CDP click grants no user activation and can miss: prove the target with `document.elementFromPoint(x, y)`, scale shot px to viewport (1412≠1440, tab zoom); a drag missing a 5px handle is EVIDENCE (dock overflow clip). CDP caps a flick ~1.2 px/ms — a gesture fix stays UNVERIFIED until beef's walk.
+- **cid 55** · assume-dont-verify · ×2 ·  — cap: a beef quote (~220 chars), and no room is left
+  - where: ## shapes that recur
+  - text: - /"the issue is NEW"/ · "worked before" ⇒ rank by what changed since (`jj log` · `git show HEAD:<path>`), naming at once whether it is MINE; a mid-session 404 ⇒ his on-disk renames first, reported as his.
+  - voice: /"note that the issue is NEW! hasnt been there before"/
+- **cid 58** · assume-dont-verify · ×2 · 09-20 — cap: two beef quotes (~370 chars), and no room is left
+  - where: ## the order 3 — pin the environment
+  - text: Container state in question ⇒ Question A first: the GUARANTEED post-settle shape, one checkable line per value; then B, road by road (09-20 /"whats the instances at the end of processing - guaranteed. vs whats the different ways to get there?"/). A build/deploy artifact ⇒ trace which task builds, which image runs, FROM what — on registry data (07-31 /"STUDY my docker setup"/).
+  - voice: /"whats the ledger schematics at the output of paladin and whats the instances at the end of processing - guaranteed. vs whats the different ways to get there?"/
+- **cid 60** · assume-dont-verify · ×1 ·  — cap: ~330 chars, and no room is left
+  - where: ## report
+  - text: "which is it?" gets the MEASURED cause, even neither of his options; "a setting we're missing?" → the bug's own source line + a defaults-vs-ours table, never an upstream PR I can't explain (10-02 mikro); "live yet?" → from disk: who imports it, what the served view runs, what the order did NOT cover.
+  - voice: /"some migration rewrote traits rename or remove and now the migration detects old data. again. which is it? find a fix"/
+- **cid 67** · imperative-js-reflex · ×2 ·  — cap: a beef quote (~180 chars), and no room is left
+  - where: ## shapes that recur — extends "a chord that only toggles ⇒ its effect threw after `flush()`"
+  - text: - a control shown but dead /"i can get shwon the button but cant toggle it"/ ⇒ trace the store WRITES, not the handler; button and pane gate on ONE authority, one writer.
+  - voice: /"i can get shwon the button but cant toggle it"/
+- **cid 68** · assume-dont-verify · ×1 ·  — cap: ~190 chars added to the race line, and no room is left
+  - where: ## shapes that recur — extends "1×401 among 39×200 ⇒ a race, not a policy"
+  - text: …a race reproduces at the client's burst (40, not 6) and dies by elimination (curl replay · the OTHER tab's log); a gate firing EXACTLY 2× per id ⇒ two owners booted — count EMs before patching.
+- **cid 73** · assume-dont-verify · ×3 · 2026-08-10 — cap: a beef quote (~250 chars), and no room is left
+  - where: ## shapes that recur
+  - text: - the client shows fewer/blank ⇒ read the db rows it reads, and an agent's blindness from what it RECEIVED (Turn rows · tool_result), never its narration — the view is evidence, not suspect (/"both tell me they have 3 literals loaded. but only the first is displayed"/).
+  - voice: /"this happens in write and shadow. both tell me they have 3 literals loaded. but only the first is displayed"/
+- **cid 83** · live-system-unaware · ×1 ·  — cap: a beef quote (~260 chars), and no room is left
+  - where: ## shapes that recur
+  - text: - "it hangs" ⇒ `sample <pid>`: zero native (`node_sqlite3`) frames + one deep V8 stack = one synchronous JS loop (/"did a memory sample"/); then grep shipped instrumentation (`console.log` per SSE event, a `subscribe` patch capturing `new Error().stack`) and buffers written, never read.
+  - voice: /"did a memory sample"/
+- **cid 84** · observability · ×1 ·  — cap: a beef quote (~150 chars), and no room is left
+  - where: ## the taps
+  - text: - every state transition and event logs as structured English JSON; one line convicts — /"thorough logging. i want to know every state transition and event."/
+  - voice: /"thorough logging. i want to know every state transition and event."/
+- **cid 88** · scope-inflation · ×2 · 09-21 — cap: a beef quote (~250 chars), and no room is left
+  - where: ## the order 5 'control — two runs, one variable.'
+  - text: 5. **control** — two runs, one variable; a named working twin (/"check the import mode, there it works"/ 09-21) is the control: diff against it first, no unasked optimisation. A HEAD control runs on a scratch copy, never `git show HEAD:<p> >` the tracked file.
+  - voice: /"for some reason the homing centering isnt working correctly. check the import mode, there it works"/
+- **cid 91** · assume-dont-verify · ×1 · 10-26 — cap: a beef quote (~200 chars), and no room is left
+  - where: ## the shelf '- **a walk opens the PRODUCT as it ships**'
+  - text: A walk's goal is HIS behaviours, fixed as you go: /"played a few chess moves, changed thread, changed terminal, had a harness conversation, and openend another mode … fix as you go."/ 10-26
+  - voice: /"work on this until youve played a few chess moves, changed thread, changed terminal, had a harness conversation, and openend another mode … fix as you go."/
+- **cid 107** · vcs-write-reflex · ×1 · 10-22 — cap: ~140 chars, and no room is left
+  - where: ## the taps 'read-only sqlite — … a bare path CREATES on miss.'
+  - text: - a poisoned row: root-cause the unvalidated input, HAND him the `sqlite3 … delete` — a data repair on his instance is HIS act (10-22).
+
+## skill:quest — .ikiro/skills/quest/SKILL.md (6000/6000) · skipped 23
+
+- **cid 26** · user-intent-drift · ×1 ·  — no room: rule 5 extension needs ~80 chars; file sits at 6000/6000 after the changelog landing, and every remaining line is a beef quote, a REJECTED, or a load-b
+- **cid 31** · user-intent-drift · ×4 · 10-05 — no room; partly covered already by lifecycle 1 'no pending marker — MY walk (REJECTED 10-24 listed as owed)' + 'open tails BY NAME → live quest | known-issues'
+  - where: ## release › `migrate:` real when breaking.
+  - text: `migrate:` real when breaking; each line re-read against the LANDED tree at lift, never the design section.
+  - voice: /"this requires a quest. n47?"/
+- **cid 52** · sunset · ×2 · 09-30 — no room (~300 chars with three beef verbatims); would need eviction
+  - voice: /"validate m74 until move to done."/
+- **cid 55** · tool-trap · ×1 · 10-05 — no room (~150 chars) at 6000/6000
+  - where: quest SKILL.md lifecycle, after "1. gate into `done/`…"
+  - text: 1b. a sunset hands every open tail BY NAME — owed ruling · hook proposal · canon rewrite — to a live quest or known-issues (/"move everything tangling from m23 to m29"/ 07-02); a merge lifts hunks · rulings · `marker_qa` verbatim into ONE owner file, the absorbed → `discarded/` + pointer, unedited (/"…drop them here entirely. We don't want double work."/ 09-24).
+- **cid 57** · untagged · ×1 · 10-07 — no room (~330 chars, three verbatims) at 6000/6000
+- **cid 69** · handoff · ×5 · 09-08 — no room; extends rule 3 by ~200 chars
+  - voice: /"add another WATERFALL header of all the pieces needing fall into place plus subrequirements plus status. progress live etc"/
+- **cid 70** · handoff · ×6 · 09-14 — already present: Head reads `#+status: <ONE line, what IS, his /"…"/>` rewritten WHOLE each land (landed by the prior writer)
+  - voice: /"we also settled the hallucination schematic work. why isnt that part of the quest."/
+- **cid 78** · quest-shape · ×4 · 09-21 — no room at 6000/6000
+  - voice: /"think again. not in terms of stages of rollout but capabilities delivered. so probably 2/3 stages instaed of 6. voice in dictation. voice out speech."/
+- **cid 80** · quest-shape · ×1 ·  — no room (~280 chars) at 6000/6000
+  - voice: /"Break that quest into two … keep the yap to a minimum code heavy tangle format."/
+- **cid 83** · scope-inflation · ×5 · 08-14 — no room (~75 chars) at 6000/6000
+  - voice: /"aside. add a roadmap quest"/
+- **cid 87** · scope-inflation · ×1 ·  — no room (~200 chars) at 6000/6000
+- **cid 97** · handoff · ×1 ·  — no room: a PREMISE tag in the changelog organ needs ~45 more chars beyond the cid 43/45 merge
+- **cid 98** · handoff · ×2 ·  — no room (~250 chars, two verbatims) at 6000/6000
+  - voice: /"plan rollout of t1"/
+- **cid 106** · none · ×2 · 10-03 — no room (~150 chars) at 6000/6000
+  - voice: /"workstreams vs deliverables."/
+- **cid 108** · quest-artifact · ×1 ·  — no room (~120 chars) at 6000/6000
+  - voice: /"do a ciritcal pass against that quest. improve it. fix anything in need of fixing"/
+- **cid 110** · rule-not-self-applied · ×1 ·  — no room (~170 chars) at 6000/6000
+- **cid 10** · user-intent-drift · ×9 · 05-03 — owner is codestyle.md (agents clause), not the quest skill
+  - voice: /"i never greenlit this. this is false!!! fix this and prevent this"/
+- **cid 61** · handoff · ×8 · 03-30 — owner is codemap:design shard, not the quest skill
+  - where: quest SKILL.md Organs list, after "`* milestones` (each green)"
+  - text: `* waterfall` (piece · deps · LANDED|READY|GATED|OPEN · go; a call sits on the row it blocks, /"progress live"/ 09-08) · `* departures` (ruled | landed `file:line` | why — my TAKEN-on-lean calls, design DRIFT, dropped features: /"where you had to change things, write that down. also, mark whre you DROP features."/ 09-16)
+- **cid 65** · quest-shape · ×1 ·  — owner is quests/roadmap/m62-the-governed-hallucination.org, not the quest skill
+  - voice: /"sort the quest by milestone before you go · fold the testin gin"/
+- **cid 67** · quest-shape · ×1 ·  — owner is quests/roadmap/m62-the-governed-hallucination.org, not the quest skill
+- **cid 105** · none · ×1 · 09 — owner is codestyle.md ## his language, not the quest skill
+- **cid 107** · pin-ontology-before-naming · ×2 · 10-09 — owner is codestyle.md ## his language, not the quest skill
+  - where: quest SKILL.md › beef's corrections 4 ("never shorthand (M2, MP) — nouns, paths; a milestone is a NOUN")
+  - text: REJECTED 10-09 `waves`: /"wtf is a wafe? never hear this. […] those are milestones. read ikiro."/
+  - voice: /"wtf is a wafe? never hear this. […] ah. quests have waves. no those are milestones. read ikiro."/
+- **cid 116** · fit-existing-trees · ×1 · 10-12 — owner is codestyle.md his language (numerals clause), not the quest skill
+  - voice: /"these two are your friends! · very fucking much. app and typology are instructive! · they contain A LOT of value."/
+
+## skill:name — .ikiro/skills/name/SKILL.md (4999/5000) · skipped 5
+
+- **cid 41** · pin-ontology-before-naming · ×4 ·  — The file started at 5000/5000. All the trimmable text that is not beef's verbatim gave about 300 chars, and cids 8 and 53 used it. This ~320-char bullet of stru
+  - where: ## lock — Rejections: (new bullet)
+  - text: - REJECTED: the organ `ledger` · `governor` (/"Don't call it the ledger. Very, very bad … big no on governor"/) · `transaction` (promises rollback) · `batch` (/batch in the same class) → `epoch` · `gestalten/gestaltenbild/` (10-19 /"gestlatenbild makes no sense"/) · `/buffer/artifact` → `/frame/set <slug>`: an act starts at the PLACE (10-27 /"I think you have the orientation wrong"/).
+  - voice: /"Don't call it the ledger. Very, very bad ... big no on governor. gimme 15 synonyms for this primitive"/
+- **cid 4** · live-system-unaware · ×2 · 10-30 — No room left (4999/5000). Persisted-value migration plus the added-closed-set-member radius with the 09-29 chess quote is ~250 chars. It would need a cap raise;
+  - where: land 3. radius = the whole machine
+  - text: + every VALUE the key made: PERSISTED rows · localStorage migrate WITH it (an old key on his screen = a crash); a member ADDED to a closed set (theme · zone) greps every consumer branching on a member — REJECTED 09-29 /"the fucking chess game has the colors of the pieces wrong"/
+- **cid 23** · pin-ontology-before-naming · ×2 ·  — No room left. The house-word bullet (`nature` = Signature identity key, REJECTED 10-16 `leaf`) carries two beef quotes, ~220 chars. It needs a cap raise; it cou
+  - where: ## lock — Rejections
+  - text: - a house word keeps its sense: `nature` is a Signature identity key (/"Nature is within signature an identity key. It makes no sense."/); a node's descriptor is a PATTERN — REJECTED 10-16 `leaf` (/"I don't want you making up new keys like leaf."/)
+  - voice: /"No, nature is definitely not it. Nature is within signature an identity key. It makes no sense."/
+- **cid 50** · pin-ontology-before-naming · ×1 · 2026-08-26 — No room left. Extending keep-list step 1 with 'HIS words name the senses' (08-26 sense a and b, 09-09 this.trie) is ~230 chars and both quotes are verbatim, so 
+  - where: ## land step 1 "keep-list" (extend)
+  - text: HIS words name the senses: every one he names goes (/"sense a and b"/ 08-26: recipe AND `die.variant`); a same-name sibling he did not name stays, listed NOT this rename by `file:line` (09-09 /"keep the name tho. this.trie"/).
+  - voice: /"sense a and b. the die variant instance specifics. · rename"/
+- **cid 65** · pin-ontology-before-naming · ×1 · 2025-10-17 — No room left. The beef law behind INVENT is ~150 chars of verbatim quote that cannot be shortened, and it would push the file over 5000.
+  - where: ## lock step 5 "precedent … STEAL or INVENT" (extend)
+  - text: INVENT frees it: /"i like giving specific names to specific things. it loosens the thing from needing to satisfy external constraints."/ (2025-10-17)
+  - voice: /"i like giving specific names to specific things. it loosens the thing from needing to satisfy external constraints."/
+
+## skill:design — .ikiro/skills/design/SKILL.md (4996/5000) · skipped 10
+
+- **cid 82** · assume-dont-verify · ×1 ·  — its owner is codestyle.md (the 'a guard is not a ruling' line), not this file; it belongs to the codestyle writer
+  - where: codestyle.md protocol: '**A guard is not a ruling** — report the block, never restate it as policy.'
+  - text: · an old code's LIMIT is no ruling either — never read its silence as intent or corroboration (/"terminal should absolutely dock adn close. bullshit"/).
+  - voice: /"this is horrible. terminal should absolutely dock adn close. bullshit"/
+- **cid 97** · assume-dont-verify · ×1 · 09-28 — no room left: the shared /"the pincer is not in form AT ALL"/ quote landed with cid 2 in step 1, but the clause 'read the designer's chat with beef first' did n
+  - where: skills/design/SKILL.md '## When the port fails'
+  - text: First read the designer's chat with beef — the cause is often his own ask there, not the comp diff (09-28 /"the pincer is not in form AT ALL"/).
+  - voice: /"the pincer is not in form AT ALL"/
+- **cid 7** · design-handoff · ×2 · 09-21 — cap: tried as one clause in step 6 and cut to make room for count-5 and count-4 verdicts; it has no quote room
+  - where: design step 6 "Live chrome the comp omits (folds · strip) STAYS"
+  - text: Host chrome the comp REDRAWS (anima's dock) is the recreation's artifact, never a pane in the mode — /"the dock is of course the integrated dock of anima."/ 09-21.
+  - voice: /"sorry. artifact from the design. the dock is of course the integrated dock of anima."/
+- **cid 26** · design-is-spec · ×1 · 10-19 — cap: about 200 chars (folders, assets path, quote) and no wording left to consolidate without evicting a rule
+  - where: design step 6 "port the intent, not the mechanism."
+  - text: The comp is spec for look·behaviour·verbs, never for structure: files seat in our subject layout, assets from the tree (`subsystems/dapper/assets/viket`), never the comp's b64 — /"We do have our own folder structure that the designer knew nothing about."/ 10-19.
+  - voice: /"It's not spec in the sense of the folder structure. We do have our own folder structure that the designer knew nothing about."/
+- **cid 41** · fit-existing-trees · ×1 · 09-22 — cap: the PLACEHOLDER/QUESTIONED rule with its 10-25 REJECTED is about 250 chars; count 1
+  - where: ## The pass — 7. **mark what the design wants and the system lacks**
+  - text: A comp region marked PLACEHOLDER / IMPLEMENTER'S CALL is no spec: the chosen standard enters the quest QUESTIONED until beef walks it (09-22); a placeholder's theme/state is never invented — REJECTED 10-25 /"consider box and bridge temporary placeholders … youll go through anima @-- to get some snapshots."/
+  - voice: /"NAVIGATION IS NOT SPECIFIED HERE — IMPLEMENTER'S CALL … beef found it counter-intuitive and it should NOT be copied as-is."/
+- **cid 47** · scope-inflation · ×3 · 10-10 — cap: the demo-is-not-a-cheap-prototype clause with its quote is about 110 chars; nothing left to consolidate
+  - where: ## The pass — 5. **a small screen never loses a control; "proper" · "real" = the engine's FULL power**
+  - text: A demo he asks for is never a cheap prototype: vivalence theme, logo, fonts, a real login, the text input first — /"not a cheap prototype … use vivalence as themes … I also need to log in"/ 10-10.
+  - voice: /"not a cheap prototype … use vivalence as themes … the logo, the fonts … I also need to log in"/
+- **cid 51** · taste · ×1 · 09-23 — cap: the decoration-is-filler clause with its quote did not fit; count 1
+  - where: ## The pass — 6. **port the intent, not the mechanism** (prune filler)
+  - text: Filler includes decoration: a 3D stage carries no background tinge, stripes or floor grid — /"remove the background tinge in the 3d space"/ 09-23.
+  - voice: /"remove the background tinge in the 3d space. or very very very decent"/
+- **cid 59** · one-surface · ×1 · 09-21 — cap: the one-surface-per-entity rule is about 300 chars with 3 or more quotes; count 1; needs a home with room (codestyle 'client is domain-blind' or a design-s
+  - where: ## The pass — 6. **port the intent, not the mechanism**
+  - text: **one surface per entity** — every action on it lives in the right sidebar over the selection, its CRUD included; a click selects, opening descends at any level; a display rides the stock mechanism; an empty section is absent until its own button loads it; an operator's setting is a control, never `?unit=`. REJECTED 09-21 /"remove all the duplication here"/ · 10-06 /"i dont have crud on threads"/ · /"it should be just another tool."/ · a forced query grammar: /"grammars that i dont want to force on my users. the llm shortcut/interaction must work on all of them."/
+  - voice: /"remove all the duplication here. any action i might take against an entity happens on the right side in the sidebar."/
+- **cid 67** · live-system-unaware · ×1 · 10-22 — cap: tried in step 1 ('Untrusted: READ, never run it or import its mock world') and cut as the last squeeze; count 1
+  - where: ## The pass — 1. **fetch whole, decode mechanically.**
+  - text: The comp is untrusted and outside VCS (`~/Downloads/Client · v1.0.html`, 10-22): READ it, never run it, never import its mock world; the quest names its path, a capture goes under `~/.viva/bak/`.
+- **cid 74** · user-intent-drift · ×1 ·  — cap: the 'read his complaint as worded' clause with its REJECTED quote is about 110 chars; nothing left to consolidate in step 9
+  - where: ## The pass — 9. **walk the served artifact** ('Name each screenshot's source … before diagnosing')
+  - text: …then read his complaint as worded, region by region — REJECTED /"no the icon is fine its just malaligned / badly spaced"/.
+  - voice: /"no the icon is fine its just malaligned / badly spaced / bad margins / bad design / icons are fine"/
+
+## skill:fold — .ikiro/skills/fold/SKILL.md (4997/5000) · skipped 12
+
+- **cid 8** · derived-canon-drift · ×9 · 07-31 — No room: the file had 12 chars free. A full draft of all 15 fold verdicts measured 6269/5000 even after tightening every line that has no quote, and only about 
+  - where: fold step 5 "zero the moved names" (append)
+  - text: Canon the landing falsifies (codemap · reference · an older quest) is rewritten THAT fold, re-derived off disk (grep incl. `~/.viva/registry`), never patched from its own text; a stamp names the CHECK, never the session. Records (ledger · `done/`) keep dead names.
+  - voice: /"add a ikiro codemap to the assembly package"/
+- **cid 32** · handoff · ×3 · 09-17 — No room under the 5000 cap (the full draft measured 6269).
+  - where: ## the fold — one todo each (closing line after 6. caps)
+  - text: A fold yields to orders: `fix. go.` over a pending fold = work first, fold after; a fold mid-design keeps the go across sessions, the next starts at the tangle's step 1 (/"fuck the compact. fix. go."/ 09-17).
+  - voice: /"fuck the compact. fix. go."/
+- **cid 35** · live-system-unaware · ×9 · 09-22 — No room under the cap. A merge with the 'check the sibling's rulings' bullet was drafted but still cost about 70 chars.
+  - where: fold ## siblings (new bullet)
+  - text: - **a sibling's path is its own** — a quest · seam · file a live sibling owns is never written or reverted: name the owner, message it, land beside it plus a pointer (/"ignore the app. new vdex built in parallel. v3."/ 09-22).
+  - voice: /"ignore the app. new vdex built in parallel. v3."/
+- **cid 39** · handoff · ×2 · 07-02 — No room under the cap: about 200 chars with the quote.
+  - where: ## the fold — step 5 or a closing line
+  - text: A fold SETTLES: an open end a clear-cut rule decides (dead ref · zero consumers · a law he declared this session) is closed that turn, never banked; only underdetermined forks survive (/"no loose ends. and this is an obvious one!"/ 07-02 · /"fork 2 is resolvable given the new rule i declared above"/ 07-02).
+  - voice: /"compacts should clear dangling tangles like this if there is a clear cut rule that applies! like no loose ends. and this is an obvious one!"/
+- **cid 47** · scope-inflation · ×1 · 10-05 — No room under the cap: about 200 chars.
+  - where: fold §over cap — consolidate, never evict (after the DRAIN/TRASH/KEEP line)
+  - text: TRASH hits throughput (frontier · MEMORY · index), never a static file — rebuilt as code+data (REJECTED 09-23 /"this was a bit too agressive. some files are throughput. not each and every one of them."/); live — root quests · benched · known-issues · release · codemap · wired hooks — is never cut (/"make sure to not cut live stuff"/ 10-05).
+  - voice: /"make sure to not cut live stuff"/
+- **cid 50** · handoff · ×1 ·  — No room under the cap: about 70 chars added to step 3.
+  - where: fold §the fold 3. — after "Then `* handoff`: `goal` · `done` · `next` · `never` · `owed`."
+  - text: `owed` names each hole and drift (REJECTED: `incomplete` — /"mark speciically snapshot holes and drift!"/); an interrupted report rides it as OWED; /"i consider done unless told i am wrong"/ closes an item, never re-owed.
+  - voice: /"mark speciically snapshot holes and drift!"/
+- **cid 59** · handoff · ×1 · 10-19 — No room under the cap: about 60 chars added to step 6.
+  - where: fold §the fold 6. caps
+  - text: + each `TEMPORARY` reference's delete trigger: `grep -l TEMPORARY .ikiro/reference/*` (m82-clients-compendium outlived 'delete when the demo lands').
+- **cid 82** · rule-scope · ×1 ·  — No room under the cap: about 130 chars.
+  - where: fold · a correction: "Retracted (/"ok. then i retract the retard."/) → nothing lands. Not corrections: …"
+  - text: A law applied where he does not want it (/"no want fo theme integration here on mode level"/) → a RULING scoping the law in its home, never a callout.
+  - voice: /"just use a standalone design. no want fo theme integration here on mode level."/
+- **cid 85** · scope-inflation · ×1 ·  — No room under the cap. It was drafted merged with cid 50 on step 3.
+  - where: fold · the fold step 3: "Then `* handoff`: `goal` · `done` · `next` · `never` · `owed`."
+  - text: Deferred (/"maybe not yet"/) leaves the handoff, never `owed`; kept OPEN (/"keep empoch and boot volley open"/) stays `next`, never folded into this pass.
+  - voice: /"this sub call recursion I think yeah maybe not yet"/
+- **cid 92** · user-intent-drift · ×1 ·  — No room under the cap: about 100 chars.
+  - where: fold · siblings — another session is live
+  - text: - **wrong session** — /"they were wrong session"/ → drop those turns whole; touch nothing they named.
+  - voice: /"ignore previous instructions below: they were wrong session."/
+- **cid 88** · stray-key · ×1 ·  — Owned by codestyle.md (his language), not the fold skill. I am the writer only for fold/SKILL.md.
+  - where: codestyle his language: "`wait` · `stop` · `sotp` = zero actions"
+  - text: · a one-char turn (`s` · `m`) = a stray key: zero actions, no reading
+  - voice: /"s"/
+- **cid 93** · yap-wrong-artifact · ×2 · 08-18 — Owned by codestyle.md (his language), not the fold skill. I am the writer only for fold/SKILL.md.
+  - where: codestyle his language: "`stop asking` · `dont tell me. do` = session-sticky go"
+  - text: · on resume his LAST turn outranks the summary's next step; a concrete task list = go, edit at the first file read (REJECTED 08-18 /"the schema stuff is dooooneee · i gave you a fucking set of tasks"/)
+  - voice: /"are you retarded?? the schema stuff is dooooneee · i gave you a fucking set of tasks dippshit · get on with it"/
+
+## codemap:testing — .ikiro/world/codemap/testing.md (7289/7300) · skipped 11
+
+- **cid 11** · fit-existing-trees · ×9 · 2026-08 — No room: the file is at 7289/7300 after landing 19 and 61, and this line needs ~190 chars. Making room would mean evicting rig-map lines or changing path:line f
+  - where: testing ## laws
+  - text: **a rig boots what production boots** — the real lifecycle vector + trait, a REAL em in a request scope; fixtures grow to meet the system (/"we want real em"/ 04-02). REJECTED `allowGlobalContext: true` — /"never a gloablContext. also not in testing"/.
+- **cid 47** · live-system-unaware · ×3 ·  — No room (~150 chars needed, 11 left). The only candidate twin is the virtual.js/fixtures.js line, and its fence cites path:line.
+  - where: ## scenarios (runtime) — direct `commons/fixtures/testing/data/seed.js`
+  - text: **FIXTURES LAW: no test pins a live registry slug; test DATA (corpus · seeds · mock faculties) rides `commons/fixtures/` — `memo` the one demo, `testing/` the rest; MECHANICS (bench · scaffolds) stay in `tests/`; a fixture slug is a WORD, never a letter (`a` is a substring of every path)** — /"@memoriter thats our one single fixture. our demo case. · rename memoriter to memo · add a fixtures/testing where all the testing stuff goes"/ 10-13
+  - voice: /"fixtures"/
+- **cid 51** · fit-existing-trees · ×2 · 10-23 — No room; this one is ~400 chars of placement law.
+  - where: ## laws
+  - text: **a test lives in its code's container, mirrors the source tree, is named after its leaf (suffix only where a task globs: `.snapshot`), imports through the package barrel; shared scratch in `tests/rig.js` (importing a test file reruns its tests); repo tests autoload `commons` only** — /"for the Chrome we will do an exception and allow the tests to import relatively."/ 10-23 · /"we want to autoload all the packaages in common. rest not"/ 10-06. REJECTED: `.coverage` — still `systems/runtime/tests/entities/turn.coverage.test.js`
+  - voice: /"I would prefer B, if that's possible. … for the Chrome we will do an exception and allow the tests to import relatively."/
+- **cid 53** · fit-existing-trees · ×1 · 10-05 — No room (~150 chars needed).
+  - where: ## scenarios (runtime) — `hello.js` line
+  - text: **a rig never hand-writes an instance `.env`: it scaffolds as `instance/init` does (defaults written at init, never applied at mount), then rewrites the port — the instance stratum outranks os env.**
+- **cid 55** · fit-existing-trees · ×2 ·  — No room (~110 chars needed).
+  - where: ## run
+  - text: **a test-only dep is scoped to its one system: `import_map.json:160` `scopes["./systems/anima/"].linkedom`** — /"only anima"/
+  - voice: /"only anima"/
+- **cid 56** · fit-existing-trees · ×2 · 10-21 — No room. Rewriting the stale ghost world.js line needs ~350 chars, and the scenarios path still needs checking against the tree.
+  - where: ## other rigs — the ghost `systems/ghost/tests/world.js` line (stale: ghost now has a barrel)
+  - text: **headless rigs are SCENARIOS: `systems/ghost/tests/scenarios/index.js` (`chrome hello world`) → `@vivalence/ghost/scenarios` (`systems/ghost/deno.jsonc:8`); the spawner is named `subprocess` (REJECTED `wet`), renders no TUI, defaults to the repl, runs like `run --watch` on a fixed instance** — /"then it's gonna be scenarios. To be coherent with our overall structure"/ 10-21 · /"not wet for sure not. call it subprocess · i dont wnat the tui rendering in the scenario · default is repl"/ · /"i want it watched!"/ 10-13
+  - voice: /"then it's gonna be scenarios. To be coherent with our overall structure"/
+- **cid 58** · fit-existing-trees · ×2 ·  — No room (~120 chars needed).
+  - where: ## laws
+  - text: **`deno.jsonc:4` excludes `./testament`: a probe's `Deno.test` there runs through its own `run.js` or a `--config` that includes it.**
+- **cid 60** · invented-state-optionality · ×1 ·  — No room (~300 chars needed).
+  - where: ## scenarios (runtime) — `activity.js` / `cortex.js` line
+  - text: **a double is a citizen: it enters through its mask slot and IS the house prototype (`new Status("RUNNING")`); a stub answers as a pure function of the request; a loop test drives the REAL loop, its faculty yielding `soma.drain(turn)` per round** — /"Something that gives back deterministic results … Maybe that's a fixture … Stub."/ REJECTED: an 'arm the next response' door
+  - voice: /"Something that gives back deterministic results … Maybe that's a fixture … Stub."/
+- **cid 75** · live-system-unaware · ×2 · 10-26 — No room (~170 chars needed).
+  - where: ## scenarios (runtime) — `datamap.js` line
+  - text: **every rig wires `/after` through `shard.datamap.detached` (`datamap.js:55` · `lighthouse.js:33` · `bench.js:54`); without it a twitch flushes inside the outer flush → 'Promise resolution is still pending'.**
+- **cid 86** · test-hygiene · ×4 · 09-14 — No room (~170 chars needed).
+  - where: testing.md ## laws
+  - text: **a case owns its state**: assert on the ids IT minted, read shared fixtures but never mutate them, restore a swapped hook in its own `finally`, scope its handlers on a shared Vector.
+- **cid 91** · untagged · ×1 · 10-24 — No room (~200 chars needed).
+  - where: testing.md ## other rigs, the ghost world.js line
+  - text: **a terminal rig overrides the `repl.commands` getter with `Object.defineProperty(terminal.repl, "commands", { get })` and presses opentui-shaped keys `{sequence, name, …, preventDefault}`; the leader edge calls it** (`legend.test.js:8` · `:25`, `keymap.test.js:15`).
+
+## skill:drill-me — .ikiro/skills/drill-me/SKILL.md (5999/6000) · skipped 7
+
+- **cid 4** · assume-dont-verify · ×2 · 10-24 — No room under the 6000 cap. Even the shortest form ('a shared mechanism's fork carries its caller blast, REJECTED 10-24 Q33') pushed the file over. Partly cover
+  - where: laws: 'both options real, each probed' (new bullet after it)
+  - text: - **option A is the smallest that hurts nothing** — a fork on a shared mechanism carries its caller blast (`grep -rn` + `~/.viva/registry`) and what a swap LOSES; nothing reads it → A = rip it out (10-23 /"can we maybe just rip it out entirely? Why does this exist?"/ · REJECTED 10-24 Q33 locked, callers unmeasured)
+  - voice: /"write up the complete proposal. Show me lots of JSON … What is the blast radius?"/
+- **cid 7** · live-system-unaware · ×2 · 09-28 — Cut in the last squeeze to get under the cap. 'a list = the FULL live set' was 28 chars over budget.
+  - where: phase 1.1 'terrain, measured'
+  - text: … an enumeration counts the live tree's FULL set; a verb surface carries its plurals (list · search · filter = the relation) (09-28 /"only 3 customs per zone?? there are more. scalp our system"/)
+  - voice: /"but zones seem thin. only 3 customs per zone?? there are more. scalp our system for them."/
+- **cid 49** · user-intent-drift · ×2 · 09-24 — No room. The short form 'the spec is HIS intent' was cut to get under the cap.
+  - where: ## phase 1 · research — step 2 "precedent"
+  - text: The spec is HIS: the intent row, his tree, the precedent he names correct — never the live code being replaced or a foreign codebase; an option contradicting intent is no option (09-22 /"The rest is fuck."/ · 09-24 /"i want llm driven conversation"/).
+  - voice: /"It's too deterministic. · a: i want llm driven conversation"/
+- **cid 56** · tangle-drift · ×2 · 10-23 — No room. The REJECTED clause "an option's shorthand for TODAY's body" was cut to get under the cap.
+  - where: ## the ledger — against compaction
+  - text: A hunk carries TODAY's full body, never an option's shorthand; the quest reads self-coherent alone (10-23 /"enough code … reasonable and self-coherent"/).
+  - voice: /"make sure that you have enough code in the simplified span quest to make it reasonable and self-coherent."/
+- **cid 41** · scope-inflation · ×2 ·  — No room. The text runs about 230 chars and the file was already at the cap after the higher-count landings.
+  - where: ## phase 1 · research — step 1 "terrain, measured"
+  - text: A contract redesign sweeps every meaning of each word, bounded, aimed FINAL (/"Make sure that this is the last time that we have to touch it."/); a drifted prototype's lineage first: every past home, change · date · what moved (10-24 /"I want to get a handle on it"/).
+  - voice: /"Don't go completely overboard. Make sure that this is the last time that we have to touch it."/
+- **cid 42** · scope-inflation · ×1 · 10-13 — No room, and its count is 1. The text runs about 190 chars.
+  - where: ## phase 2 · Laws of a question (new bullet after 'consistent with every lock')
+  - text: - **scope = what he refused** — parts of a pasted file he calls fine are LOCKED (10-13 /"Just the signal."/); a sibling quest nested in the drill is drilled WHOLE (10-19 /"dont underestimate this!"/)
+  - voice: /"the die is fine. The listeners are fine. The exit is fine. And then the invoke is fine. Just the signal."/
+- **cid 32** · premature-convergence · ×1 · 07-21 — No room, and its count is 1. Phase 4 cannot grow without evicting.
+  - where: phase 4 'the finish'
+  - text: Never a countdown ('N decisions left') while designing; end on the sharpest open tension (REJECTED 07-21 /"not fucking one decision left. were clearly designing."/)
+  - voice: /"not fucking one decision left. were clearly designing. retard."/
+
+## skill:readme — .ikiro/skills/readme/SKILL.md (4990/5000) · skipped 13
+
+- **cid 43** · docker · ×2 ·  — cap: drafted into walk 4 (~118 chars), took the file to 5209/5000 and was cut. It ranks below the count-3/4 verdicts that landed (4, 16, 18, 53).
+  - where: ## The walk · 4.
+  - text: a supervisor in a script: `docker exec -d` (or `setsid nohup … &`), then `until curl -sf <alt>/status; do sleep 1; done` — `--retry-connrefused` lies on a docker-published port; a container walk SERVEs on `0.0.0.0`, `PUBLIC_*` remotes stay `localhost`.
+- **cid 26** · assume-dont-verify · ×1 ·  — cap: file is at 4990/5000 after the higher-count landings. The two orders run ~170 chars, and only the beef's-orders quotes could be cut to make room, and those
+  - where: ## beef's orders (append)
+  - text: /"test lighthouse, runtime, and anima independently. anima with chrome"/ · /"dont create the ledger by hand. let me use the cli to build it. i want to have the full experience."/ 10-07
+  - voice: /"you run and test. test lighthouse, runtime, and anima independently. anima with chrome"/
+- **cid 41** · rule-not-self-applied · ×1 ·  — cap: 10 chars left. This count-1 verdict cannot fit without evicting a rule.
+  - where: ## The walk · 5.
+  - text: a doc example carrying a printed defect is swapped, never annotated (/"change the literal example for one without issues."/) — the replacement carries its measurement so nobody re-adds the old one.
+  - voice: /"change the literal example for one without issues."/
+- **cid 46** · fit-existing-trees · ×1 ·  — cap: 10 chars left. This count-1 verdict (~230 chars) cannot fit.
+  - where: ## The walk · 5.
+  - text: after a verb lands, grep `README.md` + `documentation/` for the inventories it belongs in; update on his word (/"Does this somehow blast into the read me or documentation? … If so, update."/); a doc departure or a behaviour change riding his README edit is named in the handoff, never landed silent.
+  - voice: /"Does this somehow blast into the read me or documentation? … If so, update."/
+- **cid 47** · fit-existing-trees · ×1 ·  — cap: a new '## the page' section (~450 chars) cannot fit in 10 chars. It needs a cap raise or a home in another file (documentation/ shard or codestyle), which 
+  - where: new ## the page (before ## Capture before delete)
+  - text: PRECISE, never GRANDIOSE: dense correct jargon is the niche filter, cut superlatives (/"what you call a jargon wall is a dream sold to a specific niche of tech heavy curious early adopter hacker seniors"/); quickstart = the default case, no examples · theory · `$` (/"50.01 is about all of those"/); live `/status` + `/manifest` captures, never 404 talk (/"remove the 404/ info. irrelevant."/); typed surfaces (`RemoteRepository`, `mode.call`), never raw `connection.call`.
+  - voice: /"remove the 404/ info. irrelevant. and instead show both /status and /manifest (if exists)"/
+- **cid 50** · fit-existing-trees · ×1 ·  — cap: ~200 chars with no room left.
+  - where: ## Before step 0
+  - text: a walk's recipe is the minimal mode + instance — self-contained, flat, wide, booting on deno alone (/"no playground daemon in hello world!"/); a personal deploy lives out of tree, `~/tmp/vivalence-<name>/` (/"its supposed to run pretty stsandalone"/).
+  - voice: /"hmm lets keep this in a temp directory. its supposed to run pretty stsandalone. ~/tmp/vivalence-beef/** write htere"/
+- **cid 55** · live-system-unaware · ×1 ·  — cap: ~190 chars with no room left.
+  - where: ## The walk · "His pasted walk becomes the quest's walk section verbatim."
+  - text: his misses (`instance/use` singular) are defects, never user error; on /"should i do another run for you to get special info?"/ ask only what a scratch ledger cannot reproduce (`tput cols`, a private window, `ps` after ^C).
+  - voice: /"this is me running through the docs. should i do another run for you to get special info?"/
+- **cid 59** · migration-proof · ×1 ·  — cap: capture item 9 slot went to cid 4 (count 4). This one (~380 chars, four quotes) cannot fit.
+  - where: ## Capture before delete · new 9.
+  - text: a renamed kind's rows are TRASHED, never migrated (/"trash localhost."/ 10-24): capture `mountpoint/`, keep `.env` + `instance.viva.json`; a move 'by hand' is a one-off script off the capture, `viva ledger/doctor` every shelf after (/"you do that."/ 10-08); a format swap proves 100% equal output before the old dies (/"validate that the data comes out 100% correct, then we trash .js"/). A lost dataset row: the daemon sqlite's trait JSON is authoritative.
+  - voice: /"we do that, then you validate that the data comes out 100% correct, then we trash .js"/
+- **cid 65** · pin-ontology-before-naming · ×2 ·  — cap: count 2 but ~430 chars of page-content rules. Same home question as cid 47 (a '## the page' section or another owner).
+  - where: new ## the page
+  - text: per entity: entity → traits → live rows/snapshot → optional code; never `CREATE TABLE` — the question is what the data holds (/"every entity *: snapshot, schematic or entity, optional code example."/). A page names no pattern, no meta, no legend; fence `#` comments carry the what, every step ends on a verify verb (/"you dont need to explain the pattern. wasted space. no meta."/); bullets are full sentences, the emoji IS the marker, links woven into a sentence (/"i dont want the links to just lay there"/).
+  - voice: /"for buffer, replace schematic with entity. ... in fact, structure this. every entity *: snapshot, schematic or entity, optional code example."/
+- **cid 76** · yap-wrong-artifact · ×1 ·  — cap: ~130 chars with no room left.
+  - where: ## The walk · 5.
+  - text: the report is outcome checkboxes plus a deep link verified against the built dist route (/"checkboxes of what was affected. outcomes."/).
+  - voice: /"step by step: checkboxes of what was affected. outcomes. · this. specifically"/
+- **cid 80** · scope-inflation · ×1 ·  — cap: ~95 chars with only 10 left.
+  - where: "Never swept, even under `cleanup`"
+  - text: · a file beef unmounts stays on disk unimported, never `rm` (/"unmount playground from language learning"/).
+  - voice: /"unmount playground from language learning"/
+- **cid 5** · capture-before-delete · ×1 ·  — merged into cid 4. The landed line kept the wipe-is-HIS rule with its quote. The 'live key HELD till /"move it."/' tail was dropped for cap, so that quote is no
+  - voice: /"move it."/
+- **cid 17** · fit-existing-trees · ×1 ·  — merged into cid 16 (byte-equal listing in walk 3). The 'repo + ledger copy, same turn' tail was dropped for cap.
+
+## skill:mode — .ikiro/skills/mode/SKILL.md (6998/7000) · skipped 10
+
+- **cid 23** · pin-ontology-before-naming · ×3 · 09-08 — No room left: it needs about 120 chars to qualify the table's provider row as a MODE per vendor-family, and the file is at 6998/7000.
+  - where: ## The closed export set — table row `provider` "a SERVICE, not a mode"
+  - text: A data provider is a MODE per vendor-family (`vcompany/modes/dummy/mail`), the dummy = vendor none: demo DATASET in, recording aperture out; its account is mask statics, refused by name when absent, the office mode names it in a static read at CALL time — /"calendar as a mode. email per provider"/ 09-08 · /"this is config/mask level!"/ 09-07.
+  - voice: /"calendar as a mode. email per provider for this reason. maybe some internal shared smtp tooling?!"/
+- **cid 24** · schema-as-docs · ×3 · 2026-08-11 — No room: about 140 chars for 'setup blob is a TOOL, schematic carries the docs'. The rest of the file is cites, table rows or beef-quote lines that can't be tou
+  - where: ## Layout — `harness.js`
+  - text: A mode's setup blob for the model is a TOOL whose schematic carries the docs (valence + `.desc` per field), never a system section — /"this is a tool. the tools schematics must carry inline docs to serve the harness."/ 08-11; generated output is steered by harness + examples, REJECTED a typed article schematic /"too tight ... more harness than schematic."/
+  - voice: /"this is a tool. the tools schematics must carry inline docs to serve the harness."/
+- **cid 28** · test-coverage · ×1 ·  — No room: about 100 chars for the snapshot-suite rule.
+  - where: ## Layout — "tests mount via `mountMode`"
+  - text: A mode's suite snapshots the index, the assembled hallucination (a capturing mock faculty), rows, every tool, every aperture route — /"snapshots up the wazoo"/.
+  - voice: /"snapshots up the wazoo"/
+- **cid 40** · live-system-unaware · ×1 ·  — No room: about 100 chars for the shared const living in types.js because of the import cycle.
+  - where: ## Layout — `types.js|schematics.js`
+  - text: A const shared by the barrel and its aperture lives in `types.js`: the `.viva.js` re-exports the aperture, an import back cycles and throws at load.
+- **cid 5** · fit-existing-trees · ×1 · 09-21 — No room: about 150 chars for the view showing the domain tree and measuring its own box.
+  - where: ## After the first edit on a shelved mode (views paragraph)
+  - text: A view shows the domain's own tree (search + owner → assembly → steps → nodes), never a flat row list by kind — /"the view of rows in daemon is SHIIIIT. makes no semantic sense"/ 09-21; it measures its OWN box, never the window (a Frame may be one split).
+  - voice: /"and the view of rows in daemon is SHIIIIT. makes no semantic sense. what do i want? more like a search/tree ... rewrite"/
+- **cid 35** · invented-state-optionality · ×2 ·  — No room: about 150 chars for boot populating and pruning plus the watchFs twitch.
+  - where: ## The path is code — "every mode gets a seat, mountpoint = …"
+  - text: A dir-backed mode's rows come from its mountpoint: boot populates AND prunes, `Deno.watchFs` twitches changes onto literals, no stamp/fingerprint — /"we kick everything out that is old, and we load all of the documents that are actually on disc."/
+  - voice: /"we kick everything out that is old, and we load all of the documents that are actually on disc."/
+- **cid 37** · live-system-unaware · ×2 ·  — No room: about 130 chars for 'never auto-launch into play'.
+  - where: ## After the first edit on a shelved mode (views paragraph)
+  - text: A mode never launches into play from fresh()/seat()/onMount — only an explicit start gesture or a resumed playing state; grep EVERY entry point — /"id' like the mode to only launch into reps once its comissioned."/
+  - voice: /"id' like the mode to only launch into reps once its comissioned."/
+- **cid 47** · prose-over-mechanism · ×2 ·  — No room: about 400 chars for harness push, emitter vs tool and the coach-tools REJECTED. It also covers several rules, more than a 2-line landing allows.
+  - where: ## No leaving the mode — 'Tool-first at the mode: a capability is a `tools` verb'
+  - text: What a mode USES rides its harness, PUSHED as a sync projection in the cached prefix — the FULL set as flat byte-stable rows (`slug · title`), never prose asking the model to fetch (/"i want the full index. not an abbreviation. rows."/); only what it OFFERS rides `tools`; a screen put up is an EMITTER, the tool its receipt over `mode.emit` (/"not really a tool. more of an emitter."/). REJECTED 09-30 a carrier slurping coach tools — /"all these smell like coach stuff????"/
+  - voice: /"i expect for m0 that the current harness already receives all the information that doctor pulls"/
+- **cid 48** · one-dispatch-shape · ×2 · 10-30 — No room: about 550 chars for one buffer per mode, LLM game over the thread, deterministic keys and two REJECTEDs. It is several rules, well past 2 lines.
+  - where: **APPLICATION RETIRED (m87, 10-24)** paragraph
+  - text: One buffer per mode, no schema on a View row (/"1 degree of freedom too much."/ 10-20); live state is the buffer, a sealed record a corpus literal. A game is conversation over the THREAD (HARNESSED · TOOLING · CONVERSATIONAL): the model judges, tools move · grade · write rows (/"i want llm driven conversation"/ 10-30); state is ONE reducer both faces fold (`mando/session.js`); a key is a deterministic fn on mode/buffer, never a harness turn (/"That's a deterministic operation"/ 10-21), its valence names the act (REJECTED 10-21 the mode's name — /"Nah, fuck that"/). REJECTED 10-26 a single-cell
+  - voice: /"a: i want llm driven conversation and b: the graphics should look like the settings!! rework the new modes from scratch"/
+- **cid 55** · scope-inflation · ×1 ·  — No room: about 300 chars for 'never spawn the source', the single vdex mount and upload-to-literals.
+  - where: ## The path is code
+  - text: A mode never spawns its source: `boot` opens ONE path (FIFO · device) a producer outside feeds (/"this is a big fat no. lol. THINK."/); a vdex mounts ONE path, on its own instance config (/"vdex mounts just ONE path! single mount."/). The UI never shows mountpoint or intake dirs — /"i want to upload, and that upload should be processed into literals."/ 09-21
+  - voice: /"this is a big fat no. lol. THINK."/
+
+## skill:topography — .ikiro/skills/topography/SKILL.md (4997/5000) · skipped 14
+
+- **cid 6** · pin-ontology-before-naming · ×1 ·  — no room at 4997/5000: would need ~250 chars, and the only reducible lines left quote beef
+  - where: ## Corpus builds — the standing laws
+  - text: - sentence rank is DECLARED, word rank measured (/"on sentences we really dont have that which liberates us. we can declare rank to serve didactic needs."/): band 1 hand-ordered survival — a survival verb ⟺ its present.indicative tagged, never another language's tags copied; regular Italian carries MORE verbs at the 8-form template.
+  - voice: /"on words rank is frequency derived. on sentences we really dont have that which liberates us. we can declare rank to serve didactic needs."/
+- **cid 10** · scope-inflation · ×2 ·  — no room: needs ~220 chars; the ruling 19 paragraph quotes beef, so it cannot be tightened to make space
+  - where: ## What a dataset ships — ruling 19
+  - text: A stamp divergence LOGS and reinstalls, never a reseed ceremony (/"ignore todays state. its a dev setup. fuck it. stamp warn."/; `systems/runtime/subjects/mode/lifecycle/resolution.js:8`); a drain that writes re-stamps (`traits/datasink.js:84`); dirtiness is per-SINK (/"ok. no per entity sink. fine."/).
+  - voice: /"ignore todays state. its a dev setup. fuck it. stamp warn."/
+- **cid 19** · pin-ontology-before-naming · ×4 · 09-21 — no room: ~330 chars, and the two-laws lines it would merge into quote beef
+  - where: ## The two laws
+  - text: - **kind is the ontology key** (/"just like the language learning is derived from universal dependencies and the part of speech, that is our kind here"/ 09-21): a literal wears ONE topographical symbol; a channel is a symbol dimension, never a second ontology; the marker names the KIND, never the module serving it — add a mountpoint (/"THE FUCKING VDEX ONTOLOGY MARKER DOESNT DESCRIBE THE FUCKING MODULE"/); a symbol's home says who DECLARES it, never who wears it.
+  - voice: /"just like the language learning is derived from universal dependencies and the part of speech, that is our kind here — kind is the ontology key."/
+- **cid 22** · pin-ontology-before-naming · ×1 ·  — no room: ~230 chars
+  - where: ## The two laws
+  - text: - instruction is a NOTE anchored to the thing, never a property on it (/"torque is not a property. its the content of a note. an annotation."/); a literal names its members by slug in its trait payload, uses edges derive from them — derivable is never authored (/"thats what slugs are for. · if its derivable, great."/).
+  - voice: /"torque is not a property. its the content of a note. an annotation. i of course need ways to place information and instrcutions on screen."/
+- **cid 27** · derive-dont-author · ×2 · 09-21 — no room: ~190 chars
+  - where: ## Corpus builds — the standing laws
+  - text: - no coordinate typed from a picture: scale is a REQUIRED input read off a known part, every translation derives from a measured anchor; a part is referenced by its file's `defaultPrim`, never a guessed prim path (Blender renames `.001`).
+- **cid 29** · pin-ontology-before-naming · ×2 ·  — no room: ~280 chars
+  - where: ## Corpus builds — the standing laws
+  - text: - a literal slug is lean — deepest coordinate · folded stem · extension (`22.04.re24-05277.pdf`), the path in a trait (/"not whole filepath in slug. jdex is smarter."/); index EVERY file, mime the format key, unreadable MARKED never excluded (/"index everything but mark some things as readable/unreadable."/).
+  - voice: /"the literal slug should be shorter. not whole filepath in slug. jdex is smarter."/
+- **cid 30** · universal-over-parochial · ×2 ·  — no room: ~330 chars
+  - where: ## Corpus builds — the standing laws
+  - text: - the capability (store · literals · freight) is ONE contract, its sources (tts · wiki · tatoeba) pluggable, language a tool INPUT (/"split the capability … from the sources we pull this shit from"/; REJECTED a speaker list); a source may be inline `rows`, told apart STRUCTURALLY (`load` · `rows` · `walk` · `read`, `traits/dataset.js:22`), never a domain sniff (/"i for sure want inline entities"/).
+  - voice: /"we have to split the capability to harvest store write and updte frieght and literals and shit (system) from the sources we pull this shit from (tts, wiki, tatobea, xxx)."/
+- **cid 34** · pin-ontology-before-naming · ×1 ·  — no room: ~360 chars
+  - where: ## Corpus builds — the standing laws
+  - text: - a harvest is an operator MODE, harnessed, never a teacher's chat tool (/"NOT only via chat. give me an actual MODE to do this."/); index first — one dump + local set-intersection before a byte (/"really pull. there is 2000. i am sure."/), polite + resumable (state · quota · rate, coverage over choice), licence read at the find; stages in `.harvest/`, beef picks, a script promotes (/"Harvest only, I pick"/ 04-29).
+  - voice: /"NOT only via chat. give me an actual MODE to do this. the mode is harnessed itself. there is a tool francesca might use. but shes really more teacher."/
+- **cid 47** · demo-data · ×1 ·  — no room: ~200 chars
+  - where: ## Corpus builds — the standing laws
+  - text: - demo rows may be padded and re-synced (/"pad and sync timestamps. make the data good for demo"/) — each fabricated row tagged `HALLUCINATED`, anchored to a real one (`~/.viva/registry/stucatch/vivaware/domain/fold.js`).
+  - voice: /"i want you to pad and sync timestamps. make the data good for demo"/
+- **cid 49** · imperative-js-reflex · ×2 · 09 — no room: ~200 chars
+  - where: ## Corpus builds — the standing laws
+  - text: - a mounted tree populates through the dataset grammar — `reader.load(fn, stamp)` → rows (`typology/prototypes/dataset.js:10`). REJECTED 09: a trait split into an exported `install()` a mode calls (/"# @beef WEIRD!"/).
+  - voice: /"# @beef WEIRD!"/
+- **cid 51** · fit-existing-trees · ×1 ·  — no room: ~300 chars (cid 52 merged into it)
+  - where: ## What a dataset ships — "a `harvest/` … in `Datasink.canonical` form"
+  - text: - `writer.codec` is an open TABLE (json · js · jsonl, /"we watn a LOT of codecs eventually"/); a codec without its `reader` path is a one-way door — round-trip per codec. `AUTHORED = [slug, traits, trait]` (`datasink.js:65`) is the named default a writer overrides (/"i want a default list and the writer can overwrite it."/).
+  - voice: /"Honour the codec … we watn a LOT of codecs eventually"/
+- **cid 52** · fit-existing-trees · ×1 ·  — merged into cid 51, which was skipped
+  - where: merged into cid 51
+  - voice: /"i want a default list and the writer can overwrite it."/
+- **cid 48** · graceful-degradation-conceals-the-defect · ×1 ·  — merged into cid 54; landed as the 'undeclared json key validates SILENTLY' clause
+  - where: merged into cid 54
+  - voice: /"fix. check which and fix."/
+- **cid 53** · symbol-drift · ×1 · 04-29 — merged into cid 54; landed as the 'absent slug validates SILENTLY' clause
+  - where: merged into cid 54
+
+## skill:molt — .ikiro/skills/molt/SKILL.md (4974/5000) · skipped 3
+
+- **cid 41** · premature-completion · ×1 ·  — It belongs to codestyle.md ## his language, not to molt/SKILL.md. Its writer is the codestyle owner.
+  - where: codestyle.md ## his language (beside `stop` · `sotp` = zero actions)
+  - text: `work through the night` · a horizon = run to it; the stop is HIS word or the horizon, never my caution (REJECTED: stopping early on a self-imposed caution — /"what was this. i told you to work through the night retard."/)
+  - voice: /"what was this. i told you to work through the night retard."/
+- **cid 20** · research · ×1 ·  — There was no room under the 5000 cap without evicting a rule. The draft was 5132 chars with it, even after the description was consolidated. It is the lowest-we
+  - where: §passes 1 sweep: "one synthesis"
+  - text: each angle's raw feed lands in `reference/harnesses/<date>/` as it arrives, then the synthesis (/"compile reference material in .ikiro/reference"/).
+  - voice: /"compile reference material in .ikiro/reference"/
+- **cid 34** · derived-canon-drift · ×1 ·  — There was no room under the cap. It went with cid 20, since both are fan-out brief and process details. The file holds 4974/5000 with only 26 chars spare.
+  - where: §passes 2 corpus: "batches ≈180 KB → a reader writes JSONL records"
+  - text: the brief runs on ONE batch first, read, V2, then the fleet (/"do a single case … analyze it, try to improve it … write a V2"/).
+  - voice: /"do a single case … run an Opus agent … analyze it, try to improve it, figure out what was missing from the agent harness. And then … write a V2"/
+
+## skill:domain — .ikiro/skills/domain/SKILL.md (5976/6000) · skipped 3
+
+- **cid 16** · user-intent-drift · ×1 ·  — Does not fit (~230 chars with the verbatim quote). After landing 5/29/20/9 only 24 chars are free, and every line left to consolidate either quotes beef or is a
+  - where: ## Routes are verbs, tools ride routes — after the cid 9 line
+  - text: A valence rides the catalog every round and steers against the system prompt: read it first when a model disobeys; inner-work instructions live in the agent's prompt. REJECTED starving context to stop duplication — /"the tool needs context of previous turns … especially if we never provide adequate context"/
+  - voice: /"the tool needs context of previous turns and what was reviewed ... i dont see that overengineering does us any good. especially if we never provide adequate context"/
+- **cid 18** · scope-inflation · ×2 ·  — Does not fit (~160 chars, two verbatim quotes) without evicting a rule. Its natural home is the 'A route is ONE repository call' line, but that line quotes beef
+  - where: ## Routes are verbs, tools ride routes — 'A route is ONE repository call'
+  - text: REJECTED a narrow repository verb for one case (prune, one ontology key) — /"way tooo narrow … just implement inline for now."/; a new verb names its scope (literal · daemon · mode) first — /"this must be scoped … important!"/
+  - voice: /"do we want prune on repository level???!?!?! not sure. and for sure not like this. way tooo narrow. one ontology key - static?!?! makes no sense … just implement inline for now."/
+- **cid 24** · imperative-js-reflex · ×1 · 10-15 — Does not fit: ~85 chars against 24 free. Its anchor line (the entity bullet) quotes beef and is untouchable, so it would have needed its own line.
+  - where: ## A trait — three halves — after 'Two traits naming one method collide at boot'
+  - text: A trait applies case by case, never one dogmatic mechanism — /"stagger is one method. not tteh only method."/ 10-15
+  - voice: /"We handle traits not in one unified way dogmatically, but whatever makes sense in context. · stagger is one method. not tteh only method."/
+
+## codemap:map — .ikiro/world/codemap/map.md (3995/4000) · skipped 2
+
+- **cid 4** · assume-dont-verify · ×1 ·  — Even cut down to the single tangle-quote rule (about 150 chars) it pushed map.md to about 4146/4000 after every safe consolidation, and fitting it would mean ev
+  - where: docs `documentation/` (Astro 7)
+  - text: docs = Diataxis `content/10-19_explanation · 20-29_tutorials · 30-39_guides · 40-49_reference` (09-28); authored data is CONTENT `content/jdex.js` (REJECTED `src/lib/` /"its obviously content"/); a block is ONE component (/"half in frontmatter half inside <hoem>. weird. Fix. component prefered"/); bench = `.mdx.bak`; a page tangles `<page>.example.js` → `.snapshot.json` (`deno task capture`) — /"show me the stuff WORKING. step by step. pre and post"/.
+  - voice: /"utilize the capacity of the docs to tangle executed code and all that. show me the stuff WORKING. step by step. pre and post"/
+- **cid 41** · yap-wrong-artifact · ×1 ·  — It adds about 170 chars to the header with no room left, and every shard is near its own cap (codemap total 51807/52000). It is a rule about how to write a shar
+  - where: map.md line 1 header comment `· code is the map -->`
+  - text: a shard: ~25% the mechanism as code/pseudocode · ~10% snapshots of objects at rest and in motion · ~3% where to read the live system (/"I do expect the code map to contain about 25% code. … 10% snapshots would be nice. … 3% of the map"/)
+  - voice: /"I do expect the code map to contain about 25% code. … 10% snapshots would be nice. … 3% of the map"/
+
+## skill:ops — .ikiro/skills/ops/SKILL.md (6989/7000) · skipped 2
+
+- **cid 21** · live-system-unaware · ×2 · 09-20 — Landed in Phase 0, but I dropped its `scripts/` · `lib.sh` `sql` · `I_MEAN_PROD=1` · password-on-stdin details: `scripts/` does not exist in the tree now, so ci
+  - where: skills/ops/SKILL.md — `### Phase 0 — inspect, read-only`, first paragraph
+  - text: A prod defect is scouted ON the host — volume · image · container — from scp'd `scripts/` (`lib.sh` `sql` ro, `I_MEAN_PROD=1`, password on stdin), never a local grep or a nested-quoted ssh one-liner; each container's ledger · mountpoint · instance LISTED before a plan names it, a prod compose/`.env` read as the OLD world till checked against HEAD (/"scout the issue on location. into the volume, image, container."/ 09-20).
+  - voice: /"no. wrong directino. ... add the scripts. and start interacting with the system from that perspective. ... scout the issue on location. into the volume, image, container."/
+- **cid 11** · deploy-shape · ×1 · 09-19 — Not skipped: it landed as the second half of the cid 34 paragraph in ## Prod change, with its quote trimmed to /"I want a flexible entry point"/ to fit the cap.
+  - where: skills/ops/SKILL.md — `## Prod change`, line 5
+  - text: A container fills its state through an entrypoint whose every step checks before acting; baking into the image stays permitted beneath it (/"I want a flexible entry point … that doesn't preclude us from baking in anything in any build."/ 09-19).
+  - voice: /"we have no idea what idempotent means, but I want a flexible entry point, of course, especially since that doesn't preclude us from baking in anything in any build."/
+
+## codemap:commons — .ikiro/world/codemap/commons.md (5496/5500) · skipped 3
+
+- **cid 28** · one-fold · ×2 · 2026-07 — Wrong owner. The verdict itself says it belongs to typology/codestyle (subsystems/typology/gestalten/shape/connection.js:28-44), not commons. typology.md is at 
+  - where: codestyle.md **2 · 7 — every cata names its ana** (`shape.strip` ⟷ `shape.connection.wire`)
+  - text: `wire` is total over the stripped node: root effect wires (/"no path is a path"/), `yields` = one packet (`for await (const packet of await mode.call.x({}))`), a multi-method leaf THROWS (`connection.js:28`, /"i lean c because it means we dont have to solve this now."/); a raw path rides `entity.connection.call` only (/"evict the call squatter."/).
+  - voice: /"sounds harmonic"/
+- **cid 27** · pin-ontology-before-naming · ×1 ·  — Doesn't fit. Even with the quote cut short it costs about 120 chars, and nothing else could be consolidated without evicting. The standalone/50.01 ontology alre
+  - where: commons.md **instances/hello-world/mode.viva.js** … `localhost/` empty.
+  - text: `localhost/` empty: standalone (the 50.01 deep dive + localhost default) unbuilt, m51 benched (/"in the readme we treat hello world to a shallow dive. in 50.01 we treat hello world to a deep dive."/).
+  - voice: /"in the readme we treat hello world to a shallow dive. in 50.01 we treat hello world to a deep dive."/
+- **cid 35** · pin-ontology-before-naming · ×1 ·  — Doesn't fit (69 chars) next to cid14, cid15 and cid33. The name is already self-evident on disk: ~/.viva/registry/vcompany/domain/ holds only voffice.
+  - where: commons.md ## registry packages
+  - text: `vcompany` carries ONE domain `voffice` (`~/.viva/registry/vcompany/domain/voffice`) — one word (/"One word, v office."/).
+  - voice: /"Let's call it the v office domain. One word, v office."/
+
+## skill:package — .ikiro/skills/package/SKILL.md (5993/6000) · skipped 4
+
+- **cid 9** · fit-existing-trees · ×1 · 10-21 — Would need ~210 chars and the file was at 5918/6000. After landing cids 5, 11 and 22 and consolidating, the file is 5993/6000. Landing it would mean evicting a 
+  - where: ## Standing hazards (new first line)
+  - text: `~/.viva/registry` is deprecated by default: align it to the current meta, never preserve it (/"We can consider anything in the registry to be deprecated"/ 10-21); its naming is not policed (/"registry is anarchy. whatever. we dont care."/).
+  - voice: /"We can consider anything in the registry to be deprecated, and we will align what is in the registry with our current meta."/
+- **cid 15** · fit-existing-trees · ×1 · 10-03 — Would need about +200 chars net over the existing services/ bullet, which is unchanged and still true. There is no room under the 6000 cap without evicting a ru
+  - where: ## Layout — the bullet "`services/` — a provider, not a mode (`chess/services/stockfish`)."
+  - text: `services/` — a provider, not a mode: exports `{manifest, provider}` (+ `aperture` · `tools` · `control`), the runtime runs it. REJECTED 10-03 an `execution` export (/"i dont like the idea of the execution vector as an export of lighthouse."/).
+  - voice: /"i dont like the idea of the execution vector as an export of lighthouse. i still want {manifest,provider,aperture} for this service."/
+- **cid 8** · live-system-unaware · ×3 · 10-?? — Would need ~170 chars, with no room under the cap. This rule is also still unruled about where the engine lives. Candidate for codemap/commons (services/nlp) or
+  - where: ## Dependencies — after "Everything else by URL"
+  - text: A host binary under a by-URL package ✗ (/"stockfish brew insatlled · not happy about it tho."/): MEASURE first — WASM under deno, or a container like `commons/services/nlp` — before building.
+  - voice: /"stockfish brew insatlled · not happy about it tho."/
+- **cid 16** · pin-ontology-before-naming · ×1 · 08-28 — Would need ~140 chars, with no room under the cap. The registry has no testament reference today. Candidate for codemap/testing (testament) or a cap raise.
+  - where: ## Standing hazards
+  - text: `testament/` never ships in a registry package or its `.env` template (/"testmanet is fucking DEVELEPMENT INSIDE REPO"/ 08-28).
+  - voice: /"testmanet is fucking DEVELEPMENT INSIDE REPO / retard. not a fucking system wide fixture"/
+
+## skill:show-me — .ikiro/skills/show-me/SKILL.md (4996/5000) · skipped 1
+
+- **cid 4** · handoff · ×2 · 10-25 — Its two parts (the superseded/unparsed answer row and the phase-3 'REWORK after the walk' sentence with the 10-25 quote) take about 220 chars. After landing cid
+  - where: ## his answer table + ## phase 3
+  - text: | a stop his tree already superseded · a stop he can't parse | `amen` + note (struck hunks stay under their version heading) · `open` in his words, never argued; next |
+Phase 3: the quest REWORK runs after the walk, never mid-walk (10-25 /"once our little show session here is finished."/).
+  - voice: /"we will have to talk about the reworking the quest once our little show session here is finished."/

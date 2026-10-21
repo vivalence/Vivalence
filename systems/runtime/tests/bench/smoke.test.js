@@ -9,9 +9,8 @@ specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources
 
   specimen.beforeAll(async () => {
     const modes = await Promise.all([
-      accio("@education/domain/language-learning"),
-      accio("@education/game/dojo"),
-      accio("@education/game/judge"),
+      accio("@memo/domain/srs"),
+      accio("@memo/srs/memo"),
     ]);
     scenario = await bench({ modes });
   });
@@ -21,8 +20,7 @@ specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources
   });
 
   specimen.it("daemon boots with modes", () => {
-    specimen.expect(scenario.daemon.modes.game["dojo"]).toBeTruthy();
-    specimen.expect(scenario.daemon.modes.game.judge).toBeTruthy();
+    specimen.expect(scenario.daemon.modes.srs.memo).toBeTruthy();
   });
 
   specimen.it("entities have domain repositories", () => {
@@ -33,8 +31,7 @@ specimen.describe("bench (raw imports)", { sanitizeOps: false, sanitizeResources
   });
 
   specimen.it("modes have emit objects", () => {
-    specimen.expect(scenario.daemon.modes.game["dojo"].emit).toBeTruthy();
-    specimen.expect(scenario.daemon.modes.game.judge.emit).toBeTruthy();
+    specimen.expect(scenario.daemon.modes.srs.memo.emit).toBeTruthy();
   });
 
   specimen.it("connection routes work", async () => {
@@ -53,12 +50,9 @@ specimen.describe("bench (paladin specifiers)", { sanitizeOps: false, sanitizeRe
   specimen.beforeAll(async () => {
     scenario = await bench({
       modes: [
-        "@education/domain/language-learning",
-        "@education/topology/word",
-        "@education/topology/sentence",
-        "@education/game/dojo",
-        "@education/game/judge",
-        "@education/game/exhibit",
+        "@memo/domain/srs",
+        "@memo/topography/latin",
+        "@memo/srs/memo",
       ],
     });
   });
@@ -67,10 +61,8 @@ specimen.describe("bench (paladin specifiers)", { sanitizeOps: false, sanitizeRe
     await scenario?.teardown();
   });
 
-  specimen.it("daemon boots with 3 modes", () => {
-    specimen.expect(scenario.daemon.modes.game["dojo"]).toBeTruthy();
-    specimen.expect(scenario.daemon.modes.game.judge).toBeTruthy();
-    specimen.expect(scenario.daemon.modes.game.exhibit).toBeTruthy();
+  specimen.it("daemon boots with its mode", () => {
+    specimen.expect(scenario.daemon.modes.srs.memo).toBeTruthy();
   });
 
   specimen.it("ontology entities seeded", async () => {

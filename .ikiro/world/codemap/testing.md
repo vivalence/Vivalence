@@ -1,14 +1,14 @@
 ---
 paths: ["**/tests/**", "**/specimen/**", "**/fixtures/**"]
 ---
-<!-- writer: agent · limit: 7300 chars · code is the map · the rigs (scenarios) and the toolbox (specimen) · counts recounted 10-16 -->
+<!-- writer: agent · limit: 7300 chars · code is the map -->
 # testing — scenarios are the rigs, specimen is the toolbox
 
 ## run
-**container `test` is `--watch` (dapper's is not, `subsystems/dapper/deno.jsonc:13`; drapes has none); root delegates** (`deno.jsonc:33`).
+**container `test` is `--parallel --watch` (10-26; dapper's is not, `subsystems/dapper/deno.jsonc:13`; drapes has none); root delegates** (`deno.jsonc:33`).
 ```jsonc
 // systems/runtime/deno.jsonc:12
-    "test": "deno test -A --no-check --watch tests/**/*.test.js",
+    "test": "deno test -A --no-check --parallel --watch tests/**/*.test.js",
 // deno.jsonc:33
     "runtime/test": "deno task --cwd ./systems/runtime test",
 ```
@@ -28,7 +28,7 @@ expect.extend({
       specimen.expect(result).matches(v.primitives.auth.AuthResponse);
 ```
 
-## scenarios (typology) — barrel `index.js` (cats · topography · metronome), `@vivalence/typology/scenarios`
+## scenarios (typology) — barrel `index.js`, `@vivalence/typology/scenarios`
 **`cats/` `house` · `domain/` `manifest` · `aperture` · `*traits` (`literal symbol note`) · `*schematics` (`LANGUAGE`) · `fixtures/test-component.svelte` (read by `gestalten/bundle.test.js:13`).**
 ```js
 // subsystems/typology/tests/gestalten/shape/flat.test.js:6
@@ -67,7 +67,7 @@ export * as datamap from "./datamap.js"
       accio("@education/game/dojo"),
       accio("@education/game/judge"),
 ```
-**`daemon.js` `SECRET lighthouseOf connector create` · `lighthouse.js` `create`; both reach 3, consumed by anima too.**
+**`daemon.js` `SECRET lighthouseOf connector create` · `lighthouse.js` `create`; both reach 3, anima too.**
 ```js
 // systems/anima/tests/scenario/buffer.test.js:56
     scenario = await daemon.create();
@@ -125,13 +125,14 @@ export async function boot(world, { shelf, slug, extra = {}, deadline = 120_000 
   if (HOT) specimen.snapshot(pojo, { base: SNAPSHOTS, locate: file, parse: (value) => value });
   const frozen = JSON.parse(Deno.readTextFileSync(join(SNAPSHOTS, file)));
 ```
-**`tests/snapshots/` gitignored (`.gitignore:30`): a fresh PIN throws NotFound until `SNAPSHOT_HOT=1`.**
+**`tests/snapshots/` gitignored (`.gitignore:30`): a fresh PIN throws NotFound until `SNAPSHOT_HOT=1`. A snapshot is data to LOOK at + drift alarm; what must hold, asserts** (/"so you have something to look at!"/ 09-23); an absent key is `seen`.
 ```js
 // subsystems/typology/specimen/snapshot.js:88
   if (seen.has(value)) return undefined; // cycle leaf — the dominant source of bloat
 ```
 
 ## laws
+**fewer, richer: a life-sized scenario gates; a new break is a fixture row, never a file** (/"more fixtures and scenarios, less do expect (tiny f)"/ 09-29). REJECTED a describe per export — typology's units.
 ```sh
 # census 10-16; bench/smoke.test.js:12 accio()s @education
 HOME=$(mktemp -d) deno test -A --no-check systems/runtime/tests/daemon/smoke.test.js  # ok | 1 passed (6 steps)

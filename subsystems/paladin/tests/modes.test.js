@@ -2,6 +2,7 @@ import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path } from "@vivalence/typology";
 import { Paladin } from "../paladin/prototype.js";
+import { FULL } from "../gestalten/belt/index.js";
 import { factories, lifecycle } from "../typology.js";
 import { Registry } from "../prototypes/registry.js";
 
@@ -25,11 +26,12 @@ const module = {
 };
 
 const mount = (mod) => {
-  const paladin = new Paladin();
+  const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
   paladin.scopes([
     ["instance", () => true, () => new Path(HOME.dirname)],
     ["mountpoint", () => true, () => new Path("/mountpoint")],
   ]);
+  paladin.find.recipe = (home) => home.branch("instance.viva.json");
   paladin.read.json = async () => JSON.parse(JSON.stringify(mod));
   return factories.instance(lifecycle.paladin.instance(paladin));
 };
@@ -95,7 +97,7 @@ describe("registry.accio — the citizen", () => {
 });
 
 describe("client modes", () => {
-  it("a client is a host: /client/<slug>, <mountpoint>/client_<slug>, every mode grounded under it as /mode/<type>/<slug>", async () => {
+  it("a client is a host: /client/<slug>, every mode referenced under it as /mode/<type>/<slug>, no mountpoint on either", async () => {
     const instance = await mount({
       ...module,
       clients: [{ manifest: { type: "client", slug: "ghost", traits: ["HOME"] }, modes: ["@commons/home/console"], trait: { HOME: { reference: "/runtime/probe/mode/home/probe" } } }],
@@ -103,9 +105,9 @@ describe("client modes", () => {
     const [client] = instance.clients;
     expect(instance.faults).toEqual([]);
     expect(client.reference.absolute).toBe("/client/ghost");
-    expect(client.mountpoint.absolute).toBe("/mountpoint/client_ghost");
+    expect(client.mountpoint).toBeUndefined();
     expect(client.modes[0].module).toBe("@commons/home/console");
     expect(client.modes[0].reference.absolute).toBe("/mode/home/console");
-    expect(client.modes[0].mountpoint.absolute).toBe("/mountpoint/client_ghost/mode_home_console");
+    expect(client.modes[0].mountpoint).toBeUndefined();
   });
 });

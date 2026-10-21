@@ -2,13 +2,11 @@
 name: readme
 description: >-
   Walk the README or an install page end to end as a newcomer would — a stock container or a .env-less cwd,
-  lsof and docker ps FIRST so nothing shadows a local instance, every fence captured from what the tree
-  actually printed, every body killed at the end — and capture before any purge, strip, rename, drop or rm
-  in a tree without version control to ~/.viva/bak/<scope>/<slug>-<YYYYMMDD>/. Use when stepping through
-  the readme, verifying a fresh-machine claim, after a CLI or onboarding change, or before deleting or
-  overwriting anything under ~/.viva.
+  lsof and docker ps FIRST so nothing shadows a local instance, every fence captured from what
+  printed, every body killed at the end — and capture before any purge, strip, rename, drop or rm
+  in a tree without version control to ~/.viva/bak/<scope>/<slug>-<YYYYMMDD>/.
 when_to_use: >-
-  "run the readme step by step" · "step through the readme" · "setup a docker image plain ubuntu" · "pull
+  "step through the readme" · "setup a docker image plain ubuntu" · "pull
   another linux distro" · a fresh container or VM walk · verifying an install/slowstart page · after any ghost
   verb or onboarding doc change · beef pastes his own terminal from a walk · "kill docker" · purging a daemon
   db · stripping a recipe or `.env` · dropping rows · deleting an instance or a registry entry · any rename
@@ -27,18 +25,18 @@ Defects live between verbs, where no test looks.
 
 ## Before step 0
 
-- `lsof -i -P | grep LISTEN` over ALL processes AND `docker ps` — a `grep deno` hides the container that answers the walk's requests.
-- walk from a `.env`-less cwd: the repo-root `.env` outranks an os-level `VIVA_INSTANCE_MOUNT` and boots the LIVE hello-world.
+- `lsof -i -P | grep LISTEN` (all processes) + `docker ps` — `grep deno` hides the container answering the walk.
+- a `.env`-less cwd: the repo-root `.env` outranks os-level `VIVA_INSTANCE_MOUNT`, boots the LIVE hello-world.
 - alt ports (`:2501`/`:1794` are the local instance's); name them in the report.
 - the frame is in the request: /"no. idiot. i planning a docker deploy. ... no deno task runtime/run?!?!?!"/
 
 ## The walk
 
-1. stock image (`ubuntu:24.04`, `alpine`), `-it` with a tty; give beef the `docker exec -it <name> bash` line.
-2. scripts by `Write` into the scratchpad, then `docker cp`. macOS tar: `COPYFILE_DISABLE=1`; measure the archive first (exclude freight).
-3. each README step verbatim; capture the fence from what PRINTED, never composed output.
+1. stock image (`ubuntu:24.04`), pid 1 `bash` on a pty, each step `tee /proc/1/fd/1`; beef joins by `docker exec -it <name> bash` — `exit` in `docker attach` kills pid 1. Alpine: no musl Deno ≥2.7, the installer exits 0 on a dead binary.
+2. scripts `Write` to the scratchpad → `docker cp`; macOS tar `COPYFILE_DISABLE=1`, archive measured first (no freight).
+3. each README step verbatim; a fence = what PRINTED; a listing ≡ the file on disk, byte-equal, no `...` (/"NOT A FUCKING ABBREVIATION"/ 08-26) — his listing edit rewrites the FILE.
 4. hit it from OUTSIDE (`curl` the alt port, `/status` at three tiers, a real bearer, `/metadata/*`), then the ghost verbs.
-5. per step: `step · command · printed · verdict · defect` — defects to skill `quest`; doc drift fixed in the docs, /"slop up the docs for both of us"/.
+5. per step: `step · command · printed · verdict · defect` — defects to skill `quest`; doc drift fixed in the docs, /"slop up the docs for both of us"/. A doc line claims its source: READ every file it touches (/"READ! EVERY! SINGLE! FILE! THIS! TOUCHES!"/); a lie fixes the CODE.
 6. **kill the bodies** — `docker rm -f <names>`, listed in the report. REJECTED: `docker builder prune` on the HOST.
 
 Scratch variant: `viva instance/create <scratch> --init` → walk → `viva instance/delete <scratch>`. Two shells on two instances is a pre-existing red (`strata.wet.test.js:93`) — name it. His pasted walk becomes the quest's walk section verbatim.
@@ -49,11 +47,12 @@ Scratch variant: `viva instance/create <scratch> --init` → walk → `viva inst
 
 1. **versioned?** `git -C <dir> rev-parse --show-toplevel 2>/dev/null || echo NO-VCS` — versioned is read-only for me.
 2. **running?** `ps aux | grep deno` · `viva ledger/doctor` (`locks/`) · `lsof <db>`. A schema change under `--watch` IS a deployment.
-3. **capture** to `~/.viva/bak/<scope>/<slug>-<YYYYMMDD>/` (e.g. `~/.viva/bak/instances/droneaid-20260922/db-0933/`): a db with its migrations and the `instance.viva.json` that mounted it; a recipe whole. Say what you kept: /"19 literals, 19 symbol links, 18 uses rows, captured to … first. 69 symbols kept."/
+3. **capture** to `~/.viva/bak/<scope>/<slug>-<YYYYMMDD>/`: a db with its migrations and the `instance.viva.json` that mounted it; a recipe whole. Say what you kept: /"19 literals, 19 symbol links, 18 uses rows, captured to … first. 69 symbols kept."/
 4. REJECTED: a scratchpad copy as the only copy — `cleanup` destroys it.
 5. cut by entry, never by line.
 6. a hunk bound for `~/.viva/instances` is complete and reverse-appliable — no `…`.
-7. mikro half-applies an FK change: restore db + migrations from the backup, never retry.
+7. mikro half-applies an FK change: restore db + migrations from backup, never retry.
 8. price the asset before building a recovery harness.
+9. the wipe is HIS: I capture + measure on a copy, he runs the rm/rsync (/"i do the whipe once youre done."/ 10-22).
 
 Never swept, even under `cleanup`: beef's `// …` lines, his `console.log`s, `bak/`, `*.bak` beside in-flight work.

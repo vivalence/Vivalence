@@ -1,0 +1,15 @@
+# drained 10-22 whole from .ikiro/quests/roadmap/m89-telemetry.org (quest tidy); nothing reworded · limit: none (reference content)
+
+| # | decision | options | lean | why |
+|---+----------+---------+------+-----|
+| F1 | the clock | a: =at= stays =performance.now()= · b: =performance.timeOrigin + performance.now()= · c: a + an =origin= ISO on the root's open | b | one field, unique across boots, =trace.duration= unchanged |
+| F2 | what =run= names | a: per ROOT span (a trace id) · b: per PROCESS (a resource id) | a | =logs/<instance>/= IS the resource; one controller root per boot splits the file |
+| F3 | the fold | a: WHOLE-slot (=inherit=, zero paladin code) · b: key-wise like =environment= (=v.interface=) | a | every other slot's pattern; say "narrow a key" and =populate.js:175= gets a sibling |
+| F4 | console default | a: =fault=, the recipe says =control= · b: =control= for all (=--json= prints open/close per form) · c: a per-process key | a | one word per instance; doors narrow; c is a taxonomy |
+| F5 | a refused form | a: fault on the ROOT (today: FAILED, =controller.js:27=) · b: on =stdout.branch(signal.pathname)= | b | a refusal is the form's, not the process's |
+| F6 | paladin's noun | a: =Log= · =Ledger.log()= · =~/.viva/logs/= stay · b: rename to =telemetry= | a | the raw child =<process>.out.log= streams ARE logs |
+| F7 | the second roots | a: leave =Activity.ts:35= · =socket.js:39= · =registry.js:29= · b: branch the Activity's controller from =ctx.mode.stdout= | a this quest | b moves =harnessed.js:33='s pick |
+| F8 | the nine =spans.jsonl= | a: leave (run-less lines merge as today) · b: capture to =~/.viva/bak/logs-20261012/= | b | a reader meets one shape |
+| F9 | showing the inspector | a: by the word · b: a chord (=/key/ctrl-g=) | a now | b is a loop form on top of a |
+| F10 | =caps.story= | a: children a root keeps + roots kept (=trace.trim=) · b: a record budget | a | every form is a child of the one client root; a roots-only cap (bak =logger.js:9=) never fires |
+

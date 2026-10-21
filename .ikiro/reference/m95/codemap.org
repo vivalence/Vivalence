@@ -1,0 +1,288 @@
+#+title: m95 depincered client — the quest's codemap
+#+filetags: :anima:ghost:drapes:dapper:typology:chrome:codemap:
+#+status: PHASE ZERO 10-19 — measured by five agents (assets · quests · anima · ghost · auth), full notes in =reference/m95/=; every row =file:line=; verdicts reconciled with the eleven locks of =m95-depincered-client.org=; a =→ phase one= row is the scaffold's to settle
+
+# limit: none (quest content). Sources: reference/m95/{assets,quests,anima,ghost,auth}.md
+
+* how to read this
+
+One tree per system, =ls= order. A row = path · what it is today · verdict. Verdict words:
+- KEEP — stays where it is, the new chrome reads it
+- PORT — the logic survives, moves or re-skins (Svelte → Solid, anima-local → shared)
+- REWRITE — the slot survives, the body is new
+- DROP — dies with the pincer, the SvelteKit shell, or a dead word
+
+* the demo — =~/Downloads/vivalence-client-v1/= (designer, 10-19, untrusted, read not run)
+
+One mutable world =w=, one =R.dispatch(w, line)=, two painters over one typed-row view model. Every control is a LINE.
+
+#+begin_src text
+build/build.js        37   inlines dapper.css (re-rooted :root[data-theme] → #app[data-viva]) + 5 scripts → out/index.html
+build/src/ring.js   1082   world() literals · verbs registry (~60) · dispatch · keymap trie · sections(w) · telemetry
+build/src/dom.js     449   anima painter: tabs · sidebar · frame|dock split · panel · mode bar · widgets · island
+build/src/tty.js     729   ghost painter — a BROWSER cell-grid emulation, NOT OpenTUI; duplicates key handling
+build/src/design.js  251   design-system page: zones · themes · tokens · type · parts · a11y table · the two-clients mirror (its § "two faces · one state") · handoff
+build/src/app.js     341   boot · hash route #dom|#tty|#design · localStorage viva.client.v1 · 80 ms sim timer
+dapper.css · declarations.json (4 themes × 4 zones × 106 keys) · viket.b64 (127×160 PNG mark, a CSS mask)
+#+end_src
+
+The demo's row model — one list, two painters (=ring.js:1000-1076= → =dom.js:61-76= · =tty.js:134-165=). Lock 1 REJECTED sharing it across clients; read it as what each chrome's sidebar shows, drawn twice:
+#+begin_src js
+// ~/Downloads/vivalence-client-v1/build/src/ring.js:1003
+const sub = (label, count) => ({ type: "sub", label, count: count === undefined ? "" : String(count) });
+const keys = (list) => ({ type: "keys", keys: list });
+const choice = (label, vals, cur, nature) => ({ type: "choice", label, chips: vals.map((v) => ({ label: v, line: `${nature} ${v}`, cur: String(cur) === v })) });
+// ring.js:1027
+ent.push({ type: "item", label: `${i + 1}  ${x.label}`, sub: short(x.mode), line: `/terminal ${i + 1}`, echo: false, cur: i === w.active, dot: dotOf(x), mark: "[◇]" });
+#+end_src
+
+The keymap — a hand trie rebuilt per press, verbs' =chord= + seven leader subjects + the seated mode's =keymap: [[path, line, valence]]=:
+#+begin_src js
+// ~/Downloads/vivalence-client-v1/build/src/ring.js:698
+const SUBJECTS = [
+  { k: "e", id: "entity", valence: "where am I" },   { k: "a", id: "activity", valence: "is it working" },
+  { k: "h", id: "harness", valence: "what is it given" }, { k: "d", id: "display", valence: "how do I see it" },
+  { k: "x", id: "box", valence: "mic · speaker · theme" }, { k: "s", id: "system", valence: "what does it run on" },
+  { k: "c", id: "control", valence: "how do I say it" }, { k: "g", id: "go", valence: "focus a region" },
+  { k: "m", id: "mode", valence: "the seated mode’s keys" },
+];
+// ring.js:727
+open(root, "leader/leader", { kind: "palette" }, "the palette — every repl verb, narrowed as you type");
+registry(w).forEach((c) => { if (c.chord) open(root, c.chord, { kind: "verb", verb: c }, c.valence); });
+#+end_src
+
+Its decisions, "yours to overturn" (=design.js:221=): leader ctrl-v on both clients · =m= under the leader = seated mode's keymap · surfaced buffers are cards, content mimes inline · default theme follows the OS (northsea dark, porcelain light) · sidebar stays, closed below 1024 · phone pins the frame as a strip · box is a subject (=x=) beside system.
+
+Its 37 verbs (=design.js:220=): =/terminal /thread /mode /buffer /artifacts /artifact /pause /resume /stop /abort /activity /approve /skip /edit /tune /effort /rounds /context /tools /dock /split /journal /sidebar /shell /mic /speaker /voice /theme /runtime /lighthouse /attach /dictate /paste /go /face /design /help /quit=.
+
+What it fakes: agent output (regex per mode, =ring.js:556-592=) · chess/memo views hand-painted twice · verbs not a Vector, no ={condition, output}= · auth non-empty check (=app.js:178=) · one =th.run= per thread, "N/12 ring" fake (=ring.js:1039=) · no URL params. Drift: =/continue= cited, verb is =/resume= (=design.js:183=) · =leader/e/a= bound twice (=ring.js:427,456=) · DOM mime =…dom.svelte+javascript= (=ring.js:3=).
+
+* systems/ghost — the ring works, the chrome is a skeleton
+
+=viva --help= exit 0 · five test files green 10-19 (repl 6 · text 4 · keys 2/15 · console 1 · client 4). LOC: client 349 · entities 776 · gestalten 121 · surface/chrome 585 (+685 built) · bak ≈16.9k.
+
+#+begin_src text
+systems/ghost/
+  run.js                        KEEP     the door; paladin mounts here only (run.js:5-21)
+  typology.js                   KEEP     the door's barrel (shell · surface · opentui); lock 1 adds a browser-clean =./client= entry beside it
+  shell/lifecycle.js            KEEP     argv Vector /help /repl /chrome; DROP the debug line :9 console.log("ctx.output:")
+  client/                       KEEP     prototype · factory · lifecycle (14 beats, :216) · traits/home.js · commands/{help,quit,chrome}
+  entities/                     KEEP     daemon · lighthouse · mode · runtime · terminal · thread + activity · buffer · turn
+    activity.js                 KEEP     controller-per-row, stdin wired to remote calls — the cleaner Activity
+    lighthouse/lifecycle/       KEEP     ~/.viva/credentials.json 0600 by origin (:15-30); AUTOLOGIN or nothing
+  gestalten/shard/repl.js       KEEP     compose(client, terminal) per line · dispatch(client, terminal, line)
+  gestalten/shard/host.js       KEEP     runtime · daemon hosts
+  surface/repl.js               KEEP     plain-lines surface, tails message · fault · turn
+  surface/chrome/index.js       REWRITE  renderer + ctrl-c + backtick console + paint; "no repl wired in yet??!!" (:22)
+  surface/chrome/host/          KEEP     OpenTUI-on-Deno FFI shim + @opentui/core patch
+  surface/chrome/keys.js        PORT     CHORDS [[predicate, tag]] → m92 KeySignal; leader row first
+  surface/chrome/paint.js       KEEP     provider stack renderer ⊃ palette ⊃ component
+  surface/chrome/palette.js     KEEP     8 tones → dapper names; reached via =terminal.client= (lock 6); its NAME collides with m92's palette — his to name
+  surface/chrome/text.js        KEEP     line editing under Input
+  surface/chrome/panes/         REWRITE  chrome.jsx (frame ‖ 48-col dock) · dock.jsx · frame.jsx (bundle mount, Floor) · index.js
+  surface/chrome/views/         KEEP     Input.jsx · JsonTree.jsx · Markdown.jsx
+  surface/chrome/out/           TRAP     gitignored, statically imported (index.js:6) → a fresh tree cannot import @vivalence/ghost until ghost/bundle
+  bak/bak.3/chrome/panes/       READ     prior art: crown · navigation · pips · signin · dock key commands
+  tests/                        KEEP     repl · console · client (DEMO world) · keys · text
+#+end_src
+
+The ring, as it stands:
+#+begin_src js
+// systems/ghost/gestalten/shard/repl.js:22
+export const compose = (client, terminal) =>
+  new Vector().graft(
+    client.repl,
+    ...fromm.modes(client.modes).flat.map((mode) => mode.repl),
+    ...(terminal === null ? [] : [terminal.repl, ...client.runtime.entities.mode.$entities.get().map(scoped), ...(harnessed(terminal) ? [turn] : [])]),
+  );
+#+end_src
+
+The chrome, as it stands (the whole of it):
+#+begin_src js
+// systems/ghost/surface/chrome/index.js:17
+  (async () => {
+    for await (const press of keypresses(renderer).drain())
+      if (press.key === "`") renderer.console.toggle();
+  })();
+  // no repl wired in yet??!!
+  const erase = paint(renderer.root, renderer, tokens("northsea", "2"), panes.chrome, { client, accept: [mime.tty.solid, mime.json] });
+#+end_src
+
+Boot order matters to a chrome: the surface mounts at beat 4, BEFORE runtime · connection · authorized — the chrome renders =client.runtime === null= first (=client/lifecycle/index.js:216=). No cached credential + no AUTOLOGIN → =authorized= waits forever, no sign-in pane.
+
+Verbs today: =/help /quit /chrome/on|off /modes /mode /application/start|stop * /mode/<x>/harness= + REPLING mode verbs.
+
+* systems/anima — SvelteKit, red, ~14.1k LOC in src
+
+#+begin_src text
+systems/anima/
+  vite.config.mjs               REWRITE  @deno/vite-plugin + sveltekit (:1,3) → Solid vite, the probe build (testament-probes.md:36-58)
+  svelte.config.js              DROP     SvelteKit leaves; Svelte compiles only inside mode bundles
+  postcss · tailwind            → phase one  dapper ships =./postcss= · =./tailwind=; whether the Solid build keeps them
+  client.viva.js                REWRITE  the anima door — paladin at build, the virtual =register=, client modes bundled (lock 1a); today uses Process · cast unimported
+  src/client.html               PORT     iOS standalone / manifest bits (:12-18) separable from the pincer
+  src/client.js · typology.js   REWRITE  $client (27) · $telemetry (20) · @vivalence/anima (31) aliases (vite.config.mjs:123)
+  src/lighthouse.js             PORT → ghost     login · verify-with-refresh · populate; {authority,user} in localStorage lighthouse:<url> (:203-234); no AUTOLOGIN
+  src/entities/activity.js      PORT → ghost     roster · loudest · TONES · settled · owed — pure folds over the machine (:31-65)
+  src/entities/buffer.js        DROP     ghost's Buffer is the one (lock 1); imports View (:2) — RED
+  src/entities/mode/traits/application.js  DROP  imports View (:1); APPLICATION dies under m87
+  src/entities/daemon/          DROP     ghost's =entities/daemon= is the one (lock 1); its multiplex-per-daemon (dossier.js:93) read as prior art
+  src/entities/terminal/        PORT → ghost  DOCKED runtime rows (:55-63 debounced updateOne, :82 the layers) · mountSeat · mountStall
+  src/entities/thread/          PORT → ghost  aimed · queueing · labeled; Thread.engage
+  src/bridge/dock.js            PORT → ghost  the dock fns (:44,51) — the per-terminal dock (lock 4) lives on ghost's Terminal
+  src/bridge/{geometry,gesture,start,prototype,panes}.js   DROP  the pincer · bones · layout store
+  src/box/                      KEEP     microphone · speaker · worklet · drivers/audio (4 known issues)
+  src/prototypes/{entity,dataspace}.js     DROP  duplicates of typology's
+  src/prototypes/dictation      KEEP
+  src/app/bones/                DROP     pincer.svelte · flow.js · shoulder/crown · spine (but spine/activity.js PORT: ring → span bars, elapsed)
+  src/app/panels/a/a.svelte     REWRITE  Frame + Dock → anima =surface/panes/{frame,dock}.jsx=, =module.default(target, { terminal, buffer, surface })= (locks 6 · 9 · 11)
+  src/app/panels/{b,c,g,h}/     REWRITE  settings rail · cards tree · telemetry · inspector; cards/traits/form/{schema,picker}.js PORT (untested)
+  src/app/panels/a/Dock.svelte  PORT     thinking/streaming/calling word (:118,156); stop.svelte.js press SIGTERM, hold 2s SIGKILL
+  src/app/turns.js              KEEP     353-line pure turn algebra, ~64 tests
+  src/app/gate.js               KEEP     sign-in gate (:2 shows sign-in whenever unauthorized → the flash)
+  src/app/+layout.svelte     DROP     /design branch (:109); terminals.settle(bridge.layout.terminal) (:74) — the deep-link hook point
+  tests/                        SPLIT    keep pure: activity · dock-turns (51) · gate · trait-runner · sheet reducer; drop svelte mounts + pincer/panes (~100)
+#+end_src
+
+The activity folds — the "sophisticated" part, framework-free already:
+#+begin_src js
+// systems/anima/src/entities/activity.js:36
+const RANK = ["RUNNING", "STOPPING", "PAUSED", "IDLE"];
+export const loudest = (rows = []) =>
+  RANK.find((code) => rows.some((row) => row.status === code)) ?? "NONE";
+// systems/anima/src/entities/activity.js:54
+export function owed(signal, rows = [], sent = new Set()) {
+  const { MACHINE } = v.primitives.controller;
+  const from = MACHINE.transitions[MACHINE.signals[signal]] ?? {};
+  return rows.filter((row) => {
+#+end_src
+Runtime side: =systems/runtime/entities/Activity.ts:32= mirrors a controller, 12-record stdout ring, deletes when settled; routes =/userspace/entities/activity · /:id/stdout · /:id/stdin/{SIGTERM,SIGSTOP,SIGCONT,SIGKILL}= (=integration.js:64-82=); machine =subsystems/typology/schematics/primitives/controller.js:3=. The demo's =MACHINE= (=ring.js:316=) is this table verbatim.
+
+URLs today: none. One branch =/design=. No query, no hash routing.
+
+* subsystems/drapes — =.= Svelte · =./dom= Solid (orphaned)
+
+#+begin_src text
+subsystems/drapes/
+  mod.js · context · controls · decor · display · panels · skins · stage · triage   Svelte; only pure .js reusable (strip.fit · float.place · parseBlocks)
+  panels/Frame.svelte           DROP     chrome, not a part; anima's Solid frame replaces it, ={ terminal, buffer, surface }= (locks 6 · 9 · 11); read :40-80 as the mount's shape
+  editor/                       KEEP     outside m95; in no export; languages · sync · org tested; vim.js DEAD
+  dom/                          PRIOR ART  ~2.3k LOC Solid kit, importers: testament only; the thirteen parts are born beside it (lock 3)
+    Button Empty Field JsonTree Logo Markdown Pip Row Spinner Strip .jsx
+    accept.js · credentials.js · keys.js (chord · keydowns) · sheet.js (no-hex test) · surface.js · watch.js (nanostores→Solid)
+    chassis.jsx                 REWRITE  regions crown · navigation · signin · frame · dock; RED :3 belt.dock from @vivalence/ghost (system imported from below)
+    panes/
+  (no ./tty)                    NEVER    lock 3 REJECTED drapes/{dom,tty}; the tty parts are =subsystems/sheets=
+#+end_src
+
+#+begin_src jsx
+// subsystems/drapes/dom/chassis.jsx:1
+import { createSignal } from "solid-js";
+import { createComponent, render } from "solid-js/web";
+import { belt } from "@vivalence/ghost";
+const dock = belt.dock;
+#+end_src
+
+* subsystems/sheets — reborn (lock 3)
+
+#+begin_src text
+subsystems/sheets/
+  (live)                        NONE     0 files outside bak/
+  bak/                          PRIOR ART  Confirm Empty Form Key Listing Logo Pending Picker Pip Report Row Spinner Strip Table .jsx · chassis · cut · captured · cliffy · outline · plain · theme · state/ · tests/
+  Bar Segment Dot Meter Tab Mark Panel Row Choice Field Turn Consent Split .jsx   NEW   @opentui/solid; the same names and props as drapes'
+#+end_src
+
+* subsystems/dapper — KEEP whole
+
+=lib/{contrast,emit,design,theme,tokens}.js= · =themes/= datasette · northsea · parchment · porcelain · 4 zones (0 chrome · 1 body · 2 island · 3 bench) · =tokens(theme, zone)= throws, 14 keys; the demo's tty palette flattens 27 per zone. Owed per the demo: =control-scrollbar= white on white in porcelain · datasette; one type scale. =brand= token's referent was the pincer's ring (=world/codemap/design.md:7=) — needs a new one.
+
+* subsystems/typology — the shared floor (HOLY)
+
+#+begin_src text
+prototypes/  Entity · RemoteRepository (remote-repository.js) · RemoteEntityManager (entity-manager.js) · Dataspace · Bundle (bundle.js:34 load(accept)) · App — both DEAD under m87, heir view.js load(row, attach)
+             Signal · ReplSignal (replsignal.js:6) · Argv · ToolCall · Vector (vector.js:57 graft) · Pattern (pattern.js:30 valence rides)
+gestalten/   steer.dispatch.execute · walk (dispatch.js:108, m92 bug) · steer.strategy.fire (strategy.js:6, m92 literal) · shape.strip ⟷ shape.connection.wire
+             belt.atom.chain · traits.stagger · contexts.host · repl · runtime
+schematics/  primitives/controller.js (machine) · theme.js (token contract) · instance.js (traits :59) · mime table
+#+end_src
+Entities are NOT shared across clients: ghost and anima each own Terminal · Buffer · Mode · Thread; anima also its own =Dataspace · Entity= (=prototypes/=).
+
+* systems/runtime — what the clients call (touch points only)
+
+#+begin_src text
+lighthouse/signer.js:4-53        HS256 JWT · access 1d (unrevocable) · refresh 180d (= stored copy) · operator 2 min · ?token= fallback :47
+lighthouse/traits/               JOINABLE (/signup) · AUTOLOGIN (/autologin, one configured user) · INVITATIONAL (empty fn, :1)
+apertures/users.js:26-27         ONE tokens slot per user — a second login logs the first client out on refresh (SESSION_EXPIRED)
+entities/User.ts:5-9,60          authentication: {provider, credentials, tokens} embedded
+entities/Terminal.ts:28-33       default-on user filter; uuid v7 ids (DataEntity.ts:164) — a URL may name one safely
+entities/Mode.ts:77              unique per (daemon, type, slug); Mode.ts:12 ModeTraitsEnum gates boot
+entities/Activity.ts:32          controller mirror · 12-record ring
+entities/Buffer.ts:40            column is now bundle (m87 retires it)
+gestalten/shard/host.js:33       serves {url, bundle, schema}
+serve.js:49 · transmitter.js:32  /multiplex WS carries the access token in its query — tokens already reach logs
+#+end_src
+
+* m87's radius — the files the re-cut touches (10-20)
+
+#+begin_src text
+systems/runtime/entities/Buffer.ts:40        bundle → mime · mount · hash · integrity · bytes · turns
+systems/runtime/entities/View.ts         NEW
+systems/runtime/mode/traits/application.js   DEAD → renderer.js (export const buffer + views)
+systems/runtime/mode/traits/{fraught,mounted}.js   DEAD → fileset.js · filesink.js
+systems/runtime/gestalten/shard/host.js:33-41      /metadata/application · /freight DEAD
+systems/runtime/runtime/lifecycle/resolution.js    /attached/view/:id · /attached/file/:id
+subsystems/typology/prototypes/{bundle,app}.js     DEAD → prototypes/view.js load(row, attach)
+systems/ghost/surface/chrome/panes/frame.jsx:26-29 · drapes/panels/Frame.svelte:52-71   the mount, rewritten on the table
+systems/ghost/entities/buffer.js:48-66 · systems/anima/src/entities/buffer.js:61-81      hooks mount · unmount → attach · detach
+~/.viva/registry: new App( 52 .viva.js · v.buffer( 17 · APPLICATION 40 · mode.application 22
+#+end_src
+
+* the testament — =testament/m82-clients-20261012/= (rollback =vrkoppuw=)
+
+The 10-11 Solid anima: =systems/anima/src/client.js= was 10 lines — ghost's =construct= + drapes =dom=. =construct= no longer exists; ghost's client lifecycle is Deno-only. m95 is the SECOND Solid anima.
+
+* known issues in the radius (=.ikiro/known-issues.org=)
+
+#+begin_src text
+:48   frame-keys-leak-into-dock                 closed by m92 B (focus-selected keys)
+:58   chess-kit-open-sets-terminal-buffer
+:68   ghost-scenario-boots-nothing              confirmed 10-19
+:78   frame-bag-drift                           three bags reach a buffer component — CLOSED by m95 locks 6 · 9 · 11: { terminal, buffer, surface }
+:126  anima-child-behind-deno-task
+:146  ghost-does-paladins-work
+:168  autologin-signin-flashes                  ghost shows sign-in one frame; anima gate.js:2 would too
+:212  v-facade-pins-typebox-in-every-client-bundle
+:1535 four-ui-surfaces-ship-a-successor-beside-the-incumbent   ← the trap a rewrite walks into
+:1877 conversation-error-close-never-faults
+:1973 dock-never-shows-conversation-error
+:2868 drapes-dom-kit-imports-belt-from-ghost
+:2882 anima-imports-view-from-typology
+:2940 memo-tty-face-on-dead-sheets
+:2954 qa-rig-red-after-the-m86-client-rebuild
+sheets-* :2602 · 2628 · 2737 · 2751          obsolete; their input-handling lessons carry to OpenTUI
+#+end_src
+
+* QA markers pending in the radius
+
+#+begin_src text
+done/m86….org:2815,2820          T-chrome-toggle · T-application (names dead /application/start)
+done/m86….s1.org:850-853         T-home · T-twin · T-offline · T-sigil
+m92-keymap.org:329-332           T-leader · T-unbound · T-palette · T-no-key-lines
+m88-repling.org:828-829,1200     T-home-hello · T-home-hides · T-looping-whoami · P-request-schema
+m83-tools-and-primer.org:988     T-primer-lazy · T-primer-edit (seen in the dock)
+m93-kleisli….org:134,136         T-host-faults-alone · T-kill-on-settled
+done/m90….org:2112-2119          8; T-dock-drag · T-chord test dead mechanisms
+roadmap/m84….org:858-860         T-home-answers · T-go-to-mode ("needs the Dock") · T-handoff
+done/m73….org:3228-3233          6; radial · throw · spine die with the pincer → revised, not held
+#+end_src
+
+* words with two meanings (to lock before code)
+
+#+begin_src text
+palette   colour tones in the view bag (ghost surface/chrome/palette.js · m86 .s4:752)  ‖  the command list on leader leader (m92:82)
+target    render target dom · tty (done/m82:199)  ‖  m87's cell · frame DEAD 10-20 → surface.place
+chord     killed in m86 .s2:169  ‖  re-admitted by m92:59 as the key on a repl pattern — m92 wins
+view door default(el, {terminal, mode, thread, buffer, renderer, palette, dispatch, focused}) (m86)  →  default(target, { terminal, buffer, surface }) — RULED 10-20
+home      seats mode incl thread (m88:54)  ‖  m94:275  ‖  m84:898 /"cut home home."/
+terminal  "no entity terminal on runtime!" (benched m55:70)  ‖  runtime Terminal rows (m80 · m84 · m86 .s4) — the latter stands on disk
+#+end_src

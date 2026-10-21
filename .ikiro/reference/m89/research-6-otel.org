@@ -1,0 +1,32 @@
+# drained 10-22 whole from .ikiro/quests/roadmap/m89-telemetry.org (quest tidy); nothing reworded · limit: none (reference content)
+
+** 6. the OTel article (https://opentelemetry.io/blog/2026/otel-native-by-design/)
+
+Thesis (fetched 10-12):
+- a product that emits telemetry should emit it through OTel SDKs over OTLP, never a bespoke dashboard, vendor integration or polling API; the user picks the backend. Shorthand: "default to push, stay vendor-neutral, and document the contract."
+- signals: logs · traces · metrics (profiles in alpha, set aside), all over one protocol.
+- context must survive export: timestamps, metadata, and correlation — "log records linked to trace IDs".
+- semantic conventions keep attributes interpretable anywhere; custom ones are registered (Weaver).
+- two contexts: self-hosted (customer sets an endpoint by env var/flag, e.g. Keycloak, Kuma) vs platform (the platform drains on the customer's behalf, e.g. Cloudflare, Heroku).
+- push beats polling (polling pushes pagination/retry/backfill onto the user).
+- configuration is standard env: =OTEL_EXPORTER_OTLP_ENDPOINT=, optional per-signal endpoints (=OTEL_EXPORTER_OTLP_LOGS_ENDPOINT=), per-signal toggles (Heroku =--signals=), sampling rate in config (Cloudflare =wrangler.toml=).
+- multi-tenancy: one collector per tenant, or one shared collector routing by a tenant resource attribute.
+
+| OTel concept | here | path | fit |
+|--------------+------+------+-----|
+| trace / span | =Span= root + =branch= | =prototypes/span.js:8-78= | same; but ids are a process counter, not globally unique |
+| span event / log record correlated to a trace | =mark(verb, data)= / =note= — every mark already carries =span= + =trace= + =path= | =span.js:47-61= | stronger than OTel: there is no log outside a span |
+| span status (ok/error) | =fault= record; controller =status= | =span.js:75-77= · =controller.js:30= | same |
+| metrics | none; =patrol= census as a =note= every 60s | =integration.js:16-26= | gap (rides as an event) |
+| context propagation | =ctx.span= in a middleware chain; =Controller.branch=; =shard.context.attach("channel")= in bak anima | =track.js:15-22= · =controller.js:53-55= | in-process only; no trace id crosses the wire (client call and server span are two unrelated roots) |
+| resource (service.name, instance) | the root nature (=runtime/<slug>=, =client/<surface>=, =ghost=) + the jsonl dir =/logs/<instance>= | =run.js:11= · =construction.js:7= · =log.js:4= | implicit; not in the record |
+| semantic conventions | path natures + verbs =open·close·note·fault·request·response·subject·stop·pause·resume·abort= | =track.js:27-44= · =schematics/primitives/controller.js:9-22= | closed set for control verbs, open for the rest; no registry |
+| processor | =trace.flow · hold · gather · decant= | =gestalten/belt/trace.js:78-96= | exists, unused |
+| tail sampling | =decant(sink, trace.faulty)= / =trace.slower(ms)= | =trace.js:74-76,95= | exists, unused |
+| head sampling / level | none | — | gap |
+| exporter | =Pipe.to(sink)= — console (=run.js:16=), jsonl (=integration.js:12=), db ring (=Activity.ts:43=), wire replay (=Activity.ts:90=) | =pipe.js:23-26= | ad hoc per call site, not configured |
+| endpoint config via env/flag | =${KEY}= in recipe slots + =VIVA_*= strata + ghost =--flag= pins | =populate.js:162,175= · =ghost/run.js:129-135= | the machinery exists; no telemetry key uses it |
+| per-signal toggles | none | — | gap |
+| collector / multi-tenant routing | one =spans.jsonl= per instance under the ledger | =log.js:4= | instance = tenant already |
+| push vs poll | push: =Pipe.send= synchronous fan-out; poll: =Activity.stdout= replay | =pipe.js:8-10= · =Activity.ts:84-94= | both present |
+

@@ -1,0 +1,20 @@
+# drained 10-22 whole from .ikiro/quests/m92-keymap.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* terrain — measured 10-19, re-measured 10-21 (every line holds)
+
+| piece | file:line | today |
+|---+---+---|
+| key normalizer | =systems/ghost/surface/chrome/keys.js:9-16= | =KeyEvent= → ={ key: "ctrl-t" \vert "meta-f" \vert "esc" \vert "f" }=, a =[[predicate, tag]]= table; a =Queue= of presses |
+| key consumer | =systems/ghost/surface/chrome/index.js:17-21= | drains the queue; ONE hardcoded key (backtick → console) |
+| repl composition | =systems/ghost/gestalten/shard/repl.js:23-29= | composed PER LINE from client.repl · REPLING modes · terminal.repl · thread-mode scopes · =turn= |
+| repl signal | =subsystems/typology/prototypes/replsignal.js:5= | bare line → =*= (a TURN); =/x= → segments |
+| valence rides | =subsystems/typology/prototypes/pattern.js:30= | extra fields on =.open({nature, …})= land on the last pattern → =chord:= rides for free |
+| chord walk | =subsystems/typology/gestalten/steer/dispatch.js:108= | =walk(vector, more)=: no effect yet → =more(position.patterns)=; 3 consumers, all =tests/gestalten/steer/walk.test.js= |
+| literal effect | =subsystems/typology/gestalten/steer/strategy.js:6= | =fire= assumes a function; =Vector.open= stores anything |
+| remote precedent | =systems/ghost/entities/mode/traits/harnessed.js:30-31= | =call("/metadata/harness")= → =shape.connection.wire= |
+| mode export | =commons/fixtures/testing/console/console.viva.js:12= | =repl= (was =repling=, m96 ruling 7) — the one mode-supplied repl Vector |
+| trait catalog | =systems/ghost/entities/mode/traits/index.js= | REPLING · EXPOSED · HARNESSED · APPLICATION; KEYMAPPED joins, ghost-only |
+| the panes | =m95-depincered-client.org= milestone 5 | the minibuffer (named =Chord= 10-21, m95 ruling 35) · the catalog · the DOM normalizer's home |
+
+Nouns: =ctrl-v= 0 · =keymap= 0 · =repl= 3 things · =chord= 1. Precedent + REJECTED trails: =reference/m92/drill-20261021.md=.
+

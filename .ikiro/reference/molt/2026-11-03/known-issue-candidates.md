@@ -1,0 +1,269 @@
+# known-issue candidates — defects the judges verified on the 11-03 tree (file:line still shows it); known-issues.org is at 199785/200000, so none appended
+<!-- writer: agent (molt 11-03) · reference, uncapped -->
+
+- **codemap:design** ×2 — drapes-pdf-draws-blank-object (OPEN) — subsystems/drapes/display/Pdf.svelte:5 still renders `<object data={url} type="application/pdf">`, blank in the client; the working shape is one `<iframe src=…#page=N&view=Fit&toolbar=0>` per sheet, windowed ±1
+  - why: trap count 2, verified live on the tree
+- **codemap:ghost** ×1 — span-path-two-joiners (OPEN): systems/ghost/surfaces/chrome/panels/dock/journal.jsx:209 joins `path.join(" › ")` while subsystems/typology/gestalten/belt/trace.js:7 `pathname` joins "/" — a log grep on one misses the other
+  - why: verified on the tree; also systems/anima/tests/interactive/activity/sheet.jsx:67
+- **codemap:paladin** ×2 — runtime-trait-reads-deno-direct — OPEN · systems/runtime/subjects/mode/traits/dataset.js:14 `const installer = Deno.readTextFile(new URL(import.meta.url));` — a mode trait reads the OS past paladin
+  - why: the rule lands via cid 65; the tree still breaks it
+- **codemap:paladin** ×2 — bundle-import-graph-stamp-unlanded (OPEN) — m114 Q1a locked <entry16>.<stem>.graph from esbuild metafile.inputs; grep 'graph' subsystems/paladin/gestalten/belt/bundler.js returns nothing
+  - why: locked 10-28 but never landed: a leftover hunk, not a rule
+- **codemap:paladin** ×2 — paladin-fs-resolve-cuts-at-hash — OPEN
+  - why: encodeURI leaves # and ? alone, so the URL cuts there. Probe of the same expression: "a#b.txt -> /r/a" · "q?x.md -> /r/q". Spaces and ü are fine now. Fix: normalize(join(base, path))
+- **codemap:paladin** ×1 — daemon-modes-map-unlanded (OPEN) — 10-09 ruled instance.daemons[].modes = {[slug]: mode}; subsystems/paladin/instance/lifecycle/resolution.js:108 still `declaration.modes = (declaration.modes ?? []).map(place(declaration)).map(mount(declaration))`, an array
+  - why: beef's ruling /"default into {[slug]:mode}"/ never landed and forks K1/K3 are unruled. It needs landing in code, not a doc line
+- **codemap:paladin** ×1 — registry-reconcile-drops-dead-taps-inside-checkout — OPEN
+  - why: `inside` = startsWith(checkout); a dead tap under the checkout leaves `stale` and drops out of `kept`; only a commons rediscovery heals it, so a tap cloned elsewhere in the checkout vanishes from registry.json without a report
+- **codemap:runtime** ×1 — runtime-nullish-defaults OPEN — systems/runtime/gestalten/belt/modes.js:15 `mode.terminators ?? []` · :37 `mode.module.dataset?.intent ?? []` · subjects/mode/traits/datasink.js:9 `mode.module.datasink ?? {}` survive in the pure executive
+  - why: verified on tree; the rule itself lives in codestyle 'absence IS the signal'
+- **codemap:runtime** ×1 — anthropic-forced-tool-choice-with-thinking (OPEN) — translate.js:96 sets tool_choice {type:'any'} for structured output, and :107 still adds params.thinking when model.thinking; the API rejects forced tool_choice with thinking.
+  - why: A live defect on the tree: there is no guard that drops thinking when tool_choice is forced.
+- **codemap:runtime** ×1 — lighthouse-tokens-lack-jti (OPEN) — systems/runtime/subjects/lighthouse/signer.js:16 signs `{id,type}` + `setIssuedAt()` (epoch seconds), no `setJti`: two logins in one second mint identical access/refresh tokens
+  - why: verified on tree: no jti anywhere in systems/runtime
+- **codemap:runtime** ×1 — daemon-row-stores-raw-mask (OPEN): `subjects/runtime/lifecycle/population.js:156` writes the raw instance mask into `entities/Daemon.ts:43` `mask: types.json`, not hidden — the 09-29 ruling says the mask (secrets) is a handle, never a column
+  - why: ruling contradicted on the tree; whether raw carries resolved secrets is unverified
+- **codemap:testing** ×3 — typology-tests-dial-fixed-port-9883 (OPEN) — subsystems/typology/tests/connection.test.js:8 and socket.test.js:4 `const PORT = 9883` collide under --parallel; skill change beat 3 works around it with SERIAL censuses
+  - why: count 3, defect still on the tree
+- **codemap:typology** ×2 — stagger-skips-an-unknown-trait-silently-outside-mode (OPEN): `belt/traits.js:10` `traits[name]?.(…)`; only `runtime/subjects/mode/lifecycle/resolution.js:22-26` warns — `lighthouse/lifecycle/resolution.js:5` · `service/lifecycle/resolution.js:5` drop a typo'd trait with no word
+  - why: verified on tree; mode skill:47 covers mode only
+- **codemap:typology** ×1 — signature-clone-returns-self (OPEN) — subsystems/typology/prototypes/signature.js:62-63 `clone() { return new this.constructor(this) }` hits :16 `return signature.from(trace)`: the SAME instance comes back, its trace reset to undefined.
+  - why: verified on the tree: clone() is not a copy
+- **codemap:typology** ×1 — env-ambient-renames-to-observed OPEN — ruled 10-23 /"3 yes."/, unapplied: subsystems/typology/prototypes/env.js:9 still `this.ambient = new Map();` (also :41 :47 :51)
+  - why: Beef ruled the rename but it was never applied. The tree still uses the old name.
+- **codemap:typology** ×1 — virtual-repository-ignores-options OPEN — VirtualRepository.find/findOne take only `where`; populate/orderBy/limit are dropped silently (entities/base/VirtualEntity.ts:41-43, #match :38 filters by object.match)
+  - why: verified on tree; nested-where half not re-probed
+- **known-issues** ×5 — * hallucination-budgets-multiply-never-sum — OPEN (11-03) =commons/instances/hello-world/tools/research.js:7= =ROUNDS = 30= × =primitives/hallucination.js:413= rounds 10 × =belt/hallucinate.js:74= retry; no call/token total, no alarm on a runaway. /"a very dumb model just got stuck in the loop … generated a thousand API calls … we need safeguards here for sure"/ 11-03
+  - why: verified: nested budgets, nothing sums; merges cid 53 (no alarm on the runaway)
+- **known-issues** ×4 — * three-epicycles-beside-pipe-tap — OPEN (10-23, typology is holy) =subsystems/typology/gestalten/fromm/index.js:29= =origin.observe()= is dead (Pipe has none since m100) · =prototypes/queue.js:47= =to(...sinks)= a second fan-out · =prototypes/pool.js:93= =drain()= off the drain sense.
+  - why: verified: all three present 11-03; not filed
+- **known-issues** ×3 — runtime-lighthouse-keeps-m60s-holes — OPEN · systems/runtime/subjects/lighthouse/signer.js:22 `jose.jwtVerify(token, key)` with no algorithms/issuer; m60's no-jti · plaintext refresh · open signup · no throttle carried — beef 09-19: /"later. · because were local."/
+  - why: not filed (grep jwtVerify/jti → 0 in known-issues); bare verify still live
+- **known-issues** ×3 — * runtime-tests-read-this-machine — OPEN (rule: codestyle tests) =systems/runtime/tests/scenarios/registry.js:9= supplies the GLOBAL =paladin.ledger.registry= (~/.viva) · =aperture.snapshot.test.js:2= talks to live =:2501= · =topography/harness.js:10= pins =DAEMON = "brazilian"=.
+  - why: verified 11-03; codestyle carries the rule ('a repo test never reads THIS MACHINE'), the code still breaks it; merges cid 58
+- **known-issues** ×3 — * aimed-mount-names-a-route — OPEN (09-30, rename parked) =subsystems/typology/schematics/traits/aimed.js:4= =mount= is a route (="/emitter/drill"=), read at =systems/ghost/subjects/terminal/stall.js:33=, =systems/runtime/tests/thread.test.js:41=. /"maybe ref too? hmm.. this would be quite extensive tho. later."/ 09-30
+  - why: verified; beef's parked rename with verbatim, not filed
+- **known-issues** ×2 — stagger-skips-an-unknown-trait — OPEN · subsystems/typology/gestalten/belt/traits.js:10 `await traits[name]?.(module, context)`: a manifest trait missing from the catalog is a silent no-op (codestyle quotes this line as canon)
+  - why: live on the tree, no entry; typology HOLY so it is filed, not fixed
+- **known-issues** ×2 — chrome-booting-hides-the-fault — OPEN · systems/ghost/surfaces/chrome/mount.jsx:25 covers with Booting while unauthorized or 0 terminals; panels/booting/booting.jsx:3 renders a swatch, no status — an unreachable runtime sits on Booting forever
+  - why: live: no fault cover, Booting is a bare swatch
+- **known-issues** ×2 — bundler-externalizes-a-tty-views-packages — OPEN · subsystems/paladin/gestalten/belt/bundler.js:42 builds mime.tty.solid with packages:"external"; ghost works around it at systems/ghost/surfaces/chrome/bundle.js:12 onResolve @vivalence/sheets
+  - why: live and unfiled (grep external → 0)
+- **known-issues** ×2 — keymapped-throws-for-a-remote-mode — OPEN · systems/ghost/entities/mode/traits/keymapped.js:14 throws `a remote mode's keymap rides its view module, which m87's view.load has not landed`
+  - why: live, unfiled
+- **known-issues** ×2 — bak-compose-ships-literal-secrets — OPEN · commons/instances/bak/starter/docker-compose.yml:26-27 `SECRET_VIVA_JWT=TOTALLYSECUREKEYnot` · `SECRET_VIVA_ANTHROPIC_API_KEY=…` (git ls-files tracks it; beef's rm)
+  - why: tracked in git, unfiled (grep TOTALLYSECURE → 0)
+- **known-issues** ×2 — dataspace-branch-has-no-caller — OPEN · subsystems/typology/prototypes/dataspace.js:42 `branch(connection, name)` — 0 callers repo-wide; typology HOLY, his call
+  - why: live: grep dataspace.branch → 0 callers; HOLY so filed for beef
+- **known-issues** ×2 — * primer-lazy-misses-a-fn-effects-vector — OPEN (10-21, typology is holy, ruling owed) =subsystems/typology/gestalten/shape/primer.js:13= =nodes= descends only =fn instanceof Vector=; =load= (:43) fires a fn effect and lists its lazy children, while =systems/runtime/subjects/mode/traits/harnessed.js:93= arms =primer_read= off the static =shape.primer.lazy= → the index names a tool the model lacks.
+  - why: verified: static lazy() never fires fn effects, load() does; not filed
+- **known-issues** ×2 — * tune-absent-centres-the-cortex — OPEN (fresh thread, no INTELLIGENT) =harnessed.js:30= sets =ctx.intelligent = null= without INTELLIGENT → no =policy.tune= → =subsystems/typology/prototypes/cortex.js:27= defaults =[0.5,0.5,0.5,0.5]= and =nearest= silently picks; =Intelligent.tune= default ="capable"= (intelligent.js:5) never applies. /"a very dumb model just got stuck in the loop"/
+  - why: verified: the m105 cast fills defaults only when the trait is declared; the absent-trait path still centres silently
+- **known-issues** ×2 — * turn-history-unbounded-and-clock-ordered — OPEN =systems/runtime/subjects/mode/traits/harnessed.js:107= loads =turn.history({thread})= whole, =systems/runtime/entities/Turn.ts:19= =chain= loads it again for =.at(-1)= (O(turns) per turn); =Turn.ts:15= orders by =createdAt=, not =parent=: two overlapping streams braid one thread and split a tool_use/tool_result pair → provider 400.
+  - why: verified both on today's tree; merges cid 50 (same repository method)
+- **known-issues** ×2 — * docked-share-has-three-ranges — OPEN (10-21, HOLY ruling owed) =subsystems/typology/schematics/traits/docked.js:6= share 0.1–0.9 · =subsystems/drapes/Split.jsx:3-4= FLOOR 0.2/CEILING 0.8 · =subsystems/sheets/Split.jsx:13= =SHARE = { least: 20, most: 80 }= percent.
+  - why: verified: the split grew to three ranges; not filed
+- **known-issues** ×2 — * string-separate-ignores-slash-spacing — OPEN =subsystems/typology/gestalten/belt/string.js:17= splits every =/= alike and borrows tails from the nearest multi-word neighbour: spaced =/= (phrase alt) and tight =/= (token alt) read the same. /"this shoudl have hit green"/
+  - why: verified: separate() still flattens all slashes; not filed
+- **known-issues** ×2 — * remote-repository-cold-find-never-drops — OPEN (typology is holy) =subsystems/typology/prototypes/remote-repository.js:71= drops lost ids only when =persisted=; the cold path (:86) casts and never drops, and the warm path (:76) drops every local id absent from a =where=-filtered answer.
+  - why: verified live; not filed
+- **known-issues** ×2 — * test-rigs-allow-global-context — OPEN =allowGlobalContext: true= at =systems/runtime/tests/scenarios/datamap.js:38= · =topography/harness.js:65= · =virtual.discovery.test.js:46,143=; seeds write on the global em, hiding the fork the product path takes.
+  - why: verified 11-03; not filed
+- **known-issues** ×2 — * word-facets-hold-conjugation-properties — OPEN (design deferred) =word.tense.* · word.person.* · word.mood.*= live across the registry (=~/.viva/registry/education/modes/games/dojo/types.js:290=). /"scoping tense and person into word.* is wrong semantically. those arent just properties of words."/ 08-10
+  - why: beef's ruling with verbatim; namespace still in use; not filed
+- **known-issues** ×2 — * terminal-twitch-sets-filter-params-in-a-hook — OPEN (m107; REJECTED shape 10-29) =systems/runtime/entities/Terminal.ts:51= =ctx.input.em.setFilterParams("user", …)= in =/after/user/create=, then =:53= =em.flush()= — a hook that flushes (map.md: a hook cannot flush).
+  - why: verified; codestyle carries the rule, the code still breaks it
+- **known-issues** ×2 — docs-teach-the-dead-cli — OPEN: slowstart walks `viva ledger/init`, a verb no ghost command answers. documentation/content/20-29_tutorials/20.01_slowstart.mdx:50 · also 12.02 · 31.02 · 41.01 name instance/create\|ledger/init\|registry/list\|bootstrap; live verbs = systems/ghost/subjects/*/commands/.
+  - why: verified: the recipes entry covers recipes only; dead verbs still taught in four live pages
+- **known-issues** ×2 — effort-enum-copied-three-times — OPEN: EFFORTS hand-copied beside the schematic it should read. systems/ghost/gestalten/belt/intelligent.js:1 · systems/anima/src/surfaces/chrome/panels/sidebar/sections.js:40 vs subsystems/typology/schematics/traits/intelligent.js:6; anima + ghost chrome/panels still twin trees.
+  - why: verified EFFORTS half live; the ~370-line twin unmeasured today (same panels/ set in both)
+- **known-issues** ×2 — browser-option-key-spells-the-composed-glyph — OPEN: Mac option-s reaches the legend as alt-ß, on a tty as alt-s. subsystems/typology/prototypes/keysignal.js:27 spells from `event.key`, never `event.code`.
+  - why: verified: browser coercion still reads event.key; unruled, no coverage
+- **known-issues** ×1 — * ledger-install-warns-scope-overwrite — OPEN (10-27, unruled) =subsystems/paladin/gestalten/belt/scope.js:9= =console.warn("paladin.scope overwrite")= fires on every /ledger/install; whether a re-scope is legal is unruled.
+  - why: warn verified live; the clone tests/+compose half was not re-verified
+- **known-issues** ×1 — * auth-response-schemas-drift-from-the-wire — OPEN (typology is holy) =subsystems/typology/schematics/primitives/auth.js:57,66= =VerifyResponse/LogoutResponse= require =success=; the lighthouse answers =status: "SUCCESS"= (=systems/runtime/subjects/lighthouse/apertures/users.js:7=); zero readers, so nothing catches it.
+  - why: verified; not filed
+- **known-issues** ×1 — ghost-publish-ships-a-dead-scenarios-export — OPEN
+  - why: verified 11-03; the published @vivalence/ghost resolves ./scenarios to an excluded file
+- **known-issues** ×1 — daemon-connection-field-is-dead-and-rigs-fill-it — OPEN
+  - why: verified 11-03: the field the rig fills is the one production leaves null
+- **known-issues** ×1 — daemon-autoenroll-is-temporary — OPEN (beef: /"autoenroll. temporary."/)
+  - why: beef's own marker is still on the tree; how a user enrols is his ruling
+- **known-issues** ×1 — paladin-import-does-not-mount-its-instance — OPEN (ruled 09-29: /"once paladin is imported, thats it. why am i manually lifecycleing that here."/)
+  - why: a beef ruling, not landed: the mount is still by hand
+- **known-issues** ×1 — assembly-scene-ships-objectloader — OPEN (beef: /"investigate the size of the importer bundle."/)
+  - why: the loader is still on the tree; the ~250 kB is not re-measured
+- **known-issues** ×1 — chess-depends-on-gpl-chessops — OPEN, ruling owed
+  - why: VCS init is done (chess/.git + .jj); the licence ruling is still owed
+- **known-issues** ×1 — virtualentity-carries-tangle-prose — OPEN
+  - why: product-source comments against codestyle; typology is HOLY, so his rename pass
+- **known-issues** ×1 — popover-holds-two-shapes — OPEN
+  - why: verified 11-03: the two sides of one atom disagree
+- **known-issues** ×1 — dataset-upsert-never-deletes — OPEN (fork 9: does the drain un-own?)
+  - why: still on the tree; neighbour of dataspace-rows-carry-no-provenance
+- **known-issues** ×1 — belt-traits-claim-outlives-the-cast — OPEN, ruling owed
+  - why: a helper over the trait that m105 Q4' says to read straight; whether it dies or stays is unruled
+- **known-issues** ×1 — application-residue-outlives-m106 — OPEN
+  - why: verified 11-03
+- **known-issues** ×1 — remote-entity-manager-flush-is-dead — OPEN
+  - why: verified 11-03 by grep
+- **known-issues** ×1 — sidebar-rows-dispatch-unbound-commands — OPEN
+  - why: verified 11-03: each row faults
+- **known-issues** ×1 — literal-ontology-derives-only-at-its-own-write — OPEN
+  - why: systems/runtime/entities/Literal.ts:158-162 derives symbol+ontology only on /before/literal/{create,update}; a symbol upserted TOPOGRAPHICAL later never re-derives linked literals, and no topology-before-topography mount order exists in systems/runtime any more (grep TOPOGRAPH → Literal.ts only)
+- **known-issues** ×1 — entity-install-runs-after-the-store-publishes — OPEN
+  - why: subsystems/typology/prototypes/entity-manager.js:129-131: integrate() → cast() → this.merge() publishes to the reactive store before install(entity, raw) runs; typology is HOLY
+- **known-issues** ×1 — daemon-serves-datamap-twice — OPEN
+  - why: systems/runtime/subjects/daemon/lifecycle/integration.js:16 opens /datamap beside host.metadata's /metadata/datamap (:36); the root form has 0 non-test callers (typology prototypes/dataspace.js:30 reads /metadata/datamap; only runtime tests call /datamap)
+- **known-issues** ×1 — typology-mode-lacks-stdout-span-and-repl — OPEN
+  - why: subsystems/typology/prototypes/mode.js:11 has `stdout = null` and no repl; only systems/ghost/entities/mode/prototype.js:15-16 carries `stdout = new Span("mode")` · `repl = new Vector()` (beef 10-16 /"good standard"/)
+- **known-issues** ×1 — test-spawners-multiply-again — OPEN
+  - why: tests/subprocess.js (beef 10-13 /"not wet for sure not. call it subprocess"/) is gone; Deno.Command spawners now live in systems/runtime/tests/qa/rig.js:71,95 · runtime/tests/scenarios/hello.js · ghost/tests/scenarios/chrome.js · paladin/tests/scenarios/twin.js
+- **known-issues** ×1 — runtime-scenarios-import-cycle — OPEN
+  - why: commons/fixtures/testing/data/seed.js:2 imports @vivalence/runtime/scenarios, while systems/runtime/tests/scenarios/daemon.js:3 → fixtures.js:1 → data/index.js:1 → seed.js
+- **known-issues** ×1 — paladin-test-vip-names-a-missing-file — OPEN
+  - why: subsystems/paladin/deno.jsonc:11 task test/vip runs tests/vip.test.js, which is absent; sanitizeOps/Resources is false in 19 runtime+paladin files
+- **known-issues** ×1 — import-map-pins-cliffy-twice — OPEN
+  - why: import_map.json:20-24 pins @cliffy/* rc.8 and :119-123 pins rc.7; JSON keeps the last key, so rc.7 is live
+- **known-issues** ×1 — specimen-rides-typologys-prod-barrel — OPEN
+  - why: subsystems/typology/mod.ts:10 `export * as specimen from "./specimen/index.js"`: every runtime import loads the test harness
+- **known-issues** ×1 — dataspace-subscribes-every-repository-eagerly — OPEN (ruling owed)
+  - why: subsystems/typology/prototypes/dataspace.js:36 subscribes every repositoryMap entry at once, with no lazy refcount; beef 07-03 /"i want both a and b"/ (A: one multiplexed stream, which landed; B: lazy refcounted, which did not, M16.2). Owed: does m96's `subscribed` beat supersede B?
+- **known-issues** ×1 — gitignore-swallows-env-example — OPEN
+  - why: .gitignore:18 `**/.env.*` ignores commons/.env.example (git check-ignore), and it is untracked; it needs a `!**/.env.example` line
+- **known-issues** ×1 — runtime-remote-desc-names-dead-announce — OPEN
+  - why: subsystems/typology/schematics/primitives/instance.js:48 desc and subsystems/paladin/instance/lifecycle/integration.js:46 fault both say 'daemons announce under it'; systems/runtime has no announce (the integrate.js:61 cited at known-issues.org:2021 is gone too)
+- **known-issues** ×1 — connection-publish-has-no-production-caller — OPEN
+  - why: subsystems/typology/prototypes/connection.js:192 publish(); its only callers are typology tests (connection.test.js:276 · multiplex.test.js:131)
+- **known-issues** ×1 — cors-admits-any-host-ending-in-vivalence-com — OPEN (security)
+  - why: subsystems/typology/gestalten/shard/cors.js:1 "*vivalence.com" compiles to ^(http\|https)://.*vivalence\.com(:[0-9]+)?$, so https://evilvivalence.com gets allow-origin plus allow-credentials (:17-18). prod does use *.vivalence.com (known-issues.org:1373)
+- **known-issues** ×1 — runtime-run-factories-marked-ugly — OPEN · systems/runtime/run.js:6 =factories.instance(paladin.instance); //@beef still ugly= · :18 =runtimeFactory(paladin.instance)({ controller }); // @beef confusing= — carried past m109 untouched
+  - why: both beef marks still live in run.js on today's tree
+- **known-issues** ×1 — modeline-standing-hardcodes-verified — OPEN · modeline.jsx:31 =system={{ standing: "VERIFIED" }}= while widgets/system/system.jsx:101 reads =lighthouse.$isAuthorized=
+  - why: verified live on the tree
+- **known-issues** ×1 — harness-compaction-and-cache-marks-unwired — OPEN · Turn.ts:31 =fold(tract, judge)= has 0 callers (only commented chaosmonkey/oracle/harness.js:23); openrouter translate.js:108 honours only the =context= mark, anthropic :104 · :113 honours section keys + =tools=
+  - why: two halves still true; the rounds half is already the entry intelligent-rounds-overrides-call-config; dispatch-permission not checkable
+- **known-issues** ×1 — settle-abort-listener-outlives-the-call — OPEN · belt/hallucinate.js:86 =child.abort.signal.addEventListener("abort", … new Error(String(child.abort.signal.reason)), { once: true })= — never removed after the race resolves; the fallback error is the stringified reason
+  - why: verified on the tree; typology HOLY so ledger, not fix
+- **known-issues** ×1 — buffer-status-never-leaves-pending — OPEN · Buffer.ts:36 =status = BufferStatusEnum.PENDING=; grep ACTIVE/DONE/STALE writers over systems → 0, only gestalten/tools/thread.js:25 reads it
+  - why: status half still true; the name half is fixed by the LABELED trait (Buffer.ts:121-124)
+- **known-issues** ×1 — runtime-buffer-trait-uncast — OPEN · runtime Buffer.ts has no =belt.traits.cast= (Thread.ts:78 · :83 cast =v.thread.traits=; ghost entities/buffer/hydration.js:5 casts =v.buffer.traits=) — m105 Q4′ half-landed
+  - why: verified: the only runtime casts are on Thread
+- **known-issues** ×1 — fixtures-pass-dead-surface-place — OPEN · =surface = { place: "frame" }= in chess tests/render.js:56 · assembly tests/render.js:60 · education dojo · comando · cocina tty.render.test.js; grep =surface.place= readers → 0
+  - why: still true and grew from 3 to 5 fixtures; =place= is a banned word in codestyle names
+- **known-issues** ×1 — docked-user-and-client-scope-have-no-writer — OPEN · terminal/prototype.js:42 merges =client.mask.trait.DOCKED · lighthouse.user.trait.DOCKED · this.trait.DOCKED=; commands/dock.js:22 · :30 · :38 write only the terminal row
+  - why: verified on the tree
+- **known-issues** ×1 — controller-kill-ignores-the-kill-schema — OPEN · prototypes/controller.js:70 =kill(name, input)= vs schematics/primitives/controller.js:19 =Kill = {nature, body, flags}=; Kill's only reader is controller.test.js:171
+  - why: verified; typology HOLY
+- **known-issues** ×1 — track-shards-inert-without-a-span — OPEN · shard/track.js:30 · :32 =if (ctx.span && …)= · :38 =ctx.span?.entity= · :46 — a chain without =shard.track.span= drops every record silently
+  - why: verified on the tree; codestyle 'absence IS the signal'
+- **known-issues** ×1 — invitational-is-an-empty-function — OPEN · lighthouse/traits/invitational.js:1 =export const INVITATIONAL = () => {};= while schematics/primitives/instance.js:76 promises =INVITATIONAL: /signup takes an invite token=
+  - why: verified; the AUTOLOGIN half is the trait's declared behaviour, not a defect
+- **known-issues** ×1 — armed-tools-bind-the-thread-id — OPEN · harnessed.js:102 =bind("thread", ctx.input.thread)= (the id string) though :25 loads the row; assembly guide/harness.js:139 · assembly/harness.js:65 patch it with =ctx.thread?.id ?? ctx.thread=
+  - why: verified on the tree
+- **known-issues** ×1 — rejected-traits-survive-as-empty-catalog-entries — OPEN (10-19, beef: /"conversational might be implied, duplicate with a harness, we might not need that actually"/) =systems/runtime/subjects/mode/traits/conversational.js:1= · =runtime.js:1= are =() => {}=; 15 =*.viva.js= manifests still declare ="CONVERSATIONAL"=/="RUNTIME"= (e.g. =commons/instances/hello-world/mode.viva.js:11=).
+  - why: verified 11-03: both empty traits live in the catalog dir, 15 manifests name them
+- **known-issues** ×1 — tatoeba-admits-unlicensed-audio — OPEN =~/.viva/registry/education/modes/tactics/harvest/sources/tatoeba.js:16= =.filter((held) => !held.license \|\| PERMISSIVE.test(held.license))= admits a clip with no licence (stamped "Tatoeba terms" at :21); =sources/commons.js:3= PERMISSIVE admits =CC BY-SA=.
+  - why: verified 11-03: the absence gate is live in the registry harvest
+- **known-issues** ×1 — paladin-reached-reads-a-booting-runtime-as-up — OPEN (10-28) =subsystems/paladin/gestalten/commands/belt/instance.js:74= =reached = … call("/status").then(() => true)= — any answer, IDLE included, counts; consumed at =instance/install.js:123 · :145=.
+  - why: verified 11-03: the single-probe reached is unchanged at the cited lines
+- **known-issues** ×1 — inherit-children-signalled-twice — OPEN =subsystems/paladin/prototypes/process.js:38-45= spawns =attachment: "inherit"= children without =detached: true= (tty process group gets SIGINT) and =:86-93= SIGTERM→grace→SIGKILL hits them again.
+  - why: verified 11-03: STDIO inherit spawn has no detached; only instance/start.js:26 detaches the supervisor
+- **known-issues** ×1 — nested-harness-render-mints-its-own-activity — OPEN (09-14, beef: /"tools that nest a harness call … hand no controller → mint their own row; one line each."/) =commons/playground/dealer/dealer.viva.js:75= · =chaosmonkey/oracle/aperture.js:12= call =ctx.mode.harness.object.render= with no =controller=; =systems/runtime/subjects/mode/traits/harnessed.js:36-37= then mints a fresh Activity.
+  - why: verified 11-03: the activating middleware still mints when input.controller is absent; the callers still omit it
+- **known-issues** ×1 — typology-suites-share-port-9883 — OPEN =subsystems/typology/tests/connection.test.js:8= · =socket.test.js:4= both =const PORT = 9883=; two concurrent runs collide at bind.
+  - why: verified 11-03 by grep
+- **known-issues** ×1 — legend-held-group-header-has-no-valence — OPEN (10-23, Q46 unruled)
+  - why: legend.js:58 `this.$chord.set(shape.strip(node))`: the stripped root carries no signature, so a held group's header shows the key and no valence
+- **known-issues** ×1 — chord-text-paints-ctrl-v-off-mac — OPEN (10-23)
+  - why: legend.js:32 opens `paladin.is.browser && !paladin.is.apple ? "meta-v" : "ctrl-v"` but legend.jsx:5 chordText maps leader to "ctrl-v" on every platform
+- **known-issues** ×1 — runtime-entity-routes-answer-without-a-token — OPEN (10-26, unruled)
+  - why: /entities/mode and /entities/daemon graft repository + reactive straight onto die.runtime.aperture, while :54 /userspace/entities goes through lighthouse.authenticate
+- **known-issues** ×1 — paladin-traits-table-lags-the-trait-catalog — OPEN (10-26)
+  - why: TRAITS has no LOOPING or PRIMER while systems/runtime/subjects/mode/traits/looping.js and primer.js exist; the count of modules that export without declaring was not rerun
+- **known-issues** ×1 — thread-counter-read-modify-write — OPEN (found 08-12)
+  - why: `buffer.index = this.counter++` with no version property on Thread: a stale identity-map row hands out a duplicate buffer index
+- **known-issues** ×1 — widget-toggle-routes-alias-their-twins — OPEN (10-27, unruled)
+  - why: /widget/toggle/close dispatches /widgets/close and /widget/toggle/sidebar dispatches /sidebar/toggle; their valences say 'the same as'
+- **known-issues** ×1 — path-through-url-pathname-percent-encodes — OPEN
+  - why: `new URL("../../../", import.meta.url).pathname` still hands back a percent-encoded path; fs.js:11 decodes by hand; a sweep of the remaining sites is owed
+- **known-issues** ×1 — remote-repository-stores-the-collection-per-row — OPEN (found 08)
+  - why: merge() and drop() each call store(), which JSON.stringifies the whole collection into localStorage on every row
+- **known-issues** ×1 — url-absolute-is-NaN-on-an-unseeded-url — OPEN (typology, HOLY: beef's go) =subsystems/typology/prototypes/url.js:115= =this.origin + this.nature + this.search= → "NaN" when origin·nature are undefined; =get json= (:125 =this.nature.split=) throws.
+  - why: Verified 11-03: url.js:114-126 unchanged, no guard on unseeded origin/nature.
+- **known-issues** ×1 — specimen-fold-empties-a-map — OPEN (06-30) =subsystems/typology/specimen/snapshot.js:96= =for (const key of Object.keys(value))= — a native Map (pensieve, Request.headers, Cortex.faculties) snapshots as ={}=; per-call =parse= is the workaround.
+  - why: Verified: fold has Date/Collection/Path/Vector cases, no Map case.
+- **known-issues** ×1 — shard-context-conform-never-installed — OPEN (10-09; beef: /"this is gold tho!"/) =subsystems/typology/gestalten/shard/context.js:31= =export const conform= — zero callers in systems/ subsystems/ commons/ ~/.viva/registry; no trait installs it.
+  - why: Verified grep: defined, never used. Carries beef's verbatim, so not dropped.
+- **known-issues** ×1 — paladin-lock-is-read-then-written-per-instance — OPEN (10-05 · 10-28) =subsystems/paladin/ledger/die.js:54-57= reads the lock, =claim()= writes it only after every process resolves (:64) — two supervisors both see no row; per instance, so =/anima= (=systems/ghost/subjects/client/commands/anima.js:22= =instance/start anima=) throws "already running" beside an up runtime.
+  - why: Verified both halves on die.js; merges cid 316.
+- **known-issues** ×1 — stall-manual-reads-the-mode-of-a-modeless-thread — OPEN (10-24) =systems/ghost/subjects/terminal/stall.js:15= =mode: stallCtx.terminal.thread.mode.id= while =systems/runtime/entities/Thread.ts:100= =mode= is =nullable: true= — a runtime-level thread throws on every refill.
+  - why: Verified both lines on today's tree.
+- **known-issues** ×1 — validation-error-names-no-route-or-field — OPEN =subsystems/typology/prototypes/errors/vector.js:34= =`Validation failed: ${errors.map((e) => e.message)…}`= — no signal nature, no field path, no schema line though =this.signal= and =errors= carry them.
+  - why: Verified.
+- **known-issues** ×1 — domain-is-two-objects — OPEN (09-29) =subsystems/paladin/prototypes/registry.js:284= =Domain.cast(modes.find((citizen) => citizen.manifest.type === "domain"))= → =daemon.domain= beside the same citizen in =modes=; consumers filter =type !== "domain"= (=harnessed.js:44=, =agentic.js:8=).
+  - why: Verified: cite moved from registry.js:243 to :284, same shape.
+- **known-issues** ×1 — comando-begin-resets-an-open-board — OPEN (10-30, registry) =~/.viva/registry/education/modes/games/comando/tools/index.js:45-47= =/begin= mints fresh =session.begin(…)= data and lands it on existing rows; cocina counts · aprende listing unverified.
+  - why: Verified the /begin half only.
+- **known-issues** ×1 — repl-help-logs-the-raw-strip — OPEN (10-27) =systems/ghost/subjects/client/commands/help.js:6= =ctx.controller.stdout.log(shape.strip(ctx.repl.commands))= — a JSON trie, not a human tree.
+  - why: Verified the /help half; the --instance help text half not found on today's tree.
+- **known-issues** ×1 — instance-tap-schema-omits-slug — OPEN (10-27) =subsystems/paladin/gestalten/commands/instance/tap.js:9= =input: v.object({ mount })= yet :13 throws without =--slug=; viva help lists only <mount>. (=rename.js:7-8= =[target] <next>=, optional first.)
+  - why: Verified both files.
+- **known-issues** ×1 — cells-names-buffers-and-views — OPEN (10-27, unruled name) =systems/ghost/surfaces/chrome/panels/dock/journal.jsx:157= =cells(turn, buffers)= (a turn's BUFFERS, belt journal.js) vs :84 =widgets.buffer.cells(buffer, …)= (CELL VIEWS).
+  - why: Verified on the ghost journal.jsx; anima's copy carries the same cells.
+- **known-issues** ×1 — polish-named-by-format-not-faculty — OPEN · =subsystems/typology/schematics/primitives/hallucination.js:377= =Verbatim.Polish=, =/verbatim/polish= · =shard/hal.js= =verbatim({polish})= · =traits/vocal.js= polish; beef 09: /"polish → format rename. -> NAME THEM BY FACULTY! mark as followup."/
+  - why: Checked 11-03: the polish names are still in product code (hallucination.js:377 Verbatim.Polish and :391, gestalten/shard/hal.js, schematics/traits/vocal.js, runtime mode/traits/harnessed.js). No entry holds this yet, and beef said it verbatim.
+- **known-issues** ×1 — socket-packet-carries-verb — OPEN · =subsystems/typology/prototypes/socket.js:159,172= =method: packet.verb ?? "POST"= · =:243= =open(signal, { query, input, verb, token, stream })= · =:254= ={ verb }= on the frame
+  - why: Checked: the socket protocol still uses the word verb, which codestyle bans (/"a nothing word"/ 10-21).
+- **known-issues** ×1 — child-fault-has-no-policy — OPEN · =subsystems/typology/prototypes/controller.js:27= =this.parent?.children.delete(this)= is all a parent learns when a child settles FAILED; no restart, no propagation; beef 09-29: /"ground zero of the persisted monthlong process being held"/
+  - why: Checked: when a child settles, it only leaves its parent's set. The controller has no fail or restart policy anywhere.
+- **known-issues** ×1 — registry-has-no-pull — OPEN · =subsystems/paladin/gestalten/commands/registry/= holds =doctor.js tap.js untap.js= only: tapped =remote= is recorded (=doctor.js:16=) but never re-cloned or pulled; beef 10-09: /"we do pin later."/
+  - why: Checked: the registry commands are only doctor, tap and untap. beef put this off in his own words, so it is kept.
+- **known-issues** ×1 — hallucination-context-schema-unread — OPEN · =subsystems/typology/schematics/primitives/hallucination.js:459-468= =Context= + =Hallucination.Context = Context= — grep across subsystems·systems·commons → 0 readers since the cortex seal
+  - why: Checked: grepping for readers of Hallucination.Context finds only its own definition.
+- **known-issues** ×1 — guarded-output-check-reads-the-input-schema — OPEN · =subsystems/typology/gestalten/steer/strategy.js:65= (beef's comment) =if (step.output) {step.output.cast(ctx.output); const errors = [...step.input.errors(ctx.output)]; …}= — uncommented as-is it checks the input schema
+  - why: Checked: beef's commented line still validates the output against step.input. It is his line, so it is logged and not touched.
+- **known-issues** ×1 — panels-prototype-imports-deleted-look — OPEN · =testament/prototypes/panels/ghost.js:2= =import { world } from "../../../systems/ghost/tests/scenarios/look.js"=; =scenarios/= holds =chrome.js hello.js index.js world.js=
+  - why: Checked 11-03: it imports a file that has been deleted.
+- **known-issues** ×1 — view-create-cannot-declare-cell — OPEN · =systems/runtime/subjects/mode/traits/generative.js:164= =input: v.object({ slug: SLUG, mime: VIEW_MIME, source: SOURCE })= — a model-written view cannot carry CELL (10-27)
+  - why: Checked: the view_create input schema has no traits field.
+- **known-issues** ×1 — modes-boot-serially-in-a-daemon — OPEN · =systems/runtime/gestalten/belt/modes.js:4-6= =for (const mode of …flat) await factory(mode)(…)= — VIEWABLE's 7.9 s is the boot wall (10-28) until the graph-keyed bundle lands
+  - why: Checked: modes still boot one after another.
+- **known-issues** ×1 — ghost-app-schematics-owed — OPEN · =systems/ghost/schematics/= absent; =systems/ghost/surfaces/chrome/ambient/index.js:4-5= types =app= · =terminal= as =v.unknown()=; beef 10-25: /"I don't only want the prototype, I want the whole schematics and all of the jazz. snapshots, tests, shit like that."/
+  - why: Checked: systems/ghost/schematics does not exist, and both ambients are still typed v.unknown(). beef said it verbatim.
+- **known-issues** ×1 — unscoped-entity-routes-broadcast-every-row — OPEN · =systems/runtime/subjects/runtime/lifecycle/integration.js:57,62,63= intent · view · file: =null= scope + reactive ={}= → =subsystems/typology/gestalten/shard/datamap.js:225= =ctx.scope \|\| {}= match-all; =systems/runtime/entities/File.ts= declares no =filters= — each client loads all File rows (2300 · 1.23 MB, 10-27)
+  - why: Checked: the file, view and intent routes mount with no scope, and the reactive mount falls back to {}, which matches every row. Merged with cid 350.
+- **known-issues** ×1 — access-token-in-the-url-outlives-logout — OPEN · =systems/runtime/subjects/lighthouse/signer.js:47= reads =?token== · =:49-51= =verify(token, "access")= then =findOne= — never compares =authentication.tokens.access= (only =bearer= checks refresh, =:40=); =subsystems/typology/gestalten/shard/transmitter.js:34= =base.with({ token })= puts it on the /multiplex URL → server logs
+  - why: Checked: authenticate only checks the jwt signature, and the access token travels in the query string. Merged with cid 353.
+- **known-issues** ×1 — one-refresh-slot-per-user — OPEN: a second login/autologin/signup overwrites authentication.tokens.refresh, the first session's next /refresh answers INVALID_TOKEN. systems/runtime/subjects/lighthouse/signer.js:40 `user?.authentication?.tokens?.refresh === refresh` · traits/autologin.js:9 assigns the new pair over the old.
+  - why: verified: lighthouse moved into systems/runtime/subjects/lighthouse but still stores ONE refresh token per user row and compares by equality
+- **known-issues** ×1 — stagger-skips-an-unknown-trait-name — OPEN: a misspelt or unimplemented manifest trait silently does nothing on every side. subsystems/typology/gestalten/belt/traits.js:10 `traits[name]?.(module, context)` · schematics/primitives/manifest.js:13 `traits: v.array(v.string())` · paladin/prototypes/integrity.js checks only KNOWN names.
+  - why: verified live; CONVERSATIONAL now implemented but silent ?.() and untyped trait list remain, and codestyle canon quotes it
+- **known-issues** ×1 — failed-stream-turn-streams-forever — OPEN: a stream that throws leaves its merged turn without createdAt, painted live forever and sorted by new Date(undefined). systems/ghost/gestalten/belt/harness.js:5-7 (no finally) · belt/journal.js:15 `streamed = createdAt === undefined` · entities/thread/hydration.js:9 sort.
+  - why: verified on the rebuilt ghost path
+- **known-issues** ×1 — controller-failure-never-reaches-its-parent — OPEN: a child's FAILED stays on the child; no one-for-one/one-for-all strategy. subsystems/typology/prototypes/controller.js:60-67 fault() sets only this.status · branch() adds to parent.children, nothing subscribes.
+  - why: verified; typology is holy, supervision shape is beef's ruling
+- **known-issues** ×1 — socket-drops-land-in-an-untapped-span — OPEN: orphan-frame and no-route drops are logged where nothing reads. subsystems/typology/prototypes/socket.js:47 `new Span("socket", options.trace)` (no caller passes trace) · :113 orphan-frame · :137 no-route.
+  - why: verified; the Log.append half is gone (paladin/prototypes/log.js:7 takes a span)
+- **known-issues** ×1 — notfound-names-no-signal — OPEN: every miss on a vector reads bare "Not found", never the nature it missed. subsystems/typology/prototypes/errors/vector.js:18 `super("Not found", signal)` — signal lands in Error's options, not the message.
+  - why: verified; the tracks({branch}) and exit-143 gaps have no grep-able site now
+- **known-issues** ×1 — thread-word-throws-on-a-modeless-thread — OPEN: an unlabeled thread with mode null falls to `thread.mode.slug`. systems/ghost/entities/thread/prototype.js:6 vs systems/runtime/entities/Thread.ts:100 `nullable: true`.
+  - why: verified: WORD table's last arm total only over a non-null mode
+- **known-issues** ×1 — resend-mid-round-chains-a-second-user-turn — OPEN: nothing gates a line while a round streams; each send chains a new user turn onto history. systems/ghost/subjects/terminal/commands/turn.js:6-8 no in-flight gate · systems/runtime/subjects/mode/traits/harnessed.js chaining (history().at(-1) as parent).
+  - why: read on today's tree, not run; no in-flight guard on either side
+- **known-issues** ×1 — assembly-reads-every-symbol-per-turn — OPEN: the editor primes and serves the whole symbol table, unbounded, each read. ~/.viva/registry/assembly/modes/editor/assembly/harness.js:87 `symbol.find({}, { fields: ["slug"] })` · aperture/index.js:41 · guide/aperture/index.js:44.
+  - why: verified; still awaiting beef's ruling
+- **known-issues** ×1 — daemon-membership-by-autoenroll — OPEN (beef: /"mark this as to be extended in the future with propper user management."/ 10-07) systems/runtime/subjects/daemon/lifecycle/resolution.js:6 `//@beef autoenroll. temporary.`
+  - why: beef's mark with verbatim; still in code, not in ledger
+- **known-issues** ×1 — late-mode-never-staggered — OPEN · systems/ghost/gestalten/shard/host.js:46 staggers die[type].modes (a filter over $entities, entities/daemon/prototype.js:22) once at mount; entities/mode/hydration.js runs no traits.stagger, so a mode row arriving later mounts traitless
+  - why: checked on the tree: host.mounted staggers a one-time snapshot, and mode hydration grafts no traits
+- **known-issues** ×1 — file-digest-two-spellings — OPEN · subsystems/typology/schematics/entities/file.js:15 declares integrity "sha256-<base64>" (SRI) while systems/runtime/tests/tools.coverage.test.js:80 asserts integrity === `sha256-${file.hash}`, bare hex
+  - why: still true on the File entity; integrity is hex under an SRI prefix, but SRI is base64
+- **known-issues** ×1 — leader-label-ignores-meta-v — OPEN · systems/ghost/subjects/terminal/legend.js:32 binds meta-v in a browser off Apple, but systems/anima/src/surfaces/chrome/panels/legend/legend.jsx:5 (chordText) and :37 (tag="ctrl-v") always print ctrl-v
+  - why: still true: the key binding depends on the platform, the label does not
+- **known-issues** ×1 — mode-keymaps-write-root-paths — OPEN · ruling 9 (10-21, quests/done/m92-keymap.org:28) /"each individual key map is relative to itself."/ is unbuilt: commons/fixtures/testing/console/console.viva.js:12 opens "leader/h", ~/.viva/registry/chess/modes/board/play/play.viva.js:38 opens "leader/g/n"; grep MOUNTS over systems/ghost and systems/anima → 0
+  - why: beef's ruling with his verbatim, still unbuilt on the tree; it lands as an OPEN entry and is never dropped
+- **known-issues** ×1 — thread-parent-cascade-untested — OPEN · systems/runtime/entities/Thread.ts:138-143 declares parent deleteRule "cascade"; no test under systems/runtime/tests removes a parent thread and asserts its children, buffers and turns are gone
+  - why: still true; could fold into the existing untested-seams entry
+- **skill:readme** ×1 — readme-prereq-assumes-sudo (OPEN) — README.md:218 `# sudo apt-get update && sudo apt-get install …`: a stock ubuntu container runs as root with no sudo; beef /"fix both"/
+  - why: live defect still on the tree; the walk already covers stock images

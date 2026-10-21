@@ -42,10 +42,11 @@ export function websocket(handler) {
   return fn;
 }
 
-export function multiplex(vector) {
+export function multiplex(vector, trace) {
   const sockets = new Set();
   const fn = websocket((ws, ctx) => {
     const socket = new Socket(ws, vector, {
+      trace,
       bearer: ctx?.request?.url?.searchParams?.get("token") ?? null,
     });
     sockets.add(socket);

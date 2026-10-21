@@ -1,0 +1,91 @@
+#+title: the untested is probed, the client rides the lighthouse subscription, the jwt has no store, and the quest meta becomes two state tables
+#+index: 247
+#+session: session 11950be0, third fold — turns 74–86 (fold N = 13; turns 1–16 are #245, 17–73 are #246). Opens on the continuation prompt after #246, closes on /"ikiro comapct"/.
+
+* one breath
+
+Three briefs, three strikes, one rewrite. beef asked for progress and got forks; asked what was owed and got nouns; asked why a jwt needed minting and got the old server's file. Each correction landed as a callout and a re-explanation in the same reply. Between them the untested half of m76 was probed in the sandbox (client seam 17, daemon-side shard 7, nine live suites through an overlay import map), the quest got milestones, a green ladder and a blast table, and then beef struck the client effects — /"isnt there a subscription available on lighthouse?"/ — and the tangle was rewritten to the daemon's own subscription shape, re-probed (32 · 13 · 7), the jwt store dissolved into the row, two walls put on Terminal. The marker from the first brief — deliverables and milestones as the quest meta with enumerable states — is settled at this fold: the method, the skill and the report now carry both organs and stamp =#+states:=.
+
+* rows
+
+| n | beef | landed | died |
+|---|---|---|---|
+| 74 | continuation prompt after #246 | the amended-fold report: #246 carries 72–73, frontier byte-identical, =/compact= gate refuses on #211–#244 | — |
+| 75 | re-paste of =* tangle=; /"brief me again. where are we? what deliverables are DESIGNED? what milestones READY?"/ | a deliverable × forks × tangle × probe table; milestones named as proposed, none written | the brief's form — forks are not state |
+| 76 | /"ikiro mark. lets make teh deliverables and milestones the quest meta… both milestones and deliverables have enumerable states/traits"/ · /"when i fucking ask you to brief me on progress then fucking tell me the fucking progress retard omg"/ · /"the fuck do i give about forks.???????????????????? whats DOOONNEEE???"/ | marker filed (=compacts/MARKERS.md=); callout (explanation, codeword retard); the brief re-given as two state tables: 6 designed, 4 proposed, 0 landed | the forks-and-files brief |
+| 77 | /"ok. better. now. give me a description of the current change."/ + =jj log= (@ uwslvsus, 123 files) | the change read by strand: Vector graft (slurp · swallow · set gone, ~30 sites), Turn takes mode + user, dock snaps after drop, 58 =.ikiro= files; a description proposed, his to run | — (beef later committed it as /"snap"/, @ became wpmyssqo) |
+| 78 | /"back to tangle. test what isnt tested yet. get ready to land the whole quest. test heavy at every step"/ | =testing= fired; baseline 7 anima + 9 runtime/typology suites green, two lighthouse suites RED on =:1729= (pre-existing); =rig.js= · =run.js= (a =Deno.test= shim — =deno.jsonc= excludes =testament/=) · =probe.client= 17/0 · =probe.auth= 7/0; an overlay import map runs live suites against the tangle's =datamap.js=; two tangle defects fixed (=toJSON= leaking stores, a boot writing the default dock); =* milestones= M1–M4 PROPOSED, green ladder, blast table (≈50 client surface sites measured); =datamap.test.js:113= and the fixture seed found | a probe double without =$buffers= wedged nanostores' global listener queue — three fails from one |
+| 79 | /"i dont understnd whats owed??"/ | callout (explanation, =i dont understand=); the five owed re-asked as one-word questions with their artifacts | "owed" as bare nouns |
+| 80 | the =app/terminals.js= tangle pasted: /"i dont like this at all. whats all this yap? isnt there a subscription available on lighthouse? no socket based. just subscription?! the ligthhouse ought to make that available like the daemon does."/ | measured: the daemon's =reactive(repo, twitch, { scope })= + =RemoteRepository.subscribe()= + the em's unit of work; the recast proposed: DATAMAP owns a twitch, =/entities/terminal= grafts =reactive=, =sync= · =settle= die, =$thread= derived | the effects file, in principle |
+| 81 | /"2: i dont understand this problem at all… we provide a viva_jwt as env var. why isnt that THIS jwt?"/ · /"fcuk 1."/ · /"3. both."/ · /"4. SERVICE is an empty marker.. no… PROVIDER makes sense… not sure yet."/ · /"5. the daemons announce themselves on runtiem boot… i think its weird the daemon enrolls its users. ... we will keep that for nwo tho."/ | callout (explanation): the secret IS the mask's, checked at boot by paladin; the lowdb refresh store was a second copy of the row — dissolved; measured on 5: announce is unauthenticated =/entities/daemon/ensure= (=integration.js:36-54=), enroll never tells the lighthouse, the tangle's =/entities/daemon= BREAKS the announce | the "when to mint" question |
+| 82 | /"rewrite to subscription. rewrite on quest leve. 1,2,3 go into quest. mark 4. once done we think about 5."/ | sandbox rewritten: =reactive= with resolvers + =filter=, DATAMAP twitch, no token files, =signer(ctx)= · =bearer=, =Terminal.ts= =filters.identity= + the door binds it, anima =Terminal= writes and derives itself, =app/terminals.js= deleted; probes 32 · 13 · 7 at 0 failed; the overlay caught two defects of the pass (lazy =reactive= vs =datamap.scoped=; scope-last vs the nested wall in =multiplex.filter=) → eager wiring for static args, =narrow()=; the quest spliced: 18 tangle blocks byte-equal to the sandbox, F15–F18, deliverable e rewritten, blast · ladder · QA · status | =gestalten/tokens.js= · =attachment/tokens.js= · =app/terminals.js=; the first scope-last |
+| 83 | the twitch lines pasted: /"this shoudl be its own trait. eventually. mark this. trait TWITCHY."/ · the bind + scope lines: /"why both?? scope and bind/"/ | TWITCHY under =* deferred= (daemon has the same three lines); the two explained from what each fills — scope stamps =data= on create, narrows =where=, filters =/subscribe=; bind is the ORM's own WHERE under =count= in =create= and any populate hop — scope is the necessary one, bind the second wall he ruled | — |
+| 84 | /"ikiro comapct"/ | this fold | — |
+| 85 | =/compact= | the gate | — |
+| 86 | the =compact-walk= re-invocation | the walk | — |
+
+coverage: 74–86, every n in one row. balance (fold N = 13): first third 74–77 → 4 citations · middle 78–81 → 6 · last third 82–86 → 5. The weight sits where beef ruled (81) and where the rewrite landed (82); the probing turn (78) is the longest single turn of the session.
+
+* arc
+
+Three ways the same reply failed, logged as three callouts in one family: a progress brief that listed internals (76), an "owed" line of bare nouns (79), a question framed from my implementation's state instead of his env var (81). The corrective each time was executed in the reply that logged it. The third one dissolved a whole subsystem: there was never a jwt-timing problem, there was a lowdb file nobody asked for.
+
+The probing (78) is the session's method made explicit: a sandbox under =testament/= (gitignored, excluded from =deno.jsonc=, so a =Deno.test= shim runs the suites), the live anima =src/= overlaid with the tangled files on top, and an overlay import map that lets =deno test= run the LIVE suites with the tangle's shard swapped in. That map caught three defects across two passes — one in the first client shape, two in the subscription pass — before any tree edit. The live suites are the adversarial pass the ledger keeps saying was missed.
+
+F15 is the session's largest ruling. The hand-rolled =sync= · =settle= effects (177 lines) had the daemon's subscription sitting next to them unused. After: the service gets a twitch in DATAMAP, =/entities/terminal/subscribe= is SSE through the same =reactive= the daemon uses, and the anima Terminal writes one =updateOne= per act and derives its live thread from the daemon's store. A second roster sees a seat, an unseat and a dock drag without a reload — probed, not promised.
+
+* failures
+
+- the progress brief (76): the table had forks · tangle · probe columns; he wanted states. callout, family explanation, codeword retard. Rule: "brief me" = the two state columns.
+- "owed" (79): five nouns from the open section. callout, =i dont understand=. Rule: an owed line is a one-word question with its artifact.
+- the jwt (81): carried =server/lib/jwt.js='s module state into the static Vector and asked when to boot it. callout, =i dont understand=. Rule: before WHEN, ask whether the state is a second copy of the datamap.
+- a probe double without =$buffers= threw inside a nanostores notify; the global listener queue stayed wedged; three unrelated-looking fails. Recorded in the quest's QA — any "store updated, nobody heard" in anima is this shape.
+- the first =narrow= and the lazy =reactive= would have broken the daemon's nested walls and a pinned throw; only the overlay suites saw it.
+
+* state at fold
+
+m76 — status TANGLED and PROBED, second pass; =#+states: deliverables designed 6 | milestones proposed 4=; probes 32 · 13 · 7 at 0 failed; nine live suites green through the overlay; F17 (SERVICE's meaning, beef's words) and F18 (how identities reach daemons — the pivot's writer, the announce door that the tangle breaks) open; TWITCHY deferred; nothing in the tree. m78 unchanged. Tree: beef committed uwslvsus as /"snap"/; @ is wpmyssqo, no edits of mine.
+
+* skills
+
+| skill | turn | verdict | the line |
+|---|---|---|---|
+| testing | 78 | HELD | baseline first, one-file runs, envelopes pasted, pre-existing reds attributed (=:1729=) |
+| compact-walk | 85 | HELD | the walk, this file |
+| callout | 76 · 79 · 81 | MISSED | three codeword turns logged by hand, no firing — the body held, the trigger did not |
+| quest-authoring | 78 · 82 | MISSED | milestones · blast · ladder written, the tangle re-spliced, no firing |
+| critical-pass | — | MISSED | the second tangle pass went to TANGLED with no adversarial pass; the overlay suites did the job by accident of method |
+
+* settlement
+
+- the marker (quest meta): SETTLED — =methods/quest.md= gains the Deliverables organ and both state enums, =quest-authoring= the two lines, =quest-report.py= a =states()= deriving =#+states:= (m76 reads =deliverables designed 6 | milestones proposed 4=); =MARKERS.md= struck.
+- callouts: three entries in =zettelkasten.md ## Callouts= (76 · 79 · 81), all family explanation.
+- ledger: the three non-HELD rows appended to =skills/LEDGER.md=.
+- reference: =reference/m76/{probe.js,probe.client.test.js,probe.auth.test.js,rig.js,run.js,import_map.overlay.json,datamap.resolver-and-scope-last.js}= — the probed sandbox, re-materializable from the quest's =:tangle= blocks.
+- known issues: none new — the announce break and the nanostores wedge live in the quest (F18 · QA) as design facts of this quest.
+
+* handoff
+
+- quest :: m76-terminals-close-the-dataring
+- goal :: /"this closes the dataring."/ — Terminal to the lighthouse beside Identity; the client pulls terminals and daemons on sign-in and rides the lighthouse's subscription
+- done :: deliverables a–f designed and probed (=#+states: deliverables designed 6 | milestones proposed 4=); F1–F16 ruled; the tangle is the subscription shape (F15), no token store (F16), two walls on Terminal; probes 32 · 13 · 7 at 0 failed, nine live suites green with the tangle's shard swapped in through =reference/m76/import_map.overlay.json=
+- next :: beef rules F18 (how identities reach daemons: the pivot's writer, and the announce door — the tangle's =/entities/daemon= breaks =runtime/integration.js:36-54=); then M1 goes =ready= (an entity edit → m78 law, fresh instance only)
+- never :: a tree edit at quest level; =deno fmt=; a progress brief with anything but the two state columns
+- owed :: beef — F17 (what SERVICE means; /"PROVIDER makes sense… not sure yet"/) · F18 · scope-only or both walls (/"3. both"/ stands unless he says =scope only=) · the commit of =.ikiro=
+- quest :: m78-mikro-7
+- goal :: cross 20 live sqlite dbs to 7.2.3 without the glued pragma
+- done :: as #245 — DESIGNED, 8 forks QUESTIONED, =reference/mikro-7/=
+- next :: beef rules F1 (driver) and F2 (pivot pin)
+- never :: boot a populated instance on 6.6.7 after an entity edit
+- owed :: beef — the eight forks; F7 (does the Turn delta ride m78)
+
+* quest report (derived at fold — `methods/quest-report.py`)
+
+| quest                            | progress  | status   | next                                                                                                                 | sessions |
+|----------------------------------+-----------+----------+----------------------------------------------------------------------------------------------------------------------+----------|
+| m60-lighthouse-security          |   0% 0/24 | designed | beef — rule f-name (`secure.claim`) and f-default (`invite`); then "go" per milestone                                | 1        |
+| m71-droneaid-guide               |   0% 0/16 | design   | go                                                                                                                   | 0        |
+| m76-terminals-close-the-dataring |  50% 9/18 | open     | survey                                                                                                               | 3        |
+| m77-droneaid-homecoming          | —         | open     | survey                                                                                                               | 2        |
+| m78-mikro-7                      |   0% 0/13 | design   | go                                                                                                                   | 0        |
+| vector-attach-graft              |  33% 1/3  | landing  | beef eyeballs m2 (auth + attach middleware now ride the source apertures; arming deep-copies); then m3 the live walk | 1        |

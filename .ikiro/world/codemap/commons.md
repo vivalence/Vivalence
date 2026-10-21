@@ -6,19 +6,19 @@ paths: ["commons/**", "**/registry/**"]
 
 A `*.viva.js` = a package entry at `@commons/<type>/<slug>`; svelte/jsx mount by string.
 
-**dashboards/dataspace** (manifest · application) ← `Dashboard.svelte` ← `schema.js`; `*.bak.svelte` DEAD; no test.
+**dashboards/dataspace** (manifest · views) ← `Dashboard.svelte` ← `schema.js`; `*.bak.svelte` DEAD; no test.
 ```js
 // commons/dashboards/dataspace/dataspace.viva.js:15
-const application = new App("Dashboard.svelte");
+const views = [{ slug: "dataspace", mount: "Dashboard.svelte", mime: mime.dom.svelte }];
 
 ```
-**datamaps/libsql** = config · manifest · provider (:37).
+**datamaps/libsql** = config · manifest · `provider(datamap, options)` (:37) (/"mask apart."/ 09-29); `contextName` = `db.file` (:13): 2 datamaps/file cross forks.
 ```js
 // commons/datamaps/libsql/libsql.viva.js:15
     dbName: seat ?? ":memory:",
     loadStrategy: "balanced",
 ```
-**fixtures/memo** = `package.viva.js` + 3 entries: `dataset/latin.viva.js` (manifest · freight · dataset) ← `entities/*`.
+**fixtures/memo** = `package.viva.js` + 3 entries: `dataset/latin.viva.js` (manifest · fileset · dataset) ← `entities/*`.
 ```js
 // commons/fixtures/memo/tests/dataset.test.js:2
 import { entities } from "../dataset/entities/index.js";
@@ -30,7 +30,7 @@ import { entities } from "../dataset/entities/index.js";
 import { card } from "../domain/card.js";
 
 ```
-**`mode/memo.viva.js`** (application · harness · tools · aperture · emitter) ← deal · progress; no `used`.
+**`mode/memo.viva.js`** (buffer · views · harness · tools · aperture · emitter) ← deal · progress; no `used`.
 ```js
 // commons/fixtures/memo/mode/memo.viva.js:19
     { mime: mime.tty.solid, mount: "buffer/memo.jsx" },
@@ -48,7 +48,7 @@ export { instance, stack, tiers } from "./tiers.js";
   specimen.it("reads flags out of prose and leaves the prose alone", () => {
     const held = plan({ turns: [said("tell me about flamingos --deltas 6 --stall 3s")] });
 ```
-**hallucinators/*** — `service.viva.js` (provider · manifest · docs) ← `provider/index`, + `translate.js` in anthropic · openrouter; elevenlabs no `used`.
+**hallucinators/*** — `service.viva.js` (provider · manifest · docs) ← `provider/index`, + `translate.js` in anthropic · openrouter (MINE, /"i've never read openrouter. yours."/); elevenlabs no `used`.
 ```js
 // commons/hallucinators/openrouter/tests/provider.test.js:10
   translateTurns,
@@ -66,7 +66,7 @@ export const harness = new Vector();
   manifest: { slug: "hello-world", type: "demo" },
   module: { generator },
 ```
-**hello-world/tools/index.js** `*`×5; doors ← doctor · research · wikipedia.
+**hello-world/tools/index.js** `*`×5; routes ← doctor · research · wikipedia.
 ```js
 // commons/instances/hello-world/tests/research.test.js:2
 import { research, ROUNDS } from "../tools/research.js";
@@ -80,12 +80,10 @@ import { calling, rig, saying, SOURCE } from "./rig.js";
 ```
 **playground** — 9 entries; oracle `{Helpdesk,Paragraph}.svelte` DEAD; no `used`.
 ```js
-// commons/playground/chaosmonkey/oracle/oracle.viva.js:23
-};
-
-export const application = new App("buffer/Oracle.svelte", v.buffer({ data: {} }));
+// commons/playground/chaosmonkey/oracle/oracle.viva.js:25
+export const buffer = v.buffer({ data: {} });
 ```
-**services** — `nlp/service.viva.js` (:84 control · manifest · provider · tools); `reader/service.viva.js` ← extract · hop (← guard) · skeleton.
+**services** — `nlp/service.viva.js` (:84 control · manifest · provider · tools); `reader/service.viva.js` ← extract · hop (← guard) · skeleton. Gateways (mail · OCR) land here, modes consume; mail per VENDOR — REJECTED one + presets (/"email per provider"/).
 ```js
 // commons/services/nlp/tests/classify.test.js:3
 import { tools } from "../tools/index.js";
@@ -94,7 +92,7 @@ import { tools } from "../tools/index.js";
 
 ## registry packages
 
-**Barrel**; `resolve` is a hook (`systems/runtime/daemon/lifecycle/resolution.js:21`).
+**Barrel**; `resolve` → `systems/runtime/subjects/daemon/lifecycle/2-resolution.js:21`.
 ```js
 // ~/.viva/registry/assembly/domain/assembly/assembly.viva.js:1
 export * as traits from "./traits/index.js";
@@ -102,7 +100,7 @@ export * as schematics from "./schematics.js";
 export { aperture } from "./aperture/index.js";
 export { tools } from "./tools/index.js";
 ```
-**Topography** `DATASET · FRAUGHT · DATASINK`.
+**Topography** `DATASET · FILESET · DATASINK`.
 ```js
 // ~/.viva/registry/droneaid/topographies/models/models.viva.js:25
   symbol: [[{ slug: { $like: "family.%" } }, project.omit("literals"), "dataset/symbols/families.js"]],
@@ -123,11 +121,8 @@ import { Chess } from "https://esm.sh/chessops@0.14.2/chess";
 import { makeFen } from "https://esm.sh/chessops@0.14.2/fen";
 import { parseSan } from "https://esm.sh/chessops@0.14.2/san";
 ```
-
-```jsonc
-// commons — census 10-16
-{".":{"files":1,"exports":1,"tests":0},"dashboards":{"files":4,"exports":7,"tests":0},
-"datamaps":{"files":1,"exports":0,"tests":0},"fixtures":{"files":39,"exports":121,"tests":9},"hallucinators":{"files":10,"exports":31,"tests":3},
-"harnesses":{"files":1,"exports":2,"tests":0},"instances":{"files":14,"exports":37,"tests":9},
-"playground":{"files":28,"exports":39,"tests":0},"services":{"files":9,"exports":9,"tests":6}}
+```
+census 10-16 · files/exports/tests
+. 1/1/0, dashboards 4/7/0, datamaps 1/0/0, fixtures 39/121/9, hallucinators 10/31/3,
+harnesses 1/2/0, instances 14/37/9, playground 28/39/0, services 9/9/6
 ```

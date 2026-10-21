@@ -3,10 +3,9 @@ import { TurnEntity } from "@vivalence/runtime";
 import stub from "../../../commons/fixtures/testing/hal/stub/provider/index.js";
 import { create } from "./scenarios/cortex.js";
 
-// a response is ONE unit of work. harnessed.js persists its turns on a forked em and flushes
-// once at close — so a tool flushing the root em mid-response cannot carry half a response out,
-// and a consumer that dies mid-stream (a runtime restart, a dropped socket) leaves the thread
-// ending at the user's message, never at an unanswered tool_use.
+// m95 Q33: harnessed.js creates each turn's row at /turn/open on a forked em and saves it at its
+// /turn/close — a tool running mid-response already reads the sealed tool_use turn, and a consumer
+// that dies after a seal (a runtime restart, a dropped socket) keeps every turn closed so far.
 
 let scenario;
 
@@ -15,7 +14,7 @@ const rows = (em, thread) =>
     orderBy: { createdAt: "ASC" },
   });
 
-specimen.describe("turn persistence — the response is one unit of work", () => {
+specimen.describe("turn persistence — each turn is saved at its close (m95 Q33)", () => {
   specimen.beforeAll(async () => {
     scenario = await create();
   });
@@ -24,7 +23,7 @@ specimen.describe("turn persistence — the response is one unit of work", () =>
   });
 
   specimen.it(
-    "a tool that flushes the root em mid-response does NOT persist the tool_use turn early",
+    "a tool running mid-response reads the tool_use turn already saved at its close",
     async () => {
       const { dewey, createThread, em } = scenario;
       const thread = await createThread();
@@ -46,7 +45,7 @@ specimen.describe("turn persistence — the response is one unit of work", () =>
       });
       for await (const _ of stream);
 
-      specimen.expect(seen).toEqual([["user"]]);
+      specimen.expect(seen).toEqual([["user", "assistant"]]);
       const after = await rows(em, thread);
       specimen.expect(after.map((turn) => turn.role)).toEqual([
         "user",
@@ -63,7 +62,7 @@ specimen.describe("turn persistence — the response is one unit of work", () =>
   );
 
   specimen.it(
-    "a consumer that dies after the tool_use turn sealed leaves NO response turn behind — the thread ends at the user's message",
+    "a consumer that dies after the tool_use turn sealed keeps that turn — the thread ends at the tool_use",
     async () => {
       const { dewey, createThread, em } = scenario;
       const thread = await createThread();
@@ -85,8 +84,10 @@ specimen.describe("turn persistence — the response is one unit of work", () =>
       }
 
       const after = await rows(em, thread);
-      specimen.expect(after.map((turn) => turn.role)).toEqual(["user"]);
+      specimen.expect(after.map((turn) => turn.role)).toEqual(["user", "assistant"]);
       specimen.expect(after[0].parts[0].text).toBe("what is casa");
+      specimen.expect(after[1].parts.some((part) => part.type === "tool_use")).toBe(true);
+      specimen.expect(after[1].parent?.id ?? after[1].parent).toBe(after[0].id);
     },
   );
 

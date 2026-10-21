@@ -1,4 +1,4 @@
-import { App, Span, v, Vector } from "@vivalence/typology";
+import { Span, v, Vector } from "@vivalence/typology";
 
 export const aperture = new Vector().open(
   {
@@ -6,17 +6,18 @@ export const aperture = new Vector().open(
     input: v.object({ prompt: v.string(), thread: v.string() }),
   },
   async (ctx) => {
-    const span = new Span("aperture/ask").open();
-    span.branch("input").note(ctx.input);
+    const span = new Span("aperture/ask").start();
+    span.branch("input").log(ctx.input);
     try {
       const render = await ctx.mode.harness.object.render({
+        thread: ctx.input.thread,
         turns: [{
           role: "user",
           parts: [{ type: "text", text: ctx.input.prompt }],
         }],
         output: v.object({ answer: v.string() }),
       });
-      span.branch("render").note(render);
+      span.branch("render").log(render);
       const object = render.output.object;
 
       const userTurn = await ctx.entities.turn.chain({
@@ -37,16 +38,16 @@ export const aperture = new Vector().open(
         mode: ctx.mode.id,
       });
 
-      span.branch("turn/user").note(userTurn);
-      span.branch("turn/assistant").note(assistantTurn);
-      span.close();
+      span.branch("turn/user").log(userTurn);
+      span.branch("turn/assistant").log(assistantTurn);
+      span.stop();
 
-      return { answer: object.answer, trace: span.records };
+      return { answer: object.answer, trace: span.history };
     } catch (error) {
-      span.close().branch("render").fault(error);
+      span.stop().branch("render").fault(error);
       return {
         answer: `… the oracle falters: ${error.message}`,
-        trace: span.records,
+        trace: span.history,
       };
     }
   },
