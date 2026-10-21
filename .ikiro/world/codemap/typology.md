@@ -83,6 +83,13 @@ import { EntitySchema, MikroORM } from "@mikro-orm/sqlite";
           const [effect, carry, steps] = steer.dispatch.traverse(target, signal);
           if (!effect) throw new NotFound(signal);
 ```
+**`prototypes/pipe.js` · `queue.js` · `span.js` — the flow algebra, LANDED 10-23 (quests `m100` · `m101`).** Pipe fans out, Queue buffers, a nanostore holds; `fromm.sink` makes each a write, so attaching is ONE act, `pipe.tap(sink)` → untap; `fold` · `for await` are taps into a nanostore · a Queue. A span's pipe taps its parent's, a record climbs to the root, `$history` is the span's fold; eight STANDARD tracks (`start stop request response fault log entity status`) are a Vector `span.tracked`, each a method returning the span; the Controller's `start() stop() fault(error)` move its status AND write the track. Reference: `documentation/content/40-49_reference/42_primitives/`.
+```js
+// subsystems/typology/prototypes/span.js:45
+  tracks(vector) {
+    this.tracked.graft(vector);
+    for (const nature of vector.trie.keys()) this[nature] ??= (data) => this.track(nature, data);
+```
 **`schematics/entities/`: `index.js` re-exports DataEntitySchema+7 descriptors (2 direct); `base.js` VirtualEntitySchema bypasses it; `turn.js` DEAD.**
 ```js
 // subsystems/typology/tests/schematics.test.js:1
@@ -114,19 +121,4 @@ const Nascent = v.object({ mime: v.mime(), source: v.string({ minLength: 1 }) })
 // subsystems/typology/tests/mode-entity.snapshot.test.js:11
   it("captures mode-entity", () => {
     const { pojo, path } = snapshot(v.mode(), {
-```
-
-```jsonc
-// subsystems/typology — census 10-16
-{ "entities": {"files": 1, "exports": 2, "tests": 0}, "entities/base": {"files": 3, "exports": 9, "tests": 2},
-  "gestalten": {"files": 2, "exports": 19, "tests": 0}, "gestalten/belt": {"files": 26, "exports": 167, "tests": 25},
-  "gestalten/bundle": {"files": 4, "exports": 6, "tests": 2}, "gestalten/cast": {"files": 4, "exports": 11, "tests": 3},
-  "gestalten/fromm": {"files": 3, "exports": 10, "tests": 2}, "gestalten/is": {"files": 4, "exports": 50, "tests": 3},
-  "gestalten/not": {"files": 1, "exports": 1, "tests": 1}, "gestalten/shape": {"files": 11, "exports": 21, "tests": 9},
-  "gestalten/shard": {"files": 18, "exports": 90, "tests": 13}, "gestalten/steer": {"files": 6, "exports": 27, "tests": 4},
-  ".": {"files": 3, "exports": 14, "tests": 0}, "prototypes": {"files": 49, "exports": 142, "tests": 37},
-  "prototypes/errors": {"files": 5, "exports": 11, "tests": 1}, "schematics": {"files": 2, "exports": 5, "tests": 2},
-  "schematics/entities": {"files": 10, "exports": 18, "tests": 1}, "schematics/primitives": {"files": 15, "exports": 193, "tests": 12},
-  "schematics/prototypes": {"files": 5, "exports": 16, "tests": 4}, "schematics/scalars": {"files": 3, "exports": 20, "tests": 3},
-  "specimen": {"files": 2, "exports": 6, "tests": 2} }
 ```

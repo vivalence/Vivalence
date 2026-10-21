@@ -1,4 +1,4 @@
-import { App, v, Vector } from "@vivalence/typology";
+import { mime, v, Vector } from "@vivalence/typology";
 
 export const manifest = {
   type: "playground",
@@ -7,10 +7,12 @@ export const manifest = {
   description:
     "Thread-driven: hot-swap the stall phase + the render cursor live; watch the stall re-engage.",
   version: "0.1.0",
-  traits: ["APPLICATION", "EMITTER"],
+  traits: ["VIEWABLE", "EMITTER"],
 };
 
-export const application = new App("buffer/Switchboard.svelte", v.buffer({ data: {} }));
+export const buffer = v.buffer({ data: {} });
+
+export const views = [{ slug: "switchboard", mount: "buffer/Switchboard.svelte", mime: mime.dom.svelte }];
 
 // feed `card` buffers on demand (cross-mode) — the set you then switch phases over.
 export const emitter = new Vector().open(

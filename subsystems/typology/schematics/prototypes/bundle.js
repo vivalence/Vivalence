@@ -1,8 +1,7 @@
 import { v } from "../v.js";
 import { type } from "../scalars/mime.js";
 
-export const Bundle = () =>
-  v.object({
+export const Bundle = v.object({
     entries: v.array(
       v.object({
         mime: type(),

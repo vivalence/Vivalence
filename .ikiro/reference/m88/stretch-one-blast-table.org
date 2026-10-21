@@ -1,0 +1,16 @@
+# drained 10-22 whole from .ikiro/quests/m88-repling.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* blast table
+
+| site | reads | after |
+|---+---+---|
+| =systems/ghost/commands/doctor.js:14= | =terminal.mode= | home when no thread — the report card names it, no edit |
+| =systems/ghost/commands/entity/terminal/list.js:11= | =terminal.mode.reference= | =/client/ghost/mode/home/home= on an idle terminal, no edit |
+| =systems/ghost/commands/help.js= · =gestalten/belt/help.js= =census(ctx.repl)= | the terminal's repl trie | the hosted mode's verbs listed under their own noun, no edit |
+| =systems/ghost/lifecycle/client/integration.js= =shown= | =terminal.thread= | unchanged: no thread → =crown · navigation · dock= |
+| =systems/ghost/tests/prototypes/traits.test.js:118= | =client.home.reference= | strings pass through; the desc changed, the test holds |
+| =subsystems/paladin/tests/{expand,ledger.recipe,settle}.test.js= | =clients[]= without =modes= | =Modes.optional()= — hold; =settle.test.js:272= =ATTACHED= on a client manifest holds (open set) |
+| =systems/runtime/entities/Mode.ts= =ModeTraitsEnum= | a mode's traits at flush | a hosted mode never reaches the runtime's datamap; =@commons/home/home= under =runtime.modes= would fault at flush — not declared there |
+| =~/.viva/registry= under =runtime/watch= | =commons/modes/home/home.viva.js= | a commons save REDEPLOYS: =lsof -nP -iTCP:2501 -sTCP:LISTEN= first, the new file lands in one write |
+| =~/.viva/instances/localhost/instance.viva.json= | =clients= | absent → the ledger's rows fall through whole; nothing to edit |
+

@@ -15,7 +15,7 @@ when_to_use: >-
 
 REJECTED 10-07: *door* — /"Stop using the word doors. … We don't have drivers or doors anywhere."/ An aperture OPENS a route. A domain is a trait SOURCE, never a class, layer or table: /"The domain does not play in here. The domain might configure stuff, but so might any other mode."/ REJECTED 10-08 (m80): `entities` on the barrel, a domain table or class, a `resolve` hook over its own routes — the schema is FIXED at the kernel, a daemon is a column and a repository.
 
-Canon: `subsystems/typology/schematics/primitives/kernel.js:7-15` (the `Domain` cast) · `systems/runtime/daemon/lifecycle/{population,resolution}.js` · `systems/runtime/gestalten/belt/traits.js` (`gather · mint · strike`) · m80's `* the law`. Exemplars: `~/.viva/registry/chess/domain/chess.viva.js` · `education/domain/domain.viva.js` (+ `twitch`). vcompany · stucatch still carry pre-m80 `entities`: never copy them.
+Canon: `subsystems/typology/schematics/primitives/kernel.js:7-15` (the `Domain` cast) · `systems/runtime/subjects/daemon/lifecycle/{population,resolution}` · `systems/runtime/gestalten/belt/traits.js` (`gather · mint · strike`) · m80's `* the law`. Exemplars: `~/.viva/registry/chess/domain/chess.viva.js` · `education/domain/domain.viva.js` (+ `twitch`). vcompany · stucatch still carry pre-m80 `entities`: never copy them.
 
 ## The barrel
 

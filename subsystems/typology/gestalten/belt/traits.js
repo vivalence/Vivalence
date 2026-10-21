@@ -1,5 +1,6 @@
 import { v } from "../../schematics/index.js";
 import * as is from "../is/scalars.js";
+import * as object from "./object.js";
 
 const INSTALLED = new WeakMap();
 
@@ -22,6 +23,15 @@ export function define(name, { schematic = null, repository = {}, entity = {} } 
   return { name, schematic, repository, entity };
 }
 
+export function cast(entity, vocabulary) {
+  const undeclared = entity.traits.filter((name) => !Object.hasOwn(vocabulary.properties, name));
+  if (undeclared.length) throw new Error(`[traits] ${entity.id}: no trait ${undeclared.join(" · ")} in a vocabulary of ${Object.keys(vocabulary.properties).join(" · ")}`);
+  const trait = vocabulary.fill(entity.trait);
+  const claimed = [...vocabulary.errors(trait)].filter((error) => entity.traits.includes(error.instancePath.split("/")[1]));
+  if (claimed.length) throw new Error(`[traits] ${entity.id}: ${claimed.map((error) => `${error.instancePath} ${error.message}`).join(" · ")}`);
+  return trait;
+}
+
 export function claim(row, name, vocabulary) {
   const schema = vocabulary[name];
   if (!schema)
@@ -33,6 +43,11 @@ export function claim(row, name, vocabulary) {
   const filled = schema.fill(held);
   return [...schema.errors(filled)][0] ? {} : filled;
 }
+
+export const patch = (entity, data) => ({
+  traits: [...new Set([...entity.traits, ...Object.keys(data)])],
+  trait: object.merge(entity.trait, data),
+});
 
 export function repository(Repository, traits) {
   for (const held of traits)

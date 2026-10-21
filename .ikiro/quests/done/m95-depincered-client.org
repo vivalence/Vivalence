@@ -1,0 +1,741 @@
+#+title: m95 depincered client — the DOM · TTY client v1 from the design artifact: both chromes on the thirteen parts, the pincer gone, every control a repl line; a constituent of m96
+#+filetags: :anima:ghost:drapes:dapper:sheets:chrome:keymap:views:repl:
+#+status: LANDED 10-21 through m96 (milestones 2–8: sheets · drapes · the commands · the keymap panes · ghost chrome · anima door · anima chrome; uncommitted); the LOOK REJECTED 10-22 by beef → =** 10 · the look= (swarm on =scratchpad/look=); 9 rides m96 =registry=. History: PHASE ZERO 10-19 · DRILLED ACROSS THE NINE 10-21 · SECOND DRILL 10-21 (Q0–Q12 → rulings 27–39: the dock's two streams · the terminal's span · /dock/lens · consent + retry OUT · many activities · the reply a Turn in the em · no row model · Chord + Catalog · two token joins · one verb set · the thread's label · the phone as surface memory) — 39 rulings, each a hunk under =* as code=; code-first 10-21 (prose at =reference/m95/drill-20261021.md=). RE-CUT 10-21 as a CONSTITUENT of =m96-client-mothership.org= (/"M95 changes role, it loses its mothership character, and is only for the DOM TTY client implementation V1 from the design artifact"/): the wiring (milestone 1 · its ghost and paladin hunks) and the constituents table moved there whole; what stays is the chrome — parts · verbs · panes · ghost chrome · anima door · anima chrome · the registry pass. Sequenced by m96's roadmap; no go of its own.
+
+# limit: none (quest content)
+
+* intent
+
+10-19, beef verbatim (voice):
+
+/"we're going to rebuild both of our clients. This is the accumulation of a lot of work. I think we started with M86."/ · /"we are rewriting the entire Chrome of both Ghost and Anima. Ghost really doesn't have anything at the moment, and Anima is hopefully out of date."/ · /"we want to switch to Solid, uh, we use OpenTui […] We settle everything via the REPL"/ · /"I want this to be like a, a mothership quest with the next index up. We call it depincered client."/ · /"pull together like a code map specifically for this quest. Look at everything that might be relevant from the past, where the future agent or future agent swarm might have something of a of an interest."/ · /"maybe there's parts of the clients where we are already ahead on Anima, for example, the activity handling was uh, quite sophisticated […] So there's like a critical path. What's missing? […] where might our design yet be incomplete?"/
+
+#+begin_src text
+~/Downloads/vivalence-client-v1/build/src/   the designer's v1.0 (10-19) — spec for behaviour · regions · verbs · look, never folders; untrusted: read, never run
+  ring.js   1082   world · verbs (~60) · dispatch · keymap trie · sections(w)
+  dom.js     449   the anima painter          tty.js   729   the ghost painter (a browser cell grid, NOT OpenTUI)
+  design.js  251   zones · themes · parts · a11y table · the 37 verbs (:220)
+  app.js     341   boot · #dom|#tty|#design · localStorage · 80 ms sim
+.ikiro/quests/roadmap/anima-deeplink.org     his side strand, unnumbered
+#+end_src
+
+* constituents — MOVED 10-21 to =m96-client-mothership.org= =* constituents=; m95 is one of them
+
+* terrain — measured 10-19 (the full map moved 10-22 to =reference/m95/codemap.org=)
+Drained 10-22 whole to =reference/m95/terrain-10-19.org= (measured 10-19, pre-landing; the full map moved with it to =reference/m95/codemap.org=).
+
+* the law
+
+1. Two chromes over one wiring: ghost owns client · entities · factories · lifecycles · prototypes; anima imports them and paints its own panes.
+2. The demo v1.0 is the spec for behaviour · regions · verbs · look; m91's subject-first layout places every file.
+3. Parts: =drapes= (Solid DOM) ∥ =sheets= (OpenTUI), the same thirteen names and props, dapper tokens only, no hex.
+4. A buffer's component receives ={ terminal, buffer, surface }=; =surface.place ∈ cell · frame=.
+5. One dispatch: =terminal.dispatch(line)=; every row write a chrome makes is a line; a pane never calls a repository.
+6. The keymap is its own tree (m92), mapped onto the repl by =chord:= and line effects; its list on =ctrl-v ctrl-v= is the =catalog=; =palette= is the colours.
+7. =DOCKED= resolves terminal → user → client mask → =DEFAULT_DOCK=; =THEMED= client mask → user → the OS.
+8. The database mirrors; keystrokes, chords, focus, a drag's pixels stay in the client.
+9. Client modes are bundled when a client is built; client · runtime · daemon modes are wholly independent.
+10. No pincer: no bones, gesture, radial, throw, spine. =/face= · =/design= are dead.
+11. ONE client factory, =factories.client(surface)= on a browser-clean =@vivalence/ghost=; a door builds the die as =run.js= does.
+12. Paladin is any system's interface with its environment — os or browser; imported, never on a die; =instance= comes from paladin onto the die.
+13. ONE =paladin.vault= (=held · store= by origin), its backend resolved: Deno → =paladin.scope.credentials=; a browser → =localStorage=.
+14. A command has one of three owners by need: client · terminal · runtime mode.
+15. The chrome is one =[[predicate, pane]]= table over the client's state: booting · sign-in · regions.
+16. A View owns its File rows (=file.view=, =view.entry=); no upstream.
+
+* the dialogue — the rulings, his words; the hunk each built is under =* as code=
+
+| # | ruling | his words |
+|---+---+---|
+| 1 | two chromes over shared tooling; ghost implements, anima imports and paints its own | /"They each write their own client. No, they write their own Chrome over shared tooling."/ · /"Ghost implements all of the entities and clients, the factories, life cycles, all of the prototypes […] Anima imports all of the wiring […] and then it builds its own Chrome around this."/ · /"They absolutely should share as much of the structure as possible, but they are two independent clients."/ |
+| 1a | client modes bundled when the client is BUILT | /"we now need modes from our registry bundled when we build the client. […] client mode specifically."/ |
+| 2 | the demo is spec for behaviour · regions · verbs · look, never folders | /"The design is pretty complete, so it's very close to spec. It's not spec in the sense of the folder structure. We do have our own folder structure that the designer knew nothing about. Otherwise, it's pretty spec for both."/ |
+| 2a | the part libraries are in scope | /"drapes and sheets. They are currently both shit. Drapes is better than sheets. Sheets is utter garbage. And I want to have components like the ones that you listed, like the nice little isolated ones that already implement our variant structures and our tokens"/ |
+| 3 | =drapes= (Solid DOM) ∥ =sheets= (OpenTUI), the same thirteen | /"a"/ (A: two packages, one per surface; B lost: one package, a part = definition + =dom.jsx= + =tty.jsx=) |
+| 4 | the dock per terminal, in layers, the last a default built into the app | /"We have the doc per terminal. […] the terminal being […] the first resolution rather. […] And if none of this, then there's a default setting somewhere built into the app."/ |
+| 5 | theme: client mask → user → the OS; never per terminal | /"There is no theme individualization on an individual terminal. We set the theme on the level of client or user, and that's it."/ |
+| 6 | the TERMINAL is the one system prop, with the one dispatch | /"we hand it the terminal. The terminal itself has a way to dispatch. […] The terminal is the one unifying thing that every buffer gets handled."/ · /"let's just put the client on the terminal as well. Let's standardize this. And there's a single dispatch."/ |
+| 6a | a component acts through the repl | /"every action in any component, or like most of them, I suspect, the vast majority should go through the REPL."/ |
+| 7 | m95 absorbs the siblings' chrome milestones | /"a"/ (A: m95 absorbs them; B lost: m95 only sequences) |
+| 8 | the database mirrors; keystrokes never | /"Yeah, no, we are not going to wire every individual keystroke. That would be madness."/ · /"we mirror what's in the database."/ |
+| 9 | the component receives its own buffer — one chess buffer on every turn | /"it's the same buffer reference and actually the same assets as well […] So no, I want the buffer in there."/ |
+| 10 | one view per PLACE; several → the toggle; the pin per place | /"One artifact per place. […] if it's multiple, then we have the toggle select. And I think it was something like the most recently built is used by default"/ |
+| 11 | =surface= beside terminal and buffer; =surface.place= | /"place is its own prop. But I don't like it being a top-level prop. […] maybe that's finally surface? Yeah, it's called surface. Surface.place"/ |
+| 12 | kleisli enters m95 for ghost and anima only | /"kleisli only for ghost and anima in this quest"/ |
+| 13 | =palette= stays the colours; the list is the =catalog= | /"b"/ (Q0: A colours → =tones= lost · B the list → =catalog=) |
+| 14 | ONE client factory, both clients | /"a"/ (Q1: A one =factory(surface)= · B lost: anima's own kleisli over exported beats) |
+| 15 | =factories.client= on =@vivalence/ghost=; no =./client= | /"factory(surface) from @vivalence/ghost. no /client dangling."/ |
+| 16 | =instance= stays on the die | /"b. paladin read onto the client die"/ |
+| 17 | paladin never on a die; imported | /"paladin stays off the fucking die omg. instance comes from paladin onto the die. paladin is any systems rutnime or clients interface with the environment, os, or browser! rule. been in plce long."/ |
+| 18 | one vault, backend resolved; the file by env var with a default | /"mix of a and b. one vault, storage backend resolved."/ · /"the file isnt hardcoded. its resolved via env variable with a default!"/ · /"VIVA_VAULT_MOUNT no. this exists already."/ (=VIVA_CLIENT_GHOST_CREDENTIALS_FILE=, his 10-05, m79 F2) |
+| 19 | DOCKED on user · client · terminal; terminal > user > client | /"its a trait on user, client, and terminal. terminal > user > client."/ |
+| 20 | three verb owners by need | /"a"/ (Q5: A three owners · B lost: one client vector with null checks) |
+| 21 | =/face= · =/design= dead | /"tty/dom was just a utility during design. for sure dead. design i dont understand so also dead"/ |
+| 22 | one pane table over the client's state | /"a"/ (Q7: A one =[[predicate, pane]]= table at beat 4 · B lost: surface after =authorized=, a line prompt) |
+| 23 | the browser's paladin is baked at build; no =register= module | /"it would not be called register dhu. its @vivalence/paladin.... paladin serving registry, instance, (future ledger), vault, and via env variable the runtiem remove."/ |
+| 24 | no shared modes | /"no such thing exists as shared modes. client, runtime, and daemon modes are wholy independent."/ |
+| 25 | everything through the repl | /"everything through the repl."/ |
+| 26 | a View owns Files; no upstream | /"b. its nice and coherent and poses a simple and straightforward way to edit and modify views as a function of file mutations. makes working with views under llm supervision very straightforward. no upstream on views. thast dead iwth teh artifact."/ |
+| 27 | the tail lives on the span; the dock paints the span and the turns, apart | /"I consider those to be separate. I consider the tail to live on the span. […] the dock renders just whatever is in the span and is in the turns."/ |
+| 28 | the dock paints the TERMINAL's span; the client's span is telemetry's; the thread's span is later | /"What we render in the dock is the terminal controller span, so we write everything into that. […] In order to access the client controller spans, we go through telemetry […] the thread is not what we display in the dock […] we keep that in memory and then sync it as its own little thing, but that comes later."/ |
+| 29 | lens is a DOCKED field; =/dock/lens=; =/journal= dead, =journal= stays the Span's word | /"b"/ |
+| 30 | consent is OUT of m95: no part, no verbs, no machinery; when it comes, it rides the controller | /"consent is something that we will bypass entirely in this quest. We don't want any UI components, we don't want the functionality […] generally, I think controller is the right way to handle this"/ |
+| 31 | retry is OUT; =/resume= is SIGCONT and nothing else; the four signals stay four | /"b"/ |
+| 32 | a thread has MANY activities; a signal verb addresses every live one on the thread | /"this shows a thread as having one activity, which is not true. It has many activities."/ |
+| 33 | the streaming reply IS a Turn in the client's em: created on the client, poured into, persisted byte-identical; no live atom, no stream record | /"turns will remain used by the dock. […] I don't like the idea of putting a proxy nanostore live on thread. […] Turns created on the client, streamed into, and in the end it's persisted, but its persistence is going to be byte identical to the result of the stream, so that doesn't really matter which one we render."/ |
+| 34 | no row model, no sections grammar: the panel is individual placements per chrome | /"I do not want to implement or come up with a whole grammar for how to encode sections. […] I would for now start with individual placements. No row model. That might come up in the future, but not now."/ |
+| 35 | the keymap display is the =Chord= part, the catalog the =Catalog= part; two parts, not one with levels; Panel · minibuffer dead | /"a. but we're not gonna call it a mini buffer. We need a dedicated name for it. […] it displays where in the key map we're at."/ · /"chord"/ |
+| 36 | the zone object is the truth; TWO flattenings of it, kebab and camel; a system picks one and stays with it; dapper serves both | /"the core structure is objects, and then we have two ways of flattening that: hyphenated and camel. And I don't see why we have to choose. We might want to be consistent per system […] I don't see why we would limit ourselves on a dapper level."/ |
+| 37 | ONE verb set, ghost's =client/commands/= + =entities/terminal/commands/=, imported by anima; the surface carries =kind= beside its places; a surface verb writes the surface | /"I do want the ghost to implement the client commands and the terminal commands and all of those, and those to be exported and imported by Anima. […] For sure the client surface has a kind. […] Just like we tell it its targets, cell or frame"/ |
+| 38 | the tab's =word=: the seated thread's LABELED name, else the mode slug; =label= over trait.LABELED dies (=* as code= =entities/terminal/prototype.js=) | (words not recorded) |
+| 39 | the phone is surface memory: =$narrow= from a media query, =$shown= the one region; the database never learns the viewport | /"a"/ |
+| — | the keymap is a second command system | /"I think you're misreading M92 here […] It is a second command system, the tree."/ |
+
+* as code — the rulings as the hunks they build; =***= system · =****= file
+
+*** systems/ghost
+
+**** deno.jsonc · typology.js · run.js · client/factory.js · client/prototype.js · client/lifecycle/index.js — MOVED 10-21 to =reference/m96/the-wiring.org=
+
+**** client/commands/ · entities/terminal/commands/ — rulings 20 · 21 · 29 · 30: owners by need; 33 commands — measured 10-22 (/journal → /dock/lens; /approve /skip /edit out)
+
+#+begin_src text
+systems/ghost/subjects/client/commands/              a command that needs no terminal
+  help.js quit.js terminal.js theme.js runtime.js lighthouse.js sidebar.js shell.js mic.js speaker.js voice.js go.js
+systems/ghost/entities/terminal/commands/   a command on the seated terminal
+  thread.js mode.js buffer.js artifacts.js artifact.js pause.js resume.js stop.js abort.js activity.js tune.js effort.js rounds.js context.js tools.js dock.js split.js attach.js dictate.js paste.js turn.js
+systems/ghost/entities/mode/traits/         a runtime mode's commands stay scoped: /mode/<type>/<slug>/…
+#+end_src
+#+begin_src js
+// systems/ghost/subjects/client/commands/theme.js — ctx.client, no terminal
+export const theme = new Vector().open(
+  { nature: "/theme", valence: "set the client's theme. Example: /theme parchment", input: v.object({ name: v.string().desc('A dapper theme. Example: "parchment"') }), chord: "leader/x/t" },
+  (ctx) => ctx.client.runtime.entities.client.updateOne({ id: ctx.client.mask.id }, { trait: { THEMED: ctx.input.name } }),
+);
+// systems/ghost/surfaces/shell/commands.js — ruling 37: in the ONE set; writes the surface; the tty surface reads `shell`, the dom surface has no reader for it
+export const shell = new Vector().open(
+  { nature: "/shell", valence: "cockpit: alternate screen · footer: under real scrollback. Example: /shell footer", input: v.object({ shell: v.enum(["cockpit", "footer"]).desc('Example: "footer"') }), chord: "leader/d/h" },
+  (ctx) => ctx.client.surface.$shell.set(ctx.input.shell),
+);
+// systems/ghost/surfaces/chrome/index.js · systems/anima/src/surface/index.js — what a surface says about itself (ruling 11 · 37)
+client.surface = { kind: "tty", places: ["cell", "frame"], $shell: atom("cockpit"), palette: tokens.camel(client.theme, "2") };
+client.surface = { kind: "dom", places: ["cell", "frame"], $shell: atom("cockpit"), palette: tokens.kebab(client.theme, "2") };
+// systems/ghost/entities/terminal/commands/dock.js — ctx.terminal is the seated one; absent = refused, no null check
+export const dock = new Vector().open(
+  { nature: "/dock", valence: "where the dock sits. Example: /dock left", input: v.object({ align: v.enum(["left", "right"]).desc('Example: "left"') }), chord: "leader/d/d" },
+  (ctx) => ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, { trait: { DOCKED: { ...ctx.terminal.dock, align: ctx.input.align } } }),
+).open(
+  { nature: "/dock/lens", valence: "what the dock lists: chat is turns, trace is records, repl is both. Example: /dock/lens trace", input: v.object({ lens: v.enum(["chat", "repl", "trace"]).desc('Example: "trace"') }), chord: "leader/d/j" },
+  (ctx) => ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, { trait: { DOCKED: { ...ctx.terminal.dock, lens: ctx.input.lens } } }),
+);
+// systems/ghost/entities/thread/prototype.js — ruling 32: the live activities of a thread, a computed over the mirror; `$activity` (lifecycle/index.js:7 `find`) dies
+ctx.entity.$activities = computed(ctx.runtime.entities.activity.$entities, (activities) => activities.filter((activity) => activity.thread === ctx.entity));
+// systems/ghost/entities/terminal/commands/{pause,resume,stop,abort}.js — rulings 31 · 32: one file per signal, the command IS the signal, sent to every live activity, no state branch
+const PAUSED = (activity) => activity.status === "PAUSED";
+export const resume = new Vector().open(
+  { nature: "/resume", valence: "SIGCONT · resume every paused run on the thread. Example: /resume", chord: "leader/a/c" },
+  (ctx) => Promise.all(ctx.terminal.thread.activities.filter(PAUSED).map((activity) => activity.stdin.SIGCONT())),
+);
+// systems/anima/src/entities/activity.js:31 roster · :56 owed → systems/ghost/entities/activity.js (the Activity folds move in, see **** entities/activity.js)
+// systems/ghost/entities/terminal/lifecycle/index.js — the terminal's commands, grafted when a terminal boots
+export const commands = async (terminalDie, next) => {
+  terminalDie.terminal.repl.graft(...Object.values(commands));
+  await next();
+};
+#+end_src
+
+**** entities/terminal/prototype.js · gestalten/belt/dock.js · entities/lighthouse/lifecycle/index.js — MOVED 10-21 to =reference/m96/the-wiring.org=
+
+**** entities/activity.js — one Activity: anima's folds move in (mine)
+
+#+begin_src js
+// systems/ghost/entities/activity.js — from systems/anima/src/entities/activity.js:36-65
+const RANK = ["RUNNING", "STOPPING", "PAUSED", "IDLE"];
+export const loudest = (activities = []) => RANK.find((code) => activities.some((activity) => activity.status === code)) ?? "NONE";
+export function owed(signal, activities = [], sent = new Set()) {
+  const { MACHINE } = v.primitives.controller;
+  const from = MACHINE.transitions[MACHINE.signals[signal]] ?? {};
+  return activities.filter((activity) => activity.status in from && !sent.has(activity.id));
+}
+#+end_src
+
+**** entities/terminal/prototype.js — ruling 38: the tab's word (the class itself is m96's)
+
+#+begin_src js
+// systems/ghost/entities/terminal/prototype.js:27 — `label` over trait.LABELED DIES; the word is a two-row table over the seated thread
+const WORD = [
+  [(terminal) => terminal.thread !== null && terminal.thread.trait.LABELED !== undefined, (terminal) => terminal.thread.trait.LABELED.name],
+  [() => true, (terminal) => terminal.mode.manifest.slug],
+];
+export class Terminal {
+  get word() { return WORD.find(([test]) => test(this))[1](this); }
+}
+// subsystems/sheets/Tab.jsx · subsystems/drapes/Tab.jsx
+<text>{props.terminal.word}</text>
+#+end_src
+
+**** gestalten/belt/harness.js · entities/turn.js — ruling 33 — LOCKED 10-21 (/"lock"/): the reply is merged into the em as it streams; the id rides the /turn/open packet
+
+#+begin_src js
+// systems/runtime/subjects/mode/traits/harnessed.js:108 recording — today the runtime mints the reply's id at em.create (:117) and the packet never carries it; a transcript holds SEVERAL turns (tool rounds, folded.turns)
+// after: the row is created at /turn/open, its id rides the packet out; every later packet names the same turn
+async function* recording(ctx, packets) {
+  const em = ctx.entities.em.fork();
+  let parent = em.getReference(TurnEntity, ctx.turn.id);
+  let open = null;
+  for await (const packet of packets) {
+    if (packet.event === "/turn/open") {
+      open = em.create(TurnEntity, { role: packet.turn.role, parts: [], meta: null, parent, thread: ctx.thread?.id, mode: ctx.mode.id });
+      packet.turn = { ...packet.turn, id: open.id };
+    }
+    open = soma.pour(open, packet);
+    if (packet.event === "/turn/close") { await em.flush(); parent = open; }
+    yield packet;
+  }
+}
+// subsystems/typology/gestalten/belt/soma.js:3 pour — unchanged: /turn/open spreads packet.turn, so the id is kept
+// systems/ghost/gestalten/belt/harness.js — before (:4-10): a `stream` record per packet onto the thread's span. after: pour, merge by the runtime's id
+export const stream = async (mode, thread, parts) => {
+  let turn = null;
+  for await (const packet of mode.harness.dialogue.stream({ thread: thread.id, parts })) {
+    turn = soma.pour(turn, packet);
+    await thread.client.runtime.entities.turn.merge({ ...turn, thread: thread.id, mode: mode.reference.absolute });
+  }
+};
+// remote-repository.js:180 merge → em.integrate by id → thread/prototype.js:30 $turns fires; the persisted row arrives by subscription under the same id, byte-identical
+// hole: createdAt is empty on the client-merged turn until the row lands; the $turns sort leaves it in insertion place, so the paint holds
+// systems/ghost/entities/turn.js:14-17 — the `turn` mark on hydrate DIES (ruling 27: the dock reads $turns, not the span)
+export const hydration = new Vector();
+// systems/ghost/surfaces/chrome/panes/dock.jsx — no `live`; an open turn is a Turn whose last part is still open (soma: parts[index] without /part/close)
+const turns = from(props.client.active.thread.$turns);
+#+end_src
+
+**** surface/chrome/ — rulings 11 · 13 · 22 · 25: the pane table, the mount, dark(), every write a line
+
+#+begin_src jsx
+// systems/ghost/surfaces/chrome/index.js — dark(): OpenTUI 0.5.17 asks OSC 11 (renderer.d.ts:643 getPalette → defaultBackground; 1200 ms then a fallback)
+const { defaultBackground } = await renderer.getPalette();
+const dark = defaultBackground.r * 0.2126 + defaultBackground.g * 0.7152 + defaultBackground.b * 0.0722 < 0.5;
+const erase = paint(renderer.root, renderer, palette(client.theme, "2"), panes.Chrome, { client });
+// systems/ghost/surfaces/chrome/panes/chrome.jsx — ONE table; anima's chrome.jsx holds the same rows over the DOM parts
+const PANES = [
+  [(client) => client.runtime === null, Booting],
+  [(client) => ["IDLE", "VERIFYING", "REFRESHING", "POPULATING"].includes(client.runtime.lighthouse.status), Booting],
+  [(client) => !client.runtime.lighthouse.isAuthorized, Signin],
+  [() => true, Regions],                                   // tabs · sidebar · frame ‖ dock · bar
+];
+export function Chrome(props) {
+  const pane = from(computed([props.client.$runtime, chain(props.client.$runtime, "lighthouse", "$status")], () => PANES.find(([test]) => test(props.client))[1]));
+  return <Dynamic component={pane()} client={props.client} />;
+}
+// systems/ghost/surfaces/chrome/panes/frame.jsx — the mount (law 4); anima's frame.jsx the same line over dom
+module.default(target, { terminal, buffer: terminal.buffer, surface: { place: "frame", renderer, palette: palette(client.theme, "1") } });
+onSelect={(slug) => props.terminal.dispatch(`/buffer/view ${slug} ${props.surface.place}`)}
+// systems/ghost/surfaces/chrome/panes/dock.jsx — a cell under a turn: parts, then buffers; the same chess buffer every ply
+<For each={props.turn.parts}>{(part) => <Part part={part} />}</For>
+<For each={props.turn.buffers}>{(buffer) => <Dynamic component={renderer(buffer, terminal.client)} terminal={terminal} buffer={buffer} surface={{ place: "cell", renderer, palette }} />}</For>
+// systems/ghost/surfaces/chrome/panes/split.jsx — the drag's END is a line; the live share is pane memory (law 8)
+const [share, setShare] = createSignal(props.terminal.dock.share);
+onDragEnd={() => props.terminal.dispatch(`/dock/share ${share().toFixed(2)}`)}
+// gate: grep -rn "entities\.[a-z]*\.\(updateOne\|create\|delete\)" systems/ghost/surface systems/anima/src/surface → 0
+#+end_src
+
+**** surface/chrome/panes/dock.jsx — rulings 27 · 28: two streams, no merge entity; the tail is the TERMINAL's span
+
+#+begin_src js
+// systems/ghost/subjects/client/lifecycle/index.js:149 · :188 — today: one root Span per client (controller.js:22); a terminal is a branch, a thread a branch of its terminal
+terminal.controller = clientDie.controller.branch(`terminal/${terminal.id}`);   // the tree still says `row` here — rename pending
+thread.controller = active.controller.branch(`thread/${thread.id}`);
+// subsystems/typology/prototypes/span.js:79 — a branch's tail is already scoped by path prefix; one root journal, cap 1000
+within(record) { return record.path === this.absolute || record.path.startsWith(`${this.absolute}/`); }
+tail(...commands) { const kept = (record) => this.within(record) && commands.includes(record.command); return this.pipe.reactive(this.records.filter(kept), …); }
+// systems/ghost/surfaces/chrome/panes/dock.jsx:56 — before: the ROOT span, every terminal's records
+const records = from(props.client.controller.stdout.tail("message", "fault", "turn"));
+// systems/ghost/gestalten/shard/repl.js:37 — already true: every dispatch on a terminal branches the TERMINAL's controller; the message beat (:6) writes there
+controller: (terminal === null ? client.controller : terminal.controller).branch(signal.pathname),
+// after: the active terminal's span + the seated thread's turns, interleaved at paint; the lens picks the commands
+const LENS = { chat: [], trace: ["message", "fault"], repl: ["message", "fault"] };   // no stream command (ruling 33)
+const turns = from(props.client.active.thread.$turns);   // ruling 33: the streaming reply is already in here
+const records = from(props.client.active.controller.stdout.tail(...LENS[props.client.active.dock.lens]));
+const entries = () => [...turns().map((turn) => ({ at: turn.createdAt, turn })), ...records().map((record) => ({ at: record.at, record }))]
+  .sort((first, second) => new Date(first.at) - new Date(second.at));
+#+end_src
+
+**** surface/chrome/renderers.js — m87 law 5 · lock 10: the client's table, walked in order; `accept` derived
+
+#+begin_src js
+// systems/ghost/surfaces/chrome/renderers.js — anima's names drapes and RUNS dom.svelte · dom.solid
+const RUNS = [mime.tty.solid];
+const own = (buffer, client) => client.modes.flatMap((mode) => mode.views).filter((view) => RUNS.includes(view.mime) && view.presents === buffer.mime);
+export const RENDERERS = [
+  [(buffer, client) => own(buffer, client).length > 0, Mounted],
+  [(buffer) => buffer.mime === mime.markdown,  Markdown],
+  [(buffer) => buffer.mime === mime.json,      JsonTree],
+  [(buffer) => buffer.mime.endsWith("+json"),  JsonTree],
+  [() => true,                                 Line],
+];
+export const renderer = (buffer, client) => RENDERERS.find(([test]) => test(buffer, client))[1];
+const compiled = (view) => view.files.find((file) => file.path === view.entry).mime === mime.javascript;
+const compiledFirstThenLatest = (left, right) => compiled(right) - compiled(left) || right.updatedAt - left.updatedAt;
+export const pick = (buffer, client) => own(buffer, client).sort(compiledFirstThenLatest)[0];   // m87 ruling 39: buffer.views IS the pick; RENDERED died
+#+end_src
+#+begin_src text
+renderer row        drapes (dom)              sheets (tty)              today
+Mounted             dom.svelte · dom.solid    tty.solid                 Frame.svelte:63 · ghost panes/frame.jsx:29
+text/markdown       Markdown.jsx              Markdown.jsx              drapes/dom/Markdown.jsx · ghost views/Markdown.jsx
+application/json    JsonTree.jsx              JsonTree.jsx              drapes/dom/JsonTree.jsx · ghost views/JsonTree.jsx
+image/*             Image.jsx                 Line                      none
+text/html           Html.jsx (sandboxed)      Line                      none
+…+json              JsonTree.jsx              JsonTree.jsx              ghost frame.jsx:48 Floor
+#+end_src
+
+*** systems/ghost — m87 milestone 5 (moved whole from m87 10-22)
+
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/renderers.js — the table, walked in order; anima's names drapes and RUNS dom.svelte · dom.solid
+const RUNS = [mime.tty.solid];
+const candidates = (buffer) => (buffer.views.length ? buffer.views : buffer.mode?.views ?? []);   // ruling 39 · m96 13: the pin, else the buffer's own mode
+const own = (buffer) => candidates(buffer).filter((view) => RUNS.includes(view.mime));
+export const RENDERERS = [
+  [(buffer, client) => own(buffer, client).length > 0, Mounted],
+  [(buffer) => buffer.mime === mime.markdown,  Markdown],
+  [(buffer) => buffer.mime === mime.json,      JsonTree],
+  [(buffer) => buffer.mime.endsWith("+json"),  JsonTree],
+  [() => true,                                 Line],
+];
+export const renderer = (buffer, client) => RENDERERS.find(([test]) => test(buffer, client))[1];
+const compiled = (view) => view.files.find((file) => file.path === view.entry).mime === mime.javascript;   // ruling 38: no upstream; a compiled view's entry is a bundle (mine)
+const compiledFirstThenLatest = (left, right) => compiled(right) - compiled(left) || right.updatedAt - left.updatedAt;
+export const pick = (buffer, client) => own(buffer, client).sort(compiledFirstThenLatest)[0];   // m87 ruling 39: buffer.views IS the pick; RENDERED died
+#+END_SRC
+#+BEGIN_SRC jsx
+// systems/ghost/surfaces/chrome/panes/dock.jsx — a turn: its parts, then its buffers
+<For each={props.turn.parts}>{(part) => <Part part={part} />}</For>
+<For each={props.turn.buffers}>{(buffer) => <Dynamic component={renderer(buffer, terminal.client)} terminal={terminal} buffer={buffer} surface={{ place: "cell", renderer, tones }} />}</For>
+// Mounted
+onMount(async () => {
+  props.buffer.attach();
+  const module = await view.load(pick(props.buffer, props.terminal.client, props.surface), props.terminal.client.runtime.attach);
+  handle = module.default(element, { terminal: props.terminal, buffer: props.buffer, surface: props.surface });
+});
+// Markdown — /attached/file/:id over the buffer's file, memo by integrity
+const text = createResource(() => props.buffer.files[0].integrity, () => view.bytes(props.buffer.files[0], props.terminal.client.runtime.attach));
+// Line — the last row: a buffer this client cannot show; select frames it
+export const Line = (props) => <text onMouseDown={() => props.terminal.dispatch(`/buffer ${v.buffer.trait(props.buffer, "LABELED").name}`)}>{`▸ ${v.buffer.trait(props.buffer, "LABELED").name} · ${short(props.buffer.mime)}`}</text>;
+#+END_SRC
+#+BEGIN_SRC text
+what ghost paints for flow 1
+▸ agent   Three filings. The VAT return and the payroll report are filed; the annual accounts wait on your review.
+          ◆ runtime #3 · md · 1.4 kB
+          Annual accounts 2026 · draft
+          Revenue for the year is 412k, up 18 % on 2025. …
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/entities/terminal/commands/view.js
+export const views = new Vector()
+  .open({ nature: "/views", valence: "this mode's views — slug · mime. Example: /views", chord: "leader/e/a" },
+    (ctx) => { ctx.output = ctx.terminal.mode.views.map(({ slug, mime }) => ({ slug, mime })); })
+  .open({ nature: "/buffer/view", valence: "pin which view the buffer shows in a place. Example: /buffer/view pulse cell",
+          input: v.object({ slug: v.string(), place: v.enum(["cell", "frame"]).default("frame") }) },
+    (ctx) => ctx.terminal.buffer.updateOne({ id: ctx.terminal.buffer.id }, { views: ctx.terminal.mode.views.filter((view) => view.slug === ctx.input.slug).map((view) => view.id) }));   // ruling 39: the relation IS the pick; place is the client's (surface.place), never a row
+// systems/ghost/entities/terminal/commands/attach.js — an upload: the seated mode owns it (ruling 6), the route moves it (ruling 24)
+export const attach = new Vector().open(
+  { nature: "/attach", valence: "a file into the seated mode, surfaced on this thread. Example: /attach ~/maps/range.png", input: v.object({ path: v.string() }) },
+  async (ctx) => { ctx.output = await ctx.terminal.mode.connection.call("/files/receive", { path: basename(ctx.input.path), bytes: await Deno.readFile(ctx.input.path), mime: mime.of(ctx.input.path), thread: ctx.terminal.thread.id }); },
+);
+// systems/ghost/entities/buffer.js · systems/anima/src/entities/buffer.js — the hooks rename: mount · unmount → attach · detach (the column is mount)
+// a client mode, ruling 26 — the register carries what a client mode is, nothing to render
+export const register = { modes: [{ reference: "/client/anima/mode/home/home", manifest, repling, keymap }] };
+#+END_SRC
+
+*** systems/anima
+
+**** src/client.js — ruling 23: the browser door IS ghost's door
+
+#+begin_src js
+// systems/anima/src/client.js — run.js:5-13 line for line; @vivalence/paladin resolves to the baked paladin
+import paladin, { factories } from "@vivalence/paladin";
+import { Controller, Span } from "@vivalence/typology";
+import * as ghost from "@vivalence/ghost";
+import { dom } from "./surface/index.js";
+
+const instance = await factories.instance(paladin.instance);
+await paladin.ledger.registry.supply();
+const die = { controller: new Controller({ stdout: new Span("anima") }), instance, mask: instance.clients.find((client) => client.manifest.slug === "anima") };
+die.register = await paladin.ledger.registry.wire(die.mask);
+await ghost.factories.client(dom)(die);
+// systems/anima/src/surface/index.js — the browser's dark()
+export const dom = Object.assign((client) => mount(client), { dark: globalThis.matchMedia("(prefers-color-scheme: dark)").matches });
+#+end_src
+
+**** src/surface/index.js · subsystems/drapes/panes/regions.jsx — ruling 39: the phone
+
+#+begin_src js
+// systems/anima/src/surface/index.js — the dom surface's viewport facts, beside kind · places (ruling 37); bridge/start.js SCREENS dies with the pincer
+const narrow = window.matchMedia("(max-width: 767px)");
+client.surface = { kind: "dom", places: ["cell", "frame"], $narrow: atom(narrow.matches), $shown: atom("dock"), $shell: atom("cockpit"), palette: tokens.kebab(client.theme, "2") };
+narrow.addEventListener("change", (event) => client.surface.$narrow.set(event.matches));
+// systems/ghost/entities/terminal/commands/dock.js · client/commands/sidebar.js — the same commands; each also brings its region forward
+(ctx) => { ctx.client.surface.$shown.set("dock"); return ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, { trait: { DOCKED: { ...ctx.terminal.dock, align: ctx.input.align } } }); }
+(ctx) => ctx.client.surface.$shown.set(ctx.client.surface.shown === "sidebar" ? "frame" : "sidebar")
+// /buffer/view (m87) sets $shown "frame" — the demo's :283
+// subsystems/drapes/panes/regions.jsx — wide: every region; narrow: the one in $shown. The tty surface has no $narrow: sheets' regions.jsx is the wide branch alone
+const REGIONS = { dock: Dock, sidebar: Sidebar, frame: Frame };
+export const Regions = (props) => {
+  const narrow = from(props.client.surface.$narrow), shown = from(props.client.surface.$shown);
+  return <Show when={!narrow()} fallback={<Dynamic component={REGIONS[shown()]} client={props.client} />}>…tabs · sidebar · frame ‖ dock · bar…</Show>;
+};
+#+end_src
+
+**** vite.config.mjs — lock 1a · ruling 23: paladin at build, once; a citizen's code is an import vite bundles
+
+#+begin_src js
+// systems/anima/vite.config.mjs — no @deno/vite-plugin (reference/testament-probes.md:36-58)
+const bake = () => ({
+  name: "paladin:baked",
+  resolveId: (id) => (id === "paladin:baked" ? id : null),
+  async load(id) {
+    if (id !== "paladin:baked") return null;
+    const { default: paladin, factories } = await import("@vivalence/paladin");
+    const instance = await factories.instance(paladin.instance);
+    await paladin.ledger.registry.supply();
+    const mask = instance.clients.find((client) => client.manifest.slug === "anima");
+    const wired = await paladin.ledger.registry.wire(mask);
+    const env = Object.fromEntries(Object.entries(paladin.env.vars).filter(([key]) => key.startsWith("PUBLIC_VIVA_")));
+    return `export default ${JSON.stringify({ env, instance, wired: { ...wired, modes: [] } })};
+export const modes = [${wired.modes.map((citizen) => `{ ...${JSON.stringify({ ...citizen, module: null })}, module: () => import(${JSON.stringify(`${citizen.module.source.absolute}/${citizen.manifest.slug}.viva.js`)}) }`).join(",")}];`;
+  },
+});
+// resolve.alias — beside typology's twin (:123)
+"@vivalence/paladin": join(__ss, "./paladin/mod.client.js"),
+#+end_src
+#+begin_src text
+systems/anima/src/                 the Solid anima
+  client.html                      KEEP   iOS standalone (:12-18)
+  client.js                        the door
+  surface/index.js                 dom(client) · dark
+  surface/panes/{chrome,regions,tabs,sidebar,frame,dock,split,chord,catalog,bar}.jsx    the same rows as ghost's, over drapes
+  entities/ bridge/ app/bones app/+layout.svelte app/+page.svelte prototypes/{entity,dataspace}.js lighthouse.js:203-234   DROP
+  app/turns.js app/gate.js box/ prototypes/dictation                 KEEP
+#+end_src
+
+*** systems/anima — m87 milestone 8 (moved whole from m87 10-22)
+
+The same four files under =systems/anima/src/surface/=; =RUNS = [mime.dom.svelte, mime.dom.solid]=; the table adds =[(buffer) => buffer.mime.startsWith("image/"), Image]= and =[(buffer) => buffer.mime === mime.html, Html]= (sandboxed) from drapes.
+
+*** subsystems/paladin — MOVED 10-21 to =reference/m96/the-wiring.org= (prototype · lifecycle · mod.client.js · belt/vault.js)
+
+*** subsystems/dapper
+
+**** lib/tokens.js — ruling 36: one walk of the zone object, two joins; the hand table FLAT (:116, 14 selectors) dies
+
+#+begin_src js
+// subsystems/dapper/lib/tokens.js:106 — today: flat() walks any nested object and joins with "-" (kebab, lowercased) — the kebab half already exists
+const flat = (held, prefix) =>
+  Object.entries(held).flatMap(([key, value]) =>
+    value !== null && typeof value === "object" && !Array.isArray(value) ? flat(value, `${prefix}-${key}`) : [[`${prefix}-${key}`.toLowerCase(), Array.isArray(value) ? value.join(", ") : value]]);
+// after: the join is a parameter; the two spellings are two joins over the SAME walk; every key of the zone object comes out, 14 or 27 is the theme's business
+const kebab = (prefix, key) => (prefix === "" ? key : `${prefix}-${key}`).toLowerCase();
+const camel = (prefix, key) => (prefix === "" ? key : `${prefix}${key[0].toUpperCase()}${key.slice(1)}`);
+const fold = (held, join, prefix = "") =>
+  Object.entries(held).flatMap(([key, value]) =>
+    value !== null && typeof value === "object" && !Array.isArray(value) ? fold(value, join, join(prefix, key)) : [[join(prefix, key), Array.isArray(value) ? value.join(", ") : value]]);
+const zone = (theme, name) => {
+  if (!Object.hasOwn(THEMES, theme)) throw new Error(`[tokens] not a theme: ${JSON.stringify(theme)} · ${Object.keys(THEMES).join(" · ")}`);
+  if (THEMES[theme].zones[name] === undefined) throw new Error(`[tokens] not a zone: ${JSON.stringify(name)} · 0 · 1 · 2 · 3`);
+  return THEMES[theme].zones[name];
+};
+export const tokens = {
+  camel: (theme, name) => Object.fromEntries(fold(zone(theme, name), camel)),   // sheets (tty): palette.signalPrimaryInk
+  kebab: (theme, name) => Object.fromEntries(fold(zone(theme, name), kebab)),   // drapes (dom): var(--signal-primary-ink) via scales()
+};
+// subsystems/dapper/themes/northsea/theme.js:15 — zone 0 today carries 6 keys and no text/signal; the demo's 27 land HERE, as nested objects, once per theme
+0: { surface: iron[900], surfaceSunk: iron[950], surfaceLift: iron[850], boundary: iron[800], boundaryStrong: iron[600], divider: iron[850],
+     text: { strong: …, ink: …, light: …, muted: …, link: … }, signal: { primary: { fill, ink, tint }, positive: { fill, ink }, caution: { fill, ink, tint }, negative: { fill, ink, tint } },
+     control: { selected: …, field: { fill: …, caret: … } }, inverse: …, inverseOn: … },
+// callers: 14 `tokens(theme, zone)` → `tokens.camel(theme, zone)` (ghost chrome · sheets); drapes reads the CSS scales()
+#+end_src
+
+*** subsystems/drapes · subsystems/sheets — ruling 3
+
+#+begin_src text
+subsystems/drapes/   Bar Segment Dot Meter Tab Mark Chord Catalog Row Choice Field Turn Split .jsx     solid-js/web     (+ the Svelte half, 38 importers, untouched)
+                     Markdown.jsx JsonTree.jsx Image.jsx Html.jsx                                     the content renderers
+                     design/        the parts page — a fixture, a vite index (mine; /design dead, ruling 21)
+subsystems/sheets/   Bar Segment Dot Meter Tab Mark Chord Catalog Row Choice Field Turn Split .jsx     @opentui/solid
+                     Markdown.jsx JsonTree.jsx Line.jsx
+                     design/        the parts page — headless render + the a11y table (mine)
+subsystems/dapper/lib/tokens.js:116-133   14 keys → the demo's 27 per zone (tokens(theme, zone) throws on a miss, as today)
+#+end_src
+
+
+#+begin_src jsx
+// subsystems/sheets/Chord.jsx — ruling 35: where in the keymap we are (m92 law 10, client.$chord); the same props in subsystems/drapes/Chord.jsx over DOM
+const keys = (node) => [...node.trie.entries()].map(([nature, edge]) => ({ key: nature, label: edge.pattern.valence ?? nature }));
+const chooser = (node) => node.effect && node.signature.input?.enum ? node.signature.input.enum.map((value) => ({ key: value, label: value })) : null;
+export const Chord = (props) => (
+  <box style={{ flexDirection: "column", backgroundColor: props.surface.palette.surfaceLift }}>
+    <text>{props.chord.crumbs.join(" ")}</text>
+    <For each={chooser(props.chord.node) ?? keys(props.chord.node)}>{(entry) => <Segment key={entry.key} label={entry.label} />}</For>
+  </box>
+);
+// subsystems/sheets/Catalog.jsx — ruling 13 · 35: the composed repl's strip (m92 law 11, client.$catalog), narrowed by what is typed
+export const Catalog = (props) => {
+  const [typed, setTyped] = createSignal("");
+  return (
+    <box style={{ flexDirection: "column" }}>
+      <Field value={typed()} onInput={setTyped} />
+      <For each={props.catalog.filter((command) => command.nature.includes(typed()))}>{(command) => <Row label={command.nature} hint={command.chord ?? ""} onPick={() => props.terminal.dispatch(command.nature)} />}</For>
+    </box>
+  );
+};
+// three words, one root: `chord:` on a repl pattern (m92 ruling 2) · `client.$chord` the held position (m92 law 10) · `Chord` the part that paints it
+#+end_src
+
+*** subsystems/typology
+
+#+begin_src text
+subsystems/typology/prototypes/keysignal.js     NEW — m92's KeySignal (one segment of a keymap walk), beside replsignal.js; both clients walk one KeySignal (mine 10-21)
+#+end_src
+
+*** ~/.viva/registry — milestone 9: 27 Svelte + 2 jsx components read terminal.*
+
+#+begin_src jsx
+// ~/.viva/registry/chess/modes/board/play/buffer/play.jsx:151 — today: const { daemon, mode, thread, terminal } = props
+props.terminal.dispatch("/mode/board/play/move e2e4");
+props.buffer.data.fen;  props.surface.place === "cell";
+#+end_src
+
+* m87 inside m95 — the three entities the frame and the dock show (re-cut 10-20 · Q38 10-21)
+Drained 10-22 whole to =reference/m95/m87-inside-m95.org= — it repeated m87; the entities live in =m87-buffer-view-file.org= (law 3 · ruling 39: =buffer.views= m:n).
+
+* milestones — each a noun, each green before the next; a =go= per row
+
+| # | milestone | needs | from | m96 milestone |
+|---+---+---+---+---|
+| 1 | the wiring | MOVED → m96 =* the wiring= | m96 | hosts |
+| 2 | sheets | — | m95 | floor |
+| 3 | drapes | — | m95 | floor |
+| 4 | the commands (33 natures, measured 10-22) | m96 wiring | m95 | repl |
+| 5 | the keymap panes | m92 1 · 2 · 4 | m92 3 · 5 | repl |
+| 6 | ghost chrome | 2 · 4 · 5 · m87 1–4 | m95 + m87 5 | chromes |
+| 7 | anima door | m96 wiring | m88 anima door | repl |
+| 8 | anima chrome | 3 · 4 · 5 · 7 | m95 + m87 8 | chromes |
+| 9 | the registry components on ={ terminal, buffer, surface }= | 6 · m87 3 (one registry pass) | m95 | registry |
+| 10 | the look — the designer's v1.0 verbatim | 6 · 8 | m95 | chromes (step 3b) |
+
+** 1 · the wiring — MOVED 10-21 to =reference/m96/the-wiring.org= (its hunks, its gate)
+
+** 2 · sheets
+
+#+begin_src text
+spec      D/design.js:138-175 · D/tty.js:4 KEYS (27 per zone) · :63 paintTabs · :89 paintBar · :134 sectionLines · :191 paintPanel · :421 paintJournal · :543 paintIsland
+read      subsystems/sheets/bak/ (14 .jsx, prior art) · systems/ghost/surfaces/chrome/{paint,palette,text}.js · views/ · host/ · .ikiro/reference/tty-render.md:193,210 · known-issues sheets-* :2602 · 2628 · 2737 · 2751
+dapper    subsystems/dapper/lib/tokens.js:116-133 — 14 → 27
+green     subsystems/dapper/tests (125)
+settle    the headless rig — RULED m96 ruling 18 10-21: a SCENARIOS export (=@vivalence/sheets/scenarios= · =@vivalence/drapes/scenarios=), ghost's =tests/world.js= re-exports; the block below is superseded by m96 =* as code=:
+#+end_src
+The superseded =tests/rig.js= block drained 10-22 whole to =reference/m95/struck-blocks.org= (m96 ruling 18: scenarios).
+
+
+** 3 · drapes
+
+#+begin_src text
+spec      D/design.js:138-175 · :205-210 (a11y pairs) · D/base.css · D/design.css · D/dom.js:30 mark · :42 meter · :50 tabs · :61 srow · :250 entry · :278 composer · :288 panel · :320 bar · :341 island · :368 skeleton
+read      subsystems/drapes/dom/ (25 files) · tests/dom/{rig,keys,…}.test.js · subsystems/dapper/lib/emit.js:62
+keep      drapes . (Svelte, 38 importers)
+green     subsystems/drapes/tests · dapper suite
+settle    viket — RULED m96 ruling 19 10-21: the pictogram set MOVES =systems/anima/static/images/pictogram_viket= → =subsystems/dapper/assets/viket=; the =viket.b64= decode below is STRUCK
+#+end_src
+The struck =viket.b64= decode + the =Mark.jsx= sketch over it drained 10-22 whole to =reference/m95/struck-blocks.org= (ruling 19 moved the pictogram set instead).
+
+
+** 4 · the commands — =* as code= client/commands · entities/terminal/commands
+
+#+begin_src text
+spec      D/ring.js:399-516 (nature · valence · chord · run) · D/design.js:220 · D/ring.js:316-344 (MACHINE) · :594-645 (consent · fault · progress · artifact · LOOPING)
+read      systems/ghost/subjects/client/commands/ · entities/terminal/commands/ · entities/terminal/lifecycle/ · subsystems/typology/prototypes/pattern.js:30 (chord:) · systems/runtime/entities/Activity.ts · integration.js:64-82
+green     systems/ghost/tests/repl.test.js · client.test.js
+settle    /application/* retired by m87
+#+end_src
+
+** 5 · the keymap panes (m92 3 · 5)
+
+#+begin_src text
+spec      D/ring.js:698-741 (SUBJECTS · trie) · :747-778 (keys → group → chooser → catalog) · :783-831 (fuzzy) · D/app.js:189-194 (the Mark)
+read      m92-keymap.org:69-82 · :293 · :327-332 · systems/ghost/surfaces/chrome/keys.js:9-16
+before    m92 1 (typology hunks, HOLY) · 2 (KeySignal + shard) · 4 (KEYMAPPED)
+#+end_src
+
+** 6 · ghost chrome — =* as code= surface/chrome
+
+#+begin_src text
+spec      D/tty.js:573 render · :299 paintFrame · :332 paintSidebar · :464 paintTele · :645 onKey · D/dom.js:368-391 (the regions)
+read      systems/ghost/surfaces/chrome/panes/{chrome,dock,frame}.jsx · bak/bak.3/chrome/panes/ (crown · navigation · pips · signin) · m87:112-136 · :219-230 · known-issues :48 · :168 · :1973
+before    m87 1–4 · milestones 2 · 4 · 5
+#+end_src
+
+** 7 · anima door — =* as code= systems/anima · subsystems/paladin/mod.client.js
+
+#+begin_src text
+read      .ikiro/reference/testament-probes.md:36-58 · m88-repling.org:45,52,82,833 · testament/m82-clients-20261012/systems/anima/ · systems/anima/vite.config.mjs:1-3,123 · src/client.html:12-18 · the svelte@5.39.6 importmap pin
+settle    the solid-js importmap pin beside svelte's — DRAWN 10-21 (import_map.json:105 pins solid-js@1.9.12 for Deno; the browser pins the same)
+#+end_src
+#+begin_src diff
+// systems/anima/src/client.html:50
+ 				"svelte": "https://esm.sh/svelte@5.39.6",
++				"solid-js": "https://esm.sh/solid-js@1.9.12",
++				"solid-js/web": "https://esm.sh/solid-js@1.9.12/web",
++				"solid-js/store": "https://esm.sh/solid-js@1.9.12/store",
+#+end_src
+
+** 8 · anima chrome (m87 8)
+
+#+begin_src text
+spec      D/dom.js (whole) · D/base.css · D/app.js:17 (routes) · :248-267 (one click handler → dispatch) · phone below 768 px
+read      systems/anima/src/lighthouse.js:41-290 · app/gate.js · app/turns.js · box/ · prototypes/dictation · app/panels/a/Dock.svelte:118,156 · panels/c/cards/traits/form/{schema,picker}.js · subsystems/drapes/panels/Frame.svelte:40-80
+green     systems/anima/tests: activity · dock-turns (51) · gate · trait-runner · the sheet reducer
+settle    the deep link — OUT (m96 ruling 17 10-21: /"a whole engine"/ that opens a thread · a mode · an XYZ; mode-declared URL parsers later); roadmap/anima-deeplink.org keeps it; the block below is a struck sketch
+#+end_src
+The struck deep-link sketch (=src/client.js= =?line== landing) drained 10-22 whole to =reference/m95/struck-blocks.org=.
+
+** 9 · the registry components
+
+#+begin_src text
+read      grep -rlE "daemon|mode|thread|terminal" ~/.viva/registry/*/modes/*/*/buffer (measured 10-22: 35 .svelte · 2 .jsx name terminal) · systems/ghost/surfaces/chrome/panes/frame.jsx:29
+skill     mode (shelf copy synced after instance/create) · package
+staging   rides m87 milestone 3's registry pass (new App( 52 · v.buffer( 17) — one walk
+#+end_src
+
+** 10 · the look — the designer's v1.0 ported, verbatim (REJECTED 10-22 the chromes skeleton: /"the design is wholy insufficient. its not comparable with the design i handed you at all"/)
+
+Measured 10-22 against =~/Downloads/Client · v1.0.html= (his, read never run; split to =scratchpad/design-v1/{dom,ring,tty,design,app}.js= + =style-{0..3}.css=):
+
+| | design v1.0 | anima after chromes |
+|---|---|---|
+| renderers | 43 (=Dom.*=, 54 K) | 14 panes (1017 lines) + 13 parts (631) |
+| sheet rules | 668 (=.tele=×96 =.srow=×40 =.island=×35 =.entry=×31 =.artcard=×24 =.phone=×23 =.field=×23 =.seg=×20) | 189 (=parts.css=) + ~50 (=chrome.css=) |
+| absent | =tele= (logger · inspector) · =wid= · =pop= (=dset=) · =artcard= + mini · =block= (table/select/md/json) · =think= · =bench= · =prog= · seams · floating dock min/drag · =strip= + =phonePane= · sidebar head/filter/foot · frame =asel= · =dhead= close/min · composer =atts= =dictline= =fk= | |
+
+Laws (=scratchpad/look-brief.md=): the design is the spec VERBATIM — markup =Dom.<fn>= 1:1 into Solid, sheet =style-2.css= lifted, HIS class names replace ours; data real (every =w.*= mapped to an entity · record · =client.surface= atom, else the design's empty state); no hex (dapper =emit()= grows to the design's =DAPPER_KEYS=, 59 vars); law 11 the nine intact, a design line → an existing nature, a new terminal command, or a surface atom; a test per pane with the design's class tree as the oracle string; served proof = the twin against a world. Swarm 10-22 (OPUS ×5 on =scratchpad/look/=): sheet · journal (journal + composer out of =dock.jsx=) · regions (skeleton · frame · dock shell · seams · =Float= · strip · phone · surface atoms =$focus $jsel $phonePane $sidebarWidth $tele $wid $pop=) · sidebar-bar (tabs · sidebar · modebar · =Wid= · =Pop= · panel) · tele. Verifier OPUS after. Lesson → m96 swarm: a chrome milestone's verifier compares the served screen to the DESIGN side by side, never suites alone.
+
+THE spec (ONE source, 10-22): =/Users/finn/Downloads/Client · v1.0.html= (his, read never run); =~/Downloads/vivalence-client-v1/build/src/= is the earlier build of the same design. The brief: =reference/m95/look-brief.md=.
+
+The eight contradictions the look meets, each with where it resolves:
+
+| # | contradiction | resolution |
+|---+---+---|
+| 1 | the design paints a Consent part; ruling 30 put consent OUT | → m96 =* open= #12 |
+| 2 | the design's =tele= (logger · inspector) window; ruling 28 gives the client's span to telemetry (m89) | → m96 =* open= #14 |
+| 3 | ~20 drapes-only parts vs law 3 (the same thirteen in drapes ∥ sheets) | → m96 =* open= #13 |
+| 4 | the designer's =style-1.css= hexes vs law 3 "dapper tokens only, no hex" | → m96 =* open= #15 |
+| 5 | the design streams the reply live; the ghost tail still marks ="stream"= (=systems/ghost/gestalten/belt/harness.js:6=) | ruling 33 BUILT 10-22: =harness.js:6= =soma.pour=, the stream record dead |
+| 6 | design lines that would rename =/application/*= (m95 =** 4= "retired by m87") | m96 law 11 wins: =/application/start= · =/application/stop= frozen |
+| 7 | the design's =/theme= switch | → m96 =* open= #9 (a client/user repository on the wire) |
+| 8 | the design's dock width as a share vs =Docked.share= 0.1–0.9 (=subsystems/typology/schematics/traits/docked.js:6=) and sheets 20–80 (=subsystems/sheets/Split.jsx:13=) | → m96 =* open= #7 |
+
+*** LANDED 10-22 — the look on the repo (110 files: drapes 66 · anima 33 · ghost 11; uncommitted, beef snaps)
+Swarm on =scratchpad/look/= (opus ×5 builders: sheet · journal+composer · regions+frame+dock+float · sidebar+tabs+bar+wid+pop+chord+catalog · tele; + commands; one opus verifier). Verifier: LAND WITH FIXES — the four fixes landed with it (=parts.css:2= two hex fallbacks dropped; =/telemetry= loud on a tty surface (=commands/telemetry.js= =windowOf=); =screen.js= TELE =0/48/600×420=; =$sidebar= boots closed as the design, the rig seats it open).
+- proof on the repo: =systems/anima/tests/{zones/slots,regions,sidebar,bar,tele,chrome,tabs,panel,journal,composer,painters}.test.js systems/ghost/tests/ subsystems/drapes/tests/ subsystems/dapper/tests/= → =FAILED | 104 passed (979 steps) | 1 failed (2 steps)= (the 1 = drapes chassis rig =dock.shareAfterDrag=, recorded red); =anima/bundle= exit 0; served on =:1794= against his runtime =:2501=, linkedom twin (=--no-lock --reload=): faults =[]=, body =#app[data-viva=porcelain] > div.client > nav.tabs · div.body(aside.sidebar · .sbseam · .split(.dock(.dhead · strip · .journal · .composer))) · nav.modebar · wid · pop · tele · island=.
+- sheet: =parts.css= 1–698 = =style-2.css= verbatim (0 differing content lines); dapper =emit()= = the design's 106 =DAPPER_KEYS=; layout vars =--bar-h --row-h --sb-w --share --sq --tab-h --tty-*= are the design's own, listed in =sheet.test.js=.
+- law 11: the nine unchanged; added natures =/attach /buffer/artifact /buffer/close /buffer/full /detach /dictate /telemetry /telemetry/clear=; =/dock= input =Aligned{align}= → =Docking{word}= (left · right · docked · full · closed · messenger).
+- the verifier's side-by-side (region · verdict): skeleton DIFF (=section.panel= only while open) · tabs SAME · sidebar SAME · frameHead SAME · frameBody DIFF (mounted bundle, legacy =anima-mounted= classes) · dhead DIFF (=/dock/lens= for =/journal=, law 4) · entry SAME · artcard SAME · composer SAME · bar SAME · wid SAME · pop/dset SAME · tele logger SAME · tele inspector DIFF (only =ro= · =act= kinds) · island ABSENT (old =anima-*= cards) · strip SAME · chord SAME · palette SAME · chooser ABSENT.
+- polish LANDED 10-22 (45 files + =chrome.css= DEAD): the island (=.card.plain.boot .brandline .bootbar .bootst .ff .acts=, =island.test.js=) · legacy =part-*=/=anima-*= → 0 in src · inspector rows =enum bool num text set= from the value (=tele.jsx= =ROWS= table) → =/set <path> <value>= (=commands/set.js=, a =WRITABLE= table: =terminal.dock.*= · =thread.label/tune/effort/rounds= · =surface.*=) · =section.panel= permanent (=hidden= while closed) + the =/verb= chooser (=parts.Chooser=, options from the command's first enum input, =keymap.js= =catalog()=) + =$draft= · =parts.listing= once (=hold.js=) · intermediaries inlined · =YIELD_INSET= · =GAP=. Proof on the repo: the 16 suites =FAILED | 107 passed (993 steps) | 1 failed (2 steps)= (chassis) · twin on =:1794= faults =[]=. Departures: Bar =SUBJECTS= valences are on-screen hints (rename to =hint= — his ruling) · autologin/sign-up call the lighthouse directly (=/lighthouse/login= needs user+pass; a =/lighthouse/autologin= verb owed) · picking a chooser option FILLS the draft (the design dispatches) · bootbar aria dropped for the oracle.
+- lesson (m96 3b): a verifier compares the served screen BESIDE the design, region by region — suites green proved nothing about the look. A twin's =http://localhost:1794/…= modules CACHE in =DENO_DIR= and LAND in =deno.lock=: run twins =--no-lock --reload=<origin>=; =deno.lock= restored from HEAD 10-22 (465 localhost lines were mine).
+- owed from the builders: =cmd= entries (typed line + answer not recorded on the terminal's span) · attachments/dictation wire (=/attach /detach /dictate= stubbed loud) · =dur= on tool parts · =host.js:55= remote LOOPING · =Vector.graft= overwrites a meaningful edge pattern with the bare step of a longer path (=prototypes/vector.js:63=, typology) · the pick in =buffer.data.artifact= (a mode rewriting =data= drops it — his ruling: a field) · phone float · drop-zone overlay · =Docked.prev= for un-fullscreen.
+
+*** LANDED 10-22 — the tty look on ghost (30 files; 8 chromes-era panes DEAD: =booting catalog chord dock frame regions signin view.jsx=)
+The design's =Tty.paint*= (=design-v1/tty.js=, 47 fns) ported 1:1: a cell grid (=surface/chrome/grid.js= =screen · put · fill · palette(theme)= — dapper tokens through =hexOf · toRgb=, 0 hex), one pane per paint (=panes/{tabs,bar,section,wid,panel,frame,sidebar,journal,tele,island,regions}.js=), the host =panes/chrome.jsx= (grid → opentui, mouse hits, keys, the mounted view), =screen.js= (tty surface atoms, =sidebarWidth= in cells) · =world.js= · =acts.js= · =typing.js= (=onKey= minus the chord the keymap owns). =client/keymap.js= catalog rows carry =valence=; =commands/telemetry.js= opens on any surface with =$tele=.
+- proof on the repo: =systems/ghost/tests/= =ok | 19 passed (74 steps) | 0 failed= (=look.test.js= 10 states: the design's lines + tone runs as the oracle; =chrome.test.js= the real opentui frame); anima blast =ok | 9 passed (50 steps)=; twin on =:1794= faults =[]=. 20 renders (10 states × 80×24 · 120×40) =diffs=0= char · fg · bg · bold vs =Tty.render= — the oracle fed the design's painters OUR rows, so it proves the painting, not the mock data. =viva chrome= walked live in tmux at both sizes (=scratchpad/ghost-verify/screens/=).
+- side by side: tabs · bar · section/wid · sidebar · panel (leader · palette) · journal+composer · frame head+md · tele · island SAME; choose panel ABSENT (the palette's =/verb = completions); =paintBoard= chess/memo cards ABSENT on purpose (domain-blind: the mode's own tty view — memo's now renders; known issue =memo-tty-face-on-dead-sheets= likely closed); footer shell + messenger float ported UNTESTED.
+- departures: geometry in cells (px ÷ 7.8×18); a json block for object messages; =/buffer "label"= quoted; the palette's =args= column empty; the design's own =||= fallbacks and short names (=S · P · z · w=) kept VERBATIM inside the painters — against codestyle names/absence, a polish pass renames (his call: law 1 verbatim vs codestyle).
+- owed: copy · retry · fold · think · tool · drag · resize · "open in anima" clicks fault loudly; no =cmd= rows / composer history; ⇥ shared by memo and the frame focus; =sections.js= + =tele.js= duplicate anima's (one owner); codemap =ghost.md= stale (rewrite next fold); teardown =WARN Renderable … skipping remove=; a hung client ignored SIGTERM once.
+
+*** LANDED 10-22 — rulings 27 · 33 · 38 (34 files) + the validators' 15 coverage tests
+- 38: =systems/ghost/entities/thread/prototype.js:4= =WORD= table (LABELED name via =v.thread.trait=, else =thread.mode.slug=), =get word()=; =terminal/prototype.js:33= =get word() { return this.thread.word }=; =label()= DEAD in both =sections.js=; every tab/thread word reads =.word= (an unlabeled thread shows =probe=, not =home/probe=). =Thread= exported from =ghost/typology.js:15=.
+- 33: =systems/runtime/subjects/mode/traits/harnessed.js:129-160= the row is created at =/turn/open= with =id: v7()= (mikro's =onCreate= runs at save), =packet.turn.id= rides out, =SEALING= saves per =/turn/close=; =ghost/gestalten/belt/harness.js= =soma.pour= + =entities.turn.merge({ ...turn, thread, mode: mode.id })= by the runtime's id; the ="stream"= record DEAD (readers in =chrome.jsx= · =world.js= · =journal.jsx= · both tele =VERBS= gone); =streamed(turn)= on both journals; =Packet.TurnOpen.turn.id= optional (=hallucination.js:248=); the plain repl prints an assistant turn when its row arrives.
+- 27: =ghost/entities/turn.js:14= =hydration = new Vector()=; ="turn"= out of =SHOWN= (=surface/repl.js=, =anima/src/surface/index.js=) and both =VERBS=.
+- proof on the repo: =systems/ghost/tests/= =ok | 26 passed (99 steps) | 0 failed= · anima 13 + drapes =FAILED | 62 passed (398 steps) | 1 failed= (chassis) · runtime mode/entities/runtime/cortex + typology gestalten + the coverage set =FAILED | 79 passed (382 steps) | 3 failed= (=@education not supplied= ×3, reads this machine) · twin =:1794= faults =[]=. Coverage (validator, one process per dir): ghost =shell/lifecycle.js= 0 → 100 · =client/factory.js= 36 → 100 · =belt/view.js= 53 → 100 · runtime =lifecycle/resolution.js= 27 → 100 · =integration.js= 60 → 96 · =shard/host.js= 48 → 99 · =mode/traits/{application,fileset,filesink,viewable}.js= → 100 · memo =progress.js= 19 → 100.
+- departures (his eyes): a streaming turn = =turn.createdAt === undefined= (the saved row not yet arrived) — =soma.pour= leaves no mark on a closed part → m96 =* open= #19; a failed stream now KEEPS the turns already closed and saves the open one partial (before: nothing saved); =stream(mode, terminal, parts)= keeps the terminal (the request needs its id).
+- owed: a thread whose =mode= is still a string (host unmounted) → =thread.mode.slug= undefined, silent (a third =WORD= row LANDED 10-22 =thread/prototype.js:6= =is.string(thread.mode)= → last segment); a failed stream's merged turn never gets =createdAt= → streams forever; =thread.$turns= sorts =new Date(undefined)= (journals sort it last themselves); =grid.js:13= =hexOf= FIXED 10-22 (=Number.isNaN(a) ? 1 : a=); the qa rigs =T-fresh T-demo P-reconcile= red in an empty HOME (=ledger/install= count off by one, =instance: nothing selected=) — pre-existing; =anima/bundle= needs a selected instance.
+
+* blast table — measured 10-19
+Drained 10-22 whole to =reference/m95/blast-table-10-19.org= (measured 10-19, pre-landing: anima src 139 · 53 =.svelte= die · registry 135 · 2 …).
+
+* testing assessment
+- VALIDATED 10-22 (opus, read-only, after the look · tty · rulings): m95 VALIDATED WITH 3 LOST — =/theme= (open #9; both =sections.js:224= still render the choice → faults), =/views= (next ⑤), a real =/attach= (loud stub). Rulings contradicted by the tree: 21 → ENFORCED 10-22 (=/face= · =/design= rows struck from both =sections.js=, =FACES= dead; sidebar/look oracles green); 30 Consent exists (open #12); 34 the =sections.js= grammar (=sub · keys · choice · value · stepper · check=, 91 lines differ between the two copies) → open #20; 35 =Panel.jsx= in drapes + sheets paints the design's =section.panel= → open #21; 25/6a signin calls the lighthouse directly (=/lighthouse/autologin= owed). Laws: 3 hex 0 · 5 repository verbs in surface 0 · 10 pincer files 7 (the dead shell, =reference/m95/shell-retire-20261022.md=) · 12 paladin on a die 0 · 14 owners client 8 · terminal 20 · mode traits 7. Coverage gap: =.jsx= panes/parts bundle through esbuild without sourcemaps → no per-file coverage (best bundles: anima surface 56 % · drapes parts 47 % · ghost panes 73 %); the 10 least-covered files + the test each needs in =scratchpad/validate/cov-table.txt= (10-22: =paint.js= 22 · =out/panes.mjs= 28 · =host/index.js= 43 · =chrome/index.js= 58 · =dapper/lifecycle= 59 · =regions.js= 61 · =commands/chrome.js= 63 · ffi/preload 75 · =bundle.js= 77 · =journal.js= 78).
+
+- every part: a headless test per library (sheets: OpenTUI test renderer; drapes: =subsystems/drapes/tests/dom/rig.js=).
+- the wiring: =systems/ghost/tests/client.test.js= (DEMO world) green; a new test imports =@vivalence/ghost= under a no-Deno guard; =subsystems/paladin/tests/vault.test.js= — the file backend on a temp ledger, 0600, by origin; the storage backend on a =Map=-backed stub.
+- COVERAGE GAP: no test boots =vite dev=; no test mounts a registry component in the Solid frame — T-svelte-component carries it.
+
+* QA
+- QA marker 10-22: sidebar rows =/mic /paste /voice /keymap= dispatch lines with no command → fault until their commands exist (law 4: each a terminal command or a surface atom; the box five owed).
+
+#+marker_qa: m95/T-fresh-tree · pending · a fresh checkout: =viva --help; echo $?= prints 0 without =ghost/bundle= first
+#+marker_qa: m95/T-ghost-regions · pending · I type =viva chrome=, I see "connecting", then tabs · sidebar · frame ‖ dock · bar; ctrl-v raises the panel
+#+marker_qa: m95/T-anima-regions · pending · I open =:1794=, I see the same regions; below 768 px the frame pins as a strip
+#+marker_qa: m95/T-dock-layers · pending · =/dock left= in tab 1, tab 2 stays right; the user's =DOCKED= left → a new terminal docks left; the client mask's only when the user has none
+#+marker_qa: m95/T-theme · pending · =/theme parchment= in ghost, anima repaints parchment
+#+marker_qa: m95/T-mirror · pending · seat a thread in anima, ghost's tab follows; type in anima, ghost's composer stays empty
+#+marker_qa: m95/T-component-terminal · pending · the chess board in both frames; a move in one shows in the other
+#+marker_qa: m95/T-svelte-component · pending · dojo's Svelte component mounts in the Solid anima frame
+#+marker_qa: m95/T-signin · pending · no credential, no AUTOLOGIN: the sign-in pane, no flash; sign in once in ghost, =~/.viva/credentials.json= holds the origin; a second =viva chrome= needs no sign-in
+#+marker_qa: m95/T-vault-browser · pending · sign in once in anima, reload: no sign-in; =localStorage= holds =vault:<origin>=
+#+marker_qa: m95/T-catalog · pending · =ctrl-v ctrl-v= lists the 33 commands; =/help= never lists =/face= or =/design=
+#+marker_qa: m95/T-look · pending · I open =http://127.0.0.1:1794/= beside =/Users/finn/Downloads/Client · v1.0.html=, I see the same regions, class tree and sheet, region by region (step 3b)
+#+marker_qa: m95/T-parts-page · pending · each library's parts page shows thirteen parts × four themes, the a11y table green
+
+Absorbed from siblings: m92 T-leader · T-unbound · T-palette (→ T-catalog) · T-no-key-lines · m86 T-chrome-toggle · T-application (=revised=: names =/application/start=, dead under m87).
+
+* deferred
+
+- the deep link → =roadmap/anima-deeplink.org= (his to number)
+- m85 desktop · m89 telemetry panes · m88 LOOPING
+- m92 B (focus-selected bare keys) · user rebinding · the chord in =/help=
+- drapes' Svelte half retires when the registry components move to Solid
+- m73's six walks: radial · throw · spine die with the pincer → =revised=, not held
+- supervision (m93 deferred, its own quest)
+- the thread's span: in memory, synced as its own thing (server-side logs) — ruling 28 /"not sure yet"/
+- the client's span on screen = telemetry (m89), not the dock — ruling 28
+- a verb's output shape and its paint (Q11 10-21): handled elsewhere, not m95 — /"skip. handled elsewhere"/
+- retry after a fault (the demo's /resume-as-retry, the keys row "retry · tool"): with consent's quest — ruling 31
+- consent (approve · skip · edit · the Consent part): its own quest; direction = stdin natures on the activity's controller, the sketch in =reference/m95/drill-20261021.md= is NOT the code — ruling 30
+
+* release (lifted 10-24 into =.ikiro/release.md=)
+
+- changed buffer component call — =module.default(target, {terminal, daemon, mode, thread, buffer})= → =module.default(target, { terminal, buffer, surface })= · migrate: read =props.terminal.*= · =props.surface.place= ⟨m95⟩
+- changed =DOCKED= payload — ={side, share, collapsed, full}= → ={align, share, view}=; resolution terminal → user → client → default · migrate: none (no writer outside anima) ⟨m95⟩
+- changed =@vivalence/ghost= — the barrel is browser-clean; =shell= under =./run= · migrate: =import { shell } from "@vivalence/ghost/run"= ⟨m95⟩
+- added =@vivalence/paladin= in a browser (=mod.client.js=, baked at build) · =paladin.vault= (=held · store= by origin) · =VIVA_CLIENT_GHOST_CREDENTIALS_FILE= (default =<ledger>/credentials.json=) · migrate: none ⟨m95⟩
+- added =@vivalence/sheets= — thirteen OpenTUI parts · migrate: none ⟨m95⟩
+- added =ctrl-v ctrl-v= — the =catalog= (was m92's "palette") ⟨m95⟩
+- removed =/face= · =/design= (never shipped) · the pincer — bones · gesture · radial · the bridge layout store · migrate: none ⟨m95⟩
+
+* changelog — pasted 10-22 from =reference/m96/coverage.org= (the census rows naming m95's suites)
+- 10-22 coverage pass (the validator's top 10, opus): ghost =ok | 31 passed (129 steps)= · dapper =ok | 28 passed (535)= (together =ok | 60 passed (669 steps) | 0 failed= on the repo, with =shell.test.js=); ghost chrome + client commands + dapper lifecycle lines 56.6 → 78.3 % (without the bundle 85.7 → 92.1): =paint.js= 22 → 100 · =host/index.js= 43 → 100 · =dapper/lifecycle= 59 → 100 · =regions.js= 61 → 89 (footer · messenger · messenger-min oracles, 0 diffs) · =commands/chrome.js= 63 → 97 · ffi/preload → 100 · =journal.js= 78 → 97 (tools · think · streaming · fault oracles) · =renderers.js= branches 25 → 100 · =out/panes.mjs= 28 → 65. Owed product seams for the rest: =chrome/index.js:35= =chrome(client)= builds its own renderer (no stub → the eraser on SIGTERM untestable; =chrome(client, renderer)=); =bundle.js:37-42= always rebuilds, =watch()= writes only the tree's =out/= (=watch(out)=); =commands/chrome.js:3= the surface URL is fixed. Design departure: the footer host line writes the runtime's reference segment (=regions.js:47= =beef@house=), the design hardcodes =beef@localhost · 3 daemons=.
+- 10-22 after the look · tty · rulings (one-shot, HOME empty): ghost =ok | 26 passed (99 steps)= · sheets =ok | 22 passed (52)= · drapes =FAILED | 48 passed (322) | 1 failed= (chassis) · dapper =ok | 27 passed (533)= · anima per file: 12 look proofs + 4 =** 8= + 20 others ok; reds =oracle.snapshot= (SNAPSHOT_HOT) · =scenario/buffer= + 5 ABORT (the dead shell's =$telemetry= / dead =View=) · =pincer/spine.mount= (=solid-js/web= not in the import map) · =interactive/activity= (=close, fault, close= — pre-existing: same red on the pre-rulings copy).
+
+#+begin_src text
+census — floor
+| sheets | — (dead) | 18 · 0 (52 steps) | — |
+| drapes | 24 · 1 | 39 · 1 (273 steps) | chassis rig (=chassis.jsx:3= =belt.dock=, chromes) |
+| dapper | 26 · 0 | 27 · 0 (533 steps) | — |
+census — repl
+| ghost | 11 · 2 | 18 · 0 (46 steps) | — (=keymap.test.js= 6 its · =commands.test.js= 15 steps NEW · console 2/2 · repl 7 · world 4/4) |
+census — chromes
+| ghost | 18 · 0 | 16 · 0 (50 steps) | — (=chrome.test.js= NEW; four text tests MOVED to sheets; world 4/4) |
+| sheets | 18 · 0 | 22 · 0 (52 steps) | — (=text.test.js= moved in; =./host= export NEW) |
+#+end_src
+
+Attributed reds: drapes 1 = the dom chassis rig (=belt.dock=) · anima 9 red files = the old Svelte chrome (SvelteKit shell, m96 next ③).
+
+* handoff
+
+- goal: the DOM · TTY client v1 — both clients' chrome rebuilt on the thirteen parts (Bar Segment Dot Meter Tab Mark Chord Catalog Row Choice Field Turn Split; Consent pending his ruling → m96 =* open= #12), one wiring (m96), the designer's v1.0 (=/Users/finn/Downloads/Client · v1.0.html=) as the look.
+- done 10-21 (session 7, m96 LANDED floor → chromes): milestones 2 sheets (15 parts + 3 renderers) · 3 drapes (13 parts + 4 renderers, the =design/= FIXTURE page) · dapper ruling 36 · 4 the commands (33 natures measured 10-22, the nine frozen by m96 law 11 among them) · 5 the keymap panes · 6 ghost chrome · 7 the anima door · 8 anima chrome over drapes. 10-22: the look REJECTED by beef → =** 10=. The 10-21 handoff whole → =reference/m95/handoff-10-21.org=.
+- next: ① =** 10 · the look= LANDED 10-22 on anima + ghost; rulings 27 · 33 · 38 LANDED; his eyes at =:1794= + =viva chrome=; the dead SvelteKit shell: 149 paths measured, beef runs the one line in =reference/m95/shell-retire-20261022.md= (a landing never deletes) ② the locked-but-unbuilt rulings: 27 (the =turn= mark on hydrate dies — =systems/ghost/entities/turn.js:16= still marks it, =* as code= =gestalten/belt/harness.js · entities/turn.js=) · 33 (the reply a Turn in the em; =systems/ghost/gestalten/belt/harness.js:6= still marks ="stream"=) · 38 (the tab's =word=; =systems/ghost/entities/terminal/prototype.js:33= still =get label()=) ③ 9 at =registry= (aligned on the copy; measured 10-22: 35 =.svelte= + 2 =.jsx= under =~/.viva/registry/*/modes/*/*/buffer= name =terminal=; his rsync lands it) ④ the dead SvelteKit shell retires (=systems/anima/src/app/+page.svelte= imports the dropped =a.svelte=; 20 =$telemetry= reader lines in =systems/anima/src=; the pincer) — running on a copy 10-22 ⑤ the unwritten commands: =/sidebar= · =/go= · the box five (=/mic /speaker /voice /dictate /paste=) · =/attach= · =/artifacts= → =/views= · =/context /tools= · =/dock/view=.
+- done 10-22 (session 8, beef's word over the comp): the entity section headed · a =buffers= sub always ("no buffers") · absent =rounds= paints the Policy default 10 (both clients) · a messenger close key · docked always frames; the catalog opens on a =/= draft and paints the comp's crumb; =/chrome/on|off= · =/shell= are tty-only (=surface.commands=). tty =sections.js= keeps the design cells for the entity head · buffers row → owed.
+- never: a keystroke on the wire · a theme per terminal · a hex in a part · paladin on a die · Deno in the shared lifecycle · a pane calling a repository verb (=entities.*.updateOne= in =surface/= → 0) · a fixture page shown as the client · a static server as the door.
+- owed: rulings → m96 =* open= #7 (=Docked.share=) · #9 (=/theme=) · #12 (Consent) · #13 (drapes-only parts) · #14 (telemetry) · #15 (palette) · phone variants beyond =.phone= rules · dom tests onto the scenarios rig with the chassis rewrite (the chassis rig red stands: =belt.dock=) · six token names outside the 27 (=control-contrast/-on/-focus/-field-placeholder= · =text-disabled= · =brand-filter=) · root =import_map= =solid-js/web= · dapper =mod.client.js= · Booting-with-fault pane when the runtime is unreachable (beat order, hosts-ghost) · =IDLE= under AUTOLOGIN only · the typed line not echoed as a =cmd= row · the bar's =harness.context= 0 on the wire.
+- reads: this file → =reference/m95/look-brief.md= → =m96-client-mothership.org= (=* open=) → =m87-buffer-view-file.org= → =.ikiro/reference/m95/{design-architecture,drill-20261021,quests,ghost,anima,assets,auth}.md=. The design at =/Users/finn/Downloads/Client · v1.0.html= (untrusted: read, never run).

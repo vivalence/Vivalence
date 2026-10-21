@@ -1,10 +1,10 @@
 import { Collection, EntitySchema, types, type Opt, type Rel } from "@mikro-orm/core";
 import { DataEntity, DataRepository, DataSchema } from "./index.ts";
-import { DaemonEntity, ModeEntity, UserEntity, LiteralEntity, SymbolEntity } from "./index.ts";
+import { DaemonEntity, ModeEntity, UserEntity, LiteralEntity, SymbolEntity, BufferEntity, TurnEntity } from "./index.ts";
 
 export class NoteRepository extends DataRepository {
   unique(query) {
-    return { daemon: query.daemon ?? null, mode: query.mode ?? null, user: query.user ?? null, slug: query.slug };
+    return { daemon: query.daemon ?? null, mode: query.mode ?? null, user: query.user ?? null, buffer: query.buffer ?? null, turn: query.turn ?? null, slug: query.slug };
   }
   index(where = {}, { limit = 12 } = {}) {
     return this.find(where, { limit, orderBy: { updatedAt: "DESC" } });
@@ -17,6 +17,8 @@ export class NoteEntity extends DataEntity {
   daemon?: Rel<DaemonEntity>;
   mode?: Rel<ModeEntity>;
   literal?: Rel<LiteralEntity>;
+  buffer?: Rel<BufferEntity>;
+  turn?: Rel<TurnEntity>;
 
   symbols = new Collection<SymbolEntity>(this);
 
@@ -36,7 +38,7 @@ export const NoteSchema = new EntitySchema<NoteEntity, DataEntity>({
   uniques: [
     {
       name: "Note_scope_slug_unique",
-      expression: "create unique index `Note_scope_slug_unique` on `Note` (coalesce(`daemon_slug`, ''), coalesce(`mode_id`, ''), coalesce(`user_id`, ''), `slug`)",
+      expression: "create unique index `Note_scope_slug_unique` on `Note` (coalesce(`daemon_slug`, ''), coalesce(`mode_id`, ''), coalesce(`user_id`, ''), coalesce(`buffer_id`, ''), coalesce(`turn_id`, ''), `slug`)",
     },
   ],
   filters: {
@@ -49,6 +51,8 @@ export const NoteSchema = new EntitySchema<NoteEntity, DataEntity>({
     mode: { kind: "m:1", entity: () => ModeEntity, inversedBy: (mode) => mode.notes, nullable: true, deleteRule: "cascade" },
     user: { kind: "m:1", entity: () => UserEntity, inversedBy: (user) => user.notes, nullable: true, deleteRule: "cascade" },
     literal: { kind: "m:1", entity: () => LiteralEntity, inversedBy: (literal) => literal.notes, nullable: true, deleteRule: "cascade" },
+    buffer: { kind: "m:1", entity: () => BufferEntity, inversedBy: (buffer) => buffer.notes, nullable: true, deleteRule: "cascade" },
+    turn: { kind: "m:1", entity: () => TurnEntity, inversedBy: (turn) => turn.notes, nullable: true, deleteRule: "cascade" },
     parent: { kind: "m:1", entity: () => NoteEntity, nullable: true, deleteRule: "cascade" },
     children: { kind: "1:m", entity: () => NoteEntity, mappedBy: (note) => note.parent },
     traits: { type: types.json, defaultRaw: `'[]'` },

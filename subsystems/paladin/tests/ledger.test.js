@@ -1,11 +1,12 @@
 import { specimen } from "@vivalence/typology";
 import { Paladin, lifecycle } from "@vivalence/paladin/typology";
+import { FULL } from "../gestalten/belt/index.js";
 
 const { describe, it, beforeAll, expect } = specimen;
 
 async function mkPaladin() {
   const root = await Deno.makeTempDir({ prefix: "paladin-system-" });
-  const paladin = new Paladin();
+  const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
   paladin.env.set("VIVA_SYSTEM_MODE", "DEVELOPMENT");
   paladin.env.set("VIVA_SYSTEM_ROLE", "SUDO");
   paladin.env.set("VIVA_LEDGER_MOUNT", root);

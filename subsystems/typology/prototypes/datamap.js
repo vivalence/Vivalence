@@ -28,7 +28,8 @@ export class Datamap {
 
   registerSubscriber(twitch) {
     const scope = (args, task) => RequestContext.create(args.em, task);
-    this.orm.em.getEventManager().registerSubscriber(shape.subscriber(twitch, { scope }));
+    const fork = (em) => em.fork({ keepTransactionContext: true });
+    this.orm.em.getEventManager().registerSubscriber(shape.subscriber(twitch, { scope, fork }));
   }
 
   close() {

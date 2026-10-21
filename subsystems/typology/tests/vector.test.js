@@ -1,4 +1,4 @@
-import { specimen, v, Vector } from "@vivalence/typology";
+import { specimen, steer, v, Signal, Vector } from "@vivalence/typology";
 
 specimen.describe("Vector", () => {
   specimen.it("a vector grows its trie and merges by nature", () => {
@@ -262,5 +262,24 @@ specimen.describe("Vector", () => {
     const v = new Vector();
     specimen.expect(root.branch("/", v)).toBe(root);
     specimen.expect(root.trie.size).toBe(0);
+  });
+
+  specimen.it("graft merges two patterns for one key field by field — later wins, a bare segment keeps the earlier valence; the sources are not mutated", () => {
+    const declared = new Vector();
+    declared.branch({ nature: "leader", valence: "the leader" }).branch({ nature: "d", valence: "display" });
+    const derived = new Vector().open({ nature: "leader/d/d", valence: "/dock", input: v.object({}) }, "/dock");
+    const reworded = new Vector().open({ nature: "leader/d/d", valence: "the dock" }, "/dock");
+    const merged = new Vector().graft(declared, derived, reworded);
+    const d = merged.trie.get("leader").trajectory.trie.get("d");
+    specimen.expect([merged.trie.get("leader").pattern.valence, d.pattern.valence]).toEqual(["the leader", "display"]);
+    specimen.expect([d.trajectory.trie.get("d").pattern.valence, d.trajectory.trie.get("d").pattern.input !== undefined]).toEqual(["the dock", true]);
+    specimen.expect(derived.trie.get("leader").trajectory.trie.get("d").trajectory.trie.get("d").pattern.valence).toBe("/dock");
+  });
+
+  specimen.it("scope asks the literals first and the * only when none matched; a * mid-path is walked through", () => {
+    const vector = new Vector().open("*", () => "any").open("ctrl-v", () => "leader").open("proxy/*/status", () => "status");
+    specimen.expect(steer.match.scope(vector, new Signal("ctrl-v")).map(([match]) => match.nature)).toEqual(["ctrl-v"]);
+    specimen.expect(steer.match.scope(vector, new Signal("d")).map(([match]) => match.type)).toEqual(["wildcard"]);
+    specimen.expect(steer.dispatch.traverse(vector, new Signal("/proxy/anything/status"))[0]).not.toBe(null);
   });
 });

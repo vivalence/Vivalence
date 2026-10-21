@@ -1,0 +1,99 @@
+#+title: m108 — struck options, 10-26
+# limit: 3000 chars
+
+* Q1 B — struck by his /"a"/: anima's own execution from ghost's beats, no =bundle=
+
+#+BEGIN_SRC js
+// systems/anima/src/client.js:18
+const execution = new Vector()
+  .use(shard.controller.open)
+  .use(ghost.app.lifecycle.client)
+  .use(ghost.app.lifecycle.mount)
+  .do(shard.controller.hold);
+
+await steer.dispatch.execute(execution, client.app);
+
+// systems/anima/src/surface/index.js
+export const dom = { mount: async (appDie) => mount(appDie) };
+#+END_SRC
+
+* Q2 A — struck by his /"b"/: the window on the Box
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototypes/box.js
+export class Box {
+  $state = atom({ width: null, height: null, narrow: false });
+  get state() { return this.$state.get(); }
+}
+// systems/anima/src/surface/index.js — mount
+const resized = () => appDie.box.$state.set({ width: globalThis.innerWidth, height: globalThis.innerHeight, narrow: narrow.matches });
+#+END_SRC
+
+* Q3 A — struck by his /"b"/: one =$state= atom, spread writes
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototypes/bridge.js
+export class Bridge {
+  $state = atom({ terminal: null, viewport: { width: null, height: null, narrow: false }, focus: "composer", sidebar: { open: false, width: 39 }, draft: "", hidden: [] });
+  $terminal = computed(this.$state, (state) => state.terminal);
+  get state() { return this.$state.get(); }
+}
+// systems/ghost/subjects/app/keymap.js:6
+terminal.client.app.bridge.$state.set({ ...terminal.client.app.bridge.state, draft: prefill, focus: "composer" });
+#+END_SRC
+
+* Q3b B — struck by his /"a"/: anima extends the Bridge
+
+#+BEGIN_SRC js
+// systems/anima/src/surface/bridge.js
+export class Bridge extends ghost.app.Bridge {
+  $phonePane = atom("dock");
+  $widget = atom(null);
+  …
+}
+// systems/anima/src/client.js:19
+client.app = new ghost.app.App({ client, surface: dom, bridge: new Bridge(), controller: die.controller.branch("app") });
+#+END_SRC
+
+* Q3c B — struck by his /"a"/: the Box empty until voice has a caller
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototypes/box.js
+export class Box {}
+#+END_SRC
+
+* Q3d B — struck by his /"a"/: anima hands the worklet URLs to the Box
+
+#+BEGIN_SRC js
+// systems/anima/src/surface/index.js — mount
+import microphoneWorklet from "./worklets/microphone.js?url";
+appDie.box.worklets = { microphone: microphoneWorklet, speaker: speakerWorklet };
+#+END_SRC
+
+* Q4 B — struck by his /"a"/: one mount-long key listener
+
+#+BEGIN_SRC js
+// systems/anima/src/surface/index.js — mount
+const pressed = (event) => {
+  const terminals = appDie.client.runtime.entities.terminal.$entities.get();
+  const terminal = terminals.find((terminal) => terminal.id === appDie.bridge.terminal) ?? terminals[0];
+  terminal.legend.dispatch(event);
+};
+globalThis.addEventListener("keydown", pressed);
+#+END_SRC
+
+* Q5A A — struck by his /"b"/: the sink on the client's execution, the factory takes it
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/factory.js:5
+export const factory = (execution) => monad.kleisli([(shellDie) => new Client({ … }), ...shape.monad.ready(execution)]);
+// systems/anima/src/client.js:18
+const client = await ghost.client.factory(new Vector().graft(ghost.client.lifecycle.execution).use(console))(die);
+#+END_SRC
+
+* the Bridge at 13 atoms — affirmed by his /"go. fix."/, landed at 15 (=$selected= · =$theme= have live readers)
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototypes/bridge.js — as DESIGNED 10-26
+$terminal $viewport $focus $sidebar $draft $hidden $phonePane $widget $popover $float $selection $signin $sections
+#+END_SRC

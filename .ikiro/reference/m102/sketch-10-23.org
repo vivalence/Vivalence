@@ -1,0 +1,42 @@
+#+title: m102 — the first sketch, 10-23, before Q1 · Q2 locked
+# limit: none (reference)
+
+* sketch — UNRULED
+
+#+BEGIN_SRC js
+// systems/ghost/prototypes/repl.js   SKETCH — sibling of prototypes/legend.js (m99 Q21)
+import { ReplSignal, Vector, steer } from "@vivalence/typology";
+import { execution } from "../subjects/repl/dispatch.js";
+
+export class Repl {
+  commands = new Vector();
+  constructor(terminal) {
+    this.terminal = terminal;
+  }
+  get composed() {
+    return new Vector().graft(
+      this.terminal.client.repl.commands,
+      ...fromm.modes(this.terminal.client.modes).flat.map((mode) => mode.repl.commands),
+      this.commands,
+      ...this.terminal.client.runtime.entities.mode.$entities.get().map(scoped),
+      ...(harnessed(this.terminal) ? [turn] : []),
+    );
+  }
+  dispatch(line) {
+    const signal = new ReplSignal(line);
+    const replDie = {
+      signal,
+      client: this.terminal.client,
+      runtime: this.terminal.client.runtime,
+      terminal: this.terminal,
+      controller: this.terminal.controller.branch(signal.pathname),
+      commands: this.composed,
+      output: undefined,
+    };
+    return steer.dispatch.execute(execution, replDie).then(() => replDie.output);
+  }
+}
+#+END_SRC
+
+The sketch only covers the terminal's Repl. =this.terminal.client.repl.commands= assumes the client also holds a Repl, and what that Repl's =dispatch= does is unruled.
+

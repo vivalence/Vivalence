@@ -20,6 +20,14 @@ export class NotFound extends Error {
   }
 }
 
+export class Dropped extends Error {
+  code = "DROPPED";
+  constructor(position) {
+    super("Walk dropped");
+    this.position = position;
+  }
+}
+
 export class ValidationError extends Error {
   code = "VALIDATION";
   constructor(errors, signal) {

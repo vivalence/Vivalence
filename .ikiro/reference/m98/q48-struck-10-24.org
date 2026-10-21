@@ -1,0 +1,113 @@
+# struck 10-24 from .ikiro/quests/m98-ghost-barrels.org by Q48 (belt/dock holds no function over a ctx; every trait write spelled at its command); nothing reworded · limit: none (reference content)
+
+** belt/dock.js as tangled before Q48
+// systems/ghost/gestalten/belt/dock.js:1
+-import { v } from "@vivalence/typology";
++import { traits, v } from "@vivalence/typology";
+
+ export const DEFAULT_DOCK = v.traits.terminal.DOCKED.cast({ align: "right", share: 0.38, view: "docked", lens: "repl" });
++
++export const SIDES = ["left", "right"];
++
++export const VIEWS = ["docked", "full", "closed", "messenger"];
++
++export const LENSES = ["chat", "repl", "trace"];
++
++export const docked = async (ctx, patch) => {
++  await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED: patch }));
++  return { DOCKED: patch };
++};
+
+** commands/dock.js as tangled before Q48
+// systems/ghost/subjects/terminal/commands/dock.js:1
+-import { Vector, traits, v } from "@vivalence/typology";
++import { Vector, v } from "@vivalence/typology";
+ import * as belt from "../../../gestalten/belt/index.js";
+
+-export const SIDES = ["left", "right"];
+-export const VIEWS = ["docked", "full", "closed", "messenger"];
+-export const LENSES = ["chat", "repl", "trace"];
+-const Docking = v.object({ word: v.enum([...SIDES, ...VIEWS]).desc('A side the dock sits, or how it shows. Example: "closed"') });
+-const Lensed = v.object({ lens: v.enum(LENSES).desc('Which stream the dock paints. Example: "trace"') });
++const Docking = v.object({ word: v.enum([...belt.dock.SIDES, ...belt.dock.VIEWS]).desc('A side the dock sits, or how it shows. Example: "closed"') });
++const Lensed = v.object({ lens: v.enum(belt.dock.LENSES).desc('Which stream the dock paints. Example: "trace"') });
+ const Shared = v.object({ share: v.number({ minimum: 0.1, maximum: 0.9 }).desc("The dock's width as a share of the chrome. Example: 0.38") });
+…
+// systems/ghost/subjects/terminal/commands/dock.js:11
+ const FIELDS = [
+-  [(word) => SIDES.includes(word), "align"],
+-  [(word) => VIEWS.includes(word), "view"],
++  [(word) => belt.dock.SIDES.includes(word), "align"],
++  [(word) => belt.dock.VIEWS.includes(word), "view"],
+ ];
+…
+// systems/ghost/subjects/terminal/commands/dock.js:16
+ const field = (word) => FIELDS.find(([test]) => test(word))[1];
+-
+-export const docked = async (ctx, patch) => {
+-  const DOCKED = { ...traits.claim(ctx.terminal, "DOCKED", v.traits.terminal), ...patch };
+-  await ctx.terminal.write(belt.traits.claimed(ctx.terminal, "DOCKED", DOCKED));
+-  return { DOCKED };
+-};
+
+…
+// systems/ghost/subjects/terminal/commands/dock.js:28
+       const { word } = belt.input.cast(Docking, ctx.signal);
+-      return docked(ctx, { [field(word)]: word });
++      return belt.dock.docked(ctx, { [field(word)]: word });
+     },
+…
+// systems/ghost/subjects/terminal/commands/dock.js:33
+     { nature: "/dock/lens", valence: "what the dock lists: chat is turns, trace is records, repl is both. Example: /dock/lens trace", input: Lensed, chord: "leader/d/j" },
+-    (ctx) => docked(ctx, belt.input.cast(Lensed, ctx.signal)),
++    (ctx) => belt.dock.docked(ctx, belt.input.cast(Lensed, ctx.signal)),
+   )
+…
+// systems/ghost/subjects/terminal/commands/dock.js:37
+     { nature: "/split", valence: "the divider — the dock's share of the chrome. Example: /split 0.5", input: Shared, chord: "leader/d/s" },
+-    (ctx) => docked(ctx, belt.input.cast(Shared, ctx.signal)),
++    (ctx) => belt.dock.docked(ctx, belt.input.cast(Shared, ctx.signal)),
+   );
+
+** commands/set.js as tangled before Q48
+// systems/ghost/subjects/terminal/commands/set.js:1
+-import { Vector, v } from "@vivalence/typology";
++import { Vector, traits, v } from "@vivalence/typology";
+ import * as belt from "../../../gestalten/belt/index.js";
+-import { docked, LENSES, SIDES, VIEWS } from "./dock.js";
+-import { claim, EFFORTS } from "./intelligent.js";
+
+…
+// systems/ghost/subjects/terminal/commands/set.js:14
+
+-export const WRITABLE = [
+-  at("terminal.dock.view", v.enum(VIEWS).desc('How the dock shows. Example: "closed"'), (ctx, view) => docked(ctx, { view })),
+-  at("terminal.dock.align", v.enum(SIDES).desc('The side the dock sits. Example: "left"'), (ctx, align) => docked(ctx, { align })),
+-  at("terminal.dock.lens", v.enum(LENSES).desc('Which stream the dock paints. Example: "trace"'), (ctx, lens) => docked(ctx, { lens })),
+-  at("terminal.dock.share", v.number({ minimum: 0.1, maximum: 0.9 }).desc("The dock's share of the chrome. Example: 0.38"), (ctx, share) => docked(ctx, { share })),
++const WRITABLE = [
++  at("terminal.dock.view", v.enum(belt.dock.VIEWS).desc('How the dock shows. Example: "closed"'), (ctx, view) => belt.dock.docked(ctx, { view })),
++  at("terminal.dock.align", v.enum(belt.dock.SIDES).desc('The side the dock sits. Example: "left"'), (ctx, align) => belt.dock.docked(ctx, { align })),
++  at("terminal.dock.lens", v.enum(belt.dock.LENSES).desc('Which stream the dock paints. Example: "trace"'), (ctx, lens) => belt.dock.docked(ctx, { lens })),
++  at("terminal.dock.share", v.number({ minimum: 0.1, maximum: 0.9 }).desc("The dock's share of the chrome. Example: 0.38"), (ctx, share) => belt.dock.docked(ctx, { share })),
+   at("thread.label", v.string().desc('The label the seated thread shows. Example: "flamingo — six species"'), async (ctx, name) => {
+-    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, belt.traits.claimed(ctx.terminal.thread, "LABELED", { name }));
++    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { LABELED: { name } }));
+     return { LABELED: { name } };
+   }),
+-  at("thread.tune", v.primitives.hallucination.Tier.desc('A tier. Example: "fast"'), (ctx, tune) => claim(ctx, { tune })),
+-  at("thread.effort", v.enum(EFFORTS).desc('Reasoning effort. Example: "high"'), (ctx, effort) => claim(ctx, { effort })),
+-  at("thread.rounds", v.integer({ minimum: 1, maximum: 50 }).desc("The round budget. Example: 12"), (ctx, rounds) => claim(ctx, { rounds })),
++  at("thread.tune", v.primitives.hallucination.Tier.desc('A tier. Example: "fast"'), async (ctx, tune) => {
++    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { tune } }));
++    return { INTELLIGENT: { tune } };
++  }),
++  at("thread.effort", v.enum(belt.intelligent.EFFORTS).desc('Reasoning effort. Example: "high"'), async (ctx, effort) => {
++    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { effort } }));
++    return { INTELLIGENT: { effort } };
++  }),
++  at("thread.rounds", v.integer({ minimum: 1, maximum: 50 }).desc("The round budget. Example: 12"), async (ctx, rounds) => {
++    await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { rounds } }));
++    return { INTELLIGENT: { rounds } };
++  }),
+   at("surface.sidebar", v.boolean().desc("The sidebar shown or not. Example: true"), (ctx, shown) => {

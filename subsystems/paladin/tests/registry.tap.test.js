@@ -2,13 +2,15 @@ import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path } from "@vivalence/typology";
 import { Paladin } from "../paladin/prototype.js";
+import { FULL } from "../gestalten/belt/index.js";
+import { belt } from "../paladin/lifecycle.js";
 
 const scaffold = async () => {
   const ledger = await Deno.makeTempDir({ prefix: "registry_tap_test_ledger_" });
   const store = `${ledger}/registry`;
   await Deno.mkdir(store);
   const boot = () => {
-    const paladin = new Paladin();
+    const paladin = belt(new Paladin(), FULL);
     paladin.scopes([
       ["ledger", () => true, () => new Path(ledger)],
       ["registry", () => true, () => new Path(store)],
@@ -63,7 +65,7 @@ describe("Registry.tap — materialize + record, never mount", () => {
 
   it("remote tap without a store scope throws before any clone", async () => {
     const ledger = await Deno.makeTempDir({ prefix: "registry_tap_test_ledger_" });
-    const paladin = new Paladin();
+    const paladin = belt(new Paladin(), FULL);
     paladin.scopes([["ledger", () => true, () => new Path(ledger)]]);
     await expect(paladin.ledger.registry.tap("https://example.com/pack.git")).rejects.toThrow("no package store");
   });

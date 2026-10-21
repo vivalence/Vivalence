@@ -1,0 +1,138 @@
+#+title: m93 kleisli remonadization — every subject is built by its factory: =monad.kleisli= over =shape.monad= arrows; the die's one contract is =controller=
+#+filetags: :typology:belt:shape:factory:runtime:ghost:paladin:
+#+status: milestones 1 · 2 · 4 LANDED via m96 (10-21, uncommitted); milestone 3 (the runtime factories) LANDED by the m96 replay 10-21 — his ruling keep/cut owed → m96 =* open= #1. The tangle: =m93-kleisli-remonadization.tangle.org=. The 10-19 status line → =reference/m93/status-10-19.org=.
+
+# limit: 12000 chars
+
+* intent
+
+beef, m91 Q4: /"a. for sure. combinatorical factories. i am sure there is some functional algebra for this. this is a massive rework. independent deliverable."/ · /"mark kleisli up as the target for another quest. […] kleisli remonadization"/
+
+* the dialogue — the rulings, as built (the REJECTED 10-19 trail → =reference/m93/rejected-10-19.org=)
+
+- VECTORS STAY — /"I would still want to use vectors and just use this kleisli as a composition feature."/ =(die, next)= and its 19 =try/finally= brackets survive.
+- ONE VECTOR PER LIFECYCLE — /"We're not gonna split the vectors by lifecycle. We had that and we moved away from that and it was better. So the question is, do we even need Cleasely?"/
+- Q0 HOME — /"belt for all the monadic functions we might need adn shape for the vector specific stuff - itself (i guess) using belt.monad"/ → =belt/monad.js= · =shape/monad.js=.
+- Q1 =kleisli= TAKES AN ARRAY — /"b. make kleisli signature a []."/ (its vector half superseded by Q4)
+- Q3 CURRIED — /"I like curried"/ → =factory(input)(parentDie) → Promise<die>=; =factory(input)= is a route effect (=ghost/shell/lifecycle.js:20=).
+- Q4 A FACTORY IS =kleisli= OVER SMALL ARROWS — /"are those real Cleasley functions? Monads?"/ → yes: one monad (Reader over Promise); =idle= · =dispatch= · =controlled= are ARROWS =die → Promise<die>= in it. Then /"b"/.
+- Q5 THE DIE, CASE BY CASE — /"one of those questions that we evaluate case by case […] Can't we do that case by case?"/ Ghost client: die IS =Client=; the rest: a plain die holding the subject under its key.
+- Q6 A FACTORY HANDS BACK ITS DIE — /"a"/; a caller that keeps children keeps dies.
+- Q7 FAILURE IS NOT THE FACTORY'S — /"I expect our execution vector to be able to handle that. […] Top level, what should I want?"/ → /"Yes, that is correct, lock."/ Before ready: =controlled= rejects, the factory and =traverse= reject. After ready: the child's vector (=settle= → FAILED). A child's death → the controller tree (supervision, deferred).
+- Q8 RECONCILE BY HAND — /"b"/ — =terminals= keeps its map + diff, boots through =factories.terminal=.
+- Q9 NO =execution= ANYWHERE — /"I don't see why we need A at all. […] I don't think you thought this through properly."/ → /"lock."/ =controller.settled= (=controller.js:31=) IS the run's end; =kill= awaits it; contract = =controller= alone; =Process.execute= deleted.
+- Q10 A SECOND RUN THROWS — /"If you put a finished car into the entrance of a factory, that doesn't make sense. So, throw."/ → =idle= heads =ready=.
+- Q11 PALADIN KEEPS ITS MEMO — /"a"/ — the second caller is handed the finished car (=boot.test.js:33= stands).
+- Q12 GHOST LIGHTHOUSE STAYS SPLICED — /"a"/ — a bracket inside the client's life (=client/lifecycle/index.js:100=); the one exception to m91 law 9.
+- Q13 THE NAME STAYS — /"a"/.
+- Q14 =fn.reduce= STAYS — /"moves fn.reduce into kleisli --- why??"/ → /"yes. leave."/ — =monad.kleisli= is written fresh; =fn.reduce= (his, 02-14) untouched.
+
+
+* the law
+
+1. A factory is =export function factory(input) { return monad.kleisli([...]); }= — =(parentDie) => Promise<die>= once applied; a hoisted =function=, because =systems/runtime/typology.js= reads =runtime.factory= inside an import cycle and a =const= is in its TDZ there (=ReferenceError: Cannot access 'factory' before initialization=, 10-19 on the copy).
+2. Its first arrow builds the die; the die's shape is the subject's; its one contract is =controller=.
+3. Lifetime is the last arrow: =ready= (a child under a running parent; resolves at RUNNING) · =execute= (the caller waits for the end: a subject that finishes, or a process's top — runtime, ghost client — whose =run.js= exits after).
+4. =ready= = =[idle, dispatch, controlled]=: a second run throws; resolves at RUNNING.
+5. A subject that runs until killed starts its vector with =settle=; =dispatch= drops the run's promise behind it.
+6. The run's end is =controller.settled=; nothing holds =execution=.
+7. A fan is =monad.traverse= (=Promise.all=); a live list is reconciled by hand in its step.
+8. RENAMED 10-21 (his, m96 retro drill): =shape/factory.js= → =shape/monad.js=, shape's ARROWS in =belt.monad= (arrows of the monad, not the monad — his Q0: /"shape for the vector specific stuff - itself using belt.monad"/). Law 1's hoist is the runtime's cycle; the ghost keeps =const= (Q7 /"b"/).
+
+* as code — whole in the tangle
+
+Whole in =m93-kleisli-remonadization.tangle.org= =* the tangle= (=***= system · =****= directory · =*****= file); its =* departures= table holds six places the code forced past a ruling. The shape:
+
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/monad.js — new
+export const kleisli = (arrows) => (value) => {
+  try {
+    return Promise.resolve(arrows.reduce((carried, arrow) => (carried instanceof Promise ? carried.then(arrow) : arrow(carried)), value));
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+// systems/runtime/subjects/daemon/factory.js — new; the shape of every =ready= factory
+export function factory(daemon) {
+  return monad.kleisli([
+    (runtimeDie) => ({ runtime: runtimeDie.runtime, controller: daemon.controller, mask: daemon.mask, daemon }),
+    ...shape.monad.ready(execution),
+  ]);
+}
+#+END_SRC
+
+* milestones
+
+1. the algebra — =belt/monad.js= · =shape/monad.js= + their two tests.
+2. the settle step — ghost runtime host · daemon host · terminal · thread vectors gain =shard.controller.open=; the three =.catch= at =client/lifecycle/index.js:140,151,190= go.
+3. the runtime factories — runtime · lighthouse · mode · service · daemon; =Process.execute= and =execution= cut; =kill= on =settled=. LANDED by the m96 replay 10-21 (=systems/runtime/{runtime,lighthouse,daemon,service,mode}/factory.js= · =systems/runtime/subjects/runtime/lifecycle/resolution.js:12,21= =monad.traverse=); keep or cut → m96 =* open= #1.
+4. the ghost factories — client on =kleisli=; mode · runtime host · daemon host · terminal · thread.
+
+* blast table
+
+| site | count | milestone |
+|---+---+---|
+| files touched · hunks | 31 · 51 | all |
+| new files | 14 (10 =factory.js= · 2 typology · 2 tests) | all |
+| =dispatch.execute= boots replaced | 8 | 3 · 4 |
+| tests edited | 2 (=modes.test.js= · =scenarios/bench.js=) | 3 |
+| =Process.execute= callers | 2 | 3 |
+| =process.execution= readers | 1 | 3 |
+| =die.daemon= sites | 58 · unchanged | — |
+| vectors gaining =settle= | 4 | 2 |
+| =~/.viva= | 0 | — |
+
+* testing assessment
+
+Census 10-19, serial, =HOME= empty, on two copies of the tree: baseline (untouched) and tangled (every hunk + new file):
+
+| suite | baseline | tangled |
+|---+---+---|
+| =subsystems/typology/tests= | 142 · 0 red | 144 · 0 red (+2 files) |
+| =subsystems/paladin/tests= | 54 · 0 red | 54 · 0 red |
+| =systems/ghost/tests= | 9 · 0 red | 9 · 0 red |
+| =systems/runtime/tests= | 74 · 9 red | 74 · 9 red — the same nine, by name |
+
+The nine runtime reds predate m93 (=T-demo= ×8 · =T-fresh= ×8 steps · =P-reconcile= · =aprende= ×2 · =bench= ×2 · =global=). One red m93 caused and fixed: =ghost/tests/console.test.js:18= =NOT_FOUND= → tangle departure 8.
+
+- =shape.monad= — =idle= throws on a RUNNING controller; =ready= resolves at RUNNING, rejects on FAILED-before-ready.
+- daemons and services boot in parallel under =traverse= (today serial) — green in =systems/ghost/tests/client.test.js= (a real =run.js= world).
+- COVERAGE GAP: no test boots a ghost terminal through =reconcile= and removes it.
+
+* QA
+
+- /"I type viva repl, I see the client up; a failing daemon host faults alone, the client stays"/
+#+marker_qa: m93/T-host-faults-alone · pending · ghost host failure after =settle=
+- /"I stop the runtime, every daemon reaches STOPPED, the process exits 0"/
+#+marker_qa: m93/T-kill-on-settled · pending · =kill= awaits =controller.settled=
+
+* deferred
+
+- supervision: a FAILED child → its parent (Erlang one-for-one · one-for-all) — on the controller, where =branch= links them. Its own quest.
+- =strategy.*= — five lifts of an effect; untouched.
+- =fn.reduceEach= · =fn.inflight= — 0 consumers outside tests; untouched.
+
+* changelog — pasted 10-22 from =reference/m96/coverage.org=
+
+#+begin_src text
+census — floor  | typology | 145 · 0 | 149 · 0 (655 steps) | — |   (belt/monad.test.js · shape/monad.test.js inside)
+census — hosts  | runtime | 75 · 12 | 78 · 9 · 1 ign (535 steps) | the 9 rig ONLY — looping · stub.activity GREEN |
+census — hosts  | ghost | 10 · 2 | 11 · 2 (29 steps) | =keymap.test.js= ×2 (repl); world 4/4 |
+validator 10-21: 40 landed · 11 superseded · 0 LOST; coverage ≥ 98 on the ghost factories
+#+end_src
+
+* release (lifted 10-22 into =.ikiro/release.md=)
+
+- changed `ProcessRepository.kill` — awaits `controller.settled` of the processes it signalled, not every `process.execution` · migrate: none ⟨m93⟩
+- removed `ProcessEntity.execute` · `ProcessEntity.execution` — boot through `factories.daemon` · `factories.service` · migrate: `process.execute(execution, ctx)` → `factories.<type>(process)(parentDie)` ⟨m93⟩
+- added `belt.monad.kleisli` · `belt.monad.traverse` · `shape.monad` (`idle` · `dispatch` · `controlled` · `execute` · `ready`) · migrate: none ⟨m93⟩
+- added `factories` on `@vivalence/runtime` (runtime · lighthouse · daemon · service · mode) and on `@vivalence/ghost` (+ terminal · thread · mode · daemon · runtime) · migrate: none ⟨m93⟩
+- changed `gestalten.belt.modes.resolve(context, factory, traits)` — takes the mode's factory, not its execution · migrate: pass `factories.mode` ⟨m93⟩
+
+* handoff — rewritten 10-22 (the 10-21 handoff whole → =reference/m93/handoff-10-21.org=)
+
+- goal: every subject built by its factory, one algebra in =belt.monad= + =shape.monad=.
+- done 10-21 (m96 LANDED): 1 the algebra · 2 the settle step · 4 the ghost factories (=systems/ghost/subjects/client/factory.js:5-13=, three arrows); milestone 3 with the replay.
+- next: his ruling on milestone 3 → m96 =* open= #1; stays live (not =done/=) until it lands.
+- never: a recovery arrow in a factory; =execution= on a die or an entity; moving his =fn.reduce=.
+- owed: the FAILED rethrow → m96 =* open= #3 · the =client()= wrapper → m96 =* open= #4 · departure 2 (=kill= on the signalled only) is milestone 3's.

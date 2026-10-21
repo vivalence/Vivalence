@@ -1,36 +1,21 @@
 import paladin, { factories } from "@vivalence/paladin";
-import { Aperture, Controller, Path, Span, steer } from "@vivalence/typology";
-import { Runtime } from "./runtime/prototype.js";
-import { execution } from "./runtime/lifecycle/index.js";
+import { Controller, Span, trace } from "@vivalence/typology";
+import { factory as runtimeFactory } from "./subjects/runtime/factory.js";
 
 if (import.meta.main) {
-  await factories.instance(paladin.instance);
+  await factories.instance(paladin.instance); //@beef still ugly
 
-  const die = {
-    mask: paladin.instance.runtime,
-    aperture: new Aperture(),
-    controller: new Controller({
-      stdout: new Span(`runtime/${paladin.instance.runtime.manifest.slug}`),
-    }),
-    runtime: new Runtime({
-      instance: paladin.instance,
-      slug: paladin.instance.runtime.manifest.slug,
-      reference: new Path(paladin.instance.runtime.reference),
-    }),
-  };
+  const controller = new Controller({
+    stdout: new Span(`runtime/${paladin.instance.runtime.manifest.slug}`),
+  });
 
-  die.controller.stdout.to((record) =>
-    console.log(`[${record.path}] ${record.verb}`, record.data ?? record.message ?? ""),
-  );
-  die.controller.stdout.to(
-    (record) =>
-      record.verb === "open" &&
-      record.span === die.controller.stdout.id &&
-      console.log(die.controller.status),
-  );
+  controller.stdout.pipe //
+    .tap((record) => console.log(`[${trace.pathname(record.path)}] ${record.track}`, record.data || ""));
+
   for (const signal of ["SIGTERM", "SIGINT", "SIGQUIT"])
-    Deno.addSignalListener(signal, () => die.controller.kill("SIGTERM", signal));
+    Deno.addSignalListener(signal, () => controller.kill("SIGTERM", signal));
 
-  await steer.dispatch.execute(execution, die);
-  Deno.exit(die.controller.status.is("STOPPED") ? 0 : 1);
+  await runtimeFactory(paladin.instance)({ controller }); // @beef confusing
+
+  Deno.exit(controller.status.is("STOPPED") ? 0 : 1);
 }

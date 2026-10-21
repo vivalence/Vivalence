@@ -1,4 +1,5 @@
 import { specimen } from "@vivalence/typology";
+import { READY } from "../scenarios/hello.js";
 import { join } from "@std/path";
 import { REPOSITORY, boot, ledger, pin, viva } from "./rig.js";
 
@@ -41,7 +42,7 @@ describe("P-reconcile — a daemon added to instance.viva.json installs at boot;
 
   it("boots hello-world with one Daemon row, stops on SIGTERM", async () => {
     await restart();
-    expect(runtime.ready ?? runtime.tail()).toBe("Status:RUNNING");
+    expect(runtime.ready ?? runtime.tail()).toMatch(READY);
     expect(runtime.query("select slug from Daemon order by slug")).toEqual([{ slug: "hello" }]);
     expect(await runtime.stop("SIGTERM")).toBe(0);
   });
@@ -49,7 +50,7 @@ describe("P-reconcile — a daemon added to instance.viva.json installs at boot;
   it("the playground daemon added to instance.viva.json installs on restart and answers /status through the lighthouse", async () => {
     await recipe((held) => held.daemons.push(PLAYGROUND));
     await restart();
-    expect(runtime.ready ?? runtime.tail()).toBe("Status:RUNNING");
+    expect(runtime.ready ?? runtime.tail()).toMatch(READY);
     expect(runtime.query("select slug from Daemon order by slug")).toEqual([{ slug: "hello" }, { slug: "playground" }]);
     const signup = await runtime.call("/lighthouse/signup", { username: "finn", password: "hunter22" });
     finn = { user: signup.user, access: signup.authority.access };
@@ -82,13 +83,13 @@ describe("P-reconcile — a daemon added to instance.viva.json installs at boot;
 
   it("VIVA_RUNTIME_PRUNE=1 drops the daemon row with its modes and literals; the next plain start is clean", async () => {
     await restart({ VIVA_RUNTIME_PRUNE: "1" });
-    expect(runtime.ready ?? runtime.tail()).toBe("Status:RUNNING");
+    expect(runtime.ready ?? runtime.tail()).toMatch(READY);
     expect(runtime.query("select slug from Daemon")).toEqual([{ slug: "hello" }]);
     expect(runtime.query("select count(*) as n from Literal where slug = 'casa'").at(0).n).toBe(0);
     expect(runtime.query("select count(*) as n from Mode where daemon_slug = 'playground'").at(0).n).toBe(0);
     expect(await runtime.stop("SIGTERM")).toBe(0);
     await restart();
-    expect(runtime.ready ?? runtime.tail()).toBe("Status:RUNNING");
+    expect(runtime.ready ?? runtime.tail()).toMatch(READY);
     expect(await runtime.stop("SIGTERM")).toBe(0);
   });
 });

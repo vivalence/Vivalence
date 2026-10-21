@@ -6,7 +6,7 @@ let scenario;
 let fetched;
 
 specimen.beforeAll(async () => {
-  const domain = await accio("@education/domain/language-learning");
+  const domain = await accio("@memo/domain/srs");
   scenario = await seed(domain.entities);
   const connection = scenario.orm.em.getConnection();
   const execute = connection.execute.bind(connection);

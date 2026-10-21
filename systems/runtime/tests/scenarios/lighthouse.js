@@ -1,12 +1,12 @@
 import { Aperture, Connection, Controller, Cortex, Datamap, Path, Span, Twitch, Url, shape, shard, steer, v } from "@vivalence/typology";
 import { MikroORM } from "@mikro-orm/core";
 import { config } from "../../../../commons/datamaps/libsql/libsql.viva.js";
-import { ActivityEntity, ActivityRepository, kernel, sets } from "../../entities/index.ts";
+import { ActivityEntity, ActivityRepository, sets } from "../../entities/index.ts";
 import { assemble } from "../../gestalten/belt/assemble.js";
-import { mint, strike } from "../../gestalten/belt/traits.js";
-import { Lighthouse } from "../../lighthouse/prototype.js";
-import { execution as lighthouseExecution } from "../../lighthouse/lifecycle/index.js";
-import { userspace } from "../../runtime/lifecycle/integration.js";
+import { gather, mint, strike } from "../../gestalten/belt/traits.js";
+import { Lighthouse } from "../../subjects/lighthouse/prototype.js";
+import { execution as lighthouseExecution } from "../../subjects/lighthouse/lifecycle/index.js";
+import { userspace } from "../../subjects/runtime/lifecycle/integration.js";
 import { lifecycle } from "@vivalence/runtime";
 
 const SECRET = "scenario-secret-scenario-secret-scenario";
@@ -25,14 +25,14 @@ export async function create({ traits = ["JOINABLE"] } = {}) {
     aperture: new Aperture(),
     twitch: new Twitch(),
     cortex: new Cortex(),
-    processes: { daemon: { census: () => ({}), create: async () => ({ execute() {} }), kill: async () => {}, remove: async () => {} } },
+    daemons: {},
     instance: { daemons: [], lighthouse: v.primitives.instance.Lighthouse.cast({ secrets: { jwt: SECRET }, traits }) },
   };
   runtime.entities.activity = new ActivityRepository(datamap.entities.em, ActivityEntity);
   for (const held of twitch) runtime.twitch.graft(held);
   runtime.twitch.branch("/after").use(shard.datamap.detached(datamap));
   datamap.registerSubscriber(runtime.twitch);
-  runtime.minted = mint({ slug: null, kinds: { note: sets.traits.note }, traits: { note: kernel.note } });
+  runtime.minted = mint({ slug: null, kinds: { note: sets.traits.note }, traits: { note: gather(null, [], "note") } });
   Object.assign(runtime.entities, strike(runtime.minted, datamap.entities.em, sets.traits));
   const aperture = new Aperture().use(shard.datamap.inject(datamap)).open("/status", () => "RUNNING");
 
@@ -61,7 +61,7 @@ export async function create({ traits = ["JOINABLE"] } = {}) {
     });
   const mountDaemon = async (slug, { domain = {}, modes: modes = [] } = {}) => {
     await seedDaemon(slug);
-    const daemon = { type: "daemon", slug, reference: new Path(`/daemon/${slug}`), domain, aperture: new Aperture(), modes: {}, services: {} };
+    const daemon = { type: "daemon", slug, reference: new Path(`/daemon/${slug}`), domain, aperture: new Aperture(), modes: {}, providers: {} };
     await lifecycle.daemon.population.datamap({ runtime, daemon, register: { modes: modes } }, async () => {});
     return daemon;
   };

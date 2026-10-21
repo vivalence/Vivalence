@@ -1,6 +1,6 @@
 import { contexts, Path, shard, Twitch } from "@vivalence/typology";
 import { provider } from "@vivalence/runtime/scenarios";
-import { ActivityEntity, ActivityRepository, gestalten, kernel, sets } from "@vivalence/runtime";
+import { ActivityEntity, ActivityRepository, gestalten, sets } from "@vivalence/runtime";
 import { stack, tiers } from "./tiers.js";
 
 const { gather, mint, strike } = gestalten.belt;
@@ -24,7 +24,7 @@ export async function seed(domain = {}) {
   await em.flush();
   em.setFilterParams("user", { user: user.id });
 
-  const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(kernel, domain, [], kind)]));
+  const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(domain, [], kind)]));
   const entities = { ...runtime, ...strike(mint({ slug: DAEMON, kinds: sets.traits, traits }), em, sets.traits) };
 
   const held = {
@@ -36,7 +36,7 @@ export async function seed(domain = {}) {
     domain,
     twitch: new Twitch(),
     modes: {},
-    services: {},
+    providers: {},
   };
   held.twitch.use(shard.context.spread(contexts.host, held)).use(shard.datamap.owned());
   held.twitch.branch("/after").use(shard.datamap.detached(datamap));
@@ -46,7 +46,7 @@ export async function seed(domain = {}) {
   const mode = entities.mode.create({
     slug: "dojo",
     type: "game",
-    traits: ["APPLICATION", "INTENTED", "EMITTER"],
+    traits: ["VIEWABLE", "INTENTED", "EMITTER"],
     installed: "seed",
   });
   await em.flush();

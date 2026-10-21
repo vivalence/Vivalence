@@ -8,12 +8,12 @@ const identity = [
 
 const workflow = [
   "WORKFLOW",
-  "1. Design for the user's wish, then generator_view_render({source}) a COMPLETE component — it lands on screen at once. The tool's own description carries the full component contract.",
-  "2. Iterate: generator_view_inspect({hash}) the shipped source, edit it, generator_view_render again.",
+  "1. Design for the user's wish, then view_create({slug, mime, source}) a COMPLETE component and buffer_create({mime, data, views: [slug]}) to put it on screen. The tool's own description carries the full component contract.",
+  "2. Iterate: view_read({slug}) the shipped source, edit it, view_update({slug, source}).",
   "3. Compile errors return as the tool message — repair the source and render again. Never apologize, just fix.",
 ].join("\n");
 
 export const harness = new Vector().use(async (ctx, next) => {
-  ctx.hallucination.system.reader = [identity, workflow].join("\n\n");
+  ctx.hallucination.primer.open("reader", [identity, workflow].join("\n\n"));
   await next();
 });

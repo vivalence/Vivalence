@@ -53,12 +53,11 @@ export function mountpoints(instance) {
   };
   const referenced = (client) => {
     client.reference ??= `/client/${client.manifest?.slug}`;
+    client.modes = (client.modes ?? []).map(place(client));
   };
   instance.daemons.forEach(address);
   instance.daemons.forEach(ground);
-  instance.clients.forEach(mountpoint("client"));
   instance.clients.forEach(referenced);
-  instance.clients.forEach(ground);
   if (instance.runtime) {
     root(instance.runtime);
     ground(instance.runtime);
@@ -67,7 +66,7 @@ export function mountpoints(instance) {
 
 // a mode's ground falls through the way a daemon's does: the modes entry's own word wins, else
 // one directory under its daemon's mountpoint — mode_<type>_<slug>, beside bundles/ and the db.
-// so every mode has a mountpoint without the recipe saying one, and a MOUNTED mode serves it; an
+// so every mode has a mountpoint without the recipe saying one, and a FILESINK mode writes into it; an
 // override at any level above (env → instance → daemon) re-roots what is below it. a bare
 // identifier becomes { module, mountpoint } — the same entry, its mountpoint spelled out. an inline
 // module keeps its shape (nothing is hydrated inside it) and carries the mountpoint as a key.
@@ -89,23 +88,22 @@ const identity = (entry) => {
   return null;
 };
 
+const place = (declaration) => (entry) => {
+  const id = identity(entry);
+  if (!id) return entry;
+  const [type, slug] = id;
+  const held = is.string(entry) ? { module: entry } : entry;
+  if (!type) return held;
+  const reference = `/mode/${type}/${slug}`;
+  return { ...held, reference: held.reference ?? reference, url: held.url ?? (declaration.url ? new Url(declaration.url).branch(reference).absolute : undefined) };
+};
+const mount = (declaration) => (entry) => {
+  const id = identity(entry);
+  if (!id) return entry;
+  const [type, slug] = id;
+  const mountpoint = "mountpoint" in entry ? entry.mountpoint : `${declaration.mountpoint}/mode_${[type, slug].filter(Boolean).join("_")}`;
+  return { ...entry, mountpoint };
+};
 function ground(declaration) {
-  declaration.modes = (declaration.modes ?? []).map((entry) => {
-    const id = identity(entry);
-    if (!id) return entry;
-    const [type, slug] = id;
-    const held = is.string(entry) ? { module: entry } : entry;
-    // a declared mountpoint is the entry's word even when its thunk came back blank (a REQUIRED fault,
-    // never a mountpoint minted over it); only silence gets one, mode_<type>_<slug> or mode_<slug>
-    const mountpoint = "mountpoint" in held ? held.mountpoint : `${declaration.mountpoint}/mode_${[type, slug].filter(Boolean).join("_")}`;
-    if (!type) return { ...held, mountpoint }; // the type is the module's word — wire fills the rest
-    const reference = `/mode/${type}/${slug}`;
-    return {
-      ...held,
-      mountpoint,
-      reference: held.reference ?? reference,
-      url: held.url ?? (declaration.url ? new Url(declaration.url).branch(reference).absolute : undefined),
-      bundles: held.bundles ?? `${declaration.mountpoint}/bundles/${type}/${slug}`,
-    };
-  });
+  declaration.modes = (declaration.modes ?? []).map(place(declaration)).map(mount(declaration));
 }

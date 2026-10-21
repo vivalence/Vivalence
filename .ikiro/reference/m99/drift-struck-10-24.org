@@ -1,0 +1,15 @@
+# struck 10-24 from .ikiro/quests/m99-keys.org — two hunks whose old side left the tree (a sibling session moved the test teardowns to controller.kill); nothing reworded · limit: none (reference content)
+
+** // systems/ghost/tests/subjects/client/client.test.js:33 — the tree's teardown now calls controller.kill; nothing left to rename
+// systems/ghost/tests/subjects/client/client.test.js:33
+   specimen.afterAll(async () => {
+-    await clientDie.active.repl.dispatch("/quit");
++    await clientDie.activeTerminal.repl.dispatch("/quit");
+     await clientDie.controller.settled;
+
+** // systems/ghost/tests/subjects/shell/lifecycle.test.js:91 — the tree's teardown now calls controller.kill; nothing left to rename
+// systems/ghost/tests/subjects/shell/lifecycle.test.js:91
+
+-    await clientDie.active.repl.dispatch("/quit");
++    await clientDie.activeTerminal.repl.dispatch("/quit");
+     specimen.expect(await booting).toBe(clientDie);

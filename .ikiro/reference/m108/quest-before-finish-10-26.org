@@ -1,0 +1,334 @@
+# limit: 30000 chars
+# m108 before the drill finish 10-26 — the whole quest text: per-question hunk iterations (Q2 · Q3 superseded by Q3b), the drill question list
+#+title: m108 anima on the App — anima's client and surface moved onto m107's style: the entry mints the client and an App, the surface is { bundle, mount }, panes consume ambient.app
+#+filetags: :anima:ghost:surface:app:
+#+status: OPEN 10-25 — born from m107 Q32 (/"We will absolutely move Anima to this style … But that being said, not right now … put that in 108."/); waits on m107 landing; no ruling of its own yet
+
+* intent
+
+10-25, beef verbatim (m107 Q32):
+
+/"We will absolutely move Anima to this style. Absolutely, no question about it. This is the style that I want there too. But that being said, not right now. Not right now. Yeah, put that in 108."/
+
+* the style — m107's locks this quest applies (=m107-ambient-chrome.org= =* the dialogue=)
+
+| m107 | what anima takes |
+|---|---|
+| Q20 | the subject =app=: =App= holds client · surface · controller · box · bridge |
+| Q21 · 22A | the entry mints the client (its factory kicks it off, unawaited), mints the App onto it, executes the App |
+| 23′ | =ghost.client.factory= takes no surface |
+| Q26 | no =ambients/= dir; the Solid tooling =gestalten.ambient=; prototypes + commands on the app subject |
+| Q27 | a command reaches the App through =ctx.client.app= |
+| Q28 | =client.$terminal= dies; =app.bridge.terminal= says which terminal is shown |
+| Q20′ | Box · Bridge real shape read from anima =@--= (=bridge/= · =box/=, codemap =design.md=) with snapshots — likely THIS quest's first drill |
+
+* terrain — measured 10-25
+
+=systems/anima/src/= = =client.js · client.css · index.html · surface/= (8 files) + =surface/panes/= (18 =.jsx=); 114 reads of =client.surface= · =client.$terminal= · =client.terminal= across 18 files.
+
+#+BEGIN_SRC js
+// systems/anima/src/client.js:18   — LIVE: the one ghost call; breaks on m107 23′
+try {
+  await ghost.client.factory(dom)(die);
+} catch (error) {
+  die.controller.fault(error);
+}
+
+// systems/anima/src/surface/index.js:34   — LIVE: anima's mount writes the atom bag onto the client; breaks on m107 Q20 (Client.surface dies)
+  client.surface = screen({ kind: "dom", …, dark: dom.dark, narrow: narrow.matches, width: globalThis.innerWidth, height: globalThis.innerHeight, palette: () => tokens.kebab(client.theme, "2") });
+#+END_SRC
+
+* as code
+
+** systems/anima/src/client.js — Q1 LOCKED A 10-26: ghost's whole execution, no anima-side sequence
+
+#+BEGIN_SRC js
+// systems/anima/src/client.js:18 — the page's entry, run once when vite serves it; Q5A B: the App's execution grafted, anima's sink on the copy
+const client = await ghost.client.factory(die);
+client.app = new ghost.app.App({ client, surface: dom, controller: die.controller.branch("app") });
+await steer.dispatch.execute(new Vector().graft(ghost.app.lifecycle.execution).use(console), client.app);
+#+END_SRC
+
+** systems/anima/src/surface/index.js — Q1 LOCKED A 10-26: an empty =bundle= (vite built the page; the log reads =bytes: 0=); =mount= body SKETCH until Q2–Q5
+
+#+BEGIN_SRC js
+// systems/anima/src/surface/index.js — the App's bundle beat calls dom.bundle(), its mount beat dom.mount(appDie)
+export const dom = {
+  bundle: async () => ({ outfile: import.meta.url, bytes: 0 }),
+  mount: async (appDie) => mount(appDie),
+};
+#+END_SRC
+
+** systems/ghost/subjects/app/prototypes/bridge.js · box.js — Q2 LOCKED B 10-26: the window is =bridge.viewport= (=@--= =layout.viewport=); the Box drops =width · height= (devices: Q3c) · Q3 LOCKED B 10-26: one atom per field, a plain getter each; ghost's five spread writes become one-field sets
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototypes/bridge.js — the App mints it; anima's mount writes viewport
+export class Bridge {
+  $terminal = atom(null);
+  $viewport = atom({ width: null, height: null, narrow: false });
+  $focus = atom("composer");
+  $sidebar = atom({ open: false, width: 39 });
+  $draft = atom("");
+  $hidden = atom([]);
+
+  get terminal() { return this.$terminal.get(); }
+  get viewport() { return this.$viewport.get(); }
+  get focus() { return this.$focus.get(); }
+  get sidebar() { return this.$sidebar.get(); }
+  get draft() { return this.$draft.get(); }
+  get hidden() { return this.$hidden.get(); }
+}
+
+// systems/ghost/subjects/app/prototypes/box.js — Q3c A: see the Box hunk below
+
+// systems/anima/src/surface/index.js — inside mount, on every window resize and media change
+const resized = () =>
+  appDie.bridge.$viewport.set({ width: globalThis.innerWidth, height: globalThis.innerHeight, narrow: narrow.matches });
+globalThis.addEventListener("resize", resized);
+narrow.addEventListener("change", resized);
+#+END_SRC
+
+** systems/ghost/subjects/app/keymap.js · commands/ · terminal/commands/set.js — Q3 LOCKED B 10-26: the five spread writes, one field each
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/keymap.js:6 — the palette key opens the composer
+terminal.client.app.bridge.$draft.set(prefill);
+terminal.client.app.bridge.$focus.set("composer");
+
+// systems/ghost/subjects/app/commands/sidebar.js:5 — /sidebar
+(ctx) => ctx.client.app.bridge.$sidebar.set({ ...ctx.client.app.bridge.sidebar, open: !ctx.client.app.bridge.sidebar.open }),
+
+// systems/ghost/subjects/app/commands/terminal.js:7 — /terminal picks the shown one
+app.bridge.$terminal.set(terminal.id);
+
+// systems/ghost/subjects/terminal/commands/set.js:45 · :49 — /set sidebar · /set hidden
+ctx.client.app.bridge.$sidebar.set({ ...ctx.client.app.bridge.sidebar, open });
+ctx.client.app.bridge.$hidden.set(toggled(ctx.client.app.bridge.hidden, group));
+
+// systems/anima/src/surface/panes/bar.jsx:15 — a pane reads one field
+const narrow = () => from(app.bridge.$viewport)().narrow;
+#+END_SRC
+
+** systems/ghost/subjects/app/prototypes/bridge.js — Q3b LOCKED A 10-26: ONE Bridge for both chromes; anima's screen fields join it (=wid= → =widget=, =jsel= → =selection=, =pop= → =popover=). LOOKUPS: =focus · draft= as-is · =sidebar + sidebarWidth= → =$sidebar { open, width }= · =sections.hidden= → =$hidden= · =tele= → =app.telemetry.$state= · =shell= dies (0 reads)
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototypes/bridge.js — the App mints it, in both chromes
+export class Bridge {
+  $terminal = atom(null);
+  $viewport = atom({ width: null, height: null, narrow: false });
+  $focus = atom("composer");
+  $sidebar = atom({ open: false, width: 39 });
+  $draft = atom("");
+  $hidden = atom([]);
+  $phonePane = atom("dock");
+  $widget = atom(null);
+  $popover = atom(null);
+  $float = atom({});
+  $selection = atom(null);
+  $signin = atom({ user: "", pass: "" });
+  $sections = atom({ filter: {}, expand: {}, pick: null, hostsOff: [] });
+
+  get terminal() { return this.$terminal.get(); }
+  get viewport() { return this.$viewport.get(); }
+  get focus() { return this.$focus.get(); }
+  get sidebar() { return this.$sidebar.get(); }
+  get draft() { return this.$draft.get(); }
+  get hidden() { return this.$hidden.get(); }
+  get phonePane() { return this.$phonePane.get(); }
+  get widget() { return this.$widget.get(); }
+  get popover() { return this.$popover.get(); }
+  get float() { return this.$float.get(); }
+  get selection() { return this.$selection.get(); }
+  get signin() { return this.$signin.get(); }
+  get sections() { return this.$sections.get(); }
+}
+#+END_SRC
+
+** systems/ghost/subjects/app/prototypes/box/ — Q3c LOCKED A 10-26: =@--='s three devices ported (← =@--= =typology/stores/box/=); LOOKUP by =Telemetry(app)= (=prototypes/telemetry.js:6=): the Box takes the App; the driver's =$telemetry= note (killed import) → =app.controller.stdout.log=; the worklet URL is Q3d
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototype.js:9 — the App mints its Box
+box = new Box(this);
+
+// systems/ghost/subjects/app/prototypes/box/index.js — the App's devices; a /mic command claims the microphone
+export class Box {
+  drivers = {};
+  device = {};
+
+  constructor(app) {
+    this.app = app;
+    this.drivers.audio = new AudioDriver(this);
+    this.device.microphone = new Microphone(this);
+    this.device.speaker = new Speaker(this);
+  }
+}
+
+// systems/ghost/subjects/app/prototypes/box/drivers/audio.js:8 — ← @-- drivers/audio/audio.js; the note without $telemetry
+if (this.context.sampleRate !== 16000)
+  this.box.app.controller.stdout.log({ audio: "sampleRate", expected: 16000, actual: this.context.sampleRate });
+
+// tree ← @-- typology/stores/box/
+box/index.js · box/drivers/audio.js · box/device/microphone/{index.js,microphone.js,worklet.js} · box/device/speaker/{index.js,speaker.js,worklet.js}
+#+END_SRC
+
+** systems/ghost/subjects/app/prototypes/box/device/ — Q3d LOCKED A 10-26: the device builds its worklet's URL from its own module; deno constructs a URL and loads nothing; vite 6 build inlines a worklet under 4 KB as a =data:= URL (probed); =addModule(data:)= in a browser — owed to the QA walk
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototypes/box/device/microphone/microphone.js:76 — a /mic command claims; the device loads its worklet
+const worklet = new URL("./worklet.js", import.meta.url);
+await context.audioWorklet.addModule(worklet.href);
+
+// systems/ghost/subjects/app/prototypes/box/device/speaker/speaker.js — the same, on claim
+const worklet = new URL("./worklet.js", import.meta.url);
+await context.audioWorklet.addModule(worklet.href);
+#+END_SRC
+
+** systems/anima/src/surfaces/chrome/layout.jsx (← =surface/panes/chrome.jsx=, path by Q6) — Q4 LOCKED A 10-26: the layout listens per shown terminal, as ghost's =layout.jsx:12-16=; =keys.js= dies, the mount holds no key listener
+
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/layout.jsx — the layout; one listener per shown terminal
+const terminals = from(app.client.runtime.entities.terminal.$entities);
+const id = from(app.bridge.$terminal);
+const terminal = () => terminals().find((terminal) => terminal.id === id()) ?? terminals()[0];
+
+<Show when={terminal()} keyed>
+  {(terminal) => {
+    const pressed = (event) => terminal.legend.dispatch(event);
+    globalThis.addEventListener("keydown", pressed);
+    onCleanup(() => globalThis.removeEventListener("keydown", pressed));
+    return <Regions terminal={terminal} />;
+  }}
+</Show>
+#+END_SRC
+
+** sinks — Q5A LOCKED B 10-26: each app taps its client from an APP step grafted onto a copy of the App's execution; the client's lifecycle keeps no sink
+
+#+BEGIN_SRC js
+// systems/anima/src/surface/console.js — anima's sink, an app step: log · fault → devtools
+const SHOWN = ["log", "fault"];
+
+const shown = (record) => {
+  if (!SHOWN.includes(record.track)) return;
+  globalThis.console[record.track === "fault" ? "error" : "log"](record.path.join(" › "), record.track, record.data);
+};
+
+export const console = async (appDie, next) => {
+  for (const record of appDie.client.controller.stdout.history) shown(record);
+  const untap = appDie.client.controller.stdout.pipe.tap(shown);
+  try {
+    await next();
+  } finally {
+    untap();
+  }
+};
+
+// systems/ghost/surfaces/chrome/ledger.js — ← subjects/client/lifecycle/index.js:21-31; ghost's sink, an app step: every record → the ledger file
+const encoder = new TextEncoder();
+
+export const ledger = async (appDie, next) => {
+  const file = await paladin.ledger.log(appDie.client.instance.manifest.slug).open("client", "spans");
+  const write = (record) => file.writeSync(encoder.encode(`${JSON.stringify(record)}\n`));
+  for (const record of appDie.client.controller.stdout.history) write(record);
+  const untap = appDie.client.controller.stdout.pipe.tap(write);
+  try {
+    await next();
+  } finally {
+    untap();
+    file.close();
+  }
+};
+
+// systems/ghost/subjects/shell/commands/chrome.js:16 — viva chrome: the app taps its client into the ledger file
+await steer.dispatch.execute(new Vector().graft(appProcess.lifecycle.execution).use(surfaces.ledger), client.app);
+
+// systems/ghost/subjects/client/lifecycle/index.js:141 — the spread dies
+-  .use(...(paladin.is.browser ? [] : [ledger]))
+#+END_SRC
+
+** systems/anima/src/surfaces/ — Q6 LOOKUP, awaiting his amen (a dir move): m103 Q14 (=src/surface/= → =src/surfaces/chrome/=) · m103 law 5 (one FOLDER tree for both chromes) · m103 10-25a (=catalog= → =repl=, =tabs= → =headline=) · m107 law 10 (=mount.jsx= holds the cover) · m107 Q24 (=layout.jsx= =Layout=) · m107 Q25 (=renderers.js= → =widgets/buffer/=)
+
+#+BEGIN_SRC text
+systems/anima/src/
+  client.js                                   the entry (Q1 · Q5A)
+  surfaces/index.js                           ← surface/index.js: the literal, exported as chrome = { bundle, mount } (ghost surfaces/index.js)
+  surfaces/chrome/
+    mount.jsx                                 ← surface/index.js mount body + panes/chrome.jsx PANES → COVERS; ONE ambient.app.Provider
+    layout.jsx                                ← panes/chrome.jsx Chrome (Q4) + panes/regions.jsx + panes/split.jsx (m103 Q11 B, the seam)
+    console.js                                Q5A
+    send.js                                   ← surface/send.js (reads the terminal, not client.terminal)
+    ambient/index.js                          app · terminal (ghost's)
+    panels/index.js                           ← panes/index.js
+    panels/authentication/signin.jsx          ← panes/signin.jsx
+    panels/booting/booting.jsx                ← panes/booting.jsx
+    panels/dock/{dock,journal,composer}.jsx   ← panes/{dock,journal,composer}.jsx
+    panels/frame/{frame,view}.jsx             ← panes/{frame,view}.jsx
+    panels/headline/headline.jsx              ← panes/tabs.jsx
+    panels/legend/legend.jsx                  ← panes/chord.jsx
+    panels/modeline/modeline.jsx              ← panes/bar.jsx
+    panels/repl/repl.jsx                      ← panes/catalog.jsx
+    panels/sidebar/{sidebar.jsx,sections.js}  ← panes/sidebar.jsx + surface/sections.js
+    panels/telemetry/telemetry.jsx            ← panes/tele.jsx
+    widgets/index.js
+    widgets/buffer/{renderers,view}.js · painters.jsx   ← surface/{renderers,view}.js + panes/painters.jsx
+  dies: surface/keys.js (Q4) · surface/screen.js (Q3b)
+#+END_SRC
+
+* the dialogue
+
+| Q | ruling | his words |
+|---|---|---|
+| 1 | LOCKED A: anima runs =ghost.app.lifecycle.execution= whole; its surface's =bundle= is accepted and does nothing (=bytes: 0=). STRUCK B: anima's own Vector from ghost's beats without =bundle= — two sequences drift | /"a"/ |
+| 2 | LOCKED B: the window's =width · height · narrow= are =app.bridge.state.viewport= (=@--= =Bridge.layout.viewport=); =Box= drops its placeholder fields — =@--='s Box was the devices (audio · microphone · speaker). STRUCK A: the window on =app.box.state= | /"b"/ |
+| 3 | LOCKED B: the Bridge is one atom per field with a plain getter (=@--= =store()= · anima =screen.js=); =$state= and its =computed $terminal= die; Q2's writer → =$viewport.set=. STRUCK A: one =$state=, spread writes | /"b"/ |
+| 3b | LOCKED A: one Bridge in ghost for both chromes; anima's 8 screen-only fields join it, abbreviations written out (=widget · selection · popover=); six fields are lookups by m107 shapes, =shell= dies. STRUCK B: anima's =Bridge extends ghost.app.Bridge= handed to the App | /"a"/ |
+| 3c | LOCKED A: m108 ports =@--='s audio driver · microphone · speaker into ghost's Box; the Box takes the App (=Telemetry(app)= lookup); the killed =$telemetry= note → the app's controller. STRUCK B: the Box empty until voice has a caller | /"a"/ |
+| 3d | LOCKED A: =new URL("./worklet.js", import.meta.url)= beside each device; =?url= dies (deno: =SyntaxError … does not provide an export named 'default'=, probed). STRUCK B: anima imports the worklets =?url= and hands =box.worklets= at mount | /"a"/ |
+| 4 | LOCKED A: anima's =Chrome= listens on =keydown= inside the shown terminal's keyed =Show= (ghost =layout.jsx:12-16=); =keys.js= dies. STRUCK B: one mount-long listener resolving the shown terminal per press — throws before sign-in (=client.runtime= null) | /"a"/ |
+| 5 | REFRAMED (neither A: the tap in anima's mount · nor B: the client's lifecycle picks console or file by =paladin.is.browser=): the CLIENT never decides where its records go; each app — ghost's chrome, anima — attaches its own sink middleware; ghost's =ledger= beat and the =paladin.is.browser= spread leave =subjects/client/lifecycle/index.js:141=. Mechanism → Q5A | /"I would rather that on the unmarked client we attach our own middleware. So we attach something to the execution vector, I guess. In that case, I think we should do the same in the ghost. I.e. decide where something is logged to outside of the typology and probably inside of the app. The spans are created on typology level, and then they are wired up inside of the apps, inside of the Chrome, inside of Anima."/ |
+| 5A | LOCKED B: the sink is an APP step — each entry grafts the App's execution into a copy and =.use=s its sink (ghost =surfaces/chrome/ledger.js= · anima =surface/console.js=), the step tapping =appDie.client.controller.stdout= after replaying =history=; the client factory unchanged. STRUCK A: the factory takes a client execution the entry grafted | /"b"/ |
+
+Open: anima's tree after m107's (=surfaces/chrome/= shape, m103) · the 18 panes onto =ambient.app=.
+
+* drill — questions 10-26 (drill-me; Q1 · Q2 · Q3 · Q3b · Q3c · Q3d · Q4 · Q5A locked)
+
+| Q | question |
+|---|---|
+| 1 | the App's =bundle= beat in a browser vite already built: an empty =bundle= on anima's surface, or anima's own execution from ghost's beats without =bundle= |
+| 2 | the window's =width · height · narrow= (=surface/index.js:33-43=): =app.box= or =app.bridge= |
+| 3 | (Q20′) the Bridge's store: one =$state= atom (ghost today, 5 spread writes) or one atom per field (=@--= =store()=; anima's =screen.js= today) |
+| 3b | (Q20′) which of anima's 13 =screen.js= atoms are the bridge's (=tele= → =app.telemetry=? =signin=?); =@--='s pincer · orientation are dead (0 reads today) |
+| 3c | (Q20′) the Box's devices from =@--= (audio driver · microphone · speaker) |
+| 3d | the worklets' URL: =?url= is vite-only — deno imports the worklet itself, =AudioWorkletProcessor= undefined |
+| 4 | anima's =keys.js= presses onto the App (m107 Q15's owed keys session) |
+| 5 | the console tail (=surface/index.js:29-31=, log · fault → devtools) — its home → REFRAMED |
+| 5A | how an app attaches its sink: onto the client's execution (factory takes it) or onto the App's execution |
+| 6 | anima's tree beside ghost's =surfaces/chrome/= (m103 reconcile) |
+| 7 | the 18 panes onto =ambient.app= |
+| 7b | LOOKUP (codestyle names: =line= ✗ → signal): =systems/anima/src/surface/sections.js= keys a button's slash signal =line:= — 30 hits; renamed with the panes |
+
+* blast table
+
+| what | when |
+|---|---|
+| =src/client.js:19= =ghost.client.factory(dom)= | BREAKS at m107's land (23′) until this quest lands |
+| =src/surface/index.js:34= =client.surface= · 18 files, 114 reads | BREAKS at m107's land (Q20 · Q28) |
+
+* deferred
+
+- m103's anima reconcile (one folder tree for both chromes) rides this quest.
+
+* handoff
+
+- goal: anima on m107's App style — the entry mints client + App, the surface is ={ bundle, mount }=, panes consume =ambient.app=.
+- done 10-25: born, terrain measured; no ruling.
+- next: after m107 lands — Q20′ first (Box · Bridge from anima =@--= with snapshots), then the entry, the surface literal, the panes.
+- never: a shim or dual read of =client.surface= beside =client.app=; the struck words (codestyle names).
+- owed: m103 reconcile.
+
+* handoff — as of DESIGNED 10-26, replaced at LANDING
+
+- goal: anima on m107's App style — the entry mints client + App, the surface is ={ bundle, mount }=, panes consume =ambient.app=.
+- done 10-26: the drill — Q1–Q5A locked, Q5B fixed (his /"fix"/), Q6 amen, Q7 · 7b lookups; =* as code= whole.
+- next: his go on milestone 1 (the ghost App).
+- never: a shim or dual read of =client.surface= beside =client.app=; =?url=; =$telemetry=; the struck words.
+- owed: the five QA markers.

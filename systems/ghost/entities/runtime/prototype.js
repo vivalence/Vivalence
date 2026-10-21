@@ -6,11 +6,11 @@ export class Runtime {
   reference = null;
   remote = null;
   statics = null;
+  multiplex = null;
   connection = null;
   aperture = null;
   call = null;
   cortex = null;
-  cargo = null;
   lighthouse = null;
   entities = null;
   $status = atom({ code: "IDLE" });
@@ -24,6 +24,9 @@ export class Runtime {
   }
   get modes() {
     return this.entities.mode.$entities.get().filter((mode) => mode.daemon === null);
+  }
+  get attach() {
+    return this.connection.branch("/attached");
   }
 
   get json() {

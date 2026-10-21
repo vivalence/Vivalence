@@ -1,0 +1,31 @@
+#+title: m113 Q4 options C and D — struck 10-27, /"fuck it. download them all up front"/
+# limit: 3000 chars
+
+Asked after /"neither are good. find c and d"/; both probed on a repo copy (hello DEMO, free port); he locked A.
+
+C: the repository pulls a row the first time a lookup asks; boot loads none (the Dataspace skips =file=).
+#+BEGIN_SRC svelte
+<!-- ~/.viva/registry/education/modes/games/cloze/buffer/Cloze.svelte:119 -->
+{#await terminal.client.runtime.entities.file.findOne({ path: literal.trait.VOCALIZED.asset.path, mode: { $in: buffer.mode.daemon.modes.map((mode) => mode.id) } }) then file}
+  {#if file}<div class="audio-block"><Asset autoplay={true} {file} /></div>{/if}
+{/await}
+#+END_SRC
+#+BEGIN_SRC sh
+# C's probe: em.drop → 22 rows; await repository.findOne(where) → 23, primed.url set; second findOne === primed
+#+END_SRC
+
+D: no File rows on the client; the daemon serves bytes by the row's key, as =/attached/cargo/<host>/*= did before 10-21.
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/lifecycle/resolution.js:55
+  attached.open("/daemon/:daemon/file/(.*)", async (input, ctx) => {
+    const file = await die.runtime.entities.file.findOneOrFail({ path: fromm.params(ctx.params).path.absolute.replace(/^[/]/, ""), mode: { daemon: ctx.params.daemon } });
+    ctx.response.type = file.mime;
+    ctx.response.headers.set("x-viva-integrity", file.integrity);
+    return await paladin.read.bytes(file.mount);
+  });
+// ~/.viva/registry/assembly/modes/player/guide/buffer/Guide.svelte:55
+  const asset = (path) => (path ? terminal.client.runtime.attach.url.branch(`/daemon/${buffer.mode.daemon.slug}/file/${path}`).absolute : null);
+#+END_SRC
+#+BEGIN_SRC sh
+# D's probe: GET …/attached/daemon/memo/file/audio/carpe-diem.wav → 200 · audio/wav · bytes and integrity = the row's; another daemon → 500
+#+END_SRC

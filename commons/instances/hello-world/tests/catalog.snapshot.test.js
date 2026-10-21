@@ -36,14 +36,13 @@ const declarations = (vector) =>
 const generative = {
   manifest: { slug: "hello-world", type: "demo" },
   module: { generator },
-  bundles: { absolute: "/nonexistent/catalog" },
+  mountpoint: "/nonexistent/catalog",
+  entity: { id: "mode-1" },
 };
-await GENERATIVE(generative, {
-  mountpoint: { absolute: "/nonexistent/catalog" },
-});
+await GENERATIVE(generative, { entities: {} });
 const catalog = () => {
   const armed = new Vector().graft(tools);
-  armed.branch("/generator", generative.generator.tools);
+  armed.graft(generative.generator.tools);
   return armed;
 };
 
@@ -67,17 +66,18 @@ specimen.describe(
           declarations(catalog()),
           "hello-world-catalog.snapshot.json",
         );
-        // exactly four view names, the trait's. FIVE means the generator leaked a branch.
+        // exactly five names, the trait's. SIX means the generator leaked a branch.
         // `research` sits where the assembly put it — after web, before the trait's tools.
         specimen.expect(pinned.map(({ name }) => name)).toEqual([
           "viva_doctor",
           "web_search",
           "web_read",
           "research",
-          "generator_view_render",
-          "generator_view_revise",
-          "generator_view_inspect",
-          "generator_view_list",
+          "buffer_create",
+          "view_create",
+          "view_update",
+          "view_read",
+          "view_list",
         ]);
       },
     );

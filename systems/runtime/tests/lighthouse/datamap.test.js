@@ -25,7 +25,7 @@ specimen.describe("lighthouse datamap (scenario)", () => {
       controller: new Controller({ stdout: new Span(`daemon/${SLUG}`) }),
       domain: {},
     });
-    scenario.runtime.processes.daemon.find = async () => [daemon];
+    scenario.runtime.daemons = { [SLUG]: daemon };
     await lifecycle.daemon.resolution.domain({ runtime: scenario.runtime, daemon }, async () => {});
     await lifecycle.runtime.resolution.expose({ aperture: scenario.aperture, runtime: scenario.runtime }, async () => {});
   });

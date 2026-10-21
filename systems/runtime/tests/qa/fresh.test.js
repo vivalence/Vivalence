@@ -1,4 +1,5 @@
 import { specimen } from "@vivalence/typology";
+import { READY } from "../scenarios/hello.js";
 import { join } from "@std/path";
 import { boot, exists, ledger, pin, viva } from "./rig.js";
 
@@ -47,10 +48,12 @@ describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON r
     await pin(shelf, { VIVA_RUNTIME_ORIGIN: world.origin });
   });
 
-  it("instance/use hello-world --ledger selects it for every later verb on this ledger", async () => {
+  it("instance/use hello-world --ledger writes the machine default; this shell's session still outranks it", async () => {
     const { effect, err } = await viva(world, ["instance/use", "hello-world", "--ledger"]);
     expect(effect?.selected ?? err).toBe(shelf);
-    expect(effect.stratum).toBe("ledger");
+    expect(effect.record).toBe(join(world.root, "ledger/.env"));
+    expect(await Deno.readTextFile(effect.record)).toContain(`VIVA_INSTANCE_MOUNT="${shelf}"`);
+    expect(effect.stratum).toBe("session");
   });
 
   it("instance/doctor: zero faults, zero problems, two dormant hallucinators, no lighthouse organ", async () => {
@@ -65,20 +68,20 @@ describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON r
     expect(effect.env.some((row) => row.key === "VIVA_LIGHTHOUSE_MOUNT" || row.key === "PUBLIC_VIVA_LIGHTHOUSE_REMOTE")).toBe(false);
   });
 
-  it("run.js on the shelf prints Status:RUNNING with ONE db at the mountpoint", async () => {
+  it("run.js on the shelf goes live with ONE db at the mountpoint", async () => {
     runtime = await boot(world, { shelf, slug: "hello-world" });
-    expect(runtime.ready ?? runtime.tail()).toBe("Status:RUNNING");
+    expect(runtime.ready ?? runtime.tail()).toMatch(READY);
     const files = [];
     for await (const entry of Deno.readDir(join(shelf, "mountpoint"))) files.push(entry.name);
     expect(files.filter((name) => name.endsWith(".viva.db"))).toEqual(["hello-world.viva.db"]);
     expect(runtime.query("select slug from Daemon")).toEqual([{ slug: "hello" }]);
   });
 
-  it("instance/user signup → login through ghost reach /lighthouse/* on the one remote", async () => {
-    const signup = await viva(world, ["instance/user", "signup", "finn", "hunter22"]);
+  it("instance/lighthouse/signup → signin through ghost reach /lighthouse/* on the one remote", async () => {
+    const signup = await viva(world, ["instance/lighthouse/signup", "finn", "hunter22"]);
     expect(signup.effect?.status ?? signup.err).toBe("SUCCESS");
     expect(signup.effect.user.slug).toBe("finn");
-    const login = await viva(world, ["instance/user", "login", "finn", "hunter22"]);
+    const login = await viva(world, ["instance/lighthouse/signin", "finn", "hunter22"]);
     expect(login.effect?.status ?? login.err).toBe("SUCCESS");
     expect(login.effect.user.id).toBe(signup.effect.user.id);
     finn = { user: login.effect.user, access: login.effect.authority.access };
@@ -88,7 +91,7 @@ describe("T-fresh — a clean ledger, ghost's verbs, hello-world from the JSON r
   it("the runtime-level home under /userspace: a thread with no mode, a terminal at index 0, no notes yet", async () => {
     const thread = await runtime.call("/userspace/entities/thread/create", { data: { trait: {} } }, finn.access);
     expect([thread.mode ?? null, thread.user?.id ?? thread.user]).toEqual([null, finn.user.id]);
-    const terminal = await runtime.call("/userspace/entities/terminal/create", { data: {} }, finn.access);
+    const [terminal] = await runtime.call("/userspace/entities/terminal/find", { where: {} }, finn.access);
     expect(terminal.index).toBe(0);
     expect(await runtime.call("/userspace/entities/note/find", { where: {} }, finn.access)).toEqual([]);
     const turn = await runtime.call("/userspace/entities/turn/create", { data: { thread: thread.id, role: "user", parts: [{ type: "text", text: "hello runtime" }] } }, finn.access);

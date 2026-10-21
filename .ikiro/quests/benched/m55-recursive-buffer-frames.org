@@ -96,13 +96,13 @@ the stall pulling to =depth()=, turns the log. The pull is CLIENT-driven (=Threa
 ** M1 — thread lineage (runtime + typology) — LANDED
 
 #+begin_src diff
---- systems/runtime/daemon/entities/userspace/Thread.ts
+--- systems/runtime/subjects/daemon/entities/userspace/Thread.ts
 +  parent?: Rel<ThreadEntity>;
 +  children = new Collection<ThreadEntity>(this);
 @@ properties
 +    parent:   { kind: "m:1", entity: () => ThreadEntity, fieldName: "parent", nullable: true, deleteRule: "cascade" },
 +    children: { kind: "1:m", entity: () => ThreadEntity, mappedBy: (thread) => thread.parent },
---- systems/runtime/daemon/entities/userspace/Buffer.ts   (thread FK; Turn.thread already cascaded, Turn.ts:81-83)
+--- systems/runtime/subjects/daemon/entities/userspace/Buffer.ts   (thread FK; Turn.thread already cascaded, Turn.ts:81-83)
 +      updateRule: "cascade",
 +      deleteRule: "cascade",
 --- subsystems/typology/schematics/entities/thread.js
@@ -303,8 +303,8 @@ Frame is unchanged by M3.
 
 | file                                                          | change                                                   | milestone | kind         |
 |---------------------------------------------------------------+----------------------------------------------------------+-----------+--------------|
-| =systems/runtime/daemon/entities/userspace/Thread.ts=         | =parent= m:1 cascade · =children= 1:m                    | M1 LANDED | edit         |
-| =systems/runtime/daemon/entities/userspace/Buffer.ts=         | =thread= FK update/delete cascade                        | M1 LANDED | edit         |
+| =systems/runtime/subjects/daemon/entities/userspace/Thread.ts=         | =parent= m:1 cascade · =children= 1:m                    | M1 LANDED | edit         |
+| =systems/runtime/subjects/daemon/entities/userspace/Buffer.ts=         | =thread= FK update/delete cascade                        | M1 LANDED | edit         |
 | =subsystems/typology/schematics/entities/thread.js=           | =parent= · =children= relations                          | M1 LANDED | HOLY, go'd   |
 | =systems/anima/src/typology/entities/terminal.js=            | =parent= · =children= · =$view= · up down status stop run watch | M2   | edit         |
 | =systems/anima/src/typology/stores/terminals.js=             | =create({parent, dock})= · =roots= · =remove= descendants | M2       | edit         |

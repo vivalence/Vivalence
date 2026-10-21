@@ -22,11 +22,11 @@ expect allow cwd-guard.sh "$(bash_json 'cd ~/.viva && ls')"                     
 expect allow cwd-guard.sh "$(bash_json 'echo cd systems/ghost')"                             "cd as an argument"
 
 # log-guard — the mask print that leaked a key
-expect deny  log-guard.sh "$(edit_json /r/systems/runtime/daemon/populate.js 'console.log({ mask, service, faculties });')" "mask logged whole"
+expect deny  log-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/populate.js 'console.log({ mask, service, faculties });')" "mask logged whole"
 expect deny  log-guard.sh "$(edit_json /r/commons/hallucinators/x/provider/index.js "console.log('boot', die)")"       "die logged"
-expect allow log-guard.sh "$(edit_json /r/systems/runtime/daemon/populate.js 'console.log(`daemon[${slug}].hallucinators[${i}] ${module}`)')" "slot label"
+expect allow log-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/populate.js 'console.log(`daemon[${slug}].hallucinators[${i}] ${module}`)')" "slot label"
 expect allow log-guard.sh "$(edit_json /r/systems/runtime/tests/x.test.js 'console.log(mask)')"                          "test file"
-expect allow log-guard.sh "$(edit_json /r/systems/runtime/daemon/x.js 'const service = ctx.daemon.services.reader;')"    "no log"
+expect allow log-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/x.js 'const service = ctx.daemon.services.reader;')"    "no log"
 
 # import-guard — "no leaving the mode"
 expect deny  import-guard.sh "$(edit_json /r/commons/modes/vdex/tools/index.js "import { TEXT } from '../../../domain/voffice/index.js';")" "climbs past the mode"
@@ -47,7 +47,7 @@ expect deny  comment-guard.sh "$(edit_json /r/subsystems/paladin/gestalten/belt/
   const x = 1;')" "authored // in product source"
 expect allow comment-guard.sh "$(edit_json /r/subsystems/paladin/gestalten/belt/check.js '  const x = 1; // @beef keep')" "beef annotation"
 before=$(wc -l < "$HOME/.claude/projects/-Users-finn-vivalence-code-vivalence/hooks.log" 2>/dev/null || echo 0)
-expect warn comment-guard.sh "$(bash_json 'cat > /r/systems/runtime/daemon/x.js <<EOF
+expect warn comment-guard.sh "$(bash_json 'cat > /r/systems/runtime/subjects/daemon/x.js <<EOF
 // the mint — one place
 export const x = 1;
 EOF')" "Bash heredoc route (warn)"
@@ -68,13 +68,13 @@ if grep -q '"deny"' <<<"$out"; then echo "FAIL agent-guard.sh warn mode denied";
 rm -f "$count_file"
 
 # lifecycle-guard — the 10-08 shape: seven (ctx, next) middlewares written as consts into a trait file
-expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/mode/traits/harnessed.js 'const claiming = async (ctx, next) => { await next(); };')" "shard const in a trait"
-expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/mode/traits/harnessed.js 'const chaining = (mode) => async (ctx, next) => { await next(); };')" "curried shard"
-expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/daemon/lifecycle/integration.js 'const round = (via) => async (ctx) => { ctx.output = 1; };')" "effect factory in a beat file"
-expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/daemon/lifecycle/population.js 'export const modes = async (die, next) => { await next(); };')" "a beat"
-expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/daemon/lifecycle/resolution.js '  die.daemon.aperture.use(async (ctx, next) => { await next(); });')" "inline use inside a beat"
-expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/mode/traits/tooling.js 'export const TOOLING = (mode, host) => { mode.tools.graft(mode.module.tools); };')" "a trait"
-expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/lighthouse/traits/joinable.js 'const gate = async (ctx, next) => { await next(); };')" "shard const in a lighthouse trait (m91 path)"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/mode/traits/harnessed.js 'const claiming = async (ctx, next) => { await next(); };')" "shard const in a trait"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/mode/traits/harnessed.js 'const chaining = (mode) => async (ctx, next) => { await next(); };')" "curried shard"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/lifecycle/integration.js 'const round = (via) => async (ctx) => { ctx.output = 1; };')" "effect factory in a beat file"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/lifecycle/population.js 'export const modes = async (die, next) => { await next(); };')" "a beat"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/daemon/lifecycle/resolution.js '  die.daemon.aperture.use(async (ctx, next) => { await next(); });')" "inline use inside a beat"
+expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/mode/traits/tooling.js 'export const TOOLING = (mode, host) => { mode.tools.graft(mode.module.tools); };')" "a trait"
+expect deny  lifecycle-guard.sh "$(edit_json /r/systems/runtime/subjects/lighthouse/traits/joinable.js 'const gate = async (ctx, next) => { await next(); };')" "shard const in a lighthouse trait (m91 path)"
 expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/gestalten/shard/harness.js 'export const claiming = (mode) => async (ctx, next) => {};')" "the shard home"
 expect allow lifecycle-guard.sh "$(edit_json /r/systems/runtime/tests/x.test.js 'const f = async (ctx, next) => {};')" "test file"
 

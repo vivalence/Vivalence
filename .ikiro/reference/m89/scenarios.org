@@ -1,0 +1,249 @@
+# drained 10-22 whole from .ikiro/quests/roadmap/m89-telemetry.org (quest tidy); nothing reworded · limit: none (reference content)
+
+** the scenarios
+
+One per system, =@vivalence/typology/specimen=, every world a temp dir over =hello= (=@vivalence/runtime/scenarios=, as =ghost/tests/client.test.js:24=); green with =HOME=<empty dir>=.
+
+*** systems/runtime/tests/runtime/telemetry.test.js
+
+#+BEGIN_SRC js :tangle systems/runtime/tests/runtime/telemetry.test.js
+import { specimen, telemetry, trace, v } from "@vivalence/typology";
+import { join } from "@std/path";
+import { hello } from "../scenarios/index.js";
+
+const { describe, it, expect, beforeAll, afterAll } = specimen;
+const { Record } = v.primitives.controller;
+const { Telemetry, RANK } = v.primitives.telemetry;
+
+const TELEMETRY = { level: "note", surfaces: { console: { level: "note" }, ledger: { level: "control" } } };
+
+const NOISY = `import { Vector } from "@vivalence/typology";
+export const manifest = { type: "home", slug: "noisy", version: "0.0.1", traits: ["RUNTIME", "EXPOSED", "TOOLING"] };
+export const aperture = new Vector()
+  .open("/note", (_, ctx) => {
+    ctx.mode.stdout.note({ ping: true });
+    return { noted: true };
+  })
+  .open("/fault", (_, ctx) => {
+    ctx.mode.stdout.fault(new Error("noisy fault"));
+    return { faulted: true };
+  });
+export const tools = new Vector();
+`;
+
+const RECIPE = { ...hello.RECIPE, runtime: { ...hello.RECIPE.runtime, modes: ["./probe.viva.js", "./noisy.viva.js"] }, telemetry: TELEMETRY };
+
+const settle = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const eventually = async (predicate, ms = 15000) => {
+  const deadline = Date.now() + ms;
+  while (!predicate()) {
+    if (Date.now() > deadline) throw new Error(`timed out waiting ${ms}ms`);
+    await settle(25);
+  }
+};
+
+describe("runtime telemetry — one run, two surfaces, each at its own floor", () => {
+  let world = null;
+  let spans = null;
+  let token = null;
+
+  beforeAll(async () => {
+    world = await hello.launch({
+      prefix: "viva-telemetry-",
+      home: async (home) => {
+        await Deno.writeTextFile(join(home, "instance.viva.json"), JSON.stringify(RECIPE, null, 2));
+        await Deno.writeTextFile(join(home, "probe.viva.js"), hello.PROBE);
+        await Deno.writeTextFile(join(home, "noisy.viva.js"), NOISY);
+      },
+    });
+    spans = join(world.root, "ledger/logs/hello-world/spans.jsonl");
+  });
+
+  afterAll(() => world.stop());
+
+  const read = async () => (await Deno.readTextFile(spans)).split("\n").filter(Boolean).map((line) => JSON.parse(line));
+
+  it("the recipe's telemetry word passes the schematic and fills its defaults", () => {
+    expect(Telemetry.faults(TELEMETRY)).toEqual([]);
+    const filled = Telemetry.cast(TELEMETRY);
+    expect(filled.caps).toEqual({ journal: 1000, story: 200 });
+    expect(filled.surfaces.inspector).toEqual({ level: "off" });
+  });
+
+  it("the beacon still prints on stdout; the boot's open is the first line of spans.jsonl, every line one Record, one run", async () => {
+    expect(world.ready).toBe("Status:RUNNING");
+    const records = await read();
+    expect(records.length).toBeGreaterThan(0);
+    for (const record of records) expect(Record.faults(record)).toEqual([]);
+    expect(new Set(records.map((record) => record.run)).size).toBe(1);
+    expect(records[0]).toMatchObject({ path: "/runtime/house", verb: "open", trace: null });
+  });
+
+  it("a note stays off the ledger (control) and reaches stderr (note); a fault reaches both", async () => {
+    const signup = await (await world.post("/lighthouse/signup", { username: "finn", password: "hunter22" })).json();
+    token = signup.authority.access;
+    expect((await world.post("/runtime/house/mode/home/noisy/note", {}, token)).status).toBe(200);
+    expect((await world.post("/runtime/house/mode/home/noisy/fault", {}, token)).status).toBe(200);
+    await eventually(() => world.log.some((line) => line.startsWith("[/runtime/house/mode/home/noisy] fault")));
+    expect(world.log.includes('[/runtime/house/mode/home/noisy] note {"ping":true}')).toBe(true);
+    const records = await read();
+    expect(records.filter((record) => record.path === "/runtime/house/mode/home/noisy").map((record) => record.verb)).toEqual(["open", "fault"]);
+    expect(records.every((record) => RANK.indexOf(telemetry.level(record)) <= RANK.indexOf("control"))).toBe(true);
+  });
+
+  it("the file folds into one story: one root under the runtime's reference, the mode a faulted child — the snapshot is its projection", async () => {
+    const story = trace.chronicle(await read());
+    expect(story.roots.length).toBe(1);
+    expect(story.roots[0].path).toBe("/runtime/house");
+    const noisy = story.roots[0].children.find((node) => node.path === "/runtime/house/mode/home/noisy");
+    expect(noisy.fault).toMatchObject({ message: "noisy fault", code: null });
+    const [projected] = telemetry.project(story);
+    expect(projected.timing).toEqual({ measured: false });
+    expect(projected.children.find((node) => node.nature === "noisy").fault).toEqual({ message: "noisy fault", code: null });
+  });
+
+  it("SIGTERM seals the run: stop then close are the last two lines, exit 0", async () => {
+    world.child.kill("SIGTERM");
+    expect((await world.child.status).code).toBe(0);
+    const records = await read();
+    expect(records.slice(-2).map((record) => record.verb)).toEqual(["stop", "close"]);
+    expect(records.at(-1)).toMatchObject({ path: "/runtime/house", run: records[0].run });
+  });
+});
+#+END_SRC
+
+*** systems/ghost/tests/rig.js — =client.json.test.js:12-26= lifted verbatim (=HOME= · =settle= · =until= · =eventually= · =signedIn= · =lines=), each =export=; =client.test.js= · =client.json.test.js= import from it.
+
+*** systems/ghost/tests/telemetry.test.js
+
+#+BEGIN_SRC js :tangle systems/ghost/tests/telemetry.test.js
+import { join } from "@std/path";
+import paladin from "@vivalence/paladin";
+import { Vector, specimen } from "@vivalence/typology";
+import { hello } from "@vivalence/runtime/scenarios";
+import { credentials } from "@vivalence/drapes/tty/credentials";
+import { construct } from "../lifecycle/client/construction.js";
+import { headless } from "../gestalten/belt/headless.js";
+import { client } from "../lifecycle/client/trajectories/client.js";
+import { HOME, eventually, lines, signedIn, until } from "./rig.js";
+
+const { describe, it, expect, beforeAll, afterAll } = specimen;
+
+const TELEMETRY = { surfaces: { console: { level: "fault" } } };
+
+const heard = async (run) => {
+  const held = console.error;
+  const captured = [];
+  console.error = (...parts) => captured.push(parts.join(" "));
+  try {
+    await run();
+  } finally {
+    console.error = held;
+  }
+  return captured.filter((line) => line.startsWith("[/client/"));
+};
+
+describe("viva client --json under a telemetry word: faults reach stderr, nothing below the floor", () => {
+  let runtime = null;
+  let root = null;
+
+  beforeAll(async () => {
+    runtime = await hello.boot({ prefix: "viva-telemetry-ghost-" });
+    root = await Deno.makeTempDir({ prefix: "viva-telemetry-ghost-ledger-" });
+    paladin.env.set("VIVA_LEDGER_MOUNT", root);
+  });
+
+  afterAll(async () => {
+    paladin.env.delete("VIVA_LEDGER_MOUNT");
+    if (runtime) await runtime.stop();
+    if (root) await Deno.remove(root, { recursive: true });
+  });
+
+  it("the mask's word is cast on the die; a refused command is one stderr line on the form's branch, nothing below the floor prints", async () => {
+    const carrier = credentials(join(root, "credentials.json"));
+    const mask = { manifest: { type: "client", slug: "ghost" }, statics: { remote: runtime.url }, home: HOME, telemetry: TELEMETRY };
+    const surface = headless({ credentials: carrier });
+    const first = construct(mask, surface);
+    expect(first.telemetry.surfaces).toEqual({ console: { level: "fault" }, ledger: {}, inspector: { level: "off" } });
+    await eventually(() => signedIn(surface));
+    first.client.dispatch({ signal: "/lighthouse/access", input: { route: "/lighthouse/signup", username: `telemetry-${Date.now()}`, password: "walk-the-walk" } });
+    await until(first.client.lighthouse.$isAuthorized, Boolean, first.controller.abort.signal);
+    await until(first.client.$seat, (seat) => seat !== null && seat.thread !== null, first.controller.abort.signal, 30000);
+    const calls = first.controller.stdout.records.filter((record) => record.verb === "request");
+    expect(calls.length).toBeGreaterThan(0);
+    expect(calls.every((record) => record.trace === first.controller.stdout.id && record.run === first.controller.stdout.run)).toBe(true);
+    expect(surface.placed.every((row) => row.panes === null || !row.panes.includes("inspector"))).toBe(true);
+    first.controller.abort.abort("carrier written");
+    await first.execution;
+
+    const instance = { clients: [{ manifest: { slug: "ghost" }, home: HOME }], runtime: { statics: { remote: runtime.url } }, telemetry: TELEMETRY };
+    const ctx = { instance, signal: { flags: { json: true }, params: [] }, trajectory: new Vector(), interactive: false, stdin: lines("/nobody\n") };
+    let effect = null;
+    const printed = await heard(async () => {
+      effect = await client(ctx);
+    });
+    expect(effect.slot.refused).toBe("/command/nobody");
+    expect(printed.length).toBe(1);
+    expect(printed[0]).toMatch(/^\[\/client\/headless\/command\/nobody\] fault \{/);
+  });
+});
+#+END_SRC
+
+*** systems/anima/tests/rig.js — =client.test.js:10-94= lifted verbatim (=ENTRY= · =DOM= · =NODE_MODULES= · =HOME= · =storage= · =install= · =compile= · =page= · =settle= · =until= · =eventually= · =shown=), each =const= prefixed =export=; =client.test.js= then imports ={ HOME, install, page, until, eventually, shown }= from it. Two files, one rig.
+
+*** systems/anima/tests/telemetry.test.js
+
+#+BEGIN_SRC js :tangle systems/anima/tests/telemetry.test.js
+import { specimen } from "@vivalence/typology";
+import { hello } from "@vivalence/runtime/scenarios";
+import { HOME, eventually, install, page, shown, until } from "./rig.js";
+
+const { describe, it, expect, beforeAll, afterAll } = specimen;
+
+const TELEMETRY = { surfaces: { console: { level: "off" }, inspector: { level: "note" } } };
+
+describe("anima surfaces the client die's story on the dom inspector pane", () => {
+  let runtime = null;
+
+  beforeAll(async () => {
+    runtime = await hello.boot({ prefix: "viva-anima-telemetry-" });
+  });
+
+  afterAll(async () => {
+    if (runtime) await runtime.stop();
+  });
+
+  it("the inspector mounts under the baked word; a refused form shows as a fault row under the client root", async () => {
+    const window = install();
+    const { anima } = await page({ remote: runtime.url, home: HOME, telemetry: TELEMETRY });
+    const die = anima(window);
+    const { client, controller } = die;
+    const signal = controller.abort.signal;
+    expect(die.telemetry.surfaces.inspector).toEqual({ level: "note" });
+
+    await eventually(() => shown(window.document, "signin"));
+    expect(shown(window.document, "inspector")).toBe(true);
+
+    client.dispatch({ signal: "/lighthouse/access", input: { route: "/lighthouse/signup", username: `anima-${crypto.randomUUID().slice(0, 8)}`, password: "walk-the-walk" } });
+    await until(client.lighthouse.$isAuthorized, Boolean, signal);
+    await until(client.$seat, (seat) => seat !== null && seat.thread !== null && seat.mode !== null, signal, 30000);
+    await eventually(() => shown(window.document, "dock") && shown(window.document, "inspector"));
+
+    client.dispatch({ signal: "/nobody/home" });
+    await until(client.$slot, (slot) => slot !== null && slot.refused === "/nobody/home", signal);
+    await eventually(() => window.document.querySelector("[data-pane=inspector] .inspector-fault") !== null);
+    const row = window.document.querySelector("[data-pane=inspector] .inspector-fault");
+    expect(row.querySelector(".inspector-nature").textContent).toBe("home");
+    expect(row.querySelector(".inspector-message").textContent.length).toBeGreaterThan(0);
+
+    const story = client.$story.get();
+    expect(story.roots.map((node) => node.path)).toEqual(["/client/dom"]);
+    expect(story.roots[0].children.some((node) => node.path === "/client/dom/nobody/home" && node.fault !== null)).toBe(true);
+
+    window.dispatchEvent(new window.Event("pagehide"));
+    await die.execution;
+    expect(signal.reason).toBe("unload");
+  });
+});
+#+END_SRC
+

@@ -255,10 +255,10 @@ export function streamTranslator() {
 
 const criteria = (question) => (question.options ? { criteria: question.options } : question.levels ? { criteria: question.levels } : {});
 
-export function translateChoice(model, { primer, questions }) {
+export function translateChoice(model, { system, questions }) {
   return {
     model: model.id,
-    state: primer,
+    state: system,
     questions: Object.fromEntries(
       Object.entries(questions).map(([key, question]) => [key, { type: question.type, instructions: question.ask, ...criteria(question) }]),
     ),

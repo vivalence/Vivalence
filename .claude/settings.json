@@ -62,6 +62,12 @@
             "command": "IKIRO_GUARD_MODE=warn \"$CLAUDE_PROJECT_DIR/.ikiro/hooks/cap-guard.sh\"",
             "timeout": 10,
             "statusMessage": "cap-guard: a write past limit: warns"
+          },
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/word-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "word-guard: door · verb · place · line do not exist"
           }
         ]
       },
@@ -86,6 +92,18 @@
             "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/compact-gate.sh\"",
             "timeout": 10,
             "statusMessage": "compact-gate: fold the session before /compact"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.ikiro/hooks/word-guard.sh\"",
+            "timeout": 10,
+            "statusMessage": "word-guard: my reply's fences"
           }
         ]
       }

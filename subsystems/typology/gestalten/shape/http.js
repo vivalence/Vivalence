@@ -60,7 +60,7 @@ function respond(ctx, status) {
   const headers = Object.fromEntries(ctx.response.headers);
   headers["content-type"] = type;
   if (ctx.span) {
-    const header = trace.timing(trace.chronicle(ctx.span.records));
+    const header = trace.timing(trace.chronicle(ctx.span.history));
     if (header) headers["server-timing"] = header;
   }
 

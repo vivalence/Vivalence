@@ -1,7 +1,5 @@
 import { map, atom, computed } from "nanostores";
-import { Span, v } from "@vivalence/typology";
-
-export const STANDINGS = ["IDLE", "AUTHENTICATING", "AUTHENTICATED", "VERIFYING", "REFRESHING", "REFRESHED", "POPULATING", "VERIFIED", "OFFLINE", "ERROR", "SESSION_EXPIRED", "LOGGED_OUT"];
+import { Span, belt, v } from "@vivalence/typology";
 
 export class Lighthouse {
   $authority = map({});
@@ -15,7 +13,7 @@ export class Lighthouse {
   stdout = new Span("lighthouse");
 
   constructor() {
-    this.$status.listen((status) => this.stdout.mark("status", status));
+    this.$status.listen((status) => this.stdout.status(status));
   }
 
   get authority() {
@@ -38,10 +36,10 @@ export class Lighthouse {
     const faults = v.primitives.credentials.Credential.faults(held);
     if (faults.length === 0) {
       this.$authority.set(held.authority);
-      this.$user.set(held.user);
+      this.$user.set({ ...held.user, trait: belt.traits.cast(held.user, v.user.traits) });
       return true;
     }
-    this.stdout.mark("note", { message: "cached credential is not one — discarded", faults });
+    this.stdout.log({ message: "cached credential is not one — discarded", faults });
     return false;
   }
 
@@ -69,7 +67,7 @@ export class Lighthouse {
       return { status: "ERROR", error: response.error };
     }
     const { authority, user } = response.body;
-    if (user) this.$user.set(user);
+    if (user) this.$user.set({ ...user, trait: belt.traits.cast(user, v.user.traits) });
     if (authority) this.$authority.set(authority);
     this.$status.set({ code: "AUTHENTICATED" });
     return { status: "OK", user };
@@ -90,7 +88,7 @@ export class Lighthouse {
       return { status: "ERROR", error: response.error };
     }
     if (response.body.status === "SUCCESS") {
-      if (response.body.user) this.$user.set(response.body.user);
+      if (response.body.user) this.$user.set({ ...response.body.user, trait: belt.traits.cast(response.body.user, v.user.traits) });
       return { status: "OK" };
     }
     return { status: "INVALID" };

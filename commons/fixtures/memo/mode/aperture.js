@@ -31,10 +31,10 @@ export const aperture = new Vector()
   .open(
     {
       nature: "/chat",
-      valence: "one answer from the Magister outside a thread. Example: { prompt: 'what is due today?' }",
+      valence: "one answer from the Magister on the caller's thread. Example: { prompt: 'what is due today?', thread: 'th3' }",
       input: v.object({
         prompt: v.string().desc("What the learner says. Example: what is due today?"),
-        thread: v.string().desc("Binds the exchange to the caller's thread. Example: th3").optional(),
+        thread: v.string().desc("Binds the exchange to the caller's thread. Example: th3"),
       }),
       output: v.object({ answer: v.string() }),
     },

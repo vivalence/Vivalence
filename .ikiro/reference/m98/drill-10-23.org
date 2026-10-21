@@ -1,0 +1,331 @@
+#+title: m98 — the drill's =* as code= snippets and =* open= (probes · his reframes · struck options), moved whole 10-23 at the finish
+# limit: none (reference)
+
+* as code — the drill's snippets (superseded by the tangle in the quest)
+
+*** systems/ghost
+**** gestalten/belt/dock.js
+#+BEGIN_SRC js
+// systems/ghost/gestalten/belt/dock.js   ← Locked Q2: /"One export … huge code smell"/ — the dock's extras from subjects/terminal/commands/dock.js
+export const DEFAULT_DOCK = v.traits.terminal.DOCKED.cast({ align: "right", share: 0.38, view: "docked", lens: "repl" });
+export const SIDES = ["left", "right"];
+export const VIEWS = ["docked", "full", "closed", "messenger"];
+export const LENSES = ["chat", "repl", "trace"];
+export const docked = /* verbatim from commands/dock.js */;
+// systems/ghost/subjects/terminal/commands/set.js:3
+import * as belt from "../../../gestalten/belt/index.js";   // belt.dock.SIDES · belt.dock.docked
+#+END_SRC
+**** gestalten/belt/input.js — Q41″ PARKED 10-23 (the two-stage signal; not landed)
+#+BEGIN_SRC js
+// systems/ghost/gestalten/belt/input.js   ← Locked Q41″: /"b"/ — the command's input schema decides whether the word after --k is its value · =signal.tokens= UNLOCKED 10-23 /"not my style"/ → Q41⁗
+export const cast = (schema, signal) => {
+  const flags = {};
+  const positionals = [];
+  for (let i = 0; i < signal.tokens.length; i++) {
+    const token = signal.tokens[i];
+    if (!token.startsWith("--")) { positionals.push(token); continue; }
+    const key = token.slice(2);
+    flags[key] = schema.properties[key]?.type === "boolean" ? true : signal.tokens[++i];
+  }
+  const input = schema.cast({ ...Object.fromEntries(Object.keys(schema.properties).map((key, index) => [key, positionals[index]])), ...flags });
+  const errors = [...schema.errors(input)];
+  if (errors.length) throw new ValidationError(errors, signal);
+  return input;
+};
+// precedent: POSIX getopt optstring · GNU getopt_long has_arg · @std/cli parseArgs boolean/string. A route already carries its schema on the pattern (=subjects/shell/commands.js:7= =input: Shell=).
+// owed, unprobed: --k=v · short -k / -abc · an undeclared flag · tokens AFTER the matched route (the head path is no positional) · the readers before any route (=shell/lifecycle.js:110= =flags.help=, =run.js:21= =flags.verbose=) → Q41‴
+#+END_SRC
+***** shell/lifecycle/index.js
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/lifecycle/index.js   ← Locked Q7′: /"They instantiate the signal and then they apply it to whatever is the subject."/
+export const execution = new Vector()
+  .use(shard.controller.open)
+  .use((shellDie, next) => { shellDie.dispatch = (signal) => steer.dispatch.execute(commands, shellDie, new Argv(signal)); return next(); })
+  .graft(commands)
+  .do((shellDie) => shellDie.dispatch("/chrome"));
+// systems/ghost/subjects/client/prototype.js:53 — same law, its kind: repl.dispatch mints new ReplSignal(signal) (dispatch.js:36)
+#+END_SRC
+#+BEGIN_SRC js
+// PARKED 10-23 with Q41″ (not landed) · systems/ghost/subjects/shell/lifecycle/index.js   ← Locked Q41‴: /"a"/ — the shell declares its own flags; every flag read goes through belt.input.cast (on top of Q7′'s execution; today's home subjects/shell/lifecycle.js:108-110)
+export const ShellInput = v.object({
+  help: v.boolean().optional().desc("print the shell's verbs instead of running one. Example: viva --help"),
+  verbose: v.boolean().optional().desc("a failure prints its stack. Example: viva --verbose"),
+});
+export const execution = new Vector()
+  .use(shard.controller.open)
+  .use((shellDie, next) => (belt.input.cast(ShellInput, shellDie.signal).help === true ? strip() : next()))
+// systems/ghost/run.js:21
+console.error(`viva ${die.signal.pathname}: ${belt.input.cast(ShellInput, die.signal).verbose === true ? error.stack : error.message}`);
+// BLOCKED on Q41″'s owed item: cast reads only the words AFTER the matched route — else viva instance/tail puts "instance/tail" into help and the boolean throws
+#+END_SRC
+***** surfaces/
+#+BEGIN_SRC js
+// systems/ghost/surfaces/index.js   ← Locked Q6: /"definitely option A. surfaces/chrome"/ · line form relabeled by Q9 (index IS the value → star)
+export * from "./chrome/index.js";
+// systems/ghost/surfaces/chrome/index.js   ← Locked Q9: /"a"/ — the body of chrome/index.js:42-66; PLACES OSC TICK rgb luminance dark spinning ticking → owners
+export const chrome = async (clientDie) => { /* … */ };
+// systems/ghost/subjects/shell/commands/chrome.js
+(shellDie) => steer.dispatch.execute(door(surfaces.chrome), shellDie)
+// systems/ghost/surfaces/chrome/   ← systems/ghost/chrome/ (index.js → list or value per Q3; its 66 lines → chrome.js, extras to owners per Q2)
+// systems/ghost/typology.js
+export * as surfaces from "./surfaces/index.js";
+#+END_SRC
+#+BEGIN_SRC diff
+// systems/ghost/subjects/shell/lifecycle.js:4 · :101-102 · :111   ← Locked Q6: /"I don't want the lines at all … no Viva REPL"/
+-import { lines } from "../repl/index.js";
+-const repl = door(lines);
+-  .open({ nature: "/repl", valence: "the repl as plain lines in this terminal. Example: viva repl" }, (shellDie) => steer.dispatch.execute(repl, shellDie))
+// systems/ghost/subjects/repl/lines.js — DIES
+// systems/ghost/chrome/commands.js:17-27 — /chrome/off DIES (its target was lines); /chrome/on has nothing to swap from (rides Q7)
+#+END_SRC
+***** chrome/index.js — Q43 (today's home =systems/ghost/chrome/=)
+#+BEGIN_SRC js
+// systems/ghost/chrome/index.js:24   ← Locked Q43: /"b but no /contrast export. import {contrast}"/ — dapper owns colour math; dark = the background contrasts more with white than with black (WCAG's crossover, no number); chrome's rgb · luminance die
+import { contrast } from "@vivalence/dapper";
+export const dark = (renderer) =>
+  renderer
+    .getPalette(OSC)
+    .then((colors) => colors.defaultBackground === null || contrast(colors.defaultBackground, "#FFFFFF") > contrast(colors.defaultBackground, "#000000"))
+    .catch(() => true);
+// probe drill/dark.js (the barrel, subsystems/dapper/mod.js:4): #000 · #1e1e1e · #2e3440 · #555 → dark; #767676 · #777 · #7f7f7f · #808080 · #999 · #b0b0b0 · #fdf6e3 · #fff → light. The =./contrast= subpath stays (anima src/app/design/audit.js:1 · tests/design/audit.test.js:4 · sheets tests/a11y.test.js:2 import it). toRgb (grid.js:16) ≡ dapper channels — unasked
+#+END_SRC
+***** surfaces/chrome/panes/index.js
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/panes/index.js   ← Locked Q8: /"a"/ (13 lines, ls order)
+export * as bar from "./bar.js";
+export * as chrome from "./chrome.jsx";
+export * as frame from "./frame.js";
+export * as island from "./island.js";
+export * as journal from "./journal.js";
+export * as painters from "./painters.jsx";
+export * as panel from "./panel.js";
+export * as regions from "./regions.js";
+export * as section from "./section.js";
+export * as sidebar from "./sidebar.js";
+export * as tabs from "./tabs.js";
+export * as tele from "./tele.js";
+export * as wid from "./wid.js";
+// systems/ghost/surfaces/chrome/panes/bar.js — paintBar → paint (and paintTabs · paintFrame · … each → paint)
+#+END_SRC
+**** tests/
+#+BEGIN_SRC
+// systems/ghost/tests/   ← Locked Q10: /"a"/ — the folder IS the address
+tests/subjects/terminal/commands.test.js        ← tests/commands.test.js (the terminal part)
+tests/subjects/client/keymap.test.js            ← tests/keymap.test.js
+tests/subjects/shell/door.test.js               ← tests/door.coverage.test.js
+tests/surfaces/chrome/keys.test.js              ← tests/keys.test.js
+tests/surfaces/chrome/host.test.js              ← tests/chrome.host.coverage.test.js
+tests/scenarios/
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/tests/subjects/terminal/commands.test.js   ← Locked Q11: /"I would prefer B"/
+import { subjects } from "@vivalence/ghost";      // subjects.terminal.commands.dock
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/tests/surfaces/chrome/keys.test.js   ← Locked Q11′: /"for the Chrome we will do an exception and allow the tests to import relatively"/
+import { press } from "../../../surfaces/chrome/keys.js";
+// systems/ghost/tests/subjects/terminal/commands.test.js — list · pick only through the value
+await clientDie.dispatch("/modes");
+#+END_SRC
+#+BEGIN_SRC
+// systems/ghost/tests/   ← Locked Q14: /"a"/
+tests/surfaces/chrome/paint.test.js          ← tests/paint.coverage.test.js
+tests/subjects/client/factory.test.js        ← tests/factory.coverage.test.js
+tests/subjects/shell/lifecycle.test.js       ← tests/door.coverage.test.js · tests/shell.test.js (merged)
+#+END_SRC
+***** tests/scenarios/index.js · deno.jsonc
+#+BEGIN_SRC js
+// systems/ghost/tests/scenarios/index.js   ← Locked Q12: /"a"/
+export * as chrome from "./chrome.js";
+export * as hello from "./hello.js";
+export * as look from "./look.js";
+export * as world from "./world.js";      // ← tests/world.js
+// systems/ghost/deno.jsonc
+"exports": { ".": "./typology.js", "./run": "./run.js", "./host": "./surfaces/chrome/host/index.js", "./scenarios": "./tests/scenarios/index.js" },
+// systems/ghost/tests/subjects/client/client.test.js
+import { hello } from "@vivalence/ghost/scenarios";
+#+END_SRC
+**** (beyond ghost) — Q15′ chain, ①→⑤ — SUPERSEDED by Q17′ (no repository method, no route)
+#+BEGIN_SRC js
+// subsystems/typology/entities/base/DataEntity.ts  ①   ← Locked Q15′: /"it's always called one, so update one trait"/
+async updateOneTrait(where, data) {
+  const entity = await this.findOneOrFail(where);
+  entity.assign({ traits: [...new Set([...entity.traits, ...Object.keys(data)])], trait: data }, { mergeObjectProperties: true });
+  await this.em.flush();
+  return entity;
+}
+// subsystems/typology/gestalten/shard/datamap.js:171  ③
+aperture.post("/updateOneTrait", scoped("where", (input, ctx) => of(ctx).updateOneTrait(input.where, input.data)));
+// subsystems/typology/prototypes/remote-repository.js:132  ④
+async updateOneTrait(where, data) {
+  const result = await this.connection.call("/updateOneTrait", { where, data });
+  return await this.merge(result);
+}
+// systems/ghost/subjects/terminal/commands/set.js:25  ⑤
+(ctx, effort) => ctx.client.runtime.entities.thread.updateOneTrait({ id: ctx.terminal.thread.id }, { INTELLIGENT: { effort } })
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/commands/dock.js:20   ← Locked Q16: /"aa."/ — Terminal.write dies · /"And no, this.write."/ · call shape relabeled by Q17′
+await ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, traits.patch(ctx.terminal, { DOCKED: patch }));
+#+END_SRC
+**** (beyond ghost) subsystems/typology/entities/base/DataEntity.ts — Q33 (HOLY: its own go)
+#+BEGIN_SRC ts
+// subsystems/typology/entities/base/DataEntity.ts:53   ← Locked Q33: /"b"/ — the server merges a JSON column; traits.patch keeps object.patch
+  async updateOne(where, data) {
+    const entity = await this.findOneOrFail(where);
+    entity.assign(data, { mergeObjectProperties: true });
+    await this.em.flush();
+    return entity;
+  }
+// probe drill/merge.js (mikro 7.2.3 :memory:): {LABELED, INTELLIGENT{tune, effort}} + {INTELLIGENT{tune:"fast"}} → LABELED kept, effort kept
+#+END_SRC
+**** (beyond ghost) subsystems/typology/gestalten/belt/traits.js
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/traits.js   ← Locked Q17′: /"a"/ — steals object.patch (belt/object.js:248)
+export const patch = (entity, data) => ({
+  traits: [...new Set([...entity.traits, ...Object.keys(data)])],
+  trait: object.patch(entity.trait, data),
+});
+// systems/ghost/subjects/terminal/commands/set.js:25 — one call at each of the 10 sites (7 ghost · 3 anima)
+(ctx, effort) => ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, traits.patch(ctx.terminal.thread, { INTELLIGENT: { effort } }))
+#+END_SRC
+**** (beyond ghost) subsystems/typology/prototypes/argv.js — Q41⁵ (HOLY: its own go)
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/argv.js:5   ← Locked Q41⁵: /"a"/ — the string arm splits the line and hands the words to the array arm (ReplSignal's shape, replsignal.js:8-11)
+  static coercions = [
+    [
+      (line) => is.string(line),
+      function (line) {
+        return this.coerce(Argv.tokens(line));
+      },
+    ],
+    [
+      (argv) => is.array(argv) && argv.every(is.string),
+// probe drill/ws/argv: "/chrome" · "/x --json y" · "/x --json" · "/x -- --raw" ≡ their arrays 4/4 · new Argv("/chrome").flags → {} · typology 149, no new red; ghost unprobed
+#+END_SRC
+**** (beyond ghost) subsystems/typology/prototypes/signal.js — Q41 SUPERSEDED by Q41⁵ (not landed)
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/signal.js:78   ← Locked Q41: /"a.  but dispatch("/x --json y") and dispatch(["/x", "--json", "y"]) should really yield the same signal signature on argv."/ — the string arm always sets the root's flags
+        if (!segments.length && Object.keys(flags).length > 0) {
+          this.nature = null;
+          this.flags = flags;
+          return null;
+        }
+        if (segments.length) segments[0].flags = flags;
+        return segments;
+// probe drill/ws/a: Signal("/chrome").flags → {} · typology 148 / 2 red beyond the copy's bundle-weight path red: tests/signal.test.js:67 /"flags are the root's own, and only when one was typed"/ · :87 rebase /"carries only what the signal owns"/ (both pin flags ABSENT when none typed). His condition NOT met by this hunk: Argv string vs array 0/4 SAME (body absent; --json y → json "y"; -- --raw → a segment) → Q41′
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/signal.js:7   ← Locked Q42: /"b."/ — any Signal kind takes any other kind: the path, then body and flags (the packet arm's shape, signal.js:8-11)
+    [
+      function (other) { return other instanceof Signal && !(other instanceof this.constructor); },
+      function (other) {
+        return Object.assign(new this.constructor(other.pathname), { body: other.body, flags: other.flags });
+      },
+    ],
+// probe drill/ws/qb: ReplSignal(Argv ['/terminal/open','--json','x']) → terminal/open {json:true} [x] · ReplSignal(Signal(URL ?json=1)) → terminal/open {json:"1"} · new Argv(argv) === argv kept; typology 149 / the copy's path red. The guard is a function (an arrow binds this to the class). Gap vs Q41″: a kind minted here carries no tokens → Q42′
+#+END_SRC
+**** typology.js
+#+BEGIN_SRC js
+// systems/ghost/typology.js   ← Locked Q0: /"b."/ · Q0′ barrel up leaf → root · Q6 surfaces · Q13 /"b"/ the flat pair
+export * from "./gestalten/index.js";
+export * from "./subjects/index.js";
+export * as entities from "./entities/index.js";
+export * as gestalten from "./gestalten/index.js";
+export * as subjects from "./subjects/index.js";
+export * as surfaces from "./surfaces/index.js";
+// both blocks in ls order per Q0; =prototypes/= joins with m99 Q21 (its diff on top)
+// systems/anima/tests/world.js:6 — Thread · Client · Lighthouse · STANDINGS · commands leave the root (7 anima sites)
+import { client, thread, lighthouse, belt } from "@vivalence/ghost";   // thread.Thread · lighthouse.STANDINGS
+#+END_SRC
+**** subjects/index.js
+#+BEGIN_SRC js
+// systems/ghost/subjects/index.js   ← Locked Q0 · Q1 ls order; membership from the lookups (running entities → subjects/ · shell + repl take subject shape)
+export * as client from "./client/index.js";
+export * as daemon from "./daemon/index.js";
+export * as lighthouse from "./lighthouse/index.js";
+export * as mode from "./mode/index.js";
+export * as repl from "./repl/index.js";
+export * as runtime from "./runtime/index.js";
+export * as shell from "./shell/index.js";
+export * as terminal from "./terminal/index.js";
+export * as thread from "./thread/index.js";
+#+END_SRC
+***** terminal/index.js · terminal/repository.js · terminal/hydration.js
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/repository.js   ← Locked Q4: /"definitely A"/ — from prototype.js:70
+export const repository = (dataspace) => new RemoteRepository(Terminal).connect(dataspace.runtime.connection.branch("/userspace/entities/terminal"));
+// systems/ghost/subjects/terminal/hydration.js   ← from prototype.js:72 (name rides Q5)
+export const hydration = new Vector().use(/* verbatim */);
+// systems/ghost/subjects/terminal/index.js
+export * from "./prototype.js";
+export * from "./repository.js";
+export * from "./hydration.js";
+// systems/ghost/entities/{activity,buffer,turn}/{prototype,repository,hydration}.js ← entities/{activity,buffer,turn}.js
+#+END_SRC
+***** terminal/commands/index.js
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/commands/index.js   ← Locked Q1: /"a"/
+export * from "./abort.js";
+export * from "./activity.js";
+export * from "./dock.js";
+// … one line per file, ls order
+#+END_SRC
+***** terminal/commands/mode/index.js · terminal/commands/application/index.js
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/commands/mode/index.js   ← Locked Q3: /"b."/ (as today, moved)
+import { Vector } from "@vivalence/typology";
+import { list } from "./list.js";
+import { pick } from "./pick.js";
+export const mode = new Vector().graft(list, pick);
+// systems/ghost/subjects/terminal/commands/application/index.js
+export const application = new Vector().graft(start, stop);
+#+END_SRC
+***** mode/traits/index.js
+#+BEGIN_SRC js
+// systems/ghost/subjects/mode/traits/index.js   ← Locked Q1: /"a"/
+export * from "./application.js";
+export * from "./exposed.js";
+export * from "./harnessed.js";
+export * from "./keymapped.js";
+export * from "./looping.js";
+export * from "./repling.js";
+#+END_SRC
+
+* open
+
+- Q43 LOCKED (row + hunk; =contrast(bg, white) > contrast(bg, black)= = WCAG's crossover, the 0.179 option's number gone) — measured 10-23: chrome's =rgb= (=systems/ghost/chrome/index.js:16=, channels 0–1, an object arm) feeds only =luminance= (=:21=) → =dark= (=:28=, =< 0.5=); its object arm is dead — opentui =getPalette= gives =defaultBackground: Hex= = =string | null= (=@opentui/core lib/terminal-palette.d.ts:3,8=). =toRgb= (=chrome/grid.js:16=, 0–255) feeds =flatten= (=:26=). dapper owns colour math already: =channels= (≡ =toRgb=, + rgba) · =luminance= (WCAG, linearised) at =subsystems/dapper/lib/contrast.js:4,40=, exported as =@vivalence/dapper/contrast= (=deno.jsonc:6=); ghost imports dapper (=grid.js:1=). Probe =drill/lum.js= over 9 backgrounds (#000 · #1e1e1e · #2e3440 · #555 · #808080 · #999 · #b0b0b0 · #fdf6e3 · #fff): today =< 0.5= and dapper =< 0.179= (WCAG's equal-contrast point) give the same dark/light on all 9; they differ only for greys #767676–#7f7f7f.
+- Q41⁵ LOCKED /"a"/ (row + hunk) · Q41⁗ REFRAMED → Q41⁵ (both struck, A body · B dispatch-casts), his: /"Okay, now I'm not happy with this. Maybe the fixed rule set would have been the right approach. Well, no, we cannot know the signal without having traversed it. Only after the signal has been through the vector can we actually tell what the signal is. So a signal kind of has two stages. One is where we instantiate it. And then when we run it through the vector, where we match it against the pattern, only then can the signal be actually complete. Okay. This is getting too complicated for now. What is the simplest, most obvious solution? That hurts nothing and stops us from nothing in the future right now."/ → PARKED as a direction (no lock): a signal has two stages — minted, then COMPLETED where a pattern matches it (Q40's copy-on-match already returns a fresh step per match: the natural hook). Q41″ · Q41‴ (=ShellInput=) ride the park. Q41⁵ asked: the smallest change that keeps today's argv rule (=--k= → true · =--k=v= → value · other words → body; =argv.js:5-40=).
+- STRUCK 10-23 (his /"what are tokens. unlock on tokens, not my style. revisit"/; =tokens= was MY field — the tree's =Signal.tokens(line)= (=prototypes/signal.js:97=) is a static line → words, a second meaning) · Q42′ (A spell back · B carry tokens) struck with it. Was: Q41⁗ LOOKUP: =signal.tokens= = the argv minus its head word — =Argv='s array arm already splits the head path from the rest (=prototypes/argv.js:9-14= =head= · =rest= · =operands=); =--= stays a token so =cast= knows where options end. Unblocks Q41‴.
+- Q41⁗ asked 10-23 — where do the typed words wait until a schema reads them, without a new field: A in =body= (Argv decides only the path; =cast= splits flags out of body) · B nowhere (a subject's =dispatch= finds the route by the path word, casts the words after it with the route's =input=, mints the Argv decided). Measured: 7 product sites read =ctx.signal.body= as words (=entities/terminal/commands/{thread.js:17,mode/pick.js:11,attach.js:6,detach.js:6,artifact.js:12,turn.js:7}= · =entities/mode/traits/harnessed.js:35= · =subjects/client/commands/lighthouse.js:19=); a strategy already casts each step's =input= (=steer/strategy.js:46= =guarded=, the step is the pattern). Both unprobed.
+- Q42 LOCKED /"b."/ (row + hunk) — measured + probed 10-23: no caller hands a foreign Signal KIND today (=new ReplSignal(=: =runtime/subjects/mode/traits/repling.js:7= · =ghost/entities/mode/traits/looping.js:13= a plain ={nature, body, flags}= packet · =subjects/client/keymap.js:82= a string · =subjects/repl/dispatch.js:35= the line); Q7′ promises it (=dispatch= takes an instance). Copies =drill/ws/qa= (an Argv arm: a foreign Argv kind re-reads =other.argv=) · =qb= (a Signal arm: any foreign Signal kind → =new this.constructor(other.pathname)= + body + flags): =ReplSignal(argv ['/terminal/open','--json','x'])= → both =terminal/open {json:true} [x]= (today: =terminal=, no flags, no body) · =ReplSignal(Signal(URL /terminal/open?json=1))= → qa =terminal= (unchanged) · qb =terminal/open {json:"1"}= · =new Argv(argv) === argv= kept in both; typology 149 / the copy's path red. TRAP: the guard must be a =function=, not an arrow — an arrow in a static field binds =this= to the class, the guard reads =Function= and re-mints every instance (=new Argv(argv) === argv= → false).
+- Q41‴ LOCKED /"a"/ (=ShellInput=; blocked on cast reading only the words after the route) · Q41″ LOCKED /"b"/ (row + hunk; A′ · B′ struck by the reframe) — Q41′ REFRAMED (A′ · B′ both rode Argv's array grammar, =--json y= → body), his: /"I don't understand the differences between the two, and I don't understand the approach at all, because we know, or maybe we don't, that if we have dash dash JSON, that the Y is part of the flags command and not part of the body. If it were a single dash, that would indicate a boolean. I mean, we can be pretty smart here about this parsing. What is the true argv signature for us? Like, how does it work? What should it be?"/ → measured 10-23 (scratchpad =drill/grammar.js=, real tree), one line through both grammars: =--json y= Signal ={json:"y"}= · Argv ={json:true} body [y]= | =--slug vdex= Signal ={slug:"vdex"}= · Argv ={slug:true} body [vdex]= | =-v= Signal ={v:true}= · Argv body =[-v]= | =-n 5= Signal ={n:"5"}= · Argv body =[-n,5]= | =-abc= Signal a b c · Argv body =[-abc]= | =y z= Signal PATH =x/y/z= · Argv body =[y,z]= | =-- --raw= Signal path =x/--raw= · Argv body. The only reads of a shell flag: =subjects/shell/lifecycle.js:110= =flags.help= · =run.js:21= =flags.verbose=; per-command input =belt/input.js:3-10= =cast(schema, signal)= (body by index, flags by name) at =shell/commands.js:9= · =client/commands/terminal.js:15= · =lighthouse.js:23=; paladin's copy spells a valued flag =--instance=<slug|path>= (=prototypes/instances.js:4=). Precedent: POSIX getopt (a short option takes a value only when declared, optstring =n:=) · GNU =getopt_long= (=has_arg=) · Deno =@std/cli parseArgs= / minimist (undeclared =--k v= is greedy; =boolean: [k]= declares it) — the string alone never tells; a single dash is the SHORT form, not a boolean. → Q41″.
+- Q41 LOCKED /"a"/ + his condition (string ≡ array on Argv) → Q41′ asked: A′ keep A + Argv's own string arm · B′ Argv's string arm alone, A relabelled. Probes (=drill/ws/{a,ab,argv}=, typology): a → 0/4 SAME, 2 reds (=signal.test.js:67,87=) · ab → 4/4 SAME, the same 2 reds · argv (B alone) → 4/4 SAME, 0 new reds. The bundle-weight red in every copy is the copy's PATH (esbuild: /"Could not resolve …/drill/ws/subsystems/typology/mod.client.js"/), not code.
+- Q41 · Q42 measured 10-23 (scratchpad =drill/argv.js= · =argv2.js=, real tree): =Argv= HAS a string arm — Signal's, inherited (=prototypes/argv.js:41= =...Signal.coercions=); it sets =flags= only when a flag is present (=prototypes/signal.js:78-86= =hasFlags=) and no =body= → =new Argv("/chrome").flags= =undefined=, =new Argv(["/chrome"]).flags= ={}=; reader =systems/ghost/subjects/shell/lifecycle.js:110= =shellDie.signal.flags.help= throws on it. Signal's string grammar ≠ argv's: ="/terminal/open --json x"= → =flags {json: "x"}= (Signal) vs =flags {json: true}, body ["x"]= (Argv array). Foreign kind: =new ReplSignal(argv)= keeps the head's nature ONLY (=prototypes/signature.js:17= =instanceof Signature → this.nature = signature.nature=) — =["terminal","open"] --json x= → =["terminal"]=, no flags, no body; =new Signal(argv)= returns argv itself (a subclass). Q41 B probe =drill/ws/argv= (an Argv string arm = ReplSignal's shape, =Argv.tokens= → the array arm): ="/chrome"= → =flags {} body []= · ="/terminal/open --json x"= ≡ ReplSignal's; typology 149 / 1 red (bundle weight); ghost unprobed.
+- Q33 LOCKED /"b"/ (row + hunk above) — asked (drill 10-23, the Q17′ sibling wipe): A =traits.patch= sends the whole merged =trait= (=object.merge=) · B =DataEntity.updateOne= (=subsystems/typology/entities/base/DataEntity.ts:53-56=) assigns with =mergeObjectProperties: true=; =traits.patch= keeps =object.patch=. Probe scratchpad =drill/merge.js= (mikro 7.2.3, =:memory:=, row ={LABELED:{label:"hi"}, INTELLIGENT:{tune:"slow", effort:"low"}}=, assign ={INTELLIGENT:{tune:"fast"}}=): =false= → ={"INTELLIGENT":{"tune":"fast"}}= · =true= → ={"LABELED":{"label":"hi"},"INTELLIGENT":{"tune":"fast","effort":"low"}}=. Unmeasured: callers of =updateOne= that rely on a JSON prop being REPLACED.
+
+- Q17 REFRAMED, both options struck (repository validates · route contract validates), his: /"I don't like your approach to Q17 at all. And it feels like all of the tooling and traits is kind of sloppy. Feels very sloppy. I would prefer a different approach here. For now, let's not rework the entire belt traits. Let's just add a method. Something like update patch … Maybe patch. Trait update? … Or assign. I don't know. I think belt object already has some grammar, some semantics for this, I think we should just steal that. And no, this.write."/ → lookup =subsystems/typology/gestalten/belt/object.js=: =patch(target, source)= :248 (pure: =merge(pick(target, keys(source)), source)=, the touched keys deep-merged) · =assign(target, source)= :252 (in place, deep) · =merge= :243. → Q17′. Q15′ =updateOneTrait= (repository · route · RemoteRepository) is NOT needed under Q17′ — relabel on his lock, never revert.
+
+- Q16 his: /"Do we have inbuilt traits? Some tooling to run an update on, like a patch against an entity with traits?"/ — measured: typology =belt/traits.js= = =stagger= (run) · =define= (a trait = schematic + repository half + entity half) · =claim= (READ: fill + validate, throws on an undeclared name) · =repository= / =entity= (graft a trait's halves onto a class) · =collide=; runtime =gestalten/belt/traits.js= = =presets= (every =v.traits.<entity>= as a defined trait) · =gather= · =mint= (per-daemon repository, =claim(row, name)= over its schematics; kinds =sets.traits= = literal · symbol · note · mode — NOT thread · terminal) · =strike=. NO write. Hand-rolled spread-writes: 7 ghost + 3 anima (=app/panels/c/cards/threads.js:28,42= · =entities/terminal/prototype.js:61=). No datamap route carries an =input:= schema today (=shard/datamap.js=, 0 hits) → Q17.
+
+- Q15′ owed: ② the typology contract (schematic for =updateOneTrait= input) unwritten; =mergeObjectProperties= unprobed on =:memory:=; ship with m98 or own quest — at the finish. His: /"Why are we putting this on the repository? Is it on the repository or on the entity?"/ → Q16.
+
+- Q15 REFRAMED, both options struck (terminal-leaf · thread-leaf =claim=), his: /"I think claim is entirely misabstracted. It makes no fucking sense at all whatsoever to have the operation to update a thread's intelligent trait directly on the vector like this, like that it receives context. Something is profoundly misabstracted here. Utter bullshit. That is not how we write code at all."/ → lookup: codestyle "entity capability = a REPOSITORY VERB on both sides, mikro-first". Measured: the read-merge-write of a trait is hand-rolled at 7 sites (=intelligent.js:12= · =thread.js:31= · =set.js:21= on thread; =dock.js:19-20= · =close.js:7-8= · =full.js:30-31= on terminal); typology =traits.claim= (=belt/traits.js:25=) is the READ, ghost's =claim= the WRITE — one word, two directions. mikro 7.2.3 =assign(data, { mergeObjectProperties: true })= deep-merges a JSON prop (=EntityAssigner.d.ts:56=, documented, unprobed). → Q15′.
+
+- Q12: root =deno.jsonc:45= =ghost/scenario= runs =systems/ghost/tests/scenarios/hello.js= — path unchanged. =publish.exclude: ["tests/"]= ships a dead =./scenarios= (runtime carries the same).
+
+- Q11 gap: chrome internals (Q9 kept them off the barrel) — 8 test files reach them by path: =chrome.host.coverage= (host/) · =chrome.surface.coverage= (grid · index · screen) · =chrome.test= · =keys.test= (keys) · =look.test= (grid · panes/journal · panes/regions · world) · =paint.coverage= · =renderers.coverage= · =panes.out.coverage= (out/panes.mjs); =scenarios/look.js= (screen · grid) → Q11′.
+
+- Q7′ law gaps (probe scratchpad =mint.js=, typology HOLY → owed, not ours to land): =new Argv("/chrome")= → flags · body =undefined= (Argv has no string arm, =prototypes/argv.js:5=); =new ReplSignal(argvInstance)= → flags =undefined= (no foreign-Signal arm). Object · array arms work on both.
+
+- Q7′ his: /"don't we have a shell.dispatch function? … on do we have shell die.dispatch/chrome, something like that."/ — measured: no =shellDie.dispatch=; =clientDie.dispatch(line)= exists (=subjects/client/prototype.js:53=); =shape.object(vector, steer.strategy.direct)= compiles a callable namespace (precedent =mode.harness= runtime =harnessed.js:262=). Probe (scratchpad =dispatch.js=): over the WHOLE shell → =controller.open= ×2; over the commands only → ×1.
+
+- Q7 his: /"can we wire it through another function? … if we just do .do((shellDie) => steer.dispatch.execute(chrome, shellDie)) Then we'll need the exact same function twice … I would like to have root viva relay to viva/chrome."/ → Q7′. Probe (scratchpad =argv.js=): re-dispatching =shell= itself runs its middleware twice (=controller.open= ×2); dispatching the =/chrome= leaf Vector runs it once and keeps the flags.
+
+- Q6 his /"We either use shell or Chrome"/ — bare =viva= (=shell/lifecycle.js:116= =.do(… repl)=) loses its target → Q7.
+
+- Q4 his: /"I don't understand what hydration is supposed to be … is that the execution vector? I've never heard of hydration."/ → Q5. Codestyle's subject line (=prototype.js (class · repository · hydration)=) changes with Q4 at the finish.
+
+- RESOLVED (lookups · Q15–Q17′) — Q2 homes were: =EFFORTS= (=intelligent.js:5= ≡ =chrome/sections.js:42=) · =claim= (=intelligent.js:10=, one consumer =set.js:24-25=) · =WRITABLE= (=set.js:15=, no importer → unexport) · =open= (=mode/traits/application.js:8=, consumer =commands/application/start.js:2=) · =loop= (=mode/traits/looping.js:4=, consumer =subjects/client/prototype.js:4=); =VIEWS= also ≡ =chrome/sections.js:43=, =LENSES= differs there (an object).
+
+- blast Q0: anima imports =Thread · commands · Client · Lighthouse · belt · STANDINGS · entities= flat from =@vivalence/ghost= (=systems/anima/src/client.js:3= · =src/surface/view.js:2= · =src/surface/sections.js:2= · =tests/{world,sidebar,panel,gate,bar}.test.js=); drapes =dom/chassis.jsx:3= =belt=. Flat lines on typology.js ride Q2 (classes flat?).

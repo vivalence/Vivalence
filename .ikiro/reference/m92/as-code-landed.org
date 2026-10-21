@@ -1,0 +1,106 @@
+# drained 10-22 whole from .ikiro/quests/m92-keymap.org (quest tidy); nothing reworded · limit: none (reference content)
+
+*** systems/anima
+**** src/surface/
+***** keys.js new — the DOM press table (law 12): the modifier the platform does NOT paste with
+#+BEGIN_SRC js
+// systems/anima/src/surface/keys.js
+import { Queue } from "@vivalence/typology";
+
+const MAC = /Mac|iPhone|iPad/.test(globalThis.navigator.platform);
+export const LEADER = MAC ? "ctrl-v" : "meta-v";
+
+const NAMES = { Escape: "esc", Enter: "enter", ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down" };
+const named = (event) => (Object.hasOwn(NAMES, event.key) ? NAMES[event.key] : event.key.toLowerCase());
+
+const CHORDS = [
+  [(event) => (MAC ? event.ctrlKey : event.metaKey) && !event.shiftKey && event.key === "v", () => "leader"],
+  [(event) => event.ctrlKey, (event) => `ctrl-${named(event)}`],
+  [(event) => event.metaKey, (event) => `meta-${named(event)}`],
+  [() => true, named],
+];
+
+export const press = (event) => ({ key: CHORDS.find(([test]) => test(event))[1](event) });
+
+export const keypresses = (window) => {
+  const queue = new Queue();
+  const listener = (event) => queue.enqueue(press(event));
+  window.addEventListener("keydown", listener);
+  return Object.assign(queue, { close: () => { window.removeEventListener("keydown", listener); Queue.prototype.close.call(queue); } });
+};
+#+END_SRC
+
+*** subsystems/typology
+**** gestalten/steer/
+***** strategy.js — a literal effect IS its output (law 5; probed 10-19)
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/steer/strategy.js:6
+ export function fire(effect, context) {
++  if (!is.fn(effect)) return effect;
+   if (effect.length === 0) return effect();
+#+END_SRC
+***** dispatch.js — a consumed signal is spent (law 2; probed 10-19: before this, every path resolved to =ctrl-v/ctrl-v=)
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/steer/dispatch.js:108
+ export async function walk(vector, more) {
+   let position = vector;
+   let carry = middleware.forward;
+   let steps = [];
+-  let signal;
+
+   while (position.patterns.length) {
+     if (steps.length >= 20) throw new Long();
+-    if (!signal?.nature) signal = await more(position.patterns);
++    const signal = await more(position.patterns);
+     if (!signal.nature) throw new Short(position);
+#+END_SRC
+**** prototypes/
+***** keysignal.js new — the signal (law 1); =index.ts:18= · =index.client.js:26= =+ export * from "./keysignal.js"=
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/keysignal.js   ← Locked m96 retro drill Q4 10-21: /"KeySignal. a."/ — the name joins ReplSignal · ToolCall; the barrels, one line each
+import * as is from "../gestalten/is/index.js";
+import { Signature } from "./signature.js";
+
+export class KeySignal extends Signature {
+  static coercions = [[(key) => is.string(key), (key) => [{ nature: key }]]];
+}
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/index.ts:19 — re-cut 10-21 (m96 baseline census: the barrels never got the line; `KeySignal` unexported)
+ export * from "./toolcall.js";
++export * from "./keysignal.js";
+#+END_SRC
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/index.client.js:27
+ export * from "./toolcall.js";
++export * from "./keysignal.js";
+#+END_SRC
+***** errors/vector.js — the walk's drop (law 10)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/errors/vector.js:22
++export class Dropped extends Error {
++  code = "DROPPED";
++  constructor(position) {
++    super("Walk dropped");
++    this.position = position;
++  }
++}
++
+ export class ValidationError extends Error {
+#+END_SRC
+**** tests/gestalten/steer/
+***** walk.test.js · fire.test.js
+#+BEGIN_SRC js
+// subsystems/typology/tests/gestalten/steer/walk.test.js
+specimen.it("a two-segment walk asks more() once per node", async () => {
+  const keymap = new Vector();
+  keymap.branch("leader").open("m", "/mode");
+  const asked = [];
+  const [effect] = await steer.dispatch.walk(keymap, (patterns) => { asked.push(patterns.map((pattern) => pattern.nature)); return new KeySignal(asked.length === 1 ? "leader" : "m"); });
+  specimen.expect(effect).toBe("/mode");
+  specimen.expect(asked).toEqual([["leader"], ["m"]]);
+});
+// subsystems/typology/tests/gestalten/steer/fire.test.js
+specimen.it("fire passes a literal through", () => specimen.expect(steer.strategy.fire("/mode", {})).toBe("/mode"));
+#+END_SRC
+

@@ -1,4 +1,4 @@
-import { specimen, sleep, shape, shard, Url, Connection, Vector, Aperture } from "@vivalence/typology";
+import { specimen, sleep, shape, shard, Url, Connection, Vector, Aperture, Span } from "@vivalence/typology";
 
 function build() {
   const app = new Aperture();
@@ -189,6 +189,37 @@ specimen.describe("multiplex", () => {
     const connection = new Connection(new Url("http://stub-mux"), transport);
 
     await traverse(connection, heard);
+
+    transport.close();
+    await sleep.ms(300);
+  });
+
+  specimen.it("an answered frame climbs to the owner's span — a 404 is a response, never a fault", async () => {
+    const { app } = build();
+    const owner = new Span("owner");
+    const gate = shard.serve.multiplex(app, owner);
+    const transport = shard.transmitter.multiplex({
+      authority: { get: () => ({ access: "sesame" }) },
+      connect: () => {
+        const { west, east } = stubPair();
+        gate.attend(east);
+        return west;
+      },
+    });
+    const connection = new Connection(new Url("http://stub-mux"), transport);
+
+    specimen.expect(await connection.call("/ping", {}, { method: "GET" })).toEqual({ pong: true });
+    let fallen = null;
+    try {
+      await connection.call("/nope", {}, { method: "GET" });
+    } catch (error) {
+      fallen = error;
+    }
+    specimen.expect(fallen).not.toBe(null);
+
+    const responses = owner.history.filter((record) => record.track === "response").map((record) => [record.path[1], record.data.status]);
+    specimen.expect(responses).toEqual([["socket", 200], ["socket", 404]]);
+    specimen.expect(owner.history.filter((record) => record.track === "fault")).toEqual([]);
 
     transport.close();
     await sleep.ms(300);

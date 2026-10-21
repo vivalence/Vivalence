@@ -1,6 +1,8 @@
 import { cast, is, Path } from "@vivalence/typology";
 import { dirname, isAbsolute, resolve as absolute } from "@std/path";
 import * as jsonc from "@std/jsonc";
+import { extract } from "@std/front-matter/yaml";
+import { test as fronted } from "@std/front-matter/test";
 
 const CONTENT = /^\s*[[{]/;
 
@@ -9,6 +11,8 @@ export default function read(paladin) {
 
   const readers = {
     text: async (path) => await Deno.readTextFile(resolve(path)),
+
+    bytes: async (path) => await Deno.readFile(resolve(path)),
 
     json: async (path, fallback) => {
       try {
@@ -37,6 +41,13 @@ export default function read(paladin) {
     },
 
     viva: async (path) => cast.viva(await readers.module(path)),
+
+    frontmatter: async (path) => {
+      const text = await Deno.readTextFile(resolve(path));
+      if (!fronted(text)) return { attrs: {}, body: text };
+      const { attrs, body } = extract(text);
+      return { attrs, body };
+    },
   };
 
   const locate = (source, value, at) => {
@@ -70,11 +81,13 @@ export default function read(paladin) {
   paladin.read = {
     file: readFile,
     text: readers.text,
+    bytes: readers.bytes,
     viva: readers.viva,
     json: readers.json,
     jsonl: readers.jsonl,
     module: readers.module,
     data: readers.data,
+    frontmatter: readers.frontmatter,
     locate,
     part,
   };

@@ -1,29 +1,15 @@
 import paladin from "@vivalence/paladin";
-import { Connection, contexts, Controller, fromm, middleware, Path, shape, shard, Span, Twitch, Url } from "@vivalence/typology";
-import { Daemon, lifecycle, sets, kernel, gestalten, ActivityEntity, ActivityRepository, UserEntity, DaemonEntity, BufferEntity, traits as catalog } from "@vivalence/runtime";
+import { Connection, contexts, Controller, Cortex, fromm, middleware, Path, shape, shard, Span, Twitch, Url } from "@vivalence/typology";
+import { Daemon, factories, lifecycle, sets, gestalten, ActivityEntity, ActivityRepository, UserEntity, DaemonEntity, traits as catalog } from "@vivalence/runtime";
 import { assemble } from "../../gestalten/belt/assemble.js";
 import { provider as memoryDatamap, stack } from "./datamap.js";
 import { connector, lighthouseOf } from "./daemon.js";
 
 const { gather, mint, strike } = gestalten.belt;
 
-const BENCH_APPLICATION = async (mode, daemon) => {
-  mode.application.buffer = async (desc = {}) => {
-    const buffer = daemon.entities.em.create(BufferEntity, {
-      mode: mode.entity.id,
-      data: mode.application.fill(desc),
-      bundle: null,
-      index: desc.index ?? 0,
-    });
-    if (desc.literals) buffer.literals.add(await daemon.entities.literal.findByIdentifiers(desc.literals));
-    if (desc.symbols) buffer.symbols.add(await daemon.entities.symbol.findByIdentifiers(desc.symbols));
-    return buffer;
-  };
-};
-
 let paladinMounted = false;
 
-async function resolve(items) {
+async function resolve(items, mountpoint) {
   if (!items?.length) return [];
   const resolved = [];
   for (const item of items) {
@@ -49,16 +35,16 @@ async function resolve(items) {
       ...citizen,
       reference: citizen.reference ?? new Path(`/mode/${type}/${slug}`),
       url: citizen.url ?? new Url(`http://bench/daemon/bench/mode/${type}/${slug}`),
-      bundles: citizen.bundles ?? new Path(`/bench/bundles/${type}/${slug}`),
+      mountpoint: citizen.mountpoint ?? mountpoint.branch(`/mode_${slug}`).absolute,
     };
   });
 }
 
 export async function bench(spec = {}) {
-  const modules = await resolve(spec.modes || []);
+  const mountpoint = new Path(await Deno.makeTempDir({ prefix: "viva-bench-" }));
+  const modules = await resolve(spec.modes || [], mountpoint);
   const domain = modules.find((module) => module.manifest?.type === "domain");
 
-  const instanceTraits = { ...catalog.mode, APPLICATION: BENCH_APPLICATION };
 
   const { entities: descriptors, twitch: twitches } = assemble(stack);
   const datamapInstance = await memoryDatamap(descriptors);
@@ -70,6 +56,8 @@ export async function bench(spec = {}) {
 
   const daemon = Object.assign(new Daemon(), {
     slug: "bench",
+    cortex: new Cortex(),
+    statics: spec.statics ?? null,
     mask: {
       manifest: { type: "daemon", slug: "bench", version: "0.0.1", traits: [] },
       reference: new Path("/daemon/bench"),
@@ -77,7 +65,7 @@ export async function bench(spec = {}) {
       attach: new Url("http://bench/attached"),
     },
   });
-  const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(kernel, domain, modules, kind)]));
+  const traits = Object.fromEntries(Object.keys(sets.traits).map((kind) => [kind, gather(domain, modules, kind)]));
   daemon.minted = mint({ slug: "bench", kinds: sets.traits, traits });
   daemon.entities = { ...datamapInstance.entities, ...strike(daemon.minted, em, sets.traits), activity: new ActivityRepository(em, ActivityEntity) };
   daemon.datamap = datamapInstance;
@@ -95,8 +83,8 @@ export async function bench(spec = {}) {
     controller: new Controller({ stdout: new Span("bench") }),
     daemon,
     mask: { manifest: daemon.manifest },
-    traits: instanceTraits,
-    instance: { traits: instanceTraits, services: {} },
+    traits: catalog.mode,
+    instance: { traits: catalog.mode, services: {} },
     register: { modes: modules },
   };
 
@@ -105,7 +93,7 @@ export async function bench(spec = {}) {
   const services = spec.services || {};
   if (services.hallucinator) daemon.hallucinator = services.hallucinator;
   if (services.consume) {
-    for (const [slug, service] of Object.entries(services.consume)) daemon.services[slug] = service;
+    for (const [slug, service] of Object.entries(services.consume)) daemon.providers[slug] = service;
   }
 
   const lighthouse = lighthouseOf(datamapInstance, datamapInstance.entities.user);
@@ -120,10 +108,9 @@ export async function bench(spec = {}) {
   const release = Promise.withResolvers();
   const execution = middleware.compose([
     lifecycle.daemon.population.modes,
-    lifecycle.daemon.resolution.modes(lifecycle.mode.execution),
+    lifecycle.daemon.resolution.modes(factories.mode),
     lifecycle.daemon.integration.datamap,
     lifecycle.daemon.integration.entities,
-    lifecycle.daemon.integration.freight,
   ])(die, () => {
     ready.resolve();
     return release.promise;
@@ -151,6 +138,7 @@ export async function bench(spec = {}) {
       release.resolve();
       await execution;
       await datamapInstance.close();
+      await Deno.remove(mountpoint.absolute, { recursive: true });
     },
   };
 }

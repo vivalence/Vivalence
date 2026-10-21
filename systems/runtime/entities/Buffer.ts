@@ -1,11 +1,12 @@
 import { types, Collection, EntitySchema, EntityRepositoryType, type Opt, type Rel } from "@mikro-orm/core";
-import { Vector } from "@vivalence/typology";
+import { mime, Vector } from "@vivalence/typology";
 
 import { DataRepository, DataEntity, DataSchema } from "./index.ts";
 import { ModeEntity } from "./index.ts";
 import { ThreadEntity } from "./index.ts";
 import { LiteralEntity } from "./index.ts";
 import { SymbolEntity } from "./index.ts";
+import { TurnEntity, NoteEntity, FileEntity, ViewEntity } from "./index.ts";
 
 export enum BufferStatusEnum {
   PENDING = "PENDING",
@@ -15,14 +16,11 @@ export enum BufferStatusEnum {
   STALE = "STALE",
 }
 
-export enum BufferTraitsEnum {
-  LABELED = "LABELED", // for name and description
-}
-
 export class BufferRepository extends DataRepository {
   // every query first, the mint last: a query auto-flushes a pending row, and a row flushed
   // before its index is taken is named for the wrong one.
   async create({ thread, literals, symbols, ...fields }: any) {
+    thread ??= fields.turns?.[0] ? (await this.em.findOneOrFail(TurnEntity, fields.turns[0])).thread : null;
     const bound = thread ? await this.em.findOneOrFail(ThreadEntity, thread) : null;
     const buffer = super.create({
       ...fields,
@@ -37,13 +35,17 @@ export class BufferRepository extends DataRepository {
 export class BufferEntity extends DataEntity {
   status: BufferStatusEnum & Opt = BufferStatusEnum.PENDING;
   data: any & Opt = {};
-  bundle: any & Opt = null;
+  mime: string & Opt = mime.json;
+  files = new Collection<FileEntity>(this);
+  views = new Collection<ViewEntity>(this);
+  turns = new Collection<TurnEntity>(this);
+  notes = new Collection<NoteEntity>(this);
   index: number & Opt = 0;
-  traits: BufferTraitsEnum[] & Opt = [];
+  traits: string[] & Opt = [];
   trait: any & Opt = {};
 
   mode?: Rel<ModeEntity>;
-  thread?: Rel<ThreadEntity>;
+  thread!: Rel<ThreadEntity>;
 
   literals = new Collection<LiteralEntity>(this);
   symbols = new Collection<SymbolEntity>(this);
@@ -69,15 +71,13 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
       defaultRaw: `'${BufferStatusEnum.PENDING}'`,
     },
     data: { type: types.json, defaultRaw: `'{}'` },
-    bundle: { type: types.json, nullable: true },
+    mime: { type: types.string, default: mime.json, nullable: true },
+    files: { kind: "m:n", entity: () => FileEntity, owner: true, pivotTable: "buffer_files", joinColumns: ["buffer_id"], inverseJoinColumns: ["file_id"] },
+    views: { kind: "m:n", entity: () => ViewEntity, owner: true, pivotTable: "buffer_views", joinColumns: ["buffer_id"], inverseJoinColumns: ["view_id"] },
+    turns: { kind: "m:n", entity: () => TurnEntity, owner: true, pivotTable: "buffer_turns", joinColumns: ["buffer_id"], inverseJoinColumns: ["turn_id"] },
+    notes: { kind: "1:m", entity: () => NoteEntity, mappedBy: (note) => note.buffer },
     index: { type: types.integer, default: 0 },
-    traits: {
-      items: () => BufferTraitsEnum,
-      enum: true,
-      array: true,
-      defaultRaw: `'[]'`,
-      type: types.json,
-    },
+    traits: { type: types.json, defaultRaw: `'[]'` },
     trait: { type: types.json, defaultRaw: `'{}'` },
 
     mode: {
@@ -93,7 +93,6 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
       kind: "m:1",
       entity: () => ThreadEntity,
       fieldName: "thread",
-      nullable: true,
       updateRule: "cascade",
       deleteRule: "cascade",
     },
@@ -119,15 +118,14 @@ export const BufferSchema = new EntitySchema<BufferEntity, DataEntity>({
 });
 
 const twitch = new Vector().open("/before/buffer/create", async (ctx) => {
-  if (ctx.input.entity.traits.includes(BufferTraitsEnum.LABELED)) return;
+  if (ctx.input.entity.traits.includes("LABELED")) return;
   const mode = ctx.input.entity.mode ? await ctx.input.em.findOne(ModeEntity, ctx.input.entity.mode) : null;
-  ctx.input.entity.traits = [...ctx.input.entity.traits, BufferTraitsEnum.LABELED];
+  ctx.input.entity.traits = [...ctx.input.entity.traits, "LABELED"];
   ctx.input.entity.trait = { ...ctx.input.entity.trait, LABELED: { name: `${mode?.slug ?? "home"} #${ctx.input.entity.index}` } };
 });
 
 export default {
   type: "buffer",
-  traits: BufferTraitsEnum,
   schema: BufferSchema,
   entity: BufferEntity,
   repository: BufferRepository,

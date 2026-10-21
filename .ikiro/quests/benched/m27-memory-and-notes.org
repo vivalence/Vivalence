@@ -16,7 +16,7 @@ contract where the two touch. Sequencing rulings from beef at extraction time:
 
 * the entities
 
-=systems/runtime/daemon/entities/userspace/= (entities EMIGRATED to runtime — the quest's
+=systems/runtime/subjects/daemon/entities/userspace/= (entities EMIGRATED to runtime — the quest's
 original =subsystems/typology/entities/= path is stale; =Note.js= already sits there as a
 0-byte placeholder next to =Artifact.js= / =Message.js=). Registered through =sets.userspace=
 in =entities/index.ts=; a domain adds its own via =registry/<domain>/domain/entities/index.js=
@@ -74,7 +74,7 @@ for anything liek this note type already? can we steal or must we invent??"/
 ** verdict: steal
 
 In-repo precedent (verbatim shapes, all live):
-- =systems/runtime/daemon/entities/userspace/Intent.ts= — ={user, mode, slug, name,
+- =systems/runtime/subjects/daemon/entities/userspace/Intent.ts= — ={user, mode, slug, name,
   description, traits: Enum[], trait: json}=, unique =(user, slug, mode)=. *Note ≈ Intent
   minus =user=* — the memory/note split, already drawn once.
 - =traits[]= + =trait{}= is the house "type" idiom (Intent · Symbol · Mode). No entity carries
@@ -103,7 +103,7 @@ External precedent — the two facets the house lacks:
 ** the entity
 
 #+begin_src typescript
-// systems/runtime/daemon/entities/userspace/Note.ts
+// systems/runtime/subjects/daemon/entities/userspace/Note.ts
 export enum NoteTraitsEnum {
   CONFIG = "CONFIG",         // data-bearing; code reads by (mode, slug); never in the prompt
   ADVISORY = "ADVISORY",     // mode learned it beyond one user; own system.notes
@@ -239,10 +239,10 @@ distillation persist   volatile parts → receipt at the persistence fold   LATE
 =tags= · =salience= · =audience=; unique =(mode, slug)=; dot-namespaced slugs) +
 =MemoryEntity= + repos (=index=/=search= seam, rung 1) · =note= + =remember= tools — layer ①
 territory: they belong in =shard.tools.repository='s whitelist world or as runtime =mind.js=
-verbs (a runtime =tools/= dir does NOT exist yet — =systems/runtime/daemon/= holds =traits/=
+verbs (a runtime =tools/= dir does NOT exist yet — =systems/runtime/subjects/daemon/= holds =traits/=
 and =entities/=; place is a fork). Runtime because daemon.entities — typology stays
 dataspace-blind. Persist + broadcast; aprende-style reactive check. Write site for M27.2 is
-=systems/runtime/daemon/traits/harnessed.js:64= — =ctx.hallucination.system= is already a
+=systems/runtime/subjects/daemon/traits/harnessed.js:64= — =ctx.hallucination.system= is already a
 keyed record.
 
 ** M27.2 — index projection
@@ -270,7 +270,7 @@ independent, hence its own milestone here.
 * open
 
 - the four note forks above (data schema · presets→notes · audience vs tags · nullable mode)
-- =mind.js= home: no =systems/runtime/daemon/tools/= exists — sibling of =traits/=, or ride
+- =mind.js= home: no =systems/runtime/subjects/daemon/tools/= exists — sibling of =traits/=, or ride
   =shard.tools.repository=
 
 - =mind.js= verbs vs =shard.tools.repository= whitelist — does =remember= ride the generic

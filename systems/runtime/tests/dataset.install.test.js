@@ -76,8 +76,8 @@ specimen.describe("what install put in the database", () => {
 
 specimen.describe("what install wrote on the mode's stdout", () => {
   specimen.it("one sealed install span, one sealed child per phase, each phase's last note its { done, total }", () => {
-    const [install] = trace.chronicle(mode.stdout.records).roots;
-    specimen.expect(install.path).toBe("/mode/topography/fixture/install");
+    const [install] = trace.chronicle(mode.stdout.history).roots;
+    specimen.expect(install.path).toEqual(["mode/topography/fixture", "install"]);
     specimen.expect(trace.duration(install)).not.toBe(null);
     specimen.expect(install.children.map((phase) => phase.nature)).toEqual(["symbol", "literal", "literal.symbols"]);
     specimen.expect(install.children.every((phase) => trace.duration(phase) !== null)).toBe(true);
@@ -103,7 +103,7 @@ specimen.describe("what install refuses", () => {
     };
     await specimen.expect(DATASET(userspace, daemon)).rejects.toThrow(/non-dataspace/);
     specimen.expect(await scenario.repos.thread.count({})).toBe(0);
-    specimen.expect(trace.chronicle(userspace.stdout.records).roots.at(-1).fault.message).toMatch(/non-dataspace/);
+    specimen.expect(trace.chronicle(userspace.stdout.history).roots.at(-1).fault.message).toMatch(/non-dataspace/);
   });
 });
 

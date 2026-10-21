@@ -1,4 +1,4 @@
-import { specimen, Controller, Vector, Span, NotFound, belt, steer } from "@vivalence/typology";
+import { specimen, Controller, Vector, Span, NotFound, belt, steer, trace } from "@vivalence/typology";
 
 const { state, deliver, dispatch, respond, render, signalOf, nameOf } = belt.hallucinate;
 
@@ -182,9 +182,9 @@ specimen.describe("belt.hallucinate", () => {
       const tools = toolVector("lookup", async () => "ok");
       const controller = new Controller({ stdout: new Span("/test") });
       await dispatch({ tools, controller }, [{ type: "tool_use", id: "u1", name: "lookup", input: { q: 1 } }]);
-      const opened = controller.stdout.records.find((record) => record.verb === "open" && record.path.endsWith("/lookup"));
-      specimen.expect(opened).toBeDefined();
-      specimen.expect(opened.data.input).toEqual({ q: 1 });
+      const branch = controller.stdout.history.filter((record) => trace.key(record.path) === trace.key([...controller.stdout.absolute, "lookup/u1"]));
+      specimen.expect(branch.map((record) => record.track)).toEqual(["status", "start", "log", "log", "stop", "status"]);
+      specimen.expect(branch[2].data.input).toEqual({ q: 1 });
     });
   });
 

@@ -1,3 +1,10 @@
-export * as activity from "./activity.js";
-export * as buffer from "./buffer.js";
-export * as turn from "./turn.js";
+export * as activity from "./activity/index.js";
+export * as buffer from "./buffer/index.js";
+export * as daemon from "./daemon/index.js";
+export * as file from "./file/index.js";
+export * as lighthouse from "./lighthouse/index.js";
+export * as mode from "./mode/index.js";
+export * as runtime from "./runtime/index.js";
+export * as thread from "./thread/index.js";
+export * as turn from "./turn/index.js";
+export * as view from "./view/index.js";

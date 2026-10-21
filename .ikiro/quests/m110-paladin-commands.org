@@ -1,0 +1,144 @@
+#+title: m110 paladin commands — the 19 machine commands the m86 ghost rebuild parked in =bak.3= come back on the shell
+#+filetags: :ghost:shell:paladin:
+#+status: LANDED 10-26 on /"a yes go"/ — 22 commands (21 paladin · =/doctor=); Q1 B · Q2 A · Q3A A; OPEN: Q5 docs
+# limit: 24000 chars
+
+* intent
+
+10-26, beef verbatim, after the S2 stop of the runtime-census review (=qa/fresh · memo · reconcile= red on =viva /ledger/install: Not found=):
+
+/"Yeah, we absolutely need those commands. I suspect there are other commands that we might want to resurrect. What else did we lose that we shouldn't have?"/ → the inventory below → /"everything but: instance/usre"/
+
+* the scope — 19, LOCKED 10-26
+
+- =ledger/= install · doctor · cleanup
+- =registry/= tap · untap · doctor
+- =instance/= clone · use · install · doctor · up · down · start · stop · tap · rename · delete · cleanup
+- =/doctor= (the repl's seat report card)
+- =instance/lighthouse/= signup · signin · password — =instance/user='s three actions, one command each (10-26 /"change instance/user to instance/lighthouse/{signup,signin,xxx} and add them too."/); =xxx= read as =password= (the runtime route =/lighthouse/password=, operator-signed), =signin= calls =/lighthouse/login=.
+
+Dead: =instance/user= as one command. Successors kept, no resurrection: =/client/{chrome,repl}= → =/chrome · /repl= · =/daemon= → =/runtime= · =/dock/*= → =/dock · /split · /buffer/full · /sidebar= · =/key/*= → the keymap (m92) · =/{terminal,thread,buffer}/:id= → =/terminal 2 · /thread flamingo · /buffer "memo #1"=.
+
+* terrain — measured 10-26
+
+- parked: =systems/ghost/bak/bak.3/commands/paladin/{ledger,instance,registry}/= (1545 lines) + =bak.3/commands/doctor.js=; helpers =bak.3/gestalten/belt/{instance,registry,recipe,path}.js= exist only in =bak/=.
+- the shell today: =systems/ghost/subjects/shell/lifecycle/index.js= — =execution= grafts =commands= (=chrome · tail=), each effect =(shellDie)=, output by =console.log=; no =--json=, no =view=.
+- the old contract: one =ctx= — =ctx.signal.body= ×15 · =ctx.signal.flags= ×10 · =ctx.view.hold= ×8 (the wizards: =ledger/install= · =instance/install= · =clone='s pick) · =ctx.view.interactive= ×5 · =ctx.view.emit= ×4 · =ctx.call= ×3; =bak.3/lifecycle/shell.js:54= =view= printed =ctx.output= as JSON on =--json=.
+- paladin drift, probed (=scratchpad/probe-calls.js=): 74 of the 76 =paladin.*= reads the commands make resolve today; =lifecycle.mount= ×9 → =factories.instance= (renamed, codemap paladin) · =lifecycle.populate.instance= ×4 → GONE.
+- consumers: =systems/runtime/tests/qa/rig.js:69= =viva(world, args)= spawns =ghost/run.js … --json=, reads the last JSON object; =qa/fresh= · =qa/memo= also call =instance/user= (dead) — those steps need a successor.
+- docs teach older names still: =documentation/content= =instance/create= ×9 · =instance/run= ×8 · =ledger/init= ×7 · =instance/init= ×7 · =registry/list= ×4 · =registry/bootstrap= ×2.
+
+* questions
+
+1. HOME — where the 18 shell commands live (=subjects/shell/commands/{ledger,instance,registry}/=, or a subject of their own), and =/doctor= (client commands).
+2. OUTPUT — =--json= on the shell: the effect returns its output and the shell prints it, or each command prints.
+3. WIZARDS — =ctx.view.hold= has no successor on the shell: args-only, or a hold rebuilt.
+4. =instance/user='s qa steps — the successor the rig calls.
+5. DOCS — the names the docs teach.
+
+* the dialogue
+
+- SCOPE LOCKED 10-26 — /"everything but: instance/usre"/: 19 back, =instance/user= dead. RELABELED 10-26 /"change instance/user to instance/lighthouse/{signup,signin,xxx} and add them too."/: +3, =instance/lighthouse/{signup,signin,password}=.
+
+- Q1 LOCKED B 10-26 — /"a"/, then /"actually b."/: paladin owns the commands as Vectors beside =paladin.tools=; ghost's shell grafts =paladin.commands=; =/doctor= stays a client command (=systems/ghost/subjects/client/commands/=). Struck: A (=systems/ghost/subjects/shell/commands/{ledger,registry,instance}/=).
+
+- Q2 LOCKED A 10-26 — /"a"/: a paladin command RETURNS its output and prints nothing; ghost's shell =dispatch= prints it — JSON on =--json= (the qa rig's contract, =rig.js:83=), plain otherwise. Struck: B (each command prints, =tail.js= style).
+
+- Q3 REFRAMED 10-26 — /"can we instead render solid here? aka return solid and either shell or chrome handles its rendering inline? we return a component and its being rendered into the client?"/: the wizards become solid components, the host renders them. Struck: Q3 A (args-only, =HELD= naming the missing) · Q3 B (the =input= schema as the form).
+
+- Q3A LOCKED A 10-26 — /"a"/: a command AWAITS =ctx.hold(component, props)=; the HOST supplies =hold= — the shell mounts the component on an inline opentui renderer (=screenMode: "split-footer"=, =@opentui/core= 0.5.17), the chrome in its frame — and it resolves with the answer; the command reads linear, as =bak.3='s =ctx.view.hold=. The component: a module whose =default(element, props)= returns a handle (the mode-view contract, =surfaces/chrome/panes/painters.jsx:19=), beside its command, bundled by =paladin.bundler= (to verify). Struck: B (return the component =HELD=, the answer re-dispatches).
+- review 10-26 (the remaining reds) — S1 /"amen"/: =use --ledger= keeps =session= provenance, the code is truth · S2 /"amen"/ · S3 /"amne"/: m95 Q33 is truth, the one-flush test law stale · S4 /"go"/ · /"are they fixed??"/ → /"fix"/: the 4 test fixes landed.
+
+* as code
+
+*** departures from the locked hunks — reported
+- Q2's printer is a shell BEAT (=lifecycle/commanding.js=), not =shellDie.dispatch=: the top-level command runs through =run.js='s =execute=, never =dispatch=; the beat branches on =steer.dispatch.traverse(paladin.commands, shellDie.signal)= so =chrome= · =tail= print nothing.
+- the doctors return their report, no card (=card.js= rendered sheets blocks).
+- a hold with no screen (=--json= · no tty) = =ctx.hold= ABSENT; each command keeps =bak.3='s non-interactive branch (=--force= · its arguments · a usage error).
+- =paladin.ledger.boot='s =ALIVE= (=process.js:6=) waited on =Status:RUNNING= too — pointed at the listen record (Q3A of m109), else =chrome='s boot · =instance/up= · =install= hang 60 s.
+- =qa/rig.js= sets =VIVA_PROCESS_ID= — the rig spawns =run.js=, never =ghost.sh=.
+
+*** systems/ghost/subjects/shell/lifecycle/commanding.js — Q2 A · Q3A A (verbatim)
+#+BEGIN_SRC js
+export const commanding = async (shellDie, next) => {
+  const [effect] = steer.dispatch.traverse(paladin.commands, shellDie.signal);
+  if (!effect) return next();
+  if (paladin.is.tty && shellDie.signal.flags.json !== true) shellDie.hold = hold;
+  shellDie.call = async (argv) => {
+    const signal = new Argv(argv);
+    const inner = { ...shellDie, signal, output: undefined };
+    await steer.dispatch.execute(paladin.commands, inner, signal);
+    return inner.output;
+  };
+  await next();
+  if (shellDie.output === undefined) return;
+  console.log(shellDie.signal.flags.json === true ? JSON.stringify(shellDie.output, null, 2) : outline(shellDie.output).join("\n"));
+};
+#+END_SRC
+
+*** subsystems/paladin/gestalten/commands/index.js — Q1 B
+#+BEGIN_SRC js
+export const commands = new Vector().graft(ledger, registry, instance);
+// subsystems/paladin/mod.js:6
+paladin.tools = tools;
+paladin.commands = commands;
+// systems/ghost/subjects/shell/commands/index.js:5
+export const commands = new Vector().graft(chrome, tail, paladin.commands);
+#+END_SRC
+
+*** systems/ghost/subjects/shell/lifecycle/index.js — Q2 A (=said= a sketch)
+#+BEGIN_SRC js
+    shellDie.dispatch = async (signal) => {
+      const output = await steer.dispatch.execute(commands, shellDie, new Argv(signal));
+      console.log(shellDie.signal.flags.json === true ? JSON.stringify(output, null, 2) : said(output));
+    };
+// subsystems/paladin/gestalten/commands/ledger/install.js — returns, never prints (=paladin.ledger.install= a sketch)
+  async (ctx) => {
+    const ledger = await paladin.ledger.install(ctx.input.path ?? paladin.scope.ledger.absolute);
+    return { ledger: ledger.base.absolute, commons: paladin.scope.repository.branch("commons").absolute };
+  },
+#+END_SRC
+
+*** subsystems/paladin/gestalten/commands/instance/delete.js — Q3A A (=Confirm= · =plan= · =remove= sketches)
+#+BEGIN_SRC js
+  async (ctx) => {
+    const instance = await paladin.ledger.instances.lookup(ctx.input.slug);
+    const answer = await ctx.hold(Confirm, { label: `delete ${instance.slug} — ${plan(instance).join(" · ")}` });
+    if (!answer.yes) return { condition: "HELD", output: { kept: instance.slug } };
+    return await remove(instance);
+  },
+// systems/ghost/subjects/shell/lifecycle/index.js — the shell's hold: an inline renderer, mount, resolve, destroy
+    shellDie.hold = async (component, props) => {
+      const renderer = await createCliRenderer({ screenMode: "split-footer", exitOnCtrlC: false });
+      const answered = Promise.withResolvers();
+      const handle = component.default(renderer.root, { ...props, answer: answered.resolve });
+      try { return await answered.promise; } finally { handle.destroy(); renderer.destroy(); }
+    };
+#+END_SRC
+
+* review — 10-26 the runtime census reds (show-me; m110 born at S2)
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | repo tests reach only commons packages — 6 tests | bench/smoke ×2 · emitters · repository.populate → =@memo=; aprende ×2 → =~/.viva/registry/education/modes/home/aprende/tests/=; bench rig: =mountpoint= · =cortex= · =statics= (=tests/scenarios/bench.js=) | drilled B → amen, LANDED | /"is education in commons? we want to autoload all the packaages in common. rest not"/ · /"b"/ · /"fix"/ · /"amen"/ |
+| 2 | ghost lost the paladin commands — 3 qa files | this quest | drilled → m110 Q1–Q3A, LANDED | /"Yeah, we absolutely need those commands."/ |
+| 3 | the corpus snapshot froze =APPLICATION= | =fixtures/corpus.snapshot= | — not shown | |
+| 4 | the stub's activity row never found | =stub.activity= (known issue) | — not shown | |
+| 5 | the tool_use turn never persists | =turn.unit-of-work= (known issue) | — not shown | |
+
+* review — 10-26 the remaining reds (show-me, re-measured; beats.coverage green) — 5 stops · 4 amen · 0 drilled · 1 killed; the 4 test fixes LANDED 10-26 ("fix"), runtime =ok | 95 passed (608 steps) | 0 failed=
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | =use --ledger= reports =session= | =qa/fresh.test.js:55= · =qa/rig.js:64= | amen — the code is truth; the test owes the fix | /"amen"/ |
+| 2 | =/modes= misses the memo daemon's mode | =ghost/tests/subjects/client/client.test.js:49= | killed — green 4× re-run (alone 2 · =--parallel= 2), N 5→4 | |
+| 3 | the stub's retry + the dock's stop | =stub.activity= (known issue) | amen — test picks rows by thread/turn, waits the delete (probed 3×); fix on go | /"amen"/ |
+| 4 | the tool_use turn persists early | =turn.unit-of-work= (known issue) · m95 Q33 | amen — Q33 is truth; the test's one-flush law is stale, owes a rewrite | /"amne"/ |
+| 5 | the corpus re-seed drifts | =fixtures/corpus.snapshot= · m106 | amen — re-pin =corpus.snapshot.json:323= =APPLICATION= → =VIEWABLE= (probed) | /"go"/ |
+
+* handoff
+
+- goal: the 19 on the shell, =qa/= green again.
+- done 10-26: 21 commands at =subsystems/paladin/gestalten/commands/{ledger,registry,instance}/= + =belt/= (path · recipe · registry · instance · lens · pick · tree) + =views/{confirm,form,picker}.jsx=; =paladin.commands= (=mod.js=); ghost's shell =lifecycle/{mounts,commanding}.js= (cwd recipe · =--<mount>= · =--env= · =call= · =hold= · the printer); =/doctor= at =systems/ghost/subjects/client/commands/doctor.js=; =paladin/prototypes/process.js= =ALIVE= → the listen record; =qa/rig.js= =READY= from =hello.js= + =VIVA_PROCESS_ID=; green: paladin 58/0 · typology 156/0 · qa 2 passed (21 steps) 1 failed step · views probed (=scratchpad/m110-views/run.js=).
+- next: Q5 docs.
+- never: =instance/user=.
+- done 10-26 (review): =qa/fresh:51= asserts the =.env= write + provenance =session= · =stub.activity= rows by thread/turn + =until= the delete · =turn.unit-of-work= on Q33 · =corpus.snapshot.json:323= =VIEWABLE=; runtime =ok | 95 passed (608 steps) | 0 failed=; ghost =30 passed (90 steps)= (terminal-birth red gone).
+- owed: the doctor CARDS (=bak.3/commands/paladin/{ledger,registry}/card.js=, =@vivalence/sheets/plain= blocks) not ported — the shell prints an outline; Q5 docs (=documentation/content= teaches =instance/create · run · init= · =ledger/init= · =registry/list · bootstrap=).

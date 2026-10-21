@@ -1,4 +1,3 @@
-import paladin from "@vivalence/paladin";
 import { cortex as faculties, fromm, shape, shard } from "@vivalence/typology";
 
 const listed = (context) => (mode) => ({
@@ -15,7 +14,6 @@ export const metadata = (context) => {
 
   root.open("/manifest", () => context.manifest);
   root.open("/statics", () => context.statics ?? {});
-  root.open("/cargo", () => context.cargo);
   root.open("/datamap", () => shard.datamap.strip(context.datamap.getMetadata()));
   root.open("/aperture", () => shape.strip(context.aperture));
 
@@ -29,19 +27,7 @@ export const metadata = (context) => {
     if (mode.statics) meta.open("/statics", () => mode.statics);
     if (mode.mountpoint) meta.open("/mountpoint", () => mode.mountpoint.absolute);
 
-    if (mode.implements("APPLICATION"))
-      meta.open("/application", async () => {
-        if (paladin.is.dev) await mode.application.compile();
-        return {
-          url: context.attach.branch("/bundle").branch(context.reference.absolute).branch(mode.reference.absolute).absolute,
-          bundle: mode.application.bundle.json,
-          schema: mode.application.schema ?? null,
-        };
-      });
-
     if (mode.implements("EMITTER")) meta.open("/emitter", () => shape.strip(mode.module.emitter));
-
-    if (mode.implements("FRAUGHT") || mode.implements("MOUNTED")) meta.open("/freight", () => mode.freight.catalog);
 
     if (mode.implements("HARNESSED")) {
       meta.open("/harness", () => shape.strip(mode.aperture.branch("/harness")));

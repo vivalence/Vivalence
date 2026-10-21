@@ -2,12 +2,13 @@ import { describe, it } from "@std/testing/bdd";
 import { expect } from "@std/expect";
 import { Path, Url, v } from "@vivalence/typology";
 import { Paladin } from "../paladin/prototype.js";
+import { FULL } from "../gestalten/belt/index.js";
 import { factories, lifecycle } from "../typology.js";
 
 const JWT = "a-signing-secret-of-twenty-four-or-more";
 
 const mount = (declare, pairs = {}, secrets = {}) => {
-  const paladin = new Paladin();
+  const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
   paladin.scopes([
     ["instance", () => true, () => new Path("/fixtures/probe")],
     ["mountpoint", () => true, () => new Path("/mountpoint")],
@@ -358,7 +359,7 @@ describe("settle — a modes entry in object form fires at the pinhole like any 
     const [entry] = held.modes;
     expect(entry.reference.absolute).toBe("/mode/domain/voffice");
     expect(entry.url.absolute).toBe("http://localhost:2501/lighthouse/daemon/probe/mode/domain/voffice");
-    expect(entry.bundles.absolute).toBe("/mountpoint/daemon_probe/bundles/domain/voffice");
+    expect("bundles" in entry).toBe(false);
     expect(instance.faults).toEqual([]);
   });
 

@@ -1,0 +1,255 @@
+#+title: m96 client mothership — the index quest over the client rebuild: one coherent tangle across m95 · m92 · m87 · m88 · m83 · m93 · m94, landed in milestones, a suite between each; the wiring lives here
+#+filetags: :mothership:index:ghost:anima:paladin:typology:runtime:client:repl:keymap:buffer:
+#+status: LANDED session 7 (10-21): floor · hosts · repl · chromes · anima door (uncommitted; beef snaps); chromes' LOOK REJECTED 10-22 → reopened under step 3b (=* the swarm=, m95 =** 10 · the look=). Seam 3 RESOLVED (=reference/m96/coverage.org= seams; the =client()= wrapper ruling owed → =* open= #4). The prior status lines → =reference/m96/status-history.org=.
+# limit: none (quest content)
+
+* intent
+
+10-21, beef verbatim (voice):
+
+/"We have one very big rebuild planned. It covers a lot of ground. The top level delivery is that we […] implement the new client that we have as design referenced in M95. That is a big rebuild. It is a rebuild on both Ghost and Anima. It also includes a bunch of rebuilds to the boot function, aka how we construct the process. It has this whole section about how […] the REPL is constructed, how the client is constructed, how the ghost implements that, and then the ghost and Anima are both consumers of what ghost implements."/
+
+/"Then we have all of the Chrome building, the surfaces, which also includes probably some additions to Dapper and an entire rework of drapes and sheets. Then we have a change in the way that buffers work. View and file are new entities, which is a whole thing in and of itself. We create new entities here, we create new capability on the runtime. There's new wiring needed into the frame. We have this whole new concept of the cell. And we need to migrate all of the cargo stuff."/
+
+/"Then there's this new concept with a REPL and the integration with the key map. Key map coming from all over the place, key map needing to be handled, key map and REPL integration in that, and Chrome integration in that. When I […] add keys, then I want the display of whatever I'm typing, I want that to narrow down interactively, which will need the walk steer on vector, which doesn't work at the moment."/
+
+/"And then of course with REPLing, the integration of capabilities that we can add via mode to the REPL, […] which either is implemented if it's client mode directly on the client, which has some limitations, or if it's a runtime or daemon mode, then we do the whole stripwire routine. And then there is […] looping, where we integrate the capability for a harness to call functions of the REPL, which […] because the REPL changes constantly, is a whole operation in and of itself. And in that whole thing is also touched by our rewrite of tools and primer, where we have some renamings and some capabilities that are added."/
+
+/"That whole thing I want to try to implement in a single go, which I suspect will take about 2 to 4 hours to execute, which will need many, many subagents, and I want all of the code to be, and all of the abstraction, all of it pretty coherent already before we start, so no questions remain open."/
+
+/"M95 changes role, it loses its mothership character, and is only for the DOM TTY client implementation V1 from the design artifact that we have downloaded. So it's also something that's subordinate to M96."/ · /"I suspect that we might want to have worked out the whole thing as one coherent change, but then walk through it step by step and do a whole testing suite in the meanwhile."/
+
+Carried in (skill =quest= argument, 10-21): /"add note to mothership: kleisli only for ghost and anima in this quest"/ — law 4.
+
+* constituents — what each quest lends; the =* as code= of each stays where it is, m96 points
+
+| quest | state 10-21 | m96 takes | stays with the quest | m96 milestone |
+|---+---+---+---+---|
+| =m95-depincered-client= | DRILLED, re-cut as the DOM · TTY client v1 | milestones 2–9 | its rulings 1–33 · its chrome hunks | floor · repl · chromes · registry |
+| =m92-keymap= | code-first, rulings 9–12 | milestones 1 · 2 · 4 | B (focus-selected bare keys) | floor · repl |
+| =m87-buffer-view-file= | RE-CUT, Q38 ruled | milestones 1 · 2 · 3 · 4 · 6 · 7 (5 · 8 ride m95 6 · 8) | the upload transport · =mime.routine= | floor · hosts · chromes · registry |
+| =m88-repling= | S1 LANDED · S3 DESIGNED · S2 DEAD | stretch three (LOOPING, both catalogs) | client-mode harness · =ctx.input → body= | floor · hosts · repl |
+| =m83-tools-and-primer= | TANGLED | milestones 2 · 3 · 4 (ONE change) + =~/.viva= half | the docs page | floor · hosts |
+| =m93-kleisli-remonadization= | TANGLED | milestones 1 · 2 · 4 | milestone 3 (runtime factories) · supervision | floor · hosts |
+| =roadmap/m94-trait-rejiggle= | RULED | the rows =DOCKED THEMED RENDERER FILESET FILESINK PRIMER LOOPING=; =MOUNTED= · =KEYMAPPED= off the runtime enum (ruling 6) | the rotation · deferred 1–8 | hosts |
+| =done/m86-repl-loop-clients= | DONE | T-chrome-toggle · T-application | — | registry |
+| =roadmap/m89-telemetry= · =roadmap/m84-harness-runtime= · =benched/m85-tauri-clients= | out | — | all | — |
+
+The m95 constituents table as it stood 10-19 drained 10-22 whole to =reference/m96/constituents-10-19.org=.
+
+* the law
+
+1. ONE coherent tangle: every constituent's =* as code= replays on ONE copy of the tree — =apply-diffs.py --root <copy> --write= per quest in the order m93 → m83 → m87 → m88 → m92 → m96 → m95 (a later quest's anchors are cut on the earlier's text), m83's =* Moves= by =mv= first, then =materialize.py --root <copy> --write= for the NEW files; the census on that copy is the baseline every milestone is measured against. The tree moved under the drill 10-21 (=subsystems/paladin/ledger/{registry,integrity}.js= → =prototypes/=, his working copy): a replay re-reads paths on the day it runs.
+2. Landed MILESTONE BY MILESTONE (=* milestones=, each a noun): a milestone's suite is green on the landed tree before the next opens; a red suite stops the swarm, never gets a workaround.
+3. m96 POINTS: a hunk lives in its quest; this file holds the wiring only (moved from m95) and the order. A ruling is cited =quest.org:LINE=, never copied.
+4. kleisli (m93) enters m96 for ghost and anima ONLY (m95 ruling 12, /"kleisli only for ghost and anima in this quest"/): m93 milestones 1 · 2 · 4 are in; milestone 3 (the runtime factories) stays m93's own go.
+5. The floor is HOLY: milestone =floor= is typology + the entities (they STAY in =systems/runtime/entities/= — Q12 REVERSED 10-21 at floor; + the two part libraries); his go per file there; nothing above the floor opens before it is green.
+6. No question open at the go: =* open — before the go= is EMPTY (every row ruled, drawn as a hunk in its quest) before =go= on =floor=.
+7. One agent per (milestone, container), named =hosts-runtime-m87=: OPUS for every agent from 10-21 session 7 on (his: /"from now on opus agents again on this quest."/ — before: FABLE designed/implemented, OPUS verified, ruling 16); its brief opens with =.ikiro/codestyle.md= + the container's =world/codemap/<shard>.md= (loaded whole), then that quest section + its suite lines; it lands on the copy, pastes its census, never on the repo. The repo landing is one pass per milestone, mine, drift → =diff3 -m=.
+8. Two chromes over one wiring (m95 law 1): ghost owns client · entities · factories · lifecycles · prototypes; anima imports them and paints its own panes. The wiring is m96's; the panes are m95's.
+9. Every test in the suite runs =HOME=$(mktemp -d)= one-shot from the root; a fresh copy runs =SNAPSHOT_HOT=1= once; =viva --help; echo $?= prints 0 before any suite count.
+10. The registry (=~/.viva/registry=) is DEPRECATED as it stands: milestone =registry= aligns every package to the current meta — components on ={ terminal, buffer, surface }=, =buffer= · =views= · =primer= exports, frontmatter — one walk, =SNAPSHOT_HOT=1= per package after.
+11. SHELL SIGNATURES FROZEN (his, 10-21 at floor: /"keep the shell command signatures. aka match what commands are on the shell rn"/): every verb the shell and the repl answer today keeps its nature and its arguments — measured on the live tree 10-21: shell =viva help= · =viva repl= · =viva chrome= (=shell/lifecycle.js:15,19,24=; =viva --help= prints the strip, exit 0) · client =/help= · =/quit= · =/chrome/on= · =/chrome/off= · terminal =/modes= · =/mode <type/slug>= · =/application/start= · =/application/stop= · =*= (a line is a turn). m95 milestone 4 (the 31 commands) and the wiring ADD, never rename or drop one of these; a new verb joins beside. Gate at every milestone: =viva --help= prints the three shell verbs; the client's =/help= strip lists the nine.
+
+* the dialogue — his words, verbatim; the hunk under =* as code=
+
+| # | ruling | his words |
+|---+---+---|
+| 1 | — (restored 10-22: the ruling cell was overwritten by the milestone-noun rename; his words stand) | /"I don't really care. I suspect it's some hybrid. The point is not […] what quest, but what role it's serving. It's configuration for how the dock is placed in the view, in the client, in the terminal. […] They all share the same shape. We have it defined on terminal, on client, on user, and a default or fallback. And what the specific UI stuff is something that the Quest M95 will need to populate."/ |
+| 2 | — (restored 10-22: the ruling cell was overwritten by the milestone-noun rename; his words stand) | /"the one that we are executing is the one on the terminal. […] the key map on the client. We load that when we load the client, all of the client modes put their key maps on there, all of the standard commands get put on there […] And then we have the terminal and we graft that client key map onto the terminal key map and add the mode key maps."/ · /"there are going to be more inputs. […] I suspect B is the right way we do want to know the entire key map before anything especially if we want to […] make the system self-documenting […] other inputs I suspect will also be reactives that's the idea and that's the architecture and that it's been working out for us quite well […] that's B"/ · compute measured: ~0.3 µs per edge (=* probes=) — /"we can ignore compute as a factor"/ |
+| 3 | — (restored 10-22: the ruling cell was overwritten by the milestone-noun rename; his words stand) | /"We have reference elsewhere, but identifier is something else entirely. Why don't we use the reference for this? […] If we have two modes from the same identifier under two different references, do we want those to be one and the same? What if we are actively working to improve a mode […] I don't think the package should be in there. I think it should be just type and slug. So it is the reference."/ |
+| 4 | — (restored 10-22: the ruling cell was overwritten by the milestone-noun rename; his words stand) | /"Don't call it a REPL verb. […] It's a REPL effect."/ · /"The controller is for logging. The vector effect output is still the output."/ · /"Do REPL executions have an output or do they just have an effect? […] turns are created, that's a side effect. What if we have no output?"/ · /"I think I want the Emacs version. We'll just return the output to whoever called it. And if we want an update to the journal, then we have to go through the controller."/ |
+| 5 | the sniff law stands (standard frontmatter =description= → lazy); the registry is DEPRECATED and is aligned to the current meta in the =registry= pass — persona files, mode declarations, components alike | /"We can consider anything in the registry to be deprecated, and we will align what is in the registry with our current meta."/ |
+| 6 | the Mode set after m96: BOOTED · DATASET · DATASINK · FILESET · FILESINK (the writer, /"as in file drain"/, was spelled FILESYNC) stay; MOUNTED goes; FILESINK does not replace DATASINK | /"Booted stays. File sync does not replace data sync. Also, it's spelled FILESINK as in file drain mounted goes. FILESINK DATASINK DATASET FILESET all stay. booted too. no mounted"/ |
+| 7 | a REPLING effect is a plain repl function; the trait mints =mode.repl= from =module.repl= (never =repling=) and exposes it as =/metadata/repl=; grafted onto =terminal.repl=, an effect inherits the normal Repl ctx — everything | /"a REPLing is just another function on the REPL. […] it's not mode dot REPLing, it's mode dot REPL. REPLing trait creates the REPL. And the metadata that REPLing exposes is also REPL. And since the execution of the REPL function happens through terminal.dispatch, aka terminal.REPL, which gets the REPLing REPL […] grafted onto it, we just inherit the context of the normal REPL. So, everything."/ |
+| 8 | a client's modes carry NO mountpoint, on either client; a mountpoint is set at the INSTANCE level by paladin, never by the registry; the module's source is a different thing | /"a. no mountpoint."/ · /"This does not live in the ledger registry. Registry is a very specific thing. […] It's the packages. This does not have nothing to do with individual modes and their booting process. […] We have the mount point, which is on the instance the point that the mode is pointing to […] And then we have the module, which has its […] source. […] for sure the registry does not set the mount point on the mode. […] the mount point is set on instance level. So your Paladin is fucked. But either way, we have no mount point on modes on the client."/ |
+| 9 | the five groups of the roadmap are m96's MILESTONES, nouns — floor · hosts · repl · chromes · registry; my `wave` and my agent-`cell` are struck (`cell` is the dock place, m87 ruling 7); one agent per (milestone, container), named =<milestone>-<container>= | /"wtf is a wafe? never hear this. renndered trait on buffer is state. we render frame or cell."/ · /"ah. quests have waves. no those are milestones. read ikiro."/ |
+| 10 | =Docked= is field-wise: four optional fields, a carrier states only what it overrides; the getter merges default ← mask ← user ← terminal; the =/dock= effects write the terminal's OWN overrides | /"b"/ (Q1: whole objects vs field-wise merge) |
+| 11 | the /repl wire follows m88 Q5: a looped call IS a Signal ={ nature, body, flags }= (=v.primitives.harness.Signal=, minted beside =Call= in m88's =schematics/primitives/harness.js= — no such schematic exists yet; =controller.js:41= =Kill= is the stdin enum); the three =line= sites in m88 (=1171= · =1043= · =1150=) are re-cut; no codec, no =ReplSignal= schematic; the strip is PULLED per harness call (m88 Q1) | /"loopings send replsignals."/ · /"client hosting its REPL as an MCP"/ · /"lock q2"/ |
+| 12 | the trait a mode declares to export views is =VIEWABLE= (replaces m94's RENDERER in the set and the enum); the declaration (=export const views=) is a PROTOTYPE on the module; the bundler is paladin's; the trait loads the declarations, runs the bundler, wires View + File rows; the word is BUNDLER, not compiler (compile is one step inside =belt/bundler.js:34=) | /"b"/ (Q3) · /"the compilation capability or the bundling capability lives on system level, Paladin. And what the runtime does, it is loads the views, runs them through the bundling, and wires up the files and the views, the entities."/ |
+| 13 | no =presents= on a View — it was mine (m87:517); a view paints its OWN mode's buffer, the join is =view.mode === buffer.mode= (the JOIN superseded 10-21 by m87 ruling 39: =buffer.views= m:n, the mode's views the default — =* open= 15) (his Q38: /"a buffer can just be consumed by the view of the mode who produced it"/); the buffer mime hangs on =mode.buffer.mime=, never =mode.mime= | /"no presets. what are presets."/ · /"I don't see that we have a mime directly on the mode. That makes no sense either."/ |
+| 14 | the one bundling mechanism is a View REPOSITORY VERB, =view.bundle(data, { bundler })= — mikro-first; VIEWABLE calls it per declaration at boot, GENERATIVE's =view_create= rides the datamap route =/view/bundle=, the repl's =/view/create= calls the client's =entities.view.bundle=; the bundler arrives in =opts=, never imported by the entity; generated views are IN this quest | /"whatever we attach to the runtime, the same mechanisms is used for both the views that are created via viewable as well as generative"/ · /"this is definitely part of this quest. I want to be able to generate views"/ · /"a"/ |
+| 15 | the beat that grafts a subject's =commands/= onto its repl is named =commands=, on client and terminal alike; =verbs= dies everywhere in m96 · m95 | /"a"/ (Q5) · /"Don't call it a REPL verb. […] It's a REPL effect."/ |
+| 16 | the swarm's agents: FABLE designs and implements; OPUS runs the suites and the grunt chrome (copying panes, div stacks, anima mirroring ghost's pane table); every brief opens with =codestyle.md= and the container's codemap shard, loaded, not summarized | /"I would like to go with all fable until we get into testing. That can be grunt work with Opus. […] the parts of Chrome building that are really just grunt work, copy, build up a bunch of divs, blah blah blah, that can be done by Opus, but I want it designed by Fable."/ · /"make sure that they load that"/ |
+| 17 | the deep link is OUT of m96: not a =line=, not one ReplSignal — /"a whole engine"/ that opens a thread · a mode · an XYZ from URL parameters; mode-declared URL parsers later; =roadmap/anima-deeplink.org= keeps it | /"the deep link, is not it. I don't see why we have line. B is also false."/ · /"have the mode declare URL parsers? Yes, in the future, not inside of this quest."/ |
+| 18 | the headless rigs are SCENARIOS, as typology's and runtime's are (=@vivalence/<pkg>/scenarios= → =tests/scenarios/index.js=): sheets ships the TTY rig, drapes the DOM rig; ghost's =tests/world.js= and anima's tests import them; many scenarios on both sides | /"then it's gonna be scenarios. To be coherent with our overall structure"/ · /"we will have those a lot on both DOM and TTY."/ (Q7: A, under the name =scenarios=) |
+| 19 | the mark is the viket ALREADY in the tree: =systems/anima/static/images/pictogram_viket/= (6 files; =Turn.svelte:255= masks =pic-vinca-viket_white.svg= today) MOVES to dapper as =subsystems/dapper/assets/viket/=; drapes' =Mark= masks it with the ink token, sheets' =Mark= is a glyph; the designer's =viket.b64= is not decoded; the videos stay in anima's static | /"a but we already do have that in our system. The vcat is there. […] Maybe truly dapper is the right place. So, but then I would move the assets from anima to dapper instead of from the design file that we downloaded."/ |
+| 20 | every trait's schema at =v.traits.<entity>.<NAME>= — UPPERCASE; the format for ALL traits, ruled into m94 (=** the FORMAT=) | /"doc is not a primitive. It's v.traits.<entity>.docked"/ · /"upprecase.. Okay. The rejiggle, the traits rejiggle, I think that is the format that I want all the traits to be in."/ |
+| 21 | REVERSED 10-21 at floor (law 5; =reference/m96/open-closed.org= row 17) — the runtime's entities ARE typology — Locked Q12 /"a"/: all 15 classes, subjects included | /"the entities that are currently in runtime, all the entities are typology. All the entities are typology."/ |
+| 22 | the trait enums DIE; a =traits= column is =string[]= json; the table at the claim is the one gate | /"a"/ (Q13: enums die vs derived from the table) |
+
+* as code — m96's own hunks
+The wiring (moved from m95 10-21) drained 10-22 whole to =reference/m96/the-wiring.org=; the landed and historical hunks (systems/runtime · subsystems/typology · systems/ghost · sheets · drapes · dapper · =~/.viva/registry=) to =reference/m96/as-code.org=. The hunks still pending, =ls= order:
+
+*** commons/datamaps/libsql
+**** libsql.viva.js — FOUND 10-21 at his door, NOT applied (his ruling owed → =* open= #10): a faulted migration lands HALF (=transactional: false=, line 20) and =create()= writes =migrations/.snapshot-<db>.json= holding the NEW schema, so the next boot sees no diff and runs on the old table (=no such column: mime=). Repair proven on a copy (=scratchpad/dbprobe/migrate.js=): drop the half-made tables · rm the two faulted migration files · rm the snapshot → one fresh migration, 3 buffers kept.
+#+begin_src js
+// commons/datamaps/libsql/libsql.viva.js:20 — SKETCH: sqlite DDL is transactional; a faulted up() must leave the db as it was
+      migrations: { tableName: "_mikro_migrations", path: datamap.mountpoint.branch("migrations").absolute, transactional: true, snapshot: false },
+#+end_src
+
+*** systems/runtime
+**** entities/Buffer.ts — Locked Q1 (drill 10-21 session 7): /"a"/ — =mime= admits absence; mikro 7.2.3 rebuilds a populated sqlite table copying every ADDED column as =null= (=@mikro-orm/sql/7.2.3/dialects/sqlite/SqliteSchemaHelper.js:656=), default ignored — his 3 =PENDING= buffers failed NOT NULL; the typology contract (=schematics/entities/buffer.js:9= =.optional()=) said so already. In the tree 10-22 (=Buffer.ts:74= holds the line).
+#+begin_src ts
+// systems/runtime/entities/Buffer.ts:74
+    mime: { type: types.string, default: mime.json, nullable: true },
+#+end_src
+
+* the dependency DAG — what needs what (quest.milestone); the five m96 milestones in caps
+Drained 10-22 whole to =reference/m96/dependency-dag.org= (the five milestones' needs, as planned 10-21; all five ran).
+
+* milestones — five, each a noun, each green before the next; one agent per (milestone, container)
+
+| milestone | quest.milestones | container | agent | model | min |
+|---+---+---+---+---+---|
+| floor | m93.1 | typology | floor-monad | opus | 25 |
+| floor | m92.1 | typology | floor-walk | opus | 25 |
+| floor | m87.1 | runtime · typology | floor-entities | opus | 40 |
+| floor | m83.2 | typology | floor-primer | opus | 25 |
+| floor | m88.s3 (schematic) | typology | floor-request | opus | 15 |
+| floor | m95.2 | sheets · dapper | floor-sheets | opus | 45 |
+| floor | m95.3 | drapes · dapper | floor-drapes | opus | 45 |
+| hosts | m87.2 · 3 · 4 · 6 · 7 | runtime | hosts-runtime-m87 | opus | 50 |
+| hosts | m83.3 · 4 · m88.s3 · m94 rows | runtime · paladin · commons · =~/.viva= | hosts-runtime-m83 | opus | 50 |
+| hosts | m93.2 · 4 · =* the wiring= | ghost | hosts-ghost | opus | 50 |
+| hosts | =* the wiring= paladin | paladin | hosts-paladin | opus | 30 |
+| repl | m92.2 · 4 · m95.5 | ghost | repl-keymap | opus | 40 |
+| repl | m95.4 · m88.s3 ghost | ghost | repl-commands | opus | 40 |
+| repl | m95.7 | anima · paladin | repl-anima-door | opus | 30 |
+| chromes | m95.6 · m87.5 | ghost | chromes-ghost-chrome | opus | 50 |
+| chromes | m95.8 · m87.8 | anima | chromes-anima-chrome | opus | 50 |
+| registry | m95.9 · m87.3 · m83 =* Moves= · the alignment (law 10) | =~/.viva/registry= | registry-registry | opus | 45 |
+| registry | QA markers | all | beef | opus | 30 |
+
+chromes LANDED 10-21 (session 7): the two agents as above + one verifier each; =reference/m96/coverage.org= census — chromes. repl LANDED 10-21 (session 7): the three agents as above + one verifier each; census — repl. hosts LANDED 10-21 (session 7): the four agents as above + one verifier each on the copy and the landed tree; census — hosts. floor LANDED 10-21 (session 7): seven agents as above (the four verify-only typology rows merged into ONE =floor-typology= — all TANGLE; floor-dapper split out of sheets · drapes as their shared prerequisite), one OPUS verifier on the copy, one on the landed tree; census — floor.
+
+Wall clock with the milestones serial and the agents parallel: 45 + 50 + 40 + 50 + 30 ≈ 3.5 h, inside his /"2 to 4 hours"/. Agents: 17 + one verifier per milestone (opus, the suite on the copy) = 22. Models (10-22 tidy): OPUS for every agent, law 7 — ruling 16's fable/opus split is superseded; the session-7 census (=reference/m96/coverage.org=) records the FABLE agents that ran before his switch.
+
+* the suite — between milestones. DRAWN 10-21; a line whose file is not born yet runs when its agent lands. The lines that run today, run 10-21 on this tree (the baseline the milestones move):
+Drained 10-22 whole to =reference/m96/the-suite.org= (the baseline greps + the per-milestone lines). The registry lines stay here:
+
+#+begin_src sh
+# registry — the registry, every package once
+for p in ~/.viva/registry/*/; do (cd "$p" && HOME=$(mktemp -d) SNAPSHOT_HOT=1 deno test -A --no-check tests); done
+grep -rlE 'daemon|mode|thread|terminal' ~/.viva/registry/*/modes/*/*/buffer | wc -l   # 0 readers of terminal.* (m95:641)
+#+end_src
+
+* coverage — how much of the change is CODE (measured 10-21, seven read-only audits, one per constituent; `file:line` per row in each auditor's table, rolled up here)
+Drained 10-22 whole to =reference/m96/coverage.org=: the mechanical measure · per constituent · per milestone · seams (seam 3 RESOLVED; the =client()= wrapper ruling → =* open= #4) · replay · census ×5 (session 6 · floor · hosts · repl · chromes) — the counts per quest are pasted under =* changelog=. =** the verdict= trashed 10-22 (narration, no his words).
+
+* open — THE single list of rulings owed to beef (consolidated 10-22; every other quest points here as =→ m96 * open #n=). The closed rows as they stood → =reference/m96/open-closed.org=
+
+| # | owner | the question | file:line | lands |
+|---+---+---+---+---|
+| 1 | m93 | milestone 3 (the runtime factories) landed by the replay: keep, or cut m93 to 1 · 2 · 4 | =m93-kleisli-remonadization.org:68= · =systems/runtime/subjects/runtime/lifecycle/resolution.js:12,21= | m93 =* milestones= + =#+status= |
+| 2 | m87 | APPLICATION: a thin heir beside VIEWABLE, or retire (collides with law 11 freezing =/application/*=) | =m87-buffer-view-file.org:577= · =systems/runtime/subjects/mode/traits/application.js:8= | m87 law · m96 law 11 |
+| 3 | m96 | the FAILED rethrow in the client factory: keep or drop | =systems/ghost/subjects/client/factory.js:10= | that line |
+| 4 | m93 | seam 3: does the =client()= wrapper die | =m93-kleisli-remonadization.tangle.org:477-498= · =systems/ghost/surfaces/shell/lifecycle.js= | m93 tangle =*** shell= |
+| 5 | m92 | =Closed=: a walk error, or the boolean =navigate= returns | =m92-keymap.org:158= · =systems/ghost/subjects/client/keymap.js:46= (=navigate=) | typology =steer/dispatch.js= (HOLY) |
+| 6 | m92 | =shape.strip= =edgeMeta= carries =chord=, or =/help= stays chordless and reads =rollup= (HOLY) | =m92-keymap.org:404= · =subsystems/typology/gestalten/shape/strip.js:4= | typology =shape/strip.js= |
+| 7 | m95 | =Docked.share=: 0.1–0.9 or 20–80 (HOLY) | =subsystems/typology/schematics/traits/docked.js:6= · =subsystems/sheets/Split.jsx:13= | the losing side |
+| 8 | m96 | =Url= / =Path= JSON coercion (HOLY): no hunk exists — typology proposals 1 · 2 from the anima-door agent | =reference/m96/handoff-10-21.org= (the anima door) | typology =schematics/scalars/= |
+| 9 | m95 | =/theme= needs a client/user repository on the wire | =m95-depincered-client.org:110= | m95 =** 4= |
+| 10 | m96 | libsql migrations =transactional: true, snapshotOnMigrate: false= (SKETCH; the tree's key is =snapshotOnMigrate=) or =transactional: false= as the tree | =commons/datamaps/libsql/libsql.viva.js:20= | m96 =* as code= libsql |
+| 11 | m88 | =Request.parts= optional, or declare =turns= for the 10 =turns=-only callers | =subsystems/typology/schematics/primitives/harness.js:19= | typology =harness.js= |
+| 12 | m95 | Consent part: keep the built =Consent.jsx= or cut per ruling 30 | =subsystems/sheets/Consent.jsx= · =m95-depincered-client.org:82= | m95 handoff |
+| 13 | m95 | the look's ~20 drapes-only parts: amend law 3 (drapes a superset), or owe the sheets twins | =m95-depincered-client.org:31= | m95 law 3 |
+| 14 | m95 | the telemetry window (=/telemetry=, =$tele=): m95, or m89 | =m95-depincered-client.org:80= | m95 =** 10= or =roadmap/m89-telemetry.org= |
+| 15 | m95 | palette: the designer's =style-1.css= values verbatim, or dapper's values with only the var names grown | =reference/m95/look-brief.md= | =subsystems/dapper= tokens |
+| 16 | m87 | one spelling: =integrity sha256-<hex>= vs =hash= hex; and the pair (a repl output row: table or JSON; the default cell renderer) | =m87-buffer-view-file.org:497= · =systems/runtime/subjects/mode/traits/application.js:6= | m87 =* as code= |
+| 17 | m94 | deferred 3–7, and whether APPLICATION · DATASINK join =v.traits.mode= | =roadmap/m94-trait-rejiggle.org:136= | m94 |
+| 18 | m89 | F1 · F2 · F3 · F5 · F6 · F7 · F8 | =roadmap/m89-telemetry.org:533= | m89 =* open= |
+| 19 | m95 | ruling 33 built 10-22: a STREAMING turn is one with =createdAt === undefined= (the saved row not yet arrived) — =soma.pour= leaves no mark on a closed part; keep, or a =/part/close= mark in =soma= | =systems/anima/src/surface/panes/journal.jsx:65= · =systems/ghost/surfaces/chrome/panes/journal.js:62= | m95 =* as code= ruling 33 |
+| 20 | m95 | ruling 34 (/"I do not want to … a whole grammar for how to encode sections"/) vs the look: both =sections.js= carry the design's =sub · keys · choice · value · stepper · check= rows — keep the design's grammar (one owner, ghost or anima imports the other) or strike | =systems/anima/src/surface/sections.js= · =systems/ghost/surfaces/chrome/sections.js= | m95 =* as code= |
+| 21 | m95 | ruling 35 (Panel · minibuffer dead) vs the look: =drapes/Panel.jsx= + =sheets/Panel.jsx= paint the design's =section.panel= (chord · palette · chooser) — keep as the design's panel or rename | =subsystems/drapes/Panel.jsx= | m95 =* as code= |
+| 22 | m96 | =steer.dispatch.traverse= stops at the PARENT when a signal ends on a branch that carries an effect — the branch's own middleware never runs (=subsystems/typology/gestalten/steer/dispatch.js:60-66=), while =trie.fold= descends it: ghost went around it 10-22 (=shell/lifecycle.js:64-67= =.open("/repl"…)= instead of =branch=); should traverse run a leaf branch's own steps (typology, HOLY) | =dispatch.js:60= | typology =steer/dispatch.js= |
+
+* the swarm — how the single go runs
+
+#+begin_src text
+1  the copy      cp -R <tree> <copy>; python3 .ikiro/methods/apply-diffs.py --root <copy> over every constituent's * as code (law 1); census → the baseline
+2  milestone     one Agent per (milestone, container) (opus, MEDIUM, named <milestone>-<container>); brief = that quest section (line range) + its codemap shard + its suite lines; it writes on the copy
+3  the verifier  one OPUS agent per milestone: runs * the suite on the copy, pastes counts; a red → that agent, never a workaround
+3b the look     a chrome milestone's verifier puts the served screen BESIDE THE DESIGN (ONE source: /Users/finn/Downloads/Client · v1.0.html, read never run) region by region — suites green is not the look (REJECTED 10-22 chromes: /"not comparable with the design i handed you at all"/)
+4  the landing   mine: the milestone's files onto the repo as it stands (drift → diff3 -m), NEVER rsync --delete (deletions by a reviewed list — REJECTED 10-21: an agent copy without bak/ took six untracked db files, restored); suite again on the landed tree; beef snaps (jj, his)
+5  next          opens on the green landed tree only
+#+end_src
+
+- SKETCH 10-21 (his, in the drill, on the tooling): /"I really do not care. That is your implementation detail. And I suspect that I want you to do a lot of this by hand, maybe? I don't care."/ — step 1's replay may be agents by hand, file by file; =materialize.py= · =apply-diffs.py= · =replay.sh= stay MY tools (the dry list + the baseline), never a brief's requirement. The block-class names (=collage= · =sketch= · =shelf=) are mine — unruled, kept.
+
+The orchestration is a Workflow (phases = the five milestones, =pipeline= per milestone, the verifier its last agent); beef opts in by name (/"use a workflow"/ · =ultracode=). Before it: =lsof -nP -iTCP:2501 -sTCP:LISTEN= — the runtime watcher deploys on save; the swarm writes on the COPY, never under a watcher.
+
+* blast — rolled up; each quest holds its measured table
+
+| quest | table | the biggest number |
+|---+---+---|
+| m95 | =m95-depincered-client.org= =* blast table= | anima src 139 files rewrite · 53 =.svelte= die |
+| m87 | =m87-buffer-view-file.org= =* blast table= | =new App(= 52 · =v.buffer(= 17 registry modes re-declared |
+| m83 | =m83-tools-and-primer.org= =* blast table= | 31 repo files · 57 hunks · =~/.viva= 5 files |
+| m93 | =m93-kleisli-remonadization.tangle.org= | 31 files · 51 hunks · 14 new |
+| m88 | =m88-repling.org= =* blast table= | 57 harness callers · 6 =id= sites |
+| m92 | =m92-keymap.org= =* blast table= | =keys.js= · =chrome/index.js= · 3 commands |
+| m94 | =roadmap/m94-trait-rejiggle.org= =** the rotation — blast= | =ModeTraitsEnum= 3 hits |
+
+* testing assessment
+- VALIDATED 10-22 (opus, read-only): both hunks hold (=Buffer.ts:74= LANDED; libsql held for open #10). Law 11 the nine each 1 of 41 natures · law 5 16 entities · law 4 =resolution.js:12,21= =monad.traverse= (m93 milestone 3 in the tree, open #1) · law 10 registry readers 71 (milestone =registry= open). Law 9 RED in an empty HOME: =run.js --help= faults =registry.js:278= =mask= undefined (frontier standing). Done counts moved since the census: typology 151 · paladin 58 · drapes 48·1. COVERAGE GAP: =.jsx= panes/parts have no per-file coverage (esbuild temp bundles without sourcemaps — =bundle.js= sourcemap owed).
+
+- the suite IS =* the gates=; every line ran on this machine before it enters the brief (codestyle: evidence on HIS side of the wire).
+- COVERAGE GAP (rolled up): no test boots =vite dev= (m95) · no headless assertion on the ghost chrome until =tests/world.js= =screen()= exists (m92 10-19) · the stub cortex's =tool_use= (m88) · no test that a runtime mode's =keymap= reaches =mode.keymap= until a registry mode exports one (m92).
+
+* QA — the walks are the constituents'; m96 adds the one that crosses them all
+
+#+marker_qa: m96/T-single-go · pending · a fresh checkout after milestone =registry=: =viva --help= 0 → =viva chrome= shows the regions → =ctrl-v ctrl-v= lists the catalog → =/mode chess= seats a thread, the board renders in the frame → =ctrl-v g n= starts a game → =/mode/console/harness whoami= answers with the terminal id → the same in anima at =:1794=
+
+* deferred
+
+- a painted value — string · Yield · a Solid component from a client-side effect (the three drawn 10-21, struck by ruling 4: the dock paints rows and the journal only).
+- m93 milestone 3 (runtime factories) · supervision — m93's own go after m96.
+- m92 B · user rebinding · the chord in =/help= — m92 deferred.
+- m87 the upload transport · =mime.routine= · a buffer read by another mode's view — m87 deferred.
+- m88 client-mode harness · =ctx.input → ctx.signal.body= — m88 deferred.
+- m89 telemetry panes · m85 desktop · the deep link (=roadmap/anima-deeplink.org=; ruling 17: /"a whole engine"/, mode-declared URL parsers later) — after the chrome.
+- m94 the rotation (deferred 6) — its own milestones in m94.
+
+* changelog — pasted 10-22 from =reference/m96/coverage.org= (census, verbatim rows) and =reference/m96/the-suite.org=
+- 10-22 after the look · tty · rulings: typology =ok | 151 passed (660 steps)= · paladin =ok | 58 passed (239)= · runtime mode =FAILED | 11 passed (63) | 3 failed= (=@education=) · daemon smoke 1 (6) · entities 2 (12) · runtime 7 (47) · cortex 2 (35).
+
+#+begin_src text
+baseline 10-21 (the-suite.org)
+systems/ghost/tests/client.test.js      ok | 1 passed (4 steps)
+subsystems/dapper/tests                 ok | 26 passed (449 steps)
+systems/runtime/tests/daemon/smoke.test.js   ok | 1 passed (6 steps)
+census — floor (after floor)
+| typology | 145 · 0 | 149 · 0 (655 steps) | — |
+| sheets | — (dead) | 18 · 0 (52 steps) | — |
+| drapes | 24 · 1 | 39 · 1 (273 steps) | chassis rig (=chassis.jsx:3= =belt.dock=, chromes) |
+census — hosts (after hosts)
+| typology | 149 · 0 | 150 · 0 (657 steps) | — |
+| paladin | 55 · 0 | 57 · 0 (236 steps) | — (vault.test.js + the browser twin) |
+| runtime | 75 · 12 | 78 · 9 · 1 ign (535 steps) | the 9 rig ONLY — looping · stub.activity GREEN |
+census — repl (after repl)
+| ghost | 11 · 2 | 18 · 0 (46 steps) | — (=keymap.test.js= 6 its · =commands.test.js= 15 steps NEW · console 2/2 · repl 7 · world 4/4) |
+census — chromes (after chromes)
+| ghost | 18 · 0 | 16 · 0 (50 steps) | — (=chrome.test.js= NEW; four text tests MOVED to sheets; world 4/4) |
+| sheets | 18 · 0 | 22 · 0 (52 steps) | — (=text.test.js= moved in; =./host= export NEW) |
+| memo | 2 · 0 (+2 aborts) | 9 · 0 (22 steps) — =memo.test= · =memo.snapshot= IMPORT and PASS again | — |
+| drapes · dapper · typology · paladin · runtime · hello-world | 39·1 · 27 · 150 · 57 · 78·9 · 19 | same | chassis rig · the 9 rig |
+#+end_src
+
+Attributed reds: runtime 9 = the rig (bench ×2 · aprende ×2 · emitters · qa ×3 · populate) · drapes 1 = the dom chassis rig · anima 9 red files = the old Svelte chrome (SvelteKit retire, =* handoff= next).
+
+* release
+
+Lifted from the constituents at landing; m96 adds no interface of its own (0 lines to lift 10-22; the constituents lift their own).
+
+
+* handoff — rewritten 10-22 (the session-7 handoff whole → =reference/m96/handoff-10-21.org=)
+
+- goal: the client rebuild as ONE coherent tangle across seven quests, landed milestone by milestone (floor · hosts · repl · chromes · registry) with a suite between, by a swarm of OPUS agents (law 7); m95 under it as the DOM · TTY client v1.
+- done 10-21 (session 7): floor · hosts · repl · chromes LANDED on the repo (uncommitted; beef snaps), each verified by OPUS on the copy and on the landed tree (=reference/m96/coverage.org= census ×5); registry aligned on a COPY of =~/.viva/registry= (=scratchpad/registry/=); law 11 held at every milestone; Q12 REVERSED (entities stay in =systems/runtime/entities/=); =ctx.attach= declared in =subsystems/typology/schematics/primitives/contexts.js:23= and landed. 10-22: the anima door is in the tree (=deno task anima/run=, =:1794/=); chromes' LOOK REJECTED by beef → step 3b.
+- done 10-22 (session 8): beef's 20 issues → =reference/m96/beef-issues-10-22.org= (14 FIXED, walked on =:1794=); ghost re-cut — =subjects/client/= (was =client/=) · =subjects/repl/index.js= (was =surfaces/repl.js=), runtime's five subjects under =subjects/= · =surfaces/= (was =surface/=; + =shell/= + the =/chrome/on|off · /shell= as =surface.commands= (=surfaces/commands.js=), anima =dom.commands = {}=); client beats =dataspace → daemons → hosts → rows= (a thread casts after its mode exists).
+- next (session 8): ⓐ HIS: delete the 3 poisoned Turn rows (the =sqlite3= line, beef-issues #18 · 20), restart =:2501= ⓑ his ruling a · b · c on known-issues =harness-input-unvalidated= ⓒ #7: a turn proves buffer emission ⓓ the 23 anima tests on the retired pincer die with the =xargs rm=.
+- next (session 7): ⓪ DONE 10-22: m87 defects · m88 F1–F3 + tests rows + host catalog LANDED ① his eyes: anima =http://localhost:1794/= (the look + polish) · =viva chrome= (the tty look) ② DONE 10-22: the look landed on anima (110 + 45) and ghost (30), verified beside the design (m95 =** 10=) ③ the SvelteKit shell: 149 paths listed, his one line (=reference/m95/shell-retire-20261022.md=) ④ DONE 10-22: validators m95 (3 LOST) · m96 (VALIDATED) — findings in each =* testing assessment= ⑤ the registry landing (his rsync) ⑥ QA =m96/T-single-go= end to end ⑦ DONE 10-22 law 9 gate: =run.js= resolves nothing; =shell/lifecycle.js:26= =seat= (instance · supply · mask · wire) is the door's first step after =help=; =viva --help= rc 0 under an empty HOME, =repl=/=chrome= exit 1 naming what is missing (=tests/shell.test.js= 5 steps, a real process, =clearEnv=) ⑧ =.jsx= per-file coverage: NOT reachable with a sourcemap — =deno coverage= 2.9.7 keeps the bundle's name and renumbers its lines (probe =scratchpad/smap/=); options: one module per =.jsx= into a mirrored temp tree, or an lcov post-process (his call, open #22 sibling).
+- never: =wave= · agent-=cell= · =verb= · =presents= · =mode.mime= · a renderer on the client · a codec on the /repl wire · a =line= field · a painted value · a hunk copied into this file (law 3) · a milestone opened on a red suite · a kleisli factory on the runtime inside m96 · an agent on the repo or under a watcher · a question whose noun a constituent's =* the dialogue= rules · a RENAME of a frozen verb (law 11) · a walk on a fixture page or a substitute server as the product (REJECTED 10-21, =debug=).
+- owed: his rulings → =* open= #1–18 (the one list) · m95's items (the dead SvelteKit shell, the pincer, the chrome's look) → m95 =* handoff= · m87's (FILESINK =record= is exported at =systems/runtime/subjects/mode/traits/filesink.js:7=; the integrity spelling → =* open= #16) → m87 =* handoff= · hole 3 (=shape.primer.lazy= does not descend a fn effect's Vector) · anima: blank on a failed connection (the lifecycle unwinds =surface= before the fault prints) · the buffer row carries no =turns= on the wire · =updatedAt= not served · paladin's bundler cannot inline sheets .jsx for a registry VIEW (=subsystems/paladin/gestalten/belt/bundler.js:42= =packages: "external"=) · a client =file= repository · dapper =mod.client.js= (postcss rides the bundle) · root =import_map= =solid-js/web= · six token names outside the 27 · the door under =HOME= empty faults at =subsystems/paladin/prototypes/registry.js:278= (=mask.modes=) · Chrome closes =ws://localhost= from a =127.0.0.1= page · the =chrome/index.js= pty door untested · =bundle.js= sourcemap for pane coverage · vcompany rig constraints · =vdex-tools= snapshot stale · docs =documentation/dist/raw/31.02_instance-from-scratch.mdx:258= · hook owed: a question whose noun a =* the dialogue= rules · hook proposal: deny =python3 -m http.server= / a static copy under the repo.
+- reads: this file → =* the law= (11 laws) → =* open= → =m95-depincered-client.org= =** 10 · the look= → =reference/m95/look-brief.md= → =m87-buffer-view-file.org= → =m92-keymap.org= → =m88-repling.org= → =m83-tools-and-primer.tangle.org= → =m93-kleisli-remonadization.tangle.org= → =roadmap/m94-trait-rejiggle.org= → =reference/m96/=.

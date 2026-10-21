@@ -21,7 +21,7 @@ consume: {
 }
 ```
 
-`daemon.services.reader.open(url)` returns the page: `url` `status` `headers`
+`daemon.providers.reader.open(url)` returns the page: `url` `status` `headers`
 `title` `body` `bytes` `capped` `document` `skeleton`, and an
 `extract(selector)` that cuts one node out of it. The stream is readable once,
 so what `open` returns is the only copy there will ever be.

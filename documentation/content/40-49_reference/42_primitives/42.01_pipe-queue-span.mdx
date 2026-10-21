@@ -1,0 +1,150 @@
+---
+title: Pipe, Queue, Span
+summary: One way to attach — tap a sink. A Pipe fans out, a Queue buffers, a nanostore holds, a Span is a place records go into.
+author: claude (agent)
+---
+
+## Three primitives, one act
+
+```
+Pipe        fans out, keeps nothing     in: send(value)     out: every tapped listener, now
+Queue       buffers, one reader pulls   in: enqueue(value)  out: for await (… of queue.drain(signal))
+nanostore   holds one current value     in: set(value)      out: get() · listen() · computed()
+```
+
+Each one can receive. `fromm.sink(target).write` turns any of them into a plain function that writes:
+
+```js
+// subsystems/typology/gestalten/fromm/index.js
+if (is.fn(target)) return target;
+if (target?.send) return (value) => target.send(value);         // a Pipe
+if (target?.enqueue) return (value) => target.enqueue(value);   // a Queue
+if (target?.set) return (value) => target.set(value);           // a nanostore
+if (target?.getWriter) { … }                                    // a WritableStream
+```
+
+So attaching to a Pipe is one act: tap a sink, get back the function that detaches it.
+
+## Pipe
+
+```js
+// subsystems/typology/prototypes/pipe.js
+pipe.send(value);                     // every listener, in tap order
+const untap = pipe.tap(target);       // a function · a Pipe · a Queue · a nanostore · a WritableStream
+untap();
+pipe.from(source);                    // an async iterable, a Queue or another Pipe pours in
+```
+
+Two conveniences sit on top. Each is one tap, nothing more.
+
+```js
+const $count = pipe.fold(0, (count, value) => count + 1);   // a tap into a nanostore
+for await (const value of pipe.drain(signal)) { … }         // a tap into a Queue; stops on abort, untaps when the loop ends
+for await (const value of pipe) { … }                        // the same, without a signal
+```
+
+`drain(signal)` is the pull on every local primitive: a Pipe and a Queue answer it the same way, so a reader need not know which one it holds. `stream` is kept for a source arriving over the wire, like a connection or a provider.
+
+A Pipe keeps nothing. A listener hears only what is sent after it tapped.
+
+## Queue
+
+A Queue buffers until a reader pulls. Pulling removes, so a Queue serves one reader.
+
+```js
+const queue = new Queue();
+const untap = pipe.tap(queue);
+for await (const value of queue.drain(signal)) { … }
+untap();
+```
+
+Tap the Queue before you read anything else, and nothing slips between.
+
+## Span
+
+A Span is a place records go into. It is a Signature: it has a nature, a parent, and an absolute path, the list of natures from the root down.
+
+```js
+const client = new Span("client");
+const terminal = client.branch("terminal/abc");
+terminal.start().log({ hello: true }).stop();
+terminal.fault(new Error("no route"));
+```
+
+A record is four fields. The path is the address: one entry per span, root first. A span that repeats while live carries its instance in its nature, like `terminal/abc`; a `/` inside a nature is never a boundary. `at` is the wall clock in epoch milliseconds.
+
+```js
+{ at: 1761213600000, path: ["client", "terminal/abc"], track: "log", data: { hello: true } }
+```
+
+### Tracks
+
+What a span can record is a standard set of eight tracks. Each one is a method on the span, and each returns the span, so they chain.
+
+```
+start      carries nothing                      stop       carries nothing
+request    { method?, path? }                   response   { status? }
+fault      { type, message, code?, stack? }     log        a string or any object
+entity     { schema, id }                       status     { code, … }
+```
+
+A request is `start · request · response · stop`, with `stop` in a `finally`. `fault(error)` shapes the Error into what it is: its name as `type`, its `message`, `code` and `stack`.
+
+`span.track(name, data)` is the one way in underneath: the methods call it. An unknown name throws `NotFound`; a known one casts `data` against its schema.
+
+The tracks are a Vector, `span.tracked`. A child grafts its parent's when it is born. `span.tracks(vector)` grafts more for that span and every child born after, and writes a method for each new nature that is not already one:
+
+```js
+span.tracks(new Vector().open("beat", (data, ctx) => ctx.span.pipe.send({ … })));
+span.beat({ n: 1 });
+```
+
+### Records climb
+
+Every span owns a Pipe. A child's pipe taps its parent's when the child is born. A record sent at a leaf goes up through every ancestor to the root, never down.
+
+```
+client                       hears [client] · [client, terminal/abc] · [client, terminal/abc, thread/xyz]
+  terminal/abc               hears [client, terminal/abc] · [client, terminal/abc, thread/xyz]
+    thread/xyz               hears [client, terminal/abc, thread/xyz]
+```
+
+So tapping a span's pipe is tapping its subtree. No span filters.
+
+```js
+const untap = terminal.pipe.tap((record) => console.log(record.path.join(" › "), record.track));
+```
+
+### History
+
+A span keeps what passed through its pipe as a nanostore, `$history`, with a plain getter `history`. It is the pipe's own fold: every record appended.
+
+```js
+// a late reader: history first, then live
+for (const record of span.history) write(record);
+const untap = span.pipe.tap(write);
+
+// a view derives from it
+const faults = computed(span.$history, (held) => held.filter((record) => record.track === "fault"));
+```
+
+History only grows. The span sets one reaction when it is born, which cuts it to `Span.limit` (1000). Anyone who wants a different keep reacts to `$history` the same way, where they hold the span:
+
+```js
+onSet(span.$history, ({ newValue }) => newValue.splice(0, newValue.length - 50));
+```
+
+Each span keeps its own subtree, so a record at depth four is held four times.
+
+## Rebuilding the tree
+
+`trace.chronicle(records)` folds a list of records back into a tree, one node per path. A node's parent is its path minus the last nature, and its label is that last nature. Paths compare and key through `trace.key(path)`.
+
+```js
+const story = trace.chronicle(span.history);
+story.roots[0].children[0].path;          // ["client", "terminal/abc"]
+story.roots[0].children[0].nature;        // "terminal/abc"
+trace.duration(story.roots[0]);           // stop.at − start.at
+```
+
+A span that never tracked has no node of its own; its children's records still carry its nature in their paths.

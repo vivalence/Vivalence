@@ -1,0 +1,492 @@
+#+title: m108 anima on the App — anima's client and surface moved onto m107's style: the entry mints the client and an App, the surface is { bundle, mount }, panes consume ambient.app
+#+filetags: :anima:ghost:surface:app:
+#+status: LANDING 10-26 — his /"go. fix."/ on milestone 1, /"get anima back up again"/ read as go on 2 · 3; anima paints the layout on :1794; milestone 4 owed. Before: DESIGNED 10-26 (Q1–Q5A locked, Q5B fixed, Q6 amen). Text before the finish: =reference/m108/quest-before-finish-10-26.org=; struck: =reference/m108/struck-10-26.org=
+
+* intent
+
+10-25, beef verbatim (m107 Q32):
+
+/"We will absolutely move Anima to this style. Absolutely, no question about it. This is the style that I want there too. But that being said, not right now. Not right now. Yeah, put that in 108."/
+
+* the style — m107's locks this quest applies (=done/m107-ambient-chrome.org= =* the dialogue=)
+
+| m107 | what anima takes |
+|---|---|
+| Q20 | the subject =app=: =App= holds client · surface · controller · box · bridge |
+| Q21 · 22A | the entry mints the client, mints the App onto it, executes the App |
+| 23′ | =ghost.client.factory= takes no surface |
+| Q24 | the layout component is =layout.jsx= =Layout= |
+| Q25 | =renderers.js= rides =widgets/buffer/= |
+| Q27 | a command reaches the App through =ctx.client.app= |
+| Q28 | =client.$terminal= dies; =app.bridge.terminal= says which terminal is shown |
+| law 9 | ONE Provider =ambient.app=; one =ambient.terminal= per window |
+| law 10 | the surface is ={ bundle, mount }=; =panels/cover/cover.jsx= holds the cover (10-27) |
+
+* the dialogue
+
+| Q | ruling | his words |
+|---|---|---|
+| 1 | LOCKED A | /"a"/ |
+| 2 | LOCKED B | /"b"/ |
+| 3 | LOCKED B | /"b"/ |
+| 3b | LOCKED A | /"a"/ |
+| 3c | LOCKED A | /"a"/ |
+| 3d | LOCKED A | /"a"/ |
+| 4 | LOCKED A | /"a"/ |
+| 5 | REFRAMED | /"I would rather that on the unmarked client we attach our own middleware. So we attach something to the execution vector, I guess. In that case, I think we should do the same in the ghost. I.e. decide where something is logged to outside of the typology and probably inside of the app. The spans are created on typology level, and then they are wired up inside of the apps, inside of the Chrome, inside of Anima."/ |
+| 5A | LOCKED B | /"b"/ |
+| 5B | FIX: ghost's chrome adds no sink — the shell's =ledger= (=ghost.spans=) already holds every client record; =client.spans= dies; =/instance/tail/client= filters =ghost.spans= | /"fix"/ |
+| 6 | LOOKUP, amen | /"amen"/ |
+| 7 | LOOKUP (m107 law 9) | — |
+| 7b | LOOKUP (codestyle names: =line= ✗ → signal) | — |
+| 8 | STUDY: =client.$runtime= is set ONCE (=connection= beat) — a suspension posing as a cell; the factory handed the client back at =controller.start()=, before =connection= | /"why is client.$runtime a store? makes little sense really. the runtime is not an reactive?!"/ |
+| 8b | mint the =Runtime= early, wire later; =entities= stays late: =mode= · =daemon= repositories read =reference= at construction, the slug is the server's | /"could we instantiate the runtime prototype directly on the client earlier, or in the client die earlier? and then do all of the wiring a little bit later on?"/ |
+| 8c | wait until the Dataspace is INSTANTIATED, not populated — every repository's =$entities= exists at =new Dataspace=, the fill is a =.set=; no =$entities= atom on =Runtime= | /"I'm not sure I want entities on atom. Generally, I'm not opposed to the idea of waiting until data space."/ |
+| 8d | LOCKED A: the factory mints and connects; the =connection= beat only closes the multiplex | /"a"/ |
+
+* the law
+
+1. anima runs ghost's App execution whole; its surface's =bundle= is an empty function, accepted, logging =bytes: 0= (Q1).
+2. the window is =app.bridge.viewport= — =width · height · narrow=; the Box is the machine's devices (Q2 · Q3c).
+3. the Bridge is one atom per field, a plain getter each; a write sets ONE field (Q3).
+4. ONE Bridge for both chromes; a field one chrome does not read yet costs nothing (Q3b).
+5. a device loads its worklet by =new URL("./worklet.js", import.meta.url)=; =?url= dies (Q3d).
+6. the layout listens for keys inside the shown terminal's keyed =Show=; the mount holds no key listener (Q4).
+7. the client never decides where its records go; anima grafts the App's execution into a copy and =.use=s its sink; ghost's sink is the shell's =ledger=, which every client record climbs to (Q5 · Q5A · Q5B).
+8. both chromes share ONE folder tree (m103 law 5 · Q6).
+
+* as code — =ls= order per system; each hunk names its ruling
+
+*** systems/anima
+
+**** src/client.js — Q1 · Q5A · Q6
+
+#+BEGIN_SRC js
+// systems/anima/src/client.js:18 — the page's entry (his 10-27 text); =logging= sits ABOVE the =try= — below it, a TDZ throw lands in the untapped =die.controller= and the page stays blank
+import { chrome } from "./surfaces/index.js";
+
+const logging = async (appDie, next) => {
+  for (const record of appDie.client.controller.stdout.history) shown(record);
+  const untap = appDie.client.controller.stdout.pipe.tap(shown);
+  try { await next(); } finally { untap(); }
+};
+
+try {
+  const client = await ghost.client.factory(die);
+  client.app = new ghost.app.App({ client, surface: chrome, controller: die.controller.branch("app") });
+  await steer.dispatch.execute(new Vector().graft(ghost.app.lifecycle.execution).use(logging), client.app);
+} catch (error) {
+  die.controller.fault(error);
+}
+#+END_SRC
+
+**** src/surfaces/ — Q6 (his /"amen"/): the tree; ← =src/surface/=
+
+#+BEGIN_SRC text
+systems/anima/src/
+  client.js                                   the entry (Q1 · Q5A)
+  surfaces/index.js                           ← surface/index.js: the literal, exported as chrome = { bundle, mount } (ghost surfaces/index.js)
+  surfaces/chrome/
+    mount.jsx                                 ← surface/index.js mount body: dressed · painted · mount; ONE ambient.app.Provider
+    layout.jsx                                ← panes/chrome.jsx Chrome (Q4) + panes/regions.jsx + panes/split.jsx (m103 Q11 B, the seam; split.jsx folded 10-27)
+    console.js                                Q5A
+    send.js                                   ✗ 10-27 — inlined at its 17 callers: terminal.repl.dispatch(signal).catch((error) => terminal.controller.stdout.fault(error))
+    ambient/index.js                          app · terminal (ghost's)
+    panels/index.js                           ← panes/index.js
+    panels/authentication/signin.jsx          ← panes/signin.jsx
+    panels/booting/booting.jsx                ← panes/booting.jsx
+    panels/cover/cover.jsx                    ← mount.jsx 10-27: SETTLING · settled · COVERS · cover · Cover
+    panels/dock/{dock,journal,composer}.jsx   ← panes/{dock,journal,composer}.jsx
+    panels/frame/{frame,view}.jsx             ← panes/{frame,view}.jsx
+    panels/headline/headline.jsx              ← panes/tabs.jsx (m103 10-25a)
+    panels/legend/legend.jsx                  ← panes/chord.jsx
+    panels/modeline/modeline.jsx              ← panes/bar.jsx
+    panels/repl/repl.jsx                      ← panes/catalog.jsx (m103 10-25a)
+    panels/sidebar/{sidebar.jsx,sections.js}  ← panes/sidebar.jsx + surface/sections.js
+    panels/telemetry/telemetry.jsx            ← panes/tele.jsx
+    widgets/index.js
+    widgets/buffer/{renderers,view}.js · painters.jsx   ← surface/{renderers,view}.js + panes/painters.jsx
+  dies: surface/keys.js (Q4) · surface/screen.js (Q3b)
+#+END_SRC
+
+**** src/surfaces/chrome/console.js — Q5A: anima's sink, an app step
+
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/console.js — the entry .use()s it on the App's execution copy: log · fault → devtools
+const SHOWN = ["log", "fault"];
+
+const shown = (record) => {
+  if (!SHOWN.includes(record.track)) return;
+  globalThis.console[record.track === "fault" ? "error" : "log"](record.path.join(" › "), record.track, record.data);
+};
+
+export const console = async (appDie, next) => {
+  for (const record of appDie.client.controller.stdout.history) shown(record);
+  const untap = appDie.client.controller.stdout.pipe.tap(shown);
+  try {
+    await next();
+  } finally {
+    untap();
+  }
+};
+#+END_SRC
+
+**** src/surfaces/chrome/layout.jsx — Q4 (← =surface/panes/chrome.jsx=): one key listener per shown terminal, as ghost's =layout.jsx:12-16=
+
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/layout.jsx — the layout; one listener per shown terminal
+const app = ambient.app.consume();
+const terminals = from(app.client.runtime.entities.terminal.$entities);
+const id = from(app.bridge.$terminal);
+const terminal = () => terminals().find((terminal) => terminal.id === id()) ?? terminals()[0];
+
+<Show when={terminal()} keyed>
+  {(terminal) => {
+    const pressed = (event) => terminal.legend.dispatch(event);
+    globalThis.addEventListener("keydown", pressed);
+    onCleanup(() => globalThis.removeEventListener("keydown", pressed));
+    return <Regions terminal={terminal} />;
+  }}
+</Show>
+#+END_SRC
+
+**** src/surfaces/chrome/mount.jsx — Q2 · Q3 (← =surface/index.js:29-58=): the window into =bridge.$viewport=
+
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/chrome/mount.jsx — inside mount, on every window resize and media change
+const narrow = globalThis.matchMedia("(max-width: 767px)");
+const resized = () =>
+  appDie.bridge.$viewport.set({ width: globalThis.innerWidth, height: globalThis.innerHeight, narrow: narrow.matches });
+resized();
+globalThis.addEventListener("resize", resized);
+narrow.addEventListener("change", resized);
+#+END_SRC
+
+**** src/surfaces/chrome/panels/modeline/modeline.jsx — Q3 · Q7 (← =surface/panes/bar.jsx:15=): a pane reads one field from =ambient.app=
+
+#+BEGIN_SRC jsx
+// systems/anima/src/surfaces/chrome/panels/modeline/modeline.jsx:15
+const app = ambient.app.consume();
+const viewport = from(app.bridge.$viewport);
+const phonePane = from(app.bridge.$phonePane);
+const sidebar = from(app.bridge.$sidebar);
+const sided = () => (viewport().narrow ? phonePane() === "sidebar" : sidebar().open);
+#+END_SRC
+
+**** src/surfaces/index.js — Q1 · Q6 (← =surface/index.js:61=): the literal
+
+#+BEGIN_SRC js
+// systems/anima/src/surfaces/index.js — the App's bundle beat calls chrome.bundle(), its mount beat chrome.mount(appDie)
+import { mount } from "./chrome/mount.jsx";
+
+export const chrome = {
+  bundle: async () => ({ outfile: import.meta.url, bytes: 0 }),
+  mount,
+};
+#+END_SRC
+
+*** systems/ghost
+
+**** subjects/app/commands/sidebar.js · terminal.js — Q3: one field per write
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/commands/sidebar.js:5 — /sidebar
+(ctx) => ctx.client.app.bridge.$sidebar.set({ ...ctx.client.app.bridge.sidebar, open: !ctx.client.app.bridge.sidebar.open }),
+
+// systems/ghost/subjects/app/commands/terminal.js:7 — /terminal picks the shown one
+app.bridge.$terminal.set(terminal.id);
+#+END_SRC
+
+**** subjects/app/keymap.js — Q3
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/keymap.js:6 — the palette key opens the composer
+terminal.client.app.bridge.$draft.set(prefill);
+terminal.client.app.bridge.$focus.set("composer");
+
+// systems/ghost/subjects/app/keymap.js:21 — leader reads the draft
+ctx.client.app.bridge.draft.startsWith("/") ? ctx.client.app.bridge.draft : "/"
+#+END_SRC
+
+**** subjects/app/prototype.js — Q3c: the App mints its Box with itself
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototype.js:8
+box = new Box(this);
+#+END_SRC
+
+**** subjects/app/prototypes/box/ — Q3c · Q3d (← anima =@--= =typology/stores/box/=; =box.js= becomes this dir)
+
+#+BEGIN_SRC text
+box/index.js · box/drivers/audio.js · box/device/microphone/{index.js,microphone.js,worklet.js} · box/device/speaker/{index.js,speaker.js,worklet.js}
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototypes/box/index.js — the App's devices; a /mic command claims the microphone
+export class Box {
+  drivers = {};
+  device = {};
+
+  constructor(app) {
+    this.app = app;
+    this.drivers.audio = new AudioDriver(this);
+    this.device.microphone = new Microphone(this);
+    this.device.speaker = new Speaker(this);
+  }
+}
+
+// systems/ghost/subjects/app/prototypes/box/drivers/audio.js:8 — ← @-- drivers/audio/audio.js; the note without the killed $telemetry
+if (this.context.sampleRate !== 16000)
+  this.box.app.controller.stdout.log({ audio: "sampleRate", expected: 16000, actual: this.context.sampleRate });
+
+// systems/ghost/subjects/app/prototypes/box/device/microphone/microphone.js:76 — a /mic command claims; the device loads its worklet
+const worklet = new URL("./worklet.js", import.meta.url);
+await context.audioWorklet.addModule(worklet.href);
+
+// systems/ghost/subjects/app/prototypes/box/device/speaker/speaker.js — the same, on claim
+const worklet = new URL("./worklet.js", import.meta.url);
+await context.audioWorklet.addModule(worklet.href);
+#+END_SRC
+
+**** subjects/app/prototypes/bridge.js — Q2 · Q3 · Q3b: one Bridge, both chromes, one atom per field
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/prototypes/bridge.js — the App mints it, in both chromes; LANDED 10-26 (15 atoms, =* changelog=)
+import { atom } from "nanostores";
+
+export class Bridge {
+  $terminal = atom(null);
+  $viewport = atom({ width: null, height: null, narrow: false });
+  $focus = atom("composer");
+  $sidebar = atom({ open: false, width: 39 });
+  $draft = atom("");
+  $selected = atom(0);
+  $hidden = atom([]);
+  $theme = atom(null);
+  $popover = atom(null);
+  $phonePane = atom("dock");
+  $widget = atom(null);
+  $float = atom({});
+  $selection = atom(null);
+  $signin = atom({ user: "", pass: "" });
+  $sections = atom({ filter: {}, expand: {}, pick: null, hostsOff: { thread: [], mode: [] }, traits: { thread: [], mode: ["VIEWABLE"] } });
+
+  get terminal() {
+    return this.$terminal.get();
+  }
+
+  get viewport() {
+    return this.$viewport.get();
+  }
+
+  get focus() {
+    return this.$focus.get();
+  }
+
+  get sidebar() {
+    return this.$sidebar.get();
+  }
+
+  get draft() {
+    return this.$draft.get();
+  }
+
+  get selected() {
+    return this.$selected.get();
+  }
+
+  get hidden() {
+    return this.$hidden.get();
+  }
+
+  get theme() {
+    return this.$theme.get();
+  }
+
+  get popover() {
+    return this.$popover.get();
+  }
+
+  get phonePane() {
+    return this.$phonePane.get();
+  }
+
+  get widget() {
+    return this.$widget.get();
+  }
+
+  get float() {
+    return this.$float.get();
+  }
+
+  get selection() {
+    return this.$selection.get();
+  }
+
+  get signin() {
+    return this.$signin.get();
+  }
+
+  get sections() {
+    return this.$sections.get();
+  }
+}
+#+END_SRC
+
+LOOKUPS (Q3b): anima =focus · draft= as-is · =sidebar + sidebarWidth= → =$sidebar { open, width }= · =sections.hidden= → =$hidden= · =tele= → =app.telemetry.$state= · =shell= dies (0 reads) · =wid · pop · jsel= → =widget · popover · selection=.
+
+**** subjects/client/factory.js — Q8d: the factory mints the runtime and connects it; the app mounts on a runtime that is never =null=
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/factory.js
+export const factory = monad.kleisli([
+  (shellDie) => new Client({ controller: shellDie.controller.branch("client"), mask: shellDie.mask, register: shellDie.register, instance: shellDie.instance }),
+  (clientDie) =>
+    Object.assign(clientDie, {
+      runtime: new Runtime({
+        remote: new Url(clientDie.instance.runtime.statics.remote),
+        lighthouse: Object.assign(new Lighthouse(), { stdout: clientDie.controller.stdout.branch("lighthouse") }),
+      }),
+    }),
+  connected,
+  ...shape.monad.ready(execution),
+]);
+// systems/ghost/subjects/client/lifecycle/index.js:16
+export const connection = async (clientDie, next) => {
+  try {
+    await next();
+  } finally {
+    clientDie.runtime.multiplex.close();
+  }
+};
+// systems/anima/src/surfaces/chrome/panels/cover/cover.jsx — the two null rows die, the chains go straight
+  const terminals = from(app.client.runtime.entities.terminal.$entities);
+  const status = from(app.client.runtime.lighthouse.$status);
+#+END_SRC
+
+=connected= closes the multiplex when a manifest call throws (departure, reported). REJECTED: =client.$runtime= — a once-set store; =$entities= on =Runtime= (Q8c); waiting on =runtime.$status= — it is the server's health.
+
+**** subjects/client/lifecycle/index.js — Q5 · Q5A: the client keeps no sink
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/lifecycle/index.js:141
+-  .use(...(paladin.is.browser ? [] : [ledger]))
+#+END_SRC
+
+=ledger= (=:21-31=) dies with it (Q5B): no =client.spans= file.
+
+**** subjects/shell/commands/chrome.js — Q5B: unchanged; the shell's =ledger= (=shell/lifecycle/ledger.js:6=, =.use(ledger)= at =:11=) is ghost's sink
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/commands/chrome.js:16 — as today: no graft, no second sink
+await steer.dispatch.execute(appProcess.lifecycle.execution, client.app);
+#+END_SRC
+
+**** subjects/shell/commands/tail.js — Q5B: =/instance/tail/client= reads =ghost.spans=, the client's branch only
+
+Probe 10-26 (=Controller= root =ghost=, =branch("client")=, a tap on the root): =["ghost","client"]= · =["ghost","client","lighthouse"]= · =["ghost"]= — a client record reaches the root with =path[1] === "client"=.
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/commands/tail.js:8 — follow a spans file; a filter keeps the records it shows
+const follow = (process, kept) => async (shellDie) => {
+  …
+        const texts = (pending + decoder.decode(chunk.subarray(0, read), { stream: true })).split("\n");
+        pending = texts.pop();
+        for (const text of texts) {
+          const record = JSON.parse(text);
+          if (kept(record)) console.log(said(record));
+        }
+  …
+};
+
+// systems/ghost/subjects/shell/commands/tail.js:34 · :35 · :36
+  .open({ nature: "/instance/tail", valence: "follow a running ghost's spans from another terminal. Example: viva instance/tail" }, follow("ghost", () => true))
+  .open({ nature: "/instance/tail/ghost", valence: "follow a running ghost's spans, every branch. Example: viva instance/tail/ghost" }, follow("ghost", () => true))
+  .open({ nature: "/instance/tail/client", valence: "follow a running ghost's client spans only. Example: viva instance/tail/client" }, follow("ghost", (record) => record.path[1] === "client"));
+#+END_SRC
+
+**** subjects/terminal/commands/set.js — Q3
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/commands/set.js:45 · :49 — /set sidebar · /set hidden
+ctx.client.app.bridge.$sidebar.set({ ...ctx.client.app.bridge.sidebar, open });
+ctx.client.app.bridge.$hidden.set(toggled(ctx.client.app.bridge.hidden, group));
+#+END_SRC
+
+* terrain — measured 10-26
+
+| what | count |
+|---|---|
+| anima =client.surface · client.$terminal · client.terminal= reads | 114 in 18 files |
+| ghost =bridge.$state · bridge.state= | 8 in 4 product files · 11 in 3 tests |
+| anima =line:= in =surface/sections.js= | 30 |
+| anima tests reading =surface/= or =client.surface= | 9 files (=world.js= · =bar · chrome · composer · journal · panel · regions · sidebar · tele=) |
+| =~/.viva/registry= hits | 0 |
+
+* milestones — his go per milestone
+
+1. *the ghost App* — =prototypes/bridge.js= (13 atoms) · =prototypes/box/= (ported, worklets by URL) · =prototype.js= (=new Box(this)=) · the five one-field writes · the client lifecycle's =ledger= and its spread die · =shell/commands/tail.js= filters =ghost.spans= (Q5B). Green: ghost census, =viva chrome= paints.
+2. *anima's tree* — the =mv= of =src/surface/= onto =src/surfaces/chrome/= (Q6) · =surfaces/index.js= · =mount.jsx= · =layout.jsx= · =console.js= · =client.js=. Green: vite serves, the cover paints.
+3. *the panes onto ambient.app* — 114 reads → =ambient.app.consume().bridge.X= · =ambient.terminal= · =send.js= on the terminal · =line:= → =signal:= (7b). Green: every anima pane renders.
+4. *the tests* — ghost =keymap · commands · legend= onto the atoms; anima's 9 test files onto the tree and the App.
+
+* blast table
+
+| what | when |
+|---|---|
+| =systems/anima/src/client.js:19= =ghost.client.factory(dom)= | BROKEN now (m107 23′) until milestone 2 |
+| =systems/anima/src/surface/= 114 reads | BROKEN now (m107 Q20 · Q28) until milestone 3 |
+| ghost =bridge.$state= 8 product · 11 test reads | BREAKS at milestone 1 |
+| ghost =subjects/client/lifecycle= =ledger= · the =client.spans= file | DIES at milestone 1; its one reader =/instance/tail/client= reads =ghost.spans= |
+| =~/.viva= | none |
+
+* QA
+
+#+marker_qa: m108/T-viva-chrome · pending · I type =viva chrome=, I see the chrome; in another terminal =viva instance/tail/client= prints only =ghost/client/…= records, once each
+#+marker_qa: m108/P-anima-cover · pending · I open anima, I see booting → signin → the layout; devtools prints log · fault records
+#+marker_qa: m108/P-anima-resize · pending · I narrow the window below 768px, I see the phone pane
+#+marker_qa: m108/P-anima-keys · pending · I press the leader in anima, I see the repl catalog; I switch terminals, one press dispatches once
+#+marker_qa: m108/P-worklet-data-url · pending · a claimed microphone loads its worklet from vite's inlined =data:= URL (Q3d, unprobed in a browser)
+
+* deferred
+
+- the voice commands (=/mic= · =/speaker= · =/voice=) — the Box's devices have no caller; anima's four sidebar buttons stay unanswered.
+- =systems/ghost/subjects/app/keymap.js:33-39= — a middleware =console.log=s =JSON.stringify(ctx.terminal)= on every press; owner unknown.
+- m103's panels (headline first) ride the shared tree once milestone 2 lands.
+
+* changelog
+
+- 10-26 milestone 1 landed: ghost census 31 passed (100 steps) before and after; drapes parts 22 passed (83 steps).
+- 10-26 milestones 2 · 3 landed: anima on :1794 boots → layout; leader → legend, twice → repl with =/= drafted, esc drops; =/sidebar/toggle= opens the sidebar at 272 px.
+- anima suite (milestone 4, owed): 2 passed · 12 failed, every red on =src/surface/= paths or the pre-m107 client.
+- 10-26 Chrome walk on his go /"work on this until youve played a few chess moves, changed thread, changed terminal, had a harness conversation, and openend another mode … fix as you go. align with and pull from ghost."/ — chess 4 moves · thread · terminal · harness reply · =/dock top|bottom= + seam · palette → chooser by mouse: held; dojo stops on =mode-views-read-old-anima-daemon=. Fixed on the way:
+| where | what |
+| =shard/cors.js:43= | =access-control-expose-headers= = the response's own headers (cors test 7 steps) |
+| =runtime/entities/Terminal.ts:9= | index = highest + 1, not a count (shape test, red on the count) |
+| anima =split · dock · frame= + drapes =Split · Float · parts= | =top= · =bottom= rows (drapes parts 22 passed) |
+| anima =painters.jsx= =Mounted= · =frame.jsx= =Asel= | read =buffer.$data=, as ghost =Framed= |
+| anima =sections.js:28= =tool= | =path.at(-1)= — m100 paths are arrays |
+| anima =repl.jsx= | chooser pick + enter RUN, =fill= keeps the palette (=dom.js:314= · =app.js:142,199=) |
+
+Departures, each reported:
+| ruled | landed |
+| Bridge 13 atoms | 15: =$selected= · =$theme= kept, live readers in =app/commands/{repl,theme}.js= · ghost =composer.jsx= |
+| layout.jsx absorbs split.jsx | =surfaces/chrome/split.jsx= stayed a file; folded 10-27 |
+| 7b with the panes | the guard forced it now: entry key and =data-line= → =signal= across drapes parts + tests; =onLine= props stay |
+| =ambient/index.js= ghost's | ghost's factory joins the barrel: =systems/ghost/gestalten/index.js= =export { ambient }= |
+| =telemetry= → =app.telemetry.$state= | anima reads ghost's =selection= · =window{x,y,width,height}=; mount seeds =WINDOW= px + =folds= · =tables=; inspector =/set= paths =bridge.sidebar= · =bridge.hidden= |
+| renames | =Tabs= → =Headline= · =Bar= → =Modeline= · =Catalog= → =Repl= · =Chord= → =Legend= · =Tele= → =Telemetry= · =Wid= · =Pop= → =Widget= · =Popover= · =Line= painter → =Summary= · =data-r= =wid pop tele= → =widget popover telemetry= |
+| mode view =surface= | built per place by =widgets/buffer/renderers.js= =surfaced(app, place)=: kind · place · places · dark · palette |
+- 10-27 his orders, landed: /"split the cover stuff into its own panel"/ → =panels/cover/cover.jsx= · /"cut this"/ =send.js= → inlined · /"inline this into layout"/ =split.jsx= → =layout.jsx= · /"turn this into a single lifecycle.js"/ → =systems/ghost/subjects/app/lifecycle.js= (bundle · client · mount · execution; ghost =app/lifecycle.test.js= 4 steps green) · /"client doesnt load"/ → =client.js= =logging= moved above the =try= on /"go"/; Chrome: layout paints.
+- 10-27 Q8d landed (=client.$runtime= → a plain field minted by the factory): ghost suite 31 passed (103 steps) · 0 failed; tests moved: =client/factory.test.js= (rejects, +unreachable remote) · =client/client.test.js= (via the factory) · =surfaces/chrome/mount.test.js= (COVERS =Signin · Booting · Layout=); anima :1794 served modules read the stores straight, Chrome: layout, signed in. One full run red on =shell/lifecycle= "RUNNING against the world", green 3× alone + the next full run.
+- 10-27 his order /"filter the modes displayed in the list of modes by "viewable" and hide the deselection behind a click on the filter next to the list of daemons."/ → bridge =$sections.traits= default =["VIEWABLE"]= · ghost =/filter/trait= (=app/commands/filter.js=) · anima =sections.js= =TRAITED= ={ thread: [], mode: ["VIEWABLE"] }= filters + a =viewable= chip after the host chips · =sidebar.jsx= =/filter/trait= + fn =trait= · drapes =Sbfilter.jsx= title; ghost =commands= · =repl= tests 2 passed (39 steps); Chrome :1794: modes =12 / 35=, chip off → =35=.
+
+- 10-29 his screenshots, go: /"the filters shouldnt cross entity boundries. filters per group."/ → =$sections.hostsOff= · =traits= keyed by kind, =/filter/daemon <kind> <host>= · =/filter/trait <kind> <trait>= on both sides, =sections.js= =hostOf= gone (=mode.host= is hydrated), tty =widgets/entity/entity.jsx= keyed too; /"i wnat to chang mode when i hit a mode"/ → the row dispatches =/mode <reference.absolute>= (=game/dojo= ×2 in his db answered candidates); /"delete buffers and threads"/ → =/thread/delete= · =/buffer/delete= + a =delete= key per group; terminals kept a deleted thread → =Terminal.ts= =/before/thread/delete= twitch (+ =tests/terminal.unseated.test.js=); every thread born with TWO buffers → two clients (tty =run.js chrome= + browser), two stalls, both create — the twitch dispatch now forks once (=shape.subscriber= =fork=, =datamap.js:29= =keepTransactionContext=), hooks read =ctx.input.em= ready. Ghost =commands= 32 steps ok.
+
+* handoff
+
+- goal: anima on m107's App style — the entry mints client + App, the surface is ={ bundle, mount }=, panes consume =ambient.app=.
+- done 10-26: milestones 1 · 2 · 3 (=* changelog=); 10-27: cover panel · =send.js= · =split.jsx= cut · ghost app =lifecycle.js= · Q8d the factory mints the runtime · =src/index.html= head restored (doctype · charset · theme script · =rel="icon"=; cut in snap =450bf5b2= 10-27 10:37), esm.sh importmap left out (go).
+- next: his go on =Thread.ts= =/after/thread/create= minting the MANUAL blank buffer, =stall.js= =/manual= losing its creator (two clients = two creators, 10-29); then milestone 4 — anima's 9 test files onto =surfaces/chrome/= (=tests/world.js:10= still bundles =src/surface/=, gone).
+- never: a shim or dual read of =client.surface= beside =client.app=; =?url=; =$telemetry=; the struck words; =client.$runtime= or an =$entities= atom (Q8).
+- owed: milestone 4; his 45 threads each hold a buffer pair (=index= 0,0); the =delete= row key could be per-row ✕ (unruled); the five QA markers; =$popover= holds two shapes — ghost's ={held, anchor}= and anima's ={x, y}= (anima's Popover shows only the point); known issues =mode-views-read-old-anima-daemon= (his ruling) · =repl-answer-unpainted= · =terminal-tabs-in-arrival-order=; ghost tty =widgets/entity/entity.jsx= ignores =sections.traits= (lists all modes); the chips show only past 6 rows; anima chess =board/play= pane: /"Failed to resolve module specifier "@opentui/solid""/ (seen 10-27 after Q8d, which picks no view; earlier state unread).

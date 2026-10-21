@@ -1,31 +1,10 @@
 import { Aperture, contexts, Mode, Path, shape, shard, Twitch, Vector } from "@vivalence/typology";
 import { RequestContext } from "@mikro-orm/core";
-import { seed, tiers } from "./fixtures.js";
+import { seed } from "./fixtures.js";
 import { gestalten, traits } from "@vivalence/runtime";
 import { connector, lighthouseOf } from "./daemon.js";
-const { INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING } = traits.mode;
+const { VIEWABLE, INTENTED, EMITTER, EXPOSED, HARNESSED, TOOLING } = traits.mode;
 const { stagger } = gestalten.belt;
-
-function APPLICATION(mode, daemon) {
-  if (!mode.module.application) return;
-  mode.application.buffer = async (desc = {}) => {
-    const em = daemon.entities.em;
-    const buffer = em.create(tiers.buffer.entity, {
-      mode: mode.entity.id,
-      data: mode.application.fill(desc),
-      bundle: null,
-      index: desc.index ?? 0,
-    });
-    if (desc.thread) {
-      const thread = await daemon.entities.thread.findOne(desc.thread);
-      buffer.thread = thread;
-      buffer.index = thread.counter++;
-    }
-    if (desc.literals) buffer.literals.add(await daemon.entities.literal.findByIdentifiers(desc.literals));
-    if (desc.symbols) buffer.symbols.add(await daemon.entities.symbol.findByIdentifiers(desc.symbols));
-    return buffer;
-  };
-}
 
 function buildDaemon({ datamap, runtime, held }) {
   const daemon = Object.assign(held, {
@@ -37,7 +16,6 @@ function buildDaemon({ datamap, runtime, held }) {
         learning: { slug: "brazilian", name: "Português" },
       },
     },
-    cargo: { version: "0.0.1", test: true, "audio/thanks.mp3": true },
   });
 
   const lighthouse = lighthouseOf(datamap, runtime.user);
@@ -65,9 +43,7 @@ async function wireMode(viva, daemon) {
   await em.flush();
   mode.id = mode.entity.id;
 
-  if (viva.application) {
-    mode.application = mode.module.application = viva.application;
-  }
+  if (viva.buffer) mode.module.buffer = viva.buffer;
   if (viva.dataset) mode.module.dataset = viva.dataset;
   if (viva.emitter) mode.module.emitter = new Vector().graft(viva.emitter);
   if (viva.harness) mode.module.harness = viva.harness;
@@ -81,7 +57,7 @@ async function wireMode(viva, daemon) {
   daemon.modes[viva.manifest.type] ??= {};
   daemon.modes[viva.manifest.type][viva.manifest.slug] = mode;
 
-  const finalizers = await stagger(mode, daemon, { APPLICATION, INTENTED, EMITTER, EXPOSED, TOOLING, ...(daemon.cortex && { HARNESSED }) });
+  const finalizers = await stagger(mode, daemon, { VIEWABLE, INTENTED, EMITTER, EXPOSED, TOOLING, ...(daemon.cortex && { HARNESSED }) });
   for (const finalize of finalizers) await finalize();
 
   daemon.aperture.branch(mode.reference.absolute, mode.aperture);

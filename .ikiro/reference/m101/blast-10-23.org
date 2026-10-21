@@ -1,0 +1,20 @@
+#+title: track — blast table as measured 10-23
+<!-- limit: 4000 chars -->
+* blast table — measured 10-23, =grep -rnE= over =subsystems systems commons= minus =bak node_modules=; prod · test
+
+| surface | prod | test | becomes |
+|---+---+---+---|
+| =.mark(= | 19 | 1 | a track method |
+| =.open()= · =mark("open"= | 24 | 47 | =.start()= |
+| =.close()= · =mark("close"= | 61 | 310 | =.stop()= — the count holds non-span =close()=; a typed pass at landing |
+| =.note(= | 62 | 17 | =.log(= |
+| =.message(= | 11 | 12 | =.log(= |
+| =mark("error"= | 2 | 0 | =.response({ status })= |
+| =mark("status"= | 1 | 0 | =tracks({ status })= + =.status(…)= |
+| =subject= | 6 | 2 | =entity= |
+| =MACHINE.transitions · verbs · signals= | 11 | 2 | handlers · =SIGNALS= list · =owed()= by =settled= (Q16) |
+| =VERBS= hand lists | 14 | 3 | die |
+| =wall(= | 6 | 2 | =record.at= |
+| =Failure= (=prototypes/errors/controller.js=) | 2 | 0 | dies — =status.error= is the thrown Error (R6) |
+| =stdout.open() · close() · fault()= on a controller's own span, as a run | 15 | — | =controller.start() · stop() · fault(error)= (R6) |
+| =~/.viva= | — | — | jsonl logs keep the old =verb · open · close · note · message= until rotated |

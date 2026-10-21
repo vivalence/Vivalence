@@ -50,3 +50,12 @@ specimen.describe("object.filter", () => {
     specimen.expect(source).toEqual({ a: 1 });
   });
 });
+
+specimen.describe("object.merge", () => {
+  specimen.it("an array is positional — a quaternion with repeated components survives whole; the later source replaces, never unions", () => {
+    const trait = { PLACED: { rotation: [1, 0, 0, 0], scale: [-1, 1, 1] } };
+    specimen.expect(object.merge({}, trait)).toEqual(trait);
+    specimen.expect(object.merge({ a: [1, 2, 3] }, { a: [3] })).toEqual({ a: [3] });
+    specimen.expect(trait.PLACED.rotation).toEqual([1, 0, 0, 0]);
+  });
+});

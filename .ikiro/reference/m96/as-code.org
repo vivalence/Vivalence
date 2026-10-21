@@ -1,0 +1,515 @@
+# drained 10-22 whole from .ikiro/quests/m96-client-mothership.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* as code — m96's own hunks (the wiring is above)
+
+*** systems/runtime
+**** entities/Buffer.ts — Locked Q1 (drill 10-21 session 7): /"a"/ — =mime= admits absence; mikro 7.2.3 rebuilds a populated sqlite table copying every ADDED column as =null= (=@mikro-orm/sql/7.2.3/dialects/sqlite/SqliteSchemaHelper.js:656=), default ignored — his 3 =PENDING= buffers failed NOT NULL; the typology contract (=schematics/entities/buffer.js:9= =.optional()=) said so already. REJECTED B: a schema-helper patch over mikro's private method (second epicycle).
+#+begin_src ts
+// systems/runtime/entities/Buffer.ts:74
+    mime: { type: types.string, default: mime.json, nullable: true },
+#+end_src
+**** commons/datamaps/libsql/libsql.viva.js — FOUND 10-21 at his door, NOT applied (his ruling owed): a faulted migration lands HALF (=transactional: false=, line 20) and =create()= writes =migrations/.snapshot-<db>.json= holding the NEW schema, so the next boot sees no diff and runs on the old table (=no such column: mime=). Repair proven on a copy (=scratchpad/dbprobe/migrate.js=): drop the half-made tables · rm the two faulted migration files · rm the snapshot → one fresh migration, 3 buffers kept.
+#+begin_src js
+// commons/datamaps/libsql/libsql.viva.js:20 — SKETCH: sqlite DDL is transactional; a faulted up() must leave the db as it was
+      migrations: { tableName: "_mikro_migrations", path: datamap.mountpoint.branch("migrations").absolute, transactional: true, snapshot: false },
+#+end_src
+**** entities/traits.js — ruling 1: one =Docked= schematic, three vocabularies; the fields m95's
+#+begin_src js
+// systems/runtime/entities/traits.js:4 /(stale 10-22: landed as subsystems/typology/gestalten/belt/traits.js)/
+const LABELED = trait.define("LABELED", { schematic: v.primitives.Label });
+const DOCKED = trait.define("DOCKED", { schematic: v.traits.terminal.DOCKED });
+const THEMED = trait.define("THEMED", { schematic: v.traits.user.THEMED });
+export const traits = {
+  terminal: [DOCKED],
+  user: [DOCKED, THEMED],
+  client: [DOCKED, THEMED],
+#+end_src
+**** entities/Mode.ts · Thread.ts — the trait enums DIE (Locked Q13 10-21: /"a"/ under ruling 20): every =traits= column is Terminal's shape; the table validates at the claim, never at flush. SUPERSEDES ruling 6's enum DIFF below (kept as history; the names it removed are simply absent from =v.traits.mode=).
+#+begin_src diff
+// systems/runtime/mode/Mode.ts:12 — drawn 10-21 (replay: the sketch was a miss); the enum and its two readers; no symbol outside entities/ names ModeTraitsEnum (grep, the census copy)
+ import { NoteEntity } from "../entities/index.ts";
+
+-export enum ModeTraitsEnum {
+-  BOOTED = "BOOTED",
+-  RUNTIME = "RUNTIME",
+-
+-  APPLICATION = "APPLICATION",
+-
+-  TOPOGRAPHICAL = "TOPOGRAPHICAL", // use to target read data from storage in mode
+-  TOPOLOGICAL = "TOPOLOGICAL", // use to target read data from storage in mode
+-
+-  DATASET = "DATASET", // use to control data storage in mode
+-  DATASINK = "DATASINK",
+-
+-  HARNESSED = "HARNESSED",
+-  CONVERSATIONAL = "CONVERSATIONAL",
+-  AGENTIC = "AGENTIC",
+-  TOOLING = "TOOLING",
+-
+-  EMITTER = "EMITTER",
+-  GENERATIVE = "GENERATIVE",
+-
+-  EXPOSED = "EXPOSED",
+-
+-  INTENTED = "INTENTED",
+-  FRAUGHT = "FRAUGHT",
+-  MOUNTED = "MOUNTED",
+-
+-  // ENTRYPOINT REFERENCABLE
+-
+-  CHAOSMONKEY = "CHAOSMONKEY", // deprecated
+-  BUFFERED = "BUFFERED", // deprecated
+-  SELFEVIDENT = "SELFEVIDENT", // depracated
+-  TOOLED = "TOOLED", // TODO deprecated → TOOLING; rows written before the rename still hydrate — drop with the migration that rewrites them
+-  STANDALONE = "STANDALONE", // deprecated
+-}
+-
+ export class ModeRepository extends DataRepository {
+…
+// systems/runtime/mode/Mode.ts:56
+-  traits: ModeTraitsEnum[] & Opt = [];
++  traits: string[] & Opt = [];
+…
+// systems/runtime/mode/Mode.ts:88
+-    traits: {
+-      items: () => ModeTraitsEnum,
+-      enum: true,
+-      array: true,
+-      defaultRaw: `'[]'`,
+-    },
++    traits: { type: types.json, defaultRaw: `'[]'` },
+#+end_src
+#+begin_src diff
+// systems/runtime/entities/Thread.ts:22 — the same three lines, ThreadTraitsEnum (LABELED · INTELLIGENT · VOCAL live in v.traits.thread, m94 ** the FORMAT)
+-export enum ThreadTraitsEnum {
+-  MASKED = "MASKED", // emitter input
+-  AIMED = "AIMED", // pointing at emitter
+-  QUEUEING = "QUEUEING", // pre-pulling buffers
+-  LABELED = "LABELED", // UI display name
+-  // SELFEVIDENT = "SELFEVIDENT", // access mode buffer without daemon-roundtrip.
+-  // CONVERSATIONAL = "CONVERSATIONAL", //
+-}
+-
+ export class ThreadEntity extends DataEntity {
+…
+// systems/runtime/entities/Thread.ts:37
+-  traits: ThreadTraitsEnum[] & Opt = [];
++  traits: string[] & Opt = [];
+…
+// systems/runtime/entities/Thread.ts:120
+-    traits: {
+-      columnType: "json",
+-      defaultRaw: `'[]'`,
+-      enum: true,
+-      array: true,
+-      items: () => ThreadTraitsEnum,
+-    },
++    traits: { type: types.json, defaultRaw: `'[]'` },
+#+end_src
+#+begin_src diff
+// systems/runtime/tests/mint.test.js:198 — the enum-array quirk shrinks with the enums (census 10-21: the ONE new red after Q13); the list empties when Buffer · Intent · File follow
+-    specimen.expect(rebuilt.sort()).toEqual(["Buffer", "File", "Intent", "Mode", "Thread"]);
++    specimen.expect(rebuilt.sort()).toEqual(["Buffer", "File", "Intent"]);
+#+end_src
+- Buffer.ts · Intent.ts · File.ts carry the same three lines each (=BufferTraitsEnum= · =IntentTraitsEnum= · =FileTraitsEnum=; File's default export also names its enum) — the same cut, floor-entities; =Thread.ts:77-81= copies =intent.traits= by value, untouched.
+- migration: a live db migrates at boot (=commons/datamaps/libsql/libsql.viva.js:31= =checkSchema → create → up=, no committed snapshot); an enum-array column becomes json, rows untouched — a name a row carries is a string now, claimed or not at the table. The ORDER deferral (APPLICATION · FRAUGHT · MOUNTED restored for a floor census) is MOOT: nothing validates at flush.
+- =~/.viva/registry/education/README.md:1405= — the one prose site naming ModeTraitsEnum (m94 owed) → "the mode's traits, v.traits.mode".
+**** mode/Mode.ts — HISTORY, superseded by Q13 above /(pass 10-21: the enum DIES in =floor= — no addition, no removal, no restore; the fence is text, the replay skips it; m83 T:852 PRIMER likewise superseded)/. Ruling 6 (ORDER Locked retro drill Q6 10-21: /"a"/ — the removals and =registry.js:277= =bundles= ride =hosts= with their readers): a DIFF on the live enum (cut after m83 T:852 adds PRIMER); migration off =.snapshot-*.json=; rows carrying a dead name rewritten by it. ORDER (baseline census 10-21): the three removals ride milestone =hosts= with m87's rename — 47 repo files still declare or read APPLICATION (15 mode modules, three =traits/application.js=, =host.js=, 20 tests), memo declares FRAUGHT; replayed in =floor= they red 14 runtime tests, the ghost world and memo (/"Invalid enum array items provided in ModeEntity.traits: [ 'APPLICATION' ]"/). The additions land in =floor=.
+#+begin_src text
+// systems/runtime/mode/Mode.ts:12
+ export enum ModeTraitsEnum {
+   BOOTED = "BOOTED",
+   RUNTIME = "RUNTIME",
+-
+-  APPLICATION = "APPLICATION",
++  VIEWABLE = "VIEWABLE",
++  FILESET = "FILESET",
++  FILESINK = "FILESINK",
+ 
+   TOPOGRAPHICAL = "TOPOGRAPHICAL", // use to target read data from storage in mode
+…
+// systems/runtime/mode/Mode.ts:30
+   EXPOSED = "EXPOSED",
++  REPLING = "REPLING",
++  LOOPING = "LOOPING",
+ 
+   INTENTED = "INTENTED",
+-  FRAUGHT = "FRAUGHT",
+-  MOUNTED = "MOUNTED",
+-
+-  // ENTRYPOINT REFERENCABLE
+-
+-  CHAOSMONKEY = "CHAOSMONKEY", // deprecated
+-  BUFFERED = "BUFFERED", // deprecated
+-  SELFEVIDENT = "SELFEVIDENT", // depracated
+-  TOOLED = "TOOLED", // TODO deprecated → TOOLING; rows written before the rename still hydrate — drop with the migration that rewrites them
+-  STANDALONE = "STANDALONE", // deprecated
+ }
+#+end_src
+gone: APPLICATION · FRAUGHT · MOUNTED · the five deprecated · RENDERER (never landed; VIEWABLE, ruling 12) · KEYMAPPED (ghost-only, m92 ruling 12). KEPT, a lookup 10-21: TOPOGRAPHICAL · TOPOLOGICAL (m94 /"makes sense"/) · RUNTIME · CONVERSATIONAL · INTENTED (live in 4 · 15 · 7 files, unruled — m94 =* deferred=). PRIMER arrives by m83 T:852.
+**** mode/traits/viewable.js — rulings 3 · 12 · 13: VIEWABLE loads the declarations, runs paladin's bundler, wires View + File rows; the mime rides =mode.buffer=
+#+begin_src js
+// systems/runtime/mode/traits/viewable.js   ← Locked Q3: /"b"/ · Q4: /"a"/ — one caller of view.bundle
+import { join } from "@std/path";
+import paladin from "@vivalence/paladin";
+
+export const VIEWABLE = async (mode, context) => {
+  if (!mode.module.views) return;
+  const bundler = paladin.bundler(mode.mountpoint.absolute);
+  for (const declared of mode.module.views)
+    await context.entities.view.bundle({ mode: mode.entity.id, slug: declared.slug, mime: declared.mime, entry: join(mode.module.source.dirname, declared.mount) }, { bundler });
+};
+// systems/runtime/entities/View.ts   ← Locked Q4: /"a"/ — the verb; the bundler in opts, never imported (an entity imports mikro + typology only)
+export class ViewRepository extends DataRepository {
+  unique(query) { return { mode: query.mode, slug: query.slug, mime: query.mime }; }
+  async bundle(data, { bundler }) {
+    const view = await this.upsert({ mode: data.mode, slug: data.slug, mime: data.mime });
+    const built = await bundler.bundle({ mime: data.mime, source: data.source, entry: data.entry });
+    for (const out of built.files) await this.em.getRepository(FileEntity).upsert({ mode: data.mode, view: view.id, path: out.path, mime: out.mime, mount: out.absolute, hash: out.hash });
+    return this.updateOne({ id: view.id }, { entry: built.entry });
+  }
+}
+// subsystems/typology/gestalten/shard/datamap.js:170 — the route hands the bundler in; the ONE line a cell greps (hole, named)
+aperture.post("/bundle", scoped("data", (input, ctx) => of(ctx).bundle(input.data, { bundler: paladin.bundler(ctx.mode.mountpoint.absolute) })));
+// systems/runtime/mode/traits/generative.js — the other caller; view_create · view_update ride the route, view_read · view_list read rows
+view_create: ({ slug, mime, source }) => ctx.call("/view/bundle", { data: { mode: ctx.mode.entity.id, slug, mime, source } })
+// systems/ghost/entities/terminal/commands/view.js — the repl's /view/create, no new route: the client's RemoteRepository has the verb
+(ctx) => ctx.terminal.mode.runtime.entities.view.bundle({ mode: ctx.terminal.mode.id, slug: ctx.input.slug, mime: ctx.input.mime, source: ctx.input.source })
+// systems/runtime/mode/traits/buffered — NO new trait: the mint rides mode.buffer wherever m87 seats it (m87:272, re-cut: mode.mime → mode.buffer.mime)
+mode.buffer = Object.assign(
+  (desc = {}) => context.entities.buffer.create({ mode: mode.entity.id, mime: mode.buffer.mime, ...desc, data: mode.module.buffer.fill(desc).data }),
+  { mime: mime.vivalence(context.reference.branch(`/mode/${mode.type}/${mode.slug}`)) },   // ruling 3: from the REFERENCE
+);
+// subsystems/typology/schematics/scalars/mime.js — the mint: /daemon/chess/mode/board/play → application/vnd.vivalence.daemon.chess.mode.board.play+json
+export const vivalence = (reference) => `application/vnd.vivalence.${reference.absolute.slice(1).replaceAll("/", ".")}+json`;
+// systems/runtime/entities/View.ts (m87:123-131, re-cut by ruling 13) — presents leaves
+-  slug!: string;  mime!: string;  presents!: string;  entry!: string;
++  slug!: string;  mime!: string;  entry!: string;
+// systems/ghost/surface/chrome/renderers.js (m95:290, re-cut by ruling 13) — the join is the mode
+-const own = (buffer, client) => client.modes.flatMap((mode) => mode.views).filter((view) => RUNS.includes(view.mime) && view.presents === buffer.mime);
++const own = (buffer, client) => client.modes.flatMap((mode) => mode.views).filter((view) => RUNS.includes(view.mime) && view.mode.id === buffer.mode.id);
+// ~/.viva/registry/chess/modes/board/play/play.viva.js:19 (m87:326)
+-export const manifest = { type: "board", slug: "play", traits: ["RENDERER", "EXPOSED", "HARNESSED", "TOOLING"] };
++export const manifest = { type: "board", slug: "play", traits: ["VIEWABLE", "EXPOSED", "HARNESSED", "TOOLING"] };
+#+end_src
+*** subsystems/typology
+**** entities/ — REVERSED 10-21 (his, at floor: /"entities continue to live inside runtime."/ · /"my mistake"/ → a): every mikro class STAYS in =systems/runtime/entities/<Name>.ts= (+ =mode/Mode.ts= · =daemon/Daemon.ts= · the runtime barrel · =traits.js=); the move below is HISTORY (Locked Q12 10-21 /"a"/, undone the same day); the replay does NOT move (=replay-m96.py --before= retired, =--reverse= undid it on the floor copy, 19 files · 0 missed); every constituent hunk is cut on the runtime path again (m87 · m93 tangle · m95 codemap · m96 Q13 heads re-pointed). The fences below are text: the replay skips them.
+#+begin_src text
+// subsystems/typology/entities/index.ts — 15 classes beside base/
+export * from "./base/DataEntity.ts";
+export * from "./base/VirtualEntity.ts";
+export * from "./Activity.ts"; export * from "./Buffer.ts"; export * from "./Constraint.ts"; export * from "./Daemon.ts"; export * from "./Intent.ts";
+export * from "./Issue.ts"; export * from "./Literal.ts"; export * from "./Mode.ts"; export * from "./Note.ts"; export * from "./Process.ts";
+export * from "./Symbol.ts"; export * from "./Terminal.ts"; export * from "./Thread.ts"; export * from "./Turn.ts"; export * from "./User.ts"; export * from "./View.ts";
+// systems/runtime/typology.js:6 — the runtime re-exports typology's, owns none
+export * as entities from "@vivalence/typology/entities";
+// systems/runtime/mode/factory.js:1 · daemon/factory.js:1 — a subject dir keeps lifecycle · traits · factory; its class comes from typology
+import { ModeEntity, ModeRepository } from "@vivalence/typology/entities";
+// systems/runtime/mode/index.js:1 · daemon/index.js:2 — the subject barrels re-export their class BY NAME (`export * from "./Mode.ts"` dangled after the move, replay 10-21; m93's factory hunks re-cut on these)
+export { ModeEntity, ModeRepository, ModeSchema } from "@vivalence/typology/entities";
+export { DaemonEntity, DaemonRepository, DaemonSchema } from "@vivalence/typology/entities";
+// systems/runtime/tests/scenarios/lighthouse.js:4 — the eighth import site (kernel · sets); `traits.js` moves WITH the barrel until its four `gather(kernel…)` readers are re-cut (hosts, m94 ** the FORMAT :88) — the replay keeps `kernel` alive
+// systems/runtime/entities/traits.js → DELETED; the presets are v.traits (m94 ** the FORMAT); `kernel` leaves the barrel
+#+end_src
+Census 10-21 (pass 3, HISTORY — reversed): the runtime barrel =entities/index.ts= moves WHOLE — classes, default exports, =sets= (the mikro catalog =population.js:48= assembles) — minus =kernel=; seven runtime import sites re-point, ghost · anima · commons untouched (their =entities/= are client prototypes, not mikro).
+#+begin_src text
+// subsystems/typology/entities/index.ts — the runtime barrel, moved; nothing of the runtime's left in it
+ export { wrap, helper } from "@mikro-orm/core";
+-export * from "@vivalence/typology/entities";
++export * from "./base/DataEntity.ts"; export * from "./base/VirtualEntity.ts";
+-export * from "../mode/Mode.ts";  … export * from "../daemon/Daemon.ts";
++export * from "./Mode.ts";        … export * from "./Daemon.ts";       export * from "./View.ts"; export * from "./File.ts";
+-export { traits as kernel } from "./traits.js";
+ export const sets = { identity: { user, authenticator, terminal }, composition: { daemon, mode }, traits: { literal, symbol, note, mode }, userspace: { intent, thread, turn, buffer, note, view, file }, transient: { activity } };
+// systems/runtime/typology.js:6-7
+-export * from "./entities/index.ts";
+-export * as entities from "./entities/index.ts";
++export * from "@vivalence/typology/entities";
++export * as entities from "@vivalence/typology/entities";
+// systems/runtime/runtime/lifecycle/population.js:13 · daemon/lifecycle/population.js:3 · daemon/prototype.js:3 · service/prototype.js:3
+-} from "../../entities/index.ts";
++} from "@vivalence/typology/entities";
+// systems/runtime/runtime/lifecycle/population.js:11 — kernel is gone; the presets are the tables
+-  kernel,
+// systems/runtime/mode/Mode.ts:3-10 · daemon/Daemon.ts:3 — the files move; inside typology the heads are relative
+-import { DataRepository, DataEntity, DataSchema } from "../entities/index.ts";
++import { DataRepository, DataEntity, DataSchema } from "./base/DataEntity.ts";
+#+end_src
+Replay (=* the swarm= 1), as it stood before the reversal: the move FIRST, then every hunk on the typology path. After the reversal: no move; every hunk on the runtime path (=systems/runtime/entities/= · =mode/Mode.ts= · =daemon/Daemon.ts=); =View.ts= · =File.ts= are born in =systems/runtime/entities/=. Milestone =floor= owns it (law 5).
+**** schematics/traits/ — ONE =Docked= schema, four fields, field-wise (ruling 10); its HOME =v.traits.<entity>.<NAME>= (Locked retro Q11 10-21: /"doc is not a primitive. It's v.traits.<entity>.docked"/ — the primitive cut and the =v.entities.traits= namespace both STRUCK; =traits/= is a fourth barrel beside primitives · entities · prototypes; a carrier needs no typology entity — =terminal= has none and still owns a table)
+#+begin_src js
+// subsystems/typology/schematics/traits/docked.js   ← Locked Q1 10-21: /"b"/ — field-wise, every field optional, a carrier states only what it overrides
+import { v } from "../v.js";
+export const Docked = v.object({
+  align: v.enum(["left", "right"]).optional().desc('Which side the dock sits. Example: "right"'),
+  share: v.number().min(0.1).max(0.9).optional().desc("The dock's width as a share of the chrome. Example: 0.38"),
+  view: v.enum(["docked", "full", "closed", "messenger"]).optional().desc('How the dock shows. Example: "docked"'),
+  lens: v.enum(["chat", "repl", "trace"]).optional().desc('Which stream the dock paints. Example: "repl"'),
+}, { additionalProperties: false });
+// subsystems/typology/schematics/traits/themed.js — the THEMED payload is a theme NAME (m95 terminal/prototype.js:123 reads "northsea")
+export const Themed = v.string().desc('A dapper theme name. Example: "northsea" · "porcelain"');
+// subsystems/typology/schematics/traits/intelligent.js · vocal.js — moved from entities/thread.js:8-26 byte-identical (pass 2, 10-21); thread.js keeps the descriptor only
+import { v } from "../v.js";
+import { Tier, Tune } from "../primitives/hallucination.js";
+export const Intelligent = v.object({ tune: v.union([Tier, Tune]).optional(), effort: v.enum(["none", "low", "medium", "high"]).optional(), rounds: v.integer({ minimum: 1, maximum: 50 }).optional(), thinking: v.boolean().optional() });
+// subsystems/typology/schematics/traits/index.js — one table per carrier, keys = the claim names the manifests already spell (traits.js:25 claim(row, name, vocabulary)); the full set is m94 ** the FORMAT
+import { Home } from "../primitives/home.js";
+import { Label } from "../primitives/label.js";
+import { Docked } from "./docked.js";
+import { Themed } from "./themed.js";
+import { Intelligent } from "./intelligent.js";
+import { Vocal } from "./vocal.js";
+export const thread = { LABELED: Label, INTELLIGENT: Intelligent, VOCAL: Vocal };
+export const buffer = { LABELED: Label };
+export const terminal = { LABELED: Label, DOCKED: Docked };
+export const user = { HOME: Home, DOCKED: Docked, THEMED: Themed };
+export const client = { HOME: Home, DOCKED: Docked, THEMED: Themed };
+// subsystems/typology/schematics/entities/thread.js:44 · buffer.js · literal.js · symbol.js — the descriptor takes its table by path
+import { thread } from "../traits/index.js";
+  traits: thread,
+// subsystems/typology/schematics/index.js:5,16
+import * as traits from "./traits/index.js";
+  traits,
+// subsystems/typology/schematics/entities/user.js:2,14 — the descriptor takes its table by PATH, never through the barrel (codestyle 4)
+import { user } from "../traits/index.js";
+  traits: user,
+// subsystems/typology/schematics/primitives/instance.js:81 — the client mask's vocabulary IS its table (m94:277 admitted HOME only)
+import { client } from "../traits/index.js";
+export const ClientTrait = v.object(Object.fromEntries(Object.entries(client).map(([name, schema]) => [name, schema.optional()])), { additionalProperties: false });
+// systems/runtime/entities/traits.js:4-6 /(stale 10-22: landed as subsystems/typology/gestalten/belt/traits.js)/
+const DOCKED = trait.define("DOCKED", { schematic: v.traits.terminal.DOCKED });
+const THEMED = trait.define("THEMED", { schematic: v.traits.user.THEMED });
+// systems/ghost/gestalten/belt/dock.js — the floor of the merge; every field present
+export const DEFAULT_DOCK = v.traits.terminal.DOCKED.cast({ align: "right", share: 0.38, view: "docked", lens: "repl" });
+// systems/ghost/entities/terminal/prototype.js — default ← mask ← user ← terminal
+get dock() { return { ...DEFAULT_DOCK, ...this.client.mask.trait.DOCKED, ...this.client.runtime.lighthouse.user.trait.DOCKED, ...this.trait.DOCKED }; }
+// systems/ghost/entities/terminal/commands/dock.js — writes the terminal's OWN overrides only
+(ctx) => ctx.client.runtime.entities.terminal.updateOne({ id: ctx.terminal.id }, { trait: { DOCKED: { ...ctx.terminal.trait.DOCKED, align: ctx.input.align } } })
+#+end_src
+
+**** schematics/primitives/harness.js · schematics/prototypes/bundle.js — STATIC, no thunk (retro drill Q1 10-21)
+#+begin_src js
+// subsystems/typology/schematics/primitives/harness.js:1 (m88:905, the new file)   ← Locked Q1 10-21: /"So inside typology, we build static not thunks"/
+import { v } from "../v.js";
+import * as hallucination from "./hallucination.js";
+export const Call = v.object({ body: v.array(v.unknown()).desc('…'), flags: v.record(v.string(), v.unknown()).desc('…') });
+export const Signal = v.object({ nature: v.string().desc('The effect\'s route. Example: "/mode/console/whoami"'), …Call });
+export const Request = v.object({ thread: v.string().optional().desc('…'), parts: v.array(hallucination.Part.Any).desc('…'), tune: hallucination.Tune.optional(), … });
+#+end_src
+#+begin_src diff
+// subsystems/typology/schematics/prototypes/bundle.js:4 — a thunk over base v only, no entity inside: static under Q1
+-export const Bundle = () =>
+-  v.object({
++export const Bundle = v.object({
+#+end_src
+#+begin_src diff
+// subsystems/typology/schematics/entities/buffer.js:11 — its own fence (replay 10-21: a second path under one head lands on the first)
+-    bundle: v.union([Bundle(), v.null()]).optional(),
++    bundle: v.union([Bundle, v.null()]).optional(),
+#+end_src
+#+begin_src diff
+// subsystems/typology/tests/schematics/bundle.test.js:3
+-const Bundle = v.prototypes.Bundle();
++const Bundle = v.prototypes.Bundle;
+#+end_src
+#+begin_src diff
+// systems/runtime/tests/bundle.spawn.test.js:75
+-    specimen.expect(v.bundle().check(bundle.json)).toBe(true);
++    specimen.expect(v.bundle.check(bundle.json)).toBe(true);
+…
+// systems/runtime/tests/bundle.spawn.test.js:97
+-      specimen.expect(v.bundle().check(buffer.bundle)).toBe(true);
++      specimen.expect(v.bundle.check(buffer.bundle)).toBe(true);
+#+end_src
+#+begin_src diff
+// subsystems/paladin/tests/bundler.test.js:52 — three sub-hunks, one line of context each (replay 10-21: the same line thrice is three anchors)
+     });
+-    expect(v.bundle().check(bundle.json)).toBe(true);
++    expect(v.bundle.check(bundle.json)).toBe(true);
+…
+// subsystems/paladin/tests/bundler.test.js:73
+     expect(bundle.entries[0].mime).toBe(mime.dom.svelte);
+-    expect(v.bundle().check(bundle.json)).toBe(true);
++    expect(v.bundle.check(bundle.json)).toBe(true);
+…
+// subsystems/paladin/tests/bundler.test.js:82
+     expect(bundle.entries[0].mount).toMatch(/\.dom\.html\.mjs$/);
+-    expect(v.bundle().check(bundle.json)).toBe(true);
++    expect(v.bundle.check(bundle.json)).toBe(true);
+#+end_src
+- the law's reach, measured 10-21 on the census copy: =v= is always =../v.js= — from the barrel it is a cycle (m88 =harness.js=: /"Cannot access 'v' before initialization"/, 106 typology tests red), and =v.js= is never an ENTRY either (=v.js:4= → =belt/traits.js:1= → the barrel). The ONE thunk left is =prototypes/yield.js= =Yield=: it embeds an entity (=v.buffer()=), and an entity's relations resolve through the WIRED =v= at factory call (=entities/buffer.js:14= =v.rel(v.mode())=); built static by path it dies at import — /"TypeError — v.mode is not a function"/ (=scratchpad/probe-static-yield-2.js=). Its fate: Q2 below.
+#+begin_src diff
+// subsystems/typology/schematics/prototypes/yield.js:14   ← Locked Q2 10-21: /"b"/ — static over the opaque arm (the arm =rel= uses, index.js:21); a buffer's shape is claimed where it is WRITTEN
+-let schema;
+-export const Yield = () =>
+-  (schema ??= v.object(
+-    {
+-      condition: Condition,
+-      output: v.object({ buffer: v.array(v.buffer()) }, { additionalProperties: true }),
+-      error: v.unknown().optional(),
+-    },
+-    { additionalProperties: true },
+-  ));
++export const Yield = v.object(
++  {
++    condition: Condition,
++    output: v.object({ buffer: v.array(v.object({}, { additionalProperties: true })) }, { additionalProperties: true }),
++    error: v.unknown().optional(),
++  },
++  { additionalProperties: true },
++);
+#+end_src
+#+begin_src diff
+// subsystems/typology/tests/schematics/yield.test.js:3 — its own fence (replay 10-21)
+-const Yield = v.prototypes.Yield();
++const Yield = v.prototypes.Yield;
+#+end_src
+- the lazy-comment block at =yield.js:3-12= dies with the thunk (no comments in product source).
+
+*** systems/ghost — ruling 2 (the hunks replace m92's =navigate(client, …)= and the commands beat; m92 =* as code= is re-cut on them)
+**** client/lifecycle/index.js — the client keymap, once at load
+#+begin_src js
+// systems/ghost/client/lifecycle/index.js — the commands beat   ← Locked Q5: /"a"/
+import * as commands from "../commands/index.js";
+export const commands = (clientDie, next) => {
+  clientDie.repl.graft(...Object.values(commands));
+  clientDie.keymap.graft(keymap.harvest(clientDie.repl), ...fromm.modes(clientDie.modes).flat.map((mode) => mode.keymap));
+  return next();
+};
+// systems/ghost/entities/terminal/lifecycle/index.js — the same beat per terminal (m95:161)
+export const commands = (terminalDie, next) => { terminalDie.terminal.repl.graft(...Object.values(commands)); return next(); };
+#+end_src
+**** entities/terminal/prototype.js — =$keymap= computed, one getter
+#+begin_src js
+// systems/ghost/entities/terminal/prototype.js — the hunk that lands is m92's (:301, re-cut 10-21 on this text after the seam 3 probe: imports `computed` · `harvest`, after $buffer)
+$keymap = computed(this.$thread, (thread) => new Vector().graft(this.client.keymap, harvest(this.repl), ...(thread === null ? [] : [thread.mode.keymap])));   // lookup 10-21: the store is $thread (prototype.js:18); repl is a Vector field, not a call
+get keymap() { return this.$keymap.get(); }
+#+end_src
+**** client/keymap.js · surface/chrome/index.js · surface/chrome/panes/catalog.jsx — a press hits the terminal; the pane subscribes
+#+begin_src js
+// systems/ghost/client/keymap.js
+export const navigate = async (terminal, first, more) => {
+  const composed = terminal.keymap;
+  if (!composed.trie.has(first.key)) return false;
+// systems/ghost/surface/chrome/index.js
+if (await keymap.navigate(client.active, press, more)) return;
+// systems/ghost/surface/chrome/panes/catalog.jsx
+const entries = useStore(terminal.$keymap);
+#+end_src
+
+**** gestalten/shard/repl.js · client/commands/help.js — ruling 4: the value is the caller's; a journal line is a controller message
+#+begin_src js
+// systems/ghost/gestalten/shard/repl.js:6 — the controller line goes; the value returns
+export const dispatch = async (client, terminal, line) => {
+  const replDie = { client, terminal, signal: new ReplSignal(line), controller: terminal.controller, output: undefined };
+  return steer.dispatch.execute(terminal.repl(), replDie, replDie.signal);
+};
+// systems/ghost/client/commands/help.js — Emacs `message`: a line into the journal, the Span the dock paints (m95 ruling 27 · 28)
+(ctx) => { ctx.controller.stdout.message(lines(ctx.terminal.repl())); }
+// systems/ghost/entities/terminal/commands/thread.js — a row is the output; the dock paints the row through the mirror, not the value
+(ctx) => ctx.client.runtime.entities.thread.create({ terminal: ctx.terminal.id, mode: ctx.signal.body[0].text })
+// systems/runtime/mode/traits/looping.js (m88) — the same value is the tool result
+return { condition: "NOMINAL", output: await ctx.socket.call(`/terminal/${ctx.terminal}/repl`, call) };
+#+end_src
+
+**** the /repl wire — ruling 11 (a lookup under m88 Q5 · Q1): a Signal crosses; three m88 `line` sites re-cut
+#+begin_src diff
+// subsystems/typology/schematics/primitives/harness.js:7 (m88:904, the new file) — the universal call shape, Call ⊕ nature
+   flags: v.record(v.string(), v.unknown()).desc('The --flags, as a Signal carries them. Example: { "pace": "40ms" }'),
+ });
++
++export const Signal = v.object({
++  nature: v.string().desc('The effect\'s route. Example: "/mode/console/whoami"'),
++  body: v.array(v.unknown()).desc('The words after the nature. Example: ["ciao"]'),
++  flags: v.record(v.string(), v.unknown()).desc('The --flags. Example: { "pace": "40ms" }'),
++});
+#+end_src
+#+begin_src diff
+// systems/ghost/entities/mode/traits/looping.js:1 (m88:1159)
+-import { NotFound, ReplSignal, belt, shape } from "@vivalence/typology";
++import { NotFound, ReplSignal, belt, shape, v } from "@vivalence/typology";
+…
+// systems/ghost/entities/mode/traits/looping.js:14 (m88:1171)   ← Locked Q2: /"lock q2"/
+-    .post("/repl", (ctx) => ctx.terminal.dispatch(ctx.input.line));
++    .post("/repl", { input: v.primitives.harness.Signal }, (ctx) => ctx.terminal.dispatch(new ReplSignal(ctx.input)));
+#+end_src
+#+begin_src diff
+// systems/runtime/mode/traits/repling.js:1 (m88:1039)
+-import { ReplSignal, contexts, shape, shard, steer } from "@vivalence/typology";
++import { ReplSignal, contexts, shape, shard, steer, v } from "@vivalence/typology";
+…
+// systems/runtime/mode/traits/repling.js:6 (m88:1043)
+-  mode.aperture.post("/repl", (input, ctx) => steer.dispatch.execute(mode.repl, { ...ctx, signal: new ReplSignal(input.line), output: undefined }, new ReplSignal(input.line)));
++  mode.aperture.post("/repl", { input: v.primitives.harness.Signal }, (input, ctx) => steer.dispatch.execute(mode.repl, { ...ctx, signal: new ReplSignal(input), output: undefined }, new ReplSignal(input)));
+#+end_src
+#+begin_src diff
+// systems/ghost/entities/mode/traits/repling.js:6 (m88:1150)
+-  mode.repl.graft(shape.repl.wire(mode.metadata.repl, (signal) => mode.connection.call("/repl", { line: signal.line })));
++  mode.repl.graft(shape.repl.wire(mode.metadata.repl, (signal) => mode.connection.call("/repl", signal)));
+#+end_src
+#+begin_src text
+// the loop, in the order it runs (m88 Q1 · Q5 · Q6 · Q7; m96 ruling 4) — the client hosts its repl as a tool server: /metadata/repl = tools/list, /repl = tools/call
+// 1 systems/ghost/entities/mode/traits/looping.js   client.aperture /terminal/:terminal → /metadata/repl (strip) · /repl (dispatch a Signal)
+// 2 systems/ghost/gestalten/belt/harness.js         a terminal POSTs /harness/dialogue/stream { thread, terminal, turn, parts }
+// 3 systems/runtime/mode/traits/harnessed.js:23     claiming binds ctx.terminal
+// 4 systems/runtime/mode/traits/looping.js          arming PULLS the strip, shape.repl.wire + the tool leaf (grow DIED 10-21, m88 lock) opens one tool per effect under /repl, input harness.Call
+// 5 subsystems/typology/gestalten/belt/hallucinate.js:92   the model's tool_use dispatches the armed vector → POST { nature, body, flags } to the client
+// 6 the terminal dispatches; the effect's VALUE returns (ruling 4) and is the tool_result (m88 Q6)
+#+end_src
+
+**** entities/mode/traits/repling.js · commons console fixture — ruling 7: =mode.repl=, a plain graft, the normal ctx
+#+begin_src js
+// systems/ghost/entities/mode/traits/repling.js
+export const REPLING = (mode) => {
+  mode.repl.graft(mode.module.repl);
+};
+// commons/fixtures/testing/console/console.viva.js:12 — the export is `repl`
+export const repl = new Vector().open({ nature: "/hello", valence: "answers with the terminal. Example: /hello" }, (ctx) => ({ terminal: ctx.terminal.id }));
+// systems/runtime/mode/traits/repling.js — a runtime mode serves its repl's strip under the same word
+mode.aperture.get("/metadata/repl", () => shape.strip(mode.repl));
+#+end_src
+
+*** subsystems/sheets · subsystems/drapes — ruling 18: the rigs are scenarios, one per surface
+#+begin_src js
+// subsystems/sheets/tests/scenarios/index.js   ← Locked Q7: /"it's gonna be scenarios"/ — the TTY rig; deno.jsonc exports "./scenarios": "./tests/scenarios/index.js" (as systems/runtime/deno.jsonc:7)
+import { testRender } from "@opentui/solid";
+export const settle = async (setup, passes = 4) => { for (let pass = 0; pass < passes; pass++) { await setup.renderOnce(); await new Promise((resolve) => setTimeout(resolve, 5)); } };
+export const screen = (part = () => [], options = {}) => testRender(part, { width: 100, height: 30, ...options });
+// subsystems/sheets/tests/meter.test.js
+import { screen, settle } from "./scenarios/index.js";
+const setup = await screen(() => <Meter value={0.4} />, { width: 20, height: 1 }); await settle(setup);
+specimen.expect(setup.captureCharFrame()).toMatch(/^████████/);
+// systems/ghost/tests/world.js — the chrome test rides the same rig
+export { screen, settle } from "@vivalence/sheets/scenarios";
+// subsystems/drapes/tests/scenarios/index.js — the DOM rig (drapes/tests/dom/{chassis,keys,panes}.test.js move onto it); exported "./scenarios" the same way
+import { render } from "solid-js/web";
+export const screen = (part, { document = globalThis.document } = {}) => { const target = document.createElement("div"); document.body.append(target); const dispose = render(part, target); return { target, text: () => target.textContent, close: () => { dispose(); target.remove(); } }; };
+// systems/anima/tests/*.test.js
+import { screen } from "@vivalence/drapes/scenarios";
+#+end_src
+
+*** subsystems/dapper · subsystems/drapes · subsystems/sheets — ruling 19: the mark
+#+begin_src sh
+# the move (beef runs; a Moves row in m95's registry pass) — the pictogram set, not the videos
+mv systems/anima/static/images/pictogram_viket subsystems/dapper/assets/viket
+#+end_src
+#+begin_src jsx
+// subsystems/drapes/Mark.jsx   ← Locked Q8 — as anima/src/app/panels/a/widgets/Turn.svelte:255 masks it today; the colour is the ink token (m95 law 3)
+import viket from "@vivalence/dapper/assets/viket/pic-vinca-viket_white.svg";
+export const Mark = (props) => (
+  <span class="mark" style={{ "mask-image": `url(${viket})`, "mask-size": "contain", "mask-repeat": "no-repeat", background: "var(--ink)", width: `${props.size}px`, height: `${props.size}px` }} />
+);
+// subsystems/sheets/Mark.jsx — the tty has no bitmap; a glyph in ink
+export const Mark = () => <text fg="ink">◆</text>;
+// subsystems/dapper/deno.jsonc — exports gain "./assets/": "./assets/"
+#+end_src
+
+*** ~/.viva/registry — ruling 5: aligned to the meta in milestone =registry=; the persona says what it means
+#+begin_src md
+<!-- ~/.viva/registry/education/modes/teacher/francesca/primer/francesca.md:1 (moved by m83 * Moves) -->
+---
+valence: Francesca, the Italian teacher — her voice and her rules
+load: eager
+---
+#+end_src
+

@@ -59,6 +59,6 @@ Scenario-level, no provider: a fake faculty whose `via.stream` yields tool_use f
 
 - this session's compact (the mishap, the stop trace, the harness rewrite)
 - `subsystems/typology/gestalten/shard/hallucinate.js` · `prototypes/hallucination.js` · `prototypes/span.js` · `prototypes/socket.js` · `prototypes/wafer.js`
-- `systems/runtime/daemon/traits/harnessed.js` · `commons/instances/hello-world/tools/{research,web,brief}.js`
+- `systems/runtime/subjects/daemon/traits/harnessed.js` · `commons/instances/hello-world/tools/{research,web,brief}.js`
 - `quests/done/m49-process-ontology-and-control-vector.org` · `quests/m50-the-three-way-weave.org` (the control vector) · `quests/m55-recursive-terminals.org` (thread lineage)
 - memory: `project_telemetry_architecture` · `project_span_reactive_spine` · `project_multiplex_transport`

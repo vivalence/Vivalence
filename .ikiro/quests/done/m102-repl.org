@@ -1,0 +1,1802 @@
+#+title: m102 repl — the Repl lifts out of client.repl into its own object; its vector is the command vector; terminal.repl.dispatch is the entry
+#+filetags: :ghost:repl:commands:terminal:client:typology:
+#+status: DONE 10-24, superseded by m104 (/"recut 104, lift everything that we need, and then we can sunset 99 and 102"/): =* as code= · =* checks as code= landed; =* walk as code= never landed — ported into =m104-legend-repl.org= =* as code=; its open QA markers and its =* release= lines moved there — was: LANDED whole — 10-23 /"go"/: 50 written · 5 removed; 10-24 /"yes. go"/: typology =contexts.js:49-50=; repo ≡ the worked copy; census serial on the repo = the replayed base on every suite; anima 47 files ≡ rig; QA live walks pending
+# limit: none (quest content)
+
+* intent
+
+10-23, beef verbatim:
+
+/"Exactly, the legend. So it's an entity living on the client that holds our entire infrastructure that we need to facilitate the key maps. I like that. I think the stuff that we have with client REPL is too far down. I would like to take the REPL and move it into its own object. I'm thinking of calling that object the Repl. That would force us to move all the other keys that are called REPL into other places. We would have on that REPL object the, let's call it the command vector. So all of the commands go onto the REPL. Commands, yeah, that makes actually sense. If we call the vector the command vector, the REPL is the object around that. We have our dispatch and such. There's a difference in wiring in that the client REPL and the terminal REPL work a little bit differently than the key map. There's differences in what reacts to what, who calls who. For example, the general interface is that we call the terminal.REPL.dispatch. We also have, I think, differences in when that vector is built. So yeah, I want you to research the REPL system. And propose or work out or investigate how this system can be adjusted to reflect this new meta."/ · /"m102"/
+
+* terrain — measured 10-23
+
+** the four holders of a =repl= Vector
+
+| holder | declared | filled at | filled by |
+|--------|----------|-----------|-----------|
+| =client.repl= | =systems/ghost/subjects/client/prototype.js:16= | =subjects/client/factory.js:7= then =lifecycle/index.js:36= | the shell door's =chromeCommand= =shellCommand= · =subjects/client/commands/*= |
+| =terminal.repl= | =systems/ghost/entities/terminal/prototype.js:19= | =entities/terminal/lifecycle/index.js:5= | =entities/terminal/commands/*= |
+| =mode.repl= ghost | =systems/ghost/entities/mode/prototype.js:16= | =entities/mode/traits/repling.js:4-6= · =harnessed.js:33= | =mode.module.repl= or wired over =/metadata/repl= · the =/harness= command |
+| =mode.repl= runtime | =systems/runtime/subjects/mode/traits/repling.js:4= | REPLING at stagger | =mode.module.repl= (one module exports it: =commons/fixtures/testing/console/console.viva.js:14=) |
+
+** the two dispatch entries — one function under both
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/prototype.js:53
+  dispatch(line) {
+    return repl.dispatch(this, this.active, line);
+  }
+// systems/ghost/entities/terminal/prototype.js:54
+  dispatch(signal) {
+    return repl.dispatch(this.client, this, signal);
+  }
+// systems/ghost/subjects/repl/dispatch.js:19
+export const compose = (client, terminal) =>
+  new Vector().graft(
+    client.repl,
+    ...fromm.modes(client.modes).flat.map((mode) => mode.repl),
+    ...(terminal === null
+      ? []
+      : [
+          terminal.repl,
+          ...client.runtime.entities.mode.$entities.get().map(scoped),
+          ...(harnessed(terminal) ? [turn] : []),
+        ]),
+  );
+// systems/ghost/subjects/repl/dispatch.js:33
+export const dispatch = (client, terminal, line) => {
+  const signal = new ReplSignal(line);
+  const replDie = {
+    signal,
+    client,
+    runtime: client.runtime,
+    terminal,
+    controller: (terminal === null ? client.controller : terminal.controller).branch(signal.pathname),
+    repl: compose(client, terminal),
+    output: undefined,
+  };
+  return steer.dispatch.execute(execution, replDie).then(() => replDie.output);
+};
+#+END_SRC
+
+** who calls who
+
+| caller | site | lands on |
+|--------|------|----------|
+| tty composer · palette | =systems/ghost/chrome/acts.js:4= | =client.dispatch= |
+| anima composer | =systems/anima/src/surface/send.js:1= | =client.dispatch= |
+| plain lines | =systems/ghost/subjects/repl/lines.js:42= | =clientDie.dispatch= |
+| a key whose effect returns a line | =systems/ghost/subjects/client/keymap.js:82= | =client.dispatch= (m99 Q22: =activeTerminal.dispatch=) |
+| a runtime harness tool | =systems/ghost/entities/mode/traits/looping.js:13= POST =/terminal/:terminal/repl= | =terminal.dispatch= |
+| the palette listing | =systems/ghost/subjects/client/keymap.js:33= | =catalog(compose(client, client.active))= |
+| the runtime's tool list | =systems/ghost/entities/mode/traits/looping.js:12= GET =/terminal/:terminal/metadata/repl= | =shape.strip(compose(client, terminal))= |
+
+** when each vector is built
+
+| vector | built | rebuilt |
+|--------|-------|---------|
+| =client.repl= | once, client boot beats =factory= · =commands= | never |
+| =terminal.repl= | once, terminal boot beat =commands= | never |
+| =mode.repl= | once, the REPLING trait | never |
+| the composition (=replDie.repl=) | every line, inside =dispatch= | every line: reads =client.runtime.entities.mode.$entities= and =terminal.mode= live |
+| =client.keymap= | once, client boot beat =keymap= (=harvest(client.repl)= · =bound= · modes' keymaps) | never |
+| =terminal.keymap= | =$keymap= computed on =$thread= (m99 Q27: a plain getter at read) | every read |
+
+The keymap composes at READ on the terminal. The repl composes at DISPATCH in a free function that takes =(client, terminal)=, with =terminal === null= as a second arm. The Legend (m99 Q20) sits on the client and reads =client.activeTerminal.keymap=; nothing on the repl side mirrors it.
+
+** the other keys called repl
+
+| key | site | kind |
+|-----|------|------|
+| =doorDie.repl= | =systems/ghost/subjects/shell/lifecycle.js:102= | ctx bind, the shell door's two commands |
+| =replDie.repl= · =ctx.repl= | =subjects/repl/dispatch.js:44= · =subjects/client/commands/help.js:6= | ctx, the per-line composition |
+| =contexts.repl= · =contexts.Repl= | =subsystems/typology/schematics/primitives/contexts.js:49= · =:72= | typology ctx contract (HOLY) |
+| =subjects/repl/= | =dispatch.js= · =lines.js= · =index.js= | a subject dir that owns no subject |
+| =mode.module.repl= | =commons/fixtures/testing/console/console.viva.js:14= | mode export (missing from skill =mode='s closed-set table) |
+| =REPLING= | ghost + runtime =traits/repling.js= | trait name |
+| =/metadata/repl= · =/repl= | runtime =repling.js:5-6= · ghost =looping.js:12-13= | wire routes |
+| =shape.repl= | =subsystems/typology/gestalten/shape/repl.js= | the strip ⟷ wire leaf |
+| =ReplSignal= | =subsystems/typology/prototypes/replsignal.js= | the line's signal |
+| =viva repl= | =subjects/shell/lifecycle.js:112= | cli (dies at m98 Q6) |
+| lens ="repl"= | =subsystems/typology/schematics/traits/docked.js:8= | DOCKED data |
+| =repl: new Vector()= | =systems/anima/src/client.js:11= | anima's client seed |
+
+59 files carry a =.repl= · =repl:= · ="repl"= · =repl.= token outside =bak/= (ghost · anima · runtime · typology · drapes · paladin, tests included; the 48 of the drill missed drapes · paladin); 33 =client.dispatch= · =clientDie.dispatch= · =terminal.dispatch= sites ride Q2 beside them. Every one is a row of =* blast table=.
+
+#+BEGIN_SRC sh
+# 10-23, repo root
+grep -rlE '\.repl\b|repl:|"repl"|repl\.' --include='*.js' --include='*.ts' --include='*.jsx' --include='*.tsx' --include='*.mjs' systems subsystems commons | grep -v '/bak/' | wc -l   # 59
+grep -rnE '(client|clientDie|terminal|held\.client|booted\.client)\.dispatch\b' --include='*.js' --include='*.jsx' systems subsystems commons | grep -v '/bak/' | wc -l   # 33
+#+END_SRC
+
+** precedent — when a composed Vector gets its parts (Q3)
+
+| system | vector | parts land | site |
+|--------|--------|------------|------|
+| ghost keymap | =terminal.keymap= | every read | =systems/ghost/entities/terminal/prototype.js:22= (m99 Q27 getter) |
+| ghost repl today | =replDie.repl= | every line | =systems/ghost/subjects/repl/dispatch.js:19= |
+| runtime mode repl | =mode.repl= | once, the REPLING trait | =systems/runtime/subjects/mode/traits/repling.js:4= |
+| runtime harness tools | =armed= | every turn | =systems/runtime/subjects/mode/traits/harnessed.js:86-94= |
+
+** the checks — measured 10-24 (on the landed tree)
+
+| marker | proof today | live walk | a fork |
+|--------|-------------|-----------|--------|
+| =T-help-tree= | =repl.test.js:39= green | owed | mine |
+| =T-tty-absent= | =repl.test.js:120= green | none | — |
+| =T-mode-rebuild= | =repl.test.js:108= green (a stub =/late=) | owed: a real =/harness= | mine |
+| =P-signin-gate= | =factory.coverage.test.js:10= · ghost =chrome.test.js:58= · anima =chrome.test.js:70= | owed: a fresh boot + a logout | Q15 |
+| =P-anima-clean= | none | owed: =:1794= palette + the served bundle | mine |
+| =T-host-moved= | =subsystems/sheets/tests/host.test.js= 7 green | owed: install, HOME empty | mine |
+
+- =~/.viva/ledger.viva.json:24= declares =AUTOLOGIN=: =chrome/panes/chrome.jsx:18= =settled= is false while =IDLE= under AUTOLOGIN → =booting=, never =signin=. beef's =viva= never paints the sign-in screen on a boot.
+- the one road to it on his machine: =/lighthouse/logout= (=subjects/client/commands/lighthouse.js:36=, chord =leader/s/o=) → =entities/lighthouse/prototype.js:131= =LOGGED_OUT= → =settled= true → =signin=; =entities/lighthouse/lifecycle/index.js:10-11= stores =null= in the vault.
+- after a logout the boot stays: =entities/lighthouse/lifecycle/index.js:23= =authorized= waits ONCE; =dataspace= · =daemons= · =hosts= · =terminals= (=subjects/client/lifecycle/index.js:209-212=) keep running under the sign-in screen.
+- Q1 reframed /"terminals are per user...."/: =systems/runtime/entities/Terminal.ts:14= =user= m:1, =:29-30= the datamap filter scopes by =user=; the client reads them ONCE — =subjects/client/lifecycle/index.js:109-113= =find()= under the boot's authority, =:135= =reconcile= on =$entities=; a login as another user re-reads nothing. =remote-repository.js:86-87= a cold =find= casts, drops nothing (only the =persisted= branch =:76-77= drops).
+- the sign-in screen's keys: =chrome/typing.js:24-29= (⇥ ⏎ ⌫ letters); =chrome/index.js:50= ctrl-c → SIGINT; no terminal, so no repl and no chord.
+
+* rulings
+
+| Q | ruling | his words | as code (=m102-repl.org:LINE=) |
+|---|--------|-----------|------|
+| 0 | the object is =Repl=; its Vector is =commands= | /"I'm thinking of calling that object the Repl"/ · /"If we call the vector the command vector, the REPL is the object around that."/ | 455 |
+| 1 | the Repl lives on the terminal only; no client Repl; the client's · the modes' · the terminal's commands are all held on the terminal's Repl | /"we want to bypass the client one altogether. Yeah, we can do without the client one. So the REPL just lives on the terminal, that's where it lives. And all the client commands, mode commands, blah blah blah are, yeah, held on the, they're held on the REPL."/ | 433 · 455 · 573 |
+| 1′ | =mode.repl= stays a mode's own Vector — ghost and runtime | /"No, under mode it stays. … mode is another mode is another thing."/ | blast keep rows |
+| 2 | =client.dispatch= and =terminal.dispatch= die; =terminal.repl.dispatch= is the one entry | /"client dispatch goes away, the terminal dispatch goes away as well"/ | 229 · 269 · 329 · 355 · 384 · 433 · 455 · 525 · 573 · 623 · 651 · 752 · 840 · 967 · 990 |
+| 3 | the client's · the hosted modes' · the terminal's commands graft onto =terminal.repl.commands= once, at the terminal's boot; =dispatch= adds only the runtime's modes and =turn= | /"a"/ | 397 · 544 · 752 · 967 · 990 |
+| 4 | =/shell= (=/chrome/on= · =/chrome/off= die at m98 Q7) is exported and imported as client commands; the terminal's boot mounts them by the environment | /"b"/ · /"i want them to be exported like b and imported like b but mounted dynamicslly in lifecycle given env reality"/ | 238 · 397 · 502 · 515 · 593 · 695 · 840 · 858 |
+| 4′ | the environment is a terminal when Deno runs and stdin is a terminal | /"a"/ | 397 |
+| 5 | SUPERSEDED by Q14 — the surface mounts after =connection=, before =authorized= | /"a"/ | — |
+| 6 | =ctx.repl= is the terminal's Repl; a command reads =ctx.repl.commands=; no =ctx.commands= | /"ctx.repl.commands"/ | 229 · 455 · 496 · 695 |
+| 6′ | =repl.commands= holds everything — rebuilt whole by the terminal's =commands= beat on every change of the runtime's mode list (Q3 relabeled: a rebuild adds the runtime's modes and =/turn=); dispatch walks it; each runtime mode's own =repl= hangs by reference (Q13) | /"b"/ | 275 · 303 · 397 · 990 |
+| 4″ | the tty predicate is paladin's: =paladin.is.tty= beside =paladin.is.citizen= | /"theere is is tooling for this in paladin."/ | 189 · 397 · 990 |
+| 7 | LOOKUP from Q6′ — the palette and =/metadata/repl= read =terminal.repl.commands= | /"b"/ (Q6′) | 303 · 384 · 525 · 886 · 956 · 979 |
+| 8 | LOOKUP from Q6′ — the terminal's keymap harvests =this.repl.commands=; the client's keymap stops harvesting | /"b"/ (Q6′) | 433 · 544 · 752 · 886 · 1143 |
+| 9 | the Repl is the terminal's part: =entities/terminal/repl.js= on today's tree (class · a line's =execution=; m98 moves the directory to =subjects/terminal/=); =subjects/repl/= dies | /"a"/ | 455 |
+| 10 | =/shell= is a client command: =subjects/client/commands/shell.js= beside =/quit= | /"a"/ | 502 · 509 |
+| 11 | ghost exports no surface: no =surfaces= on the root, no =./host= | /"no surface export. surfaces are whats unique by design. literally thats what surface means. anything thats repeatable is NOT surface specific"/ | 377 |
+| 12 | the opentui host is sheets': =subsystems/sheets/host.js= · =preload.js= · =deno-ffi.js= · =opentui-core.patch= flat (Q12′) | /"a."/ | 212 · 486 |
+| 12′ | sheets' root barrel exports =host= on its first line; ghost imports ={ host } from "@vivalence/sheets"=; no =./host= subpath, no =host/= directory | /""@vivalence/sheets/host" this doesn't exist. no need for nesting. /host."/ · /"why not just import {host} from @vivalence/sheets ???"/ | 176 · 182 · 199 · 206 · 222 · 365 · 486 · 950 |
+| 13 | the rebuild hangs each runtime mode's own =repl= by reference at =/mode/<type>/<slug>= and =/mode/<slug>=; what a trait wires later is reached | /"q13 s"/ (read: a) | 397 · 990 |
+| 14 | the login screen is a full-screen block and nothing boots before it: the surface mounts after =connection=, before =authorized=; the sign-in pane calls =lighthouse.login=, no line | /"on both Anima and Ghost, the login screen should be blocking full screen, and before that we don't boot."/ | 249 · 255 · 285 · 355 · 544 · 623 · 858 |
+| 15 | a logout gates the SCREEN: =/lighthouse/logout= paints the sign-in screen full, the boot runs on under it, a login shows the same regions; no code — =chrome/panes/chrome.jsx:21= =PANES= as it stands | /"a"/ | 129 |
+| 16 | the client is no user's; a sign-in as ANOTHER user flushes the cache — every thread · buffer · turn · activity · terminal dropped, read again, streams re-opened under the new login; =reconcile= closes the old terminals, boots the new; a logout or the same user changes nothing (Q15). "flush" here is a DROP — =entity-manager.js:244= =flush()= is the unit of work's write | /"terminals are per user...."/ · /"clients arent per user. a. when a nwe user logs in we flush our cache"/ | =* checks as code= |
+| 17 | =/quit= mounts by the environment beside =/shell=: a tty only; anima's palette has no =/quit=, a tab ends on =pagehide= (=anima/src/client.js:16=) | /"b"/ | =* checks as code= |
+| 18 | after a logout the sign-in form keeps the username and forgets the password, both surfaces; the form is the surface's =$signin=, reset by =forgetting(client)= in each =screen.js= on =LOGGED_OUT=; the tty focuses the password | /"b"/ | =* checks as code= |
+| m98 | LOOKUP m98 Q6 · Q7 — =lines= · =viva repl= · =/chrome/on= · =/chrome/off= die here; bare =viva= opens chrome | /"there is no chrome on/off atm. we only have shell and chrome rn"/ | the deaths, =* as code= Deletes |
+
+* as code
+
+Tangled 10-23 from the scratchpad copy's diff (=.ikiro/methods/replay-m102.sh= lands it on a fresh copy); cut on TODAY's tree — m98 · m99 re-cut after it.
+
+Moves (=mv= first, each block on the NEW path):
+
+| from | to | rides |
+|------|----|-------|
+| =systems/ghost/subjects/shell/commands.js= | =systems/ghost/subjects/client/commands/shell.js= | Q10 |
+| =systems/ghost/chrome/host/index.js= | =subsystems/sheets/host.js= | Q12 · Q12′ — replaces sheets' one-line re-export |
+| =systems/ghost/chrome/host/preload.js= | =subsystems/sheets/preload.js= | Q12 · Q12′ |
+| =systems/ghost/chrome/host/deno-ffi.js= | =subsystems/sheets/deno-ffi.js= | Q12 · Q12′ |
+| =systems/ghost/chrome/host/opentui-core.patch= | =subsystems/sheets/opentui-core.patch= | Q12 · Q12′ |
+| =systems/ghost/tests/chrome.host.coverage.test.js= | =subsystems/sheets/tests/host.test.js= | Q12 · tests mirror their source |
+
+Deletes:
+
+| path | rides |
+|------|-------|
+| =subsystems/sheets/host.js= | Q12′ — its line becomes the moved host |
+| =systems/ghost/chrome/commands.js= | m98 Q7 — /chrome/on · /chrome/off |
+| =systems/ghost/subjects/repl/dispatch.js= | Q2 · Q9 — execution moves to entities/terminal/repl.js |
+| =systems/ghost/subjects/repl/index.js= | Q9 |
+| =systems/ghost/subjects/repl/lines.js= | m98 Q6 — no lines, no viva repl |
+
+*** commons/fixtures/memo
+**** tests/memo.snapshot.test.js
+#+BEGIN_SRC diff
+// commons/fixtures/memo/tests/memo.snapshot.test.js:1   ← Q12′
+-import "@vivalence/sheets/host";
++import "@vivalence/sheets";
+#+END_SRC
+**** tests/memo.test.js
+#+BEGIN_SRC diff
+// commons/fixtures/memo/tests/memo.test.js:1   ← Q12′
+-import "@vivalence/sheets/host";
++import "@vivalence/sheets";
+#+END_SRC
+*** subsystems/paladin
+**** gestalten/belt/is.js
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/is.js:33   ← Locked Q4″
++    },
++    get tty() {
++      return [Runtime.Deno].includes(CurrentRuntime) && Deno.stdin.isTerminal();
+     },
+     get veryimportant() {
+#+END_SRC
+*** subsystems/sheets
+**** deno.jsonc
+#+BEGIN_SRC diff
+// subsystems/sheets/deno.jsonc:6   ← Locked Q12′: /"why not just import {host} from @vivalence/sheets ???"/
+     "./scenarios": "./tests/scenarios/index.js",
+-    "./host": "./host.js",
+   },
+#+END_SRC
+**** index.js
+#+BEGIN_SRC diff
+// subsystems/sheets/index.js:1   ← Locked Q12′ — first line: preload.js runs before any part imports @opentui/solid
++export * as host from "./host.js";
+ export { Bar, DISPLAYS, MICS, SEGMENTS, display, mic } from "./Bar.jsx";
+#+END_SRC
+**** tests/host.test.js
+#+BEGIN_SRC diff
+// subsystems/sheets/tests/host.test.js:1   ← Q12 — moved from systems/ghost/tests/chrome.host.coverage.test.js
+-import { opentui } from "../chrome/host/index.js";
++import { opentui } from "../host.js";
+…
+// subsystems/sheets/tests/host.test.js:4
+-import ffi, { dlopen, getRawPointer, suffix, toArrayBuffer } from "../chrome/host/deno-ffi.js";
++import ffi, { dlopen, getRawPointer, suffix, toArrayBuffer } from "../deno-ffi.js";
+#+END_SRC
+**** tests/scenarios/index.js
+#+BEGIN_SRC diff
+// subsystems/sheets/tests/scenarios/index.js:1   ← Q12′
+-import "@vivalence/ghost/host";
++import "../../host.js";
+#+END_SRC
+*** subsystems/typology
+**** schematics/primitives/contexts.js
+#+BEGIN_SRC diff
+// subsystems/typology/schematics/primitives/contexts.js:49   ← Locked Q6 · Q2 — HOLY, its own go
+-export const repl = { repl: v.unknown().desc("The repl Vector this line was invoked on — as ctx.shell is to the shell. The COMPOSITION, built per line by shard.repl.compose: client.repl grafted first, then the hosted modes' repls, terminal.repl, every mounted mode's repl under /mode/<type>/<slug> and /mode/<slug>, the turn streamer when the terminal's mode is HARNESSED. Never client.repl alone. Example: shape.strip(ctx.repl)") };
+-export const client = { client: v.unknown().desc("The Client — the client die itself: controller · mask · register · instance · surface · modes · repl · runtime · $active; dispatch(line) is its method. Example: ctx.client.dispatch('/help')") };
++export const repl = { repl: v.unknown().desc("The terminal's Repl this line was dispatched on — as ctx.shell is to the shell. Its commands hold the client's, the hosted modes', the terminal's, every mounted mode's under /mode/<type>/<slug> and /mode/<slug>, and the turn streamer; rebuilt whole on every change of the runtime's mode list. Example: shape.strip(ctx.repl.commands)") };
++export const client = { client: v.unknown().desc("The Client — the client die itself: controller · mask · register · instance · surface · modes · runtime · $active; a line runs on its active terminal's repl. Example: ctx.client.active.repl.dispatch('/help')") };
+#+END_SRC
+*** systems/anima
+**** src/client.js
+#+BEGIN_SRC diff
+// systems/anima/src/client.js:2   ← Locked Q4 — no door hands commands over
+-import { Controller, Span, Vector } from "@vivalence/typology";
++import { Controller, Span } from "@vivalence/typology";
+…
+// systems/anima/src/client.js:10
+   controller: new Controller({ stdout: new Span("anima") }),
+-  repl: new Vector(),
+   instance,
+#+END_SRC
+**** src/surface/panes/index.js
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/index.js:3   ← Locked Q14
+-export { Signin, login } from "./signin.jsx";
++export { Signin } from "./signin.jsx";
+#+END_SRC
+**** src/surface/panes/signin.jsx
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/signin.jsx:1   ← Locked Q14: /"the login screen should be blocking full screen, and before that we don't boot"/
+ import { createSignal, from, Show } from "solid-js";
+-import { send } from "../send.js";
+ import { Brandline, Island } from "./booting.jsx";
+
+-export const login = (username, password) => `/lighthouse/login ${JSON.stringify(username)} ${JSON.stringify(password)}`;
+-
+…
+// systems/anima/src/surface/panes/signin.jsx:16
+-    send(props.client, login(user(), pass()));
++    lighthouse.login(user(), pass()).catch((error) => props.client.controller.stdout.fault(error));
+#+END_SRC
+**** src/surface/send.js
+#+BEGIN_SRC diff
+// systems/anima/src/surface/send.js:1   ← Locked Q2
+-export const send = (client, line) => client.dispatch(line).catch((error) => client.controller.stdout.fault(error));
++export const send = (client, line) => client.active.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
+#+END_SRC
+**** tests/bar.test.js
+#+BEGIN_SRC diff
+// systems/anima/tests/bar.test.js:27   ← Q6′
+-  held.terminal.repl = new Vector().graft(commands.terminal.dock, commands.terminal.intelligent);
++  held.terminal.repl.commands = new Vector().graft(commands.terminal.dock, commands.terminal.intelligent);
+…
+// systems/anima/tests/bar.test.js:29
+-  held.terminal.keymap = new Vector().graft(held.client.keymap, harvest(held.terminal.repl));
++  held.terminal.keymap = new Vector().graft(held.client.keymap, harvest(held.terminal.repl.commands));
+#+END_SRC
+**** tests/chrome.test.js
+#+BEGIN_SRC diff
+// systems/anima/tests/chrome.test.js:70   ← Q14
+-  specimen.it("sign in is a line: /lighthouse/login with the two words quoted", async () => {
++  specimen.it("sign in calls the lighthouse with the two words — no line, no terminal before it", async () => {
+…
+// systems/anima/tests/chrome.test.js:72
+     held.seat();
++    held.lighthouse.login = (username, password) => {
++      held.sent.push([username, password]);
++      return Promise.resolve();
++    };
+     held.lighthouse.$status.set({ code: "LOGGED_OUT" });
+…
+// systems/anima/tests/chrome.test.js:84
+-    specimen.expect(held.sent).toEqual(['/lighthouse/login "beef" "hunter 2"']);
++    specimen.expect(held.sent).toEqual([["beef", "hunter 2"]]);
+#+END_SRC
+**** tests/panel.test.js
+#+BEGIN_SRC diff
+// systems/anima/tests/panel.test.js:25   ← Q6′ · Q7
+-  held.terminal.repl = new Vector().graft(commands.terminal.dock);
+-  held.terminal.keymap = new Vector().graft(bound, harvest(held.terminal.repl));
++  held.terminal.repl.commands = new Vector().graft(commands.terminal.dock);
++  held.terminal.keymap = new Vector().graft(bound, harvest(held.terminal.repl.commands));
+…
+// systems/anima/tests/panel.test.js:83
+     const { rig, client, sent, terminal, close } = await seated();
+-    client.$catalog.set(catalog(terminal.repl));
++    client.$catalog.set(catalog(terminal.repl.commands));
+     client.surface.$draft.set("/dock ");
+…
+// systems/anima/tests/panel.test.js:93
+     specimen.expect([client.surface.draft, client.catalog, client.surface.focus]).toEqual(["/dock closed", null, "composer"]);
+-    client.$catalog.set(catalog(terminal.repl));
++    client.$catalog.set(catalog(terminal.repl.commands));
+     await settle();
+…
+// systems/anima/tests/panel.test.js:99
+     specimen.expect(client.surface.draft).toBe("");
+-    client.$catalog.set(catalog(terminal.repl));
++    client.$catalog.set(catalog(terminal.repl.commands));
+     surface.enter(client, client.catalog, "/spl");
+#+END_SRC
+**** tests/world.js
+#+BEGIN_SRC diff
+// systems/anima/tests/world.js:5   ← Q2 — the stub terminal carries a Repl
+-import { Controller, Span } from "@vivalence/typology";
++import { Controller, Span, Vector } from "@vivalence/typology";
+…
+// systems/anima/tests/world.js:54
+   client.surface.$sidebar.set(true);
+-  client.dispatch = (line) => {
+-    sent.push(line);
+-    return Promise.resolve(line);
+-  };
+   const lighthouse = Object.assign(new Lighthouse(), { stdout: controller.stdout.branch("lighthouse"), manifest: { type: "lighthouse", slug: "lighthouse", traits: ["AUTOLOGIN"] } });
+…
+// systems/anima/tests/world.js:80
+     controller: controller.branch(`terminal/terminal-${index + 1}`),
++    repl: {
++      commands: new Vector(),
++      dispatch: (line) => {
++        sent.push(line);
++        return Promise.resolve(line);
++      },
++    },
+     dock: { ...belt.dock.DEFAULT_DOCK },
+#+END_SRC
+*** systems/ghost
+**** chrome/acts.js
+#+BEGIN_SRC diff
+// systems/ghost/chrome/acts.js:4   ← Locked Q2 · Q14
+-export const send = (client, line) => client.dispatch(line).catch((error) => client.controller.stdout.fault(error));
++export const send = (client, line) => client.active.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
+…
+// systems/ghost/chrome/acts.js:58
+-  signin: (client) => send(client, `/lighthouse/login ${signed(client).user} ${signed(client).pass}`),
++  signin: (client) => client.runtime.lighthouse.login(signed(client).user, signed(client).pass).catch((error) => client.controller.stdout.fault(error)),
+#+END_SRC
+**** chrome/index.js
+#+BEGIN_SRC diff
+// systems/ghost/chrome/index.js:1   ← Locked Q12′ · m98 Q6
+-import { opentui } from "./host/index.js";
++import { host } from "@vivalence/sheets";
+…
+// systems/ghost/chrome/index.js:46
+-    throw new Error("chrome needs a terminal — run it in one, or: viva repl");
+-  const { createCliRenderer } = await opentui();
++    throw new Error("chrome needs a terminal — run it in one");
++  const { createCliRenderer } = await host.opentui();
+#+END_SRC
+**** deno.jsonc
+#+BEGIN_SRC diff
+// systems/ghost/deno.jsonc:6   ← Locked Q11: /"no surface export. surfaces are whats unique by design."/
+     "./run": "./run.js",
+-    "./host": "./chrome/host/index.js",
+   },
+#+END_SRC
+**** entities/mode/traits/looping.js
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/traits/looping.js:1   ← Locked Q2 · Q7
+ import { NotFound, ReplSignal, shape, v } from "@vivalence/typology";
+-import * as repl from "../../../subjects/repl/index.js";
+
+…
+// systems/ghost/entities/mode/traits/looping.js:12
+-    .open("/metadata/repl", (ctx) => shape.strip(repl.compose(clientDie, ctx.terminal)))
+-    .post({ nature: "/repl", input: v.primitives.harness.Signal }, (ctx) => ctx.terminal.dispatch(new ReplSignal(ctx.input)));
++    .open("/metadata/repl", (ctx) => shape.strip(ctx.terminal.repl.commands))
++    .post({ nature: "/repl", input: v.primitives.harness.Signal }, (ctx) => ctx.terminal.repl.dispatch(new ReplSignal(ctx.input)));
+#+END_SRC
+**** entities/terminal/lifecycle/index.js
+#+BEGIN_SRC diff
+// systems/ghost/entities/terminal/lifecycle/index.js:1   ← Locked Q3 · Q4 · Q4′ · Q4″ · Q6′ · Q13: /"q13 s"/ (a)
+-import { Vector, shard } from "@vivalence/typology";
++import paladin from "@vivalence/paladin";
++import { Vector, fromm, shard } from "@vivalence/typology";
+ import * as command from "../commands/index.js";
++import * as clientCommand from "../../../subjects/client/commands/index.js";
+
+…
+// systems/ghost/entities/terminal/lifecycle/index.js:5
+-  terminalDie.terminal.repl.graft(...Object.values(command));
++  const { shell, ...everywhere } = clientCommand;
++  const tty = paladin.is.tty ? [shell] : [];
++  const off = terminalDie.client.runtime.entities.mode.$entities.subscribe((modes) => {
++    const commands = new Vector().graft(
++      ...Object.values(everywhere),
++      ...tty,
++      ...fromm.modes(terminalDie.client.modes).flat.map((mode) => mode.repl),
++      ...Object.values(command),
++    );
++    for (const mode of modes) {
++      commands.branch(`/mode/${mode.type}/${mode.slug}`, mode.repl);
++      commands.branch(`/mode/${mode.slug}`, mode.repl);
++    }
++    terminalDie.terminal.repl.commands = commands;
++  });
+…
+// systems/ghost/entities/terminal/lifecycle/index.js:7
+-  await next();
++  try {
++    await next();
++  } finally {
++    off();
++  }
+#+END_SRC
+**** entities/terminal/prototype.js
+#+BEGIN_SRC diff
+// systems/ghost/entities/terminal/prototype.js:5   ← Locked Q1 · Q2 · Q8
+-import * as repl from "../../subjects/repl/index.js";
++import { Repl } from "./repl.js";
+…
+// systems/ghost/entities/terminal/prototype.js:19
+-  repl = new Vector();
++  repl = new Repl(this);
+…
+// systems/ghost/entities/terminal/prototype.js:22
+-  $keymap = computed(this.$thread, (thread) => new Vector().graft(this.client.keymap, harvest(this.repl), ...(thread !== null && is.object(thread.mode) ? [thread.mode.keymap] : [])));
++  $keymap = computed(this.$thread, (thread) => new Vector().graft(harvest(this.repl.commands), this.client.keymap, ...(thread !== null && is.object(thread.mode) ? [thread.mode.keymap] : [])));
+…
+// systems/ghost/entities/terminal/prototype.js:53
+-
+-  dispatch(signal) {
+-    return repl.dispatch(this.client, this, signal);
+-  }
+
+   write(data) {
+#+END_SRC
+**** entities/terminal/repl.js
+#+BEGIN_SRC js
+// systems/ghost/entities/terminal/repl.js   ← Locked Q0 · Q1 · Q2 · Q6 · Q9 — on today's tree; m98 moves entities/terminal → subjects/terminal
+import { ReplSignal, Vector, shard, steer } from "@vivalence/typology";
+
+export const execution = new Vector()
+  .use(shard.controller.open)
+  .do((replDie) => steer.dispatch.execute(replDie.repl.commands, replDie, replDie.signal));
+
+export class Repl {
+  commands = new Vector();
+
+  constructor(terminal) {
+    this.terminal = terminal;
+  }
+
+  dispatch(line) {
+    const signal = new ReplSignal(line);
+    const replDie = {
+      signal,
+      client: this.terminal.client,
+      runtime: this.terminal.client.runtime,
+      terminal: this.terminal,
+      controller: this.terminal.controller.branch(signal.pathname),
+      repl: this,
+      output: undefined,
+    };
+    return steer.dispatch.execute(execution, replDie).then(() => replDie.output);
+  }
+}
+#+END_SRC
+**** install.sh
+#+BEGIN_SRC diff
+// systems/ghost/install.sh:14   ← Locked Q12 · Q12′
+-deno cache systems/ghost/chrome/host/index.js
++deno cache subsystems/sheets/host.js
+…
+// systems/ghost/install.sh:17
+-grep -q "__opentuiNodeFfi" "$target" || patch "$target" < systems/ghost/chrome/host/opentui-core.patch
++grep -q "__opentuiNodeFfi" "$target" || patch "$target" < subsystems/sheets/opentui-core.patch
+#+END_SRC
+**** subjects/client/commands/help.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/commands/help.js:6   ← Locked Q6
+-    ctx.controller.stdout.log(shape.strip(ctx.repl));
++    ctx.controller.stdout.log(shape.strip(ctx.repl.commands));
+#+END_SRC
+**** subjects/client/commands/index.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/commands/index.js:5   ← Locked Q4 · Q10
+ export { terminal } from "./terminal.js";
++export { shell } from "./shell.js";
+
+#+END_SRC
+**** subjects/client/commands/shell.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/commands/shell.js:2   ← Locked Q10: /"a"/ — moved from subjects/shell/commands.js
+-import * as belt from "../../gestalten/belt/index.js";
++import * as belt from "../../../gestalten/belt/index.js";
+#+END_SRC
+**** subjects/client/factory.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/factory.js:1   ← Locked Q4
+-import { Vector, monad, shape } from "@vivalence/typology";
++import { monad, shape } from "@vivalence/typology";
+…
+// systems/ghost/subjects/client/factory.js:7
+-    (doorDie) => new Client({ controller: doorDie.controller.branch("client"), mask: doorDie.mask, register: doorDie.register, instance: doorDie.instance, surface, repl: new Vector().graft(doorDie.repl) }),
++    (doorDie) => new Client({ controller: doorDie.controller.branch("client"), mask: doorDie.mask, register: doorDie.register, instance: doorDie.instance, surface }),
+#+END_SRC
+**** subjects/client/keymap.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/keymap.js:1   ← Locked Q2 · Q7
+ import { Dropped, KeySignal, NotFound, ReplSignal, Vector, is, steer } from "@vivalence/typology";
+-import * as repl from "../repl/index.js";
+
+…
+// systems/ghost/subjects/client/keymap.js:33
+-export const listing = (client) => catalog(repl.compose(client, client.active));
++export const listing = (client) => catalog(client.active.repl.commands);
+…
+// systems/ghost/subjects/client/keymap.js:78
+-  const ctx = { client, dispatch: (text) => client.dispatch(text), output: undefined };
++  const ctx = { client, dispatch: (text) => terminal.repl.dispatch(text), output: undefined };
+…
+// systems/ghost/subjects/client/keymap.js:82
+-    if (ctx.output !== undefined) await client.dispatch(new ReplSignal(ctx.output));
++    if (ctx.output !== undefined) await terminal.repl.dispatch(new ReplSignal(ctx.output));
+#+END_SRC
+**** subjects/client/lifecycle/index.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/lifecycle/index.js:3   ← Locked Q3 · Q8 · Q14 — the surface after connection, before authorized
+-import * as command from "../commands/index.js";
+-import { harvest, keymap as bound, navigating } from "../keymap.js";
++import { keymap as bound, navigating } from "../keymap.js";
+…
+// systems/ghost/subjects/client/lifecycle/index.js:34
+-
+-export const commands = async (clientDie, next) => {
+-  clientDie.repl.graft(...Object.values(command));
+-  await next();
+-};
+
+ export const keymap = async (clientDie, next) => {
+-  clientDie.keymap.graft(harvest(clientDie.repl), bound, ...fromm.modes(clientDie.modes).flat.map((held) => held.keymap));
++  clientDie.keymap.graft(bound, ...fromm.modes(clientDie.modes).flat.map((held) => held.keymap));
+…
+// systems/ghost/subjects/client/lifecycle/index.js:209
+   .use(shard.controller.open)
+-  .use(commands)
+   .use(modes)
+   .use(keymap)
+-  .use(surface)
+   .use(connection)
+   .use(ledger)
++  .use(surface)
+   .use(authorized)
+#+END_SRC
+**** subjects/client/prototype.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/prototype.js:2   ← Locked Q1 · Q2
+ import { Aperture, Queue, Vector, belt, fromm, is } from "@vivalence/typology";
+-import * as repl from "../repl/index.js";
+ import { loop } from "../../entities/mode/traits/looping.js";
+…
+// systems/ghost/subjects/client/prototype.js:15
+   modes = {};
+-  repl = new Vector();
+   keymap = new Vector();
+…
+// systems/ghost/subjects/client/prototype.js:52
+-
+-  dispatch(line) {
+-    return repl.dispatch(this, this.active, line);
+-  }
+
+   get json() {
+#+END_SRC
+**** subjects/shell/lifecycle.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/shell/lifecycle.js:3   ← Locked Q4 · m98 Q6 · Q7 — bare viva opens chrome
+ import { factory as clientFactory } from "../client/factory.js";
+-import { lines } from "../repl/index.js";
+ import { chrome as cells } from "../../chrome/index.js";
+-import { chrome as chromeCommand } from "../../chrome/commands.js";
+-import { shell as shellCommand } from "./commands.js";
+
+…
+// systems/ghost/subjects/shell/lifecycle.js:102
+-  new Vector().use(seat).use(ledger).use(boot).use(shard.context.bind("repl", new Vector().graft(chromeCommand, shellCommand))).do(clientFactory(surface));
+-const repl = door(lines);
++  new Vector().use(seat).use(ledger).use(boot).do(clientFactory(surface));
+…
+// systems/ghost/subjects/shell/lifecycle.js:111
+   .open({ nature: "/help", valence: "the shell's verbs. Example: viva help" }, strip)
+-  .open({ nature: "/repl", valence: "the repl as plain lines in this terminal. Example: viva repl" }, (shellDie) => steer.dispatch.execute(repl, shellDie))
+   .open({ nature: "/chrome", valence: "the repl under the chrome — the dock paints. Example: viva chrome" }, (shellDie) => steer.dispatch.execute(chrome, shellDie))
+…
+// systems/ghost/subjects/shell/lifecycle.js:117
+-  .do((shellDie) => steer.dispatch.execute(repl, shellDie));
++  .do((shellDie) => steer.dispatch.execute(chrome, shellDie));
+#+END_SRC
+**** tests/chrome.surface.coverage.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/chrome.surface.coverage.test.js:81   ← m98 Q6
+-    specimen.expect(error.message).toBe("chrome needs a terminal — run it in one, or: viva repl");
++    specimen.expect(error.message).toBe("chrome needs a terminal — run it in one");
+#+END_SRC
+**** tests/chrome.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/chrome.test.js:58   ← Q2 · Q14
+-  specimen.it("signin keys: ⇥ moves the field, letters land in it, ⏎ sends /lighthouse/login", async () => {
++  specimen.it("signin keys: ⇥ moves the field, letters land in it, ⏎ calls the lighthouse's login", async () => {
+…
+// systems/ghost/tests/chrome.test.js:64
+-    held.client.dispatch = (line) => {
+-      sent.push(line);
++    held.lighthouse.login = (username, password) => {
++      sent.push([username, password]);
+…
+// systems/ghost/tests/chrome.test.js:77
+-    specimen.expect(sent).toEqual(["/lighthouse/login beef hunt"]);
++    specimen.expect(sent).toEqual([["beef", "hunt"]]);
+…
+// systems/ghost/tests/chrome.test.js:87
+-    specimen.expect(await held.client.dispatch("/mode probe")).toBe("/runtime/house/mode/home/probe · thread #th2");
++    specimen.expect(await held.terminal.repl.dispatch("/mode probe")).toBe("/runtime/house/mode/home/probe · thread #th2");
+…
+// systems/ghost/tests/chrome.test.js:96
+-    specimen.expect(await held.client.dispatch("/dock/lens chat")).toEqual({ DOCKED: { lens: "chat" } });
++    specimen.expect(await held.terminal.repl.dispatch("/dock/lens chat")).toEqual({ DOCKED: { lens: "chat" } });
+…
+// systems/ghost/tests/chrome.test.js:139
+-    specimen.expect(await held.client.dispatch("/telemetry")).toBe("telemetry logger");
++    specimen.expect(await held.terminal.repl.dispatch("/telemetry")).toBe("telemetry logger");
+#+END_SRC
+**** tests/client.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/client.test.js:34   ← Q2
+-    await clientDie.dispatch("/quit");
++    await clientDie.active.repl.dispatch("/quit");
+…
+// systems/ghost/tests/client.test.js:48
+-    specimen.expect((await clientDie.dispatch("/modes")).map((row) => row.reference)).toEqual(specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]));
+-    specimen.expect(await clientDie.dispatch("/mode srs/memo")).toMatch(/^\/daemon\/memo\/mode\/srs\/memo · thread #/);
+-    specimen.expect(await clientDie.dispatch("/mode mode")).toEqual({ which: specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]) });
++    specimen.expect((await clientDie.active.repl.dispatch("/modes")).map((row) => row.reference)).toEqual(specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]));
++    specimen.expect(await clientDie.active.repl.dispatch("/mode srs/memo")).toMatch(/^\/daemon\/memo\/mode\/srs\/memo · thread #/);
++    specimen.expect(await clientDie.active.repl.dispatch("/mode mode")).toEqual({ which: specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]) });
+…
+// systems/ghost/tests/client.test.js:56
+-    await clientDie.dispatch("ciao");
++    await clientDie.active.repl.dispatch("ciao");
+…
+// systems/ghost/tests/client.test.js:60
+-    await clientDie.dispatch("/mode/memo/harness ciao");
++    await clientDie.active.repl.dispatch("/mode/memo/harness ciao");
+…
+// systems/ghost/tests/client.test.js:63
+-    await clientDie.dispatch("/mode probe");
+-    await clientDie.dispatch("ciao").catch(() => {});
++    await clientDie.active.repl.dispatch("/mode probe");
++    await clientDie.active.repl.dispatch("ciao").catch(() => {});
+…
+// systems/ghost/tests/client.test.js:69
+-    await clientDie.dispatch("/mode probe");
+-    await clientDie.dispatch("/application/start");
++    await clientDie.active.repl.dispatch("/mode probe");
++    await clientDie.active.repl.dispatch("/application/start");
+…
+// systems/ghost/tests/client.test.js:73
+-    await clientDie.dispatch("/mode srs/memo");
+-    specimen.expect(await clientDie.dispatch("/application/start")).toMatch(/^application \/daemon\/memo\/mode\/srs\/memo · buffer #/);
++    await clientDie.active.repl.dispatch("/mode srs/memo");
++    specimen.expect(await clientDie.active.repl.dispatch("/application/start")).toMatch(/^application \/daemon\/memo\/mode\/srs\/memo · buffer #/);
+…
+// systems/ghost/tests/client.test.js:77
+-    specimen.expect(await clientDie.dispatch("/application/stop")).toBe("frame closed");
++    specimen.expect(await clientDie.active.repl.dispatch("/application/stop")).toBe("frame closed");
+#+END_SRC
+**** tests/commands.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/commands.test.js:10   ← Q4 · Q6 · m98 Q7
+ import { Lighthouse } from "../entities/lighthouse/prototype.js";
+-import { chrome as chromeCommand } from "../chrome/commands.js";
+-import { shell as shellCommand } from "../subjects/shell/commands.js";
+
+…
+// systems/ghost/tests/commands.test.js:111
+-  const repl = new Vector().graft(...Object.values(ghost.commands.client), chromeCommand, shellCommand, ...Object.values(ghost.commands.terminal));
++  const repl = new Vector().graft(...Object.values(ghost.commands.client), ...Object.values(ghost.commands.terminal));
+…
+// systems/ghost/tests/commands.test.js:114
+-    const replDie = { signal, client, runtime: client.runtime, terminal, controller: terminal.controller.branch(signal.pathname), repl, output: undefined };
++    const replDie = { signal, client, runtime: client.runtime, terminal, controller: terminal.controller.branch(signal.pathname), repl: { commands: repl }, output: undefined };
+…
+// systems/ghost/tests/commands.test.js:121
+     specimen.expect(Object.keys(client.controller.stdout.history.filter((record) => ["log"].includes(record.track)).at(-1).data.branches)).toContain("dock");
+   });
+-
+-  specimen.it("/chrome/on drops the mounted surface, then mounts the chrome — off a terminal the chrome refuses, loud, and nothing is remounted", async () => {
+-    const dropped = [];
+-    client.unmount = () => dropped.push("repl");
+-    const isTerminal = Deno.stdin.isTerminal;
+-    Deno.stdin.isTerminal = () => false;
+-    try {
+-      await specimen.expect(run("/chrome/on")).rejects.toThrow("chrome needs a terminal — run it in one, or: viva repl");
+-    } finally {
+-      Deno.stdin.isTerminal = isTerminal;
+-    }
+-    specimen.expect(dropped).toEqual(["repl"]);
+-    client.unmount = null;
+-  });
+-
+-  specimen.it("/chrome/off drops the mounted surface and mounts the plain repl, which prints the client's strip; its eraser is the client's next unmount", async () => {
+-    const dropped = [];
+-    client.unmount = () => dropped.push("chrome");
+-    const logged = [];
+-    const log = console.log;
+-    console.log = (...values) => logged.push(values);
+-    try {
+-      specimen.expect(await run("/chrome/off")).toBe("chrome off");
+-      specimen.expect(dropped).toEqual(["chrome"]);
+-      specimen.expect(logged.at(-1)).toEqual([shape.strip(client.repl)]);
+-      specimen.expect(typeof client.unmount).toBe("function");
+-      client.unmount();
+-    } finally {
+-      console.log = log;
+-    }
+-    client.unmount = null;
+-  });
+…
+// systems/ghost/tests/commands.test.js:366
+       "leader/q": "quit",
+-      "leader/c": "on",
+       "leader/e/n": "terminal",
+#+END_SRC
+**** tests/console.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/console.test.js:1   ← Q2 · Q3 · Q8
+-import { computed } from "nanostores";
++import { atom, computed } from "nanostores";
+…
+// systems/ghost/tests/console.test.js:5
+ import { navigate } from "../subjects/client/keymap.js";
+-import { chrome as chromeCommand } from "../chrome/commands.js";
+-import { shell as shellCommand } from "../subjects/shell/commands.js";
+ import { Terminal } from "../entities/terminal/prototype.js";
+…
+// systems/ghost/tests/console.test.js:10
+-const { commands, modes, keymap, surface } = ghost.lifecycle.client;
+-const execution = new Vector().use(shard.controller.open).use(commands).use(modes).use(surface).do(shard.controller.hold);
++const { modes, keymap, surface } = ghost.lifecycle.client;
++const execution = new Vector().use(shard.controller.open).use(modes).use(surface).do(shard.controller.hold);
+…
+// systems/ghost/tests/console.test.js:13
+-specimen.describe("a hosted mode lends its verbs to the repl — REPLING composes per line", () => {
++const seated = async (clientDie) => {
++  clientDie.runtime = { entities: { mode: { $entities: atom([]) } } };
++  const isTerminal = Deno.stdin.isTerminal;
++  Deno.stdin.isTerminal = () => false;
++  try {
++    const terminal = Object.assign(new Terminal(), { id: "t1", index: 0, client: clientDie, runtime: clientDie.runtime });
++    await ghost.factories.terminal(terminal)(clientDie);
++    return terminal;
++  } finally {
++    Deno.stdin.isTerminal = isTerminal;
++  }
++};
++
++specimen.describe("a hosted mode lends its verbs to the terminal's repl — REPLING, grafted at the terminal's boot", () => {
+…
+// systems/ghost/tests/console.test.js:16
+-  const clientDie = new ghost.Client({ controller: root.branch("client"), mask, register: null, instance: null, surface: () => () => {}, repl: new Vector().graft(chromeCommand, shellCommand) });
++  const clientDie = new ghost.Client({ controller: root.branch("client"), mask, register: null, instance: null, surface: () => () => {} });
+…
+// systems/ghost/tests/console.test.js:19
+-  specimen.it("/hello answers from @commons/home/console; /help lists hello and whoami beside the client's verbs", async () => {
++  specimen.it("/hello answers from @commons/home/console; /help lists hello and whoami beside the client's commands", async () => {
+…
+// systems/ghost/tests/console.test.js:22
+-    await clientDie.dispatch("/hello");
++    const terminal = await seated(clientDie);
++    await terminal.repl.dispatch("/hello");
+…
+// systems/ghost/tests/console.test.js:24
+-    await clientDie.dispatch("/help");
+-    specimen.expect(Object.keys(tail.get().at(-1).data.branches)).toEqual(["chrome", "shell", "help", "lighthouse", "quit", "runtime", "terminal", "hello", "whoami"]);
+-    await clientDie.dispatch("/quit");
++    await terminal.repl.dispatch("/help");
++    specimen.expect(Object.keys(tail.get().at(-1).data.branches).slice(0, 7)).toEqual(["help", "lighthouse", "quit", "runtime", "terminal", "hello", "whoami"]);
++    await terminal.repl.dispatch("/quit");
+…
+// systems/ghost/tests/console.test.js:31
+-specimen.describe("a KEYMAPPED client mode lends its keys — the keymap beat grafts them at the root", () => {
++specimen.describe("a KEYMAPPED client mode lends its keys — the keymap beat grafts them at the root; the terminal's keymap harvests its repl's chords", () => {
+…
+// systems/ghost/tests/console.test.js:35
+-  const clientDie = new ghost.Client({ controller: root.branch("client"), mask, register: null, instance: null, surface: () => { mounted.resolve(); return () => {}; }, repl: new Vector().graft(chromeCommand, shellCommand) });
+-  const keyed = new Vector().use(shard.controller.open).use(commands).use(modes).use(keymap).use(surface).do(shard.controller.hold);
++  const clientDie = new ghost.Client({ controller: root.branch("client"), mask, register: null, instance: null, surface: () => { mounted.resolve(); return () => {}; } });
++  const keyed = new Vector().use(shard.controller.open).use(modes).use(keymap).use(surface).do(shard.controller.hold);
+…
+// systems/ghost/tests/console.test.js:38
+-  specimen.it("leader/h sits beside the client's chords in the booted client's keymap; leader h on a terminal dispatches /hello", async () => {
++  specimen.it("leader/h sits beside the repl's chords in the terminal's keymap; leader h on the terminal dispatches /hello", async () => {
+…
+// systems/ghost/tests/console.test.js:42
+-    const leader = shape.strip(clientDie.keymap).branches.leader.branches;
++    const terminal = await seated(clientDie);
++    const leader = shape.strip(terminal.keymap).branches.leader.branches;
+…
+// systems/ghost/tests/console.test.js:44
+     specimen.expect(leader.h.effect).toEqual({ valence: "hello. Example: ctrl-v h" });
+-    const terminal = Object.assign(new Terminal(), { client: clientDie });
+     const queue = new Queue().enqueue({ key: "leader" }).enqueue({ key: "h" });
+…
+// systems/ghost/tests/console.test.js:48
+-    specimen.expect(clientDie.controller.stdout.history.filter((record) => ["stop"].includes(record.track)).map((record) => record.path)).toContainEqual(["ghost", "client", "/hello"]);
++    specimen.expect(clientDie.controller.stdout.history.filter((record) => ["stop"].includes(record.track)).map((record) => record.path)).toContainEqual(["ghost", "client", "terminal/t1", "/hello"]);
+     specimen.expect(clientDie.controller.stdout.history.filter((record) => ["fault"].includes(record.track))).toEqual([]);
+-    await clientDie.dispatch("/quit");
++    await terminal.repl.dispatch("/quit");
+     await held;
+#+END_SRC
+**** tests/door.coverage.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/door.coverage.test.js:61   ← Q2 · Q4 · m98 Q6
+-  specimen.it("/help strips the shell: help · repl · chrome under the root; --help strips before any door opens", async () => {
++  specimen.it("/help strips the shell: help · chrome under the root; --help strips before any door opens", async () => {
+…
+// systems/ghost/tests/door.coverage.test.js:63
+-    specimen.expect(Object.keys(JSON.parse(routed[0]).branches)).toEqual(["help", "repl", "chrome", "instance"]);
++    specimen.expect(Object.keys(JSON.parse(routed[0]).branches)).toEqual(["help", "chrome", "instance"]);
+…
+// systems/ghost/tests/door.coverage.test.js:74
+-    })({ controller: root, mask, register, instance, repl: new Vector() });
++    })({ controller: root, mask, register, instance });
+…
+// systems/ghost/tests/door.coverage.test.js:89
+-    await clientDie.dispatch("/quit");
++    await clientDie.active.repl.dispatch("/quit");
+#+END_SRC
+**** tests/factory.coverage.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/factory.coverage.test.js:10   ← Q4 · Q14 — no surface before connection
+-  specimen.it("the surface is handed the Client; with no instance the connection beat faults, open settles FAILED, the factory rejects with that same error", async () => {
++  specimen.it("with no instance the connection beat faults before any terminal: no surface is mounted, open settles FAILED, the factory rejects with that same error", async () => {
+…
+// systems/ghost/tests/factory.coverage.test.js:17
+-    const rejection = await ghost.factories.client(surface)({ controller: root, mask: mask(), register: { modes: [] }, instance: null, repl: new Vector() }).then(() => null, (error) => error);
++    const rejection = await ghost.factories.client(surface)({ controller: root, mask: mask(), register: { modes: [] }, instance: null }).then(() => null, (error) => error);
+…
+// systems/ghost/tests/factory.coverage.test.js:20
+-    specimen.expect(handed).toBeInstanceOf(ghost.Client);
+-    specimen.expect(handed.controller.status.reflection.code).toBe("FAILED");
+-    specimen.expect(handed.controller.status.reflection.error).toBe(rejection);
+-    specimen.expect(handed.controller.stdout.history.filter((record) => ["fault"].includes(record.track)).at(-1).data.message).toBe(rejection.message);
++    specimen.expect(handed).toBe(null);
++    const fault = root.stdout.history.filter((record) => ["fault"].includes(record.track)).at(-1);
++    specimen.expect(fault.data.message).toBe(rejection.message);
++    specimen.expect(fault.path.slice(0, 2)).toEqual(["ghost", "client"]);
+…
+// systems/ghost/tests/factory.coverage.test.js:28
+-    let handed = null;
+-    await ghost.factories.client((clientDie) => ((handed = clientDie), () => {}))({ controller: root, mask: mask(), register: { modes: [] }, instance: null, repl: new Vector() }).catch(() => null);
+-    specimen.expect(handed.controller.parent).toBe(root);
+-    specimen.expect(handed.controller.stdout.absolute).toEqual(["ghost", "client"]);
++    await ghost.factories.client(() => () => {})({ controller: root, mask: mask(), register: { modes: [] }, instance: null }).catch(() => null);
++    specimen.expect(root.stdout.history.filter((record) => ["status"].includes(record.track)).map((record) => record.path).at(-1)).toEqual(["ghost", "client"]);
+#+END_SRC
+**** tests/keymap.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/keymap.test.js:9   ← Q7 · Q8
+-  repl: new Vector().open({ nature: "/mode", valence: "pick", chord: "leader/m" }, () => "picked").open({ nature: "/quit", valence: "leave" }, () => "left"),
++  commands: new Vector().open({ nature: "/mode", valence: "pick", chord: "leader/m" }, () => "picked").open({ nature: "/quit", valence: "leave" }, () => "left"),
+…
+// systems/ghost/tests/keymap.test.js:18
+-  dispatch(line) {
++  record(line) {
+…
+// systems/ghost/tests/keymap.test.js:24
+-const seat = (client) => Object.assign(new Terminal(), { client });
++const seat = (client) => {
++  const terminal = Object.assign(new Terminal(), { client });
++  terminal.repl.commands = client.commands;
++  terminal.repl.dispatch = (line) => client.record(line);
++  client.active = terminal;
++  return terminal;
++};
+…
+// systems/ghost/tests/keymap.test.js:27
+-  const stripped = shape.strip(keymap.harvest(stub().repl)).branches;
++  const stripped = shape.strip(keymap.harvest(stub().commands)).branches;
+…
+// systems/ghost/tests/keymap.test.js:33
+-  specimen.expect(keymap.catalog(stub().repl)).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
++  specimen.expect(keymap.catalog(stub().commands)).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
+…
+// systems/ghost/tests/keymap.test.js:43
+-specimen.it("the terminal's $keymap: the client's keymap, the terminal repl's chords, then the thread mode's keymap at the root — later wins; it follows $thread", () => {
++specimen.it("the terminal's $keymap: the repl's chords, the client's keymap, then the thread mode's keymap at the root — later wins; it follows $thread", () => {
+…
+// systems/ghost/tests/keymap.test.js:47
+-  terminal.repl.open({ nature: "/modes", valence: "list", chord: "leader/l" }, () => []);
+-  specimen.expect(Object.keys(shape.strip(terminal.keymap).branches.leader.branches)).toEqual(["m", "l"]);
++  terminal.repl.commands = new Vector().open({ nature: "/modes", valence: "list", chord: "leader/l" }, () => []);
++  specimen.expect(Object.keys(shape.strip(terminal.keymap).branches.leader.branches)).toEqual(["l", "m"]);
+…
+// systems/ghost/tests/keymap.test.js:51
+-  specimen.expect(Object.keys(stripped)).toEqual(["m", "l", "h"]);
++  specimen.expect(Object.keys(stripped)).toEqual(["l", "m", "h"]);
+…
+// systems/ghost/tests/keymap.test.js:53
+   terminal.thread = { mode: "/daemon/elsewhere/mode/x/y" };
+-  specimen.expect(Object.keys(shape.strip(terminal.keymap).branches.leader.branches)).toEqual(["m", "l"]);
++  specimen.expect(Object.keys(shape.strip(terminal.keymap).branches.leader.branches)).toEqual(["l", "m"]);
+ });
+…
+// systems/ghost/tests/keymap.test.js:57
+ specimen.it("navigate: leader m dispatches /mode; leader esc drops silently; leader x faults; q at the root is the widget's; a closed drain ends the walk", async () => {
+   const client = stub();
+-  client.keymap.graft(keymap.harvest(client.repl), keymap.keymap);
++  client.keymap.graft(keymap.harvest(client.commands), keymap.keymap);
+   const terminal = seat(client);
+   const queue = presses("leader", "m", "leader", "esc", "leader", "x", "q");
+…
+// systems/ghost/tests/keymap.test.js:77
+ specimen.it("a held node is painted on $chord — crumbs and the node — and cleared when the walk ends; leader leader sets the catalog on $catalog", async () => {
+   const client = stub();
+-  client.keymap.graft(keymap.harvest(client.repl), keymap.keymap);
++  client.keymap.graft(keymap.harvest(client.commands), keymap.keymap);
+   const terminal = seat(client);
+   const queue = presses("leader");
+#+END_SRC
+**** tests/keys.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/keys.test.js:1   ← Q12′
+-import "../chrome/host/index.js";
++import "@vivalence/sheets";
+#+END_SRC
+**** tests/look.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/look.test.js:2   ← Q7
+ import { catalog } from "../subjects/client/keymap.js";
+-import * as repl from "../subjects/repl/index.js";
+ import { lines } from "../chrome/grid.js";
+…
+// systems/ghost/tests/look.test.js:51
+-    held.client.$catalog.set(catalog(repl.compose(held.client, held.client.active)));
++    held.client.$catalog.set(catalog(held.client.active.repl.commands));
+#+END_SRC
+**** tests/looping.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/looping.test.js:7   ← Q2 · Q3
+-const { commands, modes, surface } = ghost.lifecycle.client;
+-const execution = new Vector().use(shard.controller.open).use(commands).use(modes).use(surface).do(shard.controller.hold);
++const { modes, surface } = ghost.lifecycle.client;
++const execution = new Vector().use(shard.controller.open).use(modes).use(surface).do(shard.controller.hold);
+…
+// systems/ghost/tests/looping.test.js:55
+-      await booted.client.dispatch("/quit");
++      await booted.terminal.repl.dispatch("/quit");
+#+END_SRC
+**** tests/panes.out.coverage.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/panes.out.coverage.test.js:3   ← Q7
+ import { catalog } from "../subjects/client/keymap.js";
+-import * as repl from "../subjects/repl/index.js";
+ import { panes } from "../chrome/out/panes.mjs";
+…
+// systems/ghost/tests/panes.out.coverage.test.js:66
+-    held.client.$catalog.set(catalog(repl.compose(held.client, held.client.active)));
++    held.client.$catalog.set(catalog(held.client.active.repl.commands));
+#+END_SRC
+**** tests/repl.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/repl.test.js:2   ← Q2 · Q3 · Q4″ · Q6′ · Q13 — T-help-tree · T-tty-absent · T-mode-rebuild
+-import { Controller, Path, Span, Vector, shard, specimen, steer } from "@vivalence/typology";
++import { Controller, Path, Span, Vector, shape, shard, specimen, steer } from "@vivalence/typology";
+ import * as ghost from "@vivalence/ghost";
+-import { chrome as chromeCommand } from "../chrome/commands.js";
+-import { shell as shellCommand } from "../subjects/shell/commands.js";
+ import { Terminal } from "../entities/terminal/prototype.js";
+…
+// systems/ghost/tests/repl.test.js:8
+-const { commands, modes, surface } = ghost.lifecycle.client;
+-const execution = new Vector().use(shard.controller.open).use(commands).use(modes).use(surface).do(shard.controller.hold);
++const { modes, surface } = ghost.lifecycle.client;
++const execution = new Vector().use(shard.controller.open).use(modes).use(surface).do(shard.controller.hold);
+…
+// systems/ghost/tests/repl.test.js:18
+-const LAW_11 = ["/help", "/quit", "/chrome/on", "/chrome/off", "/modes", "/mode", "/application/start", "/application/stop", "/*"];
++const LAWFUL = ["/help", "/quit", "/shell", "/modes", "/mode", "/application/start", "/application/stop", "/*"];
+…
+// systems/ghost/tests/repl.test.js:20
+-specimen.describe("repl — a line becomes records on the client's span; the tail is what a surface paints", () => {
++const seated = async (client, id, tty) => {
++  const isTerminal = Deno.stdin.isTerminal;
++  Deno.stdin.isTerminal = () => tty;
++  try {
++    const terminal = Object.assign(new Terminal(), { id, index: 0, client, runtime: client.runtime });
++    await ghost.factories.terminal(terminal)(client);
++    return terminal;
++  } finally {
++    Deno.stdin.isTerminal = isTerminal;
++  }
++};
++
++specimen.describe("repl — a line runs on the terminal's Repl; its records land on the client's span; the tail is what a surface paints", () => {
+…
+// systems/ghost/tests/repl.test.js:23
+-  const client = new ghost.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface: () => () => {}, repl: new Vector().graft(chromeCommand, shellCommand) });
++  const client = new ghost.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface: () => () => {} });
+…
+// systems/ghost/tests/repl.test.js:25
+-  const dispatch = (line) => client.dispatch(line);
++  client.runtime = { entities: { mode: { $entities: atom([]) } } };
+   const tail = tracked(client.controller.stdout, "log", "fault");
++  let terminal = null;
+
+-  specimen.it("/help answers with a message holding the verbs as a tree, valence on each", async () => {
+-    await dispatch("/help");
+-    specimen.expect(tracks(tail)).toEqual(["log"]);
+-    specimen.expect(Object.keys(tail.get()[0].data.branches)).toEqual(["chrome", "shell", "help", "lighthouse", "quit", "runtime", "terminal"]);
+-    specimen.expect(tail.get()[0].data.branches.quit.effect.valence).toMatch(/Example: \/quit/);
+-    specimen.expect(tail.get()[0].path).toEqual(["ghost", "client", "/help"]);
+-  });
+-
+-  specimen.it("a bare line with no terminal is NotFound — a fault on the line's branch /*", async () => {
+-    await dispatch("ciao").catch(() => {});
+-    specimen.expect(tracks(tail)).toEqual(["log", "fault"]);
+-    specimen.expect(tail.get()[1].path).toEqual(["ghost", "client", "/*"]);
+-  });
+-
+-  specimen.it("an unknown verb settles the line FAILED AND leaves a fault record", async () => {
+-    await dispatch("/typo").catch(() => {});
+-    specimen.expect(tracks(tail)).toEqual(["log", "fault", "fault"]);
+-    specimen.expect(tail.get()[2].path).toEqual(["ghost", "client", "/typo"]);
+-  });
+-
+-  specimen.it("a tail opened late replays the journal — a surface mounted after the fact sees everything", () => {
+-    specimen.expect(tracks(tracked(client.controller.stdout, "log", "fault"))).toEqual(tracks(tail));
+-    specimen.expect(tracks(tracked(client.controller.stdout, "fault"))).toEqual(["fault", "fault"]);
+-  });
+-
+-  specimen.it("a vector grafted onto the client's repl after boot answers on the next line — composition is per line; the value is the caller's, not a journal line", async () => {
+-    client.repl.graft(new Vector().open({ nature: "/late", valence: "grafted after boot. Example: /late" }, () => "late"));
+-    specimen.expect(await dispatch("/late")).toBe("late");
+-    specimen.expect(tracks(tail)).toEqual(["log", "fault", "fault"]);
+-  });
+-
+-  specimen.it("a seated terminal lends its commands: the strip lists every command of both owners, the nine of law 11 among them", async () => {
+-    client.runtime = { entities: { mode: { $entities: atom([]) } } };
+-    const terminal = Object.assign(new Terminal(), { id: "t1", index: 0, client, runtime: client.runtime });
+-    await ghost.factories.terminal(terminal)(client);
+-    client.$active.set(terminal);
+-    await dispatch("/help");
++  specimen.it("/help on a terminal booted on a tty answers with the whole of terminal.repl.commands — the client's, the tty's /shell, the terminal's", async () => {
++    terminal = await seated(client, "t1", true);
++    await terminal.repl.dispatch("/help");
++    specimen.expect(tracks(tail)).toEqual(["log", "log"]);
+…
+// systems/ghost/tests/repl.test.js:66
+     specimen.expect(listed).toEqual([
+-      "/chrome/on",
+-      "/chrome/off",
+-      "/shell",
+       "/help",
+…
+// systems/ghost/tests/repl.test.js:80
+-      "/late",
++      "/shell",
+…
+// systems/ghost/tests/repl.test.js:111
+-    specimen.expect(listed).toEqual(specimen.expect.arrayContaining(LAW_11));
++    specimen.expect(listed).toEqual(specimen.expect.arrayContaining(LAWFUL));
++    specimen.expect(tail.get().at(-1).data.branches.quit.effect.valence).toMatch(/Example: \/quit/);
+…
+// systems/ghost/tests/repl.test.js:113
+-    terminal.controller.abort.abort("test over");
++  });
++
++  specimen.it("a bare line on a terminal whose mode is not HARNESSED is NotFound — a fault on the line's branch /*", async () => {
++    await terminal.repl.dispatch("ciao").catch(() => {});
++    specimen.expect(tracks(tail)).toEqual(["log", "log", "fault"]);
++    specimen.expect(tail.get().at(-1).path).toEqual(["ghost", "client", "terminal/t1", "/*"]);
++  });
++
++  specimen.it("an unknown verb settles the line FAILED AND leaves a fault record", async () => {
++    await terminal.repl.dispatch("/typo").catch(() => {});
++    specimen.expect(tracks(tail)).toEqual(["log", "log", "fault", "fault"]);
++    specimen.expect(tail.get().at(-1).path).toEqual(["ghost", "client", "terminal/t1", "/typo"]);
++  });
++
++  specimen.it("a tail opened late replays the journal — a surface mounted after the fact sees everything", () => {
++    specimen.expect(tracks(tracked(client.controller.stdout, "log", "fault"))).toEqual(tracks(tail));
++    specimen.expect(tracks(tracked(client.controller.stdout, "fault"))).toEqual(["fault", "fault"]);
++  });
++
++  specimen.it("a change of the runtime's mode list rebuilds terminal.repl.commands whole: a new mode answers under /mode/<type>/<slug> and /mode/<slug>, what its repl gains later answers too, a removed mode is gone, the rest is the boot set", async () => {
++    const probe = { type: "home", slug: "probe", repl: new Vector().open({ nature: "/ping", valence: "the mode answers. Example: /ping" }, () => "pong") };
++    client.runtime.entities.mode.$entities.set([probe]);
++    specimen.expect(await terminal.repl.dispatch("/mode/home/probe/ping")).toBe("pong");
++    specimen.expect(await terminal.repl.dispatch("/mode/probe/ping")).toBe("pong");
++    probe.repl.open({ nature: "/late", valence: "wired after the mode joined the list. Example: /late" }, () => "late");
++    specimen.expect(await terminal.repl.dispatch("/mode/home/probe/late")).toBe("late");
++    client.runtime.entities.mode.$entities.set([]);
++    specimen.expect(natures(shape.strip(terminal.repl.commands))).not.toContain("/mode/probe/ping");
++    specimen.expect(natures(shape.strip(terminal.repl.commands))).toEqual(natures(tail.get().at(1).data));
++  });
++
++  specimen.it("a terminal booted off a tty mounts no /shell; everything else is the same", async () => {
++    const plain = await seated(client, "t2", false);
++    specimen.expect(natures(shape.strip(plain.repl.commands))).toEqual(natures(shape.strip(terminal.repl.commands)).filter((nature) => nature !== "/shell"));
++    plain.controller.abort.abort("test over");
+…
+// systems/ghost/tests/repl.test.js:117
+-    client.$active.set(null);
+-    await dispatch("/quit");
++    await terminal.repl.dispatch("/quit");
+…
+// systems/ghost/tests/repl.test.js:122
+   });
+ });
+
++
+#+END_SRC
+**** tests/scenarios/look.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/scenarios/look.js:4   ← Q8 · m98 Q7 — chord-80x24 reflows without the c cell
+-import { harvest, keymap } from "../../subjects/client/keymap.js";
++import { keymap } from "../../subjects/client/keymap.js";
+…
+// systems/ghost/tests/scenarios/look.js:11
+ import { screen } from "../../chrome/screen.js";
+-import { chrome as chromeCommand } from "../../chrome/commands.js";
+-import { shell as shellCommand } from "../../subjects/shell/commands.js";
+ import { KEYS } from "../../chrome/grid.js";
+…
+// systems/ghost/tests/scenarios/look.js:87
+-  terminal.repl.graft(...Object.values(ghost.commands.terminal));
+-  client.repl.graft(chromeCommand, shellCommand, ...Object.values(ghost.commands.client));
+-  client.keymap.graft(harvest(client.repl), keymap);
++  terminal.repl.commands.graft(...Object.values(ghost.commands.client), ...Object.values(ghost.commands.terminal));
++  client.keymap.graft(keymap);
+…
+// systems/ghost/tests/scenarios/look.js:209
++      "                                                                                ",
+       "                                                                                ",
+       "                                                                                ",
+       " ›  say it, or / for a command                                           ■ stop ",
+       " ctrl-v  once = keys · twice = the palette                            esc drops ",
+-      "  c   c         /chrome/on               d   display   how do I see it          ",
+       "  ?   help      /help                    s   system    what does it run on      ",
+-      "  q   quit      /quit                    e   entity    where am I               ",
+-      "  a   activity  is it working            h   harness   what is it given         ",
+-      "  m   m         /mode                                                           ",
++      "  q   quit      /quit                    d   display   how do I see it          ",
++      "  e   entity    where am I               a   activity  is it working            ",
++      "  h   harness   what is it given         m   m         /mode                    ",
+…
+// systems/ghost/tests/scenarios/look.js:224
+-      18: ["0+1 0:text-ink 0:surface-lift", "1+5 0:signal-primary-ink 0:surface-lift b", "6+10 0:text-ink 0:surface-lift", "16+5 0:text-muted 0:surface-lift", "21+19 0:text-ink 0:surface-lift", "40+5 0:signal-primary-ink 0:surface-lift b", "45+10 0:text-ink 0:surface-lift", "55+10 0:text-muted 0:surface-lift", "65+15 0:text-ink 0:surface-lift"],
++      18: ["0+1 0:text-ink 0:surface-lift", "1+5 0:signal-primary-ink 0:surface-lift b", "6+10 0:text-ink 0:surface-lift", "16+5 0:text-muted 0:surface-lift", "21+19 0:text-ink 0:surface-lift", "40+5 0:signal-primary-ink 0:surface-lift b", "45+10 0:text-ink 0:surface-lift", "55+15 0:text-muted 0:surface-lift", "70+10 0:text-ink 0:surface-lift"],
+#+END_SRC
+**** tests/shell.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/shell.test.js:24   ← m98 Q6
+-const VERBS = { help: "the shell's verbs. Example: viva help", repl: "the repl as plain lines in this terminal. Example: viva repl", chrome: "the repl under the chrome — the dock paints. Example: viva chrome" };
++const VERBS = { help: "the shell's verbs. Example: viva help", chrome: "the repl under the chrome — the dock paints. Example: viva chrome" };
+…
+// systems/ghost/tests/shell.test.js:49
+-
+-  specimen.it("repl exits 1 naming the missing instance", async () => {
+-    const ran = await viva(home, ["repl"]);
+-    specimen.expect(ran.code).toBe(1);
+-    specimen.expect(ran.stderr).toContain("viva /repl: instance: nothing selected — viva instance/use <slug|path>");
+-  });
+
+   specimen.it("chrome exits 1 naming the missing instance", async () => {
+…
+// systems/ghost/tests/shell.test.js:62
+-  specimen.it("repl against an instance that masks no ghost client exits 1 naming the absent mask", async () => {
++  specimen.it("chrome against an instance that masks no ghost client exits 1 naming the absent mask", async () => {
+…
+// systems/ghost/tests/shell.test.js:66
+-    const ran = await viva(home, ["repl"], { VIVA_INSTANCE_MOUNT: mount });
++    const ran = await viva(home, ["chrome"], { VIVA_INSTANCE_MOUNT: mount });
+…
+// systems/ghost/tests/shell.test.js:68
+-    specimen.expect(ran.stderr).toContain(`viva /repl: instance ${mount} masks no ghost client — no client at all`);
++    specimen.expect(ran.stderr).toContain(`viva /chrome: instance ${mount} masks no ghost client — no client at all`);
+#+END_SRC
+
+* checks as code
+
+Drilled 10-24 on the landed tree, built on a copy of it (=scratchpad/m102-checks=), census = base; LANDED 10-24 on /"go"/.
+
+*** systems/ghost
+**** entities/terminal/lifecycle/index.js
+#+BEGIN_SRC diff
+// systems/ghost/entities/terminal/lifecycle/index.js:7   ← Locked Q17: /"b"/
+-  const { shell, ...everywhere } = clientCommand;
+-  const tty = paladin.is.tty ? [shell] : [];
++  const { shell, quit, ...everywhere } = clientCommand;
++  const tty = paladin.is.tty ? [shell, quit] : [];
+#+END_SRC
+**** subjects/client/lifecycle/index.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/lifecycle/index.js:108   ← Locked Q16: /"clients arent per user. a. when a nwe user logs in we flush our cache"/
+-export const rows = async (clientDie, next) => {
++const read = async (clientDie) => {
+…
+// systems/ghost/subjects/client/lifecycle/index.js:114
+-  const offs = [
++  return [
+…
+// systems/ghost/subjects/client/lifecycle/index.js:120
+   ];
++};
++
++const flushed = (clientDie) => {
++  for (const name of ["thread", "buffer", "turn", "activity", "terminal"])
++    for (const entity of clientDie.runtime.entities[name].$entities.get()) clientDie.runtime.entities.em.drop(name, entity.id);
++};
++
++export const rows = async (clientDie, next) => {
++  let offs = await read(clientDie);
++  let reader = clientDie.runtime.lighthouse.user.slug;
++  const off = clientDie.runtime.lighthouse.$user.listen(async (user) => {
++    if (user === null || user.slug === reader) return;
++    reader = user.slug;
++    for (const unsubscribe of offs) unsubscribe();
++    flushed(clientDie);
++    offs = await read(clientDie);
++  });
+   try {
+…
+// systems/ghost/subjects/client/lifecycle/index.js:124
+-    for (const off of offs) off();
++    off();
++    for (const unsubscribe of offs) unsubscribe();
+#+END_SRC
+**** tests/client.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/client.test.js:34   ← Q17 — off a tty the run ends on a kill
+-    await clientDie.active.repl.dispatch("/quit");
++    clientDie.controller.kill("SIGTERM", "test over");
+#+END_SRC
+**** tests/console.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/console.test.js:37   ← Q17 — /help and leader lose quit off a tty
+-    specimen.expect(Object.keys(tail.get().at(-1).data.branches).slice(0, 7)).toEqual(["help", "lighthouse", "quit", "runtime", "terminal", "hello", "whoami"]);
+-    await terminal.repl.dispatch("/quit");
++    specimen.expect(Object.keys(tail.get().at(-1).data.branches).slice(0, 6)).toEqual(["help", "lighthouse", "runtime", "terminal", "hello", "whoami"]);
++    clientDie.controller.kill("SIGTERM", "test over");
+…
+// systems/ghost/tests/console.test.js:56
+-    specimen.expect(Object.keys(leader)).toEqual(specimen.expect.arrayContaining(["?", "q", "leader", "h"]));
++    specimen.expect(Object.keys(leader)).toEqual(specimen.expect.arrayContaining(["?", "leader", "h"]));
++    specimen.expect(Object.keys(leader)).not.toContain("q");
+…
+// systems/ghost/tests/console.test.js:61
+     specimen.expect(clientDie.controller.stdout.history.filter((record) => ["fault"].includes(record.track))).toEqual([]);
+-    await terminal.repl.dispatch("/quit");
++    clientDie.controller.kill("SIGTERM", "test over");
+     await held;
+#+END_SRC
+**** tests/door.coverage.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/door.coverage.test.js:68   ← Q17
+-  specimen.it("factories.client: the surface is handed the Client; a terminal removed from the store settles ABORTED 'removed'; /quit ends the run and the factory hands back its die STOPPED", async () => {
++  specimen.it("factories.client: the surface is handed the Client; a terminal removed from the store settles ABORTED 'removed'; a kill ends the run and the factory hands back its die STOPPED", async () => {
+…
+// systems/ghost/tests/door.coverage.test.js:89
+-    await clientDie.active.repl.dispatch("/quit");
++    clientDie.controller.kill("SIGTERM", "quit");
+#+END_SRC
+**** tests/looping.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/looping.test.js:55   ← Q17
+-      await booted.terminal.repl.dispatch("/quit");
++      booted.client.controller.kill("SIGTERM", "test over");
+…
+// systems/ghost/tests/looping.test.js:64
+-  specimen.it("/terminal/t1/metadata/repl strips the composed ring: the client's help · quit and the hosted mode's hello · whoami beside the terminal's own", async () => {
++  specimen.it("/terminal/t1/metadata/repl strips the composed ring: the client's help and the hosted mode's hello · whoami beside the terminal's own; off a tty no quit", async () => {
+…
+// systems/ghost/tests/looping.test.js:66
+-    specimen.expect(Object.keys(strip.branches)).toEqual(specimen.expect.arrayContaining(["help", "quit", "hello", "whoami", "terminal"]));
++    specimen.expect(Object.keys(strip.branches)).toEqual(specimen.expect.arrayContaining(["help", "hello", "whoami", "terminal"]));
++    specimen.expect(Object.keys(strip.branches)).not.toContain("quit");
+#+END_SRC
+**** tests/repl.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/repl.test.js:39   ← Q17 — /quit rides the tty beside /shell
+-  specimen.it("/help on a terminal booted on a tty answers with the whole of terminal.repl.commands — the client's, the tty's /shell, the terminal's", async () => {
++  specimen.it("/help on a terminal booted on a tty answers with the whole of terminal.repl.commands — the client's, the tty's /shell · /quit, the terminal's", async () => {
+…
+// systems/ghost/tests/repl.test.js:49
+       "/lighthouse/logout",
+-      "/quit",
+       "/runtime",
+…
+// systems/ghost/tests/repl.test.js:55
+       "/shell",
++      "/quit",
+       "/abort",
+…
+// systems/ghost/tests/repl.test.js:120
+-  specimen.it("a terminal booted off a tty mounts no /shell; everything else is the same", async () => {
++  specimen.it("a terminal booted off a tty mounts no /shell and no /quit; everything else is the same", async () => {
+…
+// systems/ghost/tests/repl.test.js:122
+-    specimen.expect(natures(shape.strip(plain.repl.commands))).toEqual(natures(shape.strip(terminal.repl.commands)).filter((nature) => nature !== "/shell"));
++    specimen.expect(natures(shape.strip(plain.repl.commands))).toEqual(natures(shape.strip(terminal.repl.commands)).filter((nature) => nature !== "/shell" && nature !== "/quit"));
+#+END_SRC
+**** tests/rows.test.js
+#+BEGIN_SRC js
+// systems/ghost/tests/rows.test.js   ← Q16 — P-user-flush's unit; red on the landed rows, green here
+import { atom } from "nanostores";
+import { specimen } from "@vivalence/typology";
+import * as ghost from "@vivalence/ghost";
+
+const { rows } = ghost.lifecycle.client;
+
+const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+const NAMES = ["thread", "buffer", "turn", "activity", "terminal"];
+
+const OWNED = {
+  beef: { thread: [{ id: "th-beef" }], buffer: [{ id: "bu-beef" }], turn: [{ id: "tu-beef" }], activity: [{ id: "ac-beef" }], terminal: [{ id: "t-beef-1" }, { id: "t-beef-2" }] },
+  lena: { thread: [{ id: "th-lena" }], buffer: [], turn: [], activity: [], terminal: [{ id: "t-lena-1" }] },
+};
+
+const world = () => {
+  const $user = atom({ slug: "beef" });
+  const streams = { opened: 0, closed: 0 };
+  const reads = { count: 0 };
+  const entities = { em: { drop: (name, id) => entities[name].$entities.set(entities[name].$entities.get().filter((entity) => entity.id !== id)) } };
+  for (const name of NAMES) {
+    entities[name] = {
+      $entities: atom([]),
+      find: async () => {
+        reads.count += 1;
+        const known = entities[name].$entities.get().map((entity) => entity.id);
+        entities[name].$entities.set([...entities[name].$entities.get(), ...OWNED[$user.get().slug][name].filter((entity) => !known.includes(entity.id))]);
+      },
+      subscribe: () => {
+        streams.opened += 1;
+        return () => (streams.closed += 1);
+      },
+    };
+  }
+  const lighthouse = { $user, get user() { return $user.get(); } };
+  const clientDie = { runtime: { lighthouse, entities } };
+  const held = Promise.withResolvers();
+  const running = rows(clientDie, () => held.promise);
+  const ids = (name) => entities[name].$entities.get().map((entity) => entity.id);
+  return { $user, streams, reads, ids, held, running };
+};
+
+specimen.describe("rows — the client is no user's: another user's sign-in flushes the cache and reads theirs", () => {
+  specimen.it("another user signs in: every store is flushed, read again under the new user, the streams re-opened", async () => {
+    const booted = world();
+    await settle();
+    specimen.expect(booted.ids("terminal")).toEqual(["t-beef-1", "t-beef-2"]);
+    specimen.expect(booted.streams).toEqual({ opened: 5, closed: 0 });
+    booted.$user.set(null);
+    booted.$user.set({ slug: "lena" });
+    await settle();
+    for (const name of NAMES) specimen.expect(booted.ids(name)).toEqual(OWNED.lena[name].map((entity) => entity.id));
+    specimen.expect(booted.streams).toEqual({ opened: 10, closed: 5 });
+    booted.held.resolve();
+    await booted.running;
+    specimen.expect(booted.streams).toEqual({ opened: 10, closed: 10 });
+  });
+
+  specimen.it("a logout, or the same user signing back in, flushes nothing", async () => {
+    const booted = world();
+    await settle();
+    booted.$user.set(null);
+    booted.$user.set({ slug: "beef" });
+    await settle();
+    specimen.expect(booted.reads.count).toBe(5);
+    specimen.expect(booted.ids("terminal")).toEqual(["t-beef-1", "t-beef-2"]);
+    specimen.expect(booted.streams).toEqual({ opened: 5, closed: 0 });
+    booted.held.resolve();
+    await booted.running;
+  });
+});
+#+END_SRC
+
+* walk as code
+
+Found 10-24 by the QA walk, built on =scratchpad/m102-checks= over the repo as it stands, census = rig +3 green; not yet a go. The bundle =systems/ghost/chrome/out/panes.mjs= is a build: =deno task ghost/bundle=.
+
+*** systems/anima
+**** src/surface/index.js
+#+BEGIN_SRC diff
+// systems/anima/src/surface/index.js:6   ← Locked Q18 — the mount arms forgetting
+-import { screen } from "./screen.js";
++import { forgetting, screen } from "./screen.js";
+…
+// systems/anima/src/surface/index.js:34
+   client.surface = screen({ kind: "dom", places: ["cell", "frame"], dark: dom.dark, narrow: narrow.matches, width: globalThis.innerWidth, height: globalThis.innerHeight, palette: () => tokens.kebab(client.theme, "2") });
++  const forget = forgetting(client);
+   const widen = (event) => client.surface.$narrow.set(event.matches);
+…
+// systems/anima/src/surface/index.js:51
+     globalThis.removeEventListener("resize", resized);
++    forget();
+     untail();
+#+END_SRC
+**** src/surface/panes/signin.jsx
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/signin.jsx:1   ← Locked Q18 — the form is the surface's $signin, not two local signals
+-import { createSignal, from, Show } from "solid-js";
++import { from, Show } from "solid-js";
+…
+// systems/anima/src/surface/panes/signin.jsx:8
+-  const [user, setUser] = createSignal("");
+-  const [pass, setPass] = createSignal("");
++  const signin = from(props.client.surface.$signin);
++  const user = () => signin().user;
++  const pass = () => signin().pass;
++  const setUser = (user) => props.client.surface.$signin.set({ ...props.client.surface.signin, user });
++  const setPass = (pass) => props.client.surface.$signin.set({ ...props.client.surface.signin, pass });
+#+END_SRC
+**** src/surface/screen.js
+#+BEGIN_SRC diff
+// systems/anima/src/surface/screen.js:11   ← Locked Q18: /"b"/
+ export const SECTIONS = { hidden: [], filter: {}, expand: {}, pick: null, hostsOff: [] };
+
++export const SIGNIN = { user: "", pass: "" };
++
++export const forgetting = (client) =>
++  client.runtime.lighthouse.$status.listen((status) => {
++    if (status.code === "LOGGED_OUT") client.surface.$signin.set({ ...SIGNIN, user: client.surface.signin.user });
++  });
++
+…
+// systems/anima/src/surface/screen.js:28
+   const $draft = atom("");
++  const $signin = atom(SIGNIN);
+   return {
+…
+// systems/anima/src/surface/screen.js:47
+     $draft,
++    $signin,
+     get narrow() {
+…
+// systems/anima/src/surface/screen.js:92
++    },
++    get signin() {
++      return $signin.get();
+     },
+     get palette() {
+#+END_SRC
+**** tests/chrome.test.js
+#+BEGIN_SRC diff
+// systems/anima/tests/chrome.test.js:144   ← Q18
+   });
+ });
+
++specimen.describe("a logout in the tab — the sign-in form keeps the username, forgets the password", () => {
++  specimen.it("LOGGED_OUT empties the password and keeps the username; the remounted pane shows the kept username", async () => {
++    const held = world();
++    held.seat();
++    const forget = surface.forgetting(held.client);
++    held.client.surface.$signin.set({ user: "beef", pass: "hunter 2" });
++    held.lighthouse.$status.set({ code: "LOGGED_OUT" });
++    specimen.expect(held.client.surface.signin).toEqual({ user: "beef", pass: "" });
++    const rig = paint(() => surface.Chrome({ client: held.client }));
++    await settle();
++    const [username, password] = rig.target.querySelectorAll("input");
++    specimen.expect([username.value, password.value]).toEqual(["beef", ""]);
++    rig.close();
++    forget();
++  });
++});
++
+#+END_SRC
+**** tests/world.js
+#+BEGIN_SRC diff
+// systems/anima/tests/world.js:13   ← Q18 — the rig's entry exports forgetting
+-const ENTRY = `export * from "./panes/index.js"; export * from "./renderers.js"; export * from "./view.js"; export { render } from "solid-js/web"; export { screen } from "./screen.js";`;
++const ENTRY = `export * from "./panes/index.js"; export * from "./renderers.js"; export * from "./view.js"; export { render } from "solid-js/web"; export { forgetting, screen } from "./screen.js";`;
+#+END_SRC
+*** systems/ghost
+**** chrome/index.js
+#+BEGIN_SRC diff
+// systems/ghost/chrome/index.js:4   ← walk 10-24 — the tick reads entities only after dataspace (Q14 mounts first); Q18 arms forgetting
+-import { screen } from "./screen.js";
++import { forgetting, screen } from "./screen.js";
+…
+// systems/ghost/chrome/index.js:33
+   client.runtime !== null &&
++  client.runtime.entities !== null &&
+   client.runtime.entities.activity.$entities
+…
+// systems/ghost/chrome/index.js:54
+   keypresses(renderer).to(client.presses);
++  const forget = forgetting(client);
+   const tick = ticking(client);
+…
+// systems/ghost/chrome/index.js:57
+   return () => {
++    forget();
+     clearInterval(tick);
+#+END_SRC
+**** chrome/screen.js
+#+BEGIN_SRC diff
+// systems/ghost/chrome/screen.js:13   ← Locked Q18: /"b"/ — the tty focuses the password
+ export const SIGNIN = { user: "", pass: "", field: "user" };
+
++export const forgetting = (client) =>
++  client.runtime.lighthouse.$status.listen((status) => {
++    if (status.code === "LOGGED_OUT") client.surface.$signin.set({ ...SIGNIN, user: client.surface.signin.user, field: "pass" });
++  });
++
+#+END_SRC
+**** subjects/client/lifecycle/index.js
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/lifecycle/index.js:136   ← walk 10-24 — Q16 completed: the flush re-seats the active terminal as the boot does
+     offs = await read(clientDie);
++    await seat(clientDie);
+   });
+…
+// systems/ghost/subjects/client/lifecycle/index.js:213
++
++const seat = async (clientDie) => {
++  const terminals = clientDie.runtime.entities.terminal.$entities.get();
++  clientDie.$active.set(terminals.length === 0 ? await clientDie.runtime.entities.terminal.create({}) : terminals[0]);
++};
+
+ export const active = async (clientDie, next) => {
+-  const rows = clientDie.runtime.entities.terminal.$entities.get();
+-  clientDie.$active.set(rows.length === 0 ? await clientDie.runtime.entities.terminal.create({}) : rows[0]);
++  await seat(clientDie);
+#+END_SRC
+**** tests/chrome.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/chrome.test.js:3   ← Q18
+ import { keypresses } from "../chrome/keys.js";
++import { forgetting, screen as tty } from "../chrome/screen.js";
++import { atom } from "nanostores";
+ import { chrome, screen, settle } from "./world.js";
+…
+// systems/ghost/tests/chrome.test.js:142
+     setup.renderer.destroy();
+   });
+ });
+
++specimen.describe("a logout on the tty — the sign-in form keeps the username, forgets the password", () => {
++  specimen.it("LOGGED_OUT empties the password, keeps the username, focuses the password; any other status leaves the form", () => {
++    const client = { runtime: { lighthouse: { $status: atom({ code: "IDLE" }) } }, surface: tty({ kind: "tty", places: [], dark: true }) };
++    const forget = forgetting(client);
++    client.surface.$signin.set({ user: "beef", pass: "hunter 2", field: "pass" });
++    client.runtime.lighthouse.$status.set({ code: "AUTHENTICATING" });
++    specimen.expect(client.surface.signin).toEqual({ user: "beef", pass: "hunter 2", field: "pass" });
++    client.runtime.lighthouse.$status.set({ code: "LOGGED_OUT" });
++    specimen.expect(client.surface.signin).toEqual({ user: "beef", pass: "", field: "pass" });
++    forget();
++  });
++});
++
+#+END_SRC
+**** tests/rows.test.js
+#+BEGIN_SRC diff
+// systems/ghost/tests/rows.test.js:36   ← Q16 — the flush re-seats; lena's first terminal is active
+-  const clientDie = { runtime: { lighthouse, entities } };
++  const clientDie = { runtime: { lighthouse, entities }, $active: atom(entities.terminal.$entities.get()[0] ?? null) };
+…
+// systems/ghost/tests/rows.test.js:40
+-  return { $user, streams, reads, ids, held, running };
++  return { $user, streams, reads, ids, held, running, clientDie };
+…
+// systems/ghost/tests/rows.test.js:44
+-  specimen.it("another user signs in: every store is flushed, read again under the new user, the streams re-opened", async () => {
++  specimen.it("another user signs in: every store is flushed, read again under the new user, the streams re-opened, their first terminal is the active one", async () => {
+…
+// systems/ghost/tests/rows.test.js:52
+     for (const name of NAMES) specimen.expect(booted.ids(name)).toEqual(OWNED.lena[name].map((entity) => entity.id));
++    specimen.expect(booted.clientDie.$active.get().id).toBe("t-lena-1");
+     specimen.expect(booted.streams).toEqual({ opened: 10, closed: 5 });
+#+END_SRC
+
+* the law
+
+1. a terminal holds exactly one =Repl=; the client holds none; a mode keeps its own =mode.repl= Vector.
+2. =terminal.repl.dispatch(line)= is the only way a line runs; =client.dispatch= · =terminal.dispatch= do not exist.
+3. =terminal.repl.commands= is the whole truth: the client's · =/shell= on a tty · the hosted modes' · the terminal's (=*= last) · every runtime mode's own =repl=, by reference, under =/mode/<type>/<slug>= and =/mode/<slug>=; rebuilt whole on every change of the runtime's mode list.
+4. a command reads =ctx.repl.commands=; =/help= · the palette · =/metadata/repl= · the keymap's chord harvest read the same Vector.
+5. the login screen is the whole screen until the lighthouse authorizes; it calls the lighthouse, never a line; nothing boots before it.
+6. the terminal's keymap: the harvest of its commands, then the client's keymap, then the thread mode's — later wins.
+7. ghost exports no surface; the opentui host is sheets', =host= on sheets' root barrel.
+
+* milestones
+
+| milestone | blocks | green when |
+|-----------|--------|------------|
+| the Repl | =entities/terminal/repl.js= · =terminal/prototype.js= · =terminal/lifecycle/index.js= · paladin =belt/is.js= | =repl.test.js= — 7 its; 10-23 replayed copy green |
+| the callers | =chrome/acts.js= · anima =surface/send.js= · =mode/traits/looping.js= · =client/keymap.js= | =keymap= · =looping= · =chrome= · anima =panel= · =bar= — 10-23 green |
+| the client without a repl | =client/prototype.js= · =factory.js= · =lifecycle/index.js= · =commands/index.js= · =help.js= · =shell/lifecycle.js= · anima =src/client.js= | =client= · =console= · =door.coverage= · =factory.coverage= — 10-23 green; =viva --help= rc 0 under an empty HOME |
+| the deaths | =chrome/commands.js= · =subjects/repl/= · =viva repl= (m98 Q6 · Q7) | =commands= · =door.coverage= · =chrome.surface.coverage= — 10-23 green |
+| the host | sheets =host.js= · =preload.js= · =deno-ffi.js= · =opentui-core.patch= · =index.js= · =deno.jsonc= · ghost =chrome/index.js= · =deno.jsonc= · =install.sh= | sheets suite 23 ok · =keys.test= · memo 4 ok — 10-23 |
+| the sign-in gate | =client/lifecycle/index.js= · =chrome/acts.js= · anima =panes/signin.jsx= | ghost =chrome.test= · anima =chrome.test= · =factory.coverage= — 10-23 green |
+| the context | typology =contexts.js:49-50= (HOLY) — LANDED 10-24 on his go on the side | typology suite 150 ok — 10-23 |
+| the tty quit | =entities/terminal/lifecycle/index.js:7= (Q17) + 6 tests re-cut | =repl= · =client= · =console= · =door.coverage= · =looping= — 10-24 copy green; ghost suite = base +1 |
+| the user flush | =subjects/client/lifecycle/index.js:108= =rows= (Q16) | =tests/rows.test.js= 2 its — 10-24 copy green, red on the landed =rows= |
+
+* blast table
+
+Every file the tangle touches is a block under =* as code= (47 · 6 moves · 5 deletes); the rows below are what it leaves alone.
+
+| site | today | after | rides |
+|------|-------|-------|-------|
+| keep — =mode.repl= | =systems/ghost/entities/mode/traits/repling.js= · =harnessed.js:33= · =systems/runtime/subjects/mode/traits/repling.js= · =looping.js:7= · =subsystems/paladin/prototypes/integrity.js:19= · =paladin/tests/baked.test.js:25,97= · =ghost/tests/repling.coverage.test.js= · =runtime/tests/mode/repling.coverage.test.js= · =repling.route.test.js= | unchanged | Q1′ |
+| keep — =shape.repl= · =ReplSignal= | =subsystems/typology/gestalten/shape/index.js:2= · =typology/tests/repl.test.js= | unchanged | — |
+| keep — lens · filter · CSS class ="repl"= | =subsystems/typology/schematics/traits/docked.js:8= · =systems/ghost/gestalten/belt/dock.js:3= · =ghost/entities/terminal/commands/dock.js:6= · =ghost/chrome/sections.js:39= · =chrome/panes/journal.js:8= · =panel.js:18,158= · =tele.js:7,54,109= · =anima/src/surface/sections.js:37= · =panes/catalog.jsx:77= · =composer.jsx:22= · =journal.jsx:11= · =tele.jsx:11,48,83= · =subsystems/drapes/Field.jsx:28,33= · their tests | unchanged | — |
+| keep — drapes' DOM surface | =subsystems/drapes/dom/surface.js:21= =client.dispatch= | unchanged — its client is =tests/dom/rig.js:176= (=terminals.$active= · =dispatch=), never a ghost Client | — |
+| keep — =/lighthouse/login= | =systems/ghost/subjects/client/commands/lighthouse.js:17= | still a repl command; the sign-in pane no longer sends it | Q14 |
+| =~/.viva= | no =repl= key in any recipe · shelf | none | — |
+
+* testing assessment
+
+- the Q6′ rebuild: =repl.test.js= — a mode joins → =/mode/home/probe/ping= · =/mode/probe/ping= answer; its =repl= gains =/late= after → it answers (Q13); it leaves → gone from =/help=.
+- =paladin.is.tty=: =repl.test.js= pins =Deno.stdin.isTerminal= per boot — on a tty =/shell= is listed, off it the set is the same minus =/shell=; a test never reads this machine's stdin.
+- the sign-in gate: =factory.coverage.test.js= — no instance → the connection beat faults, no surface is mounted; ghost · anima =chrome.test.js= — the pane calls =lighthouse.login=.
+- COVERAGE GAP: a non-autologin =viva= / anima boot held on the sign-in screen until a login — a live walk (QA =P-signin-gate=), no unit.
+- COVERAGE GAP: anima's served bundle free of =@opentui/*= — a bundle probe (QA =P-anima-clean=); the static walk from =systems/ghost/typology.js= reaches no =chrome/= (10-23).
+- known issue filed 10-23: =wildcard-shadows-a-later-sibling= (=steer/match.js:18-27=) — a literal grafted after =*= never answers; the rebuild grafts =*= last.
+
+* QA
+
+- /"I type =/help= in =viva=, I see the client's, =/shell=, the terminal's, every =/mode/<type>/<slug>/…= and =*=."/
+#+marker_qa: m102/T-help-tree · held · 10-24 walk: =/help= on beef's terminal answers the tree in the journal (=help · lighthouse/login …=); the full list is =repl.test.js:39=
+- /"I run the ghost suite, a terminal booted without a tty lists no =/shell=."/
+#+marker_qa: m102/T-tty-absent · held · repl.test.js green on the replayed copy 10-23
+- /"I start a daemon while =viva= runs, I type =/mode/<its slug>/harness ciao=, it answers."/
+#+marker_qa: m102/T-mode-rebuild · revised · 10-24: the walk world serves no HARNESSED mode and no model key (=@commons/hallucinator/anthropic — empty key=), so =/mode/<slug>/harness ciao= cannot answer live; held by =repl.test.js:108= (=/late= wired after the join answers)
+- /"I open =viva= with no stored session, I see only the sign-in screen, full; I sign in, the chrome boots."/ · same in anima
+#+marker_qa: m102/P-signin-gate · revised · moved 10-24 to m104 as m104/P-signin-gate (broken on the repo; pending there, its fix rides m104) · 10-24 walk on the repo's code: bare =viva= dies FAILED =props.client.controller.stdout.tail is not a function= (=chrome/out/panes.mjs= built 10-22, before the span's =tail= left); rebuilt, the sign-in screen paints UNDER opentui's console overlay — =chrome/index.js:34= =spinning= reads =client.runtime.entities.activity= every 90 ms before =dataspace= (Q14 mounts the surface first; =entities= is =null=, =entities/runtime/prototype.js:14=). On the copy with both fixed: sign-in screen alone · beef signs in · his terminal boots · a stored session boots straight to it
+- /"I type =/lighthouse/logout= in =viva=, I see only the sign-in screen, full; I sign in, I see the same terminals."/ (Q15)
+#+marker_qa: m102/P-logout-screen · revised · moved 10-24 to m104 as m104/P-logout-screen (broken on the repo; pending there, its fix rides m104) · 10-24 walk on the repo's code: =/lighthouse/logout= → the sign-in screen, full ✓, but the form still holds =beef= and his 9-character password (=chrome/screen.js:30= =$signin= never reset). On the copy with Q18: the form shows =beef= and an empty password, focus on it; typing only =beef-walk= ⏎ → his terminal
+- /"I log out, I sign in as another user, I see only their terminals and threads."/ (Q16)
+#+marker_qa: m102/P-user-flush · revised · moved 10-24 to m104 as m104/P-user-flush (broken on the repo; pending there, its fix rides m104) · 10-24 walk on the landed Q16: beef → logout → lena: beef's tab leaves, but =$active= stays beef's aborted terminal (=subjects/client/lifecycle/index.js:214= =active= picks once) and lena has none. On the copy with =seat= shared by =active= and the flush: lena → her own new terminal =01a16d45…=, beef again → his =01a16d44…=; the world's db: one terminal per user
+- /"I open anima, I see no =/shell= in the palette, and the page loads."/
+#+marker_qa: m102/P-anima-clean · revised · moved 10-24 to m104 as m104/P-anima-clean (pending there) · anima lists no tty command (=/shell= · =/quit=, Q17) and loads no opentui
+- /"I run =deno task install= on a fresh clone, then =viva=, I see the chrome paint."/
+#+marker_qa: m102/T-host-moved · revised · moved 10-24 to m104 as m104/T-host-moved (pending there) · install.sh patches opentui from subsystems/sheets/ and the chrome boots on it
+
+* deferred
+
+- m98 · m99 re-cut onto the tree after m102: =entities/terminal/repl.js= → =subjects/terminal/repl.js= · =chrome/= → =surfaces/chrome/= (m98); =client.active= → =client.activeTerminal= in 8 m102 sites, m99's Legend =m99-keys.org:112= dispatches =activeTerminal.repl.dispatch= (m99); m98 =:55= =shell/commands/shell.js= holds no =/shell=; m98 =:93= · =:155= · =:211= drop =surfaces= and =./host=; m98 Q6 · Q7's =lines= / =/chrome/on= hunks are already landed by m102.
+- drapes' DOM surface (=subsystems/drapes/dom/surface.js=) keeps its own =client.dispatch= contract — =chrome-panels.org='s.
+- the repeat between the two chromes under law 7 — shared lines measured 10-23: =systems/ghost/chrome/sections.js= ≡ =systems/anima/src/surface/sections.js= 189 · =chrome/panes/tele.js= ≡ =anima/src/surface/panes/tele.jsx= 137 · =chrome/panes/journal.js= ≡ =panes/journal.jsx= 41; =chrome-panels.org='s (Q4 · =:171= · =:183=).
+- a hook for killed words in my prose (=lines= · =verb= · =row=) — proposed at the 10-23 fold.
+
+* changelog
+
+- 10-23 drill: Q0–Q9 locked, Q7 · Q8 lookups; no replay yet, no census.
+- 10-23 drill: Q12 locked /"a."/ — the host moves whole to =subsystems/sheets/host/=; ghost source gains its first =@vivalence/sheets= import (=surfaces/chrome/index.js:1=); a subsystem no longer imports a system for it.
+- 10-23 drill: Q11 locked — his reframe over A · B: no surface export at all (B had kept a =./surfaces= subpath); probe: today anima's graph reaches only =subjects/repl/lines.js= (=node:readline=) via =client/keymap.js= → =repl/index.js=, no chrome; m98 Q13's =export * as surfaces= would have pulled =chrome/host/preload.js= (patches =globalThis.Worker=) · =@opentui/solid= into 6 anima files.
+- 10-23 drill: Q10 locked /"a"/ — =/shell= moves whole to =subjects/client/commands/shell.js=; the option's snippet compressed the body, the tangle carries today's body unchanged.
+- 10-23 drill lookup: m98 Q6 · Q7 (=m98-ghost-barrels.org:34-35=) kill =lines.js= · =viva repl= · =chrome/commands.js= whole before m102 lands → the =chrome/commands.js= and =subjects/repl/lines.js= hunks moved to =reference/m102/m98-lookups-10-23.org=; Q4's set is =/shell= alone; QA T-tty-absent re-cut onto a test.
+- 10-23 critical pass (read only):
+  - blast re-grepped: 59 =repl= files (drill said 48), every one a row; two =client.dispatch= callers the drill missed → hunks: =subsystems/drapes/dom/surface.js:21= · =systems/ghost/subjects/client/keymap.js:78=.
+  - =/turn= grafted always (Q6′) where =compose= grafted it only on a HARNESSED terminal (=subjects/repl/dispatch.js:17,29=): safe — =entities/terminal/commands/turn.js:7= throws =NotFound= itself off a HARNESSED mode, and it is the only =nature: "*"= outside tests.
+  - his =//@beef not a shard.= ×5 in =systems/ghost/subjects/repl/dispatch.js:5,10,18,20,34= (file new vs HEAD): =execution= · =scoped= · =compose= · =dispatch= are no =gestalten/shard/= — Q9 homes the two survivors in =subjects/terminal/repl.js=, none in =shard/=.
+  - =subjects/terminal/repl.js= · =prototype.js='s =./repl.js= · =lifecycle/index.js='s =../repl.js= resolve only on m98's tree; on today's tree they point at =entities/terminal/=.
+- 10-23 tangle + scratchpad testing pass: built on a copy of today's tree, tests rewritten there (mine: the rigs), =* as code= generated from the copy's diff; Q13 · Q14 found by the pass, ruled; drapes' =dom/surface.js= hunk reverted (its client is not a ghost Client). Calls of mine, reported: =paladin.is.tty= read once per boot · =/turn= rides the terminal barrel (no second graft) · the keymap harvests first (a hosted KEYMAPPED binding beats a derived chord — =console.test.js= caught the reverse) · =chord-80x24= reflows without the =c= cell.
+- 10-23 replay: =COPY=<fresh> sh .ikiro/methods/replay-m102.sh --write= → =new 1 · hunks landed 144 · missed 0=; =diff -rq= worked copy ≡ replayed copy: empty.
+- 10-23 census, serial, empty HOME per suite (=census-suites.sh=), rig = untouched copy · base = replayed m102:
+
+#+BEGIN_SRC text
+rig    typology  ok 150 · 0     base typology  ok 150 · 0
+rig    paladin   ok  58 · 0     base paladin   ok  58 · 0
+rig    runtime   86 · 11 failed base runtime   86 · 11 failed   same names
+rig    ghost     29 ·  3 failed base ghost     29 ·  2 failed   −commands /chrome/off (the test died with the command); panes.out ×2 · shell ×2 on both
+rig    dapper    ok  28         base dapper    ok  28
+rig    drapes    48 ·  1 failed base drapes    48 ·  1 failed   same (dock.shareAfterDrag)
+rig    hello-world 17 · 2 failed base           17 · 2 failed   same
+rig    hallucinators 7 · 1      base            7 · 1           same
+rig    memo      ok   4         base memo      ok   4
+rig    stub      ok   3         base stub      ok   3
+sheets (not in the census) rig 22 ok · base 23 ok (+ host.test moved in)
+anima  (not in the census, 37 files one by one) rig ≡ base, 6 red files on both
+#+END_SRC
+
+- 10-23 LANDED on /"go"/: drift 0 (repo ≡ =m102-rig= over every touched dir); =scratchpad/tools/land.py= wrote 50 · removed 5 (=chrome/commands.js= · =chrome/host/= · =subjects/repl/= · =subjects/shell/commands.js= · =tests/chrome.host.coverage.test.js=), the moves as write-new + remove-old, plain; pre-land files at =~/.viva/bak/m102-land-20261023/= (55); =contexts.js:49-50= HELD — its two =.desc= still name =client.repl= · =client.dispatch=. beef's =deno task ghost/watch chrome= (ttys003) restarted on the save — a deploy. Census serial on the repo, empty HOME:
+
+#+BEGIN_SRC text
+base   typology      ok | 150 passed (657 steps) | 0 failed
+base   paladin       ok | 58 passed (239 steps) | 0 failed
+base   runtime       FAILED | 86 passed (568 steps) | 11 failed (23 steps) | 1 ignored
+base   ghost         FAILED | 29 passed (120 steps) | 2 failed (4 steps)        panes.out ×2 · shell ×2, as before
+base   dapper        ok | 28 passed (535 steps) | 0 failed
+base   drapes        FAILED | 48 passed (322 steps) | 1 failed (2 steps)
+base   hello-world   FAILED | 17 passed (57 steps) | 2 failed (7 steps)
+base   hallucinators FAILED | 7 passed (92 steps) | 1 failed
+base   memo          ok | 4 passed (23 steps) | 0 failed
+base   stub          ok | 3 passed (16 steps) | 0 failed
+subsystems/sheets/tests                           ok | 23 passed (59 steps) | 0 failed
+commons/fixtures/memo/tests/memo.test.js          ok | 3 passed (6 steps) | 0 failed    new green: aborted on @vivalence/sheets/host before
+commons/fixtures/memo/tests/memo.snapshot.test.js ok | 4 passed (7 steps) | 0 failed    new green, same
+anima 47 files one by one: landed ≡ base on the 37 · ≡ rig on 10 more (interactive/activity · scenario/buffer · typology/standalone red on both)
+#+END_SRC
+- =run.js --help= rc 0 under an empty HOME; the =viva= shim under an empty HOME reads no =~/.viva/.env= → =file:///deno.jsonc= (the shim, not the tree); =viva --help= rc 0 on beef's HOME.
+- moved names zeroed (=grep -rIEn=, no include): keep-list =drapes/dom/surface.js:21= (its own rig client) · =contexts.js:49-50= (held) · =install.sh:14= (a file path) · =keymap.test.js= =client.dispatched= (a stub field); =~/.viva= 0.
+- 10-24 /"yes. go"/: =contexts.js:49-50= landed (drift 0, pre-land copy in the same bak); typology =ok | 150 passed (657 steps) | 0 failed=; =client.dispatch= · =client.repl= re-grepped: =drapes/dom/surface.js:21= alone (its own rig client).
+- 10-24 drill on the checks: Q15 · Q16 · Q17 locked; AUTOLOGIN after a logout a lookup (=chrome/panes/island.js:43= paints the =autologin= cell).
+- 10-24 /"yes go."/ — =* checks as code= built on =scratchpad/m102-checks= (a copy of the landed tree): 2 source hunks · 5 tests re-cut (off a tty a run ends on =controller.kill=; =/help= · =leader= lose =quit=) · =rows.test.js= new — red on the landed =rows= (=[Diff] Actual / Expected=), green on Q16's. Replay on a fresh copy: =new 1 · hunks landed 19 · missed 0=, =diff -rq= empty. Census serial, rig = the landed copy · base = the checks copy:
+
+#+BEGIN_SRC text
+typology 150 ok · paladin 58 ok · dapper 28 ok · memo 4 ok · stub 3 ok          both
+runtime 86 · 11 failed · drapes 48 · 1 · hello-world 17 · 2 · hallucinators 7 · 1  both, same
+rig  ghost FAILED | 29 passed (120 steps) | 2 failed (4 steps)
+base ghost FAILED | 30 passed (122 steps) | 2 failed (4 steps)     +rows.test; panes.out ×2 · shell ×2 on both
+anima 47 files one by one: checks ≡ landed
+#+END_SRC
+- 10-24 /"go"/ — =* checks as code= LANDED: drift 0 on the 7 files, written + =rows.test.js= new; pre-land at =~/.viva/bak/m102-checks-land-20261024/=; repo =systems/ghost= ≡ the checks copy; ghost on the repo =FAILED | 30 passed (122 steps) | 2 failed (4 steps)= (panes.out · shell, as before); =run.js --help= rc 0 under an empty HOME.
+
+
+* release
+
+Moved 10-24 into =m104-legend-repl.org= =* release= (m104 lifts them with its own; =release.md= is over its cap).
+
+- removed `client.dispatch` · `terminal.dispatch` — a line runs on `terminal.repl.dispatch(line)` · migrate: `client.active.repl.dispatch(line)` (m99 renames `active` → `activeTerminal`) ⟨m102⟩
+- changed `ctx.repl` — the composed Vector → the terminal's Repl; its Vector is `ctx.repl.commands` · migrate: `shape.strip(ctx.repl)` → `shape.strip(ctx.repl.commands)` ⟨m102⟩
+- removed `client.repl` · the door's `repl` ctx key — every command rides `terminal.repl.commands` · migrate: graft onto `terminal.repl.commands` in a terminal beat ⟨m102⟩
+- removed `viva repl` · `/chrome/on` · `/chrome/off` — bare `viva` opens chrome · migrate: `viva repl` → `viva` ⟨m102 · m98 Q6 Q7⟩
+- moved `/shell` — a client command (`ghost.commands.client.shell`), mounted only on a tty · migrate: none ⟨m102⟩
+- added `paladin.is.tty` — Deno and a terminal stdin · migrate: none ⟨m102⟩
+- changed the client's boot — the surface mounts after `connection`, before `authorized`; until signed in it is the sign-in screen alone · migrate: none ⟨m102⟩
+- changed sign-in — the pane calls `lighthouse.login`, no `/lighthouse/login` line (the command stays) · migrate: none ⟨m102⟩
+- removed `@vivalence/ghost/host` · `@vivalence/sheets/host` — `import { host } from "@vivalence/sheets"`, then `host.opentui()` · migrate: `import "@vivalence/ghost/host"` → `import "@vivalence/sheets"` ⟨m102⟩
+- changed `/quit` — a tty command beside `/shell`; anima's palette lists neither, a tab ends on close · migrate: none ⟨m102 Q17⟩
+- changed sign-in as another user — the client flushes its threads · buffers · turns · activities · terminals and reads the new user's; the old user's terminals close · migrate: none ⟨m102 Q16⟩
+
+* review — 10-24
+
+Measured on the tree after m98 landed (12:07): m102's code rides =subjects/terminal/= · =surfaces/chrome/=; =* walk as code= is cut on the pre-m98 paths.
+
+| S | stop | rides | verdict | his words |
+|------|------|-------|---------|-----------|
+| 1 | the Repl holds the commands; =dispatch= is its one entry | Q0 · Q2 · Q6 · Q9 | — | |
+| 2 | the terminal owns one Repl; its keymap harvests the commands first | Q1 · Q8 | — | |
+| 3 | the =commands= beat rebuilds whole on the mode list; =/shell= · =/quit= on a tty | Q3 · Q4 · Q4′ · Q4″ · Q6′ · Q13 · Q17 | — | |
+| 4 | every caller dispatches on =terminal.repl= | Q2 · Q7 | — | |
+| 5 | the client holds no repl; the door hands none | Q1 · Q4 · m98 | — | |
+| 6 | the sign-in screen mounts before =authorized=; the pane calls =lighthouse.login= | Q14 | — | |
+| 7 | another user's sign-in flushes the cache | Q16 | — | |
+| 8 | the flush re-seats the active terminal | walk | — | |
+| 9 | a logout forgets the password | Q18 | — | |
+| 10 | the tick waits for =entities= | walk | — | |
+| 11 | the opentui host is sheets' | Q11 · Q12 · Q12′ | — | |
+| 12 | the rest — contexts · =/help= · moves · deletes · tests | — | — | |
+
+* handoff
+
+- goal: =Repl= on the terminal holds every command; =terminal.repl.dispatch= is the one entry; =mode.repl= stays the mode's own; the login screen gates the boot.
+- done: Q0–Q18 locked; =* as code= LANDED 10-23 · =contexts.js= 10-24 · =* checks as code= (Q16 · Q17) 10-24; QA walk 10-24 on a free-port world (=scratchpad/walk/drive.py=, a pty + pyte): T-help-tree held · T-mode-rebuild revised · signin-gate · logout-screen · user-flush broken on the repo, held on the copy; =* walk as code= built + replayed (10 files · 24 hunks · 0 missed), census = rig +3 green; codemap =ghost.md= rewritten.
+- next: =* walk as code= onto the repo + =deno task ghost/bundle= (=known-issues= =ghost-panes-bundle-stale=) — his go; then walk =P-anima-clean= (own vite, free port) · =T-host-moved= (install, HOME empty); then lift =* release= into =release.md= (over cap — consolidate); then =done/=.
+- never: the word =lines= (a path only); =client.dispatch= · =terminal.dispatch= · a client Repl; =ctx.commands=; a sign-in line; a cwd with his =.env= for a walk; a land without a walk of the served chrome.
+- owed: m98 · m99 re-cut onto the landed tree (=* deferred= item 1); m103's frontier owes "=SIGNIN.pass= persisted" — Q18 (=forgetting=) answers it once landed; the =ghost/watch chrome= on ttys003 runs the stale bundle.
+

@@ -11,6 +11,7 @@ export const TurnDescriptor = {
     parent: () => v.rel(v.turn()).optional(),
     children: () => v.array(v.turn()).optional(),
     thread: () => v.rel(v.thread()),
-    mode: () => v.rel(v.mode()),
+    mode: () => v.rel(v.mode()).optional(),
+    buffers: () => v.array(v.buffer()).optional(),
   },
 };

@@ -3,6 +3,7 @@ import { expect } from "@std/expect";
 import { dirname, join } from "@std/path";
 import { Path } from "@vivalence/typology";
 import { Paladin } from "../paladin/prototype.js";
+import { FULL } from "../gestalten/belt/index.js";
 import { factories, lifecycle } from "../typology.js";
 
 const ENVIRONMENT = { type: "object", properties: { VIVA_PROBE_A: { type: "string", description: "a" } } };
@@ -15,7 +16,7 @@ const world = async (files, pairs = {}) => {
     await Deno.mkdir(dirname(join(root, name)), { recursive: true });
     await Deno.writeTextFile(join(root, name), typeof body === "string" ? body : JSON.stringify(body, null, 2));
   }
-  const paladin = new Paladin();
+  const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
   paladin.scopes([
     ["ledger", () => true, () => new Path(join(root, "ledger"))],
     ["instance", () => true, () => new Path(join(root, "instance"))],

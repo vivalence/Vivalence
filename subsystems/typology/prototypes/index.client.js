@@ -25,6 +25,7 @@ export * from "./signal.js";
 export * from "./argv.js";
 export * from "./replsignal.js";
 export * from "./toolcall.js";
+export * from "./keysignal.js";
 export * from "./app.js";
 export * from "./bundle.js";
 

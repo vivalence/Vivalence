@@ -4,13 +4,13 @@ export const settle = async (die, next) => {
   try {
     await next();
   } catch (error) {
-    die.controller.stdout.fault(error);
+    die.controller.fault(error);
   } finally {
-    die.controller.stdout.close();
+    die.controller.stop();
   }
 };
 
 export const keepalive = async (die) => {
-  die.controller.stdout.open();
+  die.controller.start();
   await control.hold(die.controller);
 };

@@ -1,0 +1,535 @@
+#+title: m101 track — what a span can track: a standard set, open to extension, one vocabulary across runtime · anima · ghost, the seam to OTEL
+#+filetags: :track:span:controller:telemetry:otel:typology:
+#+status: DONE 10-24 (/"end with the two quests in DONE"/) — LANDED 10-23 — Q0–Q16 · R1–R17; =* landed= is the evidence; QA 2 held · 1 revised (=T-sigterm-exit=); =T-404-response= fixed 10-24; release lifted
+<!-- limit: 40000 chars -->
+* intent
+
+| # | beef, verbatim | trigger |
+|---+----------------+---------|
+| A | /"I don't understand what fault and error are supposed to have not in common. Why aren't they the same?"/ | m100 Q13, the 14 names |
+| B | /"I think abort stop pause and resume are more like an event, they aren't tracks of in and of themselves, that's an event being tracked or like a state change."/ · /"open and close are also both events"/ · /"Status is also I don't see that as something that we track outside of event, maybe."/ | |
+| C | /"A node is some arbitrary JSON message, a string."/ (=note=) · /"Request and response are very specific to the environment."/ · /"If we have subject, then we really should have entity instead."/ | |
+| D | /"I don't want it to be just a limited list of strings, that makes no sense for us. Why would we limit that when all we do is enforce a num that we never use in any way? But I actually like the idea of having some machinery in order to enforce some standard set of these are the things that we can track."/ | |
+| E | /"I do have some prototypes that have this structure that allows us to generate objects into the internal abstraction of a prototype, of an instance. I think what we have is a yield does something like that, maybe others."/ | the research agent |
+| F | /"This is pretty global because we want the same tracks throughout runtime, and both of the clients."/ | |
+| G | /"it interfaces with the telemetry quest that we have with the Open telemetry […] the tracks will directly translate into OTEL information. Our span is the one of the parts of the interface between our system and OTEL."/ | =roadmap/m89-telemetry.org= |
+| H | /"I think track doesn't belong onto the controller. […] The controller doesn't hold what was being tracked. The controller uses the span for that. That's what the span is on the controller for."/ | unrules m100 Q12 |
+| I | /"I don't like the term verbs anywhere in my codebase. It's a very bad name and don't want it anywhere."/ | |
+
+* terrain — measured 10-23, moved whole to =reference/m101/terrain-10-23.org= (R11)
+
+* research 10-23 — moved whole to =reference/m101/terrain-10-23.org= (R16)
+
+* the dialogue
+
+| # | ruling | beef |
+|---+---+---|
+| 0 | the kind is a TRACK: =record.track=; =event= stays a sort of track, =eventName= only at export | /"a"/ |
+| 1 | a registry PRIVATE to each span, =#tracks=, a scope chain: =Object.create(parent.#tracks)= at birth (RELABELED by Q9: a copy at birth through =tracks()=), the root over a module-private =STANDARD=; =span.tracks(more)= adds for itself and its subtree; =track= throws on an unknown name, casts a known one; no Span subclass, nothing exported | /"an extendable registry internal to the specific span? […] when we branch off, all the other spans get the capability. […] But I don't like to expose this. At all."/ · /"d."/ |
+| 2 | a request keeps its own records: =open= · =request {method, path}= · =response {status}= · =close=; =open= / =close= carry nothing; =close= moves into =finally=; =error= dies into =response {status}= | /"b."/ |
+| 3 | (names relabeled by Q5 · Q10 · Q11 · Q12) =request= · =response= are STANDARD — seven: =open close request response fault state note=; their schemas live in =schematics/primitives/track.js= | /"b. But I suspect that both request and response are part of our standard set of tracks."/ · /"a"/ |
+| 4 | a =fault= carries what the Error IS: ={type: name, message, code?, stack?}=; =ConnectionError= sets =code= itself | /"a"/ |
+| 5 | the Controller writes NOTHING to its span: a signal moves =status= directly, the machine reads =open close fault= off its own span; one =transitions= table, a cause = a signal or a track; =state= leaves STANDARD (six); a status track is wired by hand where wanted (=tracks({ status })=) | /"Can we do without this entirely? […] If we need this wiring on a specific controller, then we can set it up manually."/ · /"Yes, that is correct. That is what I want."/ |
+| 6 | SUPERSEDED by Q7 — the table is keyed by STATUS: =MACHINE.states[from][cause]= → the next status; a settled status has no roads; =transitions= · =settled= fold into =states= | /"Is it all of the possible paths that a controller can take? It's a property of the status […] declares all of the status transitions that are possible."/ · /"b."/ |
+| 7 | no table: each signal and each of =open close fault= is a HANDLER that checks the status and sets the next; a status carries what its handler knows (STOPPING its =signal=, FAILED its fault record); =MACHINE= shrinks to the statuses + =settled= | /"Do we actually use this state machine for anything, or can we maybe just rip it out entirely? Why does this exist?"/ · /"b"/ |
+| 8 | SUPERSEDED by Q10 — two tracks: =log= (was =message=) is a STRING, =note= is an OBJECT; one record per call, =track= chains | /"it's definitely two tracks, although your characterization of message is what a person reads and note is what a developer reads is bullshit. Message is just a string. Note is an object and they serve different purposes in different contexts. Maybe we rename message to log. Log and note. Okay, yeah"/ · /"So we don't want to track two things at once. I do want tracks to be chainable."/ |
+| 9 | every track is a METHOD on the span: =tracks(more)= registers each name AND writes =this[name] ??= (data) => this.track(name, data)= in one loop; a child runs its parent's registry through =tracks()= at birth (a copy, not a live chain — Q1 relabeled); =??== leaves =fault= · =branch= · =root= the real ones; chains return =this= | /"each of the tracks, note, message, and so forth, is something that we can call on the span directly"/ · /"I like the idea of B but not the implementation."/ · /"b"/ |
+| 10 | ONE =log= track, a string or any object; =note= dies (Q8 superseded) | /"Would another way to call node be pojo?"/ · /"Or maybe we collapse node and log into just log and have it take either a string or a pojo."/ · /"d."/ |
+| 11 | =open= · =close= → =start= · =stop=; =stop= exports as OTEL =end()= | /"I think we should align open, and I think the other one is close, with what open telemetry wants from us, as in start."/ · /"start and stop."/ |
+| 12 | =entity= is a STANDARD track ={schema, id}=, its shard =shard.track.entity= (was =subject=); exports under =viva.entity.*=, never OTEL =entity.*= | /"If we have subject, then we really should have entity instead."/ · /"q12 b"/ |
+| 13 | the dossier writes STANDARD tracks only: the row an =entity=, the change a =log({op, status, step})=, a runtime record wrapped in a =log= | /"The dossier only uses standard tracks. […] If we need anything additional, we can set that up later, but for now, we'll just do the standard"/ |
+| 14 | =at= is the wall clock: =performance.timeOrigin + performance.now()=, epoch ms; =wall()= dies in both journals | /"a"/ |
+| 15 | NO new split: the dock reads its SUBTREE's =log= + =fault=, as today; importance is an axis orthogonal to the track — deferred; chainable filters — deferred | /"I also lean towards B, but I don't like the way that we are composing this. […] We might want to be able to chain filters […] And we will eventually need the ability to split by level. […] the tracks have two dimensions inside of them. One for what is the nature of the thing and how important is the thing. And I think those should be on orthogonal. […] I don't mind that the dog reads its subtree. That's kind of the idea."/ |
+| R1 | the tracks are a VECTOR, =span.tracked=, like =controller.stdin=: STANDARD = seven =open(name, record(Schema))=; =tracks(vector)= grafts (a copy at birth) and writes a method per nature (=??==); =track(name, data)= = =steer.dispatch.execute=, an unknown name throws =NotFound=; =#tracks= dies — it threw on =new Span(existing)=; =record= private to =span.js=, an owner sends its own (relabels Q1's "nothing exported") | /"feel like there's a third solution. I'm not super happy with a module level key"/ · /"d Looks really interesting. Show me more"/ · /"d. lovely"/ |
+| R2 | an existing span is handed back BEFORE =super()=: =if (signature instanceof new.target) return signature= — =new.target= is the class being built, Signature's own rule (=signature.js:16=), so a subclass still gets a fresh instance (RELABELED from =instanceof Span=: /"why is it not if signature instance of this.prototype […] in case we do ever extend a span"/ · /"kk go with new.target"/); the =if (this.pipe) return this= guard dies; =from()= is never reached, the path and the pipe keep the first parent (Q8) | /"I don't understand the problem."/ → re-told as path vs pipe · /"b"/ |
+| R3 | the socket's =#answer=: =start= first, =request= after the decode, =status= one variable, =response({ status }).stop()= in =finally=; a thrown =NotFound= sets 404 and records NO fault — the same rows as a missing route; any other throw faults, 500 | /"r3 a."/ |
+| R4 | a caller's cancel (a =close= frame =socket.js:119=, a dropped connection =:79=) is a =log({ aborted: true })= wherever it lands, never a fault; =status= is set only where an answer is sent, so a cancel records =response {}= | /"a."/ |
+| R5 | the controller rewritten whole: one handler per signal through =signalled(name, move)= (the cascade to children kept), the settle listener wakes the gate and cuts every listener — no =LIVE=, no =said=, =reason= as given; Ctrl-C keeps 130 (=fromm/controller.js= reads =reason=) | /"lose the tracked object […] I don't like that we're keeping these globals"/ · /"The rest of the rewrite looks good, especially the array of untaps."/ |
+| R6 | a run's status is wired by hand: the controller's =start() · stop() · fault(error)= move the status AND write =start · stop · fault= on its span, one call; the controller never taps its span; a bare =stdout.fault(error)= is a dock report, moves nothing; UNLOCKS Q5's reading half (/"the machine reads =open close fault= off its own span"/) and its "writes NOTHING" for these three | /"Maybe that we set our status from records is an issue. Although it is very elegant. But maybe that is really something that we should wire up manually for the cases where we need it."/ · /"cool. b"/ · on =fail= beside =stdout.fault=: /"align those two tho."/ → =fault(error)= |
+| R7 | =status= joins STANDARD (eight): an open =Status { code, … }=; every controller writes =status({ code })= on each change, first in its settle listener; tele: =start · stop · fault= give a plain span's row its code, a =status= record after them overrides — so =controller.stop()= writes =stop= BEFORE it moves the status; lighthouse's hand-wired Vector dies, its own codes ride the open schema; UNLOCKS Q5's "=state= leaves STANDARD; a status track by hand where wanted" | /"b"/ |
+| R8 | tele shows any =status= code; one the machine does not know counts as not settled, its tone muted (=tele.js:360= already falls back) — the lighthouse row reads =● authenticated= | /"b"/ |
+| R9 | a signal's reason crosses the wire as a named field ={ reason }=: ghost =activity.js:49= and anima =stop.svelte.js:41= send it, the runtime's =/stdin/<SIGNAL>= hands =ctx.input.reason= on; the controller stores what it is given, =said= stays dead; =controller.test.js:116='s ={}= probes become bare =kill(name)= | /"b"/ |
+| R10 | =belt/trace.js='s drain policies DIE — =gather · hold · decant · closes · faulty · slower=, no product caller; the drain-policy tests in =tests/trace.test.js= go with them; a caller that needs "only the broken requests" writes it where it runs | /"b"/ |
+| R11 | RELABELED by R17 (the status keeps the raw Error; =faulted= at each edge) — was: a FAILED status carries the fault's plain shape, the same object the =fault= track writes: =faulted(error)= exported from =span.js=, used by =span.fault= and =controller.fault=; =toJSON()=, the Activity row's =error= column and the wire carry the message (was ={}=) | /"a"/ |
+| R12 | the =status= record carries the WHOLE status: =this.stdout.status(reflection)= — code, signal, reason, the plain fault (R11); tele's detail and an activity's stdout stream show WHY (=STOPPING · SIGTERM · /stop=) | /"a"/ |
+| R13 | "the history, then everything after" stays BY HAND at its two readers (=Activity.stdout()= taps a Queue before it reads =history=; ghost's client lifecycle reads =history= then taps, synchronously); no =span.drain=, the pipe keeps five verbs (m100 Q4) | /"a"/ |
+| R14 | a status code outside the machine THROWS, named: =[controller] no status X in a machine of IDLE · RUNNING · …= (the =traits.claim= shape); the controller owns its eight, R8's tolerance is a viewer's | /"a"/ |
+| R15 | a tele row's label is the WHOLE nature passed to =branch= — =terminal/t1= · =/help= · =/mode/console/whoami=; =record.path.at(-1)=, never split on "/" | /"a"/ |
+| R16 | drapes =tone()= is TOTAL: a code outside =TONES= is ="mut"=; anima's tele takes any =status= code (R8 B, its struck-A filter dies); drapes knows only the controller's eight | /"a"/ |
+| R17 | the status keeps the RAW Error, so a waiter rejects with the very error thrown; =faulted(error)= runs at every edge that leaves the process: =toJSON()=, the =status= record (R12), the Activity row's =error= column | /"b"/ |
+| 16 | no signal map: a client's =owed()= keeps every row not settled; the runtime's handler drops a signal that does not apply | /"I don't understand what I'm being asked. You're using functions that aren't defined. Like settled."/ · /"b"/ |
+
+
+* open — drained whole to =reference/m101/open-drained-10-23.org= at landing
+
+* as code — the locks, =ls= order
+
+*** subsystems/drapes
+**** Logger.jsx — R16: =tone()= is total, an unknown code is muted; anima's tele drops its machine-only filter (R8 B)
+#+BEGIN_SRC js
+// subsystems/drapes/Logger.jsx:9
+export const tone = (code) => (Object.hasOwn(TONES, code) ? TONES[code] : "mut");
+// systems/anima/src/surface/panes/tele.jsx:23
+  [(record) => record.track === "status", (node, record) => Object.assign(node, { code: record.data.code })],
+#+END_SRC
+*** subsystems/typology
+**** gestalten/belt/hallucinate.js — Q2 · Q11 · R6: the run moves its controller; start · stop carry nothing
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/hallucinate.js:88 · :96 · :99
+  child.start().stdout.log({ input: call.input });
+    child.stdout.log({ condition: spoken.condition });
+    child.stop();
+    child.fault(fault);
+// subsystems/typology/gestalten/belt/hallucinate.js:123 · :175 · :188 — respond, as every run below (:206 · :226 · :240 · :254)
+  controller.start();
+    controller.fault(fault);
+    controller.stop();
+#+END_SRC
+**** gestalten/fromm/controller.js — Q7 · R5 · R6: the exit code reads the status; Ctrl-C keeps its 130 through =reason=
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/fromm/controller.js   ← whole file
+const NUMBERS = { SIGINT: 2, SIGQUIT: 3, SIGTERM: 15 };
+
+export const controller = (controller) => {
+  const exit = () => {
+    if (controller.status.is("DONE")) return 0;
+    if (controller.status.is("STOPPED")) return Object.hasOwn(NUMBERS, controller.status.reflection.reason) ? 128 + NUMBERS[controller.status.reflection.reason] : 0;
+    if (controller.status.is("FAILED") && controller.status.reflection.error.code === "NOT_FOUND") return 127;
+    return 1;
+  };
+  return { exit: exit() };
+};
+#+END_SRC
+**** gestalten/shard/controller.js — R6: one call moves the status AND writes the track
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/controller.js:7-15
+export const open = async (die, next) => {
+  die.controller.start();
+  try {
+    await next();
+  } catch (error) {
+    die.controller.fault(error);
+  } finally {
+    die.controller.stop();
+  }
+};
+// the same at shard/hal.js:74-81 · runtime gestalten/shard/process.js:5-15 · runtime mode/lifecycle/population.js:7-9 + belt/modes.js:16 · ghost entities/mode/lifecycle/index.js:7-9 · ghost client/lifecycle/index.js:60 · ghost run.js:16 (=die.controller.fault(error)=)
+// a REPORT stays a record and moves nothing: ghost chrome/acts.js:4 · :12 · :59-60 · keymap.js:56 · anima surface/send.js:1 · sidebar.jsx:25
+const unbound = (name) => (client) => client.controller.stdout.fault(new Error(`[chrome] ${name}: not on a tty yet`));
+#+END_SRC
+**** gestalten/shard/track.js — Q12: =subject= → =entity=; =message= → =log= (Q10)
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/shard/track.js:35-50
+export function entity(schema, id) {
+  return async (ctx, next) => {
+    ctx.span?.entity({ schema: typeof schema === "function" ? schema(ctx) : schema, id: typeof id === "function" ? id(ctx) : id });
+    await next();
+  };
+}
+export function log() {
+  return async (ctx, next) => {
+    await next();
+    if (ctx.span && ctx.output !== undefined) ctx.span.log(ctx.output);
+  };
+}
+#+END_SRC
+**** prototypes/controller.js — whole; Q7 · R5 · R6 · R11 · R12 · R14 · R17: signals and three run methods move the status, the controller never taps its span; NOT PROBED
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/controller.js   ← whole file
+import * as promise from "../gestalten/belt/promise.js";
+import { Signal } from "./signal.js";
+import { Span, faulted } from "./span.js";
+import { Status } from "./status.js";
+import * as steer from "../gestalten/steer/index.js";
+import { v } from "../schematics/index.js";
+import { Vector } from "./vector.js";
+
+export class Controller {
+  children = new Set();
+  gate = promise.waiter();
+
+  constructor({ stdout = new Span("controller"), stdin = new Vector(), status = new Status("IDLE"), abort = new AbortController(), parent = null } = {}) {
+    Object.assign(this, { stdout, stdin, abort, parent, status });
+    const { MACHINE } = v.primitives.controller;
+    const aborted = () => this.status.set({ code: "ABORTED", reason: this.abort.signal.reason });
+
+    this.settled = new Promise((fulfil) => {
+      const unlisten = this.status.$transient.listen((reflection) => {
+        const state = MACHINE.states[reflection.code];
+        if (!state) throw new Error(`[controller] no status ${reflection.code} in a machine of ${Object.keys(MACHINE.states).join(" · ")}`);
+        this.stdout.status({ ...reflection, error: reflection.error && faulted(reflection.error) });
+        this.gate.wake();
+        if (!state.settled) return;
+        unlisten();
+        this.abort.signal.removeEventListener("abort", aborted);
+        this.parent?.children.delete(this);
+        for (const child of this.children) child.abort.abort(`parent ${reflection.code}`);
+        fulfil(this.toJSON());
+      });
+    });
+
+    this.abort.signal.aborted ? aborted() : this.abort.signal.addEventListener("abort", aborted, { once: true });
+
+    const signalled = (name, move) =>
+      this.stdin.open(name, async (ctx) => {
+        move(ctx);
+        for (const child of this.children) await child.kill(name, ctx.input);
+      });
+    signalled("SIGSTOP", () => this.status.is("RUNNING") && this.status.set({ code: "PAUSED" }));
+    signalled("SIGCONT", () => this.status.is("PAUSED") && this.status.set({ code: "RUNNING" }));
+    signalled("SIGTERM", (ctx) => this.status.is(["RUNNING", "PAUSED"]) && this.status.set({ code: "STOPPING", signal: "SIGTERM", reason: ctx.input }));
+    signalled("SIGKILL", (ctx) => this.abort.abort(ctx.input ?? "SIGKILL"));
+
+    this.parent?.children.add(this);
+  }
+
+  start() {
+    if (this.status.is("IDLE")) this.status.set({ code: "RUNNING" });
+    this.stdout.start();
+    return this;
+  }
+
+  stop() {
+    this.stdout.stop();
+    if (this.status.is(["RUNNING", "PAUSED", "STOPPING"])) this.status.set({ code: this.status.is("STOPPING") ? "STOPPED" : "DONE" });
+    return this;
+  }
+
+  fault(error) {
+    if (!v.primitives.controller.MACHINE.states[this.status.reflection.code].settled) this.status.set({ code: "FAILED", error });
+    this.stdout.fault(error);
+    return this;
+  }
+
+  branch(name) {
+    return new Controller({ parent: this, stdout: this.stdout.branch(name) });
+  }
+
+  kill(name, input) {
+    return steer.dispatch.invoke(this.stdin, new Signal(name), steer.strategy.echo)(input);
+  }
+
+  async proceed() {
+    while (this.status.is("PAUSED")) await this.gate.wait(this.abort.signal);
+    return this.status.is("RUNNING");
+  }
+
+  toJSON() {
+    const { error, ...reflection } = this.status.reflection;
+    return { path: this.stdout.absolute, ...reflection, error: error && faulted(error), children: [...this.children].map((child) => child.toJSON()) };
+  }
+}
+#+END_SRC
+**** prototypes/errors/connection.js — Q4
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/errors/connection.js:5
+    this.type = type;
+    this.code = type;
+#+END_SRC
+**** prototypes/socket.js — Q2 · R3 · R4: =#answer= whole; a thrown =NotFound= is an answer, a caller's cancel a =log=, never a fault
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/socket.js:148-230 — #answer, whole
+async #answer(packet) {
+  const id = packet.frame;
+  const trace = this.span.branch(`${packet.signal}/${packet.frame}`);
+  const controller = new AbortController();
+  const line = { controller, upstream: null };
+  let status;
+  this.lines.set(id, line);
+  trace.start();
+  try {
+    const signal = v.decode(signalCodec(), packet.signal);
+    trace.request({ method: packet.verb ?? "POST", path: signal.pathname });
+    const [effect, carry, steps] = steer.dispatch.traverse(this.vector, signal);
+    if (!effect) {
+      status = 404;
+      return this.#send({ frame: id, error: { status, message: `not found ${signal.pathname}` } });
+    }
+    // … ctx built as today (:165-188), carry(ctx, …)
+    if (ctx.response.error || ctx.response.status >= 400) {
+      status = ctx.response.status || 500;
+      this.#send({ frame: id, error: { status, message: ctx.response.body?.error?.message ?? "request failed" } });
+    } else {
+      // … stream or single output as today (:204-219); mid-stream:
+      //     for await (const item of body) {
+      //       if (controller.signal.aborted) return void trace.log({ aborted: true });
+      status = 200;
+    }
+  } catch (error) {
+    if (controller.signal.aborted) return void trace.log({ aborted: true });
+    if (error instanceof NotFound || error?.code === "NOT_FOUND") {
+      status = 404;
+      return this.#send({ frame: id, error: { status, message: error.message } });
+    }
+    trace.fault(error);
+    status = 500;
+    this.#send({ frame: id, error: { status, message: error.message } });
+  } finally {
+    this.lines.delete(id);
+    trace.response({ status }).stop();
+  }
+}
+#+END_SRC
+**** prototypes/span.js — whole; m100 A · Q3–Q9 + Q0 · Q4 · Q9 · Q14 · R1 (the tracks are a Vector) · R11 (=faulted=) — PROBED =scratchpad/rewalk/d.js=
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/span.js   ← whole file
+import { onSet } from "nanostores";
+import { Signature } from "./signature.js";
+import { Pipe } from "./pipe.js";
+import { Vector } from "./vector.js";
+import * as steer from "../gestalten/steer/index.js";
+import { Start, Stop, Request, Response, Fault, Log, Entity, Status } from "../schematics/primitives/track.js";
+
+export const faulted = (error) => ({ type: error?.name ?? "Error", message: error?.message ?? String(error), code: error?.code, stack: error?.stack });
+
+const record = (schema) => (data, ctx) =>
+  ctx.span.pipe.send({ at: performance.timeOrigin + performance.now(), path: ctx.span.absolute, track: ctx.track, data: schema.cast(data) });
+
+const STANDARD = new Vector()
+  .open("start", record(Start))
+  .open("stop", record(Stop))
+  .open("request", record(Request))
+  .open("response", record(Response))
+  .open("fault", record(Fault))
+  .open("log", record(Log))
+  .open("entity", record(Entity))
+  .open("status", record(Status));
+
+export class Span extends Signature {
+  static limit = 1000;
+
+  constructor(signature = null, trace = null) {
+    if (signature instanceof new.target) return signature;
+    super(signature, trace);
+    this.pipe = new Pipe();
+    this.$history = this.pipe.fold([], (held, record) => [...held, record]);
+    if (this.trace) this.pipe.tap(this.trace.pipe);
+    onSet(this.$history, ({ newValue }) => newValue.splice(0, newValue.length - Span.limit));
+    this.tracked = new Vector();
+    this.tracks(this.trace ? this.trace.tracked : STANDARD);
+  }
+
+  from(trace) {
+    return super.from(trace, true);
+  }
+
+  get history() {
+    return this.$history.get();
+  }
+
+  tracks(vector) {
+    this.tracked.graft(vector);
+    for (const nature of vector.trie.keys()) this[nature] ??= (data) => this.track(nature, data);
+    return this;
+  }
+
+  track(name, data) {
+    steer.dispatch.execute(this.tracked, { span: this, track: name, input: data }, name);
+    return this;
+  }
+
+  fault(error) {
+    return this.track("fault", faulted(error));
+  }
+}
+#+END_SRC
+#+BEGIN_SRC js
+// a caller — Q9
+span.branch("terminal/abc").start().log({ seat: "probe" }).log("seated on probe").stop();
+// a reader
+computed(span.$history, (held) => held.filter((record) => record.track === "fault"));
+#+END_SRC
+
+**** schematics/primitives/controller.js — Q7: the statuses only
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/controller.js:3-35
+export const machine = {
+  states: {
+    IDLE: {}, RUNNING: {}, PAUSED: {}, STOPPING: {},
+    DONE: { settled: true }, STOPPED: { settled: true }, FAILED: { settled: true }, ABORTED: { settled: true },
+  },
+};
+export const State = v.enum(Object.keys(machine.states)).desc('Four live, four settled. Example: "STOPPING"');
+export const SIGNALS = ["SIGTERM", "SIGSTOP", "SIGCONT", "SIGKILL"];
+export const Signal = v.enum(SIGNALS).desc('The stdin natures. Example: "SIGTERM"');
+export const Machine = v.object({ states: v.record(State, v.object({ settled: v.boolean().optional() })) });
+#+END_SRC
+**** schematics/primitives/track.js — Q2 · Q3 · Q4 · Q10 · Q12 (new file)
+#+BEGIN_SRC js
+// subsystems/typology/schematics/primitives/track.js
+export const Start = v.null().desc('Carries nothing (Q2). Example: null');
+export const Stop = v.null().desc('Carries nothing (Q2). Example: null');
+export const Request = v.object({ method: v.string().optional(), path: v.string().optional() });
+export const Response = v.object({ status: v.integer().optional() });
+export const Fault = v.object({ type: v.string(), message: v.string(), code: v.string().optional(), stack: v.string().optional() });
+export const Log = v.union([v.string(), v.object({}, { additionalProperties: true })])
+  .desc('A line or any object. Example: "seated on probe" · { "patrol": 3 }');
+export const Entity = v.object({ schema: v.string(), id: v.string() }).desc('The row a span touched. Example: { "schema": "thread", "id": "42" }');
+export const Status = v.object({ code: v.string() }, { additionalProperties: true }).desc('A status as its owner holds it. Example: { "code": "STOPPED" } · { "code": "OFFLINE", "canRetry": true }');
+#+END_SRC
+
+*** systems/anima
+**** src/app/panels/a/widgets/stop.svelte.js — R9: the reason rides as ={ reason }=
+#+BEGIN_SRC js
+// systems/anima/src/app/panels/a/widgets/stop.svelte.js:41
+    for (const row of owed(armed, read().activities, signalled)) row.stdin[armed]({ reason });
+#+END_SRC
+**** src/entities/activity.js — Q16
+#+BEGIN_SRC js
+// systems/anima/src/entities/activity.js:56-58
+export function owed(signal, rows = [], sent = new Set()) {
+  const { MACHINE } = v.primitives.controller;
+  return rows.filter((row) => {
+    const key = `${signal}:${row.id}`;
+    if (MACHINE.states[row.status].settled || sent.has(key)) return false;
+#+END_SRC
+**** src/entities/daemon/dossier.js — Q13
+#+BEGIN_SRC js
+// systems/anima/src/entities/daemon/dossier.js:129-135
+const activity = new Span(`daemon/${manifest.slug}/activity`);
+activity.pipe.tap(logger.channel);
+daemon.entities.activity.subscribe({}, (row, event) => {
+  const id = row?.id ?? event.entity?.id ?? event.entity;
+  activity.branch(id).entity({ schema: "activity", id }).log({ op: event.op, status: row?.status, step: row?.steps.at(-1) });
+  if (event.op === "create") (async () => {
+    for await (const record of await row.stdout()) activity.branch(id).log(record);
+  })().catch(() => {});
+});
+#+END_SRC
+*** systems/ghost
+**** chrome/panes/tele.js · anima src/surface/panes/tele.jsx — Q5 · Q7 · Q11 · R7 · R8 · R15: no MACHINE fold, no hand list; a row's code off its records, any code shown
+#+BEGIN_SRC js
+// systems/ghost/chrome/panes/tele.js:5 · :15-22 (anima tele.jsx:8 · :16-23 the same)
+const MARKS = [
+  [(record) => record.track === "start", (node, record) => Object.assign(node, { begun: record.at, code: "RUNNING" })],
+  [(record) => record.track === "stop", (node, record) => Object.assign(node, { sealed: record.at, code: node.fault ? "FAILED" : "DONE" })],
+  [(record) => record.track === "fault", (node, record) => Object.assign(node, { fault: { at: record.at, ...record.data }, code: "FAILED" })],
+  [(record) => record.track === "status", (node, record) => Object.assign(node, { code: record.data.code })],
+  [() => true, (node, record) => node.entries.push({ track: record.track, at: record.at, data: record.data })],
+];
+// VERBS · moved() die; the pane reads the whole $history (m100 Q6)
+// systems/ghost/chrome/panes/tele.js:38 — R15: a row's label is the WHOLE nature branched (=terminal/t1=, =/mode/console/whoami=), never split on "/"
+      const node = { id, nature: record.path.at(-1), path: record.path, begun: null, sealed: null, fault: null, code: "IDLE", entries: [], tracks: [], children: [], clock };
+// systems/ghost/chrome/panes/tele.js:16 — R8: a code the machine does not know (lighthouse's AUTHENTICATED) is shown, never settled
+const settled = (code) => Object.hasOwn(MACHINE.states, code) && MACHINE.states[code].settled === true;
+// systems/ghost/chrome/panes/tele.js:95 — Q16: every signal offered on an unsettled activity row; the runtime drops one that does not apply
+    signals: node.kind === "activity" ? v.primitives.controller.SIGNALS.map((sig) => ({ sig, line: SIGNALS[sig], off: settled(node.code) })) : [],
+#+END_SRC
+**** entities/activity.js — Q16 · R9: the reason rides as ={ reason }=
+#+BEGIN_SRC js
+// systems/ghost/entities/activity.js:32-35 · :49
+export const owed = (signal, activities) => {
+  const { MACHINE } = v.primitives.controller;
+  return activities.filter((activity) => !MACHINE.states[activity.status].settled);
+};
+  for (const name of v.primitives.controller.SIGNALS) ctx.entity.controller.stdin.open(name, (signalDie) => remote.call(`/stdin/${name}`, { reason: signalDie.input }));
+#+END_SRC
+**** entities/lighthouse/prototype.js — Q5 · R7: =status= is STANDARD, the hand-wired Vector dies; its own codes ride the open =Status=
+#+BEGIN_SRC js
+// systems/ghost/entities/lighthouse/prototype.js:18
+    this.$status.listen((status) => this.stdout.status(status));
+#+END_SRC
+*** systems/runtime
+**** entities/Activity.ts — R17: the row is an edge — its =error= column is =faulted(error)=
+#+BEGIN_SRC js
+// systems/runtime/entities/Activity.ts:2 · :68
+import { Controller, Queue, Span, faulted, shape, steer, trace, v } from "@vivalence/typology";
+        this.updateOne({ id: activity.id }, { status: code, error: error ? faulted(error) : null, steps: ring }),
+#+END_SRC
+**** entities/Activity.ts — R13: history-then-live stays by hand — tap first, then the history; no span method
+#+BEGIN_SRC js
+// systems/runtime/entities/Activity.ts:111-127
+  stdout(signal?: AbortSignal) {
+    const { stdout, status } = this.#controller;
+    const { states } = v.primitives.controller.MACHINE;
+    return (async function* () {
+      if (states[status.reflection.code].settled) return yield* stdout.history;
+      const live = new Queue();
+      const untap = stdout.pipe.tap(live);
+      try {
+        yield* [...stdout.history];
+        for await (const record of live.drain(signal)) {
+          yield record;
+          if (record.track === "status" && trace.key(record.path) === trace.key(stdout.absolute) && states[record.data.code].settled) return;
+        }
+      } finally {
+        untap();
+      }
+    })();
+  }
+#+END_SRC
+**** subjects/runtime/lifecycle/integration.js — R9: the route reads the named field; an absent reason stays absent
+#+BEGIN_SRC js
+// systems/runtime/subjects/runtime/lifecycle/integration.js:84-89
+  const stdin = one.branch("/stdin");
+  for (const name of v.primitives.controller.SIGNALS) {
+    stdin.open(name, async (ctx) => {
+      await ctx.activity.stdin[name](ctx.input.reason);
+      return ctx.activity.controller.toJSON();
+    });
+  }
+#+END_SRC
+
+* the law
+
+1. a record is ={ at, path, track, data }=; =at= the wall clock in epoch ms (Q14); the kind is a TRACK (Q0).
+2. STANDARD = =start stop request response fault log entity status=, module-private in =span.js=; schemas in =schematics/primitives/track.js= (Q3 · Q10 · Q11 · Q12).
+3. each span owns a Vector of tracks, =tracked=; =tracks(vector)= grafts it AND writes a method per nature; a child grafts its parent's at birth; an unknown name throws =NotFound=, a known one casts (Q1 · Q9 · R1).
+4. every track is a method that returns the span: =span.start().log(…).stop()=; =fault(error)= shapes ={type, message, code?, stack?}= (Q4 · Q9).
+5. =start= · =stop= carry nothing; a request is =start · request · response · stop=, =stop= in =finally= (Q2).
+6. the Controller never TAPS its span: four signals on stdin and three run methods =start() stop() fault(error)= set the status; each run method also writes its track (=start · stop · fault=) — one act, never two; a bare =stdout.fault(error)= is a report and moves nothing; a status carries what its handler knows; =MACHINE= = the statuses (Q5 · Q7 · R5 · R6).
+7. one axis only — the track's nature; importance is not a track (Q15).
+
+* deliverables — milestones are nouns, each green
+
+1. *the registry* — =track.js= schemas; =span.js= =tracked · tracks() · track()= + the methods; tests: unknown throws, cast, child copy, chain, =??== keeps =fault=.
+2. *the controller* — handlers; =MACHINE= shrunk; =Verb= · =verbs= · =transitions= · =signals= table die; =fromm/controller.js= exit from status; =controller.test.js= rewritten.
+3. *the trackers* — =open close= → =start stop=; =message note= → =log=; socket =error= → =response=; =subject= → =entity=; =hallucinate.js:88 · :96=; the dossier.
+4. *the readers* — tele =MARKS= on tracks; =VERBS= lists · =moved()= · =wall()= die; journals read =log · fault=.
+5. *the reference* — =42.01_pipe-queue-span.mdx= Span section: the standard set, the methods, =tracks()=.
+
+* blast table — measured 10-23, moved whole to =reference/m101/blast-10-23.org= (R14); the replay's reach: =reference/m101/rewalk-10-23.org= =* campaign=
+
+* testing assessment
+
+- REPLAYED 10-23 on ONE copy, both quests: =reference/m101/rewalk-10-23.org= =* campaign=.
+- COVERAGE GAP: a SIGTERM run ends STOPPED with =signal= kept → exit 143 (=fromm/controller.js=).
+- COVERAGE GAP: =tracks({ branch })= — =??== keeps the real =branch=; a test pins it.
+- COVERAGE GAP: an unknown track throws =NotFound= (R1 — its message is "Not found", no names).
+- PROBED R1 (=scratchpad/rewalk/d.js=, the quest's Pipe shape): the chain is sync, 5 records at the root; =new Span(root) === root=; a later =tracks()= reaches spans born after it only; =??== keeps the real =branch=.
+
+* QA
+
+- I press stop on a running hallucination, its status reads =STOPPED= with =signal: "SIGTERM"=. #+marker_qa: track/T-sigterm-exit · revised 10-24 · held as revised: =code: "STOPPED" · signal: "SIGTERM" · reason: "/stop"=; a run is no process, nothing exits; the 143 lives in =fromm/controller.js= for the client process, keyed on =reason= so =/quit= (=kill("SIGTERM", "quit")=) keeps its documented 0
+- I type =/help=, I see the help strip in the dock. #+marker_qa: track/T-help-log · held 10-24 · =/help= → =log= record, painted in the dock
+- a 404 sent by the runtime shows as =response 404=, never a fault. #+marker_qa: track/T-404-response · held 10-24 (fixed) · =[runtime/runtime › socket › /nope/qa/09ac5641…] response { status: 404 }=, no fault; =socket.js= mints its span under =options.trace=, =shard.serve.multiplex(vector, trace)=, the runtime passes =die.controller.stdout=; test =multiplex.test.js= "an answered frame climbs to the owner's span"
+
+* deferred
+
+- importance (DEBUG · INFO · WARN · ALERT) as an axis orthogonal to the track (Q15).
+- chainable filters over =$history= (Q15).
+- the OTEL exporter: a root =pipe.tap= into the SDK; span ids from =path=; =traceparent= on the wire; severity per track → =roadmap/m89-telemetry.org=.
+- =packet.verb= (=socket.js:170=) is the wire's HTTP method field — the =verb= ban reaches the socket protocol.
+
+* landed 10-23 — /"go. apply. blast change. tested"/
+
+- real tree byte-equal to the rig on all 110 paths → copied =base= whole; byte-equal after.
+- cleanup at landing: =verb= names in two tests → =tracks(tail)= · =track("unknown")=; =Machine.desc= gains =Example:=; chaosmonkey =Oracle.svelte= · =Trace.svelte= (missed by the replay: =.note(= · =records= · =entry.verb= · =node.id=; storage key → =oracle:records:=); =prototypes/errors/controller.js= =Failure= cut — its one caller was the old controller.
+- fresh census, rig vs base: every red the rig's own, same test names; typology ok 150/0 · paladin ok 58/0 (serial; parallel runs collide on =connection.test.js= =PORT 9883=); anima 38/9 both.
+- real tree (cwd a temp dir, HOME empty, no =.env=): typology + paladin =ok | 208 passed (896 steps)=; =ghost --help= rc 0; =svelte/compiler= on both chaosmonkey files, rig's 2 warnings.
+- closes known issue =verbose-shows-the-controllers-stack=: =viva nosuchthing --verbose= prints =dispatch.js:12= · =run.js:14=, rc 127 (R17's raw Error).
+- live: :2501 =run.js= is NOT watching — old shape until restart; ghost chrome =--watch= restarted in-process; vite :1794 hot.
+
+* release — the interface ledger lines, on landing
+
+- changed =span.*= — =mark(name, data)= · =open() close() note() message()= → one method per track: =start() stop() request() response() fault() log() entity()= + =tracks(more)=; an unknown name throws · migrate: rename at each call ⟨track⟩
+- changed =record.at= — process-relative ms → epoch ms · migrate: drop =timeOrigin += ⟨track⟩
+- removed =MACHINE.verbs · transitions · signals= · =Verb= · migrate: status handlers ⟨track⟩
+
+* handoff
+
+- goal: one standard, extensible set of tracks — =start stop request response fault log entity status= — the same in runtime · anima · ghost, each a method on the span; the controller moves its own status by hand (R6), mapping onto OTEL at export.
+- done: drill Q0–Q16 + re-walk R1–R17; LANDED 10-23 into the real tree, every red the rig's own (=* landed=); docs =42.01= Span section rewritten; =Failure= cut.
+- next: none — DONE 10-24; QA walked on the restarted :2501 (=* QA=).
+- never: =verb= anywhere (I); a track the controller READS (R6); a closed enum nobody reads (D); a Proxy of self; importance in a track's name (Q15); helpers undefined in a fence; a second pipe per span (R5 B); a module-level =said= (R9 A); a library mechanism with no caller (R10).
+- owed: ghost =chrome/panes/tele.js:85 · :115= bar fallback =0= → =performance.timeOrigin= (epoch =at= pins bars at 100 %); hook proposals: =verb= in a quest write · undefined helpers in a fence · explain-before-ask on /"no clue"/ (drill-me:56 failed twice).

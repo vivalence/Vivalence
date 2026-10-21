@@ -1,0 +1,276 @@
+# limit: none (quest reference)
+#+title: m105 Q6A — the phase vector drawn as repl commands, struck 10-24 by beef: /"the phase vector is not a command vector … It's standalone."/
+
+**** subjects/terminal — Q6A the phase vector (SKETCH, unruled)
+***** commands/phase/claims.js
+#+begin_src js
+// systems/ghost/subjects/terminal/commands/phase/claims.js
+export const claims = (name) => async (replDie, next) => {
+  if (!replDie.terminal.thread.traits.includes(name))
+    throw new Error(`${replDie.signal.pathname}: thread #${replDie.terminal.thread.id} claims no ${name} — its traits: ${replDie.terminal.thread.traits.join(" · ") || "none"}`);
+  await next();
+};
+#+end_src
+***** commands/phase/inert.js
+#+begin_src js
+// systems/ghost/subjects/terminal/commands/phase/inert.js
+import { Vector } from "@vivalence/typology";
+
+export const inert = new Vector().open(
+  { nature: "/phase/inert", valence: "the mode manages its own buffers; an empty frame stays empty. Example: /phase/inert" },
+  () => {},
+);
+#+end_src
+***** commands/phase/manual.js
+#+begin_src js
+// systems/ghost/subjects/terminal/commands/phase/manual.js
+import { Vector } from "@vivalence/typology";
+
+export const manual = new Vector().open(
+  { nature: "/phase/manual", valence: "an empty thread gets one blank buffer of its mode. Example: /phase/manual" },
+  async (ctx) => {
+    if (ctx.terminal.thread.$buffers.get().length > 0) return;
+    ctx.terminal.$buffer.set(await ctx.runtime.entities.buffer.create({ mode: ctx.terminal.thread.mode.id, thread: ctx.terminal.thread.id, data: {} }));
+  },
+);
+#+end_src
+***** commands/phase/continuous.js
+#+begin_src js
+// systems/ghost/subjects/terminal/commands/phase/continuous.js
+import { Vector } from "@vivalence/typology";
+import { claims } from "./claims.js";
+
+export const continuous = new Vector();
+
+continuous
+  .branch({ nature: "/phase/continuous", valence: "the thread's emitter keeps QUEUEING.depth buffers queued. Example: /phase/continuous" })
+  .use(claims("AIMED"))
+  .do(async (ctx) => {
+    if (ctx.terminal.thread.$buffers.get().length >= ctx.terminal.thread.trait.QUEUEING.depth) return;
+    const emission = await ctx.terminal.thread.mode.connection.call(ctx.terminal.thread.trait.AIMED.mount, { thread: ctx.terminal.thread.id, ...ctx.terminal.thread.trait.MASKED });
+    for (const buffer of emission.output.buffer) await ctx.runtime.entities.buffer.merge(buffer);
+  });
+#+end_src
+***** commands/phase/escort.js
+#+begin_src js
+// systems/ghost/subjects/terminal/commands/phase/escort.js
+import { Vector } from "@vivalence/typology";
+import { claims } from "./claims.js";
+
+export const escort = new Vector();
+
+escort
+  .branch({ nature: "/phase/escort", valence: "continuous, and back to the launch buffer once the emitter runs dry. Example: /phase/escort" })
+  .use(claims("AIMED"))
+  .do(async (ctx) => {
+    await ctx.repl.dispatch("/phase/continuous");
+    if (ctx.terminal.thread.$buffers.get().length === 0) ctx.terminal.$buffer.set(ctx.terminal.stall.launch);
+  });
+#+end_src
+***** commands/phase/index.js
+#+begin_src js
+// systems/ghost/subjects/terminal/commands/phase/index.js
+import { Vector, v } from "@vivalence/typology";
+import * as belt from "../../../../gestalten/belt/index.js";
+import { inert } from "./inert.js";
+import { manual } from "./manual.js";
+import { continuous } from "./continuous.js";
+import { escort } from "./escort.js";
+
+const Phased = v.object({ phase: v.string().desc('A phase, a route under /phase. Example: "continuous"') });
+
+export const phase = new Vector()
+  .graft(inert, manual, continuous, escort)
+  .open(
+    { nature: "/phase", valence: "the seated thread's phase — runs it, then writes it. Example: /phase continuous", input: Phased },
+    async (ctx) => {
+      const { phase } = belt.input.cast(Phased, ctx.signal);
+      await ctx.repl.dispatch(`/phase/${phase}`);
+      await ctx.client.runtime.entities.thread.updateOne({ id: ctx.terminal.thread.id }, { phase });
+      return { phase };
+    },
+  );
+#+end_src
+***** stall.js
+#+begin_src js
+// systems/ghost/subjects/terminal/stall.js
+export class Stall {
+  launch = null;
+  refilling = null;
+
+  constructor(terminal) {
+    this.terminal = terminal;
+  }
+
+  refill() {
+    this.refilling ??= this.terminal.repl
+      .dispatch(`/phase/${this.terminal.thread.phase}`)
+      .catch((error) => this.terminal.controller.stdout.fault(error))
+      .finally(() => (this.refilling = null));
+    return this.refilling;
+  }
+}
+#+end_src
+***** lifecycle/stall.js
+#+begin_src js
+// systems/ghost/subjects/terminal/lifecycle/stall.js
+export const stall = async (terminalDie, next) => {
+  let buffers = () => {};
+  const seated = terminalDie.terminal.$thread.subscribe((thread) => {
+    buffers();
+    if (thread === null) return;
+    terminalDie.terminal.stall.launch = terminalDie.terminal.$buffer.get();
+    buffers = thread.$buffers.subscribe(() => terminalDie.terminal.stall.refill());
+  });
+  try {
+    await next();
+  } finally {
+    seated();
+    buffers();
+  }
+};
+#+end_src
+
+# struck 10-24 by beef: /"{ stall: this, terminal: this.terminal, thread: this.terminal.thread, runtime: this.terminal.client.runtime }, stupid. just {terminal:this.terminal. then define the vector effects inline. not separate."/
+**** subjects/terminal — Q6B the phase vector, standalone (SKETCH, unruled)
+***** stall.js
+#+begin_src js
+// systems/ghost/subjects/terminal/stall.js
+import { Vector, steer } from "@vivalence/typology";
+
+const claims = (name) => async (stallDie, next) => {
+  if (!stallDie.thread.traits.includes(name))
+    throw new Error(`[stall] /${stallDie.thread.phase}: thread #${stallDie.thread.id} claims no ${name} — its traits: ${stallDie.thread.traits.join(" · ") || "none"}`);
+  await next();
+};
+
+const blank = async (stallDie, next) => {
+  if (stallDie.thread.$buffers.get().length === 0)
+    await stallDie.runtime.entities.buffer.create({ mode: stallDie.thread.mode.id, thread: stallDie.thread.id, data: {} });
+  await next();
+};
+
+const queue = async (stallDie, next) => {
+  if (stallDie.thread.$buffers.get().length < stallDie.thread.trait.QUEUEING.depth) {
+    const emission = await stallDie.thread.mode.connection.call(stallDie.thread.trait.AIMED.mount, { thread: stallDie.thread.id, ...stallDie.thread.trait.MASKED });
+    for (const buffer of emission.output.buffer) await stallDie.runtime.entities.buffer.merge(buffer);
+  }
+  await next();
+};
+
+const escorting = async (stallDie, next) => {
+  await next();
+  if (stallDie.thread.$buffers.get().length === 0) stallDie.terminal.$buffer.set(stallDie.stall.launch);
+};
+
+const focus = (stallDie) => {
+  const buffers = stallDie.thread.$buffers.get();
+  if (buffers.includes(stallDie.terminal.$buffer.get())) return;
+  stallDie.terminal.$buffer.set(buffers[0] ?? null);
+};
+
+export const phases = new Vector();
+
+phases.open({ nature: "/inert", valence: "the mode manages its own buffers; the stall touches nothing. Example: /inert" }, () => {});
+
+phases.branch({ nature: "/manual", valence: "an empty thread gets one blank buffer; the frame holds one of the thread's buffers. Example: /manual" })
+  .use(blank)
+  .do(focus);
+
+phases.branch({ nature: "/continuous", valence: "the thread's emitter keeps QUEUEING.depth buffers queued; the frame holds one. Example: /continuous" })
+  .use(claims("AIMED"), queue)
+  .do(focus);
+
+phases.branch({ nature: "/escort", valence: "continuous, and back to the launch buffer once the emitter runs dry. Example: /escort" })
+  .use(claims("AIMED"), escorting, queue)
+  .do(focus);
+
+export class Stall {
+  launch = null;
+  refilling = null;
+
+  constructor(terminal) {
+    this.terminal = terminal;
+  }
+
+  refill() {
+    this.refilling ??= steer.dispatch
+      .execute(
+        phases,
+        { stall: this, terminal: this.terminal, thread: this.terminal.thread, runtime: this.terminal.client.runtime },
+        `/${this.terminal.thread.phase}`,
+      )
+      .catch((error) => this.terminal.controller.stdout.fault(error))
+      .finally(() => (this.refilling = null));
+    return this.refilling;
+  }
+}
+#+end_src
+
+# struck 10-24 by beef: /"stallCtx. … only be using manual … All the other phases will be commented out"/ · /"I don't like that you have changed to open and now all the middleware is just running the effect. Keep the branch do I prefer that."/
+**** subjects/terminal — Q6B the phase vector, standalone (SKETCH, unruled; die + inline per beef 10-24)
+***** stall.js
+#+begin_src js
+// systems/ghost/subjects/terminal/stall.js
+import { Vector, steer } from "@vivalence/typology";
+
+export const phases = new Vector();
+
+phases.open(
+  { nature: "/inert", valence: "the mode manages its own buffers; the stall touches nothing. Example: /inert" },
+  () => {},
+);
+
+phases.open(
+  { nature: "/manual", valence: "an empty thread gets one blank buffer; the frame holds one of the thread's buffers. Example: /manual" },
+  async (stallDie) => {
+    if (stallDie.terminal.thread.$buffers.get().length === 0)
+      await stallDie.terminal.client.runtime.entities.buffer.create({ mode: stallDie.terminal.thread.mode.id, thread: stallDie.terminal.thread.id, data: {} });
+
+    if (stallDie.terminal.thread.$buffers.get().includes(stallDie.terminal.$buffer.get())) return;
+    stallDie.terminal.$buffer.set(stallDie.terminal.thread.$buffers.get()[0] ?? null);
+  },
+);
+
+phases.open(
+  { nature: "/continuous", valence: "the thread's emitter keeps QUEUEING.depth buffers queued; the frame holds one. Example: /continuous" },
+  async (stallDie) => {
+    if (!stallDie.terminal.thread.traits.includes("AIMED"))
+      throw new Error(`[stall] /continuous: thread #${stallDie.terminal.thread.id} claims no AIMED — its traits: ${stallDie.terminal.thread.traits.join(" · ") || "none"}`);
+
+    if (stallDie.terminal.thread.$buffers.get().length < stallDie.terminal.thread.trait.QUEUEING.depth) {
+      const emission = await stallDie.terminal.thread.mode.connection.call(stallDie.terminal.thread.trait.AIMED.mount, { thread: stallDie.terminal.thread.id, ...stallDie.terminal.thread.trait.MASKED });
+      for (const buffer of emission.output.buffer) await stallDie.terminal.client.runtime.entities.buffer.merge(buffer);
+    }
+
+    if (stallDie.terminal.thread.$buffers.get().includes(stallDie.terminal.$buffer.get())) return;
+    stallDie.terminal.$buffer.set(stallDie.terminal.thread.$buffers.get()[0] ?? null);
+  },
+);
+
+phases.open(
+  { nature: "/escort", valence: "continuous, and back to the launch buffer once the emitter runs dry. Example: /escort" },
+  async (stallDie) => {
+    await steer.dispatch.execute(phases, stallDie, "/continuous");
+
+    if (stallDie.terminal.thread.$buffers.get().length === 0) stallDie.terminal.$buffer.set(stallDie.terminal.stall.launch);
+  },
+);
+
+export class Stall {
+  launch = null;
+  refilling = null;
+
+  constructor(terminal) {
+    this.terminal = terminal;
+  }
+
+  refill() {
+    this.refilling ??= steer.dispatch
+      .execute(phases, { terminal: this.terminal }, `/${this.terminal.thread.phase}`)
+      .catch((error) => this.terminal.controller.stdout.fault(error))
+      .finally(() => (this.refilling = null));
+    return this.refilling;
+  }
+}
+#+end_src

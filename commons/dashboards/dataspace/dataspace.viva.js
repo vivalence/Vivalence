@@ -1,4 +1,4 @@
-import { App, v } from "@vivalence/typology";
+import { mime } from "@vivalence/typology";
 
 const manifest = {
   type: "dashboard",
@@ -9,9 +9,9 @@ const manifest = {
     "a relation cell is a jump, and /subscribe is the live cursor. Grid with a where-builder and a raw " +
     "body, an editable row inspector, and the schema as an ER canvas.",
   version: "0.2.0",
-  traits: ["APPLICATION"],
+  traits: ["VIEWABLE"],
 };
 
-const application = new App("Dashboard.svelte");
+const views = [{ slug: "dataspace", mount: "Dashboard.svelte", mime: mime.dom.svelte }];
 
-export { manifest, application };
+export { manifest, views };

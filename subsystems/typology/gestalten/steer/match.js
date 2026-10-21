@@ -19,9 +19,13 @@ export function scope(vector, signal) {
   const scope = [];
 
   for (const { pattern, trajectory } of vector.trie.values()) {
+    if (pattern.type === "wildcard") continue;
     const match = pattern.apply(signal);
     if (match) scope.push([match, trajectory, trajectory.effect ?? null]);
   }
 
-  return scope;
+  if (scope.length > 0 || !vector.trie.has("*")) return scope;
+
+  const { pattern, trajectory } = vector.trie.get("*");
+  return [[pattern.apply(signal), trajectory, trajectory.effect ?? null]];
 }

@@ -6,10 +6,10 @@ paths: ["commons/**", "**/registry/**"]
 
 A `*.viva.js` = a package entry at `@commons/<type>/<slug>`; svelte/jsx mount by string.
 
-**dashboards/dataspace** (manifest · application) ← `Dashboard.svelte` ← `schema.js`; `*.bak.svelte` DEAD; no test.
+**dashboards/dataspace** (manifest · views) ← `Dashboard.svelte` ← `schema.js`; `*.bak.svelte` DEAD; no test.
 ```js
 // commons/dashboards/dataspace/dataspace.viva.js:15
-const application = new App("Dashboard.svelte");
+const views = [{ slug: "dataspace", mount: "Dashboard.svelte", mime: mime.dom.svelte }];
 
 ```
 **datamaps/libsql** = config · manifest · provider (:37).
@@ -18,7 +18,7 @@ const application = new App("Dashboard.svelte");
     dbName: seat ?? ":memory:",
     loadStrategy: "balanced",
 ```
-**fixtures/memo** = `package.viva.js` + 3 entries: `dataset/latin.viva.js` (manifest · freight · dataset) ← `entities/*`.
+**fixtures/memo** = `package.viva.js` + 3 entries: `dataset/latin.viva.js` (manifest · fileset · dataset) ← `entities/*`.
 ```js
 // commons/fixtures/memo/tests/dataset.test.js:2
 import { entities } from "../dataset/entities/index.js";
@@ -30,7 +30,7 @@ import { entities } from "../dataset/entities/index.js";
 import { card } from "../domain/card.js";
 
 ```
-**`mode/memo.viva.js`** (application · harness · tools · aperture · emitter) ← deal · progress; no `used`.
+**`mode/memo.viva.js`** (buffer · views · harness · tools · aperture · emitter) ← deal · progress; no `used`.
 ```js
 // commons/fixtures/memo/mode/memo.viva.js:19
     { mime: mime.tty.solid, mount: "buffer/memo.jsx" },
@@ -66,7 +66,7 @@ export const harness = new Vector();
   manifest: { slug: "hello-world", type: "demo" },
   module: { generator },
 ```
-**hello-world/tools/index.js** `*`×5; doors ← doctor · research · wikipedia.
+**hello-world/tools/index.js** `*`×5; routes ← doctor · research · wikipedia.
 ```js
 // commons/instances/hello-world/tests/research.test.js:2
 import { research, ROUNDS } from "../tools/research.js";
@@ -80,10 +80,8 @@ import { calling, rig, saying, SOURCE } from "./rig.js";
 ```
 **playground** — 9 entries; oracle `{Helpdesk,Paragraph}.svelte` DEAD; no `used`.
 ```js
-// commons/playground/chaosmonkey/oracle/oracle.viva.js:23
-};
-
-export const application = new App("buffer/Oracle.svelte", v.buffer({ data: {} }));
+// commons/playground/chaosmonkey/oracle/oracle.viva.js:25
+export const buffer = v.buffer({ data: {} });
 ```
 **services** — `nlp/service.viva.js` (:84 control · manifest · provider · tools); `reader/service.viva.js` ← extract · hop (← guard) · skeleton.
 ```js
@@ -94,7 +92,7 @@ import { tools } from "../tools/index.js";
 
 ## registry packages
 
-**Barrel**; `resolve` is a hook (`systems/runtime/daemon/lifecycle/resolution.js:21`).
+**Barrel**; `resolve` → `systems/runtime/subjects/daemon/lifecycle/resolution.js:21`.
 ```js
 // ~/.viva/registry/assembly/domain/assembly/assembly.viva.js:1
 export * as traits from "./traits/index.js";
@@ -102,7 +100,7 @@ export * as schematics from "./schematics.js";
 export { aperture } from "./aperture/index.js";
 export { tools } from "./tools/index.js";
 ```
-**Topography** `DATASET · FRAUGHT · DATASINK`.
+**Topography** `DATASET · FILESET · DATASINK`.
 ```js
 // ~/.viva/registry/droneaid/topographies/models/models.viva.js:25
   symbol: [[{ slug: { $like: "family.%" } }, project.omit("literals"), "dataset/symbols/families.js"]],

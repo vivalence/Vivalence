@@ -1,0 +1,26 @@
+# drained 10-22 whole from .ikiro/quests/m88-repling.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* terrain — measured 10-14
+
+| what | where | today |
+|---+---+---|
+| client schematic | =subsystems/typology/schematics/primitives/instance.js:83= | =manifest · module? · statics · traits [HOME] · trait.HOME= — no =modes=, no =reference=, no =mountpoint= |
+| client mask | =subsystems/typology/schematics/primitives/instance.js:185= | =additionalProperties: false= — a =modes= key is REFUSED at mount |
+| HOME's word | =subsystems/typology/schematics/primitives/home.js:4= | an absolute HOST reference, =/daemon/memo/mode/srs/memo= |
+| the fold | =subsystems/paladin/lifecycle/populate.js:210= | clients go through =at()= — the thunk only; daemons and the runtime go through =dressed()= — thunk + every =modes= entry anchored and dressed |
+| the ground | =subsystems/paladin/lifecycle/resolve.js:47-58= | =root(runtime)= seats =/runtime/<slug>= + =ground(runtime)= seats its modes; daemons likewise; clients get NOTHING |
+| the wire | =subsystems/paladin/prototypes/ledger/registry.js:270= | =wire(mask)= reads =mask.modes · reference · url · mountpoint= — host-agnostic already |
+| trait → export | =subsystems/paladin/prototypes/ledger/integrity.js:6= | =TRAITS= names the export a trait travels with; no =REPLING= |
+| the Mode citizen | =subsystems/typology/prototypes/mode.js= | =Object.assign(this, module)= + =implements= — the runtime's live mode; NOT in the client barrel (=prototypes/index.client.js:43= commented) |
+| ghost's mask | =systems/ghost/lifecycle/shell.js:78= | a SYNTHETIC ghost row: =traits= and =trait= copied off the recipe's ghost client, =remote= off the runtime |
+| ghost's home | =systems/ghost/lifecycle/client/resolution.js:103= | finds the HOST that owns HOME, waits =mounted=, CREATES A THREAD on the mode, seats it |
+| the terminal's mode | =systems/ghost/prototypes/terminal.js:43= | a getter: =thread.mode=; null without a thread |
+| the terminal's repl | =systems/ghost/lifecycle/terminal/population.js:4= | =new Vector().graft(client.repl)= ONCE per terminal — a COPY, frozen at graft time |
+| the repl's execution | =systems/ghost/lifecycle/repl.js:48= | ONE Vector = four =(ctx, next)= middlewares AND ten grafted verb subjects — pipe and verbs conflated; =population.repl= (=lifecycle/client/population.js:38=) grafts it whole into =client.repl= and binds =client · runtime · controller · flags= on that root — bindings a mode's vector would never carry |
+| a line in | =systems/ghost/gestalten/belt/line.js:12= =read(vector, input)= · =gestalten/belt/help.js:9= =census(trajectory)= | both walk ONE trie |
+| remote mode traits | =systems/ghost/traits/mode/= | =APPLICATION · EMITTER · EXPOSED · HARNESSED · GENERATIVE= — every body reads =mode.connection= |
+| the stagger seat | =systems/ghost/lifecycle/mode/execution.js:4= | =const { mode, daemon } = die= — the runtime says =die.context= (=systems/runtime/lifecycle/mode/population.js=) |
+| the old anima | =systems/anima/src/client.js= · =vite.config.mjs:13= | no lifecycle; paladin mounts at vite config time and reads =clients[anima].statics= — that IS anima's door |
+| his ledger | =~/.viva/ledger.viva.json:27= | one client, anima, a stray ="home"= key the schematic ignores (=additionalProperties: true=) |
+| the home dummy | — | =commons/modes/= does not exist; =@commons/home/probe= (=commons/fixtures/testing/probe/probe.viva.js=) is the RUNTIME's test home |
+

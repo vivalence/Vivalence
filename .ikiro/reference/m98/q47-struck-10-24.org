@@ -1,0 +1,432 @@
+# struck 10-24 from .ikiro/quests/m98-ghost-barrels.org by Q47 /"?????????????? only client and terminal are subjects. the rest are entiteis"/ (daemon · lighthouse · mode · runtime · thread stay =entities/=); the Moves rows and every block as tangled before Q47; nothing reworded · limit: none (reference content)
+
+** Moves row as tangled 10-23, struck by Q47 10-24
+| =systems/ghost/entities/daemon= | =systems/ghost/subjects/daemon= | m91 law 1 · Q0 · Q1 · Q4 |
+
+** Moves row as tangled 10-23, struck by Q47 10-24
+| =systems/ghost/entities/lighthouse= | =systems/ghost/subjects/lighthouse= | m91 law 1 · Q0 · Q1 · Q4 |
+
+** Moves row as tangled 10-23, struck by Q47 10-24
+| =systems/ghost/entities/mode= | =systems/ghost/subjects/mode= | m91 law 1 · Q0 · Q1 · Q4 |
+
+** Moves row as tangled 10-23, struck by Q47 10-24
+| =systems/ghost/entities/runtime= | =systems/ghost/subjects/runtime= | m91 law 1 · Q0 · Q1 · Q4 |
+
+** Moves row as tangled 10-23, struck by Q47 10-24
+| =systems/ghost/entities/thread= | =systems/ghost/subjects/thread= | m91 law 1 · Q0 · Q1 · Q4 |
+
+** Moves row as tangled 10-23, struck by Q47 10-24
+| =systems/ghost/tests/looping.test.js= | =systems/ghost/tests/subjects/mode/traits/looping.test.js= | Q10 · Q11 · Q14 |
+
+** Moves row as tangled 10-23, struck by Q47 10-24
+| =systems/ghost/tests/repling.coverage.test.js= | =systems/ghost/tests/subjects/mode/traits/repling.test.js= | Q10 · Q11 · Q14 |
+
+** systems/anima/tests/gate.test.js as tangled 10-23, struck by Q47 10-24
+***** gate.test.js — Q0 · Q13 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/tests/gate.test.js:2
+ import { gateFor } from "../src/app/gate.js";
+-import { STANDINGS } from "@vivalence/ghost";
++import { lighthouse } from "@vivalence/ghost";
+
+…
+// systems/anima/tests/gate.test.js:12
+
+-const CODES = [...STANDINGS].sort();
++const CODES = [...lighthouse.STANDINGS].sort();
+
+#+END_SRC
+
+** systems/anima/tests/sidebar.test.js as tangled 10-23, struck by Q47 10-24
+***** sidebar.test.js — Q0 · Q13 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/tests/sidebar.test.js:2
+ import { atom } from "nanostores";
+-import { Thread } from "@vivalence/ghost";
++import * as ghost from "@vivalence/ghost";
+ import { fire, paint, settle, surface, world } from "./world.js";
+…
+// systems/anima/tests/sidebar.test.js:89
+     const { rig, entities, thread } = await seated();
+-    const more = Array.from({ length: 7 }, (_, index) => Object.assign(new Thread(), { ...thread, id: `thread-${index + 2}`, trait: { ...thread.trait, LABELED: { name: `thread ${index + 2}` } }, $buffers: atom([]) }));
++    const more = Array.from({ length: 7 }, (_, index) => Object.assign(new ghost.thread.Thread(), { ...thread, id: `thread-${index + 2}`, trait: { ...thread.trait, LABELED: { name: `thread ${index + 2}` } }, $buffers: atom([]) }));
+     entities.thread.$entities.set([thread, ...more]);
+#+END_SRC
+
+** systems/anima/tests/world.js as tangled 10-23, struck by Q47 10-24
+***** world.js — Q0 · Q13 (the root mirrors ls)
+#+BEGIN_SRC diff
+// systems/anima/tests/world.js:5
+ import { Controller, Span, Vector } from "@vivalence/typology";
+-import { Client, Lighthouse, Thread, belt } from "@vivalence/ghost";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/anima/tests/world.js:48
+   const controller = new Controller({ stdout: new Span("anima") });
+-  const client = new Client({
++  const client = new ghost.client.Client({
+     controller,
+…
+// systems/anima/tests/world.js:54
+   client.surface.$sidebar.set(true);
+-  const lighthouse = Object.assign(new Lighthouse(), { stdout: controller.stdout.branch("lighthouse"), manifest: { type: "lighthouse", slug: "lighthouse", traits: ["AUTOLOGIN"] } });
++  const lighthouse = Object.assign(new ghost.lighthouse.Lighthouse(), { stdout: controller.stdout.branch("lighthouse"), manifest: { type: "lighthouse", slug: "lighthouse", traits: ["AUTOLOGIN"] } });
+   const chat = { type: "chat", slug: "chat", traits: ["HARNESSED"] };
+-  const thread = Object.assign(new Thread(), {
++  const thread = Object.assign(new ghost.thread.Thread(), {
+     id: "thread-1",
+…
+// systems/anima/tests/world.js:83
+     },
+-    dock: { ...belt.dock.DEFAULT_DOCK },
++    dock: { ...ghost.belt.dock.DEFAULT_DOCK },
+     $thread: atom(held),
+#+END_SRC
+
+** systems/ghost/entities/index.js as tangled 10-23, struck by Q47 10-24
+***** index.js — Q4 · Q5 · Q1
+#+BEGIN_SRC diff
+// systems/ghost/entities/index.js:1
+-export * as activity from "./activity.js";
+-export * as buffer from "./buffer.js";
+-export * as turn from "./turn.js";
++export * as activity from "./activity/index.js";
++export * as buffer from "./buffer/index.js";
++export * as turn from "./turn/index.js";
+#+END_SRC
+
+** systems/ghost/gestalten/shard/host.js as tangled 10-23, struck by Q47 10-24
+***** host.js — Q0 · Q1
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/shard/host.js:1
+ import { Cortex, belt, shape, traits } from "@vivalence/typology";
+-import { APPLICATION, EXPOSED, HARNESSED, KEYMAPPED, REPLING } from "../../entities/mode/traits/index.js";
++import { APPLICATION, EXPOSED, HARNESSED, KEYMAPPED, REPLING } from "../../subjects/mode/traits/index.js";
+
+#+END_SRC
+
+** systems/ghost/subjects/index.js as tangled 10-23, struck by Q47 10-24
+***** index.js — Q0 · Q1 (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/index.js
+export * as client from "./client/index.js";
+export * as daemon from "./daemon/index.js";
+export * as lighthouse from "./lighthouse/index.js";
+export * as mode from "./mode/index.js";
+export * as runtime from "./runtime/index.js";
+export * as terminal from "./terminal/index.js";
+export * as thread from "./thread/index.js";
+#+END_SRC
+
+** systems/ghost/subjects/client/lifecycle/index.js as tangled 10-23, struck by Q47 10-24
+***** index.js — m91 law 1 · Q0 · Q1 · Q4
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/lifecycle/index.js:4
+ import * as catalog from "../traits/index.js";
+-import * as lighthouse from "../../../entities/lighthouse/index.js";
+-import * as mode from "../../../entities/mode/index.js";
+-import * as runtimeHost from "../../../entities/runtime/index.js";
+-import * as daemonHost from "../../../entities/daemon/index.js";
+-import * as terminalProcess from "../../../entities/terminal/index.js";
+-import * as threadProcess from "../../../entities/thread/index.js";
+-import * as activity from "../../../entities/activity.js";
+-import * as buffer from "../../../entities/buffer.js";
+-import * as turn from "../../../entities/turn.js";
+-import { Runtime } from "../../../entities/runtime/prototype.js";
+-import { Lighthouse } from "../../../entities/lighthouse/prototype.js";
++import * as lighthouse from "../../lighthouse/index.js";
++import * as mode from "../../mode/index.js";
++import * as runtimeHost from "../../runtime/index.js";
++import * as daemonHost from "../../daemon/index.js";
++import * as terminalProcess from "../../terminal/index.js";
++import * as threadProcess from "../../thread/index.js";
++import * as activity from "../../../entities/activity/index.js";
++import * as buffer from "../../../entities/buffer/index.js";
++import * as turn from "../../../entities/turn/index.js";
++import { Runtime } from "../../runtime/prototype.js";
++import { Lighthouse } from "../../lighthouse/prototype.js";
+
+#+END_SRC
+
+** systems/ghost/tests/scenarios/look.js as tangled 10-23, struck by Q47 10-24
+***** look.js — Q12 · Q11
+#+BEGIN_SRC diff
+// systems/ghost/tests/scenarios/look.js:1
+ import { atom } from "nanostores";
+ import { Controller, Path, Span, Url } from "@vivalence/typology";
+ import * as ghost from "@vivalence/ghost";
+-import { keymap } from "../../subjects/client/keymap.js";
+-import { Terminal } from "../../entities/terminal/prototype.js";
+-import { Thread } from "../../entities/thread/prototype.js";
+-import { Mode } from "../../entities/mode/prototype.js";
+-import { Turn } from "../../entities/turn.js";
+-import { Activity } from "../../entities/activity.js";
+-import { Lighthouse } from "../../entities/lighthouse/prototype.js";
+-import { screen } from "../../chrome/screen.js";
+-import { KEYS } from "../../chrome/grid.js";
++import { screen } from "../../surfaces/chrome/screen.js";
++import { KEYS } from "../../surfaces/chrome/grid.js";
+
+…
+// systems/ghost/tests/scenarios/look.js:47
+   const surface = screen({ kind: "tty", places: ["cell", "frame"], dark: true });
+-  const client = new ghost.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface });
+-  const lighthouse = Object.assign(new Lighthouse(), { manifest: { traits: ["AUTOLOGIN"] } });
++  const client = new ghost.client.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface });
++  const lighthouse = Object.assign(new ghost.lighthouse.Lighthouse(), { manifest: { traits: ["AUTOLOGIN"] } });
+   lighthouse.$user.set({ slug: "beef", trait: {} });
+-  const memo = Object.assign(new Mode(), { id: "m1", type: "srs", slug: "memo", traits: ["HARNESSED"], daemon: null, reference: new Path("/runtime/house/mode/srs/memo") });
+-  const probe = Object.assign(new Mode(), { id: "m2", type: "home", slug: "probe", traits: ["EXPOSED"], daemon: null, reference: new Path("/runtime/house/mode/home/probe") });
+-  const thread = Object.assign(new Thread(), { id: "th1", mode: memo, traits: ["LABELED"], trait: { LABELED: { name: "flamingo" } } });
+-  const other = Object.assign(new Thread(), { id: "th2", mode: probe });
+-  const turn = Object.assign(new Turn(), { id: "u1", role: "user", thread, createdAt: local(9, 14, 0), parts: [{ type: "text", text: "what does the king's pawn do?" }] });
+-  const reply = Object.assign(new Turn(), { id: "a1", role: "assistant", thread, createdAt: local(9, 14, 3), parts: [{ type: "text", text: "It claims the centre." }] });
+-  const running = Object.assign(new Activity(), { id: "act1", type: "HALLUCINATION", thread, steps: [] });
++  const memo = Object.assign(new ghost.mode.Mode(), { id: "m1", type: "srs", slug: "memo", traits: ["HARNESSED"], daemon: null, reference: new Path("/runtime/house/mode/srs/memo") });
++  const probe = Object.assign(new ghost.mode.Mode(), { id: "m2", type: "home", slug: "probe", traits: ["EXPOSED"], daemon: null, reference: new Path("/runtime/house/mode/home/probe") });
++  const thread = Object.assign(new ghost.thread.Thread(), { id: "th1", mode: memo, traits: ["LABELED"], trait: { LABELED: { name: "flamingo" } } });
++  const other = Object.assign(new ghost.thread.Thread(), { id: "th2", mode: probe });
++  const turn = Object.assign(new ghost.entities.turn.Turn(), { id: "u1", role: "user", thread, createdAt: local(9, 14, 0), parts: [{ type: "text", text: "what does the king's pawn do?" }] });
++  const reply = Object.assign(new ghost.entities.turn.Turn(), { id: "a1", role: "assistant", thread, createdAt: local(9, 14, 3), parts: [{ type: "text", text: "It claims the centre." }] });
++  const running = Object.assign(new ghost.entities.activity.Activity(), { id: "act1", type: "HALLUCINATION", thread, steps: [] });
+   running.status = "RUNNING";
+…
+// systems/ghost/tests/scenarios/look.js:64
+   }
+-  const runtime = new ghost.Runtime({ reference: new Path("/runtime/house"), remote: new Url("http://127.0.0.1:9"), lighthouse });
++  const runtime = new ghost.runtime.Runtime({ reference: new Path("/runtime/house"), remote: new Url("http://127.0.0.1:9"), lighthouse });
+   runtime.$status.set({ code: "RUNNING" });
+…
+// systems/ghost/tests/scenarios/look.js:68
+   runtime.entities = { terminal: terminals, thread: repository([thread, other]), mode: repository([memo, probe]), daemon: repository([]), activity: repository([running]) };
+-  const terminal = Object.assign(new Terminal(), { id: "t1", index: 1, client, runtime, repository: terminals, controller: client.controller.branch("terminal/t1") });
+-  terminal.write = (data) => {
+-    Object.assign(terminal, data);
++  const terminal = Object.assign(new ghost.terminal.Terminal(), { id: "t1", index: 1, client, runtime, repository: terminals, controller: client.controller.branch("terminal/t1") });
++  terminals.updateOne = (where, data) => {
++    Object.assign(terminal, data);
+     terminals.$entities.set([...terminals.$entities.get()]);
+…
+// systems/ghost/tests/scenarios/look.js:84
+   client.$active.set(terminal);
+-  terminal.repl.commands.graft(...Object.values(ghost.commands.client), ...Object.values(ghost.commands.terminal));
+-  client.keymap.graft(keymap);
++  terminal.repl.commands.graft(...Object.values(ghost.client.commands), ...Object.values(ghost.terminal.commands));
++  client.keymap.graft(ghost.client.keymap.keymap);
+   if (authorized) {
+#+END_SRC
+
+** systems/ghost/tests/subjects/client/keymap.test.js as tangled 10-23, struck by Q47 10-24
+***** keymap.test.js — Q10 · Q11 · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/keymap.test.js:2
+ import { atom } from "nanostores";
+-import * as keymap from "../subjects/client/keymap.js";
+-import { KEYMAPPED } from "../entities/mode/traits/keymapped.js";
+-import { Terminal } from "../entities/terminal/prototype.js";
++import * as ghost from "@vivalence/ghost";
+
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:24
+ const seat = (client) => {
+-  const terminal = Object.assign(new Terminal(), { client });
++  const terminal = Object.assign(new ghost.terminal.Terminal(), { client });
+   terminal.repl.commands = client.commands;
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:32
+ specimen.it("harvest folds a chord: into an edge whose effect is the line; a verb without one is left out", () => {
+-  const stripped = shape.strip(keymap.harvest(stub().commands)).branches;
++  const stripped = shape.strip(ghost.client.keymap.harvest(stub().commands)).branches;
+   specimen.expect(Object.keys(stripped)).toEqual(["leader"]);
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:38
+ specimen.it("catalog rolls the repl up into rows — nature and chord, an empty chord for an unbound verb", () => {
+-  specimen.expect(keymap.catalog(stub().commands)).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
++  specimen.expect(ghost.client.keymap.catalog(stub().commands)).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
+ });
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:45
+     .open({ nature: "/split", valence: "the share", input: v.object({ share: v.number().desc("A share. Example: 0.5") }) }, () => "split");
+-  specimen.expect(keymap.catalog(repl).map((entry) => [entry.nature, entry.options])).toEqual([["/dock", ["left", "closed"]], ["/split", []]]);
++  specimen.expect(ghost.client.keymap.catalog(repl).map((entry) => [entry.nature, entry.options])).toEqual([["/dock", ["left", "closed"]], ["/split", []]]);
+ });
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:63
+ specimen.it("navigate: leader m dispatches /mode; leader esc drops silently; leader x faults; q at the root is the widget's; a closed drain ends the walk", async () => {
+   const client = stub();
+-  client.keymap.graft(keymap.harvest(client.commands), keymap.keymap);
++  client.keymap.graft(ghost.client.keymap.harvest(client.commands), ghost.client.keymap.keymap);
+   const terminal = seat(client);
+   const queue = presses("leader", "m", "leader", "esc", "leader", "x", "q");
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:68
+   const drain = queue.drain();
+-  specimen.expect(await keymap.navigate(terminal, drain)).toBe(true);
++  specimen.expect(await ghost.client.keymap.navigate(terminal, drain)).toBe(true);
+   specimen.expect(client.dispatched).toEqual(["/mode"]);
+-  await keymap.navigate(terminal, drain);
++  await ghost.client.keymap.navigate(terminal, drain);
+   specimen.expect(faults).toEqual([]);
+-  await keymap.navigate(terminal, drain);
++  await ghost.client.keymap.navigate(terminal, drain);
+   specimen.expect(faults).toEqual(["NOT_FOUND"]);
+-  await keymap.navigate(terminal, drain);
++  await ghost.client.keymap.navigate(terminal, drain);
+   specimen.expect(faults).toEqual(["NOT_FOUND"]);
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:78
+   queue.close();
+-  specimen.expect(await keymap.navigate(terminal, drain)).toBe(false);
++  specimen.expect(await ghost.client.keymap.navigate(terminal, drain)).toBe(false);
+   specimen.expect(client.dispatched).toEqual(["/mode"]);
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:84
+   const client = stub();
+-  client.keymap.graft(keymap.harvest(client.commands), keymap.keymap);
++  client.keymap.graft(ghost.client.keymap.harvest(client.commands), ghost.client.keymap.keymap);
+   const terminal = seat(client);
+   const queue = presses("leader");
+-  const walking = keymap.navigate(terminal, queue.drain());
++  const walking = ghost.client.keymap.navigate(terminal, queue.drain());
+   await new Promise((wake) => setTimeout(wake, 0));
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:100
+   const client = stub();
+-  client.keymap.graft(keymap.keymap);
++  client.keymap.graft(ghost.client.keymap.keymap);
+   const mode = { slug: "board", module: { keymap: new Vector().open({ nature: "leader/g/n", valence: "new game" }, (ctx) => (ctx.mode === mode ? "/game/new" : "/unbound")) }, keymap: new Vector() };
+-  KEYMAPPED(mode);
++  ghost.mode.traits.KEYMAPPED(mode);
+   const terminal = seat(client);
+   terminal.thread = { mode };
+-  await keymap.navigate(terminal, presses("leader", "g", "n").drain());
++  await ghost.client.keymap.navigate(terminal, presses("leader", "g", "n").drain());
+   specimen.expect(client.dispatched).toEqual(["/game/new"]);
+#+END_SRC
+
+** systems/ghost/tests/subjects/mode/traits/repling.test.js as tangled 10-23, struck by Q47 10-24
+***** repling.test.js — Q10 · Q11 · Q14
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/mode/traits/repling.test.js:3
+ import * as ghost from "@vivalence/ghost";
+-import { Mode } from "../entities/mode/prototype.js";
+
+-const { REPLING } = ghost.traits.mode;
++const { REPLING } = ghost.mode.traits;
+
+…
+// systems/ghost/tests/subjects/mode/traits/repling.test.js:15
+   const kept = structuredClone(declared);
+-  const remote = Object.assign(new Mode(), { type: "home", slug: "console", traits: ["REPLING"], reference: new Path("/runtime/house/mode/home/console") });
++  const remote = Object.assign(new ghost.mode.Mode(), { type: "home", slug: "console", traits: ["REPLING"], reference: new Path("/runtime/house/mode/home/console") });
+   remote.connection = {
+#+END_SRC
+
+** systems/ghost/tests/subjects/terminal/commands.test.js as tangled 10-23, struck by Q47 10-24
+***** commands.test.js — Q10 · Q11 · Q17′
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/terminal/commands.test.js:3
+ import * as ghost from "@vivalence/ghost";
+-import { Terminal } from "../entities/terminal/prototype.js";
+-import { Thread } from "../entities/thread/prototype.js";
+-import { Mode } from "../entities/mode/prototype.js";
+-import { Buffer } from "../entities/buffer.js";
+-import { Turn } from "../entities/turn.js";
+-import { Activity, loudest, owed } from "../entities/activity.js";
+-import { Lighthouse } from "../entities/lighthouse/prototype.js";
+
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:33
+ const activity = (id, status) => {
+-  const held = Object.assign(new Activity(), { id, type: "HALLUCINATION", steps: [] });
++  const held = Object.assign(new ghost.entities.activity.Activity(), { id, type: "HALLUCINATION", steps: [] });
+   held.status = status;
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:41
+   const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [], trait: {} };
+-  const client = new ghost.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface: { $shell: atom("cockpit"), $tele: atom({ open: false, view: "logger", sel: "7", since: 0 }), $sidebar: atom(false), $sections: atom({ hidden: ["modes"] }) } });
++  const client = new ghost.client.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface: { $shell: atom("cockpit"), $tele: atom({ open: false, view: "logger", sel: "7", since: 0 }), $sidebar: atom(false), $sections: atom({ hidden: ["modes"] }) } });
+
+-  const lighthouse = Object.assign(new Lighthouse(), { manifest: { traits: ["AUTOLOGIN"] } });
++  const lighthouse = Object.assign(new ghost.lighthouse.Lighthouse(), { manifest: { traits: ["AUTOLOGIN"] } });
+   lighthouse.connection = { fetch: async (route, body) => ({ body: { user: { slug: body.username, trait: {} }, authority: { access: "a", refresh: "r" } } }) };
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:48
+
+-  const memo = Object.assign(new Mode(), { id: "m1", type: "srs", slug: "memo", traits: ["HARNESSED"], daemon: null, reference: new Path("/runtime/house/mode/srs/memo") });
+-  const probe = Object.assign(new Mode(), { id: "m2", type: "home", slug: "probe", traits: ["EXPOSED"], daemon: null, reference: new Path("/runtime/house/mode/home/probe") });
++  const memo = Object.assign(new ghost.mode.Mode(), { id: "m1", type: "srs", slug: "memo", traits: ["HARNESSED"], daemon: null, reference: new Path("/runtime/house/mode/srs/memo") });
++  const probe = Object.assign(new ghost.mode.Mode(), { id: "m2", type: "home", slug: "probe", traits: ["EXPOSED"], daemon: null, reference: new Path("/runtime/house/mode/home/probe") });
+   const REPLY = [
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:69
+
+-  const thread = Object.assign(new Thread(), { id: "th1", mode: memo, traits: ["LABELED"], trait: { LABELED: { name: "flamingo" } } });
+-  const other = Object.assign(new Thread(), { id: "th2", mode: probe });
+-  const buffer = Object.assign(new Buffer(), { id: "b1", thread, traits: ["LABELED"], trait: { LABELED: { name: "memo #1" } } });
+-  const board = Object.assign(new Buffer(), { id: "b2", thread, mode: { slug: "play", application: { bundle: { entries: [{ mime: "text/html+svelte", mount: "cells/Board.js", integrity: "e7f3" }, { mime: "text/html+solid", mount: "cells/Glance.js", integrity: "5d2a" }] } } }, traits: ["LABELED"], trait: { LABELED: { name: "board one" } }, data: { fen: "8/8" } });
++  const thread = Object.assign(new ghost.thread.Thread(), { id: "th1", mode: memo, traits: ["LABELED"], trait: { LABELED: { name: "flamingo" } } });
++  const other = Object.assign(new ghost.thread.Thread(), { id: "th2", mode: probe });
++  const buffer = Object.assign(new ghost.entities.buffer.Buffer(), { id: "b1", thread, traits: ["LABELED"], trait: { LABELED: { name: "memo #1" } } });
++  const board = Object.assign(new ghost.entities.buffer.Buffer(), { id: "b2", thread, mode: { slug: "play", application: { bundle: { entries: [{ mime: "text/html+svelte", mount: "cells/Board.js", integrity: "e7f3" }, { mime: "text/html+solid", mount: "cells/Glance.js", integrity: "5d2a" }] } } }, traits: ["LABELED"], trait: { LABELED: { name: "board one" } }, data: { fen: "8/8" } });
+   thread.$buffers = atom([buffer, board]);
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:78
+
+-  client.runtime = new ghost.Runtime({ reference: new Path("/runtime/house"), remote: new Url("http://127.0.0.1:9"), lighthouse, connection: { branch: (path) => ({ path }) } });
++  client.runtime = new ghost.runtime.Runtime({ reference: new Path("/runtime/house"), remote: new Url("http://127.0.0.1:9"), lighthouse, connection: { branch: (path) => ({ path }) } });
+   client.runtime.$status.set({ code: "RUNNING" });
+-  const terminals = repository([], (data, count) => Object.assign(new Terminal(), { id: `t${count + 1}`, index: count, client, runtime: client.runtime, repository: terminals, ...data }));
+-  const buffers = repository([buffer, board], (data, count) => Object.assign(new Buffer(), { id: `b${count + 1}`, ...data }));
+-  const threads = repository([thread, other], (data, count) => Object.assign(new Thread(), { id: `th${count + 1}`, ...data, mode: memo }));
++  const terminals = repository([], (data, count) => Object.assign(new ghost.terminal.Terminal(), { id: `t${count + 1}`, index: count, client, runtime: client.runtime, repository: terminals, ...data }));
++  const buffers = repository([buffer, board], (data, count) => Object.assign(new ghost.entities.buffer.Buffer(), { id: `b${count + 1}`, ...data }));
++  const threads = repository([thread, other], (data, count) => Object.assign(new ghost.thread.Thread(), { id: `th${count + 1}`, ...data, mode: memo }));
+   client.runtime.entities = {
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:95
+         this.merges.push(structuredClone(raw));
+-        const held = this.$entities.get().find((turn) => turn.id === raw.id) ?? Object.assign(new Turn(), { id: raw.id });
++        const held = this.$entities.get().find((turn) => turn.id === raw.id) ?? Object.assign(new ghost.entities.turn.Turn(), { id: raw.id });
+         Object.assign(held, raw);
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:102
+   };
+-  const terminal = Object.assign(new Terminal(), { id: "t1", index: 0, client, runtime: client.runtime, repository: terminals, controller: client.controller.branch("terminal/t1") });
++  const terminal = Object.assign(new ghost.terminal.Terminal(), { id: "t1", index: 0, client, runtime: client.runtime, repository: terminals, controller: client.controller.branch("terminal/t1") });
+   terminals.$entities.set([terminal]);
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:108
+
+-  const repl = new Vector().graft(...Object.values(ghost.commands.client), ...Object.values(ghost.commands.terminal));
++  const repl = new Vector().graft(...Object.values(ghost.client.commands), ...Object.values(ghost.terminal.commands));
+   const run = async (line) => {
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:244
+     const done = activity("a0", "DONE");
+-    specimen.expect(owed("SIGCONT", [paused, running, done])).toEqual([paused, running]);
+-    specimen.expect(owed("SIGSTOP", [paused, running, done])).toEqual([paused, running]);
+-    specimen.expect(owed("SIGTERM", [paused, running, done])).toEqual([paused, running]);
+-    specimen.expect(loudest([paused, running])).toBe("RUNNING");
+-    specimen.expect(loudest([])).toBe("NONE");
++    specimen.expect(ghost.belt.activity.owed("SIGCONT", [paused, running, done])).toEqual([paused, running]);
++    specimen.expect(ghost.belt.activity.owed("SIGSTOP", [paused, running, done])).toEqual([paused, running]);
++    specimen.expect(ghost.belt.activity.owed("SIGTERM", [paused, running, done])).toEqual([paused, running]);
++    specimen.expect(ghost.belt.activity.loudest([paused, running])).toBe("RUNNING");
++    specimen.expect(ghost.belt.activity.loudest([])).toBe("NONE");
+   });
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:279
+
+-  specimen.it("/dock · /dock/lens · /split claim DOCKED on the terminal, field-wise — /dock routes a side to align, a view to view — through the terminal's write; a bad word is VALIDATION", async () => {
++  specimen.it("/dock · /dock/lens · /split claim DOCKED on the terminal, field-wise — /dock routes a side to align, a view to view — through the terminal's updateOne; a bad word is VALIDATION", async () => {
+     specimen.expect(await run("/dock left")).toEqual({ DOCKED: { align: "left" } });
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:292
+
+-  specimen.it("/set <path> <value> writes one inspector path — DOCKED through the terminal's write, INTELLIGENT · LABELED through the thread's updateOne, a screen atom in place; a set toggles; an unknown path or a value outside its schema is loud", async () => {
++  specimen.it("/set <path> <value> writes one inspector path — DOCKED through the terminal's updateOne, INTELLIGENT · LABELED through the thread's updateOne, a screen atom in place; a set toggles; an unknown path or a value outside its schema is loud", async () => {
+     specimen.expect(await run("/set terminal.dock.view closed")).toEqual({ DOCKED: { view: "closed" } });
+#+END_SRC
+

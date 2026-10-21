@@ -1,0 +1,243 @@
+#+title: track — options struck in the drill, verbatim
+<!-- limit: 12000 chars -->
+* Q0 · B struck — the kind is an event
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/span.js
+static events = { open: Open, close: Close, fault: Fault, state: State, note: Note };
+track(event, data) { this.pipe.send({ at: performance.now(), path: this.absolute, event, data }); return this; }
+// a reader
+computed(span.$history, (held) => held.filter((record) => record.event === "fault"));
+#+END_SRC
+* Q1 · A struck — a Span subclass per environment
+#+BEGIN_SRC js
+class Wire extends Span { static tracks = { ...Span.tracks, request: Request, response: Response }; }
+this.span = new Wire("socket");
+#+END_SRC
+* Q1 · B struck — one shared registry, prefixed names
+#+BEGIN_SRC js
+export const tracks = new Map([["open", Open], ["close", Close], ["fault", Fault], ["state", State], ["note", Note]]);
+tracks.set("wire.request", Request).set("wire.response", Response);
+#+END_SRC
+* Q1 · C struck — the tree shares one registry
+#+BEGIN_SRC js
+this.#tracks = this.trace ? this.trace.#tracks : { ...STANDARD };
+// a terminal's keypress becomes trackable at the client root
+#+END_SRC
+* Q2 · A struck — request on open, response on close
+#+BEGIN_SRC js
+trace.track("open", { method: packet.verb ?? "POST", path: signal.pathname });
+finally { trace.track("close", { status }); }
+#+END_SRC
+* Q3 · B struck — five standard, the wire adds two
+#+BEGIN_SRC js
+const STANDARD = { open: Open, close: Close, fault: Fault, state: State, note: Note };
+this.span = new Span("socket").tracks({ request: Request, response: Response });
+#+END_SRC
+* Q4 · B struck — keep {message, code}, no stack
+#+BEGIN_SRC js
+export const Fault = v.object({ message: v.string(), code: v.string().optional() });
+#+END_SRC
+* Q5 · A struck — the signal as a track
+#+BEGIN_SRC js
+this.stdin.open("SIGTERM", (ctx) => { this.stdout.track("signal", { name: "SIGTERM", reason: ctx.input }); this.status.set({ code: "STOPPING" }); });
+#+END_SRC
+* Q5 · B struck — the status as a standard track
+#+BEGIN_SRC js
+this.status.listen((status) => this.stdout.track("status", { code: status.code }));
+#+END_SRC
+* Q6 · A struck — keyed by cause
+#+BEGIN_SRC js
+transitions: { open: { IDLE: "RUNNING" }, close: { RUNNING: "DONE", PAUSED: "DONE", STOPPING: "STOPPED" }, SIGTERM: { RUNNING: "STOPPING", PAUSED: "STOPPING" }, … },
+// move: MACHINE.transitions[cause]?.[from]
+#+END_SRC
+* Q7 · A struck — keep the table, move() looks up
+#+BEGIN_SRC js
+const code = MACHINE.states[from][cause]; if (!code) return; this.status.set({ code, … });
+#+END_SRC
+* Q8 · A struck — one track, note
+#+BEGIN_SRC js
+const STANDARD = { open, close, request, response, fault, note };
+ctx.controller.stdout.track("note", shape.strip(ctx.repl));
+#+END_SRC
+* Q9 · A struck — a Proxy of self
+#+BEGIN_SRC js
+return (this.self = new Proxy(this, { get: (span, key) => (key in span ? bound(span, key) : key in span.#tracks ? (data) => span.track(key, data) : undefined) }));
+#+END_SRC
+* Q9 · B (first form) struck — mint over a live chain
+#+BEGIN_SRC js
+const mint = (span, name) => { if (name in Span.prototype) throw …; span[name] = (data) => span.track(name, data); };
+#+END_SRC
+* Q9 · A (re-ask) struck — the seven written into the class
+#+BEGIN_SRC js
+open() { return this.track("open"); }  note(data) { return this.track("note", data); }  …
+#+END_SRC
+* Q10 · A struck — note; B struck — pojo
+#+BEGIN_SRC js
+span.note({ patrol: 3 }).log("seated on probe");
+span.pojo({ patrol: 3 }).log("seated on probe");
+#+END_SRC
+* Q11 · A struck — start · end
+#+BEGIN_SRC js
+const STANDARD = { start: Start, end: End, request: Request, response: Response, fault: Fault, log: Log };
+#+END_SRC
+* Q12 · A struck — delete subject · message, log the row
+#+BEGIN_SRC js
+ctx.span.log({ entity: { schema: "thread", id } });
+#+END_SRC
+* Q13 · A struck — the dossier's own create · update · remove, records forwarded raw
+#+BEGIN_SRC js
+const activity = new Span(`daemon/${manifest.slug}/activity`).tracks({ create: Row, update: Row, remove: Row });
+for await (const record of await row.stdout()) activity.branch(id).pipe.send(record);
+#+END_SRC
+* Q14 · B struck — performance.now(), the root logs its origin
+#+BEGIN_SRC js
+if (!this.trace) this.log({ origin: performance.timeOrigin });
+#+END_SRC
+* Q16 · A struck — a SIGNALS map signal → statuses
+#+BEGIN_SRC js
+export const SIGNALS = { SIGTERM: ["RUNNING", "PAUSED"], SIGSTOP: ["RUNNING"], SIGCONT: ["PAUSED"], SIGKILL: ["IDLE", "RUNNING", "PAUSED", "STOPPING"] };
+#+END_SRC
+* re-walk R1 · A struck — a module-private WeakMap registry
+#+BEGIN_SRC js
+const REGISTRY = new WeakMap();
+  REGISTRY.set(this, {});
+  this.tracks(this.trace ? REGISTRY.get(this.trace) : STANDARD);
+  const schema = REGISTRY.get(this)[name];
+#+END_SRC
+* re-walk R1 · B struck — a module-private Symbol key
+#+BEGIN_SRC js
+const TRACKS = Symbol("tracks");
+  this[TRACKS] = {};
+  this.tracks(this.trace ? this.trace[TRACKS] : STANDARD);
+#+END_SRC
+* re-walk R1 · C struck — =#tracks= kept, the existing span returned before =super()=
+#+BEGIN_SRC js
+#tracks = {};
+constructor(signature = null, trace = null) {
+  if (signature instanceof Span) return signature.from(trace);
+  if (is.array(signature)) return signature.slice(1).reduce((span, nature) => span.branch(nature), new Span(signature[0], trace));
+  super(signature, trace);
+  this.tracks(this.trace ? this.trace.#tracks : STANDARD);
+#+END_SRC
+* re-walk R2 · A struck — the guard in =from()=
+#+BEGIN_SRC js
+  from(trace) {
+    return this.pipe ? this : super.from(trace, true);
+  }
+#+END_SRC
+* re-walk R4 · B struck — a cancel a fault everywhere
+#+BEGIN_SRC js
+  let status = 200;
+        for await (const item of body) {
+          if (controller.signal.aborted) throw controller.signal.reason;
+  } catch (error) {
+    if (error instanceof NotFound || error?.code === "NOT_FOUND") { status = 404; return this.#send({ frame: id, error: { status, message: error.message } }); }
+    trace.fault(error);
+    status = 500;
+    if (!controller.signal.aborted) this.#send({ frame: id, error: { status, message: error.message } });
+  }
+#+END_SRC
+* re-walk R3 · B struck — every throw a fault, NotFound too
+#+BEGIN_SRC js
+  } catch (error) {
+    trace.fault(error);
+    status = error instanceof NotFound || error?.code === "NOT_FOUND" ? 404 : 500;
+    if (!controller.signal.aborted) this.#send({ frame: id, error: { status, message: error.message } });
+  }
+#+END_SRC
+* re-walk R5 · A struck — own records by depth
+#+BEGIN_SRC js
+      this.stdout.pipe.tap((record) => record.path.length === this.stdout.length && record.track === "start" && this.status.is("IDLE") && this.status.set({ code: "RUNNING" })),
+#+END_SRC
+* re-walk R5 · B struck — a span's own pipe (/"a super ugly double abstraction"/)
+#+BEGIN_SRC js
+    this.own = new Pipe();
+    this.pipe = new Pipe();
+    this.own.tap(this.pipe);
+      this.stdout.own.tap((record) => record.track === "start" && this.status.is("IDLE") && this.status.set({ code: "RUNNING" })),
+#+END_SRC
+* re-walk R6 · A struck — two calls, the controller moves status only
+#+BEGIN_SRC js
+  die.controller.start();
+  die.controller.stdout.start();
+  try { await next(); } catch (error) { die.controller.fail(error); die.controller.stdout.fault(error); }
+  finally { die.controller.stop(); die.controller.stdout.stop(); }
+#+END_SRC
+* re-walk R7 · A struck — tele reads only start · stop · fault
+#+BEGIN_SRC js
+  [(record) => record.track === "stop", (node, record) => Object.assign(node, { sealed: record.at, code: node.fault ? "FAILED" : "DONE" })],
+// a STOPPED run drawn DONE, an ABORTED one RUNNING, PAUSED invisible
+#+END_SRC
+* re-walk R8 · A struck — tele takes only a code the machine knows
+#+BEGIN_SRC js
+  [(record) => record.track === "status" && Object.hasOwn(MACHINE.states, record.data.code), (node, record) => Object.assign(node, { code: record.data.code })],
+#+END_SRC
+* re-walk R9 · A struck — =said= in the controller filters every reason
+#+BEGIN_SRC js
+const said = (input) => (is.string(input) && input.length ? input : undefined);
+    signalled("SIGTERM", (ctx) => this.status.is(["RUNNING", "PAUSED"]) && this.status.set({ code: "STOPPING", signal: "SIGTERM", reason: said(ctx.input) }));
+    signalled("SIGKILL", (ctx) => this.abort.abort(said(ctx.input) ?? "SIGKILL"));
+#+END_SRC
+* re-walk R10 · A struck — the drain policies stay, the caller names its span
+#+BEGIN_SRC js
+export const closes = (span) => (record) => key(record.path) === key(span.absolute) && record.track === "close";
+
+export const faulty = (story) => [...story.nodes.values()].some((node) => node.fault);
+
+export const slower = (threshold) => (story) => story.roots.some((root) => duration(root) > threshold);
+
+export const gather = (until, drain) => {
+  let records = [];
+  const write = (record) => {
+    records.push(record);
+    if (until(record, records)) write.flush();
+  };
+  write.flush = () => {
+    if (records.length) drain(records);
+    records = [];
+  };
+  return write;
+};
+
+export const hold = (sink, until) => gather(until, (records) => records.forEach(sink));
+
+export const decant = (sink, keep, until) => gather(until, (records) => keep(chronicle(records)) && records.forEach(sink));
+#+END_SRC
+* re-walk R11 · B struck — the raw Error on the status, converted only at the Activity row
+#+BEGIN_SRC js
+        this.updateOne({ id: activity.id }, { status: code, error: error ? { type: error.name, message: error.message, code: error.code } : null, steps: ring }),
+#+END_SRC
+* re-walk R12 · B struck — the status record keeps its code only; the reason via =toJSON()=
+#+BEGIN_SRC js
+      const unlisten = this.status.$transient.listen(({ code }) => {
+        this.stdout.status({ code });
+#+END_SRC
+* re-walk R13 · B struck — =span.drain(signal)=, history queued then live
+#+BEGIN_SRC js
+  drain(signal) {
+    const queue = new Queue();
+    for (const record of this.history) queue.enqueue(record);
+    const untap = this.pipe.tap(queue);
+    signal?.addEventListener("abort", untap, { once: true });
+    return queue.drain(signal);
+  }
+#+END_SRC
+* re-walk R14 · B struck — an unknown code counts as live
+#+BEGIN_SRC js
+        if (MACHINE.states[reflection.code]?.settled !== true) return;
+#+END_SRC
+* re-walk R15 · B struck — the label is the nature's last piece
+#+BEGIN_SRC js
+      const node = { id, nature: record.path.at(-1).split("/").filter(Boolean).at(-1), … };
+#+END_SRC
+* re-walk R16 · B struck — TONES lists the lighthouse's fifteen codes, tone() stays loud
+#+BEGIN_SRC js
+  AUTHENTICATED: "pos", VERIFIED: "pos", HEALTHY: "pos", REFRESHED: "pos",
+  AUTHENTICATING: "cau", VERIFYING: "cau", REFRESHING: "cau", MOUNTING: "cau", POPULATING: "cau",
+  ERROR: "neg", OFFLINE: "neg", UNAVAILABLE: "neg", SESSION_EXPIRED: "neg",
+  LOGGED_OUT: "mut", RELEASED: "mut",
+#+END_SRC
+* re-walk R17 · A struck — the waiter rebuilds an Error from the plain fault
+#+BEGIN_SRC js
+    const judge = (status) => (check(status) ? resolve(controller) : reject(status.error ? Object.assign(new Error(status.error.message), status.error) : new Error(status.code)));
+#+END_SRC

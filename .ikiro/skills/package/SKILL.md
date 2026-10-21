@@ -61,8 +61,8 @@ The MODULE's manifest is authored and immutable. The MOUNTING's is minted by pal
 ## Mount path — read it before touching it
 
 ```
-systems/runtime/runtime/lifecycle/population.js:27  paladin.ledger.registry.supply() → reconcile(record) → mount(root) → pensieve.register
-systems/runtime/daemon/lifecycle/population.js:8    die.register = registry.wire(die.mask) → accio() per slot; domain = Domain.cast(modes.find(type==="domain")); the runtime wires its own record the same way (runtime/lifecycle/population.js:123)
+systems/runtime/subjects/runtime/lifecycle/population.js:27  paladin.ledger.registry.supply() → reconcile(record) → mount(root) → pensieve.register
+systems/runtime/subjects/daemon/lifecycle/population.js:8    die.register = registry.wire(die.mask) → accio() per slot; domain = Domain.cast(modes.find(type==="domain")); the runtime wires its own record the same way (runtime/lifecycle/population.js:123)
 ~/.viva/registry.json                               { "@<slug>": { slug, mount } }, mount store-relative or absolute
 ```
 

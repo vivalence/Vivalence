@@ -1,0 +1,13 @@
+# m111 Q3A option B — struck 10-27 (his /"a"/) · limit: 1200 chars
+
+The =/set= inspector gains buffer paths: no new command, but =/set= is path + value, so it writes only the FRAMED buffer — a journal cell cannot name its own.
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/commands/set.js:8 — two more rows in WRITABLE
+  at("buffer.rendered.frame", v.string().desc('The view the framed buffer shows. Example: "play"'), async (ctx, frame) => {
+    await ctx.client.runtime.entities.buffer.updateOne({ id: ctx.terminal.buffer.id }, traits.patch(ctx.terminal.buffer, { RENDERED: { frame } }));
+    return { RENDERED: { frame } };
+  }),
+#+END_SRC
+
+Also struck (his reframe, Q3): two buffer-first commands =/buffer/artifact <slug>= · =/buffer/cell <slug> <name>=.

@@ -1,8 +1,9 @@
-import { specimen, steer, Vector } from "@vivalence/typology";
+import { shape, specimen, steer, Vector } from "@vivalence/typology";
 import { traits } from "@vivalence/runtime";
 const { EMITTER } = traits.mode;
 import { machine } from "../tools/doctor.js";
-import { harness } from "../harness.js";
+import { harness, primer } from "../harness.js";
+import { RENDER } from "../page/style.js";
 import { emitter } from "../page/index.js";
 import { pin } from "./harness.snapshot.test.js";
 
@@ -31,13 +32,13 @@ const STANDING = {
 const assemble = async (path) => {
   const run = new Vector();
   run.use(async (ctx, next) => {
-    ctx.hallucination = { system: {} };
+    ctx.hallucination = { primer: new Vector().graft(primer) };
     Object.assign(ctx, { mountpoint: null, entities: {}, modes: {} });
     await next();
   });
   run.graft(harness);
-  run.branch("/dialogue").open("/render", (ctx) => ctx.hallucination.system);
-  run.open("/render", (ctx) => ctx.hallucination.system);
+  run.branch("/dialogue").open("/render", (ctx) => shape.primer.load(ctx.hallucination.primer, ctx));
+  run.open("/render", (ctx) => shape.primer.load(ctx.hallucination.primer, ctx));
 
   const system = await steer.dispatch.invoke(
     run,
@@ -66,7 +67,7 @@ specimen.describe(
             // this list, and style.tokens.test.js is what says whether dapper still emits it.
             tokens: [
               ...new Set(
-                [...dialogue.render.matchAll(/--[a-z0-9-]+/g)].map(([token]) =>
+                [...RENDER.matchAll(/--[a-z0-9-]+/g)].map(([token]) =>
                   token
                 ),
               ),
@@ -84,14 +85,14 @@ specimen.describe(
         specimen.expect(Object.keys(object).sort()).toEqual([
           "hello",
           "machine",
-          "render",
+          "primer",
         ]);
         const dialogue = await assemble("/dialogue/render");
         specimen.expect(Object.keys(dialogue).sort()).toEqual([
           "format",
           "hello",
           "machine",
-          "render",
+          "primer",
         ]);
       },
     );
@@ -113,17 +114,15 @@ specimen.describe(
         entity: { id: "mode-1" },
         generator: {
           // a stub bundler, because the real integrity hash moves with esbuild — the oracle-ask
-          // timing collapse is the precedent. `bundle` is pinned as { entries, type } for the same
+          // timing collapse is the precedent. the View row is pinned by its stub id for the same
           // reason it would have to be collapsed against the real one.
-          bundle: async () => ({
-            json: { entries: ["index.js"], type: "svelte" },
-          }),
+          bundle: async ({ slug, mime }) => ({ id: `view-${slug}`, slug, mime, entry: "bundle/stub.mjs" }),
         },
       };
       const daemon = {
         type: "daemon",
         entities: {
-          thread: { findOne: async () => row },
+          thread: { findOne: async () => row, findOneOrFail: async () => row },
           em: { flush: async () => {} },
           buffer: {
             create: async ({ thread, ...fields }) => ({ ...fields, index: 0, thread: null }),
@@ -146,9 +145,10 @@ specimen.describe(
       pin(
         {
           condition: yielded.condition,
-          buffer: yielded.output.buffer.map(({ data, bundle, index }) => ({
+          buffer: yielded.output.buffer.map(({ data, mime, views, index }) => ({
             data,
-            bundle,
+            mime,
+            views,
             index,
           })),
           counter: row.counter,

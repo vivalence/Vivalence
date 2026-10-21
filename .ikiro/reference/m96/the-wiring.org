@@ -1,0 +1,287 @@
+# drained 10-22 whole from .ikiro/quests/m96-client-mothership.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* the wiring — as code (moved whole from m95 10-21; rulings m95:68–106 by number)
+
+*** systems/ghost
+
+**** deno.jsonc · typology.js — rulings 14 · 15: the barrel is browser-clean; shell under ./run
+
+#+begin_src jsonc
+// systems/ghost/deno.jsonc
+"exports": { ".": "./typology.js", "./run": "./run.js", "./host": "./surface/chrome/host/index.js" },
+#+end_src
+#+begin_src js
+// systems/ghost/typology.js — `shell` (:1,18) leaves for ./run; nothing here imports Deno, OpenTUI or paladin
+export const factories = { client: client.factory, terminal: terminal.factory, thread: thread.factory, mode: mode.factory, daemon: daemon.factory, runtime: runtime.factory };
+export const lifecycle = { client: client.lifecycle, terminal: terminal.lifecycle, thread: thread.lifecycle, mode: mode.lifecycle, lighthouse: lighthouse.lifecycle, daemon: daemon.lifecycle, runtime: runtime.lifecycle };
+#+end_src
+
+**** run.js — the tty door: paladin reads, the runtime boot runs here, then the one factory (rulings 16 · 17)
+
+#+begin_src js
+// systems/ghost/run.js
+import paladin, { factories } from "@vivalence/paladin";
+import { Argv, Controller, Span, fromm, steer } from "@vivalence/typology";
+import { shell } from "./shell/lifecycle.js";
+
+const instance = await factories.instance(paladin.instance);
+await paladin.ledger.registry.supply();
+const die = { controller: new Controller({ stdout: new Span("ghost") }), signal: new Argv(Deno.args), instance, mask: instance.clients.find((client) => client.manifest.slug === "ghost") };
+die.register = await paladin.ledger.registry.wire(die.mask);
+await steer.dispatch.execute(shell, die, die.signal);
+// systems/ghost/shell/lifecycle.js — the runtime boot (client/lifecycle/index.js:65-79 today) is the shell's beat, before the factory
+export const shell = new Vector().use(boot).open("/repl", (ctx) => ghost.factories.client(surface.repl)(ctx)).open("/chrome", (ctx) => ghost.factories.client(surface.chrome)(ctx));
+#+end_src
+
+**** client/factory.js · client/prototype.js — rulings 12 · 14 · 16: m93's kleisli, one factory
+
+#+begin_src js
+// systems/ghost/client/factory.js
+import { monad, shape } from "@vivalence/typology";
+import { Client } from "./prototype.js";
+import { execution } from "./lifecycle/index.js";
+import * as commands from "./commands/index.js";
+
+export function factory(surface) {
+  return monad.kleisli([
+    (doorDie) => new Client({ controller: doorDie.controller.branch("client"), mask: doorDie.mask, register: doorDie.register, instance: doorDie.instance, surface }),
+    shape.monad.execute(execution),
+  ]);
+}
+// systems/ghost/client/prototype.js — rulings 5 · 13; lock 5's theme, the surface hands dark in
+export class Client {
+  controller = null;  mask = null;  register = null;  instance = null;  surface = null;
+  modes = {};  repl = new Vector();  keymap = new Vector();  runtime = null;
+  $active = atom(null);  $chord = atom(null);  $catalog = atom(null);
+  get active() { return this.$active.get(); }
+  dispatch(line) { return this.active.dispatch(line); }
+  get theme() {
+    return this.mask.trait.THEMED ?? this.runtime.lighthouse.user.trait.THEMED ?? (this.surface.dark ? "northsea" : "porcelain");
+  }
+}
+#+end_src
+
+**** client/lifecycle/index.js — the shared lifecycle: no Deno, no paladin.scope; `runtime` (the boot) leaves for the shell
+
+#+begin_src js
+// systems/ghost/client/lifecycle/index.js:216
+export const execution = new Vector()
+  .use(shard.controller.open)
+  .use(commands)       // clientDie.repl.graft(...Object.values(commands)) — ruling 20 · m96 ruling 15
+  .use(modes)          // mode.factory(held)(clientDie) — m93
+  .use(surface)        // clientDie.unmount = await clientDie.surface(clientDie) — beat 4 stays (ruling 22)
+  .use(connection)     // clientDie.runtime = new Runtime({ remote: new Url(clientDie.instance.runtime.statics.remote) })
+  .use(authorized)     // lighthouse.lifecycle — the credentials beat over paladin.vault (ruling 18)
+  .use(dataspace).use(rows)
+  .use(hosts)          // monad.traverse(hosts, (held) => HOSTS[held.type](held)(clientDie)) — m93
+  .use(terminals)      // terminalProcess.factory(terminal)(clientDie) per row — m93
+  .use(staggered).use(thread).use(active)
+  .do(shard.controller.hold);
+#+end_src
+
+**** entities/terminal/prototype.js · gestalten/belt/dock.js — rulings 4 · 6 · 19: the one prop, the one dispatch, the layers
+
+#+begin_src js
+// systems/ghost/gestalten/belt/dock.js — lock 4 /"a default setting somewhere built into the app"/ (m86 s2:3833 built it here); one literal, both clients
+export const DEFAULT_DOCK = v.traits.terminal.DOCKED.cast({ align: "right", share: 0.38, view: "docked", lens: "repl" });   // ruling 10: the merge floor
+// systems/ghost/entities/terminal/prototype.js
+export class Terminal {
+  client = null;  repl = new Vector();  keymap = new Vector();
+  dispatch(line) { return shard.repl.dispatch(this.client, this, line); }
+  get dock() {
+    return { ...belt.dock.DEFAULT_DOCK, ...this.client.mask.trait.DOCKED, ...this.client.runtime.lighthouse.user.trait.DOCKED, ...this.trait.DOCKED };
+  }
+}
+#+end_src
+
+**** entities/lighthouse/lifecycle/index.js — rulings 17 · 18: a beat imports paladin; held() · store() · MODE · Deno leave this file
+
+#+begin_src js
+// systems/ghost/entities/lighthouse/lifecycle/index.js:1,21 — byte-identical in both clients
+import paladin from "@vivalence/paladin";
+export const credentials = async (lighthouseDie, next) => {
+  const origin = lighthouseDie.client.runtime.remote.origin;
+  const kept = paladin.vault.held(origin);
+  if (kept !== null) lighthouseDie.client.runtime.lighthouse.restore(kept);
+  await lighthouseDie.client.runtime.lighthouse.verify();
+  const off = lighthouseDie.client.runtime.lighthouse.$authority.listen((authority) =>
+    paladin.vault.store(origin, lighthouseDie.client.runtime.lighthouse.isAuthorized ? { user: lighthouseDie.client.runtime.lighthouse.user, authority, at: new Date().toISOString() } : null));
+  try { await next(); } finally { off(); }
+};
+#+end_src
+
+*** subsystems/paladin
+
+**** paladin/prototype.js · paladin/lifecycle.js — ruling 18: FILES beside MOUNTS (m79 F2); belt as a phase; the baked phase
+
+#+begin_src js
+// subsystems/paladin/paladin/prototype.js:15
+const FILES = v.environment({
+  VIVA_CLIENT_GHOST_CREDENTIALS_FILE: v.string().desc("lighthouse authority — one row per lighthouse origin, mode 0600").examples("~/.viva/credentials.json").optional(),
+});
+// subsystems/paladin/paladin/prototype.js:76 — the twelve belt.*(this) calls leave the constructor
+  constructor() {
+    this.ledger = new Ledger(this);
+  }
+// subsystems/paladin/paladin/prototype.js:22 — FILES wired beside MOUNTS (the hole named 10-21 seam 10: FILES was declared, never assigned)
+  mounts = MOUNTS;
+  files = FILES;
+// subsystems/paladin/paladin/lifecycle.js — FULL is the twelve installs the constructor ran (prototype.js:80-92), in that order; belt as prototype.js:2 imports it today
+import belt from "../gestalten/belt/index.js";
+export const FULL = [belt.read, belt.find, belt.check, belt.state, belt.envfile, belt.is, belt.scope, belt.publish, belt.source, belt.clone, belt.bundler, belt.expand];
+export function belt(paladin, belts = FULL) {
+  for (const install of belts) install(paladin);
+}
+// :73 — a scope beside registry, resolved at use
+    ["credentials", () => true, () => (paladin.env.has("VIVA_CLIENT_GHOST_CREDENTIALS_FILE") ? new Path(paladin.env.get("VIVA_CLIENT_GHOST_CREDENTIALS_FILE")) : paladin.scope.ledger.branch("credentials.json"))],
+export function baked(paladin, data) {
+  paladin.assign(data.env, "ledger");
+  paladin.instance = Object.assign(new Instance(paladin), data.instance);
+  paladin.ledger = { registry: { supply: () => Promise.resolve(), wire: () => Promise.resolve({ ...data.wired, modes: data.modes.map((citizen) => ({ ...citizen, module: citizen.module() })) }) } };
+}
+// subsystems/paladin/mod.js
+const paladin = new Paladin();
+lifecycle.belt(paladin);
+await lifecycle.env(paladin); await lifecycle.scopes(paladin); lifecycle.instance(paladin);
+#+end_src
+
+**** mod.client.js — ruling 23: @vivalence/paladin in a browser; twins mod.js as subsystems/typology/mod.client.js twins its
+
+#+begin_src js
+// subsystems/paladin/mod.client.js
+import { Paladin } from "./paladin/prototype.js";
+import * as lifecycle from "./paladin/lifecycle.js";
+import vault from "./gestalten/belt/vault.js";
+import baked from "paladin:baked";
+const paladin = new Paladin();
+lifecycle.belt(paladin, [vault]);
+lifecycle.baked(paladin, baked);
+export default paladin;
+export const factories = { instance: fn.memo(() => Promise.resolve(paladin.instance)) };
+#+end_src
+
+**** gestalten/belt/vault.js — ruling 18: one slot, the backend resolved at first call
+
+#+begin_src js
+// subsystems/paladin/gestalten/belt/vault.js
+const BACKENDS = [
+  [() => "Deno" in globalThis, (paladin) => file(paladin.scope.credentials)],
+  [() => "localStorage" in globalThis, () => storage(globalThis.localStorage)],
+];
+export default function vault(paladin) {
+  let backend = null;
+  const resolved = () => (backend ??= BACKENDS.find(([present]) => present())[1](paladin));
+  paladin.vault = { held: (origin) => resolved().held(origin), store: (origin, record) => resolved().store(origin, record) };
+}
+const file = (path) => ({
+  held: (origin) => { try { return JSON.parse(Deno.readTextFileSync(path.absolute))[origin] ?? null; } catch (error) { if (error instanceof Deno.errors.NotFound) return null; throw error; } },
+  store: (origin, record) => {
+    const { [origin]: stale, ...kept } = (() => { try { return JSON.parse(Deno.readTextFileSync(path.absolute)); } catch { return {}; } })();
+    Deno.writeTextFileSync(path.absolute, `${JSON.stringify(record === null ? kept : { ...kept, [origin]: record }, null, 2)}\n`, { mode: 0o600 });
+    Deno.chmodSync(path.absolute, 0o600);
+  },
+});
+const storage = (storage) => ({
+  held: (origin) => JSON.parse(storage.getItem(`vault:${origin}`) ?? "null"),
+  store: (origin, record) => (record === null ? storage.removeItem(`vault:${origin}`) : storage.setItem(`vault:${origin}`, JSON.stringify(record))),
+});
+#+end_src
+
+**** instance/lifecycle/resolution.js · prototypes/registry.js — ruling 8: no client mountpoint, no mode ground under a client; the registry stops minting a mountpoint and =bundles=. ORDER (baseline census 10-21): the =registry.js:277= =bundles= removal rides milestone =hosts= with ruling 14 — three readers stand today (=mode/traits/application.js:7= · =generative.js:5= · =runtime/lifecycle/resolution.js:48=, each =paladin.bundler(mode.bundles.absolute)=); replayed in =floor= it reds the hello-world shelf boot (=tests/runtime/hello.test.js=: /"Cannot read properties of undefined (reading 'absolute')"/), restored it passes 2/2.
+#+begin_src diff
+// subsystems/paladin/tests/modes.test.js:98
+-  it("a client is a host: /client/<slug>, <mountpoint>/client_<slug>, every mode grounded under it as /mode/<type>/<slug>", async () => {
++  it("a client is a host: /client/<slug>, every mode referenced under it as /mode/<type>/<slug>, no mountpoint on either", async () => {
+…
+// subsystems/paladin/tests/modes.test.js:106
+-    expect(client.mountpoint.absolute).toBe("/mountpoint/client_ghost");
++    expect(client.mountpoint).toBeUndefined();
+…
+// subsystems/paladin/tests/modes.test.js:109
+-    expect(client.modes[0].mountpoint.absolute).toBe("/mountpoint/client_ghost/mode_home_console");
++    expect(client.modes[0].mountpoint).toBeUndefined();
+#+end_src
+#+begin_src diff
+// subsystems/paladin/instance/lifecycle/resolution.js:54 — Locked retro drill Q5 10-21: /"a"/ — two anas, place · mount; re-cut 10-21 (baseline census: the test wants client.modes[0].module · reference and no mountpoint; `ground` did both jobs). PLACE (module · reference · url) and MOUNT (mountpoint · bundles) are two anas over one identity; a daemon's modes get both, a client's the first.
+   const referenced = (client) => {
+     client.reference ??= `/client/${client.manifest?.slug}`;
++    client.modes = (client.modes ?? []).map(place(client));
+   };
+   instance.daemons.forEach(address);
+   instance.daemons.forEach(ground);
+-  instance.clients.forEach(mountpoint("client"));
+   instance.clients.forEach(referenced);
+-  instance.clients.forEach(ground);
+…
+// subsystems/paladin/instance/lifecycle/resolution.js:92
+-function ground(declaration) {
+-  declaration.modes = (declaration.modes ?? []).map((entry) => {
+-    const id = identity(entry);
+-    if (!id) return entry;
+-    const [type, slug] = id;
+-    const held = is.string(entry) ? { module: entry } : entry;
+-    // a declared mountpoint is the entry's word even when its thunk came back blank (a REQUIRED fault,
+-    // never a mountpoint minted over it); only silence gets one, mode_<type>_<slug> or mode_<slug>
+-    const mountpoint = "mountpoint" in held ? held.mountpoint : `${declaration.mountpoint}/mode_${[type, slug].filter(Boolean).join("_")}`;
+-    if (!type) return { ...held, mountpoint }; // the type is the module's word — wire fills the rest
+-    const reference = `/mode/${type}/${slug}`;
+-    return {
+-      ...held,
+-      mountpoint,
+-      reference: held.reference ?? reference,
+-      url: held.url ?? (declaration.url ? new Url(declaration.url).branch(reference).absolute : undefined),
+-      bundles: held.bundles ?? `${declaration.mountpoint}/bundles/${type}/${slug}`,
+-    };
+-  });
++const place = (declaration) => (entry) => {
++  const id = identity(entry);
++  if (!id) return entry;
++  const [type, slug] = id;
++  const held = is.string(entry) ? { module: entry } : entry;
++  if (!type) return held;
++  const reference = `/mode/${type}/${slug}`;
++  return { ...held, reference: held.reference ?? reference, url: held.url ?? (declaration.url ? new Url(declaration.url).branch(reference).absolute : undefined) };
++};
++const mount = (declaration) => (entry) => {
++  const id = identity(entry);
++  if (!id) return entry;
++  const [type, slug] = id;
++  const mountpoint = "mountpoint" in entry ? entry.mountpoint : `${declaration.mountpoint}/mode_${[type, slug].filter(Boolean).join("_")}`;
++  return type ? { ...entry, mountpoint, bundles: entry.bundles ?? `${declaration.mountpoint}/bundles/${type}/${slug}` } : { ...entry, mountpoint };
++};
++function ground(declaration) {
++  declaration.modes = (declaration.modes ?? []).map(place(declaration)).map(mount(declaration));
+ }
+#+end_src
+#+begin_src diff
+// subsystems/paladin/prototypes/registry.js:262
+-      mountpoint: query.mountpoint ?? null,
+…
+// subsystems/paladin/prototypes/registry.js:277
+-      return { ...citizen, reference, url: mask.url?.branch(reference.absolute), bundles: new Path(`${mask.mountpoint.absolute}/bundles/${type}/${slug}`) };
++      return { ...citizen, reference, url: mask.url?.branch(reference.absolute) };
+#+end_src
+#+begin_src diff
+// subsystems/paladin/tests/registry.wire.test.js:55 — re-cut 10-21 (baseline census): the two assertions ruling 8 kills — a citizen carries no minted mountpoint, no bundles
+-    expect(citizen.mountpoint).toBe(null);
++    expect("mountpoint" in citizen).toBe(false);
+…
+// subsystems/paladin/tests/registry.wire.test.js:97
+-    expect(bag.modes[0].bundles.absolute).toBe("/m/d/bundles/game/board");
+#+end_src
+
+*** the milestone as it stood in m95 (moved whole)
+
+** 1 · the wiring — =* as code= systems/ghost · subsystems/paladin
+
+#+begin_src text
+read      systems/ghost/client/{prototype,factory}.js · client/lifecycle/index.js:36-216 (14 beats) · typology.js · deno.jsonc · shell/lifecycle.js:9 (debug line)
+          systems/ghost/entities/terminal/ · entities/activity.js · entities/lighthouse/lifecycle/index.js:7-30 · surface/chrome/index.js:6 (the out/ static import)
+          subsystems/paladin/paladin/{prototype,lifecycle}.js · gestalten/belt/{index,scope,state}.js
+port      systems/anima/src/entities/activity.js:31-65 · app/bones/spine/activity.js · app/panels/a/stop.svelte.js
+traits    m94-trait-rejiggle.org:30-34 · :242-259
+green     systems/ghost/tests/{repl,console,client,keys,text}.test.js · subsystems/paladin/tests (54) — HOME=$(mktemp -d), one file, one-shot
+before    m93 milestone 4 (ghost factories, m93:98) · m94's rows
+gate      a test imports @vivalence/ghost under a no-Deno guard; grep -rn "Deno\." systems/ghost/client systems/ghost/entities → 0
+#+end_src
+

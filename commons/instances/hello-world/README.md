@@ -18,7 +18,7 @@ page of its own — and can hand all three to a second agent in one call.
     app/App.svelte  the buffer view
 
 Armed names are `viva_doctor` · `web_search` · `web_read` · `research` ·
-`generator_view_render` · `generator_view_revise` · `generator_view_inspect` · `generator_view_list`, on top of the
+`view_create` · `view_update` · `view_read` · `view_list` · `buffer_create`, on top of the
 `fs_*` and `shell_run` every HARNESSED mode with a module mount already gets.
 `web_read` is dark until a reader service is consumed — it says so rather than
 pretending.
@@ -36,12 +36,12 @@ aperture's `/emit` and on `mode.emit`. It passes NO thread to
 `thread.counter` twice for one page. `tests/emitter.test.js` holds that.
 
 `generator` arms nothing. The GENERATIVE trait owns the model's tools —
-`generator_view_render` · `generator_view_revise` · `generator_view_inspect` · `generator_view_list` on
+`view_create` · `view_update` · `view_read` · `view_list` · `buffer_create` on
 `mode.generator.tools` — and slurps this vector onto them AFTER, so its
 middleware runs on every draw and revise (a URL import is refused before the
-bundler sees it) and its two `open`s without an effect reword `render` and
-`revise` with the house rules while the trait's effects stay. Every GENERATIVE
-mode has the same four names; this mode only changes what two of them say.
+bundler sees it) and its two `open`s without an effect reword `view_create` and
+`view_update` with the house rules while the trait's effects stay. Every GENERATIVE
+mode has the same five names; this mode only changes what two of them say.
 
 ## The nested agent
 

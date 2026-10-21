@@ -1,4 +1,4 @@
-import { App, v } from "@vivalence/typology";
+import { mime, v } from "@vivalence/typology";
 
 export const manifest = {
   type: "chaosmonkey",
@@ -7,16 +7,15 @@ export const manifest = {
   description:
     "Emitted by the oracle — a sassy one-line vision of what you asked, with a return.",
   version: "0.1.0",
-  traits: ["APPLICATION"],
+  traits: ["VIEWABLE"],
 };
 
-export const application = new App(
-  "Vision.svelte",
-  v.buffer({
-    data: {
-      prompt: v.string().default(""),
-      vision: v.string().default(""),
-      mood: v.string().default(""),
-    },
-  }),
-);
+export const buffer = v.buffer({
+  data: {
+    prompt: v.string().default(""),
+    vision: v.string().default(""),
+    mood: v.string().default(""),
+  },
+});
+
+export const views = [{ slug: "vision", mount: "Vision.svelte", mime: mime.dom.svelte }];

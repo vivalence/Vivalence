@@ -1,0 +1,498 @@
+#+title: m103 command pass — every shell and repl command walked once, by tree, one card each
+#+filetags: :ghost:shell:repl:paladin:walk:
+#+status: WALKING 10-27 — the map (95: shell 26 · repl 69, +/anima 10-28) holds every command · its widget callers · its source; C1 · C2 amen, C3 · C4 shown unruled; the card protocol /"too complicated"/, blocks A–K STALE; the chrome-panels quest it was MOVED whole to =reference/m103/chrome-panels-10-27.org=
+<!-- limit: 30000 chars -->
+
+* intent
+
+10-27, beef verbatim:
+
+/"I was thinking of doing a pass on each REPL command. We have already done the pass on each widget. That's done, so now we need to change the quest and do it against all of the REPL commands. I think I'd like to navigate by tree. I think it makes sense if we include the shell here. Make sure that I run through every single command at least once. So shell and REPL. By tree, and there's some ordering that makes sense for us, or for me rather, to do this thing. And maybe if you break it up into a couple of like work blocks or areas of work, that would be helpful."/
+
+/"I want to have some sort of drill me session probably, where I get the command, I get what the code looks like that runs it, and then I execute it, and then we blah blah blah, that whole stuff. I suspect that it makes sense if I do this all in this session."/
+
+* terrain — measured 10-27
+
+The repl is five layers grafted per terminal, in this order — a later layer's nature wins:
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/repl.js:23
+  get commands() {
+    const absent = paladin.is.tty ? [] : [clientCommand.quit];
+    return new Vector().graft(
+      ...Object.values(clientCommand).filter((command) => !absent.includes(command)),
+      ...(this.terminal.client.app === null ? [] : Object.values(appCommand).filter((command) => !absent.includes(command))),
+      ...fromm.modes(this.terminal.client.modes).flat.map((mode) => mode.repl),
+      ...Object.values(terminalCommand),
+      ...(is.object(this.terminal.mode) ? [this.terminal.mode.repl] : []),
+    );
+  }
+#+END_SRC
+The shell is one Vector: ghost's two + paladin's 21; =/help= (=systems/ghost/subjects/shell/lifecycle/index.js:48=) sits on the execution beside them:
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/commands/index.js:6
+export const commands = new Vector().graft(chrome, tail, paladin.commands);
+// systems/ghost/subjects/shell/lifecycle/index.js:19
+  .graft(commands)
+  .do((shellDie) => shellDie.dispatch("/chrome"));
+#+END_SRC
+
+| layer | home | commands |
+|---|---|---|
+| client | =systems/ghost/subjects/client/commands/= | 8 |
+| app | =systems/ghost/subjects/app/commands/= | 29 |
+| hosted modes · attached mode | =mode.module.repl= (=systems/runtime/subjects/mode/traits/repling.js:4=) | 0 |
+| terminal | =systems/ghost/subjects/terminal/commands/= | 28 |
+| shell · ghost | =systems/ghost/subjects/shell/= | 5 |
+| shell · paladin | =subsystems/paladin/gestalten/commands/= | 21 |
+
+- mode repls: =grep -rlE '\brepl\b' ~/.viva/registry --include=*.js= (minus =bak= · tests) = 0 files — no mode declares a repl today; the layer is walked empty.
+- out of the pass: =/inert= · =/manual= · =/continuous= (=terminal/stall.js:7,12,25=) — the stall's phase Vector, dispatched by the thread's phase, never typed · the keymap's group branches =e a h d s w= (=app/keymap.js:4-9=) — legend headings, no effect.
+- ports: his runtime holds =:2501= (=lsof= 10-27, pid 7960); =instance/up= on a second instance — its port unmeasured.
+
+* the map — every command, its callers, its source (10-27, from the live Vectors)
+
+10-27 /"this is too complicated. do you have the list of all shell and repl commands + a mapping of widgets that call it + mapping of its source?"/ → census =scratchpad/census.js= (=shard.keymap.catalog= over the shell's =execution= + the repl's client · app · terminal Vectors): 93 = shell 26 · client 8 · app 30 · terminal 29. Callers = ghost chrome only (=systems/ghost/surfaces/chrome/=); every chorded command is also reached by a key through the legend (=layout.jsx= =useKeyboard= → =terminal.legend.dispatch=), every command by the repl panel's row and typing. 55 have no widget caller (shell 26 · repl 29). New since the blocks were cut: =/cell/set= · =/filter/trait= · =/frame/set= (replaced =/buffer/artifact=, a sibling's edit) — blocks A–K below are STALE against this map.
+
+| # | layer | nature | chord | widget callers | source |
+|---|---|---|---|---|---|
+| 1 | shell | =/help= | — | — | =systems/ghost/subjects/shell/lifecycle/index.js:98= |
+| 2 | shell | =/chrome= | — | — | =systems/ghost/subjects/shell/commands/chrome.js:22= |
+| 3 | shell | =/instance/tail= | — | — | =systems/ghost/subjects/shell/commands/tail.js:37= |
+| 4 | shell | =/instance/tail/ghost= | — | — | =systems/ghost/subjects/shell/commands/tail.js:38= |
+| 5 | shell | =/instance/tail/client= | — | — | =systems/ghost/subjects/shell/commands/tail.js:39= |
+| 6 | shell | =/instance/clone= | — | — | =subsystems/paladin/gestalten/commands/instance/clone.js:49= |
+| 7 | shell | =/instance/tap= | — | — | =subsystems/paladin/gestalten/commands/instance/tap.js:7= |
+| 8 | shell | =/instance/use= | — | — | =subsystems/paladin/gestalten/commands/instance/use.js:59= |
+| 9 | shell | =/instance/install= | — | — | =subsystems/paladin/gestalten/commands/instance/install.js:183= |
+| 10 | shell | =/instance/up= | — | — | =subsystems/paladin/gestalten/commands/instance/up.js:41= |
+| 11 | shell | =/instance/down= | — | — | =subsystems/paladin/gestalten/commands/instance/down.js:5= |
+| 12 | shell | =/instance/start= | — | — | =subsystems/paladin/gestalten/commands/instance/start.js:49= |
+| 13 | shell | =/instance/stop= | — | — | =subsystems/paladin/gestalten/commands/instance/stop.js:21= |
+| 14 | shell | =/instance/doctor= | — | — | =subsystems/paladin/gestalten/commands/instance/doctor.js:84= |
+| 15 | shell | =/instance/lighthouse/signup= | — | — | =subsystems/paladin/gestalten/commands/instance/lighthouse.js:28= |
+| 16 | shell | =/instance/lighthouse/signin= | — | — | =subsystems/paladin/gestalten/commands/instance/lighthouse.js:36= |
+| 17 | shell | =/instance/lighthouse/password= | — | — | =subsystems/paladin/gestalten/commands/instance/lighthouse.js:44= |
+| 18 | shell | =/instance/rename= | — | — | =subsystems/paladin/gestalten/commands/instance/rename.js:51= |
+| 19 | shell | =/instance/delete= | — | — | =subsystems/paladin/gestalten/commands/instance/delete.js:68= |
+| 20 | shell | =/instance/cleanup= | — | — | =subsystems/paladin/gestalten/commands/instance/cleanup.js:39= |
+| 21 | shell | =/ledger/install= | — | — | =subsystems/paladin/gestalten/commands/ledger/install.js:61= |
+| 22 | shell | =/ledger/doctor= | — | — | =subsystems/paladin/gestalten/commands/ledger/doctor.js:130= |
+| 23 | shell | =/ledger/cleanup= | — | — | =subsystems/paladin/gestalten/commands/ledger/cleanup.js:7= |
+| 24 | shell | =/registry/doctor= | — | — | =subsystems/paladin/gestalten/commands/registry/doctor.js:9= |
+| 25 | shell | =/registry/tap= | — | — | =subsystems/paladin/gestalten/commands/registry/tap.js:8= |
+| 26 | shell | =/registry/untap= | — | — | =subsystems/paladin/gestalten/commands/registry/untap.js:7= |
+| 27 | client | =/doctor= | — | — | =systems/ghost/subjects/client/commands/doctor.js:4= |
+| 28 | client | =/help= | =leader/?= | system keys | =systems/ghost/subjects/client/commands/help.js:4= |
+| 29 | client | =/lighthouse= | =leader/s/l= | — | =systems/ghost/subjects/client/commands/lighthouse.js:13= |
+| 30 | client | =/lighthouse/login= | — | system keys | =systems/ghost/subjects/client/commands/lighthouse.js:17= |
+| 31 | client | =/lighthouse/refresh= | — | system keys | =systems/ghost/subjects/client/commands/lighthouse.js:29= |
+| 32 | client | =/lighthouse/logout= | =leader/s/o= | system keys | =systems/ghost/subjects/client/commands/lighthouse.js:36= |
+| 33 | client | =/quit= | =leader/q= | — | =systems/ghost/subjects/client/commands/quit.js:4= |
+| 34 | client | =/runtime= | =leader/s/r= | — | =systems/ghost/subjects/client/commands/runtime.js:4= |
+| 34a | client | =/anima= | =leader/s/a= | — | =systems/ghost/subjects/client/commands/anima.js:20= (10-28) |
+| 34b | client | =/anima/open= | — | — | =systems/ghost/subjects/client/commands/anima.js:26= (10-28) |
+| 35 | app | =/filter= | — | entity search | =systems/ghost/subjects/app/commands/filter.js:41= |
+| 36 | app | =/filter/close= | — | entity search | =systems/ghost/subjects/app/commands/filter.js:50= |
+| 37 | app | =/filter/expand= | — | entity more | =systems/ghost/subjects/app/commands/filter.js:58= |
+| 38 | app | =/filter/pick= | — | entity ◈ | =systems/ghost/subjects/app/commands/filter.js:66= |
+| 39 | app | =/filter/daemon= | — | entity host chip | =systems/ghost/subjects/app/commands/filter.js:75= |
+| 40 | app | =/filter/trait= | — | — | =systems/ghost/subjects/app/commands/filter.js:85= |
+| 41 | app | =/focus= | =leader/d/f= | frame head ⇥ | =systems/ghost/subjects/app/commands/focus.js:16= |
+| 42 | app | =/popover= | — | modeline segment | =systems/ghost/subjects/app/commands/popover.js:16= |
+| 43 | app | =/popover/close= | — | popover ✕ | =systems/ghost/subjects/app/commands/popover.js:25= |
+| 44 | app | =/repl= | =leader/leader= | composer (a draft opening =/=) | =systems/ghost/subjects/app/commands/repl.js:14= |
+| 45 | app | =/repl/close= | =esc= | repl panel (after enter) | =systems/ghost/subjects/app/commands/repl.js:24= |
+| 46 | app | =/repl/next= | — | — | =systems/ghost/subjects/app/commands/repl.js:33= |
+| 47 | app | =/repl/previous= | — | — | =systems/ghost/subjects/app/commands/repl.js:37= |
+| 48 | app | =/repl/complete= | — | — | =systems/ghost/subjects/app/commands/repl.js:41= |
+| 49 | app | =/sidebar= | — | — | =systems/ghost/subjects/app/commands/sidebar.js:19= |
+| 50 | app | =/sidebar/toggle= | =leader/d/b= | modeline =<<= hold · sidebar border | =systems/ghost/subjects/app/commands/sidebar.js:23= |
+| 51 | app | =/sidebar/width= | — | sidebar grip | =systems/ghost/subjects/app/commands/sidebar.js:27= |
+| 52 | app | =/telemetry= | =leader/s/t= | system keys | =systems/ghost/subjects/app/commands/telemetry.js:16= |
+| 53 | app | =/telemetry/clear= | — | — | =systems/ghost/subjects/app/commands/telemetry.js:25= |
+| 54 | app | =/terminal= | =leader/e/n= | headline tab · =< >= · entity row | =systems/ghost/subjects/app/commands/terminal.js:13= |
+| 55 | app | =/terminal/new= | — | headline =+= · entity keys | =systems/ghost/subjects/app/commands/terminal.js:23= |
+| 56 | app | =/terminal/close= | — | entity keys | =systems/ghost/subjects/app/commands/terminal.js:27= |
+| 57 | app | =/theme/set= | =leader/d/t= | — | =systems/ghost/subjects/app/commands/theme.js:15= |
+| 58 | app | =/widget/toggle/close= | =leader/w/c= | — | =systems/ghost/subjects/app/commands/widget.js:23= |
+| 59 | app | =/widget/toggle/sidebar= | =leader/w/b= | — | =systems/ghost/subjects/app/commands/widget.js:27= |
+| 60 | app | =/widget/toggle/entity= | =leader/w/e= | — | =systems/ghost/subjects/app/commands/widget.js:31= |
+| 61 | app | =/widget/toggle/display= | =leader/w/d= | — | =systems/ghost/subjects/app/commands/widget.js:35= |
+| 62 | app | =/widget/toggle/system= | =leader/w/s= | — | =systems/ghost/subjects/app/commands/widget.js:39= |
+| 63 | app | =/widget/toggle/dock= | =leader/w/j= | — | =systems/ghost/subjects/app/commands/widget.js:43= |
+| 64 | app | =/widgets/close= | — | — | =systems/ghost/subjects/app/commands/widget.js:17= |
+| 65 | terminal | =/abort= | =leader/a/k= | consent e | =systems/ghost/subjects/terminal/commands/abort.js:5= |
+| 66 | terminal | =/activity= | =leader/a/a= | — | =systems/ghost/subjects/terminal/commands/activity.js:4= |
+| 67 | terminal | =/attach= | — | — | =systems/ghost/subjects/terminal/commands/attach.js:9= |
+| 68 | terminal | =/buffer= | =leader/e/b= | entity buffer row · frame empty hint | =systems/ghost/subjects/terminal/commands/buffer.js:9= |
+| 69 | terminal | =/buffer/close= | =leader/e/u= | entity buffer row · frame ✕ | =systems/ghost/subjects/terminal/commands/close.js:13= |
+| 70 | terminal | =/buffer/full= | — | journal card ⤢ | =systems/ghost/subjects/terminal/commands/full.js:22= |
+| 71 | terminal | =/cell/set= | — | journal card | =systems/ghost/subjects/terminal/commands/cell.js:14= |
+| 72 | terminal | =/detach= | — | — | =systems/ghost/subjects/terminal/commands/detach.js:9= |
+| 73 | terminal | =/dictate= | — | — | =systems/ghost/subjects/terminal/commands/dictate.js:4= |
+| 74 | terminal | =/dock= | =leader/d/d= | display chips view · side | =systems/ghost/subjects/terminal/commands/dock.js:17= |
+| 75 | terminal | =/dock/lens= | =leader/d/j= | display chip lens | =systems/ghost/subjects/terminal/commands/dock.js:26= |
+| 76 | terminal | =/split= | =leader/d/s= | display − + · seam drag | =systems/ghost/subjects/terminal/commands/dock.js:34= |
+| 77 | terminal | =/frame/set= | =leader/e/a= | frame head ▾ | =systems/ghost/subjects/terminal/commands/frame.js:7= |
+| 78 | terminal | =/tune= | =leader/h/t= | — | =systems/ghost/subjects/terminal/commands/intelligent.js:10= |
+| 79 | terminal | =/effort= | =leader/h/e= | — | =systems/ghost/subjects/terminal/commands/intelligent.js:18= |
+| 80 | terminal | =/rounds= | =leader/h/r= | — | =systems/ghost/subjects/terminal/commands/intelligent.js:26= |
+| 81 | terminal | =/leader= | — | modeline =<<= click | =systems/ghost/subjects/terminal/commands/leader.js:5= |
+| 82 | terminal | =/leader/leader= | — | modeline =<<= double | =systems/ghost/subjects/terminal/commands/leader.js:11= |
+| 83 | terminal | =/legend/close= | =leader/esc= | — | =systems/ghost/subjects/terminal/commands/leader.js:17= |
+| 84 | terminal | =/modes= | — | — | =systems/ghost/subjects/terminal/commands/mode/list.js:4= |
+| 85 | terminal | =/mode= | =leader/m= | entity row | =systems/ghost/subjects/terminal/commands/mode/pick.js:9= |
+| 86 | terminal | =/pause= | =leader/a/p= | — | =systems/ghost/subjects/terminal/commands/pause.js:5= |
+| 87 | terminal | =/resume= | =leader/a/c= | consent y | =systems/ghost/subjects/terminal/commands/resume.js:5= |
+| 88 | terminal | =/set= | — | display chip markdown | =systems/ghost/subjects/terminal/commands/set.js:68= |
+| 89 | terminal | =/stop= | =leader/a/s= | composer ■ stop · consent n | =systems/ghost/subjects/terminal/commands/stop.js:5= |
+| 90 | terminal | =/thread= | =leader/e/t= | entity row | =systems/ghost/subjects/terminal/commands/thread.js:15= |
+| 91 | terminal | =/thread/new= | — | entity keys | =systems/ghost/subjects/terminal/commands/thread.js:24= |
+| 92 | terminal | =/thread/label= | =leader/e/l= | — | =systems/ghost/subjects/terminal/commands/thread.js:28= |
+| 93 | terminal | =*= | — | composer (bare text) | =systems/ghost/subjects/terminal/commands/turn.js:5= |
+
+* the card — one per command
+
+I show one card per turn, =C<k>/91=; he runs it; his verdict lands in =* review= that turn.
+#+BEGIN_SRC text
+C<k>/91 · <nature> · <chord or —> · <block>
+<file>:<n>
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/commands/sidebar.js:27   ← the effect, whole, as on disk
+  .open(
+    { nature: "/sidebar/width", valence: "the sidebar's width in columns — the grip on its border drags it. Example: /sidebar/width 39", input: Wide },
+    (ctx) => {
+      const width = belt.input.cast(Wide, ctx.signal).width;
+      ctx.client.app.bridge.$sidebar.set({ ...ctx.client.app.bridge.sidebar, width });
+      return `sidebar ${width} wide`;
+    },
+  );
+#+END_SRC
+#+BEGIN_SRC text
+you type    /sidebar/width 60
+you see     the sidebar 60 columns wide; the trace row "sidebar 60 wide"
+I saw       <the same signal, run first on the walk rig — or "unrun: <why>">
+takes       <its params and flags, from its input schema — none if it has none>
+known       <an owed item from the chrome-panels handoff, if one names this command>
+verdict     amen · defect <what> · rename <to> · kill · same-as <nature> · skip
+#+END_SRC
+- a =defect= is filed in =* review= and fixed on his =go=, never mid-card; a =kill= · =rename= rides skill =name=.
+- I run each card's signal first (codestyle: every command I hand him I ran first) — the shell on the scratch instance, the repl on the walk rig (pty + pyte, a free port); a card I could not run says so.
+- a block opens with its card count and its setup, closes with its tally (amen · defect · kill).
+
+* the blocks — by tree, in session order
+
+| block | name | runs on | cards | from |
+|---|---|---|---|---|
+| A | the machine reads | his ledger, read-only | 5 | C1 |
+| B | a scratch instance, born and run | =drill= (cloned) · a temp HOME | 13 | C6 |
+| C | the chrome opens | his instance | 4 | C19 |
+| D | the client | his instance | 5 | C23 |
+| E | keys and the repl | his instance | 8 | C28 |
+| F | the chrome's layout | his instance | 19 | C36 |
+| G | terminals and telemetry | his instance | 5 | C55 |
+| H | the seat | his instance | 12 | C60 |
+| I | the buffer and the dock | his instance | 8 | C72 |
+| J | activity signals | his instance | 5 | C80 |
+| K | leaving | his instance · =drill= | 7 | C85 |
+
+Why this order: the shell before the chrome (the chrome needs a selected, booted instance); reads before writes; the scratch instance born in B, killed in K, so every destructive shell command hits =drill=, never =localhost=; inside the chrome, outward → inward (client → keys → layout → terminals → seat → buffer → activity); logout and quit last, they end the session.
+
+** A — the machine reads (shell, his ledger, nothing written)
+
+| C | nature | file |
+|---|---|---|
+| 1 | =/help= (shell) | =systems/ghost/subjects/shell/lifecycle/index.js:48= |
+| 2 | =/ledger/doctor= | =subsystems/paladin/gestalten/commands/ledger/doctor.js:130= |
+| 3 | =/registry/doctor= | =subsystems/paladin/gestalten/commands/registry/doctor.js:9= |
+| 4 | =/instance/doctor= | amen /"fine"/ — the printer's empty object (=services= · {}) printed a bare heading → =—= (=commanding.js:5,7=); seen, unruled: =stratum= sliced to 6 =instan= (=instance/doctor.js:9=) · =dormant= twice (stderr =integration.js:20= + the section) |
+| 5 | =/instance/use= (bare) | amen /"ok next"/ | — his paste 10-27: C1–C5 walked in his shell; =ledger/doctor= =environment= · =instances= printed as stacked blocks (one row nested =shadowed= / =flags=) → the printer tables ANY list of objects, a row's nested keys under it; runs of empty rows collapse, the tail trimmed (=commanding.js:13,78=) |
+| 6 | =/ledger/install= (temp HOME) | amen /"kk next"/; seen, unruled: =paladin.scope overwrite= warn (=belt/scope.js:9=, the re-point at =install.js:70=) · =authored= names the keys this run appended |
+| 7 | =/registry/untap= =@memo= (scratch ledger) | amen /"amen"/ |
+| 8 | =/registry/tap= =commons/fixtures/memo= (scratch ledger) | amen /"amen"/ |
+| 9 | =/instance/clone= =@commons/instance/hello-world --slug=drill= (scratch) | amen /"amen"/; seen: =tree= copies =tests/= · =docker-compose.yml= in |
+| 10 | =/instance/tap= (scratch, =hand-a=) | amen /"amen"/; seen, unruled: =--slug= required, absent from =input= (=instance/tap.js:9=) → =viva help= lists only =<mount>= |
+| 4 | =/instance/doctor= | =subsystems/paladin/gestalten/commands/instance/doctor.js:84= |
+| 5 | =/instance/use= (bare) | =subsystems/paladin/gestalten/commands/instance/use.js:59= |
+
+** B — a scratch instance, born and run (shell)
+
+| C | nature | file |
+|---|---|---|
+| 6 | =/ledger/install= (temp HOME) | =subsystems/paladin/gestalten/commands/ledger/install.js:61= |
+| 7 | =/registry/untap= =@memo= | =subsystems/paladin/gestalten/commands/registry/untap.js:7= |
+| 8 | =/registry/tap= =@memo= back | =subsystems/paladin/gestalten/commands/registry/tap.js:8= |
+| 9 | =/instance/clone= =<source> drill= | =subsystems/paladin/gestalten/commands/instance/clone.js:49= |
+| 10 | =/instance/tap= | =subsystems/paladin/gestalten/commands/instance/tap.js:7= |
+| 11 | =/instance/install= | =subsystems/paladin/gestalten/commands/instance/install.js:183= |
+| 12 | =/instance/lighthouse/signup= | =subsystems/paladin/gestalten/commands/instance/lighthouse.js:28= |
+| 13 | =/instance/lighthouse/signin= | =subsystems/paladin/gestalten/commands/instance/lighthouse.js:36= |
+| 14 | =/instance/lighthouse/password= | =subsystems/paladin/gestalten/commands/instance/lighthouse.js:44= |
+| 15 | =/instance/up= | =subsystems/paladin/gestalten/commands/instance/up.js:41= |
+| 16 | =/instance/down= | =subsystems/paladin/gestalten/commands/instance/down.js:5= |
+| 17 | =/instance/start= | =subsystems/paladin/gestalten/commands/instance/start.js:49= |
+| 18 | =/instance/stop= | =subsystems/paladin/gestalten/commands/instance/stop.js:21= |
+
+- setup, measured at the block's open: the =<source>= =instance/clone= takes · =drill='s runtime port against his =:2501= · =/instance/use drill= before C11, =/instance/use localhost= after C18 (=use= walked at C5).
+
+** C — the chrome opens (shell)
+
+| C | nature | file |
+|---|---|---|
+| 19 | =/chrome= (bare =viva=) | =systems/ghost/subjects/shell/commands/chrome.js:22= |
+| 20 | =/instance/tail= | =systems/ghost/subjects/shell/commands/tail.js:37= |
+| 21 | =/instance/tail/ghost= | =systems/ghost/subjects/shell/commands/tail.js:38= |
+| 22 | =/instance/tail/client= | =systems/ghost/subjects/shell/commands/tail.js:39= |
+
+- C20–C22 from a second terminal while C19 runs; one tail stays open for the rest of the pass — every repl card's trace lands there.
+
+** D — the client (repl)
+
+| C | nature | chord | file |
+|---|---|---|---|
+| 23 | =/help= | =leader/?= | =systems/ghost/subjects/client/commands/help.js:4= |
+| 24 | =/doctor= | — | =systems/ghost/subjects/client/commands/doctor.js:4= |
+| 25 | =/runtime= | =leader/s/r= | =systems/ghost/subjects/client/commands/runtime.js:4= |
+| 26 | =/lighthouse= | =leader/s/l= | =systems/ghost/subjects/client/commands/lighthouse.js:13= |
+| 27 | =/lighthouse/refresh= | — | =systems/ghost/subjects/client/commands/lighthouse.js:29= |
+
+- known: the modeline ● hardcodes =VERIFIED= (=modeline.jsx:31=), never reads =lighthouse.$isAuthorized=.
+
+** E — keys and the repl (repl)
+
+| C | nature | chord | file |
+|---|---|---|---|
+| 28 | =/leader= | ctrl-v | =systems/ghost/subjects/terminal/commands/leader.js:5= |
+| 29 | =/leader/leader= | ctrl-v ctrl-v | =systems/ghost/subjects/terminal/commands/leader.js:11= |
+| 30 | =/legend/close= | =leader/esc= | =systems/ghost/subjects/terminal/commands/leader.js:17= |
+| 31 | =/repl= | =leader/leader= | =systems/ghost/subjects/app/commands/repl.js:14= |
+| 32 | =/repl/next= | down | =systems/ghost/subjects/app/commands/repl.js:33= |
+| 33 | =/repl/previous= | up | =systems/ghost/subjects/app/commands/repl.js:37= |
+| 34 | =/repl/complete= | tab | =systems/ghost/subjects/app/commands/repl.js:41= |
+| 35 | =/repl/close= | esc | =systems/ghost/subjects/app/commands/repl.js:24= |
+
+- each card twice: typed into the repl, then pressed as its chord.
+- known: =/leader/leader= ≡ =/repl= (two natures, one effect) · tab reaches =/repl/complete= only if the input does not eat it, unproven live · a group key (=e a h d s=) has no repl signal → no click (=/press <key>= unruled) · a double-click while the repl is open lands on the legend.
+
+** F — the chrome's layout (repl)
+
+| C | nature | chord | file |
+|---|---|---|---|
+| 36 | =/sidebar= =open= · =closed= | — | =systems/ghost/subjects/app/commands/sidebar.js:19= |
+| 37 | =/sidebar/toggle= | =leader/d/b= | =systems/ghost/subjects/app/commands/sidebar.js:23= |
+| 38 | =/sidebar/width= | — | =systems/ghost/subjects/app/commands/sidebar.js:27= |
+| 39 | =/widget/toggle/sidebar= | =leader/w/b= | =systems/ghost/subjects/app/commands/widget.js:27= |
+| 40 | =/widget/toggle/entity= | =leader/w/e= | =systems/ghost/subjects/app/commands/widget.js:31= |
+| 41 | =/widget/toggle/display= | =leader/w/d= | =systems/ghost/subjects/app/commands/widget.js:35= |
+| 42 | =/widget/toggle/system= | =leader/w/s= | =systems/ghost/subjects/app/commands/widget.js:39= |
+| 43 | =/widget/toggle/dock= | =leader/w/j= | =systems/ghost/subjects/app/commands/widget.js:43= |
+| 44 | =/widget/toggle/close= | =leader/w/c= | =systems/ghost/subjects/app/commands/widget.js:23= |
+| 45 | =/widgets/close= | — | =systems/ghost/subjects/app/commands/widget.js:17= |
+| 46 | =/popover= | — | =systems/ghost/subjects/app/commands/popover.js:16= |
+| 47 | =/popover/close= | — | =systems/ghost/subjects/app/commands/popover.js:25= |
+| 48 | =/filter= | — | =systems/ghost/subjects/app/commands/filter.js:39= |
+| 49 | =/filter/expand= | — | =systems/ghost/subjects/app/commands/filter.js:56= |
+| 50 | =/filter/pick= | — | =systems/ghost/subjects/app/commands/filter.js:64= |
+| 51 | =/filter/daemon= | — | =systems/ghost/subjects/app/commands/filter.js:73= |
+| 52 | =/filter/close= | — | =systems/ghost/subjects/app/commands/filter.js:48= |
+| 53 | =/focus= | =leader/d/f= | =systems/ghost/subjects/app/commands/focus.js:16= |
+| 54 | =/theme/set= | =leader/d/t= | =systems/ghost/subjects/app/commands/theme.js:15= |
+
+- known: =/widget/toggle/sidebar= ≡ =/sidebar/toggle= · =/widget/toggle/close= ≡ =/widgets/close= (two names each, unruled) · a key-opened popover reads its segment's =x= once · entity in sidebar + popover = two focused search inputs · display: =/shell cockpit= · =/shell footer= missing · tab does not move focus (=/focus= only) · =/theme/set= session only, not persisted · no key for the activity · harness popovers.
+- QA carried: =m103/T-sidebar= · =m103/T-popover=.
+
+** G — terminals and telemetry (repl)
+
+| C | nature | chord | file |
+|---|---|---|---|
+| 55 | =/terminal/new= | — | =systems/ghost/subjects/app/commands/terminal.js:23= |
+| 56 | =/terminal= | =leader/e/n= | =systems/ghost/subjects/app/commands/terminal.js:13= |
+| 57 | =/terminal/close= | — | =systems/ghost/subjects/app/commands/terminal.js:27= |
+| 58 | =/telemetry= | =leader/s/t= | =systems/ghost/subjects/app/commands/telemetry.js:16= |
+| 59 | =/telemetry/clear= | — | =systems/ghost/subjects/app/commands/telemetry.js:25= |
+
+- known: the headline's =open in anima ↗= has no repl signal · the busy =●= not reactive.
+
+** H — the seat: mode · thread · turn · harness (repl)
+
+| C | nature | chord | file |
+|---|---|---|---|
+| 60 | =/modes= | — | =systems/ghost/subjects/terminal/commands/mode/list.js:4= |
+| 61 | =/mode= | =leader/m= | =systems/ghost/subjects/terminal/commands/mode/pick.js:9= |
+| 62 | =/thread/new= | — | =systems/ghost/subjects/terminal/commands/thread.js:24= |
+| 63 | =/thread/label= | =leader/e/l= | =systems/ghost/subjects/terminal/commands/thread.js:28= |
+| 64 | =/thread= | =leader/e/t= | =systems/ghost/subjects/terminal/commands/thread.js:15= |
+| 65 | =*= (bare text, a turn) | — | =systems/ghost/subjects/terminal/commands/turn.js:5= |
+| 66 | =/tune= | =leader/h/t= | =systems/ghost/subjects/terminal/commands/intelligent.js:10= |
+| 67 | =/effort= | =leader/h/e= | =systems/ghost/subjects/terminal/commands/intelligent.js:18= |
+| 68 | =/rounds= | =leader/h/r= | =systems/ghost/subjects/terminal/commands/intelligent.js:26= |
+| 69 | =/attach= | — | =systems/ghost/subjects/terminal/commands/attach.js:9= |
+| 70 | =/detach= | — | =systems/ghost/subjects/terminal/commands/detach.js:9= |
+| 71 | =/dictate= | — | =systems/ghost/subjects/terminal/commands/dictate.js:4= |
+
+- known: =thread.word= throws on an unlabeled thread with a null mode (=entities/thread/prototype.js:6=) — C62 before C63 hits it · =<<= shows =user.slug=, not the username.
+
+** I — the buffer and the dock (repl)
+
+| C | nature | chord | file |
+|---|---|---|---|
+| 72 | =/buffer= | =leader/e/b= | =systems/ghost/subjects/terminal/commands/buffer.js:9= |
+| 73 | =/frame/set= | =leader/e/a= | =systems/ghost/subjects/terminal/commands/frame.js= |
+| 74 | =/buffer/full= | — | =systems/ghost/subjects/terminal/commands/full.js:22= |
+| 75 | =/buffer/close= | =leader/e/u= | =systems/ghost/subjects/terminal/commands/close.js:13= |
+| 76 | =/dock= | =leader/d/d= | =systems/ghost/subjects/terminal/commands/dock.js:17= |
+| 77 | =/dock/lens= | =leader/d/j= | =systems/ghost/subjects/terminal/commands/dock.js:26= |
+| 78 | =/split= | =leader/d/s= | =systems/ghost/subjects/terminal/commands/dock.js:34= |
+| 79 | =/set= | — | =systems/ghost/subjects/terminal/commands/set.js:64= |
+
+- known: every seam drag step is a remote =terminal.updateOne= · anima has no =top= · =bottom= dock side · =buffer.attach()= · =detach()= never called · no live walk of a mounted mode view yet.
+- QA carried: =m103/T-seam=.
+
+** J — activity signals (repl)
+
+| C | nature | chord | file |
+|---|---|---|---|
+| 80 | =/activity= | =leader/a/a= | =systems/ghost/subjects/terminal/commands/activity.js:4= |
+| 81 | =/pause= | =leader/a/p= | =systems/ghost/subjects/terminal/commands/pause.js:5= |
+| 82 | =/resume= | =leader/a/c= | =systems/ghost/subjects/terminal/commands/resume.js:5= |
+| 83 | =/stop= | =leader/a/s= | =systems/ghost/subjects/terminal/commands/stop.js:5= |
+| 84 | =/abort= | =leader/a/k= | =systems/ghost/subjects/terminal/commands/abort.js:5= |
+
+- setup: a long turn sent first (C65's way) so an activity runs while C81–C84 land.
+
+** K — leaving (repl, then shell)
+
+| C | nature | chord | file |
+|---|---|---|---|
+| 85 | =/lighthouse/logout= | =leader/s/o= | =systems/ghost/subjects/client/commands/lighthouse.js:36= |
+| 86 | =/lighthouse/login= | — | =systems/ghost/subjects/client/commands/lighthouse.js:17= |
+| 87 | =/quit= | =leader/q= | =systems/ghost/subjects/client/commands/quit.js:4= |
+| 88 | =/instance/rename= =drill= | — | =subsystems/paladin/gestalten/commands/instance/rename.js:51= |
+| 89 | =/instance/cleanup= | — | =subsystems/paladin/gestalten/commands/instance/cleanup.js:39= |
+| 90 | =/instance/delete= | — | =subsystems/paladin/gestalten/commands/instance/delete.js:68= |
+| 91 | =/ledger/cleanup= | — | =subsystems/paladin/gestalten/commands/ledger/cleanup.js:7= |
+
+- C85 → the signin cover, C86 back through it (QA carried: =m103/T-cover=) · C88–C90 name =drill= by slug; C91 answers the confirmation =no= first, then =--force= only on his word.
+
+* review
+
+- C1 /"viva help should pring pretty. a json blob isnt helpful"/ — =shape.strip(execution)= printed raw, 16302 bytes; probe =scratchpad/help-probe2.js=: 26 rows, nature + wrapped valence + its example dimmed; =shard.keymap.catalog(execution)= THROWS on the root's effect (=steps.at(-1)= undefined) — /"go"/ LANDED: =shell/lifecycle/index.js= =help= (=gestalten.shard.keymap.catalog(execution)= · wrapped to =Deno.consoleSize().columns=, 100 when unsized or piped · example dimmed on a tty · =--json= keeps the strip) + =shard/keymap.js:33= skips the root; =tests/subjects/shell/lifecycle.test.js= JSON steps onto =--json= + one listing step; proof: shell lifecycle 2 passed (10 steps) · shard keymap 4 · app keymap 5 · terminal repl 8 steps · commands · legend
+- C2 /"good but i want more infomriatonn about flags and params."/ — amen on the doctor; the ask rides =viva help=: each command's params (=<required>= · =[optional]=) and flags (=group: "flags"=) from its =input= schema, plus the flags every command takes (=--json= · =--help= · =--env= · the five =--<mount>= of =mounts.js=); probe =scratchpad/takes-render.js=; /"go"/ LANDED: =shell/lifecycle/index.js= =takes= · =everywhere= · =columned= · =mounts.js= exports =flagged= · =shard/keymap.js= row carries =input=; =viva help= 134 rows; =--instance=<path>= kept (unruled: it also takes a slug, =mounts.js:21=); proof: shell lifecycle 10 steps · shard keymap 4 · app keymap 5 · terminal repl 8 steps · commands 31 steps. Seen: =/instance/rename= takes =[target]= BEFORE =<next>= (C88)
+- C1 again /"empty row between"/ — =viva help= blocks joined by an empty row (=shell/lifecycle/index.js= =listed(…).join("\n\n")=), 159 rows; shell lifecycle 10 steps
+- C1 /"amen"/ on his pasted =viva help= (taken before the empty rows landed); his paste showed =<username>  Example: beef= — the owner's =.desc= held only an example: =subsystems/paladin/gestalten/commands/instance/lighthouse.js:7-8= now describe (=the user's username= · =the user's password — for /password, the new one=)
+
+| C | nature | verdict |
+|---|---|---|
+| 1 | =/help= (shell) | defect → fixed → amen |
+| 2 | =/ledger/doctor= | amen |
+| 3 | =/registry/doctor= | defect /"thats almost json. i wnat more strucutre."/ — the shell's =outline= (=systems/ghost/subjects/shell/lifecycle/commanding.js:5=) prints every paladin command as indented YAML; probe =scratchpad/outline-probe.js=; drilled → Q0 · Q1 · Q2 · Q3 (the checkup) |
+
+* as code — /anima (10-28)
+
+/"i need a command to start anima and one to open it."/ · /"from within the repl"/ · /"start should also open"/ · /"call it open. better. and go"/ (struck: =/anima/goto=) — LANDED: =systems/ghost/subjects/client/commands/anima.js= — =/anima= dispatches =/instance/start anima= through =paladin.commands= (an =Argv= on the repl die, =guarded= seats it as =ctx.signal=), then =open=; =/anima/open= opens =paladin.instance.clients[anima].statics.serve= (=[[os, bin]]=: darwin =open= · windows =start= · else =xdg-open=). Barrel =client/commands/index.js=; =leader/s/a=. Proof: terminal commands · repl · legend 3 passed (49 steps); =served()= on localhost → =http://localhost:1794/=. His first =/anima= 10-28: =! localhost: supervisor 33823 exited 1 — see ~/.viva/logs/localhost= in 0.9 s, the logs empty of it → two defects, /"go"/ LANDED: (1) readiness grepped the runtime's =[x/y] start= line (=prototypes/process.js:6=); vite never prints it → lock =SPAWNED= 60 s → exit 1 (reproduced: =viva instance/start anima= · =lsof :1794= listening). Now a served process is alive when its origin ANSWERS (=answers(serve)= HEAD-polls every 200 ms; no =serve= → alive at spawn; =inherit= no longer special) — =instance/start anima= → =ALIVE= in 2.4 s. (2) the supervisor's stderr was =null= (=start.js:30=); =up.js= =effect= now wraps =supervise= and, when =--logged=, writes the fault's stack to =<ledger>/logs/<slug>/supervisor.out.log= before rethrowing. =tests/spawn.test.js= rewritten to the law (=served= · =unanswered= on a free port). Proof: paladin 58 (239 steps) · runtime hello 2 · qa fresh 1. His 0.9 s death is still unread — rerun =/anima=, then =supervisor.out.log=. Unruled: the lock (=ledger/die.js:56=) is per instance — runtime up via =instance/start= makes =/anima= throw =already running=; a bare =runtime/watch= is fine. Unwalked in the chrome.
+
+* as code — the doctor drill (10-27)
+
+- Q0 /"a"/ LOCKED: the owner's count is every module, named =modules= — =registry/doctor.js:28= =modes= → =modules=, the =packages= finding's detail =`${each.modules} modules · ${Object.keys(each.types).length} types`=; =pensieve.modes= → =pensieve.modules=. Struck: an exclusion list of slotted types
+- Q1 /"b"/ LOCKED: every doctor is a CHECKUP — findings, each with a verdict and an optional remedy signal; =views.checkup= lists them fault → warn → ok, =enter= confirms and runs the remedy through =ctx.call=, then re-examines; search is =seek= (=belt/pick.js:9=), the =filter= param presets it (/"i also want search"/). Struck: the chart (sections, fold) → no file, it lived in the reply only.
+- Q2 /"a"/ LOCKED: the name is =checkup= — =subsystems/paladin/schematics/checkup.js= · =belt/checkup.js= · =views/checkup.jsx=; struck =triage=
+- Q3 /"a"/ LOCKED (from /"maybe we add a --plain flag to just print table/chart. --interactive is default"/): =--plain= is the SHELL's — no =hold= for any command; interactive is its absence, never an =--interactive= flag; =--plain= joins =every command takes=. Struck: a per-doctor =plain= input
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/lifecycle/commanding.js:47
+  if (paladin.is.tty && shellDie.signal.flags.json !== true && shellDie.signal.flags.plain !== true) shellDie.hold = hold;
+// systems/ghost/subjects/shell/lifecycle/index.js:42
+const EVERYWHERE = [
+  ["--json", "print the command's output as JSON"],
+  ["--plain", "print, never prompt — tables, no inline view"],
+  ["--help", "this listing"],
+#+END_SRC
+- Q4 /"b"/ LOCKED: =--plain= prints the findings table, then the report — both through the shell's =outline=, made structured (probe =scratchpad/outline-probe.js=: a top-level key bold + an empty row after · keys aligned · empty → =—= · a list of scalars on one row joined =·= · a list of flat objects a TABLE); struck: findings only, the report behind =--json=
+#+BEGIN_SRC js
+// subsystems/paladin/gestalten/commands/belt/checkup.js
+  if (!ctx.hold) return { findings: seek(held.findings, KEYS, query), ...held.report };
+// systems/ghost/subjects/shell/lifecycle/commanding.js:5
+const outline = (value, depth = 0) => {
+  const indent = "  ".repeat(depth);
+  if (is.array(value) && value.length === 0) return [`${indent}—`];
+  if (is.array(value) && value.every(is.scalar)) return [`${indent}${value.map(shown).join(" · ")}`];
+  if (is.array(value) && value.every(is.object) && !nested(value)) return table(value, indent);
+  if (is.array(value)) return value.flatMap((each) => [...outline(each, depth), ""]);
+  if (!is.object(value)) return [`${indent}${shown(value)}`];
+  const width = Math.max(...Object.keys(value).map((key) => key.length));
+  return Object.entries(value).flatMap(([key, held]) => {
+    if (is.scalar(held)) return [`${indent}${key.padEnd(width)}  ${shown(held)}`];
+    if (is.array(held) && held.every(is.scalar)) return [`${indent}${key.padEnd(width)}  ${held.length ? held.map(shown).join(" · ") : "—"}`];
+    return [depth === 0 ? bold(key) : `${indent}${key}`, ...outline(held, depth + 1), ...(depth === 0 ? [""] : [])];
+  });
+};
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/paladin/schematics/checkup.js   (new)
+export const Finding = v.object({
+  check: v.string().desc("what was examined. Example: store"),
+  subject: v.string().desc("the thing it found. Example: /Users/finn/.viva/registry/media"),
+  verdict: v.union([v.literal("ok"), v.literal("warn"), v.literal("fault")]).desc("Example: warn"),
+  detail: v.string().desc("why, one sentence. Example: resident in the store, absent from the record"),
+  remedy: v.array(v.string()).optional().desc("the shell signal that fixes it. Example: [\"registry/tap\", \"/Users/finn/.viva/registry/media\"]"),
+});
+export const Checkup = v.object({ label: v.string(), findings: v.array(Finding), report: v.object({}, { additionalProperties: true }) });
+// subsystems/paladin/gestalten/commands/belt/checkup.js   (new, beside pick.js)
+const KEYS = ["check", "subject", "verdict", "detail"];
+
+export async function checkup(ctx, examine, query = ctx.signal.body[0] ?? "") {
+  const held = await examine();
+  if (!ctx.hold || ctx.signal.flags.json === true) return { ...held, findings: seek(held.findings, KEYS, query) };
+  const answer = await ctx.hold(views.checkup, { ...held, keys: KEYS, query });
+  if (answer.aborted) return undefined;
+  await ctx.call(answer.finding.remedy);
+  return await checkup(ctx, examine, answer.query);
+}
+// subsystems/paladin/gestalten/commands/registry/doctor.js:13   the effect
+  async (ctx) =>
+    await checkup(ctx, async () => {
+      …
+      return {
+        label: "registry",
+        findings: [
+          ...store.untapped.map((root) => ({ check: "store", subject: root, verdict: "warn", detail: "resident in the store, absent from the record", remedy: ["registry/tap", root] })),
+          ...held.stale.map((owner) => ({ check: "record", subject: owner, verdict: "fault", detail: "recorded, its mount is gone", remedy: ["registry/untap", owner] })),
+          ...integrity.map((fault) => ({ check: "integrity", subject: fault.path, verdict: "fault", detail: fault.faults.join(" · ") })),
+          ...packages.map((each) => ({ check: "packages", subject: each.owner, verdict: "ok", detail: `${each.modules} modules · ${Object.keys(each.types).length} types` })),
+        ],
+        report: { record, store, integrity, pensieve, packages },
+      };
+    }),
+#+END_SRC
+
+- Q5 the repl =/doctor='s surface (journal card · popover) — DROPPED /"okay, fuck it, this is getting too complicated. Just print me, we don't know, we do minimal interactivity, and I want to run through plain and the interactive now."/ → deferred
+- REVERTED 10-27 /"[the view] is very very ugly. rework. from scratch"/ → mid-rework /"ok fuck it. go back to the plain dump report from earlier"/: Q1 · Q2 · Q3 UNLOCKED (relabel, hunks kept as record) — no checkup belt · view · =--plain=; =seek= back in =pick.js=. KEPT: Q0 =modules= (=registry/doctor.js:28,38=) · Q4's structured =outline= (=commanding.js:5=), now every shell command's print. Learned: opentui split-footer is 12 rows (=DEFAULT_FOOTER_HEIGHT=), a taller view overprints
+
+* QA
+
+#+marker_qa: m103/T-sidebar · pending · I type =/sidebar open= in =viva=: the sidebar opens; =/sidebar closed= closes it (block F)
+#+marker_qa: m103/T-popover · pending · I click the harness segment: its section floats above it; I hold the display segment, the frame's dock opener, the dock head: the dock picker floats above the one I held (block F)
+#+marker_qa: m103/T-seam · pending · I drag the split seam: the frame and dock resize live; on release ONE =/split 0.NN= lands in the journal's trace (block I)
+#+marker_qa: m103/T-cover · pending · signed out I see the sign-in card under the brand mark; signed in, the booting bar, then the regions (block K)
+#+marker_qa: m103/T-tty-look · pending · =viva= beside =Client · v1.0.html= tty, region by region: headline · sidebar · frame · dock · legend · repl · modeline · telemetry · booting · signin SAME
+#+marker_qa: m103/T-every-command · pending · =* review= holds 91 rows, one verdict each, no =skip= left
+#+marker_qa: m103/P-cell-mounts · pending · from m111: I run the chess play tool in the dock, I see its board cell under the turn, I click a square, the move lands
+#+marker_qa: m103/P-cell-step · pending · from m111: I click the cell's =board ▾=, it steps to the next cell view; the frame's pick does not move (=/cell/set= writes =RENDERED.cell= only)
+
+* deferred
+
+- anima: the same 65 repl commands run there too (ghost =subjects/= is imported); this pass walks ghost's tty only.
+- the 0-command mode layer: a mode =repl= export, when one lands, joins block H.
+
+* release
+
+- the chrome-panels entries (6, unlifted) sit in =reference/m103/chrome-panels-10-27.org * release=; they lift when m103 closes.
+
+* handoff
+
+- goal: every shell + repl command run once by him, verdict each; route = =* the map=, his pick.
+- done 10-27: quest rewritten, chrome panels MOVED to =reference/m103/chrome-panels-10-27.org=; =viva help= pretty (nature · wrapped valence · params =<req>= =[opt]= · flags =--x= from =input= · =every command takes= · empty row between · =--json= keeps the strip; =shell/lifecycle/index.js= · =mounts.js= exports =flagged= · =shard/keymap.js= catalog skips the root + rows carry =input=) · =paladin/.../instance/lighthouse.js:7-8= descs; proof: shell lifecycle 10 steps · shard keymap 4 · app keymap 5 · terminal repl 8 · commands 31.
+- next: he picks how to walk =* the map=; then rule C3 (=/registry/doctor= =modes= counts every module: chess 16 vs 6 modes) · C4 (=/instance/doctor= =STRATUM= slices to 6 → =instan= · =!= field · =services= empty beside stockfish · dormant twice).
+- never: per-item cards · a =.desc= that is only an example · dead words in fences (word-guard fired twice this session: =verbs= · =line=).
+- owed: =--instance=<path>= vs =<slug|path>= (the command's own error says =<slug|path>=) · C88 =/instance/rename= =[target]= before =<next>= ·repl =/help= (C23) still logs the raw strip · =outline= printer (=commanding.js:5=) bare =-= rows · map callers = ghost only, anima column unbuilt · =drill='s port vs his =:2501= before any =instance/up=.
+- carried (=reference/m103/chrome-panels-10-27.org * handoff=): chess board rebuild agent · his eyes on frame · seam · search · guards · activity + harness widgets.

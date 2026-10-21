@@ -5,10 +5,10 @@ paths: ["**/tests/**", "**/specimen/**", "**/fixtures/**"]
 # testing — scenarios are the rigs, specimen is the toolbox
 
 ## run
-**container `test` is `--watch` (dapper's is not, `subsystems/dapper/deno.jsonc:13`; drapes has none); root delegates** (`deno.jsonc:33`).
+**container `test` is `--parallel --watch` (10-26; dapper's is not, `subsystems/dapper/deno.jsonc:13`; drapes has none); root delegates** (`deno.jsonc:33`).
 ```jsonc
 // systems/runtime/deno.jsonc:12
-    "test": "deno test -A --no-check --watch tests/**/*.test.js",
+    "test": "deno test -A --no-check --parallel --watch tests/**/*.test.js",
 // deno.jsonc:33
     "runtime/test": "deno task --cwd ./systems/runtime test",
 ```

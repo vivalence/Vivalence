@@ -2,7 +2,7 @@
 // schematic because that ... wouldn't need a bundler. i want instructions into the harness or
 // into that specific tool, into the generator tool for what HTML and what's spelled to use."
 //
-// fills ctx.hallucination.system.render, written once by harness.js and passed again by the
+// the primer's lazy guides/render node, opened once by harness.js and passed again by the
 // researcher at M4. every token below is emitted by every theme dapper ships — tests/style.tokens.test.js
 // pins that against design(), because a token taught here that dapper does not emit
 // renders the page unstyled and nothing else in the suite would catch it.

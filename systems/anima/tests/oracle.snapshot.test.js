@@ -40,7 +40,7 @@ const seer = () => ({
 const stable = (node) => {
   const out = { path: node.path, nature: node.nature };
   if (node.timing) out.timing = { measured: node.timing.begun != null && node.timing.sealed != null };
-  if (node.entries.length) out.entries = node.entries.map((entry) => entry.verb);
+  if (node.entries.length) out.entries = node.entries.map((entry) => entry.track);
   if (node.children.length) out.children = node.children.map(stable);
   return out;
 };
@@ -65,7 +65,7 @@ specimen.describe("oracle /ask over the wire — daemon spans cross as flat reco
 
     const story = trace.chronicle(result.trace);
     const root = story.roots[0];
-    specimen.expect(root.nature).toBe("ask");
+    specimen.expect(root.nature).toBe("aperture/ask");
     const input = root.children.find((child) => child.nature === "input");
     specimen.expect(input.entries[0].data).toEqual({
       prompt: "what am i",

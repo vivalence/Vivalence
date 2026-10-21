@@ -6,14 +6,14 @@
 
   const ms = (value) => (value != null ? `${value.toFixed(0)}ms` : null);
 
-  const leaf = $derived(node.path.split("/").filter(Boolean).pop() ?? "/");
-  const trail = $derived(node.path.slice(0, Math.max(0, node.path.length - leaf.length)));
-  const subject = $derived(node.entries.find((entry) => entry.verb === "subject")?.data);
+  const leaf = $derived(node.nature);
+  const trail = $derived(node.path.slice(0, -1).map((nature) => `${nature} › `).join(""));
+  const entity = $derived(node.entries.find((entry) => entry.track === "entity")?.data);
   const wire = $derived(
-    node.entries.find((entry) => entry.verb === "response")?.data ??
-      node.entries.find((entry) => entry.verb === "request")?.data,
+    node.entries.find((entry) => entry.track === "response")?.data ??
+      node.entries.find((entry) => entry.track === "request")?.data,
   );
-  const notes = $derived(node.entries.filter((entry) => entry.verb === "note"));
+  const notes = $derived(node.entries.filter((entry) => entry.track === "log"));
   const expandable = $derived(notes.length > 0);
 
   function safe(value) {
@@ -37,7 +37,7 @@
   <button class="head" class:open onclick={() => (open = !open)} disabled={!expandable}>
     <span class="tick">{expandable ? (open ? "▾" : "▸") : "·"}</span>
     <span class="path"><span class="trail">{trail}</span><span class="leaf">{leaf}</span></span>
-    {#if subject}<span class="badge">{subject.schema}{subject.id ? ":" + subject.id : ""}</span>{/if}
+    {#if entity}<span class="badge">{entity.schema}{entity.id ? ":" + entity.id : ""}</span>{/if}
     {#if wire?.status}<span class="badge">{wire.status}</span>{/if}
     {#if ms(trace.duration(node))}<span class="dur">{ms(trace.duration(node))}</span>{/if}
   </button>
@@ -51,7 +51,7 @@
   {/if}
   {#if node.children.length}
     <div class="children">
-      {#each node.children as child (child.id)}
+      {#each node.children as child (trace.key(child.path))}
         <Trace node={child} />
       {/each}
     </div>

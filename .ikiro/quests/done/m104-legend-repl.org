@@ -1,0 +1,2909 @@
+#+title: m104 legend · repl — the Repl and the Legend both live on the terminal; each builds its tree at read from the same four layers; supersedes m99 · m102
+#+filetags: :ghost:repl:keys:keymap:legend:commands:terminal:client:typology:anima:drapes:sheets:
+#+status: DONE 10-24 (/"end 104 105"/) — landed; QA walked 10-24 on a free-port world: 11 held · 2 broken (=T-chord-run= · =T-chord-head= → known issue =leader-d-d-faults-on-the-dock-word= · m99 Q46); anima alive after =@vivalence/ghost/host= (/"make /host the one fucking exception"/) · =paladin.is= in the browser · the =ledger= beat off in a browser; chess =play.viva.js:39,41= → =ctx.client.terminal=; =* release= lifted — was: TANGLED 10-24 · REVIEWED 10-24 (show-me 12 stops, Q6 · Q7 drilled; apply next session) — Q0–Q5 locked (/"recut 104, lift everything that we need, and then we can sunset 99 and 102"/); =* as code= cut on the repo as it stands = m99's 147 hunks replayed + Q0–Q5 + m102's unlanded walk, one copy's diff (=methods/cut.py=): 4 moves · 6 new · 68 files · 202 hunks, Q6 (show-me S9) re-cut: 5 new · 69 files · 199 hunks; replay on a fresh copy ≡ the worked copy (=diff -rq= empty); census serial, HOME empty per suite = the rig's failing names on every suite; 6 typology hunks HOLY, each its own go; no go
+# limit: none (quest content)
+
+* intent
+
+10-24, beef verbatim:
+
+10-24, beef verbatim:
+
+/"99 and 102. they are one but there is an issue. repl is miswired. its on the terminal and reads the commands of the upstream tree. legend lives on client and reads its tree downstream. i want legends paragim on the repl. repl on client. read the codestyle guides and the quests. rework them into one 104 and superseed 99 and 102."/
+
+** carried — m99 keys (=discarded/m99-keys.org=)
+
+10-23, beef verbatim (born inside m98 Q18):
+
+/"So we're not gonna create a file per key that we could hit, that makes no sense. So the key map inside of our entities and subjects, those are declarations of functions and operations that can be applied on top of whatever the entity or subject or whatever is. All of the tooling that is used to navigate and attach and blah blah blah, the key maps, those go into Gestalten. Kind of the same way that the aperture is handled on the runtime. You declare a bunch of apertures and then we graph them onto the key map vectors and then we compose the key map vectors. The tooling lives in Gestalten and the actual executive functions live in key maps. Or kind of like commands work."/
+
+/"this is a little bit bigger than I thought it would be, but it needs to be done right, and now is the moment … re-architect the system under my new instructions."/
+
+/"this quest originally started with the idea of rebarreling our typology, and now we've went deeply into the key signal processing methodology, and I would like to acknowledge that … I assume we can treat those as two different quests, key map and index barreling."/ · /"number them, go"/
+
+** carried — m102 repl (=done/m102-repl.org=)
+
+10-23, beef verbatim:
+
+/"Exactly, the legend. So it's an entity living on the client that holds our entire infrastructure that we need to facilitate the key maps. I like that. I think the stuff that we have with client REPL is too far down. I would like to take the REPL and move it into its own object. I'm thinking of calling that object the Repl. That would force us to move all the other keys that are called REPL into other places. We would have on that REPL object the, let's call it the command vector. So all of the commands go onto the REPL. Commands, yeah, that makes actually sense. If we call the vector the command vector, the REPL is the object around that. We have our dispatch and such. There's a difference in wiring in that the client REPL and the terminal REPL work a little bit differently than the key map. There's differences in what reacts to what, who calls who. For example, the general interface is that we call the terminal.REPL.dispatch. We also have, I think, differences in when that vector is built. So yeah, I want you to research the REPL system. And propose or work out or investigate how this system can be adjusted to reflect this new meta."/ · /"m102"/
+
+* terrain — measured 10-24
+
+** the repl today (m102 landed)
+
+- =systems/ghost/subjects/terminal/prototype.js:19= =repl = new Repl(this)= — one Repl per terminal.
+- =systems/ghost/subjects/terminal/lifecycle/index.js:6-21= — the terminal's boot reaches UP: grafts =client/commands= (=shell= · =quit= by =paladin.is.tty=), the client's hosted modes' =repl=, its own =commands/=, and hangs each runtime mode at =/mode/<type>/<slug>= · =/mode/<slug>=; rebuilt on every =runtime.entities.mode.$entities= change.
+- =systems/ghost/subjects/terminal/repl.js:13-25= =dispatch(line)= builds =replDie= from =this.terminal.client=.
+- callers: =surfaces/chrome/acts.js:4= · =anima/src/surface/send.js:1= =client.active.repl.dispatch= · =subjects/client/prototype.js:14-15= aperture =/terminal/:terminal/metadata/repl= · =/terminal/:terminal/repl= (a runtime tool names its terminal — NOT the active one) · =subjects/client/keymap.js:32,77,81= · =commands/help.js:6= =ctx.repl.commands=.
+- the keymap harvests the terminal's repl: =subjects/terminal/prototype.js:22= =harvest(this.repl.commands)=.
+
+** the legend (m99 tangled, not on the tree)
+
+- =discarded/m99-keys.org:908= =systems/ghost/prototypes/legend.js= — =client.legend = new Legend(this)=; =traverse= walks =this.client.terminal.keymap= (downstream); =execute= hands an output to =this.client.terminal.repl.dispatch=.
+- =m99 Q27= the terminal's keymap is a plain getter: =client.keymap= + =fromRepl(this.repl)= + the mode's keymap.
+
+** the asymmetry
+
+| | object lives | reads | composed |
+|-|-|-|-|
+| Legend | client | =terminal.keymap= | at read, getter |
+| Repl | terminal | its own =commands=, filled from the client | at the terminal's boot + every mode change |
+
+* rulings
+
+| Q | ruling | his words |
+|---|--------|-----------|
+| 0 | the Legend and the Repl both live on the terminal (=terminal.repl= · =terminal.legend=); each tree is built at read, nothing stored; the terminal's boot builds no commands; =/terminal/:terminal/repl= stands; surfaces reach both via =client.terminal= | /"Yeah, for sure. Hey, let's go with A."/ (Q0‴) |
+| 1 | each object owns its tree as a getter: =terminal.repl.commands= · =terminal.legend.keymap=; the terminal holds the two objects; =terminal.keymap= · =$keymap= die | /"a"/ |
+| 2 | both getters read the client's share from imports at build: =client/keymap.js= =keymap= + hosted modes' =keymap= beside =client/commands= + hosted modes' =repl=; =client.keymap= (field) and the client's =keymap= beat die; =shell= · =quit= mount by =paladin.is.tty= at read — departs m102 Q4 ("mounted … in lifecycle") | /"a"/ |
+| 3 | =$catalog= moves onto the Repl beside the commands it lists (mirror of =legend.$chord=); =palette(terminal, prefill)=; painters follow =belt.atom.chain(client.$terminal, "repl", "$catalog")= | /"a"/ |
+| 4 | there is always a terminal: the surface forwards each press to =client.terminal.legend= at press time, no null arm; a switch mid-chord lands on the new terminal's empty Legend and the painted chord collapses | /"Also, it's a non-case because if the active terminal changes, then active terminal references a new legend which doesn't have any keys in its queue, meaning that the display for the legend would collapse. So again, not a real issue. Option A."/ |
+| 5 | the attached mode's =repl= grafts at the root of =repl.commands= after the terminal's own, mirror of its =keymap= in =legend.keymap=; the scoped =/mode/<type>/<slug>= · =/mode/<slug>= branches die — =repl.commands= no longer reads =runtime.entities.mode.$entities=; both getters are client · hosted modes · terminal · attached mode | /"Yes. Yes, and I think we can do without the scoped commands."/ |
+| 6 | the leader translation lives in the Legend's =translation= getter, inline — =*= enqueues, the leader key enqueues =leader= and prevents the event's default; the key is =meta-v= when =paladin.is.browser && !paladin.is.apple=, else =ctrl-v=; =paladin.is.browser= · =paladin.is.apple= are new (=@cross/runtime= =CurrentRuntime= · =CurrentOS=); =client.surface.translation= · anima's =translation.js= · the exported =translation= · =screen({ translation })= die | /"The translation vector doesn't live in surface translation, it lives inside of the prototype legend."/ · /"b"/ · /"why are we grafting the translation and then having the same translation also exported? Why isn't that in line?"/ · /"this is part of the Paladin's responsibility."/ · /"go"/ |
+| 7 | the client's active terminal is =client.$terminal= · =client.terminal= (was m99 r1 =client.$activeTerminal= · =client.activeTerminal=); anima's own =terminals.$active= stays | /"I changed my mind. Let's call it client.$terminal."/ · /"b"/ |
+
+** carried — m99 (=discarded/m99-keys.org:16=, rows verbatim; a superseded row names its m104 lock)
+
+| Q | ruling | his words |
+|---|--------|-----------|
+| 18″ | =harvest= and =catalog= move to gestalten; harvest is =shard.keymap.fromRepl= (repl Vector in, keymap Vector out) | /"both harvest and catalog move to gestalten. That's fixed. … I want harvest under shard.keymap.fromRepl."/ |
+| 18‴ | SUPERSEDED m104 Q0 · Q4 — the queue lives on each terminal's Legend · was: presses queue on the CLIENT; the queue drains into the keymap of the terminal; the walk runs where the queue is read — always on a terminal, by the dispatch pattern | /"the keys that we are hitting go to the client, where we have a queue. That queue is drained into the key map. If we are on the terminal, it goes in there. We're always on the terminal."/ |
+| 19 | no =subjects/keymap/=, no keymap die, no =terminal.navigate=; the client dispatches to the terminal | /"there is no subject key map, doesn't exist. And never will. There's no key map die."/ · /"I do like the idea the client dispatching to the terminal"/ |
+| 20 | SUPERSEDED m104 Q0 — the Legend is the TERMINAL's key object, =this.terminal= · was: =Legend= is the client's key object — the press queue · =$chord= (the held position) · its dispatch · =this.client= — and the part that paints it (sibling of =Catalog=); m95's =Chord= part dies; =chord:= on a pattern keeps its name | /"legend. legend is great. legend and $chord"/ · /"its the legend???? what?"/ |
+| 21 | SUPERSEDED m104 Q0 — the Legend is the terminal's part, =subjects/terminal/legend.js= · was: =Legend= is an unowned primitive: =systems/ghost/prototypes/legend.js=, a new top dir, barrelled flat and as =prototypes= (Q13) | /"b"/ |
+| r1 | SUPERSEDED m104 Q7 — =client.terminal= · =client.$terminal= · was: =client.active= → =client.activeTerminal=, =client.$active= → =client.$activeTerminal= (22 files, ghost + anima surface; keep: anima's own =terminals.$active= =src/entities/terminal/terminals.js:5= · =dictation.js:5= =$active=) | /"let's rename client.active to client.active terminal, camel cased"/ |
+| 22 | keys: =legend.dispatch(press)= only enqueues; the Legend's constructor listens on =presses.$backlog= and traverses the held keys ONCE per change: an effect → =execute= (flush, then the press's own =carry=, output → =terminal.dispatch=) · nothing fits → =flush= · a prefix → =$chord = shape.strip(node)=; =flush= empties the presses, the listener nulls =$chord=; surfaces call =legend.dispatch= straight (their own Queue dies); =pressing= · =navigate= · =navigating= die; rides =Queue.$backlog= (typology) | /"lock. rename abort to flush."/ |
+| 23 | =$chord= stays =shape.strip(node)=; =shape.strip= carries a group edge's pattern metadata as =meta= (only when it has any); the Legend labels a key from =effect.valence= · =meta.valence= · the key | /"it's a strip wire, for sure"/ · /"a"/ |
+| 24 | the group keys under =leader= (=e a h d x s c g m=) are declared in the client's keymap with their valence; the Legend paints them via =meta= (Q23); =SUBJECTS= · =NAMED= in =chrome/panes/panel.js= die | /"a"/ |
+| 25 | =graft= merges two patterns for one key into a fresh one of the vector's signature, =new this.signature({ ...existing.pattern, ...edge.pattern })=; later wins per field, a bare segment keeps the earlier valence | /"So in spirit, A is the right solution."/ · /"Yes, I loc this"/ |
+| 26 | =catalog= lives beside =fromRepl=: =shard.keymap.catalog(repl)=, in =gestalten/shard/keymap.js= | /"a"/ |
+| 27 | SUPERSEDED m104 Q1 · Q2 — =terminal.legend.keymap= is the getter; =client.keymap= dies · was: the terminal's keymap is a plain getter: =client.keymap= + =shard.keymap.fromRepl(this.repl)=, then the mode's keymap when =is.object(this.mode)=; =$keymap= dies | /"a. but cleaner"/ · /"1"/ |
+| 28 | =legend.dispatch= mints a =KeySignal= per press (Q7′); the queue holds signals; =traverse= joins their natures | /"b."/ |
+| 29 | a modifier lives IN the key's nature, fixed order =ctrl option shift meta= (=ctrl-shift-s=); no flags, no =KeyPattern=, the trie stays keyed by nature | /"Let's just have the nature of a key signal be all-encompassing, we ignore the modifier flags. We just go via nature encodes the modifiers into the nature. Simpler more obvious"/ |
+| 30 | the surface forwards the raw event; =KeySignal= spells the nature — an arm per shape (opentui =ParsedKey= · DOM =KeyboardEvent=) + the string arm; both surfaces' =press= · =CHORDS= · =NAMES= die | /"b"/ |
+| 31 | the modifiers are the W3C names =ctrl alt shift meta= (meta = command); the tty arm reads its =meta= as alt, =super= as meta; a printable spells its character (=S= · =?=) | /"b"/ |
+| 32 | the leader is translated the Emacs way: the Legend's =translation= (a Vector, Emacs =key-translation-map=) is dispatched on EVERY press; a surface grafts its platform's leader keys (no valence), an edge's effect enqueues =leader=, the =*= edge enqueues =ctx.signal=; the keymap only says =leader=, the palette is =leader/leader= · relabeled m104 Q6: the platform's leader key is opened inline by the Legend's =translation= getter on =paladin.is.browser= · =paladin.is.apple= | /"we follow leader and we call the map not the leader map but the translation map"/ |
+| 32′ | the Legend's Vector is =translation= (=translation = new Vector()=; surface leaves =translation.js=) · =scope= never asks a =*= edge: =if (pattern.type === "wildcard") continue;= (=gestalten/steer/match.js:21=, HOLY), =miss()= is its only door (relabelled Q34: the =*= is asked when no literal matched) | /"just translation = new Vector()"/ · /"yes lock"/ |
+| 32″ | a translation edge opens on a bare string, no wrapping object: =.open("*", …)= · =.open("ctrl-v", …)= (Pattern's string arm, =prototypes/pattern.js:35=) | /"turn both open nature wildcard and open nature control V into just strings. We don't need the wrapping object."/ |
+| 34 | =scope= asks the literals first and the =*= only when none matched — one place for its three askers (=traverse= · =steer/dispatch.js:89= · =shape.proxy=); a =*= mid-path is walked through | /"b"/ |
+| 37 | the client keymap declares only groups that have keys under them: =e a h d s m=; =c= · =x= · =g= drop (no comment-out) until a command claims them | /"Yeah, why do we have these on the leader in that case? Why are we adding them? Just drop them or comment them out, and if we need to add them we do that"/ |
+| 38 | the top =ctrl-v= grid labels a key with no " · " by its line (=? /help= · =q /quit=, alike the group rows =d /dock=); =fromRepl= data unchanged; anima's painter follows | /"b"/ |
+| 47′ | SUPERSEDED m104 Q0 · Q6 — the Legend lives on the terminal beside the Repl; =translation= is its inline getter, nothing exported · was: the leader translation takes the Repl's shape (m102 =subjects/terminal/repl.js:3= =execution= beside =class Repl=): =prototypes/legend.js= exports =translation= — the =*= edge and =ctrl-v= → =leader= — and the Legend grafts it onto its own bound Vector; the Legend stays on the client (Q18‴ · Q21); =surfaces/chrome/translation.js= dies, the chrome only forwards (show-me S6) | /"Translation is not part of the Chrome that lives on REPL."/ · /"I think in 102 we have the REPL object that we instantiate on the terminal."/ · /"a"/ |
+| 40 | a pattern never writes on the signal it is asked about: the wildcard · remainder · parameter filters return =new signal.constructor({ ...signal, … })=; closes =pattern-filter-mutates-the-callers-signal= | /"a"/ |
+
+** superseded — m102 (=done/m102-repl.org:139=; every other m102 row is the landed tree)
+
+| Q | ruling | his words |
+|---|--------|-----------|
+| 3 | SUPERSEDED m104 Q0 — the commands are built at read, nothing grafts at boot · was: the client's · the hosted modes' · the terminal's commands graft onto =terminal.repl.commands= once, at the terminal's boot; =dispatch= adds only the runtime's modes and =turn= | /"a"/ |
+| 4 | SUPERSEDED m104 Q2 — =/shell= · =/quit= mount by =paladin.is.tty= at read · was: =/shell= (=/chrome/on= · =/chrome/off= die at m98 Q7) is exported and imported as client commands; the terminal's boot mounts them by the environment | /"b"/ · /"i want them to be exported like b and imported like b but mounted dynamicslly in lifecycle given env reality"/ |
+| 6′ | SUPERSEDED m104 Q0 · Q5 — no rebuild beat; the runtime's mode list is not read · was: =repl.commands= holds everything — rebuilt whole by the terminal's =commands= beat on every change of the runtime's mode list (Q3 relabeled: a rebuild adds the runtime's modes and =/turn=); dispatch walks it; each runtime mode's own =repl= hangs by reference (Q13) | /"b"/ |
+| 13 | SUPERSEDED m104 Q5 — no =/mode/<type>/<slug>= scope; the attached mode sits at the root · was: the rebuild hangs each runtime mode's own =repl= by reference at =/mode/<type>/<slug>= and =/mode/<slug>=; what a trait wires later is reached | /"q13 s"/ (read: a) |
+
+* the law
+
+1. a terminal holds one =Repl= and one =Legend=; the client holds neither; a mode keeps its own =mode.repl= · =mode.keymap= Vectors.
+2. both trees are getters built at read, the same four layers in one order: the client's · the hosted modes' · the terminal's · the attached mode's (=terminal.mode=) — later wins. =repl.commands= = =client/commands= (=/shell= · =/quit= only when =paladin.is.tty=) · hosted =mode.repl= · =terminal/commands= · the attached =mode.repl=. =legend.keymap= = =shard.keymap.fromRepl(repl.commands)= first (m99's kept order), then =client/keymap.js= =keymap= · hosted =mode.keymap= · the attached =mode.keymap=. Nothing is stored; nothing is rebuilt on a list change; the runtime's mode list is not read.
+3. =terminal.repl.dispatch(line)= is the only way a line runs; =terminal.legend.dispatch(event)= the only way a press enters. A surface forwards to =client.terminal= at the moment of the line or the press; there is always a terminal once a surface paints regions.
+4. =legend.dispatch(event)= runs the event through =legend.translation= — a getter, inline: =*= enqueues, the leader key (=meta-v= in a browser off Apple, else =ctrl-v=, by =paladin.is.browser= · =paladin.is.apple=) prevents the default and enqueues =leader= — on every press; the queue's listener walks the held presses over =legend.keymap= once per change: an effect → flush, run it with =ctx = { client, terminal }=, its line → =terminal.repl.dispatch=; a dead end → flush; a prefix → =$chord = shape.strip(node)=.
+5. =repl.$catalog= is the palette's listing of =repl.commands=, beside =legend.$chord= — per terminal; a painter follows the active one by =belt.atom.chain(client.$terminal, "repl", "$catalog")= · =(…, "legend", "$chord")=; a switch lands on the other terminal's own (empty) chord and catalog.
+6. a runtime harness tool names its terminal: =/terminal/:terminal/repl= · =/metadata/repl= on the client's aperture call THAT terminal's Repl.
+7. =KeySignal= spells the nature once (W3C =ctrl alt shift meta=, a printable its character); =scope= asks the literals first, the =*= only when none matched; a pattern never writes on the signal it is asked about (m99).
+8. the login screen is the whole screen until the lighthouse authorizes; a logout keeps the username and forgets the password; another user's sign-in flushes the cache and re-seats the active terminal (m102).
+
+* milestones
+
+| milestone | blocks | green when |
+|-----------|--------|------------|
+| paladin's platform | =subsystems/paladin/gestalten/belt/is.js= =browser= · =apple= | paladin 58 ok — Q6 |
+| the typology key primitives (HOLY, each its own go) | =prototypes/{queue,keysignal,pattern,vector}.js= · =gestalten/shape/strip.js= · =gestalten/steer/match.js= + tests | typology 153 ok — 10-24 base |
+| the Repl and the Legend on the terminal | =subjects/terminal/{repl,legend,prototype,index}.js= · =lifecycle/index.js= · =gestalten/shard/{keymap,index}.js= · =subjects/client/{prototype,keymap,index}.js= · =lifecycle/index.js= · =commands/terminal.js= · =entities/mode/traits/harnessed.js= | =tests/subjects/terminal/{legend,repl}.test.js= · =tests/subjects/client/{keymap,console,client}.test.js= · =tests/gestalten/shard/keymap.test.js= — 10-24 base green |
+| the tty surface | =surfaces/chrome/{keys,index,acts,world,typing,screen}.js= · =panes/{chrome.jsx,index.js,panel.js}= | =tests/surfaces/chrome/{keys,bundle}.test.js= · =panes/{chrome,regions}.test.js= — 10-24 base green |
+| anima's surface | =src/surface/{keys,index,screen,send,sections}.js= · =panes/{chord,bar,regions,composer,sidebar,catalog,signin,chrome,tabs,tele}.jsx= | anima per file = rig — 10-24 |
+| the parts | =subsystems/sheets/Legend.jsx= · =subsystems/drapes/Legend.jsx= · their tests | sheets · drapes = rig |
+| the sign-in walk (m102 =* walk as code=) | ghost =surfaces/chrome/{index,screen}.js= · =subjects/client/lifecycle/index.js= =seat= · anima =src/surface/{index,screen}.js= · =panes/signin.jsx= | =tests/subjects/client/rows.test.js= · ghost =panes/chrome.test.js= · anima =chrome.test.js= — 10-24 base green |
+| the generator's schema survives | =systems/runtime/tests/mode/generative.test.js:324= (m99 Q35) | runtime = rig |
+
+* blast table
+
+Every file the tangle touches is a block under =* as code=; the rows below are what it leaves alone or cannot reach.
+
+| site | today | after | rides |
+|------|-------|-------|-------|
+| BREAKS — =~/.viva= chess keys | =~/.viva/registry/chess/modes/board/play/play.viva.js:39,41= =ctx.client.active.thread= · =.buffer= | =ctx.client.active= is =undefined=; the line becomes =ctx.terminal.thread= · =ctx.terminal.buffer= (Q0: a key's ctx carries its terminal) — his registry, a tangle never writes the shelf | m99 r1 · Q0 |
+| keep — =mode.repl= · =mode.keymap= | =systems/ghost/entities/mode/traits/{repling,keymapped,harnessed}.js= · runtime =subjects/mode/traits/{repling,looping}.js= | unchanged; the ghost =mode.repl= of the ATTACHED mode now answers at the root (Q5) | m102 Q1′ · Q5 |
+| keep — the runtime's harness tools | =systems/runtime/subjects/mode/traits/looping.js:6-7= =/terminal/${id}/metadata/repl= · =/repl= | unchanged; the strip now holds the attached mode's commands at the root and no =/mode/…= scope | Q0 · Q5 |
+| keep — the bar's own segments | =subsystems/drapes/Bar.jsx:8= =SUBJECTS= | unchanged | m99 Q24 |
+| keep — anima's own =$active= | =systems/anima/src/entities/terminal/terminals.js:5= · =dictation.js:5= | unchanged | m99 r1 |
+| keep — drapes' DOM surface | =subsystems/drapes/dom/surface.js:21= =client.dispatch= | unchanged, its own rig client | m102 |
+| known issue cut at landing | =known-issues.org= =pattern-filter-mutates-the-callers-signal= | resolved by m99 Q40 → CUT the turn it lands | m99 Q40 |
+| superseded blocks | =done/m92-keymap.org:76,141= =harvest= · =navigate= | relabel when m92 is next touched | m99 Q18″ · Q22 |
+| =~/.viva= otherwise | =client.keymap= · =client.legend= · =client.$catalog= · =/mode/<type>/<slug>/=: grep owed at landing | — | Q0 · Q2 · Q3 · Q5 |
+
+* testing assessment
+
+- new: =tests/subjects/terminal/legend.test.js= (7: the m99 six on a terminal + in a browser off Apple =meta-v= holds the leader, =ctrl-v= is the paste's — Q6) · =tests/gestalten/shard/keymap.test.js= · typology =tests/keysignal.test.js= + m99's its in =queue= · =vector= · =signal= · =strip=.
+- rewritten: =tests/subjects/client/keymap.test.js= — =legend.keymap= four layers, later wins, read at every call; =repl.$catalog= · =tests/subjects/terminal/repl.test.js= — =/help= read on a tty (=Deno.stdin.isTerminal= pinned around the READ, Q2), the attached mode at the root, no scope, off a tty no =/shell= · =/quit= · =tests/subjects/client/console.test.js= — the module pins a non-tty stdin (a test never reads this machine) · =client.test.js= =/harness ciao= (Q5).
+- rigs (mine): =tests/scenarios/look.js= is a tty world (=Deno.stdin.isTerminal = () => true=, the chrome runs on one) and no longer grafts commands by hand — its leader grid is the getter's; anima =tests/world.js= terminals carry a real =Legend= and a stub Repl with =$catalog=; anima =bar.test.js= =KEYS= paints =d h e a s=, the honest harvest-first order (m99's rig composed client-first and hid it).
+- COVERAGE GAP: two terminals, a chord held on one, a switch — the collapse is by construction (Q4), no unit.
+- COVERAGE GAP: the leader on a live tty and in a live browser — QA =T-leader-tty= · =P-leader-anima=.
+- COVERAGE GAP: a Mac browser's option-s gives =key: "ß"= (=alt-ß= on the web vs =alt-s= on a tty) — m99 Q31 caveat.
+
+* QA
+
+- /"I press ctrl-v in viva, I see the leader grid: ? /help · q /quit · e entity · h harness · s system · d display · a activity · m /mode."/
+#+marker_qa: m104/T-leader-tty · held · 10-24 walk (pty 100×30, a world on a free port, the ghost mask with no fixture mode): ctrl-v paints =? /help · q /quit · e entity where am I · h harness what is it given= | =s system · d display · a activity · m /mode= — was: was m99/T-leader-tty; the grid's order is harvest-first (=look.js= =chord-80x24=)
+- /"I press ctrl-v d d, the dock toggles; ctrl-v ctrl-v, I see the palette with / typed."/
+#+marker_qa: m104/T-chord-run · broken · 10-24 walk: ctrl-v ctrl-v → the palette with =/= typed ✓; ctrl-v d d → the journal faults =Validation failed: must have required properties word= and =d= lands in the prompt — =leader/d/d= reaches =/dock= (=subjects/terminal/commands/dock.js:17=, =Docking= requires =word=) with no body; =legend.test.js= green (its =/dock= fixture takes no input) — known issue =leader-d-d-faults-on-the-dock-word= — was: was m99/T-chord-run; =legend.test.js= green on the 10-24 base
+- /"I press ctrl-v d, I see the display group's words over its keys."/
+#+marker_qa: m104/T-chord-head · broken · 10-24 re-walk: ctrl-v d paints =d  ctrl-v d= over =h /shell · j /dock/lens · d /dock · s /split=, no group words — was: was m99/T-chord-head; the head shows d and no hint — m99 Q46
+- /"In anima on a Mac I press ctrl-v, off a Mac meta-v, I see the leader and the browser pastes nothing."/
+#+marker_qa: m104/P-leader-anima · held · 10-24 walk on a free-port vite + world, after =ghost/host= · =paladin.is= in the browser · the =ledger= beat off in a browser: on a Mac, ctrl-v in the composer → the leader grid (=? /help · d display · s system · h harness · e entity · m /mode · a activity=), the composer stays empty; ctrl-v again → the palette, =/= typed
+- /"I hold ctrl-v in tab 1, switch to tab 2: the leader panel is gone; back on tab 1 it is held again."/
+#+marker_qa: m104/T-chord-per-tab · held · 10-24 walk: ctrl-v held on tab 0 (=…d858=); a click on tab 1 (=…1474=) — no leader panel; back on tab 0 — the leader panel again — was: Q4 — each terminal's Legend holds its own presses
+- /"A memo-attached tab: I type /harness ciao, memo answers; /mode/memo/harness is not found."/
+#+marker_qa: m104/T-attached-root · held · 10-24 walk (=scratchpad/walk/m104.test.js=, the =client.test.js= world): =/mode srs/memo= → =/help= gains =harness= at the root; =/harness ciao= → =user ciao= · =assistant [stub] ciao.=; =/mode/memo/harness ciao= → fault =NOT_FOUND= — was: Q5
+- /"An agent's tool line on tab 2's thread while tab 1 is open runs on tab 2."/
+#+marker_qa: m104/T-tool-terminal · held · 10-24 walk: two terminals, tab 0 active; =/terminal/<tab 1>/repl= =/thread/label walk-two= on =client.aperture= → =thread #…4d1d · walk-two=; tab 1's thread labeled, tab 0's not, tab 0 still active — was: Q0 — =/terminal/:terminal/repl= calls that terminal's Repl
+- /"I type /help in viva, I see the client's, /shell, /quit, the terminal's, the attached mode's and *."/
+#+marker_qa: m104/T-help-tree · held · 10-24 re-walk: =/help= = =help lighthouse runtime terminal= (client) · =hello whoami= (hosted) · the terminal's 19 · =*=; on memo + =harness=; =/shell · /quit= off a tty absent, on the tty palette present — was: was m102/T-help-tree (10-24 walk); the list changes with Q5 — re-walk
+- /"A fresh viva: the sign-in screen alone; I sign in; my terminal boots."/
+#+marker_qa: m104/P-signin-gate · held · 10-24 walk, fresh HOME: the sign-in screen alone; beef signs in → his terminal boots (=terminal/…1134=, home thread) — was: was m102/P-signin-gate (broken on the repo, held on the 10-24 copy); the tick waits for =entities= — m102 walk
+- /"/lighthouse/logout: the sign-in screen, the form holds beef and an empty password, the focus on it."/
+#+marker_qa: m104/P-logout-screen · held · 10-24 walk: =/lighthouse/logout= → the form holds =beef= and an empty password; typing only =beef-walk= ⏎ → his terminal — was: was m102/P-logout-screen; =forgetting= — m102 walk Q18
+- /"beef → logout → lena: lena's own terminal is active; beef again: his."/
+#+marker_qa: m104/P-user-flush · held · 10-24 walk: beef (=…1134=) → logout → lena: her own terminal =…061e=; logout → beef: =…1134= again — was: was m102/P-user-flush; =seat= after the flush — m102 walk
+- /"anima lists no tty command and loads no opentui."/
+#+marker_qa: m104/P-anima-clean · held · 10-24 walk on a free-port vite + world, after =ghost/host= · =paladin.is= in the browser · the =ledger= beat off in a browser: the palette lists 30 commands, no =/shell= · =/quit=; 0 of 250 resources match =opentui= · =sheets=
+- /"install.sh patches opentui from subsystems/sheets/ and the chrome boots on it."/
+#+marker_qa: m104/T-host-moved · held · 10-24 walk, HOME empty: =sh systems/ghost/install.sh= rc 0, =viva= linked, the opentui core patched (=__opentuiNodeFfi= ×2, a no-op re-run), =viva --help= rc 0; every tty walk above booted on it — was: was m102/T-host-moved
+
+* open
+
+- m99 S7 (=client.keymap= beside =client.legend=) — answered by Q0 · Q2: the client holds neither; the client's share is =client/keymap.js= read at build.
+
+* deferred
+
+- m99 Q46 — a held group's header: built as =$chord = shape.strip(node)= until he rules.
+- the leader grid's order: harvest-first paints =d h e a s= on anima and =? q e h s d a m= on the tty; the Q2 hunk (=reference/m104/drill-10-24.org=) had the client's layer first, m99's changelog kept harvest-first (=console.test.js= caught the reverse) — the tangle keeps m99's; unruled.
+- the tty Legend split (=panes/panel.js= chord half → its own pane) — =m103-chrome-panels.org= (its panel =legend=).
+- an open catalog no longer closes when a chord starts — m99, unruled.
+- Mac browser option-s → =ß= · =chordText= reads =ctrl-v= for =leader= on every surface (=surfaces/chrome/panes/bar.js:10=).
+- drapes' DOM surface keeps its own =client.dispatch= — =m103-chrome-panels.org=.
+- the repeat between the two chromes (=sections.js= · =tele= · =journal=) — =m103-chrome-panels.org=.
+- =release.md= is over its cap (66 867 of 60 000 chars) before m104's lines lift — consolidate at the lift (skill =quest=).
+
+* as code
+
+Cut 10-24 from one worked copy: a copy of the repo as it stands (=scratchpad/rig=, untouched) → m99's =* as code= replayed (=replay-quest.py=: 4 moves · 7 new · 147 hunks · 0 missed) → Q0–Q5 by hand → m102's =* walk as code= ported to today's paths (m98 moved =chrome/= → =surfaces/chrome/=, the tests under =tests/subjects/= · =tests/surfaces/=) → the tests rewritten → =methods/cut.py --rig --base= wrote this section. Proof: =python3 .ikiro/methods/replay-quest.py .ikiro/quests/m104-legend-repl.org "* as code" --root <fresh copy> --write= then =diff -rq= against the worked copy: empty. Each file's heading carries its rulings: =Qn= is m104's, =m99 Qn= m99's, =m102 walk= the walk's. =systems/ghost/surfaces/chrome/out/panes.mjs= is a build: =deno task ghost/bundle= after landing. The drill's snippets moved whole to =reference/m104/drill-10-24.org=.
+
+Moves (=mv= first, each block on the NEW path):
+
+| from | to | rides |
+|------|----|-------|
+| =subsystems/sheets/Chord.jsx= | =subsystems/sheets/Legend.jsx= | m99 Q20 · m99 Q23 |
+| =subsystems/sheets/tests/chord.test.js= | =subsystems/sheets/tests/legend.test.js= | m99 Q20 · m99 Q23 |
+| =subsystems/drapes/Chord.jsx= | =subsystems/drapes/Legend.jsx= | m99 Q20 |
+| =subsystems/drapes/tests/parts/chord.test.js= | =subsystems/drapes/tests/parts/legend.test.js= | m99 Q20 |
+
+Deletes:
+
+| path | rides |
+|------|-------|
+
+*** subsystems/drapes
+**** (root)
+***** Legend.jsx — m99 Q20
+#+BEGIN_SRC diff
+// subsystems/drapes/Legend.jsx:4
+
+-export const Chord = (props) => {
++export const Legend = (props) => {
+   const held = mergeProps({ edges: [], selected: -1 }, props);
+#+END_SRC
+***** parts.js — m99 Q20
+#+BEGIN_SRC diff
+// subsystems/drapes/parts.js:9
+ export { Choice } from "./Choice.jsx";
+-export { Chord, titled } from "./Chord.jsx";
++export { Legend, titled } from "./Legend.jsx";
+ export { Catalog, Chooser, chosen, lit } from "./Catalog.jsx";
+#+END_SRC
+**** tests/parts
+***** legend.test.js — m99 Q20
+#+BEGIN_SRC diff
+// subsystems/drapes/tests/parts/legend.test.js:4
+
+-specimen.describe("Chord — dom.js:129: .keys.kcols of edges + the leader button", () => {
++specimen.describe("Legend — dom.js:129: .keys.kcols of edges + the leader button", () => {
+   specimen.it("the design's tree and titles; a press sends the key, the last button the leader", () => {
+     const pressed = [];
+-    const rig = screen(() => parts.Chord({ edges: [{ key: "e", label: "entity", desc: "where am I" }, { key: "q", label: "quit", desc: "" }], selected: 0, onPress: (key) => pressed.push(key) }));
++    const rig = screen(() => parts.Legend({ edges: [{ key: "e", label: "entity", desc: "where am I" }, { key: "q", label: "quit", desc: "" }], selected: 0, onPress: (key) => pressed.push(key) }));
+     specimen.expect(shaped(rig.target)).toBe(oracle(`<div class="keys kcols"><button class="sel" data-fn="press" data-arg="e" title="e · entity · where am I"><b>e</b><span class="kl">entity</span><i>where am I</i></button><button class="" data-fn="press" data-arg="q" title="q · quit"><b>q</b><span class="kl">quit</span><i></i></button><button data-fn="press" data-arg="leader"><b>ctrl-v</b><span class="kl">palette</span><i></i></button></div>`));
+#+END_SRC
+*** subsystems/paladin
+**** gestalten/belt
+***** is.js — Q6
+#+BEGIN_SRC diff
+// subsystems/paladin/gestalten/belt/is.js:1
+-import { CurrentRuntime, Runtime } from "@cross/runtime";
++import { CurrentOS, CurrentRuntime, OperatingSystem, Runtime } from "@cross/runtime";
+…
+// subsystems/paladin/gestalten/belt/is.js:34
+     get tty() {
+       return [Runtime.Deno].includes(CurrentRuntime) && Deno.stdin.isTerminal();
+     },
++    get browser() {
++      return [Runtime.Browser].includes(CurrentRuntime);
++    },
++    get apple() {
++      return [OperatingSystem.macOS, OperatingSystem.iOS].includes(CurrentOS);
++    },
+     get veryimportant() {
+#+END_SRC
+*** subsystems/sheets
+**** (root)
+***** Legend.jsx — m99 Q20 · m99 Q23
+#+BEGIN_SRC diff
+// subsystems/sheets/Legend.jsx:3
+
+-export const keys = (node) => [...node.trie.entries()].map(([nature, edge]) => ({ key: nature, label: edge.pattern.valence ?? nature }));
++const LABELS = [
++  [(node) => node.effect !== undefined && node.effect.valence !== undefined, (node) => node.effect.valence],
++  [(node) => node.meta !== undefined, (node) => node.meta.valence],
++  [() => true, (node, key) => key],
++];
+
+-export const chooser = (node) =>
+-  node.effect && node.signature.input?.enum ? node.signature.input.enum.map((value) => ({ key: value, label: value })) : null;
++const label = (node, key) => LABELS.find(([test]) => test(node))[1](node, key);
+
+-export const Chord = (props) => (
++export const Legend = (props) => (
+   <box style={{ flexDirection: "column", backgroundColor: props.palette.surfaceLift }}>
+-    <text fg={props.palette.signalPrimaryInk}>{props.chord.crumbs.join(" ")}</text>
++    <text fg={props.palette.signalPrimaryInk}>{props.legend.presses.backlog.map((signal) => signal.nature).join(" ")}</text>
+     <box style={{ flexDirection: "row", gap: 1 }}>
+-      <For each={chooser(props.chord.node) ?? keys(props.chord.node)}>
+-        {(entry) => (
++      <For each={Object.entries(props.legend.chord.branches)}>
++        {([key, node]) => (
+           <Segment palette={props.palette}>
+             <text fg={props.palette.signalPrimaryInk}>
+-              <b>{` ${entry.key}`}</b>
++              <b>{` ${key}`}</b>
+             </text>
+-            <text fg={props.palette.textStrong}>{` ${entry.label} `}</text>
++            <text fg={props.palette.textStrong}>{` ${label(node, key)} `}</text>
+           </Segment>
+#+END_SRC
+***** index.js — m99 Q20 · m99 Q23
+#+BEGIN_SRC diff
+// subsystems/sheets/index.js:14
+ export { Split, ALIGNS, SHARE, align, share } from "./Split.jsx";
+-export { Chord, keys, chooser } from "./Chord.jsx";
++export { Legend } from "./Legend.jsx";
+ export { Catalog, narrow } from "./Catalog.jsx";
+#+END_SRC
+**** tests
+***** legend.test.js — m99 Q20 · m99 Q23
+#+BEGIN_SRC diff
+// subsystems/sheets/tests/legend.test.js:1
+-import { Vector, specimen } from "@vivalence/typology";
++import { KeySignal, Vector, shape, specimen } from "@vivalence/typology";
+ import { frame, palette, parts } from "./scenarios/index.js";
+
+-specimen.describe("Chord — where in the keymap we are", () => {
+-  specimen.it("the crumbs, then one segment per edge of the held node, its valence as the label", async () => {
+-    const { Chord } = await parts;
++specimen.describe("Legend — where in the keymap we are", () => {
++  specimen.it("the held keys, then one segment per branch of the held node, its valence as the label", async () => {
++    const { Legend } = await parts;
+     const keymap = new Vector().open({ nature: "/h", valence: "harness" }, () => {}).open({ nature: "/e", valence: "entity" }, () => {});
+-    const lines = (await frame(() => Chord({ palette: palette(), chord: { crumbs: ["ctrl-v"], node: keymap } }), { width: 40, height: 2 })).split("\n");
+-    specimen.expect(lines[0]).toMatch(/^ctrl-v/);
++    const legend = { presses: { backlog: [new KeySignal("leader")] }, chord: shape.strip(keymap) };
++    const lines = (await frame(() => Legend({ palette: palette(), legend }), { width: 40, height: 2 })).split("\n");
++    specimen.expect(lines[0]).toMatch(/^leader/);
+     specimen.expect(lines[1]).toMatch(/^ h harness   e entity /);
+#+END_SRC
+*** subsystems/typology
+**** gestalten/shape
+***** strip.js — m99 Q23 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/shape/strip.js:19
+       const node = { branches };
++      if (f.signature && f.effect === undefined && Object.keys(pluck(f.signature)).length > 0) node.meta = pluck(f.signature);
+       if (f.effect !== undefined) node.effect = pluck(f.signature, f.effect);
+#+END_SRC
+**** gestalten/steer
+***** match.js — m99 Q32′ · m99 Q34 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/gestalten/steer/match.js:20
+
+   for (const { pattern, trajectory } of vector.trie.values()) {
++    if (pattern.type === "wildcard") continue;
+     const match = pattern.apply(signal);
+     if (match) scope.push([match, trajectory, trajectory.effect ?? null]);
+…
+// subsystems/typology/gestalten/steer/match.js:25
+
+-  return scope;
++  if (scope.length > 0 || !vector.trie.has("*")) return scope;
++
++  const { pattern, trajectory } = vector.trie.get("*");
++  return [[pattern.apply(signal), trajectory, trajectory.effect ?? null]];
+ }
+#+END_SRC
+**** prototypes
+***** keysignal.js — m99 Q30 · m99 Q31 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/keysignal.js:3
++
++const MODIFIERS = ["ctrl", "alt", "shift", "meta"];
++
++const NAMES = { escape: "esc", return: "enter", linefeed: "enter", arrowleft: "left", arrowright: "right", arrowup: "up", arrowdown: "down", " ": "space" };
++
++const PRINTABLE = /^[^\p{C}\s]+$/u;
++
++const spell = (down, character, name) => {
++  const held = MODIFIERS.filter((modifier) => down[modifier]);
++
++  if (!down.ctrl && !down.alt && !down.meta && PRINTABLE.test(character)) return [{ nature: character }];
++
++  const named = Object.hasOwn(NAMES, name) ? NAMES[name] : name;
++  return [{ nature: [...held, named].join("-") }];
++};
+
+ export class KeySignal extends Signature {
+-  static coercions = [[(key) => is.string(key), (key) => [{ nature: key }]]];
++  static coercions = [
++    [
++      (event) => is.object(event) && is.string(event.sequence),
++      (event) => spell({ ctrl: event.ctrl, alt: event.meta || event.option, shift: event.shift, meta: event.super === true }, event.sequence, event.name),
++    ],
++    [
++      (event) => is.object(event) && is.string(event.key),
++      (event) => spell({ ctrl: event.ctrlKey, alt: event.altKey, shift: event.shiftKey, meta: event.metaKey }, [...event.key].length === 1 ? event.key : "", event.key.toLowerCase()),
++    ],
++    [(key) => is.string(key), (key) => [{ nature: key }]],
++  ];
+ }
+#+END_SRC
+***** pattern.js — m99 Q40 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/pattern.js:1
+-import * as object from "../gestalten/belt/object.js";
+ import * as is from "../gestalten/is/scalars.js";
+…
+// subsystems/typology/prototypes/pattern.js:68
+     (signature) => signature === "*",
+-    (signal) => object.assign(signal, { type: "wildcard" }),
++    (signal) => new signal.constructor({ ...signal, type: "wildcard" }),
+   ],
+…
+// subsystems/typology/prototypes/pattern.js:73
+     (signature) => signature === "(.*)",
+-    (signal) => object.assign(signal, { type: "remainder" }),
++    (signal) => new signal.constructor({ ...signal, type: "remainder" }),
+   ],
+…
+// subsystems/typology/prototypes/pattern.js:80
+       const parameter = pattern.nature.slice(1);
+-      return object.assign(signal, {
+-        parameter,
+-        parameters: { [parameter]: signal.nature },
+-      });
++      return new signal.constructor({ ...signal, parameter, parameters: { [parameter]: signal.nature } });
+     },
+#+END_SRC
+***** queue.js — m99 Q22 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/queue.js:1
++import { atom } from "nanostores";
+ import * as fromm from "../gestalten/fromm/index.js";
+…
+// subsystems/typology/prototypes/queue.js:4
+ export class Queue {
+-  backlog = [];
++  $backlog = atom([]);
+   closed = false;
+…
+// subsystems/typology/prototypes/queue.js:8
++
++  get backlog() {
++    return this.$backlog.get();
++  }
+
+   enqueue(value) {
+-    this.backlog.push(value);
++    this.$backlog.set([...this.backlog, value]);
+     this.gate.wake();
+…
+// subsystems/typology/prototypes/queue.js:15
+   flush() {
+-    this.backlog.length = 0;
++    this.$backlog.set([]);
+     return this;
+…
+// subsystems/typology/prototypes/queue.js:27
+       if (this.backlog.length) {
+-        yield this.backlog.shift();
++        const [head, ...rest] = this.backlog;
++        this.$backlog.set(rest);
++        yield head;
+         continue;
+#+END_SRC
+***** vector.js — m99 Q25 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/prototypes/vector.js:64
+         branch.graft(edge.trajectory);
+-        if (existing) existing.pattern = edge.pattern;
++        if (existing) existing.pattern = new this.signature({ ...existing.pattern, ...edge.pattern });
+         else this.trie.set(nature, { pattern: edge.pattern, trajectory: branch });
+#+END_SRC
+**** tests/gestalten/shape
+***** strip.test.js — m99 Q22 · m99 Q23 · m99 Q25 · m99 Q30 · m99 Q34 · m99 Q40 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/gestalten/shape/strip.test.js:53
+     specimen.expect(tagged).toEqual({ branches: { x: { effect: { hasInput: true }, branches: {} } } });
++  });
++
++  specimen.it("a group edge's pattern metadata rides as meta; a bare segment stays { branches }", () => {
++    const vector = new Vector();
++    vector.branch({ nature: "leader", valence: "the leader" }).branch({ nature: "d", valence: "display · how do I see it" });
++    vector.open({ nature: "leader/d/d", valence: "/dock" }, () => {});
++    vector.open("bare/x", () => {});
++    const stripped = shape.strip(vector).branches;
++    specimen.expect(stripped.leader.meta).toEqual({ valence: "the leader" });
++    specimen.expect(stripped.leader.branches.d.meta).toEqual({ valence: "display · how do I see it" });
++    specimen.expect(stripped.leader.branches.d.branches.d).toEqual({ effect: { valence: "/dock" }, branches: {} });
++    specimen.expect(stripped.bare).toEqual({ branches: { x: { effect: {}, branches: {} } } });
+   });
+ });
+
+#+END_SRC
+**** tests
+***** keysignal.test.js — m99 Q22 · m99 Q23 · m99 Q25 · m99 Q30 · m99 Q34 · m99 Q40 (HOLY) (new)
+#+BEGIN_SRC js
+// subsystems/typology/tests/keysignal.test.js
+import { KeySignal, specimen } from "@vivalence/typology";
+
+const tty = (sequence, name, held = {}) => ({ sequence, name, ctrl: false, meta: false, shift: false, option: false, super: false, ...held });
+const dom = (key, held = {}) => ({ key, ctrlKey: false, altKey: false, shiftKey: false, metaKey: false, ...held });
+
+specimen.describe("KeySignal — a press spells its nature once: W3C ctrl alt shift meta in that order, a printable its character", () => {
+  specimen.it("the tty arm reads opentui's ParsedKey: its meta is alt, its super is meta", () => {
+    specimen.expect(new KeySignal(tty("S", "s", { shift: true })).nature).toBe("S");
+    specimen.expect(new KeySignal(tty("?", "?")).nature).toBe("?");
+    specimen.expect(new KeySignal(tty("\x1b[Z", "tab", { shift: true })).nature).toBe("shift-tab");
+    specimen.expect(new KeySignal(tty("\x16", "v", { ctrl: true })).nature).toBe("ctrl-v");
+    specimen.expect(new KeySignal(tty("\x1bs", "s", { meta: true })).nature).toBe("alt-s");
+    specimen.expect(new KeySignal(tty("\x1b", "escape")).nature).toBe("esc");
+    specimen.expect(new KeySignal(tty("s", "s", { ctrl: true, shift: true, super: true })).nature).toBe("ctrl-shift-meta-s");
+  });
+
+  specimen.it("the DOM arm reads a KeyboardEvent: alt is option, meta is command", () => {
+    specimen.expect(new KeySignal(dom("?", { shiftKey: true })).nature).toBe("?");
+    specimen.expect(new KeySignal(dom("s", { altKey: true })).nature).toBe("alt-s");
+    specimen.expect(new KeySignal(dom("s", { metaKey: true })).nature).toBe("meta-s");
+    specimen.expect(new KeySignal(dom("Escape")).nature).toBe("esc");
+    specimen.expect(new KeySignal(dom("ArrowUp")).nature).toBe("up");
+    specimen.expect(new KeySignal(dom(" ")).nature).toBe("space");
+  });
+
+  specimen.it("a string is its nature; an array of strings is a held sequence", () => {
+    specimen.expect(new KeySignal("leader").nature).toBe("leader");
+    specimen.expect(new KeySignal(["leader", "d", "d"]).array.map((signal) => signal.nature)).toEqual(["leader", "d", "d"]);
+  });
+});
+#+END_SRC
+***** queue.test.js — m99 Q22 · m99 Q23 · m99 Q25 · m99 Q30 · m99 Q34 · m99 Q40 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/queue.test.js:79
++  });
++
++  specimen.it("$backlog is a store: enqueue · flush · drain each set a fresh array a listener sees", async () => {
++    const queue = new Queue();
++    const seen = [];
++    queue.$backlog.listen((backlog) => seen.push([...backlog]));
++    queue.enqueue("a").enqueue("b");
++    const held = queue.backlog;
++    queue.flush();
++    queue.enqueue("c").close();
++    for await (const value of queue) seen.push(value);
++    specimen.expect(seen).toEqual([["a"], ["a", "b"], [], ["c"], [], "c"]);
++    specimen.expect(held).toEqual(["a", "b"]);
+   });
+ });
+#+END_SRC
+***** signal.test.js — m99 Q22 · m99 Q23 · m99 Q25 · m99 Q30 · m99 Q34 · m99 Q40 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/signal.test.js:109
++  });
++
++  specimen.it("a pattern never writes on the signal it is asked about: wildcard · remainder · parameter answer a copy", () => {
++    const signal = new Signal("/dock");
++    const wild = new Pattern("*").apply(signal);
++    const rest = new Pattern("(.*)").apply(signal);
++    const param = new Pattern(":slug").apply(signal);
++    specimen.expect([wild.type, rest.type, param.parameters]).toEqual(["wildcard", "remainder", { slug: "dock" }]);
++    specimen.expect([signal.type, signal.parameters, wild === signal, param === signal]).toEqual([undefined, undefined, false, false]);
+   });
+ });
+#+END_SRC
+***** vector.test.js — m99 Q22 · m99 Q23 · m99 Q25 · m99 Q30 · m99 Q34 · m99 Q40 (HOLY)
+#+BEGIN_SRC diff
+// subsystems/typology/tests/vector.test.js:1
+-import { specimen, v, Vector } from "@vivalence/typology";
++import { specimen, steer, v, Signal, Vector } from "@vivalence/typology";
+
+…
+// subsystems/typology/tests/vector.test.js:265
++  });
++
++  specimen.it("graft merges two patterns for one key field by field — later wins, a bare segment keeps the earlier valence; the sources are not mutated", () => {
++    const declared = new Vector();
++    declared.branch({ nature: "leader", valence: "the leader" }).branch({ nature: "d", valence: "display" });
++    const derived = new Vector().open({ nature: "leader/d/d", valence: "/dock", input: v.object({}) }, "/dock");
++    const reworded = new Vector().open({ nature: "leader/d/d", valence: "the dock" }, "/dock");
++    const merged = new Vector().graft(declared, derived, reworded);
++    const d = merged.trie.get("leader").trajectory.trie.get("d");
++    specimen.expect([merged.trie.get("leader").pattern.valence, d.pattern.valence]).toEqual(["the leader", "display"]);
++    specimen.expect([d.trajectory.trie.get("d").pattern.valence, d.trajectory.trie.get("d").pattern.input !== undefined]).toEqual(["the dock", true]);
++    specimen.expect(derived.trie.get("leader").trajectory.trie.get("d").trajectory.trie.get("d").pattern.valence).toBe("/dock");
++  });
++
++  specimen.it("scope asks the literals first and the * only when none matched; a * mid-path is walked through", () => {
++    const vector = new Vector().open("*", () => "any").open("ctrl-v", () => "leader").open("proxy/*/status", () => "status");
++    specimen.expect(steer.match.scope(vector, new Signal("ctrl-v")).map(([match]) => match.nature)).toEqual(["ctrl-v"]);
++    specimen.expect(steer.match.scope(vector, new Signal("d")).map(([match]) => match.type)).toEqual(["wildcard"]);
++    specimen.expect(steer.dispatch.traverse(vector, new Signal("/proxy/anything/status"))[0]).not.toBe(null);
+   });
+ });
+#+END_SRC
+*** systems/anima
+**** src/surface
+***** index.js — Q4 · Q6 · m102 walk · m99 Q22 · m99 r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/index.js:4
+ import { keypresses } from "./keys.js";
+ import { Chrome } from "./panes/index.js";
+-import { screen } from "./screen.js";
++import { forgetting, screen } from "./screen.js";
+
+…
+// systems/anima/src/surface/index.js:33
+   const narrow = globalThis.matchMedia("(max-width: 767px)");
+   client.surface = screen({ kind: "dom", places: ["cell", "frame"], dark: dom.dark, narrow: narrow.matches, width: globalThis.innerWidth, height: globalThis.innerHeight, palette: () => tokens.kebab(client.theme, "2") });
++  const forget = forgetting(client);
+   const widen = (event) => client.surface.$narrow.set(event.matches);
+…
+// systems/anima/src/surface/index.js:42
+   const style = dressed(globalThis.document);
+-  const presses = keypresses(globalThis);
+-  presses.to(client.presses);
++  const unpress = keypresses(globalThis, client);
+   const erase = painted(globalThis.document, client);
+…
+// systems/anima/src/surface/index.js:47
+     erase();
+-    presses.close();
++    unpress();
+     style.remove();
+…
+// systems/anima/src/surface/index.js:51
+     globalThis.removeEventListener("resize", resized);
++    forget();
+     untail();
+#+END_SRC
+***** keys.js — Q4 · m99 Q22 · m99 Q30
+#+BEGIN_SRC diff
+// systems/anima/src/surface/keys.js:1
+-import { Queue } from "@vivalence/typology";
+-
+-const MAC = /Mac|iPhone|iPad/.test(globalThis.navigator.platform);
+-export const LEADER = MAC ? "ctrl-v" : "meta-v";
+-export const LEADER_KEY = "leader";
+-
+-const NAMES = { Escape: "esc", Enter: "enter", ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down" };
+-const named = (event) => (Object.hasOwn(NAMES, event.key) ? NAMES[event.key] : event.key.toLowerCase());
+-
+-const CHORDS = [
+-  [(event) => (MAC ? event.ctrlKey : event.metaKey) && !event.shiftKey && event.key === "v", () => "leader"],
+-  [(event) => event.ctrlKey, (event) => `ctrl-${named(event)}`],
+-  [(event) => event.metaKey, (event) => `meta-${named(event)}`],
+-  [() => true, named],
+-];
+-
+-export const press = (event) => ({ key: CHORDS.find(([test]) => test(event))[1](event) });
+-
+-export const keypresses = (window) => {
+-  const queue = new Queue();
+-  const listener = (event) => {
+-    const pressed = press(event);
+-    if (pressed.key === LEADER_KEY) event.preventDefault();
+-    queue.enqueue(pressed);
+-  };
++export const keypresses = (window, client) => {
++  const listener = (event) => client.terminal.legend.dispatch(event);
+   window.addEventListener("keydown", listener);
+-  return Object.assign(queue, { close: () => { window.removeEventListener("keydown", listener); Queue.prototype.close.call(queue); } });
++  return () => window.removeEventListener("keydown", listener);
+ };
+#+END_SRC
+**** src/surface/panes
+***** bar.jsx — Q3 · Q4 · m99 Q22 · m99 r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/bar.jsx:1
+ import { from, Show } from "solid-js";
++import { belt } from "@vivalence/typology";
+ import * as parts from "@vivalence/drapes/parts";
+…
+// systems/anima/src/surface/panes/bar.jsx:10
+-
+-const ESC = { key: "esc" };
+-const LEADER = { key: "leader" };
+
+ export const marked = (client) => {
+…
+// systems/anima/src/surface/panes/bar.jsx:17
+   const sided = () => (client.surface.narrow ? client.surface.phonePane === "sidebar" : client.surface.sidebar);
+-  const opened = () => client.chord !== null || client.catalog !== null || client.surface.wid !== null || client.surface.pop !== null || sided();
++  const opened = () => client.terminal.legend.chord !== null || client.terminal.repl.catalog !== null || client.surface.wid !== null || client.surface.pop !== null || sided();
+   const drop = () => {
+-    if (client.chord !== null || client.catalog !== null) client.presses.enqueue(ESC);
++    if (client.terminal.legend.chord !== null || client.terminal.repl.catalog !== null) client.terminal.legend.dispatch("esc");
+   };
+   const palette = () => {
+-    if (client.catalog !== null) client.presses.enqueue(ESC);
++    if (client.terminal.repl.catalog !== null) client.terminal.legend.dispatch("esc");
+     else {
+-      client.presses.enqueue(LEADER);
+-      client.presses.enqueue(LEADER);
++      client.terminal.legend.dispatch("leader");
++      client.terminal.legend.dispatch("leader");
+     }
+…
+// systems/anima/src/surface/panes/bar.jsx:50
+         tap = null;
+-        client.presses.enqueue(LEADER);
++        client.terminal.legend.dispatch("leader");
+       }, TAP);
+…
+// systems/anima/src/surface/panes/bar.jsx:80
+   const world = watched(client);
+-  const chord = from(client.$chord);
+-  const catalog = from(client.$catalog);
++  const chord = from(belt.atom.chain(client.$terminal, "legend", "$chord"));
++  const crumbs = () => (chord() === null ? [] : client.terminal.legend.presses.backlog.map((signal) => signal.nature));
++  const catalog = from(belt.atom.chain(client.$terminal, "repl", "$catalog"));
+   const wid = from(client.surface.$wid);
+…
+// systems/anima/src/surface/panes/bar.jsx:87
+   const mark = marked(client);
+-  const chorded = () => (chord() !== null && chord().crumbs.length > 1 ? parts.SUBJECTS.find((subject) => subject.k === chord().crumbs[1]) : undefined);
++  const chorded = () => (crumbs().length > 1 ? parts.SUBJECTS.find((subject) => subject.k === crumbs()[1]) : undefined);
+   const open = () => (wid() !== null ? wid().id : chorded() === undefined ? null : chorded().id);
+-  const keys = () => (chord() !== null && chord().crumbs.length === 1) || catalog() !== null || (narrow() ? pane() === "sidebar" : sidebar());
++  const keys = () => crumbs().length === 1 || catalog() !== null || (narrow() ? pane() === "sidebar" : sidebar());
+   const pick = (subject, event) => {
+…
+// systems/anima/src/surface/panes/bar.jsx:93
+     client.surface.$pop.set(null);
+-    if (chord() !== null) client.presses.enqueue(ESC);
++    if (chord() !== null) client.terminal.legend.dispatch("esc");
+     client.surface.$wid.set({ id: subject, ...placed(event, client.surface) });
+…
+// systems/anima/src/surface/panes/bar.jsx:98
+     client.surface.$wid.set(null);
+-    if (chord() !== null) client.presses.enqueue(ESC);
++    if (chord() !== null) client.terminal.legend.dispatch("esc");
+     client.surface.$pop.set({ x: event.clientX, y: event.clientY });
+#+END_SRC
+***** catalog.jsx — Q3
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/catalog.jsx:1
+ import { from, Show } from "solid-js";
++import { belt } from "@vivalence/typology";
+ import * as parts from "@vivalence/drapes/parts";
+…
+// systems/anima/src/surface/panes/catalog.jsx:45
+ const pick = (client, line) => {
+-  client.$catalog.set(null);
++  client.terminal.repl.$catalog.set(null);
+   client.surface.$draft.set("");
+…
+// systems/anima/src/surface/panes/catalog.jsx:51
+ const fill = (client, line) => {
+-  client.$catalog.set(null);
++  client.terminal.repl.$catalog.set(null);
+   client.surface.$draft.set(line);
+…
+// systems/anima/src/surface/panes/catalog.jsx:90
+ export function Catalog(props) {
+-  const catalog = from(props.client.$catalog);
++  const catalog = from(belt.atom.chain(props.client.$terminal, "repl", "$catalog"));
+   return (
+#+END_SRC
+***** chord.jsx — Q4 · m99 Q20 · m99 Q23 · m99 Q38
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/chord.jsx:1
+ import { For, from, Show } from "solid-js";
++import { belt } from "@vivalence/typology";
+ import * as parts from "@vivalence/drapes/parts";
+…
+// systems/anima/src/surface/panes/chord.jsx:7
+
+-const subjectOf = (key) => parts.SUBJECTS.find((subject) => subject.k === key);
++const VALENCES = [
++  [(node) => node.effect !== undefined && node.effect.valence !== undefined, (node) => node.effect.valence],
++  [(node) => node.meta !== undefined && node.meta.valence !== undefined, (node) => node.meta.valence],
++  [() => true, () => ""],
++];
+
++export const valenceOf = (node) => VALENCES.find(([test]) => test(node))[1](node);
++
+…
+// systems/anima/src/surface/panes/chord.jsx:11
+   [(key, valence) => valence.includes(" · "), (key, valence) => [valence.split(" · ")[0], valence.split(" · ").slice(1).join(" · ")]],
+-  [(key) => subjectOf(key) !== undefined, (key) => [subjectOf(key).id, subjectOf(key).valence]],
+-  [() => true, (key, valence) => [key, valence]],
++  [() => true, (key, valence) => [valence, ""]],
+ ];
+
+-export const valenceOf = (edge) => (edge.pattern.valence === undefined ? "" : edge.pattern.valence);
+-
+ export const keys = (node) =>
+-  [...node.trie.entries()].map(([nature, edge]) => {
+-    const [label, desc] = LABELS.find(([test]) => test(nature, valenceOf(edge)))[1](nature, valenceOf(edge));
+-    return { key: nature, label, desc };
++  Object.entries(node.branches).map(([key, child]) => {
++    const [label, desc] = LABELS.find(([test]) => test(key, valenceOf(child)))[1](key, valenceOf(child));
++    return { key, label, desc };
+   });
+
+-export const walked = (node) => [...node.trie.entries()].map(([nature, edge]) => ({ key: nature, label: valenceOf(edge), desc: "" }));
++export const walked = (node) => Object.entries(node.branches).map(([key, child]) => ({ key, label: valenceOf(child), desc: "" }));
+
+-const press = (client) => (key) => client.presses.enqueue({ key });
++const press = (client) => (key) => client.terminal.legend.dispatch(key);
+
++const crumbs = (client) => client.terminal.legend.presses.backlog.map((signal) => signal.nature);
++
+…
+// systems/anima/src/surface/panes/chord.jsx:29
+   <parts.Panel tag="ctrl-v" crumb="once = keys · twice = the palette" hint="esc drops">
+-    <parts.Chord edges={keys(props.held.node).filter((edge) => !HIDDEN.includes(edge.key))} onPress={press(props.client)} />
++    <parts.Legend edges={keys(props.node).filter((edge) => !HIDDEN.includes(edge.key))} onPress={press(props.client)} />
+   </parts.Panel>
+…
+// systems/anima/src/surface/panes/chord.jsx:34
+ const Walked = (props) => {
+-  const subject = () => subjectOf(props.held.crumbs[1]);
++  const label = () => LABELS.find(([test]) => test(crumbs(props.client).at(-1), valenceOf(props.node)))[1](crumbs(props.client).at(-1), valenceOf(props.node));
+   return (
+-    <parts.Panel tag={subject() === undefined ? props.held.crumbs.at(-1) : subject().id} crumb={chordText(props.held.crumbs)} hint={subject() === undefined ? "" : subject().valence}>
++    <parts.Panel tag={label()[0] === "" ? crumbs(props.client).at(-1) : label()[0]} crumb={chordText(crumbs(props.client))} hint={label()[1]}>
+       <div class="pb">
+-        <For each={walked(props.held.node)}>{(edge) => <parts.Row key={edge.key} name={edge.label} value={edge.desc} onPick={() => press(props.client)(edge.key)} />}</For>
++        <For each={walked(props.node)}>{(edge) => <parts.Row key={edge.key} name={edge.label} value={edge.desc} onPick={() => press(props.client)(edge.key)} />}</For>
+       </div>
+…
+// systems/anima/src/surface/panes/chord.jsx:45
+ export function Chord(props) {
+-  const chord = from(props.client.$chord);
++  const chord = from(belt.atom.chain(props.client.$terminal, "legend", "$chord"));
+   return (
+     <Show when={chord()} keyed>
+-      {(held) => (
+-        <Show when={held.crumbs.length === 1} fallback={<Walked client={props.client} held={held} />}>
+-          <Leader client={props.client} held={held} />
++      {(node) => (
++        <Show when={crumbs(props.client).length === 1} fallback={<Walked client={props.client} node={node} />}>
++          <Leader client={props.client} node={node} />
+         </Show>
+#+END_SRC
+***** chrome.jsx — m99 Q22 · m99 r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/chrome.jsx:16
+   [(client) => !client.runtime.lighthouse.isAuthorized && settled(client.runtime.lighthouse), Signin],
+-  [(client) => !client.runtime.lighthouse.isAuthorized || client.active === null, Booting],
++  [(client) => !client.runtime.lighthouse.isAuthorized || client.terminal === null, Booting],
+   [() => true, Regions],
+…
+// systems/anima/src/surface/panes/chrome.jsx:24
+   const runtime = from(props.client.$runtime);
+-  const active = from(props.client.$active);
++  const active = from(props.client.$terminal);
+   const status = from(belt.atom.chain(props.client.$runtime, "lighthouse", "$status"));
+#+END_SRC
+***** composer.jsx — Q3 · Q4 · m99 Q22 · m99 r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/composer.jsx:2
+ import * as parts from "@vivalence/drapes/parts";
+-import * as ghost from "@vivalence/ghost";
+ import { send } from "../send.js";
+…
+// systems/anima/src/surface/panes/composer.jsx:60
+     if (text.trim() === "") return;
+-    if (client.catalog !== null) return enter(client, client.catalog, text);
++    if (client.terminal.repl.catalog !== null) return enter(client, client.terminal.repl.catalog, text);
+     client.surface.$draft.set("");
+…
+// systems/anima/src/surface/panes/composer.jsx:66
+     client.surface.$draft.set(text);
+-    if (text === "/") ghost.client.keymap.palette(client, "/");
+-    if (!text.startsWith("/")) client.$catalog.set(null);
++    if (text === "/") {
++      client.terminal.legend.dispatch("leader");
++      client.terminal.legend.dispatch("leader");
++    }
++    if (!text.startsWith("/")) client.terminal.repl.$catalog.set(null);
+   };
+#+END_SRC
+***** regions.jsx — Q3 · Q4 · m99 Q22 · m99 r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/regions.jsx:1
+ import { createSignal, from, Show } from "solid-js";
++import { belt } from "@vivalence/typology";
+ import { SIDEBAR } from "../screen.js";
+…
+// systems/anima/src/surface/panes/regions.jsx:34
+ export const Panel = (props) => {
+-  const chord = from(props.client.$chord);
+-  const catalog = from(props.client.$catalog);
++  const chord = from(belt.atom.chain(props.client.$terminal, "legend", "$chord"));
++  const catalog = from(belt.atom.chain(props.client.$terminal, "repl", "$catalog"));
+   return (
+…
+// systems/anima/src/surface/panes/regions.jsx:86
+ export function Regions(props) {
+-  const active = from(props.client.$active);
++  const active = from(props.client.$terminal);
+   return (
+#+END_SRC
+***** sidebar.jsx — Q4 · m99 Q22 · m99 r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/sidebar.jsx:3
+ import { belt } from "@vivalence/typology";
+-import * as ghost from "@vivalence/ghost";
+ import { SIDEBAR } from "../screen.js";
+…
+// systems/anima/src/surface/panes/sidebar.jsx:20
+ export const FNS = {
+-  palette: (client, prefill) => ghost.client.keymap.palette(client, prefill),
++  palette: (client, prefill) => {
++    client.surface.$draft.set(prefill);
++    client.terminal.legend.dispatch("leader");
++    client.terminal.legend.dispatch("leader");
++  },
+   expand: (client, kind) => patched(client, { expand: kind in client.surface.sections.expand ? Object.fromEntries(Object.entries(client.surface.sections.expand).filter(([held]) => held !== kind)) : { ...client.surface.sections.expand, [kind]: true } }),
+…
+// systems/anima/src/surface/panes/sidebar.jsx:43
+   const signals = [
+-    from(client.$active),
+-    from(belt.atom.chain(client.$active, "$thread")),
+-    from(belt.atom.chain(client.$active, "$buffer")),
+-    from(belt.atom.chain(client.$active, "$thread", "$buffers")),
++    from(client.$terminal),
++    from(belt.atom.chain(client.$terminal, "$thread")),
++    from(belt.atom.chain(client.$terminal, "$buffer")),
++    from(belt.atom.chain(client.$terminal, "$thread", "$buffers")),
+     from(client.runtime.entities.terminal.$entities),
+#+END_SRC
+***** signin.jsx — m102 walk
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/signin.jsx:1
+-import { createSignal, from, Show } from "solid-js";
++import { from, Show } from "solid-js";
+ import { Brandline, Island } from "./booting.jsx";
+…
+// systems/anima/src/surface/panes/signin.jsx:7
+   const known = from(lighthouse.$user);
+-  const [user, setUser] = createSignal("");
+-  const [pass, setPass] = createSignal("");
++  const signin = from(props.client.surface.$signin);
++  const user = () => signin().user;
++  const pass = () => signin().pass;
++  const setUser = (user) => props.client.surface.$signin.set({ ...props.client.surface.signin, user });
++  const setPass = (pass) => props.client.surface.$signin.set({ ...props.client.surface.signin, pass });
+   const traits = () => lighthouse.manifest.traits;
+#+END_SRC
+***** tabs.jsx — m99 Q22 · m99 r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/tabs.jsx:27
+   const activities = from(client.runtime.entities.activity.$entities);
+-  const active = from(client.$active);
++  const active = from(client.$terminal);
+   const threads = () => terminals().map((held) => held.thread);
+#+END_SRC
+***** tele.jsx — m99 Q22 · m99 r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/panes/tele.jsx:241
+   const terminals = from(client.runtime.entities.terminal.$entities);
+-  const active = from(client.$active);
++  const active = from(client.$terminal);
+   const status = from(client.runtime.$status);
+…
+// systems/anima/src/surface/panes/tele.jsx:245
+   const standing = from(client.runtime.lighthouse.$status);
+-  const turns = from(typology.atom.chain(client.$active, "$thread", "$turns"));
+-  const buffers = from(typology.atom.chain(client.$active, "$thread", "$buffers"));
++  const turns = from(typology.atom.chain(client.$terminal, "$thread", "$turns"));
++  const buffers = from(typology.atom.chain(client.$terminal, "$thread", "$buffers"));
+   const width = from(client.surface.$width);
+#+END_SRC
+**** src/surface
+***** screen.js — Q4 · m102 walk
+#+BEGIN_SRC diff
+// systems/anima/src/surface/screen.js:12
+
+-export const screen = ({ kind, places, dark, narrow, width, height, palette }) => {
++export const SIGNIN = { user: "", pass: "" };
++
++export const forgetting = (client) =>
++  client.runtime.lighthouse.$status.listen((status) => {
++    if (status.code === "LOGGED_OUT") client.surface.$signin.set({ ...SIGNIN, user: client.surface.signin.user });
++  });
++
++export const screen = ({ kind, places, dark, narrow, width, height, palette }) => {
+   const $narrow = atom(narrow);
+…
+// systems/anima/src/surface/screen.js:28
+   const $draft = atom("");
++  const $signin = atom(SIGNIN);
+   return {
+…
+// systems/anima/src/surface/screen.js:32
+     dark,
+     $narrow,
+…
+// systems/anima/src/surface/screen.js:47
+     $draft,
++    $signin,
+     get narrow() {
+…
+// systems/anima/src/surface/screen.js:92
++    },
++    get signin() {
++      return $signin.get();
+     },
+     get palette() {
+#+END_SRC
+***** sections.js — m99 Q22 · m99 r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/sections.js:297
+   const screen = client.surface.sections;
+-  const terminal = client.active;
++  const terminal = client.terminal;
+   return {
+#+END_SRC
+***** send.js — m99 Q22 · m99 r1
+#+BEGIN_SRC diff
+// systems/anima/src/surface/send.js:1
+-export const send = (client, line) => client.active.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
++export const send = (client, line) => client.terminal.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
+
+#+END_SRC
+**** tests
+***** bar.test.js — Q1 · Q3 · the KEYS order · m99 Q22 (rigs)
+#+BEGIN_SRC diff
+// systems/anima/tests/bar.test.js:2
+ import * as ghost from "@vivalence/ghost";
+-import { harvest, keymap as bound, navigating } from "../../ghost/subjects/client/keymap.js";
+ import { fire, paint, settle, surface, world } from "./world.js";
+…
+// systems/anima/tests/bar.test.js:15
+
+-const KEYS = `<div class="ph"><span class="tag">ctrl-v</span><span class="crumb">once = keys · twice = the palette</span><span class="hint">esc drops</span></div><div class="keys kcols"><button class=""><b>d</b><span class="kl">display</span><i>how do I see it</i></button><button class=""><b>h</b><span class="kl">harness</span><i>what is it given</i></button><button data-fn="press" data-arg="leader"><b>ctrl-v</b><span class="kl">palette</span><i></i></button></div>`;
++const KEYS = `<div class="ph"><span class="tag">ctrl-v</span><span class="crumb">once = keys · twice = the palette</span><span class="hint">esc drops</span></div><div class="keys kcols"><button class=""><b>d</b><span class="kl">display</span><i>how do I see it</i></button><button class=""><b>h</b><span class="kl">harness</span><i>what is it given</i></button><button class=""><b>e</b><span class="kl">entity</span><i>where am I</i></button><button class=""><b>a</b><span class="kl">activity</span><i>is it working</i></button><button class=""><b>s</b><span class="kl">system</span><i>what does it run on</i></button><button data-fn="press" data-arg="leader"><b>ctrl-v</b><span class="kl">palette</span><i></i></button></div>`;
+
+…
+// systems/anima/tests/bar.test.js:27
+   held.terminal.repl.commands = new Vector().graft(ghost.terminal.commands.dock, ghost.terminal.commands.intelligent);
+-  held.client.keymap = new Vector().graft(bound);
+-  held.terminal.keymap = new Vector().graft(held.client.keymap, harvest(held.terminal.repl.commands));
+-  const navigated = navigating(held.client, held.client.presses.drain());
+   const rig = paint(() => [surface.Bar({ client: held.client }), surface.Panel({ client: held.client }), surface.Wid({ client: held.client }), surface.Pop({ client: held.client })]);
+   await settle();
+-  const close = () => {
+-    rig.close();
+-    held.client.presses.close();
+-    return navigated;
+-  };
++  const close = () => rig.close();
+   return { ...held, rig, close };
+…
+// systems/anima/tests/bar.test.js:111
+     await wait(surface.TAP + 40);
+-    specimen.expect(client.chord.crumbs).toEqual(["leader"]);
++    specimen.expect(client.terminal.legend.presses.backlog.map((signal) => signal.nature)).toEqual(["leader"]);
+     specimen.expect(mark().className).toBe("mark open");
+…
+// systems/anima/tests/bar.test.js:117
+     await settle();
+-    specimen.expect(client.chord).toBe(null);
++    specimen.expect(client.terminal.legend.chord).toBe(null);
+     specimen.expect(rig.target.querySelector("section.panel").hasAttribute("hidden")).toBe(true);
+…
+// systems/anima/tests/bar.test.js:124
+     await settle();
+-    specimen.expect(Array.isArray(client.catalog)).toBe(true);
++    specimen.expect(Array.isArray(client.terminal.repl.catalog)).toBe(true);
+     specimen.expect(client.surface.focus).toBe("composer");
+…
+// systems/anima/tests/bar.test.js:130
+     await settle();
+-    specimen.expect(client.catalog).toBe(null);
++    specimen.expect(client.terminal.repl.catalog).toBe(null);
+     fire(mark(), "pointerdown");
+…
+// systems/anima/tests/bar.test.js:137
+     specimen.expect(client.surface.sidebar).toBe(true);
+-    specimen.expect(client.chord).toBe(null);
++    specimen.expect(client.terminal.legend.chord).toBe(null);
+     await close();
+#+END_SRC
+***** chrome.test.js — m102 walk
+#+BEGIN_SRC diff
+// systems/anima/tests/chrome.test.js:144
+   });
+ });
+
++specimen.describe("a logout in the tab — the sign-in form keeps the username, forgets the password", () => {
++  specimen.it("LOGGED_OUT empties the password and keeps the username; the remounted pane shows the kept username", async () => {
++    const held = world();
++    held.seat();
++    const forget = surface.forgetting(held.client);
++    held.client.surface.$signin.set({ user: "beef", pass: "hunter 2" });
++    held.lighthouse.$status.set({ code: "LOGGED_OUT" });
++    specimen.expect(held.client.surface.signin).toEqual({ user: "beef", pass: "" });
++    const rig = paint(() => surface.Chrome({ client: held.client }));
++    await settle();
++    const [username, password] = rig.target.querySelectorAll("input");
++    specimen.expect([username.value, password.value]).toEqual(["beef", ""]);
++    rig.close();
++    forget();
++  });
++});
++
+#+END_SRC
+***** panel.test.js — Q1 · Q3 · m99 Q22 (rigs)
+#+BEGIN_SRC diff
+// systems/anima/tests/panel.test.js:2
+ import * as ghost from "@vivalence/ghost";
+-import { catalog, harvest, keymap as bound, navigating } from "../../ghost/subjects/client/keymap.js";
+ import { fire, paint, settle, surface, world } from "./world.js";
+…
+// systems/anima/tests/panel.test.js:6
+
+-const WALKED = `<div class="ph"><span class="tag">display</span><span class="crumb">ctrl-v d</span><span class="hint">how do I see it</span></div><div class="pb">
++const WALKED = `<div class="ph"><span class="tag">d</span><span class="crumb">ctrl-v d</span><span class="hint"></span></div><div class="pb">
+ <button class="krow  " data-fn="entry"><span class="key">j</span><span class="nm">/dock/lens</span><span class="val"></span></button>
+…
+// systems/anima/tests/panel.test.js:25
+   held.terminal.repl.commands = new Vector().graft(ghost.terminal.commands.dock);
+-  held.terminal.keymap = new Vector().graft(bound, harvest(held.terminal.repl.commands));
+-  const navigated = navigating(held.client, held.client.presses.drain());
+   const rig = paint(() => surface.Panel({ client: held.client }));
+   await settle();
+-  const close = () => {
+-    rig.close();
+-    held.client.presses.close();
+-    return navigated;
+-  };
++  const close = () => rig.close();
+   return { ...held, rig, close };
+…
+// systems/anima/tests/panel.test.js:38
+ const pressed = async (client, ...keys) => {
+-  for (const key of keys) client.presses.enqueue({ key });
++  for (const key of keys) client.terminal.legend.dispatch(key);
+   await settle();
+…
+// systems/anima/tests/panel.test.js:52
+     await settle();
+-    specimen.expect(client.chord).toBe(null);
+-    specimen.expect(sent.map((signal) => signal.pathname)).toEqual(["/split"]);
++    specimen.expect(client.terminal.legend.chord).toBe(null);
++    specimen.expect(sent).toEqual(["/split"]);
+     await close();
+…
+// systems/anima/tests/panel.test.js:59
+     const { rig, client, sent, close } = await seated();
+-    client.$catalog.set([
++    client.terminal.repl.$catalog.set([
+       { nature: "/help", chord: "leader/?", options: [], args: false },
+…
+// systems/anima/tests/panel.test.js:83
+     const { rig, client, sent, terminal, close } = await seated();
+-    client.$catalog.set(catalog(terminal.repl.commands));
++    client.terminal.repl.$catalog.set(ghost.shard.keymap.catalog(terminal.repl.commands));
+     client.surface.$draft.set("/dock ");
+…
+// systems/anima/tests/panel.test.js:92
+     await settle();
+-    specimen.expect([client.surface.draft, client.catalog, client.surface.focus]).toEqual(["/dock closed", null, "composer"]);
+-    client.$catalog.set(catalog(terminal.repl.commands));
++    specimen.expect([client.surface.draft, client.terminal.repl.catalog, client.surface.focus]).toEqual(["/dock closed", null, "composer"]);
++    client.terminal.repl.$catalog.set(ghost.shard.keymap.catalog(terminal.repl.commands));
+     await settle();
+-    surface.enter(client, client.catalog, "/dock closed");
++    surface.enter(client, client.terminal.repl.catalog, "/dock closed");
+     await settle();
+…
+// systems/anima/tests/panel.test.js:99
+     specimen.expect(client.surface.draft).toBe("");
+-    client.$catalog.set(catalog(terminal.repl.commands));
+-    surface.enter(client, client.catalog, "/spl");
++    client.terminal.repl.$catalog.set(ghost.shard.keymap.catalog(terminal.repl.commands));
++    surface.enter(client, client.terminal.repl.catalog, "/spl");
+     await settle();
+-    specimen.expect([client.surface.draft, client.catalog]).toEqual(["/split ", null]);
++    specimen.expect([client.surface.draft, client.terminal.repl.catalog]).toEqual(["/split ", null]);
+     specimen.expect(sent).toEqual(["/dock closed"]);
+#+END_SRC
+***** world.js — Q0 · Q3 · m102 walk · m99 Q22 (rigs)
+#+BEGIN_SRC diff
+// systems/anima/tests/world.js:12
+ const NODE_MODULES = new URL("../../../node_modules/", import.meta.url).pathname;
+-const ENTRY = `export * from "./panes/index.js"; export * from "./renderers.js"; export * from "./view.js"; export { render } from "solid-js/web"; export { screen } from "./screen.js";`;
++const ENTRY = `export * from "./panes/index.js"; export * from "./renderers.js"; export * from "./view.js"; export { render } from "solid-js/web"; export { forgetting, screen } from "./screen.js";`;
+
+…
+// systems/anima/tests/world.js:51
+     mask: { manifest: { slug: "anima", type: "client" }, trait: {} },
+-    surface: surface.screen({ kind: "dom", places: ["cell", "frame"], dark: true, narrow: false, width: 1280, height: 800, palette: () => tokens.kebab("northsea", "2") }),
++    surface: surface.screen({ kind: "dom", places: ["cell", "frame"], dark: true, narrow: false, width: 1280, height: 800, palette: () => tokens.kebab("northsea", "2") }),
+   });
+…
+// systems/anima/tests/world.js:55
+   const lighthouse = Object.assign(new ghost.entities.lighthouse.Lighthouse(), { stdout: controller.stdout.branch("lighthouse"), manifest: { type: "lighthouse", slug: "lighthouse", traits: ["AUTOLOGIN"] } });
+-  const chat = { type: "chat", slug: "chat", traits: ["HARNESSED"] };
++  const chat = { type: "chat", slug: "chat", traits: ["HARNESSED"], repl: new Vector(), keymap: new Vector() };
+   const thread = Object.assign(new ghost.entities.thread.Thread(), {
+…
+// systems/anima/tests/world.js:71
+   });
+-  const seated = (index, held) => ({
+-    id: `terminal-${index + 1}`,
+-    index,
+-    client,
+-    controller: controller.branch(`terminal/terminal-${index + 1}`),
+-    repl: {
+-      commands: new Vector(),
+-      dispatch: (line) => {
+-        sent.push(line);
+-        return Promise.resolve(line);
++  const seated = (index, held) => {
++    const terminal = {
++      id: `terminal-${index + 1}`,
++      index,
++      client,
++      controller: controller.branch(`terminal/terminal-${index + 1}`),
++      repl: {
++        $catalog: atom(null),
++        get catalog() {
++          return this.$catalog.get();
++        },
++        commands: new Vector(),
++        dispatch: (line) => {
++          sent.push(line);
++          return Promise.resolve(line);
++        },
+       },
+-    },
+-    dock: { ...ghost.belt.dock.DEFAULT_DOCK },
+-    $thread: atom(held),
+-    $buffer: atom(null),
+-    get thread() {
+-      return this.$thread.get();
+-    },
+-    get buffer() {
+-      return this.$buffer.get();
+-    },
+-  });
++      dock: { ...ghost.belt.dock.DEFAULT_DOCK },
++      $thread: atom(held),
++      $buffer: atom(null),
++      get thread() {
++        return this.$thread.get();
++      },
++      get buffer() {
++        return this.$buffer.get();
++      },
++      get mode() {
++        return this.thread === null ? null : this.thread.mode;
++      },
++    };
++    terminal.legend = new ghost.terminal.Legend(terminal);
++    return terminal;
++  };
+   const terminal = seated(0, thread);
+…
+// systems/anima/tests/world.js:119
+   };
+-  const activate = () => client.$active.set(terminal);
++  const activate = () => client.$terminal.set(terminal);
+   return { client, controller, lighthouse, thread, terminal, spare, entities, sent, seat, authorize, activate };
+#+END_SRC
+*** systems/ghost
+**** entities/mode/traits
+***** harnessed.js — Q5
+#+BEGIN_SRC diff
+// systems/ghost/entities/mode/traits/harnessed.js:33
+   mode.repl.open(
+-    { nature: "/harness", valence: "a turn to THIS mode's harness on the active terminal's thread, named — compose scopes it under /mode/<type>/<slug> and /mode/<slug>. Example: /mode/memo/harness ciao" },
++    { nature: "/harness", valence: "a turn to the attached mode's harness on the terminal's thread. Example: /harness ciao" },
+     (ctx) => stream(mode, ctx.terminal, [{ type: "text", text: ctx.signal.body.map((datum) => String(datum)).join(" ") }]),
+#+END_SRC
+**** gestalten/shard
+***** index.js — m99 Q18″ · m99 Q26
+#+BEGIN_SRC diff
+// systems/ghost/gestalten/shard/index.js:1
+ export * as host from "./host.js";
++export * as keymap from "./keymap.js";
+
+#+END_SRC
+***** keymap.js — m99 Q18″ · m99 Q26 (new)
+#+BEGIN_SRC js
+// systems/ghost/gestalten/shard/keymap.js
+import { Vector, is, steer } from "@vivalence/typology";
+
+const line = (steps) => "/" + steps.map((step) => step.nature).join("/");
+
+const chord = (steps) => (is.string(steps.at(-1).chord) ? steps.at(-1).chord : null);
+
+export const fromRepl = (repl) =>
+  steer.trie.rollup(repl, (carry, effect, steps) => chord(steps))
+    .filter((entry) => entry.fn !== null)
+    .reduce((keymap, { steps, fn }) => keymap.open({ nature: fn, valence: line(steps) }, line(steps)), new Vector());
+
+const OPTIONS = [
+  [(input) => input === undefined, () => []],
+  [(input) => Object.values(input.properties).length === 0, () => []],
+  [(input) => Object.values(input.properties)[0].anyOf === undefined, () => []],
+  [() => true, (input) => Object.values(input.properties)[0].anyOf.filter((member) => Object.hasOwn(member, "const")).map((member) => member.const)],
+];
+
+const options = (input) => OPTIONS.find(([test]) => test(input))[1](input);
+
+const ARGS = [
+  [(input) => input === undefined, () => false],
+  [(input) => !Array.isArray(input.required), () => false],
+  [() => true, (input) => input.required.length > 0],
+];
+
+const args = (input) => ARGS.find(([test]) => test(input))[1](input);
+
+export const catalog = (repl) =>
+  steer.trie.rollup(repl, (carry, effect, steps) => ({ nature: line(steps), valence: steps.at(-1).valence, chord: chord(steps) === null ? "" : chord(steps), options: options(steps.at(-1).input), args: args(steps.at(-1).input) })).map((entry) => entry.fn);
+#+END_SRC
+**** subjects/client/commands
+***** terminal.js — m99 r1
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/commands/terminal.js:6
+ const seated = (client, terminal) => {
+-  client.$active.set(terminal);
++  client.$terminal.set(terminal);
+   return `terminal #${terminal.index}`;
+…
+// systems/ghost/subjects/client/commands/terminal.js:28
+     async (ctx) => {
+-      const closed = ctx.client.active;
++      const closed = ctx.client.terminal;
+       await ctx.client.runtime.entities.terminal.removeOne({ id: closed.id });
+       const rows = ctx.client.runtime.entities.terminal.$entities.get();
+-      ctx.client.$active.set(rows.length === 0 ? null : rows[0]);
++      ctx.client.$terminal.set(rows.length === 0 ? null : rows[0]);
+       return `terminal #${closed.index} closed`;
+#+END_SRC
+**** subjects/client
+***** index.js — m99 Q1 (keymap.js holds one export)
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/index.js:1
+ export * from "./factory.js";
++export * from "./keymap.js";
+ export * from "./prototype.js";
+ export * as commands from "./commands/index.js";
+-export * as keymap from "./keymap.js";
+ export * as lifecycle from "./lifecycle/index.js";
+#+END_SRC
+***** keymap.js — Q3 · m99 Q18″ · m99 Q24 · m99 Q37 · m99 Q22
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/keymap.js:1
+-import { Dropped, KeySignal, NotFound, ReplSignal, Vector, is, steer } from "@vivalence/typology";
++import { Vector } from "@vivalence/typology";
++import * as shard from "../../gestalten/shard/index.js";
+
+-const line = (steps) => "/" + steps.map((step) => step.nature).join("/");
+-
+-const chord = (steps) => (is.string(steps.at(-1).chord) ? steps.at(-1).chord : null);
+-
+-export const harvest = (repl) =>
+-  steer.trie.rollup(repl, (carry, effect, steps) => chord(steps))
+-    .filter((entry) => entry.fn !== null)
+-    .reduce((keymap, { steps, fn }) => keymap.open({ nature: fn, valence: line(steps) }, line(steps)), new Vector());
+-
+-const OPTIONS = [
+-  [(input) => input === undefined, () => []],
+-  [(input) => Object.values(input.properties).length === 0, () => []],
+-  [(input) => Object.values(input.properties)[0].anyOf === undefined, () => []],
+-  [() => true, (input) => Object.values(input.properties)[0].anyOf.filter((member) => Object.hasOwn(member, "const")).map((member) => member.const)],
+-];
+-
+-export const options = (input) => OPTIONS.find(([test]) => test(input))[1](input);
+-
+-const ARGS = [
+-  [(input) => input === undefined, () => false],
+-  [(input) => !Array.isArray(input.required), () => false],
+-  [() => true, (input) => input.required.length > 0],
+-];
+-
+-export const args = (input) => ARGS.find(([test]) => test(input))[1](input);
+-
+-export const catalog = (repl) =>
+-  steer.trie.rollup(repl, (carry, effect, steps) => ({ nature: line(steps), valence: steps.at(-1).valence, chord: chord(steps) === null ? "" : chord(steps), options: options(steps.at(-1).input), args: args(steps.at(-1).input) })).map((entry) => entry.fn);
+-
+-export const listing = (client) => catalog(client.active.repl.commands);
+-
+-export const palette = (client, prefill) => {
+-  client.$chord.set(null);
+-  client.$catalog.set(listing(client));
+-  client.surface.$draft.set(prefill);
+-  client.surface.$focus.set("composer");
++const palette = (terminal, prefill) => {
++  terminal.repl.$catalog.set(shard.keymap.catalog(terminal.repl.commands));
++  terminal.client.surface.$draft.set(prefill);
++  terminal.client.surface.$focus.set("composer");
+ };
+…
+// systems/ghost/subjects/client/keymap.js:41
+ const leader = new Vector().open(
+-  { nature: "leader", valence: "the catalog — every repl verb, narrowed as you type. Example: ctrl-v ctrl-v" },
+-  (ctx) => palette(ctx.client, ctx.client.surface.draft.startsWith("/") ? ctx.client.surface.draft : "/"),
++  { nature: "leader", valence: "palette · the catalog — every repl command, narrowed as you type. Example: ctrl-v ctrl-v" },
++  (ctx) => palette(ctx.terminal, ctx.client.surface.draft.startsWith("/") ? ctx.client.surface.draft : "/"),
+ );
++leader.branch({ nature: "e", valence: "entity · where am I" });
++leader.branch({ nature: "a", valence: "activity · is it working" });
++leader.branch({ nature: "h", valence: "harness · what is it given" });
++leader.branch({ nature: "d", valence: "display · how do I see it" });
++leader.branch({ nature: "s", valence: "system · what does it run on" });
+
+-export const keymap = new Vector().open({ nature: "esc", valence: "drop the chord and the catalog. Example: esc" }, (ctx) => {
+-  ctx.client.$chord.set(null);
+-  ctx.client.$catalog.set(null);
+-});
++export const keymap = new Vector().open({ nature: "esc", valence: "drop the catalog. Example: esc" }, (ctx) => ctx.terminal.repl.$catalog.set(null));
+ keymap.branch({ nature: "leader", valence: "the leader — ctrl-v on a tty" }, leader);
+
+-const FAULTS = [
+-  [(error) => error instanceof Dropped, () => undefined],
+-  [(error, client) => error instanceof NotFound && client.$chord.get() === null, () => undefined],
+-  [() => true, (error, client) => client.controller.stdout.fault(error)],
+-];
+-
+-const held = (composed, crumbs) => crumbs.reduce((node, key) => node.trie.get(key).trajectory, composed);
+-
+-export const navigate = async (terminal, drain) => {
+-  const client = terminal.client;
+-  const composed = terminal.keymap;
+-  const crumbs = [];
+-  let open = true;
+-  const more = async (patterns) => {
+-    if (crumbs.length > 0) client.$catalog.set(null);
+-    client.$chord.set(crumbs.length === 0 ? null : { crumbs: [...crumbs], node: held(composed, crumbs) });
+-    const { value: press, done } = await drain.next();
+-    if (done) {
+-      open = false;
+-      throw new Dropped(patterns);
+-    }
+-    if (press.key === "esc" && crumbs.length > 0) throw new Dropped(patterns);
+-    crumbs.push(press.key);
+-    return new KeySignal(press.key);
+-  };
+-  const ctx = { client, dispatch: (text) => terminal.repl.dispatch(text), output: undefined };
+-  try {
+-    const [effect, carry] = await steer.dispatch.walk(composed, more);
+-    await carry(ctx, steer.strategy.resolve(effect));
+-    if (ctx.output !== undefined) await terminal.repl.dispatch(new ReplSignal(ctx.output));
+-  } catch (error) {
+-    FAULTS.find(([test]) => test(error, client))[1](error, client);
+-  } finally {
+-    client.$chord.set(null);
+-  }
+-  return open;
+-};
+-
+-export const navigating = async (clientDie, drain) => {
+-  while (await navigate(clientDie.active, drain));
+-};
+-
+#+END_SRC
+**** subjects/client/lifecycle
+***** index.js — Q2 · m102 walk · m99 Q22 (pressing dies) · m99 r1
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/lifecycle/index.js:2
+ import { Connection, Dataspace, Path, Url, Vector, fromm, middleware, monad, shard, traits } from "@vivalence/typology";
+-import { keymap as bound, navigating } from "../keymap.js";
+ import * as catalog from "../traits/index.js";
+…
+// systems/ghost/subjects/client/lifecycle/index.js:31
+   }
+ };
+-
+-export const keymap = async (clientDie, next) => {
+-  clientDie.keymap.graft(bound, ...fromm.modes(clientDie.modes).flat.map((held) => held.keymap));
+-  await next();
+-};
+-
+-export const pressing = async (clientDie, next) => {
+-  navigating(clientDie, clientDie.presses.drain(clientDie.controller.abort.signal)).catch((error) => clientDie.controller.stdout.fault(error));
+-  await next();
+-};
+…
+// systems/ghost/subjects/client/lifecycle/index.js:136
+     offs = await read(clientDie);
++    await seat(clientDie);
+   });
+…
+// systems/ghost/subjects/client/lifecycle/index.js:185
+   const derive = () => {
+-    const active = clientDie.$active.get();
++    const active = clientDie.$terminal.get();
+     const row = active === null ? null : active.thread;
+…
+// systems/ghost/subjects/client/lifecycle/index.js:198
+     if (bound !== null) bound();
+-    const active = clientDie.$active.get();
++    const active = clientDie.$terminal.get();
+     bound = active === null ? null : active.$thread.listen(derive);
+…
+// systems/ghost/subjects/client/lifecycle/index.js:202
+   };
+-  const off = clientDie.$active.listen(rebind);
++  const off = clientDie.$terminal.listen(rebind);
+   rebind();
+…
+// systems/ghost/subjects/client/lifecycle/index.js:213
++
++const seat = async (clientDie) => {
++  const terminals = clientDie.runtime.entities.terminal.$entities.get();
++  clientDie.$terminal.set(terminals.length === 0 ? await clientDie.runtime.entities.terminal.create({}) : terminals[0]);
++};
+
+ export const active = async (clientDie, next) => {
+-  const rows = clientDie.runtime.entities.terminal.$entities.get();
+-  clientDie.$active.set(rows.length === 0 ? await clientDie.runtime.entities.terminal.create({}) : rows[0]);
++  await seat(clientDie);
+   await next();
+…
+// systems/ghost/subjects/client/lifecycle/index.js:222
+   .use(modes)
+-  .use(keymap)
+   .use(connection)
+…
+// systems/ghost/subjects/client/lifecycle/index.js:235
+   .use(active)
+-  .use(pressing)
+   .do(shard.controller.hold);
+#+END_SRC
+**** subjects/client
+***** prototype.js — Q0 · Q2 · Q3 · m99 Q20 · m99 Q22 · m99 r1
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/prototype.js:1
+ import { atom } from "nanostores";
+-import { Aperture, NotFound, Queue, ReplSignal, Vector, belt, fromm, is, shape, v } from "@vivalence/typology";
++import { Aperture, NotFound, ReplSignal, belt, fromm, is, shape, v } from "@vivalence/typology";
+
+…
+// systems/ghost/subjects/client/prototype.js:25
+   modes = {};
+-  keymap = new Vector();
+-  presses = new Queue();
+   aperture = new Aperture();
+…
+// systems/ghost/subjects/client/prototype.js:30
+   $runtime = atom(null);
+-  $active = atom(null);
+-  $chord = atom(null);
+-  $catalog = atom(null);
++  $terminal = atom(null);
+
+…
+// systems/ghost/subjects/client/prototype.js:44
+   }
+-  get active() {
+-    return this.$active.get();
++  get terminal() {
++    return this.$terminal.get();
+   }
+-  get chord() {
+-    return this.$chord.get();
+-  }
+-  get catalog() {
+-    return this.$catalog.get();
+-  }
+…
+// systems/ghost/subjects/client/prototype.js:62
+   get json() {
+-    return { mask: this.mask, modes: fromm.modes(this.modes).flat.map((mode) => mode.reference.absolute), terminal: this.active === null ? null : this.active.id };
++    return { mask: this.mask, modes: fromm.modes(this.modes).flat.map((mode) => mode.reference.absolute), terminal: this.terminal === null ? null : this.terminal.id };
+   }
+#+END_SRC
+**** subjects/terminal
+***** index.js — Q0
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/index.js:2
+ export * from "./hydration.js";
++export * from "./legend.js";
+ export * from "./prototype.js";
+#+END_SRC
+***** legend.js — Q0 · Q1 · Q2 · Q4 · Q6 · m99 Q20 · m99 Q21 · m99 Q22 · m99 Q28 · m99 Q32 · m99 Q32″ · m99 Q39 · m99 Q47′ (new)
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/legend.js
+import paladin from "@vivalence/paladin";
+import { atom } from "nanostores";
+import { KeySignal, Queue, Vector, fromm, is, shape, shard, steer } from "@vivalence/typology";
+import * as client from "../client/keymap.js";
+import { keymap } from "../../gestalten/shard/index.js";
+
+export class Legend {
+  presses = new Queue();
+  $chord = atom(null);
+
+  constructor(terminal) {
+    this.terminal = terminal;
+    this.presses.$backlog.listen((presses) => this.traverse(presses));
+  }
+
+  get chord() {
+    return this.$chord.get();
+  }
+
+  get translation() {
+    return new Vector()
+      .use(shard.context.bind("legend", this))
+      .open("*", (ctx) => ctx.legend.presses.enqueue(ctx.signal))
+      .open(paladin.is.browser && !paladin.is.apple ? "meta-v" : "ctrl-v", (ctx) => {
+        ctx.input.preventDefault();
+        ctx.legend.presses.enqueue(new KeySignal("leader"));
+      });
+  }
+
+  get keymap() {
+    return new Vector().graft(
+      keymap.fromRepl(this.terminal.repl.commands),
+      client.keymap,
+      ...fromm.modes(this.terminal.client.modes).flat.map((mode) => mode.keymap),
+      ...(is.object(this.terminal.mode) ? [this.terminal.mode.keymap] : []),
+    );
+  }
+
+  dispatch(event) {
+    steer.dispatch.invoke(this.translation, new KeySignal(event), steer.strategy.echo)(event);
+  }
+
+  traverse(presses) {
+    if (presses.length === 0) return this.$chord.set(null);
+    const keys = presses.map((signal) => signal.nature);
+    const [effect, carry, steps, node] = steer.dispatch.traverse(this.keymap, new KeySignal(keys));
+    if (effect !== null) return this.execute(effect, carry).catch((error) => this.terminal.client.controller.stdout.fault(error));
+    if (steps.length < keys.length) return this.flush();
+    this.$chord.set(shape.strip(node));
+  }
+
+  async execute(effect, carry) {
+    this.flush();
+    const ctx = { client: this.terminal.client, terminal: this.terminal, output: undefined };
+    await carry(ctx, steer.strategy.resolve(effect));
+    if (ctx.output !== undefined) await this.terminal.repl.dispatch(ctx.output);
+  }
+
+  flush() {
+    this.presses.flush();
+  }
+}
+#+END_SRC
+**** subjects/terminal/lifecycle
+***** index.js — Q0 · Q5
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/lifecycle/index.js:1
+-import paladin from "@vivalence/paladin";
+-import { Vector, fromm, shard } from "@vivalence/typology";
+-import * as command from "../commands/index.js";
+-import * as clientCommand from "../../client/commands/index.js";
++import { Vector, shard } from "@vivalence/typology";
+
+-export const commands = async (terminalDie, next) => {
+-  const { shell, quit, ...everywhere } = clientCommand;
+-  const tty = paladin.is.tty ? [shell, quit] : [];
+-  const off = terminalDie.client.runtime.entities.mode.$entities.subscribe((modes) => {
+-    const commands = new Vector().graft(
+-      ...Object.values(everywhere),
+-      ...tty,
+-      ...fromm.modes(terminalDie.client.modes).flat.map((mode) => mode.repl),
+-      ...Object.values(command),
+-    );
+-    for (const mode of modes) {
+-      commands.branch(`/mode/${mode.type}/${mode.slug}`, mode.repl);
+-      commands.branch(`/mode/${mode.slug}`, mode.repl);
+-    }
+-    terminalDie.terminal.repl.commands = commands;
+-  });
+-  terminalDie.controller.stdout.log({ terminal: terminalDie.terminal.id });
+-  try {
++export const execution = new Vector()
++  .use(shard.controller.open)
++  .use(async (terminalDie, next) => {
++    terminalDie.controller.stdout.log({ terminal: terminalDie.terminal.id });
+     await next();
+-  } finally {
+-    off();
+-  }
+-};
++  })
++  .do(shard.controller.hold);
+
+-export const execution = new Vector().use(shard.controller.open).use(commands).do(shard.controller.hold);
+-
+#+END_SRC
+**** subjects/terminal
+***** prototype.js — Q0 · Q1 · m99 Q27 · m99 m102 order
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/prototype.js:1
+-import { atom, computed } from "nanostores";
+-import { Entity, Vector, is } from "@vivalence/typology";
+-import { harvest } from "../client/keymap.js";
++import { atom } from "nanostores";
++import { Entity, is } from "@vivalence/typology";
+ import * as belt from "../../gestalten/belt/index.js";
++import { Legend } from "./legend.js";
+ import { Repl } from "./repl.js";
+…
+// systems/ghost/subjects/terminal/prototype.js:19
+   repl = new Repl(this);
++  legend = new Legend(this);
+   $thread = atom(null);
+   $buffer = atom(null);
+-  $keymap = computed(this.$thread, (thread) => new Vector().graft(harvest(this.repl.commands), this.client.keymap, ...(thread !== null && is.object(thread.mode) ? [thread.mode.keymap] : [])));
+-  get keymap() {
+-    return this.$keymap.get();
+-  }
+
+…
+// systems/ghost/subjects/terminal/prototype.js:46
+   toJSON() {
+-    const kept = (key) => !key.startsWith("$") && !["client", "repository", "runtime", "daemon", "controller", "repl", "keymap"].includes(key);
++    const kept = (key) => !key.startsWith("$") && !["client", "repository", "runtime", "daemon", "controller", "repl", "legend"].includes(key);
+     const base = Object.fromEntries(Object.entries(super.toJSON()).filter(([key]) => kept(key)));
+#+END_SRC
+***** repl.js — Q0 · Q1 · Q2 · Q3 · Q5
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/repl.js:1
+-import { ReplSignal, Vector, shard, steer } from "@vivalence/typology";
++import paladin from "@vivalence/paladin";
++import { atom } from "nanostores";
++import { ReplSignal, Vector, fromm, is, shard, steer } from "@vivalence/typology";
++import * as clientCommand from "../client/commands/index.js";
++import * as terminalCommand from "./commands/index.js";
+
+…
+// systems/ghost/subjects/terminal/repl.js:7
+ export class Repl {
+-  commands = new Vector();
++  $catalog = atom(null);
+
+…
+// systems/ghost/subjects/terminal/repl.js:11
+     this.terminal = terminal;
+   }
++
++  get catalog() {
++    return this.$catalog.get();
++  }
++
++  get commands() {
++    const absent = paladin.is.tty ? [] : [clientCommand.shell, clientCommand.quit];
++    return new Vector().graft(
++      ...Object.values(clientCommand).filter((command) => !absent.includes(command)),
++      ...fromm.modes(this.terminal.client.modes).flat.map((mode) => mode.repl),
++      ...Object.values(terminalCommand),
++      ...(is.object(this.terminal.mode) ? [this.terminal.mode.repl] : []),
++    );
++  }
+#+END_SRC
+**** surfaces/chrome
+***** acts.js — Q3 · Q4 · m99 Q22 · m99 Q28 · m99 r1
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/acts.js:3
+
+-export const send = (client, line) => client.active.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
++export const send = (client, line) => client.terminal.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
+
+…
+// systems/ghost/surfaces/chrome/acts.js:24
+   mark: (client) => {
+-    if (client.chord !== null || client.catalog !== null) return client.presses.enqueue({ key: "esc" });
++    if (client.terminal.legend.chord !== null || client.terminal.repl.catalog !== null) return client.terminal.legend.dispatch("esc");
+     if (client.surface.wid !== null) return client.surface.$wid.set(null);
+-    client.presses.enqueue({ key: "leader" });
++    client.terminal.legend.dispatch("leader");
+   },
+   wid: (client, id) => client.surface.$wid.set(client.surface.wid !== null && client.surface.wid.id === id ? null : { id }),
+-  press: (client, key) => client.presses.enqueue({ key }),
++  press: (client, key) => client.terminal.legend.dispatch(key),
+   press2: (client, key) => {
+-    client.presses.enqueue({ key: "leader" });
+-    client.presses.enqueue({ key });
++    client.terminal.legend.dispatch("leader");
++    client.terminal.legend.dispatch(key);
+   },
+…
+// systems/ghost/surfaces/chrome/acts.js:41
+     client.surface.$focus.set("composer");
+-    if (client.catalog === null) {
+-      client.presses.enqueue({ key: "leader" });
+-      client.presses.enqueue({ key: "leader" });
++    if (client.terminal.repl.catalog === null) {
++      client.terminal.legend.dispatch("leader");
++      client.terminal.legend.dispatch("leader");
+     }
+…
+// systems/ghost/surfaces/chrome/acts.js:66
+   dockmin: (client) => {
+-    const id = client.active.id;
++    const id = client.terminal.id;
+     const held = client.surface.float[id];
+#+END_SRC
+***** index.js — Q4 · m102 walk · m99 Q22 · m99 Q47′
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/index.js:3
+ import { paint } from "./paint.js";
+-import { screen } from "./screen.js";
++import { forgetting, screen } from "./screen.js";
+ import { SPINNER } from "./grid.js";
+…
+// systems/ghost/surfaces/chrome/index.js:33
+   client.runtime !== null &&
++  client.runtime.entities !== null &&
+   client.runtime.entities.activity.$entities
+…
+// systems/ghost/surfaces/chrome/index.js:52
+   });
+   client.surface = screen({ kind: "tty", places: PLACES, dark: await dark(renderer) });
+-  keypresses(renderer).to(client.presses);
++  keypresses(renderer, client);
++  const forget = forgetting(client);
+   const tick = ticking(client);
+…
+// systems/ghost/surfaces/chrome/index.js:57
+   return () => {
++    forget();
+     clearInterval(tick);
+#+END_SRC
+***** keys.js — Q4 · m99 Q22 · m99 Q30
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/keys.js:1
+-import { Queue } from "@vivalence/typology";
+-
+-const NAMES = { escape: "esc", return: "enter", linefeed: "enter" };
+-
+-const named = (event) => (Object.hasOwn(NAMES, event.name) ? NAMES[event.name] : event.name);
+-
+-const PRINTABLE = /^[^\p{C}\s]+$/u;
+-
+-export const LEADER = "ctrl-v";
+-
+-const CHORDS = [
+-  [(event) => event.ctrl && !event.shift && event.name === "v", () => "leader"],
+-  [(event) => event.ctrl, (event) => `ctrl-${named(event)}`],
+-  [(event) => event.meta, (event) => `meta-${named(event)}`],
+-  [(event) => PRINTABLE.test(event.sequence), (event) => event.sequence],
+-  [() => true, named],
+-];
+-
+-export const press = (event) => ({ key: CHORDS.find(([test]) => test(event))[1](event) });
+-
+-export const keypresses = (renderer) => {
+-  const queue = new Queue();
+-  const listener = (event) => queue.enqueue(press(event));
++export const keypresses = (renderer, client) => {
++  const listener = (event) => client.terminal.legend.dispatch(event);
+   renderer.keyInput.on("keypress", listener);
+-  renderer.once("destroy", () => {
+-    renderer.keyInput.off("keypress", listener);
+-    queue.close();
+-  });
+-  return queue;
++  renderer.once("destroy", () => renderer.keyInput.off("keypress", listener));
+ };
+#+END_SRC
+**** surfaces/chrome/panes
+***** chrome.jsx — Q3 · m99 Q30 · m99 Q20 · m99 r1
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:4
+ import { RGBA, TextAttributes } from "@opentui/core";
+-import { belt, mime } from "@vivalence/typology";
++import { KeySignal, belt, mime } from "@vivalence/typology";
+ import * as view from "../../../gestalten/belt/view.js";
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:8
+ import { act, prefill } from "../acts.js";
+-import { press } from "../keys.js";
+ import { type } from "../typing.js";
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:24
+   [(client) => !client.runtime.lighthouse.isAuthorized && settled(client.runtime.lighthouse), "signin"],
+-  [(client) => !client.runtime.lighthouse.isAuthorized || client.active === null, "booting"],
++  [(client) => !client.runtime.lighthouse.isAuthorized || client.terminal === null, "booting"],
+   [() => true, "regions"],
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:68
+     if (key.defaultPrevented || key.ctrl || key.meta) return;
+-    type(client, props.world(), press(key));
++    type(client, props.world(), { key: new KeySignal(key).nature });
+   });
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:79
+           <box style={{ position: "absolute", left: held.x, top: held.y, width: held.w, height: held.h, flexDirection: "column" }}>
+-            <Mounted terminal={client.active} buffer={held.buffer} views={held.views} place="frame" client={client} />
++            <Mounted terminal={client.terminal} buffer={held.buffer} views={held.views} place="frame" client={client} />
+           </box>
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:109
+     client.runtime.entities.activity.$entities,
+-    client.$active,
+-    belt.atom.chain(client.$active, "$thread"),
+-    belt.atom.chain(client.$active, "$thread", "$turns"),
++    client.$terminal,
++    belt.atom.chain(client.$terminal, "$thread"),
++    belt.atom.chain(client.$terminal, "$thread", "$turns"),
+     client.runtime.$status,
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:115
+     client.runtime.lighthouse.$user,
+-    client.$chord,
+-    client.$catalog,
++    belt.atom.chain(client.$terminal, "legend", "$chord"),
++    belt.atom.chain(client.$terminal, "repl", "$catalog"),
+     ...["$shell", "$sidebar", "$sidebarWidth", "$phonePane", "$focus", "$jsel", "$tele", "$wid", "$float", "$sections", "$draft", "$sel", "$clock"].map((name) => surface[name]),
+   ].map((store) => from(store));
+-  const buffer = from(belt.atom.chain(client.$active, "$buffer"));
+-  const buffers = from(belt.atom.chain(client.$active, "$thread", "$buffers"));
+-  const records = from(belt.atom.chain(client.$active, (held) => (held === null ? null : computed(held.controller.stdout.$history, (history) => history.filter((record) => ["log", "fault"].includes(record.track))))));
++  const buffer = from(belt.atom.chain(client.$terminal, "$buffer"));
++  const buffers = from(belt.atom.chain(client.$terminal, "$thread", "$buffers"));
++  const records = from(belt.atom.chain(client.$terminal, (held) => (held === null ? null : computed(held.controller.stdout.$history, (history) => history.filter((record) => ["log", "fault"].includes(record.track))))));
+   const traced = from(computed(client.controller.stdout.$history, (held) => held.filter((record) => TRACKS.includes(record.track))));
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:144
+   });
+-  const catalog = from(client.$catalog);
++  const catalog = from(belt.atom.chain(client.$terminal, "repl", "$catalog"));
+   createEffect(on(catalog, (held) => prefill(client, held)));
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:157
+   const runtime = from(props.client.$runtime);
+-  const active = from(props.client.$active);
++  const active = from(props.client.$terminal);
+   const status = from(belt.atom.chain(props.client.$runtime, "lighthouse", "$status"));
+#+END_SRC
+***** index.js — m99 Q24 (re-cut 10-24: m98 keeps the named barrel, the m103 split)
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/index.js:6
+ export { paintWid, WIDTH } from "./wid.js";
+-export { paintPanel, completions, edgeLabel, edgesOf, HIDDEN, HINTS, KCOL, match, NAMED, panelHeight, SUBJECTS } from "./panel.js";
++export { paintPanel, completions, edgeLabel, edgesOf, HIDDEN, HINTS, KCOL, match, panelHeight } from "./panel.js";
+ export { paintFrame, BODIES, EMPTY } from "./frame.js";
+#+END_SRC
+***** panel.js — m99 Q24 · m99 Q38
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/panes/panel.js:5
+-
+-export const SUBJECTS = [
+-  { k: "e", id: "entity", valence: "where am I" },
+-  { k: "a", id: "activity", valence: "is it working" },
+-  { k: "h", id: "harness", valence: "what is it given" },
+-  { k: "d", id: "display", valence: "how do I see it" },
+-  { k: "x", id: "box", valence: "mic · speaker · theme" },
+-  { k: "s", id: "system", valence: "what does it run on" },
+-  { k: "c", id: "control", valence: "how do I say it" },
+-  { k: "g", id: "go", valence: "focus a region" },
+-  { k: "m", id: "mode", valence: "the seated mode’s keys" },
+-];
+-
+-export const NAMED = { "?": "help", q: "quit", ":": "repl", leader: "palette" };
+
+ export const HIDDEN = ["leader", ":"];
+…
+// systems/ghost/surfaces/chrome/panes/panel.js:23
+
+-const subjectOf = (key) => SUBJECTS.find((subject) => subject.k === key);
++const VALENCES = [
++  [(node) => node.effect !== undefined && node.effect.valence !== undefined, (node) => node.effect.valence],
++  [(node) => node.meta !== undefined && node.meta.valence !== undefined, (node) => node.meta.valence],
++  [() => true, () => ""],
++];
+
+-const valenceOf = (edge) => (edge.pattern.valence === undefined ? "" : edge.pattern.valence);
++const valenceOf = (node) => VALENCES.find(([test]) => test(node))[1](node);
+
+…
+// systems/ghost/surfaces/chrome/panes/panel.js:29
+   [(key, valence) => valence.includes(" · "), (key, valence) => [valence.split(" · ")[0], valence.split(" · ").slice(1).join(" · ")]],
+-  [(key, valence, leaf) => !leaf && subjectOf(key) !== undefined, (key) => [subjectOf(key).id, subjectOf(key).valence]],
+-  [(key) => Object.hasOwn(NAMED, key), (key, valence) => [NAMED[key], valence]],
+-  [() => true, (key, valence) => [key, valence]],
++  [() => true, (key, valence) => [valence, ""]],
+ ];
+
+-export const edgesOf = (node) => [...node.trie.entries()].map(([key, edge]) => ({ key, valence: valenceOf(edge), leaf: edge.trajectory.trie.size === 0 }));
++export const edgesOf = (node) => Object.entries(node.branches).map(([key, child]) => ({ key, valence: valenceOf(child) }));
+
+-export const edgeLabel = (edge) => LABELS.find(([test]) => test(edge.key, edge.valence, edge.leaf))[1](edge.key, edge.valence);
++export const edgeLabel = (edge) => LABELS.find(([test]) => test(edge.key, edge.valence))[1](edge.key, edge.valence);
+
+…
+// systems/ghost/surfaces/chrome/panes/panel.js:144
+     }
+-    const subject = crumbs.length === 2 ? subjectOf(crumbs[1]) : undefined;
+-    head(subject === undefined ? crumbs.at(-1) : subject.id, chordText(crumbs), subject === undefined ? "" : `${subject.id} · ${subject.valence}`);
++    const [tag] = edgeLabel({ key: crumbs.at(-1), valence: valenceOf(n) });
++    head(tag === "" ? crumbs.at(-1) : tag, chordText(crumbs), valenceOf(n));
+     edgesOf(n).forEach((r) => {
+#+END_SRC
+**** surfaces/chrome
+***** screen.js — Q4 · m102 walk
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/screen.js:14
++
++export const forgetting = (client) =>
++  client.runtime.lighthouse.$status.listen((status) => {
++    if (status.code === "LOGGED_OUT") client.surface.$signin.set({ ...SIGNIN, user: client.surface.signin.user, field: "pass" });
++  });
+
+ export const FLOAT = { float: null, min: false };
+
+#+END_SRC
+***** typing.js — Q3
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/typing.js:17
+ const submitted = (client, line) => {
+-  client.$catalog.set(null);
++  client.terminal.repl.$catalog.set(null);
+   draft(client, "");
+…
+// systems/ghost/surfaces/chrome/typing.js:85
+       draft(client, world.draft.slice(0, -1));
+-      if (!client.surface.draft.startsWith("/")) client.$catalog.set(null);
++      if (!client.surface.draft.startsWith("/")) client.terminal.repl.$catalog.set(null);
+     },
+#+END_SRC
+***** world.js — Q0 · Q3 · m99 Q20 (tty legend split unruled) · m99 r1
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/world.js:23
+   const surface = client.surface;
+-  const terminal = client.active;
++  const terminal = client.terminal;
+   const thread = terminal.thread;
+…
+// systems/ghost/surfaces/chrome/world.js:59
+     clock: surface.clock,
+-    chord: client.chord,
+-    catalog: client.catalog,
++    chord: terminal.legend.chord === null ? null : { crumbs: terminal.legend.presses.backlog.map((signal) => signal.nature), node: terminal.legend.chord },
++    catalog: terminal.repl.catalog,
+     views,
+#+END_SRC
+**** tests/gestalten/shard
+***** keymap.test.js — m99 Q18″ · m99 Q26 (new)
+#+BEGIN_SRC js
+// systems/ghost/tests/gestalten/shard/keymap.test.js
+import { Vector, shape, specimen, v } from "@vivalence/typology";
+import * as ghost from "@vivalence/ghost";
+
+const commands = () => new Vector().open({ nature: "/mode", valence: "pick", chord: "leader/m" }, () => "picked").open({ nature: "/quit", valence: "leave" }, () => "left");
+
+specimen.it("fromRepl folds a chord: into an edge whose effect is the line; a command without one is left out", () => {
+  const stripped = shape.strip(ghost.shard.keymap.fromRepl(commands())).branches;
+  specimen.expect(Object.keys(stripped)).toEqual(["leader"]);
+  specimen.expect(stripped.leader.branches.m.effect).toEqual({ valence: "/mode" });
+});
+
+specimen.it("catalog rolls the repl up into rows — nature and chord, an empty chord for an unbound command", () => {
+  specimen.expect(ghost.shard.keymap.catalog(commands())).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
+});
+
+specimen.it("catalog lists a command's options: the words of its first input's enum, none for a free word or no input", () => {
+  const repl = new Vector()
+    .open({ nature: "/dock", valence: "the dock", input: v.object({ word: v.enum(["left", "closed"]).desc('A word. Example: "closed"') }) }, () => "docked")
+    .open({ nature: "/split", valence: "the share", input: v.object({ share: v.number().desc("A share. Example: 0.5") }) }, () => "split");
+  specimen.expect(ghost.shard.keymap.catalog(repl).map((entry) => [entry.nature, entry.options])).toEqual([["/dock", ["left", "closed"]], ["/split", []]]);
+});
+#+END_SRC
+**** tests/scenarios
+***** look.js — Q1 · Q2 · m99 Q38 · m99 r1 (the leader grid's ? q m)
+#+BEGIN_SRC diff
+// systems/ghost/tests/scenarios/look.js:37
+ export const world = ({ buffered = false, authorized = true } = {}) => {
++  Deno.stdin.isTerminal = () => true;
+   const root = new Controller({ stdout: new Span("ghost") });
+   const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [], trait: {} };
+   const surface = screen({ kind: "tty", places: ["cell", "frame"], dark: true });
+   const client = new ghost.client.Client({ controller: root.branch("client"), mask, register: { modes: [] }, instance: null, surface });
+…
+// systems/ghost/tests/scenarios/look.js:76
+   if (buffered) terminal.$buffer.set(accounts);
+-  client.$active.set(terminal);
+-  terminal.repl.commands.graft(...Object.values(ghost.client.commands), ...Object.values(ghost.terminal.commands));
+-  client.keymap.graft(ghost.client.keymap.keymap);
++  client.$terminal.set(terminal);
+   if (authorized) {
+…
+// systems/ghost/tests/scenarios/look.js:203
+       " ctrl-v  once = keys · twice = the palette                            esc drops ",
+-      "  ?   help      /help                    s   system    what does it run on      ",
+-      "  q   quit      /quit                    d   display   how do I see it          ",
++      "  ?   /help                              s   system    what does it run on      ",
++      "  q   /quit                              d   display   how do I see it          ",
+       "  e   entity    where am I               a   activity  is it working            ",
+-      "  h   harness   what is it given         m   m         /mode                    ",
++      "  h   harness   what is it given         m   /mode                              ",
+       "                                                                                ",
+…
+// systems/ghost/tests/scenarios/look.js:212
+     tones: {
+-      17: ["0+1 0:text-ink 0:surface-lift", "1+5 0:signal-primary-ink 0:surface-lift b", "6+10 0:text-ink 0:surface-lift", "16+5 0:text-muted 0:surface-lift", "21+19 0:text-ink 0:surface-lift", "40+5 0:signal-primary-ink 0:surface-lift b", "45+10 0:text-ink 0:surface-lift", "55+19 0:text-muted 0:surface-lift", "74+6 0:text-ink 0:surface-lift"],
+-      18: ["0+1 0:text-ink 0:surface-lift", "1+5 0:signal-primary-ink 0:surface-lift b", "6+10 0:text-ink 0:surface-lift", "16+5 0:text-muted 0:surface-lift", "21+19 0:text-ink 0:surface-lift", "40+5 0:signal-primary-ink 0:surface-lift b", "45+10 0:text-ink 0:surface-lift", "55+15 0:text-muted 0:surface-lift", "70+10 0:text-ink 0:surface-lift"],
++      17: ["0+1 0:text-ink 0:surface-lift", "1+5 0:signal-primary-ink 0:surface-lift b", "6+34 0:text-ink 0:surface-lift", "40+5 0:signal-primary-ink 0:surface-lift b", "45+10 0:text-ink 0:surface-lift", "55+19 0:text-muted 0:surface-lift", "74+6 0:text-ink 0:surface-lift"],
++      18: ["0+1 0:text-ink 0:surface-lift", "1+5 0:signal-primary-ink 0:surface-lift b", "6+34 0:text-ink 0:surface-lift", "40+5 0:signal-primary-ink 0:surface-lift b", "45+10 0:text-ink 0:surface-lift", "55+15 0:text-muted 0:surface-lift", "70+10 0:text-ink 0:surface-lift"],
+     },
+#+END_SRC
+**** tests/subjects/client
+***** client.test.js — Q5 · m99 Q22 · m99 r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/client.test.js:45
+   specimen.it("a terminal lands on HOME; /modes lists the hosts' modes; /mode srs/memo sets the memo thread; many matches answer the candidates", async () => {
+-    await eventually(() => clientDie.active !== null && clientDie.active.thread !== null, 30000);
+-    specimen.expect(clientDie.active.mode.reference.absolute).toBe("/runtime/house/mode/home/probe");
+-    specimen.expect((await clientDie.active.repl.dispatch("/modes")).map((row) => row.reference)).toEqual(specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]));
+-    specimen.expect(await clientDie.active.repl.dispatch("/mode srs/memo")).toMatch(/^\/daemon\/memo\/mode\/srs\/memo · thread #/);
+-    specimen.expect(await clientDie.active.repl.dispatch("/mode mode")).toEqual({ which: specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]) });
++    await eventually(() => clientDie.terminal !== null && clientDie.terminal.thread !== null, 30000);
++    specimen.expect(clientDie.terminal.mode.reference.absolute).toBe("/runtime/house/mode/home/probe");
++    specimen.expect((await clientDie.terminal.repl.dispatch("/modes")).map((row) => row.reference)).toEqual(specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]));
++    specimen.expect(await clientDie.terminal.repl.dispatch("/mode srs/memo")).toMatch(/^\/daemon\/memo\/mode\/srs\/memo · thread #/);
++    specimen.expect(await clientDie.terminal.repl.dispatch("/mode mode")).toEqual({ which: specimen.expect.arrayContaining(["/runtime/house/mode/home/probe", "/daemon/memo/mode/srs/memo"]) });
+   });
+
+-  specimen.it("a bare line on a harnessed thread lands two turns in the thread's $turns — the reply merged as it streams, the persisted row landing under the same id; /mode/memo/harness reaches memo by name; on another thread the bare line faults", async () => {
+-    const thread = clientDie.active.thread;
++  specimen.it("a bare line on a harnessed thread lands two turns in the thread's $turns — the reply merged as it streams, the persisted row landing under the same id; /harness reaches the attached mode, memo; on another thread the bare line faults", async () => {
++    const thread = clientDie.terminal.thread;
+     const landed = () => thread.$turns.get().filter((turn) => turn.createdAt !== undefined);
+-    await clientDie.active.repl.dispatch("ciao");
++    await clientDie.terminal.repl.dispatch("ciao");
+     await eventually(() => landed().length >= 2, 30000);
+…
+// systems/ghost/tests/subjects/client/client.test.js:59
+     specimen.expect(clientDie.controller.stdout.history.filter((record) => ["turn", "stream"].includes(record.track))).toEqual([]);
+-    await clientDie.active.repl.dispatch("/mode/memo/harness ciao");
++    await clientDie.terminal.repl.dispatch("/harness ciao");
+     await eventually(() => landed().length >= 4, 30000);
+     specimen.expect(thread.$turns.get().map((turn) => turn.role)).toEqual(["user", "assistant", "user", "assistant"]);
+-    await clientDie.active.repl.dispatch("/mode probe");
+-    await clientDie.active.repl.dispatch("ciao").catch(() => {});
++    await clientDie.terminal.repl.dispatch("/mode probe");
++    await clientDie.terminal.repl.dispatch("ciao").catch(() => {});
+     specimen.expect(clientDie.controller.stdout.history.filter((record) => ["fault"].includes(record.track)).at(-1).data.code).toBe("NOT_FOUND");
+…
+// systems/ghost/tests/subjects/client/client.test.js:68
+   specimen.it("/application/start on a mode without APPLICATION faults loud, mints nothing; on memo it sets the terminal's buffer; /application/stop clears it", async () => {
+-    await clientDie.active.repl.dispatch("/mode probe");
+-    await clientDie.active.repl.dispatch("/application/start");
++    await clientDie.terminal.repl.dispatch("/mode probe");
++    await clientDie.terminal.repl.dispatch("/application/start");
+     specimen.expect(clientDie.controller.stdout.history.filter((record) => ["fault"].includes(record.track)).at(-1).data.message).toMatch(/not an APPLICATION — its traits: RUNTIME · EXPOSED · TOOLING · DATASET/);
+-    specimen.expect(clientDie.active.buffer).toBe(null);
+-    await clientDie.active.repl.dispatch("/mode srs/memo");
+-    specimen.expect(await clientDie.active.repl.dispatch("/application/start")).toMatch(/^application \/daemon\/memo\/mode\/srs\/memo · buffer #/);
+-    specimen.expect(clientDie.active.buffer).not.toBe(null);
+-    specimen.expect(clientDie.active.mode.application.bundle.entries.map((entry) => entry.mime)).toContain(mime.tty.solid);
+-    specimen.expect(await clientDie.active.repl.dispatch("/application/stop")).toBe("frame closed");
+-    specimen.expect(clientDie.active.buffer).toBe(null);
++    specimen.expect(clientDie.terminal.buffer).toBe(null);
++    await clientDie.terminal.repl.dispatch("/mode srs/memo");
++    specimen.expect(await clientDie.terminal.repl.dispatch("/application/start")).toMatch(/^application \/daemon\/memo\/mode\/srs\/memo · buffer #/);
++    specimen.expect(clientDie.terminal.buffer).not.toBe(null);
++    specimen.expect(clientDie.terminal.mode.application.bundle.entries.map((entry) => entry.mime)).toContain(mime.tty.solid);
++    specimen.expect(await clientDie.terminal.repl.dispatch("/application/stop")).toBe("frame closed");
++    specimen.expect(clientDie.terminal.buffer).toBe(null);
+   });
+#+END_SRC
+***** console.test.js — Q1 · Q2 · m99 Q22 · m99 r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/console.test.js:1
+ import { atom, computed } from "nanostores";
+-import { Controller, Path, Queue, Span, Vector, shape, shard, specimen, steer } from "@vivalence/typology";
++import { Controller, Path, Span, Vector, shape, shard, specimen, steer } from "@vivalence/typology";
+ import { accio } from "@vivalence/runtime/scenarios";
+…
+// systems/ghost/tests/subjects/client/console.test.js:5
+
+-const { modes, keymap, surface } = ghost.client.lifecycle;
++const { modes, surface } = ghost.client.lifecycle;
+ const execution = new Vector().use(shard.controller.open).use(modes).use(surface).do(shard.controller.hold);
+
++Deno.stdin.isTerminal = () => false;
++
+…
+// systems/ghost/tests/subjects/client/console.test.js:10
+   clientDie.runtime = { entities: { mode: { $entities: atom([]) } } };
+-  const isTerminal = Deno.stdin.isTerminal;
+-  Deno.stdin.isTerminal = () => false;
+-  try {
+-    const terminal = Object.assign(new ghost.terminal.Terminal(), { id: "t1", index: 0, client: clientDie, runtime: clientDie.runtime });
+-    await ghost.terminal.factory(terminal)(clientDie);
+-    return terminal;
+-  } finally {
+-    Deno.stdin.isTerminal = isTerminal;
+-  }
++  const terminal = Object.assign(new ghost.terminal.Terminal(), { id: "t1", index: 0, client: clientDie, runtime: clientDie.runtime });
++  await ghost.terminal.factory(terminal)(clientDie);
++  return terminal;
+ };
+
+-specimen.describe("a hosted mode lends its verbs to the terminal's repl — REPLING, grafted at the terminal's boot", () => {
++specimen.describe("a hosted mode lends its commands to the terminal's repl — REPLING, read at every dispatch", () => {
+   const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [] };
+…
+// systems/ghost/tests/subjects/client/console.test.js:40
+
+-specimen.describe("a KEYMAPPED client mode lends its keys — the keymap beat grafts them at the root; the terminal's keymap harvests its repl's chords", () => {
++specimen.describe("a KEYMAPPED client mode lends its keys — legend.keymap grafts them at the root beside the harvest of the repl's chords", () => {
+   const mask = { manifest: { type: "client", slug: "ghost", traits: [] }, reference: new Path("/client/ghost"), modes: [] };
+…
+// systems/ghost/tests/subjects/client/console.test.js:44
+   const mounted = Promise.withResolvers();
+   const clientDie = new ghost.client.Client({ controller: root.branch("client"), mask, register: null, instance: null, surface: () => { mounted.resolve(); return () => {}; } });
+-  const keyed = new Vector().use(shard.controller.open).use(modes).use(keymap).use(surface).do(shard.controller.hold);
+
+-  specimen.it("leader/h sits beside the repl's chords in the terminal's keymap; leader h on the terminal dispatches /hello", async () => {
++  specimen.it("leader/h sits beside the repl's chords in legend.keymap; leader h on the terminal dispatches /hello", async () => {
+     clientDie.register = { modes: [await accio({ module: "@commons/home/console", reference: new Path("/mode/home/console") })] };
+-    const held = steer.dispatch.execute(keyed, clientDie);
++    const held = steer.dispatch.execute(execution, clientDie);
+     await mounted.promise;
+     const terminal = await seated(clientDie);
+-    const leader = shape.strip(terminal.keymap).branches.leader.branches;
++    const leader = shape.strip(terminal.legend.keymap).branches.leader.branches;
+     specimen.expect(Object.keys(leader)).toEqual(specimen.expect.arrayContaining(["?", "leader", "h"]));
+…
+// systems/ghost/tests/subjects/client/console.test.js:56
+     specimen.expect(leader.h.effect).toEqual({ valence: "hello. Example: ctrl-v h" });
+-    const queue = new Queue().enqueue({ key: "leader" }).enqueue({ key: "h" });
+-    await ghost.client.keymap.navigate(terminal, queue.drain());
++    terminal.legend.dispatch("leader");
++    terminal.legend.dispatch("h");
++    await new Promise((wake) => setTimeout(wake, 50));
+     specimen.expect(clientDie.controller.stdout.history.filter((record) => ["stop"].includes(record.track)).map((record) => record.path)).toContainEqual(["ghost", "client", "terminal/t1", "/hello"]);
+#+END_SRC
+***** keymap.test.js — Q1 · Q2 · Q3 · m99 Q22 · m99 r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/keymap.test.js:1
+-import { Queue, Vector, is, shape, specimen, v } from "@vivalence/typology";
++import { Vector, shape, specimen } from "@vivalence/typology";
+ import { atom } from "nanostores";
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:4
+
+-const faults = [];
+-const stub = () => ({
+-  commands: new Vector().open({ nature: "/mode", valence: "pick", chord: "leader/m" }, () => "picked").open({ nature: "/quit", valence: "leave" }, () => "left"),
+-  keymap: new Vector(),
+-  modes: {},
+-  active: null,
+-  $chord: atom(null),
+-  $catalog: atom(null),
+-  surface: { $draft: atom(""), $focus: atom("composer"), get draft() { return this.$draft.get(); } },
+-  dispatched: [],
+-  controller: { stdout: { fault: (error) => faults.push(error.code) } },
+-  record(line) {
+-    this.dispatched.push(is.string(line) ? line : line.pathname);
++const settled = () => new Promise((wake) => setTimeout(wake, 0));
++
++const seat = (commands) => {
++  const client = {
++    modes: {},
++    surface: { $draft: atom(""), $focus: atom("composer"), get draft() { return this.$draft.get(); } },
++    dispatched: [],
++    faults: [],
++    controller: { stdout: { fault: (error) => client.faults.push(error.message) } },
++  };
++  const terminal = Object.assign(new ghost.terminal.Terminal(), { client });
++  Object.defineProperty(terminal.repl, "commands", { get: () => commands });
++  terminal.repl.dispatch = (line) => {
++    client.dispatched.push(line);
+     return Promise.resolve();
+-  },
+-});
+-const presses = (...keys) => keys.reduce((queue, key) => queue.enqueue({ key }), new Queue());
+-const seat = (client) => {
+-  const terminal = Object.assign(new ghost.terminal.Terminal(), { client });
+-  terminal.repl.commands = client.commands;
+-  terminal.repl.dispatch = (line) => client.record(line);
+-  client.active = terminal;
++  };
+   return terminal;
+ };
++const press = (terminal, ...keys) => {
++  for (const key of keys) terminal.legend.dispatch(key);
++  return settled();
++};
++const commands = () => new Vector().open({ nature: "/mode", valence: "pick", chord: "leader/m" }, () => "picked").open({ nature: "/quit", valence: "leave" }, () => "left");
+
+-specimen.it("harvest folds a chord: into an edge whose effect is the line; a verb without one is left out", () => {
+-  const stripped = shape.strip(ghost.client.keymap.harvest(stub().commands)).branches;
+-  specimen.expect(Object.keys(stripped)).toEqual(["leader"]);
+-  specimen.expect(stripped.leader.branches.m.effect).toEqual({ valence: "/mode" });
++specimen.it("legend.keymap: the repl's chords, the client's keymap, the hosted modes' keymaps, then the thread mode's keymap at the root — later wins; read at every call", () => {
++  const terminal = seat(new Vector().open({ nature: "/modes", valence: "list", chord: "leader/l" }, () => []));
++  terminal.client.modes = { home: { console: { keymap: new Vector().open({ nature: "leader/m", valence: "the hosted mode's" }, "/mode") } } };
++  specimen.expect(Object.keys(shape.strip(terminal.legend.keymap).branches.leader.branches)).toEqual(["l", "leader", "e", "a", "h", "d", "s", "m"]);
++  terminal.thread = { mode: { repl: new Vector(), keymap: new Vector().open({ nature: "leader/h", valence: "hello" }, "/hello").open({ nature: "leader/m", valence: "the mode's" }, "/modes") } };
++  const stripped = shape.strip(terminal.legend.keymap).branches.leader.branches;
++  specimen.expect(Object.keys(stripped)).toEqual(["l", "leader", "e", "a", "h", "d", "s", "m"]);
++  specimen.expect(stripped.m.effect).toEqual({ valence: "the mode's" });
++  specimen.expect(stripped.h.effect).toEqual({ valence: "hello" });
++  terminal.thread = { mode: "/daemon/elsewhere/mode/x/y" };
++  specimen.expect(shape.strip(terminal.legend.keymap).branches.leader.branches.m.effect).toEqual({ valence: "the hosted mode's" });
+ });
+
+-specimen.it("catalog rolls the repl up into rows — nature and chord, an empty chord for an unbound verb", () => {
+-  specimen.expect(ghost.client.keymap.catalog(stub().commands)).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
++specimen.it("the client's keymap declares its groups under leader with a valence, the palette at leader leader, esc at the root", () => {
++  const leader = shape.strip(ghost.client.keymap).branches.leader;
++  specimen.expect(leader.meta).toEqual({ valence: "the leader — ctrl-v on a tty" });
++  specimen.expect(Object.keys(leader.branches)).toEqual(["leader", "e", "a", "h", "d", "s"]);
++  specimen.expect(leader.branches.d.meta).toEqual({ valence: "display · how do I see it" });
++  specimen.expect(Object.keys(shape.strip(ghost.client.keymap).branches)).toEqual(["esc", "leader"]);
+ });
+
+-specimen.it("catalog lists a verb's options: the words of its first input's enum, none for a free word or no input", () => {
+-  const repl = new Vector()
+-    .open({ nature: "/dock", valence: "the dock", input: v.object({ word: v.enum(["left", "closed"]).desc('A word. Example: "closed"') }) }, () => "docked")
+-    .open({ nature: "/split", valence: "the share", input: v.object({ share: v.number().desc("A share. Example: 0.5") }) }, () => "split");
+-  specimen.expect(ghost.client.keymap.catalog(repl).map((entry) => [entry.nature, entry.options])).toEqual([["/dock", ["left", "closed"]], ["/split", []]]);
++specimen.it("leader m dispatches /mode; leader esc · leader x · q at the root drop silently", async () => {
++  const terminal = seat(commands());
++  await press(terminal, "leader", "m");
++  specimen.expect(terminal.client.dispatched).toEqual(["/mode"]);
++  await press(terminal, "leader", "esc", "leader", "x", "q");
++  specimen.expect([terminal.client.dispatched, terminal.client.faults, terminal.legend.chord]).toEqual([["/mode"], [], null]);
+ });
+
+-specimen.it("the terminal's $keymap: the repl's chords, the client's keymap, then the thread mode's keymap at the root — later wins; it follows $thread", () => {
+-  const client = stub();
+-  client.keymap.open({ nature: "leader/m", valence: "the client's" }, "/mode");
+-  const terminal = seat(client);
+-  terminal.repl.commands = new Vector().open({ nature: "/modes", valence: "list", chord: "leader/l" }, () => []);
+-  specimen.expect(Object.keys(shape.strip(terminal.keymap).branches.leader.branches)).toEqual(["l", "m"]);
+-  terminal.thread = { mode: { keymap: new Vector().open({ nature: "leader/h", valence: "hello" }, "/hello").open({ nature: "leader/m", valence: "the mode's" }, "/modes") } };
+-  const stripped = shape.strip(terminal.keymap).branches.leader.branches;
+-  specimen.expect(Object.keys(stripped)).toEqual(["l", "m", "h"]);
+-  specimen.expect(stripped.m.effect).toEqual({ valence: "the mode's" });
+-  terminal.thread = { mode: "/daemon/elsewhere/mode/x/y" };
+-  specimen.expect(Object.keys(shape.strip(terminal.keymap).branches.leader.branches)).toEqual(["l", "m"]);
++specimen.it("a held node is painted on the legend's $chord — the stripped node — and cleared when the walk ends; leader leader sets the catalog on the repl's $catalog", async () => {
++  const terminal = seat(commands());
++  terminal.legend.dispatch("leader");
++  specimen.expect(terminal.legend.presses.backlog.map((signal) => signal.nature)).toEqual(["leader"]);
++  specimen.expect(Object.keys(terminal.legend.chord.branches)).toEqual(["m", "leader", "e", "a", "h", "d", "s"]);
++  await press(terminal, "leader");
++  specimen.expect(terminal.legend.chord).toBe(null);
++  specimen.expect(terminal.repl.$catalog.get()).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
++  specimen.expect(terminal.client.dispatched).toEqual([]);
+ });
+-
+-specimen.it("navigate: leader m dispatches /mode; leader esc drops silently; leader x faults; q at the root is the widget's; a closed drain ends the walk", async () => {
+-  const client = stub();
+-  client.keymap.graft(ghost.client.keymap.harvest(client.commands), ghost.client.keymap.keymap);
+-  const terminal = seat(client);
+-  const queue = presses("leader", "m", "leader", "esc", "leader", "x", "q");
+-  const drain = queue.drain();
+-  specimen.expect(await ghost.client.keymap.navigate(terminal, drain)).toBe(true);
+-  specimen.expect(client.dispatched).toEqual(["/mode"]);
+-  await ghost.client.keymap.navigate(terminal, drain);
+-  specimen.expect(faults).toEqual([]);
+-  await ghost.client.keymap.navigate(terminal, drain);
+-  specimen.expect(faults).toEqual(["NOT_FOUND"]);
+-  await ghost.client.keymap.navigate(terminal, drain);
+-  specimen.expect(faults).toEqual(["NOT_FOUND"]);
+-  specimen.expect(client.$chord.get()).toBe(null);
+-  queue.close();
+-  specimen.expect(await ghost.client.keymap.navigate(terminal, drain)).toBe(false);
+-  specimen.expect(client.dispatched).toEqual(["/mode"]);
+-});
+-
+-specimen.it("a held node is painted on $chord — crumbs and the node — and cleared when the walk ends; leader leader sets the catalog on $catalog", async () => {
+-  const client = stub();
+-  client.keymap.graft(ghost.client.keymap.harvest(client.commands), ghost.client.keymap.keymap);
+-  const terminal = seat(client);
+-  const queue = presses("leader");
+-  const walking = ghost.client.keymap.navigate(terminal, queue.drain());
+-  await new Promise((wake) => setTimeout(wake, 0));
+-  specimen.expect(client.$chord.get().crumbs).toEqual(["leader"]);
+-  specimen.expect([...client.$chord.get().node.trie.keys()]).toEqual(["m", "leader"]);
+-  queue.enqueue({ key: "leader" });
+-  await walking;
+-  specimen.expect(client.$chord.get()).toBe(null);
+-  specimen.expect(client.$catalog.get()).toEqual([{ nature: "/mode", valence: "pick", chord: "leader/m", options: [], args: false }, { nature: "/quit", valence: "leave", chord: "", options: [], args: false }]);
+-  specimen.expect(client.dispatched).toEqual([]);
+-});
+…
+// systems/ghost/tests/subjects/client/keymap.test.js:97
+ specimen.it("KEYMAPPED binds a hosted mode's function effects to ctx.mode; the thread mode's keys walk on its terminal", async () => {
+-  const client = stub();
+-  client.keymap.graft(ghost.client.keymap.keymap);
+-  const mode = { slug: "board", module: { keymap: new Vector().open({ nature: "leader/g/n", valence: "new game" }, (ctx) => (ctx.mode === mode ? "/game/new" : "/unbound")) }, keymap: new Vector() };
++  const mode = { slug: "board", module: { keymap: new Vector().open({ nature: "leader/g/n", valence: "new game" }, (ctx) => (ctx.mode === mode ? "/game/new" : "/unbound")) }, keymap: new Vector(), repl: new Vector() };
+   ghost.entities.mode.traits.KEYMAPPED(mode);
+-  const terminal = seat(client);
++  const terminal = seat(commands());
+   terminal.thread = { mode };
+-  await ghost.client.keymap.navigate(terminal, presses("leader", "g", "n").drain());
+-  specimen.expect(client.dispatched).toEqual(["/game/new"]);
+-  specimen.expect(faults).toEqual(["NOT_FOUND"]);
++  await press(terminal, "leader", "g", "n");
++  specimen.expect([terminal.client.dispatched, terminal.client.faults]).toEqual([["/game/new"], []]);
+ });
+#+END_SRC
+***** rows.test.js — m102 walk
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/client/rows.test.js:35
+   const lighthouse = { $user, get user() { return $user.get(); } };
+-  const clientDie = { runtime: { lighthouse, entities } };
++  const clientDie = { runtime: { lighthouse, entities }, $terminal: atom(entities.terminal.$entities.get()[0] ?? null) };
+   const held = Promise.withResolvers();
+…
+// systems/ghost/tests/subjects/client/rows.test.js:39
+   const ids = (name) => entities[name].$entities.get().map((entity) => entity.id);
+-  return { $user, streams, reads, ids, held, running };
++  return { $user, streams, reads, ids, held, running, clientDie };
+ };
+…
+// systems/ghost/tests/subjects/client/rows.test.js:43
+ specimen.describe("rows — the client is no user's: another user's sign-in flushes the cache and reads theirs", () => {
+-  specimen.it("another user signs in: every store is flushed, read again under the new user, the streams re-opened", async () => {
++  specimen.it("another user signs in: every store is flushed, read again under the new user, the streams re-opened, their first terminal is the active one", async () => {
+     const booted = world();
+…
+// systems/ghost/tests/subjects/client/rows.test.js:52
+     for (const name of NAMES) specimen.expect(booted.ids(name)).toEqual(OWNED.lena[name].map((entity) => entity.id));
++    specimen.expect(booted.clientDie.$terminal.get().id).toBe("t-lena-1");
+     specimen.expect(booted.streams).toEqual({ opened: 10, closed: 5 });
+#+END_SRC
+**** tests/subjects/shell
+***** lifecycle.test.js — m99 Q22 · m99 r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/shell/lifecycle.test.js:79
+     specimen.expect(clientDie).toBeInstanceOf(ghost.client.Client);
+-    await eventually(() => clientDie.active !== null, 30000);
++    await eventually(() => clientDie.terminal !== null, 30000);
+
+#+END_SRC
+**** tests/subjects/terminal
+***** commands.test.js — m99 Q22 · m99 r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/terminal/commands.test.js:99
+   thread.controller = terminal.controller.branch("thread/th1");
+-  client.$active.set(terminal);
++  client.$terminal.set(terminal);
+
+…
+// systems/ghost/tests/subjects/terminal/commands.test.js:119
+     specimen.expect(await run("/terminal/new")).toBe("terminal #1");
+-    specimen.expect(client.active.id).toBe("t2");
++    specimen.expect(client.terminal.id).toBe("t2");
+     specimen.expect(await run("/terminal/close")).toBe("terminal #1 closed");
+-    specimen.expect(client.active).toBe(terminal);
++    specimen.expect(client.terminal).toBe(terminal);
+   });
+#+END_SRC
+***** legend.test.js — Q0 · Q1 · Q3 · Q4 · Q6 · m99 Q20 · m99 Q22 · m99 Q32 · m99 Q39 · m99 Q47′ (new)
+#+BEGIN_SRC js
+// systems/ghost/tests/subjects/terminal/legend.test.js
+import paladin from "@vivalence/paladin";
+import { Vector, specimen } from "@vivalence/typology";
+import { atom } from "nanostores";
+import * as ghost from "@vivalence/ghost";
+
+const settled = () => new Promise((wake) => setTimeout(wake, 0));
+
+const prevented = [];
+const tty = (sequence, name, held = {}) => ({ sequence, name, ctrl: false, meta: false, shift: false, option: false, super: false, ...held, preventDefault: () => prevented.push(name) });
+const ctrlV = tty("\x16", "v", { ctrl: true });
+
+const seat = () => {
+  const client = {
+    modes: {},
+    surface: { $draft: atom(""), $focus: atom("journal"), get draft() { return this.$draft.get(); } },
+    dispatched: [],
+    faults: [],
+    controller: { stdout: { fault: (error) => terminal.client.faults.push(error.message) } },
+  };
+  const terminal = Object.assign(new ghost.terminal.Terminal(), { client });
+  const commands = new Vector()
+    .open({ nature: "/dock", valence: "the dock", chord: "leader/d/d" }, () => "docked")
+    .open({ nature: "/boom", valence: "throws", chord: "leader/a/b" }, () => "boomed");
+  Object.defineProperty(terminal.repl, "commands", { get: () => commands });
+  terminal.repl.dispatch = (line) => {
+    terminal.client.dispatched.push(line);
+    return line === "/boom" ? Promise.reject(new Error("boom")) : Promise.resolve();
+  };
+  return terminal;
+};
+
+const held = (terminal) => terminal.legend.presses.backlog.map((signal) => signal.nature);
+
+specimen.describe("the Legend — a press goes through translation into the queue; the queue walks its terminal's keymap", () => {
+  specimen.it("ctrl-v holds the leader: the queue holds leader, $chord is its stripped node", () => {
+    const terminal = seat();
+    terminal.legend.dispatch(ctrlV);
+    specimen.expect(held(terminal)).toEqual(["leader"]);
+    specimen.expect(Object.keys(terminal.legend.chord.branches)).toEqual(["d", "a", "leader", "e", "h", "s"]);
+    specimen.expect(terminal.legend.chord.branches.e.meta).toEqual({ valence: "entity · where am I" });
+  });
+
+  specimen.it("ctrl-v d d runs /dock on its terminal; the queue flushes, $chord is null", async () => {
+    const terminal = seat();
+    for (const key of [ctrlV, "d", "d"]) terminal.legend.dispatch(key);
+    await settled();
+    specimen.expect(terminal.client.dispatched).toEqual(["/dock"]);
+    specimen.expect([held(terminal), terminal.legend.chord]).toEqual([[], null]);
+  });
+
+  specimen.it("ctrl-v ctrl-v opens the palette with / prefilled", async () => {
+    const terminal = seat();
+    for (const key of [ctrlV, ctrlV]) terminal.legend.dispatch(key);
+    await settled();
+    specimen.expect(terminal.repl.$catalog.get().map((entry) => entry.nature)).toEqual(["/dock", "/boom"]);
+    specimen.expect([terminal.client.surface.$draft.get(), terminal.client.surface.$focus.get(), terminal.legend.chord]).toEqual(["/", "composer", null]);
+  });
+
+  specimen.it("ctrl-v esc is a dead end: flushed, nothing runs; esc at the root drops the catalog", async () => {
+    const terminal = seat();
+    for (const key of [ctrlV, "esc"]) terminal.legend.dispatch(key);
+    await settled();
+    specimen.expect([held(terminal), terminal.legend.chord, terminal.client.dispatched]).toEqual([[], null, []]);
+    terminal.repl.$catalog.set([]);
+    terminal.legend.dispatch("esc");
+    await settled();
+    specimen.expect(terminal.repl.$catalog.get()).toBe(null);
+  });
+
+  specimen.it("d at the root is a dead end, then ctrl-v holds a fresh leader", () => {
+    const terminal = seat();
+    terminal.legend.dispatch("d");
+    specimen.expect(held(terminal)).toEqual([]);
+    terminal.legend.dispatch(ctrlV);
+    specimen.expect(held(terminal)).toEqual(["leader"]);
+  });
+
+  specimen.it("a key effect that throws lands on the client's stdout as a fault", async () => {
+    const terminal = seat();
+    for (const key of [ctrlV, "a", "b"]) terminal.legend.dispatch(key);
+    await settled();
+    specimen.expect(terminal.client.faults).toEqual(["boom"]);
+  });
+
+  specimen.it("the leader key prevents the event's default; in a browser off Apple it is meta-v, and ctrl-v is the paste's", () => {
+    const terminal = seat();
+    prevented.length = 0;
+    terminal.legend.dispatch(ctrlV);
+    specimen.expect([held(terminal), prevented]).toEqual([["leader"], ["v"]]);
+    terminal.legend.flush();
+    const is = Object.getOwnPropertyDescriptors(paladin.is);
+    Object.defineProperty(paladin.is, "browser", { get: () => true, configurable: true });
+    Object.defineProperty(paladin.is, "apple", { get: () => false, configurable: true });
+    try {
+      terminal.legend.dispatch(tty("v", "v", { super: true }));
+      specimen.expect(held(terminal)).toEqual(["leader"]);
+      terminal.legend.flush();
+      terminal.legend.dispatch(ctrlV);
+      specimen.expect(held(terminal)).toEqual([]);
+    } finally {
+      Object.defineProperty(paladin.is, "browser", is.browser);
+      Object.defineProperty(paladin.is, "apple", is.apple);
+    }
+  });
+});
+#+END_SRC
+***** repl.test.js — Q2 · Q5
+#+BEGIN_SRC diff
+// systems/ghost/tests/subjects/terminal/repl.test.js:16
+
+-const seated = async (client, id, tty) => {
++const seated = async (client, id) => {
++  const terminal = Object.assign(new ghost.terminal.Terminal(), { id, index: 0, client, runtime: client.runtime });
++  await ghost.terminal.factory(terminal)(client);
++  return terminal;
++};
++
++const on = (tty, read) => {
+   const isTerminal = Deno.stdin.isTerminal;
+…
+// systems/ghost/tests/subjects/terminal/repl.test.js:20
+   try {
+-    const terminal = Object.assign(new ghost.terminal.Terminal(), { id, index: 0, client, runtime: client.runtime });
+-    await ghost.terminal.factory(terminal)(client);
+-    return terminal;
++    return read();
+   } finally {
+…
+// systems/ghost/tests/subjects/terminal/repl.test.js:37
+
+-  specimen.it("/help on a terminal booted on a tty answers with the whole of terminal.repl.commands — the client's, the tty's /shell · /quit, the terminal's", async () => {
+-    terminal = await seated(client, "t1", true);
+-    await terminal.repl.dispatch("/help");
++  specimen.it("/help on a tty answers with the whole of terminal.repl.commands — the client's with the tty's /shell · /quit, the terminal's", async () => {
++    terminal = await seated(client, "t1");
++    await on(true, () => terminal.repl.dispatch("/help"));
+     specimen.expect(tracks(tail)).toEqual(["log", "log"]);
+…
+// systems/ghost/tests/subjects/terminal/repl.test.js:48
+       "/lighthouse/logout",
++      "/quit",
+       "/runtime",
++      "/shell",
+       "/terminal",
+…
+// systems/ghost/tests/subjects/terminal/repl.test.js:52
+       "/terminal/close",
+-      "/shell",
+-      "/quit",
+       "/abort",
+…
+// systems/ghost/tests/subjects/terminal/repl.test.js:106
+
+-  specimen.it("a change of the runtime's mode list rebuilds terminal.repl.commands whole: a new mode answers under /mode/<type>/<slug> and /mode/<slug>, what its repl gains later answers too, a removed mode is gone, the rest is the boot set", async () => {
++  specimen.it("the attached mode's repl sits at the root of terminal.repl.commands, read at every dispatch: what its repl gains later answers too; detached, it is gone; no /mode/<type>/<slug> scope", async () => {
+     const probe = { type: "home", slug: "probe", repl: new Vector().open({ nature: "/ping", valence: "the mode answers. Example: /ping" }, () => "pong") };
+-    client.runtime.entities.mode.$entities.set([probe]);
+-    specimen.expect(await terminal.repl.dispatch("/mode/home/probe/ping")).toBe("pong");
+-    specimen.expect(await terminal.repl.dispatch("/mode/probe/ping")).toBe("pong");
+-    probe.repl.open({ nature: "/late", valence: "wired after the mode joined the list. Example: /late" }, () => "late");
+-    specimen.expect(await terminal.repl.dispatch("/mode/home/probe/late")).toBe("late");
+-    client.runtime.entities.mode.$entities.set([]);
+-    specimen.expect(natures(shape.strip(terminal.repl.commands))).not.toContain("/mode/probe/ping");
+-    specimen.expect(natures(shape.strip(terminal.repl.commands))).toEqual(natures(tail.get().at(1).data));
++    terminal.$thread.set({ mode: probe });
++    specimen.expect(await terminal.repl.dispatch("/ping")).toBe("pong");
++    probe.repl.open({ nature: "/late", valence: "wired after the mode was attached. Example: /late" }, () => "late");
++    specimen.expect(await terminal.repl.dispatch("/late")).toBe("late");
++    specimen.expect(natures(shape.strip(terminal.repl.commands))).not.toContain("/mode/home/probe/ping");
++    terminal.$thread.set(null);
++    specimen.expect(natures(shape.strip(terminal.repl.commands))).not.toContain("/ping");
++    specimen.expect(on(true, () => natures(shape.strip(terminal.repl.commands)))).toEqual(natures(tail.get().at(1).data));
+   });
+
+-  specimen.it("a terminal booted off a tty mounts no /shell and no /quit; everything else is the same", async () => {
+-    const plain = await seated(client, "t2", false);
+-    specimen.expect(natures(shape.strip(plain.repl.commands))).toEqual(natures(shape.strip(terminal.repl.commands)).filter((nature) => nature !== "/shell" && nature !== "/quit"));
+-    plain.controller.abort.abort("test over");
++  specimen.it("off a tty terminal.repl.commands holds no /shell and no /quit; everything else is the same", () => {
++    specimen.expect(on(false, () => natures(shape.strip(terminal.repl.commands)))).toEqual(on(true, () => natures(shape.strip(terminal.repl.commands))).filter((nature) => nature !== "/shell" && nature !== "/quit"));
+   });
+
+-  specimen.it("/quit kills the client; the lifecycle unwinds and settles STOPPED", async () => {
+-    await terminal.repl.dispatch("/quit");
++  specimen.it("/quit on a tty kills the client; the lifecycle unwinds and settles STOPPED", async () => {
++    await on(true, () => terminal.repl.dispatch("/quit"));
+     await held;
+#+END_SRC
+**** tests/surfaces/chrome
+***** bundle.test.js — Q0 · Q3 · m99 Q22 · m99 r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:21
+     held.lighthouse.$authority.set({ access: "a", refresh: "r" });
+-    held.client.$active.set(null);
++    held.client.$terminal.set(null);
+     specimen.expect(panes.pane(held.client)).toBe("booting");
+-    held.client.$active.set(held.terminal);
++    held.client.$terminal.set(held.terminal);
+     specimen.expect(panes.pane(held.client)).toBe("regions");
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:40
+
+-    held.client.$active.set(null);
++    held.client.$terminal.set(null);
+     held.lighthouse.$authority.set({ access: "a", refresh: "r" });
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:45
+
+-    held.client.$active.set(held.terminal);
++    held.client.$terminal.set(held.terminal);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:60
+     held.client.surface.$wid.set(null);
+-    held.client.$chord.set({ crumbs: ["leader"], node: held.terminal.keymap.trie.get("leader").trajectory });
++    held.terminal.legend.dispatch("leader");
+     await settle(setup);
+     specimen.expect(rows(setup)).toEqual(DESIGN["chord-80x24"].lines);
+-    held.client.$chord.set(null);
+-    held.client.$catalog.set(ghost.client.keymap.catalog(held.client.active.repl.commands));
++    held.terminal.legend.flush();
++    held.terminal.repl.$catalog.set(ghost.shard.keymap.catalog(held.client.terminal.repl.commands));
+     held.client.surface.$draft.set("/dock");
+…
+// systems/ghost/tests/surfaces/chrome/bundle.test.js:68
+     specimen.expect(rows(setup)).toEqual(DESIGN["catalog-80x24"].lines);
+-    held.client.$catalog.set(null);
++    held.terminal.repl.$catalog.set(null);
+     held.client.surface.$draft.set("");
+#+END_SRC
+***** keys.test.js — Q4 · m99 Q30 · m99 Q31
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/keys.test.js:3
+ import { parseKeypress } from "@opentui/core";
+-import { Pipe, specimen } from "@vivalence/typology";
++import { KeySignal, specimen } from "@vivalence/typology";
+ import { screen, settle } from "../../scenarios/world.js";
+…
+// systems/ghost/tests/surfaces/chrome/keys.test.js:10
+   ["\x06", "ctrl-f"],
++  ["\x16", "ctrl-v"],
+   ["\x1b", "esc"],
+…
+// systems/ghost/tests/surfaces/chrome/keys.test.js:16
+   ["/", "/"],
++  ["?", "?"],
+   [" ", "space"],
+   ["\t", "tab"],
++  ["\x1b[Z", "shift-tab"],
+   ["\x7f", "backspace"],
+   ["\x1b[A", "up"],
+-  ["\x1bf", "meta-f"],
++  ["\x1bf", "alt-f"],
+ ];
+
+-specimen.describe("press(event) — a keypress becomes { key }", () => {
+-  for (const [sequence, key] of ROWS) {
+-    specimen.it(`${JSON.stringify(sequence)} → ${key}`, () => {
+-      specimen.expect(kit.press(parseKeypress(sequence))).toEqual({ key });
++specimen.describe("KeySignal(ParsedKey) — a tty keypress spells its nature: W3C ctrl alt shift meta, a printable its character", () => {
++  for (const [sequence, nature] of ROWS) {
++    specimen.it(`${JSON.stringify(sequence)} → ${nature}`, () => {
++      specimen.expect(new KeySignal(parseKeypress(sequence)).nature).toBe(nature);
+     });
+…
+// systems/ghost/tests/surfaces/chrome/keys.test.js:31
+
+-specimen.describe("keypresses(renderer) — the renderer's keys as a source a Pipe drains", () => {
+-  specimen.it("ctrl-t · esc · enter · plain chars arrive in order, and the source closes with the renderer", async () => {
++specimen.describe("keypresses(renderer, client) — the renderer's raw keys go to the active terminal's legend as they come", () => {
++  specimen.it("ctrl-t · esc · enter · plain chars reach terminal.legend.dispatch in order; the listener leaves with the renderer", async () => {
+     const setup = await screen();
+-    const source = kit.keypresses(setup.renderer);
+-    const pipe = new Pipe().from(source);
+     const seen = [];
+-    pipe.tap((value) => seen.push(value));
++    const before = setup.renderer.keyInput.listenerCount("keypress");
++    kit.keypresses(setup.renderer, { terminal: { legend: { dispatch: (event) => seen.push(new KeySignal(event).nature) } } });
+     setup.mockInput.pressKey("t", { ctrl: true });
+…
+// systems/ghost/tests/surfaces/chrome/keys.test.js:44
+     await settle(setup);
+-    specimen.expect(seen).toEqual([{ key: "ctrl-t" }, { key: "esc" }, { key: "enter" }, { key: "f" }, { key: "a" }]);
+-    specimen.expect(source.closed).toBe(false);
++    specimen.expect(seen).toEqual(["ctrl-t", "esc", "enter", "f", "a"]);
++    specimen.expect(setup.renderer.keyInput.listenerCount("keypress")).toBe(before + 1);
+     setup.renderer.destroy();
+-    specimen.expect(source.closed).toBe(true);
++    specimen.expect(setup.renderer.keyInput.listenerCount("keypress")).toBe(before);
+   });
+-
+ });
+#+END_SRC
+**** tests/surfaces/chrome/panes
+***** chrome.test.js — Q3 · Q4 · m102 walk · m99 Q22 · m99 r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:1
+ import { specimen } from "@vivalence/typology";
+ import { keypresses } from "../../../../surfaces/chrome/keys.js";
++import { forgetting, screen as tty } from "../../../../surfaces/chrome/screen.js";
++import { atom } from "nanostores";
+ import { chrome, screen, settle } from "../../../scenarios/world.js";
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:29
+     held.lighthouse.$authority.set({ access: "a", refresh: "r" });
+-    held.client.$active.set(null);
++    held.client.$terminal.set(null);
+     specimen.expect(panes.pane(held.client)).toBe("booting");
+-    held.client.$active.set(held.terminal);
++    held.client.$terminal.set(held.terminal);
+     specimen.expect(panes.pane(held.client)).toBe("regions");
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:105
+     const setup = await screen(() => panes.chrome({ client: held.client }), SIZE);
+-    keypresses(setup.renderer).to(held.client.presses);
+-    const walking = ghost.client.keymap.navigating(held.client, held.client.presses.drain(held.client.controller.abort.signal));
++    keypresses(setup.renderer, held.client);
+     await settle(setup);
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:120
+     await settle(setup);
+-    specimen.expect(held.client.catalog).toBe(null);
++    specimen.expect(held.terminal.repl.catalog).toBe(null);
+     specimen.expect(setup.captureCharFrame()).not.toContain("tab completes");
+-    held.client.presses.close();
+-    await walking;
+     setup.renderer.destroy();
+…
+// systems/ghost/tests/surfaces/chrome/panes/chrome.test.js:142
+     setup.renderer.destroy();
+   });
+ });
+
++specimen.describe("a logout on the tty — the sign-in form keeps the username, forgets the password", () => {
++  specimen.it("LOGGED_OUT empties the password, keeps the username, focuses the password; any other status leaves the form", () => {
++    const client = { runtime: { lighthouse: { $status: atom({ code: "IDLE" }) } }, surface: tty({ kind: "tty", places: [], dark: true }) };
++    const forget = forgetting(client);
++    client.surface.$signin.set({ user: "beef", pass: "hunter 2", field: "pass" });
++    client.runtime.lighthouse.$status.set({ code: "AUTHENTICATING" });
++    specimen.expect(client.surface.signin).toEqual({ user: "beef", pass: "hunter 2", field: "pass" });
++    client.runtime.lighthouse.$status.set({ code: "LOGGED_OUT" });
++    specimen.expect(client.surface.signin).toEqual({ user: "beef", pass: "", field: "pass" });
++    forget();
++  });
++});
++
+#+END_SRC
+***** regions.test.js — Q0 · Q3 · m99 Q22 · m99 r1 (rigs)
+#+BEGIN_SRC diff
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:42
+     const held = world();
+-    held.client.$chord.set({ crumbs: ["leader"], node: held.terminal.keymap.trie.get("leader").trajectory });
++    held.terminal.legend.dispatch("leader");
+     oracle(painted(regions(held), "chord-80x24"), "chord-80x24");
+…
+// systems/ghost/tests/surfaces/chrome/panes/regions.test.js:48
+     const held = world();
+-    held.client.$catalog.set(ghost.client.keymap.catalog(held.client.active.repl.commands));
++    held.terminal.repl.$catalog.set(ghost.shard.keymap.catalog(held.client.terminal.repl.commands));
+     held.client.surface.$draft.set("/dock");
+#+END_SRC
+*** systems/runtime
+**** tests/mode
+***** generative.test.js — m99 Q35 (follows Q25)
+#+BEGIN_SRC diff
+// systems/runtime/tests/mode/generative.test.js:323
+       specimen.expect(create.pattern.valence).toContain("HOUSE RULES");
+-      specimen.expect(create.pattern.input).toBe(undefined);
++      specimen.expect(Object.keys(create.pattern.input.properties)).toEqual(["slug", "mime", "source"]);
+
+#+END_SRC
+
+* changelog
+
+** recut 10-24 — m99 + Q0–Q5 + m102's walk on one copy (beef: /"recut 104, lift everything that we need"/)
+
+#+BEGIN_SRC text
+suite          rig (the repo)                 base (m104)                    failing names
+typology       ok 152                         ok 153                         — (+ keysignal.test.js)
+paladin        ok 58                          ok 58                          —
+runtime        86 · 11 failed                 86 · 11 failed                 same
+ghost          31 · 1 failed                  34 · 1 failed                  same: ghost-help-test-reads-a-groups-effect (+ legend · shard/keymap · rows its)
+dapper         ok 28                          ok 28                          —
+drapes         48 · 1 failed                  48 · 1 failed                  same
+hello-world    17 · 2 failed                  17 · 2 failed                  same
+hallucinators  7 · 1 failed                   7 · 1 failed                   same
+memo · stub    ok 4 · ok 3                    ok 4 · ok 3                    —
+sheets (files) all ok                         all ok                         chord.test → legend.test
+anima (files)  oracle.snapshot red · 2 load nothing ($telemetry)   the same three
+#+END_SRC
+
+- departures, mine, reported:
+  - =legend.keymap= keeps m99's harvest-first order (=fromRepl= · client · hosted · attached); the Q2 hunk drew the client first. The tty design grid =chord-80x24= holds only harvest-first; anima's =KEYS= literal (an m99 rig of mine, built client-first, contradicting the code it tested) now paints =d h e a s= → =* deferred=.
+  - =repl.commands= keeps the client's commands in their export order and drops =/shell= · =/quit= off a tty (=absent= list) — the Q2 hunk grafted them after the rest; the tty grid's =? q= order holds only this way.
+  - =client.surface.translation= — anima's platform leader key (m99 Q32) could no longer graft onto ONE client Legend; the surface carried it — REJECTED 10-24 show-me S9 → Q6: the Legend's inline getter, =paladin.is.browser= · =paladin.is.apple=.
+  - =ctx= of a key effect is ={ client, terminal }= (m99: =client= alone) — the client keymap's =palette= · =esc= reach =ctx.terminal.repl=.
+  - the terminal's lifecycle keeps its =stdout.log({ terminal })= as an inline beat; the =commands= beat is gone.
+  - =ghost/prototypes/= dies (it held only =legend.js=, m99 Q21); =typology.js= loses its two =prototypes= lines.
+  - m99 =tests/surfaces/chrome/panes/chrome.test.js:3= imported =surfaces/chrome/translation.js=, which m99 Q47′ killed — the import dies.
+- m102's walk lifted: =forgetting= (Q18) on both surfaces · the tick waits for =entities= · =seat= after the flush (Q16); ghost =tests/subjects/client/rows.test.js= · =tests/surfaces/chrome/panes/chrome.test.js= · anima =chrome.test.js= green.
+
+** Q6 10-24 — show-me S9 drill (beef: /"it lives inside of the prototype legend"/ · /"part of the Paladin's responsibility"/)
+
+- =legend.js= =translation= getter inline (=*= · the leader key by =paladin.is.browser= · =is.apple=), the export dies; anima =src/surface/translation.js= dies (5 new); =client.surface.translation= and =screen({ translation })= die on both surfaces and every rig; =paladin/gestalten/belt/is.js= gains =browser= · =apple=; =legend.test.js= rigs dispatch an opentui-shaped =ctrlV= (a bare string has no =preventDefault=), its seventh =it= pins =paladin.is= for the browser arm.
+- fresh replay (=scratchpad/m104=): 69 files · 199 hunks · 0 missed; =deno task bundle= in the copy; paladin ok 58 · typology ok 153 · ghost 34 · 1 failed = =ghost-help-test-reads-a-groups-effect= (the base's own); legend · keymap · console · repl · shard/keymap · keys · bundle · chrome · regions ok.
+
+** Q7 10-24 — show-me S12 drill (beef: /"I changed my mind. Let's call it client.$terminal."/ · /"b"/)
+
+- =client.$activeTerminal= · =client.activeTerminal= → =client.$terminal= · =client.terminal= in every hunk, the law, the release; m99 r1 relabelled. Fresh replay: 69 files · 199 hunks · 0 missed, no =activeTerminal= left in the copy; ghost 34 · 1 failed (=ghost-help-test-reads-a-groups-effect=) · paladin ok 58.
+
+* release
+
+### api
+- renamed `client.active` → `client.terminal` · `client.$active` → `client.$terminal` · migrate: the same read, the new name (chess `play.viva.js:39,41`) ⟨m99 r1⟩
+- added `Legend` on every terminal (`terminal.legend`, `@vivalence/ghost` `terminal.Legend`) — `dispatch(event)` · `translation` (a getter) · `keymap` · `presses` · `$chord` · `flush()` · migrate: a surface calls `client.terminal.legend.dispatch(event)` with the raw event ⟨m104 Q0 · m99⟩
+- removed `client.presses` · `client.$chord` · `client.chord` · `client.keymap` · `client.$catalog` · `client.catalog` — on the terminal: `terminal.legend.presses` · `.$chord` · `.chord` · `.keymap`; `terminal.repl.$catalog` · `.catalog`; `chord` is the held node's `shape.strip` · migrate: `client.terminal.legend.*` · `client.terminal.repl.$catalog` ⟨m104 Q0 · Q1 · Q3⟩
+- changed `terminal.repl.commands` — a getter built at every read (the client's · `/shell` `/quit` on a tty · hosted modes' · the terminal's · the attached mode's); no boot beat, no rebuild on the mode list, nothing assignable · migrate: a rig defines the property (`Object.defineProperty(terminal.repl, "commands", …)`) ⟨m104 Q0 · Q2⟩
+- removed `terminal.keymap` · `$keymap` — `terminal.legend.keymap`, a getter: the harvest of `repl.commands`, the client's keymap, the hosted modes', the attached mode's ⟨m104 Q1 · Q2⟩
+- removed the repl's `/mode/<type>/<slug>/…` · `/mode/<slug>/…` scopes — the attached mode's commands answer at the root (`/harness ciao`) · migrate: `/mode/memo/harness ciao` → attach memo, `/harness ciao` ⟨m104 Q5⟩
+- removed the client's `keymap` boot beat · `subjects/client/lifecycle` `keymap` · the terminal's `commands` beat ⟨m104 Q0 · Q2⟩
+- added `paladin.is.browser` · `paladin.is.apple` — the runtime is a browser · the OS is macOS or iOS (`@cross/runtime`) · migrate: none ⟨m104 Q6⟩
+- changed the leader key — `meta-v` in a browser off Apple, `ctrl-v` everywhere else, opened by `terminal.legend.translation` (a getter); no surface passes keys · migrate: none ⟨m104 Q6⟩
+- changed `keypresses(renderer, client)` · anima `keypresses(window, client)` — forward each press to `client.terminal.legend` ⟨m104 Q4⟩
+- moved the client keymap's `harvest` · `catalog` → `shard.keymap.fromRepl` · `shard.keymap.catalog`; removed `navigate` · `navigating` · `listing` · `palette` (a keymap local, `palette(terminal, prefill)`) · migrate: the palette is `legend.dispatch("leader")` twice ⟨m99 · m104 Q3⟩
+- changed `KeySignal` — takes an opentui `ParsedKey` or a DOM `KeyboardEvent`; the nature carries the modifiers, W3C `ctrl alt shift meta` in that order, a printable its character · migrate: `new KeySignal(event).nature` replaces `press(event).key` ⟨m99⟩
+- changed typology: `Queue.backlog` a getter over `$backlog` · `shape.strip` gives a group edge `meta` · `Vector.graft` merges two patterns for one key · `steer.match.scope` asks `*` last · a pattern filter answers a copy · migrate: none ⟨m99⟩
+- renamed sheets `Chord` → `Legend` (props `legend` · `palette`) · drapes `Chord` → `Legend` · migrate: `parts.Legend` ⟨m99⟩
+- removed `client.dispatch` · `terminal.dispatch` — a line runs on `terminal.repl.dispatch(line)` · migrate: `client.terminal.repl.dispatch(line)` ⟨m102⟩
+- changed `ctx.repl` — the terminal's Repl; its Vector is `ctx.repl.commands` · migrate: `shape.strip(ctx.repl)` → `shape.strip(ctx.repl.commands)` ⟨m102⟩
+- removed `client.repl` · the door's `repl` ctx key ⟨m102⟩
+- added `paladin.is.tty` — Deno and a terminal stdin · migrate: none ⟨m102⟩
+- changed `host` — `import { host } from "@vivalence/ghost/host"`, the one subpath; ghost's root no longer carries it, sheets' root does · migrate: `@vivalence/sheets/host` · `{ host } from "@vivalence/ghost"` → `@vivalence/ghost/host` ⟨m102 · m105⟩
+
+### cli
+- removed `viva repl` · `/chrome/on` · `/chrome/off` — bare `viva` opens chrome · migrate: `viva repl` → `viva` ⟨m102 · m98 Q6 Q7⟩
+- moved `/shell` · `/quit` — client commands, listed only on a tty; anima's palette lists neither, a tab ends on close · migrate: none ⟨m102 · m104 Q2⟩
+
+### other
+- changed the client's boot — the surface mounts after `connection`, before `authorized`; until signed in it is the sign-in screen alone; the pane calls `lighthouse.login`, no line · migrate: none ⟨m102 Q14⟩
+- changed sign-in as another user — the client flushes threads · buffers · turns · activities · terminals, reads the new user's, and seats their first terminal · migrate: none ⟨m102 Q16 · walk⟩
+- changed a logout — the sign-in form keeps the username, forgets the password; the tty focuses the password · migrate: none ⟨m102 Q18⟩
+- changed a held chord — per terminal: a tab switch shows the other terminal's (empty) chord and palette · migrate: none ⟨m104 Q4⟩
+
+* review — 10-24
+
+Walked on a fresh replay of =* as code= (=scratchpad/m104=: 68 files · 202 hunks · 0 missed); every hunk QUEST, none on the tree.
+
+| S | stop | rides | verdict | his words |
+|------|------|-------|---------|-----------|
+| 1 | a press spells its nature once, in KeySignal | m99 Q29 · Q30 · Q31 | amen | /"amen"/ |
+| 2 | scope asks the literals first, the =*= last; a pattern answers a copy | m99 Q32′ · Q34 · Q40 |amen | /"go"/ |
+| 3 | graft merges two patterns for one key; strip carries a group's =meta= | m99 Q23 · Q25 |amen | /"amen"/ |
+| 4 | the terminal holds the Repl and the Legend; its boot builds nothing | Q0 · Q1 |amen | /"go"/ |
+| 5 | =repl.commands= — a getter over four layers, the attached mode at the root | Q2 · Q5 |amen | /"amen"/ |
+| 6 | =legend.keymap= — the harvest, then the same layers; =shard.keymap= | Q1 · Q2 · m99 Q18″ · Q26 |amen | /"go"/ |
+| 7 | the client keymap declares its groups; the palette writes =repl.$catalog= | Q3 · m99 Q24 · Q37 |amen | /"go"/ |
+| 8 | =legend.dispatch= — translation → =presses.$backlog= → one traverse per change | m99 Q22 · Q28 · Q32 · Q32″ |amen | /"go"/ |
+| 9 | a surface forwards the raw press to =client.terminal.legend=; =surface.translation= | Q4 · m99 Q30 · Q32 | drilled → Q6 · amen | /"No, this is not okay. The translation vector doesn't live in surface translation, it lives inside of the prototype legend."/ · /"go"/ |
+| 10 | painters follow the active terminal's =$chord= · =$catalog=; labels from =meta= | Q3 · m99 Q20 · Q23 · Q24 · Q38 |amen | /"go"/ |
+| 11 | the sign-in walk — =forgetting= · =seat= after the flush | m102 walk |amen | /"go"/ |
+| 12 | mechanical — renames · moves · rigs | m99 r1 · Q20 · Q5 | drilled → Q7 · amen | /"I changed my mind. Let's call it client.$terminal."/ · /"yes"/ |
+
+* handoff
+
+- goal: the Repl and the Legend on the terminal, side by side; =repl.commands= · =legend.keymap= getters from client · hosted · terminal · attached; =repl.$catalog= beside =legend.$chord=; a surface forwards the raw press to =client.terminal.legend=.
+- done 10-24 (beef: /"quest 104 go"/ · /"just get it in there. Do it per milestone, holy go."/): APPLIED on the repo — =* as code= replayed onto a scratch copy (69 files · 199 hunks · 0 missed · 5 new), copied per milestone, the 4 moves by =mv=, no deletes; repo ≡ copy (=diff -rq= empty bar a gitignored snapshot); =deno task ghost/bundle= (=out/panes.mjs= 122925 B); census HOME empty: paladin ok 58 · typology ok 153 · sheets ok 23 · ghost =tests/= 34 · 1 failed (the =--help= strip, then FIXED the same session: =tests/subjects/shell/lifecycle.test.js= walks the strip, ok 2 with =DENO_DIR= carried) · drapes 48 · 1 failed (=chassis= =dock.shareAfterDrag=, the base's) · anima 21 files ok, 3 red (=oracle.snapshot= base · =$telemetry= ×2 base) · runtime =mode/generative= ok; =pattern-filter-mutates-the-callers-signal= CUT from known issues.
+- next: none — DONE 10-24 (QA walked, =* release= lifted); broken markers → known issues
+- owed: =* deferred= unruled (the leader grid's harvest-first order · m99 Q46 group header).
+- lands before: =m103-chrome-panels.org= (its hunks renamed to =client.terminal= 10-24).
+- never: a Repl or Legend on the client; =client.keymap= · =client.$catalog= · =client.surface.translation= · an exported =translation=; a platform probe outside =paladin.is=; a stored command tree; =/mode/<type>/<slug>= scopes; a null arm for =client.terminal= in a surface; =activeTerminal=; the words =verb= · =lines= · =row=.

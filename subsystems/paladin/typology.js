@@ -6,6 +6,7 @@ export { Pensieve } from "./prototypes/pensieve.js";
 export { Manifest } from "./prototypes/manifest.js";
 export { Instance } from "./instance/prototype.js";
 export * from "./ledger/index.js";
+export { FULL } from "./gestalten/belt/index.js";
 export * as gestalten from "./gestalten/index.js";
 export const factories = { instance };
 export const lifecycle = { paladin: paladinLifecycle, instance: instanceLifecycle };

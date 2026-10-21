@@ -1,0 +1,1077 @@
+#+title: m105 telemetry on the client — =client.telemetry= holds the two faces, the logger and the inspector; ghost's tty and anima paint them
+#+filetags: :telemetry:client:logger:inspector:ghost:anima:
+#+status: DONE 10-24 (/"end 104 105"/) — landed; QA walked 10-24: 5 held; =* release= lifted — was: DRILLED 10-24 (finish written) — Q0′ · Q1 · Q2 · Q3 locked, Q4 reframed → Q4′ · Q5 · Q7 · Q7′ · Q8 · Q9 · Q10 · Q11 · Q11′ · Q12′ · Q12A · Q12B · Q13 locked; the stall session 10-24 (/"quest 105 benched stall. pull and /drill"/): Q6A–Q6K, gen 2 LOCKED (/"we good on the design"/); Q6I · Q6J → the commands session; LANDED 10-24 on /"go. holy god"/ · /"gogogogo finish"/ · /"ok finsih the quest"/: Q12 · Q12A · Q12B whole, the scratch replay (Q0′ · Q4′ · Q7 · Q7′ · Q9–Q13), Q14, the stall gen 2; + =traverse= (/"fix traverse. yes. go."/) + Q8's removal; OPEN: 5 QA markers · lift =* release=; rides m89 (=roadmap/m89-telemetry.org=, its F1–F8 untouched); no go, no code
+# limit: none (quest content)
+
+* intent
+
+10-24, beef verbatim (after m104 landed; trigger: anima =tests/terminal.stall.test.js= · =terminals.remote.test.js= red on the killed =$telemetry= alias, =systems/anima/src/entities/terminal/prototype.js:3=):
+
+/"why the hell is stall only on Anima and not on Ghost? The idea is for Anima and Ghost to be basically the same, just with different surfaces. So anything living in Anima should really live in Ghost. … What do you think about telemetry living on the client? Object on the client setting up telemetry. Prototype. Holding everything, getting pipe stuff into it. This is kind of a big question actually. Another way to do it would be to set up a ambient for that."/
+
+/"telemetry is not only .... what do we call it? There's two names in telemetry. What are those?"/ — the logger and the inspector (=systems/ghost/subjects/terminal/commands/telemetry.js:5=, =surfaces/chrome/panes/tele.js:8=).
+
+* terrain — measured 10-24
+
+- emit: every owner faults on its own span, =<owner>.controller.stdout.fault(error)= (=systems/ghost/surfaces/chrome/acts.js:4= · =subjects/client/traits/home.js:24=); a terminal's controller is =clientDie.controller.branch(`terminal/${id}`)= (=subjects/terminal/factory.js:7=); a record climbs to =client.controller.stdout=.
+- logger: the tty chrome filters =client.controller.stdout.$history= three times (=systems/ghost/surfaces/chrome/panes/chrome.jsx:89,122,160=); the =ledger= beat taps the pipe into =spans.log= (=subjects/client/lifecycle/index.js:19-23=).
+- inspector: built per surface, twice — =writable= in ghost =surfaces/chrome/panes/tele.js:144= and anima =src/surface/panes/tele.jsx:162=; anima's =inspect= reads ONE terminal, the active one (=tele.jsx:298-300=, =<Show when={active()}>=).
+- every terminal: =client.runtime.entities.terminal.$entities= (=subjects/client/prototype.js:10=); =runtime.entities= is =null= until the =dataspace= beat.
+
+* rulings
+
+| Q | ruling | his words |
+|---|--------|-----------|
+| 0′ | telemetry lives on the client: =client.telemetry=, a =Telemetry= holding the logger and the inspector; the surfaces paint, never compute | /"does it make sense to have telemetry, client and logger? Yeah, it does make sense to have the client on telemetry."/ |
+| 1 | the inspector is ONE list over every dimension; a terminal is one dimension, never its axis — every entity kind the client holds (the runtime's too) and the whole client state | /"a."/ · /"the terminal is just one dimension in the our inspector, because we really want to see, well, all of the entities, including all of the runtime stuff … the order of the inspector is orthogonal to terminal."/ · /"Another thing in the inspector is, for example, the all of the client state."/ |
+| 2 | the inspector is dedicated views, one per dimension (Solid); the dimensions are NOT a primitive on =Telemetry= — the views' detail is outside m105 | /"we wanted to build dedicated views per dimension. And the dimensions isn't a primitive on the telemetry. Don't over-engineer it. … a whole a lot of custom views for telemetry. A bunch of solid. but … the detail is not subject of this quest."/ |
+| 3 | the stall is the TERMINAL's: a phase beat =stall= in the terminal's execution builds a =Stall= per seated thread over =thread.$buffers= · =terminal.$buffer= · =thread.$phase=, closes it in its own =finally=; a release removes the buffer on the runtime, a fault lands on the terminal's span | /"a"/ |
+| 4′ | a trait is CAST at the door: the entity's hydration casts =trait= once against =v.<entity>.traits= (defaults filled, an invalid value THROWS); every read after is straight, =entity.trait.NAME=; =v.<entity>.trait= · =claim= die; codestyle "a trait is a CLAIM" rewritten (=codestyle.md= · =world/codemap/map.md=, 10-24) | /"v.thread.trait(thread, "QUEUEING") … V doesn't, it's a library for validation, not for looking up stuff"/ · /"a"/ |
+| 5 | the phases STAY (=inert · manual · continuous · escort=, the runtime column =Thread.ts:27=); the Stall reads =$phase= through ONE =[[predicate, tag]]= table, never scattered =if=s | /"b"/ |
+| 7 | the runtime casts =trait= on WRITE: =beforeCreate= + =beforeUpdate= on the entity's schema run =belt.traits.cast=, so a row in the db is valid and filled; a load does nothing; the runtime reads straight (=ctx.thread.trait.INTELLIGENT=) | /"b. It seems like it would make sense to not only cast that thing, the traits, but I suspect that the rest of the entities are already type checked by micro. Yeah, no, okay, definitely B."/ |
+| 8 | anima's legacy graph goes: everything under =systems/anima/src/= that =client.js= does not reach (=app/ 69 · box/ 11 · bridge/ 7 · entities/ 30 · gestalten/ 5 · prototypes/ 6 · telemetry/ 3= + =lighthouse.js · typology.js=) and the 29 test files that import it; captured to =~/.viva/bak/anima/src-20261024/= first; what is still wanted moves into ghost by its own quest (the stall → the benched session; =box/='s microphone · speaker behind =/dictate · /speaker tone=) | /"No legacy, bye-bye legacy."/ |
+| 7′ | =AIMED · MASKED · QUEUEING= are typology's: =Aimed · Masked · Queueing= in =schematics/traits/=, one file each, siblings of =Intelligent · Vocal=, in the thread vocabulary — both casts pass for impara · clinic | /"those for sure belong to the schematics. They are siblings of labeled intelligent and vocal treat them and embed them as such."/ |
+| 9 | =traits= alone says what is ACTIVE; =trait= keeps every vocabulary name's data, filled from its schema's defaults, claimed or not — a toggle never loses data; the cast stays loud on an invalid value | /"b because we will want to be able to toggle traits on and off without losing the data. So the traits array alone is responsible for whether a trait is active. Also, I like the idea of having the fallback … having the default already set. But I don't like the way that it's set here. Yeah, no, we do B."/ |
+| 10 | the cast VALIDATES only the claimed names (=traits=); every vocabulary name is FILLED from its defaults, an unclaimed one kept as filled (=AIMED= unclaimed → ={}=) | /"a"/ |
+| 12A | a buffer always has a thread: =Buffer.thread= is required (typology · mikro column · the emitter); a caller holding a buffer reads =buffer.thread.id= | /"buffer always has a thread."/ |
+| 12B | =thread= is a required input of the harness: =Request.thread= · =contexts.Harness= required; every caller passes it; no fallback chain | /"make thread required input o harness."/ |
+
+* the law
+
+1. telemetry is the client's: =client.telemetry= holds the logger (the client span's =$history=) — Q0′.
+2. the inspector is dedicated Solid views, one per dimension; =Telemetry= holds no dimensions — Q1 · Q2.
+3. an owner faults on ITS OWN span: =<owner>.controller.stdout.fault(error)= — Q0′.
+4. a trait is cast at the door, loud: ghost at the entity's hydration, the runtime on write (=beforeCreate · beforeUpdate=, Thread only) — Q4′ · Q7.
+5. =traits= says what is active; =trait= holds every vocabulary name, filled; only claimed names are validated — Q9 · Q10.
+6. =v= validates, never looks up; =v.<entity>.trait= · =claim= are gone — Q4′.
+7. =AIMED · MASKED · QUEUEING= are typology's thread traits beside =LABELED · INTELLIGENT · VOCAL= — Q7′.
+8. anima is =client.js= + =surface/=; no legacy graph — Q8.
+9. the stall is the terminal's: =phases= is a standalone Vector dispatched on =/<thread.phase>= with =stallCtx= = ={ terminal }=, each phase =branch · use · do=; only =manual= runs — Q6B · Q6C · Q6K.
+10. a release is the VIEW's act; the buffer's hydration answers it with =removeOne=; the frame is UI, never =terminal.$buffer= — Q6E · Q6J.
+11. the thread is always there: a buffer has one, a harness call names one; a missing one is mikro's =NotFoundError=, never a =null= arm — Q12 · Q12A · Q12B.
+
+* milestones
+
+| milestone | blocks | green when |
+|-----------|--------|------------|
+| the trait vocabulary (HOLY) | =schematics/traits/{aimed,masked,queueing,index}.js= | typology ok + one JSON snapshot per new =v.object= |
+| the cast (HOLY) | =gestalten/belt/traits.js= =cast= · =schematics/v.js:135= | typology ok |
+| the runtime's door | =systems/runtime/entities/Thread.ts= hooks · =subjects/mode/traits/harnessed.js:32-33= | runtime =tests/thread.test.js= ok |
+| the client's telemetry | =systems/ghost/subjects/client/{telemetry,prototype}.js= · =surfaces/chrome/panes/chrome.jsx:89,122,160= · =subjects/terminal/legend.js:47= | ghost =tests/= = 10-24 base |
+| ghost's straight reads | =entities/thread/{hydration,prototype}.js= · =subjects/terminal/commands/{thread,artifact,buffer,full}.js= · =subjects/client/traits/home.js= · =surfaces/chrome/sections.js= | ghost =tests/= = 10-24 base |
+| the stall | =entities/thread/hydration.js= · =entities/buffer/hydration.js= · =subjects/terminal/{stall,prototype}.js= · =subjects/terminal/lifecycle/{index,stall}.js= | ghost =tests/= = 10-24 base + the stall tests (=* testing assessment=) |
+| anima without legacy | capture → removal (beef) · =src/surface/sections.js:11= | anima =tests/= that remain ok · =deno task anima/run= paints |
+
+* blast table
+
+| surface | consumers | BREAKS |
+|---------|-----------|--------|
+| =v.<entity>.trait= | 12 sites (ghost 8 · anima 2 · runtime 2), registry 0 | at land, all 12 rewritten that turn |
+| =belt.traits.claim= | =schematics/v.js:4,135= only | at land |
+| thread rows | impara =course.js:5,19,33= · clinic =dataset/index.js:6= write =AIMED · MASKED · QUEUEING= | none once Q7′ lands first |
+| thread rows written before the hook | the runtime's db, =~/.viva/instances/*/mountpoint/= | none: cast on their next save |
+| =ctx.thread === null= | =harnessed.js:25-27,31,39,104,144,182,202,214= | none: the arm dies (Q12B) |
+| =Request.thread= required | 14 harness callers: 3 pass it (memo =aperture.js:45= · primer =aperture.js:51= · aprende =message.js:24=), 1 falls back (=research.js:14=), 10 pass none (=dealer.viva.js:73= · oracle =aperture.js:12= · =emitter.js:15= · =doors.js:31= · francesca =harness.js:46= · analysis =index.js:171= · =seats.js:67= · =skills/index.js:15= · practice =index.js:100,119=) | at land, each hunk that turn (Q12B) |
+| =Buffer.thread= required | minters: =traits/viewable.js:10= · =traits/application.js:14= · =traits/generative.js:98= · =hello-world/page/index.js:58= · chaosmonkey =reader/emitter.js:25= (bound by =emitter.js:57=) · chess =buffer/kit/open.js:37= ×5 (pass it) · practice =index.js:48= | at land: any =/emit= without =thread= (=emitter.js:26= named riddler) · a db row with =thread= null at the migration |
+| anima legacy =src/= | 131 files · 29 test files · =~/.viva= none | at land, captured first |
+| =thread.$buffers= order | =surfaces/chrome/world.js:29= (the sidebar list) · =commands/{buffer,full,artifact}.js= finds · =application/start.js:5= sorts again | none: =index= order, the start sort becomes redundant |
+| =terminal.stall= | new; joins =Terminal.toJSON='s strip list (=prototype.js:44=, hunk in gen 2) | none |
+| typology =Stall= · =Phase= (=prototypes/stall.js=) | anima =src/entities/terminal/prototype.js:2= only (dies Q8) · =subsystems/typology/tests/stall.test.js= | at land of Q8; its death is its own ruling |
+| =ThreadEntity.trait= over the wire | ghost hydration receives filled rows | none |
+
+* testing assessment
+
+- COVERAGE GAP: no test casts a trait — owed =subsystems/typology/tests/traits.test.js= (claimed invalid throws · unclaimed filled, not validated · undeclared name throws · source is not mutated).
+- COVERAGE GAP: no runtime test writes an invalid =trait= — owed in =systems/runtime/tests/thread.test.js= (=beforeUpdate= refuses =QUEUEING.depth: 0=).
+- COVERAGE GAP: no test runs the stall — owed =systems/ghost/tests/subjects/terminal/stall.test.js= (empty thread → one blank buffer framed · a release removes and frames the next by =index= · a =$phase= change refills · two quick changes run twice, none dropped · =toJSON= unseated → ={ thread: null }=).
+- COVERAGE GAP: =systems/ghost/tests/subjects/terminal/commands.test.js:67= replaces =$buffers= with a plain atom — the hydration's sort and =$phase= never run there.
+- the stall's S1 · S2 are PROBED (=scratchpad/m105-gen2/{s1,s2}.js=), not tested.
+- the mikro hooks are PROBED (=scratchpad/m105-probe/{onload,write,typed,fill}.js=), not tested.
+
+* QA
+
+- /"I start a impara thread, I see its buffers"/ — the cast passes =AIMED · MASKED · QUEUEING=.
+#+marker_qa: m105/P-impara-thread-casts · held · 10-24 walk (=scratchpad/walk/casts.test.js=, :memory: =seed()=): impara's 3 buckets created as its aperture does, clinic's 14 intents through =beforeCreate='s merge — every thread =AIMED · MASKED · QUEUEING= as declared + =INTELLIGENT {tune: capable, effort: low, rounds: 12} · VOCAL=; ok 1 passed (2 steps) — was: impara + clinic create threads after Q7′ · Q7
+- /"I open telemetry on the tty and in anima, I see the same logger"/
+#+marker_qa: m105/P-logger-both-surfaces · held · 10-24 walk on a free-port vite + world, after =ghost/host= · =paladin.is= in the browser · the =ledger= beat off in a browser: the anima journal paints the boot's =log= records (=terminal/…1d37= · =home /runtime/house/mode/home/probe=), the tty's the same; both read =client.telemetry.$logger=
+- /"I open anima, nothing from the old app loads"/
+#+marker_qa: m105/P-anima-no-legacy · held · 10-24 walk on a free-port vite + world, after =ghost/host= · =paladin.is= in the browser · the =ledger= beat off in a browser: the page mounts; 0 of 250 loaded resources under =src/app= · =src/entities=
+| 11 | a CLOSED vocabulary is ONE schema and IS the entity's =trait= field (=v.object({ NAME: Schema.default({}) … })=); =traits= an enum of its names; =cast= = one =fill=, errors kept under a claimed name only | /"b"/ |
+| 11′ | an OPEN vocabulary (literal · symbol · note) is narrowed PER READER, the way =v.buffer({ data })= is: a domain exports =v.literal({ trait: { NAME: Schema … } })=, its readers cast with it; the system's door casts the closed base only; m105 stays where m104 landed | /"keep 105."/ · /"q11a"/ |
+| 12′ | the harness always has a thread; an UNCLAIMED =INTELLIGENT= · =VOCAL= reads =null=, its readers check it — a toggled-off trait's data never reaches the policy | /"I don't think there is the case that a thread is null, we always have a thread."/ · /"a"/ |
+| 12″ | the harness REQUIRES =input.thread= (=findOneOrFail=, =Request.thread= required); a threadless caller is a MISWIRE — every caller passes =thread: ctx.input.thread=; the thread riding the caller's ctx is B, later | /"there cannot be a case where there is no thread when we call the harness … if there isn't, then I suspect we have miswired something somewhere."/ · /"a it's going to be B eventually, but I don't want the hassle … we are gonna go with the thread as input."/ |
+| 13 | every thread is BORN claiming =INTELLIGENT · VOCAL= (=beforeCreate= adds both names; the cast fills); =Intelligent= carries the system's standard as schema defaults — =tune: "capable"= · =rounds: 12= · =effort: "low"= — written into the row at birth | /"b. default 12 rounds."/ |
+| 6D | a finished buffer leaves OUTSIDE the phases: =stall.release(buffer)= removes it on the runtime; the thread's =$buffers= change fires =refill()=, the phase refills and refocuses — one way into the vector | /"Q6D b."/ |
+| 6C | only =manual= runs, the default phase (=Thread.ts:27=); =inert · continuous · escort= stay in =stall.js= commented out; the phase vector's ctx is =stallCtx= = ={ terminal }=; a phase is =branch(…).use(…).do(…)=, middleware and effect inline | /"stallCtx. … For now, we will only be using manual. I think manual is the default phase. All the other phases will be commented out for now."/ · /"just {terminal:this.terminal. then define the vector effects inline. not separate."/ · /"Keep the branch do I prefer that."/ |
+| 6E | a release is answered by the BUFFER's hydration: once per buffer, =on.release= → =removeOne=, whichever terminal shows it; the stall only refills (=Stall.release= dies) | /"a"/ |
+| 6F | manual's blank buffer is written by the client, =data: {}=, for every mode (=/application/start='s path, =start.js:10=); a mode's defaults filling =data= is later | /"a"/ |
+| 6J | =/buffer/close= and =/application/stop= should not exist; =terminal.$buffer.set(null)= is not how buffers are dealt with — the frame is a UI element, never the buffer; closing the dock or the frame is another thing; every terminal command is reviewed in the NEXT session | /"Neither buffer close nor application stop should exist. If you want to close the dock or close the frame, that is another thing."/ · /"This terminal buffer set null makes no sense either. That's not how we deal with buffers, really."/ · /"I'll go over all of the commands in the next session."/ |
+| 6H | a notebook is NOT a phase: the phase is the thread's (how buffers arrive, =Thread.ts:27=), the notebook is a way the terminal's frame lays out =thread.$buffers=, per terminal; =$buffer= stays singular; nothing built now | /"Yeah, we can ignore this for now, but it's going to be A."/ |
+| 6K | the stall, generation 2, LOCKED: the thread hands out =$buffers= in =index= order + =$phase=; a release removes at the buffer's hydration; =Stall= on the terminal holds =$buffers · $buffer · $phase=, a refill CHAIN dispatching =/<phase>= on =phases= (=/manual= live), =toJSON=; the terminal's lifecycle beat watches the seated thread's =$buffers= + =$phase=; supersedes the Q3 beat · Q4 sketch · Q5 table · Q6C · Q6D hunks | /"amen"/ (S1) · /"amen. ok. we good on the design"/ (S2) |
+| 6L | the phase vector's ctx is =stallCtx=; the commented phases ride a =/* @beef … */= block | /"stallCtx!"/ · /"@beef"/ |
+| 14 | modes STOP setting =tune · rounds · effort=: the 9 =shard.hal.defaults= uses in 8 harnesses go; the thread's =INTELLIGENT= (born with the standard, Q13) is the user's, set from the UI | /"we just stop the modes overwriting this for now . Yeah, we for now keep this under the control of users."/ |
+
+- /"I seat a thread with no buffers, I see a blank buffer of its mode in the frame"/
+#+marker_qa: m105/P-stall-blank-on-empty · held · 10-24 walk (=scratchpad/walk/stall.test.js=, the =client.test.js= world): =/thread/new= on memo → the runtime holds 1 row on it, =data: {}=, framed (=stall= ={phase: manual, buffer: …5ed8, buffers: [ …5ed8 ]}=) — was: manual creates one =data: {}= buffer and frames it
+- /"I finish a cloze round, I see the next buffer"/
+#+marker_qa: m105/P-stall-release-advances · held · 10-24 walk, same world: a 2nd buffer minted; =blank.release()= → the runtime finds 0 rows for it, the frame moves to the next by =index= (=buffers: [ …5ef7 ]=, =buffer: …5ef7=) — was: =buffer.release()= → =removeOne= → the oldest remaining buffer framed
+
+* open
+
+- /"the inspector is not only on this specific terminal. The inspector is for the entirety of terminals, including the active one."/ → Q1 (locked).
+- the dimensions' source → Q2 (struck: no =DIMENSIONS=, no =$inspector= getter; probe kept for the views): the client's kinds are =client.runtime.entities.em.stores= (=subsystems/typology/prototypes/entity-manager.js:52=, one atom per registered kind: =activity buffer daemon mode terminal thread turn=, =subjects/client/lifecycle/index.js:84=); client state = =client.$runtime · $terminal= (=subjects/client/prototype.js:28-29=) + the surface atoms (=surfaces/chrome/screen.js:23-36=).
+- /"I only suspect that the logger is already well wired. … inspector isn't yet."/ — SKETCH: the logger stays the span's =$history= as wired.
+- the stall: anima's =mountStall= (=systems/anima/src/entities/terminal/prototype.js:119=) has no ghost twin (=grep -i stall systems/ghost= → 0) → Q3 (locked).
+- =thread.$phase=: LOOKUP, the tree's style — ghost's =phase= is the runtime column (=systems/runtime/entities/Thread.ts:27=), a plain field (=systems/ghost/entities/thread/prototype.js:13=); =Stall= reads =phase.get()= · =phase.subscribe= (=subsystems/typology/prototypes/stall.js:34,107=) → a =computed= in the thread's hydration beside =$buffers=.
+- the pull's home → Q4: anima's =pull= is a free function over the thread (=systems/anima/src/entities/thread/traits/aimed.js:8=, the mode's =AIMED.mount= emitter, then =buffer.merge=).
+- Q4 (the pull's home) answered NEITHER, 10-24, beef verbatim: /"I'm not a big fan of this stall structure overall and all of the phases and stuff. And the implementation is also kind of shit, and we do need this entity, I suspect. … because we need to manage buffers somehow. … Why don't we create a class, pass it the terminal in as it's instantiated directly onto the terminal. Each terminal has its own. … all of the phases and source and active, all of those really should have a pound sign in front of them, since they are stores. And then I don't like that source and active are misnamed, so it should be buffers and buffer singular."/ → SKETCH below (=stall = new Stall(this)= beside =repl= · =legend=; stores =$buffers= · =$buffer= · =$phase=); the Q3 beat is re-shaped by it, unruled.
+- /"one thing that I just saw that is wholly horrendous is v.thread.trait(thread, "QUEUEING"). that V, our schematics library, does lookup on objects. What the fuck? No. … it's a library for validation, not for looking up stuff … Something is wrong here. Something is missbuitlt"/ → Q4′. The codestyle law it reverses: =.ikiro/codestyle.md= "A trait is a CLAIM … ANOTHER row's → =v.<entity>.trait(row, NAME)=" + =world/codemap/map.md= "a trait is a CLAIM" — rewritten when Q4′ locks. Terrain: =v.<entity>.trait= = =claim= hung on the schema factory (=subsystems/typology/schematics/v.js:135=); =claim= (=gestalten/belt/traits.js:25=) looks up =row.trait[name]=, fills defaults, and on an invalid value returns ={}= silently; 12 call sites (ghost 8 · anima 2 · runtime 2), 0 in the registry. Precedent for a straight read: =terminal.dock= (=systems/ghost/subjects/terminal/prototype.js:39=).
+- Q4′ blast: 12 =v.<entity>.trait= sites (ghost 8 · anima 2 · runtime 2) → straight reads; the runtime's door is mikro's load, not a ghost hydration (=systems/runtime/subjects/mode/traits/harnessed.js:32-33=) — owed; an ABSENT trait (a thread that never declared =QUEUEING=) reads =undefined= after the cast — what the Stall does then is owed with the Stall's shape.
+- Q6 (the pull's source) answered by a reframe, 10-24, beef verbatim: /"this system isn't in use at all at the moment. All I wanted to do for now is to, when it's empty, create pull one. Pull one buffer, and that's it. So I don't end up on a terminal with no buffers on it."/ → Q6′. Precedent: =/application/start= opens the mode's newest buffer on the thread or creates one (=systems/ghost/subjects/terminal/commands/application/start.js:3-13=).
+- Q6′ BENCHED 10-24, beef verbatim: /"Neither really. … I'm not opposed to calling the REPL dispatch from stall. That's actually kind of nice. I just don't like the command that's being dispatched. It's not application start. So I want you to investigate this whole system. Investigate how buffers are created. Do we still have the standalone trait? … There's this queuing thing, which we do want for language learning, but it's not the entire thing. … how we implement notebooks, something like Jupyter notebooks, and the stall will be... Well, will it be involved in that? … Can we bench Q6 for later and finish the rest aside from stall? And then we settle that in a dedicated session."/ — owed to that session: how buffers are created (=/application/start= today, =start.js:10=); =standalone= lives only in anima (=src/entities/mode/traits/index.js=, two =app/= cards) and the runtime's =subjects/mode/traits/emitter.js=, no =STANDALONE= in ghost; QUEUEING for language learning; notebooks. Q3 · Q5 and their hunks ride that session.
+- Q7 probes 10-24 (=scratchpad/m105-probe/{onload,write}.js=, mikro 7.2.3 on =:memory:=): =hooks.onLoad= fires on =find= and =findOneOrFail=; a =trait= changed inside it DIRTIES the entity, the next =flush= writes the cast value back. =hooks.beforeCreate= + =beforeUpdate= changing =trait= persist it: create ={QUEUEING:{}}= → ={depth:1}=; update ={QUEUEING:{}}= → ={depth:1}=; update ={depth:5}= kept.
+- Q4′ blast, found by the Q7 probe: the thread vocabulary is =LABELED · INTELLIGENT · VOCAL= (=subsystems/typology/schematics/traits/index.js:30=); =AIMED · MASKED · QUEUEING= are NOT in it, yet threads carry them (=systems/runtime/tests/thread.test.js:22=, impara's buckets) → a loud cast throws on every such thread until the vocabulary declares them.
+- Q7 his suspicion, PROBED 10-24 (=scratchpad/m105-probe/typed.js=): mikro refuses a mistyped scalar on create — =Trying to set Probe.count of type 'number' to 'seven' of type 'string'=; a =json= column (=trait=) is unchecked, hence the cast. Rows written before the hook stay until their next save. NARROWED 10-24 to =Thread= only, beef verbatim: /"a lot of the entities do have traits that are set up by the domain. For example, literals and such. So we really need a different way for this … we make the hooks vectors and allow composition of those vectors by … the system, and then the when a domain sets a trait those get validated, but that's roadmap … our thread traits, I think, aren't something that is set on the domain yet, so we can keep what we settled."/ → =* deferred=. Evidence against the premise, grepped 10-24: domains DO write thread traits — impara =course.js:5,19,33= =["LABELED", "MASKED", "AIMED", "QUEUEING"]= through =aperture/index.js:41= =traits: bucket.traits=; clinic =dataset/index.js:6= =["MASKED", "AIMED", "QUEUEING"]= — none of =MASKED · AIMED · QUEUEING= in the thread vocabulary (=schematics/traits/index.js:30=) → Q7′ (locked).
+- Q7 hunk gap: =ctx.thread= is =null= when the call names no thread (=harnessed.js:25-27=), and =claim= answered ={}= for an absent trait — =harnessed.js:65-69= reads =ctx.intelligent.tune · .rounds · .effort= unguarded; a straight read throws on both. Owed: the shape of "this thread does not claim INTELLIGENT" (rides the 12-site rewrite).
+- Q9 his: /"I don't like the way that it's set here"/ — the cast's SHAPE is unruled (hunk below SKETCH). Probe 10-24 (=scratchpad/m105-probe/fill.js=): =schema.fill(undefined)= → =undefined= (the key drops), =fill({})= → ={depth:1}=, =fill({depth:4})= kept, =errors(fill({depth:"x"}))= → =["must be integer"]=. So an unclaimed name needs an explicit ={}= seed; the offered snippet also dropped Q4′'s loud check.
+- Q9 reader gap still owed: =ctx.thread === null= on a threadless call (=harnessed.js:25-27=) — =ctx.thread.trait.INTELLIGENT= throws there.
+- the 12-site rewrite, 10-24 (LOOKUPS, Q4′ · Q9): a straight read needs a door per kind — ghost =buffer= · =terminal= hydrations (=entities/buffer/hydration.js= empty Vector · =subjects/terminal/hydration.js=) and the lighthouse's two =$user.set= (=entities/lighthouse/prototype.js:38,70=) cast too; a reader whose behaviour rode =claim='s ={}= for an unclaimed name now tests =traits.includes(NAME)= (Q9: data is kept while inactive) — =home.js:7= · both =sections.js= =harness=. The runtime's =harnessed.js:32-33= → Q12.
+- Q11 probe 10-24 (=scratchpad/m105-probe/vocabulary.js=): a vocabulary written as ONE =v.object({ QUEUEING: Queueing.default({}), AIMED: Aimed.default({}) })= fills in one call — =fill({QUEUEING:{depth:3}})= → ={"QUEUEING":{"depth":3},"AIMED":{}}=, =fill({})= → ={"QUEUEING":{"depth":1},"AIMED":{}}=; its errors carry the name — =[["/AIMED","must have required properties mount"]]=. The entity descriptor types =trait= as =v.record(v.string(), v.unknown())= today (=schematics/entities/thread.js:8=); =v.<entity>.traits= has no reader but =claim= (=v.js:134-135=).
+- Q11 his, the same turn: /"The problem is, what do we do with open sets like on literal"/ → Q11′. Terrain: =LiteralDescriptor= carries no =traits= vocabulary and =trait: v.record(…)= with =narrowable: ["trait", "symbol"]= (=schematics/entities/literal.js:3-17=); a spec narrows a narrowable field, =additionalProperties: true= (=schematics/v.js:117-130=); modes already narrow this way — =export const buffer = v.buffer({ data: … })= in 6 registry modes (=young-ladys-primer/…/primer.viva.js:16= first); literal trait names in the registry are a domain's: =RANKED · CONJUGATED · TRANSLATED · EXEMPLIFIED · VOCALIZED · LEARNABLE · CATEGORICAL · REQUIRES= (=grep traits: [= over =~/.viva/registry=, 710 · 461 · 321 … rows).
+- Q12 reframed 10-24, beef verbatim: /"I don't think there is the case that a thread is null, we always have a thread."/ — grepped: every harness call in the tree passes =thread= (=systems/runtime/tests/multiplex.integration.test.js:47-49= …); the null arm is the =claiming= ternary alone (=harnessed.js:25-27=) and its four =ctx.thread?.= (=:31,39,144,182=) → Q12′ (the unclaimed trait); hunk: the thread is required, the null arm and the =?.= go.
+- 10-24, beef verbatim: /"Where are they set when are they set? What's the flow here? … the UI, of course, needs to be able to set this, and we expect to be able to have middlewares on the mode itself. Work with that, but we definitely do want to instantiate on every thread a default, I assume. Don't we already do this? Because intelligent and vocal are kind of standard."/ → Q13. Measured: NO thread is born with either — =ThreadSchema.beforeCreate= merges only the intent's traits (=systems/runtime/entities/Thread.ts:62-75=); INTELLIGENT is written only by the terminal's =/tune · /effort · /rounds= (=systems/ghost/subjects/terminal/commands/intelligent.js:13,21,29=) and =/set thread.tune · .effort · .rounds= (=commands/set.js:35,39,43=), each =traits.patch= → =thread.updateOne= (the patch CLAIMS the name); VOCAL has NO writer anywhere and =ctx.vocal= no reader (=harnessed.js:33= only); the harness order is =normalizing → claiming → activating → requesting= then the domain's and the mode's harness grafted (=harnessed.js:222-245=); =requesting= builds =policy= from =input.config= < thread INTELLIGENT < =input.tune= (=:58-70=); a mode's =shard.hal.defaults= only =??=s the gaps (=subsystems/typology/gestalten/shard/hal.js:107-111=); the =Intelligent= schema has no defaults, every field optional (=schematics/traits/intelligent.js=); his mark =harnessed.js:220= /"@beef thread and user soon required."/
+- Q13 blast (BREAKS at land; RULED Q14 — the defaults go): the thread's stored =INTELLIGENT= sits ahead of a mode's =??== in =requesting= (=harnessed.js:62-70=), so =shard.hal.defaults= on =tune · rounds · effort= never fills again — 8 harnesses: =~/.viva/registry/assembly/modes/{editor/guide,editor/assembly,player/guide}/harness.js= · =chess/modes/{study/analysis/analysis.viva.js,board/play/harness.js,coach/coach/harness.js,coach/practice/harness.js}= · =commons/instances/hello-world/mode.viva.js=; a mode that must win writes a mandate (===), the =mode= skill's "=??== is a DEFAULT, === is a MANDATE"; =Vocal= keeps no defaults (all optional). Threads born before the hook gain both names on their next save (Q7).
+- the stall session, PULLED 10-24 (beef: /"quest 105 benched stall. pull and /drill"/) — terrain measured: a buffer is born FIVE ways — (1) =mode.application.buffer(desc)= fills =data= from the app schema, no route, called only by emitters (=systems/runtime/subjects/mode/traits/application.js:13= · =commons/fixtures/memo/mode/emitter.js:19= · =commons/playground/chaosmonkey/oracle/emitter.js:31=); (2) =mode.buffer(desc)= from =module.buffer=, no route (=traits/viewable.js:8=); (3) the agent's tool =/buffer/create= (=traits/generative.js:76=); (4) a mode's =/emit/<mount>=, which binds each buffer to =ctx.thread= (=traits/emitter.js:59-61=) — 14 registry modes export =emitter=, 0 export =application= (impara · clinic · survival · aprende · riddler · cloze · match · dojo · exhibit · judge · nyan · calendar · email · vdex); (5) the client writes the row itself, =data: {}=, unfilled (=systems/ghost/subjects/terminal/commands/application/start.js:10=). =standalone=: dead in ghost — its body IS =/application/start= (=systems/ghost/bak/bak.3/traits/terminal/standalone.js:8= ≡ =start.js:10=); =/application/start= throws on every registry mode (none is APPLICATION). =buffer.release()= has NO caller in ghost or anima's surface (=grep '\.release('=) → the Stall's release · advance · refill path never runs; the anima pull was =thread.mode.connection.call(thread.trait.AIMED.mount, …)= (=systems/anima/src/entities/thread/traits/aimed.js:8-15=); ghost reaches a mode by =mode.connection= (=systems/ghost/entities/mode/hydration.js:7=). Notebooks: named, undesigned — /"we can build a Jupyter notebook from this turns and thread structure … rearrange the messages … trim and prune"/ (=done/m86-repl-loop-clients.s1.org:227=), a surface over turns, not buffers.
+- Q6A (which route the Stall pulls by) answered by a reframe, 10-24, beef verbatim: /"Yeah, this isn't quite the level of abstraction. I like the idea of managing the stall behavior via REPL. … the design question is a different one. … we have all of these strategies or phases to pull buffers. We also have this thing about that we at some point want buffers displayed like notebooks, sequence of buffers in the frame. Not sure how the view mode fits in with the phase though, and I'm not sure if this is the same or different. One thing the stall for sure needs to take ownership of is the way that we validate that for example, continuous, we need to be aiming at an emitter or have a masked trait or start loading an empty or be able to load an empty to instantiate a buffer without any information in front of it. … what phases do we have and what traits are required for what phase? … pretty thin right now just to get done with a client, but it does make sense to have the phase commands on the REPL, which means they're vectors anyway … So thread phases, as a vector. And then depending on the phase, we invoke one of the any vector. The phase is like this, is the signal nature. … extensible … But I don't want to over-engineer this now. Show me the phase vector. Approach."/ → SKETCH =** the phase vector= under =* as code=; owed: phase vs the notebook view (same or different), the blank buffer's route (=manual=).
+- Q6A sketch STRUCK 10-24 (moved whole → =reference/m105/q6-phase-vector-as-commands.org=), beef verbatim: /"I think I want the face vector to operate a little bit differently. So first off, they can, it can just be one file, that's fine, we don't need the, this algebra with many files. And then I want the phase vector. It's actually a good question. What does it do? Does it just pull the buffers and the buffers get put into the buffers set? And then nothing else happens? No, it needs to be the entire operation. Okay, yeah, so actually, wait a second, a connection call mounted. I think you're having the vector wrong here. This is, the phase vector is not a command vector. We might have commands in front of the phases, or commands for the phases, but the phase vector is in itself. It's standalone."/ → SKETCH Q6B (=stall.js=, one file: =phases= dispatched by the Stall on =/<thread.phase>=, each phase the whole step — gate · fill · focus).
+- Q6B corrected 10-24, beef verbatim: /"{ stall: this, terminal: this.terminal, thread: this.terminal.thread, runtime: this.terminal.client.runtime }, stupid. just {terminal:this.terminal. then define the vector effects inline. not separate."/ → the die is ={ terminal }=, every effect written inline in its =open=; escort dispatches =/continuous= (old block → =reference/m105/q6-phase-vector-as-commands.org=). Q6D (release inside a phase or outside) → LOCKED /"b"/.
+- 10-24, beef verbatim: /"stallCtx. One more note. For now, we will only be using manual. I think manual is the default phase. All the other phases will be commented out for now. Q6D b."/ · /"And I don't like that you have changed to open and now all the middleware is just running the effect. Keep the branch do I prefer that."/ → Q6C (ruled). Departures flagged: =stallCtx= vs codestyle "a ctx is =<vector>Die=" (=codestyle.md= names); commented-out phases vs =.ikiro/hooks/comment-guard.sh:27= — a =//= line under =systems/= is denied at land unless it carries =@beef= or =TODO=. =manual= as default is a LOOKUP: =Thread.ts:27= =ThreadPhaseEnum.MANUAL= · =systems/ghost/entities/thread/prototype.js:13= =phase = "manual"=.
+- 10-24, beef verbatim: /"Q6‴′ methodological note here. I don't want you to keep adding these special characters. Instead, let's go for A, B, C, D, E, F, G."/ → this session relabelled (Q6″→Q6A · Q6‴→Q6B · Q6‴′→Q6C · Q6⁗→Q6D · Q6⁵→Q6E); rule landed in =.claude/skills/drill-me/SKILL.md=.
+- 10-24, beef verbatim (on =lifecycle/stall.js=): /"I don't understand this, but of code. And I don't understand the release. How is it that the modes are when the application is mounted or when the view is mounted? That we move on, that we say, okay, this repetition is done. What is the state machine of buffer existence?"/ — CORRECTION of my terrain: "=buffer.release()= has NO caller" was FALSE — the registry's views call it when the learner is done: =~/.viva/registry/education/modes/games/cloze/buffer/Cloze.svelte:68= (=advance()=, Enter after submit) · =match/buffer/Match.svelte:122= · =judge/buffer/Judge.svelte:92= · =exhibit/buffer/Exhibit.svelte:65=; anima's legacy had a user key too (=src/app/bones/widgets/Phase.svelte:104=). The buffer's life, measured: born (runtime row, =status= PENDING =Buffer.ts:36=, no writer of =status= anywhere) → bound (=Thread.ts:43= =bindBuffer=, =index= = =counter++=) → in the thread's =$buffers= (=entities/thread/hydration.js:6=) → framed (=terminal.$buffer=) → mounted (=surfaces/chrome/panes/painters.jsx:15= =attach()=; no listener) → released by its view (no listener in ghost) → unmounted (=painters.jsx:29= =detach()=) → removed (=removeOne=, no caller in ghost). Q6D stands: the premise is the view releases, the stall's side removes, the =$buffers= change refills. Asked Q6E: release's HOME (the buffer's hydration vs the terminal's stall) → LOCKED /"a"/ (=Stall.release= · =launch= dropped; escort, commented, reads a =launch= it must bring back). Asked Q6F: the blank buffer's source → LOCKED /"a"/ (hunk = =stall.js= =/manual=, unchanged). Q6H: the notebook view vs the phase (→ LOCKED A 10-24, deferred) — the terminal's =DOCKED.view= (=subsystems/typology/schematics/traits/docked.js:7= =docked · full · closed · messenger=) or a phase.
+- 10-24, beef verbatim: /"take a look at the current implementation of stall and tell me what we are missing . Also look at like the last say 1/2 year of evolution of the stall prototype . Well, it's been drifting . I want to get a handle on it"/ — studied (Q6H held). Lineage: =subsystems/drapes/bak/components/buffer/stall.svelte.js= (=cc9bbd2b5= 2025-12-27, owns =queue=, status =IDLE · NEXT · PULLING · STOP=) → =systems/html/src/typology/prototypes/stall.js= (=051cd9d64= 03-31, nanostores, =$queue · $active · $error · $status=, pull answers =NOMINAL · EXHAUSTED · ERROR=) → =1972ac354= 04-10 stores injected (=constructor($queue, $active)=) → =fb1183e8c= 04-13 =$source= = the thread's buffers, =activate · deactivate · suspend=; =d431050fc= 04-17 his =@beef i feel like these should be on the thread lifecycle! and no activated/suspended manual bypass.= → =systems/kajuit/…/stall.js= (=a61e32d9f= 05-05, =suspend= gone) → =subsystems/typology/prototypes/stall.js= (=7e0062db7= 06-22, the factory =Stall({ source, active, phase, pull, depth })=: the status machine gone, the THREAD's phase in, =depth()= for =threshold=, a =WeakSet= release bridge, =only(predicate)= for escort's hub) → =53d1f4962= 08-07 comments stripped (today). Sole consumer: anima =src/entities/terminal/prototype.js:119= (dies with Q8); tests =subsystems/typology/tests/stall.test.js= (6 specs). =Queue= (=prototypes/queue.js=) is an unrelated async queue.
+- 10-24, beef verbatim: /"Yeah, okay, work on a new generation of the proposed stall"/ → SKETCH =** the stall, generation 2= under =* as code= (closes the study's 1 · 4 · 5 + a dropped-change race in =refilling ??==; 3 · 6 · exhausted stay with the commented phases; escort DROPPED from the file — it needs =launch= + =only(predicate)= back, rides its own revival). CORRECTION of the study's item 2: today's Stall does NOT respect a closed frame while the thread holds buffers — =active.subscribe= → =settle= → =advance= re-frames at once (=subsystems/typology/prototypes/stall.js:52-55,103=); only escort's parked hub survives. Asked Q6G: a closed frame (=close.js:17= · =application/stop.js:6=) — stays closed until the thread's buffers change, or until the user frames one.
+- Q6G STRUCK 10-24, beef verbatim: /"I don't understand this question at all. Is this about what when we close the frame? Frame is a UI element. We close the frame, so why do the buffers have to change? I don't think there is an application stop, makes no sense. I don't think there is a close, also makes no sense. Why would we set the buffer to null just because we close the window that looks at it?"/ — my fault: I named the store =terminal.$buffer= "the frame" (rule landed in =.claude/skills/drill-me/SKILL.md=). What IS: both commands exist and null the terminal's buffer to hide the frame — =/buffer/close= (=systems/ghost/subjects/terminal/commands/close.js:12-20=, chord =leader/e/u=) · =/application/stop= (=commands/application/stop.js:3-9=); the chrome derives the frame from the buffer: =hasFrame = world.terminal.buffer !== null && dock.view !== "full"= (=systems/ghost/surfaces/chrome/panes/regions.js:81=); =DOCKED.view= =docked · full · closed · messenger= (=subsystems/typology/schematics/traits/docked.js:7=), =full= = the dock fills, no frame. Asked Q6I: where "the frame is closed" lives once =terminal.$buffer= stops carrying it.
+- Q6I answered 10-24, beef verbatim: /"And neither of those commands are correct. Buffer close closes the frame is not what we want. And application stub, there is no application, also makes no sense. But I'll treat the, I'll go over all of the commands in the next session. This terminal buffer set null makes no sense either. That's not how we deal with buffers, really. If you want to open close the frame, then we should do that. But frame isn't the buffer. Something is seriously fucked here. Neither buffer close nor application stop should exist. If you want to close the dock or close the frame, that is another thing. And I don't understand, in, for example, option A, how are you giving me a command without giving me any of the context that I need for it? Stupid. I think A is correct, but how would I fucking know this, given that you're not telling me what this is?"/ → ruled Q6J (both commands go; the commands session); Q6I's =DOCKED.view: "full"= leans A, NOT locked — rides the commands session; my Option A hunk was a body cut from its =.open= (rule landed in =.claude/skills/drill-me/SKILL.md=). Consequence for the stall: with no command nulling the terminal's buffer, manual's empty-buffer case is a fresh seat or a buffer that left — gen 2 =/manual= holds.
+
+- 10-24, the registry callers with no thread in reach (=board/play/seats.js:67= under =/move · /step=, which take a buffer · =coach/coach/skills/index.js:15= =think(mode, …)= with no ctx · =coach/practice/aperture/index.js:100,119= a fallback chain), beef verbatim: /"1buffer always has a thread. 2make thread required input o harness."/ → Q12A · Q12B. Measured: 14 harness callers, not 3 — 10 pass no thread (=* blast table=); =Buffer.thread= is optional at three layers (=schematics/entities/buffer.js:16= · =Buffer.ts:48= · =:96= =nullable: true=) and the emitter binds only =if (ctx.input.thread)= (=emitter.js:28=); probe =scratchpad/m105-q12/undefined-id.js=: =findOneOrFail({ id: undefined })= → =NotFoundError= — the find is the door, no hand guard. Known issue =harness-does-not-require-thread-in-its-input= (=known-issues.org:1504=) is met whole by the Q12B hunks (=research.js:14= included) → CUT at land.
+
+- 10-24, landing gen 2: =/manual= writes =mode: stallCtx.terminal.thread.mode.id=; a ghost thread's =mode= is =null= (the runtime-level home, =qa/fresh.test.js= "a thread with no mode") or a STRING for an unreached daemon (=entities/thread/prototype.js:5=) — null throws (a fault per refill), a string mints =mode: undefined=. Unruled.
+
+* deferred
+
+- the notebook — the frame laying out the thread's =$buffers= as a sequence, per terminal (Q6H); its own quest, from =systems/ghost/surfaces/chrome/panes/regions.js:81=.
+- the terminal commands — =/buffer/close= · =/application/stop= go (Q6J); where "the frame is closed" lives (Q6I, his lean =DOCKED.view: "full"=); every command reviewed — the next session.
+
+- the inspector's views — one Solid view per dimension (every entity kind, the runtime's too, the whole client state); Q1 · Q2 rule the shape, the views are their own quest.
+- m89's F1–F8.
+- =box/= (microphone · speaker · the audio driver) into ghost — the surface already dispatches =/dictate= · =/speaker tone= (=src/surface/sections.js:220,254=); ghost has =/dictate= (=subjects/terminal/commands/dictate.js=), no =/speaker=.
+- domain-set traits — RULED Q11′ (narrowed per reader, =v.literal({ trait })=); his 10-24 Q7 sketch (hooks as composed Vectors, validated on write) relabelled by it; =Literal · Symbol · Note= keep =v.record= until a domain narrows.
+
+* as code
+
+*** systems/ghost
+**** subjects/client
+***** telemetry.js — Q0′ (new)
+#+begin_src js
+// systems/ghost/subjects/client/telemetry.js
+export class Telemetry {
+  constructor(client) {
+    this.client = client;
+  }
+
+  get $logger() {
+    return this.client.controller.stdout.$history;
+  }
+}
+#+end_src
+**** subjects/terminal
+***** lifecycle/index.js — Q3
+#+begin_src diff
+// systems/ghost/subjects/terminal/lifecycle/index.js:1
+ import { Vector, shard } from "@vivalence/typology";
++import { stall } from "./stall.js";
+…
+// systems/ghost/subjects/terminal/lifecycle/index.js:3
+ export const execution = new Vector()
+   .use(shard.controller.open)
+   .use(async (terminalDie, next) => {
+     terminalDie.controller.stdout.log({ terminal: terminalDie.terminal.id });
+     await next();
+   })
++  .use(stall)
+   .do(shard.controller.hold);
+#+end_src
+**** entities/buffer — Q6E
+***** hydration.js — Q4′ · Q6E (on the Q4′ door)
+#+begin_src diff
+// systems/ghost/entities/buffer/hydration.js:3
+ export const hydration = new Vector().use(async (ctx, next) => {
+   await next();
+   ctx.entity.trait = belt.traits.cast(ctx.entity, v.buffer.traits);
++  ctx.entity.on.release(() => ctx.runtime.entities.buffer.removeOne({ id: ctx.entity.id }));
+ });
+#+end_src
+**** the stall, generation 2 — LOCKED 10-24 (Q6K; supersedes the Q3 beat · Q4 sketch · Q5 table · Q6C · Q6D hunks → =reference/m105/stall-superseded.org=)
+***** entities/thread/hydration.js — gen 2 (the thread's buffers in =index= order; =$phase=, the Q3 lookup)
+#+begin_src diff
+// systems/ghost/entities/thread/hydration.js:4
+ export const hydration = new Vector().use(async (ctx, next) => {
+   await next();
+-  ctx.entity.$buffers = computed(ctx.runtime.entities.buffer.$entities, (buffers) => buffers.filter((buffer) => buffer.thread === ctx.entity));
++  ctx.entity.$buffers = computed(ctx.runtime.entities.buffer.$entities, (buffers) => buffers.filter((buffer) => buffer.thread === ctx.entity).sort((first, second) => first.index - second.index));
++  ctx.entity.$phase = computed(ctx.runtime.entities.thread.$entities, () => ctx.entity.phase);
+#+end_src
+***** subjects/terminal/stall.js — gen 2
+#+begin_src js
+// systems/ghost/subjects/terminal/stall.js
+import { Vector, steer } from "@vivalence/typology";
+
+export const phases = new Vector();
+
+/* @beef
+phases
+  .branch({ nature: "/inert", valence: "the mode manages its own buffers; the stall touches nothing. Example: /inert" })
+  .do(() => {});
+*/
+
+phases
+  .branch({ nature: "/manual", valence: "an empty thread gets one blank buffer; the frame holds the thread's oldest buffer until it leaves. Example: /manual" })
+  .use(async (stallCtx, next) => {
+    if (stallCtx.terminal.stall.$buffers.get().length === 0)
+      await stallCtx.terminal.client.runtime.entities.buffer.create({ mode: stallCtx.terminal.thread.mode.id, thread: stallCtx.terminal.thread.id, data: {} });
+    await next();
+  })
+  .do((stallCtx) => {
+    if (stallCtx.terminal.stall.$buffers.get().includes(stallCtx.terminal.stall.$buffer.get())) return;
+    stallCtx.terminal.stall.$buffer.set(stallCtx.terminal.stall.$buffers.get()[0] ?? null);
+  });
+
+/* @beef
+phases
+  .branch({ nature: "/continuous", valence: "the thread's emitter keeps QUEUEING.depth buffers queued; the frame holds the oldest. Example: /continuous" })
+  .use(async (stallCtx, next) => {
+    if (!stallCtx.terminal.thread.traits.includes("AIMED"))
+      throw new Error(`[stall] /continuous: thread #${stallCtx.terminal.thread.id} claims no AIMED — its traits: ${stallCtx.terminal.thread.traits.join(" · ") || "none"}`);
+    await next();
+  })
+  .use(async (stallCtx, next) => {
+    if (stallCtx.terminal.stall.$buffers.get().length < stallCtx.terminal.thread.trait.QUEUEING.depth) {
+      const emission = await stallCtx.terminal.thread.mode.connection.call(stallCtx.terminal.thread.trait.AIMED.mount, { thread: stallCtx.terminal.thread.id, ...stallCtx.terminal.thread.trait.MASKED });
+      for (const buffer of emission.output.buffer) await stallCtx.terminal.client.runtime.entities.buffer.merge(buffer);
+    }
+    await next();
+  })
+  .do((stallCtx) => {
+    if (stallCtx.terminal.stall.$buffers.get().includes(stallCtx.terminal.stall.$buffer.get())) return;
+    stallCtx.terminal.stall.$buffer.set(stallCtx.terminal.stall.$buffers.get()[0] ?? null);
+  });
+*/
+
+export class Stall {
+  refilling = Promise.resolve();
+
+  constructor(terminal) {
+    this.terminal = terminal;
+  }
+
+  get $buffers() {
+    return this.terminal.thread.$buffers;
+  }
+
+  get $buffer() {
+    return this.terminal.$buffer;
+  }
+
+  get $phase() {
+    return this.terminal.thread.$phase;
+  }
+
+  refill() {
+    this.refilling = this.refilling
+      .then(() => steer.dispatch.execute(phases, { terminal: this.terminal }, `/${this.$phase.get()}`))
+      .catch((error) => this.terminal.controller.stdout.fault(error));
+    return this.refilling;
+  }
+
+  toJSON() {
+    if (this.terminal.thread === null) return { thread: null };
+    return {
+      thread: this.terminal.thread.id,
+      phase: this.$phase.get(),
+      buffer: this.$buffer.get() === null ? null : this.$buffer.get().id,
+      buffers: this.$buffers.get().map((buffer) => buffer.id),
+    };
+  }
+}
+#+end_src
+***** subjects/terminal/lifecycle/stall.js — gen 2
+#+begin_src js
+// systems/ghost/subjects/terminal/lifecycle/stall.js
+export const stall = async (terminalDie, next) => {
+  let watching = [];
+  const seated = terminalDie.terminal.$thread.subscribe((thread) => {
+    for (const off of watching) off();
+    watching = [];
+    if (thread === null) return;
+    watching = [
+      terminalDie.terminal.stall.$buffers.subscribe(() => terminalDie.terminal.stall.refill()),
+      terminalDie.terminal.stall.$phase.subscribe(() => terminalDie.terminal.stall.refill()),
+    ];
+  });
+  try {
+    await next();
+  } finally {
+    seated();
+    for (const off of watching) off();
+  }
+};
+#+end_src
+***** subjects/terminal/prototype.js — gen 2 (Q4 · Q6C)
+#+begin_src diff
+// systems/ghost/subjects/terminal/prototype.js:5
+ import { Repl } from "./repl.js";
++import { Stall } from "./stall.js";
+…
+// systems/ghost/subjects/terminal/prototype.js:19
+   repl = new Repl(this);
+   legend = new Legend(this);
++  stall = new Stall(this);
+   $thread = atom(null);
+…
+// systems/ghost/subjects/terminal/prototype.js:44
+-    const kept = (key) => !key.startsWith("$") && !["client", "repository", "runtime", "daemon", "controller", "repl", "legend"].includes(key);
++    const kept = (key) => !key.startsWith("$") && !["client", "repository", "runtime", "daemon", "controller", "repl", "legend", "stall"].includes(key);
+#+end_src
+*** subsystems/typology (HOLY, its own go)
+**** gestalten/belt
+***** traits.js — Q4′ (=claim= → =cast=; SUPERSEDED by Q9 · Q10 below)
+#+begin_src js
+// subsystems/typology/gestalten/belt/traits.js:25
+export function cast(entity, vocabulary) {
+  const trait = {};
+  for (const name of entity.traits) {
+    if (!Object.hasOwn(vocabulary, name))
+      throw new Error(`[traits] no trait ${name} in a vocabulary of ${Object.keys(vocabulary).join(" · ") || "nothing"}`);
+    const filled = vocabulary[name].fill(entity.trait[name]);
+    const errors = [...vocabulary[name].errors(filled)];
+    if (errors.length) throw new Error(`[traits] ${name} on ${entity.id}: ${errors.map((error) => error.message).join(" · ")}`);
+    trait[name] = filled;
+  }
+  return trait;
+}
+#+end_src
+**** schematics
+***** v.js — Q4′
+#+begin_src diff
+// subsystems/typology/schematics/v.js:134
+   factory.traits = descriptor.traits ?? {};
+-  factory.trait = (row, name, vocabulary = factory.traits) => claim(row, name, { ...factory.traits, ...vocabulary });
+   return factory;
+#+end_src
+*** systems/ghost — Q4′
+**** entities/thread
+***** hydration.js — Q4′
+#+begin_src diff
+// systems/ghost/entities/thread/hydration.js:4
+ export const hydration = new Vector().use(async (ctx, next) => {
+   await next();
++  ctx.entity.trait = belt.traits.cast(ctx.entity, v.thread.traits);
+   ctx.entity.$buffers = computed(ctx.runtime.entities.buffer.$entities, (buffers) => buffers.filter((buffer) => buffer.thread === ctx.entity));
+#+end_src
+*** systems/runtime — Q7
+**** entities
+***** Thread.ts — Q7
+#+begin_src diff
+// systems/runtime/entities/Thread.ts:61
+   hooks: {
+     beforeCreate: [
+       async (args: any) => {
+         …the intent's traits merged…
+       },
++      (args: any) => {
++        args.entity.trait = belt.traits.cast(args.entity, v.thread.traits);
++      },
+     ],
++    beforeUpdate: [
++      (args: any) => {
++        args.entity.trait = belt.traits.cast(args.entity, v.thread.traits);
++      },
++    ],
+   },
+#+end_src
+**** subjects/mode/traits
+***** harnessed.js — Q7 · Q12′
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harnessed.js:32
+-  ctx.intelligent = v.thread.trait(ctx.thread, "INTELLIGENT");
+-  ctx.vocal = v.thread.trait(ctx.thread, "VOCAL");
++  ctx.intelligent = ctx.thread.traits.includes("INTELLIGENT") ? ctx.thread.trait.INTELLIGENT : null;
++  ctx.vocal = ctx.thread.traits.includes("VOCAL") ? ctx.thread.trait.VOCAL : null;
+#+end_src
+*** systems/anima — Q8
+**** the capture, then the removal (beef runs both)
+#+begin_src sh
+# systems/anima
+rsync -a src/{app,box,bridge,entities,gestalten,prototypes,telemetry,lighthouse.js,typology.js} tests ~/.viva/bak/anima/src-20261024/
+#+end_src
+#+begin_src text
+systems/anima/src/            after
+├── client.css
+├── client.js
+├── index.html
+└── surface/
+#+end_src
+**** tests leaving with it (29)
+#+begin_src text
+systems/anima/tests/
+activity.stop · activity.widgets · bridge.view · dictation.store · dictate.splice · dock-turns · gate · lifecycle-vector
+terminal.stall · terminals.remote · design/audit · dock/turns.usage · dock/turns.mount · belt/narrow
+panes/{rail.mount,cards.mount,tree,rig.js} · pincer/{dock.geometry,theme,gesture,bones.axis,viewport,start}
+typology/{standalone,trait-runner} · interactive/activity/client.js · scenario/{daemon,buffer}
+#+end_src
+*** subsystems/typology (HOLY, its own go) — Q7′
+**** schematics/traits
+***** aimed.js — Q7′ (new)
+#+begin_src js
+// subsystems/typology/schematics/traits/aimed.js
+import { v } from "../v.js";
+
+export const Aimed = v.object({
+  mount: v.string().desc('The emitter\'s route a thread pulls its buffers from. Example: "/emitter/drill"'),
+});
+#+end_src
+***** masked.js — Q7′ (new)
+#+begin_src js
+// subsystems/typology/schematics/traits/masked.js
+import { v } from "../v.js";
+
+export const Masked = v.object({}, { additionalProperties: true }).desc('Fields merged into every pull of the thread. Example: { "level": "a1" }');
+#+end_src
+***** queueing.js — Q7′ (new)
+#+begin_src js
+// subsystems/typology/schematics/traits/queueing.js
+import { v } from "../v.js";
+
+export const Queueing = v.object({
+  depth: v.integer({ minimum: 1 }).default(1).desc("How many buffers the thread keeps queued. Example: 1"),
+});
+#+end_src
+***** index.js — Q7′
+#+begin_src diff
+// subsystems/typology/schematics/traits/index.js:6
+ import { Intelligent } from "./intelligent.js";
+ import { Vocal } from "./vocal.js";
++import { Aimed } from "./aimed.js";
++import { Masked } from "./masked.js";
++import { Queueing } from "./queueing.js";
+
+-export { Docked, Themed, Intelligent, Vocal };
++export { Docked, Themed, Intelligent, Vocal, Aimed, Masked, Queueing };
+ …
+-export const thread = { LABELED: Label, INTELLIGENT: Intelligent, VOCAL: Vocal };
++export const thread = { LABELED: Label, INTELLIGENT: Intelligent, VOCAL: Vocal, AIMED: Aimed, MASKED: Masked, QUEUEING: Queueing };
+#+end_src
+*** subsystems/typology (HOLY, its own go) — Q9
+**** gestalten/belt
+***** traits.js — Q9 · Q10 · Q11 (supersedes the Q4′ =cast= body)
+#+begin_src js
+// subsystems/typology/gestalten/belt/traits.js:25
+export function cast(entity, vocabulary) {
+  const trait = vocabulary.fill(entity.trait);
+  const claimed = [...vocabulary.errors(trait)].filter((error) => entity.traits.includes(error.path.split("/")[1]));
+  if (claimed.length) throw new Error(`[traits] ${entity.id}: ${claimed.map((error) => `${error.path} ${error.message}`).join(" · ")}`);
+  return trait;
+}
+#+end_src
+***** schematics/traits/index.js · entities/thread.js — Q11
+#+begin_src diff
+// subsystems/typology/schematics/traits/index.js:30
+-export const thread = { LABELED: Label, INTELLIGENT: Intelligent, VOCAL: Vocal, AIMED: Aimed, MASKED: Masked, QUEUEING: Queueing };
++export const thread = v.object({ LABELED: Label.default({}), INTELLIGENT: Intelligent.default({}), VOCAL: Vocal.default({}), AIMED: Aimed.default({}), MASKED: Masked.default({}), QUEUEING: Queueing.default({}) });
+#+end_src
+#+begin_src diff
+// subsystems/typology/schematics/entities/thread.js:7
+-    traits: v.array(v.string()).optional(),
+-    trait: v.record(v.string(), v.unknown()).optional(),
++    traits: v.array(v.enum(Object.keys(thread.properties))).optional(),
++    trait: thread.default({}),
+#+end_src
+*** systems/ghost — the lookups (Q0′ · Q9)
+**** subjects/client
+***** prototype.js — Q0′
+#+begin_src diff
+// systems/ghost/subjects/client/prototype.js:2
+ import { Aperture, NotFound, ReplSignal, belt, fromm, is, shape, v } from "@vivalence/typology";
++import { Telemetry } from "./telemetry.js";
+…
+// systems/ghost/subjects/client/prototype.js:26
+   aperture = new Aperture();
+   looping = belt.fn.once(loop);
++  telemetry = new Telemetry(this);
+   $runtime = atom(null);
+#+end_src
+**** subjects/terminal
+***** legend.js — Q0′ (the owner's span)
+#+begin_src diff
+// systems/ghost/subjects/terminal/legend.js:47
+-    if (effect !== null) return this.execute(effect, carry).catch((error) => this.terminal.client.controller.stdout.fault(error));
++    if (effect !== null) return this.execute(effect, carry).catch((error) => this.terminal.controller.stdout.fault(error));
+#+end_src
+**** surfaces/chrome/panes
+***** chrome.jsx — Q0′
+#+begin_src diff
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:89
+-  const messages = from(computed(client.controller.stdout.$history, (held) => held.filter((record) => record.track === "log")));
++  const messages = from(computed(client.telemetry.$logger, (held) => held.filter((record) => record.track === "log")));
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:122
+-  const traced = from(computed(client.controller.stdout.$history, (held) => held.filter((record) => TRACKS.includes(record.track))));
++  const traced = from(computed(client.telemetry.$logger, (held) => held.filter((record) => TRACKS.includes(record.track))));
+…
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:160
+-  const beats = from(computed(props.client.controller.stdout.$history, (held) => held.filter((record) => record.track === "log")));
++  const beats = from(computed(props.client.telemetry.$logger, (held) => held.filter((record) => record.track === "log")));
+#+end_src
+**** entities/thread
+***** prototype.js — Q9 (=traits= says active)
+#+begin_src diff
+// systems/ghost/entities/thread/prototype.js:4
+-  [(thread) => "name" in v.thread.trait(thread, "LABELED"), (thread) => v.thread.trait(thread, "LABELED").name],
++  [(thread) => thread.traits.includes("LABELED"), (thread) => thread.trait.LABELED.name],
+#+end_src
+
+* changelog
+
+- 10-24, /"go. holy god"/ → the Q12A · Q12B typology hunks applied as tangled: =schematics/entities/buffer.js:16= · =schematics/primitives/contexts.js:65-66= · =schematics/primitives/harness.js:16=. Tests following the contract: =tests/harness.snapshot.test.js= (=required= → =["thread","parts"]=, a thread-less request → =false=) · =tests/schematics.test.js= (a thread-less buffer → =false=) · =tests/v.test.js= · =tests/view-entity.snapshot.test.js= (fixtures carry =thread=); =tests/snapshots/harness-request.snapshot.json= rewritten by the run.
+- census (=HOME= empty, serial): typology =ok | 153 passed (670 steps) | 0 failed (36s)= (base the same) · runtime =FAILED | 86 passed (568 steps) | 11 failed (23 steps) | 1 ignored (59s)= (base 86/11) · ghost =ok | 35 passed (137 steps) | 0 failed (21s)= (=DENO_DIR= pinned) · memo =ok | 12 passed (41 steps) | 0 failed= · hello-world =FAILED | 17 passed (57 steps) | 2 failed (7 steps)= · playground =ok | 2 passed (6 steps) | 0 failed=. Every red equal with the edits reversed (=scratchpad/m105-q12/flip.py=); unnamed ones filed =runtime-and-hello-reds-untraced= · =ghost-shell-test-reads-deno-cache-under-empty-home=.
+
+- 10-24, /"gogogogo finish"/ → Q12 whole: runtime =Buffer.ts= (column NOT NULL) · =emitter.js= · =harnessed.js=; in-tree callers; registry (captured =~/.viva/bak/registry/m105-20261024/=). DEPARTURE: =hello-world/page/index.js:58= keeps its create thread-free — =/article= mints then =emitter.js:57= binds; the tangled =thread:= line double-binds (=P-nodoublebind=). Tests moved to the law: =tests/mode/traits.test.js= (emits pass a thread; "buffer without thread has null thread" → "an emit without a thread is refused") · =filetraits.coverage.test.js= · =harness.thread.test.js= · hello =emitter.test.js= (stub =findOneOrFail=; "a standalone draw" → "a draw without a thread is refused") · =draw.snapshot.test.js= stub · playground =primer.coverage.test.js= · chess =practice.test.js= (11 creates carry =rig.thread.id=); the runtime scenarios' hand-rolled =APPLICATION= stubs (=tests/scenarios/daemon.js:13= · =bench.js:11=) now mint through =entities.buffer.create= — they dropped =thread=. Local db: 0 of 3 buffers thread-less (=~/.viva/instances/localhost/mountpoint/localhost.viva.db=); prod unmeasured.
+- 10-24, /"ok finsih the quest"/ → the scratch replay (=7c39b6a1…/scratchpad/m105/m105.patch=, rig → base) landed by =diff3 -m= on the tree as it stood: 39 files unchanged since the copy take the replay · 6 already equal · 5 merged (=harnessed.js= 8 conflicts → replay · =view-entity.snapshot.test.js= my thread fixtures + =.traits.properties= · =harness.thread.test.js= replay · =primer.coverage.test.js= =th-1= · =v.test.js= clean) + 5 new (=schematics/traits/{aimed,masked,queueing}.js= · =tests/traits.snapshot.test.js= · ghost =subjects/client/telemetry.js=). Q14: 8 =shard.hal.defaults= lines in 7 registry harnesses + their =shard= import. The stall gen 2 as tangled + =systems/ghost/tests/subjects/terminal/stall.test.js= (6 cases); two ghost tests seat stub threads with =$buffers · $phase= (=looping.test.js:108= · =repl.test.js:113=). =deno task ghost/bundle= → =out/panes.mjs= 122922 bytes. Q8: legacy captured (36 paths, 165 files → =~/.viva/bak/anima/src-20261024/=); =src/surface= · =client.js= import none of it; the removal is his.
+- census (serial, empty =HOME= + =DENO_DIR=): typology =ok | 155 passed (678 steps) | 0 failed (34s)= · ghost =FAILED | 35 passed (140 steps) | 1 failed (3 steps)= (the stall's three, =traverse-skips-the-reached-nodes-own-carry=) · runtime =FAILED | 86 passed (569 steps) | 11 failed (23 steps) | 1 ignored= (base set) · hello =17/2= (base) · memo =12/0= · playground =2/0= · chess coach =2/0= · practice =2/0= · analysis =2/0= · board/play =5/0= (=tty.render.test.js= aborts on =@vivalence/ghost/host=, m104's migrate line) · anima aborts on =$telemetry= inside the legacy graph until Q8's removal.
+
+- 10-24, /"fix traverse. yes. go."/ → =subsystems/typology/gestalten/steer/dispatch.js= =traverse= descends the node that OWNS the effect on every returning arm (the matched trajectory · the wildcard edge · the loop's tail), as =steer.trie.fold= does — a leaf's own =.use= now runs for its own effect; the stall's =/manual= creates its blank buffer. =systems/ghost/tests/subjects/client/client.test.js:68= moved to the stall law: on probe the frame holds the stall's blank buffer, =/application/start= mints nothing (was =terminal.buffer === null=). Same turn, /"THERE IS NO @vivalence/ghost/host … its. fucking import {host} from vivalence/ghost"/: ghost's root re-exports =host= (=systems/ghost/typology.js=), chess =board/play= · education =dojo= =tests/tty.render.test.js= import it there (captured), m104's release line rewritten.
+- Q8 removal run 10-24 (36 paths, 165 files; capture =~/.viva/bak/anima/src-20261024/=): =systems/anima/src= = =client.css · client.js · index.html · surface=; anima per file 15/17 ok, =pincer/spine.mount= · =oracle.snapshot= as before (=anima-suite-aborts-on-two-files=); =svelte.config.js:22= still names =routes: "src/app"=.
+- census after: typology =155/0= · ghost =ok | 36 passed (143 steps) | 0 failed (22s)= · runtime =86/11= (base set) · hello =17/2= (base) · memo =12/0= · playground =2/0= · paladin =58/0= · chess =ok | 12 passed (56 steps) | 0 failed= · both =tty.render= =1/0=.
+
+* release
+
+- added =terminal.stall= — the terminal's Stall: =$buffers · $buffer · $phase=, =refill()=, =toJSON()=; =phases= dispatched on =/<thread.phase>=, =manual= only · migrate: none ⟨m105 Q6K⟩
+- changed =thread.$buffers= — sorted by =index=, oldest first · migrate: none ⟨m105 Q6K⟩
+- added =thread.$phase= — a store over =thread.phase= · migrate: none ⟨m105 Q6K⟩
+- changed =buffer.release()= — the client removes the buffer on the runtime · migrate: none ⟨m105 Q6E⟩
+- changed =v.<entity>.trait(entity, NAME)= — removed; a trait is read straight, =entity.trait.NAME=, cast once at the door · migrate: rewrite each call ⟨m105 Q4′⟩
+- changed =entity.trait= — holds every vocabulary name filled from its defaults; =traits= alone says what is active · migrate: test =traits.includes(NAME)=, never key presence ⟨m105 Q9 · Q10⟩
+- added =AIMED · MASKED · QUEUEING= — declared thread traits, validated when claimed · migrate: none ⟨m105 Q7′⟩
+- changed a thread write — an invalid claimed trait is refused on create and update · migrate: none ⟨m105 Q7⟩
+- added =client.telemetry= — =.$logger= over the client span · migrate: none ⟨m105 Q0′⟩
+- changed =mode.harness.{dialogue,object}.{render,stream}= — =thread= required; a call without one throws =NotFoundError= · migrate: pass the thread the caller holds ⟨m105 Q12B⟩
+- changed =Buffer.thread= — required; a buffer without a thread is refused at the flush · migrate: mint on a thread; rows with a null thread fail the migration ⟨m105 Q12A⟩
+- changed =/emit/<mount>= — =thread= required · migrate: pass =thread= ⟨m105 Q12A⟩
+- changed chess =coach/practice= =/turn · /ask= — =thread= input removed, the board's thread answers · migrate: drop =thread= ⟨m105 Q12A⟩
+- changed =thread= on memo =/chat= · dealer · oracle =/vision= · aprende · primer · chess practice create · hello =/article= — required · migrate: pass =thread= ⟨m105 Q12B⟩
+- removed anima's legacy =src/= (=app · box · bridge · entities · gestalten · prototypes · telemetry= · =lighthouse.js · typology.js=) · migrate: none, captured to =~/.viva/bak/anima/src-20261024/= ⟨m105 Q8⟩
+
+* review — 10-24 (gen 2 of the stall)
+| S | stop | rides | verdict | his words |
+|------|------|-------|---------|-----------|
+| 1 | the thread hands out its buffers oldest first, and its phase as a store | Q3 · gen 2 | amen | /"amen"/ |
+| 2 | a release removes the buffer | Q6D · Q6E | amen | /"amen. ok. we good on the design"/ |
+| 3 | the Stall is the terminal's: three stores | Q4 · Q6C · gen 2 | amen (design closed, not walked) | /"amen. ok. we good on the design"/ |
+| 4 | the beat watches the seated thread | Q6D · gen 2 | amen (design closed, not walked) | /"amen. ok. we good on the design"/ |
+| 5 | refill dispatches the thread's phase, one run after another | Q6B · Q6C · gen 2 | amen (design closed, not walked) | /"amen. ok. we good on the design"/ |
+| 6 | manual: a blank buffer when empty, then the oldest buffer | Q6C · Q6F | amen (design closed, not walked) | /"amen. ok. we good on the design"/ |
+| 7 | the Stall serializes for the inspector | Q1 · gen 2 | amen (design closed, not walked) | /"amen. ok. we good on the design"/ |
+| 8 | the rest: wiring · deaths · deferred | Q3 · Q6J · Q8 | amen (design closed, not walked) | /"amen. ok. we good on the design"/ |
+
+* review — 10-24 (landed)
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | the thread's vocabulary: AIMED · MASKED · QUEUEING beside INTELLIGENT · VOCAL | Q7′ · Q13 | — | |
+| 2 | the cast: claimed names validated, every name filled | Q4′ · Q9 · Q10 | — | |
+| 3 | the runtime casts on write; a thread is born INTELLIGENT · VOCAL | Q7 · Q13 | — | |
+| 4 | a buffer always has a thread | Q12A | — | |
+| 5 | the harness requires the thread | Q12B · Q12′ | — | |
+| 6 | traverse runs the reached node's own carry | law 9 (branch · use · do) | — | |
+| 7 | client.telemetry holds the logger | Q0′ | — | |
+| 8 | ghost casts at hydration; reads are straight | Q4′ · Q9 | — | |
+| 9 | the stall, landed | Q6K · Q6E | — | |
+| 10 | anima without its legacy graph | Q8 | — | |
+| 11 | the mechanical rest: callers pass the thread · the modes' defaults go · registry | Q12B · Q14 | — | |
+
+* handoff
+
+- goal: telemetry on the client (=client.telemetry=, the logger; the inspector as views later); traits cast at the door, straight reads, =traits= active; anima without legacy; the stall on the terminal.
+- done 10-24: drilled Q0′ · Q1 · Q2 · Q3 · Q4′ · Q5 · Q7 · Q7′ · Q8 · Q9 · Q10 · Q11 · Q11′ · Q12′ · Q13; the stall session Q6A–Q6K (gen 2 LOCKED, =* review= S1 · S2 walked, S3–S8 closed by /"we good on the design"/); mikro probes =scratchpad/m105-probe/=, stall probes =scratchpad/m105-gen2/=; codestyle "a trait is a CLAIM" rewritten.
+- done 10-24 (LANDED, /"gogogogo finish"/ · /"ok finsih the quest"/ · /"fix traverse. yes. go."/): Q12 · Q12A · Q12B whole; the scratch replay by =diff3 -m=; Q14; stall gen 2 + =systems/ghost/tests/subjects/terminal/stall.test.js=; =traverse= fixed (=steer/dispatch.js=, a leaf's own carry runs, as =fold=); ghost root re-exports =host=; Q8 removed (capture =~/.viva/bak/anima/src-20261024/=); census in =* changelog= (base reds only).
+- next: none — DONE 10-24 (QA walked, =* release= lifted); broken markers → known issues
+- owed: the commands session (Q6I where "the frame is closed" lives · Q6J =/buffer/close= goes — =/application/start= · =/application/stop= LANDED dead 10-24 with APPLICATION's retirement, /"fix. go. ignore anima."/ · every terminal command); the notebook (Q6H, its own quest); the domain-traits roadmap (=* deferred=); =box/= into ghost; both ruled Q6L (=stallCtx= · =@beef=); UNRULED: =belt.traits.claim= dies or lives — runtime =repository.claim= (=gestalten/belt/traits.js:42=) → memo =retained.js:34,54= · education =retained.js:33,52=, the blast table's "=v.js= only" is wrong; a cached credential whose user has no =traits= throws at restore (=primitives/auth.js:16= optional).
+- never: =v.<entity>.trait= · =claim= · a silent ={}= for an invalid trait · key presence as "active" · a Telemetry =DIMENSIONS= primitive · anima legacy kept alive · =terminal.$buffer.set(null)= to close a frame · a phase as a repl command vector · a notebook as a phase · a harness call without =thread= · a buffer without a thread · =buffer.thread?.= · a =thread= fallback chain.
+*** systems/ghost — the 12-site rewrite (Q4′ · Q9 lookups)
+**** entities/buffer
+***** hydration.js — Q4′ (the door)
+#+begin_src diff
+// systems/ghost/entities/buffer/hydration.js:1
+-import { Vector } from "@vivalence/typology";
++import { Vector, belt, v } from "@vivalence/typology";
+
+-export const hydration = new Vector();
++export const hydration = new Vector().use(async (ctx, next) => {
++  await next();
++  ctx.entity.trait = belt.traits.cast(ctx.entity, v.buffer.traits);
++});
+#+end_src
+**** entities/lighthouse
+***** prototype.js — Q4′ (the user's two doors)
+#+begin_src diff
+// systems/ghost/entities/lighthouse/prototype.js:38
+-      this.$user.set(held.user);
++      this.$user.set({ ...held.user, trait: belt.traits.cast(held.user, v.user.traits) });
+…
+// systems/ghost/entities/lighthouse/prototype.js:70
+-    if (user) this.$user.set(user);
++    if (user) this.$user.set({ ...user, trait: belt.traits.cast(user, v.user.traits) });
+#+end_src
+**** subjects/client/traits
+***** home.js — Q9
+#+begin_src diff
+// systems/ghost/subjects/client/traits/home.js:7
+-    const user = v.user.trait(clientDie.runtime.lighthouse.user, "HOME");
+-    const home = is.string(user.reference) ? user.reference : mask.trait.HOME.reference;
++    const claimed = clientDie.runtime.lighthouse.user.traits.includes("HOME") && is.string(clientDie.runtime.lighthouse.user.trait.HOME.reference);
++    const home = claimed ? clientDie.runtime.lighthouse.user.trait.HOME.reference : mask.trait.HOME.reference;
+#+end_src
+**** subjects/terminal
+***** hydration.js — Q4′ (the door)
+#+begin_src diff
+// systems/ghost/subjects/terminal/hydration.js:1
+-import { Vector } from "@vivalence/typology";
++import { Vector, belt, v } from "@vivalence/typology";
+…
+// systems/ghost/subjects/terminal/hydration.js:3
+ export const hydration = new Vector().use(async (ctx, next) => {
+   await next();
++  ctx.entity.trait = belt.traits.cast(ctx.entity, v.terminal.traits);
+   ctx.entity.client = ctx.client;
+#+end_src
+***** commands/artifact.js · buffer.js · full.js — Q4′
+#+begin_src diff
+// systems/ghost/subjects/terminal/commands/artifact.js:10
+-const named = (buffer) => v.buffer.trait(buffer, "LABELED").name;
++const named = (buffer) => buffer.trait.LABELED.name;
+#+end_src
+#+begin_src diff
+// systems/ghost/subjects/terminal/commands/buffer.js:6
+-const named = (buffer) => v.buffer.trait(buffer, "LABELED").name;
++const named = (buffer) => buffer.trait.LABELED.name;
+#+end_src
+#+begin_src diff
+// systems/ghost/subjects/terminal/commands/full.js:7
+-const named = (buffer) => v.buffer.trait(buffer, "LABELED").name;
++const named = (buffer) => buffer.trait.LABELED.name;
+#+end_src
+***** commands/thread.js — Q4′
+#+begin_src diff
+// systems/ghost/subjects/terminal/commands/thread.js:6
+-const named = (thread) => v.thread.trait(thread, "LABELED").name;
++const named = (thread) => thread.trait.LABELED.name;
+#+end_src
+**** surfaces/chrome
+***** sections.js — Q4′ · Q9
+#+begin_src diff
+// systems/ghost/surfaces/chrome/sections.js:13
+-export const named = (buffer) => v.buffer.trait(buffer, "LABELED").name;
++export const named = (buffer) => buffer.trait.LABELED.name;
+…
+// systems/ghost/surfaces/chrome/sections.js:35
+-export const harness = (thread) => ({ tune: UNCLAIMED, effort: UNCLAIMED, rounds: v.primitives.hallucination.Policy.dialogue.properties.rounds.default, context: 0, ...(thread === null ? {} : v.thread.trait(thread, "INTELLIGENT")) });
++export const harness = (thread) => ({ tune: UNCLAIMED, effort: UNCLAIMED, rounds: v.primitives.hallucination.Policy.dialogue.properties.rounds.default, context: 0, ...(thread !== null && thread.traits.includes("INTELLIGENT") ? thread.trait.INTELLIGENT : {}) });
+#+end_src
+*** systems/anima — the 12-site rewrite (Q4′ · Q9)
+**** src/surface
+***** sections.js — Q4′ · Q9 (the same two lines as ghost's)
+#+begin_src diff
+// systems/anima/src/surface/sections.js:11
+-export const named = (buffer) => v.buffer.trait(buffer, "LABELED").name;
++export const named = (buffer) => buffer.trait.LABELED.name;
+…
+// systems/anima/src/surface/sections.js:33
+-export const harness = (thread) => ({ tune: UNCLAIMED, effort: UNCLAIMED, rounds: v.primitives.hallucination.Policy.dialogue.properties.rounds.default, context: 0, ...(thread === null ? {} : v.thread.trait(thread, "INTELLIGENT")) });
++export const harness = (thread) => ({ tune: UNCLAIMED, effort: UNCLAIMED, rounds: v.primitives.hallucination.Policy.dialogue.properties.rounds.default, context: 0, ...(thread !== null && thread.traits.includes("INTELLIGENT") ? thread.trait.INTELLIGENT : {}) });
+#+end_src
+*** registry (a domain's, at its own go) — Q11′
+#+begin_src js
+// ~/.viva/registry/education/topographies/italian/dataset/schematics.js   (SKETCH: the home is the domain's)
+export const literal = v.literal({ trait: { RANKED: Ranked, CONJUGATED: Conjugated, TRANSLATED: Translated } });
+// a reader inside the domain
+  const trait = belt.traits.cast(entity, schematics.literal.properties.trait);
+#+end_src
+*** subsystems/typology (HOLY, its own go) — Q12A · Q12B
+**** schematics/entities
+***** buffer.js — Q12A (a buffer always has a thread)
+#+begin_src diff
+// subsystems/typology/schematics/entities/buffer.js:16
+-    thread: () => v.rel(v.thread()).optional(),
++    thread: () => v.rel(v.thread()),
+#+end_src
+**** schematics/primitives
+***** contexts.js — Q12B
+#+begin_src diff
+// subsystems/typology/schematics/primitives/contexts.js:65
+-export const Harness = { ...vector, ...host, ...mode, ...user, ...optional(thread), ...optional(turn), ...hallucination, ...tools, ...controller, ...intelligent, ...vocal, ...optional(activity), ...optional(screen) };
+-export const Emitter = { ...vector, ...host, ...mode, ...pool, ...optional(thread), ...optional(user) };
++export const Harness = { ...vector, ...host, ...mode, ...user, ...thread, ...optional(turn), ...hallucination, ...tools, ...controller, ...intelligent, ...vocal, ...optional(activity), ...optional(screen) };
++export const Emitter = { ...vector, ...host, ...mode, ...pool, ...thread, ...optional(user) };
+#+end_src
+***** harness.js — Q12B (thread is a required input of the harness)
+#+begin_src diff
+// subsystems/typology/schematics/primitives/harness.js:16
+-  thread: v.string().optional().desc('The thread the turn appends to. Example: "th3"'),
++  thread: v.string().desc('The thread the turn appends to. Example: "th3"'),
+#+end_src
+*** systems/runtime — Q12 · Q12A · Q12B (the thread is always there)
+**** entities
+***** Buffer.ts — Q12A (the column)
+#+begin_src diff
+// systems/runtime/entities/Buffer.ts:48
+-  thread?: Rel<ThreadEntity>;
++  thread!: Rel<ThreadEntity>;
+…
+// systems/runtime/entities/Buffer.ts:92
+     thread: {
+       kind: "m:1",
+       entity: () => ThreadEntity,
+       fieldName: "thread",
+-      nullable: true,
+       updateRule: "cascade",
+       deleteRule: "cascade",
+     },
+#+end_src
+SKETCH: =BufferRepository.create= (=Buffer.ts:23-24,30=) keeps its =: null= arms — the emitter mints, then binds before the flush (=emitter.js:57-58= · =:61= flush), so the column is the door; the migration rides mikro's =.snapshot-*.json= (=migration:create=), a rebuild over rows whose =thread= is null fails — count them per =~/.viva/instances/*/mountpoint/*.viva.db= at replay.
+**** subjects/mode/traits
+***** emitter.js — Q12A (an emitted buffer lands on a thread)
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/emitter.js:26
+-    // thread is OPTIONAL — turn-free / standalone modes (riddler) emit without one.
+     // emitter requires thread.
+-    if (ctx.input.thread) {
+-      ctx.thread = await context.entities.thread.findOne(ctx.input.thread);
+-    }
++    ctx.thread = await context.entities.thread.findOneOrFail({ id: ctx.input.thread });
+…
+// systems/runtime/subjects/mode/traits/emitter.js:57
+-    if (ctx.thread && result.condition === "NOMINAL") {
++    if (result.condition === "NOMINAL") {
+#+end_src
+***** harnessed.js — Q12 · Q12B
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harnessed.js:24
+-  ctx.thread = ctx.input.thread
+-    ? await ctx.entities.thread.findOneOrFail({ id: ctx.input.thread })
+-    : null;
++  ctx.thread = await ctx.entities.thread.findOneOrFail({ id: ctx.input.thread });
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:31
+-  ctx.user ??= ctx.thread?.user ?? null;
++  ctx.user ??= ctx.thread.user;
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:39
+-    ctx.activity = await ctx.entities.activity.control({ user: ctx.user?.id ?? null, mode: ctx.mode.id, thread: ctx.thread?.id ?? null });
++    ctx.activity = await ctx.entities.activity.control({ user: ctx.user?.id ?? null, mode: ctx.mode.id, thread: ctx.thread.id });
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:104
+-  if (ctx.input.thread) armed.use(shard.context.bind("thread", ctx.input.thread));
++  armed.use(shard.context.bind("thread", ctx.input.thread));
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:144
+-          thread: ctx.thread?.id,
++          thread: ctx.thread.id,
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:182
+-    thread: ctx.thread?.id,
++    thread: ctx.thread.id,
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:202
+-  if (ctx.thread) ctx.hallucination.primer.open("thread", await tools.thread.summary(ctx));
++  ctx.hallucination.primer.open("thread", await tools.thread.summary(ctx));
+…
+// systems/runtime/subjects/mode/traits/harnessed.js:214
+-  if (ctx.thread) hallucination.policy.cache = { marks: marking(system) };
++  hallucination.policy.cache = { marks: marking(system) };
+#+end_src
+The guard is mikro's: =findOneOrFail({ id: undefined })= throws =NotFoundError: Thread not found ({ id: null })= — probed 10-24 (=scratchpad/m105-q12/undefined-id.js=, mikro 7.2.3 =:memory:=); =steer.strategy.echo= (=strategy.js:30=) does not validate =Request=, so the schema line is the contract, the find is the door. =ctx.user?.id= rides its own grep (=harnessed.js:103= his =@beef both nonoptional in near future=).
+**** the in-tree callers — Q12B (each passes the thread it holds)
+#+begin_src diff
+// commons/fixtures/memo/mode/aperture.js:34
+-      valence: "one answer from the Magister outside a thread. Example: { prompt: 'what is due today?' }",
++      valence: "one answer from the Magister on the caller's thread. Example: { prompt: 'what is due today?', thread: 'th3' }",
+…
+// commons/fixtures/memo/mode/aperture.js:37
+-        thread: v.string().desc("Binds the exchange to the caller's thread. Example: th3").optional(),
++        thread: v.string().desc("Binds the exchange to the caller's thread. Example: th3"),
+#+end_src
+#+begin_src diff
+// commons/instances/hello-world/page/index.js:44
+-      thread: v
+-        .string()
+-        .desc(
+-          "The thread the page belongs to, so it appears under the right turn. Omitted for a standalone draw.",
+-        )
+-        .optional(),
++      thread: v.string().desc('The thread the page belongs to, so it appears under the right turn. Example: "th3"'),
+…
+// commons/instances/hello-world/page/index.js:58
+     const buffer = await ctx.entities.buffer.create({
+       mode: ctx.mode.entity.id,
++      thread: ctx.input.thread,
+       mime: mime.json,
+#+end_src
+#+begin_src diff
+// commons/instances/hello-world/tools/doors.js:31
+   const { output } = await ctx.mode.harness.object.render({
++    thread: ctx.input.thread,
+     turns: [{
+#+end_src
+#+begin_src diff
+// commons/instances/hello-world/tools/research.js:14
+-    thread: ctx.thread ?? ctx.input?.thread, //@beef the fallback is a smell: the harness should resolve thread in its own ctx processing and THROW when input carries none. Only a bare cortex.hallucinate needs the caller to supply it. known-issues: harness-does-not-require-thread-in-its-input
++    thread: ctx.thread,
+#+end_src
+#+begin_src diff
+// commons/playground/chaosmonkey/oracle/aperture.js:12
+       const render = await ctx.mode.harness.object.render({
++        thread: ctx.input.thread,
+         turns: [{
+#+end_src
+#+begin_src diff
+// commons/playground/chaosmonkey/oracle/emitter.js:6
+-    input: v.object({ prompt: v.string(), thread: v.string().optional() }),
++    input: v.object({ prompt: v.string(), thread: v.string() }),
+…
+// commons/playground/chaosmonkey/oracle/emitter.js:15
+     const render = await ctx.mode.harness.object.render({
++      thread: ctx.input.thread,
+       turns: [{
+#+end_src
+#+begin_src diff
+// commons/playground/dealer/dealer.viva.js:59
+-        thread: v.string().optional(),
++        thread: v.string(),
+…
+// commons/playground/dealer/dealer.viva.js:73
+       const { output } = await ctx.mode.harness.object.render({
++        thread: ctx.input.thread,
+         turns: [
+#+end_src
+=/hello/agent= (=commons/instances/hello-world/mode.viva.js:36=) has no =input= schema; its callers are the two route-list snapshots (=tests/draw.snapshot.test.js:23= · =tests/harness.snapshot.test.js:36=), no live caller passes a body — the route grows =thread= with the doors hunk.
+*** registry (his, captured to =~/.viva/bak/registry/m105-20261024/= first) — Q12A · Q12B
+***** ~/.viva/registry/chess/modes/board/play — Q12A (the seat thinks on the board's thread)
+#+begin_src diff
+// ~/.viva/registry/chess/modes/board/play/aperture/index.js:148
+-export const step = async (ctx, data) => {
++export const step = async (ctx, buffer, data) => {
+…
+// ~/.viva/registry/chess/modes/board/play/aperture/index.js:155
+-  const answer = await driver(ctx, { seat, data, legal });
++  const answer = await driver(ctx, { seat, data, legal, thread: buffer.thread.id });
+…
+// ~/.viva/registry/chess/modes/board/play/aperture/index.js:263
+-        await step(ctx, data);
++        await step(ctx, buffer, data);
+…
+// ~/.viva/registry/chess/modes/board/play/aperture/index.js:280
+-      const { moved } = await step(ctx, data);
++      const { moved } = await step(ctx, buffer, data);
+#+end_src
+#+begin_src diff
+// ~/.viva/registry/chess/modes/board/play/seats.js:29
+-  hallucinator: async (ctx, { seat, data, legal }) => {
++  hallucinator: async (ctx, { seat, data, legal, thread }) => {
+…
+// ~/.viva/registry/chess/modes/board/play/seats.js:33
+-      const answer = await ask(ctx, { seat, data, legal, lines, tried });
++      const answer = await ask(ctx, { seat, data, legal, lines, tried, thread });
+…
+// ~/.viva/registry/chess/modes/board/play/seats.js:51
+-const ask = async (ctx, { seat, data, legal, lines, tried }) => {
++const ask = async (ctx, { seat, data, legal, lines, tried, thread }) => {
+…
+// ~/.viva/registry/chess/modes/board/play/seats.js:67
+   const render = await ctx.mode.harness.object.render({
++    thread,
+     turns: [{ role: "user", parts: [{ type: "text", text: brief }] }],
+#+end_src
+#+begin_src diff
+// ~/.viva/registry/chess/modes/board/play/tools/index.js:135
+-      const answered = data.status !== "ended" && data.seats[data.turn].kind !== "user" ? await step(ctx, data) : { moved: false };
++      const answered = data.status !== "ended" && data.seats[data.turn].kind !== "user" ? await step(ctx, buffer, data) : { moved: false };
+#+end_src
+***** ~/.viva/registry/chess/modes/coach/coach/skills/index.js — Q12B (a skill runs inside a harness; the belt bound its thread)
+#+begin_src diff
+// ~/.viva/registry/chess/modes/coach/coach/skills/index.js:15
+-const think = (mode, text, output) =>
+-  mode.harness.object.render({ turns: [{ role: "user", parts: [{ type: "text", text }] }], output }).then((render) => render?.output?.object ?? {});
++const think = (mode, thread, text, output) =>
++  mode.harness.object.render({ thread, turns: [{ role: "user", parts: [{ type: "text", text }] }], output }).then((render) => render?.output?.object ?? {});
+…
+// ~/.viva/registry/chess/modes/coach/coach/skills/index.js:91
+-      const answer = await think(mode, `${question}${about ? `\n(About: ${about}. Read it with your tools before you answer.)` : ""}`, ANSWER);
++      const answer = await think(mode, ctx.thread, `${question}${about ? `\n(About: ${about}. Read it with your tools before you answer.)` : ""}`, ANSWER);
+…
+// ~/.viva/registry/chess/modes/coach/coach/skills/index.js:120
+-      const review = await think(mode, brief, REVIEW);
++      const review = await think(mode, ctx.thread, brief, REVIEW);
+…
+// ~/.viva/registry/chess/modes/coach/coach/skills/index.js:150
+-      const explained = await think(mode, brief, EXPLANATION);
++      const explained = await think(mode, ctx.thread, brief, EXPLANATION);
+…
+// ~/.viva/registry/chess/modes/coach/coach/skills/index.js:188
+-      const picked = await think(mode, brief, SUGGESTION);
++      const picked = await think(mode, ctx.thread, brief, SUGGESTION);
+…
+// ~/.viva/registry/chess/modes/coach/coach/skills/index.js:219
+-      const taught = await think(mode, brief, LESSON);
++      const taught = await think(mode, ctx.thread, brief, LESSON);
+#+end_src
+=ctx.thread= in a skill is the id the arming bound (=harnessed.js:104=, unconditional after Q12B).
+***** ~/.viva/registry/chess/modes/coach/practice/aperture/index.js — Q12A (the board's thread, no fallback chain)
+#+begin_src diff
+// ~/.viva/registry/chess/modes/coach/practice/aperture/index.js:25
+-        thread: v.string().optional(),
++        thread: v.string(),
+…
+// ~/.viva/registry/chess/modes/coach/practice/aperture/index.js:47
+-      const thread = ctx.input.thread ?? ctx.thread?.id;
+-      const buffer = await ctx.mode.buffer({ data, ...(thread && { thread }) });
++      const buffer = await ctx.mode.buffer({ data, thread: ctx.input.thread });
+…
+// ~/.viva/registry/chess/modes/coach/practice/aperture/index.js:88
+-      input: v.object({ buffer: BUFFER, thread: v.string().optional().desc("The thread the talk lands on; the buffer's when absent. Example: \"01JQ…\".") }),
++      input: v.object({ buffer: BUFFER }),
+…
+// ~/.viva/registry/chess/modes/coach/practice/aperture/index.js:100
+-        thread: ctx.input.thread ?? buffer.thread?.id ?? ctx.thread?.id,
++        thread: buffer.thread.id,
+…
+// ~/.viva/registry/chess/modes/coach/practice/aperture/index.js:112
+-      input: v.object({ buffer: BUFFER, text: v.string().desc('The student\'s words. Example: "why not Qxb7?".'), thread: v.string().optional() }),
++      input: v.object({ buffer: BUFFER, text: v.string().desc('The student\'s words. Example: "why not Qxb7?".') }),
+…
+// ~/.viva/registry/chess/modes/coach/practice/aperture/index.js:119
+-        thread: ctx.input.thread ?? buffer.thread?.id ?? ctx.thread?.id,
++        thread: buffer.thread.id,
+#+end_src
+SKETCH: the valences at =:86-87= · =:110= still say "the operator's thread" and the example carries =thread=; rewritten with the hunk at replay.
+***** ~/.viva/registry/chess/modes/study/analysis/aperture/index.js — Q12A
+#+begin_src diff
+// ~/.viva/registry/chess/modes/study/analysis/aperture/index.js:171
+-      const render = await ctx.mode.harness.object.render({ turns: [{ role: "user", parts: [{ type: "text", text: brief }] }], output: ANSWER });
++      const render = await ctx.mode.harness.object.render({ thread: buffer.thread.id, turns: [{ role: "user", parts: [{ type: "text", text: brief }] }], output: ANSWER });
+#+end_src
+***** ~/.viva/registry/education/modes/home/aprende/types.js — Q12B
+#+begin_src diff
+// ~/.viva/registry/education/modes/home/aprende/types.js:10
+-  thread: v.string().optional().desc("Binds the exchange to the caller's thread."),
++  thread: v.string().desc('Binds the exchange to the caller\'s thread. Example: "th3"'),
+#+end_src
+***** ~/.viva/registry/education/modes/teacher/francesca/harness.js — Q12B (inside the harness; =ctx.thread= is the entity)
+#+begin_src diff
+// ~/.viva/registry/education/modes/teacher/francesca/harness.js:46
+   const render = await ctx.mode.harness.object.render({
++    thread: ctx.thread.id,
+     turns: [
+#+end_src
+***** ~/.viva/registry/young-ladys-primer/modes/home/primer/types.js — Q12B
+#+begin_src diff
+// ~/.viva/registry/young-ladys-primer/modes/home/primer/types.js:34
+-  thread: v.string().optional(),
++  thread: v.string(),
+#+end_src
+***** harnessed.js — Q12′ (the readers)
+#+begin_src diff
+// systems/runtime/subjects/mode/traits/harnessed.js:65
+-      ...(ctx.intelligent.tune && { tune: ctx.intelligent.tune }),
+-      ...(ctx.intelligent.rounds && { rounds: ctx.intelligent.rounds }),
++      ...(ctx.intelligent !== null && ctx.intelligent.tune && { tune: ctx.intelligent.tune }),
++      ...(ctx.intelligent !== null && ctx.intelligent.rounds && { rounds: ctx.intelligent.rounds }),
+       ...(tune && { tune }),
+     },
+-    ...(ctx.intelligent.effort && { settings: { effort: ctx.intelligent.effort } }),
++    ...(ctx.intelligent !== null && ctx.intelligent.effort && { settings: { effort: ctx.intelligent.effort } }),
+#+end_src
+*** subsystems/typology (HOLY, its own go) — Q13
+**** schematics/traits
+***** intelligent.js — Q13
+#+begin_src diff
+// subsystems/typology/schematics/traits/intelligent.js:4
+ export const Intelligent = v.object({
+-  tune: v.union([Tier, Tune]).optional(),
+-  effort: v.enum(["none", "low", "medium", "high"]).optional(),
+-  rounds: v.integer({ minimum: 1, maximum: 50 }).optional(),
++  tune: v.union([Tier, Tune]).default("capable").desc('The model tier. Example: "fast"'),
++  effort: v.enum(["none", "low", "medium", "high"]).default("low").desc('Reasoning effort. Example: "high"'),
++  rounds: v.integer({ minimum: 1, maximum: 50 }).default(12).desc("The round budget. Example: 12"),
+   thinking: v.boolean().optional(),
+ });
+#+end_src
+*** systems/runtime — Q13
+**** entities
+***** Thread.ts — Q13 (born claiming)
+#+begin_src diff
+// systems/runtime/entities/Thread.ts:61
+   hooks: {
+     beforeCreate: [
+       async (args: any) => {
+         …the intent's traits merged…
+       },
+       (args: any) => {
++        args.entity.traits = [...new Set([...args.entity.traits, "INTELLIGENT", "VOCAL"])];
+         args.entity.trait = belt.traits.cast(args.entity, v.thread.traits);
+       },
+     ],
+#+end_src
+
+*** the modes' defaults go — Q14 (registry: his, captured to =~/.viva/bak/registry/m105-20261024/= first)
+***** ~/.viva/registry/assembly/modes/editor/guide/harness.js — Q14
+#+begin_src diff
+// ~/.viva/registry/assembly/modes/editor/guide/harness.js:159
+-  .use(shard.hal.defaults({ policy: { tune: "capable", rounds: 8 }, settings: { effort: "medium" } }))
+#+end_src
+***** ~/.viva/registry/assembly/modes/editor/assembly/harness.js — Q14
+#+begin_src diff
+// ~/.viva/registry/assembly/modes/editor/assembly/harness.js:84
+-  .use(shard.hal.defaults({ policy: { tune: "balanced", rounds: 8 }, settings: { effort: "low" } }))
+#+end_src
+***** ~/.viva/registry/assembly/modes/player/guide/harness.js — Q14
+#+begin_src diff
+// ~/.viva/registry/assembly/modes/player/guide/harness.js:90
+-  .use(shard.hal.defaults({ policy: { tune: "balanced", rounds: 3 }, settings: { effort: "low" } }))
+#+end_src
+***** ~/.viva/registry/chess/modes/board/play/harness.js — Q14
+#+begin_src diff
+// ~/.viva/registry/chess/modes/board/play/harness.js:29
+-  .use(shard.hal.defaults({ policy: { tune: "capable", rounds: 1 }, settings: { effort: "low" } }))
+…
+// ~/.viva/registry/chess/modes/board/play/harness.js:37
+-  .use(shard.hal.defaults({ policy: { tune: "capable", rounds: 8 }, settings: { effort: "medium" } }))
+#+end_src
+***** ~/.viva/registry/chess/modes/coach/coach/harness.js — Q14
+#+begin_src diff
+// ~/.viva/registry/chess/modes/coach/coach/harness.js:15
+-  .use(shard.hal.defaults({ policy: { tune: "capable", rounds: 6 }, settings: { effort: "medium" } }))
+#+end_src
+***** ~/.viva/registry/chess/modes/coach/practice/harness.js — Q14
+#+begin_src diff
+// ~/.viva/registry/chess/modes/coach/practice/harness.js:14
+-  .use(shard.hal.defaults({ policy: { tune: "capable", rounds: 6 }, settings: { effort: "low" } }))
+#+end_src
+***** ~/.viva/registry/chess/modes/study/analysis/analysis.viva.js — Q14
+#+begin_src diff
+// ~/.viva/registry/chess/modes/study/analysis/analysis.viva.js:24
+-  .use(shard.hal.defaults({ policy: { tune: "capable", rounds: 1 }, settings: { effort: "low" } }))
+#+end_src
+***** commons/instances/hello-world/mode.viva.js — Q14
+#+begin_src diff
+// commons/instances/hello-world/mode.viva.js:40
+-  .use(shard.hal.defaults({ policy: { tune: "capable", rounds: 10 }, settings: { effort: "low" } }))
+#+end_src

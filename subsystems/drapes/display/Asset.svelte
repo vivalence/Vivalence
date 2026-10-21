@@ -3,14 +3,14 @@
   import Image from "../decor/Image.svelte";
   import Video from "../decor/Video.svelte";
 
-  let { asset, autoplay = false, preload = "auto", variant = "inline", onended = null } = $props();
-  const kind = $derived(asset?.type?.split("/")[0]);
+  let { file, autoplay = false, preload = "auto", variant = "inline", onended = null } = $props();
+  const kind = $derived(file?.mime?.split("/")[0]);
 </script>
 
 {#if kind === "audio"}
-  <Audio src={asset.url} type={asset.type} {preload} {autoplay} {variant} {onended} />
+  <Audio src={file.url} type={file.mime} {preload} {autoplay} {variant} {onended} />
 {:else if kind === "image"}
-  <Image src={asset.url} type={asset.type} {preload} />
+  <Image src={file.url} type={file.mime} {preload} />
 {:else if kind === "video"}
-  <Video src={asset.url} type={asset.type} {preload} />
+  <Video src={file.url} type={file.mime} {preload} />
 {/if}

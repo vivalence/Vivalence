@@ -12,7 +12,7 @@ paths: ["subsystems/paladin/**", "systems/runtime/**", "systems/ghost/**", "**/.
       record,
       "runtime",
 ```
-- **`gestalten/tools/` (was `skills/`) — `fs.js` (`resolve absolute fs`, also ← `shell.js`) · `shell.js` (`shell`); `index.js` (`*fs *shell`) ← `mod.js` → `paladin.tools`, and `deno.jsonc` `./tools`.** The only Vectors in paladin.
+- **`gestalten/tools/` (was `skills/`) — `fs.js` (`resolve absolute fs`, also ← `shell.js`) · `shell.js` (`shell`); `index.js` (`*fs *shell`) ← `mod.js` → `paladin.tools`, and `deno.jsonc` `./tools`.** + `commands/` (m110).
 ```js
 // commons/instances/hello-world/tests/catalog.snapshot.test.js:55
       .graft(paladin.tools.fs.fs)

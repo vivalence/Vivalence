@@ -12,8 +12,8 @@
 
 | piece | file:line | today |
 |---+---+---|
-| token | =systems/runtime/lighthouse/signer.js:4-53= | HS256 JWT; access 1 d, never revoked; refresh 180 d, must equal the stored copy |
-| session slot | =systems/runtime/lighthouse/apertures/users.js:26-27= | ONE pair per user; a second login logs the first out (=SESSION_EXPIRED=, =anima/src/lighthouse.js:150=) |
+| token | =systems/runtime/subjects/lighthouse/signer.js:4-53= | HS256 JWT; access 1 d, never revoked; refresh 180 d, must equal the stored copy |
+| session slot | =systems/runtime/subjects/lighthouse/apertures/users.js:26-27= | ONE pair per user; a second login logs the first out (=SESSION_EXPIRED=, =anima/src/lighthouse.js:150=) |
 | url token | =signer.js:47= · =transmitter.js:32-34= | =?token= accepted; the =/multiplex= WS already carries access in its query |
 | traits | =subsystems/typology/schematics/primitives/instance.js:59= | JOINABLE · INVITATIONAL (empty fn) · AUTOLOGIN |
 | terminal id | =DataEntity.ts:164= · =Terminal.ts:28-33= | uuid v7, user-filtered — naming one in a URL leaks nothing |

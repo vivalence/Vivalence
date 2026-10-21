@@ -1,0 +1,18 @@
+# drained 10-22 whole from .ikiro/quests/roadmap/m94-trait-rejiggle.org (quest tidy); nothing reworded · limit: none (reference content)
+
+#+begin_src js
+// subsystems/typology/schematics/traits/index.js — the carriers m94 ruled; opaque = v.object({}, { additionalProperties: true }) until its payload is ruled
+export const mode = { EXPOSED: opaque, HARNESSED: opaque, TOOLING: opaque, EMITTER: opaque, DATASET: opaque, AGENTIC: opaque, GENERATIVE: opaque, REPLING: opaque, BOOTED: opaque, KEYMAPPED: opaque, PRIMER: opaque, LOOPING: opaque, VIEWABLE: opaque, FILESET: opaque, FILESINK: opaque };
+export const thread = { LABELED: Label, INTELLIGENT: Intelligent, VOCAL: Vocal };   // from entities/thread.js:44 — the schemas move here, the descriptor imports the table
+export const buffer = { LABELED: Label };
+export const terminal = { LABELED: Label, DOCKED: Docked };
+export const user = { HOME: Home, DOCKED: Docked, THEMED: Themed };
+export const client = { HOME: Home, DOCKED: Docked, THEMED: Themed };
+export const lighthouse = { JOINABLE: opaque, INVITATIONAL: opaque, AUTOLOGIN: opaque };
+export const service = { ATTACHED: opaque, SERVER: opaque, DOCKER: opaque, COMPOSE: opaque };
+export const symbol = { LABELED: Label, ONTOLOGICAL: opaque, TOPOGRAPHICAL: opaque, STRUCTURAL: opaque };
+export const literal = { LABELED: Label };
+export const note = { LABELED: Label };
+// systems/runtime/entities/traits.js — the presets are the tables; define() reads them, declares nothing of its own
+export const traits = Object.fromEntries(Object.entries(v.traits).map(([entity, table]) => [entity, Object.entries(table).map(([name, schematic]) => trait.define(name, { schematic }))]));
+#+end_src

@@ -1,10 +1,10 @@
 import { specimen, shard, traits, v, Datamap, Path, Twitch, Vector } from "@vivalence/typology";
 import { MikroORM, raw, UniqueConstraintViolationException } from "@mikro-orm/core";
 import * as runtime from "@vivalence/runtime";
-import { sets, kernel, DaemonEntity, LiteralEntity, LiteralRepository, NoteEntity, UserEntity, ThreadEntity, BufferEntity } from "@vivalence/runtime";
+import { sets, DaemonEntity, LiteralEntity, LiteralRepository, NoteEntity, UserEntity, ThreadEntity, BufferEntity } from "@vivalence/runtime";
 import { assemble } from "../gestalten/belt/assemble.js";
 import { config, provider } from "../../../commons/datamaps/libsql/libsql.viva.js";
-import { gather, mint, strike } from "../gestalten/belt/traits.js";
+import { gather, mint, presets, strike } from "../gestalten/belt/traits.js";
 
 const KINDS = ["literal", "symbol", "note", "mode"];
 const due = () => raw(`json_extract(l0.trait, '$.RETAINED.due')`);
@@ -46,7 +46,7 @@ const DOMAINS = {
 };
 
 const minting = (slug, domain, modes = []) =>
-  mint({ slug, kinds: sets.traits, traits: Object.fromEntries(KINDS.map((kind) => [kind, gather(kernel, domain, modes, kind)])) });
+  mint({ slug, kinds: sets.traits, traits: Object.fromEntries(KINDS.map((kind) => [kind, gather(domain, modes, kind)])) });
 
 const minted = Object.fromEntries(Object.entries(DOMAINS).map(([slug, domain]) => [slug, minting(slug === "runtime" ? null : slug, domain)]));
 
@@ -67,6 +67,7 @@ async function world(dbName, { twitched = true } = {}) {
   );
   await orm.schema.create();
   const datamap = new Datamap(orm);
+  twitch.branch("/after").use(shard.datamap.detached(datamap));
   if (twitched) datamap.registerSubscriber(twitch);
   return { orm, datamap, queries, assembled };
 }
@@ -195,9 +196,9 @@ specimen.describe("the mint — a repository per (daemon, kind) over ONE fixed s
     specimen.expect(rebuilt.filter((table) => ["Daemon", "User", "Terminal", "Literal", "Symbol", "Note"].includes(table))).toEqual([]);
   });
 
-  specimen.it("the live diff after create rebuilds only the enum-array kinds — mikro reads no items back from an enum array on SQLite", async () => {
+  specimen.it("the live diff after create rebuilds no table — the enum-array kinds are gone, every traits column is json", async () => {
     const rebuilt = [...(await rig.orm.schema.getUpdateSchemaSQL()).matchAll(/create table `(\w+)__temp_alter`/g)].map((match) => match[1]);
-    specimen.expect(rebuilt.sort()).toEqual(["Buffer", "Intent", "Mode", "Thread"]);
+    specimen.expect(rebuilt.sort()).toEqual([]);
   });
 
   specimen.it("a second boot through the libsql migrator writes no migration", async () => {
@@ -228,10 +229,10 @@ specimen.describe("the mint — a repository per (daemon, kind) over ONE fixed s
 
   specimen.it("the claim gate reads the daemon's vocabulary", async () => {
     const casa = await repositories.italian.literal.findOne({ slug: "casa" });
-    specimen.expect(v.literal.trait(casa, "RETAINED", minted.italian.literal.schematics)).toEqual({ due: "2026-10-01", strength: 0.7 });
-    specimen.expect(v.literal.trait(casa, "LABELED", minted.italian.literal.schematics)).toEqual({});
-    specimen.expect(() => v.literal.trait(casa, "RETAINED")).toThrow("no trait RETAINED in a vocabulary of nothing");
-    specimen.expect(() => v.literal.trait(casa, "RATED", minted.italian.literal.schematics)).toThrow("no trait RATED in a vocabulary of");
+    specimen.expect(traits.claim(casa, "RETAINED", minted.italian.literal.schematics)).toEqual({ due: "2026-10-01", strength: 0.7 });
+    specimen.expect(traits.claim(casa, "LABELED", minted.italian.literal.schematics)).toEqual({});
+    specimen.expect(() => traits.claim(casa, "RETAINED", {})).toThrow("no trait RETAINED in a vocabulary of nothing");
+    specimen.expect(() => traits.claim(casa, "RATED", minted.italian.literal.schematics)).toThrow("no trait RATED in a vocabulary of");
     specimen.expect(repositories.italian.literal.claim(casa, "RETAINED")).toEqual({ due: "2026-10-01", strength: 0.7 });
     specimen.expect(() => repositories.italian.literal.claim(casa, "RATED")).toThrow("no trait RATED in a vocabulary of LABELED · RETAINED");
     specimen.expect(repositories.chess.literal.claim({ traits: ["RATED"], trait: { RATED: { elo: "1800" } } }, "RATED")).toEqual({});
@@ -264,7 +265,7 @@ specimen.describe("the entity half — methods on the ONE class, this the row, g
 specimen.describe("gather — one name, one trait; a verb collision is a boot fault", () => {
   specimen.it("two traits naming one verb throw", () => {
     const SCHEDULED = traits.define("SCHEDULED", { repository: { due() {} } });
-    specimen.expect(() => gather(kernel, DOMAINS.italian, [{ traits: { literal: [SCHEDULED] } }], "literal")).toThrow(
+    specimen.expect(() => gather(DOMAINS.italian, [{ traits: { literal: [SCHEDULED] } }], "literal")).toThrow(
       "trait SCHEDULED.repository.due collides with RETAINED.repository.due",
     );
     specimen.expect(() => minting("italian", DOMAINS.italian, [{ traits: { literal: [SCHEDULED] } }])).toThrow("collides");
@@ -272,9 +273,10 @@ specimen.describe("gather — one name, one trait; a verb collision is a boot fa
 
   specimen.it("one name declared twice folds to the first", () => {
     const LABELED = traits.define("LABELED", { schematic: v.object({ other: v.string() }) });
-    const held = gather(kernel, { traits: { literal: [LABELED] } }, [], "literal");
+    const held = gather({ traits: { literal: [LABELED] } }, [], "literal");
     specimen.expect(held.map((each) => each.name)).toEqual(["LABELED"]);
-    specimen.expect(held[0]).toBe(kernel.literal[0]);
+    specimen.expect(held[0]).toBe(presets.literal[0]);
+    specimen.expect(held[0].schematic).toBe(v.traits.literal.properties.LABELED);
   });
 });
 
@@ -314,7 +316,7 @@ specimen.describe("Note — one class, daemon nullable", { sanitizeResources: fa
     specimen.expect(row.traits).toEqual(["LABELED"]);
     specimen.expect(row.trait).toEqual({ LABELED: { name: "meet", description: "the dojo's meet preset" } });
     specimen.expect(row.symbols.getItems().map((symbol) => symbol.slug)).toEqual(["greeting"]);
-    specimen.expect(v.literal.trait(row, "LABELED", minted.italian.note.schematics)).toEqual({ name: "meet", description: "the dojo's meet preset" });
+    specimen.expect(traits.claim(row, "LABELED", minted.italian.note.schematics)).toEqual({ name: "meet", description: "the dojo's meet preset" });
     specimen.expect((await stocked.repositories.italian.note.index()).map((each) => each.slug)).toEqual(["preset.meet"]);
   });
 
@@ -351,7 +353,7 @@ specimen.describe("Note — one class, daemon nullable", { sanitizeResources: fa
 
   specimen.it("the unique is a single expression index", async () => {
     const [index] = await rig.orm.em.getConnection().execute(`select sql from sqlite_master where name = 'Note_scope_slug_unique'`);
-    specimen.expect(index?.sql).toMatch(/coalesce\(`daemon_slug`, ''\), coalesce\(`mode_id`, ''\), coalesce\(`user_id`, ''\), `slug`/);
+    specimen.expect(index?.sql).toMatch(/coalesce\(`daemon_slug`, ''\), coalesce\(`mode_id`, ''\), coalesce\(`user_id`, ''\), coalesce\(`buffer_id`, ''\), coalesce\(`turn_id`, ''\), `slug`/);
   });
 });
 

@@ -1,7 +1,12 @@
 import * as dotenv from "@std/dotenv";
 import { isAbsolute, join } from "@std/path";
-import { Path, v } from "@vivalence/typology";
+import { Path, Signature, v } from "@vivalence/typology";
 import { Instance } from "../instance/prototype.js";
+
+export function belt(paladin, installs) {
+  for (const install of installs) install(paladin);
+  return paladin;
+}
 
 export async function env(paladin) {
   paladin.assign(Deno.env.toObject(), "os");
@@ -79,6 +84,14 @@ export async function scopes(paladin) {
         return paladin.scope.ledger.branch("registry");
       },
     ],
+    [
+      "credentials",
+      () => true,
+      () =>
+        paladin.env.has("VIVA_CLIENT_GHOST_CREDENTIALS_FILE")
+          ? new Path(paladin.env.get("VIVA_CLIENT_GHOST_CREDENTIALS_FILE"))
+          : paladin.scope.ledger.branch("credentials.json"),
+    ],
   ]);
 
   const shell = Deno.env.get("VIVA_PROCESS_ID");
@@ -95,6 +108,39 @@ export async function scopes(paladin) {
 
 export function instance(paladin) {
   paladin.instance = new Instance(paladin);
+  return paladin.instance;
+}
+
+const PUBLIC = "PUBLIC_VIVA_";
+
+const absolute = function (key, value) {
+  if (key === "paladin") return undefined;
+  return this[key] instanceof Signature ? this[key].absolute : value;
+};
+
+export async function bake(paladin, slug) {
+  const mask = paladin.instance.clients.find((client) => client.manifest.slug === slug);
+  if (!mask)
+    throw new Error(`[PALADIN] bake ${slug}: no client of that slug — ${paladin.instance.clients.map((client) => client.manifest.slug).join(" · ") || "none"}`);
+  const wired = await paladin.ledger.registry.wire(mask);
+  const env = Object.fromEntries(Object.keys(paladin.env.vars).filter((key) => key.startsWith(PUBLIC)).map((key) => [key, paladin.env.get(key)]));
+  const citizen = ({ identifier, manifest, statics, secrets, reference, url, source }) => ({ identifier, manifest, statics, secrets, reference, url, source });
+  return JSON.parse(JSON.stringify({ env, instance: paladin.instance, wired: { ...wired, modes: [] }, modes: wired.modes.map(citizen) }, absolute));
+}
+
+export function baked(paladin, data) {
+  paladin.assign(data.env, "ledger");
+  paladin.instance = Object.assign(new Instance(paladin), v.primitives.instance.Instance.decode(v.primitives.instance.Instance.cast(data.instance)));
+  const revive = async (citizen) => {
+    const namespace = await citizen.module();
+    return { ...namespace, ...v.primitives.instance.Mode.decode({ ...citizen, module: citizen.identifier }), module: namespace };
+  };
+  paladin.ledger = {
+    registry: {
+      supply: () => Promise.resolve(),
+      wire: async () => ({ ...data.wired, modes: await Promise.all(data.modes.map(revive)) }),
+    },
+  };
   return paladin.instance;
 }
 

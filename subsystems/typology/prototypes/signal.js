@@ -5,6 +5,20 @@ import * as is from "../gestalten/is/scalars.js";
 export class Signal extends Signature {
   static coercions = [
     [
+      function (other) {
+        return other instanceof Signal && !(other instanceof this.constructor);
+      },
+      function (other) {
+        return Object.assign(new this.constructor(other.pathname), { body: other.body, flags: other.flags });
+      },
+    ],
+    [
+      (packet) => is.object(packet) && is.string(packet.nature) && packet.nature.startsWith("/") && is.array(packet.body),
+      function (packet) {
+        return Object.assign(new this.constructor(packet.nature), { body: packet.body, flags: packet.flags });
+      },
+    ],
+    [
       (url) => url instanceof URL,
       function (url) {
         const segments = url.pathname.split("/").filter((part) => part.length > 0).map((nature) => ({ nature }));

@@ -1,7 +1,7 @@
 import { join } from "@std/path";
 import { contexts, fromm, shard, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { research } from "../tools/research.js";
-import { calling, rig, saying, SOURCE } from "./rig.js";
+import { DRAW, PAGE, rig, saying } from "./rig.js";
 import { pin } from "./harness.snapshot.test.js";
 
 const SNAPSHOTS = new URL("./snapshots", import.meta.url).pathname;
@@ -25,11 +25,8 @@ specimen.describe(
       "S4: the INNER request as lowering built it, and the OUTER projected yield",
       async () => {
         const rigged = await rig([
-          calling("generator_view_render", {
-            source: SOURCE,
-            label: { name: "Flamingo" },
-            data: { title: "Flamingo" },
-          }),
+          DRAW,
+          PAGE,
           saying("Flamingos are pink from what they eat."),
         ]);
         const spoken = fromm.yield(
@@ -53,9 +50,10 @@ specimen.describe(
             outer: {
               condition: spoken.condition,
               keys: Object.keys(spoken.output).sort(),
-              buffer: spoken.output.buffer.map(({ data, bundle, index }) => ({
+              buffer: spoken.output.buffer.map(({ data, mime, views, index }) => ({
                 data,
-                bundle,
+                mime,
+                views,
                 index,
               })),
             },
@@ -81,15 +79,16 @@ specimen.describe(
         const outer = S1.map(({ name }) => name);
         const inner = S4.inner.tools;
         const declared = outer.filter((name) =>
-          name.startsWith("web_") || name.startsWith("generator_")
+          name.startsWith("web_") || name.startsWith("view_") || name === "buffer_create"
         );
         for (const name of declared) specimen.expect(inner).toContain(name);
-        specimen.expect(inner.slice(0, 6)).toEqual([
+        specimen.expect(inner.slice(0, 7)).toEqual([
           "entity_schema",
           "entity_find",
           "entity_count",
           "buffer_update",
           "buffer_label",
+          "buffer_create",
           "thread_update",
         ]);
       },

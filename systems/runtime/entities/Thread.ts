@@ -1,7 +1,7 @@
 import { EntitySchema, Collection, types, type Opt, type Rel } from "@mikro-orm/core";
 
 // import * as object from "../../gestalten/belt/object.js";
-import { object } from "@vivalence/typology";
+import { belt, object, v } from "@vivalence/typology";
 
 import { DataRepository, DataEntity, DataSchema } from "./index.ts";
 import { UserEntity } from "./index.ts";
@@ -19,22 +19,13 @@ export enum ThreadPhaseEnum {
   STREAM = "stream",
 }
 
-export enum ThreadTraitsEnum {
-  MASKED = "MASKED", // emitter input
-  AIMED = "AIMED", // pointing at emitter
-  QUEUEING = "QUEUEING", // pre-pulling buffers
-  LABELED = "LABELED", // UI display name
-  // SELFEVIDENT = "SELFEVIDENT", // access mode buffer without daemon-roundtrip.
-  // CONVERSATIONAL = "CONVERSATIONAL", //
-}
-
 export class ThreadEntity extends DataEntity {
   // hash 24char: f(id)
   user!: Rel<UserEntity>;
   mode!: Rel<ModeEntity>;
 
   phase: ThreadPhaseEnum & Opt = ThreadPhaseEnum.MANUAL;
-  traits: ThreadTraitsEnum[] & Opt = [];
+  traits: string[] & Opt = [];
   trait: any & Opt = {};
 
   parent?: Rel<ThreadEntity>;
@@ -46,7 +37,6 @@ export class ThreadEntity extends DataEntity {
   counter: number & Opt = 0; // these two might be candidates for a trait?!
   cursor: number & Opt = 0; // these two might be candidates for a trait?!
 
-  // mount?: string & Opt = ""; // also trait MOUNTED
 
   intent?: Rel<IntentEntity>;
 
@@ -83,6 +73,15 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
 
         // labeled trait
       },
+      (args: any) => {
+        args.entity.traits = [...new Set([...args.entity.traits, "INTELLIGENT", "VOCAL"])];
+        args.entity.trait = belt.traits.cast(args.entity, v.thread.traits);
+      },
+    ],
+    beforeUpdate: [
+      (args: any) => {
+        args.entity.trait = belt.traits.cast(args.entity, v.thread.traits);
+      },
     ],
   },
   properties: {
@@ -117,13 +116,7 @@ export const ThreadSchema = new EntitySchema<ThreadEntity, DataEntity>({
       items: () => ThreadPhaseEnum,
     },
 
-    traits: {
-      columnType: "json",
-      defaultRaw: `'[]'`,
-      enum: true,
-      array: true,
-      items: () => ThreadTraitsEnum,
-    },
+    traits: { type: types.json, defaultRaw: `'[]'` },
 
     trait: { type: types.json },
 

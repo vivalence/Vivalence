@@ -1,0 +1,21 @@
+# drained 10-22 whole from .ikiro/quests/m93-kleisli-remonadization.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* terrain — measured 10-19
+
+| subject | made today at | after |
+|---+---+---|
+| paladin instance | =paladin/instance/factory.js:6= | as is |
+| runtime | =runtime/run.js:9-34= | =factories.runtime= · =execute= |
+| runtime lighthouse | =runtime/lifecycle/resolution.js:7= | =factories.lighthouse= · =execute= |
+| runtime mode | =runtime/gestalten/belt/modes.js:5= | =factories.mode= · =execute= |
+| service | =resolution.js:13= → =Process.ts:28= | =factories.service= · =ready= |
+| daemon | =resolution.js:22= → =Process.ts:28= | =factories.daemon= · =ready= |
+| ghost shell | =ghost/run.js:21= | as is |
+| ghost client | =ghost/client/factory.js:6= | =kleisli= · =execute= |
+| ghost mode | =client/lifecycle/index.js:48= | =factories.mode= · =execute= |
+| ghost runtime · daemon host | =:140= | =factories.runtime= · =factories.daemon= · =ready= |
+| ghost terminal | =:151= | =factories.terminal= · =ready= |
+| ghost thread | =:190= | =factories.thread= · =ready= |
+| ghost lighthouse | =:100= | as is |
+| repl | =ghost/gestalten/shard/repl.js:12,41= | as is |
+

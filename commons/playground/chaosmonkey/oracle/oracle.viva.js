@@ -1,4 +1,4 @@
-import { App, v, Vector } from "@vivalence/typology";
+import { mime, v, Vector } from "@vivalence/typology";
 
 export { aperture } from "./aperture.js";
 export { emitter } from "./emitter.js";
@@ -13,7 +13,7 @@ export const manifest = {
     "Aperture calls harness.object.render — the chaosmonkey demo case.",
   version: "0.1.0",
   traits: [
-    "APPLICATION",
+    "VIEWABLE",
     "HARNESSED",
     "TOOLING",
     "EXPOSED",
@@ -22,4 +22,6 @@ export const manifest = {
   ],
 };
 
-export const application = new App("buffer/Oracle.svelte", v.buffer({ data: {} }));
+export const buffer = v.buffer({ data: {} });
+
+export const views = [{ slug: "oracle", mount: "buffer/Oracle.svelte", mime: mime.dom.svelte }];

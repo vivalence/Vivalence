@@ -5,4 +5,7 @@ export { SymbolDescriptor } from "./symbol.js";
 export { ModeDescriptor } from "./mode.js";
 export { IntentDescriptor } from "./intent.js";
 export { ThreadDescriptor } from "./thread.js";
+export { TurnDescriptor } from "./turn.js";
+export { ViewDescriptor } from "./view.js";
+export { FileDescriptor } from "./file.js";
 export { UserDescriptor } from "./user.js";

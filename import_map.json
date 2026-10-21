@@ -11,6 +11,8 @@
     "@std/hex": "jsr:@std/encoding@1.0/hex",
     "@std/crypto": "jsr:@std/crypto@1.0",
     "@std/jsonc": "jsr:@std/jsonc@1.0",
+    "@std/front-matter/yaml": "jsr:@std/front-matter@1.0/yaml",
+    "@std/front-matter/test": "jsr:@std/front-matter@1.0/test",
     "@std/async": "jsr:@std/async@1.0",
     "@std/io": "jsr:@std/io",
     "@std/streams": "jsr:@std/streams@1.0",

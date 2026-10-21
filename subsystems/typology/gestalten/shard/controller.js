@@ -5,13 +5,13 @@ export const hold = async (die) => {
 };
 
 export const open = async (die, next) => {
-  die.controller.stdout.open();
+  die.controller.start();
   try {
     await next();
   } catch (error) {
-    die.controller.stdout.fault(error);
+    die.controller.fault(error);
   } finally {
-    die.controller.stdout.close();
+    die.controller.stop();
   }
 };
 

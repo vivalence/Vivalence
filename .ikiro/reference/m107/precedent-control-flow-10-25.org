@@ -1,0 +1,23 @@
+#+title: m107 reference — precedent for a router built OUTSIDE the tree over state scoped INSIDE it (10-25, subagent survey + the probe)
+
+* the probe — Solid's owner tree is a dynamic scope readable from outside the render
+#+BEGIN_SRC js
+// scratch owner.probe.js, deno run --import-map=import_map.json · solid-js@1.9.12
+const read = (owner) => ({ thread: runWithOwner(owner, () => useContext(Thread)), shown: runWithOwner(owner, () => useContext(Shown)) });
+// outer {"thread":"root-thread","shown":{"selection":1}}   inner {"thread":"child-thread","shown":{"selection":7}}   outside {}
+#+END_SRC
+The owner must sit INSIDE the innermost Provider (an owner reads its ENCLOSING context). Outside the tree: nothing — absence is the signal.
+
+* three patterns
+| pattern | systems | the command's environment | focus | per-place state |
+|---|---|---|---|---|
+| A dynamic scope at the invocation site | Emacs (=selected-window= · =with-selected-window= · =window-point= · =window-parameter=) · Blender (=context= under the cursor · =temp_override=) · Acme (=$winid=) · CodeMirror (=(view) => bool=) · Lexical (per-editor =registerCommand=, bubbles to =_parentEditor=) · Textual (bindings from the focused widget up to =App=) · Racket =parameterize= · Reader =local= · Effect =provideService= | bound by the CALLER's position, read by the callee | the selected/focused/hovered place; unhandled bubbles outward | on the place: =window-point= · =SpaceData= · =EditorState=; Emacs =window-state-get= persists the tree |
+| B global registry + a focus service | VS Code (=CommandsRegistry= · =ServicesAccessor= · =createScoped(domNode)= context keys · =IListService.lastFocusedList=) · tldraw · Excalidraw | pulled from root services that POINT at the live widget | =when= evaluated at =document.activeElement=, scoped keys shadow upward | view-state mementos per editor group |
+| C addressed global store | re-frame (=app-db=, cofx) · Elm (=Html.map ChildMsg=) · XState (=system.get(id)=) | the message carries the place id | none | keyed by id at the root — the global bag refused here; teardown by hand (a known leak) |
+
+Who instantiates the per-place value: Angular element injectors · Jotai =<Provider>= without =store= mint it; Emacs · VS Code mint it with the window/widget; Effect · Jotai =store= · integrant build it outside and PASS it. Old anima: =+layout.svelte:37= =new stores.bridge.Bridge()= → =setContext(BRIDGE, bridge)= (built, then passed).
+
+* the fit — pattern A, Emacs as the model
+- a place is a first-class object apart from rendering (a window); content (a buffer) never holds place fields; the command loop binds the selected place; a command reads it.
+- typology already HAS both halves: =shard.context.bind(key, value)= = a Vector's Provider (=Dataspace= seeds hydration with =bind("client")= · =bind("runtime")=, =prototypes/dataspace.js:21=); =shard.ambient= = AsyncLocalStorage dynamic scope for the runtime. The Solid Provider is the third spelling of the same act.
+- Lexical's bubble (focused editor → parent) is the precedent for nested thread frames.

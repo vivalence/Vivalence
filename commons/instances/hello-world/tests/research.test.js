@@ -1,6 +1,6 @@
-import { contexts, Controller, fromm, shard, Span, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
+import { belt, contexts, Controller, fromm, shard, Span, specimen, steer, ToolCall, Vector } from "@vivalence/typology";
 import { research, ROUNDS } from "../tools/research.js";
-import { calling, rig, saying, SOURCE } from "./rig.js";
+import { DRAW, PAGE, PEEK, rig, saying } from "./rig.js";
 
 const invoke = (rigged, input) => {
   const outer = new Vector().graft(research);
@@ -19,24 +19,18 @@ const ASK = {
     "Flamingos. The operator runs a demo instance and wants to keep a page on them.",
 };
 
-const DRAW = calling("generator_view_render", {
-  source: SOURCE,
-  label: { name: "Flamingo" },
-  data: { title: "Flamingo" },
-});
-const PEEK = calling("generator_view_inspect", { hash: "h000000000000000" });
-
 specimen.describe(
   "research — the first NESTED hallucination under test",
   () => {
     specimen.it(
       "P-yield: a buffer minted inside the inner agent surfaces in the OUTER yield, and NOTHING else does",
       async () => {
-        // three inner rounds: draw · inspect · summarise. inspect lands `object` on the inner
+        // four inner rounds: view · page · read · summarise. read lands `object` on the inner
         // fold — the payload word that must NOT leave — and web_read would have landed url[],
         // markdown[], links[] the same way. only message + buffer cross.
         const rigged = await rig([
           DRAW,
+          PAGE,
           PEEK,
           saying("Flamingos are pink from what they eat."),
         ]);
@@ -51,14 +45,14 @@ specimen.describe(
         specimen.expect(spoken.output.message).toBe(
           "Flamingos are pink from what they eat.",
         );
-        specimen.expect(rigged.seen.length).toBe(3);
+        specimen.expect(rigged.seen.length).toBe(4);
       },
     );
 
     specimen.it(
       "P-nodoublebind holds through the nesting — one page, counter +1",
       async () => {
-        const rigged = await rig([DRAW, saying("done")]);
+        const rigged = await rig([DRAW, PAGE, saying("done")]);
         const spoken = fromm.yield(await invoke(rigged, ASK));
         specimen.expect(spoken.output.buffer[0].thread).toBe(rigged.row);
         specimen.expect(spoken.output.buffer[0].index).toBe(0);
@@ -78,6 +72,7 @@ specimen.describe(
           "entity_count",
           "buffer_update",
           "buffer_label",
+          "buffer_create",
           "thread_update",
           "mode_find",
           "fs_tree",
@@ -90,10 +85,10 @@ specimen.describe(
           "shell_run",
           "web_search",
           "web_read",
-          "generator_view_render",
-          "generator_view_revise",
-          "generator_view_inspect",
-          "generator_view_list",
+          "view_create",
+          "view_update",
+          "view_read",
+          "view_list",
         ]);
         specimen.expect(Object.keys(request.system)).toEqual(["brief", "thread"]);
         specimen.expect(request.turns.at(-1).parts[0].text).toBe(ASK.brief);
@@ -103,8 +98,8 @@ specimen.describe(
     specimen.it(
       "P-early: rounds run out AFTER a draw — ERROR, and the page still comes back",
       async () => {
-        // draw once, then inspect forever. render() would have thrown the fold away here.
-        const rigged = await rig([DRAW, PEEK]);
+        // draw once, then read forever. render() would have thrown the fold away here.
+        const rigged = await rig([DRAW, PAGE, PEEK]);
         const spoken = fromm.yield(await invoke(rigged, ASK));
 
         specimen.expect(spoken.condition).toBe("ERROR");
@@ -124,13 +119,13 @@ specimen.describe(
     specimen.it(
       "P-early: a provider fault mid-research keeps the page and names the fault",
       async () => {
-        const rigged = await rig([DRAW, new Error("upstream 529")]);
+        const rigged = await rig([DRAW, PAGE, new Error("upstream 529")]);
         const spoken = fromm.yield(await invoke(rigged, ASK));
 
         specimen.expect(spoken.condition).toBe("ERROR");
         specimen.expect(spoken.output.buffer.length).toBe(1);
         specimen.expect(spoken.output.message).toContain(
-          "error after 2 rounds",
+          "error after 3 rounds",
         );
         specimen.expect(spoken.output.message).toContain("upstream 529");
       },
@@ -146,18 +141,18 @@ specimen.describe(
     specimen.it(
       "P-nested: inside a turn the researcher rides the turn's controller — no row of its own, and the turn's SIGTERM stops it mid-run",
       async () => {
-        const rigged = await rig([DRAW, PEEK]);
+        const rigged = await rig([DRAW, PAGE, PEEK]);
         let minted = 0;
         const control = rigged.daemon.entities.activity.control;
         rigged.daemon.entities.activity.control = (...args) => (minted += 1, control(...args));
 
         const turn = new Controller({ stdout: new Span("hallucination") });
-        turn.stdout.open();
+        turn.start();
         const tool = turn.branch("research");
-        tool.stdout.mark("open");
+        tool.start();
         rigged.seen.push = function (request) {
           Array.prototype.push.call(this, request);
-          if (this.length === 2) turn.kill("SIGTERM", "user pressed stop");
+          if (this.length === 3) turn.kill("SIGTERM", "user pressed stop");
           return this.length;
         };
 
@@ -175,7 +170,7 @@ specimen.describe(
         specimen.expect(spoken.condition).toBe("ERROR");
         specimen.expect(spoken.output.message).toContain("stopped early — abort");
         specimen.expect(spoken.output.buffer.length).toBe(1);
-        specimen.expect(turn.stdout.records.some((record) => record.path === "/hallucination/research/dialogue" && record.verb === "open")).toBe(true);
+        specimen.expect(turn.stdout.history.some((record) => belt.trace.key(record.path) === belt.trace.key(["hallucination", "research", "dialogue"]) && record.track === "start")).toBe(true);
       },
     );
   },

@@ -1,0 +1,113 @@
+#+title: simplified span — the drill's per-lock hunks, verbatim as locked (superseded by the assembled =* as code=)
+<!-- limit: 12000 chars -->
+
+* as code=
+
+| # | ruling | beef |
+|---+---+---|
+| A | approach A: Span stays a Signature; one Pipe at the root; the record carries =path= only (answers Q7 too) | /"approach a."/ |
+| 0 | the thing is a RECORD, the act is TRACK; =trace= stays Signature's parent link | /"q0 b"/ |
+| 1 | =track(name, data)= is the one call; =fault(error)= stays — the one record whose data is derived from an Error | /"q1 b"/ |
+| 2 | the caller writes the instance into the nature; =branch= stays dumb — ids live in the signature, a reader gets them back by =/:id= (=fromm.match= → =ctx.params=) | /"I didn't say that IDs are gone. IDs are fine. […] as part of our signature, there can be IDs. /branch/:id still exists."/ · /"q2 a. for sure."/ |
+| 3 | =span.pipe= IS the attachment point; every span owns its pipe; =track= sends up the heritage, leaf to root, never down; =within= dies — a branch's pipe carries its subtree by construction | /"I definitely think that span… dot pipe is the attachment point. That's why we have our type system to make it coherent."/ · /"the within method is also code smell. […] The span doesn't, it just passes on. If I track something […] that goes up the span. They never go down, they always go up. They go towards the root, like a proper tree."/ |
+| 4 | Pipe = =send · tap(sink) · from(source)=, ONE mechanism; on top two one-line shapes, =fold(seed, step)= (a tap into an atom) and =for await= (a tap into a =Queue=); =to · subscribe · reactive · stream · replay · observe= die. Documented: codemap for sure, and a documentation reference page | /"I do like B, but I do want this to be well documented. This needs to be articulated in the code map […] I think in that might go actually into the documentations. […] a references. […] Which doesn't yet exist."/ · /"but for sure in the code map."/ |
+| 5 | the SPAN keeps its history (not the pipe, not the controller); a Queue is not history — it drains, one reader; length NOT hard-coded; shape (atom via =fold=, compaction = the step) → Q6. Bench 10-23 per record: array 0.025 µs · atom keep 1000 1.7 µs · atom keep 100 0.2 µs; ×depth | /"we want to attach to a span and read its history"/ · /"a. But I don't like that we hard code the history length in here. How expensive would it be to make the history a reactive atom? […] a compaction function directly onto the history object itself."/ |
+| 6 | the history is a NANOSTORE: =$history = this.pipe.fold([], step)=, =history= its plain getter; panes =computed= over =$history=, =tail= dies; where the compaction lives → Q7 | /"nanostore atom"/ (on a re-paste of his Q5 turn: /"a compaction function directly onto the history object itself"/) |
+| 7 | no compaction function on Span — history only grows; any context reacts to =$history= (=onSet=) and trims where it wants; the constructor sets the FIRST reaction, a static 1000 | /"a.a. But I don't understand the compaction function. That's kind of stupid. We don't want a dedicated compaction function. […] we would just react to the history changing and do the compaction in whatever context we want. […] in the constructor, we set up the first of those history reactions and cut it down to 1,000 […] keep that for now as a static in the code."/ |
+
+* as code
+
+*** subsystems/typology
+**** prototypes/span.js
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/span.js   ← Locked A + Q0
+export class Span extends Signature {
+  constructor(signature = null, trace = null) {
+    super(signature, trace);
+    if (!this.trace) this.channel ??= new Pipe();
+  }
+  from(trace) { return super.from(trace, true); }
+  get pipe() { return this.root.channel; }   // SUPERSEDED by Q3: pipe per span
+  track(name, data) {
+    this.pipe.send({ at: performance.now(), path: this.absolute, track: name, data });
+    return this;
+  }
+  within(record) { … }   // DIES Q3
+}
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/span.js   ← Locked Q1: fault shapes the Error, every other track is handed its data
+  fault(error) { return this.track("fault", { message: error?.message ?? String(error), code: error?.code ?? null }); }
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/span.js   ← Locked Q3: every span its own pipe; a record climbs the heritage
+  pipe = new Pipe();
+  track(name, data) {
+    const record = { at: performance.now(), path: this.absolute, track: name, data };
+    for (const span of this.heritage()) span.pipe.send(record);
+    return this;
+  }
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/lifecycle/index.js:28   ← Locked Q3: attach at the pipe; the client's pipe IS its subtree
+  const untap = clientDie.controller.stdout.pipe.tap(write);
+#+END_SRC
+**** prototypes/pipe.js
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/pipe.js   ← Locked Q4: one mechanism (tap a sink), two shapes over it
+export class Pipe {
+  listeners = new Set();
+  send(value) { for (const listener of this.listeners) listener(value); }
+  tap(target) {
+    const listener = fromm.sink(target).write;
+    this.listeners.add(listener);
+    return () => this.listeners.delete(listener);
+  }
+  from(origin) { (async () => { for await (const value of fromm.source(origin).read) this.send(value); })(); return this; }
+  fold(seed, step) { const store = atom(seed); this.tap((value) => store.set(step(store.get(), value))); return store; }
+  async *[Symbol.asyncIterator]() {
+    const queue = new Queue();
+    const untap = this.tap(queue);
+    try { yield* queue.drain(); } finally { untap(); }
+  }
+}
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/span.js   ← Locked Q5: the span keeps its history; a late reader reads it, then taps
+  $history = this.pipe.fold([], step);   // step: append, Q7
+  get history() { return this.$history.get(); }
+// systems/ghost/subjects/client/lifecycle/index.js:27-28
+  for (const record of clientDie.controller.stdout.history) write(record);
+  const untap = clientDie.controller.stdout.pipe.tap(write);
+#+END_SRC
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:89   ← Locked Q6: a pane derives from the span's nanostore
+  const messages = from(computed(client.controller.stdout.$history, (held) => held.filter((record) => record.track === "message")));
+#+END_SRC
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/span.js   ← Locked Q7: history grows; the first reaction trims at a static; any owner adds its own
+  static limit = 1000;
+  $history = this.pipe.fold([], (held, record) => [...held, record]);
+  constructor(signature = null, trace = null) {
+    super(signature, trace);
+    onSet(this.$history, ({ newValue }) => newValue.splice(0, newValue.length - Span.limit));
+  }
+#+END_SRC
+*** subsystems/typology — callers
+**** gestalten/belt/hallucinate.js
+#+BEGIN_SRC js
+// subsystems/typology/gestalten/belt/hallucinate.js:83   ← Locked Q2
+const child = controller.branch(`${call.name}/${call.id}`);
+#+END_SRC
+**** prototypes/socket.js
+#+BEGIN_SRC js
+// subsystems/typology/prototypes/socket.js:150   ← Locked Q2
+const trace = this.span.branch(`${packet.signal}/${packet.frame}`);
+#+END_SRC
+*** systems/anima
+**** src/surface/panes/journal.jsx
+#+BEGIN_SRC js
+// systems/anima/src/surface/panes/journal.jsx:85   ← Locked Q0: a reader says record.track
+[(record) => record.track === "fault", (record) => ({ kind: "fault", text: record.data.message })],
+#+END_SRC
+

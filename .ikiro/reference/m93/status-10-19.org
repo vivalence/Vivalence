@@ -1,0 +1,3 @@
+# drained 10-22 whole from .ikiro/quests/m93-kleisli-remonadization.org (quest tidy); nothing reworded · limit: none (reference content)
+
+#+status: TANGLED 10-19 — drilled, 14 locks (=* the dialogue=); the diff is =m93-kleisli-remonadization.tangle.org= (31 files · 51 hunks · 14 new, replayed on a copy). Born in m91 Q4 (/"combinatorical factories. i am sure there is some functional algebra for this."/). Next: his go per milestone.

@@ -17,6 +17,7 @@ export * from "./signal.js";
 export * from "./argv.js";
 export * from "./replsignal.js";
 export * from "./toolcall.js";
+export * from "./keysignal.js";
 
 export * from "./span.js";
 export * from "./pipe.js";
@@ -27,8 +28,6 @@ export { App } from "./app.js";
 export * from "./bundle.js";
 export { Bundle } from "./bundle.js";
 
-export * from "./freight.js";
-export * from "./cargo.js";
 export * from "./dataset.js";
 export * from "./datasink.js";
 // export * from "./feature.js";

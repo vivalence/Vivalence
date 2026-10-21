@@ -1,0 +1,1252 @@
+#+title: mando — language as the controller: one machine (grammar · parse · dial · review · scene) and two continuous worlds, comando and cocina, for @education on english-to-spanish; three raw and mode-local, the droneaid way
+#+filetags: :education:mando:comando:cocina:game:spanish:three:grammar:retention:
+#+status: REWORKED 10-30 — his two rulings (LLM-driven conversation · the settings look) rebuilt both games from scratch on `~/.viva/registry/education`, nine suites green from the landed tree, both faces walked live on his localhost. `* reworked 10-30` is canon; `* the tangle` below is the 10-29 parser design it replaced.
+#+phase: landed
+#+progress: 4/5
+#+next: beef — his look at both views (dom: `/daemon/spanish/mode/game/comando`, tty: `viva` → emit `/comando`); the `aprende` listing stays deferred
+<!-- limit: 60000 chars -->
+
+* intent
+
+| # | beef, verbatim | trigger |
+|---+----------------+---------|
+| A | /"Okay. Well, what do I need? I want a new language learning course. I'm unhappy with what we have at the moment. It's too deterministic."/ | the course |
+| B | /"I'm looking for something like some interactive scenario. I don't fucking know."/ | the genre, first pass |
+| C | /"Okay, scenarios is nice, funny, but thinking about something else, something where I have to solve a problem using language, where it's some repeatable problem, something like navigating troops, telling them to go up, down, left, right. Something like I'm an air traffic controller and I have to coordinate, or something, but it has to be linguistically simple or staggered, and I need to be able to get feedback, and then there needs to be some game mechanic and pressure, and it would be nice if I could like learn the game even with what I have rather let's say little language skills."/ | the genre, ruled |
+| D | /"Very good. We are working with Spanish now. And I want you to ideate like 10 more"/ | the language |
+| E | /"commando and cocina. continuous scenarios. steal threejs"/ | the two worlds, the loop, the renderer |
+| F | /"build a tangleable quest"/ | this file |
+
+* the law
+
+- the world is dumb and visual; the target language is the only input. Every misunderstanding is visible in the world, never in a score.
+- staggered: one linguistic axis per tier, over the same board. A tier opens from retention, never from a menu.
+- learnable with nothing: every tier has two phases. OBEY — the world commands, the learner reacts (comprehension, the mechanics learned). COMMAND — the learner speaks, the world moves. A word enters the parser only after it has entered through the world's speech.
+- feedback is the recast: a partial parse executes what was understood and answers in whole, correct Spanish. An empty parse asks /¿cómo?/ and the clock keeps running.
+- two dials, independent: TIER is language, TEMPO is pressure. Tempo rises on success and falls on failure, per session; tier never resets.
+- continuous: no levels, no menus, one world that never stops. Tasks spawn; a new tier does not interrupt.
+- every command is a rep on known slots. Judging is the parser, deterministic, offline; the grade lands on `literal.review` exactly as dojo's does. No LLM in the loop. The LLM, later, writes varied recasts and composes boards.
+- three is raw and mode-local, imported from node_modules, as `~/.viva/registry/droneaid/modes/assembly/pt10/buffer/scene.js` does today. The roadmap fork (`quests/roadmap/threlte-rapier-drapes.org`, `* the fork`) is NOT ruled here; `mando/scene.js` has the shape that quest already specs — `scene(container) → { scene, camera, renderer, loop, dispose }` — so the port is a move when beef rules.
+- no comments in tangled code.
+
+* terrain — measured 10-29
+
+Against fresh clones of `vivalence/vivalence` and `vivalence/registry-education`.
+
+| what | where | measured |
+|------+-------+----------|
+| retention | `domain/retention/bayesian.js` | ebisu; signals MASTERY · SUCCESS · NEUTRAL · MISTAKE · FAILURE; statuses UNTOUCHED · UNKNOWN · LEARNING · KNOWN · GRADUATED |
+| review entry | `modes/games/dojo/aperture/index.js:95` | `literal.review(grade, ctx)` after `entities.literal.findOne(identifier)` |
+| mint a buffer | `modes/games/dojo/emitter/buffer.js:12` | `ctx.mode.application.buffer({ data, literals, symbols })` |
+| aperture shape | `modes/games/dojo/aperture/index.js:110` | `new Vector().open({ nature, input }, handler)` |
+| App shape | `modes/games/riddler/riddler.viva.js:17` | `new App("buffer/X.svelte", v.buffer({ data, … }))`; the svelte gets `{ terminal, buffer }` |
+| client → aperture | `modes/games/dojo/buffer/Dojo.svelte:227` | `buffer.mode.connection.call("/path", input)` |
+| three | `import_map.json:151` | `three@0.186.0`; addons as exact entries; the barrel pulls https (never server-side) |
+| spanish corpus | `topographies/english-to-spanish/dataset` | 1 231 words · 354 sentences · 114 paradigms; `imperative` 0 hits; absent: izquierda · derecha · arriba · abajo · subir · bajar · cortar · cebolla · poner · rojo |
+| italian corpus | `topographies/english-to-italian/dataset` | `imperative` 0 hits |
+| slugs | `words/numeral.js` · `words/noun.js` | `dos.numeral` · `tres.numeral` · `pan.noun` · `puente.noun` |
+| paradigm slugs | `conjugation.js` | `<verb>.<tense>.<mood>`, e.g. `ir.present.indicative` |
+| intake | `modes/tactics/harvest` · `.harvest/staged/briefs/` | briefs are markdown tasks; the harvest tactic files literals |
+| spanish daemon | `instances/spanish/daemon.js:19-31` | kernel lists dojo · nyan · riddler; no mando |
+
+* the design
+
+** the machine — `modes/games/mando/`
+
+| file | holds |
+|------+-------|
+| `grammar.js` | combinators over tokens: `slot · seq · alt · opt · parse`; a slot matches 1–3-gram surfaces against a lexicon; `hit ∈ HIT · NEAR · MISS` |
+| `lexicon/es.js` | the controller lexicon: slug · surfaces · slot, grouped by axis |
+| `dial.js` | `tier(frontier)` from retention statuses; `tempo(previous, history)` from the last ten commands |
+| `review.js` | slots → `{ literal, grade }`; the aperture factory `apertures(grammars)` opening `/command` and `/heard` |
+| `scene.js` | raw three, orthographic, `scene(container) → { scene, camera, renderer, loop, dispose }` |
+
+** the worlds
+
+| mode | sim | tiers |
+|------+-----+-------|
+| `@education/game/comando` | grid · units · goals · hazards; `order · step · spawn` pure | 0 imperative + direction · 1 numeral · 2 unit name + color + article · 3 preposition + landmark · 4 sequence + time · 5 past-tense report |
+| `@education/game/cocina` | tickets · cook · pans; `order · step · spawn` pure | 0 imperative + noun · 1 quantity · 2 negation + exclusion · 3 manner · 4 tense + state · 5 complaints + repair |
+
+Tiers 0–2 are tangled. 3–5 are grammar rows to add once the lexicon holds them; the machine does not change.
+
+** the loop
+
+1. the emitter mints a buffer: `tier` from the learner's retention over the lexicon, `tempo` 1, `phase` OBEY.
+2. OBEY: the world composes a command from the open tier, shows it, the learner presses. Right → `/heard` grades SUCCESS on the slots. Wrong → MISTAKE. Three clean reactions open COMMAND for that tier.
+3. COMMAND: the learner types. `/command` parses with the tier's grammar, grades every slot, reviews, returns the command and the recast. The client applies the order to the sim and shows the recast.
+4. the sim steps on `requestAnimationFrame`; goals spawn at `tempo`; tempo moves on the last ten.
+5. a new tier opens when 80 % of the previous tier's lexicon is KNOWN or better; its words first appear in OBEY.
+
+* deliverables
+
+- `modes/games/mando/` — five files, one test.
+- `modes/games/comando/` — manifest · world · emitter · aperture · svelte.
+- `modes/games/cocina/` — manifest · world · emitter · aperture · svelte.
+- `topographies/english-to-spanish/.harvest/staged/briefs/task-mando-lexicon.md` — the intake brief.
+- `instances/spanish/daemon.js` — two kernel lines.
+
+* milestones
+
+| milestone | green |
+|-----------+-------|
+| the lexicon | every slug in `lexicon/es.js` resolves through `entity_find` on the spanish daemon; `subir.imperative` is a paradigm row |
+| the machine | `modes/games/mando/tests/grammar.test.js` passes; `scene()` mounts and disposes without a leaked renderer |
+| the comando world | the scenario below, tiers 0–2, twenty minutes continuous, no stall |
+| the cocina world | the same scenario shape over tickets |
+| the daemon | `viva instance/use spanish run`; aprende lists both games; the emitter mints a buffer whose tier equals the one computed from retention |
+
+* blast table
+
+| path | kind | note |
+|------+------+------|
+| `modes/games/mando/**` | new | library, no manifest (see the fork) |
+| `modes/games/comando/**` | new | mode |
+| `modes/games/cocina/**` | new | mode |
+| `topographies/english-to-spanish/.harvest/staged/briefs/task-mando-lexicon.md` | new | brief |
+| `instances/spanish/daemon.js` | hunk | kernel + two |
+| `~/.viva` | none | no env, no secret; `viva instance/init` unchanged |
+| suites | none | no existing test reads these paths |
+
+* the tangle
+
+** modes/games/mando/grammar.js
+
+#+BEGIN_SRC js :tangle modes/games/mando/grammar.js
+const strip = (text) =>
+  text
+    .toLowerCase()
+    .normalize("NFC")
+    .replace(/[¿?¡!.,;:]/g, " ")
+    .trim();
+
+export const tokens = (text) => strip(text).split(/\s+/).filter(Boolean);
+
+const distance = (a, b) => {
+  if (a === b) return 0;
+  const rows = Array.from({ length: b.length + 1 }, (_, i) => i);
+  for (let i = 1; i <= a.length; i++) {
+    let previous = rows[0]++;
+    for (let j = 1; j <= b.length; j++) {
+      const current = rows[j];
+      rows[j] = Math.min(rows[j] + 1, rows[j - 1] + 1, previous + (a[i - 1] === b[j - 1] ? 0 : 1));
+      previous = current;
+    }
+  }
+  return rows[b.length];
+};
+
+const near = (word, surface) => distance(word, surface) <= 1 || (word.length >= 4 && surface.startsWith(word.slice(0, 4)));
+
+const grams = (rest) => [3, 2, 1].filter((n) => n <= rest.length).map((n) => rest.slice(0, n).join(" "));
+
+const match = (lexemes, rest) => {
+  for (const gram of grams(rest)) {
+    for (const lexeme of lexemes) {
+      if (lexeme.surfaces.includes(gram)) return { lexeme, surface: gram, hit: "HIT", used: gram.split(" ").length };
+    }
+  }
+  const [word] = rest;
+  for (const lexeme of lexemes) {
+    const surface = lexeme.surfaces.find((s) => !s.includes(" ") && near(word, s));
+    if (surface) return { lexeme, surface: word, hit: "NEAR", used: 1 };
+  }
+  return null;
+};
+
+export const slot = (name, lexemes) => (rest) => {
+  const found = match(lexemes, rest);
+  if (!found) return { ok: false, slots: [{ slot: name, hit: "MISS", word: rest[0] ?? null }], rest };
+  return {
+    ok: true,
+    slots: [{ slot: name, slug: found.lexeme.slug, canonical: found.hit === "HIT" ? found.surface : found.lexeme.surfaces[0], surface: found.surface, hit: found.hit }],
+    rest: rest.slice(found.used),
+  };
+};
+
+export const seq = (...parts) => (rest) =>
+  parts.reduce(
+    (acc, part) => {
+      if (!acc.ok) return acc;
+      const next = part(acc.rest);
+      return { ok: next.ok, slots: [...acc.slots, ...next.slots], rest: next.rest };
+    },
+    { ok: true, slots: [], rest },
+  );
+
+export const alt = (...parts) => (rest) => {
+  const attempts = parts.map((part) => part(rest));
+  return attempts.find((a) => a.ok) ?? attempts.sort((a, b) => b.slots.length - a.slots.length)[0];
+};
+
+export const opt = (part) => (rest) => {
+  const next = part(rest);
+  return next.ok ? next : { ok: true, slots: [], rest };
+};
+
+export const parse = (grammar, text) => {
+  const result = grammar(tokens(text));
+  const complete = result.ok && result.rest.length === 0;
+  return { ...result, ok: complete, partial: result.ok && !complete };
+};
+
+export const recast = (template, slots) =>
+  (typeof template === "function" ? template(slots) : template)
+    .replace(/\{(\w+)\}/g, (_, name) => slots.find((s) => s.slot === name && s.slug)?.canonical ?? "")
+    .replace(/\s+/g, " ")
+    .replace(/\s+,/g, ",")
+    .replace(/^[,\s]+/, "")
+    .trim();
+#+END_SRC
+
+** modes/games/mando/lexicon/es.js
+
+#+BEGIN_SRC js :tangle modes/games/mando/lexicon/es.js
+const lexeme = (slug, ...surfaces) => ({ slug, surfaces });
+
+export const direction = [
+  lexeme("arriba.adverb", "arriba", "hacia arriba"),
+  lexeme("abajo.adverb", "abajo", "hacia abajo"),
+  lexeme("izquierda.noun", "a la izquierda", "izquierda"),
+  lexeme("derecha.noun", "a la derecha", "derecha"),
+];
+
+export const move = [
+  lexeme("subir.imperative", "sube"),
+  lexeme("bajar.imperative", "baja"),
+  lexeme("ir.imperative", "ve"),
+  lexeme("girar.imperative", "gira"),
+];
+
+export const stop = [lexeme("parar.imperative", "para", "alto", "quieto")];
+
+export const numeral = [
+  lexeme("uno.numeral", "un", "uno", "una"),
+  lexeme("dos.numeral", "dos"),
+  lexeme("tres.numeral", "tres"),
+  lexeme("cuatro.numeral", "cuatro"),
+  lexeme("cinco.numeral", "cinco"),
+];
+
+export const article = [lexeme("el.determiner", "el"), lexeme("la.determiner", "la")];
+
+export const color = [
+  lexeme("rojo.adjective", "rojo", "roja"),
+  lexeme("azul.adjective", "azul"),
+  lexeme("verde.adjective", "verde"),
+];
+
+export const unit = [
+  lexeme("soldado.noun", "soldado"),
+  lexeme("camión.noun", "camión"),
+  lexeme("explorador.noun", "explorador"),
+];
+
+export const prep = [
+  lexeme("cortar.imperative", "corta"),
+  lexeme("poner.imperative", "pon"),
+  lexeme("freír.imperative", "fríe"),
+  lexeme("servir.imperative", "sirve"),
+];
+
+export const ingredient = [
+  lexeme("cebolla.noun", "la cebolla", "cebolla"),
+  lexeme("pan.noun", "el pan", "pan"),
+  lexeme("huevo.noun", "el huevo", "huevo", "huevos"),
+  lexeme("tomate.noun", "el tomate", "tomate"),
+  lexeme("queso.noun", "el queso", "queso"),
+];
+
+export const quantity = [...numeral, lexeme("medio.adjective", "medio", "media")];
+
+export const without = [lexeme("sin.adposition", "sin")];
+
+export const negation = [lexeme("no.adverb", "no")];
+
+export const all = [direction, move, stop, numeral, article, color, unit, prep, ingredient, quantity, without, negation].flat();
+
+export const slugs = [...new Set(all.map((l) => l.slug))];
+#+END_SRC
+
+** modes/games/mando/dial.js
+
+#+BEGIN_SRC js :tangle modes/games/mando/dial.js
+const STRONG = new Set(["KNOWN", "GRADUATED"]);
+
+const OPEN = 0.8;
+
+export const tier = (tiers, frontier) =>
+  tiers.reduce((open, slugs, index) => {
+    if (index === 0) return 0;
+    const previous = tiers[index - 1];
+    const strong = previous.filter((slug) => STRONG.has(frontier[slug])).length;
+    return open === index - 1 && strong / previous.length >= OPEN ? index : open;
+  }, 0);
+
+const clamp = (lo, hi, n) => Math.min(hi, Math.max(lo, n));
+
+export const tempo = (previous, history) => {
+  const recent = history.slice(-10);
+  if (recent.length < 5) return previous;
+  const ratio = recent.filter(Boolean).length / recent.length;
+  return clamp(1, 5, previous + (ratio > 0.8 ? 0.5 : ratio < 0.5 ? -0.5 : 0));
+};
+
+export const phase = (reactions) => (reactions.slice(-3).every(Boolean) && reactions.length >= 3 ? "COMMAND" : "OBEY");
+#+END_SRC
+
+** modes/games/mando/review.js
+
+#+BEGIN_SRC js :tangle modes/games/mando/review.js
+import { Vector, v } from "@vivalence/typology";
+import { parse, recast } from "./grammar.js";
+
+const GRADE = { HIT: "SUCCESS", NEAR: "MISTAKE", MISS: "FAILURE" };
+
+export const grades = (slots) =>
+  slots.filter((slot) => slot.slug || slot.word).map((slot) => ({ literal: slot.slug ?? null, grade: GRADE[slot.hit] }));
+
+const review = async (ctx, literal, grade) => {
+  if (!literal) return null;
+  const row = await ctx.daemon.entities.literal.findOne({ slug: literal });
+  if (!row) return null;
+  const retention = await row.review(grade, ctx);
+  return { literal, grade, status: retention?.status ?? null };
+};
+
+const COMMAND_INPUT = v.object({
+  buffer: v.string().desc("The game buffer the command is issued in."),
+  tier: v.integer({ minimum: 0 }).desc("The open tier; picks the grammar."),
+  text: v.string().desc("What the learner typed or said."),
+});
+
+const HEARD_INPUT = v.object({
+  buffer: v.string().desc("The game buffer."),
+  slugs: v.array(v.string()).desc("Literal slugs the world's command carried."),
+  reacted: v.boolean().desc("Whether the learner reacted correctly."),
+});
+
+export const apertures = (grammars) =>
+  new Vector()
+    .open({ nature: "/command", input: COMMAND_INPUT }, async (ctx) => {
+      const { grammar, template, command } = grammars[Math.min(ctx.input.tier, grammars.length - 1)];
+      const result = parse(grammar, ctx.input.text);
+      const reviews = await Promise.all(grades(result.slots).map((g) => review(ctx, g.literal, g.grade)));
+      const understood = result.ok || result.partial;
+      return {
+        ok: result.ok,
+        partial: result.partial,
+        command: understood ? command(result.slots) : null,
+        recast: understood ? recast(template, result.slots) : "¿cómo?",
+        slots: result.slots,
+        reviews: reviews.filter(Boolean),
+      };
+    })
+    .open({ nature: "/heard", input: HEARD_INPUT }, async (ctx) => {
+      const grade = ctx.input.reacted ? "SUCCESS" : "MISTAKE";
+      const reviews = await Promise.all(ctx.input.slugs.map((slug) => review(ctx, slug, grade)));
+      return { reviews: reviews.filter(Boolean) };
+    });
+#+END_SRC
+
+** modes/games/mando/scene.js
+
+#+BEGIN_SRC js :tangle modes/games/mando/scene.js
+import * as THREE from "three";
+
+export const scene = (container, { span = 12, background = 0x0b0d10 } = {}) => {
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+  renderer.setClearColor(background, 1);
+  container.appendChild(renderer.domElement);
+
+  const graph = new THREE.Scene();
+  const camera = new THREE.OrthographicCamera(-span, span, span, -span, 0.1, 100);
+  camera.position.set(span, span, span);
+  camera.lookAt(0, 0, 0);
+
+  graph.add(new THREE.AmbientLight(0xffffff, 0.7));
+  const sun = new THREE.DirectionalLight(0xffffff, 0.8);
+  sun.position.set(5, 10, 3);
+  graph.add(sun);
+
+  const resize = () => {
+    const { clientWidth: w, clientHeight: h } = container;
+    const aspect = w / Math.max(h, 1);
+    camera.left = -span * aspect;
+    camera.right = span * aspect;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+  };
+  const observer = new ResizeObserver(resize);
+  observer.observe(container);
+  resize();
+
+  let frame = null;
+  let last = performance.now();
+  const loop = (tick) => {
+    const run = (now) => {
+      tick((now - last) / 1000);
+      last = now;
+      renderer.render(graph, camera);
+      frame = requestAnimationFrame(run);
+    };
+    frame = requestAnimationFrame(run);
+  };
+
+  const dispose = () => {
+    if (frame) cancelAnimationFrame(frame);
+    observer.disconnect();
+    graph.traverse((o) => {
+      o.geometry?.dispose?.();
+      [].concat(o.material ?? []).forEach((m) => m.dispose?.());
+    });
+    renderer.dispose();
+    renderer.domElement.remove();
+  };
+
+  return { scene: graph, camera, renderer, loop, dispose, THREE };
+};
+
+export const box = (color, size = 0.8) => new THREE.Mesh(new THREE.BoxGeometry(size, size, size), new THREE.MeshStandardMaterial({ color }));
+
+export const tile = (color, size = 1) => {
+  const mesh = new THREE.Mesh(new THREE.PlaneGeometry(size, size), new THREE.MeshStandardMaterial({ color }));
+  mesh.rotation.x = -Math.PI / 2;
+  return mesh;
+};
+#+END_SRC
+
+** modes/games/mando/tests/grammar.test.js
+
+#+BEGIN_SRC js :tangle modes/games/mando/tests/grammar.test.js
+import { specimen } from "@vivalence/typology";
+import { parse, recast } from "../grammar.js";
+import { grades } from "../review.js";
+import { grammars } from "../../comando/grammar.js";
+
+const { describe, it, expect } = specimen;
+
+describe("mando grammar — tier 0 commands parse, near-misses grade MISTAKE, the recast is whole", () => {
+  const { grammar, template } = grammars[0];
+
+  it("parses a bare direction", () => {
+    const r = parse(grammar, "a la izquierda");
+    expect(r.ok).toBe(true);
+    expect(r.slots.find((s) => s.slot === "direction").slug).toBe("izquierda.noun");
+  });
+
+  it("parses verb plus direction and recasts both", () => {
+    const r = parse(grammar, "sube arriba");
+    expect(r.ok).toBe(true);
+    expect(recast(template, r.slots)).toBe("sube arriba");
+  });
+
+  it("grades a near miss MISTAKE and still executes", () => {
+    const r = parse(grammar, "subes arriba");
+    expect(r.ok).toBe(true);
+    expect(grades(r.slots).map((g) => g.grade)).toEqual(["MISTAKE", "SUCCESS"]);
+  });
+
+  it("keeps what was right and recasts a stop", () => {
+    const r = parse(grammars[2].grammar, "la roja alto");
+    expect(recast(grammars[2].template, r.slots)).toBe("la roja, alto");
+  });
+
+  it("asks ¿cómo? on nothing", () => {
+    const r = parse(grammar, "hello there");
+    expect(r.ok).toBe(false);
+    expect(r.partial).toBe(false);
+  });
+});
+#+END_SRC
+
+** modes/games/comando/grammar.js
+
+#+BEGIN_SRC js :tangle modes/games/comando/grammar.js
+import { alt, opt, seq, slot } from "../mando/grammar.js";
+import * as es from "../mando/lexicon/es.js";
+
+const pick = (slots, name) => slots.find((s) => s.slot === name && s.slug)?.slug ?? null;
+
+const COUNT = { "uno.numeral": 1, "dos.numeral": 2, "tres.numeral": 3, "cuatro.numeral": 4, "cinco.numeral": 5 };
+
+const command = (slots) =>
+  pick(slots, "stop")
+    ? { kind: "stop", unit: pick(slots, "unit"), color: pick(slots, "color") }
+    : {
+        kind: "move",
+        direction: pick(slots, "direction"),
+        count: COUNT[pick(slots, "count")] ?? 1,
+        unit: pick(slots, "unit"),
+        color: pick(slots, "color"),
+      };
+
+const t0 = alt(slot("stop", es.stop), seq(opt(slot("move", es.move)), slot("direction", es.direction)));
+
+const t1 = alt(slot("stop", es.stop), seq(opt(slot("move", es.move)), opt(slot("count", es.numeral)), slot("direction", es.direction)));
+
+const addressed = seq(opt(slot("article", es.article)), alt(slot("unit", es.unit), slot("color", es.color)), opt(slot("color", es.color)));
+
+const t2 = alt(
+  seq(opt(addressed), slot("stop", es.stop)),
+  seq(opt(addressed), opt(slot("move", es.move)), opt(slot("count", es.numeral)), slot("direction", es.direction)),
+);
+
+const stopping = (slots) => slots.some((s) => s.slot === "stop" && s.slug);
+
+const template = (moving) => (slots) => (stopping(slots) ? "{article} {unit} {color}, {stop}" : moving);
+
+export const grammars = [
+  { grammar: t0, template: template("{move} {direction}"), command },
+  { grammar: t1, template: template("{move} {count} {direction}"), command },
+  { grammar: t2, template: template("{article} {unit} {color}, {move} {count} {direction}"), command },
+];
+
+export const tiers = [
+  [...es.direction, ...es.move, ...es.stop].map((l) => l.slug),
+  es.numeral.map((l) => l.slug),
+  [...es.article, ...es.unit, ...es.color].map((l) => l.slug),
+];
+#+END_SRC
+
+** modes/games/comando/world.js
+
+#+BEGIN_SRC js :tangle modes/games/comando/world.js
+const DELTA = {
+  "arriba.adverb": [0, -1],
+  "abajo.adverb": [0, 1],
+  "izquierda.noun": [-1, 0],
+  "derecha.noun": [1, 0],
+};
+
+const COLOR = { "rojo.adjective": 0xd9534f, "azul.adjective": 0x4a90d9, "verde.adjective": 0x5cb85c };
+
+const rand = (n) => Math.floor(Math.random() * n);
+
+export const create = ({ w = 12, h = 12, units = 1 } = {}) => ({
+  w,
+  h,
+  t: 0,
+  score: 0,
+  lost: 0,
+  units: Array.from({ length: units }, (_, i) => ({
+    id: i,
+    unit: ["soldado.noun", "camión.noun", "explorador.noun"][i % 3],
+    color: Object.keys(COLOR)[i % 3],
+    x: rand(w),
+    y: rand(h),
+    orders: [],
+    clock: 0,
+  })),
+  goals: [],
+  hazards: Array.from({ length: 6 }, () => ({ x: rand(w), y: rand(h) })),
+});
+
+const addressee = (world, command) =>
+  world.units.find((u) => (!command.unit || u.unit === command.unit) && (!command.color || u.color === command.color)) ?? world.units[0];
+
+export const order = (world, command) => {
+  const target = addressee(world, command);
+  if (!target) return world;
+  const units = world.units.map((u) =>
+    u !== target
+      ? u
+      : command.kind === "stop"
+        ? { ...u, orders: [] }
+        : { ...u, orders: [...u.orders, ...Array.from({ length: command.count }, () => DELTA[command.direction])] },
+  );
+  return { ...world, units };
+};
+
+const inside = (world, x, y) => x >= 0 && y >= 0 && x < world.w && y < world.h;
+
+const stepUnit = (world, u, dt, tempo) => {
+  const period = 0.6 / tempo;
+  if (!u.orders.length) return u;
+  const clock = u.clock + dt;
+  if (clock < period) return { ...u, clock };
+  const [[dx, dy], ...orders] = u.orders;
+  const x = u.x + dx;
+  const y = u.y + dy;
+  return inside(world, x, y) ? { ...u, x, y, orders, clock: 0 } : { ...u, orders: [], clock: 0 };
+};
+
+export const spawn = (world, tempo) =>
+  world.goals.length >= Math.ceil(tempo)
+    ? world
+    : { ...world, goals: [...world.goals, { id: crypto.randomUUID(), x: rand(world.w), y: rand(world.h), due: world.t + 30 / tempo }] };
+
+export const step = (world, dt, tempo) => {
+  const t = world.t + dt;
+  let units = world.units.map((u) => stepUnit(world, u, dt, tempo));
+  let score = world.score;
+  let lost = world.lost;
+  const goals = world.goals.filter((g) => {
+    const reached = units.some((u) => u.x === g.x && u.y === g.y);
+    if (reached) score += 1;
+    const overdue = t > g.due;
+    if (overdue) lost += 1;
+    return !reached && !overdue;
+  });
+  units = units.map((u) => (world.hazards.some((h) => h.x === u.x && h.y === u.y) ? { ...u, orders: [], x: rand(world.w), y: rand(world.h) } : u));
+  return spawn({ ...world, t, units, goals, score, lost }, tempo);
+};
+
+export const speak = (world, tier) => {
+  const directions = Object.keys(DELTA);
+  const direction = directions[rand(directions.length)];
+  const count = tier >= 1 ? 1 + rand(3) : 1;
+  const u = world.units[rand(world.units.length)];
+  const command = { kind: "move", direction, count, unit: tier >= 2 ? u.unit : null, color: tier >= 2 ? u.color : null };
+  const slugs = [direction, ...(tier >= 1 ? [["uno.numeral", "dos.numeral", "tres.numeral"][count - 1]] : []), ...(tier >= 2 ? [u.unit, u.color] : [])];
+  return { command, slugs, expect: DELTA[direction], unit: u.id };
+};
+
+export const colour = (slug) => COLOR[slug] ?? 0xcccccc;
+#+END_SRC
+
+** modes/games/comando/emitter/index.js
+
+#+BEGIN_SRC js :tangle modes/games/comando/emitter/index.js
+import { Vector, v } from "@vivalence/typology";
+import { tier as openTier } from "../../mando/dial.js";
+import { tiers } from "../grammar.js";
+
+const INPUT = v.object({
+  thread: v.string().desc("Binds the emitted buffer to the caller's thread.").optional(),
+  units: v.integer({ minimum: 1, maximum: 3 }).desc("Units on the board. Omit = one.").optional(),
+});
+
+const frontier = async (ctx) => {
+  const slugs = tiers.flat();
+  const rows = await ctx.daemon.entities.literal.find({ slug: { $in: slugs } }, { populate: ["retentions"] });
+  return Object.fromEntries(rows.map((row) => [row.slug, row.retention?.status ?? "UNTOUCHED"]));
+};
+
+export const emitter = new Vector().open({ nature: "/comando", input: INPUT }, async (ctx) => {
+  const statuses = await frontier(ctx);
+  const tier = openTier(tiers, statuses);
+  const literals = await ctx.daemon.entities.literal.find({ slug: { $in: tiers.slice(0, tier + 1).flat() } });
+  return ctx.mode.application.buffer({
+    data: { tier, tempo: 1, phase: "OBEY", units: ctx.input.units ?? 1, history: [], reactions: [] },
+    literals,
+    ...(ctx.input.thread ? { thread: ctx.input.thread } : {}),
+  });
+});
+#+END_SRC
+
+** modes/games/comando/comando.viva.js
+
+#+BEGIN_SRC js :tangle modes/games/comando/comando.viva.js
+import { App, v } from "@vivalence/typology";
+import { apertures } from "../mando/review.js";
+import { grammars } from "./grammar.js";
+
+export { emitter } from "./emitter/index.js";
+
+export const aperture = apertures(grammars);
+
+export const manifest = {
+  type: "game",
+  slug: "comando",
+  name: "Comando",
+  description: "Language as the controller — a grid, units, goals; the only input is Spanish. Continuous; tier from retention, tempo from the last ten.",
+  version: "0.1.0",
+  traits: ["APPLICATION", "EMITTER", "STANDALONE", "EXPOSED"],
+};
+
+export const application = new App(
+  "buffer/Comando.svelte",
+  v
+    .buffer({
+      data: {
+        tier: v.integer({ minimum: 0 }).default(0),
+        tempo: v.number().default(1),
+        phase: v.enum(["OBEY", "COMMAND"]).default("OBEY"),
+        units: v.integer({ minimum: 1 }).default(1),
+        history: v.array(v.boolean()).default([]),
+        reactions: v.array(v.boolean()).default([]),
+      },
+      literals: v.array(v.rel(v.literal())).desc("The open tiers' lexicon — reviews land per literal through /command and /heard."),
+    })
+    .desc("Comando: one board that never stops. OBEY until three clean reactions, then COMMAND. The parser judges; the world shows."),
+);
+#+END_SRC
+
+** modes/games/comando/buffer/Comando.svelte
+
+#+BEGIN_SRC svelte :tangle modes/games/comando/buffer/Comando.svelte
+<script>
+  import { onMount } from "svelte";
+  import { scene as mount, box, tile } from "../../mando/scene.js";
+  import { tempo as nextTempo, phase as nextPhase } from "../../mando/dial.js";
+  import * as world from "../world.js";
+
+  const { buffer } = $props();
+
+  let host;
+  let state = $state(world.create({ units: buffer.data.units }));
+  let tier = $state(buffer.data.tier);
+  let tempo = $state(buffer.data.tempo);
+  let phase = $state(buffer.data.phase);
+  let history = $state([...buffer.data.history]);
+  let reactions = $state([...buffer.data.reactions]);
+  let text = $state("");
+  let line = $state("");
+  let spoken = $state(null);
+
+  const KEYS = { ArrowUp: [0, -1], ArrowDown: [0, 1], ArrowLeft: [-1, 0], ArrowRight: [1, 0] };
+
+  const call = (nature, input) => buffer.mode.connection.call(nature, { buffer: buffer.id, ...input });
+
+  const speak = () => {
+    spoken = world.speak(state, tier);
+    const { command } = spoken;
+    line = [command.unit, command.color, command.count > 1 ? command.count : null, command.direction]
+      .filter(Boolean)
+      .map((slug) => buffer.literals.find((l) => l.slug === slug)?.trait?.TRANSLATED?.learning ?? String(slug).split(".")[0])
+      .join(" ");
+  };
+
+  const react = async (key) => {
+    if (!spoken || !KEYS[key]) return;
+    const ok = KEYS[key][0] === spoken.expect[0] && KEYS[key][1] === spoken.expect[1];
+    reactions = [...reactions, ok];
+    if (ok) state = world.order(state, { ...spoken.command });
+    await call("/heard", { slugs: spoken.slugs, reacted: ok });
+    phase = nextPhase(reactions);
+    phase === "OBEY" ? speak() : (spoken = null);
+  };
+
+  const command = async () => {
+    const said = text.trim();
+    if (!said) return;
+    text = "";
+    const result = await call("/command", { tier, text: said });
+    line = result.recast;
+    history = [...history, result.ok];
+    tempo = nextTempo(tempo, history);
+    if (result.command) state = world.order(state, result.command);
+  };
+
+  onMount(() => {
+    const stage = mount(host);
+    const meshes = new Map();
+    for (let x = 0; x < state.w; x++)
+      for (let y = 0; y < state.h; y++) {
+        const t = tile((x + y) % 2 ? 0x161a20 : 0x1b2027);
+        t.position.set(x - state.w / 2 + 0.5, 0, y - state.h / 2 + 0.5);
+        stage.scene.add(t);
+      }
+    const place = (key, make, x, y, lift) => {
+      if (!meshes.has(key)) {
+        const m = make();
+        meshes.set(key, m);
+        stage.scene.add(m);
+      }
+      meshes.get(key).position.set(x - state.w / 2 + 0.5, lift, y - state.h / 2 + 0.5);
+    };
+    state.hazards.forEach((h, i) => place(`h${i}`, () => tile(0x5a1e1e, 0.9), h.x, h.y, 0.01));
+    stage.loop((dt) => {
+      state = world.step(state, dt, tempo);
+      state.units.forEach((u) => place(`u${u.id}`, () => box(world.colour(u.color)), u.x, u.y, 0.4));
+      const live = new Set(state.goals.map((g) => `g${g.id}`));
+      state.goals.forEach((g) => place(`g${g.id}`, () => box(0xf0c040, 0.4), g.x, g.y, 0.2));
+      for (const [key, mesh] of meshes) if (key.startsWith("g") && !live.has(key)) {
+        stage.scene.remove(mesh);
+        meshes.delete(key);
+      }
+    });
+    if (phase === "OBEY") speak();
+    return stage.dispose;
+  });
+</script>
+
+<svelte:window onkeydown={(e) => phase === "OBEY" && react(e.key)} />
+
+<section class="comando">
+  <div class="stage" bind:this={host}></div>
+  <footer>
+    <span class="dial">t{tier} · ×{tempo} · {state.score}/{state.lost}</span>
+    <span class="line">{line}</span>
+    {#if phase === "COMMAND"}
+      <input bind:value={text} onkeydown={(e) => e.key === "Enter" && command()} placeholder="…" autofocus />
+    {/if}
+  </footer>
+</section>
+
+<style>
+  .comando { display: grid; grid-template-rows: 1fr auto; height: 100%; }
+  .stage { min-height: 0; }
+  footer { display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; padding: 0.5rem 0.75rem; font: 500 0.85rem/1 ui-monospace, monospace; }
+  .dial { opacity: 0.6; }
+  .line { text-align: center; }
+  input { background: transparent; border: 0; border-bottom: 1px solid currentColor; color: inherit; font: inherit; width: 16ch; outline: 0; }
+</style>
+#+END_SRC
+
+** modes/games/cocina/grammar.js
+
+#+BEGIN_SRC js :tangle modes/games/cocina/grammar.js
+import { alt, opt, seq, slot } from "../mando/grammar.js";
+import * as es from "../mando/lexicon/es.js";
+
+const pick = (slots, name) => slots.find((s) => s.slot === name && s.slug)?.slug ?? null;
+
+const COUNT = { "uno.numeral": 1, "dos.numeral": 2, "tres.numeral": 3, "cuatro.numeral": 4, "cinco.numeral": 5, "medio.adjective": 0.5 };
+
+const command = (slots) => ({
+  kind: "prep",
+  verb: pick(slots, "prep"),
+  ingredient: pick(slots, "ingredient"),
+  count: COUNT[pick(slots, "count")] ?? 1,
+  without: pick(slots, "excluded"),
+  negated: Boolean(pick(slots, "negation")),
+});
+
+const t0 = seq(slot("prep", es.prep), slot("ingredient", es.ingredient));
+
+const t1 = seq(slot("prep", es.prep), opt(slot("count", es.quantity)), slot("ingredient", es.ingredient));
+
+const t2 = alt(
+  seq(slot("negation", es.negation), slot("prep", es.prep), opt(slot("count", es.quantity)), slot("ingredient", es.ingredient)),
+  seq(slot("prep", es.prep), opt(slot("count", es.quantity)), slot("ingredient", es.ingredient), opt(seq(slot("without", es.without), slot("excluded", es.ingredient)))),
+);
+
+export const grammars = [
+  { grammar: t0, template: "{prep} {ingredient}", command },
+  { grammar: t1, template: "{prep} {count} {ingredient}", command },
+  { grammar: t2, template: "{negation} {prep} {count} {ingredient} {without} {excluded}", command },
+];
+
+export const tiers = [
+  [...es.prep, ...es.ingredient].map((l) => l.slug),
+  es.quantity.map((l) => l.slug),
+  [...es.without, ...es.negation].map((l) => l.slug),
+];
+#+END_SRC
+
+** modes/games/cocina/world.js
+
+#+BEGIN_SRC js :tangle modes/games/cocina/world.js
+const rand = (n) => Math.floor(Math.random() * n);
+
+const DISHES = [
+  { name: "tortilla", steps: [["cortar.imperative", "cebolla.noun"], ["freír.imperative", "huevo.noun"], ["servir.imperative", "huevo.noun"]] },
+  { name: "tostada", steps: [["cortar.imperative", "pan.noun"], ["poner.imperative", "tomate.noun"], ["servir.imperative", "pan.noun"]] },
+  { name: "bocadillo", steps: [["cortar.imperative", "pan.noun"], ["poner.imperative", "queso.noun"], ["servir.imperative", "pan.noun"]] },
+];
+
+export const create = () => ({ t: 0, score: 0, lost: 0, tickets: [], cook: { busy: 0, doing: null } });
+
+export const spawn = (world, tempo) =>
+  world.tickets.length >= Math.ceil(tempo)
+    ? world
+    : {
+        ...world,
+        tickets: [...world.tickets, { id: crypto.randomUUID(), dish: DISHES[rand(DISHES.length)], done: 0, due: world.t + 45 / tempo }],
+      };
+
+export const order = (world, command) => {
+  if (world.cook.busy > 0) return world;
+  const ticket = world.tickets.find((t) => {
+    const [verb, ingredient] = t.dish.steps[t.done] ?? [];
+    return verb === command.verb && ingredient === command.ingredient && !command.negated;
+  });
+  if (!ticket) return { ...world, cook: { busy: 1.5, doing: command } };
+  return {
+    ...world,
+    cook: { busy: 1.5, doing: command },
+    tickets: world.tickets.map((t) => (t === ticket ? { ...t, done: t.done + 1 } : t)),
+  };
+};
+
+export const step = (world, dt, tempo) => {
+  const t = world.t + dt;
+  const busy = Math.max(0, world.cook.busy - dt);
+  let score = world.score;
+  let lost = world.lost;
+  const tickets = world.tickets.filter((ticket) => {
+    const served = ticket.done >= ticket.dish.steps.length;
+    if (served) score += 1;
+    const overdue = t > ticket.due;
+    if (overdue) lost += 1;
+    return !served && !overdue;
+  });
+  return spawn({ ...world, t, tickets, score, lost, cook: { busy, doing: busy > 0 ? world.cook.doing : null } }, tempo);
+};
+
+export const speak = (world, tier) => {
+  const ticket = world.tickets[rand(world.tickets.length)];
+  if (!ticket) return null;
+  const [verb, ingredient] = ticket.dish.steps[ticket.done];
+  const count = tier >= 1 ? 1 + rand(2) : 1;
+  return {
+    command: { kind: "prep", verb, ingredient, count, without: null, negated: false },
+    slugs: [verb, ingredient, ...(tier >= 1 ? [["uno.numeral", "dos.numeral"][count - 1]] : [])],
+    expect: ticket.id,
+  };
+};
+#+END_SRC
+
+** modes/games/cocina/emitter/index.js
+
+#+BEGIN_SRC js :tangle modes/games/cocina/emitter/index.js
+import { Vector, v } from "@vivalence/typology";
+import { tier as openTier } from "../../mando/dial.js";
+import { tiers } from "../grammar.js";
+
+const INPUT = v.object({
+  thread: v.string().desc("Binds the emitted buffer to the caller's thread.").optional(),
+});
+
+const frontier = async (ctx) => {
+  const rows = await ctx.daemon.entities.literal.find({ slug: { $in: tiers.flat() } }, { populate: ["retentions"] });
+  return Object.fromEntries(rows.map((row) => [row.slug, row.retention?.status ?? "UNTOUCHED"]));
+};
+
+export const emitter = new Vector().open({ nature: "/cocina", input: INPUT }, async (ctx) => {
+  const tier = openTier(tiers, await frontier(ctx));
+  const literals = await ctx.daemon.entities.literal.find({ slug: { $in: tiers.slice(0, tier + 1).flat() } });
+  return ctx.mode.application.buffer({
+    data: { tier, tempo: 1, phase: "OBEY", history: [], reactions: [] },
+    literals,
+    ...(ctx.input.thread ? { thread: ctx.input.thread } : {}),
+  });
+});
+#+END_SRC
+
+** modes/games/cocina/cocina.viva.js
+
+#+BEGIN_SRC js :tangle modes/games/cocina/cocina.viva.js
+import { App, v } from "@vivalence/typology";
+import { apertures } from "../mando/review.js";
+import { grammars } from "./grammar.js";
+
+export { emitter } from "./emitter/index.js";
+
+export const aperture = apertures(grammars);
+
+export const manifest = {
+  type: "game",
+  slug: "cocina",
+  name: "Cocina",
+  description: "Language as the controller — tickets arrive, you command the cook, never the food. Continuous; tier from retention, tempo from the last ten.",
+  version: "0.1.0",
+  traits: ["APPLICATION", "EMITTER", "STANDALONE", "EXPOSED"],
+};
+
+export const application = new App(
+  "buffer/Cocina.svelte",
+  v
+    .buffer({
+      data: {
+        tier: v.integer({ minimum: 0 }).default(0),
+        tempo: v.number().default(1),
+        phase: v.enum(["OBEY", "COMMAND"]).default("OBEY"),
+        history: v.array(v.boolean()).default([]),
+        reactions: v.array(v.boolean()).default([]),
+      },
+      literals: v.array(v.rel(v.literal())).desc("The open tiers' lexicon — reviews land per literal through /command and /heard."),
+    })
+    .desc("Cocina: a ticket rail that never empties. OBEY until three clean reactions, then COMMAND. A cook who takes you literally."),
+);
+#+END_SRC
+
+** modes/games/cocina/buffer/Cocina.svelte
+
+#+BEGIN_SRC svelte :tangle modes/games/cocina/buffer/Cocina.svelte
+<script>
+  import { onMount } from "svelte";
+  import { scene as mount, box, tile } from "../../mando/scene.js";
+  import { tempo as nextTempo, phase as nextPhase } from "../../mando/dial.js";
+  import * as world from "../world.js";
+
+  const { buffer } = $props();
+
+  let host;
+  let state = $state(world.create());
+  let tier = $state(buffer.data.tier);
+  let tempo = $state(buffer.data.tempo);
+  let phase = $state(buffer.data.phase);
+  let history = $state([...buffer.data.history]);
+  let reactions = $state([...buffer.data.reactions]);
+  let text = $state("");
+  let line = $state("");
+  let spoken = $state(null);
+
+  const call = (nature, input) => buffer.mode.connection.call(nature, { buffer: buffer.id, ...input });
+
+  const word = (slug) => buffer.literals.find((l) => l.slug === slug)?.trait?.TRANSLATED?.learning ?? String(slug).split(".")[0];
+
+  const speak = () => {
+    spoken = world.speak(state, tier);
+    if (!spoken) return;
+    const { command } = spoken;
+    line = [command.verb, command.count > 1 ? command.count : null, command.ingredient].filter(Boolean).map(word).join(" ");
+  };
+
+  const react = async (ticketId) => {
+    if (!spoken) return;
+    const ok = ticketId === spoken.expect;
+    reactions = [...reactions, ok];
+    if (ok) state = world.order(state, spoken.command);
+    await call("/heard", { slugs: spoken.slugs, reacted: ok });
+    phase = nextPhase(reactions);
+    phase === "OBEY" ? speak() : (spoken = null);
+  };
+
+  const command = async () => {
+    const said = text.trim();
+    if (!said) return;
+    text = "";
+    const result = await call("/command", { tier, text: said });
+    line = result.recast;
+    history = [...history, result.ok];
+    tempo = nextTempo(tempo, history);
+    if (result.command) state = world.order(state, result.command);
+  };
+
+  onMount(() => {
+    const stage = mount(host, { span: 6 });
+    const counter = tile(0x2a2f36, 10);
+    stage.scene.add(counter);
+    const cook = box(0xe0e0e0, 1);
+    cook.position.set(0, 0.5, 2);
+    stage.scene.add(cook);
+    const rail = new Map();
+    stage.loop((dt) => {
+      state = world.step(state, dt, tempo);
+      if (!spoken && phase === "OBEY" && state.tickets.length) speak();
+      cook.position.y = 0.5 + (state.cook.busy > 0 ? Math.sin(state.t * 12) * 0.1 : 0);
+      const live = new Set(state.tickets.map((t) => t.id));
+      state.tickets.forEach((t, i) => {
+        if (!rail.has(t.id)) {
+          const m = box(0xf0c040, 0.6);
+          rail.set(t.id, m);
+          stage.scene.add(m);
+        }
+        rail.get(t.id).position.set(i * 1.2 - 3, 0.3, -3);
+        rail.get(t.id).scale.y = 1 - t.done / t.dish.steps.length + 0.1;
+      });
+      for (const [id, m] of rail) if (!live.has(id)) {
+        stage.scene.remove(m);
+        rail.delete(id);
+      }
+    });
+    return stage.dispose;
+  });
+</script>
+
+<section class="cocina">
+  <div class="stage" bind:this={host}></div>
+  <footer>
+    <span class="dial">t{tier} · ×{tempo} · {state.score}/{state.lost}</span>
+    <span class="line">{line}</span>
+    {#if phase === "OBEY"}
+      <nav>
+        {#each state.tickets as ticket, i}
+          <button onclick={() => react(ticket.id)}>{i + 1}</button>
+        {/each}
+      </nav>
+    {:else}
+      <input bind:value={text} onkeydown={(e) => e.key === "Enter" && command()} placeholder="…" autofocus />
+    {/if}
+  </footer>
+</section>
+
+<style>
+  .cocina { display: grid; grid-template-rows: 1fr auto; height: 100%; }
+  .stage { min-height: 0; }
+  footer { display: grid; grid-template-columns: auto 1fr auto; gap: 1rem; align-items: center; padding: 0.5rem 0.75rem; font: 500 0.85rem/1 ui-monospace, monospace; }
+  .dial { opacity: 0.6; }
+  .line { text-align: center; }
+  nav { display: flex; gap: 0.4rem; }
+  button { background: transparent; border: 1px solid currentColor; color: inherit; font: inherit; padding: 0.2rem 0.6rem; }
+  input { background: transparent; border: 0; border-bottom: 1px solid currentColor; color: inherit; font: inherit; width: 16ch; outline: 0; }
+</style>
+#+END_SRC
+
+** topographies/english-to-spanish/.harvest/staged/briefs/task-mando-lexicon.md
+
+#+BEGIN_SRC markdown :tangle topographies/english-to-spanish/.harvest/staged/briefs/task-mando-lexicon.md
+# task — the mando lexicon
+
+The controller words for `@education/game/comando` and `@education/game/cocina`. Every slug below must resolve on the spanish daemon before the games emit. Source every form; a word already in the corpus is skipped, not duplicated.
+
+## words — add as literals (TRANSLATED · RANKED · symbols as the topology dictates)
+
+| slug | learning | known |
+|------|----------|-------|
+| arriba.adverb | arriba | up |
+| abajo.adverb | abajo | down |
+| izquierda.noun | izquierda | left |
+| derecha.noun | derecha | right |
+| soldado.noun | soldado | soldier |
+| camión.noun | camión | truck |
+| explorador.noun | explorador | scout |
+| rojo.adjective | rojo | red |
+| azul.adjective | azul | blue |
+| verde.adjective | verde | green |
+| cebolla.noun | cebolla | onion |
+| huevo.noun | huevo | egg |
+| tomate.noun | tomate | tomato |
+| queso.noun | queso | cheese |
+| medio.adjective | medio | half |
+| uno.numeral | uno | one |
+| cuatro.numeral | cuatro | four |
+| cinco.numeral | cinco | five |
+| el.determiner | el | the |
+| la.determiner | la | the |
+| sin.adposition | sin | without |
+
+Present already, leave alone: `dos.numeral` · `tres.numeral` · `pan.noun` · `no.adverb`.
+
+## paradigms — add as conjugation rows, mood imperative
+
+| slug | tú | usted | note |
+|------|----|-------|------|
+| subir.imperative | sube | suba | |
+| bajar.imperative | baja | baje | |
+| ir.imperative | ve | vaya | irregular |
+| girar.imperative | gira | gire | |
+| parar.imperative | para | pare | the game also accepts alto · quieto as surfaces, not as rows |
+| cortar.imperative | corta | corte | |
+| poner.imperative | pon | ponga | irregular |
+| freír.imperative | fríe | fría | |
+| servir.imperative | sirve | sirva | |
+
+The slug pattern `<verb>.imperative` is new — no corpus holds an imperative paradigm today. The conjugation topology's symbol for mood needs `conjugation.mood.imperative`; check `topologies/conjugation/dataset` before filing.
+#+END_SRC
+
+** instances/spanish/daemon.js — the kernel takes both games
+
+#+BEGIN_SRC diff
+// instances/spanish/daemon.js:28
+     "@education/game/dojo",
+     "@education/game/nyan",
+     "@education/game/riddler",
++    "@education/game/comando",
++    "@education/game/cocina",
+   ],
+#+END_SRC
+
+* the fork
+
+Where the shared machine lives — this changes the package's ontology, so it is beef's:
+
+1. as tangled: `modes/games/mando/` is a library beside the games, no manifest, imported by relative path. Cheap; nothing in the kernel; a third world is a folder.
+2. `@education/game/mando` as a mode with a trait the worlds consume — the machine becomes a kernel citizen, its apertures mount once, worlds declare their grammar and sim.
+
+Built as 1. The move to 2 is a `mando.viva.js` and two import lines; nothing in the design turns on it.
+
+* deferred
+
+- OBEY with voice: the world's command through TTS (ElevenLabs now, Piper when `local is the same shape` is true).
+- COMMAND with voice: Deepgram now, faster-whisper later; the radio game.
+- varied recasts and composed boards from the harness; v0 recasts are templates.
+- tiers 3–5: rows in each `grammar.js` once the lexicon holds prepositions · landmarks · sequencing · tense; the machine does not change.
+- retention over symbols (the rule, not the item) — the rework proposal, not this quest.
+- Strata's grid and units as the comando sim — measure the API first.
+- `aprende` emitting both games on the landing; `francesca`'s `drill` reaching them.
+- three through drapes — the roadmap quest's fork; `scene.js` already has the shape it specs.
+
+* test — the scenario
+
+On the spanish daemon, a fresh user:
+
+1. `emit /comando` → a buffer with `tier 0`, `phase OBEY`, four direction literals plus the imperatives.
+2. the board speaks `a la izquierda`; the learner presses ←; `/heard` reviews `izquierda.noun` SUCCESS. Twice more clean → `phase COMMAND`.
+3. the learner types `subes arriba` → `/command` returns `ok true`, recast `sube arriba`, reviews `subir.imperative` MISTAKE · `arriba.adverb` SUCCESS; the unit moves one up.
+4. the learner types `hello` → `ok false`, recast `¿cómo?`, no reviews, the goal clock keeps running.
+5. ten commands at > 80 % → `tempo 1.5`; two goals on the board.
+6. the retention over tier 0 crosses 80 % KNOWN → a new emit returns `tier 1`; the board speaks `tres abajo` before the parser accepts a numeral.
+
+* release
+
+### other
+
+- added `@education/game/comando` · `@education/game/cocina` — language-as-controller games on the spanish daemon; emitters `/comando` · `/cocina`; apertures `/command` · `/heard` · migrate: none ⟨mando⟩
+- added `modes/games/mando/` — grammar · lexicon · dial · review · scene, shared by the two games · migrate: none ⟨mando⟩
+
+* landed 10-29 — what differs from the tangle above, and why
+
+| tangle said | tree has | why |
+|-------------+----------+-----|
+| `new App("buffer/X.svelte", v.buffer(…))` | `buffer = v.buffer(…)` + `views = [{slug, mount, mime}]` ×2 | APPLICATION retired m87; a tty face is a second View row |
+| `ctx.mode.application.buffer` · `ctx.daemon.entities` · `row.review(grade, ctx)` | `ctx.mode.buffer` · `ctx.entities` · `ctx.entities.literal.review(row, grade)` → `note.trait.RETAINED.status` | the local tree (`dojo/emitter/buffer.js:12` · `domain/traits/literal/retained.js:102`) |
+| `modes/games/mando/` imported by `../mando/` | `modes/games/<game>/mando/` — one copy per game, `tests/mando.test.js` at the package root pins the six files byte-equal | a mode never imports outside its directory (skill `mode`, /"no leaving the mode"/); the fork is thereby ruled 1-as-copies — the move to a mode is still a `mando.viva.js` away |
+| svelte owns the loop state | `mando/session.js` — `begin · hear · reacted · commanded · face`, one reducer both views fold | both tty and dom; the views only render |
+| `populate: ["retentions"]`, `row.retention?.status` | `review.frontier(ctx, slugs)`: `populate: ["notes"]`, `row.assess()?.status ?? "UNTOUCHED"` | that is the retention read (`retained.js:114`) |
+| a harvest brief `task-mando-lexicon.md` | rows appended to `dataset/literals/{words/adverb,noun,adjective,verb}.js` · `conjugation.js` — 10 words · 24 verb forms (tú + usted + 7 infinitives) · 9 `<verb>.imperative` paradigms, every row carrying `domain.mando`; prefix of every file byte-identical | the stamp differs → the daemon reinstalled on the restart; no brief to wait on |
+| `instances/spanish/daemon.js` hunk | `instances/spanish/instance.viva.json` + `~/.viva/instances/localhost/instance.viva.json`, two modes each | the local tree's recipe shape |
+| `tests/grammar.test.js` under mando | `comando/tests/grammar.test.js` (grammar · dial · world) · `<game>/tests/aperture.test.js` (`mountMode`, the scenario steps 1–4) · `<game>/tests/tty.render.test.js` (bundle + `testRender`) | one owner per suite |
+
+tty views: `comando/buffer/comando.jsx` — the grid as glyph rows (`S C E` units by colour tone · `◆` goal · `▒` hazard · `·`), arrows obey, typed line commands, a 100 ms clock steps the world. `cocina/buffer/cocina.jsx` — the ticket rail (`1 tortilla ▮▯▯`), `1-9` picks, typed line commands.
+
+Evidence (10-29, from the repo root):
+- `comando/tests/grammar.test.js` → `ok | 3 passed (10 steps) | 0 failed`
+- `comando/tests/aperture.test.js` → `ok | 1 passed (4 steps) | 0 failed` · `cocina/tests/aperture.test.js` → `ok | 1 passed (3 steps) | 0 failed`
+- `comando/tests/tty.render.test.js` → `ok | 1 passed (1 step) | 0 failed` · `cocina/tests/tty.render.test.js` → `ok | 1 passed (1 step) | 0 failed`
+- `tests/mando.test.js` → `ok | 1 passed (1 step) | 0 failed`
+- `:2501/metadata/daemons` → spanish `modes: 12`; `mode_game_{comando,cocina}/bundle/` holds a `.dom.svelte.mjs` (WebGLRenderer ×57) and a `.tty.solid.mjs`
+- the emitter needs a thread (`traits/emitter.js:27`); the aperture suites mint one. dojo's `emitter.test.js` is red on the base tree for the same reason — known-issues.org:2775, not this quest's.
+
+Open: milestone `the daemon` — `aprende` listing both games (deferred above); the tier-from-retention claim is proven by `dial.tier` in the grammar suite and the emit step, not yet by a played session.
+
+* iterated 10-29 — both faces walked on HIS localhost (anima `:1794` in Chrome · `viva` in a pty under pyte), three defects found by the walk, each fixed and re-walked
+
+| seen | where | cause | fix |
+|------+-------+-------+-----|
+| frame: `! data.history is not iterable` | dom, `/mode game/comando` | `/manual` mints `data: {}` (`ghost/subjects/terminal/stall.js:14`), no fill on the client row | `mando/session.js` `DEFAULTS` + `begin` spreads them; `grammar.test.js` pins `begin({})` |
+| frame: `✕ Cannot read properties of undefined (reading 'find')` | tty, same mount | `buffer.literals` is absent on a blank client row (`ghost/entities/buffer/` never hydrates it) | `face(literals = [], slug)`; pinned in the same test |
+| stage blank, `canvas.width === 355840` | dom, both games | `renderer.setSize(w, h, false)` leaves the canvas at its attribute width → the stage grows → ResizeObserver → loop | `scene.js` sizes from `getBoundingClientRect`, returns on 0, styles the canvas `100%` (assembly's `scene.js:389-397`); `.stage { min-width: 0; overflow: hidden; position: relative }` |
+| arrows in the composer drove the board | dom, comando | `svelte:window onkeydown` caught every arrow | gated off `input · textarea · [contenteditable]`, `preventDefault` on a handled arrow |
+
+Evidence (10-29):
+- tty comando: the grid draws (`S` unit · `◆` goal · `▒` hazards), the board speaks `derecha` · `arriba`, ↑ on `arriba` moves `S` one row up; db traces `retention.arriba.adverb SUCCESS · MISTAKE`, `derecha · izquierda · abajo MISTAKE`
+- tty cocina: `1 tostada ▯▯▯` → three `1` presses → `▮▯▯ · ▮▮▯ · 1/0` served → `› ▌` COMMAND → `corta la cebolla` · `pon queso` · `¿cómo?` recast on the line
+- dom cocina: counter · cook · ticket cube; three picks serve the tostada; `corta la cebolla` recast, `hello` → `¿cómo?`; traces `cortar.imperative SUCCESS · cebolla.noun SUCCESS`
+- dom comando: board · red unit · hazards · goal; `abajo` + ↓ → `SUCCESS`, `derecha` + ↑ · `arriba` + ← → `MISTAKE`; after the gate, ↑ in the composer leaves the line, ↑ on the stage speaks the next
+- suites after the iteration: `comando/tests/grammar.test.js` `ok | 4 passed (11 steps) | 0 failed`; `tests/mando.test.js` green (both `mando/` copies byte-equal)
+- walk ended clean: my terminal 6 closed, 7 walk-born threads deleted, his terminal 2 re-seated on `01a1884c-283a` (the runtime thread born beside terminals 3 and 4's — the id it held before the walk was not recorded)
+
+Word-guard after the report: `line` is a dead word (codestyle) — renamed `utterance` across `session.js` · `world.js` · both views of both games; suites green, kit pinned.
+
+Walk recipe (pty + pyte): `scratchpad/ttywalk.py` — ctrl-v ctrl-v opens the repl when the dock boots `[closed]`; `/dock docked` shows the frame; `/focus frame` hands the arrows to the view.
+
+Left: the client bundles the view at `data: {}` — a `/manual` buffer never carries `literals`, so the line shows the slug's word (`izquierda`), never `a la izquierda`; an emitted buffer (`/emit/comando`, thread required) carries them. `aprende` listing both games still deferred.
+
+* reworked 10-30 — his two rulings, both games from scratch
+
+/"a: i want llm driven conversation and b: the graphics should look like the settings!! rework the new modes from scratch"/ · /"go"/. First cut rendered the game AS settings rows → REJECTED /"what? this isnt a game"/ — the ruling was the settings' LOOK (dapper tokens · flat panels · monospace · chips) on GAME graphics. Second cut: a board (8×8 grid) / a rail (ticket cards) in the chrome's tokens, the dial as a header, spoken as the footer, a lexicon strip. `* the law` "No LLM in the loop" is overruled; `* the tangle` is the 10-29 parser design this replaced.
+
+** shape
+- traits `["VIEWABLE", "HARNESSED", "TOOLING", "CONVERSATIONAL"]` — retired: EMITTER · EXPOSED · `aperture` · `emitter/` · `grammar.js` · `scene.js` · three.js · the clock. Oracle: `assembly/modes/player/guide/` (harness + tools over a buffer row); the conversation rides the THREAD (dock composer · `/dialogue`), francesca's shape; the frame is display only.
+- `harness.js`: primer `role` · `lexicon` (open tiers from retention, `review.glossary`) at the root, `format` · `screen` on `/dialogue`; `open(ctx)` = every buffer of the mode on the thread, `board(rows)` = the one with a world; none → the `/mode` seat's blank buffer (`ghost/subjects/terminal/stall.js:14`) is no board.
+- `tools/index.js`: `/begin` (tier from retention, fresh world; mints a row only when the thread has none) · `/speak` (OBEY: the world picks the order, remembers `spoken`, returns the Spanish to say verbatim) · `/react {ok}` (the model's judgement; ok moves · grades the spoken slugs SUCCESS, else MISTAKE; three ok → COMMAND) · `/command {command, said, reviews}` (the MODEL parses; the tool moves, grades via `literal.review`, keeps the recast). Every tool writes `data` into EVERY buffer of the mode on the thread, flushes, returns `{message, buffer: rows, object}`.
+- world turn-based: one `step` per tool call, `order` immediate, goals/tickets due in beats; `describe` (the primer's screen) beside `create · order · step · speak · utterance`; comando `grid` (h×w cells, kind by a `[[test, make]]` table: unit · goal · hazard · empty) · cocina `next · stepSaid · progress · remaining`. cocina's command field is `prep` (the lexicon's group), never a nothing word.
+- buffer data `tier tempo phase history reactions spoken said lexicon world`; `spoken` is `null | record`, `world` optional.
+- kit `mando/` (pinned by `tests/mando.test.js`): `lexicon` (+`lexemeOf` · `face`) · `dial` · `review` (`review frontier glossary stated passed`) · `session` (the fold `begin heard reacted commanded` + `obeyed commands speaker screen glossed`) · `hud` (`opened dial dialed chips said empty`).
+- faces: `Comando.svelte` = dial header · `.board` grid (`.cell.unit` on `--control-contrast-pressed`, goal `--signal-caution-ink`, hazard `--signal-negative-ink`) · tally chips · `.spoken` footer · lexicon chips; `Cocina.svelte` = dial · `.ticket` cards (progress ▮▯ · dish · next step · ⏱ beats left, `.late` caution) · cook chip · footer · chips. `comando.jsx` · `cocina.jsx` mirror them in the palette's inks.
+
+** suites — landed tree, serial, 10-30
+| comando/tests/world.test.js | ok · 7 steps | cocina/tests/world.test.js | ok · 5 steps |
+| comando/tests/tools.test.js | ok · 5 steps | cocina/tests/tools.test.js | ok · 5 steps |
+| comando/tests/harness.test.js | ok · 3 steps | cocina/tests/harness.test.js | ok · 3 steps |
+| comando/tests/tty.render.test.js | ok · 1 step | cocina/tests/tty.render.test.js | ok · 1 step |
+| tests/mando.test.js | ok · 1 step | | |
+
+** walks — his localhost, 10-30
+- DOM (anima `:1794`, Chrome): "hola, estoy listo" → `begin` · `speak` → «a la derecha» → "voy a la derecha" → `react {ok:true}` → `S` (7,3) at the edge, obeyed 1/3, ◆ goal, ▒ hazards, «a la derecha» in the footer, nine lexicon chips. The first cut walked the loop to COMMAND: "sube dos arriba" → `command` → unit (6,6)→(6,4).
+- TTY (`viva` in a pty): "hola chef, listo" → `begin` · `speak` → «corta la cebolla» → "sí, lo hago ahora" → `react {ok:true}` → ticket `▮▯▯ tortilla · fríe el huevo · ⏱`, cook hit, obeyed 1/3 → «fríe el huevo».
+- defects found by the walks, fixed, re-walked: (1) the harness read `row.data.lexicon` off the seat's blank buffer → 500 at `glossed` → `board(rows)`, probe `P-blank`. (2) a fresh thread: the client's blank buffer and `begin`'s row land ~60 ms apart → the terminal framed the blank ("closed") → every tool writes every row of the mode on the thread, test `1b`. (3) `verb → prep` landed while his cocina board (thread `01a18c45`) carried `cook.verb` → `[mando] not a lexeme: undefined` on his screen → that row's keys moved in place (backup in the scratchpad).
+- ended clean: walk terminals closed, 18 walk-born threads deleted by seat + `/thread/delete` (db-checked between rounds), tab closed; his terminals 2 · 5 · 6, threads 8. NOTE: the first cleanup removed thread `01a18c44` (comando, born 10-29 23:04, unheld) — the seat had picked it up and the walk ran on it; if it was yours, it is gone.
+- not mine, filed: `ghost/subjects/terminal/stall.js:74` `Cannot read properties of undefined (reading 'subscribe')` on `/mode` in the tty, flaky (also 10-29 23:xx) → known-issues `ghost-stall-subscribe-on-mode`.
+
+** open
+- `/begin` on an open board resets it (valence says call once) — `reset` may be truer.
+- OBEY grading is the model's `ok`; COMMAND reviews are the model's per-lexeme signals — the dial reads `passed(signal)`.
+- cocina's counted utterance takes the lexeme's last surface (`huevos`); `pan` · `cebolla` stay singular.
+- `aprende` listing both games still deferred.

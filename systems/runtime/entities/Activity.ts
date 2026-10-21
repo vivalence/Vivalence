@@ -1,5 +1,5 @@
 import { EntityRepositoryType, types, wrap } from "@mikro-orm/core";
-import { Controller, Span, shape, steer, v } from "@vivalence/typology";
+import { Controller, Queue, Span, faulted, shape, steer, trace, v } from "@vivalence/typology";
 import { VirtualEntity, VirtualRepository, VirtualSchema } from "@vivalence/typology/entities";
 import { UserEntity, ModeEntity, ThreadEntity, BufferEntity, TurnEntity } from "./index.ts";
 
@@ -19,25 +19,44 @@ export class ActivityRepository extends VirtualRepository<ActivityEntity> {
   }
   #scoped(where: object = {}): object {
     const bound = this.#bound();
-    return bound ? { $and: [where, { $or: [{ user: bound }, { user: { $exists: false } }] }] } : where;
+    return bound
+      ? { $and: [where, { $or: [{ user: bound }, { user: { $exists: false } }] }] }
+      : where;
   }
-  find(where?: object) { return super.find(this.#scoped(where)); }
-  findOne(where?: object) { return super.findOne(this.#scoped(where)); }
-  findOneOrFail(where: object) { return super.findOneOrFail(this.#scoped(where)); }
-  findAndCount(where?: object) { return super.findAndCount(this.#scoped(where)); }
-  count(where?: object) { return super.count(this.#scoped(where)); }
-  update(where: object, data: object) { return super.update(this.#scoped(where), data); }
-  remove(where?: object) { return super.remove(this.#scoped(where)); }
+  find(where?: object) {
+    return super.find(this.#scoped(where));
+  }
+  findOne(where?: object) {
+    return super.findOne(this.#scoped(where));
+  }
+  findOneOrFail(where: object) {
+    return super.findOneOrFail(this.#scoped(where));
+  }
+  findAndCount(where?: object) {
+    return super.findAndCount(this.#scoped(where));
+  }
+  count(where?: object) {
+    return super.count(this.#scoped(where));
+  }
+  update(where: object, data: object) {
+    return super.update(this.#scoped(where), data);
+  }
+  remove(where?: object) {
+    return super.remove(this.#scoped(where));
+  }
 
   async control(
     data: object,
     controller = new Controller({
-      stdout: new Span("hallucination").to((record) => console.log(`[hal ${record.path}] ${record.verb}`, record.data ?? "")),
+      stdout: new Span("hallucination"),
     }),
   ): Promise<ActivityEntity> {
     const activity = await this.create(data);
     activity.controller = controller;
-    controller.stdout.note({ activity: activity.id, ...data });
+    controller.stdout.pipe.tap((record) =>
+      console.log(`[hal ${trace.pathname(record.path)}] ${record.track}`, record.data ?? ""),
+    );
+    controller.stdout.log({ activity: activity.id, ...data });
     const steps: unknown[] = [...activity.steps];
     let writing: Promise<unknown> = Promise.resolve();
     const untap = controller.stdout.pipe.tap((record) => {
@@ -45,7 +64,9 @@ export class ActivityRepository extends VirtualRepository<ActivityEntity> {
       steps.push(record);
       if (steps.length > RING) steps.splice(0, steps.length - RING);
       const ring = [...steps];
-      writing = writing.then(() => this.updateOne({ id: activity.id }, { status: code, error: error ?? null, steps: ring }));
+      writing = writing.then(() =>
+        this.updateOne({ id: activity.id }, { status: code, error: error ? faulted(error) : null, steps: ring }),
+      );
     });
     this.#taps.set(activity.id, untap);
     controller.settled.then(() => writing.then(() => this.remove({ id: activity.id })));
@@ -57,7 +78,8 @@ export class ActivityRepository extends VirtualRepository<ActivityEntity> {
     this.#taps.get(activity.id)?.();
     this.#taps.delete(activity.id);
     const code = activity.controller?.status.reflection.code;
-    if (code && !v.primitives.controller.MACHINE.states[code].settled) activity.controller.abort.abort("activity removed");
+    if (code && !v.primitives.controller.MACHINE.states[code].settled)
+      activity.controller.abort.abort("activity removed");
     return super.removeOne({ id: activity.id });
   }
 }
@@ -65,7 +87,11 @@ export class ActivityRepository extends VirtualRepository<ActivityEntity> {
 export class ActivityEntity extends VirtualEntity {
   [EntityRepositoryType]?: ActivityRepository;
   #controller;
-  user; mode; thread; buffer; turn;
+  user;
+  mode;
+  thread;
+  buffer;
+  turn;
   type = ActivityTypeEnum.HALLUCINATION;
   status = "IDLE";
   error = null;
@@ -84,18 +110,26 @@ export class ActivityEntity extends VirtualEntity {
 
   stdout(signal?: AbortSignal) {
     const { stdout, status } = this.#controller;
-    const settled = () => v.primitives.controller.MACHINE.states[status.reflection.code].settled;
+    const { states } = v.primitives.controller.MACHINE;
     return (async function* () {
-      if (settled()) return yield* stdout.records;
-      for await (const record of stdout.pipe.replay([...stdout.records], signal)) {
-        yield record;
-        if (settled()) return;
+      if (states[status.reflection.code].settled) return yield* stdout.history;
+      const live = new Queue();
+      const untap = stdout.pipe.tap(live);
+      try {
+        yield* [...stdout.history];
+        for await (const record of live.drain(signal)) {
+          yield record;
+          if (record.track === "status" && trace.key(record.path) === trace.key(stdout.absolute) && states[record.data.code].settled) return;
+        }
+      } finally {
+        untap();
       }
     })();
   }
   toJSON() {
     const plain = wrap(this).toObject();
-    for (const relation of ["user", "mode", "thread", "buffer", "turn"]) plain[relation] = plain[relation]?.id ?? plain[relation] ?? null;
+    for (const relation of ["user", "mode", "thread", "buffer", "turn"])
+      plain[relation] = plain[relation]?.id ?? plain[relation] ?? null;
     return plain;
   }
 }
@@ -116,4 +150,9 @@ export const ActivitySchema = new VirtualSchema({
   },
 });
 
-export default { type: "activity", schema: ActivitySchema, entity: ActivityEntity, repository: ActivityRepository };
+export default {
+  type: "activity",
+  schema: ActivitySchema,
+  entity: ActivityEntity,
+  repository: ActivityRepository,
+};

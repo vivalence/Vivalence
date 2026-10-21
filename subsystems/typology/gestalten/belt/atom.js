@@ -1,5 +1,5 @@
 const noop = () => {};
-const isStore = (value) => typeof value?.subscribe === "function";
+const isStore = (value) => typeof value?.subscribe === "function" && typeof value?.get === "function" && typeof value?.listen === "function";
 
 function bind(value, path, emit) {
   if (isStore(value)) {

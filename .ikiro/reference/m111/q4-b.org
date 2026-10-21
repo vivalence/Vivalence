@@ -1,0 +1,8 @@
+# m111 Q4 option B — struck 10-27 (his /"a"/) · limit: 1000 chars
+
+VIEWABLE writes RENDERED at mint from the mode's first CELL · FRAME slugs — the runtime cannot know which chrome paints the buffer.
+
+#+BEGIN_SRC js
+// systems/runtime/subjects/mode/traits/viewable.js:9 — a mode's tool mints a buffer
+  trait: { RENDERED: { frame: mode.views.find((view) => view.traits.includes("FRAME")).slug, cell: mode.views.find((view) => view.traits.includes("CELL")).slug } },
+#+END_SRC

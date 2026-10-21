@@ -4,6 +4,7 @@ import { Context } from "../../prototypes/context.js";
 import { ValidationError } from "../../prototypes/errors/vector.js";
 
 export function fire(effect, context) {
+  if (!is.fn(effect)) return effect;
   if (effect.length === 0) return effect();
   if (effect.length === 1) return effect(context);
   return effect(context.input, context);

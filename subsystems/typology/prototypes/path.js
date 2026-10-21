@@ -12,15 +12,16 @@ import * as is from "../gestalten/is/scalars.js";
 // path.extname("file.txt");
 // path.resolve("./relative/path");
 
+const normalize = (path) => ("/" + path).replace(/\/+/g, "/").replace(/\/$/, "") || "/";
+
+const collapse = (path) =>
+  path.split("/").reduce((parts, part) => (part !== ".." ? [...parts, part] : parts.length > 1 ? parts.slice(0, -1) : parts), []).join("/");
+
 export class Path extends Signature {
   static coercions = [
-    [
-      (s) => is.string(s),
-      (s) => {
-        const normalized = ("/" + s).replace(/\/+/g, "/").replace(/\/$/, "") || "/";
-        return { nature: normalized };
-      },
-    ],
+    [(s) => s === null, () => { throw new TypeError("[Path] nothing to build from: a Path takes a string, a file:// URL or a Path"); }],
+    [(s) => is.string(s) && s.startsWith("file://"), (s) => ({ nature: normalize(decodeURIComponent(s.slice("file://".length))) })],
+    [(s) => is.string(s), (s) => ({ nature: normalize(s) })],
   ];
 
   get json() {
@@ -31,7 +32,7 @@ export class Path extends Signature {
   get absolute() {
     let nature = "";
     for (let position = this; position; position = position.trace) nature = position.nature + nature;
-    return nature || "/";
+    return collapse(nature) || "/";
   }
   get filename() {
     const abs = this.absolute;

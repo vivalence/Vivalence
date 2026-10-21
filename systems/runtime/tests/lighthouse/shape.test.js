@@ -1,4 +1,4 @@
-import { specimen } from "@vivalence/typology";
+import { sleep, specimen } from "@vivalence/typology";
 import { lighthouse } from "../scenarios/index.js";
 
 const owner = (row) => row?.user?.id ?? row?.user;
@@ -56,8 +56,8 @@ specimen.describe("lighthouse shape (the runtime aperture, in-process)", () => {
     }
   });
 
-  specimen.it("terminal scoping — index per user", async () => {
-    firstTerminal = await finnConnection.call("/userspace/entities/terminal/create", { data: {} });
+  specimen.it("terminal scoping — a user is born holding terminal 0, index per user", async () => {
+    [firstTerminal] = await finnConnection.call("/userspace/entities/terminal/find", { where: {} });
     specimen.assert(owner(firstTerminal) === finn.user.id, JSON.stringify({ id: firstTerminal?.id, user: owner(firstTerminal) }));
     specimen.assert(firstTerminal?.index === 0, String(firstTerminal?.index));
     specimen.assert(firstTerminal?.user?.authentication === undefined, JSON.stringify(Object.keys(firstTerminal?.user ?? {})));
@@ -68,7 +68,7 @@ specimen.describe("lighthouse shape (the runtime aperture, in-process)", () => {
       secondTerminal?.index === 1 && secondTerminal?.trait?.LABELED?.name === "grammar",
       JSON.stringify({ index: secondTerminal?.index, trait: secondTerminal?.trait }),
     );
-    const otherTerminal = await kiroConnection.call("/userspace/entities/terminal/create", { data: {} });
+    const [otherTerminal] = await kiroConnection.call("/userspace/entities/terminal/find", { where: {} });
     specimen.assert(otherTerminal?.index === 0, String(otherTerminal?.index));
     const mine = await finnConnection.call("/userspace/entities/terminal/find", { where: {} });
     specimen.assert(Array.isArray(mine) && mine.length === 2, String(mine?.length));
@@ -79,6 +79,23 @@ specimen.describe("lighthouse shape (the runtime aperture, in-process)", () => {
       Array.isArray(widened) && widened.length === 2 && widened.every((row) => owner(row) === finn.user.id),
       `returned ${widened?.length} rows, owners ${JSON.stringify([...new Set(widened?.map(owner))])}`,
     );
+  });
+
+  specimen.it("an index outlives a closed terminal — the next one counts past the highest", async () => {
+    const middle = await finnConnection.call("/userspace/entities/terminal/create", { data: {} });
+    const top = await finnConnection.call("/userspace/entities/terminal/create", { data: {} });
+    await finnConnection.call("/userspace/entities/terminal/removeOne", { where: { id: middle.id } });
+    const next = await finnConnection.call("/userspace/entities/terminal/create", { data: {} });
+    specimen.assert(next?.index === top.index + 1, JSON.stringify({ middle: middle.index, top: top.index, next: next?.index }));
+    for (const made of [top, next]) await finnConnection.call("/userspace/entities/terminal/removeOne", { where: { id: made.id } });
+  });
+
+  specimen.it("closing a user's last terminal hands them a fresh one", async () => {
+    const [closed] = await kiroConnection.call("/userspace/entities/terminal/find", { where: {} });
+    await kiroConnection.call("/userspace/entities/terminal/removeOne", { where: { id: closed.id } });
+    await sleep.ms(50);
+    const kept = await kiroConnection.call("/userspace/entities/terminal/find", { where: {} });
+    specimen.assert(kept.length === 1 && kept[0].id !== closed.id && kept[0].index === 0, JSON.stringify(kept.map((terminal) => [terminal.id === closed.id, terminal.index])));
   });
 
   specimen.it("a runtime-level thread — mode null", async () => {

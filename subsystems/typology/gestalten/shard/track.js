@@ -13,12 +13,13 @@ export function span(name, pipe) {
   return async (ctx, next) => {
     const nature = typeof name === "function" ? name(ctx) : name;
     const parent = ctx.span;
-    ctx.span = parent ? parent.branch(nature) : new Span(nature).to(pipe);
-    ctx.span.open();
+    ctx.span = parent ? parent.branch(nature) : new Span(nature);
+    if (!parent) ctx.span.pipe.tap(pipe);
+    ctx.span.start();
     try {
       await next();
     } finally {
-      ctx.span.close();
+      ctx.span.stop();
       ctx.span = parent ?? ctx.span;
     }
   };
@@ -26,27 +27,23 @@ export function span(name, pipe) {
 
 export function request() {
   return async (ctx, next) => {
-    if (ctx.span && ctx.request) ctx.span.mark("request", wire(ctx.request));
+    if (ctx.span && ctx.request) ctx.span.request(wire(ctx.request));
     await next();
-    if (ctx.span && ctx.response) ctx.span.mark("response", wire(ctx.response));
+    if (ctx.span && ctx.response) ctx.span.response(wire(ctx.response));
   };
 }
 
-export function subject(schema, id) {
+export function entity(schema, id) {
   return async (ctx, next) => {
-    if (ctx.span)
-      ctx.span.mark("subject", {
-        schema: typeof schema === "function" ? schema(ctx) : schema,
-        id: typeof id === "function" ? id(ctx) : id,
-      });
+    ctx.span?.entity({ schema: typeof schema === "function" ? schema(ctx) : schema, id: typeof id === "function" ? id(ctx) : id });
     await next();
   };
 }
 
-export function message() {
+export function log() {
   return async (ctx, next) => {
     await next();
-    if (ctx.span && ctx.output !== undefined) ctx.span.message(ctx.output);
+    if (ctx.span && ctx.output !== undefined) ctx.span.log(ctx.output);
   };
 }
 

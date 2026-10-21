@@ -1,13 +1,13 @@
 import { fromm, v, Vector } from "@vivalence/typology";
 
-// a mode's places on disk: its source, what it serves (the mountpoint), what it carries (freight) when
+// a mode's places on disk: its source, what it serves (the mountpoint), what it reads (files) when
 // that is somewhere else. Empty for a mode with none — a scenario mode, a kernel entry without a file.
 export const places = (mode) =>
   [
     mode.module?.source?.dirname && `source ${mode.module.source.dirname}`,
     mode.mountpoint?.absolute && `mountpoint ${mode.mountpoint.absolute}`,
-    mode.freight?.path?.absolute && mode.freight.path.absolute !== mode.mountpoint?.absolute &&
-    `freight ${mode.freight.path.absolute}`,
+    mode.files?.directory && mode.files.directory !== mode.mountpoint?.absolute &&
+    `files ${mode.files.directory}`,
   ].filter(Boolean).join(" · ");
 
 const line = (mode) => {
@@ -19,7 +19,7 @@ const line = (mode) => {
 export const mode = new Vector().open(
   {
     nature: "/mode/find",
-    valence: "Every mode of this daemon with its places on disk — source, mountpoint, freight — as rows: " +
+    valence: "Every mode of this daemon with its places on disk — source, mountpoint, files — as rows: " +
       "the absolute paths fs_* and shell_run take. The first row is the daemon and its mountpoint. Narrow " +
       'by type or slug. Returns { message }. Example: { type: "office" }',
     input: v.object({

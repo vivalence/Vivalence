@@ -23,7 +23,7 @@ export function traverse(vector, signals) {
   const miss = () => {
     if (missing === null) return [null, carry, steps, position];
     const match = missing.edge.pattern.apply(signals.array[missing.depth]);
-    return [missing.edge.trajectory.effect, descend(missing.carry, missing.position), [...steps.slice(0, missing.depth), match], missing.edge.trajectory];
+    return [missing.edge.trajectory.effect, descend(descend(missing.carry, missing.position), missing.edge.trajectory), [...steps.slice(0, missing.depth), match], missing.edge.trajectory];
   };
 
   for (const signal of signals.array) {
@@ -51,7 +51,7 @@ export function traverse(vector, signals) {
 
       if (signals.length === steps.length) {
         carry = descend(carry, position);
-        if (effect) return [effect, carry, steps, position];
+        if (effect) return [effect, descend(carry, trajectory), steps, trajectory];
       }
 
       continue;
@@ -63,11 +63,11 @@ export function traverse(vector, signals) {
       position = trajectory;
       continue;
     }
-    if (effect) return [effect, carry, steps, position];
+    if (effect) return [effect, descend(carry, trajectory), steps, trajectory];
     if (trajectory) position = trajectory;
   }
 
-  if (position.effect) return [position.effect, carry, steps, position];
+  if (position.effect) return [position.effect, descend(carry, position), steps, position];
   return miss();
 }
 
@@ -109,11 +109,10 @@ export async function walk(vector, more) {
   let position = vector;
   let carry = middleware.forward;
   let steps = [];
-  let signal;
 
   while (position.patterns.length) {
     if (steps.length >= 20) throw new Long();
-    if (!signal?.nature) signal = await more(position.patterns);
+    const signal = await more(position.patterns);
     if (!signal.nature) throw new Short(position);
 
     const [effect, luggage, path, trajectory] = traverse(position, signal);

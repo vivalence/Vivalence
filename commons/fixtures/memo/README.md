@@ -17,9 +17,9 @@ domain/                      @memo/domain/srs — EXPOSED · TOOLING, the daemon
   aperture/                  /pick/literal/* · /review/literal · /preview/literal · /history/literal · /suspend/literal · /resume/literal
   tools/                     srs_lookup · srs_sentences · srs_topics · srs_history · srs_leeches · srs_suspend · srs_resume
   harness.js                 the SRS vocabulary, for every HARNESSED mode on the daemon
-dataset/                     @memo/topography/latin — DATASET · FRAUGHT
+dataset/                     @memo/topography/latin — DATASET · FILESET
   entities/                  219 words, 50 sentences, 242 symbols, authored in words.js · sentences.js · symbols.js
-  freight/                   10 voices (sentences), 10 pictures (nouns) — placeholders
+  files/                     10 voices (sentences), 10 pictures (nouns) — placeholders; FILESET records each as a File row
 mode/                        @memo/srs/memo — APPLICATION · EMITTER · EXPOSED · HARNESSED · CONVERSATIONAL · TOOLING
   memo.viva.js               the App: the tty view and the tablet, one buffer schema
   aperture.js                /deck · /grade · /stats · /chat
@@ -39,7 +39,7 @@ A card's retention is a note: `retention.<slug>` RETAINED holds the driver's sta
 
 ## The dataset
 
-English to Latin, classical and ecclesiastical. Ten topics from Religio to Sermo, three genders, two levels, one lemma symbol per word. Sentences carry the lemma symbols of the vocabulary they contain — Amor omnia vincit links amor, omnis, vincere — so `srs_sentences` and `explain` surface the sentences that hold a weak word. `word` / `sentence` are TOPOGRAPHICAL (a literal's ontology derives from them), grammatical facets ONTOLOGICAL, groupings STRUCTURAL. The freight is placeholders; drop real recordings and pictures over the same paths.
+English to Latin, classical and ecclesiastical. Ten topics from Religio to Sermo, three genders, two levels, one lemma symbol per word. Sentences carry the lemma symbols of the vocabulary they contain — Amor omnia vincit links amor, omnis, vincere — so `srs_sentences` and `explain` surface the sentences that hold a weak word. `word` / `sentence` are TOPOGRAPHICAL (a literal's ontology derives from them), grammatical facets ONTOLOGICAL, groupings STRUCTURAL. The files are placeholders; drop real recordings and pictures over the same paths.
 
 ## The demo
 

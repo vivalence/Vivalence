@@ -1,6 +1,6 @@
 import * as fromm from "../gestalten/fromm/index.js";
-import * as promise from "../gestalten/belt/promise.js";
 import { atom } from "nanostores";
+import { Queue } from "./queue.js";
 
 export class Pipe {
   listeners = new Set();
@@ -9,20 +9,10 @@ export class Pipe {
     for (const listener of this.listeners) listener(value);
   }
 
-  tap(listener) {
+  tap(target) {
+    const listener = fromm.sink(target).write;
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
-  }
-
-  reactive(seed = null, step = (_, value) => value) {
-    const store = atom(seed);
-    this.tap((value) => store.set(step(store.get(), value)));
-    return store;
-  }
-
-  to(...sinks) {
-    for (const target of sinks) this.tap(fromm.sink(target).write);
-    return this;
   }
 
   from(...sources) {
@@ -33,43 +23,23 @@ export class Pipe {
     return this;
   }
 
-  observe() {
-    const controller = new AbortController();
-    const iterator = this.stream(controller.signal);
-    iterator.unsubscribe = () => controller.abort();
-    return iterator;
+  fold(seed, step) {
+    const store = atom(seed);
+    this.tap((value) => store.set(step(store.get(), value)));
+    return store;
   }
 
-  subscribe(callback) {
-    return this.tap(callback);
-  }
-
-  stream(signal) {
-    return this.replay([], signal);
-  }
-
-  async *replay(backlog, signal) {
-    const buffer = [];
-    const gate = promise.waiter();
-    const untap = this.tap((value) => {
-      buffer.push(value);
-      gate.wake();
-    });
+  async *drain(signal) {
+    const queue = new Queue();
+    const untap = this.tap(queue);
     try {
-      yield* backlog;
-      while (!signal?.aborted) {
-        if (buffer.length) {
-          yield buffer.shift();
-          continue;
-        }
-        await gate.wait(signal);
-      }
+      yield* queue.drain(signal);
     } finally {
       untap();
     }
   }
 
   [Symbol.asyncIterator]() {
-    return this.stream();
+    return this.drain();
   }
 }

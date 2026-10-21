@@ -52,4 +52,16 @@ specimen.describe("shape.strip — custom pluck (the second optional input)", ()
     const tagged = shape.strip(vector, (pattern) => ({ hasInput: pattern?.input !== undefined }));
     specimen.expect(tagged).toEqual({ branches: { x: { effect: { hasInput: true }, branches: {} } } });
   });
+
+  specimen.it("a group edge's pattern metadata rides as meta; a bare segment stays { branches }", () => {
+    const vector = new Vector();
+    vector.branch({ nature: "leader", valence: "the leader" }).branch({ nature: "d", valence: "display · how do I see it" });
+    vector.open({ nature: "leader/d/d", valence: "/dock" }, () => {});
+    vector.open("bare/x", () => {});
+    const stripped = shape.strip(vector).branches;
+    specimen.expect(stripped.leader.meta).toEqual({ valence: "the leader" });
+    specimen.expect(stripped.leader.branches.d.meta).toEqual({ valence: "display · how do I see it" });
+    specimen.expect(stripped.leader.branches.d.branches.d).toEqual({ effect: { valence: "/dock" }, branches: {} });
+    specimen.expect(stripped.bare).toEqual({ branches: { x: { effect: {}, branches: {} } } });
+  });
 });

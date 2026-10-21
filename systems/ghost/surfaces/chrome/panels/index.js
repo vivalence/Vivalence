@@ -1,0 +1,10 @@
+export * as authentication from "./authentication/signin.jsx";
+export * as booting from "./booting/booting.jsx";
+export * as dock from "./dock/index.js";
+export * as frame from "./frame/frame.jsx";
+export * as headline from "./headline/headline.jsx";
+export * as legend from "./legend/legend.jsx";
+export * as modeline from "./modeline/index.js";
+export * as repl from "./repl/repl.jsx";
+export * as sidebar from "./sidebar/sidebar.jsx";
+export * as telemetry from "./telemetry/telemetry.jsx";

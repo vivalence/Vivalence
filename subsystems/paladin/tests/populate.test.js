@@ -1,5 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import { Paladin, lifecycle } from "@vivalence/paladin/typology";
+import { FULL } from "../gestalten/belt/index.js";
 
 const { describe, it, expect } = specimen;
 
@@ -21,7 +22,7 @@ async function scrubbed(pairs, body) {
 }
 
 function mkScoped(home) {
-  const paladin = new Paladin();
+  const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
   paladin.env.set("VIVA_SYSTEM_MODE", "DEVELOPMENT");
   paladin.env.set("VIVA_SYSTEM_ROLE", "SUDO");
   paladin.env.set("VIVA_LEDGER_MOUNT", home);
@@ -42,7 +43,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
         PROBE_JUNK: "d",
       },
       async () => {
-        const paladin = new Paladin();
+        const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
         await lifecycle.paladin.env(paladin);
         expect(paladin.env.provenance("VIVA_PROBE_OS")).toBe("os");
         expect(paladin.env.provenance("PUBLIC_VIVA_PROBE_OS")).toBe("os");
@@ -61,7 +62,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
       "VIVA_PROBE_SCAN=hit\nSECRET_VIVA_PROBE_SCAN=shh\nPROBE_SCAN_JUNK=no\n",
     );
     await scrubbed({ INIT_CWD: dir, VIVA_ENV_FILE: null }, async () => {
-      const paladin = new Paladin();
+      const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
       await lifecycle.paladin.env(paladin);
       expect(paladin.env.get("VIVA_PROBE_SCAN")).toBe("hit");
       expect(paladin.env.provenance("VIVA_PROBE_SCAN")).toBe(".env");
@@ -70,7 +71,7 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     });
     const bare = await Deno.makeTempDir();
     await scrubbed({ INIT_CWD: bare, VIVA_ENV_FILE: null }, async () => {
-      await lifecycle.paladin.env(new Paladin());
+      await lifecycle.paladin.env(lifecycle.paladin.belt(new Paladin(), FULL));
     });
   });
 
@@ -80,21 +81,21 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     await Deno.writeTextFile(`${dir}/hollow.env`, "NOTHING=here\n");
     await Deno.writeTextFile(`${dir}/dark.env`, "SECRET_VIVA_PROBE_FILE=shh\n");
     await scrubbed({ INIT_CWD: dir, VIVA_ENV_FILE: `${dir}/knowledge.env` }, async () => {
-      const paladin = new Paladin();
+      const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
       await lifecycle.paladin.env(paladin);
       expect(paladin.env.provenance("VIVA_PROBE_FILE")).toBe(".env");
     });
     await scrubbed({ INIT_CWD: dir, VIVA_ENV_FILE: `${dir}/hollow.env` }, async () => {
       let thrown = null;
       try {
-        await lifecycle.paladin.env(new Paladin());
+        await lifecycle.paladin.env(lifecycle.paladin.belt(new Paladin(), FULL));
       } catch (error) {
         thrown = error;
       }
       expect(String(thrown)).toContain("no VIVA_* knowledge");
     });
     await scrubbed({ INIT_CWD: dir, VIVA_ENV_FILE: `${dir}/dark.env` }, async () => {
-      const paladin = new Paladin();
+      const paladin = lifecycle.paladin.belt(new Paladin(), FULL);
       await lifecycle.paladin.env(paladin);
       expect(paladin.secret.provenance("SECRET_VIVA_PROBE_FILE")).toBe(".env");
     });
@@ -185,14 +186,17 @@ describe("populate — binding: each channel lands in its declared stratum", () 
     });
   });
 
-  it("mounts: every declared *_MOUNT is a scope of its name, and that scope reads exactly that key", async () => {
+  it("mounts: every declared *_MOUNT is a scope of its name, and that scope reads exactly that key; the one declared *_FILE is the credentials scope", async () => {
     const home = await Deno.makeTempDir();
     const paladin = mkScoped(home);
     const keys = Object.keys(paladin.mounts.properties);
     const flag = (key) => key.slice("VIVA_".length, -"_MOUNT".length).toLowerCase();
     for (const key of keys) paladin.env.set(key, `${home}/${flag(key)}`, "flag");
+    expect(Object.keys(paladin.files.properties)).toEqual(["VIVA_CLIENT_GHOST_CREDENTIALS_FILE"]);
+    paladin.env.set("VIVA_CLIENT_GHOST_CREDENTIALS_FILE", `${home}/credentials.json`, "flag");
     await lifecycle.paladin.scopes(paladin);
-    expect(Object.keys(paladin.scope).sort()).toEqual(keys.map(flag).sort());
+    expect(Object.keys(paladin.scope).sort()).toEqual([...keys.map(flag), "credentials"].sort());
+    expect(paladin.scope.credentials.absolute).toBe(`${home}/credentials.json`);
     for (const key of keys) {
       const record = [];
       paladin.expand(`\${${key}}`, record, flag(key));

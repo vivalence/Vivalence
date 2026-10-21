@@ -313,7 +313,7 @@ viva instance/init                 # populates instance .env
 ```
 `instance/use` selects one instance out of the set for this shell. 
 
-To sign up additional users, use `viva instance/user signup <username> <password>` — it talks to the running runtime, so the instance has to be up (step 5).
+To sign up additional users, use `viva instance/lighthouse/signup <username> <password>` — it talks to the running runtime, so the instance has to be up (step 5).
 
 Running `viva instance/doctor` should provide you with an overview of the environment, runtime, clients, daemons, and services — plus `faults` (what the schematic refused) and `dormant` (hallucinators whose key is blank).
 

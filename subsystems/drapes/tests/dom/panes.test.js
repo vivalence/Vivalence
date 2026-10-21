@@ -179,7 +179,7 @@ specimen.describe("dom dock — transcript, live turn, echo, output, composer", 
     fire(rows(region.querySelector(".dock-slot"), "/mode/reader")[0], "click");
     specimen.expect(sent).toEqual(["/mode/reader"]);
     bag.emit("output", { instance: "hello-world", ports: [2501] });
-    specimen.expect(region.querySelectorAll(".dock-slot .kit-json-node").length > 0).toBe(true);
+    specimen.expect(region.querySelectorAll(".dock-slot .k").length > 0).toBe(true);
   });
 
   specimen.it("says no thread when the active terminal holds none", async () => {
@@ -257,7 +257,7 @@ specimen.describe("dom frame — the seated terminal's buffer, its bundle or the
     const { region, held, sent } = await mounted("frame");
     held.terminal.$buffer.set({ id: "buffer-1", bundle: null, data: { lemma: "gatto", gloss: "cat" } });
     specimen.expect(region.querySelector(".frame-floor").getAttribute("data-floor")).toBe(mime.json);
-    specimen.expect(words(region.querySelector(".frame-floor")).includes('lemma : "gatto"')).toBe(true);
+    specimen.expect(words(region.querySelector(".frame-floor")).includes('lemma "gatto"')).toBe(true);
     fire(buttons(region, "×")[0], "click");
     specimen.expect(sent).toEqual(["/buffer/close"]);
   });

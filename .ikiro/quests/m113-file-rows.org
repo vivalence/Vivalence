@@ -1,0 +1,1080 @@
+#+title: m113 file rows — a File row is the asset: the client loads them, the assembly editors · player · import and the vocalized games read them
+#+filetags: :ghost:drapes:assembly:education:file:client:
+#+status: LANDED 10-28 on /"conoisseur pass. then land."/ — connoisseur pass (3 hunks tightened), repo + registry landed, 19 suites green on the landing tree, :2501 restarted, 6 of 8 =marker_qa= held; owed: cloze (not installed on localhost) · import drop
+# limit: 60000 chars
+
+* intent
+
+10-27, beef verbatim, in order:
+
+/"get each of the 3d model domain and modes back up. the editors and players"/ · /"is this because we migrated to File entities and havent integrated them properly yet?"/ · /"why separate asset? file isnt enough? and check in on audio by our education package. lots of vocalized,"/ · /"work it out to degree of tanglee. m102"/ · /"m113 then>?"/
+
+* the dialogue
+
+| his turn | my answer | lands at |
+|---|---|---|
+| /"get each of the 3d model domain and modes back up. the editors and players"/ | reproduced on =:1794=; the runtime up, the views on old anima's =Daemon= | =* terrain= |
+| /"is this because we migrated to File entities and havent integrated them properly yet?"/ | half: routes + buffer are the m96 client; assets are the File migration, server side only | =* terrain= ** two breaks |
+| /"why separate asset? file isnt enough?"/ | no: a File row is enough — =url= in hydration, =mime= on the row | Q1 |
+| /"and check in on audio by our education package. lots of vocalized,"/ | 2182 =VOCALIZED= literals, 2182 on a File row; cloze · judge · exhibit · dojo on =getAsset= | =* terrain= table · Q1 |
+| /"work it out to degree of tanglee. m102"/ | this file, m102's shape | =* as code= |
+| /"m113 then>?"/ | the number | Q2 |
+| /"113 go"/ | held: =/drill-me= came before a write; nothing landed | — |
+| =/drill-me= | Q3: a lookup searches every row or the view's daemon; =file.mode.daemon= probed on a copy | Q3 |
+| /"b"/ | the view's own daemon, the Cargo's old scope; dojo hands =knowables.js= its daemon's rows | Q3 |
+| /"there is no \"same\":true ..."/ | =same= was my probe's key, no row carries it; pinned as =toContain(row.mode)= | =file.test.js= |
+| /"b"/ | Q5: =<Asset>='s prop is =file=, a File row; =asset= stays the literal's ={ path }= | Q5 |
+| /"neither are good. find c and d"/ | A · B → =reference/m113/q4-a-b.org=; C pull on lookup · D bytes by daemon + path, probed | Q4 |
+| /"fuck it. download them all up front"/ | A: every row at boot, as tangled; C · D → =reference/m113/q4-c-d.org= | Q4 |
+| /"conoisseur pass. then land."/ | 3 hunks tightened (=* changelog= 10-28); landed whole; walked | =* QA= |
+
+* terrain — measured 10-27
+
+** the runtime is up, the client is not
+
+#+BEGIN_SRC sh
+# :2501 — droneaid RUNNING, 12 modes start, every view a bundle row; the route the player calls exists
+/daemon/droneaid/mode/player/guide/guides
+/daemon/droneaid/mode/player/guide/read
+/daemon/droneaid/mode/editor/assembly/tree
+/daemon/droneaid/mode/editor/import/parse
+# :1794 — tab `guide` (player/guide):  /guides refused  Client error: 404 @ /mode/player/guide/guides
+# :1794 — tab `dojo`  (game/dojo):     buffer2(...).mode.daemon.getAsset is not a function
+#+END_SRC
+
+** two breaks, one quest
+
+| break | since | sites |
+|-------|-------|-------|
+| old anima =Daemon= — =remote= · =lighthouse= · =entities= | m96 client | assembly 4 views |
+| =getAsset= · =cargo= over a deleted Cargo | the File migration (=b38ac2c3e= 10-21) | assembly 4 · education 4 views · dojo =knowables.js= |
+
+#+BEGIN_SRC js
+// systems/ghost/entities/daemon/prototype.js:4 — what a view's buffer.mode.daemon IS now
+export class Daemon extends Entity {
+  type = "daemon";
+  id = null;
+  slug = null;
+  reference = null;
+  manifest = null;
+  statics = null;
+  connection = null;
+  aperture = null;
+  call = null;
+// systems/ghost/entities/mode/hydration.js:7 — a mode's own routes, already wired
+  ctx.entity.connection = (ctx.entity.daemon === null ? ctx.runtime : ctx.entity.daemon).aperture.branch(`/mode/${ctx.entity.type}/${ctx.entity.slug}`);
+#+END_SRC
+
+** the File migration landed on the server only
+
+#+BEGIN_SRC js
+// git show b38ac2c3e~1 — before: freight as a catalog, served twice
+// systems/runtime/daemon/lifecycle/resolution.js:40
+  die.daemon.cargo = new Cargo(fraught);
+// systems/runtime/daemon/lifecycle/integration.js:32
+  die.daemon.aperture.open("/cargo", () => die.daemon.cargo);
+// systems/anima/src/entities/daemon/prototype.js:20
+  getAsset(asset) { return this.cargo?.resolve(asset) ?? null; }
+#+END_SRC
+#+BEGIN_SRC js
+// now — the writer and the bytes
+// systems/runtime/subjects/mode/traits/fileset.js:9
+    await context.entities.file.record({ mode: mode.entity.id, path: …, mount: file.absolute, mime: mime.of(file.absolute), … });
+// systems/runtime/subjects/runtime/lifecycle/resolution.js:55
+  attached.open("/file/:id", async (input, ctx) => { … return await paladin.read.bytes(file.mount); });
+// ~/.viva/registry/education/modes/games/dojo/emitter/audible.js:4 — the server already reads rows
+  if (asset.path) return (await ctx.entities.file.findOne({ path: asset.path })) !== null;
+// systems/ghost/subjects/client/factory.js:35 — the client's Dataspace: no file
+    entities: { daemon: daemonHost, mode, thread: threadProcess, buffer, turn, activity, terminal: terminalProcess, view },
+#+END_SRC
+
+| =File= rows (=localhost.viva.db=, read-only) | n |
+|---|---|
+| all | 2300 |
+| =italian/topography/english-to-italian= audio | 2182 |
+| =droneaid/topography/models= =parts/*.glb= | 16 |
+| =droneaid/topography/guides= =manual/*.webp= | 88 |
+| =Literal= claiming =VOCALIZED= | 2182 |
+| its =VOCALIZED.asset.path= on a =File= row | 2182 |
+| its =VOCALIZED.asset.slug= | 0 |
+| a =path= on two rows | 1 (=bundle/fcd3e7b768ba0ac4.dom.svelte.mjs=, =dashboard/dataspace= in two daemons) |
+
+** moved
+
+=** the mechanism already computes it= · =** probes — scratchpad, 10-27= → =.ikiro/reference/m113/terrain-10-27.org=
+
+* rulings
+
+| Q | ruling | his words | as code (=m113-file-rows.org:LINE=) |
+|---|--------|-----------|------|
+| 1 | a File row IS the asset: the client's =file= repository holds every row, live; a row's =url= is =/attached/file/:id=; a view finds its row by =path= — no Cargo, no =getAsset=, no asset helper | /"why separate asset? file isnt enough?"/ | 142 · 166 · 176 · 183 · 201 · 210 · 218 · 232 · 274 · 336 · 417 · 479 · 549 · 573 · 613 · 634 · 846 · 902 · 922 · 936 · 945 · 965 |
+| 2 | the quest is m113 | /"m113 then>?"/ | — |
+| 4 | the client loads every File row at boot, live: =file= in the Dataspace (2300 · 1.23 MB) | /"fuck it. download them all up front"/ | 218 |
+| 5 | =<Asset>= takes =file=, a File row; =asset= names only the literal's ={ path }= (=VOCALIZED.asset= · =token.asset=); the dojo parts' props follow | /"b"/ | 142 · 549 · 573 · 717 · 731 · 759 · 799 · 825 · 945 · 965 |
+| 3 | a lookup searches the view's own daemon: =file.path === path && file.mode.daemon === buffer.mode.daemon=; dojo derives its daemon's rows once, =knowables.js= unchanged | /"b"/ | 232 · 274 · 336 · 417 · 479 · 549 · 573 · 613 · 945 · 965 |
+| m105 Q14 | LOOKUP — =tune · rounds · effort= are the user's; the three assembly suites still pin a mode's defaults | /"keep this under the control of users."/ | 316 · 398 · 518 |
+
+* the law
+
+- a view reaches its mode's routes through =buffer.mode.connection= (=call("/<route>")=), its buffer row through =terminal.client.runtime.entities.buffer=
+- a view reads the File rows through the store =terminal.client.runtime.entities.file.$entities=, bound once at the top (=const files = …= · =$files=), as =buffer.$data= is (=Assembly.svelte:18=); rows recorded mid-stream re-derive (=import/aperture/index.js:136=)
+- a lookup is =$files.find((file) => file.path === path && file.mode.daemon === buffer.mode.daemon)= (Q3): the view's own daemon, as the Cargo was; =file.mode= is the client's Mode row (=file.test.js=); an absent asset matches none
+- =<Asset file={…}>= (Q5): a File row is =file=, a local or a prop; =asset= is the literal's ={ path }= only
+- =knowables.js= takes the rows a view may play: =Dojo.svelte= derives them once (=$derived($recorded.filter(…))=), =dojo.jsx= filters at its 2 calls; =fileOf(files, asset)= stays
+- an upload with a header rides a fetcher: =new Connection(terminal.client.runtime.remote, fetcher)= · =authorize(lighthouse.$authority)= · =.branch(buffer.mode.reference.absolute)=
+
+* as code
+
+Cut 10-27 by =.ikiro/methods/cut.py= from a rig (the files as they stand) and its worked copy; replayed by =replay-quest.py= on a fresh copy, paths equal.
+
+Moves (=mv= first, each block on the NEW path):
+
+| from | to | rides |
+|------|----|-------|
+
+Deletes:
+
+| path | rides |
+|------|-------|
+
+*** subsystems/drapes
+**** display
+***** Asset.svelte — Locked Q1 · Q5 — a File row carries mime, not type; the prop is file
+#+BEGIN_SRC diff
+// subsystems/drapes/display/Asset.svelte:5
+
+-  let { asset, autoplay = false, preload = "auto", variant = "inline", onended = null } = $props();
+-  const kind = $derived(asset?.type?.split("/")[0]);
++  let { file, autoplay = false, preload = "auto", variant = "inline", onended = null } = $props();
++  const kind = $derived(file?.mime?.split("/")[0]);
+ </script>
+…
+// subsystems/drapes/display/Asset.svelte:10
+ {#if kind === "audio"}
+-  <Audio src={asset.url} type={asset.type} {preload} {autoplay} {variant} {onended} />
++  <Audio src={file.url} type={file.mime} {preload} {autoplay} {variant} {onended} />
+ {:else if kind === "image"}
+-  <Image src={asset.url} type={asset.type} {preload} />
++  <Image src={file.url} type={file.mime} {preload} />
+ {:else if kind === "video"}
+-  <Video src={asset.url} type={asset.type} {preload} />
++  <Video src={file.url} type={file.mime} {preload} />
+ {/if}
+#+END_SRC
+*** systems/ghost
+**** entities/file
+***** hydration.js — Locked Q1 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/file/hydration.js
+import { Vector } from "@vivalence/typology";
+
+export const hydration = new Vector().use(async (ctx, next) => {
+  await next();
+  ctx.entity.url = ctx.runtime.attach.url.branch(`/file/${ctx.entity.id}`).absolute;
+});
+#+END_SRC
+***** index.js — Locked Q1 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/file/index.js
+export * from "./hydration.js";
+export * from "./prototype.js";
+export * from "./repository.js";
+#+END_SRC
+***** prototype.js — Locked Q1 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/file/prototype.js
+import { Entity } from "@vivalence/typology";
+
+export class File extends Entity {
+  path = null;
+  mime = null;
+  hash = null;
+  integrity = null;
+  bytes = 0;
+  traits = [];
+  trait = {};
+  mode = null;
+  view = null;
+  url = null;
+}
+#+END_SRC
+***** repository.js — Locked Q1 (new)
+#+BEGIN_SRC js
+// systems/ghost/entities/file/repository.js
+import { RemoteRepository } from "@vivalence/typology";
+import { File } from "./prototype.js";
+
+export const repository = (dataspace) => new RemoteRepository(File).connect(dataspace.runtime.connection.branch("/userspace/entities/file"));
+#+END_SRC
+**** entities
+***** index.js — Locked Q1
+#+BEGIN_SRC diff
+// systems/ghost/entities/index.js:3
+ export * as daemon from "./daemon/index.js";
++export * as file from "./file/index.js";
+ export * as lighthouse from "./lighthouse/index.js";
+#+END_SRC
+**** subjects/client
+***** factory.js — Locked Q1 · Q4
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/factory.js:11
+ import * as view from "../../entities/view/index.js";
++import * as file from "../../entities/file/index.js";
+ import { Runtime } from "../../entities/runtime/prototype.js";
+…
+// systems/ghost/subjects/client/factory.js:34
+     runtime,
+-    entities: { daemon: daemonHost, mode, thread: threadProcess, buffer, turn, activity, terminal: terminalProcess, view },
++    entities: { daemon: daemonHost, mode, thread: threadProcess, buffer, turn, activity, terminal: terminalProcess, view, file },
+     seed: (boot) => boot.use(shard.context.bind("client", clientDie)).use(shard.context.bind("runtime", runtime)),
+#+END_SRC
+**** tests/entities/file
+***** file.test.js — Locked Q1 · Q3 — closes the url gap (new)
+#+BEGIN_SRC js
+// systems/ghost/tests/entities/file/file.test.js
+import { Controller, Span, belt, specimen } from "@vivalence/typology";
+import paladin, { factories, lifecycle } from "@vivalence/paladin";
+import * as ghost from "@vivalence/ghost";
+import { hello } from "@vivalence/ghost/scenarios";
+
+specimen.describe("the client's File rows — every row at boot, each url serving its own bytes", { sanitizeOps: false, sanitizeResources: false }, () => {
+  let world = null;
+  let clientDie = null;
+  specimen.beforeAll(async () => {
+    world = await hello.boot({ recipe: hello.DEMO, prefix: "viva-file-" });
+    paladin.assign(world.env, "flag");
+    const instance = await factories.instance(lifecycle.paladin.instance(paladin));
+    await paladin.ledger.registry.supply();
+    const mask = instance.clients.find((client) => client.manifest.slug === "ghost");
+    clientDie = await ghost.client.factory({ controller: new Controller({ stdout: new Span("ghost") }), mask, register: await paladin.ledger.registry.wire(mask), instance });
+  });
+  specimen.afterAll(async () => {
+    clientDie.controller.kill("SIGTERM", "test over");
+    await clientDie.controller.settled;
+    await world.stop();
+  });
+
+  specimen.it("a row carries /attached/file/:id and the client's own Mode, its Daemon beside; the bytes there are the row's, by length and integrity; every row carries a path", async () => {
+    await belt.atom.until(clientDie.runtime.entities.file.$entities, (files) => files.length > 0, AbortSignal.timeout(30000));
+    const [row] = clientDie.runtime.entities.file.$entities.get();
+    specimen.expect(row.url).toMatch(/\/attached\/file\/[0-9a-f-]+$/);
+    specimen.expect(clientDie.runtime.entities.mode.$entities.get()).toContain(row.mode);
+    specimen.expect(clientDie.runtime.entities.daemon.$entities.get()).toContain(row.mode.daemon);
+    const response = await fetch(row.url);
+    const bytes = new Uint8Array(await response.arrayBuffer());
+    specimen.expect(response.status).toBe(200);
+    specimen.expect(bytes.length).toBe(row.bytes);
+    specimen.expect(response.headers.get("x-viva-integrity")).toBe(row.integrity);
+    specimen.expect(clientDie.runtime.entities.file.$entities.get().every((file) => typeof file.path === "string")).toBe(true);
+  });
+});
+#+END_SRC
+*** ~/.viva/registry/assembly (his, captured to =~/.viva/bak/registry/m113-20261028/= first)
+**** modes/editor/assembly/buffer
+***** Assembly.svelte — Locked Q1 · Q3 · the m96 client
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/editor/assembly/buffer/Assembly.svelte:2
+   import { onMount, untrack } from "svelte";
+-  import { Connection, Url, shard } from "@vivalence/typology";
+   import { FILTERS, PANES } from "../schematics.js";
+…
+// ~/.viva/registry/assembly/modes/editor/assembly/buffer/Assembly.svelte:18
+   const data = buffer.$data ?? null;
++  const files = terminal.client.runtime.entities.file.$entities;
+
+…
+// ~/.viva/registry/assembly/modes/editor/assembly/buffer/Assembly.svelte:88
+     sending = null;
+-    buffer.mode.daemon.entities?.buffer?.updateOne?.({ id: buffer.id }, { data: buffer.data })?.catch?.((error) => say("buffer", error.message));
++    terminal.client.runtime.entities.buffer.updateOne({ id: buffer.id }, { data: buffer.data }).catch((error) => say("buffer", error.message));
+   };
+…
+// ~/.viva/registry/assembly/modes/editor/assembly/buffer/Assembly.svelte:99
+
+-  let wire = null;
+-  const http = () => {
+-    if (!wire) {
+-      wire = new Connection(new Url(buffer.mode.daemon.remote), shard.transmitter.fetcher);
+-      if (buffer.mode.daemon.lighthouse?.$authority) wire.use(shard.connection.authorize(buffer.mode.daemon.lighthouse.$authority));
+-    }
+-    return wire;
+-  };
+-  const call = (verb, input = {}) => http().call(`/mode/${buffer.mode.type ?? buffer.mode.manifest?.type}/${buffer.mode.slug ?? buffer.mode.manifest?.slug}/${verb}`, input);
++  const call = (route, input = {}) => buffer.mode.connection.call(`/${route}`, input);
+
+…
+// ~/.viva/registry/assembly/modes/editor/assembly/buffer/Assembly.svelte:148
+
+-  const asset = (path) => (path ? (buffer.mode.daemon.getAsset?.({ path })?.url ?? null) : null);
++  const asset = (path) =>
++    path
++      ? ($files.find((file) => file.path === path && file.mode.daemon === buffer.mode.daemon)?.url ?? null)
++      : null;
+
+#+END_SRC
+**** modes/editor/assembly/tests
+***** harness.test.js — m105 Q14
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/editor/assembly/tests/harness.test.js:74
+
+-  it("P-defaults: balanced, eight rounds, low effort — set with ??=, so the thread's dial and the caller win", async () => {
++  it("P-dial: the mode sets no tune, rounds or effort — the thread's dial and the caller's policy pass through (m105 Q14)", async () => {
+     const { policy, settings } = await probe("/object");
+-    expect(policy).toEqual({ tune: "balanced", rounds: 8 });
+-    expect(settings).toEqual({ effort: "low" });
++    expect(policy).toEqual({});
++    expect(settings).toBeUndefined();
+     const vector = new Vector().graft(harness).open("/probe", (ctx) => ctx.hallucination.policy);
+…
+// ~/.viva/registry/assembly/modes/editor/assembly/tests/harness.test.js:102
+     expect(seen).toHaveLength(2);
+-    expect(seen[0].settings).toEqual({ effort: "low" });
++    expect(seen[0].settings).toBeUndefined();
+     const [result] = answered(seen[1].turns);
+#+END_SRC
+**** modes/editor/guide/buffer
+***** Guide.svelte — Locked Q1 · Q3 · the m96 client
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/editor/guide/buffer/Guide.svelte:2
+   import { onMount, untrack } from "svelte";
+-  import { Connection, Url, shard } from "@vivalence/typology";
+   import Stage from "./kit/Stage.svelte";
+…
+// ~/.viva/registry/assembly/modes/editor/guide/buffer/Guide.svelte:14
+   const data = buffer.$data ?? null;
++  const files = terminal.client.runtime.entities.file.$entities;
+
+…
+// ~/.viva/registry/assembly/modes/editor/guide/buffer/Guide.svelte:49
+     sending = null;
+-    buffer.mode.daemon.entities?.buffer?.updateOne?.({ id: buffer.id }, { data: buffer.data })?.catch?.((error) => say("buffer", error.message));
++    terminal.client.runtime.entities.buffer.updateOne({ id: buffer.id }, { data: buffer.data }).catch((error) => say("buffer", error.message));
+   };
+…
+// ~/.viva/registry/assembly/modes/editor/guide/buffer/Guide.svelte:59
+
+-  let wire = null;
+-  const http = () => {
+-    if (!wire) {
+-      wire = new Connection(new Url(buffer.mode.daemon.remote), shard.transmitter.fetcher);
+-      if (buffer.mode.daemon.lighthouse?.$authority) wire.use(shard.connection.authorize(buffer.mode.daemon.lighthouse.$authority));
+-    }
+-    return wire;
+-  };
+-  const call = (verb, input = {}) => http().call(`/mode/${buffer.mode.type ?? buffer.mode.manifest?.type}/${buffer.mode.slug ?? buffer.mode.manifest?.slug}/${verb}`, input);
+-  const asset = (path) => (path ? (buffer.mode.daemon.getAsset?.({ path })?.url ?? null) : null);
++  const call = (route, input = {}) => buffer.mode.connection.call(`/${route}`, input);
++  const asset = (path) =>
++    path
++      ? ($files.find((file) => file.path === path && file.mode.daemon === buffer.mode.daemon)?.url ?? null)
++      : null;
+
+…
+// ~/.viva/registry/assembly/modes/editor/guide/buffer/Guide.svelte:473
+   );
+-  const pages = $derived(Object.keys(buffer.mode.daemon.cargo?.catalog ?? {}).filter((path) => path.startsWith("manual/")).sort());
++  const pages = $derived(
++    $files
++      .filter((file) => file.mode.daemon === buffer.mode.daemon)
++      .map((file) => file.path)
++      .filter((path) => path.startsWith("manual/"))
++      .sort(),
++  );
+   const inventory = $derived.by(() => {
+…
+// ~/.viva/registry/assembly/modes/editor/guide/buffer/Guide.svelte:643
+           <div class="picker-head">
+-            <div><div class="strong">Manual pages</div><div class="mono">manual/*.webp on the cargo · {pages.length} pictures</div></div>
++            <div><div class="strong">Manual pages</div><div class="mono">manual/*.webp on the freight · {pages.length} pictures</div></div>
+             <button class="outline" onclick={() => retain({ picker: false })}>Done</button>
+…
+// ~/.viva/registry/assembly/modes/editor/guide/buffer/Guide.svelte:655
+             {#if !pages.length}
+-              <div class="empty">the cargo holds no manual/*.webp</div>
++              <div class="empty">the freight holds no manual/*.webp</div>
+             {/if}
+#+END_SRC
+**** modes/editor/guide/tests
+***** guide.test.js — m105 Q14
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/editor/guide/tests/guide.test.js:134
+
+-  it("P-harness: stable sections first on their own keys — role, ontology, index — the screen and the format on the dialogue avenue only; defaults the thread may override; every tool the role names is armed", async () => {
++  it("P-harness: stable sections first on their own keys — role, ontology, index — the screen and the format on the dialogue avenue only; no tune, rounds or effort of its own — the thread dials them (m105 Q14); every tool the role names is armed", async () => {
+     const said = ontology(rig.daemon.domain.schematics);
+…
+// ~/.viva/registry/assembly/modes/editor/guide/tests/guide.test.js:166
+     expect(seen[0].system.screen).toBe("[Screen]\nOn the operator's screen: Build (build) · step 02 of 2, Legs (build.legs) · selected frame.plate.");
+-    expect(seen[0].settings).toEqual({ effort: "medium" });
++    expect(seen[0].settings).toBeUndefined();
+     const probe = new Vector().graft(harness).open("/probe", (ctx) => ({ policy: ctx.hallucination.policy, settings: ctx.hallucination.settings, keys: shape.primer.keys(ctx.hallucination.primer) }));
+     const bench = (hallucination) => steer.dispatch.invoke(probe, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: { id: editor.id, entity: editor }, thread, hallucination, input: {} });
+-    expect(await bench({ primer: new Vector(), policy: {} })).toEqual({ policy: { tune: "capable", rounds: 8 }, settings: { effort: "medium" }, keys: ["role", "ontology", "guide"] });
++    expect(await bench({ primer: new Vector(), policy: {} })).toEqual({ policy: {}, settings: undefined, keys: ["role", "ontology", "guide"] });
+     expect((await bench({ primer: new Vector(), policy: { tune: "fast", rounds: 1 }, settings: { effort: "high" } })).policy).toEqual({ tune: "fast", rounds: 1 });
+#+END_SRC
+**** modes/editor/import/buffer
+***** Import.svelte — Locked Q1 · Q3 · the m96 client
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/editor/import/buffer/Import.svelte:2
+   import { onMount } from "svelte";
+-  import { Connection, Url, shard } from "@vivalence/typology";
++  import { Connection, shard } from "@vivalence/typology";
+   import Queue from "./parts/Queue.svelte";
+…
+// ~/.viva/registry/assembly/modes/editor/import/buffer/Import.svelte:12
+   const { terminal, buffer, surface } = $props();
++  const recorded = terminal.client.runtime.entities.file.$entities;
+
+…
+// ~/.viva/registry/assembly/modes/editor/import/buffer/Import.svelte:26
+   let inflight = false;
+-  let line = null;
+
+…
+// ~/.viva/registry/assembly/modes/editor/import/buffer/Import.svelte:40
+
+-  const asset = (path) => (path ? buffer.mode.daemon.getAsset?.({ path })?.url ?? null : null);
++  const asset = (path) =>
++    path
++      ? ($recorded.find((file) => file.path === path && file.mode.daemon === buffer.mode.daemon)?.url ?? null)
++      : null;
+   const fresh = (url, stamp) => (url ? `${url}${url.includes("?") ? "&" : "?"}job=${stamp}` : null);
+…
+// ~/.viva/registry/assembly/modes/editor/import/buffer/Import.svelte:68
+     buffer.data = { ...buffer.data, ...patch };
+-    buffer.mode.daemon.entities?.buffer?.updateOne?.({ id: buffer.id }, { data: buffer.data }).catch((error) => (fault = `buffer · ${error.message}`));
++    terminal.client.runtime.entities.buffer.updateOne({ id: buffer.id }, { data: buffer.data }).catch((error) => (fault = `buffer · ${error.message}`));
+   };
+…
+// ~/.viva/registry/assembly/modes/editor/import/buffer/Import.svelte:72
+
+-  const http = () => {
+-    if (!line) {
+-      line = new Connection(new Url(buffer.mode.daemon.remote), shard.transmitter.fetcher);
+-      if (buffer.mode.daemon.lighthouse?.$authority) line.use(shard.connection.authorize(buffer.mode.daemon.lighthouse.$authority));
+-    }
+-    return line;
+-  };
++  const upload = new Connection(terminal.client.runtime.remote, shard.transmitter.fetcher)
++    .use(shard.connection.authorize(terminal.client.runtime.lighthouse.$authority))
++    .branch(buffer.mode.reference.absolute);
+
+…
+// ~/.viva/registry/assembly/modes/editor/import/buffer/Import.svelte:132
+     try {
+-      const path = `/mode/${buffer.mode.type ?? buffer.mode.manifest?.type}/${buffer.mode.slug ?? buffer.mode.manifest?.slug}/parse`;
+-      for await (const event of http().stream(path, undefined, { method: "POST", raw: { body: file }, headers: { "x-viva-name": encodeURIComponent(file.name) } })) {
++      for await (const event of upload.stream("/parse", undefined, { method: "POST", raw: { body: file }, headers: { "x-viva-name": encodeURIComponent(file.name) } })) {
+         follow(held, event);
+…
+// ~/.viva/registry/assembly/modes/editor/import/buffer/Import.svelte:161
+     try {
+-      const path = `/mode/${buffer.mode.type ?? buffer.mode.manifest?.type}/${buffer.mode.slug ?? buffer.mode.manifest?.slug}/commit`;
+-      for await (const event of http().stream(path, undefined, { method: "POST", body: { name: held.name, settings: held.settings } })) {
++      for await (const event of upload.stream("/commit", undefined, { method: "POST", body: { name: held.name, settings: held.settings } })) {
+         follow(held, event);
+#+END_SRC
+**** modes/player/guide/buffer
+***** Guide.svelte — Locked Q1 · Q3 · the m96 client
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/player/guide/buffer/Guide.svelte:2
+   import { onMount, untrack } from "svelte";
+-  import { Connection, Url, shard } from "@vivalence/typology";
+   import Stage from "./kit/Stage.svelte";
+…
+// ~/.viva/registry/assembly/modes/player/guide/buffer/Guide.svelte:9
+   const data = buffer.$data ?? null;
++  const files = terminal.client.runtime.entities.file.$entities;
+
+…
+// ~/.viva/registry/assembly/modes/player/guide/buffer/Guide.svelte:42
+     sending = null;
+-    buffer.mode.daemon.entities?.buffer?.updateOne?.({ id: buffer.id }, { data: buffer.data })?.catch?.((error) => say("buffer", error.message));
++    terminal.client.runtime.entities.buffer.updateOne({ id: buffer.id }, { data: buffer.data }).catch((error) => say("buffer", error.message));
+   };
+…
+// ~/.viva/registry/assembly/modes/player/guide/buffer/Guide.svelte:52
+
+-  let wire = null;
+-  const http = () => {
+-    if (!wire) {
+-      wire = new Connection(new Url(buffer.mode.daemon.remote), shard.transmitter.fetcher);
+-      if (buffer.mode.daemon.lighthouse?.$authority) wire.use(shard.connection.authorize(buffer.mode.daemon.lighthouse.$authority));
+-    }
+-    return wire;
+-  };
+-  const call = (verb, input = {}) => http().call(`/mode/${buffer.mode.type ?? buffer.mode.manifest?.type}/${buffer.mode.slug ?? buffer.mode.manifest?.slug}/${verb}`, input);
++  const call = (route, input = {}) => buffer.mode.connection.call(`/${route}`, input);
+
+-  const asset = (path) => (path ? (buffer.mode.daemon.getAsset?.({ path })?.url ?? null) : null);
++  const asset = (path) =>
++    path
++      ? ($files.find((file) => file.path === path && file.mode.daemon === buffer.mode.daemon)?.url ?? null)
++      : null;
+
+#+END_SRC
+**** modes/player/guide/tests
+***** guide.test.js — m105 Q14
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/modes/player/guide/tests/guide.test.js:151
+
+-  it("P-harness: the role and the index on their own keys, the screen and the format on the dialogue avenue only; defaults the thread may override; every tool the role names is armed and the writers are named as not its own", async () => {
++  it("P-harness: the role and the index on their own keys, the screen and the format on the dialogue avenue only; no tune, rounds or effort of its own — the thread dials them (m105 Q14); every tool the role names is armed and the writers are named as not its own", async () => {
+     const held = await call("/read", { guide: "build" });
+…
+// ~/.viva/registry/assembly/modes/player/guide/tests/guide.test.js:174
+     expect(seen[0].system.screen).toBe("[Screen]\nOn step 01 of 2: Plate (build.01).\nDone: nothing yet.");
+-    expect(seen[0].settings).toEqual({ effort: "low" });
++    expect(seen[0].settings).toBeUndefined();
+     expect(seen[0].tools).toEqual(expect.arrayContaining(["step_read", "step", "assembly_step", "assembly_guide", "assembly_rename", "assembly_duplicate"]));
+…
+// ~/.viva/registry/assembly/modes/player/guide/tests/guide.test.js:181
+     const bench = (hallucination) => steer.dispatch.invoke(probe, "/probe", steer.strategy.direct)({ ...shard.context.lift(contexts.host, rig.daemon), mode: { id: player.id, entity: player }, thread, hallucination, input: {} });
+-    expect(await bench({ primer: new Vector(), policy: {} })).toEqual({ policy: { tune: "balanced", rounds: 3 }, settings: { effort: "low" }, keys: ["role", "guide"] });
++    expect(await bench({ primer: new Vector(), policy: {} })).toEqual({ policy: {}, settings: undefined, keys: ["role", "guide"] });
+     expect((await bench({ primer: new Vector(), policy: { tune: "fast", rounds: 1 } })).policy).toEqual({ tune: "fast", rounds: 1 });
+#+END_SRC
+**** tests
+***** render.js — the rig hands a terminal
+#+BEGIN_SRC diff
+// ~/.viva/registry/assembly/tests/render.js:65
+   return {
+-    terminal: terminal ?? { thread: held, buffer: row, setDockCollapsed() {} },
++    terminal: terminal ?? { thread: held, buffer: row, setDockCollapsed() {}, client: { runtime: { entities: { file: { $entities: atom([]) } } } } },
+     buffer: { id: row.id, $data: atom(row.data ?? {}), mount() {}, mode: { id: "mode-ssr", call: never, daemon: host, ...mode }, thread: held, ...row },
+#+END_SRC
+*** ~/.viva/registry/education (his, captured to =~/.viva/bak/registry/m113-20261028/= first)
+**** modes/games/cloze/buffer
+***** Cloze.svelte — Locked Q1 · Q3 · Q5
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/cloze/buffer/Cloze.svelte:5
+   const { terminal, buffer, surface } = $props();
++  const files = terminal.client.runtime.entities.file.$entities;
+
+…
+// ~/.viva/registry/education/modes/games/cloze/buffer/Cloze.svelte:28
+   const known = $derived(literal?.trait?.TRANSLATED?.known);
+-  const asset = $derived(buffer.mode.daemon.getAsset(literal?.trait?.VOCALIZED?.asset));
++  const file = $derived(
++    $files.find((file) => file.path === literal?.trait?.VOCALIZED?.asset?.path && file.mode.daemon === buffer.mode.daemon) ?? null,
++  );
+   const isListenMode = $derived(gameplay === "LISTEN");
+…
+// ~/.viva/registry/education/modes/games/cloze/buffer/Cloze.svelte:117
+           <span class="meta-lang">Listen</span>
+-          {#if asset}
+-            <div class="audio-block"><Asset autoplay={true} {asset} /></div>
++          {#if file}
++            <div class="audio-block"><Asset autoplay={true} {file} /></div>
+           {/if}
+#+END_SRC
+**** modes/games/dojo/buffer
+***** Dojo.svelte — Locked Q1 · Q3 · Q5
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/buffer/Dojo.svelte:14
+   const { terminal, buffer, surface } = $props();
++  const recorded = terminal.client.runtime.entities.file.$entities;
++  const files = $derived($recorded.filter((file) => file.mode.daemon === buffer.mode.daemon));
+
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/Dojo.svelte:40
+   const dresser = (list) => (index, worn) =>
+-    knowables.dressFor(buffer.mode.daemon, axes, list[index], { index, random: drawn(), worn });
++    knowables.dressFor(files, axes, list[index], { index, random: drawn(), worn });
+
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/Dojo.svelte:56
+   let carriers = $state.raw(knowables.carriers(buffer));
+-  let queue = $state.raw(resuming ? clone(kept.queue) : prepare(knowables.admit(buffer.mode.daemon, carriers, axes)));
++  let queue = $state.raw(resuming ? clone(kept.queue) : prepare(knowables.admit(files, carriers, axes)));
+   let session = $state.raw(resuming ? clone(kept.session) : board(queue));
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/Dojo.svelte:206
+   function readmit() {
+-    queue = prepare(knowables.admit(buffer.mode.daemon, carriers, axes));
++    queue = prepare(knowables.admit(files, carriers, axes));
+     session = board(queue);
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/Dojo.svelte:439
+     drawing = null;
+-    const admitted = knowables.admit(buffer.mode.daemon, fresh, axes);
++    const admitted = knowables.admit(files, fresh, axes);
+     if (!admitted.length) return finish("complete");
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/Dojo.svelte:618
+           {status}
+-          asset={buffer.mode.daemon.getAsset(staged.asset)}
+-          assetOf={(reference) => buffer.mode.daemon.getAsset(reference)}
++          file={knowables.fileOf(files, staged.asset)}
++          fileOf={(reference) => knowables.fileOf(files, reference)}
+           {position}
+#+END_SRC
+***** dojo.jsx — Locked Q1 · Q3
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/buffer/dojo.jsx:21
+ export function Dojo(props) {
+-  const { palette, buffer } = props;
++  const { palette, buffer, terminal } = props;
+   const review = (signal, literal) => {
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/dojo.jsx:44
+   const drawn = () => types.drawing(axes().random);
+-  const dresser = (list) => (index, worn) => knowables.dressFor(buffer.mode.daemon, axes(), list[index], { index, random: drawn(), worn });
++  const files = () => terminal.client.runtime.entities.file.$entities.get().filter((file) => file.mode.daemon === buffer.mode.daemon);
++  const dresser = (list) => (index, worn) => knowables.dressFor(files(), axes(), list[index], { index, random: drawn(), worn });
+   const prepare = (list) =>
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/dojo.jsx:134
+       const raw = await buffer.mode.connection.call("/commission", { buffer: buffer.id });
+-      const admitted = prepare(knowables.admit(buffer.mode.daemon, knowables.carriers(raw), axes()));
++      const admitted = prepare(knowables.admit(files(), knowables.carriers(raw), axes()));
+       if (!admitted.length) return setFault("the set resolved to nothing playable — p picks another preset");
+#+END_SRC
+***** knowables.js — Locked Q1
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/buffer/knowables.js:58
+
+-const audible = (daemon, knowable) =>
++export const fileOf = (files, asset) => files.find((file) => file.path === asset?.path) ?? null;
++
++const audible = (files, knowable) =>
+   fold.table(knowable)
+-    ? knowable.tokens.every((token) => Boolean(daemon.getAsset(token.asset)))
+-    : Boolean(daemon.getAsset(knowable.asset));
++    ? knowable.tokens.every((token) => fileOf(files, token.asset) !== null)
++    : fileOf(files, knowable.asset) !== null;
+
+-export const prompts = (daemon, prompt, knowable, greedy = false) => {
++export const prompts = (files, prompt, knowable, greedy = false) => {
+   const wanted = pool(prompt, types.PROMPTS);
+-  const feasible = wanted.filter((entry) => entry !== "AUDIO" || audible(daemon, knowable));
++  const feasible = wanted.filter((entry) => entry !== "AUDIO" || audible(files, knowable));
+   if (greedy && !fold.table(knowable) && feasible.includes("AUDIO")) return ["AUDIO"];
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/knowables.js:70
+
+-export const promptFor = (daemon, prompt, knowable, greedy = false, index = 0, random = true) =>
+-  drawFrom(prompts(daemon, prompt, knowable, greedy), index, random);
++export const promptFor = (files, prompt, knowable, greedy = false, index = 0, random = true) =>
++  drawFrom(prompts(files, prompt, knowable, greedy), index, random);
+
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/knowables.js:77
+
+-export const wardrobe = (daemon, axes, knowable) =>
++export const wardrobe = (files, axes, knowable) =>
+   recalls(axes.recall).flatMap((recall) =>
+     (fold.table(knowable) ? [TABLE] : gameplays(axes.gameplay, knowable)).flatMap((gameplay) =>
+-      prompts(daemon, axes.prompt, knowable, axes.greedy).map((prompt) => ({ recall, gameplay, prompt })),
++      prompts(files, axes.prompt, knowable, axes.greedy).map((prompt) => ({ recall, gameplay, prompt })),
+     ),
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/knowables.js:84
+
+-export const dressFor = (daemon, axes, knowable, { index = 0, random = true, worn = [] } = {}) => {
++export const dressFor = (files, axes, knowable, { index = 0, random = true, worn = [] } = {}) => {
+   if (!random)
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/knowables.js:89
+       gameplay: fold.table(knowable) ? TABLE : gameplayFor(axes.gameplay, knowable, index, false),
+-      prompt: promptFor(daemon, axes.prompt, knowable, axes.greedy, index, false),
++      prompt: promptFor(files, axes.prompt, knowable, axes.greedy, index, false),
+     };
+-  const all = wardrobe(daemon, axes, knowable);
++  const all = wardrobe(files, axes, knowable);
+   const unworn = all.filter((dress) => !worn.some((past) => same(past, dress)));
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/knowables.js:97
+
+-export const playable = (daemon, knowable, axes) =>
++export const playable = (files, knowable, axes) =>
+   fold.speakable(knowable) &&
+   (!fold.table(knowable) || knowable.tokens?.length > 0) &&
+-  (!types.listening(axes.prompt) || audible(daemon, knowable));
++  (!types.listening(axes.prompt) || audible(files, knowable));
+
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/knowables.js:109
+
+-export const admit = (daemon, set, axes) => {
+-  const rejected = set.filter((knowable) => !playable(daemon, knowable, axes));
++export const admit = (files, set, axes) => {
++  const rejected = set.filter((knowable) => !playable(files, knowable, axes));
+   if (rejected.length)
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/knowables.js:117
+
+-  return set.filter((knowable) => playable(daemon, knowable, axes));
++  return set.filter((knowable) => playable(files, knowable, axes));
+ };
+
+-export const carried = (daemon, buffer) => admit(daemon, carriers(buffer), buffer.data ?? {});
++export const carried = (files, buffer) => admit(files, carriers(buffer), buffer.data ?? {});
+
+#+END_SRC
+**** modes/games/dojo/buffer/parts
+***** FlipReveal.svelte — Locked Q5
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/FlipReveal.svelte:3
+
+-  const { answer, example, asset = null, label } = $props();
++  const { answer, example, file = null, label } = $props();
+ </script>
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/FlipReveal.svelte:14
+     </div>
+-    {#if asset}<Asset autoplay={true} variant="dot" {asset} />{/if}
++    {#if file}<Asset autoplay={true} variant="dot" {file} />{/if}
+   </div>
+#+END_SRC
+***** Prompt.svelte — Locked Q5
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Prompt.svelte:13
+     status,
+-    asset = null,
++    file = null,
+     labels,
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Prompt.svelte:39
+   const answer = $derived(recall === "KNOWN" ? knowable.known : knowable.learning);
+-  const audible = $derived(Boolean(asset) && (listening || recall === "KNOWN"));
++  const audible = $derived(Boolean(file) && (listening || recall === "KNOWN"));
+   const answerLabel = $derived(recall === "KNOWN" ? labels.known : labels.learning);
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Prompt.svelte:139
+     <div class="audio">
+-      {#if asset}
+-        {#key turn}<Asset {asset} variant="inline" autoplay={true} />{/key}
++      {#if file}
++        {#key turn}<Asset {file} variant="inline" autoplay={true} />{/key}
+         <div class="wave">
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Prompt.svelte:154
+       <p class="prompt" class:word>{shown}</p>
+-      {#if audible}{#key turn}<Asset {asset} variant="dot" autoplay={true} />{/key}{/if}
++      {#if audible}{#key turn}<Asset {file} variant="dot" autoplay={true} />{/key}{/if}
+     </div>
+#+END_SRC
+***** Rep.svelte — Locked Q5
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Rep.svelte:23
+     status,
+-    asset = null,
+-    assetOf = () => null,
++    file = null,
++    fileOf = () => null,
+     position,
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Rep.svelte:135
+   const shown = $derived(corrected ? { ...correction, corrected: true } : result);
+-  const feedbackAsset = $derived(recall === "KNOWN" ? null : asset);
++  const feedbackFile = $derived(recall === "KNOWN" ? null : file);
+
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Rep.svelte:360
+       {status}
+-      {asset}
++      {file}
+       turn={rep}
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Rep.svelte:380
+         revealed={phase === "preview"}
+-        {assetOf}
++        {fileOf}
+         oncorrect={correct}
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Rep.svelte:385
+       {#if revealed}
+-        <FlipReveal {answer} example={answerExample} {asset} label={answerLabel} />
++        <FlipReveal {answer} example={answerExample} {file} label={answerLabel} />
+       {/if}
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Rep.svelte:398
+           forgiving={axes.forgiving}
+-          asset={feedbackAsset}
++          file={feedbackFile}
+           dense={compact} />
+#+END_SRC
+***** Table.svelte — Locked Q5
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Table.svelte:13
+     revealed = false,
+-    assetOf,
++    fileOf,
+     oncorrect,
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Table.svelte:61
+           {#if listening}
+-            {#if assetOf(token.asset)}<Asset asset={assetOf(token.asset)} variant="inline" autoplay={true} />{/if}
++            {#if fileOf(token.asset)}<Asset file={fileOf(token.asset)} variant="inline" autoplay={true} />{/if}
+           {:else}
+             <span class="ask">{asked(index)}</span>
+-            {#if recalls[index] === "KNOWN" && assetOf(token.asset)}<Asset asset={assetOf(token.asset)} variant="dot" autoplay={true} />{/if}
++            {#if recalls[index] === "KNOWN" && fileOf(token.asset)}<Asset file={fileOf(token.asset)} variant="dot" autoplay={true} />{/if}
+           {/if}
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/Table.svelte:94
+         {/if}
+-        {#if (revealed || (cell.committed && good(cell))) && assetOf(token.asset)}
+-          <Asset asset={assetOf(token.asset)} variant="dot" autoplay={!revealed && recalls[index] !== "KNOWN"} />
++        {#if (revealed || (cell.committed && good(cell))) && fileOf(token.asset)}
++          <Asset file={fileOf(token.asset)} variant="dot" autoplay={!revealed && recalls[index] !== "KNOWN"} />
+         {/if}
+#+END_SRC
+***** TokenFeedback.svelte — Locked Q5
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/TokenFeedback.svelte:4
+
+-  const { result, typed, answer, example, note, forgiving = true, asset = null, dense = false } = $props();
++  const { result, typed, answer, example, note, forgiving = true, file = null, dense = false } = $props();
+
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/TokenFeedback.svelte:32
+       <span class="value right">{answer}</span>
+-      <span class="dot">{#if asset}<Asset {asset} variant="dot" autoplay={true} />{/if}</span>
++      <span class="dot">{#if file}<Asset {file} variant="dot" autoplay={true} />{/if}</span>
+     {:else}
+…
+// ~/.viva/registry/education/modes/games/dojo/buffer/parts/TokenFeedback.svelte:39
+       <span class="value right">{answer}</span>
+-      <span class="dot">{#if asset}<Asset {asset} variant="dot" autoplay={true} />{/if}</span>
++      <span class="dot">{#if file}<Asset {file} variant="dot" autoplay={true} />{/if}</span>
+     {/if}
+#+END_SRC
+**** modes/games/dojo/tests
+***** machine.test.js — Locked Q1
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/tests/machine.test.js:260
+ specimen.describe("dojo wardrobe", () => {
+-  const daemon = { getAsset: (reference) => (reference ? { url: reference } : null) };
+-  const word = { ontology: "word", known: "a", learning: "b", asset: "a.mp3" };
++  const files = [{ path: "a.mp3" }];
++  const word = { ontology: "word", known: "a", learning: "b", asset: { path: "a.mp3" } };
+   const key = (dress) => `${dress.recall}/${dress.gameplay}/${dress.prompt}`;
+…
+// ~/.viva/registry/education/modes/games/dojo/tests/machine.test.js:266
+     const axes = { recall: ["KNOWN", "LEARNING"], gameplay: ["TYPE", "PICK", "CONJUGATE"], prompt: ["TEXT", "AUDIO"] };
+-    specimen.expect(knowables.wardrobe(daemon, axes, word).map(key).sort()).toEqual(
++    specimen.expect(knowables.wardrobe(files, axes, word).map(key).sort()).toEqual(
+       ["KNOWN/PICK/AUDIO", "KNOWN/PICK/TEXT", "KNOWN/TYPE/AUDIO", "KNOWN/TYPE/TEXT", "LEARNING/PICK/AUDIO", "LEARNING/PICK/TEXT", "LEARNING/TYPE/AUDIO", "LEARNING/TYPE/TEXT"],
+     );
+-    specimen.expect(knowables.wardrobe(daemon, axes, { ...word, asset: undefined }).map(key).sort()).toEqual(
++    specimen.expect(knowables.wardrobe(files, axes, { ...word, asset: undefined }).map(key).sort()).toEqual(
+       ["KNOWN/PICK/TEXT", "KNOWN/TYPE/TEXT", "LEARNING/PICK/TEXT", "LEARNING/TYPE/TEXT"],
+…
+// ~/.viva/registry/education/modes/games/dojo/tests/machine.test.js:273
+     const table = { ontology: "conjugation", known: "essere", learning: "essere", tokens: [{ form: "sono", gloss: "I am" }] };
+-    specimen.expect(knowables.wardrobe(daemon, axes, table).map((dress) => dress.gameplay)).toEqual(["CONJUGATE", "CONJUGATE"]);
+-    specimen.expect(knowables.wardrobe(daemon, { ...axes, greedy: true }, word).map((dress) => dress.prompt)).toEqual(["AUDIO", "AUDIO", "AUDIO", "AUDIO"]);
++    specimen.expect(knowables.wardrobe(files, axes, table).map((dress) => dress.gameplay)).toEqual(["CONJUGATE", "CONJUGATE"]);
++    specimen.expect(knowables.wardrobe(files, { ...axes, greedy: true }, word).map((dress) => dress.prompt)).toEqual(["AUDIO", "AUDIO", "AUDIO", "AUDIO"]);
+   });
+…
+// ~/.viva/registry/education/modes/games/dojo/tests/machine.test.js:280
+     const worn = [];
+-    for (let round = 0; round < 4; round++) worn.push(knowables.dressFor(daemon, axes, word, { worn }));
++    for (let round = 0; round < 4; round++) worn.push(knowables.dressFor(files, axes, word, { worn }));
+     specimen.expect(new Set(worn.map(key)).size).toBe(4);
+     for (let round = 0; round < 20; round++) {
+-      const next = knowables.dressFor(daemon, axes, word, { worn });
++      const next = knowables.dressFor(files, axes, word, { worn });
+       specimen.expect(key(next)).not.toBe(key(worn.at(-1)));
+…
+// ~/.viva/registry/education/modes/games/dojo/tests/machine.test.js:288
+     const fixed = { recall: "KNOWN", gameplay: "TYPE", prompt: "TEXT" };
+-    specimen.expect(knowables.dressFor(daemon, fixed, word, { worn: [fixed] })).toEqual(fixed);
+-    specimen.expect(knowables.dressFor(daemon, fixed, word, { worn: [fixed, fixed] })).toEqual(fixed);
++    specimen.expect(knowables.dressFor(files, fixed, word, { worn: [fixed] })).toEqual(fixed);
++    specimen.expect(knowables.dressFor(files, fixed, word, { worn: [fixed, fixed] })).toEqual(fixed);
+   });
+…
+// ~/.viva/registry/education/modes/games/dojo/tests/machine.test.js:294
+     const axes = { recall: ["KNOWN", "LEARNING"], gameplay: ["TYPE", "PICK", "FLIP"], prompt: "TEXT" };
+-    const cycled = [0, 1, 2, 3].map((index) => key(knowables.dressFor(daemon, axes, word, { index, random: false })));
++    const cycled = [0, 1, 2, 3].map((index) => key(knowables.dressFor(files, axes, word, { index, random: false })));
+     specimen.expect(cycled).toEqual(["KNOWN/TYPE/TEXT", "LEARNING/PICK/TEXT", "KNOWN/FLIP/TEXT", "LEARNING/TYPE/TEXT"]);
+     const table = { ontology: "conjugation", known: "essere", learning: "essere", tokens: [{ form: "sono", gloss: "I am" }] };
+-    specimen.expect(knowables.dressFor(daemon, axes, table, { index: 1, random: false }).gameplay).toBe("CONJUGATE");
++    specimen.expect(knowables.dressFor(files, axes, table, { index: 1, random: false }).gameplay).toBe("CONJUGATE");
+   });
+#+END_SRC
+***** tools.test.js — Locked Q1
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/tests/tools.test.js:67
+     await scenario.scoped(async () => {
+-      const daemon = { getAsset: () => null };
++      const files = [];
+       const emissions = [
+…
+// ~/.viva/registry/education/modes/games/dojo/tests/tools.test.js:77
+         const wired = JSON.parse(JSON.stringify(minted.toJSON?.() ?? minted));
+-        const admitted = knowables.carried(daemon, wired);
++        const admitted = knowables.carried(files, wired);
+         specimen.expect(admitted.length).toBeGreaterThanOrEqual(1);
+…
+// ~/.viva/registry/education/modes/games/dojo/tests/tools.test.js:111
+         const wired = JSON.parse(JSON.stringify(minted.toJSON?.() ?? minted));
+-        const admitted = knowables.carried({ getAsset: () => null }, wired);
++        const admitted = knowables.carried([], wired);
+         specimen.expect(admitted.length).toBe(2);
+#+END_SRC
+***** tty.render.test.js — Locked Q1
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/tests/tty.render.test.js:48
+         statics: {},
+-        getAsset: () => null,
+       },
+…
+// ~/.viva/registry/education/modes/games/dojo/tests/tty.render.test.js:53
+     const bag = {
+-      terminal: { dispatch: () => {} },
++      terminal: { dispatch: () => {}, client: { runtime: { entities: { file: { $entities: atom([]) } } } } },
+       buffer,
+#+END_SRC
+**** modes/games/dojo
+***** types.js — Locked Q1
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/dojo/types.js:218
+     .object({})
+-    .desc("VOCALIZED asset descriptor — the view resolves it against daemon cargo.")
++    .desc('VOCALIZED asset descriptor — the view finds the File row on its path. Example: { path: "sentences/sei-sicuro.mp3" }')
+     .optional(),
+#+END_SRC
+**** modes/games/exhibit/buffer
+***** Exhibit.svelte — Locked Q1 · Q3 · Q5
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/exhibit/buffer/Exhibit.svelte:4
+   const { terminal, buffer, surface } = $props();
++  const files = terminal.client.runtime.entities.file.$entities;
+
+…
+// ~/.viva/registry/education/modes/games/exhibit/buffer/Exhibit.svelte:41
+     const ref = lit?.trait?.VOCALIZED?.asset;
+-    return ref ? buffer.mode.daemon.getAsset(ref) : null;
++    return ref ? ($files.find((file) => file.path === ref.path && file.mode.daemon === buffer.mode.daemon) ?? null) : null;
+   }
+…
+// ~/.viva/registry/education/modes/games/exhibit/buffer/Exhibit.svelte:105
+                 <span class="table-dot">
+-                  <Asset asset={getAudio(lit)} variant="dot" />
++                  <Asset file={getAudio(lit)} variant="dot" />
+                 </span>
+#+END_SRC
+**** modes/games/judge/buffer
+***** Judge.svelte — Locked Q1 · Q3 · Q5
+#+BEGIN_SRC diff
+// ~/.viva/registry/education/modes/games/judge/buffer/Judge.svelte:4
+   const { terminal, buffer, surface } = $props();
++  const files = terminal.client.runtime.entities.file.$entities;
+
+…
+// ~/.viva/registry/education/modes/games/judge/buffer/Judge.svelte:19
+   const isWord = target?.ontology === "word";
+-  const asset =
++  const file =
+     (gameplay === "audio" || gameplay === "audio-only")
+-      ? buffer.mode.daemon.getAsset(target?.trait?.VOCALIZED?.asset)
++      ? ($files.find((file) => file.path === target?.trait?.VOCALIZED?.asset?.path && file.mode.daemon === buffer.mode.daemon) ?? null)
+       : null;
+…
+// ~/.viva/registry/education/modes/games/judge/buffer/Judge.svelte:153
+
+-          {#if sourceText || asset}
++          {#if sourceText || file}
+             <div class="source-row">
+…
+// ~/.viva/registry/education/modes/games/judge/buffer/Judge.svelte:158
+               {/if}
+-              {#if asset}
+-                <div class="audio-block"><Asset autoplay={true} {asset} /></div>
++              {#if file}
++                <div class="audio-block"><Asset autoplay={true} {file} /></div>
+               {/if}
+#+END_SRC
+* milestones
+
+| # | milestone | blocks | green |
+|---|-----------|--------|-------|
+| 1 | the client's File repository | =systems/ghost/entities/file/*= · =entities/index.js= · =subjects/client/factory.js= · =subsystems/drapes/display/Asset.svelte= | =systems/ghost/tests/entities/file/file.test.js= + ghost client suites |
+| 2 | the assembly views | 4 views · =assembly/tests/render.js= | assembly 12 suites |
+| 3 | the assembly suites on m105 Q14 | 3 suites + =SNAPSHOT_HOT=1= ×2 | same |
+| 4 | the vocalized games | cloze · judge · exhibit · dojo (=Dojo.svelte= · =dojo.jsx= · =knowables.js= · =types.js=) + 3 dojo suites | dojo =machine= · =tty= · =tty.render= · =aperture= |
+| 5 | the walk | — | =* QA= on his =:1794= after a runtime restart |
+
+* blast table
+
+| surface | consumers | in the tangle | BREAKS |
+|---------|-----------|---------------|--------|
+| client Dataspace gains =file= | anima · ghost tty boot | factory.js | none; boot +1 =find= (2300 rows, 1.23 MB, Q4) +1 subscription |
+| drapes =<Asset file>= reads =file.mime= · =file.url= (Q5) | 11 education sites in 6 files + the dojo parts' props | all | none — no Cargo entry exists since 10-21; no consumer outside education |
+| dojo =knowables.*(daemon, …)= → =(files, …)= | =Dojo.svelte= ×6 · =dojo.jsx= ×2 · suites ×13 | all | none |
+| =assembly/tests/render.js= =terminal= default | assembly view suites ×3 | — | none |
+| =~/.viva/registry/assembly= | 10 files + 2 snapshots | yes | his tree: capture first |
+| =~/.viva/registry/education= | 10 files | yes | his tree: capture first |
+| =~/.viva/instances/localhost/= | no package copy (=instance.viva.json= · =mountpoint/=) | — | none — no shelf |
+| his =:2501= | bundles views at boot; =run.js= without =--watch= | — | a restart after land (mine, REJECTED 10-24 /"i dont run 2501. kill and run"/) |
+
+* testing assessment
+
+- assembly 12 suites + dojo =machine= · =tty= · =tty.render= · =aperture= green on the copy (=* changelog=)
+- =systems/ghost/tests/entities/file/file.test.js= (new): green with milestone 1, red without =file= in =factory.js= (/"Cannot read properties of undefined (reading '$entities')"/)
+- COVERAGE GAP: cloze · judge · exhibit · =Dojo.svelte= — compiled (client + server), never rendered by a suite
+- COVERAGE GAP: the import upload over the fetcher — no suite; the walk
+- =file.test.js= pins Q3's premise: =row.mode= · =row.mode.daemon= are the client's own rows (=toContain=)
+- COVERAGE GAP: Q5's =file= prop — the dojo parts import =@vivalence/drapes=, out of the SSR rig's reach; compiled only; the walk
+- COVERAGE GAP: Q3's daemon clause — every view suite holds an empty File store (=assembly/tests/render.js= · =tty.render.test.js=); the walk
+- base reds, not this quest: dojo =tools= 7/7 · =emitter= 12/12 (=known-issues.org= =registry-dojo-vcompany-suites-red=)
+
+* QA
+
+| marker | I type / do | I see |
+|---|---|---|
+| T-player-guides | open tab =guide= (=player/guide=) | the Guides card lists the drone guide; no =/guides refused= |
+| T-player-stage | open the drone guide | the parts on the stage; the step's manual pictures load |
+| T-editor-assembly | open =editor/assembly= | the tree lists the daemon's models; a subject folds on the stage |
+| T-editor-guide-pages | the guide editor's media picker | 88 =manual/*.webp=, each a picture |
+| T-import-drop | drop a =.glb= on =editor/import= | parse streams, the preview stage shows its objects, commit mints |
+| T-buffer-persist | select in the assembly editor, reload | the selection holds |
+| T-dojo-audio | dojo with prompt =AUDIO= | =sentences/*.mp3= plays; no =getAsset= fault |
+| T-cloze-audio | cloze in =LISTEN= | the sentence plays |
+
+#+marker_qa: m113/T-player-guides · held 10-28 · the drone guide listed, no 404
+#+marker_qa: m113/T-player-stage · held 10-28 · GLBs on the stage, 2 manual pictures 200 through /attached/file/:id
+#+marker_qa: m113/T-editor-assembly · held 10-28 · the tree lists the daemon's models, =drone= opens; the stage pane unseen (pane narrow)
+#+marker_qa: m113/T-editor-guide-pages · held 10-28 · /"88 pictures"/, 91 of 91 images loaded
+#+marker_qa: m113/T-import-drop · pending · upload over the fetcher, x-viva-name kept — not walked 10-28 (needs a .glb drop)
+#+marker_qa: m113/T-buffer-persist · held 10-28 · =drone= subject · selected survive a reload
+#+marker_qa: m113/T-dojo-audio · held 10-28 · =sentences/ciao-come-stai.mp3= GET 200 through /attached/file/:id, the dot shown
+#+marker_qa: m113/T-cloze-audio · pending · same, cloze — not walkable 10-28: cloze · judge · exhibit not installed on =localhost= (italian ships =game/dojo= only)
+
+* deferred
+
+| # | what | code | undecided |
+|---|------|------|-----------|
+| 1 | the rest of =mode-views-read-old-anima-daemon= | chess =buffer/kit/open.js= ×5 · media =Media.svelte= · =upload.js= · vcompany =Calendar= · =Mail= · =Vdex= | outside m113 |
+| 2 | FRAUGHT in the skills | =.ikiro/skills/mode/SKILL.md:38= · =:40= · =:73= · =topography/SKILL.md:6= · =:22= · =:30= · =:50= | FILESET + =export const fileset = { path: "freight" }= — skill =fold= |
+
+* changelog
+
+10-27 — the census · Q3 · Q5 entries moved whole to =.ikiro/reference/m113/census-10-27.org=
+
+10-28 connoisseur — 3 hunks tightened: =file.test.js= =eventually= → =belt.atom.until(…, AbortSignal.timeout(30000))= (trigger 17, =atom.js:33=) and the last expect pins every row carries a path; =Import.svelte= =let upload= + =http()= → one =const upload= (=authorize($authority)= reads the store per request); =dojo.jsx= the filter ×2 → =files()= beside =axes()=. Replay re-cut (files 26 · hunks 94)
+
+10-28 land — =file.test.js= ok · 1 passed (1 step) (1m24s), empty HOME; 18 registry suites serial under the root config: 16 ok, dojo =tools= · =emitter= =error: Test failed= (=registry-dojo-vcompany-suites-red=); :2501 was an orphan (ppid 1, no =--watch=): killed, =deno task runtime/watch= mine — as a session task it died at =/model=; restarted detached (=nohup … & disown=, log =~/.viva/bak/runtime-watch-20261028.log=), =/attached/file/nope= 404; anima walk =* QA=
+
+* release
+
+Lifted 10-28 into =.ikiro/release.md= =## unreleased= (client ×2 · entity ×1):
+
+- added `terminal.client.runtime.entities.file` — the client's File repository: every row at boot, live; a row carries =url= (=/attached/file/:id=) · migrate: none ⟨m113⟩
+- changed drapes `<Asset>` — the prop is =file=, a File row (=mime= · =url=); was =asset=, a Cargo entry (=type=) · migrate: `<Asset file={row}>` ⟨m113⟩
+- fixed `@assembly/editor/assembly` · `editor/guide` · `editor/import` · `player/guide` · `@education` cloze · judge · exhibit · dojo in anima — routes through =buffer.mode.connection=, files through the client's File rows of the view's own daemon ⟨m113⟩
+
+* handoff
+
+- goal: the assembly editors · player · import and the vocalized games up in anima, on File rows (Q1)
+- done 10-28: LANDED — connoisseur 3 hunks; repo 8 files + registry 23 in ONE rsync (bak =~/.viva/bak/registry/m113-20261028/=); 19 suites green; :2501 restarted; 6 =marker_qa= held
+- next: walk T-import-drop (a .glb on =editor/import=) · T-cloze-audio once cloze is installed; my walk answered a dojo rep on his =localhost= with /"/terminal/close"/ (a MISTAKE recorded, 10-28)
+- never: a Cargo · =getAsset= · asset helper on the client (Q1); a lookup across daemons (Q3); =asset= naming a File row (Q5); =findOneLocal= with an absent where (=reference/m113/terrain-10-27.org=: the first file); a mode's =tune · rounds · effort= (m105 Q14)
+- owed: 2 =marker_qa= pending; =* deferred= 2 the skills' FRAUGHT lines; the quest → =done/= after his look

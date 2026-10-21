@@ -1,0 +1,25 @@
+#+title: track — terrain as measured 10-23, before the drill
+<!-- limit: 4000 chars -->
+* terrain — measured 10-23
+
+The names tracked today, by owner (=m100-simplified-span.org= blast, @ over 34b60f23f):
+
+| owner | names | where |
+|---+---+---|
+| Span | =open close note message fault= | =subsystems/typology/prototypes/span.js:62-96= |
+| Controller machine | =open close fault pause resume stop abort= | =subsystems/typology/schematics/primitives/controller.js:9-22= (table keyed =verbs=, enum =Verb=) |
+| =shard/track.js= | =request response subject= | =subsystems/typology/gestalten/shard/track.js:29-49= |
+| socket | =error= ={status}= on a 404 or a response ≥ 400; =fault= on a throw | =subsystems/typology/prototypes/socket.js:161 · :198 · :221= |
+| lighthouse | =status= | =systems/ghost/entities/lighthouse/prototype.js:18= |
+| daemon dossier | =event.op= (=create · update · remove=), =stdout= | =systems/anima/src/entities/daemon/dossier.js:132-134= |
+| readers | 14 names hand-listed twice | =systems/ghost/chrome/panes/tele.js:5= · =systems/anima/src/surface/panes/tele.jsx:8= |
+
+fault vs error today: =fault= carries a thrown Error flattened ={message, code}= and moves the Controller to FAILED; =error= carries an HTTP-ish ={status}= for a response the socket SENT, the request did not throw. Same socket request can mark both (=socket.js:198= then =:221=).
+
+The machine reads names off its own span: =prototypes/controller.js:32-45= taps =stdout.pipe=, keeps its own path, looks the name up in =MACHINE.transitions= · =MACHINE.verbs=.
+
+OTEL (=roadmap/m89-telemetry.org:369-381=, =reference/m89/research-6-otel.org:18-20=): a record = log record / span EVENT; =fault= + controller =status= = span STATUS; =level= ranked =fault ⊂ control ⊂ note ⊂ wire=; metrics: none (=patrol= rides as a note).
+* research 10-23 — two agents, whole reports in =reference/m101/=
+
+- inside =research-inside-10-23.org=: 18 names written today (+ =subject=, 0 live callers); the machine READS =open close fault pause resume stop abort= own-span, WRITES =abort stop pause resume= itself (=controller.js:49 · :60=); a failing client call logs =response {status}= · =close=, never =fault= (=transmitter.js:127-140=); the caller's =fault= has =code: null= (=ConnectionError.type=, =errors/connection.js:11=); a tool's =condition:"ERROR"= closes DONE; the server socket span never closes on error; =Record= schema exists, name =v.string()= (=primitives/controller.js:45=); best machinery = trait vocabulary + =claim= (=belt/traits.js:25=, =v.js:135=).
+- outside =research-outside-10-23.org=: open/close = the OTEL span's LIFETIME (=startSpan= · =end()=), never events; =fault= = TWO acts — an =exception= log event + =status=Error= / =error.type= only if the operation failed; a SERVER 4xx MUST leave status unset, a CLIENT 4xx SHOULD be Error, a caller's cancel is no error; span events are deprecated toward logs with =eventName= (OTEP 4430, JS 0.202); a named event carries attributes, body ≤ a display string; OTEL =entity= = a resource (service · host), not a row; state changes = ONE event name, the state an attribute (=device.app.lifecycle=); precedent: lifecycle closed · one error name · events open (Node TracingChannel · Elixir =:telemetry.span=), enforced by a registry (semconv + Weaver); otel-native blog: own Span inside is fine, export owes semconv names · ids from =path= + =traceparent= · epoch time.

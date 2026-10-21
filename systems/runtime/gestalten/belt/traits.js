@@ -1,13 +1,17 @@
-import { traits as trait } from "@vivalence/typology";
+import { traits as trait, v } from "@vivalence/typology";
 
 export const stagger = trait.stagger;
 
 const named = (name, Class) => Object.defineProperty(Class, "name", { value: name });
 const capitalize = (word) => (word ?? "runtime").charAt(0).toUpperCase() + (word ?? "runtime").slice(1).replace(/-(\w)/g, (_, c) => c.toUpperCase());
 
-export const gather = (kernel, domain, modes, kind) =>
+export const presets = Object.fromEntries(
+  Object.entries(v.traits).filter(([, table]) => table.type === "object").map(([entity, table]) => [entity, Object.entries(table.properties).map(([name, schematic]) => trait.define(name, { schematic }))]),
+);
+
+export const gather = (domain, modes, kind) =>
   trait.collide(
-    [...kernel[kind], ...(domain?.traits?.[kind] ?? []), ...modes.flatMap((mode) => mode.traits?.[kind] ?? [])].filter(
+    [...presets[kind], ...(domain?.traits?.[kind] ?? []), ...modes.flatMap((mode) => mode.traits?.[kind] ?? [])].filter(
       (held, index, all) => all.findIndex((other) => other.name === held.name) === index,
     ),
   );

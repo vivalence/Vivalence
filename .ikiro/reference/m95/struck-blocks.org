@@ -1,0 +1,39 @@
+# drained 10-22 whole from .ikiro/quests/m95-depincered-client.org (quest tidy); nothing reworded · limit: none (reference content)
+
+#+begin_src js
+// systems/anima/src/client.js — after factories.client(surface.dom)(doorDie) resolves
+const landing = new URLSearchParams(location.search).getAll("line");
+const off = clientDie.$active.listen(async (terminal) => {
+  if (terminal === null) return;
+  off();
+  for (const line of landing) await terminal.dispatch(line);
+  history.replaceState(null, "", location.pathname);
+});
+#+end_src
+
+#+begin_src sh
+# once, by hand (the demo is untrusted: read, decoded, never run)
+sed -e 's/^.*base64,//' ~/Downloads/vivalence-client-v1/build/src/viket.b64 | base64 -d > subsystems/dapper/assets/viket.png
+#+end_src
+#+begin_src js
+// subsystems/drapes/dom/Mark.jsx — the mark is a CSS mask over the current colour token; no hex (law 3)
+import viket from "@vivalence/dapper/assets/viket.png";
+export const Mark = (props) => <span class="mark" style={{ "mask-image": `url(${viket})`, "background": "var(--signal-accent)", width: `${props.size ?? 16}px`, height: `${Math.round((props.size ?? 16) * 160 / 127)}px` }} />;
+// subsystems/sheets/Mark.jsx — one glyph, the accent token
+export const Mark = (props) => <text fg={props.palette.signalAccent}>◆</text>;
+#+end_src
+#+begin_src js
+// subsystems/sheets/tests/rig.js — @opentui/core@0.5.17 ships ./testing (test-renderer · mock-keys · TestRecorder); one rig, every part test imports it
+import { createTestRenderer } from "@opentui/core/testing";
+import { render } from "@opentui/solid";
+export const screen = async (part, { width = 80, height = 24 } = {}) => {
+  const { renderer, mockInput, captureCharFrame, renderOnce } = await createTestRenderer({ width, height });
+  render(part, renderer);
+  await renderOnce();
+  return { text: () => captureCharFrame(), press: async (key) => { mockInput.pressKey(key); await renderOnce(); }, close: () => renderer.destroy() };
+};
+// subsystems/sheets/tests/meter.test.js
+const rig = await screen(() => <Meter value={0.4} />, { width: 20, height: 1 });
+specimen.expect(rig.text()).toMatch(/^████████/);
+rig.close();
+#+end_src

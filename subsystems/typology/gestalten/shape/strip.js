@@ -17,6 +17,7 @@ export const strip = (vector = new Vector(), pluck = edgeMeta) =>
     node: (f) => {
       const branches = Object.fromEntries(f.trajectories.map((c) => [c.key, c.node]));
       const node = { branches };
+      if (f.signature && f.effect === undefined && Object.keys(pluck(f.signature)).length > 0) node.meta = pluck(f.signature);
       if (f.effect !== undefined) node.effect = pluck(f.signature, f.effect);
       return f.signature ? { key: f.signature.nature, node } : node;
     },

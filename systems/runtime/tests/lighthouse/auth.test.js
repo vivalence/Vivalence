@@ -1,6 +1,6 @@
 import { specimen } from "@vivalence/typology";
 import { lighthouse } from "../scenarios/index.js";
-import { signer } from "../../lighthouse/signer.js";
+import { signer } from "../../subjects/lighthouse/signer.js";
 
 specimen.describe("Lighthouse Auth", () => {
   let scenario;

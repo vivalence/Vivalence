@@ -1,0 +1,192 @@
+# limit: none (quest reference)
+#+title: m105 — the stall hunks superseded 10-24 by gen 2 (S1 · S2 amen, /"ok. we good on the design"/)
+
+***** lifecycle/stall.js — Q3 (new)
+#+begin_src js
+// systems/ghost/subjects/terminal/lifecycle/stall.js
+import { Stall, v } from "@vivalence/typology";
+import * as belt from "../../../gestalten/belt/index.js";
+
+export const stall = async (terminalDie, next) => {
+  const off = terminalDie.terminal.$thread.subscribe((thread) => {
+    if (terminalDie.terminal.stall !== null) terminalDie.terminal.stall.deactivate();
+    if (thread === null) {
+      terminalDie.terminal.stall = null;
+      return;
+    }
+    terminalDie.terminal.stall = Stall({
+      source: thread.$buffers,
+      active: terminalDie.terminal.$buffer,
+      phase: thread.$phase,
+      pull: () => belt.thread.pull(thread),
+      depth: () => v.thread.trait(thread, "QUEUEING").depth,
+    });
+    terminalDie.terminal.stall.on.release((buffer) =>
+      terminalDie.terminal.client.runtime.entities.buffer
+        .removeOne({ id: buffer.id })
+        .catch((error) => terminalDie.controller.stdout.fault(error)),
+    );
+  });
+  try {
+    await next();
+  } finally {
+    off();
+    if (terminalDie.terminal.stall !== null) terminalDie.terminal.stall.deactivate();
+  }
+};
+#+end_src
+SKETCH (Q4 rules the pull's home): =belt.thread.pull= is anima's =aimed.pull= until ruled.
+***** prototype.js — Q3
+#+begin_src diff
+// systems/ghost/subjects/terminal/prototype.js:19
+   repl = new Repl(this);
+   legend = new Legend(this);
++  stall = null;
+   $thread = atom(null);
+#+end_src
+**** entities/thread
+***** hydration.js — Q3 (the =$phase= lookup)
+#+begin_src diff
+// systems/ghost/entities/thread/hydration.js:6
+   ctx.entity.$buffers = computed(ctx.runtime.entities.buffer.$entities, (buffers) => buffers.filter((buffer) => buffer.thread === ctx.entity));
++  ctx.entity.$phase = computed(ctx.runtime.entities.thread.$entities, () => ctx.entity.phase);
+#+end_src
+**** subjects/terminal — Q4 reframe (SKETCH, unruled)
+#+begin_src js
+// systems/ghost/subjects/terminal/stall.js
+export class Stall {
+  constructor(terminal) {
+    this.terminal = terminal;
+  }
+
+  get $buffers() {
+    return this.terminal.thread.$buffers;
+  }
+
+  get $buffer() {
+    return this.terminal.$buffer;
+  }
+
+  get $phase() {
+    return this.terminal.thread.$phase;
+  }
+}
+// systems/ghost/subjects/terminal/prototype.js:19
+  repl = new Repl(this);
+  legend = new Legend(this);
+  stall = new Stall(this);
+#+end_src
+**** subjects/terminal — Q6C · Q6D the phase vector, standalone
+***** stall.js — Q6C · Q6D
+#+begin_src js
+// systems/ghost/subjects/terminal/stall.js
+import { Vector, steer } from "@vivalence/typology";
+
+export const phases = new Vector();
+
+// phases
+//   .branch({ nature: "/inert", valence: "the mode manages its own buffers; the stall touches nothing. Example: /inert" })
+//   .do(() => {});
+
+phases
+  .branch({ nature: "/manual", valence: "an empty thread gets one blank buffer; the frame holds one of the thread's buffers. Example: /manual" })
+  .use(async (stallCtx, next) => {
+    if (stallCtx.terminal.thread.$buffers.get().length === 0)
+      await stallCtx.terminal.client.runtime.entities.buffer.create({ mode: stallCtx.terminal.thread.mode.id, thread: stallCtx.terminal.thread.id, data: {} });
+    await next();
+  })
+  .do((stallCtx) => {
+    if (stallCtx.terminal.thread.$buffers.get().includes(stallCtx.terminal.$buffer.get())) return;
+    stallCtx.terminal.$buffer.set(stallCtx.terminal.thread.$buffers.get()[0] ?? null);
+  });
+
+// phases
+//   .branch({ nature: "/continuous", valence: "the thread's emitter keeps QUEUEING.depth buffers queued; the frame holds one. Example: /continuous" })
+//   .use(async (stallCtx, next) => {
+//     if (!stallCtx.terminal.thread.traits.includes("AIMED"))
+//       throw new Error(`[stall] /continuous: thread #${stallCtx.terminal.thread.id} claims no AIMED — its traits: ${stallCtx.terminal.thread.traits.join(" · ") || "none"}`);
+//     await next();
+//   })
+//   .use(async (stallCtx, next) => {
+//     if (stallCtx.terminal.thread.$buffers.get().length < stallCtx.terminal.thread.trait.QUEUEING.depth) {
+//       const emission = await stallCtx.terminal.thread.mode.connection.call(stallCtx.terminal.thread.trait.AIMED.mount, { thread: stallCtx.terminal.thread.id, ...stallCtx.terminal.thread.trait.MASKED });
+//       for (const buffer of emission.output.buffer) await stallCtx.terminal.client.runtime.entities.buffer.merge(buffer);
+//     }
+//     await next();
+//   })
+//   .do((stallCtx) => {
+//     if (stallCtx.terminal.thread.$buffers.get().includes(stallCtx.terminal.$buffer.get())) return;
+//     stallCtx.terminal.$buffer.set(stallCtx.terminal.thread.$buffers.get()[0] ?? null);
+//   });
+
+// phases
+//   .branch({ nature: "/escort", valence: "continuous, and back to the launch buffer once the emitter runs dry. Example: /escort" })
+//   .use(async (stallCtx, next) => {
+//     await steer.dispatch.execute(phases, stallCtx, "/continuous");
+//     await next();
+//   })
+//   .do((stallCtx) => {
+//     if (stallCtx.terminal.thread.$buffers.get().length === 0) stallCtx.terminal.$buffer.set(stallCtx.terminal.stall.launch);
+//   });
+
+export class Stall {
+  refilling = null;
+
+  constructor(terminal) {
+    this.terminal = terminal;
+  }
+
+  refill() {
+    this.refilling ??= steer.dispatch
+      .execute(phases, { terminal: this.terminal }, `/${this.terminal.thread.phase}`)
+      .catch((error) => this.terminal.controller.stdout.fault(error))
+      .finally(() => (this.refilling = null));
+    return this.refilling;
+  }
+
+}
+#+end_src
+***** lifecycle/stall.js — Q6D (supersedes the Q3 beat)
+#+begin_src js
+// systems/ghost/subjects/terminal/lifecycle/stall.js
+export const stall = async (terminalDie, next) => {
+  let buffers = () => {};
+  const seated = terminalDie.terminal.$thread.subscribe((thread) => {
+    buffers();
+    if (thread === null) return;
+    buffers = thread.$buffers.subscribe(() => terminalDie.terminal.stall.refill());
+  });
+  try {
+    await next();
+  } finally {
+    seated();
+    buffers();
+  }
+};
+#+end_src
+**** subjects/terminal
+***** stall.js — Q4′
+#+begin_src js
+// systems/ghost/subjects/terminal/stall.js
+  get depth() {
+    return this.terminal.thread.trait.QUEUEING.depth;
+  }
+#+end_src
+***** stall.js — Q5
+#+begin_src js
+// systems/ghost/subjects/terminal/stall.js
+const PHASES = [
+  [(phase) => phase === "inert", () => {}],
+  [(phase) => phase === "manual", (stall, buffer) => stall.advance(buffer)],
+  [(phase) => phase === "continuous", (stall, buffer) => stall.advance(buffer).pull()],
+  [(phase) => phase === "escort", (stall, buffer) => stall.advance(buffer).pull().escort()],
+];
+
+  get $phase() {
+    return this.terminal.thread.$phase;
+  }
+
+  release(buffer) {
+    PHASES.find(([test]) => test(this.$phase.get()))[1](this, buffer);
+  }
+#+end_src

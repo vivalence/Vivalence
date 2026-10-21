@@ -1,4 +1,4 @@
-import { App, v } from "@vivalence/typology";
+import { mime, v } from "@vivalence/typology";
 
 export { harness } from "./harness.js";
 export { emitter } from "./emitter.js";
@@ -11,7 +11,9 @@ export const manifest = {
   description:
     "Conversational UI craftsman — describe any interface in chat and it is bundled live into your frame, then reshaped wish by wish.",
   version: "0.1.0",
-  traits: ["APPLICATION", "EMITTER", "HARNESSED", "GENERATIVE"],
+  traits: ["VIEWABLE", "EMITTER", "HARNESSED", "GENERATIVE"],
 };
 
-export const application = new App("buffer/Reader.svelte", v.buffer({ data: {} }));
+export const buffer = v.buffer({ data: {} });
+
+export const views = [{ slug: "reader", mount: "buffer/Reader.svelte", mime: mime.dom.svelte }];

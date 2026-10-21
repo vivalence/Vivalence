@@ -1,66 +1,66 @@
-import { Failure } from "./errors/controller.js";
-import * as is from "../gestalten/is/index.js";
 import * as promise from "../gestalten/belt/promise.js";
 import { Signal } from "./signal.js";
-import { Span } from "./span.js";
+import { Span, faulted } from "./span.js";
 import { Status } from "./status.js";
 import * as steer from "../gestalten/steer/index.js";
 import { v } from "../schematics/index.js";
 import { Vector } from "./vector.js";
 
-const said = (input) => (is.string(input) && input.length ? input : undefined);
-
 export class Controller {
   children = new Set();
-  status = null;
   gate = promise.waiter();
-  settled = null;
-  stdout = null;
-  stdin = null;
 
-  constructor({
-    stdout = new Span("controller"),
-    stdin = new Vector(),
-    status = new Status("IDLE"),
-    abort = new AbortController(),
-    parent = null,
-  } = {}) {
+  constructor({ stdout = new Span("controller"), stdin = new Vector(), status = new Status("IDLE"), abort = new AbortController(), parent = null } = {}) {
     Object.assign(this, { stdout, stdin, abort, parent, status });
     const { MACHINE } = v.primitives.controller;
+    const aborted = () => this.status.set({ code: "ABORTED", reason: this.abort.signal.reason });
 
     this.settled = new Promise((fulfil) => {
-      const untap = this.stdout.pipe.tap((record) => {
-        if (record.span !== this.stdout.id) return;
-        const from = this.status.reflection.code;
-        const code = MACHINE.transitions[record.verb]?.[from] ?? from;
-        if (code === from) return;
-        const { error } = MACHINE.verbs[record.verb];
-        this.status.set({ code, ...(error && { error: new Failure(error, record) }) });
+      const unlisten = this.status.$transient.listen((reflection) => {
+        const state = MACHINE.states[reflection.code];
+        if (!state) throw new Error(`[controller] no status ${reflection.code} in a machine of ${Object.keys(MACHINE.states).join(" · ")}`);
+        this.stdout.status({ ...reflection, error: reflection.error && faulted(reflection.error) });
         this.gate.wake();
-        if (!MACHINE.states[code].settled) return;
-        untap();
+        if (!state.settled) return;
+        unlisten();
+        this.abort.signal.removeEventListener("abort", aborted);
         this.parent?.children.delete(this);
-        for (const child of this.children) child.abort.abort(`parent ${code}`);
+        for (const child of this.children) child.abort.abort(`parent ${reflection.code}`);
         fulfil(this.toJSON());
       });
     });
 
-    const aborted = () =>
-      this.stdout.mark("abort", {
-        ...(said(this.abort.signal.reason) && { reason: this.abort.signal.reason }),
-      });
-    this.abort.signal.aborted
-      ? aborted()
-      : this.abort.signal.addEventListener("abort", aborted, { once: true });
+    this.abort.signal.aborted ? aborted() : this.abort.signal.addEventListener("abort", aborted, { once: true });
 
-    for (const [name, verb] of Object.entries(MACHINE.signals))
+    const signalled = (name, move) =>
       this.stdin.open(name, async (ctx) => {
-        verb === "abort"
-          ? this.abort.abort(said(ctx.input) ?? name)
-          : this.stdout.mark(verb, { signal: name, ...(said(ctx.input) && { reason: ctx.input }) });
+        move(ctx);
         for (const child of this.children) await child.kill(name, ctx.input);
       });
+    signalled("SIGSTOP", () => this.status.is("RUNNING") && this.status.set({ code: "PAUSED" }));
+    signalled("SIGCONT", () => this.status.is("PAUSED") && this.status.set({ code: "RUNNING" }));
+    signalled("SIGTERM", (ctx) => this.status.is(["RUNNING", "PAUSED"]) && this.status.set({ code: "STOPPING", signal: "SIGTERM", reason: ctx.input }));
+    signalled("SIGKILL", (ctx) => this.abort.abort(ctx.input ?? "SIGKILL"));
+
     this.parent?.children.add(this);
+  }
+
+  start() {
+    if (this.status.is("IDLE")) this.status.set({ code: "RUNNING" });
+    this.stdout.start();
+    return this;
+  }
+
+  stop() {
+    this.stdout.stop();
+    if (this.status.is(["RUNNING", "PAUSED", "STOPPING"])) this.status.set({ code: this.status.is("STOPPING") ? "STOPPED" : "DONE" });
+    return this;
+  }
+
+  fault(error) {
+    if (!v.primitives.controller.MACHINE.states[this.status.reflection.code].settled) this.status.set({ code: "FAILED", error });
+    this.stdout.fault(error);
+    return this;
   }
 
   branch(name) {
@@ -77,15 +77,7 @@ export class Controller {
   }
 
   toJSON() {
-    return {
-      path: this.stdout.absolute,
-      span: this.stdout.id,
-      ...this.status.reflection,
-      children: [...this.children].map((child) => child.toJSON()),
-    };
-  }
-
-  [Symbol.for("nodejs.util.inspect.custom")]() {
-    return `Controller(${this.stdout.absolute}):${this.status.reflection.code}`;
+    const { error, ...reflection } = this.status.reflection;
+    return { path: this.stdout.absolute, ...reflection, error: error && faulted(error), children: [...this.children].map((child) => child.toJSON()) };
   }
 }

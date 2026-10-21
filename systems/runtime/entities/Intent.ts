@@ -3,13 +3,6 @@ import { DataRepository, DataEntity, DataSchema } from "./index.ts";
 import { UserEntity } from "./index.ts";
 import { ModeEntity } from "./index.ts";
 
-export enum IntentTraitsEnum {
-  LABELED = "LABELED",
-  MASKED = "MASKED",
-  AIMED = "AIMED",
-  QUEUEING = "QUEUEING",
-}
-
 export class IntentRepository extends DataRepository {
   unique(opt) {
     return { slug: opt.slug, mode: opt.mode, user: opt.user };
@@ -24,7 +17,7 @@ export class IntentEntity extends DataEntity {
   name?: string;
   description?: string;
 
-  traits: IntentTraitsEnum[] & Opt = [];
+  traits: string[] & Opt = [];
   trait: any & Opt = {};
 
   [EntityRepositoryType]?: IntentRepository;
@@ -54,12 +47,7 @@ export const IntentSchema = new EntitySchema({
       deleteRule: "cascade",
     },
 
-    traits: {
-      items: () => IntentTraitsEnum,
-      enum: true,
-      array: true,
-      defaultRaw: `'[]'`,
-    },
+    traits: { type: types.json, defaultRaw: `'[]'` },
     trait: { type: types.json, defaultRaw: `'{}'` },
 
     mode: {

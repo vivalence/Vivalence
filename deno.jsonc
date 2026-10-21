@@ -2,7 +2,6 @@
   "nodeModulesDir": "auto",
   "importMap": "./import_map.json",
   "exclude": ["./testament", "./docs"],
-  "unstable": ["raw-imports"],
   "compilerOptions": {
     "jsx": "react",
     "jsxFactory": "React.createElement",
@@ -17,6 +16,7 @@
     "./subsystems/paladin",
     "./subsystems/dapper",
     "./subsystems/drapes",
+    "./subsystems/sheets",
     "./documentation",
   ],
   "tasks": {

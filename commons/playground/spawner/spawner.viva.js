@@ -1,4 +1,4 @@
-import { App, v, Vector } from "@vivalence/typology";
+import { mime, v, Vector } from "@vivalence/typology";
 
 export const manifest = {
   type: "playground",
@@ -7,11 +7,13 @@ export const manifest = {
   description:
     "Render-phase rig — the persistent hub that spawns Spawned buffers.",
   version: "0.1.0",
-  traits: ["APPLICATION", "EMITTER"],
+  traits: ["VIEWABLE", "EMITTER"],
 };
 
 // The hub is a control surface, not data — its buffer carries nothing.
-export const application = new App("buffer/Spawner.svelte", v.buffer({ data: {} }));
+export const buffer = v.buffer({ data: {} });
+
+export const views = [{ slug: "spawner", mount: "buffer/Spawner.svelte", mime: mime.dom.svelte }];
 
 export const emitter = new Vector().open(
   {

@@ -1,0 +1,15 @@
+#+title: m102 Q3 — option B, struck 10-23 (beef: /"a"/)
+# limit: none (reference)
+
+Option B. =terminal.repl.commands= holds only the terminal's own commands; =dispatch= grafts the client's and the modes' commands in on every line, as =compose= does today.
+
+#+BEGIN_SRC js
+// systems/ghost/prototypes/repl.js   inside dispatch
+      commands: new Vector().graft(
+        ...Object.values(clientCommand),
+        ...fromm.modes(this.terminal.client.modes).flat.map((mode) => mode.repl),
+        this.commands,
+        ...this.terminal.client.runtime.entities.mode.$entities.get().map(scoped),
+        ...(harnessed(this.terminal) ? [turn] : []),
+      ),
+#+END_SRC

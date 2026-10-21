@@ -12,10 +12,10 @@
   const user = atom("");
   const assistant = atom("you've sought out the oracle; brave of you.");
 
-  const storageKey = `oracle:logs:${buffer.id}`;
+  const storageKey = `oracle:records:${buffer.id}`;
   const client = new Span("oracle");
-  client.records.push(...JSON.parse(localStorage.getItem(storageKey) ?? "[]"));
-  client.pipe.tap((r) => console.log(`[oracle:]${r.path} ${r.verb ?? ""}`, r.data));
+  client.$history.set(JSON.parse(localStorage.getItem(storageKey) ?? "[]"));
+  client.pipe.tap((r) => console.log(`[oracle:]${r.path.join(" › ")} ${r.track}`, r.data));
 
   const logger = trace.live(client);
   let clientStory = $state.raw(logger.get());
@@ -27,9 +27,9 @@
   const stream = new Span("stream");
   stream.pipe.tap(serverStep);
 
-  client.pipe.tap(() => localStorage.setItem(storageKey, JSON.stringify(client.records.slice(-500))));
+  client.pipe.tap(() => localStorage.setItem(storageKey, JSON.stringify(client.history.slice(-500))));
 
-  client.branch("props").note({ terminal: terminal.id, buffer: buffer.id });
+  client.branch("props").log({ terminal: terminal.id, buffer: buffer.id });
   let busy = $state(false);
 
   // 
@@ -39,7 +39,7 @@
     busy = true;
     user.set("");
     const call = client.branch("/cortex/object");
-    call.note({ prompt });
+    call.log({ prompt });
     try {
       const request = {
         controller: new Controller({ stdout: new Span("hallucination") }),
@@ -48,9 +48,9 @@
         turns: [{ role: "user", parts: [{ type: "text", text: prompt }] }],
         output: { schema: v.object({ answer: v.string().desc("the oracle's reply") }) },
       };
-      call.note({ request });
+      call.log({ request });
       const render = await buffer.mode.daemon.cortex.hallucinate.object.render(request);
-      call.note({ render });
+      call.log({ render });
       assistant.set(render.output?.object?.answer ?? "");
     } catch (error) {
       call.fault(error);
@@ -66,13 +66,13 @@
     busy = true;
     user.set("");
     const call = client.branch("/harness/object");
-    call.note({ prompt });
+    call.log({ prompt });
     try {
       const render = await buffer.mode.harness.object.render({
         turns: [{ role: "user", parts: [{ type: "text", text: prompt }] }],
         output: v.object({ answer: v.string() }),
       });
-      call.note({ render });
+      call.log({ render });
       assistant.set(render?.output?.object?.answer ?? "");
     } catch (error) {
       call.fault(error);
@@ -112,7 +112,7 @@
     busy = true;
     user.set("");
     assistant.set("");
-    client.branch("/buffer/cortex/dialogue/turn").note(turn);
+    client.branch("/buffer/cortex/dialogue/turn").log(turn);
 
     try {
       const source = await buffer.mode.daemon.cortex.hallucinate.dialogue.stream({
@@ -129,9 +129,9 @@
           assistant.set(text);
           tokens += 1;
         } else {
-          stream.branch(packet.event).note(packet);
+          stream.branch(packet.event).log(packet);
         }
-        client.branch("/buffer/cortex/dialogue/streamed").note({ tokens, text });
+        client.branch("/buffer/cortex/dialogue/streamed").log({ tokens, text });
       }
     } catch (error) {
       client.branch("/buffer/cortex/dialogue/catch").fault(error);
@@ -148,10 +148,10 @@
     busy = true;
     user.set("");
     const call = client.branch("/aperture/render");
-    call.note({ prompt });
+    call.log({ prompt });
     try {
       const result = await buffer.mode.call.ask({ prompt });
-      call.note({ answer: result.answer });
+      call.log({ answer: result.answer });
       assistant.set(result.answer ?? "");
       if (result.trace) for (const record of result.trace) serverStep(record);
     } catch (error) {
@@ -168,12 +168,12 @@
     user.set("");
     busy = true;
     const call = client.branch("/emitter/vision");
-    call.note({ prompt });
+    call.log({ prompt });
     try {
       console.log({ prompt, thread: terminal.thread.id });
       const result = await buffer.mode.emit.vision({ prompt, thread: terminal.thread.id });
       console.log({ result });
-      call.note({ emitted: result });
+      call.log({ emitted: result });
       const visions = (terminal.thread.$buffers.get() ?? []).filter(
         (b) => b.mode?.slug === "vision",
       );
@@ -205,7 +205,7 @@
   function workload(flags, count = 1) {
     for (let at = 0; at < count; at += 1) {
       fired += 1;
-      const call = client.branch("/workload").note({ flags, at });
+      const call = client.branch("/workload").log({ flags, at });
       (async () => {
         let text = "";
         const packets = await buffer.mode.harness.dialogue.stream({
@@ -214,7 +214,7 @@
         });
         for await (const packet of packets) {
           if (packet.event === "/part/delta" && packet.delta?.text) assistant.set((text += packet.delta.text));
-          else call.note({ event: packet.event });
+          else call.log({ event: packet.event });
         }
       })().catch((error) => {
         call.fault(error);
@@ -286,7 +286,7 @@
         <span>client trace</span><span class="count">{clientStory.roots.length}</span>
       </div>
       <div class="col-body">
-        {#each clientStory.roots as node (node.id)}
+        {#each clientStory.roots as node (trace.key(node.path))}
           <Trace {node} />
         {:else}
           <div class="empty">— nothing yet —</div>
@@ -298,7 +298,7 @@
         <span>server trace</span><span class="count">{serverStory.roots.length}</span>
       </div>
       <div class="col-body">
-        {#each serverStory.roots as node (node.id)}
+        {#each serverStory.roots as node (trace.key(node.path))}
           <Trace {node} />
         {:else}
           <div class="empty">— streamed spans land here —</div>

@@ -320,7 +320,7 @@
       "slug": "dojo",
       "type": "game",
       "traits": [
-        "APPLICATION",
+        "VIEWABLE",
         "INTENTED",
         "EMITTER"
       ]

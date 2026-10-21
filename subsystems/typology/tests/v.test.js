@@ -241,7 +241,7 @@ specimen.describe("v", () => {
       data: { recall: v.string().default("LEARNING").desc("direction") },
       literals: v.array(v.literal()).desc("targets"),
     });
-    specimen.expect(schema.check({ mode: "m", data: { recall: "KNOWN" }, literals: [{ slug: "olá" }] })).toBe(true);
+    specimen.expect(schema.check({ mode: "m", thread: "t", data: { recall: "KNOWN" }, literals: [{ slug: "olá" }] })).toBe(true);
 
     const filled = v.buffer({
       data: { recall: v.string().default("LEARNING"), gameplay: v.string().default("visual") },
@@ -279,21 +279,10 @@ specimen.describe("v", () => {
     specimen.expect(v.thread({ trait: { progress: v.object({ level: v.integer() }) } })
       .check({ user: "u", mode: "m", trait: { progress: { level: 3 } } })).toBe(true);
   });
-  specimen.it("an entity reads a trait it declares — claimed and valid casts, unclaimed or invalid is bare, undeclared throws", () => {
-    specimen.expect(Object.keys(v.thread.traits)).toEqual(["INTELLIGENT", "VOCAL"]);
-    const worn = { traits: ["INTELLIGENT"], trait: { INTELLIGENT: { tune: "capable", rounds: 12 } } };
-    specimen.expect(v.thread.trait(worn, "INTELLIGENT")).toEqual({ tune: "capable", rounds: 12 });
-    specimen.expect(v.thread.trait({ traits: [], trait: { INTELLIGENT: { tune: "capable" } } }, "INTELLIGENT")).toEqual({});
-    specimen.expect(v.thread.trait({ traits: ["INTELLIGENT"], trait: { INTELLIGENT: { rounds: 99 } } }, "INTELLIGENT")).toEqual({});
-    specimen.expect(v.thread.trait(null, "VOCAL")).toEqual({});
-    specimen.expect(() => v.thread.trait(worn, "LABELED")).toThrow("no trait LABELED in a vocabulary of INTELLIGENT · VOCAL");
-  });
-  specimen.it("a user reads HOME — the mode a thread with none enters, claimed and cast", () => {
-    specimen.expect(Object.keys(v.user.traits)).toEqual(["HOME"]);
-    const homed = { traits: ["HOME"], trait: { HOME: { reference: "/daemon/italian/mode/teacher/francesca" } } };
-    specimen.expect(v.user.trait(homed, "HOME")).toEqual({ reference: "/daemon/italian/mode/teacher/francesca" });
-    specimen.expect(v.user.trait({ traits: [], trait: homed.trait }, "HOME")).toEqual({});
-    specimen.expect(v.user.trait({ traits: ["HOME"], trait: { HOME: {} } }, "HOME")).toEqual({});
+  specimen.it("an entity's vocabulary is ONE schema — its names are its properties", () => {
+    specimen.expect(Object.keys(v.thread.traits.properties)).toEqual(["LABELED", "INTELLIGENT", "VOCAL", "AIMED", "MASKED", "QUEUEING"]);
+    specimen.expect(Object.keys(v.user.traits.properties)).toEqual(["HOME", "DOCKED", "THEMED"]);
+    specimen.expect(v.thread.trait).toBeUndefined();
   });
   specimen.it("url is RFC 3986 with an authority — any scheme, localhost included, ${} defaults excluded", () => {
     for (const held of [

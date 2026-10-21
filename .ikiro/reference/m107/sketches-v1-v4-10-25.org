@@ -1,0 +1,531 @@
+#+title: m107 reference — the sketches v1–v4, the first =* as code= and the v3 review, moved whole 10-25 when the tangle was crystallized (skill quest 3)
+
+* designs — drawn 10-25 (the reply carries them)
+** C — vivalence: each ambient = schema + its commands + its atom; the repl IS the update; devices are coeffects
+
+The unit (Q0 · Q9 · Q10): an ambient is FOUR files across two homes, one shape for all —
+| part | home | is |
+|---|---|---|
+| schema | =schematics/ambients/<name>.js= | the =v.object=; =cast= seeds it, its defaults ARE the fresh screen; snapshot in =tests/ambients.snapshot.test.js= |
+| prototype | =ambients/<name>/prototype.js= | the value: =$state = atom(schema.cast(saved))=, one =computed= + one plain getter per branch, written out |
+| commands | =ambients/<name>/commands/= | a =Vector= of routes; each route's effect sets =$state=; grafted onto the client's repl at mount |
+| slot | =surfaces/chrome/ambient/index.js= | =gestalten.ambient(name, schema)= → =Provider · consume · Consumer= per chrome; anima's slot =v.interface=s the units |
+
+The laws:
+1. *the repl IS the update* — a write to an ambient is a signal through =client.terminal.repl= (keys · clicks · typed lines alike, m95 25 · m103 10-24); the trie is the =update= table, its routes the =Msg= cases (codestyle 1 · 3). No method on a prototype writes.
+2. *devices are coeffects* — =box= has NO commands: a device is an input, never an intent. mount follows it (=renderer.on("resize")= · the tick · OSC dark) and sets =client.box.$state= directly; re-frame's coeffects, Elm's subscriptions without the =Msg= detour.
+3. *the value hangs on its owner* — =client.bridge= · =client.box= · =client.telemetry= (commands reach =ctx.client.<name>=); the Provider is how the TREE reads it, never a second copy.
+4. *mount mints, app places* — =mount.jsx= seeds every ambient, follows the devices, grafts every =commands=, renders the Providers around the cover; from there every panel =consume()=s. The cover (booting · authentication) is already inside every Provider.
+5. *content ≠ presentation* (Q11 · Q11A) — an entity's ambient gives the entity untouched; what one place remembers about showing it is a SEPARATE presentation ambient; no subject or entity carries a UI field (traits excepted, =DOCKED=).
+6. *nesting mirrors the thread tree* — a frame inside =ambient.thread= that shows a child thread provides =ambient.thread= again (+ a fresh presentation); the nearest Provider wins, so a widget never knows its depth.
+7. *persist = each ambient's =JSON.stringify(state)=, keyed by name; seed = =schema.cast(saved)=* — a presentation persists only if Q11B makes it data.
+
+The set so far: =client= (m103 Q7) · =bridge= (focus · shell · sidebar{open · width · sections} · split · dock) · =box= (width · height · dark · clock) · =telemetry= (open · window · view · filter · selection · since · folds · tables) · =draft= (m103 Q8) · =terminal= · =thread= · presentation (name 11C).
+
+The boot, end to end:
+#+BEGIN_SRC jsx
+// systems/ghost/subjects/client/lifecycle/index.js:220   .use(surface) — before .use(authorized)
+clientDie.unmount = await clientDie.surface(clientDie);              // → surfaces/chrome/mount.jsx
+// mount.jsx: mint → follow → graft → provide
+client.box = new ambients.box.Box({ width: renderer.width, height: renderer.height, dark: await dark(renderer) });
+client.bridge = new ambients.bridge.Bridge(saved.bridge);
+client.telemetry = new ambients.telemetry.Telemetry(client, saved.telemetry);
+renderer.on("resize", (width, height) => client.box.$state.set({ ...client.box.state, width, height }));
+renderer.keyInput.on("keypress", (event) => client.terminal.legend.dispatch(event));
+clientDie.repl.graft(ambients.bridge.commands, ambients.telemetry.commands);
+<ambient.client.Provider value={client}> <ambient.box.Provider value={client.box}> <ambient.bridge.Provider value={client.bridge}> <ambient.telemetry.Provider value={client.telemetry}>
+  <Cover />                                                           // COVERS: booting · authentication · App
+// app.jsx: the seated terminal enters as content
+<ambient.terminal.Provider value={client.terminal}> <ambient.thread.Provider value={client.terminal.thread}>
+  <panels.headline.Headline /> <panels.sidebar.Sidebar /> <panels.frame.Frame /> <panels.dock.Dock /> …
+// a press: renderer → legend → repl → the route → $state → every consumer repaints
+"/sidebar" → ambients/bridge/commands/sidebar.js → client.bridge.$state.set(…) → panels/sidebar from(bridge.$sidebar)
+#+END_SRC
+
+* control flow — SKETCHED 10-25 (his /"giga brain architecture"/ ask; unlocked, rides Q14)
+
+10-25 his verdict on the sketch below — KEEP: instances PASSED to Providers (/"I like that we pass"/) · two tiers, root and per place (/"the correct structure"/, names ✗) · schematics imported, not passed · binding at attach as hydration does (/"we can attach"/). REJECTED: the die from the invocation site (/"an awful lot of dice cast in different places … dispatch die, oof"/) · a =Place= prototype (/"no dedicated prototype for place"/) · =root.commands= · =clientDie.surface = root= (/"super weird"/) · keys via =root.find(…).press= (/"the repl is still the key in all of this … something profoundly inverted"/) · =runWithOwner= (Solid's own name; dies with the die). The hunks stay as the record of what was struck; Q14 redraws with the repl at the centre.
+
+One act, three spellings: a Solid =Provider= in the tree · =shard.context.bind= on a Vector · =runWithOwner= at an owner — each binds a NAME over a SCOPE. The chrome provides in the tree; a dispatch reads its die FROM the tree at the place it fires from. The repl keeps no copy; the client keeps ONE handle, =client.surface=.
+
+| what | minted where | reaches widgets | reaches commands |
+|---|---|---|---|
+| =client= | =client.factory= (=subjects/client/factory.js:7=), PASSED to mount | =ambient.client.Provider= | the headless die =\{ client, terminal \}= (=repl.js:34=) |
+| =box= · =bridge= · =telemetry= (root ambients) | mount, locals | Providers around the cover | =surface.commands.use(shard.context.bind(name, value))= — the dispatch-side Provider, grafted into every repl: grafted-or-ABSENT |
+| =terminal= · =thread= · a presentation (place ambients) | the panel that OPENS the place, passed to Providers, =<Place>= innermost | nearest Provider wins | =place.die= = =ambient.die(place.owner)= read from the tree (probe: =reference/m107/precedent-control-flow-10-25.org=) |
+
+1. a Provider never mints; the instance is PASSED (/"I think it's better if we just pass"/).
+2. mount receives =clientDie= and nothing else; it mints the renderer · the root ambients · the root =Place=, and sets =clientDie.surface = root= (the one handle; today =client.surface= is the 14-atom bag, =screen.js:22=).
+3. the die comes from the invocation site: =repl.dispatch(line, die)=; no die = headless =\{ client, terminal \}= (the aperture =/terminal/:terminal/repl=, tests).
+4. a =Place= is an owner in the tree + a path; places nest = Emacs' window tree; =bridge.focus= is a PATH; keys go =renderer → client.surface.focused → place=.
+5. persist = a fold over the place tree keyed by path + the root ambients by name (answers Q11B: data IN the tree, serialized by path).
+
+#+BEGIN_SRC jsx
+// systems/ghost/gestalten/ambient.js   — the unit (m103 Q7‴) + the die read at an owner
+export const ambient = (key, schema) => {
+  const slot = createContext();
+  const consume = () => {
+    const value = useContext(slot);
+    if (value === undefined) throw new Error(`[ambient] ${key}: consumed outside its Provider`);
+    return value;
+  };
+  return { key, schema, slot, Provider: slot.Provider, consume, Consumer: (props) => props.children(consume()) };
+};
+export const die = (slots, owner) =>
+  Object.fromEntries(slots.flatMap((held) => {
+    const value = runWithOwner(owner, () => useContext(held.slot));
+    return value === undefined ? [] : [[held.key, value]];
+  }));
+
+// systems/ghost/surfaces/chrome/mount.jsx   — mint · bind · follow · provide
+const box = new ambients.box.Box({ width: renderer.width, height: renderer.height, dark: await dark(renderer) });
+const bridge = new ambients.bridge.Bridge(saved.bridge);
+const telemetry = new ambients.telemetry.Telemetry(clientDie, saved.telemetry);
+const root = new ambients.place.Place(null, "/", Object.values(ambient));
+root.commands = new Vector()
+  .use(shard.context.bind("box", box)).use(shard.context.bind("bridge", bridge)).use(shard.context.bind("telemetry", telemetry))
+  .graft(ambients.bridge.commands, ambients.telemetry.commands);
+clientDie.surface = root;
+renderer.on("resize", (width, height) => box.$state.set({ ...box.state, width, height }));
+<ambient.client.Provider value={clientDie}><ambient.box.Provider value={box}><ambient.bridge.Provider value={bridge}><ambient.telemetry.Provider value={telemetry}>
+  <ambient.place.Provider value={root}><Owned place={root}><Cover /></Owned></ambient.place.Provider>
+
+// systems/ghost/subjects/terminal/repl.js:22 · :32   — the surface's commands grafted-or-absent; the die from the caller
+get commands() { return new Vector().graft(…, ...(this.terminal.client.surface === null ? [] : [this.terminal.client.surface.commands])); }
+dispatch(line, die = { client: this.terminal.client, terminal: this.terminal }) {
+  const signal = new ReplSignal(line);
+  const replDie = { ...die, signal, runtime: die.client.runtime, controller: die.terminal.controller.branch(signal.pathname), repl: this, output: undefined };
+  return steer.dispatch.execute(execution, replDie).then(() => replDie.output);
+}
+
+// systems/ghost/surfaces/chrome/panels/frame/frame.jsx   — a nested thread frame: the same Providers again, one level down
+<ambient.thread.Provider value={child}><ambient.<presentation>.Provider value={new ambients.<presentation>.X(saved[path])}><Place path={`thread/${child.id}`}>…</Place>
+// the route: a journal command reads ctx.thread · ctx.<presentation>, never ctx.terminal.thread
+#+END_SRC
+
+** v2 — the die chain IS the ambient tree (his direction 10-25: /"create the ambience before we run mounted … keep all of the state outside the surface"/) — SKETCH
+
+What is true now: every subject boots inside its parent's die; a kleisli factory SPREADS the parent in — =terminalDie = { client, controller, terminal }= (=subjects/terminal/factory.js:6-9=), =threadDie = { client, controller, thread }= (=entities/thread/factory.js:6-9=); hydration's ctx is a Vector seeded with =bind("client")= · =bind("runtime")= (=prototypes/dataspace.js:21=); the repl's die is built by the repl from =this.terminal= (=repl.js:34-42=). The die chain is a dynamic scope that exists BEFORE and WITHOUT Solid. The surface is a die BETWEEN client and terminal; a window is the Solid publication of a terminal's die.
+
+| die | holds | minted by | today |
+|---|---|---|---|
+| =clientDie= | =client= (the Client IS the die, =factory.js:7=) | =client.factory= | ✓ |
+| =surfaceDie= | =client · box · bridge · telemetry= | lifecycle beat =surface=, BEFORE the render; =mount(surfaceDie)= only paints | ✗ — mount mints 14 atoms onto =client.surface= |
+| =terminalDie= | =…surfaceDie · terminal · controller · repl · legend= | beat =terminals= boots each terminal INSIDE the surfaceDie | boots inside =clientDie=; =repl= · =legend= are fields of the ENTITY (=prototype.js:20-21=) |
+| =threadDie= | =…terminalDie · thread · journal (the window's reading)= | the window that shows a thread; a nested frame = a nested threadDie | beat =thread= boots ONE, from =client.$terminal= (=lifecycle/index.js:173=) |
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/lifecycle/index.js:46   — the surface die minted BEFORE the paint; mount receives it
+export const surface = async (clientDie, next) => {
+  const surfaceDie = { client: clientDie, bridge: new ambients.bridge.Bridge(saved.bridge), telemetry: new ambients.telemetry.Telemetry(clientDie, saved.telemetry) };
+  surfaceDie.unmount = await clientDie.mount(surfaceDie);
+  clientDie.surface = surfaceDie;
+  try { await next(); } finally { surfaceDie.unmount(); }
+};
+// systems/ghost/subjects/client/lifecycle/index.js:147   — a terminal boots inside the surface's die
+held.set(terminal.id, terminalProcess.factory(terminal)(clientDie.surface));
+// systems/ghost/subjects/terminal/factory.js:6   — spread the parent, add the terminal, mint what runs on it
+(surfaceDie) => {
+  terminal.controller = surfaceDie.client.controller.branch(`terminal/${terminal.id}`);
+  const terminalDie = { ...surfaceDie, controller: terminal.controller, terminal };
+  return terminalDie;                                       // REJECTED 10-25: repl · legend stay on the prototype (:20-21)
+}
+// systems/ghost/subjects/terminal/repl.js:32   — no die cast at invocation: the die was cast at boot
+dispatch(input) {
+  const signal = new ReplSignal(input);
+  const replDie = { ...this.die, signal, runtime: this.die.client.runtime, controller: this.die.terminal.controller.branch(signal.pathname), repl: this, output: undefined };
+  return steer.dispatch.execute(execution, replDie).then(() => replDie.output);
+}
+// systems/ghost/surfaces/chrome/mount.jsx   — paints a die; box is the one ambient the renderer owns
+export const mount = async (surfaceDie) => {
+  const renderer = await createCliRenderer({ exitOnCtrlC: false });
+  const box = new ambients.box.Box({ width: renderer.width, height: renderer.height, dark: await dark(renderer) });
+  renderer.on("resize", (width, height) => box.$state.set({ ...box.state, width, height }));
+  return paint(renderer.root, renderer, () => <ambient.Provide die={{ ...surfaceDie, box }}><Cover /></ambient.Provide>);
+};
+// systems/ghost/surfaces/chrome/app.jsx   — a window publishes a terminal's die; a widget consumes one key
+<ambient.Provide die={terminalDie}><panels.frame.Frame /><panels.dock.Dock /></ambient.Provide>
+const terminal = ambient.terminal.consume();
+#+END_SRC
+
+Open: =client.$terminal= (the seat: =:205 seat= · =:173 thread= beat · =HOME= trait · =commands/terminal.js=) → which terminal a window shows is =bridge= data; =box= stays the renderer's (it is a device) — one ambient minted in mount, or the renderer minted in the beat; =ambient.Provide(die)= = one Provider per key vs a Provider per ambient written out.
+
+** v3 — the surface IS a vector; its effect holds the rendering (his reframe 10-25) — SKETCH, walked by =* review=
+
+His words: /"let's reconceptualize the mount as the effect on a surface vector … some sort of composition function for it, or environment where the vector is imported, where we put stuff onto the vector, then we execute and hold it. And in that environment, we could already set all of the contexts … we wouldn't yet have our terminal, not a terminal hard coded. I suspect that which terminal is being shown right now is a function of layout state. So the bridge holds the information which terminal, which tab, which terminal is active. So the app takes over picking the terminal from the data space … one more provider probably for the buffer … we pull the props from the ambient."/ · /"Our live Chrome is shit."/ (design from his framing, never from =panes/=). His sketch: =mount = async (surfaceDie = { client, }) => … <ambient.Provide.X die={{ ...surfaceDie.X }}><App /></ambient.Provide>=.
+
+Probes (=testament/prototypes/surface-vector/=): =run.js= — the die a plain object, the vector executed over it, unawaited: binds before the graft land on the die, the effect sees =["client","controller","bridge","telemetry","box"]=, =next()= runs while =RUNNING=, the abort releases the hold (=ABORTED=), =await rendering= returns after the erase. STRUCK 10-25: =surfaceDie = await monad.kleisli([…, ...shape.monad.ready(execution)])(clientDie)= (/"you have the roles of die and factory mixed up. The result of a Cleasley monad is not a die. And we don't put factries in effect. stupid."/). =graft.js= — the chrome vector grafted WHOLE into a repl: ="/"= → =MOUNT FIRED= (=vector.js:60= copies the root effect).
+
+#+BEGIN_SRC jsx
+// systems/ghost/surfaces/chrome/index.js   — the surface: a vector whose effect mounts
+export const chrome = new Vector()
+  .use(shard.controller.open)
+  .do(mount);
+
+// systems/ghost/subjects/client/lifecycle/index.js:46   — the composition: ambients bound onto a vector, the chrome grafted, executed, held
+export const surface = async (clientDie, next) => {
+  const execution = new Vector()
+    .use(shard.context.bind("bridge", new ambients.bridge.Bridge()))
+    .use(shard.context.bind("telemetry", new ambients.telemetry.Telemetry(clientDie)))
+    .graft(clientDie.surface);
+
+  const surfaceDie = { client: clientDie, controller: clientDie.controller.branch("surface") };
+
+  const rendering = steer.dispatch.execute(execution, surfaceDie);
+
+  try {
+    await next();
+  } finally {
+    surfaceDie.controller.abort.abort("client stopped");
+    await rendering;
+  }
+};
+
+// systems/ghost/surfaces/chrome/mount.jsx   — the effect: paints the die, holds, erases in its own finally
+export const mount = async (surfaceDie) => {
+  const { createCliRenderer } = await host.opentui();
+  const renderer = await createCliRenderer({ exitOnCtrlC: false });
+  const box = new ambients.box.Box({ width: renderer.width, height: renderer.height, dark: await dark(renderer) });
+
+  renderer.keyInput.on("keypress", (event) => {
+    if (event.ctrl && !event.shift && event.name === "c") Deno.kill(Deno.pid, "SIGINT");
+    if (event.sequence === "`") renderer.console.toggle();
+  });
+
+  const erase = paint(renderer.root, renderer, () => (
+    <ambient.client.Provider value={surfaceDie.client}>
+      <ambient.box.Provider value={box}>
+        <ambient.bridge.Provider value={surfaceDie.bridge}>
+          <ambient.telemetry.Provider value={surfaceDie.telemetry}>
+            <Cover />
+          </ambient.telemetry.Provider>
+        </ambient.bridge.Provider>
+      </ambient.box.Provider>
+    </ambient.client.Provider>
+  ));
+
+  try {
+    await shard.controller.hold(surfaceDie);
+  } finally {
+    erase();
+    renderer.destroy();
+  }
+};
+
+// systems/ghost/surfaces/chrome/app.jsx   — the window: the bridge names the terminal, the dataspace holds it
+export function App() {
+  const client = ambient.client.consume();
+  const bridge = ambient.bridge.consume();
+  const terminals = from(client.runtime.entities.terminal.$entities);
+  const id = from(bridge.$terminal);
+  const terminal = () => terminals().find((terminal) => terminal.id === id());
+
+  return (
+    <Show when={terminal()} keyed>
+      {(terminal) => (
+        <ambient.terminal.Provider value={terminal}>
+          <panels.headline.Headline />
+          <box style={{ flexDirection: "row", flexGrow: 1 }}>
+            <panels.sidebar.Sidebar />
+            <panels.frame.Frame />
+            <panels.dock.Dock />
+          </box>
+          <panels.modeline.Modeline />
+        </ambient.terminal.Provider>
+      )}
+    </Show>
+  );
+}
+
+// systems/ghost/surfaces/chrome/panels/frame/frame.jsx   — the frame provides the terminal's buffer
+export function Frame() {
+  const terminal = ambient.terminal.consume();
+  const buffer = from(terminal.$buffer);
+
+  return (
+    <Show when={buffer()} keyed>
+      {(buffer) => (
+        <ambient.buffer.Provider value={buffer}>
+          <widgets.buffer.Buffer />
+        </ambient.buffer.Provider>
+      )}
+    </Show>
+  );
+}
+
+// systems/ghost/surfaces/chrome/widgets/buffer/buffer.jsx   — today Mounted (panes/painters.jsx:9): the props pulled from the ambients
+export function Buffer() {
+  const terminal = ambient.terminal.consume();
+  const buffer = ambient.buffer.consume();
+  const renderer = useRenderer();
+  const [fault, setFault] = createSignal(null);
+  let element;
+  let handle = null;
+
+  onMount(() => {
+    buffer.attach();
+    view
+      .candidates(buffer, terminal.client.runtime.attach)
+      .then((views) => view.load(chosen(buffer, views), terminal.client.runtime.attach))
+      .then((module) => {
+        handle = module.default(element, { terminal, buffer, surface: { renderer, palette: tokens.camel(terminal.client.theme, BODY) } });
+      })
+      .catch((error) => setFault(error.message));
+  });
+  onCleanup(() => {
+    if (handle !== null) handle.destroy();
+    buffer.detach();
+  });
+  …
+}
+
+// systems/ghost/subjects/terminal/repl.js:32   — client · terminal reach the repl die through the entity, unchanged; the surface's ambients: OPEN
+dispatch(input) {
+  const signal = new ReplSignal(input);
+  const replDie = { signal, client: this.terminal.client, runtime: this.terminal.client.runtime, terminal: this.terminal, controller: this.terminal.controller.branch(signal.pathname), repl: this, output: undefined };
+  return steer.dispatch.execute(execution, replDie).then(() => replDie.output);
+}
+#+END_SRC
+
+Flags: the seat (=lifecycle/index.js:205= sets =client.$terminal=) never writes =bridge= — a fresh =bridge.terminal= is =null=, =App= shows nothing · =Client.theme= reads =this.surface.dark= (=prototype.js:68=) — a Vector has no =.dark=, every theme = porcelain · =box= is not followed (resize · the clock tick, =index.js:41-46=) — it freezes at mount values · his =die={{ ...surfaceDie.X }}= spreads an instance: own fields copied, the prototype's getters (=bridge.sidebar=) lost — the hunk PASSES the instance (his KEEP) · keys (Q15): no listener here sends a press to a terminal's legend · =surface.place= dropped from the view contract: no view in the repo or =~/.viva/registry= reads it.
+
+** v4 — a subject =app= (his rename of =root=, 10-25): the trunk; its execution's effect mounts the surface in its die (his reframe 10-25, an /"i suspect"/) — SKETCH → S1 drilling (Q20 locked · Q21 open), walked by =* review v4=
+
+His words: /"What if we create a new subject, root? And root is whatever surface we are mounting … It's where we hand over to the mount … Root is the one context that we provide to our Chrome. It holds the client. And that's it. The client does not have $terminal. which terminal is active is a function of the state of our Chrome. The root has the entire state, box, bridge, and client. And I suspect box to be kind of empty in the beginning … within the root, we mount our devices onto this, but that comes later … this whole ghost client is a tree, and that it has its roots, and then it goes up into the trunk, this one central core point, and then from that all of the branches and the leaves grow … this singular point, we're gonna make that a subject, we're gonna make that a proper entity. It's what we instantiate and where we have our teardown. And the effect of that execution is going to be the mounting of whatever surface we put into the root die. So the root die has the client, it has the surface, probably has a controller … there we also do the bundling step we can already do in there as part of its life cycle."/
+
+Probe =testament/prototypes/app-subject/run.js= (green 10-25; renamed off =root= at the fold): the factory hands back an =App= (the thing; the execution runs over it as today's =Client= is its own die, =client/factory.js:10,17=); =surface.mount= sees =["client","surface","controller","box","bridge"]=; the =bundle= beat logs =outfile · bytes= before mount; abort → =ABORTED client stopped=, the erase runs after.
+
+#+BEGIN_SRC jsx
+// systems/ghost/subjects/app/prototype.js   — Locked Q20: the trunk, named app; box · bridge its OWN prototypes (subjects/app/prototypes/), not ambients; surface off the client
+import { Box } from "./prototypes/box.js";
+import { Bridge } from "./prototypes/bridge.js";
+
+export class App {
+  client = null;
+  surface = null;
+  controller = null;
+  box = new Box();
+  bridge = new Bridge();
+
+  constructor(app) {
+    Object.assign(this, app);
+  }
+}
+
+// systems/ghost/subjects/shell/commands/chrome.js   — Q22A his fix: the factory kicks the client off (a state machine, not awaited); the app is minted with the client as context and EXECUTED
+const execution = new Vector()
+  .use(seat)
+  .use(ledger)
+  .use(boot)
+  .do(async (shellDie) => {
+    const client = await clientProcess.factory(shellDie);
+    client.app = new appProcess.App({ client, surface: surfaces.chrome, controller: shellDie.controller.branch("app") });
+    await steer.dispatch.execute(appProcess.lifecycle.execution, client.app);
+  });
+
+// systems/ghost/subjects/client/factory.js   — Q23′ KEPT, reshaped: mint · dispatch · hand back at RUNNING (shape.monad.ready, as terminal/factory.js:10), never awaiting the run
+export const factory = monad.kleisli([
+  (shellDie) => new Client({ controller: shellDie.controller.branch("client"), mask: shellDie.mask, register: shellDie.register, instance: shellDie.instance }),
+  ...shape.monad.ready(execution),
+]);
+
+// systems/ghost/subjects/app/lifecycle/index.js   — the app's execution: open · client · bundle · mount · HOLD the app
+export const execution = new Vector()
+  .use(shard.controller.open)
+  .use(client)
+  .use(bundle)
+  .use(mount)
+  .do(shard.controller.hold);
+
+// systems/ghost/subjects/app/lifecycle/client.js   — the teardown lives on the app: it lives as long as its client; its end aborts the client
+export const client = async (appDie, next) => {
+  const ended = appDie.client.controller.settled.then(() => appDie.controller.abort.abort("client stopped"));
+  try {
+    await next();
+  } finally {
+    appDie.client.controller.abort.abort("app stopped");
+    await ended;
+  }
+};
+
+// systems/ghost/subjects/app/lifecycle/bundle.js   — the bundling beat: the surface writes its bundle before anything paints
+export const bundle = async (appDie, next) => {
+  const written = await appDie.surface.bundle();
+  appDie.controller.stdout.log({ bundle: written.outfile, bytes: written.bytes });
+  await next();
+};
+
+// systems/ghost/subjects/app/lifecycle/mount.js   — a beat: mounts whatever surface sits in the app die; the hold runs as next(); erases in its own finally
+export const mount = async (appDie, next) => {
+  const unmount = await appDie.surface.mount(appDie);
+  try {
+    await next();
+  } finally {
+    unmount();
+  }
+};
+
+// systems/ghost/surfaces/index.js   — his tree has no chrome/index.js: the surface is a LITERAL on the barrel — bundle + mount; mount imports the bundle the beat wrote
+import paladin from "@vivalence/paladin";
+import { bundle, outfile } from "./chrome/bundle.js";
+
+export const chrome = {
+  bundle,
+  mount: async (appDie) => {
+    if (!paladin.is.tty) throw new Error("chrome needs a terminal — run it in one");
+    const app = await import(outfile);
+    return app.mount(appDie);
+  },
+};
+
+// systems/ghost/surfaces/chrome/bundle.js:5   — the entry is mount.jsx, the output bundle/app.mjs (his tree)
+const entry = new URL("./mount.jsx", import.meta.url);
+export const outfile = new URL("./bundle/app.mjs", import.meta.url);
+
+// systems/ghost/surfaces/chrome/ambient/index.js   — the one ambient the chrome gets (m103 Q7 unit)
+export const app = gestalten.ambient("app", v.unknown().desc("The App: client · surface · controller · box · bridge. Example: ambient.app.consume().client"));
+
+// systems/ghost/surfaces/chrome/mount.jsx   — the bundle's ENTRY: the renderer, ONE Provider — the app; keys (Q15) · box devices (Q20′) not here yet
+import { host } from "@vivalence/sheets";
+import * as ambient from "./ambient/index.js";
+import { paint } from "./paint.js";
+import { Cover } from "./cover.jsx";
+
+export const mount = async (appDie) => {
+  const { createCliRenderer } = await host.opentui();
+  const renderer = await createCliRenderer({ exitOnCtrlC: false });
+  renderer.keyInput.on("keypress", (event) => {
+    if (event.ctrl && !event.shift && event.name === "c") Deno.kill(Deno.pid, "SIGINT");
+    if (event.sequence === "`") renderer.console.toggle();
+  });
+  const erase = paint(renderer.root, renderer, () => (
+    <ambient.app.Provider value={appDie}>
+      <Cover />
+    </ambient.app.Provider>
+  ));
+  return () => {
+    erase();
+    renderer.destroy();
+  };
+};
+#+END_SRC
+
+Flags: Box · Bridge are placeholders (Q20′; anima =@--= snapshots later) · =Client.unmount= → =Client.app= (=prototype.js:31=) · =Client.surface= (=:30=) OFF the client → =App.surface= (Q20) · =Client.theme= reads =this.surface.dark= (=:66=) → =this.app.box.dark= once a device fills box · his tree (=reference/m107/filetrees-10-25.org:505=): the bundle entry is =chrome/mount.jsx=, the output =chrome/bundle/app.mjs=, =outfile= exported from =bundle.js=; =views.js= · =chrome/index.js= GONE, the surface ={ bundle, mount }= rides =surfaces/index.js= · =client.$terminal= goes (his): =cover.jsx:20= · =world.js:24= · =seat= (=:205=) · the =thread= beat (=:173=) read it — the bridge names the terminal (v3 =app.jsx= stands) · =chrome.js:8= =.do(client.factory(surfaces.chrome))= stays Q19 · a bundle at every launch runs esbuild+babel in the client process (today a hand =deno task ghost/bundle=).
+
+* as code
+
+*** systems/ghost
+**** ambients/bridge/index.js — Locked Q0 · home Q2 - example
+#+BEGIN_SRC js
+// systems/ghost/ambients/bridge/index.js   ← Locked Q0: /"c."/ — schema + commands; anima overrides the units via v.interface (m103 Q6″)
+export const Bridge = v.object({
+  focus: v.enum(["sidebar", "frame", "journal", "composer"]).default("composer").desc('Which region holds the keys. Example: "frame"'),
+  sidebar: v.object({ open: v.boolean().default(false), width: v.number({ minimum: 38, maximum: 56 }).default(39) }),
+  split: v.object({ share: v.number({ minimum: 0, maximum: 1 }).default(0.5) }),
+});
+
+export const commands = new Vector()
+  .open({ nature: "/sidebar", valence: "toggle the sidebar. Example: /sidebar" }, (ctx) =>
+    ctx.client.bridge.$state.set({ ...ctx.client.bridge.state, sidebar: { ...ctx.client.bridge.sidebar, open: !ctx.client.bridge.sidebar.open } }),
+  )
+  .open({ nature: "/focus/:region", valence: "give a region the keys. Example: /focus/frame" }, (ctx) =>
+    ctx.client.bridge.$state.set({ ...ctx.client.bridge.state, focus: ctx.params.region }),
+  );
+#+END_SRC
+**** ambients/box/index.js — Locked Q0
+#+BEGIN_SRC js
+  // systems/ghost/ambients/box/index.js   ← Locked Q0 — the device: no commands, a device is an input never an intent
+  export const Box = v.object({
+    width: v.number().desc("Columns. Example: 120"),
+    height: v.number().desc("Rows. Example: 40"),
+    dark: v.boolean().desc("Is the background dark. Example: true"),
+    clock: v.number().default(0).desc("Spinner ticks. Example: 3"),
+  });
+  // ...
+#+END_SRC
+**** ambients/telemetry/index.js — Locked Q3
+#+BEGIN_SRC js
+// systems/ghost/ambients/telemetry/index.js   ← Locked Q3: /"b"/ — the window and its reading; commands from subjects/terminal/commands/telemetry.js:20
+export const Telemetry = v.object({
+  open: v.boolean().default(false),
+  window: v.object({ x: v.number().default(0), y: v.number().default(3), width: v.number().default(77), height: v.number().default(23) }),
+  view: v.enum(["logger", "inspector"]).default("logger").desc('Which tab the window shows. Example: "inspector"'),
+  filter: v.string().default("all").desc('Which tracks the logger shows. Example: "fault"'),
+  selection: v.string().nullable().default(null).desc("The selected record's id. Example: \"7\""),
+  since: v.number().default(0).desc("The logger shows records after this time. Example: 1729850000000"),
+});
+export const commands = new Vector() // ...;
+// systems/ghost/surfaces/chrome/mount.jsx
+const telemetry = new Telemetry();
+<ambient.telemetry.Provider value={telemetry}>
+#+END_SRC
+**** ambients/telemetry/prototype.js · ambients/bridge/prototype.js — Locked Q9
+#+BEGIN_SRC js
+// systems/ghost/ambients/telemetry/prototype.js   ← Locked Q9: /"b"/ — m105's Telemetry (subjects/client/telemetry.js) moved, $state added
+export class Telemetry {
+  constructor(client, saved) {
+    this.client = client;
+  }
+  get $inspector() { }
+  get $logger() { return this.client.controller.stdout.$history; }
+}
+// systems/ghost/ambients/bridge/prototype.js — the same shape
+export class Bridge {
+  constructor(saved) {
+    this.$state = atom(schema.Bridge.cast(saved));
+    this.$sidebar = computed(this.$state, (state) => state.sidebar);
+  }
+  get sidebar() { return this.$sidebar.get(); }
+}
+**** schematics/ · ambients/ · tests/ — Locked Q10
+#+BEGIN_SRC text
+// systems/ghost/   ← Locked Q10: /"b"/
+schematics/
+  index.js            export * as ambients from "./ambients/index.js";
+  ambients/           index.js · bridge.js · box.js · telemetry.js
+ambients/terminal
+ambients/client
+ambients/bridge/      index.js · prototype.js · commands/{index,sidebar,focus,split}.js
+ambients/box/         index.js · prototype.js
+ambients/telemetry/   index.js · prototype.js · commands/{index,telemetry}.js
+tests/
+  ambients.snapshot.test.js            one snapshot per ambient schema
+  ambients/bridge/commands.test.js     /sidebar flips sidebar.open · /focus/frame sets focus · source state is not mutated
+// systems/anima/src/surfaces/chrome/ambient/index.js
+import { schematics } from "@vivalence/ghost";
+export const bridge = gestalten.ambient("bridge", v.interface([schematics.ambients.Bridge], { sidebar: AnimaSidebar }));
+#+END_SRC
+**** surfaces/chrome/mount.jsx — Locked Q0 · Q8
+#+BEGIN_SRC jsx
+// systems/ghost/surfaces/chrome/mount.jsx   ← Locked Q8: /"mount.jsx."/ — mints, follows the device, grafts, provides
+box = ambient.seed(Box, { width: renderer.width, height: renderer.height, dark: await dark(renderer) });
+bridge = ambient.seed(Bridge, saved.bridge);
+renderer.on("resize", (width, height) => box.$state.set({ ...client.box.state, width, height }));
+renderer.keyInput.on("keypress", (event) => client.terminal.legend.dispatch(event));
+clientDie.repl.graft(ambients.bridge.commands);
+<ambient.client.Provider value={client}>
+  <ambient.box.Provider value={box}>
+    <ambient.bridge.Provider value={bridge}>
+      <Cover />
+    </ambient.bridge.Provider>
+  </ambient.box.Provider>
+</ambient.client.Provider>
+#+END_SRC
+**** surfaces/chrome/panels/sidebar/sidebar.jsx — Locked Q0
+#+BEGIN_SRC jsx
+// systems/ghost/surfaces/chrome/panels/sidebar/sidebar.jsx   ← Locked Q0 — a widget reads its ambient, never a prop
+const bridge = ambient.bridge.consume();
+const sidebar = from(bridge.$sidebar);
+<box style={{ width: sidebar().width }} />
+#+END_SRC
+
+* review — 10-25 (v3, his /"show-me your intended mount.jsx … the handover … the repl die … the node in the tree … the buffer in frame"/)
+| S | stop | rides | verdict | his words |
+|---|---|---|---|---|
+| 1 | the handover: the beat binds the ambients onto a vector, grafts the chrome, executes, holds | v3 · Q16 | — (re-shown ×2) | /"Door is a fucking prohibited term"/ · /"The result of a Cleasley monad is not a die. And we don't put factries in effect."/ |
+| 2 | =mount.jsx= in full: the effect paints the die and holds | v3 · Q8 | — | |
+| 3 | =app.jsx=: the bridge names the terminal, the dataspace holds it | v3 · Q11C | — | |
+| 4 | the frame provides the buffer; =Buffer= pulls its props from the ambients | v3 · Q11A | — | |
+| 5 | the repl die: client · terminal through the entity; the surface's ambients OPEN | v3 · Q14 | — | |
+v3 S1–S5 superseded 10-25 by his v4 reframe before a verdict; S3 (=app.jsx=) · S4 (the frame's buffer) · S5 stand as hunks under =** v3=.
+

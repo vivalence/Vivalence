@@ -1,0 +1,292 @@
+#+title: m104 drill 10-24 — the open notes and every lock's snippet as drilled, moved whole when the tangle was cut
+# limit: none (reference)
+
+** open
+
+- Q0 10-24 /"show c. without terminal.commands at all. client.repl.commands are built ad hoc"/ — SKETCH C below, unlocked. Open inside it: a runtime tool's =POST /terminal/:terminal/repl= names a terminal that may not be the active one; =commands= reads the active.
+
+- 10-24 /"fix first. c looks great"/ — Q0′ asks how a named terminal reaches the Repl (A: a second positional, =commands(terminal)= a method · B: the Repl reads an atom, the route mints =new Repl(clientDie, atom(ctx.terminal))=); C locks with it.
+
+- 10-24 Q0′ /"neither. any way to rework /terminal/:terminal/repl ?"/ — Q0″: the route's two readers are =systems/runtime/subjects/mode/traits/looping.js:6-7= (a harness turn, =ctx.terminal= from =harnessed.js:28-29=). A: the terminal is a PATH in the commands tree (=/terminal/:terminal/…=, like =/mode/<type>/<slug>=), the route becomes the client's =/repl= · =/metadata/repl= · B: the route drops the terminal, a tool line runs on the active terminal. Probe owed for A: =steer.dispatch.execute= (=gestalten/steer/dispatch.js:9-13=) hands no =params=; the Repl's execution must read =fromm.match(steps).parameters= itself.
+
+- 10-24 Q0″ /"Yeah, no. I think this is the wrong direction. Maybe both the legend and the REPL need to go on the terminal instead."/ — reframe; Q0‴ re-asks the HOME with his word: A both on the terminal (=terminal.repl= · =terminal.legend=, each tree a getter built at read) · B both on the client (sketch C + the =/terminal/:terminal/…= path). The route =/terminal/:terminal/repl= stands under A.
+
+- 10-24 Q0‴ /"One thing that I don't like is there's this incoherence between the key map and the commands. Why is the key map on the terminal prototype and the commands on the REPL prototype? … I want one coherent solution to both. I mean, they're both kind of the same thing, just with a little bit different internals."/ → Q1.
+
+- LOOKUP from Q0 (the tree's style): a painter follows the active terminal's legend by =belt.atom.chain(client.$activeTerminal, "legend", "$chord")= — precedent =systems/ghost/surfaces/chrome/panes/chrome.jsx:112-113= · =anima/src/surface/panes/tele.jsx:246=.
+
+- 10-24 Q4 /"This is a absolute non-case. There's always a terminal. And pressing a key while there isn't a terminal doesn't make sense. We don't have access to the client before it's authorized and connected. So there is never a case where there is no terminal. And it also doesn't make sense that the terminal switches while we are in the midst of a series of keys. And if it were to happen, then I'd expect the queue to apply the key press queue in the legend to apply to whatever is the currently active terminal. And if there's none, then we do what we always do, and that's just run the legend equivalent of a 404. We collapse, nothing has happened."/ — reframe, Q4′: A the surface forwards to =client.activeTerminal.legend= at press, no null arm; a held chord stays with the terminal that holds it · B one queue walks whichever terminal is active (reopens Q0's Legend home).
+
+*** SKETCH Q0 · C — no terminal tree; =client.repl.commands= is a getter
+
+#+BEGIN_SRC js
+// systems/ghost/prototypes/repl.js
+import paladin from "@vivalence/paladin";
+import { ReplSignal, Vector, fromm, shard, steer } from "@vivalence/typology";
+import * as clientCommand from "../subjects/client/commands/index.js";
+import * as terminalCommand from "../subjects/terminal/commands/index.js";
+
+export const execution = new Vector()
+  .use(shard.controller.open)
+  .do((replDie) => steer.dispatch.execute(replDie.repl.commands, replDie, replDie.signal));
+
+export class Repl {
+  constructor(client) {
+    this.client = client;
+  }
+
+  get commands() {
+    const { shell, quit, ...everywhere } = clientCommand;
+    const terminal = this.client.activeTerminal;
+    const commands = new Vector().graft(
+      ...Object.values(everywhere),
+      ...(paladin.is.tty ? [shell, quit] : []),
+      ...fromm.modes(this.client.modes).flat.map((mode) => mode.repl),
+      ...(terminal === null ? [] : Object.values(terminalCommand)),
+    );
+    for (const mode of this.client.runtime.entities.mode.$entities.get()) {
+      commands.branch(`/mode/${mode.type}/${mode.slug}`, mode.repl);
+      commands.branch(`/mode/${mode.slug}`, mode.repl);
+    }
+    return commands;
+  }
+
+  dispatch(line) {
+    const signal = new ReplSignal(line);
+    const terminal = this.client.activeTerminal;
+    const replDie = {
+      signal,
+      client: this.client,
+      runtime: this.client.runtime,
+      terminal,
+      controller: (terminal === null ? this.client.controller : terminal.controller).branch(signal.pathname),
+      repl: this,
+      output: undefined,
+    };
+    return steer.dispatch.execute(execution, replDie).then(() => replDie.output);
+  }
+}
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/prototype.js
++import { Repl } from "../../prototypes/repl.js";
+…
+-    .open("/metadata/repl", (ctx) => shape.strip(ctx.terminal.repl.commands))
+-    .post({ nature: "/repl", input: v.primitives.harness.Signal }, (ctx) => ctx.terminal.repl.dispatch(new ReplSignal(ctx.input)));
++    .open("/metadata/repl", (ctx) => shape.strip(clientDie.repl.commands))
++    .post({ nature: "/repl", input: v.primitives.harness.Signal }, (ctx) => clientDie.repl.dispatch(new ReplSignal(ctx.input)));
+…
+   keymap = new Vector();
++  repl = new Repl(this);
++  legend = new Legend(this);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/prototype.js
+-  repl = new Repl(this);
+…
+   get keymap() {
+-    return new Vector().graft(this.client.keymap, shard.keymap.fromRepl(this.repl.commands), …);
++    return new Vector().graft(this.client.keymap, shard.keymap.fromRepl(this.client.repl.commands), …);
+   }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/lifecycle/index.js
+-export const commands = async (terminalDie, next) => { … terminalDie.terminal.repl.commands = commands; … };
+-export const execution = new Vector().use(shard.controller.open).use(commands).do(shard.controller.hold);
++export const execution = new Vector().use(shard.controller.open).do(shard.controller.hold);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/prototypes/legend.js (m99)
+-    if (ctx.output !== undefined) await this.client.activeTerminal.repl.dispatch(ctx.output);
++    if (ctx.output !== undefined) await this.client.repl.dispatch(ctx.output);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/acts.js:4
+-export const send = (client, line) => client.active.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
++export const send = (client, line) => client.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
+// systems/anima/src/surface/send.js:1 — the same line
+#+END_SRC
+
+** as code (drill hunks)
+
+*** Q0 — both on the terminal
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/prototype.js
+   repl = new Repl(this);
++  legend = new Legend(this);
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/lifecycle/index.js
+-export const commands = async (terminalDie, next) => { … terminalDie.terminal.repl.commands = commands; … };
+-export const execution = new Vector().use(shard.controller.open).use(commands).do(shard.controller.hold);
++export const execution = new Vector().use(shard.controller.open).do(shard.controller.hold);
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/legend.js (m99's prototypes/legend.js, its client → the terminal)
+  traverse(presses) {
+    …
+    const [effect, carry, steps, node] = steer.dispatch.traverse(this.terminal.keymap, new KeySignal(keys));
+    …
+  }
+  async execute(effect, carry) {
+    …
+    if (ctx.output !== undefined) await this.terminal.repl.dispatch(ctx.output);
+  }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/acts.js:4 · systems/anima/src/surface/send.js:1
+-export const send = (client, line) => client.active.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
++export const send = (client, line) => client.activeTerminal.repl.dispatch(line).catch((error) => client.controller.stdout.fault(error));
+#+END_SRC
+
+*** Q1 — each object owns its tree
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/repl.js
+export class Repl {
+  constructor(terminal) {
+    this.terminal = terminal;
+  }
+
+  get commands() {
+    const { shell, quit, ...everywhere } = clientCommand;
+    const commands = new Vector().graft(
+      ...Object.values(everywhere),
+      ...(paladin.is.tty ? [shell, quit] : []),
+      ...fromm.modes(this.terminal.client.modes).flat.map((mode) => mode.repl),
+      ...Object.values(terminalCommand),
+    );
+    for (const mode of this.terminal.client.runtime.entities.mode.$entities.get()) {
+      commands.branch(`/mode/${mode.type}/${mode.slug}`, mode.repl);
+      commands.branch(`/mode/${mode.slug}`, mode.repl);
+    }
+    return commands;
+  }
+}
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/legend.js
+export class Legend {
+  constructor(terminal) {
+    this.terminal = terminal;
+  }
+
+  get keymap() {
+    return new Vector().graft(
+      this.terminal.client.keymap,
+      shard.keymap.fromRepl(this.terminal.repl.commands),
+      ...(is.object(this.terminal.mode) ? [this.terminal.mode.keymap] : []),
+    );
+  }
+}
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/terminal/prototype.js:22
+-  $keymap = computed(this.$thread, (thread) => new Vector().graft(harvest(this.repl.commands), this.client.keymap, ...(thread !== null && is.object(thread.mode) ? [thread.mode.keymap] : [])));
+-  get keymap() {
+-    return this.$keymap.get();
+-  }
+#+END_SRC
+
+*** Q2 — the client's share from imports, at build
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/legend.js
+import * as clientKeymap from "../client/keymap.js";
+
+  get keymap() {
+    return new Vector().graft(
+      clientKeymap.keymap,
+      ...fromm.modes(this.terminal.client.modes).flat.map((mode) => mode.keymap),
+      shard.keymap.fromRepl(this.terminal.repl.commands),
+      ...(is.object(this.terminal.mode) ? [this.terminal.mode.keymap] : []),
+    );
+  }
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/lifecycle/index.js:34
+-export const keymap = async (clientDie, next) => {
+-  clientDie.keymap.graft(bound, ...fromm.modes(clientDie.modes).flat.map((held) => held.keymap));
+-  await next();
+-};
+// systems/ghost/subjects/client/prototype.js:25
+-  keymap = new Vector();
+#+END_SRC
+
+*** Q3 — the palette's listing on the Repl
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/repl.js
+export class Repl {
+  $catalog = atom(null);
+
+  get catalog() {
+    return this.$catalog.get();
+  }
+  …
+}
+#+END_SRC
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/client/keymap.js
+const palette = (terminal, prefill) => {
+  terminal.repl.$catalog.set(shard.keymap.catalog(terminal.repl.commands));
+  terminal.client.surface.$draft.set(prefill);
+  terminal.client.surface.$focus.set("composer");
+};
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/subjects/client/prototype.js:32
+-  $catalog = atom(null);
+// systems/ghost/surfaces/chrome/panes/chrome.jsx:145
+-  const catalog = from(client.$catalog);
++  const catalog = from(belt.atom.chain(client.$activeTerminal, "repl", "$catalog"));
+#+END_SRC
+
+*** Q4 — the press goes to the active terminal's Legend
+
+#+BEGIN_SRC js
+// systems/ghost/surfaces/chrome/keys.js
+export const keypresses = (renderer, client) => {
+  const listener = (event) => client.activeTerminal.legend.dispatch(event);
+  renderer.keyInput.on("keypress", listener);
+  renderer.once("destroy", () => renderer.keyInput.off("keypress", listener));
+};
+#+END_SRC
+
+#+BEGIN_SRC diff
+// systems/ghost/surfaces/chrome/acts.js:30
+-  press: (client, key) => client.presses.enqueue({ key }),
++  press: (client, key) => client.activeTerminal.legend.dispatch(key),
+#+END_SRC
+
+*** Q5 — the attached mode at the root; no scoped commands
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/terminal/repl.js
+  get commands() {
+    const { shell, quit, ...everywhere } = clientCommand;
+    return new Vector().graft(
+      ...Object.values(everywhere),
+      ...(paladin.is.tty ? [shell, quit] : []),
+      ...fromm.modes(this.terminal.client.modes).flat.map((mode) => mode.repl),
+      ...Object.values(terminalCommand),
+      ...(is.object(this.terminal.mode) ? [this.terminal.mode.repl] : []),
+    );
+  }
+#+END_SRC
+
+Blast (Q5): =systems/ghost/tests/subjects/terminal/repl.test.js:107-115= (=/mode/home/probe/*= · =/mode/probe/*=) · =tests/subjects/client/client.test.js:53,60= (=/mode/memo/harness ciao= → =/harness ciao= on a memo-attached terminal) · the =/harness= valence =entities/mode/traits/harnessed.js:34= ("compose scopes it under /mode/<type>/<slug>").

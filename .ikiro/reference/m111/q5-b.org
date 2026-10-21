@@ -1,0 +1,8 @@
+# m111 Q5 option B — struck 10-27 (his /"a"/) · limit: 800 chars
+#+BEGIN_SRC js
+// systems/ghost/subjects/app/commands/focus.js:4 — the keys to a panel, or to one named cell
+const Focused = v.object({
+  panel: v.enum(["composer", "frame", "cell"]).optional().desc('The panel the keys go to. Example: "cell"'),
+  name: v.string().optional().desc('The cell\'s buffer, when the panel is cell. Example: "play #1"'),
+});
+#+END_SRC

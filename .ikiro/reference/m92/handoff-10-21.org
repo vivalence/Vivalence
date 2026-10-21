@@ -1,0 +1,10 @@
+# drained 10-22 whole from .ikiro/quests/m92-keymap.org (quest tidy); nothing reworded · limit: none (reference content)
+
+* handoff
+
+- goal: a keymap vector beside the repl, walked press by press, hidden behind ctrl-v; modes supply keymaps by trait, plain-grafted; the catalog on the double leader.
+- done 10-21 (session 7, m96 LANDED): 1 the typology hunks (=walk.test.js= · =fire.test.js= complete; =KeySignal=; =errors/vector.js= =Dropped=) · 2 the press and the shard (=client/keymap.js= harvest · catalog · keymap · =navigate(terminal, drain)= → true/false · =$chord=; =client.presses= one Queue; =compose= DIES for =terminal.$keymap=; =shard/repl.js= ruling 4) · 4 KEYMAPPED (binds =mode= per LEAF; remote throws until =view.load=) · 3 · 5 → m95 5 (=chord.jsx= · =catalog.jsx= over sheets; ghost =bundle.js= inlines sheets) · =keymap.test.js= 6 its · =console.test.js= =leader/m/h= · =chrome.test.js= =ctrl-v ctrl-v=. Validator: 0 LOST; coverage keymap.js 100 · dispatch 93.7 · keymapped 94.1 · terminal 89.7; two coverage tests under =scratchpad/validate/=. Rulings 0–12 and the drills stand in =* the dialogue=.
+- next: a =Closed= walk error or the boolean (his call) · =shape.strip= =edgeMeta= without =chord= (HOLY — the catalog reads =rollup=; =/help= cannot show chords) · B · user rebinding · the chord in =/help= (deferred) · the backtick console toggle stays a raw renderer listener (the keymap's ctx cannot reach =renderer.console=) · =terminal.$keymap= stale if a repl is grafted after its first =get()= (nanostores) · a runtime mode's =keymap= reaching =mode.keymap= once =view.load= lands (chess =board/play= exports one now, on the registry copy).
+- never: client · terminal · mode logic under =gestalten/= · a physical chord as a keymap nature (=leader= only) · keys as repl lines =/key/…= · a timer on the walk · a keymap served over the wire.
+- owed: the blast table =fire(= row 7 → 8 (=shape/primer.js:23=, m83) · milestones 3 · 5 lines "MOVED to m95" → LANDED at m95 5 · =keys.test.js= no =ctrl-v= row · =chrome/index.js:32-68= the pty door (take the renderer factory as its HOME) · a sourcemap on =bundle.js= so pane coverage attributes.
+

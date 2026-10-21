@@ -124,6 +124,11 @@ export class RemoteRepository {
     return await this.merge(result);
   }
 
+  async bundle(data = {}) {
+    const result = await this.connection.call("/bundle", { data });
+    return await this.merge(result);
+  }
+
   async updateOne(where = {}, data = {}) {
     const result = await this.connection.call("/updateOne", { where, data });
     return await this.merge(result);

@@ -94,7 +94,7 @@ What changed the QUESTION while this quest sat:
   =?token= (:12-14), =ctx.identity= (:29), =ctx.user= (:40). A commented
   =setFilterParams= at :62 shows the bind was once considered in-shard.
 - ORM filter =user= is declared =default:true= on Thread (=entities/userspace/Thread.ts:56-61=,
-  now under =systems/runtime/daemon/entities/=), Intent, Buffer (conds through the thread
+  now under =systems/runtime/subjects/daemon/entities/=), Intent, Buffer (conds through the thread
   relation), and domain Retention (ex-Memory, =Retention.ts:76-81= — same filter block) /
   Trace (=Trace.ts:25=) —
   a userspace query in a fork WITHOUT the param THROWS (MikroORM: no

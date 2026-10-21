@@ -1,6 +1,6 @@
 import { specimen, mime, v } from "@vivalence/typology";
 
-const Bundle = v.prototypes.Bundle();
+const Bundle = v.prototypes.Bundle;
 
 const Nascent = v.object({ mime: v.mime(), source: v.string({ minLength: 1 }) });
 const Served = v.object({ text: v.string(), type: v.const("text/javascript"), integrity: v.string() });
@@ -22,7 +22,7 @@ specimen.describe("bundle contracts", () => {
 
   specimen.it("v.mime is the RFC 6838 production", () => {
     for (const type of [mime.dom.svelte, mime.tty.solid, mime.markdown, mime.json, mime.svg]) specimen.expect(v.mime().check(type)).toBe(true);
-    for (const type of ["svelte", "text/", "application/vnd.vivalence.dom svelte"]) specimen.expect(v.mime().check(type)).toBe(false);
+    for (const type of ["svelte", "text/", "application/vnd.viva.dom svelte"]) specimen.expect(v.mime().check(type)).toBe(false);
   });
 
   specimen.it("Nascent is the bundler input — a mime + non-empty source", () => {

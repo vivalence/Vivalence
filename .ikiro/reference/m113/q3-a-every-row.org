@@ -1,0 +1,30 @@
+#+title: m113 Q3 option A — a lookup searches every File row (struck 10-27, /"b"/)
+# limit: 3000 chars
+
+Asked in the drill 10-27; he locked B (the view's own daemon). A as asked, then what it held at each site.
+
+#+BEGIN_SRC js
+// ~/.viva/registry/assembly/modes/player/guide/buffer/Guide.svelte:55 — the stage asks for a part's model, a step for its manual page
+const files = terminal.client.runtime.entities.file.$entities;
+const asset = (path) => (path ? ($files.find((file) => file.path === path)?.url ?? null) : null);
+// asset("parts/motor.glb") → droneaid's models row; a chess parts/motor.glb would race it
+#+END_SRC
+
+#+BEGIN_SRC js
+// the tangle before Q3 — assembly/modes/editor/assembly/buffer/Assembly.svelte:141 · editor/guide/buffer/Guide.svelte:61 · player/guide/buffer/Guide.svelte:55
+  const asset = (path) => (path ? ($files.find((file) => file.path === path)?.url ?? null) : null);
+// assembly/modes/editor/import/buffer/Import.svelte:42
+  const asset = (path) => (path ? ($recorded.find((file) => file.path === path)?.url ?? null) : null);
+// assembly/modes/editor/guide/buffer/Guide.svelte:466
+  const pages = $derived($files.map((file) => file.path).filter((path) => path.startsWith("manual/")).sort());
+// education/modes/games/cloze/buffer/Cloze.svelte:30
+  const asset = $derived($files.find((file) => file.path === literal?.trait?.VOCALIZED?.asset?.path) ?? null);
+// education/modes/games/exhibit/buffer/Exhibit.svelte:43
+    return ref ? ($files.find((file) => file.path === ref.path) ?? null) : null;
+// education/modes/games/judge/buffer/Judge.svelte:23
+      ? ($files.find((file) => file.path === target?.trait?.VOCALIZED?.asset?.path) ?? null)
+// education/modes/games/dojo/buffer/Dojo.svelte:15 — and $files at its 6 knowables calls
+  const files = terminal.client.runtime.entities.file.$entities;
+// education/modes/games/dojo/buffer/dojo.jsx:45 · :135
+terminal.client.runtime.entities.file.$entities.get()
+#+END_SRC

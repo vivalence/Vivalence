@@ -1,4 +1,5 @@
 import { specimen } from "@vivalence/typology";
+import { READY } from "../scenarios/hello.js";
 import { join } from "@std/path";
 import { RECIPE, REPOSITORY, boot, copy, exists, ledger, pin, viva } from "./rig.js";
 
@@ -77,7 +78,7 @@ describe("T-italian — language-learning boots empty beside chess, the dojo's c
   });
 
   it("boots: two daemons in one datamap, each topography's dataset installed under its own daemon", () => {
-    expect(runtime.ready ?? runtime.tail()).toBe("Status:RUNNING");
+    expect(runtime.ready ?? runtime.tail()).toMatch(READY);
     expect(runtime.query("select slug from Daemon order by slug")).toEqual([{ slug: "chess" }, { slug: "italian" }]);
     const counts = Object.fromEntries(runtime.query("select daemon_slug, count(*) as n from Literal group by daemon_slug").map((row) => [row.daemon_slug, row.n]));
     expect(counts.italian).toBeGreaterThan(100);

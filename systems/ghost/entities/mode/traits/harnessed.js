@@ -31,7 +31,7 @@ export const HARNESSED = async (mode) => {
   mode.harness = shape.connection.wire(harness, mode.metadata.harness);
 
   mode.repl.open(
-    { nature: "/harness", valence: "a turn to THIS mode's harness on the active terminal's thread, named — compose scopes it under /mode/<type>/<slug> and /mode/<slug>. Example: /mode/memo/harness ciao" },
-    (ctx) => stream(mode, ctx.terminal.thread, [{ type: "text", text: ctx.signal.body.map((datum) => String(datum)).join(" ") }]),
+    { nature: "/harness", valence: "a turn to the attached mode's harness on the terminal's thread. Example: /harness ciao" },
+    (ctx) => stream(mode, ctx.terminal, [{ type: "text", text: ctx.signal.body.map((datum) => String(datum)).join(" ") }]),
   );
 };

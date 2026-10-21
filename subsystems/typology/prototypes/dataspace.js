@@ -31,6 +31,14 @@ export class Dataspace {
     this.em.schema = this.datamap;
   }
 
+  async subscribe() {
+    for (const repository of Object.values(this.em.repositoryMap)) await repository.find();
+    const offs = Object.values(this.em.repositoryMap).map((repository) => repository.subscribe());
+    return () => {
+      for (const off of offs) off();
+    };
+  }
+
   branch(connection, name) {
     return new RemoteRepository(this.em.repositoryMap[name].kind).connect(connection.branch(`/entities/${name}`)).manage(this.em, name);
   }

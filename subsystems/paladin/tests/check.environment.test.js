@@ -1,11 +1,13 @@
 // authored schema against observed record. three things are ever wrong: undocumented, required, invalid.
 import { specimen, v } from "@vivalence/typology";
 import { Paladin } from "@vivalence/paladin/typology";
+import { FULL } from "../gestalten/belt/index.js";
+import { belt } from "../paladin/lifecycle.js";
 
 const { describe, it, expect } = specimen;
 
 const mk = (pairs = {}, secrets = {}) => {
-  const paladin = new Paladin();
+  const paladin = belt(new Paladin(), FULL);
   paladin.env.assign(pairs, "flag");
   paladin.secret.assign(secrets, "flag");
   return paladin;

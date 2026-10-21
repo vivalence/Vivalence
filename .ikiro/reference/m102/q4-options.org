@@ -1,0 +1,17 @@
+#+title: m102 Q4 · Q4′ — struck options, 10-23
+# limit: none (reference)
+
+Q4 option A (struck, beef /"b"/ then the reframe): the door's vector stays the client's input as =client.commands=, grafted first at the terminal's boot.
+
+#+BEGIN_SRC js
+// systems/ghost/subjects/shell/lifecycle.js:102
+  new Vector().use(seat).use(ledger).use(boot).use(shard.context.bind("commands", new Vector().graft(chromeCommand, shellCommand))).do(clientFactory(surface));
+// systems/ghost/subjects/client/factory.js:7
+    (doorDie) => new Client({ …, surface, commands: new Vector().graft(doorDie.commands) }),
+#+END_SRC
+
+Q4′ option B (struck, beef /"a"/): Deno alone.
+
+#+BEGIN_SRC js
+    ...("Deno" in globalThis ? [chrome, shell] : []),
+#+END_SRC

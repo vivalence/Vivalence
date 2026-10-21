@@ -48,6 +48,11 @@ specimen.describe("cors wrapper", () => {
     specimen.expect(body.body.hello).toBe("world");
   });
 
+  specimen.it("a response's own headers are exposed to the page", async () => {
+    const res = await handler(new Request("http://localhost/api", { headers: { origin: "http://localhost:5173" } }));
+    specimen.expect(res.headers.get("access-control-expose-headers")).toBe("content-type");
+  });
+
   specimen.it("no origin → wildcard", async () => {
     const res = await handler(new Request("http://localhost/api"));
     specimen.expect(res.headers.get("access-control-allow-origin")).toBe("*");

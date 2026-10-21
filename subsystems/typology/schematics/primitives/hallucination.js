@@ -233,7 +233,7 @@ Choice.Question = v.union([
   }, { additionalProperties: false }),
 ]).desc("Tagged by kind; shard.hallucinate.tagging fills an absent tag from the shape before the faculty sees it");
 Choice.Round = v.object({
-  primer: v.unknown().desc('What is under judgment. Example: { expected: "Vado al mercato.", answer: "Io vado al mercato domani." }'),
+  system: v.unknown().desc('What is under judgment. Example: { expected: "Vado al mercato.", answer: "Io vado al mercato domani." }'),
   questions: v.record(v.string(), Choice.Question).desc('One or more, keyed by the caller; every answer returns under its key. Example: { same: { type: "choice", ask: "Does `answer` mean `expected`?", options: { yes: null, no: null } } }'),
 });
 Choice.Answer = v.union([v.record(v.string(), Probability), v.array(Probability), Probability]);
@@ -243,7 +243,10 @@ export const Packet = {};
 
 Packet.TurnOpen = v.object({
   event: v.const("/turn/open"),
-  turn: v.object({ role: v.string() }),
+  turn: v.object({
+    role: v.string(),
+    id: v.string().optional().desc('The turn the runtime opened for this reply; every later packet pours into it. Example: "0199f3a2-7c1e-7b40-9d2a-5e6f8a1b2c3d"'),
+  }),
 });
 
 Packet.PartOpen = v.object({

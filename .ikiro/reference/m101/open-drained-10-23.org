@@ -1,0 +1,16 @@
+#+title: track — reframes from =* open= whose question has since locked, verbatim
+<!-- limit: 4000 chars -->
+- Q1 reframe: /"I like the idea of A, of having an internal tracks abstraction, but I don't like the idea of creating a bunch of span derivatives. […] maybe an extendable registry internal to the specific span? […] when we branch off, all the other spans get the capability. Where one shared registry would actually make sense. But I don't like to expose this. At all."/ → re-asked as C (the tree's registry) · D (a scope chain); LOCKED D (Q1).
+- Q16 LOCKED B: remote readers ask which signals apply to a row's status from the old table — =ghost entities/activity.js:32-35 owed()= · =anima entities/activity.js:56-62 owed()= read =MACHINE.transitions[MACHINE.signals[signal]]=; Q7 left no table. Unasked.
+- Q2 rider: /"But I suspect that both request and response are part of our standard set of tracks."/ → LOCKED Q3.
+- Q11 LOCKED: /"I think we should align open, and I think the other one is close, with what open telemetry wants from us, as in start. That fits better."/
+- Q9 asked (his Pandora's box): /"each of the tracks, note, message, and so forth, is something that we can call on the span directly […] omit the first […] string […] Since we have a dynamic registry here, I think that would mean that we need to return a proxy of self. Is there another way? What would my way look like? Display this as A and B"/ — unlocks m100 Q1 (=track(name, data)= the one call) if locked either way.
+
+* open — his reframes, moved whole from the quest at landing 10-23
+
+- LOCKED reframes (Q1 · Q2 · Q9 · Q11 · Q16) drained whole to =reference/m101/open-drained-10-23.org= (R9).
+- RE-WALK 10-23 (his /"1. go"/): four steps — 1 span · pipe (R1 · R2) · 2 trackers (R3 · R4) · 3 controller (R5 · R6) · 4 readers; every probe, reframe and finding moved whole to =reference/m101/rewalk-10-23.org=; the locks are R1–R6 in =* the dialogue=.
+- before Q13: /"the controllers status hangs off start and stop. I'm not sure that is such a good idea. Actually, maybe that's excellent. […] I think that actually makes recursive sense all the way down, start and stop. […] Okay, I think it makes sense."/ — Q11 stands.
+- Q7 (what a status carries) answered by a question: /"Do we actually use this state machine for anything, or can we maybe just rip it out entirely? Why does this exist?"/
+- Q5 REJECTED as asked: /"state and then signal and reason, that makes no sense. […] I think you're having too levels of abstraction weirdly miswired here."/ · /"Signal isn't state, it's literally the opposite."/ · /"whether the machine moves first or after, those are two entirely different things to track. And neither of them really are state."/ → defuddled: signal · status · track as three nouns; =state= in STANDARD came in through my snippet, its meaning never drilled.
+

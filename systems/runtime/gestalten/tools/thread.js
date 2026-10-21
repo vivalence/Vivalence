@@ -22,8 +22,7 @@ const modeline = (mode) =>
   ].filter(Boolean).join(" · ");
 
 const bufferline = (buffer, addresses) =>
-  `${buffer.index} · ${buffer.id} · ${named(buffer)} · ${addresses.get(buffer.mode.id)} · ${buffer.status} · ${shown(buffer.data)}` +
-  (buffer.bundle ? ` · bundle ${buffer.bundle.entries.map((entry) => `${entry.mime} ${entry.hash.slice(0, 16)}`).join(" · ")}` : "");
+  `${buffer.index} · ${buffer.id} · ${named(buffer)} · ${addresses.get(buffer.mode.id)} · ${buffer.status} · ${buffer.mime} · ${shown(buffer.data)}`;
 
 export const summary = async ({ modes, entities, mode, thread }) => {
   const addresses = new Map(fromm.modes(modes).flat.map((peer) => [peer.id, address(peer)]));
@@ -31,7 +30,7 @@ export const summary = async ({ modes, entities, mode, thread }) => {
   return [
     threadline(thread),
     modeline(mode),
-    `[Buffers on this thread] · ${buffers.length} · rows: index · id · label · mode · status · data · bundle — ` +
+    `[Buffers on this thread] · ${buffers.length} · rows: index · id · label · mode · status · mime · data — ` +
       `these ids are what buffer_update and buffer_label take, never a document slug; ` +
       `entity_find { entity: "buffer", where: { thread: "${thread.id}" }, fields: "full" } for whole rows`,
     ...buffers.map((buffer) => bufferline(buffer, addresses)),

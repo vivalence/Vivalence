@@ -1,8 +1,8 @@
-import { fromm, steer } from "@vivalence/typology";
+import { fromm } from "@vivalence/typology";
 
-export const resolve = async (context, execution, traits) => {
+export const resolve = async (context, factory, traits) => {
   for (const mode of fromm.modes(context.modes).flat) {
-    await steer.dispatch.execute(execution, { mask: mode.module, mode, context, traits });
+    await factory(mode)({ context, traits });
   }
   await context.datamap.shard.scope(() => Promise.all(fromm.modes(context.modes).flat.flatMap((mode) => mode.finalizers).map((finalize) => finalize())));
   for (const mode of fromm.modes(context.modes).flat) {
@@ -13,7 +13,7 @@ export const resolve = async (context, execution, traits) => {
 export const release = async (context) => {
   for (const mode of fromm.modes(context.modes).flat) {
     for (const terminate of mode.terminators ?? []) await terminate();
-    mode.stdout.close();
+    mode.stdout.stop();
   }
 };
 

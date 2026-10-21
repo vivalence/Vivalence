@@ -1,4 +1,3 @@
-import * as object from "../gestalten/belt/object.js";
 import * as is from "../gestalten/is/scalars.js";
 import * as hash from "../gestalten/belt/hash.js";
 
@@ -66,22 +65,19 @@ const patternmap = [
   [
     "wildcard",
     (signature) => signature === "*",
-    (signal) => object.assign(signal, { type: "wildcard" }),
+    (signal) => new signal.constructor({ ...signal, type: "wildcard" }),
   ],
   [
     "remainder",
     (signature) => signature === "(.*)",
-    (signal) => object.assign(signal, { type: "remainder" }),
+    (signal) => new signal.constructor({ ...signal, type: "remainder" }),
   ],
   [
     "parameter",
     (signature) => signature.startsWith(":"),
     (signal, pattern) => {
       const parameter = pattern.nature.slice(1);
-      return object.assign(signal, {
-        parameter,
-        parameters: { [parameter]: signal.nature },
-      });
+      return new signal.constructor({ ...signal, parameter, parameters: { [parameter]: signal.nature } });
     },
   ],
   [

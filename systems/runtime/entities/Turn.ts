@@ -3,6 +3,7 @@ import { EntitySchema, EntityRepositoryType, Collection, types, type Opt, type R
 import { DataRepository, DataEntity, DataSchema } from "./index.ts";
 import { ModeEntity } from "./index.ts";
 import { ThreadEntity } from "./index.ts";
+import { BufferEntity, NoteEntity } from "./index.ts";
 
 export class TurnRepository extends DataRepository {
   async create({ thread, ...fields }: any, options?) {
@@ -52,6 +53,8 @@ export class TurnEntity extends DataEntity {
 
   thread!: Rel<ThreadEntity>;
   mode?: Rel<ModeEntity>;
+  buffers = new Collection<BufferEntity>(this);
+  notes = new Collection<NoteEntity>(this);
 
   [EntityRepositoryType]?: TurnRepository;
 }
@@ -101,6 +104,9 @@ export const TurnSchema = new EntitySchema<TurnEntity, DataEntity>({
       updateRule: "cascade",
       deleteRule: "cascade",
     },
+
+    buffers: { kind: "m:n", entity: () => BufferEntity, mappedBy: (buffer) => buffer.turns },
+    notes: { kind: "1:m", entity: () => NoteEntity, mappedBy: (note) => note.turn },
   },
 });
 

@@ -1,0 +1,36 @@
+# drained 10-22 whole from .ikiro/quests/m92-keymap.org (quest tidy); nothing reworded · limit: none (reference content)
+
+***** lifecycle/index.js — =verbs= grafts it
+#+BEGIN_SRC diff
+// systems/ghost/client/lifecycle/index.js:2 — re-cut 10-21 (m96 baseline census: /"keymap is not defined"/ faulted every repl line)
+ import * as commands from "../commands/index.js";
++import { keymap } from "../keymap.js";
+…
+// systems/ghost/client/lifecycle/index.js:40
+ export const verbs = async (clientDie, next) => {
+   clientDie.repl.graft(commands.help, commands.quit);
++  clientDie.keymap.graft(keymap);
+   await next();
+#+END_SRC
+***** traits/keymapped.js new (law 8 · 9; REPLING's shape, =repling.js=); =traits/index.js= =+ export { KEYMAPPED } from "./keymapped.js";=
+#+BEGIN_SRC js
+// systems/ghost/entities/mode/traits/keymapped.js
+import { Vector, shard } from "@vivalence/typology";
+import { view } from "@vivalence/typology";
+
+export const KEYMAPPED = async (mode) => {
+  const module = mode.module !== null ? mode.module : await view.load(mode.view, mode.runtime.attach);
+  mode.keymap.graft(new Vector().use(shard.context.bind("mode", mode)).graft(module.keymap));
+};
+#+END_SRC
+=view.load(view, attach)= is m87 law 9's one loader (=subsystems/typology/prototypes/view.js=, =m87:76-88=); =mode.view= is the mode's client-side View row. A function effect sees =ctx.mode=.
+***** console.viva.js — a mode's keymap grafts at the root (ruling 11): it writes the full path
+#+BEGIN_SRC diff
+// commons/fixtures/testing/console/console.viva.js:9 — after m88 (LOOPING); the effect is a FUNCTION (ruling 12)
+-  traits: ["REPLING", "LOOPING"],
++  traits: ["REPLING", "LOOPING", "KEYMAPPED"],
+ };
++
++export const keymap = new Vector().open({ nature: "leader/h", valence: "hello. Example: ctrl-v h" }, (ctx) => ctx.terminal.dispatch("/hello"));
+#+END_SRC
+
